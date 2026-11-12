@@ -1,4 +1,4 @@
-//! The staged kernel sequence (K6 plan §2.3; ROOT's K6 ruling Q6(a) and N1).
+//! The staged kernel sequence (ROOT's K6 ruling Q6(a) and N1).
 //!
 //! It is the product's linear entry, `SparseAssemblyEvidence::
 //! solve_assembled_with_formation_check(…, selected = true)` (`SA:644-699`,

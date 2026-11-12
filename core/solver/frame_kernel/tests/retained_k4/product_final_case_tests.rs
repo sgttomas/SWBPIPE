@@ -1040,7 +1040,7 @@ fn cause_of(f: ProductFailure) -> &'static str {
 }
 
 // ---------------------------------------------------------------- B2-K
-// The combination specimen (I94 KD §6, with RV115's SF-2, SF-3 and N-9): one
+// The combination specimen (with RV115's SF-2, SF-3 and N-9): one
 // cantilever, eight operand cases, C1-C9 through the recorded source API, and
 // the independent oracle's exact targets (product_certificate_vectors.py).
 #[path = "product_certificate_combination_vectors.rs"]
@@ -1377,7 +1377,7 @@ fn b2k_k10_mutation_controls_fail_containment() {
     };
     // (a) The representative's loads at the free rows instead of the ledger:
     // containment fails, and the K-lane tip motions enclose the oracle's
-    // response to operand 0's loads alone (KD §6 item 4 (ii)).
+    // response to operand 0's loads alone.
     super::super::source_residual::hooks::set_representative(true, false);
     for name in ["C1", "C2", "C4"] {
         let bad = failing(name, 0);
@@ -1432,7 +1432,7 @@ fn b2k_c05_the_combination_coverage_rule() {
     assert_eq!(begin(&rows), None);
     assert_eq!(begin(&b3k_rows(owner, true, false)), Some("combination row family"), "a maximum");
     assert_eq!(begin(&b3k_rows(owner, false, true)), Some("combination row family"), "a mode record");
-    // §4.2: a combination publishes no never_combined not-covered row.
+    // a combination publishes no never_combined not-covered row.
     let mut derived = rows.clone();
     derived.push(("derived".into(), ProductUnit::Megapascal, 0, ProductRecipe::NotCovered { row: rows.len() as u32 }));
     assert_eq!(begin(&derived), Some("combination row family"), "a not-covered derived row");
@@ -1677,7 +1677,7 @@ fn b2k_k06_both_certificate_entries_accept_a_recorded_combination_owner_only() {
     assert_eq!(s.invocation.product_owner(run, &legacy), None);
     assert_eq!(s.invocation.product_owner(s.cases[0].run, s.case("A")), Some(NativeOwner::Case(0)));
 }
-/// SA4-1's vectors and the A-5 midpoints (REVISION_02 §1.5), each expected bit
+/// SA4-1's vectors and the A-5 midpoints, each expected bit
 /// pattern computed by the oracle's independent integer square root; MIN = MIN_POSITIVE.
 const B2K_NORM3: &[(u64, u64, u64, Option<u64>)] = &[
     (0x3de0000002000000, 0x3f80000004000000, 0, Some(0x3f80000004000000)), // A-5: a tie, to even

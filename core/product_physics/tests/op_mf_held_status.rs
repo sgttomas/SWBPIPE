@@ -1,4 +1,4 @@
-//! RT-A5 `minuend_final` (DEL-05-02 Work `operating-case.md` §7): a pressure-free
+//! RT-A5 `minuend_final`: a pressure-free
 //! `result_state_subtraction` declaring `difference_basis: operating_minus_sustained` and
 //! `subtrahend_support_state: minuend_final`, through the captured value entry, in both
 //! solver modes.
@@ -311,7 +311,7 @@ fn held_bar_cases_match_the_references_in_both_modes() {
             if name == "H-15c" {
                 assert_eq!(entry["inputs"]["coefficient_bits"], format!("{:016x}", 1u64), "{what}");
             }
-            // The rows (§7.6): held rows under the combination, typed, with the clause; the
+            // The rows: held rows under the combination, typed, with the clause; the
             // difference rows with the held sign; nothing under a case is held.
             for row in rows(&v).iter().filter(|r| r["kind"] != "combination_modulus_basis_record") {
                 let id = row["id"].as_str().unwrap();
@@ -353,7 +353,7 @@ fn reference_value(v: &Value) -> f64 {
     hex(v["binary64"].as_str().unwrap())
 }
 
-/// H-14 and H-14r, the strongly coupled L-frame (§7.9; coupling g = dR_n/dphi = -24/19): the
+/// H-14 and H-14r, the strongly coupled L-frame (coupling g = dR_n/dphi = -24/19): the
 /// held friction force follows the held solve's own normal, not the source's normal (frozen
 /// mutant) and not the normal of the frame without the friction force (uncoupled mutant), in
 /// both modes; H-14 keeps its state, H-14r is released by its slip sense.

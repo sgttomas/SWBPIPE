@@ -1,7 +1,7 @@
 # Reference system: EQ-1, EQ-2, EQ-3 and EQ-5
 
-Frozen references and checks for four key results of the reference system (DEL-09-01
-[`reference-system.md`](../../../execution/PKG-09/DEL-09-01/Work/reference-system.md) §9.2), on its
+Frozen references and checks for four key results of the reference system ([DEL-09-01](../../../execution/PKG-09/DEL-09-01/ScopeOfWork.md),
+reference-system specification §9.2), on its
 tranche-1 fixture [`fixtures/reference_system/reference_system.json`](../../../fixtures/reference_system/reference_system.json).
 That fixture is an EX document (`3.0.0/exact_pressure_v3`, `euler_bernoulli`, load/reference-state group)
 with cases RS-SUS, RS-OPE and RS-SAM and combinations RS-EXP (OPE − SUS) and RS-dSAM (SAM − SUS).
@@ -53,10 +53,10 @@ The bases are EX's stated ones, as the product's documentation gives them (not r
 - `core/product_physics/src/exact_admission.rs` `pressure_v3_formulation_basis_with_source`, the formulation
   text EX publishes: "stiffness and pipe metal mass use the nominal wall; contents mass and pressure end-cap
   areas use the reduced bore" (wall minus mill tolerance and corrosion allowance);
-- DEL-05-03 `Work/section-bases-and-timoshenko.md` §1 (the D-5 section table) and DEL-05-01
-  `Work/exact-equivalent-static.md` §2: "Insulation mass is computed as on PF, over OD to OD + 2·t_ins";
+- DEL-05-03's section-bases design §1 (the D-5 section table) and DEL-05-01's
+  exact equivalent-static design §2: "Insulation mass is computed as on PF, over OD to OD + 2·t_ins";
   `validation/references/w16_exact_equivalent_static/README.md` writes the same μ_EX;
-- DEL-03-05 `Work/rigid-component-stiffness-scaling.md` §3: a rigid-family component's weight W acts at its
+- DEL-03-05's rigid-component stiffness-scaling design §3: a rigid-family component's weight W acts at its
   node plus its centre-of-gravity vector r (global axes, from the node; R10), and its mapped member's
   distributed self-weight is not generated;
 - spec §5.1 and §8.1: the replaced span RS-P180 carries no self-weight.

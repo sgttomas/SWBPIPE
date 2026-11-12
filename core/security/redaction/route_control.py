@@ -112,7 +112,7 @@ def control_route_export(
     ``user_released_report`` raises, so it cannot enable export elsewhere.
     The ``user_released_report`` context and route
     ``DREP-PACKAGE-USER-RELEASE-010`` raise in every pairing, before any
-    projection (DEL-08-01 Design ``report-user-release.md`` §3.3): this
+    projection: this
     path-token projector would admit what the release screen refuses, so only
     the user-release projector admits them.
     """

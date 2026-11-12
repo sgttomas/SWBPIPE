@@ -41,11 +41,11 @@ fn every_corpus_envelope_is_admitted_with_and_without_its_model() {
         assert!(envelope["contract_evidence"]["exact_combinations"].as_array().is_some_and(|r| !r.is_empty()));
         assert_eq!(read(envelope, None), Ok(()), "{}", case["label"]);
         assert_eq!(read(envelope, Some(&case["model"])), Ok(()), "{}", case["label"]);
-        // §5: the standing stays with the primitive cases.
+        // the standing stays with the primitive cases.
         let standing = reader_verdict::standing(envelope, Some(&case["model"]), None);
         let mut direct = envelope.clone();
         direct["contract_evidence"].as_object_mut().unwrap().remove("exact_combinations");
-        // RT-A3 §4: the certificate goes with the combinations.
+        // the certificate goes with the combinations.
         direct["contract_evidence"].as_object_mut().unwrap().remove("combination_certificate");
         direct["diagnostics"].as_array_mut().unwrap().retain(|d| !d["id"].as_str().unwrap().starts_with("diagnostic:combination-certificate:"));
         direct["results"].as_array_mut().unwrap().retain(|r| r["basis_ref"]["ref_type"] != "combination");

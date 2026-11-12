@@ -4,7 +4,7 @@ import type { PreviewModel } from "../../types";
 import type { RulePackDocumentValidation } from "../../services/rulePackService";
 import { RulePackManagerPanel } from "./RulePackManagerPanel";
 
-// W-17 (DEL-06-02 Design/rule-pack-unit-check.md §3): the "Unit consistency"
+// W-17: the "Unit consistency"
 // group and the summary's unit_check status. jsdom has no Tauri runtime, so
 // the validate route is stubbed with a backend-shaped validation; every id
 // and unit below is invented.

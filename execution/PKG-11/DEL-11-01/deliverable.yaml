@@ -1,313 +1,163 @@
 id: DEL-11-01
 name: User guide skeleton
 needs:
-- from: DEL-00-01
-  condition: 'DEL-11-01 must apply architecture-basis constraint AB-00-01 from DEL-00-01 when shaping
-    the user guide skeleton.
-
-
-    Notes: local evidence only and not PKG-00 issuance authority.; 2026-06-07 dependency-evidence refresh:
-    DAG-006 active row DAG-004-R0588 verified; local lifecycle authority execution/PKG-00_Software Architecture
-    Runway/1_Working/DEL-00-01_Architecture decision record baseline/_STATUS.md records Current State=CHECKING
-    Last Updated=2026-06-04 and contains prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY;
-    supporting local memory execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-01_Architecture
-    decision record baseline/MEMORY.md heading ''TP-AUTHORITY-REFRESH-0_7-DAG006'' reviewed. This is dependency
-    satisfaction evidence only; no lifecycle, release, professional-approval, certification, sealing,
-    authentication, or code-compliance claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-01-02
+  condition: >-
+    The boundary policy names the classes of content the public repository may not contain:
+    protected standards content, proprietary data and private user or project data. The guide
+    keeps those classes out of its text and examples and defines none of them.
   gating: true
-- from: DEL-00-02
-  condition: 'DEL-11-01 must apply architecture-basis constraint AB-00-02 from DEL-00-02 when shaping
-    setup and repository-boundary guide content.
-
-
-    Notes: local evidence only and not PKG-00 issuance authority.; 2026-06-07 dependency-evidence refresh:
-    DAG-006 active row DAG-004-R0589 verified; local lifecycle authority execution/PKG-00_Software Architecture
-    Runway/1_Working/DEL-00-02_Repository and module boundary architecture/_STATUS.md records Current
-    State=CHECKING Last Updated=2026-06-04 and contains prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY;
-    supporting local memory execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-02_Repository
-    and module boundary architecture/MEMORY.md heading ''TP-AUTHORITY-REFRESH-0_7-DAG006'' reviewed. This
-    is dependency satisfaction evidence only; no lifecycle, release, professional-approval, certification,
-    sealing, authentication, or code-compliance claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-01-04
+  condition: >-
+    The claims registry holds one display form for each automatic analysis status and each
+    emitted evidence-status label, and no registered statement or label reads as approval,
+    certification or code compliance. The guide names statuses by those forms.
+  gating: true
+- from: DEL-05-04
+  condition: >-
+    Each analysis status has one stated meaning and one authority (mechanics solve, user-rule
+    check or human review), and human acceptance is a record apart from the automatic statuses.
+    The guide's status vocabulary repeats those meanings.
   gating: true
 - from: DEL-00-06
-  condition: 'DEL-11-01 must apply architecture-basis constraint AB-00-06 for diagnostics warnings and
-    result-envelope guide content.
-
-
-    Notes: local evidence only and not PKG-00 issuance authority.; 2026-06-07 dependency-evidence refresh:
-    DAG-006 active row DAG-004-R0590 verified; local lifecycle authority execution/PKG-00_Software Architecture
-    Runway/1_Working/DEL-00-06_Diagnostics, warning, and result-envelope contract/_STATUS.md records Current
-    State=CHECKING Last Updated=2026-06-04 and contains prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY;
-    supporting local memory execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-06_Diagnostics,
-    warning, and result-envelope contract/MEMORY.md heading ''TP-AUTHORITY-REFRESH-0_7-DAG006'' reviewed.
-    This is dependency satisfaction evidence only; no lifecycle, release, professional-approval, certification,
-    sealing, authentication, or code-compliance claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A diagnostic carries its code, class, severity, source, affected object, message and
+    remediation, and provenance where the finding concerns a sourced value, and the product has
+    six warning classes. The guide's troubleshooting section is organised by those six classes
+    and quotes the codes the product emits.
   gating: true
-- from: DEL-00-07
-  condition: 'DEL-11-01 must apply architecture-basis constraint AB-00-07 for public API adapter and private-data
-    boundary guide content.
-
-
-    Notes: local evidence only and not PKG-00 issuance authority.; 2026-06-07 dependency-evidence refresh:
-    DAG-006 active row DAG-004-R0591 verified; local lifecycle authority execution/PKG-00_Software Architecture
-    Runway/1_Working/DEL-00-07_API boundary and adapter contract map/_STATUS.md records Current State=CHECKING
-    Last Updated=2026-06-04 and contains prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY;
-    supporting local memory execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-07_API boundary
-    and adapter contract map/MEMORY.md heading ''TP-AUTHORITY-REFRESH-0_7-DAG006'' reviewed. This is dependency
-    satisfaction evidence only; no lifecycle, release, professional-approval, certification, sealing,
-    authentication, or code-compliance claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-04-07
+  condition: >-
+    The product solve runs each load case of a model document on the exact pressure route in the
+    desktop and publishes displacements, member actions and support loads with their units and
+    diagnostics, refusing by name what it does not admit. The guide's sustained and operating
+    entries describe that run and those refusals.
+  when: Writing the sustained and operating entries
   gating: true
-- from: DEL-00-08
-  condition: 'DEL-11-01 must apply architecture-basis constraint AB-00-08 for test gates validation and
-    acceptance-status guide content.
-
-
-    Notes: local evidence only and not PKG-00 issuance authority.; 2026-06-07 dependency-evidence refresh:
-    DAG-006 active row DAG-004-R0592 verified; local lifecycle authority execution/PKG-00_Software Architecture
-    Runway/1_Working/DEL-00-08_Layered software test and acceptance strategy/_STATUS.md records Current
-    State=CHECKING Last Updated=2026-06-04 and contains prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY;
-    supporting local memory execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered
-    software test and acceptance strategy/MEMORY.md heading ''TP-AUTHORITY-REFRESH-0_7-DAG006'' reviewed.
-    This is dependency satisfaction evidence only; no lifecycle, release, professional-approval, certification,
-    sealing, authentication, or code-compliance claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-05-01
+  condition: >-
+    A load case is built from the primitive load kinds, with self-weight, static-equivalent
+    seismic and wind generated from the user's inputs, operating-condition use, imposed
+    displacement at supports and the hydrostatic test condition, each with named findings for a
+    missing or refused input. The guide's hydrotest, wind, static seismic and seismic anchor
+    movement entries describe those inputs and findings.
+  when: Writing the hydrotest, wind, static seismic and seismic anchor movement entries
+  gating: true
+- from: DEL-05-02
+  condition: >-
+    Combinations are formed over solved results as signed sums, subtractions with a declared
+    basis, envelopes, absolute sums and SRSS, each withheld by name when its conditions are not
+    met. The guide's expansion and seismic-combination entries describe those bases and
+    withholdings.
+  when: Writing the expansion and seismic-combination entries
+  gating: true
+- from: DEL-04-09
+  condition: >-
+    A modal request takes an extraction bound, a modulus basis and a weight-to-mass acceleration
+    from the user and publishes frequencies, mode shapes and modal mass, refusing by name what
+    the method does not admit. The guide's modal entry describes that request and result.
+  when: Writing the modal entry
+  gating: true
+- from: DEL-04-10
+  condition: >-
+    A response-spectrum request takes user-entered spectra, direction assignments, modal and
+    directional combination choices and the missing-mass input, and publishes unsigned peak
+    displacements, element end forces and support reactions, refusing by name what it does not
+    admit. The guide's response-spectrum entry describes that request and result.
+  when: Writing the response-spectrum entry
+  gating: true
+- from: DEL-04-11
+  condition: >-
+    Hanger sizing takes the supports to size, the cases and the method choices from the user and
+    a private hanger library, and publishes a hanger table with each candidate's selected record
+    or a statement that none fits, refusing by name what it does not admit. The guide's
+    hanger-sizing entry describes that request and table.
+  when: Writing the hanger-sizing entry
   gating: true
 - from: DEL-07-01
-  condition: 'DEL-11-01 needs DEL-07-01 as a predecessor because the user guide skeleton covers centerline
-    model-building workflow.
-
-
-    Notes: target resolution uses approved DAG-002/decomposition authority.; 2026-06-07 dependency-evidence
-    refresh: DAG-006 active row DAG-004-R0597 verified; local lifecycle authority execution/PKG-07_Graphical
-    User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md
-    records Current State=CHECKING Last Updated=2026-06-06 and contains prior SEMANTIC_READY history,
-    meeting RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-07_Graphical User Interface
-    and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md heading ''Lifecycle
-    update to CHECKING'' reviewed. This is dependency satisfaction evidence only; no lifecycle, release,
-    professional-approval, certification, sealing, authentication, or code-compliance claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The desktop's 3D viewport and centreline editor place and edit nodes, pipes and components
+    through commands reachable from one palette. The guide's model-building section names those
+    commands.
   gating: true
-  evidence: execution/PKG-11/DEL-11-01/ScopeOfWork.md
 - from: DEL-07-03
-  condition: 'DEL-11-01 needs DEL-07-03 as a predecessor because the guide skeleton covers private material
-    component and rule-pack editor workflows.
-
-
-    Notes: target resolution uses approved DAG-002/decomposition authority.; 2026-06-07 dependency-evidence
-    refresh: DAG-006 active row DAG-004-R0598 verified; local lifecycle authority execution/PKG-07_Graphical
-    User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_STATUS.md
-    records Current State=CHECKING Last Updated=2026-06-06 and contains prior SEMANTIC_READY history,
-    meeting RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-07_Graphical User Interface
-    and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/MEMORY.md
-    heading ''CHECKING-readiness review addendum'' reviewed. This is dependency satisfaction evidence
-    only; no lifecycle, release, professional-approval, certification, sealing, authentication, or code-compliance
-    claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The desktop has editors for materials, sections, components, private libraries and rule
+    packs, and a load manager for load cases and combinations. The guide's model-data, load and
+    rule-pack instructions name those editors.
   gating: true
-  evidence: execution/PKG-11/DEL-11-01/ScopeOfWork.md
-- from: DEL-07-05
-  condition: 'DEL-11-01 needs DEL-07-05 as a predecessor because the guide skeleton covers results review.
-
-
-    Notes: target resolution uses approved DAG-002/decomposition authority.; 2026-06-07 dependency-evidence
-    refresh: DAG-006 active row DAG-004-R0600 verified; local lifecycle authority execution/PKG-07_Graphical
-    User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_STATUS.md records Current
-    State=CHECKING Last Updated=2026-06-06 and contains prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY;
-    supporting local memory execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results
-    viewer/MEMORY.md heading ''CHECKING-readiness review addendum'' reviewed. This is dependency satisfaction
-    evidence only; no lifecycle, release, professional-approval, certification, sealing, authentication,
-    or code-compliance claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-11/DEL-11-01/ScopeOfWork.md
-- from: DEL-08-01
-  condition: 'DEL-11-01 needs DEL-08-01 as a predecessor because the guide skeleton covers report generation.
-
-
-    Notes: target resolution uses approved DAG-002/decomposition authority.; 2026-06-07 dependency-evidence
-    refresh: DAG-006 active row DAG-004-R0602 verified; local lifecycle authority execution/PKG-08_Reporting,
-    Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/_STATUS.md records Current
-    State=CHECKING Last Updated=2026-06-06 and contains prior SEMANTIC_READY history plus the 2026-06-06
-    Human-approved Gate 5 transition, meeting RequiredMaturity=SEMANTIC_READY; supporting local memory
-    execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/MEMORY.md
-    heading ''WORKING_ITEMS fan-in validation'' reviewed. This is dependency satisfaction evidence only;
-    no lifecycle, release, professional-approval, certification, sealing, authentication, or code-compliance
-    claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-11/DEL-11-01/ScopeOfWork.md
-- from: DEL-01-04
-  condition: 'DEL-11-01 needs DEL-01-04 as a professional-boundary constraint for user guide limitations
-    and claims language.
-
-
-    Notes: 2026-06-07 dependency-evidence refresh: DAG-006 active row DAG-004-R0594 verified; local lifecycle
-    authority execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-04_Professional
-    responsibility and product-claims policy/_STATUS.md records Current State=CHECKING Last Updated=2026-06-04
-    and contains prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY; supporting local
-    memory execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-04_Professional
-    responsibility and product-claims policy/MEMORY.md heading ''CHECKING Transition'' reviewed. This
-    is dependency satisfaction evidence only; no lifecycle, release, professional-approval, certification,
-    sealing, authentication, or code-compliance claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-11/DEL-11-01/ScopeOfWork.md
-- from: DEL-01-02
-  condition: 'DEL-11-01 needs DEL-01-02 as a protected-content and private-data boundary constraint for
-    public user-guide content.
-
-
-    Notes: conservative governance constraint directly supported by UG-REQ-008.; 2026-06-07 dependency-evidence
-    refresh: DAG-006 active row DAG-004-R0593 verified; local lifecycle authority execution/PKG-01_Governance,
-    IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary
-    policy/_STATUS.md records Current State=CHECKING Last Updated=2026-06-04 and contains prior SEMANTIC_READY
-    history, meeting RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-01_Governance,
-    IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary
-    policy/MEMORY.md heading ''CHECKING Transition'' reviewed. This is dependency satisfaction evidence
-    only; no lifecycle, release, professional-approval, certification, sealing, authentication, or code-compliance
-    claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-11/DEL-11-01/ScopeOfWork.md
-- from: DEL-05-04
-  condition: 'DEL-11-01 needs DEL-05-04 as a predecessor for canonical user-facing solve status and rule-check
-    status vocabulary.
-
-
-    Notes: target resolved through approved DAG-002/decomposition authority.; 2026-06-07 dependency-evidence
-    refresh: DAG-006 active row DAG-004-R0595 verified; local lifecycle authority execution/PKG-05_Loads,
-    Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics/_STATUS.md records Current
-    State=CHECKING Last Updated=2026-06-05 and contains prior SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY;
-    supporting local memory execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis
-    status semantics/MEMORY.md heading ''Blocker closure ruling applied'' reviewed. This is dependency
-    satisfaction evidence only; no lifecycle, release, professional-approval, certification, sealing,
-    authentication, or code-compliance claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-11/DEL-11-01/ScopeOfWork.md
-- from: DEL-06-03
-  condition: 'DEL-11-01 needs DEL-06-03 as a predecessor for user-guide content on missing rule-check
-    inputs and blockers.
-
-
-    Notes: target resolved through approved DAG-002/decomposition authority.; 2026-06-07 dependency-evidence
-    refresh: DAG-006 active row DAG-004-R0596 verified; local lifecycle authority execution/PKG-06_Rule
-    Packs and User-Supplied Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker/_STATUS.md
-    records Current State=CHECKING Last Updated=2026-06-03 and contains prior SEMANTIC_READY history,
-    meeting RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-06_Rule Packs and User-Supplied
-    Code Check Engine/1_Working/DEL-06-03_Required-input completeness checker/MEMORY.md heading ''TP-CODE-EVIDENCE-MIGRATION-RECONCILIATION-001
-    CHECKING transition'' reviewed. This is dependency satisfaction evidence only; no lifecycle, release,
-    professional-approval, certification, sealing, authentication, or code-compliance claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-11/DEL-11-01/ScopeOfWork.md
 - from: DEL-07-04
-  condition: 'DEL-11-01 needs DEL-07-04 as a predecessor for user-guide content on missing-data warnings
-    and blocking workflows.
-
-
-    Notes: target resolved through approved DAG-002/decomposition authority.; 2026-06-07 dependency-evidence
-    refresh: DAG-006 active row DAG-004-R0599 verified; local lifecycle authority execution/PKG-07_Graphical
-    User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_STATUS.md
-    records Current State=CHECKING Last Updated=2026-06-06 and contains prior SEMANTIC_READY history,
-    meeting RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-07_Graphical User Interface
-    and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/MEMORY.md heading
-    ''CHECKING-readiness review addendum'' reviewed. This is dependency satisfaction evidence only; no
-    lifecycle, release, professional-approval, certification, sealing, authentication, or code-compliance
-    claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    Missing data is shown as typed findings that separate what blocks a solve from what blocks a
+    rule check, each leading to the affected object. The guide's missing-data and
+    troubleshooting content describes those findings.
   gating: true
-  evidence: execution/PKG-11/DEL-11-01/ScopeOfWork.md
+- from: DEL-07-05
+  condition: >-
+    The results viewer shows displacements, member actions, support loads, stresses and user-rule
+    outcomes in tables and in the view, with units, warnings and assumptions. The guide's
+    results section describes those views.
+  gating: true
 - from: DEL-07-07
-  condition: 'DEL-11-01 needs DEL-07-07 as a predecessor for user-guide content on solve execution diagnostics
-    and nonconverged states.
-
-
-    Notes: target resolved through approved DAG-002/decomposition authority.; 2026-06-07 dependency-evidence
-    refresh: DAG-006 active row DAG-004-R0601 verified; local lifecycle authority execution/PKG-07_Graphical
-    User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation,
-    and diagnostics/_STATUS.md records Current State=CHECKING Last Updated=2026-06-06 and contains prior
-    SEMANTIC_READY history, meeting RequiredMaturity=SEMANTIC_READY; supporting local memory execution/PKG-07_Graphical
-    User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation,
-    and diagnostics/MEMORY.md heading ''CHECKING-readiness review addendum'' reviewed. This is dependency
-    satisfaction evidence only; no lifecycle, release, professional-approval, certification, sealing,
-    authentication, or code-compliance claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A solve is launched from the desktop as a job that reports progress, can be cancelled and
+    ends in a stated terminal state with its diagnostics. The guide's solving section describes
+    that sequence.
   gating: true
-  evidence: execution/PKG-11/DEL-11-01/ScopeOfWork.md
+- from: DEL-06-03
+  condition: >-
+    A rule-check run reports each check on each basis as within the user's limit, exceeding it or
+    incomplete. An incomplete outcome names every missing, unit-incompatible or suspected
+    protected input; an outcome carries a warning naming each input whose provenance is missing
+    or unknown, whose redistribution status is missing or whose review is pending or rejected. The
+    guide's rule-check section describes those outcomes and warnings.
+  gating: true
+- from: DEL-08-01
+  condition: >-
+    The desktop generates a calculation report for a result, with the required notice, that the
+    user releases, saves and prints. The guide's report section describes producing it.
+  gating: true
 - from: DEL-08-02
-  condition: 'DEL-11-01 needs DEL-08-02 as a predecessor for report-guide content on manifests model hashes
-    and checksums.
-
-
-    Notes: target resolved through approved DAG-002/decomposition authority.; 2026-06-07 dependency-evidence
-    refresh: DAG-006 active row DAG-004-R0603 verified; local lifecycle authority execution/PKG-08_Reporting,
-    Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model hash/_STATUS.md records Current
-    State=CHECKING Last Updated=2026-06-06 and contains prior SEMANTIC_READY history plus the 2026-06-06
-    Human-approved Gate 5 transition, meeting RequiredMaturity=SEMANTIC_READY; supporting local memory
-    execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model
-    hash/MEMORY.md heading ''WORKING_ITEMS fan-in validation'' reviewed. This is dependency satisfaction
-    evidence only; no lifecycle, release, professional-approval, certification, sealing, authentication,
-    or code-compliance claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A run's audit manifest records the model hash, the input-manifest hash, the solver identity,
+    the unit system and the rule-pack references. The guide tells the reader where a report
+    shows them.
   gating: true
-  evidence: execution/PKG-11/DEL-11-01/ScopeOfWork.md
 - from: DEL-08-03
-  condition: 'DEL-11-01 needs DEL-08-03 as a predecessor for report-guide content on warnings assumptions
-    provenance notes and limitations.
-
-
-    Notes: target resolved through approved DAG-002/decomposition authority.; 2026-06-07 dependency-evidence
-    refresh: DAG-006 active row DAG-004-R0604 verified; local lifecycle authority execution/PKG-08_Reporting,
-    Audit, and Reproducibility/1_Working/DEL-08-03_Warnings, assumptions, and provenance report section/_STATUS.md
-    records Current State=CHECKING Last Updated=2026-06-06 and contains prior SEMANTIC_READY history plus
-    the 2026-06-06 Human-approved Gate 5 transition, meeting RequiredMaturity=SEMANTIC_READY; supporting
-    local memory execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-03_Warnings,
-    assumptions, and provenance report section/MEMORY.md heading ''WORKING_ITEMS fan-in validation'' reviewed.
-    This is dependency satisfaction evidence only; no lifecycle, release, professional-approval, certification,
-    sealing, authentication, or code-compliance claim.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A report's warnings, assumptions and provenance section discloses every warning, unresolved
+    assumption and provenance note of the run. The guide tells the reader where to find them.
   gating: true
-  evidence: execution/PKG-11/DEL-11-01/ScopeOfWork.md
+- from: DEL-02-05
+  condition: >-
+    A project is kept in a local project store on the user's machine, a document of another
+    format version is refused by name, and autosave is on by default. The guide's storage
+    content states that location and behaviour.
+  when: Writing the storage content
+  gating: true
+- from: DEL-10-04
+  condition: >-
+    The release is a signed and notarized macOS application archive published with a checksum
+    file. The guide's installation section describes verifying and installing that artifact.
+  when: Writing the installation section
+  gating: true
+- from: DEL-11-03
+  condition: >-
+    For every analysis of exit criterion 1 a theory note gives the method, its assumptions and
+    its limitations under a heading a link can reach. Each analysis entry of the guide links
+    there and does not restate the method.
+  when: Linking each analysis entry to its theory note
+  gating: true
+- from: DEL-11-04
+  condition: >-
+    The invented example models open and solve in the release. A guide walkthrough that uses an
+    example model uses one of these.
+  gating: false
+- from: DEL-09-01
+  condition: >-
+    The reference system of exit criterion 1 exists as a model document with its run sheet and
+    named key results. The walkthrough that examines the guide is made on it.
+  when: Examining the guide by walkthrough on a release candidate
+  gating: false
 code_paths:
-- docs/user_guide/index.md
-- tools/validation/validate_dependencies_schema.py
-checks: []
+- docs/user_guide/**

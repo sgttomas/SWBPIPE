@@ -1,4 +1,4 @@
-// C1 slice 4 (DEL-04-05 `c1-native-custody-plan.md` §5; DEL-08-04 `csv-export.md` §4): the streamed
+// the streamed
 // CSV save's webview side. Every chunk is screened on DOTH-CSV-011 (local-private, explicit intent,
 // exact payload) and sent in order with its own evidence; long parts are split, never truncated;
 // a refusal before or during the stream aborts it, and its error states the native cleanup; the

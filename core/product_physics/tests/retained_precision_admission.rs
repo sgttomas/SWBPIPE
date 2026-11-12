@@ -41,7 +41,7 @@ fn ordinary() -> Value {
     ))
     .unwrap()
 }
-/// G6: the registered build (QUALIFICATION.md) reports `Registered`; any other build `Stale`.
+/// G6: the registered build reports `Registered`; any other build `Stale`.
 const REGISTERED_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.commit=8bab26f4f68e0e26f0bb7960be334d5b520ea452;rustc.host=aarch64-apple-darwin;rustc.llvm=22.1.6;target=aarch64-apple-darwin;target.arch=aarch64;target.pointer_width=64;target.endian=little;target.os=macos;target.env=;panic=unwind;profile=debug;opt_level=0;debug_assertions=true;rustflags=;pkg=open_pipe_stress_product_physics@0.2.0";
 fn expected_profile() -> ProfileStatus {
     if option_env!("OPS_RETAINED_BUILD_IDENTITY") == Some(REGISTERED_IDENTITY) {

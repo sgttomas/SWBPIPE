@@ -1,4 +1,4 @@
-// Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.2; owner ruling
+// Model document 0.9.0 (owner ruling
 // "0.8.0 a2", applied to every retired version): a run recorded before the 0.9.0 ripple
 // keeps its existing read and compare behaviour. The record, its source and its model are
 // main's at 5bb2f9ff0, verbatim (fixtures/persistence/recorded_model_0_8_0): an ordinary

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""RT-A3 S6 independent references (DEL-04-07 `Work/route-unification-r4.md` §3.7).
+"""RT-A3 S6 independent references (DEL-04-07).
 
 C-1: a pressurized objective joint between two anchors with a one-way guide on
 one side, its no-nonlinear, tie-rod, gap, Timoshenko and load/reference-state
@@ -92,7 +92,7 @@ J_S = f64(LEAF["J_m4"])
 OD, WALL = Fr("0.206"), Fr("0.011")
 RO = OD / 2
 RI = RO - WALL
-# DEL-05-03 section-bases-and-timoshenko.md §3.1: the energy-matched annular
+# DEL-05-03: the energy-matched annular
 # shear factor, exact in the decimal radii and nu.
 _m2 = (RI / RO) ** 2
 _c = (8 * NU + 14) * NU + 7
@@ -933,7 +933,7 @@ def main() -> int:
     for key, out in refs.items():
         out["request_sha256"] = hashlib.sha256(files[out["request"]].encode()).hexdigest()
     document = {
-        "document": "RT-A3 S6 references (DEL-04-07 route-unification-r4.md §3.7): C-1 and LS-1",
+        "document": "RT-A3 S6 references (DEL-04-07): C-1 and LS-1",
         "status": "frozen analytical candidate; product agreement and independent scrutiny are separate",
         "units": "SI: m, rad, N, N*m, Pa",
         "inputs": {
@@ -942,7 +942,7 @@ def main() -> int:
                                "A_i_m2": num(A_I), "source": "W-16 normalized_section leaves (binary64); A_i = fl(pi/4*0.184^2)"},
             "c1": {k: num(v) for k, v in C1.items() if not isinstance(v, list)},
         },
-        "reference_object": "the exact rational response of the system formed from the binary64 leaves above; the exact route forms its section constants by D-5's sequence, which may differ in the last place (k1-twin-bound.md), far inside the criterion",
+        "reference_object": "the exact rational response of the system formed from the binary64 leaves above; the exact route forms its section constants by D-5's sequence, which may differ in the last place (DEL-04-07), far inside the criterion",
         "criterion": "each published value within 1e-9*|expected|, or 1e-9 of the case's family zero scale (the largest expected magnitude of its family) when the expected value is 0",
         "requests": refs,
         "crosscheck": CHECKS,

@@ -153,7 +153,7 @@ const ABANDONED_AT_PUBLICATION: &str = "abandoned_by_session_reset_result_discar
 
 /// The largest solve result the desktop hands to its webview: 64 MiB.
 ///
-/// Basis (RT-U4; DEL-04-05 `Work/criterion-9-measurement.md` §6): an
+/// Basis (RT-U4; DEL-04-05 design §6): an
 /// exclusive window on 2026-10-31 on the development host (Apple M5 Max,
 /// 128 GiB, not the base machine), native-smoke release build `6c2f02d81`,
 /// with injected linear-ex rack results. Each run reached the reader verdict;

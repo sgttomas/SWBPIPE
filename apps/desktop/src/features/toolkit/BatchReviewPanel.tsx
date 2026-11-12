@@ -17,7 +17,7 @@ export type QueuedBatch = {
    * batch is applied only after a clean validation-only preview on the same basis. */
   requiresPreview?: boolean;
   /** Set when the session retired this registration because the model changed
-   * after it was prepared (run sheet S2, §3.6 step 1): a notice whose only action is Dismiss. */
+   * after it was prepared (run sheet S2): a notice whose only action is Dismiss. */
   retired?: string;
 };
 /** The operation kinds applied only after a clean preview of their exact batch on

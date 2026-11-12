@@ -1,4 +1,4 @@
-/** W-11 slice (b) (DEL-08-01 Design `exact-route-report-sections.md` §2.4, §3.2-§3.3):
+/** W-11 slice (b):
  * the source-derived exact-route report sections, as pure projections of the received
  * result. The report package's Rust producer and the desktop's native render re-derive
  * the same sections (`report_package::exact_sections::expected_exact_route_core` and
@@ -8,7 +8,7 @@
  *
  * Nothing here admits a result to an output: the builder reaches these projections only
  * with a recorded Export Result JSON admission (`exactReportAdmission.ts`), and only the
- * rendered report and the report package, which the owner opened on 2026-10-26 (§5.1),
+ * rendered report and the report package, which the owner opened on 2026-10-26,
  * admit the exact routes; the report JSON packet keeps refusing them. Limitation statements come only from the closed statement
  * table (`exactReportLimitations.ts`). Standard claim fence applies (claims taxonomy per
  * DEC-081). */
@@ -23,10 +23,10 @@ import { displayQuantity } from "./reportQuantityDisplay";
 export const EXACT_REPORT_CONTRACT_IDS: readonly string[] = Object.freeze([PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID]);
 
 export const REPORT_EXACT_HEADLINE_UNREADABLE = "REPORT-EXACT-HEADLINE-UNREADABLE";
-/** The native host's section code (§3.6), used here for a source that is not exact. */
+/** The native host's section code, used here for a source that is not exact. */
 export const REPORT_EXACT_SECTIONS_MISMATCH = "REPORT-EXACT-SECTIONS-MISMATCH";
 
-/** The section-basis headlines (§3.3), nominal then reduced, with the session's labels.
+/** The section-basis headlines, nominal then reduced, with the session's labels.
  * One constant for the session's results panel and the report. */
 export const SECTION_BASIS_HEADLINES = Object.freeze([
   Object.freeze({ key: "max_open_formula_stress_nominal_section", basis: "nominal_section", label: "Nominal section (nominal wall)" }),
@@ -92,7 +92,7 @@ function headline(summary: Record<string, unknown>, entry: (typeof SECTION_BASIS
   return { basis: entry.basis, label: entry.label, value_display: displayQuantity(item.value, item.unit), location_ref: item.location_ref, source_ref: item.result_ref };
 }
 
-/** The source-derived part (§3.5): the identity, the run, the result envelope, the
+/** The source-derived part: the identity, the run, the result envelope, the
  * received result's digest, the load/reference line (the `rendered-report` surface's
  * disclosure line) and the headlines, nominal then reduced. */
 export async function exactRouteCore(result: MechanicsResult): Promise<ExactRouteCore> {
@@ -115,7 +115,7 @@ export async function exactRouteCore(result: MechanicsResult): Promise<ExactRout
   };
 }
 
-/** The exact limitation entries for `run` (§2.4): one per published
+/** The exact limitation entries for `run`: one per published
  * `formulation_basis.limitations` string, in order, with the closed table's statement
  * (`REPORT-EXACT-LIMITATION-UNREGISTERED` for a string the table lacks), then the
  * profile reference, which binds the semantic table `{id, sha256}` by reference. */

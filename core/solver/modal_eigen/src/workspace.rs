@@ -1,4 +1,4 @@
-//! Per-stage workspaces (design §5.3.8, Agent 0's option (c)): the exact
+//! Per-stage workspaces (Agent 0's option (c)): the exact
 //! stages reuse one set of accumulators and scratch vectors for every pair
 //! or product instead of allocating them per call.
 //!

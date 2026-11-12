@@ -1,294 +1,168 @@
 id: DEL-07-08
 name: Design-authoring state and comparison workspace
 needs:
-- from: DEL-00-01
-  condition: 'DEL-07-08 needs DEL-00-01 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-02
-  condition: 'DEL-07-08 needs DEL-00-02 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-03
-  condition: 'DEL-07-08 needs DEL-00-03 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-00-05
-  condition: 'DEL-07-08 needs DEL-00-05 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-06
-  condition: 'DEL-07-08 needs DEL-00-06 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-07
-  condition: 'DEL-07-08 needs DEL-00-07 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-08
-  condition: 'DEL-07-08 needs DEL-00-08 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-07-01
-  condition: 'DEL-07-08 needs DEL-07-01 as a predecessor: Design-authoring workspace builds on GUI shell/navigation.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-07-02
-  condition: 'DEL-07-08 needs DEL-07-02 as a predecessor: Design-authoring workspace builds on model-tree/editor
-    foundations.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-07-04
-  condition: 'DEL-07-08 needs DEL-07-04 as a predecessor: Design-authoring workspace consumes validation/warnings
-    presentation.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-07-05
-  condition: 'DEL-07-08 needs DEL-07-05 as a predecessor: Design-authoring workspace consumes result/comparison
-    presentation foundations.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The GUI state rule requires every change to the model to be an applied model operation and
+    keeps selection, filters and other view state out of stored records.
   gating: true
 - from: DEL-13-01
-  condition: 'DEL-07-08 needs DEL-13-01 as a predecessor: Design-authoring workspace consumes design knowledge
-    schema.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Showing design-knowledge panels
+  condition: >-
+    A design-knowledge document has a record for each category of design basis, each with its
+    source notes, unresolved assumptions, provenance and units, names the model it informs, and
+    states missing knowledge as a finding or a record.
+  gating: true
+- from: DEL-13-02
+  when: Showing constraints
+  condition: >-
+    A constraint record states its kind, state, origin, target entities, parameters and provenance,
+    and the constraint format names the class of each finding a constraint can raise.
   gating: true
 - from: DEL-13-03
-  condition: 'DEL-07-08 needs DEL-13-03 as a predecessor: Design-authoring workspace consumes constraint
-    validation output.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Showing constraint findings
+  condition: >-
+    The constraint engine evaluates a model against its constraints and returns each violation and
+    each missing-data finding as a finding with the fields of the diagnostic contract, a class of
+    the constraint format and the entities it concerns, in a stable order.
   gating: true
 - from: DEL-14-01
-  condition: 'DEL-07-08 needs DEL-14-01 as a predecessor: Design-authoring workspace consumes immutable
-    model states.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Saving, listing and reopening model states
+  condition: >-
+    A saved model state is named, immutable and hashed, carries its tags, notes, external
+    references, unresolved assumptions and warnings, and can be reopened as the working model of a
+    session without being changed.
+  gating: true
+- from: DEL-14-02
+  when: Recording, listing and reopening runs
+  condition: >-
+    An analysis-run record binds a result to its model state, solver version, settings, units, load
+    cases and rule-pack and library references, and can be listed and read back as recorded.
   gating: true
 - from: DEL-14-03
-  condition: 'DEL-07-08 needs DEL-14-03 as a predecessor: Design-authoring workspace consumes state comparison.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Comparing two states
+  condition: >-
+    The state comparison classifies every entity of two saved states as added, removed, changed,
+    unchanged or unresolved, pairs entities by stable identifier or by an explicit mapping, carries
+    the unit of each changed unit-bearing value on both sides, and gives the same result for the
+    same inputs.
   gating: true
 - from: DEL-14-04
-  condition: 'DEL-07-08 needs DEL-14-04 as a predecessor: Design-authoring workspace consumes run comparison.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Comparing two runs
+  condition: >-
+    The run comparison gives the result deltas of mapped nodes, elements and supports for two
+    recorded runs, with units, the changed solver settings and rule-pack and library references,
+    the rows left unmatched on each side with their reasons, and the items outside a supplied
+    tolerance profile; without an applicable rule a delta is given unclassified.
   gating: true
 - from: DEL-14-05
-  condition: 'DEL-07-08 needs DEL-14-05 as a predecessor: Design-authoring workspace consumes comparison
-    mapping/tolerance contracts.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Showing mappings, tolerances and export options
+  condition: >-
+    The comparison contracts define a manual mapping, an explicitly unmatched entity, absolute and
+    relative tolerances by result category, and the JSON and CSV forms of a comparison.
   gating: true
 - from: DEL-16-01
-  condition: 'DEL-07-08 needs DEL-16-01 as a predecessor: Design-authoring workspace consumes operation
-    schema.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Building the review queue and the offline intake
+  condition: >-
+    A change to the model is expressed as a structured operation or an ordered batch bound to its
+    model basis, each operation with its target, change, author type, source and declared
+    assumptions, and the operation schema is published in a machine-readable form.
   gating: true
 - from: DEL-16-02
-  condition: 'DEL-07-08 needs DEL-16-02 as a predecessor: Design-authoring workspace consumes operation
-    validation/diff preview.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Showing an item's validation and preview in the review queue
+  condition: >-
+    An operation or batch can be validated without being applied, returning either a deterministic
+    preview of the change or the named refusal the apply would give, including for a stale
+    before-value.
   gating: true
 - from: DEL-16-03
-  condition: 'DEL-07-08 needs DEL-16-03 as a predecessor: Design-authoring workspace consumes user acceptance/audit
-    trail.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Offering Apply and showing the ledger
+  condition: >-
+    A batch can be accepted only when its validation passed and a preview was generated for it. The
+    operation history keeps each batch's decision record (accepted, rejected, held or withdrawn)
+    and outcome record (applied, refused or unknown) with every operation and its author, and reads
+    back as recorded. A record read back whose acceptance is not known is review context that must
+    be requeued and validated afresh.
+  gating: true
+- from: DEL-16-04
+  when: Reviewing an agent's or an offline proposal
+  condition: >-
+    An agent-authored operation carries its rationale, its declared assumptions and its agent
+    attribution, and gains no acceptance standing from being proposed.
   gating: true
 - from: DEL-16-06
-  condition: 'DEL-07-08 consumes Controlled model operation application from DEL-16-06: operation outcomes;
-    existing scope remains.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E081; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-03/06; dependency table operations/comparison; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Applying a reviewed item and offering the capability list
+  condition: >-
+    One operation engine applies a batch only after validation, preview and the user's explicit
+    acceptance, applies it whole or not at all, and leaves the model unchanged on any refusal. The
+    capability catalog lists, in a machine-readable form, the operations a proposal may hold.
   gating: true
-  evidence: execution/PKG-07/DEL-07-08/ScopeOfWork.md
-- from: DEL-02-03
-  condition: 'DEL-07-08 directly depends on DEL-02-03 because state/run browser rows display canonical
-    analysis status and preserve external human-acceptance boundaries.
-
-
-    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-01-04
+  condition: >-
+    The claims registry gives each automatic status one display form and holds the boundary
+    statements a surface uses word for word.
+  gating: false
+- from: DEL-07-04
+  condition: >-
+    The finding presentation defines how a finding's class and fields are shown and how an absent
+    field reads, which the constraint and warning panels follow.
+  gating: false
+- from: DEL-07-11
+  condition: >-
+    The workspace shell mounts the panels, holds the session's pending changes, history and current
+    result, and guards every command that replaces the working model.
   gating: true
-  evidence: core/gui/design_workspace/engine.py; tests/test_design_authoring_comparison_workspace.py
+- from: DEL-07-01
+  when: Drawing the comparison overlay
+  condition: >-
+    The viewport provides one scene with the model's nodes and members addressable by identifier
+    and lets an overlay add and remove its own drawn resources (DEL-07-01/REQ-002).
+  gating: true
+- from: DEL-07-05
+  when: Opening a recorded run for review
+  condition: >-
+    The result viewer shows a result's rows with the meaning, units and labels the product result
+    reader gives them and with the result's standing, and marks a saved or recorded run reopened in
+    the session as historical.
+  gating: true
 - from: DEL-02-05
-  condition: 'DEL-07-08 directly depends on DEL-02-05 because state/run browser and workspace comparison
-    records expose model/run hashes while keeping workspace_hash scoped to GUI composition state.
-
-
-    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: core/gui/design_workspace/engine.py; tests/test_design_authoring_comparison_workspace.py
-- from: DEL-13-04
-  condition: 'DEL-13-04 enables DEL-07-08 because design-authoring workspace consumes physical-to-analytical
-    transform output.
-
-
-    Notes: Downstream consumer preserved from approved DAG-002 for reconciliation context; not promoted
-    beyond DAG-002 authority.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
+  when: Reopening a saved state as the working model
+  condition: >-
+    The model-document version check gives a saved state's document exactly one version state from
+    one evaluator, and a saved state whose document is not of the current version is refused by
+    name on open.
+  gating: false
 code_paths:
-- apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx
-- apps/desktop/src/features/comparison/ComparisonPanel.tsx
-- apps/desktop/src/features/comparison/StateComparisonView.tsx
-- apps/desktop/src/features/comparison/RunComparisonView.tsx
-- apps/desktop/src/features/comparison/stateComparison.ts
-- apps/desktop/src/features/comparison/withinRunComparison.ts
-- apps/desktop/src/features/comparison/ComparisonPackageNotice.tsx
-- apps/desktop/src/features/history/HistoryPanel.tsx
-- apps/desktop/src/features/history/useModelStateHistory.ts
-- apps/desktop/src/features/project-storage/UnsavedChangesPrompt.tsx
-- apps/desktop/src/features/knowledge/KnowledgePanel.tsx
-- apps/desktop/src/features/diff-preview/DiffPreviewPanel.tsx
-- apps/desktop/src/features/operations/OperationLedgerPanel.tsx
+# The comparison views. In this folder stateComparison.ts is DEL-14-03's; runComparison.ts,
+# runComparisonSides.ts, withinRunComparison.ts and ComparisonPackageNotice.tsx are DEL-14-04's;
+# runComparisonCsv.ts and stateComparisonCsv.ts are DEL-08-04's.
+- apps/desktop/src/features/comparison/**
+# The state and run browser. useModelStateHistory.ts is shared with DEL-14-01.
+- apps/desktop/src/features/history/**
+# The design-knowledge panel. The record it shows is DEL-13-01's.
+- apps/desktop/src/features/knowledge/**
+# The review and apply interaction and the ledger panel. OperationLedgerPanel.tsx is shared with
+# DEL-16-03 and DEL-16-04, which own the record it shows. The batch review panel
+# (apps/desktop/src/features/toolkit/BatchReviewPanel.tsx) is listed by DEL-07-02 for the move of
+# queued single changes into one batch; its review and Apply interaction is this deliverable's.
+- apps/desktop/src/features/diff-preview/**
+- apps/desktop/src/features/operations/**
+- apps/desktop/src/features/toolkit/BatchReviewPanel.tsx
+# Proposal review. In the offline intake folder OfflineProposalIntakePanel.tsx and index.ts are also
+# listed by DEL-16-01, which owns reading a file as a batch; review of the queued proposal is this
+# deliverable's and the author stamp is DEL-16-03's. workflowSupport.ts there is support shared with
+# DEL-07-03's hanger selection, self-weight authoring and library apply.
+- apps/desktop/src/features/agent-proposals/**
+- apps/desktop/src/features/offline-proposal-intake/**
+# Shared with DEL-07-07, DEL-07-11 and DEL-14-04, each for the calls it makes.
 - apps/desktop/src/services/previewService.ts
+# A review-export panel mounted in the workspace and a reference module with its own contract
+# test. No criterion of this scope covers either.
+- apps/desktop/src/features/design-workspace/**
 - core/gui/design_workspace/**
+# The boundary helper the GUI reference modules of DEL-07-03, DEL-07-04, DEL-07-05, DEL-07-07 and
+# DEL-07-08 import; each lists it.
+- core/gui/pkg02_boundary.py
 checks:
 - apps/desktop/src/App.test.tsx
 - apps/desktop/src/features/workspace/exactCurrentPanels.test.tsx
@@ -304,3 +178,6 @@ checks:
 - apps/desktop/src/features/workspace/withinRun.resultsSessionState.test.ts
 - apps/desktop/src/App.withinRun.test.tsx
 - tests/test_design_authoring_comparison_workspace.py
+- apps/desktop/src/features/history/HistoryPanel.unreadable.test.tsx
+- apps/desktop/src/features/operations/queuedChangesBatch.test.tsx
+- apps/desktop/src/features/toolkit/BatchReviewPanel.test.tsx

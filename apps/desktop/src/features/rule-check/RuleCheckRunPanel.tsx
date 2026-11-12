@@ -81,7 +81,7 @@ export type RuleCheckRunBasis = Readonly<{
 type RunPresentation = Readonly<{
   basisKey: string;
   result: RuleCheckRunResult;
-  // Epoch 8 (design §4.4): the service's disclosure line, cleared with the result.
+  // Epoch 8: the service's disclosure line, cleared with the result.
   loadReferenceDisclosure: string | null;
 }>;
 
@@ -183,7 +183,7 @@ function UnitBindingControl({
 }
 
 function ruleCheckUnitBindingPolicySummary(plan: RuleCheckBindingPlan, route: UnitCatalogRoute | null): string {
-  // Format 0.5.0 (DEL-06-01 Design `rule-pack-0.5.0.md` §2.5): each solver
+  // Format 0.5.0: each solver
   // input binds through its pack's own selector; an input without one is
   // refused by validation (RULE_SOLVER_RESULT_REF_MISSING).
   const solverSelectorCount = plan.solverInputs.filter((input) => input.solver_result_ref).length;
@@ -1094,7 +1094,7 @@ export function RuleCheckRunPanel({
   );
 }
 
-// FR-RULE-003 (DEL-06-03 Design `pack-aggregate-incomplete.md`): counted from the
+// FR-RULE-003: counted from the
 // checks themselves, so the pack never headlines pass or fail while any check is
 // incomplete, whatever aggregate a run carries; failed checks stay counted and listed.
 function ruleCheckStatusCounts(result: RuleCheckRunResult): { failed: number; incomplete: number; checked: number } {
@@ -1145,7 +1145,7 @@ function categoryText(categoryRef: string | undefined, plan: RuleCheckBindingPla
   return name ? `${name} (${categoryRef})` : categoryRef;
 }
 
-/** Each outcome's category and load case or combination (design §2.7). */
+/** Each outcome's category and load case or combination. */
 function outcomeBasisText(outcome: RuleCheckOutcome, plan: RuleCheckBindingPlan | null, model: PreviewModel | null): string {
   const basis = outcome.basis_ref;
   const loadCase = basis

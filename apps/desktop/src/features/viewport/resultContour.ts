@@ -1,4 +1,4 @@
-// The result contour along members (survey item A4; DEL-07-05 Design `result-contour.md`). Pure
+// The result contour along members (survey item A4). Pure
 // display arithmetic over the stations a result states: the one interpolation the contour uses,
 // the rings the tube is drawn with, the stated values the numbers display labels and the
 // threshold in the overlay's unit. Nothing here forms an engineering quantity, a limit or a status,

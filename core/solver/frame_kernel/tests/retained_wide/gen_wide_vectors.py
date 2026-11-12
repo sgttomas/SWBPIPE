@@ -1000,7 +1000,7 @@ def atan_lines(summary):
         for i in range(60):
             u = Decimal(R.randint(1, 10 ** 30 - 1)) / Decimal(10 ** 30)
             angle_case("p%d:%d" % (p, i), pid * u, 128, p)
-    # independent review inputs (RV2, K3A_REVIEW.md): the S1 input (6.08 ulp at
+    # independent review inputs (RV2): the S1 input (6.08 ulp at
     # p = 128) and the 13 inputs that separate the smallest-first tail summation
     # from largest first (S2, r2_distinguishing_inputs.txt)
     pair_case("rv2s1:0", parse_token("+ff4014cc2258bc73504f91ab8019dddcp-1"),

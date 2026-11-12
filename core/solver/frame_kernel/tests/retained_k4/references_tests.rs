@@ -204,7 +204,7 @@ fn r1s_cases_through_the_adapter_pass_are_refused_or_are_not_covered_as_section_
         "{} floor differences",
         floor_differences.len()
     );
-    // D1 revision 5a.3 (plan §6, R7's R1 lane): all 120 solved cases are
+    // D1 revision 5a.3 (R7's R1 lane): all 120 solved cases are
     // selected at 128, as under 5a.2.
     let selected: usize = tally
         .values()
@@ -226,7 +226,7 @@ struct Lane {
 }
 
 /// Every case of a lane: refused as expected, or selected with every reference
-/// row within the predicate (or not covered, §4.10), and its controls
+/// row within the predicate (or not covered), and its controls
 /// discriminated.
 fn run_lane(cases: &[R1Case]) -> Lane {
     let mut tally: BTreeMap<String, Tally> = BTreeMap::new();
@@ -403,7 +403,7 @@ fn lane_counts(cases: &[R1Case], tally: &BTreeMap<String, Tally>) {
 
 const R1_LARGE: &str = include_str!("r1_large.txt");
 
-/// R1's RF-LARGE frames through the lane (plan §6; D1 revision 5a.3): each is
+/// R1's RF-LARGE frames through the lane (D1 revision 5a.3): each is
 /// selected at 128, honest against R1's references under the 1e-9 predicate,
 /// with nothing not covered, and R1's discriminating controls fail it.
 fn lane_large(names: &[&str]) {
@@ -526,7 +526,7 @@ fn n05_and_n06_agree_with_the_intended_basis_and_n05_is_not_np_as_represented_an
     for name in ["N05", "N06", "N05-TRANSVERSE"] {
         let solve = within(name, 40);
         assert_eq!(solve.selected_precision(), 128, "{name}");
-        // The member's internal torque and the root spring action (§7.3-2).
+        // The member's internal torque and the root spring action.
         assert!(value(&solve, "T.1") != 0.0, "{name}");
         assert!(value(&solve, "spr.1.3") != 0.0, "{name}");
     }
@@ -608,7 +608,7 @@ fn b1_l_is_exact_with_the_ledger() {
     assert_eq!(solve.selected_precision(), 128);
 }
 
-// ---------------------------------------------------------------- the exact-block oracle (plan §12.2)
+// ---------------------------------------------------------------- the exact-block oracle
 
 /// The represented binary64 system of a source as the product forms it (FK's
 /// element formation, springs added to the diagonal, loads summed in order).
@@ -715,7 +715,7 @@ fn w1_agrees_with_the_exact_block_oracle_on_the_in_scope_cases() {
                 .unwrap();
             oracle.insert(format!("R.{}.{}", d / 6, d % 6), p.value());
         }
-        // The body-level coupled scale of the oracle's values (D1 §4.4.1 item 4).
+        // The body-level coupled scale of the oracle's values.
         let mut s = [0.0f64; 4];
         for (key, &v) in &oracle {
             s[obs[key].1.index()] = s[obs[key].1.index()].max(v.abs());

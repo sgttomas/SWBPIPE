@@ -1,4 +1,4 @@
-"""T4-U4b preview model checks (DEL-04-07 Design u4b-u5b-implementation.md §5.1), test-only: τ bit for bit with c_b
+"""T4-U4b preview model checks, test-only: τ bit for bit with c_b
 from the captured model's moduli and section for every member (the Poisson warning bound to the member's ν), and the
 directional rows and records bound to the model's arcs with the pair. Kept apart
 from ``u4b.py`` so that module (and the pressure-2 verifier that imports it) stays standard library only.

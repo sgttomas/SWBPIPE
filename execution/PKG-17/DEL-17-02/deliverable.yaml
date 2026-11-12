@@ -1,132 +1,37 @@
 id: DEL-17-02
 name: Export package, profile, and stable ID map contracts
 needs:
-- from: DEL-00-01
-  condition: 'DEL-17-02 must apply AB-00-01 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Decision baseline for architecture choices and unresolved rulings.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-17-02 must apply AB-00-02 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Repository/module boundaries and inward dependency direction.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-17-02 must apply AB-00-03 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Schema-first command/query/job result envelope constraints.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-17-01
+  condition: >-
+    The source register lists each admitted source with its source ID, location, admitted use and
+    boundary, and lists the open questions about target behaviour with the deliverables each one
+    affects.
   gating: true
 - from: DEL-00-04
-  condition: 'DEL-17-02 must apply AB-00-04 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    JSON Schema 2020-12 and canonical JSON/JCS-compatible hash basis.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A hashed JSON payload is hashed as SHA-256 over its RFC 8785 canonical form and each hash
+    record names its payload; a reader accepts only the current version of a persisted document
+    and refuses any other by name.
   gating: true
 - from: DEL-00-06
-  condition: 'DEL-17-02 must apply AB-00-06 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Diagnostics, warnings, blockers, and result-envelope obligations.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A diagnostic carries code, class, severity, source, affected object, message, remediation and
+    provenance. When it crosses a boundary every field other than class arrives unchanged, and the
+    class changes only where the receiving boundary's schema requires its own class vocabulary, by
+    that boundary's stated mapping.
   gating: true
-- from: DEL-00-07
-  condition: 'DEL-17-02 must apply AB-00-07 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    No-bypass API/plugin/adapter validation and boundary controls.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-17-02 must apply AB-00-08 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Layered architecture/schema/service/adapter acceptance strategy.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: doc:docs/CONTRACT.md
-  condition: 'Professional/IP/data-boundary invariants constrain export contract claims.
-
-
-    Notes: Architecture/governance basis edge satisfied by accepted PKG-00 baseline in blocker queue.
-
-
-    Required input maturity in source: ACCEPTED_BASELINE; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Project contract invariants; TargetRefID: CONTRACT; TargetLocation:
-    docs/CONTRACT.md'
-  evidence: execution/PKG-17/DEL-17-02/ScopeOfWork.md
-- from: doc:docs/IP_AND_DATA_BOUNDARY.md
-  condition: 'Export artifacts must exclude protected/private/proprietary content absent rights and review.
-
-
-    Notes: Boundary control only; no protected source material added.
-
-
-    Required input maturity in source: ACCEPTED_BASELINE; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: IP and data boundary; TargetRefID: IP-DATA; TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
-  evidence: execution/PKG-17/DEL-17-02/ScopeOfWork.md
-- from: doc:schemas/model.schema.yaml
-  condition: 'Canonical OpenPipeStress identities constrain stable ID map families.
-
-
-    Notes: No schema edit was made; contract references canonical identity vocabulary only.
-
-
-    Required input maturity in source: COMMITTED; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Canonical model schema; TargetRefID: MODEL-SCHEMA; TargetLocation:
-    schemas/model.schema.yaml'
-  evidence: execution/PKG-17/DEL-17-02/ScopeOfWork.md
-- from: DEL-17-01
-  condition: 'DEL-17-02 consumes DEL-17-01 as source authority.
-
-
-    Notes: Downstream dependency already committed through DEL-17-02 foundation.
-
-
-    Required input maturity in source: INITIALIZED; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-17/DEL-17-01/ScopeOfWork.md
-code_paths:
-- core/handoff/review_geometry/package.py
-- schemas/model.schema.yaml
-- tools/validation/validate_dependencies_schema.py
+- from: DEL-02-01
+  condition: >-
+    Every addressable record of the model document has an identifier that other records name, so
+    that a stable ID map can account for each one.
+  gating: false
+- from: DEL-01-02
+  condition: >-
+    The data boundary policy defines the provenance record and its value sets and states what
+    public fixtures and examples may contain.
+  gating: false
+# The contract has no module of its own: its definitions are realised in each target's schema and
+# writer, which belong to DEL-17-03 to DEL-17-09. The desktop helper that forms a unit disclosure,
+# apps/desktop/src/features/exportUnitDisclosure.ts, applies this contract and is listed by
+# DEL-07-12 as shared desktop code.
+code_paths: []

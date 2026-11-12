@@ -35,7 +35,7 @@ export function storedProjectDescription(existing: LocalProjectIndexEntry): stri
   return `"${existing.project_name}" (${existing.project_id}), last saved ${lastSavedText(existing.updated_at_unix)}`;
 }
 
-/** W-12 §2, §3: a Replace keeps the project id's saved model states and recorded
+/** a Replace keeps the project id's saved model states and recorded
  * runs; the prompt says how many of each. */
 export function savedStatesSentence(existing: StoredProjectEntry): string {
   const count = existing.saved_state_count;

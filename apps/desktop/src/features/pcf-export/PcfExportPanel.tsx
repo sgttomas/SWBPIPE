@@ -65,12 +65,12 @@ type PcfConversionWitness = {
 const PCF_EXPORT_VERSION = "0.1.0";
 const HASH_STATUS_TBD = "TBD_browser_preview_does_not_emit_canonical_package_hash";
 const SCHEMA_VALIDATION_STATUS = "desktop_preview_shape_aligned_not_runtime_json_schema_validated";
-/** A length with no routine exact conversion to millimetres (DEL-02-02 Design §7, C2). */
+/** A length with no routine exact conversion to millimetres (C2). */
 export const PCF_LENGTH_UNIT_UNSUPPORTED = "PCF-LENGTH-UNIT-UNSUPPORTED";
-/** A length that is not finite, or not finite once converted to millimetres (DEL-02-02 Design §7.5). */
+/** A length that is not finite, or not finite once converted to millimetres. */
 export const PCF_LENGTH_OUT_OF_RANGE = "PCF-LENGTH-OUT-OF-RANGE";
 const LENGTH_REFUSAL_CODES: ReadonlySet<string> = new Set([PCF_LENGTH_UNIT_UNSUPPORTED, PCF_LENGTH_OUT_OF_RANGE]);
-/** A project unit the export writes is missing (DEL-02-02 Design §7.4). It takes
+/** A project unit the export writes is missing. It takes
  * precedence over PCF-LENGTH-UNIT-UNSUPPORTED for a missing length key. */
 export const PCF_PROJECT_UNIT_MISSING = "PCF-PROJECT-UNIT-MISSING";
 const PCF_PROJECT_UNIT_USES: readonly ExportProjectUnitUse[] = [{ key: "length", writes: "the node coordinates' source unit" }];
@@ -618,7 +618,7 @@ function pcfLengthUnitDiagnostics(model: PreviewModel): PcfDiagnostic[] {
   const refusals: PcfDiagnostic[] = [];
   const remediation = "Store the quantity in m, mm, in or ft, which convert to millimetres exactly, before exporting PCF text.";
   const rangeRemediation = "Correct the stored value to a finite length before exporting PCF text.";
-  // §7.4: a missing length key is PCF-PROJECT-UNIT-MISSING, which takes precedence
+  // a missing length key is PCF-PROJECT-UNIT-MISSING, which takes precedence
   // over the unsupported-unit refusal below.
   for (const missing of missingExportProjectUnits(model, PCF_PROJECT_UNIT_USES, "exporting PCF text")) {
     refusals.push(diagnostic(PCF_PROJECT_UNIT_MISSING, "blocking", "UNIT_WARNING", missing.text, missing.remediation, reference("Project", model.project.id)));

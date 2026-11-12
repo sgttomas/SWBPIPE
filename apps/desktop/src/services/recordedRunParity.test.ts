@@ -1,4 +1,4 @@
-// W-12 S2 (DEL-14-01 Design `desktop-states-runs-comparison.md` §3, §6): the
+// W-12 S2: the
 // recorded revision of a transient analysis_run.v0.3 record. The native store
 // computes it (`apps/desktop/src-tauri/src/analysis_runs.rs`); this test checks
 // the TypeScript builder against the store's committed witness and checks that

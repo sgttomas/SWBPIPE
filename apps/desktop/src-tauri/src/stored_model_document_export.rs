@@ -2210,7 +2210,7 @@ mod tests {
         assert_eq!(diagnostics[MAX_NAMED_DIAGNOSTICS].code, DIAGNOSTICS_NOT_SHOWN);
     }
 
-    // --- W-17 object form (DEL-02-02 Design `project-unit-selection.md` §3) ---
+    // --- W-17 object form ---
     //
     // #1650 found that a struct written as a JSON array (serde's positional
     // form) passed a keyed screen. Recovery does no typed decode, but its
@@ -2350,7 +2350,7 @@ mod tests {
 
     /// Reachability through a current writer: Save State (`save_model_state`)
     /// keeps a snapshot whose model has blocking slot findings, marked
-    /// `MODEL_INCOMPLETE` (W-12 §2), so a session request carrying a
+    /// `MODEL_INCOMPLETE`, so a session request carrying a
     /// positional provenance record is stored. Opening it refuses; its
     /// recovery export is refused by name (on `e2f9677175` it was written).
     #[test]

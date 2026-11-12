@@ -892,7 +892,7 @@ fn census_span(element: &FrameElement) -> (i32, i32) {
     (low, high)
 }
 
-/// K2b (Design §4 item 3; final review FINAL-A, F4): the census takes the
+/// K2b (final review FINAL-A, F4): the census takes the
 /// exponents of 1+phi, 4+phi and 2-phi from the actual binary64 phi, never
 /// from the leaf exponents (1+phi as 1, 4+phi as 4, 2-phi as 2). With
 /// E = G = A = J = 1 every census entry is a sum of the exponents listed in

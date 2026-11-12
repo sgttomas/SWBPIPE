@@ -1,4 +1,4 @@
-//! Hanger sizing arithmetic (DEL-04-11 `Work/hanger-sizing.md` §6 and §7).
+//! Hanger sizing arithmetic (DEL-04-11 design §6 and §7).
 //!
 //! Pure functions on the hot-load basis and the positions that the derived
 //! solves supply: the loads of a variable spring set at the installed position,

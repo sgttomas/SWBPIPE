@@ -1,8 +1,8 @@
 # RT-A4 references: absolute-sum and SRSS kernel table
 
 Frozen, independently derived expectations for the unsigned load-case algebra
-kernel (RT-A4, slice K): the V-1 table of DEL-05-02 Work
-[`absolute-sum-srss-combinations.md`](../../../execution/PKG-05/DEL-05-02/Work/absolute-sum-srss-combinations.md)
+kernel (RT-A4, slice K): the V-1 table of the absolute-sum and SRSS
+combination design of [DEL-05-02](../../../execution/PKG-05/DEL-05-02/ScopeOfWork.md),
 §7, for the definitions of §3. Each row lists binary64 factors and values and
 the expected bits of the absolute sum A and the SRSS R, or the refusal
 `non_representable`. The table is read and checked bit for bit by

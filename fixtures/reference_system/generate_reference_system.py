@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the reference-system fixture (DEL-09-01 `Work/reference-system.md`, exit criterion 1).
+"""Generate the reference-system fixture (DEL-09-01, exit criterion 1).
 
 Every value is invented for this fixture (spec §1-§8); none comes from a standard, a supplier, a
 commercial example or a project. The specification's tables are held here as data, and the
@@ -46,16 +46,16 @@ import sys
 
 MODEL_DOCUMENT_VERSION = "0.9.0"
 HERE = Path(__file__).resolve().parent
-SPEC = "execution/PKG-09/DEL-09-01/Work/reference-system.md"
+SPEC = "DEL-09-01"
 MODEL_FILE = "reference_system.json"
 AUTHORING_FILE = "authoring.json"
 KEY_RESULTS_FILE = "key_results.json"
 CAPTURE_FILE = "self_weight_capture.json"
 CAPTURE_DRIVER = "capture_self_weight.mjs"
 
-PROVENANCE = ("invented reference-system fixture input (DEL-09-01 Work/reference-system.md); "
+PROVENANCE = ("invented reference-system fixture input (DEL-09-01); "
               "not standard, supplier, commercial or project data")
-SOURCE = "invented user value, DEL-09-01 Work/reference-system.md §5"
+SOURCE = "invented user value, DEL-09-01"
 ROUTE = {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"}
 GRAVITY = {"value": -9.80665, "unit": "m/s^2", "axis": "global_z"}  # spec §2: standard gravity along -Z
 
@@ -235,7 +235,7 @@ LEDGER = [
      "RT-A3 increment 4; with the connector, increment 5", "`EXACT_PRESSURE_FAMILY_NOT_ADMITTED`"),
     ("RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7",
      "interim: RS-FR1V authored as a linear `vertical_support` UZ (Agent 0, 2026-10-31)",
-     "RT-A3, R-4 stage S7, after increment 4 (DEL-04-07 `Work/route-unification-r4.md` §0a)",
+     "RT-A3, R-4 stage S7, after increment 4 (DEL-04-07)",
      "a nonlinear friction normal source is refused on both routes"),
     ("RS-SUS, RS-OPE (thermal, modulus by temperature)",
      "in tranche 1 as linear cases (load/reference-state group)", "—", "—"),
@@ -582,8 +582,8 @@ def base_model():
         "document_kind": "openpipestress.product_preview.model",
         "pressure_contract": dict(ROUTE),
         "project": {"id": "project:RS", "name": "Reference system (invented)",
-                    "description": "Invented reference system for exit criterion 1 (DEL-09-01 "
-                                   "Work/reference-system.md), tranche 1; a test object, not a design",
+                    "description": "Invented reference system for exit criterion 1 (DEL-09-01), "
+                                   "tranche 1; a test object, not a design",
                     "units": {"length": "m", "force": "N", "moment": "N*m", "angle": "rad", "pressure": "Pa",
                               "stress": "Pa", "temperature": "degC"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "professional_acceptance": "not_provided",

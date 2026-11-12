@@ -5,7 +5,7 @@
 // resolver lists any conversion it still needs. The batch builder
 // (`runSheetBatch.ts`) reads only this module's output.
 //
-// The sheet suggests no section, material, orientation, radius or k (§6.3):
+// The sheet suggests no section, material, orientation, radius or k:
 // every value below is entered, inherited from an entered value, read from a
 // stored record, or derived by a stated rule (ids, labels, readouts).
 import { convertDisplayQuantities, type DisplayQuantityRequest } from "../../../services/displayQuantityService";
@@ -28,7 +28,7 @@ export const SUPPORT_CODES: Readonly<Record<string, string>> = { A: "anchor", G:
 /** The restraint vocabulary (`operation_applier` `RESTRAINT_TOKENS`); `*` is all six. */
 export const RESTRAINT_TOKENS = ["UX", "UY", "UZ", "RX", "RY", "RZ"] as const;
 
-/** Quantity columns (§1.2): each has one column unit; values are stored as entered. */
+/** Quantity columns: each has one column unit; values are stored as entered. */
 export type QuantityColumn =
   | "od" | "wall" | "insulationThickness" | "insulationDensity" | "contentsDensity"
   | "materialDensity" | "millTolerance" | "corrosionAllowance" | "bendRadius";
@@ -43,7 +43,7 @@ export const QUANTITY_COLUMNS: Readonly<Record<QuantityColumn, { label: string; 
   corrosionAllowance: { label: "Corrosion allowance", dimension: "length", member: "corrosion_allowance" },
   bendRadius: { label: "Bend R", dimension: "length" },
 };
-/** Optional section members, ended by `-` (§2.4). */
+/** Optional section members, ended by `-`. */
 export const OPTIONAL_SECTION_COLUMNS = [
   "insulationThickness", "insulationDensity", "contentsDensity", "materialDensity", "millTolerance", "corrosionAllowance",
 ] as const satisfies readonly QuantityColumn[];
@@ -74,23 +74,23 @@ export type RunSheetRowInput = {
   component?: ComponentRowInput;
   storedComponentMissing?: string;
   storedComponentMismatch?: string;
-  /** Ids the user overwrote (§3.2); otherwise derived from the row's number, the support's
+  /** Ids the user overwrote; otherwise derived from the row's number, the support's
    * node or the bend's corner. */
   ids?: { node?: string; pipe?: string; support?: string; bendStart?: string; bendEnd?: string; bendArc?: string; bendComponent?: string };
-  /** The support's label; blank is the support id's token (§3.2). */
+  /** The support's label; blank is the support id's token. */
   supportLabel?: string;
-  /** A bend row's geometry source; blank is the sheet's Source (§1.2). */
+  /** A bend row's geometry source; blank is the sheet's Source. */
   bendSource?: string;
-  /** An applied row's own pipe, by the id its batch created (§3.4): its pipe id is never
+  /** An applied row's own pipe, by the id its batch created: its pipe id is never
    * derived again, so a later row cannot rename it. */
   storedPipeId?: string;
   /** An applied bend row's stored geometry source, read from its component; `""` when the
-   * component no longer exists. Shown in place of the sheet's current Source (§3.4). */
+   * component no longer exists. Shown in place of the sheet's current Source. */
   storedBendSource?: string;
   /** An applied bend row's stored directional SIF values, read from its component (display only);
    * `""` where the component holds none. `missing` names a component that no longer exists. */
   storedSifs?: StoredSifs;
-  /** An applied row's stored end position (§3.4, §6.2): the resolver uses it in
+  /** An applied row's stored end position: the resolver uses it in
    * place of `x_{k−1} + c(Δ)`, so later rows continue from stored geometry. For
    * an applied bend row it is the stored outgoing tangent point, named by
    * `storedEndId`: the removed corner is never resolved. */
@@ -124,7 +124,7 @@ export type RunSheetInput = {
   batchSeq: number;
   /** The increments' unit; default `project.units.length` (§1.2 sheet header). */
   lengthUnit?: string;
-  /** Header Source: the provenance of every created entity (§1.2). */
+  /** Header Source: the provenance of every created entity. */
   source: string;
   numbering?: Partial<RunSheetNumbering>;
   /** Column units chosen in the headers; default the project unit of the dimension. */
@@ -144,7 +144,7 @@ export type RunSheetIdState = {
    * after withdrawal, Undo, explicit replacement or removal from the sheet. */
   retainedPipes?: Readonly<Record<string, string>>;
 };
-/** The most numbers one assignment examines before it refuses (§3.2 reservation search). */
+/** The most numbers one assignment examines before it refuses. */
 export const MAX_NUMBER_SEARCH = 10_000;
 
 export type CellOrigin =
@@ -153,7 +153,7 @@ export type CellOrigin =
   | { kind: "stored"; pipe: string }
   | { kind: "derived"; rule: string }
   | { kind: "blank" };
-/** A resolved cell. `absent` marks an optional member ended by `-` (§2.4). */
+/** A resolved cell. `absent` marks an optional member ended by `-`. */
 export type ResolvedCell<T> = { value?: T; absent?: true; origin: CellOrigin; error?: RunSheetFinding };
 export type ResolvedCells = {
   section: ResolvedCell<string>;
@@ -180,7 +180,7 @@ export type RunSheetRule =
 export type RunSheetFinding = { rule: RunSheetRule; message: string; column?: string; detail?: string };
 
 export type BendIds = { start: string; end: string; arc: string; component: string };
-/** The bend's id cells (§1.2 "Ids and sources"): the row input member and the cell's name. */
+/** The bend's id cells: the row input member and the cell's name. */
 export const BEND_ID_CELLS: ReadonlyArray<{ member: keyof BendIds; input: "bendStart" | "bendEnd" | "bendArc" | "bendComponent"; label: string }> = [
   { member: "start", input: "bendStart", label: "Bend start id" },
   { member: "end", input: "bendEnd", label: "Bend end id" },
@@ -204,7 +204,7 @@ export type ResolvedRunSheetRow = {
   cells: ResolvedCells;
   label: { value: string; origin: CellOrigin } | null;
   ids: { node?: string; pipe?: string; support?: string; component?: string; bend?: BendIds };
-  /** The rule a derived pipe id followed, when the pipe is numbered by its start node (§3.2). */
+  /** The rule a derived pipe id followed, when the pipe is numbered by its start node. */
   pipeIdRule?: string;
   labels: { pipe?: string; support?: string };
   support: { family: string; restraints: string[] } | null;
@@ -225,7 +225,7 @@ export type ResolvedRunSheetRow = {
 };
 
 export type StoredSifs = { inPlane: string; outOfPlane: string; missing?: string };
-/** The directional SIF members of `bend_realization` (`bend_authoring.rs`, T4-U4b §2.6). */
+/** The directional SIF members of `bend_realization` (`bend_authoring.rs`). */
 export type BendSifPair = { sif_in_plane_user_value: { value: number; unit: string }; sif_out_of_plane_user_value: { value: number; unit: string } };
 /** The SIF cells' finding column (both cells show it). */
 export const BEND_SIF_COLUMN = "Bend SIFs";
@@ -239,7 +239,7 @@ export type ResolvedRunSheet = {
   storedLengthUnit: string;
   sheetLengthUnit: string;
   rows: ResolvedRunSheetRow[];
-  /** Sheet-level findings (Source, length units): they disable Queue (§4.2). */
+  /** Sheet-level findings (Source, length units): they disable Queue. */
   blockers: RunSheetFinding[];
   /** Conversions the table lacked; resolve again once they are added. */
   missingConversions: DisplayQuantityRequest[];
@@ -250,7 +250,7 @@ export type RunSheetConversions = ReadonlyMap<string, number | null>;
 export type RunSheetContext = {
   model: PreviewModel;
   idState: RunSheetIdState;
-  /** Create, connect and insert targets of pending intents and queued batches (§3.2). */
+  /** Create, connect and insert targets of pending intents and queued batches. */
   reservedIds?: Iterable<string>;
   conversions?: RunSheetConversions;
 };
@@ -316,21 +316,21 @@ export function parseNumber(raw: string): number | null {
 }
 /** §6.2 −0 cannot cross JSON, so every computed coordinate is normalized before use. */
 export const normalizeZero = (x: number) => (x === 0 ? 0 : x);
-/** The id's token: the id without its `type:` prefix (§3.2, as `InsertBendAtCornerForm`). */
+/** The id's token: the id without its `type:` prefix (as `InsertBendAtCornerForm`). */
 export const idToken = (id: string) => id.replace(/^[^:]*:/, "");
 
 export function numberingOf(input: RunSheetInput): RunSheetNumbering {
   return { ...DEFAULT_NUMBERING, ...(input.numbering ?? {}) };
 }
 
-/** A number as the ids show it (§3.2): its digits zero-padded to `pad`, the sign kept. */
+/** A number as the ids show it: its digits zero-padded to `pad`, the sign kept. */
 export function numberText(numbering: RunSheetNumbering, n: number): string {
   const digits = String(Math.abs(n));
   const padded = numbering.pad ? digits.padStart(numbering.pad, "0") : digits;
   return n < 0 ? `-${padded}` : padded;
 }
 
-/** Every id a row number yields (§3.2): end node, pipe, support and the bend's four. The
+/** Every id a row number yields: end node, pipe, support and the bend's four. The
  * pipe id is the same whichever node names the pipe, so reservation covers both options. */
 export function idsForNumber(numbering: RunSheetNumbering, n: number): { node: string; pipe: string; support: string; bend: BendIds } {
   const node = `${numbering.nodePrefix}${numberText(numbering, n)}`;
@@ -488,7 +488,7 @@ function inherit<T>(cell: ResolvedCell<T>, predecessorNumber: number): ResolvedC
   return { ...(cell.value !== undefined ? { value: cell.value } : {}), ...(cell.absent ? { absent: true as const } : {}), origin };
 }
 
-/** §2.3 rule 2: a field inherits from the stored pipes meeting a node only when all agree. */
+/** a field inherits from the stored pipes meeting a node only when all agree. */
 function fromStoredPipes(pipes: PipeRecord[]): ResolvedCells {
   const cells = blankCells();
   if (pipes.length === 0) return cells;
@@ -509,7 +509,7 @@ function fromStoredPipes(pipes: PipeRecord[]): ResolvedCells {
   }
   const material = agreed((pipe) => pipe.material);
   if (material.agree && material.value) cells.material = { value: material.value, origin };
-  // §4.1: inherited only when every meeting pipe carries the same set; otherwise blank.
+  // inherited only when every meeting pipe carries the same set; otherwise blank.
   const conditionSet = agreed((pipe) => pipe.condition_set_ref);
   if (conditionSet.agree && typeof conditionSet.value === "string") cells.conditionSet = { value: conditionSet.value, origin };
   const orientation = agreed((pipe) => pipe.y_reference);
@@ -517,7 +517,7 @@ function fromStoredPipes(pipes: PipeRecord[]): ResolvedCells {
   return cells;
 }
 
-/** The resolver (§2, §3.2, §4.2). Pure: the same input gives the same output. */
+/** The resolver. Pure: the same input gives the same output. */
 export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext): ResolvedRunSheet {
   const model = context.model;
   const numbering = numberingOf(input);
@@ -563,7 +563,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
     const predecessor = continues && index > 0 ? rows[index - 1] : null;
     const nodeName = text(raw.node);
 
-    // ---- The current node (§1.1).
+    // ---- The current node.
     let start: string | null = null;
     let startPosition: Vec3 | null = null;
     if (continues) {
@@ -581,7 +581,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
       }
     }
 
-    // ---- Inheritance (§2).
+    // ---- Inheritance.
     let cells: ResolvedCells;
     if (kind === "from") {
       const draftRow = drafted.get(nodeName);
@@ -597,7 +597,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
       cells = blankCells();
       for (const cell of INHERITING_CELLS) (cells as Record<string, ResolvedCell<unknown>>)[cell] = inherit(predecessor.cells[cell] as ResolvedCell<unknown>, predecessor.number);
     }
-    // An S row passes its predecessor's values through unchanged (§2.2): it enters none.
+    // An S row passes its predecessor's values through unchanged: it enters none.
     const accepts = kind !== null && kind !== "support";
     const entered = <K extends keyof RunSheetRowInput>(key: K) => text(raw[key] as string | undefined);
     const enteredValue = <K extends keyof RunSheetRowInput>(key: K) => (accepts ? entered(key) : "");
@@ -612,7 +612,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
       if (value === null) return { origin: { kind: "entered" }, error: { rule: "quantity-not-number", column: label, message: MESSAGES.quantityNotNumber(label, unit) } };
       return { value: { value: normalizeZero(value), unit }, origin: { kind: "entered" } };
     };
-    // Section, OD and wall (§2.4): an entered Section wins and shows the
+    // Section, OD and wall: an entered Section wins and shows the
     // section's values; an entered OD or Wall under an inherited Section clears it.
     const sectionTyped = enteredValue("section");
     const odTyped = quantity("od", false);
@@ -665,7 +665,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
       cells.bendRadius = { origin: { kind: "blank" } };
     }
 
-    // ---- Ids (§3.2).
+    // ---- Ids.
     const assigned = context.idState.assigned[raw.key];
     const derivedIds = assigned === undefined || numberingFinding ? null : idsForNumber(numbering, assigned);
     const numberRefusal = context.idState.refused?.[raw.key];
@@ -731,7 +731,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
       } else {
         increments = parseIncrements();
         if (raw.storedEnd) {
-          // An applied row: its stored end, not the sum of its historical increments (§3.4).
+          // An applied row: its stored end, not the sum of its historical increments.
           const id = text(raw.storedEndId) || text(overrides.node) || derivedIds?.node || "";
           end = { id, position: { x: normalizeZero(raw.storedEnd.x), y: normalizeZero(raw.storedEnd.y), z: normalizeZero(raw.storedEnd.z) }, existing: false };
         } else if (raw.storedEndMissing) {
@@ -759,9 +759,9 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
       if (pipeEnd && startPosition) length = Math.hypot(pipeEnd.x - startPosition.x, pipeEnd.y - startPosition.y, pipeEnd.z - startPosition.z);
     }
 
-    // ---- Ids, labels and support (§3.2, §5.2).
+    // ---- Ids, labels and support.
     const creates = (isPipeRowKind(kind)) ? !nodeName : kind === "point";
-    // A row without an id says why: its number was refused (§3.2), or the id is blank.
+    // A row without an id says why: its number was refused, or the id is blank.
     const numberingReason = numberRefusal ?? numberingFinding;
     let missingIdReported = false;
     const missingId = (what: string) => {
@@ -829,13 +829,13 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
     } else if (restraintsText) {
       refusals.push({ rule: "support", column: "Restraints", message: MESSAGES.restraintsWithoutSupport });
     }
-    // The support's id and label cells apply to a row with a support code (§1.2).
+    // The support's id and label cells apply to a row with a support code.
     if (!supportText && kind !== null) {
       if (text(overrides.support)) refusals.push({ rule: "support", column: "Support id", message: MESSAGES.notApplicable("Support id", "a row with a support code") });
       if (text(raw.supportLabel)) refusals.push({ rule: "support", column: "Support label", message: MESSAGES.notApplicable("Support label", "a row with a support code") });
     }
 
-    // ---- Element rules (§4.2) for rows that create a pipe.
+    // ---- Element rules for rows that create a pipe.
     if (isPipeRowKind(kind)) {
       const material = cells.material.value;
       if (!material || !(model.materials ?? []).some((item) => item.id === material)) {
@@ -886,7 +886,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
         bendSource = typed ? { value: typed, origin: { kind: "entered" } } : { value: source, origin: { kind: "derived", rule: "the sheet's Source" } };
       }
     } else if (kind !== null) {
-      // The bend's id and source cells apply to B rows only (§1.2).
+      // The bend's id and source cells apply to B rows only.
       for (const cell of BEND_ID_CELLS) {
         if (text(overrides[cell.input])) refusals.push({ rule: "bend", column: cell.label, message: MESSAGES.notApplicable(cell.label, "B rows") });
       }
@@ -977,7 +977,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
   // ---- Rules that need the whole sheet.
   const reservedOutside = new Set<string>([...modelIds(model), ...(context.reservedIds ?? [])]);
   // A displayed pipe id stays fixed until an explicit draft overwrite/delete;
-  // queued/applied pipe identities stay reserved to their original row (§3.2).
+  // queued/applied pipe identities stay reserved to their original row.
   const fixedOwners = new Map([
     ...Object.entries(fixedPipes).map(([rowKey, fixed]) => [fixed.id, rowKey] as const),
     ...Object.entries(context.idState.retainedPipes ?? {}),
@@ -1029,7 +1029,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
     drafts.push({ id: row.end.id, position: here, row: row.number });
   }
 
-  // Bend requirements (§3.3): the next run, one section and material, nothing else at the corner.
+  // Bend requirements: the next run, one section and material, nothing else at the corner.
   rows.forEach((row, index) => {
     if (row.kind !== "bend") return;
     const next = rows[index + 1];
@@ -1046,7 +1046,7 @@ export function resolveRunSheet(input: RunSheetInput, context: RunSheetContext):
     ];
     const differs = compared.find(([, read]) => !sameJson(read(row.cells), read(next.cells)));
     if (differs) row.refusals.push({ rule: "bend", message: MESSAGES.bendMismatch(differs[0], next.number) });
-    // §4.1: the same effective condition set on both rows, or none on both (absent and blank alike).
+    // the same effective condition set on both rows, or none on both (absent and blank alike).
     const effectiveSet = (cells: ResolvedCells) => (cells.conditionSet.absent ? undefined : cells.conditionSet.value);
     if (!differs && effectiveSet(row.cells) !== effectiveSet(next.cells)) row.refusals.push({ rule: "bend", message: MESSAGES.bendConditionSetMismatch(next.number) });
     const referencing = rows.find((other) => other !== row && other !== next && (

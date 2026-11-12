@@ -164,7 +164,7 @@ fn w15_headline_stays_on_the_pipe_while_the_body_carries_its_record() {
                 admitted(route, &source, &wire["model"], &label);
                 let (pipe, body) = (maxima(&source, PIPE), maxima(&source, BODY));
                 assert!(!pipe.is_empty() && pipe.len() == body.len(), "{label}");
-                // §2.4: s = 1 lets the pipe govern; s = 4 makes the body's
+                // s = 1 lets the pipe govern; s = 4 makes the body's
                 // reference-section stress the larger one.
                 let governs = pipe.iter().zip(&body).all(|(p, b)| if s == 1.0 { p > b } else { b > p });
                 assert!(governs, "{label}: pipe {pipe:?} body {body:?}");
@@ -461,7 +461,7 @@ fn w15_an_all_body_case_has_a_null_headline() {
 /// A result that is not solved formed no member, so it carries no record and
 /// the model-bound reader expects none, whatever the model declares: here the
 /// body's scaled moduli leave binary64's normal range and the producer refuses
-/// the member (`PIPE_SECTION_INPUT_INVALID`, Design §2.2).
+/// the member (`PIPE_SECTION_INPUT_INVALID`).
 #[test]
 fn w15_an_unsolved_result_carries_no_body_whatever_the_model_declares() {
     for route in ROUTES {

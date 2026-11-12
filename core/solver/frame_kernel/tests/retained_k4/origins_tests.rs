@@ -429,7 +429,7 @@ fn combination_local_builds_and_unavailable_ledger_do_not_backfill_selected_oper
 }
 
 // ---------------------------------------------------------------- B2-K custody
-// KD §1-§2 with RV115's SF-1 and N-6. N05 and N05-TRANSVERSE share one stiffness
+// N05 and N05-TRANSVERSE share one stiffness
 // identity (different loads); SKEW6-K1E-12 selects at 256 and its unloaded copy
 // at 128.
 use super::super::adaptive::PreparedCaseSource;

@@ -88,7 +88,7 @@ fn binding_text<'a>(admission: &'a Value, field: &str) -> &'a str {
     admission.get(field).and_then(Value::as_str).unwrap_or("")
 }
 
-/// Step 1 (§3.6): the admission's `native_job_id` names a result still in
+/// Step 1: the admission's `native_job_id` names a result still in
 /// custody; returns its digests. `custody` is the registry's
 /// `custody_binding`. An admission without a job id names no custody.
 pub(crate) fn check_custody(
@@ -102,7 +102,7 @@ pub(crate) fn check_custody(
     custody(job).ok_or_else(custody_released)
 }
 
-/// Step 2 (§3.6): hashed in place, without allocating. The result text must
+/// Step 2: hashed in place, without allocating. The result text must
 /// be the bytes the job delivered (and the admission's
 /// `received_bytes_sha256`), the intake text the body it admitted.
 pub(crate) fn check_delivered_texts(
@@ -132,7 +132,7 @@ pub(crate) struct BoundSource {
     pub model_sha256: String,
 }
 
-/// Steps 3-5 (§3.6), after the command's lease covers the priced parse of
+/// Steps 3-5, after the command's lease covers the priced parse of
 /// both texts and its working memory: parse and guard both texts, require
 /// eligible native standing with the invocation built from the recorded mode
 /// (`{request: {model, materials: []}, solver_mode}`, the form of the

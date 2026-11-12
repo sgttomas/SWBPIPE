@@ -1,4 +1,4 @@
-"""RTA3B-PS and RTA3B-MR (retained-pricing-rules.md §8.37): RT-A3 increment 1b's published-row index. Each case's
+"""RTA3B-PS and RTA3B-MR (§8.37): RT-A3 increment 1b's published-row index. Each case's
 PublishedScope entity set is charged at a u64 table of the case's rows (P_final) with its previous table, and each
 member's MemberRows slots at the largest push capacity of 30 vectors holding its rows per member plus one old backing.
 The premises they rest on are guarded by name; a changed premise or index stops the run, and a snapshot without the

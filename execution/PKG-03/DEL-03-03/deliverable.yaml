@@ -1,97 +1,81 @@
 id: DEL-03-03
 name: Bend and elbow component model fields
 needs:
-- from: DEL-00-01
-  condition: 'DEL-03-03 requires the SCA-001 architecture basis AB-00-01 before sealed product-development
-    execution.
-
-
-    Notes: local row is evidence for RECONCILIATION and is not aggregate DAG authority.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-03-03 requires the SCA-001 architecture basis AB-00-02 before sealed product-development
-    execution.
-
-
-    Notes: local row is evidence for RECONCILIATION and is not aggregate DAG authority.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-03-03 requires the SCA-001 architecture basis AB-00-04 before sealed product-development
-    execution.
-
-
-    Notes: local row is evidence for RECONCILIATION and is not aggregate DAG authority.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-03-03 requires the SCA-001 architecture basis AB-00-06 before sealed product-development
-    execution.
-
-
-    Notes: local row is evidence for RECONCILIATION and is not aggregate DAG authority.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-03-03 requires the SCA-001 architecture basis AB-00-07 before sealed product-development
-    execution.
-
-
-    Notes: local row is evidence for RECONCILIATION and is not aggregate DAG authority.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-03-03 requires the SCA-001 architecture basis AB-00-08 before sealed product-development
-    execution.
-
-
-    Notes: local row is evidence for RECONCILIATION and is not aggregate DAG authority.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-01
+  condition: >-
+    A component in the model document is a typed, closed record with a stable identifier and a
+    kind, among which are bend and elbow; the document describes every component member a reader
+    decodes, each quantity with its unit; and a component's SIF and flexibility modifiers can carry
+    source and provenance.
   gating: true
 - from: DEL-03-02
-  condition: 'DEL-03-03 depends on DEL-03-02 because bend and elbow fields extend the component library
-    schema.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The component library format provides the record, the field slot (a quantity or text reference
+    with its value status, public-value policy and provenance), the family contract and the
+    completeness rule into which the bend family's field kinds and diagnostics are declared.
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-02-02
-  condition: 'DEL-03-03 depends on DEL-02-02 because bend geometry inputs and numeric factors need unit-aware
-    validation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The unit catalog converts a bend's lengths and angles to one consistent basis, treats its
+    factors as dimensionless, and rejects a dimensional mismatch before the value reaches the
+    solve.
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-01-02
-  condition: 'DEL-03-03 depends on DEL-01-02 because bend and elbow fields must not bundle protected SIF
-    or flexibility data.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The protected-data boundary policy states that no public artifact may contain protected SIF or
+    flexibility content, so that every bend factor is the user's own data.
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-00-06
+  condition: >-
+    The diagnostic contract fixes the members a bend finding carries (code, class, severity,
+    source, affected object, message, remediation and provenance).
+  gating: true
+- from: DEL-04-01
+  when: Examining AC-002 and AC-003 on solved frames
+  condition: >-
+    The frame kernel assembles a two-node element's stiffness, given in the fixed order of the six
+    degrees of freedom at each end, into the global stiffness beside the straight members, and
+    solves it the same in the sparse and dense modes, so that a realized bend's arc element enters
+    the solved frame.
+  gating: true
+- from: DEL-04-07
+  condition: >-
+    The product solve admits a realized bend on the pressure-free route and on the exact route,
+    publishes its displacements, end actions and stress rows (DEL-04-07/REQ-010), and refuses a
+    geometry-only bend on the exact route by name.
+  gating: false
+  when: Solving a model that contains a bend.
+- from: DEL-05-03
+  condition: >-
+    Stress recovery publishes the bending stresses M_y/Z and M_z/Z at a pipe end and at a station
+    of an arc, in the arc's tangent frame, and defines the intensified bending at a station of a
+    realized arc as hypot(i_ip M_z, i_op M_y)/Z, each of the user's directional factors on the
+    moment of its own plane, with no axial or torsional term.
+  gating: false
+  when: Publishing intensified stresses at a bend.
+- from: DEL-09-01
+  condition: >-
+    The invented reference system and its independent references are maintained, with realized
+    bends among its members.
+  gating: true
+  when: Examining the reference system's bends on the exact route.
 code_paths:
-- schemas/component.schema.yaml
-- schemas/model.schema.yaml
-- core/product_physics/src/lib.rs
+# The arc element: this deliverable's definition, examined under its criteria. DEL-04-01 lists the
+# same crate with the frame kernel's code, which assembles the element into the global stiffness
+# and solves it. Its references are validation/references/t4_i6/**, held by DEL-04-01.
+- core/solver/curved_bend/**
+# In DEL-04-07's product crate, the module that carries the component input rules: a bend's
+# required inputs, the arc-consistency checks and the directional-factor rule are this
+# deliverable's; the branch and rigid rules in the same file are DEL-03-04's and DEL-03-05's.
 - core/product_physics/src/validation.rs
-- apps/desktop/src/features/component-creation/componentIntent.ts
-- apps/desktop/src/features/bend-authoring/BendAuthoringForms.tsx
+# Shared with DEL-03-02, which owns the format: the bend family's field kinds, completeness rule
+# and diagnostic codes in it are this deliverable's.
+- schemas/component.schema.yaml
+# Shared with DEL-02-01, which owns the document: the bend members of a component and the
+# curved_bend_macro_element consumption value in it are this deliverable's.
+- schemas/model.schema.yaml
 checks:
+- core/solver/curved_bend/src/lib.rs
+- core/product_physics/tests/t4_u1_reference.rs
 - tests/test_component_section_schema.py
 - apps/desktop/src/features/bend-authoring/BendAuthoringForms.test.tsx

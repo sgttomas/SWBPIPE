@@ -1,170 +1,77 @@
 id: DEL-04-05
 name: Sparse solver performance harness
 needs:
-- from: DEL-00-01
-  condition: 'DEL-04-05 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-04-05 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-04-05 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-04-05 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-04-05 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-04-01
   condition: >-
-    DEL-04-05 observes DEL-04-01's solve boundary without changing it: the frame kernel's assembly,
-    reduction and dense path, K1's sparse representation, and the in-repo sparse skyline solver
-    (`sparse_direct`, DEC-023) that it measures beside the dense parity path. It needs those public
-    interfaces and their deterministic ordering and storage.
+    The frame kernel's assembly, reduction, sparse solve and dense solve can be called from outside
+    the kernel on a prepared system, give the same output for the same input, and report for each
+    sparse solve its ordering, stored profile size, pivot extremes and non-positive pivot count.
   gating: true
-  evidence: core/solver/performance_harness/README.md
 - from: DEL-04-06
   condition: >-
-    DEL-04-05 records solver conditioning and failure diagnostics through DEL-04-06's diagnostic records
-    (`solver/diagnostics`: condition-ratio classification, frame and sparse failure mapping, factorization
-    reports and the tolerance-policy and sparse-solver status diagnostics) in a fixed order.
+    The diagnostic records classify a condition ratio against supplied thresholds, map each kernel
+    failure, a singular system included, to a named blocking record, and are produced in a fixed
+    order for the same input (DEL-04-06/REQ-005, DEL-04-06/REQ-008,
+    DEL-04-06/AC-003).
   gating: true
-  evidence: core/solver/performance_harness/README.md
 - from: DEL-04-07
-  when: K6 kernel observations
   condition: >-
-    K6 stages the product's linear entry, `SparseAssemblyEvidence::solve_assembled_with_formation_check`
-    in `nonlinear_integration`'s structural adapter, at its public-API boundaries and pins the staged
-    result bit for bit to the adapter's own entries. DEL-04-05 needs DEL-04-07 to keep those boundaries
-    public; it observes them and changes nothing.
+    One public solve entry takes the solve request the desktop worker sends and returns the result
+    the desktop displays, and the same entry serves the desktop and the headless runner, so that a
+    measurement driver calling it measures the product's solve. A solve is admitted only within
+    the 12 GiB per-invocation budget on the 16 GiB base machine, and a completed solve's peak
+    footprint is within it.
   gating: true
-  evidence: core/solver/performance_harness/src/k6/staged.rs
+- from: DEL-04-07
+  when: Building and running the registered kernel-observation checks
+  condition: >-
+    The registered K6 kernel-observation checks compile against the structural adapter's sparse
+    assembled solve with its formation check, which can be called from outside its crate and gives
+    the product's own entries for the same input. This is what those checks are built on, not a
+    requirement on the product solve.
+  gating: false
 - from: DEL-04-01
-  when: K6b W1 observations
+  when: Observing the retained-precision lanes
   condition: >-
-    K6b runs DEL-04-01's retained kernel through `structural::retained_api`
-    (`SourceParts`, `solve_case`) and records its work by stage. DEL-04-05 needs
-    that public surface and its work accounting; it asserts no time or memory bound.
-  gating: true
-  evidence: core/solver/performance_harness/src/k6/w1/adapter.rs
-- from: DEL-04-07
-  when: criterion 9 release timing
-  condition: >-
-    The release timing driver calls the product's public linear entry,
-    `run_linear_static_preview_value_with_mode`, with the request the desktop worker sends,
-    and records its time, memory and published rows. DEL-04-05 needs that entry to stay the
-    one the worker calls; it observes it and changes nothing.
-  gating: true
-  evidence: core/solver/release_timing/src/main.rs
-- from: DEL-07-07
-  when: criterion 9 release timing
-  condition: >-
-    The driver mirrors the desktop solve worker's ordinary solve (`solve_worker.rs`:
-    parse, request wrapper, entry, serialization, the result digest's parse-back) and its
-    footprint measure (`ri_lifetime_max_phys_footprint`), and the runner classifies runs
-    against the desktop's 12 GiB per-invocation budget (`memory_pool.rs`). A change to
-    those stages or that budget needs the driver and runner re-aligned.
+    The kernel's retained-precision lanes can be run on one case from outside the kernel and
+    report the work they did by stage.
   gating: false
-  evidence: core/solver/performance_harness/runner/release_runner.py
+- from: DEL-07-07
+  when: Measuring exit criterion 9
+  condition: >-
+    A solve job's worker reads and parses the model, calls the product solve entry, serializes the
+    result and verifies it; the host then takes the result into custody, and the display reads its
+    summary and pages and paints them. Each stage boundary is marked on the solve timeline with
+    its fixed code (DEL-07-07/REQ-013). A change to these stages changes what the harness must
+    time.
+  gating: false
 - from: DEL-02-01
-  when: criterion 9 reference racks
+  when: Generating the reference racks
   condition: >-
-    The rack generator writes model documents at the current model document version, read
-    from `model_format.rs` `MODEL_SCHEMA_VERSION`, in the shapes that version admits. A
-    version change needs the generator's shapes re-checked and its hashes regenerated; its
-    test fails until then.
+    The model document has one current version, and a document of that version in the shapes it
+    admits opens and solves; the rack generator writes that version.
   gating: false
-  evidence: core/solver/performance_harness/rack/rack_model.py
-- from: DEL-07-07
-  when: criterion 9 desktop measurement
-  condition: >-
-    The desktop measurement times the product's own solve job path: publication under the
-    result lease, poll, take (2R custody) and the IPC response (`solve_jobs.rs`), and the
-    webview's take, decode, parse and reader registration (`previewService.ts`), which the
-    solve timeline (`solveTimeline.ts`) marks without changing. The native-smoke result
-    injection (`native_smoke_inject.rs`) stands in for the worker with the worker's own
-    attestation functions (`solve_worker.rs` `result_digest`, `solve_attestation.rs`
-    `streamed_digest`). A change to that path or those functions needs the injection and
-    the timeline's marks re-aligned; the reach scan keeps the injection out of product builds.
-  gating: false
-  evidence: apps/desktop/src-tauri/src/native_smoke_inject.rs
 - from: DEL-07-11
-  when: criterion 9 desktop measurement
+  when: Measuring exit criterion 9 in the desktop
   condition: >-
-    The perf driver runs on the native-smoke harness: the `native-smoke` cargo feature, its
-    driver, plan and report commands and the chooser and menu substitutions
-    (`native_smoke.rs`), and the solve timeline's global installed beside
-    `__openPipeStressUiDiagnosticsV1` (`uiDiagnostics.ts`). The rack generator writes the
-    model-file shape Open Model Document checks (`modelDocumentShape.ts`,
-    `checkNativeOutcome`). A change to that harness, that global's installation or that
-    shape needs the driver, runner or generator re-aligned; `rackModelOpen.test.ts` fails
-    on a shape the desktop refuses. C1's native-smoke-only scalar reader probe uses the
-    same held producer bytes and intake-bound launch model, with the existing allocation
-    counter enabled only in smoke/test builds; it reports parser and reader phases without
-    exporting a result or adding product authority. The bounded native-reader phase
-    diagnostics use fixed timeline/native-smoke checkpoints and a capped durable runner
-    journal; smoke-only wrapper expansion preserves the existing Value-reader contract,
-    while the private health entry remains explicitly combined. Changed diagnostic
-    boundaries, delivery or wrappers require those checkpoints and parity tests re-aligned.
-    C1's command observation follows the webview IPC of the locked `tauri` (2.11.1: one
-    `ipc://` fetch per command and its permanent postMessage fallback) and wry's
-    `window.ipc`; its tests run that version's own scripts
-    (`native-smoke/test-fixtures/tauri-2.11.1/`), and a `tauri` change needs them replaced
-    and the observation re-checked.
+    The desktop can be driven through a scripted run in a build made for that purpose, with file
+    choosers and menus substituted, and that build's instrumentation is absent from product builds.
   gating: false
-  evidence: apps/desktop/native-smoke/perf.mjs
 code_paths:
 - core/solver/performance_harness/**
+# The timing driver for exit criterion 9: it performs the desktop worker's steps on DEL-04-07's
+# public entry.
+- core/solver/release_timing/**
 - validation/benchmarks/sparse_*.json
+# The desktop measurement. The native-smoke harness it runs on (native_smoke.rs and the rest of
+# apps/desktop/native-smoke/) is DEL-07-11's; these files are the performance kit only.
+# Where the timeline marks and the injection sit in the solve job path is DEL-07-07's, which also
+# lists native_smoke_inject.rs and solveTimeline*. What is marked and kept, and the injection's
+# stand-in for the worker, are this deliverable's.
 - apps/desktop/native-smoke/perf*
 - apps/desktop/native-smoke/test-fixtures/tauri-2.11.1/**
-- apps/desktop/src-tauri/src/native_smoke.rs
+- apps/desktop/src-tauri/src/native_smoke_inject.rs
+- apps/desktop/src/services/solveTimeline*
 checks:
 - core/solver/performance_harness/src/lib.rs
 - core/solver/performance_harness/tests/k6*.rs

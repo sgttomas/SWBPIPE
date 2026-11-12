@@ -79,7 +79,7 @@ fn body_of(len: usize) -> Value {
 }
 
 // ---------------------------------------------------------------------------
-// Admission and arguments (§6).
+// Admission and arguments.
 // ---------------------------------------------------------------------------
 
 #[test]
@@ -136,7 +136,7 @@ fn each_command_takes_its_named_arguments() {
     }
 }
 
-/// §6: the write's memory is seeded with its ingress lease, and slice 1's
+/// the write's memory is seeded with its ingress lease, and slice 1's
 /// reservations (the parse, the canonical copy, the read-back block) are made
 /// within it. The whole command, from the body's parse to the outcome, is
 /// measured by the counting allocator: its priced peak is within the most the
@@ -221,7 +221,7 @@ fn a_discard_never_follows_or_removes_a_symlink() {
 }
 
 // ---------------------------------------------------------------------------
-// Settings (§2).
+// Settings.
 // ---------------------------------------------------------------------------
 
 #[test]

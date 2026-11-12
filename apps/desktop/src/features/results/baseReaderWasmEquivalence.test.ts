@@ -52,7 +52,7 @@ describe("R2 equivalence gate, item 1: the wasm readers are the native Rust read
       return;
     }
     const { sourceJson, modelJson, invocationJson } = input;
-    // C1 slice 1 (DEL-04-05 `c1-native-custody-plan.md` §4): the dispatch text, byte for byte,
+    // the dispatch text, byte for byte,
     // is serde_json's compact text of the native outcome (keys in order; JSON.stringify escapes
     // a Rust string as serde_json does), the text the native custody command returns for the
     // same input (`native_verdict_tests.rs`).
@@ -87,7 +87,7 @@ describe("R2 equivalence gate, item 1: the wasm readers are the native Rust read
   }, 120_000);
 });
 
-/** C1 slice 1, review F2 and F3 (DEL-04-05 `c1-native-custody-plan.md` §4): the wasm engine's
+/** the wasm engine's
  * refusal of a text that is not JSON, byte for byte, as the native custody command returns it
  * (`native_verdict_tests.rs` `NOT_JSON_CASES`, the same literals); and the one exception, a
  * `RawValue` token key, which the wasm engine reads and the native command refuses

@@ -2,439 +2,125 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-07-01
 package_id: PKG-07
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-020,SOW-077]
 package_objective_refs: [OBJ-006]
 ---
 
-# Scope of Work — DEL-07-01
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
-
-## Current performance acceptance boundary — D-72
-
-Redesigned-product performance acceptance, settled-frame behavior and owned-resource obligations remain open under D-72 and its final addendum. Apply the five inherited D-68 numeric limits, the accepted reference profile, geometry, workload and observation rules, and the S-1/S-2 run/pass rule; S-3 was not accepted. The decision records govern exact criteria. No present implementation or historical demonstration qualifies a later candidate. Select and run a successor demonstration before asserting acceptance. Sources: `execution/_Coordination/_DECISIONS/D-72_RULING_2026-09-18.md` and `D-72_RULING_ADDENDUM_2026-09-18.md`.
+# Scope of Work — DEL-07-01 3D viewport and centerline editor
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-07-01` in service of project scope [SOW-020] and package objectives [OBJ-006].
+This deliverable is where the engineer sees the piping model in three dimensions and builds it by hand. The viewport draws the centreline model as it is stored: nodes, pipe runs, bend arcs, branches, component symbols, supports, labels and load arrows. The editor turns pointer and keyboard work in that view into model operations: placing nodes, routing and continuing pipe runs, splitting, reconnecting and transforming runs, and placing components. The tool palette, which gives every model-building command one place, is drawn and routed here. Nothing the viewport does changes the model except through the operation route, and nothing it draws is an engineering value the user did not enter.
 
-- **OUT-001** — A 3D viewport and centerline-editor contract covering unit-aware nodes, pipe runs, bends, simple component symbols, stable selection identity, command-routed edits, explicit diagnostics, and bounded interaction evidence is produced for the declared scope and objective.
+It serves SOW-020 and SOW-077 under OBJ-006 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-07, row DEL-07-01), and PRD §14.1, §14.2, §5.3, FR-GUI-001 and FR-GUI-004. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. It supports criterion 1, where the reference system is built and solved in the desktop, and criterion 7, where that system is entered from blank within the authoring time.
+
+- **OUT-001** — The 3D viewport and centreline editor: the drawn model, selection and visibility in the view, and the editing gestures that produce model operations.
+- **OUT-002** — The tool palette as drawn and routed: every command of the DEL-07-09 vocabulary reachable from one palette, each leading to its operation route.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-07-01 3D viewport and centerline editor
+**Terms the viewport and editor implement.**
 
-> #### Datasheet: DEL-07-01 3D viewport and centerline editor
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Centreline model.* The piping model as a 3D frame of nodes joined by line elements. The viewport draws that model and no other geometry; shell and solid detail is not part of it.
+- *Component symbol.* A simple glyph that marks a bend, tee, reducer, valve, flange or expansion joint at its place on the centreline. A symbol shows that a component exists and where; it carries no dimension the user did not enter.
+- *Actual OD display.* A drawing of each straight span at its section's entered outside diameter. A span whose section does not give a valid diameter is drawn as a centreline.
+- *Draft.* A node, pipe or component the user has placed or typed but not yet applied. A draft is visible and editable, is transient, and cancelling it changes nothing in the model.
+- *Intent and batch.* What an editing gesture produces: one structured operation or an ordered set of them, queued for review and applied only on the user's Apply.
+- *Selection.* A set of typed entity identifiers, shared with the model tree and the property inspector. Point selection picks one entity, modified clicks add or remove, and box selection picks every entity the box encloses.
+- *Hide and isolate.* View-only filters on what is drawn. Hidden entities stay in the model and in the tree.
+- *Measurement.* The distance between two authored nodes, read from their stored positions and shown with its unit.
+- *Split into equal parts.* One pipe becomes N pipes of equal length with N − 1 new nodes. Node k is stored at A + (B − A)·(k/N), computed per component in binary64 from the stored end positions A and B, so every node is placed from the ends and none from its neighbour.
+- *End point by length and direction.* A new end point computed from a start node and one of: a length along a direction vector, a length at an angle from the horizontal, or a horizontal run at a slope of 1 in n. For angle and slope the user states which way is up.
+- *Tool palette.* The searchable list of model-building commands, in the groups DEL-07-09 fixes. A palette command opens the form or tool that builds the operation; it changes nothing itself.
+- *Settled frame.* The state of the viewport when nothing is moving: no animation frame is scheduled.
 
-### CLM-003 — Identification
+**Boundary.** This deliverable draws and edits the model in the 3D view. The following belong elsewhere:
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-07-01 |
-> | Deliverable name | 3D viewport and centerline editor |
-> | Package ID | PKG-07 |
-> | Package name | Graphical User Interface and Engineering Workflow |
-> | Deliverable type | UX_UI_SLICE |
-> | Context envelope | L |
-> | Current execution mode | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
-> | Write boundary | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
->
+- the operation vocabulary, its coverage and the palette's groups: DEL-07-09;
+- validation, preview, acceptance and application of every operation: DEL-16-02, DEL-16-03 and DEL-16-06;
+- the model tree, tables, property inspector, run sheet and support forms: DEL-07-02;
+- component, material and section forms, which the viewport hosts when a component is placed: DEL-07-03;
+- deformed shapes, rotation glyphs, reaction arrows and result colour drawn in this viewport: DEL-07-05;
+- comparison overlays: DEL-07-08;
+- the shell that mounts the viewport, shared selection and session history: DEL-07-11 under the DEL-00-05 rule;
+- theme, density, focus and contrast: DEL-07-06.
 
-### CLM-004 — Attributes
-
-> ##### Attributes
->
-> | Attribute | Value | Source |
-> |---|---|---|
-> | Primary scope item | SOW-020: GUI shall provide a 3D centerline modeler with model tree and piping component visualization | `docs/_Registers/ScopeLedger.csv` row `SOW-020`; `_CONTEXT.md` |
-> | Supported objective | OBJ-006: GUI workflow makes model creation, missing data, results, and assumptions visible | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 5; `_CONTEXT.md` |
-> | Future artifact class | GUI viewport and interaction tests | `docs/_Registers/Deliverables.csv` row `DEL-07-01`; `_CONTEXT.md` |
-> | Runtime/UI baseline | Tauri 2 desktop shell, TypeScript/React/Vite GUI, Three.js viewport | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` `DEC-009` |
-> | Unresolved implementation choices | Resolve current dependency and component/state choices through `apps/desktop/package.json` and the implemented consumers. DEC-012 permits choices in a sealed brief or later ruling; preserve durable/transient separation and accepted architecture. Release scope follows DEC-057. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` `DEC-012` |
-> | State/editing basis | Durable project state is separate from transient viewport, selection, and session state; mutations route through application-service commands | `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-05` |
-> | Diagnostic basis | User-facing warnings and result-envelope diagnostics use explicit classes and do not claim code compliance | `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-06`; `docs/SPEC.md` section 7 |
-> | Data boundary posture | Code-specific values, protected standards data, manufacturer/private data, and professional approval remain user/private or human-owned | `docs/CONTRACT.md` `OPS-K-DATA-1`, `OPS-K-IP-1`, `OPS-K-AUTH-1`; `docs/IP_AND_DATA_BOUNDARY.md` |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> | Condition | Required handling |
-> |---|---|
-> | A viewport interaction would require a physical property, component dimension, SIF, flexibility factor, allowable, or code-specific value | Request user-supplied/provenanced data or mark the value `TBD`; do not introduce public defaults |
-> | A future component glyph needs protected dimensional tables or vendor catalog data | Stop and route through the protected-data/provenance review path |
-> | The viewport can create geometry but required solve data is missing | Surface an explicit diagnostic or missing-data state; do not hide the gap |
-> | A rule-pack or code-check status is implied by viewport color, label, or state | Preserve mechanics-solve, user-rule-check, and human-approval separation |
-> | A future implementation needs to choose a component or state-management library | Resolve current dependency and component/state choices through `apps/desktop/package.json` and the implemented consumers. DEC-012 permits choices in a sealed brief or later ruling; preserve durable/transient separation and accepted architecture. Release scope follows DEC-057. |
-> | A change would edit GUI source, package manifests, repo-level docs, or tests during the original setup session Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Stop; those paths are outside this sealed write scope |
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> Current deliverable obligation: implement viewport and centerline editing plus palette rendering and operation routing under the DEL-07-09 organization contract. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> This setup artifact frames a future GUI slice for a 3D centerline viewport and editor. A conforming future implementation should keep these surfaces distinct:
->
-> | Surface | Setup expectation |
-> |---|---|
-> | Viewport rendering | Render pipe centerlines, bend arcs, branch symbols, and simple piping component symbols using the accepted Three.js viewport baseline |
-> | Centerline editing | Support creation and editing of nodes and pipe runs through service-command mutations, not direct uncontrolled durable-state edits |
-> | Selection and identity | Preserve stable model-entity identity for coordination with the model tree and property inspector |
-> | Units and coordinates | Treat coordinates and editable quantities as unit-aware model data; reject incompatible units through domain/service validation |
-> | Diagnostics | Carry missing-data, provenance, assumption, nonlinear, and IP-boundary warnings as explicit diagnostics |
-> | Undo/redo | Scope undo/redo to reversible model edits and preserve diagnostics/result-envelope integrity |
-> | Test evidence | Use GUI-layer tests appropriate to the accepted Vitest/Playwright baseline once implementation is authorized |
->
-> This deliverable does not implement product UI in the original setup session. It also does not supply engineering component data, rule-pack values, or professional acceptance records.
->
-### CLM-007 — References
-
-> ##### References
->
-> | Reference | Used for |
-> |---|---|
-> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Deliverable identity, package, scope, objectives, accepted decomposition revision, and architecture basis injection |
-> | `_REFERENCES.md` | Local source inventory |
-> | `AGENTS.md` | Bootstrap boundaries for protected data, missing values, and professional reliance |
-> | `AGENTS.md` | Type 2 dispatch and write-scope rule |
-> | `docs/CONTRACT.md` | Invariants for protected content, user-supplied code data, units, diagnostics, privacy, IP, and agent limits |
-> | `docs/DIRECTIVE.md` | Founding intent, centerline-first model, no silent defaults, and stop rules |
-> | `docs/TYPES.md` | UX_UI_SLICE type, analysis-status vocabulary, centerline model, and domain object vocabulary |
-> | `docs/SPEC.md` | GUI requirements, warning classes, architecture layers, and acceptance semantics |
-> | `docs/PRD.md` | GUI requirements in section 14 |
-> | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data, provenance, and protected-content policy |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-07 and DEL-07-01 decomposition context plus SCA-001 architecture basis |
-> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable register row |
-> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | Scope mapping for SOW-020 |
+**Not decided.** PRD §14.2 lists equipment interfaces, route corridors, no-go volumes and supportable zones among what the viewport displays. No requirement of this scope or of any other commits to drawing them.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-07-01 3D viewport and centerline editor
+The viewport is a view and an entry surface. What it draws is evidence of what the model document holds, and nothing more: a drawn model is not a checked model.
 
-> #### Specification: DEL-07-01 3D viewport and centerline editor
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-010 — Scope
+- **REQ-001** — The user creates and edits nodes, pipe runs, bends and component symbols in a 3D centreline viewport (SOW-020; PRD §14.1, FR-GUI-004).
+- **REQ-002** — The viewport draws pipe centrelines, bend arcs, branch symbols, valves, flanges, reducers, expansion joints, supports and restraints, node and element labels and load vectors, each selectable. Deformed shapes, reaction arrows and stress and result overlays are drawn in the same viewport by DEL-07-05, and model-state comparison overlays by DEL-07-08; the viewport gives each such overlay the model's nodes and members by identifier and lets it add and remove its own drawn resources (PRD §14.2, FR-GUI-001).
+- **REQ-003** — The viewport is a Three.js view inside the React interface of the Tauri desktop.
+- **REQ-004** — Every change to the model made from the viewport is a structured operation that passes validation, preview and the user's Apply. Camera, hover, selection, drafts, visibility and measurement are transient and are not written to the model document (PRD §5.3; decomposition AB-00-05).
+- **REQ-005** — Coordinates and every quantity entered in the viewport carry a unit and are checked by the unit system. A new entry starts in the project's unit, and where the project has none for that quantity the field has no default and says so.
+- **REQ-006** — The viewport and its tools supply no component dimension, stress intensification or flexibility factor, allowable, code value or catalogue value. A value the model lacks stays missing and is shown as missing (PRD §5.5).
+- **REQ-007** — A diagnostic that names a model entity is reachable from that entity in the view, with the class it had in its result envelope.
+- **REQ-008** — No colour, label, status or state in the viewport states or implies certification, approval or code compliance (PRD §21.2).
+- **REQ-011** — The tool palette offers every NORMATIVE-NOW item of the DEL-07-09 vocabulary in its group, each command opening the form or tool that builds its operation. A command that cannot run in the current context is shown disabled with its reason. A roadmap item is listed as not available and cannot be invoked. No palette command changes the model by any route other than the one operation route (SOW-077).
+- **REQ-012** — *Interaction performance.* On the reference profile the workspace meets every limit below:
+  - a model assigned to the session is presented on the canvas, with responsive tables, within 2,000 ms;
+  - point selection to presented feedback, row selection to canvas highlight and canvas pick to row selection: 95th percentile at or under 100 ms;
+  - box selection or filtering to presented feedback, and a view or stage switch with camera, selection, label mode and legend kept: 95th percentile at or under 200 ms;
+  - the interval between presented frames while orbiting: 95th percentile at or under 16.7 ms in centreline display and 33.3 ms in Actual OD display, with result colour, edge lines and labels at their budget; while dragging the split or resizing the drawer, at or under 33.3 ms;
+  - a settled viewport schedules no animation frame;
+  - the resources the viewport owns return to a stable baseline after 20 model replacements and after repeated unmount and remount.
 
-> ##### Scope
->
-> Current deliverable obligation: implement viewport and centerline editing plus palette rendering and operation routing under the DEL-07-09 organization contract. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> This deliverable defines setup documentation for the future 3D viewport and centerline editor slice. It is limited to the local `DEL-07-01` working folder and does not create or modify GUI source files, interaction tests, package manifests, dependency manifests, or repo-level documentation.
->
-> The deliverable covers:
->
-> - the future viewport/editor responsibilities for nodes, pipe runs, bends, and simple component symbols;
-> - the accepted runtime/UI and architecture-basis constraints applicable to this GUI slice;
-> - data-boundary, unit-safety, diagnostic, privacy, and professional-responsibility constraints;
-> - setup evidence required before future implementation work begins.
->
-> The deliverable excludes:
->
-> - implementation of React, Tauri, Three.js, or state-management code;
-> - final selection of unresolved component/state libraries or exact dependency versions;
-> - model tree, property inspector, editor panels, solve execution UX, or results viewer behavior owned by adjacent PKG-07 deliverables;
-> - any protected standards data, code-specific defaults, proprietary component dimensions, or professional approval workflow.
->
-### CLM-011 — Requirements
+  The reference profile is an Apple M5 Max with 128 GiB, a pinned Chromium, a production build, the laptop's own display, device pixel ratio 2, Light appearance and Comfortable density, in a 1440 × 900 window, with the canvas at 603 × 828 (model beside table) and at 1000 × 828 (model alone), labels off and at the budget of 138 and 230, on invented models of 1,000 and 10,000 pipes. The picking regression tests pass before the performance runs. One run per size and canvas settles a configuration when every gated quantity is at or under 80 % of its limit; a quantity between 80 % and 100 % requires two more runs, all three within every limit; any quantity over its limit fails, and a product corrected after that failure is measured as a new candidate. A run the instrument marks invalid is repeated, and the invalid run is kept with the evidence. No limit, profile, workload or pass rule is changed to obtain a result; only the owner changes them, before the runs the change applies to. An external monitor at 60 Hz, device pixel ratio 1 and the Dark theme are each measured once per size and published without gating. No limit is set for deformation animation, ghosted proposals, large-selection halos, theme switch with results, first coloured paint, per-node colour, memory or cold start.
+- **REQ-013** — *Split into equal parts, and end points by length, angle or slope.* Split into N queues one batch of the existing split operation, with node placements where needed, so that each node is stored at the position defined above. Identifiers and labels follow patterns the user writes. Whatever the operation engine would refuse for one split is refused before queueing, with the engine's reason. The batch is applied whole and reverted by one Undo. A new route end, and a reconnection to a new point, accept the three forms of end-point entry. No slope, angle or vertical axis is defaulted or saved, and the coordinate displayed, the coordinate sent and the coordinate stored are the same binary64 value (PRD FR-GUI-004).
+- **REQ-014** — The viewport supports multiple and box selection, hide, isolate and fit of the selection, measurement between authored nodes, and Actual OD display, and keeps its rendering resources across model changes instead of rebuilding them.
+- **REQ-015** — A route is drawn with the pointer as successive nodes and pipes, and continues from a selected existing end point. A pipe is split and a component inserted within a run; runs are copied, rotated and mirrored, including runs that carry supports, loads and components; and a pipe is reconnected to another node or to a new point (DEL-07-09 vocabulary rows 1, 15, 19 and 20).
 
-> ##### Requirements
->
-> | Requirement ID | Requirement | Source |
-> |---|---|---|
-> | DEL-07-01-REQ-01 | The future implementation shall provide a 3D centerline viewport/editor for creating and editing nodes, pipe runs, bends, and simple piping component symbols. | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row `DEL-07-01`; `docs/PRD.md` section 14 |
-> | DEL-07-01-REQ-02 | The viewport shall represent the visual categories listed for the 3D viewport where applicable to this slice: pipe centerlines, bend arcs, branch symbols, valves, flanges, reducers, expansion joints, supports, labels, load vectors, deformed shapes, reaction arrows, and stress and result overlays (magnitude colour scale). Items beyond initial centerline editing may remain deferred to adjacent result/component slices. | `docs/PRD.md` section 14.2; `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) description |
-> | DEL-07-01-REQ-03 | The setup deliverable shall preserve the accepted runtime baseline of Tauri 2, TypeScript/React/Vite, and Three.js while keeping exact dependency versions and component/state libraries `TBD`. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` `DEC-009`, `DEC-012` |
-> | DEL-07-01-REQ-04 | Viewport model mutations shall route through application-service commands and shall keep durable project state separate from transient viewport, selection, camera, and interaction state. | `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-03`, `AB-00-05` |
-> | DEL-07-01-REQ-05 | Coordinates, dimensions, component references, loads, and editable quantities exposed through the viewport shall be unit-aware and validated by domain/service contracts rather than silently coerced. | `docs/CONTRACT.md` `OPS-K-UNIT-1`; `docs/SPEC.md` sections 1 and 3 |
-> | DEL-07-01-REQ-06 | The viewport/editor shall not supply protected standards data, code-specific defaults, component dimensional tables, SIF/flexibility values, allowables, or proprietary manufacturer data. Missing values shall remain explicit findings or `TBD`. | `docs/CONTRACT.md` `OPS-K-IP-1`, `OPS-K-DATA-1`, `OPS-K-DATA-2`; `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6 |
-> | DEL-07-01-REQ-07 | Viewport diagnostics shall preserve warning classes and result-envelope boundaries, including solve-blocking, rule-check-blocking, provenance, assumption, nonlinear, and IP-boundary warnings. | `docs/SPEC.md` section 7; `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-06` |
-> | DEL-07-01-REQ-08 | Visual status, labels, colors, and interaction states shall not claim certification, sealing, approval, authentication, or engineering code compliance for reliance (PRD §21.2). | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `docs/TYPES.md` sections 4 and 6 |
-> | DEL-07-01-REQ-09 | Future tests for the implemented slice shall use the accepted GUI test baseline and verify viewport rendering, selection/editing commands, missing-data visibility, and no-protected-data defaults. Exact test harness details beyond the baseline remain `TBD`. | `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-08`; `docs/PRD.md` section 21 |
-> | DEL-07-01-REQ-10 | The original setup run shall write only deliverable-local setup artifacts and shall not move any artifact to `ISSUED`. Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | `AGENTS.md` dispatch rule; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` section 4 |
->
+**Not decided.** How a copy, rotation or mirror carries each kind of support, load and component attached to a run: which of its values transform with the run and which identifiers the copies take. Until it is decided, AC-006 can be examined only on runs that carry none.
 
-### CLM-012 — Standards
+### Acceptance criteria
 
-> ##### Standards
->
-> No external engineering code, standards-body text, dimensional table, component catalog, allowable table, SIF/flexibility table, or proprietary commercial data is used as an authority for this setup deliverable.
->
-> | Standard or governing source | Status |
-> |---|---|
-> | SWBPIPE governance and invariant documents | Accessible local governing source |
-> | PRD GUI requirements | Accessible local product source |
-> | SCA-001 architecture basis | Accepted downstream dispatch basis, not `ISSUED` product implementation |
-> | Exact GUI dependency versions | The implementation manifest and lockfile bind dependency versions for a candidate; DEC-012 permits accepted bounded implementation choices. Versions are not a new architecture requirement. |
-> | Component and state-management libraries | Resolve current dependency and component/state choices through `apps/desktop/package.json` and the implemented consumers. DEC-012 permits choices in a sealed brief or later ruling; preserve durable/transient separation and accepted architecture. Release scope follows DEC-057. |
-> | Engineering code values and component catalogs | User/private or legally imported only; not supplied by this deliverable |
->
-
-### CLM-013 — Verification
-
-> ##### Verification
->
-> | Verification ID | Verifies | Method |
-> |---|---|---|
-> | DEL-07-01-VER-01 | Scope of Work contract exists locally | Run `python3 tools/scope_of_work/validate_scope_of_work.py <DELIVERABLE_PATH>/ScopeOfWork.md` |
-> | DEL-07-01-VER-02 | Semantic setup artifacts exist | Confirm `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, and `_run_records/*` exist locally |
-> | DEL-07-01-VER-03 | Dependency register is schema-valid | Run `python3 tools/validation/validate_dependencies_schema.py` on local `Dependencies.csv` |
-> | DEL-07-01-VER-04 | Dependency enums are canonical | Run `python3 tools/validation/validate_enum.py` for emitted enum values |
-> | DEL-07-01-VER-05 | Setup stayed inside the assigned write scope Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Check git status and changed paths for this deliverable folder only |
-> | DEL-07-01-VER-06 | Protected-data and professional boundaries are visible | Review the setup documents for no-protected-content, no-silent-default, and no-certification language |
-> | DEL-07-01-VER-07 | Unresolved implementation choices remain unresolved | Confirm exact dependency versions and component/state libraries are marked `TBD` rather than finalized |
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> Required setup artifacts for this deliverable are:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/*`
-> - `_STATUS.md`
->
-> Future implementation artifacts such as GUI source and interaction tests remain outside this session's write scope.
-### CLM-015 — D-41 R5 T5 PDU-008 current GUI boundary
-
-> ##### D-41 R5 T5 PDU-008 current GUI boundary
->
-> The viewport contract covers structured node, straight-pipe, bend and simple component-symbol authoring, selection and route editing through the governed operation seam. Current realization is in `apps/desktop/src/features/viewport/PipeViewport.tsx`, `routeDraft.ts` and the workspace-session handlers; the original PDU-008 observation remains historical evidence at its bound revision. Use candidate-bound interaction evidence for each claimed editing capability; this record does not assert full REQ-01 completion.
-
-- **AC-001** — The contract preserves the current implemented viewport slice and named residuals, separates durable model state from transient interaction state, keeps missing or protected engineering data explicit, and invents no component dimensions, code values, defaults, compliance status, or professional approval. Current source references are `PipeViewport.tsx`, `ModelTree.tsx`, `PropertyInspector.tsx` and `workspaceSession.ts`; preserve DEC-111 creation/generic-edit versus specialized-editor ownership. Source presence does not discharge independent interaction/parity review.
-
+- **AC-001** — For an invented model that holds one of every drawn family in REQ-002, each entity appears in the viewport at the position its stored coordinates give, is selectable, and is selected under the same identifier in the tree and the inspector. Creating a node, a pipe run, a bend and a component symbol from the viewport each yields an applied operation and a model document that passes the document validator. Moving a node, and deleting a node and a pipe run, from the viewport each yields an applied operation and a document that passes the document validator. Changing camera, hover, selection, drafts, visibility or measurement leaves the model's canonical hash unchanged. An overlay added to the viewport draws on the nodes and members it names by identifier, and once removed leaves none of its drawn resources in the scene. No field offered by a viewport tool is prefilled with an engineering value, and no text in the viewport is a statement REQ-008 excludes.
+- **AC-002** — Every NORMATIVE-NOW row of the DEL-07-09 vocabulary has a palette command in the group that contract assigns. Invoking each command and completing its form produces operations of the kinds the vocabulary binds that row to, and the model is unchanged until Apply. Each roadmap row is listed and cannot be invoked. With no selection and with each kind of selection, every disabled command states its reason.
+- **AC-003** — On the reference profile, a run of the frozen workload (one model assignment, 200 point selections, 20 box selections, 20 filters and two ten-second orbit windows, with real pointer and keyboard input), together with the other segments REQ-012 limits (row selection to canvas highlight, canvas pick to row selection, view and stage switch, split drag and drawer resize, and orbit with result colour, edge lines and labels at their budget), meets every limit of REQ-012 under its pass rule, at both model sizes and both canvas sizes.
+- **AC-004** — Splitting a pipe with end positions A and B into N parts stores node k at the binary64 value of A + (B − A)·(k/N) for every k and every N from 2 to 100, including end positions for which chained splitting differs by one unit in the last place. One Undo restores the model's canonical hash. A request the engine would refuse queues nothing and shows the engine's reason. For each of the three end-point entries, the stored coordinate equals the value the stated arithmetic gives, and equals the coordinate displayed before Apply.
+- **AC-005** — On a 10,000-pipe invented model: box selection selects exactly the entities whose drawn geometry the box encloses; hide and isolate change what is drawn and leave the model's canonical hash unchanged; a measurement between two nodes equals the Euclidean distance of their stored positions; and a span is drawn at its entered outside diameter exactly when its section gives a valid one.
+- **AC-006** — Each gesture of REQ-015 produces a batch that, applied, gives the geometry the gesture showed: a continued run shares the selected end node; a split or inserted component leaves the run's end nodes and total length unchanged; a copied, rotated or mirrored run has the transformed coordinates of the source; a reconnected pipe ends at the chosen node.
+- **AC-007** — In each viewport tool, a coordinate or quantity entered with no unit, with an unknown unit or with a unit of another dimension is refused by name. A new entry starts in the project's unit; where the project has no unit for that quantity the entry has no default and its notice names the missing unit. For an invented model with one diagnostic naming a node, one naming a pipe and one naming a component, each diagnostic opens from that entity in the view and shows the class it had in its result envelope.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-016 — Procedure: DEL-07-01 3D viewport and centerline editor
+**Method choices that define the viewport.**
 
-> #### Procedure: DEL-07-01 3D viewport and centerline editor
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- The editor builds operations and never applies them. One engine validates, previews and applies every change, for the viewport as for every other surface.
+- Identifiers are explicit. A tool that creates entities asks for their identifiers or a pattern for them and never renumbers what exists.
+- A position is computed once from stored values, in binary64, and shown, sent and stored without rounding to a display precision.
+- The view is drawn from the model and the session's transient state on every change. No model fact lives only in the scene.
+- The palette is one list read from the DEL-07-09 catalogue, so a command exists in one place and its availability has one rule.
+- Performance limits are perception bounds on the presented frame, measured on a stated profile. Trace and GPU-thread records are kept and never gate.
 
-### CLM-018 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Current deliverable obligation: implement viewport and centerline editing plus palette rendering and operation routing under the DEL-07-09 organization contract. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> This procedure records how to produce and verify the setup artifacts for `DEL-07-01`, and it gives future implementation work a bounded execution path for the 3D viewport and centerline editor.
->
-### CLM-019 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Status |
-> |---|---|
-> | Sealed deliverable context for `DEL-07-01` | Present in `_CONTEXT.md` and the user brief |
-> | Write scope limited to this deliverable folder | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
-> | Governing references available locally | Present through `_REFERENCES.md` and repo docs |
-> | SCA-001 architecture basis injected | Present in `_CONTEXT.md` |
-> | Protected standards or proprietary data needed | Not needed for setup; must be excluded |
-> | GUI source/package/test write authorization Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Not present in the original setup session |
->
-
-### CLM-020 — Steps
-
-> ##### Steps
->
-> 1. Confirm the active deliverable path is `execution/PKG-07/DEL-07-01`.
-> 2. Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `_STATUS.md`, governing docs, decomposition, registers, and the four requested skill files.
-> 3. Produce the Scope of Work contract:
->    - `ScopeOfWork.md` for identity, attributes, conditions, construction, and references;
->    - `ScopeOfWork.md` for scope, requirements, standards, verification, and documentation;
->    - `ScopeOfWork.md` for rationale, principles, considerations, trade-offs, and examples;
->    - `ScopeOfWork.md` for prerequisites, steps, verification, and records.
-> 4. Mark unknown or unresolved implementation choices as `TBD`; do not finalize exact GUI dependency versions or component/state libraries.
-> 5. Run `semantic-matrix-build` for this deliverable and write `_SEMANTIC.md` with the semantic lens, audit result, and status update if the audit passes.
-> 6. Run `lens-register` for this deliverable and write `_SEMANTIC_LENSING.md` without modifying production documents.
-> 7. Review `ScopeOfWork.md` against source evidence by treating `_SEMANTIC_LENSING.md` as a candidate worklist only; incorporate only source-supported changes.
-> 8. Run `dependency-extract` for this deliverable and write `Dependencies.csv` plus `_DEPENDENCIES.md` with anchor and execution dependencies.
-> 9. Validate local artifacts:
->    - `ScopeOfWork.md` exists;
->    - dependency schema is valid;
->    - dependency enum values are canonical;
->    - semantic artifacts and run records exist;
->    - changed paths remain inside the assigned deliverable folder.
-> 10. Leave the deliverable at `SEMANTIC_READY` only if setup gates pass. Do not move anything to `ISSUED`.
->
-### CLM-021 — Future Implementation Procedure
-
-> ##### Future Implementation Procedure
->
-> When a later implementation brief authorizes GUI source and tests, the future worker should:
->
-> 1. Re-read the sealed brief, SCA-001 architecture basis, and these setup artifacts.
-> 2. Keep implementation within the future authorized source/test paths, not this setup folder unless instructed.
-> 3. Define viewport responsibilities for rendering, camera behavior, selection, snapping/drag handles, entity creation, and command dispatch.
-> 4. Keep durable model edits behind application-service commands and validation envelopes.
-> 5. Keep transient viewport/session state separate from model persistence.
-> 6. Use unit-aware domain data for coordinates and editable quantities.
-> 7. Display missing-data and provenance diagnostics without supplying code-specific or proprietary defaults.
-> 8. Add GUI tests for rendering, selection, edit commands, undo/redo eligibility, and diagnostic visibility.
-> 9. Run the accepted GUI validation gates before review.
->
-
-### CLM-022 — Verification
-
-> ##### Verification
->
-> | Check | Command or method | Expected result |
-> |---|---|---|
-> | Scope of Work contract | `python3 tools/scope_of_work/validate_scope_of_work.py <DELIVERABLE_PATH>/ScopeOfWork.md` | PASS |
-> | Dependency schema | `python3 tools/validation/validate_dependencies_schema.py <DELIVERABLE_PATH>/Dependencies.csv` | VALID |
-> | Enum values | `python3 tools/validation/validate_enum.py <ENUM_NAME> <value>` | VALID for emitted enum values |
-> | Semantic/lensing artifacts | File existence check | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` present |
-> | Status | Review `_STATUS.md` Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | `Current State: SEMANTIC_READY` only after all setup gates pass |
-> | Scope | `git status --short -- <DELIVERABLE_PATH>` Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Changed paths are deliverable-local only |
->
-
-### CLM-023 — Records
-
-> ##### Records
->
-> The setup run should leave:
->
-> - Scope of Work contract;
-> - `_SEMANTIC.md`;
-> - `_SEMANTIC_LENSING.md`;
-> - `Dependencies.csv`;
-> - refreshed `_DEPENDENCIES.md`;
-> - `_run_records/*` entries for each setup step;
-> - `_STATUS.md` history showing initialization and semantic readiness.
-- **VER-001** — Validate the contract and review source parity, centerline and symbol boundaries, command/service mutation routing, stable identity, units, diagnostics, current implementation declarations and residuals, protected-data controls, and every retained governed TBD.
+- **VER-001** — Executable check (observes the drawn scene, the selection, the applied operations and the document hash): exercises the viewport on invented models through real pointer and keyboard input, for AC-001, AC-005, AC-006 and AC-007, comparing drawn positions and resulting geometry with values computed from the stored coordinates, and unit refusals and diagnostic classes with the project units and the supplied envelope.
+- **VER-002** — Executable check (observes the palette's commands, their disabled reasons and the operations each produces): walks the DEL-07-09 vocabulary rows against the palette, for AC-002.
+- **VER-003** — Executable check (observes interaction latency and Chromium-reported presentation intervals on the reference profile): runs the frozen workload and applies the pass rule, for AC-003.
+- **VER-004** — Executable check (observes the stored node positions after the batch is applied by the operation engine): compares them with the stated interpolation and end-point arithmetic evaluated independently, for AC-004.
+- **VER-005** — Judgment by a named role (an independent reviewer who did not write the code): examines the viewport's texts, colours and states against PRD §21.2 and `docs/claims_registry.md`, and its tools for prefilled engineering values, for AC-001.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-024 — Guidance: DEL-07-01 3D viewport and centerline editor
-
-> #### Guidance: DEL-07-01 3D viewport and centerline editor
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-026 — Purpose
-
-> ##### Purpose
->
-> This setup deliverable gives future GUI implementation work a bounded viewport/editor contract. The intent is to make centerline model creation visible and reviewable while preserving the project's code-neutral, unit-aware, provenance-aware, and human-review boundaries.
->
-> The viewport is a user-facing editor surface, not an authority for engineering values. It can show missing data, provenance gaps, assumptions, and diagnostics, but it must not hide those states or convert them into silent defaults.
->
-
-### CLM-027 — Principles
-
-> ##### Principles
->
-> | Principle | Guidance |
-> |---|---|
-> | Centerline first | Treat the default global model as a 3D line-element centerline representation. Local shell/solid FEA remains a specialized handoff path. |
-> | Command-mediated edits | Future edit gestures should produce application-service commands so durable model state, undo/redo, diagnostics, and persistence remain coherent. |
-> | Transient state separation | Camera, hover, selection, drag handles, snapping previews, and job progress are transient GUI state, not durable project data. |
-> | Unit-safe editing | Coordinates and editable values need unit-bearing model contracts. Avoid viewport-only numeric assumptions. |
-> | Visible uncertainty | Missing solve data, missing rule-check data, weak provenance, user assumptions, and nonlinear uncertainty should be visible diagnostics. |
-> | No protected defaults | Component symbols and edit tools must not embed protected code tables, proprietary catalog values, or copied commercial examples. |
-> | No professional claim | A rendered model, visual status, or rule-check color is decision support only until a competent human accepts it for project use. |
->
-
-### CLM-028 — Considerations
-
-> ##### Considerations
->
-> | Topic | Consideration |
-> |---|---|
-> | Initial slice size | `DEL-07-01` has an L context envelope. Keep the future implementation bounded to viewport/editor basics and split if it starts absorbing model tree, property inspector, results viewer, or solve-execution work. |
-> | Component visualization | Simple glyphs can support recognition and selection. Detailed component properties, private library data, and editor behavior belong to PKG-03 and adjacent PKG-07 deliverables. |
-> | State library choice | Resolve current dependency and component/state choices through `apps/desktop/package.json` and the implemented consumers. DEC-012 permits choices in a sealed brief or later ruling; preserve durable/transient separation and accepted architecture. Release scope follows DEC-057. |
-> | Viewport library baseline | Three.js is the accepted viewport baseline. Exact versions and wrappers remain implementation-level decisions. |
-> | Accessibility | The viewport should not be the only path to edit or inspect model data. Keyboard navigation, tooltips, high-contrast options, and structured panels are part of the wider GUI baseline. |
-> | Diagnostics | Warnings should be attached to affected model objects where possible so users can navigate from the viewport to the underlying issue. |
-> | Testing | Future tests should verify both visual presence and behavior: entity creation, selection, command dispatch, undo/redo eligibility, missing-data rendering, and no hidden defaults. |
->
-
-### CLM-029 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Setup position |
-> |---|---|
-> | Rich interactive modeling vs. broad GUI scope | Favor a narrow, testable editor slice over absorbing tree, property, solve, or results workflows. |
-> | Visual convenience vs. engineering warrant | Favor explicit `TBD` and diagnostics over convenience defaults for code-specific or proprietary data. |
-> | Direct canvas mutation vs. service commands | Favor service-command mutation so validation, diagnostics, undo/redo, persistence, and audit records remain coherent. |
-> | Detailed component graphics vs. protected data boundary | Favor simple symbolic visualization unless component geometry and metadata have lawful provenance. |
-> | Visual status colors vs. compliance language | Favor statuses that distinguish model completeness, mechanics, rule checks, and human review without implying compliance or approval. |
->
-
-### CLM-030 — Examples
-
-> ##### Examples
->
-> Acceptable future examples for this slice are limited to invented, non-code, non-proprietary interaction examples, such as:
->
-> - creating a node with unit-aware coordinates supplied by the user;
-> - connecting two nodes with a pipe-run element that references `TBD` section/material data until supplied;
-> - rendering a bend arc as a symbolic component with user-supplied geometry placeholders;
-> - surfacing a diagnostic that a component's source/provenance is missing.
->
-> Do not use copied standards examples, protected tables, commercial software benchmark models, proprietary component catalogs, code-specific allowables, or real project data in public setup or future test fixtures unless explicit redistribution rights and review disposition exist.
->
-
-### CLM-031 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No source conflict was identified in the original setup drafting; this historical observation is not a current conflict review. | N/A | N/A | N/A | N/A | N/A |
->
-
-### CLM-032 — Review Notes
-
-> ##### Review Notes
->
-> - This setup document intentionally does not choose unresolved component/state libraries.
-> - This setup document intentionally does not implement product UI.
-> - Future work should escalate if the viewport/editor slice needs to exceed `DEL-07-01` scope or introduce protected/private data.
-
-### CLM-033 — SCA-011 Palette implementation
-
-**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
-
-Own palette rendering and routing under DEL-07-09 vocabulary coverage and single organization contract, including CAP-VIEW-025/026. Commands use the PKG-16 seam, whose application owner is DEL-16-06; no reverse execution prerequisite to the coverage consumer is implied.
-
-- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
-- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
-- **VER-002** — Map accepted annex rows to UI/operation routes, held and unsupported states; verify no alternate mutation path. Menu visibility alone is not functional completion.
+- **AX-001** — *Fewer steps to a correct model.* Better is the same geometry built with fewer gestures and less typing, measured by the gestures and keystrokes the reference system takes. Speed is never bought by supplying a value the user did not enter, by skipping validation or preview, or by applying a change without the user's Apply.
+- **AX-002** — *What is drawn is what is stored.* Better is fewer ways the view can differ from the model: fewer families the viewport cannot draw and fewer states in which a drawn position is not the stored one. A richer picture never adds geometry, dimensions or detail the model does not hold.
+- **AX-003** — *Stay responsive at size.* Better is lower interaction latency and a steadier frame interval on larger models, measured as REQ-012 states. Responsiveness is never gained by dropping entities from the view without saying so, by drawing a stale model, or by weakening a limit.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-020 OBJ-006 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-| OUT-002 | OBJ-006 | CLM-033 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-07-01:3** — Performance acceptance, settled-frame and owned-resource obligations remain open on the redesigned product under [D-72](../../../_Coordination/_DECISIONS/D-72_RULING_2026-09-18.md) and its [final addendum](../../../_Coordination/_DECISIONS/D-72_RULING_ADDENDUM_2026-09-18.md). All six criteria are ruled and frozen: item 5 uses S-1/S-2, with S-3 not accepted. The addendum removes the fresh former-interface baseline cohort; the original D-70 failures and successor demonstration retain their distinct attribution. Independent-usability holds remain. Qualification requires the ruled candidate evidence; no performance acceptance or lifecycle promotion follows from the criteria ruling.
-- **DEL-07-01:5** — Short panels can require scrolling between a label and its fully visible control. The original transient inspector AX omission remains unexplained although fresh processes expose controls; no independent macOS audit or whole-product WCAG conformance is claimed. Independent practitioner usability/security remain separate held work, not extra publication gates.
-- **DEL-07-01:6** — Complete broader viewport/editor UX beyond the landed component creation, persistent workspace, bounded route capture, D-68 selection/visibility/measurement foundation and SWBPIPE canvas slices. Evidence references: `apps/desktop/e2e/ui-foundation.spec.ts`, `apps/desktop/e2e/c3-viewport-visibility.spec.ts` and the [bounded ROOT acceptance record](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/instances/ROOT/FINAL_ACCEPTANCE.json). Vocabulary row 15 component-symbol authoring is complete; the specific richer-routing, transform and finite-component residuals below remain open. Work selection follows the owner-steered work graph (CONVENTIONS C9); no lifecycle promotion is inferred.
-- **DEL-07-01:7** — Richer routing gestures, attached engineering transforms, finite component insert-in-run, and other still-listed tool-palette and 3D authoring work remain open. The needs on DEL-03-03, DEL-03-04, DEL-03-05 and DEL-03-06 (bends and elbows, branch connections, rigid components, expansion joints; formerly DAG-002-E0482 through E0485) remain unconsumed here. Historical row 15 closure and accepted N7 review history are preserved. See DEL-07-09 current `Capability_Comparison.csv` and `Palette_Operation_Routing.md`.
-- **DEL-07-01:8** — Split into equal parts and end-point entry by length, angle or slope (B5; adopted under the owner's 2026-10-27 delegation). Split into N… (pipe entity menus, Geometry tab) queues one batch of existing split_pipe_run operations, with set_field node placements where needed, so node k is stored at A + (B − A)·(k/N) per component in binary64; ids and labels follow user patterns; the planner refuses what the applier's split refuses; the batch is applied whole and reverted by one Undo. The viewport's new route end and the reconnect to a new point accept a length along a direction vector, a length at an angle from the horizontal, or a horizontal run at a slope of 1 in n (rise or fall over horizontal run); for angle and slope entry, the user states the up direction; no slope, angle or vertical axis is defaulted or saved. Displayed, emitted and stored coordinates are bit-identical. Evidence: splitIntoParts.test.ts, splitIntoParts.session.test.tsx, SplitIntoPartsPanel.test.tsx, directionArithmetic.test.ts, directionEntry.session.test.tsx, DirectionEntry.test.tsx, App.splitAndSlope.test.tsx; design: Work/split-and-slope-entry.md. Native verification remains open.
+| OUT-001 | SOW-020 OBJ-006 | REQ-001 REQ-002 REQ-003 REQ-004 REQ-006 REQ-008 | AC-001 | VER-001 VER-005 | The invented model says what must be drawn and where: drawn positions are compared with the stored coordinates, which the viewport did not write. The excluded statements are those of PRD §21.2 and `docs/claims_registry.md` |
+| OUT-002 | SOW-077 OBJ-006 | REQ-011 | AC-002 | VER-002 | The DEL-07-09 vocabulary and its operation bindings say which commands must exist and what each must produce |
+| OUT-001 | SOW-020 OBJ-006 | REQ-012 | AC-003 | VER-003 | The limits, the reference profile, the workload and the pass rule are those REQ-012 fixes; the measured quantities are reported by the browser, not by the product. Meeting the limits shows that the stated targets are met on the reference profile; it does not show that the targets are adequate, or that they are met on other hardware |
+| OUT-001 | SOW-020 OBJ-006 | REQ-013 | AC-004 | VER-004 | Outside source: the closed-form interpolation A + (B − A)·(k/N) and the trigonometry of the three end-point entries, evaluated in binary64 by a reference that imports no product code |
+| OUT-001 | SOW-020 OBJ-006 | REQ-014 | AC-005 | VER-001 | Outside source: Euclidean distance and box enclosure computed from the stored coordinates; the 10,000-pipe model is the larger REQ-012 model size |
+| OUT-001 | SOW-020 SOW-077 OBJ-006 | REQ-015 | AC-006 | VER-001 | Outside source: the rigid transforms and the length identities of a split are closed forms on the stored coordinates |
+| OUT-001 | SOW-020 OBJ-006 | REQ-005 REQ-007 | AC-007 | VER-001 | The project units and the unit catalogue are DEL-02-02's, and the diagnostics come in an envelope the viewport did not write; the expected starting unit, refusals and classes are read from them |

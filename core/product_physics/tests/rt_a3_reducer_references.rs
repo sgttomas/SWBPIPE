@@ -291,7 +291,7 @@ fn stress_kind(kind: &str) -> bool {
         .any(|r| r["kind"] == kind && r["source_physical_semantic_dimension"] == "stress")
 }
 
-/// DEL-03-05 §2.4 / W-15 slice d: every stress row of the body, and only its,
+/// every stress row of the body, and only its,
 /// carries the reference-section record, and no headline lies on the body.
 fn check_body_record(envelope: &Value, scale: f64, label: &str) {
     let record = json!({"component_ref": REDUCER, "stiffness_scale": scale, "section_role": "reference_pipe_section"});

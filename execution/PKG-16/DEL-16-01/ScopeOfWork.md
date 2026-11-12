@@ -2,408 +2,119 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-16-01
 package_id: PKG-16
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-069]
 package_objective_refs: [OBJ-015]
 ---
 
-# Scope of Work — DEL-16-01
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-16-01 Structured model operation schema
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-16-01` in service of project scope [SOW-069] and package objectives [OBJ-015].
+This deliverable is the data contract for a change to the model. A change a person makes in the desktop, a change the embedded agent proposes and a change read from a proposal file are the same kind of record: a structured model operation, with one published shape and a closed taxonomy. The result it contributes is that validation, preview, acceptance, application and the operation history all work on that one record, so a change can be checked, shown, decided, applied and reviewed later without any of them guessing what it means, and nothing reaches the model that is not such a record.
 
-- **OUT-001** — A schema-first structured model-operation contract for GUI and agent proposals, with invented fixtures and explicit mutation, model-basis, unit, provenance, diagnostic, and professional-boundary controls, is produced.
+It serves SOW-069 under OBJ-015 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-16, row DEL-16-01), with `docs/PRD.md` §5.3, §10.3 step 3 and FR-AGENT-001. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it. It reaches criterion 17, under which every change goes through the one operation route, through DEL-16-06.
+
+- **OUT-001** — The operation contract: the published schema of an operation and of an operation batch, the taxonomy of operation kinds, change kinds and target object types, and invented example records.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-16-01 Structured model operation schema
+**Terms the contract implements.**
 
-> #### Datasheet: DEL-16-01 Structured model operation schema
->
+- *Operation.* One proposed change to one target. It carries an identifier, an operation kind, a target, a change, an author type, a source, a rationale and a status.
+- *Target.* The model record the operation acts on, named by object type and reference. A target is a record of the model document or a record the operation creates.
+- *Change.* What the operation does to its target: a change kind, the part of the target it changes, the new value, and the unit and dimension of a unit-bearing value.
+- *Before value.* The value the author saw when writing the operation, where a record states one. It is one way for validation to tell that the model has moved since; the model basis is the required way.
+- *Batch.* An ordered, non-empty list of operations under one identifier, written against one model state. A later operation may name a record an earlier one in the same batch creates.
+- *Model basis.* The model state a batch was written against, named by reference and by hash. The hash is SHA-256 over the RFC 8785 canonical form of the model document.
+- *Taxonomy.* The closed sets of operation kinds, change kinds and target object types, and the pairings among them that are admitted. Together they add, move, modify, delete and reconnect model entities, and act on constraints, loads, supports and design knowledge.
+- *Author type.* Whether a person or something else wrote the operation. It is asserted metadata; it is not an identity.
+- *Source.* Where the operation came from.
+- *Assumption record.* An unresolved assumption attached to an operation or batch: an identifier, a statement and the records it affects.
+- *Status.* The state of a proposal: proposed, schema-validated, blocked by diagnostics, ready for the person's review, or rejected. No status says a change was accepted as engineering work.
+- *Boundary records.* Two fixed records every operation carries. The mutation-route record says that structured operations are the only route and that direct mutation is not allowed. The professional-boundary record says that human review is required and that the software makes no compliance, certification, sealing, approval or authentication claim.
 
-### CLM-002 — Identification
+**Boundary.** This deliverable defines the record. What is done with a record belongs elsewhere:
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-16-01 |
-> | Name | Structured model operation schema |
-> | Package ID | PKG-16 |
-> | Package Name | Model Operation and Agent Proposal Framework |
-> | Type | DATA_MODEL_CHANGE |
-> | Scope Coverage | SOW-069 |
-> | Objective Support | OBJ-015 |
-> | Implemented Schema Artifact | `schemas/model_operation.schema.json` |
-> | Implemented Fixture Evidence | `fixtures/model_operations/invented_operation_set_valid.json`; `fixtures/model_operations/invented_accepted_model_state.json` |
-> | Lifecycle note | Deliverable-local status remains governed by `_STATUS.md`; this datasheet records implementation evidence only. |
->
-> Sources: `_CONTEXT.md` sections "Description", "Anticipated Artifacts", "Scope Coverage", "Objective Support"; `schemas/model_operation.schema.json`; `fixtures/model_operations/invented_operation_set_valid.json`; `fixtures/model_operations/invented_accepted_model_state.json`; `tests/test_model_operation_schema.py`.
->
+- validating an operation, previewing it and naming its refusals: DEL-16-02;
+- the person's decision on it and the operation history: DEL-16-03;
+- what an agent's rationale must hold and must never claim: DEL-16-04;
+- applying it, and the embedded agent's capability catalog, which admits a subset of this taxonomy: DEL-16-06;
+- the model records an operation names and the form of each record it creates: DEL-02-01;
+- the unit catalog and the dimension vocabulary: DEL-02-02;
+- the diagnostic record: DEL-00-06; the canonical form and the model hash: DEL-08-02;
+- the commands a person sees and how the palette organises them: DEL-07-09. That vocabulary binds to the implemented operation taxonomy, not to the published schema's operation-kind list;
+- stamping the author of an imported proposal: DEL-16-03. Where the intake panel sits in the desktop: DEL-07-09.
 
-### CLM-003 — Attributes
+What a valid value means for a change kind is decided by the deliverable that owns the records it changes. This deliverable states the kind, its target types and the form of its value.
 
-> ##### Attributes
->
-> | Attribute | Value | Source |
-> |---|---|---|
-> | Operation route | GUI and agent edits are represented as structured model operations. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-069; `_CONTEXT.md` Context Envelope |
-> | Mutation boundary | The schema contract status fixes `mutation_route = structured_operations_only` and `direct_model_mutation_allowed = false`. | `schemas/model_operation.schema.json` `$defs.OperationContractStatus`; `tests/test_model_operation_schema.py` |
-> | Operation categories in scope | `add`, `move`, `modify`, `delete`, `reconnect`, `constraint`, `load`, `support`, and `design_knowledge`. | `schemas/model_operation.schema.json` `$defs.OperationKind`; `tests/test_model_operation_schema.py` |
-> | Change kinds represented | `add_object`, `remove_object`, `set_field`, `move_geometry`, `reconnect`, `update_constraint`, `update_load`, `update_support`, and `attach_design_knowledge`. | `schemas/model_operation.schema.json` `$defs.OperationChange`; `tests/test_model_operation_schema.py` |
-> | Schema/interchange baseline | JSON Schema 2020-12. | `schemas/model_operation.schema.json` `$schema`; `tests/test_model_operation_schema.py` |
-> | Root envelope fields | `schema_version`, `deliverable_id`, `package_id`, `scope_item`, `objectives`, `operation_contract_status`, and `operation_set`. | `schemas/model_operation.schema.json` root `required`; `tests/test_model_operation_schema.py` |
-> | Operation record fields | `operation_id`, `operation_kind`, `operation_status`, `author_type`, `target_refs`, `preconditions`, `changes`, `validation`, `diagnostics`, `diff_preview_refs`, `assumptions`, `provenance`, and `professional_boundary`. | `schemas/model_operation.schema.json` `$defs.ModelOperationRecord`; `tests/test_model_operation_schema.py` |
-> | Model-basis binding | Operation sets require `model_basis` with `model_ref`, `canonical_model_role = physical_source_of_truth`, `physical_source_of_truth_ref`, `accepted_model_state_ref`, and `accepted_model_state_hash`. Operation preconditions require current hashes including `payload_scope = model_state_record`. | `schemas/model_operation.schema.json` `$defs.OperationModelBasis` and `$defs.OperationPrecondition`; fixtures; `tests/test_model_operation_schema.py` |
-> | Unit boundary | Unit-bearing payloads require explicit unit metadata and dimension checks; missing-unit behavior is `emit_diagnostic`. Quantity dimensions use the canonical dimension enum currently encoded in the schema. | `schemas/model_operation.schema.json` `$defs.UnitRequirements` and `$defs.Quantity`; `tests/test_model_operation_schema.py` |
-> | Downstream validation surfaces | Schema fields include validation state, diagnostics, diff-preview references, and application status, but validator/diff behavior is owned by DEL-16-02. | `schemas/model_operation.schema.json`; `tests/test_operation_validation_preview.py`; `Dependencies.csv` downstream row `DEL-16-01-D001` |
-> | Professional boundary | Operation records and operation sets require `human_review_required = true` and negative software claims for compliance, certification, sealing, approval, and authentication (PRD §21.2). | `schemas/model_operation.schema.json` `$defs.ProfessionalBoundary`; fixtures; `tests/test_model_operation_schema.py` |
->
+**Not decided.**
 
-### CLM-004 — Conditions
-
-> ##### Conditions
->
-> | Condition | Status |
-> |---|---|
-> | Exact schema file path | Established as `schemas/model_operation.schema.json`. |
-> | Exact implemented root and operation field layout | Established by `schemas/model_operation.schema.json` and covered by `tests/test_model_operation_schema.py`. |
-> | Operation fixture path | Established as `fixtures/model_operations/invented_operation_set_valid.json`. |
-> | Accepted model-state fixture path | Established as `fixtures/model_operations/invented_accepted_model_state.json`. |
-> | Exact operation granularity for all future physical model edits | DEC-094/SCA-009 defines the NORMATIVE-NOW/ROADMAP vocabulary, with SCA-011 clarifying implementation ownership. The schema enum is not the complete implemented taxonomy; vocabulary/schema/runtime conformance remains delivery work. |
-> | Exact persistence granularity and broader hash partitioning | Still TBD beyond the implemented `accepted_model_state_hash` and per-operation `required_current_hashes` hooks. |
-> | Validation/diff-preview behavior | Downstream DEL-16-02; current schema only provides fields and evidence hooks. |
-> | User acceptance and audit trail behavior | Downstream DEL-16-03; current schema records boundary hooks only. |
-> | Human review dispositions | Review finding dispositions remain governed by `Review_Findings.csv` and are not changed here. |
-> | Protected standards or proprietary data | Public fixtures remain invented examples with provenance and privacy classifications; no protected standards content or private project data is asserted. |
->
-> Sources: `schemas/model_operation.schema.json`; fixtures under `fixtures/model_operations/`; `tests/test_model_operation_schema.py`; `tests/test_operation_validation_preview.py`; `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-DATA-1, OPS-K-AGENT-1, OPS-K-AUTH-1, OPS-K-AGENT-4.
->
-
-### CLM-005 — Construction
-
-> ##### Construction
->
-> The deliverable is currently materialized as a schema-first data model plus invented fixtures:
->
-> | Artifact | Construction Status | Notes |
-> |---|---|---|
-> | `schemas/model_operation.schema.json` | Implemented evidence present | Strict JSON Schema 2020-12 contract for proposed model operations. It uses `additionalProperties: false` at object definitions inspected and has no schema defaults in the focused test. |
-> | `fixtures/model_operations/invented_operation_set_valid.json` | Implemented evidence present | Invented public example operation set covering required operation and change categories, with provenance, validation placeholders, diff-preview references where present, precondition hashes, and professional-boundary fields. |
-> | `fixtures/model_operations/invented_accepted_model_state.json` | Implemented evidence present | Invented accepted physical model-state fixture with `state_hash = sha256:invented-state-001`, matching operation-set model-basis and required-current-hash evidence. |
-> | `tests/test_model_operation_schema.py` | Implemented evidence present | Focused stdlib test for schema structure, operation/change enums, model-basis requirements, unit dimensions, professional-boundary negatives, and fixture validation. |
-> | `tests/test_operation_validation_preview.py` | Read-only adjacent evidence | DEL-16-02 validation/diff-preview behavior test consumes the DEL-16-01 schema and fixtures; behavior ownership remains downstream. |
->
-
-### CLM-006 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, objective, architecture-basis injection.
-> - `_REFERENCES.md` - source list for this setup pass.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current decomposition basis, SOW-069, OBJ-015, PKG-16, DEL-16-01, architecture basis.
-> - `docs/CONTRACT.md` - project invariants, including data boundary, professional boundary, and agent non-invention constraints.
-> - `docs/TYPES.md` - canonical object registry and schema boundary notes.
-> - `docs/SPEC.md` - technical specification slices for domain objects, persistence, viewport command intents, and professional boundaries.
-> - `docs/IP_AND_DATA_BOUNDARY.md` - public/private/protected-content boundary.
-> - `Dependencies.csv` - approved local dependency mirror/evidence surface, read only for this pass.
-> - `schemas/model_operation.schema.json` - implemented schema evidence.
-> - `fixtures/model_operations/invented_operation_set_valid.json` and `fixtures/model_operations/invented_accepted_model_state.json` - invented fixture evidence.
-> - `tests/test_model_operation_schema.py` and `tests/test_operation_validation_preview.py` - focused validation evidence.
+- Whether the published schema is the form the operation route checks, or a proposal and interchange schema beside a separately defined engine record form, is not decided.
+- Whether an operation may bind to a hash of part of the model in place of the whole document. Until that is decided the basis is the hash of the whole model document.
+- The granularity of a change: how a change names the member of its target it sets, and which pairings of operation kind, change kind and target type the taxonomy admits. Until it is decided the taxonomy's families stay owed, and a change still names its kind, its target type, the part of the target it changes and the form of its value.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-007 — Specification: DEL-16-01 Structured model operation schema
+### Requirements
 
-> #### Specification: DEL-16-01 Structured model operation schema
->
+- **REQ-001** — A change by a person in the desktop, a change proposed by an agent and a change read from a proposal file are represented as structured operations before they can alter the model. The contract admits no record that means "set the model directly" (SOW-069; PRD §5.3).
+- **REQ-002** — The contract defines operations that add, move, modify, delete and reconnect model entities, and operations on constraints, loads, supports and design knowledge (decomposition row DEL-16-01). Each change kind states its target types, the part of the target it changes and the form of its value. Design knowledge itself is deferred to v0.2; its operations are defined here and are applied when it arrives.
+- **REQ-003** — A record carries what validation, preview, acceptance, application and history each need: identity, kind, target, the change with its new value, the model basis, author type and source, rationale, assumptions and status (SOW-069; SOW-070). The target and the kind are enough for the preview to show the value before and after (PRD §10.3).
+- **REQ-004** — No status, field or enumerated value of the contract can state acceptance of engineering work, certification, sealing, authentication, approval or code compliance (PRD §21.2; `docs/CONTRACT.md` OPS-K-AUTH-1).
+- **REQ-005** — The schema and its examples hold invented values only: no protected standards text or tables, no proprietary catalogue values, no private project data and no value offered as an engineering default (PRD §5.4, §5.5; `docs/IP_AND_DATA_BOUNDARY.md`).
+- **REQ-006** — The schema is JSON Schema 2020-12, the dialect of the project's public schemas.
+- **REQ-007** — A record names model objects by reference and defines no second shape for them. The content of a record an operation creates is carried as a value in the model document's own form (PRD §5.2).
+- **REQ-008** — The contract supplies no default. A unit-bearing value carries its unit and dimension, and a missing one is a finding and never an assumed unit (PRD §5.5, §5.6; `docs/CONTRACT.md` OPS-K-DATA-2 and OPS-K-DATA-3).
+- **REQ-009** — The status vocabulary describes a proposal and nothing later: it has no value for applied, approved or accepted work.
+- **REQ-010** — A batch is bound to the model state it was written against by reference and by hash.
+- **REQ-011** — The published schema, the interactive operation vocabulary that DEL-07-09 holds and the operations the operation route applies are reconciled: each kind in one is matched in the others or is a stated difference. Every operation the route applies keeps the unit, model-basis, hash and diagnostic guarantees this contract requires. The schema's operation-kind list is not taken as the complete taxonomy, and no member enters the published schema only because the engine's record carries it (SOW-069).
+- **REQ-012** — A proposal written outside the application enters only as a batch in this contract's form (FR-AGENT-001). Offline proposal intake stays in the product.
 
-### CLM-008 — Scope
+### Acceptance criteria
 
-> ##### Scope
->
-> This deliverable covers the data-model contract for structured model operations used by GUI and agent proposal workflows. The current implementation evidence is `schemas/model_operation.schema.json` plus invented fixtures under `fixtures/model_operations/`.
->
-> Current implementation (at `62c1efd75b`): the desktop route uses a different operation shape. GUI tools and `apps/desktop/src/features/offline-proposal-intake/OfflineProposalIntakePanel.tsx` queue `EditorOperationIntent` batches (`apps/desktop/src/services/operationBatchService.ts`), and the Rust `core/model_operations/operation_applier/src/atomic_batch.rs` (`preflight_operation`) enforces that intent shape (kinds `create`, `connect`, `delete`, `insert`, `modify`). The desktop offers `schemas/model_operation.schema.json` only as a downloadable authoring reference in the offline intake panel; no product route validates operations against it. Only the Python `core/model_operations/validation_preview/engine.py`, exercised by tests, validates against it.
->
-> In scope:
->
-> - A JSON Schema 2020-12 envelope for proposed model operation sets.
-> - Structured operation records for add, move, modify, delete, reconnect, constraint, load, support, and design-knowledge edits.
-> - Operation/change fields that preserve target references, preconditions, proposed changes, validation state placeholders, diagnostics, diff-preview references, assumptions, provenance, unit metadata, model-basis hashes, and professional-boundary flags.
-> - Invented public fixture coverage for the operation kinds and change kinds established by the schema and focused tests.
->
-> Out of scope:
->
-> - The operation validator, deterministic diff preview, and invalid-operation blocking behavior owned by DEL-16-02.
-> - User acceptance and audit trail implementation owned by DEL-16-03.
-> - Agent rationale and professional-boundary workflow controls owned by DEL-16-04, except for schema fields needed to preserve the boundary.
-> - Exact persistence package/container granularity, broad hash partitioning beyond current schema hooks, GUI runtime behavior, lifecycle promotion, review-finding dispositions, and professional/code-compliance conclusions.
->
-> Sources: `_CONTEXT.md`; `schemas/model_operation.schema.json`; `fixtures/model_operations/invented_operation_set_valid.json`; `fixtures/model_operations/invented_accepted_model_state.json`; `tests/test_model_operation_schema.py`; `tests/test_operation_validation_preview.py`; `Dependencies.csv` downstream rows for DEL-16-02 and DEL-16-03.
->
-
-### CLM-009 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Source | Verification |
-> |---|---|---|---|
-> | DEL-16-01-R001 | The schema shall represent GUI and agent edits as structured model operations before they can alter accepted model state. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-069; `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `schemas/model_operation.schema.json` `$defs.OperationContractStatus` | `tests/test_model_operation_schema.py` checks `mutation_route = structured_operations_only` and `direct_model_mutation_allowed = false`; `tests/test_operation_validation_preview.py` checks preview generation without mutating accepted state. |
-> | DEL-16-01-R002 | The schema shall cover the operation kinds `add`, `move`, `modify`, `delete`, `reconnect`, `constraint`, `load`, `support`, and `design_knowledge`. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Description; `schemas/model_operation.schema.json` `$defs.OperationKind` | `tests/test_model_operation_schema.py` checks the enum and fixture coverage. |
-> | DEL-16-01-R003 | Operation records shall preserve enough structure to support schema validation, constraint validation, diff preview, and controlled application by downstream services. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-069; `schemas/model_operation.schema.json` `$defs.OperationValidation`, `$defs.Diagnostic`, `$defs.DiffPreviewRef` | Schema review; `tests/test_operation_validation_preview.py` is adjacent DEL-16-02 behavior evidence, not DEL-16-01 ownership. |
-> | DEL-16-01-R004 | Operation records shall not encode autonomous engineering acceptance, certification, sealing, authentication, approval, or code-compliance claims (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AGENT-4; `schemas/model_operation.schema.json` `$defs.ProfessionalBoundary` | `tests/test_model_operation_schema.py` checks negative professional-boundary fields and forbidden status/text sets; `tests/test_operation_validation_preview.py` checks output boundary language. |
-> | DEL-16-01-R005 | The public schema and fixtures shall not include protected standards text, protected tables, proprietary catalog values, private project data, or engineering defaults. | `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-DATA-1, OPS-K-AGENT-1; `docs/IP_AND_DATA_BOUNDARY.md`; fixture provenance fields | Fixture inspection; fixture provenance uses invented public example status. This is evidence only, not legal/professional approval. |
-> | DEL-16-01-R006 | The schema shall align with JSON Schema 2020-12 as the accepted public schema/interchange baseline. | `schemas/model_operation.schema.json` root `$schema`; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2; `docs/TYPES.md` section 8 | `tests/test_model_operation_schema.py` validates the schema document and asserts the `$schema` URI. |
-> | DEL-16-01-R007 | Operation records shall reference canonical model/domain objects rather than redefine full physical model structure. | `docs/SPEC.md` sections 1 and 3; `schemas/model_operation.schema.json` `$defs.Reference`, `$defs.OperationSet`, `$defs.OperationPrecondition` | Schema review for reference fields; tests assert model-basis and target/precondition reference structure. |
-> | DEL-16-01-R008 | Operation records shall expose diagnostics/provenance boundary hooks without silently defaulting missing engineering inputs. | `docs/CONTRACT.md` OPS-K-DATA-2, OPS-K-DATA-3; `schemas/model_operation.schema.json` `$defs.Diagnostic`, `$defs.Provenance`, `$defs.Quantity`, `$defs.UnitRequirements` | `tests/test_model_operation_schema.py` checks no `default` keys, provenance requirements, unit requirements, and canonical quantity dimensions. |
-> | DEL-16-01-R009 | Operation records shall preserve proposal status and downstream review/application boundaries. | `schemas/model_operation.schema.json` `$defs.OperationStatus`, `$defs.OperationValidation`, `$defs.OperationContractStatus` | Tests verify allowed statuses include `proposed`, `schema_validated`, `blocked_by_diagnostics`, `ready_for_user_review`, and `rejected`, while forbidden authority statuses are absent. Exact human disposition workflow remains DEL-16-03/TBD. |
-> | DEL-16-01-R010 | Operation sets shall bind operations to a model basis with accepted model-state reference and accepted model-state hash. | `schemas/model_operation.schema.json` `$defs.OperationModelBasis`; `fixtures/model_operations/invented_accepted_model_state.json` | `tests/test_model_operation_schema.py` checks required model-basis fields and per-operation `required_current_hashes` containing `payload_scope = model_state_record`. Broader hash partitioning remains TBD. |
->
-
-### CLM-010 — Standards
-
-> ##### Standards
->
-> | Standard or Control | Applicability |
-> |---|---|
-> | JSON Schema 2020-12 | Governing schema/interchange baseline for `schemas/model_operation.schema.json`. |
-> | OPS contract invariants | Binding project controls for source fidelity, IP/data boundary, unit/provenance behavior, professional boundary, and agent non-invention. |
-> | Protected-content and private-data policy | Applies to public fixtures and schema defaults; current fixtures are marked invented public examples. |
-> | Engineering design codes | Not directly used by this deliverable; no code clause text, standards tables, or engineering compliance conclusions are asserted. |
->
-
-### CLM-011 — Verification
-
-> ##### Verification
->
-> | Verification Item | Method | Current Evidence |
-> |---|---|---|
-> | Schema parses and validates as JSON Schema 2020-12 | Focused schema validation in test helper | `python3 tests/test_model_operation_schema.py` |
-> | Operation categories represented | Schema enum and invented operation fixture coverage | `tests/test_model_operation_schema.py` asserts required operation kinds are present in schema and fixture. |
-> | Change categories represented | Schema enum and invented operation fixture coverage | `tests/test_model_operation_schema.py` asserts required change kinds are present. |
-> | No direct mutation route | Contract status and adjacent preview behavior | `tests/test_model_operation_schema.py`; `tests/test_operation_validation_preview.py` checks preview without mutating accepted state and rejects direct mutation request. |
-> | Unit metadata and dimensions | Schema unit requirements and quantity dimension enum | `tests/test_model_operation_schema.py`; `tests/test_operation_validation_preview.py` checks missing unit metadata and unknown dimension block preview. |
-> | Model-basis hash binding | Accepted state fixture and operation precondition hashes | `fixtures/model_operations/invented_accepted_model_state.json`; `tests/test_model_operation_schema.py`; `tests/test_operation_validation_preview.py` checks hash mismatch blocks preview. |
-> | Professional-boundary terms absent or constrained | Schema and fixture checks | `tests/test_model_operation_schema.py`; `tests/test_operation_validation_preview.py`. |
-> | Cross-deliverable validation handoff | Read-only adjacent DEL-16-02 test evidence | `tests/test_operation_validation_preview.py`; behavior remains owned by DEL-16-02. |
->
-
-### CLM-012 — Documentation
-
-> ##### Documentation
->
-> Current implementation/evidence records:
->
-> - `schemas/model_operation.schema.json`
-> - `fixtures/model_operations/invented_operation_set_valid.json`
-> - `fixtures/model_operations/invented_accepted_model_state.json`
-> - `tests/test_model_operation_schema.py`
-> - `tests/test_operation_validation_preview.py` as adjacent downstream behavior evidence
->
-> Residual TBDs:
->
-> - exact persistence granularity and broader hash partitioning beyond implemented model-state hash hooks;
-> - vocabulary/schema/runtime conformance to DEC-094/SCA-009 and SCA-011, with ROADMAP items retaining their status;
-> - validation/diff-preview behavior owned by DEL-16-02;
-> - user acceptance, audit trail, and human review dispositions owned by DEL-16-03 and review governance;
-> - agent rationale/professional-boundary workflow behavior owned by DEL-16-04.
-
-- **AC-001** — The contract preserves the JSON Schema 2020-12 envelope, all declared operation and change categories, structured-only mutation route, target and precondition references, accepted-model-state hashes, unit and dimension requirements, diagnostics, diff-preview and downstream acceptance hooks, assumptions, provenance, invented-public fixture boundaries, professional non-authority, sibling ownership limits, and unresolved persistence, hash-partitioning, operation-granularity, autonomy, and human-disposition questions without creating direct mutation or acceptance.
+- **AC-001** — The schema is valid JSON Schema 2020-12 in strict JSON. Every object it defines is closed, so an undeclared member fails validation, and it declares no default value.
+- **AC-002** — Each kind of the published schema, each normative item of the interactive operation vocabulary and each kind of operation the operation route applies is matched to the others or named as a difference with its reason. None is left unaccounted for, and the schema's operation-kind list is not used as the complete list. On every operation the route applies, whether it came from a desktop editor, the embedded agent or offline intake, a unit-bearing value carries its unit and dimension, the batch is bound to its model basis by hash, and a refusal is a named diagnostic.
+- **AC-003** — For each of add, move, modify, delete and reconnect, and for each of constraints, loads, supports and design knowledge, the taxonomy has at least one kind and an invented example of it validates. Each change kind states its target types, the part of the target it changes and the form of its value, with the unit and dimension of a unit-bearing value. A record whose operation kind, change kind or target type is outside the taxonomy fails validation.
+- **AC-004** — A record that lacks its identifier, kind, target, change, author type or status fails validation, as does a change that sets a value and lacks the new value, and a record by an author other than a person that lacks a rationale or a source. Every record names its target and kind so that the preview can show the value before and after. A record can carry assumption records, each with an identifier, a statement and the records it affects, and an assumption record missing any of these fails validation. A unit-bearing value without a unit or a dimension fails validation or yields a missing-unit diagnostic, and is never read as dimensionless.
+- **AC-005** — The status, kind and boundary vocabularies contain no value that states acceptance of engineering work, approval, certification, sealing, authentication or code compliance. A record carrying such a status fails validation. The professional-boundary record admits only "human review required" as true and the five claims as false, and the mutation-route record admits only structured operations with direct mutation not allowed.
+- **AC-006** — The schema text and every example hold invented values, each example carries a provenance record that marks it invented, and none holds protected standards content, a proprietary catalogue value, private project data or a value presented as an engineering default.
+- **AC-007** — A target is named by object type and reference, and a batch by its model basis. No definition in the schema restates a record that the model document's schema defines.
+- **AC-008** — A batch names its model basis by reference and by a hash record that states the algorithm, the canonical form and the payload it covers. A batch without a basis fails validation.
+- **AC-009** — A proposal file that is not a batch in this contract's form is refused at intake by name, and nothing from it is queued.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-013 — Procedure: DEL-16-01 Structured model operation schema
+**Method choices that define the contract.**
 
-> #### Procedure: DEL-16-01 Structured model operation schema
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- Schema first. The published schema defines the contract's record. It is not derived from the code that reads it.
+- Closed and without defaults. An object admits only its declared members, and nothing is filled in for the author.
+- Examples are public and invented. They show each kind and are not engineering data.
 
-### CLM-015 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Provide the bounded procedure for maintaining and verifying the structured model operation schema. This procedure records current implementation evidence and preserves downstream ownership boundaries.
->
-
-### CLM-016 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Source / Status |
-> |---|---|
-> | Deliverable context and decomposition basis | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted amendments |
-> | Scope and objective mapping | `_CONTEXT.md` rows `SOW-069` and `OBJ-015`; schema root constants |
-> | Architecture basis constraints | `_CONTEXT.md` "Architecture Basis Injection"; JSON Schema 2020-12 and canonical hash-basis notes |
-> | Approved dependency mirror | `Dependencies.csv`; preserve active rows unless a later approved workflow says otherwise |
-> | Schema artifact | Implemented at `schemas/model_operation.schema.json` |
-> | Operation fixture | Implemented at `fixtures/model_operations/invented_operation_set_valid.json` |
-> | Accepted model-state fixture | Implemented at `fixtures/model_operations/invented_accepted_model_state.json` |
-> | Focused DEL-16-01 validation | `tests/test_model_operation_schema.py` |
-> | Adjacent downstream validation evidence | `tests/test_operation_validation_preview.py`; behavior owned by DEL-16-02 |
->
-
-### CLM-017 — Steps
-
-> ##### Steps
->
-> 1. Confirm the operation schema remains scoped to DEL-16-01 and SOW-069 by checking root constants for `deliverable_id`, `package_id`, `scope_item`, and `objectives`.
-> 2. Preserve JSON Schema 2020-12 as the public schema/interchange baseline.
-> 3. Preserve the schema-first operation envelope: `schema_version`, `deliverable_id`, `package_id`, `scope_item`, `objectives`, `operation_contract_status`, and `operation_set`.
-> 4. Preserve required operation-set structure: project reference, model reference, `model_basis`, operations, diagnostics, provenance, and professional boundary.
-> 5. Preserve model-basis hooks for physical source-of-truth model role, accepted model-state reference, and accepted model-state hash.
-> 6. Preserve operation record structure for operation identity/kind/status/author, target references, preconditions, changes, validation state, diagnostics, diff-preview refs, assumptions, provenance, and professional boundary.
-> 7. Preserve the declared operation kinds: `add`, `move`, `modify`, `delete`, `reconnect`, `constraint`, `load`, `support`, and `design_knowledge`.
-> 8. Preserve the declared change kinds: `add_object`, `remove_object`, `set_field`, `move_geometry`, `reconnect`, `update_constraint`, `update_load`, `update_support`, and `attach_design_knowledge`.
-> 9. Keep operation data separate from direct persisted mutation. The schema contract status must retain `structured_operations_only` and `direct_model_mutation_allowed = false`.
-> 10. Keep unit-bearing payload behavior explicit: unit metadata required, dimension check required, and missing unit behavior `emit_diagnostic`.
-> 11. Keep public fixtures invented and schema-focused. Do not embed protected standards text, protected numeric tables, proprietary catalog values, private project data, or engineering defaults.
-> 12. Keep downstream behavior boundaries explicit: validation/diff preview in DEL-16-02, acceptance/audit trail in DEL-16-03, and agent rationale/professional-boundary workflow in DEL-16-04.
-> 13. Record unresolved issues for exact persistence granularity, broader hash partitioning, vocabulary/schema/runtime conformance, and human review dispositions.
->
-
-### CLM-018 — Verification
-
-> ##### Verification
->
-> | Check | Expected Result |
-> |---|---|
-> | Schema validation check | `python3 tests/test_model_operation_schema.py` exits 0. |
-> | Adjacent validation-preview check | `python3 tests/test_operation_validation_preview.py` exits 0; result is downstream behavior evidence only. |
-> | Category fixture check | The invented operation fixture covers all declared operation kinds and change kinds. |
-> | Boundary check | Operation records carry no prohibited authority claims (PRD §21.2). |
-> | Mutation-route check | Contract status disallows direct model mutation; adjacent preview behavior does not mutate accepted state. |
-> | Source-fidelity check | Requirements trace to `_CONTEXT.md`, decomposition, governance docs, schema, fixtures, tests, or the approved local dependency mirror. Unsupported details remain TBD or ASSUMPTION. |
-> | Dependency mirror check | Local rows retain the statuses recorded by current approved graph authority through `execution/_DAG/_LATEST.md`; this procedure does not reclassify them. |
->
-
-### CLM-019 — Records
-
-> ##### Records
->
-> Current records for this deliverable/evidence slice:
->
-> - `ScopeOfWork.md` definition section
-> - `ScopeOfWork.md` requirements section
-> - `ScopeOfWork.md` guidance section
-> - `ScopeOfWork.md` procedure section
-> - `MEMORY.md`
-> - `schemas/model_operation.schema.json`
-> - `fixtures/model_operations/invented_operation_set_valid.json`
-> - `fixtures/model_operations/invented_accepted_model_state.json`
-> - `tests/test_model_operation_schema.py`
-> - `tests/test_operation_validation_preview.py`
-> - `_run_records/TASK_RUN_*.md`
->
-> Records not changed by this procedure:
->
-> - `_STATUS.md`
-> - `_REVIEW.md`
-> - `Review_Findings.csv`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - schemas, fixtures, core code, and tests
-
-- **VER-001** — Validate the contract and review source parity, complete operation/change taxonomy and record fields, structured-only mutation route, model-basis/current-hash and unit boundaries, diagnostics/provenance and invented-fixture posture, sibling ownership separations, retained CT-001 through CT-003 and other TBDs, and absence of hidden mutation, protected content, or professional-authority claims.
+- **VER-001** — AC-001, AC-005, AC-007 and AC-008, executable check: observes the schema document. It validates the schema against the JSON Schema 2020-12 metaschema, walks every object definition for closure and for the absence of defaults, reads the status, kind and boundary vocabularies against the prohibited claims of PRD §21.2, compares definition names with the model document's schema, and validates examples altered to carry an authority status, a changed boundary value or no basis, expecting each to fail.
+- **VER-002** — AC-002, comparison between three separately written lists (the published schema's kinds, the vocabulary's normative items and the kinds the operation engine admits), with an executable check: the comparison reports every item with no match and no stated difference, and the check observes, on the operations each desktop editor, the embedded agent's host and offline intake emit, the unit and dimension of each unit-bearing value, the basis hash of the batch and the named diagnostic of a refused one.
+- **VER-003** — Executable check (observes the examples and their alterations), for AC-003 and AC-004: it validates one example of each family, then the same examples with each required member removed, with an assumption record missing each of its members, with a kind or target type outside the taxonomy, with the changed part of the target removed and with a unit or dimension removed.
+- **VER-004** — AC-006, judgment by a named role (a reviewer who did not write the examples): reads the schema text and every example for protected, proprietary or private content and for values that read as defaults, with an executable check that each example's provenance record marks it invented.
+- **VER-005** — AC-009, executable check: observes the review queue after offline intake is given a well-formed batch and files that are not one.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-020 — Guidance: DEL-16-01 Structured model operation schema
-
-> #### Guidance: DEL-16-01 Structured model operation schema
->
-
-### CLM-021 — Purpose
-
-> ##### Purpose
->
-> This deliverable makes model edits explicit, reviewable, and controllable before they change accepted model state. The current schema evidence is `schemas/model_operation.schema.json`; current invented fixtures are under `fixtures/model_operations/`.
->
-> Sources: `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-069, OBJ-015, PKG-16; `_CONTEXT.md`; `schemas/model_operation.schema.json`; `tests/test_model_operation_schema.py`.
->
-
-### CLM-022 — Principles
-
-> ##### Principles
->
-> | Principle | Guidance |
-> |---|---|
-> | Operation records are proposals until downstream controls run | Treat GUI and agent edits as operation data, not as direct persisted-project mutation. The schema contract sets `direct_model_mutation_allowed = false`. |
-> | Use the implemented envelope | Current operation documents use `schema_version`, `deliverable_id`, `package_id`, `scope_item`, `objectives`, `operation_contract_status`, and `operation_set` at the root. |
-> | Use the implemented operation record structure | Current records include operation identity/kind/status/author, target references, preconditions, changes, validation, diagnostics, diff-preview refs, assumptions, provenance, and professional-boundary fields. |
-> | Preserve source boundaries | Public fixtures and examples must remain invented or otherwise cleared, with provenance, redistribution, review, and privacy-classification fields. |
-> | Prefer references over duplicate model structure | Use `Reference` objects and model-basis/precondition hashes rather than embedding the full canonical physical model in operation records. |
-> | Expose missing inputs | Missing unit metadata or other solve/rule-required information should surface as diagnostics or blocked validation, never hidden defaults. |
-> | Keep validation ownership separate | DEL-16-01 defines schema structure. DEL-16-02 owns validator and diff-preview behavior even when its tests consume DEL-16-01 fixtures. |
-> | Keep audit and acceptance ownership separate | DEL-16-03 owns acceptance and operation audit trail behavior. DEL-16-01 records boundary hooks only. |
->
-> Sources: `docs/CONTRACT.md` OPS-K-DATA-2, OPS-K-AUTH-1, OPS-K-AGENT-1, OPS-K-AGENT-4; `schemas/model_operation.schema.json`; `tests/test_operation_validation_preview.py`.
->
-
-### CLM-023 — Considerations
-
-> ##### Considerations
->
-> - The current schema establishes the concrete path `schemas/model_operation.schema.json`, root envelope fields, operation/change enums, reference/precondition/hash hooks, provenance requirements, validation placeholders, unit requirements, and professional-boundary flags.
-> - The fixture `fixtures/model_operations/invented_operation_set_valid.json` covers the declared operation kinds and change kinds using invented public example data.
-> - The fixture `fixtures/model_operations/invented_accepted_model_state.json` provides the invented physical source-of-truth model state and `sha256:invented-state-001` hash referenced by operation-set model basis and preconditions.
-> - DEC-017/028 fix local-store and interchange strategy; exact history integration and broader hash partitioning beyond the current model-state hooks require scoped evidence.
-> - Validation/diff preview remains DEL-16-02 behavior; DEC-020/SCA-011 assigns controlled application to DEL-16-06. `tests/test_operation_validation_preview.py` is useful adjacent evidence but does not transfer ownership to DEL-16-01.
-> - User acceptance, audit trail records, and human review dispositions remain DEL-16-03/review-governance behavior. Existing `Review_Findings.csv` human dispositions are not changed by this evidence-alignment pass.
-> - Agent operation autonomy remains bounded by proposal status, downstream user acceptance, and professional-boundary controls.
->
-
-### CLM-024 — Trade-offs
-
-> ##### Trade-offs
->
-> | Topic | Current Position |
-> |---|---|
-> | Broad operation enum vs specialized records | The implemented schema uses an `OperationKind` enum plus structured `OperationChange` records. DEC-094/SCA-009 already defines the interactive vocabulary separately from these schema enums; assess conformance without silently changing the public contract. |
-> | Patch-like payload vs command-like payload | The implemented schema supports `value_kind` values including `structured_patch`, `quantity`, `reference_list`, and `text`; it does not settle a universal patch grammar. |
-> | Embedding snapshots vs referencing targets | Current schema uses target references, model-basis references, accepted model-state hash, and required current hashes rather than embedding full model snapshots. |
-> | Agent-authored operations | Agent authoring is represented by `author_type = agent`, but records remain proposals and carry required professional-boundary negatives. |
-> | Fixtures | Current fixtures are invented public examples with provenance and privacy classification. They are schema evidence, not engineering defaults. |
->
-
-### CLM-025 — Examples
-
-> ##### Examples
->
-> Current example evidence is the invented operation set at `fixtures/model_operations/invented_operation_set_valid.json`. It includes:
->
-> - `op:add-node` using `operation_kind = add` and `change_kind = add_object`;
-> - `op:resize` using `operation_kind = modify` and `change_kind = set_field`;
-> - `op:move-node` using `operation_kind = move` and `change_kind = move_geometry`;
-> - `op:delete-load` using `operation_kind = delete` and `change_kind = remove_object`;
-> - `op:reconnect-component` using `operation_kind = reconnect` and `change_kind = reconnect`;
-> - `op:update-constraint`, `op:update-load`, `op:update-support`, and `op:attach-design-knowledge` for the remaining declared categories.
->
-> These examples remain invented fixture evidence only and must not be treated as reusable engineering defaults. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
->
-
-### CLM-026 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict (short statement) | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
-> |---|---|---|---|---|---|---|
-> | CT-001 | Operation granularity is required by SOW-069, but DEC-094/SCA-009 vocabulary is adopted separately from the schema enums; schema/runtime coverage still needs conformance evidence. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-069 | `schemas/model_operation.schema.json` `$defs.OperationKind` and `$defs.OperationChange` | Specification Requirements; Procedure Steps | Retain current public enums as contract evidence and assess DEC-094/SCA-009 vocabulary coverage under SCA-011; no new schema vocabulary is ratified here. | TBD |
-> | CT-002 | Agent edits are in scope, but autonomy level is unresolved beyond proposal and human-review boundaries. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-069 | `schemas/model_operation.schema.json` `OperationAuthorType`, `OperationContractStatus`, and `ProfessionalBoundary` | Specification Requirements; Procedure Verification | Allow `author_type = agent` operation proposals only; preserve downstream acceptance/audit and professional-boundary controls. | TBD |
-> | CT-003 | Hash binding is implemented for accepted model state, but broader persistence/hash partitioning remains unsettled. | `schemas/model_operation.schema.json` `$defs.OperationModelBasis` and `$defs.OperationPrecondition` | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-017/028 resolve substrate/transport; exact broader hash partitioning remains separate | Datasheet Conditions; Specification R010; Procedure Verification | Record current model-state hash hooks as fact; keep exact persistence granularity and broader hash partitioning TBD. | TBD |
+- **AX-001** — *One shape.* Better is fewer places where the form of an operation is defined and fewer translations between an author and the engine; the target is one definition and no translation. That is never reached by loosening the schema to admit undeclared members.
+- **AX-002** — *Refuse, do not guess.* Better is a larger share of malformed or incomplete records turned away by the contract itself, with a reason that names the member. A record is never completed with a default value, unit or author to let it through.
+- **AX-003** — *Readable by the person deciding.* Better is a larger share of an operation's meaning that can be read from the record alone: its target, its new value with its unit, and why. Completeness never comes from a field that states acceptance, approval or compliance.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-069 OBJ-015 | CLM-007 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-16-01:1** — R5 continuation delivery task: Reconcile the unchanged public operation-schema contract with DEC-094/SCA-009 vocabulary and actual runtime operations under SCA-011 ownership. Prove required unit/model-basis/hash/diagnostic guarantees without treating the schema enum as the complete taxonomy or silently ratifying new interface fields (CLM-003/004/017/026).
-- **DEL-16-01:2** — Obtain owning human dispositions for `PKG16-DEL1601-PKG02-001` and `PKG16-DEL1601-PKG02-002`; both remain `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`, notwithstanding current model-basis/hash and fixture evidence (PDU-060).
+| OUT-001 | SOW-069 OBJ-015 | REQ-006 REQ-008 | AC-001 | VER-001 | Outside source: the JSON Schema 2020-12 metaschema. Closure and the absence of defaults are stated by the criterion |
+| OUT-001 | SOW-069 OBJ-015 | REQ-001 REQ-011 | AC-002 | VER-002 | The three lists compared are written separately, none generated from another: the published schema, DEL-07-09's vocabulary and the engine's admitted kinds. The emitted operations of each route are observed, not their declared form |
+| OUT-001 | SOW-069 OBJ-015 | REQ-002 | AC-003 | VER-003 | The families are those decomposition row DEL-16-01 lists; the invented examples and their altered copies state what must validate and what must fail |
+| OUT-001 | SOW-069 OBJ-015 | REQ-003 REQ-008 | AC-004 | VER-003 | The altered records state what must fail |
+| OUT-001 | SOW-069 OBJ-015 | REQ-004 REQ-009 | AC-005 | VER-001 | The vocabularies are read against the prohibited claims PRD §21.2 lists; the altered records state what must fail |
+| OUT-001 | SOW-069 OBJ-015 | REQ-005 | AC-006 | VER-004 | PRD §5.4 and `docs/IP_AND_DATA_BOUNDARY.md`, read by a reviewer who did not write the examples |
+| OUT-001 | SOW-069 OBJ-015 | REQ-007 | AC-007 | VER-001 | The comparison is against the model document's schema, which DEL-02-01 owns |
+| OUT-001 | SOW-069 OBJ-015 | REQ-010 | AC-008 | VER-001 | Decomposition AB-00-04 fixes the hash basis. The altered records state what must fail |
+| OUT-001 | SOW-069 OBJ-015 | REQ-012 | AC-009 | VER-005 | The files that are not batches state what must be refused |

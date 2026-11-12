@@ -424,7 +424,7 @@ fn route_parity_with_exact_boundary_motion() {
     }
 }
 
-// ------------------------------------------------------------------ refusals (design §3)
+// ------------------------------------------------------------------ refusals
 fn with_supports(mut wire: Value, extra: Vec<Value>) -> Value {
     wire["model"]["supports"].as_array_mut().unwrap().extend(extra);
     wire

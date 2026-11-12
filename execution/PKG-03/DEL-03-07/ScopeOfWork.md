@@ -2,344 +2,112 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-03-07
 package_id: PKG-03
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-019,SOW-044]
 package_objective_refs: [OBJ-002, OBJ-004]
 ---
 
-# Scope of Work — DEL-03-07
+# Scope of Work — DEL-03-07 Public/private library import provenance checker
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-03-07` in service of project scope [SOW-019, SOW-044] and package objectives [OBJ-002, OBJ-004].
+This deliverable is the gate every library passes on its way into the product. Given a material, section, component or hanger library and whether it is meant to be public or private, it decides one of five outcomes, and says why in findings a user can act on. Its effect is that data enters the public project only with a documented source and documented redistribution rights, that a user's private library stays local, and that content suspected of being protected is held and never stored or republished.
 
-- **OUT-001** — A public/private library import-provenance checker contract covering source, license, redistribution, contributor and review metadata, privacy posture, unit preservation, quarantine, and diagnostics is produced for the declared scope and objectives.
+It serves SOW-019 and SOW-044 under OBJ-002 and OBJ-004 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-03, row DEL-03-07), and PRD §18.4 (import warnings), §20.2 (provenance of public data) and §20.3 (private data handling) with FR-RULE-005 and FR-RULE-006. Hanger libraries are a user-imported library class. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable; it reaches exit criterion 1's hanger sizing through DEL-04-11, which sizes from an imported private catalogue.
+
+- **OUT-001** — The library import boundary for material, section and component libraries: the check of an already-parsed library document, its outcome and findings, and the rule for what the local library store keeps.
+- **OUT-002** — The same boundary for hanger libraries, in formats 1.0.0 and 1.1.0.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-03-07 Public/private library import provenance checker
+**Terms the boundary implements.**
 
-> #### Datasheet: DEL-03-07 Public/private library import provenance checker
->
+- *Import.* The presentation of one library document of a stated kind (material, section, component or hanger) with a stated intended visibility, public or private. The document is already parsed; the boundary reads no external file format.
+- *Outcome.* Exactly one of: accepted as public; accepted as private and local only; review required; rejected; quarantined. Where findings of several kinds are present the gravest governs, in the order quarantined, rejected, review required, accepted. Only the two accepted outcomes are acceptance.
+- *Finding.* One reason for an outcome: a code, a severity, the path of the member it concerns, a message and a remediation, projected into a diagnostic with code, class, severity, source, affected object, message, remediation and provenance.
+- *Provenance check.* On the library and on each record: the seven members of PRD §20.2 (source name, source location, source licence, contributor, contributor certification, redistribution status, review status), each present and non-empty. On each numeric value: its unit and dimension, and its own provenance.
+- *Public disposition.* A public import is accepted only when its redistribution status is public permissive and its review status is accepted. Private data, an unknown or missing redistribution status and any other status block it; a review status not yet accepted leaves it at review required.
+- *Quarantine.* A library, record or value whose redistribution status says protected content is suspected, or whose review status is quarantined, quarantines the whole import, whatever its intended visibility.
+- *Unreadable disposition.* A redistribution or review status that is not text, or a provenance that is not an object, anywhere in a library. No outcome can be read from it, so the import is rejected by name.
+- *Local library store.* The store on the user's machine that holds one document per project, library kind and library identifier.
 
-### CLM-002 — Identification
+**Boundary.** This deliverable decides admission. The formats it checks against are DEL-03-01's (material) and DEL-03-02's (section, component, hanger). It makes no legal determination: whether a licence in fact grants redistribution is for the project's human authority, and the boundary records and gates on what the document states. DEL-04-11 owns what a hanger's working load range means in sizing. DEL-07-03 owns the Library Manager in which a user imports. DEL-12-04 owns how private libraries are kept out of exports, bug reports and telemetry. This deliverable reads no external file format. The decomposition selects no external library format; an adapter that parses one is admitted through DEL-10-02 and presents its parsed document to this boundary (REQ-010).
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-03-07 |
-> | Package ID | PKG-03 |
-> | Package Name | Piping Components, Materials, and Library Data Model |
-> | Deliverable Type | BACKEND_FEATURE_SLICE |
-> | Scope Items | SOW-019; SOW-044 |
-> | Objectives | OBJ-002; OBJ-004 |
-> | Anticipated Artifacts | library import validator; provenance tests |
-> | Decomposition Basis | execution/_Decomposition/SOFTWARE_DECOMP.md (accepted authority; see the project decision register) |
-> | Status | Implementation evidence reconciled; lifecycle remains governed by `_STATUS.md` |
->
-
-### CLM-003 — Attributes
-
-> ##### Attributes
->
-> | Attribute | Source-grounded value |
-> |---|---|
-> | Primary function | Validate already-parsed material, section, and component library payloads so source, provenance, license, contributor/reviewer disposition, redistribution metadata, privacy posture, and unit metadata are checked before import acceptance. |
-> | Data boundary | Public component data requires documented provenance and redistribution rights; private library data must not become a bundled public default. |
-> | Input format list | TBD. The implemented checker validates already-parsed payloads and intentionally does not parse external import formats. |
-> | Rights determination authority | TBD. The checker can record and flag metadata, but legal acceptance requires human/project review. |
-> | Protected-content response | Suspected protected standards or vendor content is quarantined and escalated rather than transformed into public data. |
-> | Unit handling | Imported component/material numeric values must retain unit and dimension metadata; no unit defaults are introduced by the checker. |
->
-
-### CLM-004 — Conditions
-
-> ##### Conditions
->
-> - Public data contributions are acceptable only when provenance and redistribution status are documented.
-> - Import mechanisms must record source, provenance, and license metadata for component and material data.
-> - Missing solve-required or rule-check-required values are findings, not silent defaults.
-> - Public deliverable evidence must not include protected standards text, protected tables, vendor data, or real rights/provenance examples.
->
-
-### CLM-005 — Construction
-
-> ##### Construction
->
-> Reconciled implementation evidence contains:
->
-> The Rust runtime carrier is `core/library_import/library_import_document/`; its parity corpus and callers are implementation evidence distinct from the Python reference checker. Supported library-kind vocabulary must be read from that versioned contract, including hanger records; source/right acceptance and external parser coverage remain separate.
->
-> - `core/library_import/provenance_checker.py`, a stdlib-only validator for already-parsed material, section, and component library payloads;
-> - `validate_library_import(...)`, returning `ACCEPTED_PUBLIC`, `PRIVATE_LOCAL_ONLY`, `REVIEW_REQUIRED`, `REJECTED`, or `QUARANTINE` outcomes;
-> - metadata checks for library-level and record-level provenance fields: source name/location, source license, contributor, contributor certification, redistribution status, and review status;
-> - public/private disposition checks that block private-only or unresolved-rights data from public acceptance while permitting eligible private imports to remain local/private;
-> - protected-content quarantine signaling for suspected protected or rejected sources;
-> - nested numeric value checks that require unit/dimension metadata and value-level provenance;
-> - `ImportFinding.to_diagnostic()` and `ImportValidationResult.diagnostics`, which project findings into a PKG-02-style diagnostic envelope with code, severity, class, source, affected object, remediation, and provenance;
-> - `core/library_import/README.md`, documenting the boundary that the checker does not parse external formats and does not make legal conclusions;
-> - `tests/test_library_import_provenance.py`, covering accepted public imports, public rejection for unresolved rights, private-local handling, missing provenance, protected-content quarantine, unit metadata, and diagnostic-envelope mapping using invented fixtures.
->
-> Remaining unresolved items are concrete external import formats and parser contracts, accepted source catalogs and legal/license policy, fixture-value authority for engineering reliance, dependency satisfaction outside this bounded evidence, preservation of the resolved local review findings, and lifecycle closure.
->
-
-### CLM-006 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, scope envelope, objectives, and architecture-basis injection.
-> - `_REFERENCES.md` for governing source pointers.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-03-07.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) rows SOW-019 and SOW-044.
-> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-03-07.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register).
-> - `docs/CONTRACT.md` invariants OPS-K-IP-1..3, OPS-K-DATA-1..3, OPS-K-UNIT-1, OPS-K-PRIV-1, OPS-K-GOV-4, and OPS-K-AGENT-1..4.
+**Not decided.** PRD §18.4 requires an import to flag values outside user-defined reasonableness ranges. Where a user defines those ranges, and whether this boundary or the adapter framework (DEL-10-02/REQ-004) applies them, is not decided; this scope states no criterion for it. PRD §18.4 also requires a flag on a value that appears to be protected standards data. How the boundary recognizes such a value when its metadata does not say so is not decided; AC-003 covers content whose metadata states the suspicion.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-007 — Specification: DEL-03-07 Public/private library import provenance checker
+An accepted import means the document states what the boundary requires. It is a software finding about metadata. It does not establish that the stated rights exist, that the values are correct, or that a record is ready to solve.
 
-> #### Specification: DEL-03-07 Public/private library import provenance checker
->
+### Requirements
 
-### CLM-008 — Scope
+- **REQ-001** — A public import is accepted only with recorded source, provenance, licence, contributor certification, review status and redistribution status (SOW-019, SOW-044; `docs/CONTRACT.md` OPS-K-IP-2; PRD §20.2).
+- **REQ-002** — An import with missing provenance or missing redistribution status is flagged or rejected. Nothing is defaulted on the way in (SOW-044; `docs/CONTRACT.md` OPS-K-DATA-2; PRD §18.4).
+- **REQ-003** — Public and private handling are separate. Private data is never accepted as public, and a private library is not transmitted or published by importing it (`docs/CONTRACT.md` OPS-K-PRIV-1, OPS-K-DATA-1; PRD §20.3).
+- **REQ-004** — Content suspected of being protected is quarantined and escalated. It is not paraphrased, transformed or accepted, and a finding never reproduces it (`docs/CONTRACT.md` OPS-K-IP-1, OPS-K-IP-3; PRD §20.2).
+- **REQ-005** — The unit and dimension of every imported numeric value are required and preserved. The boundary converts and assumes no unit (`docs/CONTRACT.md` OPS-K-UNIT-1; PRD §18.4).
+- **REQ-006** — Every finding is a diagnostic with code, class, severity, source, affected object, message, remediation and provenance (the decomposition's architecture basis for DEL-00-06).
+- **REQ-007** — The boundary makes no legal acceptance. An unresolved licence or rights question remains a finding for human review (`docs/CONTRACT.md` OPS-K-GOV-4).
+- **REQ-008** — Imported data is flagged where a required field is missing, a unit is missing or inconsistent, provenance is missing, redistribution status is unclear, or a value appears to be protected standards data (PRD §18.4).
+- **REQ-009** — The local library store keeps only an import accepted as private and local. A quarantined, rejected or review-required import is refused: its findings are returned and nothing is written. A stored library document is returned as it was saved: the whole document, with its units, values and provenance (DEL-00-04/REQ-001).
+- **REQ-010** — No import, export or adapter path brings a library into the product around this boundary (the decomposition's architecture basis for DEL-00-07).
+- **REQ-011** — A hanger library is imported in format 1.0.0 or 1.1.0. A 1.0.0 document imports unchanged. A working load range in a 1.0.0 document, a range whose ends differ in unit, and a range whose minimum is not below its maximum are each refused by name. An import fills in no absent engineering value (PRD §12.4).
+- **REQ-012** — Wherever the boundary is implemented more than once, every implementation returns the same outcome and the same findings for the same document.
+- **REQ-013** — Every fixture and test case of the boundary is invented, labelled as invented, and carries no protected standards content, vendor data or real rights or provenance record (PRD §20.1; `docs/CONTRACT.md` OPS-K-IP-1).
 
-> ##### Scope
->
-> This deliverable specifies reconciled evidence for a backend feature slice that validates already-parsed public/private component, section, and material library payloads for provenance, license, redistribution status, privacy posture, unit metadata, and protected-content handling.
->
-> It covers:
->
-> - metadata presence checks for source, provenance, license, contributor/reviewer disposition, and redistribution status;
-> - public/private data boundary checks for component, section, and material library imports;
-> - diagnostics for missing provenance, unresolved redistribution metadata, protected-content suspicion, missing unit metadata, and review-required public imports;
-> - PKG-02-style diagnostic-envelope projection for import findings;
-> - provenance-focused tests using invented fixture payloads.
->
-> It excludes:
->
-> - concrete external import formats and parsers, which are TBD;
-> - legal conclusions about whether a license grants redistribution rights;
-> - protected standards text, copied tables, vendor data, or derived protected examples;
-> - global solver, rule evaluator, or GUI implementation work.
->
+### Acceptance criteria
 
-### CLM-009 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Evidence basis | Verification |
-> |---|---|---|---|
-> | DEL-03-07-R1 | The checker shall require recorded source, provenance, license, contributor certification, review status, and redistribution-status metadata before a public component/material data import can be accepted. | SOW-019; SOW-044; OPS-K-IP-2; OPS-K-DATA-3 | `test_public_component_import_requires_accepted_public_provenance` and missing-provenance tests cover present/missing metadata fields. |
-> | DEL-03-07-R2 | The checker shall flag or reject imports with missing provenance or missing redistribution-status metadata without creating silent defaults. | SOW-044; OPS-K-DATA-2; OPS-K-AGENT-1 | Negative tests assert diagnostic output, rejected outcome, and no accepted record. |
-> | DEL-03-07-R3 | The checker shall separate public and private library handling so private project, material, component, and rule-pack data is not transmitted or committed publicly by default. | OPS-K-PRIV-1; OPS-K-DATA-1 | Tests distinguish public-import disposition from private-local records. |
-> | DEL-03-07-R4 | The checker shall quarantine or escalate suspected protected content rather than paraphrasing, transforming, or accepting it into public data. | OPS-K-IP-1; OPS-K-IP-3; OPS-K-GOV-4 | Tests use invented markers only and assert quarantine outcome. |
-> | DEL-03-07-R5 | The checker shall preserve unit metadata for imported numeric component/material values where such values are present. | OPS-K-UNIT-1; AB-00-04; AB-00-07 | Unit-aware fixture tests use invented values and verify missing unit metadata blocks public acceptance. |
-> | DEL-03-07-R6 | The checker shall produce diagnostics/result envelopes compatible with the schema-first command/query/job boundary. | AB-00-02; AB-00-06; AB-00-07 | `test_import_findings_map_to_pkg02_diagnostic_envelope` asserts stable diagnostic fields and no bypass around import validation. |
-> | DEL-03-07-R7 | The checker shall not make legal acceptance claims; unresolved license or rights questions shall remain review dispositions requiring human/project authority. | OPS-K-AGENT-1; OPS-K-GOV-4 | Tests assert `TBD`/review-needed style statuses for unresolved rights metadata. |
->
-
-### CLM-010 — Standards
-
-> ##### Standards
->
-> | Standard or governing source | Applicability | Status |
-> |---|---|---|
-> | docs/CONTRACT.md | Invariant source for IP, data, unit, privacy, governance, and agent behavior. | Locally accessible |
-> | execution/_Decomposition/SOFTWARE_DECOMP.md (accepted authority through the decision register) | Scope and objective source for DEL-03-07. | Locally accessible |
-> | External import format specifications | Potential parser/import constraints once selected. | TBD |
-> | Legal license interpretation sources | May govern redistribution-right acceptance. | TBD; human/legal review required |
->
-
-### CLM-011 — Verification
-
-> ##### Verification
->
-> - Run `python3 -m pytest tests/test_library_import_provenance.py` for accepted, private-local, rejected, quarantine, and diagnostic-envelope outcomes.
-> - Use only invented, minimal fixtures for public tests.
-> - Confirm accepted public imports contain source, provenance, license, redistribution status, contributor/review disposition, and unit metadata where applicable.
-> - Confirm missing or uncertain rights/provenance fields yield explicit diagnostics rather than accepted defaults.
-> - Confirm suspected protected content yields quarantine/escalation status and no public data output.
-> - Confirm diagnostics do not include protected content excerpts.
->
-
-### CLM-012 — Documentation
-
-> ##### Documentation
->
-> Implemented and reconciled artifacts are:
->
-> - `core/library_import/provenance_checker.py`;
-> - `core/library_import/README.md`;
-> - `tests/test_library_import_provenance.py`;
-> - active deliverable docs recording implementation evidence and remaining TBDs.
->
-> Remaining non-implementation decisions are external import formats, public-source/catalog policy, fixture-value authority for engineering reliance, dependency satisfaction outside this bounded evidence, preservation of the resolved local review findings, and lifecycle closure.
-
-- **AC-001** — The contract preserves accepted public/private data boundaries, conservative missing-provenance handling, protected-content quarantine, unit and diagnostic requirements, and unresolved rights, vocabulary, source-catalog, and legal-acceptance decisions without creating legal conclusions or public defaults.
+- **AC-001** — A material, section or component library presented as public is accepted as public only when the library and every record carry all seven provenance members, the redistribution status is public permissive and the review status is accepted, and every numeric value carries its unit, dimension and own provenance. With a provenance member missing it is rejected with a finding that names the member; with private data, or a redistribution status that is unknown, missing or anything but public permissive, it is rejected; with a review status not yet accepted and nothing graver, it is review required.
+- **AC-002** — The same library presented as private, complete in its provenance and units, is accepted as private and local only. It is never returned as accepted as public, whatever its content.
+- **AC-003** — A library in which the library, a record or a value at any depth states that protected content is suspected, or a quarantined review status, is quarantined under either visibility, and a rejected source is rejected. No finding quotes the content it concerns.
+- **AC-004** — A numeric value without its unit and dimension, or without its own provenance, rejects the import with a finding at that value's path. A library document saved to the local library store and opened again equals the saved document in canonical JSON form (RFC 8785), every unit, value and provenance as it was saved.
+- **AC-005** — Every finding of every outcome is a diagnostic with all eight members of REQ-006, and its affected object identifies the library and, where it concerns one, the record.
+- **AC-006** — A library whose licence or rights are unresolved is never returned as accepted as public. No outcome, finding or message states that redistribution is lawful or that a licence has been approved.
+- **AC-007** — A library document that lacks a member its format requires, or carries a redistribution or review status that is not text or a provenance that is not an object, is not accepted, and a finding names the member. A value whose unit is not a unit of its stated dimension in the unit catalog is rejected with a finding at its path. A private import whose redistribution status is unknown is accepted as private and local only, with a finding that names the status.
+- **AC-008** — Saving to the local library store writes the document only when the import, checked as private, is accepted as private and local. For a quarantined, rejected or review-required import the save returns the findings and reports that nothing was stored, and the store's contents are unchanged. A library reaches the store by no other path.
+- **AC-009** — A hanger library in format 1.0.0 imports with the outcome and findings it had before 1.1.0 existed. A 1.1.0 library with a well-formed working load range imports. A working load range in a 1.0.0 document, a range with a missing end or an extra member, a range whose ends differ in unit, and a range whose minimum is not below its maximum when both are read as binary64 numbers, are each rejected with their named finding. A quantity that is not finite and a repeated record identifier are rejected. After a successful import every optional value that was absent is still absent.
+- **AC-010** — For every case of a shared set of invented valid and invalid libraries, each implementation of the boundary returns the same outcome and the same ordered findings by code, path and severity.
+- **AC-011** — The shared cases and every test library of the boundary are invented and labelled so, and contain nothing REQ-013 excludes.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-013 — Procedure: DEL-03-07 Public/private library import provenance checker
+**Method choices that define the boundary.**
 
-> #### Procedure: DEL-03-07 Public/private library import provenance checker
->
+- The boundary reads an already-parsed document and nothing else: no file format, no network, no catalogue.
+- Strict by default. An absent, unknown or unreadable standing is never read as permission.
+- Every nested provenance is checked. A standing stated on a record or a library cannot conceal a rejected or protected provenance beneath it.
+- The hanger rules are read from the hanger schema itself by each implementation, with the cross-member rules a schema cannot state applied after the shape check and only to a range that passes it.
+- The desktop's runtime boundary and a reference checker outside it implement the same rules, and are held together by shared cases.
+- The store re-checks at save. A document is not stored on the strength of an earlier check.
 
-### CLM-014 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Define the procedure for checking and maintaining the implemented library import provenance checker while preserving unresolved policy, parser, review, and lifecycle boundaries.
->
-
-### CLM-015 — Prerequisites
-
-> ##### Prerequisites
->
-> - Sealed context for DEL-03-07.
-> - `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register).
-> - Applicable invariants from `docs/CONTRACT.md`.
-> - Implementation evidence in `core/library_import/provenance_checker.py`, `core/library_import/README.md`, and `tests/test_library_import_provenance.py`.
-> - Human-approved decisions for license/redistribution acceptance vocabulary, public source catalogs, and import parser contracts before those fields are treated as project policy.
->
-
-### CLM-016 — Steps
-
-> ##### Steps
->
-> 1. Confirm the import record type being checked is within material, section, or component library scope.
-> 2. Confirm the record carries source, provenance, license, redistribution-status, contributor, and review-disposition metadata fields or emits an explicit missing-field diagnostic.
-> 3. Confirm public imports with missing provenance or missing redistribution status are blocked, rejected, or marked not publicly acceptable.
-> 4. Confirm private imports remain marked private/local and do not become public bundled data by default.
-> 5. Confirm suspected protected content produces a quarantine/escalation diagnostic without copying or paraphrasing protected content into public data.
-> 6. Confirm numeric imported values preserve unit metadata where numeric component/material values are present.
-> 7. Confirm result diagnostics fit the schema-first command/query/job result-envelope pattern and expose unresolved items as `TBD` or review-needed statuses.
-> 8. Confirm provenance tests use invented fixtures only and do not establish engineering reliance for fixture values.
-> 9. Confirm review findings remain technically addressed pending human disposition unless an authorized human review updates them.
->
-
-### CLM-017 — Verification
-
-> ##### Verification
->
-> | Check | Expected evidence |
-> |---|---|
-> | Metadata completeness | Tests for accepted records and missing-field diagnostics. |
-> | Public/private boundary | Tests that private records remain private and public records require provenance metadata. |
-> | Protected-content response | Tests assert quarantine/escalation status using invented markers only. |
-> | Unit handling | Tests assert unit fields are preserved for invented numeric values. |
-> | No legal conclusions | Tests assert unresolved rights questions remain review-needed/TBD. |
-> | No protected examples | Fixture review confirms no standards tables, vendor data, or real protected examples are included. |
-> | Review disposition boundary | Local `Review_Findings.csv` records `ACCEPT_AS_IS` / `RESOLVED`; this procedure preserves that human disposition and makes no new CSV or lifecycle promotion. |
->
-
-### CLM-018 — Records
-
-> ##### Records
->
-> - `ScopeOfWork.md`.
-> - `core/library_import/provenance_checker.py`, `core/library_import/README.md`, and `tests/test_library_import_provenance.py` as implementation evidence.
-> - `_SEMANTIC.md` semantic matrix lens.
-> - `_SEMANTIC_LENSING.md` lensing register.
-> - `Dependencies.csv` v3.1 and `_DEPENDENCIES.md`.
-> - `_run_records/TASK_RUN_*.md` records for the deliverable work sequence.
-
-- **VER-001** — Validate the contract and review source parity, metadata and diagnostic coverage, public/private separation, unit preservation, protected-content quarantine, invented-fixture boundaries, and unresolved human or legal review items.
+- **VER-001** — Executable check: presents invented libraries of each kind, complete and with each provenance member, status and unit removed or altered in turn, under each visibility; observes the outcome and the finding with its path for each, the precedence among findings, and that an accepted public outcome never arises from private, unknown or unresolved rights.
+- **VER-002** — Executable check: observes all eight diagnostic members on every finding produced by the cases of VER-001, and that no finding's message contains the content of the member it concerns.
+- **VER-003** — Executable check: presents documents that omit a member their format requires, documents with an unreadable disposition, documents with a value whose unit is not a unit of its stated dimension, and private documents whose redistribution status is unknown; observes that none of the first three is accepted and that a finding names the member or the value's path, and that the last is accepted as private and local only with a finding that names the status.
+- **VER-004** — Executable check: saves accepted, quarantined, rejected and review-required imports to the local library store and observes what the store holds before and after each, and the returned findings; opens each stored library and compares its canonical form (RFC 8785), and every unit, with the document that was saved.
+- **VER-005** — Executable check: runs the shared invented hanger cases, 1.0.0 and 1.1.0, valid and invalid; observes each outcome and named finding, and compares an imported document with its input for filled-in values.
+- **VER-006** — Executable check: runs every shared case through each implementation and compares the outcomes and the ordered code, path and severity of the findings.
+- **VER-007** — Judgment by an independent reviewer: a reviewer who did not write the boundary reads its outcomes, messages and documentation against `docs/claims_registry.md` for any statement of legal acceptance, and reads its fixtures against `docs/IP_AND_DATA_BOUNDARY.md` §3 for protected or vendor content.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-019 — Guidance: DEL-03-07 Public/private library import provenance checker
-
-> #### Guidance: DEL-03-07 Public/private library import provenance checker
->
-
-### CLM-020 — Purpose
-
-> ##### Purpose
->
-> This deliverable exists to connect PKG-03 library data models with the project governance boundary: component and material data may be imported, but public acceptance requires recorded provenance and redistribution status, and private data must remain private by default.
->
-
-### CLM-021 — Principles
-
-> ##### Principles
->
-> - Treat provenance as required metadata, not optional commentary.
-> - Treat redistribution status as a review field. The checker records and gates; it does not make legal conclusions.
-> - Prefer explicit `TBD`, `REVIEW_NEEDED`, or equivalent unresolved states over guessed acceptance.
-> - Keep public tests and fixtures invented. Do not use protected standards tables, vendor catalogs, or copied examples.
-> - Preserve public/private separation at the import boundary and at any diagnostic/export boundary.
-> - Maintain unit metadata for numeric engineering values; do not introduce unitless accepted records.
->
-
-### CLM-022 — Considerations
-
-> ##### Considerations
->
-> - SOW-019 requires documented provenance and redistribution rights before public component data can be accepted.
-> - SOW-044 requires import mechanisms to record source, provenance, and license metadata for component/material data.
-> - OPS-K-IP-3 and OPS-K-GOV-4 make protected-content suspicion a stop-and-escalate condition, not a transformation task.
-> - AB-00-07 indicates adapters must validate units, provenance, redistribution, diagnostics, and public/private boundaries.
-> - Exact external import formats are still TBD, so this deliverable evidence describes already-parsed payload validation without committing to parser details.
->
-
-### CLM-023 — Current Evidence
-
-> ##### Current Evidence
->
-> - `core/library_import/provenance_checker.py` provides `validate_library_import(...)` for already-parsed material, section, and component library payloads.
-> - `ImportValidationResult` reports `ACCEPTED_PUBLIC`, `PRIVATE_LOCAL_ONLY`, `REVIEW_REQUIRED`, `REJECTED`, or `QUARANTINE`.
-> - `ImportFinding.to_diagnostic()` projects findings to PKG-02-style diagnostic envelope fields for downstream compatibility evidence.
-> - `tests/test_library_import_provenance.py` uses invented fixtures to cover public acceptance, unresolved-rights rejection, private-local handling, missing provenance, protected-content quarantine, unit metadata, and diagnostic-envelope mapping.
->
-
-### CLM-024 — Trade-offs
-
-> ##### Trade-offs
->
-> | Topic | Preferred posture | Reason |
-> |---|---|---|
-> | Missing provenance | Reject, block, or flag as not publicly acceptable. | Avoid silent acceptance of unsupported public data. |
-> | Unclear license status | Mark review-needed/TBD. | The checker cannot make legal conclusions. |
-> | Private imports | Permit local-private handling only when privacy markers and storage boundaries are respected. | Supports private libraries without bundling protected data. |
-> | Public test data | Use invented fixtures. | Prevent protected data from entering the public repository. |
-> | Strictness | Conservative by default. | Scope item notes emphasize contributor certification and missing-provenance flags. |
->
-
-### CLM-025 — Examples And Fixtures
-
-> ##### Examples And Fixtures
->
-> Concrete external import examples are not provided because protected/vendor data examples are forbidden and external import formats are TBD. Current test payloads are invented fixtures only; fixture values are not engineering reference values and do not establish a real license, provenance trail, accepted source catalog, or redistribution policy.
->
-
-### CLM-026 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Topic | Contenders | Human ruling |
-> |---|---|---|---|
-> | DEL-03-07-C1 | Exact license/redistribution disposition vocabulary | Source scope requires metadata and review, but no approved enum names are defined in this deliverable. | TBD |
-> | DEL-03-07-C2 | Public acceptance authority | Validator can flag missing/uncertain metadata; legal or maintainer acceptance authority is not defined locally. | TBD |
-> | DEL-03-07-C3 | Public source catalog and policy | The checker gates on metadata values, but no approved public source catalog or legal/license policy is defined locally. | TBD |
-> | DEL-03-07-C4 | Fixture-value authority | Tests use invented minimal values; no fixture value is approved for engineering reliance. | TBD |
-
-### CLM-027 — SCA-011 DEC-103 hanger provenance
-
-**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
-
-Retain provenance checking and rights-safe fixture responsibilities for user-imported hanger libraries under DEL-03-07; DEL-03-02 owns schema, DEL-07-03 UI and DEL-07-09 coverage.
-
-**Format 1.1.0** (SCA-015; DEL-03-02 CLM-030). The import boundary, the Rust carrier and the Python checker alike, refuses by name `working_load_range` in a 1.0.0 document (as an unknown field), a range whose ends differ in unit, and a minimum not below its maximum read as binary64 numbers, the last two only on a range that passes the shape check. The shared cases in `fixtures/hanger/invented_hanger_cases.json` keep the two in parity.
-
-- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
-- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
-- **VER-002** — Exercise accepted/private/rejected/quarantined hanger input paths under the owned provenance contract; no source-license authority is inferred from a passing parser.
+- **AX-001** — *When in doubt, do not accept.* Better is fewer imports accepted on metadata that is missing, unknown or unreadable; the target is none. A smoother import is never bought by reading silence as permission.
+- **AX-002** — *Private use stays possible.* Better is fewer complete, properly sourced private libraries that a user cannot bring in. This is never bought by storing or passing on content suspected of being protected.
+- **AX-003** — *Findings a user can act on.* Better is more refusals that name the member and say what to supply. A finding never states a legal conclusion and never repeats suspect content.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-019 SOW-044 OBJ-002 OBJ-004 | CLM-007 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-| OUT-002 | OBJ-002 OBJ-004 | CLM-027 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
+| OUT-001 | SOW-019 SOW-044 OBJ-002 OBJ-004 | REQ-001 REQ-002 | AC-001 | VER-001 | PRD §20.2 and `docs/CONTRACT.md` OPS-K-IP-2 state what a public record must carry; the criterion states the expected outcomes |
+| OUT-001 | SOW-019 SOW-044 OBJ-002 OBJ-004 | REQ-003 | AC-002 | VER-001 | PRD §20.3 and `docs/CONTRACT.md` OPS-K-PRIV-1 |
+| OUT-001 | SOW-019 SOW-044 OBJ-002 OBJ-004 | REQ-004 | AC-003 | VER-001 VER-002 | PRD §20.2 (unclear or suspicious data is quarantined) and `docs/CONTRACT.md` OPS-K-IP-3 |
+| OUT-001 | SOW-044 OBJ-004 | REQ-005 REQ-009 | AC-004 | VER-001 VER-004 | PRD §18.4 and `docs/CONTRACT.md` OPS-K-UNIT-1; the stored and reopened library, its units included, is compared in the canonical form an outside standard defines (RFC 8785) with the document that was saved |
+| OUT-001 | SOW-044 OBJ-004 | REQ-006 | AC-005 | VER-002 | The criterion states the expected members (decomposition architecture basis for DEL-00-06) |
+| OUT-001 | SOW-019 OBJ-002 | REQ-007 | AC-006 | VER-001 VER-007 | `docs/CONTRACT.md` OPS-K-GOV-4 and `docs/claims_registry.md`; independent review of the texts |
+| OUT-001 | SOW-044 OBJ-004 | REQ-008 | AC-007 | VER-003 | PRD §18.4 lists the conditions; the required members are those of the formats of DEL-03-01 and DEL-03-02, and the units of a dimension are those of the unit catalog (DEL-02-02), none of which this deliverable writes |
+| OUT-001 | SOW-044 OBJ-002 OBJ-004 | REQ-009 REQ-010 | AC-008 | VER-004 | The criterion states what is stored and what is refused; the store's contents are observed before and after each save |
+| OUT-002 | SOW-044 OBJ-004 | REQ-011 | AC-009 | VER-005 | PRD §12.4; the shape is that of DEL-03-02's hanger format. The 1.0.0 outcomes are the boundary's own earlier output, which only guards against change |
+| OUT-001 | SOW-019 OBJ-002 | REQ-013 | AC-011 | VER-007 | PRD §20.1 and `docs/CONTRACT.md` OPS-K-IP-1; independent review against `docs/IP_AND_DATA_BOUNDARY.md` §3 |
+| OUT-002 | SOW-044 OBJ-004 | REQ-012 | AC-010 | VER-006 | Two implementations of the product compared with each other, which only guards against drift. Correctness of the outcomes rests on AC-001 to AC-009; on agreement alone there are no independent grounds |

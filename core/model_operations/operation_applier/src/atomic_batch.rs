@@ -353,7 +353,7 @@ fn preflight_operation(value: &Value) -> Result<(), String> {
             | "Support"
             | "Load"
             | "Combination"
-            // W-13 §6: the project singleton and the model-data record families.
+            // the project singleton and the model-data record families.
             | "Project"
             | "Line"
             | "Assumption"

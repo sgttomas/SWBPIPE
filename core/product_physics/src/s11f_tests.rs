@@ -194,7 +194,7 @@ fn assert_binary64_rows_near_certified_net_answer(
 ) -> usize {
     let rows: BTreeMap<&str, &ResultItem> = case_rows(envelope, "case").map(|r| (r.id.as_str(), r)).collect();
     let mut expected: BTreeMap<&str, &ResultItem> = case_rows(reference, "case").map(|r| (r.id.as_str(), r)).collect();
-    // T4-U4b (§2.3): the cancelling loads' uniform intensities enter the arc
+    // the cancelling loads' uniform intensities enter the arc
     // maximum's problem one by one, and at G = 1e80 their enclosures cannot
     // bound it; that maximum is withheld with PREVIEW_STRESS_MAXIMUM_UNAVAILABLE
     // naming the arc, while the single net load's is published.
@@ -455,10 +455,10 @@ fn check_rf_rows(
 /// The 14 formation rows' published binary64 values after S11-F, exactly
 /// pinned (ROOT's amended formation-class condition, 2026-09-27): (entry,
 /// case, key, mode, values), values as `check_rf_rows` returns them. K-D5
-/// (DEL-04-01 kd5-member-relative-bound.md §§3.1, 3.4) publishes the eight
+/// publishes the eight
 /// INPLANE end moments as certified recoveries: each is now exactly the
 /// intended +/-1e-8 N*m in both modes, inside R1's interval. The six UDL rows
-/// are S1's rotation, a displacement row published unchanged (§3.2).
+/// are S1's rotation, a displacement row published unchanged.
 const FORMATION_PINS: &[(&str, &str, &str, &str, &[f64])] = &[
     (
         "captured",

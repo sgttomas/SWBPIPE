@@ -519,7 +519,7 @@ def _to_output(value: float, label: str | None) -> float:
 
 
 def bind_element_rows(elements: list[dict[str, Any]], element_map: dict[str, Any]) -> dict[str, Any]:
-    """Bind parsed element-force rows to SWBPIPE members through the MBF writer's id map (DEL-17-05 Design §11.4).
+    """Bind parsed element-force rows to SWBPIPE members through the MBF writer's id map.
 
     Each parsed element is a (from, to) pair of rows. It binds to the one member whose element_map entry names the
     same two node labels; each row then belongs to the member end at its node: the CAEPIPE node of SWBPIPE's end_i

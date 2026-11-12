@@ -1,4 +1,4 @@
-// C1 slice 4 (DEL-04-05 `c1-native-custody-plan.md` §5; DEL-08-04 `csv-export.md`): a results
+// C1 slice 4: a results
 // group's CSV written in parts is byte for byte the CSV of the unchanged formatters over all its
 // rows (`serializeCsvTable(resultGroupCsv(...).table)`), for every page size, under entered and
 // converted display units, with mixed units, ties, quoting, formula guards, negative zero and

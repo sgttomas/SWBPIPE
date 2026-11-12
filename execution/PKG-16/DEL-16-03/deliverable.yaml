@@ -1,162 +1,58 @@
 id: DEL-16-03
 name: User acceptance and operation audit trail
 needs:
-- from: DEL-00-01
-  condition: 'DEL-16-03 requires AB-00-01 architecture-basis context before sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror row DAG-002-E0744
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-16-03 requires AB-00-02 architecture-basis context before sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror row DAG-002-E0745
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-16-03 requires AB-00-03 architecture-basis context before sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror row DAG-002-E0746
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-16-03 requires AB-00-04 architecture-basis context before sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror row DAG-002-E0747
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-16-03 requires AB-00-06 architecture-basis context before sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror row DAG-002-E0748
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-16-03 requires AB-00-07 architecture-basis context before sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror row DAG-002-E0749
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-16-03 requires AB-00-08 architecture-basis context before sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror row DAG-002-E0750
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-16-01
-  condition: 'DEL-16-03 requires the structured model operation schema because acceptance and audit records
-    reference structured operations before controlled application.
-
-
-    Notes: Preserved from approved DAG-002 mirror row DAG-002-E0832
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    An operation record carries its author type, source, rationale and assumptions, a batch carries
+    its model basis, and no status of the contract states acceptance or approval.
   gating: true
-  evidence: execution/PKG-16/DEL-16-03/ScopeOfWork.md
 - from: DEL-16-02
-  condition: 'DEL-16-03 requires validation and diff-preview outcomes before accepted or rejected operation
-    audit records can be produced.
-
-
-    Notes: Preserved from approved DAG-002 mirror row DAG-002-E0833
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A validate-only run returns an outcome that names the model hash it was evaluated on, the state
+    of each check and the preview rows, and returns no model document and no acceptance record.
   gating: true
-  evidence: execution/PKG-16/DEL-16-03/ScopeOfWork.md
-- from: DEL-14-01
-  condition: 'DEL-16-03 interfaces with immutable model state records for reproducible model-state review
-    of accepted operations.
-
-
-    Notes: Preserved from approved DAG-002 mirror row DAG-002-E0834
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-16-06
+  when: Examining AC-002 on applied batches
+  condition: >-
+    An application returns an outcome that names the batch, each operation with its author, the
+    model hash it was applied to and the resulting model hash; a refused application returns no
+    model document and says it was refused.
   gating: true
-  evidence: execution/PKG-16/DEL-16-03/ScopeOfWork.md
-- from: DEL-08-02
-  condition: 'DEL-16-03 interfaces with audit manifest and hash conventions for reproducible audit metadata.
-
-
-    Notes: Preserved from approved DAG-002 mirror row DAG-002-E0835
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-07-08
+  when: Examining AC-001 through the review surface's Apply
+  condition: >-
+    The review queue shows a pending batch with the engine's validate-only preview, offers Apply
+    only once the batch is validated and the preview is shown, and passes the engine no decision but
+    the user's own Apply or Reject.
   gating: true
 - from: DEL-02-05
-  condition: 'DEL-16-03 interfaces with persistence and round-trip serialization semantics for durable
-    operation history and audit metadata.
-
-
-    Notes: Preserved from approved DAG-002 mirror row DAG-002-E0836; exact storage mechanism remains TBD.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Keeping the history across save and reopen
+  condition: >-
+    The project store keeps a project's operation history records across save and reopen and
+    returns them unchanged (DEL-02-05/REQ-037).
   gating: true
-  evidence: execution/PKG-16/DEL-16-03/ScopeOfWork.md
-- from: doc:execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/APPLICATION_OUTCOME.md
-  condition: 'Final operation audit consumes the actual outcome of controlled application; application
-    first consumes the pre-application accepted/rejected decision record, never a final receipt that does
-    not yet exist.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. Contract owner=DEL-16-06; consumer_stage=DEL-16-03::final-audit;
-    producer_stage=DEL-16-06::application. DEL-16-06 to DEL-16-03 means pre-application acceptance only;
-    final outcome returns after application. OPEN: Bind acceptance and outcome record identities/states;
-    validate rejected/stale-basis nonmutation and truthful final outcome linkage. DERIVED CANDIDATE JUDGMENT:
-    stage interpretation is proposed and must be reviewed; the candidate artifact exists but is not adopted
-    normative schema or satisfied evidence.; SCA011OriginalDependencyID=SCA011-E084; original_evidence_file=execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/APPLICATION_OUTCOME.md;
-    original_source_ref=Contract stages and readiness / negative witnesses; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: SCA011-IF-APPLICATION-OUTCOME; TargetRefID: SCA011-IF-APPLICATION-OUTCOME;
-    TargetLocation: execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/APPLICATION_OUTCOME.md'
-  evidence: execution/PKG-16/DEL-16-03/ScopeOfWork.md
+- from: DEL-08-02
+  condition: >-
+    A hashed JSON payload's digest is SHA-256 over its RFC 8785 canonical form, and the model hash
+    is the same through the desktop, the headless runner and the operation engine.
+  gating: true
+- from: DEL-14-01
+  condition: >-
+    A saved model state carries the model hash of the document it holds, so a history record can
+    name the state a batch was decided on and the state it produced.
+  gating: false
 code_paths:
-- core/model_operations/audit_trail/engine.py
-- core/model_operations/validation_preview/engine.py
-- schemas/model_operation.schema.json
-- core/model_operations/operation_applier/src/atomic_batch.rs
-- apps/desktop/src/features/operations/OperationLedgerPanel.tsx
-- apps/desktop/src/features/toolkit/BatchReviewPanel.tsx
-- apps/desktop/src/features/offline-proposal-intake/OfflineProposalIntakePanel.tsx
+# The author stamp on imported and requeued operations.
 - apps/desktop/src/services/operationAuthorship.ts
+# Shared with DEL-07-08, which owns the ledger panel. What a review-ledger record holds, built in
+# this file, is this deliverable's.
+- apps/desktop/src/features/operations/OperationLedgerPanel.tsx
+# A reference module that builds audit records in the published schema's record form; the product
+# does not call it.
+- core/model_operations/audit_trail/**
+# The acceptance record of an applied batch is emitted by the operation engine, in files
+# DEL-16-06 lists; the batch review surface is DEL-07-08's and DEL-07-02's.
 checks:
-- tests/test_model_operation_schema.py
 - tests/test_operation_audit_trail.py
-- tests/test_operation_validation_preview.py
-- apps/desktop/src/services/operationBatchService.test.ts
-- apps/desktop/src/App.test.tsx
 - apps/desktop/src/services/operationAuthorship.test.ts
 - apps/desktop/src/features/offline-proposal-intake/workflows.test.tsx
-- apps/desktop/src/features/toolkit/BatchReviewPanel.test.tsx
-- core/model_operations/operation_applier/tests/user_entered_modifiers.rs

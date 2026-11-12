@@ -37,6 +37,6 @@ snapshots keep private commit, private working set, total working set and shared
 commit separate; OS deltas and allocator retention are observations, not exact
 reference outputs, and no commit-based residency credit is computed.
 
-See DEL-04-07 `Work/windows-worker-fixture.md` for case boundaries, ownership,
-API sources, threat model and remaining proof obligations. Host model tests or
+DEL-04-07 owns the case boundaries, ownership, API sources, threat model and
+remaining proof obligations. Host model tests or
 Windows-target type-checking alone are not native Windows execution evidence.

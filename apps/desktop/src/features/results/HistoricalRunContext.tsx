@@ -54,7 +54,7 @@ export type HistoricalRunContext = {
   runId: string;
 };
 
-/** A reopen's findings in their scopes (RT-A4 §10.4 display rule). */
+/** A reopen's findings in their scopes. */
 function reopenFindings(initial: string[] = []) {
   const findings = [...initial], checks = [...initial], historical: string[] = [];
   return {
@@ -72,7 +72,7 @@ function reopenFindings(initial: string[] = []) {
 }
 
 /** The statement's standing findings in their scope. Under the current tables they are ordinary
- * findings. Under a registry variant (RT-A4 §10.4) they are the historical reader's own, kept apart
+ * findings. Under a registry variant they are the historical reader's own, kept apart
  * with the table they were read under; a refused recorded dispatch (a binding refusal, a table
  * hash, a malformed statement) is a read failure and is a check's finding. */
 function readStanding(found: ReturnType<typeof reopenFindings>, result: MechanicsResult, model: Parameters<typeof numericalResultStanding>[1], binding: RecordedBinding | null): void {
@@ -168,7 +168,7 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
   const mechanicsResult = isRenderableMechanicsResult(rawMechanicsResult) ? rawMechanicsResult : null;
   const analysisRun = rawAnalysisRun as AnalysisRunEnvelope | null;
   const found = reopenFindings(["HISTORICAL_INPUT_MANIFEST_MISSING"]);
-  // RT-A4 §10.4: a run recorded before RT-A4 binds a registry variant; it is read (its standing
+  // a run recorded before RT-A4 binds a registry variant; it is read (its standing
   // findings, its successor receipt and its record) as it read when recorded, and stays historical.
   // Its standing findings are the historical reader's, displayed as recorded under that table
   // (`historicalReaderFindings`); every check's failure stays an ordinary finding.
@@ -260,7 +260,7 @@ export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<Wh
   const mechanicsResult = isRenderableMechanicsResult(rawMechanicsResult) ? rawMechanicsResult : null;
   if (rawMechanicsResult !== null && !mechanicsResult) found.fail("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED", true);
   const model = manifest?.model_basis?.model_payload ?? null;
-  // RT-A4 §10.4: a run recorded before RT-A4 reads as it did when recorded (see the saved-run reader).
+  // a run recorded before RT-A4 reads as it did when recorded (see the saved-run reader).
   const recordedBinding = analysisRun?.schema_version === ANALYSIS_RUN_V03 ? recordedPreRtA4RecordBinding(analysisRun) : null;
   if (mechanicsResult && model) readStanding(found, mechanicsResult, model, recordedBinding);
   const record = analysisRun && typeof analysisRun === "object" && analysisRun.analysis_run && typeof analysisRun.analysis_run === "object" ? analysisRun.analysis_run : null;
@@ -322,7 +322,7 @@ export async function buildRecordedRunContext(read: AnalysisRunRead): Promise<Wh
 /** The findings of a recorded run that concern its record, its binding and its read (not its
  * numerical standing): every check's finding, so a failed reopen validation (the record
  * validator's refusal whatever its code, a refused recorded read, a retained receipt) is never
- * masked by a favourable standing, current or as recorded (RT-A4 §10.4). */
+ * masked by a favourable standing, current or as recorded. */
 export function recordedRunBindingFindings(context: HistoricalRunContext): string[] {
   return [...context.checkFindings];
 }
@@ -366,7 +366,7 @@ async function contextOfRestored(
   };
 }
 
-/** A restored run's findings in their scopes (RT-A4 §10.4 display rule), as the native reopen
+/** A restored run's findings in their scopes, as the native reopen
  * (`analysis_run_v03_validate.rs`) computed them on the stored texts: the displayed findings, the
  * checks' alone, the table a run recorded before RT-A4 was read under and the historical reader's
  * findings under it. */

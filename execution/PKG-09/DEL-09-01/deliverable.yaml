@@ -1,160 +1,108 @@
 id: DEL-09-01
 name: Mechanics benchmark suite
 needs:
-- from: DEL-00-01
-  condition: 'DEL-09-01 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: TP-DAG-004 local refresh preserved architecture-basis edge from context injection; local register
-    remains evidence surface only.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-09-01 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: TP-DAG-004 local refresh preserved architecture-basis edge from context injection; local register
-    remains evidence surface only.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-09-01 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: TP-DAG-004 local refresh preserved architecture-basis edge from context injection; local register
-    remains evidence surface only.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-09-01 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: TP-DAG-004 local refresh preserved architecture-basis edge from context injection; local register
-    remains evidence surface only.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-04-01
-  condition: 'DEL-09-01 needs DEL-04-01 as a predecessor because mechanics benchmarks depend on accepted
-    frame-stiffness and coordinate-transform interfaces.
-
-
-    Notes: Local refresh confirmed existing predecessor from deliverable procedure; target maturity not
-    verified from permitted read set.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The frame kernel assembles and solves a 3D frame with six degrees of freedom per node and
+    local-to-global transforms, applies the restraints and prescribed displacements it is given,
+    and gives bit-identical results on repeated runs in its sparse and dense modes.
   gating: true
+  when: Solving a benchmark case.
 - from: DEL-04-02
-  condition: 'DEL-09-01 needs DEL-04-02 as a predecessor because cantilever-style benchmark cases require
-    accepted straight-element mechanics behavior.
-
-
-    Notes: Local refresh confirmed existing predecessor from deliverable procedure; target maturity not
-    verified from permitted read set.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The straight pipe element gives its stiffness from explicit section properties, the equivalent
+    nodal loads of member loads and free strain, and recovered end actions in local and global
+    coordinates with their units.
   gating: true
+  when: Solving a benchmark case with straight members.
 - from: DEL-04-03
-  condition: 'DEL-09-01 needs DEL-04-03 as a predecessor because support/restraint and imposed-displacement
-    semantics are prerequisites for boundary-condition cases.
-
-
-    Notes: Local refresh confirmed existing predecessor from deliverable procedure; target maturity not
-    verified from permitted read set.; FACT: 2026-08-02 dependency-currency PASS under R23; target maturity
-    PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration PASS is frozen in N2D_DEL0901_PATCH/LAUNCH_BRIEF.md.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A rigid restraint holds its degree of freedom exactly, a spring acts with its entered
+    stiffness, and an imposed displacement at a support is solved as a prescribed value that adds
+    no force of its own.
   gating: true
+  when: Solving a support, spring or imposed-displacement case.
 - from: DEL-05-01
-  condition: 'DEL-09-01 needs DEL-05-01 as a predecessor because thermal-growth benchmarks require accepted
-    load/thermal input semantics.
-
-
-    Notes: Local refresh confirmed existing predecessor from deliverable procedure; target maturity not
-    verified from permitted read set.; FACT: 2026-08-02 dependency-currency PASS under R23; target maturity
-    PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration PASS is frozen in N2D_DEL0901_PATCH/LAUNCH_BRIEF.md.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A temperature change on a straight member enters the solve as the free strain alpha times the
+    change, and self-weight generation gives each selected pipe a load per length equal to its mass
+    per length times the stated gravity, with a component's weight applied at its centre of gravity.
   gating: true
-- from: DEL-01-02
-  condition: 'DEL-09-01 needs DEL-01-02 as a predecessor because benchmark sources must be public/original/permissive
-    and protected content must be excluded.
-
-
-    Notes: Local refresh confirmed existing predecessor from deliverable specification; target maturity
-    not verified from permitted read set.; FACT: 2026-08-02 dependency-currency PASS under R23; target
-    maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration PASS is frozen in N2D_DEL0901_PATCH/LAUNCH_BRIEF.md.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-02-02
-  condition: 'DEL-09-01 needs DEL-02-02 as a predecessor because benchmark inputs and outputs must be
-    unit-aware and dimensionally checked.
-
-
-    Notes: target maturity not verified from permitted read set.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
+  when: Solving a thermal-growth case, and generating the reference system's weight loads.
 - from: DEL-04-06
-  condition: 'DEL-09-01 needs DEL-04-06 as a predecessor where benchmark outputs preserve solver diagnostics
-    and result-envelope status.
-
-
-    Notes: target maturity not verified from permitted read set. AB-00-06 remains the architecture-basis
-    result-envelope contract edge.; FACT: 2026-08-02 dependency-currency PASS under R23; target maturity
-    PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration PASS is frozen in N2D_DEL0901_PATCH/LAUNCH_BRIEF.md.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    Every diagnostic a solve returns carries its code, class, severity, source and message, the
+    same input gives the same diagnostics in the same order, and a singular model is refused with a
+    diagnostic that names the unrestrained degree of freedom.
   gating: true
+  when: Recording what a benchmark solve returned, and examining mechanism cases.
+- from: DEL-04-07
+  condition: >-
+    The same request through the desktop entry and the headless entry gives byte-identical
+    published results and diagnostics in each solver mode, and the exact route solves each family
+    it admits or refuses it by name.
+  gating: false
+  when: Solving the product-route benchmarks and the reference system.
+- from: DEL-10-05
+  condition: >-
+    The headless runner solves a model document in either solver mode and returns the published
+    result with its diagnostics, and its benchmark workflow runs the named cases of a suite and
+    reports each case's outcome without silently skipping one.
+  gating: true
+  when: Running a benchmark case by name and solving the reference system.
+- from: DEL-02-01
+  condition: >-
+    A committed model document at the current version validates against the model schema, and a
+    malformed member is refused with its code and path.
+  gating: true
+  when: Validating the reference system's fixture.
+- from: DEL-02-02
+  condition: >-
+    Every catalog unit has one dimension, and a quantity with an unknown unit, a missing unit or a
+    unit of the wrong dimension is refused with a named unit finding.
+  gating: true
+  when: Checking benchmark inputs and expected values through the unit catalog.
+- from: DEL-01-02
+  condition: >-
+    The IP and data boundary policy names every class of content excluded from public artifacts
+    and the fields of the provenance record with their value sets, states that a maintainer
+    records a record's review disposition, and states that suspected protected content is
+    quarantined until a human or legal review decides it.
+  gating: true
+  when: Admitting a benchmark case or derivation to the suite.
 code_paths:
-- core/units/README.md
+# The suite and its hand calculations. Other scopes cite individual notes here as their outside
+# source (DEL-05-01 lists tp_pmm_p3_subspan_wind_exposure.md; DEL-05-05 cites the tp_phys notes);
+# the notes are held here.
 - validation/benchmarks/mechanics/**
+- validation/hand_calcs/mechanics/**
+- validation/evidence/benchmarks/**
+# Numerical-quality cases and their exact references.
 - validation/benchmarks/numerical_integrity/**
 - validation/benchmarks/numerical_robustness/**
 - validation/benchmarks/physics_audit_regression/**
-- validation/evidence/benchmarks/BENCHEVID_DEL0901_20260720T062342Z_e315fb8406d4/**
-- validation/hand_calcs/mechanics/**
+- validation/references/t3_r1/**
+# PRD 22.2 benchmarks on the product route. The two test files sit in DEL-04-07's crate
+# (core/product_physics/**) and are held here with their references.
 - validation/references/w9_benchmarks/**
 - core/product_physics/tests/w9_solver_benchmarks.rs
 - validation/references/w16_imposed_motion/**
 - core/product_physics/tests/w16_imposed_motion.rs
+# The reference system: its fixture, generator output and independent references.
+- fixtures/reference_system/**
+- validation/references/reference_system/**
+- tests/test_reference_system_fixture.py
+# Not decided: which deliverable's criteria govern the required-output qualification gate below.
+# No criterion of this scope governs it. Its exact-pressure fixtures, tool and test
+# (validation/qualification/fixtures/exact_pressure/**, tools/validation/qualification_exact_pressure.py,
+# tests/test_qualification_exact_pressure.py) are DEL-04-07's.
 - validation/qualification/**
 - tools/validation/qualification_*.py
 - tools/validation/build_first_static_selection.py
 - tests/qualification_fixture_support.py
 - tests/test_qualification_*.py
 - tests/test_first_static_selection.py
-- validation/references/t3_r1/**
-- fixtures/reference_system/**
-- validation/references/reference_system/**
-- tests/test_reference_system_fixture.py
-- tools/validation/test_reference_system_ledger.py
 checks:
-- tests/test_qualification_gate.py
-- tests/test_qualification_physics.py
-- tests/test_qualification_physics_structure.py
-- tests/test_qualification_physics_integration.py
-- tests/test_qualification_load_reference.py
-- tests/test_first_static_selection.py
 - validation/benchmarks/mechanics/src/lib.rs
 - validation/benchmarks/numerical_integrity/test_reference.py
 - validation/benchmarks/numerical_robustness/tests/*.rs
@@ -163,4 +111,9 @@ checks:
 - core/product_physics/tests/w9_solver_benchmarks.rs
 - core/product_physics/tests/w16_imposed_motion.rs
 - tests/test_reference_system_fixture.py
-- tools/validation/test_reference_system_ledger.py
+- tests/test_qualification_gate.py
+- tests/test_qualification_physics.py
+- tests/test_qualification_physics_structure.py
+- tests/test_qualification_physics_integration.py
+- tests/test_qualification_load_reference.py
+- tests/test_first_static_selection.py

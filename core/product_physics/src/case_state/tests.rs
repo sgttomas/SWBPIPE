@@ -333,7 +333,7 @@ fn declared_sources_apply_once_and_unreferenced_or_duplicate_sources_do_not() {
     assert!(envelope.results.is_empty());
 }
 
-/// T1 routing of blocked load/reference-state envelopes (S6 §6, DESIGN 10.3),
+/// T1 routing of blocked load/reference-state envelopes,
 /// keyed since B7b on the contract and the group, never the version: a blocked
 /// document with the current exact contract and the group keeps pressure-2, its
 /// profile and the empty load/reference namespace; it never gets the preview id.

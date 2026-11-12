@@ -1,4 +1,4 @@
-// Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.2; owner ruling
+// Model document 0.8.0 (owner ruling
 // "0.8.0 a2"): a run recorded before the ripple keeps its existing read and compare
 // behaviour. The record, its source and its model are main's at 2e4748eada, verbatim
 // (fixtures/persistence/recorded_model_0_7_0): an ordinary pressure-2 run of model

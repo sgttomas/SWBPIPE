@@ -8,12 +8,12 @@
 //! rounded `norm2` (E15), never the platform `hypot`.
 //!
 //! - Section normal-stress extremes σ⁺/σ⁻ (MPa) from the component stress rows
-//!   of one station and basis, with the fibre rule (§2.3).
+//!   of one station and basis, with the fibre rule.
 //! - The Saint-Venant transverse-shear factor c_b and maximum τ_v,max (MPa)
-//!   of the straight annulus (`local_straight_annulus_on_arc` on arcs), §2.4.
+//!   of the straight annulus (`local_straight_annulus_on_arc` on arcs).
 //! - The toroidal membrane hoop at β = 0°, 90° and 180° and the radial surface
-//!   values (Pa), guarded by the torus domain R > r_o (§2.5).
-//! - The directional intensified bending station value (Pa), §2.6.
+//!   values (Pa), guarded by the torus domain R > r_o.
+//! - The directional intensified bending station value (Pa).
 //!
 //! **The sequences are normative.** Each function documents its sequence of
 //! correctly rounded operations; a reader recomputes the published value bit
@@ -322,7 +322,7 @@ pub(crate) mod fields {
         )
     }
 
-    /// σ_x = N_eff/A + (M_y z − M_z y)/I at a fibre (y, z) (STRESS_REFERENCE §1).
+    /// σ_x = N_eff/A + (M_y z − M_z y)/I at a fibre (y, z).
     pub(crate) fn fibre_normal(
         axial: f64,
         area: f64,

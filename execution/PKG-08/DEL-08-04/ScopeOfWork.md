@@ -2,369 +2,128 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-08-04
 package_id: PKG-08
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-046]
 package_objective_refs: [OBJ-007, OBJ-009]
 ---
 
-# Scope of Work — DEL-08-04
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-08-04 Result export format
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-08-04` in service of project scope [SOW-046] and package objectives [OBJ-007, OBJ-009].
+A solved result can leave the application in a form that another person or program can check. This deliverable contributes the two forms. The first is the result export document: one JSON document that carries a result as the solve stated it, with its units, diagnostics, statuses and the identities of the model and run behind it, for review, regression comparison, the report package, the headless runner and downstream adapters. The second is a CSV file of any results table the desktop shows, whose numbers are the table's numbers, unrounded, with enough written above them to say what they are.
 
-- **OUT-001** — A schema-first machine-readable JSON result-envelope contract for review, regression comparison, report generation, GUI consumption, automation, and governed downstream adapters is produced while additional concrete export formats, other than OUT-002's CSV, remain TBD.
-- **OUT-002** — CSV export of every results table in the desktop (DEL-08-04-R14) is produced.
+It serves SOW-046 under OBJ-007 and OBJ-009 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-08, row DEL-08-04; the stress-neutral packages and external-harness parsing that SOW-046 also names are DEL-17-05's and DEL-17-06's), and PRD §5.6 (unit safety), §19.2 (the result content a report draws on), §21.2 (prohibited claims) and §22.4 (regression of run reproducibility and comparison output). In `docs/RELEASE_TARGET_v1.0.md` it is the owning deliverable of exit criterion 5: every results table in the desktop exports to CSV.
+
+- **OUT-001** — The result export document: its schema in one current version, the result envelope, the assembly of a document from a received result, the reader-side form check, and the desktop's Export Result JSON (REQ-001 to REQ-013, REQ-015 to REQ-017).
+- **OUT-002** — CSV export of every results table in the desktop, comparison tables included (REQ-014).
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-08-04 Result export format
+The **result envelope** is the body of the export document. Its header names the schema version, the envelope, the model and run it belongs to and the solver version. It carries the result values with their units and dimensions, the diagnostics, the provenance and reproducibility references (model hash, input manifest, rule-pack checksums, source notes) and the analysis statuses.
 
-> #### Datasheet: DEL-08-04 Result export format
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+A **received result** is what a solve published: its source statement, its rows, the model it solved and the request. An export document copies those members as received and never restates them. Each copied member is identified by the SHA-256 of its canonical JSON value, not by the bytes it arrived in; the desktop's native save keeps the exact received bytes.
 
-### CLM-003 — Identification
+The **analysis route** of a result is its semantic contract identifier, which says which solve route and semantics produced it: the pressure-free route, the exact pressure route in its two forms, and their retained-precision successors. The export preserves the class and receipt each row was verified under and re-derives neither.
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-08-04 |
-> | Deliverable name | Result export format |
-> | Package ID | PKG-08 |
-> | Package name | Reporting, Audit, and Reproducibility |
-> | Deliverable type | API_CONTRACT |
-> | Scope item | SOW-046 |
-> | Supported objectives | OBJ-007; OBJ-009 |
-> | Setup status | Current contract with bounded implementation evidence; consult `_STATUS.md` for lifecycle and this Scope of Work and the selected graph for current work. |
->
+A **results table** is a table of solved results or of a comparison shown in the desktop. Each has a **view model**, the data the panel renders from. A table's **adapter** reads that view model and hands rows to the one **serializer**, which writes the file. The **preamble** is the block of key and value rows at the top of a CSV file that says what the table is.
 
-### CLM-004 — Attributes
+The report's display rule has an **exact step** (the value in the displayed unit, as exact decimal text) and a rounding step. A CSV file takes the exact step and stops there.
 
-> ##### Attributes
->
-> | Attribute | Draft setup value |
-> |---|---|
-> | Primary artifact family | Machine-readable result export contract for review, regression comparison, and downstream tooling. |
-> | Baseline format | Schema-first JSON result envelopes. Source: `docs/_Registers/ScopeLedger.csv` row SOW-046; `_CONTEXT.md` Architecture Basis Injection. |
-> | Additional export formats | CSV of every results table in the desktop (DEL-08-04-R14). HDF5, neutral-file, spreadsheet and external tool formats remain TBD. |
-> | Anticipated implementation artifacts Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | `schemas/results.schema.yaml`, exporter source, and tests. Source: `_CONTEXT.md` Anticipated Artifacts; not created or edited in the original setup session. |
-> | Envelope content categories | Result identity, model/run references, unit-aware value arrays, diagnostics, provenance, analysis status, warnings, and reproducibility references. Source: `docs/SPEC.md` sections 4.5, 7, 8, and 9; `execution/_Decomposition/SOFTWARE_DECOMP.md` architecture basis rows AB-00-03, AB-00-04, AB-00-06, and AB-00-07. |
-> | Review boundary | Exports support review and comparison. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Source: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4. |
-> | Unit boundary | Exported values must be unit-aware and dimensionally traceable; missing units are findings, not silent defaults. Source: `docs/CONTRACT.md` OPS-K-UNIT-1 and OPS-K-DATA-2. |
-> | Protected-data boundary | Public export contracts must not embed protected standards text, copied standards tables, proprietary formulas, private rule-pack payloads, or private project data by default. Source: `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-IP-3, OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3, 6, and 7. |
->
+Boundary:
 
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> Current deliverable obligation: Define and implement machine-readable result export for tests, review, and downstream tooling. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> - This session is setup/document production only; no schema file, exporter source, tests, docs outside this folder, or repository-level artifacts are modified.
-> - The export baseline is a JSON result envelope contract. CSV export of the desktop results tables is chosen (DEL-08-04-R14); any other additional export format remains `TBD` until a later bounded decision or implementation brief.
-> - Result exports must preserve the PKG-00 no-bypass baseline: adapters and downstream tools cannot bypass unit checks, diagnostics, provenance, public/private data boundaries, or professional-responsibility notices.
-> - Mechanics results, user-rule-check results, and human review/approval states must remain distinguishable in exported data.
-> - Exported diagnostics must carry enough structured information for review and regression triage without relying on prose-only warnings.
->
-### CLM-006 — Construction
-
-> ##### Construction
->
-> The future result export contract is expected to include these setup-level components:
->
-> | Component | Purpose | Boundary |
-> |---|---|---|
-> | Result envelope header | Identifies export schema version, result set ID, model/run reference, solver version reference, and creation context. | Does not imply validation, certification, or professional acceptance. |
-> | Unit-aware result payloads | Carries displacement, rotation, force, moment, reaction, stress, ratio, or rule-check result values with unit metadata and dimensional categories. | No hidden unit defaults; code-specific values remain user/rule-pack supplied. |
-> | Diagnostics block | Carries structured diagnostics with code, class, severity, source, affected object, message, remediation, and provenance. | Diagnostics must not be dropped by exporters or adapters. |
-> | Provenance and reproducibility references | Links to model hash, manifest, rule-pack checksum, source/provenance notes, and input/run identifiers where available. | References private data safely; does not copy protected or private payloads into public artifacts. |
-> | Analysis status fields | Distinguishes `MECHANICS_SOLVED`, `RULE_INPUTS_INCOMPLETE`, `USER_RULE_CHECKED`, `HUMAN_REVIEW_REQUIRED`, and related statuses. | Must not emit automatic `CODE_COMPLIANT` or professional approval status. |
-> | Regression comparison surface | Provides stable identifiers, deterministic ordering, and numeric/unit metadata suitable for comparison tests. | Exact comparison tolerances and tooling remain future validation work. |
-> | Downstream tooling handoff | Provides a stable machine-readable contract for headless CLI, report generation, GUI results viewer, and adapters. | External transport and concrete non-JSON formats other than DEL-08-04-R14's CSV remain `TBD`. |
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, architecture basis IDs, and write-scope constraints.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-08-04 for artifact and objective mapping.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-046 for export baseline acceptance notes.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` rows AB-00-03, AB-00-04, AB-00-06, AB-00-07, and OI-004 for envelope/API/no-bypass and format-TBD constraints.
-> - `docs/SPEC.md` sections 4.5, 7, 8, 9, and 11 for deterministic results, diagnostics, reporting, validation, and acceptance semantics.
-> - `docs/TYPES.md` sections 4 and 8 for analysis-status vocabulary and `Result` object boundary.
-> - `docs/IP_AND_DATA_BOUNDARY.md` sections 3, 6, and 7 for public/private data and report/export boundaries.
-> - `docs/CONTRACT.md` for OPS-K-IP, OPS-K-DATA, OPS-K-UNIT, OPS-K-RULE, OPS-K-PRIV, OPS-K-AUTH, and OPS-K-AGENT invariants.
+- **CLM-001** — This deliverable's export formats are JSON, as the result export document, and CSV of the desktop's results tables. Other formats, such as spreadsheet, HDF5, neutral-file and external-tool formats, are not this deliverable's; the stress-neutral CSV and JSON package is DEL-17-06's and the CAEPIPE formats are PKG-17's.
+- **CLM-002** — What a result means belongs to its producers: the solve to PKG-04, the semantic tables, load and stress rows to DEL-05-02 and DEL-05-03, retained-precision verification to DEL-04-08, statuses to DEL-05-04. In the result-export crate this deliverable's part is the envelope and the derivative assembly; the evidence and reader modules beside them are their producers'.
+- **CLM-003** — The results tables and their view models are DEL-07-05's, the comparison views' are DEL-07-08's, and the hanger table's is DEL-04-11's. The CSV adapters that sit beside them, the serializer, the export control and the save are this deliverable's. The report-wide display rule is DEL-08-01's; the display-unit converter is DEL-02-02's.
+- **CLM-004** — The export route catalogue, export contexts and screening are DEL-12-02's. This deliverable's part is the native save of result JSON and CSV on the routes that catalogue admits. File names follow the desktop shell's export file-name convention (DEL-07-11).
+- **CLM-005** — In the report-package crate, the form check of a result document and the schema evaluator it uses are this deliverable's; the package is DEL-08-01's.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-08-04 Result export format
+Not decided: the version of DEL-14-05's common comparison-result interface that this export maps. Until one is accepted, no conformance of a comparison export to that interface is claimed.
 
-> #### Specification: DEL-08-04 Result export format
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+The rows of a derivative document are classified by the product's ordinary result reader and its base semantic table: each row by its signature (category, target dimension, disposition), with the reader's verdict giving its kind, unit, component and basis and disclosing source rows it cannot map. The reader and its base semantic tables are DEL-05-02's (DEL-05-02/REQ-018 to DEL-05-02/REQ-020); the reader for retained-precision results is DEL-04-08's.
 
-### CLM-010 — Scope
+- **REQ-001** — The result export is a schema-first JSON result envelope. It has one current version, 0.3.0; a reader admits that version only and refuses any other by name (also cited as DEL-08-04-R1). Source: SOW-046; decomposition AB-00-03.
+- **REQ-002** — This deliverable produces no export format other than those of CLM-001 (also cited as DEL-08-04-R2). Source: SOW-046; decomposition OI-004.
+- **REQ-003** — Every exported value carries its unit and dimension. Nothing relies on a unit default (also cited as DEL-08-04-R3). Source: PRD §5.6.
+- **REQ-004** — The envelope carries or refers to the model and run identity, the solver version, the rule-pack checksum where a rule pack took part, warnings, assumptions and source notes (also cited as DEL-08-04-R4). Source: SOW-046; decomposition AB-00-04.
+- **REQ-005** — Diagnostics are carried as structured records with code, class, severity, source, affected object, message, remediation and provenance (also cited as DEL-08-04-R5). Source: decomposition AB-00-06.
+- **REQ-006** — Exported statuses keep mechanics solved, user-rule checked, rule inputs incomplete and human review required apart. Where a human acceptance record is referred to, it is distinct from every status the software emits (also cited as DEL-08-04-R6). Source: PRD §5.9, §21.3.
+- **REQ-007** — No export claims certification, sealing, professional approval, authentication or automatic code compliance (also cited as DEL-08-04-R7). Source: PRD §21.2.
+- **REQ-008** — Exports and public examples embed no protected standards text, copied standards table, proprietary formula, private rule-pack payload or private project data by default. A rule pack appears by identifier, version and checksum only (also cited as DEL-08-04-R8). Source: PRD §19.4, §20.1.
+- **REQ-009** — An exporter or adapter goes around no validation, unit check, diagnostic, provenance handling, report control or data-boundary check (also cited as DEL-08-04-R9). Source: decomposition AB-00-07.
+- **REQ-010** — Rows keep stable identifiers and a deterministic order, so that equivalent result sets compare (also cited as DEL-08-04-R10). Source: SOW-046; PRD §22.4.
+- **REQ-011** — Missing solve-required, rule-required, provenance or unit data is represented as a diagnostic and never filled with a default (also cited as DEL-08-04-R11). Source: PRD §5.5.
+- **REQ-012** — Report generation, the results viewer, the headless runner and import and export adapters consume the same document, and none of them receives results by a route that bypasses it (also cited as DEL-08-04-R12). Source: decomposition AB-00-03, AB-00-07.
+- **REQ-013** — The export has a defined vocabulary for the nonlinear active-set observations DEL-04-04 supplies: iteration count, flags, support state codes and residuals. It preserves the producer's meaning, unit and status context and states what was omitted; it invents no name and no threshold (also cited as DEL-08-04-R13). Source: SOW-046.
+- **REQ-014** — Every results table in the desktop, comparison tables included, exports to CSV (also cited as DEL-08-04-R14). Source: release target exit criterion 5.
+  - **One serializer.** Every table goes through one serializer, fed by an adapter that reads the view model the table renders. An adapter recomputes nothing and reads nothing from the page, and export adapters and the save keep REQ-003 to REQ-013.
+  - **Preamble.** Each file begins with key and value rows in a fixed order: the notice (the registry's validation-posture statement, word for word); the export context, which is local private; a statement that the file is not a released report; the table kind; the software version; the model hash; the result hash; the analysis route; the case or filter; the unit basis; and one row per rule pack, by identifier, version and checksum, where the table has rule outcomes. A two-sided comparison states the hashes and routes of each side. A hash or route the result does not record is written as not recorded, and one that does not apply to the table as not applicable; an export is not refused for either. Then one empty row, then the table.
+  - **Columns.** Every numeric column states its unit; a column whose rows mix units has a unit column beside it; a dimensionless value is labelled as such. Rows keep their existing stable identifiers beside their labels.
+  - **Values.** Each numeric value is the unrounded value the table's own conversion function returns for the column's displayed unit, written as the shortest decimal that parses back to that value exactly. The two tables of the main results panel write the session display converter's value; the others take the exact step of the report's display rule; comparison tables write stored values in the rows' own units.
+  - **Absent values.** An absent value is never a blank number. Its cell carries the table's own stated status, and missing values and metadata keep their diagnostics.
+  - **Rule outcomes.** These use the table's own wording, under REQ-006 and REQ-007.
+  - **Encoding.** UTF-8 with a byte-order mark and CRLF line endings. A text cell that a spreadsheet would read as a formula is neutralized.
+  - **Determinism.** Identical source data, provenance and table settings give identical bytes. The file carries no timestamp.
+  - **Coverage.** A file holds every row the table's filters admit, across all pages, whatever the size of the result.
+  - **Saving.** Saving requires the user's explicit intent on the governed local-private CSV route, which is admitted for local-private output only, with the same identity and policy in each of the product's route catalogues. The CSV is not a released report and is not a shareable output.
+- **REQ-015** — General result exports of comparisons map DEL-14-05's common comparison-result interface. The mapping and its round trips are bound to the accepted version of that interface before any conformance is claimed, and they preserve source identity, diagnostics, units, raw rows, unmatched records and hashes. Comparison arithmetic and tolerance policy are not this deliverable's (also cited as DEL-08-04-SCA011-REQ-001, DEL-08-04-SCA011-VER-001 and DEL-08-04:1). Source: SOW-046.
+- **REQ-016** — Each member an export document copies from a received result is identified by the SHA-256 of its canonical JSON value (also cited as DEL-08-04-SCA011-HASH-001).
+- **REQ-017** — Every unit conversion made at an export boundary is witnessed: for each target format and each conversion it performs there is a check of the converted value (also cited as DEL-08-04:2). Source: PRD §22.4.
 
-> ##### Scope
->
-> Current deliverable obligation: Define and implement machine-readable result export for tests, review, and downstream tooling. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> This deliverable defines the setup specification for a machine-readable result export contract. The baseline is a schema-first JSON result envelope suitable for review, regression comparison, and downstream tooling.
->
-> The original setup run does not implement exporter code, edit `schemas/results.schema.yaml`, create tests, choose additional export formats as final, or modify documentation outside this deliverable folder. Those remain future implementation work under bounded Type 2 briefs.
->
-> Current implementation (at `62c1efd75b`): exporter source and contract tests are in `core/reporting/result_export/`, and the result schemas include `schemas/results.schema.yaml`, `schemas/results.v0.3.schema.yaml` and `schemas/results_pressure_2.v0.3.schema.json`. On the desktop, `apps/desktop/src/features/result-export/ResultExportPanel.tsx` and `resultExportAdapter.ts` build the result JSON export, and the panel's `ControlledExportLink` (`apps/desktop/src/features/redaction-controls/`) saves it with `nativeResultSave.ts` through the Tauri command `save_local_result_json` (`apps/desktop/src-tauri/src/native_result_download.rs`). The export's diagnostics carry the run record's rule-pack exclusion diagnostics (#1602; `MODEL-RULE-PACK-REF-UNRESOLVED`, `MODEL-RULE-PACK-REF-CHECKSUM-MISMATCH`) as `ASSUMPTION_WARNING` from `desktop_component`, each once and never duplicating a producer diagnostic (`apps/desktop/src/services/rulePackRefDiagnostics.ts`). For a result held natively (C1, DEL-04-05), a results group's CSV is written through the streamed form of the same save on `DOTH-CSV-011` (`native_csv_stream.rs`; Design `csv-export.md` §4): every chunk screened with explicit intent, the text byte for byte the full rows' CSV, with no row ceiling. The result JSON export of a result held natively still loads the C2 full copy (at or under 64 MiB, refused by name above it); its native writer is not built (DEL-04-05 `c1-native-custody-plan.md`, slice 4 status).
->
-### CLM-011 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Source |
-> |---|---|---|
-> | DEL-08-04-R1 | The result export baseline shall be a schema-first JSON result envelope. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-046; `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection |
-> | DEL-08-04-R2 | Additional concrete export formats shall remain `TBD` unless later approved and scoped. CSV export of the desktop results tables is approved and scoped by DEL-08-04-R14; this deliverable shall not finalize spreadsheet, FEA, HDF5, or other external formats. | `execution/_Decomposition/SOFTWARE_DECOMP.md` OI-004; sealed brief acceptance notes; `docs/RELEASE_TARGET_v1.0.md` RT-R6 |
-> | DEL-08-04-R3 | Result envelopes shall preserve units and dimensional metadata for exported values and shall not rely on hidden unit defaults. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/SPEC.md` section 8 |
-> | DEL-08-04-R4 | Result envelopes shall carry or reference provenance and reproducibility metadata, including model/run identity, solver version basis, rule-pack checksum where applicable, warnings, assumptions, and source notes. | `docs/SPEC.md` sections 4.5 and 8; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 |
-> | DEL-08-04-R5 | Result envelopes shall carry structured diagnostics using the PKG-00 baseline fields: code, class, severity, source, affected object, message, remediation, and provenance. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06; `docs/SPEC.md` section 7 |
-> | DEL-08-04-R6 | Exported statuses shall distinguish mechanics solved, user-rule checked, rule-input incomplete, human-review required, and human-approved record states where present. | `docs/TYPES.md` sections 4 and 8; `docs/CONTRACT.md` OPS-K-AUTH-1 |
-> | DEL-08-04-R7 | Result exports shall not claim certification, sealing, professional approval, authentication, or automatic engineering code compliance (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4 |
-> | DEL-08-04-R8 | Result exports and public examples shall not embed protected standards text, copied standards tables, proprietary formulas, private rule-pack payloads, or private project data by default. | `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-IP-3, OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3, 6, and 7 |
-> | DEL-08-04-R9 | Exporters and adapters shall not bypass validation, unit checks, diagnostics, provenance handling, report controls, or public/private data-boundary checks. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-07; `docs/SPEC.md` section 1 |
-> | DEL-08-04-R10 | Export ordering and identifiers should be deterministic enough for regression comparison of equivalent result sets. | `docs/SPEC.md` sections 4.5 and 9; `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-046 |
-> | DEL-08-04-R11 | Missing solve-required, rule-check-required, provenance, or unit metadata shall be represented as diagnostics/findings, not silently filled with defaults. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` section 7 |
-> | DEL-08-04-R12 | The contract shall support downstream consumption by report generation, GUI results review, headless automation, and import/export adapters without creating a bypass around governed result envelopes. | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) rows DEL-07-05, DEL-08-01, DEL-10-02, DEL-10-05; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-03 and AB-00-07 |
-> | DEL-08-04-R13 | Define and accept the result-export vocabulary for nonlinear active-set count, flags, state codes and residual observations supplied by DEL-04-04. Preserve producer meaning, unit/status context and omission diagnostics at the export boundary; do not infer unpublished naming or acceptance thresholds. | DEL-04-04 current residual; governed result-export boundary |
-> | DEL-08-04-R14 | Every results table in the desktop, including comparison tables, shall export to CSV through one serializer that reads the view model the table renders. Export adapters and the save route shall preserve the governed result-envelope boundary and the applicable R3–R13 and AC-001 requirements. Each file shall begin with a provenance preamble (the notice, model and result hashes, analysis route or routes, case or filter, unit basis and software version), then a blank row, then the table. Every numeric column shall state its unit, and existing stable row identifiers shall be preserved. Each numeric value shall be the unrounded value returned by the table's own conversion function for the column's displayed unit, written as the shortest decimal that parses back to that converted value exactly. An absent value shall never be a blank number: it carries the table's stated status, and missing values and metadata retain their diagnostics under R6 and R11. Rule outcomes shall use the table's own wording, subject to R6 and R7. The file shall use UTF-8 with a byte-order mark and CRLF line endings; text cells that a spreadsheet would read as formulas shall be neutralized. Identical source data, provenance and table settings shall produce identical bytes. Saving shall require explicit user intent through the governed local-private route `DOTH-CSV-011`, with matching identity and admission policy in the Python, TypeScript and Rust route catalogues; file names follow DEL-07-01 Design `export-file-names.md`. The CSV is not a released report. | `docs/RELEASE_TARGET_v1.0.md` RT-R6 and §4 item 5; HELP_HUMAN design adoption, 2026-10-28; DEL-07-01 Design `export-file-names.md` (#1711) |
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> | Standard or basis | Applicability | Status |
-> |---|---|---|
-> | JSON Schema 2020-12 | Baseline schema technology for public result envelope contracts. Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Architecture basis; schema file editing is outside this setup write scope. |
-> | Schema-first command/query/job result envelope baseline | Result export/API boundary and no-bypass contract. | Required by PKG-00 architecture basis referenced in `_CONTEXT.md`. |
-> | Canonical JSON / JCS-compatible canonicalization | Relevant when exported JSON payloads or manifests are hashed for reproducibility. | Hash implementation belongs primarily to DEL-08-02 / future implementation; this deliverable shall preserve compatible references. |
-> | SWBPIPE invariant catalog | IP, data, units, rule-pack, privacy, professional-responsibility, and agent-boundary constraints. | Binding project governance draft. |
->
-> No protected engineering code, standard clause text, standards table, commercial example, or proprietary rule content is used as an authority in this setup artifact.
->
-
-### CLM-013 — Verification
-
-> ##### Verification
->
-> Future implementation acceptance should include the following checks:
->
-> | Verification ID | Check | Expected result |
-> |---|---|---|
-> | V-1 | Validate a representative JSON result envelope against the result schema. | Schema validation passes and required envelope fields are present. |
-> | V-2 | Export a result set with unit-bearing displacements, rotations, forces, moments, reactions, stresses, and ratios. | Each value family carries explicit unit/dimensional metadata or a blocking diagnostic. |
-> | V-3 | Export a run with missing rule-pack input or missing provenance. | Export includes structured diagnostics/findings instead of silent defaults. |
-> | V-4 | Export a run with rule-pack references. | Envelope records rule-pack identity/version/checksum/source status without copying private formulas or protected values. |
-> | V-5 | Re-export an equivalent result set. | Stable identifiers and ordering allow deterministic regression comparison. |
-> | V-6 | Route the export through an adapter or downstream tool. | Unit, provenance, diagnostics, and professional-boundary fields are preserved. |
-> | V-7 | Scan public fixtures/templates for protected content and approval/compliance claims. | Protected/private data and certification/compliance claims are absent or blocked. |
-> | V-8 | Generate a report or GUI result view from the export. | Consumer can distinguish mechanics, user-rule, diagnostics, and human-review-required statuses. |
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> This setup deliverable produces:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/*`
-> - `_STATUS.md`
->
-> Future implementation artifacts anticipated by the register are `schemas/results.schema.yaml`, exporter source, and tests; they are not created or edited in this setup session.
-- **AC-001** — The contract preserves explicit units and dimensional metadata, structured diagnostics, provenance and reproducibility references, stable identifiers and ordering, mechanics/rule/human status distinctions, public/private content boundaries, and no-bypass or professional-authority constraints.
-- **AC-002** — Every results table in the desktop, including comparison tables, exports to CSV as DEL-08-04-R14 requires. A guard test fails when any such table lacks CSV export. Parsing each exported numeric field returns exactly the unrounded value produced by the table's conversion function for the displayed column unit. Repeated exports with identical source data, provenance and table settings are byte-identical. Serializer tests cover R14's preamble and table layout, units and identifiers, missing-value handling, UTF-8 byte-order mark, CRLF line endings and formula-leading text neutralization. Adapter tests demonstrate preservation of AC-001 and the R9/R12 no-bypass boundary. Route-catalogue parity and native-save tests show that `DOTH-CSV-011` is admitted only for local-private output with explicit user intent, with matching policy in Python, TypeScript and Rust.
+- **AC-001** — An export document built from an invented solved model on each route validates against the schema. Every value has its unit and dimension, the diagnostics equal the received result's field for field, the statuses of REQ-006 appear as distinct values, rows carry stable identifiers in a deterministic order, the reproducibility references of REQ-004 are present, and exporting the same result twice gives byte-identical documents. Verify with VER-001.
+- **AC-002** — Every results table in the desktop, comparison tables included, exports to CSV as REQ-014 requires. A table without CSV export is detected as a failure. Parsing each exported numeric field returns exactly the unrounded value the table's conversion function produces for the displayed column unit. Repeated exports with identical source data, provenance and table settings are byte-identical. The preamble and table layout, units and identifiers, absent-value handling, byte-order mark, line endings and formula neutralization are as REQ-014 states. Adapters preserve AC-001 and the no-bypass boundary of REQ-009 and REQ-012. The CSV route is admitted only for local-private output with explicit user intent, with matching policy in each route catalogue, and is refused without that intent and for every other audience. Verify with VER-002.
+- **AC-003** — A document whose schema version is not 0.3.0 is refused by every reader with a diagnostic naming the version, and nothing is read from it. Verify with VER-003.
+- **AC-004** — For each member an export document copies, the recorded hash equals SHA-256 of the member's RFC 8785 canonical form as computed by an implementation that shares no code with the product, and a copy of the member re-serialized with different number spelling or key order reads as the same member. Verify with VER-004.
+- **AC-005** — An export of a run with a missing rule input, a missing source note and a value without a unit carries a diagnostic for each and no substituted value. A run with a rule pack carries the pack's identifier, version and checksum and none of its content. No export field or example states a claim REQ-007 names. Verify with VER-005.
+- **AC-006** — Each consumer REQ-012 names takes the result export document from the one assembly, and none receives result values by another route. For one received result, the members copied from it and the result content of the document each consumer receives equal those of the document Export Result JSON saves, by canonical value; a member that differs by run is named, and those members are the only exclusion. Verify with VER-006.
+- **AC-007** — For a nonlinear result, the export states the iteration count, the flags, each support's state code and the residuals as DEL-04-04's record gives them, with their units and status context, and names any observation it omits. Verify with VER-007.
+- **AC-008** — A comparison export maps every field of the accepted comparison-result interface, and a round trip returns the source identity, diagnostics, units, raw rows, unmatched records and hashes unchanged. Verify with VER-008.
+- **AC-009** — For each export format and each unit conversion it performs, a converted value agrees with the value formed from the units' public definitions at the witness tolerance of its kind, and a conversion the product states as exact (a length, the pascal-to-megapascal shift) equals it exactly. Verify with VER-009.
+- **AC-010** — Export Result JSON is saved only with the user's explicit intent on its governed local-private route and is refused without it. Verify with VER-002.
+- **AC-011** — A document that fails the schema, one lacking a unit, the diagnostics or a status among them, or whose recorded hash differs from the hash of the content it covers, is refused by the form check with a named diagnostic, and nothing is read from it. Verify with VER-010.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-015 — Procedure: DEL-08-04 Result export format
+Choices that define the product:
 
-> #### Procedure: DEL-08-04 Result export format
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- The schema comes first. A document is valid because it satisfies the published schema, and every reader checks the form before it reads a value.
+- One version. There is no migration and no compatibility window; an older document is refused by name.
+- Copy, do not restate. A received result's members are carried whole and identified by value hash, so a consumer can tell that what it holds is what the solve published.
+- One serializer for CSV, beside one adapter per table that reads the table's own view model. A CSV number and a screen number therefore come from the same function.
+- Labels are untrusted text. They can come from an imported file, so the serializer neutralizes anything a spreadsheet would execute.
 
-### CLM-017 — Purpose
-
-> ##### Purpose
->
-> Current deliverable obligation: Define and implement machine-readable result export for tests, review, and downstream tooling. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> This procedure describes how to maintain the setup artifact for the result export format and how a later implementation brief should convert the setup specification into a governed result export contract.
->
-### CLM-018 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Why it matters | Source |
-> |---|---|---|
-> | Deliverable identity and scope for DEL-08-04 | Keeps the work bounded to SOW-046, OBJ-007, and OBJ-009. | `_CONTEXT.md` |
-> | PKG-00 result-envelope/API no-bypass architecture basis | Establishes schema-first envelopes, diagnostics, unit/provenance boundaries, and adapter no-bypass constraints. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-03, AB-00-06, AB-00-07 |
-> | Unit system and dimensional-analysis core contract | Result exports need unit-aware values and dimensional checks. | `docs/CONTRACT.md` OPS-K-UNIT-1; upstream DEL-02-02 |
-> | Canonical domain model and result object semantics | Result exports need stable model/result references and object vocabulary. | `docs/TYPES.md` section 8; upstream DEL-02-01 |
-> | Audit manifest and model hash | Reproducible exports should carry or reference run/model manifest and hash metadata. | DEL-08-02; `docs/_Registers/ScopeLedger.csv` row SOW-039 |
-> | Solver/load/stress result producers | Export format must consume mechanics outputs without redefining solver behavior. | PKG-04 and PKG-05 deliverables |
-> | Rule-pack lifecycle and checksum handling | Rule-check exports need rule-pack identity/version/checksum without copying private/protected payloads. | DEL-06-04; `docs/SPEC.md` sections 6 and 8 |
-> | Headless runner and adapter surfaces | Downstream automation and adapter workflows need the governed envelope contract. | DEL-10-02 and DEL-10-05 |
->
-
-### CLM-019 — Steps
-
-> ##### Steps
->
-> Current deliverable obligation: Define and implement machine-readable result export for tests, review, and downstream tooling. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> 1. Confirm the current brief is limited to DEL-08-04 and does not authorize edits to `schemas/results.schema.yaml`, exporter source, tests, or documentation outside this deliverable folder.
-> 2. Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/TYPES.md`, `docs/IP_AND_DATA_BOUNDARY.md`, `execution/_Decomposition/SOFTWARE_DECOMP.md`, and the register rows for DEL-08-04 and SOW-046.
-> 3. Treat the baseline export as a schema-first JSON result envelope. Record additional formats as `TBD` unless a later human-approved scope change chooses them.
-> 4. Define future envelope responsibilities at setup level: result identity, model/run references, unit-aware values, diagnostics, provenance, analysis status, warnings, and reproducibility references.
-> 5. Keep mechanics results, user-rule-check outcomes, missing-data findings, and human review/approval records separate in terminology and future fields.
-> 6. Confirm that no public artifact embeds protected standards text, standards tables, proprietary formulas, private rule-pack payloads, private project data, or automatic compliance/approval claims.
-> 7. Record dependency edges only when source documents state an explicit anchor, prerequisite, interface, or handoff. Do not add structural adjacency or coordination-only edges.
-> 8. For a later implementation brief, create or edit schemas/exporter/tests only inside that later brief's write scope and run the applicable schema, unit, diagnostics, protected-content, and regression gates.
->
-### CLM-020 — Verification
-
-> ##### Verification
->
-> | Check | Expected result |
-> |---|---|
-> | Scope of Work contract | `ScopeOfWork.md` exist with stable default sections. |
-> | Scope boundary Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | No files outside `execution/PKG-08/DEL-08-04/**` are edited. |
-> | Format boundary | JSON result envelope baseline is stated; CSV export of the desktop results tables is selected (DEL-08-04-R14); other additional export formats remain `TBD`. |
-> | Unit/provenance/diagnostic boundary | Unit-aware values, provenance, diagnostics, and no-bypass adapter constraints are visible in the specification. |
-> | Protected/private boundary | No protected standards text, copied tables, proprietary formulas, private rule-pack payloads, private project data, or certification/compliance claims are introduced. |
-> | Dependency register | `Dependencies.csv` validates against v3.1 schema and `_DEPENDENCIES.md` counts match the CSV. |
-> | Lifecycle state | Use the current lifecycle recorded in `_STATUS.md`; preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
->
-
-### CLM-021 — Records
-
-> ##### Records
->
-> The setup run should leave these records in the deliverable folder:
->
-> - Four production documents: `ScopeOfWork.md`
-> - Semantic artifacts: `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`
-> - Dependency artifacts: `Dependencies.csv`, `_DEPENDENCIES.md`
-> - Run records: `_run_records/TASK_RUN_2026-04-30_*.md`
-> - Lifecycle status: `_STATUS.md`
-- **VER-001** — Validate the contract and review source parity, schema-first JSON baseline, retained TBD format choices other than R14's CSV, unit and diagnostic completeness, deterministic comparison identity, provenance and rule-pack references, adapter no-bypass behavior, protected-content limits, and every governed residual.
-- **VER-002** — For AC-002, provide passing CSV serializer, table-adapter and table-coverage guard tests; route-catalogue parity tests across Python, TypeScript and Rust; and native-save tests demonstrating admission with explicit user intent for local-private output and rejection without that intent or for other output audiences. Identify the test names and tested pull-request head in the pull request, and include the independent review required by Root `AGENTS.md` for persistence and permissions.
+- **VER-001** — Executable check (validates export documents of invented models on each route against the schema with a JSON Schema validator that is not the product's; observes units, the diagnostics against the received result, statuses, identifiers and order; compares two exports byte for byte).
+- **VER-002** — Executable check (observes, for every table, the serializer's output against REQ-014; a guard that lists every table under the results and comparison features and fails on one without CSV export; per-table round trips of each numeric field; route-catalogue parity; and the native save's admission with explicit local-private intent and its refusal without it or for another audience). The round trip compares the file with the table's own conversion function, which shows that file and screen agree and nothing more.
+- **VER-003** — Executable check (presents documents of other versions to each reader and observes the named refusal).
+- **VER-004** — Comparison with a named reference (canonical bytes and SHA-256 from a JCS implementation that imports no product code) with an executable check (observes that respelled and reordered copies of a member read as equal).
+- **VER-005** — Executable check (observes the diagnostics of an export seeded with each missing item and the rule-pack reference fields) and judgment by a reviewer who did not write them (reads the export fields and examples against `docs/claims_registry.md` and PRD §21.2).
+- **VER-006** — Executable check (compares by canonical value the copied members and result content of the documents produced for one received result by the desktop export, the report package and the headless runner, and of the document an adapter is handed, with the run-specific members named; and observes that each consumer's result values come from the assembled document).
+- **VER-007** — Executable check (observes the nonlinear vocabulary of an export against the active-set record of an invented nonlinear case, and the statement of any omitted observation).
+- **VER-008** — Comparison with a named reference (the accepted version of DEL-14-05's comparison-result interface and its schema) with an executable check (round trip of an invented comparison).
+- **VER-009** — Comparison with a named reference (the public definitions of the units involved, for example the exact definition of the inch and of the pound-force) for each conversion at each export boundary, compared at DEL-02-02's witness tolerances and exactly where the product states the conversion as exact.
+- **VER-010** — Executable check (presents constructed invalid documents to the form check: each schema defect in turn, and a document with an altered member under an unchanged recorded hash; observes the named refusal and that no value is read). The expected verdicts come from a JSON Schema validator that is not the product's and from the outside hash implementation of VER-004.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-022 — Guidance: DEL-08-04 Result export format
-
-> #### Guidance: DEL-08-04 Result export format
->
-
-### CLM-023 — Purpose
-
-> ##### Purpose
->
-> The result export format exists to make solver and rule-check outputs reviewable, reproducible, comparable, and consumable by downstream tools without losing the project boundaries that make SWBPIPE code-neutral. The baseline is a schema-first JSON result envelope; CSV export of the desktop results tables is selected (DEL-08-04-R14), and other additional export formats remain `TBD`.
->
-
-### CLM-024 — Principles
-
-> ##### Principles
->
-> - Preserve the result envelope as the governed contract. Downstream tools may consume exports, but they should not bypass unit checks, diagnostics, provenance, public/private data handling, or report controls.
-> - Keep the export format review-oriented. A result export can support professional review; acceptance and professional judgment remain with the responsible engineer.
-> - Treat units as data, not context. Every exported numeric result needs explicit unit and dimensional meaning, or a diagnostic explaining why it is incomplete.
-> - Keep diagnostics structured. Review and regression tools need stable diagnostic codes/classes/severities and affected-object references, not prose-only warnings.
-> - Carry reproducibility references without copying private payloads. Model hashes, manifest IDs, solver versions, and rule-pack checksums are appropriate references; protected standards text, proprietary formulas, private rule-pack internals, and owner data are not public export payloads by default.
-> - Prefer deterministic ordering and stable identifiers for regression comparison.
-> - Use `TBD` for unresolved format decisions. CSV export of the desktop results tables is selected (DEL-08-04-R14); do not imply that a spreadsheet, FEA handoff, or other external export has been selected.
->
-
-### CLM-025 — Considerations
-
-> ##### Considerations
->
-> | Topic | Guidance |
-> |---|---|
-> | Schema-first baseline | Start from JSON result envelopes because they align with the architecture basis and can be validated before exporter code exists. |
-> | Results vs reports | Exports are machine-readable result contracts; reports are human-facing review artifacts. Reports may consume exports, but report wording and protected-content controls remain their own workflow. |
-> | Mechanics vs rule checks | Mechanics result values and user-rule-check outcomes should remain separately identifiable. A user-rule check is not professional approval. |
-> | Diagnostics | Export consumers should be able to filter by diagnostic class, severity, source, affected object, remediation, and provenance. |
-> | Regression comparison | Stable object identifiers, result-station identifiers, load-case/combination references, deterministic ordering, and unit metadata are more important than display formatting. |
-> | Interoperability | Downstream tools need a governed envelope first. CSV export of the desktop results tables is selected (DEL-08-04-R14); other concrete external formats and transport protocols remain later decisions. |
-> | Privacy and protected data | Public fixtures should use invented or permissively licensed data only. User-private exports remain user controlled and should not become public defaults. |
->
-
-### CLM-026 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Setup position |
-> |---|---|
-> | Single JSON envelope vs many early formats | Use the JSON envelope as the baseline. CSV export of the desktop results tables is selected (DEL-08-04-R14); other additional formats remain `TBD` to avoid premature commitments and governance bypasses. |
-> | Verbose metadata vs compact exports | Preserve units, diagnostics, provenance, and status semantics even when compactness is desirable. Reviewability takes precedence over minimal payload size. |
-> | Human-readable labels vs stable machine keys | Include stable identifiers for comparison and downstream tooling. Human-readable labels may supplement them but should not be the only references. |
-> | Private rule-pack detail vs reproducibility references | Export identifiers, versions, checksums, source notes, and redistribution status; do not copy private formulas or protected values into public artifacts. |
-> | Report convenience vs professional boundary | Avoid report/export wording that could be read as approval or compliance. Human review remains external to the software result. |
->
-
-### CLM-027 — Examples
-
-> ##### Examples
->
-> The following are setup-level examples of export concerns, not final schema definitions:
->
-> | Concern | Acceptable setup direction | Not acceptable in public baseline |
-> |---|---|---|
-> | A displacement result | Unit-aware value with node/result reference, load-case or combination basis, and source run metadata. | Numeric value without unit metadata or affected-object reference. |
-> | A rule-check outcome | User-rule-check result with rule-pack ID/version/checksum and status distinguishing incomplete inputs, checked, or failed. | Automatic `CODE_COMPLIANT` status or copied protected formula text. |
-> | A warning | Structured diagnostic with class, severity, source, affected object, message, remediation, and provenance. | Prose-only warning that cannot be traced or compared. |
-> | A downstream export | Adapter consumes governed JSON envelope and preserves units/provenance/diagnostics. | Adapter-specific shortcut that drops diagnostics or private-data handling. |
->
-
-### CLM-028 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> No unresolved source conflicts were found during this setup run. Open format choices remain `TBD` by scope, not a source conflict.
+- **AX-001** — *What left is what was solved.* Better is fewer differences between a result as the solve published it and the result a consumer reads from an export. Compactness, convenience of a target format and display rounding are never allowed to alter, drop or relabel a value, unit, diagnostic or status on the way out.
+- **AX-002** — *Units are data.* Better is fewer exported numbers whose unit a reader must infer; the target is none. A number is never written without its unit to make a file simpler, and a missing unit is a diagnostic, not a guess.
+- **AX-003** — *Comparable tomorrow.* Better is a larger share of two exports of equivalent results that compare field for field by stable identifier. Human-readable labels may be added beside identifiers; they never replace them.
+- **AX-004** — *File and screen agree.* Better is less distance between a CSV number and the number the table shows, down to display rounding only. That agreement is never gained by a second conversion path for the file.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-046 OBJ-007 OBJ-009 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-| OUT-002 | SOW-046 OBJ-007 OBJ-009 | DEL-08-04-R14 | AC-002 | VER-002 | CSV serializer, adapter, guard and route tests at the pull-request head, and the independent review |
-
-## SCA-011 — Interface responsibility and verification hook
-
-- **DEL-08-04-SCA011-REQ-001** — Consumes and maps the DEL-14-05 common comparison-result/export interface into general result exports; does not own comparison mathematics or tolerance policy. The current result-export contract (0.3.0) and raw-source preservation govern. 0.3.0 is the only result-export version: HELP_HUMAN confirmed on 2026-10-10 that the owner's one-version principle ("no-compatibility principle carries") covers result exports. B7a removed result exports 0.1 and 0.2 (DEL-04-08 Design, `b7-plan.md`, E2): `schemas/results.schema.yaml` is a `$ref` to `schemas/results.v0.3.schema.yaml`, and the export readers admit 0.3.0 only (`RESULT_EXPORT_VERSION_UNSUPPORTED` otherwise, `semantic_contract::for_export_metadata`).
-- **DEL-08-04-SCA011-HASH-001** — The result envelope identifies each member it copies from a received result (the raw source, its rows, the model, the request) by the sha256 of the member's canonical JSON (JCS) value, not by received bytes; a received result's exact bytes are kept by the desktop's native save, not by the envelope. Owner, 2026-10-11, on the desktop's result-export panel: "Keep envelope, hash by value." This states how R4's reproducibility references are computed and changes no commitment.
-- **DEL-08-04-SCA011-VER-001** — Bind comparison mapping/export round trips to the accepted version of the DEL-14-05 interface before claiming comparison-envelope conformance. Preserve source identity, diagnostics, units, raw rows, unmatched records, hashes and professional boundaries.
-
-Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/ComparisonResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-08-04:1** — SCA-011 interface follow-through: Bind comparison mapping/export round trips to the accepted version of the DEL-14-05 interface before claiming comparison-envelope conformance. Preserve source identity, diagnostics, units, raw rows, unmatched records, hashes and professional boundaries.
-- **DEL-08-04:2** — Add remaining target-format unit-conversion witnesses outside the already-covered export boundaries (residual hardening) (source: PRD plan §3 Phase B-tail row / FR-002)
+| OUT-001 | SOW-046 OBJ-007 OBJ-009 | REQ-001, REQ-003, REQ-004, REQ-005, REQ-006, REQ-010 | AC-001 | VER-001 | What the envelope must carry comes from SOW-046 and the decomposition's architecture basis (AB-00-03, AB-00-04, AB-00-06). Conformance is decided by a JSON Schema validator the product did not write. The values themselves are the solve's; their correctness is the producing deliverables' criterion, and this criterion claims only that they are carried unchanged. |
+| OUT-002 | SOW-046 OBJ-007 OBJ-009 | REQ-014, CLM-003, CLM-004 | AC-002 | VER-002 | Release target exit criterion 5 and REQ-014 fix the form. The shortest-decimal rule is a closed form of binary64 arithmetic, and the pascal-to-megapascal step is a decimal shift. Agreement of a field with the table's own conversion function rests on the product's own output and guards only that file and screen agree; the correctness of unit factors is DEL-02-02's criterion. |
+| OUT-001 | SOW-046 OBJ-009 | REQ-001 | AC-003 | VER-003 | REQ-001 states the expected outcome: one version, and a document of any other version refused by name with no migration; each other version is presented as a constructed document. |
+| OUT-001 | SOW-046 OBJ-007 | REQ-016 | AC-004 | VER-004 | Members are hashed by value; the expected digests come from RFC 8785 and a JCS and SHA-256 implementation that imports no product code. |
+| OUT-001 | SOW-046 OBJ-007 | REQ-007, REQ-008, REQ-011 | AC-005 | VER-005 | The no-default rule comes from PRD §5.5 and the prohibited content and claims from PRD §19.4, §20.1 and §21.2; each missing item is seeded in an invented run. |
+| OUT-001 | SOW-046 OBJ-009 | REQ-009, REQ-012, CLM-005 | AC-006 | VER-006 | The no-bypass rule comes from the decomposition's architecture basis AB-00-07. The comparison is between documents produced on different routes for one received result, by canonical value; it rests on the product's own output and guards only that the routes agree. |
+| OUT-001 | SOW-046 OBJ-007 | REQ-013 | AC-007 | VER-007 | The observations to carry are those of DEL-04-04's active-set record, which this deliverable did not write; the export is compared with that record for an invented case. |
+| OUT-001 | SOW-046 OBJ-009 | REQ-015 | AC-008 | VER-008 | The reference is the accepted version of DEL-14-05's comparison-result interface, which this deliverable does not own. The version to map is not decided. |
+| OUT-001 | SOW-046 OBJ-007 | REQ-003, REQ-017 | AC-009 | VER-009 | Outside source: the public definitions of the units, which fix every conversion factor exactly. The tolerance at which a binary64 conversion is judged is DEL-02-02's witness tolerance of its kind. |
+| OUT-001 | SOW-046 OBJ-009 | REQ-009, CLM-004 | AC-010 | VER-002 | The admission rule comes from DEL-12-02's export controls and PRD §20.3; refusal without intent is observed at the native save. |
+| OUT-001 | SOW-046 OBJ-009 | REQ-001, REQ-016, CLM-005 | AC-011 | VER-010 | The published schema and the constructed invalid documents fix the expected refusals. Schema verdicts are taken from a JSON Schema validator the product did not write, and hashes from a JCS and SHA-256 implementation that imports no product code. |

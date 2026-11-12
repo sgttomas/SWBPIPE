@@ -1,252 +1,152 @@
 id: DEL-07-07
 name: 'Solve execution UX: progress, cancellation, and diagnostics'
 needs:
-- from: DEL-00-01
-  condition: 'DEL-07-07 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-07-07 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-00-03
-  condition: 'DEL-07-07 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-05
-  condition: 'DEL-07-07 requires SCA-001 architecture basis AB-00-05 from DEL-00-05 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    Long-running work is a job separate from commands and queries; a background solve job reports
+    progress, can be cancelled and records reproducibility metadata; and every job returns a result
+    envelope with diagnostics and makes no bare claim of success.
   gating: true
 - from: DEL-00-06
-  condition: 'DEL-07-07 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A diagnostic carries code, class, severity, source, affected object, message and remediation,
+    and provenance where applicable; the product's six warning classes are defined; when a
+    diagnostic crosses a boundary every field other than class arrives unchanged, and its class
+    changes only where the receiving boundary's schema requires its own class vocabulary, by that
+    boundary's stated mapping; and invalid input, incomplete model, mechanics result, rule-check
+    result and human-review-needed are distinguished.
   gating: true
-- from: DEL-00-07
-  condition: 'DEL-07-07 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-07-07 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-04-01
-  condition: 'DEL-07-07 needs DEL-04-01 as a predecessor: solve execution UX launches/reviews solver jobs
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; Enum normalization 2026-05-10: legacy AnchorType=DELIVERABLE, legacy
-    DependencyType=SOLVER_PREDECESSOR, legacy Explicitness=INFERRED_DIRECT, legacy Origin=DECOMPOSITION,
-    legacy SatisfactionStatus=UNKNOWN
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-05-01
-  condition: 'DEL-07-07 needs DEL-05-01 as a predecessor: solve execution UX needs load application/run
-    state
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; Enum normalization 2026-05-10: legacy AnchorType=DELIVERABLE, legacy
-    DependencyType=LOAD_STRESS_PREDECESSOR, legacy Explicitness=INFERRED_DIRECT, legacy Origin=DECOMPOSITION,
-    legacy SatisfactionStatus=UNKNOWN
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-04-07
+  condition: >-
+    The product solve has one entry that takes a model document and returns a published result with
+    its model hash, solver version and findings; a per-invocation memory budget and a price for a
+    request are defined; and a shared memory pool grants and releases memory under leases.
   gating: true
 - from: DEL-04-06
-  condition: 'DEL-07-07 needs DEL-04-06 as a predecessor: solve execution UX displays diagnostics and
-    warning logs
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; Enum normalization 2026-05-10: legacy AnchorType=DELIVERABLE, legacy
-    DependencyType=DIAGNOSTICS_CONTRACT, legacy Explicitness=INFERRED_DIRECT, legacy Origin=DECOMPOSITION,
-    legacy SatisfactionStatus=UNKNOWN
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Withholding Solve on the model checks' findings
+  condition: >-
+    The solver and the model checks report each finding with the governed diagnostic fields and its
+    class, and the model checks can be run alone on a solve request.
   gating: true
 - from: DEL-05-04
-  condition: 'DEL-07-07 needs DEL-05-04 as a predecessor: solve execution UX displays explicit analysis
-    status
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; Enum normalization 2026-05-10: legacy AnchorType=DELIVERABLE, legacy
-    DependencyType=DOMAIN_MODEL, legacy Explicitness=INFERRED_DIRECT, legacy Origin=DECOMPOSITION, legacy
-    SatisfactionStatus=UNKNOWN
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    Model incomplete, mechanics solved, rule inputs incomplete, user-rule checked, user-rule failed
+    and human review required are distinct statuses, and rule inputs incomplete may coexist with
+    mechanics solved.
   gating: true
-- from: DEL-10-05
-  condition: 'CANDIDATE: DEL-07-07 mirrors the DEL-10-05 headless runner''s automatic rule-check statuses:
-    the three statuses a GUI rule-check run may produce (RULE_INPUTS_INCOMPLETE, USER_RULE_CHECKED, USER_RULE_FAILED)
-    are those `analysis_status_for_rule_check` maps in `core/runner/headless`, held as a separate set
-    in `apps/desktop/src/services/previewService.ts`. The two do not share job orchestration code.
-
-
-    Notes: Carried forward from DAG-001-E0624 into DAG-002 revision 0.5 candidate layer; candidate row
-    remains non-gating after approval; not dispatch authority; candidate remains non-gating after graph
-    approval; Revision 0.5 edge-disposition review retains this row as a non-gating candidate; Enum normalization
-    2026-05-10: legacy AnchorType=DELIVERABLE, legacy DependencyType=GUI_PREDECESSOR, legacy Explicitness=INFERRED_INDIRECT,
-    legacy Origin=AGENT_INFERENCE, legacy SatisfactionStatus=UNKNOWN, candidate row retained as non-gating
-    candidate in Statement/Notes; Status normalized from CANDIDATE to ACTIVE for v3.1 enum
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: false
-  evidence: apps/desktop/src/services/previewService.ts
-- from: DEL-02-03
-  condition: 'DEL-07-07 directly depends on DEL-02-03 because solve event records display canonical analysis
-    status and external human-acceptance reference boundaries.
-
-
-    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-05-02
+  when: Forming the native summary, pages and verdict of a held result
+  condition: >-
+    One product result reader classifies a published result, gives each row kind its meaning and
+    order, and returns the result's verdict, so that a second reading of the same result text can be
+    held equal to it.
   gating: true
-  evidence: core/gui/solve_execution/engine.py; tests/test_solve_execution_ux.py
+- from: DEL-14-02
+  when: Recording a run or showing the run summary
+  condition: >-
+    An analysis-run record has one current form that binds a result to its model state, solver
+    version, settings, units and rule-pack references, and a record built from the same result is
+    the same bytes whichever implementation builds it.
+  gating: true
 - from: DEL-02-05
-  condition: 'DEL-07-07 directly depends on DEL-02-05 because completed solve-event display records must
-    carry model/result hash and provenance references when result evidence is available.
-
-
-    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Saving a project from a held result
+  condition: >-
+    A stored project keeps the model document and its result as saved and reads them back
+    unchanged.
   gating: true
-  evidence: core/gui/solve_execution/engine.py; tests/test_solve_execution_ux.py
+- from: DEL-07-04
+  condition: >-
+    The finding presentation defines how a finding's class and fields are shown, how an absent field
+    reads, and how a finding leads to its affected object, which the diagnostics panel follows.
+  gating: false
+- from: DEL-04-05
+  when: Marking the solve timeline
+  condition: >-
+    The performance kit names the stages of a desktop solve that it times separately.
+  gating: false
+- from: DEL-07-11
+  condition: >-
+    The workspace shell mounts the solve, progress and diagnostics panels, routes the Solve command
+    to the job, holds the session's current result handle, and refuses a solve where no model is
+    open.
+  gating: true
 code_paths:
-- core/gui/solve_execution/engine.py
 - apps/desktop/src/features/solve/**
+# The diagnostics panel. modelChecks* and ModelChecksPanel* in this folder are DEL-04-06's.
+- apps/desktop/src/features/diagnostics/**
+# The run summary panel.
+- apps/desktop/src/features/run-audit/**
+- apps/desktop/src/features/workspace/solveJobAudit.ts
+- apps/desktop/src/features/workspace/solveGates.ts
+# The solve job and its worker in the native host. solve_jobs.rs and solve_worker.rs are shared
+# with DEL-04-07, which owns the memory pool, its leases and the priced parses in them; the job's
+# lifecycle is this deliverable's.
 - apps/desktop/src-tauri/src/solve_jobs.rs
 - apps/desktop/src-tauri/src/solve_worker.rs
+- apps/desktop/src-tauri/src/diagnostics_presentation.rs
+- apps/desktop/src/services/memoryPool.ts
+# Shared with DEL-07-08, DEL-07-11 and DEL-14-04, each for the calls it makes.
+- apps/desktop/src/services/previewService.ts
+# Native custody of a result: the held result, its summary, pages and verdict.
+# result_text_digest.rs, native_verdict.rs, result_summary.rs and result_detail.rs are also listed
+# by DEL-04-07: custody, the summary, the pages and the verdict command are this deliverable's, and
+# what the product solve entry relies on in them is DEL-04-07's.
 - apps/desktop/src-tauri/src/result_text_digest.rs
 - apps/desktop/src-tauri/src/native_verdict.rs
-# C1 slice 2 (DEL-04-05 c1-native-custody-plan.md): S, the native summary of a held result, and its reader (no panel reads it before slice 4).
 - apps/desktop/src-tauri/src/result_summary.rs
 - apps/desktop/src-tauri/src/result_summary_tables.rs
 - apps/desktop/src-tauri/src/result_planes.rs
-- apps/desktop/src/services/resultSummary.ts
-- apps/desktop/src/test-support/resultSummaryCases.ts
-# C1 slice 3: the paged detail of a held result (rows, lookups, batched semantics, recorded recovery facts) and its webview reader (nothing calls it before slice 4).
 - apps/desktop/src-tauri/src/result_detail.rs
+- apps/desktop/src/services/resultSummary.ts
 - apps/desktop/src/services/resultDetail.ts
-- apps/desktop/src/test-support/resultDetailCases.ts
-- apps/desktop/src/test-support/resultDetailEmulation.ts
-# C1 slice 5's builder: the native v0.3 analysis-run record and preview header of a held result; the
-# persistence commands below write its stored forms (its recorded revision included).
-- apps/desktop/src-tauri/src/analysis_run_v03_build.rs
-- apps/desktop/src/services/analysisRunPreview.ts
-- apps/desktop/src/test-support/analysisRunV03Cases.ts
-- apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json
-# C1 slice 4 (connected increment): a fresh solve's result held natively (custody mode), the guarded
-# native handle and its access layer, the C2 interim gate, the native results panel, and the native
-# replay whose replies come from the actual commands.
 - apps/desktop/src/services/nativeResult.ts
+- apps/desktop/src/services/nativeIngress.ts
 - apps/desktop/src/features/results/C2ResultGate.tsx
 - apps/desktop/src/features/results/NativeResultsPanel.tsx
 - apps/desktop/src/features/results/useNativeRowKey.ts
-- apps/desktop/src/test/nativeReplayStore.ts
-- apps/desktop/scripts/native-replay-merge.mjs
-- apps/desktop/src/test-support/native-replay/native_replay_requests.json
-- apps/desktop/src/test-support/native-replay/native_replay_outcomes.json
-- apps/desktop/src/services/previewService.ts
-- apps/desktop/src/services/memoryPool.ts
-- apps/desktop/src/features/workspace/solveJobAudit.ts
-- apps/desktop/src/features/workspace/solveGates.ts
-- apps/desktop/src/features/diagnostics/**
+# Records formed from a held result. analysis_run_v03_build.rs, analysis_run_v03_validate.rs,
+# native_persistence.rs, stored_custody.rs and stored_save.rs are shared with DEL-14-02, which owns
+# the record's form; native_csv_stream.rs is shared with DEL-08-04, which owns the CSV it streams.
+- apps/desktop/src-tauri/src/analysis_run_v03_build.rs
+- apps/desktop/src-tauri/src/analysis_run_v03_validate.rs
+- apps/desktop/src-tauri/src/native_csv_stream.rs
+- apps/desktop/src-tauri/src/native_persistence.rs
+- apps/desktop/src-tauri/src/stored_custody.rs
+- apps/desktop/src-tauri/src/stored_save.rs
+- apps/desktop/src/services/analysisRunPreview.ts
+- apps/desktop/src/services/nativePersistence.ts
+- apps/desktop/src/services/nativeReopen.ts
+# The solve timeline and the scripted-run injection. Shared with DEL-04-05, which owns what is
+# marked and kept and the injection's stand-in for the worker; where the marks and the injection
+# sit in the job path is this deliverable's.
 - apps/desktop/src-tauri/src/native_smoke_inject.rs
 - apps/desktop/src/services/solveTimeline.ts
 - apps/desktop/src/services/solveTimelineCodes.ts
 - apps/desktop/scripts/solveTimelineCodes.mjs
-# C1 slice 4's navigator and streamed group CSV: the navigator's entity axis is a detail command
-# (result_detail.rs, above); the CSV stream commands are bound to the held job they began on and end
-# with its disposal or the session reset.
-- apps/desktop/src-tauri/src/native_csv_stream.rs
-# C1 slice 5's persistence: Record Run and Save/Create Project of a native-custody solve from its job
-# handle (record_preview_mechanics_job_analysis_run, save_preview_mechanics_job_local_project), the
-# writing connection's exact SQLite length limit, and the session tests' actual replies and unit fake.
-- apps/desktop/src-tauri/src/native_persistence.rs
-- apps/desktop/src/services/nativePersistence.ts
+- apps/desktop/scripts/solveTimelineCodes.d.mts
+# The committed cases and emulations the native and reference readings are held equal on.
+- apps/desktop/scripts/native-replay-merge.mjs
+- apps/desktop/src/test/nativeReplayStore.ts
 - apps/desktop/src/test/nativePersistenceFake.ts
 - apps/desktop/src/test/nativePersistenceReplay.ts
-- apps/desktop/src/test-support/native-replay/native_persistence_replies.json
-# C1 slice 6: saved and recorded runs reopen into native custody (open_local_project_in_native_custody,
-# read_analysis_run_in_native_custody, read_restored_result_record_all): a restored handle of stored
-# origin, its historical findings computed natively, the session's and history's native reopen, and
-# the actual commands' replies and the oracle corpus.
-- apps/desktop/src-tauri/src/stored_custody.rs
-- apps/desktop/src-tauri/src/analysis_run_v03_validate.rs
-# C1 slice 6's save continuity: Save/Create Project of a reopened saved run from its restored handle
-# (save_restored_result_local_project), stored as the legacy session stored it, never a solve's authority.
-- apps/desktop/src-tauri/src/stored_save.rs
-- apps/desktop/src/services/nativeReopen.ts
 - apps/desktop/src/test/nativeReopenEmulation.ts
+- apps/desktop/src/test-support/resultSummaryCases.ts
+- apps/desktop/src/test-support/resultDetailCases.ts
+- apps/desktop/src/test-support/resultDetailEmulation.ts
+- apps/desktop/src/test-support/analysisRunV03Cases.ts
 - apps/desktop/src/test-support/historicalReopenCases.ts
+- apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json
+- apps/desktop/src/test-support/native-replay/native_replay_requests.json
+- apps/desktop/src/test-support/native-replay/native_replay_outcomes.json
+- apps/desktop/src/test-support/native-replay/native_persistence_replies.json
 - apps/desktop/src/test-support/native-reopen/historical_reopen_cases.json
 - apps/desktop/src/test-support/native-reopen/native_reopen_requests.json
 - apps/desktop/src/test-support/native-reopen/native_reopen_replies.json
+# A reference module with its own contract test; the desktop does not call it.
+- core/gui/solve_execution/engine.py
+# The boundary helper the GUI reference modules of DEL-07-03, DEL-07-04, DEL-07-05, DEL-07-07 and
+# DEL-07-08 import; each lists it.
+- core/gui/pkg02_boundary.py
 checks:
 - apps/desktop/src/features/solve/SolvePanel.test.tsx
 - apps/desktop/src/features/solve/SolveProgressPanel.test.tsx
@@ -288,3 +188,7 @@ checks:
 - apps/desktop/src/services/solveTimelineCodes.test.ts
 - apps/desktop/src/services/solveTimelineGlobal.gate.test.ts
 - apps/desktop/src/services/solveTimelineGlobal.install.test.ts
+- apps/desktop/src-tauri/src/diagnostics_presentation_tests.rs
+- apps/desktop/src/features/diagnostics/DiagnosticsPanel.supplied.test.tsx
+- apps/desktop/src/features/diagnostics/DiagnosticsPanel.native.supplied.test.tsx
+- apps/desktop/src/features/diagnostics/DiagnosticsPanel.filterRequest.test.tsx

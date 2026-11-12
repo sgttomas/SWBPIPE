@@ -1,210 +1,117 @@
 id: DEL-15-03
 name: Downstream modeling export workflow
 needs:
-- from: DEL-00-01
-  condition: 'DEL-15-03 needs DEL-00-01 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS, anchor DELIVERABLE,
-    origin CONTEXT, explicitness EXPLICIT, and satisfaction SATISFIED normalized to dependency-extract
-    enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-02
-  condition: 'DEL-15-03 needs DEL-00-02 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS, anchor DELIVERABLE,
-    origin CONTEXT, explicitness EXPLICIT, and satisfaction SATISFIED normalized to dependency-extract
-    enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-03
-  condition: 'DEL-15-03 needs DEL-00-03 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS, anchor DELIVERABLE,
-    origin CONTEXT, explicitness EXPLICIT, and satisfaction SATISFIED normalized to dependency-extract
-    enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-04
-  condition: 'DEL-15-03 needs DEL-00-04 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS, anchor DELIVERABLE,
-    origin CONTEXT, explicitness EXPLICIT, and satisfaction SATISFIED normalized to dependency-extract
-    enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-00-06
-  condition: 'DEL-15-03 needs DEL-00-06 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS, anchor DELIVERABLE,
-    origin CONTEXT, explicitness EXPLICIT, and satisfaction SATISFIED normalized to dependency-extract
-    enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A diagnostic carries code, class, severity, source, affected object, message and remediation,
+    and provenance where the finding concerns a sourced value; a boundary may declare local classes; and a diagnostic carried across a boundary keeps
+    every field other than its class, which changes only by the receiving boundary's stated mapping
+    where that boundary's schema requires its own class vocabulary.
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-07
-  condition: 'DEL-15-03 needs DEL-00-07 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS, anchor DELIVERABLE,
-    origin CONTEXT, explicitness EXPLICIT, and satisfaction SATISFIED normalized to dependency-extract
-    enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-08
-  condition: 'DEL-15-03 needs DEL-00-08 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type ARCHITECTURE_BASIS, anchor DELIVERABLE,
-    origin CONTEXT, explicitness EXPLICIT, and satisfaction SATISFIED normalized to dependency-extract
-    enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-15-01
-  condition: 'DEL-15-03 needs DEL-15-01 as a predecessor: Export workflow consumes canonical handoff package
-    schema.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type INTEROP_PREDECESSOR, anchor DELIVERABLE,
-    origin GRAPH_REVIEW, explicitness INFERRED_DIRECT, and satisfaction UNKNOWN normalized to dependency-extract
-    enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Producing a handoff package or an export record from one
+  condition: >-
+    The handoff package contract states the members of a package (the model member, the manifest
+    member and any further member, each listed in the member inventory), how each part of the manifest
+    is derived from the model member, and the rules by which a package verifies: every JSON member is
+    its own RFC 8785 text, the model hash is SHA-256 of the model member, and the checksums are the
+    member inventory.
   gating: true
-  evidence: execution/PKG-15/DEL-15-03/ScopeOfWork.md
 - from: DEL-15-02
-  condition: 'DEL-15-03 needs DEL-15-02 as a predecessor: Export workflow consumes target mapping records.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type INTEROP_PREDECESSOR, anchor DELIVERABLE,
-    origin GRAPH_REVIEW, explicitness INFERRED_DIRECT, and satisfaction UNKNOWN normalized to dependency-extract
-    enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Assembling the target step's export record
+  condition: >-
+    A target-mapping contract carries mapping records, unsupported and approximate behaviour flags
+    with closed statuses, and a source context that names the model hash and units manifest of the
+    package it maps.
   gating: true
-  evidence: execution/PKG-15/DEL-15-03/ScopeOfWork.md
-- from: DEL-10-02
-  condition: 'DEL-15-03 needs DEL-10-02 as a predecessor: Export workflow consumes adapter framework contracts.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type INTEROP_PREDECESSOR, anchor DELIVERABLE,
-    origin GRAPH_REVIEW, explicitness INFERRED_DIRECT, and satisfaction UNKNOWN normalized to dependency-extract
-    enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-15-04
+  when: Screening a target description and the export record for authority wording
+  condition: >-
+    The authority-wording screen reports any value that contains wording of approval, certification,
+    sealing, authentication, compliance, external validation, acceptance or prover status.
   gating: true
-  evidence: execution/PKG-15/DEL-15-03/ScopeOfWork.md
-- from: DEL-10-03
-  condition: 'DEL-15-03 needs DEL-10-03 as a predecessor: Export workflow aligns with local FEA handoff
-    contracts.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type INTEROP_PREDECESSOR, anchor DELIVERABLE,
-    origin GRAPH_REVIEW, explicitness INFERRED_DIRECT, and satisfaction UNKNOWN normalized to dependency-extract
-    enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-01
+  condition: >-
+    The model document validator refuses a malformed document by a named code and path wherever a
+    document enters or changes; the desktop profile names the members the desktop requires to open
+    and save a document, and every document the desktop writes satisfies it; a document's hash is
+    taken over its RFC 8785 canonical text; and a saved document reopens with equal content and the
+    same model hash.
   gating: true
-  evidence: execution/PKG-15/DEL-15-03/ScopeOfWork.md
+- from: DEL-02-02
+  when: Building a package's units manifest
+  condition: >-
+    A project carries a unit for every unit key, each an exact symbol of the unit catalogue, and an
+    export that takes a unit from the project units is refused by name when that key is missing.
+  gating: true
+- from: DEL-08-02
+  condition: >-
+    Every surface that hashes JSON uses the one canonical form, so that the same value reaches the same
+    SHA-256 digest whichever path produced the text.
+  gating: true
 - from: DEL-12-02
-  condition: 'DEL-15-03 needs DEL-12-02 as a predecessor: Export workflow must preserve redaction/export
-    controls.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type SECURITY_PREDECESSOR, anchor DELIVERABLE,
-    origin GRAPH_REVIEW, explicitness INFERRED_DIRECT, and satisfaction UNKNOWN normalized to dependency-extract
-    enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The route catalogue holds a local-private-only route for saving a model document and one for
+    saving a handoff package; a local-private-only route is refused in any other context, and a
+    local-private export is blocked without the wrapper's stated intent; the native save refuses
+    content with a blocked disposition before the save dialog; and a route the caller marks lossless
+    is withheld whole when any value would be redacted, omitted or blocked; and in the downstream-tool
+    context private and unresolved values are redacted unless their metadata supports the handoff, and
+    every decision that is not a plain inclusion is returned as a finding beside the controlled payload.
   gating: true
-  evidence: execution/PKG-15/DEL-15-03/ScopeOfWork.md
-- from: DEL-13-04
-  condition: 'DEL-15-03 needs DEL-13-04 as a predecessor: Export workflow consumes physical-to-analytical
-    transform output.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type DOMAIN_MODEL, anchor DELIVERABLE,
-    origin GRAPH_REVIEW, explicitness INFERRED_DIRECT, and satisfaction UNKNOWN normalized to dependency-extract
-    enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-14-01
+  when: Basing a handoff package on a saved state
+  condition: >-
+    The project store lists a project's saved states with their model hashes, saves a new immutable
+    state of a stated kind, and refuses on read a state that no longer agrees with its recorded hashes.
   gating: true
-  evidence: execution/PKG-15/DEL-15-03/ScopeOfWork.md
-- from: DEL-14-05
-  condition: 'DEL-15-03 needs DEL-14-05 as a predecessor: Export workflow consumes comparison export contracts.
-
-
-    Notes: Preserved from approved DAG-002 mirror; original DAG type PERSISTENCE_CONTRACT, anchor DELIVERABLE,
-    origin GRAPH_REVIEW, explicitness INFERRED_DIRECT, and satisfaction UNKNOWN normalized to dependency-extract
-    enums; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-14-02
+  when: Checking a package's rule-pack references against the local store
+  condition: >-
+    A model's rule-pack reference resolves only to a pack the local store holds with the referenced
+    identity, version and checksum; a reference to an absent pack and one whose stored pack has another
+    checksum are each a named diagnostic.
   gating: true
-  evidence: execution/PKG-15/DEL-15-03/ScopeOfWork.md
+- from: DEL-03-07
+  when: Checking a package's library references against the local store
+  condition: >-
+    The local library store holds one document per project, library kind and library identifier, and
+    keeps only an import accepted as private and local.
+  gating: true
+- from: DEL-08-01
+  condition: >-
+    The atomic file writer replaces a file whole or leaves it as it was, for a file format its caller
+    admits.
+  gating: false
 code_paths:
-- core/handoff/exporter/workflow.py
-- schemas/handoff_package.schema.json
-- schemas/target_mapping.schema.json
-- apps/desktop/src/features/handoff/HandoffPanel.tsx
-- apps/desktop/src/features/native-package/NativePackagePanel.tsx
+# The target-neutral export step and its invented target.
+- core/handoff/exporter/**
+- fixtures/handoff/invented_target_fixture.json
+# Save Handoff: the manifest built from the session's model and store, the package's publication,
+# and the product's implementation of DEL-15-01's verification rules, which the save runs before
+# and after it publishes.
+- apps/desktop/src-tauri/src/handoff_package.rs
+- apps/desktop/src-tauri/src/handoff_package_publish.rs
+- fixtures/handoff/rule_pack_ref_resolution_vectors.json
+# DEL-07-12 owns the Exports panels under features/handoff, HandoffPanel among them. The save request
+# and its dialog are this deliverable's.
+- apps/desktop/src/features/handoff/handoffPackageSave.ts
+- apps/desktop/src/features/handoff/HandoffSaveDialog.tsx
+# Save Model Document. DEL-07-11 owns the File menu and the dispatch of its commands; what the save
+# writes, re-checks and refuses is this deliverable's.
+- apps/desktop/src-tauri/src/model_document_save.rs
+# The native port of the desktop-profile shape check. What the desktop profile requires is
+# DEL-02-01's, with its TypeScript twin and the shared cases that keep the two verdicts equal; that
+# the save runs the check on the exact bytes it writes is this deliverable's.
+- apps/desktop/src-tauri/src/model_document_shape.rs
+- apps/desktop/src/features/model-file/modelDocumentSave.ts
+- apps/desktop/src/features/model-file/ModelDocumentSaveDialog.tsx
 checks:
 - tests/test_handoff_export_workflow.py
 - tests/test_handoff_package_witness.py
-- apps/desktop/src/features/handoff/HandoffPanel.test.tsx
-- apps/desktop/src/features/native-package/NativePackagePanel.test.ts
-- apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
-- apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
-- apps/desktop/e2e/r2-smoke.spec.ts
+- apps/desktop/src/features/handoff/handoffPackageSave.test.tsx
+- apps/desktop/src/features/model-file/modelDocumentSave.test.tsx
+- apps/desktop/src/features/model-file/modelDocumentShape.parity.test.ts
+- apps/desktop/src/services/rulePackRefResolutionParity.test.ts
+- tests/security/test_redaction_export_controls.py
+- apps/desktop/native-smoke/run.mjs

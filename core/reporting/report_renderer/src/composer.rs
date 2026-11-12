@@ -80,7 +80,7 @@ pub const RESULT_STRESSES: &str = "result_stresses";
 pub const RESULT_SUPPORT_LOADS: &str = "result_support_loads";
 pub const RESULT_OTHER_ROWS: &str = "result_other_rows";
 
-/// The family sections, which `result_rows_all` excludes (§2.3, overlap).
+/// The family sections, which `result_rows_all` excludes (overlap).
 pub const FAMILY_SECTIONS: [&str; 5] = [
     RESULT_DISPLACEMENTS,
     RESULT_FORCES_MOMENTS,
@@ -102,7 +102,7 @@ pub const PARENT_MODEL_INPUT_SUMMARY: &str = "model_input_summary";
 pub const PARENT_LOAD_CASES: &str = "load_cases";
 pub const PARENT_RESULTS: &str = "results";
 
-/// One composable section of the closed catalogue (§2.2).
+/// One composable section of the closed catalogue.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct CatalogueEntry {
     pub id: &'static str,
@@ -112,8 +112,8 @@ pub struct CatalogueEntry {
     pub parent: &'static str,
 }
 
-/// The closed catalogue of composable sections, in catalogue order (§2.2):
-/// the result sections, then the model-input sections (slice C5, §2.7).
+/// The closed catalogue of composable sections, in catalogue order:
+/// the result sections, then the model-input sections (slice C5).
 pub const CATALOGUE: [CatalogueEntry; 11] = [
     CatalogueEntry {
         id: RESULT_ROWS_ALL,
@@ -188,7 +188,7 @@ pub fn catalogue_entry(id: &str) -> Option<&'static CatalogueEntry> {
     CATALOGUE.iter().find(|entry| entry.id == id)
 }
 
-/// The user's report composition (§2.3). Closed: no other member is admitted
+/// The user's report composition. Closed: no other member is admitted
 /// at any depth, and the shared object-form check refuses a positional form.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -595,7 +595,7 @@ fn check_in(composition: &ReportComposition, carried: Option<&BTreeSet<&str>>) -
             refusals.push(format!("{COMPOSITION_OPTION_INVALID}: {at}.view.limit applies only to the {VIEW_LARGEST} view"));
         }
         if let CaseSelection::Cases(cases) = &section.cases {
-            // A model-input section shows no result row: all cases only (§2.7).
+            // A model-input section shows no result row: all cases only.
             if model_input::is_model_input(entry.id) {
                 refusals.push(format!(
                     "{COMPOSITION_OPTION_INVALID}: {at}.cases is not all, the only cases {} takes",
@@ -743,7 +743,7 @@ pub fn compose(
 }
 
 /// The input's composition refusals, each a blocking reason: without a
-/// composition, only model-input tables carried without one (§2.7).
+/// composition, only model-input tables carried without one.
 pub fn composition_blocking_reasons(input: &RenderableReportInput) -> Vec<String> {
     match applied(input) {
         None => model_input::unlisted_tables_refusal(input.model_input_tables.as_ref())
@@ -851,7 +851,7 @@ pub fn composition_sha256(composition: &ReportComposition) -> String {
 // ---------------------------------------------------------------------------
 // Assembled blocks
 
-/// The coverage line (§2.6).
+/// The coverage line.
 pub fn coverage_text(composed: &Composed) -> String {
     format!(
         "Result rows shown: {} of {}.",
@@ -977,7 +977,7 @@ pub(crate) fn results_blocks(rows: &[ResultRow], composed: &Composed) -> Vec<Sec
     blocks
 }
 
-/// The model-input subsections of governed section `parent` (§2.7), in list
+/// The model-input subsections of governed section `parent`, in list
 /// order within it.
 pub(crate) fn model_input_blocks(
     parent: &str,
@@ -987,7 +987,7 @@ pub(crate) fn model_input_blocks(
     model_input::parent_blocks(parent, &composed.sections, tables)
 }
 
-/// The Audit Manifest's Report Composition table (§2.6): every catalogue
+/// The Audit Manifest's Report Composition table: every catalogue
 /// entry, included (with its position, cases and view) or omitted, and the
 /// composition's SHA-256.
 pub(crate) fn audit_blocks(

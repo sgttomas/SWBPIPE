@@ -74,7 +74,7 @@ pub fn mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)>
             row(e, "pipe_wall_axial_force_v2", "pipe:BEND", "midspan")["metadata"]["sign_convention"] =
                 json!("tension-positive material wall section resultant Nw");
         }), "ROW_SEMANTICS"),
-        // T4-U6 (D-5 §2.1, §2.5): the straight's hoop row is published on both
+        // the straight's hoop row is published on both
         // section bases, each id ending in its basis; the arc copy keeps the pair.
         ("arc hoop row", Box::new(|e: &mut Value| {
             let twins: Vec<Value> = rows(e)
@@ -196,7 +196,7 @@ fn measures(e: &mut Value) -> &mut Vec<Value> {
     e["contract_evidence"]["exact_cases"][0]["intensified_measures"].as_array_mut().unwrap()
 }
 
-/// T4-U4b (§2.4): directional intensified rows on the directional-SIF arc case.
+/// directional intensified rows on the directional-SIF arc case.
 #[allow(clippy::type_complexity)]
 pub fn directional_mutations() -> Vec<(&'static str, Box<dyn Fn(&mut Value)>, &'static str)> {
     vec![

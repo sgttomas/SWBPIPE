@@ -2,414 +2,104 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-08-03
 package_id: PKG-08
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-024]
 package_objective_refs: [OBJ-007, OBJ-011]
 ---
 
-# Scope of Work — DEL-08-03
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-08-03 Warnings, assumptions, and provenance report section
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-08-03` in service of project scope [SOW-024] and package objectives [OBJ-007, OBJ-011].
+A reviewer reading a calculation report finds, in one section, everything that qualifies the results: what was missing, what the software warned about, what was assumed, which values the user supplied, and where each of those values came from. Nothing in that section is the report's own judgment. It shows what the solver, the rule check, the model and the library store said, and it shows a gap as a gap.
 
-- **OUT-001** — A report-section contract covering warnings, assumptions, missing solve and rule inputs, user-supplied values, provenance, units, reproducibility references, and professional-review notices is produced.
+This deliverable contributes the section's records and the rules for what the section discloses and when a record may appear at all. The calculation report (DEL-08-01) renders the section and applies its rules as report gates.
+
+It serves SOW-024 under OBJ-007 and OBJ-011 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-08, row DEL-08-03), and PRD FR-REP-003 (a report identifies sources or source notes for user-supplied data), §19.1 (the warning and assumption report), §19.2 (source and provenance summary, warnings, unresolved assumptions), §20.2 (the provenance record) and §5.5 (no silent engineering defaults). It supports the release target's exit criterion 4, which DEL-08-01 owns.
+
+- **OUT-001** — The warnings, assumptions and provenance section: its record definitions and schema, its validation, and the disclosure and disposition rules a report applies to it (REQ-001 to REQ-015).
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-08-03 Warnings, assumptions, and provenance report section
+The section has six groups, each fed by records it does not create:
 
-> #### Datasheet: DEL-08-03 Warnings, assumptions, and provenance report section
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- **Missing data:** a solve-required or rule-required input that is absent.
+- **Warnings:** the diagnostics of the solve, the rule check, the model and the library store.
+- **Assumptions:** what the user or the model assumed and a reviewer must look at.
+- **User-supplied values:** values that came from the user, a private library or a rule pack, marked as such.
+- **Provenance notes:** the source record of each material, section, component and support that carries one.
+- **Library records:** the libraries the model refers to.
 
-### CLM-003 — Identification
+A **diagnostic** is the record DEL-00-06 defines: code, class, severity, source, affected object, message, remediation and provenance. The product's six warning classes are solve blocking, rule-check blocking, provenance, assumption, nonlinear and IP boundary; a boundary may also declare local classes.
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-08-03 |
-> | Deliverable Name | Warnings, assumptions, and provenance report section |
-> | Package ID | PKG-08 |
-> | Package Name | Reporting, Audit, and Reproducibility |
-> | Deliverable Type | BACKEND_FEATURE_SLICE |
-> | Scope Item | SOW-024 |
-> | Objectives | OBJ-007, OBJ-011 |
-> | Context Envelope | M |
-> | Lifecycle Location | `execution/PKG-08/DEL-08-03/` |
->
+A **provenance record** has the seven fields of PRD §20.2 (source name, source location, source licence, contributor, contributor certification, redistribution status, review status) and a privacy classification. A field the source does not give reads "not recorded"; an absent redistribution status reads "unknown" and an absent review status "pending". Review status is the user's own review of the source data; the software never sets or advances it.
 
-### CLM-004 — Attributes
+A **library record** entry is safe metadata only: the library's kind, identity and version, the record, and the model entities that refer to it. No library value or record content enters the section.
 
-> ##### Attributes
->
-> | Attribute | Value | Source |
-> |---|---|---|
-> | Report section subject | Missing data, warnings, assumptions, user-supplied values, and source/provenance notes | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-08-03 |
-> | Parent report scope | Auditable calculation reports including inputs, sources, warnings, assumptions, results, rule-pack checksums, and limitations | `docs/_Registers/ScopeLedger.csv` row SOW-024 |
-> | Professional boundary | Software assists analysis and does not authenticate engineering work | `_CONTEXT.md`; `docs/CONTRACT.md` OPS-K-AUTH-1 |
-> | Protected-content boundary | Public templates/examples must not reproduce protected standards text, tables, figures, examples, copied formulas, allowables, SIF/flexibility tables, or proprietary commercial data | `docs/CONTRACT.md` OPS-K-IP-1 and OPS-K-REPORT-2 |
-> | Data boundary | Code-specific values are user-supplied or lawfully imported private data, not bundled defaults | `docs/CONTRACT.md` OPS-K-DATA-1 |
-> | Missing data treatment | Missing solve-required or rule-check-required values are explicit findings, never silent defaults | `docs/CONTRACT.md` OPS-K-DATA-2 |
-> | Provenance treatment | Materials, components, SIFs, flexibility factors, allowables, and rule-pack values carry provenance fields | `docs/CONTRACT.md` OPS-K-DATA-3 |
-> | Diagnostics basis | Diagnostics/result envelopes carry code, class, severity, source, affected object, message, remediation, and provenance | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06 |
->
+The **report context** is the export context the report is rendered under (DEL-12-02's vocabulary). The rules below distinguish a local-private report from every other context.
 
-### CLM-005 — Conditions
+Boundary:
 
-> ##### Conditions
->
-> Current deliverable obligation: implement report sections that expose missing data, assumptions, user-supplied values, and source/provenance notes. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> | Condition | Datasheet Value |
-> |---|---|
-> | Implementation state for this setup run | Documentation/setup only; no report code is implemented in this session |
-> | Required upstream inputs | Diagnostic/result-envelope contract, warning classes, report generator integration point, audit manifest/hash metadata, and protected-content guardrails |
-> | User/private data handling | Report section may reference private rule-pack or source identifiers but must not expose protected/private content in public templates by default |
-> | Engineering values | No engineering values are created here; unknown or absent values remain `TBD` or report findings |
-> | Certification/compliance claims | Prohibited for software-generated report language |
-> | Unit handling | Rendered values must preserve units and dimensional context; value schemas are defined in `schemas/report_sections.schema.yaml` and `core/reporting/report_sections`, not in this Scope of Work |
->
-### CLM-006 — Construction
-
-> ##### Construction
->
-> The report section is a report-renderer subsection that consumes already-classified diagnostics and provenance metadata rather than creating new engineering judgments. The section should present the following report-facing groups:
->
-> | Group | Purpose | Boundary |
-> |---|---|---|
-> | Missing data | Expose absent solve-required or rule-check-required inputs | Do not infer or backfill engineering values |
-> | Warnings | Render diagnostic classes from GUI/core/result envelopes | Do not reclassify solver or rule-engine findings without evidence |
-> | Assumptions | Show user/model assumptions requiring review | Do not convert assumptions into accepted facts |
-> | User-supplied values | Identify values supplied by users, private libraries, or rule packs where report-facing provenance is needed | Do not reproduce protected source content |
-> | Source/provenance notes | Summarize source identity, license/redistribution status, checksum/ref where applicable, and review status where available | Do not claim legal sufficiency or professional acceptance |
-> | Professional notice | State the software output is decision support and requires competent human review before reliance | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
->
-
-### CLM-007 — Provenance Payload Field Inventory
-
-> ###### Provenance Payload Field Inventory
->
-> Diagnostic trace, source record, rule-pack reference and review-disposition fields must follow `schemas/report_sections.schema.yaml` and `core/reporting/report_sections/src/lib.rs` (`Diagnostic`, `Provenance`, `ReportSections`). Carry source identity/license or redistribution status, class/severity/affected object/remediation, rule-pack version/checksum/privacy and review status through assembly. Missing required data remains explicit; this inventory reference does not waive producer/consumer parity or professional-boundary obligations.
->
-> Current implementation: `core/reporting/report_renderer/src/lib.rs` renders these records as the `warnings_assumptions_provenance` section. On the desktop, `apps/desktop/src/features/report/renderableReportInput.ts` supplies the result diagnostics, a session provenance record classified `private_project_data` / `private_only`, the component and spring-hanger records, a record for each material and section and for each support that carries a `provenance_record` (from that record where present, else from the entity's `provenance` note; a component's record is likewise taken from its `provenance_record` where present), and the model's library references, with the library store's `MODEL-LIBRARY-REF-UNRESOLVED` and `MODEL-LIBRARY-REF-VERSION-CHANGED` findings as provenance warnings; CLM-006 of DEL-08-01 records the current desktop render route and its refusals.
-
-### CLM-008 — References
-
-> ##### References
->
-> | Reference | Used For |
-> |---|---|
-> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Deliverable identity, package scope, architecture basis injection |
-> | `_REFERENCES.md` | Local reference list for this deliverable |
-> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable row, anticipated artifacts, context notes |
-> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-024 scope statement and protected-content note |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-08 and DEL-08-03 decomposition context; AB-00 architecture basis |
-> | `docs/CONTRACT.md` | Applicable invariants for reports, data, IP, rule packs, privacy, units, and agent outputs |
-> | `docs/SPEC.md` | Reporting/audit requirements and warning class vocabulary |
-> | `docs/TYPES.md` | Analysis-status, epistemic, provenance, and report vocabulary |
-> | `docs/DIRECTIVE.md` | Product boundaries, stop rules, and professional responsibility principles |
-> | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data and report boundary policy |
-> | `docs/VALIDATION_STRATEGY.md` | Report reproducibility and protected-content validation expectations |
+- **CLM-001** — The report's assembly, rendering, gating and notice are DEL-08-01's. In the renderer and in the desktop's report input builder, this deliverable's part is the content of this section: which records are built for it and what each says. The audit manifest is DEL-08-02's, the protected-content lint DEL-08-05's, and the classification of export contexts DEL-12-02's.
+- **CLM-002** — The section creates no engineering meaning. It does not classify, grade or resolve a finding, infer a missing message, source or severity, or state a disposition a person has not recorded.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-009 — Specification: DEL-08-03 Warnings, assumptions, and provenance report section
+- **REQ-001** — Missing solve-required and rule-required data appear as explicit findings (also cited as DEL-08-03-REQ-001). Source: PRD §5.5, §17.5.
+- **REQ-002** — The section renders the warning class each diagnostic arrives with, each as its own class: the six warning classes (solve blocking, rule-check blocking, provenance, assumption, nonlinear and IP boundary) and any local class its schema declares (also cited as DEL-08-03-REQ-002). Source: decomposition AB-00-06; DEL-00-06/REQ-002.
+- **REQ-003** — Each warning and assumption keeps the trace data supplied with it: code, class, severity, source, affected object, message, remediation and provenance (also cited as DEL-08-03-REQ-003). Source: decomposition AB-00-06.
+- **REQ-004** — User-supplied values and rule-pack references are identified as user-supplied or private, with their source notes, and with the rule pack's identity and checksum where the rule check supplies them (also cited as DEL-08-03-REQ-004). Source: PRD §5.4, §19.2.
+- **REQ-005** — The section is rendered only inside a report that carries the PRD §19.3 notice, and any boundary wording in the section is a registered statement of `docs/claims_registry.md`, word for word (also cited as DEL-08-03-REQ-005). Source: PRD §19.3; DEL-01-04/REQ-011.
+- **REQ-006** — No public template or example of the section reproduces protected code text, standards tables, copyrighted examples, copied formulas, material allowables, SIF or flexibility tables, protected dimensional tables or proprietary commercial data (also cited as DEL-08-03-REQ-006). Source: PRD §19.4.
+- **REQ-007** — A unit-bearing value in the section is shown with its unit (also cited as DEL-08-03-REQ-007). Source: PRD §5.6.
+- **REQ-008** — The section keeps mechanics solved, user-rule checked, incomplete data and human review required apart, and shows none of them as code compliance (also cited as DEL-08-03-REQ-008). Source: PRD FR-REP-002, §21.2.
+- **REQ-009** — The section's records refer to the run they qualify by the model hash, the software and solver versions and the rule-pack checksum that the audit manifest supplies (also cited as DEL-08-03-REQ-009). Source: SOW-024; PRD §19.2.
+- **REQ-010** — A missing source or provenance is itself reported, as a provenance warning, and is never left out (also cited as DEL-08-03-REQ-010). Source: PRD §5.5, §20.2.
+- **REQ-011** — If automated protected-content lint is unavailable, a change to the section remains subject to explicit human review, and a lint that did not run is never counted as passed (also cited as DEL-08-03-REQ-011).
+- **REQ-012** — No text the section renders claims certification, approval, endorsement, sealing, authentication or automatic code compliance (also cited as DEL-08-03-REQ-012). Source: PRD §21.2.
+- **REQ-013** — On every solve route, the section carries a provenance record for each material, section, component and support whose model record gives a source, and a library record entry for each library the model refers to. The library store's findings on those references (a reference that does not resolve, a library whose version has changed) appear as provenance warnings naming the entity. Source: PRD FR-REP-003, §20.2.
+- **REQ-014** — A record whose redistribution status is protected-suspected, or whose review status is quarantined or rejected, is refused in every context. A private record is rendered only in a local-private report, except that a record classed as the user's own project data may appear in a user-released report under DEL-08-01's user release (DEL-12-02's `user_released_report` context); every other private class blocks there, and REQ-015 still governs authored text. A record whose redistribution, review or privacy status is unknown or undecided is rendered in a local-private report with a non-blocking warning that names the record and the unresolved field and says the source's status is not recorded; in every other context it blocks the report. Source: `docs/IP_AND_DATA_BOUNDARY.md` §5, §6.
+- **REQ-015** — Text the user authored in a provenance record, a path typed as a source location included, appears as written in local-private outputs. No other context carries these records, and a render refused for its provenance records returns no document body.
 
-> #### Specification: DEL-08-03 Warnings, assumptions, and provenance report section
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-011 — Scope
-
-> ##### Scope
->
-> This deliverable specifies the report section that exposes missing data, warnings, assumptions, user-supplied values, and source/provenance notes for SWBPIPE calculation reports.
->
-> In scope:
->
-> - report-facing requirements for warning, assumption, missing-data, and provenance disclosure;
-> - integration expectations for diagnostics/result-envelope data supplied by GUI/core/rule/report workflows;
-> - protected-content and professional-responsibility guardrails for public report templates;
-> - acceptance criteria and evidence expected from implementation work.
->
-> Out of scope:
->
-> - implementation of report renderer code in this setup session;
-> - report generator implementation owned by DEL-08-01;
-> - audit manifest/model hash implementation owned by DEL-08-02;
-> - result export format owned by DEL-08-04;
-> - protected-content linter implementation owned by DEL-08-05;
-> - creation or bundling of code-specific values, protected standards content, proprietary formulas, or professional acceptance records.
->
-
-### CLM-012 — Requirements
-
-> ##### Requirements
->
-> | Requirement ID | Requirement | Source | Verification |
-> |---|---|---|---|
-> | DEL-08-03-REQ-001 | The report section shall expose missing solve-required and rule-check-required data as explicit report findings. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)| Report fixture or snapshot includes missing-data findings without default values |
-> | DEL-08-03-REQ-002 | The report section shall render warning classes supplied by diagnostics/result envelopes, including solve blocking, rule-check blocking, provenance, assumption, nonlinear, and IP-boundary warnings where present. | `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections); `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06 | Fixture covers each supported warning class and preserves class/severity/code |
-> | DEL-08-03-REQ-003 | Each rendered warning or assumption shall preserve machine-readable trace data when supplied: code, class, severity, source, affected object, message, remediation, and provenance. | `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-06 | Schema/snapshot test confirms trace fields are retained or explicitly marked `TBD` |
-> | DEL-08-03-REQ-004 | User-supplied values and rule-pack references shall be identified as user-supplied or private where applicable, with source/provenance notes and rule-pack identity/checksum references when supplied by upstream artifacts. | `docs/CONTRACT.md` OPS-K-DATA-1, OPS-K-DATA-3, OPS-K-RULE-3; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)| Report fixture shows source/provenance and rule-pack ref/checksum without embedding protected content |
-> | DEL-08-03-REQ-005 | The report section shall include a professional-responsibility notice stating that professional reliance requires competent human review and that software output is decision support. | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)| Snapshot or template check finds the notice and rejects certification/approval language (PRD §21.2) |
-> | DEL-08-03-REQ-006 | The report section shall not reproduce protected code text, protected standards tables, copyrighted examples, copied code formulas, material allowables, SIF/flexibility tables, protected dimensional tables, or proprietary commercial data in public templates/examples. | `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-REPORT-2; `docs/IP_AND_DATA_BOUNDARY.md` Section 7 | Protected-content lint and review evidence pass for public templates/examples |
-> | DEL-08-03-REQ-007 | The report section shall preserve unit context for any rendered values and shall not display unit-bearing values without their units when units are supplied. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)| Report fixture includes unit-bearing values with units and rejects unitless display where units exist |
-> | DEL-08-03-REQ-008 | The report section shall distinguish mechanics-solved, user-rule-checked, incomplete-data, and human-review-required states without presenting software-generated code compliance. | `docs/TYPES.md` Section 4; `docs/CONTRACT.md` OPS-K-MECH-2 and OPS-K-AUTH-1 | Status fixture avoids `CODE_COMPLIANT` and includes human-review-required boundary language |
-> | DEL-08-03-REQ-009 | The report section shall support reproducibility by referencing model/report metadata supplied by audit manifest work, including model hash, software/solver version, and rule-pack checksum when present. | `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections); `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-04 | Integration fixture consumes manifest fields by reference or marks unavailable fields `TBD` |
-> | DEL-08-03-REQ-010 | Missing source/provenance shall itself be reportable as a provenance warning rather than silently omitted. | `docs/CONTRACT.md` OPS-K-DATA-2, OPS-K-DATA-3; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)| Fixture with `UNKNOWN_SOURCE` or missing source emits a provenance warning |
-> | DEL-08-03-REQ-011 | If automated protected-content lint is unavailable during early implementation, the report-section change shall remain subject to explicit human review and shall record the unavailable lint gate as an open verification item. | `docs/CONTRACT.md` OPS-K-IP-1 and OPS-K-REPORT-2; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` Review checklist | Review evidence records lint status and human review requirement |
-> | DEL-08-03-REQ-012 | Report-section tests or review checks shall reject language that claims software certification, approval, endorsement, sealing, authentication, or automatic code compliance (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/DIRECTIVE.md` Section 4.2 | Snapshot/lint/review check covers prohibited claim language |
->
-
-### CLM-013 — Standards
-
-> ##### Standards
->
-> No protected standards text is required or authorized for this deliverable. Governing standards-body content is intentionally not embedded in public artifacts. Applicable project standards are the SWBPIPE governance artifacts listed in `_REFERENCES.md`, especially `docs/CONTRACT.md`, `docs/SPEC.md`, `docs/TYPES.md`, `docs/IP_AND_DATA_BOUNDARY.md`, and `execution/_Decomposition/SOFTWARE_DECOMP.md`.
->
-
-### CLM-014 — Verification
-
-> ##### Verification
->
-> The implementation should provide at least these checks (current tests: `core/reporting/report_renderer/tests/render.rs` and the test module of `core/reporting/report_sections/src/lib.rs`; per-row coverage is not asserted here):
->
-> | Check | Purpose |
-> |---|---|
-> | Warning fixture coverage | Verifies rendering for each supported warning class without reclassification |
-> | Missing-data fixture | Verifies absent solve/rule data appears as a finding and not a default |
-> | Provenance fixture | Verifies source/provenance fields, private/public status, and `UNKNOWN_SOURCE` handling |
-> | Professional-boundary snapshot | Verifies the notice is present and prohibited certification/compliance language is absent |
-> | Protected-content lint | Verifies public templates/examples do not embed protected standards content |
-> | Lint fallback review | Verifies unavailable protected-content lint is recorded as an open verification item and does not advance silently |
-> | Prohibited-claim check | Verifies report text avoids certification, approval, endorsement, sealing, authentication, and automatic code-compliance claims (PRD §21.2) |
-> | Unit display check | Verifies unit-bearing values are rendered with units |
-> | Reproducibility reference check | Verifies manifest/hash/rule-pack checksum fields are referenced when supplied |
->
-
-### CLM-015 — Documentation
-
-> ##### Documentation
->
-> Required setup artifacts for this run:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/*`
-> - `_STATUS.md`
->
-> Production artifacts named by the register, now implemented in `core/reporting/report_sections` and `core/reporting/report_renderer` with their tests:
->
-> - report provenance section;
-> - tests.
-- **AC-001** — The contract preserves upstream diagnostic class, severity, source, affected object, message, remediation and provenance when supplied; exposes missingness rather than defaulting it; and protects private/protected content. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+- **AC-001** — Every diagnostic and every assumption supplied to the section appears in it with its code, class, severity, source, affected object, message, remediation and provenance equal to those supplied. None is reclassified, merged or dropped, and each of the six classes is shown as its own class. Verify with VER-001.
+- **AC-002** — A missing solve-required value and a missing rule-required value each appear as a finding of their own class with no value in place of the missing one, and a value with no source appears with a provenance warning. No rule outcome is shown for a check whose inputs are missing. Verify with VER-002.
+- **AC-003** — For an invented model with materials, sections, components, supports and library references, on the pressure-free route and on the exact route, the section holds one provenance record per sourced entity with the seven fields and the privacy classification, "not recorded" for each absent field, and one library record entry per distinct library reference with no library value in it. An unresolved reference and a changed library version each appear as a provenance warning naming the entity. Each user-supplied value and rule-pack reference is marked user-supplied or private with its source note, with the rule pack's identity and checksum where the rule check supplies them, and no rule-pack content. Verify with VER-003.
+- **AC-004** — The same input rendered under each report context gives the dispositions of REQ-014: the three refused statuses refuse in every context; an unknown or undecided status gives a named, non-blocking warning in a local-private report and a blocked report elsewhere, a user-released report included; a resolved private record renders in a local-private report and blocks elsewhere, except that under a user release a record classed as the user's own project data renders and one of any other private class blocks; and a blocked render returns no document body. Authored record text in a local-private report equals the text entered. Verify with VER-004.
+- **AC-005** — A report holding each analysis status shows the four states of REQ-008 as distinct states, shows every unit-bearing value of the section with its unit, refers to its run by the manifest's identities, and contains no claim REQ-012 names; and every boundary statement in the section equals a registered statement of `docs/claims_registry.md`. Verify with VER-005.
+- **AC-006** — Every record the product places in the section validates against the section's schema; the schema requires the trace fields of REQ-003; and the schema admits each of the six warning classes. Verify with VER-006.
+- **AC-007** — The public template and examples of the section contain none of the content REQ-006 names. Verify with VER-007.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-016 — Procedure: DEL-08-03 Warnings, assumptions, and provenance report section
+Choices that define the product:
 
-> #### Procedure: DEL-08-03 Warnings, assumptions, and provenance report section
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- The section is a consumer. Its records are built from what the producing layer said, and a field the producer left out stays out, shown as not recorded.
+- The disposition of a provenance record is decided from the record's own statuses and the report's context, at the point where the section is validated. The webview's screening is not the authority; the validating layer is.
+- Review status is copied from the record. Writing "pending" for every record would hide a rejected or quarantined source, so it is not done.
+- Library references are resolved by the library store's own check. The section adds no second resolution rule.
 
-### CLM-018 — Purpose
-
-> ##### Purpose
->
-> This procedure describes how a TASK implementation produces, changes and verifies the warnings, assumptions, and provenance report section under an active bounded brief, while preserving the sealed scope, protected-data boundary, diagnostics/result-envelope boundary, and professional-responsibility boundary.
->
-
-### CLM-019 — Prerequisites
-
-> ##### Prerequisites
->
-> Current deliverable obligation: implement report sections that expose missing data, assumptions, user-supplied values, and source/provenance notes. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> | Prerequisite | Expected Source | Status |
-> |---|---|---|
-> | Sealed DEL-08-03 brief and explicit write scope | `_CONTEXT.md` and human dispatch | Available for setup |
-> | Applicable invariants and architecture basis | `docs/CONTRACT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08 | Available for setup |
-> | Diagnostics/result-envelope contract | AB-00-06; `schemas/report_sections.schema.yaml` and `core/reporting/report_sections` (CLM-007) | Available; consumed by `core/reporting/report_renderer` |
-> | Report generator integration point | DEL-08-01 | Upstream/integration dependency |
-> | Audit manifest/hash metadata | DEL-08-02 | Upstream/integration dependency |
-> | Warning data from GUI/core | DEL-07-04, DEL-07-07, solver/rule diagnostics deliverables | Upstream/integration dependency |
-> | Protected-content guardrail | DEL-08-05 and IP/data policy | Upstream/integration dependency for linter implementation |
->
-### CLM-020 — Steps
-
-> ##### Steps
->
-> 1. Confirm scope.
->    - Verify the work remains limited to DEL-08-03 report-section behavior.
->    - Do not implement unrelated report generator, manifest, export, linter, GUI, solver, or rule-engine code.
->
-> 2. Identify input payloads.
->    - Use diagnostics/result envelopes as the source for warning class, code, severity, source, affected object, message, remediation, and provenance.
->    - Use report/audit manifest inputs for software version, solver version, model hash, rule-pack name/version/checksum, and source notes where supplied.
->    - Mark unavailable fields `TBD` instead of inventing values.
->
-> 3. Map report subsections.
->    - Missing data findings.
->    - Warnings grouped or filterable by class/severity/source.
->    - Assumptions requiring review.
->    - User-supplied values and private/public source status.
->    - Source/provenance summary.
->    - Professional-responsibility and protected-content notices.
->
-> 4. Preserve boundaries.
->    - Do not reproduce protected standards text, copied standards tables, copied code formulas, material allowables, SIF/flexibility tables, protected dimensional tables, or proprietary vendor data in public templates/examples.
->    - Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
->    - Do not transmit or publish private project/rule-pack/library data by default.
->    - Bind final professional-boundary wording to a canonical product-claims policy or approved report notice when available; until then, keep wording conservative and mark exact final text `TBD`.
->
-> 5. Implement or refresh report fixtures.
->    - Include at least one fixture for each warning class listed in the diagnostics basis where upstream fixtures exist.
->    - Include fixtures for missing solve data, missing rule-check data, missing provenance, assumptions, private rule-pack reference, and human-review-required status.
->    - Use invented/non-code data only for public examples.
->
-> 6. Verify output.
->    - Run report snapshot or equivalent tests for expected section content.
->    - Run protected-content lint once DEL-08-05 or equivalent tooling is available.
->    - Confirm unit-bearing values retain units.
->    - Confirm status language distinguishes mechanics solve, user rule check, and human review.
->
-> 7. Record evidence.
->    - Keep required deliverable verification evidence in its designated artifact.
->    - In the PR, list changed report-section files and tests and account for validation commands/results.
->    - Keep current warnings, `TBD` fields, and open dependencies where successors use them.
->
-
-### CLM-021 — Verification
-
-> ##### Verification
->
-> | Verification Item | Acceptance Signal |
-> |---|---|
-> | Four-document setup | `python3 tools/scope_of_work/validate_scope_of_work.py <DELIVERABLE_PATH>/ScopeOfWork.md` passes |
-> | Semantic setup | `_SEMANTIC.md` exists and semantic audit records PASS |
-> | Lensing setup | `_SEMANTIC_LENSING.md` exists with complete matrix coverage |
-> | Dependency setup | `Dependencies.csv` validates against v3.1 schema |
-> | Dependency schema command | `python3 tools/validation/validate_dependencies_schema.py <deliverable_path>/Dependencies.csv` passes |
-> | Scope guard | No files outside the DEL-08-03 working folder are modified by this setup run |
-> | Protected-data guard | Public setup artifacts contain no protected standards text/tables/formulas or proprietary data |
-> | Professional-boundary guard | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
-> | Lint fallback guard | If protected-content lint tooling is unavailable, record that status as an open verification item requiring human review |
->
-### CLM-022 — Records
-
-> ##### Records
->
-> This setup run should leave these records in the deliverable folder:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/`
-> - `_STATUS.md`
-- **VER-001** — Validate the contract and review source parity, all warning and missing-data classes, trace-field preservation, unit and provenance visibility, manifest references, protected-content controls and fallback review, prohibited-claim language, and every retained TBD or governed residual.
+- **VER-001** — Executable check (observes the section's diagnostics and assumptions against a supplied set covering each class and each trace field): the supplied set is an invented input the check writes, and the expected result is equality with it.
+- **VER-002** — Executable check (observes the findings for an invented run with one missing solve input, one missing rule input and one value with no source, and the absence of any substituted value or rule outcome).
+- **VER-003** — Executable check (observes the provenance records and library entries built from an invented model on both routes, the warnings for an unresolved and a version-changed reference, and the marking, source note and rule-pack identity and checksum of each user-supplied value and rule-pack reference, for a private pack seeded with marker content): expected records are written by hand from the model's own entries and PRD §20.2's field list.
+- **VER-004** — Executable check (observes, for each report context, a user release included, and each status and privacy class, whether the record is refused, warned or rendered, whether the report is blocked, and whether a blocked render returns a body; compares authored text with the text entered).
+- **VER-005** — Executable check (observes the status display, unit display and manifest references in a rendered section, and compares each boundary statement in it with the registry's text) and judgment by a reviewer who did not write the section (reads its rendered text against `docs/claims_registry.md` and PRD §21.2).
+- **VER-006** — Executable check (validates the section records of every committed report input against the section's schema with a JSON Schema validator that is not the product's, and observes that the schema's class list includes the six warning classes).
+- **VER-007** — Executable check (runs the protected-content linter over the section's public template and examples) and judgment by a reviewer who did not write them (reads them for the content REQ-006 names). The linter is heuristic; the review is what decides.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-023 — Guidance: DEL-08-03 Warnings, assumptions, and provenance report section
-
-> #### Guidance: DEL-08-03 Warnings, assumptions, and provenance report section
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-025 — Purpose
-
-> ##### Purpose
->
-> This deliverable exists so calculation reports make uncertainty, missing inputs, assumptions, and provenance visible to professional reviewers. The section should help a reviewer see what the software computed, what the user supplied, and what remains incomplete; acceptance and professional judgment remain with the responsible engineer.
->
-
-### CLM-026 — Principles
-
-> ##### Principles
->
-> | Principle | Guidance |
-> |---|---|
-> | Findings over defaults | Missing solve-required or rule-check-required values should appear as explicit findings, not be filled by convenience defaults. |
-> | Provenance over opacity | Values affecting engineering reliance should carry source/provenance notes or a visible `TBD`/unknown-source finding. |
-> | Warnings preserve origin | Report rendering should carry diagnostic class, severity, source, affected object, and remediation from the producing layer when available. |
-> | Decision support only | Report language may support professional review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
-> | Protected-content restraint | Public templates/examples may identify rule-pack references and checksums but must not reproduce protected standards text, tables, copied formulas, or proprietary content. |
-> | Unit visibility | Values shown in the section should preserve unit context wherever units exist in upstream data. |
->
-
-### CLM-027 — Considerations
-
-> ##### Considerations
->
-> The report section should be a consumer of upstream diagnostics and provenance, not a source of new engineering meaning. If upstream data says a rule-pack input is missing, the report should expose that state. If a source note is missing, the report should expose that as a provenance warning. If a human has not accepted the output for project use, the report should not imply that acceptance.
->
-> The section should remain useful even when upstream components are incomplete. `TBD`, `UNKNOWN_SOURCE`, or missing manifest fields are acceptable setup outputs when the evidence is not available. They should be made visible rather than normalized away.
->
-> When upstream diagnostic or provenance fields are missing, the safer report behavior is to preserve the missingness as `TBD` or an explicit warning. Inferring a message, source, severity, or professional disposition inside the report renderer would create unaudited meaning and could blur the boundary between software output and engineering judgment.
->
-
-### CLM-028 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Preferred Direction |
-> |---|---|
-> | Readability vs audit detail | Keep the section readable, but retain machine-traceable warning/provenance fields in the report source data. |
-> | Private detail vs public safety | Public templates should reference private rule-pack/library identity, version, checksum, and source notes without exposing protected/private content by default. |
-> | Concise warnings vs remediation | Include enough remediation/source context for review; avoid turning warnings into instructions that imply professional acceptance. |
-> | Early implementation vs dependency maturity | Future code may begin with schema-backed fixtures and `TBD` integration points while upstream diagnostics, manifest, and linter deliverables mature. |
->
-
-### CLM-029 — Examples
-
-> ##### Examples
->
-> The following examples are invented reporting patterns only. They do not encode code-specific requirements or protected standards content.
->
-> | Scenario | Report Section Behavior |
-> |---|---|
-> | Rule-pack required input is absent | Show a rule-check blocking finding, affected object/reference if supplied, and remediation such as "provide required user/rule-pack input"; do not report a pass/fail code result. |
-> | Component value has no source note | Show the value only with its unit context if otherwise permitted, mark source/provenance as `UNKNOWN_SOURCE` or `TBD`, and emit a provenance warning. |
-> | User entered an assumption for a support condition | Show the assumption as user/model-supplied and requiring review; do not treat it as verified project acceptance. |
-> | Private rule pack is used | Show rule-pack name or ID, version, checksum, private/public status, and source notice if available; do not quote protected formulas or standards clauses in public templates. |
-> | Solver emitted nonlinear uncertainty | Show nonlinear warning class, severity, source, affected object, and remediation if supplied by the result envelope. |
->
-
-### CLM-030 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No unresolved source conflict found during setup. | N/A | N/A | N/A | N/A | N/A |
->
-
-### CLM-031 — Open Questions
-
-> ##### Open Questions
->
-> | Question ID | Question | Current Disposition |
-> |---|---|---|
-> | DEL-08-03-Q-001 | Exact report renderer API and template format | DEC-021 selects deterministic self-contained scriptless HTML and a derived print view; DEC-061 adds an in-repository deterministic PDF emitter at its bounded scope. Resolve report assembly and field contracts through `core/reporting/report_generator/`, `core/reporting/report_sections/`, and their schemas. These are implementation references, not new public transport or release acceptance. |
-> | DEL-08-03-Q-002 | Exact data contract for warning/provenance payloads | Use `schemas/report_sections.schema.yaml` and the corresponding `ReportSections`, `Diagnostic` and `Provenance` records in `core/reporting/report_sections/src/lib.rs`; unresolved integration remains explicit. |
-> | DEL-08-03-Q-003 | Exact protected-content linter interface | The bounded interface is `core/reporting/protected_content_linter/src/lib.rs::lint_targets` with typed targets and configuration; execution and release review remain separate evidence. |
-> | DEL-08-03-Q-004 | Exact audit manifest field names | The field inventory is carried by `core/reporting/audit_manifest/src/lib.rs::AuditManifest` and its referenced hash, solver, rule-pack and asset records. Preserve the accepted canonical hash obligation. |
-> | DEL-08-03-Q-005 | Canonical professional notice wording for final templates | Use the surface-specific registry `docs/claims_registry.md` and DEC-081/100/107; preserve notice obligations on surfaces that retain them. Do not recreate withdrawn emitted/product-document wording or infer professional acceptance. |
+- **AX-001** — *Findings over defaults.* Better is fewer qualifying facts that a reader of the results could miss: a missing input, an unsourced value, an unresolved library reference. A cleaner or shorter section is never bought by omitting one, and a value is never supplied to close a gap.
+- **AX-002** — *The producer's words.* Better is less difference between what a producing layer reported and what the section shows. Readability may group and order; it may never reclassify, soften or summarise away a diagnostic's code, class, severity or affected object.
+- **AX-003** — *Private stays local.* Better is more of the user's own source record visible to the user in their own local report. That may never carry a private or unresolved record into a shared or public context beyond what the user has released for that one report; there the report blocks.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-024 OBJ-007 OBJ-011 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-001 | SOW-024 OBJ-007 | REQ-002, REQ-003, CLM-002 | AC-001 | VER-001 | The required trace fields and classes come from the decomposition's architecture basis AB-00-06. The comparison is with the invented set of diagnostics and assumptions the check itself supplies, which the product did not write. |
+| OUT-001 | SOW-024 OBJ-007 OBJ-011 | REQ-001, REQ-010 | AC-002 | VER-002 | What must be shown as missing comes from PRD §5.5 and §17.5; the missing inputs are constructed in an invented run. |
+| OUT-001 | SOW-024 OBJ-007 | REQ-004, REQ-013 | AC-003 | VER-003 | The record's fields come from PRD §20.2 and the duty to show sources from FR-REP-003. Expected records are written by hand from the invented model's entries, not taken from a previous render. |
+| OUT-001 | SOW-024 OBJ-011 | REQ-014, REQ-015 | AC-004 | VER-004 | The dispositions are REQ-014's and REQ-015's, with the refused statuses following the quarantine rule of `docs/IP_AND_DATA_BOUNDARY.md` §5; each status, privacy class and context is constructed in an invented input, and the expected outcome is the one those requirements state. |
+| OUT-001 | SOW-024 OBJ-011 | REQ-005, REQ-007, REQ-008, REQ-009, REQ-012 | AC-005 | VER-005 | The status vocabulary and the prohibited claims come from PRD FR-REP-002 and §21.2, and the registered wording from `docs/claims_registry.md`. |
+| OUT-001 | SOW-024 OBJ-007 | REQ-002, REQ-003 | AC-006 | VER-006 | The schema is this deliverable's own definition; conformance is decided by a JSON Schema validator the product did not write, and the class list is checked to include the six classes AB-00-06 names. |
+| OUT-001 | SOW-024 OBJ-011 | REQ-006, REQ-011 | AC-007 | VER-007 | The prohibited content comes from PRD §19.4. The linter's result is heuristic and only supports the reviewer's reading, which is the ground. |

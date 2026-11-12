@@ -1,5 +1,5 @@
-// Native smoke driver for the embedded agent's W9-A journey (RT-E1 D4; DEL-16-06
-// `Work/agent-journey-scenario.md`). `tools/agent_journey_fixture.py` launches the
+// Native smoke driver for the embedded agent's W9-A journey (RT-E1 D4;
+// DEL-16-06). `tools/agent_journey_fixture.py` launches the
 // `native-smoke` build of the app with this script on stdin, which the build
 // evaluates in the real webview once the page has loaded (`src-tauri/src/native_smoke.rs`).
 //

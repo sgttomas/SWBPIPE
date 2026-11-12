@@ -1,131 +1,34 @@
 id: DEL-01-04
 name: Professional responsibility and product-claims policy
 needs:
-- from: DEL-00-01
-  condition: 'DEL-01-04 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: FACT; architecture-basis edge remains context evidence only and not aggregate graph authority.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-01-04 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: FACT; architecture-basis edge remains context evidence only and not aggregate graph authority.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-01-04 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: FACT; architecture-basis edge remains context evidence only and not aggregate graph authority.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-01-04 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: FACT; architecture-basis edge remains context evidence only and not aggregate graph authority.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: doc:docs/CONTRACT.md
-  condition: 'DEL-01-04 requires the governing invariant catalog for authority reporting governance and
-    agent boundaries.
-
-
-    Notes: FACT; document target is referenced by repo path and not treated as aggregate graph authority.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Invariant catalog; TargetRefID: OPS-CONTRACT; TargetLocation: docs/CONTRACT.md'
-  evidence: execution/PKG-01/DEL-01-04/ScopeOfWork.md
-- from: doc:docs/IP_AND_DATA_BOUNDARY.md
-  condition: 'DEL-01-04 drafting inputs must avoid protected standards/code text and proprietary engineering
-    data.
-
-
-    Notes: FACT; uses governing boundary read in this task brief.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Protected-content and private-data boundary; TargetRefID: OPS-IP-DATA-BOUNDARY;
-    TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
-  evidence: execution/PKG-01/DEL-01-04/ScopeOfWork.md
-- from: doc:execution/_Decomposition/SOFTWARE_DECOMP.md
-  condition: 'The workflow requires the current decomposition for deliverable context scope objectives
-    and product-claims boundaries.
-
-
-    Notes: FACT; current-basis refresh clears stale revision 0.4 references without changing lifecycle
-    or aggregate DAG state.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Software decomposition current basis; TargetRefID: OPS-SOFTWARE-DECOMP;
-    TargetLocation: execution/_Decomposition/SOFTWARE_DECOMP.md'
-  evidence: execution/PKG-01/DEL-01-04/ScopeOfWork.md
-- from: external:HUMAN_LEGAL_PROFESSIONAL_REVIEW
-  condition: 'Jurisdiction-specific professional-practice wording and legal interpretations require qualified
-    human legal or professional review.
-
-
-    Notes: No legal conclusion inferred; external review remains pending for jurisdiction-specific wording.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Human legal/professional review; TargetRefID: HUMAN_LEGAL_PROFESSIONAL_REVIEW'
-  evidence: execution/PKG-01/DEL-01-04/ScopeOfWork.md
-- from: external:HUMAN_PROJECT_AUTHORITY
-  condition: 'Final acceptance or revision of the professional-boundary policy and report notice template
-    requires a human project authority gate.
-
-
-    Notes: No lifecycle transition or issued-policy claim; final governance acceptance remains pending.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Human project authority acceptance; TargetRefID: HUMAN_PROJECT_AUTHORITY'
-- from: doc:docs/report_notice_template.md
-  condition: 'DEL-01-04 provides and constrains the draft report notice template; final acceptance remains
-    human-gated.
-
-
-    Notes: FACT; draft repo-level report notice template exists; final acceptance or revision remains
-    TBD and no issued report-template claim is made.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Report notice template; TargetRefID: OPS-REPORT-NOTICE-TEMPLATE;
-    TargetLocation: docs/report_notice_template.md'
-  direction: downstream
+- from: DEL-05-04
+  condition: >-
+    The analysis-status vocabulary is the six automatic statuses (model incomplete, mechanics
+    solved, rule inputs incomplete, user-rule checked, user-rule failed, human review required),
+    with human approval only as an external record and no automatic code-compliance status. The
+    registry's display-form table has one row per automatic status; a change to the status set
+    changes the table with it.
   gating: false
-  evidence: docs/report_notice_template.md
+- from: DEL-01-02
+  condition: >-
+    The boundary policy names the content that public report templates and public examples must
+    not contain: protected standards content, private rule-pack content, private project data and
+    proprietary data. The notice template's protected-content notice repeats that boundary and
+    does not define it.
+  gating: false
+- from: DEL-01-01
+  condition: >-
+    The governance baseline's release policy names the disclosures a public release carries:
+    scope, validation status, known limitations, data-boundary constraints and
+    professional-responsibility limitations. The registry supplies the wording for the
+    validation-status and professional-responsibility parts.
+  gating: false
+- from: external:legal-or-professional-reviewer
+  condition: >-
+    A qualified legal or professional reviewer supplies any jurisdiction-specific
+    professional-practice wording. Until then the template states none.
+  when: Adding jurisdiction-specific wording to the notice template
+  gating: false
 code_paths:
-- docs/report_notice_template.md
 - docs/claims_registry.md
-checks: []
+- docs/report_notice_template.md

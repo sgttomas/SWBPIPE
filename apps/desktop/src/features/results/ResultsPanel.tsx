@@ -97,7 +97,7 @@ function FullResultsPanel({
   recordedTableRead = null
 }: {
   result: MechanicsResult | null;
-  /** RT-A4 §10.4: a reopened run recorded before RT-A4 names the registry table it was
+  /** a reopened run recorded before RT-A4 names the registry table it was
    * read under; the panel then classifies and states it as read under that table,
    * labelled as-recorded (historical evidence only, never a current standing). Absent
    * (every current caller), the current reader classifies it. */
@@ -115,7 +115,7 @@ function FullResultsPanel({
   /** The workspace's primary selection. With "Selected entity only" on, the
    * table shows only the rows stated for it. */
   selectedEntity?: EntityRef | null;
-  /** A6 (Design `key-results-panel.md` §2): once per `serial`, for the run it names, shows only the
+  /** A6: once per `serial`, for the run it names, shows only the
    * rows of exactly `kind`, marks the rows it lists as withheld, and returns every other filter to its
    * default. A request for another run is ignored. The user clears the kind filter. */
   viewRequest?: ResultsViewRequest | null;
@@ -162,7 +162,7 @@ function FullResultsPanel({
   );
   const frameCounts = useMemo(() => (result ? countResultFrames(result.results) : new Map<string, number>()), [result]);
   const activeFrame = frameFilter !== ALL_FRAMES && frameCounts.has(frameFilter) ? frameFilter : ALL_FRAMES;
-  // A1 (Design `results-navigator.md`): the case filter's list is every case the result's rows
+  // A1: the case filter's list is every case the result's rows
   // state, so it does not change with the other filters; a run without the chosen case shows all.
   const cases = useMemo(() => (result ? navigatorCases(result.results) : []), [result]);
   const [caseFilter, setCaseFilter] = useState<string>(ALL_CASES);
@@ -205,7 +205,7 @@ function FullResultsPanel({
   const ownHealth = useMemo(() => (numericalHealth === undefined && result ? standaloneNumericalHealth(result, recordedTableRead) : null), [numericalHealth, result, recordedTableRead]);
   const route = result ? contractOf(result) : "unsupported";
   const health = routeHealth(route, numericalHealth === undefined ? ownHealth : numericalHealth);
-  // RT-R6: what a CSV export of these tables states (Design `csv-export.md` §2, §3).
+  // RT-R6: what a CSV export of these tables states.
   const csvProvenance = async (): Promise<CsvProvenance> => ({
     modelHash: model ? await csvModelHash(model) : CSV_NOT_RECORDED,
     resultHash: csvResultHash(result, exportAnalysisRun),
@@ -266,7 +266,7 @@ function FullResultsPanel({
     setPageIndex(0);
   }
 
-  /* ---- A1: the results navigator (Design `results-navigator.md`) ---- */
+  /* ---- A1: the results navigator ---- */
   const kindIds = RESULT_FAMILY_OPTIONS
     .filter((option) => option.id === "all" || familyCounts[option.id as ResultFamily] > 0)
     .map((option) => option.id);
@@ -1155,7 +1155,7 @@ function hasResultSemanticToken(value: string, expected: string): boolean {
 }
 
 /* -------------------------------------------------------------------------- *
- * Numerical health (DEL-07-05 Design `numerical-health-indicator.md` §3, §4)
+ * Numerical health
  * -------------------------------------------------------------------------- */
 /** A reopened run's indicator: read with the reader's findings for the result alone (no
  * model, so the verdict-only flag cannot hold) and no hold. */

@@ -17,7 +17,7 @@ import {
   type SupportLoadSummary
 } from "./supportLoadSummary";
 
-// A2, the per-support load summary (DEL-07-05 Design `support-load-summary.md` §3, §4, §8). All
+// A2, the per-support load summary. All
 // data are invented (`resultOverlayFixtures`) or the bundled invented reference.
 
 type Row = MechanicsResult["results"][number];

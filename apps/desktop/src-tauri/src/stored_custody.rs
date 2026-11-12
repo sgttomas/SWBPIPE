@@ -229,7 +229,7 @@ pub(crate) struct RestoredRun {
     pub(crate) result_present: bool,
     pub(crate) record_present: bool,
     pub(crate) findings: HistoricalFindings,
-    /// RT-A4 §10.4: under the recorded table the findings name
+    /// under the recorded table the findings name
     /// (`recorded_table_read`), the stored statement's recorded dispatch with
     /// no model (`recordedReaderDispatch(result, binding)`: route, binding,
     /// refusal and its standing as recorded), the route a display surface
@@ -523,7 +523,7 @@ pub(crate) fn open_project_in_store(memory: &NativeLeaseMemory<'_>, path: PathBu
     }))
 }
 
-/// RT-A4 §10.4: a renderable reopened statement's recorded dispatch with no
+/// a renderable reopened statement's recorded dispatch with no
 /// model under the table its findings were read under ([`RestoredRun::recorded_dispatch`]).
 fn recorded_dispatch_of(found: &HistoricalFindings, result: &Value) -> Option<Value> {
     found.recorded.filter(|_| found.renderable).map(|table| validate::recorded_dispatch(result, table.variant(), None))

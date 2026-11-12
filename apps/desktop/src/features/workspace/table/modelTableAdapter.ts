@@ -17,7 +17,7 @@ export type GridColumn = {
   options?: readonly string[];
   /** The text an option shows, when it differs from its value (an empty value's label). */
   optionLabel?: (option: string) => string;
-  /** W-17 §7.2, §7.3, §7.6: why the column's default gives an empty cell no unit,
+  /** why the column's default gives an empty cell no unit,
    * either the absent project key or a notice; the grid's refusal names it. */
   emptyUnit?: { missingKey: string | null; notice: string | null };
 };

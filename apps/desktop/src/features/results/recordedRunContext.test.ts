@@ -1,4 +1,4 @@
-// W-12 S2 (DEL-14-01 Design §3): `HistoricalRunContext` accepts the real state ref of a
+// W-12 S2: `HistoricalRunContext` accepts the real state ref of a
 // recorded run, verified against the stored state it was read with, and keeps flagging
 // every other mismatch. The recorded run is the native store's committed witness of a
 // real producer result (fixtures/persistence/recorded_run_witness.json).

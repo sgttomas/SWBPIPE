@@ -1,4 +1,4 @@
-/** C1 native custody, slice 5's builder (DEL-04-05 `c1-native-custody-plan.md`): the webview's
+/** C1 native custody, slice 5's builder: the webview's
  * side of the native analysis-run preview (`src-tauri/src/analysis_run_v03_build.rs`). Nothing
  * calls it yet: the session switches from `buildAnalysisRunPreview` in slice 4, and Record Run and
  * Save Project take the job handle in slice 5. Until then `buildAnalysisRunV03` stays the oracle

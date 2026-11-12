@@ -3,136 +3,133 @@ name: Hanger sizing
 needs:
 - from: DEL-04-07
   condition: >-
-    Each derived sizing solve is a modified copy of the stored model document sent through DEL-04-07's
-    product solve entry, on the route, solver mode and settings the model's own solve of that case uses,
-    requesting ordinary recovery only. Its reactions at a rigid candidate, displacements at a force
-    candidate and nonlinear support states are read from that solve's published results. Sizing assembles
-    no system of its own (Design §4).
+    The product solve entry accepts a model document on either route with the caller's solver mode
+    and settings, and publishes reactions at each restraint, nodal displacements and each nonlinear
+    support's converged state. A modified copy of a stored document is admitted on the same terms
+    as the stored document.
   gating: true
-  evidence: core/product_physics/src/lib.rs
 - from: DEL-04-03
   condition: >-
-    A candidate is replaced by a rigid linear restraint of its single translational DOF, or removed and
-    replaced by a nodal force, and a selected variable record is modelled as a spring of its rate on that
-    DOF, all through DEL-04-03's support families and spring assembly. DEC-049's convention, a support
-    force along the positive axis of its DOF, is the candidate's sense. Spring preload (ScopeOfWork REQ-014,
-    Agent 0 D-3, 2026-10-31) changes DEL-04-03's support model: a variable spring hanger carries its
-    `cold_load` as a constant force through the constant-effort seam, its published support force
-    includes that preload, a spring held by a hydrotest carries neither stiffness nor preload, and
-    DEL-04-03's commitment text changes with that increment (Design §11).
+    The linear support model provides a rigid restraint of a single translational degree of freedom,
+    a spring of a stated rate on that degree of freedom, and a constant force through the constant-
+    effort seam, with a support force acting along the positive axis of its degree of freedom; and
+    it models a variable spring hanger as a spring of its entered rate plus its entered cold load
+    as a constant force on the same degree of freedom (DEL-04-03/REQ-014, DEL-04-03/AC-009).
   gating: true
-  evidence: core/solver/linear_supports
 - from: DEL-04-04
+  when: Sizing a model with nonlinear supports
   condition: >-
-    Nonlinear supports converge in each derived solve to the states that case produces, and those states
-    are published per support so that sizing can disclose them. Forming the hot-load basis in another
-    case's converged state needs the solve to hold nonlinear supports in that state (RT-A5 Should,
-    `subtrahend_support_state: minuend_final`); until then only the weight case's own state is admitted
-    (Design §5).
+    Nonlinear supports converge in each solve to the states that case produces, and each support's
+    final state is published, so that sizing can disclose it and compare it between solves.
   gating: true
-  evidence: core/solver/nonlinear_supports
 - from: DEL-05-01
   condition: >-
-    A named load case's effective loads are resolved at solve time by the product's lowering
-    (`operating_conditions::lower`, the load-cases lane's S2) and, on EX load/reference-state documents,
-    bounded by the case's `analysis_state.load_sources` ledger and its mandatory per-support
-    `support_states`. Sizing adds its forces to the derived document, entering each in the case's
-    ledger on EX, keeps a rigid or spring candidate's ordinary support state and removes a force
-    candidate's support state with the support, and never clones a case's primitives from the authored
-    document. A test-condition case (RT-A6) is not a sizing case.
+    A named load case's effective loads are resolved at solve time, and on a load/reference-state
+    document are bounded by the case's ledger of load sources and its per-support states, so that a
+    force added to a derived document is entered in the ledger and a removed support loses its
+    state. A test-condition case is distinguishable from an ordinary load case, and in one that
+    holds supports a held support, a variable spring included, acts as a rigid restraint with
+    neither its stiffness nor its force acting.
   gating: true
-  evidence: execution/PKG-05/DEL-05-01/ScopeOfWork.md
 - from: DEL-02-01
   condition: >-
-    Model document 0.9.0's support members (family, restraints, direction, stiffness, hanger, nonlinear)
-    and its SpringHanger members (cold, installed, hot and constant loads, travel range, references) are
-    read and, on the person's application of a selection, written through the existing operation route.
-    Sizing adds no model-document member.
+    The model document carries a support's family, restraints, direction, stiffness, hanger and
+    nonlinear members, and a spring hanger's cold, installed, hot and constant loads, travel range
+    and references; a change to them goes through the one operation route. Sizing adds no member.
   gating: true
-  evidence: schemas/model.schema.yaml
 - from: DEL-03-02
   condition: >-
-    The hanger library schema admits format 1.1.0 with an optional per-record `working_load_range`
-    {minimum, maximum} of force quantities with provenance, and still admits 1.0.0 unchanged (Agent 0 D-2,
-    2026-10-31). DEL-03-02 owns the schema text; DEL-04-11 owns the sizing meaning of the range
-    (Design §8.2).
+    The hanger library schema admits format 1.1.0, in which a record may carry a working load range
+    (a minimum and a maximum force, each with provenance), and still admits 1.0.0 unchanged.
   gating: true
-  when: Before the engine increment's library reading.
-  evidence: schemas/hanger.schema.yaml
 - from: DEL-03-07
   condition: >-
-    The library import boundary validates format 1.1.0. It refuses by name `working_load_range` in a 1.0.0
-    document (as an unknown field), a range whose ends differ in unit, and a minimum not below its maximum,
-    and it keeps the Rust boundary and the Python provenance checker in parity (slice 1b).
+    The library import boundary validates format 1.1.0 and imports 1.0.0 unchanged; it refuses by
+    name a working load range in a 1.0.0 document, a range whose ends differ in unit, a minimum not
+    below its maximum, a missing end and an extra member; it preserves provenance and units; and
+    the import boundary and the provenance checker return the same verdict.
   gating: true
-  evidence: core/library_import/library_import_document
 - from: DEL-02-02
   condition: >-
-    Request quantities (travel allowance) and library quantities (forces, lengths, rates) are normalized
-    through DEL-02-02's unit catalog; DEL-04-11 defines no unit or conversion of its own.
+    The unit catalog normalizes the request's travel allowance and the library's forces, lengths and
+    rates to the consistent basis with a dimension check.
   gating: true
-  evidence: core/units/README.md
 - from: DEL-00-06
   condition: >-
-    The hanger-sizing result is a closed document of its own (Design §8.3), so no mechanics profile or
-    0.3 semantic table is extended. A hanger-sizing analysis-run kind enters only through the joint
-    analysis-run 0.4.0 under DEL-00-06's contract, which is approved for design and not adopted; until
-    then a sizing result is not a recordable run. Refusals and warnings follow DEL-00-06's typed
-    diagnostics.
+    Refusals and warnings are typed diagnostics with code, severity, source and affected object.
   gating: true
-  when: Before a sizing result is recorded as an analysis run.
-- from: DEL-04-08
+- from: DEL-14-02
+  when: Before a sizing run is recorded.
   condition: >-
-    Derived sizing solves never enter the retained Direct entry or D1. A change to a priced source,
-    including the spring preload ledger term (REQ-014), is re-registered under DEL-04-08's actual-source
-    pricing law (D3) in the change that makes it, and keeps the AC-004 stack witnesses passing.
+    The analysis-run record admits a hanger-sizing run kind that binds the sizing request.
   gating: true
-  evidence: execution/PKG-04/DEL-04-08/Work/retained-pricing-rules.md
+- from: DEL-04-08
+  when: Examining the retained route's pricing and its refusal of derived solves
+  condition: >-
+    The retained-precision entry refuses any invocation it was not admitted for, and the memory-
+    pricing law prices the actual source, the preload term included, against the registered
+    profile.
+  gating: true
+- from: DEL-10-05
+  when: Examining AC-001 at the headless runner
+  condition: >-
+    The headless runner hosts the `size-hangers` command: it passes the sizing input to this
+    deliverable's entry and returns that entry's document unchanged, and supplies no engineering
+    value of its own (DEL-10-05/REQ-015, DEL-10-05/AC-011).
+  gating: true
 - from: DEL-07-05
   condition: >-
-    The hanger table and its detail view follow the results viewer's output and claims contracts (RT-R1).
+    A results table states its units, the published frame of each row, the limitations of the route
+    that produced it and the result's standing, which the hanger table and its detail view follow.
   gating: false
 - from: DEL-07-07
   condition: >-
-    A sizing run reports progress per derived solve and is cancellable between solves under the solve
-    execution job contract; a cancelled run publishes nothing. Increment 3c part 2 runs a desktop sizing
-    as one capped-worker request (worker task 4) with no job record: it is cancelled at any point by
-    stopping its worker and publishes nothing, and it reports no per-solve progress yet.
+    The desktop runs engine work within the per-invocation memory budget, can cancel it and
+    release its memory, and reports progress for work that runs in steps.
   gating: false
 - from: DEL-08-01
   condition: >-
-    The report's hanger-sizing section follows the report generator's section, claims and
-    library-reference privacy contracts.
+    A section contributed by another deliverable enters a report only through the assembled section
+    model: under a governed section, with registered boundary wording and no claim of its own,
+    showing a library reference as safe metadata only, and passing the report's gates
+    (DEL-08-01/REQ-020). The hanger-sizing section is such a section.
   gating: false
 - from: DEL-08-04
   condition: >-
-    The hanger table exports through DEL-08-04's CSV serializer and is listed in its coverage guard.
+    Every results table in the desktop exports to CSV through the one serializer, the hanger table
+    through the adapter DEL-08-04 holds beside it, and a table without CSV export is detected as a
+    failure (DEL-08-04/REQ-014, DEL-08-04/AC-002).
   gating: false
 - from: DEL-04-05
   condition: >-
-    The derived-solve count and result volume (Design §10) are agreed with the performance lane against
-    its result-volume design.
+    The performance harness gives a hanger-sizing timing profile on the reference rack.
   gating: false
-# Planned paths (Design §13); slice 1a built core/analysis/hanger_sizing (arithmetic) and the R-3 references.
 code_paths:
+# The headless verb's code sits in DEL-10-05's runner; only its test is listed here. The spring
+# preload of REQ-014 is carried out in DEL-04-03's support model and DEL-04-07's solve, so it has
+# no path here. The table's CSV adapter (hangerSizingCsv*) is DEL-08-04's and is not listed.
 - core/analysis/hanger_sizing/**
 - schemas/hanger_sizing_result.schema.json
 - fixtures/results/hanger_sizing_*.json
-- fixtures/hanger/invented_hanger_catalogue_*.json
 - tests/verifiers/hanger_sizing_evidence.py
 - tests/test_hanger_sizing_*.py
-# The schema's fixed lists (held equal to the verifier's) against this design's quoted text: a document check.
-- tools/validation/test_hanger_sizing_design.py
 - core/runner/headless/tests/size_hangers_cli.rs
 - validation/references/hanger_sizing/**
 - apps/desktop/src/features/results/HangerSizing*
-- apps/desktop/src/features/results/hangerSizing*
-# Increment 3c part 2: the native sizing job and command, the request form and the mount's test.
+- apps/desktop/src/features/results/hangerSizingResult.ts
+- apps/desktop/src/features/results/hangerSizingView.ts
+- apps/desktop/src/features/results/hangerSizingView.test.ts
 - apps/desktop/src-tauri/src/hanger_sizing_job.rs
 - apps/desktop/src-tauri/src/hanger_sizing_job_tests.rs
 - apps/desktop/src/services/hangerSizingService*
 - apps/desktop/src/features/hanger-sizing/**
 - apps/desktop/src/App.hangerSizing.test.tsx
-# Checks: the crate's cargo tests run in hosted piping-numerical, which discovers the crate; no local
-# registration is needed for slice 1a. Later increments register checks where a local selector needs them.
-checks: []
+checks:
+- core/analysis/hanger_sizing/tests/*.rs
+- tests/test_hanger_sizing_*.py
+- core/runner/headless/tests/size_hangers_cli.rs
+- apps/desktop/src/features/results/HangerSizingPanel.test.tsx
+- apps/desktop/src/features/results/hangerSizing*.test.ts
+- apps/desktop/src-tauri/src/hanger_sizing_job_tests.rs
+- apps/desktop/src/services/hangerSizingService.test.ts
+- apps/desktop/src/App.hangerSizing.test.tsx

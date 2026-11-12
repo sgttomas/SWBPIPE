@@ -23,7 +23,7 @@ import {
 } from "./keyResults";
 import { SUPPORT_LOAD_WITHHELD_NOT_ELIGIBLE } from "./supportLoadSummary";
 
-// A6, the key-results panel's contents (DEL-07-05 Design `key-results-panel.md` §2 to §4). All data
+// A6, the key-results panel's contents. All data
 // are invented (`keyResultsFixtures`); no value has engineering meaning.
 
 const PASSING = healthStanding({ eligible: true });

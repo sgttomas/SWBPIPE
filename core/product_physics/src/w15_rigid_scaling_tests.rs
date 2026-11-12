@@ -150,7 +150,7 @@ fn solved(request: &Value, mode: PreviewSolverMode) -> MechanicsEnvelope {
     envelope
 }
 
-/// §2.2: an eligible body is formed with the products s*E and s*G, each
+/// an eligible body is formed with the products s*E and s*G, each
 /// rounded once; every other member keeps its material E and G bit for bit,
 /// and the body records the selected unscaled pair.
 #[test]
@@ -202,7 +202,7 @@ fn w15_indeterminate_pair_redistributes_onto_the_stiffer_body() {
     }
 }
 
-/// §2.2, §6: the element thermal load reads the built member's section E.
+/// the element thermal load reads the built member's section E.
 /// A series pipe and body anchored at both ends under one temperature change:
 /// N = -sum(eps_i L_i) / sum(L_i / (s_i E A)), tension positive; and the
 /// ledger's axial load is (s*E)*A*eps, the FreeStrainStraight frame's.
@@ -234,7 +234,7 @@ fn w15_element_thermal_load_reads_the_section_modulus() {
     }
 }
 
-/// §2.1: a free scaled body still grows alpha*dT*L under temperature,
+/// a free scaled body still grows alpha*dT*L under temperature,
 /// whatever its scale, so its free end moves alpha*dT*L and it carries no
 /// force.
 #[test]
@@ -254,7 +254,7 @@ fn w15_free_scaled_body_grows_freely() {
     }
 }
 
-/// §2.2: the PF Poisson ratio of a body is that of the selected unscaled E/G
+/// the PF Poisson ratio of a body is that of the selected unscaled E/G
 /// pair (base material and a named point), never of its scaled section;
 /// the model-bound reader recomputes it from the model and checks the shear
 /// rows bit for bit.
@@ -283,7 +283,7 @@ fn w15_preview_poisson_ratio_uses_the_unscaled_pair() {
     request["materials"][0]["temperature_points"] = json!([{"id": "temperature-point:w15",
         "elastic_modulus": q(named.0, "Pa"), "shear_modulus": q(named.1, "Pa"),
         "thermal_expansion_coefficient": q(ALPHA, "1/degC"), "provenance": PROVENANCE}]);
-    // §6: an optional authored nu, absent, consistent with E/(2G) - 1 and
+    // an optional authored nu, absent, consistent with E/(2G) - 1 and
     // inconsistent, on the material and the named point alike. PF never reads
     // it: nu is the selected unscaled pair's, so every variant gives the same
     // shear rows bit for bit and the model-bound reader admits each.
@@ -317,7 +317,7 @@ fn w15_preview_poisson_ratio_uses_the_unscaled_pair() {
     }
 }
 
-/// §2.2: the load-state member pair's eigenload (thermal and fit alike) is
+/// the load-state member pair's eigenload (thermal and fit alike) is
 /// formed with the built member's section E: s*E on the body, the resolved
 /// pair's E bit for bit elsewhere.
 #[test]
@@ -381,7 +381,7 @@ fn w15_load_state_eigenload_reads_the_section_modulus() {
     assert!(checked >= 3, "{checked}");
 }
 
-/// §2.3, §2.6: each unmet eligibility condition leaves the member unscaled and
+/// each unmet eligibility condition leaves the member unscaled and
 /// is named by the one warning of its condition, in the listed order.
 #[test]
 fn w15_each_unmet_condition_is_named_and_leaves_the_member_unscaled() {
@@ -446,7 +446,7 @@ fn w15_each_unmet_condition_is_named_and_leaves_the_member_unscaled() {
     assert!(component.modifiers.as_ref().unwrap().linear_stiffness_user_value.is_none());
 }
 
-/// §2.6: the applied scale's info names the member and s, the reference
+/// the applied scale's info names the member and s, the reference
 /// section and the unapplied linear/rotational stiffness, on the published
 /// result only; from PRECISION_WARNING_SCALE (1e5) the precision warning is added.
 #[test]
@@ -482,7 +482,7 @@ fn w15_applied_scale_info_and_precision_warning() {
     }
 }
 
-/// §2.6: a refused or blocked model forms no scaled member, so it states no
+/// a refused or blocked model forms no scaled member, so it states no
 /// applied scale and no precision warning: a model refused at input
 /// validation (MODEL_INCOMPLETE), a mapping conflict, and a body whose scaled
 /// moduli leave binary64's normal range (refused at section formation).
@@ -509,7 +509,7 @@ fn w15_a_refused_or_blocked_model_states_no_applied_scale() {
     }
 }
 
-/// §2.5: s*E or s*G outside binary64's normal range is refused by name at
+/// s*E or s*G outside binary64's normal range is refused by name at
 /// section formation; the member is not formed.
 #[test]
 fn w15_scaled_moduli_outside_the_normal_range_are_refused() {
@@ -525,7 +525,7 @@ fn w15_scaled_moduli_outside_the_normal_range_are_refused() {
     }
 }
 
-/// §2.3: a shared member and a realized curved bend are refused by name,
+/// a shared member and a realized curved bend are refused by name,
 /// counting every rigid-family component that maps a member, eligible or
 /// not (a not_solver_consumed record sharing a member is a conflict).
 #[test]
@@ -558,7 +558,7 @@ fn w15_mapping_conflicts_block_by_name() {
     assert!(!validation_diagnostics(&request).iter().any(|d| d.code == "RIGID_COMPONENT_MAPPING_CONFLICT"));
 }
 
-/// §5: the producer's stress kinds are exactly the row kinds whose physical
+/// the producer's stress kinds are exactly the row kinds whose physical
 /// dimension is stress in the two current tables (pressure-2 and
 /// preview-physics-2), the set the readers derive from the table.
 #[test]

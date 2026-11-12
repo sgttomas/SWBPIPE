@@ -364,7 +364,7 @@ export function numericalHealthView(health: NumericalHealth | null, options: { e
 /** What the shell chip and the rail show instead of "Needs recompute". */
 export type NumericalHealthHold = Readonly<{ headline: string; shortHeadline: string; outputSentence: string | null }>;
 
-/** The chip and rail replacement predicate (§3 "Replacing 'Needs recompute'"): every
+/** The chip and rail replacement predicate: every
  * Current requirement other than numerical eligibility holds, the Rust `verdict_only` is
  * true, and some load case is red or grey. Anything else, including missing or
  * malformed evidence, keeps "Needs recompute". Admission is not read or changed here. */

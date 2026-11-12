@@ -1,4 +1,4 @@
-/** B2 (DEL-07-02 Design `bulk-change.md`, ScopeOfWork DEL-07-02:14): the edges the wording
+/** B2 (ScopeOfWork DEL-07-02:14): the edges the wording
  * promises, through the session and the actual wasm engine on invented inline models:
  * - a bend radius entered in a non-metre unit is written and stored exactly as entered, in the
  *   shape the inspector's Bend radius field writes;

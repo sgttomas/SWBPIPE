@@ -34,7 +34,7 @@ export function buildResultInterpretation({
   resultId: string | null;
   knowledge: DesignKnowledge | null;
   analysisRun: AnalysisRunEnvelope | null;
-  /** RT-A4 §10.4: a reopened run recorded before RT-A4 reads its rows under its recorded table;
+  /** a reopened run recorded before RT-A4 reads its rows under its recorded table;
    * current callers omit it. */
   recordedTableRead?: ContractBinding | null;
 }): ResultInterpretation | null {
@@ -151,7 +151,7 @@ export function resolveEntitySelection(model: PreviewModel, entityRef: string): 
   return null;
 }
 
-/** A numerical-health located cause (DEL-07-05 numerical health §3): a K-D5 or S11-G
+/** A numerical-health located cause: a K-D5 or S11-G
  * row label `{node}:{DOF}` resolves to its node; a named reference (a load-fidelity
  * source, a curved-bend reference) keeps the direct-id path above; text locations, DOF
  * indices and mechanism directions do not resolve. */
@@ -261,7 +261,7 @@ function allDiagnostics(
   knowledge: DesignKnowledge | null,
   result: SessionResult | null
 ): Diagnostic[] {
-  // RT-A3 §4: a result message outside the reader-checked roster is explained as supplied,
+  // a result message outside the reader-checked roster is explained as supplied,
   // unverified text, as the Diagnostics list shows it (`suppliedDiagnostics`).
   return [...model.diagnostics, ...(knowledge?.diagnostics ?? []), ...presentedResultDiagnostics(result)];
 }

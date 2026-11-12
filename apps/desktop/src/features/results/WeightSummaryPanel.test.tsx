@@ -1,4 +1,4 @@
-// A9 panel (DEL-07-05 Design `weight-cog-summary.md` §6 and §7). Invented models and invented
+// A9 panel. Invented models and invented
 // generator outputs; the last test runs the actual candidate engines on the bundled demo.
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";

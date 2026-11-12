@@ -1,4 +1,4 @@
-//! K3a tests for `structural::retained::wide` (T3 D1 §4.11 and §7.4, V1-S9's
+//! K3a tests for `structural::retained::wide` (V1-S9's
 //! plan scoped to L = 2; ROOT selection condition C1).
 //!
 //! This file is compiled as the `tests` module of `wide.rs` (a `#[path]`

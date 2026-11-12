@@ -15,7 +15,7 @@
 //!   quality, formulation basis, professional boundary and diagnostics; its
 //!   `contract_evidence` without the per-row combination evidence
 //!   (`exact_combinations[].rows`, `.recoveries`, `.missing_sources`, counted
-//!   in `combination_evidence_counts`; design §3.5); the diagnostics
+//!   in `combination_evidence_counts`); the diagnostics
 //!   presentation facts of the same held bytes (`diagnostics_presentation`,
 //!   source-only, bound to the share S read); the names of any other
 //!   top-level member; the row count and distinct units; the numerical health
@@ -24,7 +24,7 @@
 //!   `result_summary_tables`; and the planes. S's JSON part grows with the
 //!   model's entities and the result's sets, not with its station rows:
 //!   those are plane cells.
-//! - **Admission and memory** (plan §8). Every lease is pool-admitted before
+//! - **Admission and memory**. Every lease is pool-admitted before
 //!   what it covers is allocated, and none exceeds the per-invocation budget
 //!   or, whatever budget is configured, the owner-adopted 12 GiB default:
 //!   - the args lease, as `native_verdict`'s: the raw body's copy, grown by
@@ -44,7 +44,7 @@
 //! - **Off the executor.** As `native_verdict`: on the async runtime only the
 //!   header check, the copy's reservation and the copy; everything else in a
 //!   blocking task.
-//! - **Residuals, unpriced** (for slice 7's measurement, plan §7 item 3): the
+//! - **Residuals, unpriced** (for slice 7's measurement): the
 //!   numerical health's working memory; the tables' and the value table's
 //!   `Value`s and the header text (bounded by entities × sets, not rows); the
 //!   ids the intensified-bending rows name and their rows' ordinals; and
@@ -259,7 +259,7 @@ fn envelope(source: &Value) -> (Value, Value, Value) {
 /// S's bytes for a parsed source and model, the caller's standing and the
 /// numerical health, after `reserve` admits the response's exact length
 /// (whose guard is returned with them).
-/// `recorded`: a restored run's held recorded table (RT-A4 §10.4), under which
+/// `recorded`: a restored run's held recorded table, under which
 /// its rows' families are read ([`route_table`]). `presentation`: the
 /// diagnostics presentation facts of the same bytes
 /// ([`diagnostics_presentation::facts`]), carried as S's

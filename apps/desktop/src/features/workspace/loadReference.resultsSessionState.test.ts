@@ -57,7 +57,7 @@ describe("ordinary pressure-2 load/reference-state registration and its invalida
     expect(hasNativeMechanicsInvocation(source, model, mode)).toBe(true);
     expect(numericalResultStanding(source, model)).toMatchObject({ contract: "pressure", eligible: true, findings: [] });
     // B7b: the session records it (the record binds pressure-2's table, as Python's carrier
-    // does). Epoch 8 (§4.1, §5.4): with Rust's eligible standing, the matching 0.3.0 record
+    // does). Epoch 8: with Rust's eligible standing, the matching 0.3.0 record
     // and manifest and the live native invocation, it is Current.
     const analysis = await buildAnalysisRunPreview(source, { inputManifest: manifest });
     const python = json(`fixtures/results/pressure_load_state_connected_${mode === "sparse_interactive" ? "sparse" : "dense"}.analysis_run.json`) as AnalysisRunEnvelope;

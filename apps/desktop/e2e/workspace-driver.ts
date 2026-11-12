@@ -280,7 +280,7 @@ export async function confirmProjectUnits(page: Page, keyboard = false): Promise
 }
 
 /**
- * A status chip of the status bar (specification §5.4): its face is "Domain · Label", the
+ * A status chip of the status bar: its face is "Domain · Label", the
  * recorded token is its tooltip and, on a click, the monospace line of its popover.
  *
  * A chip that names where its token comes from (such as "Solve job state": a recorded job

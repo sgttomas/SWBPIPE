@@ -2,9 +2,8 @@
 """Independent reference generator for hanger-sizing derived solves (DEL-04-11).
 
 Covers R-1 (rigid reactions of continuous beams), R-2 (free riser growth) and
-R-5 (lift-off) of execution/PKG-04/DEL-04-11/Work/hanger-sizing.md sections 4,
-5 and 12: the sizing quantities W (solve S_W), u_C (S_C) and u_i (S_Oi) per
-candidate, and each lift-off support's state in every solve.
+R-5 (lift-off) of DEL-04-11: the sizing quantities W (solve S_W), u_C (S_C)
+and u_i (S_Oi) per candidate, and each lift-off support's state in every solve.
 
 Independence: written from the design text, the task brief and classical
 Euler-Bernoulli beam and frame mechanics only. It reads, searches and imports no
@@ -46,8 +45,8 @@ ALL6 = ["UX", "UY", "UZ", "RX", "RY", "RZ"]
 BASIS = (
     "Independent reference for DEL-04-11 hanger-sizing derived solves: R-1 "
     "(rigid reactions of continuous beams), R-2 (free riser growth) and R-5 "
-    "(lift-off), from execution/PKG-04/DEL-04-11/Work/hanger-sizing.md sections "
-    "4, 5 and 12 and classical Euler-Bernoulli beam and frame mechanics. Global "
+    "(lift-off), from DEL-04-11 "
+    "and classical Euler-Bernoulli beam and frame mechanics. Global "
     "Z is vertical, positive up; gravity acts along -Z. SI units (m, N, Pa, N/m, "
     "1/K, K). Every member is a straight circular tube: d = D - 2t, "
     "A = pi*(D^2 - d^2)/4, I = pi*(D^4 - d^4)/64; shear deformation is neglected "

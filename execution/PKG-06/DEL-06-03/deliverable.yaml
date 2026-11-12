@@ -1,135 +1,129 @@
 id: DEL-06-03
 name: Required-input completeness checker
 needs:
-- from: DEL-00-01
-  condition: 'DEL-06-03 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-06-01
+  condition: >-
+    A valid pack declares, for each check, its required inputs with their source kind, dimension,
+    unit and provenance requirements; gives each solver-result input a row selector; and yields a
+    basis plan that lists each check's required load cases in mapping order. Validation states
+    whether a pack has a blocking finding.
   gating: true
-- from: DEL-00-02
-  condition: 'DEL-06-03 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-06-02
+  condition: >-
+    Evaluating a formula over typed bound quantities returns a truth value or a quantity, or
+    blocking findings and no value, the same every time; and the comparison of a quantity with a
+    limit by an ordering relation is an expression of the grammar.
+  when: Computing a within or exceeding outcome
   gating: true
-- from: DEL-00-03
-  condition: 'DEL-06-03 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-06-03 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-06-04
+  condition: >-
+    The lifecycle check of a pack returns its findings (a missing source notice, a missing
+    redistribution status, a missing or stale checksum, suspected protected content) and whether
+    the pack is blocked, suspected protected content always blocking, so that a blocked pack is
+    not run.
+  when: Refusing to run a blocked pack
   gating: true
 - from: DEL-00-06
-  condition: 'DEL-06-03 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The diagnostic contract fixes the members a run finding carries (code, class, severity, source,
+    affected object, message, remediation and provenance) and keeps rule-check blocking a class
+    distinct from solve blocking; and a result with a rule check lacking data is its own outcome
+    kind, never a mechanics result with an empty payload.
   gating: true
-- from: DEL-00-07
-  condition: 'DEL-06-03 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-01-04
+  condition: >-
+    The claims registry states the prohibited claims and holds the display forms of the three
+    user-rule statuses with their authority domain, against which a run's statuses, findings and
+    notice are examined.
+  gating: false
+- from: DEL-02-01
+  condition: >-
+    The model document lists its load cases and its combinations, each with a stable identifier,
+    so a run can tell a required load case the model lacks from one that is not solved.
   gating: true
-- from: DEL-00-08
-  condition: 'DEL-06-03 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-06-01
-  condition: 'DEL-06-03 needs DEL-06-01 as a predecessor: completeness checker reads required-input declarations
-    from rule-pack schema
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-02
+  condition: >-
+    The unit catalog converts a value between two units of one dimension deterministically, and
+    returns a named finding and no value for an unknown unit or a unit of another dimension.
   gating: true
 - from: DEL-02-03
-  condition: 'DEL-06-03 needs DEL-02-03 as a predecessor: missing inputs affect rule-check status, not
-    mechanics solve status
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    In the analysis boundary a user-rule status is held apart from the mechanics status, a missing
+    rule-required input is the incomplete status with a diagnostic and no substituted value, and
+    no rule outcome sets or stands in for human acceptance.
   gating: true
 - from: DEL-05-04
-  condition: 'DEL-06-03 needs DEL-05-04 as a predecessor: completeness findings feed analysis status semantics
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The status semantics define rule inputs incomplete as missing rule-pack-required data that may
+    coexist with mechanics solved, and user-rule checked and user-rule failed as outcomes of a
+    user's rule pack that declare no code compliance.
+  gating: true
+- from: DEL-04-07
+  condition: >-
+    A solve publishes, for each load case it solves, result rows with unit-bearing values and a
+    mechanics status, and publishes no result marked solved for a case that is singular,
+    ill-conditioned or not converged.
+  when: Binding a solver-result input
+  gating: true
+- from: DEL-05-02
+  condition: >-
+    A withheld combination is withheld whole and publishes no rows; a combination's published rows
+    are its result, and an operand row published under it (the held-status subtrahend) is marked
+    as an operand (DEL-05-02/REQ-013, DEL-05-02/AC-004).
+  when: Binding a row on a combination basis
+  gating: true
+- from: DEL-08-04
+  condition: >-
+    A published result row states the load case or combination it belongs to, its kind and the
+    entity it concerns, and where it has them its location, component and section basis, so that
+    rows of one basis can be told apart.
+  when: Binding a solver-result input
+  gating: true
+- from: DEL-04-08
+  condition: >-
+    For a retained-precision result the result reader states its standing (numerically eligible,
+    needing recomputation or unsupported) and the class of each row; a rule check is admitted only
+    at numerically eligible standing.
+  when: Binding a row of a retained-precision result
+  gating: true
+- from: DEL-03-07
+  condition: >-
+    The local library store keeps a library document only when its import was accepted as private
+    and local, so a value a run reads from it has passed the import boundary; each stored record's
+    slot states its value with its unit.
+  when: Reading a private library value
+  gating: true
+- from: DEL-05-02
+  condition: >-
+    For a result of an ordinary identity the ordinary result reader states its standing
+    (numerically eligible, needing recomputation or unsupported) with its findings, and refuses by
+    name a result it does not admit (DEL-05-02/REQ-018 to DEL-05-02/REQ-020).
+  when: Binding a row of an ordinary result
   gating: true
 code_paths:
-- core/rules/completeness_checker/
-- schemas/rule_pack.schema.yaml
-- core/rules/rule_check_runner/src/lib.rs
+# The checker and its findings; no other deliverable lists this module.
+- core/rules/completeness_checker/**
+# The run. Its bounded entry and interval tests are listed under DEL-06-02, where the question
+# they answer is recorded as undecided.
+- core/rules/rule_check_runner/Cargo.toml
+- core/rules/rule_check_runner/src/**
+- core/rules/rule_check_runner/tests/common/**
+- schemas/rule_check_run_result.schema.json
+# In the desktop host: the rule-check run command with its library-value resolution, and the
+# module that checks required load cases and selects result rows. The rest of lib.rs belongs to
+# the deliverables that own each command.
+- apps/desktop/src-tauri/src/rule_solver_selection.rs
 - apps/desktop/src-tauri/src/lib.rs
-- apps/desktop/src/services/ruleCheckService.ts
-- apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx
-- core/reporting/report_renderer/src/lib.rs
+# The desktop's rule-check panel and service (apps/desktop/src/features/rule-check/**,
+# apps/desktop/src/services/ruleCheckService.ts) are DEL-07-04's. The service's preview repeats
+# this deliverable's row selection and must select as it does.
 checks:
 - core/rules/completeness_checker/src/lib.rs
-- core/rules/rule_check_runner/tests/*.rs
-- apps/desktop/src/services/ruleCheckService.test.ts
-- apps/desktop/src/features/rule-check/RuleCheckRunPanel.test.tsx
-- apps/desktop/e2e/r2-smoke.spec.ts
-- core/reporting/report_renderer/tests/render.rs
-- core/reporting/report_package/tests/current_result_package.rs
+- core/rules/rule_check_runner/src/lib.rs
+- core/rules/rule_check_runner/tests/acceptability_relation_run.rs
+- core/rules/rule_check_runner/tests/bases_run.rs
+- core/rules/rule_check_runner/tests/invented_demo_run.rs
+- core/rules/rule_check_runner/tests/point_path_non_finite_run.rs
+- apps/desktop/src-tauri/src/rule_solver_selection_tests.rs
+- apps/desktop/src-tauri/src/rule_check_object_form_tests.rs
+- tests/test_operation_result_schemas.py

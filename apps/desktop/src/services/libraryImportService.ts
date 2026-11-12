@@ -391,7 +391,7 @@ export function classifyLibraryReference(
   return record.slot_ids.includes(slotId) ? "resolves" : "slot_missing";
 }
 
-// --- Model library references (W-13 §3.5; W-17 §2.7) ---
+// --- Model library references ---
 // Each `library_ref` of the model is compared with the project's local store
 // at project open and load and on library-list refresh:
 // MODEL-LIBRARY-REF-UNRESOLVED when the store holds no such library or record,
@@ -465,7 +465,7 @@ function pointerToken(key: string): string {
 
 /** Every member named `library_ref` at any depth, in document order, whatever its value:
  * an object, `null`, a string, a number, a boolean or an array (a positional record among
- * them). W-18b's library rule 1 (DEL-08-01 Design `report-user-release.md` §2.7), the
+ * them). W-18b's library rule 1, the
  * webview's early check; the native detector is `export_disposition_screen::library_ref_member_sites`,
  * both pinned to `fixtures/model_document/library_ref_member_sites.json`. `libraryRefSites`
  * above keeps only the object members and is unchanged. */

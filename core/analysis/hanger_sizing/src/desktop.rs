@@ -1,15 +1,15 @@
-//! The native size-and-read entry (DEL-04-11 `Work/hanger-sizing.md` §8.3,
+//! The native size-and-read entry (DEL-04-11 design §8.3,
 //! increment 3c part 1): the crate API the desktop's capped worker process runs
 //! as its hanger-sizing task, whose reply the webview's display adapter
 //! (`apps/desktop/src/features/results/hangerSizingView.ts`) takes as the
 //! document and its `HangerSizingReaderEvidence`.
 //!
-//! The input is the raw bytes of exactly the headless input (§8.3.2),
+//! The input is the raw bytes of exactly the headless input,
 //! `{"request": {"model", "materials"}, "sizing", "library"}`:
 //! - more than [`MAX_INPUT_BYTES`] bytes is refused before anything else
 //!   (`HANGER_SIZING_INPUT_TOO_LARGE`), as the headless verb refuses it;
 //! - bytes that are not UTF-8 are refused (`HANGER_SIZING_INPUT_NOT_UTF8`);
-//! - the text is then admitted once by the path-aware admission layer (§8.3.1)
+//! - the text is then admitted once by the path-aware admission layer
 //!   and published by the headless pipeline itself, so the document is the one
 //!   [`size_hangers`](crate::publish::size_hangers) publishes for the same text.
 //!
@@ -23,7 +23,7 @@
 //! ```
 //!
 //! The reader reads the published document in-process, given the admitted
-//! `request` and `library` members of the same input (§8.3.7). It runs closure,
+//! `request` and `library` members of the same input. It runs closure,
 //! binding, arithmetic and derivation; reproduction would re-run every solve, so
 //! it is skipped by [`ReadOptions::WITHOUT_REPRODUCTION`] and reported as
 //! `not_checked`. A refused document gets closure and binding only, by the

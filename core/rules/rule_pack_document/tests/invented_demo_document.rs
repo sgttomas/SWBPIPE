@@ -113,7 +113,7 @@ fn example_pack_document_validation_has_no_blocking_findings() {
 
 #[test]
 fn example_pack_unit_check_shows_only_the_catalog_warning() {
-    // W-17 (DEL-06-02 `Design/rule-pack-unit-check.md` §4): the invented
+    // the invented
     // `demo_unit` and the evaluator's `ratio` token are not catalog symbols,
     // so the declarations get warnings; the check itself is consistent and
     // validation stays non-blocking.

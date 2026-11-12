@@ -50,7 +50,7 @@ export type RenderedReportAssembly = {
 
 export async function assembleRenderedReport(inputs: RenderedReportAssemblyInputs): Promise<RenderedReportAssembly> {
   const { model, result, analysisRun, projectSummary, inputManifest, ruleCheckRun, numericalHealth, context, intent, generatedAt } = inputs;
-  // DEL-05-03 `pf-timoshenko.md` §4: a pressure-free Timoshenko source takes the admission too.
+  // a pressure-free Timoshenko source takes the admission too.
   const exact = takesReportAdmission(result);
   const admission = exact
     ? await admitExactReportSource({ model, result, analysisRun, inputManifest: inputManifest as CurrentSessionInputManifestEvidence })

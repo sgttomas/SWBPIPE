@@ -10,18 +10,16 @@ Independence. Standard library only (fractions, decimal, json, hashlib).
 It imports, reads and runs no product code, product output, fixture, result
 schema or generated envelope. Governing text was read only to fix the declared
 model:
-  - R-4 (execution/PKG-04/DEL-04-07/Work/route-unification-r4.md) §00, §0a,
-    §2.1-§2.4, §3.5 (S5: G-1, G-2, G-3, F-1, O-1, K-1), §3.8, §6;
-  - DEL-04-01 kd5-nonlinear-active-set.md §0 (DEC-067 support laws), §1.2-§1.4
-    (states, k = 1 Stage A), §2.2 (strict pass conditions), §2.4 (fail closed);
-  - DEL-04-07 pressure-contract.md "Accepted T4 direction" H-2 and "T4-U2 as
+  - R-4 (DEL-04-07) S5: G-1, G-2, G-3, F-1, O-1, K-1;
+  - DEL-04-01 (DEC-067 support laws;
+    states, k = 1 Stage A; strict pass conditions; fail closed);
+  - DEL-04-07 "Accepted T4 direction" H-2 and "T4-U2 as
     implemented" (each realized arc owns K_b*u_free(eps_p) - c_b), D-1 caps;
-  - DEL-05-03 section-bases-and-timoshenko.md §1, §3.1, §3.3, §3.6 (arcs stay
+  - DEL-05-03 (arcs stay
     Euler-Bernoulli);
   - the arc flexibility definition of validation/references/t4_i7 (unit-load
     integrand N n/EA + T t/GJ + k (M.m - T t)/EI; no shear on arcs);
-  - DEL-05-02 exact-combinations.md §4, pf-nonlinear-operand-standing.md and
-    absolute-sum-srss-combinations.md (NONLINEAR_COMBINATION_REQUIRES_SOLVE).
+  - DEL-05-02 (NONLINEAR_COMBINATION_REQUIRES_SOLVE).
 No value is taken from any product output. All model data are invented.
 
 Two formulations. They share the input data, the section formulas, the DEC-067
@@ -1497,12 +1495,12 @@ def lc_inputs(lc):
 
 
 GAP_STANDING = ("NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED: gap-bearing case, R1's unqualified branch; "
-                "no confirmation runs until R-3 (R-4 §3.5 'Gaps'; kd5-nonlinear-active-set.md R1)")
+                "no confirmation runs until R-3 (R-4 §3.5 'Gaps'; DEL-04-01 R1)")
 CONF_STANDING = ("K-D5 confirmation applies (non-gap converged state); its outcome is the product's, not asserted "
                  "here. Every deciding quantity below is strictly signed, so the state is not weakly active (R3).")
 DERIVED_INACTIVE = ("Expected NUMERICAL_INTEGRITY_SENSITIVE with 'support support:FRICTION: friction normal not "
                     "established': a derived-normal friction support in state Inactive fails closed "
-                    "(kd5-nonlinear-active-set.md §2.2 table, §2.4 item 7). The loop rows are as below.")
+                    "(DEL-04-01). The loop rows are as below.")
 
 
 def build_reference():
@@ -1907,9 +1905,9 @@ def build_reference():
         chk.true(f"combination illustration: 0.5*F1-SLIDE + 0.5*F1-STICK != solved F1-MID ({key})", comb != solved)
     combinations = {
         "rule": ("In a model with any nonlinear support a mechanics combination is withheld by name, "
-                 "NONLINEAR_COMBINATION_REQUIRES_SOLVE (pf-nonlinear-operand-standing.md; exact-combinations.md §4, "
+                 "NONLINEAR_COMBINATION_REQUIRES_SOLVE (DEL-05-02, "
                  "to be lifted onto EX in S5 by R-4 §3.5), except as admitted by decision OQ-1 "
-                 "(absolute-sum-srss-combinations.md §5.2): one term names a solved load case with factor exactly 1, "
+                 "(DEL-05-02): one term names a solved load case with factor exactly 1, "
                  "there is at least one other term, and every other term names a combination with kappa exactly 0 "
                  "(a difference, absolute sum or SRSS of kappa-zero operands, or a combination of those; undefined "
                  "kappa does not qualify); such a combination is formed from rows with operand standing, not an "
@@ -1925,7 +1923,7 @@ def build_reference():
             "mechanics(0.5*G1 + 0.5*G1-P0), mechanics(1.0*F1-SLIDE + 1.0*F1-P0-SLIDELOAD), "
             "mechanics(0.3*O1-LIFT + 0.7*O1-CONTACT) (unit factor sum: still withheld)",
             "the same combinations with gap-bearing operands (G models); their operands are also unqualified",
-            "absolute-sum/SRSS forms outside OQ-1's admitted shape (absolute-sum-srss-combinations.md V-9)",
+            "absolute-sum/SRSS forms outside OQ-1's admitted shape (DEL-05-02 V-9)",
         ],
         "formed_not_withheld": ["result_state_subtraction (e.g. G1 - G1-P0), range_envelope over G1, G2 and G1-P0"],
         "why": {
@@ -1945,12 +1943,12 @@ def build_reference():
         "status": "frozen analytical candidate; product agreement and independent scrutiny recorded separately",
         "source_revision_read": SOURCE_REVISION,
         "governing_sources": [
-            "execution/PKG-04/DEL-04-07/Work/route-unification-r4.md §00, §0a, §2.1-§2.4, §3.5 (S5: G-1, G-2, G-3, F-1, O-1, K-1), §3.8, §6",
-            "execution/PKG-04/DEL-04-01/Work/kd5-nonlinear-active-set.md §0, §1.2-§1.4, §2.2, §2.4 (DEC-067 laws, k = 1 Stage A, strict conditions, fail closed)",
-            "execution/PKG-04/DEL-04-07/Work/pressure-contract.md 'Accepted T4 direction' H-2; 'T4-U2 as implemented' (arc ledger K_b*u_free(eps_p) - c_b); 'Tees and pressure junctions' (caps)",
-            "execution/PKG-05/DEL-05-03/Work/section-bases-and-timoshenko.md §1, §3.1, §3.3, §3.6",
+            "DEL-04-07 (R-4 S5: G-1, G-2, G-3, F-1, O-1, K-1)",
+            "DEL-04-01 (DEC-067 laws, k = 1 Stage A, strict conditions, fail closed)",
+            "DEL-04-07 'Accepted T4 direction' H-2; 'T4-U2 as implemented' (arc ledger K_b*u_free(eps_p) - c_b); 'Tees and pressure junctions' (caps)",
+            "DEL-05-03",
             "validation/references/t4_i7 (arc unit-load flexibility definition: N n/EA + T t/GJ + k (M.m - T t)/EI)",
-            "execution/PKG-05/DEL-05-02/Work/exact-combinations.md §4; pf-nonlinear-operand-standing.md; absolute-sum-srss-combinations.md",
+            "DEL-05-02",
         ],
         "independence": "standard library only; no product code, product output, fixture, result schema or generated envelope is imported, read or run; all data invented",
         "model": {
@@ -1961,8 +1959,8 @@ def build_reference():
                         "A_i_m2": num(AI, "m^2"), "kappa_E": str(KAPPA), "A_s_m2": num(ASH, "m^2"),
                         "note": "c_m = c_a = 0: the nominal and reduced bases coincide; every stress value is the value of both basis families"},
             "pressure": "caps p*A_i along the outward axis at transfers_to_wall terminals; none at separately_supported_or_compensated terminals; eps_p = (1-2nu) p A_i/(E A_n); N_w = S + p A_i",
-            "realized_arc": "Euler-Bernoulli under either shear model; quarter circle; the user's k multiplies both bending flexibilities; axial and torsional flexibility unmodified; no shear term (T4-I7 definition; section-bases §3.6)",
-            "support_laws": "DEC-067 as in kd5-nonlinear-active-set.md §0; r = (K u - f)_d is the support-on-pipe force with f including any cap at that node; states decided with the strict §2.2 conditions",
+            "realized_arc": "Euler-Bernoulli under either shear model; quarter circle; the user's k multiplies both bending flexibilities; axial and torsional flexibility unmodified; no shear term (T4-I7 definition; DEL-05-03)",
+            "support_laws": "DEC-067 as in DEL-04-01; r = (K u - f)_d is the support-on-pipe force with f including any cap at that node; states decided with the strict §2.2 conditions",
             "exact_form": "rational functions of pi with rational coefficients; Laurent forms printed as sums of q*pi^k; 'value' is the nearest binary64, decided by rational pi bounds 1e-110 apart",
             "units": "m, rad, N, N*m, Pa",
         },

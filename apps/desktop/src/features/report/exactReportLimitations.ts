@@ -25,7 +25,7 @@ function entry(producer_sha256: string, statement: string): ExactReportStatement
   return Object.freeze({ producer_sha256, statement });
 }
 
-/** The 19 entries, in the producer's composition order (§1.3). */
+/** The 19 entries, in the producer's composition order. */
 export const EXACT_REPORT_STATEMENTS: readonly ExactReportStatement[] = Object.freeze([
   // S1 identity, pressure-2
   entry("4a480b1611429ca62a3800143b85f9ac3039901383f1dd210376e0ea0f3ba0d4",

@@ -2,406 +2,123 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-06-02
 package_id: PKG-06
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-045]
 package_objective_refs: [OBJ-005]
 ---
 
-# Scope of Work — DEL-06-02
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-06-02 Sandboxed unit-aware expression evaluator
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-06-02` in service of project scope [SOW-045] and package objectives [OBJ-005].
+A user's formula is computed safely and with its units. The expressions in a rule pack are data. Evaluating one cannot run code, read a file or reach the network. Every quantity in it carries a dimension and a unit, and an operation on incompatible quantities yields a finding and no number. The same inputs give the same value and the same findings, in the same order, every time. The result this deliverable contributes is that a user's own criteria can be applied to solver results without the product executing anything a pack's author wrote.
 
-- **OUT-001** — A sandboxed unit-aware expression-evaluator contract covering a declarative allowlisted grammar, typed variables and functions, dimensional checks, bounded evaluation, deterministic diagnostics, canonical rule-pack version binding, and schema-first result envelopes is produced for the declared scope and objective.
+It serves SOW-045 under OBJ-005 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-06, row DEL-06-02), and `docs/PRD.md` §17.3, FR-RULE-002, §5.6, §10.6 step 3 and §22.4, with `docs/CONTRACT.md` OPS-K-RULE-2 and OPS-K-UNIT-1, `docs/SPEC.md` §7 and threat STM-007 of `docs/security/threat_model.md`. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it.
+
+- **OUT-001** — The expression grammar and its evaluator: the typed expression tree with its encoding in a pack document, evaluation over bound quantities, the static type check of an expression, and the conformance corpus that fixes the grammar.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-06-02 Sandboxed unit-aware expression evaluator
+**Terms the evaluator implements.**
 
-> #### Datasheet: DEL-06-02 Sandboxed unit-aware expression evaluator
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Expression.* A typed tree. The tree is the only canonical form of a formula and is bound by the pack's checksum. There is no text syntax and no parser anywhere in the product. A one-way rendering of a tree as text may be displayed, labelled as display only and not accepted as input.
+- *Grammar version.* A semantic version a pack declares. The evaluator supports a stated set of versions and blocks every other; it never evaluates on a best-effort basis. A minor version only adds; a breaking change is a new major version. The conformance corpus is the statement of a version: a grammar change without a corpus extension and a version change is not a grammar change.
+- *Function set.* Numeric literal and variable reference; add, subtract, multiply, divide, negate and absolute value; the six comparisons; and, or and not; the conditional `select`; `min` and `max` over any number of operands; piecewise-linear `interpolate`, and `lookup` in exact or step mode, over a user-supplied table with strictly increasing arguments. Power and square root are not in the grammar.
+- *Quantity.* A value with a dimension and a unit reference. The grammar's dimensions are a closed set.
+- *Dimension algebra.* Addition, subtraction, comparison, `min`, `max` and the two branches of `select` require the same dimension and the same unit reference. A dimensionless factor or divisor leaves the other operand's dimension and unit reference unchanged. A quotient of two quantities of the same dimension and the same unit reference is dimensionless, with reference `ratio`. Any other product or quotient of dimensions resolves only through an enumerated table of eighteen mechanics relations, such as force times length is moment and stress times section modulus is moment. A product or quotient that the table does not hold, or that it resolves ambiguously, is a blocking finding. The unit reference of a product is its factors' references joined in sorted order, of a quotient its numerator's over its denominator's, and of a dimensionless result `ratio`.
+- *No conversion.* The evaluator converts no unit. A bound value reaches it already in its declared unit; the conversion is made at binding, through the unit catalog (DEL-06-03).
+- *Eager evaluation.* Every operand, and both branches of `select`, are evaluated in a fixed order, so a blocking finding in a part the value does not need still blocks.
+- *Tables.* An argument outside a table's range blocks, with no extrapolation and no clamping. An exact lookup that matches no row blocks.
+- *Finding.* A code from a closed set, the identifier of the subject, and a message. The codes cover an unsafe construct, an unsupported form, a missing variable, a duplicate binding, an invalid reference, a missing required value, a value that is not finite, division by zero, missing unit metadata, a unit mismatch, a dimension mismatch, a type mismatch, a status-boundary violation, an unsupported grammar version, a malformed table, a table argument out of range and a table key not found.
+- *Static type check.* The check of an expression from its variables' declared dimensions and units alone, with no values. It applies the evaluator's own rules and reports the findings that depend only on types and on the pack's literals. A variable declared without complete unit metadata is unknown, and no finding is reported against an unknown operand.
+- *Status boundary.* An evaluation result carries analysis statuses and can never carry human approval.
 
-### CLM-003 — PDU-024 Version Integration
+**Undecided.**
 
-> ##### PDU-024 Version Integration
->
-> - Project-carried evaluator inputs consume DEL-02-05 model-document version handling: one current version, every other refused by name (DEL-02-05 CLM-003).
-> - Version-check diagnostics use DEL-02-05 CLM-003's states (`current`, `unsupported_schema`, `newer_than_supported`, named re-author refusal); the code names the re-author refusal `retired_schema` and, since B7, has no `stale` or `failed` state (DEL-04-08 Design, `b7-plan.md`).
-> - No expression grammar, binding namespace, evaluator library, rule-pack fixture, or migration tooling is added.
->
+- Whether a pack may declare a unit that is not in the unit catalog, bound only where the entered unit string is identical. DEL-02-02 commits that an unknown unit is refused at the rule-input boundary.
+- Whether the catalog's dimensionless symbol and the grammar's `ratio` reference denote one unit.
+- Whether a rule comparison takes a tolerance. Comparisons are exact in binary64.
+- What a rule check does with a solver value that is published as an interval.
+- Whether a validation finding may quote the display-only rendering of an expression. The rule expression text syntax (`execution/_Coordination/_DECISIONS/D-02b_rule_expression_text_syntax.md`) permits it; AC-009 excludes it, under threat STM-007.
 
-### CLM-004 — Identification
-
-> ##### Identification
->
-> | Field | Value | Source |
-> |---|---|---|
-> | Deliverable ID | DEL-06-02 | `_CONTEXT.md` |
-> | Package ID | PKG-06 | `_CONTEXT.md` |
-> | Package | Rule Packs and User-Supplied Code Check Engine | `_CONTEXT.md` |
-> | Type | BACKEND_FEATURE_SLICE | `docs/_Registers/Deliverables.csv` row DEL-06-02 |
-> | Scope item | SOW-045 | `docs/_Registers/ScopeLedger.csv` row SOW-045 |
-> | Objective | OBJ-005 | `execution/_Decomposition/SOFTWARE_DECOMP.md` objective map |
-> | Context envelope | L | `_CONTEXT.md` |
-> | Setup status | Contract and implementation evidence in `core/rules/expression_evaluator/`; acceptance separate | Human sealed brief |
->
-
-### CLM-005 — Attributes
-
-> ##### Attributes
->
-> | Attribute | Value | Source |
-> |---|---|---|
-> | Primary purpose | Define an evaluator that can evaluate user-defined rule-pack expressions against solver results and user-owned design bases. | SOW-045; OBJ-005 |
-> | Required posture | Sandboxed, unit-aware, deterministic, and declarative. | `docs/SPEC.md` section 6; OPS-K-RULE-2; OPS-K-UNIT-1 |
-> | Arbitrary executable code | Not permitted. | OPS-K-RULE-2 |
-> | Unit and dimensional checks | Required for formulas, values, imports, exports, and evaluator results. | OPS-K-UNIT-1 |
-> | Missing required values | Explicit findings, never silent defaults. | OPS-K-DATA-2 |
-> | Expression grammar/library | DEC-022 selects the in-repo declarative typed AST grammar; no writable text parser or arbitrary code is implied. | OI-006; sealed brief |
-> | Protected formulas or code-derived values | Excluded from public setup artifacts. | OPS-K-IP-1; OPS-K-IP-3; `docs/IP_AND_DATA_BOUNDARY.md` |
-> | Professional approval | Outside evaluator authority. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | OPS-K-MECH-2; OPS-K-AUTH-1; `docs/TYPES.md` section 4 |
->
-
-### CLM-006 — Conditions
-
-> ##### Conditions
->
-> | Condition | Handling |
-> |---|---|
-> | Public repository boundary | Public artifacts may describe schemas, sandbox behavior, invented examples, and tests. They must not embed protected standards text, tables, proprietary formulas, material allowables, SIF/flexibility tables, or owner design-basis content. |
-> | User-owned rule basis | User rule packs may contain private or licensed formulas and values in user-controlled paths. Public deliverables only define the safe evaluation boundary. |
-> | Determinism | The implementation must produce repeatable results and diagnostics for the same inputs, units, evaluator version, and rule-pack content. Exact numerical tolerances remain TBD. |
-> | Diagnostics | Evaluator outputs should reach result-envelope diagnostics with code, class, severity, source, affected object, message, remediation, and provenance where applicable. The evaluator emits `EvaluationFinding` (code, subject, message), which `core/rules/rule_check_runner` carries as `RunFinding` with a severity; the remaining fields are not yet carried. |
-> | Plugin and adapter boundary | Adapters and plugins must not bypass sandboxing, unit validation, provenance checks, diagnostics, or public/private data controls. |
->
-
-### CLM-007 — Construction
-
-> ##### Construction
->
-> This setup run produces deliverable-local planning and readiness artifacts only:
->
-> - `ScopeOfWork.md`.
-> - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` for semantic readiness.
-> - `Dependencies.csv` and `_DEPENDENCIES.md` for dependency extraction.
-> - `_run_records/` evidence for each required setup step.
->
-> Current implementation evidence includes:
->
-> - `core/rules/expression_evaluator/` - current evaluator source and contract.
-> - Evaluator crate tests and golden conformance corpus - candidate-bound verification evidence.
-> - `Work/rule-pack-unit-check.md` (W-17): expression units are also checked statically when a pack is validated (`unit_check` in the validation response); units of solver results and entered values are still checked when the check runs.
->
-
-### CLM-008 — References
-
-> ##### References
->
-> | Source | Use |
-> |---|---|
-> | `loop/LOOP_INIT.md` | Bootstrap boundaries and stop rules. |
-> | `AGENTS.md` | TASK dispatch discipline and write-scope rule. |
-> | `docs/CONTRACT.md` | Invariants OPS-K-RULE-2, OPS-K-UNIT-1, OPS-K-DATA-2, OPS-K-PRIV, OPS-K-IP, OPS-K-AGENT-1..4. |
-> | `docs/SPEC.md` | Rule-pack evaluator section, diagnostic classes, reporting, and V&V expectations. |
-> | `docs/TYPES.md` | Rule-pack check, user-rule checked status, human review boundary, and data provenance vocabulary. |
-> | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private rule-pack and protected-data boundary. |
-> | `docs/VALIDATION_STRATEGY.md` | Rule-pack evaluator verification families. |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-06, DEL-06-02, AB-00 basis rows, OI-006. |
-> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable identity and risk note. |
-> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-045 source row. |
-> | `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) | WATCH risk and split-if-expanded note. |
+**Boundary.** This deliverable evaluates and type-checks expressions. The pack format, and where a pack declares its variables, are DEL-06-01's. Binding data to variables, converting bound values to declared units, the outcome of a check and how a finding appears in a run result are DEL-06-03's. The binding of the grammar version into the pack checksum is DEL-06-04's. The expression composer is DEL-07-03's, and unit definitions and conversions are DEL-02-02's. Evaluation of expressions on behalf of a plugin or adapter is outside v1.0, as `docs/RELEASE_TARGET_v1.0.md` states for rule packs (also cited as DEL-06-02:3).
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-009 — Specification: DEL-06-02 Sandboxed unit-aware expression evaluator
+A value the evaluator returns is the user's formula applied to the user's data. It establishes nothing about whether the formula or the data is right.
 
-> #### Specification: DEL-06-02 Sandboxed unit-aware expression evaluator
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-011 — Scope
+Requirement numbers 001 to 011 are those of the earlier `REQ-06-02-0nn` series.
 
-> ##### Scope
->
-> This contract governs the backend evaluator for user-defined rule-pack expressions. It covers sandboxing, unit awareness, variable binding, deterministic diagnostics, and public/private data boundaries.
->
-> Current implementation and tests are in `core/rules/expression_evaluator/` under DEC-022. No numerical tolerance, protected formula, code-specific rule content or professional-compliance claim is supplied by this contract.
->
+- **REQ-001** — The evaluator is sandboxed and incapable of arbitrary code execution.
+- **REQ-002** — The evaluator is declarative: a rule pack defines expressions and checks, not programs. The grammar has no loop, recursion or user-defined function, so the work of an evaluation is bounded by the size of the expression.
+- **REQ-003** — All expression inputs, intermediate quantities, comparisons and outputs are unit-aware and dimensionally checked.
+- **REQ-004** — A missing variable, a missing required value, a unit mismatch, an invalid reference and an unsupported expression form each produce an explicit finding and never a default.
+- **REQ-005** — A variable binds only to a declared rule-pack variable, a solver result field or a user-supplied design-basis input.
+- **REQ-006** — The grammar is the declarative typed tree defined above, within its sandbox boundary. A change to the grammar is made only as a new grammar version (*Grammar version*). An extension not yet adopted enters, as an additive minor version, only on the decision that governs it under the delegation in force, recorded with the change. A breaking change enters, as a new major version, only on a recorded ruling of the owner.
+- **REQ-007** — Public artifacts of the evaluator include no protected standards text, table, code-derived formula, material allowable, SIF or flexibility data, proprietary vendor data, owner standard or private rule pack.
+- **REQ-008** — An evaluation result is never represented as code compliance, certification, sealing, approval or professional reliance (PRD §21.2).
+- **REQ-009** — Evaluation keeps mechanics solved, user-rule checked, incomplete data and human approval as separate states.
+- **REQ-010** — No adapter or plugin reaches evaluation around the sandbox, the unit checks, the provenance checks, the diagnostics or the data boundary.
+- **REQ-011** — The evaluator is examined for rejection of unsafe expressions, dimension mismatch, missing bindings, deterministic findings, the protected-content boundary of its public examples, and bypass attempts by a plugin or adapter. The last is examined with the plugin and adapter runtime, after v1.0 (also cited as DEL-06-02:1).
+- **REQ-012** — Evaluation is deterministic: the same expression, bindings and grammar version give the same value and the same findings in the same order (PRD §17.3).
+- **REQ-013** — The units of every check's formula are checked when a pack is validated, without values, so that a check that can never evaluate is reported to its author before it is run (PRD §10.6 step 3; FR-RULE-002).
+- **REQ-014** — A finding never discloses the private content of a pack: no magnitude, table row or rendered formula (threat STM-007).
 
-### CLM-012 — PDU-024 Persistence Integration Boundary
+### Acceptance criteria
 
-> ##### PDU-024 Persistence Integration Boundary
->
-> When user-supplied design-basis inputs or rule-check references are carried in a project model, downstream DEL-02-05 persistence uses its single current model-document version and current-or-refused version checks (DEL-02-05 CLM-003). This does not change the evaluator's binding contract, grammar, sandbox, or result-field scope.
->
-
-### CLM-013 — Requirements
-
-> ##### Requirements
->
-> | ReqID | Requirement | Source |
-> |---|---|---|
-> | REQ-06-02-001 | The evaluator shall be sandboxed and incapable of arbitrary code execution. | SOW-045; OPS-K-RULE-2 |
-> | REQ-06-02-002 | The evaluator shall remain declarative: rule packs define expressions and checks, not executable programs. | SOW-045; OI-006 |
-> | REQ-06-02-003 | All expression inputs, intermediate quantities where represented, comparisons, and outputs shall be unit-aware and dimensionally checked. | OPS-K-UNIT-1 |
-> | REQ-06-02-004 | Missing variables, missing required rule-check values, unit mismatches, invalid references, and unsupported expression forms shall produce explicit findings rather than silent defaults. | OPS-K-DATA-2; `docs/SPEC.md` section 7 |
-> | REQ-06-02-005 | Variable binding shall be limited to declared rule-pack variables, solver result fields, and user-supplied design-basis inputs allowed by the sealed schema/interface contract. | `docs/SPEC.md` section 6; AB-00-02; AB-00-07 |
-> | REQ-06-02-006 | The evaluator shall preserve the DEC-022 declarative typed AST grammar and sandbox boundary; unadopted grammar extensions require their governing decision. | OI-006; sealed brief |
-> | REQ-06-02-007 | Public artifacts shall not include protected standards text, tables, code-derived formulas, material allowables, SIF/flexibility data, proprietary vendor data, owner standards, or private rule packs. | OPS-K-IP-1; OPS-K-IP-3; `docs/IP_AND_DATA_BOUNDARY.md` |
-> | REQ-06-02-008 | Rule-pack evaluation results shall not be represented as automatic code compliance, certification, sealing, approval, or professional reliance (PRD §21.2). | OPS-K-AUTH-1; OPS-K-MECH-2; `docs/TYPES.md` section 4 |
-> | REQ-06-02-009 | Diagnostics and result envelopes shall preserve mechanics solved, user-rule checked, incomplete data, and human-approved state separation. | AB-00-03; AB-00-06 |
-> | REQ-06-02-010 | Adapters and plugins shall not bypass sandboxing, unit checks, provenance checks, diagnostics, or public/private data boundaries. | AB-00-07 |
-> | REQ-06-02-011 | Tests shall cover unsafe expression rejection, dimension mismatch, missing binding, deterministic diagnostic emission, protected-content boundaries for public examples, and plugin/adapter bypass attempts. | `docs/VALIDATION_STRATEGY.md`; AB-00-08 |
->
-
-### CLM-014 — Standards
-
-> ##### Standards
->
-> No external protected standard text is introduced by this setup. Governing local standards are the project bootstrap, invariant catalog, data-boundary policy, analysis-status vocabulary, sealed architecture-basis rows in `_CONTEXT.md`, and the decomposition/register rows for DEL-06-02 and SOW-045.
->
-
-### CLM-015 — Open Decisions
-
-> ##### Open Decisions
->
-> | Decision | Current status | Required handling |
-> |---|---|---|
-> | Expression grammar and parser/evaluator library | DEC-022 | Preserve the declarative typed AST and sandbox; no arbitrary-code or text-parser extension is selected. |
-> | Quantity representation and unit algebra integration point | DEC-022/018 | Preserve the typed quantity model and unit-contract boundary; runner normalization is separately evidenced in `core/rules/rule_check_runner/`. |
-> | Final diagnostic code taxonomy | TBD | Use explicit finding classes in setup; define final codes in implementation scope. |
-> | Numerical tolerances for comparisons | TBD | Do not invent tolerances in setup artifacts. |
-> | Variable namespace and result-field binding contract | DEC-039 and current rule-pack schema | Preserve ratified binding members and explicit unresolved result references; do not invent additional public fields. |
->
-
-### CLM-016 — Verification
-
-> ##### Verification
->
-> | Requirement | Verification approach |
-> |---|---|
-> | REQ-06-02-001 | Security tests demonstrating that expressions cannot invoke filesystem, network, process, reflection, imports, or host-language execution paths. |
-> | REQ-06-02-002 | Schema/evaluator tests proving accepted rule definitions are declarative expressions and checks only. |
-> | REQ-06-02-003 | Unit tests for compatible dimensions, incompatible dimensions, comparison dimensions, and explicit unit metadata propagation. |
-> | REQ-06-02-004 | Negative tests for missing variables, invalid references, unsupported operators, and missing user rule inputs. |
-> | REQ-06-02-005 | Binding tests using only declared variables and result fields from the sealed interface. |
-> | REQ-06-02-006 | Review gate check confirming grammar/library selection is recorded before implementation. |
-> | REQ-06-02-007 | Protected-content and private-data review for public rule-pack examples and evaluator fixtures. |
-> | REQ-06-02-008 | Status/result tests confirming no automatic `CODE_COMPLIANT` or professional approval state is emitted. |
-> | REQ-06-02-009 | Result-envelope inspection for diagnostics, warnings, provenance, and state separation. |
-> | REQ-06-02-010 | Adapter/plugin boundary tests proving no bypass path reaches the evaluator without validation. |
-> | REQ-06-02-011 | CI or release-gate inclusion of deterministic evaluator verification. |
->
-
-### CLM-017 — Documentation
-
-> ##### Documentation
->
-> Required setup artifacts are `ScopeOfWork.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`.
->
-> Grammar and text-syntax decisions are D-02/`DEC-022` and D-02b/`DEC-037` in `execution/_Coordination/_DECISIONS/`. STM-007 in `docs/security/threat_model.md` supplies the project-level rule-evaluator threat entry; evaluator-specific threat documentation remains required. Unit and binding decisions are recorded in DEC-018, DEC-022, DEC-031 and CLM-015; current runtime binding and normalization are implemented in `core/rules/rule_check_runner/`. `Work/rule-pack-unit-check.md` documents validation-time unit checking and its remaining limits. Test sources are the evaluator crate tests and `fixtures/rule_expressions/conformance_corpus/`. Unresolved unit-binding contract details, the final diagnostic taxonomy (CLM-015) and applicable verification evidence remain to be added.
-
-- **AC-001** — The contract preserves the accepted no-arbitrary-code, no-side-effect, unit/provenance, protected-content, private-data, and professional-authority boundaries together with the DEC-022 grammar boundary and remaining integration obligations, without embedding proprietary rules, formulas, allowables, silent conversions, or compliance meaning.
+- **AC-001** — No expression causes the evaluator to read or write a file, open a network connection, start a process, load code or evaluate host-language text. A node of a kind outside the grammar, each unsafe request form included, yields its named finding and no value. The evaluator's module has no dependency or call that performs such access.
+- **AC-002** — For each function of the grammar, evaluation on invented inputs gives the value its definition gives, exactly, where the inputs and the result are exactly representable in binary64: the arithmetic and comparison operators, the logical operators, both outcomes of `select`, `min` and `max` of one and of several operands, interpolation at a row and between rows, and lookup in each mode.
+- **AC-003** — Each operation on compatible operands gives the stated dimension and unit reference, for every relation of the dimension table in each direction, and a dimensionless scaling and a same-dimension quotient give the stated dimension and reference. An addition, subtraction, comparison, `min`, `max` or pair of `select` branches on operands of different dimension or unit reference, a same-dimension quotient of different unit references, a product or quotient outside the table, an ambiguous quotient, and a quantity without unit metadata give their named findings and no value.
+- **AC-004** — A missing variable, a duplicate binding, an empty reference, a missing required value, an input or intermediate result that is not finite, a zero divisor, a malformed table, a table argument out of range and an exact lookup with no matching row each give their named finding and no value. Nothing is defaulted, extrapolated or clamped, and a blocking operand blocks even where the selected value does not use it.
+- **AC-005** — The same expression, bindings and grammar version give a bit-identical value and the same findings in the same order on every run and on every supported platform.
+- **AC-006** — A pack whose grammar version is missing, malformed or unsupported is blocked with a named finding and evaluates nothing. The conformance corpus has, for every function of the grammar, an accepting case and a blocking case for each finding code that function can raise, and cases for the unit and dimension rules; every case reproduces.
+- **AC-007** — Every corpus expression decodes from its pack encoding to a tree and encodes back to the same document. An expression with an unknown node or operator is refused with a named finding and its path in the pack.
+- **AC-008** — For every corpus case, each expected finding that depends only on types and literals is reported by the static type check with the same code and subject; on a case whose expected findings are all of that kind, or that has none, the static findings equal the expected ones. Validation of a pack reports, for each check, whether its formula and its limit are consistent in dimension and unit with the declared inputs and slots, and reports a check that would block on units at every run.
+- **AC-009** — No finding from evaluation or from validation contains a magnitude, a table row, a summary of a formula's payload or a rendering of an expression; its message names only codes, subject identifiers, paths in the pack, and dimension and unit tokens.
+- **AC-010** — No evaluation result carries human approval, compliance, certification or sealing, and an input status of human approval is not passed through as one.
+- **AC-011** — The conformance corpus and every other public fixture of the evaluator hold invented values only, and none holds protected or private content.
+- **AC-012** — Evaluation has two callers in the product, the validation of a pack and the rule-check run, and no import, export, adapter or plugin path evaluates an expression.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-018 — Procedure: DEL-06-02 Sandboxed unit-aware expression evaluator
+**Method choices that define the evaluator.**
 
-> #### Procedure: DEL-06-02 Sandboxed unit-aware expression evaluator
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- The evaluator is purpose-built and in the repository. It takes a tree and bindings in memory and has no access to anything else.
+- Dimensions are a closed set and their products an enumerated table. A relation that is not in the table is refused; the set is never extended silently.
+- The static type check shares the evaluator's rules for products, quotients, composed units and unit equality, and it visits every operand because it has no values to stop at.
+- The corpus holds invented values chosen to be exact in binary64, and compares values exactly and findings in order.
 
-### CLM-020 — PDU-024 Integration Check
+**How each criterion is examined.**
 
-> ##### PDU-024 Integration Check
->
-> 1. Validate evaluator inputs under the existing binding, unit, sandbox, and diagnostic contract.
-> 2. For inputs carried in a project model, consume DEL-02-05 version-check/migration evidence rather than a local current-version literal.
-> 3. Preserve project-version diagnostics in DEL-02-05 CLM-003's states (in the code, `current`, `retired_schema`, `newer_than_supported` and `unsupported_schema`); do not alter evaluator grammar, binding namespaces, or fixtures in response to model-document version handling.
->
-
-### CLM-021 — Purpose
-
-> ##### Purpose
->
-> Describe maintenance and verification of the sandboxed, unit-aware declarative evaluator under DEC-022, preserving no-side-effect, unit, diagnostic and protected-content obligations.
->
-
-### CLM-022 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Status |
-> |---|---|
-> | Sealed deliverable context for DEL-06-02 | Present in `_CONTEXT.md`. |
-> | Governing invariants and data boundary read | Completed for this setup run. |
-> | Consolidated contract | Produced by the historical preparation pass; current carrier is ScopeOfWork.md. |
-> | Semantic matrix and lensing artifacts | Produced by TASK+semantic-matrix-build and TASK+lens-register. |
-> | Dependency register | Produced by TASK+dependency-extract. |
-> | Expression grammar/library decision | DEC-022 records the grammar decision; conformance evidence remains required. |
-> | Unit-system integration contract | Interface dependency on DEL-02-02 or equivalent sealed unit contract. |
-> | Rule-pack schema interface | Interface dependency on DEL-06-01 or equivalent sealed schema contract. |
->
-
-### CLM-023 — Steps
-
-> ##### Steps
->
-> 1. Confirm the active sealed brief names only DEL-06-02, PKG-06, SOW-045, OBJ-005, applicable invariants, and explicit write scope.
-> 2. Confirm no protected standards text, protected formulas, proprietary values, owner standards, private rule packs, or commercial examples are being introduced.
-> 3. Before implementation, obtain a human architecture decision for the expression grammar/library and record any security constraints or rejected options.
-> 4. Define the accepted declarative expression surface without host-language execution, imports, reflection, filesystem access, network access, process execution, or hidden side effects.
-> 5. Bind variables only from declared rule-pack variables, solver result fields, and user-supplied design-basis inputs allowed by the sealed schema/interface contract.
-> 6. Apply unit and dimensional checks to expression operands, comparisons, and outputs using the sealed unit-system contract.
-> 7. Emit deterministic diagnostics for invalid expressions, unsupported constructs, missing variables, missing rule-check inputs, unit mismatches, and boundary violations.
-> 8. Preserve state semantics: mechanics solved, rule inputs incomplete, user-rule checked, user-rule failed, and human review required are distinct outcomes.
-> 9. Add tests for unsafe expression rejection, unit mismatch, missing binding, deterministic diagnostics, public/private data boundaries, and adapter/plugin bypass prevention.
-> 10. Route implementation and test evidence to REVIEW before any lifecycle transition beyond development draft states.
->
-
-### CLM-024 — Verification
-
-> ##### Verification
->
-> | Check | Evidence |
-> |---|---|
-> | Consolidated scope and source sections exist | Inspect `ScopeOfWork.md` and its required consolidated source sections; retain historical four-document check output as historical evidence |
-> | Semantic artifact exists and audit states PASS | `_SEMANTIC.md#Audit-Result` |
-> | Lensing coverage exists for matrices A, B, C, F, D, X, and E | `_SEMANTIC_LENSING.md` |
-> | Dependency register is schema-valid | `python3 tools/validation/validate_dependencies_schema.py <deliverable path>/Dependencies.csv` |
-> | Status value is valid | Preserve the lifecycle recorded in `_STATUS.md` (retired in `497a8d81e4`; see Git history); contract verification does not promote it. |
-> | No ISSUED transition occurred | Preserve the lifecycle recorded in `_STATUS.md` (retired in `497a8d81e4`; see Git history); contract verification does not promote it. |
->
-
-### CLM-025 — Records
-
-> ##### Records
->
-> - `ScopeOfWork.md` (definition)
-> - `ScopeOfWork.md` (requirements)
-> - `ScopeOfWork.md` (rationale)
-> - `ScopeOfWork.md` (procedure)
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_STATUS.md`
-> - `_run_records/TASK_RUN_2026-04-30_1032_four-documents-p1-p2.md`
-> - `_run_records/TASK_RUN_2026-04-30_1032_semantic-matrix-build.md`
-> - `_run_records/TASK_RUN_2026-04-30_1032_lens-register.md`
-> - `_run_records/TASK_RUN_2026-04-30_1032_four-documents-p3.md`
-> - `_run_records/TASK_RUN_2026-04-30_1032_dependency-extract.md`
-
-- **VER-001** — Validate the contract and review source parity, grammar and sandbox boundaries, dimensional compatibility, persistence/version binding, deterministic evaluation and diagnostics, resource constraints, protected-content controls, and every unresolved governed item.
+- **VER-001** — AC-001 and AC-012, executable check with judgment by a reviewer who did not write the evaluator: observes the evaluator module's dependency set and its source for file, network, process and code-loading interfaces, the modules that depend on it, and the finding for each unsafe form; the reviewer examines the result against threat STM-007.
+- **VER-002** — AC-002, AC-003, AC-004 and AC-006, comparison with a named reference: the conformance corpus, each case's expected value and findings recomputed from the grammar's definitions by a reference that imports no evaluator code; with an executable check of the corpus's coverage of each function with each finding code it can raise, and of the unit and dimension rules.
+- **VER-003** — AC-005, executable check: evaluates every corpus case repeatedly and on each supported platform and compares the value's bits and the findings' order.
+- **VER-004** — AC-007 and AC-008, executable check: round-trips every corpus expression through the pack encoding, compares the static findings with each case's expectations, and observes the unit findings of constructed packs.
+- **VER-005** — AC-009 and AC-010, executable check: validates and evaluates constructed packs that carry sentinel magnitudes, table rows and private strings, and observes every serialized finding, run result and status.
+- **VER-006** — AC-011, judgment by a reviewer who did not write the corpus, with the protected-content scan: examines every corpus case and fixture and its provenance statement.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-026 — Guidance: DEL-06-02 Sandboxed unit-aware expression evaluator
-
-> #### Guidance: DEL-06-02 Sandboxed unit-aware expression evaluator
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-028 — PDU-024 Guidance
-
-> ##### PDU-024 Guidance
->
-> Treat project model-document compatibility as downstream DEL-02-05 authority. Evaluator-facing UI evidence must not duplicate a current schema-version literal or normalize away stale, unsupported, newer, or failed project-version diagnostics. Keep binding, sandbox, unit, and missing-data behavior unchanged.
->
-
-### CLM-029 — Purpose
-
-> ##### Purpose
->
-> This deliverable exists to make user-defined rule-pack checks evaluable without turning rule packs into arbitrary executable code. The evaluator boundary should let users apply their own design bases to solver results while preserving unit safety, explicit missing-data findings, protected-data boundaries, and professional-responsibility limits.
->
-
-### CLM-030 — Principles
-
-> ##### Principles
->
-> | Principle | Guidance |
-> |---|---|
-> | Declarative before executable | Treat rule packs as data plus expressions. Do not permit host-language code, imports, reflection, filesystem access, network access, process execution, or hidden side effects. |
-> | Unit safety is structural | Unit compatibility is not a UI nicety. It is part of evaluator correctness and should fail visibly when incompatible or missing. |
-> | User-owned code data stays user-owned | Public setup and examples can define structure and invented checks only. Licensed formulas, protected interpretations, and owner design bases belong in private user rule packs. |
-> | Findings over defaults | Missing variables, missing rule inputs, incompatible dimensions, and unsupported constructs should produce diagnostics. They should not be guessed or defaulted. |
-> | Rule checked is not code compliant | `USER_RULE_CHECKED` and `USER_RULE_FAILED` are software computations using user data. Professional reliance still requires competent human review. |
->
-
-### CLM-031 — Considerations
-
-> ##### Considerations
->
-> - The evaluator is security-sensitive and numerically important, so the large context envelope is justified, but expansion beyond sandboxing/unit-awareness should be split or escalated.
-> - DEC-022 resolves the grammar/library boundary. Maintenance must preserve the selected grammar, threat model, unit/diagnostic contracts and candidate-bound verification; grammar extensions remain separate.
-> - Unit algebra should coordinate with the unit-system contract rather than duplicate a second unit model.
-> - Rule-pack schema, required-input completeness, private lifecycle/checksum handling, and invented examples are sibling deliverables. This deliverable should not absorb those scopes.
-> - Diagnostics should be deterministic and suitable for result envelopes, reports, and review without exposing protected formulas in public examples.
-> - Public test fixtures should use invented or original examples only.
->
-
-### CLM-032 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Setup guidance |
-> |---|---|
-> | Expressiveness vs sandbox strength | Prefer a small declarative surface that can be validated and audited. Do not trade sandbox guarantees for convenience. |
-> | Unit richness vs implementation scope | Require dimensional checks; quantity representation follows the implemented evaluator (`DEC-022`, `DEC-031`), and comparison tolerance choices remain TBD (CLM-015). |
-> | Detailed diagnostics vs protected-content leakage | Diagnostics should identify missing inputs and rule-check findings without reproducing licensed formulas or protected standards language in public artifacts. |
-> | Plugin flexibility vs governance | Plugins and adapters may provide data, but they cannot bypass validation, sandboxing, provenance, diagnostics, or public/private boundaries. |
->
-
-### CLM-033 — Examples
-
-> ##### Examples
->
-> No protected formulas or code-derived examples are provided. Acceptable future public examples should use invented non-engineering values and clear notices. Conceptual examples for test planning include:
->
-> - A malformed expression is rejected with a deterministic diagnostic.
-> - A comparison between incompatible dimensions is rejected with a unit-mismatch finding.
-> - A missing user-supplied variable produces a `RULE_CHECK_BLOCKING` style finding.
-> - A successful invented check is reported as user-rule checked, not professionally approved.
->
-
-### CLM-034 — Semantic Enrichment Notes
-
-> ##### Semantic Enrichment Notes
->
-> Pass 3 reviewed `_SEMANTIC_LENSING.md` and incorporated the warranted setup improvements as bounded notes:
->
-> | Lensing item | Disposition |
-> |---|---|
-> | Unsafe expression and bypass test coverage | Added to `ScopeOfWork.md` (requirements) verification and `ScopeOfWork.md` (procedure) checks. |
-> | Diagnostic-code taxonomy | Retained as `TBD` in `ScopeOfWork.md` (requirements) open decisions. |
-> | Grammar/library decision | Ruled by `DEC-022` (frozen in-repo typed expression AST, no text parser; CLM-015); writable text syntax deferred by `DEC-037` (D-02b, Option O-C) behind a named composer-usability trigger. |
-> | Vocabulary normalization | Standardized on evaluator, expression, variable binding, rule-pack check, user-rule checked, and human review boundary. |
-> | Future interface handoff | Recorded as an implementation-stage dependency/proposal rather than a setup implementation step. |
->
-
-### CLM-035 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | OI-006 | Grammar decision resolved by DEC-022. | DEC-022 ruling | Rule-pack evaluator contract | Grammar and prerequisites | Preserve the accepted typed AST and bounded conformance evidence. | DEC-022; no new architecture choice. |
+- **AX-001** — *Sandbox before expressiveness.* Better is a surface small enough to be read and audited whole: fewer node kinds and no escape hatch. A function is never added by weakening the absence of code and of input or output, and a new function enters only as a new grammar version (REQ-006).
+- **AX-002** — *Block, do not guess.* Better is fewer evaluations that return a number where an input, a unit or a table range was in doubt; the target is none. A value is never produced by defaulting, converting silently, extrapolating or clamping.
+- **AX-003** — *The same answer every time.* Better is more of an evaluation's output that is fixed by its inputs, finding order included. Determinism is never traded for speed, as by stopping at the first operand that decides a value.
+- **AX-004** — *Say what is wrong, not what the rule is.* Better is a finding that names its subject and the dimensions and units involved more exactly. It never does so by echoing a value, a table row or a formula.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-045 OBJ-005 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-06-02:1** — Keep PDU-037's public-example protected-content test families open; the refreshed 31-test plus 69-case evaluator corpus is verification only. Its downstream plugin/adapter bypass-attempt families are deferred until after v1.0 (owner, 2026-10-28, accepting OC-6 "as stated"; `docs/RELEASE_TARGET_v1.0.md` RT-R3).
-- **DEL-06-02:2** — Bind evaluator findings and final diagnostic taxonomy into a governed result envelope before report consumption; the T4 persisted-record reader does not execute or integrate the evaluator.
-- **DEL-06-02:3** — Deferred until after v1.0 (owner, 2026-10-28, accepting OC-6 "as stated"; `docs/RELEASE_TARGET_v1.0.md` RT-R3). Bind any future adapter/plugin invocation to a governed runtime dispatch path; the DEC-074 O7/E5 declaration gate is deny-only and does not load or execute evaluator inputs.
+| OUT-001 | SOW-045 OBJ-005 | REQ-001 REQ-002 REQ-006 | AC-001 | VER-001 | PRD §17.3 and `docs/CONTRACT.md` OPS-K-RULE-2 state what must not happen. The comparison is the module's dependency manifest and source, read by a check that imports no evaluator code |
+| OUT-001 | SOW-045 OBJ-005 | REQ-003 REQ-006 | AC-002 | VER-002 | Outside source: closed form, the arithmetic, ordering, linear interpolation and table lookup the grammar defines, on invented values exact in binary64 and recomputed without evaluator code. The function set is the grammar's |
+| OUT-001 | SOW-045 OBJ-005 | REQ-003 | AC-003 | VER-002 | The *Dimension algebra* definition and the conformance corpus fix the dimension table and the composition of unit references. Outside source for the table's relations: dimensional analysis |
+| OUT-001 | SOW-045 OBJ-005 | REQ-004 REQ-005 | AC-004 | VER-002 | The inputs are constructed, so the criterion states the expected finding (PRD §5.5; the table rules above) |
+| OUT-001 | SOW-045 OBJ-005 | REQ-012 | AC-005 | VER-003 | The criterion fixes the expected result: equality between runs and platforms |
+| OUT-001 | SOW-045 OBJ-005 | REQ-006 | AC-006 | VER-002 | The blocked pack is constructed, so the criterion states the expected finding. The corpus's coverage is counted against the grammar's function set and finding codes, the floor the criterion states |
+| OUT-001 | SOW-045 OBJ-005 | REQ-005 REQ-006 | AC-007 | VER-004 | The criterion fixes the expected result: the document read back equals the document written. The encoding is the corpus's |
+| OUT-001 | SOW-045 OBJ-005 | REQ-003 REQ-013 | AC-008 | VER-004 | The corpus expectations, which rest on the grounds of AC-002 to AC-004; the agreement of static and evaluated findings is fixed by the criterion |
+| OUT-001 | SOW-045 OBJ-005 | REQ-014 | AC-009 | VER-005 | Threat STM-007 and PRD §19.4 and §20.3 state what must not appear. The sentinel content is constructed |
+| OUT-001 | SOW-045 OBJ-005 | REQ-008 REQ-009 | AC-010 | VER-005 | PRD §21.2 and the status vocabulary of DEL-02-03 |
+| OUT-001 | SOW-045 OBJ-005 | REQ-007 REQ-011 | AC-011 | VER-006 | PRD §20.1. The reviewer compares against sources the product did not write |
+| OUT-001 | SOW-045 OBJ-005 | REQ-010 REQ-011 | AC-012 | VER-001 | The decomposition's AB-00-07, no bypass. The comparison is the repository's module graph |

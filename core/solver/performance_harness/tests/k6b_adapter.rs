@@ -1,4 +1,4 @@
-//! K6b: the adapter (T3 K6b plan §3.2, Q6(c)).
+//! K6b: the adapter (Q6(c)).
 //!
 //! - Its K4SRC equals the bytes that the runner's independent Python writes
 //!   from the runner's independent Python generator (`runner/k6b_sources.py`,

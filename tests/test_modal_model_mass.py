@@ -1,5 +1,5 @@
-"""DEL-04-09, "Selected mass assurance: next modal unit after CE"
-(`execution/PKG-04/DEL-04-09/Work/modal-analysis.md`): the independent model-derived
+"""DEL-04-09, "Selected mass assurance: next modal unit after CE":
+the independent model-derived
 mass leaf (`tests/verifiers/modal_model_mass.py`) and its integration into the Python
 modal reader's mass and participation standings.
 

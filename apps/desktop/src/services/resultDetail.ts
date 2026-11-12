@@ -1,4 +1,4 @@
-/** C1 native custody, slice 3 (DEL-04-05 `c1-native-custody-plan.md`): the webview's side of the
+/** C1 native custody, slice 3: the webview's side of the
  * paged detail of a retained result (`src-tauri/src/result_detail.rs`). Nothing calls these
  * commands yet: the panels, the session and the embedded agent switch in slice 4. Until then the
  * TypeScript filters stay the oracle (`resultDetailParity.test.ts`); `resultDetailEmulation.ts`

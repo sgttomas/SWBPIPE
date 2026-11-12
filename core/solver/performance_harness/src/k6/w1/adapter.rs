@@ -1,4 +1,4 @@
-//! K6b's adapter: a K6 kernel model as K4's `SourceParts` (T3 K6b plan §3.2).
+//! K6b's adapter: a K6 kernel model as K4's `SourceParts`.
 //!
 //! - Nodes in the model's order (R1's order for RF-LARGE); node k is node k.
 //! - Member k (0-based, in the model's order) has id k + 1, R1's 1-based member

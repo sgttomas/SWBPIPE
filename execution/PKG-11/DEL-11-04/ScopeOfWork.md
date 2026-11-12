@@ -2,363 +2,112 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-11-04
 package_id: PKG-11
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-033]
 package_objective_refs: [OBJ-001, OBJ-008]
 ---
 
-# Scope of Work — DEL-11-04
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-11-04 Invented educational example models
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-11-04` in service of project scope [SOW-033] and package objectives [OBJ-001, OBJ-008].
+A newcomer can open a small piping model that is plainly made up, solve it, and see what the software does with it: first the mechanics alone, then a rule check run against a rule pack that is just as plainly fictional. The examples teach how the product works without teaching a single engineering value, and the project's tests use the same files, so an example that stops working is noticed. Nothing in an example comes from a standard, a vendor or a real project, and nothing in it can be taken for a design basis.
 
-- **OUT-001** — A contract for invented educational example models that demonstrate governed workflows without importing protected project truth or implying design validity is produced.
+It serves SOW-033 under OBJ-001 and OBJ-008 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-11, row DEL-11-04: examples must be clearly non-code), and PRD §5.4, §6.2 goal 4 (educational and research examples using invented, public-domain or permissively licensed data), FR-RULE-007, §20.1 and §21.2, which bars any claim that public example data is suitable for project use. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. It reaches criterion 14, whose release-candidate content scan covers the public examples.
+
+- **OUT-001** — The invented example models, `examples/models/invented/`: at least one mechanics-only example and one fake-rule-pack example, each with its description and notice.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-11-04 Invented educational example models
+**Terms the examples implement.**
 
-> #### Datasheet: DEL-11-04 Invented educational example models
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Invented example model.* A model document of the current format whose every value was made up for the example. It is public, small enough to audit by reading, and the same file serves teaching and the project's tests.
+- *Mechanics-only example.* An example that demonstrates the mechanics solve: units, nodes and elements, supports, load cases, the solve, its diagnostics and its results. It carries no rule-pack reference, no code-specific combination and no acceptance value.
+- *Fake-rule-pack example.* An example that demonstrates the user-rule-check workflow. It cites the invented rule pack of DEL-06-05 by identity, version and pack checksum, and a rule-check run on it shows that a solved model, a rule-check outcome and professional acceptance are three different things.
+- *Clearly non-code.* A reader cannot mistake the example for engineering data: its names are fictional, its values are toy values that resemble no code allowable, formula, load combination or acceptance rule, and it names no standard, clause, vendor, commercial software or real project.
+- *Example description.* What the example demonstrates and what a reader should observe on solving or checking it, kept in the example or beside it.
+- *Non-reliance notice.* The statement each example carries: it is invented for education and testing, it is not a design basis, it is not a standards example, and it is not suitable for engineering reliance.
+- *Invented provenance.* The provenance record of DEL-01-02 on every data set of an example, stating an original invented origin, a public-permissive redistribution status and the contributor's certification.
 
-### CLM-003 — Identification
+**Boundary.** This deliverable is the example models. The following belong elsewhere:
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-11-04 |
-> | Deliverable name | Invented educational example models |
-> | Package ID | PKG-11 |
-> | Package name | Documentation, Examples, and Education |
-> | Deliverable type | DOC_UPDATE |
-> | Scope item | SOW-033 |
-> | Supported objectives | OBJ-001, OBJ-008 |
-> | Context envelope | M |
-> | Current production mode Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Setup/document production only |
->
+- the invented rule pack the fake-rule-pack example cites, and its notice: DEL-06-05;
+- the model document format and the bundled demo model of the desktop: DEL-02-01;
+- the rule-check run and its outcomes: DEL-06-03;
+- the benchmark models and the reference system, whose purpose is to examine the solver: DEL-09-01;
+- fixtures in the physical-to-analytical transform's reference format: DEL-13-04;
+- the status vocabulary an example's solve and rule check report in: DEL-05-04;
+- the guide text that walks a reader through an example: DEL-11-01.
 
-### CLM-004 — Attributes
+**Not decided.**
 
-> ##### Attributes
->
-> | Attribute | Source-grounded value |
-> |---|---|
-> | Primary purpose Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Define the setup boundary for future invented-data educational examples used for mechanics-only demonstrations and fake-rule-pack demonstrations. |
-> | Public-data posture | Future public examples must be original or invented and must not reproduce protected standards text, tables, formulas, examples, allowables, SIF or flexibility data, protected dimensional tables, commercial-software examples, or vendor proprietary data. |
-> | Example families | Mechanics-only demonstration examples; fake-rule-pack demonstration examples. |
-> | Materialization status Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | The original setup run does not create actual example model files under `examples/models/invented/*`, tutorials outside this deliverable, source code, schemas, or issued artifacts. Current implementation (at `62c1efd75b`): `examples/models/invented/` holds `mechanics_only_toy_span.json` and `fake_rule_pack_toy_model.json`, checked by `tests/test_invented_example_models.py`. |
-> | Rule-pack boundary | Fake rule-pack examples are fictional non-code teaching devices and must not resemble or approximate real code allowables, formulas, load combinations, or acceptance rules. |
-> | Mechanics boundary | Mechanics-only examples may illustrate open centerline mechanics concepts and reproducibility expectations, but they must not be presented as design bases or compliance checks. |
-> | Unit/provenance expectation | Future example data must be unit-aware and must carry provenance such as `PUBLIC_DOMAIN_OR_ORIGINAL` or a stronger documented redistribution basis. |
-> | Professional boundary | Example outputs are educational and test-support artifacts only; professional reliance requires competent human review outside the software. |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> | Condition | Handling |
-> |---|---|
-> | A future example needs code-specific data | Leave the value `TBD` or require user/private input; do not invent a realistic code value. |
-> | A future example would benefit from a real standard example | Stop and route to human/legal review; do not copy or paraphrase protected examples into public artifacts. |
-> | A fake rule pack needs pass/fail behavior | Use clearly fictional labels and non-engineering placeholder values; avoid code-style formulas and realistic allowables. |
-> | A mechanics-only example needs numeric quantities | Use original toy quantities with unit labels and provenance; document that they are not engineering recommendations. |
-> | A tutorial wants to compare against commercial software | Exclude the comparison from public examples unless a separate lawful and approved basis exists. |
-> | A future example is used in validation or regression | Record the distinction between mechanics verification and code compliance; do not imply professional approval (PRD §21.2). |
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> Current deliverable obligation: Create invented-data example models for mechanics-only and fake-rule-pack demonstrations. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> This setup artifact defines constraints, acceptance checks, and dependency signals for future invented educational examples. It intentionally does not create external example model files, tutorials outside this deliverable, code, schemas, private data, or `ISSUED` artifacts.
->
-> Future example artifacts should include:
->
-> - a clear non-engineering notice;
-> - a source/provenance field for every invented data set;
-> - a mechanics-only or fake-rule-pack classification;
-> - a unit basis for every quantity;
-> - a protected-content review record before public use;
-> - a statement that user rule checks and professional approval remain separate from mechanics solve results.
->
-### CLM-007 — References
-
-> ##### References
->
-> | Source | Used for |
-> |---|---|
-> | `AGENTS.md` | Bootstrap boundaries for open mechanics, user rule checks, and professional responsibility. |
-> | `AGENTS.md` | TASK dispatch boundary and sealed deliverable discipline. |
-> | `docs/CONTRACT.md` | Invariants for protected data, user-supplied rule data, invented public examples, units, agents, and professional authority. |
-> | `docs/DIRECTIVE.md` | Product principles for open mechanics, private code data, no silent defaults, validation before reliance, and stop rules. |
-> | `docs/TYPES.md` | Provenance labels, analysis-status vocabulary, and data-boundary terms. |
-> | `docs/SPEC.md` | Repository target for invented examples, rule-pack boundaries, reporting notices, and V&V expectations. |
-> | `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` | Type 2 execution rules and review expectations. |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-11 and DEL-11-04 decomposition context. |
-> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Machine-readable DEL-11-04 row. |
-> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-033 scope mapping. |
+- Whether the fake-rule-pack example must also show an outcome within or exceeding the invented limit, or need only show the incomplete outcome. It is undecided with DEL-06-05.
+- The owner's disposition of two review findings on the examples: that an example exercises the physical model as the source of truth, and that the examples' validation covers format, hash and round trip.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-11-04 Invented educational example models
+The examples are adequate when a reader can open, solve and check them and observe what their descriptions say, and when no reader could take anything in them for engineering data. An example shows that the software's mechanism works on made-up content. It is evidence about the software and about no piping system.
 
-> #### Specification: DEL-11-04 Invented educational example models
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-010 — Scope
+REQ-001 to REQ-006 keep the numbers of the earlier `R-DEL-11-04` series. Number 007 of that series is not used.
 
-> ##### Scope
->
-> See CLM-006 for the current deliverable obligation and the historical setup boundary.
->
->
-> This deliverable specifies setup constraints for invented educational example models that can later support mechanics-only demonstrations and fake-rule-pack demonstrations. The examples are documentation and testing aids, not engineering templates.
->
-> The original setup run does not create actual model files under `examples/models/invented/*`, tutorials outside this deliverable, source code, schemas, protected standards examples, commercial software comparisons, code allowables, code formulas, or professional-reliance material.
->
-### CLM-011 — Requirements
+- **REQ-001** — A public example uses invented or original data only. It holds no protected standards content, no standards-derived example, no commercial-software example, no proprietary vendor data, no code allowable, no stress-intensification or flexibility data and no protected dimensional table (PRD §20.1, FR-RULE-007; `docs/CONTRACT.md` OPS-K-IP-1 to OPS-K-IP-3, OPS-K-RULE-1).
+- **REQ-002** — Every example carries the non-reliance notice and makes no claim of certification, approval, sealing or code compliance (PRD §21.2; `docs/CONTRACT.md` OPS-K-AUTH-1).
+- **REQ-003** — A mechanics-only example demonstrates open mechanics with every quantity unit-bearing, and embeds no code-specific load combination, allowable, acceptance formula or interpretation of a standard (`docs/CONTRACT.md` OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-UNIT-1).
+- **REQ-004** — A fake-rule-pack example is clearly non-code: fictional labels and placeholder values that approximate no design-code formula, allowable or acceptance criterion (`docs/CONTRACT.md` OPS-K-RULE-1, OPS-K-RULE-3).
+- **REQ-005** — An example leaves a value out only on purpose, to demonstrate a finding, and says so in its description. Nothing an example needs is supplied by a silent default (PRD §5.5; `docs/CONTRACT.md` OPS-K-DATA-2).
+- **REQ-006** — An example used in a test is evidence of software behaviour only. Neither the example nor a test on it is described as validation of a piping system, as code compliance or as professional approval (OBJ-008; PRD §21.2).
+- **REQ-008** — Each example is a model document of the current format, so that the product opens it, solves it and saves it like any other model (PRD §5.2; SOW-033).
+- **REQ-009** — Each example has an example description, and every data set in it carries invented provenance (PRD §20.2; `docs/CONTRACT.md` OPS-K-IP-2).
+- **REQ-010** — A checksum an example cites is the checksum of the cited content as it is: for the invented rule pack, the pack checksum it carries.
 
-> ##### Requirements
->
-> | ID | Requirement | Source basis | Verification approach |
-> |---|---|---|---|
-> | R-DEL-11-04-001 | Public educational examples must use invented or original data only and must not contain protected standards content, standards-derived examples, commercial-software examples, proprietary vendor data, code allowables, SIF/flexibility data, or protected dimensional tables. | OPS-K-IP-1/2/3; OPS-K-RULE-1; SOW-033 | Protected-content and provenance review before any future public example is materialized. |
-> | R-DEL-11-04-002 | Future example artifacts must state that they are educational/test fixtures only and are not suitable for engineering reliance, certification, approval, sealing, or code-compliance claims (PRD §21.2). | OPS-K-AUTH-1; `docs/DIRECTIVE.md` human authority principle; `docs/TYPES.md` professional boundary | Documentation review verifies no professional reliance or automatic compliance language is present. |
-> | R-DEL-11-04-003 | Mechanics-only examples must illustrate open mechanics and unit-aware reproducibility without embedding code-specific load combinations, allowables, acceptance formulas, or standards interpretations. | OPS-K-DATA-1/2; OPS-K-UNIT-1; `docs/SPEC.md` loads and stress recovery sections | Future example review checks unit labels, provenance fields, and absence of code-specific defaults. |
-> | R-DEL-11-04-004 | Fake-rule-pack demonstrations must use fictional labels and non-engineering placeholder values and must not approximate realistic design-code formulas, allowables, or pass/fail criteria. | OPS-K-RULE-1/3; `docs/SPEC.md` rule-pack evaluator section | Future rule-pack demo review checks fictional notices, checksum/provenance metadata, and no protected rule content. |
-> | R-DEL-11-04-005 | Missing solve-required, rule-check-required, or provenance information in future examples must be explicit as `TBD` or a visible finding, never a silent default. | OPS-K-DATA-2; OPS-K-AGENT-1/2 | Future review checks example manifests for explicit unresolved fields and no invented hidden defaults. |
-> | R-DEL-11-04-006 | Future examples used for regression or validation support must distinguish mechanics verification from code compliance and professional approval (PRD §21.2). | OBJ-008; `docs/SPEC.md` V&V mechanics; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` review checklist | Future validation handoff checks state that examples are original or invented and are not compliance evidence. |
-> | R-DEL-11-04-007 | The original setup session must write only inside the DEL-11-04 deliverable folder and must not move artifacts to `ISSUED`. Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | User sealed brief; OPS-K-AGENT-3/4 | Final file list and git status are scoped to the deliverable folder. |
->
+### Delivery commitments
 
-### CLM-012 — Standards
+- **DEL-11-04:1** — The two review findings named under "Not decided" are closed by the owner's disposition. Meeting AC-002 is evidence for that disposition and is not the disposition.
 
-> ##### Standards
->
-> No standards-body formulas, code text, tables, examples, allowables, acceptance rules, or protected interpretations are included in this setup artifact. Any future example that requires code-specific material must use user-supplied private data or a lawfully redistributable source with documented rights and human review.
->
+### Acceptance criteria
 
-### CLM-013 — Example Families
-
-> ##### Example Families
->
-> | Family | Allowed setup intent | Exclusions |
-> |---|---|---|
-> | Mechanics-only invented examples | Demonstrate open centerline mechanics concepts, unit handling, diagnostics, reproducibility, and auditable inputs using invented toy data. | No code-specific combinations, allowables, protected equations, standards examples, or professional reliance. |
-> | Fake-rule-pack demonstrations | Demonstrate the user-rule-check workflow with fictional rule names, fictional required inputs, fake thresholds, checksums, and notices. | No realistic code formulas, no protected rule text, no material allowable tables, no claim that a result is code compliant. |
->
-
-### CLM-014 — External Inputs
-
-> ##### External Inputs
->
-> | Input | Required from | Notes |
-> |---|---|---|
-> | Canonical model/schema structure | DEL-02-01 and DEL-02-05 | Needed before future actual example model files are materialized outside this setup folder. |
-> | Rule-pack schema and invented rule-pack example boundary | DEL-06-01 and DEL-06-05 | Needed before future fake-rule-pack demonstration files are materialized. |
-> | Mechanics benchmark and validation expectations | DEL-09-01 and related validation work | Needed before examples are promoted as regression or validation fixtures. |
-> | Protected-content/report lint expectations | DEL-08-05 and governance review | Needed before future examples or tutorials are published as public repository artifacts. |
->
-
-### CLM-015 — Verification
-
-> ##### Verification
->
-> For this setup run, verification requires:
->
-> - `ScopeOfWork.md` exists in the DEL-11-04 folder;
-> - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist and preserve lens-not-authority language;
-> - `Dependencies.csv` validates against the v3.1 schema;
-> - `_DEPENDENCIES.md` summarizes the same active dependency rows as `Dependencies.csv`;
-> - `_STATUS.md` reaches `SEMANTIC_READY` only after semantic, lensing, P3, and dependency gates pass;
-> - no actual example files, tutorials outside this deliverable, source code, schemas, repo-level files, or `ISSUED` artifacts are created;
-> - no protected standards examples, commercial software examples, realistic code allowables/formulas, or professional-reliance claims are introduced.
->
-### CLM-016 — Documentation
-
-> ##### Documentation
->
-> Required setup artifacts for this deliverable are:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/*`
-> - `_STATUS.md`
->
-> Register-listed future artifacts under `examples/models/invented/*` and tutorials are not created by this setup session.
-- **AC-001** — The contract preserves the source-defined example families, synthetic-data and provenance requirements, units and assumptions, expected diagnostics and learning outcomes, reproducibility and verification evidence, protected/private-data exclusions, non-reliance notice, visible conflicts and TBDs, and separation from benchmark claims. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+- **AC-001** — The example set has at least one mechanics-only example and at least one fake-rule-pack example. Each has an example description, and the mechanics-only example carries no rule-pack reference.
+- **AC-002** — Each example validates against the model document format at its current version and passes the document validator with no blocking finding. It opens in the release, and saved and reopened it returns equal content and the same model hash.
+- **AC-003** — Each example solves in the release with the mechanics-solved status and no blocking diagnostic, except where its description says it demonstrates a named finding, and then the product reports exactly that finding. Every result value an example or its description states is the value the release reports for that example.
+- **AC-004** — The fake-rule-pack example cites the invented rule pack by its identity, version and the pack checksum it carries (DEL-06-04's definition), and the cited value equals that checksum recomputed from the pack's content as it is. A rule-check run of that pack on the example reports the outcome the example's description says it will, with every missing input named, and the mechanics status is unchanged by the run.
+- **AC-005** — Every value in every example is invented. No example holds content of the classes REQ-001 names; names a standard, a clause, a vendor, a commercial software product or a real project; or carries a name, value, formula or threshold that resembles a code allowable, combination or acceptance rule. Every data set carries invented provenance with all fields of the provenance record.
+- **AC-006** — Every example carries the non-reliance notice in each of its four parts, and no example carries a human-approval status or any statement of compliance, certification or approval.
+- **AC-007** — Every quantity in an example carries its unit as the model document defines a quantity (node coordinates in the project's length unit), and every value an example leaves out is named in its description with the finding it demonstrates.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-017 — Procedure: DEL-11-04 Invented educational example models
+**Method choices that define the examples.**
 
-> #### Procedure: DEL-11-04 Invented educational example models
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *The product's own document.* An example is a model document like any a user saves, with nothing special-cased for it. What the product does with a user's model, it does with the example.
+- *Toy before realistic.* Values are chosen to be easy to check by hand and impossible to mistake for practice. Where realism and auditability pull apart, auditability wins.
+- *Two families kept apart.* The mechanics-only example and the fake-rule-pack example are separate files, so that a solved model is never seen as a checked one.
+- *One file for teaching and testing.* The project's tests run on the published examples themselves, not on copies.
+- *Cite the pack, don't copy it.* The fake-rule-pack example refers to DEL-06-05's pack by identity, version and checksum and embeds none of its content.
 
-### CLM-019 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> See CLM-006 for the current deliverable obligation and the historical setup boundary.
->
->
-> Define the setup-time procedure and future production checks for invented educational examples without creating external example files, tutorials, source code, schemas, protected data, or issued artifacts in this session.
->
-### CLM-020 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Status for setup | Notes |
-> |---|---|---|
-> | Sealed DEL-11-04 context | Available | `_CONTEXT.md` identifies SOW-033, OBJ-001, and OBJ-008. |
-> | Governing data/IP and professional boundary | Available | `AGENTS.md`, `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, and `docs/TYPES.md`. |
-> | Future model schema and persistence format | Future dependency | Current schemas and invented model artifacts exist (`schemas/model.schema.yaml`, `examples/models/invented/mechanics_only_toy_span.json`). Match new examples to accepted source contracts; lifecycle issuance is a separate act. |
-> | Future rule-pack schema and invented fake rule-pack pattern | Future dependency | Use `schemas/rule_pack.schema.yaml` and the invented demonstration model; preserve fake/non-code labeling, provenance and no-protected-default requirements. |
-> | Future validation fixture expectations | Future dependency | PKG-09 validation work determines when examples can become regression or validation fixtures. |
->
-
-### CLM-021 — Steps
-
-> ##### Steps
->
-> See CLM-006 for the current deliverable obligation and the historical setup boundary.
->
->
-> 1. Confirm the deliverable identity and scope match `DEL-11-04`, `PKG-11`, and SOW-033.
-> 2. Preserve the protected-data boundary by excluding standards text, protected examples, code formulas, allowables, SIF/flexibility data, proprietary vendor data, commercial software examples, and private project data.
-> 3. Classify future examples into mechanics-only invented demonstrations and fake-rule-pack demonstrations.
-> 4. Require future example artifacts to carry a non-reliance notice, provenance fields, unit labels, and explicit `TBD` markers for unresolved inputs.
-> 5. Keep mechanics solve examples separate from fake rule-check examples so users can see that mechanics solved, user-rule checked, and professionally approved are different states.
-> 6. Record dependencies on schema, rule-pack, protected-content review, and validation deliverables in `Dependencies.csv`.
-> 7. During this setup run, write only deliverable-local documentation, semantic artifacts, dependency artifacts, run records, and status history.
-> 8. Leave external example model files, external tutorials, source code, schemas, and `ISSUED` movement untouched.
->
-### CLM-022 — Verification
-
-> ##### Verification
->
-> For this setup run, verify:
->
-> - the `ScopeOfWork.md` exists;
-> - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist and remain semantic aids rather than engineering authority;
-> - `Dependencies.csv` validates against the v3.1 schema;
-> - `_DEPENDENCIES.md` counts match the CSV;
-> - `_STATUS.md` reaches `SEMANTIC_READY` only after the setup sequence passes;
-> - no external example files, tutorials outside this deliverable, source code, schemas, repo-level artifacts, or `ISSUED` files were created;
-> - no protected standards examples, commercial software examples, realistic code allowables/formulas, or professional-reliance claims appear in the deliverable-local outputs.
->
-### CLM-023 — Records
-
-> ##### Records
->
-> The setup records are the `ScopeOfWork.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/*` in this DEL-11-04 folder.
-- **VER-001** — Validate the contract and review source parity, example-family and learning-outcome coverage, invented-data provenance, unit/assumption/diagnostic visibility, reproducibility evidence, protected/private-data boundaries, retained conflicts and TBDs, and non-reliance limits.
+- **VER-001** — Executable check (observes each example file against the model document format and the document validator, and the product's open, save and reopen of it): the families present, the validation result, the findings, and the content and model hash before and after the round trip.
+- **VER-002** — Executable check (observes the release's solve of each example): the status, the diagnostics and every result value the example or its description states, against the example's description.
+- **VER-003** — Executable check (observes the fake-rule-pack example's citation, the invented rule pack's pack checksum recomputed from its content, and a rule-check run of the pack on the example): the cited identity, version and checksum against the pack's own, the outcome of each check with its named inputs, and the mechanics status before and after.
+- **VER-004** — Judgment by a named role (an independent reviewer who did not write the examples): read every example and its description against PRD §20.1 and §21.2 and the boundary policy of DEL-01-02, and report each value, name, formula or threshold that is not plainly invented or that resembles code content, each data set without complete invented provenance, and each statement that can be read as a prohibited claim.
+- **VER-005** — Executable check (observes each example's strings, quantities and description, a proxy for the reviewer's reading): the four parts of the notice are present; no approval status and no listed protected or private marker occurs; every quantity carries its unit as the model document defines it; and every value left out is named in the description.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-024 — Guidance: DEL-11-04 Invented educational example models
-
-> #### Guidance: DEL-11-04 Invented educational example models
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-026 — Purpose
-
-> ##### Purpose
->
-> Invented educational examples let future users and contributors inspect SWBPIPE mechanics and rule-pack workflow boundaries without importing protected standards data or implying engineering reliance.
->
-
-### CLM-027 — Principles
-
-> ##### Principles
->
-> 1. Public examples are invented, original, and clearly non-code.
-> 2. Mechanics-only examples demonstrate solver workflow and reproducibility, not code acceptance.
-> 3. Fake-rule-pack examples demonstrate missing-data and rule-check plumbing, not real design rules.
-> 4. Every future example must carry unit and provenance information.
-> 5. Missing or unresolved data remains visible as `TBD` or a finding.
-> 6. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
->
-
-### CLM-028 — Considerations
-
-> ##### Considerations
->
-> Mechanics-only examples should remain simple enough to audit while still showing the intended data flow: model identity, units, nodes/elements or comparable centerline entities, supports, load cases, diagnostics, results, and reproducibility metadata. Any future numeric values should be toy values created for demonstration and should not be copied from standards, vendor catalogues, owner specifications, or commercial software examples.
->
-> Fake-rule-pack demonstrations should show that user-rule checks are separate from mechanics solves. They can use fictional rule names, fictional required inputs, fake threshold labels, and placeholder outcomes. They must not teach or approximate real code formulas, material allowables, stress categories, SIF/flexibility factors, or load-combination rules.
->
-> Testing use must be described carefully. A public invented example can support regression or verification of software behavior, but it is not evidence that any real piping system is safe, compliant, or professionally approved.
->
-
-### CLM-029 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Guidance |
-> |---|---|
-> | Educational clarity vs. realism | Prefer auditability and boundary clarity over realistic engineering values. |
-> | Reusable fixture vs. hidden default | Make invented provenance explicit and keep unresolved data visible. |
-> | Mechanics demonstration vs. rule-check demonstration | Keep mechanics-only examples separate from fake-rule-pack examples so result status is not confused. |
-> | Public convenience vs. IP protection | Do not include protected examples or commercial software comparisons for convenience. |
-> | Validation support vs. compliance implication | Use examples for software behavior checks only; keep professional reliance outside software authority. |
->
-
-### CLM-030 — Example Concepts
-
-> ##### Example Concepts
->
-> See CLM-006 for the current deliverable obligation and the historical setup boundary.
->
->
-> Future work may define non-file concepts such as:
->
-> - a mechanics-only centerline model that demonstrates unit-aware loads and deterministic result review;
-> - a support/diagnostic model that demonstrates visible missing or invalid inputs;
-> - a fake-rule-pack demonstration that shows required fictional inputs, checksum metadata, and blocked rule-check status when those inputs are absent;
-> - a tutorial path that explains how to inspect provenance and limitations before running a demonstration.
->
-> These concepts are not actual model files in the original setup session. They are constraints for future artifacts.
->
-### CLM-031 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | CF-DEL-11-04-001 | The register anticipates future files under `examples/models/invented/*` and tutorials, but this sealed setup brief forbids creating actual example files or tutorials outside this deliverable. Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | `docs/_Registers/Deliverables.csv` row DEL-11-04 | User sealed brief for DEL-11-04 setup | Datasheet Construction; Specification Scope; Procedure Steps | Treat this run as setup/document production only and leave external artifacts for a later authorized task. | TBD |
-> | CF-DEL-11-04-002 | Historical setup conflict: model and rule-pack artifacts were unavailable in that sealed setup. | `docs/SPEC.md` repository target and rule-pack section | DEL-02 and DEL-06 dependencies not yet accepted as issued artifacts | Specification External Inputs; Procedure Prerequisites | Use current schema and invented-model evidence for artifact presence; preserve source compatibility, content review and actual interface-acceptance gaps. | Current schemas and invented model materializations resolve the former artifact-availability premise. Preserve source/schema compatibility, protected-content review and all unadopted downstream interfaces; this record makes no issuance claim. |
->
-
-### CLM-032 — Non-Reliance Notice
-
-> ##### Non-Reliance Notice
->
-> Any future example produced from this setup must say, in substance, that it is invented for education/testing, is not a design basis, is not a standards example, and does not certify or approve engineering work.
+- **AX-001** — *Unmistakably invented.* Better is fewer names, values and thresholds a reader could take for engineering data, which is to be none. Realism never justifies a value, a formula shape or a name that resembles code content.
+- **AX-002** — *Small enough to audit.* Better is an example a reader can check by reading and by hand, measured by the share of its stated results reproduced in closed form. An example is never made simpler by leaving out a unit, a provenance record or the notice.
+- **AX-003** — *The same as a user's model.* Better is fewer ways an example is handled differently from a model a user saves, which is to be none. Convenience for the tests never puts an example in a form the product does not open.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-033 OBJ-001 OBJ-008 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-11-04:1** — Obtain owning human dispositions for `PKG11-DEL-11-04-PKG02-001` and `PKG11-DEL-11-04-PKG02-002`; both remain technically addressed with `HumanDisposition=TBD`, and current compatibility evidence does not create approval (PDU-060).
+| OUT-001 | SOW-033 OBJ-001 | REQ-003 REQ-004 REQ-009 | AC-001 | VER-001 | The two families are AC-001's, from SOW-033 and the decomposition row. The check reads the example set against them |
+| OUT-001 | SOW-033 OBJ-008 | REQ-008, DEL-11-04:1 | AC-002 | VER-001 | Outside source: the model document format and validator are DEL-02-01's and the hash is SHA-256 over the RFC 8785 canonical form; none is written by the examples |
+| OUT-001 | SOW-033 OBJ-008 | REQ-005 REQ-006 REQ-008 | AC-003 | VER-002 | The example's description says what must happen; the comparison is with the release's solve. Agreement shows that the description is consistent with the product, not that its values are mechanically correct; the solver's correctness is examined by DEL-09-01's benchmarks |
+| OUT-001 | SOW-033 OBJ-001 | REQ-004 REQ-010 | AC-004 | VER-003 | The example's description says what must happen; the pack checksum is DEL-06-04's definition, recomputed from the pack's content, and the outcomes are those DEL-06-03's run defines, neither written by the example |
+| OUT-001 | SOW-033 OBJ-001 | REQ-001 REQ-009 | AC-005 | VER-004 | PRD §20.1 and FR-RULE-007 say what a public example may contain and DEL-01-02's record gives the provenance fields. The reviewer reads every example against them |
+| OUT-001 | SOW-033 OBJ-001 | REQ-002 REQ-006 | AC-006 | VER-004 VER-005 | PRD §21.2 bars any claim that public example data is suitable for project use. The check finds the notice's parts and the reviewer reads every statement against §21.2 |
+| OUT-001 | SOW-033 OBJ-001 | REQ-003 REQ-005 | AC-007 | VER-005 | PRD §5.5 and §5.6 require explicit units and no silent default. The check reads each quantity against the model document's definition and each omission against the description |

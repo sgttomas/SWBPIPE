@@ -395,7 +395,7 @@ fn demo_with(edit: impl FnOnce(&mut Value)) -> Value {
     document
 }
 
-/// Each classifier row (slot table §4.2) on its own, through PP, with
+/// Each classifier row on its own, through PP, with
 /// exactly its code and refs [component] (T4-RV19's M2 admitted every
 /// hardware kind).
 #[test]

@@ -1,6 +1,6 @@
 # Modal Eigen Core
 
-This crate is the dense eigen core of F1 modal analysis, DEL-04-09 (`execution/PKG-04/DEL-04-09/`). It is governed by `Work/modal-analysis.md`, and this README names the design sections each part implements. It uses the Rust standard library and two in-repo path dependencies of DEL-04-01: `sparse_direct`, for the LDLᵀ behind the Sturm counts, and `frame_kernel`, for its p128 element re-formation seam (seam (i)); `correct_norm` comes with them. No product crate depends on it yet.
+This crate is the dense eigen core of F1 modal analysis, DEL-04-09 (`execution/PKG-04/DEL-04-09/`), whose scope governs it. The design section numbers below are the labels the code and its tests use for each part. It uses the Rust standard library and two in-repo path dependencies of DEL-04-01: `sparse_direct`, for the LDLᵀ behind the Sturm counts, and `frame_kernel`, for its p128 element re-formation seam (seam (i)); `correct_norm` comes with them. No product crate depends on it yet.
 
 ## What it does
 

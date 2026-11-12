@@ -1,4 +1,4 @@
-"""RT-A3 reducer 2b (retained-pricing-rules.md §8.41, candidate): the W-15c pressure-step branch adds no owner on D1.
+"""RT-A3 reducer 2b (§8.41, candidate): the W-15c pressure-step branch adds no owner on D1.
 
 The new entries (pressure_step_run_evidence's Topology::of and axes, reducer_body_members' set over member_mappings)
 are reached only behind D1-empty loops; W15's statements and RTA3R2B-NZ's premise bind that. Each mutation below

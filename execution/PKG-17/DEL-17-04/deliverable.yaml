@@ -1,133 +1,112 @@
 id: DEL-17-04
 name: CAEPIPE MBF export profile and deterministic writer
 needs:
-- from: DEL-00-01
-  condition: 'DEL-17-04 must apply AB-00-01 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Decision baseline for architecture choices and unresolved rulings.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-17-04 must apply AB-00-02 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Repository/module boundaries and inward dependency direction.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-17-04 must apply AB-00-03 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Schema-first command/query/job result envelope constraints.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-17-04 must apply AB-00-04 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    JSON Schema 2020-12 and canonical JSON/JCS-compatible hash basis.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-17-04 must apply AB-00-06 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Diagnostics, warnings, blockers, and result-envelope obligations.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-17-04 must apply AB-00-07 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    No-bypass API/plugin/adapter validation and boundary controls.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-17-04 must apply AB-00-08 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Layered architecture/schema/service/adapter acceptance strategy.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-17-01
-  condition: 'DEL-17-04 consumes DEL-17-01 for CAEPIPE source facts and target TBDs.
-
-
-    Notes: CAEPIPE-specific unknowns remain TBD.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The source register admits the public CAEPIPE manual pages for MBF import and export, layout,
+    units, load cases, supports, materials and bends, each with its source ID and boundary, and
+    lists the open questions on target version, record subset and identity carriage; the dossier
+    holds the vendor questions linked to them.
   gating: true
-  evidence: execution/PKG-17/DEL-17-04/ScopeOfWork.md
 - from: DEL-17-02
-  condition: 'DEL-17-04 depends on DEL-17-02 under DAG-005.
-
-
-    Notes: Downstream production docs not populated in this tranche.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The common export contract defines the export package, the export profile and its fields, the
+    stable ID map with its four carrier modes, the manifest, and the loss report with its six
+    categories and the members of a loss entry.
   gating: true
-  evidence: execution/PKG-17/DEL-17-02/ScopeOfWork.md
+- from: DEL-02-01
+  condition: >-
+    The model document has one current version, a schema with a desktop profile, and one document
+    validator that judges a document at the document open path and refuses a malformed member by a
+    named code and JSON path.
+  gating: true
+- from: DEL-09-01
+  when: Exit criterion 6 is examined on the reference system
+  condition: >-
+    The invented reference system is maintained as a model document containing the families of
+    exit criterion 1, with the load cases it holds.
+  gating: true
+- from: DEL-12-02
+  when: The desktop saves an MBF
+  condition: >-
+    The route catalogue holds a lossless route for the MBF export that admits only the local-private
+    context with the user's stated intent, and a native save refuses content whose hash its
+    evidence does not name.
+  gating: true
+- from: DEL-07-07
+  when: The desktop runs the writer or the importer
+  condition: >-
+    The desktop runs engine work in a capped worker under the per-invocation memory budget and can
+    cancel the worker and release its memory.
+  gating: false
+- from: DEL-04-07
+  when: The desktop runs the writer or the importer
+  condition: >-
+    Engine work in the desktop is admitted only within the per-invocation memory budget and the
+    shared pool, and a request that would exceed them is refused by name.
+  gating: false
+- from: DEL-07-12
+  when: Examining exit criterion 6 through the desktop's dialogs
+  condition: >-
+    The desktop offers File > Export MBF and File > Import MBF, each a dialog that shows the
+    engine's review and acts only through this deliverable's native commands.
+  gating: true
+- from: DEL-10-05
+  when: The round trip's two solves are compared
+  condition: >-
+    The headless runner solves a model document and returns the product's published result for it.
+  gating: false
+- from: DEL-17-05
+  when: The importer is examined on pilot and authored cases
+  condition: >-
+    The correlation cases are public invented models with their SWBPIPE model documents, and the
+    harness runs a correlation case or an authored MBF case through the user's CAEPIPE and leaves
+    the MBF CAEPIPE exported for it in the case's folder of the exchange folder.
+  gating: false
+- from: DEL-15-04
+  condition: >-
+    The authority-wording screen is one check shared by the handoff and export records that need it,
+    and finds wording of approval, certification, sealing, authentication, compliance, external
+    validation, acceptance or prover status in a string, a list or a nested record, whatever its
+    letter case.
+  gating: false
+# The writer, the importer, their engine and the native commands. In
+# apps/desktop/src/features/caepipe-mbf/, which DEL-07-12 also lists, the modules named here carry
+# the commands' request retirement and session rules and are this deliverable's; the dialogs, the
+# panel and their presentation modules are DEL-07-12's. The authored MBF cases under
+# validation/caepipe_correlation/authored/ are this deliverable's (REQ-022); DEL-17-05, which
+# runs them through the user's CAEPIPE, also lists them.
 code_paths:
-- core/handoff/caepipe_mbf/
-- core/handoff/caepipe_mbf_engine/
+- core/handoff/caepipe_mbf/**
+- validation/caepipe_correlation/authored/**
+- core/handoff/caepipe_mbf_engine/**
+- core/handoff/caepipe_mbf_wasm/**
+- schemas/caepipe_mbf_export.schema.json
+- fixtures/caepipe_mbf/invented/**
 - tools/fixtures/caepipe_mbf_import_vectors.py
 - tools/fixtures/caepipe_mbf_writer_vectors.py
 - tools/fixtures/caepipe_mbf_engine_unicode.py
-- fixtures/caepipe_mbf/invented/parity/
-- core/handoff/caepipe_mbf/correctly_rounded.py
-- schemas/caepipe_mbf_export.schema.json
-- apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx
-- core/handoff/caepipe_mbf_wasm/
+- tests/caepipe_mbf_canonical.py
 - apps/desktop/src/services/mbfEngine.ts
 - apps/desktop/src-tauri/src/mbf_export.rs
+- apps/desktop/src-tauri/src/mbf_import.rs
 - apps/desktop/src-tauri/src/mbf_worker.rs
 - apps/desktop/src/features/caepipe-mbf/mbfExportCancel.ts
-- fixtures/caepipe_mbf/invented/desktop_export/
-- apps/desktop/src-tauri/src/mbf_import.rs
+- apps/desktop/src/features/caepipe-mbf/mbfExportSession.ts
 - apps/desktop/src/features/caepipe-mbf/mbfImportCancel.ts
 - apps/desktop/src/features/caepipe-mbf/mbfImportSession.ts
-- fixtures/caepipe_mbf/invented/desktop_import/
 - apps/desktop/native-smoke/mbf-journey.mjs
 - apps/desktop/native-smoke/mbf-journey.js
 checks:
 - tests/test_caepipe_mbf_export_package.py
 - tests/test_caepipe_mbf_si_writer.py
+- tests/test_caepipe_mbf_si_writer_python_types.py
 - tests/test_caepipe_mbf_importer.py
 - tests/test_caepipe_mbf_round_trip.py
 - tests/test_caepipe_private_mbf_import.py
 - tests/test_caepipe_mbf_import_parity.py
 - tests/test_caepipe_mbf_writer_parity.py
+- tests/test_caepipe_mbf_correctly_rounded.py
 - tests/test_model_document_schema.py
 - tests/test_caepipe_data_boundary.py
 - core/handoff/caepipe_mbf_engine/tests/parity.rs
@@ -136,24 +115,26 @@ checks:
 - core/handoff/caepipe_mbf_engine/tests/correctly_rounded.rs
 - core/handoff/caepipe_mbf_engine/tests/export_review.rs
 - core/handoff/caepipe_mbf_engine/tests/import_review.rs
-- tests/test_caepipe_mbf_correctly_rounded.py
-- apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
-- apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
-- apps/desktop/src/App.test.tsx
-- apps/desktop/e2e/r2-smoke.spec.ts
+- core/handoff/caepipe_mbf_engine/tests/designation.rs
+- core/handoff/caepipe_mbf_engine/tests/sidecar_format6.rs
 - core/handoff/caepipe_mbf_wasm/tests/export.rs
 - apps/desktop/src/services/mbfEngine.test.ts
 - apps/desktop/src-tauri/src/mbf_export.rs
 - apps/desktop/src-tauri/src/mbf_worker_tests.rs
+- apps/desktop/src-tauri/src/mbf_import_tests.rs
 - apps/desktop/src/App.mbfExportSession.test.tsx
 - apps/desktop/src/App.mbfExportDialog.test.tsx
 - apps/desktop/src/App.mbfExportUngated.test.tsx
+- apps/desktop/src/App.mbfImportDialog.test.tsx
+- apps/desktop/src/App.mbfRoundTrip.test.tsx
 - apps/desktop/src/features/caepipe-mbf/mbfExportCancel.test.ts
-- apps/desktop/src-tauri/src/mbf_import_tests.rs
 - apps/desktop/src/features/caepipe-mbf/mbfImportCancel.test.ts
 - apps/desktop/src/features/caepipe-mbf/mbfImportSession.test.ts
 - apps/desktop/src/features/caepipe-mbf/mbfImport.test.ts
-- apps/desktop/src/App.mbfImportDialog.test.tsx
+- apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
+- apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
+- apps/desktop/src/App.test.tsx
+- apps/desktop/e2e/r2-smoke.spec.ts
 - tests/security/test_local_first_storage_policy.py
 - tests/security/test_redaction_export_controls.py
 - apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts

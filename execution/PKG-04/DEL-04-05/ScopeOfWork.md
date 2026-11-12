@@ -2,339 +2,97 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-04-05
 package_id: PKG-04
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-035]
-package_objective_refs: [OBJ-003, OBJ-008]
+package_objective_refs: [OBJ-003,OBJ-008]
 ---
 
-# Scope of Work — DEL-04-05
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-04-05 Sparse solver performance harness
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-04-05` in service of project scope [SOW-035] and package objectives [OBJ-003, OBJ-008].
+This deliverable measures the solver. On invented piping models of practical size it records how long a solve takes, how much memory it uses, where the time and memory go, and whether repeated runs give the same result. It is how the project knows, without changing the solver, whether an engineer can solve a real rack model in reasonable time on an ordinary machine, and which stage to work on when it cannot.
 
-- **OUT-001** — A sparse-solver performance and regression harness contract covering deterministic practical-model runs, reproducibility, performance and conditioning observations, lawful fixture provenance, solver/version/hash settings, diagnostics, limitations, and reviewable records is produced for the declared scope and objectives.
+It serves SOW-035 under OBJ-003 and OBJ-008 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-04, row DEL-04-05), and PRD §12.2 (deterministic output), §12.8 (reproducible results), §20.1 and §20.2 (public data boundary and provenance) and §25.1 (time to solve representative models). In `docs/RELEASE_TARGET_v1.0.md` it is the owning deliverable of exit criterion 9: on a 2,000-node rack model, on the 16 GiB base machine, measured by this harness, linear static in at most 10 s and nonlinear operating in at most 60 s. Both values are provisional until the owner accepts them.
+
+- **OUT-001** — The performance harness: the reference rack models, the timing and memory measurements of the product's solve from request to displayed result, the kernel-level sparse observations, and the records that state what was measured, on what, and under which limits.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-04-05 Sparse solver performance harness
+**Terms the harness implements.**
 
-> #### Datasheet: DEL-04-05 Sparse solver performance harness
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Reference rack.* A deterministic, invented pipe rack of an exact node count, generated from bays of straight pipe, realized bends, branches, rigid components and supports. It has three profiles: linear static on the exact route, with its static cases and their combinations; nonlinear operating on the exact route, with lift-off, friction and gap supports; and the nonlinear profile's pressure-free twin. A rack is identified by the hash of its model document.
+- *The clock.* For exit criterion 9, the time from the run request in the desktop until the result is verified and first painted. "Linear static" is every case and combination of the linear rack; "nonlinear operating" is the operating case of the nonlinear rack. Each stage is timed separately, so that a shortfall names its stage: model read and parse, the solve and publication, serialization, the result's verification, transfer to the display, and first paint.
+- *The base machine.* A machine with 16 GiB of memory, on which one solve may use at most the product's per-invocation budget of 12 GiB. A run whose peak footprint passes the budget is classed as exceeding it and is not a timed result.
+- *Observation.* A recorded measurement with its model hash, build identity, solver mode, host and conditions. An observation asserts nothing; limits come only from exit criterion 9 and the generated-grid screen of REQ-003.
+- *Sparse observation.* For a kernel solve: the ordering, the stored profile size, the pivot extremes and their ratio, the count of non-positive pivots, the residual, the agreement between sparse and dense, and the repeat-run difference.
 
-### CLM-003 — Identification
-
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-04-05 |
-> | Package ID | PKG-04 |
-> | Package | Solver Core and Numerical Methods |
-> | Deliverable type | TEST_SUITE |
-> | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register) |
-> | Scope items | SOW-035 |
-> | Objectives | OBJ-003, OBJ-008 |
-> | Context envelope | M |
-> | Lifecycle state during setup | Draft setup evidence only; not implementation and not ISSUED |
->
-
-### CLM-004 — Attributes
-
-> ##### Attributes
->
-> | Attribute | Setup value |
-> |---|---|
-> | Harness purpose | Define a deterministic performance/regression harness for sparse solver behavior on practical piping-model sizes and numerical-conditioning cases. |
-> | Solver boundary | The harness observes solver behavior; it does not implement solver logic, select a numerical library, or change sparse solve algorithms. |
-> | Determinism posture | Repeated runs for the same model, units, solver version, and settings must be reproducible enough for regression comparison; numerical verification follows DEC-026; unmeasured release criteria remain explicit. |
-> | Performance target posture | Specific runtime, memory, scale, and conditioning thresholds are `TBD` until their governing acceptance; the implemented harness records bounded DEC-050/053 observations. |
-> | Data posture | Fixtures must use original, invented, public-permissive, or otherwise lawful inputs; no proprietary benchmark data or protected standards examples are introduced. |
-> | Reporting posture | Results and diagnostics must preserve warnings, assumptions, provenance, solver version, and limitations without claiming certification or code compliance. |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> The current performance-harness implementation records bounded observations. New release thresholds, dependency changes and use of proprietary data require their own authorized scope and governing decisions.
->
-> The harness must remain compatible with the architecture-basis constraints for module boundaries, result/diagnostic envelopes, layered tests, and protected-content review. Numerical library choice, sparse-solver settings, conditioning metrics, practical model-size bands, timing methodology, hardware normalization, and CI gating thresholds remain `TBD`.
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> | Construction item | Status |
-> |---|---|
-> | Performance tests | Current crate tests in `core/solver/performance_harness/src/lib.rs` and, for the K6/K6b kernel and W1 observations, the crate's `tests/k6*.rs` and `runner/test_k6_runner.py`; for criterion 9's release timing, `core/solver/release_timing/tests/release_timing.rs`, `runner/test_release_runner.py` and `tests/test_performance_rack_model.py`; for the desktop timing, `apps/desktop/native-smoke/perf.test.mjs`, the solve timeline's tests (`apps/desktop/src/services/solveTimeline*.test.ts`), the injection's reach scan (`apps/desktop/src-tauri/src/native_smoke_reach_scan_tests.rs`) and `apps/desktop/src/features/model-file/rackModelOpen.test.ts`; results remain candidate-bound. |
-> | Benchmark harness | Current carrier is `core/solver/performance_harness/`; invocation and observation format belong to bound implementation evidence. Criterion 9's engine timing is the `core/solver/release_timing/` driver (`release_timing`), `runner/release_runner.py` and `runner/release_window.sh` over the invented reference racks of `rack/rack_model.py`; the measured quantity and the base-machine method are `Work/criterion-9-measurement.md`. Criterion 9's desktop timing (worker protocol and IPC take through first paint) is the native-smoke perf kit `apps/desktop/native-smoke/perf.mjs`, `perf-driver.js` and `perf-sampler.py`, with the solve timeline (`apps/desktop/src/services/solveTimeline.ts`) and the native-smoke result injection (`apps/desktop/src-tauri/src/native_smoke_inject.rs`); its method and window results are `Work/criterion-9-measurement.md` §7. |
-> | Conditioning cases | Required conceptually by SOW-035; concrete matrices/models and acceptable ranges are `TBD`. |
-> | Regression records | Required conceptually for OBJ-008; retention format and comparison policy are `TBD`. |
-> | Diagnostics/result-envelope hooks | Required by AB-00-06; exact codes/classes for harness failures are `TBD`. |
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, scope, objectives, anticipated artifacts, and architecture-basis injection.
-> - `_REFERENCES.md` for governing local references.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register), rows for PKG-04, DEL-04-05, SOW-035, OBJ-003, OBJ-008, AB-00-01, AB-00-02, AB-00-06, and AB-00-08.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-04-05.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-035.
-> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-04-05.
-> - `docs/CONTRACT.md` invariants OPS-K-SOLVER-1, OPS-K-UNIT-1, OPS-K-MECH-1, OPS-K-REPORT-1, OPS-K-AGENT-1..4, and OPS-K-IP-1.
->
-
-### CLM-008 — Open Setup Questions
-
-> ##### Open Setup Questions
->
-> | Question | Needed from |
-> |---|---|
-> | Which sparse strategy governs current observations? | DEC-023 strategy and DEC-050/053 live/default policy; no new release thresholds |
-> | What practical model-size bands and conditioning metrics are meaningful for release gates? | Solver lead / validation owner |
-> | What deterministic timing methodology is acceptable across local and CI environments? | QA/release owner |
-> | Which invented or public-permissive fixtures may represent practical piping models without protected data? | Validation/IP review owner |
+**Boundary.** The harness observes; it contains no solver logic and changes no product result or behaviour. The solve it measures is DEL-04-07's entry over DEL-04-01's kernel; the desktop path it times is DEL-07-07's; conditioning and failure records are DEL-04-06's. Work to make the product meet criterion 9 is done in those deliverables against this harness's measurements.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-009 — Specification: DEL-04-05 Sparse solver performance harness
+A measurement on one host is evidence about that host. Whether exit criterion 9 is met is decided only from a run on a 16 GiB base machine, and accepting the values is the owner's act.
 
-> #### Specification: DEL-04-05 Sparse solver performance harness
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-011 — Scope
+- **REQ-001** — The harness contains no solver logic and changes no product result or behaviour. What it measures is the product's own entry. The native-smoke performance kit and result injection are absent from product builds. The in-product solve-timeline marks change no behaviour, keep only timings, counts and codes, and can be read only where the desktop's UI diagnostics global is installed.
+- **REQ-002** — Harness runs are comparable: the same model, build, solver mode and settings give the same result, and every run records what identifies it (SOW-035; `docs/CONTRACT.md` OPS-K-SOLVER-1).
+- **REQ-003** — The harness records time, memory and conditioning observations and sets no release limit. The limits it applies are exit criterion 9's and, on the invented generated-grid observation set only, the bounded sparse-suitability screen that set is recorded under: sparse–dense relative difference at most 1e-9, residual at most 1e-6, repeat difference 0, no non-positive pivot, and pivot-ratio estimate at most 1e16. The screen is not a conditioning or release limit, and the pivot ratio is a proxy, not a condition number.
+- **REQ-004** — Rack models and fixtures are invented, or public-domain or permissively licensed data from lawful sources. Each records the provenance PRD §20.2 lists, and none contains protected standards content, vendor data or commercial benchmark data (PRD §20.1; `docs/CONTRACT.md` OPS-K-IP-1).
+- **REQ-005** — Each record carries the solver version and build identity, the model hash, the host, the diagnostics the solve raised, and a statement of what the measurement does not reproduce.
+- **REQ-006** — Rack models state their units and pass the product's own unit and dimension checks as any model does. Which dimensional checks a rack must pass beyond the product's own model checks is not decided.
+- **REQ-007** — Harness records are mechanics and performance observations only; none states or implies approval, certification or compliance (PRD §21.2).
+- **REQ-008** — The harness measures exit criterion 9 as its clock, racks and base machine are defined above, for the linear static and nonlinear operating profiles, and gives a timing profile for each further analysis that names this harness: hanger sizing (DEL-04-11/AC-011) and the modal scale benchmarks (DEL-04-09/AC-004).
 
-> ##### Scope
->
-> This deliverable defines the performance-harness contract, realized in `core/solver/performance_harness/`, for sparse solver performance, reproducibility, and numerical-conditioning behavior for practical piping-model sizes.
->
-> This setup pass does not implement a benchmark runner, add tests, choose thresholds, edit solver code, select a numerical library, or introduce proprietary/protected benchmark data.
->
+**Undecided.**
 
-### CLM-012 — Requirements
+- The reading of exit criterion 9's clock and its two values become final on the owner's acceptance. Whether a stated projection from another host's speed may stand in for a base-machine run is the owner's choice; none is applied.
+- Limits for conditioning, and for time and memory normalized across machines, are not set.
+- Whether hosted CI records sparse performance observations is not decided.
 
-> ##### Requirements
->
-> | Req ID | Requirement | Source basis | Verification hook |
-> |---|---|---|---|
-> | DEL-04-05-RQ-001 | The harness shall be separate from solver logic and shall not modify production solver behavior. | DEL-04-05 context; PKG-04 note; AB-00-02 | Module boundary review once implementation exists. |
-> | DEL-04-05-RQ-002 | Harness cases shall support deterministic regression comparison for the same model, unit system, solver version, and settings. | SOW-035; docs/SPEC.md section 4.5; OPS-K-SOLVER-1 | Repeat-run tests with accepted tolerance policy; exact tolerances `TBD`. |
-> | DEL-04-05-RQ-003 | Performance and conditioning metrics shall be recorded without inventing release thresholds. | SOW-035; OI-005 | Review that thresholds remain `TBD` until approved. |
-> | DEL-04-05-RQ-004 | Fixture data shall be invented, public-permissive, or otherwise lawful and shall not contain protected standards examples, protected tables, vendor data, or proprietary commercial benchmark data. | OPS-K-IP-1; docs/DIRECTIVE.md data-boundary rules | Protected-content and provenance review. |
-> | DEL-04-05-RQ-005 | Harness outputs shall preserve solver version, model/hash basis where available, warning/diagnostic classes, assumptions, provenance notes, and limitations. | AB-00-06; OPS-K-REPORT-1 | Result-envelope/report-facing tests once result schema exists. |
-> | DEL-04-05-RQ-006 | Unit-sensitive fixture inputs and outputs shall pass the accepted unit-system/dimensional checks. | OPS-K-UNIT-1 | Unit validation tests once fixture schema exists. |
-> | DEL-04-05-RQ-007 | The harness shall remain mechanics-only and shall not claim professional approval, certification, or code compliance (PRD §21.2). | OPS-K-MECH-1; OPS-K-AGENT-4; OPS-K-REPORT-1 | Review of result labels, generated reports, and release notes. |
->
+### Acceptance criteria
 
-### CLM-013 — Standards
-
-> ##### Standards
->
-> No protected standard text, proprietary benchmark suite, or vendor dataset is available in this deliverable-local setup context. Any future benchmark basis must be recorded with provenance, redistribution status, and human/IP review disposition. Clause-level or vendor-specific requirements are `TBD`.
->
-
-### CLM-014 — Verification
-
-> ##### Verification
->
-> | Verification area | Minimum setup expectation |
-> |---|---|
-> | Determinism | Define repeat-run evidence without setting unsupported numeric thresholds. |
-> | Sparse performance | Capture timing/memory/scale observations once solver implementation exists; target values remain `TBD`. |
-> | Conditioning | Record conditioning-related diagnostics or solver-status observations when supported by the solver/result envelope. |
-> | Data boundary | Confirm all fixtures are invented, public-permissive, or otherwise lawful. |
-> | Reporting | Confirm harness output does not imply certification, code compliance, or professional acceptance (PRD §21.2). |
->
-
-### CLM-015 — Documentation
-
-> ##### Documentation
->
-> Maintain the current harness artifacts and their bounded evidence:
->
-> - performance tests;
-> - benchmark harness;
-> - benchmark fixture provenance notes;
-> - deterministic run records or comparable result snapshots.
->
-> The exact module paths, runner command, fixture schema, metrics, and CI gates are `TBD` and must not be resolved by this setup pass.
->
-
-### CLM-016 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Issue | Contenders | Human ruling |
-> |---|---|---|---|
-> | None | No source conflict identified in setup evidence. | N/A | N/A |
-
-- **AC-001** — The contract preserves the accepted observer-only harness boundary, deterministic regression intent, explicit units and provenance, no invented timing, memory, conditioning, model-size, or release thresholds, mechanics-only reporting, and formal-review, dimensional-validation, hosted-CI, and cross-machine policy residuals.
+- **AC-001** — On the 2,000-node reference racks, on a 16 GiB base machine, the measured clock is at most 10 s for linear static and at most 60 s for nonlinear operating, with every solve within the 12 GiB per-invocation budget. The record gives each stage's time and peak memory.
+- **AC-002** — The bytes the timing driver records for a solve are the bytes the product's own entry writes for the same request, and a product build contains neither the native-smoke injection nor the performance kit, and exposes no timeline reading outside the builds that install the diagnostics global.
+- **AC-003** — A rack generated twice for the same node count and profile has the same hash, and two runs of the same rack, build, mode and settings give identical result bytes and row counts.
+- **AC-004** — Every record contains the fields of REQ-005, and a run stopped for exceeding the budget or a timeout is recorded as such with the stage it reached, never as a timed result.
+- **AC-005** — For each kernel observation the record gives the sparse observation's quantities, and no test or record asserts a time, memory or conditioning limit other than exit criterion 9's and the generated-grid screen of REQ-003.
+- **AC-006** — The rack documents open and solve in the product as authored models do, state their units, and contain only invented or lawfully sourced data with its provenance recorded.
+- **AC-007** — A timing profile exists for hanger sizing and for the modal scale benchmarks, each recorded like the criterion 9 profiles.
+- **AC-008** — No harness record or message states or implies acceptability, approval or compliance.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-017 — Procedure: DEL-04-05 Sparse solver performance harness
+**Method choices that define the harness.**
 
-> #### Procedure: DEL-04-05 Sparse solver performance harness
->
+- The engine is timed by a driver that performs the desktop solve worker's own steps on the product's public entry; the desktop is timed in the running application, through marks that change no behaviour.
+- One process runs at a time, in an exclusive window, under a footprint watch at the per-invocation budget. Attribution runs, which sample stacks to tie memory to code, are never used as timings.
+- Peak physical footprint, not resident set size, judges the budget, because it is what the product itself enforces.
+- No projection is applied to times measured on a host that is not a base machine.
+- Result bytes are not kept unless asked; records are.
 
-### CLM-018 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Describe maintenance and use of `core/solver/performance_harness/` under the current brief; preserve DEC-023/050/053 and retain open release-threshold decisions.
->
-
-### CLM-019 — Prerequisites
-
-> ##### Prerequisites
->
-> - Accepted solver/kernel interfaces from PKG-04 implementation deliverables.
-> - Accepted unit-system and schema contracts for model fixtures and result envelopes.
-> - Human-approved sparse solver/library and diagnostic policy, if implementation requires one.
-> - Invented, public-permissive, or otherwise lawful benchmark fixtures with provenance.
-> - Human-approved performance/conditioning threshold policy; current value is `TBD`.
->
-
-### CLM-020 — Steps
-
-> ##### Steps
->
-> 1. Confirm the sealed brief authorizes implementation and lists exact write targets.
-> 2. Read the accepted solver interface, result-envelope schema, diagnostics contract, and unit-system contract.
-> 3. Select or create benchmark fixtures only from invented, public-permissive, or otherwise lawful data.
-> 4. Record fixture provenance, model/hash basis where available, unit basis, solver version, and harness settings.
-> 5. Run repeated deterministic cases through the solver interface without changing solver logic.
-> 6. Capture performance observations, conditioning diagnostics, warnings, assumptions, and limitations.
-> 7. Compare repeated outputs using the approved tolerance/threshold policy; if no policy exists, record `TBD` rather than failing or passing on invented criteria.
-> 8. Emit run records suitable for regression review and release-gate evidence.
-> 9. Stop and escalate if protected data, proprietary benchmark content, missing engineering values, or compliance/certification wording appears.
->
-
-### CLM-021 — Verification
-
-> ##### Verification
->
-> | Check | Expected evidence |
-> |---|---|
-> | Scope boundary | Harness code/tests do not modify solver logic or repo-level artifacts unless explicitly authorized. |
-> | Determinism | Repeat-run comparison evidence is present; tolerance policy is cited or marked `TBD`. |
-> | Fixture provenance | Each fixture records source/provenance and redistribution status. |
-> | Unit safety | Fixture inputs and outputs pass accepted dimensional checks. |
-> | Diagnostic/reporting boundary | Results include warnings/assumptions/limitations and avoid certification or compliance claims. |
->
-
-### CLM-022 — Records
-
-> ##### Records
->
-> - Performance/regression run records.
-> - Fixture provenance index.
-> - Solver version and settings record.
-> - Conditioning diagnostic summary.
-> - Review notes for threshold changes and human rulings.
->
-
-### CLM-023 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The sparse-solver performance harness now exists. Threshold selection, CI/release gating, platform policy, and validation remain held where recorded; existence of the harness does not establish a production-performance ruling.
-
-- **VER-001** — Validate the contract and review source parity, harness/solver separation, repeated-run determinism, performance and conditioning records, unit and fixture provenance, protected-content controls, diagnostics and limitations, no compliance claims, and all unresolved governed threshold and release items.
+- **VER-001** — Executable check (observes the measured clock and stage records of the criterion 9 profiles on a base machine): the run's record against the criterion's values. On another host it observes only a proxy for the base machine's time, and says so.
+- **VER-002** — Executable check: observes the driver's written bytes against the product entry's serialization, and scans product builds for the native-smoke injection, the performance kit and any timeline reading outside the builds that install the diagnostics global.
+- **VER-003** — Executable check: observes rack hashes on regeneration, repeat-run result identity, and each record's fields, including the record of a stopped run.
+- **VER-004** — Executable check: observes that the rack documents open and solve in the product and state their units.
+- **VER-005** — Judgment by an independent reviewer: examines the fixtures' provenance and the records' wording against `docs/IP_AND_DATA_BOUNDARY.md` and `docs/claims_registry.md`, and confirms that no limit other than exit criterion 9's and the generated-grid screen is asserted.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-024 — Guidance: DEL-04-05 Sparse solver performance harness
-
-> #### Guidance: DEL-04-05 Sparse solver performance harness
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-026 — Purpose
-
-> ##### Purpose
->
-> This deliverable prepares the evidence boundary for the deterministic sparse-solver performance/regression harness. It exists to keep performance and conditioning checks observable, repeatable, and reviewable without coupling benchmark code to solver implementation choices.
->
-
-### CLM-027 — Principles
-
-> ##### Principles
->
-> - Treat the harness as an observer and regression surface, not as solver logic.
-> - Prefer deterministic, schema-backed inputs and outputs so repeated runs can be compared.
-> - Preserve unknowns as `TBD`; do not invent runtime, memory, model-size, or conditioning thresholds.
-> - Use only invented, public-permissive, or otherwise lawful benchmark fixtures.
-> - Keep result wording mechanics-focused. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
->
-
-### CLM-028 — Considerations
-
-> ##### Considerations
->
-> Sparse performance measurements are sensitive to solver library, hardware, compiler settings, platform, matrix ordering, and fixture structure. Those implementation variables are not resolved here. DEC-023 resolves solver strategy and deterministic ordering; DEC-053 names bounded size-band observations. Hardware-normalized release thresholds remain open, and each observation must retain its actual environment/candidate binding.
->
-> Conditioning cases should exercise solver diagnostic behavior without embedding protected standards examples or proprietary commercial models. If a fixture source cannot be proven redistributable, it should not enter the public harness.
->
-
-### CLM-029 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Guidance |
-> |---|---|
-> | Deterministic regression vs benchmark realism | Prefer reproducible invented/public fixtures first; practical realism improves only when provenance and redistribution rights are clear. |
-> | CI stability vs timing sensitivity | Timing gates are `TBD`; early harnesses may record metrics without failing builds on unsupported thresholds. |
-> | Solver abstraction vs library-specific diagnostics | Keep common harness records stable; library-specific fields should be explicit and reviewable if introduced. |
-> | Performance visibility vs professional claims | Publish observations and warnings, not certification, compliance, or engineering acceptance. |
->
-
-### CLM-030 — Examples
-
-> ##### Examples
->
-> Invented chain/grid fixtures and bounded size bands are recorded in `core/solver/performance_harness/README.md` under DEC-050/053. Release timing, memory and conditioning thresholds remain `TBD`. Future examples must use invented or public-permissive data with provenance.
->
-
-### CLM-031 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No source conflict identified in setup evidence. | N/A | N/A | N/A | N/A | N/A |
->
-
-### CLM-032 — Open Enrichment Items
-
-> ##### Open Enrichment Items
->
-> | Item | Status |
-> |---|---|
-> | Approved performance metrics and threshold policy | TBD |
-> | Bounded practical model-size observations | DEC-053 observation set; no general release-scale claim |
-> | Approved sparse solver/library choice | DEC-023; bounded live/default policy DEC-050/053 |
-> | Public/permissive fixture source list | Invented only: the chain/grid fixtures, the K6 models and the reference racks (`rack/rack_model.py`, hashes in `observations/rack/models_sha256.txt`) |
+- **AX-001** — *Measure the product, not a stand-in.* Better is a measurement closer to what a user's desktop does, end to end. This is never bought by changing product behaviour to make it measurable, or by timing a path the product does not take.
+- **AX-002** — *A shortfall must point somewhere.* Better is a record that attributes more of the time and memory to a stage. Attribution never alters a timing: sampled runs are kept apart from timed runs.
+- **AX-003** — *No invented limit.* A value that neither exit criterion 9 nor the generated-grid screen sets is recorded as an observation. An unmet target is listed for the owner in the release limitations, not relaxed and not hidden.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-035 OBJ-003 OBJ-008 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-04-05:1** — Complete or locate the module-boundary and fixture provenance/IP review, accepted dimensional-check evidence, and report-facing result-schema binding for the performance harness; retain PDU-035 formal disposition. (R5 continuation claim references: DEL-04-05:SOW#CLM-012/DEL-04-05-RQ-001; RQ-004; RQ-005; RQ-006; CLM-022.)
-- **DEL-04-05:2** — Obtain the owning formal REVIEW disposition and accepted dimensional-check basis before PDU-035 closure; fixture unit metadata is reproducibility evidence, not conversion or engineering validation.
-- **DEL-04-05:3** — Promote release/external sparse thresholds: timing, allocator/RSS memory, conditioning beyond the pivot-ratio proxy, and cross-machine hardware-normalized pass/fail gates (stage-gated: R5 release) (source: PRD plan §3 D7 row + Phase D sparse update / DEC-050/DEC-053)
-- **DEL-04-05:4** — Provide hosted-CI sparse evidence once public-export CI activates (gated: D-05b conditions per DEC-059) (source: PRD plan §3 D7 row)
+| OUT-001 | SOW-035 OBJ-003 OBJ-008 | REQ-008 | AC-001 | VER-001 | Exit criterion 9 of `docs/RELEASE_TARGET_v1.0.md`, whose values are provisional; a run on another host is a proxy only |
+| OUT-001 | SOW-035 OBJ-003 OBJ-008 | REQ-001 | AC-002 | VER-002 | The criterion determines the expected identity and absence |
+| OUT-001 | SOW-035 OBJ-003 OBJ-008 | REQ-002 REQ-005 | AC-003 AC-004 | VER-003 | The product's own earlier output; guards against change only. The required fields are determined by the criterion |
+| OUT-001 | SOW-035 OBJ-003 OBJ-008 | REQ-004 REQ-006 | AC-006 | VER-004 VER-005 | The criterion determines the expected behaviour; PRD §20 and `docs/IP_AND_DATA_BOUNDARY.md`, read by the reviewer, for the data and its provenance |
+| OUT-001 | SOW-035 OBJ-003 OBJ-008 | REQ-003 | AC-005 | VER-003 VER-005 | Exit criterion 9 and the generated-grid screen of REQ-003; the reviewer confirms that no other limit is asserted |
+| OUT-001 | SOW-035 OBJ-003 OBJ-008 | REQ-008 | AC-007 | VER-003 | The criterion determines the expected profiles (DEL-04-11/AC-011; DEL-04-09/AC-004); no limit is asserted |
+| OUT-001 | SOW-035 OBJ-003 OBJ-008 | REQ-007 | AC-008 | VER-005 | The reviewer's reading against PRD §21.2 and `docs/claims_registry.md` |

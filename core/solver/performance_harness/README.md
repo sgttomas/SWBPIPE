@@ -128,8 +128,7 @@ K6b adds a fifth mode, `w1a`, to `k6_observe`: K4's W1a kernel method (`FK/struc
 ## Criterion 9: release timing of the product entry (RT-U4)
 
 This part times the product's linear entry, as the desktop solve worker runs it, on invented
-reference racks. The measured quantity and the base-machine method are in DEL-04-05
-`Work/criterion-9-measurement.md`. It is observation only: no test or record asserts a time or
+reference racks. DEL-04-05 owns the measured quantity and the base-machine method. It is observation only: no test or record asserts a time or
 memory bound.
 
 - **The racks** (`rack/rack_model.py`, standard library only) are deterministic invented pipe

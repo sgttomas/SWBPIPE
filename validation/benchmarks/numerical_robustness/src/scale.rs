@@ -1,4 +1,4 @@
-//! V-K's scale runs (checkpoint B; plan §13): W1's deterministic counts of a
+//! V-K's scale runs (checkpoint B): W1's deterministic counts of a
 //! model, in O(nnz) and without a solve, and the admission estimate.
 //!
 //! - **The counts** follow K4's own rules. The structural pattern is the

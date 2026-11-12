@@ -414,7 +414,7 @@ fn kd5_timoshenko_partial_span_closes_and_passes() {
     }
 }
 
-/// W-16t §2.4: the binary64 vector stale (the Euler–Bernoulli twin's values)
+/// the binary64 vector stale (the Euler–Bernoulli twin's values)
 /// against the correct Timoshenko re-formation leaves Passed on a
 /// nonsymmetric span: the closed residual measures the disagreement.
 #[test]
@@ -432,7 +432,7 @@ fn kd5_timoshenko_partial_span_stale_binary64_leaves_passed() {
     }
 }
 
-/// W-16t §5.2: TPS-K under a nonzero force-scale exponent. The scaled
+/// TPS-K under a nonzero force-scale exponent. The scaled
 /// re-formation is 2^b times the unscaled one (midpoints exactly, radii
 /// rounded upward), and the primitive binds to a W2 source that holds E and G
 /// times 2^b, with its exponent in the closure entry.
@@ -463,7 +463,7 @@ fn kd5_timoshenko_partial_span_force_scaled() {
     }
 }
 
-/// W-16t §5.2: a failure inside the new ball correction is
+/// a failure inside the new ball correction is
 /// FormationCheckUnavailable (fail closed). G A_s l^2 below the binary64
 /// range makes the "timoshenko phi" divisor ball reach zero; the same frame's
 /// full span (no correction) re-forms.

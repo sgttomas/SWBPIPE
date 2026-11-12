@@ -5,7 +5,7 @@ metadata:
   kind: instruction
   surface: requirements
 ---
-Pressure applicability follows the [current pressure contract](../execution/PKG-04/DEL-04-07/Work/pressure-contract.md).
+Pressure applicability follows the [current pressure contract](../execution/PKG-04/DEL-04-07/ScopeOfWork.md).
 `legacy_pressure_v1` is retired, including zero-pressure documents. References
 to pressure quantities or validation coverage below are subject to that current
 boundary and do not establish implemented T4 capability.
@@ -19,7 +19,7 @@ This document is governed by [CONTRACT.md](CONTRACT.md); implements [SOW-026](..
 Verification proves that the software solves the stated mechanics problem correctly within declared tolerances. Validation evaluates whether the software workflow is fit for its intended engineering support role. Neither replaces project-specific professional judgment.
 
 Current commitments and acceptance conditions are in the PRD and deliverable
-ScopeOfWork/Design files. Dependency graphs provide coordination facts, not
+ScopeOfWork files. Dependency graphs provide coordination facts, not
 engineering validation, release acceptance or professional approval.
 
 This strategy keeps five evidence surfaces separate:

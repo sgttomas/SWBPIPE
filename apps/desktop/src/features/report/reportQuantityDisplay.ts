@@ -45,7 +45,7 @@ export type DisplayDecimal = Readonly<{ sign: "" | "-"; digits: string; point: n
 /** The exact step's output: the stored value in its display unit, exact and unrounded. */
 export type ExactDisplayQuantity = DisplayDecimal & Readonly<{ unit: string }>;
 
-/** The exact step of the display rule (RT-R6; DEL-08-04 Design `csv-export.md` §3). The rule
+/** The exact step of the display rule. The rule
  * performs one conversion: a value stored in `Pa` is shown in `MPa`, a decimal shift of six
  * places (1 MPa = 10^6 Pa, exact). Every other unit is shown as stored, the identity. The step
  * works on the value's canonical text (`String(value)`) as decimal digits, with no

@@ -845,7 +845,7 @@ fn conformance_corpus_pins_the_frozen_grammar() {
 }
 
 // ---------------------------------------------------------------------------
-// Static type check parity (W-17, DEL-06-02 `Design/rule-pack-unit-check.md`)
+// Static type check parity
 // ---------------------------------------------------------------------------
 
 /// The finding codes the static check can derive without values (design
@@ -863,7 +863,7 @@ const STATIC_CODES: &[FindingCode] = &[
 ];
 
 /// Cases with a value-, binding- or status-dependent expected finding, or a
-/// grammar-version finding: compared for soundness only (design §4).
+/// grammar-version finding: compared for soundness only.
 const NON_COMPARABLE_CASES: &[u32] = &[30, 31, 32, 44, 45, 46, 47, 48, 58, 62, 63, 66];
 
 struct StaticCase {
@@ -928,7 +928,7 @@ fn load_static_cases() -> Vec<StaticCase> {
         .collect()
 }
 
-/// The corpus adapter (design §4). The type environment is built from all of
+/// The corpus adapter. The type environment is built from all of
 /// a case's bindings, in the evaluator's binding order (`build_binding_map`):
 /// an empty id is an invalid reference; a repeated id keeps its first
 /// binding; a null quantity is `Unknown`, not missing; a quantity without

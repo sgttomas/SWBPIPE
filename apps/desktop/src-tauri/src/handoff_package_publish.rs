@@ -146,7 +146,7 @@ fn diagnostic(code: &str, path: &str, message: impl Into<String>) -> Diagnostic 
 
 /// The schema instance around a manifest: the root constants and the
 /// `handoff_contract_status` constants (`physical_package_container` stays
-/// `TBD`: the directory package is not a container ruling, design §0).
+/// `TBD`: the directory package is not a container ruling).
 pub fn handoff_instance(manifest: Value) -> Value {
     json!({
         "schema_version": HANDOFF_SCHEMA_VERSION,
@@ -1100,7 +1100,7 @@ fn own_jcs_text(bytes: &[u8], member: &str) -> Result<Value, String> {
     Ok(value)
 }
 
-/// `verify_handoff_package` (design §3): the package's layout, both members as
+/// `verify_handoff_package`: the package's layout, both members as
 /// their own JCS text, the model member's SHA-256 as the manifest's
 /// `model_hash`, the instance as exactly the contract envelope around its
 /// manifest with the checksum inventory the recomputed hashes give, and the

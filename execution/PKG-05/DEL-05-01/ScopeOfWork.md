@@ -2,425 +2,142 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-05-01
 package_id: PKG-05
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-013]
 package_objective_refs: [OBJ-003]
 ---
 
-# Scope of Work — DEL-05-01
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-05-01 Primitive load case engine
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-05-01` in service of project scope [SOW-013] and package objectives [OBJ-003].
+This deliverable is what a load case is made of. It defines the eight kinds of primitive load an engineer applies to a piping model (weight, pressure, thermal expansion, imposed displacement, hydrotest, wind, seismic and occasional) and turns each load of a case into what the solver consumes: forces and moments at nodes, loads along members, free strain in members and prescribed movement at supports. It also forms the loads that follow from the model itself: self-weight from the pipes' mass and a stated gravity, static-equivalent seismic load from the same mass and the user's g-factors, wind load from the user's pressure and exposed spans, and the temperature changes and added weights a case takes from its operating conditions. It defines the hydrostatic test case. Every value is the user's. Nothing is defaulted, and no code combination, factor or coefficient is supplied.
 
-- **OUT-001** — A primitive-load-case contract covering explicit weight, pressure, thermal, imposed-displacement, hydrotest, wind, seismic, and occasional mechanics categories, unit-aware preparation, load-case records, diagnostics, and deterministic solver-boundary contributions is produced for the declared scope and objective.
+It serves SOW-013 under OBJ-003 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-05, row DEL-05-01: primitive categories, code combinations remain external), and PRD §12.5 and §12.6 with FR-SOL-006. In `docs/RELEASE_TARGET_v1.0.md`, exit criterion 1 names it with DEL-05-02 for loads, cases and combinations: on the invented reference system the sustained, operating, hydrotest, wind, three-axis static seismic and seismic anchor movement cases solve on the exact route in one model, with no admitted family refused. Under criterion 2 each of those cases passes closed-form or hand-calculation references made by an independent generator. It carries two requirements of the product: the hydrostatic test is a flagged test condition with test pressure, test contents density and spring supports held, marked as a test case in results and reports; and static-equivalent seismic and wind loads are generated from the user's inputs and the model's own mass and geometry only.
+
+- **OUT-001** — The primitive load case engine: the load categories and records, the preparation of each load into solver contributions with its findings, static-equivalent seismic and wind generation, operating-condition resolution, and the hydrostatic test condition.
+- **OUT-002** — Self-weight generation: the weight loads of selected pipes and components from their mass and an explicit gravity, as a plan of structured operations with its generation evidence.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-05-01 Primitive load case engine
+**Terms the engine implements.**
 
-> #### Datasheet: DEL-05-01 Primitive load case engine
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Primitive load.* One load of a load case: an identity, a category, a target (a node, a pipe, or a support with a degree of freedom), a direction, a dimension, a magnitude with its unit, for a member load an optional span given as two fractions of the member's length, and its provenance.
+- *Category.* One of weight, pressure, thermal, imposed displacement, hydrotest, wind, seismic and occasional. A category names what the load is for the engineer; it selects no factor and no rule.
+- *Load case.* A named set of primitive loads, with an optional static-equivalent generation record, an optional use of operating conditions and an optional test condition. A case is solved directly; combining solved cases is DEL-05-02's.
+- *Contribution.* What a load gives the solve: a force or moment on a degree of freedom of a node; a uniform load per length on a member, over its whole span or the stated part; a free strain α·ΔT on a member; or a prescribed displacement or rotation at a support's degree of freedom.
+- *Static-equivalent generation.* Loads formed for a case from the user's inputs. Seismic: on every member, a load per length equal to the user's g-factor for each global axis, times gravity, times the member's mass per length. Wind: on each span the user marks, over the fraction marked, a load per length equal to the user's pressure times the user's shape factor times the projected diameter (outside diameter plus twice the insulation thickness), in the user's global direction.
+- *Mass basis.* The mass per length a generated load uses is the route's own: mass per length as DEL-03-08 defines it, with each part taken on the section DEL-05-03's section bases give it on that route. The basis is named `source_od_effective_wall_areas/v1` on the pressure-free route and `source_od_nominal_wall_pressure_bore_areas/v1` on the exact route. One model can therefore carry different weight and seismic loads on the two routes, and each generated load's evidence names its basis.
+- *Self-weight plan.* A proposal, never an application: for the pipes the user selects and a gravity the user states (magnitude, unit and global axis), the operations that would create a weight case. A pipe's load is its mass per length times the gravity (`pipe_mass_per_length_times_explicit_axis_acceleration/v2`). A pipe that a rigid-family component maps is given the component's own weight instead: the force W along gravity at the component's node and the moments of that force about the node from the centre-of-gravity vector (`component_weight_at_center_of_gravity_global_offset/v1`).
+- *Operating-condition use.* A case may take its temperature, pressure, wind exposure, added weight or contents density from the operating-condition set assigned to each pipe, in place of loads of its own. Resolution turns that use into ordinary loads of the case before anything else reads the case.
+- *Test condition.* A case's declaration that it is a hydrostatic test, with its choice of held supports: `springs_and_constant_effort` or `none`. Both members are authored; neither defaults the other, and a case label alone has no mechanical effect.
+- *Held support.* In a test case that holds supports, each spring, variable spring and constant-effort support is replaced on the degrees of freedom it acts on by a rigid restraint at zero displacement from the authored geometry. Neither its stiffness nor its force acts. Its reaction is the replacement restraint's, published under the support's own identity.
+- *Finding.* A load or case the engine cannot prepare, reported with a code, the identity of the load or case, a message and a remediation.
+- *Boundary records.* The engine's load-dimension names (`LoadDimension`, `CanonicalDimension`) and its storage-neutral boundary records (`BoundaryRecordRef`, and `BoundaryQuantityRecord` with its `QuantityUnitMetadata` and `CanonicalSchemaBinding`), which carry a quantity's dimension, unit, schema binding, payload references and provenance. The load-case algebra, the stress recovery and the user-load crate build their operands and records on them, and the user-load crate also takes the engine's prepared axial-effect contributions (`PrimitiveAxialEffectContribution`).
 
-### CLM-003 — Identification
+### CLM-035 — Self-weight generation boundary
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-05-01 |
-> | Name | Primitive load case engine |
-> | Package | PKG-05 Loads, Load Cases, and Stress Recovery |
-> | Type | BACKEND_FEATURE_SLICE |
-> | Scope items | SOW-013 |
-> | Objectives | OBJ-003 |
-> | Context envelope | M |
->
+This deliverable keeps the primitive-load and self-weight generation mathematics. The interaction with a self-weight plan in the desktop is DEL-07-03's; the mass contracts are DEL-03-08's; which section each part of the mass is taken on is DEL-05-03's; a rigid component's weight and centre of gravity are DEL-03-05's definition; product integration, with the product's computation of mass per length, is DEL-04-07's. A generated change reaches the model only through the structured-operation route of PKG-16, on the user's acceptance.
 
-### CLM-004 — Evidence Summary
+**Boundary.** The engine says what a case applies. The following belong elsewhere:
 
-> ##### Evidence Summary
->
-> | Evidence surface | Current evidence |
-> |---|---|
-> | Implementation crate | `core/loads/primitive_loads` |
-> | Crate scope | Code-neutral primitive load records and deterministic mechanics-boundary preparation for weight, pressure, thermal, imposed displacement, hydrotest, wind, seismic, and occasional categories. |
-> | Readme evidence | `core/loads/primitive_loads/README.md` documents implemented categories, storage-neutral primitive load-case records, boundary quantity metadata, diagnostic bridge records, lumping, and exclusions. |
-> | Rust API evidence | `core/loads/primitive_loads/src/lib.rs` defines primitive category/type records, load quantities, target/direction records, boundary metadata, load-case records, diagnostic records, preparation helpers, lumping, axial-effect helpers, and solver-vector assembly helpers. |
-> | Local memory evidence | `MEMORY.md` records implementation, verification, and preserved boundaries from the original crate implementation through the 2026-06-05 foundational hardening tranche and parent fan-in. |
->
+- the equivalent nodal loads of a member load and the end forces of a free strain: DEL-04-02;
+- how a prescribed movement is solved, and the support families: DEL-04-03, DEL-04-04;
+- what pressure contributes to a solve (pressure regions on the exact route; the pressure-free route carries none), each pipe's mass per length, and the composition of every load into the product solve on both routes: DEL-04-07;
+- the replacement of held supports in the assembled system, and their reactions: DEL-04-07 (DEL-04-07/REQ-011);
+- concentrated and distributed loads as user loads: DEL-05-05. Combinations of cases, including what an occasional or a test case means inside one: DEL-05-02;
+- modal and response-spectrum analysis: DEL-04-09, DEL-04-10. Time-history and other dynamic loading are outside the product;
+- the model-document members for loads, conditions and the test condition: DEL-02-01. Units and their conversion: DEL-02-02;
+- showing a test case's mark in a report: DEL-08-01. Showing it in the results viewer is required, and no deliverable currently commits to providing it; REQ-014 gives the result record the mark the viewer would show.
 
-### CLM-005 — Attributes
+Wind coefficients, exposure rules, seismic response parameters, code load cases and the mapping of an occasional event to a rule are the user's or the user's rule pack's.
 
-> ##### Attributes
->
-> | Attribute | Current value | Source |
-> |---|---|---|
-> | Primary subject | Primitive load definitions and mechanics-boundary preparation for weight, pressure, thermal expansion, imposed displacement, hydrotest, wind, seismic, and occasional categories. | `_CONTEXT.md`; `core/loads/primitive_loads/README.md`; `src/lib.rs` |
-> | Analysis model boundary | Primitive loads are prepared for a 3D centerline/frame mechanics model through nodal, element-uniform, imposed-displacement, lumped-equivalent nodal, axial-effect, and solver-vector assembly surfaces. | `docs/CONTRACT.md` OPS-K-MECH-1; `src/lib.rs` |
-> | Mechanics/rule boundary | The crate defines mechanics load categories and deterministic findings; it does not evaluate user-rule acceptability, code compliance, professional judgment, code combinations, or allowables. | `docs/CONTRACT.md` OPS-K-MECH-2; `core/loads/primitive_loads/README.md` |
-> | Unit boundary | Load magnitudes carry explicit dimensions; boundary metadata maps accepted PKG-02 dimension vocabulary including `force_per_length` and rejects retired aliases. No conversion constants are supplied. | OPS-K-UNIT-1; `CanonicalDimension`; `QuantityUnitMetadata` |
-> | Boundary metadata | `BoundaryRecordRef`, `BoundaryQuantityRecord`, and `PrimitiveLoadCaseRecord` carry schema binding, target/basis refs, JCS payload refs, payload-hash refs, unit metadata, provenance refs, and canonical round-trip key material. | `src/lib.rs` |
-> | Load-case record boundary | `PrimitiveLoadCaseRecord` binds one primitive category to canonical model `LoadCase` metadata, sorted load IDs, provenance, payload refs, and hash refs. Mixed-category algebra remains downstream DEL-05-02 scope. | `PrimitiveLoadCaseRecord`; `_DEPENDENCIES.md` |
-> | Diagnostic bridge | `LoadDiagnosticRecord` maps primitive-load validation and load-case assembly findings to code, class, blocking severity, source, affected object, message, remediation, and provenance ref for later result-envelope transport. | `LoadDiagnosticRecord`; `diagnostic_records_from_load_findings`; `diagnostic_records_from_load_case_assembly_findings` |
-> | Missing values | Missing solve-required load targets, magnitudes, spans, properties, or provenance become explicit findings/errors rather than silent defaults. | OPS-K-DATA-2; `FindingCode`; `BoundaryMetadataError` |
-> | Dynamic scope | Wind, seismic and occasional mechanics loads retain explicit user inputs and provenance; DEC-068 additionally governs static-equivalent generation from user-entered seismic factors/model mass and wind parameters/user-marked exposed spans. Dynamic procedure generation, response spectra, code coefficients, and environmental defaults remain `TBD` and out of this deliverable. | `_CONTEXT.md`; `README.md`; tests in `src/lib.rs` |
->
+**Not decided.**
 
-### CLM-006 — Primitive Load Category Register
+- How a case's pressure is resolved from an operating condition. A case that asks for it is refused by name.
+- What a combination that includes a hydrostatic test case means. Until it is decided, such a combination is withheld by name.
+- Whether an authored temperature change in degF or degR is converted with correct rounding. It would move existing results.
+- Which deliverable states the load and reference state of a document: a case's reference configuration, its fit and thermal strains by member, its per-support participation and its ledger of load sources. This scope states none of it.
+- For a case that is not a hydrostatic test, whether and how its contents density from its operating condition replaces the section's contents density in its self-weight. A case that asks for it is refused by name.
 
-> ##### Primitive Load Category Register
->
-> | Category | Implemented mechanics evidence | Preserved boundary / open item |
-> |---|---|---|
-> | Weight | Element uniform `ForcePerLength` loads; eligible for lumped equivalent nodal conversion when caller supplies span/connectivity. Node-targeted force and moment loads (a rigid component's weight at its node with its centre-of-gravity moments, DEL-03-05 Design `rigid-component-stiffness-scaling.md` §3) prepare as nodal contributions. | Mass/gravity/density inputs require explicit provenance with no hidden defaults; static-equivalent generation follows DEC-068 and unit conversion follows DEC-018. |
-> | Pressure | Element pressure or equivalent line-load records; straight-pipe pressure thrust helper computes `p * internal_area` from caller-supplied properties. | Pressure stress formulas, code stress categories, pressure design rules, and property/default sourcing remain outside this deliverable. |
-> | Thermal | Element temperature-change records; straight-pipe thermal axial helper computes `E * A * alpha * DeltaT` from caller-supplied properties. | Reference temperature, material property provenance, expansion policy, and broader thermal behavior remain bounded to future sealed scopes, except that a load case may take each pipe's temperature change from its operating-condition set and the set's installation temperature (DEL-05-01:2). |
-> | Imposed displacement | Support-target imposed displacement records preserve translational displacement or rotational DOF boundary. | Support/restraint implementation and boundary-condition ownership remain interface-dependent. |
-> | Hydrotest | Element pressure or equivalent line-load category is represented in primitive mechanics preparation. | Hydrotest procedure defaults, test-fluid assumptions, and code requirements are not invented. |
-> | Wind | Explicit equivalent nodal force or element `ForcePerLength` mechanics loads are accepted. | Wind coefficients, profiles, exposure rules, and code factors are user/rule-supplied `TBD`. |
-> | Seismic | Explicit equivalent nodal force or element `ForcePerLength` mechanics loads are accepted. | Dynamic treatment, response parameters, seismic code procedure generation, and acceleration-style placeholders remain out of scope. |
-> | Occasional | Explicit equivalent nodal force/moment or element `ForcePerLength` mechanics loads are accepted. | Event definition and user/rule mapping remain downstream/user-governed. |
->
-
-### CLM-007 — Implemented Surfaces
-
-> ##### Implemented Surfaces
->
-> | Surface | Current status |
-> |---|---|
-> | Primitive category model | Implemented by `PrimitiveLoadCategory` and `PrimitiveLoadCaseKind`. |
-> | Primitive load records | Implemented by `PrimitiveLoad`, `LoadTarget`, `LoadDirection`, and `LoadQuantity`. |
-> | Boundary quantity metadata | Implemented by `CanonicalDimension`, `QuantityUnitMetadata`, `BoundaryRecordRef`, and `BoundaryQuantityRecord`. |
-> | Primitive load-case records | Implemented by `PrimitiveLoadCaseRecord`; validates model `LoadCase` schema binding, non-empty refs, non-empty unique load IDs, and single-category membership. |
-> | Load preparation | Implemented by `prepare_loads` for nodal, element-uniform, and imposed-displacement contributions with deterministic sorting. |
-> | Equivalent-static preparation | Implemented by `EquivalentStaticMechanicsBasis` and `prepare_equivalent_static_loads` for wind, seismic, and occasional explicit mechanics loads with caller-supplied basis/provenance refs. |
-> | Lumped equivalent nodal conversion | Implemented by `prepare_lumped_nodal_loads` for explicit translational/global `ForcePerLength` element loads with caller-supplied spans/connectivity. |
-> | Axial effects | Implemented by `prepare_straight_pipe_axial_effects` for thermal axial force and pressure thrust from caller-supplied properties. |
-> | Solver load-vector assembly | Implemented by `assemble_solver_load_vector`; sorts/sums valid nodal contributions and returns findings instead of partial vectors when invalid data exists. |
-> | Diagnostic bridge | Implemented by diagnostic conversion helpers for primitive-load and load-case assembly findings. |
->
-
-### CLM-008 — Verification Evidence
-
-> ##### Verification Evidence
->
-> | Evidence | Result |
-> |---|---|
-> | Historical run records | `MEMORY.md` records successful cargo formatting/testing tranches for primitive implementation, lumping, solver-vector assembly, axial effects, boundary dimension update, load-case records, and diagnostic bridge. |
-> | Verification hook | Run the source-bound suite in `core/loads/primitive_loads/src/lib.rs` for primitive categories, boundary metadata, retired dimension aliases, equivalent-static handling, load-case records, deterministic sorting, lumping, axial effects, diagnostic records, missing/invalid inputs, and solver-vector assembly findings; record the evaluated inventory and result in the run evidence. |
-> | Historical verification evidence | `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml --locked` passed with 40 tests in the 2026-06-05 foundational hardening tranche on that run's source; this is not a current suite count or engineering-validation result. Doc-alignment closeout should still run diff hygiene for touched files. |
->
-
-### CLM-009 — Conditions
-
-> ##### Conditions
->
-> - Primitive load categories remain separate from code-specific load combinations and allowables. Source: `_CONTEXT.md`; PKG-05 exclusions; SOW-014 note.
-> - The downstream load-case algebra/user-combination interface remains DEL-05-02. Source: `ScopeOfWork.md` (requirements) REQ-05-01-007; `_DEPENDENCIES.md`.
-> - The crate exposes storage-neutral boundary records and diagnostic records, not the final application-service result envelope/API.
-> - Unknown coefficients, default magnitudes, conversion constants, jurisdictional values, and professional acceptance remain `TBD`. Source: OPS-K-AGENT-1; OPS-K-DATA-1; OPS-K-IP-1.
-> - Agent-authored deliverable evidence remains draft/proposal material until accepted by the human workflow authority. Source: OPS-K-AGENT-4.
->
-
-### CLM-010 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history)
-> - `_REFERENCES.md`
-> - `_DEPENDENCIES.md`
-> - `MEMORY.md`
-> - `core/loads/primitive_loads/README.md`
-> - `core/loads/primitive_loads/src/lib.rs`
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register)
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-05-01
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-013
-> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-05-01
-> - `docs/CONTRACT.md`
-> - `docs/SPEC.md`
-> - `docs/TYPES.md`
+**Held by the owner.** The work that brings a test case's selected contents density into its self-weight is not undertaken until the owner selects it: until then no one composes, builds, prices or witnesses it, opens a pull request for it or starts an agent on it. Only the owner releases this hold. REQ-014 and AC-010 still state the objective.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-011 — Specification: DEL-05-01 Primitive load case engine
+A prepared load is a statement about the user's inputs. Its correctness is examined against closed forms and references made without product code. Nothing here says a load is the right one for a design.
 
-> #### Specification: DEL-05-01 Primitive load case engine
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-013 — Scope
+- **REQ-001** — A load keeps its category from authoring to the published result: weight, pressure, thermal, imposed displacement, hydrotest, wind, seismic or occasional (SOW-013; PRD §12.5).
+- **REQ-002** — Loads act on the 3D centerline model: on the six degrees of freedom of a node, along a member, or on a support's degree of freedom (PRD §12.1; `docs/CONTRACT.md` OPS-K-MECH-1).
+- **REQ-003** — The engine holds no code-specific load combination, allowable, factor, coefficient, procedure generator or environmental default, and no output of it states or implies approval or compliance (the decomposition's PKG-05 exclusion; PRD §12.6, §21.2; `docs/CONTRACT.md` OPS-K-DATA-1, OPS-K-IP-1, OPS-K-MECH-2).
+- **REQ-004** — Every load magnitude carries its dimension and unit. The dimension vocabulary is the unit catalog's; a dimension that does not fit the load's category and target, or a name the catalog has retired, is rejected (PRD §5.6; `docs/CONTRACT.md` OPS-K-UNIT-1).
+- **REQ-005** — A load or case that lacks a value the solve needs (a target, a magnitude, a unit, a direction, a span, a property) or carries an invalid one is a finding. Nothing is defaulted, and a case with a blocking finding gives the solve no partial set of loads (PRD §5.5, §12.8; `docs/CONTRACT.md` OPS-K-DATA-2).
+- **REQ-006** — Each finding becomes a diagnostic record with code, class, blocking severity, source, affected object, message, remediation and provenance (decomposition AB-00-06).
+- **REQ-007** — A primitive load-case record binds one category to the model load case's identity, its provenance, the reference and hash of its payload, and its loads' identities in sorted order. A record that mixes categories is refused; combining categories is DEL-05-02's (SOW-013; SOW-014).
+- **REQ-008** — *Static-equivalent generation.* For wind, seismic and occasional cases the engine accepts explicit equivalent loads, and generates seismic and wind loads as defined above from the user's inputs and the model's mass and geometry, on both routes. Each generated load names its inputs and its mass basis. A missing input blocks the case by name and generates nothing. No dynamic procedure, response parameter or coefficient is generated (PRD §12.5).
+- **REQ-009** — Preparation is deterministic: the same case gives the same contributions and findings, in the same order, bit for bit, on every run (PRD §12.2; `docs/CONTRACT.md` OPS-K-SOLVER-1).
+- **REQ-010** — Loads, load-case records and diagnostic records keep the provenance that separates a value the user or a lawful source supplied from one that is unresolved. An unresolved value is never read as a value (PRD §20.2; `docs/CONTRACT.md` OPS-K-DATA-1, OPS-K-DATA-2).
+- **REQ-011** — Where a member load is lumped to its end nodes, only an explicit load per length in a global translational direction is lumped, from the member's supplied span and end nodes. Pressure, thermal, rotational and acceleration inputs are never lumped.
+- **REQ-012** — The thermal load of a straight member is the free strain α·ΔT, equal to the axial force E·A·α·ΔT when fully restrained, and a pressure end thrust is p·A_i, each from the member's supplied properties only. Neither forms a pressure stress or draws on a material or section catalogue (the decomposition's PKG-05 exclusion).
+- **REQ-013** — *Operating-condition resolution.* A case's condition use resolves, before validation, into ordinary loads of the case: per pipe, a thermal temperature change equal to the exact difference of the condition temperature and the set's installation temperature, rounded once to binary64 kelvin; per pipe, the set's added weight, in addition to the case's own weight loads; and the pipes exposed to wind. The resolved loads come in a fixed order with deterministic identities. A case takes its temperature, pressure and wind exposure from conditions or from its own records, never both. A missing set, condition or value refuses the case by name. An authored temperature change keeps the unit catalog's interval conversion, so for degF and degR the two sources can differ in the last bit, and the user guide says so.
+- **REQ-014** — *Hydrostatic test.* A case that declares the test condition is solved on the exact route as a test: its pressure is the case's own authored pressure, its contents density is that of the condition the case selects, and with `springs_and_constant_effort` its supports are held as defined above, while with `none` they act as in any case. The case's result record states that it is a hydrostatic test and which supports were held. The declaration, the pressure, the contents selection and the held choice survive preview, apply, undo, save and reopen unchanged. A test case on the pressure-free route is refused by name, never solved as an ordinary case (release target exit criterion 1).
+- **REQ-015** — *Self-weight.* A self-weight plan is generated only from explicit inputs: the selected pipes, their sections and densities, and a gravity with magnitude, unit and axis. Its evidence names, per pipe, the method, the mass basis and the generated load per length, and per component the weight, node and centre of gravity. A component whose weight cannot be applied is named in a warning and its pipe keeps its distributed weight. Generating or inspecting a plan changes nothing in the model, and inspection of applied self-weight says whether each generated load still matches the model it came from (CLM-035).
 
-> ##### Scope
->
-> This deliverable specifies the implemented evidence boundary for the primitive load case engine under `core/loads/primitive_loads`. The slice defines code-neutral primitive load categories, storage-neutral primitive load-case records, boundary quantity metadata, deterministic mechanics preparation, equivalent-static mechanics handling, lumped equivalent nodal conversion, straight-pipe axial-effect helpers, solver load-vector assembly helpers, and diagnostic bridge records for later result-envelope transport.
->
-> This deliverable does not define code-specific load combinations, bundle coefficients or default magnitudes, set jurisdictional factors, implement rule-pack evaluation, implement final result-envelope/API integration, or claim engineering compliance. Mixed-category load-case algebra and user-defined combinations remain downstream DEL-05-02 scope.
->
+### Acceptance criteria
 
-### CLM-014 — Requirements
-
-> ##### Requirements
->
-> | ReqID | Requirement | Source |
-> |---|---|---|
-> | REQ-05-01-001 | The deliverable shall preserve primitive load category identity for weight, pressure, thermal expansion, imposed displacement, hydrotest, wind, seismic, and occasional loads. | SOW-013; DEL-05-01; `PrimitiveLoadCategory` |
-> | REQ-05-01-002 | Primitive load records shall remain compatible with the 3D centerline/frame mechanics analysis boundary through explicit node, element, and support targets. | OPS-K-MECH-1; `LoadTarget`; `LoadDirection` |
-> | REQ-05-01-003 | The primitive load engine shall not encode code-specific load combinations, allowables, factors, coefficients, procedure generators, default environmental values, or certification claims. | PKG-05 exclusion; OPS-K-DATA-1; OPS-K-IP-1; OPS-K-MECH-2 |
-> | REQ-05-01-004 | Unit-bearing load inputs shall preserve explicit dimension intent and reject invalid or retired boundary metadata where implemented. | OPS-K-UNIT-1; `LoadDimension`; `CanonicalDimension`; `BoundaryMetadataError` |
-> | REQ-05-01-005 | Missing or invalid solve-required load data shall become explicit findings/errors rather than silent defaults. | OPS-K-DATA-2; `FindingCode`; `BoundaryMetadataError` |
-> | REQ-05-01-006 | Load validation and load-case assembly findings shall be convertible to diagnostic records carrying code, class, blocking severity, source, affected object, message, remediation, and provenance reference. | AB-00-06; `LoadDiagnosticRecord` |
-> | REQ-05-01-007 | Primitive load-case records shall bind one primitive category to canonical model `LoadCase` metadata, provenance, payload reference, payload-hash reference, and sorted load IDs; mixed-category algebra remains DEL-05-02 scope. | SOW-013; SOW-014; DEL-05-02; `PrimitiveLoadCaseRecord`; `_DEPENDENCIES.md` |
-> | REQ-05-01-008 | Wind, seismic, and occasional equivalent-static handling shall accept explicit equivalent mechanics loads and the DEC-068 static-equivalent generators from user-supplied inputs with basis/provenance refs; dynamic procedure generation and protected/default coefficients remain outside this authority. | SOW-013 note; `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `README.md`; `EquivalentStaticMechanicsBasis` |
-> | REQ-05-01-009 | Deterministic primitive-load tests shall cover category representation, supported/unsupported target and dimension boundaries, boundary metadata, equivalent-static handling, load-case records, diagnostic bridge records, lumping, axial effects, and solver-vector assembly behavior before release use. | OPS-K-SOLVER-1; `src/lib.rs` tests |
-> | REQ-05-01-010 | Primitive load inputs, load-case records, boundary quantity records, and diagnostic records shall retain provenance references sufficient to distinguish explicit user/lawful source inputs from unresolved `TBD` state. | OPS-K-DATA-1; OPS-K-DATA-2; AB-00-06 |
-> | REQ-05-01-011 | Lumped equivalent nodal conversion shall remain limited to explicit translational/global `ForcePerLength` element loads with caller-supplied element span and node connectivity. | `prepare_lumped_nodal_loads`; `ElementLoadSpan` |
-> | REQ-05-01-012 | Straight-pipe axial-effect helpers shall remain mechanics-only helpers for thermal axial force and pressure thrust from caller-supplied properties and shall not introduce pressure stress formulas or material/default catalogs. | `prepare_straight_pipe_axial_effects`; PKG-05 exclusions |
->
-
-### CLM-015 — Standards
-
-> ##### Standards
->
-> No external protected standard text is introduced by this deliverable. Governing local standards are the project invariant catalog, architecture basis rows AB-00-01, AB-00-02, AB-00-03, AB-00-06, AB-00-08, and the decomposition/register rows listed in `_CONTEXT.md`.
->
-
-### CLM-016 — Verification
-
-> ##### Verification
->
-> | Requirement | Verification evidence / approach |
-> |---|---|
-> | REQ-05-01-001 | Unit tests and enum inspection confirm all eight primitive categories exist and map to primitive load-case kinds without invented coefficients. |
-> | REQ-05-01-002 | Unit tests cover node, element, and support target preparation for accepted mechanics boundaries. |
-> | REQ-05-01-003 | Documentation and crate boundary review confirm absence of code combinations, allowables, protected standard values, and professional/compliance claims. |
-> | REQ-05-01-004 | Unit tests cover canonical dimension parsing, `force_per_length`, dimension mismatch, and retired alias rejection. |
-> | REQ-05-01-005 | Unit tests cover missing targets, missing magnitudes, invalid targets, invalid dimensions, invalid directions, invalid spans/connectivity, invalid physical properties, non-finite inputs, and blocked outputs. |
-> | REQ-05-01-006 | Unit tests cover conversion from primitive-load findings and load-case assembly findings into diagnostic records with provenance. |
-> | REQ-05-01-007 | Unit tests cover load-case schema binding, schema load-type mapping, sorted load IDs, missing metadata, duplicate IDs, empty loads, and mixed-category rejection. |
-> | REQ-05-01-008 | Unit tests cover wind/seismic/occasional explicit equivalent mechanics loads, required equivalent-static basis/provenance refs, DEC-068 seismic/wind generation from explicit user inputs on PF and eligible EX documents, route-specific seismic mass, EX generated-primitive evidence binding, the named unsupported boundaries in Work/exact-equivalent-static.md, and rejection of acceleration/dynamic-placeholder dimensions. |
-> | REQ-05-01-009 | Verification uses the source-bound primitive-load suite (`cargo test --manifest-path core/loads/primitive_loads/Cargo.toml --locked`); counts and outcomes belong to the corresponding run record. Broader release gates remain under project validation/review authority. |
-> | REQ-05-01-010 | Unit tests cover missing provenance rejection for boundary records and diagnostic records. |
-> | REQ-05-01-011 | Unit tests cover lumped nodal splitting, accepted translational directions, unsupported pressure/thermal/dynamic inputs, missing/invalid spans, invalid indices, and unchanged base `prepare_loads` behavior. |
-> | REQ-05-01-012 | Unit tests cover thermal and pressure axial force preparation, finding fan-in, missing/invalid properties, non-finite magnitude, and overflowing computed force rejection. |
->
-
-### CLM-017 — Remaining TBDs
-
-> ##### Remaining TBDs
->
-> - Canonical unit conversion constants and production unit conversion policy.
-> - Final result-envelope/API integration and application-service command/query surface.
-> - Apply DEC-026 for numerical verification and retain unmeasured release thresholds.
-> - Wind/seismic dynamic treatment and unadopted occasional-event mapping remain open; DEC-068 resolves the bounded static-equivalent generation scope.
-> - Broader material/property sourcing policy, default prohibition enforcement, and human acceptance gates.
-> - Professional reliance and code-compliance acceptance remain human/project authority decisions, not crate behavior.
->
-
-### CLM-018 — Documentation
-
-> ##### Documentation
->
-> Required local deliverable artifacts are `ScopeOfWork.md`, `MEMORY.md`, `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, `Dependencies.csv`, `_DEPENDENCIES.md`, `_STATUS.md`, and `_run_records/`. Implementation evidence is in `core/loads/primitive_loads/README.md` and `core/loads/primitive_loads/src/lib.rs`.
-
-- **AC-001** — The contract preserves the accepted primitive-load mechanics, unit, provenance, diagnostic, and rule-separation boundaries, including explicit missing-input findings, caller-supplied equivalent-static bases, and unresolved production policies without inventing code factors, combinations, allowables, defaults, or professional approval.
+- **AC-001** — Each of the eight categories can be authored on a case and is applied in the solve at its authored target, direction and magnitude on the exact route; on the pressure-free route only a load that carries pressure is refused, by name. In closed-form cases displacements and reactions agree at the analytic tolerance (1e-9 relative, with a stated absolute floor near zero): a nodal force and a nodal moment on a cantilever, a uniform load on a simply supported span, a temperature change in a fixed-fixed member, and an imposed displacement at a support. The published applied load keeps its category.
+- **AC-002** — For selected pipes and an explicit gravity, each pipe's generated load per length equals its mass per length on the route's basis times the gravity, and a mapped component's generated force and moments equal W along gravity and r × F about its node, with that pipe's distributed weight omitted. The plan's evidence names each method, basis and input. A missing density, dimension or gravity blocks the plan by name. The model's canonical hash is the same before and after generating and inspecting.
+- **AC-003** — A load with a missing target, magnitude, unit or direction, a non-finite value, a target the model does not have, a dimension that does not fit its category and target, a retired dimension name or an inverted span is reported as a finding with its code and the load's identity, and its case gives the solve no loads. No finding is replaced by a default.
+- **AC-004** — A record that mixes categories, repeats a load identity, has no loads or lacks its case metadata is refused, and an accepted record lists its loads in sorted order. Each finding's diagnostic record carries all eight fields, and a record without provenance is refused.
+- **AC-005** — Repeated preparation of the same case gives bit-identical contributions and findings in the same order.
+- **AC-006** — The engine's sources, tests and fixtures contain no code-specific combination, allowable, factor, coefficient or environmental default and only invented values, and no message or record states or implies approval or compliance.
+- **AC-007** — A generated seismic load equals g-factor × gravity × mass per length on every member for each axis, and a generated wind load equals pressure × shape factor × projected diameter on each marked span and fraction. A model so loaded reproduces its independent reference on both routes, including wind on part of a Timoshenko member. A missing input blocks the case with a named diagnostic and no load. On the reference system the wind case and the three seismic cases solve on the exact route in the same document as the other cases.
+- **AC-008** — An explicit load per length in a global direction lumps to end-node forces in equilibrium with it; a pressure, thermal, rotational or acceleration input is refused for lumping. A member's thermal axial force is E·A·α·ΔT and a pressure thrust is p·A_i for the supplied values, and a missing or non-positive property is a finding.
+- **AC-009** — A resolved temperature change has the bits of the exact difference rounded once to kelvin, for temperatures entered in K, degC, degF and degR. A document whose cases use conditions solves as the document with those loads authored. A case that names a missing set, condition or value, or that gives a quantity both ways, is refused by name. The one-bit difference between a typed and a resolved degF temperature change is reproduced and stated in the user guide.
+- **AC-010** — A hydrostatic test case with supports held gives the closed-form reactions of the rigid replacement, with no spring or constant-effort force acting, and with `none` gives the reactions of the active supports. The case's authored pressure acts as the test pressure: on a straight test span the bore hoop stress equals the Lamé value for that pressure. Its weight includes contents at the selected test density, once. Its result states the test and the held choice. The declaration, pressure, contents selection and held choice are unchanged after preview, apply, undo, save and reopen, and after save and reopen the same input gives the same result. A test case on the pressure-free route is refused by name. On the reference system the hydrostatic test case solves on the exact route beside the static seismic cases.
+- **AC-011** — On the reference system the sustained, operating and seismic anchor movement cases solve on the exact route in the same document as the other cases, and their reactions reproduce the system's independent weight references.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-019 — Procedure: DEL-05-01 Primitive load case engine
+**Method choices that define the engine.**
 
-> #### Procedure: DEL-05-01 Primitive load case engine
->
+- Loads are records, not expressions. A case's loads are a closed list, and a generated or resolved load becomes an ordinary record of the case with an identity that says how it was formed.
+- Generation and resolution run before validation and before the solve, so the solve, its integrity checks and its published evidence see one kind of load.
+- A held support's reference is the authored geometry, not a plant coordinate, a previously solved state or a datum inferred from the support's entered loads.
+- Contents density is a mass input. It reaches a solve only through the one self-weight calculation, never as a second weight generator.
+- A member load reaches the solver as the element's work-consistent equivalent nodal loads (DEL-04-02). Lumping is a separate, limited conversion.
 
-### CLM-020 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Describe bounded steps for maintaining and verifying the primitive load case engine evidence without introducing code-specific load combinations, protected standards data, final result-envelope/API behavior, or compliance claims.
->
-
-### CLM-021 — Prerequisites
-
-> ##### Prerequisites
->
-> - Sealed deliverable scope for DEL-05-01 and SOW-013.
-> - Applicable architecture basis IDs AB-00-01, AB-00-02, AB-00-03, AB-00-06, and AB-00-08.
-> - Invariants OPS-K-MECH-1, OPS-K-MECH-2, OPS-K-UNIT-1, OPS-K-SOLVER-1, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-AGENT-1 through OPS-K-AGENT-4, and OPS-K-IP-1.
-> - Current implementation evidence in `core/loads/primitive_loads/README.md` and `core/loads/primitive_loads/src/lib.rs`.
-> - Explicit human approval before any future scope adds code-specific combinations, coefficients, allowables, default environmental factors, dynamic procedure generation, final compliance claims, or professional reliance claims.
->
-
-### CLM-022 — Steps
-
-> ##### Steps
->
-> 1. Confirm the deliverable identity, package, scope item, objective, architecture basis, and current lifecycle state from `_CONTEXT.md` and `_STATUS.md`.
-> 2. Read the deliverable-local truth set before edits: `_CONTEXT.md`, `_STATUS.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `MEMORY.md`, `ScopeOfWork.md`.
-> 3. Read the implementation evidence in `core/loads/primitive_loads/README.md` and `core/loads/primitive_loads/src/lib.rs`.
-> 4. Confirm all SOW-013 primitive categories remain represented: weight, pressure, thermal expansion, imposed displacement, hydrotest, wind, seismic, and occasional.
-> 5. Confirm primitive mechanics boundaries: nodal, element-uniform, imposed-displacement, equivalent-static preparation, lumped equivalent nodal conversion, straight-pipe axial effects, and solver load-vector assembly are documented only to the extent implemented.
-> 6. Preserve the boundary between primitive load definitions/load-case records in DEL-05-01 and mixed-category load-case algebra/user combinations in DEL-05-02.
-> 7. Preserve the boundary between mechanics solving, diagnostic record transport, rule/compliance evaluation, and human professional judgment.
-> 8. Apply the accepted DEC-018 conversion basis and DEC-026 governed tolerance records at their actual reach. Unknown coefficients/default magnitudes, dynamic treatment, property sourcing, unmeasured tolerance entries, final API integration and release thresholds remain explicit gaps; professional reliance remains a human act.
-> 9. Run focused validation after documentation or crate-affecting changes: `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml` and `git diff --check` scoped to touched files where possible.
-> 10. Record durable closeout evidence in `MEMORY.md` and `_run_records/TASK_RUN_*.md` without editing `_STATUS.md`, dependency registers, DAG artifacts, schemas, repo-level governance, or core code unless explicitly authorized by a later brief.
->
-
-### CLM-023 — Verification
-
-> ##### Verification
->
-> | Check | Expected evidence |
-> |---|---|
-> | Scope check | Documents reference DEL-05-01, PKG-05, SOW-013, OBJ-003, and the current architecture basis consistently. |
-> | Category check | All eight primitive load categories appear in implementation-aligned evidence. |
-> | Boundary check | No code-specific load combinations, allowables, factors, coefficients, default magnitudes, dynamic procedure generators, or certification claims are introduced. |
-> | Unit/boundary metadata check | Documents preserve explicit unit/dimension/provenance/hash-ref boundaries and do not claim conversion constants. |
-> | Load-case record check | Documents describe single-category primitive load-case records and keep mixed-category algebra in DEL-05-02. |
-> | Diagnostic bridge check | Documents describe local diagnostic bridge records without claiming a shared enum or final result-envelope/API implementation. |
-> | Equivalent-static check | Documents describe wind, seismic, and occasional equivalent-static handling as explicit mechanics loads with caller-supplied basis/provenance refs, including DEC-068 seismic/wind generation from explicit user inputs and the model's mass/geometry under the documented route-specific mass bases and named unsupported boundaries; no dynamic procedure generation is provided. |
-> | Lumping check | Documents limit lumping to explicit translational/global `ForcePerLength` element loads with caller-supplied spans/connectivity. |
-> | Axial-effect check | Documents limit axial effects to thermal and pressure mechanics helpers from caller-supplied properties without code stress/compliance claims. |
-> | Test check | `cargo test --manifest-path core/loads/primitive_loads/Cargo.toml` passes or any failure is recorded with boundaries. |
-> | Diff hygiene check | `git diff --check` passes for touched files or any failure is recorded. |
-> | Status check | `_STATUS.md` (retired in `497a8d81e4`; see Git history) remains unchanged unless a later brief explicitly authorizes a lifecycle update. |
->
-
-### CLM-024 — Records
-
-> ##### Records
->
-> - `ScopeOfWork.md`
-> - Working memory: `MEMORY.md`
-> - Semantic evidence: `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`
-> - Dependency evidence: `Dependencies.csv`, `_DEPENDENCIES.md`
-> - Implementation evidence: `core/loads/primitive_loads/README.md`, `core/loads/primitive_loads/src/lib.rs`
-> - Run evidence: `_run_records/`
-> - Lifecycle evidence: `_STATUS.md`
->
-
-### CLM-025 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The primitive-load slice now includes explicit loads and the DEC-068 equivalent-static wind, seismic, and occasional generators. Dynamic loading and code-prescribed generation are outside this bounded slice unless separately implemented and evidenced.
-
-- **VER-001** — Validate the contract and review source parity, category and record coverage, unit/provenance metadata, preparation and solver-vector interfaces, deterministic findings, protected-content and professional boundaries, and every surviving governed residual.
+- **VER-001** — Comparison with named references (closed-form beam mechanics and the hand calculations under `validation/hand_calcs/mechanics/`, with the benchmark cases of PRD §22.2): each category's load is applied in a closed-form case and displacements, reactions and the published applied load are compared; the thermal axial force and pressure thrust are compared with E·A·α·ΔT and p·A_i.
+- **VER-002** — Comparison with named references, with an executable check: generated pipe and component weights are compared with annulus areas times densities times gravity and with W and r × F computed outside the product (`validation/references/w15_component_weight`, the weight totals of `validation/references/reference_system`); the check observes the plan's evidence, each refusal for a missing input, and the model's hash before and after.
+- **VER-003** — Executable check: observes each finding of AC-003 and AC-004 with its code and the load's identity, the absence of loads for a blocked case, the sorted record, the diagnostic fields, and bit-identical output on repeated preparation.
+- **VER-004** — Judgment by a named role (an independent reviewer who did not write the code): examines the engine's sources, tests, fixtures and messages against PRD §20.1, §21.2 and `docs/claims_registry.md`, with the protected-content scan's result for the same files.
+- **VER-005** — Comparison with named references: seismic and wind generation against `validation/hand_calcs/mechanics/tp_pmm_p3_occloadgen_equivalent_static.md` and `tp_pmm_p3_subspan_wind_exposure.md`, and solved models against `validation/references/w16_exact_equivalent_static` and `validation/references/w16_timoshenko_partial_wind`, on both routes and in both solver modes; an executable check observes each missing-input refusal and the reference system's wind and seismic cases.
+- **VER-006** — Comparison with a named reference (`validation/references/rt_g5_s2_conditions`, exact rational arithmetic): the bits of each resolved temperature change, the resolved loads and their order, each refusal, and the typed against resolved degF difference; an executable check observes that a document with condition use and its authored twin publish the same results.
+- **VER-007** — Comparison with named references (closed forms: the reactions (3/8, 10/8, 3/8)·w·a of two equal spans with the middle support rigid; the spring-supported twin R = δ₀/(f + 1/k); the Lamé bore hoop stress for the test pressure), with an executable check that observes the test mark, the held choice, the single inclusion of contents weight, the result after save and reopen, the unchanged test condition after preview, apply and undo, the pressure-free refusal and the reference system's test case.
+- **VER-008** — Comparison with a named reference (`validation/references/reference_system`, closed-form weight totals and moments whose generator imports no product code), with an executable check: observes that the reference system's sustained, operating and seismic anchor movement cases solve on the exact route in one document, and compares their reaction resultants with the reference.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-026 — Guidance: DEL-05-01 Primitive load case engine
-
-> #### Guidance: DEL-05-01 Primitive load case engine
->
-
-### CLM-027 — Purpose
-
-> ##### Purpose
->
-> This deliverable frames primitive load categories as explicit mechanics inputs for the SWBPIPE solver boundary. The current implementation evidence is the bounded `core/loads/primitive_loads` crate, which preserves primitive category identity, deterministic findings, boundary metadata, load-case record shape, diagnostic bridge records, equivalent-static mechanics handling, lumped equivalent nodal conversion, and straight-pipe axial-effect helpers without adding code-specific combinations or compliance logic.
->
-
-### CLM-028 — Principles
-
-> ##### Principles
->
-> - Treat primitive load categories as mechanics-boundary records and validation surfaces, not as a finished load-combination or rule-pack engine.
-> - Keep primitive category, primitive load, primitive load case, load-case algebra, code combination, and rule-pack evaluation as separate concepts.
-> - Preserve unit/dimension intent and provenance references for load quantities, boundary records, load-case records, and diagnostic records.
-> - Use explicit findings/errors for missing targets, magnitudes, spans, properties, provenance, invalid dimensions, invalid directions, invalid topology, and non-finite values.
-> - Keep wind, seismic, and occasional loads as explicit equivalent mechanics inputs with explicit basis/provenance refs unless a later sealed scope authorizes dynamic methods or lawful procedure generation.
-> - Avoid copying or deriving protected standard content, tables, examples, coefficients, jurisdictional factors, or proprietary defaults.
->
-
-### CLM-029 — Considerations
-
-> ##### Considerations
->
-> | Topic | Guidance |
-> |---|---|
-> | Weight | Use explicit mechanics quantities such as element `ForcePerLength`; mass-source, gravity-vector and density inputs require lawful upstream provenance; DEC-068 governs bounded generation and DEC-018 the unit conversion basis. |
-> | Pressure | Pressure can be carried as an element primitive load and interpreted for straight-pipe pressure thrust only with caller-supplied properties; pressure stress formulas and code stress categories belong elsewhere. |
-> | Thermal | Thermal can be carried as element temperature change and interpreted for straight-pipe axial force only with caller-supplied material/section properties; reference temperature and material provenance remain open policy. |
-> | Displacement | Imposed displacement is a support-target mechanics input; support/restraint behavior remains an interface with the owning solver/support deliverables. |
-> | Hydrotest | Hydrotest is represented as a primitive mechanics category; do not imply hydrotest procedure defaults, code requirements, or test-fluid assumptions without sourced input. |
-> | Wind/seismic/occasional | Current implemented behavior is explicit equivalent nodal force/moment or element `ForcePerLength` where supported; `prepare_equivalent_static_loads` requires `EquivalentStaticMechanicsBasis`, and acceleration/dynamic placeholders are not treated as dynamic procedure support. |
-> | Load-case records | Use `PrimitiveLoadCaseRecord` as a storage-neutral single-category boundary record. Mixed-category algebra and user-defined combinations remain DEL-05-02. |
-> | Boundary metadata | Boundary records should carry schema binding, target/basis refs, JCS payload refs, payload-hash refs, unit metadata, and provenance refs; `TBD` is rejected where a concrete boundary ref is required. |
-> | Diagnostics | Diagnostic bridge records preserve local finding codes and local classes for result-envelope handoff; they do not define a shared diagnostic enum or final application API. |
->
-
-### CLM-030 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Current position |
-> |---|---|
-> | Category coverage vs. behavior breadth | Cover all SOW-013 primitive categories, but only implement bounded mechanics preparation and validation behavior evidenced in `core/loads/primitive_loads`. |
-> | Public defaults vs. user-supplied data | Do not bundle protected, jurisdictional, or catalog values; require explicit lawful/user-supplied inputs and provenance references. |
-> | Static equivalent inputs vs. dynamic methods | Wind, seismic, and occasional behavior remains equivalent mechanics input in this slice with caller-supplied basis/provenance refs; dynamic procedure generation remains `TBD`. |
-> | Primitive load case vs. load algebra | The primitive record binds one category and sorted load IDs; mixed cases, load algebra, and combinations belong to DEL-05-02. |
-> | Diagnostic bridge vs. final envelope | The crate can produce storage-neutral diagnostic records; final result-envelope/API integration remains downstream. |
-> | Axial helper formulas vs. code stress evaluation | Thermal and pressure axial-effect helpers compute mechanics forces from explicit properties only; they are not pressure stress formulas, code checks, or allowables. |
->
-
-### CLM-031 — Evidence Use
-
-> ##### Evidence Use
->
-> - Use `core/loads/primitive_loads/README.md` for the current crate boundary statement.
-> - Use `core/loads/primitive_loads/src/lib.rs` for implemented API names and unit-test evidence.
-> - Use `MEMORY.md` for historical tranche evidence, preserved boundaries, and remaining TBDs.
-> - Use `_DEPENDENCIES.md` for the active downstream interface to DEL-05-02.
-> - Do not promote lifecycle status or claim release/professional acceptance from these documents alone.
->
-
-### CLM-032 — Examples
-
-> ##### Examples
->
-> No normative numeric load examples, code-specific combinations, coefficient examples, or jurisdictional examples are introduced here. Test values in `src/lib.rs` are invented mechanics fixtures for unit-test coverage only and are not design defaults.
->
-
-### CLM-033 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No source conflict detected between the deliverable-local truth set and current primitive-load crate evidence. | N/A | N/A | N/A | N/A | N/A |
->
-
-### CLM-034 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The primitive-load slice now includes explicit loads and the DEC-068 equivalent-static wind, seismic, and occasional generators. Dynamic loading and code-prescribed generation are outside this bounded slice unless separately implemented and evidenced.
-
-### CLM-035 — SCA-011 Self-weight generation boundary
-
-**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
-
-Retain primitive load and self-weight generation mathematics. DEL-07-03 owns self-weight-plan interaction, DEL-03-08 mass contracts and DEL-04-07 product integration; generated changes pass through the PKG-16 operation seam.
-
-- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
-- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
-- **VER-002** — Check generation with explicit source/units and absent required data; separately trace GUI plan dispatch and product invocation against owned mathematical evidence.
+- **AX-001** — *Nothing assumed.* Better is fewer values the engine could supply by itself; the target is none. No magnitude, gravity, density, factor, coefficient or direction is supplied to make a case solvable.
+- **AX-002** — *More of what users author is applied.* Better is fewer named refusals of load cases on the exact route, measured on the reference system, where the target is none. A refusal is never removed by applying a load approximately, on a basis its evidence does not name, or twice.
+- **AX-003** — *Closer to the independent reference.* Better is a generated or resolved load that agrees with its closed form more tightly; a tolerance is only tightened. Agreement is never bought by tuning a load to a comparison tool's output.
+- **AX-004** — *A load is mechanics.* Where a category or a generated load could be read as a code load case, the reading that claims less is the better one. Convenience for the user never justifies a built-in factor or combination.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-013 OBJ-003 | CLM-011 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-| OUT-002 | OBJ-003 | CLM-035 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-05-01:1** — Bind a fresh protected-content and boundary review to the static generator source candidate including DEC-068 additions. (R5 continuation claim references: DEL-05-01:SOW#CLM-016/REQ-05-01-003.)
-- **DEL-05-01:2** — Operating-condition resolution (survey item C1; model document 0.9.0; DEL-02-01 Design model-document-0.9.0.md §1.5-§1.8). A load case's condition use resolves, before validation, into the records the existing solve consumes: per-pipe thermal temperature changes (the exact difference of the condition temperature and the set's installation temperature, rounded once to binary64 kelvin), per-pipe added-weight primitives and wind-exposed pipes, in a fixed order with deterministic ids. A case takes its temperature, pressure and wind exposure from conditions or from its own records, never both; a set's added weight adds to the case's own weight primitives. A missing set, condition or value refuses the case by name; nothing is defaulted. Pressure and contents resolution remain refused by name until designed with DEL-04-07. *Status (S2):* the pressure-free resolution of temperature, added weight and wind exposure is implemented (DEL-02-01 `core/product_physics/src/operating_conditions/resolution.rs`) with independent references (`validation/references/rt_g5_s2_conditions/`); the read-only preview is built (DEL-02-01); independent numerical review, D3 pricing and hosted checks remain open.
-- **DEL-05-01:3** — The hydrostatic test condition (RT-A6; OC-5 (a)), `load_cases[].test_condition` with `kind: "hydrostatic"` and `held_supports` ∈ {`springs_and_constant_effort`, `none`} (Work/hydrostatic-test.md). With `springs_and_constant_effort`, the test case holds springs and constant-effort supports as rigid restraints and their force laws do not act; in every other state a constant-effort force acts (RT-A3 D-2). Test pressure is the case's pressure and test contents density its condition's. *Step 0 design (main `b06e1da32`):* Work/hydrostatic-test.md defines the installed-geometry zero-displacement replacement, one plain/load-state EX lowerer, captured per-case contents context, exact lock-conflict rules and saved/reopened test/results/report workflow. Full delivery includes real held devices and the H-a shared-document hydrotest/static-seismic ledger; a no-hold or plain-EX-only stage is not completion. Independent numerical/commitment design review and exact-head checks precede integration. This docs-only revision changes no production refusal, schema, accepted limit or release criterion.
+| OUT-001 | SOW-013 OBJ-003 | REQ-001 REQ-002 | AC-001 | VER-001 | Outside source: closed-form beam mechanics and the hand calculations under `validation/hand_calcs/mechanics/`, which import no product code |
+| OUT-002 | SOW-013 OBJ-003 | CLM-035 REQ-015 | AC-002 | VER-002 | Outside source: annulus areas, densities and gravity computed outside the product (`validation/references/w15_component_weight`, `validation/references/reference_system`). The unchanged hash compares the model with itself and only guards against change |
+| OUT-001 | SOW-013 OBJ-003 | REQ-004 REQ-005 REQ-010 | AC-003 | VER-003 | The criterion states the expected finding for each defect; PRD §5.5 and §5.6 say that none is defaulted |
+| OUT-001 | SOW-013 OBJ-003 | REQ-006 REQ-007 | AC-004 | VER-003 | The criterion states the expected refusals and fields; decomposition AB-00-06 lists the diagnostic fields |
+| OUT-001 | SOW-013 OBJ-003 | REQ-009 | AC-005 | VER-003 | The product's own earlier output: it guards against change and shows nothing about correctness |
+| OUT-001 | SOW-013 OBJ-003 | REQ-003 | AC-006 | VER-004 | PRD §20.1 and §21.2 list what must not appear; the reviewer compares the files with them |
+| OUT-001 | SOW-013 OBJ-003 | REQ-008 | AC-007 | VER-005 | Outside source: the two hand calculations and `validation/references/w16_exact_equivalent_static` and `w16_timoshenko_partial_wind`, generated without product code. Exit criterion 1 for the reference system |
+| OUT-001 | SOW-013 OBJ-003 | REQ-011 REQ-012 | AC-008 | VER-001 | Outside source: statics of a uniform load on a span, and the closed forms E·A·α·ΔT and p·A_i |
+| OUT-001 | SOW-013 OBJ-003 | REQ-013 | AC-009 | VER-006 | Outside source: `validation/references/rt_g5_s2_conditions`, exact rational arithmetic that reads no product code. The document against its authored twin is the product's own output and only guards the equivalence |
+| OUT-001 | SOW-013 OBJ-003 | REQ-014 | AC-010 | VER-007 | Outside source: the closed forms named in VER-007. Exit criterion 1 for the reference system. The unchanged test condition after preview, apply, undo, save and reopen compares the product with its own input and only guards against change |
+| OUT-001 | SOW-013 OBJ-003 | REQ-001 REQ-002 REQ-013 | AC-011 | VER-008 | Exit criterion 1 says which cases the reference system solves on the exact route in one document. Outside source: the reference system's independent references (`validation/references/reference_system`), generated without product code |

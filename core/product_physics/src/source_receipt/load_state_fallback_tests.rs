@@ -339,7 +339,7 @@ fn physics_source(name: &str) -> Value {
 /// `modulus_basis_ref` removed: case 1 then needs recovery, which declines it
 /// ("exact source recovery requires explicitly empty pressure regions") while
 /// case 0 selects, so the invocation receipt fails (a composite requires every
-/// case to qualify; design §1.2).
+/// case to qualify).
 pub(crate) fn pre04_composite_failure_request() -> Value {
     let mut request = physics_source("mixed");
     request["model"]["load_cases"][1]
@@ -404,7 +404,7 @@ fn assert_republication_ledger(budget: &SourceRecoveryBudget, attempts: usize) {
 
 #[test]
 fn a_pre04_composite_finalization_failure_republishes_ordinarily() {
-    // Restated by the pre-0.4 failure unification (design §7). This test was
+    // Restated by the pre-0.4 failure unification. This test was
     // `the_pre04_composite_finalization_failure_is_unchanged_by_this_fallback`,
     // which asserted `Err("SOURCE_BLOCKS_FINALIZATION_FAILED")` for this S4
     // failure as a characterization, "not an endorsement", of an outcome left
@@ -707,7 +707,7 @@ fn heavy_request() -> Value {
     request
 }
 
-/// N-3's positive control (RF design §5.5): at the public limit both cases of
+/// N-3's positive control: at the public limit both cases of
 /// the republication scenario now select and the composite receipt finalizes.
 #[test]
 fn the_republication_scenario_selects_both_cases_at_the_public_limit() {

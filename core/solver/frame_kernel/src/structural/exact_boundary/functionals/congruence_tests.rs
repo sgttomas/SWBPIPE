@@ -18,7 +18,7 @@ use crate::{FrameElement, FrameNode, FrameSection};
 const ID: &str = "congruence source";
 
 /// The census's RF-SKEW-T-PIN-OFF section (E, G, A, Iy, Iz, J) as the
-/// product forms it for the census's direct method (RF design §1.1, P1).
+/// product forms it for the census's direct method.
 fn section() -> FrameSection {
     let b = f64::from_bits;
     FrameSection::new(
@@ -343,7 +343,7 @@ fn congruence_source_is_the_exact_symmetric_congruence() {
                 assert_eq!(exact[i][j], exact[j][i], "oracle ({i},{j})");
             }
         }
-        // RF design §1.3: the rounded global contributions fl(Tᵀ·fl(K·T)) are
+        // the rounded global contributions fl(Tᵀ·fl(K·T)) are
         // exactly asymmetric in four entry pairs for the (3,4,0) member; and
         // for both they differ from the exact congruence (non-vacuous).
         let pairs = (0..12)

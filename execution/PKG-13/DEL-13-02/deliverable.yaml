@@ -2,145 +2,50 @@ id: DEL-13-02
 name: Constraint entity and provenance model
 needs:
 - from: DEL-00-01
-  condition: 'DEL-13-02 needs DEL-00-01 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The baseline in force names JSON Schema 2020-12 as the dialect of public schemas and
+    interchange documents.
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-02
-  condition: 'DEL-13-02 needs DEL-00-02 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-03
-  condition: 'DEL-13-02 needs DEL-00-03 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-00-04
-  condition: 'DEL-13-02 needs DEL-00-04 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The persistence rules state that every persisted document declares its schema version, and
+    that any change to what a document can contain raises at least the minor version.
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-00-06
-  condition: 'DEL-13-02 needs DEL-00-06 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The diagnostic contract fixes the fields a diagnostic record carries (code, class, severity,
+    source, affected object, message, remediation, provenance), names the six warning classes,
+    and lets a boundary declare its own local classes where its schema needs them.
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-07
-  condition: 'DEL-13-02 needs DEL-00-07 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-08
-  condition: 'DEL-13-02 needs DEL-00-08 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-13-01
-  condition: 'DEL-13-02 needs DEL-13-01 as a predecessor: Constraint entities need the design-knowledge
-    vocabulary.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-01-02
+  condition: >-
+    The data-boundary policy names the seven fields of the provenance record with the
+    redistribution-status and review-status value sets, and names each class of protected
+    content a public artifact may not contain.
+  gating: false
+- from: DEL-01-04
+  condition: >-
+    The claims registry is the single source of boundary language: a surface that needs it uses
+    a registered statement and composes no prohibition list of its own.
   gating: true
 - from: DEL-02-01
-  condition: 'DEL-13-02 needs DEL-02-01 as a predecessor: Constraint entities bind to the canonical physical/domain
-    model.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
+  condition: >-
+    Every addressable record of the model document has a stable identifier that persists across
+    edits, so that a constraint can name the model entities it applies to.
+  gating: false
 - from: DEL-02-02
-  condition: 'DEL-13-02 needs DEL-02-02 as a predecessor: Constraint entities need unit-aware values.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The dimension vocabulary is stated once, in the unit schema, and every unit has one
+    dimension from it.
   gating: true
-- from: DEL-02-05
-  condition: 'DEL-13-02 needs DEL-02-05 as a predecessor: Constraint entities need persistence/round-trip
-    semantics.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-01-04
-  condition: 'DEL-13-02 needs DEL-01-04 as a predecessor: Constraint entities must not encode professional
-    approval claims.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-13-01
+  condition: >-
+    Every design-knowledge record has a stable identifier and one of the stated kinds, and the
+    design-knowledge format states the provenance record with its privacy classification and
+    the form of a quantity, which a constraint record uses unchanged.
   gating: true
 code_paths:
 - schemas/constraint.schema.json
-- schemas/units.schema.yaml
+- tests/test_constraint_schema.py
 checks:
 - tests/test_constraint_schema.py

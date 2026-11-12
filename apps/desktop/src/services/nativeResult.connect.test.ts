@@ -1,4 +1,4 @@
-// C1 slice 4 (DEL-04-05 `c1-native-custody-plan.md`): the connecting path of a fresh solve held
+// C1 slice 4: the connecting path of a fresh solve held
 // natively, through the actual raw-body ingress, the replay transport and the actual Rust commands'
 // recorded replies (`test/nativeReplayStore.ts`, `src-tauri/src/native_replay_tests.rs`): start with
 // native custody, poll, the native verdict (delivered as a parsed JSON value), the registration's

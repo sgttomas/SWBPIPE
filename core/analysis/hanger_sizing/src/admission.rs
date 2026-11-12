@@ -1,4 +1,4 @@
-//! The path-aware admission layer (DEL-04-11 `Work/hanger-sizing.md` §8.3.1).
+//! The path-aware admission layer.
 //!
 //! The headless entry and the reader admit their text here before any other
 //! parse. The layer parses the text itself, with the same parser and number

@@ -6438,7 +6438,7 @@ if _os.path.exists(_os.path.join(_SNAP, _SKW_PP)):
     EDGE_PER_CALL = list(EDGE_PER_CALL) + [(fnkey("support_record", _SKW_CP), fnkey("group", _SKW_CP), "2",
         O10 + "SKW-PC: the support force and moment groups; the along-direction group only with an along row (SKW-D1)")]
 
-# ---- RT-A3 S6 (DEL-04-07 Work/route-unification-r4.md §3.7; retained-pricing-rules.md §8.59): nonlinear supports on
+# ---- RT-A3 S6 (DEL-04-07; §8.59): nonlinear supports on
 # load/reference-state documents and beside objective connectors. D1.5 refuses every `analysis_state` (no resolved
 # case: `load_state` is None in every retained case solve), D1.6 every nonlinear support and D1.4 every component, so
 # S6's resolved-case motion paths are unreached on D1; its one D1 owner (the loop's consumed motion, built as the
@@ -6465,7 +6465,7 @@ if fnkey("load_state_spring_ground", _LIB):
          ["lib.rs:new"]),
     ]
 
-# ---- RT-S3 CE fallback publication (DEL-04-03 Work/constant-effort-publication.md; retained-pricing-rules.md §8.61):
+# ---- RT-S3 CE fallback publication (DEL-04-03; §8.61):
 # solve_prepared_load_case's support loop restates a consumed constant-effort device's normalized force when the
 # support has no selected source action and no nonlinear field. CEF-D1: D1.6 refuses every hanger before any other
 # support test, every nonlinear support and every family but its five exact strings, so support_hanger_type yields

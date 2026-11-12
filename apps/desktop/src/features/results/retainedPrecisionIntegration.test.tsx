@@ -946,7 +946,7 @@ describe.each(MODES)("%s: standing is bound to the live native capture and the c
   });
 });
 
-// U7 slice T (I61 slice A, §1.4): knownSemanticNotices calls classificationSummary
+// U7 slice T (I61 slice A): knownSemanticNotices calls classificationSummary
 // without the model, by design. The notices show only the absolute-verified and
 // not-covered counts, which are the reader's G5c classes and do not depend on standing;
 // the per-quantity refusals they state hold whether or not the envelope is Current

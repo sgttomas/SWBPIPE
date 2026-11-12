@@ -78,7 +78,7 @@ def test_a_stored_physics_one_result_is_refused_by_name():
     lambda s: s["contract_evidence"]["pressure"].append(deepcopy(s["contract_evidence"]["pressure"][0])),
     lambda s: s["contract_evidence"]["pressure"][0]["result_ids"].pop(),
     lambda s: s["contract_evidence"]["pressure"][0].update(load_case_id="case:six-component-load"),
-    # T4-U6 (D-5 §2.3): the section areas are the named sections' leaves.
+    # the section areas are the named sections' leaves.
     lambda s: s["contract_evidence"]["pressure"][0]["geometry"][0]["nominal_section"].update(As_m2=1),
     lambda s: s["contract_evidence"]["pressure"][0]["materials"][0].update(nu=0.2),
     lambda s: s["contract_evidence"]["exact_cases"][1]["pipe_materials"].clear(),
@@ -88,7 +88,7 @@ def test_a_stored_physics_one_result_is_refused_by_name():
     lambda s: s["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"].update(method="source_block_recovery_v1"),
     lambda s: s["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["groups"][0]["terms"][0].update(region_id="missing"),
     lambda s: s["contract_evidence"].update(source_block_recovery={}),
-    # T4-U6 (D-5 §2.2): `max_open_formula_stress` is null on an exact document; each basis has its own headline.
+    # `max_open_formula_stress` is null on an exact document; each basis has its own headline.
     lambda s: s["summary"]["max_open_formula_stress_nominal_section"].update(value=1),
     lambda s: s["numerical_quality"]["cases"][0].update(evidence_refs=s["numerical_quality"]["cases"][1]["evidence_refs"]),
     lambda s: s["contract_evidence"]["pressure"][0].update(p_pa=1),
@@ -139,7 +139,7 @@ def test_physics_evidence_schema_is_closed_and_case_scoped():
 
 
 def test_unavailable_member_maximum_withholds_headline_but_keeps_signed_rows():
-    # T4-U6 (D-5 §2.2, §2.5): the member's maximum is withdrawn on both section bases (each basis has its own maximum
+    # the member's maximum is withdrawn on both section bases (each basis has its own maximum
     # record, coverage record and headline), so both headlines are withheld (null, the key kept).
     source = actual()
     case = source["contract_evidence"]["exact_cases"][0]
@@ -193,7 +193,7 @@ def test_actual_headless_physics_derivative_and_analysis_share_the_full_source()
 
 
 def _inject_unbound_maximum(source):
-    # T4-U6 (D-5 §2.2, §2.5): the unbound maximum is injected on both section bases (a nominal row and its reduced
+    # the unbound maximum is injected on both section bases (a nominal row and its reduced
     # twin) and the nominal headline binds it.
     case_id = source["contract_evidence"]["exact_cases"][1]["load_case_id"]
     maxima = [row for row in source["results"] if row["kind"] == "pipe_elastic_normal_stress_maximum_v2" and row["basis_ref"]["ref_id"] == case_id]

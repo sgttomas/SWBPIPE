@@ -75,7 +75,7 @@ use crate::support::{filled, reserve, reverse_cuthill_mckee_lower, stable_counti
 
 /// c_f of the formation term: one rounding each for σ·m_ij, the
 /// subtraction and the two scalings, with one to spare for the second-order
-/// terms (design §3.4 check 4).
+/// terms.
 pub const FORMATION_ROUNDING_CONSTANT: f64 = 5.0;
 
 /// The deepest dyadic level a gap log-position may have: t·2^32 must be an

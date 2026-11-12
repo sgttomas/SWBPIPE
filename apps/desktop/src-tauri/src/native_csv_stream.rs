@@ -1,4 +1,4 @@
-//! C1 native custody (DEL-04-05 `c1-native-custody-plan.md` §5; DEL-08-04 `csv-export.md` §4):
+//! C1 native custody:
 //! the CSV table route (`DOTH-CSV-011`) written to Downloads in bounded chunks, for a results
 //! group too large to assemble in the webview. It is the private local save of
 //! `native_result_download`, streamed: the same evidence rules, file names, exclusive creation,

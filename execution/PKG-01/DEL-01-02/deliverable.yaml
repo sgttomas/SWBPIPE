@@ -1,116 +1,26 @@
 id: DEL-01-02
 name: Copyright and protected-data boundary policy
 needs:
-- from: DEL-00-01
-  condition: 'DEL-01-02 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: not promoted to aggregate authority by this local refresh.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-01-02 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: not promoted to aggregate authority by this local refresh.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-01-02 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: not promoted to aggregate authority by this local refresh.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-01-02 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: not promoted to aggregate authority by this local refresh.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-01-01
-  condition: 'DEL-01-02 needs DEL-01-01 as a predecessor: protected-data policy should sit under the project
-    governance baseline.
-
-
-    Notes: current-basis evidence confirms DEL-01-01 supplies the governance baseline context required
-    by DEL-01-02 without promoting aggregate graph authority or lifecycle state.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The governance baseline records who has authority to accept a public contribution (the sole
+    maintainer, quorum one) and makes review for protected content, provenance, redistribution
+    rights and private data a condition of acceptance. The policy's contribution review and the
+    checklist's reviewer field refer to that authority and do not define it.
   gating: true
-- from: doc:docs/CONTRACT.md
-  condition: 'Applicable invariants from CONTRACT are required input for producing or reviewing the protected-data
-    boundary policy.
-
-
-    Notes: Document prerequisite resolved through _REFERENCES.md governing references.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: CONTRACT invariant catalog; TargetRefID: docs/CONTRACT.md; TargetLocation:
-    docs/CONTRACT.md'
-  evidence: execution/PKG-01/DEL-01-02/ScopeOfWork.md
-- from: external:HUMAN_LEGAL_REVIEW
-  condition: 'Unresolved legal wording license contributor certification mechanism and legal-review authority
-    require human/legal availability.
-
-
-    Notes: No legal conclusion inferred; default quarantine path exists but final legal/governance mechanism
-    and legal-review authority remain external prerequisites.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Human/legal review; TargetRefID: HUMAN_LEGAL_REVIEW'
-- from: external:HUMAN_PROJECT_AUTHORITY
-  condition: 'Reviewer role and final governance/legal mechanism require human project authority assignment
-    before field-by-field checklist acceptance review.
-
-
-    Notes: Checklist path is resolved; reviewer role and final governance/legal mechanism remain unresolved
-    human-authority prerequisites.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: Human project authority assignment; TargetRefID: HUMAN_PROJECT_AUTHORITY'
-- from: doc:docs/IP_AND_DATA_BOUNDARY.md
-  condition: 'The repo-level protected-data policy exists as a draft governance surface; the contribution
-    review checklist is not in the repository.
-
-
-    Notes: The policy exists and is cited by the current-basis local kit. The earlier checklist draft was
-    withdrawn on 2026-11-10 on the owner''s ruling and remains to be produced from the owner''s contributor
-    rules (Work/contribution-review-checklist.md). This approves no aggregate DAG change or lifecycle
-    transition.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: IP and data boundary policy; TargetRefID: docs/IP_AND_DATA_BOUNDARY.md;
-    TargetLocation: docs/IP_AND_DATA_BOUNDARY.md'
-  direction: downstream
+- from: external:owner
+  condition: >-
+    The owner's contributor rules are defined. The contribution review checklist is written from
+    them.
+  when: Writing governance/CONTRIBUTION_REVIEW_CHECKLIST.md
+  gating: true
+- from: external:legal-reviewer
+  condition: >-
+    A human or legal reviewer decides suspected protected content held in quarantine and content
+    whose redistribution rights are uncertain. The policy routes such content to that review and
+    draws no legal conclusion of its own; who gives the review is not yet decided.
+  when: Deciding quarantined content or content whose redistribution rights are uncertain
   gating: false
-  evidence: execution/PKG-01/DEL-01-02/ScopeOfWork.md
 code_paths:
 - docs/IP_AND_DATA_BOUNDARY.md
 - governance/CONTRIBUTION_REVIEW_CHECKLIST.md

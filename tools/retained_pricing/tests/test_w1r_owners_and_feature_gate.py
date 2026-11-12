@@ -1,4 +1,4 @@
-"""W1 coverage repair D3 (retained-pricing-rules.md §8.11).
+"""W1 coverage repair D3 (§8.11).
 
 W1R-FG: code under the off `census-probe` and `loaded-maximum-hooks` features is compiled out of the registered build (no features), so the scanners
 blank it as they blank `#[cfg(test)]` items, and skip the two files the build includes only through compiled-out

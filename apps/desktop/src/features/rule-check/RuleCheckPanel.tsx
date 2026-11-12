@@ -50,7 +50,7 @@ function eligibleStanding(result: MechanicsResult, model: PreviewModel): boolean
 
 export function RuleCheckPanel({ model, result }: { model: PreviewModel; result: MechanicsResult | null }) {
   const review = buildRuleCompletenessReview({ model, result });
-  // Epoch 8 (design §5.4): the line shows only where the gate admits the result and Rust's
+  // Epoch 8: the line shows only where the gate admits the result and Rust's
   // standing is eligible (this panel receives only the Current result, which already is).
   const loadReferenceLine = result && surfaceRouteRefusal(result, "rule-check") === null && eligibleStanding(result, model) ? loadReferenceDisclosure(result, "rule-check") : null;
 

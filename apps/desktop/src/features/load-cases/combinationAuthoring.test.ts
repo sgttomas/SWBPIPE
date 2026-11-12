@@ -1,4 +1,4 @@
-// The combination editor's operand rules (absolute-sum-srss §2) on an invented model.
+// The combination editor's operand rules on an invented model.
 import { describe, expect, it } from "vitest";
 import type { PreviewModel } from "../../types";
 import { combinationOperandRefusal, moveTerm, resolveReference, termPayload, termsDraftProblem } from "./combinationAuthoring";

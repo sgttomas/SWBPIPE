@@ -1,4 +1,4 @@
-/** The results navigator (survey item A1; DEL-07-05 Design `results-navigator.md`). A position
+/** The results navigator (survey item A1). A position
  * over the Results table's existing rows on three axes: the table kind (the row families the
  * family filter already offers), the load case or combination a row states, and the support or
  * element a row is stated for. Stepping an axis moves along its list and stops at either end.

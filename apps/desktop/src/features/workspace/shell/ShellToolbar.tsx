@@ -30,7 +30,7 @@ import { AutosaveSettingsControl, AutosaveStatus } from "../../autosave";
 const VIEW_ICONS: Record<ShellView, typeof Table2> = { table: Table2, model: Box, both: Columns2 };
 
 /**
- * The toolbar band (specification §5.5): wordmark, project name, Undo and Redo
+ * The toolbar band: wordmark, project name, Undo and Redo
  * with the alert of a failed undo or redo,
  * the view switch, Run, the Issues count, the two panel toggles, the display
  * units and the palette field. Every control here maps to a session handler;

@@ -1,4 +1,4 @@
-// W-13 S2a (design model-document-0.7.0.md §6): the desktop authoring of the
+// the desktop authoring of the
 // model-data slots. Each control queues a structured operation; the test
 // applies the queued intent through the wasm applier (validated, diffed) and
 // checks the emitted document. Invented data only.

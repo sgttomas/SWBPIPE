@@ -1,4 +1,4 @@
-/** The hanger-sizing request the desktop assembles (DEL-04-11 Design `hanger-sizing.md` §2, REQ-001, AC-012): every
+/** The hanger-sizing request the desktop assembles (REQ-001, AC-012): every
  * input is the person's own entry. The form starts with no choice made ([`EMPTY_HANGER_SIZING_FORM`]); nothing here
  * supplies a value. An incomplete or invalid form names each missing or invalid input and assembles nothing; the
  * native entry refuses again by name whatever reaches it. */
@@ -7,7 +7,7 @@ import type { PreviewModel } from "../../types";
 import type { HangerSizingFamilyPolicy, HangerSizingRequest } from "../results/hangerSizingResult";
 import type { HangerSizingInput } from "../../services/hangerSizingService";
 
-/** The only admitted `weight_support_state` (§2, §5): shown as a fixed fact, not a choice. */
+/** The only admitted `weight_support_state`: shown as a fixed fact, not a choice. */
 export const WEIGHT_SUPPORT_STATE = "own_solve" as const;
 
 export type HangerSizingFormState = Readonly<{

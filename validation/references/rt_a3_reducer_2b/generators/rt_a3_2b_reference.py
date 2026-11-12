@@ -18,15 +18,15 @@ Independent numerical reference generator for the bounded eccentric reducer
 product code, product output or frozen product reference. Governing text was
 read only to fix the declared model (selected source 74e57d55ffd4, branch
 codex/rt-a3-reducer-2a; integrated baseline 2656dcb33):
-  - DEL-03-05 Work/eccentric-reducer-offset.md §1-§3 (nodes govern; chord body
-    member; W-15c run-axis agreement/uncertainty/refusal method §3.2-§3.3, §9)
-  - DEL-03-05 Work/rigid-component-stiffness-scaling.md §2.1 (s*K; the Poisson
-    pair has no E; N_w = N_m + 2 nu p A_i), §2.4 (reference-section rows)
-  - DEL-04-07 Work/pressure-contract.md D-1 and "Concentric reducer
-    pressure-bore step"; route-unification-r4.md §0b, §2.1 (caps -p A_i s at
+  - DEL-03-05 (nodes govern; chord body
+    member; W-15c run-axis agreement/uncertainty/refusal method)
+  - DEL-03-05 (s*K; the Poisson
+    pair has no E; N_w = N_m + 2 nu p A_i; reference-section rows)
+  - DEL-04-07 D-1 and "Concentric reducer
+    pressure-bore step"; DEL-04-07 (caps -p A_i s at
     transfers_to_wall terminals; Poisson pair; N_w and S recovery)
-  - DEL-05-03 Work/section-bases-and-timoshenko.md §1 (D-5 bases), §2.1
-    (sigma_m = N_w/A_b, Lame per basis annulus), §3.1 (kappa_E), §3.3 (phi)
+  - DEL-05-03 (D-5 bases;
+    sigma_m = N_w/A_b, Lame per basis annulus; kappa_E; phi)
 
 Model (small displacement, linear elastic straight 3-D frame members):
   * stiffness s*E, s*G on the NOMINAL section (A_n, I, J = 2I, A_s = kappa A_n);
@@ -946,7 +946,7 @@ def published_vector(c, K):
 
 
 # ============================================================================
-# W-15c run-axis / offset method, re-derived from eccentric-reducer-offset.md §3.2-§3.3
+# W-15c run-axis / offset method, re-derived from DEL-03-05
 
 
 Q_ROUND = Decimal("0.001")

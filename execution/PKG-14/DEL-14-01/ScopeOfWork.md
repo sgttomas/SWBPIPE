@@ -2,341 +2,119 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-14-01
 package_id: PKG-14
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-071]
 package_objective_refs: [OBJ-016]
 ---
 
-# Scope of Work — DEL-14-01
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-14-01 Immutable model state records
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-14-01` in service of project scope [SOW-071] and package objectives [OBJ-016].
+An engineer can fix a design at a point in time, give it a name, and come back to exactly that design later. A saved model state is what the rest of design iteration stands on: a run is bound to it, two states are compared, and a report or a handoff refers to it by identity and hash. What a state holds never changes after it is saved; a change to the model makes a new state. Names, tags and notes carry the review context that other tools force into a status lifecycle, and no state says or implies that a design was approved.
 
-- **OUT-001** — An immutable model-state record contract for named, read-only snapshots with flexible review metadata, explicit payload-scoped hashes, and reproducible persistence is produced.
+It serves SOW-071 under OBJ-016 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-14, row DEL-14-01), and `docs/PRD.md` §5.7 (state-based auditability), §8.6, §15.1, §16.3 (names, tags and notes instead of a forced prover status), FR-CMP-001 (Must: a user can save, reopen, tag and compare model snapshots without mutation) and the state level of FR-MOD-006 (Must: assumptions and open issues recorded at state level). No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it.
+
+- **OUT-001** — The model state record: its schema, and the saving, listing, reading and reopening of states in the project store, with their labels.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-14-01 Immutable model state records
+**Terms the product implements.**
 
-> #### Datasheet: DEL-14-01 Immutable model state records
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Model state.* A named, immutable snapshot of a project's model at a point in time, with its record.
+- *Snapshot.* The RFC 8785 canonical text of the model document as it was when the state was saved. It holds everything PRD §15.1 asks a state to record about the model itself: units, the entity graph, materials and components with their library references, load definitions and constraints.
+- *Model hash.* SHA-256 over the snapshot, as DEL-02-01 defines it. It identifies the content of a state.
+- *State record.* The schema-governed record of a state (`schemas/model_state.schema.json`): its identity, name, kind, time of creation, the project it belongs to, its parent states, tags, notes, external references, unresolved assumptions, warnings, analysis statuses, hashes, immutability policy, professional boundary and provenance.
+- *Labels.* A state's name, tags, notes and state-level assumptions. Labels are the one part of a state a user can edit after saving. They are kept apart from the immutable record and outside its hash, so renaming, tagging or annotating a state does not make a new state.
+- *State-level assumption.* An assumption or open issue recorded against the state itself, beside those the model document already carries.
+- *External reference.* A reference a user enters to something outside the project (a document, a drawing, a model file, a review record), with its type, label, target, privacy class and provenance.
+- *Parent state.* The saved state a session was opened from. A state saved from that session names it.
+- *Hash record.* A digest with its algorithm, the basis it was computed on, the payload it covers and that payload's scope.
 
-### CLM-003 — Identification
+**Undecided.**
 
-> ##### Identification
->
-> | Field | Value | Source |
-> |---|---|---|
-> | Deliverable ID | DEL-14-01 | `_CONTEXT.md` |
-> | Name | Immutable model state records | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 7 |
-> | Package | PKG-14 Model States, Analysis Runs, and Comparison | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 6 |
-> | Type | DATA_MODEL_CHANGE | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-14-01 |
-> | Scope item | SOW-071 | `_CONTEXT.md`; `docs/_Registers/ScopeLedger.csv` row SOW-071 |
-> | Objective | OBJ-016 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 5 |
-> | Context envelope | M | `_CONTEXT.md`; `docs/_Registers/ContextBudgetQA.csv` row DEL-14-01 |
->
+- How a state's payloads that are not JSON, and the targets of its external references, are partitioned for hashing.
+- Whether a saved state that nothing refers to may be deleted.
+- Which members a project's saved states and recorded runs occupy in the portable package, how a project store is rebuilt from them, and which deliverable's package writer and reader carry them there (REQ-015). DEL-02-05's package round trip (DEL-02-05/REQ-031) covers the project's model document, not its states and runs.
 
-### CLM-004 — Attributes
+**Boundary.**
 
-> ##### Attributes
->
-> | Attribute | Current value | Source / status |
-> |---|---|---|
-> | Record purpose | Save named immutable model states for design iteration and review. | SOW-071 and OBJ-016 in `execution/_Decomposition/SOFTWARE_DECOMP.md` |
-> | Required metadata categories | Names, tags, notes, external references, unresolved assumptions, warnings, and deterministic hashes. | SOW-071 in `_CONTEXT.md`, `docs/_Registers/ScopeLedger.csv`, and decomposition section 9 |
-> | Snapshot semantics | Read-only snapshot semantics are in scope. | Decomposition section 7, DEL-14-01 sizing notes |
-> | Formal prover approval statuses | Excluded; model states are flexible metadata records, not formal prover approval states. | `_CONTEXT.md` Context Envelope; `docs/_Registers/ContextBudgetQA.csv` row DEL-14-01; SOW-071 notes |
-> | Anticipated schema artifact | `schemas/model_state.schema.json` | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-14-01 |
-> | Anticipated test artifact | model state persistence tests | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-14-01 |
-> | Hash basis | JSON payload hashes use the accepted canonical JSON/JCS-compatible basis where the payload is JSON. | `_CONTEXT.md` Architecture Basis Injection; `docs/SPEC.md` section 4.4 |
-> | Exact hash algorithm and library | TBD; only the JCS-compatible basis is currently source-supported for JSON payloads. | `_CONTEXT.md` Still TBD; `docs/SPEC.md` section 4.4 |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> - The deliverable belongs to a schema-first architecture baseline: Rust core/application services, JSON Schema 2020-12 contracts, schema-first command/query/job result envelopes, and JCS-compatible canonical JSON hash basis where JSON payloads are hashed (`_CONTEXT.md`, Architecture Basis Injection).
-> - The model state record must respect SWBPIPE data-boundary invariants: protected standards text, copied tables, proprietary values, and private project/rule data must not be committed publicly by default (`docs/CONTRACT.md` OPS-K-IP-1, OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 6).
-> - Missing or unsupported data remains explicit and visible; silent engineering defaults are disallowed (`docs/CONTRACT.md` OPS-K-DATA-2; `docs/DIRECTIVE.md` section 3).
-> - Human acceptance or external approval, if referenced later, remains external and hash-bound; the software must not emit professional approval, certification, sealing, authentication, or code-compliance equivalents as automatic statuses (PRD §21.2) (`docs/SPEC.md` sections 4.4 and 9; `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AUTH-2).
-> - Approved DAG-002 mirror rows identify architecture-basis predecessors plus dependencies on canonical model, persistence, audit/hash, and analysis-status vocabulary surfaces (`Dependencies.csv`; `execution/_DAG/DAG-006/APPROVAL_RECORD.md`).
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> The source-supported construction target is a schema and persistence-test surface for immutable model state records. The construction contract and current schema evidence are separated below:
->
-> | Construction item | Status |
-> |---|---|
-> | Stable deliverable identity | Known: DEL-14-01 |
-> | Parent package identity | Known: PKG-14 |
-> | Schema filename | Known: `schemas/model_state.schema.json` |
-> | Test obligation | Known: model state persistence tests |
-> | Minimum record categories | Known: name, tags, notes, external references, unresolved assumptions, warnings, deterministic hashes |
-> | Snapshot immutability rule | Required concept; exact enforcement mechanism TBD |
-> | Canonical payload scope | Consult the hash definitions and payload references in `schemas/model_state.schema.json`; retain explicit hash scope. A broader non-JSON partitioning decision is not implied. |
-> | Schema property names and required/optional cardinality | Defined by `schemas/model_state.schema.json`; check its current required fields and immutable-hash binding. Schema presence alone does not demonstrate product persistence. |
-> | Persistence module path and service API | Current implementation (at `62c1efd75b`): the Python reference module `core/project_persistence/service.py`. `build_project_persistence_envelope` carries `model_state_refs` and `model_state_records`, and `create_project_store`/`save_project_store`/`open_project_store` keep them in a local SQLite store. Its hashes are SHA-256 over sorted-key compact JSON (`SORTED_COMPACT_JSON`), which the module states is not RFC 8785/JCS. On the desktop, analysis-run records (`apps/desktop/src/services/analysisRunCompatibility.ts`) and the report's `model_state_record` section (`apps/desktop/src/features/report/stateComparisonHandoffSections.ts`) carry a derived `model_state_ref` (`state:<model_ref>:preview`); the desktop stores no model-state record. |
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, package, artifacts, scope, objective, architecture basis, and envelope notes.
-> - `_REFERENCES.md` for the approved source list and authority boundary.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted amendments for SOW-071, OBJ-016, PKG-14, and DEL-14-01 placement.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `ScopeLedger.csv` (retired in `48584391de`; see Git history), and `ContextBudgetQA.csv` (retired in `48584391de`; see Git history) for register-backed identity and scope data.
-> - `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/SPEC.md`, `docs/TYPES.md`, and `docs/IP_AND_DATA_BOUNDARY.md` for invariants, technical boundaries, vocabulary, and data-boundary constraints.
-> - `Dependencies.csv` as the local approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface.
+- **CLM-001** — The model document, its validator, its stable identifiers and the definition of the model hash are DEL-02-01's. The canonical JSON implementation and the form of a hash record are DEL-08-02's. The project store, its schema version and the model-document version check are DEL-02-05's. The analysis-status vocabulary is DEL-05-04's and the diagnostic record is DEL-00-06's.
+- **CLM-002** — Run records are DEL-14-02's and the comparison of two states is DEL-14-03's. The History panel and the interaction of saving, opening and labelling a state in the desktop are DEL-07-08's. The state sections of a report are DEL-08-06's, and the classification of what an export may expose is DEL-12-02's.
+- **CLM-003** — Outside the product: a formal prover-status lifecycle, an automatic record of professional acceptance, and comprehensive ingestion of a commercial prover's outputs.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-14-01 Immutable model state records
+A state's hash establishes that the content read is the content saved. It says nothing about whether the design is right, and a record that validates against the schema establishes the record's shape, not that anything was stored.
 
-> #### Specification: DEL-14-01 Immutable model state records
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-010 — Scope
+- **REQ-001** — The product saves named immutable model states, and a user can reopen one as the working model of a new session (also cited as DEL-14-01-R1 and, for this deliverable's part, DEL-14-01:3). Source: SOW-071; PRD FR-CMP-001.
+- **REQ-002** — A state record carries the state's name, tags, notes, the external references the user entered, unresolved assumptions, warnings, the time of creation and deterministic hashes, and the snapshot carries the rest of PRD §15.1 (also cited as DEL-14-01-R2). Source: SOW-071; PRD §15.1.
+- **REQ-003** — A saved state is read-only. Nothing the product does changes a saved snapshot or the immutable part of its record, and a change to the model makes a new state. Historical states remain reproducible: a saved state that a recorded run or another state refers to is never removed (also cited as DEL-14-01-R3). Source: PRD §15.1.
+- **REQ-004** — Every JSON payload hash of a state is SHA-256 over the payload's RFC 8785 canonical form (also cited as DEL-14-01-R4). Source: decomposition AB-00-04.
+- **REQ-005** — Each hash record of a state names the payload it covers, that payload's scope and the basis its digest was actually computed on (also cited as DEL-14-01-R5). Source: SOW-071; PRD §21.1.
+- **REQ-006** — Saving and reading a state inserts no engineering default. Units, provenance, rule-pack values, material and component data, SIF and flexibility inputs, allowables and load-basis values come back as saved (also cited as DEL-14-01-R6). Source: PRD §5.5.
+- **REQ-007** — Unresolved assumptions and warnings are kept as visible review evidence: those of the model at the time of saving, and those recorded against the state itself (also cited as DEL-14-01-R7). Source: PRD §15.1, FR-MOD-006.
+- **REQ-008** — No field, status, kind or label vocabulary of a state is a professional approval, certification, sealing, authentication or code-compliance status, and no prover-status lifecycle is enforced on states (also cited as DEL-14-01-R8). Source: PRD §16.3, §21.2.
+- **REQ-009** — An external reference is an explicit record. Wherever one is entered or consumed it passes schema validation, the privacy controls, protected-content screening and the professional-boundary checks, and it goes around none of them (also cited as DEL-14-01-R9 and DEL-14-01:2). Source: PRD §15.1, §20.1, §20.3, §21.2.
+- **REQ-010** — Public examples and fixtures of states hold only invented or cleared public data, with their provenance (also cited as DEL-14-01-R10). Source: PRD §20.1.
+- **REQ-011** — States are kept in the product's project store and round-trip there: a state saved and read back returns the same snapshot, record and labels, and its hashes verify (also cited as DEL-14-01:1). Source: SOW-071; decomposition AB-00-04.
+- **REQ-012** — A stored state whose snapshot, record or identity no longer agrees with its recorded hashes is refused by name on every read and is never presented as a valid state. Source: SOW-071 (deterministic hashes); PRD §15.1.
+- **REQ-013** — A state's labels can be edited after it is saved without changing its identity, its snapshot or any hash of its record. Source: PRD FR-CMP-001, §16.3.
+- **REQ-014** — A state saved from a session that was opened from a saved state names that state as its parent. Source: PRD §15.1 (new states are created from existing states).
+- **REQ-015** — A saved state's domain truth is its canonical JSON snapshot, record and labels, and the project store holds them as a projection that can be rebuilt from them. A project's saved states travel with the project in its portable package and come back from it with the same snapshots, records, labels and hashes. Source: SOW-071; decomposition AB-00-04.
 
-> ##### Scope
->
-> This deliverable defines the data-model contract for immutable model state records and the persistence tests needed to verify that saved states remain reproducible and hash-addressable.
->
-> In scope:
->
-> - A JSON-schema-backed model state record surface for `schemas/model_state.schema.json`.
-> - Record support for names, tags, notes, external references, unresolved assumptions, warnings, and deterministic hashes.
-> - Read-only snapshot semantics for saved model states.
-> - Persistence tests that demonstrate state save/load behavior and deterministic hash handling within the accepted architecture basis.
->
-> Out of scope:
->
-> - Formal prover approval statuses or automatic professional acceptance states.
-> - Comprehensive commercial prover output ingestion.
-> - Public bundling of protected standards text, code tables, proprietary values, or private owner/project data.
-> - Exact dependency versions, physical project package/container format, hash library selection, and package-specific implementation choices unless approved in a later sealed implementation task.
->
-> Sources: `_CONTEXT.md`; SOW-071, OBJ-016, and PKG-14 in `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/SPEC.md` sections 4.4 and 9.
->
+### Acceptance criteria
 
-### CLM-011 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Source |
-> |---|---|---|
-> | DEL-14-01-R1 | The product shall save named immutable model states. | SOW-071 in `_CONTEXT.md` (retired in `497a8d81e4`; see Git history), `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history), and decomposition section 9 |
-> | DEL-14-01-R2 | A model state record shall carry tags, notes, external references, unresolved assumptions, warnings, and deterministic hashes. | SOW-071 in `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-14-01 |
-> | DEL-14-01-R3 | Saved model states shall use read-only snapshot semantics. Exact enforcement mechanism is TBD. | Decomposition section 7 DEL-14-01 sizing notes |
-> | DEL-14-01-R4 | JSON payload hashes shall follow the accepted JCS-compatible canonical JSON basis where the payload is JSON. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `docs/SPEC.md` section 4.4 |
-> | DEL-14-01-R5 | Hash records shall identify payload scope; exact state hash partitioning is TBD. | `docs/SPEC.md` section 4.4 |
-> | DEL-14-01-R6 | Round-trip persistence must not insert silent engineering defaults for units, provenance, rule-pack values, material data, component data, SIF/flexibility inputs, allowables, or load-basis values. | `docs/SPEC.md` section 4.4 |
-> | DEL-14-01-R7 | Model state records must preserve unresolved assumptions and warnings as visible review evidence, not hidden defaults. | `docs/DIRECTIVE.md` sections 2.2 and 3; `docs/TYPES.md` entries `Assumption` and `Diagnostic` |
-> | DEL-14-01-R8 | The record surface must not create software-generated professional approval, certification, sealing, authentication, or code-compliance statuses (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/SPEC.md` section 9 |
-> | DEL-14-01-R9 | External references must remain explicit and must not bypass schema validation, privacy controls, protected-content screening, or professional-boundary checks. | `docs/TYPES.md` entry `Reference`; `docs/SPEC.md` sections 4.4 and 4.5 |
-> | DEL-14-01-R10 | The public repository must not embed protected standards content, proprietary values, or private project/rule data in model state examples or fixtures. | `docs/CONTRACT.md` OPS-K-IP-1 and OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 6 |
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> | Standard / basis | Applicability | Status |
-> |---|---|---|
-> | JSON Schema 2020-12 | Public schema/interchange baseline for this data-model change. | Source-supported by `_CONTEXT.md`; exact schema file content TBD |
-> | Canonical JSON / JCS-compatible basis | Applies to JSON payload hashing where the state payload is JSON. | Source-supported by `_CONTEXT.md` and `docs/SPEC.md` section 4.4; exact library/algorithm binding TBD |
-> | SWBPIPE governance invariants | Data-boundary, provenance, no-silent-default, and no-professional-approval constraints. | Source-supported by `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, and `docs/IP_AND_DATA_BOUNDARY.md` |
->
-> No external code clause text or protected standards text is available or required for this deliverable setup.
->
-
-### CLM-013 — Verification
-
-> ##### Verification
->
-> | Requirement(s) | Verification approach |
-> |---|---|
-> | R1-R3 | Schema validation and persistence tests should prove that saved records retain identity, metadata, and read-only snapshot semantics. Current tests (at `62c1efd75b`): `tests/test_model_state_schema.py`, `tests/test_persistence_schema.py` and `tests/test_project_persistence_service.py` (Python reference store). |
-> | R4-R5 | Hash determinism tests should compare canonicalized JSON payload bytes and verify payload-scope metadata. Exact canonicalization implementation TBD. |
-> | R6-R7 | Round-trip tests should confirm that assumptions, warnings, provenance-bearing references, and other review evidence survive save/load without silent defaults. |
-> | R8 | Schema and service tests should reject or omit automatic professional approval/code-compliance status fields (PRD §21.2). |
-> | R9-R10 | Protected-content/private-data review should verify examples and fixtures contain only invented or cleared public data and explicit external-reference metadata. |
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> Required deliverable records:
->
-> - `schemas/model_state.schema.json`
-> - model state persistence tests
-> - test evidence or validation output from the eventual implementation task
-> - any unresolved `TBD` decisions for hash scope, canonicalization implementation, schema property names, and persistence service entry points
-
-- **AC-001** — The contract preserves names, tags, notes, external references, unresolved assumptions, warnings, deterministic hash metadata, JSON Schema and canonical-JSON boundaries, no-silent-default behavior, public/private data controls, formal-prover-status exclusions, and visible schema, hash-partition, persistence, and runtime-screening TBDs without implying lifecycle closure or external validation. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+- **AC-001** — A model saved as a state and read back returns a snapshot byte-identical to the canonical text that was saved, the same model hash, and a record that validates against the state schema with every member of REQ-002 present.
+- **AC-002** — Every attempt to change a saved snapshot or the immutable part of its record, through any route the product offers, is refused by name and leaves the stored bytes as they were. Editing a reopened state and saving gives a second state that names the first as its parent, and the first is unchanged. Removing a state that a recorded run or a child state refers to is refused and says what refers to it.
+- **AC-003** — Each hash in a state record is reproduced, from the payload the record names, by an implementation of RFC 8785 and SHA-256 that imports no product code. Each hash record states its algorithm, basis, payload and scope.
+- **AC-004** — A state saved from a model that carries unresolved assumptions, validator warnings and values with units and provenance returns each of them as saved, with nothing added and nothing dropped. Assumptions recorded against the state appear with the model's, and each says which it is.
+- **AC-005** — Renaming a state and changing its tags, notes and state-level assumptions leave its identity, snapshot, model hash and record hashes unchanged, and the next read returns the edited labels.
+- **AC-006** — A stored state altered outside the product, in its snapshot, its record, a hash or an identity field, is refused by name when it is read, opened or compared.
+- **AC-007** — A state with an external reference returns the reference as entered. A reference without its type, target, privacy class or provenance is refused with a named finding, and a reference classed private or suspected protected does not appear in a public export or report of the state. A reference's label and target are examined by the professional-boundary check of every report or export that carries them, as the rest of that output's content is.
+- **AC-008** — The state schema is valid JSON Schema 2020-12. It admits no approval, certification, sealing, authentication or compliance value in any status, kind or field; its analysis statuses are those of DEL-05-04's vocabulary; and every public fixture and example of a state is invented and carries its provenance.
+- **AC-009** — Listing a project's states returns every saved state with its identity, name and model hash. A stored state that does not verify is named as such in the listing, neither dropped nor listed as valid. Opening a listed state gives a working model whose model hash equals the state's.
+- **AC-010** — A project with saved states, written to its portable package and read into an empty project store, lists the same states, and each returns a snapshot, record and labels byte-identical to those written, with hashes that verify as AC-003 requires.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-015 — Procedure: DEL-14-01 Immutable model state records
+**Method choices that define the product.**
 
-> #### Procedure: DEL-14-01 Immutable model state records
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- The snapshot is stored as the canonical text of the model document and returned as stored. Nothing re-serializes, repairs, migrates or normalizes a saved state.
+- Labels are stored apart from the record. The record's hashes cover the snapshot and the immutable fields and nothing a user may edit.
+- A state's hashes are verified on every read, before anything of it is shown or used.
 
-### CLM-017 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Define and verify the immutable model state record surface for DEL-14-01 without expanding into analysis-run records, comparison engines, handoff workflows, or professional approval states.
->
-
-### CLM-018 — Prerequisites
-
-> ##### Prerequisites
->
-> - Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, and `Dependencies.csv` in this deliverable folder.
-> - Use `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted amendments for SOW-071, OBJ-016, PKG-14, and DEL-14-01 scope.
-> - Apply `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, `docs/SPEC.md`, `docs/TYPES.md`, and `docs/IP_AND_DATA_BOUNDARY.md` for governance, technical, vocabulary, and data-boundary constraints.
-> - Treat approved graph resolved through `execution/_DAG/_LATEST.md` rows as coordination evidence, not as authorization to edit upstream deliverables or dispatch Type 2 implementation.
-> - Preserve all unknown implementation choices as `TBD` unless a later accepted source resolves them.
->
-> Declared upstream coordination evidence from the local mirror:
->
-> | Target | Meaning for this deliverable |
-> |---|---|
-> | DEL-00-01 through DEL-00-04, DEL-00-06 through DEL-00-08 | Architecture basis context for downstream work. |
-> | DEL-02-01 | Canonical model schema predecessor; model states snapshot the canonical model. |
-> | DEL-02-05 | Persistence and serialization predecessor. |
-> | DEL-08-02 | Audit manifest and model hash predecessor. |
-> | DEL-05-04 | Analysis-state/status vocabulary predecessor. |
->
-
-### CLM-019 — Steps
-
-> ##### Steps
->
-> 1. Confirm the implementation task is scoped only to DEL-14-01 and `schemas/model_state.schema.json` plus persistence tests.
-> 2. Define the model state schema fields only from source-supported categories: name, tags, notes, external references, unresolved assumptions, warnings, deterministic hash metadata, snapshot identity, and source/payload references.
-> 3. Mark exact schema property names, required/optional cardinality, hash partitioning, hash library, and persistence API entry points as `TBD` until implementation evidence exists.
-> 4. Apply JSON Schema 2020-12 as the schema/interchange baseline.
-> 5. Apply the accepted JCS-compatible canonical JSON basis for JSON payload hashes and record payload scope explicitly.
-> 6. Add or update persistence tests that demonstrate save/load behavior, stable metadata, read-only snapshot behavior, deterministic hash metadata, and no silent default insertion.
-> 7. Add checks or fixtures only with invented or cleared public data; do not include protected standards text, proprietary vendor data, owner standards, private project values, or code-specific values.
-> 8. Ensure no automatic professional approval, certification, sealing, authentication, external-prover approval, or code-compliance status is introduced (PRD §21.2).
-> 9. Record all unresolved implementation decisions and unsupported source assumptions in deliverable notes or test evidence.
->
-
-### CLM-020 — Verification
-
-> ##### Verification
->
-> - Schema validation passes for the model state schema once implemented.
-> - Persistence tests pass and demonstrate stable round-trip behavior.
-> - Hash tests demonstrate deterministic behavior for JSON payloads under the selected canonicalization method.
-> - Tests or schema checks preserve assumptions, warnings, external references, and provenance-bearing metadata.
-> - Protected-content/private-data review finds no bundled protected standards data, proprietary values, or private project/rule data in public fixtures.
-> - Review confirms the deliverable does not claim professional approval or external validation.
->
-
-### CLM-021 — Records
-
-> ##### Records
->
-> - `schemas/model_state.schema.json`
-> - model state persistence test files and outputs
-> - hash determinism test evidence
-> - protected-content/private-data review evidence for fixtures
-> - unresolved `TBD` decision list for implementation choices not source-supported in this setup pass
-
-- **VER-001** — Validate the contract and review source parity, immutable snapshot and metadata coverage, payload-scope and deterministic-hash boundaries, round-trip/no-silent-default intent, external-reference privacy screening residuals, public-fixture controls, retained TBDs, and professional-authority limits.
+- **VER-001** — Executable check (observes the snapshot, model hash, record and labels read back from the project store against the document and labels given to save, for populated and empty-label states).
+- **VER-002** — Executable check (observes the store after attempted updates and replacements through each service, after a save from a reopened state, and after a removal attempt on a state with a recorded run and with a child state).
+- **VER-003** — Comparison with a named reference (RFC 8785 and SHA-256, computed by an implementation that imports no product code).
+- **VER-004** — Executable check (observes label edits, and reads of states whose stored snapshot, record, hash and identity fields were each altered in turn).
+- **VER-005** — Executable check (observes external references that are complete and that lack each required member, the public export and report of a state holding a private reference, and the professional-boundary check's findings on a report of a state holding a reference worded as a prohibited claim).
+- **VER-006** — Comparison with a named reference (the JSON Schema 2020-12 specification, applied by a validator that imports no product code) with judgment by a reviewer who did not write the schema, who examines its vocabularies and the public fixtures with the protected-content scan.
+- **VER-007** — Executable check (observes the listing of a project after several saves and with one stored state altered, and the model hash of the working model after each listed state is opened).
+- **VER-008** — Executable check (observes the states of a project written to its portable package and read into an empty project store, against the states written).
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-022 — Guidance: DEL-14-01 Immutable model state records
-
-> #### Guidance: DEL-14-01 Immutable model state records
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-024 — Purpose
-
-> ##### Purpose
->
-> Immutable model state records give SWBPIPE a reproducible saved-state surface for design iteration, comparison, reporting, and handoff workflows. The deliverable is a schema/data-model change, not a professional approval workflow.
->
-> Sources: `_CONTEXT.md`; OBJ-016 and PKG-14 in `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/SPEC.md` sections 4.4 and 9.
->
-
-### CLM-025 — Principles
-
-> ##### Principles
->
-> - Treat the model state as a saved snapshot record, not as a mutable "current model" alias.
-> - Keep flexible review metadata such as names, tags, notes, external references, unresolved assumptions, and warnings explicit.
-> - Bind reproducibility to deterministic hashes with explicit payload scope; do not imply that a hash proves engineering correctness.
-> - Preserve the separation between mechanics/software evidence and human professional reliance.
-> - Keep protected standards data, owner standards, proprietary vendor data, and private project data out of public examples and fixtures unless separately reviewed and cleared.
-> - Prefer `TBD` over invented schema details when exact property names, cardinality, hash partitioning, or persistence APIs are not source-supported.
->
-
-### CLM-026 — Considerations
-
-> ##### Considerations
->
-> The accepted architecture basis makes this deliverable schema-first and hash-aware, with DEC-017 fixing the SQLite local-store/canonical-JSON profile and DEC-028 fixing the archive transport strategy. Unselected dependency versions and package-specific choices follow DEC-012 (accepted sealed brief or later ruling); persistence implementation/conformance remains separate.
->
-> The local dependency mirror (current authority: `execution/_DAG/_LATEST.md`; earlier graph IDs are provenance) identifies several upstream evidence surfaces: architecture-basis deliverables, canonical model schema, project persistence/serialization, audit manifest/model hash, and analysis-status vocabulary. These rows are coordination evidence only; they do not dispatch implementation work or authorize lifecycle promotion (`Dependencies.csv`; `execution/_DAG/_LATEST.md` (current approval record; DAG-006 remains historical provenance)).
->
-> The model state should not borrow formal prover-status language. SOW-071 and the context budget note both state that model states are flexible metadata records, not formal prover approval states.
->
-
-### CLM-027 — Trade-offs
-
-> ##### Trade-offs
->
-> | Topic | Conservative setup position |
-> |---|---|
-> | Metadata flexibility vs. formal status lifecycle | Support flexible names, tags, notes, references, assumptions, and warnings; avoid hard-coded external approval statuses. |
-> | Hashing precision vs. premature implementation choice | Require deterministic hash metadata and payload scope, but leave exact implementation library and non-JSON partitioning TBD. |
-> | Snapshot immutability vs. persistence mechanics | Specify read-only snapshot semantics; defer the exact enforcement mechanism to implementation. |
-> | External references vs. private-data risk | Permit explicit references while preserving privacy/protected-content checks and avoiding embedded private payloads. |
->
-
-### CLM-028 — Examples
-
-> ##### Examples
->
-> `tests/test_model_state_schema.py` carries schema example evidence. Examples must use invented or cleared public data, document provenance, and avoid protected standards text or proprietary project values.
->
-
-### CLM-029 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None recorded | No direct source conflict identified during setup. | TBD | TBD | TBD | TBD | TBD |
+- **AX-001** — *The saved design is the design read back.* Better is every saved state reading back byte-identical, on every machine and build that can read it. Convenience of opening a state never justifies repairing, migrating or normalizing it.
+- **AX-002** — *The user's words over a status lifecycle.* Better is more of a reviewer's context carried in names, tags, notes and references the user chose. It may never be bought with a label vocabulary that reads as approval, validation or acceptance.
+- **AX-003** — *Refuse over presenting doubtful content.* A state that does not verify is named and refused. Better is fewer refusals of states that were saved correctly, never by weakening what is verified.
+- **AX-004** — *Assumptions stay visible.* Better is fewer assumptions and warnings lost between the model and the record of its state; the target is none.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-071 OBJ-016 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-14-01:1** — R5 continuation delivery task: Demonstrate immutable model-state persistence/round trips and hash-scope enforcement against `schemas/model_state.schema.json` in the product store. Schema fixtures do not establish durable storage; preserve DEC-017/028 strategy and unresolved partitioning (CLM-006). In v0.1, model states and recorded runs are kept only in the desktop's SQLite store (HELP_HUMAN, 2026-10-23, option (a); DEL-14-01 Design `desktop-states-runs-comparison.md` §7). An export of that history in the DEC-028 container remains open under OI-015; DEC-028 conformance for state and run history is not discharged.
-- **DEL-14-01:2** — Bind external-reference ingestion/consumption for model-state records to governed privacy and protected-content runtime screening; the adapter declaration gate is not that consumer binding.
-- **DEL-14-01:3** — Phase G program: build immutable model-state records, analysis-run records, state/run comparison engines, mapping/tolerance/export contracts, the comparison workspace GUI, and state/comparison report sections. Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-1: model states, run history and state/run comparison are in software 0.1.0 scope. That places in 0.1.0 (unit W-12) the immutable model-state and analysis-run records, basic state and run comparison with automatic stable-id mapping (FR-CMP-001..004, -006), the workspace GUI for them, and the state and recorded-run records in the state/comparison report sections. The mapping editor and manual mappings, tolerance profiles, graphical diffs and comparison export (FR-CMP-005, -007, -008, -009, -010) stay in v0.2 R3 (PRD §24). (see also DEL-14-02, DEL-14-03, DEL-14-04, DEL-14-05, DEL-07-08, DEL-08-06) (source: PRD plan §3 Forward Horizon row G / DEC-056/SCA-005)
+| OUT-001 | SOW-071 OBJ-016 | REQ-001 REQ-002 REQ-011 | AC-001 | VER-001 | The criterion fixes the expected result: what is read back is what was written. The snapshot and model hash are compared with the canonical text given to save, and the record with the JSON Schema 2020-12 specification under a validator that imports no product code |
+| OUT-001 | SOW-071 OBJ-016 | REQ-003 REQ-014 | AC-002 | VER-002 | The stored bytes are compared with a copy taken before each attempt |
+| OUT-001 | SOW-071 OBJ-016 | REQ-004 REQ-005 | AC-003 | VER-003 | Outside source: RFC 8785 and SHA-256 |
+| OUT-001 | SOW-071 OBJ-016 | REQ-006 REQ-007 | AC-004 | VER-001 | The inputs are constructed with known assumptions, warnings, units and provenance, so the criterion states what must come back; the comparison is with the document and labels given to save |
+| OUT-001 | SOW-071 OBJ-016 | REQ-013 | AC-005 | VER-004 | The hashes after the edit are compared with those recorded before it |
+| OUT-001 | SOW-071 OBJ-016 | REQ-012 | AC-006 | VER-004 | Each alteration is made deliberately to a known state, so the criterion states that it is refused; nothing is compared with the product's earlier output |
+| OUT-001 | SOW-071 OBJ-016 | REQ-009 CLM-002 | AC-007 | VER-005 | The references are constructed, so the criterion states which are refused, which are withheld and which the professional-boundary check examines |
+| OUT-001 | SOW-071 OBJ-016 | REQ-008 REQ-010 CLM-003 | AC-008 | VER-006 | Outside source for the schema's validity: the JSON Schema 2020-12 specification. Its content is judged by a reviewer against PRD §16.3, §20.1 and §21.2 |
+| OUT-001 | SOW-071 OBJ-016 | REQ-001 REQ-011 REQ-012 | AC-009 | VER-007 | The criterion fixes the expected result: the states saved are the states listed, compared with the saves made, and the model hash of an opened state is compared with the hash recorded when it was saved. The altered state is constructed, so the criterion states that it is named |
+| OUT-001 | SOW-071 OBJ-016 | REQ-015 | AC-010 | VER-008 | The criterion fixes the expected result: the states read back from the package are the states written, compared byte for byte and with their hashes recomputed as AC-003 requires |

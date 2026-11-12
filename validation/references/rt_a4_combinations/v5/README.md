@@ -1,7 +1,7 @@
 # RT-A4 V-5 references: three-axis static seismic on a cantilever
 
-Frozen, independently derived expectations for V-5 of DEL-05-02 Work
-[`absolute-sum-srss-combinations.md`](../../../../execution/PKG-05/DEL-05-02/Work/absolute-sum-srss-combinations.md)
+Frozen, independently derived expectations for V-5 of the absolute-sum and SRSS
+combination design of [DEL-05-02](../../../../execution/PKG-05/DEL-05-02/ScopeOfWork.md),
 §7: an invented straight cantilever along (3, 4, 0)/5, anchored at its root,
 under a uniform force per length in global X, Y and Z in three separate load cases
 (the static equivalent of a uniform acceleration on the line mass), and the

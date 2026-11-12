@@ -2,378 +2,121 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-03-05
 package_id: PKG-03
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-009]
 package_objective_refs: [OBJ-004]
 ---
 
-# Scope of Work — DEL-03-05
-
-
-**Scope placement.** Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-2: rigid and semi-rigid components are to be implemented with DEC-045 stiffness scaling. This records the ruling; W-15 (PR #1604) implements it, and the clauses below describe that implementation.
+# Scope of Work — DEL-03-05 Rigid component models for valves, flanges, reducers, and specialty items
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-03-05` in service of project scope [SOW-009] and package objectives [OBJ-004].
+This deliverable defines what a valve, flange, reducer, rigid placeholder or specialty item is in the product. A user places one on a line and gives it its length and end sizes, its weight and centre of gravity, how stiff it is against the pipe it sits in, and for a reducer how far its two centrelines are offset, each with the source it came from. The definition says what those inputs are and what each does in a solve: the component's body is a member of the frame, stiffer or softer than the pipe by the user's factor; its weight acts at its centre of gravity; and a reducer's eccentricity is the geometry of its two ends. The software supplies no dimension, weight or stiffness of its own.
 
-- **OUT-001** — A rigid and semi-rigid component-model contract covering valves, flanges, reducers, rigid placeholders, and specialty items, including geometry, mass, center-of-gravity, stiffness, units, provenance, and completeness fields, is produced for the declared scope and objective.
+It serves SOW-009 under OBJ-004 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-03, row DEL-03-05), and PRD §12.3 (rigid and semi-rigid components; reducers) with FR-SOL-004, FR-SOL-012 and the rigid link benchmark of §22.2. In `docs/RELEASE_TARGET_v1.0.md` it is an owning deliverable of exit criterion 1 for the reference system's eccentric reducer, valves and flanges.
+
+- **OUT-001** — The rigid-family component definition: its members in the model document and in a component library record, and the behaviour of its body, weight and reducer offset in a solve and in published results.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-03-05 Rigid component models for valves, flanges, reducers, and specialty items
+**Terms the definition implements.**
 
-> #### Datasheet: DEL-03-05 Rigid component models for valves, flanges, reducers, and specialty items
->
+- *Rigid-family component.* A component of kind valve, flange, reducer, rigid or specialty at a node. It maps one straight member that ends at that node; that member is the component's *body*. The rigid-family members of a component in the model document are this deliverable's definition.
+- *Consumption declaration.* Each rigid-family component declares how the solve consumes it. Its scale and its weight are applied only when it declares mechanics geometry only. A component declared not consumed by the solve solves as its pipe, with its pipe weight, and its offset is not read. An absent declaration is not assumed to be either.
+- *Stiffness scale.* A dimensionless user factor s, finite and above zero, with a source reference. The body is solved with s times the stiffness of its mapped pipe section, in every stiffness term. Any finite scale above zero is accepted; there is no engineering bound. A scale above 1 makes a rigid body, below 1 a semi-rigid one. The scale changes elastic response only: the body's free thermal growth is unchanged, and its elastic strain under pressure is s times smaller.
+- *Stiffness values.* Optional user-entered linear and rotational stiffnesses. They are recorded with their source and checked finite and positive; one uniform scale realizes the component, and they are not applied.
+- *Reference-section result.* A stress published on a scaled body. It is the stress of the mapped pipe section under the body's forces. It is not a stress of the valve, flange or reducer body, and the product supplies none. The stress published along an eccentric reducer's chord with no scale applied has the same meaning, though it is an ordinary pipe row.
+- *Weight and centre of gravity.* The weight is a force, the component's total. The centre of gravity is a vector in the model's global X, Y and Z axes, measured from the component's node, in model length units. The weight acts along gravity at the node together with the moment of that force about the node. Where a component's weight is applied, its body's own distributed self-weight is not.
+- *Eccentric offset.* On a reducer only: a vector in the model's global X, Y and Z axes, from the centreline at the component's node to the centreline at the other end of its body, in model length units. The positions of the nodes govern the mechanics; the declared offset is checked against them and never places a node. A zero vector declares a concentric reducer. An absent offset declares nothing.
+- *Orientation.* A rigid or semi-rigid component's orientation is one of its inputs (PRD §12.3). The centre of gravity and the eccentric offset are in global axes and do not depend on it.
+- *Reducer local modifiers.* Optional user-supplied local modifiers on a reducer, each with its source (PRD §12.3).
+- *Library record of a rigid component.* A component library record of type valve, flange, reducer, rigid or specialty, whose field kinds hold the body length, end sizes and end connection references, weight, centre of gravity, linear and rotational stiffness, and the stiffness-behaviour and source references.
 
-### CLM-002 — Identification
+**Boundary.** This scope states the family's definition and the criteria it meets. DEL-04-07 composes it into the product solve, admits it on each route, and owns the pressure step where a reducer changes the bore between pressure regions. DEL-05-01 generates self-weight loads, into which the component's weight enters as this definition states. DEL-05-03 owns stress recovery and the case's stress maximum and headline. DEL-02-01 owns the model document and DEL-03-02 the component library format. DEL-07-03 and DEL-07-02 own the creation and inspector forms. A directional stiffness set is an expansion joint's (DEL-03-06). Stepped-reducer element formulations are not provided (PRD §7).
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-03-05 |
-> | Package ID | PKG-03 |
-> | Package | Piping Components, Materials, and Library Data Model |
-> | Type | BACKEND_FEATURE_SLICE |
-> | Scope item | SOW-009 |
-> | Objective | OBJ-004 |
-> | Lifecycle state read for reconciliation | IN_PROGRESS (`_STATUS.md` read only; no lifecycle edit) |
->
-
-### CLM-003 — Attributes
-
-> ##### Attributes
->
-> This deliverable describes implemented evidence for rigid and semi-rigid component library schema slots, fixture shape, and validation coverage for valves, flanges, reducers, rigid placeholders, and specialty items. The DEC-045 product route in `core/product_physics/` and `core/model_operations/operation_applier/` normalizes and validates the scaling inputs, and both product routes apply the user stiffness scale to an eligible component's mapped member (current implementation below). Schema-layer evidence is `schemas/component.schema.yaml`, `fixtures/component/invented_component_library_valid.json`, `tests/test_component_section_schema.py`, and the deliverable-local memory/review records.
->
-> Current implementation (W-15 slices a, b, c and d, PRs #1604, #1608 and #1649; Design `rigid-component-stiffness-scaling.md`): an eligible rigid-family component's mapped straight member is formed with s·E and s·G on both product routes (`core/product_physics/src/lib.rs` member formation; eligibility and conflicts in `core/product_physics/src/rigid_component.rs`), where s is `stiffness_scaling_user_value`. Eligibility requires `mechanics_interface.solver_consumption` to be `mechanics_geometry_only`, a valid mapping, a finite positive scale with a nonblank source reference, and finite positive values for every supplied linear or rotational stiffness. When an input condition is unmet, the member is left unscaled and the warnings follow Design §2.6. Other declared consumption modes, including `not_solver_consumed`, are honored without a new scaling-specific warning. Mapping onto a realized bend or a connector-replaced span, or two components mapping one member, is refused by `RIGID_COMPONENT_MAPPING_CONFLICT`. `RIGID_COMPONENT_STIFFNESS_SCALING_APPLIED` states each applied scale, and `RIGID_COMPONENT_SCALE_PRECISION` warns from s ≥ 1e5. `linear_stiffness_user_value` and `rotational_stiffness_user_value` are optional, checked and not applied. The scaled member's stress rows are reference-pipe-section results: they carry a `component_body` record, the case stress maximum and headline exclude them, and a rule bound to them reports `RULE_INPUTS_INCOMPLETE` with reason `COMPONENT_BODY_REFERENCE_SECTION`. The exact route admits valve, flange, rigid and specialty components. RT-A3 reducer 2a admits the bounded own-region concentric step, and RT-A3 reducer 2b admits that topology's eccentric or slanted body when the W-15c offset method accepts it, in DEL-04-07 `Work/pressure-contract.md`. Other in-region reducers retain `EXACT_PRESSURE_REDUCER_IN_REGION`, or W-15c's own refusal of a read offset (`core/product_physics/src/exact_admission.rs`, normalized geometry in `pressure_runtime.rs`, W-15c evidence in `rigid_component.rs`). Slice b replaces a selected mapped member's distributed self-weight with its eligible component's weight, applied as a nodal force at the component's node plus r × F moments (Design `rigid-component-stiffness-scaling.md` §3). Desktop creation of valves, flanges and reducers is in `apps/desktop/src/features/component-creation/componentIntent.ts`. Slice c checks a reducer's declared `eccentric_offset` (R12) against the node geometry, which governs, unless `mechanics_interface.solver_consumption` is `not_solver_consumed`. The run axis comes from adjoining run evidence at one or both ends; two directions must agree within the coordinate-rounding allowance and base angular tolerance. A mismatch, an offset that is not transverse or not resolvable, or unresolved run evidence is refused by name (`core/product_physics/src/rigid_component.rs`; Design `eccentric-reducer-offset.md`).
->
-> Implemented descriptive slots and retained gaps are:
->
-> | Slot | Source / basis | Reconciled value |
-> |---|---|---|
-> | Component families | SOW-009; `ComponentType`; fixture `contract.component.rigid-semirigid`; test enum checks | `valve`, `flange`, `reducer`, `rigid`, and `specialty` are accepted component types and are covered by the rigid/semi-rigid family contract. |
-> | Geometry slots | `ComponentFieldKind`; fixture field definitions; strict fixture tests; model document 0.8.0 | `rigid_body_length`, `end_a_size`, `end_b_size`, `connection_end_a_reference`, and `connection_end_b_reference` are schema/fixture-recognized slots; a reducer's `eccentric_offset` is a model-document slot (R12). Public fixture values remain schema-shape-only. |
-> | Weight input | SOW-009; fixture rigid record; protected-value policy | `weight` is implemented as a required mechanics-solve field kind. Public catalog/vendor weights remain omitted; value policy remains private or public-permissive only after review. |
-> | Center of gravity input | SOW-009; fixture rigid record; protected-value policy | `center_of_gravity` is implemented as a required mechanics-solve field kind. Its convention is the owner's R10 ruling of 2026-10-24 ("For the centre-of-gravity I approve option A as recommended."): a vector in the model's global X/Y/Z axes, measured from the component's node, in model length units. |
-> | Eccentric offset input | PRD §12.3; R12 | `eccentric_offset` on a reducer is a vector in the model's global X/Y/Z axes, from the centerline at the component's node to the centerline at its body's other end, in model length units (owner ruling of 2026-10-26: "R-c1 A, 0.8.0 a2"). The node geometry governs: unless `mechanics_interface.solver_consumption` is `not_solver_consumed`, the solve checks the declared offset against it; the offset never places nodes (Design `eccentric-reducer-offset.md`). |
-> | Semi-rigid behavior | `ComponentQuantityDimension`; fixture field definitions; review finding resolution evidence | Stiffness is split into `linear_stiffness` and `rotational_stiffness`; generic `stiffness` is not used as a component quantity dimension. Under DEC-045 and OD-2 the solve applies one uniform scale (`stiffness_scaling_user_value`) to the mapped member; the split stiffness quantities are optional, checked and recorded, and not applied (Design `rigid-component-stiffness-scaling.md` §1, §2). |
-> | Provenance and review metadata | OPS-K-DATA-3; OPS-K-IP-2; schema required fields | Component library metadata, records, fields, diagnostics, and fixture slots carry provenance/review status requirements. The two local findings are `ACCEPT_AS_IS` / `RESOLVED` under the recorded 2026-06-05 Gate C disposition. |
-> | Unit handling | OPS-K-UNIT-1; AB-00-04; schema/test evidence | Unit-bearing dimensions include length, force, linear stiffness, and rotational stiffness. Connection/reference slots keep `dimension_id: TBD` where no unit-bearing value is defined. |
-> | Public-data boundary | OPS-K-IP-1..3; OPS-K-DATA-1; fixture policies | Public examples may be schema-shape-only or invented non-engineering fixtures under DEC-045 with truthful provenance and review status. Protected tables, vendor data, catalog dimensions, actual weights, COGs, and stiffness values remain excluded. |
->
-> The base rigid/semi-rigid field taxonomy is implemented for schema validation and strict fixture coverage. Policy-level source catalogs, public fixture-value acceptance, concrete import formats, solver consumption beyond W-15 slices a, b, c and d, per-family engineering profiles, dependency satisfaction, human disposition, and lifecycle closure remain `TBD`.
->
-
-### CLM-004 — Conditions
-
-> ##### Conditions
->
-> - Public artifacts must not include proprietary component/vendor data, protected dimensional tables, copied standards content, or undisclosed/default engineering weights/COGs; explicitly invented non-engineering example quantities remain allowed under DEC-045.
-> - User-entered or lawfully imported private data must carry provenance and redistribution status where it can enter a library or reusable fixture.
-> - Missing solve-required or model-required values must remain explicit findings or validation diagnostics, never silent defaults.
-> - Outputs are documentation reconciliation evidence and do not claim certification, compliance, or fitness for professional reliance.
->
-
-### CLM-005 — Construction
-
-> ##### Construction
->
-> Repository-level implementation evidence already exists in the component schema, invented component fixture, and component schema tests. This reconciliation run does not edit those repository-level schema, fixture, source, test, DAG, dependency, status, review CSV, or coordination files.
->
-> The implemented model evidence preserves the architecture basis stated in the sealed brief: inward dependency direction toward domain contracts, deterministic unit-aware persistence, schema-governed data, diagnostics/result envelopes where validation fails, internal/public API boundary preservation, and layered tests.
->
-
-### CLM-006 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, architecture-basis injection, and scope envelope.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) rows for PKG-03, DEL-03-05, SOW-009, OBJ-004, and AB-00-01/02/04/06/07/08.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-03-05.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-009.
-> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-03-05.
-> - `docs/CONTRACT.md` invariants OPS-K-IP-1..3, OPS-K-DATA-1..3, OPS-K-UNIT-1, OPS-K-MECH-1, OPS-K-AGENT-1..4.
->
-
-### CLM-007 — D-41 R5 T2B PDU-013 Evidence State
-
-> ##### D-41 R5 T2B PDU-013 Evidence State
->
-> | Surface | Current evidence | Disposition |
-> |---|---|---|
-> | COG mechanics convention | Value slot exists; the owner's R10 ruling of 2026-10-24 sets its convention: global X/Y/Z axes, measured from the component's node, in model length units. | Convention selected; weight is applied as a nodal force at the component's node plus r × F moments (Design `rigid-component-stiffness-scaling.md` §3). |
-> | Component geometry scalar trace | Paired field paths on valid copied quantities. | Bounded transform evidence; runtime result-envelope continuation held. |
+**Not decided.** How a component's orientation is given: whether it is the direction of the mapped member or a member the component declares. Which local modifiers a reducer carries and what each multiplies. Which deliverable carries AC-011's statement into the report: DEL-08-01 states no such commitment and this scope declares no need on it.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-03-05 Rigid component models for valves, flanges, reducers, and specialty items
+A result on a rigid-family component is a statement about an equivalent pipe of the mapped section with the user's scale, weight and geometry. It says nothing about the component's own body.
 
-> #### Specification: DEL-03-05 Rigid component models for valves, flanges, reducers, and specialty items
->
+### Requirements
 
-### CLM-009 — Scope
+- **REQ-001** — Valves, flanges, reducers, rigid placeholders and specialty items, among them strainers, instruments and equipment stubs, are represented as the rigid family (SOW-009; PRD §12.3).
+- **REQ-002** — Dimensions, weights, centres of gravity and stiffnesses are the user's or lawfully imported private data. The product ships no catalogue or vendor value and no default (`docs/CONTRACT.md` OPS-K-DATA-1, OPS-K-IP-1).
+- **REQ-003** — Dimensional, weight, centre-of-gravity and stiffness values are unit-aware and dimensionally checked. Linear stiffness and rotational stiffness are separate dimensions (`docs/CONTRACT.md` OPS-K-UNIT-1).
+- **REQ-004** — Component data that can enter a library or a reusable example carries its source and redistribution status (`docs/CONTRACT.md` OPS-K-IP-2, OPS-K-DATA-3).
+- **REQ-005** — A required value that is absent is an explicit, named finding. Nothing is defaulted (`docs/CONTRACT.md` OPS-K-DATA-2; PRD §5.5).
+- **REQ-006** — A rigid-family component is a member of the 3D centreline frame model. Its definition requires no shell or solid element (`docs/CONTRACT.md` OPS-K-MECH-1).
+- **REQ-007** — A component's values reach a solve only through the product's validation: no path that creates, changes or imports a component bypasses the unit, provenance and completeness checks (the decomposition's architecture basis for DEL-00-02 and DEL-00-07).
+- **REQ-008** — A component's members persist with the model document and are read back unchanged (the decomposition's architecture basis for DEL-00-04).
+- **REQ-009** — Public examples of rigid-family components are invented or omit their values, and say so.
+- **REQ-010** — The centre of gravity has one convention: global X, Y and Z axes, measured from the component's node, in model length units. No other axes, origin, sign or component-local frame is inferred.
+- **REQ-011** — A reusable public example carries its source, redistribution status and review disposition on every value.
+- **REQ-012** — The eccentric offset has one convention: global X, Y and Z axes, from the centreline at the component's node to the centreline at the other end of its body, in model length units (PRD §12.3).
+- **REQ-013** — Rigid and semi-rigid behaviour is realized by the user's stiffness scale on the body, on the pressure-free route and on the exact route (PRD FR-SOL-004, FR-SOL-012).
+- **REQ-014** — The component's weight acts at its centre of gravity (PRD §12.3).
+- **REQ-015** — A stress on a scaled body is identified as a reference-section result wherever it is published, and never stands as a stress of the component's body or as the case's governing stress (PRD §21.1). On an eccentric reducer with no scale applied, the chord's rows are ordinary pipe rows, and that they are reference-section stresses is disclosed in the result's information, the result views and the report.
+- **REQ-016** — The body length, each end size and the centre-of-gravity vector each carry their own unit.
+- **REQ-017** — The reference system's eccentric reducer, valves and flanges solve on the exact route (release target exit criterion 1).
+- **REQ-018** — A large scale can cost precision in a body's recovered forces. From a scale of 1e5, the lowest decade at which the rigid-link reference first has a row outside the analytic tolerance, a published result states that the scaled body's forces may carry reduced precision. The threshold is a heuristic measured on one benchmark, not an accuracy bound or an engineering limit; another model may lose digits at a smaller scale, and the warning does not replace the solve's own qualification screens.
 
-> ##### Scope
->
-> Current realization evidence also includes rigid-component inputs and diagnostics in `core/product_physics/src/lib.rs` and component creation/edits in `core/model_operations/operation_applier/src/lib.rs`. DEC-045 governs the mechanics-only consumption boundary. Invented preview values are examples, never defaults or qualified engineering data; public-source and validation holds remain. The diagnostics are in `core/product_physics/src/validation.rs`, and both routes apply the user stiffness scale of an eligible component to its mapped member (CLM-003, current implementation).
->
-> This deliverable covers the reconciled evidence specification for the implemented rigid and semi-rigid component schema contract for valves, flanges, reducers, rigid placeholders, and specialty items. It is limited to behavior grounded in the sealed brief, decomposition/register rows, contract invariants, `schemas/component.schema.yaml`, `fixtures/component/invented_component_library_valid.json`, `tests/test_component_section_schema.py`, and deliverable-local memory/review evidence.
->
-> Historical reconciliation write restrictions (not exclusions from the durable component obligation):
->
-> - Editing repository-level schemas, code, fixtures, tests, package metadata, lifecycle/status files, dependency registers, review CSVs, DAG files, coordination files, or DEL-03-01.
-> - Introducing protected dimensional tables, manufacturer data, catalog weights, COGs, stiffness values, or default component properties.
-> - Claiming compliance, certification, or professional acceptance.
->
+### Acceptance criteria
 
-### CLM-010 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Source / basis | Verification hook |
-> |---|---|---|---|
-> | R01 | Support rigid and semi-rigid component data structures for valves, flanges, reducers, rigid placeholders, and specialty items. | SOW-009; Deliverables.csv (retired in `48584391de`; see Git history) row DEL-03-05; `ComponentType`; fixture rigid/semi-rigid contract | Tests verify the component enum against the PKG-02 canonical model enum and verify fixture contract coverage for `valve`, `flange`, `reducer`, `rigid`, and `specialty`. |
-> | R02 | Treat dimensions, weights, and centers of gravity as user-supplied or lawfully imported private/library data. | SOW-009; OPS-K-DATA-1; fixture public-value policies | Strict fixture records omit actual public component values and mark required values as missing with schema-shape or private/public-permissive policy gates. |
-> | R03 | Preserve unit awareness and dimensional checking for dimensional, weight, COG, and split stiffness fields. | OPS-K-UNIT-1; AB-00-04; `ComponentQuantityDimension` | Tests verify `linear_stiffness` and `rotational_stiffness` are accepted component dimensions and that retired/generic stiffness dimensions are not present. |
-> | R04 | Carry provenance fields for reusable component data, including source and redistribution status where public contribution or import is possible. | OPS-K-IP-2; OPS-K-DATA-3; AB-00-07; schema required fields | Schema validation requires provenance/review metadata on library, record, field, and diagnostic surfaces. |
-> | R05 | Represent unknown required values explicitly as `TBD`, validation findings, or diagnostics, not silent defaults. | OPS-K-DATA-2; OPS-K-AGENT-1; AB-00-06; fixture completeness rules | Strict fixture records carry missing value states, incomplete completeness findings, and blocking diagnostics such as `RIGID_COMPONENT_GEOMETRY_INCOMPLETE`. |
-> | R06 | Preserve the 3D centerline/frame model boundary; shell/solid FEA remains a local-analysis handoff path. | OPS-K-MECH-1 | Model interfaces do not require shell/solid elements for global analysis. |
-> | R07 | Keep dependencies inward toward domain contracts and through validation/diagnostics boundaries. | AB-00-02; AB-00-07 | Architecture review confirms adapters/plugins cannot bypass validation or public/private data boundaries. |
-> | R08 | Use deterministic, versioned, schema-governed persistence for component records. | AB-00-04 | Round-trip and canonical JSON/hash checks where JSON payloads are hashed. |
-> | R09 | Include strict fixture evidence for the rigid/semi-rigid contract using synthetic schema-shape records only. | Deliverables.csv (retired in `48584391de`; see Git history) artifact expectation; OPS-K-IP-1; invented component fixture | Fixture tests confirm the family contract and rigid record slots without proprietary/vendor/protected values. Concrete public fixture values for reducer, flange, valve, and specialty items remain `TBD`. |
-> | R10 | Define COG coordinate convention and reference frame before project or library COG values are accepted for mechanics use. | SOW-009; OPS-K-UNIT-1 | Owner ruling, 2026-10-24: "For the centre-of-gravity I approve option A as recommended." The convention is global X/Y/Z axes, measured from the component's node, in model length units (Design `rigid-component-stiffness-scaling.md` §3). Tests check a nontrivial offset along each axis, for both the force and the moment. |
-> | R11 | Preserve minimum provenance fields for user-supplied and library-imported component data before reusable public fixtures are accepted. | OPS-K-IP-2; OPS-K-DATA-3; AB-00-07 | Provenance validator checks source, rights/redistribution status where applicable, and review disposition. Source catalogs remain separately governed; DEC-045 permits invented non-engineering fixtures with truthful provenance and review status. |
-> | R12 | Define the eccentric reducer offset's coordinate convention and reference frame before offset values are accepted for mechanics use. | PRD §12.3; SOW-009; OPS-K-UNIT-1 | Owner ruling, 2026-10-26: "R-c1 A, 0.8.0 a2". The convention is global X/Y/Z axes, from the centerline at the component's node to the centerline at its body's other end, in model length units (Design `eccentric-reducer-offset.md` §2, §3.6). Tests check accepted and refused offsets, the convention rows and an independent eccentric-step benchmark on both routes. |
->
-
-### CLM-011 — Review Finding Reconciliation
-
-> ##### Review Finding Reconciliation
->
-> | FindingID | Existing local CSV state | Reconciled technical evidence | Human disposition |
-> |---|---|---|---|
-> | PKG03-DEL-03-05-PKG02-001 | `ACCEPT_AS_IS` / `RESOLVED` | `ComponentType` includes `specialty`, and `tests/test_component_section_schema.py` verifies the PKG-03 component enum equals the PKG-02 canonical model enum. | Recorded by Gate C on 2026-06-05; preserved here. |
-> | PKG03-DEL-03-05-PKG02-002 | `ACCEPT_AS_IS` / `RESOLVED` | Generic `stiffness` is absent from `ComponentQuantityDimension`; implemented stiffness slots use `linear_stiffness` and `rotational_stiffness` with schema and strict fixture coverage. | Recorded by Gate C on 2026-06-05; preserved here. |
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> No standards text, protected tables, or code-specific component defaults are locally available or authorized for this reconciliation. References to PRD sections in the registers identify scope provenance only; they do not authorize copying standard, vendor, or catalog data.
->
-
-### CLM-013 — Verification
-
-> ##### Verification
->
-> Current verification signals:
->
-> - Schema validation for required component-family tags, unit dimensions, provenance fields, and explicit missing-value states.
-> - Protected-content review for fixtures and public examples.
-> - Unit tests for field validation, component enum alignment, split stiffness dimensions, strict fixture shape, and protected-content guardrails.
-> - Architecture tests or reviews for no-bypass validation, diagnostics, and public/private data boundaries.
-> - Fixture tests for the rigid/semi-rigid family contract and a rigid schema-shape record with missing required values.
-> - Protected-content fixture review for every public reducer, flange, valve, rigid, and specialty-item value example before any such value is accepted.
-> - Acceptance checks that required dimensions, weights, COGs, split stiffness entries, units, provenance, and missing-value diagnostics cannot be bypassed by adapters or public APIs.
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> Expected documentation artifacts retained for implementation handoff include:
->
-> - Rigid/semi-rigid component model notes.
-> - Reducer/flange/valve fixture provenance notes.
-> - Explicit `TBD` list for coordinate conventions, fixture values, source catalogs, import formats, review disposition, dependency satisfaction, lifecycle closure, and reusable public-data acceptance criteria.
->
-
-### CLM-015 — D-41 R5 T2B PDU-013 Evidence Disposition (2026-07-12)
-
-> ##### D-41 R5 T2B PDU-013 Evidence Disposition (2026-07-12)
->
-> The owner's ruling of 2026-10-24 settles R10's convention: global X/Y/Z axes, measured from the component's node, in model length units. The 2026-07-12 tranche selected no convention and introduced no COG value or outcome; E2/E4/E8 remain evidence requirements only.
->
-
-### CLM-016 — D-41 R5 T2C PDU-023 E6 Evidence (2026-07-12)
-
-> ##### D-41 R5 T2C PDU-023 E6 Evidence (2026-07-12)
->
-> The scalar trace mapping has bounded schema/transform evidence for valid component geometry quantities: paired `source_field_path` and `target_field_path` values identify the copied scalar leaf, while incomplete unit/dimension/provenance metadata blocks scalar-link emission. This does not establish runtime result-envelope integration.
-
-- **AC-001** — The contract preserves accepted rigid-component requirements, public/private and protected-data boundaries, explicit missing-value diagnostics, provenance and unit discipline, resolved historical findings, and unresolved coordinate and solver-treatment decisions without inventing component values.
+- **AC-001** — A rigid-family component accepts the inputs PRD §12.3 lists for rigid and semi-rigid components and for reducers (length or offsets, weight, centre of gravity, orientation, rigid or semi-rigid behaviour, optional stiffness values and source; for a reducer, upstream and downstream sections, length, weight, concentric or eccentric geometry with its offset vector, and optional user-supplied local modifiers) in the model document and in a component library record, each numeric value with its unit. A library record that lacks a required value validates only with that value marked missing and a rigid-component completeness finding.
+- **AC-002** — A body with a large scale below 1e5 transfers forces and moments as a rigid link: the displacements, member end actions and reactions of a rigid link case reproduce an independent reference at the analytic tolerance on both routes and in both solver modes. At a scale of 1e5 or more the published result carries the precision warning of REQ-018, once for the body, and no accuracy is asserted. A body with a scale below 1 reproduces the reference for a member of that scaled stiffness, and in a thermal case the body's free growth is the same at every scale.
+- **AC-003** — With a weight and a centre-of-gravity vector that is non-zero along each axis in turn, the reactions of a supported model equal those for the weight as a force along gravity at the component's node with the moment of that force about the node, at the analytic tolerance on both routes. The body's distributed self-weight is not applied as well.
+- **AC-004** — An axial force through a reducer whose end centrelines are separated transversely produces, in the upstream run, the moment of that force about the upstream centreline, and the solved case reproduces an independent reference at the analytic tolerance on both routes. On a reducer that is not declared not consumed by the solve, a declared offset that agrees with the node geometry is accepted and changes no result, and a declared offset that disagrees with it, is not transverse to the run or cannot be compared because the run axis is unresolved is refused by name. An offset given on a component that is not a reducer is refused by name. No node is moved.
+- **AC-005** — A component that declares mechanics geometry only, or declares nothing, and whose scale or weight is not applied states the first condition that was not met, and its body solves as its pipe. A component declared not consumed by the solve solves as its pipe. A body mapped onto a realized bend or onto a span an expansion joint replaces, and one member mapped by two components, are each refused by name. Each applied scale is stated on the result with its member and value.
+- **AC-006** — Every stress published on a scaled body is marked as a reference-section result of a component body; it is excluded from the case's stress maximum and headline; and a user rule bound to it reports its inputs as incomplete for that reason. A reader that shares no code with the producer reads the same marks from the published result.
+- **AC-007** — When a rigid-family component is created in the inspector or in the viewport, the body length, each end size and the centre-of-gravity vector each take a unit of their own, which starts as the project's length unit or unselected where there is none. Choosing a unit for one changes no other quantity, and the entered values and units reach the model unchanged.
+- **AC-008** — On every path that creates, changes or imports a rigid-family component, a value of the wrong dimension is rejected with a finding that names it and an absent required value is reported as missing. A component saved with the model and reopened carries the same members, values and units.
+- **AC-009** — The eccentric reducer, valves and flanges of the invented reference system solve on the exact route in the desktop, and none is refused.
+- **AC-010** — The family's sources, schemas, fixtures and tests contain no vendor or catalogue dimension, weight, centre of gravity or stiffness and no protected table. Every example value is invented or omitted, is labelled so, and carries its source, redistribution status and review disposition.
+- **AC-011** — An eccentric reducer solved with no scale applied publishes its chord's rows as ordinary pipe rows, and its result information, the result views that show those rows and the report each state that they are stresses of the reference pipe section along the chord and not of the reducer.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-017 — Procedure: DEL-03-05 Rigid component models for valves, flanges, reducers, and specialty items
+**Method choices that define the family.**
 
-> #### Procedure: DEL-03-05 Rigid component models for valves, flanges, reducers, and specialty items
->
+- There is no rigid element and no rigid offset link. The body is the mapped straight member, formed with the user's scale on its elastic and shear moduli.
+- A reducer's body runs between its two centreline nodes, so the step's statics come from the actual geometry and no load is added for the offset.
+- The weight enters as a nodal force and nodal moments at the component's node, which is statically exact for the body.
+- Declared data that the geometry already determines is checked against the geometry and never used in its place.
+- Results on a scaled body stay published with their values; they are identified, not withheld.
 
-### CLM-018 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Define the reconciliation procedure for keeping DEL-03-05 documentation aligned with implemented component schema evidence while preserving the data boundary, unit discipline, and architecture-basis constraints.
->
-
-### CLM-019 — Prerequisites
-
-> ##### Prerequisites
->
-> - Sealed brief for DEL-03-05 and write scope limited to this deliverable folder.
-> - `_CONTEXT.md`, `_REFERENCES.md`, and decomposition/register rows for DEL-03-05, SOW-009, OBJ-004.
-> - `docs/CONTRACT.md` invariants listed in the sealed brief.
-> - No proprietary, protected, or vendor component data in the working inputs.
-> - Read-only evidence: `schemas/component.schema.yaml`, `fixtures/component/invented_component_library_valid.json`, `tests/test_component_section_schema.py`, `MEMORY.md`, `_REVIEW.md`, and `Review_Findings.csv`.
->
-
-### CLM-020 — Steps
-
-> ##### Steps
->
-> 1. Confirm the component families in scope from implementation evidence: `valve`, `flange`, `reducer`, `rigid`, and `specialty`.
-> 2. Confirm implemented model slots from schema/fixture/test evidence: rigid body length, end-size/reference slots, weight, COG, `linear_stiffness`, `rotational_stiffness`, stiffness behavior reference, and source/manufacturer reference slots.
-> 3. Confirm strict fixture behavior: public component values remain omitted, missing values are explicit, provenance/review metadata is present, and blocking diagnostics represent incomplete mechanics inputs.
-> 4. Apply DEC-045's invented non-engineering fixture policy and preserve the recorded local `ACCEPT_AS_IS` / `RESOLVED` dispositions. Accepted source catalogs, component-specific coordinate/stiffness treatment, import coverage, engineering profiles, dependency satisfaction and lifecycle closure retain their particular evidence or authority boundaries; fixture-policy settlement does not fill them.
-> 5. Apply public/private data controls: every reusable component datum needs provenance, license/redistribution status where applicable, and contributor/review disposition before public acceptance.
-> 6. Preserve review finding semantics: `Review_Findings.csv` records PKG03-DEL-03-05-PKG02-001 and PKG03-DEL-03-05-PKG02-002 as `ACCEPT_AS_IS` / `RESOLVED` under Gate C on 2026-06-05; documentation maintenance must not rewrite that formal disposition.
-> 7. Preserve architecture constraints from AB-00-01, AB-00-02, AB-00-04, AB-00-06, AB-00-07, and AB-00-08 for any downstream implementation handoff.
-> 8. Surface gaps as diagnostics, `TBD` markers, or human-ruling items rather than resolving them silently.
-> 9. Run targeted validation when feasible: `python3 -m pytest tests/test_component_section_schema.py` and a stale-language `rg` scoped to `ScopeOfWork.md`.
->
-
-### CLM-021 — Verification
-
-> ##### Verification
->
-> - The consolidated `ScopeOfWork.md` exists and retain the default sections.
-> - No numeric component defaults, vendor data, protected tables, or standards text are introduced.
-> - Implemented schema/fixture/test evidence is distinguished from unresolved policy, dependency, human-disposition, and lifecycle gaps.
-> - All unknown implementation specifics are marked `TBD` or as assumptions/proposals.
-> - Dependency register validates against v3.1 schema.
-> - `_STATUS.md` is not set to `ISSUED`.
->
-
-### CLM-022 — Records
-
-> ##### Records
->
-> - `ScopeOfWork.md` (definition)
-> - `ScopeOfWork.md` (requirements)
-> - `ScopeOfWork.md` (rationale)
-> - `ScopeOfWork.md` (procedure)
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/TASK_RUN_*.md`
->
-
-### CLM-023 — D-41 R5 T2B PDU-013 Check
-
-> ##### D-41 R5 T2B PDU-013 Check
->
-> Before any COG value is used for mechanics, verify that it is read under the owner's R10 convention (2026-10-24): global X/Y/Z axes, measured from the component's node, in model length units. Do not infer any other axes, origins, signs, or component-local transforms.
->
-> For PDU-023, validate paired scalar paths on copied component geometry quantities and reject incomplete quantity metadata; do not infer a runtime envelope producer.
-
-- **VER-001** — Validate the contract and review source parity, component-family and field coverage, split stiffness dimensions, provenance and protected-content controls, explicit missing values, coordinate-convention gaps, mechanics handoff limits, and unresolved decisions.
+- **VER-001** — Executable check: observes acceptance of a component of each kind carrying every input AC-001 lists, in the model document and in a library record, and the missing-value finding on an incomplete library record.
+- **VER-002** — Comparison with a named reference, with an executable check: rigid link and semi-rigid cases, with a thermal case, against `validation/references/w15_rigid_scaling`, generated without product code, on both routes and in both solver modes; the check observes the precision warning on each case at a scale of 1e5 or more and its absence below.
+- **VER-003** — Comparison with a named reference: component weight cases with an offset along each axis against `validation/references/w15_component_weight`, generated without product code.
+- **VER-004** — Comparison with a named reference, with an executable check: the eccentric step cases against `validation/references/w15c_eccentric_reducer`, generated without product code; the check observes each accepted and refused offset of AC-004 and that node positions are unchanged.
+- **VER-005** — Executable check: observes the stated condition for each unapplied scale and weight on a component that declares mechanics geometry only or nothing, the pipe solution of a component declared not consumed, each named mapping refusal, and the statement of each applied scale.
+- **VER-006** — Executable check, with a comparison: observes the marks, the exclusion from maximum and headline and the rule outcome on a model whose scaled body would otherwise govern; a verifier that imports no product code reads the same published result and reaches the same marks.
+- **VER-007** — Executable check: drives the creation forms in the inspector and the viewport and observes each quantity's unit, its independence from the others, and the values that reach the model.
+- **VER-008** — Executable check: for each creating, changing and importing path observes the rejection and the missing-value finding, and compares a component before save and after reopen.
+- **VER-009** — Comparison with a named reference: the reference system (`validation/references/reference_system`) solved in the desktop on the exact route.
+- **VER-010** — Executable check, with judgment by an independent reviewer: a protected-content scan over the family's sources, schemas, fixtures and tests, which is a proxy; a reviewer who did not write the examples reads them against `docs/IP_AND_DATA_BOUNDARY.md` §2 to §4.
+- **VER-011** — Executable check: solves an unscaled eccentric reducer and observes ordinary pipe rows on its chord and the reference-section statement in the result information, in the result views and in a generated report.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-024 — Guidance: DEL-03-05 Rigid component models for valves, flanges, reducers, and specialty items
-
-> #### Guidance: DEL-03-05 Rigid component models for valves, flanges, reducers, and specialty items
->
-
-### CLM-025 — Purpose
-
-> ##### Purpose
->
-> This deliverable reconciles the implemented rigid and semi-rigid component schema evidence without importing protected component data. Its value is to keep the implementation boundary explicit: the software may structure and validate user-supplied component information, but it must not ship hidden catalog knowledge as defaults.
->
-
-### CLM-026 — Principles
-
-> ##### Principles
->
-> - Use schema and validation to separate implemented component shape from protected component data.
-> - Treat dimensions, weights, COGs, and stiffness behavior as project/library inputs with provenance.
-> - Prefer explicit `TBD` or diagnostics over plausible defaults.
-> - Keep public examples synthetic, minimal, and labeled as examples rather than engineering recommendations.
-> - Keep mechanics-facing data compatible with a 3D centerline/frame model while preserving local-analysis handoff options.
->
-
-### CLM-027 — Considerations
-
-> ##### Considerations
->
-> The current component schema and strict fixture implement a base rigid/semi-rigid family contract for `valve`, `flange`, `reducer`, `rigid`, and `specialty`. The implemented base contract includes rigid body length, end-size/reference slots, weight, center of gravity, `linear_stiffness`, `rotational_stiffness`, stiffness behavior reference, and source/manufacturer reference slots. OD-2 (2026-10-23) settled the solver treatment of stiffness inputs (DEC-045 stiffness scaling). Human/project authority must still decide coordinate conventions other than the centre-of-gravity convention ruled under R10 and the eccentric reducer offset convention ruled under R12, accepted source catalogs, public fixture-value policy, import formats, review disposition, dependency satisfaction, lifecycle closure, and any stricter per-family profiles.
->
-> Public fixture data is especially sensitive. Even common-looking valve, flange, reducer, rigid, or specialty dimensions, weights, COGs, and stiffness values may originate from protected standards, catalogs, or vendor sources. The current invented fixture keeps actual values missing and uses schema-shape-only/private-value policies; any public value example still needs accepted source and redistribution policy.
->
-> Preferred vocabulary for downstream work:
->
-> - `user-supplied data`: project data entered by a user or imported into a private project/library with provenance.
-> - `rights-cleared library data`: reusable data with documented source, redistribution status, contributor certification, and review disposition.
-> - `synthetic fixture`: public test/example data created only to exercise validation paths and labeled non-authoritative.
-> - `rigid component`: a component represented for global analysis without flexible element behavior except explicitly modeled mass/geometry effects.
-> - `semi-rigid component`: a component with user/manufacturer-supplied stiffness behavior; no default stiffness may be inferred.
->
-
-### CLM-028 — Trade-offs
-
-> ##### Trade-offs
->
-> | Choice | Benefit | Risk / mitigation |
-> |---|---|---|
-> | Implemented shared rigid/semi-rigid family contract | Reduces duplication across valves, flanges, reducers, rigid placeholders, and specialty items | May hide family-specific validation; stricter per-family profiles remain `TBD` |
-> | Family-specific records | Clearer validation per family | More schema surface; keep common provenance/unit fields consistent |
-> | Split stiffness into `linear_stiffness` and `rotational_stiffness` | Aligns with accepted unit dimensions and addresses the generic-stiffness audit concern technically | Exact solver consumption remains `TBD`; require user/manufacturer provenance |
-> | Schema-shape public fixtures | Enables tests without protected data | Must remain non-authoritative and blocked from mechanics use until reviewed values and source policy exist |
->
-
-### CLM-029 — Examples
-
-> ##### Examples
->
-> - Current strict fixture example: `comp.invented.rigid.alpha` contains schema slots for rigid body length, connection reference, weight, COG, `linear_stiffness`, and `rotational_stiffness`, but each actual value remains missing.
-> - `TBD`: Public fixture value examples must be synthetic or user-supplied with documented rights and accepted redistribution policy before they can be added.
-> - Synthetic public fixtures are acceptable only as validation examples. They must be labeled non-authoritative and must not be used to imply engineering recommendations, code compliance, catalog equivalence, or vendor performance.
-> - `ASSUMPTION`: The implemented common component identity/provenance envelope remains appropriate across component families because AB-00-04 and OPS-K-DATA-3 require deterministic, provenance-preserving records.
->
-
-### CLM-030 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | PKG03-DEL-03-05-PKG02-001 | Earlier audit found `specialty` in PKG-03 but not in the PKG-02 canonical component enum. | `Review_Findings.csv` row PKG03-DEL-03-05-PKG02-001 | `tests/test_component_section_schema.py` verifies `ComponentType` equals the PKG-02 canonical enum. | `ScopeOfWork.md` (requirements); schema evidence interpretation | Preserve the recorded Gate C disposition. | `ACCEPT_AS_IS` / `RESOLVED` (2026-06-05) |
-> | PKG03-DEL-03-05-PKG02-002 | Earlier audit found generic `stiffness` dimension ambiguous against PKG-02 units. | `Review_Findings.csv` row PKG03-DEL-03-05-PKG02-002 | `ComponentQuantityDimension` uses `linear_stiffness` and `rotational_stiffness`; tests verify accepted dimensions and retired dimensions are absent. | `ScopeOfWork.md` (requirements); schema evidence interpretation | Preserve the recorded Gate C disposition. | `ACCEPT_AS_IS` / `RESOLVED` (2026-06-05) |
->
-
-### CLM-031 — D-41 R5 T2B PDU-013 Boundary
-
-> ##### D-41 R5 T2B PDU-013 Boundary
->
-> An invented or rights-safe COG magnitude does not by itself establish a value's provenance or public-data clearance. Its mechanics meaning is fixed by the owner's R10 convention (2026-10-24): global X/Y/Z axes, measured from the component's node, in model length units.
->
-> PDU-023 scalar paths document identity-preserving copy-through only. They do not turn component metadata into a solver result or runtime envelope.
+- **AX-001** — *The user's data, never ours.* Better is fewer places where a dimension, weight, centre of gravity or stiffness could originate in the software; the target is none. No convenience or example justifies a catalogue value.
+- **AX-002** — *Honest about the body.* Better is fewer results a reader could take for a stress of the component itself. This is never bought by withholding the forces or values the frame did compute.
+- **AX-003** — *The geometry governs.* Better is fewer models in which declared component data and the node geometry disagree and solve anyway. This is never bought by moving a node or by using the declaration in place of the geometry.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-009 OBJ-004 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-03-05:1** — Bind public rigid-family fixture provenance and protected-content review to the actual shared fixture and preview values, and evidence component adapter/API no-bypass checks. The COG coordinate/reference-frame hold is closed by the owner's R10 ruling (2026-10-24). (R5 continuation claim references: DEL-03-05:SOW#CLM-010.r07; CLM-013; CLM-014.)
-- **DEL-03-05:2** — PDU-013's COG coordinate convention and reference frame are selected by the owner's R10 ruling (2026-10-24): global X/Y/Z axes, measured from the component's node, in model length units (source of the hold: D-41 R5 T2B E2/E4/E8 evidence-only backcheck, 2026-07-12).
-- **DEL-03-05:3** — Rigid-component creation in the inspector and viewport carries independent units for body length, End A size, End B size and the COG vector (G6, RT-G2/RT-G3; Agent 0 authorization, 2026-10-31). Choices inherit the project length unit or remain unselected when absent; choosing a unit changes no other quantity. Existing quantity members carry the entered values and units through the reviewed operation and explicit Apply route. The COG origin, global axes and mechanics consumption remain as governed above. Evidence: `componentIntent.test.ts`, `rigidQuantityUnits.test.tsx`; design and step estimate: `Work/component-quantity-units.md`. Native verification remains open.
+| OUT-001 | SOW-009 OBJ-004 | REQ-001 REQ-003 REQ-004 | AC-001 | VER-001 | PRD §12.3 lists the inputs; the criterion states the expected acceptance |
+| OUT-001 | SOW-009 OBJ-004 | REQ-006 REQ-013 REQ-018 | AC-002 | VER-002 | Outside source: closed-form rigid link and scaled-member references from a generator that imports no product code (PRD §22.2). The tolerance is the governed analytic tolerance. The 1e5 threshold is measured on this benchmark only; the evidence does not establish where another model loses precision |
+| OUT-001 | SOW-009 OBJ-004 | REQ-010 REQ-014 | AC-003 | VER-003 | Outside source: statics of a force and its moment about the node, from a generator that imports no product code. The convention is REQ-010's definition, which the reference applies and does not establish |
+| OUT-001 | SOW-009 OBJ-004 | REQ-012 | AC-004 | VER-004 | Outside source: closed-form statics of the eccentric step, from a generator that imports no product code. The convention is REQ-012's definition, which the reference applies and does not establish; the refusals are those the criterion names |
+| OUT-001 | SOW-009 OBJ-004 | REQ-005 REQ-013 | AC-005 | VER-005 | PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2 state that nothing is dropped silently; the criterion names the expected statements and refusals |
+| OUT-001 | SOW-009 OBJ-004 | REQ-015 | AC-006 | VER-006 | The criterion states the expected marks, which follow from the body's definition as an equivalent pipe. The second reader shares no code with the producer; agreement between them shows consistent publication, not correct stress |
+| OUT-001 | SOW-009 OBJ-004 | REQ-016 | AC-007 | VER-007 | The criterion states the expected units and values: what the user entered |
+| OUT-001 | SOW-009 OBJ-004 | REQ-007 REQ-008 | AC-008 | VER-008 | `docs/CONTRACT.md` OPS-K-UNIT-1 and OPS-K-DATA-2 state the expected rejection and finding; the reopened component is compared with the saved one |
+| OUT-001 | SOW-009 OBJ-004 | REQ-017 | AC-009 | VER-009 | Exit criterion 1 fixes the reference system's content; its expected results are the independent references of `validation/references/reference_system` |
+| OUT-001 | SOW-009 OBJ-004 | REQ-002 REQ-009 REQ-011 | AC-010 | VER-010 | Protected-content scan and independent review under `docs/IP_AND_DATA_BOUNDARY.md`; PRD §20.1 |
+| OUT-001 | SOW-009 OBJ-004 | REQ-015 | AC-011 | VER-011 | The criterion states the expected rows and statements, which follow from the definition of a reference-section result; PRD §21.1 |

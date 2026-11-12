@@ -151,7 +151,7 @@ RUNNER_ENV = "OPENPIPESTRESS_RUNNER_BIN"
 BENCHMARK_MANIFEST_KIND = "openpipestress.caepipe_benchmark.manifest"
 BENCHMARK_MODEL_KIND = "openpipestress.caepipe_benchmark.model"
 BENCHMARK_BATCH_SIZE = 4
-# Live benchmark pacing (Design §11.6): seconds between models, the wait before the one retry of a failed model or
+# Live benchmark pacing: seconds between models, the wait before the one retry of a failed model or
 # liveness check, and the longest hold for a pending exclusive job, polled every BENCHMARK_POLL_S.
 BENCHMARK_PACE_S = 60.0
 BENCHMARK_RETRY_WAIT_S = 120.0
@@ -470,7 +470,7 @@ def _run_case(case: Mapping[str, Any], config: HarnessConfig, *, runner: str, of
         "layer_privacy": LAYER_PRIVACY,
         "boundary_note": BOUNDARY_NOTE,
     })
-    # Operational status only: the counts by outcome and cause stay in the private record's summary (Design §8).
+    # Operational status only: the counts by outcome and cause stay in the private record's summary.
     emit(f"{case_id}: route={route}; comparison record written: {comparison_path.relative_to(root)}")
     return True
 
@@ -830,7 +830,7 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
                         trial_first_launch_date=config.trial_first_launch_date,
                         csv=str(csv_path.relative_to(paths["root"])),
                         comparison=str(comparison_path.relative_to(paths["root"])))
-    # Operational status only: the classification counts stay in the private record (Design §8).
+    # Operational status only: the classification counts stay in the private record.
     emit(f"{model_id}: route={route}; benchmark record written: {comparison_path.relative_to(root)}")
     return RECORDED, route, ""
 

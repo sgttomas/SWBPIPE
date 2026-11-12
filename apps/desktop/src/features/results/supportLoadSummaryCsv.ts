@@ -1,4 +1,4 @@
-// RT-R6 CSV adapter of the support load summary (DEL-08-04-R14; Design `csv-export.md` §2). It
+// RT-R6 CSV adapter of the support load summary (DEL-08-04-R14). It
 // reads the summaries the panel renders (`buildSupportLoadSummaries`): the shown support, with
 // its maximum and minimum rows (`support-loads`), or every support with one row per support and
 // case (`support-loads-all`). It recomputes nothing and reads nothing from the page.

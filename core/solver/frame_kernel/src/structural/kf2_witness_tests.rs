@@ -1,4 +1,4 @@
-//! KF2 tests (T3 I20, plan §8; ROOT's KF2 checkpoint-0 rulings). The O(n^2)
+//! KF2 tests (T3 I20, ROOT's KF2 checkpoint-0 rulings). The O(n^2)
 //! dense negative-pair witness against a verbatim reference copy of the O(n^4)
 //! search it replaces. The equality is bitwise: the outcome's shape, the error
 //! variant and message, and every bit of a witness's direction, energy and
@@ -612,7 +612,7 @@ fn local_verdict(terms: &[f64]) -> (f64, f64, bool) {
     (energy, allowance, energy < -allowance)
 }
 
-/// Exact ties energy == -allowance on K = [[1, t], [t, b]] (plan §8):
+/// Exact ties energy == -allowance on K = [[1, t], [t, b]]:
 /// 64·gamma(14) = 2^-96 (7·2^50 + 12), so fl(64·gamma(14)·M) lands on the
 /// energy's 2^-52 grid for M = mu·2^-50 with q = round(...)·2^-42 ≡ 0 mod 8;
 /// t = (4mu + q) 2^-54 and b = (4mu - q) 2^-53 - 1 keep every sum exact.

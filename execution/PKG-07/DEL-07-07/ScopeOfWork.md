@@ -2,406 +2,115 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-07-07
 package_id: PKG-07
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-055]
 package_objective_refs: [OBJ-006, OBJ-007]
 ---
 
-# Scope of Work — DEL-07-07
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-07-07 Solve execution UX: progress, cancellation, and diagnostics
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-07-07` in service of project scope [SOW-055] and package objectives [OBJ-006, OBJ-007].
+This deliverable is the one path by which the desktop runs a solve and lets the engineer inspect how it went. The user starts a solve; it runs in the background in a separate local process with a memory cap; the desktop shows what the job itself reports, lets the user ask for cancellation, and shows the findings of the run with every field its producer supplied. When the job completes, the native host keeps the result and hands the display a summary and pages of it. Nothing on this path estimates, embellishes or decides: the job's states, the solver's findings and the result's identities are shown as they are. The result this deliverable contributes is that a solve in the desktop is observable, stoppable and traceable, and that the workspace stays usable while it runs.
 
-- **OUT-001** — A solve-execution UX contract covering background job launch, service-reported progress, cancellation requests and terminal states, diagnostics, blocked-state separation, reproducibility signals, and professional-review boundaries is produced.
+It serves SOW-055 under OBJ-006 and OBJ-007 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-07, row DEL-07-07), and PRD §14.1, §14.4, §12.8, FR-SOL-015 and FR-GUI-006. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. It supports criterion 1, whose solve in the desktop runs through this path, and criterion 9, whose timed stages are the stages of this job.
+
+- **OUT-001** — The solve job in the desktop: start, capped worker, progress, cancellation and refusal.
+- **OUT-002** — The presentation of a run: the progress panel, the gate on the Solve command, the diagnostics panel and the run summary.
+- **OUT-003** — The reading of a completed result: its summary and paged detail, its verdict, and the records formed from it.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-07-07 Solve execution UX: progress, cancellation, and diagnostics
+**Terms the solve path implements.**
 
-> #### Datasheet: DEL-07-07 Solve execution UX: progress, cancellation, and diagnostics
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Solve job.* One run of the product solve for one model, started by the user. The job reports one of the states queued, running, cancelled, completed, failed or refused, and a sequence of events. The display adds two readings of its own: "Starting" before the job first reports and "Cancelling" between the user's request and the job's next report.
+- *Event.* A message the job reports while it runs. The *stage* shown is the latest event's message.
+- *Capped worker.* A separate local process that does the engine's work for one job within the per-invocation memory budget. Ending the worker releases its memory.
+- *Refusal.* A job, or a request for one, that ends without a result for a named reason, with an exact code and, where it applies, the quantity that exceeded a limit and the limit.
+- *Gate.* The condition under which the Solve command is offered: no solve-blocking finding stands for the model.
+- *Diagnostics panel.* The list of the findings a run supplied, filterable by class and navigable to the affected object.
+- *Run summary.* The identities that tie a completed run to its inputs: model hash, input manifest, solver version, rule-pack version and checksum, warnings, assumptions and limitations.
+- *Held result.* A completed job's result kept by the native host. The display receives a handle and a *summary* formed natively, and reads rows as *pages*: bounded runs of rows in source order. A consumer that reads whole rows (a report, a comparison, a rule check, a derivative export, a handoff panel) receives one copy through the *full-result gate*, only at or under the displayable limit; above it, the gate refuses by name with the size and the limit. Whether those consumers move to reading natively is not decided.
+- *Historical run.* A saved or recorded run restored into native custody on reopening. It is held and paged as a current result is, and is marked historical.
+- *Solve timeline.* The marks, each with a fixed code, that the solve path makes at its stage boundaries so that a harness can time them.
 
-### CLM-003 — Identification
+**Boundary.** This deliverable runs and shows. The following belong elsewhere:
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-07-07 |
-> | Deliverable name | Solve execution UX: progress, cancellation, and diagnostics |
-> | Package ID | PKG-07 |
-> | Package name | Graphical User Interface and Engineering Workflow |
-> | Type | UX_UI_SLICE |
-> | Scope item | SOW-055 |
-> | Objectives | OBJ-006, OBJ-007 |
-> | Context envelope | M |
-> | Setup state | Use the current lifecycle recorded in `_STATUS.md`; preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
->
-
-### CLM-004 — Attributes
-
-> ##### Attributes
->
-> | Attribute | Setup value |
-> |---|---|
-> | UX surface | Solve run panel, progress/cancel controls, diagnostic presentation |
-> | Execution mode | Background solve execution through application-service command/job boundaries |
-> | Progress basis | Report only progress states, phases, or measures supplied by the job contract; exact progress semantics remain TBD |
-> | Cancellation basis | User cancellation is routed through the application-service job cancellation contract; direct GUI bypass of solver state is out of scope |
-> | Diagnostics basis | Diagnostic/result-envelope contract from PKG-00, including code, class, severity, source, affected object, message, remediation, and provenance where available |
-> | Result review basis | Mechanics solve status, missing data, assumptions, diagnostics, and reproducibility signals remain visible for professional review |
-> | Implementation status | Current delivery scope follows the accepted decomposition and bounded brief; lifecycle is recorded in `_STATUS.md`; current work follows this Scope of Work, owning decisions, and the selected graph. Setup-only restrictions describe the originating setup run, not standing product scope. |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> | Condition | Treatment |
-> |---|---|
-> | Missing solve-required inputs | Presented as `SOLVE_BLOCKING` diagnostics or equivalent envelope entries; never silently defaulted |
-> | Missing rule-check inputs | Presented separately from solve readiness as `RULE_CHECK_BLOCKING` or equivalent diagnostics |
-> | Nonlinear or numerical uncertainty | Presented as solver diagnostics and warning classes rather than hidden state |
-> | Protected standards/code data | Not introduced; any code-specific or proprietary data remains user-supplied/private |
-> | Professional reliance | Human review remains required; acceptance stays with the responsible engineer |
-> | Reproducibility | Preserve model/version/hash/checksum inputs supplied by the accepted result and job contracts; resolve concrete fields through current schema/consumer sources and bind run evidence to its candidate. |
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> This setup constructs only deliverable-local planning artifacts:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/*`
-> - `_STATUS.md`
->
-> Future implementation work must remain bounded by the GUI/application-service seam defined by PKG-00. It should consume command/job/progress/cancellation and diagnostics/result-envelope contracts rather than inventing GUI-owned solver semantics.
->
-### CLM-007 — References
-
-> ##### References
->
-> | Reference | Use |
-> |---|---|
-> | `AGENTS.md` | Bootstrap boundaries: protected data, mechanics vs rule check, human authority |
-> | `AGENTS.md` | Type 2 sealed deliverable execution and write-scope discipline |
-> | `docs/CONTRACT.md` | Invariants for data, units, IP, privacy, authority, and agents |
-> | `docs/DIRECTIVE.md` | Product stop rules and no-silent-default principles |
-> | `docs/SPEC.md` | GUI warnings, result/report expectations, and layer boundaries |
-> | `docs/TYPES.md` | Analysis-status and professional-boundary vocabulary |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | DEL-07-07 package, scope, objectives, and architecture-basis rows |
-> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable row for DEL-07-07 |
-> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | SOW-055 row |
-> | `execution/PKG-00/DEL-00-03/ArchitectureBasis.md` | Command, job, cancellation, progress, and result-envelope boundary |
-> | `execution/PKG-00/DEL-00-05/ArchitectureBasis.md` | Durable/transient GUI state and job-progress state separation |
-> | `execution/PKG-00/DEL-00-06/ArchitectureBasis.md` | Diagnostics fields, warning classes, and no-compliance-claim boundary |
+- the product solve entry, the per-invocation memory budget, the shared memory pool, its leases and the pricing of a parse: DEL-04-07;
+- what the solver's findings and the model checks say: DEL-04-06 and the engine deliverables that emit them. A field a producer omits is the producer's to supply;
+- the job, command and result-envelope rules: DEL-00-03. The fields and classes of a diagnostic: DEL-00-06;
+- how a finding's class and fields are shown: DEL-07-04, whose rules the diagnostics panel follows;
+- what each status means: DEL-05-04. The product result reader, which classifies a published result and gives its verdict, and REQ-015's reference: DEL-05-02/REQ-018 to DEL-05-02/REQ-020; the reader for retained-precision results is DEL-04-08's;
+- the tables and drawings that show a result: DEL-07-05;
+- the form of an analysis-run record and of a stored project: DEL-14-02 and DEL-02-05. CSV streaming of a held result: DEL-08-04;
+- which marks a performance harness keeps and what it times: DEL-04-05;
+- the shell that mounts the panels and the refusal of a solve with no model: DEL-07-11.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-07-07 Solve execution UX: progress, cancellation, and diagnostics
+### Requirements
 
-> #### Specification: DEL-07-07 Solve execution UX: progress, cancellation, and diagnostics
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- **REQ-001** — A solve is started only as a job through the solve command. No surface changes solver state or the model directly.
+- **REQ-002** — A solve runs in the background, can be cancelled, reports progress, and records the reproducibility metadata the job contract defines. The workspace stays operable while it runs.
+- **REQ-003** — Progress shows only what the job reports: its state, its events, its counts and its messages. The display invents no percentage, estimate or time the job did not report.
+- **REQ-004** — Cancellation is a request. After it the display reads "Cancelling" and claims nothing. The final state shown is the one the job reports, including completed where the job finished first.
+- **REQ-005** — A finding of a run is shown with its code, class, severity, source, affected object, message, remediation and provenance. A field the producer did not supply is labelled as not supplied and is never composed by the display (also cited as DEL-07-07:1).
+- **REQ-006** — The six warning classes are preserved through the job, the host and the display.
+- **REQ-007** — Invalid input, incomplete model, mechanics solved, rule-check result and human review needed are shown as distinct outcomes of a run. No surface of the solve path shows or implies code compliance, certification, approval, sealing or professional authentication (PRD §21.2).
+- **REQ-008** — Missing solve-required data and missing rule-check-required data are kept apart. The Solve command is withheld, naming the findings, only for the first. The solve path supplies no value the model lacks (PRD §5.5).
+- **REQ-009** — The run summary of a completed solve shows its model hash, input manifest, solver version, rule-pack version and checksum, warnings, assumptions and limitations, as the result and its run record carry them.
+- **REQ-010** — A solve is local. No model, result or finding leaves the machine on this path (PRD §20.4).
+- **REQ-012** — *Capped worker.* A solve job's engine work runs in a capped local worker process within the per-invocation memory budget. A request priced over the budget is refused by name before a worker starts. Cancelling ends the worker and releases its memory. The worker's peak physical footprint is measured and reported with the job. Memory for the result is taken from the shared pool under a lease.
+- **REQ-013** — *Stages.* A solve job's worker reads and parses the model, calls the product solve entry, serializes the result and verifies it. The host then takes the result into custody, and the display reads its summary and pages and paints them. Each stage boundary is marked on the solve timeline with its fixed code. The marks change no behaviour, keep only timings, counts and codes, and can be read only where the desktop's UI diagnostics global is installed (DEL-04-05).
+- **REQ-014** — *Progress panel.* The panel opens when a run starts and stays open after the job ends until the user closes it. It shows the state in a polite live region, the stage, the job's identifier, the queue reason with its exact code, the worker's memory, the cancellation status, the counts of result rows and findings on completion, and for a refusal its reading, the way to retry and its exact code. Cancel is a native button in the tab order; after the request it is disabled with that state exposed, and focus moves to the state line. A record of another job, or of none, closes the panel.
+- **REQ-015** — *Result reading.* The summary, each page of detail, the reader's verdict, the analysis-run record, Record Run and Save Project, whichever implementation forms them, equal what the product result reader and the run-record form give for the same result. Until a held result is disposed of, the host keeps with it the digests of the model text the job received and of the result it delivered, so that a later request can show whether the model and result it submits are those this job received and delivered. Disposing of a held result ends any read of it in progress. A result or stored record larger than the displayable limit is refused by name with its size and the limit before its bytes reach the display. A reopened saved or recorded run is restored into custody as a historical run.
 
-### CLM-010 — Scope
+### Acceptance criteria
 
-> ##### Scope
->
-> Current deliverable obligation: implement GUI handling for background solve execution, progress display, cancellation, diagnostic logs, and solver warning presentation. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> This deliverable specifies the setup basis for a GUI solve-execution workflow that keeps background solve execution, progress display, cancellation, diagnostic logs, solver warnings, and result-envelope status reviewable.
->
-> This setup does not implement GUI source code, UI tests, schemas, application-service code, background job code, solver code, report/export code, package manifests, or protected engineering data. Future implementation must consume the command/job/progress/cancellation and diagnostics/result-envelope contracts supplied by PKG-00 rather than inventing product semantics in the GUI slice.
->
-> Current implementation (at `62c1efd75b`): since that setup run, the solve-execution code has shipped. `apps/desktop/src/features/solve/SolvePanel.tsx` (with `MemoryPoolPanel.tsx`) provides run, cancel and solver-mode controls. Added after that revision, `SolveProgressPanel.tsx` shows the current run's solve-job state and events over the workspace, offers Cancel while a run is starting or its live job is queued or running, and retains the terminal record until the user closes the panel or the session resets or replaces the record (`Work/solve-progress-panel.md`). Through `apps/desktop/src/services/previewService.ts` it calls the Tauri commands `start_preview_mechanics_job`, `poll_preview_mechanics_job`, `take_preview_mechanics_job_result` and `cancel_preview_mechanics_job` in `apps/desktop/src-tauri/src/lib.rs`. The job registry and its `queued`/`running`/`cancelled` states are in `apps/desktop/src-tauri/src/solve_jobs.rs`; each solve runs in the capped local worker process `apps/desktop/src-tauri/src/solve_worker.rs`. A job whose result exceeds the desktop's displayable limit (`MAX_DISPLAYABLE_RESULT_BYTES`, 64 MiB; RT-U4) ends `refused` with `PREVIEW-SOLVE-RESULT-TOO-LARGE`, its size and the limit, before any of its bytes is read; its result cannot be taken, and the Solve and progress panels show the size, the limit, the cause and what the person can reduce or split to come under the limit (DEL-04-07 `Work/memory-budget-decision.md`; `Work/solve-progress-panel.md`). Diagnostics are presented by `apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx`. The session's solve-run generation gates and solve-job state (start, progress, refusal) are in `apps/desktop/src/features/workspace/solveGates.ts` and `solveJobAudit.ts`. `core/gui/solve_execution/engine.py` is a reference module exercised by `tests/test_solve_execution_ux.py` and is not called by the desktop.
->
-### CLM-011 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Source |
-> |---|---|---|
-> | REQ-07-07-001 | The solve UX shall initiate solve execution through an application-service command or job contract and shall not directly mutate domain-core or solver state from GUI components. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; DEL-00-03 REQ-03-01 and REQ-03-03 |
-> | REQ-07-07-002 | The solve UX shall treat solve execution as a background job where cancellation, progress, and reproducibility metadata are provided by the service/job contract. Exact progress phases, percentages, and event names remain `TBD` until the job contract fixes them. | DEL-00-03 REQ-03-04; SOW-055 |
-> | REQ-07-07-003 | Progress presentation shall display only service-reported states, phases, counts, or messages; it shall not synthesize misleading completion percentages when the job contract does not supply them. | OPS-K-AGENT-1/2; DEL-00-03 REQ-03-04 |
-> | REQ-07-07-004 | Cancellation controls shall issue a cancellation request through the application-service boundary and shall preserve the final job/result-envelope state returned by that boundary. The GUI shall not bypass cancellation boundaries or claim successful cancellation without envelope evidence. | DEL-00-03 REQ-03-04; OPS-K-AGENT-1 |
-> | REQ-07-07-005 | Diagnostic presentation shall preserve machine-readable diagnostic fields for code, class, severity, source, affected object, message, remediation, and provenance where supplied. | DEL-00-06 REQ-06-01 |
-> | REQ-07-07-006 | The solve UX shall preserve warning classes for `SOLVE_BLOCKING`, `RULE_CHECK_BLOCKING`, `PROVENANCE_WARNING`, `ASSUMPTION_WARNING`, `NONLINEAR_WARNING`, and `IP_BOUNDARY_WARNING` when those classes are present in diagnostics/result envelopes. | `docs/SPEC.md` section 7; DEL-00-06 REQ-06-02 |
-> | REQ-07-07-007 | The solve UX shall distinguish invalid input, incomplete model, mechanics solved, rule-check result, and human-review-needed states; it shall not expose automatic code-compliance, certification, approval, sealing, or professional-authentication states (PRD §21.2). | DEL-00-06 REQ-06-04/05; `docs/TYPES.md` section 4; OPS-K-AUTH-1 |
-> | REQ-07-07-008 | Solve-required missing data and rule-check-required missing data shall remain separate visible findings. Missing values shall not be supplied by the GUI as silent defaults. | OPS-K-DATA-1/2/3; `docs/DIRECTIVE.md` section 3 |
-> | REQ-07-07-009 | Any solve-run review summary intended for reports or exports shall retain traceability to available reproducibility metadata such as model hash, input manifest, solver version, rule-pack version/checksum, warnings, assumptions, and limitations. | OBJ-007; `docs/SPEC.md` section 8; DEL-00-03 REQ-03-04 |
-> | REQ-07-07-010 | Private project data, private rule-pack data, proprietary values, and protected standards/code content shall not be transmitted, displayed as public defaults, or copied into public setup artifacts. | OPS-K-IP-1/2/3; OPS-K-PRIV-1/2; OPS-K-DATA-1 |
-> | REQ-07-07-011 | Future implementation evidence shall include UI tests or equivalent review evidence for background job state rendering, progress display, cancellation request/terminal-state handling, diagnostic filtering/detail review, and professional-boundary notices. | DEL-07-07 anticipated artifacts; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` |
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> No external engineering code or protected standards text is introduced by this deliverable. The controlling references for this setup are the SWBPIPE governance, decomposition, register, and PKG-00 architecture-basis artifacts listed in `_REFERENCES.md` and `ScopeOfWork.md`.
->
-> Any future code-specific acceptance criterion, stress limit, load-combination default, allowable, SIF/flexibility value, or proprietary component value must be supplied by a user-owned/private source with provenance and redistribution status. This GUI slice may display resulting diagnostics/statuses; it must not define or certify code compliance.
->
-### CLM-013 — Verification
-
-> ##### Verification
->
-> | Verification ID | Method | Expected evidence |
-> |---|---|---|
-> | VER-07-07-001 | Document review | `ScopeOfWork.md` exists and matches DEL-07-07 scope. |
-> | VER-07-07-002 | Boundary review Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | No GUI source, tests, schemas, job/solver code, package manifests, repo-level docs, or `ISSUED` artifacts were edited. |
-> | VER-07-07-003 | Contract review | Requirements explicitly route progress, cancellation, diagnostics, and result status through PKG-00 command/job and result-envelope contracts. |
-> | VER-07-07-004 | Protected-content review | Setup artifacts contain no protected standards text, proprietary engineering values, certification claims, or automatic code-compliance claims. |
-> | VER-07-07-005 | Semantic setup review | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist and provide complete lens coverage. |
-> | VER-07-07-006 | Dependency-register validation | `Dependencies.csv` validates against the v3.1 schema and contains evidence-linked ACTIVE rows. |
-> | VER-07-07-007 | Future implementation test | Verify launch, progress, cancellation, diagnostics, blocked states and report/export traceability against the current SolvePanel/workspace-session routes; cite actual candidate-bound results and keep unexecuted checks explicit. |
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> Required setup records for this deliverable are:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/*`
-> - `_STATUS.md`
->
-### CLM-015 — Acceptance Notes
-
-> ##### Acceptance Notes
->
-> `SEMANTIC_READY` means the setup artifacts are prepared for review. It does not mean product implementation is complete, UI behavior is tested, solver behavior is verified, or protected data is authorized. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
-
-### CLM-016 — D-41 R5 T5 PDU-008 current GUI boundary
-
-> ##### D-41 R5 T5 PDU-008 current GUI boundary
->
-> The desktop diagnostic type/detail/filter path preserves class, remediation, and provenance when supplied and labels their absence as producer-unsupplied. Producer-side reduced shapes remain open; the GUI does not fabricate missing metadata.
-
-- **AC-001** — The contract preserves service-owned progress and cancellation semantics, complete diagnostic fields and warning classes, separate solve and rule-check readiness, reproducibility traceability, and no invented progress, silent defaults, compliance status, or professional approval.
+- **AC-001** — For a scripted job that reports a fixed sequence of states and events: the panel shows "Starting", then each reported state and stage in order, then the completion counts the job reported; a queued job shows its queue reason with its exact code, and a refused one its reading, the way to retry and its exact code; a model command issued while the job runs completes; the panel stays open until closed; and no surface of the run shows a percentage, an estimate or a time that the job did not report.
+- **AC-002** — For a running job that is asked to cancel: the display reads "Cancelling" until the job reports, with Cancel disabled, that state exposed and focus on the state line; when the job reports cancelled the worker process has ended and its memory is back in the pool; and where the job reports completed instead, completed is what is shown. The worker's memory is shown, and the job reports the worker's peak footprint.
+- **AC-003** — A request priced over the per-invocation memory budget is refused with its named code, its price and the budget, no worker starts, and the model document is unchanged.
+- **AC-004** — For supplied findings of each class, with and without the optional fields: every supplied field and class is shown, each absent field reads as not supplied, and activating a finding selects its affected object.
+- **AC-005** — With a solve-blocking finding standing, the Solve command is withheld and names the finding; with only a rule-check-blocking finding standing, the solve runs and its outcome is shown as mechanics solved with rule inputs incomplete. One supplied case each of invalid input, incomplete model and human review needed is shown as its own outcome. The solve request carries no value absent from the model document, and no text of the panel, the run summary or an outcome states or implies a claim PRD §21.2 prohibits.
+- **AC-006** — The run summary of a completed solve shows the model hash, input manifest, solver version, rule-pack version and checksum, warnings, assumptions and limitations that the published result and its run record carry.
+- **AC-007** — For each case of a committed set of results: the summary, every page of detail, the verdict and the analysis-run record equal those the product result reader and the run-record form give for the same published result text, and paging returns every row once in source order.
+- **AC-008** — A stored record larger than the displayable limit is refused by name with its size and the limit; while a result is held, a submitted model text and result equal to those the job received and delivered match the kept digests, and a substituted or altered text of either does not; disposing of a held result ends a read in progress and leaves nothing to match; and a reopened run is shown as historical.
+- **AC-009** — The timeline of one solve carries each stage mark of REQ-013 once, in order, and no build that does not install the diagnostics global exposes a timeline reading.
+- **AC-010** — During a solve, from start to the held result, neither the desktop nor the worker opens a network connection.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-017 — Procedure: DEL-07-07 Solve execution UX: progress, cancellation, and diagnostics
+**Method choices.** The job registry and the worker live in the native host, and the display polls the job and renders its reports; no state is inferred in the display. The panel is a plain function of the job's latest report. Custody keeps the result in the host, and consumers read it through the same summary and page queries, or through the full-result gate where they read whole rows. Where the host and the display each implement a reading of a result, they are held to equality on a committed set of cases.
 
-> #### Procedure: DEL-07-07 Solve execution UX: progress, cancellation, and diagnostics
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+**How each criterion is examined.**
 
-### CLM-019 — Purpose
-
-> ##### Purpose
->
-> This procedure records how to produce and later use the setup basis for the solve-execution UX deliverable. It is not a product implementation procedure.
->
-
-### CLM-020 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Status |
-> |---|---|
-> | Sealed deliverable context for DEL-07-07 | Present in `_CONTEXT.md` |
-> | Governing invariants and stop rules | Present in `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, and `AGENTS.md` |
-> | Command/job/cancellation/progress architecture basis | Present in DEL-00-03 `ArchitectureBasis.md` and the architecture-basis injection |
-> | GUI transient job-progress state basis | Present in DEL-00-05 `ArchitectureBasis.md` and the architecture-basis injection |
-> | Diagnostics/result-envelope basis | Present in DEL-00-06 `ArchitectureBasis.md` and the architecture-basis injection |
-> | Protected-data and professional-boundary constraints | Present in `docs/CONTRACT.md`, `docs/TYPES.md`, and `docs/SPEC.md` |
->
-
-### CLM-021 — Steps
-
-> ##### Steps
->
-> 1. Confirm the deliverable scope.
->    - Verify `Deliverable ID = DEL-07-07`, `Package ID = PKG-07`, and `Scope Coverage = SOW-055` in `_CONTEXT.md`.
->    - Verify objectives `OBJ-006` and `OBJ-007`.
->
-> 2. Draft the Scope of Work contract.
->    - Populate `ScopeOfWork.md`.
->    - Keep content at setup/specification level.
->    - Do not create GUI source code, tests, schemas, job/solver implementation, manifests, repo-level docs, or issued artifacts.
->
-> 3. Apply architecture-basis constraints.
->    - Route solve launch through command/job boundaries.
->    - Treat progress and cancellation as job-contract behavior.
->    - Preserve diagnostic/result-envelope fields and warning classes.
->    - Separate mechanics solved, user-rule checked, and human-review-required states.
->
-> 4. Preserve data and authority boundaries.
->    - Do not introduce protected standards text, code tables, proprietary values, or private project data.
->    - Mark unknown implementation details as `TBD`.
->    - Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
->
-> 5. Build semantic setup artifacts.
->    - Generate `_SEMANTIC.md` as a lens, not an authority.
->    - Generate `_SEMANTIC_LENSING.md` with complete matrix coverage.
->    - Use lensing output only as a candidate worklist for consistency review.
->
-> 6. Refresh dependency artifacts.
->    - Create or update `Dependencies.csv` using v3.1 columns.
->    - Keep anchors and execution/interface edges evidence-linked.
->    - Update `_DEPENDENCIES.md` with counts, run notes, lifecycle summary, and handoff notes.
->
-> 7. Validate local setup gates.
->    - Run dependency schema validation.
->    - Confirm required setup files exist.
->    - Confirm no writes occurred outside the deliverable folder.
->    - Confirm `_STATUS.md` remains at `SEMANTIC_READY` only if all setup gates pass.
->
-### CLM-022 — Verification
-
-> ##### Verification
->
-> | Check | Expected result |
-> |---|---|
-> | the Scope of Work contract exist | `ScopeOfWork.md` exist |
-> | Semantic artifacts exist | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist |
-> | Dependency artifacts exist | `Dependencies.csv` and `_DEPENDENCIES.md` exist |
-> | Dependency schema validates | `validate_dependencies_schema.py` reports valid v3.1 schema |
-> | Protected data absent | No protected standards/code text, copied tables, proprietary values, or certification claims appear |
-> | Scope respected | Only DEL-07-07 deliverable-local files are written |
->
-### CLM-023 — Records
-
-> ##### Records
->
-> The setup run records are stored in `_run_records/`:
->
-> - `TASK_RUN_2026-04-30_1049_four-documents_P1_P2.md`
-> - `TASK_RUN_2026-04-30_1050_semantic-matrix-build.md`
-> - `TASK_RUN_2026-04-30_1051_lens-register.md`
-> - `TASK_RUN_2026-04-30_1052_four-documents_P3_ONLY.md`
-> - `TASK_RUN_2026-04-30_1053_dependency-extract.md`
->
-
-### CLM-024 — Completion Criteria
-
-> ##### Completion Criteria
->
-> The deliverable may be left at `SEMANTIC_READY` when:
->
-> - all setup artifacts listed in `ScopeOfWork.md` exist,
-> - dependency validation passes,
-> - semantic and lensing artifacts are present,
-> - no protected-data or certification boundary issue is found,
-> - no out-of-scope files were edited,
-> - open implementation choices remain explicitly marked as `TBD` rather than silently chosen.
-- **VER-001** — Validate the contract and review source parity, job-boundary routing, progress and cancellation semantics, diagnostic fields and warning classes, missing-data separation, reproducibility metadata, protected-content limits, and every retained TBD or governed residual.
+- **VER-001** — Executable check (observes the progress panel against a scripted job): feeds the fixed sequence of reports and reads the panel's state, stage, codes, counts, focus and live-region text after each, issues a model command while the job runs, and scans every surface for a percentage, an estimate or a time the job did not report.
+- **VER-002** — Executable check (observes the native job registry and the worker process): starts a job, requests cancellation, and reads the job's reported state, the Cancel control, the worker's process, its shown memory, the peak footprint the job reports and the pool's balance; then prices a request over the budget and reads the refusal and the model document's bytes.
+- **VER-003** — Executable check (observes the diagnostics panel and the Solve command with supplied findings): renders findings of each class with and without optional fields, activates one, and reads the fields shown, the session's selection, the command's state under each kind of blocking finding, the outcome shown for each supplied case, and the solve request against the model document.
+- **VER-004** — Comparison with a named reference (the published result and its analysis-run record): reads the run summary of a completed solve and compares each identity with the one the result and the record carry.
+- **VER-005** — Comparison with a named reference (the product result reader and the run-record form applied to the published result text of each committed case): compares the summary, every page, the verdict and the record with them, byte for byte where the form is bytes.
+- **VER-006** — Executable check (observes native custody): stores a record over the limit and reads the refusal; submits the received model text and delivered result of a held job, and substituted texts of each, and reads whether each matches the kept digests; disposes of a held result during a read and submits its texts again; and reopens a saved run and reads its marking.
+- **VER-007** — Executable check (observes the solve timeline and the builds): runs one solve where the diagnostics global is installed and reads the marks in order, and scans a build that does not install it for an exposed timeline reading.
+- **VER-008** — Comparison with a named reference (the prohibited claims of PRD §21.2 and the claims registry's display forms): reads every text the progress panel, the run summary and the outcome display can show and compares it with them.
+- **VER-009** — Executable check (observes the network activity of the desktop and the worker): runs a solve under a network monitor and reads the connections opened.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-025 — Guidance: DEL-07-07 Solve execution UX: progress, cancellation, and diagnostics
-
-> #### Guidance: DEL-07-07 Solve execution UX: progress, cancellation, and diagnostics
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-027 — Purpose
-
-> ##### Purpose
->
-> This deliverable keeps solve execution reviewable from the GUI without moving solver authority into the GUI. The user should be able to see that a solve is running, what the service reports about its progress, whether cancellation was requested or completed, and which diagnostics qualify the result.
->
-> The setup is intentionally contract-facing. It prepares a future GUI slice to consume application-service jobs and diagnostics/result envelopes while preserving missing-data, provenance, unit, privacy, and professional-responsibility boundaries.
->
-
-### CLM-028 — Principles
-
-> ##### Principles
->
-> | Principle | Guidance |
-> |---|---|
-> | Service boundary first | GUI components initiate commands/jobs and observe job/envelope state. They do not own solver lifecycle semantics. |
-> | Report what is supplied | Progress should reflect service-provided phases, counts, statuses, or messages. If only indeterminate progress is available, the UI should show indeterminate progress rather than fabricate precision. |
-> | Cancellation is a request | Cancellation UX should distinguish requested, accepted, completed, failed, and not-supported states only when the service contract supplies those states. Exact enum names remain `TBD`. |
-> | Diagnostics stay attached | Warnings and errors should remain linked to the run, affected object, source, severity, and remediation fields where available. |
-> | Missing data is visible | Solve-blocking, rule-check-blocking, provenance, assumption, nonlinear, and IP-boundary warnings should remain visible instead of becoming generic failure messages. |
-> | Professional boundary remains visible | A completed mechanics solve is decision-support information for review by the responsible engineer. Human review remains required; acceptance stays with the responsible engineer. |
->
-
-### CLM-029 — Considerations
-
-> ##### Considerations
->
-> Background solves often have phases that are meaningful to users even when exact completion percentages are not reliable. A future UI can show service-reported states such as queued, validating, solving, recovering results, checking user rules, writing report/export artifacts, canceled, failed, or complete only if those states are supplied by the job contract. These labels are examples of UX categories, not fixed contract enums.
->
-> Cancellation should preserve auditability. A canceled run may still produce diagnostics, partial records, or a terminal envelope explaining what was stopped and what was not computed. The GUI should present that terminal envelope rather than removing the run from view.
->
-> Diagnostic presentation should support both quick triage and detailed review. A user needs to know which diagnostics block solving, which block only rule checks, which are provenance or assumption warnings, and which reflect nonlinear/numerical uncertainty. The future UI should keep diagnostic class and severity visible without converting warnings into professional judgments.
->
-> Result/export readiness should be traceable. Where upstream contracts supply hashes, solver versions, model versions, rule-pack checksums, warning sets, and limitations, the solve UX should preserve those signals for reports and result exports. Where those fields are missing, the setup should mark them `TBD` rather than inventing them.
->
-
-### CLM-030 — Trade-offs
-
-> ##### Trade-offs
->
-> | Decision area | Recommended posture | Risk if ignored |
-> |---|---|---|
-> | Percent progress | Prefer contract-supplied percentages; otherwise use indeterminate or phase-based progress | False precision can mislead users and reviewers |
-> | Cancellation feedback | Show request and final job state separately | Users may believe a solve stopped cleanly when the service did not confirm it |
-> | Diagnostic density | Provide summary and detail surfaces | Hiding details weakens reviewability; flooding the main surface weakens usability |
-> | Result status wording | Use mechanics/rule/human-review status vocabulary | Users may misread software output as a determination reserved for the responsible engineer (PRD §21.2) |
-> | Error recovery | Preserve terminal envelopes and run records | Failed/canceled solves become unreviewable |
->
-
-### CLM-031 — Examples
-
-> ##### Examples
->
-> The following are non-normative UX examples only:
->
-> - If the job contract supplies no percentage, show an indeterminate progress indicator plus the current service-reported phase.
-> - If cancellation is requested, disable duplicate cancel requests while continuing to display diagnostics and the final terminal envelope when received.
-> - If a solve completes but rule-pack inputs are missing, present the mechanics result separately from the rule-check-blocking diagnostics.
-> - If a nonlinear warning is returned, keep it visible with the affected object and remediation text supplied by the diagnostic record.
->
-
-### CLM-032 — Open Issues
-
-> ##### Open Issues
->
-> | ID | Issue | Owner |
-> |---|---|---|
-> | OI-07-07-001 | Job/state/progress/cancellation fields are carried by the application-service and current solve consumer; distinguish `core/gui/solve_execution/engine.py` contract evidence from actual desktop runtime routes in SolvePanel/workspaceSession. Preserve missing runtime cancellation or progress witnesses as delivery work. | Future implementation TASK |
-> | OI-07-07-002 | Diagnostic filtering/grouping/detail layout is an implementation choice realized in current desktop consumers; preserve diagnostic classes, stable affected identity and visible blocked/missing states across revisions. | Future GUI TASK |
-> | OI-07-07-003 | Resolve report/export handoff fields through the accepted results/report contracts and current route consumers; retain any missing end-to-end traceability witness instead of treating the entire interface inventory as absent. | PKG-08 / future interface TASK |
->
-
-### CLM-033 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No source conflicts were identified during setup. | N/A | N/A | N/A | N/A | N/A |
+- **AX-001** — The display reports the job; it does not predict it. Better is a state and a stage the job stated, measured by every displayed reading tracing to a report, never a progress bar, an estimate or a claim of cancellation the job has not made.
+- **AX-002** — A run that cannot proceed says why and what to change. Better is a refusal with its exact code, the quantity and the limit, never a spinner that ends silently or a result cut short.
+- **AX-003** — One result, one copy, one reading. Better is every surface reading the held result through the same queries, measured by native and reference readings being equal on every committed case and by fewer consumers that take a whole copy, never a copy in the display that can drift from the held result.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-055 OBJ-006 OBJ-007 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-07-07:1** — Complete producer-side carriage of diagnostic class, remediation, and provenance where upstream producers still emit the reduced desktop shape; the PDU-008 UI preserves and displays those fields when supplied but does not fabricate them.
+| OUT-002 | SOW-055 OBJ-006 | REQ-002 REQ-003 REQ-014 | AC-001 | VER-001 | The scripted sequence of reports is the scenario, written by hand, and the panel is expected to show exactly it and nothing it did not report. |
+| OUT-001 | SOW-055 OBJ-006 OBJ-007 | REQ-001 REQ-004 REQ-012 | AC-002 | VER-002 | The scenario states the expected readings. The worker's end and the pool's balance are read from the operating system and the pool, which this deliverable does not write. |
+| OUT-001 | SOW-055 OBJ-007 | REQ-012 | AC-003 | VER-002 | The budget and the price are DEL-04-07's; the expected refusal is theirs applied to the request the check constructs. |
+| OUT-002 | SOW-055 OBJ-006 | REQ-005 REQ-006 | AC-004 | VER-003 | Outside source: the diagnostic field list and six classes of DEL-00-06. The expected display is the finding as the check supplies it. |
+| OUT-002 | SOW-055 OBJ-006 | REQ-007 REQ-008 | AC-005 | VER-003 VER-008 | PRD §5.5 and §17.5 separate what blocks a solve from what blocks a rule check, and PRD §21.2 lists the prohibited claims. The findings and cases are supplied by the check, and the model document is the reference for the solve request. |
+| OUT-002 | SOW-055 OBJ-007 | REQ-009 | AC-006 | VER-004 | Outside this deliverable: the published result (DEL-04-07) carries the identities. The record's form is DEL-14-02's; that the natively formed record equals it is examined by AC-007. |
+| OUT-003 | SOW-055 OBJ-007 | REQ-015 | AC-007 | VER-005 | The product result reader (DEL-05-02) and the run-record form (DEL-14-02), applied to the published result text, are the references. This shows custody changes nothing a consumer reads; whether the result is right is the solver's to show. |
+| OUT-003 | SOW-055 OBJ-006 | REQ-015 | AC-008 | VER-006 | The scenario states the expected refusal, matches, ended read and marking; the job's received and delivered bytes are the reference for the digests; the size and the limit are read from the store and the host. |
+| OUT-001 | SOW-055 OBJ-007 | REQ-013 | AC-009 | VER-007 | The stages are those DEL-04-05's harness times separately; each build is scanned as built. |
+| OUT-001 | SOW-055 OBJ-006 | REQ-010 | AC-010 | VER-009 | PRD §20.4 makes solving local. The connections are read from a network monitor outside the product, and the expected count is zero. |

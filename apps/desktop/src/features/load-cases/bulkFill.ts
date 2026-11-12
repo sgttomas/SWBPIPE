@@ -1,4 +1,4 @@
-/* G7/G8 (DEL-07-03 `Work/authoring-speed.md` §3): draft helpers for per-member and
+/* draft helpers for per-member and
  * per-case lists. Each returns a new draft for the person to review; nothing here
  * queues, applies or prefills a value the person did not enter. The draft is
  * still submitted whole, as one reviewed intent, through the existing editors. */

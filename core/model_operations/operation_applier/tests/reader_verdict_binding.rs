@@ -239,7 +239,7 @@ fn e17_magnitude_controls_through_the_reader_binding() {
     assert_eq!(checked, 7 * 5);
 }
 
-/// RT-A4 §10.4: the recorded-run read entry returns `reader_verdict`'s recorded outcome under
+/// the recorded-run read entry returns `reader_verdict`'s recorded outcome under
 /// the record's binding; the current entries still refuse a statement published before RT-A4.
 #[test]
 fn the_recorded_entry_returns_the_recorded_verdicts() {
@@ -261,7 +261,7 @@ fn the_recorded_entry_returns_the_recorded_verdicts() {
     assert!(reader_recorded_json("dispatch", "{", PF2, None, None).unwrap_err().starts_with("WASM-ENGINE-INPUT-JSON-INVALID"));
 }
 
-/// RT-A4 §10.4: the wasm32 target aborts on panic, so a recorded read that traps leaves its
+/// the wasm32 target aborts on panic, so a recorded read that traps leaves its
 /// table selection set in the instance (its guard never runs). Every wasm export therefore runs
 /// as an outermost entry (`recorded_tables::entry_scope`, whose leaked-selection behaviour
 /// `recorded_tables::tests` checks), which clears it first. This checks that no export, a later

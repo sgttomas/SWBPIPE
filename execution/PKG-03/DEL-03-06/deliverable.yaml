@@ -1,143 +1,89 @@
 id: DEL-03-06
 name: Expansion joint component model
 needs:
-- from: DEL-00-01
-  condition: 'DEL-03-06 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; retained active edge from existing DAG-002 synchronized register with no speculative new
-    rows.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-03-06 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; retained active edge from existing DAG-002 synchronized register with no speculative new
-    rows.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-03-06 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; retained active edge from existing DAG-002 synchronized register with no speculative new
-    rows.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-03-06 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; retained active edge from existing DAG-002 synchronized register with no speculative new
-    rows.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-03-06 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; retained active edge from existing DAG-002 synchronized register with no speculative new
-    rows.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-03-06 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; retained active edge from existing DAG-002 synchronized register with no speculative new
-    rows.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-01
+  condition: >-
+    A component in the model document is a typed, closed record with a stable identifier, a kind,
+    among which is expansion joint, and a node; the document describes every component member a
+    reader decodes, each quantity with its unit and each sourced value with its provenance; and a
+    document saves and reopens with equal content.
   gating: true
 - from: DEL-03-02
-  condition: 'DEL-03-06 needs DEL-03-02 as a predecessor: expansion joint fields extend component library
-    schema
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; retained active edge from existing DAG-002 synchronized register with
-    no speculative new rows.; TP-DAG-004 enum normalization 2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE,
-    DependencyType=DOMAIN_MODEL, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION, SatisfactionStatus=UNKNOWN.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The component library format provides the record, the field slot (a quantity or text reference
+    with its value status, public-value policy and provenance), the family contract and the
+    completeness rule into which the expansion-joint family's field kinds and diagnostics are
+    declared, with linear stiffness and rotational stiffness as separate dimensions.
   gating: true
-  evidence: execution/_DAG/DAG-011/DependencyEdges.csv
 - from: DEL-02-02
-  condition: 'DEL-03-06 needs DEL-02-02 as a predecessor: manufacturer stiffness/effective-area/movement
-    fields are unit-aware
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; retained active edge from existing DAG-002 synchronized register with
-    no speculative new rows.; TP-DAG-004 enum normalization 2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE,
-    DependencyType=UNIT_CONTRACT, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION, SatisfactionStatus=UNKNOWN.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The unit catalog converts a joint's lengths, areas, forces and stiffnesses to one consistent
+    basis and rejects a dimensional mismatch before the value reaches the solve.
   gating: true
-  evidence: execution/_DAG/DAG-011/DependencyEdges.csv
 - from: DEL-01-02
-  condition: 'DEL-03-06 needs DEL-01-02 as a predecessor: expansion-joint data is user/manufacturer supplied
-    with provenance
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; retained active edge from existing DAG-002 synchronized register with
-    no speculative new rows.; TP-DAG-004 enum normalization 2026-05-10 preserved legacy labels: AnchorType=DELIVERABLE,
-    DependencyType=GOVERNANCE_PREDECESSOR, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION, SatisfactionStatus=UNKNOWN.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The protected-data boundary policy states that no public artifact may contain proprietary
+    manufacturer data, so that every joint stiffness, area, limit and hardware value is supplied
+    by the user.
   gating: true
-  evidence: execution/_DAG/DAG-011/DependencyEdges.csv
+- from: DEL-00-06
+  condition: >-
+    The diagnostic contract fixes the members a joint finding carries (code, class, severity,
+    source, affected object, message, remediation and provenance).
+  gating: true
+- from: DEL-04-01
+  when: Examining AC-002 and AC-003 in both solver modes
+  condition: >-
+    The frame kernel assembles the global stiffness of the frame system, the connector and tie-rod
+    elements among its members, and repeated runs of the same model, solver version and settings
+    are bit-identical in each of the sparse and dense modes.
+  gating: true
+- from: DEL-04-07
+  condition: >-
+    The product solve admits an expansion joint authored as an objective connector that replaces
+    its span, with or without explicit tie rods, on the exact route; applies the pressure thrust
+    of its effective area as a load; and publishes the joint's actions and each rod's force.
+  gating: false
+  when: Solving a model that contains an expansion joint.
+- from: DEL-09-01
+  condition: >-
+    The invented reference system and its independent references are maintained, with an expansion
+    joint with tie rods among its members.
+  gating: true
+  when: Examining the reference system's expansion joint on the exact route.
 code_paths:
-- core/model_operations/operation_applier/src/lib.rs
-- core/product_physics/src/lib.rs
-- core/product_physics/src/joint.rs
+# The connector and tie-rod elements. DEL-04-01 lists the frame kernel crate and names these files
+# as this deliverable's element definitions.
 - core/solver/frame_kernel/src/connector.rs
 - core/solver/frame_kernel/src/tie_rod.rs
-- core/solver/frame_kernel/tests/connector_*
+- core/solver/frame_kernel/tests/connector_assembly.rs
+- core/solver/frame_kernel/tests/connector_references.rs
 - core/solver/frame_kernel/tests/tie_rod_element.rs
-- core/product_physics/tests/connector_*
+# In DEL-04-07's product crate: the joint's input rules, its refusals and its published actions.
+- core/product_physics/src/joint.rs
+- core/product_physics/src/tie_rod_tests.rs
+- core/product_physics/tests/connector_pp_paths.rs
+- core/product_physics/tests/connector_system_references.rs
 - core/runner/headless/tests/objective_connector.rs
-- schemas/component.schema.yaml
+# Independent references for the connector. The tied and pressurized joint references
+# (validation/references/t4_u5a, t4_u5b) are held by DEL-04-07.
 - validation/references/t4_i12/**
-- apps/desktop/src/features/component-creation/componentIntent.ts
+# Shared with DEL-03-02, which owns the format: the expansion-joint family's field kinds,
+# completeness rule and diagnostic codes in it are this deliverable's.
+- schemas/component.schema.yaml
+# Shared with DEL-02-01, which owns the document: the expansion-joint members of a component and
+# the objective_connector definition in it are this deliverable's.
+- schemas/model.schema.yaml
+# Shared with DEL-07-03, which owns features/component-creation/**: the connector's entered
+# members in this form are this deliverable's definition.
 - apps/desktop/src/features/component-creation/ConnectorDraftFields.tsx
 checks:
 - tests/test_component_section_schema.py
 - core/solver/frame_kernel/tests/connector_references.rs
+- core/solver/frame_kernel/tests/connector_assembly.rs
+- core/solver/frame_kernel/tests/tie_rod_element.rs
 - core/product_physics/tests/connector_pp_paths.rs
 - core/product_physics/tests/connector_system_references.rs
+- core/runner/headless/tests/objective_connector.rs
+- core/runner/headless/tests/tied_joint_references.rs
 - apps/desktop/src/features/component-creation/componentIntent.test.ts

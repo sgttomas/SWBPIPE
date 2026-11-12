@@ -26,7 +26,7 @@ import {
 } from "./mbfImport";
 import type { MbfImportStarted } from "./mbfImportCancel";
 
-/** The open Import MBF… dialog (DEL-17-04 Design `desktop-mbf-export-import.md` §4.1–§4.3, slice 5). The workspace
+/** The open Import MBF… dialog (slice 5). The workspace
  * session opens it from File > Import MBF… and supplies the barrier's native starts (`mbfImportCancel.ts`) and its
  * Adopt, which hands the captured identities to the maintained Open transaction (`handleOpenModelDocument` with
  * `mbfImportSource`). */
@@ -39,7 +39,7 @@ export type MbfImportDialogRequest = {
   open: () => Promise<MbfImportStarted<MbfImportOpenOutcome>>;
   /** A declaration re-run. */
   review: (args: MbfReviewImportArgs, stillCurrent?: () => boolean) => Promise<MbfImportStarted<MbfImportReviewOutcome>>;
-  /** Designate original source… (§5.4): the model-document chooser and the review stating the designation, formed over
+  /** Designate original source…: the model-document chooser and the review stating the designation, formed over
    * the review shown and the declaration it was formed for. */
   designate: (args: MbfDesignateImportArgs, stillCurrent?: () => boolean) => Promise<MbfImportStarted<MbfImportDesignateOutcome>>;
   /** Adopt: the session releases the modal hold and adopts through the Open transaction; the request's retirement is
@@ -217,7 +217,7 @@ export function MbfImportDialog({ request }: { request: MbfImportDialogRequest |
     setForm(next);
   };
 
-  // Designate original source… (§5.4). The native start retires any designation shown before its chooser opens, so
+  // Designate original source…. The native start retires any designation shown before its chooser opens, so
   // whatever it returns other than a new designation leaves the ordinary review to be formed again when X was shown.
   const designated = reviewed !== null && reviewed.review.identity.designation !== null;
   const designate = () => {
@@ -344,7 +344,7 @@ function NotShown({ review, list }: { review: MbfImportReviewPayload; list: keyo
   return <p data-testid={`mbf-import-${list}-not-shown`}>{counts.not_shown} more not shown{counts.not_shown_blocking > 0 ? `, ${counts.not_shown_blocking} of which block adoption` : ""}.</p>;
 }
 
-/** The bounded review (§4.3): source and binding, completeness and blocking codes, refusals, document check, mapping
+/** The bounded review: source and binding, completeness and blocking codes, refusals, document check, mapping
  * assumptions with product descriptions, loss entries, target options, identities and units. No engine message or
  * assumption sentence is shown. */
 function ImportReview({ reviewed }: { reviewed: Reviewed }) {
@@ -460,7 +460,7 @@ function ImportReview({ reviewed }: { reviewed: Reviewed }) {
   );
 }
 
-/** The designated source the review states (§5.4): the file, the outcome and why it is not established. */
+/** The designated source the review states: the file, the outcome and why it is not established. */
 function Designation({ designation }: { designation: NonNullable<MbfImportReviewPayload["identity"]["designation"]> }) {
   return (
     <section data-testid="mbf-import-designation">

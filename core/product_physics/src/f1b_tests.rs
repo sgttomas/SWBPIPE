@@ -1,4 +1,4 @@
-//! F1b (T3 D1 revision 5a.2 §4.8, W3, and ROOT's F1b rulings of 2026-09-28):
+//! F1b (W3, and ROOT's F1b rulings of 2026-09-28):
 //! unit tests of the facade's sparse wiring and the dense-scrutiny resource
 //! guard. All inputs are invented (no library, catalogue or code-rule data):
 //! committed invented fixtures, and models built here.
@@ -1679,7 +1679,7 @@ fn reach_requests() -> Vec<(&'static str, Value)> {
 }
 
 /// A skew chain of `members` members scaled by exact powers of two (the
-/// RF-RANGE LEF-large construction, K2b RETURN §9 C): lengths and section
+/// RF-RANGE LEF-large construction): lengths and section
 /// dimensions by 2^pl, moduli by 2^pm, forces by 2^pf and moments by
 /// 2^(pf+pl). (0, 0, 0) is the base model.
 fn scaled_chain_request(members: usize, pl: i32, pm: i32, pf: i32) -> Value {
@@ -1714,7 +1714,7 @@ fn scaled_chain_request(members: usize, pl: i32, pm: i32, pf: i32) -> Value {
     request
 }
 
-/// K2b's documented-limitation chain (K2b RETURN §13.3) at product level:
+/// K2b's documented-limitation chain at product level:
 /// N0-N1-N2 along x, 1 m bars, E = 2^440 Pa, G = 2^439 Pa, UX loads of
 /// 2^-1010 N at N1 and 1 N at N2; N1 and N2 are free in UX only.
 fn limitation_chain_request() -> Value {
@@ -1860,7 +1860,7 @@ fn orchestrator_case<'a>(
     }
 }
 
-/// D-CLASS (T3 D1 §4.7 step 1; F1b's derivation D1): PP's range
+/// D-CLASS (F1b's derivation D1): PP's range
 /// classification of the ordinary attempt equals the orchestrator's step 1 on
 /// every linear case of the declared B subset and the D models, in both modes:
 /// - PP finds no range trigger: the orchestrator returns PP's own b = 0

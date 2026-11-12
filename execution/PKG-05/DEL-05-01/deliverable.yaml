@@ -1,81 +1,129 @@
 id: DEL-05-01
 name: Primitive load case engine
 needs:
-- from: DEL-00-01
-  condition: 'DEL-05-01 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-01
+  condition: >-
+    The model document carries a load case's primitive loads, its static-equivalent generation
+    record, its use of operating conditions and its test condition as closed records, keeps each
+    as authored, and each pipe stores its own operating-condition set reference.
   gating: true
-- from: DEL-00-02
-  condition: 'DEL-05-01 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-02
+  condition: >-
+    The unit catalog gives every load unit one dimension and its conversion to the consistent
+    basis, including the interval conversion of a temperature change, and reports an unknown,
+    missing or incompatible unit as a named finding with no converted value.
   gating: true
-- from: DEL-00-03
-  condition: 'DEL-05-01 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-04-02
+  condition: >-
+    The straight pipe element gives the work-consistent equivalent nodal loads of a uniform member
+    load over the whole span or a stated part of it, for Euler-Bernoulli and for Timoshenko
+    members, and the end forces E·A·ε of a free strain.
+  when: Solving a member load or a free strain
   gating: true
-- from: DEL-00-06
-  condition: 'DEL-05-01 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-05-01 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-04-03
+  condition: >-
+    An imposed displacement at a support's degree of freedom is solved as a prescribed value of
+    the system on both routes and is not also added as a force.
+  when: Solving an imposed displacement
   gating: true
 - from: DEL-04-07
   condition: >-
-    For RT-A6 held-device and shared-document integration, DEL-04-07 supplies the
-    complete per-case device replacement/reaction plan and H-a generated-source
-    ledger admission specified with Work/hydrostatic-test.md and R-4 section 4.9.
-    Hydrotest and static seismic must coexist in one saved load-state EX document;
-    a plain-EX-only or no-hold stage does not satisfy that integration condition.
-    This stage-specific need does not gate Step 0 design or declare implementation,
-    dependency fulfilment, acceptance or release. Existing primitive-load inputs
-    consumed by DEL-04-07 remain governed by its own staged dependency.
+    The product's section and mass adapter gives each pipe's mass per length from its outside
+    diameter, wall, mill tolerance, corrosion allowance, insulation and densities, equal to the
+    closed-form annulus values on the route's own section bases, and refuses a missing or invalid
+    input by name.
+  when: Generating self-weight and seismic loads in the product
+  gating: true
+- from: DEL-03-08
+  condition: >-
+    Mass per length is the sum of the parts given: metal area times material density, bore area
+    times contents density, and the annulus between the outside diameter and the outside diameter
+    plus twice the insulation thickness times insulation density; a missing dimension or an
+    invalid input is refused by name with no property.
+  gating: false
+- from: DEL-04-07
+  condition: >-
+    In a load case that declares held supports, the product solve replaces each spring, variable
+    spring and constant-effort support on its acted degrees of freedom by a rigid restraint at
+    zero displacement from the authored geometry, applies neither its stiffness nor its force, and
+    publishes the replacement's reaction under the support's identity. On a load and
+    reference-state document it enters each generated load source in the case's ledger once, so
+    that a hydrostatic test case and static seismic cases solve in one document
+    (DEL-04-07/REQ-011).
+  when: Solving a hydrostatic test case on the exact route
+  gating: true
+- from: DEL-05-03
+  condition: >-
+    The section each part of a pipe's mass is taken on is defined for each route: on the exact
+    route pipe metal on the nominal section and contents on the pressure bore; on the
+    pressure-free route both on its one section.
+  gating: false
+- from: DEL-03-05
+  condition: >-
+    A rigid-family component has a total weight and a centre-of-gravity vector in global axes from
+    its node, and its weight acts along gravity at the node with the moment of that force about
+    the node.
+  when: Generating a mapped component's weight
+  gating: true
+- from: DEL-00-06
+  condition: >-
+    A diagnostic record has the fields code, class, severity, source, affected object, message,
+    remediation and provenance. When it crosses a boundary every field other than class arrives
+    unchanged, and the class changes only where the receiving boundary's schema requires its own
+    class vocabulary, by that boundary's stated mapping.
+  gating: false
+- from: DEL-09-01
+  condition: >-
+    One invented reference system holds every family and analysis the release target's exit
+    criterion 1 lists as an exact-route document, with references for its key results from a
+    generator that imports no product code.
+  when: Examining the reference-system criteria
+  gating: false
+- from: DEL-09-01
+  condition: >-
+    The mechanics benchmark suite holds the hand calculations under
+    `validation/hand_calcs/mechanics/`, each expected value with a derivation that imports, reads
+    and runs no product code and a provenance record (DEL-09-01 AC-005).
+  when: Examining the closed-form and generation criteria against the hand calculations
+  gating: false
+- from: DEL-16-06
+  condition: >-
+    A plan of structured operations reaches the model only on the person's acceptance, is applied
+    whole or not at all, and is refused when the model has changed since the plan was made.
+  when: Applying a generated self-weight plan
   gating: true
 code_paths:
+# The primitive-load crate, and the engine that proposes self-weight plans in the desktop.
 - core/loads/primitive_loads/**
 - core/loads/self_weight_wasm/**
+# In the product solve crate (all of which DEL-04-07 lists for its composition), the modules that
+# carry this deliverable's definitions: self-weight, operating-condition resolution and the test
+# condition's record. In self_weight.rs the plan, the component weight, the generation evidence
+# and its inspection are this deliverable's; the mass-per-length computation there is DEL-04-07's
+# section and mass adapter, on DEL-05-03's section bases. Static-equivalent generation, the
+# thermal load and the formed load primitives are in lib.rs and certified_loads.rs, which
+# DEL-05-05 also lists for the user loads formed there. In lib.rs the constant-effort and
+# variable-spring classification, their loads and the not-consumed warning are DEL-04-03's.
 - core/product_physics/src/self_weight.rs
+- core/product_physics/src/operating_conditions.rs
+- core/product_physics/src/operating_conditions/**
 - core/product_physics/src/certified_loads.rs
-- core/product_physics/src/exact_admission.rs
-- core/product_physics/src/pressure_runtime.rs
 - core/product_physics/src/lib.rs
-- core/solver/straight_pipe/src/lib.rs
-- core/solver/frame_kernel/src/structural/formation_check.rs
-- core/product_physics/src/source_receipt/composite.rs
-- core/reporting/result_export/src/physics_evidence.rs
-- core/reporting/result_export/src/physics_source.rs
-- schemas/results_pressure_2.v0.3.schema.json
-- schemas/physics_source_recovery.schema.json
-- core/model_operations/operation_applier/tests/generated_self_weight.rs
-- schemas/model.schema.yaml
-- validation/hand_calcs/mechanics/tp_pmm_p3_subspan_wind_exposure.md
-- apps/desktop/src/features/self-weight-authoring/**
+- core/product_physics/tests/w16_exact_equivalent_static.rs
+- core/product_physics/tests/w16_timoshenko_partial_wind.rs
+# Independent references for generation and resolution.
+- validation/references/w16_exact_equivalent_static/**
+- validation/references/w16_timoshenko_partial_wind/**
+- validation/references/rt_g5_s2_conditions/**
+# The wind-exposure form is authoring, which is DEL-07-03's subject; no other deliverable lists it.
 - apps/desktop/src/features/wind-exposure/WindExposureForm.tsx
-- apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx
-- apps/desktop/src/features/load-cases/primitiveLoadVocabulary.ts
-- apps/desktop/src-tauri/src/lib.rs
 checks:
 - core/loads/primitive_loads/src/lib.rs
 - core/product_physics/tests/w16_exact_equivalent_static.rs
 - validation/references/w16_exact_equivalent_static/generators/w16c_reference.py
 - core/product_physics/tests/w16_timoshenko_partial_wind.rs
 - validation/references/w16_timoshenko_partial_wind/generators/w16t_reference.py
+- core/product_physics/src/operating_conditions/resolution_tests.rs
 - core/model_operations/operation_applier/tests/generated_self_weight.rs
 - core/loads/self_weight_wasm/tests/applied_self_weight.rs
 - apps/desktop/src/features/self-weight-authoring/SelfWeightRefresh.test.tsx

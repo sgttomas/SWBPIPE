@@ -138,7 +138,7 @@ fn with_unused_members(mut document: Value) -> Value {
     document
 }
 
-/// E5 (§1.8): a document with condition sets, assignments and spectra but no
+/// E5: a document with condition sets, assignments and spectra but no
 /// `condition_use` solves byte-identically to the same document without them, on both
 /// solver modes; on the exact route every solved member is identical and only the
 /// hashes bound to the authored request differ.
@@ -339,7 +339,7 @@ fn every_direction_code_refuses_at_the_solve() {
     assert_refused_by(&mutated(|d| { let s = support_mut(d, "stop"); s["direction"] = json!({"x": 1, "y": 0, "z": 0});
             s["nonlinear"] = json!({"behavior": "one_way", "dof": "UX", "initial_state": "active", "active_when": "negative_reaction"}); }),
         "SUPPORT_DIRECTION_RECORD_UNSUPPORTED", "nonlinear member");
-    // S-K1 (DEL-04-03 skew-restraints.md §2.2): two or more nonzero components are a
+    // two or more nonzero components are a
     // skewed record, admitted and solved; the slice's refusals are exercised by
     // `skew_restraints_references.rs`.
     let skewed = direct("spring", json!({"x": 0.0, "y": 3.0, "z": 4.0}));
@@ -360,7 +360,7 @@ fn snubber(extra: Value) -> Value {
     record
 }
 
-/// §2.4 (r2 F5): a valid stiff snubber reaches `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` and no
+/// a valid stiff snubber reaches `SNUBBER_DYNAMIC_ONLY_UNSUPPORTED` and no
 /// other code, on every static solve on both routes.
 #[test]
 fn a_valid_stiff_snubber_reaches_only_its_dynamic_only_refusal_on_both_routes() {

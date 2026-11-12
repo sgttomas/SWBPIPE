@@ -92,7 +92,7 @@ describe("projectService model-document version evidence (DEL-02-05 CLM-003, bro
     expect(evaluated.detail).toBe(`MODEL_SCHEMA_VERSION_RETIRED: model document ${version} is retired; re-author it as model document 0.9.0 (a pressure-free model omits pressure_contract). Nothing is migrated.`);
     await expect(createLocalProject(sampleModel(version))).rejects.toThrow(/status=retired_schema; source_schema_version=/);
     await expect(saveLocalProject(sampleModel(version))).rejects.toThrow(/MODEL_SCHEMA_VERSION_RETIRED/);
-    // A retired project states what it means for its recorded runs (MD8 §3.3, ruling a2).
+    // A retired project states what it means for its recorded runs (ruling a2).
     await expect(createLocalProject(sampleModel(version))).rejects.toThrow(` Nothing is migrated. ${RETIRED_PROJECT_RUNS_NOTE}`);
     expect(await findLocalProject("project:doc-migration-test")).toBeNull();
   });

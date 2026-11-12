@@ -1,6 +1,6 @@
 //! Rule-pack format 0.5.0 run path: required load cases against the model and
 //! the solved envelope, and each `solver_result` input's row on each basis
-//! (W-17; DEL-06-01 Design `rule-pack-0.5.0.md` §2.5, §2.6, §2.8).
+//! (W-17).
 //!
 //! Pure functions over the pack, the current model and the solved envelope,
 //! so they are unit-tested against committed JSON fixtures. What they decide:
@@ -32,7 +32,7 @@
 //!   refused row is recorded for that input on that basis with its reason and
 //!   never bound.
 //!
-//! The rows are indexed once per run by (basis, kind, entity) (§2.8 "Cost").
+//! The rows are indexed once per run by (basis, kind, entity).
 
 use std::collections::{HashMap, HashSet};
 
@@ -94,7 +94,7 @@ fn is_tie_rod_row_id(id: &str, case: &str, tail: &str) -> bool {
 /// (`stable_suffix` maps `:` to `-`), so the rod is taken from the record,
 /// never from the row id: `None` when the envelope has no record or more than
 /// one for the connector, or when no rod or more than one of the record
-/// encodes to the row's id. Such a row matches no `tie_rod` selector (§2.5).
+/// encodes to the row's id. Such a row matches no `tie_rod` selector.
 pub(crate) fn row_tie_rod<'a>(
     envelope: &'a Value,
     row: &Value,
@@ -135,7 +135,7 @@ pub(crate) enum RowSectionBasis {
     Absent,
     Named(&'static str),
     /// `metadata.basis` carries a `section_basis=` token the parser refuses;
-    /// such a row matches no selector (§2.5).
+    /// such a row matches no selector.
     Malformed,
 }
 
@@ -158,7 +158,7 @@ fn metadata_str<'a>(row: &'a Value, key: &str) -> Option<&'a str> {
         .and_then(Value::as_str)
 }
 
-/// Whether `row` is the selector's row on `basis` (design §2.5). Equality is
+/// Whether `row` is the selector's row on `basis`. Equality is
 /// exact string equality on every member; an absent optional member matches
 /// only a row without it. `row_rod` is the rod the row's connector record
 /// binds it to ([`row_tie_rod`]); a selector's `tie_rod` must equal it
@@ -200,7 +200,7 @@ pub(crate) fn row_matches(
 /// RE `preview_held_status::OPERAND_BASIS`: a held-operand row's typed basis.
 const HELD_STATUS_OPERAND_BASIS: &str = "held_status_operand";
 
-/// A held-operand row (§7.6): never selected.
+/// A held-operand row: never selected.
 pub(crate) fn is_held_operand_row(row: &Value) -> bool {
     row.pointer("/metadata/basis").and_then(Value::as_str) == Some(HELD_STATUS_OPERAND_BASIS)
 }
@@ -223,7 +223,7 @@ impl<'a> RowIndex<'a> {
             .map(Vec::as_slice)
             .unwrap_or(&[])
         {
-            // Rows without a well-formed basis_ref are never selected (§2.5).
+            // Rows without a well-formed basis_ref are never selected.
             let Some(basis) = row.get("basis_ref").and_then(BasisRef::from_value) else {
                 continue;
             };
@@ -275,7 +275,7 @@ impl<'a> RowIndex<'a> {
     }
 }
 
-/// What the run binds and refuses, per input and basis (design §2.5, §2.6).
+/// What the run binds and refuses, per input and basis.
 #[derive(Debug, Default)]
 pub(crate) struct SolverInputResolution {
     pub(crate) solver_results: Vec<SolverResultBinding>,
@@ -304,7 +304,7 @@ fn row_id(row: &Value) -> String {
 }
 
 /// Resolve a validated 0.5.0 pack's required load cases and solver inputs
-/// against the current model and its solved envelope (design §2.5, §2.6).
+/// against the current model and its solved envelope.
 /// Inputs are resolved on every available basis of the pack; the runner uses,
 /// for each outcome, only the entries of that outcome's basis.
 pub(crate) fn resolve_rule_pack_solver_inputs(
@@ -317,7 +317,7 @@ pub(crate) fn resolve_rule_pack_solver_inputs(
     let combinations = model_ids(model, "combinations");
     let mut resolution = SolverInputResolution::default();
 
-    // §2.6: each required load case against the model, then the envelope.
+    // each required load case against the model, then the envelope.
     let mut available: Vec<BasisRef> = Vec::new();
     let mut seen: HashSet<BasisRef> = HashSet::new();
     for item in document
@@ -371,7 +371,7 @@ pub(crate) fn resolve_rule_pack_solver_inputs(
         });
     }
 
-    // §2.5: each solver input's one row on each available basis.
+    // each solver input's one row on each available basis.
     for input in document
         .get("required_inputs")
         .and_then(Value::as_array)

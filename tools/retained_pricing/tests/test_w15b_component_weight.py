@@ -1,4 +1,4 @@
-"""W15B-NS (retained-pricing-rules.md §8.22): W-15 slice b's component-weight lineage functions are reached only after
+"""W15B-NS (§8.22): W-15 slice b's component-weight lineage functions are reached only after
 inspect_applied_self_weight's `continue`, which D1.10 and D1.7 (now also refusing a node load in the generated
 self-weight namespace) make every admitted load take. The edge into generation_basis is zeroed only where the code
 exists (`fnkey`), and a changed premise or refusal stops the run. An earlier self_weight.rs stops at

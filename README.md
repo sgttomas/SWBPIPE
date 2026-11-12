@@ -60,8 +60,8 @@ establish an engineering approval or product release.
 
 Read the [repository instructions](AGENTS.md), then locate the affected
 `execution/PKG-nn/DEL-nn-nn/` folder. `ScopeOfWork.md` states commitments and
-acceptance criteria, `Work/` holds technical detail, and `deliverable.yaml`
-states dependency conditions and code/check pointers.
+acceptance criteria, and `deliverable.yaml` states dependency conditions and
+code/check pointers.
 
 From the SWBPIPE repository root, query the relevant inputs and consumers:
 

@@ -31,7 +31,7 @@ describe("the shared library_ref walk", () => {
   });
 });
 
-// W-18b library rule 1's detector alone (DEL-08-01 Design `report-user-release.md` §2.7, §6):
+// W-18b library rule 1's detector alone:
 // every member named `library_ref`, whatever its value, with its JSON pointer, as the native
 // `export_disposition_screen::library_ref_member_sites` finds it in the same table.
 describe("the library_ref member detector", () => {

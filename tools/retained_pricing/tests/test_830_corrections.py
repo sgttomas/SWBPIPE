@@ -1,4 +1,4 @@
-"""C30-JR, C30-ID, C30-DG and W16T-SP (retained-pricing-rules.md §8.30): the three corrections' and W-16t's new code is
+"""C30-JR, C30-ID, C30-DG and W16T-SP (§8.30): the three corrections' and W-16t's new code is
 zero on D1 under guarded premises (D1.5's empty regions, D1.6's absent nonlinear supports, D1.5's refusal of
 equivalent_static); NI's two Display forms stay priced. A changed premise stops the run."""
 from pathlib import Path

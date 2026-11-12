@@ -1,4 +1,4 @@
-// The contour's numbers display (survey item A4; DEL-07-05 Design `result-contour.md`): the stated
+// The contour's numbers display (survey item A4): the stated
 // values drawn on the canvas in place of colours, at their stations, in the legend's display unit.
 // At most `CONTOUR_VALUE_LABEL_BUDGET` numbers, largest first; a number that would overlap one
 // already placed, or that is outside the view, is not drawn. Placed after each main render through

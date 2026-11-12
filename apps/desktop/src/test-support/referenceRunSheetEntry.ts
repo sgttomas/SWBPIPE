@@ -1,4 +1,4 @@
-// The reference system's run sheet (DEL-09-01 `reference-system-run-sheet.md` §2, §3.4, §3.5),
+// The reference system's run sheet (DEL-09-01),
 // shared by the bend-SIF proof (`runSheet/referenceBendSifs.test.tsx`) and the reference-entry
 // journey (`workspace/referenceEntryJourney.session.test.tsx`). The rows, the header and the
 // valve/flange Component details are the run sheet's; `enterReferenceRows` types the bend and
@@ -12,9 +12,9 @@ import type { useRunSheetStore } from "../features/model-tree/runSheet/runSheetS
 import { COMPONENT_FIELDS, componentColumn, type ComponentRowInput } from "../features/model-tree/runSheet/runSheetComponents";
 import { assignIds, recordShownPipeIds, setCell, sheetView, type SheetColumnKey } from "../features/model-tree/runSheet/runSheetView";
 
-/** ⟨P⟩ and ⟨S5⟩ of the run sheet (§1). */
-export const P = "invented reference-system fixture input (DEL-09-01 Work/reference-system.md); not standard, supplier, commercial or project data";
-export const S5 = "invented user value, DEL-09-01 Work/reference-system.md §5";
+/** ⟨P⟩ and ⟨S5⟩ of the run sheet. */
+export const P = "invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data";
+export const S5 = "invented user value, DEL-09-01";
 
 export type Cells = Partial<Record<SheetColumnKey, string>>;
 const support = (code: string, restraints: string, id: string, label: string): Cells => ({ support: code, restraints, supportId: id, supportLabel: label });
@@ -48,7 +48,7 @@ export const REFERENCE_ROWS: Array<{ cells: Cells; grid?: true; component?: stri
   { cells: { dx: "2", nodeId: "node:RS-230", pipeId: "pipe:RS-P230", orientation: "0 0 1", ...support("A", "*", "support:RS-C", "Anchor C (nozzle C)") } },
 ];
 
-/** The valve and flanges' Component details (§3.4), from the reference table. */
+/** The valve and flanges' Component details, from the reference table. */
 export function referenceComponentCells(reference: PreviewModel, id: string): ComponentRowInput {
   const record = reference.components.find((item) => item.id === `component:${id}`)!;
   const g = record.geometry!;
@@ -62,7 +62,7 @@ export function referenceComponentCells(reference: PreviewModel, id: string): Co
 
 type Store = ReturnType<typeof useRunSheetStore>;
 
-/** The run sheet's header (§2): Source ⟨P⟩, m, node:RS- / pipe:RS-P, 10/10, pad 3, from its start node; the six column units.
+/** The run sheet's header: Source ⟨P⟩, m, node:RS- / pipe:RS-P, 10/10, pad 3, from its start node; the six column units.
  * Draft setup: it sets the sheet's draft state directly, not through the header controls' handlers. */
 export function enterReferenceHeader(store: Store, model: PreviewModel): void {
   act(() => store.update(() => {

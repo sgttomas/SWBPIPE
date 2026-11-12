@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""V-K A2: the seeded-fault kill matrix (T3 D1 §4.10 and §7.3; plan §10.5).
+"""V-K A2: the seeded-fault kill matrix.
 
 Standard library only. It builds VR's tests once with `--features
 seeded-faults`, then runs them once per fault, with `FK_SEEDED_FAULT` naming

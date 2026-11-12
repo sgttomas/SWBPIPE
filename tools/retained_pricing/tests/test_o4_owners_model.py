@@ -1,4 +1,4 @@
-"""O4 S5 D3 (retained-pricing-rules.md §8.9): O4's positive owners are read from the function bodies and spans that
+"""O4 S5 D3 (§8.9): O4's positive owners are read from the function bodies and spans that
 allocate them. The current source activates them; a snapshot without the O4 functions adds nothing; a changed body,
 a moved allocating statement or a half-present owner stops the run rather than choosing a price."""
 from pathlib import Path

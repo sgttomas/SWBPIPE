@@ -289,7 +289,7 @@ pub fn scale_by_pow2(mut x: f64, mut k: i32) -> f64 {
 /// quotients and sums of binary64 values keep about 106 bits whatever their
 /// magnitudes, so no intermediate underflows or overflows; only the final
 /// [`WideDd::to_f64`] meets the binary64 range. Used where weighted terms
-/// span more than the binary64 exponent range (design §3.4, the range
+/// span more than the binary64 exponent range (the range
 /// premise of the formed quantities).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct WideDd {
@@ -465,7 +465,7 @@ impl WideDd {
         )
     }
 
-    /// A published value (design §3.2, admission range): `(value, false)`
+    /// A published value (admission range): `(value, false)`
     /// for a normal value or an exact zero, `(0, true)` for a nonzero value
     /// below the binary64 normal range (published as 0, flagged), and
     /// `None` for a value that overflows or is not finite.
@@ -500,7 +500,7 @@ impl WideDd {
             || (self.exponent == -1022 && self.mantissa.hi.abs() == 1.0 && magnitude_lo < 0.0)
     }
 
-    /// A compared value (design §3.2, admission range): zero only for an
+    /// A compared value (admission range): zero only for an
     /// exact zero, otherwise a normal number.
     /// `None` for a value that overflows, underflows to a subnormal or to
     /// zero, or is not finite.
@@ -561,7 +561,7 @@ impl WideDd {
 }
 
 /// max(a, b), NaN if either is NaN: a reduction that must not discard a
-/// NaN (design §3.2, admission range).
+/// NaN (admission range).
 pub fn max_propagating_nan(a: f64, b: f64) -> f64 {
     if a.is_nan() || b.is_nan() {
         f64::NAN

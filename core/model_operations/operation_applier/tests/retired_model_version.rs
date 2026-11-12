@@ -1,5 +1,5 @@
-//! Model document 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §3.1) and
-//! 0.9.0 (`model-document-0.9.0.md` §3.2): the applier operates only on a
+//! Model document 0.8.0 and
+//! 0.9.0: the applier operates only on a
 //! current document. A retired one (0.8.0 and older) is refused by name with MODEL_SCHEMA_VERSION_RETIRED before any
 //! change is checked or written, on validate, apply and batch alike; nothing
 //! is migrated. The model is the committed 0.7.0 handoff control's.

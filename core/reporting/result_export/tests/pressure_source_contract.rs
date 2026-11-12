@@ -73,7 +73,7 @@ fn captured_contract_fixes_the_expected_source_reader() {
         ("/request/model/pressure_contract", json!({"version":"2.0.0", "mode":"exact_straight_pressure_v2"})),
         ("/request/model/pressure_contract", json!({"version":"3.0.0", "mode":ps::PRESSURE_PROFILE})),
         ("/request/model/schema_version", json!("0.4.0")),
-        // O4 (§3.4): an unknown, null or non-string shear model, and an extra contract member.
+        // an unknown, null or non-string shear model, and an extra contract member.
         ("/request/model/pressure_contract/shear_model", json!("cowper")),
         ("/request/model/pressure_contract/shear_model", Value::Null),
         ("/request/model/pressure_contract/shear_model", json!(5)),
@@ -85,7 +85,7 @@ fn captured_contract_fixes_the_expected_source_reader() {
         assert_eq!(ps::validate(&source(), Some(&other)), Err("PHYSICS_SOURCE_ACTUAL_CONTRACT_UNSUPPORTED".into()), "{pointer}");
     }
     assert_eq!(ps::validate_in(&json!({}), Some(&captured), ps::SourceContract::PressureV3), Err("PHYSICS_SOURCE_IDENTITY".into()));
-    // O4 (§3.4): either admitted shear model is the exact contract; a top-level
+    // either admitted shear model is the exact contract; a top-level
     // shear model is still refused.
     let mut timoshenko = captured.clone();
     *timoshenko.pointer_mut("/request/model/pressure_contract/shear_model").unwrap() = json!("timoshenko_annulus_energy_v1");
@@ -341,7 +341,7 @@ fn with_second_pipe(captured: &Value, allowance: Option<Value>) -> Value {
 /// carrying no allowance, a null one, one of the wrong dimension, a negative one or one
 /// reaching the wall is refused PHYSICS_SOURCE_ACTUAL_CORROSION_ALLOWANCE, deterministically,
 /// bound and through the reader verdict, while the first pipe keeps its explicit 0 m. With
-/// an explicit 0 m or (O4 §3.4) an admitted 0.001 m on the second pipe the allowance check
+/// an explicit 0 m or an admitted 0.001 m on the second pipe the allowance check
 /// passes and the statement is refused later instead, by the receipt's coverage of the
 /// captured model (SOURCE_BLOCKS_CURRENT_MODEL_SOURCE_COVERAGE: its sources name one member,
 /// the model two pipes), never for the allowance; a first-section-only check would give

@@ -44,7 +44,7 @@ pub enum ModelDocumentOpenOutcome {
         byte_count: u64,
         schema_status: String,
         document: Value,
-        /// The document validator's non-blocking findings (W-13 §5.3).
+        /// The document validator's non-blocking findings.
         warnings: Vec<ModelFileDiagnostic>,
     },
     Refused {
@@ -150,7 +150,7 @@ pub fn check_model_document(file_name: String, byte_count: u64, document: Value)
             ),
         );
     }
-    // W-13 §5.3: a malformed model-data slot is refused by name with its JSON
+    // a malformed model-data slot is refused by name with its JSON
     // path; it is never repaired.
     let (blocking, warnings): (Vec<_>, Vec<_>) =
         validate_model_document(&document).into_iter().partition(DocumentDiagnostic::is_blocking);
@@ -242,7 +242,7 @@ mod tests {
         assert_eq!(named(document.to_string().as_bytes()), "MODEL-FILE-SCHEMA-REFUSED");
     }
 
-    /// W-13 §5.3: a document carrying every model-data slot opens unchanged; a
+    /// a document carrying every model-data slot opens unchanged; a
     /// malformed slot is refused by name with its JSON path; a missing subject
     /// or quarantined disposition opens with a warning.
     #[test]

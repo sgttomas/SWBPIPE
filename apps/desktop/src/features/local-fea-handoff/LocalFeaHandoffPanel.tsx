@@ -561,11 +561,11 @@ function assumption(assumptionId: string, label: string, basisLocator: string, s
   };
 }
 
-/** A project unit the handoff writes is missing (DEL-02-02 Design §7.4). */
+/** A project unit the handoff writes is missing. */
 export const LOCAL_FEA_PROJECT_UNIT_MISSING = "LOCAL-FEA-PROJECT-UNIT-MISSING";
-/** No referenced result family can be given one consistent unit (DEL-02-02 Design §7.7). */
+/** No referenced result family can be given one consistent unit. */
 export const LOCAL_FEA_RESULT_UNIT_INCONSISTENT = "LOCAL-FEA-RESULT-UNIT-INCONSISTENT";
-/** A candidate result row in another unit than its family's declared unit is not referenced (§7.7). */
+/** A candidate result row in another unit than its family's declared unit is not referenced. */
 export const LOCAL_FEA_RESULT_ROW_UNIT_OMITTED = "LOCAL-FEA-RESULT-ROW-UNIT-OMITTED";
 
 type ResultUnitFamily = "force" | "stress";

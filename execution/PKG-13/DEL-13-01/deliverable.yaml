@@ -2,155 +2,53 @@ id: DEL-13-01
 name: Design knowledge schema and provenance model
 needs:
 - from: DEL-00-01
-  condition: 'DEL-13-01 needs DEL-00-01 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The baseline in force names JSON Schema 2020-12 as the dialect of public schemas and
+    interchange documents.
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-02
-  condition: 'DEL-13-01 needs DEL-00-02 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-03
-  condition: 'DEL-13-01 needs DEL-00-03 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-00-04
-  condition: 'DEL-13-01 needs DEL-00-04 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The persistence rules state that every persisted document declares its schema version, and
+    that any change to what a document can contain raises at least the minor version.
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-00-06
-  condition: 'DEL-13-01 needs DEL-00-06 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The diagnostic contract fixes the fields a diagnostic record carries (code, class, severity,
+    source, affected object, message, remediation, provenance) and the six warning classes, and
+    lets a boundary declare its own class vocabulary where its schema needs one.
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-00-07
-  condition: 'DEL-13-01 needs DEL-00-07 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-08
-  condition: 'DEL-13-01 needs DEL-00-08 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-02-01
-  condition: 'DEL-13-01 needs DEL-02-01 as a predecessor: Design knowledge schema extends the canonical
-    physical/domain model.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-02-02
-  condition: 'DEL-13-01 needs DEL-02-02 as a predecessor: Design knowledge needs canonical unit and dimensional
-    contracts.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    An adapter stops data with a missing or incompatible unit, missing provenance or unknown
+    redistribution status before it enters the model, with a diagnostic that names the item, and
+    no plugin or adapter goes around domain validation.
   gating: true
 - from: DEL-01-02
-  condition: 'DEL-13-01 needs DEL-01-02 as a predecessor: Design knowledge provenance must preserve protected-data
-    boundaries.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
+  condition: >-
+    The data-boundary policy names the seven fields of the provenance record with the
+    redistribution-status and review-status value sets, and names each class of protected
+    content a public artifact may not contain.
+  gating: false
 - from: DEL-01-04
-  condition: 'DEL-13-01 needs DEL-01-04 as a predecessor: Design knowledge must preserve professional-boundary
-    framing.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The claims registry is the single source of boundary language: a surface that needs it uses
+    a registered statement and composes no prohibition list of its own.
   gating: true
-- from: DEL-02-05
-  condition: 'DEL-13-01 needs DEL-02-05 as predecessor evidence because design knowledge records are provenance-bearing
-    project/model payloads that require persistence round-trip and hash/no-bypass context before persisted
-    use.
-
-
-    Notes: HumanDisposition remains TBD; aggregate DAG files not edited.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-01
+  condition: >-
+    Every addressable record of the model document has a stable identifier that persists across
+    edits, so that a design-knowledge record can name the model entities it applies to.
+  gating: false
+- from: DEL-02-02
+  condition: >-
+    The dimension vocabulary is stated once, in the unit schema, and every unit has one
+    dimension from it.
   gating: true
 code_paths:
 - schemas/design_knowledge.schema.json
+- tests/test_design_knowledge_schema.py
+# The invented design-knowledge document bundled in the desktop. The panel that shows it and the
+# commands that load it are DEL-07-08's.
 - fixtures/product_preview/invented_design_knowledge.json
-- apps/desktop/src/features/knowledge/KnowledgePanel.tsx
-- apps/desktop/src/services/previewService.ts
-- apps/desktop/src-tauri/src/lib.rs
-- core/product_preview/service.py
-- apps/desktop/src/features/model-data/AssumptionsPanel.tsx
 checks:
 - tests/test_design_knowledge_schema.py
-- tests/product_preview/test_product_preview_service.py
-- apps/desktop/src/App.test.tsx
-- apps/desktop/src/features/workspace/exactCurrentPanels.test.tsx
-- apps/desktop/src/features/model-data/modelData.test.tsx

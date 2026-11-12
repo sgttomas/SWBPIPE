@@ -60,7 +60,7 @@ Input Contract below makes it stricter (for example, private data with
 `concrete_path_present: true` and no local intent now blocks where it was
 redacted), and the release intent cannot enable export in them: the controls refuse
 `explicit_user_release_intent` with any context other than
-`user_released_report` (DEL-08-01 Design `report-user-release.md` §3), and
+`user_released_report` (DEL-08-01 design §3), and
 local-first route admission refuses it there with `block_storage` /
 `USER_RELEASE_ROUTE_REQUIRED` on every route; an absent or false flag leaves
 the route evidence unchanged. No route uses `user_released_report` yet.

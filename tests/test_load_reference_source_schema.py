@@ -43,7 +43,7 @@ PSR = "physics_source_recovery.schema.json"
 LRSCHEMA = "load_reference_state.schema.json"
 
 PRS_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-# T4-U6 (D-5, DEL-05-03 section-bases-and-timoshenko.md §2.4): the per-basis stress signatures (88).
+# T4-U6 (D-5): the per-basis stress signatures (88).
 PRS_SHA = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9"
 PRS_POLICY = "PRESSURE-SOURCE-1"
 PROFILE = "exact_pressure_v3"
@@ -62,7 +62,7 @@ LRS_SHA = "28f454334352a089bd05e4773a756806b707113b732df986eb89eb7e800d5924"
 PS_SHA = "0309b16e2ccb4ec40eaa0c3e7d339ed0d41693ee85dc4fc736d1656cf2702f53"
 LRS_PROFILE = "resolved_straight_load_state_source_v1"
 PS_PROFILE = "exact_straight_pressure_v2"
-# PF Timoshenko (DEL-05-03 pf-timoshenko.md §4): its branch follows preview-physics-2's in each carrier.
+# PF Timoshenko: its branch follows preview-physics-2's in each carrier.
 CARRIER_ORDER = [PRS_ID, PREVIEW_ID, "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1", PRESSURE_ID, SUCCESSOR_ID, EXACT_ID]
 BRANCH_OF = {contract_id: index for index, contract_id in enumerate(CARRIER_ORDER)}
 EXPORT_BRANCH_OF = BRANCH_OF

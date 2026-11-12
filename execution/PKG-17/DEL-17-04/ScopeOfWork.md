@@ -2,370 +2,157 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-17-04
 package_id: PKG-17
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-030, SOW-074, SOW-075]
 package_objective_refs: [OBJ-009, OBJ-017, OBJ-018]
 ---
 
-# Scope of Work — DEL-17-04
+# Scope of Work — DEL-17-04 CAEPIPE MBF export profile and deterministic writer
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-17-04` in service of project scope [SOW-030, SOW-074, SOW-075] and package objectives [OBJ-009, OBJ-017, OBJ-018].
+This deliverable carries a SWBPIPE model to and from MBF, CAEPIPE's text model batch file. The writer turns a model into an MBF with an identity file and a loss report; the importer reads MBF model data back into a SWBPIPE model document. The result it contributes is that an engineer can iterate between SWBPIPE, where the design is developed, and CAEPIPE, where it is validated, without re-entering the model and without losing track of which entity is which: everything the MBF cannot carry is named, nothing is approximated silently, and a model that goes out and comes back is the same model with the same identities.
 
-- **OUT-001** — A versioned CAEPIPE MBF export-profile and deterministic writer contract with explicit supported, omitted, approximated, delegated, sidecar-mapped, unsupported, and TBD behavior is produced.
-- **OUT-002** — A source-bounded MBF model importer, the inverse of the writer profile, with a declared first-tranche subset, named refusals, an import loss report, sidecar id restoration, and public round-trip and private regression checks is produced.
+It serves SOW-030, SOW-074 and SOW-075 under OBJ-009, OBJ-017 and OBJ-018 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-17, row DEL-17-04: the first solver-specific target, with bounded model import alongside export), with `docs/PRD.md` §8.4, §10.4, §11.7 (FR-HAND-001 to FR-HAND-005), §16.1, §16.2 and §18.4. With DEL-07-12 it owns exit criterion 6 of `docs/RELEASE_TARGET_v1.0.md`: the desktop saves the reference system as MBF with no family of the reference system omitted or unsupported in the loss report, and imports it back with the same entity identities.
+
+- **OUT-001** — The MBF writer and its profile: the SI writer, its identity file, its loss report and diagnostics, and the export package contract `schemas/caepipe_mbf_export.schema.json`.
+- **OUT-002** — The MBF model importer: the inverse of the writer profile, with its declared subset, named refusals, import loss report, identity restoration and data-boundary checks.
+- **OUT-003** — The desktop MBF round trip: the engine the desktop runs, the native export and import commands, and the round-trip check of exit criterion 6.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-17-04 CAEPIPE MBF export profile and deterministic writer
+**Terms the product implements.**
 
-> #### Datasheet: DEL-17-04 CAEPIPE MBF export profile and deterministic writer
->
+- *Writer profile.* The declared set of model members the writer writes, the units it writes them in and the conventions it applies. The one profile is `caepipe-mbf-si-pilot-1`: SI units, the default vertical axis Y.
+- *Identity file.* The writer's sidecar, saved beside the MBF as `<stem>.swbpipe-ids.json`. It records the SHA-256 of the MBF it belongs to, the maps from MBF node numbers and record names to SWBPIPE identifiers (nodes, elements, supports, materials, sections, load cases, pressure regions), what the MBF cannot carry and a bound import needs, and its own digest. MBF identity is sidecar-only.
+- *Bound and unbound.* An import is bound when an identity file is supplied whose recorded MBF hash equals the hash of the input bytes, and the file equals what the writer regenerates from the imported model. The MBF is then exactly what SWBPIPE wrote, and the writer's conventions describe it. Every other import is unbound, including any MBF that CAEPIPE wrote or rewrote and any file a person edited. An unbound import uses only meanings an admitted public source settles, with the one exception `TBD-17-04-007` names.
+- *Declared subset.* The MBF sections, records, key letters, comment keywords, fields and values the importer reads. Each is cited to an admitted source of the DEL-17-01 register, or is a selected interpretation named as one.
+- *Refusal and loss entry.* An item outside the declared subset is either refused by name, which blocks the import, or listed in the import loss report, which does not. A refusal has a code, a location and an effect. A record whose meaning rests on an open question is refused in an unbound import with a code naming that question, unless a retained bounded profile decision admits it (`TBD-17-04-007`).
+- *Pass-through option.* A piping-code, hanger-design or analysis option of the target. It is recorded as target configuration and is never read by any SWBPIPE rule, check or acceptance logic.
+- *Reversible subset.* The models for which writing and then importing bound returns the model. A model is in it when the writer writes it without refusal and without a shear-modulus omission, every compared value is in the writer's unit tables, every value as printed passes the importer's own checks, and distinct material, section and load records stay distinct as printed.
+- *Byte-reproducible subset.* The part of the reversible subset that, imported bound and written again with identical writer settings, gives the same MBF byte for byte. A value that re-prints differently is a formatting collision; it is reported, and the model is excluded from byte reproduction by name.
+- *Canonical comparison.* The comparison of a model with its import, both reduced to SI base units: node positions; each pipe's ends, diameter, wall, moduli, Poisson's ratio and expansion coefficient; restrained degrees of freedom and spring stiffnesses; each bend's radius, flexibility factor, plane and node; per case, the summed loads per target; and the pressure contract and regions. Sums are formed as exact rationals and rounded once, independently of the writer. Listed representation losses are excluded by name.
+- *Round-trip bound.* The largest difference the comparison admits for a scalar. The writer prints ten significant digits, so a printed value p stands for any number within 0.5 × 10^(⌊log10|p|⌋ − 9) of it; the bound is that half-unit, the binary64 rounding of the conversions involved, and for bends the writer's admitted tangent-length, intersection and orientation residuals. A difference beyond its bound is a defect, not a tolerance matter.
+- *Must family.* A family the reference system contains under exit criterion 1, or a load case it holds. Combinations, which combine solved results, are outside exit criterion 6's families; their coverage is judged under exit criterion 1.
+- *Identity set.* The nine entity classes whose identifiers a round trip must return: nodes, pipes, components, supports, load cases, primitive loads, materials, pressure regions and sections. The project identifier is not in it.
+- *Round-trip checks.* Exit criterion 6 as seven checks:
+  - C6-1: the engine's writer returns a written MBF for the model under the desktop's export settings;
+  - C6-2: no loss entry of category omitted or unsupported names an entity of a Must family;
+  - C6-3: the two files on disk are the engine's bytes, their read-back hashes equal to the reviewed ones;
+  - C6-4: importing the saved pair is bound, verifies the identity file's own digest and has no refusal;
+  - C6-5: for every class of the identity set the imported identifiers equal the exported ones, and none is reported unrecoverable;
+  - C6-6: the exported and imported models agree under the canonical comparison within the round-trip bounds;
+  - C6-7: C6-1 to C6-6 run through the engine the desktop itself runs.
+- *Designated source.* A model document the user names as the one a saved pair was written from. The import review states the identity set as established only when that document's hash is the identity file's recorded source hash, writing it again gives the same pair byte for byte, and the import has the same identifiers in each of the nine classes. This establishes the identity set, not equivalence of the whole model.
 
-### CLM-002 — Identification
+**Boundary.** This deliverable owns the writer, the importer, their engine, the native export and import commands, and the round-trip check.
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-17-04 |
-> | Package | PKG-17 Export Format Interoperability |
-> | Type | BACKEND_FEATURE_SLICE |
-> | Source foundation | DEL-17-01 and DEL-17-02 |
-> | Lifecycle role | First CAEPIPE-specific export profile/writer foundation deliverable |
->
+- The export and import dialogs and the Exports panel are DEL-07-12's GUI code on this deliverable's engine and commands.
+- Reading CAEPIPE analysis results, running CAEPIPE, and the private exchange folder are DEL-17-05's. The importer reads model input only; ingestion of commercial-tool results stays deferred.
+- The package, profile, identity-map and loss-report definitions are DEL-17-02's; the admitted sources and open questions are DEL-17-01's.
+- The reference system fixture is DEL-09-01's. The model document and its validator are DEL-02-01's; the document open path is DEL-02-05's, and the guard on replacing a session's unsaved model is DEL-07-11's. The governed save route and the screening of what is saved are DEL-12-02's. The capped worker and the memory budget the desktop runs engine work under are DEL-07-07's and DEL-04-07's.
+- A family with no MBF record is a candidate release limitation under exit criterion 3, which only the owner accepts.
+- An MBF written by CAEPIPE, even of a SWBPIPE model, is CAEPIPE output. It and everything derived from it stay in the user's private exchange folder.
 
-### CLM-003 — Purpose
+**Not decided.**
 
-> ##### Purpose
->
-> DEL-17-04 defines the document-level contract/design and first bounded implementation foundation for a CAEPIPE MBF export profile and deterministic writer. It is grounded in admitted public/official CAEPIPE MBF references, the DEL-17-01 source basis, and the DEL-17-02 export package/profile/loss-report contract.
->
-> The implementation foundation emits a deliberately narrow invented smoke subset, a JSON package contract, a deterministic MBF text member, sidecar stable-ID mapping, diagnostics, and loss reports. It does not implement a CAEPIPE result parser, external execution harness, public API, release claim, CAEPIPE compatibility claim, code-compliance claim, or professional-acceptance claim (the desktop GUI action, File > Export MBF… and the Exports section's Model batch file panel, is DEL-07-12's GUI code on this deliverable's engine and native commands; the separate TypeScript preview builder is retired).
->
-> DEL-17-04 also reads MBF model data back into a SWBPIPE model document, the inverse of its writer profile (owner ruling, 2026-10-26: <!-- owner-words -->"I want to expand to go both ways. That would make any kind of iteration between the two much more effective. For the validation it isn't strictly necessary, since the proof case lives in CAEPIPE."<!-- /owner-words -->). The importer reads model input only; ingestion of CAEPIPE analysis results stays deferred under DEC-016 (REQ-012 to REQ-020; Design `caepipe-mbf-import.md`).
->
-> Desktop export action (slice 4b.2b, Design `desktop-mbf-export-import.md` §3.1 and §6): File > Export MBF… and the Exports section's Model batch file panel (`apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx`) open one dialog (`MbfExportDialog.tsx`) on the session's canonical model text and hash. It reviews and saves only through the native commands below; in the browser-only route it declines the review with `MBF-REVIEW-NATIVE-ONLY`. The TypeScript preview builder (`buildCaePipeMbfExportPacket`, `document_kind: openpipestress.technical_preview.caepipe_mbf_export_package`), its download links and its project-id file names are retired (A-6).
->
-> Native commands (slice 4b.2a, Design `desktop-mbf-export-import.md` §3.7 and §6): `review_mbf_export` and `save_mbf_export` are registered native commands. Each is admitted within one command ledger seeded with its argument lease (DEL-14-01 r4), and runs the engine's writer as worker task 3 in the capped worker process, its result bounded by the 64 MiB output ceiling before the host allocates it (`apps/desktop/src-tauri/src/mbf_export.rs`, `mbf_worker.rs`). `cancel_mbf_export` retires the export: it cancels the review and save in progress (a save before its commit writes nothing; one after it completes) and every request sent before it, whenever that request's task runs. Each review and save request carries the retirement epoch the frontend last saw acknowledged (`expectedEpoch`, a dispatch ticket read from the admitted arguments before the model is decoded): a passed ticket is cancelled, and a missing, malformed or future one is refused as a protocol error. Each retirement carries its own id (`retirementId`, a page token and a rising sequence) and is applied once: a duplicate or older delivery is a no-op whose reply says so, and no applied page token is forgotten. A retirement is sent as Tauri's JSON arguments, the one form that still reaches the host after Tauri's transport falls back to `postMessage` (the review and save stay raw-body only). The performance session reset does not touch the export. The frontend sends every review and save, and every retirement, through one barrier (`apps/desktop/src/features/caepipe-mbf/mbfExportCancel.ts`): it retires the export when the workspace mounts and whenever it retires a project session, sends no start while a retirement is unacknowledged or after its caller's session was retired, gives each start one ticket for all its sends, and tags each result with its generation. The ticket authorizes nothing. The mounted dialog (slice 4b.2b) uses the barrier's review and save: closing or unmounting it sends a keyed retirement, a result whose start is no longer current is discarded, and the export's own refusals are shown in product text that says what the user can do.
-
-> Desktop import action (slice 5, Design `desktop-mbf-export-import.md` §4.1, §4.3 and §4.5 to §4.8): File > Import MBF… follows Open Model Document… in the native and in-window File menus and opens one modal dialog (`apps/desktop/src/features/caepipe-mbf/MbfImportDialog.tsx`, DEL-07-12's GUI code). The native `open_mbf_import` shows the read-only chooser, pins the chosen MBF and, when one is present, its identity file `<stem>.swbpipe-ids.json` as read-only handles with their file identities, sizes and SHA-256, and returns the bounded review that worker task 5 forms in the capped worker (`import_review`, at most 1 MiB): the binding, every refusal, loss entry and target option by its code, each applied mapping assumption as a stable identifier with structured parameters (REQ-015; the dialog shows SWBPIPE's product descriptions, never the engine's assumption sentences), the identity counts and the units. `review_mbf_import` re-runs it for a material provenance declaration (project-invented example data or the user's own named source, per listed material, never a wildcard), and `adopt_mbf_import` returns the engine's import of the re-read, hash-checked bytes only when the review the user saw is current, complete and adoptable. Each review, designation and Adopt re-reads the chosen files and refuses any change; between commands the host keeps no file bytes, model or review, only the fixed-size source record and, after a designation, a fixed-size record of the base review's, the designated review's and the designated file's digests (`apps/desktop/src-tauri/src/mbf_import.rs`). Adopt enters the session only through the existing document open path (REQ-017): `handleOpenModelDocument`, with its unsaved-changes guard, the one `checkNativeOutcome`, the index guard and the commit. The imported model starts unsaved with no stored base, and every refused, stale, changed or cancelled outcome leaves the session as it was. The import's barrier (`mbfImportCancel.ts`) and its keyed retirement `cancel_mbf_import` are separate from the export's, and the performance reset touches neither. Designate original source… (`designate_mbf_import_source`, Design §5.4) lets the user designate, through the native model-document chooser only, the model document a format-6 pair was written from; the file is read once for that review and never kept. The review states `established_for_identity_set` only when the file's canonical digest is the identity file's recorded source digest, writing it again with the recorded export settings gives the chosen MBF and identity file byte for byte, the import has the same ids as the file in each of A-3's nine identity classes and reports no unpreserved id or unrecovered field, and the review is complete. This establishes the identity set only, not whole-model equivalence. Adopt of that review re-forms the ordinary review over the same files and declaration and adopts the files' model. No pressure closure, rebinding, shear model or format-5 identity file is offered (slice 7; Route 1 stays held). The desktop import does not show criterion 6, whose reference-system coverage remains open.
->
-
-### CLM-004 — Source and Evidence Slots
-
-> ##### Source and Evidence Slots
->
-> | Source slot | Required treatment |
-> |---|---|
-> | DEL-17-01 source basis | Carry CAEPIPE source findings, TBD register entries, and question-dossier gates into the target profile. |
-> | DEL-17-02 export contract | Carry export profile, stable-ID map, manifest, and loss-report vocabulary into the writer contract. |
-> | CAEPIPE public MBF import reference | Treat as evidence for MBF text input, keyword-ordered sections, and command-line behavior only; profile coverage remains source-gated. |
-> | CAEPIPE public MBF export reference | Treat as evidence that CAEPIPE exports MBF model data and version-flavoured MBF output; SWBPIPE support claims remain `TBD`. |
-> | CAEPIPE public layout pages | `CAEPIPE-MBF-EXAMPLE`, `CAEPIPE-LAYOUT-OFFSETS`, `CAEPIPE-NODE`, `CAEPIPE-MBF-ABSOLUTE` and `CAEPIPE-UNITS` in DEL-17-01: evidence for the record syntax the importer reads (offsets and absolute coordinates, generated bend nodes, feet-inch lengths, weight densities) only; their text and examples are not copied into fixtures. The sources disagree on the placement of the absolute-coordinate marker. This profile selects the trailing marker shown in MBF examples; the alternative remains refused pending clarification (TBD-17-04-009). |
-> | CAEPIPE public load-case and technical-reference pages | `CAEPIPE-LOAD-CASES` and `CAEPIPE-FORCE` in DEL-17-01: evidence for case-membership semantics only: which loads each CAEPIPE load case includes; and the Force technical reference documents that sustained-category forces and moments also participate in operating cases. `CAEPIPE-BEND`: evidence that CAEPIPE generates the bend's near and far end nodes with A and B suffixes, and for the section assignment on a bend row, only. |
-> | Implementation evidence | `core/handoff/caepipe_mbf/`, `schemas/caepipe_mbf_export.schema.json`, `fixtures/caepipe_mbf/invented/`, and `tests/test_caepipe_mbf_export_package.py` provide bounded foundation evidence. |
->
-
-### CLM-005 — Profile Concepts
-
-> ##### Profile Concepts
->
-> | Concept | Required treatment |
-> |---|---|
-> | Target family | CAEPIPE MBF profile. |
-> | Target version basis | `TBD` until source-confirmed. |
-> | Record-family subset | `TBD` until downstream source review and/or vendor clarification closes it. |
-> | Profile-basis guardrail | The implementation foundation blocks blank or unsupported target-version and record-subset basis values; until source-confirmed closure exists, the profile must carry `TBD-17-01-001`, `TBD-17-01-002`, and `TBD-17-01-003`. |
-> | Stable ID strategy | Direct MBF carrying remains `TBD`; the implementation foundation uses manifest-referenced sidecar mapping as the conservative default. |
-> | Source basis trace | Each CAEPIPE-specific requirement must map to DEL-17-01, DEL-17-02, a public MBF source, or an explicit `TBD`. |
-> | Source basis guardrail | The implementation foundation blocks caller-supplied profile source-basis refs that omit DEL-17-01, DEL-17-02, `CAEPIPE-IMPORT-MBF`, or `CAEPIPE-EXPORT-MBF`, and blocks `DEL-17-03` as CAEPIPE target/source authority. |
-> | Loss reporting | Required for exported, omitted, approximated, delegated, unsupported, and TBD behavior. |
-> | Unsupported-entity severity | Missing or malformed unsupported-entity evidence blocks the package; explicit unsupported behavior is warning-level by default unless separately marked blocking; `info` severity is not accepted for unsupported behavior. |
-> | Pass-through options | May be target configuration only; not local code-checking logic. |
->
-
-### CLM-006 — Boundary Summary
-
-> ##### Boundary Summary
->
-> - No CAEPIPE executable, commercial example, proprietary model, or copied vendor fixture is added.
-> - An MBF written by CAEPIPE, even of a SWBPIPE model, is CAEPIPE output: it and every import result derived from it stay in the user's private exchange folder and are never committed or quoted in public text. Public import tests use only MBF the project writes itself from invented models.
-> - No reverse-engineered behavior or license-bypass workflow is introduced.
-> - No protected standards values, material allowables, SIF/flexibility values, or owner criteria are introduced.
-> - MBF export work remains a source-bounded foundation until a later tranche closes target version/profile and record-family coverage.
-> - Guardrail diagnostics preserve source uncertainty; they do not close CAEPIPE version/profile, record-family coverage, direct stable-ID carrying, compatibility, or professional reliance.
-> - DEL-17-03 may remain historical implementation-pattern evidence, but it is not CAEPIPE MBF source-basis authority.
+- The first supported target version and record-family subset (REQ-001, REQ-002; DEL-17-01 `TBD-17-01-001` and `TBD-17-01-002`). The profile writes MBF version 15.10 and a declared subset as a bounded pilot selection. That selection governs the pilot only; the two questions stay open until they close under DEL-17-01's closure rule.
+- `TBD-17-04-005`: how the gravitational direction field is encoded and what both gravity fields default to. A present value is refused, and the writer does not write the field.
+- `TBD-17-04-006`: the text encoding, foot and inch mark characters and numeric precision of CAEPIPE's own MBF export. The importer reads strict UTF-8 and the marks the public pages show, and no bound is widened for export precision.
+- `TBD-17-04-007`: whether the layout comment `L=` is the documented load reference and which case a force or moment without `FLC` joins. Bound imports apply the writer's conventions. Unbound imports refuse both, except that a retained bounded profile decision admits both for the MBF version the writer emits, 15.10.
+- `TBD-17-04-008`: whether CAEPIPE's MBF export keeps node numbers, row order and bend rows as imported. An unbound identity file is applied only on explicit request.
+- `TBD-17-04-009`: whether the absolute-coordinate marker precedes or follows the node number; the public sources disagree. The profile selects the trailing marker and refuses any other placement.
+- `TBD-17-04-010`: the unit of the rotational stiffnesses `ROTK` and `KR`, and three further support-record meanings the public pages leave open. These records are refused; a zero `ROTK` is read; the writer writes no rotational spring.
+- The solve-equality threshold of the round trip (AC-008) is provisional and is not derived from the printed precision.
+- An English-unit writer. An English import cannot be written back by the SI writer; whether iteration in English units is served by a writer extension or by documented normalization to SI is not selected.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-007 — Specification: DEL-17-04 CAEPIPE MBF export profile and deterministic writer
+### Requirements
 
-> #### Specification: DEL-17-04 CAEPIPE MBF export profile and deterministic writer
->
+- **REQ-001** — The MBF profile declares its target version basis as undecided until `TBD-17-01-001` closes under DEL-17-01's closure rule.
+- **REQ-002** — The first MBF record-family subset stays undecided until `TBD-17-01-002` closes under DEL-17-01's closure rule.
+- **REQ-003** — The writer approximates no physical or analytical model entity silently.
+- **REQ-004** — Every export has a loss report covering omitted, approximated, delegated, unsupported and undecided behaviour.
+- **REQ-005** — Canonical identifiers are not claimed to be carried inside the MBF; they are mapped in the identity file.
+- **REQ-006** — Pass-through target options stay target configuration and never become SWBPIPE code-checking logic.
+- **REQ-007** — Every public fixture and test MBF is invented and written by the project.
+- **REQ-008** — The export package uses sidecar identity mapping while DEL-17-01 `TBD-17-01-003` is open.
+- **REQ-009** — The export package blocks when its subset inputs, its identity map or its loss report is missing.
+- **REQ-010** — The export package blocks when the target-version basis, the record-subset basis or a carried open question is missing, blank or weakened without an admitted closure.
+- **REQ-011** — The export package blocks when its source-basis references omit DEL-17-01, DEL-17-02, `CAEPIPE-IMPORT-MBF` or `CAEPIPE-EXPORT-MBF`, or name DEL-17-03 as a source for the target.
+- **REQ-012** — The importer reads MBF model input into a SWBPIPE model document of the current version. It reads no CAEPIPE analysis result, and a successful import is not presented as compatibility, validation or acceptance evidence.
+- **REQ-013** — The importer reads only its declared subset. Every other item is refused by name or listed in the import loss report; nothing is dropped, defaulted or inferred.
+- **REQ-014** — The importer reads English and SI unit modes and the `RAD` option. It keeps each quantity in its MBF unit where the unit catalog has that unit, and otherwise applies only two exact definitional conversions: feet and inches to inches, and kilogram-force to newton. Any other unit, notation or value is refused by name.
+- **REQ-015** — Each import returns diagnostics, an import loss report in the common contract's categories, and the mapping assumptions it applied. Piping-code, hanger-design and analysis options are recorded as pass-through options only.
+- **REQ-016** — MBF node numbers and record names map to SWBPIPE identifiers deterministically. A bound identity file restores the identities and splits it preserves; many-to-one mappings and unrecoverable identities are reported; an unbound identity file is applied only on explicit request, every restored identity then reported as unconfirmed; and each import emits its own identity map.
+- **REQ-017** — Identical MBF bytes, identity file, material-provenance declaration, rebinding option, source label and importer version give byte-identical outputs. The imported document validates against the model document's desktop profile and enters the product only through the document open path.
+- **REQ-018** — A model in the reversible subset, written and imported bound, is reproduced under the canonical comparison within the round-trip bounds. A model in the byte-reproducible subset is written again byte for byte. Every exclusion, representation loss and formatting collision is explicit, and an unbound import of writer output gives its named refusals, except where a retained bounded profile decision admits the records (`TBD-17-04-007`).
+- **REQ-019** — MBF files written by CAEPIPE and every import result derived from them are handled as private data, and imported entities carry provenance naming the source MBF's hash. Material mechanics data requires an affirmative declaration that it is project-invented or the user's own supplied source; vendor-library, unknown and suspected-protected origins are refused, and a redistribution disposition alone does not suffice. Allowable, strength, fatigue and code data never enter the model.
+- **REQ-020** — A private regression check re-imports the CAEPIPE-exported MBFs in the user's exchange folder and fails when an import outcome leaves its recorded classification. Every CAEPIPE-derived value, difference, classification and detailed diagnostic stays in the exchange folder; standard output carries operational status only; and the check skips, saying why, when no exchange folder is configured.
+- **REQ-021** — The export package states no compatibility, validation, code-compliance or professional-acceptance claim, and blocks when model or profile metadata carries wording of one (`docs/PRD.md` §21.2).
+- **REQ-022** — The importer is examined on invented, hand-written MBF cases that this deliverable provides, each naming the construct it exercises and the outcome the importer gives on it. The correlation harness (DEL-17-05) also runs them through the user's CAEPIPE, and the private regression of REQ-020 reads what CAEPIPE exported for them.
 
-### CLM-008 — Normative Scope
+### Acceptance criteria
 
-> ##### Normative Scope
->
-> DEL-17-04 shall define a source-bounded CAEPIPE MBF export profile and deterministic writer contract/design, and may include a first bounded implementation foundation. It shall consume DEL-17-01 source authority and DEL-17-02 package/profile/stable-ID/loss-report requirements.
->
-> This deliverable's implementation foundation shall remain limited to deterministic project-owned package building, invented fixtures, schema validation, sidecar stable-ID mapping, diagnostics, and loss reports. It shall not implement a CAEPIPE result parser, external run harness, public API, release claims, CAEPIPE compatibility claims, code-compliance claims, professional-acceptance claims, or full MBF coverage claims. Its desktop part is limited to the engine, native file commands and round-trip check of Design `desktop-mbf-export-import.md` (RT-R7, RT-R8); the GUI code of those actions is DEL-07-12's.
->
-> DEL-17-04 shall also provide a source-bounded MBF model importer: the inverse of the writer profile, extended only where SWBPIPE represents an MBF construct exactly. It reads a declared subset of MBF model data into a SWBPIPE model document and refuses by name, or reports in an import loss report, everything outside that subset (REQ-012 to REQ-020).
->
-
-### CLM-009 — Requirements
-
-> ##### Requirements
->
-> | Req ID | Requirement |
-> |---|---|
-> | DEL-17-04-REQ-001 | The CAEPIPE MBF profile shall declare target version basis as `TBD` until source-confirmed. |
-> | DEL-17-04-REQ-002 | The first MBF record-family subset shall remain `TBD` until source evidence or human-approved clarification closes it. |
-> | DEL-17-04-REQ-003 | The writer contract shall not silently approximate unsupported physical or analytical model entities. |
-> | DEL-17-04-REQ-004 | The writer contract shall require a loss report for omitted, approximated, delegated, unsupported, and TBD behavior. |
-> | DEL-17-04-REQ-005 | Stable canonical ID carrying inside MBF shall remain `TBD`; sidecar mapping shall be required when direct carrying is not source-confirmed. |
-> | DEL-17-04-REQ-006 | Pass-through target options shall remain target configuration metadata and shall not become SWBPIPE local code-checking logic. |
-> | DEL-17-04-REQ-007 | Later implementation shall use invented fixtures only. |
-> | DEL-17-04-REQ-008 | The first implementation foundation shall use sidecar stable-ID mapping while `TBD-17-01-003` remains open. |
-> | DEL-17-04-REQ-009 | The first implementation foundation shall expose blocking diagnostics when the invented smoke subset, sidecar stable-ID map, or loss report is missing. |
-> | DEL-17-04-REQ-010 | The first implementation foundation shall expose blocking diagnostics when target-version basis, record-subset basis, or carried profile TBD references are missing, blank, or weakened without admitted source-confirmed closure. |
-> | DEL-17-04-REQ-011 | The first implementation foundation shall expose blocking diagnostics when profile source-basis refs omit DEL-17-01, DEL-17-02, `CAEPIPE-IMPORT-MBF`, or `CAEPIPE-EXPORT-MBF`, or when they include DEL-17-03 as CAEPIPE target/source authority. |
-> | DEL-17-04-REQ-012 | The deliverable shall provide an MBF model importer that reads MBF model input into a SWBPIPE model document of the current model-document version. It shall not read or ingest CAEPIPE analysis results, and a successful import shall not be presented as compatibility, validation or acceptance evidence. |
-> | DEL-17-04-REQ-013 | The importer shall read only the declared first-tranche subset of MBF sections, records, key letters, comment keywords and fields listed in Design `caepipe-mbf-import.md`. Every other item shall be refused by name or listed in the import loss report; nothing shall be silently dropped, defaulted or inferred. |
-> | DEL-17-04-REQ-014 | The importer shall read English and SI unit modes and the `RAD` option, keep each quantity in its MBF unit where the SWBPIPE unit catalog has that unit, and otherwise apply only the exact definitional conversions its Design selects (feet and inches to inches; kilogram-force to newton). A unit, notation or value it cannot carry or convert that way shall be refused by name. English imports cannot be re-exported through the current SI writer; bidirectional English iteration requires a separately selected writer extension or documented normalization to its SI profile. |
-> | DEL-17-04-REQ-015 | Each import shall return diagnostics, an import loss report in the DEL-17-02 categories, and the mapping assumptions applied. Piping-code, hanger-design and analysis options shall be recorded as pass-through target configuration only and shall not become SWBPIPE rule, code-checking or acceptance logic. |
-> | DEL-17-04-REQ-016 | CAEPIPE node numbers and record names shall map to SWBPIPE ids deterministically. A byte-bound sidecar shall restore identities and splits it explicitly preserves. Many-to-one mappings and unrecoverable identities shall be reported. A sidecar that is not byte-bound shall be applied only on explicit request, with every restored identity reported as unconfirmed. Each import shall emit its own id map. |
-> | DEL-17-04-REQ-017 | Identical MBF bytes, sidecar, material-provenance declaration, rebinding option, source label and importer/profile version shall produce byte-identical outputs. The imported document shall validate against the model-document schema's desktop profile and shall enter the product only through the existing document open path. |
-> | DEL-17-04-REQ-018 | Writing a model in the reversible subset and importing it with a bound sidecar shall reproduce the model under the canonical comparison of Design `caepipe-mbf-import.md`, within the documented and justified absolute and relative tolerances stated there. The reversible subset is defined in the Design and requires every value to remain valid as written and distinct records to retain distinct keys. The tolerances cover formatting and arithmetic error plus the writer-admitted residuals. For bends, these residuals are the tangent-length, intersection and orientation residuals. Bend-plane orientation is compared as the normalized projection of `y_reference` perpendicular to the unit chord, and its residual is computed with that same projection. A model with residuals the tolerances do not cover is excluded explicitly. Models in the byte-reproducible subset defined in the Design shall be written again byte for byte from their import, under a bound sidecar and identical writer settings. Every exclusion and representation loss shall be explicit. Every formatting collision shall be reported explicitly. An unbound import of writer output shall give its named refusals, except where an explicitly retained bounded profile decision admits the records. |
-> | DEL-17-04-REQ-019 | MBF files written by CAEPIPE, and every import result derived from them, shall be handled as private data, and imported entities shall carry provenance naming the source MBF hash. Material mechanics data shall require affirmative project-invented or user-supplied provenance. A bound sidecar qualifies only when its provenance affirmatively identifies project-invented data or the user's own supplied source; vendor-library, unknown and suspected protected origins remain refused. Redistribution disposition alone is insufficient. Allowable, strength, fatigue and code data shall never enter the model. |
-> | DEL-17-04-REQ-020 | A private regression check shall re-import the CAEPIPE-exported MBFs held in the user's exchange folder and fail when an import outcome moves from its recorded classification. All CAEPIPE-derived values, differences, classifications and detailed diagnostics shall remain in the private exchange folder. Standard output shall contain operational status only. The check shall skip, stating the reason, when no exchange folder is configured. |
->
-
-### CLM-010 — Verification Requirements
-
-> ##### Verification Requirements
->
-> | Check | Requirement |
-> |---|---|
-> | Source trace | CAEPIPE-specific statements cite DEL-17-01 source IDs or remain `TBD`. |
-> | Boundary trace | No proprietary examples or protected data are introduced. |
-> | Loss trace | Unsupported and TBD behavior is visible in the loss-report contract. |
-> | Profile-basis trace | Target-version, record-subset, and direct stable-ID uncertainty remain visible through carried TBD refs until source-confirmed closure exists. |
-> | Source-basis guardrail trace | Profile and manifest source-basis refs carry the required authority set and do not promote implementation-pattern evidence to CAEPIPE source authority. |
-> | Import subset trace | Each imported MBF item in the Design is cited to an admitted DEL-17-01 source, except selected interpretations the Design labels as such: the trailing absolute-coordinate marker (TBD-17-04-009), and any explicitly retained bounded profile decision, which the Design delimits as an extension. Each selected interpretation is traced to its documented part and its open TBD. Behaviour learned from the target tool is stated generically, citing private notes. Each named refusal and loss entry has a test that checks its code, location and effect. |
-> | Import round-trip trace | Invented models in the defined reversible subset pass canonical equality within the derived tolerances, identity restoration with a bound sidecar and reporting of unrecoverable identities, byte reproduction of the listed byte-reproducible models under a bound sidecar and identical writer settings with formatting collisions reported, determinism, and solve equality of global displacements and reactions against a provisional threshold. |
-> | Import unit trace | English and SI imports of the same invented model agree. Their unit handling is checked against an evaluation independent of the importer, and the numerical-meaning changes have independent review. |
-> | Import boundary trace | The data-boundary guard fails on any tracked MBF or import report that lacks an invented-provenance sidecar, and the private regression check reads only the configured exchange folder. |
-> | Desktop export mount trace | File > Export MBF… and the Exports section's panel open the one dialog on the barrier's native review and save; its close retires the export, a result that is no longer current is discarded, and no product source keeps the TypeScript preview builder (Design `desktop-mbf-export-import.md` §6 slice 4b.2b). |
-> | Desktop export memory trace | The native MBF review and save run the writer only in the capped worker, within the command's ledger and the 64 MiB output ceiling, and a source scan holds that no other production path runs it (Design `desktop-mbf-export-import.md` §3.7, §6 slice 4b.2a). |
-> | Desktop import mount trace | File > Import MBF… (native and in-window) opens the one dialog on the import barrier's native starts; Close, Escape, unmount and each project-session retirement send one keyed retirement, and a reply no longer current is discarded. Adopt goes through `handleOpenModelDocument` with one `checkNativeOutcome` given the reply's own document object, and every refused, stale or guard-cancelled outcome leaves the session unchanged (Design `desktop-mbf-export-import.md` §4.1, §4.8.5 to §4.8.7, §6 slice 5). |
-> | Desktop import memory and source trace | The importer and its writer-backed regeneration run only in worker task 5 in the capped worker, within the command's ledger (H1 to H8) and the R and 64 MiB limits. The host keeps only the pinned source record between commands, re-reads and hash-checks the chosen files for each review and Adopt, and refuses any change; source scans hold that task 5 is the only production caller of the import worker and that no product source uses the wasm importer (§4.8.2 to §4.8.4, §4.8.9). |
-> | Dependency trace | `Dependencies.csv` validates as v3.1. |
->
-
-### CLM-011 — Acceptance Criteria
-
-> ##### Acceptance Criteria
->
-> | Criterion | Acceptance treatment |
-> |---|---|
-> | Source basis mapping | Each CAEPIPE-specific requirement is traced to DEL-17-01, DEL-17-02, an admitted public MBF reference, or an explicit `TBD` closure path. |
-> | Target version closure | REQ-001 remains unresolved until the first CAEPIPE version/profile is source-confirmed or human-approved as a bounded profile decision. |
-> | Record subset closure | REQ-002 remains unresolved until MBF record families and required fields are enumerated from admitted evidence. |
-> | Stable ID preservation | REQ-005 is accepted only when direct MBF carrying is source-confirmed or the writer uses manifest-referenced sidecar mapping. |
-> | Loss category coverage | REQ-004 is accepted only when exported, omitted, approximated, delegated, unsupported, and `TBD` behavior are all visible in the loss report. |
-> | Diagnostic classification | `TBD-17-04-004` is addressed for this foundation: malformed unsupported refs, missing unsupported loss coverage, and `info`-severity unsupported losses block; explicit `warning` or `blocking` unsupported losses are accepted as classification evidence. |
-> | Profile-basis guardrail | REQ-010 is accepted when diagnostics block blank or unsupported `target_version_basis`, `record_subset_basis`, or carried-TBD evidence while the foundation remains source-bounded. |
-> | Source-basis guardrail | REQ-011 is accepted when diagnostics and schema validation block weakened CAEPIPE source-basis refs while preserving DEL-17-03 only as historical implementation-pattern evidence. |
-> | Fixture provenance | REQ-007 is accepted only with invented fixtures and no vendor, proprietary, protected, or owner/project examples. |
-> | Foundation implementation | REQ-008 and REQ-009 are accepted when schema, builder, fixture, and tests demonstrate sidecar-first IDs, deterministic MBF text, and blocking diagnostics for incomplete packages. |
-> | Import subset and refusals | REQ-012, REQ-013 and REQ-015 are accepted when the Design lists the first-tranche subset with its sources, and tests show every listed item read, every named refusal blocking, and every loss entry and pass-through option reported without entering SWBPIPE logic. |
-> | Import units | REQ-014 is accepted when tests cover both unit modes, every documented English length form, the `RAD` option, both exact conversions, and the named refusals, with English and SI imports of one invented model agreeing, and the SI writer's refusal of an English import is stated in its result. |
-> | Import round trip | REQ-016, REQ-017 and REQ-018 are accepted when the following are shown. The Design defines the reversible subset (including validity of every value as written and preservation of distinct record keys), the byte-reproducible subset and their exclusions, and states each tolerance with its derivation, including the writer-admitted bend residuals and the bend-plane comparison by projection perpendicular to the unit chord. Bound imports of the invented pilot-case and writer-test models in the reversible subset pass canonical equality within those tolerances, and so does the invented bend boundary case. Unbound imports of writer output give their named refusals, except where an explicitly retained bounded profile decision admits the records. Bound imports restore the identities and splits the sidecar preserves and report every unrecoverable identity. Determinism, schema validation and solve equality within its provisional threshold pass. Every model listed in the byte-reproducible subset is written again byte for byte under a bound sidecar and identical writer settings. Every formatting collision and exclusion is reported. |
-> | Import data boundary | REQ-019 and REQ-020 are accepted when the boundary guard, the material-provenance refusals and the private check's skip and operational-only output are tested publicly, and no CAEPIPE-written MBF or result derived from one is tracked. |
->
-
-### CLM-012 — Downstream Use
-
-> ##### Downstream Use
->
-> DEL-17-05 may consume this deliverable later for CAEPIPE external run harness and CSV parser work. DEL-17-05 remains blocked until DEL-17-04 has committed evidence.
->
-> DEL-17-05 may also use the importer and its id map to read CAEPIPE-exported MBFs in its private exchange folder and to bind CAEPIPE results to imported ids. The desktop MBF export and import actions use this deliverable's engine and native file commands under Design `desktop-mbf-export-import.md`; their GUI code is DEL-07-12's.
-
-- **AC-001** — The contract preserves DEL-17-01 source authority and DEL-17-02 common package/profile/ID-map/loss contracts, a selected-profile gate, deterministic text generation, stable canonical-ID mapping, units and coordinates, pass-through target options without local code logic, invented/rights-cleared fixtures, diagnostics, loss reporting, and unresolved MBF record, field, version, line-ending, encoding, and external-validation questions without claiming broad compatibility or acceptance.
-- **AC-002** — The importer reads only its declared subset and refuses or reports everything else by name, including TBD-dependent records in unbound imports. It keeps or exactly converts units, restores the identities a byte-bound sidecar preserves and reports the rest, round-trips the defined reversible subset within derived tolerances, and reproduces the byte-reproducible subset byte for byte. It requires affirmative material provenance, keeps CAEPIPE-written MBFs and everything derived from them private, and makes no compatibility, validation or acceptance claim.
-- **AC-003** — The desktop saves a model in the writer's declared subset as an MBF with its identity file through the native chooser after showing the writer's loss report, and imports the pair back bound with the identities Design `desktop-mbf-export-import.md` §1.3 defines. A CI check on an invented fixture exercises C6-1 through C6-7 as applicable and tracks coverage and named refusals for every family the criterion-1 reference system contains, plus its cases and combinations. Under the owner's 2026-11-08 amendment to A-3 in Design §8.1, combinations are outside criterion 6's families and RT-A4 coverage is judged elsewhere. Criterion 6 is met only when the reference system passes C6-1 through C6-6 through the actual desktop build, with no family within that amended criterion-6 list omitted or unsupported in the loss report; the fixture's case and combination coverage and named-refusal accounting remain required.
+- **AC-001** — For each invented model of the writer's test set, the writer either refuses with a named code and location, or returns the MBF, the identity file and a loss report in which every model member and field that holds a value is written, or listed with its entity as omitted or as approximated with the approximation described; nothing is approximated without its entry. The same model and settings give byte-identical output. Every canonical identifier of the model is in the identity file or in a loss entry.
+- **AC-002** — Every item of the declared subset is read, and each has a source citation or is named as a selected interpretation. Every named refusal blocks with its code, location and effect, every loss entry and pass-through option is reported, and no option changes any SWBPIPE rule or check outcome. An unbound import of a record that depends on an open question is refused with the code naming that question; the one exception is the pair of records the retained profile decision admits (`TBD-17-04-007`). A CAEPIPE result file is refused.
+- **AC-003** — The desktop saves a model in the writer's subset as an MBF with its identity file through the native chooser, after showing the writer's loss report, and imports the pair back bound with the identity set unchanged. On an invented coverage fixture, C6-1 to C6-7 hold as applicable, every Must family is marked covered or carries its named refusal, every combination the reference system holds is likewise marked covered or carries its named refusal, though combinations are outside exit criterion 6's families, and each named refusal still occurs. Exit criterion 6 is met only when the reference system passes C6-1 to C6-6 through the actual desktop build with no Must family omitted or unsupported in the loss report.
+- **AC-004** — An export package built on the package contract validates against its schema and uses sidecar identity mapping. It blocks, with a diagnostic naming the cause, on each of: a missing subset input, identity map or loss report; a blank or weakened target-version basis, record-subset basis or carried open question; a source-basis reference set that omits a required source or names DEL-17-03; wording of a compatibility, validation, code-compliance or professional-acceptance claim in model or profile metadata; and unsupported behaviour that has no loss entry, a malformed reference or severity `info`. Unsupported behaviour with an explicit entry is a warning unless the entry marks it blocking.
+- **AC-005** — English and SI imports of one invented model agree. Each quantity keeps its MBF unit where the catalog has it; the two exact conversions give the values formed from the units' public definitions; every documented English length form and the `RAD` option are read; every other unit, notation or value is refused by name; and writing an English import through the SI writer is refused with that reason stated.
+- **AC-006** — With a bound identity file, an import returns the identities and splits the file preserves and reports each one it cannot recover and each many-to-one mapping. With an unbound file applied on request, every restored identity is marked unconfirmed, and without the request the file is not applied. Every import emits its own identity map.
+- **AC-007** — Identical inputs give byte-identical import outputs. Every imported document validates against the model document's desktop profile, and no route admits an imported model into a session except the document open path, with its unsaved-changes guard.
+- **AC-008** — Every invented model of the reversible subset, written and imported bound, equals itself under the canonical comparison within the round-trip bounds, the bend boundary case included, and the solves of the model and of its import agree in global displacements and reactions within the solve-equality threshold. Every model listed as byte-reproducible is written again byte for byte. Each exclusion, representation loss and formatting collision is reported by name, and an unbound import of writer output gives its named refusals, except where the retained profile decision admits the records (`TBD-17-04-007`).
+- **AC-009** — A material without an affirmative project-invented or user-supplied declaration is refused, as are vendor-library, unknown and suspected-protected origins. No allowable, strength, fatigue or code value is read into the model. Every imported entity names the source MBF's hash. A tracked MBF or import report without an invented-provenance sidecar fails the boundary guard, and the private regression check reads only the configured exchange folder, prints operational status only, and skips with its reason when none is configured.
+- **AC-010** — In the desktop, a save writes exactly the bytes whose review the user saw and refuses when they differ; it is made only on its governed local-private route with the user's explicit intent, and the browser-only build declines it. Closing or cancelling before the write leaves no file, and a result that is no longer current is discarded. An import is adopted only when the review the user saw is current and complete and the chosen files are unchanged since it; every refused, stale, changed or cancelled outcome leaves the session as it was, and an adopted model starts unsaved. The writer and the importer run only in the desktop's capped worker within its memory budget: a request priced over the per-invocation memory budget (DEL-04-07, DEL-07-07), or a result over the 64 MiB output ceiling of the worker's writer and importer tasks, is refused by name.
+- **AC-011** — Every authored MBF case is invented and written by hand, names the construct it exercises and the importer outcome it records, and importing its file gives that outcome.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-013 — Procedure: DEL-17-04 CAEPIPE MBF export profile and deterministic writer
+**Method choices that define the product.**
 
-> #### Procedure: DEL-17-04 CAEPIPE MBF export profile and deterministic writer
->
+- The target is a narrow profile: what no admitted source confirms is refused or reported, never inferred from the target's name or common practice.
+- A bound import may use the writer's conventions; an unbound import may not, except as `TBD-17-04-007` states.
+- The identity file is trusted for consistency, not authorship: it is used only when it equals what the writer regenerates from the imported model.
+- Every export is checked by its own bound re-import before it is returned, and a refusal of that re-import is an export refusal.
+- Sums of loads on one target are exact rationals rounded once, in the writer, the importer and the comparison alike.
+- The engine exists as a Python reference and a Rust port that the desktop runs. A criterion is examined on the engine the desktop runs, directly or through byte parity with the reference over committed vectors.
+- Public text about the target states only what its public manual documents, cited; anything learned from running it is stated generically or kept private.
 
-### CLM-014 — Population Procedure
+**How each criterion is examined.**
 
-> ##### Population Procedure
->
-> 1. Read DEL-17-01 source-basis dossier and CAEPIPE question dossier.
-> 2. Read DEL-17-02 export package/profile/stable-ID/loss-report contract.
-> 3. Draft the CAEPIPE MBF profile/writer `ScopeOfWork.md` at contract/design level only.
-> 4. Generate `_SEMANTIC.md` with `semantic-matrix-build`.
-> 5. Generate `_SEMANTIC_LENSING.md` with `lens-register`.
-> 6. Apply warranted P3 enrichment through `four-documents P3_ONLY`.
-> 7. Extract dependencies into `Dependencies.csv`.
-> 8. Record memory and run evidence.
->
-
-### CLM-015 — Foundation Implementation Procedure
-
-> ##### Foundation Implementation Procedure
->
-> Bounded foundation implementation work must:
->
-> 1. Close or explicitly carry target version and MBF record-family TBDs.
-> 2. Define the deterministic writer subset from admitted evidence.
-> 3. Emit a loss report for exported, unsupported, omitted, approximated, delegated, and TBD behavior.
-> 4. Preserve stable IDs through manifest-referenced sidecars unless direct MBF carrying is source-confirmed.
-> 5. Block blank or unsupported profile-basis values until target version, record subset, and direct stable-ID carrying are closed by admitted source evidence.
-> 6. Block missing or unsafe profile source-basis refs so DEL-17-01, DEL-17-02, `CAEPIPE-IMPORT-MBF`, and `CAEPIPE-EXPORT-MBF` remain visible, and DEL-17-03 is not treated as CAEPIPE target/source authority.
-> 7. Use invented fixtures only.
-> 8. Avoid CAEPIPE compatibility, release, code-compliance, and professional-acceptance claims.
-> 9. Keep external execution, CSV parsing, target result interpretation, public API, and GUI integration out of scope unless separately authorized.
->
-
-### CLM-016 — Implementation Readiness Checks
-
-> ##### Implementation Readiness Checks
->
-> Before a later writer tranche begins, re-read DEL-17-01, DEL-17-02, the admitted public MBF references, and this `ScopeOfWork.md`. The tranche must record:
->
-> 1. Target version/profile closure or explicit carried `TBD`.
-> 2. MBF record-family and required-field subset closure or explicit carried `TBD`.
-> 3. Stable-ID direct-carry evidence or manifest-referenced sidecar policy.
-> 4. Loss-report coverage for exported, omitted, approximated, delegated, unsupported, and `TBD` behavior.
-> 5. Blocking versus non-blocking diagnostic classification: unsupported behavior defaults to warning-level evidence unless explicitly blocking, while missing coverage, malformed refs, or `info` severity block.
-> 6. Profile-basis diagnostics proving target-version, record-subset, and carried-TBD evidence cannot be silently omitted or weakened.
-> 7. Source-basis diagnostics proving required CAEPIPE source authority cannot be silently omitted or replaced by implementation-pattern evidence.
-> 8. Invented-fixture provenance.
-> 9. Validation results for the deliverable-local document kit, semantic artifacts, dependency schema, and diff hygiene.
->
-
-### CLM-017 — Semantic Enrichment Verification
-
-> ##### Semantic Enrichment Verification
->
-> Pass 3 checked `_SEMANTIC_LENSING.md` against DEL-17-01 CAEPIPE TBDs, DEL-17-02 loss-report/stable-ID requirements, and the public MBF source boundary. Applied TP-EXPORT-004R items added source-basis slots, acceptance criteria, classification guidance, pass-through-option rationale, and implementation readiness checks. No P3 item authorized implementation in this tranche.
->
-> | Register Item | Disposition |
-> |---|---|
-> | A-001 | Incorporated through implementation readiness checks for source-confirmed MBF target basis before writer enablement. |
-> | A-002 | Incorporated through the future implementation validation checklist for writer determinism, loss reports, and boundary claims. |
-> | B-001 | Incorporated as a carried `TBD` for first CAEPIPE target version/profile and public citation target. |
-> | B-002 | Incorporated through source and evidence slots for DEL-17-01, DEL-17-02, and public MBF references. |
-> | C-001 | Incorporated through acceptance criteria requiring CAEPIPE-specific requirements to map to admitted evidence or explicit `TBD` closure. |
-> | C-002 | Incorporated as diagnostic classification guidance and an open question for unsupported-entity severity. |
-> | F-001 | Incorporated through profile acceptance criteria for target version, record subset, stable-ID policy, loss categories, and invented fixtures. |
-> | F-002 | Incorporated through future implementation loss-report coverage checks. |
-> | D-001 | Incorporated through fixture provenance acceptance criteria. |
-> | D-002 | Incorporated as an open diagnostic policy question for blocker versus warning behavior. |
-> | X-001 | Incorporated through implementation readiness checks with required rereads and validation evidence. |
-> | E-001 | Incorporated through pass-through-option rationale in guidance. |
-
-- **VER-001** — Validate the contract and review source parity, source/profile gates, deterministic writer and byte-output requirements, complete behavior classification and loss reporting, stable-ID carrier/sidecar treatment, unit/coordinate and encoding boundaries, fixture provenance, every retained MBF TBD, and absence of bundled/proprietary material, local code-checking logic, compatibility overclaim, or professional authority.
-- **VER-002** — Run the importer's grammar, refusal, unit, round-trip, schema and boundary tests on invented data. Review its source citations, exact conversions and canonical comparison with independent scrutiny, and run the private regression check where an exchange folder is configured.
+- **VER-001** — Executable check (observes the writer's output for each invented test model): the loss report's coverage of every valued member and field, each named refusal, byte equality of repeated writes, and the identity file's coverage of the model's identifiers.
+- **VER-002** — Executable check (observes the importer on invented MBF text for every item of the declared subset and every named refusal and loss entry) and judgment by a reviewer who did not write the importer: examines each subset item's citation against the admitted public page and each selected interpretation against its open question.
+- **VER-003** — Executable check (observes the desktop's engine, native commands and dialogs on the invented coverage fixture, and the reference system through the built desktop): C6-1 to C6-7, the family table against the refusals that occur, and the identity set before and after.
+- **VER-004** — Executable check (observes the export package builder's response to each seeded omission, blank basis, weakened reference set, authority wording in metadata and unsupported-behaviour fault, and the package against its schema).
+- **VER-005** — Comparison with a named reference (an evaluation of each unit conversion and length form written independently of the importer, from the units' public definitions) and executable check (observes English and SI imports of one invented model).
+- **VER-006** — Executable check (observes imports with a bound identity file, with an unbound file with and without the explicit request, and with none).
+- **VER-007** — Executable check (observes repeated imports byte for byte, each imported document against the model document's desktop profile, and the product's sources for any route into a session other than the document open path).
+- **VER-008** — Comparison with a named reference (each authored invented model, compared with its own import under the canonical comparison, with bounds derived from the printed precision) and executable check (observes byte reproduction, the reported collisions and exclusions, and the two solves).
+- **VER-009** — Executable check (observes the material-provenance refusals, the boundary guard on tracked files, and the private regression check's skip and standard output on an invented exchange folder); the check itself runs where an exchange folder is configured.
+- **VER-010** — Executable check (observes the native save and import commands under a changed file, a stale review, a cancellation at each stage, a missing intent and an over-limit request, and the files and session afterwards).
+- **VER-011** — Executable check (observes the Rust engine's output against the committed parity vectors of the Python reference, writer and importer, byte for byte).
+- **VER-012** — Comparison with a named reference (the outcome each authored case records): imports each authored case's file and compares the outcome; and executable check (observes that each case names its construct and carries its invented-provenance record).
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-018 — Guidance: DEL-17-04 CAEPIPE MBF export profile and deterministic writer
-
-> #### Guidance: DEL-17-04 CAEPIPE MBF export profile and deterministic writer
->
-
-### CLM-019 — Design Guidance
-
-> ##### Design Guidance
->
-> Treat CAEPIPE MBF as a narrow, source-confirmed target profile. The purpose is not to claim compatibility; it is to define and test what a bounded deterministic writer foundation may safely emit, what it must omit, and what it must report.
->
-> The safe posture is conservative: if a record family, required field, stable ID carrier, option, or target behavior is not confirmed by admitted source evidence, mark it `TBD` and require a loss-report or profile diagnostic. The first implementation foundation therefore uses sidecar stable-ID mapping and carries direct MBF ID carrying as `TBD-17-01-003`.
->
-> Profile-basis fields are guardrails, not target-support claims. Until later source-confirmed closure exists, blank values or informal target-version/record-subset labels should block the package because they would make unresolved CAEPIPE scope look settled.
->
-> Source-basis refs are also guardrails. A caller-provided CAEPIPE MBF profile should not be able to omit DEL-17-01, DEL-17-02, `CAEPIPE-IMPORT-MBF`, or `CAEPIPE-EXPORT-MBF`, and should not promote DEL-17-03 implementation-pattern evidence into CAEPIPE target/source authority.
->
-
-### CLM-020 — Interpretation Guidance
-
-> ##### Interpretation Guidance
->
-> - Use DEL-17-01 for CAEPIPE source facts and unanswered questions.
-> - Use DEL-17-02 for manifest, profile, ID-map, and loss-report structure.
-> - Do not treat MBF text output as equivalent to professional acceptance.
-> - Do not turn pass-through target options into local code-checking logic.
-> - Do not infer undocumented MBF behavior from the target name or common practice.
-> - Treat generated MBF text as a deterministic invented smoke artifact, not as target acceptance evidence.
-> - Treat a successful MBF import as a faithful reading of the declared subset of that file, not as evidence that CAEPIPE and SWBPIPE analyse the model alike.
->
-
-### CLM-021 — Classification Guidance
-
-> ##### Classification Guidance
->
-> Unsupported target behavior must be classified before implementation as blocking, diagnostic-only, delegated, omitted, approximated, or `TBD`. Until that classification exists, the writer contract should preserve the uncertainty rather than enabling a broad MBF support claim.
->
-> For this foundation, explicit unsupported behavior defaults to warning-level loss-report evidence unless the loss entry marks it blocking. Missing unsupported loss coverage, malformed unsupported references, or `info` severity for unsupported behavior are blocking because they would hide material target-scope limits.
->
-> Pass-through CAEPIPE options are metadata for the target profile because they may name target-side analysis settings. They must not become SWBPIPE local code-checking logic, local professional acceptance logic, or a substitute for user-supplied rule packs and human review.
->
-
-### CLM-022 — Open Questions
-
-> ##### Open Questions
->
-> | TBD | Question | Later closure path |
-> |---|---|---|
-> | TBD-17-04-001 | Which CAEPIPE version/profile is the first target? | Public documentation review or CAEPIPE developer/support clarification. |
-> | TBD-17-04-002 | Which MBF record families and required fields are in the first subset? | Source review and bounded implementation design. |
-> | TBD-17-04-003 | Can MBF carry stable canonical IDs directly? | Source review; otherwise sidecar-only mapping. |
-> | TBD-17-04-004 | Which unsupported entities block export versus produce non-blocking diagnostics? | This foundation uses warning by default with explicit blocking allowed; later source-confirmed profiles may specialize entity-specific severity. |
-> | TBD-17-04-005 | The public import page (`CAEPIPE-IMPORT-MBF`, OPMISC) lists a gravitational acceleration and a gravitational direction field for version 15.10 and later. How is the direction encoded, and what are the defaults of both fields? | DEL-17-01 CQ-17-01-011. Until admitted evidence or an explicit bounded profile decision resolves it, a present value is refused with a named TBD diagnostic in every import; the writer does not write the field. |
-> | TBD-17-04-006 | Which text encoding, foot and inch mark characters, and numeric precision does CAEPIPE's MBF export write? | DEL-17-01 CQ-17-01-012. Until closed, the importer reads only strict UTF-8 and the marks the public pages show, refuses other encodings and characters by name, and reads values as written without assuming a precision; no tolerance is widened for export precision. |
-> | TBD-17-04-007 | Is the layout comment `L=<load name>` the documented load reference, carried until changed, which load case does a force or moment without `FLC` join, and are both stable across versions? | DEL-17-01 CQ-17-01-013. Bound imports apply the writer's conventions. Unbound imports refuse `L=` and FLC-less FOR/MOM with `MBF-IMPORT-TBD-17-04-007` pending documentation. Unbound imports may admit both where an explicitly retained bounded profile decision does so. |
-> | TBD-17-04-008 | Does CAEPIPE's MBF export keep node numbers, row order and tangent-intersection bend rows as imported, and does it write offsets or absolute coordinates? | DEL-17-01 CQ-17-01-014. Until closed, an unbound sidecar is applied only on explicit request and every identity it restores is reported as unconfirmed; geometry is read only in its documented forms. |
-> | TBD-17-04-009 | Does the absolute-coordinate marker `*` precede or follow the node number in an MBF layout row? The public sources disagree. | DEL-17-01 CQ-17-01-015. Until closed, the profile selects the trailing marker shown in MBF examples; any other placement is refused by name. |
-> | TBD-17-04-010 | In which unit are the rotational stiffnesses of the layout comments `ROTK` and `KR` given, in SI and English files? The public pages differ: `CAEPIPE-IMPORT-MBF` (`Format of .MBF`) gives in-lb/deg or N-m/deg, and the technical reference page `Anchor` (`CAEPIPE-ANCHOR`) gives inch-lb/radian. The same TBD holds three further support-record meanings the public pages leave open: whether a `KA` with only one of `TRAK` and `ROTK` leaves the other's DOFs rigid or free, which element's local axes `AXIAL`, `SHEARY` and `SHEARZ` name for a limit stop, and the direction of an `LS` without `DV`. | DEL-17-01 CQ-17-01-017 (the unit). Until closed, these records are refused by name (`MBF-IMPORT-TBD-17-04-010`); `ROTK(0,0,0)` is read, a zero leaving its DOF free in any unit, and the writer writes no rotational spring. |
->
-
-### CLM-023 — Foundation Guidance
-
-> ##### Foundation Guidance
->
-> The first implementation foundation should remain sidecar-first and loss-report-first:
->
-> - deterministic text output is acceptable only for the invented smoke subset;
-> - every canonical identity must appear in a sidecar mapping or an explicit loss entry;
-> - every unsupported entity must be a stable reference and must have an explicit unsupported loss entry;
-> - target-version, record-subset, and direct stable-ID uncertainty must remain carried as `TBD-17-01-001`, `TBD-17-01-002`, and `TBD-17-01-003`;
-> - missing smoke-subset inputs, sidecar IDs, or loss reports should block the package;
-> - missing, blank, or weakened profile-basis evidence should block the package;
-> - missing or unsafe CAEPIPE source-basis refs should block the package;
-> - external execution, CSV parsing, target result interpretation, and target code/check logic remain out of scope.
+- **AX-001** — *Coverage of the reference system.* Better is more Must families written and read back, measured by the count of covered rows in the family table. A family is never counted covered by approximating it, by dropping it unlisted, or by reading an MBF record whose meaning no admitted source settles.
+- **AX-002** — *Identity returned.* Better is more of the identity set recovered on a bound round trip and fewer identities reported unrecoverable. An identity is never restored from an unbound file without the user's request and its unconfirmed mark.
+- **AX-003** — *Refuse by name.* Where the choice is between refusing and guessing, refuse. Better is a refusal that names the record, the location and what the user can do; breadth is never bought with a default.
+- **AX-004** — *Private stays private.* No gain in coverage or convenience justifies committing, quoting or deriving public text from a file the target tool wrote.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-030 SOW-074 SOW-075 OBJ-009 OBJ-017 OBJ-018 | CLM-007 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-| OUT-002 | SOW-030 SOW-075 OBJ-009 OBJ-017 OBJ-018 | CLM-008, REQ-012 to REQ-020 | AC-002 | VER-002 | Importer tests on invented data, independent review of numerical meaning, and private regression where configured |
-
-## Product references
-
-- **CAEPIPE-IMPORT-MBF:** `https://www.sstusa.com/docs/users_manual/import_mbf_print.htm` - Official/public CAEPIPE MBF import, MBF format, and command-line CSV result behavior reference.
-- **CAEPIPE-EXPORT-MBF:** `https://www.sstusa.com/docs/users_manual/export_mbf.htm` - Official/public CAEPIPE MBF export reference.
-
-Source: `_REFERENCES.md` in DEL-17-04 at `6228147ac5` (before folder migration).
+| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-003 REQ-004 REQ-005 REQ-007 | AC-001 | VER-001 VER-011 | `docs/PRD.md` FR-HAND-004 and the common contract; the comparison is against the invented model's own members and identifiers. Parity with the Python reference is the product's own earlier output and guards against change only |
+| OUT-002 | SOW-030 SOW-075 OBJ-009 OBJ-017 OBJ-018 | REQ-006 REQ-012 REQ-013 REQ-015 | AC-002 | VER-002 VER-011 | Outside source: the vendor's public manual pages admitted in the DEL-17-01 register, read by a reviewer who did not write the importer; the invented MBF text states what must be read and refused |
+| OUT-003 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-003 REQ-004 REQ-016 REQ-018 | AC-003 | VER-003 | Exit criterion 6 and its family list; the expected identities and model are the fixture's and the reference system's own, which the engine did not write |
+| OUT-001 | SOW-074 SOW-075 OBJ-017 OBJ-018 | REQ-001 REQ-002 REQ-008 REQ-009 REQ-010 REQ-011 REQ-021 | AC-004 | VER-004 | The DEL-17-01 register is the reference for the required sources and open questions, and `docs/PRD.md` §21.2 names the claims no package may state, found by the DEL-15-04 screen; the seeded faults state what must block |
+| OUT-002 | SOW-030 OBJ-009 | REQ-014 | AC-005 | VER-005 | Outside source: the public definitions of the units (the international inch and foot, standard gravity for kilogram-force), evaluated without importer code |
+| OUT-002 | SOW-074 OBJ-017 | REQ-016 | AC-006 | VER-006 | The identities compared are those of the invented model that was written, which the importer did not write |
+| OUT-002 | SOW-030 OBJ-009 | REQ-017 | AC-007 | VER-007 | Outside source: the model document schema, DEL-02-01's; byte equality of repeated imports guards against change only |
+| OUT-002 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-018 | AC-008 | VER-008 | Outside source: the authored invented model is the expected result, and each bound is a closed form of the ten-digit printed precision and binary64 rounding. The solve-equality threshold is provisional. Agreement of the two solves shows the models are solved alike, not that either result is correct |
+| OUT-002 | SOW-075 OBJ-018 | REQ-007 REQ-019 REQ-020 | AC-009 | VER-009 | `docs/IP_AND_DATA_BOUNDARY.md` (interoperate openly, evaluate privately) and `docs/PRD.md` §20.2; the invented exchange folder states what must stay private |
+| OUT-003 | SOW-030 SOW-075 OBJ-009 OBJ-018 | REQ-017 REQ-019 | AC-010 | VER-010 | `docs/PRD.md` §5.3 and §20.3 and the export controls of DEL-12-02; the seeded changes and cancellations state what must be refused or left unchanged |
+| OUT-002 | SOW-030 SOW-075 OBJ-009 OBJ-017 | REQ-007 REQ-013 REQ-022 | AC-011 | VER-012 | The recorded outcomes are the importer's own earlier output and guard against change only; what each construct means rests on the citations of AC-002 |

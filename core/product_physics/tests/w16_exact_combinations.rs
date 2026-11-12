@@ -370,7 +370,7 @@ fn the_reference_line_publishes_every_combination_of_its_references() {
             }
         }
         by_mode.push(values);
-        // §5: headlines and maxima cover the primitive cases only.
+        // headlines and maxima cover the primitive cases only.
         for basis in ["nominal_section", "reduced_section"] {
             let headline = &out["summary"][format!("max_open_formula_stress_{basis}")];
             let row = rows(&out).iter().find(|r| r["id"] == headline["result_ref"]).unwrap();
@@ -402,7 +402,7 @@ fn a_combination_adds_rows_and_moves_no_case_row() {
         assert!(without["contract_evidence"].get("exact_combinations").is_none());
         let mut evidence = with["contract_evidence"].clone();
         evidence.as_object_mut().unwrap().remove("exact_combinations");
-        // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): the certificate is the
+        // the certificate is the
         // combinations' own member too.
         assert!(without["contract_evidence"].get("combination_certificate").is_none());
         evidence.as_object_mut().unwrap().remove("combination_certificate").expect("the certificate member");
@@ -486,7 +486,7 @@ fn a_nonzero_installed_reference_admits_exactly_the_unit_factor_sums() {
 }
 
 /// A q_ref in K's null space (K q_ref = 0) applies no load, but it is still a
-/// nonzero installed reference: a non-unit sum is withheld (§4).
+/// nonzero installed reference: a non-unit sum is withheld.
 #[test]
 fn a_null_space_installed_reference_still_gates() {
     let mut wire = connector_model(0.0, &[("comb:unit", vec![0.3, 0.7]), ("comb:two", vec![1.0, 1.0])]);
@@ -766,7 +766,7 @@ fn a_combination_excludes_retained_source_recovery() {
     }
 }
 
-/// §5: combination rows never enter the numerical-eligibility verdict, which
+/// combination rows never enter the numerical-eligibility verdict, which
 /// stays with the primitive cases.
 #[test]
 fn combinations_leave_the_numerical_standing_unchanged() {
@@ -880,7 +880,7 @@ fn a_celsius_selection_temperature_is_recorded_in_kelvin() {
     }
 }
 
-/// §3: ids rich in delimiters (and in multi-byte characters) pair by their
+/// ids rich in delimiters (and in multi-byte characters) pair by their
 /// structured fields; the combined ids are length-prefixed by bytes and distinct.
 #[test]
 fn delimiter_rich_ids_pair_by_structured_fields() {

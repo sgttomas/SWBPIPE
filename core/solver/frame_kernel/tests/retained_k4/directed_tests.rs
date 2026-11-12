@@ -1,4 +1,4 @@
-//! K4 tests of `retained/directed.rs` (D1 revision 5a.3, R7 §4.1.6.3 item 7;
+//! K4 tests of `retained/directed.rs` (D1 revision 5a.3,
 //! SD-G5's "the directed roundings"): every operation against the generator's
 //! Fraction oracle (`directed.txt`: nearest, then one step when on the wrong
 //! side), at P = 3 to 1024, both directions, and `binary64_up`.

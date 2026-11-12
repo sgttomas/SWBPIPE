@@ -1,226 +1,172 @@
 id: DEL-07-03
 name: Material, component, and rule-pack editors
 needs:
-- from: DEL-00-01
-  condition: 'DEL-07-03 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-07-03 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-07-03 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-00-05
-  condition: 'DEL-07-03 requires SCA-001 architecture basis AB-00-05 from DEL-00-05 before sealed product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The GUI state rule keeps drafts, selection and validation display out of the model document and
+    requires every change to the model to be an applied model operation.
+  gating: true
+- from: DEL-02-01
+  condition: >-
+    The model document holds materials, sections, components, load cases, combinations, pressure
+    regions and rule-pack references as typed records with stable identifiers, every dimensional
+    value with its unit, and an absent optional member means none. The document validator refuses a
+    malformed member by a named code and path.
   gating: true
 - from: DEL-00-06
-  condition: 'DEL-07-03 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A diagnostic carries its class and names the value and the record it concerns as its affected
+    object.
+  gating: false
+- from: DEL-02-02
+  condition: >-
+    The unit catalog gives the units of each dimension, a new entry's starting unit comes from the
+    project units, a missing project unit leaves the field without a default and says why, and a
+    value of the wrong dimension is refused with a named finding.
   gating: true
-- from: DEL-00-07
-  condition: 'DEL-07-03 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-16-01
+  condition: >-
+    The implemented operation taxonomy has kinds for creating, changing and deleting materials,
+    sections, components, load cases, primitive loads, combinations and pressure regions, and for
+    realizing a bend at a corner, each with its target types, field path and value form.
   gating: true
-- from: DEL-00-08
-  condition: 'DEL-07-03 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-16-02
+  condition: >-
+    An operation or batch can be validated without being applied, returning either a deterministic
+    preview of the change or the named refusal the apply would give.
+  gating: true
+- from: DEL-16-06
+  condition: >-
+    One operation engine applies a batch only after validation, any required preview and the user's
+    explicit acceptance, applies it whole or not at all, and leaves the model unchanged on any
+    refusal.
   gating: true
 - from: DEL-03-01
-  condition: 'DEL-07-03 needs DEL-03-01 as a predecessor because material editors require material-library
-    records and provenance fields.
-
-
-    Notes: normalized prior DependencyType=DOMAIN_MODEL, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION,
-    and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.; FACT: 2026-08-02 dependency-currency
-    PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration
-    PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Building the material editor
+  condition: >-
+    A material record can hold a name, a grade label, density, Poisson's ratio, elastic modulus and
+    thermal expansion against temperature, each value with its unit and provenance, and has slots
+    for allowables that the format leaves empty. A value a solve or a rule check requires and the
+    record lacks is a completeness finding, never a default.
   gating: true
-  evidence: execution/PKG-07/DEL-07-03/ScopeOfWork.md
 - from: DEL-03-02
-  condition: 'DEL-07-03 needs DEL-03-02 as a predecessor because component and section editors edit schema-governed
-    library records.
-
-
-    Notes: normalized prior DependencyType=DOMAIN_MODEL, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION,
-    and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.; FACT: 2026-08-02 dependency-currency
-    PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration
-    PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Building the section and component editors and importing libraries
+  condition: >-
+    The section and component library formats define each record's members with unit, dimension and
+    provenance and report a required value a record lacks as a completeness finding with a
+    diagnostic; in the hanger format a document lacking a required member is invalid and an absent
+    optional value stays absent; and no format defines a default.
   gating: true
-  evidence: execution/PKG-07/DEL-07-03/ScopeOfWork.md
 - from: DEL-03-07
-  condition: 'DEL-07-03 needs DEL-03-07 as a predecessor because editors must expose provenance and redistribution
-    controls for library data.
-
-
-    Notes: normalized prior DependencyType=GOVERNANCE_PREDECESSOR, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION,
-    and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Importing a private library
+  condition: >-
+    The import boundary accepts a library only with its source, provenance, units and
+    redistribution status, returns a finding for each missing or unclear one, keeps only an import
+    accepted as private and local, and refuses a quarantined or review-required one with its
+    findings.
   gating: true
-  evidence: execution/PKG-07/DEL-07-03/ScopeOfWork.md
-- from: DEL-06-01
-  condition: 'DEL-07-03 needs DEL-06-01 as a predecessor because rule-pack editors and references depend
-    on schema-governed rule-pack identity and required inputs.
-
-
-    Notes: normalized prior DependencyType=RULE_PACK_PREDECESSOR, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION,
-    and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.; FACT: 2026-08-02 dependency-currency
-    PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration
-    PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-03-03
+  when: Realizing a bend from an editor
+  condition: >-
+    Realizing a bend at a corner replaces the corner with tangent nodes the engine computes, and a
+    validate-only preview returns the same geometry the apply would produce.
   gating: true
-  evidence: execution/PKG-07/DEL-07-03/ScopeOfWork.md
-- from: DEL-06-04
-  condition: 'DEL-07-03 needs DEL-06-04 as a predecessor because the rule-pack editor must preserve private
-    lifecycle and checksum metadata.
-
-
-    Notes: normalized prior DependencyType=RULE_PACK_PREDECESSOR, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION,
-    and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.; FACT: 2026-08-02 dependency-currency
-    PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration
-    PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-03-05
+  when: Creating a rigid-family component
+  condition: >-
+    A rigid-family component takes its body length, weight and centre-of-gravity vector each with a
+    unit of its own, by a stated offset convention, and a record lacking a required value is
+    reported as missing.
   gating: true
-  evidence: execution/PKG-07/DEL-07-03/ScopeOfWork.md
-- from: DEL-12-01
-  condition: 'DEL-07-03 needs DEL-12-01 as a predecessor because private material component project and
-    rule-pack data must remain local and user controlled by default.
-
-
-    Notes: normalized prior DependencyType=SECURITY_PREDECESSOR, Explicitness=INFERRED_DIRECT, Origin=DECOMPOSITION,
-    and SatisfactionStatus=UNKNOWN to v3.1 write-form enums for reconciliation.; FACT: 2026-08-02 dependency-currency
-    PASS under R23; target maturity PASS is frozen in TARGET_MATURITY_EVIDENCE.csv; consumer integration
-    PASS is frozen in N2C_DEL0703_PATCH/LAUNCH_BRIEF.md.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-03-06
+  when: Creating an expansion joint or other connector
+  condition: >-
+    A connector component takes user-entered stiffnesses and pressure-thrust data with units and a
+    source, and a record lacking a required value is reported as missing.
   gating: true
-  evidence: execution/PKG-07/DEL-07-03/ScopeOfWork.md
 - from: DEL-05-01
-  condition: 'DEL-07-03 consumes Primitive load case engine from DEL-05-01: load/self-weight interaction
-    dispatches to existing generators and controlled application; existing library contracts are retained.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E076; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-04; dependency table load/self-weight UI; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Building the load manager
+  condition: >-
+    The load engine resolves a case's condition use into ordinary loads before validation and
+    returns that resolution as a preview, generates a self-weight plan only from the selected pipes,
+    their sections and densities and an entered gravity, and reports a load that lacks a required
+    value as a finding.
   gating: true
-  evidence: execution/PKG-07/DEL-07-03/ScopeOfWork.md
 - from: DEL-05-02
-  condition: 'DEL-07-03 consumes Load-case algebra engine from DEL-05-02: load/self-weight interaction
-    dispatches to existing generators and controlled application; existing library contracts are retained.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E077; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-04; dependency table load/self-weight UI; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Building the combination editor
+  condition: >-
+    The combination algebra defines the combination bases, the operands each admits and the shapes
+    it refuses, and the engine refuses by a named code the deletion of a load case or combination
+    that another combination references.
   gating: true
-  evidence: execution/PKG-07/DEL-07-03/ScopeOfWork.md
-- from: DEL-16-06
-  condition: 'DEL-07-03 consumes Controlled model operation application from DEL-16-06: load/self-weight
-    interaction dispatches to existing generators and controlled application; existing library contracts
-    are retained.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E078; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-04; dependency table load/self-weight UI; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-06-01
+  when: Composing or opening a rule pack
+  condition: >-
+    The rule-pack format defines identity, version, source note, redistribution status, checksum,
+    required-input declarations with units, formula declarations, user allowable slots, stress
+    categories and load-case mappings, and its validation returns structured findings.
   gating: true
-  evidence: execution/PKG-07/DEL-07-03/ScopeOfWork.md
-- from: DEL-02-02
-  condition: 'DEL-07-03 directly depends on DEL-02-02 because editor numeric and unit-bearing fields must
-    carry explicit unit and canonical dimension metadata with missing metadata diagnostics.
-
-
-    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-06-04
+  when: Storing or opening a rule pack
+  condition: >-
+    A rule pack is private unless a public basis is recorded, its checksum is taken over its
+    canonical form, a stored pack is read back as it was saved, and a missing source notice,
+    missing redistribution status or stale checksum is a diagnostic.
   gating: true
-  evidence: core/gui/editors/engine.py; tests/test_gui_editors_contract.py
-- from: DEL-07-02
-  condition: 'DEL-07-02 hands off specialized editor implementation boundaries to DEL-07-03 while retaining
-    navigation and selected-entity inspection
-
-
-    Notes: FACT: downstream interface edge supports RECONCILIATION boundary checking between adjacent
-    GUI slices.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-12-01
+  when: Storing private libraries and rule packs
+  condition: >-
+    Private materials, components, libraries and rule packs are stored in user-controlled local
+    storage, and nothing transmits them without an explicit user action.
   gating: true
-  evidence: execution/PKG-07/DEL-07-02/ScopeOfWork.md
+- from: DEL-07-11
+  condition: >-
+    The workspace shell mounts the editors, holds the session's pending changes and history, and
+    announces queue, apply, undo and redo so that a draft surface can follow them.
+  gating: true
 code_paths:
-- apps/desktop/package.json
-- tools/validation/validate_dependencies_schema.py
+# The load manager. LoadCaseManagerPanel.tsx and primitiveLoadVocabulary.ts are also listed by the
+# load engine's deliverables (DEL-05-01, DEL-05-02, DEL-05-05), which own what a load, a case and a
+# combination mean; the entry surface is this deliverable's.
 - apps/desktop/src/features/load-cases/**
-- apps/desktop/src/features/pressure-authoring/**
-- apps/desktop/src/features/material-temperature/**
-- apps/desktop/src/features/bend-authoring/**
-- apps/desktop/src/features/component-creation/**
-- apps/desktop/e2e/load-state-inputs.spec.ts
-- apps/desktop/src/features/rule-packs/**
-- apps/desktop/src/services/rulePackService.ts
+# The library manager, with applying a record to a model entity and reporting a library
+# reference that no longer matches (REQ-015, AC-005). The record formats these read are DEL-03-01's
+# and DEL-03-02's.
 - apps/desktop/src/features/library/**
-- apps/desktop/src/services/libraryImportService.ts
+# The rule-pack manager. RulePackManagerPanel.tsx is shared with DEL-06-01 and DEL-06-04, which own
+# the format and the lifecycle it edits.
+- apps/desktop/src/features/rule-packs/**
+- apps/desktop/src/features/material-temperature/**
+- apps/desktop/src/features/pressure-authoring/**
 - apps/desktop/src/features/rich-authoring/**
+- apps/desktop/src/features/bend-authoring/**
+# Shared with DEL-03-05 (RigidDraftFields.tsx, eccentricOffsetConvention.ts) and DEL-03-06
+# (ConnectorDraftFields.tsx), which own what each component's fields mean.
+- apps/desktop/src/features/component-creation/**
+# Shared with DEL-05-01, which owns the plan the panel shows.
 - apps/desktop/src/features/self-weight-authoring/**
-- apps/desktop/src/services/selfWeightPlanService.ts
-- apps/desktop/src-tauri/src/lib.rs
-- core/gui/editors/**
+# Choosing a hanger record by hand (REQ-015, AC-005). The hanger record format is DEL-03-02's.
+- apps/desktop/src/features/hanger-selection/**
+# A load case's wind exposure: its exposed pipes and spans. Also listed by DEL-05-01, which owns
+# what the exposure means.
+- apps/desktop/src/features/wind-exposure/**
+# The model's rule-pack references, shown in the rule-pack manager; the rest of that folder is
+# DEL-07-02's.
+- apps/desktop/src/features/model-data/RulePackModelReferences.tsx
 - apps/desktop/src/features/condition-sets/ConditionUseControl.tsx
 - apps/desktop/src/services/operatingConditionPreviewService.ts
+- apps/desktop/src/services/selfWeightPlanService.ts
+- apps/desktop/src/services/rulePackService.ts
+# Shared with DEL-03-07, which owns the import boundary the service calls.
+- apps/desktop/src/services/libraryImportService.ts
+- apps/desktop/e2e/load-state-inputs.spec.ts
+# A review-export panel mounted in the review details and a reference module with its own contract
+# test. No criterion of this scope covers either.
+- apps/desktop/src/features/editor-contract/**
+- core/gui/editors/**
+# The boundary helper the GUI reference modules of DEL-07-03, DEL-07-04, DEL-07-05, DEL-07-07 and
+# DEL-07-08 import; each lists it.
+- core/gui/pkg02_boundary.py
 checks:
 - apps/desktop/src/features/rule-packs/RulePackManagerPanel.test.tsx
 - apps/desktop/src/features/rule-packs/CheckDefinitionsEditor.test.tsx
@@ -236,6 +182,5 @@ checks:
 - apps/desktop/src/services/selfWeightPlanService.test.ts
 - apps/desktop/e2e/load-state-inputs.spec.ts
 - apps/desktop/e2e/r2-smoke.spec.ts
-- tests/test_gui_editors_contract.py
 - apps/desktop/src/features/condition-sets/conditionSets.engine.test.tsx
 - apps/desktop/src/features/condition-sets/conditionSetSurfaces.engine.test.tsx

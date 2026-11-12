@@ -1,4 +1,4 @@
-"""T4-S5 D3 (retained-pricing-rules.md §8.8): the T4-U4b/U5b positive owners are read from the function bodies that
+"""T4-S5 D3 (§8.8): the T4-U4b/U5b positive owners are read from the function bodies that
 allocate them. The current source activates every owner; a snapshot without the functions adds nothing; a changed
 body or a half-present owner stops the run rather than choosing a price."""
 from pathlib import Path

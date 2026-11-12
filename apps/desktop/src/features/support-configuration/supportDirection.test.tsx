@@ -1,4 +1,4 @@
-/** R-6/R-7 S-K1 desktop entry (DEL-07-02 Work `support-direction.md`): the support creation
+/** R-6/R-7 S-K1 desktop entry: the support creation
  * form's optional Direction (x, y, z), its payload, the stored-direction display, and the
  * payload of every existing support edit path on a record with a stored `direction`. The
  * hash and operation services are stand-ins here; the engine-backed checks are in

@@ -714,7 +714,7 @@ fn signed_region_pressure_follows_the_document_contract() {
     }
 }
 
-/// G5b (DEL-07-03 `Work/authoring-speed.md` §2): an existing E/nu material's
+/// an existing E/nu material's
 /// thermal expansion coefficient is added, changed and removed with its
 /// constitutive inputs; the project temperature unit and the coefficient's unit
 /// are checked as on `create_material`, and nothing else on the material moves.

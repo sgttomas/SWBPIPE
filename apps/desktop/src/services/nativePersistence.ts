@@ -1,4 +1,4 @@
-/** C1 native custody, slice 5's persistence (DEL-04-05 `c1-native-custody-plan.md` slice 5): Record
+/** C1 native custody, slice 5's persistence: Record
  * Run and Save/Create Project of a native-custody solve, from the job handle and small arguments.
  *
  * - **What is sent.** The job id, the record's inputs as the native preview read them (the session's
@@ -193,7 +193,7 @@ function decodeSave(value: unknown, restored: RestoredRun | null): NativeProject
     if (typeof run.envelope_payload_hash !== "string" || typeof run.envelope_basis_kept !== "boolean") fail("the restored run's envelope facts are malformed");
     const found = run.findings;
     const texts = (value: unknown) => Array.isArray(value) && value.every((item: unknown) => typeof item === "string");
-    // RT-A4 §10.4: the findings in their scopes, as the native reopen sends them.
+    // the findings in their scopes, as the native reopen sends them.
     const findingsRead = isObject(found) && texts(found.findings) && texts(found.check_findings) && texts(found.historical_reader_findings)
       && (found.recorded_table_read === null || isObject(found.recorded_table_read)) && typeof found.run_id === "string";
     if (result.outcome === "saved" ? !findingsRead : found !== null) fail("the restored run's findings are malformed");

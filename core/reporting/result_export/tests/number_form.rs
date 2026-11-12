@@ -45,7 +45,7 @@ fn section_parameters_compare_by_value() {
     let jcs: Value = serde_json::from_str(&open_pipe_stress_canonical_json::canonical_json(&source)).unwrap();
     assert!(jcs["source_block_recovery"]["body"]["cases"][0]["section_stress_checks"][0]["parameters"]["pa_per_mpa"].is_u64());
     assert_eq!(ps::validate(&jcs, Some(&invocation)), Ok(true));
-    // T4-U6 (D-5 §2.5, §5): the member's check is followed by its reduced
+    // the member's check is followed by its reduced
     // twin's, which binds the same parameters; the member is the pair, so its
     // integer form is written on both, as a value-preserving re-serializer does.
     let checks = &source["source_block_recovery"]["body"]["cases"][0]["section_stress_checks"];

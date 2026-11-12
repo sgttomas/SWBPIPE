@@ -542,7 +542,7 @@ def _validate_hanger_import(payload, visibility):
 
 
 def _hanger_load_range_findings(payload, schema):
-    """Format 1.1.0 (DEL-03-02 CLM-030; DEL-04-11 Design §8.2), as the Rust boundary.
+    """Format 1.1.0 (DEL-03-02 CLM-030), as the Rust boundary.
 
     The schema admits working_load_range under either version, so the version
     rule is applied here: a 1.0.0 document refuses the member as an unknown

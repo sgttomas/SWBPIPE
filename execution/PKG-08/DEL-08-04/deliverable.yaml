@@ -1,170 +1,136 @@
 id: DEL-08-04
 name: Result export format
 needs:
-- from: DEL-00-01
-  condition: 'DEL-08-04 must apply the SCA-001 architecture-basis constraints from AB-00-01.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-08-04 must apply the SCA-001 architecture-basis constraints from AB-00-02.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-08-04 must apply the schema-first command/query/job result-envelope architecture basis
-    from AB-00-03.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
-- from: DEL-00-04
-  condition: 'DEL-08-04 must preserve canonical JSON and reproducibility metadata compatibility from AB-00-04
-    where JSON payloads are hashed.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-00-06
-  condition: 'DEL-08-04 must carry structured diagnostics using the PKG-00 baseline fields from AB-00-06.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
-- from: DEL-00-07
-  condition: 'DEL-08-04 must preserve the no-bypass API and adapter constraints from AB-00-07.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
-- from: DEL-00-08
-  condition: 'DEL-08-04 implementation must preserve applicable validation, protected-content, and regression
-    gates from AB-00-08.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: A diagnostic carries code, class, severity, source, affected object, message, remediation and
+    provenance, and a result envelope states which outcome kind it holds without a reader parsing message
+    text.
   gating: true
 - from: DEL-02-01
-  condition: 'DEL-08-04 needs canonical domain model and result object semantics for stable model/result
-    references and object vocabulary.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: Every addressable record of the model document has a stable identifier that persists across
+    edits, so that an exported row can name the entity it concerns.
   gating: true
-  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
 - from: DEL-02-02
-  condition: 'DEL-08-04 requires the unit system and dimensional-analysis core contract because result
-    exports need unit-aware values and dimensional checks.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: A unit-bearing value crossing an export boundary carries its unit; a conversion is made through
+    the unit catalog and equals the value formed from the units' public definitions; and the desktop's
+    display-unit converter returns the value a results table shows before rounding.
   gating: true
-  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
-- from: doc:execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/COMPARISON_EXPORT.md
-  condition: 'The general exporter maps the common comparison schema owned by DEL-14-05; that comparison
-    schema first consumes the existing DEL-08-04 base result-envelope contract.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. Contract owner=DEL-14-05; consumer_stage=DEL-08-04::comparison-export-mapping;
-    producer_stage=DEL-14-05::comparison-contract. DAG-002-E0790 retained; DEL-08-04 base envelope precedes
-    comparison schema, which precedes comparison export mapping. OPEN: Name and review a versioned comparison
-    schema and identify the base-envelope version it imports; fixture payloads are not authoritative.
-    DERIVED CANDIDATE JUDGMENT: stage interpretation is proposed and must be reviewed; the candidate artifact
-    exists but is not adopted normative schema or satisfied evidence.; SCA011OriginalDependencyID=SCA011-E083;
-    original_evidence_file=execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/COMPARISON_EXPORT.md;
-    original_source_ref=Contract stages and readiness / negative witnesses; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.
-
-
-    Target description — TargetName: SCA011-IF-COMPARISON-EXPORT; TargetRefID: SCA011-IF-COMPARISON-EXPORT;
-    TargetLocation: execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/dependencies/staged-contracts/COMPARISON_EXPORT.md'
-  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
 - from: DEL-08-02
-  condition: 'DEL-08-04 should carry or reference run/model manifest and hash metadata from DEL-08-02
-    for reproducible exports.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: One canonical JSON form, RFC 8785, with SHA-256 over it, is available to every hashing surface,
+    and a hash record states its algorithm, basis and payload.
+  when: Hashing the members an export document copies.
   gating: true
-  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
 - from: DEL-06-04
-  condition: 'DEL-08-04 needs rule-pack identity, version, and checksum handling without copying private
-    or protected payloads.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: A rule pack is identified by a stable identity, version and checksum that can be exported without
+    any of the pack's content.
+  when: Exporting a run with a rule pack.
   gating: true
-  evidence: execution/PKG-08/DEL-08-04/ScopeOfWork.md
+- from: DEL-05-04
+  condition: The analysis statuses are a closed vocabulary that keeps mechanics solved, rule inputs incomplete,
+    user-rule checked or failed and human review required apart and excludes human approval and code compliance.
+  gating: false
 - from: DEL-04-07
-  condition: 'DEL-08-04 consumes the PKG-04 solver result producers without redefining solver behaviour.
-    Its envelope and derivative documents copy the product''s current result statement (raw source, rows,
-    model, request) as received and identify each copied member by the sha256 of its canonical JSON value;
-    DEL-04-07''s product solve supplies those statements under the current preview and exact identities,
-    with stable row identities.'
-  evidence: core/reporting/result_export/src/derivative.rs
+  condition: The product solve publishes each result as a statement of its source, rows, model and request
+    under a current semantic contract identity on the pressure-free and exact routes, which an export copies
+    as received.
+  gating: true
 - from: DEL-05-02
-  condition: >-
-    DEL-08-04 classifies derivative rows by DEL-05-02's base semantic-table
-    signatures (category, target dimension, disposition), preserving the reader
-    verdict's kind, unit, component and basis and disclosing unmapped source rows.
-    It consumes the load/stress producers without redefining their behaviour.
-  evidence: core/reporting/result_export/src/derivative.rs
+  condition: Each row of a result is classified by a base semantic-table signature (category, target dimension,
+    disposition), and the reader's verdict gives each row's kind, unit, component and basis and discloses
+    source rows it cannot map.
+  when: Assembling a derivative document's rows.
+  gating: true
 - from: DEL-04-08
-  condition: >-
-    DEL-08-04 consumes DEL-04-08's retained tables, verified row classes and receipt
-    bindings when copying retained-source or retained-successor results into
-    derivative documents. It preserves those classes and receipts rather than
-    re-deriving verification or granting an output surface.
-  evidence: core/reporting/result_export/src/derivative.rs
+  condition: A retained-precision result carries its retained tables, the verified class of each row and
+    its receipt bindings, which an export preserves without re-deriving verification.
+  when: Exporting a retained-precision result.
+  gating: true
 - from: DEL-05-03
-  condition: 'DEL-08-04''s result-export schema carries DEL-05-03''s stress-row conventions: the D-5 section-basis
-    tokens of stress rows and the D-5 `pipe_sections` geometry in `PhysicsGeometry` (DEL-05-03 Design `section-bases-and-timoshenko.md`
-    §2.4).'
-  evidence: schemas/results.v0.3.schema.yaml
-- from: DEL-07-01
-  condition: >-
-    DEL-08-04's CSV and result JSON exports suggest file names by DEL-07-01
-    Design `export-file-names.md`, the shared export file-name convention.
-  evidence: execution/PKG-07/DEL-07-01/Work/export-file-names.md
+  condition: A stress row names the section basis it was recovered on by a defined token, and the result
+    carries the pipe-section geometry those bases refer to.
+  when: Exporting stress rows.
+  gating: true
+- from: DEL-04-04
+  condition: The active-set record of a nonlinear case carries the iteration settings, each support's state,
+    the supports that changed, the diagnostics and the assumptions and limitations, readable without parsing
+    message text.
+  when: Exporting nonlinear active-set observations.
+  gating: true
+- from: DEL-14-02
+  condition: A recorded analysis run names its model state, input manifest and result by hash, can be
+    verified against the result it records, and names each unresolved or checksum-mismatched rule-pack
+    reference as a diagnostic and not among its rule-pack references.
+  when: Referring an export to its run.
+  gating: true
+- from: DEL-14-05
+  condition: The common comparison-result interface is accepted at a named version with its schema.
+  when: Before a comparison export claims conformance to that interface.
+  gating: true
+- from: DEL-07-05
+  condition: Each results table in the desktop renders from a view model that gives its rows with stable
+    identifiers, the displayed unit and conversion function of each numeric column, and the stated status
+    text of an absent value.
+  when: Exporting results tables to CSV.
+  gating: true
+- from: DEL-07-08
+  condition: The run-comparison and state-comparison views render from view models that give the rows their
+    filters match, with each side's identity, stored values and units.
+  when: Exporting comparison tables to CSV.
+  gating: true
+- from: DEL-04-11
+  condition: The hanger-sizing table renders from a view model that gives every candidate and every derived
+    solve with its published values, units, verification standing and disclosures.
+  when: Exporting the hanger-sizing table to CSV.
+  gating: true
+- from: DEL-07-07
+  condition: A result held in native custody can be read as bounded pages of rows in source order, and
+    its disposal ends any read in progress.
+  when: Before a results group of a natively held result is exported to CSV.
+  gating: true
+- from: DEL-08-01
+  condition: The report's display rule has an exact step that gives a value in its displayed unit as exact
+    decimal text, separate from its rounding step, and the two composed equal the rule.
+  when: Writing CSV values by the display rule's exact step.
+  gating: true
+- from: DEL-12-02
+  condition: The export route catalogue holds the result-JSON route and the CSV route, admits the CSV route
+    for local-private output only and only with the user's explicit intent, gives each route one identity
+    and policy wherever the catalogue is held, and screens each payload before it is written.
+  when: Saving an export on its governed route.
+  gating: true
+- from: DEL-07-11
+  condition: The desktop shell's suggested file names have the form swbpipe-<kind>[-<qualifier>].<ext>,
+    with a fixed kind for a result JSON and for each CSV table kind and no project or model identity.
+  gating: false
+- from: DEL-01-04
+  condition: The claims registry gives the validation-posture statement one canonical text, used word for
+    word as the CSV notice, and one display form for each automatic analysis status.
+  gating: false
 code_paths:
 - schemas/results.schema.yaml
 - schemas/results.v0.3.schema.yaml
 - schemas/results_pressure_2.v0.3.schema.json
+# The envelope and the derivative assembly. The crate's evidence and reader modules are their producers'.
+- core/reporting/result_export/Cargo.toml
 - core/reporting/result_export/src/lib.rs
 - core/reporting/result_export/src/derivative.rs
-- core/reporting/result_export/tests/derivative_contract.rs
-- apps/desktop/src/features/result-export/**
-- apps/desktop/src/services/rulePackRefDiagnostics.ts
-- tests/test_results_schema.py
-- tests/test_results_dispatcher_v0_3.py
-- apps/desktop/src-tauri/src/native_result_download.rs
-- apps/desktop/src-tauri/src/native_csv_stream.rs
-- apps/desktop/src/features/results/resultGroupCsvStream.ts
-- core/security/local_first_storage/route_control.py
-- apps/desktop/src/features/redaction-controls/redactionExportControls.ts
-- apps/desktop/src/features/report/reportQuantityDisplay.ts
-- apps/desktop/src/features/results/displacementExtremesCsv.ts
-- apps/desktop/src/features/results/resultRowsCsv.ts
-- apps/desktop/src/features/display-units/index.tsx
-- apps/desktop/src/features/results/stressRatioTableCsv.ts
-- apps/desktop/src/features/results/supportLoadSummaryCsv.ts
-- apps/desktop/src/features/results/weightSummaryCsv.ts
-- apps/desktop/src/features/comparison/runComparisonCsv.ts
-- apps/desktop/src/features/comparison/stateComparisonCsv.ts
-- apps/desktop/src/features/results/hangerSizingCsv.ts
+# The form check of a result document inside the report-package crate, and the schema evaluator it uses.
 - core/reporting/report_package/src/document_form.rs
 - core/reporting/report_package/src/schema_eval.rs
 - fixtures/results/schema_eval_vectors.json
+- apps/desktop/src/features/result-export/**
+- apps/desktop/src-tauri/src/native_result_download.rs
+- apps/desktop/src-tauri/src/native_csv_stream.rs
+# The CSV adapters, each beside the view model it reads.
+- apps/desktop/src/features/results/resultRowsCsv.ts
+- apps/desktop/src/features/results/resultGroupCsvStream.ts
+- apps/desktop/src/features/results/displacementExtremesCsv.ts
+- apps/desktop/src/features/results/stressRatioTableCsv.ts
+- apps/desktop/src/features/results/supportLoadSummaryCsv.ts
+- apps/desktop/src/features/results/weightSummaryCsv.ts
+- apps/desktop/src/features/results/hangerSizingCsv.ts
+- apps/desktop/src/features/comparison/runComparisonCsv.ts
+- apps/desktop/src/features/comparison/stateComparisonCsv.ts
 checks:
 - tests/test_results_schema.py
 - tests/test_results_dispatcher_v0_3.py
@@ -178,19 +144,19 @@ checks:
 - apps/desktop/src/features/result-export/nativeResultSave.test.ts
 - apps/desktop/src/features/result-export/csvTable.test.ts
 - apps/desktop/src/features/result-export/csvSave.test.ts
-- apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts
-- tests/security/test_local_first_storage_policy.py
 - apps/desktop/src/features/result-export/csvTables.test.ts
-- apps/desktop/src/features/results/resultRowsCsv.test.tsx
 - apps/desktop/src/features/result-export/csvTableCoverage.test.ts
 - apps/desktop/src/features/result-export/CsvExportControl.test.tsx
+- apps/desktop/src/features/result-export/csvSaveStream.test.ts
+- apps/desktop/src/features/result-export/rulePackExclusionDiagnostics.test.ts
+- apps/desktop/src/features/results/resultRowsCsv.test.tsx
+- apps/desktop/src/features/results/resultGroupCsvStream.test.ts
+- apps/desktop/src/features/results/NativeResultsPanel.native.test.tsx
+- apps/desktop/src/features/redaction-controls/redactionExportControls.test.ts
+- tests/security/test_local_first_storage_policy.py
 - apps/desktop/src/features/report/reportQuantityDisplay.exact.test.ts
 - apps/desktop/src/features/report/reportQuantityDisplay.parity.test.ts
 - core/reporting/report_package/tests/quantity_display_parity.rs
-- apps/desktop/src/features/result-export/rulePackExclusionDiagnostics.test.ts
 - apps/desktop/src-tauri/src/native_result_download.rs
 - apps/desktop/src-tauri/src/native_csv_stream_tests.rs
-- apps/desktop/src/features/results/resultGroupCsvStream.test.ts
-- apps/desktop/src/features/result-export/csvSaveStream.test.ts
-- apps/desktop/src/features/results/NativeResultsPanel.native.test.tsx
 - apps/desktop/e2e/result-compatibility.spec.ts

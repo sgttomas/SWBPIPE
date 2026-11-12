@@ -11,7 +11,7 @@ use open_pipe_stress_modal_result::{
 use serde_json::{json, Value};
 
 const CORPUS: &str = include_str!("../../../../fixtures/results/modal_corpus.json");
-/// Point-sum evaluation-order boundaries (Design §5.3.4), in the corpus entry format.
+/// Point-sum evaluation-order boundaries, in the corpus entry format.
 const SUM_ORDER: &str = include_str!("../../../../fixtures/results/modal_sum_order_boundaries.json");
 const SEMANTIC_TABLE: &str = include_str!("../../../../fixtures/results/semantic_contract_modal_1.json");
 /// The feasibility oracle's cases and verdicts (`tests/modal_feasibility_oracle.py`).
@@ -277,7 +277,7 @@ fn the_rust_reader_returns_every_sum_order_boundary_verdict() {
     assert!(failures.is_empty(), "{} sum-order entries:\n{}", failures.len(), failures.join("\n"));
 }
 
-/// The reader against the feasibility oracle (Design §5.3.4), which is
+/// The reader against the feasibility oracle, which is
 /// supporting evidence only: the reader never fails a family the oracle finds
 /// feasible (a false refusal), and never passes or scopes one the oracle
 /// proves infeasible: it fails it, or leaves it unresolved where binary64
@@ -378,7 +378,7 @@ fn every_committed_fixture_reads_validated_up_to_its_scope() {
             assert_eq!(verdict.decision, "refusal_consistent", "{name}");
             assert!(!verdict.refusal_codes.is_empty());
         } else {
-            // Every value has its catalog unit (Design §5.3.5).
+            // Every value has its catalog unit.
             assert_eq!(verdict.relations[8].status, ModalReadStatus::Passed, "{name}: {json:#}");
             assert!(verdict.relations[8].scope.is_empty(), "{name}");
             if name.starts_with("state_") {

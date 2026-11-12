@@ -28,7 +28,7 @@ const REALIZATION_KEYS: &[&str] = &[
     SIF_IN_PLANE,
     SIF_OUT_OF_PLANE,
 ];
-/// The directional SIF pair (T4-U4b §2.6): i_ip multiplies the arc frame's M_z,
+/// The directional SIF pair: i_ip multiplies the arc frame's M_z,
 /// i_op its M_y.
 const SIF_IN_PLANE: &str = "sif_in_plane_user_value";
 const SIF_OUT_OF_PLANE: &str = "sif_out_of_plane_user_value";
@@ -157,7 +157,7 @@ fn junction(model: &Value, arriving: &Value, leaving: &Value, node: &str, arcs: 
     kink(t_in, t_out).ok()
 }
 
-/// W-10 reconnect (DEL-16-06 Design `pipe-reconnect.md` §2.4): θ at `node`
+/// W-10 reconnect: θ at `node`
 /// between pipe `pipe_id` and each realized arc other than it that ends at
 /// `node`, in `model` (the reconnected candidate), by arc span id.
 pub(crate) fn realized_arc_junctions(model: &Value, pipe_id: &str, node: &str) -> Vec<(String, f64)> {
@@ -524,7 +524,7 @@ pub(crate) fn insert_at_corner(model: &Value, intent: &Value) -> Result<Geometry
     if !same("section") || !same("material") || !same("section_ref") {
         return Err(corner_err("OP-BEND-CORNER-SECTION-MISMATCH", format!("Pipes {in_id} and {out_id} differ in section or material; a bend joins one section and material"), vec![in_id.clone(), out_id.clone()]));
     }
-    // Model document 0.9.0 (§1.4): both straights carry the same condition set or none,
+    // Model document 0.9.0: both straights carry the same condition set or none,
     // and the arc (a copy of the incoming straight) carries it.
     if !same("condition_set_ref") {
         return Err(corner_err("OP-BEND-CONDITION-SET-MISMATCH", format!("Pipes {in_id} and {out_id} carry different condition sets; a bend joins straights that carry the same condition set or none"), vec![in_id.clone(), out_id.clone()]));
@@ -613,7 +613,7 @@ pub(crate) fn insert_at_corner(model: &Value, intent: &Value) -> Result<Geometry
     let mut found = vec![];
     for (key, collection) in model.as_object().into_iter().flatten() {
         match key.as_str() {
-            // W-13 §6: model-data records are not attachments; the arc joins
+            // model-data records are not attachments; the arc joins
             // p_in's line below, and a corner named by an equipment interface
             // leaves the validator's missing-subject warning.
             slot if crate::model_data_authoring::MODEL_DATA_COLLECTIONS.contains(&slot) => {}
@@ -713,7 +713,7 @@ pub(crate) fn insert_at_corner(model: &Value, intent: &Value) -> Result<Geometry
         }
     }
     list.push(arc.clone());
-    // W-13 §3.2: the arc (a clone of p_in, with its tags and notes) joins the
+    // the arc (a clone of p_in, with its tags and notes) joins the
     // line of the incoming pipe p_in.
     let line_row = crate::model_data_authoring::join_source_line(&mut candidate, &in_id, arc["id"].as_str().unwrap_or(""));
     let components = candidate

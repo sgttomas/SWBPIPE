@@ -1,4 +1,4 @@
-//! M-orthogonality of a set of modes (design §3.4, check 3):
+//! M-orthogonality of a set of modes (check 3):
 //! max over i ≠ j of |φᵢᵀMφⱼ| / √(m_i m_j), with m_i = φᵢᵀMφᵢ, in
 //! the bilinear forms summed exactly (`exact::ExactSum`: Mφⱼ as exact terms,
 //! then φᵢᵀ(Mφⱼ)), so no contribution is lost before a cancellation, and the
@@ -83,7 +83,7 @@ pub struct MOrthogonality {
     /// two modes.
     pub pair: Option<(usize, usize)>,
     /// The largest ratio is nonzero but below the binary64 normal range and
-    /// is published as 0 (design §3.2, admission range).
+    /// is published as 0 (admission range).
     pub max_ratio_below_normal_range: bool,
 }
 

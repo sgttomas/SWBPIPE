@@ -130,9 +130,8 @@ results, diagnostics, and provenance records are exposed to users.
 A real line runs at several operating modes (design, operating, hydrotest,
 upset), and each line segment has its own temperature in each mode. Model
 document 0.9.0 lets a user state those values once, in named operating-condition
-sets, and lets a load case say which condition it uses. The design is DEL-02-01
-Work `model-document-0.9.0.md` §1; the numerical policy is §1.5.1 and §1.8, and
-DEL-05-01 Work `thermal-temperature-change.md` records how it relates to a
+sets, and lets a load case say which condition it uses. DEL-02-01 owns the design and its numerical policy, and
+DEL-05-01 records how it relates to a
 typed temperature change.
 
 The principle is that a condition set is a source of values, not new mechanics.
@@ -185,7 +184,7 @@ verify the connected resolution against hand formulas.
 
 ## Hydrostatic Test Reference And Device Replacement (Design)
 
-The hydrotest contract in DEL-05-01 Work `hydrostatic-test.md` is a design, not
+The hydrotest contract in DEL-05-01 is a design, not
 current solver admission. Its reference is the authored model geometry: a held
 device has zero global displacement or rotation from that geometry, even when
 the node's plant coordinates are nonzero. No preceding solved state or spring

@@ -369,7 +369,7 @@ function checkStressRatioAfterRuleChecks(prefix, rules) {
 
 const first = await launch("open-solve-save", { report_package: REPORT_PACKAGE_SAVE, exact_report_package: EXACT_REPORT_PACKAGE_SAVE });
 check("phase open-solve-save completed", first.ok, first.error);
-// W-6a (DEL-15-01 Design canonical-model-export.md §2). Nothing here is pinned:
+// Nothing here is pinned:
 // the expected bytes and hash are computed from the bundled demo fixture.
 {
   const saved = first.model_document?.saved;
@@ -616,7 +616,7 @@ for (const doc of documents) {
     named.length === integrity.count && named.every((item) => item.severity === integrity.severity && item.message?.includes(integrity.sentence))
       && !(run?.diagnostics ?? []).some((item) => item.severity === "blocking" || item.severity === "error"), named.map((item) => item.severity));
 }
-// W-18 (b2; DEL-08-01 Design report-package-current-results.md §4). File > Save
+// File > Save
 // Report Package… on the demo's Current pressure-free result. Nothing here is
 // pinned: the receipt, the file and the product reader's re-read are compared with
 // each other and with the result JSON the same session exported.
@@ -677,7 +677,7 @@ for (const doc of documents) {
   check("from blank, reopened: the unfiltered results count every solved row", after && after.all_rows_summary === `${after.proof_rows} of ${after.proof_rows} results match filter`, after?.all_rows_summary);
 }
 
-// W-6b (DEL-15-01 Design canonical-model-export.md §3). File > Save Handoff… on
+// File > Save Handoff… on
 // the stored demo, twice. Nothing here is pinned: the bytes and hashes are
 // computed from the stored demo model and from the saved package itself.
 {

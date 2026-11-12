@@ -1,4 +1,4 @@
-//! DEL-07-05 numerical health (Design `numerical-health-indicator.md` §7): the
+//! DEL-07-05 numerical health: the
 //! parse over live producer output in both solver modes, its tie to the Rust
 //! reader, and every committed result fixture that carries integrity
 //! diagnostics (listed exactly in `RESULT_FIXTURES`).

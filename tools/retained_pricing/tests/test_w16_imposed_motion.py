@@ -1,4 +1,4 @@
-"""W16-NS, W16-ID, W16-NI and W16-VF (retained-pricing-rules.md §8.23): W-16 slice a's imposed_motion.rs is priced only
+"""W16-NS, W16-ID, W16-NI and W16-VF (§8.23): W-16 slice a's imposed_motion.rs is priced only
 where its code exists. Behind a support target, which D1.7 refuses on both routes, its sites and edges are zero; the
 node/element refusal (route L) and case_prescribed's node index are priced positively; a changed premise, refusal or
 owner stops the run.

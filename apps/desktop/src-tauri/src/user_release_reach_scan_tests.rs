@@ -37,7 +37,7 @@ fn user_release_reach_scan() {
 }
 
 /// The scan reads every production file it must, including the modules under
-/// a non-test `cfg` (§2.8, "What the four crates hold today"), and no
+/// a non-test `cfg`, and no
 /// test-only file.
 #[test]
 fn the_scan_reads_the_production_files() {
@@ -70,7 +70,7 @@ fn the_scan_reads_the_production_files() {
     }
 }
 
-/// Also asserted (§2.8, "Dependents"; code review r8 at #1682): the
+/// Also asserted (code review r8 at #1682): the
 /// packages that depend on each reporting package are exactly the allowed
 /// ones, by package name and canonical manifest, as Cargo reports every
 /// package in the project and every path dependency reachable from them:
@@ -209,7 +209,7 @@ fn the_real_sources_find_the_review_r3_forms() {
 /// type assigned `Self`.
 const CODEX_R2_ALIAS: &str = "trait Identity { type Repr; }\nimpl Identity for DerivedUserRelease { type Repr = Self; }\ntype Alias<T> = <T as Identity>::Repr;\nfn forge() -> DerivedUserRelease { Alias::<DerivedUserRelease> { _derived: () } }\n";
 
-// --- The invented closed set and its negative fixtures (§6) -----------------
+// --- The invented closed set and its negative fixtures -----------------
 
 /// `app_invoke_handler`'s basis text, read from the real `lib.rs` (its pin
 /// is checked by the real scan).
@@ -801,7 +801,7 @@ fn user_release_reach_scan_finds_the_review_r3_classes() {
     }
 }
 
-/// Each of these must pass (§6, "Passing cases").
+/// Each of these must pass.
 #[test]
 fn user_release_reach_scan_admits_the_listed_forms() {
     let passing: Vec<(&str, Sources)> = vec![
@@ -2151,7 +2151,7 @@ fn with_dependency(manifest: &str, line: &str) -> String {
     manifest.replacen("\n[dependencies]\n", &format!("\n[dependencies]\n{line}\n"), 1)
 }
 
-/// Also asserted (code review r9 at #1682; §2.8, "Allowed dependents"): the
+/// Also asserted (code review r9 at #1682): the
 /// scan reads the headless runner's library and binary roots and every
 /// production module they load, and reads its test-only modules as test
 /// code; each root carries `#![forbid(unsafe_code)]`; the real tree's
@@ -2402,7 +2402,7 @@ fn the_review_r9_repros_in_scratch_copies() {
         if case == "an edited pinned macro" {
             let file = "headless/src/reader_binding.rs";
             let text = sources.files.get_mut(file).unwrap();
-            // RT-A4 §10.4: `transport!` also takes `$optional` now, so the edit is
+            // `transport!` also takes `$optional` now, so the edit is
             // anchored on text only the `base!` macro holds.
             assert_eq!(text.matches("Some(binding) => rv::validate_recorded($name,").count(), 1);
             *text = text.replacen("Some(binding) => rv::validate_recorded($name,", "Some(binding) => rv::validate_recorded($name, ", 1);

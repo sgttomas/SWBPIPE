@@ -3,7 +3,7 @@ import { displayQuantity } from "./reportQuantityDisplay";
 
 export const REPORT_ROW_SECTION_BASIS_UNREADABLE = "REPORT-ROW-SECTION-BASIS-UNREADABLE";
 
-/** The section-basis suffix (§3.4): `metadata.basis` split on ";", each token trimmed.
+/** The section-basis suffix: `metadata.basis` split on ";", each token trimmed.
  * Exactly one `section_basis=nominal_section` token adds " [nominal section]", exactly one
  * `section_basis=reduced_section` adds " [reduced section]", and no `section_basis=` token
  * adds nothing. Any other value, or more than one such token, refuses. The Rust helper

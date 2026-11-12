@@ -1,5 +1,5 @@
 //! The native size-and-read entry, increment 3c part 1 (DEL-04-11
-//! `Work/hanger-sizing.md` §8.3, §13): its reply on the committed corpus inputs
+//! design §8.3, §13): its reply on the committed corpus inputs
 //! (`fixtures/results/hanger_sizing_input_*.json`), the reply's agreement with
 //! the desktop adapter's evidence shape and hash
 //! (`apps/desktop/src/features/results/hangerSizingView.ts`), the refusals that
@@ -126,7 +126,7 @@ fn the_reply_carries_the_published_document_its_checked_hash_and_the_verdict() {
         if sized {
             assert_eq!(statuses(verdict), ["passed", "passed", "passed", "passed", "not_checked"], "{input_name}: {verdict}");
         } else {
-            // A refused document: closure and binding only (§8.3.7).
+            // A refused document: closure and binding only.
             assert_eq!(statuses(verdict), ["passed", "passed", "not_checked", "not_checked", "not_checked"], "{input_name}: {verdict}");
         }
         assert_eq!(verdict["binding"]["not_checked"], json!([]), "{input_name}");

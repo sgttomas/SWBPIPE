@@ -1,4 +1,4 @@
-//! The designated-source check (DEL-17-04 Design `desktop-mbf-export-import.md` §5.4): whether a model document the
+//! The designated-source check: whether a model document the
 //! user designated is the exact source a format-6 MBF pair was written from, and whether the bound import of that pair
 //! carries the source's identity set for all nine A-3 classes.
 //!

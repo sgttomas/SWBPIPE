@@ -40,7 +40,7 @@
 //!   pass. That reader is the pressure-2 evidence without the certificate,
 //!   then, with a model, G2's model checks and the certificate's closed roster
 //!   over the document's and the model's combinations; the model-free reader
-//!   reads that roster over the document's alone (RT-A3 §4). So the
+//!   reads that roster over the document's alone. So the
 //!   registration's pass establishes the model-free reader's only on a document
 //!   whose own combination population is empty, where the model-free roster
 //!   reads nothing and the member checks are the same; the builder reuses it
@@ -124,7 +124,7 @@
 //!   current reader on exactly these bytes (`ReaderEvidence`, above), which
 //!   lets the build skip re-running that reader. No record, checksum, length,
 //!   row, interpretation or reply is cached between calls.
-//! - **Admission and memory** (plan §8; no new budget or rule). Every lease is
+//! - **Admission and memory** (no new budget or rule). Every lease is
 //!   pool-admitted before what it covers is allocated, and the command's live
 //!   leases together, from its argument lease on, stay within min(the
 //!   per-invocation budget that lease was admitted under, 12 GiB): one

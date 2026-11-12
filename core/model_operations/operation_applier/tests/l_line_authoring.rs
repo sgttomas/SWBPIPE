@@ -314,7 +314,7 @@ fn span_bend_document() -> Value {
     model
 }
 
-/// T4-U4b (§2.6): the realization takes the directional SIF pair with its
+/// the realization takes the directional SIF pair with its
 /// source, both or neither; the solve then publishes the directional rows.
 #[test]
 fn realizing_a_bend_takes_the_directional_sif_pair_with_its_source() {
@@ -498,7 +498,7 @@ fn a_connector_cannot_replace_a_realized_arc_span() {
     assert!(outcome.applied_model.is_some(), "{:?}", outcome.diagnostics);
 }
 
-/// Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §1.4): the bend joins
+/// Model document 0.9.0: the bend joins
 /// straights that carry the same condition set (or none) and the arc carries it; straights
 /// that differ are refused by name.
 #[test]

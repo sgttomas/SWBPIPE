@@ -245,5 +245,5 @@
     }
   ],
   "rule": "an expected value enters only from a closed-form reference with an independent generator, an exact identity or a verified solve, frozen in validation/references/reference_system/ with its basis recorded (spec §1); each expected value here names that record",
-  "specification": "execution/PKG-09/DEL-09-01/Work/reference-system.md"
+  "specification": "DEL-09-01"
 }

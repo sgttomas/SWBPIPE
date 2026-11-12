@@ -6,7 +6,7 @@ consistency, not any case's standing (each operand's quality record is the docum
 Independence: standard-library imports only, and its siblings ``section_basis`` (bit equality), ``units`` and
 ``combination_graph``.
 
-RT-A4 (DEL-05-02 ``absolute-sum-srss-combinations.md`` sections 4-5): a record may also state an absolute sum, an
+a record may also state an absolute sum, an
 SRSS, or a mechanics combination admitted by decision OQ-1 (re-derived from the earlier records); a term names a load
 case or a combination; a combination operand is ``{combination_id}`` and states its standing in its own record.
 """
@@ -179,7 +179,7 @@ def _standing_notice(cid: str, operands: list) -> dict[str, Any] | None:
 
 
 def check(source: Mapping[str, Any], solved: bool) -> None:
-    """§3: presence, shape, standing, row binding and both notices; a blocked envelope carries neither."""
+    """presence, shape, standing, row binding and both notices; a blocked envelope carries neither."""
     evidence = source.get("contract_evidence") or {}
     member = evidence.get(MEMBER) if MEMBER in evidence else None
     rows = _items(source.get("results"))

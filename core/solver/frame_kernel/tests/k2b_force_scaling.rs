@@ -1,4 +1,4 @@
-//! K2b kernel tests (T3 D1 revision 5a.2 §4.7, W2 force-radix scaling and the
+//! K2b kernel tests (W2 force-radix scaling and the
 //! kernel half of formation-time scaling; ROOT's K2b rulings of 2026-09-28):
 //! the force scale, exact scaling at formation, the b-rule's census and
 //! window, the ledger's force-scaled terms, the sparse assembly option, and

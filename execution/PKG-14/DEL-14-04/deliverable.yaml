@@ -1,115 +1,65 @@
 id: DEL-14-04
 name: Analysis-run comparison engine
 needs:
-- from: DEL-00-01
-  condition: 'DEL-14-04 requires AB-00-01 architecture decision record baseline constraints before sealed
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-14-02
+  condition: >-
+    A recorded run is read only after its record, received result and input manifest verify
+    against their recorded hashes. Its record gives the run's model state, solver version,
+    settings, units, load cases and combinations, diagnostics and rule-pack and library
+    references, and gives each result row a reference with its identifier, family, dimension and
+    the semantic contract it was produced under, with the standing the product reader gave the
+    result.
   gating: true
-- from: DEL-00-02
-  condition: 'DEL-14-04 requires AB-00-02 repository and module boundary architecture constraints before
-    sealed execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-14-05
+  when: Applying manual mappings or a tolerance profile, and examining AC-008
+  condition: >-
+    The mapping contract defines the mapping hierarchy, the mapping record and the unmatched
+    classifications, and a tolerance profile is a schema-governed record with explicit units and
+    no default value. For a comparison result's conformance to the common comparison-result
+    interface, that interface is accepted at a named version with its schema.
   gating: true
-- from: DEL-00-03
-  condition: 'DEL-14-04 requires AB-00-03 application service command-query-job model constraints before
-    sealed execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-14-04 requires AB-00-04 persistence and schema versioning architecture constraints before
-    sealed execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-02
+  condition: >-
+    The unit catalog names each unit's dimension and converts a value between two units of one
+    dimension deterministically, and an unknown, missing or incompatible unit gives a named
+    finding and no converted value.
   gating: true
 - from: DEL-00-06
-  condition: 'DEL-14-04 requires AB-00-06 diagnostics warning and result-envelope constraints before sealed
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The diagnostic contract fixes the fields a diagnostic record carries (code, class, severity,
+    source, affected object, message, remediation, provenance).
   gating: true
-- from: DEL-00-07
-  condition: 'DEL-14-04 requires AB-00-07 API boundary and adapter contract constraints before sealed
-    execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-14-04 requires AB-00-08 layered software test and acceptance strategy constraints before
-    sealed execution.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-14-02
-  condition: 'DEL-14-04 requires DEL-14-02 analysis run records as the source record interface for comparing
-    exact runs.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-14/DEL-14-04/ScopeOfWork.md
-- from: DEL-14-05
-  condition: 'DEL-14-04 requires DEL-14-05 mapping tolerance and export contracts before implementing
-    dependent comparison behavior.
-
-
-    Notes: OI-014 remains TBD.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-14/DEL-14-04/ScopeOfWork.md
-- from: DEL-08-04
-  condition: 'DEL-14-04 requires DEL-08-04 structured result export envelopes for compatible comparison
-    result surfaces.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-14/DEL-14-04/ScopeOfWork.md
-- from: DEL-02-02
-  condition: 'DEL-14-04 requires DEL-02-02 unit system and dimensional-analysis constraints for unit-normalized
-    run deltas.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-14/DEL-14-04/ScopeOfWork.md
 code_paths:
-- core/comparison/analysis_run/engine.py
-- schemas/comparison_mapping.schema.json
-- schemas/comparison_tolerance.schema.json
-- apps/desktop/src/services/previewService.ts
-- apps/desktop/src/features/comparison/ComparisonPanel.tsx
-- apps/desktop/src/features/workspace/resultsSessionState.ts
+# The comparison of two runs in the web session: identity, mapping, deltas, context and
+# diagnostics, and the two sides with their standing. DEL-07-08 owns the view beside them
+# (RunComparisonView.tsx); DEL-08-04 owns the CSV adapter (runComparisonCsv.ts).
 - apps/desktop/src/features/comparison/runComparison.ts
 - apps/desktop/src/features/comparison/runComparisonSides.ts
-- apps/desktop/src/features/comparison/RunComparisonView.tsx
-- apps/desktop/src/features/comparison/withinRunComparison.ts
-- apps/desktop/src/features/comparison/ComparisonPackageNotice.tsx
-- apps/desktop/src-tauri/src/analysis_runs.rs
+# The headless comparison.
+- core/comparison/analysis_run/engine.py
+# The committed invented runs both implementations are run on.
 - fixtures/comparison/analysis_run_comparison_golden.json
+# Only the command that admits a pair of recorded runs for a comparison is this deliverable's;
+# the file is DEL-14-02's.
+- apps/desktop/src-tauri/src/analysis_runs.rs
+# The comparison within one run, of a load case against a combination. No requirement of this
+# deliverable's scope covers it: it compares no two runs. It is listed here because the code sits
+# with the comparison feature, pending the owner's allocation; DEL-07-08 lists the panel and
+# previewService.ts is shared by several deliverables.
+- apps/desktop/src/features/comparison/withinRunComparison.ts
+- apps/desktop/src/services/previewService.ts
 checks:
 - tests/test_analysis_run_comparison.py
+- tests/test_analysis_run_comparison_parity.py
 - tests/test_comparison_contracts.py
-- apps/desktop/src/App.test.tsx
-- apps/desktop/src/features/workspace/exactCurrentPanels.test.tsx
 - apps/desktop/src/features/comparison/runComparison.test.ts
 - apps/desktop/src/features/comparison/runComparisonParity.test.ts
 - apps/desktop/src/features/history/compareRuns.test.tsx
+- apps/desktop/src-tauri/src/analysis_runs_tests.rs
+# Checks of the comparison within one run.
+- apps/desktop/src/App.test.tsx
+- apps/desktop/src/features/workspace/exactCurrentPanels.test.tsx
 - apps/desktop/src/features/comparison/withinRunComparison.test.tsx
 - apps/desktop/src/features/comparison/withinRunComparison.session.test.tsx
 - apps/desktop/src/features/comparison/withinRunPackages.test.tsx
 - apps/desktop/src/features/workspace/withinRun.resultsSessionState.test.ts
-- apps/desktop/src-tauri/src/analysis_runs_tests.rs
-- tests/test_analysis_run_comparison_parity.py

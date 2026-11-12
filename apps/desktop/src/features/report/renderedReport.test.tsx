@@ -1591,7 +1591,7 @@ describe("FR-REP-003 records (W-11 slice (c), §4.1)", () => {
       const input = await buildFor(model, { renderContext });
       expect("library_references" in input).toBe(false);
       const { canonicalSha256Hex } = await import("../../services/hashService");
-      // The readability slice (DEL-08-01 Design `exact-route-report-sections.md` §6.3 item 3)
+      // The readability slice
       // changed only the display policy text; with the earlier text the input is the captured one.
       const summary = input.calculation_report.model_input_summary.unit_display_summary;
       expect(summary.quantity_display_policy).toBe(QUANTITY_DISPLAY_POLICY);
@@ -1876,7 +1876,7 @@ describe("schema check of representative records (W-11 slice (c), §7)", () => {
   });
 });
 
-// The display rule (DEL-08-01 Design `report-package-current-results.md` §2.3 items 5-6):
+// The display rule:
 // `conversion_performed` is true only when the rendered report displays a value stored in Pa;
 // the report JSON packet displays no values and keeps its own disclosure.
 describe("the display rule's conversion disclosure", () => {

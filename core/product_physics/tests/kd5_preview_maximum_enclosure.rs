@@ -120,7 +120,7 @@ fn kd5_preview_maximum_publishes_global_enclosure_midpoint_and_covers_public_sam
             let integrity: Vec<_> = envelope.diagnostics.iter().filter(|d| d.code.starts_with("NUMERICAL_INTEGRITY_")).map(|d| d.code.clone()).collect();
             assert_eq!(integrity, vec!["NUMERICAL_INTEGRITY_CHECKS_PASSED".to_string()], "{label} {mode:?}: precondition, a certified Passed case");
             let evidence = serde_json::to_value(&envelope.contract_evidence).unwrap();
-            // T4-U4b (§2.3): arcs publish their own maximum, under the arc record's tokens.
+            // arcs publish their own maximum, under the arc record's tokens.
             let extrema: Vec<Value> = evidence["preview_cases"].as_array().unwrap().iter()
                 .flat_map(|case| case["pipe_stress_extrema"].as_array().cloned().unwrap_or_default())
                 .filter(|x| x["approximation"] == "piecewise_quadratic_straight_section_statics").collect();
@@ -134,7 +134,7 @@ fn kd5_preview_maximum_publishes_global_enclosure_midpoint_and_covers_public_sam
                 let lower = x["value_lower_pa"].as_f64().unwrap();
                 let upper = x["value_upper_pa"].as_f64().unwrap();
                 let global = x["global_upper_bound_pa"].as_f64().unwrap();
-                // §3.2: the public upper is the global maximum enclosure, never the
+                // the public upper is the global maximum enclosure, never the
                 // local witness interval or a midpoint below it.
                 assert_eq!(upper.to_bits(), global.to_bits(), "{label} {mode:?} {pipe_id}: value_upper_pa must equal global_upper_bound_pa");
                 assert!(lower.is_finite() && lower <= upper, "{label} {mode:?} {pipe_id}");

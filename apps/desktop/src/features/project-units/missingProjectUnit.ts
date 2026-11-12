@@ -38,7 +38,7 @@ export function missingProjectUnitText(model: PreviewModel, key: ProjectUnitKey,
   return `Missing project unit: ${key}. This field takes its unit from project.units.${key}, and nothing is assumed. Set ${key} in Project units on the Project page before editing it.`;
 }
 
-/** A grid cell whose composed default is not a catalog unit (§7.3, §7.6): the grid
+/** A grid cell whose composed default is not a catalog unit: the grid
  * has no unit selector, so the notice sends the user to the property inspector. */
 export function unavailableDefaultUnitCellText(notice: string): string {
   return `${notice}. Choose its unit in the property inspector.`;

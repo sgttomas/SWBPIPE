@@ -1,4 +1,4 @@
-// RT-A3 §4 (DEL-05-02 Work combination-certificate.md): the pressure-2 table restates its combination standing and
+// the pressure-2 table restates its combination standing and
 // the combinations limitation (a subtraction's or mechanics combination's derived groups carry the combination
 // certificate's stated bound and verdict; combination rows never count towards numerical eligibility), rows and gates
 // unchanged, so its digest moves. A run recorded under main's table keeps its existing read and compare behaviour. The

@@ -264,7 +264,7 @@ fn w1_represented_z_hull_converges_at_the_binding_endpoint(){
 
 /// The driven search's convergence, uppers and pruning are the point problem's:
 /// its U equals the undriven search's at the point z_lo, and its hull-valid
-/// evaluations are counted at actual cost on top (stage 2 §5, R-1).
+/// evaluations are counted at actual cost on top (R-1).
 #[test]
 fn w1_hull_search_work_is_counted(){
     for (ends,q) in [([[0.;3];2],[8.,0.]),([[0.,1.,0.],[0.,0.,1.]],[1.,1.]),([[1.,0.,0.],[2.,0.,0.]],[7.,0.])] {

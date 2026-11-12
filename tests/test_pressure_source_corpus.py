@@ -51,7 +51,7 @@ def test_pressure_source_corpus_independent_verifier_matches_native(entry):
 
 
 def test_rf16_stored_unsupported_block_orders_3_and_4_are_refused_by_the_verifiers_order_bound():
-    """RF source-method extension §7/§8 RF-16, in the independent verifier. The receipt schema admits only qualified
+    """The receipt schema admits only qualified
     cases, so J2's stored unsupported_block records are refused at the receipt shape before FAILURE_BLOCK_ORDER at
     every reader entry (the parametrized read above). The order bound is therefore checked here, directly on those
     records: orders 3 and 4 (which the current producer solves) are refused; order 5 without a source is admitted."""
@@ -71,7 +71,7 @@ def test_rf16_stored_unsupported_block_orders_3_and_4_are_refused_by_the_verifie
 
 
 def test_rf_block_length_and_level_are_the_receipt_schemas():
-    """RF §7: block length and level are checked through the schema. No receipt is fabricated for a 4-DOF block or
+    """block length and level are checked through the schema. No receipt is fabricated for a 4-DOF block or
     the congruence level: those read as valid only on a genuine producer output."""
     schema = ps._schema()
     source = schema["$defs"]["source"]["properties"]

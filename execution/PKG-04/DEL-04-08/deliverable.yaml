@@ -3,100 +3,93 @@ name: Retained-precision result verification
 needs:
 - from: DEL-04-01
   condition: >-
-    DEL-04-08 publishes and bounds rows that the frame kernel's retained lanes compute. Through
-    `frame_kernel::structural::retained_api`, DEL-04-01 supplies the retained product proof
-    (`certify_product_case`, `certify_final`) with the coupled and floored final per-body scales its
-    gate judged every row with (`CertifiedProductProof::final_scales`, which the receipt's
-    `body_scales` state; Design `w1-coverage-repair.md` §2.2), the admitted-K and annular-source lanes and their
-    publication predicates, the declared member-load set (`MemberLoadSet`, `UniformMemberLoad`), the
-    loaded-member maximum search with its fixed limits, the retained Timoshenko straight member
-    (natural-mode D recipe, kappa_E lane enclosure and D-entry gap majorants) with its sidecar and the
-    reduced-section certification of distinct-basis rows (O4), and the retained resource layouts that the
-    memory profile prices. For retained-source recovery it supplies the metered exact-boundary blocks.
-    Each lane meets the limits stated in the formation definitions (DEF-O, DEF-C and DEF-E) or refuses;
-    no lane widens a limit to complete. The final case's recipe-free `ProductRecipe::NotCovered` carries the
-    derived section extremes and transverse-shear maxima as `not_covered` rows outside every verified class
-    (DEL-04-07 Design `u4b-u5b-implementation.md` §4.1).
+    The frame kernel defines the frame, its element stiffnesses (Euler-Bernoulli and Timoshenko
+    straight members) and its boundary reduction, which are the declared linear problem a successor
+    re-solves; reports for each ordinary solve whether it passed its integrity check, which decides
+    the cases the method attempts; and provides the retained-precision lanes that re-solve that
+    problem at extended precision with their error proof, and the exact boundary that solves a
+    case exactly from retained source terms within metered work limits.
   gating: true
-  evidence: core/solver/frame_kernel/src/structural/retained/mod.rs
 - from: DEL-04-07
   condition: >-
-    DEL-04-07's product solve integration hosts the method. Its dispatcher
-    (`run_linear_static_preview_value_dispatch`) runs the census and admission before any retained
-    capture. An admission refusal returns the unchanged ordinary route. A later stage fault returns
-    the ordinary bytes, with one `RETAINED_PRECISION_UNAVAILABLE` notice where retained work ran. Its
-    ordinary exact route attempts retained-source recovery for eligible captured cases whose ordinary
-    report is Sensitive or whose ordinary attempt errs, screens each selection by the captured replay's
-    reservation, and republishes every case of a captured invocation on its ordinary route when a selected
-    source cannot finalize (Design `pre04-failure-unification.md`). Its memory-budget
-    policy fixes the qualified per-invocation M = 12 GiB within the shared 75 % pool. Its desktop host
-    keeps the non-retained entry, so retained-precision results reach no desktop solve until B8
-    (owner-held).
+    The product solve gives the method each case's ordinary result and standing and, where the solve
+    captured one, the captured invocation; admits a retained invocation only within a per-invocation
+    memory budget of 12 GiB inside the shared pool; and publishes what the method returns, a
+    verified result or the unchanged ordinary result, without altering it.
   gating: true
-  evidence: execution/PKG-04/DEL-04-07/Work/memory-budget-decision.md
 - from: DEL-05-01
   condition: >-
-    W1 captures each authored full-span uniform member load bit for bit from the primitive load
-    application's `element_uniform_loads` and the case's primitive load records. It forms the exact
-    ledger (K4LED) from those records and the normalized nodal terms. DEL-05-01 supplies these records
-    with their authored identity, direction, dimension and magnitude.
+    The primitive load contracts record each authored load of a case with its identity, direction,
+    dimension and magnitude, bit for bit as authored, so that the method can form its exact load
+    ledger from the records.
   gating: true
-  evidence: core/loads/primitive_loads/src/lib.rs
 - from: DEL-05-05
+  when: Covering a case with a full-span uniform member load
   condition: >-
-    DEL-05-05's user-load contract defines a full-span uniform member load on a straight member: its
-    consistent equivalent nodal load ((L/2)w at each end, ±(L/12)(d x w) moments) and the member-local
-    end and station recovery with span terms. W1's declared entries are each within 2^-1022 of these
-    exact consistent values, relative to their magnitude. The difference is disclosed, not bounded.
+    A distributed user load over the whole span of a straight member enters the solve as the
+    member's work-consistent equivalent nodal loads in global axes, never as a lumped
+    approximation (DEL-05-05 REQ-007).
   gating: true
-  evidence: execution/PKG-05/DEL-05-05/ScopeOfWork.md
+- from: DEL-04-02
+  when: Covering a case with a full-span uniform member load
+  condition: >-
+    The straight pipe element gives the equivalent nodal loads of a full-span uniform load as wL/2
+    and moments of wL²/12 at each end, and recovers end and station resultants that satisfy statics
+    with the loads between them (DEL-04-02 AC-002, AC-003).
+  gating: true
 - from: DEL-05-03
   condition: >-
-    DEL-05-03 supplies the nominal and reduced section bases and their fixed binary64 rederivation
-    (`section_basis`), which the readers apply at G5b and G8 and the verifier repeats. It also supplies
-    the stress definitions (N/A, M/Z, T*c/J and the elastic normal-stress maximum) behind every stress
-    row this method bounds, and the `section_stress_quantities` sequences by which successors and source
-    publications form their derived section extremes and transverse-shear maxima from their own rows. It also supplies the Timoshenko formulation (U8's fixed-order kappa-hat, the energy-matched
-    kappa_E and the shear-area leaf), which both retained routes form and the readers rederive, and the
-    mill-tolerance and corrosion-allowance fields behind the D-5 bases (O4, `o4-source-extension.md`).
+    The stress recovery defines the nominal and reduced section bases with a fixed binary64
+    rederivation, the stress definitions behind every stress row (N/A, M/Z, Tc/J and the elastic
+    normal-stress maximum), the section-quantity sequences for section extremes and transverse-shear
+    maxima, and the Timoshenko shear factor and shear area, so that the readers can rederive them
+    from published rows.
   gating: true
-  evidence: execution/PKG-05/DEL-05-03/Work/section-bases-and-timoshenko.md
 - from: DEL-05-02
+  when: Producing a retained combination and reading a successor at gate G7
   condition: >-
-    DEL-05-02 supplies the mechanics combination semantics and their withholding gates
-    (`NONLINEAR_COMBINATION_REQUIRES_SOLVE`, `CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE`,
-    `COMBINATION_MODULUS_BASIS_MIXED`). Retained combinations reproduce them under the B2-C contract. It
-    also supplies the base-route readers and standing (`reader_verdict`) that G7 applies to each
-    successor's projected statement.
+    The load-case algebra defines mechanics combination semantics and their withholding gates, which
+    a retained combination reproduces, and its base-route reader gives the standing of an ordinary
+    statement, which the reader applies to each successor's projected statement.
   gating: true
-  evidence: execution/PKG-05/DEL-05-02/Work/retained-combinations.md
 - from: DEL-02-02
+  when: Forming the reader's raw and normalized projections
   condition: >-
-    DEL-02-02 supplies the unit catalog and conversions (`open_pipe_stress_units`) that the reader's row
-    classification and raw/SI projection use. The verifier matches the crate's committed unit
-    witnesses bit for bit.
+    The unit catalog gives each unit's conversion to the canonical unit as a record with its factor
+    or offset representation, converts deterministically, and each conversion agrees with the value
+    formed from the unit's public definition at its witness tolerance (DEL-02-02 REQ-006, REQ-007,
+    AC-001), so that the reader's raw and normalized projections and the test verifier can be held
+    to it.
   gating: true
-  evidence: core/units/README.md
-- from: DEL-02-05
+- from: DEL-08-02
   condition: >-
-    DEL-02-05 supplies the canonical JSON form (`openpipestress_jcs_ijson_v1`, `core/serialization/canonical_json`)
-    and its SHA-256 hashing. These bind each receipt, captured invocation and publication hash. The
-    verifier matches the crate's committed canonical-JSON vectors.
+    A JSON payload is hashed as SHA-256 over its RFC 8785 canonical form, by one implementation with
+    committed vectors, so that receipts, captured invocations and publication hashes are bound with
+    it and the test verifier can reproduce each digest.
   gating: true
-  evidence: core/serialization/canonical_json/README.md
 - from: DEL-00-06
   condition: >-
-    The method's notices and refusal codes (`RETAINED_PRECISION_SELECTED`, `RETAINED_PRECISION_UNAVAILABLE`
-    and the reader's gate codes) are typed diagnostics bound to cases. They follow the diagnostics and
-    result-envelope contract (AB-00-06), including its rule on output claims; the wording of the
-    current product messages is an open terminology choice (ScopeOfWork TBD-001).
+    The diagnostic contract admits typed notices and diagnostics that name their affected object,
+    a case included, with code, severity, source and message, and no diagnostic claims
+    certification or compliance.
   gating: false
 - from: DEL-10-05
   condition: >-
-    The headless runner hosts the reader's CLI binding (`openpipestress-runner read`). Python product code
-    takes the reader's verdict through it. The runner's solves take the ordinary route.
+    The headless runner program hosts the `read` command: it passes the named result file to the
+    product reader's entry and returns that entry's document unchanged.
   gating: false
 code_paths:
+# The retained-precision method: producer parts, readers, test verifier, corpora and pricing.
+# The kernel's retained lanes and exact boundary are in DEL-04-01's frame-kernel crate and are
+# that deliverable's code; this deliverable reads them (see needs). DEL-05-02 lists many of the
+# same paths for retained combinations: the combination semantics those files reproduce are
+# DEL-05-02's; the method, its receipts, readers and pricing are this deliverable's. The desktop
+# output policy is listed by DEL-07-05 and DEL-08-01 for the surfaces it gates; the refusals of
+# the retained and exact-route identities (REQ-006) are this deliverable's.
+# tests/verifiers/** also holds the verifiers of DEL-03-05, DEL-04-09, DEL-04-11 and DEL-05-03,
+# each listed by its owner; the retained and base-reader verifiers there are this deliverable's.
+# section_basis.rs and tests/verifiers/section_basis.py are listed here for the reader they sit in
+# and by DEL-05-03 for the section-basis rederivation they carry.
 - core/product_physics/src/retained_*.rs
 - core/product_physics/src/retained_tests_hooks/**
 - core/product_physics/src/build_identity.rs
@@ -111,14 +104,6 @@ code_paths:
 - core/product_physics/tests/retained_*.rs
 - core/product_physics/tests/pressure_source_join.rs
 - core/product_physics/tests/pressure_source_join/**
-- core/solver/frame_kernel/src/structural/retained/**
-- core/solver/frame_kernel/src/structural/retained_resource.rs
-- core/solver/frame_kernel/src/structural/exact_boundary.rs
-- core/solver/frame_kernel/src/structural/exact_boundary/**
-- core/solver/frame_kernel/tests/retained_k4/**
-- core/solver/frame_kernel/tests/retained_wide/**
-- core/solver/frame_kernel/tests/retained_wide_k3/**
-- core/numerics/correct_norm/**
 - core/reporting/result_export/src/retained_precision.rs
 - core/reporting/result_export/src/declared_member_load.rs
 - core/reporting/result_export/src/physics_source.rs
@@ -139,6 +124,8 @@ code_paths:
 - core/analysis_runs/rust_reader.py
 - tests/verifiers/**
 - tests/retained_precision_corpus.py
+- tests/test_retained_precision_*.py
+- tests/test_retained_pricing_tool.py
 - tests/base_reader_corpus.py
 - tests/test_u4b_retained_tau.py
 - tests/test_u4b_source_derived_not_qualified.py

@@ -2,382 +2,116 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-13-01
 package_id: PKG-13
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-067]
 package_objective_refs: [OBJ-014]
 ---
 
-# Scope of Work — DEL-13-01
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
-
-
-**Scope placement.** Owner ruling, 2026-10-23 ("I approve OD-1 through OD-5 as you recommended."; `docs/COMPLETENESS_MAP.md` §4.2), OD-1 and OD-3: PKG-13 (design knowledge, constraint validation and the physical-to-analytical transform contract) is deferred to v0.2. This records the ruling; the clauses below are unchanged.
+# Scope of Work — DEL-13-01 Design knowledge schema and provenance model
 
 ## Purpose and Objective Traceability
 
-This candidate defines `DEL-13-01` in service of project scope [SOW-067] and package objectives [OBJ-014].
+Design knowledge is what a project knows about a piping system that the piping itself does not say: where a line starts and ends, what it carries, where it may run and where it may not, where it can be supported, which equipment it meets, and what has to be reachable, sloped, drained or vented. This deliverable gives that knowledge one typed form. Every record says what it applies to, where it came from, who supplied it, whether it may be shared, and what is still assumed, so that design knowledge is explicit data with a source and never a hidden assumption or a value the product supplied. The constraint model (DEL-13-02) and the constraint engine (DEL-13-03) read these records; without them there is nothing recorded to check a route against.
 
-- **OUT-001** — A design knowledge schema and provenance model for user-supplied endpoints, line data, routing corridors, no-go volumes, supportable zones, equipment interfaces, access constraints, slope/drain/vent requirements, owner/project metadata, source notes, and unresolved assumptions.
+It serves SOW-067 under OBJ-014 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-13, row DEL-13-01), and PRD §8.1 and §13.1, the format part of FR-KNOW-001, the record-level part of FR-MOD-006, and `docs/SPEC.md` §3.1. PKG-13 is outside v1.0, and no exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable.
+
+- **OUT-001** — The design-knowledge format: its schema, the record kinds, and the provenance model every record carries.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-13-01 Design knowledge schema and provenance model
+**Terms the format implements.**
 
-> #### Datasheet: DEL-13-01 Design knowledge schema and provenance model
->
+- *Design knowledge.* Information the user or the user's organization supplies to inform model authoring and evaluation. It is project data. No part of it is a product default.
+- *Design-knowledge document.* One versioned set of records for a project and a model: its identity, the project and model it informs, its records, the findings it carries, and its provenance.
+- *Record.* One item of design knowledge, with a stable identifier, a kind, a name, its source notes, its unresolved assumptions and its provenance. The kinds cover the categories of SOW-067:
+  - *endpoint*: where a line starts, ends or ties in, with its location and what it connects to;
+  - *line data*: a line's identifier, its service and its attributes;
+  - *routing corridor*: a region a route should follow, may follow, or must leave free;
+  - *zone*: a region of a stated type, a no-go volume and a supportable zone among them;
+  - *equipment interface*: the point where piping meets equipment, with its location and parameters;
+  - *requirement*: a condition that must hold for named targets (access, slope, drain or vent), with its parameters;
+  - *owner and project metadata*: descriptive data about the project, an area, a line or equipment.
+- *Geometry.* The extent of a corridor or zone: a point, polyline, surface or volume given by coordinates and boundaries, or a reference to geometry held elsewhere.
+- *Source note.* A statement of where a record's content came from or what design basis it rests on, attached to the record and marked public or private.
+- *Unresolved assumption.* A statement taken as true without confirmation, attached to the records it affects. It is unresolved, resolved or rejected, with a note once it is resolved or rejected. The model's own assumptions and open issues are members of the model document and are DEL-02-01's.
+- *Provenance record.* The seven fields of PRD §20.2 as DEL-01-02 defines them (source name, source location, source licence, contributor, contributor certification, redistribution status, review status), with a privacy classification that says whether the record is public, invented, private or suspected of being protected.
+- *Quantity.* A value with its unit, its dimension and its own provenance. The dimension is one of the unit vocabulary's (DEL-02-02).
+- *Reference.* A typed pointer to a model entity or to another record: the kind of object and its identifier.
+- *Finding.* A diagnostic the document carries, with the fields of the diagnostic contract (DEL-00-06).
 
-### CLM-002 — Identification
+**Undecided.**
 
-> ##### Identification
->
-> | Field | Value | Source |
-> |---|---|---|
-> | Deliverable ID | DEL-13-01 | `_CONTEXT.md` |
-> | Deliverable name | Design knowledge schema and provenance model | `_CONTEXT.md` |
-> | Package ID | PKG-13 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` |
-> | Package name | Physical Design Knowledge and Constraint Engine | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` |
-> | Deliverable type | DATA_MODEL_CHANGE | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` |
-> | Scope item | SOW-067 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/_Registers/ScopeLedger.csv` |
-> | Objective support | OBJ-014 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `docs/_Registers/Deliverables.csv` |
-> | Anticipated artifacts | `schemas/design_knowledge.schema.json`; design knowledge provenance model | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` |
-> | Context envelope | M | `_CONTEXT.md`; `docs/_Registers/ContextBudgetQA.csv` |
->
+- How this format relates to the model document. The model document (DEL-02-01) is the canonical model and already carries lines, equipment interfaces and unresolved assumptions as typed records. Whether design knowledge becomes members of that document or stays a separate document that refers to it is not decided, and with it which surface and which operations enter design knowledge.
+- The coordinate frame in which corridor and zone geometry is stated, and its tolerance.
 
-### CLM-003 — Attributes
-
-> ##### Attributes
->
-> | Attribute | Current value | Source |
-> |---|---|---|
-> | Primary subject | User-supplied design knowledge for the physical design model | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-067 |
-> | Supported knowledge categories named by scope | Endpoints; line data; routing corridors; no-go volumes; supportable zones; equipment interfaces; access constraints; slope, drain, and vent requirements; owner/project metadata | `_CONTEXT.md` Scope Detail; `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-067 |
-> | Additional named record concerns | Source notes and unresolved assumptions | `_CONTEXT.md` Description; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-13-01 row |
-> | Physical-model relationship | Physical model is the source of truth for editable design data; detailed design-knowledge records are owned by PKG-13 specialized schemas/services | `docs/SPEC.md` section 3; `docs/TYPES.md` Canonical domain object registry |
-> | Schema baseline | JSON Schema 2020-12 contracts are the accepted architecture basis for schema surfaces | `_CONTEXT.md` Architecture Basis Injection |
-> | Public-data boundary | No protected owner standards, protected code data, or private project data may be bundled in public examples | `_CONTEXT.md`; `docs/CONTRACT.md` OPS-K-IP-1/OPS-K-DATA-1; `docs/IP_AND_DATA_BOUNDARY.md` |
-> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` Analysis-status vocabulary |
-> | Unit-bearing data boundary | Unit-bearing physical values crossing schema or service boundaries require explicit unit metadata unless explicitly dimensionless | `docs/SPEC.md` section 4 |
-> | Missing-data posture | Missing solve-required or rule-check-required values must be explicit findings, never silent defaults | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` section 4.4 |
->
-
-### CLM-004 — Conditions
-
-> ##### Conditions
->
-> | Condition | Datasheet treatment | Source |
-> |---|---|---|
-> | Protected data exclusion | The deliverable must define schema/provenance slots without embedding owner standards, protected code criteria, proprietary project data, protected dimensional tables, protected standards text, or proprietary vendor data. | `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 6; `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-13 exclusions |
-> | User-supplied knowledge | Design knowledge remains user/project supplied. Public examples, if later created, must use invented or otherwise cleared data. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-067; `docs/IP_AND_DATA_BOUNDARY.md` section 2 |
-> | Provenance need | Public data records require source, location, license or redistribution basis, contributor/certification, redistribution status, and review status. | `docs/IP_AND_DATA_BOUNDARY.md` section 4 |
-> | Dependency evidence | Local `Dependencies.csv` preserves DAG mirror/evidence, anchor, and package-local reconciliation rows with 14 ACTIVE rows; current graph authority is resolved through `execution/_DAG/_LATEST.md`, and the local register is not independent graph authority. | `_DEPENDENCIES.md`; `Dependencies.csv` |
-> | Architecture-basis context | DEL-13-01 has upstream active architecture-basis rows from DEL-00-01, DEL-00-02, DEL-00-03, DEL-00-04, DEL-00-06, DEL-00-07, and DEL-00-08. | `Dependencies.csv` |
-> | Domain/governance context | DEL-13-01 has upstream active rows for canonical domain model schema, unit system contract, copyright/protected-data boundary policy, and professional responsibility/product-claims policy. | `Dependencies.csv` |
->
-
-### CLM-005 — Construction
-
-> ##### Construction
->
-> | Construction item | Status |
-> |---|---|
-> | `schemas/design_knowledge.schema.json` | Implemented at repo root as a strict JSON-syntax JSON Schema 2020-12 contract for user-supplied design knowledge records. The maintained contract is `schemas/design_knowledge.schema.json`; its focused check is `tests/test_design_knowledge_schema.py`. |
-> | Schema identifier, `$id`, `$schema`, and versioning fields | Implemented. `$schema` is `https://json-schema.org/draft/2020-12/schema`, `$id` is `https://openpipestress.org/schemas/design_knowledge.schema.json`, and `schema_version` is required with a semantic-version pattern. |
-> | Design knowledge record taxonomy | Implemented structurally through `EndpointRecord`, `LineDataRecord`, `RoutingCorridorRecord`, `ZoneRecord`, `EquipmentInterfaceRecord`, `RequirementRecord`, and `MetadataRecord`; downstream GUI behavior and constraint execution remain deferred. |
-> | Provenance model fields | Implemented through required `Provenance` fields: `source_name`, `source_location`, `source_license`, `contributor`, `contributor_certification`, `redistribution_status`, `review_status`, and `privacy_classification`, plus source-note and assumption records. |
-> | Unit-bearing quantity representation | Implemented through required `Quantity` fields `value`, `unit`, `dimension`, and `provenance`; the dimension enum matches the accepted PKG-02 vocabulary, including `slope` and excluding retired aliases. Runtime unit conversion/check integration remains downstream. |
-> | Validation and tests | Implemented by `tests/test_design_knowledge_schema.py`, a focused stdlib structural test for schema draft, required definitions, category enums, provenance/privacy fields, quantity dimensions, no defaults, and professional-boundary flags. |
-> | Product code evidence | Schema/test/documentation evidence exists. No runtime GUI authoring, constraint validation, physical-to-analytical transform consumption, persistence/API integration, or public fixture/example implementation is provided by DEL-13-01. Current implementation (at `62c1efd75b`): the desktop shows design knowledge in `apps/desktop/src/features/knowledge/KnowledgePanel.tsx`, loaded through the Tauri command `load_design_knowledge` (`apps/desktop/src-tauri/src/lib.rs`) or `loadDesignKnowledge` (`apps/desktop/src/services/previewService.ts`) from the compiled-in invented fixture `fixtures/product_preview/invented_design_knowledge.json`, plus records derived from the current result. That fixture is a separate document shape (`document_kind` `openpipestress.product_preview.design_knowledge`) and does not validate against `schemas/design_knowledge.schema.json`. FR-MOD-006 pointer: the model document's own assumptions and open issues (`unresolved_assumptions`, DEL-02-01 Design `model-document-0.7.0.md` §3.3) are authored in the desktop's Assumptions and open issues panel (`apps/desktop/src/features/model-data/AssumptionsPanel.tsx`), separately from this design-knowledge schema. |
->
-
-### CLM-006 — References
-
-> ##### References
->
-> | Reference | Use in this datasheet |
-> |---|---|
-> | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | Deliverable identity, scope, artifacts, context envelope, architecture-basis injection. |
-> | `_REFERENCES.md` | Reference index and source boundary for this deliverable. |
-> | `_DEPENDENCIES.md` and `Dependencies.csv` | approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface and active upstream dependency context. |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | SOW-067, OBJ-014, PKG-13 boundary, DEL-13-01 row, OI-013. |
-> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable row and artifacts. |
-> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | Scope ledger row for SOW-067. |
-> | `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) | Context envelope and no-protected-data note. |
-> | `docs/CONTRACT.md` | Invariants for IP, data, authority, units, and agent behavior. |
-> | `docs/TYPES.md` | Identifier rules, epistemic labels, analysis-status vocabulary, and domain object registry. |
-> | `docs/SPEC.md` | Architecture, physical-model source-of-truth framing, schema/unit/provenance constraints, acceptance semantics. |
-> | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data boundary and required provenance fields. |
+**Boundary.** This deliverable defines the records and their provenance. Constraint records are DEL-13-02's, evaluating them is DEL-13-03's, and the physical-to-analytical transform is DEL-13-04's. The design-knowledge panel in the desktop is DEL-07-08's, and the operations that change design knowledge are DEL-16-01's. The paths that read a design-knowledge document for a surface lie in the code of the deliverable that owns that surface, and AC-009 constrains each of them. The provenance fields and what counts as protected content are DEL-01-02's; the unit and dimension vocabulary is DEL-02-02's. The format states no engineering value: no clearance, slope, span or access criterion, and no owner standard or code requirement is a source for it.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-007 — Specification: DEL-13-01 Design knowledge schema and provenance model
-
-> #### Specification: DEL-13-01 Design knowledge schema and provenance model
->
-
-### CLM-008 — Scope
-
-> ##### Scope
->
-> This deliverable covers the schema and provenance model for user-supplied design knowledge used by the schema-backed physical design model. The named design-knowledge categories are endpoints, line data, routing corridors, no-go volumes, supportable zones, equipment interfaces, access constraints, slope/drain/vent requirements, owner/project metadata, source notes, and unresolved assumptions. Source: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-067 and DEL-13-01 row.
->
-> This deliverable excludes owner standards, protected code data, final engineering acceptance logic, automatic professional approval, and hidden/default engineering values. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` PKG-13 exclusions; `docs/CONTRACT.md`; `docs/IP_AND_DATA_BOUNDARY.md`.
->
-> The implemented contract is [design_knowledge.schema.json](../../../schemas/design_knowledge.schema.json), checked by [test_design_knowledge_schema.py](../../../tests/test_design_knowledge_schema.py). This specification records the implemented schema/test contract without implying lifecycle promotion, release readiness, runtime persistence/API integration, GUI behavior, constraint validation, transform consumption, public fixture policy closure, or professional/code-compliance authority. Unsupported downstream behavior remains `TBD`.
->
+A document that conforms is well formed. Conformance establishes nothing about whether the knowledge is correct, complete or cleared for sharing: a provenance record states what its supplier declared.
 
 ### CLM-009 — Requirements
 
-> ##### Requirements
->
-> | ID | Requirement | Source | Verification |
-> |---|---|---|---|
-> | REQ-13-01-001 | The design knowledge schema shall support records for endpoints, line data, routing corridors, no-go volumes, supportable zones, equipment interfaces, access constraints, slope/drain/vent requirements, and owner/project metadata. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Scope Detail; `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-067 | Schema review confirms named categories are represented directly or by traceable equivalent structures. |
-> | REQ-13-01-002 | The design knowledge schema shall include source-note and unresolved-assumption capability for design knowledge records. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Description; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-13-01 row | Schema review confirms source notes and unresolved assumptions are representable and traceable to affected records. |
-> | REQ-13-01-003 | Public repository artifacts for this deliverable shall not bundle protected owner standards, protected standards text, protected code data, proprietary project data, code-specific values, protected tables, or proprietary vendor data. | `docs/CONTRACT.md` OPS-K-IP-1 and OPS-K-DATA-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3 and 6 | Protected-content/private-data review finds no bundled prohibited values or text. |
-> | REQ-13-01-004 | Design knowledge values that are user/project supplied shall remain identifiable as user/project supplied rather than public defaults. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-067; `docs/CONTRACT.md` OPS-K-DATA-1 | Schema review confirms value records can carry source/provenance status and do not imply public defaults. |
-> | REQ-13-01-005 | Provenance records for public data contributions shall be able to capture source name, source location, source license or redistribution basis, contributor, contributor certification, redistribution status, and review status. | `docs/IP_AND_DATA_BOUNDARY.md` section 4 | Implemented schema review/test confirms required provenance fields and adds privacy classification. |
-> | REQ-13-01-006 | Unit-bearing physical values crossing the schema boundary shall carry explicit unit metadata unless the field is explicitly dimensionless, ratio, percentage, or coefficient. | `docs/SPEC.md` section 4 | Schema validation review confirms unit-bearing fields use an explicit quantity/unit representation or are explicitly classified non-unit-bearing. |
-> | REQ-13-01-007 | Missing required design knowledge, missing units, and unresolved assumptions shall be represented as explicit findings or records, not silently defaulted. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` sections 4 and 4.4 | Schema/test review confirms diagnostics, assumptions, source notes, `TBD` enum values, and absence of schema `default` keys. |
-> | REQ-13-01-008 | The schema/provenance model shall preserve the product boundary that the physical model is the editable source of truth and that detailed design-knowledge records are owned by PKG-13 specialized schemas/services. | `docs/SPEC.md` section 3; `docs/TYPES.md` Model registry entry | Schema/interface review confirms design knowledge links to the physical model without bypassing the physical-model source-of-truth role. |
-> | REQ-13-01-009 | The deliverable shall not introduce software-generated professional approval, certification, sealing, authentication, or code-compliance status (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` Analysis-status vocabulary | Status and enum review confirms no automatic professional/code-compliance authority terms are emitted. |
-> | REQ-13-01-010 | The schema artifact shall follow the accepted JSON Schema 2020-12 contract baseline unless a later human-approved architecture decision changes it. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` SCA-001/SCA-002 basis | Schema file review/test confirms the JSON Schema 2020-12 declaration and stable `$id`. |
-> | REQ-13-01-011 | Schema, adapter, and service paths that consume design knowledge shall preserve schema validation, unit checks, provenance checks, private-data controls, protected-content screening, diagnostics/result envelopes, persistence hashes, and professional-boundary controls. | `docs/SPEC.md` sections 1, 4.4, and 4.5 | Integration review confirms no bypass route is introduced; unsupported routes remain `TBD`. |
->
+Requirement numbers 001 to 011 are those of the earlier `REQ-13-01-nnn` series.
 
-### CLM-010 — Standards
+- **REQ-001** — The format has a record for each category SOW-067 names: endpoints, line data, routing corridors, no-go volumes, supportable zones, equipment interfaces, access constraints, slope, drain and vent requirements, and owner and project metadata (PRD FR-KNOW-001).
+- **REQ-002** — Every record can carry source notes and unresolved assumptions, each tied to the record it affects (PRD §13.1; FR-MOD-006).
+- **REQ-003** — The schema, its descriptions and every public example or fixture of design knowledge contain no protected standards text or tables, owner standards, code-specific values, proprietary vendor data or private project data (PRD §20.1; `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-DATA-1).
+- **REQ-004** — A value in a record is identifiable as supplied by the user or the project, with its source. The format supplies no value (SOW-067; PRD §5.4).
+- **REQ-005** — Every record carries the provenance record with all seven fields of PRD §20.2 and its privacy classification (PRD §13.1; `docs/SPEC.md` §3.1).
+- **REQ-006** — Every unit-bearing value is a quantity with its unit and dimension. A value has no unit only where its field is explicitly dimensionless, a ratio, a percentage or a coefficient (PRD §5.6; `docs/CONTRACT.md` OPS-K-UNIT-1).
+- **REQ-007** — Missing design knowledge, a missing unit and an unresolved assumption are each stated in the document, as a finding or as a record. Nothing is defaulted, and an unknown is stated as unknown (PRD §5.5; `docs/CONTRACT.md` OPS-K-DATA-2).
+- **REQ-008** — The physical model stays the editable source of truth. A design-knowledge document names the project and model it informs, and a record refers to each model entity it applies to by a typed reference to its identifier and never replaces or edits it (PRD §5.2; `docs/SPEC.md` §3).
+- **REQ-009** — The format has no status, member or value by which software states approval, certification, sealing, authentication or code compliance (PRD §21.2).
+- **REQ-010** — The schema is JSON Schema 2020-12 in strict JSON with a stable `$id`, and every document declares its schema version.
+- **REQ-011** — No path that reads or writes design knowledge goes around schema validation, the unit and provenance checks, the private-data controls, protected-content screening, the result envelope, persistence hashes or the professional-boundary controls (`docs/SPEC.md` §1, §4.4, §4.5).
 
-> ##### Standards
->
-> | Standard or governing source | Status in this deliverable |
-> |---|---|
-> | JSON Schema 2020-12 | Applicable architecture baseline from `_CONTEXT.md`; implemented by `$schema` and `$id` in `schemas/design_knowledge.schema.json`. |
-> | `docs/CONTRACT.md` | Governs IP, data, authority, unit, and agent invariants. |
-> | `docs/IP_AND_DATA_BOUNDARY.md` | Governs protected/private data exclusion and provenance requirements. |
-> | `docs/TYPES.md` | Governs identifiers, epistemic labels, analysis-status vocabulary, and domain object vocabulary. |
-> | `docs/SPEC.md` | Governs architecture, physical-model source-of-truth framing, unit metadata, provenance, persistence, and no-bypass controls. |
-> | External engineering standards | No authoritative external standards text is accessible or needed for this deliverable. Do not derive requirements from inaccessible standards. |
->
+### Acceptance criteria
 
-### CLM-011 — Verification
-
-> ##### Verification
->
-> | Verification target | Method | Acceptance signal |
-> |---|---|---|
-> | Scope coverage | Compare schema/provenance model against SOW-067 named categories. | Implemented record definitions and requirement/zone/endpoint enums cover the named categories; downstream behavior remains deferred where noted. |
-> | Public/private data boundary | Run protected-content/private-data review appropriate to the repository. | No prohibited protected/private data is present. |
-> | Provenance completeness | Review provenance fields against `docs/IP_AND_DATA_BOUNDARY.md` section 4. | Required provenance fields are implemented and tested; review disposition for findings remains human-gated. |
-> | Unit metadata | Review all unit-bearing fields. | `Quantity` requires `value`, `unit`, `dimension`, and `provenance`; no dimensionless fallback hides missing units. |
-> | Missing-data behavior | Review schema structure and tests. | Missing values are represented through diagnostics, assumptions, source notes, or `TBD` enums; the test confirms no schema `default` keys are present. |
-> | Professional boundary | Review enum/status/diagnostic strings. | Professional-boundary flags require human review and prohibit software compliance/certification/sealing/approval/authentication claims (PRD §21.2). |
-> | Dependency boundary | Preserve local dependency meanings and the actual statuses recorded under `execution/_DAG/_LATEST.md`; DAG-011 is current authority. Do not force historical duplicates or pending edges to ACTIVE. | Compare with the current approval record; legacy IDs remain provenance. |
->
-
-### CLM-012 — Documentation
-
-> ##### Documentation
->
-> Required deliverable artifacts from `_CONTEXT.md` and `docs/_Registers/Deliverables.csv`:
->
-> - `schemas/design_knowledge.schema.json`
-> - design knowledge provenance model
->
-> Setup artifacts created by this workflow:
->
-> - `ScopeOfWork.md` definition section
-> - `ScopeOfWork.md` requirements section
-> - `ScopeOfWork.md` guidance section
-> - `ScopeOfWork.md` procedure section
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
->
-> Implemented evidence:
->
-> - `schemas/design_knowledge.schema.json`
-> - `tests/test_design_knowledge_schema.py`
->
-> Deferred items remain `TBD`: GUI authoring behavior, constraint records and validation, physical-to-analytical transform consumption, runtime persistence/API integration, and public example/fixture generation policy closure.
-
-- **AC-001** — All authoritative source content is preserved and mapped, and the source-defined category, provenance, unit, missing-data, public/private-data, and professional-boundary checks remain intact while unsupported downstream behavior remains explicitly deferred.
+- **AC-001** — The schema is valid JSON Schema 2020-12 in strict JSON with a stable `$id`. A document that omits its schema version, or carries a member the schema does not name, is refused.
+- **AC-002** — For each category of REQ-001, a conforming document can state a record of that category with its identifier and its location, geometry or targets, and the record's kind tells it apart from every other category. A record with no kind or an unknown kind is refused.
+- **AC-003** — A record without its provenance record, or whose provenance lacks any of the seven fields or the privacy classification, is refused. A source note and an unresolved assumption on a record are read back tied to that record's identifier, and an assumption carries its status.
+- **AC-004** — A unit-bearing value without a unit or a dimension is refused, and the set of dimension identifiers the schema admits equals the unit schema's set.
+- **AC-005** — The schema declares no default for any member. A document can state an unknown value, a missing unit and an unresolved assumption explicitly, and a document read back holds no value its author did not state.
+- **AC-006** — A document names its project and its model, and every mention of a model entity in a record is a typed reference by identifier.
+- **AC-007** — No member name, enumerated value or description in the schema, and no public example, states or implies approval, certification, sealing, authentication or code compliance.
+- **AC-008** — The schema text and every public example or fixture of design knowledge contain no protected or private content, and each public example carries a provenance record that marks it invented or cleared.
+- **AC-009** — Every design-knowledge document committed to the repository or bundled in the product validates against the schema, and each path that reads one refuses a document that does not. On such a path, a record with a missing or incompatible unit, missing provenance or unknown redistribution status is stopped with a finding that names it before it is shown, evaluated or applied, and private content is not written to a public destination. No path that reads or writes design knowledge leaves out a control REQ-011 names.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-013 — Procedure: DEL-13-01 Design knowledge schema and provenance model
+**Method choices that define the format.**
 
-> #### Procedure: DEL-13-01 Design knowledge schema and provenance model
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- One schema file at a stable `$id`. Records are closed: a member the schema does not name is refused.
+- Provenance sits on the record it qualifies, and on each quantity, not in a register beside the data.
+- The schema gives structure only. Every value comes from the user or the project.
+- The schema declares no default, so that absence stays visible.
 
-### CLM-015 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Define a conservative procedure for maintaining and reviewing the implemented `schemas/design_knowledge.schema.json` artifact and its design knowledge provenance model. This procedure is delivery evidence for the schema/test surface, not runtime GUI, constraint-engine, transform, persistence/API, fixture, release, or professional-approval evidence.
->
-
-### CLM-016 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Status |
-> |---|---|
-> | Deliverable context for DEL-13-01 | Current scope and source references are in `ScopeOfWork.md`; historical `_CONTEXT.md` is retained in Git history. |
-> | Reference basis | Use the cited governing and historical sources in `ScopeOfWork.md`; the historical `_REFERENCES.md` is retained in Git history. |
-> | Dependency context | Current dependency conditions are declared in `deliverable.yaml`; preserve approved graph rows and their recorded statuses through `execution/_DAG/_LATEST.md`. Historical `_DEPENDENCIES.md` and `Dependencies.csv` remain source records in Git history. |
-> | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register). |
-> | Applicable invariants | `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `docs/IP_AND_DATA_BOUNDARY.md`. |
-> | Implementation evidence | Maintained in `schemas/design_knowledge.schema.json` and `tests/test_design_knowledge_schema.py`. |
-> | Product schema artifact | Present at repo root: `schemas/design_knowledge.schema.json`. |
->
-
-### CLM-017 — Steps
-
-> ##### Steps
->
-> 1. Confirm scope identity.
->    - Verify the active deliverable is DEL-13-01 under PKG-13.
->    - Confirm scope item SOW-067 and objective OBJ-014.
->
-> 2. Establish the source boundary.
->    - Use `ScopeOfWork.md`, `deliverable.yaml`, the decomposition, and cited governing documents; consult historical `_CONTEXT.md`, `_REFERENCES.md`, and the approved local dependency mirror in Git history when their source context is needed.
->    - Do not import owner standards, protected code data, private project values, proprietary vendor data, or inaccessible standards text.
->
-> 3. Maintain the design knowledge taxonomy.
->    - Include the sourced categories: endpoints, line data, routing corridors, no-go volumes, supportable zones, equipment interfaces, access constraints, slope/drain/vent requirements, owner/project metadata, source notes, and assumptions.
->    - Preserve implemented record kinds, required fields, and enums in `schemas/design_knowledge.schema.json`.
->    - Keep coordinate-frame policy, tolerance handling, numeric criteria, GUI behavior, constraint validation, and transform consumption as `TBD` unless a later bounded deliverable resolves them.
->
-> 4. Draft the provenance model.
->    - Include support for source name, source location, source license or redistribution basis, contributor, contributor certification, redistribution status, and review status where public data contribution rules apply.
->    - Include source notes and unresolved assumptions attached to affected design knowledge records.
->
-> 5. Apply unit and missing-data rules.
->    - For unit-bearing physical values, require explicit unit metadata unless a field is explicitly dimensionless, ratio, percentage, or coefficient.
->    - Represent missing data, missing units, unknown source, and unresolved assumptions as explicit records/findings.
->
-> 6. Preserve boundaries to adjacent deliverables.
->    - Keep deterministic constraint validation in DEL-13-03.
->    - Keep constraint entity/provenance details that are not design-knowledge records in DEL-13-02.
->    - Keep physical-to-analytical transformation warnings and omissions in DEL-13-04.
->    - Use links/references rather than duplicating adjacent deliverable responsibilities.
->
-> 7. Review the public/private and professional boundaries.
->    - Confirm no protected standards text, code-specific tables, proprietary project data, owner standards, private rule-pack data, or copied commercial examples are present.
->    - Confirm no automatic professional approval, certification, sealing, authentication, or code-compliance status is introduced (PRD §21.2).
->
-> 8. Validate current artifacts.
->    - Validate JSON Schema syntax and declared draft/version.
->    - Run `python3 tests/test_design_knowledge_schema.py`.
->    - Validate fixtures against the schema only when governed fixtures exist.
->    - Run protected-content/private-data checks appropriate to public examples.
->    - Run dependency schema validation on local `Dependencies.csv` when present.
->
-
-### CLM-018 — Verification
-
-> ##### Verification
->
-> | Check | Expected result |
-> |---|---|
-> | Scope check | DEL-13-01, PKG-13, SOW-067, and OBJ-014 match the historical `_CONTEXT.md` and decomposition. |
-> | Scope of Work consistency | `ScopeOfWork.md` uses the same category list and boundary terms. |
-> | Unsupported details | Unsupported downstream/runtime specifics are marked `TBD` or `ASSUMPTION`. |
-> | Public/private boundary | No prohibited protected/private data is introduced. |
-> | Professional boundary | No automatic professional or code-compliance authority is introduced. |
-> | Dependency mirror | Preserve local dependency meanings and the actual statuses recorded under `execution/_DAG/_LATEST.md`; DAG-011 is current authority. Do not force historical duplicates or pending edges to ACTIVE. |
->
-
-### CLM-019 — Records
-
-> ##### Records
->
-> | Record | Purpose |
-> |---|---|
-> | `ScopeOfWork.md` definition section | Descriptive identity, attributes, conditions, construction status, and references. |
-> | `ScopeOfWork.md` requirements section | Normative scope, requirements, standards, verification, and documentation. |
-> | `ScopeOfWork.md` guidance section | Directional principles, considerations, trade-offs, examples, and conflicts. |
-> | `ScopeOfWork.md` procedure section | Operational production/review sequence and evidence expectations. |
-> | `_SEMANTIC.md` | Semantic lens generated after initial four-document setup. |
-> | `_SEMANTIC_LENSING.md` | Candidate enrichment register generated from semantic lenses and production docs. |
-> | `Dependencies.csv` | Approved local dependency mirror (current authority: `execution/_DAG/_LATEST.md`; earlier graph IDs are provenance)/evidence surface; not independently regenerated in conflict with the project rule. |
-> | `schemas/design_knowledge.schema.json` | Implemented JSON Schema 2020-12 design knowledge contract at repo root. |
-> | `tests/test_design_knowledge_schema.py` | Focused stdlib structural validation for the implemented schema. |
-
-- **VER-001** — Validate the candidate schema and claim map; confirm parity and source/status hashes; run the focused design-knowledge schema test and applicable protected-content and dependency checks; and independently review source grounding and authority boundaries.
+- **VER-001** — AC-001, executable check: observes the schema and constructed documents under a JSON Schema 2020-12 validator that imports no product code.
+- **VER-002** — AC-002, AC-003, AC-005 and AC-006, executable check: observes, for constructed documents, each record kind accepted, each refusal, the notes and assumptions read back, and the schema's definitions for defaults and for references to model entities.
+- **VER-003** — AC-004, comparison with a named reference: the dimension identifiers of `schemas/units.schema.yaml`, read from that file; with an executable check that observes the refusal of a quantity lacking a unit or dimension.
+- **VER-004** — AC-007 and AC-008, judgment by a reviewer who did not write the schema, with the protected-content scan: examines the schema text and each public example with its provenance.
+- **VER-005** — AC-009, executable check with judgment by a reviewer who did not write the paths: observes each committed and bundled design-knowledge document under the validator, and each reading path's refusal of constructed documents that do not conform or that hold a record lacking a unit, its provenance or a known redistribution status; the reviewer examines each path that reads or writes design knowledge against the controls REQ-011 names.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-020 — Guidance: DEL-13-01 Design knowledge schema and provenance model
-
-> #### Guidance: DEL-13-01 Design knowledge schema and provenance model
->
-
-### CLM-021 — Purpose
-
-> ##### Purpose
->
-> This deliverable prepares the design-knowledge schema/provenance surface for the PKG-13 physical design knowledge and constraint engine. It exists so the physical model can carry user-supplied design context, record where that context came from, expose missing assumptions, and remain inside the public/private data and professional-responsibility boundaries. Source: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-067, OBJ-014, and PKG-13.
->
-
-### CLM-022 — Principles
-
-> ##### Principles
->
-> | Principle | Guidance | Source |
-> |---|---|---|
-> | Schema first | Treat the implemented `schemas/design_knowledge.schema.json` as the contract surface for design knowledge records; runtime behavior and adjacent deliverable consumption remain deferred where not implemented. | `_CONTEXT.md` Anticipated Artifacts; `_CONTEXT.md` Architecture Basis Injection; `schemas/design_knowledge.schema.json`; `tests/test_design_knowledge_schema.py` |
-> | User-supplied by default | Design knowledge values are user/project supplied unless explicitly invented or otherwise cleared for public redistribution. | `execution/_Decomposition/SOFTWARE_DECOMP.md` SOW-067; `docs/IP_AND_DATA_BOUNDARY.md` |
-> | Provenance is part of the record | Source notes, source status, review status, redistribution status, and assumptions should be close to the data they qualify. | `docs/IP_AND_DATA_BOUNDARY.md` section 4; `_CONTEXT.md` Description |
-> | No silent defaults | Missing design knowledge, missing units, or unresolved assumptions should surface as findings/TBD records. | `docs/CONTRACT.md` OPS-K-DATA-2; `docs/SPEC.md` sections 4 and 4.4 |
-> | Physical source of truth | Design knowledge should support the editable physical model without bypassing model schema validation or downstream transformation traceability. | `docs/SPEC.md` section 3; `docs/TYPES.md` Model registry entry |
-> | Professional boundary | Avoid terms that imply software certification, approval, sealing, authentication, or code compliance (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4 |
->
-
-### CLM-023 — Considerations
-
-> ##### Considerations
->
-> | Topic | Consideration |
-> |---|---|
-> | Category granularity | The implemented schema defines concrete record kinds for endpoints, line data, routing corridors, zones, equipment interfaces, requirements, and owner/project metadata. GUI presentation, editing workflows, and constraint-engine behavior remain downstream. |
-> | Owner/project metadata | Owner/project metadata is in scope, but public examples must not include private project data or protected owner standards. |
-> | Equipment interfaces | The schema provides `equipment_ref`, `interface_role`, `location`, `interface_parameters`, source notes, assumptions, and provenance. Runtime equipment-picking behavior and downstream transform semantics remain `TBD`. |
-> | Access, slope, drain, and vent requirements | These may reflect owner/project requirements. The schema should provide slots and provenance without embedding protected or private criteria. |
-> | No-go and supportable zones | The schema provides `ZoneRecord` and `GeometryPayload` structures for no-go, supportable, access, maintenance, and operating zones. Coordinate-frame policy, tolerance handling, and numeric clearance/support criteria remain `TBD` and must not be invented in public artifacts. |
-> | Relationship to constraints | DEL-13-02 and DEL-13-03 own constraint entity/provenance and validation behavior. DEL-13-01 should provide design knowledge records that can later be consumed by those deliverables. |
-> | Relationship to transformation | DEL-13-04 owns physical-to-analytical transformation. DEL-13-01 should preserve enough provenance/assumption structure for transformation warnings, but exact warning classes remain downstream. |
->
-
-### CLM-024 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Preferred posture | Rationale |
-> |---|---|---|
-> | Rich taxonomy vs premature specificity | Use the implemented schema taxonomy for records and provenance; leave downstream numeric criteria, validation algorithms, GUI workflows, and transform behavior `TBD` where sources are silent. | `docs/CONTRACT.md` OPS-K-AGENT-1 prohibits invented engineering values or scope. |
-> | Public examples vs realistic owner data | Use invented or cleared public data only. | `docs/IP_AND_DATA_BOUNDARY.md` excludes private owner standards and protected data. |
-> | Embedded validation vs separate constraint engine | Keep record schema and provenance in this deliverable; leave deterministic constraint validation to DEL-13-03. | `execution/_Decomposition/SOFTWARE_DECOMP.md` separates DEL-13-01, DEL-13-02, DEL-13-03, and DEL-13-04. |
-> | Flexibility vs interoperability | Preserve stable identifiers, source notes, unit metadata, and review status so records can participate in persistence, diagnostics, and handoff workflows. | `docs/SPEC.md` sections 3, 4, and 4.5. |
->
-
-### CLM-025 — Examples
-
-> ##### Examples
->
-> No authoritative example payloads or public fixtures are implemented for this deliverable. Example JSON records, numeric values, owner/project metadata samples, and public fixtures remain `TBD`. Any later examples must be invented or otherwise cleared for public redistribution and must not copy protected standards text, protected tables, private project data, or proprietary vendor data.
->
-
-### CLM-026 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No source conflicts identified during the implementation-evidence refresh. Unsupported downstream details remain marked `TBD` rather than resolved by inference. | N/A | N/A | N/A | N/A | N/A |
+- **AX-001** — *Explicit and sourced.* Better is fewer values in a design-knowledge document whose source, supplier or sharing status cannot be read from the record; the target is none. Provenance is never made optional to make entry easier.
+- **AX-002** — *Slots, not values.* Better is a format in which more of what a project knows can be stated while the format itself states nothing. Coverage and realism never justify bundling an owner standard, a code value or private project data, in the schema or in an example.
+- **AX-003** — *Unknown stays visible.* Better is fewer ways for missing knowledge to pass unmarked. A required member is never filled, and a default never added, so that a document validates.
+- **AX-004** — *The model leads.* Design knowledge informs the physical model and points at it. Better is fewer mentions of a model entity in a record that are not a typed reference to it; the target is none. Where a record and the model disagree, the model governs and the disagreement is shown, never resolved by the format.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-067 OBJ-014 | CLM-007 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-001 | SOW-067 OBJ-014 | REQ-010 | AC-001 | VER-001 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that imports no product code |
+| OUT-001 | SOW-067 OBJ-014 | REQ-001 | AC-002 | VER-002 | The categories are those of SOW-067 and PRD FR-KNOW-001; the documents are constructed, so the criterion states what is accepted and refused |
+| OUT-001 | SOW-067 OBJ-014 | REQ-002 REQ-004 REQ-005 | AC-003 | VER-002 | PRD §20.2 lists the seven provenance fields and PRD §13.1 the public or private status; the documents are constructed |
+| OUT-001 | SOW-067 OBJ-014 | REQ-006 | AC-004 | VER-003 | The unit schema's dimension vocabulary (DEL-02-02), read from its file. A list of dimensions kept in the check itself is no reference |
+| OUT-001 | SOW-067 OBJ-014 | REQ-004 REQ-007 | AC-005 | VER-002 | The criterion states the expected result (PRD §5.5: nothing is defaulted); the document read back equals the document written |
+| OUT-001 | SOW-067 OBJ-014 | REQ-008 | AC-006 | VER-002 | PRD §5.2 makes the physical model the source of truth; the criterion states the reference form the schema must use |
+| OUT-001 | SOW-067 OBJ-014 | REQ-009 | AC-007 | VER-004 | PRD §21.2 lists the prohibited claims; the reviewer compares against it and `docs/claims_registry.md` |
+| OUT-001 | SOW-067 OBJ-014 | REQ-003 | AC-008 | VER-004 | PRD §20.1 and `docs/IP_AND_DATA_BOUNDARY.md` state what a public artifact may contain; the reviewer compares against sources the product did not write |
+| OUT-001 | SOW-067 OBJ-014 | REQ-011 | AC-009 | VER-005 | The schema is the reference for each document, applied by a validator that imports no product code. The stopped documents are constructed, so the criterion states what is stopped; the controls a path keeps are those `docs/SPEC.md` §1, §4.4 and §4.5 name, and the reviewer compares each path against that list |

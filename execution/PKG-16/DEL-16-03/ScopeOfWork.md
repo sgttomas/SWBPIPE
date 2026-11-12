@@ -2,385 +2,112 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-16-03
 package_id: PKG-16
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-069,SOW-070]
 package_objective_refs: [OBJ-015]
 ---
 
-# Scope of Work — DEL-16-03
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-16-03 User acceptance and operation audit trail
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-16-03` in service of project scope [SOW-069, SOW-070] and package objectives [OBJ-015].
+A model changes only because a person decided it should, and afterwards anyone reviewing the model can see what was changed, by whom or by what, why, on which assumptions and against which model state, including the proposals that were turned down. This deliverable contributes the two things that make that true: the acceptance rule, which says what counts as the person's decision and what a batch must have before it can be decided on, and the operation history, the durable record of those decisions and their outcomes.
 
-- **OUT-001** — A deterministic user-acceptance and model-operation audit-trail contract covering accepted, rejected, and held-for-user-acceptance outcomes without applying operations is produced.
+It serves SOW-069 and SOW-070 under OBJ-015 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-16, row DEL-16-03), with `docs/PRD.md` §5.3, §10.3 step 5, FR-AGENT-003 and FR-AGENT-004. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it. It reaches criterion 17, under which a change is applied on the person's acceptance and the agent records no acceptance, through DEL-16-06.
+
+- **OUT-001** — The acceptance rule and the operation history: its records of accepted, rejected and held batches and what each holds.
+- **OUT-002** — The handoff between decision and application: the decision record application consumes, and the outcome record the history takes back.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-16-03 User acceptance and operation audit trail
+**Terms the deliverable implements.**
 
-> #### Datasheet: DEL-16-03 User acceptance and operation audit trail
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Acceptance.* The person's explicit act that approves a previewed batch for application to the current model. It is a decision about a model edit in the person's own working session. It is not professional acceptance of engineering work, and no record or label presents it as such (PRD §21.2).
+- *Decision record.* What was decided on a batch: accepted, rejected, or held for the person's decision. A batch is held when it lacks something acceptance requires. A proposal withdrawn before a decision is recorded as withdrawn, not as rejected.
+- *Outcome record.* What application did with an accepted batch: applied, refused, or unknown. Unknown means no evidence of the result was kept; it is never replaced by a guess.
+- *Operation history.* The durable, ordered record, per project, of decisions and outcomes. This is the audit trail of SOW-070.
+- *History record.* One batch's entry: the operations as proposed, unaltered; the entities they affect; each operation's author type and source; the rationale and the assumptions; the validation outcome and the preview it was decided on; the model hash it was decided on and, when applied, the resulting model hash; the times of proposal, decision and outcome.
+- *Author stamp.* The author type a route gives an operation. The route sets it. A claim of authorship inside imported or agent content is kept only as display context.
+- *Person-entered value.* The bend flexibility factor k, the SIFs, the other component modifiers and their source, as DEL-16-06 defines them. Users enter their own k and SIF. The engine's refusal of such a write by anyone else is DEL-16-06's; it relies on the author stamp.
+- *Review context.* A record read back from a reopened project whose acceptance is not known. It can be read and requeued; it cannot be applied as it stands.
 
-### CLM-003 — Identification
+**Boundary.**
 
-> ##### Identification
->
-> | Field | Value | Source |
-> |---|---|---|
-> | Deliverable ID | DEL-16-03 | `_CONTEXT.md` |
-> | Deliverable name | User acceptance and operation audit trail | `_CONTEXT.md` |
-> | Package ID | PKG-16 | `_CONTEXT.md` |
-> | Package name | Model Operation and Agent Proposal Framework | `_CONTEXT.md` |
-> | Deliverable type | BACKEND_FEATURE_SLICE | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-16-03 |
-> | Scope items | SOW-069, SOW-070 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 5 and section 7 |
-> | Objective support | OBJ-015 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 5 |
-> | Context envelope | M | `_CONTEXT.md`; `docs/_Registers/ContextBudgetQA.csv` row DEL-16-03 |
->
+- The record's form is DEL-16-01's; validation and the preview are DEL-16-02's; applying a batch and returning its outcome are DEL-16-06's; what an agent's rationale and assumptions must hold are DEL-16-04's.
+- The review surface is DEL-07-08's: showing the preview, the Apply and Reject controls and the ledger panel. Collecting queued changes into one batch is DEL-07-02's.
+- The project store is DEL-02-05's. It keeps the operation history's records across save and reopen (DEL-02-05/REQ-037), which REQ-005 and AC-004 rely on. Saved model states are DEL-14-01's.
+- A formal professional-acceptance workflow is not required (PRD §21.3) and is not this deliverable's; the words for that boundary are DEL-01-04's.
 
-### CLM-004 — Attributes
+**Not decided.**
 
-> ##### Attributes
->
-> | Attribute | Current value | Source / note |
-> |---|---|---|
-> | Intended artifact | Operation audit log | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-16-03 |
-> | Intended test artifact | Acceptance workflow tests | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-16-03 |
-> | Operation dispositions in scope | Accepted and rejected operations | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 7 PKG-16 deliverables |
-> | Required audit subjects | Affected entities, actor/source metadata, timestamps, assumptions | `_CONTEXT.md` |
-> | Required accepted-operation preservation | Operation history, rationale, assumptions, affected entities, audit metadata | SOW-070 in `execution/_Decomposition/SOFTWARE_DECOMP.md` section 5 |
-> | Required pre-application workflow context | Schema validation, constraint validation, diff preview, controlled application through the model engine | SOW-069 in `execution/_Decomposition/SOFTWARE_DECOMP.md` section 5 |
-> | Default autonomy posture | User acceptance is required unless later explicitly changed | `_CONTEXT.md`; OI-016 in `execution/_Decomposition/SOFTWARE_DECOMP.md` section 12 |
-> | Professional-boundary posture | Operation history supports design iteration without professional approval claims | SOW-070 note in `execution/_Decomposition/SOFTWARE_DECOMP.md` section 5; `docs/DIRECTIVE.md` section 3 |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> | Condition | Status |
-> |---|---|
-> | Reference audit-trail implementation path | Established for this slice at `core/model_operations/audit_trail/engine.py`. |
-> | Reference validation-preview dependency path | Established read-only dependency at `core/model_operations/validation_preview/engine.py`. |
-> | Current operation schema and fixture basis | Established upstream evidence at `schemas/model_operation.schema.json`, `fixtures/model_operations/invented_operation_set_valid.json`, and `fixtures/model_operations/invented_accepted_model_state.json`. |
-> | Explicit user acceptance requirement | Established: accepted records require `acceptance_signal.accepted is True`, `decision == accept`, and `actor_type == user`; agent-only acceptance is held for user acceptance. |
-> | Blocked validation behavior | Established: accepted records require passed schema, constraint, and unit validation, generated diff preview, and `application_status: not_applied`; blocking validation prevents accepted status. |
-> | Model-state hash requirement | Established: accepted records require a current accepted model-state hash and matching model-state current-hash precondition. |
-> | Accepted-state mutation behavior | Established: audit recording does not apply operations or mutate accepted model state; outputs expose `accepted_model_state_unchanged`. |
-> | Rejected-record behavior | Established: rejected operations are recorded as rejected audit records and set `accepted_model_state_mutated` to `false`. |
-> | Missing input diagnostics | Established: missing validation outcome, diff-preview reference, user decision, timestamp, and rationale are surfaced as visible `TBD` diagnostics or placeholder values. |
-> | Deterministic record shape | Established: records are sorted by canonical JSON, hashes are derived from stable JSON serialization, and focused tests compare canonical output stability. |
-> | Professional/compliance claims | Established: current audit output carries boundary flags and focused tests reject prohibited professional, certification, sealing, authentication, approval, and code-compliance wording (PRD §21.2). |
-> | Durable persistence integration | DEC-017 fixes the local storage substrate; this reference implementation returns an in-memory payload. Durable audit/history conformance and retention remain delivery obligations. |
-> | Long-term retention policy | TBD; rejected operations are recorded in the current payload, but durable retention duration and disposal rules are not defined. |
-> | Final actor identity model beyond current fields | TBD; current fields include `actor_type`, `actor_ref`, and `source_role`, but final identity/authentication semantics are not defined. |
-> | Timestamp precision policy beyond current fixture evidence | TBD; current fixture/test evidence uses ISO-like UTC strings, but project-wide precision/clock policy is not defined. |
-> | Operation application outside this slice | DEL-16-06 under SCA-011; this slice records acceptance/audit decisions and explicitly does not apply operations. Outcome and durable-history conformance remain to be demonstrated. |
-> | Human review dispositions | TBD; review finding disposition fields remain subject to the human disposition gate. |
-> | Exact dependency versions | TBD per `_CONTEXT.md` architecture basis injection. |
-> | Protected or proprietary engineering data in public examples | Not permitted by `docs/DIRECTIVE.md` section 3 and `docs/IP_AND_DATA_BOUNDARY.md` sections 3-5. |
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> DEL-16-03 is a backend feature-slice control surface for recording operation acceptance outcomes and audit metadata. The reference implementation is the deterministic audit-trail module at `core/model_operations/audit_trail/engine.py`, exercised by `tests/test_operation_audit_trail.py`. It consumes structured operation envelopes, validation/diff-preview evidence, acceptance or rejection signals, actor/source metadata, timestamps, rationale, audit metadata, and accepted model-state references.
->
-> The module records accepted, rejected, and held-for-user-acceptance outcomes without applying operations or mutating accepted model state. Accepted audit records require explicit user acceptance, nonblocking validation/preview evidence, hash-bound diff-preview evidence, and a current accepted model-state hash that matches the operation precondition. Missing inputs remain visible as `TBD` diagnostics. Durable persistence, retention policy, final actor identity semantics, timestamp precision policy, operation application, and human review dispositions remain outside the established implementation facts for this slice.
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history)
-> - `_REFERENCES.md`
-> - `_DEPENDENCIES.md`
-> - `Dependencies.csv`
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register)
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history)
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history)
-> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history)
-> - `docs/DIRECTIVE.md`
-> - `docs/CONTRACT.md`
-> - `docs/SPEC.md`
-> - `docs/TYPES.md`
-> - `docs/IP_AND_DATA_BOUNDARY.md`
-> - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
-> - `core/model_operations/audit_trail/engine.py`
-> - `core/model_operations/validation_preview/engine.py`
-> - `schemas/model_operation.schema.json`
-> - `fixtures/model_operations/invented_operation_set_valid.json`
-> - `fixtures/model_operations/invented_accepted_model_state.json`
-> - `tests/test_operation_audit_trail.py`
-> - `tests/test_operation_validation_preview.py`
-> - `tests/test_model_operation_schema.py`
+- Whether a person can grant an agent standing permission to apply changes without a decision on each batch (decomposition OI-016; FR-AGENT-003 allows a configured workflow, and exit criterion 17 allows autonomy the person granted). Until that is decided every batch needs the person's own act.
+- How long rejected and withdrawn records are kept, and when one may be removed.
+- Whether an author is ever a verified identity. Until that is decided author type and source are asserted metadata from the trusted desktop, and the history says so.
+- The precision and clock of the recorded times.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-16-03 User acceptance and operation audit trail
+### Requirements
 
-> #### Specification: DEL-16-03 User acceptance and operation audit trail
->
+- **REQ-001** — Only structured operations in DEL-16-01's contract are decided on and recorded (SOW-069).
+- **REQ-002** — A batch can be accepted only when its validation passed with no blocking finding, a preview was generated for it, and it has not been applied (SOW-069).
+- **REQ-003** — The history records accepted, rejected and held batches (decomposition row DEL-16-03).
+- **REQ-004** — A history record holds the affected entities, each operation's author type and source, the times, the assumptions, the validation outcome and the preview reference. A missing input is recorded as missing with a diagnostic.
+- **REQ-005** — For accepted operations the history preserves the operations, their rationale and assumptions, the affected entities, the audit metadata and the model hashes needed to review a model state reproducibly, and it survives save and reopen (SOW-070; FR-AGENT-004).
+- **REQ-006** — Acceptance requires the person's explicit act. A signal from an agent, an import or any other source is never acceptance (FR-AGENT-003; decomposition OI-016).
+- **REQ-007** — Acceptance of a model change is never represented as professional approval, certification, sealing or code compliance (PRD §21.2).
+- **REQ-008** — Public examples and sample records hold invented values only: no protected standards text, code-specific value, proprietary project data or private engineering data (`docs/IP_AND_DATA_BOUNDARY.md`).
+- **REQ-009** — Missing data and assumptions are visible in the record and are never filled with a default (PRD §5.5).
+- **REQ-010** — Acceptance is bound to the preview it was given on: the preview's model hash must be the current model's hash when the person decides.
+- **REQ-011** — Recording a decision changes no model and applies nothing.
+- **REQ-012** — A rejected batch is recorded as rejected and changes nothing.
+- **REQ-013** — The author stamp is set by the route. A desktop editor stamps the person. The embedded agent's host and offline proposal intake stamp `agent`, whatever the content claims, and keep a claimed author only as display context. A retained record requeued after reopening is stamped `agent` when its origin is recognisably an agent or an import; one that claims a person and writes a person-entered value is refused; one that names no recognisable author is refused. A retained record that claims a person but whose human authorship cannot be established, such as one saved before routes stamped authors, which cannot be told from an import that claimed a person, never receives person-authored treatment on requeue. It stays recoverable: a refusal or a requeue without person-authored treatment leaves it in the history as review context.
+- **REQ-014** — The decision and the outcome are two records. Application consumes the decision made before it; the history takes the actual outcome from application afterwards and never writes an outcome of its own.
 
-### CLM-009 — Scope
+### Acceptance criteria
 
-> ##### Scope
->
-> DEL-16-03 covers the backend feature slice for recording accepted/rejected model operations, affected entities, actor/source metadata, timestamps, assumptions, operation history, rationale, and audit metadata needed for reproducible model-state review.
->
-> The scope is bounded to SOW-069 and SOW-070 and supports OBJ-015. It does not implement hidden model mutation or autonomous engineering acceptance. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Exact audit-log schema, persistence details, and autonomy policy beyond the default user-acceptance posture remain TBD until a sealed implementation brief resolves them.
->
-> Current implementation evidence establishes a narrow deterministic audit-record constructor at `core/model_operations/audit_trail/engine.py`. It returns an audit payload for structured operation inputs and does not persist the payload, apply operations, or mutate accepted model state. The current upstream operation schema, validation/preview engine, fixtures, and focused tests are the evidence basis for this specification update.
->
-> Current implementation (at `62c1efd75b`): the desktop route does not call `core/model_operations/audit_trail/engine.py`. The user's explicit Apply in `apps/desktop/src/features/toolkit/BatchReviewPanel.tsx` runs `apply_operation_batch` in `core/model_operations/operation_applier/src/atomic_batch.rs`, whose applied outcome carries an `acceptance` record (`acceptance_basis: user_initiated_apply_in_local_session`, `acceptance_is_professional_approval: false`, `persistence_status: session_state_only_not_yet_saved`). The workspace session keeps the resulting application receipts. `apps/desktop/src/features/operations/OperationLedgerPanel.tsx` shows and downloads a review ledger of queued and proposed operations. Neither the receipt nor the ledger is the Python audit payload.
->
-
-### CLM-010 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Source | Verification approach |
-> |---|---|---|---|
-> | DEL-16-03-REQ-001 | GUI and agent edits that reach this surface shall be represented as structured model operations before controlled application. | SOW-069 in `execution/_Decomposition/SOFTWARE_DECOMP.md` section 5; `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-069 | Acceptance workflow tests confirm only structured operation inputs are accepted by the audit workflow. |
-> | DEL-16-03-REQ-002 | The acceptance workflow shall account for schema validation, constraint validation, unit validation, diff preview, and non-application status before an audit record may be marked accepted. | SOW-069 in `execution/_Decomposition/SOFTWARE_DECOMP.md` section 5; `core/model_operations/audit_trail/engine.py`; `core/model_operations/validation_preview/engine.py` | `tests/test_operation_audit_trail.py` asserts blocked validation prevents accepted records; `tests/test_operation_validation_preview.py` asserts invalid schema/unit/constraint/direct-mutation paths block preview and keep `application_status` as `not_applied`. |
-> | DEL-16-03-REQ-003 | The audit trail shall record accepted, rejected, and held-for-user-acceptance operation outcomes. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `execution/_Decomposition/SOFTWARE_DECOMP.md` section 7 PKG-16; `core/model_operations/audit_trail/engine.py` | `tests/test_operation_audit_trail.py` asserts accepted, rejected, and held-for-user-acceptance dispositions and decision counts. |
-> | DEL-16-03-REQ-004 | The audit trail shall record affected entities, actor/source metadata, timestamps, assumptions, validation outcomes, diff-preview references, operation history, audit metadata, and explicit visible `TBD` diagnostics for missing inputs. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `core/model_operations/audit_trail/engine.py` | `tests/test_operation_audit_trail.py` asserts affected entities, actor/source metadata, unresolved assumptions, validation outcome, diff-preview ref, and visible missing-input diagnostics. |
-> | DEL-16-03-REQ-005 | Accepted model-operation audit records shall preserve operation history, rationale, assumptions, affected entities, audit metadata, accepted model-state references, and hash evidence needed for reproducible model-state review. | SOW-070 in `execution/_Decomposition/SOFTWARE_DECOMP.md` section 5; `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-070; `core/model_operations/audit_trail/engine.py` | Focused tests confirm accepted records retain review metadata, diff-preview evidence, model-state hash references, and stable record hashes. |
-> | DEL-16-03-REQ-006 | The default workflow shall require explicit user acceptance before a record can be marked accepted. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); OI-016 in `execution/_Decomposition/SOFTWARE_DECOMP.md` section 12; `core/model_operations/audit_trail/engine.py` | `tests/test_operation_audit_trail.py` covers that agent-only or missing acceptance signals produce `held_for_user_acceptance` with `AUDIT-EXPLICIT-USER-ACCEPTANCE-REQUIRED`. |
-> | DEL-16-03-REQ-007 | The audit trail shall not represent operation acceptance as professional approval, certification, sealing, or code compliance (PRD §21.2). | `docs/DIRECTIVE.md` section 3; `INIT.md`; `docs/TYPES.md` section 9; SOW-070 note | Tests or review checks assert terminology remains development/audit oriented and does not create professional reliance claims. |
-> | DEL-16-03-REQ-008 | Public examples and records shall not introduce protected standards text, code-specific values, proprietary project data, or private engineering data by default. | `docs/DIRECTIVE.md` section 3; `docs/IP_AND_DATA_BOUNDARY.md` sections 3-5; `docs/CONTRACT.md` OPS-K-PRIV and OPS-K-AGENT invariants | Protected-content/provenance review gate for fixtures and sample audit records. |
-> | DEL-16-03-REQ-009 | Missing data and assumptions shall be visible rather than silently defaulted. | `docs/DIRECTIVE.md` section 3; `docs/CONTRACT.md` OPS-K-AGENT-1; `docs/SPEC.md` section 12 | Tests verify unresolved assumptions and missing required inputs are recorded or surfaced as TBD. |
-> | DEL-16-03-REQ-010 | Accepted audit records shall require a hash-bound diff-preview reference and a current accepted model-state hash that matches the operation current-hash precondition. | `core/model_operations/audit_trail/engine.py`; `schemas/model_operation.schema.json`; `fixtures/model_operations/invented_accepted_model_state.json` | `tests/test_operation_audit_trail.py` asserts missing model-state hash prevents accepted status; the audit engine also emits blocking diagnostics for missing or mismatched operation current-hash preconditions and missing diff-preview hash. |
-> | DEL-16-03-REQ-011 | Audit recording shall not mutate accepted model state or apply the operation. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); package exclusion for hidden mutation; `core/model_operations/audit_trail/engine.py`; `core/model_operations/validation_preview/engine.py` | `tests/test_operation_audit_trail.py` asserts rejected records do not mutate accepted state; `tests/test_operation_validation_preview.py` asserts validation preview does not mutate accepted state and application status remains `not_applied`. |
-> | DEL-16-03-REQ-012 | Rejected operations shall be recorded as audit-only rejected records with accepted-state mutation set false. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `core/model_operations/audit_trail/engine.py` | `tests/test_operation_audit_trail.py` asserts rejected decision counts, rejected status, unchanged accepted state, and `accepted_model_state_mutated` false. |
->
-
-### CLM-011 — Standards
-
-> ##### Standards
->
-> No external piping code, protected standard, or engineering acceptance standard text is locally accessible for this deliverable. Governing standards for this setup pass are the project governance documents and accepted software decomposition listed in `_REFERENCES.md`.
->
-> Architecture basis in `_CONTEXT.md` records JSON Schema 2020-12 contracts and canonical JSON/JCS-compatible hash basis where JSON payloads are hashed. Current upstream operation records are governed by `schemas/model_operation.schema.json`, and the current audit payload uses stable JSON serialization plus SHA-256 hashes for record and audit-trail identity. A standalone persisted DEL-16-03 audit-log schema and persistence mechanism remain TBD.
->
-
-### CLM-012 — Verification
-
-> ##### Verification
->
-> | Verification target | Required evidence |
-> |---|---|
-> | Scope alignment | DEL-16-03 ID, PKG-16 package, SOW-069/SOW-070 scope, and OBJ-015 objective match `_CONTEXT.md` (retired in `497a8d81e4`; see Git history), registers, and decomposition. |
-> | Audit-log content | Operation audit log records disposition, affected entities, actor/source metadata, timestamp, assumptions, rationale/history where accepted, and audit metadata. |
-> | Acceptance workflow | Tests cover accepted and rejected model-operation paths and demonstrate that default user acceptance gates proposed operations. |
-> | Boundary language | Review confirms no prohibited authority claim (PRD §21.2) is introduced. |
-> | Data boundary | Review confirms no protected standards text, proprietary project data, or private engineering data appears in public fixtures or examples. |
-> | State nonmutation | Tests confirm audit recording and validation preview leave accepted model state unchanged and do not apply operations. |
-> | Hash binding | Tests and code inspection confirm accepted audit records require current accepted-state hash evidence and hash-bound preview evidence. |
->
-
-### CLM-013 — Documentation
-
-> ##### Documentation
->
-> Expected artifacts from `_CONTEXT.md` and `docs/_Registers/Deliverables.csv`:
->
-> - operation audit log
-> - acceptance workflow tests
->
-> Current implementation and test evidence:
->
-> - `core/model_operations/audit_trail/engine.py`
-> - `tests/test_operation_audit_trail.py`
-> - `core/model_operations/validation_preview/engine.py`
-> - `tests/test_operation_validation_preview.py`
-> - `schemas/model_operation.schema.json`
-> - `tests/test_model_operation_schema.py`
-> - `fixtures/model_operations/invented_operation_set_valid.json`
-> - `fixtures/model_operations/invented_accepted_model_state.json`
->
-> Durable persistence integration under DEC-017, long-term retention policy, final actor identity model beyond current fields, timestamp precision policy beyond fixture evidence, operation application outside this slice, and human review dispositions remain TBD.
-
-- **AC-001** — The contract preserves explicit user acceptance, passed validation and generated hash-bound diff-preview gates, accepted-model-state hash/precondition evidence, operation history, rationale, assumptions, affected entities, actor/source metadata, timestamps, validation outcomes, audit metadata, deterministic record hashes, visible TBD diagnostics, rejected-record retention in the current payload, unchanged accepted state, invented-public data boundaries, professional non-authority, and unresolved durable persistence, retention, identity, timestamp, application, autonomy, and human-disposition matters.
+- **AC-001** — A batch reaches application only after the person's explicit Apply on a batch whose validation passed, whose preview was generated, and whose preview hash is the current model's hash. A batch with a blocking finding, with no preview, on a stale basis, or carrying only an agent's or an import's signal is held with a diagnostic that says what is missing, and nothing is applied.
+- **AC-002** — An applied batch has exactly one decision record and one outcome record, whichever surface produced the batch. The outcome record holds every operation with its author and is bound to the decision by the batch's identity, the model hash decided on and the resulting model hash. An accepted batch that application refuses is recorded as refused, and a batch with no outcome evidence is recorded as unknown, never as applied or rejected.
+- **AC-003** — Every history record holds each member the history record is defined to hold, with the operations exactly as proposed. An input that is absent appears as missing with its diagnostic, and no placeholder reads as a value.
+- **AC-004** — After save, close and reopen, the project's history lists every accepted and every rejected batch decided before the save, in order, with every member equal. A record read back whose acceptance is not known is review context: it must be requeued and validated afresh before it can be applied.
+- **AC-005** — Recording an acceptance, a rejection, a hold or a withdrawal leaves the model document and its hash unchanged. A rejected batch is in the history as rejected and no operation of it is applied.
+- **AC-006** — Each history record carries a hash that is the SHA-256 of its RFC 8785 canonical form and is reproduced from the stored record; the same decision on the same inputs gives the same record.
+- **AC-007** — An operation from a desktop editor is stamped as the person's. An operation from the embedded agent or from offline intake is stamped `agent` with a host-set source whatever its content claims, and the claimed author appears only as display context marked unverified. On requeue after reopening, a record of agent or imported origin is stamped `agent`, a record claiming a person that writes a person-entered value is refused, and a record with no recognisable author is refused. A record that claims a person but whose human authorship cannot be established is never requeued as the person's, and after a refusal or a requeue it is still in the history, readable as review context.
+- **AC-008** — No history record, decision, outcome, label or exported ledger states or implies professional approval, certification, sealing, authentication or code compliance. An acceptance record says that it is the person's acceptance of a model change in a local session and is not professional approval.
+- **AC-009** — Every public example and sample record holds invented values and carries a provenance record that marks it invented.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-014 — Procedure: DEL-16-03 User acceptance and operation audit trail
+**Method choices that define the deliverable.**
 
-> #### Procedure: DEL-16-03 User acceptance and operation audit trail
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- The person's Apply in the review surface is the only acceptance signal. No call, message or tool available to an agent or an import carries one.
+- The history stores what was proposed, not what was applied in its place: operations are kept as submitted, and the outcome is a separate record.
+- Trust is placed in the route, not in the content. The bundled desktop is trusted to say which route an operation came by; content is never trusted to say who wrote it.
 
-### CLM-016 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Define the conservative operating procedure for producing and later verifying the DEL-16-03 backend feature slice. This procedure is evidence-aligned guidance for the current narrow implementation and does not claim durable persistence, operation application, lifecycle closure, or downstream governance decisions.
->
-> Current evidence now establishes a narrow implementation at `core/model_operations/audit_trail/engine.py` and focused tests at `tests/test_operation_audit_trail.py`. This procedure therefore distinguishes current audit-record behavior from unresolved downstream storage, retention, identity, timestamp, operation-application, and human-disposition matters.
->
-
-### CLM-017 — Prerequisites
-
-> ##### Prerequisites
->
-> - Current deliverable context: `_CONTEXT.md`.
-> - Governing reference list: `_REFERENCES.md`.
-> - Accepted decomposition basis: `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted amendments.
-> - Approved local DAG-002 dependency mirror: `_DEPENDENCIES.md` and `Dependencies.csv`.
-> - Upstream context recorded in the local mirror, including architecture-basis rows DAG-002-E0744 through DAG-002-E0750 and execution context rows DAG-002-E0832 through DAG-002-E0836.
-> - Default user-acceptance posture from `_CONTEXT.md` and OI-016.
-> - Current audit-trail implementation: `core/model_operations/audit_trail/engine.py`.
-> - Current validation-preview implementation: `core/model_operations/validation_preview/engine.py`.
-> - Current upstream schema and fixtures: `schemas/model_operation.schema.json`, `fixtures/model_operations/invented_operation_set_valid.json`, and `fixtures/model_operations/invented_accepted_model_state.json`.
-> - Current focused tests: `tests/test_operation_audit_trail.py`, `tests/test_operation_validation_preview.py`, and `tests/test_model_operation_schema.py`.
->
-
-### CLM-018 — Steps
-
-> ##### Steps
->
-> 1. Confirm the work is still bounded to DEL-16-03, PKG-16, SOW-069, SOW-070, and OBJ-015.
-> 2. Confirm that the operation under review is represented as a structured model operation. If not, record a rejection or TBD path rather than applying a hidden mutation.
-> 3. Confirm that schema validation, constraint validation, unit validation, diff preview status, and application status are available from the upstream validation-preview surface.
-> 4. Do not mark an audit record accepted unless validation has passed, diff preview has been generated, application status remains `not_applied`, a hash-bound diff-preview reference is present, and the operation current-hash precondition matches the accepted model-state hash.
-> 5. Require an explicit user-acceptance signal before recording an operation as accepted. Under current behavior this means `accepted: true`, `decision: accept`, and `actor_type: user`.
-> 6. If validation is blocked, accepted-state hash evidence is missing or mismatched, diff-preview hash evidence is missing, or the user signal is absent/non-user, record the operation as held for user acceptance rather than accepted.
-> 7. For accepted operations, preserve operation history, rationale, assumptions, affected entities, validation outcome, diff-preview reference, accepted model-state reference, and audit metadata needed for reproducible model-state review.
-> 8. For rejected operations, preserve rejected disposition and audit metadata without mutating accepted model state. Exact durable rejection-retention policy remains TBD.
-> 9. For missing validation outcome, diff-preview reference, user decision, timestamp, rationale, source, actor, or audit metadata, preserve visible `TBD` diagnostics or placeholder fields rather than silently defaulting.
-> 10. Avoid language or fields that imply prohibited authority claims (PRD §21.2).
-> 11. Validate public fixtures and examples for protected-content, provenance, privacy, and data-boundary issues before treating them as acceptable test data.
-> 12. Produce acceptance workflow tests covering accepted, rejected, held-for-user-acceptance, blocked validation, missing hash, missing input/TBD, deterministic output, accepted-state nonmutation, and professional-boundary wording paths.
->
-
-### CLM-019 — Verification
-
-> ##### Verification
->
-> | Check | Expected result |
-> |---|---|
-> | Scope check | Deliverable ID, package, scope items, and objective match `_CONTEXT.md`, registers, and decomposition. |
-> | Acceptance gate check | Proposed operations cannot become accepted audit records without the required user-acceptance signal under the current default posture. |
-> | Validation gate check | Blocked schema, constraint, unit, or diff-preview evidence prevents accepted audit status. |
-> | Hash binding check | Accepted audit records require a hash-bound diff-preview reference and accepted model-state hash evidence matching operation preconditions. |
-> | Audit metadata check | Accepted-operation records preserve source-backed audit metadata categories from SOW-070 and `_CONTEXT.md`. |
-> | Rejection path check | Rejected operations are recorded as rejected and do not mutate accepted model state. |
-> | Nonmutation check | Audit recording and validation preview do not apply operations or mutate accepted model state. |
-> | Assumption/TBD check | Missing implementation details remain visible as TBD or assumptions. |
-> | Boundary check | Audit records and tests avoid professional-approval claims and protected/private data leakage. |
->
-
-### CLM-020 — Records
-
-> ##### Records
->
-> - Operation audit log.
-> - Acceptance workflow tests.
-> - Review notes for unresolved TBDs and assumptions.
-> - Protected-content/provenance check results for any public fixtures.
-> - Future human decisions that change the default acceptance/autonomy posture.
-> - Durable-history implementation and verification records under DEC-017/028 (local-store and transport strategy already ruled), with DEL-16-06 actual-outcome integration under DEC-020/SCA-011. Retain separately unresolved long-term retention, actor identity, timestamp precision and review-finding dispositions at their owning decision paths.
-
-- **VER-001** — Validate the contract and review source parity, accepted/rejected/held disposition coverage, explicit user and validation/preview/hash gates, complete SOW-070 audit metadata, deterministic identity, visible missing-input diagnostics, rejected and accepted-state nonmutation behavior, protected-data and professional boundaries, and verification of durable-history/application conformance under the already-ruled substrate and ownership, with separately unresolved retention, actor, timestamp and human-disposition questions retained.
+- **VER-001** — AC-001 and AC-005, executable check: observes application calls, the model hash and the history after each of an accepted batch, a rejected one, and batches lacking in turn a passed validation, a preview, a current basis and the person's act.
+- **VER-002** — AC-002, executable check: observes the decision and outcome records after an applied batch from each surface (a desktop editor, batch review, the embedded agent, offline intake), after an accepted batch that application refuses, and after an application whose result is withheld from the history.
+- **VER-003** — AC-003 and AC-006, executable check: observes each record's members against the scripted decision that produced it, removes each input in turn to observe the missing marker, and recomputes each record's hash with an RFC 8785 and SHA-256 implementation that shares no code with the product.
+- **VER-004** — AC-004, executable check: scripts a sequence of accepted and rejected batches, saves, closes and reopens the project in the native application, and compares the history read back with the scripted sequence; then attempts to apply a record read back without requeueing it.
+- **VER-005** — AC-007, executable check: observes the stamp and source on operations sent by each route with content that claims each author type, and the result of requeueing retained records of each origin, including a record that claims a person and was saved without a route stamp, and the history after each refusal and requeue.
+- **VER-006** — AC-008 and AC-009, judgment by a named role (a reviewer who did not write the records): reads the history, the acceptance record, the labels and the exported ledger against the prohibited claims of PRD §21.2 and `docs/claims_registry.md`, and the examples for protected or private content, with an executable check of each example's provenance record.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-021 — Guidance: DEL-16-03 User acceptance and operation audit trail
-
-> #### Guidance: DEL-16-03 User acceptance and operation audit trail
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-023 — Purpose
-
-> ##### Purpose
->
-> This deliverable exists to make model-operation acceptance reviewable and reproducible. It connects structured model operations and validation/diff preview outcomes to a durable audit surface that records whether an operation was accepted or rejected and preserves the metadata needed to understand the resulting model-state history.
->
-
-### CLM-024 — Principles
-
-> ##### Principles
->
-> - Route model changes through structured operations. SOW-069 states that GUI and agent edits pass through schema validation, constraint validation, diff preview, and controlled application through the model engine.
-> - Preserve review context for accepted operations. SOW-070 identifies operation history, rationale, assumptions, affected entities, and audit metadata as needed for reproducible model-state review.
-> - Treat explicit user acceptance as the current accepted-record gate. The current audit implementation requires `accepted: true`, `decision: accept`, and `actor_type: user`; otherwise the record is held for user acceptance unless it is explicitly rejected.
-> - Require nonblocking validation and preview evidence before accepted status. Current accepted records require passed schema, constraint, and unit validation, generated diff preview, `application_status: not_applied`, a hash-bound diff-preview reference, and current accepted-state hash evidence.
-> - Keep audit recording separate from operation application. The current module records audit payloads and does not mutate accepted model state.
-> - Keep professional authority separate. The project permits computation and audit support; acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.
-> - Prefer explicit TBDs over silent defaults. Unknown schema fields, autonomy details, persistence mechanics, and acceptance criteria remain TBD until supported by a sealed implementation brief or accepted architecture decision.
->
-
-### CLM-025 — Considerations
-
-> ##### Considerations
->
-> The audit trail depends on upstream operation schema and validation/diff preview surfaces recorded in the approved local DAG mirror. Current implementation evidence for those surfaces is outside this deliverable folder and read-only for this run: `schemas/model_operation.schema.json`, `core/model_operations/validation_preview/engine.py`, `fixtures/model_operations/invented_operation_set_valid.json`, and `fixtures/model_operations/invented_accepted_model_state.json`.
->
-> The current audit trail preserves enough metadata in returned payloads to make a model-operation acceptance decision reviewable: operation history, affected entities, actor/source metadata, validation outcome, diff-preview reference, accepted model-state reference/hash, rationale, assumptions, audit metadata, deterministic record hashes, top-level audit-trail hash, and visible diagnostics. It does not define storage tables, durable event streams, final actor identity policy, timestamp precision policy, long-term retention, or operation application.
->
-> Public fixtures or examples for this deliverable should avoid protected standards data, proprietary project records, and code-specific acceptance criteria unless they have documented public redistribution rights.
->
-
-### CLM-026 — Trade-offs
-
-> ##### Trade-offs
->
-> | Topic | Conservative guidance |
-> |---|---|
-> | Acceptance metadata detail | Capture source-backed minimum fields first; add implementation-specific fields only when the schema or service contract exists. |
-> | Rejected-operation retention | Current payload records rejected operations without mutating state; durable retention duration and storage remain TBD. |
-> | Agent autonomy | Keep explicit user acceptance as the accepted-record gate; do not infer autonomous acceptance from agent proposal capability. |
-> | Blocked validation | Treat blocking validation or preview evidence as preventing accepted status; record diagnostics visibly instead of upgrading status. |
-> | Accepted-state handling | Treat audit recording as nonmutating; DEL-16-06 owns application and its actual-outcome handoff, while acceptance/audit policy remains here. |
-> | Professional wording | Use audit/review/development acceptance language; avoid professional approval or code-compliance wording (PRD §21.2). |
-> | Dependency mirror handling | Preserve approved graph rows with their recorded statuses through `execution/_DAG/_LATEST.md`; do not reinterpret the mirror as a fresh extraction result. |
->
-
-### CLM-027 — Examples
-
-> ##### Examples
->
-> Current source-backed examples are the invented operation and accepted-state fixtures under `fixtures/model_operations/`, exercised by `tests/test_operation_audit_trail.py`, `tests/test_operation_validation_preview.py`, and `tests/test_model_operation_schema.py`. They are public invented examples and do not establish protected engineering facts.
->
-
-### CLM-028 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> No source conflicts were identified during Pass 1/2 drafting. The following unresolved items are not conflicts; they are source gaps to resolve later:
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
-> |---|---|---|---|---|---|---|
-> | TBD | Durable persistence integration under DEC-017, long-term retention policy, final actor identity model beyond `actor_type`/`actor_ref`/`source_role`, timestamp precision policy beyond current fixture evidence, DEL-16-06 application/outcome integration, and human review dispositions are not closed by the reference implementation evidence. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md`; `core/model_operations/audit_trail/engine.py`; focused tests | DEC-017 fixes the storage substrate and DEC-020/SCA-011 assigns controlled application to DEL-16-06; durable history, retention, identity/clock policy and human dispositions still require evidence | Datasheet Conditions; Specification Documentation; Procedure Records | Future sealed Type 2 implementation brief or human governance ruling | TBD |
-
-### CLM-029 — SCA-011 Acceptance-to-application handoff
-
-**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
-
-Retain acceptance and audit record policy without applying operations or mutating accepted state. DEL-16-06 owns controlled application and returns actual outcomes; DEL-02-05 owns durable persistence. Pre-application accepted decisions and post-application outcome receipts are distinct. Actor type alone is not identity evidence; retention, actor policy and durable history remain open.
-
-- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
-- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
-- **VER-002** — Verify acceptance on nonblocking hash-bound preview/current basis and truthful receipt handoff, including rejected/held nonmutation and absent actual outcome; preserve the existing durable accepted/rejected-history residual.
+- **AX-001** — *A complete history.* Better is a larger share of the decisions made on a project's operations that can be read back after reopening with every member; the target is all of them. Completeness never comes from recording as accepted or applied something not known to be: unknown stays unknown.
+- **AX-002** — *The person decides.* Better is fewer ways for a batch to reach application without the person's own act; the target is none. Convenience for an agent, an import or a bulk edit is never a reason for another way.
+- **AX-003** — *Truthful attribution.* Better is a larger share of records whose author stamp matches the route that produced them. A person's own edit is never relabelled as an agent's to be safe, and a claim of authorship inside content is never taken as the person's.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-069 SOW-070 OBJ-015 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-| OUT-002 | OBJ-015 | CLM-029 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-16-03:1** — R5 continuation delivery task: Complete durable audit/history and actual-outcome integration with DEL-16-06 under DEC-017/020 and SCA-011, preserving accepted/rejected records, rationale and hash-bound decision evidence. Resolve separately governed retention, identity/clock policy and human dispositions without treating reference in-memory output as durable completion (CLM-005/006/013/028).
-- **DEL-16-03:2** — Durable accepted/rejected operation history remains incomplete under SOW-070. Preserving original proposed member intents, author/source metadata and rationale through the existing `editor_intents` storage is bounded provenance retention; it does not persist acceptance decisions, batch grouping, application receipts or acceptance timestamps. Reopened records must remain review context with acceptance unknown, requiring explicit requeue and fresh validation. No full SOW-070 closure is claimed. Basis: [accepted batch implementation](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/C_ACCEPTED_SNAPSHOT_V1.json), [accepted native integration](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/NATIVE_ACCEPTED_SNAPSHOT_V1.json), and [owning persistence disposition V2](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/N2_WI_PKG16/BATCH_PERSISTENCE_DISPOSITION_V2.md). A durable, hash-bound decision/history contract and its save/load checks remain required; this residual does not release D58 or change lifecycle state.
-- **Author routes (RT-E1, Agent 0 decision 2026-10-31):** offline proposal intake stamps every imported operation `agent` host-side and keeps a file's claimed attribution only as display context. Requeue of retained records re-stamps recognizable agent or imported content `agent` and refuses a claimed-`user` record that writes a person-entered value. A claimed `user` author therefore cannot satisfy the applier's refusals of agent-written k and component modifiers. A legacy record claiming `user` otherwise keeps user treatment. Actor type remains asserted metadata at the trusted webview boundary. Design and evidence: [`Work/operation-authorship.md`](Work/operation-authorship.md).
+| OUT-001 | SOW-069 OBJ-015 | REQ-001 REQ-002 REQ-006 REQ-010 | AC-001 | VER-001 | Each scripted batch states what it lacks and so what must be held |
+| OUT-002 | SOW-069 SOW-070 OBJ-015 | REQ-014 | AC-002 | VER-002 | The scripted scenario states what was accepted and what application returned |
+| OUT-001 | SOW-070 OBJ-015 | REQ-003 REQ-004 REQ-009 | AC-003 | VER-003 | The comparison is with the scripted decision, which the product did not write |
+| OUT-001 | SOW-070 OBJ-015 | REQ-005 | AC-004 | VER-004 | The comparison is with the scripted sequence of decisions, which the product did not write |
+| OUT-001 | SOW-069 OBJ-015 | REQ-011 REQ-012 | AC-005 | VER-001 | The criterion states the expected result: an unchanged hash, compared with the hash taken before |
+| OUT-001 | SOW-070 OBJ-015 | REQ-005 | AC-006 | VER-003 | Outside source: RFC 8785 and SHA-256, computed by an implementation that shares no code with the product |
+| OUT-001 | SOW-069 SOW-070 OBJ-015 | REQ-013 | AC-007 | VER-005 | The routes and the claims in the content state what each stamp must be. The check shows the stamp each route sets; it cannot show that a stamp from the trusted desktop is true, since the author is asserted metadata |
+| OUT-001 | SOW-070 OBJ-015 | REQ-007 REQ-008 | AC-008, AC-009 | VER-006 | PRD §21.2, §21.3 and `docs/claims_registry.md`, read by a reviewer who did not write the records |

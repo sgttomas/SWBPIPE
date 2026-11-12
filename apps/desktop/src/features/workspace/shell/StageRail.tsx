@@ -14,7 +14,7 @@ function captionKind(caption: string): "failed" | "stale" | "historical" {
 }
 
 /**
- * The stage rail (specification §2.3): Model, Loads, Results, Review; a
+ * The stage rail: Model, Loads, Results, Review; a
  * hairline; Libraries, Rules, Issues. It is navigation: every item calls
  * `setActiveSection` through the session, and its states come from
  * `shellLayout.ts`. A disabled item stays focusable so its reason can be read.

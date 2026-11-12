@@ -254,7 +254,7 @@ describe("LoadCaseManagerPanel primitive-load creation", () => {
     type("load-manager-create-primitive-category", "concentrated_moment");
     expect(byId("load-manager-create-primitive-node")).toBeInTheDocument();
     expect(byId("load-manager-create-primitive-id")).toHaveValue("load:dead-M300");
-    // W-17 §2.4: the moment default is the moment key, not kN*mm composed from force and length.
+    // the moment default is the moment key, not kN*mm composed from force and length.
     expect(byId("load-manager-create-primitive-unit")).toHaveValue("kN*m");
 
     type("load-manager-create-primitive-category", "distributed_force");

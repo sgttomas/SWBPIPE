@@ -85,7 +85,7 @@ python3 tools/release/check_release_readiness.py --profile all
 
 The `stack-witnesses` profile runs the six retained W1 stack witnesses at the
 R/64 headroom leg, one process each; the release sweep runs it after the crate
-sweep (DEL-04-08 Design `stack-headroom-repair.md`).
+sweep (DEL-04-08).
 
 Without `--execute`, the script performs path checks and prints the local
 commands it would run. With `--execute`, it runs only local commands from the
@@ -187,7 +187,7 @@ The packaging checklist for a release candidate:
   then verifies actual `Contents/Resources` binary and licensing bytes before
   returning success. Ordinary `bundle.resources` preserve the supplier's
   original signature/stock digest; no `externalBin` re-signing or new entitlement
-  is selected. See DEL-16-06 Design `agent-supplier-packaging.md` for this input
+  is selected. See DEL-16-06 for this input
   contract and remaining compatibility/isolation/distribution duties. The
   app needs no entitlements: WebKit runs its web content, including the
   WebAssembly engine, in its own processes. The native smoke's results were

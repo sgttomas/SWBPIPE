@@ -17,7 +17,7 @@ import {
   type KeyResultsActionId
 } from "./keyResults";
 
-// A6, the key-results panel (DEL-07-05 Design `key-results-panel.md` §2, §4, §5, §7): each action
+// A6, the key-results panel: each action
 // calls exactly its one setter with the ids the view already offers, by button and by key alike;
 // absent and incomplete packs read as such; and the panel changes no model. All data are invented.
 

@@ -64,7 +64,7 @@ export type ProjectUnitRow = {
   notice: { kind: "missing-offer" | "missing-hard-lock" | "legacy" | "invalid"; text: string } | null;
 };
 
-/** How each key reads and what the section offers for it (§3). */
+/** How each key reads and what the section offers for it. */
 export function projectUnitRow(model: PreviewModel, key: ProjectUnitKey, route: UnitCatalogRoute | null | undefined): ProjectUnitRow {
   const stored = storedProjectUnit(model, key);
   const hasNodes = (model.nodes?.length ?? 0) > 0;

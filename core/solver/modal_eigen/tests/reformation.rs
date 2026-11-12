@@ -1,4 +1,4 @@
-//! Re-formation (design §3.4 checks 1 to 3) against the frozen class (a)
+//! Re-formation against the frozen class (a)
 //! references of `validation/references/f1_modal/mass_discrete/`.
 //!
 //! Source: `tests/fixtures/reformation_cases.txt`, written by
@@ -72,7 +72,7 @@ const MASS_PIVOT_RELATIVE_THRESHOLD: f64 = 1e-12;
 /// measured values are printed (about 10⁻¹⁴ at most).
 const ETA_CORRECT: f64 = 1e-12;
 
-/// Test-local resolution-floor parameters c_μ and κ_μ (design §3.2 item 5);
+/// Test-local resolution-floor parameters c_μ and κ_μ;
 /// the production values are recorded under DEC-026, not here. On the
 /// equilibrated pencil (review round 4), with c_μ = 1, the review-round-3
 /// artifact lies 2.4× below δ_μ and the smallest μ of the admitted fixture
@@ -80,7 +80,7 @@ const ETA_CORRECT: f64 = 1e-12;
 /// stiff modes lie below it and use the separately checked recovery band.
 const RESOLUTION_FLOOR_CONSTANT: f64 = 1.0;
 const RESOLUTION_FLOOR_MULTIPLE: f64 = 10.0;
-/// Test-local c_f of the screen τ_f = c_f·n·u (design §3.2 item 5); the
+/// Test-local c_f of the screen τ_f = c_f·n·u; the
 /// production value is recorded under DEC-026 (README for the measured
 /// η_f).
 const FORMED_BACKWARD_ERROR_MULTIPLE: f64 = 64.0;
@@ -915,7 +915,7 @@ fn reruns_are_bit_identical() {
 }
 
 /// Independent review of PR #33, finding 7: η, κ_λ and e_λ against their
-/// closed forms (design §3.4 check 2) on a 2×2 pencil with hand-perturbed
+/// closed forms on a 2×2 pencil with hand-perturbed
 /// vectors. Two nodes, each with one free Ux, an axis spring and a
 /// component body at its node: K = diag(1, 4), M = diag(1, 2), formed
 /// exactly, so D = diag(1, ½), ‖K̃̂‖ = 1 and ‖M̃̂‖ = max(1, ½) = 1.
@@ -1143,7 +1143,7 @@ fn cantilever(lengths: &[f64], section: PipeSection) -> (SymmetricMatrix, Symmet
     )
 }
 
-/// Finding 3, the design's admission witnesses (§3.2 item 5): the
+/// Finding 3, the design's admission witnesses: the
 /// equilibrated pivots of a small-bore one-element cantilever (OD 6.35 mm,
 /// wall 0.89 mm, 1 m, steel 7850 kg/m³ with water contents 1000 kg/m³) are
 /// all at least 0.22, although its raw pivots span the translational and
@@ -1457,7 +1457,7 @@ fn band_allotment_on_the_rigid_scale_witness() {
     assert_eq!(solve("E-POINTMASS-GENERAL", &band(0)), Ok(general));
 }
 
-// ---- A3 K2: test-only screen outcome counts (design §5.3.7) ----
+// ---- A3 K2: test-only screen outcome counts ----
 
 /// The screen outcome counts of every eigen case under the test-local
 /// options, with the kernel's identity asserted by `aggregate`. Exact

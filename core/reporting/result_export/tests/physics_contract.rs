@@ -133,7 +133,7 @@ fn physical_case_member_material_region_and_extrema_tampering_is_rejected() {
             json!(["unknown"]),
         ),
         ("/contract_evidence/pressure/0/materials/0/nu", json!(0.2)),
-        // T4-U6 (D-5 §2.3): the region geometry's area is its nominal section's.
+        // the region geometry's area is its nominal section's.
         ("/contract_evidence/pressure/0/geometry/0/nominal_section/As_m2", json!(1)),
         (
             "/contract_evidence/pressure/0/terminals/0/closure_transfer",
@@ -155,7 +155,7 @@ fn physical_case_member_material_region_and_extrema_tampering_is_rejected() {
             "/contract_evidence/exact_cases/0/pipe_stress_extrema/0/certified_gap_pa",
             json!(1e9),
         ),
-        // T4-U6 (D-5 §2.5): the coverage records are per basis, nominal first.
+        // the coverage records are per basis, nominal first.
         (
             "/contract_evidence/exact_cases/0/stress_maximum_coverage/0/complete",
             json!(false),
@@ -184,7 +184,7 @@ fn physical_case_member_material_region_and_extrema_tampering_is_rejected() {
             "/numerical_quality/cases/0/basis_ref/ref_id",
             json!("missing"),
         ),
-        // T4-U6 (D-5 §2.2): `max_open_formula_stress` is null on an exact
+        // `max_open_formula_stress` is null on an exact
         // document; each basis has its own headline.
         ("/summary/max_open_formula_stress_nominal_section/value", json!(1)),
     ] {

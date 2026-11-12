@@ -1,4 +1,4 @@
-"""§8.36 (retained-pricing-rules.md): model document 0.9.0's S1 rules and owners. The rules bound the lowering's and the
+"""§8.36: model document 0.9.0's S1 rules and owners. The rules bound the lowering's and the
 withholding's loops and texts on D1 under guarded premises (the module pins, D1.3-D1.6), give the by-name false edges
 their actual targets, price the remaining owners (S1-VW, S1-WH) and the typed-string census (S1-TS). A changed premise
 stops the run."""

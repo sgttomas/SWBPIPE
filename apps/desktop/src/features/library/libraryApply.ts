@@ -4,12 +4,12 @@
 //
 // Every result is one reviewed applier batch: insert (create_material,
 // create_section) or `apply_library_record` on an existing Material, Section
-// or Component. Copying is fixed by table (§2.3); everything else is listed as
+// or Component. Copying is fixed by table; everything else is listed as
 // "not copied" with its reason. Units copy as entered (DEC-018); a material
-// `unit_ref` must resolve to a catalog unit (§2.4). The model receives the
+// `unit_ref` must resolve to a catalog unit. The model receives the
 // copied values, the label, the short `provenance` string and the combined
-// `provenance_record` (§2.5); library metadata, other records, allowables,
-// non-copied slots and record snapshots never enter it (§2.6).
+// `provenance_record`; library metadata, other records, allowables,
+// non-copied slots and record snapshots never enter it.
 //
 // Material modes (§2.3a as reconciled with the HELP_HUMAN E/nu rule,
 // 2026-10-23): the user chooses E/nu or E/G; nothing is inferred.
@@ -73,7 +73,7 @@ const KEYS: Record<Exclude<ApplyLibraryKind, "hanger">, { library: string; recor
   component: { library: "component_library", records: "component_records", id: "component_id" }
 };
 
-/** `library_version`: "sha256:" + the SHA-256 of the record's RFC 8785 form (§2.5). */
+/** `library_version`: "sha256:" + the SHA-256 of the record's RFC 8785 form. */
 export async function libraryRecordVersion(record: unknown): Promise<string> {
   return `sha256:${await canonicalSha256Hex(record)}`;
 }
@@ -82,7 +82,7 @@ export function libraryProvenanceString(kind: ApplyLibraryKind, libraryId: strin
   return `library:${kind}:${libraryId}#${recordId}`;
 }
 
-// ---- dispositions (§2.5) --------------------------------------------------
+// ---- dispositions --------------------------------------------------
 
 const REDISTRIBUTION_RANK = { public_permissive: 0, unknown: 1, private_only: 2 } as const;
 type Redistribution = keyof typeof REDISTRIBUTION_RANK;
@@ -276,7 +276,7 @@ function provenanceRecord(ctx: Context, copies: Copy[], previous: Previous | nul
   return result;
 }
 
-// ---- values and units (§2.4) ----------------------------------------------
+// ---- values and units ----------------------------------------------
 
 function magnitude(raw: unknown, source: string): number {
   const value = typeof raw === "number" ? raw : typeof raw === "string" && /^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(raw.trim()) ? Number(raw.trim()) : NaN;
@@ -306,7 +306,7 @@ function shown(value: unknown): string {
   return typeof value === "object" ? JSON.stringify(value) : String(value);
 }
 
-// ---- material (§2.3, §2.3a) -----------------------------------------------
+// ---- material -----------------------------------------------
 
 const MATERIAL_NOT_COPIED: Record<string, string> = {
   density: "the model holds density per pipe (section.material_density)",
@@ -518,7 +518,7 @@ function checkNewId(model: PreviewModel, id: string) {
   if (taken) refuse("LIBRARY-APPLY-ID-INVALID", `${id} is already used in the model. Enter an id the model does not use yet.`);
 }
 
-// ---- section (§2.3) --------------------------------------------------------
+// ---- section --------------------------------------------------------
 
 function sectionValues(ctx: Context): { copies: Map<string, Copy>; notCopied: NotCopiedRow[] } {
   if (ctx.record.section_type !== "pipe") refuse("LIBRARY-APPLY-SECTION-TYPE", `Only pipe sections apply, and this record is ${shown(ctx.record.section_type)}. Choose a record whose section_type is pipe.`);
@@ -593,7 +593,7 @@ export async function buildSectionApply(input: ApplySectionInput): Promise<Libra
   return applyPlan(ctx, input.model, "Section", input.targetId, target as unknown as Json, after, { copies: used, notCopied, notes: [], members: {} }, retained, [], dependents, false);
 }
 
-// ---- component (§2.3b) ----------------------------------------------------
+// ---- component ----------------------------------------------------
 
 type Group = "bend" | "branch" | "rigid" | "expansion" | "modifiers";
 const FAMILY: Record<string, Exclude<Group, "modifiers">> = {

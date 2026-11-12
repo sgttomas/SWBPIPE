@@ -2,273 +2,100 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-17-03
 package_id: PKG-17
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-030, SOW-074]
 package_objective_refs: [OBJ-009, OBJ-017]
 ---
 
-# Scope of Work — DEL-17-03
+# Scope of Work — DEL-17-03 Native open JSON export package
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-17-03` in service of project scope [SOW-030, SOW-074] and package objectives [OBJ-009, OBJ-017].
+This deliverable is SWBPIPE's own target-neutral export of a model: the model's canonical data as deterministic JSON, packaged with its manifest, stable ID map, loss report, validation report and diagnostics. The result it contributes is that a user can take a model out of SWBPIPE in a documented, vendor-free form in which identity, units, references, warnings, unresolved assumptions and losses are all visible, and that every other target adapter has one project-owned package to read instead of the application's internals.
 
-- **OUT-001** — A deterministic native open-JSON export-package contract that materializes the common interoperability contracts without target-specific or commercial dependencies is produced.
+It serves SOW-030 and SOW-074 under OBJ-009 and OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-17, row DEL-17-03: the first-wave export target and the canonical adapter input), with `docs/PRD.md` §5.8, §11.7 (FR-HAND-001 and FR-HAND-002, both Must) and §16.1. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it.
+
+- **OUT-001** — The native JSON export package: its schema `schemas/native_json_export.schema.json`, the builder and writer that produce a package from a model, and the invented public fixture.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-17-03 Native open JSON export package
+**Terms the package implements.**
 
-> #### Datasheet: DEL-17-03 Native open JSON export package
->
+- *Member.* One of six parts of a package:
+  - `manifest`: the source model reference and its hash basis, the export profile, the member inventory with a hash for each member, diagnostics and boundary notes;
+  - `model_payload`: the model's canonical data, with its units manifest;
+  - `stable_id_map`: canonical SWBPIPE identifiers mapped to package-local records;
+  - `loss_report`: what was exported, omitted, approximated, delegated or unsupported, and what is undecided;
+  - `validation_report`: the package-shape and source-boundary checks made on this package, and nothing about the solver;
+  - `diagnostics`: the warnings and blocking messages of export preparation.
+- *Native profile.* The export profile of this target under the common contract. It declares the profile identifier and version, the source model identity and hash basis, the unit and coordinate policy, the identifier families included, the member path policy, the timestamp policy, the loss-category policy and the boundary notes.
+- *Computed hash.* A hash this package computes over one of its own JSON members: SHA-256 over the member's RFC 8785 canonical form, the hash basis of the common export contract (DEL-17-02/REQ-007), labelled with that basis.
+- *Source checksum.* A checksum of the source model that the caller supplies with its own declared algorithm, canonicalization and digest. The package carries it unchanged beside its computed hashes.
 
-### CLM-002 — Identification
+**Boundary.** This deliverable owns the native package, its schema, builder, writer and fixture.
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-17-03 |
-> | Package | PKG-17 Export Format Interoperability |
-> | Type | BACKEND_FEATURE_SLICE |
-> | Source foundation | DEL-17-01 and DEL-17-02 |
-> | Lifecycle role | First project-owned native JSON package implementation foundation for export interoperability |
->
+- The definitions of package, profile, stable ID map, manifest, loss report and loss category are DEL-17-02's.
+- Every target-specific format is its own deliverable's: MBF (DEL-17-04), stress-neutral (DEL-17-06), PCF (DEL-17-07), review geometry (DEL-17-08), further targets (DEL-17-09). No member of the native package names a commercial target.
+- The model document, its identifiers and its validator are DEL-02-01's. The project's portable package (`.opsproj`) is DEL-02-05's. The handoff package and the handoff export workflow are DEL-15-01's and DEL-15-03's.
+- The governed export route and the screening of private and protected values are DEL-12-02's.
+- No desktop, API, command-line or project-store entry to the export belongs to this deliverable. The panel that presents a native package in the desktop is DEL-07-12's.
 
-### CLM-003 — Purpose
+**Not decided.**
 
-> ##### Purpose
->
-> DEL-17-03 defines the native open JSON export package as the project-owned debug, interchange, archival, adapter-input, manifest, ID-map, and validation-report package target.
->
-> This deliverable owns the bounded native JSON package foundation: schema contract, deterministic package builder/writer helper, invented public fixture, and focused tests. The Python foundation does not implement public API, persistence runtime, project-store export flow, downstream target adapter behavior, target compatibility, release claims, code-compliance claims, or professional-reliance claims; the desktop GUI action is `NativePackagePanel.tsx`, a separate TypeScript preview builder.
->
-> Current implementation (at `62c1efd75b`): a desktop export action exists outside this module. The Exports section renders `apps/desktop/src/features/native-package/NativePackagePanel.tsx`, which builds a native JSON package review document in TypeScript (`buildNativePackageReview`, `document_kind: openpipestress.technical_preview.native_json_package_review`) with a member inventory whose manifest and several member hashes are `TBD_*` placeholders. It does not call `core/handoff/native_json/package.py` and is not validated against `schemas/native_json_export.schema.json`.
->
-
-### CLM-004 — Package Members
-
-> ##### Package Members
->
-> | Member | Role |
-> |---|---|
-> | `manifest` | Records source model identity, export profile, package member inventory, hashes, diagnostics, and boundary notes. |
-> | `model_payload` | Carries the project-owned JSON representation selected by a future exporter. |
-> | `stable_id_map` | Maps canonical SWBPIPE IDs to package-local records. |
-> | `loss_report` | Records exported, omitted, approximated, delegated, unsupported, and TBD behavior. |
-> | `validation_report` | Records package-shape and source-boundary checks without claiming solver validation. |
-> | `diagnostics` | Carries warnings and blocking messages from export preparation. |
->
-
-### CLM-005 — Implementation Artifacts
-
-> ##### Implementation Artifacts
->
-> | Artifact | Role |
-> |---|---|
-> | `schemas/native_json_export.schema.json` | JSON Schema 2020-12 contract for the native JSON package foundation. |
-> | `core/handoff/native_json/` | Deterministic key-sorted, compact JSON builder/writer and SHA-256 helper labelled `deterministic_sorted_compact_json_payload_hash` for hashes computed here; governed source checksum metadata is passed through without relabelling, and no RFC 8785 conformance is asserted. |
-> | `fixtures/native_json/invented/native_json_export_package.json` | Invented public fixture for package-shape and boundary checks. |
-> | `tests/test_native_json_export_package.py` | Focused tests for the exact computed-hash label, governed source-checksum pass-through, deterministic bytes/digests, mutation sensitivity, timestamp-free inputs, member inventory, diagnostics, privacy/professional-boundary flags, writer output, and protected/private payload screening. |
->
-
-### CLM-006 — Profile Basis
-
-> ##### Profile Basis
->
-> The native JSON profile shall consume the DEL-17-02 export profile contract and declare:
->
-> - profile ID and profile version;
-> - source model identity and hash basis;
-> - unit and coordinate policy;
-> - canonical ID families included;
-> - package member path policy;
-> - deterministic timestamp policy;
-> - loss-report category policy;
-> - boundary notes for no release, compatibility, code-compliance, or professional claim.
->
-
-### CLM-007 — Boundary Summary
-
-> ##### Boundary Summary
->
-> - Native JSON is project-owned interchange and adapter input, not a public compatibility promise.
-> - The package may preserve source model semantics but does not certify solver correctness.
-> - Protected standards values, private model data, proprietary target examples, and owner criteria remain excluded.
-> - Any future integration or target-adapter work must keep unsupported or omitted behavior visible in the loss report.
+- Which desktop, API or command-line entry exposes the native export, which deliverable owns that entry, and how a stored project is bound to it.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-17-03 Native open JSON export package
+### Requirements
 
-> #### Specification: DEL-17-03 Native open JSON export package
->
+- **REQ-001** — A native package has a manifest, a model payload, a stable ID map, a loss report, a validation report and diagnostics.
+- **REQ-002** — The package preserves canonical SWBPIPE identity, directly in its JSON records or through its package-local ID map.
+- **REQ-003** — The manifest identifies the source model reference, the export profile, the members, the hash basis and the boundary notes.
+- **REQ-004** — The loss report uses the six categories of the common contract.
+- **REQ-005** — The validation report holds package-shape and source-boundary evidence only and states neither solver validation nor professional acceptance.
+- **REQ-006** — The package is deterministic, key-sorted, compact JSON. A hash it computes is a computed hash as defined above, on the project's canonical JSON hash basis, and carries that basis's label; no runtime timestamp is hidden in a hash input; and a source checksum keeps its declared canonicalization and digest or is refused as malformed.
+- **REQ-007** — The public fixture is invented, and the package's shape, hashes, diagnostics, privacy and boundary flags and payload screening are each examined on it.
+- **REQ-008** — Target-specific and adapter-specific behaviour stays outside the native package.
 
-### CLM-009 — Normative Scope
+### Acceptance criteria
 
-> ##### Normative Scope
->
-> DEL-17-03 shall define and implement the bounded native open JSON export package foundation. It shall consume DEL-17-01 source boundaries and DEL-17-02 export package/profile/stable-ID/loss-report requirements.
->
-> The bounded implementation scope includes the native JSON schema contract, deterministic package builder/writer helper, invented public fixture, and focused tests for sorted compact serialization, member hashes, manifest/member inventory, stable ID map, loss report, validation report, diagnostics, provenance, privacy, and professional-boundary flags.
->
-> This deliverable shall not implement public APIs, GUI behavior, persistence runtime or project-store export flow, downstream target adapters, CAEPIPE/PCF/glTF target behavior, release claims, compatibility claims, code-compliance claims, solver-validation claims, professional-reliance claims, or professional-acceptance claims.
->
-
-### CLM-010 — Requirements
-
-> ##### Requirements
->
-> | Req ID | Requirement |
-> |---|---|
-> | DEL-17-03-REQ-001 | The native JSON package shall include a manifest, model payload, stable ID map, loss report, validation report, and diagnostics concept. |
-> | DEL-17-03-REQ-002 | The package contract shall preserve canonical SWBPIPE identity directly in JSON records or through a package-local ID map. |
-> | DEL-17-03-REQ-003 | The manifest shall identify source model reference, export profile ID, package members, deterministic hash basis, and boundary notes. |
-> | DEL-17-03-REQ-004 | The loss report shall use the DEL-17-02 categories: exported, omitted, approximated, delegated, unsupported, and TBD. |
-> | DEL-17-03-REQ-005 | Validation report content shall be package-shape and source-boundary evidence only; it shall not claim solver validation or professional acceptance. |
-> | DEL-17-03-REQ-006 | The implementation shall emit deterministic, key-sorted, compact JSON and label SHA-256 hashes it computes `deterministic_sorted_compact_json_payload_hash`, without hiding runtime timestamps inside hash inputs. Governed caller-supplied source checksum mappings shall preserve their declared canonicalization and digest metadata or be rejected as malformed; the project-local computed-hash label does not assert RFC 8785 conformance. |
-> | DEL-17-03-REQ-007 | The implementation shall include invented public fixture and focused tests for package shape, deterministic hashes, diagnostics, privacy/professional-boundary flags, and protected/private payload screening. |
-> | DEL-17-03-REQ-008 | Target-specific or adapter-specific behavior shall remain outside the native JSON package foundation unless separately scoped. |
->
-
-### CLM-011 — Verification Requirements
-
-> ##### Verification Requirements
->
-> | Check | Requirement |
-> |---|---|
-> | Four-document check | The consolidated `ScopeOfWork.md` exists. |
-> | Dependency schema | `Dependencies.csv` validates as v3.1. |
-> | Semantic artifacts | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist and are lens artifacts only. |
-> | Schema and fixture checks | Native JSON schema and invented fixture parse as JSON. |
-> | Builder and test checks | Native JSON builder compiles and focused tests pass. |
-> | Hash-basis checks | Focused tests verify the exact label on DEL-17-03-computed hashes, lossless pass-through of a differently labelled governed source checksum, repeatable bytes/digests, digest mutation sensitivity, timestamp-free hash inputs, and absence of an RFC 8785 conformance claim. |
-> | Boundary review | No protected/proprietary data or external compatibility claim is added. |
->
-
-### CLM-012 — Acceptance Criteria
-
-> ##### Acceptance Criteria
->
-> | Criterion | Acceptance Evidence | Source reread evidence |
-> |---|---|---|
-> | Required package members are identified and represented in the native JSON foundation. | Manifest, model payload, stable ID map, loss report, validation report, and diagnostics are listed as package members and covered by schema/builder/fixture/test evidence. | Reread Specification.md Requirements, Datasheet.md Package Members, and TP-EXPORT-006 run evidence for A-001. |
-> | Boundary review names excluded claim classes. | Review evidence confirms no release, external compatibility, code-compliance, solver-validation, professional-reliance, or professional-acceptance claim is introduced. | Reread Specification.md Verification Requirements and Procedure.md Bounded Implementation Procedure for X-001. |
->
-
-### CLM-013 — Downstream Use
-
-> ##### Downstream Use
->
-> The native JSON package foundation supports later adapter SDK and target exporter work as a project-owned intermediate package. Later work must still define API/CLI/GUI integration, production project-store export binding, downstream target adapter consumption, and any target-specific behavior in separately scoped tranches.
-
-- **AC-001** — The contract preserves package, manifest, target-profile, stable-ID-map and loss-report members; canonical JSON/JCS-compatible hashing and deterministic ordering; model, unit, provenance and diagnostic metadata; complete explicit loss classification; schema validation; invented or rights-cleared fixtures; and downstream adapter boundaries without adding solver execution, target equivalence, lifecycle acceptance, or professional authority.
+- **AC-001** — A package built from an invented model validates against the schema and has the six members. The manifest names the source model reference and its hash basis, the profile, the boundary notes and every member with its hash. A build that lacks a member, a stable ID map or a loss report returns a blocking diagnostic and no package is written.
+- **AC-002** — For an invented model that has library references, rule-pack references, warnings and unresolved assumptions, the package carries the model hash, the units manifest, every entity identifier, each library and rule-pack reference by identity only, the warnings and the unresolved assumptions.
+- **AC-003** — Every canonical identifier of the exported model appears in the model payload or in the stable ID map. The loss report is present when nothing was lost, uses only the six categories, and names every entity the package did not carry.
+- **AC-004** — Two builds from the same inputs are byte-identical. Each computed hash equals SHA-256 over the member's RFC 8785 canonical form, recomputed by an implementation that imports no product code, and carries that basis's label; changing any value of a member changes its hash; and no hash input contains a timestamp. A source checksum supplied with a different label comes out with its algorithm, canonicalization and digest unchanged, and a malformed one is refused.
+- **AC-005** — The validation report lists only package-shape and source-boundary checks. A payload that carries a value classed private, or content suspected to be protected, is stopped before any file is written. No member states compatibility with a target, solver validation, code compliance or professional acceptance.
+- **AC-006** — The fixture is invented and carries its provenance, and the schema admits no field whose meaning depends on a particular target.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-014 — Procedure: DEL-17-03 Native open JSON export package
+**Method choices that define the package.**
 
-> #### Procedure: DEL-17-03 Native open JSON export package
->
+- The package is the least target-specific export path: it says what the model holds and decides nothing for a target.
+- An explicit omission is preferred to a default; a missing value is reported and never supplied.
+- Serialization is deterministic by construction: sorted keys, compact separators, no runtime value in any hashed member.
 
-### CLM-015 — Population Procedure
+**How each criterion is examined.**
 
-> ##### Population Procedure
->
-> 1. Read DEL-17-01 source basis and DEL-17-02 export contract.
-> 2. Maintain the native JSON package contract and bounded implementation foundation in sync.
->
-> The remaining steps describe the historical population procedure, not current maintenance.
->
-> 3. Generate `_SEMANTIC.md` with `semantic-matrix-build`.
-> 4. Generate `_SEMANTIC_LENSING.md` with `lens-register`.
-> 5. Apply warranted P3 enrichment through `four-documents P3_ONLY`.
-> 6. Extract dependencies into `Dependencies.csv`.
-> 7. Record memory and run evidence.
->
-
-### CLM-016 — Bounded Implementation Procedure
-
-> ##### Bounded Implementation Procedure
->
-> Bounded native JSON foundation work must:
->
-> 1. Define concrete package schema and builder/writer artifacts inside the DEL-17-03 scope.
-> 2. Preserve manifest, stable ID map, loss report, validation report, and diagnostics behavior.
-> 3. Use invented public fixtures only.
-> 4. Test the exact `deterministic_sorted_compact_json_payload_hash` label on DEL-17-03-computed hashes, lossless pass-through of governed upstream source checksum metadata, repeatable key-sorted compact bytes and SHA-256 digests, mutation sensitivity, timestamp-free hash inputs, member inventory, diagnostics, privacy/professional-boundary flags, writer output, and protected/private payload screening; do not represent this project-local algorithm as RFC 8785 conformance.
-> 5. Keep protected, proprietary, release, compatibility, target-support, code-compliance, solver-validation, professional-reliance, and professional-acceptance claims out of the package.
-> 6. Leave public API, GUI behavior, persistence runtime, project-store export flow, and downstream target-adapter behavior to separately scoped work.
->
-
-### CLM-017 — Semantic Enrichment Verification
-
-> ##### Semantic Enrichment Verification
->
-> Pass 3 checked the lensing register against DEL-17-02 manifest, stable-ID, and loss-report requirements. Later TP-EXPORT-006 evidence authorized and produced the bounded schema, builder, fixture, and test foundation now reflected in this procedure.
->
->
-
-### CLM-018 — Pass 3 Source Reread Evidence
-
-> ##### Pass 3 Source Reread Evidence
->
-> | Register Item | Source slices reread | Disposition |
-> |---|---|---|
-> | A-001 | Specification.md Requirements; Datasheet.md Package Members | Incorporated as member-level acceptance criteria in Specification.md. |
-> | F-001 | Guidance.md Closed Foundation Questions And Residual Boundaries | Dispositioned by TP-EXPORT-006 foundation evidence; residual integration work remains future-scoped. |
-> | X-001 | Specification.md Verification Requirements; Procedure.md Bounded Implementation Procedure | Incorporated as explicit boundary-review verification in Specification.md and Procedure.md. |
-
-- **VER-001** — Validate the contract and review source parity, all native package members and implementation artifacts, common-contract conformance, deterministic serialization and hash basis, stable-ID and loss-report closure, schema and fixture evidence, target-neutral boundaries, retained residual gates, and absence of proprietary content, hidden defaults, compatibility proof, or professional claims.
+- **VER-001** — Executable check (observes the package built from an invented model, and the builder's response to a missing member, ID map and loss report): schema validity, the six members, the manifest's inventory against the members, and the blocking diagnostics.
+- **VER-002** — Executable check (observes the package built from an invented model that has library references, rule-pack references, warnings and unresolved assumptions): its model hash, units manifest, entity identifiers, references, warnings and assumptions against the model's own.
+- **VER-003** — Executable check (observes the identifiers of an invented model against the payload, the ID map and the loss report of its package).
+- **VER-004** — Comparison with a named reference (an RFC 8785 canonicalizer and SHA-256 computation that imports no product code, recomputing each member's hash) and executable check (observes two builds, a mutated member, a timestamped input and a differently labelled source checksum).
+- **VER-005** — Executable check (the project's protected-content scan, and a payload seeded with a private value and with a protected-content marker) and judgment by a reviewer who did not write the package: examines the validation report's checks and every member for the claims REQ-005 excludes.
+- **VER-006** — Judgment by a reviewer who did not write the fixture: examines the fixture's provenance and the schema's fields for target-specific meaning.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-019 — Guidance: DEL-17-03 Native open JSON export package
-
-> #### Guidance: DEL-17-03 Native open JSON export package
->
-
-### CLM-020 — Design Guidance
-
-> ##### Design Guidance
->
-> Treat the native JSON package as the least target-specific export path. Its main value is traceability: it should make source identity, package contents, canonical IDs, diagnostics, and losses visible before any target adapter consumes the package.
->
-> The package foundation should be deterministic. Hashes computed by DEL-17-03 use key-sorted compact JSON (`sort_keys=True`, compact separators, ASCII escaping) labelled `deterministic_sorted_compact_json_payload_hash`; this is not an RFC 8785 conformance claim. A governed caller-supplied source checksum is upstream evidence: preserve its declared algorithm/canonicalization/digest metadata after shape validation rather than relabelling it. Runtime timestamps, if retained for reportability, should be declared rather than hidden inside hashes or manifests.
->
-
-### CLM-021 — Interpretation Guidance
-
-> ##### Interpretation Guidance
->
-> - Use DEL-17-02 as the contract foundation.
-> - Use DEL-17-01 for target-boundary discipline and source authority.
-> - Prefer explicit omissions over silent defaults.
-> - Treat validation reports as package evidence, not solver validation.
-> - Keep adapter-specific behavior in later deliverables.
-> - Treat the native JSON schema, builder, invented fixture, and focused tests as DEL-17-03-owned foundation outputs.
-> - Keep API/CLI/GUI integration, project-store export flow, downstream target adapters, and target-specific behavior in later deliverables or separately approved tranches.
->
-
-### CLM-022 — Closed Foundation Questions And Residual Boundaries
-
-> ##### Closed Foundation Questions And Residual Boundaries
->
-> | Item | Question | Current disposition |
-> |---|---|---|
-> | TBD-17-03-001 | Which concrete JSON schemas will bind package members? | Closed for the bounded foundation by `schemas/native_json_export.schema.json`; future schema changes require governed follow-up. |
-> | TBD-17-03-002 | Which hash canonicalization helper will package writer code use? | Closed for hashes computed by the bounded foundation through `core/handoff/native_json/package.py` key-sorted compact JSON and the project-local `deterministic_sorted_compact_json_payload_hash` label; governed source checksum metadata remains upstream-labelled pass-through evidence, and broader project hash unification remains an integration concern. |
-> | TBD-17-03-003 | Which invented fixtures will exercise native JSON round trips? | Closed for the bounded foundation by `fixtures/native_json/invented/native_json_export_package.json` and focused tests. |
-> | TBD-17-03-004 | Which concrete schema and writer binding source will authorize native JSON implementation? | Closed for the bounded foundation by TP-EXPORT-006 implementation evidence; API/CLI/GUI and project-store binding remain future scoped work. |
+- **AX-001** — *Traceable before convenient.* Better is more of the model's content present with its identity, units and provenance, and fewer entities in the loss report. Coverage is never raised by writing a default for a value the model does not hold.
+- **AX-002** — *Target-neutral.* Better is fewer fields whose meaning depends on a receiving tool. A target's need is met in that target's deliverable and never by adding its semantics here.
+- **AX-003** — *Deterministic.* Better is fewer sources of byte variation between two exports of one model. Determinism is never obtained by hiding a runtime value inside a hashed member.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-17-03:1** — Obtain the owning human-review disposition for open `RF-002` and refresh its canonical DAG artifact-presence flags only through the governed DAG workflow; local artifacts do not close the finding, and `HumanDisposition` remains `TBD` (PDU-060).
+| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-001 REQ-003 | AC-001 | VER-001 | The common export contract (DEL-17-02) and the decomposition row name the package's members and manifest; the schema is examined with a JSON Schema 2020-12 validator that imports no product code, and the seeded omissions state what must block |
+| OUT-001 | SOW-074 OBJ-017 | REQ-001 REQ-002 REQ-003 | AC-002 | VER-002 | `docs/PRD.md` FR-HAND-001 and FR-HAND-002; the comparison is against the invented model, which the exporter did not write |
+| OUT-001 | SOW-074 OBJ-017 | REQ-002 REQ-004 | AC-003 | VER-003 | The common contract's loss categories; the identifiers compared are the invented model's own |
+| OUT-001 | SOW-074 OBJ-017 | REQ-006 | AC-004 | VER-004 | Outside source: RFC 8785 and SHA-256, recomputed by an implementation that imports no product code; byte equality of two builds guards against change only |
+| OUT-001 | SOW-030 SOW-074 OBJ-009 OBJ-017 | REQ-005 REQ-007 | AC-005 | VER-005 | `docs/IP_AND_DATA_BOUNDARY.md` and `docs/PRD.md` §21.2 state what is excluded; the seeded values state what must be stopped |
+| OUT-001 | SOW-030 OBJ-009 | REQ-007 REQ-008 | AC-006 | VER-006 | The decomposition row makes this package the target-neutral adapter input; the reviewer did not write the fixture |

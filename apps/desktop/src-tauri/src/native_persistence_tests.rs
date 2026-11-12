@@ -1154,7 +1154,7 @@ fn the_persistence_commands_run_off_the_async_executor_and_reply_with_a_json_bod
 /// with the named busy refusal (`STORE-SQL-ERROR: SQLite DatabaseBusy …`); exactly the committed
 /// runs are stored, each whole and readable, nothing partial is left, and the store passes
 /// `quick_check`. Whether overlapping writes to one store must all succeed (per-store
-/// serialization) is an open product matter (`c1-native-custody-plan.md`). Whether any write is
+/// serialization) is an open product matter. Whether any write is
 /// refused in the overlapping phase depends on timing, so a second phase forces one: another
 /// connection holds the write lock past the busy timeout, the command is refused as busy, every
 /// table is exactly as before, and the same request then commits once the lock is released.

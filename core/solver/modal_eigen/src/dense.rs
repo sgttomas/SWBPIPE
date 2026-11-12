@@ -1,8 +1,8 @@
-//! Dense path (design §3.2): K = R Rᵀ, C = R⁻¹ M R⁻ᵀ, Householder
+//! Dense path: K = R Rᵀ, C = R⁻¹ M R⁻ᵀ, Householder
 //! tridiagonalization with accumulated transformations, implicit QL with
 //! Wilkinson shifts (the tql2 procedure), λ = 1/μ and φ = R⁻ᵀ z.
 //!
-//! **Condensation of the massless subspace** (design §3.2 item 5). The
+//! **Condensation of the massless subspace**. The
 //! structurally massless DOFs (set 0, rows and columns of M exactly zero)
 //! are eliminated before the reduction: K is factored with set 0 ordered
 //! first, K_perm = R Rᵀ with R = [[R₀₀, 0], [R_m0, R_mm]], so R_mm R_mmᵀ is
@@ -76,7 +76,7 @@ pub struct DenseOptions {
     /// and in [0, 1).
     pub mass_pivot_relative_threshold: f64,
     /// c_μ of the resolution floor δ_μ = c_μ·n·u·ν(K̃̂)·‖M̃_mm‖_∞ on the
-    /// diagonally equilibrated pencil (design §3.2 item 5). Finite and
+    /// diagonally equilibrated pencil. Finite and
     /// positive.
     pub resolution_floor_constant: f64,
     /// κ_μ: μ must exceed κ_μ·δ_q as well as τ_μ·μ_max; κ_μ·δ_μ
@@ -92,14 +92,14 @@ pub struct DenseOptions {
     pub max_ql_iterations_per_eigenvalue: usize,
 }
 
-/// Refusal name of an exceeded QL-rotation allotment (design §5.3.8, S1-QL).
+/// Refusal name of an exceeded QL-rotation allotment (S1-QL).
 pub const RESOURCE_QL_ALLOTMENT_EXCEEDED: &str = "MODAL_RESOURCE_QL_ALLOTMENT_EXCEEDED";
-/// Refusal name of an exceeded band-pair allotment (design §5.3.8, S1-band).
+/// Refusal name of an exceeded band-pair allotment (S1-band).
 pub const RESOURCE_BAND_ALLOTMENT_EXCEEDED: &str = "MODAL_RESOURCE_BAND_ALLOTMENT_EXCEEDED";
 /// Refusal name of an overflow in the resource counts or comparisons.
 pub const RESOURCE_ARITHMETIC_OVERFLOW: &str = "MODAL_RESOURCE_ARITHMETIC_OVERFLOW";
 
-/// Opt-in resource allotments of the dense kernel (design §5.3.8, stage
+/// Opt-in resource allotments of the dense kernel (stage
 /// S1). Each is supplied by the caller; `None` is *no allotment*, and
 /// `Default` is `None` for both, which runs the kernel exactly as
 /// [`solve_dense_pencil`] does. No numerical allotment is adopted here.
@@ -302,7 +302,7 @@ pub struct DenseEigenSolution {
     /// Total implicit QL iterations.
     pub ql_iterations: usize,
     /// R, the Givens rotations implicit QL performed (Σ (m − l) over its
-    /// sweeps), exact (design §5.3.8, T3).
+    /// sweeps), exact.
     pub ql_rotations: u64,
     /// Positive QL μ at or below the broad classification threshold:
     /// `screened.len()`, counted before any band work (T4).
@@ -453,7 +453,7 @@ pub fn solve_dense_pencil_with_allotments(
         sort_ascending(&mut d, &mut work, nm);
     }
 
-    // The resolution floor (design §3.2 item 5) on the diagonally
+    // The resolution floor on the diagonally
     // equilibrated pencil, D = diag(k_jj)^−½ as in the Sturm counts, a
     // congruence: δ_μ = c_μ·n·u·ν(K̃̂)·‖M̃_mm‖, with K̃̂ = D_m K̂ D_m, so
     // K̃̂⁻¹x = D_m⁻¹ K̂⁻¹ D_m⁻¹ x from solves with the condensed factor R_mm.
@@ -541,7 +541,7 @@ pub fn solve_dense_pencil_with_allotments(
             index: 0,
         });
     }
-    // S1-band (design §5.3.8 T4): the exact screened, hard-rejected and
+    // S1-band: the exact screened, hard-rejected and
     // attempted counts from the classification alone, before the formed
     // scaling (2n² WideDd entries) and before any per-pair exact product.
     let counts = screen_counts(&d, hard_cut, cut)?;
@@ -663,7 +663,7 @@ fn classify_mu(mu: f64, hard: f64, broad: f64) -> MuRegion {
     }
 }
 
-/// The exact S1-band counts of one classification (design §5.3.8 T4).
+/// The exact S1-band counts of one classification.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct ScreenCounts {
     screened: u64,
@@ -919,7 +919,7 @@ fn check_finite(stage: &'static str, values: &[f64]) -> Result<(), DenseError> {
 }
 
 /// Every returned μ and λ is a positive normal number and every shape
-/// component finite (design §3.2, admission range: no silent zero, no NaN).
+/// component finite (admission range: no silent zero, no NaN).
 fn validate_outputs(mu: &[f64], eigenvalues: &[f64], vectors: &[f64]) -> Result<(), DenseError> {
     for (quantity, list) in [("mu", mu), ("eigenvalues", eigenvalues)] {
         if let Some(index) = list.iter().position(|&x| !(x.is_normal() && x > 0.0)) {
@@ -1261,7 +1261,7 @@ fn householder_tridiagonalize(v: &mut [f64], n: usize, d: &mut [f64], e: &mut [f
 /// transpose of the Householder accumulation). Returns the total iteration
 /// and rotation counts.
 ///
-/// S1-QL (design §5.3.8 T3): each iteration's sweep performs exactly m − l
+/// S1-QL: each iteration's sweep performs exactly m − l
 /// rotations. Before the iteration's shift and sweep, the rotations
 /// performed plus m − l are checked against `rotation_allotment` (A_QL),
 /// so no rotation beyond it is performed; `None` checks nothing but the
@@ -1424,7 +1424,7 @@ mod tests {
         }
     }
 
-    // ---- S1 resource allotments (design §5.3.8) ----
+    // ---- S1 resource allotments ----
 
     fn allotted(ql: Option<u64>, band: Option<u64>) -> DenseAllotments {
         DenseAllotments {

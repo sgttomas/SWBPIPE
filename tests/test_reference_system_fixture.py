@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""The reference-system fixture, tranche 1 (DEL-09-01 `Work/reference-system.md`, exit criterion 1).
+"""The reference-system fixture, tranche 1 (DEL-09-01, exit criterion 1).
 
 Checks that the committed files are the generator's output, that the model is a current model document, that it
-solves on EX with every tranche-1 case solved and nothing refused, that the spec's §10 ledger and the authoring
+solves on EX with every tranche-1 case solved and nothing refused, that the generator's ledger and the authoring
 file's pending flags agree, that no key result carries an expected value without a recorded basis, EQ-1/2/3/5 in
 both solver modes, and KR-05's presence (the tee's rows, no values). Invented inputs only."""
 
@@ -226,8 +226,6 @@ def test_every_tranche_one_case_solves_on_ex_with_nothing_refused(solved):
 
 # -- (d) the §10 ledger and the pending flags agree --------------------------------------------------------------------
 def test_the_generator_ledger_and_the_authoring_pending_flags_agree():
-    # The specification's §10 table is compared with these by tools/validation/test_reference_system_ledger.py,
-    # which runs in the repository checks (the product checkout carries no execution/ records).
     authored = [(row["family"], row["state"], row["row_lane"], row["expected_until_then"])
                 for row in AUTHORING["pending"]]
     assert authored == [tuple(row) for row in GENERATOR.LEDGER]

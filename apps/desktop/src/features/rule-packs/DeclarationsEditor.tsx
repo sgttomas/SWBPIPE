@@ -62,7 +62,7 @@ import {
 // its rows. An unfilled selector names no row, so the check blocks at
 // RULE_INPUTS_INCOMPLETE — never a silent pass.
 //
-// Required load cases, stress categories and load-case mappings (§2.3, §3) are
+// Required load cases, stress categories and load-case mappings are
 // authored by `LoadCaseCategoriesEditor` below: the categories and their
 // descriptions are the user's own text, with no built-in meaning.
 //
@@ -1009,7 +1009,7 @@ function unitCatalogRouteStatus(route: UnitCatalogRoute | null): string {
 
 // ---------------------------------------------------------------------------
 // Required load cases, stress categories and load-case mappings
-// (rule-pack format 0.5.0; DEL-06-01 Design `rule-pack-0.5.0.md` §2.3, §3)
+// (rule-pack format 0.5.0)
 // ---------------------------------------------------------------------------
 //
 // A check names one stress category and is evaluated once for each required

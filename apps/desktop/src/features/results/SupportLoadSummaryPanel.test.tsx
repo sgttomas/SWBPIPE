@@ -1,4 +1,4 @@
-// A2, the per-support load summary panel (DEL-07-05 Design `support-load-summary.md` §5, §6, §8):
+// A2, the per-support load summary panel:
 // the table, the display rule, withheld rows, stepping by button, key and focus, and the
 // unavailable state. Invented data only (`resultOverlayFixtures`).
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";

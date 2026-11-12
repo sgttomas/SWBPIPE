@@ -1,5 +1,5 @@
 """Independent test-only reader of modal result documents (DEL-04-09
-`execution/PKG-04/DEL-04-09/Work/modal-analysis.md` §5.3, increment I3a):
+design §5.3, increment I3a):
 `openpipestress.modal_result` 0.1.0 under `openpipestress.result_semantics/modal-1`.
 
 It re-derives the governed relations without an eigen solve, from the document's

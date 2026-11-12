@@ -20,7 +20,7 @@ fn section(t: f64) -> [f64; 5] {
     prepare_product_annulus(D, t).result().unwrap().section_bits().values()
 }
 /// FK's binary64 κ̂ of the nominal annulus and the prepared leaf
-/// A_s,prep = RN(κ̂·A_prep) (§4.2).
+/// A_s,prep = RN(κ̂·A_prep).
 fn kappa_hat(t: f64, nu: f64) -> f64 {
     let ro = D / 2.0;
     crate::shear::annulus_energy_shear_factor(ro - t, ro, nu).unwrap()
@@ -185,7 +185,7 @@ fn refused(outcome: Outcome) -> String {
     }
 }
 
-/// §4.2–§4.3: a Timoshenko route-E specimen certifies every row in both lanes
+/// a Timoshenko route-E specimen certifies every row in both lanes
 /// (admitted K_s = G·Â_s,prep; annular K_s = g·κ_E·A_exact), and its frozen
 /// tip deflection is the Timoshenko one, not the Euler–Bernoulli twin's.
 #[test]
@@ -211,7 +211,7 @@ fn o4_timoshenko_product_proof_certifies_in_both_lanes() {
     assert!((eb_values[tip] / 1000.0 - bending).abs() <= 1e-9 * bending.abs());
 }
 
-/// §4.3: the annular lane's κ_E enclosure contains the exact κ_E of the exact
+/// the annular lane's κ_E enclosure contains the exact κ_E of the exact
 /// annulus (decided exactly by cross-multiplication) and, on a section where
 /// they differ, excludes FK's binary64 κ̂; the admitted K_s is G·Â_s exactly.
 #[test]
@@ -299,7 +299,7 @@ fn annular_timoshenko_lane_uses_the_exact_kappa() {
     assert_eq!(shear_rigidity(&input, &mut enc, 1e-3, &mut work).unwrap_err(), NumericError::InvalidMaterial);
 }
 
-/// §4.5: a member whose reduced section differs (here t_r = t − 0.0005) has
+/// a member whose reduced section differs (here t_r = t − 0.0005) has
 /// its 21 reduced stress and maximum rows certified on the reduced section
 /// with the nominal twins' recipes, in both lanes; each reduced axial row is
 /// its action over A_r, its scale the body's divided by its own section.
@@ -350,7 +350,7 @@ fn o4_reduced_rows_certify_on_the_reduced_section() {
     }
 }
 
-/// §4.5: refusal by kernel cause of an unmapped reduced row, a mapped index
+/// refusal by kernel cause of an unmapped reduced row, a mapped index
 /// that is not a reduced stress or maximum row of that member, an index
 /// outside the final rows, a repeated index, an entry bit-equal to the
 /// nominal section and a missing reduced slot; an empty set keeps today's
@@ -462,7 +462,7 @@ fn plane_gap(probe: &source_residual::MemberLaneProbe, ei_g: Endpoint, ei_k: End
     [ctx.sub(&g[0], &k[0]).unwrap().abs(), ctx.sub(&g[1], &k[1]).unwrap().abs()]
 }
 
-/// §4.3: for a Timoshenko member the D-entry gaps are formed at the exact
+/// for a Timoshenko member the D-entry gaps are formed at the exact
 /// length. On this skew member (φ > 3 at L, so a K_s-driven gap
 /// 3EI·L·Δk/((L² + k_G)(L² + k_K)) increases with L) the gap formed at
 /// ℓ = max|Δx_k| < L underestimates the exact gap; the lane's gaps contain
@@ -502,7 +502,7 @@ fn timoshenko_gap_is_formed_at_the_exact_length() {
     assert!(k.tgap.unwrap().iter().flatten().all(|g| g.is_zero()));
 }
 
-/// §4.3: a Timoshenko member's η uses the D-entry gaps, not the coefficient-
+/// a Timoshenko member's η uses the D-entry gaps, not the coefficient-
 /// gap pattern. On this member the pattern (dd/ℓ·[[4,2],[2,4]]) is ~1e-10 of
 /// the true |ΔD| (the lanes' EI agree, their K_s differ); the lane's η row
 /// still dominates Σ_j |ΔK_aj|·s_j·s_a with ΔK = BᵀΔDB at the exact frame.

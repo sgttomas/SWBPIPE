@@ -69,7 +69,7 @@ fn the_representation_refuses_beyond_4096_bits() {
     assert_eq!(wide.minus(&tiny(-4095)).unwrap(), Dyadic::one());
 }
 
-/// §5.1: the flat decisions equal the unit factor-sum rule's (option C).
+/// the flat decisions equal the unit factor-sum rule's (option C).
 #[test]
 fn flat_mechanics_decisions_are_the_unit_factor_sum_rule() {
     let bound = 2f64.powi(-46);

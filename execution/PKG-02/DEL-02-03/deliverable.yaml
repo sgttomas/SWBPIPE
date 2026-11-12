@@ -1,102 +1,39 @@
 id: DEL-02-03
 name: Code-neutral analysis boundary model
 needs:
-- from: DEL-00-01
-  condition: 'DEL-02-03 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-02-03 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-02-03 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-02-03 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-00-06
-  condition: 'DEL-02-03 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The diagnostic contract fixes the fields a diagnostic record carries and distinguishes invalid
+    input, an incomplete model, a mechanics result, a rule-check result and a need for human
+    review.
   gating: true
-- from: DEL-00-07
-  condition: 'DEL-02-03 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-05-04
+  condition: >-
+    The analysis status semantics give each of the seven statuses one meaning and one authority,
+    and the status schema admits exactly the six automatic statuses as software output.
+  gating: false
+- from: DEL-05-04
+  when: Examining that no surface writes a status outside the vocabulary
+  condition: >-
+    Every schema and interface that carries an analysis status (results, analysis run, headless
+    runner, the API contract) admits only the six automatic statuses and refuses a human-approval,
+    passed or code-compliance status as software output.
   gating: true
-- from: DEL-00-08
-  condition: 'DEL-02-03 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; active
-    edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority
-    by itself; DependencyType=ARCHITECTURE_BASIS; Origin=CONTEXT.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-02-01
-  condition: 'DEL-02-03 needs DEL-02-01 as a predecessor: analysis boundary states must be represented
-    in the canonical domain model
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01; DependencyType=DOMAIN_MODEL;
-    Explicitness=INFERRED_DIRECT; Origin=DECOMPOSITION; SatisfactionStatus=UNKNOWN.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
+- from: DEL-05-04
+  when: Presenting a human acceptance reference
+  condition: >-
+    Where the product presents a human acceptance record with content, a record whose bound hash
+    differs from that content's hash is presented as not applying to it.
+  gating: false
 code_paths:
+# The boundary record. The status vocabulary and the status envelope
+# (schemas/analysis_status.schema.yaml) are DEL-05-04's.
 - schemas/analysis_boundary.schema.yaml
-- schemas/analysis_status.schema.yaml
+- docs/architecture/code_neutral_analysis_boundary.md
+- fixtures/analysis_boundary/**
+- tests/test_analysis_boundary_schema.py
+checks:
+- tests/test_analysis_boundary_schema.py
+# DEL-05-04's check of its status schema. Here it observes that the boundary schema's status
+# enumerations equal that schema's.
+- tests/test_analysis_status_schema.py

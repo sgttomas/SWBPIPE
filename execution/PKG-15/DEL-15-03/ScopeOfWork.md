@@ -2,375 +2,141 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-15-03
 package_id: PKG-15
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-074]
 package_objective_refs: [OBJ-017]
 ---
 
-# Scope of Work — DEL-15-03
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-15-03 Downstream modeling export workflow
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-15-03` in service of project scope [SOW-074] and package objectives [OBJ-017].
+This deliverable is the export path: the acts by which an engineer takes a model out of SWBPIPE to rebuild or check it elsewhere. The engineer saves the canonical model document as a file, saves a handoff package that carries the model with the manifest DEL-15-01 defines, and, for a downstream target, joins a package to a target mapping so that everything the target cannot carry is stated. The path is generic: it knows no commercial tool's format. The result it contributes is that the model an engineer hands on is exactly the model they were working on, identified by its hash, with its units, references, warnings and open assumptions beside it, and that a failed or refused export leaves nothing half-written.
 
-- **OUT-001** — A generic schema-compliant downstream modeling export workflow contract using invented target evidence and explicit unsupported-target findings is produced.
+It serves SOW-074 under OBJ-017 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-15, row DEL-15-03), and `docs/PRD.md` §5.8, §16.1, §16.2, FR-HAND-001 and FR-HAND-002, with FR-HAND-003 and FR-HAND-004 for the target step. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it.
+
+- **OUT-001** — The target-neutral export step: a handoff package and a DEL-15-02 target mapping assembled into one controlled export record for a downstream target, with every unsupported or approximate behaviour stated.
+- **OUT-002** — The canonical model export: saving the session's model document as a file.
+- **OUT-003** — The handoff package export: producing a package that conforms to DEL-15-01 from the session's model, and publishing it to a location the user chooses.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-15-03 Downstream modeling export workflow
+**Terms the export path implements.**
 
-> #### Datasheet: DEL-15-03 Downstream modeling export workflow
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Canonical model file.* The session's model document written as its RFC 8785 canonical text with no trailing newline, so that SHA-256 of the file is the session's model hash. It is a model document, not a package.
+- *Handoff package.* As DEL-15-01 defines it: the model member, which is the canonical model file's bytes, and the manifest.
+- *Basis state.* The saved model state the package is based on: an existing state of the project whose model hash is the session's, or a new state of kind handoff basis that the user confirms and that is saved before the package is published.
+- *Publication.* Making a package appear under its name. It is atomic: the name holds the previous package, or nothing, until it holds the complete new one.
+- *Saved.* The outcome reported only when the bytes under the name have been read back and are the bytes the export verified.
+- *Refusal.* An export that writes nothing and returns named diagnostics. Cancelling is not a refusal.
+- *Blocking disposition.* A provenance, library or rule-pack record marked as suspected protected content, quarantined or rejected.
+- *Export record.* The output of the target step: the package's content, the mapping records, the unsupported-target records and the diagnostics, returned through the export control for the downstream-tool context (DEL-12-02).
+- *Unsupported-target record.* One statement of a behaviour the target does not carry exactly, taken from the manifest's flags, from the mapping's unsupported and approximate flags, or from the target's declared unsupported capabilities. Each requires human review.
+- *Invented target.* A made-up target description with declared capabilities, used to exercise the target step without any commercial tool.
 
-### CLM-003 — Identification
+**Boundary.**
 
-> ##### Identification
->
-> | Field | Value | Source |
-> |---|---|---|
-> | Deliverable ID | DEL-15-03 | `_CONTEXT.md` |
-> | Name | Downstream modeling export workflow | `_CONTEXT.md` |
-> | Package ID | PKG-15 | `_CONTEXT.md` |
-> | Package name | Handoff and External Prover Workflow | `_CONTEXT.md` |
-> | Type | BACKEND_FEATURE_SLICE | `_CONTEXT.md` |
-> | Discipline | ASSUMPTION: software backend / interop handoff workflow | `_CONTEXT.md`; `SOFTWARE_DECOMP.md#PKG-15` |
-> | Scope coverage | SOW-074 | `_CONTEXT.md`; `SOFTWARE_DECOMP.md#Structured Scope of Work` |
-> | Objective support | OBJ-017 | `_CONTEXT.md`; `SOFTWARE_DECOMP.md#Objectives` |
-> | Context envelope | L; WATCH | `_CONTEXT.md`; `docs/_Registers/ContextBudgetQA.csv` |
-> | Anticipated artifacts | handoff exporter; export validation tests; invented target fixture | `_CONTEXT.md` |
->
+- DEL-15-01 states what a correct package is and how one is verified; this deliverable produces packages that meet it.
+- DEL-15-02 owns mapping records and the taxonomy of unsupported and approximate behaviour; the target step carries them and adds none.
+- DEL-15-04 owns the screen for wording that claims authority.
+- DEL-02-01 owns the model document's format and validator; DEL-14-01 the saved states; DEL-12-02 the export contexts, the route catalogue and the native disposition screen; DEL-08-02 the canonical JSON form.
+- The model document save writes its file through the atomic file writer of the report package save, which is DEL-08-01's. REQ-012 holds this deliverable's saves to all or nothing whichever writer they use; whether DEL-08-01 offers its writer to other callers is unallocated.
+- DEL-07-11 owns the File menu and the dispatch of its commands; DEL-07-12 owns the Exports panels, whose handoff summary is a preview and not a handoff package.
+- PKG-17 owns every target format: MBF, PCF, stress-neutral, native JSON and review geometry. No commercial-tool parser, result ingestion or external solver invocation is on this path.
 
-### CLM-004 — Attributes
+**Not decided.**
 
-> ##### Attributes
->
-> | Attribute | Value | Source |
-> |---|---|---|
-> | Workflow purpose | Implement the generic handoff export path before target-specific commercial-tool parsers are in scope. | `_CONTEXT.md`; `SOFTWARE_DECOMP.md#PKG-15` |
-> | Required handoff package content | Model hash, units manifest, entity IDs, library/rule references, unresolved assumptions, warnings, target mapping metadata, and unsupported-target flags. | `_CONTEXT.md#Scope Detail`; `SOFTWARE_DECOMP.md#SOW-074` |
-> | Handoff object meaning | Schema-compliant export for downstream modeling and professional validation workflows. | `SOFTWARE_DECOMP.md#Vocabulary and semantic commitments` |
-> | Architecture baseline | Rust core/application services; JSON Schema 2020-12 contracts; schema-first command/query/job result envelopes; producer-declared JSON hash byte-basis labels carried unchanged; Cargo/Vitest/Playwright/validation/protected-content test gates as applicable. | `_CONTEXT.md#Architecture Basis Injection`; D-41 R5 T2A |
-> | Backend artifact boundary | Generic export workflow only; target-specific commercial parser behavior remains deferred. | `_CONTEXT.md#Context Envelope`; `SOFTWARE_DECOMP.md#Open issues` |
-> | Professional boundary | Handoff and external-prover metadata support must not create automatic professional approval states. | `SOFTWARE_DECOMP.md#OBJ-017`; `docs/CONTRACT.md#Invariant catalog` |
-> | Data boundary | Public artifacts must not bundle protected standards text, protected tables, proprietary commercial data, private rule packs, owner standards, or code-specific acceptance criteria. | `docs/IP_AND_DATA_BOUNDARY.md#Public repository must not contain`; `docs/CONTRACT.md#Invariant catalog` |
->
+- Where the target step runs. Nothing in the PRD or the decomposition says whether it is a command a user runs, or a step each target exporter of PKG-17 runs for its own target.
+- The physical form of a package (see DEL-15-01).
 
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> | Condition | Status |
-> |---|---|
-> | Target surfaces, canonical package container, and target-specific implementation | OI-015 names initial export and target surfaces; canonical package container, concrete mappings, target field coverage, and target-specific implementation remain gated by DEL-17-01 and DEL-17-02. |
-> | Exact dependency versions and package-specific implementation choices | TBD per `_CONTEXT.md#Architecture Basis Injection`. |
-> | Target-specific commercial stress output parsers | Deferred per `_CONTEXT.md#Context Envelope` and `SOFTWARE_DECOMP.md#SOW-074`. |
-> | Prohibited claims — standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081) | Excluded by `docs/CONTRACT.md` OPS-K-AUTH-1 and OPS-K-AGENT-4. |
-> | Unit handling | Exports must remain unit-aware and validate against `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`; target-specific unit export strategy remains TBD under OI-015. |
-> | Private/protected data | Must be excluded unless intentionally supplied with documented rights through a governed path. |
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> | Construct | Datasheet value |
-> |---|---|
-> | Primary input contracts | ACTIVE upstream rows in local `Dependencies.csv`, plus `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`. |
-> | Primary output | Generic handoff exporter at `core/handoff/exporter/workflow.py` capable of producing a schema-compliant handoff package and provider-neutral target mapping record. |
-> | Validation evidence | `tests/test_handoff_export_workflow.py` validates exported handoff/mapping inputs against schema contracts and checks `fixtures/handoff/invented_target_fixture.json` (project-relative) provenance. |
-> | Unsupported target behavior | Must surface unsupported-target flags and warnings; taxonomy and target mapping records are provided by upstream contract work. |
-> | Hash handling | Package/model checksum/reference fields preserve the producer-declared byte-basis label. DEL-15-03 does not recompute, relabel, or assert JCS conformance; package container and target-specific hash packaging remain TBD. |
-> | Fixture data | Invented target fixture only; no protected commercial-tool examples or proprietary data. |
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, architecture-basis injection, and anticipated artifacts.
-> - `_REFERENCES.md` - source list for this deliverable.
-> - `_DEPENDENCIES.md` and `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` mirror/evidence surface for upstream workflow context.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, scope, objective, decision, and open-issue context.
-> - `docs/CONTRACT.md` - invariant catalog.
-> - `docs/SPEC.md` - schema-first, unit-aware, provenance, diagnostics, and handoff-related architecture context.
-> - `docs/TYPES.md` - canonical object and boundary vocabulary.
-> - `docs/IP_AND_DATA_BOUNDARY.md` - public/private and protected-content boundary.
-> - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` - deliverable execution and review rules.
-
-### CLM-008 — D-41 R5 T2A supplied-checksum evidence (2026-07-12)
-
-> ##### D-41 R5 T2A supplied-checksum evidence (2026-07-12)
->
-> The downstream workflow carries supplied checksum records without recomputing them. Its governed invented records now use `deterministic_sorted_compact_json_payload_hash`; this is a narrow byte-basis label, not a JCS assertion by DEL-15-03.
+**Windows.** Windows is not a release platform for v1.0. A Windows implementation of the model document save and the package publication works through owned handles, volume and file identities, explicit sharing and inspection of reparse points, keeps each save's containment, and distinguishes published and durable, published with durability unknown, refused before publishing, and failed with a cleanup warning. A failed directory flush is never reported as durable. A package is never replaced by deleting and then renaming; where Windows gives no atomic swap, replacement follows an explicit recovery protocol or is refused. Network shares, cloud-sync directories, long and UNC paths, alternate data streams, case collisions and reserved device names are handled explicitly or refused. A Windows check of another native boundary does not meet these conditions.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-009 — Specification: DEL-15-03 Downstream modeling export workflow
+### Requirements
 
-> #### Specification: DEL-15-03 Downstream modeling export workflow
->
+- **REQ-001** — The export path generates schema-compliant handoff packages (SOW-074; PRD FR-HAND-001).
+- **REQ-002** — What the path exports includes the model hash, the units manifest, the entity identifiers, the library and rule-pack references, the unresolved assumptions, the warnings, the target-mapping metadata and the unsupported-target flags (SOW-074; PRD FR-HAND-002, §16.1).
+- **REQ-003** — The path is generic. It implements no target-specific commercial-tool parser or writer and is exercised on an invented target (SOW-074; decomposition OI-015).
+- **REQ-004** — Unit metadata crosses the export boundary unchanged. A unit the export cannot state is a named refusal, never an assumed unit (PRD §5.6; `docs/CONTRACT.md` OPS-K-UNIT-1).
+- **REQ-005** — The path preserves diagnostics, warnings, unresolved assumptions, provenance and hashes, and hides no missing data or boundary risk. A library or rule-pack reference that does not resolve in the local store stays listed and carries a warning that names it (PRD §5.5; `docs/CONTRACT.md` OPS-K-DATA-2).
+- **REQ-006** — Nothing the path writes or says claims certification, sealing, approval, authentication, professional acceptance or code compliance (PRD §21.2).
+- **REQ-007** — Fixtures and examples use invented or cleared data and copy no protected standards content, commercial software example or proprietary data (PRD §20.1).
+- **REQ-008** — The path respects the schema-first contracts. A checksum it did not compute is carried with its algorithm, scope, digest and canonicalization label unchanged, and carrying one asserts no recomputation, validity or RFC 8785 conformance. A digest the path computes is labelled with the basis it was computed on.
+- **REQ-009** — The path takes handoff, mapping, export-control and model context only through their contracts, and no export leaves by a route that goes around the export control (decomposition AB-00-07).
+- **REQ-010** — Missing target behaviour, missing mapping support and unsupported features are explicit findings or unsupported-target records, never defaults (SOW-074; PRD FR-HAND-004).
+- **REQ-011** — A user can save the canonical model document whenever a model is open, with or without a solve and on either solve route. The file's SHA-256 is the session's model hash, and the file reopens to the same model (PRD FR-HAND-001, FR-MOD-001; canonical model export is in scope, and the desktop's model document is the canonical model).
+- **REQ-012** — An export is all or nothing. A failure, a refusal or a cancellation leaves the destination as it was, and no export changes the session's model, its hash or its solve standing (PRD §5.3).
+- **REQ-013** — An export of the model is a local, private save made on the user's explicit intent, with no network use. It is refused while the model, a referenced library or a referenced rule pack carries a blocking disposition, and the refusal names the record (PRD §20.1, §20.3, §20.4; `docs/IP_AND_DATA_BOUNDARY.md`).
+- **REQ-014** — Every handoff package is based on a saved model state with the package's model hash (PRD §16.2).
 
-### CLM-010 — Scope
+### Acceptance criteria
 
-> ##### Scope
->
-> This deliverable covers a generic backend export workflow for downstream modeling handoff packages. It is scoped to SOW-074 and OBJ-017: producing traceable, schema-compliant handoff packages for downstream modeling and professional validation workflows without creating automatic professional approval states.
->
-> Included artifacts are:
->
-> - handoff exporter;
-> - export validation tests;
-> - invented target fixture.
->
-> Excluded work:
->
-> - target-specific commercial stress output parsers;
-> - comprehensive commercial-tool result ingestion;
-> - formal prover-status lifecycle or automatic professional acceptance record — standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081);
-> - protected standards text, tables, examples, formulas, proprietary commercial data, private rule packs, owner standards, or code-specific acceptance criteria;
-> - canonical package container, concrete mappings, target field coverage, target-specific implementation, dependency versions, and package-specific implementation choices until separately resolved.
->
-
-### CLM-011 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Source | Verification |
-> |---|---|---|---|
-> | DEL-15-03-REQ-001 | The workflow shall generate schema-compliant handoff packages. | SOW-074 in `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) and `SOFTWARE_DECOMP.md` | `tests/test_handoff_export_workflow.py` validates exported handoff packages against `schemas/handoff_package.schema.json`. |
-> | DEL-15-03-REQ-002 | The package data surfaced by the workflow shall include or preserve model hash, units manifest, entity IDs, library/rule references, unresolved assumptions, warnings, target mapping metadata, and unsupported-target flags. | SOW-074 in `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) and `SOFTWARE_DECOMP.md` | Fixture-based validation that required fields are present or explicitly reported as TBD/unsupported according to upstream schema contracts. |
-> | DEL-15-03-REQ-003 | The workflow shall remain generic and shall not implement target-specific commercial-tool parsers in this deliverable. | `_CONTEXT.md#Context Envelope` (retired in `497a8d81e4`; see Git history); `SOFTWARE_DECOMP.md#SOW-074`; OI-015 | Tests or review evidence confirming invented target fixture use and no commercial parser fixture dependency. |
-> | DEL-15-03-REQ-004 | The workflow shall preserve unit metadata across the export boundary. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/SPEC.md#Unit system and dimensional analysis` | Schema validation and unit-manifest checks. |
-> | DEL-15-03-REQ-005 | The workflow shall preserve diagnostics, warnings, unresolved assumptions, provenance, and hashes rather than hiding missing data or boundary risks. | `docs/CONTRACT.md` OPS-K-DATA-2, OPS-K-REPORT-1; `docs/TYPES.md` Diagnostic, Assumption, Checksum, ResultExportEnvelope | Export validation tests and review of generated diagnostics/warnings. |
-> | DEL-15-03-REQ-006 | The workflow shall not claim certification, sealing, approval, authentication, professional acceptance, or engineering code compliance (PRD §21.2). | `docs/CONTRACT.md` OPS-K-AUTH-1, OPS-K-AGENT-4; `SOFTWARE_DECOMP.md` OBJ-017 and DEC-015 | Protected/professional-boundary wording review and tests where applicable. |
-> | DEL-15-03-REQ-007 | Public fixtures and examples shall use invented or otherwise cleared data and shall not copy protected standards content, commercial software examples, or proprietary data. | `docs/IP_AND_DATA_BOUNDARY.md`; `docs/CONTRACT.md` OPS-K-IP-1 through OPS-K-IP-3 | Protected-content review, fixture provenance review, and validation gate. |
-> | DEL-15-03-REQ-008 | The workflow shall respect schema-first contracts and JSON Schema 2020-12 and shall preserve the producer-declared checksum byte-basis label. DEL-15-03 carries supplied hashes without recomputing or relabeling them and therefore makes no independent JCS claim. | `_CONTEXT.md#Architecture Basis Injection` (retired in `497a8d81e4`; see Git history); `SOFTWARE_DECOMP.md` DEC-009 through DEC-012; D-41 R5 T2A | Implementation review verifies checksum metadata is carried unchanged and no unproved JCS assertion is introduced. |
-> | DEL-15-03-REQ-009 | The workflow shall consume upstream handoff/mapping/security/model-transformation context only through explicit contracts or approved dependency evidence. | Local `Dependencies.csv`; `_DEPENDENCIES.md` | Dependency review; no sibling deliverable source copying without an approved input contract. |
-> | DEL-15-03-REQ-010 | Missing target behavior, missing mapping support, or unsupported features shall be explicit findings or unsupported-target flags, not silent defaults. | SOW-074; `docs/CONTRACT.md` OPS-K-DATA-2; OI-015 | Validation tests using the invented target fixture. |
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> | Standard or governing source | Applicability | Status |
-> |---|---|---|
-> | JSON Schema 2020-12 | Contract basis for schema-backed handoff/package validation. | Applicable from `_CONTEXT.md#Architecture Basis Injection`; current upstream schemas are `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`. |
-> | Producer-declared JSON hash basis | Carry supplied checksum algorithm, payload scope, digest, and canonicalization label unchanged; no recomputation or conformance ruling by this workflow. | Applicable from `_CONTEXT.md#Architecture Basis Injection`; exact producer payload boundaries remain external to DEL-15-03. |
-> | SWBPIPE invariant catalog | Governs data, unit, professional-boundary, IP, privacy, and agent-output constraints. | Applicable from `docs/CONTRACT.md`. |
-> | IP and Data Boundary Policy | Governs protected-content, private-data, fixture, and provenance handling. | Applicable from `docs/IP_AND_DATA_BOUNDARY.md`. |
-> | Commercial stress tool formats | Target-specific parsers and commercial examples are out of scope. | Deferred; concrete mappings, target field coverage, and target-specific implementation remain gated by OI-015, DEL-17-01, and DEL-17-02. |
->
-
-### CLM-013 — Verification
-
-> ##### Verification
->
-> | Verification item | Evidence expected |
-> |---|---|
-> | Schema compliance | Validation tests for handoff package output against `schemas/handoff_package.schema.json` and target mapping input against `schemas/target_mapping.schema.json`. |
-> | Unit manifest preservation | Tests that exported values carry explicit unit metadata or are explicitly dimensionless/TBD according to schema rules. |
-> | Hash/provenance preservation | Tests or review evidence for model/package hash fields, provenance fields, and unresolved assumptions. |
-> | Unsupported-target behavior | Invented target fixture that exercises unsupported or approximate mapping behavior without using proprietary commercial examples. |
-> | Boundary wording | Review confirming no generated metadata or report-adjacent output claims professional approval, certification, sealing, authentication, or code compliance (PRD §21.2). |
-> | Protected-content screening | Protected-content/provenance gate for fixture and example data. |
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> Required records for this deliverable are:
->
-> - implementation notes identifying `core/handoff/exporter/workflow.py` and the schema-backed output contract;
-> - export validation test evidence;
-> - invented target fixture provenance and protected-content review status;
-> - any unresolved target mapping, package container, hash boundary, or dependency-version TBDs;
-> - dependency closure evidence for required upstream contracts before this workflow is treated as implementation-ready.
-
-### CLM-015 — D-41 R5 T2A checksum-boundary requirement (2026-07-12)
-
-> ##### D-41 R5 T2A checksum-boundary requirement (2026-07-12)
->
-> DEL-15-03 SHALL preserve supplied checksum metadata without relabeling it as JCS and SHALL NOT imply that carrying a checksum constitutes recomputation, validation, or RFC 8785 conformance.
-
-- **AC-001** — The contract preserves all SOW-074 handoff contents, supplied checksum metadata without recomputation or relabeling, unit and provenance boundaries, diagnostics, warnings, assumptions, schema validation, public-safe invented fixtures, explicit unsupported behavior, upstream contract boundaries, target-specific parser and package-container gates, and professional non-authority without claiming JCS conformance, external validation, or approval.
+- **AC-001** — A package saved from an invented model that carries every kind of content validates against the handoff schema and passes DEL-15-01's verification, and so does a package saved from the bundled demonstration model.
+- **AC-002** — A saved canonical model file is its own RFC 8785 text, its SHA-256 equals the model hash the session shows, and opening it gives a model with equal content and the same hash. The save is offered with no solved result, on both solve routes.
+- **AC-003** — In a saved package the manifest is built from the session's model and store and from nothing else: every entity identifier, unresolved assumption, unit, and library and rule-pack reference of the model is present, and no value is a fixed placeholder standing in for one the model has. A model whose project units do not yield every unit of the manifest is refused by name.
+- **AC-004** — A failure injected at each step of publication leaves the destination holding the previous package, byte for byte, or nothing if there was none. Saved is reported only when the published members read back equal to the verified bytes; where that cannot be confirmed the export is refused by name and the previous package is not deleted.
+- **AC-005** — After a save, a refusal and a cancellation alike, the session's model, model hash and solve standing are what they were.
+- **AC-006** — An export without the user's explicit intent is refused. A model that carries a blocking disposition in a provenance record, a rule-pack reference or a referenced library record is refused with a diagnostic that names the record, and nothing is written. A record marked private or of unknown standing is exported. No export opens a network connection.
+- **AC-007** — A rule-pack reference that a solve of the same model would exclude stays listed in the package with a warning that names it, and a library reference the store does not hold is exported with a warning. A store that cannot be read refuses the export.
+- **AC-008** — A package's basis state exists in the project store and its model hash is the package's. Where no saved state has that hash, a state is saved first, on the user's confirmation, and the package names it.
+- **AC-009** — Given a handoff package, a target mapping and an invented target, the export record carries the package's model hash, units manifest, entity identifiers, references, unresolved assumptions and warnings equal to the package's, the manifest's target-mapping metadata and the mapping's records equal to their inputs, the provenance of the package, the mapping and each reference, and one unsupported-target record for every flag of the manifest, every unsupported and approximate flag of the mapping and every unsupported capability the target declares.
+- **AC-010** — A missing or invalid package, a missing mapping, a missing target description, a mapping whose model hash or units reference differs from the package's, and a unit-bearing mapping without unit metadata each produce a blocking finding that names the item, and no value is supplied in its place. Each finding carries code, class, severity, source, affected object, message, remediation and provenance.
+- **AC-011** — Every checksum the target step receives leaves it with the same algorithm, scope, digest and label.
+- **AC-012** — The export record is returned only through the export control for the downstream-tool context, together with that control's decisions and findings: a value the context redacts or omits, including one AC-009 names, is named in the findings returned with the record, and AC-009's equalities hold for every value the context includes. A package that reports an embedded private, protected or commercial payload, or a redaction that is not affirmed, is blocked.
+- **AC-013** — No output or message of the path states or implies approval, certification, validation by an external tool or code compliance, and a target description that carries such wording is a blocking finding.
+- **AC-014** — The path's sources and fixtures name no commercial tool's format and hold only invented data.
+- **AC-015** — The same package, mapping and target give an identical export record.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-016 — Procedure: DEL-15-03 Downstream modeling export workflow
+**Method choices that define the export path.**
 
-> #### Procedure: DEL-15-03 Downstream modeling export workflow
->
+- The exported model is the hashed model. The saved bytes are the text the session's model hash is taken over, so no second serialization exists to drift from it.
+- The side that writes decides. The native save re-establishes, on the exact bytes it is about to write, every condition the request claims: the canonical form, the hash, the document's validity and the disposition screen.
+- The state is saved before the package is published. A publication that then fails leaves a state that is harmless and can be reused.
+- A package is verified in memory before it is written and again after it is published, by DEL-15-01's rules.
+- The target step assembles and checks; it interprets no target and executes no referenced contract.
 
-### CLM-017 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Define the conservative procedure for producing and validating the generic downstream modeling export workflow for DEL-15-03.
->
-
-### CLM-018 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Source / status |
-> |---|---|
-> | Deliverable scope, package, artifacts, and architecture basis reviewed. | `_CONTEXT.md` |
-> | Invariants for data boundary, unit handling, professional boundary, and agent output reviewed. | `docs/CONTRACT.md` |
-> | Protected-content and public/private data boundary reviewed. | `docs/IP_AND_DATA_BOUNDARY.md` |
-> | Local dependency rows preserve their recorded statuses; resolve current approved graph authority through `execution/_DAG/_LATEST.md`. | Preserve local dependency meanings and the actual statuses recorded under `execution/_DAG/_LATEST.md`; DAG-011 is current authority. Do not force historical duplicates or pending edges to ACTIVE. |
-> | Upstream architecture-basis context available for DEL-00-01, DEL-00-02, DEL-00-03, DEL-00-04, DEL-00-06, DEL-00-07, and DEL-00-08. | Local `Dependencies.csv` |
-> | Upstream interop/handoff/security/model context identified for DEL-15-01, DEL-15-02, DEL-10-02, DEL-10-03, DEL-12-02, DEL-13-04, and DEL-14-05. | Local `Dependencies.csv` |
->
-
-### CLM-019 — Steps
-
-> ##### Steps
->
-> 1. Confirm the work remains inside DEL-15-03 and SOW-074. If implementation needs target-specific commercial parsers, commercial examples, professional approval states, or cross-package rewrites, stop and escalate.
-> 2. Identify the upstream handoff package schema and target-mapping contracts available to the implementation: `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`. If later target-specific inputs are not implementation-ready, record the missing inputs as TBD rather than inventing schema fields.
-> 3. Define the generic exporter boundary: input model/result context, output handoff package envelope, validation result, warnings, unresolved assumptions, target mapping metadata, unsupported-target flags, and hash/provenance handling.
-> 4. Implement or review the exporter using the accepted architecture basis applicable to this backend slice at `core/handoff/exporter/workflow.py`; package-specific dependency versions remain TBD unless resolved by accepted source material.
-> 5. Ensure exported payloads preserve unit metadata, entity IDs, references, diagnostics/warnings, assumptions, and hash metadata required by the upstream handoff package contract.
-> 6. Add unsupported-target handling that records explicit findings or flags when the target fixture lacks a supported mapping. Do not silently drop or coerce unsupported behavior.
-> 7. Create an invented target fixture. Record fixture provenance and protected-content review status; do not use commercial-tool examples or protected standards-derived examples.
-> 8. Add export validation tests for schema compliance, unit manifest presence, required identity/reference fields, warnings/assumptions, unsupported-target flags, and professional-boundary wording.
-> 9. Run applicable validation gates: `python3 tests/test_handoff_export_workflow.py`, schema validation for exported handoff and mapping inputs, dependency validation, and protected-content/provenance review.
-> 10. Record unresolved assumptions, upstream contract gaps, unsupported features, and any dependency conflicts in deliverable-local evidence.
->
-
-### CLM-020 — Verification
-
-> ##### Verification
->
-> | Check | Expected result |
-> |---|---|
-> | Scope check | Work remains a generic handoff export workflow for DEL-15-03. |
-> | Schema check | Output validates against `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`. |
-> | Unit check | Unit-bearing exported values carry explicit unit metadata or a documented dimensionless/TBD classification. |
-> | Warning/assumption check | Missing data and unsupported target behavior are explicit findings, not silent defaults. |
-> | Boundary check | Output does not claim certification, sealing, approval, authentication, professional acceptance, or code compliance (PRD §21.2). |
-> | Fixture check | Invented target fixture has provenance and does not use protected or commercial-tool example data. |
-> | Dependency check | approved graph resolved through `execution/_DAG/_LATEST.md` mirror rows remain preserved; no dependency extraction refresh reclassifies them without human approval. |
->
-
-### CLM-021 — Records
-
-> ##### Records
->
-> - Exporter implementation path: `core/handoff/exporter/workflow.py`.
-> - Export validation test path: `tests/test_handoff_export_workflow.py`.
-> - Invented target fixture path and provenance: `fixtures/handoff/invented_target_fixture.json` (project-relative), validated as invented public metadata.
-> - Handoff schema version or source: `schemas/handoff_package.schema.json`.
-> - Target mapping taxonomy/source: `schemas/target_mapping.schema.json`.
-> - Dependency validation evidence: `Dependencies.csv` schema validation output.
-> - Boundary review evidence: focused protected/private/prohibited-authority term scan and exporter tests.
-
-### CLM-022 — D-41 R5 T2A checksum-boundary check (2026-07-12)
-
-> ##### D-41 R5 T2A checksum-boundary check (2026-07-12)
->
-> Verify that model and manifest checksum labels are carried unchanged into export payload context and that DEL-15-03 makes no independent JCS claim or checksum-validity ruling.
-
-- **VER-001** — Validate the contract and review source parity, complete handoff content preservation, schema and unit checks, supplied-checksum byte-basis labels, diagnostic and unsupported-target behavior, invented-fixture and protected-content controls, retained target-specific and container TBDs, upstream contract boundaries, and prohibited professional-authority claims.
+- **VER-001** — Comparison with a named reference (the handoff schema under a JSON Schema 2020-12 validator, and DEL-15-01's verification run by `tests/verifiers/handoff_package.py`, which imports no product code): AC-001 and AC-003 on packages the product produced.
+- **VER-002** — Comparison with a named reference (RFC 8785 and SHA-256 computed outside the product): AC-002 on a saved file, with the file reopened through the product's open path.
+- **VER-003** — Executable check (observes the destination's bytes, recorded by the test before the save, after a failure injected at each publication step, and the session's model, hash and solve standing after each outcome): AC-004, AC-005.
+- **VER-004** — Executable check (observes refusal or admission, the named record and the absence of any written file for invented models with each disposition, with and without intent, and with an unreadable store; observes the warnings for unresolved references against the resolution cases of `fixtures/handoff/rule_pack_ref_resolution_vectors.json`; and observes that no network connection is opened during a save, a refusal or a cancellation): AC-006, AC-007, AC-008.
+- **VER-005** — Executable check (observes the export record built from the committed invented package, an invented mapping and `fixtures/handoff/invented_target_fixture.json`, the blocking findings for each invalid input the criteria name, the findings returned with a record from which the control redacts or omits a value, the record's identity across repeated builds, and the blocking finding for an invented target description that carries prohibited wording): AC-009 to AC-013, AC-015.
+- **VER-006** — Executable check on the built application (observes Save Model Document and Save Handoff run through the native menu, the file reopened with an equal hash and the package verified): AC-001, AC-002.
+- **VER-007** — Judgment by a reviewer who did not write the code (reads the path's messages against `docs/claims_registry.md` and its sources and fixtures for commercial formats, with the protected-content scan run over them): AC-013, AC-014.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-023 — Guidance: DEL-15-03 Downstream modeling export workflow
-
-> #### Guidance: DEL-15-03 Downstream modeling export workflow
->
-
-### CLM-024 — Purpose
-
-> ##### Purpose
->
-> This deliverable exists to provide the generic handoff export workflow that turns SWBPIPE model and analysis context into schema-compliant downstream modeling handoff packages. Its purpose is traceable transfer, not external-tool validation or professional approval.
->
-
-### CLM-025 — Principles
-
-> ##### Principles
->
-> | Principle | Guidance | Source |
-> |---|---|---|
-> | Generic before target-specific | Keep the workflow around `schemas/handoff_package.schema.json`, `schemas/target_mapping.schema.json`, and the generic exporter before adding target-specific parsers or profiles. | `_CONTEXT.md#Context Envelope`; `SOFTWARE_DECOMP.md#SOW-074`; OI-015 |
-> | Explicit missingness | Missing mapping support, unresolved assumptions, warnings, and unsupported target behavior should be visible in the export output. | SOW-074; `docs/CONTRACT.md` OPS-K-DATA-2 |
-> | Unit-aware export | Unit metadata must cross the export boundary unless a field is explicitly dimensionless or otherwise classified. | `docs/SPEC.md#Unit system and dimensional analysis`; OPS-K-UNIT-1 |
-> | Provenance and hash discipline | Exported packages should preserve references, provenance, rule/library refs, diagnostics, and hashes without treating them as professional acceptance. | `docs/TYPES.md` Assumption, TraceabilityLink, Diagnostic, Checksum, ResultExportEnvelope |
-> | Professional boundary | The workflow may support professional review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). | OBJ-017; DEC-015; OPS-K-AUTH-1 |
-> | Protected-content boundary | Fixtures must be invented or cleared; do not import protected standards examples or commercial tool files. | `docs/IP_AND_DATA_BOUNDARY.md`; OPS-K-IP-1 through OPS-K-IP-3 |
->
-
-### CLM-026 — Considerations
-
-> ##### Considerations
->
-> - The local `Dependencies.csv` records upstream architecture-basis and interop/security/model-contract inputs as ACTIVE DAG-002 mirror evidence. Treat those rows as coordination evidence, not as permission to copy sibling deliverable prose or implementation details into this folder.
-> - Upstream contracts named by the mirror include the canonical handoff package schema, target mapping and unsupported-behavior contract, import/export adapter framework, local FEA handoff data contract, private-data redaction/export controls, physical-to-analytical transformation contract, and comparison export contracts.
-> - The workflow should report unsupported-target behavior rather than silently approximating it. Provider-neutral unsupported behavior and target mapping records are now supplied by `schemas/target_mapping.schema.json`; target-specific extensions remain gated by DEL-17-01 and DEL-17-02.
-> - The current fixture is `fixtures/handoff/invented_target_fixture.json` (project-relative); it is invented public metadata used by `tests/test_handoff_export_workflow.py` to exercise schema shape, warnings, assumptions, provenance, and unsupported-target flags without resembling commercial-tool examples.
-> - The generic exporter entry point is `core/handoff/exporter/workflow.py`. Package container structure, concrete mappings, target field coverage, and target-specific implementation remain gated.
-> - Current implementation (at `62c1efd75b`): `core/handoff/exporter/workflow.py` has no product caller; only `tests/test_handoff_export_workflow.py` calls it. The desktop route differs: the Exports section builds its handoff document in TypeScript in `apps/desktop/src/features/handoff/HandoffPanel.tsx` (`buildHandoffPackage`) and its native package review in `apps/desktop/src/features/native-package/NativePackagePanel.tsx`. Both are preview documents (`export_scope: local_browser_download_preview`) outside `schemas/handoff_package.schema.json`: they lack its required `deliverable_id`, `scope_item`, `handoff_contract_status` and `handoff_package_manifest` and are not validated against it or against `schemas/target_mapping.schema.json`. The panels build a document only when a current solved result and its analysis run are present, and the load/reference-state and retained-precision output gates can refuse them (`loadReferenceOutputRefusal.test.tsx`, `retainedPrecisionOutputRefusal.test.tsx`).
->
-
-### CLM-027 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Conservative direction |
-> |---|---|
-> | Generic exporter vs. target-specific parser | Prefer a generic exporter with explicit unsupported-target flags; defer target-specific parsing behavior. |
-> | Strict schema validation vs. permissive export | Prefer schema validation and explicit findings over silent coercion. |
-> | Helpful external metadata vs. professional status | Preserve references, notes, hashes, and diagnostics, but avoid approval/certification/status claims (PRD §21.2). |
-> | Realistic fixture vs. protected/commercial data risk | Prefer invented fixture data with clear provenance. |
->
-
-### CLM-028 — Examples
-
-> ##### Examples
->
-> The current example fixture is `fixtures/handoff/invented_target_fixture.json` (project-relative). It is invented public metadata only and is checked by `tests/test_handoff_export_workflow.py` alongside schema validation for `schemas/handoff_package.schema.json` and `schemas/target_mapping.schema.json`.
->
-> Do not derive future example values from protected standards, commercial software files, proprietary catalogs, owner standards, or private project data.
->
-
-### CLM-029 — Open Questions and TBDs
-
-> ##### Open Questions and TBDs
->
-> | ID | Item | Source |
-> |---|---|---|
-> | DEL-15-03-TBD-001 | Canonical package container, concrete mappings, target field coverage, and target-specific implementation. | `SOFTWARE_DECOMP.md` OI-015; DEL-17-01; DEL-17-02 |
-> | DEL-15-03-TBD-002 | Target-specific parser/profile behavior and commercial-tool result ingestion remain out of this deliverable. | `_CONTEXT.md#Context Envelope`; OI-015 |
-> | DEL-15-03-TBD-003 | Package-specific dependency versions and broader architecture implementation choices remain governed by architecture-basis TBDs. | `_CONTEXT.md#Architecture Basis Injection` |
-> | DEL-15-03-TBD-004 | Future fixtures for target-specific profiles require protected-content and provenance review. | `docs/IP_AND_DATA_BOUNDARY.md`; DEL-17-01; DEL-17-02 |
->
-
-### CLM-030 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> No source conflicts were identified during the setup pass. TBDs above are missing-detail boundaries, not resolved conflicts.
-
-### CLM-031 — D-41 R5 T2A checksum-boundary guidance (2026-07-12)
-
-> ##### D-41 R5 T2A checksum-boundary guidance (2026-07-12)
->
-> Treat incoming checksum records as carried evidence. Do not describe them as JCS unless the owning producer supplies governed RFC 8785 conformance evidence; preserve the precise producer label and surface validation elsewhere.
+- **AX-001** — *What is handed on is what was modelled.* Better is fewer ways for an exported model or manifest to differ from the session's model; the target is none. Convenience never justifies a second serialization, a placeholder value or an export of a model the document validator refuses.
+- **AX-002** — *Whole or absent.* Better is fewer states of the destination, after any failure, that are neither the previous package nor the new one. Speed and simplicity of publication never justify reporting Saved for bytes that were not confirmed, or deleting a previous package that could not be verified.
+- **AX-003** — *Loss is stated.* Better is more of what a target cannot carry appearing as a record the engineer reads. An export is never made to look complete by dropping a warning, defaulting a value or approximating in silence.
+- **AX-004** — *The user's data leaves only by the user's act.* A blocking disposition refuses every export, and no ease of sharing justifies an export without stated intent or by a route outside the export control.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-074 OBJ-017 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-15-03:1** — Obtain owning human dispositions for `DEL-15-03-PKG02-001`, `RF-001`, and `RF-002`; all retain `HumanDisposition=TBD`, and implemented authority screening/currentness/target-boundary remediation does not formally close them (PDU-060).
+| OUT-003 | SOW-074 OBJ-017 | REQ-001 REQ-002 | AC-001 | VER-001 VER-006 | Outside source: the JSON Schema 2020-12 specification and DEL-15-01's verification rules, applied by a verifier that imports no product code |
+| OUT-002 | SOW-074 OBJ-017 | REQ-011 | AC-002 | VER-002 VER-006 | Outside source: RFC 8785 and SHA-256, computed by an implementation that shares no code with the product |
+| OUT-003 | SOW-074 OBJ-017 | REQ-002 REQ-004 REQ-005 | AC-003 | VER-001 | DEL-15-01's derivation rule gives the expected manifest content; a verifier that imports no product code applies it to the model member. The unit refusal is that of PRD §5.6 |
+| OUT-003 | SOW-074 OBJ-017 | REQ-012 | AC-004 | VER-003 | The scenario states what must remain; the comparison is against the destination's bytes as the test recorded them before the save |
+| OUT-002 | SOW-074 OBJ-017 | REQ-012 | AC-005 | VER-003 | The scenario states the expected result: the session's state recorded before the export |
+| OUT-003 | SOW-074 OBJ-017 | REQ-012 | AC-005 | VER-003 | The scenario states the expected result: the session's state recorded before the export |
+| OUT-002 | SOW-074 OBJ-017 | REQ-009 REQ-013 | AC-006 | VER-004 | `docs/IP_AND_DATA_BOUNDARY.md` and PRD §20.1, §20.3 and §20.4 state which records may leave and on whose act |
+| OUT-003 | SOW-074 OBJ-017 | REQ-009 REQ-013 | AC-006 | VER-004 | `docs/IP_AND_DATA_BOUNDARY.md` and PRD §20.1, §20.3 and §20.4 state which records may leave and on whose act |
+| OUT-003 | SOW-074 OBJ-017 | REQ-005 | AC-007 | VER-004 | PRD §5.5 states that missing data is shown. The expected exclusions are those DEL-14-02's resolution rule gives for the shared invented cases, which this path does not compute |
+| OUT-003 | SOW-074 OBJ-017 | REQ-014 | AC-008 | VER-004 | The criterion states the expected result; the state is read from the project store through DEL-14-01's service |
+| OUT-001 | SOW-074 OBJ-017 | REQ-002 REQ-003 REQ-005 REQ-010 | AC-009 | VER-005 | The scenario states the expected result: the invented package, mapping and target are the inputs, and the expected records are their flags and declared capabilities, which the product did not write |
+| OUT-001 | SOW-074 OBJ-017 | REQ-004 REQ-010 | AC-010 | VER-005 | PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2 state the expected refusals |
+| OUT-001 | SOW-074 OBJ-017 | REQ-008 | AC-011 | VER-005 | The supplied checksum is the reference: the input is compared with the output |
+| OUT-001 | SOW-074 OBJ-017 | REQ-005 REQ-009 | AC-012 | VER-005 | The record and findings observed on invented inputs whose metadata the downstream-tool context includes, redacts and blocks; the expected decisions are those DEL-12-02's context rule gives, which this path does not compute (PRD §20.3), and every redacted or omitted value is named in the findings (PRD §5.5) |
+| OUT-002 | SOW-074 OBJ-017 | REQ-006 | AC-013 | VER-005 VER-007 | The finding observed on an invented target description that carries prohibited wording, and the reviewer's reading of the path's outputs and messages against PRD §21.2 and `docs/claims_registry.md` |
+| OUT-003 | SOW-074 OBJ-017 | REQ-006 | AC-013 | VER-005 VER-007 | The finding observed on an invented target description that carries prohibited wording, and the reviewer's reading of the path's outputs and messages against PRD §21.2 and `docs/claims_registry.md` |
+| OUT-001 | SOW-074 OBJ-017 | REQ-006 | AC-013 | VER-005 VER-007 | The finding observed on an invented target description that carries prohibited wording, and the reviewer's reading of the path's outputs and messages against PRD §21.2 and `docs/claims_registry.md` |
+| OUT-002 | SOW-074 OBJ-017 | REQ-003 REQ-007 | AC-014 | VER-007 | decomposition OI-015 and `docs/IP_AND_DATA_BOUNDARY.md`; protected-content scan and review |
+| OUT-003 | SOW-074 OBJ-017 | REQ-003 REQ-007 | AC-014 | VER-007 | decomposition OI-015 and `docs/IP_AND_DATA_BOUNDARY.md`; protected-content scan and review |
+| OUT-001 | SOW-074 OBJ-017 | REQ-003 REQ-007 | AC-014 | VER-007 | decomposition OI-015 and `docs/IP_AND_DATA_BOUNDARY.md`; protected-content scan and review |
+| OUT-001 | SOW-074 OBJ-017 | REQ-001 | AC-015 | VER-005 | Two builds from the same package, mapping and target, compared with each other. This shows that the step is repeatable (PRD §3 asks for reproducibility); it does not show that the record is correct |

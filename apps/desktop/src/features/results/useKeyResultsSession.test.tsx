@@ -6,7 +6,7 @@ import { SUPPORT_LOAD_WITHHELD_NO_STATE } from "./supportLoadSummary";
 import { SUPPORT_STATE_ROW_KIND } from "./keyResults";
 import { useKeyResultsSession } from "./useKeyResultsSession";
 
-// A6's session wiring (DEL-07-05 Design `key-results-panel.md` §2, §4): each "Show support load
+// A6's session wiring: each "Show support load
 // summary" is a new request for A2, and "Show contact and lift-off state" asks the results table for
 // the exact kind with the standing's withheld rows marked. Invented data only.
 

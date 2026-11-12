@@ -1,147 +1,107 @@
 id: DEL-07-04
 name: Missing-data warning and blocking UX
 needs:
-- from: DEL-00-01
-  condition: 'DEL-07-04 must apply architecture-basis constraint AB-00-01 from DEL-00-01 when executed.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-07-04 must apply architecture-basis constraint AB-00-02 from DEL-00-02 when executed.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-07-04 needs AB-00-03 command/query/job result-envelope and status-separation architecture
-    before implementation.
-
-
-    Notes: supported by both _CONTEXT applicable basis IDs and Specification external inputs.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-00-06
+  condition: >-
+    A diagnostic carries code, class, severity, source, affected object, message and remediation,
+    and provenance where applicable; a diagnostic crossing a boundary keeps every field other than
+    its class unchanged, and its class changes only by the receiving boundary's stated mapping where
+    that boundary's schema requires its own class vocabulary; and invalid input, incomplete model,
+    mechanics result, rule-check result and human-review-needed are distinguished.
   gating: true
 - from: DEL-00-05
-  condition: 'DEL-07-04 needs AB-00-05 GUI state and diagnostic-preservation architecture before implementation.
-
-
-    Notes: supported by both _CONTEXT applicable basis IDs and Specification external inputs.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-07-04 needs AB-00-06 diagnostics and warning-class contract before implementation.
-
-
-    Notes: supported by both _CONTEXT applicable basis IDs and Specification external inputs.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-07-04 must apply architecture-basis constraint AB-00-07 from DEL-00-07 when executed.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-07-04 must apply architecture-basis constraint AB-00-08 from DEL-00-08 when executed.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-05-04
-  condition: 'DEL-07-04 requires analysis status semantics to preserve incomplete model mechanics-solved
-    rule-inputs-incomplete and human-review-required distinctions.
-
-
-    Notes: satisfaction not verified within bounded read scope.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-06-03
-  condition: 'DEL-07-04 requires rule-pack required-input completeness signals for rule-check-blocking
-    missing-data behavior.
-
-
-    Notes: satisfaction not verified within bounded read scope.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The GUI state rule requires every change to the model to be an applied model operation, keeps
+    the session's selection as one set of entity identifiers shared by the viewport, the tree and
+    the inspector, and keeps diagnostics as produced through undo and redo.
   gating: true
 - from: DEL-04-06
-  condition: 'DEL-07-04 requires solver diagnostics for solve-blocking and nonlinear warning producers.
-
-
-    Notes: satisfaction not verified within bounded read scope.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Examining a missing solve-required value (AC-001, AC-009)
+  condition: >-
+    The model checks and the solver report each missing or invalid solve-required value as a
+    finding with the governed fields and a solve-blocking class, naming the affected object, and
+    supply no default for it.
   gating: true
-- from: DEL-06-02
-  condition: 'DEL-07-04 consumes Sandboxed unit-aware expression evaluator from DEL-06-02: rule-check
-    interaction preserves runner/required-input/status/unit-aware diagnostic contracts.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E079; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-06; dependency table rule-check UI; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-04-04
+  when: Showing a nonlinear warning
+  condition: >-
+    A nonlinear case that does not converge, or whose support states are uncertain, reports that as
+    a diagnostic with a nonlinear class and the supports concerned.
   gating: true
-  evidence: execution/PKG-07/DEL-07-04/ScopeOfWork.md
+- from: DEL-05-04
+  condition: >-
+    Model incomplete, mechanics solved, rule inputs incomplete, user-rule checked, user-rule failed
+    and human review required are distinct statuses, rule inputs incomplete may coexist with
+    mechanics solved, and no status states code compliance or approval.
+  gating: true
+- from: DEL-01-04
+  condition: >-
+    The claims registry gives each automatic status one display form in one authority domain and
+    names the statements and phrasings withdrawn from product surfaces.
+  gating: false
+- from: DEL-06-03
+  when: Building the rule-check run surface
+  condition: >-
+    A rule-check run yields one outcome for each check on each load case or combination its category
+    maps, reports no within or exceeding outcome on a basis whose required values are not all
+    present, reports a missing rule-pack input as a rule-check-blocking finding distinct from a
+    solve-blocking one, and returns an aggregate that is incomplete while any outcome is.
+  gating: true
+- from: DEL-06-04
+  when: Showing the pack a run used
+  condition: >-
+    A rule pack's identity, version, checksum and source note can be shown without exposing its
+    formulas or values.
+  gating: true
 - from: DEL-02-02
-  condition: 'DEL-07-04 consumes Unit system and dimensional-analysis core contract from DEL-02-02: rule-check
-    interaction preserves runner/required-input/status/unit-aware diagnostic contracts.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E080; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-06; dependency table rule-check UI; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Showing a finding's quantity in a display unit
+  condition: >-
+    A stored value can be shown in another catalog unit of its dimension without changing the
+    stored value, and a value whose unit is missing or of the wrong dimension is a named finding.
   gating: true
-  evidence: execution/PKG-07/DEL-07-04/ScopeOfWork.md
-- from: DEL-02-03
-  condition: 'DEL-07-04 directly depends on DEL-02-03 because local warning classes are mapped to canonical
-    software statuses and external hash-bound human records.
-
-
-    Notes: Restores active package-local PKG-02 compatibility evidence while preserving the retired legacy
-    mirror row for reconciliation history.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-12-02
+  when: Showing an IP-boundary warning on an export
+  condition: >-
+    The export controls screen a payload before it is written, block protected content and redact
+    or block private content by export context, and return each decision that may cross the public
+    boundary as a finding with an IP-boundary class.
   gating: true
-  evidence: core/gui/warnings/engine.py
-- from: DEL-07-02
-  condition: 'DEL-07-02 exposes missing-data findings but leaves blocking UX ownership to DEL-07-04 unless
-    a later brief changes the boundary
-
-
-    Notes: FACT: downstream interface edge supports RECONCILIATION boundary checking between adjacent
-    GUI slices.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-08-05
+  when: Showing an IP-boundary warning on a report
+  condition: >-
+    The report linter returns suspected protected content in a report as a finding with the
+    IP-boundary class, a severity and a review route.
+  gating: true
+- from: DEL-08-01
+  when: Showing the state of a report flow after an IP-boundary finding
+  condition: >-
+    A report is blocked when the protected-content lint reports a blocking finding before or after
+    rendering, and a blocked report names its reasons and is not saved, printed or packaged.
+  gating: true
+- from: DEL-07-06
+  condition: >-
+    The accessibility baseline states the target for workspace controls: a keyboard alternative for
+    every action, a signal other than colour for every class and status, and text available to
+    assistive technology.
+  gating: false
+- from: DEL-07-11
+  condition: >-
+    The workspace shell mounts the finding and run surfaces, holds the session's selection and
+    current result, and delivers a selection made from a finding to the tree, the viewport and the
+    inspector.
   gating: true
 code_paths:
-- core/gui/warnings/**
-- tests/test_missing_data_warning_ux.py
+# The rule-check run surface. RuleCheckRunPanel.tsx and the service are shared with DEL-06-03,
+# which owns the runner and the row selection the service's preview repeats.
 - apps/desktop/src/features/rule-check/**
 - apps/desktop/src/services/ruleCheckService.ts
-- apps/desktop/src/services/ruleCheckService.test.ts
+# The missing-data panel of the Issues home, and the blocker count behind the Issues badge.
 - apps/desktop/src/features/missing-data/**
+# A reference module with its own contract test; the desktop does not call it.
+- core/gui/warnings/**
+# The boundary helper the GUI reference modules of DEL-07-03, DEL-07-04, DEL-07-05, DEL-07-07 and
+# DEL-07-08 import; each lists it.
+- core/gui/pkg02_boundary.py
 checks:
 - tests/test_missing_data_warning_ux.py
 - apps/desktop/src/features/rule-check/RuleCheckRunPanel.test.tsx

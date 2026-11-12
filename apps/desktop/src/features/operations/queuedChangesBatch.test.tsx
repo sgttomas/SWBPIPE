@@ -1,4 +1,4 @@
-// G9 (DEL-07-02 `Work/queued-changes-batch.md`): the person's queued single changes
+// G9 (DEL-07-02): the person's queued single changes
 // move into batch review as one batch, in queue order, against the workspace session
 // and the actual wasm engine. Apply entire batch validates and applies all or none;
 // a change whose before-value depends on another queued change is

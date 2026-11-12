@@ -7,18 +7,16 @@ combinations under the unit factor-sum rule (CE-2), and a load-state
 document under D-2 (CE-3). Requirement RT-V1, exit criterion 2.
 
 Governing source read at `575fcc776`:
-- DEL-04-07 `Work/route-unification-r4.md` §2.1, §3.2 (S2: CE-1, CE-2), §4 and
-  §4.7/§4.7a, §6.3 D-2;
+- DEL-04-07 (R-4 S2: CE-1, CE-2; D-2);
 - D-2 as decided by Agent 0 and supplied in the task brief (not yet in the
   repository text): on load-state documents the constant force is a device
   action of the active support in every state. A held/locked state belongs to
   hydrotest, in the load-case lane, and is not built here;
-- `Work/pressure-contract.md`: "Constant-effort combinations: the unit
+- DEL-04-07: "Constant-effort combinations: the unit
   factor-sum rule" and "Tees and pressure junctions" (D-1 caps);
 - `validation/hand_calcs/mechanics/constant_effort_support_applied_load.md`,
   which gives the DEC-049 semantics and sign convention;
-- DEL-05-03 `Work/section-bases-and-timoshenko.md` §1, §2.1 (D-5 bases), §3.1
-  (κ_E) and §3.3 (Timoshenko coefficients).
+- DEL-05-03 (D-5 bases, κ_E and Timoshenko coefficients).
 
 **Status: frozen analytical candidate.** Product agreement and independent
 scrutiny are separate checks. Self-consistency does not establish product

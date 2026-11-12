@@ -63,7 +63,7 @@ export const STRESS_RATIO_KEY_TEXT: Readonly<Record<"ratio" | "rule_stress" | "e
   rule_stress: "Sorted by the magnitude of your rule's computed value, largest first.",
   emitted_stress: "Sorted by the magnitude of the emitted stress, largest first; values are shown signed."
 });
-/** The key's text when the keyed rows' units differ and the rows keep source order (§5, Units). */
+/** The key's text when the keyed rows' units differ and the rows keep source order. */
 export const STRESS_RATIO_KEY_TEXT_UNSORTED: Readonly<Record<"rule_stress" | "emitted_stress", string>> = Object.freeze({
   rule_stress: "Your rule's computed values, in run order: their units differ, so they are not sorted.",
   emitted_stress: "Emitted stresses, in result-row order: their units differ, so they are not sorted; values are shown signed."
@@ -81,7 +81,7 @@ export function stressRatioSummaryText(view: StressRatioView, page: StressRatioP
   const later = page.notListedCount > 0 ? `; ${page.notListedCount} more not yet listed` : "";
   return `Showing ${page.listedCount} of ${view.totalCount} rows${hidden}${later}.`;
 }
-/** Each ratio row's direction (§3.1), in the Direction column (defined beside the CSV adapter). */
+/** Each ratio row's direction, in the Direction column (defined beside the CSV adapter). */
 export { RATIO_DIRECTION_TEXT };
 /** The formula in a ratio's title. */
 const RATIO_FORMULA: Readonly<Record<RatioDirection, string>> = Object.freeze({ upper: "computed ÷ limit", lower: "limit ÷ computed" });
@@ -296,7 +296,7 @@ function RowsTable({ group, view, page, selectedResultId, onSelectLocation, tid 
   tid: (suffix: string) => string;
 }) {
   const rule = group.source === "rule_category";
-  // Failed outcomes are listed at their rank on every page (`stressRatioPage`, §7).
+  // Failed outcomes are listed at their rank on every page (`stressRatioPage`).
   const shown = page.ranked;
   const listed = [...view.pinned, ...shown.map((item) => item.row), ...view.unranked];
   const stressUnit = sharedUnit(listed.map((row) => row.stress));
@@ -369,7 +369,7 @@ function LocationCell({ row, onSelectLocation }: { row: StressRatioRow; onSelect
   );
 }
 
-/** A withheld row carries no pass or fail status in any attribute (§4); an incomplete status is
+/** A withheld row carries no pass or fail status in any attribute; an incomplete status is
  * always stated. */
 function rowAttributes(row: StressRatioRow, part: string, selectedResultId: string | null, tid: (suffix: string) => string) {
   const selected = selectedResultId !== null && row.target.resultId === selectedResultId;

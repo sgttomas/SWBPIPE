@@ -1,4 +1,4 @@
-//! Model document 0.7.0 (DEL-02-01 Design `model-document-0.7.0.md` §2, §3): the
+//! Model document 0.7.0: the
 //! annotation and record slots are model data that no solve reads. The invented
 //! annotated document (`fixtures/model_document/invented_annotated_model.json`,
 //! which carries every new member) solves end to end through the public value
@@ -18,7 +18,7 @@ const ANNOTATED_COLLECTIONS: [&str; 8] =
 const PROVENANCE_COLLECTIONS: [&str; 4] = ["materials", "sections", "components", "supports"];
 
 /// The same document without any 0.7.0 member: the new top-level members, the
-/// `model_settings` record (§3.8; its node-proximity tolerance finds no pair in this
+/// `model_settings` record (its node-proximity tolerance finds no pair in this
 /// fixture with or without it), every record's `tags` and
 /// `notes`, the project's, and every `provenance_record`.
 fn without_new_members(document: &Value) -> (Value, usize) {

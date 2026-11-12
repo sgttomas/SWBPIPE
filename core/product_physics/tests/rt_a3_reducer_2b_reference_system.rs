@@ -1,7 +1,7 @@
 //! RT-A3 reducer increment 2b on the full reference system (DEL-09-01
-//! `Work/reference-system.md` §5 RS-R1; DEL-04-07 `pressure-contract.md`,
-//! "Eccentric reducer pressure step"; DEL-03-05 `eccentric-reducer-offset.md`
-//! §3.7 and `rigid-component-stiffness-scaling.md` §2.7, §3): the RS-R1
+//! design §5 RS-R1; DEL-04-07, the eccentric reducer pressure step;
+//! DEL-03-05, the eccentric reducer offset and rigid component
+//! stiffness scaling): the RS-R1
 //! connecting path through PP's public entry, with weight, pressure, the
 //! temperature modulus state, thermal eigenstrain and boundary motion together.
 //!
@@ -80,13 +80,13 @@ const BODY: &str = "pipe:RS-P150";
 const N: &str = "node:RS-160";
 const F: &str = "node:RS-150";
 const CASES: [&str; 3] = ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM"];
-const SOURCE: &str = "invented user value, DEL-09-01 Work/reference-system.md §5";
+const SOURCE: &str = "invented user value, DEL-09-01";
 const R1_WEIGHT_N: f64 = 300.0;
 const R1_SCALE: f64 = 2.0;
 /// The a priori rounding allowance of the local relations (about 4500 ulp of
 /// the sum of the absolute terms).
 const LOCAL: f64 = 1e-12;
-/// The fixture's EQ criterion (spec §9.2, DEC-024/DEC-026).
+/// The fixture's EQ criterion (DEC-024/DEC-026).
 const EQ: f64 = 1e-9;
 const STATIONS: [(&str, f64); 5] = [("end_i", 0.0), ("quarter_1", 0.25), ("midspan", 0.5), ("quarter_3", 0.75), ("end_j", 1.0)];
 const BASES: [&str; 2] = ["nominal_section", "reduced_section"];
@@ -163,7 +163,7 @@ fn r1(surrogate: bool) -> Value {
 }
 
 /// Every pipe the fixture's W requests select: every member but the span the
-/// expansion joint replaces (spec §8.1).
+/// expansion joint replaces.
 fn weighted_pipes(model: &Value) -> Vec<String> {
     let replaced: Vec<&Value> = model["components"].as_array().unwrap().iter()
         .filter_map(|c| c.get("objective_connector").map(|o| &o["topology"]["span_ref"])).collect();
@@ -346,7 +346,7 @@ fn mm(v: &Value) -> f64 {
 
 /// The annulus from the authored section (D-5: stiffness on the nominal wall,
 /// the pressure bore on the wall less mill tolerance and corrosion allowance),
-/// with the energy-matched annular shear factor kappa_E (DEL-05-03 §3.1).
+/// with the energy-matched annular shear factor kappa_E.
 fn section(model: &Value, pipe: &str, nu: f64) -> Section {
     let s = &model["pipe_segments"].as_array().unwrap().iter().find(|p| p["id"] == pipe).unwrap()["section"];
     let (d, t, cm, ca) = (mm(&s["outside_diameter"]), mm(&s["wall_thickness"]), mm(&s["mill_tolerance"]), mm(&s["corrosion_allowance"]));

@@ -1,9 +1,9 @@
 //! K4 tests of D1 revision 5a.3's method, checkpoint A3b (mounted in
 //! `adaptive.rs`, so they reach the schedule's internals):
 //! - every control's schedule against GEN's (`outcomes.txt`, ROOT's A3-0
-//!   ruling Q1) and against R7's expectations (plan §6), with each selected
+//!   ruling Q1) and against R7's expectations, with each selected
 //!   control honest against its exact solution and passing a test-only G5a
-//!   checker (R7 §6.3 items 1–6; D2 owns G5a);
+//!   checker (D2 owns G5a);
 //! - E-CHARGE (`charge.txt`) and E-ESTIMATE (`estimate.txt`) at every
 //!   verification, with the named controls' charge, θ and estimate figures;
 //! - E-HEADROOM on every state pair;
@@ -40,7 +40,7 @@ fn all_models() -> Vec<models::Model> {
     out
 }
 
-/// RF-LARGE at 100 members runs in the references lane (plan §6, Q13).
+/// RF-LARGE at 100 members runs in the references lane (Q13).
 fn in_default_lane(name: &str) -> bool {
     !name.contains("n00100")
 }
@@ -279,7 +279,7 @@ fn every_control_follows_gens_schedule_and_r7s_expectations_honestly() {
     );
     assert!(compared >= 115, "{compared}");
 
-    // R7's expectations (plan §6), independent of GEN.
+    // R7's expectations, independent of GEN.
     let expect = |name: &str, sel: Option<u32>, kinds: &[&str]| {
         let o = &runs[name];
         assert_eq!(o.selected, sel, "{name}");
@@ -1160,7 +1160,7 @@ fn e_charge_and_e_estimate_equal_the_emulation_at_every_verification() {
     for (key, f) in &figs {
         println!("FIG {} {} {f:?}", key.0, key.1);
     }
-    // R7's figures (plan §6), emulated there; K4's within the stated margins.
+    // R7's figures, emulated there; K4's within the stated margins.
     for (k, w) in [
         ("k90-s40", 2681.0),
         ("k100-s40", 2.7e6),
@@ -1225,7 +1225,7 @@ fn e_charge_and_e_estimate_equal_the_emulation_at_every_verification() {
 
 #[test]
 fn e_charge_on_rf_large_at_100_members_at_256() {
-    // Plan §6: the first σ succeeds except on CONT-AX (not run); Uc is missing
+    // the first σ succeeds except on CONT-AX (not run); Uc is missing
     // (t ≥ 1) on CHAIN-AX, CHAIN-ROT and TREE-ROT; the charge is far inside
     // its allowance.
     for m in all_models().iter().filter(|m| !in_default_lane(&m.name)) {
@@ -1255,7 +1255,7 @@ where
     hat: Vec<[f64; 2]>,
 }
 
-/// The state at p and its own ê (E from this state, §4.1.6.2 item 4).
+/// The state at p and its own ê (E from this state).
 fn state_at<const L: usize, const R: usize>(
     p: u32,
     q: u32,
@@ -1363,7 +1363,7 @@ where
 
 #[test]
 fn e_headroom_every_state_pair_is_within_2_to_the_8_of_its_resolution() {
-    // Excluded (R7 §7): the controls whose states the estimate or the charge
+    // Excluded: the controls whose states the estimate or the charge
     // rejects (by GEN's schedule: LEVER2, CEIL5A3's LEVER2 operands,
     // SEEDED-COMMON and DIRECTIONAL-SPAN, whose state error is the solve's at a
     // condition of about 2^104), TILT-LEVER (its charge is 1e30 of its
@@ -1816,7 +1816,7 @@ fn sd_g5_the_gates_bounded_test_at_its_boundary_and_the_best_state() {
 }
 
 /// A cantilever along x whose y reference leans 2^-j off the chord: its y_c
-/// is (0, 2^-j, 0) exactly, so its g exponent is j + 1 (R7 §4.1.6.2 item 2).
+/// is (0, 2^-j, 0) exactly, so its g exponent is j + 1.
 fn leaning_cantilever(j: i32) -> PrimitiveSource {
     let mut parts = SourceParts::default();
     parts.nodes = vec![[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]];

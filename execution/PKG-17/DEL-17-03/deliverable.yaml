@@ -1,109 +1,43 @@
 id: DEL-17-03
 name: Native open JSON export package
 needs:
-- from: DEL-00-01
-  condition: 'DEL-17-03 must apply AB-00-01 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Decision baseline for architecture choices and unresolved rulings.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-17-02
+  condition: >-
+    The common export contract defines the export package, the export profile and its fields, the
+    stable ID map with its four carrier modes, the manifest, and the loss report with its six
+    categories and the members of a loss entry.
   gating: true
-- from: DEL-00-02
-  condition: 'DEL-17-03 must apply AB-00-02 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Repository/module boundaries and inward dependency direction.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-17-03 must apply AB-00-03 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Schema-first command/query/job result envelope constraints.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-01
+  condition: >-
+    The model document has a schema, one current version and a validator, and every addressable
+    record has an identifier that other records name.
   gating: true
 - from: DEL-00-04
-  condition: 'DEL-17-03 must apply AB-00-04 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    JSON Schema 2020-12 and canonical JSON/JCS-compatible hash basis.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A hashed JSON payload is hashed as SHA-256 over its RFC 8785 canonical form, and each hash
+    record names its payload.
+  gating: false
+- from: DEL-12-02
+  when: A package is written to a file
+  condition: >-
+    Every sink through which the product exposes project-derived content is reached only through a
+    catalogued route's wrapper; every route returns its controlled export before exposure, and when
+    the export is blocked no output file is written.
   gating: true
-- from: DEL-00-06
-  condition: 'DEL-17-03 must apply AB-00-06 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Diagnostics, warnings, blockers, and result-envelope obligations.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-17-03 must apply AB-00-07 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    No-bypass API/plugin/adapter validation and boundary controls.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-17-03 must apply AB-00-08 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Layered architecture/schema/service/adapter acceptance strategy.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-17-01
-  condition: 'DEL-17-03 consumes DEL-17-01 boundary discipline for export claims.
-
-
-    Notes: No target-specific behavior introduced.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-17/DEL-17-03/ScopeOfWork.md
-- from: DEL-17-02
-  condition: 'DEL-17-03 depends on DEL-17-02 under DAG-005.
-
-
-    Notes: Downstream production docs not populated in this tranche.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-17/DEL-17-02/ScopeOfWork.md
+- from: DEL-15-04
+  condition: >-
+    The authority-wording screen is one check shared by the handoff and export records that need it,
+    and finds wording of approval, certification, sealing, authentication, compliance, external
+    validation, acceptance or prover status in a string, a list or a nested record, whatever its
+    letter case.
+  gating: false
+# The native package's own code. No desktop, API or command-line entry is part of this deliverable:
+# the desktop panel that presents a native package, apps/desktop/src/features/native-package/**,
+# is DEL-07-12's and is not listed here.
 code_paths:
-- core/handoff/native_json/
-- core/handoff/native_json/package.py
-- schemas/model.schema.yaml
+- core/handoff/native_json/**
 - schemas/native_json_export.schema.json
-- apps/desktop/src/features/native-package/NativePackagePanel.tsx
+- fixtures/native_json/invented/**
 checks:
 - tests/test_native_json_export_package.py
 - apps/desktop/src/features/native-package/NativePackagePanel.test.ts

@@ -13,7 +13,7 @@ const GROUP_ORDER: readonly ModelCheckGroupId[] = ["solve", "slots", "library"];
 const announcedRuns = new WeakSet<ModelCheckRun>();
 
 /**
- * On-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`). The
+ * On-demand model checks. The
  * Analyze menu's Check Model (⇧⌘M) or this panel's button runs the
  * model's existing checks (the session's `handleRunModelChecks`), and the panel
  * lists their findings with each check's own code and text. Choosing a finding

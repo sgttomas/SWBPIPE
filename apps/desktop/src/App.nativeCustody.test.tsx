@@ -1,4 +1,4 @@
-// C1 slice 4 (DEL-04-05 `c1-native-custody-plan.md`): in the app, a fresh solve's first paint
+// in the app, a fresh solve's first paint
 // copies nothing whole. The result stays held natively: no take, no C2 full copy and no full record
 // built by the TypeScript builder, with the
 // Solve section open (its rule checks wait for a request) and with the Results and Report sections

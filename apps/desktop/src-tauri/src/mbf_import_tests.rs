@@ -1,4 +1,4 @@
-//! File > Import MBF…'s native path (DEL-17-04 Design `desktop-mbf-export-import.md` §4.8.9, slice 5): the commands'
+//! File > Import MBF…'s native path: the commands'
 //! ingress and ledger, task 5 in a real worker process (this test binary run as the worker), the decode and the
 //! replies, over the actual `save_mbf_export` command's pair for the maintained invented export model
 //! (`fixtures/caepipe_mbf/invented/desktop_export/`), bound and unbound; the App reply fixture follows the same
@@ -301,7 +301,7 @@ fn case_inventory(document: &Value, member: &str) -> BTreeSet<(String, String)> 
     out
 }
 
-// -- Source-to-adopted canonical parity (import Design `caepipe-mbf-import.md` §18.2) --------------------------------
+// -- Source-to-adopted canonical parity --------------------------------
 //
 // The maintained comparator is `tests/caepipe_mbf_canonical.py`, which has no route from this native test. This is an
 // independent reduction of the same canonical form, limited to the families of the invented export model (an
@@ -1266,7 +1266,7 @@ fn adopt_refuses_a_stale_review_or_a_retired_source_with_no_model() {
     assert_released(&registry);
 }
 
-// -- Designate original source (§5.4) ---------------------------------------------------------------------------------
+// -- Designate original source ---------------------------------------------------------------------------------
 
 fn designate_with(registry: &SolveJobRegistry, imports: &MbfImports, body: &Value, choose: impl FnOnce() -> Result<Option<PathBuf>, String>) -> Replied {
     let body = ticketed(imports, body);

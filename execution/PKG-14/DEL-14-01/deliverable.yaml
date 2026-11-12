@@ -1,149 +1,76 @@
 id: DEL-14-01
 name: Immutable model state records
 needs:
-- from: DEL-00-01
-  condition: 'DEL-14-01 needs DEL-00-01 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-02
-  condition: 'DEL-14-01 needs DEL-00-02 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-03
-  condition: 'DEL-14-01 needs DEL-00-03 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-04
-  condition: 'DEL-14-01 needs DEL-00-04 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-06
-  condition: 'DEL-14-01 needs DEL-00-06 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-07
-  condition: 'DEL-14-01 needs DEL-00-07 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-00-08
-  condition: 'DEL-14-01 needs DEL-00-08 as a predecessor: Architecture basis remains prerequisite context
-    for sealed downstream work.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 - from: DEL-02-01
-  condition: 'DEL-14-01 needs DEL-02-01 as a predecessor: Immutable state records snapshot the canonical
-    model.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The model document has one current version and one validator, every addressable record in it
+    has a stable identifier, and its model hash is SHA-256 over its RFC 8785 canonical text.
   gating: true
 - from: DEL-02-05
-  condition: 'DEL-14-01 needs DEL-02-05 as a predecessor: Immutable state records need persistence and
-    serialization.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The project store holds each project under its identity, changes its own schema forward only,
+    refuses a store newer than the build before writing anything, and refuses by name a saved
+    state whose model document is not the current version.
+  gating: true
+- from: DEL-00-04
+  condition: >-
+    A JSON payload is hashed as SHA-256 over its RFC 8785 canonical form, and storage is a local
+    SQLite project store changed only through application services.
   gating: true
 - from: DEL-08-02
-  condition: 'DEL-14-01 needs DEL-08-02 as a predecessor: Immutable state records need audit manifest/hash
-    conventions.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    Canonical JSON has one implementation of RFC 8785 with SHA-256 hashing, and a hash record
+    names the basis its digest was actually computed on and the payload it covers.
   gating: true
 - from: DEL-05-04
-  condition: 'DEL-14-01 needs DEL-05-04 as a predecessor: Immutable state records need analysis-state/status
-    vocabulary.
-
-
-    Notes: active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type
-    2 dispatch authority by itself; approved DAG-002 evidence preserved for reconciliation.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The software's analysis statuses are a closed vocabulary that excludes human approval for a
+    project and code compliance.
+  gating: true
+- from: DEL-00-06
+  condition: >-
+    The diagnostic contract fixes the fields a diagnostic record carries (code, class, severity,
+    source, affected object, message, remediation, provenance), so that a warning kept in a state
+    record is the diagnostic that was raised.
+  gating: true
+- from: DEL-12-02
+  when: Exposing a state's external references in an export or a report
+  condition: >-
+    A report or export is classified with one export context before project data is exposed, and
+    private values are retained only in a local-private context with the user's explicit intent.
+  gating: true
+- from: DEL-08-05
+  when: Publishing a state's external references or a public example of a state
+  condition: >-
+    The protected-content linter reports findings with a review route, for protected content and
+    for each prohibited claim, on a public text target it is given, and a blocking finding blocks
+    publication of that content.
   gating: true
 code_paths:
 - schemas/model_state.schema.json
-- core/project_persistence/service.py
+# The state tables, their immutability and integrity checks, and the state commands. The two
+# commands that admit and read a pair of states for a comparison sit in the same file and serve
+# DEL-14-03.
 - apps/desktop/src-tauri/src/model_states.rs
 - apps/desktop/src/services/modelStateService.ts
+# Memory admission for reads of stored states and runs. The file is DEL-14-02's; this
+# deliverable's part is the admission of a state read.
+- apps/desktop/src-tauri/src/stored_read.rs
+# DEL-07-08 owns the History panel and its interaction. This hook is listed here for what it does
+# with a state: the parent of the next saved state and the saved basis after a state is opened.
 - apps/desktop/src/features/history/useModelStateHistory.ts
+# The headless persistence service is DEL-02-05's. This deliverable's part is the model-state
+# records its envelope carries and the serializer of the record hash.
+- core/project_persistence/service.py
+# The record witness and the serializer vectors. DEL-02-05 lists the whole fixture folder.
+- fixtures/persistence/model_state_record_witness.json
 - fixtures/persistence/sorted_compact_json_vectors.json
 - tools/fixtures/sorted_compact_json_vectors.py
-- fixtures/persistence/model_state_record_witness.json
 checks:
 - tests/test_model_state_schema.py
+- tests/test_model_state_record_parity.py
 - tests/test_project_persistence_service.py
 - tests/test_persistence_schema.py
-- tests/test_model_state_record_parity.py
 - apps/desktop/src-tauri/src/model_states.rs
 - apps/desktop/src/features/history/modelStateHistory.session.test.tsx
-# C1 slice 6: the History panel's recorded-run check reopens the run natively.
 - apps/desktop/src/features/workspace/nativeReopen.session.test.tsx

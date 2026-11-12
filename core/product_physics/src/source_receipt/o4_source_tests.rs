@@ -1,4 +1,4 @@
-//! O4 (DEL-04-08 Design `o4-source-extension.md` §3, §5 and §6): the
+//! O4: the
 //! retained-source route (`pressure-source-1`) on Timoshenko and dual-basis
 //! documents. Every control here is an in-memory re-authoring of a committed
 //! current request (n05, fields), never a committed corpus entry:
@@ -166,7 +166,7 @@ fn dumped(records: &[Value], index: usize, key: &str) -> Value {
     serde_json::from_str::<Value>(records[index][key].as_str().unwrap()).unwrap()["payload"].clone()
 }
 
-/// O4 §3.2 and §6: documents with a nonzero mill tolerance and allowance
+/// documents with a nonzero mill tolerance and allowance
 /// select pressure-source-1 in both modes and read eligible with their
 /// captured invocation (Rust raw reader, G2's model checks and transport).
 /// A member whose sections differ publishes reduced stress rows formed on its
@@ -844,7 +844,7 @@ fn o4_source_controls_are_current() {
     assert!(committed == document, "{CONTROLS_PATH} is current (SWBPIPE_O4_SOURCE_CONTROLS_WRITE=1 rewrites it)");
 }
 
-/// O4 §5: the test-only declared-problem dump (`source.rs`
+/// the test-only declared-problem dump (`source.rs`
 /// `with_source_dump`, whose doc comment states the format). Always: the
 /// records of the Timoshenko dual-basis control hash to its receipt's
 /// commitments. With `SWBPIPE_O4_SOURCE_DUMP_REQUEST` (a request JSON file)

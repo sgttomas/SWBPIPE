@@ -1,4 +1,4 @@
-//! RT-A3 P (DEL-04-07 `Work/rt-a3-p-scale-repair.md`): the loop on the
+//! RT-A3 P (DEL-04-07): the loop on the
 //! pattern. The shadow check in `solve_active_set_frame_with_mode_and_springs`
 //! compares every sparse-mode loop solve of this crate's tests with today's
 //! dense-derived sequence; these tests show it runs and cover the strict-gap

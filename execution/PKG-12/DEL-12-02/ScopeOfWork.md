@@ -2,511 +2,175 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-12-02
 package_id: PKG-12
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-040]
 package_objective_refs: [OBJ-010]
 ---
 
-# Scope of Work — DEL-12-02
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency conditions are declared in this deliverable's `deliverable.yaml`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-12-02 Private data redaction and export controls
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-12-02` in service of project scope [SOW-040] and package objectives [OBJ-010].
+This deliverable decides what of a user's private and protected data may leave the product, and in what form. Every way out (a report on screen, a saved file, a print, a download, a handoff, a command-line output) is a catalogued route. Before a route exposes anything, its content is classified under one export context and each value is included, kept with a warning, redacted, omitted, or the whole export is blocked, and the decisions are returned where the user and the caller can see them. Its result is that a shared or public output never silently carries private values or suspected protected content, that a local private output carries them only on the user's explicit intent, that a user can share their own project data in one report by an explicit release for that report, and that none of this changes the source model.
 
-- **OUT-001** — A private-data redaction and export-control contract for reports, shared models, downstream tools, public examples, and local-private outputs is produced.
+It serves SOW-040 under OBJ-010 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-12, row DEL-12-02), PRD §20.3 (private data excluded from public examples and issue bundles by default), PRD §19.4 and FR-REP-005 (report prohibitions) and FR-RULE-004 (private rule packs excluded unless explicitly exported). Exit criterion 4 of `docs/RELEASE_TARGET_v1.0.md` names this deliverable with DEL-08-01: a user releases, saves and prints a report for results on either solve route, with the PRD §19.3 notice and a reproducible canonical hash. This deliverable's part of that criterion is the classification under which a user's own project data becomes shareable in one report, and the admission of the route that carries it. The report, its package, the record of the release, the notice and the hash are DEL-08-01's.
+
+- **OUT-001** — The export control contract: `docs/security/redaction_export_controls.md` and `schemas/redaction_export_controls.schema.yaml`. Together they state the export contexts, the privacy classes, the actions, the decision order, the reading of item metadata, the findings and the controlled export.
+- **OUT-002** — The classifier: the decision for one item and the redaction of one payload, in each language the product needs it in.
+- **OUT-003** — The route catalogue and route admission: the governed routes, each route's fixed context, the intent its wrapper supplies, and the admission decision made from route metadata.
+- **OUT-004** — The native screens on the desktop's saves: the desktop's own reading of the content it is asked to write, made before the save dialog.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-12-02 Private data redaction and export controls
+**Terms the product implements.**
 
-> #### Datasheet: DEL-12-02 Private data redaction and export controls
->
+- *Export.* Any exposure of project-derived content outside the session's working model: report markup, a render call, a preview, a saved file, a print, a download, standard output, an output file, a handoff to another tool.
+- *Export context.* Exactly one per export, fixed by the route:
 
-### CLM-002 — Identification
+  | Context | Meaning |
+  |---|---|
+  | `public_report`, `public_example` | Public output. Public metadata and invented public examples are included; private and unresolved values are redacted; suspected protected content and professional claims block. Examples are invented or reviewed public-permissive content |
+  | `shared_model` | A model shared with another party. Private project, material, component, rule-pack, owner-standard, design-basis, path and secret-like data are redacted unless metadata supports sharing |
+  | `downstream_tool` | A handoff to another tool. Unresolved and private values are redacted unless metadata supports the handoff |
+  | `local_private` | The user's own local output. Private values are kept only on the user's explicit intent, each with a warning finding |
+  | `user_released_report` | One report of the user's own session in which the user releases their own project data for sharing, with their statement that they hold the redistribution right |
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-12-02 |
-> | Deliverable Name | Private data redaction and export controls |
-> | Package ID | PKG-12 |
-> | Package Name | Security, Privacy, and Private Data Handling |
-> | Deliverable Type | SECURITY_CONTROL |
-> | Scope Item | SOW-040 |
-> | Objective | OBJ-010 |
-> | Setup Run Date | 2026-04-30 |
-> | Lifecycle State | `_STATUS.md` currently records `IN_PROGRESS`; this evidence alignment does not authorize lifecycle promotion |
->
+- *Item metadata.* What a value says about itself: field class, privacy class, redistribution status, review status and provenance. Decisions rest on this explicit metadata only. Sensitivity is never inferred from how a value looks, from a file name or from a text pattern.
+- *Privacy classes.* Private: project data, material data, component data, rule-pack data, owner-standard data, company design-basis data, path data and secret-like data. Safe: public metadata and invented public examples. A *public redistribution status* is public permissive, or the status the product's schemas give an invented example. *Safe metadata* is what may stay visible when marked public: identifiers, versions, checksums, source notes, warning summaries, schema versions and provenance summaries.
+- *Action.* `include`, `warning_only`, `redact_value`, `redact_field`, `omit_field` or `block_export`. In strictness, `include` < `warning_only` < `redact_value` < `block_export`.
+- *Finding.* The machine-readable record of a decision that is not a plain inclusion. It carries the fields DEL-00-06 requires of a diagnostic (code, class, severity, source, affected object, message, remediation, and provenance where applicable), with the affected path as its affected object, and the action it records. The classes are `IP_BOUNDARY_WARNING`, `PRIVATE_DATA_WARNING`, `PROVENANCE_WARNING`, `STORAGE_BOUNDARY_WARNING` and `PROFESSIONAL_BOUNDARY_WARNING`.
+- *Controlled export.* What every route returns before it exposes anything: the controlled payload or none, the decisions, the findings, whether the export is blocked, and a summary. The controlled payload is a copy; the source is untouched.
+- *Route.* One final sink with an identifier and a fixed export context. A route's wrapper supplies the user's intent. Intent carried inside a payload is never read and grants nothing.
+- *Route catalogue.* The set of governed route identifiers. An identifier outside it is refused. Some routes admit only `local_private`, the result-table CSV save and the MBF export among them. One route admits only `user_released_report`.
+- *Route admission.* The decision on one route's own metadata (identifier, export context, storage context, intent), made with DEL-12-01's storage guard and returned as evidence with an action, a reason code and a blocked flag. It reads no payload.
+- *Lossless route.* A route whose format cannot carry a redaction without corrupting its meaning. It is withheld whole when any value would be redacted, omitted or blocked.
+- *Decision order.* In every context an item is decided in this order, and an earlier block is final:
+  1. a professional claim blocks;
+  2. a cloud or network reference blocks;
+  3. direct SQL access blocks;
+  4. a storage bypass blocks;
+  5. secret material blocks;
+  6. a contained payload blocks;
+  7. a privacy class or redistribution status of suspected protected content blocks;
+  8. a review status of quarantined or rejected blocks;
+  9. the context's own rule applies;
+  10. a concrete path is redacted, unless step 9 blocked.
+- *The context's own rule.* In the public, shared and downstream contexts: a safe class with a public redistribution status is included; a private class is redacted; missing or unknown metadata is redacted. In `local_private`: a private class is kept with a warning when the wrapper states the user's intent and blocks without it; missing or unknown metadata is kept with a warning. In `user_released_report`: a private class other than project data is redacted whatever its redistribution status; private project data is kept with a warning when the wrapper states the user's release and blocks without it; public metadata and invented public examples are included; anything else, missing and unknown metadata included, blocks.
+- *Disposition member.* A member named `redistribution_status`, `review_status`, `privacy_class`, `privacy_classification`, `classification` or `lifecycle_status`.
+- *Blocked disposition.* A redistribution or review status of suspected protected content, quarantined or rejected, as DEL-03-07 decides on import.
 
-### CLM-003 — Attributes
+**Reading of item metadata.** The contract document states these rules in full, and every implementation follows them:
 
-> ##### Attributes
->
-> | Attribute | Value |
-> |---|---|
-> | Control surface | Report/export privacy guardrails for private rule, material, component, project, and code/design-basis values |
-> | Primary output class | Redaction configuration contract and export-test expectations |
-> | Product posture | Local-first; no cloud export or transmission unless separately approved |
-> | Default sharing posture | Shared/public exports require explicit private-data handling and must not silently include protected/private values |
-> | Private data classes | Project model values; private rule-pack values; material and allowable-like values; component/manufacturer values; owner/company design-basis fields; private report-template content |
-> | Protected data classes | Standards text, tables, figures, copied formulas, material allowables, SIF/flexibility tables, protected dimensional tables, and proprietary commercial data |
-> | Diagnostic class | `IP_BOUNDARY_WARNING` where export/report content may expose private or protected data |
-> | Redaction action vocabulary | `include`, `warning_only`, `redact_value`, `redact_field`, `omit_field`, `block_export` |
-> | Export context vocabulary | `public_report`, `public_example`, `shared_model`, `downstream_tool`, `local_private`, `user_released_report` |
-> | Config persistence | `schemas/redaction_export_controls.schema.yaml` now records the local-first control profile, field policies, decisions, and findings contract; durable project/profile storage location and storage roots remain `TBD` |
-> | Export-test status | Current guard and fixed-route tests are defined in `tests/security/test_redaction_export_controls.py`, `redactionExportControls.test.ts` and `ControlledExportLink.test.tsx`. The R15 accepted breadth scope and native witness limit remain specific; this record runs no suite or new acceptance. |
-> | Implementation status | Metadata helper/schema plus actual desktop/Python/Rust final-sink bindings exist. Persist profile lifecycle, native witnesses, future public/plugin egress, quarantine, cloud and legal/security approval as separately scoped obligations. |
->
+- a privacy or redistribution label that is neither text nor null matches no class, and is not treated as unknown, safe or absent; a null or absent label falls back to the item's provenance;
+- the `classification` alias is read only when `privacy_classification` is absent, never when it is present and null;
+- an object carrying its own `__proto__` member gets no public basis, and a decision that would have been an inclusion becomes the unknown-label decision; every other decision stands;
+- an input that carries one of the exporter's reserved internal names is blocked whole;
+- a record holding a value with metadata but no label takes the stricter of its decision as one item and its decision member by member, and a restriction covers the whole subtree beneath it;
+- a blocking flag is set by `true`, a non-zero number or a recognized word; an intent flag is set only by `true` or a recognized word;
+- `professional_claim` blocks unless it is absent, null or `false`;
+- the desktop's entry points accept only a plain JSON data graph, read once, and refuse anything else whole.
 
-### CLM-004 — Conditions
+**Boundary.**
 
-> ##### Conditions
->
-> | Condition | Constraint |
-> |---|---|
-> | Configuration required | Any export path that can expose private values must have an explicit redaction/export policy, even if the policy is to allow a local private export. |
-> | Default redaction boundary | Public templates and public examples must not include protected standards content, private user data, copied proprietary formulas, or vendor data without documented rights. |
-> | Local private export | A user may need an unredacted local export for project review, but the workflow must make the privacy status and responsibility visible. |
-> | Shared/public export | Shared or public-facing exports must redact or block private values according to configuration and emit an auditable warning/manifest. |
-> | Report manifest | Export records should preserve model/report hashes, solver/report versions, rule-pack identity/version/checksum, provenance summaries, warnings, and limitations without revealing redacted values. |
-> | Adapter boundary | Import/export adapters and plugins cannot bypass units, provenance, diagnostics, sandboxing, report controls, or public/private data checks. |
-> | Professional boundary | Redaction status, report export, or rule-pack checksum must not be framed as certification, sealing, approval, authentication, or code compliance (PRD §21.2). |
->
+- DEL-08-01 owns the report: its assembly, rendering, saving, printing and package, the record of a user release with its binding to the model and result, and the notices. DEL-08-03 and DEL-08-06 own report sections, DEL-08-04 the result JSON and CSV exports, DEL-08-05 the protected-content linter and the release scan. DEL-15-01 and PKG-17 own the handoff and the export formats. Each brings its outputs out through a catalogued route.
+- DEL-12-01 owns the path classes and the storage guard. DEL-12-04 owns the release of private-library and credential references. DEL-12-03 owns telemetry.
+- DEL-03-07 decides whether a library is admitted, and DEL-06-04 keeps a rule pack's identity, checksum and privacy standing. This deliverable reads the status they record.
+- The embedded agent's model-provider channel (DEL-16-06) is runtime handling of the user's own data, not an export.
+- The control moves no quarantined material, transmits nothing and decides no legal right. A clean result is review evidence, not legal or professional clearance.
 
-### CLM-005 — Redaction Configuration Contract
+**Not decided.**
 
-> ##### Redaction Configuration Contract
->
-> This deliverable now has current evidence for a schema-governed redaction/export-control contract in `schemas/redaction_export_controls.schema.yaml` and a metadata-only helper under `core/security/redaction/`. Current final-sink bindings are recorded in `docs/security/redaction_export_controls.md` and desktop/Python/Rust consumers. Persisted profile lifecycle, public transport, future adapter/plugin egress, legal approval and native witness limitations remain separate obligations; existing UI/local CLI/export routes are not blanket TBDs.
->
-> | Proposed Config Slot | Purpose | Default Setup Expectation |
-> |---|---|---|
-> | `profile_id` | Stable identifier for a redaction/export profile. | Schema slot exists; persisted profile lifecycle remains `TBD`. |
-> | `export_context` | Classifies the intended export surface. | Configured context vocabulary exists for public report/example, shared model, downstream tool, and local private export. |
-> | `field_classification_rules` | Maps model/report fields to public, private, protected-suspected, or unknown handling classes. | Helper uses explicit metadata only; unknown risky fields produce warning, redaction, or blocking behavior. |
-> | `rule_pack_detail_policy` | Controls formula, allowable, interpretation, source-note, and checksum exposure. | Public/shared exports may include safe metadata such as identity/version/checksum/source note, not protected formula text. |
-> | `material_value_policy` | Controls material properties, allowables, provenance, and redistribution-status exposure. | Apply classification at the controlled final sink using the current desktop/Python/Rust route bindings; preserve material-value provenance and source immutability. Candidate evidence remains route-specific. |
-> | `component_value_policy` | Controls manufacturer/vendor component fields, geometry catalogs, stiffnesses, and private modifiers. | Apply current guarded final-sink classification to component values and private modifiers; source data must remain unchanged and blocking findings prevent exposure. |
-> | `project_value_policy` | Controls project-specific loads, owner requirements, coordinates, equipment loads, paths, and design-basis values. | Shared/public sinks redact private metadata and concrete paths through current route controls. Local-private retention requires wrapper-owned explicit intent; local placement follows the governed storage boundary. |
-> | `manifest_policy` | Defines what evidence remains in an export manifest after redaction. | Preserve safe identity, unit, hash/checksum and provenance metadata at final sinks. Withhold lossless exports when redaction would corrupt required semantics; maintain invented-data producer/consumer parity. |
-> | `override_policy` | Defines whether unredacted private export is allowed. | Local-private retention requires explicit local/private intent and emits warnings; approval and user-confirmation workflow remain `TBD`. |
-> | `diagnostic_policy` | Defines warning classes and blocking findings. | `IP_BOUNDARY_WARNING`, `PRIVATE_DATA_WARNING`, `PROVENANCE_WARNING`, `STORAGE_BOUNDARY_WARNING`, and professional-boundary findings are represented. |
-> | `template_guard_policy` | Controls public report templates and examples. | Use typed protected-content checks and controlled report/template exposure. Scoped release scanning and legal review remain separate; neither guard presence nor a scan supplies legal approval. |
->
-
-### CLM-006 — Export Test Expectations
-
-> ##### Export Test Expectations
->
-> Current deliverable obligation: implement export/report safeguards that warn or redact private rule/material/component values where configured. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> | Test Expectation | Risk Covered | Setup Status |
-> |---|---|---|
-> | Redacted public report excludes private rule/material/component values. | Private data leakage. | Focused invented-fixture test exists; runtime report/export integration remains `TBD`. |
-> | Public template linter rejects protected code text, copied tables, protected formulas, and proprietary examples. | Protected content leakage. | Guardrail scans exist for changed surfaces; protected-content linter and legal-review workflow remain `TBD`. |
-> | Local private export can retain private values only with explicit user intent and warning/audit record. | Accidental disclosure. | Focused invented-fixture test exists; final UI/CLI approval flow remains `TBD`. |
-> | Redacted export preserves non-sensitive manifest evidence such as hashes, versions, warnings, and provenance summaries. | Reproducibility loss after redaction. | Schema/docs/helper preserve safe metadata classes; full report/export manifest integration remains `TBD`. |
-> | Adapter/plugin export path cannot bypass redaction, units, provenance, sandboxing, or diagnostics. | No-bypass failure. | Metadata hardening blocks storage/privacy bypass markers; adapter/plugin runtime routing remains `TBD`. |
-> | Redaction never mutates the source project model or private libraries. | Destructive export behavior. | Focused invented-fixture source non-mutation test exists; runtime source-model integration remains `TBD`. |
->
-### CLM-007 — Construction
-
-> ##### Construction
->
-> The original setup artifact constructed a documentation-level redaction/export control contract. Later bounded implementation evidence added a metadata-only redaction helper, schema, focused invented-fixture tests, and security documentation. This alignment records that evidence without changing product code or lifecycle state.
->
-> Current evidence includes:
->
-> - redaction/export-control requirements in `ScopeOfWork.md`;
-> - configuration-slot and export-test expectations in this datasheet;
-> - guidance on export contexts, warning behavior, and deferred implementation decisions in `ScopeOfWork.md`;
-> - setup and future integration procedure in `ScopeOfWork.md`;
-> - schema contract in `schemas/redaction_export_controls.schema.yaml`;
-> - metadata-only helper in `core/security/redaction/`;
-> - focused tests in `tests/security/test_redaction_export_controls.py`;
-> - implementation guidance in `docs/security/redaction_export_controls.md`;
-> - semantic matrix/lensing and dependency setup artifacts.
->
-> This run does not create product source code, tests, schemas, real project data, private rule packs, protected standards content, secrets, credentials, cloud operations, destructive quarantine movement, legal sufficiency, security certification, lifecycle acceptance, or professional/code-compliance claims (PRD §21.2).
->
-### CLM-008 — References
-
-> ##### References
->
-> | Source | Use |
-> |---|---|
-> | `AGENTS.md` | Bootstrap boundaries: open mechanics, protected data, private data, and no certification claims. |
-> | `AGENTS.md` | Type 2 scoped execution and write-scope constraints. |
-> | `docs/DIRECTIVE.md` | Product principles for private code data, provenance, unit safety, report auditability, stop rules, and hidden cloud/telemetry exclusion. |
-> | `docs/CONTRACT.md` | OPS-K-IP, OPS-K-DATA, OPS-K-AUTH, OPS-K-REPORT, OPS-K-PRIV, OPS-K-RULE, and OPS-K-AGENT invariants. |
-> | `docs/TYPES.md` | SECURITY_CONTROL type, private/user-supplied data vocabulary, report object, rule-pack reference, and analysis-status boundaries. |
-> | `docs/SPEC.md` | Layered architecture, adapter no-bypass rule, report/audit content, warning classes, and validation expectations. |
-> | `docs/IP_AND_DATA_BOUNDARY.md` | Public/private data policy, quarantine rule, and report boundary. |
-> | `execution/_Decomposition/SOFTWARE_DECOMP.md` | PKG-12, DEL-12-02, SOW-040, OBJ-010, and AB-00 architecture basis. |
-> | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) | Deliverable identity, anticipated artifacts, context/risk notes. |
-> | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) | Scope ledger row for SOW-040. |
+- Whether a user can save a redaction profile with a project, and where it would be kept. The schema defines only a profile's form.
+- What is done with content the control blocks as suspected protected, beyond blocking and reporting it.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-009 — Specification: DEL-12-02 Private data redaction and export controls
+The control is adequate when, for any content offered to any route, the outcome can be predicted from the rules above, is observed before anything is exposed, and is the same wherever the rules are implemented.
 
-> #### Specification: DEL-12-02 Private data redaction and export controls
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-011 — Scope
+- **REQ-001** — Every export is classified under one export context before project, rule-pack, material, component, owner or design-basis data is exposed (SOW-040; `docs/CONTRACT.md` OPS-K-PRIV-1).
+- **REQ-002** — A shared or public export never silently includes private project data, private rule-pack values, private material or component values, protected standards content, copied formulas, proprietary templates or vendor data without documented rights (`docs/CONTRACT.md` OPS-K-IP-1, OPS-K-IP-3, OPS-K-REPORT-2).
+- **REQ-003** — Public report templates and public examples contain no protected formula, standards table, copied code text, proprietary report template or private project example (PRD §19.4, FR-REP-005).
+- **REQ-004** — The control supports at least warning, value redaction, field redaction, export blocking and an explicit allowance for local private export.
+- **REQ-005** — An unknown or insufficiently established redistribution status leads to a warning, a redaction or a block, never to silent public inclusion (`docs/CONTRACT.md` OPS-K-IP-2).
+- **REQ-006** — A local private export keeps private values only when the context is `local_private` and the user's intent is explicit. The export's record keeps a warning for each value kept.
+- **REQ-007** — Redaction works on a copy made for the export. It never changes the source project model, a private library or a rule pack.
+- **REQ-008** — A redacted export keeps the evidence that is safe to keep: model and report hashes, solver and report versions, input-manifest identifiers, warning summaries, rule-pack identity, version and checksum, and provenance summaries (`docs/CONTRACT.md` OPS-K-REPORT-1).
+- **REQ-009** — In a public or shared report, a rule pack appears only as safe metadata (identifier, version, checksum, source note) unless the user has documented rights to include more (`docs/CONTRACT.md` OPS-K-RULE-3; FR-RULE-004).
+- **REQ-010** — Material, component, section, stress-intensification and flexibility values, allowables, vendor values and design-basis fields bring their provenance and their privacy and redistribution status into the decision (`docs/CONTRACT.md` OPS-K-DATA-3).
+- **REQ-011** — Every redaction, protected-content and private-data decision that is not a plain inclusion is a machine-readable finding, with `IP_BOUNDARY_WARNING` where content may cross the public boundary. A finding class of the contract that is not one of the six warning classes is a local class of this boundary (DEL-00-06).
+- **REQ-012** — No adapter, plugin, command-line export, report preview or export, or downstream handoff exposes content around the control. A route outside the catalogue exposes nothing.
+- **REQ-013** — The control keeps mechanics solved, user-rule checked and human-approved distinct, and blocks any content that claims certification, sealing, approval, authentication or code compliance (PRD §21.2).
+- **REQ-014** — The control is examined for public report export, local private export, shared model export, downstream-tool export, adapter and plugin routes, preservation of safe evidence, unknown provenance and non-mutation of the source.
+- **REQ-015** — A route, export format or transport that no decision has admitted is not in the catalogue, and the control invents no policy for it.
+- **REQ-016** — A shareable report may include the user's own private project data only after the user's explicit release of that data for that one report, with the user's statement that they hold the redistribution right (`docs/IP_AND_DATA_BOUNDARY.md` §6). The export context is `user_released_report`, admitted only on its own route and only with the release its wrapper states. The release is not kept for later reports. Private rule-pack and library values stay at safe metadata. Protected, quarantined and rejected content still blocks. Every other export context is unchanged.
+- **REQ-017** — Wherever the classifier, the catalogue or route admission is implemented more than once, every implementation gives the same decision for the same input, and each route has one identity and one policy.
+- **REQ-018** — A native save decides for itself. The evidence it is handed must name, by hash, the exact content it received; the desktop screens the disposition members of that content itself, at every depth, and refuses a blocked disposition and any disposition member whose value is a list or an object. A null, boolean or number disposition is not refused and is never read as public. Caller evidence alone admits nothing.
+- **REQ-019** — An issue, crash or support bundle exposes project-derived content only as a catalogued route, and excludes private data by default (PRD §20.3).
 
-> ##### Scope
->
-> Maintain private/protected-data controls for reports, shared models, downstream outputs and public templates/examples. The metadata helper itself has no I/O; actual route bindings control payload exposure before report DOM, download, native IPC/save and local CLI sinks. Current sources and the final-sink contract are identified in `docs/security/redaction_export_controls.md`.
->
-> Require wrapper-owned route context and explicit local-private intent, source non-mutation, blocking before exposure and safe metadata/parity. The R15 handoff closes only its accepted REXC-REQ-012 breadth scope and retains native save/print witness limits. Preserve missing native witnesses, persisted-profile lifecycle, future public/plugin transports, destructive quarantine, cloud exceptions and legal/security review. No real protected-data handling, professional acceptance or lifecycle issuance is inferred by this record repair.
+### Acceptance criteria
 
-### CLM-012 — Requirements
-
-> ##### Requirements
->
-> | Requirement ID | Requirement | Source Basis | Verification |
-> |---|---|---|---|
-> | REXC-REQ-001 | Export and report workflows shall classify the export context before exposing project, rule-pack, material, component, owner, or code/design-basis data. | SOW-040; OPS-K-PRIV-1; `docs/SPEC.md` §§1,8 | Confirm the control contract includes explicit export context classes. |
-> | REXC-REQ-002 | Shared/public exports shall not silently include private project data, private rule-pack values, private material/component values, protected standards content, copied formulas, proprietary templates, or vendor data without documented rights. | OPS-K-IP-1; OPS-K-IP-3; OPS-K-REPORT-2; `docs/IP_AND_DATA_BOUNDARY.md` §§3,7 | Focused redaction tests cover private/unknown metadata handling; protected-content linter and runtime export-route tests remain `TBD`. |
-> | REXC-REQ-003 | Public report templates and public examples shall be protected-data-free and shall not embed protected formulas, standards tables, copied code text, proprietary report templates, or private project examples. | OPS-K-REPORT-2; `docs/SPEC.md` §8; `docs/IP_AND_DATA_BOUNDARY.md` §7 | Guardrail scans exist for changed surfaces; report-template linter/runtime integration remains `TBD`. |
-> | REXC-REQ-004 | Redaction configuration shall support at least warning, value redaction, field redaction, export blocking, and explicit local-private export allowance. | SOW-040; `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-12-02 | Schema vocabulary and focused tests now check the supported policy vocabulary. |
-> | REXC-REQ-005 | Unknown or insufficiently proven redistribution status shall result in warning, redaction, or block behavior rather than silent public inclusion. | OPS-K-IP-2; OPS-K-DATA-3; OPS-K-AGENT-1 | Focused redaction tests check unknown-source handling. |
-> | REXC-REQ-006 | Local private exports may retain private values only when the export context is local/private and user intent is explicit; the export record shall preserve a warning or audit note. | OPS-K-PRIV-1; `docs/DIRECTIVE.md` §§4.2,6 | Focused tests check explicit local-private intent, including the desktop rendered-report panel's wrapper-owned selection (`DREP-IPC-003` and `DREP-HTML-SAVE-005` in `local_private`) and the rendered document's local-private notice; final UI/CLI approval flow remains `TBD`. |
-> | REXC-REQ-007 | Redaction shall not mutate the source project model, private libraries, or rule packs; it shall operate on an export/report representation. | AB-00-04; OPS-K-DATA-3 | Focused tests confirm the helper copies export/report representations; runtime source-model integration remains `TBD`. |
-> | REXC-REQ-008 | Redacted exports shall preserve non-sensitive reproducibility evidence such as model/report hashes, solver/report versions, input-manifest identifiers, warning summaries, rule-pack identity/version/checksum, and provenance summaries where safe. | OPS-K-REPORT-1; SOW-039; AB-00-04; `docs/SPEC.md` §8 | Schema/docs/helper support safe metadata preservation; full report/export manifest integration remains `TBD`. |
-> | REXC-REQ-009 | Rule-pack details in public/shared reports shall be limited to safe metadata such as ID, version, checksum, and source note unless the user has documented rights to include formula/detail content. | OPS-K-RULE-3; OPS-K-REPORT-2; `docs/IP_AND_DATA_BOUNDARY.md` §7 | Focused tests preserve safe checksum metadata while redacting private rule-pack values; runtime rule-pack/report integration remains `TBD`. |
-> | REXC-REQ-010 | Materials, components, sections, SIF/flexibility-like values, allowables, manufacturer/vendor values, and code/design-basis fields shall carry provenance and privacy/redistribution status into redaction decisions. | OPS-K-DATA-3; OPS-K-IP-2; `docs/TYPES.md` §§7-8 | Future schema/adapter tests check provenance and status inputs. |
-> | REXC-REQ-011 | Diagnostics and result/report envelopes shall surface redaction, protected-content, and private-data export findings using machine-readable diagnostics, including `IP_BOUNDARY_WARNING` where applicable. | AB-00-06; `docs/SPEC.md` §7 | Future diagnostics tests check code/class/severity/source/affected object/message/remediation/provenance fields. |
-> | REXC-REQ-012 | Adapters, plugins, CLI exports, GUI report preview/export, and downstream-tool handoffs shall not bypass redaction, provenance, unit, sandboxing, diagnostics, or report controls. | AB-00-02; AB-00-07; OPS-K-PRIV-1 | Future adapter/plugin tests exercise no-bypass routes. |
-> | REXC-REQ-013 | Export controls shall preserve the distinction among mechanics solved, user-rule checked, and human-approved states, and shall not claim certification, sealing, approval, authentication, or code compliance (PRD §21.2). | OPS-K-AUTH-1; OPS-K-AUTH-2; AB-00-03; `docs/TYPES.md` §4 | Report review checks professional-boundary notices and status vocabulary. |
-> | REXC-REQ-014 | Redaction/export tests shall cover public report export, local private export, shared model export, downstream-tool export, adapter/plugin routes, manifest preservation, unknown provenance, and source-model non-mutation. | AB-00-08; `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md` §5 | Use current fixed-route desktop/Python/Rust guard tests and R15 scope-bound evidence. Retain native save/print limits, future public/plugin routes and scoped legal review; this record establishes no fresh execution or acceptance. |
-> | REXC-REQ-015 | Any unresolved config schema, UI control, export format, public API transport, or physical project package/container choice shall remain `TBD` until resolved through an authorized implementation or architecture decision. | AB-00-04; AB-00-07; OPS-K-AGENT-1 | Review this deliverable for explicit TBD/open issue entries. |
->
-
-### CLM-013 — Standards
-
-> ##### Standards
->
-> No external engineering code, standards clause, protected table, protected formula, material allowable, SIF/flexibility table, protected dimensional table, proprietary report template, vendor catalog, real private project, or real secret is used or reproduced by this deliverable.
->
-> The controlling project sources for this deliverable are the SWBPIPE governance and decomposition artifacts listed in `ScopeOfWork.md` and `_REFERENCES.md`.
->
-### CLM-014 — Verification
-
-> ##### Verification
->
-> | Verification ID | Check | Expected Result |
-> |---|---|---|
-> | REXC-VER-001 | Confirm `ScopeOfWork.md` exists and preserves required sections. | `ScopeOfWork.md` is present. |
-> | REXC-VER-002 | Validate `Dependencies.csv` with `python3 tools/validation/validate_dependencies_schema.py <deliverable>/Dependencies.csv`. | Schema valid with all 29 v3.1 columns. |
-> | REXC-VER-003 | Confirm `_SEMANTIC.md` has no `MatrixError` or `MATRIX_ERROR` and no algebra/operator leaks in final result tables. | Semantic setup gate passes. |
-> | REXC-VER-004 | Confirm `_SEMANTIC_LENSING.md` has complete coverage for matrices A, B, C, F, D, X, and E. | 96 required lens coverage rows are present. |
-> | REXC-VER-005 | Search deliverable artifacts for protected standards content, real private project values, real secrets, cloud-operation assumptions, and certification/compliance/approval/seal claims (PRD §21.2). | No disallowed content found. |
-> | REXC-VER-006 | Read `_STATUS.md` without editing it. | Current lifecycle state is `IN_PROGRESS`; this evidence alignment does not promote lifecycle state or imply acceptance. |
-> | REXC-VER-007 | Confirm June 7 evidence surfaces exist for `schemas/redaction_export_controls.schema.yaml`, `core/security/redaction/`, `tests/security/test_redaction_export_controls.py`, and `docs/security/redaction_export_controls.md`. | Evidence exists; lifecycle state remains separately governed. |
-> | REXC-VER-008 | Confirm June 7 run evidence records focused redaction/storage privacy hardening validation. | `TASK_RUN_2026-06-07_0935_redaction-export-hardening.md` and package fan-in record passing focused tests. |
->
-
-### CLM-015 — Documentation
-
-> ##### Documentation
->
-> Required setup artifacts for this run:
->
-> - `ScopeOfWork.md`;
-> - `_SEMANTIC.md`;
-> - `_SEMANTIC_LENSING.md`;
-> - `Dependencies.csv`;
-> - `_DEPENDENCIES.md`;
-> - `_run_records/*`;
-> - `_STATUS.md`.
->
-> Current implementation evidence:
->
-> - `schemas/redaction_export_controls.schema.yaml`;
-> - `core/security/redaction/`;
-> - `tests/security/test_redaction_export_controls.py`;
-> - `docs/security/redaction_export_controls.md`;
-> - `TASK_RUN_2026-06-07_0935_redaction-export-hardening.md`;
-> - package fan-in `WORKING_ITEMS_RUN_2026-06-07_0957_TP-PKG12-REDACTION-SECRET-GUARD-CLOSEOUT.md`.
->
-> Original June 7 evidence above remains historical. Current final-sink bindings are described in `docs/security/redaction_export_controls.md`; the metadata helper itself remains free of I/O. Remaining artifacts and choices:
->
-> - native save/print witness limitations and candidate-bound integration evidence;
-> - persisted redaction-profile lifecycle;
-> - future public API/plugin/adapter egress not represented by current guarded local routes;
-> - scoped protected-content release review and legal review workflow;
-> - destructive quarantine movement workflow;
-> - cloud exception workflow;
-> - persisted profile location and unaccepted storage/security guarantees;
-> - future public transport and external export-format admission;
-> - approval choices;
-> - real project data, real private values, protected standards content, secrets, credentials, or cloud behavior.
-- **AC-001** — The contract preserves export-context and redaction-action vocabularies, safe manifest evidence, explicit local-private intent, non-mutation, protected/private/provenance handling, metadata-only schema/helper/test evidence, no-bypass adapter boundaries, and guarded final-sink exposure and invented-data parity, with explicit native witness and legal/security approval limits; export safeguards remain separate from legal and security review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+- **AC-001** — The contract document and the schema state every export context, privacy class, action, finding class and reason code, the decision order and each rule for reading item metadata, and say which finding classes are local to this boundary. Every decision, finding and controlled export the implementations emit validates against the schema.
+- **AC-002** — For an invented item of each privacy class and each redistribution and review status, with and without intent, in each of the six contexts, the decision is the one the decision order and the context's rule give. In particular: private values in a public, shared or downstream context are redacted; missing or unknown metadata is redacted there and kept with a warning in `local_private`; safe metadata with a public redistribution status is included.
+- **AC-003** — A professional claim, a cloud or network reference, direct SQL access, a storage bypass, secret material, a contained payload, suspected protected content and a quarantined or rejected review status each block in every context, `local_private` with intent included. A concrete path never turns a block into a redaction.
+- **AC-004** — On a `local_private` route, private values are present in the output only when the route's wrapper states the user's intent, and each carries a warning finding in the returned decisions and a warning in the export's record; without that intent the export is blocked. A payload member named `local_private_intent`, `explicit_local_private_intent` or `user_intent`, at any depth, is removed from the controlled copy and changes no decision.
+- **AC-005** — In `user_released_report`, private project data is kept with its warning finding only with the wrapper's release; a private class other than project data is redacted; missing, unknown or unrecognized metadata blocks and is never warning-only. Every enclosing object is decided before any value beneath it, so beneath a labelled object no protected, quarantined, rejected or non-project private descendant, and no descendant carrying a blocking marker, is exposed; and an object with a stated but unrecognized label blocks whatever its descendants state. The context is refused on every route but its own, a release stated with any other context is refused, and no decision in any other context differs with or without a stated release.
+- **AC-006** — After any export, redacted, blocked or admitted, the source model, the private libraries and the rule packs are equal, byte for byte in canonical form, to what they were before.
+- **AC-007** — Every route returns its controlled export before exposure. When it is blocked there is no output file or directory, no report markup, preview or render call, no save or print action, no payload on standard output and no fallback path. A lossless route with any value redacted, omitted or blocked is withheld whole. On the desktop this holds at the native save and the native print, observed there and not only in the webview. This carries commitment DEL-12-02:1.
+- **AC-008** — A route identifier outside the catalogue is refused by route admission. A `local_private`-only route is refused in any other context. Route admission reads only route metadata, and its evidence carries the route identifier, both contexts, the action, the reason code, the blocked flag and the intent.
+- **AC-009** — A redacted public or shared export of a report that used a private rule pack and a private library still contains the model and report hashes, the solver and report versions, the input-manifest identifier, the warning summary, the pack's identifier, version, checksum and source note and the provenance summaries, and contains none of the pack's formulas or values and none of the library's values.
+- **AC-010** — Every finding carries the fields DEL-00-06 requires of a diagnostic (code, class, severity, source, affected object, message, remediation, and provenance where applicable), with the affected path as its affected object and the action it records; it names the path and never the value; and states or implies no certification, approval or code compliance.
+- **AC-011** — For every case of the shared invented corpus, each implementation gives the decision this scope's rules give. For every case of the input-reading sweeps, the implementations give one and the same decision, equal to the recorded decision for the case, and none decides a case less strictly than its recorded earlier decision. The catalogue of routes, and each route's contexts and policy, are equal wherever they are held.
+- **AC-012** — A native save handed evidence that does not name the hash of the content it received refuses. Handed content with a blocked disposition, or with a disposition member that is a list or an object at any depth, it refuses before the save dialog, whatever the evidence says. A stored rule pack's own top-level `classification` object in the handoff save is the one admitted object: each of its text members is screened and any list or object inside it is refused.
+- **AC-013** — Every sink through which the product exposes project-derived content is reached only through a catalogued route's wrapper: none builds its output from the uncontrolled source.
+- **AC-014** — The public report templates and the public examples the product ships carry only invented or reviewed public-permissive content, and each passes the control in `public_report` or `public_example` with nothing blocked and nothing redacted.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-016 — Procedure: DEL-12-02 Private data redaction and export controls
+**Method choices that define the product.**
 
-> #### Procedure: DEL-12-02 Private data redaction and export controls
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Explicit metadata only.* A value is decided by what it and its provenance state. Nothing is guessed from content, so a decision can be predicted and repeated.
+- *Fixed context, wrapper-owned intent.* A route cannot choose its own policy and a payload cannot grant itself exposure.
+- *Decide before exposure, on a copy.* The controlled export exists before any sink is touched, and the source is never the thing redacted.
+- *Block is final.* The decision order puts every block ahead of any redaction or inclusion.
+- *Withhold, do not corrupt.* A format that cannot carry a redaction is not written at all.
+- *One contract, several implementations.* The classifier exists in the Python core, in the desktop's TypeScript and in a Rust mirror. One invented corpus and one set of sweeps hold them to the contract and to one another.
+- *Defence in depth at the native boundary.* The webview's evidence is checked, never trusted, by the native side that writes the file.
+- *A release is a context, not a class.* The user's release is stated by the route's wrapper. A privacy class carried in a payload could grant its own exposure; a context cannot.
 
-### CLM-018 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> This procedure describes how to maintain the DEL-12-02 redaction/export-control artifact set after setup and how implementation work should wire the current metadata-only helper, schema contract, focused tests, and security documentation into product report/export behavior without crossing private-data, protected-data, or professional-authority boundaries.
->
-
-### CLM-019 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Required State |
-> |---|---|
-> | Sealed deliverable context | DEL-12-02, PKG-12, SOW-040, OBJ-010, explicit write scope |
-> | Governance sources | `AGENTS.md`, `AGENTS.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, `docs/IP_AND_DATA_BOUNDARY.md`, and decomposition/register rows read |
-> | Architecture basis | AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, and AB-00-08 injected as constraints, not copied wholesale |
-> | Scope boundary | No edits outside this deliverable folder |
-> | Protected/private data boundary | No real private values, credentials, protected standards content, proprietary report templates, or legal/compliance claims introduced |
-> | Current evidence basis | June 7 evidence exists for `schemas/redaction_export_controls.schema.yaml`, `core/security/redaction/`, `tests/security/test_redaction_export_controls.py`, `docs/security/redaction_export_controls.md`, and `TASK_RUN_2026-06-07_0935_redaction-export-hardening.md` |
->
-
-### CLM-020 — Steps
-
-> ##### Steps
->
-> | Step | Action | Output |
-> |---|---|---|
-> | 1 | Confirm DEL-12-02 identity, scope, objective, invariants, acceptance criteria, and write scope. | `_CONTEXT.md` remains the scope anchor. |
-> | 2 | Classify export risk surfaces: report preview/export, shared model export, public templates/examples, CLI/API export, adapter/plugin export, and downstream-tool handoff. | `ScopeOfWork.md` attributes and conditions. |
-> | 3 | Classify sensitive value groups: project data, rule-pack details, material/component/library values, owner/company design basis, protected standards content, proprietary/vendor data, and private report-template content. | `ScopeOfWork.md` and `ScopeOfWork.md` private/protected value sections. |
-> | 4 | Define setup-level redaction mode and export context vocabulary against `schemas/redaction_export_controls.schema.yaml`. | `ScopeOfWork.md` redaction configuration contract. |
-> | 5 | Translate redaction/export safeguards into requirements and verification expectations. | `ScopeOfWork.md` REXC requirements and verification table. |
-> | 6 | Record implementation guidance, trade-offs, open issues, and human-ruling conflicts. | `ScopeOfWork.md` principles, trade-offs, open issues, and conflict table. |
-> | 7 | Build semantic matrix and lensing artifacts against the current Scope of Work. | `_SEMANTIC.md` and `_SEMANTIC_LENSING.md`. |
-> | 8 | Apply P3 lensing by surfacing warranted TBDs, verification gaps, or conflicts only when source evidence supports the edit. | Open issues and verification gaps remain visible. |
-> | 9 | Extract dependency register rows for anchors and explicit execution information flow. | `Dependencies.csv` and `_DEPENDENCIES.md`. |
-> | 10 | During the historical setup workflow, run validation checks before any authorized lifecycle update. | Final setup run records. |
-> | 11 | During readiness-evidence alignment, replace stale setup-only language where current run evidence proves schema/helper/docs/tests exist. | `ScopeOfWork.md` reflects current evidence without lifecycle promotion. |
-> | 12 | Preserve native witness limits, profile lifecycle, destructive quarantine, legal review, cloud exceptions and future public/plugin transport/export admission as explicit remaining gates; current final-sink bindings follow the security contract. | No hidden dependency closure or overclaim. |
-> | 13 | Refresh dependency and review evidence only where cited upstream statuses, reviews, or run records warrant the change. | `Dependencies.csv`, `_DEPENDENCIES.md`, `_REVIEW.md`, and `Review_Findings.csv` remain evidence-first. |
->
-
-### CLM-021 — Future Implementation Procedure
-
-> ##### Future Implementation Procedure
->
-> When a later implementation task is authorized, it should:
->
-> 1. Evidence persisted redaction-profile integration with the project-local store under accepted DEC-017/019/028 and the native store implementation. Existing placement/migration policy is not an unresolved blanket prerequisite; unfulfilled profile persistence, rollback and native behavior require their own scoped implementation and witness.
-> 2. Add GUI/CLI/API controls that require explicit export context selection before shareable export.
-> 3. Route report generation, model export, adapter/plugin export, and downstream-tool handoff through the same redaction and diagnostic checks.
-> 4. Emit `IP_BOUNDARY_WARNING` and related diagnostics with code, class, severity, source, affected object, message, remediation, and provenance.
-> 5. Preserve unit awareness, provenance, privacy/redistribution status, rule-pack checksums, model/report hashes, and report limitations.
-> 6. Ensure redaction affects only export/report representations and never mutates authoritative project models or private libraries.
-> 7. Extend the focused helper/schema tests into runtime integration tests for public/shared redaction, local-private override, unknown provenance, protected-content linting, adapter/plugin no-bypass behavior, manifest preservation, and source non-mutation.
-> 8. Define quarantine review routing without destructive movement unless a maintainer-approved quarantine workflow is authorized.
-> 9. Preserve professional-boundary notices and avoid certification, sealing, approval, authentication, or code-compliance claims (PRD §21.2).
->
-
-### CLM-022 — Verification
-
-> ##### Verification
->
-> | Check | Method | Expected Result |
-> |---|---|---|
-> | Scope of Work presence | Confirm `ScopeOfWork.md` exists. | Present. |
-> | Default sections | Confirm Datasheet has Identification/Attributes/Conditions/Construction/References; Specification has Scope/Requirements/Standards/Verification/Documentation; Guidance has Purpose/Principles/Considerations/Trade-offs/Examples; Procedure has Purpose/Prerequisites/Steps/Verification/Records. | Present. |
-> | Dependency schema | Run `python3 tools/validation/validate_dependencies_schema.py <deliverable>/Dependencies.csv`. | Valid v3.1 schema. |
-> | Current implementation evidence | Confirm `schemas/redaction_export_controls.schema.yaml`, `core/security/redaction/`, `tests/security/test_redaction_export_controls.py`, and `docs/security/redaction_export_controls.md` exist. | Present as June 7 evidence. |
-> | Focused redaction tests | Review `TASK_RUN_2026-06-07_0935_redaction-export-hardening.md` and package fan-in validation. | Focused redaction/local-first tests passed in June 7 evidence. |
-> | Semantic audit | Confirm `_SEMANTIC.md` contains no `MatrixError`/`MATRIX_ERROR` and no algebra/operator leaks in final result tables. | PASS. |
-> | Lensing coverage | Count `_SEMANTIC_LENSING.md` lens rows for matrices A, B, C, F, D, X, and E. | 96 required rows. |
-> | Boundary scan | Search deliverable files for real secrets, protected standards content, real private project values, cloud-operation assumptions, or certification/compliance claims. | No disallowed content found. |
-> | Lifecycle status | Read `_STATUS.md` without editing it. | Current state remains `IN_PROGRESS`; this procedure does not authorize promotion. |
->
-
-### CLM-023 — Records
-
-> ##### Records
->
-> The deliverable evidence surface includes these records in the deliverable folder:
->
-> - four production documents;
-> - `_SEMANTIC.md`;
-> - `_SEMANTIC_LENSING.md`;
-> - `Dependencies.csv`;
-> - `_DEPENDENCIES.md`;
-> - `_run_records/*`;
-> - `_STATUS.md`.
->
-> Do not move any artifact to `ISSUED` during a readiness-evidence alignment run.
->
-> Readiness-evidence alignments must also leave product code, schemas, tests, DAG artifacts, coordination files, approval records, release files, package registers, and lifecycle files unchanged unless a separate authorized brief grants that write scope.
-- **VER-001** — Validate the contract and review source parity, export-context and redaction-policy coverage, private/protected/provenance handling, safe manifest preservation and source non-mutation, metadata-only evidence limits, no-bypass routes, retained conflicts and TBDs, and authority boundaries.
+- **VER-001** — AC-001, executable check with judgment by a named role (a reviewer who did not write the contract): validates emitted decisions, findings and controlled exports against the schema; the reviewer reads the contract document against this scope and reports each context, class, action, step or reading rule that is missing, added or weakened.
+- **VER-002** — AC-002, AC-003, AC-004 and AC-005, executable check: classifies the shared invented corpus in every context with and without each intent and observes each decision and reason code against the decision this scope's rules give for the case; and for a `local_private` export made with intent, observes the warning for each kept value in the export's record.
+- **VER-003** — AC-006 and AC-007, executable check: for each route, compares the canonical source before and after an admitted, a redacted and a blocked export, and observes the file system, the report markup, the render and save calls and standard output on a blocked export and on a lossless route with a redaction.
+- **VER-004** — AC-008 and AC-012, executable check: offers route admission unknown identifiers, each route in each context and each intent setting; offers each native save evidence that names another hash, content with each blocked disposition and content with list and object dispositions at several depths, and observes the refusal and the absence of a save dialog.
+- **VER-005** — AC-009 and AC-010, executable check: exports a report built on a private rule pack and a private library holding sentinel values in each public and shared context and observes the kept evidence, the absent sentinels and the fields and wording of every finding.
+- **VER-006** — AC-011, executable check and comparison with a named reference: the check observes each implementation's decision on every corpus case against the decision this scope's rules give; the reference for the sweeps is the recorded decision per case and each implementation's recorded earlier decision, against which every implementation is compared for equality and for strictness; and the catalogues are compared member for member.
+- **VER-007** — AC-013 and AC-014, judgment by a named role (a reviewer who did not write the routes), with executable checks: the reviewer traces every sink that exposes project-derived content to its route wrapper; a check observes that no sink is reachable without one and runs the shipped public templates and examples through the control.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-024 — Guidance: DEL-12-02 Private data redaction and export controls
-
-> #### Guidance: DEL-12-02 Private data redaction and export controls
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-026 — Purpose
-
-> ##### Purpose
->
-> This deliverable keeps SWBPIPE report and export workflows aligned with the product boundary: public mechanics and schemas are allowed, while private project values, user-supplied code data, rule-pack details, component/vendor data, material allowables, and protected standards content remain controlled.
->
-> The original guidance was setup-level. Current June 7 evidence now includes a concrete schema contract, metadata-only helper, focused invented-fixture tests, and security documentation. Current final-sink bindings define wrapper context/intent for desktop and local CLI exports. Preserve unresolved persisted profile lifecycle, future public/plugin egress, native witness limitations, cloud exceptions, legal review, destructive quarantine and approval workflow.
->
-
-### CLM-027 — Principles
-
-> ##### Principles
->
-> | Principle | Guidance |
-> |---|---|
-> | Explicit export context | Treat local private export, shared redacted export, public template/example export, and downstream-tool handoff as different privacy contexts. |
-> | Warn or redact by configuration | The product should not silently include private or protected values in outputs that may be shared. |
-> | Block when provenance is unsafe | Unknown, protected-suspected, or private-only redistribution status should trigger warning, redaction, or block behavior. |
-> | Preserve reproducibility evidence | Redaction should keep non-sensitive hashes, versions, warnings, provenance summaries, and rule-pack identifiers where safe. |
-> | Do not mutate source data | Redaction is an export/report transformation, not a change to the authoritative project model or private libraries. |
-> | No-bypass exports | GUI, CLI, adapters, plugins, public APIs, and downstream handoffs must use the same unit, provenance, diagnostic, sandboxing, and data-boundary checks. |
-> | Human authority | Redaction/export controls support review. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority. |
->
-
-### CLM-028 — Considerations
-
-> ##### Considerations
->
-
-### CLM-029 — Private and Protected Value Classes
-
-> ###### Private and Protected Value Classes
->
-> Treat these as sensitive in export/report decisions unless documented redistribution rights and user intent say otherwise:
->
-> - private project model coordinates, loads, equipment loads, owner requirements, design bases, and project identifiers;
-> - private rule-pack formulas, allowables, interpretations, source excerpts, and code-specific checking logic;
-> - material properties, allowable-like values, temperature-dependent data, and source/license metadata;
-> - component and section library values, manufacturer/vendor data, SIF/flexibility-like values, stiffnesses, dimensions, and proprietary catalog-derived records;
-> - private report templates or owner/company calculation report formats;
-> - protected standards text, tables, copied formulas, figures, examples, or commentary.
->
-
-### CLM-030 — Export Contexts
-
-> ###### Export Contexts
->
-> `local_private` can preserve private values for the user's own review only with
-> explicit intent and warning/audit evidence. `public_report`, `public_example`,
-> and `shared_model` assume disclosure risk and prefer redaction or blocking.
-> `downstream_tool` may need values for technical continuity, but the adapter must
-> still preserve privacy, provenance, unit, and diagnostic checks.
->
-
-### CLM-031 — Report Boundary
-
-> ###### Report Boundary
->
-> Reports may safely reference rule-pack ID, version, checksum, and source note when those fields do not disclose protected/private content. Reports must not embed protected standards formulas, copied tables, proprietary report templates, or private values in public templates/examples. Users remain responsible for private report templates that quote licensed standards outside the public project.
->
-
-### CLM-032 — Manifest Boundary
-
-> ###### Manifest Boundary
->
-> A redacted export should not become useless for audit. Runtime integration should preserve non-sensitive reproducibility evidence such as hashes, versions, redaction profile ID, warning summaries, and provenance summaries while avoiding leakage of the redacted values themselves.
->
-
-### CLM-033 — Adapter and Plugin Boundary
-
-> ###### Adapter and Plugin Boundary
->
-> Adapters and plugins are export risk multipliers. They should never bypass redaction configuration, provenance checks, unit checks, report controls, diagnostics, or rule-pack sandboxing. A downstream-tool export is still an export boundary, not an exemption.
->
-
-### CLM-034 — Current Evidence Boundary
-
-> ###### Current Evidence Boundary
->
-> The current helper is metadata-only. It blocks or redacts explicit storage/privacy markers for payload presence, secret material, cloud/network references, direct SQL/raw SQLite access, storage bypasses, concrete path indicators, and local/private intent. It does not read or write private paths, move quarantine material, store secrets, select storage roots, integrate report/export runtime routes, authorize cloud behavior, or decide legal/security/professional sufficiency.
->
-
-### CLM-035 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Implication |
-> |---|---|
-> | Redact values vs. preserve review detail | Redaction may reduce review detail. Current final sinks preserve safe identity, units, hashes and provenance; exports requiring lossless semantic parity must withhold rather than emit a corrupted redacted representation. Native and legal acceptance remain separate. |
-> | Warn-only vs. block export | Warn-only preserves user agency but can permit accidental disclosure. Current metadata hardening blocks high-risk storage/privacy markers while final approval and override workflow remains `TBD`. |
-> | Field-level vs. value-level redaction | Field-level redaction is simpler and safer; value-level redaction can retain structure but may leak through labels, units, hashes, or context. |
-> | Local private export vs. public template export | Local private exports may need full detail; public templates/examples must remain protected-data-free and invented-data-only. |
-> | Rich downstream handoff vs. minimum disclosure | Downstream tools may require detail, but adapters must not become a bypass path for private data or protected content. |
->
-
-### CLM-036 — Examples
-
-> ##### Examples
->
-> The following are symbolic examples only:
->
-> | Scenario | Acceptable Planning Expression | Avoid |
-> |---|---|---|
-> | Public report example | Invented model values plus export context `public_example` | Real user project values or protected standards examples |
-> | Rule-pack summary | Rule-pack ID/version/checksum/source note with private formula details redacted | Copying protected formula text or code-derived tables into a public report |
-> | Material library export | Provenance summary and redistribution status; private values redacted for shared output | Public material allowable table without documented rights |
-> | Local private report | Unredacted values only after explicit local-private export selection and warning/audit record | Silent unredacted export to a shareable/public location |
-> | Downstream-tool handoff | Adapter route that preserves units, provenance, diagnostics, and privacy controls | Plugin export that bypasses data-boundary checks |
->
-
-### CLM-037 — Open Issues and TBDs
-
-> ##### Open Issues and TBDs
->
-> | Issue ID | Topic | Status | Notes |
-> |---|---|---|---|
-> | REXC-OI-001 | Redaction config schema | PARTIAL / TBD | `schemas/redaction_export_controls.schema.yaml` now exists; persisted profile storage location, migration behavior, and storage roots remain `TBD`. |
-> | REXC-OI-002 | Export context UI and override flow | TBD | Current desktop/local CLI wrappers own fixed route context and explicit local-private intent. Future public/plugin interaction, profile persistence and legal approval remain separately governed. |
-> | REXC-OI-003 | Public API transport and export formats | TBD | SCA-004 and the accepted decomposition OI-004/PKG-17 allocation govern named export scope. Per-format interface/provenance guarantees and integration remain separately governed; this does not select a new public API transport or plugin runtime. |
-> | REXC-OI-004 | Executable export tests | Scoped evidence remains | Current Python/desktop fixed-route tests cover route context, explicit intent, source immutability, blocking and stale completion. Retain R15 native save/print witness limits and future public/plugin route evidence; definitions are not a fresh result. |
-> | REXC-OI-005 | Legal sufficiency of redaction | TBD | This deliverable does not claim that any redaction policy satisfies legal, client, security, or professional obligations. |
-> | REXC-OI-006 | Physical project package/container | Choice ruled; implementation/conformance gaps retained | DEC-017 retains canonical JSON domain truth and a rebuildable SQLite projection; DEC-028 selects a multi-member zip/directory package with member inventory and per-member JCS hashes. DEC-057 names the `.opsproj` package. Storage roots, integration and unmet controls remain separately governed. |
-> | REXC-OI-007 | Runtime report/export integration | Current bindings; scoped gates remain | Current final-sink bindings span controlled report/download/IPC/package and local Python/Rust routes as documented in the security contract. The native Save Report Package command (`DREP-PACKAGE-SAVE-009`, `apps/desktop/src-tauri/src/report_package_save.rs`) re-checks its route evidence, binds it to the SHA-256 of the request's canonical text and binds the model text to the audit model hash and the input-manifest text to the audit input-manifest hash, refusing a package whose rule packs are not that manifest's `active_rule_packs`, and screens the dispositions of the request and the model itself (`export_disposition_screen.rs`) before the save dialog; caller evidence alone admits nothing. The native report-package and handoff saves refuse a disposition member (`redistribution_status`, `review_status`, `privacy_class`, `privacy_classification`, `classification`, `lifecycle_status`) whose value is a list or an object, at any depth. The one exception is a stored rule pack's own top-level `classification` object in the handoff save; every string member of that object is screened, and any list or object inside it is refused. Report packages admit no such exception. Null, boolean and number values are not refused and are not treated as a public disposition. Preserve native witness limits, profile lifecycle and future public/plugin egress gates; the helper itself performs no I/O. |
-> | REXC-OI-008 | Quarantine and legal review workflow | TBD | The helper blocks suspected/protected/private metadata but does not perform destructive quarantine movement or legal review routing. |
-> | REXC-OI-009 | Cloud exception workflow | TBD | Default posture remains no cloud export or transmission unless separately approved; exception process and controls are not selected here. |
-> | REXC-OI-010 | Storage roots and concrete paths | TBD | Concrete path indicators are controlled at the final sink. Use current native storage and accepted container authority for placement/package boundaries; preserve native witnesses and unaccepted private-path guarantees. |
->
-
-### CLM-038 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | REXC-CON-001 | The former blanket runtime-absence premise is superseded by the current final-sink contract and its desktop/Python/Rust bindings. | `docs/_Registers/Deliverables.csv` row DEL-12-02 | `TASK_RUN_2026-06-07_0935_redaction-export-hardening.md`; package fan-in record | Specification Requirements; Procedure Future Implementation Procedure | Use current guarded-exposure/source-immutability/parity obligations; retain R15 native witness limits and separate legal/security, profile and future public/plugin gates. | Record premise repaired; no new ruling or lifecycle promotion |
-> | REXC-CON-002 | Local private exports may need unredacted values, but shared/public outputs must avoid private/protected disclosure. | `docs/SPEC.md#8. Reporting and audit`; `docs/IP_AND_DATA_BOUNDARY.md#7. Report boundary` | SOW-040; OPS-K-PRIV-1 | Guidance Export Contexts; Specification REXC-REQ-006 | Allow explicit local-private export with warning/audit record; require redaction or block for shared/public contexts. | TBD |
-> | REXC-CON-003 | The former blanket runtime-absence premise is superseded by the current final-sink contract and its desktop/Python/Rust bindings. | `TASK_RUN_2026-06-07_0935_redaction-export-hardening.md`; package fan-in `WORKING_ITEMS_RUN_2026-06-07_0957_TP-PKG12-REDACTION-SECRET-GUARD-CLOSEOUT.md` | `_STATUS.md` current `IN_PROGRESS`; Specification Documentation deferred items | Specification Verification; Procedure Future Implementation Procedure; Dependencies | Use current guarded-exposure/source-immutability/parity obligations; retain R15 native witness limits and separate legal/security, profile and future public/plugin gates. | Record premise repaired; no new ruling or lifecycle promotion |
+- **AX-001** — *Nothing private leaves unnoticed.* Better is fewer inputs, routes and readings on which a private or protected value reaches a shared or public output; the target is none. Usefulness of a richer output never buys an inclusion that the metadata does not support.
+- **AX-002** — *Stricter, never looser.* When two readings of an input differ, the stricter decision is taken. Better is a larger set of anomalous inputs decided by a stated rule. Making an existing case less strict is a change of the export policy, never a repair, and is decided as one.
+- **AX-003** — *A redacted output is still useful.* Better is more safe evidence kept (hashes, versions, identifiers, provenance summaries) for the same redaction. This is never bought by keeping a value, a path or a private checksum.
+- **AX-004** — *The user decides about the user's own data.* A local private output and a user release cost the user one explicit act each and no more. Neither act is ever inferred, remembered or read from content.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-040 OBJ-010 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-12-02:1** — R5 retained delivery 2026-09-22 — DEL-12-02: retain native save/print witness limitations identified by R15 and separately governed profile, public/plugin transport, quarantine, cloud and legal/security gates. Claim refs: `DEL-12-02:SOW#CLM-011`.
+| OUT-001 | SOW-040 OBJ-010 | REQ-001 REQ-004 REQ-011 | AC-001 | VER-001 | This scope's vocabulary and decision order, which the contract must state; a reviewer who did not write the contract compares them. The schema is the contract's own and is not independent grounds for it |
+| OUT-002 | SOW-040 OBJ-010 | REQ-002 REQ-005 REQ-009 REQ-010 | AC-002 | VER-002 | The decision order and context rules of this scope say what each invented case must decide; expected decisions are written from the rules, not captured from the classifier |
+| OUT-002 | SOW-040 OBJ-010 | REQ-002 REQ-013 | AC-003 | VER-002 | The decision order, and PRD §21.2 for the prohibited claims |
+| OUT-003 | SOW-040 OBJ-010 | REQ-006 | AC-004 | VER-002 | Intent comes from the route's wrapper only; the scenario says what must be present and absent, in the output and in the export's record |
+| OUT-002 | SOW-040 OBJ-010 | REQ-016 | AC-005 | VER-002 | The user release of the user's own project data for one report, and its decision rule in this scope |
+| OUT-002 | SOW-040 OBJ-010 | REQ-007 | AC-006 | VER-003 | The criterion determines the result: the source after must equal the source before |
+| OUT-003 | SOW-040 OBJ-010 | REQ-001 REQ-012 | AC-007 | VER-003 | The scenario says what must not exist on a block; the file system, markup and calls are observed from outside the control |
+| OUT-003 | SOW-040 OBJ-010 | REQ-012 REQ-015 | AC-008 | VER-004 | This scope's definition of the catalogue and of route admission; DEL-12-01's guard gives the storage decision |
+| OUT-002 | SOW-040 OBJ-010 | REQ-008 REQ-009 | AC-009 | VER-005 | The criterion determines the result: the sentinel values are known to the check and must be absent, and the evidence listed must be present |
+| OUT-002 | SOW-040 OBJ-010 | REQ-011 REQ-013 | AC-010 | VER-005 | DEL-00-06's diagnostic contract fixes what a finding carries; PRD §21.2 lists the prohibited claims |
+| OUT-002 | SOW-040 OBJ-010 | REQ-014 REQ-017 | AC-011 | VER-006 | For the corpus, the expected decision is written per case from this scope's rules. For the sweeps, the recorded decisions are the product's own earlier output: they guard only against change and against a case becoming less strict, and agreement between implementations is not grounds for correctness |
+| OUT-004 | SOW-040 OBJ-010 | REQ-012 REQ-018 | AC-012 | VER-004 | This scope's rule for a native save says what must refuse; which dispositions are blocked is what DEL-03-07's scope commits to quarantine or reject (DEL-03-07/AC-003), written into the check from that scope and not taken from the import's code |
+| OUT-003 | SOW-040 OBJ-010 | REQ-012 REQ-014 REQ-019 | AC-013 | VER-007 | The catalogue says which sinks exist; a reviewer who did not write the routes traces each sink |
+| OUT-001 | SOW-040 OBJ-010 | REQ-003 | AC-014 | VER-007 | PRD §19.4 and FR-REP-005. Whether content is protected is DEL-08-05's lint and the owner's release scan, not this control |

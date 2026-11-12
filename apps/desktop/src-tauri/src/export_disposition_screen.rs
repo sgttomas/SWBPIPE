@@ -28,7 +28,7 @@ use std::collections::BTreeMap;
 
 /// The webview screener's code for a blocked disposition (`redactionExportControls.ts`).
 pub const PROTECTED_CONTENT_BLOCKED: &str = "PROTECTED_CONTENT_BLOCKED";
-/// The store check's code (`check_model_library_refs`, W-13 §3.5).
+/// The store check's code (`check_model_library_refs`).
 pub const LIBRARY_REF_UNRESOLVED: &str = crate::MODEL_LIBRARY_REF_UNRESOLVED;
 /// The store-resolved screen's code for a screened record its verdict cannot
 /// read (W-17 object form; DEL-15-01 Design `canonical-model-export.md`,

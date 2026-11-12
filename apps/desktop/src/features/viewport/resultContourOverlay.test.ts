@@ -21,7 +21,7 @@ import {
 import { contourValueLabels, interpolateStations } from "./resultContour";
 import { resultNoValueHex, resultScaleHex } from "./viewportPalette";
 
-// Result colour along members (A4; DEL-07-05 Design `result-contour.md` §2, §3, §6): values from
+// Result colour along members (A4): values from
 // the stations the rows state, the standing rule per station, rule ratios from the session's run,
 // and the threshold and numbers display of the member table. Invented data only.
 

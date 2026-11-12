@@ -1,4 +1,4 @@
-// Model tree: the Lines section (W-13 §3.2, §6). A line groups existing pipes
+// Model tree: the Lines section. A line groups existing pipes
 // and is not read by the solve. The user creates a line from the selected
 // pipes, renames it, or removes it; each edit is a structured operation queued
 // for validation, diff review and apply.

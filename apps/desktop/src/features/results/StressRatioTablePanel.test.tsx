@@ -194,7 +194,7 @@ describe("StressRatioTablePanel: rule-check outcomes", () => {
     expect(view.container.innerHTML).not.toContain("0.3333333");
   });
 
-  // HELP_HUMAN, 2026-10-27: "label each ratio's direction" (Design §3.1, §7).
+  // HELP_HUMAN, 2026-10-27: "label each ratio's direction".
   it("labels each ratio's direction, sorts both directions together and pins the incomplete check", () => {
     const LB = JSON.stringify(["chk_lb", "load_case", "load:L-1"]);
     const LB_NONE = JSON.stringify(["chk_lb", "load_case", "load:L-2"]);
@@ -293,7 +293,7 @@ describe("StressRatioTablePanel: rule-check outcomes", () => {
     const withheld = healthStanding({ eligible: true, states: { "load:L-1": "checks_passed", "load:L-2": "sensitive" } });
     for (const mode of ["ratio", "stress"] as const) {
       // Withheld: the cause (codes, missing input) and the incomplete status stay, with no finding
-      // subject (§3.2); no digit of a value anywhere.
+      // subject; no digit of a value anywhere.
       const held = renderPanel({ ruleCheckRun: ruleRun(checks), standing: withheld });
       fireEvent.click(screen.getByTestId(`stress-ratio-mode-${mode}`));
       const heldRow = screen.getByTestId(`stress-ratio-row-${P2_L2}`);

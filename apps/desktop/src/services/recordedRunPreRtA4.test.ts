@@ -1,4 +1,4 @@
-// RT-A4 (DEL-05-02 Design absolute-sum-srss-combinations.md §10.2): the pressure-2 table restates its
+// RT-A4: the pressure-2 table restates its
 // combination policy (v2: combination operands, absolute sums and SRSS) and adds three vocabulary
 // tokens, rows unchanged, so its digest moves. A run recorded under the constant-effort table keeps
 // its existing read and compare behaviour. The record, its source and its model are RT-A3's final

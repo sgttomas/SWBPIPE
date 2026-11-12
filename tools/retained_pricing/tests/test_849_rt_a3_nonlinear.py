@@ -1,4 +1,4 @@
-"""RT-A3 increment 4 (retained-pricing-rules.md §8.49): nonlinear supports on the exact route.
+"""RT-A3 increment 4 (§8.49): nonlinear supports on the exact route.
 
 RTA3NL-S6 corrects W16C-ES's whole-edge zero of validate_profile -> carries_fields. Increment 4 forms the S6 context
 once per validate_profile call, before the support loop, so an admitted plain EX D1 model (no component, no nonlinear

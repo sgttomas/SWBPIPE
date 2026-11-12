@@ -1,4 +1,4 @@
-// C1 native custody (DEL-04-05 `c1-native-custody-plan.md` §5; DEL-08-04 Design `csv-export.md`):
+// C1 native custody:
 // a results group's CSV written in parts, for a result held natively. Its text is exactly
 // `serializeCsvTable(resultGroupCsv({...rows}).table)` over every row the panel's filters admit
 // in the group, with no row ceiling, while at most one page of rows (and the text of that page)

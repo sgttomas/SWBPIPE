@@ -1,5 +1,5 @@
-//! RT-A3 S6 on the full reference system (DEL-09-01 `Work/reference-system.md`
-//! §5, §6 and §10; DEL-04-07 `Work/route-unification-r4.md` §3.7): the actual
+//! RT-A3 S6 on the full reference system (DEL-09-01
+//! design §5, §6 and §10; DEL-04-07 design §3.7): the actual
 //! maintained topology, fittings, spring and support families and cases
 //! RS-SUS, RS-OPE and RS-SAM with RS-EXP and RS-dSAM, solved through PP's
 //! public entry and read by the RE reader, with every family the exact route
@@ -65,12 +65,12 @@ const WEIGHT_REFERENCES: &str = include_str!("../../../validation/references/ref
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
 const CASES: [&str; 3] = ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM"];
 const SUBTRACTIONS: [(&str, &str); 2] = [("combination:RS-EXP", "load:RS-OPE"), ("combination:RS-dSAM", "load:RS-SAM")];
-const SOURCE: &str = "invented user value, DEL-09-01 Work/reference-system.md §5";
+const SOURCE: &str = "invented user value, DEL-09-01";
 const R1: &str = "component:RS-R1";
 const BODY: &str = "pipe:RS-P150";
 const R1_NODE: &str = "node:RS-160";
 const R1_WEIGHT_N: f64 = 300.0;
-/// Spec §5: the CoG at the body midpoint, from RS-160 in global axes (the 2b test's R1_COG).
+/// the CoG at the body midpoint, from RS-160 in global axes (the 2b test's R1_COG).
 const R1_COG: [f64; 3] = [0.0, -0.2, 0.0125];
 const CE1: &str = "support:RS-CE1";
 const LO1: &str = "support:RS-LO1";
@@ -78,7 +78,7 @@ const FR1: &str = "support:RS-FR1";
 const FR1V: &str = "support:RS-FR1V";
 const G1: &str = "support:RS-G1";
 const NONLINEAR: [&str; 3] = [LO1, FR1, G1];
-/// The fixture's EQ criterion (spec §9.2).
+/// The fixture's EQ criterion.
 const EQ: f64 = 1e-9;
 /// The subtraction rows' rounding allowance (the 2b test's LOCAL).
 const LOCAL: f64 = 1e-12;

@@ -27,7 +27,7 @@ Not owners on D1: `case_ground_motion`'s Vec<(String, f64)>, collected from a fi
 support target (Vec's FromIterator allocates only on a first element), and the nonlinear loop's ground and base maps
 (D1.6 refuses nonlinear supports).
 
-RT-A3 S6 D3 (DEL-04-07 Work/route-unification-r4.md §3.7; retained-pricing-rules.md §8.59):
+RT-A3 S6 D3 (DEL-04-07; §8.59):
 S6-ME (both routes, per case solve, CasePrefix): `solve_prepared_load_case` passes the motion its loop consumed,
 `CaseMotionEvidence::new(base_motion, &ground_motion, &spring_ground)`, to `capture_nonlinear_state_evidence` as an
 argument, so it is built for every case before the capture's first statement returns None on D1 (MODAL-SEAM). Its three

@@ -72,7 +72,7 @@ async function solvedSession(mode: PreviewSolverMode) {
   return { model, result, inputManifest, analysisRun, pair };
 }
 
-/** The invented record U (§2.3), bound to the session's identities. */
+/** The invented record U, bound to the session's identities. */
 async function inventedRecord(session: Awaited<ReturnType<typeof solvedSession>>, documentEnvelope: Json) {
   const run = session.result.run_id;
   return {

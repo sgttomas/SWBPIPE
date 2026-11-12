@@ -587,7 +587,7 @@ def test_the_python_job_leaves_out_only_the_declarative_specifications():
     assert 'sparse-checkout-cone-mode: false' in job
     resource = 'apps/desktop/src-tauri/resources/agent-capability-catalog.json'
     assert 'tools/agent_host_witness_test.py' in selected(resource)
-    for spec in ('execution/PKG-16/DEL-16-06/Work/embedded-agent-host.md', 'execution/PKG-04/DEL-04-07/deliverable.yaml',
+    for spec in ('execution/PKG-16/DEL-16-06/ScopeOfWork.md', 'execution/PKG-04/DEL-04-07/deliverable.yaml',
                  'execution/_Decomposition/SOFTWARE_DECOMP.md'):
         assert ci.python_test_reads.reading_tests(PROJECT, [spec]) == {}
         assert ci.reaching_paths(PROJECT, [spec]) == []

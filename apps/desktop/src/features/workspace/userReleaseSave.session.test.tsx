@@ -1,4 +1,4 @@
-/** W-18b desktop slice (DEL-08-01 Design `report-user-release.md` §2.2, §2.3 "Session"):
+/** W-18b desktop slice:
  * File > Save Shareable Report Package… through the workspace session. The command opens the
  * user-release dialog for the current report; its confirmation starts one route-010 save; a
  * basis change closes the dialog; nothing outlives the save. Unit transport replay of committed

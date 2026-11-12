@@ -641,7 +641,7 @@ describe("SWBPIPE desktop preview", () => {
     const packet = JSON.parse(decodeURIComponent(href.split(",", 2)[1]));
     expect(packet.summary.persisted_mechanics_result_count).toBe(0);
     expect(packet.summary.persisted_analysis_run_count).toBe(0);
-    // Only the session's keyed MBF export/import retirements reached native (DEL-17-04 §3.7, §4.8.6).
+    // Only the session's keyed MBF export/import retirements reached native.
     expect(invokeMock.mock.calls.filter(([command]) => command !== "cancel_mbf_export" && command !== "cancel_mbf_import")).toEqual([]);
   });
 
@@ -10509,7 +10509,7 @@ describe("SWBPIPE desktop preview", () => {
   });
 
   it("preserves the 837-row stress-neutral format as a pure reference projection", async () => {
-    // The demo's converged nonlinear cases are confirmed and published CHECKS_PASSED (DEL-04-01 kd5-nonlinear-active-set.md §5),
+    // The demo's converged nonlinear cases are confirmed and published CHECKS_PASSED,
     // so the pure packet projection admits the reference again.
     const basis = await referenceAnalysis(), expectedModel = basis.model, expectedSource = basis.result;
     const before = JSON.stringify(basis);
@@ -10898,7 +10898,7 @@ describe("SWBPIPE desktop preview", () => {
     const { model, source } = await loadBundledMechanicsReference();
     const knowledge = await loadDesignKnowledge();
     const expectedDiagnostics = [...model.diagnostics, ...knowledge.diagnostics, ...source.diagnostics];
-    // The demo's nonlinear cases are confirmed and published CHECKS_PASSED (DEL-04-01 kd5-nonlinear-active-set.md §5).
+    // The demo's nonlinear cases are confirmed and published CHECKS_PASSED.
     expect(source.diagnostics.filter(item => item.code === "NUMERICAL_INTEGRITY_CHECKS_PASSED")).toHaveLength(model.load_cases.length);
     const selected = vi.fn();
     const view = render(<DiagnosticsPanel model={model} knowledge={knowledge} result={source} selectedDiagnosticId={null} onSelectDiagnostic={selected} />);
@@ -14494,7 +14494,7 @@ describe("workflow current and historical result boundaries", () => {
       });
       await delayedRuleRun.promise;
     });
-    // Slice B3: with no rule-check aggregate there is no Rule pack chip at all (§5.4 rule 3).
+    // Slice B3: with no rule-check aggregate there is no Rule pack chip at all.
     expect(screen.queryByTestId("status-pill-rule-check")).not.toBeInTheDocument();
     // W-18 (b2): the replacement's package carries no stale rule check: no aggregate, no
     // user-rule outcomes and no rule-pack reference, and the record's rule status is the solve's.

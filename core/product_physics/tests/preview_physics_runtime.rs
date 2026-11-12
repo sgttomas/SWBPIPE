@@ -239,9 +239,9 @@ fn assert_contract(v: &Value) {
         }
     }
     let evidence = &v["contract_evidence"];
-    // Operating-case slice 1a (RT-A5; DEL-05-02 `pf-nonlinear-operand-standing.md` §2.1):
+    // Operating-case slice 1a (RT-A5):
     // a nonlinear model's admitted combinations add `combination_operands`.
-    // RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): `combination_certificate`
+    // `combination_certificate`
     // accompanies every solved document's combinations, a member of its own.
     assert_eq!(evidence.get("combination_certificate").is_some(), !evidence["combination_gates"].as_array().unwrap().is_empty());
     let keys: HashSet<&str> = evidence.as_object().unwrap().keys().map(String::as_str).filter(|k| *k != "combination_certificate").collect();
@@ -1026,7 +1026,7 @@ fn b1_arc_signed_rows_frames_and_arc_maximum() {
             close(stress("element_local_bending_normal_stress_y", "end_i"), num(&es["end_i_bending_normal_y_Pa"]), zs, "end_i sigma_y");
             close(stress("element_local_torsional_shear_stress", "end_i"), num(&es["end_i_torsional_shear_Pa"]), zs, "end_i tau");
             close(stress("element_local_bending_normal_stress_y", "end_j"), num(&es["end_j_bending_normal_y_Pa"]), zs, "end_j sigma_y");
-            // T4-U4b (§2.1, §2.3): the arc publishes its maximum along the arc, under
+            // the arc publishes its maximum along the arc, under
             // the arc's own convention, and enters the headline.
             assert!(maximum(&v, "pipe:b-c", "case:z").is_some(), "arc maximum");
             let row = results(&v).iter().find(|r| r["kind"] == "pipe_elastic_normal_stress_maximum_v2" && r["entity_ref"] == "pipe:b-c").unwrap();

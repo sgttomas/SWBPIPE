@@ -1,4 +1,4 @@
-"""Operating-case slice 1b (retained-pricing-rules.md §8.51): the declared operating-minus-sustained difference.
+"""Operating-case slice 1b (§8.51): the declared operating-minus-sustained difference.
 
 D1.4 refuses every combination with a difference basis, so the declared arms, the derivation's records and the model-free
 reader's claims are zero on D1 (PF1B-DZ, PF1B-FZ); the reader's model arm is model-bound (PF1B-RM); the by-name call

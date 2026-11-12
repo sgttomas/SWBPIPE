@@ -1,4 +1,4 @@
-// TP-PMM-GUIEMIT-001 (W-13 design model-document-0.7.0.md §5.2): the desktop
+// TP-PMM-GUIEMIT-001: the desktop
 // emission golden. Under a fixed clock this drives each authoring path through
 // the desktop's own intent builders and the wasm applier — the blank project
 // and the blank load/reference project; node, material, section, pipe,

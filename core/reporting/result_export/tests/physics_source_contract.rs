@@ -118,7 +118,7 @@ fn maximum_signature_requires_explicit_basis_without_claiming_current() {
     let exact = semantic_contract::signature_in(table, &row)
         .unwrap()
         .unwrap();
-    // T4-U6 (D-5, §2.4): the source maximum names its section basis.
+    // the source maximum names its section basis.
     let basis = exact["source_basis"].as_str().unwrap();
     let (token, section) = section_basis::split_token(basis).unwrap();
     assert_eq!(token, physics_source::MAX_BASIS);
@@ -356,7 +356,7 @@ fn public_rehashed_copy_cannot_hide_an_invalid_interpolation_pair() {
     }
 }
 
-/// T4-U6 (D-5 §2.5, §5; b7-plan R2 A2): a reduced twin's section-stress check
+/// a reduced twin's section-stress check
 /// binds its nominal twin's action and parameters bit for bit. A signed zero
 /// equals zero by value but not by bits, so it is refused on either twin; the
 /// same binary64 number in another JSON form (JCS writes `1e6` as `1000000`,

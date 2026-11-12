@@ -470,7 +470,7 @@ fn m03_skew_pin_preconditions_hold() {
     }
 }
 
-/// The kernel pin on RV7's confirmed cases (K2A_REVIEW.md B1): the outcome
+/// The kernel pin on RV7's confirmed cases: the outcome
 /// per case and orientation, and the figures that make it a pin.
 #[test]
 fn m03_skew_pin_rv7_cases_outcomes_and_figures() {

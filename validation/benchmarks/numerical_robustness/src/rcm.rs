@@ -1,4 +1,4 @@
-//! RCM equality (K4's brief Q7; D1 stale item 4; plan §11): K4's port
+//! RCM equality (K4's brief Q7): K4's port
 //! `reverse_cuthill_mckee` (`K4R/factor.rs`) and `sparse_direct`'s
 //! (`SD/lib.rs`) must give the same order on the same adjacency. V-K builds
 //! the adjacency itself: the free–free DOF graph of a model (members' 12×12

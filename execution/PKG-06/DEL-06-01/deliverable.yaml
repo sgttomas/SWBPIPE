@@ -1,153 +1,72 @@
 id: DEL-06-01
 name: Rule-pack schema
 needs:
-- from: DEL-00-01
-  condition: 'DEL-06-01 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
-    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-06-01 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
-    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-06-01 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
-    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-00-04
-  condition: 'DEL-06-01 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
-    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The persistence and schema architecture names JSON Schema 2020-12 as the schema language, and
+    gives each document format one current version, which a document declares, with a reader that
+    refuses every other version by name and migrates nothing.
   gating: true
 - from: DEL-00-06
-  condition: 'DEL-06-01 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
-    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The diagnostic contract fixes the members a diagnostic carries (code, class, severity, source,
+    affected object, message, remediation and provenance) and names the warning classes,
+    rule-check blocking, provenance warning and IP-boundary warning among them.
   gating: true
-- from: DEL-00-07
-  condition: 'DEL-06-01 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
-    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-06-01 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED; TP-DAG-004
-    conservative refresh for RECONCILIATION retained active edge with no revision-0.5 conflict found.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-01-02
+  condition: >-
+    The boundary policy defines the provenance record (seven named fields, with the redistribution
+    status and review status value sets), the classes of protected content and the quarantine
+    rule, and states that a public example rule pack uses invented, non-code values only and
+    carries a clear non-engineering notice (DEL-01-02 REQ-006).
   gating: true
 - from: DEL-02-01
-  condition: 'DEL-06-01 needs DEL-02-01 as a predecessor: rule-pack schema references model/result entities
-
-
-    Notes: TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5
-    decomposition.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+  condition: >-
+    Every load case and every combination in the model document has a stable identifier that other
+    records name, so a pack's required load case can refer to one by that identifier.
+  gating: false
 - from: DEL-02-02
-  condition: 'DEL-06-01 needs DEL-02-02 as a predecessor: rule-pack values and expressions are unit-aware
-
-
-    Notes: TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5
-    decomposition.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The unit schema states the one dimension vocabulary, and every catalog unit has one dimension
+    of it, so the dimension and unit a pack declares for an input or a slot can be checked against
+    them.
+  gating: false
+- from: DEL-08-04
+  condition: >-
+    A published result row states the load case or combination it belongs to, its kind and the
+    entity it concerns, and where it has them its location, component, section basis and tie-rod
+    identity, so that rows of one basis can be told apart.
+  when: Examining AC-006 on published results
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
+- from: DEL-05-02
+  condition: >-
+    An operand row published under a combination (the held-status subtrahend) is marked as an
+    operand, so that the selector check can leave it aside and a selector on that combination
+    selects the combination's result (DEL-05-02/REQ-013, DEL-05-02/AC-004).
+  gating: false
 - from: DEL-02-03
-  condition: 'DEL-06-01 needs DEL-02-03 as a predecessor: rule-pack schema must preserve code-neutral
-    analysis boundary
-
-
-    Notes: TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5
-    decomposition.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The analysis status vocabulary has three user-rule statuses (rule inputs incomplete, user-rule
+    checked, user-rule failed) and human review required, and no automatic status for compliance,
+    certification or approval, so the statuses a check may declare are a subset of it.
   gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-01-02
-  condition: 'DEL-06-01 needs DEL-01-02 as a predecessor: rule packs must separate public/private/protected
-    data
-
-
-    Notes: TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5
-    decomposition.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-01-04
-  condition: 'DEL-06-01 needs DEL-01-04 as a predecessor: rule-pack results must not claim professional
-    approval
-
-
-    Notes: TP-DAG-004 conservative refresh for RECONCILIATION retained active edge under revision-0.5
-    decomposition.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
 code_paths:
+# The schema. Its expression definitions (the expression node, the expression quantity and the
+# user table) are the encoding of DEL-06-02's grammar and are that deliverable's.
 - schemas/rule_pack.schema.yaml
-- core/rules/rule_pack_document/**
-- apps/desktop/src/services/rulePackService.ts
-- apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx
+# The pack document module. This deliverable's part is the format: the version rule, the format
+# findings, the basis plan and the selector's parsing (format.rs), and the document validation
+# that reports them. The expression codec, the formula findings and the unit check in lib.rs are
+# DEL-06-02's; the canonical payload, the checksum computation and the lifecycle findings that
+# validation also returns are DEL-06-04's.
+- core/rules/rule_pack_document/src/format.rs
+- core/rules/rule_pack_document/src/lib.rs
+# In the desktop host, only the pack validation command. The rest of the file belongs to the
+# deliverables that own each command.
 - apps/desktop/src-tauri/src/lib.rs
-- apps/desktop/src-tauri/src/rule_solver_selection.rs
 checks:
 - tests/test_rule_pack_schema.py
-- core/rules/rule_pack_document/tests/*.rs
-- apps/desktop/src/features/rule-packs/RulePackManagerPanel.test.tsx
-- apps/desktop/src/features/rule-packs/RulePackManagerPanel.format.test.tsx
+- core/rules/rule_pack_document/tests/format_0_5_0.rs
+# Holds the check that every published row with a basis is selected by exactly one selector; the
+# module it tests is DEL-06-03's.
 - apps/desktop/src-tauri/src/rule_solver_selection_tests.rs
-- apps/desktop/src-tauri/src/rule_check_object_form_tests.rs
-- apps/desktop/e2e/r2-smoke.spec.ts
