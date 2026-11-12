@@ -32,8 +32,10 @@ grant, including any limit on passing those decisions on:
 
 - Decisions follow perspective. Agent 0 decides what the target needs,
   including changes to scopes, criteria and holds, and records each decision
-  by changing the text it governs. A Type 1 decides within the locality of its
-  assignment and takes what reaches beyond it to Agent 0. A Type 2 uses its
+  by changing the text it governs. A Type 1 decides how the work within the
+  locality of its assignment is done, and takes to Agent 0 a changed
+  commitment, criterion or hold and whatever reaches beyond that locality. A
+  Type 2 uses its
   judgment within its bounded assignment and does not change objectives,
   commitments or holds.
 - Before deciding, look for the owner's intention in the PRD, the scopes and
@@ -41,6 +43,10 @@ grant, including any limit on passing those decisions on:
   intention, not for the decision.
 - Each pull request says what was decided and why, so that the owner can
   reverse a decision without having been asked first.
+- Where a scope still names the owner as the decider of a matter this grant
+  transfers, the grant settles who may decide. The record names the agent
+  that decided, never the owner, and a criterion that requires the owner as
+  actor is corrected in its scope, with its review, before it is relied on.
 - The delegation transfers project decisions. It does not supply the evidence
   a hold waits on, perform an act that belongs to another person, or reach
   resources outside the undertaking. Verification, required checks and
