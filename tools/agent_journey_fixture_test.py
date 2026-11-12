@@ -477,7 +477,7 @@ def test_every_expectation_is_judged_under_the_scripted_provider_and_named_when_
     stub, live = {}, {}
     assert judged(judgement=stub) == [] and judged(live=True, judgement=live) == []
     ids = [e["id"] for e in fixture.W9A.expectations]
-    assert stub == {"judged": ids, "notJudged": []}
+    assert stub == {"judged": ids, "notJudged": [], "requestedActs": {"standing": "none", "acts": []}}
     assert live["notJudged"] == ["tool-outcomes-agree"] and live["judged"] == [i for i in ids if i != "tool-outcomes-agree"]
 
 
@@ -573,3 +573,129 @@ def test_the_scripted_provider_replays_the_captured_w9a_outcomes_in_order():
         "swbpipe_observe_proposal", "swbpipe_solve", "swbpipe_read_results", "message"]
     assert not script.failures and len(script.captured) == 6
     assert len(fixture.report_record("node:c").findall(answers[-1]["text"])) == 6
+
+
+# ---------------------------------------------------------------------------
+# Requested acts: settled only as performed; anything else leaves the use case unfinished.
+
+def with_requested_act(act="save_model_state", expectation=True):
+    """An invented definition: the W9-A journey with one requested act after the last request."""
+    definition = w9a_definition()
+    definition["sequence"].append({"requested_act": act})
+    if expectation:
+        definition["expectations"].append({"id": "requested-standing", "kind": "requested_act_standing",
+                                           "on": "conversation", "requested": 1})
+    return definition
+
+
+def judged_request(act, standings, live=False):
+    """The invented use case judged on an invented conversation whose request observations
+    give `standings` in order (the last is the one that stands)."""
+    case = case_from(with_requested_act(act))
+    reference = fixture.w9a_reference()
+    operations = json.loads(fixture.FIXTURE.read_text())["routes"]["PF"]["operations"]
+    report, captured = observed_report(reference, operations)
+    report["steps"] = case.steps
+    captured += [{"outcome": {"status": "ok", "data": {"requestedAct": act, "requestStanding": s}}} for s in standings]
+    judgement = {}
+    failures = fixture.judge(report, case, None if live else captured, judgement)
+    result = {"passed": not failures, "expectations": judgement}
+    return failures, judgement["requestedActs"], fixture.settle(result), result
+
+
+def test_a_requested_act_settled_as_performed_lets_the_use_case_pass():
+    failures, acts, outcome, result = judged_request("save_model_state", ["pending", "performed"])
+    assert failures == [] and acts["standing"] == "all performed" and outcome == "passed" and result["passed"] is True
+    assert acts["acts"] == [{"requested": 1, "act": "save_model_state", "standing": "performed"}]
+
+
+@pytest.mark.parametrize("standing", ["pending", "declined", "refused", "stale", "withdrawn", "unknown"])
+def test_any_other_standing_leaves_the_use_case_unfinished_and_never_passed(standing):
+    failures, acts, outcome, result = judged_request("export_table", ["performed", standing] if standing != "pending" else [standing])
+    assert failures == [], "an unfinished use case is not a failure of the route"
+    assert acts["standing"] == "unfinished" and acts["acts"][0]["standing"] == standing
+    assert outcome == "unfinished" and result["passed"] is False
+    assert fixture.OUTCOME_EXIT[outcome] not in (0, fixture.OUTCOME_EXIT["failed"])
+
+
+def test_a_print_request_sent_to_the_print_dialog_is_unfinished_and_never_performed():
+    failures, acts, outcome, _ = judged_request("print_report", ["sent to the print dialog"])
+    assert failures == [] and acts["standing"] == "unfinished" and outcome == "unfinished"
+    failures, _, outcome, _ = judged_request("print_report", ["performed"])
+    assert failures == ["print_report was reported performed; a print request is settled at most as sent to the print dialog"]
+    assert outcome == "failed"
+
+
+def test_a_standing_not_observed_or_not_recognised_is_unfinished():
+    for standings, word in (([], "not observed"), (["done"], "unrecognized"), ([None], "unrecognized")):
+        failures, acts, outcome, _ = judged_request("save_project", standings)
+        assert failures == [] and acts["acts"][0]["standing"] == word and outcome == "unfinished"
+    # A live run does not see the agent's tool outcomes, so it cannot show a performed standing.
+    failures, acts, outcome, _ = judged_request("record_run", ["performed"], live=True)
+    assert acts["acts"][0]["standing"] == "not observed" and outcome == "unfinished"
+
+
+def test_another_acts_standing_settles_nothing():
+    case = case_from(with_requested_act("save_report"))
+    reference = fixture.w9a_reference()
+    operations = json.loads(fixture.FIXTURE.read_text())["routes"]["PF"]["operations"]
+    report, captured = observed_report(reference, operations)
+    report["steps"] = case.steps
+    captured.append({"outcome": {"status": "ok", "data": {"requestedAct": "save_project", "requestStanding": "performed"}}})
+    judgement = {}
+    assert fixture.judge(report, case, captured, judgement) == []
+    assert judgement["requestedActs"]["standing"] == "unfinished"
+
+
+def test_a_use_case_without_requested_acts_is_settled_by_the_route_alone():
+    judgement = {}
+    assert judged(judgement=judgement) == [] and judgement["requestedActs"] == {"standing": "none", "acts": []}
+    assert fixture.settle({"passed": True, "expectations": judgement}) == "passed"
+    assert fixture.settle({"passed": False, "expectations": judgement}) == "failed"
+    assert fixture.W9A.requested_acts == []
+
+
+def test_a_requested_act_needs_its_standing_judged_and_must_be_on_the_closed_list():
+    unjudged = with_requested_act(expectation=False)
+    assert any("needs exactly one requested_act_standing expectation, has 0" in p
+               for p in fixture.validate_definition(unjudged, "w9a-journey"))
+    twice = with_requested_act()
+    twice["expectations"].append(dict(twice["expectations"][-1], id="again"))
+    assert any("has 2" in p for p in fixture.validate_definition(twice, "w9a-journey"))
+    off_list = with_requested_act("send_email")
+    assert any("sequence[3]" in p for p in fixture.validate_definition(off_list, "w9a-journey"))
+    out_of_range = with_requested_act()
+    out_of_range["expectations"][-1]["requested"] = 2
+    assert any("requested 2" in p for p in fixture.validate_definition(out_of_range, "w9a-journey"))
+    for act in fixture.REQUESTABLE_ACTS:
+        assert fixture.validate_definition(with_requested_act(act), "w9a-journey") == []
+
+
+def test_a_requested_act_the_driver_cannot_perform_refuses_the_launch():
+    case = case_from(with_requested_act("save_project"))
+    assert case.steps[-3:] == ["perform save_project", "observe", "stop"]
+    assert case.plan({}, {})["sequence"][-1] == {"step": "perform save_project", "requestedAct": "save_project", "report": "requested1"}
+    with pytest.raises(fixture.Refusal, match="requested_act_not_performable"):
+        fixture.refuse_unperformable(case)
+    fixture.refuse_unperformable(fixture.W9A)
+    assert driver_kinds("PERFORMS") == set(fixture.PERFORMED_BY_DRIVER)
+
+
+def test_the_summary_line_and_exit_status_carry_the_outcome(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(fixture, "RETAINED", tmp_path / "retained")
+    monkeypatch.setattr(fixture.fcntl, "flock", lambda *a: None)
+    real_open = open
+    monkeypatch.setattr(fixture, "open", lambda path, *a, **kw: real_open(tmp_path / "lock", *a, **kw), raising=False)
+    for name in ("app", "probe"):
+        (tmp_path / name).touch()
+    monkeypatch.setattr(fixture, "free_bytes", lambda: 10 ** 15)
+    unfinished = {"passed": True, "expectations": {"requestedActs": {"standing": "unfinished", "acts": []}}}
+    monkeypatch.setattr(fixture, "run", lambda *a: dict(unfinished))
+    monkeypatch.setattr(sys, "argv", ["agent_journey_fixture.py", "--app", str(tmp_path / "app"), "--process-probe",
+                                      str(tmp_path / "probe"), "--boundary-probe", str(tmp_path / "probe"),
+                                      "--mode", "stub", "--output", str(tmp_path / "out")])
+    assert fixture.main() == fixture.OUTCOME_EXIT["unfinished"] == 3
+    summary = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert summary["outcome"] == "unfinished" and summary["passed"] is False and not summary["failures"]
+    written = json.loads((tmp_path / "out" / "result.json").read_text())
+    assert written["outcome"] == "unfinished" and written["passed"] is False

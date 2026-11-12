@@ -27,6 +27,13 @@ Nothing in it may depend on which provider answers. A member named `provider`,
   `ACT_KINDS`): `apply_agent_batch` (Batch review's own Validate, when its
   preview gate asks, and Apply entire batch). No request text may contain
   another, because requests are recognised by their text.
+  `{"requested_act": "<act>"}` is a requested act: an act the agent asks the
+  person to perform, which the stand-in performs at the desktop's own control.
+  Its kinds are a closed list: `save_model_state`, `record_run`,
+  `save_project`, `export_table`, `save_report`, `print_report`,
+  `user_release`. The driver performs none yet (`PERFORMS`,
+  `PERFORMED_BY_DRIVER`), so such a definition validates but is refused at
+  launch.
 - `observe`: what the driver reads from the window at the end: the model
   tree's rows of `tree_types`, and the Results section filtered by
   `result_filter`, with its solve proof.
@@ -41,6 +48,29 @@ Nothing in it may depend on which provider answers. A member named `provider`,
   agreement must each have an expectation that is judged in every mode.
   `tool_outcomes_agree_with_window` needs the tool outcomes that only the
   scripted provider sees. A live run reports it under `notJudged`.
+
+## Requested acts and the result's outcome
+
+A request is settled as performed only on the owning route's receipt, and a
+route that gives no receipt (print never will) leaves its request short of
+performed. So a use case with a requested act is complete for the agent only
+if the conversation shows the agent was given the standing `performed` for
+each requested act. Each requested act must have exactly one
+`requested_act_standing` expectation, and any other standing leaves the use
+case unfinished for the agent. A live run cannot see the agent's tool
+outcomes, so it always reports such a use case as unfinished.
+
+The result's `outcome` is one word:
+- `passed`: the route was examined with no failure, and every requested act
+  was shown to the agent as performed.
+- `failed`: something failed; `failures` and `failure` say what.
+- `unfinished`: the route passed, but a requested act was not shown as
+  performed.
+
+`unfinished` is no pass. `passed` is then false with no failure named, the
+exit status is 3 (0 for passed, 1 for failed), and the summary line carries
+the outcome. A scripted provider run examines the route only and shows
+nothing about what a model does.
 
 ## `scripted_provider.json`: model output for stub mode only
 

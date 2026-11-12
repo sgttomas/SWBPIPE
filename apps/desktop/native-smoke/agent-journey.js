@@ -225,6 +225,10 @@
   // its offline test keeps equal to these).
   const STARTS = { new_blank: (entry, report, timeouts) => newBlank(report, timeouts) };
   const ACTS = { apply_agent_batch: applyAgentBatch };
+  // Requested acts the driver performs at the desktop's own control, standing for the person
+  // (`PERFORMED_BY_DRIVER` in the controller). None yet: the controller refuses to launch a use
+  // case with a requested act, and this driver ends the run if one reaches it.
+  const PERFORMS = {};
 
   (async () => {
     const report = { driver: "agent-journey", steps: [] };
@@ -239,6 +243,10 @@
       for (const entry of plan.sequence) {
         if (typeof entry.request === "string") {
           await step(entry.step, async () => { report[entry.report] = await turn(entry.step, entry.request, timeouts); });
+        } else if (typeof entry.requestedAct === "string") {
+          const perform = Object.hasOwn(PERFORMS, entry.requestedAct) ? PERFORMS[entry.requestedAct] : null;
+          if (!perform) throw new Error(`requested act ${entry.requestedAct} is not performed by this driver`);
+          await step(entry.step, () => perform(entry, report, timeouts));
         } else {
           const act = Object.hasOwn(ACTS, entry.act) ? ACTS[entry.act] : null;
           if (!act) throw new Error(`act ${entry.act} is not implemented`);

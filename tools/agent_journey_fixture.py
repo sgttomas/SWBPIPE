@@ -129,6 +129,28 @@ USE_CASE_ID = re.compile(r"[a-z0-9][a-z0-9-]{0,62}")
 START_KINDS = {"new_blank": "new blank"}
 ACT_KINDS = {"apply_agent_batch": "apply"}
 CATEGORIES = ("window", "conversation", "agreement")
+# Requested acts (DEL-16-06 Request): an act the agent asks the person to perform, which the
+# person performs at the desktop's own control; in a run the driver stands for the person.
+# A request is settled as performed only on the owning route's receipt, so a use case with a
+# requested act is unfinished for the agent unless the conversation shows the agent was given
+# the standing "performed" for each. Print is never performed: its best standing is "sent to
+# the print dialog".
+REQUESTABLE_ACTS = ("save_model_state", "record_run", "save_project", "export_table", "save_report",
+                    "print_report", "user_release")
+# Requested acts the driver can perform at the desktop's own control (`PERFORMS` in
+# agent-journey.js). None yet: a definition with a requested act validates, and is refused at
+# launch until the driver performs that act.
+PERFORMED_BY_DRIVER = {}
+PERFORMED = "performed"
+REQUEST_STANDINGS = ("pending", "declined", "refused", "stale", "withdrawn", "unknown", PERFORMED,
+                     "sent to the print dialog")
+# Where a tool outcome observing a request carries the act and its standing. Provisional: the
+# catalog defines no request observation yet; follow it when it does.
+REQUEST_OBSERVATION = {"act": "data.requestedAct", "standing": "data.requestStanding"}
+# The result's one word for the run (`outcome`) and the controller's exit status for each.
+# "unfinished": the route was examined and nothing failed, but a requested act was not shown to
+# the agent as performed, so the use case is not complete for the agent. It is not a pass.
+OUTCOME_EXIT = {"passed": 0, "failed": 1, "unfinished": 3}
 # A definition states the person's side only; which provider answers is the run's choice.
 PROVIDER_KEYS = {"provider", "endpoint", "model", "apiKey", "key", "contextWindow", "stub", "scripted_provider"}
 STANDING = {
@@ -184,17 +206,25 @@ class UseCase:
         self.id = definition["id"]
         self.expectations = definition["expectations"]
         self.requests = [entry["request"] for entry in definition["sequence"] if "request" in entry]
-        self.sequence, requests, applies = [], 0, 0
+        self.sequence, requests, applies, requested = [], 0, 0, 0
         for entry in definition["sequence"]:
             if "request" in entry:
                 requests += 1
                 self.sequence.append({"step": f"turn {requests}", "report": f"turn{requests}", "request": entry["request"]})
+            elif "requested_act" in entry:
+                requested += 1
+                self.sequence.append({"step": f"perform {entry['requested_act']}", "requestedAct": entry["requested_act"],
+                                      "report": requested_report_key(requested)})
             else:
                 applies += entry["act"] == "apply_agent_batch"
                 self.sequence.append({"step": ACT_KINDS[entry["act"]], "act": entry["act"],
                                       "report": apply_report_key(applies) if entry["act"] == "apply_agent_batch" else entry["act"]})
         start = definition["start"]["kind"]
         self.steps = [START_KINDS[start], "provider and start", *[e["step"] for e in self.sequence], "observe", "stop"]
+
+    @property
+    def requested_acts(self):
+        return [entry["requestedAct"] for entry in self.sequence if "requestedAct" in entry]
 
     @property
     def path(self):
@@ -227,6 +257,17 @@ class UseCase:
 
 def apply_report_key(occurrence):
     return "batch" if occurrence == 1 else f"batch_{occurrence}"
+
+
+def requested_report_key(occurrence):
+    return f"requested{occurrence}"
+
+
+def refuse_unperformable(case):
+    """At launch: a requested act the driver cannot yet perform at the desktop's control."""
+    missing = [act for act in case.requested_acts if act not in PERFORMED_BY_DRIVER]
+    if missing:
+        raise Refusal(f"requested_act_not_performable {case.id}: {', '.join(missing)}")
 
 
 def use_case_names():
@@ -267,14 +308,17 @@ def validate_definition(definition, name=None):
     sequence = definition.get("sequence")
     if not isinstance(sequence, list) or not sequence:
         return problems + ["sequence is empty"]
-    requests, applies = [], 0
+    requests, applies, requested = [], 0, []
     for index, entry in enumerate(sequence):
         if isinstance(entry, dict) and set(entry) == {"request"} and isinstance(entry["request"], str) and entry["request"].strip():
             requests.append(entry["request"])
         elif isinstance(entry, dict) and set(entry) == {"act"} and entry["act"] in ACT_KINDS:
             applies += entry["act"] == "apply_agent_batch"
+        elif isinstance(entry, dict) and set(entry) == {"requested_act"} and entry["requested_act"] in REQUESTABLE_ACTS:
+            requested.append(entry["requested_act"])
         else:
-            problems.append(f"sequence[{index}] {entry!r}: a request text or an act the driver implements ({sorted(ACT_KINDS)})")
+            problems.append(f"sequence[{index}] {entry!r}: a request text, an act the driver implements ({sorted(ACT_KINDS)}) "
+                            f"or a requested act ({', '.join(REQUESTABLE_ACTS)})")
     if not requests:
         problems.append("sequence has no request")
     # The scripted provider and the controller recognise a request by its text.
@@ -303,7 +347,7 @@ def validate_definition(definition, name=None):
     if not isinstance(expectations, list) or not expectations:
         return problems + ["no expectations"]
     seen, covered = {}, set()
-    context = {"requests": len(requests), "applies": applies, "references": references, "observe": observe}
+    context = {"requests": len(requests), "applies": applies, "requested": requested, "references": references, "observe": observe}
     for index, expectation in enumerate(expectations):
         if not isinstance(expectation, dict):
             problems.append(f"expectations[{index}] is not an object")
@@ -331,6 +375,11 @@ def validate_definition(definition, name=None):
     for category in CATEGORIES:
         if category not in covered:
             problems.append(f"no expectation judges the {category} in every mode")
+    # A requested act whose standing nothing judges could let the use case read as complete.
+    for number, act in enumerate(requested, start=1):
+        judging = [e for e in seen.values() if e["kind"] == "requested_act_standing" and e["requested"] == number]
+        if len(judging) != 1:
+            problems.append(f"requested act {number} ({act}) needs exactly one requested_act_standing expectation, has {len(judging)}")
     return problems
 
 
@@ -885,7 +934,39 @@ def validate_report(expectation, context, seen):
     return problems
 
 
+def judge_requested_act_standing(expectation, report, case, context, captured):
+    """The standing the agent was given for a requested act, as the tool outcomes it received
+    show it. Only "performed" settles the act; any other standing, or none seen (always so in a
+    live run, whose tool outcomes the controller does not see), leaves the use case unfinished
+    for the agent. That is not a failure of the route. A print request reported as performed is
+    a failure: print is settled at best as sent to the print dialog."""
+    number = expectation["requested"]
+    act = case.requested_acts[number - 1]
+    seen = []
+    for item in captured or []:
+        outcome = item.get("outcome")
+        try:
+            if isinstance(outcome, dict) and pluck(outcome, REQUEST_OBSERVATION["act"].split(".")) == act:
+                seen.append(pluck(outcome, REQUEST_OBSERVATION["standing"].split(".")))
+        except Unresolved:
+            continue
+    standing = seen[-1] if seen else "not observed"
+    standing = standing if isinstance(standing, str) and standing in REQUEST_STANDINGS + ("not observed",) else "unrecognized"
+    context.setdefault("requested", []).append({"requested": number, "act": act, "standing": standing})
+    if act == "print_report" and standing == PERFORMED:
+        return ["print_report was reported performed; a print request is settled at most as sent to the print dialog"], 1
+    return [], 1
+
+
+def validate_requested(expectation, context, seen):
+    number = expectation["requested"]
+    if not isinstance(number, int) or not 1 <= number <= len(context["requested"]):
+        return [f"requested {number!r}: the sequence has {len(context['requested'])} requested acts"]
+    return []
+
+
 CHECKS = {
+    "requested_act_standing": Check("conversation", ("requested",), judge_requested_act_standing, validate_requested),
     "requests_answered": Check("conversation", (), judge_requests_answered),
     "agent_batch_shown": Check("window", ("apply", "operations"), judge_agent_batch_shown, validate_apply),
     "tree_rows_are_batch_targets": Check("window", ("operations", "object_types"), judge_tree_rows, validate_tree),
@@ -920,8 +1001,27 @@ def judge(report, case, captured=None, judgement=None):
             failures.append(f"expectation {expectation['id']} compared nothing")
         judged.append(expectation["id"])
     if judgement is not None:
-        judgement.update(judged=judged, notJudged=unjudged)
+        acts = context.get("requested", [])
+        if len(acts) != len(case.requested_acts):
+            failures.append(f"{len(case.requested_acts)} requested acts, {len(acts)} judged")
+        judgement.update(judged=judged, notJudged=unjudged, requestedActs={
+            "standing": "none" if not case.requested_acts
+            else "all performed" if len(acts) == len(case.requested_acts) and all(a["standing"] == PERFORMED for a in acts)
+            else "unfinished",
+            "acts": acts})
     return failures
+
+
+def settle(result):
+    """The run's one word. "passed" needs the route examined with no failure and, for a use case
+    with requested acts, every one shown to the agent as performed; "unfinished" is a route that
+    passed with a requested act not so shown, and is no pass: `passed` is then false, with no
+    failure named."""
+    route_passed = bool(result.get("passed"))
+    unfinished = ((result.get("expectations") or {}).get("requestedActs") or {}).get("standing") == "unfinished"
+    result["outcome"] = "failed" if not route_passed else "unfinished" if unfinished else "passed"
+    result["passed"] = result["outcome"] == "passed"
+    return result["outcome"]
 
 
 def operation_key(operation):
@@ -1317,6 +1417,7 @@ def main():
         return 2
     try:
         args.case = load_use_case(args.use_case)  # An invalid definition refuses before anything is created.
+        refuse_unperformable(args.case)
         check_memory_monitor(args)  # Refuse unhealthy admission before consuming the single key read.
         key = read_key(sys.stdin.buffer) if args.key_stdin else None
     except Refusal as refusal:
@@ -1336,10 +1437,11 @@ def main():
         except Exception as error:  # noqa: BLE001
             result["failure"] = str(error) if isinstance(error, Refusal) else type(error).__name__
     key = None
+    settle(result)
     (root / "result.json").write_text(json.dumps(result, indent=2) + "\n")
-    print(json.dumps({k: result.get(k) for k in ("useCase", "standing", "passed", "failure", "failures", "expectations",
+    print(json.dumps({k: result.get(k) for k in ("useCase", "standing", "outcome", "passed", "failure", "failures", "expectations",
                                                  "rescue", "release", "residents", "startedAt", "endedAt")}))
-    return 0 if result["passed"] else 1
+    return OUTCOME_EXIT[result["outcome"]]
 
 
 if __name__ == "__main__":
