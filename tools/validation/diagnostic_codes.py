@@ -7,8 +7,9 @@ call sites, with no registry, so this scanner makes one: it reads the production
 crates a solve runs through (`SCOPE`) and records each code a production call site can publish, with
 the files and lines that raise it and the severity the site states. The unit is the code: the value
 of the code field of a diagnostic, finding, refusal or reason record that production code of the
-scanned crates constructs, a superset of what a solve publishes; reason tokens printed inside
-messages are not codes (`HEADER['scope']`). `fixtures/diagnostics/
+scanned crates constructs, whether or not the record carrying it is published; reason tokens printed
+inside messages are not codes, and the table is not an inventory of every refusal a person can meet
+(`HEADER['scope']`). `fixtures/diagnostics/
 exact_route_codes.json` holds the result, with a hand-made classification of each code that
 `--write` keeps; `tests/test_diagnostic_code_table.py` checks that the two agree over the producer
 shapes listed in `PRODUCER_SHAPES`, each with a witness. That is agreement, not completeness.
@@ -2491,18 +2492,26 @@ ARC_REASON_TOKENS = [
     ]
 ]
 
-# Codes traced as constructed but not published (HEADER scope, kept by hand; the test does not check it).
+# Publication, traced by hand (HEADER scope; the test does not check it). Three states: traced reachable,
+# traced not published, unresolved. Only what was traced is recorded; every other code is unresolved.
 _NOT_PUBLISHED_TRACE = {
+    'state': 'traced_not_published',
     'revision': 'traced at 81bab5c14 (claude/diagnostic-code-table); confirmed by the assigner on main at 29226060d',
-    'trigger': ('the headless runner\'s retained entry: run_preview_model_value_with_retained_headless '
-                '(core/runner/headless/src/lib.rs 745), which calls '
-                'run_linear_static_preview_value_with_retained_headless (lines 776 to 779)'),
-    'route': ('the retained solve builds the retained-precision successor envelope, and the runner then takes '
-              'into_parts() (core/product_physics/src/lib.rs 2851: a successor "is dropped here, never published"); '
-              'into_publication() has no caller outside tests'),
-    'output_consumed': 'the ordinary envelope and the admission report only',
+    'entry_points_examined': ('the headless runner\'s retained entry: run_preview_model_value_with_retained_headless '
+                              '(core/runner/headless/src/lib.rs 745), which calls '
+                              'run_linear_static_preview_value_with_retained_headless (lines 776 to 779); and every '
+                              'non-test Rust caller of into_publication() and into_parts() found by name in core and '
+                              'in the desktop\'s native crate'),
+    'decisive_discard': ('the headless path takes into_parts() (core/product_physics/src/lib.rs 2851: a successor '
+                         '"is dropped here, never published"), so the retained-precision successor envelope that '
+                         'carries the code is dropped and the ordinary envelope and the admission report are what '
+                         'is consumed'),
+    'no_caller_found': ('no caller of into_publication() was found outside tests. This is recorded as "no caller '
+                        'found" and not as "cannot reach a person"'),
     'not_read': ('the trace searched non-test Rust callers by name in core and in the desktop\'s native crate; the '
                  'wasm packaging and the TypeScript side were not read'),
+    'recheck_when': ('any change to the callers named above, to into_parts() or into_publication(), or to how a '
+                     'retained-precision successor is published must prompt rechecking this entry'),
 }
 CONSTRUCTED_NOT_PUBLISHED = [
     dict(code=code, constructed_at=where, **_NOT_PUBLISHED_TRACE) for code, where in [
@@ -2630,13 +2639,33 @@ HEADER = {
         'unit': ('The unit of this table is the code: the value of the code field of a diagnostic, finding, '
                  'refusal or reason record that production code of the scanned crates constructs. There is one '
                  'record per distinct value, whatever its spelling.'),
-        'what_in_the_table_means': ('The table is therefore a superset of the codes a solve publishes. That a code '
-                                    'is in the table does not mean that a person can meet the refusal it names. A '
-                                    'limitation is declared for a refusal a person can meet, and that needs its own '
-                                    'trace, from the trigger through the route taken to the output consumed, when '
-                                    'the limitation is drafted.'),
-        'constructed_not_published_note': ('This list is kept by hand and is not checked by the test.'),
-        'constructed_not_published': CONSTRUCTED_NOT_PUBLISHED,
+        'what_in_the_table_means': ('The table is conservative about publication among the constructions the '
+                                    'scanner discovers: it lists a code whether or not the record carrying it is '
+                                    'published. It is not a superset of all refusals a person can meet: the scanner '
+                                    'does not claim completeness (shapes_not_read), excludes reason tokens printed '
+                                    'inside messages and some producer forms (outside_the_unit), and does not cover '
+                                    'every product surface (crates). That a code is in the table does not mean that '
+                                    'a person can meet the refusal it names.'),
+        'publication': ('Whether a code reaches a person is recorded in three states: traced reachable, traced not '
+                        'published, and unresolved. Only a code with an entry in publication_traced has been '
+                        'traced; every other code in this table is unresolved as to publication. No code is '
+                        'recorded as traced reachable at this revision. The ten source-recovery failure codes '
+                        '(first site core/product_physics/src/source_receipt.rs 689) are unresolved; the place to '
+                        'look is what becomes of a case\'s failed receipt entry when the invocation\'s receipt is '
+                        'finalized or cannot be (core/product_physics/src/lib.rs, the composite finalization and '
+                        'its republication).'),
+        'publication_traced_note': ('This list is kept by hand and is not checked by the test. Each entry records '
+                                    'its revision, the entry points examined, the decisive discard and what was not '
+                                    'read, and says when it must be rechecked.'),
+        'publication_traced': CONSTRUCTED_NOT_PUBLISHED,
+        'what_exit_criterion_3_still_needs': ('This table supports the work exit criterion 3 needs and does not do '
+                                              'it. That work is the connection from a required capability to its '
+                                              'reachable refusal, its practical consequence and a declared '
+                                              'limitation. It is traced by shared producer and publication '
+                                              'boundaries, not code by code through this table: one code can cover '
+                                              'several materially different refusals, and a missing control can '
+                                              'withhold a capability with no code at all. Product text that names a '
+                                              'limitation is not a declaration of one.'),
         'crates': list(SCOPE) + [f'{p} (a solve\'s code it relays unchanged only)' for p in REUSE_SCOPE],
         'operation_applier': ('core/model_operations/operation_applier is read only for a solve\'s code that it '
                               'relays unchanged: a code position there whose value is a constant declared in a '

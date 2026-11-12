@@ -6,9 +6,12 @@ listed in `docs/RELEASE_LIMITATIONS_v1.0.md`. `tools/validation/diagnostic_codes
 the production Rust sources; `fixtures/diagnostics/exact_route_codes.json` holds them with a hand-made
 classification. The table's unit is the code: the value of the code field of a diagnostic, finding, refusal
 or reason record that production code of the scanned crates constructs (its `scope` says what that excludes).
-The table is a superset of what a solve publishes: a code in it is not thereby a refusal a person can meet,
-and a limitation drafted for a refusal needs its own trace to the output a person consumes. The scope's
-`constructed_not_published` list is kept by hand; this test does not check it.
+The table is conservative about publication among the constructions the scanner discovers: a code in it is not
+thereby a refusal a person can meet, and the table is not an inventory of every refusal a person can meet. Whether
+a code reaches a person is traced by hand for a few codes (the scope's `publication_traced`, with what each trace
+read and when to recheck it) and is unresolved for the rest; this test does not check that list. The table
+supports the work exit criterion 3 needs (from a required capability to its reachable refusal, its consequence
+and a declared limitation) and does not do it.
 
 What this test establishes: the table agrees with the scanner's observation of the sources over the producer
 shapes the scanner lists (`PRODUCER_SHAPES`, the table's `scope.shapes_read`), each shape with a witness here
