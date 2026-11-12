@@ -1,5 +1,5 @@
 {
- "about": "The diagnostic codes a solve publishes, read from the production sources of the solve crates by tools/validation/diagnostic_codes.py, with a hand-made classification of each. What a code is, what is read and what is not, and what the test establishes are in scope. The scanner writes code, crates, severity, first_site, sites and messages; classification, reason, unsure, candidates, named_by, named_by_coverage and named_by_statement are hand-made and kept by --write, as is pinned_sites. The test cannot check that a text covers a refusal, only that it mentions a code: each naming carries a hand-made coverage, whole or partial, and only a whole naming counts as naming the refusal.",
+ "about": "The diagnostic codes production code of the solve crates constructs, read from those sources by tools/validation/diagnostic_codes.py, with a hand-made classification of each. What a code is, what is read and what is not, and what the test establishes are in scope. The scanner writes code, crates, severity, first_site, sites and messages; classification, reason, unsure, candidates, named_by, named_by_coverage and named_by_statement are hand-made and kept by --write, as is pinned_sites. The test cannot check that a text covers a refusal, only that it mentions a code: each naming carries a hand-made coverage, whole or partial, and only a whole naming counts as naming the refusal.",
  "first_site": "the first raising site resolved by type (and, where a mapping is involved, by the arm its argument selects); a site resolved only by a method's name carries by_name, one that may raise any arm of a mapping carries any_arm, and neither is chosen as first while another exists; sites_by_name_only says that every site was resolved by name",
  "named_by_coverage": "for a code named by a LIM entry: {\"coverage\": \"whole\" or \"partial\", \"reason\"}; a partial naming counts as unnamed",
  "classes": {
@@ -13,7 +13,56 @@
  "named_by_statement": "the product texts that name the code, as a list, or null when none does: {\"status\": \"in_product\", \"text\", \"where\", \"coverage\", \"coverage_reason\"} for text the product publishes today (a formulation_basis limitation), whole or partial as for named_by_coverage; {\"status\": \"planned\", \"statement\", \"subject\", \"lands_with\"} for a per-document limitation statement not yet in the product, which names nothing today. Planned statements may name codes of any class.",
  "pinned_site": "an entry of pinned_sites: a code position whose value the scanner cannot resolve but the source settles, pinned by hand: {\"file\", \"at\", \"why\", \"site_text\", \"values\", \"reason\", \"anchors\": [{\"file\", \"text\"}]}. A pin holds only while the scan leaves a site unresolved with that file, at and why on the line where site_text stands (once in the file), and each anchor text stands exactly once in its file; a holding pin turns the site into sites of its values. Any other unresolved site fails the test.",
  "scope": {
-  "unit": "The unit of this table is the code: the value of the code field of a diagnostic, finding, refusal or reason record that a solve publishes. There is one record per distinct value, whatever its spelling.",
+  "unit": "The unit of this table is the code: the value of the code field of a diagnostic, finding, refusal or reason record that production code of the scanned crates constructs. There is one record per distinct value, whatever its spelling.",
+  "what_in_the_table_means": "The table is therefore a superset of the codes a solve publishes. That a code is in the table does not mean that a person can meet the refusal it names. A limitation is declared for a refusal a person can meet, and that needs its own trace, from the trigger through the route taken to the output consumed, when the limitation is drafted.",
+  "constructed_not_published_note": "This list is kept by hand and is not checked by the test.",
+  "constructed_not_published": [
+   {
+    "code": "combination_unresolved",
+    "constructed_at": "core/product_physics/src/retained_wire.rs 2037, 2040, 2042 (combination_entry) and 2171 (serialize_combination_attempt): retained_precision.body.combinations[].reason.code",
+    "revision": "traced at 81bab5c14 (claude/diagnostic-code-table); confirmed by the assigner on main at 29226060d",
+    "trigger": "the headless runner's retained entry: run_preview_model_value_with_retained_headless (core/runner/headless/src/lib.rs 745), which calls run_linear_static_preview_value_with_retained_headless (lines 776 to 779)",
+    "route": "the retained solve builds the retained-precision successor envelope, and the runner then takes into_parts() (core/product_physics/src/lib.rs 2851: a successor \"is dropped here, never published\"); into_publication() has no caller outside tests",
+    "output_consumed": "the ordinary envelope and the admission report only",
+    "not_read": "the trace searched non-test Rust callers by name in core and in the desktop's native crate; the wasm packaging and the TypeScript side were not read"
+   },
+   {
+    "code": "facade_certificate",
+    "constructed_at": "core/product_physics/src/retained_wire.rs 2170 (serialize_combination_attempt) and 2291 (serialize_attempt): retained_precision.body.combinations[].reason.code and .cases[].reason.code",
+    "revision": "traced at 81bab5c14 (claude/diagnostic-code-table); confirmed by the assigner on main at 29226060d",
+    "trigger": "the headless runner's retained entry: run_preview_model_value_with_retained_headless (core/runner/headless/src/lib.rs 745), which calls run_linear_static_preview_value_with_retained_headless (lines 776 to 779)",
+    "route": "the retained solve builds the retained-precision successor envelope, and the runner then takes into_parts() (core/product_physics/src/lib.rs 2851: a successor \"is dropped here, never published\"); into_publication() has no caller outside tests",
+    "output_consumed": "the ordinary envelope and the admission report only",
+    "not_read": "the trace searched non-test Rust callers by name in core and in the desktop's native crate; the wasm packaging and the TypeScript side were not read"
+   },
+   {
+    "code": "kernel_refused",
+    "constructed_at": "core/product_physics/src/retained_wire.rs 2292, published as code.0 at 2298 (serialize_attempt): retained_precision.body.cases[].reason.code",
+    "revision": "traced at 81bab5c14 (claude/diagnostic-code-table); confirmed by the assigner on main at 29226060d",
+    "trigger": "the headless runner's retained entry: run_preview_model_value_with_retained_headless (core/runner/headless/src/lib.rs 745), which calls run_linear_static_preview_value_with_retained_headless (lines 776 to 779)",
+    "route": "the retained solve builds the retained-precision successor envelope, and the runner then takes into_parts() (core/product_physics/src/lib.rs 2851: a successor \"is dropped here, never published\"); into_publication() has no caller outside tests",
+    "output_consumed": "the ordinary envelope and the admission report only",
+    "not_read": "the trace searched non-test Rust callers by name in core and in the desktop's native crate; the wasm packaging and the TypeScript side were not read"
+   },
+   {
+    "code": "kernel_unresolved",
+    "constructed_at": "core/product_physics/src/retained_wire.rs 2292, published as code.0 at 2298 (serialize_attempt): retained_precision.body.cases[].reason.code",
+    "revision": "traced at 81bab5c14 (claude/diagnostic-code-table); confirmed by the assigner on main at 29226060d",
+    "trigger": "the headless runner's retained entry: run_preview_model_value_with_retained_headless (core/runner/headless/src/lib.rs 745), which calls run_linear_static_preview_value_with_retained_headless (lines 776 to 779)",
+    "route": "the retained solve builds the retained-precision successor envelope, and the runner then takes into_parts() (core/product_physics/src/lib.rs 2851: a successor \"is dropped here, never published\"); into_publication() has no caller outside tests",
+    "output_consumed": "the ordinary envelope and the admission report only",
+    "not_read": "the trace searched non-test Rust callers by name in core and in the desktop's native crate; the wasm packaging and the TypeScript side were not read"
+   },
+   {
+    "code": "source_unavailable",
+    "constructed_at": "core/product_physics/src/retained_wire.rs 2275 (serialize_attempt): retained_precision.body.cases[].reason.code",
+    "revision": "traced at 81bab5c14 (claude/diagnostic-code-table); confirmed by the assigner on main at 29226060d",
+    "trigger": "the headless runner's retained entry: run_preview_model_value_with_retained_headless (core/runner/headless/src/lib.rs 745), which calls run_linear_static_preview_value_with_retained_headless (lines 776 to 779)",
+    "route": "the retained solve builds the retained-precision successor envelope, and the runner then takes into_parts() (core/product_physics/src/lib.rs 2851: a successor \"is dropped here, never published\"); into_publication() has no caller outside tests",
+    "output_consumed": "the ordinary envelope and the admission report only",
+    "not_read": "the trace searched non-test Rust callers by name in core and in the desktop's native crate; the wasm packaging and the TypeScript side were not read"
+   }
+  ],
   "crates": [
    "core/product_physics",
    "core/solver/*",

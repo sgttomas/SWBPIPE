@@ -6,8 +6,9 @@ capability listed in `docs/RELEASE_LIMITATIONS_v1.0.md`. The codes are string li
 call sites, with no registry, so this scanner makes one: it reads the production sources of the
 crates a solve runs through (`SCOPE`) and records each code a production call site can publish, with
 the files and lines that raise it and the severity the site states. The unit is the code: the value
-of the code field of a diagnostic, finding, refusal or reason record that a solve publishes; reason
-tokens printed inside messages are not codes (`HEADER['scope']`). `fixtures/diagnostics/
+of the code field of a diagnostic, finding, refusal or reason record that production code of the
+scanned crates constructs, a superset of what a solve publishes; reason tokens printed inside
+messages are not codes (`HEADER['scope']`). `fixtures/diagnostics/
 exact_route_codes.json` holds the result, with a hand-made classification of each code that
 `--write` keeps; `tests/test_diagnostic_code_table.py` checks that the two agree over the producer
 shapes listed in `PRODUCER_SHAPES`, each with a witness. That is agreement, not completeness.
@@ -2490,6 +2491,34 @@ ARC_REASON_TOKENS = [
     ]
 ]
 
+# Codes traced as constructed but not published (HEADER scope, kept by hand; the test does not check it).
+_NOT_PUBLISHED_TRACE = {
+    'revision': 'traced at 81bab5c14 (claude/diagnostic-code-table); confirmed by the assigner on main at 29226060d',
+    'trigger': ('the headless runner\'s retained entry: run_preview_model_value_with_retained_headless '
+                '(core/runner/headless/src/lib.rs 745), which calls '
+                'run_linear_static_preview_value_with_retained_headless (lines 776 to 779)'),
+    'route': ('the retained solve builds the retained-precision successor envelope, and the runner then takes '
+              'into_parts() (core/product_physics/src/lib.rs 2851: a successor "is dropped here, never published"); '
+              'into_publication() has no caller outside tests'),
+    'output_consumed': 'the ordinary envelope and the admission report only',
+    'not_read': ('the trace searched non-test Rust callers by name in core and in the desktop\'s native crate; the '
+                 'wasm packaging and the TypeScript side were not read'),
+}
+CONSTRUCTED_NOT_PUBLISHED = [
+    dict(code=code, constructed_at=where, **_NOT_PUBLISHED_TRACE) for code, where in [
+        ('combination_unresolved', 'core/product_physics/src/retained_wire.rs 2037, 2040, 2042 (combination_entry) and '
+         '2171 (serialize_combination_attempt): retained_precision.body.combinations[].reason.code'),
+        ('facade_certificate', 'core/product_physics/src/retained_wire.rs 2170 (serialize_combination_attempt) and 2291 '
+         '(serialize_attempt): retained_precision.body.combinations[].reason.code and .cases[].reason.code'),
+        ('kernel_refused', 'core/product_physics/src/retained_wire.rs 2292, published as code.0 at 2298 '
+         '(serialize_attempt): retained_precision.body.cases[].reason.code'),
+        ('kernel_unresolved', 'core/product_physics/src/retained_wire.rs 2292, published as code.0 at 2298 '
+         '(serialize_attempt): retained_precision.body.cases[].reason.code'),
+        ('source_unavailable', 'core/product_physics/src/retained_wire.rs 2275 (serialize_attempt): '
+         'retained_precision.body.cases[].reason.code'),
+    ]
+]
+
 # The producer shapes the scanner reads, each with the code its witness adds or removes, the `via` the
 # scanner gives that site, and the witness source (tests/test_diagnostic_code_table.py adds each to a
 # synthetic crate and removes it again; the comparison must see exactly that code come and go).
@@ -2558,7 +2587,7 @@ PRODUCER_SHAPES = [
 
 
 HEADER = {
-    'about': ('The diagnostic codes a solve publishes, read from the production sources of the solve crates by '
+    'about': ('The diagnostic codes production code of the solve crates constructs, read from those sources by '
               'tools/validation/diagnostic_codes.py, with a hand-made classification of each. What a code is, what '
               'is read and what is not, and what the test establishes are in scope. The scanner writes code, crates, '
               'severity, first_site, sites and messages; classification, reason, unsure, candidates, named_by, '
@@ -2599,8 +2628,15 @@ HEADER = {
                     'the test.'),
     'scope': {
         'unit': ('The unit of this table is the code: the value of the code field of a diagnostic, finding, '
-                 'refusal or reason record that a solve publishes. There is one record per distinct value, '
-                 'whatever its spelling.'),
+                 'refusal or reason record that production code of the scanned crates constructs. There is one '
+                 'record per distinct value, whatever its spelling.'),
+        'what_in_the_table_means': ('The table is therefore a superset of the codes a solve publishes. That a code '
+                                    'is in the table does not mean that a person can meet the refusal it names. A '
+                                    'limitation is declared for a refusal a person can meet, and that needs its own '
+                                    'trace, from the trigger through the route taken to the output consumed, when '
+                                    'the limitation is drafted.'),
+        'constructed_not_published_note': ('This list is kept by hand and is not checked by the test.'),
+        'constructed_not_published': CONSTRUCTED_NOT_PUBLISHED,
         'crates': list(SCOPE) + [f'{p} (a solve\'s code it relays unchanged only)' for p in REUSE_SCOPE],
         'operation_applier': ('core/model_operations/operation_applier is read only for a solve\'s code that it '
                               'relays unchanged: a code position there whose value is a constant declared in a '

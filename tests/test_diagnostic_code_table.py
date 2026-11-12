@@ -1,11 +1,14 @@
-"""The table of diagnostic codes a solve publishes agrees with the scanner's observation of the sources, and each
-code is classified.
+"""The table of diagnostic codes the solve crates construct agrees with the scanner's observation of the sources,
+and each code is classified.
 
 Exit criterion 3 (`docs/RELEASE_TARGET_v1.0.md`) needs every remaining refusal of a required capability
 listed in `docs/RELEASE_LIMITATIONS_v1.0.md`. `tools/validation/diagnostic_codes.py` reads the codes from
 the production Rust sources; `fixtures/diagnostics/exact_route_codes.json` holds them with a hand-made
 classification. The table's unit is the code: the value of the code field of a diagnostic, finding, refusal
-or reason record that a solve publishes (its `scope` says what that excludes).
+or reason record that production code of the scanned crates constructs (its `scope` says what that excludes).
+The table is a superset of what a solve publishes: a code in it is not thereby a refusal a person can meet,
+and a limitation drafted for a refusal needs its own trace to the output a person consumes. The scope's
+`constructed_not_published` list is kept by hand; this test does not check it.
 
 What this test establishes: the table agrees with the scanner's observation of the sources over the producer
 shapes the scanner lists (`PRODUCER_SHAPES`, the table's `scope.shapes_read`), each shape with a witness here
