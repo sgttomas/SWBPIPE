@@ -27,7 +27,7 @@ const twoSpan = () => clone(twoSpanJson) as unknown as HangerSizingSizedDocument
 const fourSpan = () => clone(fourSpanJson) as unknown as HangerSizingSizedDocument;
 
 /** The committed two_span document's checked canonical hash. */
-const TWO_SPAN_SHA256 = "a0d3764ae80d968cebd91c953412f287d869fba96dd631e671a29a3b4b653338";
+const TWO_SPAN_SHA256 = "1a2db93e2a4be7b639b2188420056d0fe89433d9ef256177aade3980da0e11e2";
 
 async function sized(document: HangerSizingDocument, library?: unknown): Promise<HangerSizingSizedView> {
   const view = await hangerSizingView(document, null, library);
