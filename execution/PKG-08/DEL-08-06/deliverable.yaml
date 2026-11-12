@@ -20,8 +20,9 @@ needs:
   gating: true
 - from: DEL-14-04
   condition: An analysis-run comparison is deterministic, gives result differences in a common unit only
-    where unit and dimension metadata allow it, classifies them against a tolerance profile, and states
-    that its output is diagnostic evidence and not validation or acceptance.
+    where unit and dimension metadata allow it, classifies them against a tolerance profile where one is
+    supplied and otherwise states them as not classified against any, and states that its output is
+    diagnostic evidence and not validation or acceptance.
   when: Assembling run-comparison sections.
   gating: true
 - from: DEL-14-05
@@ -86,9 +87,20 @@ needs:
 code_paths:
 - core/reporting/state_comparison_handoff_sections/**
 - apps/desktop/src/features/report/stateComparisonHandoffSections.ts
+- apps/desktop/src/features/report/comparisonSections.ts
+# The session's included comparisons, restated as the records the section set reads.
+- apps/desktop/src/features/comparison/comparisonRecords.ts
+- apps/desktop/src/features/comparison/ReportInclusionControl.tsx
+- apps/desktop/src/features/history/useModelStateHistory.ts
 - fixtures/reports/invented/state_comparison_handoff_desktop_parity.json
+- fixtures/reports/invented/state_comparison_handoff_comparison_parity.json
+- tools/fixtures/state_comparison_handoff_comparison_parity.py
 checks:
 - tests/test_state_comparison_handoff_report_sections.py
 - apps/desktop/src/features/report/stateComparisonHandoffSections.test.ts
+- apps/desktop/src/features/report/comparisonSections.parity.test.ts
+- apps/desktop/src/features/report/stateComparisonHandoffSections.comparisons.test.ts
+- apps/desktop/src/features/history/reportComparisons.session.test.tsx
+- core/reporting/report_package/tests/comparison_sections.rs
 - core/reporting/report_package/tests/container.rs
 - apps/desktop/src/features/report/reportPackageRequest.test.ts

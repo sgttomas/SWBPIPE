@@ -179,6 +179,7 @@ checks:
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
 - core/reporting/report_package/tests/current_result_package.rs
+- core/reporting/report_package/tests/comparison_sections.rs
 - core/reporting/report_package/tests/exact_sections_parity.rs
 - core/reporting/report_package/tests/report_rows_parity.rs
 - core/reporting/report_package/tests/report_diagnostics_parity.rs
