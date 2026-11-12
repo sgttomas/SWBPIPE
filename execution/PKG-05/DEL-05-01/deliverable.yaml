@@ -115,6 +115,12 @@ code_paths:
 - validation/references/w16_exact_equivalent_static/**
 - validation/references/w16_timoshenko_partial_wind/**
 - validation/references/rt_g5_s2_conditions/**
+# Frozen before the engine work they judge: wind and seismic beside a temperature state on the
+# exact route, and the hydrostatic test case. No product test reads them yet.
+- validation/references/exact_load_state_equivalent_static/**
+- validation/references/hydrostatic_test/**
+- tests/test_exact_load_state_equivalent_static_references.py
+- tests/test_hydrostatic_test_references.py
 # The wind-exposure form is authoring, which is DEL-07-03's subject; no other deliverable lists it.
 - apps/desktop/src/features/wind-exposure/WindExposureForm.tsx
 checks:
