@@ -146,7 +146,7 @@ async function savedCases(base: Array<{ c: AnalysisRunV03Case; source: Json; rec
   const pick = (needle: string) => base
     .filter(({ record, source }) => routeOf(record).includes(needle) && source.results.length >= 2)
     .sort((a, b) => size(a.source) + size(a.record) - size(b.source) - size(b.record))[0];
-  const picks = [["preview", pick("preview-physics-2")], ["pressure", pick("pressure-2")], ["source", pick("pressure-source")], ["retained", pick("retained")]] as const;
+  const picks = [["preview", pick("preview-physics-2")], ["pressure", pick("pressure-3")], ["source", pick("pressure-source")], ["retained", pick("retained")]] as const;
   for (const [route, found] of picks) {
     if (!found) throw new Error(`no ${route} record in the builder corpus`);
     const { c, source, record } = found;
