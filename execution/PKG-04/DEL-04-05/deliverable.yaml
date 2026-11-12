@@ -88,6 +88,8 @@ checks:
 - core/solver/release_timing/tests/release_timing.rs
 - core/solver/performance_harness/runner/test_release_runner.py
 - tests/test_release_timing_runner.py
+- core/solver/release_timing/tests/supervise.rs
+- tests/test_release_timing_supervise.py
 - tests/test_performance_rack_model.py
 - apps/desktop/native-smoke/perf.test.mjs
 - apps/desktop/src/services/solveTimeline.test.ts
