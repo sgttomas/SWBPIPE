@@ -85,14 +85,28 @@ The validator refuses one without either, so it cannot replace a check the
 machine can make. The judge never passes or fails it. It lists it under
 `expectations.observedByPerson` so the list can be handed to a person.
 
-The result's `outcome` is one word. Precedence runs from first to last:
+The result records which runner mode produced it in `runnerMode`: `agent
+with a scripted provider` (stub mode) or `agent with a model` (live mode).
+A third mode, the harness alone with no supplier, is not built yet. Each
+mode's outcome is read only as that mode's.
+
+The result's `outcome` takes the first that applies:
 
 | `outcome` | Meaning | Exit status |
 | --- | --- | --- |
 | `failed` | Something failed; `failures` and `failure` say what. | 1 |
 | `unfinished` | The route passed, but a requested act was not shown to the agent as performed. | 3 |
 | `awaiting a person` | The route passed and every requested act was performed, but something listed is for a person to observe. | 4 |
-| `passed` | None of the above. | 0 |
+| the mode's pass | Nothing above applies. | 0 |
+
+The pass is worded by mode:
+- With a scripted provider it is `route examined under a scripted provider`.
+  It shows the connecting route works. It is no evidence about what a model
+  does with the use case.
+- With a model it is `passed`.
+
+Exit status 0 is that mode's pass and nothing more. The summary line carries
+`runnerMode` with `outcome`.
 
 The two kinds of shortfall close differently. `unfinished` closes only on a
 receipt from the owning route, given to the agent as `performed`.

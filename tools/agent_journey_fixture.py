@@ -156,12 +156,18 @@ PERSON_OBSERVED = {
     "copy_pressed_on_selected_table": "pressing Copy on a selected table and what Copy took (DEL-07-06 AC-006)",
     "print_dialog_outcome": "what the person did in the system print dialog after the report was handed to it",
 }
-# The result's one word for the run (`outcome`) and the controller's exit status for each. Only
-# "passed" is a pass. "unfinished": the route passed, but a requested act was not shown to the
-# agent as performed (closed by the route's receipt). "awaiting a person": the route passed and
-# every requested act was performed, but a thing only a person can observe is listed (closed by a
-# person's observation). Precedence: failed, unfinished, awaiting a person, passed.
-OUTCOME_EXIT = {"passed": 0, "failed": 1, "unfinished": 3, "awaiting a person": 4}
+# The runner's modes, each recorded in the result's `runnerMode` so that no run's outcome is read
+# as another mode's. The harness alone, with no supplier, is a third mode not built yet.
+RUNNER_MODE = {"stub": "agent with a scripted provider", "live": "agent with a model"}
+# The pass, worded by mode: under a scripted provider a pass is the route examined, never the use
+# case done by the agent.
+PASS_WORDS = {"stub": "route examined under a scripted provider", "live": "passed"}
+# The result's `outcome` and the controller's exit status for each. Only a mode's pass word is a
+# pass. "unfinished": the route passed, but a requested act was not shown to the agent as
+# performed (closed by the route's receipt). "awaiting a person": the route passed and every
+# requested act was performed, but a thing only a person can observe is listed (closed by a
+# person's observation). Precedence: failed, unfinished, awaiting a person, the pass word.
+OUTCOME_EXIT = {PASS_WORDS["stub"]: 0, PASS_WORDS["live"]: 0, "failed": 1, "unfinished": 3, "awaiting a person": 4}
 # A definition states the person's side only; which provider answers is the run's choice.
 PROVIDER_KEYS = {"provider", "endpoint", "model", "apiKey", "key", "contextWindow", "stub", "scripted_provider"}
 STANDING = {
@@ -1055,9 +1061,11 @@ def settle(result):
     expectations = result.get("expectations") or {}
     unfinished = (expectations.get("requestedActs") or {}).get("standing") == "unfinished"
     awaiting = bool(expectations.get("observedByPerson"))
+    mode = result.get("mode")
+    result["runnerMode"] = RUNNER_MODE[mode]
     result["outcome"] = ("failed" if not route_passed else "unfinished" if unfinished
-                         else "awaiting a person" if awaiting else "passed")
-    result["passed"] = result["outcome"] == "passed"
+                         else "awaiting a person" if awaiting else PASS_WORDS[mode])
+    result["passed"] = result["outcome"] == PASS_WORDS[mode]
     return result["outcome"]
 
 
@@ -1465,7 +1473,7 @@ def main():
     for name in ("app", "process_probe", "boundary_probe"):
         setattr(args, name, getattr(args, name).resolve(strict=True))
     free = free_bytes()
-    result = {"passed": False, "freeBytesAtStart": free, "minFreeBytes": int(args.min_free_gib * 1024 ** 3)}
+    result = {"passed": False, "mode": args.mode, "freeBytesAtStart": free, "minFreeBytes": int(args.min_free_gib * 1024 ** 3)}
     if free < result["minFreeBytes"]:
         result["failure"] = "memory_gate"
     else:
@@ -1476,7 +1484,7 @@ def main():
     key = None
     settle(result)
     (root / "result.json").write_text(json.dumps(result, indent=2) + "\n")
-    print(json.dumps({k: result.get(k) for k in ("useCase", "standing", "outcome", "passed", "failure", "failures", "expectations",
+    print(json.dumps({k: result.get(k) for k in ("useCase", "runnerMode", "standing", "outcome", "passed", "failure", "failures", "expectations",
                                                  "rescue", "release", "residents", "startedAt", "endedAt")}))
     return OUTCOME_EXIT[result["outcome"]]
 

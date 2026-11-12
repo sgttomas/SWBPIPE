@@ -599,13 +599,15 @@ def judged_request(act, standings, live=False):
     captured += [{"outcome": {"status": "ok", "data": {"requestedAct": act, "requestStanding": s}}} for s in standings]
     judgement = {}
     failures = fixture.judge(report, case, None if live else captured, judgement)
-    result = {"passed": not failures, "expectations": judgement}
+    result = {"passed": not failures, "mode": "live" if live else "stub", "expectations": judgement}
     return failures, judgement["requestedActs"], fixture.settle(result), result
 
 
 def test_a_requested_act_settled_as_performed_lets_the_use_case_pass():
     failures, acts, outcome, result = judged_request("save_model_state", ["pending", "performed"])
-    assert failures == [] and acts["standing"] == "all performed" and outcome == "passed" and result["passed"] is True
+    assert failures == [] and acts["standing"] == "all performed" and result["passed"] is True
+    # Under a scripted provider a pass is the route examined, never the use case done by the agent.
+    assert outcome == "route examined under a scripted provider" and result["runnerMode"] == "agent with a scripted provider"
     assert acts["acts"] == [{"requested": 1, "act": "save_model_state", "standing": "performed"}]
 
 
@@ -650,8 +652,9 @@ def test_another_acts_standing_settles_nothing():
 def test_a_use_case_without_requested_acts_is_settled_by_the_route_alone():
     judgement = {}
     assert judged(judgement=judgement) == [] and judgement["requestedActs"] == {"standing": "none", "acts": []}
-    assert fixture.settle({"passed": True, "expectations": judgement}) == "passed"
-    assert fixture.settle({"passed": False, "expectations": judgement}) == "failed"
+    assert fixture.settle({"passed": True, "mode": "live", "expectations": judgement}) == "passed"
+    assert fixture.settle({"passed": True, "mode": "stub", "expectations": judgement}) == "route examined under a scripted provider"
+    assert fixture.settle({"passed": False, "mode": "stub", "expectations": judgement}) == "failed"
     assert fixture.W9A.requested_acts == []
 
 
@@ -697,6 +700,7 @@ def test_the_summary_line_and_exit_status_carry_the_outcome(tmp_path, monkeypatc
     assert fixture.main() == fixture.OUTCOME_EXIT["unfinished"] == 3
     summary = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
     assert summary["outcome"] == "unfinished" and summary["passed"] is False and not summary["failures"]
+    assert summary["runnerMode"] == "agent with a scripted provider"
     written = json.loads((tmp_path / "out" / "result.json").read_text())
     assert written["outcome"] == "unfinished" and written["passed"] is False
 
@@ -725,13 +729,13 @@ def test_a_thing_a_person_observes_is_listed_never_judged_and_the_run_awaits_a_p
     assert judgement["observedByPerson"] == [{"id": "copy-by-person", "thing": "copy_pressed_on_selected_table",
                                                "machineObserved": case.expectations[-1]["machine_observed"],
                                                "machineCheck": "node-c-motions", "machineCheckJudged": True}]
-    result = {"passed": True, "expectations": judgement}
+    result = {"passed": True, "mode": "stub", "expectations": judgement}
     assert fixture.settle(result) == "awaiting a person" and result["passed"] is False
     assert fixture.OUTCOME_EXIT["awaiting a person"] not in (0, 1, fixture.OUTCOME_EXIT["unfinished"])
     # A failure of the route still fails; a missing receipt still reads as unfinished first.
-    assert fixture.settle({"passed": False, "expectations": judgement}) == "failed"
+    assert fixture.settle({"passed": False, "mode": "stub", "expectations": judgement}) == "failed"
     both = dict(judgement, requestedActs={"standing": "unfinished", "acts": []})
-    assert fixture.settle({"passed": True, "expectations": both}) == "unfinished"
+    assert fixture.settle({"passed": True, "mode": "live", "expectations": both}) == "unfinished"
 
 
 def test_a_person_observed_thing_must_name_what_the_machine_observed_and_its_check():
@@ -787,3 +791,15 @@ def test_the_validator_refuses_an_id_other_than_the_directory_and_tree_types_off
     off = w9a_definition()
     off["observe"]["tree_types"] = ["node", "pipe"]
     assert any("object_types" in p for p in fixture.validate_definition(off, "w9a-journey"))
+
+
+def test_each_runner_mode_is_recorded_and_a_scripted_pass_reads_as_the_route_only():
+    assert fixture.RUNNER_MODE == {"stub": "agent with a scripted provider", "live": "agent with a model"}
+    assert set(fixture.RUNNER_MODE) == set(fixture.PASS_WORDS) == set(fixture.STANDING)
+    stub = {"passed": True, "mode": "stub", "expectations": {}}
+    assert fixture.settle(stub) == "route examined under a scripted provider" and stub["runnerMode"] == "agent with a scripted provider"
+    live = {"passed": True, "mode": "live", "expectations": {}}
+    assert fixture.settle(live) == "passed" and live["runnerMode"] == "agent with a model"
+    # Nothing a scripted run writes says the use case was passed or completed.
+    for word in (fixture.PASS_WORDS["stub"], fixture.STANDING["stub"], fixture.RUNNER_MODE["stub"]):
+        assert not re.search(r"\b(passed|complete|completed)\b", word)
