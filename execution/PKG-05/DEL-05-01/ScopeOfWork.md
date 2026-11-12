@@ -59,7 +59,7 @@ Wind coefficients, exposure rules, seismic response parameters, code load cases 
 - Which deliverable states the load and reference state of a document: a case's reference configuration, its fit and thermal strains by member, its per-support participation and its ledger of load sources. This scope states none of it.
 - For a case that is not a hydrostatic test, whether and how its contents density from its operating condition replaces the section's contents density in its self-weight. A case that asks for it is refused by name.
 
-**Withheld in v1.0.** A combination that includes a hydrostatic test case is withheld by name. v1.0 does not define what such a combination means, and exit criterion 1 asks for the test case, not for a combination of it. The refusal is a release limitation (exit criterion 3).
+**Withheld in v1.0.** A combination that includes a hydrostatic test case is withheld by name. v1.0 does not define what such a combination means, and exit criterion 1 asks for the test case, not for a combination of it. The refusal is a release limitation (exit criterion 3; LIM-003 in `docs/RELEASE_LIMITATIONS_v1.0.md`).
 
 **Selected and sequenced.** The work that brings a test case's selected contents density into its self-weight is selected. SWBPIPE's Agent 0 released the hold that stood on it (2026-11-12). It follows the change that makes pressure elongation a user option on the exact route (DEL-04-07), because both change the same solve sources and every change to them is priced again (DEL-04-08/REQ-004). REQ-014 and AC-010 state the objective.
 

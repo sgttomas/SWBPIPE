@@ -53,7 +53,7 @@ It serves SOW-014 under OBJ-003 and OBJ-005 (`execution/_Decomposition/SOFTWARE_
 - A combination that includes a hydrostatic test case is withheld by name (DEL-05-01). v1.0 does not define what such a combination means.
 - The held-status subtrahend (REQ-013) is offered on the pressure-free route only. On the exact route a subtraction that asks for it is refused by name.
 
-Each is a release limitation (exit criterion 3).
+Each is a release limitation (exit criterion 3; LIM-003 and LIM-004 in `docs/RELEASE_LIMITATIONS_v1.0.md`).
 
 ## Completion and Reliance Basis — Epistemology
 
