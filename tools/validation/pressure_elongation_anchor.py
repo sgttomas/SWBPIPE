@@ -73,7 +73,7 @@ built with `$CARGO`, default `cargo`, release profile), `--entry ID` (repeatable
 `--entry-baseline` (above), `--inventory PATH` (another inventory), and for `check`
 `--profile NAME` (the exclusion profile: `pressure-elongation`, the default, is the list
 below; `none` excludes nothing) and `--chained-is-error` (an entry that would pass as
-PASS_CHAINED is an ERROR). `capture` records its commit identity in `capture.json` beside
+PASS_CHAINED is an ERROR). `capture` records its commit identity in `capture_identity.json` beside
 the envelopes; the report records the check's commit identity and each baseline's recorded
 capture identity (null where a baseline has none).
 Exit status 0 when no
@@ -402,7 +402,7 @@ def load_inventory(path: Path | None = None) -> dict:
     return json.loads((path or INVENTORY).read_text(encoding="utf-8"))
 
 
-CAPTURE_RECORD = "capture.json"
+CAPTURE_RECORD = "capture_identity.json"
 
 
 def commit_identity() -> dict:
