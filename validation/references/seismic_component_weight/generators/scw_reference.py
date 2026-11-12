@@ -15,7 +15,9 @@ component weight the self-weight plan applies, in place of that load, the force
 is the g-factor times the component's weight W at the component's node, with
 the moments of that force about the node from the centre-of-gravity vector; a
 member whose component weight the plan does not apply (here: a component
-declared not consumed by the solve, DEL-03-05) keeps its distributed load.
+declared not consumed by the solve, DEL-03-05, or one whose entered weight is
+exactly zero, which is not applied by the Agent 0's decision) keeps its
+distributed load.
 
 This is a force convention, not a statement that the seismic load uses one
 fixed mass. Equal gravities are a sufficient condition for it to coincide with
