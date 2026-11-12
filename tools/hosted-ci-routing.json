@@ -5341,6 +5341,7 @@
               "fixtures/reports/invented/report_quantity_display_parity.json",
               "fixtures/reports/invented/report_result_rows_parity.json",
               "fixtures/reports/invented/report_sections_provenance_records.json",
+              "fixtures/reports/invented/state_comparison_handoff_comparison_parity.json",
               "fixtures/reports/invented/state_comparison_handoff_desktop_parity.json",
               "fixtures/reports/invented/user_release_derivation_vectors.json",
               "fixtures/reports/invented/user_release_exact/pressure_2_straight.json",
