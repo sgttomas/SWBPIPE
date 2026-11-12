@@ -678,24 +678,33 @@ def contained(sub, mins):
     return all(m[c] >= n for c, n in s.items())
 
 
-def g1_literal(s_case, o_case):
-    """Reading A: primitive loads only (REQ-012's words)."""
+def g1_primitives_only(s_case, o_case):
+    """Control (the earlier reading A): primitive loads only."""
     return contained([content(p) for p in s_case["primitives"]], [content(p) for p in o_case["primitives"]])
 
 
-def actions(case):
-    """Reading B: every action of the case (DEL-04-07 'Action'), by content and multiplicity."""
+def applied(case):
+    """The decided G-1 rule: everything the case applies, by content and multiplicity.
+
+    Primitive loads by authored content; each pressure region with its pressure (members
+    and the pressure's bits); pressure elongation, where the case includes it, as a
+    separate action of its own, not part of a region's content; each generated load;
+    each prescribed motion; each member's authored state of non-zero free strain,
+    compared as authored (kind, expansion law reference, temperature bits and unit).
+    A preload present in every case is not among the listed actions.
+    """
     out = [("primitive",) + content(p) for p in case["primitives"]]
     for region in case.get("regions", []):
         out.append(("pressure_region", tuple(region[0]), float(region[1]).hex(), "Pa"))
     if case.get("on") and case.get("regions"):
-        out.append(("closed_end_free_pressure_strain",))
-    for ms in case.get("member_states", []):
-        out.append(("member_state",) + tuple(ms))
+        out.append(("pressure_elongation",))
+    for gl in case.get("generated_loads", []):
+        out.append(("generated_load",) + tuple(gl))
     for sm in case.get("support_motions", []):
-        out.append(("support_motion",) + tuple(sm))
-    for pl in case.get("preloads", []):
-        out.append(("preload",) + tuple(pl))
+        out.append(("prescribed_motion",) + tuple(sm))
+    for ms in case.get("member_states", []):
+        member, kind, law, temperature, unit = ms
+        out.append(("member_state", member, kind, law, float(temperature).hex(), unit))
     return out
 
 
@@ -705,6 +714,16 @@ def g2(s_case, o_case):
 
 def prim(pid, cat, target, direction, dim, value, unit):
     return (pid, cat, target, direction, dim, Q(value), unit)
+
+
+def next_up(x: Q) -> Q:
+    """The next binary64 above a positive normal value x."""
+    e = x.numerator.bit_length() - x.denominator.bit_length()
+    while Q(2) ** e > x:
+        e -= 1
+    while Q(2) ** (e + 1) <= x:
+        e += 1
+    return x + Q(2) ** (e - 52)
 
 
 def next_down(x: Q) -> Q:
@@ -751,47 +770,73 @@ def g1_rows():
         c.update(kw)
         return c
 
+    state = ("pipe:AB", "temperature", "material:temperature_points", Q(600), "K")
+    state_ulp = state[:3] + (next_up(Q(600)), "K")
+    motion = ("support:C", "UZ", Q(-3, 512), "m")
+    preload = ("support:B", "FZ", Q(1500), "N")
+    # (id, sustained, operating, expected outcome under the decided rule, reason)
     rows = [
-        ("contained", case([W]), case([W] + T), "published"),
-        ("sustained_only_load", case([W, other]), case([W] + T), "refused_g1"),
-        ("twice_in_sustained_once_in_operating", case([W, Wd]), case([W] + T), "refused_g1"),
-        ("twice_in_both", case([W, Wd]), case([W, Wd] + T), "published"),
-        ("same_target_different_magnitude", case([W]), case([W2] + T), "refused_g1"),
-        ("same_target_magnitude_one_ulp_apart", case([W]), case([Wulp] + T), "refused_g1"),
-        ("operands_swapped", case([W] + T), case([W]), "refused_g1"),
-        ("no_primitives_in_sustained", case([]), case(T), "published"),
-        ("fails_g1_and_g2", case([W, other]), case([W] + T, basis=HOT), "refused_g1_and_g2"),
-        # rows whose verdict depends on what counts toward containment
-        ("pressure_differs", case([W], P_LO), case([W] + T, P_HI), None),
-        ("pressure_absent_in_operating", case([W], P_LO), case([W] + T, 0), None),
-        ("elongation_off_sustained_on_operating", case([W], on=False), case([W] + T, on=True), None),
-        ("elongation_on_sustained_off_operating", case([W], on=True), case([W] + T, on=False), None),
+        ("contained", case([W]), case([W] + T), "published",
+         "every sustained load and the equal pressure regions and elongation are in the operating case"),
+        ("sustained_only_load", case([W, other]), case([W] + T), "refused_g1",
+         "the sustained occasional force is absent from the operating case"),
+        ("twice_in_sustained_once_in_operating", case([W, Wd]), case([W] + T), "refused_g1",
+         "content counted twice in the sustained case, once in the operating case"),
+        ("twice_in_both", case([W, Wd]), case([W, Wd] + T), "published",
+         "the same content twice in both cases"),
+        ("same_target_different_magnitude", case([W]), case([W2] + T), "refused_g1",
+         "same target, other magnitude bits: other content"),
+        ("same_target_magnitude_one_ulp_apart", case([W]), case([Wulp] + T), "refused_g1",
+         "magnitudes one binary64 apart: other content"),
+        ("operands_swapped", case([W] + T), case([W]), "refused_g1",
+         "the thermal primitives of the minuend-turned-subtrahend are absent"),
+        ("no_primitives_in_sustained", case([]), case(T), "published",
+         "the sustained case applies only its pressure regions and elongation, both in the operating case"),
+        ("fails_g1_and_g2", case([W, other]), case([W] + T, basis=HOT), "refused_g1_and_g2",
+         "a sustained-only load, and two modulus bases"),
+        ("pressure_differs", case([W], P_LO), case([W] + T, P_HI), "refused_g1",
+         "a region with another pressure is other content"),
+        ("pressure_absent_in_operating", case([W], P_LO), case([W] + T, 0), "refused_g1",
+         "the sustained pressure regions are absent from the operating case"),
+        ("elongation_off_sustained_on_operating", case([W], on=False), case([W] + T, on=True), "published",
+         "pressure elongation is a separate action, not part of a region's content; the sustained case does "
+         "not apply it, so nothing of the sustained case is missing"),
+        ("elongation_on_sustained_off_operating", case([W], on=True), case([W] + T, on=False), "refused_g1",
+         "the sustained case applies pressure elongation and the operating case does not"),
         ("support_motion_as_primitive_in_sustained_only",
          case([W, prim("d:C:z", "imposed_displacement", "support:C", "global_z", "length", Q(-3, 512), "m")]),
-         case([W] + T), None),
-        ("support_motion_as_support_record_in_sustained_only",
-         case([W], support_motions=[("support:C", "UZ", float(Q(-3, 512)).hex(), "m")]), case([W] + T), None),
-        ("member_thermal_state_in_sustained_only",
-         case([W], member_states=[("pipe:AB", "thermal_strain", float(Q(3, 2 ** 12)).hex())]), case([W] + T), None),
-        ("constant_effort_preload_in_both",
-         case([W], preloads=[("support:B", "FZ", float(Q(1500)).hex(), "N")]),
-         case([W] + T, preloads=[("support:B", "FZ", float(Q(1500)).hex(), "N")]), None),
+         case([W] + T), "refused_g1", "the sustained imposed-displacement primitive is absent"),
+        ("support_motion_as_support_record_in_sustained_only", case([W], support_motions=[motion]),
+         case([W] + T), "refused_g1", "a prescribed motion is an action; absent from the operating case"),
+        ("member_state_in_sustained_only", case([W], member_states=[state]), case([W] + T), "refused_g1",
+         "the authored member state is absent from the operating case"),
+        ("member_state_same_authored_temperature", case([W], member_states=[state]),
+         case([W] + T, member_states=[state]), "published",
+         "the same authored kind, law reference and temperature bits: equal content"),
+        ("member_state_temperature_one_ulp_apart", case([W], member_states=[state]),
+         case([W] + T, member_states=[state_ulp]), "refused_g1",
+         "authored temperatures one binary64 apart: other content, as for two loads one bit apart"),
+        ("constant_effort_preload_in_both", case([W], preloads=[preload]), case([W] + T, preloads=[preload]),
+         "published", "a preload present in every case is not a listed action; present in both in any event"),
     ]
     out = []
-    for name, s, o, expect in rows:
-        a = g1_literal(s, o)
-        b = contained(actions(s), actions(o))
+    for name, s, o, expect, reason in rows:
+        decided = contained(applied(s), applied(o))
+        control = g1_primitives_only(s, o)
         gate2 = g2(s, o)
-        outcome = ("published" if a and gate2 else "refused_g1_and_g2" if not a and not gate2
-                   else "refused_g1" if not a else "refused_g2")
-        if expect is not None:
-            assert outcome == expect, name
-            assert a == b, f"{name}: both readings agree where no open question arises"
-        out.append({"id": name, "outcome_reading_A_primitives": outcome,
-                    "g1_reading_A_primitives": a, "g1_reading_B_all_actions": b, "g2_same_basis": gate2,
+        outcome = verdict(decided, gate2)
+        assert outcome == expect, name
+        out.append({"id": name, "outcome": outcome, "reason": reason, "g1_contained": decided,
+                    "g2_same_basis": gate2,
+                    "control_primitives_only": {"g1_contained": control, "outcome": verdict(control, gate2)},
                     "sustained": describe(s), "operating": describe(o)})
         CHECKS["g1_rows"] += 1
     return out
+
+
+def verdict(g1_ok, g2_ok):
+    return ("published" if g1_ok and g2_ok else "refused_g1_and_g2" if not g1_ok and not g2_ok
+            else "refused_g1" if not g1_ok else "refused_g2")
 
 
 def describe(c):
@@ -800,10 +845,29 @@ def describe(c):
          "pressure_regions": [{"members": list(r[0]), "pressure_Pa": float(r[1])} for r in c.get("regions", [])],
          "pressure_elongation": "on" if c.get("on") else "off",
          "modulus_basis": basis_text(c["basis"])}
-    for key in ("member_states", "support_motions", "preloads"):
-        if c.get(key):
-            d[key] = [list(x) for x in c[key]]
+    if c.get("member_states"):
+        d["member_states"] = [{"member": m, "kind": k, "expansion_law_ref": law, "temperature": float(t),
+                               "bits": float(t).hex(), "unit": u} for m, k, law, t, u in c["member_states"]]
+    if c.get("support_motions"):
+        d["prescribed_motions"] = [{"target": t, "dof": dof, "value": float(v), "bits": float(v).hex(), "unit": u}
+                                   for t, dof, v, u in c["support_motions"]]
+    if c.get("preloads"):
+        d["preloads"] = [{"target": t, "dof": dof, "value": float(v), "bits": float(v).hex(), "unit": u}
+                         for t, dof, v, u in c["preloads"]]
     return d
+
+
+def from_described(d):
+    """Rebuild a case from its emitted record, every value from its emitted binary64 bits."""
+    def b(x):
+        return Q(float.fromhex(x["bits"]))
+    return {"primitives": [(p["id"], p["category"], p["target"], p["direction"], p["dimension"], b(p), p["unit"])
+                           for p in d["primitives"]],
+            "regions": [(tuple(r["members"]), Q(r["pressure_Pa"])) for r in d["pressure_regions"]],
+            "on": d["pressure_elongation"] == "on",
+            "member_states": [(m["member"], m["kind"], m["expansion_law_ref"], b(m), m["unit"])
+                              for m in d.get("member_states", [])],
+            "support_motions": [(m["target"], m["dof"], b(m), m["unit"]) for m in d.get("prescribed_motions", [])]}
 
 
 def basis_text(b):
@@ -871,6 +935,12 @@ def as_g1(model_id, c, operating):
     return {"primitives": prims, "regions": regions(model_id, c["p"]), "on": c["on"], "basis": c["basis"]}
 
 
+def operand_difference(o_val: Pi, s_val: Pi) -> float:
+    """What a published subtraction must equal bit for bit: the exact difference of the two
+    operands' published binary64 values, rounded once to binary64."""
+    return float(Q(f64(o_val)) - Q(f64(s_val)))
+
+
 def pair_record(pid, model_id, s, o):
     sw, s_loads = solve_case(model_id, s)
     ow, o_loads = solve_case(model_id, o)
@@ -881,11 +951,14 @@ def pair_record(pid, model_id, s, o):
                          "pressure_elongation": "on" if s["on"] else "off", "primitives": "weights"},
            "operating": {"modulus_basis": basis_text(o["basis"]), "pressure_Pa": float(o["p"]),
                          "pressure_elongation": "on" if o["on"] else "off", "primitives": "weights + thermal on every member"},
-           "g1_reading_A_primitives": True,
-           "g1_reading_B_all_actions": contained(actions(as_g1(model_id, s, False)), actions(as_g1(model_id, o, True))),
-           "g2_same_basis": same_basis,
-           "outcome": "published" if same_basis else "refused_g2",
-           "row_text": ROW_TEXT if same_basis else None}
+           "g2_same_basis": same_basis}
+    g1_ok = contained(applied(as_g1(model_id, s, False)), applied(as_g1(model_id, o, True)))
+    rec["g1_contained"] = g1_ok
+    rec["control_primitives_only_g1_contained"] = g1_primitives_only(as_g1(model_id, s, False), as_g1(model_id, o, True))
+    rec["outcome"] = verdict(g1_ok, same_basis)
+    published = rec["outcome"] == "published"
+    rec["row_text"] = ROW_TEXT if published else None
+    assert g1_ok == (s["p"] == o["p"] and (o["on"] or not s["on"]))
     if same_basis:
         dl = load_difference(o_loads, s_loads)
         mods = moduli(o["basis"])
@@ -906,7 +979,9 @@ def pair_record(pid, model_id, s, o):
             rec["reading_J_alternative"] = "identical to reading W on every row"
         else:
             assert differs
-            rec["reading_J_alternative"] = {k: exact_row(v) for k, v in sorted(differs.items())}
+            rec["reading_J_alternative"] = {
+                k: dict(exact_row(v), from_published_operands=operand_difference(oj[k], sj[k]))
+                for k, v in sorted(differs.items())}
         # what the difference consists of
         th = thermal_only(model_id, mods)
         pressure_part = {k: diff[k] - th.get(k, ZERO) for k in diff if not k.startswith("axial/")}
@@ -924,12 +999,30 @@ def pair_record(pid, model_id, s, o):
         th = thermal_only(model_id, moduli(twin_basis))
         rec["closed_form_thermal_response_on_operating_basis_differs_from_withheld_values"] = True
         assert any(f64(diff[k]) != f64(th[k]) for k in th if k in diff)
-    rec["difference" if same_basis else "withheld_would_be_difference"] = {
-        k: dict(exact_row(diff[k]), unit=unit_of(k)) for k in sorted(diff)}
+    field = ("difference" if published else "withheld_would_be_difference" if not same_basis
+             else "undeclared_subtraction")
+    rec["values_field"] = field
+    rows_out = {}
+    pub = {}
+    for k in sorted(diff):
+        pub[k] = operand_difference(ow[k], sw[k])
+        rows_out[k] = dict(exact_row(diff[k]), unit=unit_of(k), from_published_operands=pub[k])
+        if pub[k] != rows_out[k]["value"]:
+            CHECKS[f"rows_published_operand_value_differs_{field}"] += 1
+        CHECKS[f"rows_{field}"] += 1
+    rec[field] = rows_out
     mo, ms, md = magnitudes(model_id, ow), magnitudes(model_id, sw), magnitudes(model_id, diff)
-    rec["magnitudes" if same_basis else "withheld_would_be_magnitudes"] = {
-        k: {"from_combined_components": md[k][1], "exact_square": md[k][0].text(),
-            "forbidden_subtracted_magnitudes": sqrt_difference(mo[k][0], ms[k][0])} for k in sorted(md)}
+    mp = magnitudes(model_id, {k: lift(Q(v)) for k, v in pub.items()})
+    mags = {}
+    for k in sorted(md):
+        mags[k] = {"from_combined_components": md[k][1], "exact_square": md[k][0].text(),
+                   "from_published_operand_components": mp[k][1],
+                   "forbidden_subtracted_magnitudes": sqrt_difference(mo[k][0], ms[k][0])}
+        if mp[k][1] != md[k][1]:
+            CHECKS[f"magnitudes_published_operand_value_differs_{field}"] += 1
+        CHECKS[f"magnitudes_{field}"] += 1
+    rec[field.replace("difference", "magnitudes") if field != "undeclared_subtraction"
+        else "undeclared_subtraction_magnitudes"] = mags
     rec["cases"] = {"sustained": {k: f64(sw[k]) for k in sorted(sw)}, "operating": {k: f64(ow[k]) for k in sorted(ow)}}
     CHECKS["pairs"] += 1
     return rec
@@ -983,12 +1076,9 @@ def emitted_inputs():
 def substitution_check(rows):
     """Recompute every discrete outcome with each input replaced by its emitted binary64."""
     for r in rows:
-        def back(c):
-            prims = [(p["id"], p["category"], p["target"], p["direction"], p["dimension"],
-                      Q(float.fromhex(p["bits"])), p["unit"]) for p in c["primitives"]]
-            return {"primitives": prims}
-        a = g1_literal(back(r["sustained"]), back(r["operating"]))
-        assert a == r["g1_reading_A_primitives"], r["id"]
+        s, o = from_described(r["sustained"]), from_described(r["operating"])
+        assert contained(applied(s), applied(o)) == r["g1_contained"], r["id"]
+        assert g1_primitives_only(s, o) == r["control_primitives_only"]["g1_contained"], r["id"]
     for basis in (REF, HOT):
         assert tuple(Q(float(v)) for v in moduli(basis)) == moduli(basis)
     assert moduli(REF) != moduli(HOT)
