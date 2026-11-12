@@ -49,6 +49,9 @@ def kinds(source: str) -> set[tuple[str, str]]:
     # the hanger lane's (50f279ef3)
     "core/analysis/x.py", "/abs/repo/fixtures/results/a.json", "apps\\desktop\\x.ts",
     "/Users/someone/My Project/core/x.py", b"../schemas/model.schema.yaml",
+    # the dynamics lane's second review (64da5e92e): a path inside quotation marks, a command, an
+    # assignment, parentheses, a closing segment, and a path inside a sentence
+    'cat "core/x.py"', "open('core/x.py').read()", "x=core/y", "(tools/a)", "a/tests", "see a/fixtures, then stop",
 ])
 def test_a_product_path_literal_is_flagged(literal):
     assert RI.names_product_path(literal)
@@ -63,6 +66,8 @@ def test_a_product_path_literal_is_flagged(literal):
     "numerics.core", "the tests of this package", "a.b",
     # the hanger lane's
     "ex_sizing.json", "validation/references/hanger_sizing", b"ex_sizing.json",
+    # the dynamics lane's second review: a root inside a longer name is not a segment
+    "my-core/x", "x.core/y", "a/core.py", "a/tools-old/b", "N/m",
 ])
 def test_prose_and_near_misses_are_not_flagged(literal):
     assert not RI.names_product_path(literal)
@@ -145,6 +150,45 @@ def test_the_import_machinery_is_refused_as_an_import(source, key):
 ])
 def test_a_dynamic_facility_is_refused_wherever_it_is_named(source, key):
     assert ("facility", key) in kinds(source)
+
+
+@pytest.mark.parametrize("source, expected", [
+    # a path given as bytes
+    ("data = open(b'core/x.py', 'rb').read()\n", ["literal"]),
+    # a path inside quotation marks in a command, and the module that starts programs
+    ("import subprocess\nsubprocess.run('cat \"core/x.py\"', shell=True)\n", ["literal", "stdlib"]),
+    # a facility reached by its name as text, through the built-ins module
+    ("import builtins\ngetattr(builtins, 'eval')(\"open('core/x.py').read()\")\n", ["facility", "literal", "stdlib"]),
+    # the same through a namespace
+    ("f = globals()['__builtins__']\n", ["facility"]),
+    # a program started through an allowed module, by attribute and by name as text
+    ("import os\nos.system('true')\n", ["facility"]),
+    ("import os\nrun = getattr(os, 'popen')\n", ["facility"]),
+    # a standard-library module the generators do not use
+    ("import ctypes\n", ["stdlib"]),
+])
+def test_the_independence_rule_catches_ordinary_access_in_other_forms(source, expected):
+    assert sorted(f.kind for f in RI.independence_findings(source, "probe.py")) == expected
+
+
+@pytest.mark.parametrize("module", ["subprocess", "multiprocessing", "ctypes", "platform", "builtins", "code", "pickle", "socket"])
+def test_a_standard_library_module_off_the_allowed_list_is_refused(module):
+    assert ("stdlib", module) in kinds(f"import {module}")
+
+
+def test_the_rules_import_list_is_the_twelve_and_the_rest_is_marked_provisional():
+    assert set(RI.ALLOWED_STDLIB_REASONS) == {"argparse", "concurrent", "decimal", "fractions", "hashlib", "json", "math",
+                                              "os", "pathlib", "struct", "sys", "time"}
+    assert RI.ALLOWED_STDLIB == frozenset(RI.ALLOWED_STDLIB_REASONS) | frozenset(RI.PROVISIONAL_STDLIB_REASONS)
+    assert not set(RI.ALLOWED_STDLIB_REASONS) & set(RI.PROVISIONAL_STDLIB_REASONS)
+
+
+def test_every_allowed_standard_library_module_carries_its_reason_and_none_loads_code():
+    reasons = {**RI.ALLOWED_STDLIB_REASONS, **RI.PROVISIONAL_STDLIB_REASONS}
+    assert all(reason.strip() for reason in reasons.values())
+    assert not RI.ALLOWED_STDLIB & (RI.FORBIDDEN_MODULES | {"subprocess", "multiprocessing", "ctypes", "platform",
+                                                          "builtins", "code", "codeop", "pickle", "marshal", "socket"})
+    assert RI.ALLOWED_STDLIB <= frozenset(sys.stdlib_module_names)
 
 
 def test_re_compile_is_not_the_builtin_compile():
@@ -268,3 +312,52 @@ def test_a_generators_directory_holds_only_modules(tmp_path):
     assert any("generators/vendor" in p for p in RI.scan_package(root))
     allow = RI.Allowances(directories={"generators/vendor": "why"})
     assert RI.scan_package(root, allow) == []
+
+
+# ---------------------------------------------------------------------------------- the third reading
+
+def test_a_root_in_another_case_is_flagged():
+    """Closed by one line: CORE/x.py is the same directory as core/x.py on a case-insensitive host."""
+    assert ("literal", "CORE/x.py") in kinds('open("CORE/x.py")')
+    assert ("literal", "CORE/x.py") in kinds('open(b"CORE/x.py")')
+    assert RI.names_product_path("Tests") and RI.names_product_path("a/Fixtures/b")
+
+
+@pytest.mark.parametrize("source, name", [
+    ("import os\nos._execvpe('true', ['true'])\n", "_execvpe"),
+    ("from concurrent.futures import process\nprocess.mp.util.spawnv_passfds('x', ['x'], ())\n", "spawnv_passfds"),
+    ("import sys\nsys.modules['importlib.machinery'].SourcelessFileLoader('x', 'x.pyc')\n", "SourcelessFileLoader"),
+])
+def test_the_named_internal_facilities_found_by_the_third_reading_are_caught(source, name):
+    assert ("facility", name) in kinds(source)
+
+
+def test_a_units_text_that_looks_like_a_path_is_a_deliberate_finding():
+    """A false finding kept on purpose: "tests/s" is reported, and allowed with its reason where it occurs."""
+    assert ("literal", "tests/s") in kinds('units = "tests/s"\n')
+
+
+def test_known_gap_a_module_reading_its_own_docstring():
+    """Known gap (a): docstrings are inert, but a module that names __doc__ can read one."""
+    assert kinds('"core/x.py"\ndata = open(__doc__).read()\n') == set()
+    assert kinds('"eval"\nimport os\nrun = getattr(os, __doc__)\n') == set()
+
+
+def test_known_gap_an_unnamed_facility_of_an_allowed_module():
+    """Known gap (b): a facility an allowed module exposes and FORBIDDEN_NAMES does not name."""
+    assert kinds("from concurrent.futures import process\nprocess.mp.Process(target=print).start()\n") == set()
+
+
+def test_known_gap_a_module_named_inside_a_longer_text():
+    """Known gap (c): "import core.solver" handed to a started interpreter is not a product path."""
+    assert not RI.names_product_path("import core.solver")
+
+
+def test_a_sibling_module_is_scanned_by_scan_package_but_not_by_a_single_file_judgment(tmp_path):
+    """Form (d): one file's judgment does not follow its imports; scan_package scans every module of the
+    package, so a sibling that imports product code is found there."""
+    root = package(tmp_path, {"script.py": "import sys, os\nsys.path.insert(0, os.path.dirname(__file__))\nimport helper\n",
+                              "helper.py": "import core\n"})
+    assert {f.key for f in RI.independence_findings((root / "script.py").read_text(), "script.py")} == {"helper"}
+    problems = RI.scan_package(root, RI.Allowances(siblings={"helper": "the script's helper"}))
+    assert problems == ["helper.py:1: imports core, neither standard library nor allowed"], problems

@@ -9,24 +9,29 @@ has found, are in tests/test_reference_independence.py.
 This file lives under tools/, which is itself a product root: no reference generator may import it,
 and the rule below refuses such an import like any other.
 
-The rule, for every .py file of a package at any depth:
-- Imports. Each imported module is a standard-library module or one the package's allowances name:
-  a sibling module of the package, a module of another reference package (admitted only when that
-  file is listed with its current hash in a checksum list of its own package, and no file of the
-  same name sits beside the importer to shadow it), or an external module the package's README says
-  is supplied from outside the repository. A relative import is admitted only for a named sibling.
-  The import machinery (FORBIDDEN_MODULES) is refused even though it is standard library.
-- Dynamic facilities. A name in FORBIDDEN_NAMES is refused wherever it is named: called, referenced
-  bare, as an attribute, or as an import name or alias (so `from importlib import import_module as
-  load` is caught at the import). `compile` is refused as the builtin only (a bare name, an import
-  name, or an attribute of `builtins`/`__builtins__`), because `re.compile` is an attribute named
-  compile and is not a loader. A string constant that is exactly a forbidden name or module is
-  refused too, which closes `getattr(builtins, "exec")` and `sys.modules["importlib"]`.
-- Product paths. A str or bytes constant (bytes decoded as latin-1) names a product path when a
-  segment of it, split on runs of either separator, is exactly a product root's name; the test is
-  made on the whole string and on each whitespace-separated token that itself contains a separator,
-  with no whitespace exemption. A dotted name whose first part is a product root is flagged too. A
-  string standing alone as a statement (a docstring) is inert and is not scanned: it is never
+The rule is a list of what is allowed, for every .py file of a package at any depth:
+- Imports. Each imported module is on ALLOWED_STDLIB (standard-library modules that compute or do
+  ordinary file I/O and cannot load code or start a program; each addition carries its reason
+  there), or one the package's allowances name: a sibling module of the package, a module of another
+  reference package (admitted only when that file is listed with its current hash in a checksum list
+  of its own package, and no file or directory of the same name sits beside the importer to shadow
+  it), or an external module the package's README says is supplied from outside the repository. A
+  relative import is admitted only for a named sibling. Any other standard-library module is refused
+  (kind "stdlib") and the import machinery (FORBIDDEN_MODULES) is refused as a facility; either
+  needs an allowance in the file that uses it, with its reason.
+- Dynamic facilities. A name in FORBIDDEN_NAMES (code loading and evaluation, the built-ins
+  namespace, and the calls in os that start a program) is refused wherever it is named: called,
+  referenced bare, as an attribute, as an import name or alias, or as a text or bytes constant (which
+  is how `getattr(builtins, "eval")` or `globals()["__builtins__"]` would reach it). `compile` is
+  refused as the builtin only (a bare name, an import name, a constant, or an attribute of
+  `builtins`/`__builtins__`), because `re.compile` is an attribute named compile and is not a loader.
+  A constant that is exactly a forbidden module's name is refused too (`sys.modules["importlib"]`).
+- Product paths. Text and bytes constants are judged alike (bytes read as latin-1). A constant names
+  a product path when a product root stands as a path segment anywhere in it: opening a segment
+  (nothing of a name before it, a separator after it) or closing one (a separator before it, nothing
+  of a name after it), so a path after a space in a directory name, inside quotation marks or inside
+  a command is found; or when it is only a root; or when it is a dotted name whose first part is a
+  root. A str standing alone as a statement (a docstring) is inert and is not scanned: it is never
   evaluated, so it cannot read anything.
 - Layout. No directory may sit under a directory named `generators` unless the allowances name it.
 
@@ -34,6 +39,23 @@ An allowance is an explanation, not a waiver: each one names exactly what it adm
 facility in one file, a literal in one file, a directory, or a directory that holds a product check
 rather than reference code and so is outside the rule) with its reason, and an allowance that no
 longer matches anything is itself a finding, so the allowances cannot outlive their cause.
+
+Known limits, found by reading and kept as expected-miss witnesses in the test file (each named as a
+known gap, so that a closure flips it deliberately); the response to them is not yet decided:
+- A module that reads its own docstring. Docstrings are inert as text nothing reads, but a module that
+  names `__doc__` can read it: a docstring "core/x.py" then `open(__doc__)`, or a facility name as the
+  docstring then `getattr(os, __doc__)`.
+- Facilities an allowed module exposes that FORBIDDEN_NAMES does not name, for example
+  `concurrent.futures.process.mp.Process(...)`. The specific names found so far (`os._execvpe`,
+  `spawnv_passfds`, `SourcelessFileLoader`) are named and caught; the class of form stays open.
+- A module named inside a longer text: "import core.solver" passed to a started interpreter is not a
+  product path by the pattern (the dotted rule applies to a whole text).
+- `independence_findings` judges one file and does not follow its imports. `scan_package` closes this
+  inside a package (a sibling must be a module of the package, and every module is scanned); a caller
+  that judges a lone file and admits a module beside it must scan that module too.
+Closed by one line each: case variants of a root (`CORE/x.py`, the same directory on a case-insensitive
+host) are matched without regard to case. Kept as a deliberate false finding: a text such as
+"tests/s" (a unit) is reported as a product path; it is allowed with its reason where it occurs.
 
 Outside the threat model, recorded once here: a path or module name assembled at run time (joined
 from pieces none of which names a product root, read from a file or the environment, or decoded
@@ -56,14 +78,53 @@ import sys
 CI_READS = ("validation/references/**",)
 
 PRODUCT_ROOTS = frozenset({"core", "apps", "api", "tests", "tools", "fixtures", "schemas"})
+# The standard-library modules a generator may import, each with why it can neither load code nor
+# start a program. A module is added here in the change that needs it, with its reason.
+ALLOWED_STDLIB_REASONS = {
+    # The rule's list (the dynamics lane's, 64da5e92e).
+    "argparse": "parses the command line",
+    "concurrent": "runs this file's own functions in worker processes (concurrent.futures)",
+    "decimal": "decimal arithmetic",
+    "fractions": "exact rational arithmetic",
+    "hashlib": "digests of bytes",
+    "json": "reads and writes JSON text",
+    "math": "floating-point functions",
+    "os": "paths and file operations; its program-starting calls are FORBIDDEN_NAMES",
+    "pathlib": "paths and file operations",
+    "struct": "packs and unpacks binary64 bits",
+    "sys": "argv, exit, the interpreter's path list and limits",
+    "time": "clock readings",
+}
+# PROVISIONAL, not yet the rule: the further modules the 45 packages' generators import, proposed after
+# reading each use, for the project's Agent 0 to accept or refuse together. Until then they let the
+# inventory run; none may be treated as accepted.
+PROVISIONAL_STDLIB_REASONS = {
+    "__future__": "compiler directives (annotations) only",
+    "ast": "parses source text into a tree; running it would need compile or exec, which are forbidden names",
+    "collections": "container types",
+    "copy": "copies objects already in memory",
+    "dataclasses": "declares record classes; the methods it generates come from the class definition, not from outside",
+    "itertools": "iteration helpers",
+    "random": "seeded pseudo-random numbers",
+    "re": "regular expressions",
+    "shutil": "copies and removes files; `which` finds a program without running it",
+    "tempfile": "temporary files and directories",
+    "traceback": "formats exceptions",
+}
+ALLOWED_STDLIB = frozenset(ALLOWED_STDLIB_REASONS) | frozenset(PROVISIONAL_STDLIB_REASONS)
 # Import machinery: refused as imports although standard library.
 FORBIDDEN_MODULES = frozenset({"importlib", "runpy", "imp", "pkgutil", "zipimport"})
-# Dynamic facilities: refused wherever named. `compile` is narrowed to the builtin (BUILTIN_ONLY).
+# Facilities that load or evaluate code named at run time, reach the built-ins namespace, or start
+# another program: refused wherever named. `compile` is narrowed to the builtin (BUILTIN_ONLY).
 FORBIDDEN_NAMES = frozenset({
-    "__import__", "import_module", "exec", "eval", "compile", "spec_from_file_location",
+    "__import__", "__builtins__", "import_module", "exec", "eval", "compile", "spec_from_file_location",
     "spec_from_loader", "module_from_spec", "exec_module", "load_module", "find_spec", "find_module",
     "SourceFileLoader", "SourcelessFileLoader", "ExtensionFileLoader", "run_path", "run_module",
     "execfile", "load_source", "load_compiled",
+    "system", "popen", "startfile", "posix_spawn", "posix_spawnp", "fork", "forkpty",
+    "execl", "execle", "execlp", "execlpe", "execv", "execve", "execvp", "execvpe",
+    "spawnl", "spawnle", "spawnlp", "spawnlpe", "spawnv", "spawnve", "spawnvp", "spawnvpe",
+    "_execvpe", "_spawnvef", "spawnv_passfds", "fork_exec",  # found by the third reading (known limits)
 })
 BUILTIN_ONLY = frozenset({"compile"})
 BUILTIN_MODULES = frozenset({"builtins", "__builtins__"})
@@ -74,6 +135,10 @@ LITERAL_KEY_MAX = 120
 
 _SEPARATORS = re.compile(r"[\\/]+")
 _HAS_SEPARATOR = re.compile(r"[\\/]")
+_ROOT = "(?:" + "|".join(sorted(PRODUCT_ROOTS)) + ")"
+# A product root standing as a path segment anywhere in a text: opening a segment (nothing of a name
+# before it, a separator after it) or closing one (a separator before it, nothing of a name after it).
+_PRODUCT_SEGMENT = re.compile(rf"(?<![\w.\-]){_ROOT}(?=[\\/])|(?<=[\\/]){_ROOT}(?![\w.\-])")
 _DOTTED = re.compile(r"[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+")
 
 
@@ -89,7 +154,8 @@ def _has_product_segment(text: str) -> bool:
 def names_product_path(value: str | bytes) -> bool:
     """Whether a str or bytes constant names a product path (see the module docstring)."""
     text = literal_text(value)
-    if _has_product_segment(text):
+    folded = text.lower()  # a root in another case is the same directory on a case-insensitive host
+    if folded in PRODUCT_ROOTS or _PRODUCT_SEGMENT.search(folded) or _has_product_segment(folded):
         return True
     if any(_HAS_SEPARATOR.search(token) and _has_product_segment(token) for token in text.split()):
         return True
@@ -110,7 +176,7 @@ class Finding:
     """One site the rule does not admit by itself. `key` is what an allowance names."""
     file: str
     line: int
-    kind: str  # "import", "relative-import", "facility", "literal"
+    kind: str  # "import", "stdlib", "relative-import", "facility", "literal"
     key: str
     detail: str
 
@@ -130,9 +196,9 @@ def _top(module: str) -> str:
 
 
 def independence_findings(source: str | bytes, file: str) -> list[Finding]:
-    """Every site in one generator file that the rule does not admit by itself. A non-stdlib import
-    is reported with kind "import" (a package's allowances may admit it); a forbidden module or name
-    with kind "facility"; a product-path literal with kind "literal"."""
+    """Every site in one generator file that the rule does not admit by itself: a non-stdlib import
+    (kind "import"), a standard-library module not on ALLOWED_STDLIB ("stdlib"), a relative import,
+    a forbidden module or name ("facility") and a product-path literal ("literal")."""
     tree = ast.parse(source, filename=file)
     inert = _inert_strings(tree)
     out: list[Finding] = []
@@ -144,7 +210,10 @@ def independence_findings(source: str | bytes, file: str) -> list[Finding]:
         top = _top(module)
         if top in FORBIDDEN_MODULES:
             facility(node, top, "imports the import machinery")
-        elif top not in STDLIB:
+        elif top in STDLIB:
+            if top not in ALLOWED_STDLIB:
+                out.append(Finding(file, node.lineno, "stdlib", top, f"imports {module}, not on ALLOWED_STDLIB"))
+        else:
             out.append(Finding(file, node.lineno, "import", top, f"imports {module}"))
 
     for node in ast.walk(tree):
@@ -170,8 +239,8 @@ def independence_findings(source: str | bytes, file: str) -> list[Finding]:
         elif isinstance(node, ast.Constant) and isinstance(node.value, (str, bytes)) and id(node) not in inert:
             text = literal_text(node.value)
             if text in FORBIDDEN_NAMES or text in FORBIDDEN_MODULES:
-                facility(node, text, "names in a string")
-            elif names_product_path(node.value):
+                facility(node, text, "names in a constant")
+            if names_product_path(node.value):
                 out.append(Finding(file, node.lineno, "literal", literal_key(node.value),
                                    f"names a product path {text!r:.200} (key {literal_key(node.value)!r})"))
     return out
@@ -268,7 +337,7 @@ def scan_package(package: Path, allow: Allowances = Allowances()) -> list[str]:
                     used.add(("external", f.key))
                 else:
                     problems.append(f"{f}, neither standard library nor allowed")
-            elif f.kind == "facility":
+            elif f.kind in ("facility", "stdlib"):
                 if (rel, f.key) in allow.facilities:
                     used.add(("facilities", (rel, f.key)))
                 else:
