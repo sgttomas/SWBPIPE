@@ -88,5 +88,9 @@ needs:
     A published response-spectrum piping problem can be compared as comparison evidence only under
     that report's own redistribution evidence (DEL-04-09/REQ-009). The comparison is not required.
   gating: false
-code_paths: []
+code_paths:
+# Frozen before the engine work it judges: a snubber left out of every static case (AC-003). No
+# product test reads it yet.
+- validation/references/snubber_static/**
+- tests/test_snubber_static_references.py
 checks: []
