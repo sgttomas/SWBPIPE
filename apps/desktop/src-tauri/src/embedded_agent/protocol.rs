@@ -685,7 +685,11 @@ impl Protocol {
         {
             return Err(Error("invalid tool outcome"));
         }
-        let success = output.get("status").and_then(Value::as_str) != Some("execution_error");
+        // The catalog's projection rule: a solve that was rejected or failed produced
+        // no result, so it is not a successful call; other domain outcomes are.
+        let status = output.get("status").and_then(Value::as_str);
+        let success = !matches!(status, Some("execution_error"))
+            && !(tool == Tool::Solve && matches!(status, Some("rejected" | "failed")));
         let text = serde_json::to_string(&output).map_err(|_| Error("invalid tool outcome"))?;
         Ok(
             json!({"id":id,"result":{"contentItems":[{"type":"inputText","text":text}],"success":success}}),
@@ -1131,6 +1135,29 @@ mod tests {
             )
             .unwrap();
             assert_eq!(delivered["status"], status);
+        }
+    }
+
+    #[test]
+    fn a_rejected_or_failed_solve_is_not_projected_as_a_successful_call() {
+        let mut p = active();
+        let hash = json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","payload_ref":"invented","value":"0".repeat(64),"hash_status":"computed_local_preview"});
+        let mut solved = basis();
+        solved["modelHash"] = hash.clone();
+        for (n, (status, success)) in [("completed", true), ("rejected", false), ("failed", false), ("unknown", true), ("execution_error", false)]
+            .into_iter()
+            .enumerate()
+        {
+            let args = json!({"workspaceHandle":"workspace-1","basis":solved,"claimedModelHash":hash});
+            let reference = requested(
+                p.handle_frame(call(json!(n), &format!("solve-{n}"), Tool::Solve.name(), args), &basis())
+                    .unwrap(),
+            );
+            let response = match p.complete(reference.as_str(), outcome(status)).unwrap() {
+                Completion::Delivered(v) => v,
+                _ => panic!("unexpected detachment"),
+            };
+            assert_eq!(response["result"]["success"], success, "{status}");
         }
     }
 

@@ -4,30 +4,61 @@
 import { jsonTextKeepingNegativeZero } from './jsonText';
 import { invokeWithIngress } from './nativeIngress';
 import { EmbeddedAgentBridge, type AgentActual, type AgentBasis, type AgentCall, type AgentDelivery, type AgentScope } from './embeddedAgentBridge';
-import type { PreviewModel, ModelHashEvidence, EditorOperationIntent, MechanicsResult } from '../types';
+import type { PreviewModel, ModelHashEvidence, EditorOperationIntent, MechanicsResult, Diagnostic } from '../types';
 import { isNativeResult, nativeCustody, NativeQueryRefused, queryNativeRows, type SessionResult } from './nativeResult';
 import { agentDetailFilter } from './resultDetail';
 import type { OperationBatch } from './operationBatchService';
 import { validateOperationBatch } from './operationBatchService';
 import { overlayMayShowRow, type ResultOverlayStanding } from '../features/results/numericalHealth';
+import { rowCaseKey } from '../features/results/resultsNavigator';
 import { canonicalJsonString } from './hashService';
 import { nodeDeletionSummary, pipeDeletionSummary, supportDeletionSummary } from '../features/model-tree/removalIntents';
 
 export type AgentAssumption=Readonly<{assumptionId:string;statement:string;affectedOperationIds:readonly string[]}>;
 export type AgentContext = Readonly<{requestRef:string;threadId:string;turnId:string;callId:string;basis:AgentBasis;assumptions:readonly AgentAssumption[]}>;
-export type AgentRunReceipt = Readonly<{jobId:string;runId:string;modelHash:ModelHashEvidence;solverMode:string;health:string}>;
+/** The solver modes the solve tool may name (the catalog's closed `solverMode`). */
+export const AGENT_SOLVER_MODES=Object.freeze(['sparse_interactive','dense_scrutiny'] as const);
+export type AgentSolverMode=typeof AGENT_SOLVER_MODES[number];
+export type AgentSolveFailure='resource_refused'|'result_too_large'|'job_failed'|'cancelled'|'superseded'|'error';
+/** What the workspace's solve route says happened, in one of four forms. `modelHash` is the
+ * hash of the model the solve was for, in the workspace's form; null where none was computed.
+ * - completed: a native job ran and its published result is solved; the run is retained.
+ *   `result` is the published result itself: with `jobId` it is the run's identity. The run id
+ *   is not one (every solve publishes the same run id), so nothing here compares it.
+ * - rejected: the model was refused. From a published blocked result (`jobId` its job), or
+ *   from a solve gate before any job started (`jobId` null); either way no run and no
+ *   result is relied on. `diagnostics` are the findings as the Diagnostics panel shows them;
+ *   `notListed` counts findings the source did not list; `message`, when given, is the
+ *   refusal's own text (a model that could not be read may give a message and no findings).
+ * - failed: the solve did not produce a result; `message` is the job's or the session's.
+ * - not_started: nothing was started (another solve holds the run). */
+export type AgentSolveOutcome=
+ | Readonly<{kind:'completed';jobId:string;runId:string;modelHash:ModelHashEvidence;solverMode:AgentSolverMode;health:string;result:SessionResult}>
+ | Readonly<{kind:'rejected';jobId:string|null;modelHash:ModelHashEvidence|null;solverMode:AgentSolverMode;health:string;diagnostics:readonly Diagnostic[];notListed:number;message?:string}>
+ | Readonly<{kind:'failed';failure:AgentSolveFailure;message:string;modelHash:ModelHashEvidence|null;solverMode:AgentSolverMode}>
+ | Readonly<{kind:'not_started';message:string}>;
+export type AgentRunReceipt=Extract<AgentSolveOutcome,{kind:'completed'}>;
 export interface WorkspaceExecution {
  snapshot(): {model:PreviewModel|null;hash:ModelHashEvidence|null;revision:number;generation:number;result:SessionResult|null;standing:ResultOverlayStanding|null};
  register(batch:OperationBatch,context:AgentContext):Promise<string|null>;
  proposal(key:string):{status:'pending_review'|'withdrawn'|'applied'|'unknown';outcomeModelHash:ModelHashEvidence|null}|null;
- solve():Promise<AgentRunReceipt|undefined>;
+ /** Solves in `mode` when given (and sets the session's selection to it), else in the session's mode. */
+ solve(mode?:AgentSolverMode):Promise<AgentSolveOutcome>;
  withdraw(key:string):void;
 }
 export type AgentSessionView=Readonly<{status:string;closed:boolean;turnActive:boolean;turnStatus:string;failure:string|null;messages:readonly {itemId:string;text:string;role?:'user'|'agent'}[];truncated?:boolean}>;
 type Authority=AgentScope&{ownerCapability:string};
 type Invoke=(request:Record<string,unknown>)=>Promise<unknown>;
 type Proposal={basis:AgentBasis;key:string;context:AgentContext};
+/** A retained run: the call's basis and the solve's outcome, whose published result and native
+ * job are the run's identity. */
 type Run={basis:AgentBasis;receipt:AgentRunReceipt};
+/** Whether the result the session holds now is the run's own: the very result its solve
+ * published (each solve publishes a new one). Never decided by run id. The host binds the read
+ * to the run's native job and that job's result bytes. */
+function holdsRun(result:SessionResult|null,run:Run):result is SessionResult{
+ return !!result&&result===run.receipt.result;
+}
 type Proof=Record<string,unknown>;
 const LIMITS={argumentBytes:16384,resultBytes:65536,pageRows:50,pendingCalls:16,proposalOperations:16};
 const plain=(x:unknown):x is Record<string,unknown>=>!!x&&typeof x==='object'&&!Array.isArray(x);
@@ -48,12 +79,25 @@ export function catalogHash(hash:unknown):unknown{
  if(!plain(hash)||typeof hash.value!=='string'||!CATALOG_HASH.test(hash.value))throw new Error('AGENT-CATALOG-HASH-FORM-REFUSED');
  return hash;
 }
-/** The native kinds swbpipe-catalog/4 admits; the catalog schema is their gate and the applier their authority. */
+/** The native kinds swbpipe-catalog/5 admits; the catalog schema is their gate and the applier their authority. */
 export const ADMITTED_OPERATION_KINDS=Object.freeze(['modify/Node/set_field/position','create/Material/create_material','create/Node/create_node','connect/Element/connect_pipe_run','create/Support/create_support','create/Load/create_load_case','create/Load/create_primitive_load','modify/Load/update_load/pressure_regions','modify/Model/set_field/pressure_profile','insert/Component/insert_component_symbol','modify/Component/set_field/objective_connector','modify/Support/update_support/configuration','delete/Component/delete_component','delete/Support/delete_support','delete/Element/delete_pipe_run','delete/Node/delete_node']);
 export const RECORD_FAMILIES=['components','supports','pipe_segments','nodes'] as const;
 export type RecordFamily=typeof RECORD_FAMILIES[number];
 const SUPPORT_CONFIGURATION=['family','restraints','stiffness','hanger','nonlinear','provenance'] as const;
 const RECORD_PAGE_BYTES=48*1024,RECORD_TEXT_BYTES=16384,ID_CHARS=160;
+// A result page stops before the row whose native row text would take the page's row texts past
+// this many bytes (always at least one row); the cursor resumes it. The host applies the same rule
+// to the native rows query's own page, so the page's extent is the query's, not the webview's.
+// A value's projection is its row's members copied or dropped, plus at most a few hundred bytes of
+// keys, nulls, a number's rendering and the withheld reason, so fifty values stay well inside the
+// catalog's 64 KiB result (the final guard in `small` still refuses anything larger).
+export const RESULT_PAGE_ROW_TEXT_BYTES=32*1024;
+const FINDINGS=16,FINDING_REFS=8,FINDING_TEXT=500;
+// Encoded bytes of the listed findings, and of each summary identifier list. With the outcome's
+// other members (two texts of at most 1000 characters, escaped, the basis and the hash) they stay
+// well inside the catalog's 64 KiB result: a large refusal lists what fits and counts the rest.
+const FINDINGS_BYTES=32*1024,ID_LIST_BYTES=8*1024;
+const SEVERITIES=['info','warning','error','blocking'];
 const utf8=new TextEncoder();
 const byteLength=(text:string)=>utf8.encode(text).byteLength;
 /** The leading identifiers that fit `budget` characters, then an ellipsis for any not
@@ -63,6 +107,73 @@ function namedIds(ids:readonly string[],budget:number):string{
  return `${shown.join(', ')}${shown.length<ids.length?`${shown.length?', ':''}…`:''}`;
 }
 const blankText=(value:unknown)=>typeof value!=='string'||!value.trim();
+/** At most `limit` Unicode characters (the catalog counts characters), an ellipsis marking a cut. */
+const highSurrogate=(text:string,i:number)=>{const c=text.charCodeAt(i);return c>=0xd800&&c<=0xdbff&&i+1<text.length&&(text.charCodeAt(i+1)&0xfc00)===0xdc00;};
+/** The index just past the first `limit` characters (code points) of `text`, or -1 when it has
+ * no more than `limit`. It reads at most `limit` + 1 characters and copies nothing. */
+function prefixEnd(text:string,limit:number):number{
+ let i=0,n=0;
+ while(i<text.length){if(n===limit)return i;i+=highSurrogate(text,i)?2:1;n++;}
+ return -1;
+}
+const fitsChars=(text:string,limit:number)=>prefixEnd(text,limit)<0;
+/** Whether a (bounded) text is well-formed UTF-16, as the host's JSON parser requires. */
+function wellFormed(text:string):boolean{
+ for(let i=0;i<text.length;i++){const c=text.charCodeAt(i);if(highSurrogate(text,i))i++;else if(c>=0xd800&&c<=0xdfff)return false;}
+ return true;
+}
+/** A bounded text with any lone surrogate replaced by U+FFFD. */
+function toWellFormed(text:string):string{
+ if(wellFormed(text))return text;
+ let out='';for(let i=0;i<text.length;i++){const c=text.charCodeAt(i);if(highSurrogate(text,i)){out+=text.slice(i,i+2);i++;}else out+=c>=0xd800&&c<=0xdfff?'\ufffd':text[i];}
+ return out;
+}
+/** At most `limit` characters (the catalog counts characters): a prefix taken without copying the
+ * whole input, cut between characters so no surrogate pair is split, an ellipsis marking a cut. */
+function clip(text:string,limit:number):string{
+ if(fitsChars(text,limit))return toWellFormed(text);
+ return `${toWellFormed(text.slice(0,prefixEnd(text,limit-1)))}…`;
+}
+/** A short identifier as the catalog states it: a non-empty string of at most 160 characters,
+ * null when absent; `undefined` when present but not representable (never cut). */
+function shortId(value:unknown):string|null|undefined{
+ if(value===undefined||value===null||value==='')return null;
+ return typeof value==='string'&&fitsChars(value,ID_CHARS)&&wellFormed(value)?value:undefined;
+}
+const isShortId=(value:unknown):value is string=>typeof value==='string'&&!!value&&fitsChars(value,ID_CHARS)&&wellFormed(value);
+/** The encoded bytes a JSON array of `count` entries takes beyond its entries: brackets and commas. */
+const arrayFrame=(count:number)=>2+Math.max(0,count-1);
+/** The first identifiers that fit the catalog's list (32, and its byte budget counted as the
+ * encoded array: entries, commas and brackets), with their total. */
+function boundedIds(ids:readonly unknown[]):{count:number;ids:string[]}{
+ const listed:string[]=[];let entries=0;
+ for(const id of ids){
+  if(listed.length>=32)break;if(!isShortId(id))continue;
+  const size=byteLength(JSON.stringify(id));if(entries+size+arrayFrame(listed.length+1)>ID_LIST_BYTES)break;entries+=size;listed.push(id);
+ }
+ return {count:ids.length,ids:listed};
+}
+/** A refusal's findings in the catalog's bounds: code, severity, message and affected
+ * references, at most 16 and within an encoded-byte budget; listing stops at the first that
+ * would not fit, and every finding not listed is counted. A finding that cannot be stated
+ * exactly (a code or severity outside the catalog) is counted among those not listed, never
+ * altered. Messages are cut at 500 characters, references at eight. */
+export function boundedFindings(diagnostics:readonly Diagnostic[],notListed:number):{diagnostics:{code:string;severity:string;message:string;affectedRefs:string[]}[];notListed:number}{
+ const listed:{code:string;severity:string;message:string;affectedRefs:string[]}[]=[];let entries=0;
+ for(const diagnostic of diagnostics){
+  if(listed.length>=FINDINGS)break;
+  if(!isShortId(diagnostic?.code)||!SEVERITIES.includes(diagnostic.severity))continue;
+  const message=typeof diagnostic.message==='string'&&diagnostic.message?clip(diagnostic.message,FINDING_TEXT):'No message stated.';
+  const affectedRefs:string[]=[];
+  for(const ref of Array.isArray(diagnostic.affected_refs)?diagnostic.affected_refs:[]){if(affectedRefs.length>=FINDING_REFS)break;if(isShortId(ref))affectedRefs.push(ref);}
+  const finding={code:diagnostic.code,severity:diagnostic.severity,message,affectedRefs};
+  // The budget is the encoded array's: the entries, their commas and the brackets.
+  const size=byteLength(JSON.stringify(finding));if(entries+size+arrayFrame(listed.length+1)>FINDINGS_BYTES)break;entries+=size;
+  listed.push(finding);
+ }
+ const whole=Number.isSafeInteger(notListed)&&notListed>0?notListed:0;
+ return {diagnostics:listed,notListed:whole+diagnostics.length-listed.length};
+}
 /** The bends and tees the solver reports as lacking user-entered modifiers
  * (product_physics validation BEND_/BRANCH_USER_MODIFIER_INPUT_MISSING): the
  * person enters k, SIFs and their source; the agent never authors them. */
@@ -149,6 +260,10 @@ function opaque():string {const bytes=new Uint8Array(24);crypto.getRandomValues(
 function small(value:unknown):string {const raw=jsonTextKeepingNegativeZero(value);if(new TextEncoder().encode(raw).byteLength>64*1024)throw new Error('AGENT-OUTPUT-LIMIT');return raw;}
 /** Only the workspace session constructs this class with its actual getters and
  * handlers. A model tool call cannot register or replace that execution owner. */
+/** The read tool's filter: kinds, entities and, optionally, one load case or combination. */
+export type AgentResultFilter=Readonly<{kinds:readonly string[];entityRefs:readonly string[];case?:Readonly<{refType:'load_case'|'combination';refId:string}>}>;
+/** The results panel's key of a case (`rowCaseKey`), which the native query's `case` member reads. */
+export const agentCaseKey=(selected:Readonly<{refType:string;refId:string}>)=>`${selected.refType}:${selected.refId}`;
 export class EmbeddedAgentSession {
  #authority:Authority|null=null;#scope:AgentScope|null=null;#generation=-1;#bridge:EmbeddedAgentBridge|null=null;
  #actual=new Map<string,AgentActual>();#proposals=new Map<string,Proposal>();#runs=new Map<string,Run>();
@@ -273,7 +388,8 @@ export class EmbeddedAgentSession {
    if(contract!==undefined&&(!plain(contract)||Object.values(contract).some(value=>typeof value!=='string')))return this.failure(call,'The pressure contract is not representable in this catalog summary.');
    const awaiting=componentsAwaitingUserModifiers(model);
    const profile:Record<string,unknown>={};if(model.schema_version!==undefined)profile.schema_version=model.schema_version;if(contract!==undefined)profile.pressure_contract=contract;
-   return this.result(call,'ok','Current admitted workspace; changes require human review.',{workspaceHandle:call.basis.workspaceHandle,projectId:model.project.id,schemaVersion:model.schema_version,pressureContract:contract??null,pressureProfileBefore:stringTreeText(profile),projectUnits:model.project.units,objectCounts:counts,admittedOperationKinds:[...ADMITTED_OPERATION_KINDS],componentsAwaitingUserModifiers:{count:awaiting.length,ids:awaiting.filter(id=>id&&id.length<=ID_CHARS).slice(0,32)},limits:LIMITS},{kind:'read'});
+   const ids=(key:'load_cases'|'combinations')=>boundedIds(((model as unknown as Record<string,unknown>)[key] as {id?:unknown}[]|undefined??[]).map(record=>record?.id));
+   return this.result(call,'ok','Current admitted workspace; changes require human review.',{workspaceHandle:call.basis.workspaceHandle,projectId:model.project.id,schemaVersion:model.schema_version,pressureContract:contract??null,pressureProfileBefore:stringTreeText(profile),projectUnits:model.project.units,objectCounts:counts,admittedOperationKinds:[...ADMITTED_OPERATION_KINDS],componentsAwaitingUserModifiers:{count:awaiting.length,ids:awaiting.filter(id=>id&&id.length<=ID_CHARS).slice(0,32)},loadCases:ids('load_cases'),combinations:ids('combinations'),limits:LIMITS},{kind:'read'});
   }
   if(call.tool==='swbpipe_read_nodes'){
    const offset=this.offset(call),page=call.arguments.page as {limit:number};const end=Math.min(model.nodes.length,offset+page.limit);
@@ -317,36 +433,71 @@ export class EmbeddedAgentSession {
    // applies to the chord; without one no intensified measure is published.
    const chords=unrealizedBends(model);
    if(chords.length&&(model as unknown as Record<string,unknown>).pressure_contract!==undefined)return this.failure(call,`Not solved: the exact route refuses unrealized bends (${namedIds(chords,300)}). Ask the person to realize each with Insert bend at corner and enter k, the SIFs and their source, then solve.`);
-   const receipt=await this.owner.solve();if(!receipt||!same(agentHash(receipt.modelHash),catalogHash(call.basis.modelHash)))return this.failure(call,'No matching completed native solve is available.');
-   const handle=opaque();this.#runs.set(handle,{basis:structuredClone(call.basis),receipt});
-   const solved=chords.length?`Native solve completed. ${chords.length} unrealized bend(s) (${namedIds(chords,300)}) were solved as straight chords; k does not affect chord stiffness. ${chordSifText(model,chords)} Say so when reporting these results. Applicability and professional acceptance remain separate.`:'Native solve completed; applicability and professional acceptance remain separate.';
-   return this.result(call,'completed',solved,{runHandle:handle,runId:receipt.runId,evaluatedModelHash:agentHash(receipt.modelHash),health:receipt.health,solverMode:receipt.solverMode},{kind:'run',handle,runId:receipt.runId,basis:call.basis,status:'completed',nativeJobId:receipt.jobId});
+   const requested=call.arguments.solverMode;
+   if(requested!==undefined&&!(AGENT_SOLVER_MODES as readonly unknown[]).includes(requested))return this.failure(call,'The solver mode is unavailable; nothing was started.');
+   const outcome=await this.owner.solve(requested as AgentSolverMode|undefined);
+   return this.solveOutcome(call,outcome,requested as AgentSolverMode|undefined,model,chords);
   }
   return this.failure(call,'Tool is unavailable.');
  }
+ /** The solve tool's outcome from the route's, bound to the call: the evaluated hash is the
+ * call's basis hash (the route's hash must equal it; with none, the live model must still be
+ * the call's), and a named mode is the mode that ran. Nothing here retries a solve. */
+ private solveOutcome(call:AgentCall,outcome:AgentSolveOutcome,requested:AgentSolverMode|undefined,model:PreviewModel,chords:readonly string[]):AgentActual{
+  if(outcome.kind==='not_started')return this.failure(call,clip(outcome.message,1000));
+  if(outcome.modelHash?!same(agentHash(outcome.modelHash),catalogHash(call.basis.modelHash)):!this.current(call))return this.failure(call,'The solve was for another model state; nothing is reported for this call.','stale_basis');
+  if(requested!==undefined&&outcome.solverMode!==requested)return this.failure(call,'The solve did not run in the requested mode; its outcome is unconfirmed.','unknown');
+  const evaluatedModelHash=call.basis.modelHash;
+  if(outcome.kind==='completed'){
+   const handle=opaque();this.#runs.set(handle,{basis:structuredClone(call.basis),receipt:outcome});
+   const solved=chords.length?`Native solve completed. ${chords.length} unrealized bend(s) (${namedIds(chords,300)}) were solved as straight chords; k does not affect chord stiffness. ${chordSifText(model,chords)} Say so when reporting these results. Applicability and professional acceptance remain separate.`:'Native solve completed; applicability and professional acceptance remain separate.';
+   return this.result(call,'completed',solved,{runHandle:handle,runId:outcome.runId,evaluatedModelHash,health:clip(outcome.health,1000),solverMode:outcome.solverMode,diagnostics:[],diagnosticsNotListed:0,failure:null},{kind:'run',handle,runId:outcome.runId,basis:call.basis,status:'completed',nativeJobId:outcome.jobId});
+  }
+  if(outcome.kind==='rejected'){
+   const findings=boundedFindings(outcome.diagnostics,outcome.notListed),total=findings.diagnostics.length+findings.notListed;
+   // The tool's message: how many findings and how many are not listed, the refusal's own
+   // text cut to fit 1000 characters, or a plain statement that no reason was reported.
+   const head=total?`Not solved: the model was refused (${total} finding${total===1?'':'s'}${findings.notListed?`, ${findings.notListed} not listed`:''}).`:'Not solved: the solve was refused.';
+   const tail=` No run and no results exist for this call.${total?' Address the findings before solving again.':''}`;
+   const stated=typeof outcome.message==='string'&&outcome.message.trim()?outcome.message:null;
+   const message=`${head}${stated?` ${clip(stated,1000-head.length-tail.length-1)}`:total?'':' No reason was reported.'}${tail}`;
+   return this.result(call,'rejected',message,{runHandle:null,runId:null,evaluatedModelHash,health:clip(outcome.health||'MODEL_INCOMPLETE',1000),solverMode:outcome.solverMode,diagnostics:findings.diagnostics,diagnosticsNotListed:findings.notListed,failure:null},{kind:'run',handle:null,runId:null,basis:call.basis,status:'rejected',nativeJobId:outcome.jobId});
+  }
+  const message=`Not solved: the solve failed (${outcome.failure}). No run and no results exist for this call; it was not retried.`;
+  return this.result(call,'failed',message,{runHandle:null,runId:null,evaluatedModelHash,health:'NOT_SOLVED',solverMode:outcome.solverMode,diagnostics:[],diagnosticsNotListed:0,failure:{kind:outcome.failure,message:clip(outcome.message||'No message stated.',FINDING_TEXT)}},{kind:'run',handle:null,runId:null,basis:call.basis,status:'failed',nativeJobId:null});
+ }
  private async readResults(call:AgentCall):Promise<AgentActual>{
   const handle=String(call.arguments.runHandle),run=this.#runs.get(handle);if(!run||!same(run.basis,call.basis))return this.failure(call,'Run is unavailable.');
-  const snap=this.owner.snapshot(),result=snap.result;if(!result||result.run_id!==run.receipt.runId)return this.failure(call,'The retained run is no longer held by the result owner.');
-  const filter=call.arguments.filter as {kinds:string[];entityRefs:string[]}|undefined;
+  const snap=this.owner.snapshot(),result=snap.result;if(!holdsRun(result,run))return this.failure(call,'The retained run is no longer held by the result owner.');
+  const filter=call.arguments.filter as AgentResultFilter|undefined;
   const offset=this.offset(call,handle),page=call.arguments.page as {limit:number};
   // C1 (DEL-04-05 slice 4): a native result's page is the native query's (the same filter, in
   // publication order, at most the page's limit); the output contract is unchanged.
-  let rows:MechanicsResult['results'],total:number,retained:boolean;
+  // The native rows' ordinals travel in the read's proof: the host checks each value against its row.
+  let rows:MechanicsResult['results'],total:number,retained:boolean,ordinals:number[]|undefined,texts:string[];
   if(isNativeResult(result)){
-   try{const read=await queryNativeRows(result,agentDetailFilter(filter),offset,page.limit);rows=read.rows.map(entry=>entry.row);total=read.total;}
+   try{const read=await queryNativeRows(result,agentDetailFilter(filter),offset,page.limit);rows=read.rows.map(entry=>entry.row);ordinals=read.rows.map(entry=>entry.ordinal);texts=read.rows.map(entry=>entry.text);total=read.total;}
    catch(error){return this.failure(call,error instanceof NativeQueryRefused?`The native result query was refused (${error.code}).`:'The native result page is unavailable.');}
    retained=nativeCustody(result).summary.header.omitted_members.includes('retained_precision');
    if(this.owner.snapshot().result!==result)return this.failure(call,'The retained run is no longer held by the result owner.');
   }else{
-   const all=filter?result.results.filter(row=>(!filter.kinds.length||filter.kinds.includes(row.kind))&&(!filter.entityRefs.length||filter.entityRefs.includes(row.entity_ref))):result.results;
-   rows=all.slice(offset,Math.min(all.length,offset+page.limit));total=all.length;retained=!!result.retained_precision;
+   const all=filter?result.results.filter(row=>(!filter.kinds.length||filter.kinds.includes(row.kind))&&(!filter.entityRefs.length||filter.entityRefs.includes(row.entity_ref))&&(!filter.case||rowCaseKey(row)===agentCaseKey(filter.case))):result.results;
+   rows=all.slice(offset,Math.min(all.length,offset+page.limit));texts=rows.map(row=>JSON.stringify(row));total=all.length;retained=!!result.retained_precision;
   }
-  const end=offset+rows.length;const values=[];
+  const values=[];let bytes=0;
   for(let i=0;i<rows.length;i++){
-   const row=rows[i];if([row.id,row.kind,row.entity_ref].some(v=>v.length>160)||row.unit.length>40)return this.failure(call,'Result identifiers exceed this catalog page.');
+   const row=rows[i],rowBytes=byteLength(texts[i]);if(values.length&&bytes+rowBytes>RESULT_PAGE_ROW_TEXT_BYTES)break;bytes+=rowBytes;if([row.id,row.kind,row.entity_ref].some(v=>v.length>160)||row.unit.length>40)return this.failure(call,'Result identifiers exceed this catalog page.');
+   // The row's case, as the results panel keys it, and its metadata: each stated exactly or not at all.
+   const basis=row.basis_ref??null,meta=row.metadata??null;
+   const caseRef=basis?{refType:shortId(basis.ref_type),refId:shortId(basis.ref_id)}:null;
+   const described={component:shortId(meta?.component),coordinateSystem:shortId(meta?.coordinate_system),location:shortId(meta?.location),signConvention:shortId(meta?.sign_convention)};
+   if(caseRef&&(!caseRef.refType||!caseRef.refId)||Object.values(described).includes(undefined))return this.failure(call,'Result identifiers exceed this catalog page.');
+   if(filter?.case&&!(caseRef?.refType===filter.case.refType&&caseRef.refId===filter.case.refId))return this.failure(call,'A result row\'s case could not be stated as the selected case.');
    const permitted=overlayMayShowRow(snap.standing,row)&&!retained&&Number.isFinite(row.value);
-   values.push({id:row.id,kind:row.kind,entityRef:row.entity_ref,value:permitted?row.value:null,exactDecimal:null,unit:row.unit,availability:permitted?'available':'withheld',reason:permitted?null:'The existing numerical view does not permit this binary64 value.'});
+   const value={id:row.id,kind:row.kind,entityRef:row.entity_ref,value:permitted?row.value:null,exactDecimal:null,unit:row.unit,availability:permitted?'available':'withheld',reason:permitted?null:'The existing numerical view does not permit this binary64 value.',case:caseRef,...described};
+   values.push(value);
   }
-  return this.result(call,'ok','Permitted bounded source-unit values; withheld values have no substitute number.',{runHandle:handle,runId:run.receipt.runId,evaluatedModelHash:run.basis.modelHash,values,nextCursor:this.cursor(call,end,end<total,handle),standing:{route:result.producer?.semantic_contract_id??'unavailable',health:run.receipt.health,checks:snap.standing?.eligible?['numerical_view_eligible']:['numerical_view_withheld']}},{kind:'run',handle,runId:run.receipt.runId,basis:run.basis,status:'completed',nativeJobId:run.receipt.jobId});
+  const end=offset+values.length;
+  return this.result(call,'ok','Permitted bounded source-unit values; withheld values have no substitute number.',{runHandle:handle,runId:run.receipt.runId,evaluatedModelHash:run.basis.modelHash,values,nextCursor:this.cursor(call,end,end<total,handle),standing:{route:result.producer?.semantic_contract_id??'unavailable',health:run.receipt.health,checks:snap.standing?.eligible?['numerical_view_eligible']:['numerical_view_withheld']}},{kind:'run',handle,runId:run.receipt.runId,basis:run.basis,status:'completed',nativeJobId:run.receipt.jobId,...(ordinals?{ordinals:ordinals.slice(0,values.length)}:{})});
  }
 }

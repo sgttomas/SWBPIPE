@@ -26,7 +26,12 @@ import jsonschema
 
 TOOL = "swbpipe_read_model_summary"
 BINARY_SHA256 = "112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4b"
-CATALOG_SHA256 = "8e9a4b4e3eec027d092033ea5d95f1648030520e797c5a660ab387531f23be17"
+# The SHA-256 of the catalog FILE's bytes (apps/desktop/src-tauri/resources/agent-capability-catalog.json),
+# which the host compiles in through include_str!. It does not bind the declarations array the host
+# sends the supplier at thread start (catalog.rs Catalog::declarations(): type, name, description and
+# expanded input schema), nor the supplier's serialization of it. tools/agent_catalog_resource.py
+# holds the fixture fixtures/embedded_agent/agent-witness-pin.json to this same value.
+CATALOG_SHA256 = "0bbafe22bcc486be81019e10a120961b1880b501fc4ecda88887ec20e2210bdc"
 FRAME_BYTES = 1024 * 1024
 FORBIDDEN_ITEMS = {"commandExecution", "fileChange", "webSearch", "imageView", "imageGeneration", "browserUse", "computerUse"}
 
@@ -77,7 +82,7 @@ def summary(catalog, nonce, count):
         "data": {"workspaceHandle": nonce, "projectId": "project:invented-witness", "schemaVersion": "0.9.0",
                  "pressureContract": None, "pressureProfileBefore": '{"schema_version":"0.9.0"}',
                  "projectUnits": {"length": "m", "force": "N", "temperature": "C"},
-                 "objectCounts": {"Node": count}, "admittedOperationKinds": [], "componentsAwaitingUserModifiers": {"count": 0, "ids": []}, "limits": catalog["limits"]},
+                 "objectCounts": {"Node": count}, "admittedOperationKinds": [], "componentsAwaitingUserModifiers": {"count": 0, "ids": []}, "loadCases": {"count": 0, "ids": []}, "combinations": {"count": 0, "ids": []}, "limits": catalog["limits"]},
     }
 
 

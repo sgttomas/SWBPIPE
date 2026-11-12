@@ -107,7 +107,7 @@ impl Catalog {
     fn from_source(source: &str) -> Result<Self, Error> {
         let root: Value =
             serde_json::from_str(source).map_err(|_| Error("invalid catalog JSON"))?;
-        if root.get("catalogVersion").and_then(Value::as_str) != Some("swbpipe-catalog/4")
+        if root.get("catalogVersion").and_then(Value::as_str) != Some("swbpipe-catalog/5")
             || root.get("schemaDialect").and_then(Value::as_str)
                 != Some("https://json-schema.org/draft/2020-12/schema")
         {
@@ -1014,16 +1014,16 @@ mod tests {
         let mut output =
             json!({"status":"unavailable", "basis":basis(), "message":"unavailable", "data":null});
         assert!(catalog.validate_output(Tool::ReadResults, &output).is_ok());
-        output["data"] = json!({"runHandle":"run", "runId":"id", "evaluatedModelHash":hash(), "values":[{"id":"v", "kind":"stress", "entityRef":"n", "value":null, "exactDecimal":null, "unit":"Pa", "availability":"withheld", "reason":null}], "nextCursor":null, "standing":{"route":"r", "health":"h", "checks":[]}});
+        output["data"] = json!({"runHandle":"run", "runId":"id", "evaluatedModelHash":hash(), "values":[{"id":"v", "kind":"stress", "entityRef":"n", "value":null, "exactDecimal":null, "unit":"Pa", "availability":"withheld", "reason":null, "case":null, "component":null, "coordinateSystem":null, "location":null, "signConvention":null}], "nextCursor":null, "standing":{"route":"r", "health":"h", "checks":[]}});
         assert!(catalog.validate_output(Tool::ReadResults, &output).is_ok());
         output["data"]["values"][0]["value"] = json!("1");
         assert!(catalog.validate_output(Tool::ReadResults, &output).is_err());
         output["data"]["values"] = json!(vec![
-            json!({"id":"v", "kind":"stress", "entityRef":"n", "value":null, "exactDecimal":null, "unit":"Pa", "availability":"withheld", "reason":null});
+            json!({"id":"v", "kind":"stress", "entityRef":"n", "value":null, "exactDecimal":null, "unit":"Pa", "availability":"withheld", "reason":null, "case":null, "component":null, "coordinateSystem":null, "location":null, "signConvention":null});
             51
         ]);
         assert!(catalog.validate_output(Tool::ReadResults, &output).is_err());
-        let summary = json!({"status":"ok", "basis":basis(), "message":"ok", "data":{"workspaceHandle":"w", "projectId":"project:p", "schemaVersion":"0.9.0", "pressureContract":null, "pressureProfileBefore":"{\"schema_version\":\"0.9.0\"}", "projectUnits":{"length":"m"}, "objectCounts":{}, "admittedOperationKinds":["create/Node/create_node"], "componentsAwaitingUserModifiers":{"count":0, "ids":[]}, "limits":{"argumentBytes":1, "resultBytes":1, "pageRows":1, "pendingCalls":1, "proposalOperations":1}}});
+        let summary = json!({"status":"ok", "basis":basis(), "message":"ok", "data":{"workspaceHandle":"w", "projectId":"project:p", "schemaVersion":"0.9.0", "pressureContract":null, "pressureProfileBefore":"{\"schema_version\":\"0.9.0\"}", "projectUnits":{"length":"m"}, "objectCounts":{}, "admittedOperationKinds":["create/Node/create_node"], "componentsAwaitingUserModifiers":{"count":0, "ids":[]}, "loadCases":{"count":1, "ids":["lc-1"]}, "combinations":{"count":0, "ids":[]}, "limits":{"argumentBytes":1, "resultBytes":1, "pageRows":1, "pendingCalls":1, "proposalOperations":1}}});
         // Exercise object additionalProperties separately, regardless of other summary fields.
         let d = &catalog.tools[Tool::Summary.name()].output;
         let counts = d
@@ -1038,6 +1038,52 @@ mod tests {
                 .collect::<Map<String, Value>>())
         ));
         assert!(catalog.validate_output(Tool::Summary, &summary).is_ok());
+    }
+
+    #[test]
+    fn solve_and_result_members_of_version_5_are_closed_and_bounded() {
+        let catalog = Catalog::load().unwrap();
+        let mut solve = json!({"workspaceHandle":"workspace", "basis":basis(), "claimedModelHash":hash()});
+        assert!(catalog.validate_input(Tool::Solve, &solve).is_ok());
+        for (mode, ok) in [("sparse_interactive", true), ("dense_scrutiny", true), ("invented", false), ("", false)] {
+            solve["solverMode"] = json!(mode);
+            assert_eq!(catalog.validate_input(Tool::Solve, &solve).is_ok(), ok, "{mode}");
+        }
+        let diagnostic = json!({"code":"C", "severity":"blocking", "message":"m", "affectedRefs":["node:a"]});
+        let mut out = json!({"status":"rejected", "basis":basis(), "message":"Refused", "data":{"runHandle":null, "runId":null, "evaluatedModelHash":hash(),
+            "health":"MODEL_INCOMPLETE", "solverMode":"sparse_interactive", "diagnostics":[diagnostic], "diagnosticsNotListed":40, "failure":null}});
+        assert!(catalog.validate_output(Tool::Solve, &out).is_ok());
+        let bad = |path: &str, value: Value| {
+            let mut o = out.clone();
+            *o.pointer_mut(path).unwrap() = value;
+            catalog.validate_output(Tool::Solve, &o).is_err()
+        };
+        assert!(bad("/data/diagnostics", json!(vec![diagnostic.clone(); 17])));
+        assert!(bad("/data/diagnostics/0/message", json!("m".repeat(501))));
+        assert!(bad("/data/diagnostics/0/code", json!("c".repeat(161))));
+        assert!(bad("/data/diagnostics/0/severity", json!("fatal")));
+        assert!(bad("/data/diagnostics/0/affectedRefs", json!(vec!["r"; 9])));
+        assert!(bad("/data/diagnosticsNotListed", json!(-1)));
+        assert!(bad("/data/failure", json!({"kind":"invented", "message":"m"})));
+        assert!(bad("/data/solverMode", json!("invented")));
+        out["status"] = json!("failed");
+        out["data"]["failure"] = json!({"kind":"result_too_large", "message":"m"});
+        assert!(catalog.validate_output(Tool::Solve, &out).is_ok());
+        let read = |filter: Value| json!({"workspaceHandle":"workspace", "basis":basis(), "runHandle":"run", "page":{"cursor":null, "limit":50}, "filter":filter});
+        for (case, ok) in [
+            (json!({"refType":"load_case", "refId":"lc-1"}), true),
+            (json!({"refType":"combination", "refId":"c-1"}), true),
+            (json!({"refType":"envelope", "refId":"e"}), false),
+            (json!({"refType":"load_case", "refId":""}), false),
+            (json!({"refType":"load_case", "refId":"x".repeat(161)}), false),
+            (json!({"refType":"load_case", "refId":"lc-1", "invented":true}), false),
+        ] {
+            assert_eq!(catalog.validate_input(Tool::ReadResults, &read(json!({"kinds":[], "entityRefs":[], "case":case}))).is_ok(), ok, "{case}");
+        }
+        let summary_ids = &catalog.tools[Tool::Summary.name()].output.pointer("/properties/data/anyOf/0/properties/loadCases").unwrap().clone();
+        assert!(matches_schema(summary_ids, &json!({"count":40, "ids":vec!["lc"; 32]})));
+        assert!(!matches_schema(summary_ids, &json!({"count":40, "ids":vec!["lc"; 33]})));
+        assert!(!matches_schema(summary_ids, &json!({"count":1, "ids":["x".repeat(161)]})));
     }
 
     #[test]

@@ -17,7 +17,7 @@ use crate::{memory_pool::Lease, solve_jobs::SolveJobRegistry};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     fs,
     os::unix::fs::{DirBuilderExt, PermissionsExt},
     path::PathBuf,
@@ -157,6 +157,8 @@ pub(crate) enum Proof {
         status: String,
         #[serde(rename = "nativeJobId")]
         native_job_id: Option<String>,
+        /// A result read's values' native row ordinals, in page order.
+        ordinals: Option<Vec<u64>>,
     },
 }
 pub(crate) struct Paths {
@@ -331,6 +333,12 @@ impl Drop for Host {
 struct Meta {
     tool: Tool,
     basis: Value,
+    /// The registry's last job number when the call was claimed: a job a solve's
+    /// completion names must be newer (made after the claim, which precedes execution).
+    jobs_before: u64,
+    /// A result read's admitted arguments (its filter, page and run handle); null
+    /// for other tools.
+    arguments: Value,
 }
 struct Actual {
     raw: String,
@@ -347,6 +355,16 @@ struct Workspace {
     bridge: Bridge,
     claims: BTreeMap<String, Meta>,
     actual: BTreeMap<String, Actual>,
+    /// Solve jobs a completion has named: each answers one call only.
+    consumed_jobs: BTreeSet<String>,
+    /// Each completed run handle's native job and the SHA-256 of that job's result
+    /// bytes, read from the registry when the solve completed: a read through the
+    /// handle must name that job, still holding those bytes.
+    runs: BTreeMap<String, (String, [u8; 32])>,
+    /// Each result page's continuation, recorded when the page was verified: the
+    /// cursor names its run handle, the call's filter and where the page ended in
+    /// the filtered rows, so the next page starts exactly there.
+    cursors: BTreeMap<String, (String, Value, u64)>,
     notices: Vec<String>,
     messages: Vec<Value>,
     turn_active: bool,
@@ -657,6 +675,9 @@ impl Owner {
                     bridge,
                     claims: BTreeMap::new(),
                     actual: BTreeMap::new(),
+                    consumed_jobs: BTreeSet::new(),
+                    runs: BTreeMap::new(),
+                    cursors: BTreeMap::new(),
                     notices: Vec::with_capacity(64),
                     messages: Vec::new(),
                     turn_active: false,
@@ -881,6 +902,8 @@ impl Owner {
                     Meta {
                         tool,
                         basis: data["basis"].clone(),
+                        jobs_before: self.registry.last_job_number(),
+                        arguments: if tool == Tool::ReadResults { data["arguments"].clone() } else { Value::Null },
                     },
                 );
                 owner.notices.retain(|r| r != &request_ref);
@@ -898,12 +921,51 @@ impl Owner {
                 if owner.actual.contains_key(&request_ref) {
                     return Err(Error::Duplicate);
                 }
-                validate_actual(&self.registry, meta, &outcome, &proof)?;
+                let bound = validate_actual(&self.registry, meta, &outcome, &proof, &owner.consumed_jobs, &owner.runs)?;
+                // A run handle is bound once: a completion naming a handle that any recorded
+                // outcome already holds is refused before anything changes.
+                if let Proof::Run { handle: Some(handle), .. } = &proof {
+                    if meta.tool == Tool::Solve && (owner.runs.contains_key(handle) || owner.history(handle).is_some()) {
+                        return Err(Error::Evidence);
+                    }
+                }
+                // A result read's values are checked against the native rows of the run's
+                // held result (the same rows query the webview reads), before anything changes.
+                let cursor = match &proof {
+                    Proof::Run { native_job_id: Some(job), handle: Some(handle), ordinals, .. } if meta.tool == Tool::ReadResults => {
+                        let next = verify_result_page(&self.registry, meta, job, handle, &outcome, ordinals.as_deref(), &owner.cursors)?;
+                        if next.as_ref().is_some_and(|(cursor, _)| owner.cursors.contains_key(cursor)) || (next.is_some() && owner.cursors.len() >= MAX_CURSORS) {
+                            return Err(Error::Evidence);
+                        }
+                        next
+                    }
+                    _ => None,
+                };
+                // The call's whole evidence (its requested mode, the agreement of outcome and
+                // proof, the evaluated hash and the outcome's shape) is checked by the
+                // dispatcher before anything is committed; a refused completion spends no job,
+                // binds no handle and leaves no actual that history can read.
+                owner
+                    .bridge
+                    .check_complete(owner.origin(), &request_ref, outcome.as_bytes(), Some(&owner.basis), evidence(&proof))
+                    .map_err(|_| Error::Evidence)?;
                 // Native actual, proof and its bounded retained frontend copy.
                 let record_backing = self
                     .registry
                     .acquire_interactive_ingress(512 * 1024)
                     .map_err(|_| Error::Admission)?;
+                // Committed together, only on success: the solve's named job is spent, a
+                // completed run keeps its job's result hash, a verified page's continuation
+                // is recorded, and the actual is recorded.
+                if let Some((cursor, at)) = cursor {
+                    owner.cursors.insert(cursor, at);
+                }
+                if let Some((job, result_sha256)) = bound {
+                    owner.consumed_jobs.insert(job.clone());
+                    if let (Some(sha), Proof::Run { handle: Some(handle), .. }) = (result_sha256, &proof) {
+                        owner.runs.insert(handle.clone(), (job, sha));
+                    }
+                }
                 owner.actual.insert(
                     request_ref,
                     Actual {
@@ -1011,12 +1073,248 @@ fn evidence(proof: &Proof) -> Evidence<'_> {
         },
     }
 }
+/// The published result's `status.mechanics`, read natively from the bytes the
+/// registry holds for the job; every other member is skipped unread. `None` when
+/// the job holds no result or the bytes do not state exactly one status.
+fn held_mechanics_status(registry: &SolveJobRegistry, job: &str) -> Option<String> {
+    #[derive(Deserialize)]
+    struct Envelope {
+        status: Status,
+    }
+    #[derive(Deserialize)]
+    struct Status {
+        mechanics: String,
+    }
+    let held = registry.held_result(job).ok()?;
+    serde_json::from_str::<Envelope>(held.text())
+        .ok()
+        .map(|envelope| envelope.status.mechanics)
+}
+/// The native binding of a solve job that a completed or rejected outcome names,
+/// established from the registry, not from the webview: the job was made after the
+/// call was claimed, no other completion has named it, it ran in the mode the
+/// outcome states, and its held result is solved (completed) or not (rejected).
+/// Returns the job's result hash. It does not bind the job's model to the call's
+/// model: the registry does not hold the catalog's model hash.
+fn solve_job_binding(
+    registry: &SolveJobRegistry,
+    meta: &Meta,
+    job: &str,
+    status: &str,
+    value: &Value,
+    consumed: &BTreeSet<String>,
+) -> Result<[u8; 32], Error> {
+    let number = registry.job_number(job).ok_or(Error::Evidence)?;
+    if number <= meta.jobs_before || consumed.contains(job) {
+        return Err(Error::Evidence);
+    }
+    let custody = registry.custody_binding(job).ok_or(Error::Evidence)?;
+    let mode = value["data"]["solverMode"].as_str().and_then(open_pipe_stress_product_physics::PreviewSolverMode::from_wire);
+    if mode != Some(custody.solver_mode) {
+        return Err(Error::Evidence);
+    }
+    let solved = held_mechanics_status(registry, job).ok_or(Error::Evidence)? == "MECHANICS_SOLVED";
+    if solved != (status == "completed") {
+        return Err(Error::Evidence);
+    }
+    Ok(custody.result_sha256)
+}
+/// A result page's extent: it stops before the row whose native row text would take the
+/// page's row texts past this many bytes, always holding at least one row. The webview
+/// (`RESULT_PAGE_ROW_TEXT_BYTES` in `embeddedAgentSession.ts`) applies the same rule to the
+/// same rows, so the page the host requires is determined by the query alone.
+const PAGE_ROW_TEXT_BYTES: u64 = 32 * 1024;
+/// How many of a native page's rows a result page holds under [`PAGE_ROW_TEXT_BYTES`].
+fn page_extent(rows: &[String]) -> usize {
+    let (mut used, mut count) = (0u64, 0usize);
+    for row in rows {
+        let bytes = row.len() as u64;
+        if count > 0 && used + bytes > PAGE_ROW_TEXT_BYTES {
+            break;
+        }
+        used += bytes;
+        count += 1;
+    }
+    count
+}
+/// The most page continuations a workspace records (the webview keeps as many cursors).
+const MAX_CURSORS: usize = 64;
+/// The text a withheld value carries: the webview's projection writes exactly this.
+const WITHHELD_REASON: &str = "The existing numerical view does not permit this binary64 value.";
+/// A row's or a submitted value's `value` member as written: its exact JSON text.
+#[derive(Deserialize)]
+struct RawMember {
+    value: Option<Box<serde_json::value::RawValue>>,
+}
+#[derive(Deserialize)]
+struct RawPageData {
+    values: Vec<RawMember>,
+}
+#[derive(Deserialize)]
+struct RawPage {
+    data: RawPageData,
+}
+/// The binary64 a JSON number text denotes, as its bits. Both texts compared are
+/// parsed by Rust's correctly rounded `f64` parser from their exact JSON text, never
+/// through another float: two texts are equal exactly when they denote the same
+/// binary64 (`1.0` and `1`, `1e-7` and `0.0000001`), and `-0` is not `0`. `None` for
+/// anything but a finite JSON number.
+fn number_bits(text: &str) -> Option<u64> {
+    let text = text.trim();
+    if !text.starts_with(|c: char| c == '-' || c.is_ascii_digit()) {
+        return None;
+    }
+    text.parse::<f64>().ok().filter(|value| value.is_finite()).map(f64::to_bits)
+}
+/// The native rows query's page for `job` (`result_detail::run_rows`, the command the
+/// webview's read calls, with its filtering, paging and byte bound): the total of
+/// admitted rows, the page's row ordinals and each row's exact text.
+fn native_rows(registry: &SolveJobRegistry, job: &str, filter: Value, offset: u64, limit: u64) -> Result<(u64, Vec<u64>, Vec<String>), Error> {
+    let args = json!({"jobId": job, "filter": filter, "offset": offset, "limit": limit}).to_string().into_bytes();
+    let copy = registry
+        .acquire_interactive_ingress_capped(crate::ingress::allocation_envelope(args.len() as u64).unwrap_or(u64::MAX))
+        .map_err(|_| Error::Admission)?;
+    let registry = registry.clone();
+    let response = open_pipe_stress_result_export::recorded_tables::entry_scope(move || crate::result_detail::run_rows(registry, args, copy))
+        .map_err(|_| Error::Evidence)?;
+    // The detail response: magic, the header's length, the header, then the rows' texts.
+    if response.len() < 16 || &response[..8] != b"SWBDETv1" {
+        return Err(Error::Evidence);
+    }
+    let length = u64::from_le_bytes(response[8..16].try_into().map_err(|_| Error::Evidence)?) as usize;
+    let header: Value = serde_json::from_slice(response.get(16..16 + length).ok_or(Error::Evidence)?).map_err(|_| Error::Evidence)?;
+    let numbers = |key: &str| -> Result<Vec<u64>, Error> {
+        header[key].as_array().ok_or(Error::Evidence)?.iter().map(|n| n.as_u64().ok_or(Error::Evidence)).collect()
+    };
+    let (ordinals, lengths) = (numbers("ordinals")?, numbers("lengths")?);
+    let mut at = 16 + length;
+    let mut rows = Vec::with_capacity(lengths.len());
+    for len in &lengths {
+        let end = at.checked_add(*len as usize).ok_or(Error::Evidence)?;
+        rows.push(std::str::from_utf8(response.get(at..end).ok_or(Error::Evidence)?).map_err(|_| Error::Evidence)?.to_owned());
+        at = end;
+    }
+    if at != response.len() || ordinals.len() != rows.len() {
+        return Err(Error::Evidence);
+    }
+    Ok((header["total"].as_u64().ok_or(Error::Evidence)?, ordinals, rows))
+}
+/// One submitted value against the native row it names: the same id, kind, entity,
+/// unit, case and metadata, and either that row's exact number or null marked
+/// withheld. Withholding can only remove a number; it never changes one.
+fn value_matches_row(value: &Value, written: Option<&serde_json::value::RawValue>, row_text: &str) -> bool {
+    let (Ok(row), Ok(raw)) = (serde_json::from_str::<Value>(row_text), serde_json::from_str::<RawMember>(row_text)) else {
+        return false;
+    };
+    let case = match row.get("basis_ref") {
+        Some(basis) if !basis.is_null() => json!({"refType": basis["ref_type"], "refId": basis["ref_id"]}),
+        _ => Value::Null,
+    };
+    let member = |key: &str| match row["metadata"].get(key) {
+        Some(Value::String(text)) if !text.is_empty() => Value::String(text.clone()),
+        _ => Value::Null,
+    };
+    let same = value["id"] == row["id"]
+        && value["kind"] == row["kind"]
+        && value["entityRef"] == row["entity_ref"]
+        && value["unit"] == row["unit"]
+        && value["case"] == case
+        && value["component"] == member("component")
+        && value["coordinateSystem"] == member("coordinate_system")
+        && value["location"] == member("location")
+        && value["signConvention"] == member("sign_convention")
+        && value["exactDecimal"].is_null();
+    same && match value["availability"].as_str() {
+        Some("available") => {
+            let submitted = written.and_then(|text| number_bits(text.get()));
+            let native = raw.value.as_deref().and_then(|text| number_bits(text.get()));
+            value["reason"].is_null() && submitted.is_some() && submitted == native
+        }
+        Some("withheld") => value["value"].is_null() && value["reason"].as_str() == Some(WITHHELD_REASON),
+        _ => false,
+    }
+}
+/// A result read's page, checked against the native rows query of the run's held
+/// result, bound to the admitted request: the call's filter; its start (0 for no
+/// cursor, else where the page that issued the cursor ended, as this host recorded
+/// it); its extent (exactly the query's rows at that start and the call's limit, cut
+/// by the page's row-text rule); its continuation (present exactly when rows remain,
+/// and recorded here at the page's end); and each value against its row. Returns the
+/// continuation to record.
+fn verify_result_page(
+    registry: &SolveJobRegistry,
+    meta: &Meta,
+    job: &str,
+    handle: &str,
+    raw: &str,
+    ordinals: Option<&[u64]>,
+    cursors: &BTreeMap<String, (String, Value, u64)>,
+) -> Result<Option<(String, (String, Value, u64))>, Error> {
+    let value: Value = serde_json::from_str(raw).map_err(|_| Error::Input)?;
+    let args = &meta.arguments;
+    if value["status"].as_str() != Some("ok") || args["runHandle"].as_str() != Some(handle) {
+        return Err(Error::Evidence);
+    }
+    let filter = args.get("filter").cloned().unwrap_or(Value::Null);
+    let limit = args["page"]["limit"].as_u64().ok_or(Error::Evidence)?;
+    let start = match &args["page"]["cursor"] {
+        Value::Null => 0,
+        Value::String(cursor) => {
+            let (bound, bound_filter, at) = cursors.get(cursor).ok_or(Error::Evidence)?;
+            if bound != handle || *bound_filter != filter {
+                return Err(Error::Evidence);
+            }
+            *at
+        }
+        _ => return Err(Error::Evidence),
+    };
+    // The call's filter as the native query states it (the webview's agentDetailFilter).
+    let native_filter = match &filter {
+        Value::Null => json!({}),
+        filter => {
+            let mut native = json!({"kinds": filter["kinds"], "entities": filter["entityRefs"]});
+            if let Some(case) = filter.get("case") {
+                let (kind, id) = (case["refType"].as_str().ok_or(Error::Evidence)?, case["refId"].as_str().ok_or(Error::Evidence)?);
+                native["case"] = json!(format!("{kind}:{id}"));
+            }
+            native
+        }
+    };
+    let (total, native, rows) = native_rows(registry, job, native_filter, start, limit)?;
+    let values = value["data"]["values"].as_array().ok_or(Error::Evidence)?;
+    let written: RawPage = serde_json::from_str(raw).map_err(|_| Error::Input)?;
+    let ordinals = ordinals.ok_or(Error::Evidence)?;
+    // The extent is the query's: exactly the rows it returns at the call's offset and
+    // limit (its own byte bound included), cut by the page's row-text rule; no fewer,
+    // no more, none other.
+    let k = page_extent(&rows);
+    if values.len() != k || ordinals.len() != k || written.data.values.len() != k || ordinals != &native[..k] {
+        return Err(Error::Evidence);
+    }
+    for (at, submitted) in values.iter().enumerate() {
+        if !value_matches_row(submitted, written.data.values[at].value.as_deref(), &rows[at]) {
+            return Err(Error::Evidence);
+        }
+    }
+    let end = start + k as u64;
+    match (end < total, &value["data"]["nextCursor"]) {
+        (true, Value::String(cursor)) => Ok(Some((cursor.clone(), (handle.to_owned(), filter, end)))),
+        (false, Value::Null) => Ok(None),
+        _ => Err(Error::Evidence),
+    }
+}
+/// Validates a webview's actual outcome and its proof. For a solve naming a job it
+/// returns that job and, for a completed run, the job's result hash, which the
+/// caller records (the job is then spent).
+#[allow(clippy::type_complexity)]
 fn validate_actual(
     registry: &SolveJobRegistry,
     meta: &Meta,
     raw: &str,
     proof: &Proof,
-) -> Result<(), Error> {
+    consumed: &BTreeSet<String>,
+    runs: &BTreeMap<String, (String, [u8; 32])>,
+) -> Result<Option<(String, Option<[u8; 32]>)>, Error> {
     if raw.len() > 64 * 1024 {
         return Err(Error::Input);
     }
@@ -1054,19 +1352,58 @@ fn validate_actual(
             native_job_id: Some(job),
             status,
             basis,
+            handle,
             ..
         } if matches!(meta.tool, Tool::Solve | Tool::ReadResults) && basis == &meta.basis => {
             let state = registry.status(job).map_err(|_| Error::Evidence)?;
-            if (status == "completed" && state.state != "completed")
+            // A solve the solver refused ran to its result as a completed job, as a
+            // solved one does; which of the two the result is, is read from the
+            // result by the webview (the native job does not state it).
+            if (matches!(status.as_str(), "completed" | "rejected") && state.state != "completed")
                 || (status == "failed" && state.state != "failed")
                 || (status == "cancelled" && state.state != "cancelled")
             {
                 return Err(Error::Evidence);
             }
+            if meta.tool == Tool::Solve && matches!(status.as_str(), "completed" | "rejected") {
+                let sha = solve_job_binding(registry, meta, job, status, &value, consumed)?;
+                return Ok(Some((job.clone(), (status == "completed").then_some(sha))));
+            }
+            if meta.tool == Tool::Solve {
+                // A failure that names a job is not a completion of that job; it spends it.
+                if consumed.contains(job) {
+                    return Err(Error::Evidence);
+                }
+                return Ok(Some((job.clone(), None)));
+            }
+            // A result read names the job its run handle was bound to, still holding
+            // the same result bytes; never another solve's.
+            let handle = handle.as_deref().ok_or(Error::Evidence)?;
+            let (bound, sha) = runs.get(handle).ok_or(Error::Evidence)?;
+            let custody = registry.custody_binding(job).ok_or(Error::Evidence)?;
+            if bound != job || custody.result_sha256 != *sha {
+                return Err(Error::Evidence);
+            }
         }
+        // A refused or failed solve has no run and may have no job (a solve gate
+        // refused the model before any job started; a start the memory pool refused;
+        // an error before the job existed): it names neither, and it remains bound
+        // to the call's basis. A completed claim always names its job (above). The
+        // dispatcher checks the rest.
+        Proof::Run {
+            native_job_id: None,
+            handle: None,
+            run_id: None,
+            status,
+            basis,
+            ordinals: None,
+        } if meta.tool == Tool::Solve
+            && matches!(status.as_str(), "rejected" | "failed")
+            && basis == &meta.basis
+            && value["status"].as_str() == Some(status.as_str()) => {}
         _ => return Err(Error::Evidence),
     }
-    Ok(())
+    Ok(None)
 }
 
 #[cfg(test)]
@@ -1408,6 +1745,404 @@ mod tests {
                 raw
             );
         }
+    }
+    const SOLVED: &str = r#"{"run_id":"run:preview-linear-static-001","status":{"mechanics":"MECHANICS_SOLVED"},"results":[]}"#;
+    const BLOCKED: &str = r#"{"run_id":"run:preview-linear-static-blocked","status":{"mechanics":"MODEL_INCOMPLETE"},"results":[],"diagnostics":[{"code":"INVENTED","severity":"blocking","message":"Invented."}]}"#;
+    /// A registry whose solve jobs keep their results in native custody, released by a gate.
+    fn native_registry() -> (SolveJobRegistry, Arc<crate::solve_worker::test_support::Gate>) {
+        let gate = crate::solve_worker::test_support::Gate::new("agent-host");
+        let pool = MemoryPool::with_wait_tick(ScriptedHost::normal(), Duration::from_millis(5));
+        pool.set_max_running_workers(16);
+        let spawn: crate::solve_jobs::SpawnFn = Arc::new(|job| std::thread::Builder::new().spawn(job).map(drop));
+        (SolveJobRegistry::with_hooks(pool, gate.launcher(), spawn), gate)
+    }
+    /// The `started`-th job: run to completion with `result` held natively.
+    fn native_job(registry: &SolveJobRegistry, gate: &crate::solve_worker::test_support::Gate, started: usize, mode: Option<&str>, result: &str) -> String {
+        let job = registry.start_with_custody(br#"{"project":{"id":"p"}}"#, mode, crate::solve_jobs::ResultCustody::Native).unwrap().job_id;
+        gate.wait_started(started);
+        gate.release(result);
+        assert_eq!(crate::solve_jobs::test_support::wait_terminal(registry, &job).state, "completed");
+        job
+    }
+    fn registered_with(registry: SolveJobRegistry) -> Owner {
+        let mut owner = Owner::new(registry, Arc::new(AtomicBool::new(false)));
+        let backing = lease(&owner);
+        owner.action("main", Action::Register { basis: draft() }, paths(), backing).unwrap();
+        owner
+    }
+    /// The workspace's supplier protocol with a thread and a turn begun.
+    fn opened(owner: &mut Owner) -> Protocol {
+        let w = &mut owner.workspaces[0];
+        let basis = w.basis.clone();
+        let mut p = Protocol::new(Catalog::load().unwrap(), w.token.clone(), 16).unwrap();
+        p.initialize("test", "1").unwrap();
+        p.handle_frame(json!({"id":1,"result":{"codexHome":"/invented","platformFamily":"unix","platformOs":"macos","userAgent":"fixture"}}),&basis).unwrap();
+        p.start_thread(ThreadOptions { model: "invented".into(), provider: "invented".into(), cwd: "/invented".into(), base_instructions: "invented".into() }).unwrap();
+        for event in p.handle_frame(json!({"id":2,"result":{"thread":{"id":"thread-1"},"approvalPolicy":"never","sandbox":{"type":"readOnly","networkAccess":false}}}),&basis).unwrap().events { w.bridge.observe(&event).unwrap(); }
+        p.submit_text("invented".into()).unwrap();
+        for event in p.handle_frame(json!({"id":3,"result":{"turn":{"id":"turn-1","items":[],"status":"inProgress"}}}), &basis).unwrap().events { w.bridge.observe(&event).unwrap(); }
+        p
+    }
+    /// A solve call offered to the bridge and claimed by the webview, as the live route does.
+    fn claimed_solve(owner: &mut Owner, p: &mut Protocol, n: u64) -> String {
+        claimed_solve_in(owner, p, n, None)
+    }
+    /// [`claimed_solve`] with a requested solver mode.
+    fn claimed_solve_in(owner: &mut Owner, p: &mut Protocol, n: u64, mode: Option<&str>) -> String {
+        let basis = owner.workspaces[0].basis.clone();
+        let mut args = json!({"workspaceHandle":basis["workspaceHandle"],"basis":basis,"claimedModelHash":basis["modelHash"]});
+        if let Some(mode) = mode {
+            args["solverMode"] = json!(mode);
+        }
+        let event = p.handle_frame(json!({"id":90+n,"method":"item/tool/call","params":{"threadId":"thread-1","turnId":"turn-1","callId":format!("call-{n}"),"tool":Tool::Solve.name(),"arguments":args}}),&basis).unwrap().events.into_iter().find(|event| matches!(event, Event::ToolRequested { .. })).unwrap();
+        let reference: String = owner.workspaces[0].bridge.offer(&event, &basis, History::Live).unwrap().request_ref.into();
+        let (authority, backing) = (auth(owner), lease(owner));
+        owner.action("main", Action::Claim { authority, request_ref: reference.clone() }, paths(), backing).unwrap();
+        reference
+    }
+    fn solve_outcome(basis: &Value, status: &str, mode: &str) -> String {
+        solve_outcome_for(basis, status, mode, "run-1")
+    }
+    fn solve_outcome_for(basis: &Value, status: &str, mode: &str, handle: &str) -> String {
+        let run = status == "completed";
+        json!({"status":status,"basis":basis,"message":"Invented outcome","data":{"runHandle":run.then_some(handle),"runId":run.then_some("run:preview-linear-static-001"),
+            "evaluatedModelHash":hash(),"health":"invented","solverMode":mode,"diagnostics":[],"diagnosticsNotListed":0,"failure":null}}).to_string()
+    }
+    fn run_proof(basis: &Value, status: &str, job: &str) -> Proof {
+        run_proof_for(basis, status, job, "run-1")
+    }
+    fn run_proof_for(basis: &Value, status: &str, job: &str, handle: &str) -> Proof {
+        let run = status == "completed";
+        Proof::Run { handle: run.then(|| handle.to_owned()), run_id: run.then(|| "run:preview-linear-static-001".to_owned()), basis: basis.clone(), status: status.into(), native_job_id: Some(job.to_owned()), ordinals: None }
+    }
+    fn publish(owner: &mut Owner, reference: &str, outcome: String, proof: Proof) -> Result<Value, Error> {
+        let (authority, backing) = (auth(owner), lease(owner));
+        owner.action("main", Action::PublishActual { authority, request_ref: reference.into(), outcome, proof }, paths(), backing)
+    }
+    #[test]
+    fn a_solve_completion_names_a_fresh_unused_job_in_its_mode_whose_held_result_is_solved() {
+        let (registry, gate) = native_registry();
+        // Retained and completed, but made before the call was claimed.
+        let older = native_job(&registry, &gate, 1, None, SOLVED);
+        let mut owner = registered_with(registry.clone());
+        let mut p = opened(&mut owner);
+        let basis = owner.workspaces[0].basis.clone();
+        let a = claimed_solve(&mut owner, &mut p, 1);
+        let dense = native_job(&registry, &gate, 2, Some("dense_scrutiny"), SOLVED);
+        let blocked = native_job(&registry, &gate, 3, None, BLOCKED);
+        let fresh = native_job(&registry, &gate, 4, None, SOLVED);
+        let sparse = "sparse_interactive";
+        // The reviewer's sequence: another retained completed job, named by a forged completion.
+        assert_eq!(publish(&mut owner, &a, solve_outcome(&basis, "completed", sparse), run_proof(&basis, "completed", &older)).unwrap_err(), Error::Evidence);
+        // A job that ran in another mode than the outcome states.
+        assert_eq!(publish(&mut owner, &a, solve_outcome(&basis, "completed", sparse), run_proof(&basis, "completed", &dense)).unwrap_err(), Error::Evidence);
+        // A blocked result named completed, its findings removed: refused from the held bytes.
+        assert_eq!(publish(&mut owner, &a, solve_outcome(&basis, "completed", sparse), run_proof(&basis, "completed", &blocked)).unwrap_err(), Error::Evidence);
+        // A solved result named rejected.
+        assert_eq!(publish(&mut owner, &a, solve_outcome(&basis, "rejected", sparse), run_proof(&basis, "rejected", &fresh)).unwrap_err(), Error::Evidence);
+        // An unknown job.
+        assert_eq!(publish(&mut owner, &a, solve_outcome(&basis, "completed", sparse), run_proof(&basis, "completed", "backend-solve-job-999")).unwrap_err(), Error::Evidence);
+        assert!(owner.workspaces[0].consumed_jobs.is_empty() && owner.workspaces[0].actual.is_empty());
+        publish(&mut owner, &a, solve_outcome(&basis, "completed", sparse), run_proof(&basis, "completed", &fresh)).unwrap();
+        let held = registry.custody_binding(&fresh).unwrap().result_sha256;
+        assert_eq!(owner.workspaces[0].runs.get("run-1"), Some(&(fresh.clone(), held)));
+        // The same job named by a second call: used once only.
+        let b = claimed_solve(&mut owner, &mut p, 2);
+        assert_eq!(publish(&mut owner, &b, solve_outcome(&basis, "completed", sparse), run_proof(&basis, "completed", &fresh)).unwrap_err(), Error::Evidence);
+        // The dense job is older than the second call too; a blocked job named rejected is admitted.
+        assert_eq!(publish(&mut owner, &b, solve_outcome(&basis, "completed", "dense_scrutiny"), run_proof(&basis, "completed", &dense)).unwrap_err(), Error::Evidence);
+        let c = claimed_solve(&mut owner, &mut p, 3);
+        // The pool retains four results: release one before the next job.
+        registry.dispose_result(&older).unwrap();
+        let later_blocked = native_job(&registry, &gate, 5, None, BLOCKED);
+        publish(&mut owner, &c, solve_outcome(&basis, "rejected", sparse), run_proof(&basis, "rejected", &later_blocked)).unwrap();
+        // Two calls claimed before one job is made: the job is fresh for both, and the
+        // second completion naming it is refused because the first spent it.
+        let d = claimed_solve(&mut owner, &mut p, 4);
+        let e = claimed_solve(&mut owner, &mut p, 5);
+        registry.dispose_result(&dense).unwrap();
+        let shared = native_job(&registry, &gate, 6, None, BLOCKED);
+        publish(&mut owner, &d, solve_outcome(&basis, "rejected", sparse), run_proof(&basis, "rejected", &shared)).unwrap();
+        assert_eq!(publish(&mut owner, &e, solve_outcome(&basis, "rejected", sparse), run_proof(&basis, "rejected", &shared)).unwrap_err(), Error::Evidence);
+        drop(gate);
+    }
+    /// A result read through `handle`, admitted from the recorded history as the live
+    /// route admits it, claimed by the webview.
+    fn claimed_read(owner: &mut Owner, p: &mut Protocol, n: u64, handle: &str) -> String {
+        claimed_read_with(owner, p, n, handle, None, None, 5)
+    }
+    /// [`claimed_read`] with a filter, a cursor and a page limit.
+    fn claimed_read_with(owner: &mut Owner, p: &mut Protocol, n: u64, handle: &str, filter: Option<Value>, cursor: Option<&str>, limit: u64) -> String {
+        let live = owner.workspaces[0].basis.clone();
+        let mut args = json!({"workspaceHandle":live["workspaceHandle"],"basis":live,"runHandle":handle,"page":{"cursor":cursor,"limit":limit}});
+        if let Some(filter) = filter {
+            args["filter"] = filter;
+        }
+        let event = p.handle_frame(json!({"id":90+n,"method":"item/tool/call","params":{"threadId":"thread-1","turnId":"turn-1","callId":format!("call-{n}"),"tool":Tool::ReadResults.name(),"arguments":args}}),&live).unwrap().events.into_iter().find(|event| matches!(event, Event::ToolRequested { .. })).unwrap();
+        let w = &mut owner.workspaces[0];
+        let (history_handle, history_basis) = match w.history(handle).expect("a recorded run") {
+            History::Run { handle, basis } => (handle.to_owned(), basis.clone()),
+            _ => panic!("not a run"),
+        };
+        let reference: String = w.bridge.offer(&event, &live, History::Run { handle: &history_handle, basis: &history_basis }).unwrap().request_ref.into();
+        let (authority, backing) = (auth(owner), lease(owner));
+        owner.action("main", Action::Claim { authority, request_ref: reference.clone() }, paths(), backing).unwrap();
+        reference
+    }
+    fn read_proof(basis: &Value, job: &str, handle: &str, ordinals: &[u64]) -> Proof {
+        Proof::Run { handle: Some(handle.into()), run_id: Some("run:preview-linear-static-001".into()), basis: basis.clone(), status: "completed".into(), native_job_id: Some(job.into()), ordinals: Some(ordinals.to_vec()) }
+    }
+    fn read_outcome(basis: &Value, handle: &str) -> String {
+        json!({"status":"ok","basis":basis,"message":"Invented page","data":{"runHandle":handle,"runId":"run:preview-linear-static-001","evaluatedModelHash":hash(),"values":[],"nextCursor":null,"standing":{"route":"invented","health":"invented","checks":[]}}}).to_string()
+    }
+    /// A solved result with five rows: three of load case S, one of combination S, one
+    /// of load case S in another unit; numbers written with many digits, a negative zero,
+    /// an exponent and none.
+    const ROWS: &str = r#"{"run_id":"run:preview-linear-static-001","status":{"mechanics":"MECHANICS_SOLVED"},"results":[
+        {"id":"r0","kind":"k","entity_ref":"node:a","unit":"mm","value":4.771112073942932,"basis_ref":{"ref_type":"load_case","ref_id":"S"},"metadata":{"component":"ux","coordinate_system":"global","location":"node","basis":"b","sign_convention":"positive_global"}},
+        {"id":"r1","kind":"k","entity_ref":"node:b","unit":"mm","value":-0.0,"basis_ref":{"ref_type":"combination","ref_id":"S"}},
+        {"id":"r2","kind":"k","entity_ref":"node:c","unit":"mm","value":1e-7,"basis_ref":{"ref_type":"load_case","ref_id":"S"}},
+        {"id":"r3","kind":"k","entity_ref":"node:d","unit":"mm","value":null,"basis_ref":{"ref_type":"load_case","ref_id":"S"}},
+        {"id":"r4","kind":"k","entity_ref":"node:e","unit":"kN","value":0.1,"basis_ref":{"ref_type":"load_case","ref_id":"S"}}]}"#;
+    /// A value as the webview writes it; `number` is the exact JSON text of its value.
+    fn page_value(id: &str, entity: &str, unit: &str, number: &str, case: (&str, &str), metadata: bool) -> String {
+        let (availability, reason) = if number == "null" { ("withheld", json!(WITHHELD_REASON)) } else { ("available", Value::Null) };
+        let (component, system, location, sign) = if metadata { (json!("ux"), json!("global"), json!("node"), json!("positive_global")) } else { (Value::Null, Value::Null, Value::Null, Value::Null) };
+        format!(r#"{{"id":"{id}","kind":"k","entityRef":"{entity}","value":{number},"exactDecimal":null,"unit":"{unit}","availability":"{availability}","reason":{reason},"case":{{"refType":"{}","refId":"{}"}},"component":{component},"coordinateSystem":{system},"location":{location},"signConvention":{sign}}}"#, case.0, case.1)
+    }
+    fn page_outcome(basis: &Value, values: &[String], next: Option<&str>, run_id: &str) -> String {
+        format!(r#"{{"status":"ok","basis":{},"message":"Invented page","data":{{"runHandle":"H","runId":"{run_id}","evaluatedModelHash":{},"values":[{}],"nextCursor":{},"standing":{{"route":"invented","health":"invented","checks":[]}}}}}}"#,
+            basis, hash(), values.join(","), next.map_or("null".to_owned(), |c| format!(r#""{c}""#)))
+    }
+    #[test]
+    fn a_result_page_is_the_native_rows_query_page_value_by_value() {
+        let (registry, gate) = native_registry();
+        let mut owner = registered_with(registry.clone());
+        let mut p = opened(&mut owner);
+        let basis = owner.workspaces[0].basis.clone();
+        let solve = claimed_solve(&mut owner, &mut p, 1);
+        let job = native_job(&registry, &gate, 1, None, ROWS);
+        publish(&mut owner, &solve, solve_outcome_for(&basis, "completed", "sparse_interactive", "H"), run_proof_for(&basis, "completed", &job, "H")).unwrap();
+        let ls = ("load_case", "S");
+        let r0 = page_value("r0", "node:a", "mm", "4.771112073942932", ls, true);
+        let r2 = page_value("r2", "node:c", "mm", "0.0000001", ls, false); // 1e-7 written another way: the same binary64
+        let r3 = page_value("r3", "node:d", "mm", "null", ls, false);
+        let r4 = page_value("r4", "node:e", "kN", "0.1", ls, false);
+        let filter = json!({"kinds":[],"entityRefs":[],"case":{"refType":"load_case","refId":"S"}});
+        let page = |values: &[&String], next: Option<&str>| page_outcome(&basis, &values.iter().map(|v| (*v).clone()).collect::<Vec<_>>(), next, "run:preview-linear-static-001");
+        // Page 1 of load case S, two rows: the native page is rows 0 and 2 of 4 admitted.
+        let first = claimed_read_with(&mut owner, &mut p, 2, "H", Some(filter.clone()), None, 2);
+        let refused = |owner: &mut Owner, outcome: String, ordinals: &[u64]| publish(owner, &first, outcome, read_proof(&basis, &job, "H", ordinals)).unwrap_err();
+        let changed = page_value("r0", "node:a", "mm", "4.7711120739429", ls, true);
+        assert_eq!(refused(&mut owner, page(&[&changed, &r2], Some("C1")), &[0, 2]), Error::Evidence, "a changed value");
+        assert_eq!(refused(&mut owner, page(&[&r2, &r0], Some("C1")), &[0, 2]), Error::Evidence, "values moved to another row's ordinal");
+        assert_eq!(refused(&mut owner, page(&[&r0, &r2], Some("C1")), &[0, 1]), Error::Evidence, "an ordinal outside the admitted filter");
+        assert_eq!(refused(&mut owner, page(&[&r0, &r3], Some("C1")), &[0, 3]), Error::Evidence, "a gap in the run");
+        assert_eq!(refused(&mut owner, page(&[&r0, &r0], Some("C1")), &[0, 0]), Error::Evidence, "a duplicated ordinal");
+        let metres = page_value("r0", "node:a", "m", "4.771112073942932", ls, true);
+        assert_eq!(refused(&mut owner, page(&[&metres, &r2], Some("C1")), &[0, 2]), Error::Evidence, "a wrong unit");
+        assert_eq!(refused(&mut owner, page(&[&r0, &r2], None), &[0, 2]), Error::Evidence, "a last page claimed early");
+        assert_eq!(refused(&mut owner, page(&[&r3, &r4], Some("C1")), &[3, 4]), Error::Evidence, "a true page at the wrong offset");
+        assert_eq!(refused(&mut owner, page(&[&r0], Some("C1")), &[0]), Error::Evidence, "a page shorter than the query's");
+        assert_eq!(refused(&mut owner, page(&[&r0, &r2, &r3], Some("C1")), &[0, 2, 3]), Error::Evidence, "a page longer than the query's");
+        let decimal = r0.replace(r#""exactDecimal":null"#, r#""exactDecimal":"4.77""#);
+        assert_eq!(refused(&mut owner, page(&[&decimal, &r2], Some("C1")), &[0, 2]), Error::Evidence, "an exact decimal the row does not give");
+        // The page passes the host's check but the call refuses it (another run id): nothing is recorded.
+        assert_eq!(publish(&mut owner, &first, page_outcome(&basis, &[r0.clone(), r2.clone()], Some("C1"), "run:other"), read_proof(&basis, &job, "H", &[0, 2])).unwrap_err(), Error::Evidence);
+        assert!(owner.workspaces[0].cursors.is_empty() && !owner.workspaces[0].actual.contains_key(&first));
+        publish(&mut owner, &first, page(&[&r0, &r2], Some("C1")), read_proof(&basis, &job, "H", &[0, 2])).unwrap();
+        assert_eq!(owner.workspaces[0].cursors.get("C1"), Some(&("H".to_owned(), filter.clone(), 2)));
+        // Page 2 starts where page 1 ended: rows 3 and 4; row 3 holds no number.
+        let second = claimed_read_with(&mut owner, &mut p, 3, "H", Some(filter.clone()), Some("C1"), 2);
+        assert_eq!(publish(&mut owner, &second, page(&[&r4], None), read_proof(&basis, &job, "H", &[4])).unwrap_err(), Error::Evidence, "a continuation that skips a row");
+        let none_held = page_value("r3", "node:d", "mm", "0", ls, false);
+        assert_eq!(publish(&mut owner, &second, page(&[&none_held, &r4], None), read_proof(&basis, &job, "H", &[3, 4])).unwrap_err(), Error::Evidence, "a number where the row holds none");
+        let forged_reason = r3.replace(WITHHELD_REASON, "The value is 12.5 mm.");
+        assert_eq!(publish(&mut owner, &second, page(&[&forged_reason, &r4], None), read_proof(&basis, &job, "H", &[3, 4])).unwrap_err(), Error::Evidence, "a withheld value with another reason");
+        // A longer spelling of the same binary64 is refused at admission already: the
+        // numeric guard admits no token whose decimal value materialization would change.
+        let spelled = page_value("r4", "node:e", "kN", "0.1000000000000000055511151231257827", ls, false);
+        assert_eq!(publish(&mut owner, &second, page(&[&r3, &spelled], None), read_proof(&basis, &job, "H", &[3, 4])).unwrap_err(), Error::Input);
+        publish(&mut owner, &second, page(&[&r3, &r4], None), read_proof(&basis, &job, "H", &[3, 4])).unwrap();
+        // Without a filter: a wrong case, and a negative zero, compared as binary64.
+        let all = claimed_read_with(&mut owner, &mut p, 4, "H", None, None, 5);
+        let r0_withheld = page_value("r0", "node:a", "mm", "null", ls, true);
+        let r1_case = page_value("r1", "node:b", "mm", "-0", ("load_case", "S"), false);
+        let r1_zero = page_value("r1", "node:b", "mm", "0", ("combination", "S"), false);
+        let r1 = page_value("r1", "node:b", "mm", "-0", ("combination", "S"), false);
+        let unfiltered = |values: &[&String]| page_outcome(&basis, &values.iter().map(|v| (*v).clone()).collect::<Vec<_>>(), None, "run:preview-linear-static-001");
+        let every = [0, 1, 2, 3, 4];
+        assert_eq!(publish(&mut owner, &all, unfiltered(&[&r0_withheld, &r1_case, &r2, &r3, &r4]), read_proof(&basis, &job, "H", &every)).unwrap_err(), Error::Evidence, "a wrong case");
+        assert_eq!(publish(&mut owner, &all, unfiltered(&[&r0_withheld, &r1_zero, &r2, &r3, &r4]), read_proof(&basis, &job, "H", &every)).unwrap_err(), Error::Evidence, "zero for a negative zero");
+        // A withheld value for a row with a number is accepted (it removes a number).
+        publish(&mut owner, &all, unfiltered(&[&r0_withheld, &r1, &r2, &r3, &r4]), read_proof(&basis, &job, "H", &every)).unwrap();
+        // Cursors: one the host never recorded, and a recorded one under another filter.
+        let forged = claimed_read_with(&mut owner, &mut p, 5, "H", Some(filter.clone()), Some("C9"), 2);
+        assert_eq!(publish(&mut owner, &forged, page(&[&r3, &r4], None), read_proof(&basis, &job, "H", &[3, 4])).unwrap_err(), Error::Evidence, "an unrecorded cursor");
+        // C1 was recorded at position 2 of load case S's rows; unfiltered, position 2 holds
+        // rows 2 and 3, a page that would be true for that filter. It is still refused.
+        let other_filter = claimed_read_with(&mut owner, &mut p, 6, "H", None, Some("C1"), 2);
+        assert_eq!(publish(&mut owner, &other_filter, page(&[&r2, &r3], Some("C4")), read_proof(&basis, &job, "H", &[2, 3])).unwrap_err(), Error::Evidence, "a cursor under another filter");
+        // The query's own extent: rows of about 12 KiB each, limit 4; the page holds the
+        // first two (24 KiB; a third would pass 32 KiB of row text), no more and no fewer.
+        let pad = "p".repeat(12 * 1024);
+        let big = format!(r#"{{"run_id":"run:preview-linear-static-001","status":{{"mechanics":"MECHANICS_SOLVED"}},"results":[{}]}}"#,
+            (0..4).map(|i| format!(r#"{{"id":"b{i}","kind":"k","entity_ref":"node:{i}","unit":"mm","value":{i}.5,"note":"{pad}"}}"#)).collect::<Vec<_>>().join(","));
+        let big_solve = claimed_solve(&mut owner, &mut p, 8);
+        let big_job = native_job(&registry, &gate, 2, None, &big);
+        publish(&mut owner, &big_solve, solve_outcome_for(&basis, "completed", "sparse_interactive", "HB"), run_proof_for(&basis, "completed", &big_job, "HB")).unwrap();
+        let big_value = |i: usize| format!(r#"{{"id":"b{i}","kind":"k","entityRef":"node:{i}","value":{i}.5,"exactDecimal":null,"unit":"mm","availability":"available","reason":null,"case":null,"component":null,"coordinateSystem":null,"location":null,"signConvention":null}}"#);
+        let big_page = |n: usize, next: Option<&str>| page_outcome(&basis, &(0..n).map(big_value).collect::<Vec<_>>(), next, "run:preview-linear-static-001").replace(r#""runHandle":"H""#, r#""runHandle":"HB""#);
+        let truncated = claimed_read_with(&mut owner, &mut p, 9, "HB", None, None, 4);
+        assert_eq!(publish(&mut owner, &truncated, big_page(3, Some("CB")), read_proof(&basis, &big_job, "HB", &[0, 1, 2])).unwrap_err(), Error::Evidence, "a page past the row-text bound");
+        assert_eq!(publish(&mut owner, &truncated, big_page(1, Some("CB")), read_proof(&basis, &big_job, "HB", &[0])).unwrap_err(), Error::Evidence, "a page short of the row-text bound");
+        publish(&mut owner, &truncated, big_page(2, Some("CB")), read_proof(&basis, &big_job, "HB", &[0, 1])).unwrap();
+        assert_eq!(owner.workspaces[0].cursors.get("CB"), Some(&("HB".to_owned(), Value::Null, 2)));
+        // Once the held bytes are gone, a read through the handle is still refused.
+        let gone = claimed_read_with(&mut owner, &mut p, 7, "H", Some(filter.clone()), None, 2);
+        registry.dispose_result(&job).unwrap();
+        assert_eq!(publish(&mut owner, &gone, page(&[&r0, &r2], Some("C3")), read_proof(&basis, &job, "H", &[0, 2])).unwrap_err(), Error::Evidence, "held bytes gone");
+        assert!(!owner.workspaces[0].actual.contains_key(&gone) && !owner.workspaces[0].cursors.contains_key("C3"));
+        drop(gate);
+    }
+    #[test]
+    fn a_run_handle_is_bound_once_and_a_later_completion_cannot_rebind_it() {
+        let (registry, gate) = native_registry();
+        let mut owner = registered_with(registry.clone());
+        let mut p = opened(&mut owner);
+        let basis = owner.workspaces[0].basis.clone();
+        // A completes in sparse mode and is given handle H.
+        let a = claimed_solve(&mut owner, &mut p, 1);
+        let job_a = native_job(&registry, &gate, 1, None, SOLVED);
+        publish(&mut owner, &a, solve_outcome_for(&basis, "completed", "sparse_interactive", "H"), run_proof_for(&basis, "completed", &job_a, "H")).unwrap();
+        let bound = owner.workspaces[0].runs.get("H").cloned();
+        // B completes in dense mode with a fresh, unused, solved job, but submits H again.
+        let b = claimed_solve_in(&mut owner, &mut p, 2, Some("dense_scrutiny"));
+        let job_b = native_job(&registry, &gate, 2, Some("dense_scrutiny"), SOLVED);
+        assert_eq!(publish(&mut owner, &b, solve_outcome_for(&basis, "completed", "dense_scrutiny", "H"), run_proof_for(&basis, "completed", &job_b, "H")).unwrap_err(), Error::Evidence);
+        // Nothing changed: H keeps A's job, digest and basis; B's job is unspent; B has no actual.
+        assert_eq!(owner.workspaces[0].runs.get("H").cloned(), bound);
+        assert!(!owner.workspaces[0].consumed_jobs.contains(&job_b) && !owner.workspaces[0].actual.contains_key(&b));
+        // A read through H, admitted from history, returns A's rows and never B's.
+        let read = claimed_read(&mut owner, &mut p, 3, "H");
+        assert_eq!(publish(&mut owner, &read, read_outcome(&basis, "H"), read_proof(&basis, &job_b, "H", &[])).unwrap_err(), Error::Evidence);
+        publish(&mut owner, &read, read_outcome(&basis, "H"), read_proof(&basis, &job_a, "H", &[])).unwrap();
+        // B may still complete under its own handle.
+        publish(&mut owner, &b, solve_outcome_for(&basis, "completed", "dense_scrutiny", "H2"), run_proof_for(&basis, "completed", &job_b, "H2")).unwrap();
+        drop(gate);
+    }
+    #[test]
+    fn a_completion_the_call_refuses_spends_no_job_binds_no_handle_and_leaves_no_history() {
+        let (registry, gate) = native_registry();
+        let mut owner = registered_with(registry.clone());
+        let mut p = opened(&mut owner);
+        let basis = owner.workspaces[0].basis.clone();
+        // The reviewer's sequence: A requests dense, B requests sparse, then one sparse job J.
+        let a = claimed_solve_in(&mut owner, &mut p, 1, Some("dense_scrutiny"));
+        let b = claimed_solve_in(&mut owner, &mut p, 2, Some("sparse_interactive"));
+        let j = native_job(&registry, &gate, 1, Some("sparse_interactive"), SOLVED);
+        // A's outcome names sparse and J: the native facts hold, but the call asked for dense.
+        assert_eq!(publish(&mut owner, &a, solve_outcome_for(&basis, "completed", "sparse_interactive", "HA"), run_proof_for(&basis, "completed", &j, "HA")).unwrap_err(), Error::Evidence);
+        let w = &owner.workspaces[0];
+        assert!(!w.consumed_jobs.contains(&j) && !w.runs.contains_key("HA") && !w.actual.contains_key(&a) && w.history("HA").is_none());
+        // B can use J.
+        publish(&mut owner, &b, solve_outcome_for(&basis, "completed", "sparse_interactive", "HB"), run_proof_for(&basis, "completed", &j, "HB")).unwrap();
+        assert!(owner.workspaces[0].consumed_jobs.contains(&j) && owner.workspaces[0].history("HB").is_some());
+        drop(gate);
+    }
+    #[test]
+    fn the_status_reader_reads_only_the_root_status_member_once() {
+        let (registry, gate) = native_registry();
+        let large = format!(r#"{{"results":[{}],"status":{{"mechanics":"MECHANICS_SOLVED"}}}}"#, vec![r#"{"id":"r","value":1.5,"note":"x"}"#; 60_000].join(","));
+        let cases: [(&str, String, Option<&str>); 9] = [
+            ("solved", SOLVED.into(), Some("MECHANICS_SOLVED")),
+            ("blocked", BLOCKED.into(), Some("MODEL_INCOMPLETE")),
+            ("partial", r#"{"status":{"mechanics":"MECHANICS_PARTIAL"}}"#.into(), Some("MECHANICS_PARTIAL")),
+            ("status twice", r#"{"status":{"mechanics":"MODEL_INCOMPLETE"},"status":{"mechanics":"MECHANICS_SOLVED"}}"#.into(), None),
+            ("mechanics twice", r#"{"status":{"mechanics":"MODEL_INCOMPLETE","mechanics":"MECHANICS_SOLVED"}}"#.into(), None),
+            ("nested deeper", r#"{"summary":{"status":{"mechanics":"MECHANICS_SOLVED"}}}"#.into(), None),
+            ("missing", r#"{"run_id":"run:preview-linear-static-001","results":[]}"#.into(), None),
+            ("not a string", r#"{"status":{"mechanics":true}}"#.into(), None),
+            ("large member first", large, Some("MECHANICS_SOLVED")),
+        ];
+        for (n, (name, text, expected)) in cases.into_iter().enumerate() {
+            let job = native_job(&registry, &gate, n + 1, None, &text);
+            assert_eq!(held_mechanics_status(&registry, &job).as_deref(), expected, "{name}");
+            registry.dispose_result(&job).unwrap();
+        }
+        drop(gate);
+    }
+    #[test]
+    fn a_result_read_names_its_run_handles_job_still_holding_the_same_result() {
+        let (registry, gate) = native_registry();
+        let first = native_job(&registry, &gate, 1, None, SOLVED);
+        let second = native_job(&registry, &gate, 2, None, SOLVED);
+        let basis = json!({"workspaceHandle":"workspace-invented","applicationGeneration":1,"modelRevision":2,"modelHash":hash(),"stateId":null,"runId":null});
+        let meta = Meta { tool: Tool::ReadResults, basis: basis.clone(), jobs_before: 0, arguments: Value::Null };
+        let consumed = BTreeSet::new();
+        let runs = BTreeMap::from([("run-1".to_owned(), (first.clone(), registry.custody_binding(&first).unwrap().result_sha256))]);
+        let page = json!({"status":"ok","basis":basis,"message":"Invented page","data":{"runHandle":"run-1","runId":"run:preview-linear-static-001","evaluatedModelHash":hash(),"values":[],"nextCursor":null,"standing":{"route":"invented","health":"invented","checks":[]}}}).to_string();
+        let read = |job: &str, handle: &str| validate_actual(&registry, &meta, &page, &Proof::Run { handle: Some(handle.into()), run_id: Some("run:preview-linear-static-001".into()), basis: basis.clone(), status: "completed".into(), native_job_id: Some(job.into()), ordinals: None }, &consumed, &runs);
+        // Both jobs carry the producer's one run id; only the handle's own job is read.
+        assert_eq!(read(&second, "run-1").unwrap_err(), Error::Evidence);
+        assert_eq!(read(&first, "run-2").unwrap_err(), Error::Evidence);
+        assert_eq!(read(&first, "run-1").unwrap(), None);
+        // A handle bound to other bytes than the job now holds reads nothing.
+        let other = BTreeMap::from([("run-1".to_owned(), (first.clone(), [7u8; 32]))]);
+        assert_eq!(validate_actual(&registry, &meta, &page, &Proof::Run { handle: Some("run-1".into()), run_id: None, basis: basis.clone(), status: "completed".into(), native_job_id: Some(first.clone()), ordinals: None }, &consumed, &other).unwrap_err(), Error::Evidence);
+        // Once that result is no longer held, the handle reads nothing.
+        registry.dispose_result(&first).unwrap();
+        assert_eq!(read(&first, "run-1").unwrap_err(), Error::Evidence);
+        drop(gate);
+    }
+    #[test]
+    fn a_refused_solve_needs_its_completed_job_and_a_failed_one_names_no_run() {
+        use crate::solve_jobs::test_support::wait_terminal;
+        let (registry, gate) = native_registry();
+        let completed = native_job(&registry, &gate, 1, None, BLOCKED);
+        let failed = registry.start_with_custody(br#"{"project":{"id":"q"}}"#, None, crate::solve_jobs::ResultCustody::Native).unwrap().job_id;
+        gate.wait_started(2);
+        gate.release("err:invented worker failure");
+        assert_eq!(wait_terminal(&registry, &failed).state, "failed");
+        let basis = json!({"workspaceHandle":"workspace-invented","applicationGeneration":1,"modelRevision":2,"modelHash":hash(),"stateId":null,"runId":null});
+        let meta = Meta { tool: Tool::Solve, basis: basis.clone(), jobs_before: 0, arguments: Value::Null };
+        let (consumed, runs) = (BTreeSet::new(), BTreeMap::new());
+        let raw = |status: &str, run: bool, failure: Value| {
+            json!({"status":status,"basis":basis,"message":"Invented outcome","data":{"runHandle":run.then_some("run-1"),"runId":run.then_some("native-run-1"),
+                "evaluatedModelHash":hash(),"health":"MODEL_INCOMPLETE","solverMode":"sparse_interactive","diagnostics":[],"diagnosticsNotListed":0,"failure":failure}}).to_string()
+        };
+        let proof = |status: &str, run: bool, job: Option<&str>| Proof::Run {
+            handle: run.then(|| "run-1".to_owned()),
+            run_id: run.then(|| "native-run-1".to_owned()),
+            basis: basis.clone(),
+            status: status.into(),
+            native_job_id: job.map(str::to_owned),
+            ordinals: None,
+        };
+        let failure = json!({"kind":"job_failed","message":"Invented job failure."});
+        let check = |raw: String, proof: Proof| validate_actual(&registry, &meta, &raw, &proof, &consumed, &runs).map(drop);
+        // A refusal that names a job names one that ran to completion, never an unknown or
+        // failed job; a refusal before any job (a solve gate) names none.
+        assert!(check(raw("rejected", false, Value::Null), proof("rejected", false, Some(&completed))).is_ok());
+        assert_eq!(check(raw("rejected", false, Value::Null), proof("rejected", false, Some(&failed))), Err(Error::Evidence));
+        assert_eq!(check(raw("rejected", false, Value::Null), proof("rejected", false, Some("invented-job"))), Err(Error::Evidence));
+        assert!(check(raw("rejected", false, Value::Null), proof("rejected", false, None)).is_ok());
+        assert_eq!(check(raw("rejected", true, Value::Null), proof("rejected", true, None)), Err(Error::Evidence));
+        assert_eq!(check(raw("failed", false, Value::Null), proof("rejected", false, None)), Err(Error::Evidence));
+        // A failure with no job names no run; one with a job must be that failed job.
+        assert!(check(raw("failed", false, failure.clone()), proof("failed", false, None)).is_ok());
+        assert!(check(raw("failed", false, failure.clone()), proof("failed", false, Some(&failed))).is_ok());
+        assert_eq!(check(raw("failed", false, failure.clone()), proof("failed", false, Some(&completed))), Err(Error::Evidence));
+        assert_eq!(check(raw("failed", true, failure.clone()), proof("failed", true, None)), Err(Error::Evidence));
+        // A completed claim still requires its completed job.
+        assert_eq!(check(raw("completed", true, Value::Null), proof("completed", true, None)), Err(Error::Evidence));
+        assert_eq!(check(raw("completed", true, Value::Null), proof("completed", true, Some(&failed))), Err(Error::Evidence));
+        // Bound to the call's basis.
+        let mut other = basis.clone();
+        other["modelRevision"] = json!(3);
+        let elsewhere = Proof::Run { handle: None, run_id: None, basis: other, status: "failed".into(), native_job_id: None, ordinals: None };
+        assert_eq!(check(raw("failed", false, failure), elsewhere), Err(Error::Evidence));
+        drop(gate);
     }
     #[test]
     fn empty_deltas_still_hit_the_message_count_bound() {
