@@ -121,6 +121,10 @@ code_paths:
 - validation/references/hydrostatic_test/**
 - tests/test_exact_load_state_equivalent_static_references.py
 - tests/test_hydrostatic_test_references.py
+# Frozen before the engine work it judges: static seismic taking the weight case's masses, a
+# component's weight included. No product test reads it yet.
+- validation/references/seismic_component_weight/**
+- tests/test_seismic_component_weight_references.py
 # The wind-exposure form is authoring, which is DEL-07-03's subject; no other deliverable lists it.
 - apps/desktop/src/features/wind-exposure/WindExposureForm.tsx
 checks:
