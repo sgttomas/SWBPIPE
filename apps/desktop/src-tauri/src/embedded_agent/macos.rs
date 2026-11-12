@@ -14,6 +14,14 @@ use std::time::{Duration, Instant};
 
 pub(crate) const STARTUP_BYTES: u64 = supplier::STARTUP_BYTES;
 const CAPABILITY_ENV: &str = "SWBPIPE_AGENT_RELAY_CAPABILITY";
+/// The supplier's own switch for its remote control transport, by which
+/// another device could drive the runtime. 0.160.0 starts remote control
+/// "disabled ephemeral" only when this is exactly "1" (and removes it from its
+/// own environment); its `remote_control` feature key is Removed and ignored,
+/// so no configuration line can do this. The name is internal to the supplier:
+/// recheck it on every supplier version. The host also ends the session on any
+/// reported status other than "disabled".
+const REMOTE_CONTROL_DISABLED_ENV: &str = "CODEX_INTERNAL_APP_SERVER_REMOTE_CONTROL_DISABLED";
 const CONFIG_BODY: &str = r#"model_provider = "swbpipe_relay"
 model_reasoning_effort = "low"
 sandbox_mode = "read-only"
@@ -51,6 +59,27 @@ enabled = false
 
 /// JSON string escaping is a subset of TOML basic-string escaping for the
 /// accepted, control-free model identifier. No raw model text is interpolated.
+/// Clears the child's environment and sets exactly the fixed set. Nothing from
+/// the application's environment, CODEX_ variables included, reaches it.
+fn contain_environment(command: &mut Command, root: &Path, capability: &str) {
+    command.env_clear().envs(child_environment(root, capability));
+}
+/// The child's whole environment, after `env_clear`.
+fn child_environment(root: &Path, capability: &str) -> [(&'static str, std::ffi::OsString); 10] {
+    [
+        ("HOME", root.join("home").into()),
+        ("CODEX_HOME", root.join("home/codex").into()),
+        ("TMPDIR", root.join("home/tmp").into()),
+        ("XDG_CACHE_HOME", root.join("home/cache").into()),
+        ("XDG_CONFIG_HOME", root.join("home/config").into()),
+        ("XDG_DATA_HOME", root.join("home/data").into()),
+        ("PATH", "/usr/bin:/bin".into()),
+        ("LANG", "en_US.UTF-8".into()),
+        (CAPABILITY_ENV, capability.into()),
+        (REMOTE_CONTROL_DISABLED_ENV, "1".into()),
+    ]
+}
+
 fn supplier_config(model: &str, context_window: u32, relay: &Loopback) -> Result<String, Error> {
     if model.is_empty()
         || model.len() > 1024
@@ -270,22 +299,13 @@ impl Prepared {
         let root = &runtime.root;
         let result = {
             let mut command = Command::new("/usr/bin/sandbox-exec");
+            contain_environment(&mut command, root, runtime.relay.scope().capability());
             command
                 .arg("-f")
                 .arg(root.join("sandbox.sb"))
                 .arg(root.join("codex"))
                 .args(["app-server", "--listen", "stdio://"])
                 .current_dir(root.join("work"))
-                .env_clear()
-                .env("HOME", root.join("home"))
-                .env("CODEX_HOME", root.join("home/codex"))
-                .env("TMPDIR", root.join("home/tmp"))
-                .env("XDG_CACHE_HOME", root.join("home/cache"))
-                .env("XDG_CONFIG_HOME", root.join("home/config"))
-                .env("XDG_DATA_HOME", root.join("home/data"))
-                .env("PATH", "/usr/bin:/bin")
-                .env("LANG", "en_US.UTF-8")
-                .env(CAPABILITY_ENV, runtime.relay.scope().capability())
                 .stdin(Stdio::piped())
                 .stdout(Stdio::piped())
                 .stderr(if diagnostic_stderr {
@@ -548,6 +568,59 @@ mod tests {
                 Err(Error::InvalidConfiguration)
             );
         }
+    }
+    const EXPECTED_ENVIRONMENT: [(&str, &str); 10] = [
+        ("HOME", "/private/invented-root/home"),
+        ("CODEX_HOME", "/private/invented-root/home/codex"),
+        ("TMPDIR", "/private/invented-root/home/tmp"),
+        ("XDG_CACHE_HOME", "/private/invented-root/home/cache"),
+        ("XDG_CONFIG_HOME", "/private/invented-root/home/config"),
+        ("XDG_DATA_HOME", "/private/invented-root/home/data"),
+        ("PATH", "/usr/bin:/bin"),
+        ("LANG", "en_US.UTF-8"),
+        ("SWBPIPE_AGENT_RELAY_CAPABILITY", "invented-capability"),
+        ("CODEX_INTERNAL_APP_SERVER_REMOTE_CONTROL_DISABLED", "1"),
+    ];
+    #[test]
+    fn supplier_environment_is_exactly_the_fixed_set_with_remote_control_disabled() {
+        let root = Path::new("/private/invented-root");
+        let env = child_environment(root, "invented-capability");
+        assert_eq!(env.len(), EXPECTED_ENVIRONMENT.len());
+        for ((key, value), (want_key, want_value)) in env.iter().zip(EXPECTED_ENVIRONMENT) {
+            assert_eq!((*key, value.to_str().unwrap()), (want_key, want_value));
+        }
+        // The removed feature key is not written: it would be ignored.
+        assert!(!CONFIG_BODY.contains("remote_control"));
+    }
+    #[test]
+    fn contained_child_inherits_nothing_from_the_application_environment() {
+        // Run /usr/bin/env, not the supplier, under the same containment. The
+        // test process's own environment (HOME, PATH, any CODEX_ variable) and
+        // variables set on the command before containment must not reach it.
+        let mut command = Command::new("/usr/bin/env");
+        command
+            .env("CODEX_SQLITE_HOME", "/private/invented-canary")
+            .env("CODEX_HOME", "/private/invented-canary")
+            .env("CODEX_INTERNAL_APP_SERVER_REMOTE_CONTROL_DISABLED", "0");
+        contain_environment(&mut command, Path::new("/private/invented-root"), "invented-capability");
+        let output = command
+            .stdin(Stdio::null())
+            .stderr(Stdio::null())
+            .output()
+            .unwrap();
+        assert!(output.status.success());
+        let mut seen: Vec<String> = String::from_utf8(output.stdout)
+            .unwrap()
+            .lines()
+            .map(str::to_owned)
+            .collect();
+        seen.sort();
+        let mut expected: Vec<String> = EXPECTED_ENVIRONMENT
+            .iter()
+            .map(|(k, v)| format!("{k}={v}"))
+            .collect();
+        expected.sort();
+        assert_eq!(seen, expected);
     }
     #[test]
     fn invalid_configuration_is_refused_before_runtime_or_marker_creation() {

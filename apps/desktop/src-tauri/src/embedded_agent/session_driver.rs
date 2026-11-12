@@ -110,6 +110,10 @@ pub struct SessionDriver {
     lost: Option<EventBatch>,
     // At most one frame batch deferred across a Busy final observation.
     deferred: Option<EventBatch>,
+    // Whether the runtime reported a remote control status (necessarily
+    // "disabled") before the first turn started; None until that turn starts.
+    // Observed only: no absence rule rests on it yet.
+    remote_control_before_first_turn: Option<bool>,
     // Last: destroy retained state before releasing its reservation.
     session: Arc<Lease>,
 }
@@ -180,6 +184,7 @@ impl SessionDriver {
             terminal: None,
             lost: None,
             deferred: None,
+            remote_control_before_first_turn: None,
             session,
         };
         if let Some(fault) = partial {
@@ -395,6 +400,20 @@ impl SessionDriver {
                 match self.protocol.handle_frame(frame.value, &self.basis) {
                     Err(_) => self.close(Terminal::Protocol),
                     Ok(actions) => {
+                        if self.remote_control_before_first_turn.is_none()
+                            && actions
+                                .events
+                                .iter()
+                                .any(|e| matches!(e, Event::TurnStarted { .. }))
+                        {
+                            let seen = self.protocol.remote_control_reported();
+                            self.remote_control_before_first_turn = Some(seen);
+                            #[cfg(feature = "native-smoke")]
+                            eprintln!(
+                                "[native-smoke-agent-host] remote control status seen before first turn: {}",
+                                if seen { "yes" } else { "no" }
+                            );
+                        }
                         for reply in actions.outbound {
                             if self.send(reply, backing.clone()).is_err() {
                                 break;
@@ -808,8 +827,15 @@ mod tests {
             json!({"installationId":"install-marker","serverName":"server-marker"}),
             json!("disabled"),
             Value::Null,
+            json!({"status":"disabled","installationId":"install-marker","serverName":"server-marker","environmentId":"env-marker"}),
         ] {
-            assert_eq!(line(hostile), placeholder);
+            let printed = line(hostile.clone());
+            for marker in ["install-marker", "server-marker", "env-marker", "forged"] {
+                assert!(!printed.as_deref().unwrap().contains(marker), "{hostile}");
+            }
+            if hostile["status"] != "disabled" {
+                assert_eq!(printed, placeholder);
+            }
         }
         assert_eq!(
             remote_control_line(&json!({"method":"remoteControl/status/changed"})),
@@ -824,6 +850,82 @@ mod tests {
             remote_control_line(&json!({"method":"thread/started","params":{"status":"disabled"}})),
             None
         );
+    }
+    fn remote_control(status: Value) -> Value {
+        json!({"method":"remoteControl/status/changed","params":{"status":status,"installationId":"install-marker","serverName":"server-marker"}})
+    }
+    #[test]
+    fn remote_control_disabled_continues_and_is_recorded_before_first_turn() {
+        let mut h = Harness::new();
+        h.input.frame(remote_control(json!("disabled")));
+        h.active();
+        assert_eq!(h.d().remote_control_before_first_turn, Some(true));
+        h.call("rpc");
+        let r = reference(&h.event());
+        // A later disabled report, mid-turn, also continues.
+        h.input.frame(remote_control(json!("disabled")));
+        let o = h.wait(|o| o.events.is_some() || o.terminal.is_some());
+        assert_eq!(o.terminal, None);
+        // Nothing from the notification is emitted toward the host or webview.
+        assert!(o.events.as_ref().unwrap().events().is_empty());
+        assert_eq!(h.complete(&r, outcome()), Ok(Submission::Queued));
+        h.sent(5);
+        assert_eq!(h.d().remote_control_before_first_turn, Some(true));
+    }
+    #[test]
+    fn no_remote_control_status_is_recorded_as_absent_at_first_turn() {
+        let mut h = Harness::new();
+        h.ready();
+        assert_eq!(h.d().remote_control_before_first_turn, None);
+        assert_eq!(h.control(|d| d.submit_text("hello")), Ok(Submission::Queued));
+        h.sent(4);
+        h.input.frame(
+            json!({"id":3,"result":{"turn":{"id":"turn-1","items":[],"status":"inProgress"}}}),
+        );
+        assert!(matches!(h.event().events(), [Event::TurnStarted { .. }]));
+        assert_eq!(h.d().remote_control_before_first_turn, Some(false));
+        // A status reported after the first turn does not rewrite the record.
+        h.input.frame(remote_control(json!("disabled")));
+        h.call("rpc");
+        let _ = h.event();
+        assert_eq!(h.d().remote_control_before_first_turn, Some(false));
+    }
+    #[test]
+    fn remote_control_other_than_disabled_ends_the_session_and_loses_pending_once() {
+        let missing = json!({"method":"remoteControl/status/changed","params":{"installationId":"install-marker","serverName":"server-marker"}});
+        let mut frames: Vec<Value> = [
+            json!("connecting"),
+            json!("connected"),
+            json!("errored"),
+            json!("unknown"),
+            json!(1),
+            json!({"word":"disabled"}),
+        ]
+        .into_iter()
+        .map(remote_control)
+        .collect();
+        frames.push(missing);
+        for frame in frames {
+            let mut h = Harness::new();
+            h.active();
+            h.call("rpc");
+            let r = reference(&h.event());
+            h.input.frame(frame.clone());
+            let o = h.wait(|o| o.terminal.is_some());
+            assert_eq!(o.terminal, Some(Terminal::Protocol), "{frame}");
+            assert!(
+                matches!(o.events.unwrap().events(), [Event::ToolLost { request_ref, .. }] if request_ref.as_str() == r),
+                "{frame}"
+            );
+            assert!(h.wait(|_| true).events.is_none());
+            assert_eq!(h.complete(&r, outcome()), Err(Refusal::Closed));
+            assert_eq!(h.control(|d| d.submit_text("again")), Err(Refusal::Closed));
+        }
+        // At start, before any turn, the same report ends the session.
+        let mut h = Harness::new();
+        h.input.frame(remote_control(json!("connected")));
+        assert_eq!(h.wait(|o| o.terminal.is_some()).terminal, Some(Terminal::Protocol));
+        assert_eq!(h.control(|d| d.initialize("test", "1")), Err(Refusal::Closed));
     }
     #[test]
     fn handshake_and_original_rpc_completion_are_streamed_and_leased() {
