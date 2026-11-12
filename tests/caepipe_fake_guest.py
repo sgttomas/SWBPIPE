@@ -46,6 +46,10 @@ import shlex
 import sys
 
 
+# Reads its directory scans stand for, for CI selection (tools/ci/python_test_reads.py). It lists only the invented
+# guest's folders, made by the test in a temporary directory, outside the project.
+CI_READS = ()
+
 STATE_ENV = "CAEPIPE_FAKE_GUEST_STATE"
 INVENTED_KEY = "HKEY_CURRENT_USER\\Software\\Invented Vendor\\Tool\\1.0"
 TOOL_PID = 4242
@@ -358,38 +362,32 @@ def _final(state: dict, guest: str) -> str:
     for root, shared in state.get("view", {}).items():
         base = Path(os.path.realpath(shared))
         if real == base or base in real.parents:
-            tail = real.relative_to(base).as_posix().replace("/", "\\")
+            tail = "" if real == base else real.relative_to(base).as_posix().replace("/", "\\")
             return f"\\\\?\\UNC\\Mac\\invented-share-{root[0]}" + (f"\\{tail}" if tail else "")
     return "\\\\?\\" + guest
 
 
 def _work_root(state: dict, payload: dict) -> tuple[int, str]:
-    """The final paths of the exchange root and of the nearest existing folder at or above `path`; creates nothing."""
+    """The final paths of the exchange root and of the work root `path` when it exists as a folder; creates nothing."""
     lines = [f"root {_final(state, payload['root'])}"]
     path = payload["path"]
-    while path:
-        area, host = host_of(state, path)
-        if (host is None and area == "none") or (host is not None and host.is_dir()):
-            lines += [f"ancestor {path}", f"final {_final(state, path)}"]
-            break
-        up = path.rsplit("\\", 1)[0] if "\\" in path else ""
-        path = "" if up == path else up
+    area, host = host_of(state, path)
+    if (host is None and area == "none") or (host is not None and host.is_dir()):
+        lines += [f"ancestor {path}", f"final {_final(state, path)}"]
     lines.append("root resolved")
     return 0, "\r\n".join(lines) + "\r\n"
 
 
 def _work_directory(state: dict, payload: dict) -> tuple[int, str]:
-    """The fresh work directory: its parent made when absent, the directory itself made exclusively, the final paths
+    """The fresh work directory: made exclusively in its existing parent (no other folder is made), the final paths
     reported, the probe created, the entries and destinations listed, wherever the paths resolve."""
     lines = [f"root {_final(state, payload['root'])}"]
-    _, parent = host_of(state, payload["parent"])
     _, folder = host_of(state, payload["dir"])
-    if parent is None or folder is None:
+    if folder is None:
         return 1, "\r\n".join(lines) + "\r\n"
-    parent.mkdir(parents=True, exist_ok=True)
     try:
-        folder.mkdir()  # New-Item without -Force: fails when the name exists
-    except FileExistsError:
+        folder.mkdir()  # New-Item without -Force: fails when the name exists or its parent is absent
+    except (FileExistsError, FileNotFoundError):
         return 1, "\r\n".join(lines) + "\r\n"
     for plant in state.get("fresh_dir_plant", []):
         target = folder / plant["name"]
@@ -460,6 +458,7 @@ def _act(state: dict, kind: str, number: int) -> None:
             os.link(action["source"], path)
         elif action["op"] == "kill_parent":  # the harness process ends abruptly (SIGKILL), as a crash or kill would
             os.kill(os.getppid(), 9)
+            os._exit(255)  # before the command: it is neither run nor logged
 
 
 def answer(state: dict, command: str, number_of: dict[str, int]) -> tuple[str, int, str, str, list[str]]:

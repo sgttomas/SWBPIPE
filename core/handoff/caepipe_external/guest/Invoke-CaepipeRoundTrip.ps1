@@ -322,6 +322,8 @@ function Export-SolvedModel {
     if ($log.status -eq "window_shown") { exit 6 }
     if ($log.exported_mbf_sha256) { exit 0 } else { exit 4 }
 }
+# The export operates the program's windows: enabled only under DEL-17-05 REQ-023 (the listed-window rule); the
+# harness in force never passes -ExportMod.
 if ($ExportMod) { Export-SolvedModel }
 if (-not $Mbf) { throw "either -Mbf or -ExportMod is required" }
 
@@ -375,6 +377,7 @@ if (-not $log.batch.res_present) { $log.status = "no_results_after_batch"; $log 
 if ($NoGuiFallback) { $log.status = "batch_no_csv"; $log | ConvertTo-Json -Depth 6; exit 3 }
 
 # 2. Fallback when the batch route yields no result file: print the solved results to CSV through the GUI.
+# Enabled only under DEL-17-05 REQ-023 (the listed-window rule); the harness in force always passes -NoGuiFallback.
 $log.gui.used = $true
 $gui = Start-Process -FilePath $Exe -WorkingDirectory (Split-Path $Exe) -PassThru
 Record-Owned $gui

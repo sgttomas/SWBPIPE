@@ -34,6 +34,11 @@ _NEW_FILE_FLAGS = os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW
 _READ_FLAGS = os.O_RDONLY | os.O_NOFOLLOW
 
 
+# Reads its directory scans stand for, for CI selection (tools/ci/python_test_reads.py). It lists only folders of
+# the CAEPIPE exchange folder it was given, outside the project.
+CI_READS = ()
+
+
 class ContainmentError(RuntimeError):
     """A path the pilot would write or delete is a symbolic link, lies outside the exchange folder or inside a Git
     work tree, or is otherwise not a place it may write."""

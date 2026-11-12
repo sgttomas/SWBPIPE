@@ -18,6 +18,10 @@ from types import SimpleNamespace
 
 import pytest
 
+# Reads its directory scans stand for, for CI selection (tools/ci/python_test_reads.py): the tracked benchmark
+# models; its other scans list only invented exchange folders made in a temporary directory.
+CI_READS = ("validation/caepipe_benchmark/models/*.json",)
+
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -1101,12 +1105,14 @@ def test_the_pace_is_the_callers(fake_benchmark):
     assert state["sleeps"] == [90.0]
 
 
-def test_the_gui_fallback_is_on_when_the_guard_restores_the_whole_key(fake_benchmark, monkeypatch):
+def test_the_print_fallback_is_not_asked_for_even_when_the_guard_restores_the_whole_key(fake_benchmark, monkeypatch):
+    # The print fallback through the program's window waits for DEL-17-05 REQ-023 (earlier, a whole-key restore
+    # turned it on).
     state = fake_benchmark
     whole = dataclasses.replace(state["config"], settings_guard=dataclasses.replace(INVENTED_GUARD, restore_scope="key"))
     monkeypatch.setattr(run_pilot, "resolve_harness_config", lambda environ, require_vm_tools: whole)
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
-    assert state["calls"] == [("cpb-g1-01", {"gui_fallback": True})]
+    assert state["calls"] == [("cpb-g1-01", {"gui_fallback": False})]
 
 
 @pytest.mark.parametrize("outcome", [

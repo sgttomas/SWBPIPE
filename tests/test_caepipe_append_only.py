@@ -7,7 +7,8 @@ a populated invented exchange folder made in a temporary directory, with the gue
 virtual machine tool is called: a fake `prlctl` first on PATH (tests/caepipe_fake_guest.py), whose file operations
 are modelled as the real guest performs them (`copy /Y` overwrites through a link; the harness's create-new copy
 never writes over a name). No step is replaced: the SWBPIPE solve (the runner executable), the MBF writer, the
-harness, the parser, the comparison, the export and the series step all run. The only other substitutions are the
+harness, the parser, the comparison, the export (refused before it starts anything) and the series step all run. The
+only other substitutions are the
 benchmark's fixed retry wait (the pilot's `time`), a recording spy that calls through to the reader it watches, and,
 in the crash, race and record-failure tests, a wrapper around one exclusive-layer operation that fails or races it
 and otherwise calls it. An abrupt end is a real SIGKILL of the harness process, which runs as a child process.
@@ -68,6 +69,10 @@ from tests.caepipe_fake_guest import STATE_ENV, install, read_log  # noqa: E402
 from tests.test_caepipe_benchmark import benchmark_manifest, invented_print  # noqa: E402
 from tools.caepipe_correlation import clear_settings_stop, run_pilot  # noqa: E402
 
+
+# Reads its directory scans stand for, for CI selection (tools/ci/python_test_reads.py). It lists only the invented
+# exchange folder and guest folders each test makes in a temporary directory, outside the project.
+CI_READS = ()
 
 PARSER_FIXTURE = ROOT / "fixtures" / "caepipe_external" / "invented" / "print_to_file_results.csv"
 RUNNER = os.environ.get(run_pilot.RUNNER_ENV)
@@ -304,13 +309,11 @@ READ_ONLY_KINDS = {"net_use", "exchange_check", "ver", "tasklist", "processes", 
 
 
 # -- the live paths --------------------------------------------------------------------------------------------------
-# name: (needs the runner, the settings guard it needs, the case it writes, argv for a world, solve mode)
+# name: (needs the runner, the settings guard it needs, the case it writes, argv for a world, solve mode). The export
+# and the print fallback through the program's window are refused before anything is started (their own tests below).
 PATHS = {
     "writer_batch": (True, None, WRITER, lambda w: ["--case", WRITER], "batch"),
-    "writer_print": (True, None, WRITER, lambda w: ["--case", WRITER], "print"),
-    "writer_export_mbf": (True, None, WRITER, lambda w: ["--case", WRITER, "--export-mbf"], "batch"),
-    "export": (False, None, WRITER, lambda w: ["--export-only", "--case", WRITER], "batch"),
-    "authored": (False, None, AUTHORED, lambda w: ["--authored", "--case", AUTHORED], "batch"),
+    "authored": (False, None, AUTHORED, lambda w: ["--authored", "--no-export", "--case", AUTHORED], "batch"),
     "authored_dir": (False, GUARD, "cx-01-invented",
                      lambda w: ["--authored", "--authored-dir", str(w.root / "authored-private")], "batch"),
     "benchmark": (True, GUARD, "cpb-g1-01", lambda w: w.benchmark(), "batch"),
@@ -342,26 +345,19 @@ def test_a_live_path_succeeds_writing_only_new_files_and_publishes_only_a_comple
     new = assert_append_only(before, snapshot(world.root))
     log = assert_guest_clean(world)
     view = current_case(world.root, case_id)
-    if name == "export":
-        # The legacy solve is read where it is; the export is a new run folder, published against the stated source.
-        assert view.source == STORED_SOURCE and view.export_relative == "runs/000001"
-        assert json.loads((world.root / "cases" / case_id / "selections" / "000001.json").read_text())["run"] == \
-            STORED_SOURCE
-        assert run_record(world.root, case_id, "runs/000001")["mbf_export"]["route"] == "mbf_exported"
-        assert "solve" not in {entry["kind"] for entry in log}
-    elif name in ("authored", "writer_export_mbf"):
-        assert (view.run_relative, view.export_relative) == ("runs/000001", "runs/000002")
-    else:
-        assert view.run_relative == "runs/000001", out
-        record = run_record(world.root, case_id, "runs/000001")
-        assert record["route"] == ("csv_from_gui_print" if name == "writer_print" else "csv_from_batch")
-        assert set(RUN_RECORD_MEMBERS) <= set(record)
-        assert record["exchange_marker"] == "kept in the run folder"
-        assert (world.root / "cases" / case_id / "runs" / "000001" / "exchange_marker.txt").is_file()
+    assert view.run_relative == "runs/000001", out
+    record = run_record(world.root, case_id, "runs/000001")
+    assert record["route"] == "csv_from_batch"
+    assert set(RUN_RECORD_MEMBERS) <= set(record)
+    assert record["exchange_marker"] == "kept in the run folder"
+    assert (world.root / "cases" / case_id / "runs" / "000001" / "exchange_marker.txt").is_file()
+    # The documented batch pattern alone: the guest script is always told not to fall back to the program's window.
+    assert all("-NoGuiFallback" in entry["command"] for entry in log if entry["kind"] == "solve")
     # Nothing in the guest deleted, copied or started anything before the work directory was shown separate.
     kinds = [entry["kind"] for entry in log]
     first_write = min((kinds.index(kind) for kind in WRITING_KINDS if kind in kinds), default=len(kinds))
-    assert "work_directory" in kinds[:first_write] or first_write == len(kinds)
+    assert {"work_root", "work_directory"} <= set(kinds[:first_write]) or first_write == len(kinds)
+    assert kinds.index("work_root") < kinds.index("work_directory")
     assert not any(entry["kind"] == "copy" or " del " in entry.get("command", "") for entry in log)
     assert (world.root / "_harness" / "round_trip.lock").read_bytes() == b""
     assert any(path.startswith(f"cases/{case_id}/runs/000001/") for path in new)
@@ -376,6 +372,7 @@ REFUSALS = {
     "work_on_shared_drive": ("the guest's work folder is on a drive it lists as shared", "work_folder_on_exchange_drive"),
     "work_under_root": ("the guest's work folder lies under the exchange root", "work_folder_on_exchange_drive"),
     "work_aliased": ("the guest's work root resolves into the exchange folder", "work_folder_on_exchange_drive"),
+    "work_root_absent": ("the configured work root does not exist in the guest", "work_folder_on_exchange_drive"),
     "hash_reported_differently": ("the guest reports another model hash", "input_hash_mismatch"),
 }
 
@@ -396,6 +393,8 @@ def refuse(world: World, refusal: str) -> None:
         world.write_config()
     elif refusal == "work_aliased":  # the work root's spelling is local; it resolves into the exchange folder
         world.state["work"] = {"C:\\invented-work": str(world.root / "cases")}
+    elif refusal == "work_root_absent":  # nothing is made for it: not the root, not the step's directory
+        world.state["work"] = {"C:\\invented-work": str(world.tmp / "absent-work-root")}
     elif refusal == "hash_reported_differently":
         world.state["solve"]["report_sha"] = "1" * 64
         world.state["export"]["report_mod_sha"] = "1" * 64
@@ -413,12 +412,9 @@ def test_a_refused_live_path_changes_nothing_stored_and_records_why(name, refusa
     code, out = world.main(*argv)
     assert code == 1, out
     after = snapshot(world.root)
-    if refusal == "work_aliased":  # the guest made its fresh directory and probe there; nothing stored changed
-        made = {path for path in set(after) - set(before) if path.startswith("cases/run-") or
-                path.startswith("cases/export-") or path.startswith(f"cases/{case_id}/run-")
-                or "/run-" in path or "/export-" in path}
-        after = {path: digest for path, digest in after.items() if path not in made}
+    # The work root is resolved before anything is created for the step: an aliased or absent one leaves nothing.
     assert_append_only(before, after)
+    assert not (world.tmp / "absent-work-root").exists()
     # No run or export is published (the series step after a refused case may still publish new screens).
     assert current_runs(world.root, cases) == runs
     log = assert_guest_clean(world)
@@ -434,30 +430,60 @@ def test_a_refused_live_path_changes_nothing_stored_and_records_why(name, refusa
         assert not kinds & WRITING_KINDS, kinds
         assert record["route"] == route and route in REFUSED_ROUTES
         assert record["exchange_marker"] in ("kept in the run folder", "not created")
+        if refusal in ("work_aliased", "work_root_absent"):
+            assert record["work_folder_check"]["created"] is False and "work_directory" not in kinds
 
 
 @pytest.mark.parametrize("variant", ["child_aliased", "destination_linked", "work_file_linked"])
-@pytest.mark.parametrize("name", ["authored", "export"])
 def test_a_work_directory_that_reaches_the_exchange_folder_is_refused_before_anything_is_copied_or_started(
-        name, variant, tmp_path, monkeypatch):
-    world, case_id, argv = world_for(name, tmp_path, monkeypatch)
+        variant, tmp_path, monkeypatch):
+    world, case_id, argv = world_for("authored", tmp_path, monkeypatch)
     stored = world.root / "cases" / WRITER / "caepipe_out" / "model_results.csv"
-    if variant == "child_aliased":  # the case's folder under the work root is a link into the exchange folder
-        (world.work / case_id).symlink_to(world.root / "cases" / WRITER, target_is_directory=True)
-    elif variant == "destination_linked":  # the guest shows a destination name in the new directory as a link
-        world.state["fresh_dir_plant"] = [{"name": "model.mbf" if name != "export" else "exported.mbf",
-                                           "link_to": str(stored), "kind": "symlink"}]
+    if variant == "child_aliased":  # the configured work root is a child path that is a link into the exchange folder
+        (world.work / "linked").symlink_to(world.root / "cases" / WRITER, target_is_directory=True)
+        world.config["guest_work_root"] = "C:\\invented-work\\linked"
+        world.write_config()
+    elif variant == "destination_linked":  # an output destination of the program shows in the new directory as a link
+        world.state["fresh_dir_plant"] = [{"name": "model.mbf", "link_to": str(stored), "kind": "symlink"}]
     else:  # a work file linked to stored content
         world.state["fresh_dir_plant"] = [{"name": "model.mod", "link_to": str(stored), "kind": "hardlink"}]
     world.save()
     before = snapshot(world.root)
     code, out = world.main(*argv)
     assert code == 1, out
-    after = snapshot(world.root)
-    made = {path for path in set(after) - set(before) if re.search(r"/(run|export)-[0-9]{6}-[0-9a-f]{16}", path)}
-    assert_append_only(before, {path: digest for path, digest in after.items() if path not in made})
+    assert_append_only(before, snapshot(world.root))  # nothing is made in the exchange folder in any variant
     record = run_record(world.root, case_id, "runs/000001")
     assert record["route"] == "work_folder_on_exchange_drive", record["route"]
+    assert record["work_folder_check"]["created"] is (variant != "child_aliased")
+    assert not {entry["kind"] for entry in world.log()} & WRITING_KINDS
+
+
+def test_a_work_directory_that_looks_separate_but_is_not_is_refused_and_the_two_items_it_left_are_named(
+        tmp_path, monkeypatch):
+    # The residual case: the guest's file system reports a local final path for its work root, which in fact lies in
+    # the exchange folder; only the content probe shows it. The step made exactly its fresh directory and the probe
+    # there, names both in its refusal by their paths relative to the exchange folder, and removes neither.
+    world = World(tmp_path, monkeypatch)
+    stray = world.root / "invented-guest-work"
+    stray.mkdir()
+    world.state["work"] = {"C:\\invented-work": str(stray)}
+    world.state["final_local"] = True
+    world.save()
+    before = snapshot(world.root)
+    code, out = world.main("--authored", "--no-export", "--case", AUTHORED)
+    assert code == 1 and "route=work_folder_on_exchange_drive" in out, out
+    after = snapshot(world.root)
+    record = run_record(world.root, AUTHORED, "runs/000001")
+    check = record["work_folder_check"]
+    left = check["left_in_exchange_folder"]
+    assert check["status"] == "inside" and check["created"] is True
+    assert re.fullmatch(rf"invented-guest-work/{AUTHORED}_run-000001-[0-9a-f]{{16}}", left["directory"])
+    assert left["probe"] == f"{left['directory']}/{check['probe']}"
+    assert left["directory"] in out and left["probe"] in out and "nothing removes them" in out
+    # Exactly the directory and its probe are new outside the step's own places; both are still there.
+    stray_new = {path for path in set(after) - set(before) if path.startswith("invented-guest-work/")}
+    assert stray_new == {left["directory"], left["probe"]}
+    assert_append_only(before, {path: digest for path, digest in after.items() if path not in stray_new})
     assert not {entry["kind"] for entry in world.log()} & WRITING_KINDS
 
 
@@ -465,8 +491,9 @@ def test_two_steps_never_share_a_work_directory(tmp_path, monkeypatch):
     world = World(tmp_path, monkeypatch)
     for _ in range(2):
         assert world.main("--authored", "--no-export", "--case", AUTHORED)[0] == 0
-    directories = sorted(path.name for path in (world.work / AUTHORED).iterdir())
-    assert len(directories) == 2 and all(re.fullmatch(r"run-00000[12]-[0-9a-f]{16}", name) for name in directories)
+    directories = sorted(path.name for path in world.work.iterdir())  # directly in the work root, nothing else made
+    assert len(directories) == 2 and all(re.fullmatch(rf"{AUTHORED}_run-00000[12]-[0-9a-f]{{16}}", name)
+                                         for name in directories)
     for sequence in ("000001", "000002"):
         check = run_record(world.root, AUTHORED, f"runs/{sequence}")["work_folder_check"]
         assert check["status"] == "separate" and check["entries"] == [check["probe"]]
@@ -487,16 +514,102 @@ def test_a_guest_that_fails_mid_step_leaves_an_unpublished_run_and_nothing_chang
     assert "stage_script" in kinds and "collect" not in kinds
 
 
-def test_the_export_without_a_bound_solve_asks_no_guest_and_changes_nothing(tmp_path, monkeypatch):
+# -- the two routes that operate the program's windows: refused before anything is started ---------------------------
+EXPORT_KINDS = {"export_prepare", "export", "export_stage_script", "export_collect"}
+EXPORT_COMMANDS = {
+    # name: (needs the runner, case, argv, whether a round trip runs first in the same command)
+    "export_only": (False, WRITER, ["--export-only", "--case", WRITER], False),
+    "export_only_selected": (False, SELECTED, ["--export-only", "--case", SELECTED], False),
+    "authored_default": (False, AUTHORED, ["--authored", "--case", AUTHORED], True),
+    "authored_export_only": (False, AUTHORED, ["--authored", "--export-only", "--case", AUTHORED], False),
+    "export_mbf_flag": (True, WRITER, ["--case", WRITER, "--export-mbf"], True),
+}
+
+
+@pytest.mark.parametrize("name", sorted(EXPORT_COMMANDS))
+def test_the_export_is_refused_by_name_before_anything_is_started_from_every_command(name, tmp_path, monkeypatch):
+    runner, case_id, argv, round_trip_first = EXPORT_COMMANDS[name]
+    if runner and not HAVE_RUNNER:
+        pytest.skip(f"no runner executable ({run_pilot.RUNNER_ENV}); the SWBPIPE solve runs for real")
     world = World(tmp_path, monkeypatch)
-    (world.root / "cases" / WRITER / "caepipe_out" / "model.mod").unlink()  # the legacy solve binds no model now
     before = snapshot(world.root)
-    code, out = world.main("--export-only", "--case", WRITER)
-    assert code == 1 and "export route=not_bound" in out
+    exports_before = current_case(world.root, case_id).export_relative
+    code, out = world.main(*argv)
+    assert code == 1, out
+    assert f"{case_id}: export route=window_route_unavailable" in out and "DEL-17-05 REQ-023" in out, out
     assert_append_only(before, snapshot(world.root))
-    assert world.log() == [] and selections_of(world.root, WRITER) == []
-    record = run_record(world.root, WRITER, "runs/000001")
-    assert record["route"] == "not_bound" and set(RUN_RECORD_MEMBERS) <= set(record)
+    folder = newest_run(world.root, case_id)
+    record = run_record(world.root, case_id, folder)
+    assert record["step"] == "mbf_export" and record["route"] == "window_route_unavailable"
+    assert record["mbf_export"]["route"] == "window_route_unavailable" and set(RUN_RECORD_MEMBERS) <= set(record)
+    # A complete record in the step's new run folder and nothing else: no marker, no lock holder, no guest command.
+    run = world.root / "cases" / case_id / folder
+    assert sorted(path.relative_to(run).as_posix() for path in run.rglob("*") if path.is_file()) == \
+        ["caepipe_out/run_record.json"]
+    log = assert_guest_clean(world)
+    assert not {entry["kind"] for entry in log} & EXPORT_KINDS
+    assert sum(entry["kind"] == "work_directory" for entry in log) == (1 if round_trip_first else 0)
+    if not round_trip_first:
+        assert log == []
+    if round_trip_first:  # the round trip itself ran and was published; only the export is refused
+        assert current_case(world.root, case_id).run_relative == "runs/000001"
+    assert current_case(world.root, case_id).export_relative == exports_before  # no export is published
+
+
+def test_the_print_fallback_is_refused_by_name_before_anything_is_started(tmp_path, monkeypatch):
+    # No command asks for it; asked for through the harness, it is refused before any guest command.
+    world = World(tmp_path, monkeypatch)
+    before = snapshot(world.root)
+    config = harness.resolve_harness_config(world.environ)
+    text = run_pilot.authored_mbf_bytes(next(item for item in run_pilot.load_authored_cases()
+                                             if item["case_id"] == AUTHORED)).decode("ascii")
+    record = harness.run_caepipe_round_trip(config, AUTHORED, text, gui_fallback=True)
+    assert record["route"] == "window_route_unavailable" and "DEL-17-05 REQ-023" in record["reason"]
+    assert world.log() == []
+    assert_append_only(before, snapshot(world.root))
+    stored = run_record(world.root, AUTHORED, record["run_folder"])
+    assert stored["route"] == "window_route_unavailable" and set(RUN_RECORD_MEMBERS) <= set(stored)
+    run = world.root / "cases" / AUTHORED / record["run_folder"]
+    assert sorted(path.relative_to(run).as_posix() for path in run.rglob("*") if path.is_file()) == \
+        ["caepipe_out/run_record.json"]
+
+
+ROUND_TRIP_COMMANDS = {
+    # name: (needs the runner, the settings guard, case, argv for a world)
+    "authored": (False, None, AUTHORED, lambda w: ["--authored", "--no-export", "--case", AUTHORED]),
+    "authored_dir": (False, GUARD, "cx-01-invented",
+                     lambda w: ["--authored", "--authored-dir", str(w.root / "authored-private")]),
+    "writer": (True, None, WRITER, lambda w: ["--case", WRITER]),
+    "benchmark": (True, GUARD, "cpb-g1-01", lambda w: w.benchmark()),
+}
+
+
+@pytest.mark.parametrize("name", sorted(ROUND_TRIP_COMMANDS))
+def test_a_batch_run_that_leaves_no_result_file_ends_by_name_with_no_fallback_from_every_command(
+        name, tmp_path, monkeypatch):
+    runner, guard, case_id, argv = ROUND_TRIP_COMMANDS[name]
+    if runner and not HAVE_RUNNER:
+        pytest.skip(f"no runner executable ({run_pilot.RUNNER_ENV}); the SWBPIPE solve runs for real")
+    world = World(tmp_path, monkeypatch, guard=guard, csv=invented_print() if name == "benchmark" else None)
+    world.state["solve"]["mode"] = "print"  # the batch route leaves no result file; the fallback would print one
+    world.save()
+    if name == "authored_dir":
+        directory = world.root / "authored-private"
+        put(directory / "cx-01-invented.mbf", b"INVENTED AUTHORED FIXTURE\r\ncx-01-invented\r\n")
+        put(directory / "manifest.json", json.dumps({"document_kind": run_pilot.AUTHORED_MANIFEST_KIND,
+                                                     "cases": [{"case_id": "cx-01-invented",
+                                                                "file": "cx-01-invented.mbf"}]}))
+    before = snapshot(world.root)
+    code, out = world.main(*argv(world))
+    assert code != 0, out
+    assert_append_only(before, snapshot(world.root))
+    assert "route=batch_no_csv" in out, out
+    log = assert_guest_clean(world)
+    solves = [entry for entry in log if entry["kind"] == "solve"]
+    assert solves and all("-NoGuiFallback" in entry["command"] for entry in solves)
+    record = run_record(world.root, case_id, "runs/000001")
+    assert record["route"] == "batch_no_csv" and record["guest_log"]["gui"]["used"] is False
+    assert current_case(world.root, case_id).run_relative is None  # never published
 
 
 # -- collection: create-new copies, retries and collisions ----------------------------------------------------------
@@ -590,14 +703,6 @@ def test_a_case_without_a_selection_is_read_where_its_results_are(tmp_path, monk
         assert view.selection is None and view.source == STORED_SOURCE
         assert view.run == view.export == world.root / "cases" / case_id
     assert run_pilot._stored_comparison(world.root, WRITER)["marker"] == "legacy"
-    before = snapshot(world.root)
-    code, out = world.main("--authored", "--export-only", "--case", AUTHORED)
-    assert code == 0, out
-    assert_append_only(before, snapshot(world.root))
-    record = run_record(world.root, AUTHORED, "runs/000001")
-    assert record["solve_run"]["source"] == STORED_SOURCE
-    assert record["mbf_export"]["mod"]["path"] == "./caepipe_out/model.mod"
-    assert current_case(world.root, AUTHORED).export_relative == "runs/000001"
 
 
 @needs_runner
@@ -611,11 +716,6 @@ def test_while_a_selection_exists_no_reader_uses_the_legacy_files(tmp_path, monk
     read = json.loads((view.screen / "screen_record.json").read_text("utf-8"))["read"]
     run_csv = world.root / "cases" / SELECTED / "runs" / "000001" / "caepipe_out" / "model_results.csv"
     assert read["files"]["caepipe_out/model_results.csv"] == sha(run_csv.read_bytes())
-    code, out = world.main("--export-only", "--case", SELECTED)
-    assert code == 0, out
-    record = run_record(world.root, SELECTED, current_case(world.root, SELECTED).export_relative)
-    assert record["solve_run"]["source"] == "runs/000001"
-    assert record["mbf_export"]["mod"]["path"] == "runs/000001/caepipe_out/model.mod"
 
 
 def rewrite(path: Path, **changes) -> None:
@@ -679,10 +779,9 @@ def test_an_untrusted_selection_stops_every_reader_by_name_without_falling_back(
     try:
         with pytest.raises(SelectionError):
             current_case(world.root, SELECTED)
+        with pytest.raises(SelectionError):
+            run_pilot._stored_comparison(world.root, SELECTED)  # the series step's reader
         before = snapshot(world.root)
-        code, out = world.main("--export-only", "--case", SELECTED)
-        assert code == 1 and "export route=selection_untrusted" in out
-        assert world.log() == []
         if HAVE_RUNNER:
             code, out = world.main("--offline", "--case", SELECTED)
             assert code == 1 and f"{SELECTED}: route=selection_untrusted" in out
@@ -761,8 +860,12 @@ def test_hard_links_from_stored_files_at_every_fixed_path_are_never_written_thro
     hard_link(world_.root / "cases" / AUTHORED / "caepipe_out" / "model_results.csv",
               world_.root / "cases" / AUTHORED / "selections" / "000001.json")
     before = snapshot(world_.root)
-    code, out = world_.main("--authored", "--export-only", "--case", AUTHORED)
-    assert code == 1 and "route=selection_untrusted" in out, out
+    with pytest.raises(SelectionError):
+        current_case(world_.root, AUTHORED)
+    code, out = world_.main("--authored", "--no-export", "--case", AUTHORED)
+    # The round trip runs into its own new folder; publishing it stops on the linked selection, named.
+    assert code == 1 and f"cases/{AUTHORED}/selections/000001.json is unreadable" in out, out
+    assert not (world_.root / "cases" / AUTHORED / "selections" / "000002.json").exists()
     assert_append_only(before, snapshot(world_.root))
 
 
@@ -1128,10 +1231,10 @@ class Crash:
 
 
 CRASH_PATHS = {
-    "authored": (False, None, AUTHORED, lambda w: ["--authored", "--case", AUTHORED]),
+    "authored": (False, None, AUTHORED, lambda w: ["--authored", "--no-export", "--case", AUTHORED]),
     "authored_dir": (False, GUARD, "cx-01-invented",
                      lambda w: ["--authored", "--authored-dir", str(w.root / "authored-private")]),
-    "export": (False, None, WRITER, lambda w: ["--export-only", "--case", WRITER]),
+    "export": (False, None, WRITER, lambda w: ["--export-only", "--case", WRITER]),  # refused: record only
     "writer": (True, None, WRITER, lambda w: ["--case", WRITER]),
     "screen": (True, None, SELECTED, lambda w: ["--offline", "--case", SELECTED]),
     "benchmark": (True, GUARD, "cpb-g1-01", lambda w: w.benchmark()),
@@ -1173,8 +1276,8 @@ def test_a_crash_at_any_write_boundary_changes_nothing_and_a_later_command_proce
         monkeypatch.setattr(run_pilot, "time", SimpleNamespace(sleep=world.sleeps.append))
         assert_append_only(before, snapshot(world.root))
         if crash.count < n:  # this command has fewer boundaries than n: every boundary has failed once
-            assert code == 0, out
-            assert n > 8, n
+            assert code == (1 if name == "export" else 0), out
+            assert n > (3 if name == "export" else 8), n
             return
         # Absorbed by design: the holder's end record (the lock's release does not depend on it); and a live benchmark
         # retries a model once after its round trip raised.
@@ -1193,25 +1296,25 @@ def test_a_crash_at_any_write_boundary_changes_nothing_and_a_later_command_proce
             "route=settings_not_restored" in out and any(
                 (path / "settings_before_state.json").exists() and not (path / "settings_check.json").exists()
                 for path in (world.root / "cases" / case_id / "runs").iterdir()))
-        assert code == 0 or (between and "route=settings_not_restored" in out), (n, crash.at, out)
+        assert code == (1 if name == "export" else 0) or (between and "route=settings_not_restored" in out), \
+            (n, crash.at, out)
         n += 1
 
 
 def test_an_abrupt_end_at_each_guest_command_changes_nothing_and_leaves_no_lock(tmp_path, monkeypatch):
-    # A real SIGKILL of the harness process just before each guest command of an authored round trip and export.
-    kinds = ["net_use", "exchange_check", "processes", "work_root", "work_directory", "prepare", "solve", "collect",
-             "export_prepare", "export", "export_collect"]
+    # A real SIGKILL of the harness process just before each guest command of an authored round trip.
+    kinds = ["net_use", "exchange_check", "processes", "work_root", "work_directory", "prepare", "solve", "collect"]
     for kind in kinds:
         world = World(tmp_path / kind, monkeypatch)
         world.state["actions"] = [{"before": kind, "op": "kill_parent"}]
         world.save()
         before = snapshot(world.root)
-        killed = world.main_in_process_of_its_own("--authored", "--case", AUTHORED)
+        killed = world.main_in_process_of_its_own("--authored", "--no-export", "--case", AUTHORED)
         assert killed.returncode == -signal.SIGKILL, (kind, killed.stderr)
         assert_append_only(before, snapshot(world.root))
         world.state["actions"] = []
         world.save()
-        code, out = world.main("--authored", "--case", AUTHORED)
+        code, out = world.main("--authored", "--no-export", "--case", AUTHORED)
         assert code == 0, (kind, out)
 
 

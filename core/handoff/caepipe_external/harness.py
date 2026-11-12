@@ -226,10 +226,17 @@ GUEST_SCRIPT_RUNNING_ROUTE = "guest_script_running"
 PROGRAM_INSTANCE_ROUTE = "program_instance_running"
 SETTINGS_NOT_RESTORED_ROUTE = "settings_not_restored"
 GUEST_PROCESSES_UNKNOWN_ROUTE = "guest_processes_unknown"
+# The two routes that operate the program's own windows (the print fallback through its window, and the export of a
+# model file from it) are refused by name before anything is started: they wait for the listed-window rule
+# (DEL-17-05 REQ-023, not yet placed). The invocation profile in force is the documented batch pattern alone.
+WINDOW_ROUTE_UNAVAILABLE = "window_route_unavailable"
+WINDOW_ROUTE_REASON = ("operating the program's windows waits for the listed-window rule (DEL-17-05 REQ-023, not yet "
+                       "placed); the harness in force runs the documented batch pattern alone, so this step is refused "
+                       "before anything is started")
 REFUSED_ROUTES = (EXCHANGE_UNAVAILABLE_ROUTE, EXCHANGE_AMBIGUOUS_ROUTE, EXCHANGE_CHECK_FAILED_ROUTE,
                   WORK_FOLDER_OVERLAP_ROUTE, SELECTION_UNTRUSTED_ROUTE, RUN_LOCK_HELD_ROUTE, RUN_LOCK_UNAVAILABLE_ROUTE,
                   GUEST_SCRIPT_RUNNING_ROUTE, PROGRAM_INSTANCE_ROUTE, SETTINGS_NOT_RESTORED_ROUTE,
-                  GUEST_PROCESSES_UNKNOWN_ROUTE)
+                  GUEST_PROCESSES_UNKNOWN_ROUTE, WINDOW_ROUTE_UNAVAILABLE)
 # A collection that could not be shown complete (a copy failed, or a name was already there with other content):
 # recorded, never published.
 COLLECTION_FAILED_ROUTE = "collection_failed"
@@ -258,9 +265,10 @@ LOCK_NAME = "round_trip.lock"
 HOLDERS_DIR = "holders"
 HOLDER_STAGED = "run_lock_holder.json"
 GUEST_SCRIPT_STAGED = "guest_script.ps1"
-# Each live step's fresh work directory under the configured work root, `<work root>\\<case>\\<kind>-<run>-<token>`,
-# created exclusively by the guest; two steps never share one. The content probe inside it is one check among several.
-WORK_DIR_NAME = "{kind}-{sequence}-{token}"
+# Each live step's fresh work directory, directly in the configured work root (which must exist; no other folder is
+# made): `<work root>\\<case>_<kind>-<run>-<token>`, created exclusively by the guest; two steps never share one. The
+# content probe inside it is one check among several.
+WORK_DIR_NAME = "{case}_{kind}-{sequence}-{token}"
 WORK_PROBE_NAME = "swbpipe-work-probe-{token}.txt"
 # The settings records of a guarded live step, new files in its run folder: the stage record, which is the saved
 # settings' before-state (every member by name, kind and the hash of its value; the value only for members the guard
@@ -323,30 +331,24 @@ public static class SwbFinalPath {
 '@
 function Say([string]$m) { [Console]::Out.Write($m + "`r`n") }
 """
-# Before anything is created for the step: the final paths of the exchange root and of the nearest existing ancestor
-# of the step's fresh work directory (its case folder under the configured work root, else the work root, else the
-# nearest existing folder above it). Creates, deletes and copies nothing.
+# Before anything is created for the step: the final paths of the exchange root and of the configured work root, the
+# folder the step's fresh work directory is to be created in, when that folder exists. Creates, deletes and copies
+# nothing.
 WORK_ROOT_SCRIPT = r"""$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue'
 $p = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('@PAYLOAD@')) | ConvertFrom-Json
 """ + FINAL_PATH_TYPE + r"""Say ('root ' + [SwbFinalPath]::Of($p.root))
-$a = [string]$p.path
-while ($a -and -not (Test-Path -LiteralPath $a -PathType Container)) {
-  $up = Split-Path -Parent $a
-  if (-not $up -or $up -eq $a) { $a = '' } else { $a = $up }
-}
-if ($a) { Say ('ancestor ' + $a); Say ('final ' + [SwbFinalPath]::Of($a)) }
+if (Test-Path -LiteralPath $p.path -PathType Container) { Say ('ancestor ' + $p.path); Say ('final ' + [SwbFinalPath]::Of($p.path)) }
 Say 'root resolved'
 exit 0
 """
-# The step's fresh work directory, made only after WORK_ROOT_SCRIPT showed its nearest existing ancestor outside the
-# exchange folder: its parent (the configured work root's case folder) is made when absent; the directory itself is
-# created with New-Item without -Force, which fails when the name exists; then the final paths of the exchange root
+# The step's fresh work directory, made only after WORK_ROOT_SCRIPT showed the configured work root existing and
+# outside the exchange folder: the one directory is created in it with New-Item without -Force, which fails when the
+# name exists (and when the work root is absent: no other folder is made); then the final paths of the exchange root
 # and of the new directory are reported, the content probe is created in it (FileMode.CreateNew), and every entry it
 # holds and every destination the step will direct the program to write are listed. Nothing is deleted or copied.
 WORK_DIR_SCRIPT = r"""$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue'
 $p = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('@PAYLOAD@')) | ConvertFrom-Json
 """ + FINAL_PATH_TYPE + r"""Say ('root ' + [SwbFinalPath]::Of($p.root))
-if (-not (Test-Path -LiteralPath $p.parent -PathType Container)) { New-Item -ItemType Directory -Path $p.parent -Force | Out-Null }
 New-Item -ItemType Directory -Path $p.dir | Out-Null
 Say ('dir ' + [SwbFinalPath]::Of($p.dir))
 $stream = [IO.File]::Open((Join-Path $p.dir $p.probe), [IO.FileMode]::CreateNew, [IO.FileAccess]::Write)
@@ -1051,7 +1053,7 @@ def _win(*parts: str) -> str:
 
 def run_caepipe_round_trip(config: HarnessConfig, case_id: str, mbf_text: str, *, timeout_s: float = 600,
                            runner: Callable[..., subprocess.CompletedProcess] = subprocess.run,
-                           gui_fallback: bool = True, files: Mapping[str, bytes] | None = None,
+                           gui_fallback: bool = False, files: Mapping[str, bytes] | None = None,
                            capture_only: bool = False) -> dict[str, Any]:
     """Solve one MBF with the user's CAEPIPE in the configured virtual machine and record what happened.
 
@@ -1068,11 +1070,19 @@ def run_caepipe_round_trip(config: HarnessConfig, case_id: str, mbf_text: str, *
     collected, even when the solve step fails, only when the guest reports solving
     an MBF whose SHA-256 equals the host's (otherwise `input_hash_mismatch`).
 
-    `gui_fallback=False` tells the guest script not to fall back to printing through the GUI when the batch route
-    leaves no CSV (route `batch_no_csv`). With `settings_guard` configured, the run record's `settings_guard`
-    holds the detect-only check; an exception raised after the guest work started carries it as `settings_guard`.
+    The guest script is always told not to fall back to printing through the program's window (`-NoGuiFallback`):
+    a batch run that leaves no result file ends as `batch_no_csv`, with no fallback attempted. `gui_fallback=True`
+    is refused by name before anything is started (`window_route_unavailable`, a complete run record in the step's
+    new run folder and nothing else). With `settings_guard` configured, the run record's `settings_guard` holds the
+    detect-only check; an exception raised after the guest work started carries it as `settings_guard`.
     """
 
+    if gui_fallback:
+        # The print fallback through the program's window is enabled only under DEL-17-05 REQ-023 (the listed-window
+        # rule); until then its code in `_round_trip_body` and the guest script is reachable from no command.
+        return _locked(config, case_id, "round_trip", None,
+                       lambda run, started: _base_record(config, case_id, run, "round_trip", started),
+                       refuse_before=(WINDOW_ROUTE_UNAVAILABLE, WINDOW_ROUTE_REASON))
     return _locked(config, case_id, "round_trip", lambda tree, run, live: _round_trip(
         config, case_id, mbf_text, tree, run, live, timeout_s, runner, gui_fallback, dict(files or {}), capture_only),
         lambda run, started: _base_record(config, case_id, run, "round_trip", started))
@@ -1332,15 +1342,19 @@ def hold_run_lock(config: "HarnessConfig | Path", case_id: str, step_name: str =
 
 
 def _locked(config: HarnessConfig, case_id: str, step_name: str,
-            work: Callable[[Tree, CaseFolder, dict[str, Any]], dict[str, Any]],
-            make_base: Callable[[CaseFolder, str], dict[str, Any]]) -> dict[str, Any]:
+            work: Callable[[Tree, CaseFolder, dict[str, Any]], dict[str, Any]] | None,
+            make_base: Callable[[CaseFolder, str], dict[str, Any]], *,
+            refuse_before: tuple[str, str] | None = None) -> dict[str, Any]:
     """Check the guest paths, reserve the step's new run folder, hold the run (`_take_run_lock`) and run `work`.
 
     From the moment the run folder is reserved there is one exceptional path: any exception (taking the lock
     included) leaves a complete run record of the exceptional end in that folder (`_record_exceptional_end`, under
     another new name when the first is occupied or partial), the original exception is the one raised, and a record
     that cannot be written is stated on it. A step that cannot hold the run is refused by name and recorded; it
-    issues no guest command. Nothing is removed: the lock is released by closing its descriptor."""
+    issues no guest command. Nothing is removed: the lock is released by closing its descriptor.
+
+    With `refuse_before` (route, reason) the step is refused right after its run folder is reserved: a complete run
+    record there and nothing else (no lock, no holder record, no guest command)."""
 
     if config.prlctl is None:
         raise ValueError("the harness configuration was resolved without prlctl; live runs need it")
@@ -1357,6 +1371,18 @@ def _locked(config: HarnessConfig, case_id: str, step_name: str,
         started = _now()
         live: dict[str, Any] = {}
         try:
+            if refuse_before is not None or work is None:
+                route, reason = refuse_before or (WINDOW_ROUTE_UNAVAILABLE, WINDOW_ROUTE_REASON)
+                record = make_base(run, started)
+                record.update(route=route, reason=reason)
+                if step_name == "mbf_export":
+                    record["mbf_export"].update(route=route, reason=reason)
+                live["record"] = record
+                path = _write_run_record(run, record)
+                live["record_written"] = True
+                return {"route": route, "run_folder": run.relative, "run_record": path,
+                        **({"mbf_export": record["mbf_export"]} if step_name == "mbf_export" else {}),
+                        "reason": f"{reason}; nothing stored was changed; recorded at cases/{case_id}/{path}"}
             held = _take_run_lock(tree, run, case_id, step_name)
             if isinstance(held, dict):
                 record = make_base(run, started)
@@ -1708,10 +1734,9 @@ def _fresh_work_dir(config: HarnessConfig, step: Callable[[str, str], dict[str, 
     """Make the step's fresh work directory `work` and establish that it lies outside the exchange folder, before any
     guest command that deletes, copies or starts the program. First, before anything is created (`WORK_ROOT_SCRIPT`):
 
-    - the final path of the nearest existing ancestor of `work` (its case folder under the configured work root, else
-      the work root, else the nearest existing folder above it), as the guest's file system resolves it (reparse
-      points and links followed), lies outside the final path of the established exchange root; otherwise the step
-      is refused and nothing is created.
+    - the configured work root, the folder `work` is to be created in, exists, and its final path, as the guest's file
+      system resolves it (reparse points and links followed), lies outside the final path of the established
+      exchange root; otherwise the step is refused and nothing is created.
 
     Only then (`WORK_DIR_SCRIPT`):
 
@@ -1722,8 +1747,9 @@ def _fresh_work_dir(config: HarnessConfig, step: Callable[[str, str], dict[str, 
     - it holds nothing but that probe, and every destination the step directs the program to write (`destinations`,
       plain names directly in it) is absent.
 
-    Where the ancestor's path looked separate and the probe then shows the directory inside the exchange folder, the
-    new directory, any absent parents made for it and the probe stay there as new paths; nothing stored changes.
+    Where the work root's path looked separate and the probe then shows the directory inside the exchange folder,
+    that directory and its probe stay there as new paths, named in the refusal by their paths relative to the exchange
+    folder (`left_in_exchange_folder`); nothing removes them, and nothing stored changes.
 
     `separate`, or `inside` / `unverified` with the reason (both refused as `work_folder_on_exchange_drive`)."""
     probe = WORK_PROBE_NAME.format(token=secrets.token_hex(16))
@@ -1747,18 +1773,22 @@ def _fresh_work_dir(config: HarnessConfig, step: Callable[[str, str], dict[str, 
         found.setdefault(key, value)
     root_final, ancestor_final = _final_path(found.get("root", "")), _final_path(found.get("final", ""))
     result.update(ancestor=found.get("ancestor"), ancestor_final=ancestor_final, exchange_root_final=root_final)
+    if found.get("ancestor") is None:
+        return {**result, "status": "unverified", "created": False,
+                "reason": f"the configured work root {parent} does not exist as a folder in the guest (make it, "
+                          "outside the exchange folder); nothing was created"}
     if not root_final or not ancestor_final:
         return {**result, "status": "unverified", "created": False,
-                "reason": "the guest could not resolve the final path of the exchange root or of an existing folder "
-                          f"above {parent}; nothing was created"}
+                "reason": f"the guest could not resolve the final path of the exchange root or of the work root "
+                          f"{parent}; nothing was created"}
     if ancestor_final == root_final or ancestor_final.startswith(root_final + "\\"):
         return {**result, "status": "inside", "created": False,
-                "reason": f"the work root's nearest existing folder {found.get('ancestor')} resolves to "
-                          f"{ancestor_final}, inside the exchange root {root_final}; nothing was created"}
+                "reason": f"the work root {parent} resolves to {ancestor_final}, inside the exchange root "
+                          f"{root_final}; nothing was created"}
     result["created"] = True
     try:
         record = step("work_directory", _encoded_command(WORK_DIR_SCRIPT, {
-            "root": exchange_root, "parent": parent, "dir": work, "probe": probe,
+            "root": exchange_root, "dir": work, "probe": probe,
             "destinations": destinations}))
     except ValueError as error:
         return {**result, "status": "unverified", "reason": f"the work directory could not be asked for ({error})"}
@@ -1783,11 +1813,14 @@ def _fresh_work_dir(config: HarnessConfig, step: Callable[[str, str], dict[str, 
         return {**result, "status": "inside",
                 "reason": f"the fresh work directory {work} resolves to {dir_final}, inside the exchange root "
                           f"{root_final}"}
-    found = _visible_under(root, probe)
-    if found:
-        return {**result, "status": "inside", "visible_at": found,
+    visible = _visible_under(root, probe)
+    if visible:
+        left = {"directory": str(Path(visible[0]).parent.as_posix()), "probe": Path(visible[0]).as_posix()}
+        return {**result, "status": "inside", "visible_at": visible, "left_in_exchange_folder": left,
                 "reason": f"the fresh work directory {work} resolves into the exchange folder (its probe is visible "
-                          f"at {', '.join(found)})"}
+                          f"at {', '.join(visible)}); this step created the directory {left['directory']} and its "
+                          f"probe {left['probe']} there, and they are left as they are: nothing removes them and "
+                          "nothing stored was changed"}
     if entries != [probe] or present or sorted(values.get("destination_absent", [])) != sorted(destinations):
         return {**result, "status": "unverified",
                 "reason": f"the fresh work directory {work} does not hold only this step's probe (entries "
@@ -3299,8 +3332,8 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, tree: T
     script_bytes = GUEST_SCRIPT.read_bytes()
     out = run.path / "caepipe_out"
     # A fresh work directory of this step's own, created exclusively by the guest (`_fresh_work_dir`).
-    work = _win(config.guest_work_root, case_id,
-                WORK_DIR_NAME.format(kind="run", sequence=run.sequence, token=secrets.token_hex(8)))
+    work = _win(config.guest_work_root,
+                WORK_DIR_NAME.format(case=case_id, kind="run", sequence=run.sequence, token=secrets.token_hex(8)))
     guest_mbf = _win(work, "model.mbf")
     guarded = config.settings_guard is not None
 
@@ -3308,6 +3341,8 @@ def _round_trip_body(config: HarnessConfig, case_id: str, mbf_text: str, tree: T
         return (f"powershell -NoProfile -ExecutionPolicy Bypass -File {_quote(script)} "
                 f"-Exe {_quote(config.guest_executable)} -Mbf {_quote(guest_mbf)}"
                 + (f" -PidFile {_quote(_win(work, OWNED_PIDS_FILE))}" if guarded else "")
+                # Always -NoGuiFallback from any command: `run_caepipe_round_trip` refuses `gui_fallback=True` before
+                # anything is started; the fallback is enabled only under DEL-17-05 REQ-023.
                 + ("" if gui_fallback else " -NoGuiFallback"))
 
     steps: list[dict[str, Any]] = []
@@ -3683,7 +3718,9 @@ def solved_model_binding(record: Mapping[str, Any] | None, mbf_sha256: str, mod:
 
 def run_caepipe_mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, *, timeout_s: float = 600,
                            runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> dict[str, Any]:
-    """Export the case's current solved model back to MBF with the user's CAEPIPE.
+    """Export the case's current solved model back to MBF with the user's CAEPIPE: refused by name before anything
+    is started (`window_route_unavailable`; a complete run record in the step's new run folder and nothing else) until
+    DEL-17-05 REQ-023 is placed. What the step does once enabled (`_mbf_export_body`):
 
     The solve is the case's current run (`current_case`: the run a selection names, or the case's own folders when it
     has no selection; an untrusted selection is refused as `selection_untrusted`). Its run record must bind its
@@ -3697,6 +3734,18 @@ def run_caepipe_mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str,
     caller publishes it (`publish`), after checking it.
     """
 
+    # The export of a model file from the program operates its windows: it is enabled only under DEL-17-05 REQ-023
+    # (the listed-window rule), when it also gains the settings guard and the owned-process record. Until then it is
+    # refused by name before anything is started, and `_mbf_export_body` is reachable from no command.
+    return _locked(config, case_id, "mbf_export", None,
+                   lambda run, started: _export_base(config, case_id, run, started, mbf_sha256),
+                   refuse_before=(WINDOW_ROUTE_UNAVAILABLE, WINDOW_ROUTE_REASON))
+
+
+def _export_under_requirement_23(config: HarnessConfig, case_id: str, mbf_sha256: str, *, timeout_s: float = 600,
+                                 runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> dict[str, Any]:
+    """The export step as it is to run once DEL-17-05 REQ-023 (the listed-window rule) enables it. No command calls
+    this; it exists so that the tests of `_mbf_export_body` keep checking the code that change will enable."""
     return _locked(config, case_id, "mbf_export", lambda tree, run, live: _mbf_export_body(
         config, case_id, mbf_sha256, tree, run, timeout_s, runner, live),
         lambda run, started: _export_base(config, case_id, run, started, mbf_sha256))
@@ -3722,12 +3771,13 @@ def _export_base(config: HarnessConfig, case_id: str, run: CaseFolder, started: 
 def _mbf_export_body(config: HarnessConfig, case_id: str, mbf_sha256: str, tree: Tree, run: CaseFolder,
                      timeout_s: float, runner: Callable[..., subprocess.CompletedProcess],
                      live: dict[str, Any]) -> dict[str, Any]:
+    # Enabled only under DEL-17-05 REQ-023 (the listed-window rule); no command reaches it until then.
     started = _now()
     root = _root_of(config)
     script_bytes = GUEST_SCRIPT.read_bytes()
     # A fresh work directory of this step's own, created exclusively by the guest (`_fresh_work_dir`).
-    work = _win(config.guest_work_root, case_id,
-                WORK_DIR_NAME.format(kind="export", sequence=run.sequence, token=secrets.token_hex(8)))
+    work = _win(config.guest_work_root,
+                WORK_DIR_NAME.format(case=case_id, kind="export", sequence=run.sequence, token=secrets.token_hex(8)))
     guest_mod, guest_mbf = _win(work, "model.mod"), _win(work, EXPORTED_MBF)
     out = run.path / "caepipe_out"
     steps: list[dict[str, Any]] = []

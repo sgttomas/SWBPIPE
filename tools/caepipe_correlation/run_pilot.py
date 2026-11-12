@@ -708,12 +708,13 @@ def run_authored_case(case: Mapping[str, Any], config: HarnessConfig, *, export_
                       emit: Callable[[str], None] = print,
                       round_trip: Callable[..., dict[str, Any]] = run_caepipe_round_trip,
                       export: Callable[..., dict[str, Any]] = run_caepipe_mbf_export,
-                      directory: Path = AUTHORED_DIR, no_export: bool = False, gui_fallback: bool = True) -> bool:
+                      directory: Path = AUTHORED_DIR, no_export: bool = False, gui_fallback: bool = False) -> bool:
     """Import (and solve) one authored MBF as written, then export the model back to caepipe_out/exported.mbf.
 
     With `no_export` the round trip alone runs. With `settings_guard` configured, the saved-settings check is
     enforced before anything else is looked at: any status but `unchanged`, an exception during the round trip,
-    or (with `gui_fallback=False`) a batch run that left no CSV raises RunStopped, so no further case runs.
+    or a batch run that left no CSV (no fallback is attempted) raises RunStopped, so no further case runs. No command
+    passes `gui_fallback=True`; the harness refuses it by name (`window_route_unavailable`) until DEL-17-05 REQ-023.
     """
     case_id = case["case_id"]
     data = authored_mbf_bytes(case, directory)
@@ -722,8 +723,9 @@ def run_authored_case(case: Mapping[str, Any], config: HarnessConfig, *, export_
     try:
         if not export_only:
             try:
-                record = (round_trip(config, case_id, data.decode("ascii")) if gui_fallback else
-                          round_trip(config, case_id, data.decode("ascii"), gui_fallback=False))
+                # A request for the fallback reaches the harness, which refuses it; no command makes one.
+                record = (round_trip(config, case_id, data.decode("ascii"), gui_fallback=True) if gui_fallback else
+                          round_trip(config, case_id, data.decode("ascii")))
             except Exception as error:
                 if not guarded:
                     raise
@@ -736,8 +738,9 @@ def run_authored_case(case: Mapping[str, Any], config: HarnessConfig, *, export_
                 return False
             # The guard comes first: a rejected hash or any other early return still stops the run on it.
             _guard_stop(config, case_id, record.get("settings_guard"), emit)
-            if not gui_fallback and record.get("route") == "batch_no_csv":
-                emit(f"{case_id}: route=batch_no_csv; the GUI fallback is refused for this run; stopped")
+            if record.get("route") == "batch_no_csv":
+                emit(f"{case_id}: route=batch_no_csv; the batch run left no result file and no fallback is attempted "
+                     "(the print fallback through the program's window waits for DEL-17-05 REQ-023); stopped")
                 raise RunStopped(case_id)
             if record.get("mbf", {}).get("sha256") != mbf_sha256 or record.get("guest_mbf_sha256") != mbf_sha256:
                 emit(f"{case_id}: route={record.get('route')}; the guest did not report importing this MBF; "
@@ -908,8 +911,8 @@ def run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, runn
 
     Returns (status, route, reason): `recorded`, `not_run` (SWBPIPE not solved, MBF refused, containment, or no
     stored bound CSV offline), or `retry` (the round trip raised, or left no bound CSV, with a clean settings check).
-    Raises RunStopped when the round trip's saved-settings check is not clean, or when the batch run left no CSV and
-    the GUI fallback is off."""
+    Raises RunStopped when the round trip's saved-settings check is not clean, or when the batch run left no CSV (no
+    fallback is attempted)."""
     model_id = benchmark_run_id(entry)
     try:
         return _run_benchmark_model(entry, config, runner=runner, offline=offline, emit=emit, round_trip=round_trip,
@@ -1047,9 +1050,10 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
         raise RunStopped(model_id)
     # The guard comes first: any other outcome still stops the run on it.
     _guard_stop(config, model_id, record.get("settings_guard"), emit)
-    if not gui_fallback and record.get("route") == "batch_no_csv":
-        outcome(RETRY, "batch_no_csv", "the batch run left no CSV and the GUI fallback is off", run_folder)
-        emit(f"{model_id}: route=batch_no_csv; the GUI fallback is off for this run; stopped")
+    if record.get("route") == "batch_no_csv":
+        outcome(RETRY, "batch_no_csv", "the batch run left no CSV and no fallback is attempted", run_folder)
+        emit(f"{model_id}: route=batch_no_csv; the batch run left no result file and no fallback is attempted (the "
+             "print fallback through the program's window waits for DEL-17-05 REQ-023); stopped")
         raise RunStopped(model_id)
     csv_path, route, reason = bound_csv(root, {"root": root / "cases" / model_id / run_folder}, record, mbf_sha256)
     if csv_path is None:
@@ -1110,8 +1114,8 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
     A live run paces the models `pace_s` apart, passes `_benchmark_gate` before each attempt, and retries a model
     once, BENCHMARK_RETRY_WAIT_S later, when its round trip raised or left no bound CSV with a clean settings check.
     A model that still left no CSV is recorded as such and the run goes on; a round trip that raised twice, a gate
-    that fails, or an unclean settings check stops the run. The GUI fallback is on only when the settings guard
-    restores the whole key, whose restore covers the settings that route writes (Design §5)."""
+    that fails, an unclean settings check, or a batch run that left no CSV (`batch_no_csv`) stops the run: no
+    fallback through the program's window is attempted (it waits for DEL-17-05 REQ-023)."""
     captures = [entry for entry in models if entry.get("capture_only")]
     if captures:
         for entry in captures:
@@ -1130,7 +1134,7 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
     check = precondition or check_no_foreign_instance
     alive = liveness or check_guest_alive
     sleep = sleep or time.sleep
-    gui_fallback = bool(config.settings_guard is not None and config.settings_guard.restores_whole_key)
+    gui_fallback = False  # the print fallback through the program's window waits for DEL-17-05 REQ-023
     results, started = [], False
     for number, members in chosen:
         emit(f"batch {number}/{len(batches)}: {', '.join(benchmark_run_id(entry) for entry in members)}")
@@ -1266,9 +1270,7 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
         try:
             for case in cases:
                 results.append(run_authored_case(case, config, export_only=args.export_only, directory=directory,
-                                                 no_export=args.no_export or bool(args.authored_dir),
-                                                 gui_fallback=not args.authored_dir
-                                                 or config.settings_guard.restores_whole_key))
+                                                 no_export=args.no_export or bool(args.authored_dir)))
         except RunStopped as stopped:
             print(f"stopped after {stopped}: the guarded round trip did not end cleanly; no further case ran")
             return 1

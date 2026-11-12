@@ -80,7 +80,7 @@ It serves SOW-030, SOW-046 and SOW-075 under OBJ-007, OBJ-009, OBJ-017 and OBJ-0
   new, created so that an existing name is never replaced. A live step puts what it collects in a new run folder of
   its own, and a screen puts its records in a new screen folder of its own; outside those folders a step creates
   only a selection, a series record, the guest script named by its content, the run lock's file where it is absent
-  and a holder record of that lock. It may create absent container directories for these paths. Before a live step
+  and a holder record of that lock; and, in a step refused because its work directory proves to lie inside the exchange folder, that directory and its probe. It may create absent container directories for these paths. Before a live step
   collects anything from the guest or publishes its selection, it establishes that step's guest exchange root by
   content. The guest works in a fresh work directory that the step creates exclusively for itself, whose
   resolved location the step has checked to be outside the exchange folder; no file of an earlier step is reused
@@ -121,7 +121,7 @@ It serves SOW-030, SOW-046 and SOW-075 under OBJ-007, OBJ-009, OBJ-017 and OBJ-0
   overwriting as the real guest does; and with a work
   directory, a child path of it or an output destination of the program that resolves into the exchange folder,
   and with a work file linked to stored content, each of which is refused before any guest command that deletes,
-  copies or starts the program; a step's work directory is new and holds nothing of an earlier step. A conflicting, unanswered or failed candidate in the
+  copies or starts the program; a step's work directory is new and holds nothing of an earlier step. Where the resolved path looks separate and the content probe proves otherwise, the step is refused, nothing stored is changed, and the two created items are named in the refusal. A conflicting, unanswered or failed candidate in the
   drive check refuses the step. A selection is created exclusively and never rewritten, and the highest sequence
   number is current. It is published only after its run's record names that case and that run folder, the run
   ended in an outcome eligible for selection and its verified files hash as recorded. A selection that is corrupt,
