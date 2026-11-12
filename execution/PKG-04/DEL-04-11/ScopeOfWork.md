@@ -71,7 +71,7 @@ A sizing result is a numerical statement about the discrete model under the user
 - Whether a sizing run is recorded as an analysis run is not decided. The hanger-sizing analysis-run kind awaits adoption in the analysis-run record, and DEL-14-02 leaves the question open.
 - Whether the report's privacy rules for library references cover the hanger section's library-derived values is not confirmed with DEL-08-01.
 
-**Selected and sequenced.** SWBPIPE's Agent 0 selected the hanger implementation lane (2026-11-12), and no hold stands on it. Two parts follow the change that makes pressure elongation a user option on the exact route (DEL-04-07), because that change edits the same sources: the spring preload in the solve (REQ-014), which is priced again with every change to the solve sources (DEL-04-08/REQ-004), and the desktop's reading of an exact-route hanger table with the report's hanger-sizing section (REQ-012). The rest proceeds.
+**Selected and sequenced.** SWBPIPE's Agent 0 selected the hanger implementation lane (2026-11-12), and no hold stands on it. The spring preload in the solve (REQ-014) follows the change that makes pressure elongation a user option on the exact route (DEL-04-07), because both change the same solve sources and every change to them is priced again (DEL-04-08/REQ-004).
 
 ### Request
 
