@@ -35,7 +35,7 @@ from core.handoff.caepipe_external.print_csv import DOCUMENT_KIND as PARSED_CSV_
 from core.handoff.caepipe_mbf.importer import REPORT_KIND as IMPORT_REPORT_KIND  # noqa: E402
 from tools.caepipe_correlation.run_pilot import MANIFEST_KIND, PARSER_DIAGNOSTICS_KIND  # noqa: E402
 from tools.caepipe_correlation.sitting_pack import (  # noqa: E402
-    KEPT_REQUEST, KEPT_RESULT, PRIVATE_RECORD_KINDS as SITTING_RECORD_KINDS, PRIVATE_RECORD_NAMES as SITTING_RECORD_NAMES,
+    PRIVATE_RECORD_KINDS as SITTING_RECORD_KINDS, PRIVATE_RECORD_NAMES as SITTING_RECORD_NAMES,
 )
 
 
@@ -50,7 +50,7 @@ PRIVATE_LAYER_NAMES = {"caepipe_results.json", "parser_diagnostics.json", "compa
                        "import_outcome.json", "export_guest_log.json", "export_guest_stdout.txt",
                        "export_guest_stderr.txt", "benchmark_comparison.json",
                        # The sitting pack's private records (tools/caepipe_correlation/sitting_pack.py).
-                       *SITTING_RECORD_NAMES, KEPT_REQUEST, KEPT_RESULT}
+                       *SITTING_RECORD_NAMES}
 # The private MBF import regression's outcome record (tests/test_caepipe_private_mbf_import.py).
 IMPORT_OUTCOME_KIND = "swbpipe.caepipe_mbf_import_outcome"
 PRIVATE_DOCUMENT_KINDS = {PARSED_CSV_KIND, PARSER_DIAGNOSTICS_KIND, COMPARISON_RECORD_KIND, SERIES_RECORD_KIND,

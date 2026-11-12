@@ -1,0 +1,5 @@
+{
+  "document_kind": "swbpipe.caepipe_sitting.format_sample_declaration",
+  "note": "The maintained declaration of format samples for tools/caepipe_correlation/sitting_pack.py: small invented, hand-authored models outside the benchmark set, each run only to see how the external program prints the sections named in `prints`. Each entry binds an id to a model file beside this declaration by its SHA-256; the file needs an invented-provenance sidecar <stem>.provenance.json (produced_by_caepipe false). A sample is designated here before its first run, never by a plan; a benchmark model, under any id, is never a format sample. Entries: id, file, sha256, title, prints, and an optional instruction (one change made by hand before analysing).",
+  "samples": []
+}

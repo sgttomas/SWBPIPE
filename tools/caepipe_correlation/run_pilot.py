@@ -372,6 +372,14 @@ def bound_csv(root: Path, paths: Mapping[str, Path], record: Mapping[str, Any] |
     return csv_path, route, ""
 
 
+def sealed_capture(config: HarnessConfig, case_id: str) -> str:
+    """Why the case holds a sealed capture (the sitting pack's `cases/<id>/sealed/`), or "" when it does not. A case
+    with one is refused before anything is read or run: there is no unsealing command."""
+    path = config.exchange_root.resolve() / "cases" / case_id / "sealed"
+    return (f"cases/{case_id}/sealed holds a sealed capture; it is refused, not read, screened or run"
+            if path.exists() or path.is_symlink() else "")
+
+
 def render_case_mbf(case: Mapping[str, Any]) -> tuple[Any, str, str]:
     """(writer result, writer text, exported MBF text with the case's fault injection applied)."""
     mbf = render_caepipe_mbf_si(case["model"], title=case.get("title", case["case_id"]),
@@ -398,6 +406,9 @@ def _run_case(case: Mapping[str, Any], config: HarnessConfig, *, runner: str, of
               emit: Callable[[str], None], round_trip: Callable[..., dict[str, Any]],
               hypothesis_series: Mapping[str, Mapping[str, Any]]) -> bool:
     case_id = case["case_id"]
+    if sealed := sealed_capture(config, case_id):
+        emit(f"{case_id}: route=sealed_capture; {sealed}; no comparison record")
+        return False
     root = config.exchange_root.resolve()
     paths = case_paths(config, case_id)
     analytic = hand_calcs.analytic_values(case_id)
@@ -771,6 +782,9 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
                          emit: Callable[[str], None], round_trip: Callable[..., dict[str, Any]], gui_fallback: bool,
                          attempt: int) -> tuple[str, str, str]:
     model_id = entry["model_id"]
+    if sealed := sealed_capture(config, model_id):
+        emit(f"{model_id}: route=sealed_capture; {sealed}; no benchmark record")
+        return NOT_RUN, "sealed_capture", sealed
     root = config.exchange_root.resolve()
     paths = case_paths(config, model_id)
 
