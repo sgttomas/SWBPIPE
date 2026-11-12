@@ -98,7 +98,7 @@ const ready = (async () => {
   await page.getByTestId("viewport-canvas").waitFor({ state: "visible", timeout: 60_000 });
   await page.waitForFunction((count) => {
     const summary = document.querySelector('[data-testid="model-tree-filter-summary"]')?.textContent ?? "";
-    return summary.includes(`${count} of ${count}`) && Boolean(document.querySelector('[data-testid="viewport-canvas"] canvas'));
+    return summary.trim() === `${count} model ${count === 1 ? "entity" : "entities"}` && Boolean(document.querySelector('[data-testid="viewport-canvas"] canvas'));
   }, expectedTreeCount, { timeout: 60_000 });
   return { status: "FIRST_USABLE_OBSERVED", observedAtWallTime: new Date().toISOString() };
 })().catch((error) => ({ status: "READINESS_REJECTED", error: String(error), observedAtWallTime: new Date().toISOString() }));

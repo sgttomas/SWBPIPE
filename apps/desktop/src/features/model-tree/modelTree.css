@@ -104,3 +104,12 @@
 .inspector .property-reference-link:hover .property-reference-name {
   text-decoration-thickness: 2px;
 }
+
+/* The tree's note that a long list holds only the rows near the view. It wraps
+   across the controls' full width, under the count it qualifies. */
+.model-tree-controls .model-tree-window-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--ui-muted);
+  font-size: var(--type-size-caption);
+}
