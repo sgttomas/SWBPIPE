@@ -24,7 +24,8 @@
 //! builds the reference system or completes a use case: the geometry,
 //! components, supports and generated loads are the fixture's, and k and the
 //! SIFs are the person's. All data are invented.
-use open_pipe_stress_operation_applier::{apply_operation, apply_operation_batch, canonical_json, sha256_hex};
+use open_pipe_stress_operation_applier::{apply_operation, apply_operation_batch, canonical_json, sha256_hex, validate_operation_batch};
+use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::{json, Value};
 
 const REFERENCE: &str = include_str!("../../../../fixtures/reference_system/reference_system.json");
@@ -321,4 +322,124 @@ fn admitted_edits_next_to_a_component_leave_its_person_entered_values_unchanged(
         let applied = propose(&model, vec![op.clone()]);
         assert_ne!(canonical_json(&applied), canonical_json(&model), "{}", op["change"]["field_path"]);
     }
+}
+
+const M2: &str = include_str!("../../../../fixtures/model_operations/agent_m2_component_journey.json");
+const DEMO: &str = include_str!("../../../../fixtures/product_preview/invented_demo_model.json");
+
+/// A valid agent-authored create of `change_kind` and the document it applies to,
+/// from committed fixtures: the M2 component journey's own operations (applied in
+/// order up to the first of that kind), the reference system, or the pressure-free
+/// demo model. A create kind the catalog admits without an entry here fails the test.
+fn valid_creates(change_kind: &str) -> Vec<(Value, Value)> {
+    let m2: Value = serde_json::from_str(M2).unwrap();
+    let journey: Vec<Value> = m2["proposals"].as_array().unwrap().iter()
+        .filter(|p| p["phase"] != "corrections")
+        .flat_map(|p| p["operations"].as_array().unwrap().clone()).collect();
+    if journey.iter().any(|op| op["change"]["change_kind"] == change_kind) {
+        let mut model = m2["blank"]["model"].clone();
+        let mut found = Vec::new();
+        for op in &journey {
+            if op["change"]["change_kind"] == change_kind {
+                found.push((model.clone(), op.clone()));
+            }
+            model = applies(&model, op).unwrap_or_else(|| panic!("the journey's {} applies", op["operation_id"]));
+        }
+        return found;
+    }
+    let reference = reference();
+    let demo: Value = serde_json::from_str(DEMO).unwrap();
+    let record = |kind: &str, object: &str, id: &str, path: &str, after: Value| none(kind, object, id, change_kind, path, "not_present", &canonical_json(&after));
+    match change_kind {
+        "create_section" => vec![(reference.clone(), agent("create", "Section", "section:agent-S1", "create_section", "sections", "not_present",
+            &canonical_json(&json!({"id":"section:agent-S1","name":"agent-S1","section_type":"pipe","properties":find(&reference, "sections", "section:RS-S270")["properties"],"provenance":"agent-stated source"})), "mm", "length"))],
+        "create_combination" => vec![(reference.clone(), record("create", "Combination", "combination:agent-M", "combinations",
+            json!({"id":"combination:agent-M","label":"agent M","basis":"mechanics","terms":[{"load_case":"load:RS-SUS","factor":1}],"provenance":"agent-stated source"})))],
+        "create_combination_term" => {
+            let with = propose(&reference, vec![none("create", "Combination", "combination:agent-M", "create_combination", "combinations", "not_present",
+                &canonical_json(&json!({"id":"combination:agent-M","label":"agent M","basis":"mechanics","terms":[{"load_case":"load:RS-SUS","factor":1}],"provenance":"agent-stated source"})))]);
+            vec![(with, record("create", "Combination", "combination:agent-M", "terms", json!({"load_case":"load:RS-OPE","factor":1.5})))]
+        }
+        "create_condition_set" => vec![(demo.clone(), record("create", "ConditionSet", "cs:agent", "condition_sets",
+            json!({"id":"cs:agent","label":"agent set","provenance":"agent-stated source","installation_temperature":{"value":20,"unit":"degC"},"conditions":[{"key":"OPE1","temperature":{"value":150,"unit":"degC"}}],"exposure":{"wind":false}})))],
+        "add_rule_pack_ref" => vec![(demo.clone(), record("create", "RulePackRef", "invented_private_pack", "rule_pack_refs",
+            json!({"rule_pack_id":"invented_private_pack","name":"Invented pack","rule_pack_version":"0.1.0","checksum":{"algorithm":"sha256","canonicalization":"JCS","payload_scope":"rule_pack_payload","payload_excludes":["checksums"],"value":"a".repeat(64)},"redistribution_status":"private_only"})))],
+        other => panic!("the catalog admits create kind {other}; give it a case here"),
+    }
+}
+
+fn applies(model: &Value, op: &Value) -> Option<Value> {
+    let outcome = apply_operation(model, &stamped(op), Some(&hash(model)));
+    outcome.applied_model
+}
+fn modifier_members(model: &Value) -> usize {
+    let text = canonical_json(model);
+    ["\"modifiers\"", "flexibility_factor_user_value", "sif_user_value", "bend_realization", "curved_bend_macro_element"].iter().map(|m| text.matches(m).count()).sum()
+}
+
+#[test]
+fn every_admitted_create_kind_refuses_or_drops_a_person_entered_member() {
+    // The create kinds are read from the catalog's rows, so a newly admitted one is covered or fails here.
+    let creates: Vec<String> = catalog()["admittedOperations"].as_array().unwrap().iter()
+        .filter(|row| matches!(row["operationKind"].as_str().unwrap(), "create" | "insert" | "connect"))
+        .map(|row| row["changeKind"].as_str().unwrap().to_string()).collect();
+    assert!(creates.len() >= 12, "{creates:?}");
+    let authoring: Value = serde_json::from_str(AUTHORING).unwrap();
+    let person = &authoring["bends"][0]["person_inputs"];
+    let modifiers = json!({"flexibility_factor_user_value": person["flexibility_factor"], "sif_user_value": person["sif_in_plane_user_value"],
+        "sif_in_plane_user_value": person["sif_in_plane_user_value"], "source_reference": person["sif_source_reference"]});
+    let mut covered = Vec::new();
+    for change_kind in &creates {
+        for (model, op) in valid_creates(change_kind) {
+            let clean = applies(&model, &op).unwrap_or_else(|| panic!("{change_kind}: the clean create must apply"));
+            let after: Value = serde_json::from_str(op["change"]["after"].as_str().unwrap()).unwrap();
+            let mut attempts = vec![("modifiers", { let mut a = after.clone(); a["modifiers"] = modifiers.clone(); a })];
+            if change_kind == "insert_component_symbol" {
+                // A component may also carry its realization: a curved macro-element interface.
+                attempts.push(("bend realization", { let mut a = after.clone(); a["mechanics_interface"] = json!({"solver_consumption":"curved_bend_macro_element"}); a }));
+                attempts.push(("bend_realization", { let mut a = after.clone(); a["bend_realization"] = json!({"radius": person["flexibility_factor"]}); a }));
+            }
+            for (what, carried) in attempts {
+                let mut attempt = op.clone();
+                attempt["change"]["after"] = json!(canonical_json(&carried));
+                let outcome = apply_operation(&model, &stamped(&attempt), Some(&hash(&model)));
+                let codes: Vec<String> = outcome.diagnostics.iter().map(|d| d.code.clone()).collect();
+                if change_kind == "insert_component_symbol" && what == "modifiers" {
+                    assert!(codes.contains(&MODIFIER.to_string()), "{change_kind} {}: {codes:?}", op["target"]["ref"]);
+                }
+                match outcome.applied_model {
+                    // Refused: nothing is written.
+                    None => {}
+                    // Ignored: the record is created without the member.
+                    Some(applied) => assert_eq!(modifier_members(&applied), modifier_members(&clean), "{change_kind} {what}: {codes:?}"),
+                }
+            }
+            covered.push(change_kind.clone());
+        }
+    }
+    covered.dedup();
+    assert_eq!(covered, creates, "every admitted create kind has a case");
+}
+
+#[test]
+fn a_removal_applied_alone_leaves_a_case_the_solve_refuses_by_name() {
+    // Replacing a stored analysis state is two proposals: its removal, then the
+    // new state. If the person applies only the removal, the preview shows the
+    // state going to not_present, and the solve refuses the case by name.
+    let fixture = reference();
+    let state = canonical_json(&find(&fixture, "load_cases", "load:RS-OPE")["analysis_state"]);
+    let removal = none("modify", "Load", "load:RS-OPE", "update_load", "analysis_state", &state, "not_present");
+    let claim = hash(&fixture);
+    let batch = json!({"batch_id":"agent-removal","operations":[stamped(&removal)],"source_model_hash":claim["value"]});
+    let preview = validate_operation_batch(&fixture, &batch, Some(&claim));
+    assert_eq!(preview["validation"]["batch_validation_status"], "passed", "{:#}", preview["diagnostics"]);
+    let rows = preview["diff_preview"].as_array().or_else(|| preview["operation_outcomes"][0]["diff_preview"].as_array()).cloned().unwrap_or_default();
+    assert!(rows.iter().any(|r| r["field_path"] == "analysis_state" && r["after"] == "not_present"), "{preview:#}");
+    let removed = propose(&fixture, vec![removal]);
+    let out = run_linear_static_preview_value_with_mode(json!({"model": removed, "materials": []}), PreviewSolverMode::SparseInteractive)
+        .expect("the typed boundary admits the document");
+    let refusal = out.diagnostics.iter().find(|d| d.code == "LOAD_STATE_ANALYSIS_STATE_REQUIRED").unwrap_or_else(|| panic!("{:?}", out.diagnostics.iter().map(|d| &d.code).collect::<Vec<_>>()));
+    assert_eq!(refusal.severity, "blocking");
+    assert!(refusal.affected_refs.iter().any(|r| r == "load:RS-OPE"), "{:?}", refusal.affected_refs);
+    assert_ne!(out.status.mechanics, "MECHANICS_SOLVED");
 }
