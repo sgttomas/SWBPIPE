@@ -44,10 +44,13 @@ useModelledVisibility();
 const fixture = { fourSpan: true };
 const sessionModel = () => ({ ...structuredClone((fixture.fourSpan ? fourSpanInput : twoSpanInput).request.model), diagnostics: [] }) as unknown as PreviewModel;
 const library = () => structuredClone(fourSpanInput.library) as Record<string, unknown>;
+/** The library the native stand-in has stored now; a test may replace it after queueing. */
+const storedLibrary: { current: () => Record<string, unknown> } = { current: library };
 const LIBRARY_ID = "invented.hangers.sizing";
 const initialInnerWidth = window.innerWidth;
 
 beforeEach(() => {
+  storedLibrary.current = library;
   seen.models = [];
   seen.sized = [];
 });
@@ -67,7 +70,7 @@ function host() {
       return [{ project_id: sessionModel().project.id, library_kind: "hanger", library_id: LIBRARY_ID, library_name: "Invented sizing hangers", privacy_class: "private", storage_mode: "local", created_at_unix: 0, updated_at_unix: 0 }];
     }
     if (command === "open_local_library") {
-      return { project_id: sessionModel().project.id, library_kind: "hanger", library_id: LIBRARY_ID, storage_mode: "local", created_at_unix: 0, updated_at_unix: 0, document: library(), validation: { accepted: true, has_blocking_findings: false, findings: [] }, message: "" };
+      return { project_id: sessionModel().project.id, library_kind: "hanger", library_id: LIBRARY_ID, storage_mode: "local", created_at_unix: 0, updated_at_unix: 0, document: storedLibrary.current(), validation: { accepted: true, has_blocking_findings: false, findings: [] }, message: "" };
     }
     if (command === "cancel_hanger_sizing") return { cancelled: false, epoch: 1, retirement_id: (args as { retirementId: unknown }).retirementId };
     if (command === "size_hangers") {
@@ -215,4 +218,38 @@ describe("a sized selection through the connected desktop path", () => {
       expect(within(form).queryByTestId("hanger-sizing-apply-model-changed")).toBeNull();
     });
   }
+
+  it("by the apply-all act: a library replaced after queueing makes the final Apply apply nothing, shown on the entry; restored, Apply proceeds", async () => {
+    fixture.fourSpan = true;
+    host();
+    const form = await openSizing();
+    const commands = () => invokeMock.mock.calls.map(([command]) => command);
+    await size(form);
+    fireEvent.click(await within(form).findByRole("button", { name: "Prepare applying every selection of this run" }));
+    const review = await within(form).findByTestId("hanger-sizing-apply-run-review");
+    fireEvent.click(within(review).getByRole("button", { name: "Queue every sized selection of this run for review" }));
+    const article = await validateQueued();
+    const original = await canonicalJsonString(seen.sized[0]);
+
+    // The person replaces the stored library under the same id while the batch waits in the review.
+    storedLibrary.current = () => {
+      const changed = library();
+      (changed.hanger_library as Record<string, unknown>).name = "Invented sizing hangers, revised";
+      return changed;
+    };
+    fireEvent.click(within(article).getByRole("button", { name: "Apply entire batch" }));
+    expect(await within(article).findByText(/^Last apply refused: The hanger library has changed since this sizing run/)).toBeInTheDocument();
+    expect(commands()).not.toContain("apply_model_operation_batch");
+    expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("1 queued batches; 0 batches applied this session.");
+    expect(screen.getByTestId("batch-review-message")).toHaveTextContent(/was not applied\. The hanger library has changed since this sizing run/);
+    expect(await canonicalJsonString(shownModel())).toBe(original);
+    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+
+    storedLibrary.current = library;
+    fireEvent.click(within(article).getByRole("button", { name: "Apply entire batch" }));
+    await waitFor(() => expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("0 queued batches; 1 batches applied this session."));
+    expect(commands().filter((command) => command === "apply_model_operation_batch")).toHaveLength(1);
+    await waitFor(() => expect(canonicalJsonString(shownModel())).resolves.not.toBe(original));
+    expect(support(shownModel(), "support:B").family).toBe("constant_effort_support");
+  });
 });

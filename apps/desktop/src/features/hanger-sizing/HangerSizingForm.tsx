@@ -18,7 +18,8 @@ import type { HangerSizingFamilyPolicy } from "../results/hangerSizingResult";
 import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
 import type { OperationBatch } from "../../services/operationBatchService";
 import { HangerSizingApply } from "./HangerSizingApply";
-import type { StoredLibraryRead } from "./sizedSelection";
+import { readStoredHangerLibrary } from "./sizedApplication";
+import type { BatchPrecondition } from "../workspace/workspaceSession";
 import { assembleHangerSizingInput, EMPTY_HANGER_SIZING_FORM, WEIGHT_SUPPORT_STATE, type HangerSizingFormState } from "./hangerSizingRequest";
 
 export const HANGER_SIZING_FORM_TITLE = "Size hangers";
@@ -35,9 +36,10 @@ type Props = Readonly<{
   model: PreviewModel;
   /** Another operation is in progress: the form is read-only meanwhile. */
   busy?: boolean;
-  /** The operation review's queue (REQ-008): a sized selection the person prepares is queued there, and applied only on
-   * their acceptance. Without it, no selection is offered for application. */
-  onQueueBatch?: (batch: OperationBatch) => void;
+  /** The operation review's queue (REQ-008): a sized selection the person prepares is queued there with its
+   * precondition, and applied only on their acceptance while the precondition holds. Without it, no selection is
+   * offered for application. */
+  onQueueBatch?: (batch: OperationBatch, options?: { precondition?: BatchPrecondition }) => void;
 }>;
 
 type Shown = Readonly<{ completion: HangerSizingCompletion; library: Record<string, unknown> }>;
@@ -91,19 +93,6 @@ export function HangerSizingForm({ model, busy = false, onQueueBatch }: Props) {
     const result = await listLocalLibraries(projectId);
     if (result.route !== "tauri_backend") { setNotice(result.diagnostic); return; }
     setLibraries(result.entries.filter((entry) => entry.library_kind === "hanger"));
-  }
-
-  /** The hanger library stored now under `libraryId`, read again for an application act (REQ-008): its document only
-   * when it opens with no blocking import finding. */
-  async function readStoredLibrary(libraryId: string): Promise<StoredLibraryRead> {
-    try {
-      const result = await openLocalLibrary(projectId, "hanger", libraryId);
-      if (result.route !== "tauri_backend" || !result.envelope) return { kind: "unavailable" };
-      if (!result.envelope.validation.accepted || result.envelope.validation.has_blocking_findings) return { kind: "unavailable" };
-      return { kind: "read", document: result.envelope.document };
-    } catch {
-      return { kind: "unavailable" };
-    }
   }
 
   async function chooseLibrary(libraryId: string) {
@@ -232,7 +221,7 @@ export function HangerSizingForm({ model, busy = false, onQueueBatch }: Props) {
       {reply && shown ? <HangerSizingPanel document={reply.document} evidence={reply.evidence} library={shown.library} /> : null}
       {reply && shown && reply.document.status === "sized" && boundLibraryId !== null && onQueueBatch
         ? <HangerSizingApply document={reply.document} library={shown.library} currentLibrary={currentLibrary}
-            readStoredLibrary={() => readStoredLibrary(boundLibraryId)} model={model} busy={busy || running} onQueueBatch={onQueueBatch} />
+            readStoredLibrary={() => readStoredHangerLibrary(projectId, boundLibraryId)} model={model} busy={busy || running} onQueueBatch={onQueueBatch} />
         : null}
     </section>
   );

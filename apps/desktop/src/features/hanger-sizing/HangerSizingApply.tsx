@@ -8,15 +8,16 @@
  * the present model and to the library the person has stored now under the id it names (`sizedSelection.ts`): the
  * library the form presently holds for that id, where it holds one, and the stored library read again at each act. A
  * prepared batch is dropped when the model, the result, either library or the busy state changes. The values written
- * come from the bound library content. */
+ * come from the bound library content. Both acts prepare through `prepareSizedApplication`, and queue the batch with
+ * its precondition, which the queue asks at the final Apply. */
 
 import { useEffect, useRef, useState } from "react";
 import type { OperationBatch } from "../../services/operationBatchService";
 import type { PreviewModel } from "../../types";
-import { buildHangerSelectionBatch } from "../hanger-selection/hangerSelection";
 import type { HangerSizingSizedDocument } from "../results/hangerSizingResult";
+import type { BatchPrecondition } from "../workspace/workspaceSession";
+import { prepareSizedApplication, type SizedApplication, type StoredHangerLibraryReader } from "./sizedApplication";
 import {
-  asHangerDocument,
   HANGER_SIZING_APPLIED_WITH_RUN_TEXT,
   HANGER_SIZING_APPLY_TEXT,
   HANGER_SIZING_APPLY_TITLE,
@@ -37,7 +38,6 @@ import {
   HANGER_SIZING_APPLY_RUN_TITLE,
   HANGER_SIZING_RUN_UNCHANGED_LABEL,
   HANGER_SIZING_RUN_UNCHANGED_TEXT,
-  prepareRunApplication,
   runApplicationRefusal,
   runRefusalShown,
   type RunChange
@@ -49,21 +49,24 @@ type Props = Readonly<{
   library: unknown;
   /** The library the form presently holds under the id the result names, or undefined when it holds none for that id. */
   currentLibrary?: unknown;
-  /** Reads the library stored now under the id the result names, at each act. The form always supplies it. */
+  /** Reads the library stored now under the id the result names, at each act and in the queued batch's precondition.
+   * The form always supplies it; without it, the library the request sent stands in for the stored one. */
   readStoredLibrary?: () => Promise<StoredLibraryRead>;
   model: PreviewModel;
   busy: boolean;
-  onQueueBatch: (batch: OperationBatch) => void;
+  /** The review queue: a prepared batch is queued with its precondition, asked at the final Apply. */
+  onQueueBatch: (batch: OperationBatch, options?: { precondition?: BatchPrecondition }) => void;
 }>;
 
 /** What a check or a prepared batch is bound to; it counts only while every member is the one shown. */
 type Basis = Readonly<{ document: HangerSizingSizedDocument; model: PreviewModel; library: unknown; currentLibrary: unknown }>;
 type LibraryStanding = "current" | "changed" | "unavailable";
 type Checked = Basis & Readonly<{ offers: ApplyOffers; standing: LibraryStanding }>;
-type Review = Basis & Readonly<{ support: string; variable: boolean; batch: OperationBatch }>;
+type Review = Basis & Readonly<{ support: string; variable: boolean; batch: OperationBatch; precondition: BatchPrecondition }>;
 type StoredRefusal = Basis & Readonly<{ standing: Exclude<LibraryStanding, "current"> }>;
 type RunReview = Basis & Readonly<{
   batch: OperationBatch;
+  precondition: BatchPrecondition;
   changed: readonly RunChange[]; unchanged: readonly string[]; description: string;
 }>;
 
@@ -104,16 +107,20 @@ export function HangerSizingApply({ document, library, currentLibrary, readStore
   const single = hangerSizingSelectedCount(document) === 1;
   const runOffer = offers?.model === "current" ? runApplicationRefusal(document, offers) : null;
 
-  /** The act's check of the library stored now: true when it is the one the result binds. Otherwise the acts are
-   * withdrawn with the reason. */
-  async function storedLibraryBound(token: number): Promise<boolean> {
-    if (readStoredLibrary === undefined) return true;
-    const stored = await readStoredLibrary();
-    const standing: LibraryStanding = stored.kind === "unavailable" ? "unavailable" : await hangerSizingLibraryBound(document, stored.document) ? "current" : "changed";
-    if (token !== generation.current) return false;
-    if (standing === "current") return true;
-    setStoredRefusal({ document, model, library, currentLibrary, standing });
-    return false;
+  /** The stored library as the acts and the queued precondition read it. */
+  const reader: StoredHangerLibraryReader = readStoredLibrary ? () => readStoredLibrary() : async () => ({ kind: "read", document: library });
+
+  /** An act's refusal: a library refusal withdraws the acts with its reason; a changed model is checked again and
+   * shown; any other reason is shown beside the act. */
+  async function refused(token: number, refusal: Extract<SizedApplication, { kind: "refused" }>, show: (reason: string) => void) {
+    if (refusal.refusal === "library_changed" || refusal.refusal === "library_unavailable") {
+      setStoredRefusal({ document, model, library, currentLibrary, standing: refusal.refusal === "library_changed" ? "changed" : "unavailable" });
+    } else if (refusal.refusal === "model_changed") {
+      const again = await hangerSizingApplyOffers(document, model, library);
+      if (token === generation.current) setChecked({ document, model, library, currentLibrary, offers: again, standing: "current" });
+    } else {
+      show(refusal.reason);
+    }
   }
 
   async function prepare(offer: Extract<ApplyOffer, { kind: "offered" }>) {
@@ -125,15 +132,13 @@ export function HangerSizingApply({ document, library, currentLibrary, readStore
     setError("");
     setPending(true);
     try {
-      if (!(await storedLibraryBound(token))) return;
-      // Bound again at the act: the batch is built from the model it is checked against.
-      const again = await hangerSizingApplyOffers(document, model, library);
-      const still = again.offers.find((other) => other.support === offer.support);
+      // Bound again at the act: the run's one selection, built against the model and the stored library it is checked
+      // against, with its precondition.
+      const prepared = await prepareSizedApplication(document, model, model.project.id, reader);
       if (token !== generation.current) return;
-      setChecked({ document, model, library, currentLibrary, offers: again, standing: "current" });
-      if (again.model !== "current" || still?.kind !== "offered") return;
-      const batch = await buildHangerSelectionBatch(model, asHangerDocument(library), still.hangerId, still.target, still.application);
-      if (token === generation.current) setReview({ document, model, library, currentLibrary, support: still.support, variable: still.application.loads.family === "variable_spring", batch });
+      if (prepared.kind === "refused") return void await refused(token, prepared, setError);
+      setReview({ document, model, library, currentLibrary, support: offer.support,
+        variable: prepared.changed.some((change) => change.family === "variable_spring"), batch: prepared.batch, precondition: prepared.precondition });
     } catch (cause) {
       if (token === generation.current) setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
@@ -150,12 +155,13 @@ export function HangerSizingApply({ document, library, currentLibrary, readStore
     setError("");
     setPending(true);
     try {
-      if (!(await storedLibraryBound(token))) return;
-      // Bound again at the act, and every selection built against the model it is checked against.
-      const prepared = await prepareRunApplication(document, model, library);
+      // Bound again at the act, and every selection built against the model and the stored library it is checked
+      // against, with the batch's precondition.
+      const prepared = await prepareSizedApplication(document, model, model.project.id, reader);
       if (token !== generation.current) return;
-      if (prepared.kind === "not_offered") setRunRefusal(prepared.reason);
-      else setRunReview({ document, model, library, currentLibrary, batch: prepared.batch, changed: prepared.changed, unchanged: prepared.unchanged, description: prepared.description });
+      if (prepared.kind === "refused") return void await refused(token, prepared, setRunRefusal);
+      setRunReview({ document, model, library, currentLibrary, batch: prepared.batch, precondition: prepared.precondition,
+        changed: prepared.changed, unchanged: prepared.unchanged, description: prepared.description });
     } catch (cause) {
       if (token === generation.current) setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
@@ -201,7 +207,7 @@ export function HangerSizingApply({ document, library, currentLibrary, readStore
           </details>
           <p data-testid="hanger-sizing-apply-source-note">{currentReview.batch.operations[0].change.source_note}</p>
           {currentReview.variable ? <p data-testid="hanger-sizing-apply-preload-pending">{HANGER_SIZING_PRELOAD_PENDING_TEXT}</p> : null}
-          <button type="button" disabled={busy || pending} onClick={() => { onQueueBatch(currentReview.batch); setReview(null); }}>
+          <button type="button" disabled={busy || pending} onClick={() => { onQueueBatch(currentReview.batch, { precondition: currentReview.precondition }); setReview(null); }}>
             Queue sized selection for review
           </button>
         </div>
@@ -247,7 +253,7 @@ export function HangerSizingApply({ document, library, currentLibrary, readStore
               <p data-testid="hanger-sizing-apply-run-source-note">{operation.change.source_note}</p>
             </details>
           ))}
-          <button type="button" disabled={busy || pending} onClick={() => { onQueueBatch(currentRunReview.batch); setRunReview(null); }}>
+          <button type="button" disabled={busy || pending} onClick={() => { onQueueBatch(currentRunReview.batch, { precondition: currentRunReview.precondition }); setRunReview(null); }}>
             Queue every sized selection of this run for review
           </button>
         </div>
