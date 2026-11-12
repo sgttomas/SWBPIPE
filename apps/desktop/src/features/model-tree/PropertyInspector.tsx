@@ -54,6 +54,8 @@ import {
   CENTER_OF_GRAVITY_CONVENTION,
   componentDraftForKind,
   componentDraftForNode,
+  componentDraftWithField,
+  componentDraftWithProjectUnits,
   creatableComponentKinds,
   defaultComponentDraft,
   isComponentDraftValid,
@@ -124,9 +126,10 @@ export function PropertyInspector({
   const [sectionDraftState, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
   const [materialDraftState, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
   const [supportDraftState, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
-  const [componentDraft, setComponentDraft] = useState(() =>
+  const [componentDraftState, setComponentDraft] = useState(() =>
     defaultComponentDraft(model, selection, queuedIntents)
   );
+  const componentDraft = componentDraftWithProjectUnits(model, componentDraftState);
   const aggregateRefs = selectionState?.orderedKeys.flatMap((key) => {
     const ref = entityRefFromKey(key);
     return ref ? [ref] : [];
@@ -139,9 +142,11 @@ export function PropertyInspector({
   const sectionDraft: SectionDraft = sectionDraftState.lengthUnitSource === "default"
     ? { ...sectionDraftState, lengthUnit: lengthUnit(model) }
     : sectionDraftState;
-  const materialDraft: MaterialDraft = materialDraftState.thermalExpansionUnitSource === "default"
-    ? { ...materialDraftState, thermalExpansionUnit: thermalExpansionUnit(model, unitCatalogRoute) }
-    : materialDraftState;
+  const materialDraft: MaterialDraft = {
+    ...materialDraftState,
+    ...(materialDraftState.stressUnitSource === "default" ? { stressUnit: stressUnit(model) } : {}),
+    ...(materialDraftState.thermalExpansionUnitSource === "default" ? { thermalExpansionUnit: thermalExpansionUnit(model, unitCatalogRoute) } : {})
+  };
   const supportDraft: SupportDraft = supportDraftState.linearStiffnessUnitSource === "default"
     ? { ...supportDraftState, linearStiffnessUnit: linearStiffnessUnit(model, unitCatalogRoute) }
     : supportDraftState;
@@ -439,7 +444,8 @@ export function PropertyInspector({
     setMaterialDraft((current) => ({
       ...current,
       [key]: value,
-      ...(key === "thermalExpansionUnit" ? { thermalExpansionUnitSource: "user" as const } : {})
+      ...(key === "thermalExpansionUnit" ? { thermalExpansionUnitSource: "user" as const } : {}),
+      ...(key === "stressUnit" ? { stressUnitSource: "user" as const } : {})
     }));
   }
 
@@ -452,7 +458,7 @@ export function PropertyInspector({
   }
 
   function updateComponentDraft<K extends keyof ComponentDraft>(key: K, value: ComponentDraft[K]) {
-    setComponentDraft((current) => ({ ...current, [key]: value }));
+    setComponentDraft((current) => componentDraftWithField(current, key, value));
   }
 
   function toggleSupportRestraint(restraint: string) {
@@ -1298,6 +1304,8 @@ type MaterialDraft = {
   id: string;
   label: string;
   stressUnit: string;
+  /** "default" follows the project's stress unit; "user" is an explicit choice (DEL-02-02 REQ-022). */
+  stressUnitSource: "default" | "user";
   elasticModulus: string;
   shearModulus: string;
   thermalExpansionUnit: string;
@@ -3128,6 +3136,7 @@ function defaultMaterialDraftWithReserved(model: PreviewModel, queuedIntents: Ed
     id,
     label: `Material ${shortEntityToken(id)}`,
     stressUnit: stressUnit(model),
+    stressUnitSource: "default",
     elasticModulus: "",
     shearModulus: "",
     thermalExpansionUnit: thermalExpansionUnit(model, route),

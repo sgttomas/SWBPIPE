@@ -31,6 +31,8 @@ import {
   buildCreateComponentIntent,
   componentDraftForKind,
   componentDraftForNode,
+  componentDraftWithField,
+  componentDraftWithProjectUnits,
   creatableComponentKinds,
   defaultComponentDraft,
   keepComponentSources,
@@ -309,6 +311,8 @@ type NodeDraft = {
   id: string;
   label: string;
   coordinateUnit: string;
+  /** "user" once the user changes the node form's unit; otherwise it follows the project units (DEL-02-02 REQ-022). */
+  coordinateUnitSource?: "user";
   x: string;
   y: string;
   z: string;
@@ -521,7 +525,11 @@ export function PipeViewport({
   const defaultLengthUnit = model.project.units.length ?? "TBD";
   const [localIntents, setLocalIntents] = useState<EditorOperationIntent[]>([]);
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
-  const [nodeDraft, setNodeDraft] = useState<NodeDraft>(() => emptyNodeDraft(defaultLengthUnit));
+  const [nodeDraftState, setNodeDraft] = useState<NodeDraft>(() => emptyNodeDraft(defaultLengthUnit));
+  // A node unit the user did not change follows the project's length unit (DEL-02-02 REQ-022).
+  const nodeDraft: NodeDraft = nodeDraftState.coordinateUnitSource === "user"
+    ? nodeDraftState
+    : { ...nodeDraftState, coordinateUnit: defaultLengthUnit };
   const [continuePipe, setContinuePipe] = useState(false);
   const [pipeDraft, setPipeDraft] = useState<PipeDraft>(() => emptyPipeDraft(defaultLengthUnit));
   const [routeEndMode, setRouteEndMode] = useState<RouteEndMode>("existing");
@@ -531,9 +539,10 @@ export function PipeViewport({
   const [draftReviewMessage, setDraftReviewMessage] = useState<string | null>(null);
   const draftReviewGate = useRef(new DraftReviewGate());
   const pendingAppliedRoute = useRef<AppliedRouteContinuation | null>(null);
-  const [componentDraft, setComponentDraft] = useState<ComponentDraft>(() =>
+  const [componentDraftState, setComponentDraft] = useState<ComponentDraft>(() =>
     defaultComponentDraft(model, selection, queuedIntents)
   );
+  const componentDraft = componentDraftWithProjectUnits(model, componentDraftState);
   const [pipeEndpointPickMode, setPipeEndpointPickMode] = useState<PipeEndpointPickMode>(null);
   const [routingPlane, setRoutingPlane] = useState<RoutingPlane>("XZ");
   const [routingAxis, setRoutingAxis] = useState<RoutingAxisConstraint>("Free");
@@ -1677,12 +1686,19 @@ export function PipeViewport({
     cancelBoxSelection();
   }, [activeModelIndex.sessionGeneration]);
 
-  // The user's text never crosses projects: a new project session starts the component
-  // form afresh, its sources empty (PRD §5.5; DEL-07-03 AC-001).
-  const componentSessionRef = useRef(activeModelIndex.sessionGeneration);
+  // The user's text never crosses projects: a new project session starts the node, route
+  // and component forms afresh, their sources empty (PRD §5.5; DEL-07-03 AC-001). A model
+  // change already clears the route drafts; within one session the node draft is kept.
+  const creationSessionRef = useRef(activeModelIndex.sessionGeneration);
   useLayoutEffect(() => {
-    if (componentSessionRef.current === activeModelIndex.sessionGeneration) return;
-    componentSessionRef.current = activeModelIndex.sessionGeneration;
+    if (creationSessionRef.current === activeModelIndex.sessionGeneration) return;
+    creationSessionRef.current = activeModelIndex.sessionGeneration;
+    clearPointerPlacement();
+    setNodeDraft(emptyNodeDraft(defaultLengthUnit));
+    setContinuePipe(false);
+    setPipeDraft(emptyPipeDraft(defaultLengthUnit));
+    setRouteEndMode("existing");
+    setNewEndDraft(emptyNodeDraft(defaultLengthUnit));
     setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
   }, [activeModelIndex.sessionGeneration]);
 
@@ -1748,7 +1764,7 @@ export function PipeViewport({
     if (!nodeBuild.ok) return;
     if (!onAddDraft) {
       queueIntent(nodeBuild.submission.kind === "single" ? nodeBuild.submission.intent : nodeBuild.submission.batch.operations[0]);
-      setNodeDraft(emptyNodeDraft(nodeDraft.coordinateUnit || defaultLengthUnit));
+      setNodeDraft(nextNodeDraft());
       return;
     }
     await addDraftReview(nodeBuild.submission);
@@ -1833,7 +1849,7 @@ export function PipeViewport({
       setDraftReview(null);
       draftReviewGate.current.invalidate();
       setDraftReviewMessage("Applied once through the structured operation service.");
-      if (!routeContinuation) setNodeDraft(emptyNodeDraft(nodeDraft.coordinateUnit || defaultLengthUnit));
+      if (!routeContinuation) setNodeDraft(nextNodeDraft());
     } finally {
       setDraftReviewBusy(false);
     }
@@ -1899,7 +1915,14 @@ export function PipeViewport({
       placementGenerationRef.current.invalidate();
     }
     invalidateDraftReview();
-    setNodeDraft((current) => ({ ...current, [field]: value }));
+    setNodeDraft((current) => ({ ...current, [field]: value, ...(field === "coordinateUnit" ? { coordinateUnitSource: "user" as const } : {}) }));
+  }
+
+  /** The next node starts empty; a unit the user changed is kept, shown and editable, and an unchanged one follows the project units. */
+  function nextNodeDraft(): NodeDraft {
+    return nodeDraft.coordinateUnitSource === "user"
+      ? { ...emptyNodeDraft(nodeDraft.coordinateUnit), coordinateUnitSource: "user" }
+      : emptyNodeDraft(defaultLengthUnit);
   }
 
   function updatePipeDraft(field: keyof PipeDraft, value: string) {
@@ -1930,7 +1953,7 @@ export function PipeViewport({
   }
 
   function updateComponentDraft<K extends keyof ComponentDraft>(field: K, value: ComponentDraft[K]) {
-    setComponentDraft((current) => ({ ...current, [field]: value }));
+    setComponentDraft((current) => componentDraftWithField(current, field, value));
   }
 
   function armPipeEndpointPick(mode: Exclude<PipeEndpointPickMode, null>) {
@@ -2328,12 +2351,13 @@ export function PipeViewport({
       }
       invalidateDraftReview();
       if (target === "node") {
-        setNodeDraft(buildDraftNodeFromViewportPoint(
+        const captured = buildDraftNodeFromViewportPoint(
           model,
           [...queuedIntents, ...localIntents],
           converted,
           coordinateUnit
-        ));
+        );
+        setNodeDraft((current) => (current.coordinateUnitSource === "user" ? { ...captured, coordinateUnitSource: "user" } : captured));
       } else {
         const identity = nextViewportNodeIdentity(model, [...queuedIntents, ...localIntents]);
         setNewEndDraft({

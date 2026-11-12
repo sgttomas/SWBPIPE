@@ -180,3 +180,81 @@ describe("the user's text never crosses projects", () => {
   });
 });
 
+describe("material and component units the user did not change follow the project units (DEL-02-02 REQ-022)", () => {
+  function withUnits(units: Record<string, string>): PreviewModel {
+    const model = demo();
+    model.project.units = { ...model.project.units, ...units } as PreviewModel["project"]["units"];
+    return model;
+  }
+
+  it("material: an untouched modulus unit follows a mid-session change of the project pressure unit; a changed one stays", async () => {
+    // The modulus unit's project key is `pressure` (PropertyInspector stressUnit()).
+    const { rerender } = await mount({ type: "project", id: "project:invented-demo" });
+    expectFormControlValue(byId("create-material-stress-unit"), "Pa");
+    rerender(withUnits({ pressure: "MPa" }));
+    expectFormControlValue(byId("create-material-stress-unit"), "MPa");
+    chooseCompactOption(byId("create-material-stress-unit"), "Pa");
+    rerender(withUnits({ pressure: "MPa" }));
+    expectFormControlValue(byId("create-material-stress-unit"), "Pa");
+  });
+
+  it("component: an untouched unit follows a mid-session change; a changed one stays", async () => {
+    const { rerender } = await mount({ type: "node", id: "node:N-110" });
+    expectFormControlValue(byId("create-component-radius-unit"), "m");
+    rerender(withUnits({ length: "mm" }));
+    expectFormControlValue(byId("create-component-radius-unit"), "mm");
+    chooseCompactOption(byId("create-component-radius-unit"), "m");
+    rerender(withUnits({ length: "in" }));
+    expectFormControlValue(byId("create-component-radius-unit"), "m");
+  });
+});
+
+// A typed number when the project unit moves: the number stays and the unit, which the
+// user did not change, moves to the project's. This is a decision on record (put to the
+// independent reviewer and the SWBPIPE Agent 0); a change to it fails here.
+describe("A typed number when the project unit moves (inspector)", () => {
+  function withUnits(units: Record<string, string>): PreviewModel {
+    const model = demo();
+    model.project.units = { ...model.project.units, ...units } as PreviewModel["project"]["units"];
+    return model;
+  }
+
+  it("section: the typed diameter and wall stay; the length unit moves", async () => {
+    const { rerender } = await mount({ type: "project", id: "project:invented-demo" });
+    type("create-section-od", "100");
+    type("create-section-wall", "5");
+    rerender(withUnits({ length: "mm" }));
+    expect(byId("create-section-od")).toHaveValue("100");
+    expect(byId("create-section-wall")).toHaveValue("5");
+    expectFormControlValue(byId("create-section-length-unit"), "mm");
+  });
+
+  it("material: the typed moduli and expansion stay; the modulus and expansion units move", async () => {
+    const { rerender } = await mount({ type: "project", id: "project:invented-demo" });
+    expectFormControlValue(byId("create-material-thermal-unit"), "1/degC");
+    type("create-material-elastic", "200000");
+    type("create-material-thermal", "0.000012");
+    rerender(withUnits({ pressure: "MPa", temperature: "K" }));
+    expect(byId("create-material-elastic")).toHaveValue("200000");
+    expect(byId("create-material-thermal")).toHaveValue("0.000012");
+    expectFormControlValue(byId("create-material-stress-unit"), "MPa");
+    expectFormControlValue(byId("create-material-thermal-unit"), "1/K");
+  });
+
+  it("support: the typed stiffness stays; the stiffness unit moves", async () => {
+    const { rerender } = await mount({ type: "node", id: "node:N-110" });
+    type("create-support-stiffness", "1500");
+    rerender(withUnits({ linear_stiffness: "kN/m" }));
+    expect(byId("create-support-stiffness")).toHaveValue("1500");
+    expectFormControlValue(byId("create-support-stiffness-unit"), "kN/m");
+  });
+
+  it("component: the typed radius stays; the radius unit moves", async () => {
+    const { rerender } = await mount({ type: "node", id: "node:N-110" });
+    type("create-component-radius", "0.45");
+    rerender(withUnits({ length: "mm" }));
+    expect(byId("create-component-radius")).toHaveValue("0.45");
+    expectFormControlValue(byId("create-component-radius-unit"), "mm");
+  });
+});
+

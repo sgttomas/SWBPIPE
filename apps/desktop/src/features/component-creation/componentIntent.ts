@@ -43,7 +43,37 @@ export type ComponentDraft = {
   rigidSolverConsumption: string;
   geometrySourceReference: string;
   provenance: string;
+  /** The project-derived units the user changed; every other one follows the project units (DEL-02-02 REQ-022). */
+  userUnits?: ComponentProjectUnitKey[];
 } & ConnectorDraft;
+
+/** The draft units that start from a project key. */
+export const COMPONENT_PROJECT_UNIT_KEYS = ["lengthUnit", "endASizeUnit", "endBSizeUnit", "centerOfGravityUnit", "angleUnit", "forceUnit"] as const;
+export type ComponentProjectUnitKey = typeof COMPONENT_PROJECT_UNIT_KEYS[number];
+
+function projectUnitFor(model: PreviewModel, key: ComponentProjectUnitKey): string {
+  const units = model.project.units as PreviewModel["project"]["units"] | undefined;
+  // an absent project key leaves the unit unselected ("TBD"); nothing is assumed.
+  return (key === "angleUnit" ? units?.angle : key === "forceUnit" ? units?.force : units?.length) ?? "TBD";
+}
+
+/** The draft as shown: each unit the user did not change is the current project's. */
+export function componentDraftWithProjectUnits(model: PreviewModel, draft: ComponentDraft): ComponentDraft {
+  const changed = new Set(draft.userUnits ?? []);
+  const next = { ...draft };
+  for (const key of COMPONENT_PROJECT_UNIT_KEYS) if (!changed.has(key)) next[key] = projectUnitFor(model, key);
+  return next;
+}
+
+/** A field edit; a unit edit marks that unit as the user's own. */
+export function componentDraftWithField<K extends keyof ComponentDraft>(draft: ComponentDraft, key: K, value: ComponentDraft[K]): ComponentDraft {
+  const unitKey = (COMPONENT_PROJECT_UNIT_KEYS as readonly string[]).includes(key as string) ? (key as ComponentProjectUnitKey) : null;
+  return {
+    ...draft,
+    [key]: value,
+    ...(unitKey && !(draft.userUnits ?? []).includes(unitKey) ? { userUnits: [...(draft.userUnits ?? []), unitKey] } : {})
+  };
+}
 
 /** W-15: the consumption modes offered for a valve, flange or reducer: the
  * DEC-045 mode (stiffness scale and component weight are applied) and the
