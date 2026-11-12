@@ -328,8 +328,8 @@ def test_a_specification_a_test_only_names_is_never_its_probe():
         path = probe(roots)
         assert not reads.declarative(path), (test, path)
         assert test in selected(path), (test, path)
-    with pytest.raises(AssertionError):
-        probe({'execution/PKG-04/DEL-04-04/ScopeOfWork.md'})
+        with pytest.raises(AssertionError):
+            probe(named)
 
 
 def test_named_tests_also_follow_the_paths_they_read():
