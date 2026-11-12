@@ -332,6 +332,7 @@ function formatPackageSaveError(error: unknown): string {
  * error that cannot be read, leaves the outcome unknown, and it is reported as unknown. */
 const SHAREABLE_SAVE_NOT_WRITTEN = "Not saved: no shareable report package was written and no user release was made.";
 const SHAREABLE_SAVE_OUTCOME_UNKNOWN = "It is not known whether the shareable report package was written.";
+const SHAREABLE_SAVE_TEMP_MAY_REMAIN = "A temporary file may remain beside the destination.";
 const REPORT_PACKAGE_SAVE_WORKER_FAILED = "REPORT-PACKAGE-SAVE-WORKER-FAILED";
 
 function shareableSaveFailureStatement(error: unknown, sent: boolean): string {
@@ -341,9 +342,11 @@ function shareableSaveFailureStatement(error: unknown, sent: boolean): string {
   if (error instanceof Error && error.message.startsWith("INVALID_REQUEST: ")) return SHAREABLE_SAVE_NOT_WRITTEN;
   // The save's own error (`ReportPackageSaveCommandError`): a refusal, or the atomic writer's.
   if (error && typeof error === "object" && !(error instanceof Error)) {
-    const { code, stage, message } = error as { code?: unknown; stage?: unknown; message?: unknown };
+    const { code, stage, message, cleanup_code } = error as { code?: unknown; stage?: unknown; message?: unknown; cleanup_code?: unknown };
     if (typeof code === "string" && typeof stage === "string" && typeof message === "string" && code !== REPORT_PACKAGE_SAVE_WORKER_FAILED) {
-      return SHAREABLE_SAVE_NOT_WRITTEN;
+      // The writer could not remove its temporary file after the failure. The error names
+      // no file (the writer's temporary name does not cross to the webview), so none is named.
+      return typeof cleanup_code === "string" ? `${SHAREABLE_SAVE_NOT_WRITTEN} ${SHAREABLE_SAVE_TEMP_MAY_REMAIN}` : SHAREABLE_SAVE_NOT_WRITTEN;
     }
   }
   return SHAREABLE_SAVE_OUTCOME_UNKNOWN;

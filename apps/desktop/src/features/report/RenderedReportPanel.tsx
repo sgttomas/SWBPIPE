@@ -62,21 +62,24 @@ function userReleaseReceipt(receipt: ReportPackageSaveReceipt): string | null {
     : null;
 }
 
-/** DEL-08-01 REQ-019, AC-010: a cancelled shareable save wrote nothing and made no user
- * release, and the panel says so. */
+/** A cancelled save wrote nothing, and the panel says so (DEL-08-01 AC-010 and REQ-019 for
+ * the shareable save, which also made no user release). */
 const SHAREABLE_SAVE_CANCELLED =
   "Not saved: the save was cancelled. No shareable report package was written and no user release was made.";
+const LOCAL_PRIVATE_SAVE_CANCELLED = "Not saved: the save was cancelled. No report package was written.";
 
-/** The first line of a receipt. A saved outcome's is unchanged (the native smoke pins its
- * prefix). A cancelled shareable save names only the file the person selected, if any, never
- * the suggested name of a file that was not written. */
-function isShareableCancel(receipt: ReportPackageSaveReceipt): boolean {
-  return receipt.outcome === "cancelled" && receipt.redaction_route_id === REPORT_PACKAGE_USER_RELEASE_ROUTE_ID;
+/** The sentence a cancelled receipt leads with, by its route; null for a saved one. */
+function cancelledStatement(receipt: ReportPackageSaveReceipt): string | null {
+  if (receipt.outcome !== "cancelled") return null;
+  return receipt.redaction_route_id === REPORT_PACKAGE_USER_RELEASE_ROUTE_ID ? SHAREABLE_SAVE_CANCELLED : LOCAL_PRIVATE_SAVE_CANCELLED;
 }
 
+/** The first line of a receipt. A saved outcome's is unchanged (the native smoke pins its
+ * prefix). A cancelled save names only the file the person selected, if any, never the
+ * suggested name of a file that was not written. */
 function receiptOutcomeLine(receipt: ReportPackageSaveReceipt): string {
   const head = `outcome=${receipt.outcome}; code=${receipt.code}`;
-  if (isShareableCancel(receipt)) {
+  if (receipt.outcome !== "saved") {
     return receipt.selected_basename ? `${head}; file=${receipt.selected_basename}` : head;
   }
   return `${head}; file=${receipt.selected_basename || receipt.container_file_name}`;
@@ -370,8 +373,8 @@ export function RenderedReportPanel({
       ) : null}
       {packageRoute?.route === "tauri_report_package_save" ? (
         <div className="report-list" data-testid="report-package-save-status">
-          {isShareableCancel(packageRoute.receipt) ? (
-            <span data-testid="report-package-shareable-cancelled">{SHAREABLE_SAVE_CANCELLED}</span>
+          {cancelledStatement(packageRoute.receipt) ? (
+            <span data-testid="report-package-save-cancelled">{cancelledStatement(packageRoute.receipt)}</span>
           ) : null}
           <span>{receiptOutcomeLine(packageRoute.receipt)}</span>
           <span>

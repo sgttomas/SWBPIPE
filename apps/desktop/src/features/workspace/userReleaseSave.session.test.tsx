@@ -183,6 +183,19 @@ describe("What a shareable save that writes nothing says (REQ-019, AC-010)", () 
     expect(diagnostic(await confirmOneSave(hook))).toBe(`${NOT_WRITTEN} ${JSON.stringify(error)}`);
   });
 
+  it("a writer error whose cleanup also failed says a temporary file may remain beside the destination", async () => {
+    // The shape `report_package_save.rs`'s writer-error test serializes.
+    const error = {
+      code: "REPORT-PACKAGE-RENAME-FAILED", stage: "rename", message: "Invented rename failure.", os_error_kind: "Other", os_error_code: null,
+      cleanup_code: "REPORT-PACKAGE-TEMP-CLEANUP-FAILED", cleanup_message: "Invented cleanup failure.", selected_basename: "invented.opsproj",
+      path_containment: "best_effort_non_adversarial", limitation: "Invented limitation.", diagnostics: []
+    };
+    const { result: hook } = await sessionAnswering(async () => { throw error; });
+    expect(diagnostic(await confirmOneSave(hook))).toBe(
+      `${NOT_WRITTEN} A temporary file may remain beside the destination. ${JSON.stringify(error)}`
+    );
+  });
+
   it.each([
     ["a worker failure", { code: "REPORT-PACKAGE-SAVE-WORKER-FAILED", stage: "assemble", message: "REPORT-PACKAGE-SAVE-WORKER-FAILED: the save's worker did not complete; the destination may be unchanged.", diagnostics: [] }],
     ["an unreadable error", "invented unreadable failure"]

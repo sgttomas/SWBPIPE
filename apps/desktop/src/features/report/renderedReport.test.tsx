@@ -1956,7 +1956,7 @@ describe("RenderedReportPanel: Save Shareable Report Package… (W-18b §2.2)", 
     );
     expect(screen.getByTestId("report-package-user-release-status")).toHaveTextContent(`user_release_recorded=true; model_document_sha256=${"c".repeat(64)}`);
     expect(screen.getByTestId("report-package-save-status").firstElementChild).toHaveTextContent(/^outcome=saved; code=REPORT-PACKAGE-SAVED; file=invented\.opsproj$/);
-    expect(screen.queryByTestId("report-package-shareable-cancelled")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("report-package-save-cancelled")).not.toBeInTheDocument();
   });
 
   it("says a cancelled shareable save wrote nothing and made no user release, whatever its receipt carries", () => {
@@ -1970,7 +1970,7 @@ describe("RenderedReportPanel: Save Shareable Report Package… (W-18b §2.2)", 
         packageRoute={{ route: "tauri_report_package_save", receipt: { ...cancelled, user_release_recorded: true, user_release_model_document_sha256: "c".repeat(64) } as never }} />
     );
     const status = screen.getByTestId("report-package-save-status");
-    expect(screen.getByTestId("report-package-shareable-cancelled")).toHaveTextContent(
+    expect(screen.getByTestId("report-package-save-cancelled")).toHaveTextContent(
       /^Not saved: the save was cancelled\. No shareable report package was written and no user release was made\.$/
     );
     expect(screen.queryByTestId("report-package-user-release-status")).not.toBeInTheDocument();
@@ -1984,7 +1984,7 @@ describe("RenderedReportPanel: Save Shareable Report Package… (W-18b §2.2)", 
         onSaveReportPackage={() => undefined}
         packageRoute={{ route: "tauri_report_package_save", receipt: { ...cancelled, user_release_recorded: false, user_release_model_document_sha256: "" } as never }} />
     );
-    expect(screen.getByTestId("report-package-shareable-cancelled")).toBeInTheDocument();
+    expect(screen.getByTestId("report-package-save-cancelled")).toBeInTheDocument();
     expect(screen.queryByTestId("report-package-user-release-status")).not.toBeInTheDocument();
     // A saved outcome whose durability is uncertain still wrote the package and shows its record.
     rerender(
@@ -1992,7 +1992,47 @@ describe("RenderedReportPanel: Save Shareable Report Package… (W-18b §2.2)", 
         onSaveReportPackage={() => undefined}
         packageRoute={{ route: "tauri_report_package_save", receipt: { ...RECEIPT, code: "REPORT-PACKAGE-SAVED-DURABILITY-UNCERTAIN", durability: "saved_durability_uncertain", user_release_recorded: true, user_release_model_document_sha256: "c".repeat(64) } as never }} />
     );
-    expect(screen.queryByTestId("report-package-shareable-cancelled")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("report-package-save-cancelled")).not.toBeInTheDocument();
     expect(screen.getByTestId("report-package-user-release-status")).toBeInTheDocument();
+  });
+
+  it("says a cancelled local-private save wrote nothing, names no suggested file and says nothing of a user release", () => {
+    const localPrivate = {
+      ...RECEIPT, redaction_route_id: "DREP-PACKAGE-SAVE-009", local_first_route_id: "DREP-PACKAGE-SAVE-009", local_first_export_context: "local_private",
+      local_first_storage_context: "local_private", local_first_reason_code: "PRIVATE_LOCAL_METADATA_ALLOWED", local_first_explicit_local_private_intent: true,
+      user_release_recorded: false, user_release_model_document_sha256: ""
+    };
+    const { rerender } = render(
+      <RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null}
+        onSaveReportPackage={() => undefined}
+        packageRoute={{ route: "tauri_report_package_save", receipt: {
+          ...localPrivate, outcome: "cancelled", stage: "picker", code: "REPORT-PACKAGE-SAVE-CANCELLED", byte_count: 0, durability: "not_applicable",
+          selected_basename: "", container_file_name: "desktop-report-suggested.opsproj"
+        } as never }} />
+    );
+    const status = screen.getByTestId("report-package-save-status");
+    expect(screen.getByTestId("report-package-save-cancelled")).toHaveTextContent(/^Not saved: the save was cancelled\. No report package was written\.$/);
+    expect(status).toHaveTextContent("outcome=cancelled; code=REPORT-PACKAGE-SAVE-CANCELLED");
+    expect(status).not.toHaveTextContent("file=");
+    expect(status).not.toHaveTextContent("desktop-report-suggested.opsproj");
+    expect(status).not.toHaveTextContent(/user release|user-released|shareable/i);
+    // A basename the person selected is named; the suggested one still is not.
+    rerender(
+      <RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null}
+        onSaveReportPackage={() => undefined}
+        packageRoute={{ route: "tauri_report_package_save", receipt: {
+          ...localPrivate, outcome: "cancelled", stage: "picker", code: "REPORT-PACKAGE-SAVE-CANCELLED", byte_count: 0, durability: "not_applicable",
+          selected_basename: "chosen.opsproj", container_file_name: "desktop-report-suggested.opsproj"
+        } as never }} />
+    );
+    expect(screen.getByTestId("report-package-save-status").children[1]).toHaveTextContent(/^outcome=cancelled; code=REPORT-PACKAGE-SAVE-CANCELLED; file=chosen\.opsproj$/);
+    // The saved local-private outcome's first line is unchanged, with no cancel sentence.
+    rerender(
+      <RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null}
+        onSaveReportPackage={() => undefined}
+        packageRoute={{ route: "tauri_report_package_save", receipt: { ...localPrivate, selected_basename: "", container_file_name: "desktop-report.opsproj" } as never }} />
+    );
+    expect(screen.queryByTestId("report-package-save-cancelled")).not.toBeInTheDocument();
+    expect(screen.getByTestId("report-package-save-status").firstElementChild).toHaveTextContent(/^outcome=saved; code=REPORT-PACKAGE-SAVED; file=desktop-report\.opsproj$/);
   });
 });
