@@ -32,12 +32,18 @@
   const treeRow = (projectId) => byTestId(`tree-row-project-${encodeURIComponent(projectId)}`);
   const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
-  async function waitFor(label, probe, timeoutMs = 120000) {
+  // Every wait is for an observed condition, bounded by one of the plan's named timeouts (the runner
+  // states them; this host runs loaded). A timeout names itself, its elapsed time and the moment it
+  // ended (`at <unix ms>`), so the runner can read the load average then and tell a slow host from a
+  // product that never showed the condition.
+  let T = { ui: 60000, step: 300000, solve: 900000, save: 900000 };
+  async function waitFor(label, probe, timeoutMs = T.step) {
     const started = Date.now();
     for (;;) {
       const value = probe();
       if (value) return value;
-      if (Date.now() - started > timeoutMs) throw new Error(`timed out after ${timeoutMs} ms waiting for ${label}`);
+      const elapsed = Date.now() - started;
+      if (elapsed > timeoutMs) throw new Error(`TIMEOUT waiting for ${label}: ${elapsed} ms elapsed, limit ${timeoutMs} ms, at ${Date.now()}`);
       await sleep(100);
     }
   }
@@ -91,7 +97,7 @@
       const shown = await waitFor(`${label}: saved`, () => {
         const now = message();
         return now !== before && (now.startsWith("Saved model document ") || now.startsWith("Save model document")) ? now : null;
-      });
+      }, T.save);
       await log(`${label}: ${shown}`);
       if (shown.includes("MODEL-DOC-SAVE-HASH-PENDING") && attempt < 20) { await sleep(500); continue; }
       if (!shown.startsWith("Saved model document ")) {
@@ -115,18 +121,18 @@
       if (/\bstate=(failed|cancelled|refused)(?:;|$)/.test(summary)) throw new Error(`${label}: ${summary}; ${text("solve-job-error") ?? ""}`);
       const proof = proofText();
       return summary.includes("state=completed") && proof && proof !== prior && proof.includes(`project=${projectId}`);
-    }, 300000);
+    }, T.solve);
     return { summary: text("solve-job-summary"), proof: proofText() };
   }
 
   async function renderLocalPrivateReport(label) {
     await showSection("report");
     const intent = element("rendered-report-local-private-intent");
-    if (!intent.checked) { intent.click(); await waitFor("report intent", () => byTestId("rendered-report-local-private-intent")?.checked, 10000); }
-    await waitFor("render enabled", () => byTestId("rendered-report-render") && !byTestId("rendered-report-render").disabled, 30000);
+    if (!intent.checked) { intent.click(); await waitFor("report intent", () => byTestId("rendered-report-local-private-intent")?.checked, T.ui); }
+    await waitFor("render enabled", () => byTestId("rendered-report-render") && !byTestId("rendered-report-render").disabled, T.step);
     click("rendered-report-render");
-    await waitFor(`${label} render`, () => byTestId("rendered-report-hash") || byTestId("rendered-report-error") || byTestId("rendered-report-route"), 180000);
-    await waitFor(`${label} render settled`, () => !/Rendering/.test(byTestId("rendered-report-render")?.textContent ?? ""), 180000);
+    await waitFor(`${label} render`, () => byTestId("rendered-report-hash") || byTestId("rendered-report-error") || byTestId("rendered-report-route"), T.save);
+    await waitFor(`${label} render settled`, () => !/Rendering/.test(byTestId("rendered-report-render")?.textContent ?? ""), T.save);
     return {
       hash: text("rendered-report-hash"),
       gate: text("rendered-report-gate"),
@@ -139,13 +145,15 @@
 
   // The package save's status, once the save is no longer in progress; a save the memory pool
   // refused only for this Mac's momentary available memory is reported as such to the caller.
-  // `prior` is the status line shown before this save started, which is never this save's.
+  // Two observed conditions: the save started (the button says so, or the status line shown before
+  // it, `prior`, was cleared or replaced), then it settled (the button no longer saving, a status shown).
   async function packageOutcome(label, prior) {
-    await waitFor(`${label}: save started`, () => /Saving report package/.test(byTestId("report-package-save")?.textContent ?? "") || null, 10000).catch(() => null);
+    const saving = () => /Saving report package/.test(byTestId("report-package-save")?.textContent ?? "");
+    await waitFor(`${label}: save started`, () => saving() || text("report-package-save-status") !== prior, T.step);
     return waitFor(`${label}: saved`, () => {
       const now = text("report-package-save-status");
-      return now && now !== prior && !/Saving report package/.test(byTestId("report-package-save")?.textContent ?? "") ? now : null;
-    }, 300000);
+      return now && !saving() ? now : null;
+    }, T.save);
   }
 
   // File > Save Shareable Report Package…: the dialog as shown, then its statement ticked and
@@ -154,9 +162,9 @@
     await showSection("report");
     const record = { label, memory_refusals: 0 };
     for (;;) {
-      await waitFor(`${label}: controls`, () => byTestId("report-package-user-release") && !byTestId("report-package-user-release").disabled, 60000);
+      await waitFor(`${label}: controls`, () => byTestId("report-package-user-release") && !byTestId("report-package-user-release").disabled, T.step);
       await menu("file.save-shareable-report-package");
-      const dialog = await waitFor(`${label}: dialog`, () => byTestId("user-release-dialog"), 30000);
+      const dialog = await waitFor(`${label}: dialog`, () => byTestId("user-release-dialog"), T.step);
       const statement = byTestId("user-release-statement", dialog);
       Object.assign(record, {
         title: dialog.querySelector("h2")?.textContent?.trim() ?? null,
@@ -171,7 +179,7 @@
         return record;
       }
       statement.click();
-      await waitFor(`${label}: confirm enabled`, () => byTestId("user-release-confirm")?.disabled === false, 10000);
+      await waitFor(`${label}: confirm enabled`, () => byTestId("user-release-confirm")?.disabled === false, T.ui);
       await call("native_smoke_choose", { path });
       const prior = text("report-package-save-status");
       click("user-release-confirm");
@@ -194,29 +202,29 @@
   // The dialog opened again after the save: how it starts, then Cancel.
   async function reopenUserReleaseDialog() {
     await menu("file.save-shareable-report-package");
-    const dialog = await waitFor("dialog again", () => byTestId("user-release-dialog"), 30000);
+    const dialog = await waitFor("dialog again", () => byTestId("user-release-dialog"), T.step);
     const shown = {
       statement_checked_initially: byTestId("user-release-statement", dialog)?.checked ?? null,
       confirm_disabled: byTestId("user-release-confirm", dialog)?.disabled === true
     };
     click("user-release-cancel", dialog);
-    shown.closed = Boolean(await waitFor("dialog closed", () => !byTestId("user-release-dialog"), 10000));
+    shown.closed = Boolean(await waitFor("dialog closed", () => !byTestId("user-release-dialog"), T.ui));
     return shown;
   }
 
   // File > Save Report Package… (local private), after its own selection; the file re-read.
   async function saveLocalPackage(path, label) {
     await showSection("report");
-    const intent = await waitFor(`${label}: package controls`, () => byTestId("report-package-private-intent"), 30000);
+    const intent = await waitFor(`${label}: package controls`, () => byTestId("report-package-private-intent"), T.step);
     const record = { label, intent_checked_initially: intent.checked === true };
     if (!intent.checked) {
       intent.click();
-      await waitFor(`${label}: intent recorded`, () => byTestId("report-package-private-intent")?.checked, 10000);
+      await waitFor(`${label}: intent recorded`, () => byTestId("report-package-private-intent")?.checked, T.ui);
     }
     record.memory_refusals = 0;
     for (;;) {
       await call("native_smoke_choose", { path });
-      await waitFor(`${label}: save enabled`, () => byTestId("report-package-save") && !byTestId("report-package-save").disabled, 30000);
+      await waitFor(`${label}: save enabled`, () => byTestId("report-package-save") && !byTestId("report-package-save").disabled, T.step);
       const prior = text("report-package-save-status");
       await menu("file.save-report-package");
       record.status = await packageOutcome(label, prior);
@@ -253,13 +261,13 @@
   async function openAppearance() {
     const details = element("toolbar-appearance");
     if (!details.open) details.querySelector("summary").click();
-    await waitFor("appearance open", () => byTestId("toolbar-appearance")?.open, 5000);
+    await waitFor("appearance open", () => byTestId("toolbar-appearance")?.open, T.ui);
   }
   const intervalSelect = () => byTestId("autosave-interval");
   async function chooseInterval(minutes) {
-    const select = await waitFor("interval control enabled", () => (intervalSelect() && !intervalSelect().disabled ? intervalSelect() : null), 30000);
+    const select = await waitFor("interval control enabled", () => (intervalSelect() && !intervalSelect().disabled ? intervalSelect() : null), T.step);
     setValue(select, String(minutes));
-    await waitFor(`interval ${minutes}`, () => intervalSelect()?.value === String(minutes) && !intervalSelect().disabled, 30000);
+    await waitFor(`interval ${minutes}`, () => intervalSelect()?.value === String(minutes) && !intervalSelect().disabled, T.step);
   }
   const offNotices = () => ({ off_notice: text("autosave-off-notice"), off_status: text("autosave-off-status") });
 
@@ -275,17 +283,17 @@
     click("queue-entity-grid-intents");
     const apply = await waitFor("apply control", () => [...document.querySelectorAll('[data-testid^="apply-intent-editor-intent-"]')].at(-1));
     apply.click();
-    const summary = await waitFor("operation applied", () => /1 applied/.test(text("operation-apply-summary") ?? "") && text("operation-apply-summary"), 30000);
-    const edited = await waitFor("session edited", () => /Edited/.test(text("project-edited") ?? "") && text("project-edited"), 30000);
+    const summary = await waitFor("operation applied", () => /1 applied/.test(text("operation-apply-summary") ?? "") && text("operation-apply-summary"), T.step);
+    const edited = await waitFor("session edited", () => /Edited/.test(text("project-edited") ?? "") && text("project-edited"), T.step);
     return { summary, edited, at: Date.now() };
   }
 
   async function phaseAutosaveEnd(plan, report) {
     await openAppearance();
-    const select = await waitFor("autosave settings read", () => (intervalSelect() && !intervalSelect().disabled && intervalSelect().value !== "" ? intervalSelect() : null), 30000);
+    const select = await waitFor("autosave settings read", () => (intervalSelect() && !intervalSelect().disabled && intervalSelect().value !== "" ? intervalSelect() : null), T.step);
     report.setting_on_start = { value: select.value, options: [...select.options].map((option) => option.value), ...offNotices() };
     await chooseInterval(0);
-    report.setting_off = { value: intervalSelect()?.value, ...(await waitFor("off notice", () => (offNotices().off_notice ? offNotices() : null), 10000).catch(() => offNotices())) };
+    report.setting_off = { value: intervalSelect()?.value, ...(await waitFor("off notice", () => (offNotices().off_notice ? offNotices() : null), T.ui)) };
     await chooseInterval(plan.interval_minutes);
     report.setting_on = { value: intervalSelect()?.value, autosave_status: text("autosave-status"), ...offNotices() };
     const before = message();
@@ -307,7 +315,7 @@
   }
 
   async function phaseAutosaveReopen(plan, report) {
-    const prompt = await waitFor("recovery offer", () => byTestId("autosave-recovery-prompt"), 120000);
+    const prompt = await waitFor("recovery offer", () => byTestId("autosave-recovery-prompt"), T.step);
     const windowState = () => ({
       project: text("toolbar-project-name"),
       edited: text("project-edited"),
@@ -326,6 +334,8 @@
     };
     // Before any choice: the window, now and after a pause with the offer still open.
     report.before_choice = windowState();
+    // An observation window with the offer open, not a wait for anything: a slow host only shortens
+    // what it shows, it cannot make the check pass or fail.
     await sleep(plan.hold_ms);
     report.before_choice_later = { ...windowState(), offer_open: Boolean(byTestId("autosave-recovery-prompt")) };
     const before = message();
@@ -333,7 +343,7 @@
     report.opened = await waitFor("autosave opened", () => {
       const now = message();
       return now !== before && now !== "" ? now : null;
-    }, 60000);
+    }, T.step);
     report.after_open = windowState();
     report.model_document = await saveModelDocument(plan.model_document, "autosave/recovered");
   }
@@ -343,7 +353,8 @@
     try {
       const plan = await call("native_smoke_plan");
       report.phase = plan.phase;
-      await waitFor("desktop shell", () => byTestId("desktop-preview-shell") && treeRow(plan.bundled_project_id), 120000);
+      if (plan.timeouts) T = { ...T, ...plan.timeouts };
+      await waitFor("desktop shell", () => byTestId("desktop-preview-shell") && treeRow(plan.bundled_project_id), T.step);
       await log(`evidence journey phase ${plan.phase} started`);
       if (plan.phase === "report") await phaseReport(plan, report);
       else if (plan.phase === "autosave-end") await phaseAutosaveEnd(plan, report);

@@ -8,9 +8,9 @@ import os from "node:os";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import {
-  autosaveIntervalTerms, autosaveSlot, canonical, crc32, documentSha256, dumpStore, inspectReportPackage, isCanonicalText,
+  autosaveIntervalTerms, autosaveSlot, canonical, crc32, documentSha256, driverTimeout, dumpStore, inspectReportPackage, isCanonicalText,
   judgeAutosaveRecord, launchedPid, packageStatusFields, parseAutosaveName, prdRequiredNotice, readStoredZip,
-  screenLockedFromIoreg, sha256Hex, underHostSlot
+  screenLockedFromIoreg, sha256Hex, timeoutText, underHostSlot
 } from "./evidence-checks.mjs";
 
 const project = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..", "..", "..");
@@ -98,6 +98,15 @@ test("the runner knows whether it runs under the host slot", () => {
   assert.equal(underHostSlot(ps, 63), true);
   assert.equal(underHostSlot(ps, 70), false);
   assert.equal(underHostSlot(ps, 999), false);
+});
+
+test("a driver timeout is told apart, with the load average nearest its moment", () => {
+  const samples = [{ at: 1700000000000, load: [10, 20, 30] }, { at: 1700000002000, load: [41.5, 38, 35] }];
+  const seen = driverTimeout("x\nTIMEOUT waiting for exact solve: 900123 ms elapsed, limit 900000 ms, at 1700000001900\n  at stack", samples);
+  assert.deepEqual(seen, { label: "exact solve", elapsed_ms: 900123, limit_ms: 900000, at: 1700000001900, load: [41.5, 38, 35], load_sampled_at: 1700000002000 });
+  assert.match(timeoutText(seen), /^TIMEOUT waiting for exact solve: 900 s elapsed of a 900 s limit; load average 41\.50 \/ 38\.00 \/ 35\.00 \(1\/5\/15 min, sampled 0 s from the timeout\), on \d+ processors$/);
+  assert.equal(driverTimeout("exact: state=failed", samples), null);
+  assert.equal(driverTimeout("TIMEOUT waiting for a: 1 ms elapsed, limit 0 ms, at 1700000000000", []).load, null);
 });
 
 test("PRD §19.3's notice and DEL-02-05's interval terms are read from the repository's text", () => {

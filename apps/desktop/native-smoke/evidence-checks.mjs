@@ -4,6 +4,7 @@
 // never from the app's own account of them. No function here launches, builds or
 // writes anything; `evidence-checks.test.mjs` tests them with `node --test`.
 import { createHash } from "node:crypto";
+import os from "node:os";
 
 export const sha256Hex = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
@@ -50,6 +51,24 @@ export function underHostSlot(ps, pid) {
     if (/(^|\/|\s)t3_slot_run\.sh(\s|$)/.test(rows.get(at)?.command ?? "")) return true;
   }
   return false;
+}
+
+// ---------------------------------------------------------------- timeouts on a loaded host
+
+/** A driver timeout (`TIMEOUT waiting for <label>: <n> ms elapsed, limit <n> ms, at <unix ms>`) with
+ * the load average sampled nearest its moment, or null when `error` is not a timeout. `samples` are
+ * `{ at, load: [1m, 5m, 15m] }`, taken while the app ran. */
+export function driverTimeout(error, samples) {
+  const match = /TIMEOUT waiting for (.+?): (\d+) ms elapsed, limit (\d+) ms, at (\d{13})/.exec(String(error ?? ""));
+  if (!match) return null;
+  const at = Number(match[4]);
+  const nearest = samples.reduce((best, sample) => (best === null || Math.abs(sample.at - at) < Math.abs(best.at - at) ? sample : best), null);
+  return { label: match[1], elapsed_ms: Number(match[2]), limit_ms: Number(match[3]), at, load: nearest?.load ?? null, load_sampled_at: nearest?.at ?? null };
+}
+/** One line for a timeout: what was waited for, how long, and the load then. */
+export function timeoutText({ label, elapsed_ms, limit_ms, load, load_sampled_at, at }) {
+  const shown = load ? `${load.map((value) => value.toFixed(2)).join(" / ")} (1/5/15 min${load_sampled_at !== undefined && at !== undefined ? `, sampled ${Math.round((load_sampled_at - at) / 1000)} s from the timeout` : ""})` : "not sampled";
+  return `TIMEOUT waiting for ${label}: ${Math.round(elapsed_ms / 1000)} s elapsed of a ${Math.round(limit_ms / 1000)} s limit; load average ${shown}, on ${os.cpus().length} processors`;
 }
 
 // ---------------------------------------------------------------- governing text

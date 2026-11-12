@@ -53,7 +53,19 @@
 // - under the worktree build lock (`scripts/worktreeBuildLock.mjs`), from the build through the last launch;
 // - before every launch, the screen session is read (`ioreg -n Root -d1 -a`, CGSSessionScreenIsLocked): if
 //   it is locked the runner prints "session locked" and stops, without retrying;
-// - no page reaches a printer: no journey activates the print control.
+// - no page reaches a printer: no journey activates the print control;
+// - every cargo build the runner starts, directly or through `npm run build:wasm`, has at most 4 build
+//   jobs: CARGO_BUILD_JOBS=4 is set in the environment (lowered to 4 when larger) before any build. The
+//   engine stamps count CARGO_BUILD_* as build context, so an engine last stamped without it is rebuilt
+//   once.
+//
+// Waits on a loaded host. Every wait is for an observed condition, bounded by a named timeout (TIMEOUTS
+// below, passed to the driver in the plan); none is a fixed sleep that assumes a quiet machine. The only
+// sleeps are the driver's polling (100 ms), its retry backoffs (0.5 s after a model hash still being
+// computed, 5 s after a memory-pool refusal) and the 3 s observation window with the recovery offer open,
+// which a slow host can only shorten, not pass or fail. While the app runs the runner samples the load
+// average every 2 s; a timeout is reported as "TIMEOUT waiting for …" with its elapsed time, its limit and
+// the load average read nearest its moment, so a failure by timing can be told from a failure of the product.
 //
 // Every check prints one line; the runner exits 1 if any check fails (2 on a refusal before any launch,
 // 3 on "session locked"). Expectations are computed here on independent grounds
@@ -73,7 +85,7 @@ import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mj
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 import {
   autosaveIntervalTerms, autosaveSlot, documentSha256, dumpStore, inspectReportPackage, isCanonicalText, judgeAutosaveRecord,
-  launchedPid, packageStatusFields, parseAutosaveName, prdRequiredNotice, screenLockedFromIoreg, sha256Hex, underHostSlot
+  driverTimeout, launchedPid, packageStatusFields, parseAutosaveName, prdRequiredNotice, screenLockedFromIoreg, sha256Hex, timeoutText, underHostSlot
 } from "./evidence-checks.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -83,14 +95,23 @@ const tauriDir = path.join(desktop, "src-tauri");
 const argv = process.argv.slice(2);
 const args = new Set(argv);
 const JOURNEYS = ["report-pressure-free", "report-exact", "autosave-recovery"];
-const PHASE_TIMEOUT_MS = 20 * 60 * 1000;
-const RECORD_WAIT_MS = 8 * 60 * 1000;
+// The named timeouts (ms). ui: a control's response to a click; step: a dialog, the shell at start, the
+// settings read, an applied edit, the recovery offer; solve: one sparse solve; save: a render, a package
+// save, a model document save. record: the runner's wait for the autosave record of the edited model
+// (one interval of 1 minute, plus the write, on a loaded host). launch: one whole launch.
+const TIMEOUTS = { ui: 60_000, step: 300_000, solve: 900_000, save: 900_000 };
+const RECORD_WAIT_MS = 10 * 60 * 1000;
+const PHASE_TIMEOUT_MS = 45 * 60 * 1000;
 const TAURI_CONF = JSON.parse(readFileSync(path.join(tauriDir, "tauri.conf.json"), "utf8"));
 const IDENTIFIER = TAURI_CONF.identifier;
 // As run.mjs: the smoke build alone turns the webview's background throttling off.
 const SMOKE_TAURI_CONFIG = JSON.stringify({ app: { windows: TAURI_CONF.app.windows.map((window) => ({ ...window, backgroundThrottling: "disabled" })) } });
 
 const refuse = (text) => { console.error(`evidence journeys: ${text}`); process.exit(2); };
+// At most 4 cargo build jobs for every build started from here (inherited by npm and cargo).
+if (!(Number(process.env.CARGO_BUILD_JOBS) >= 1 && Number(process.env.CARGO_BUILD_JOBS) <= 4)) process.env.CARGO_BUILD_JOBS = "4";
+console.log(`evidence journeys: CARGO_BUILD_JOBS=${process.env.CARGO_BUILD_JOBS}`);
+const loadNow = () => os.loadavg().map((value) => value.toFixed(2)).join(" / ");
 if (process.platform !== "darwin") refuse("macOS only");
 const named = argv.includes("--journey") ? (argv[argv.indexOf("--journey") + 1] ?? "").split(",").filter(Boolean) : [];
 const selected = args.has("--all") ? JOURNEYS : named;
@@ -241,7 +262,12 @@ async function launch(where, plan, whileRunning = null) {
     console.error(`evidence journeys: ${binary} changed since it was checked; not launched`);
     await exitAfterSignals(2);
   }
-  const env = { ...process.env, HOME: where.home, SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "evidence-journeys.js"), SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan), SWBPIPE_NATIVE_SMOKE_REPORT: report };
+  const env = { ...process.env, HOME: where.home, SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "evidence-journeys.js"), SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify({ ...plan, timeouts: TIMEOUTS }), SWBPIPE_NATIVE_SMOKE_REPORT: report };
+  const samples = [];
+  const sample = () => { samples.push({ at: Date.now(), load: os.loadavg() }); if (samples.length > 2000) samples.shift(); };
+  sample();
+  const sampler = setInterval(sample, 2000);
+  const launchedAt = Date.now();
   delete env.SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY;
   let exited = null;
   const running = runUnderLock("/usr/bin/caffeinate", ["-di", binary], { cwd: where.root, env, stdio: ["ignore", "inherit", "inherit"], timeoutMs: PHASE_TIMEOUT_MS })
@@ -258,7 +284,11 @@ async function launch(where, plan, whileRunning = null) {
         ended = { value, pid, at };
         break;
       }
-      if (Date.now() - started > RECORD_WAIT_MS) { ended = { value: null, pid: null, at: Date.now(), timed_out: true }; break; }
+      if (Date.now() - started > RECORD_WAIT_MS) {
+        console.error(`${journey}: TIMEOUT waiting for the autosave record of the edited model: ${Math.round((Date.now() - started) / 1000)} s elapsed of a ${RECORD_WAIT_MS / 1000} s limit; load average ${loadNow()} (1/5/15 min), on ${os.cpus().length} processors`);
+        ended = { value: null, pid: null, at: Date.now(), timed_out: true, load: os.loadavg() };
+        break;
+      }
       await new Promise((resolve) => setTimeout(resolve, 200));
     }
   }
@@ -267,11 +297,19 @@ async function launch(where, plan, whileRunning = null) {
     if (pid !== null) process.kill(pid, "SIGKILL");
   }
   const outcome = await running;
-  if (outcome.timedOut) console.error(`phase ${plan.phase}: timed out`);
-  const result = existsSync(report) ? JSON.parse(readFileSync(report, "utf8")) : { ok: false, error: `no report (exit ${outcome.status ?? outcome.signal})` };
-  return { report: result, report_written: existsSync(report), ended, outcome, report_path: report };
+  clearInterval(sampler);
+  if (outcome.timedOut) console.error(`${journey}: TIMEOUT of the whole launch (phase ${plan.phase}): ${Math.round((Date.now() - launchedAt) / 1000)} s elapsed of a ${PHASE_TIMEOUT_MS / 1000} s limit; load average ${loadNow()} (1/5/15 min), on ${os.cpus().length} processors`);
+  const result = existsSync(report) ? JSON.parse(readFileSync(report, "utf8")) : { ok: false, error: `no report (exit ${outcome.status ?? outcome.signal}${outcome.timedOut ? "; the launch timed out" : ""})` };
+  const timeout = driverTimeout(result.error, samples);
+  if (timeout) {
+    result.timeout = timeout;
+    console.error(`${journey}: ${timeoutText(timeout)}`);
+  }
+  return { report: result, report_written: existsSync(report), ended, outcome, report_path: report, samples };
 }
 
+// A failed launch's first line, or its timeout with the load average then.
+const failure = (report) => (report.timeout ? timeoutText(report.timeout) : report.error?.split("\n")[0]);
 const fileOf = (file) => (existsSync(file) ? readFileSync(file) : null);
 const readJson = (file) => { try { return JSON.parse(readFileSync(file, "utf8")); } catch { return null; } };
 // The session's model document as saved: its RFC 8785 hash recomputed here, and whether the file is that text.
@@ -299,7 +337,7 @@ async function reportJourney(route) {
     projectId = exactDocument.project.id;
   }
   const { report } = await launch(where, { phase: "report", route, open, project_id: projectId, bundled_project_id: demo.project.id, ...files });
-  check("the journey completed", report.ok, report.error?.split("\n")[0]);
+  check("the journey completed", report.ok, failure(report));
   check("solved: the job completed, its proof bound to the session's project", report.solve?.summary?.includes("state=completed") && report.solve?.proof?.includes(`project=${projectId}`), report.solve?.summary);
   check("local-private report rendered, export gates passed", /^Canonical HTML SHA-256: [0-9a-f]{64}$/.test(report.render?.hash ?? "") && report.render.gate === "export gates passed", report.render && { hash: report.render.hash, gate: report.render.gate, error: report.render.error });
   if (report.render) console.log(`INFO  ${journey}: save and print controls shown: save=${report.render.save_control}; print=${report.render.print_control} (not activated; see the header)`);
@@ -397,7 +435,7 @@ async function autosaveJourney() {
   const end = first.report;
   const before = checkpoint("before-edit");
   const edited = checkpoint("edited");
-  check("first launch reached the end of its steps (no error reported)", !first.report_written || end.ok, end.error?.split("\n")[0]);
+  check("first launch reached the end of its steps (no error reported)", !first.report_written || end.ok, failure(end));
   check(`on a fresh settings folder autosave is on at DEL-02-05's default, every ${INTERVAL.default_minutes} minutes, with no off notice`,
     before?.setting_on_start?.value === String(INTERVAL.default_minutes) && !before.setting_on_start.off_notice && !before.setting_on_start.off_status, before?.setting_on_start);
   check(`the interval offers off and DEL-02-05's choices (${INTERVAL.choices.join(", ")})`,
@@ -415,7 +453,7 @@ async function autosaveJourney() {
     sessionEnd.canonical && sessionEnd.document?.nodes?.find((node) => node.id === EDIT.node)?.position?.y !== editedNode.position.y, sessionEnd.sha256);
   const ended = first.ended;
   check("the app ended without warning: its process found and sent SIGKILL once the record was on disk, and it wrote no final report",
-    ended && !ended.timed_out && ended.pid !== null && ended.value && !first.report_written, ended && { pid: ended.pid, timed_out: ended.timed_out ?? false, report: first.report_written });
+    ended && !ended.timed_out && ended.pid !== null && ended.value && !first.report_written, ended && { pid: ended.pid, timed_out: ended.timed_out ?? false, load_at_timeout: ended.load?.map((value) => Number(value.toFixed(2))), report: first.report_written });
   const record = ended?.value ?? null;
   if (record) {
     const judged = judgeAutosaveRecord({ name: record.name, bytes: record.bytes, projectId: demo.project.id, endedAt: ended.at, intervalMs, notBefore: edited.edit.at - 1000 });
@@ -433,7 +471,7 @@ async function autosaveJourney() {
 
   const second = await launch(where, { phase: "autosave-reopen", bundled_project_id: demo.project.id, project_id: demo.project.id, hold_ms: 3000, model_document: files.recovered });
   const reopen = second.report;
-  check("relaunch: the journey completed", reopen.ok, reopen.error?.split("\n")[0]);
+  check("relaunch: the journey completed", reopen.ok, failure(reopen));
   const hash = record ? parseAutosaveName(record.name).model_hash : null;
   check("relaunch: the offer is made for the demo's record, naming its model hash, with Open offered",
     reopen.offer?.open_offered && !reopen.offer.unreadable && hash !== null && reopen.offer.what?.includes(`(${demo.project.id})`) && reopen.offer.what.includes(`model hash ${hash.slice(0, 12)}`), reopen.offer?.what ?? reopen.offer?.unreadable);
