@@ -2164,7 +2164,7 @@ mod direct_native {
 
 /// DEL-04-07 (the cancellation screen's exception): a report rendered for a
 /// case admitted under the exception quotes the case's
-/// `PRESSURE_REGION_DEPARTURE_THRUST_RETAINED` warning plainly in its
+/// `PRESSURE_REGION_CAP_REMAINDER_RETAINED` warning plainly in its
 /// Diagnostics section, not as supplied, unverified text, on a result with a
 /// combination, where every message naming no combination is otherwise
 /// quoted after that label. The admitted case is solved here (a closed
@@ -2179,7 +2179,7 @@ mod direct_native {
 #[test]
 fn a_report_for_a_case_admitted_under_the_exception_quotes_its_warning_plainly() {
     use open_pipe_stress_report_package::bindings::{expected_report_diagnostics, SUPPLEMENTAL_DIAGNOSTIC_LABEL};
-    use open_pipe_stress_result_export::{DEPARTURE_THRUST_WARNING_CODE, DEPARTURE_THRUST_WARNING_MESSAGE};
+    use open_pipe_stress_result_export::{CAP_REMAINDER_WARNING_CODE, CAP_REMAINDER_WARNING_MESSAGE};
     let node = |id: &str, x: f64| json!({"id": id, "position": {"x": x, "y": 0.0, "z": 0.0}, "provenance": "invented"});
     let pipe = |id: &str, from: &str, to: &str, outside: f64| json!({"id": id, "from": from, "to": to,
         "section": {"outside_diameter": {"value": outside, "unit": "m"}, "wall_thickness": {"value": 0.01, "unit": "m"},
@@ -2190,7 +2190,7 @@ fn a_report_for_a_case_admitted_under_the_exception_quotes_its_warning_plainly()
     let model = json!({
         "schema_version": "0.9.0", "document_kind": "openpipestress.product_preview.model",
         "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"},
-        "project": {"id": "project:departure", "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
+        "project": {"id": "project:cap-remainder", "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
         "nodes": [node("node:A", 0.0), node("node:M", 3.0), node("node:B", 6.0)],
         "pipe_segments": [pipe("pipe:A-M", "node:A", "node:M", 0.12), pipe("pipe:M-B", "node:M", "node:B", f64::from_bits(0.12_f64.to_bits() + 1))],
@@ -2214,17 +2214,17 @@ fn a_report_for_a_case_admitted_under_the_exception_quotes_its_warning_plainly()
         entry["provenance"] = provenance.clone();
         entry
     }).collect::<Vec<_>>();
-    let warning = entries.iter().find(|entry| entry["code"] == DEPARTURE_THRUST_WARNING_CODE).expect("the warning's report entry");
-    assert_eq!(warning["message"], DEPARTURE_THRUST_WARNING_MESSAGE);
+    let warning = entries.iter().find(|entry| entry["code"] == CAP_REMAINDER_WARNING_CODE).expect("the warning's report entry");
+    assert_eq!(warning["message"], CAP_REMAINDER_WARNING_MESSAGE);
     assert_eq!(warning["affected_object"]["ref_id"], format!("case:P, region:P, {}", source["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["cancellation_screen_exception"]["node_ref"].as_str().unwrap()));
     let mut input = pressure_free_input();
     input["report_sections"]["diagnostics"] = json!(entries);
     let rendered: Value = serde_json::from_str(&command_body(&json!({"input": input})).expect("the render answers")).unwrap();
     let html = rendered["html"].as_str().expect("rendered html");
-    let sentence = open_pipe_stress_report_renderer::escape_html(DEPARTURE_THRUST_WARNING_MESSAGE);
+    let sentence = open_pipe_stress_report_renderer::escape_html(CAP_REMAINDER_WARNING_MESSAGE);
     let label = open_pipe_stress_report_renderer::escape_html(SUPPLEMENTAL_DIAGNOSTIC_LABEL);
     assert_eq!(html.matches(&sentence).count(), 1, "the sentence, once");
-    assert!(!html.contains(&format!("{label}{}", open_pipe_stress_report_renderer::escape_html(&format!("\"{DEPARTURE_THRUST_WARNING_MESSAGE}")))), "not as supplied text");
+    assert!(!html.contains(&format!("{label}{}", open_pipe_stress_report_renderer::escape_html(&format!("\"{CAP_REMAINDER_WARNING_MESSAGE}")))), "not as supplied text");
     let diagnostics = html.find("Diagnostics").expect("a Diagnostics section");
     assert!(html.find(&sentence).unwrap() > diagnostics, "in the Diagnostics section");
 }

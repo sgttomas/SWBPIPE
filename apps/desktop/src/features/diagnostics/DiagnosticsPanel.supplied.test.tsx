@@ -11,7 +11,7 @@ import { registerRetainedPrecision, retainedPrecisionRegistration } from "../res
 import { DiagnosticsPanel } from "./DiagnosticsPanel";
 import { buildDiagnosticInterpretation } from "../results/resultInterpretation";
 import { readerValidate, ResultReaderError } from "../results/resultReader";
-import { DEPARTURE_THRUST_WARNING_CODE, documentCombinationIdentities, presentedResultDiagnostics, SUPPLEMENTAL_DIAGNOSTIC_LABEL, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
+import { CAP_REMAINDER_WARNING_CODE, documentCombinationIdentities, presentedResultDiagnostics, SUPPLEMENTAL_DIAGNOSTIC_LABEL, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
 import { diagnosticsForSections } from "../report/renderableReportInput";
 import type { Diagnostic, MechanicsResult, PreviewModel } from "../../types";
 
@@ -158,8 +158,8 @@ describe("Diagnostics panel: supplied diagnostic text", () => {
 // diagnostic, copied as it stands even where the result has combinations and the warning names none of them;
 // a result the reader refuses attests nothing, and the warning is then quoted as supplied text like any other.
 describe("Diagnostics panel: the cancellation-screen exception's warning", () => {
-  const MESSAGE = "Small differences in bore or alignment between adjacent members of this pressure region, within the region's representation limits, produce pressure thrust at interior nodes in this model. The solver retains that thrust. The exception to the pressure cancellation screen that admitted this case does not establish that the thrust's effect is negligible; the case's numerical standing concerns the recorded geometry, not an idealised region of equal bores and exact collinearity.";
-  const warning = (refs: string[]): Diagnostic => ({ id: "diagnostic:pressure-runtime:invented:PRESSURE_REGION_DEPARTURE_THRUST_RETAINED", code: DEPARTURE_THRUST_WARNING_CODE,
+  const MESSAGE = "At interior nodes of this pressure region the cap loads of adjacent members do not cancel exactly in this model. The remainder comes from small differences in bore or alignment within the region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
+  const warning = (refs: string[]): Diagnostic => ({ id: "diagnostic:pressure-runtime:invented:PRESSURE_REGION_CAP_REMAINDER_RETAINED", code: CAP_REMAINDER_WARNING_CODE,
     severity: "warning", source: "core/product_physics/src/pressure_runtime.rs", affected_refs: refs, message: MESSAGE }) as Diagnostic;
 
   it("is copied on a reader-admitted result with combinations and quoted where the reader admitted nothing", () => {

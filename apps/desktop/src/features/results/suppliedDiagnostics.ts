@@ -35,10 +35,10 @@ export function heldStatusQuotedNotice(diagnostic: { code?: unknown }): boolean 
 }
 
 /** DEL-04-07: the warning on a case admitted under the cancellation-screen exception (Rust
- * `result_export::DEPARTURE_THRUST_WARNING_CODE`). The pressure readers bind its presence, its whole
+ * `result_export::CAP_REMAINDER_WARNING_CODE`). The pressure readers bind its presence, its whole
  * fixed message and its references to the exception record, so where the reader admitted the result its
  * message is a product diagnostic, copied as it stands, never quoted as supplied text. */
-export const DEPARTURE_THRUST_WARNING_CODE = "PRESSURE_REGION_DEPARTURE_THRUST_RETAINED";
+export const CAP_REMAINDER_WARNING_CODE = "PRESSURE_REGION_CAP_REMAINDER_RETAINED";
 
 function recordObject(value: unknown): Record<string, unknown> | null {
   return typeof value === "object" && value !== null && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
@@ -79,7 +79,7 @@ export function documentCombinationIdentities(
 /** A diagnostic's presented message. A held-status notice (`heldStatusQuotedNotice`) is always quoted
  * after the supplemental label. Otherwise, on a result with combinations, a diagnostic is copied only
  * when it names one of them and `rosterChecked` holds (the closed roster's reader admitted it in
- * its canonical form), or when it is the exception's warning (`DEPARTURE_THRUST_WARNING_CODE`) and
+ * its canonical form), or when it is the exception's warning (`CAP_REMAINDER_WARNING_CODE`) and
  * `rosterChecked` holds; every other message is quoted after the supplemental label, as text
  * supplied with the result and verified by nothing, its source text kept whole. A result without
  * combinations is otherwise unchanged. */
@@ -90,7 +90,7 @@ export function suppliedDiagnosticMessage(
 ): string {
   if (heldStatusQuotedNotice(diagnostic)) return `${SUPPLEMENTAL_DIAGNOSTIC_LABEL}"${diagnostic.message}"`;
   if (combinations.size === 0) return diagnostic.message;
-  if (rosterChecked && diagnostic.code === DEPARTURE_THRUST_WARNING_CODE) return diagnostic.message;
+  if (rosterChecked && diagnostic.code === CAP_REMAINDER_WARNING_CODE) return diagnostic.message;
   const refs = Array.isArray(diagnostic.affected_refs) ? diagnostic.affected_refs : [];
   if (rosterChecked && refs.some((ref) => typeof ref === "string" && combinations.has(ref))) return diagnostic.message;
   return `${SUPPLEMENTAL_DIAGNOSTIC_LABEL}"${diagnostic.message}"`;

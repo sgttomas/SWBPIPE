@@ -37,7 +37,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from . import section_basis as sb
-from .pressure_3 import ARC_GEOMETRY_KEYS, case_elongation, departure_thrust_warnings, rhs_screen, rhs_screen_keys, elongation_included, elongation_statement, equivalent_static_record, poisson_coefficient, rhs_elongation
+from .pressure_3 import ARC_GEOMETRY_KEYS, case_elongation, cap_remainder_warnings, rhs_screen, rhs_screen_keys, elongation_included, elongation_statement, equivalent_static_record, poisson_coefficient, rhs_elongation
 
 PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
 PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-3"
@@ -212,7 +212,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
             if pid in extrema_by_basis[sb.REDUCED]:
                 _basis(sb.extrema_twins, nominal, extrema_by_basis[sb.REDUCED][pid], sections[cid, pid])
         _validate_rhs(case["pressure_rhs_assembly"], cid, case_elongation(evidence["pressure"], cid), [r for r in evidence["pressure"] if isinstance(r, Mapping) and r.get("load_case_id") == cid])
-    departure_thrust_warnings(source)
+    cap_remainder_warnings(source)
     owners: dict[tuple[str, str], str] = {}
     bindings: set[str] = set()
     regions: set[tuple[str, str]] = set()
