@@ -22,6 +22,10 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+# Reads its directory scans stand for, for CI selection (tools/ci/python_test_reads.py). Its one project scan is the
+# tracked benchmark models; `root.rglob("*")` snapshots the invented exchange folder under tmp_path.
+CI_READS = ("validation/caepipe_benchmark/models/*.json",)
+
 from core.handoff.caepipe_external import case_paths, parse_caepipe_print_csv  # noqa: E402
 from core.handoff.caepipe_external.benchmark import (  # noqa: E402
     BENCHMARK_RECORD_KIND,
