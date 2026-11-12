@@ -97,6 +97,51 @@ needs:
     The application build includes the supplier binary, its pin manifest and its licence files
     exactly as pinned, and fails when the supplier it was given differs from the pin.
   gating: true
+- from: DEL-07-11
+  when: Offering a requested act to the person
+  condition: >-
+    For each requestable act the workspace session exposes the function the desktop's own control
+    for that act calls, starts that control from a request's capture, and reports the act's actual
+    outcome with the record of it.
+  gating: true
+- from: DEL-12-02
+  when: A requested export, save or user release
+  condition: >-
+    Every export, save and release route decides under the export control for itself, whatever
+    started it, and a local private output and a user release each cost the user one explicit act
+    that is never inferred, remembered or read from content.
+  gating: true
+- from: DEL-08-01
+  when: A requested report save, print or user release
+  condition: >-
+    A report is saved and printed from the desktop by the report's own controls, and a user release
+    is made only by the user's own explicit selection and statement for one report, recorded with
+    its bindings and time.
+  gating: true
+- from: DEL-07-08
+  when: A requested save of a model state
+  condition: >-
+    A model state is saved by the desktop's own control from the current model, with the name and
+    notes the person enters, and is listed with an identifier.
+  gating: true
+- from: DEL-14-02
+  when: A requested recording of a run
+  condition: >-
+    A solved run is recorded by the desktop's own control against the model state it was solved on,
+    and is listed with an identifier.
+  gating: true
+- from: DEL-08-04
+  when: A requested export of a table
+  condition: >-
+    Each results table exports to CSV by its own control, from the table as the desktop shows it,
+    with the case, filter and units it shows.
+  gating: true
+- from: DEL-02-05
+  when: A requested save of the project
+  condition: >-
+    The project is saved by the desktop's own save, which shows the person what it would replace
+    before replacing it.
+  gating: true
 code_paths:
 # The operation engine. Within this crate the domain modules that other deliverables list by name
 # are theirs: document_validator.rs, model_data_authoring.rs, model_settings_authoring.rs and
