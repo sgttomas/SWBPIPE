@@ -55,7 +55,7 @@ describe("operation authorship on agent and imported routes", () => {
     expect(() => stampImportedBatch(parseOfflineBatch(JSON.stringify(file)))).toThrow(/^Operation 1 \(op:sif\) of this file carries modifiers\.sif_user_value\.value \(a component modifier\), a value only you enter; an imported operation cannot write it, so nothing was queued\./);
     // The applier's own refusal, should any route stamp such an operation agent.
     for (const [index, operation] of file.operations.entries()) {
-      const single = { batch_id: `import-${index}`, operations: [{ ...operation, author_type: "agent" }] } as unknown as OperationBatch;
+      const single = { batch_id: `import-${index}`, operations: [{ ...operation, author_type: "agent", source: { source_ref: `offline-import:batch:claimed-user:${index + 1}`, source_channel: "offline_intake", source_role: "imported" } }] } as unknown as OperationBatch;
       const hash = await computeModelHash(model);
       const outcome = await applyOperationBatch(model, single, hash);
       expect(outcome.applied_model).toBeNull();
@@ -82,6 +82,23 @@ describe("operation authorship on agent and imported routes", () => {
     }
     const clean = { batch_id: "file", operations: [op({ operation_id: "op:clean", target: { object_type: "Node", ref: "n" }, change: { change_kind: "set_field", field_path: "position.x", before: "0", after: "1" } })] } as unknown as OperationBatch;
     expect(stampImportedBatch(clean).batch.operations[0]).toMatchObject({ operation_id: "op:clean", author_type: "agent", source: { source_channel: "offline_intake" } });
+  });
+
+  it("a stored user record that creates a component with modifiers keeps its own refusal; a stray modifiers member on a material gets the new one", () => {
+    const component = op({ author_type: "user", operation_kind: "insert", change: { change_kind: "insert_component_symbol", field_path: "components", before: "not_present",
+      after: JSON.stringify({ id: "component:t", kind: "tee", modifiers: { branch_header_sif_user_value: { value: 2.4, unit: "1" } } }) } });
+    expect(requeueRetainedRecord(component, 8)).toEqual({ refused: "This stored record writes a value only you enter (a flexibility factor k, a SIF or another component modifier), and its author cannot be verified after reopening. Enter the value again in the component inspector." });
+    const material = op({ author_type: "user", operation_kind: "create", target: { object_type: "Material", ref: "material:m" }, change: { change_kind: "create_material", field_path: "materials", before: "not_present",
+      after: JSON.stringify({ id: "material:m", modifiers: {} }) } });
+    expect(requeueRetainedRecord(material, 9)).toEqual({ refused: expect.stringMatching(/^This stored record carries modifiers \(k, SIFs, stiffness and their source\), a value only you enter, which the operation engine would not write for it\. It was not queued for review; the record stays stored/) });
+  });
+
+  it("intake leaves a non-operation entry and a non-object after text for the engine, without a refusal of its own", () => {
+    const batch = { batch_id: "file", operations: ["not an operation", op({ operation_id: "op:text", change: { change_kind: "create_material", field_path: "materials", after: "not json" } }),
+      op({ operation_id: "op:array", change: { change_kind: "create_material", field_path: "materials", after: "[{\"modifiers\":{}}]" } })] } as unknown as OperationBatch;
+    const { batch: stamped } = stampImportedBatch(batch);
+    expect(stamped.operations[0]).toBe("not an operation");
+    expect(stamped.operations.slice(1).map(operation => operation.author_type)).toEqual(["agent", "agent"]);
   });
 
   it("requeue refuses a stored agent, imported or user record carrying such a member, and leaves it stored", () => {

@@ -53,8 +53,10 @@ describe("routes to the review queue", () => {
     expect(count(/author_type\s*:\s*['"](agent|import_adapter|project_template)['"]/g)).toEqual({ "services/embeddedAgentSession.ts": 3, "services/operationAuthorship.ts": 2 });
     const authorship = readFileSync(join(SOURCE, "services/operationAuthorship.ts"), "utf8");
     const stamp = authorship.slice(authorship.indexOf("export function stampImportedBatch"));
+    expect(stamp.indexOf("personEnteredWriteIn(batch.operations)")).toBeGreaterThan(0);
     expect(stamp.indexOf("personEnteredWriteIn(batch.operations)")).toBeLessThan(stamp.indexOf('author_type: "agent"'));
     const requeue = authorship.slice(authorship.indexOf("export function requeueRetainedRecord"));
+    expect(requeue.indexOf("writesUserEnteredModifier(intent)")).toBeGreaterThan(0);
     expect(requeue.indexOf("writesUserEnteredModifier(intent)")).toBeLessThan(requeue.indexOf('author_type: "agent"'));
     const session = readFileSync(join(SOURCE, "services/embeddedAgentSession.ts"), "utf8");
     const propose = session.slice(session.indexOf("if(call.tool==='swbpipe_propose_operations'){"));
