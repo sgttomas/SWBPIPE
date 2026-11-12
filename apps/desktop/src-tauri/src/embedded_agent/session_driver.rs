@@ -388,7 +388,15 @@ impl SessionDriver {
                 self.close(Terminal::Admission);
             } else {
                 let backing = Arc::new(frame.lease);
-                match self.protocol.handle_frame(frame.value, &self.basis) {
+                let handled = self.protocol.handle_frame(frame.value, &self.basis);
+                // Native smoke only: the protocol's bounded, payload-free
+                // observation lines (item kinds, unhandled notification and
+                // server request methods), printed even when the frame failed.
+                #[cfg(feature = "native-smoke")]
+                for line in self.protocol.take_observations() {
+                    eprintln!("{line}");
+                }
+                match handled {
                     Err(_) => self.close(Terminal::Protocol),
                     Ok(actions) => {
                         for reply in actions.outbound {

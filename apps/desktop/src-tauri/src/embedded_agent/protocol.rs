@@ -183,6 +183,8 @@ pub struct Protocol {
     seen_rpc: Vec<Value>,
     seen_call: Vec<String>,
     last_rejection: Option<RpcRejection>,
+    #[cfg(any(test, feature = "native-smoke"))]
+    observed: observed::Observed,
 }
 
 fn bounded(s: &str, max: usize) -> bool {
@@ -327,9 +329,130 @@ fn admit_notification_items(method: &str, p: &Value) -> Result<(), Error> {
     }
 }
 
+/// Native smoke only: one payload-free line for each distinct item kind,
+/// unhandled notification method and unsupported server request method the
+/// runtime reports, so an observed session shows the ordinary set. Names are
+/// printed only when short and plain; nothing else from a frame is kept.
+#[cfg(any(test, feature = "native-smoke"))]
+mod observed {
+    use super::{admit_kind, Value};
+
+    const PREFIX: &str = "[native-smoke-agent-host]";
+    const MAX_NAME_BYTES: usize = 64;
+    pub const MAX_LINES: usize = 64;
+
+    fn plain(name: &str) -> &str {
+        if !name.is_empty()
+            && name.len() <= MAX_NAME_BYTES
+            && name
+                .bytes()
+                .all(|b| b.is_ascii_alphanumeric() || b == b'/' || b == b'_' || b == b'-')
+        {
+            name
+        } else {
+            "(unprintable)"
+        }
+    }
+    fn kind_name(kind: Option<&Value>) -> &str {
+        match kind {
+            None => "(missing)",
+            Some(Value::String(k)) => plain(k),
+            Some(_) => "(non-string)",
+        }
+    }
+
+    #[derive(Default)]
+    pub struct Observed {
+        seen: Vec<String>,
+        unread: Vec<String>,
+        full: bool,
+    }
+    impl Observed {
+        fn line(&mut self, line: String) {
+            if self.full || self.seen.contains(&line) {
+                return;
+            }
+            if self.seen.len() >= MAX_LINES {
+                self.full = true;
+                self.unread.push(format!("{PREFIX} observation limit reached"));
+                return;
+            }
+            self.seen.push(line.clone());
+            self.unread.push(line);
+        }
+        fn kind(&mut self, kind: Option<&Value>, via: &str) {
+            let decision = match admit_kind(kind.and_then(Value::as_str)) {
+                Ok(()) => "admitted",
+                Err(_) => "refused",
+            };
+            let line = format!("{PREFIX} item kind {} via {} {decision}", kind_name(kind), plain(via));
+            self.line(line);
+        }
+        fn malformed(&mut self, via: &str) {
+            let line = format!("{PREFIX} item kind (malformed) via {} refused", plain(via));
+            self.line(line);
+        }
+        fn item(&mut self, item: Option<&Value>, via: &str) {
+            match item {
+                Some(Value::Object(o)) => self.kind(o.get("type"), via),
+                Some(_) => self.malformed(via),
+                None => self.kind(None, via),
+            }
+        }
+        fn turn(&mut self, turn: Option<&Value>, via: &str) {
+            match turn.and_then(|t| t.get("items")) {
+                None => {}
+                Some(Value::Array(items)) => items.iter().for_each(|i| self.item(Some(i), via)),
+                Some(_) => self.malformed(via),
+            }
+        }
+        fn thread(&mut self, thread: Option<&Value>, via: &str) {
+            match thread.and_then(|t| t.get("turns")) {
+                None => {}
+                Some(Value::Array(turns)) => turns.iter().for_each(|t| self.turn(Some(t), via)),
+                Some(_) => self.malformed(via),
+            }
+        }
+        pub fn notification_items(&mut self, method: &str, p: &Value) {
+            match method {
+                "item/started" | "item/completed" => self.item(p.get("item"), method),
+                "turn/started" | "turn/completed" => self.turn(p.get("turn"), method),
+                "thread/started" => self.thread(p.get("thread"), method),
+                _ => {
+                    if let Some(rest) = method.strip_prefix("item/") {
+                        let kind = rest.split('/').next().map(|k| Value::String(k.to_owned()));
+                        self.kind(kind.as_ref(), method);
+                    }
+                }
+            }
+        }
+        pub fn response_items(&mut self, result: &Value, via: &str) {
+            self.thread(result.get("thread"), via);
+            self.turn(result.get("turn"), via);
+        }
+        pub fn ignored_notification(&mut self, method: &str) {
+            let line = format!("{PREFIX} notification {} ignored", plain(method));
+            self.line(line);
+        }
+        pub fn unsupported_request(&mut self, method: &str) {
+            let line = format!("{PREFIX} server request {} refused", plain(method));
+            self.line(line);
+        }
+        pub fn take(&mut self) -> Vec<String> {
+            std::mem::take(&mut self.unread)
+        }
+    }
+}
+
 impl Protocol {
     pub fn last_rejection(&self) -> Option<RpcRejection> {
         self.last_rejection
+    }
+    /// Native smoke only: the observation lines not yet taken. Each is
+    /// payload-free and bounded; the caller prints them.
+    #[cfg(any(test, feature = "native-smoke"))]
+    pub fn take_observations(&mut self) -> Vec<String> {
+        self.observed.take()
     }
 
     /// Token must be host-generated, unpredictable and unique per connection;
@@ -359,6 +482,8 @@ impl Protocol {
             seen_rpc: Vec::new(),
             seen_call: Vec::new(),
             last_rejection: None,
+            #[cfg(any(test, feature = "native-smoke"))]
+            observed: Default::default(),
         })
     }
     fn request(&mut self, kind: Rpc, method: &'static str, params: Value) -> Result<Value, Error> {
@@ -449,6 +574,8 @@ impl Protocol {
                     let params = object.remove("params").ok_or(Error("missing parameters"))?;
                     self.tool_call(id, params, basis, &mut actions)?;
                 } else {
+                    #[cfg(any(test, feature = "native-smoke"))]
+                    self.observed.unsupported_request(&method);
                     // No native method conveys authority, including approval requests.
                     if self.seen_rpc.contains(&id) {
                         return Err(Error("duplicate server request"));
@@ -490,6 +617,16 @@ impl Protocol {
         Ok(actions)
     }
     fn response(&mut self, kind: Rpc, result: &Value, actions: &mut Actions) -> Result<(), Error> {
+        #[cfg(any(test, feature = "native-smoke"))]
+        self.observed.response_items(
+            result,
+            match kind {
+                Rpc::Initialize => "initialize-response",
+                Rpc::ThreadStart => "thread/start-response",
+                Rpc::TurnStart => "turn/start-response",
+                Rpc::Interrupt => "turn/interrupt-response",
+            },
+        );
         admit_thread_items(result.get("thread"))?;
         admit_turn_items(result.get("turn"))?;
         match kind {
@@ -571,6 +708,8 @@ impl Protocol {
         Ok(())
     }
     fn notification(&mut self, method: &str, p: Value, actions: &mut Actions) -> Result<(), Error> {
+        #[cfg(any(test, feature = "native-smoke"))]
+        self.observed.notification_items(method, &p);
         admit_notification_items(method, &p)?;
         match method {
             "turn/started" => {
@@ -632,6 +771,8 @@ impl Protocol {
                     .to_owned();
                 actions.events.push(Event::MessageDelta { item_id, text });
             }
+            // Its item's kind was admitted above; nothing else is handled.
+            "item/started" => {}
             "item/completed" => {
                 self.check_turn(&p)?;
                 let item = p
@@ -673,7 +814,10 @@ impl Protocol {
                 self.thread = Some(id.to_owned());
             }
             // Other notifications are informational and carry no authority.
-            _ => {}
+            _ => {
+                #[cfg(any(test, feature = "native-smoke"))]
+                self.observed.ignored_notification(method);
+            }
         }
         Ok(())
     }
@@ -1095,6 +1239,133 @@ mod tests {
             let frame = notification(method, json!({"threadId":"thread-1","turnId":"turn-1","itemId":"x"}));
             assert_ends(p, reference, frame, reason);
         }
+    }
+
+    #[test]
+    fn observation_lines_name_each_distinct_kind_method_and_request_once() {
+        let mut p = active();
+        p.take_observations();
+        for _ in 0..2 {
+            p.handle_frame(item_frame("item/completed", json!({"id":"u","type":"userMessage","content":[{"type":"text","text":"SECRET"}]})), &basis()).unwrap();
+            p.handle_frame(item_frame("item/started", json!({"id":"r","type":"reasoning"})), &basis()).unwrap();
+            p.handle_frame(notification("item/reasoning/textDelta", json!({"threadId":"thread-1","turnId":"turn-1","itemId":"r","delta":"SECRET"})), &basis()).unwrap();
+            p.handle_frame(notification("hook/started", json!({"threadId":"thread-1","run":"SECRET"})), &basis()).unwrap();
+        }
+        p.handle_frame(json!({"id":"approval","method":"item/commandExecution/requestApproval","params":{"command":"SECRET"}}), &basis()).unwrap();
+        assert_eq!(
+            p.take_observations(),
+            [
+                "[native-smoke-agent-host] item kind userMessage via item/completed admitted",
+                "[native-smoke-agent-host] item kind reasoning via item/started admitted",
+                "[native-smoke-agent-host] item kind reasoning via item/reasoning/textDelta admitted",
+                "[native-smoke-agent-host] notification item/reasoning/textDelta ignored",
+                "[native-smoke-agent-host] notification hook/started ignored",
+                "[native-smoke-agent-host] server request item/commandExecution/requestApproval refused",
+            ]
+        );
+        assert!(p.take_observations().is_empty());
+        // A refused kind is observed before the session ends, so the caller
+        // still prints it.
+        let mut q = active();
+        q.take_observations();
+        assert!(q.handle_frame(item_frame("item/started", json!({"id":"h","type":"hookPrompt"})), &basis()).is_err());
+        assert_eq!(
+            q.take_observations(),
+            ["[native-smoke-agent-host] item kind hookPrompt via item/started refused"]
+        );
+        let mut r = ready();
+        r.submit_text("hello".into()).unwrap();
+        r.take_observations();
+        assert!(r
+            .handle_frame(frame(3, json!({"turn":{"id":"turn-1","status":"inProgress","items":[{"type":"agentMessage"},{"type":"plan"}]}})), &basis())
+            .is_err());
+        assert_eq!(
+            r.take_observations(),
+            [
+                "[native-smoke-agent-host] item kind agentMessage via turn/start-response admitted",
+                "[native-smoke-agent-host] item kind plan via turn/start-response refused",
+            ]
+        );
+    }
+
+    #[test]
+    fn hostile_kind_or_method_names_put_no_content_on_the_line() {
+        let marker = "SECRET";
+        let hostile = [
+            format!("agentMessage {marker}"),
+            format!("{marker}\" via item/started admitted"),
+            format!("{marker}é"),
+            format!("{marker}{}", "x".repeat(64)),
+            format!("{marker}.kind"),
+            format!("{marker}\\n"),
+        ];
+        let allowed = |line: &str| {
+            line.starts_with("[native-smoke-agent-host] ")
+                && line.len() <= 26 + 64 * 2 + 40
+                && line[26..]
+                    .bytes()
+                    .all(|b| b.is_ascii_alphanumeric() || b" /_-()".contains(&b))
+                && !line.contains(marker)
+        };
+        for name in &hostile {
+            let mut p = active();
+            p.take_observations();
+            let _ = p.handle_frame(item_frame("item/completed", json!({"id":"i","type":name,"text":marker})), &basis());
+            assert_eq!(
+                p.take_observations(),
+                ["[native-smoke-agent-host] item kind (unprintable) via item/completed refused"],
+                "{name}"
+            );
+            let mut q = active();
+            q.take_observations();
+            q.handle_frame(notification(&format!("thread/{name}"), json!({"threadId":"thread-1","x":marker})), &basis()).unwrap();
+            q.handle_frame(json!({"id":"rq","method":format!("x/{name}"),"params":{"x":marker}}), &basis()).unwrap();
+            let _ = q.handle_frame(notification(&format!("item/{name}/delta"), json!({"threadId":"thread-1"})), &basis());
+            let lines = q.take_observations();
+            assert_eq!(
+                lines,
+                [
+                    "[native-smoke-agent-host] notification (unprintable) ignored",
+                    "[native-smoke-agent-host] server request (unprintable) refused",
+                    "[native-smoke-agent-host] item kind (unprintable) via (unprintable) refused",
+                ],
+                "{name}"
+            );
+            assert!(lines.iter().all(|l| allowed(l)), "{lines:?}");
+        }
+        for (kind, label) in [
+            (json!({"type":marker}), "(non-string)"),
+            (json!([marker]), "(non-string)"),
+            (json!(1), "(non-string)"),
+        ] {
+            let mut p = active();
+            p.take_observations();
+            let _ = p.handle_frame(item_frame("item/started", json!({"id":"i","type":kind})), &basis());
+            let lines = p.take_observations();
+            assert_eq!(lines, [format!("[native-smoke-agent-host] item kind {label} via item/started refused")]);
+            assert!(lines.iter().all(|l| allowed(l)));
+        }
+        let mut p = active();
+        p.take_observations();
+        let _ = p.handle_frame(item_frame("item/started", json!(marker)), &basis());
+        assert_eq!(
+            p.take_observations(),
+            ["[native-smoke-agent-host] item kind (malformed) via item/started refused"]
+        );
+    }
+
+    #[test]
+    fn observation_lines_are_bounded_per_session() {
+        let mut p = active();
+        p.take_observations();
+        for n in 0..(observed::MAX_LINES * 2) {
+            p.handle_frame(notification(&format!("invented/m{n}"), json!({})), &basis()).unwrap();
+        }
+        let lines = p.take_observations();
+        assert_eq!(lines.len(), observed::MAX_LINES + 1);
+        assert_eq!(lines.last().unwrap(), "[native-smoke-agent-host] observation limit reached");
+        p.handle_frame(notification("invented/more", json!({})), &basis()).unwrap();
+        assert!(p.take_observations().is_empty());
     }
 
     #[test]
