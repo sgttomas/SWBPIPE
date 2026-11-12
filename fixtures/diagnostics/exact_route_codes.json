@@ -1,5 +1,5 @@
 {
- "about": "Every diagnostic code a production call site in the solve crates can raise, read by tools/validation/diagnostic_codes.py, with a hand-made classification of each. The scan covers the production modules of core/product_physics, core/solver/*, core/loads/*, core/analysis/hanger_sizing and core/numerics/*, and the codes core/model_operations/operation_applier raises by re-using a solve refusal; refusals raised in core/reporting, the operation applier's own codes and the desktop are outside it. The scanner writes code, crates, severity, first_site, sites and messages; classification, reason, unsure, candidates, named_by, named_by_coverage and named_by_statement are hand-made and kept by --write. tests/test_diagnostic_code_table.py keeps the codes equal to the sources. The test cannot check that a text covers a refusal, only that it mentions a code: each naming carries a hand-made coverage, whole or partial, and only a whole naming counts as naming the refusal.",
+ "about": "The diagnostic codes a solve publishes, read from the production sources of the solve crates by tools/validation/diagnostic_codes.py, with a hand-made classification of each. What a code is, what is read and what is not, and what the test establishes are in scope. The scanner writes code, crates, severity, first_site, sites and messages; classification, reason, unsure, candidates, named_by, named_by_coverage and named_by_statement are hand-made and kept by --write, as is pinned_sites. The test cannot check that a text covers a refusal, only that it mentions a code: each naming carries a hand-made coverage, whole or partial, and only a whole naming counts as naming the refusal.",
  "first_site": "the first raising site resolved by type (and, where a mapping is involved, by the arm its argument selects); a site resolved only by a method's name carries by_name, one that may raise any arm of a mapping carries any_arm, and neither is chosen as first while another exists; sites_by_name_only says that every site was resolved by name",
  "named_by_coverage": "for a code named by a LIM entry: {\"coverage\": \"whole\" or \"partial\", \"reason\"}; a partial naming counts as unnamed",
  "classes": {
@@ -11,14 +11,161 @@
  },
  "named_by": "for an absent_capability code, the LIM-nnn entry of docs/RELEASE_LIMITATIONS_v1.0.md that names the code, or \"unnamed\"; null for the other classes",
  "named_by_statement": "the product texts that name the code, as a list, or null when none does: {\"status\": \"in_product\", \"text\", \"where\", \"coverage\", \"coverage_reason\"} for text the product publishes today (a formulation_basis limitation), whole or partial as for named_by_coverage; {\"status\": \"planned\", \"statement\", \"subject\", \"lands_with\"} for a per-document limitation statement not yet in the product, which names nothing today. Planned statements may name codes of any class.",
- "scope": [
-  "core/product_physics",
-  "core/solver/*",
-  "core/loads/*",
-  "core/analysis/hanger_sizing",
-  "core/numerics/*",
-  "core/model_operations/operation_applier (re-used solve refusals only)"
- ],
+ "pinned_site": "an entry of pinned_sites: a code position whose value the scanner cannot resolve but the source settles, pinned by hand: {\"file\", \"at\", \"why\", \"site_text\", \"values\", \"reason\", \"anchors\": [{\"file\", \"text\"}]}. A pin holds only while the scan leaves a site unresolved with that file, at and why on the line where site_text stands (once in the file), and each anchor text stands exactly once in its file; a holding pin turns the site into sites of its values. Any other unresolved site fails the test.",
+ "scope": {
+  "unit": "The unit of this table is the code: the value of the code field of a diagnostic, finding, refusal or reason record that a solve publishes. There is one record per distinct value, whatever its spelling.",
+  "crates": [
+   "core/product_physics",
+   "core/solver/*",
+   "core/loads/*",
+   "core/analysis/hanger_sizing",
+   "core/numerics/*",
+   "core/model_operations/operation_applier (a solve's code it relays unchanged only)"
+  ],
+  "operation_applier": "core/model_operations/operation_applier is read only for a solve's code that it relays unchanged: a code position there whose value is a constant declared in a scanned solve crate. The applier's own codes are excluded, including an applier code that wraps a solve refusal.",
+  "outside_the_unit": "Reason tokens printed inside messages are not inventoried by this table, and no inventory of them exists. The arc-maximum reason tokens below are such tokens: each is produced by a named refusal method or a map_err or Err literal, and is printed inside the message of an enclosing diagnostic whose code is listed here. Other token fields of a published record (a reason's tag, kind, stage or cause, a disposition's reason) are not codes either.",
+  "reason_tokens_outside_the_unit": [
+   {
+    "token": "arc_maximum_invalid_operand",
+    "produced_at": "core/solver/frame_kernel/src/structural/arc_maximum.rs:256 (ArcMaximumFailure::reason)",
+    "printed_in": [
+     "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE",
+     "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE",
+     "PREVIEW_STRESS_MAXIMUM_UNAVAILABLE"
+    ]
+   },
+   {
+    "token": "arc_maximum_enclosure_failed",
+    "produced_at": "core/solver/frame_kernel/src/structural/arc_maximum.rs:257 (ArcMaximumFailure::reason)",
+    "printed_in": [
+     "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE",
+     "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE",
+     "PREVIEW_STRESS_MAXIMUM_UNAVAILABLE"
+    ]
+   },
+   {
+    "token": "arc_maximum_trig_argument_outside_domain",
+    "produced_at": "core/solver/frame_kernel/src/structural/arc_maximum.rs:258 (ArcMaximumFailure::reason)",
+    "printed_in": [
+     "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE",
+     "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE",
+     "PREVIEW_STRESS_MAXIMUM_UNAVAILABLE"
+    ]
+   },
+   {
+    "token": "arc_maximum_trig_term_limit",
+    "produced_at": "core/solver/frame_kernel/src/structural/arc_maximum.rs:259 (ArcMaximumFailure::reason)",
+    "printed_in": [
+     "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE",
+     "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE",
+     "PREVIEW_STRESS_MAXIMUM_UNAVAILABLE"
+    ]
+   },
+   {
+    "token": "arc_maximum_curvature_bound_not_finite",
+    "produced_at": "core/solver/frame_kernel/src/structural/arc_maximum.rs:260 (ArcMaximumFailure::reason)",
+    "printed_in": [
+     "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE",
+     "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE",
+     "PREVIEW_STRESS_MAXIMUM_UNAVAILABLE"
+    ]
+   },
+   {
+    "token": "arc_maximum_subdivision_limit",
+    "produced_at": "core/solver/frame_kernel/src/structural/arc_maximum.rs:261 (ArcMaximumFailure::reason)",
+    "printed_in": [
+     "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE",
+     "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE",
+     "PREVIEW_STRESS_MAXIMUM_UNAVAILABLE"
+    ]
+   },
+   {
+    "token": "arc_maximum_depth_limit",
+    "produced_at": "core/solver/frame_kernel/src/structural/arc_maximum.rs:262 (ArcMaximumFailure::reason)",
+    "printed_in": [
+     "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE",
+     "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE",
+     "PREVIEW_STRESS_MAXIMUM_UNAVAILABLE"
+    ]
+   },
+   {
+    "token": "arc_maximum_station_cover_not_closed",
+    "produced_at": "core/solver/frame_kernel/src/structural/arc_maximum.rs:263 (ArcMaximumFailure::reason)",
+    "printed_in": [
+     "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE",
+     "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE",
+     "PREVIEW_STRESS_MAXIMUM_UNAVAILABLE"
+    ]
+   },
+   {
+    "token": "arc_maximum_end_axes_unavailable",
+    "produced_at": "core/product_physics/src/u4b_rows.rs:561 (map_err in u4b_rows::arc_maximum)",
+    "printed_in": [
+     "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE",
+     "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE",
+     "PREVIEW_STRESS_MAXIMUM_UNAVAILABLE"
+    ]
+   },
+   {
+    "token": "arc_maximum_geometry_unavailable",
+    "produced_at": "core/product_physics/src/u4b_rows.rs:562 (map_err in u4b_rows::arc_maximum)",
+    "printed_in": [
+     "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE",
+     "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE",
+     "PREVIEW_STRESS_MAXIMUM_UNAVAILABLE"
+    ]
+   },
+   {
+    "token": "arc_maximum_end_forces_missing",
+    "produced_at": "core/product_physics/src/u4b_rows.rs:559 (Err in u4b_rows::arc_maximum; also in unclaimed_literals)",
+    "printed_in": [
+     "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE",
+     "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE",
+     "PREVIEW_STRESS_MAXIMUM_UNAVAILABLE"
+    ]
+   },
+   {
+    "token": "arc_maximum_station_rows_unavailable",
+    "produced_at": "core/product_physics/src/lib.rs:7274 (Err in the exact member rows, and at line 7318; also in unclaimed_literals)",
+    "printed_in": [
+     "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE",
+     "DIRECTIONAL_INTENSIFIED_MAXIMUM_UNAVAILABLE",
+     "PREVIEW_STRESS_MAXIMUM_UNAVAILABLE"
+    ]
+   }
+  ],
+  "what_the_test_establishes": "tests/test_diagnostic_code_table.py establishes that this table agrees with the scanner's observation of the sources over the producer shapes listed in shapes_read, each shape with a witness in that test that adding or removing a code at it fails the test. It does not establish that the table is complete.",
+  "shapes_read": [
+   "the code field of a diagnostic record (a struct or enum variant with code and message or severity) in a literal",
+   "an assignment .code = on a diagnostic record",
+   "an argument at a parameter that reaches a code position, through helpers to a fixed point",
+   "an argument at a text parameter named code whose sink is not traced (code-shaped values count, others are unclaimed)",
+   "the code field of a struct not known as a diagnostic record (code-shaped values count, others are unclaimed)",
+   "a JSON object's \"code\" key, whether or not a message or severity stands beside it",
+   "the as_str of an enum a diagnostic record declares as its code type (enum-to-text producer)",
+   "a method code(&self) or *_code(&self) returning text (typed producer)",
+   "the upper-case prefix CODE: of a message literal",
+   "a (CODE, message) pair (code-shaped values)",
+   "a code-shaped Err(\"CODE\") error value",
+   "a value followed through a constant",
+   "a value followed through a tuple let bound from match arms",
+   "a value followed through a for loop's tuple pattern over a local filled by push",
+   "a value followed through if let Err(x) over a function's return and a closure's tuple pattern",
+   "a value followed through a record field holding a tuple, read by a closure pattern",
+   "a value followed through a tuple element code.0",
+   "production code after a test-only if",
+   "production code after a test-only match",
+   "production code after a test-only for"
+  ],
+  "shapes_not_read": [
+   "named refusal methods (a reason() returning a token) and map_err or Err literals carried into a message: outside the unit (outside_the_unit); a code-shaped Err literal is still read",
+   "raw enum codes never published as text: an enum value reaching a code position as an enum is not read; one turned into text there is an unresolved site",
+   "tuple-returning helpers whose values are not published at a code position",
+   "values behind a signature the scanner cannot resolve: at a code position each is an unresolved site, which fails the test unless pinned in pinned_sites",
+   "mixed-case message prefixes: only an upper-case CODE: or {CONST}: prefix is read",
+   "production code after test-only control flow: read since the stripper ends a test-only if, match, for, while or loop at the brace that closes its last block (it was not read before)"
+  ]
+ },
  "codes": [
   {
    "code": "ARC_TOROIDAL_HOOP_DOMAIN",
@@ -473,7 +620,7 @@
    "crates": [
     "core/product_physics"
    ],
-   "severity": "not_stated",
+   "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
     "line": 405,
@@ -488,9 +635,20 @@
      "through": [
       "const INSTALLED_REFERENCE (core/product_physics/src/exact_combinations.rs:49)"
      ]
+    },
+    {
+     "file": "core/product_physics/src/exact_combinations.rs",
+     "line": 972,
+     "via": "diag()",
+     "severity": "warning",
+     "through": [
+      "const INSTALLED_REFERENCE (core/product_physics/src/exact_combinations.rs:49)"
+     ]
     }
    ],
-   "messages": [],
+   "messages": [
+    "message"
+   ],
    "classification": "absent_capability",
    "reason": "A combination whose factors do not sum to 1 is withheld when a connector or tie rod has a nonzero installed reference (counted by the factor sum instead of once); the requested combination is not provided.",
    "unsure": false,
@@ -543,7 +701,7 @@
    "crates": [
     "core/product_physics"
    ],
-   "severity": "not_stated",
+   "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
     "line": 374,
@@ -560,13 +718,30 @@
      ]
     },
     {
+     "file": "core/product_physics/src/exact_combinations.rs",
+     "line": 972,
+     "via": "diag()",
+     "severity": "warning",
+     "through": [
+      "const MODULUS_BASIS_MIXED (core/product_physics/src/exact_combinations.rs:43)"
+     ]
+    },
+    {
      "file": "core/product_physics/src/preview_physics.rs",
      "line": 919,
      "via": "gated()",
      "severity": null
+    },
+    {
+     "file": "core/product_physics/src/preview_physics.rs",
+     "line": 1057,
+     "via": "diag()",
+     "severity": "warning"
     }
    ],
-   "messages": [],
+   "messages": [
+    "message"
+   ],
    "classification": "absent_capability",
    "reason": "A combination of load cases solved on different modulus bases is withheld: superposition across stiffnesses is not a state of one system, and the product offers no combined result. A user can only avoid it by changing the cases' physics.",
    "unsure": true,
@@ -649,7 +824,7 @@
    "crates": [
     "core/product_physics"
    ],
-   "severity": "not_stated",
+   "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
     "line": 388,
@@ -664,9 +839,20 @@
      "through": [
       "const RESOLVED_STIFFNESS_MIXED (core/product_physics/src/exact_combinations.rs:45)"
      ]
+    },
+    {
+     "file": "core/product_physics/src/exact_combinations.rs",
+     "line": 972,
+     "via": "diag()",
+     "severity": "warning",
+     "through": [
+      "const RESOLVED_STIFFNESS_MIXED (core/product_physics/src/exact_combinations.rs:45)"
+     ]
     }
    ],
-   "messages": [],
+   "messages": [
+    "message"
+   ],
    "classification": "absent_capability",
    "reason": "A combination is withheld when a member's resolved stiffness (E/nu, property temperature, section bases or shear model) differs between its load cases; the product offers no combined result.",
    "unsure": true,
@@ -1053,7 +1239,7 @@
    "crates": [
     "core/product_physics"
    ],
-   "severity": "not_stated",
+   "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
     "line": 419,
@@ -1071,6 +1257,16 @@
      ]
     },
     {
+     "file": "core/product_physics/src/exact_combinations.rs",
+     "line": 972,
+     "via": "diag()",
+     "severity": "warning",
+     "through": [
+      "const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:817)",
+      "const CONSTANT_EFFORT_OPERAND_MIXED <- const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:817)"
+     ]
+    },
+    {
      "file": "core/product_physics/src/preview_physics.rs",
      "line": 904,
      "via": "gated()",
@@ -1079,9 +1275,21 @@
       "const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:817)",
       "const CONSTANT_EFFORT_OPERAND_MIXED <- const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:817)"
      ]
+    },
+    {
+     "file": "core/product_physics/src/preview_physics.rs",
+     "line": 1057,
+     "via": "diag()",
+     "severity": "warning",
+     "through": [
+      "const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:817)",
+      "const CONSTANT_EFFORT_OPERAND_MIXED <- const CONSTANT_EFFORT_OPERAND_MIXED (core/product_physics/src/preview_physics.rs:817)"
+     ]
     }
    ],
-   "messages": [],
+   "messages": [
+    "message"
+   ],
    "classification": "absent_capability",
    "reason": "A combination over a model with a constant-effort support is withheld when an operand's fixed-load count is undefined; the requested combination is not provided.",
    "unsure": false,
@@ -1095,7 +1303,7 @@
    "crates": [
     "core/product_physics"
    ],
-   "severity": "not_stated",
+   "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
     "line": 419,
@@ -1112,6 +1320,15 @@
      ]
     },
     {
+     "file": "core/product_physics/src/exact_combinations.rs",
+     "line": 972,
+     "via": "diag()",
+     "severity": "warning",
+     "through": [
+      "const CONSTANT_EFFORT (core/product_physics/src/exact_combinations.rs:64)"
+     ]
+    },
+    {
      "file": "core/product_physics/src/preview_physics.rs",
      "line": 904,
      "via": "gated()",
@@ -1119,9 +1336,20 @@
      "through": [
       "const CONSTANT_EFFORT_REQUIRES_SOLVE (core/product_physics/src/preview_physics.rs:815)"
      ]
+    },
+    {
+     "file": "core/product_physics/src/preview_physics.rs",
+     "line": 1057,
+     "via": "diag()",
+     "severity": "warning",
+     "through": [
+      "const CONSTANT_EFFORT_REQUIRES_SOLVE (core/product_physics/src/preview_physics.rs:815)"
+     ]
     }
    ],
-   "messages": [],
+   "messages": [
+    "message"
+   ],
    "classification": "absent_capability",
    "reason": "A combination over a model with a consumed constant-effort support is withheld when its recursive fixed-load count kappa (the number of times it carries each fixed load, through nested combinations) is not exactly 1 for a mechanics combination: the constant force would be counted kappa times instead of once (exact_combinations.rs gate 3; load_case_algebra fixed_load_count). The displayed factors are not the test: with D = A - B, 0.5A + 0.5D shows factors summing to 1 and is refused, and A + D shows 2 and is admitted. A combination solved as its own state is not provided.",
    "unsure": false,
@@ -1266,7 +1494,7 @@
    "crates": [
     "core/product_physics"
    ],
-   "severity": "not_stated",
+   "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
     "line": 419,
@@ -1283,6 +1511,15 @@
      ]
     },
     {
+     "file": "core/product_physics/src/exact_combinations.rs",
+     "line": 972,
+     "via": "diag()",
+     "severity": "warning",
+     "through": [
+      "const CONSTANT_EFFORT_UNSIGNED (core/product_physics/src/exact_combinations.rs:67)"
+     ]
+    },
+    {
      "file": "core/product_physics/src/preview_physics.rs",
      "line": 904,
      "via": "gated()",
@@ -1290,9 +1527,20 @@
      "through": [
       "const CONSTANT_EFFORT_UNSIGNED_OPERAND (core/product_physics/src/preview_physics.rs:816)"
      ]
+    },
+    {
+     "file": "core/product_physics/src/preview_physics.rs",
+     "line": 1057,
+     "via": "diag()",
+     "severity": "warning",
+     "through": [
+      "const CONSTANT_EFFORT_UNSIGNED_OPERAND (core/product_physics/src/preview_physics.rs:816)"
+     ]
     }
    ],
-   "messages": [],
+   "messages": [
+    "message"
+   ],
    "classification": "absent_capability",
    "reason": "An absolute-sum or SRSS combination whose operands carry a constant-effort force (fixed-load count not exactly 0) is withheld: the force would be counted once per term with its sign discarded. The requested combination is not provided.",
    "unsure": false,
@@ -3037,7 +3285,7 @@
    "crates": [
     "core/product_physics"
    ],
-   "severity": "not_stated",
+   "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
     "line": 876,
@@ -3052,9 +3300,20 @@
      "through": [
       "const MODULUS_MIXED <- returned by gate() (core/product_physics/src/difference_basis.rs:33)"
      ]
+    },
+    {
+     "file": "core/product_physics/src/preview_physics.rs",
+     "line": 1057,
+     "via": "diag()",
+     "severity": "warning",
+     "through": [
+      "const MODULUS_MIXED <- returned by gate() (core/product_physics/src/difference_basis.rs:33)"
+     ]
     }
    ],
-   "messages": [],
+   "messages": [
+    "message"
+   ],
    "classification": "absent_capability",
    "reason": "A declared operating-minus-sustained difference is withheld when its two cases were solved on different modulus bases; the requested expansion difference is not provided on that basis.",
    "unsure": true,
@@ -3071,7 +3330,7 @@
    "crates": [
     "core/product_physics"
    ],
-   "severity": "not_stated",
+   "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/preview_physics.rs",
     "line": 876,
@@ -3086,9 +3345,20 @@
      "through": [
       "const SUSTAINED_NOT_IN_OPERATING <- returned by gate() (core/product_physics/src/difference_basis.rs:31)"
      ]
+    },
+    {
+     "file": "core/product_physics/src/preview_physics.rs",
+     "line": 1057,
+     "via": "diag()",
+     "severity": "warning",
+     "through": [
+      "const SUSTAINED_NOT_IN_OPERATING <- returned by gate() (core/product_physics/src/difference_basis.rs:31)"
+     ]
     }
    ],
-   "messages": [],
+   "messages": [
+    "message"
+   ],
    "classification": "input_error",
    "reason": "A declared operating-minus-sustained difference whose sustained case's loads are not contained in the operating case is withheld: the document's declaration is inconsistent and the user corrects the cases or drops the declaration.",
    "unsure": false,
@@ -4805,6 +5075,7 @@
   {
    "code": "IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED",
    "crates": [
+    "core/model_operations/operation_applier",
     "core/product_physics"
    ],
    "severity": "blocking",
@@ -4814,6 +5085,16 @@
     "via": "refuse()"
    },
    "sites": [
+    {
+     "file": "core/model_operations/operation_applier/src/lib.rs",
+     "line": 5578,
+     "via": "push()",
+     "severity": "blocking",
+     "any_arm": true,
+     "through": [
+      "const IMPOSED_DISPLACEMENT_SKEW_SUPPORT_UNSUPPORTED <- returned by skew_code() [any arm] (core/product_physics/src/document_members.rs:52)"
+     ]
+    },
     {
      "file": "core/product_physics/src/document_members.rs",
      "line": 855,
@@ -4836,6 +5117,7 @@
    ],
    "messages": [
     "load {} in {} imposes a displacement on support {support_id}, which has a skewed direction; motion of a skewed restraint is not built yet, so nothing is solved",
+    "message",
     "support `{}` {reason}"
    ],
    "classification": "absent_capability",
@@ -5000,7 +5282,7 @@
    "crates": [
     "core/product_physics"
    ],
-   "severity": "not_stated",
+   "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
     "line": 405,
@@ -5015,9 +5297,20 @@
      "through": [
       "const INSTALLED_REFERENCE_UNSIGNED (core/product_physics/src/exact_combinations.rs:52)"
      ]
+    },
+    {
+     "file": "core/product_physics/src/exact_combinations.rs",
+     "line": 972,
+     "via": "diag()",
+     "severity": "warning",
+     "through": [
+      "const INSTALLED_REFERENCE_UNSIGNED (core/product_physics/src/exact_combinations.rs:52)"
+     ]
     }
    ],
-   "messages": [],
+   "messages": [
+    "message"
+   ],
    "classification": "absent_capability",
    "reason": "An absolute-sum or SRSS combination is withheld when a connector or tie rod has a nonzero installed reference acting in every case state; the requested combination is not provided.",
    "unsure": false,
@@ -5304,7 +5597,7 @@
    "crates": [
     "core/product_physics"
    ],
-   "severity": "not_stated",
+   "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/joint.rs",
     "line": 274,
@@ -5328,11 +5621,21 @@
      "through": [
       "const HARDWARE_LAW_UNSUPPORTED (core/product_physics/src/joint.rs:169)"
      ]
+    },
+    {
+     "file": "core/product_physics/src/joint.rs",
+     "line": 761,
+     "via": "push()",
+     "severity": "blocking",
+     "through": [
+      "const HARDWARE_LAW_UNSUPPORTED (core/product_physics/src/joint.rs:169)"
+     ]
     }
    ],
    "messages": [
     "objective connector {component}: hardware {} is not supported; only untied and {RODS_KIND} are",
-    "objective connector {component}: {}; only {ROD_LAW} is (ideal inextensible, tension-only and gapped rods, nuts, stops and collective constraints are refused)"
+    "objective connector {component}: {}; only {ROD_LAW} is (ideal inextensible, tension-only and gapped rods, nuts, stops and collective constraints are refused)",
+    "message"
    ],
    "classification": "absent_capability",
    "reason": "Expansion-joint hardware other than untied or explicit axial tie rods (explicit_axial_rods_v1) is not built.",
@@ -5347,7 +5650,7 @@
    "crates": [
     "core/product_physics"
    ],
-   "severity": "not_stated",
+   "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/joint.rs",
     "line": 228,
@@ -5362,10 +5665,20 @@
      "through": [
       "const HARDWARE_NOT_DEFINED (core/product_physics/src/joint.rs:168)"
      ]
+    },
+    {
+     "file": "core/product_physics/src/joint.rs",
+     "line": 761,
+     "via": "push()",
+     "severity": "blocking",
+     "through": [
+      "const HARDWARE_NOT_DEFINED (core/product_physics/src/joint.rs:168)"
+     ]
     }
    ],
    "messages": [
-    "objective connector {component}: no hardware is declared (absent hardware is never taken as untied)"
+    "objective connector {component}: no hardware is declared (absent hardware is never taken as untied)",
+    "message"
    ],
    "classification": "input_error",
    "reason": "An objective connector declares no hardware; absent hardware is never taken as untied.",
@@ -5380,7 +5693,7 @@
    "crates": [
     "core/product_physics"
    ],
-   "severity": "not_stated",
+   "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/joint.rs",
     "line": 466,
@@ -5395,10 +5708,20 @@
      "through": [
       "const PRESSURE_AREA_MISSING (core/product_physics/src/joint.rs:171)"
      ]
+    },
+    {
+     "file": "core/product_physics/src/joint.rs",
+     "line": 761,
+     "via": "push()",
+     "severity": "blocking",
+     "through": [
+      "const PRESSURE_AREA_MISSING (core/product_physics/src/joint.rs:171)"
+     ]
     }
    ],
    "messages": [
-    "effective_area must be finite, positive and an area, with a nonempty source_reference"
+    "effective_area must be finite, positive and an area, with a nonempty source_reference",
+    "message"
    ],
    "classification": "input_error",
    "reason": "The document is incomplete, inconsistent or invalid here: effective_area must be finite, positive and an area, with a nonempty source_reference",
@@ -5443,6 +5766,15 @@
      "line": 476,
      "via": "code-message pair",
      "severity": null,
+     "through": [
+      "const PRESSURE_INTERFACE_UNRESOLVED (core/product_physics/src/joint.rs:170)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/joint.rs",
+     "line": 761,
+     "via": "push()",
+     "severity": "blocking",
      "through": [
       "const PRESSURE_INTERFACE_UNRESOLVED (core/product_physics/src/joint.rs:170)"
      ]
@@ -5494,7 +5826,7 @@
     "unpressurized pressure model carries only kind",
     "constant effective-area pressure model requires exactly kind, effective_area, pressure_basis and source_reference, with internal_differential_zero_external_v1 basis",
     "pressure model {} is not supported; only unpressurized and constant_effective_area_reference_v1 are",
-    "load case {case}, region {region}, connector {connector}: {reason}"
+    "message"
    ],
    "classification": "input_error",
    "reason": "The document is incomplete, inconsistent or invalid here: unpressurized pressure model carries only kind",
@@ -5552,7 +5884,7 @@
    "crates": [
     "core/product_physics"
    ],
-   "severity": "not_stated",
+   "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/joint.rs",
     "line": 705,
@@ -5576,11 +5908,21 @@
      "through": [
       "const BASIS_UNSUPPORTED (core/product_physics/src/joint.rs:167)"
      ]
+    },
+    {
+     "file": "core/product_physics/src/joint.rs",
+     "line": 761,
+     "via": "push()",
+     "severity": "blocking",
+     "through": [
+      "const BASIS_UNSUPPORTED (core/product_physics/src/joint.rs:167)"
+     ]
     }
    ],
    "messages": [
     "objective connector {}: only a constant structural elasticity calibration without pressure-dependent tangent effects is supported",
-    "objective connector {}: no stiffness calibration basis is declared"
+    "objective connector {}: no stiffness calibration basis is declared",
+    "message"
    ],
    "classification": "absent_capability",
    "reason": "Two uses (joint.rs): a calibration other than a constant structural elasticity without pressure-dependent tangent effects is not built (absent capability); and a missing calibration, a missing installed_geometry or a missing explicit includes_pressure_dependent_tangent flag, which a user corrects (input error). Classed by the more serious.",
@@ -5616,6 +5958,16 @@
     },
     {
      "file": "core/product_physics/src/joint.rs",
+     "line": 761,
+     "via": "push()",
+     "severity": "blocking",
+     "through": [
+      "const TIE_ROD_INPUT_INVALID (core/product_physics/src/joint.rs:175)",
+      "const TIE_ROD_INPUT_INVALID <- returned by tie_rod_code() [any arm] (core/product_physics/src/joint.rs:175)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/joint.rs",
      "line": 944,
      "via": "diag()",
      "severity": "blocking",
@@ -5636,6 +5988,7 @@
    ],
    "messages": [
     "objective connector {component}: invalid tie-rod hardware: {}; it is never assembled with assumed values",
+    "message",
     "objective connector {}: tie rod {} cannot be formed: {error}; it is never assembled with assumed values",
     "objective connector {} tie rod {}'s reference load cannot be formed: {error}"
    ],
@@ -5655,10 +6008,20 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/joint.rs",
-    "line": 944,
-    "via": "diag()"
+    "line": 761,
+    "via": "push()"
    },
    "sites": [
+    {
+     "file": "core/product_physics/src/joint.rs",
+     "line": 761,
+     "via": "push()",
+     "severity": "blocking",
+     "any_arm": true,
+     "through": [
+      "const TIE_ROD_ZERO_LENGTH <- returned by tie_rod_code() [any arm] (core/product_physics/src/joint.rs:178)"
+     ]
+    },
     {
      "file": "core/product_physics/src/joint.rs",
      "line": 944,
@@ -5671,6 +6034,7 @@
     }
    ],
    "messages": [
+    "message",
     "objective connector {}: tie rod {} cannot be formed: {error}; it is never assembled with assumed values"
    ],
    "classification": "input_error",
@@ -6512,10 +6876,28 @@
      ]
     },
     {
+     "file": "core/product_physics/src/exact_combinations.rs",
+     "line": 972,
+     "via": "diag()",
+     "severity": "warning",
+     "through": [
+      "const OPERAND_WITHHELD (core/product_physics/src/preview_physics.rs:819)"
+     ]
+    },
+    {
      "file": "core/product_physics/src/preview_physics.rs",
      "line": 869,
      "via": "code-message pair",
      "severity": null,
+     "through": [
+      "const OPERAND_WITHHELD (core/product_physics/src/preview_physics.rs:819)"
+     ]
+    },
+    {
+     "file": "core/product_physics/src/preview_physics.rs",
+     "line": 1057,
+     "via": "diag()",
+     "severity": "warning",
      "through": [
       "const OPERAND_WITHHELD (core/product_physics/src/preview_physics.rs:819)"
      ]
@@ -6524,6 +6906,7 @@
    "messages": [
     "crate::preview_physics::operand_withheld_message(pairs)",
     "preview_physics::operand_withheld_message(operands)",
+    "message",
     "operand_withheld_message(operands)"
    ],
    "classification": "disclosure",
@@ -11376,7 +11759,7 @@
    "crates": [
     "core/product_physics"
    ],
-   "severity": "not_stated",
+   "severity": "warning",
    "first_site": {
     "file": "core/product_physics/src/exact_combinations.rs",
     "line": 364,
@@ -11393,13 +11776,30 @@
      ]
     },
     {
+     "file": "core/product_physics/src/exact_combinations.rs",
+     "line": 972,
+     "via": "diag()",
+     "severity": "warning",
+     "through": [
+      "const NONLINEAR (core/product_physics/src/exact_combinations.rs:47)"
+     ]
+    },
+    {
      "file": "core/product_physics/src/preview_physics.rs",
      "line": 889,
      "via": "gated()",
      "severity": null
+    },
+    {
+     "file": "core/product_physics/src/preview_physics.rs",
+     "line": 1057,
+     "via": "diag()",
+     "severity": "warning"
     }
    ],
-   "messages": [],
+   "messages": [
+    "message"
+   ],
    "classification": "absent_capability",
    "reason": "A mechanics combination over a model with nonlinear supports is withheld by design: superposing case states is not a solved state, and solving the combination as its own nonlinear state is not provided. The user asked for a combined result and does not get it, and no correction of the document yields it, so it is an absent capability rather than an input error; it is not a statement about numerical reliability.",
    "unsure": false,
@@ -12076,11 +12476,21 @@
    ],
    "severity": "varies",
    "first_site": {
-    "file": "core/product_physics/src/lib.rs",
-    "line": 8354,
-    "via": "diag()"
+    "file": "core/product_physics/src/held_status.rs",
+    "line": 828,
+    "via": "json code"
    },
    "sites": [
+    {
+     "file": "core/product_physics/src/held_status.rs",
+     "line": 828,
+     "via": "json code",
+     "severity": null,
+     "any_arm": true,
+     "through": [
+      "returned by solver_diag_code() [any arm] (core/product_physics/src/lib.rs:8376)"
+     ]
+    },
     {
      "file": "core/product_physics/src/lib.rs",
      "line": 8354,
@@ -12103,6 +12513,7 @@
     }
    ],
    "messages": [
+    "message",
     "diagnostic.message.clone()"
    ],
    "classification": "numerical_standing",
@@ -12942,7 +13353,7 @@
    "crates": [
     "core/product_physics"
    ],
-   "severity": "not_stated",
+   "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/joint.rs",
     "line": 698,
@@ -12957,10 +13368,20 @@
      "through": [
       "const TOPOLOGY_UNRESOLVED (core/product_physics/src/joint.rs:166)"
      ]
+    },
+    {
+     "file": "core/product_physics/src/joint.rs",
+     "line": 761,
+     "via": "push()",
+     "severity": "blocking",
+     "through": [
+      "const TOPOLOGY_UNRESOLVED (core/product_physics/src/joint.rs:166)"
+     ]
     }
    ],
    "messages": [
-    "objective connector {}: {problem}; the connector is not assembled"
+    "objective connector {}: {problem}; the connector is not assembled",
+    "message"
    ],
    "classification": "input_error",
    "reason": "The document is incomplete, inconsistent or invalid here: objective connector {}: {problem}; the connector is not assembled",
@@ -14902,11 +15323,21 @@
      "through": [
       "const SELECTED_CODE (core/product_physics/src/retained_wire.rs:70)"
      ]
+    },
+    {
+     "file": "core/product_physics/src/retained_wire.rs",
+     "line": 1990,
+     "via": "json code",
+     "severity": "info",
+     "through": [
+      "const SELECTED_CODE (core/product_physics/src/retained_wire.rs:70)"
+     ]
     }
    ],
    "messages": [
     "if member_loads{SELECTED_MEMBER_LOAD_MESSAGE}else{SELECTED_MESSAGE}",
-    "COMBINATION_SELECTED_MESSAGE"
+    "COMBINATION_SELECTED_MESSAGE",
+    "message"
    ],
    "classification": "numerical_standing",
    "reason": "The retained-precision response is selected (info).",
@@ -14954,11 +15385,21 @@
      "through": [
       "const UNAVAILABLE_CODE (core/product_physics/src/retained_wire.rs:1726)"
      ]
+    },
+    {
+     "file": "core/product_physics/src/retained_wire.rs",
+     "line": 1990,
+     "via": "json code",
+     "severity": "info",
+     "through": [
+      "const UNAVAILABLE_CODE (core/product_physics/src/retained_wire.rs:1726)"
+     ]
     }
    ],
    "messages": [
     "UNAVAILABLE_MESSAGE",
-    "COMBINATION_UNAVAILABLE_MESSAGE"
+    "COMBINATION_UNAVAILABLE_MESSAGE",
+    "message"
    ],
    "classification": "numerical_standing",
    "reason": "Retained precision is unavailable for the case (info).",
@@ -16462,11 +16903,21 @@
    ],
    "severity": "varies",
    "first_site": {
-    "file": "core/product_physics/src/lib.rs",
-    "line": 8354,
-    "via": "diag()"
+    "file": "core/product_physics/src/held_status.rs",
+    "line": 828,
+    "via": "json code"
    },
    "sites": [
+    {
+     "file": "core/product_physics/src/held_status.rs",
+     "line": 828,
+     "via": "json code",
+     "severity": null,
+     "any_arm": true,
+     "through": [
+      "returned by solver_diag_code() [any arm] (core/product_physics/src/lib.rs:8372)"
+     ]
+    },
     {
      "file": "core/product_physics/src/lib.rs",
      "line": 8354,
@@ -16489,6 +16940,7 @@
     }
    ],
    "messages": [
+    "message",
     "diagnostic.message.clone()"
    ],
    "classification": "numerical_standing",
@@ -16506,11 +16958,21 @@
    ],
    "severity": "varies",
    "first_site": {
-    "file": "core/product_physics/src/lib.rs",
-    "line": 8354,
-    "via": "diag()"
+    "file": "core/product_physics/src/held_status.rs",
+    "line": 828,
+    "via": "json code"
    },
    "sites": [
+    {
+     "file": "core/product_physics/src/held_status.rs",
+     "line": 828,
+     "via": "json code",
+     "severity": null,
+     "any_arm": true,
+     "through": [
+      "returned by solver_diag_code() [any arm] (core/product_physics/src/lib.rs:8371)"
+     ]
+    },
     {
      "file": "core/product_physics/src/lib.rs",
      "line": 8354,
@@ -16533,6 +16995,7 @@
     }
    ],
    "messages": [
+    "message",
     "diagnostic.message.clone()"
    ],
    "classification": "numerical_standing",
@@ -16550,11 +17013,21 @@
    ],
    "severity": "varies",
    "first_site": {
-    "file": "core/product_physics/src/lib.rs",
-    "line": 8354,
-    "via": "diag()"
+    "file": "core/product_physics/src/held_status.rs",
+    "line": 828,
+    "via": "json code"
    },
    "sites": [
+    {
+     "file": "core/product_physics/src/held_status.rs",
+     "line": 828,
+     "via": "json code",
+     "severity": null,
+     "any_arm": true,
+     "through": [
+      "returned by solver_diag_code() [any arm] (core/product_physics/src/lib.rs:8374)"
+     ]
+    },
     {
      "file": "core/product_physics/src/lib.rs",
      "line": 8354,
@@ -16577,6 +17050,7 @@
     }
    ],
    "messages": [
+    "message",
     "diagnostic.message.clone()"
    ],
    "classification": "input_error",
@@ -16594,11 +17068,21 @@
    ],
    "severity": "varies",
    "first_site": {
-    "file": "core/product_physics/src/lib.rs",
-    "line": 8354,
-    "via": "diag()"
+    "file": "core/product_physics/src/held_status.rs",
+    "line": 828,
+    "via": "json code"
    },
    "sites": [
+    {
+     "file": "core/product_physics/src/held_status.rs",
+     "line": 828,
+     "via": "json code",
+     "severity": null,
+     "any_arm": true,
+     "through": [
+      "returned by solver_diag_code() [any arm] (core/product_physics/src/lib.rs:8375)"
+     ]
+    },
     {
      "file": "core/product_physics/src/lib.rs",
      "line": 8354,
@@ -16621,6 +17105,7 @@
     }
    ],
    "messages": [
+    "message",
     "diagnostic.message.clone()"
    ],
    "classification": "input_error",
@@ -16638,11 +17123,21 @@
    ],
    "severity": "varies",
    "first_site": {
-    "file": "core/product_physics/src/lib.rs",
-    "line": 8354,
-    "via": "diag()"
+    "file": "core/product_physics/src/held_status.rs",
+    "line": 828,
+    "via": "json code"
    },
    "sites": [
+    {
+     "file": "core/product_physics/src/held_status.rs",
+     "line": 828,
+     "via": "json code",
+     "severity": null,
+     "any_arm": true,
+     "through": [
+      "returned by solver_diag_code() [any arm] (core/product_physics/src/lib.rs:8373)"
+     ]
+    },
     {
      "file": "core/product_physics/src/lib.rs",
      "line": 8354,
@@ -16665,6 +17160,7 @@
     }
    ],
    "messages": [
+    "message",
     "diagnostic.message.clone()"
    ],
    "classification": "input_error",
@@ -16682,11 +17178,21 @@
    ],
    "severity": "varies",
    "first_site": {
-    "file": "core/product_physics/src/lib.rs",
-    "line": 8354,
-    "via": "diag()"
+    "file": "core/product_physics/src/held_status.rs",
+    "line": 828,
+    "via": "json code"
    },
    "sites": [
+    {
+     "file": "core/product_physics/src/held_status.rs",
+     "line": 828,
+     "via": "json code",
+     "severity": null,
+     "any_arm": true,
+     "through": [
+      "returned by solver_diag_code() [any arm] (core/product_physics/src/lib.rs:8377)"
+     ]
+    },
     {
      "file": "core/product_physics/src/lib.rs",
      "line": 8354,
@@ -16709,6 +17215,7 @@
     }
    ],
    "messages": [
+    "message",
     "diagnostic.message.clone()"
    ],
    "classification": "numerical_standing",
@@ -16726,11 +17233,21 @@
    ],
    "severity": "varies",
    "first_site": {
-    "file": "core/product_physics/src/lib.rs",
-    "line": 8354,
-    "via": "diag()"
+    "file": "core/product_physics/src/held_status.rs",
+    "line": 828,
+    "via": "json code"
    },
    "sites": [
+    {
+     "file": "core/product_physics/src/held_status.rs",
+     "line": 828,
+     "via": "json code",
+     "severity": null,
+     "any_arm": true,
+     "through": [
+      "returned by solver_diag_code() [any arm] (core/product_physics/src/lib.rs:8370)"
+     ]
+    },
     {
      "file": "core/product_physics/src/lib.rs",
      "line": 8354,
@@ -16753,6 +17270,7 @@
     }
    ],
    "messages": [
+    "message",
     "diagnostic.message.clone()"
    ],
    "classification": "numerical_standing",
@@ -17123,11 +17641,21 @@
    ],
    "severity": "varies",
    "first_site": {
-    "file": "core/product_physics/src/lib.rs",
-    "line": 8354,
-    "via": "diag()"
+    "file": "core/product_physics/src/held_status.rs",
+    "line": 828,
+    "via": "json code"
    },
    "sites": [
+    {
+     "file": "core/product_physics/src/held_status.rs",
+     "line": 828,
+     "via": "json code",
+     "severity": null,
+     "any_arm": true,
+     "through": [
+      "returned by solver_diag_code() [any arm] (core/product_physics/src/lib.rs:8378)"
+     ]
+    },
     {
      "file": "core/product_physics/src/lib.rs",
      "line": 8354,
@@ -17150,6 +17678,7 @@
     }
    ],
    "messages": [
+    "message",
     "diagnostic.message.clone()"
    ],
    "classification": "numerical_standing",
@@ -17712,6 +18241,7 @@
   {
    "code": "SUPPORT_CONSTRAINT_REDUNDANT",
    "crates": [
+    "core/model_operations/operation_applier",
     "core/product_physics"
    ],
    "severity": "blocking",
@@ -17721,6 +18251,16 @@
     "via": "diag()"
    },
    "sites": [
+    {
+     "file": "core/model_operations/operation_applier/src/lib.rs",
+     "line": 5578,
+     "via": "push()",
+     "severity": "blocking",
+     "any_arm": true,
+     "through": [
+      "const SUPPORT_CONSTRAINT_REDUNDANT <- returned by skew_code() [any arm] (core/product_physics/src/document_members.rs:58)"
+     ]
+    },
     {
      "file": "core/product_physics/src/document_members.rs",
      "line": 855,
@@ -17743,6 +18283,7 @@
    ],
    "messages": [
     "support `{}`: {}",
+    "message",
     "support `{}` {reason}"
    ],
    "classification": "input_error",
@@ -17756,6 +18297,7 @@
   {
    "code": "SUPPORT_DIRECTION_INVALID",
    "crates": [
+    "core/model_operations/operation_applier",
     "core/product_physics"
    ],
    "severity": "blocking",
@@ -17765,6 +18307,16 @@
     "via": "refuse()"
    },
    "sites": [
+    {
+     "file": "core/model_operations/operation_applier/src/lib.rs",
+     "line": 5578,
+     "via": "push()",
+     "severity": "blocking",
+     "any_arm": true,
+     "through": [
+      "const SUPPORT_DIRECTION_INVALID <- returned by skew_code() [any arm] (core/product_physics/src/document_members.rs:34)"
+     ]
+    },
     {
      "file": "core/product_physics/src/document_members.rs",
      "line": 393,
@@ -17787,6 +18339,7 @@
    ],
    "messages": [
     "is not three finite numbers {x, y, z}",
+    "message",
     "support `{}` {reason}"
    ],
    "classification": "input_error",
@@ -17800,6 +18353,7 @@
   {
    "code": "SUPPORT_DIRECTION_NODE_UNCONNECTED",
    "crates": [
+    "core/model_operations/operation_applier",
     "core/product_physics"
    ],
    "severity": "blocking",
@@ -17809,6 +18363,16 @@
     "via": "diag()"
    },
    "sites": [
+    {
+     "file": "core/model_operations/operation_applier/src/lib.rs",
+     "line": 5578,
+     "via": "push()",
+     "severity": "blocking",
+     "any_arm": true,
+     "through": [
+      "const SUPPORT_DIRECTION_NODE_UNCONNECTED <- returned by skew_code() [any arm] (core/product_physics/src/document_members.rs:54)"
+     ]
+    },
     {
      "file": "core/product_physics/src/document_members.rs",
      "line": 855,
@@ -17831,6 +18395,7 @@
    ],
    "messages": [
     "support `{}` has a skewed direction at a node with no element; its node's translations are not in the stiffness, so nothing is solved",
+    "message",
     "support `{}` {reason}"
    ],
    "classification": "input_error",
@@ -17844,6 +18409,7 @@
   {
    "code": "SUPPORT_DIRECTION_RANGE_UNSUPPORTED",
    "crates": [
+    "core/model_operations/operation_applier",
     "core/product_physics"
    ],
    "severity": "blocking",
@@ -17853,6 +18419,16 @@
     "via": "diag()"
    },
    "sites": [
+    {
+     "file": "core/model_operations/operation_applier/src/lib.rs",
+     "line": 5578,
+     "via": "push()",
+     "severity": "blocking",
+     "any_arm": true,
+     "through": [
+      "const SUPPORT_DIRECTION_RANGE_UNSUPPORTED <- returned by skew_code() [any arm] (core/product_physics/src/document_members.rs:50)"
+     ]
+    },
     {
      "file": "core/product_physics/src/document_members.rs",
      "line": 855,
@@ -17875,6 +18451,7 @@
    ],
    "messages": [
     "support `{}`: {}",
+    "message",
     "support `{}` {reason}"
    ],
    "classification": "input_error",
@@ -17990,15 +18567,26 @@
   {
    "code": "SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED",
    "crates": [
+    "core/model_operations/operation_applier",
     "core/product_physics"
    ],
    "severity": "blocking",
    "first_site": {
-    "file": "core/product_physics/src/document_members.rs",
-    "line": 855,
-    "via": "diag()"
+    "file": "core/model_operations/operation_applier/src/lib.rs",
+    "line": 5578,
+    "via": "push()"
    },
    "sites": [
+    {
+     "file": "core/model_operations/operation_applier/src/lib.rs",
+     "line": 5578,
+     "via": "push()",
+     "severity": "blocking",
+     "any_arm": true,
+     "through": [
+      "const SUPPORT_DIRECTION_SKEW_EXACT_UNSUPPORTED <- returned by skew_code() [any arm] (core/product_physics/src/document_members.rs:46)"
+     ]
+    },
     {
      "file": "core/product_physics/src/document_members.rs",
      "line": 855,
@@ -18011,6 +18599,7 @@
     }
    ],
    "messages": [
+    "message",
     "support `{}` {reason}"
    ],
    "classification": "absent_capability",
@@ -18024,6 +18613,7 @@
   {
    "code": "SUPPORT_DIRECTION_SKEW_FORCE_SCALED_UNSUPPORTED",
    "crates": [
+    "core/model_operations/operation_applier",
     "core/product_physics"
    ],
    "severity": "blocking",
@@ -18033,6 +18623,16 @@
     "via": "diag()"
    },
    "sites": [
+    {
+     "file": "core/model_operations/operation_applier/src/lib.rs",
+     "line": 5578,
+     "via": "push()",
+     "severity": "blocking",
+     "any_arm": true,
+     "through": [
+      "const SUPPORT_DIRECTION_SKEW_FORCE_SCALED_UNSUPPORTED <- returned by skew_code() [any arm] (core/product_physics/src/document_members.rs:62)"
+     ]
+    },
     {
      "file": "core/product_physics/src/document_members.rs",
      "line": 855,
@@ -18055,6 +18655,7 @@
    ],
    "messages": [
     "load case `{case_id}`: a skew model's ordinary formation left the binary64 range ({detail}); force scaling with skewed restraints is not built yet, so nothing is solved",
+    "message",
     "support `{}` {reason}"
    ],
    "classification": "absent_capability",
@@ -18071,15 +18672,26 @@
   {
    "code": "SUPPORT_DIRECTION_SKEW_NONLINEAR_MODEL_UNSUPPORTED",
    "crates": [
+    "core/model_operations/operation_applier",
     "core/product_physics"
    ],
    "severity": "blocking",
    "first_site": {
-    "file": "core/product_physics/src/document_members.rs",
-    "line": 855,
-    "via": "diag()"
+    "file": "core/model_operations/operation_applier/src/lib.rs",
+    "line": 5578,
+    "via": "push()"
    },
    "sites": [
+    {
+     "file": "core/model_operations/operation_applier/src/lib.rs",
+     "line": 5578,
+     "via": "push()",
+     "severity": "blocking",
+     "any_arm": true,
+     "through": [
+      "const SUPPORT_DIRECTION_SKEW_NONLINEAR_MODEL_UNSUPPORTED <- returned by skew_code() [any arm] (core/product_physics/src/document_members.rs:48)"
+     ]
+    },
     {
      "file": "core/product_physics/src/document_members.rs",
      "line": 855,
@@ -18092,6 +18704,7 @@
     }
    ],
    "messages": [
+    "message",
     "support `{}` {reason}"
    ],
    "classification": "absent_capability",
@@ -18105,6 +18718,7 @@
   {
    "code": "SUPPORT_DIRECTION_ZERO",
    "crates": [
+    "core/model_operations/operation_applier",
     "core/product_physics"
    ],
    "severity": "blocking",
@@ -18114,6 +18728,16 @@
     "via": "refuse()"
    },
    "sites": [
+    {
+     "file": "core/model_operations/operation_applier/src/lib.rs",
+     "line": 5578,
+     "via": "push()",
+     "severity": "blocking",
+     "any_arm": true,
+     "through": [
+      "const SUPPORT_DIRECTION_ZERO <- returned by skew_code() [any arm] (core/product_physics/src/document_members.rs:36)"
+     ]
+    },
     {
      "file": "core/product_physics/src/document_members.rs",
      "line": 397,
@@ -18136,6 +18760,7 @@
    ],
    "messages": [
     "is zero; a direction is a non-zero vector, and absence means axis-aligned",
+    "message",
     "support `{}` {reason}"
    ],
    "classification": "input_error",
@@ -18397,6 +19022,7 @@
   {
    "code": "SUPPORT_SKEW_NODE_PRESCRIBED_MOTION_UNSUPPORTED",
    "crates": [
+    "core/model_operations/operation_applier",
     "core/product_physics"
    ],
    "severity": "blocking",
@@ -18406,6 +19032,16 @@
     "via": "diag()"
    },
    "sites": [
+    {
+     "file": "core/model_operations/operation_applier/src/lib.rs",
+     "line": 5578,
+     "via": "push()",
+     "severity": "blocking",
+     "any_arm": true,
+     "through": [
+      "const SUPPORT_SKEW_NODE_PRESCRIBED_MOTION_UNSUPPORTED <- returned by skew_code() [any arm] (core/product_physics/src/document_members.rs:60)"
+     ]
+    },
     {
      "file": "core/product_physics/src/document_members.rs",
      "line": 855,
@@ -18428,6 +19064,7 @@
    ],
    "messages": [
     "load case `{case_id}` prescribes a nonzero translation on an axis restraint at a skewed stop's node (global DOF {dofs:?}); the affine reduction is not built yet, so nothing is solved",
+    "message",
     "support `{}` {reason}"
    ],
    "classification": "absent_capability",
@@ -18441,6 +19078,7 @@
   {
    "code": "SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED",
    "crates": [
+    "core/model_operations/operation_applier",
     "core/product_physics"
    ],
    "severity": "blocking",
@@ -18450,6 +19088,16 @@
     "via": "diag()"
    },
    "sites": [
+    {
+     "file": "core/model_operations/operation_applier/src/lib.rs",
+     "line": 5578,
+     "via": "push()",
+     "severity": "blocking",
+     "any_arm": true,
+     "through": [
+      "const SUPPORT_SKEW_REACTION_RANGE_UNSUPPORTED <- returned by skew_code() [any arm] (core/product_physics/src/document_members.rs:64)"
+     ]
+    },
     {
      "file": "core/product_physics/src/document_members.rs",
      "line": 855,
@@ -18472,6 +19120,7 @@
    ],
    "messages": [
     "load case `{case_id}`: the published {value:?} of support `{support}` is outside the binary64 range; it is not published, and nothing of the case is published",
+    "message",
     "support `{}` {reason}"
    ],
    "classification": "numerical_standing",
@@ -18485,6 +19134,7 @@
   {
    "code": "SUPPORT_SKEW_STOPS_PER_NODE_UNSUPPORTED",
    "crates": [
+    "core/model_operations/operation_applier",
     "core/product_physics"
    ],
    "severity": "blocking",
@@ -18494,6 +19144,16 @@
     "via": "diag()"
    },
    "sites": [
+    {
+     "file": "core/model_operations/operation_applier/src/lib.rs",
+     "line": 5578,
+     "via": "push()",
+     "severity": "blocking",
+     "any_arm": true,
+     "through": [
+      "const SUPPORT_SKEW_STOPS_PER_NODE_UNSUPPORTED <- returned by skew_code() [any arm] (core/product_physics/src/document_members.rs:56)"
+     ]
+    },
     {
      "file": "core/product_physics/src/document_members.rs",
      "line": 855,
@@ -18516,6 +19176,7 @@
    ],
    "messages": [
     "support `{}`: {}",
+    "message",
     "support `{}` {reason}"
    ],
    "classification": "absent_capability",
@@ -18704,11 +19365,21 @@
    ],
    "severity": "varies",
    "first_site": {
-    "file": "core/product_physics/src/lib.rs",
-    "line": 8354,
-    "via": "diag()"
+    "file": "core/product_physics/src/held_status.rs",
+    "line": 828,
+    "via": "json code"
    },
    "sites": [
+    {
+     "file": "core/product_physics/src/held_status.rs",
+     "line": 828,
+     "via": "json code",
+     "severity": null,
+     "any_arm": true,
+     "through": [
+      "returned by solver_diag_code() [any arm] (core/product_physics/src/lib.rs:8379)"
+     ]
+    },
     {
      "file": "core/product_physics/src/lib.rs",
      "line": 8354,
@@ -18731,6 +19402,7 @@
     }
    ],
    "messages": [
+    "message",
     "diagnostic.message.clone()"
    ],
    "classification": "numerical_standing",
@@ -18922,6 +19594,516 @@
    "named_by": null,
    "named_by_coverage": null,
    "named_by_statement": null
+  },
+  {
+   "code": "arithmetic_range",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/product_physics/src/source_receipt.rs",
+    "line": 689,
+    "via": "json code"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/source_receipt.rs",
+     "line": 689,
+     "via": "json code",
+     "severity": null
+    }
+   ],
+   "messages": [],
+   "classification": "numerical_standing",
+   "reason": "A source-recovery failure code: exact arithmetic left its representable range; the case keeps ordinary recovery.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "budget",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/product_physics/src/source_receipt.rs",
+    "line": 689,
+    "via": "json code"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/source_receipt.rs",
+     "line": 689,
+     "via": "json code",
+     "severity": null
+    }
+   ],
+   "messages": [],
+   "classification": "numerical_standing",
+   "reason": "A source-recovery failure code: the exact computation exhausted its work budget; the case keeps ordinary recovery.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "combination_unresolved",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/product_physics/src/retained_wire.rs",
+    "line": 2037,
+    "via": "unavailable()"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/retained_wire.rs",
+     "line": 2037,
+     "via": "unavailable()",
+     "severity": null
+    },
+    {
+     "file": "core/product_physics/src/retained_wire.rs",
+     "line": 2040,
+     "via": "unavailable()",
+     "severity": null
+    },
+    {
+     "file": "core/product_physics/src/retained_wire.rs",
+     "line": 2042,
+     "via": "unavailable()",
+     "severity": null
+    },
+    {
+     "file": "core/product_physics/src/retained_wire.rs",
+     "line": 2174,
+     "via": "json code",
+     "severity": null
+    }
+   ],
+   "messages": [],
+   "classification": "numerical_standing",
+   "reason": "A retained-precision reason for a combination: an operand's source or preparation is unavailable, or the kernel did not select a Run, so the combination publishes no retained-precision response; the ordinary result stands.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "facade_certificate",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/product_physics/src/retained_wire.rs",
+    "line": 2174,
+    "via": "json code"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/retained_wire.rs",
+     "line": 2174,
+     "via": "json code",
+     "severity": null
+    },
+    {
+     "file": "core/product_physics/src/retained_wire.rs",
+     "line": 2298,
+     "via": "json code",
+     "severity": null
+    }
+   ],
+   "messages": [],
+   "classification": "numerical_standing",
+   "reason": "A retained-precision reason: after the kernel selected a Run, the facade's certificate did not hold, so retained precision is unavailable for the case or combination; the ordinary result stands.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "invalid_source",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/product_physics/src/source_receipt.rs",
+    "line": 689,
+    "via": "json code"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/source_receipt.rs",
+     "line": 689,
+     "via": "json code",
+     "severity": null
+    }
+   ],
+   "messages": [],
+   "classification": "internal",
+   "reason": "A source-recovery failure code, the catch-all of failure_fields: the exact boundary called the source invalid, which the product's own source construction should exclude.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "kernel_refused",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/product_physics/src/retained_wire.rs",
+    "line": 2298,
+    "via": "json code"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/retained_wire.rs",
+     "line": 2298,
+     "via": "json code",
+     "severity": null,
+     "pinned": true,
+     "through": [
+      "pinned by hand: built at run time (format!) (pinned_sites)"
+     ]
+    }
+   ],
+   "messages": [],
+   "classification": "numerical_standing",
+   "reason": "A retained-precision reason (with RETAINED_PRECISION_UNAVAILABLE): the exact kernel ran the case's Run and refused it (a witnessed mechanism, unavailable geometry, negative energy, an unavailable ledger or structure); the ordinary result stands and this says the retained-precision standing was not obtained. A witnessed mechanism is a model a user could correct, hence unsure.",
+   "unsure": true,
+   "candidates": [
+    "numerical_standing",
+    "input_error"
+   ],
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "kernel_unresolved",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/product_physics/src/retained_wire.rs",
+    "line": 2298,
+    "via": "json code"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/retained_wire.rs",
+     "line": 2298,
+     "via": "json code",
+     "severity": null,
+     "pinned": true,
+     "through": [
+      "pinned by hand: built at run time (format!) (pinned_sites)"
+     ]
+    }
+   ],
+   "messages": [],
+   "classification": "numerical_standing",
+   "reason": "A retained-precision reason (with RETAINED_PRECISION_UNAVAILABLE): the exact kernel ran the case's Run and left it unresolved (budget, ceiling, exponent or sum range, zero diagonal, arithmetic, an unencodable bound); the ordinary result stands and this says the retained-precision standing was not obtained.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "not_positive_definite",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/product_physics/src/source_receipt.rs",
+    "line": 689,
+    "via": "json code"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/source_receipt.rs",
+     "line": 689,
+     "via": "json code",
+     "severity": null
+    }
+   ],
+   "messages": [],
+   "classification": "numerical_standing",
+   "reason": "A source-recovery failure code: the exact factorization found the system not positive definite, so no certified retained-source response; the case keeps ordinary recovery.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "projection_unresolved",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/product_physics/src/source_receipt.rs",
+    "line": 689,
+    "via": "json code"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/source_receipt.rs",
+     "line": 689,
+     "via": "json code",
+     "severity": null
+    }
+   ],
+   "messages": [],
+   "classification": "numerical_standing",
+   "reason": "A source-recovery failure code: the exact projection could not be resolved; the case keeps ordinary recovery.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "source_mismatch",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/product_physics/src/source_receipt.rs",
+    "line": 689,
+    "via": "json code"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/source_receipt.rs",
+     "line": 689,
+     "via": "json code",
+     "severity": null
+    }
+   ],
+   "messages": [],
+   "classification": "internal",
+   "reason": "A source-recovery failure code: the recovered source does not match the actual model (dimensions, identities), an invariant between the product's own representations that no authored document should reach.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "source_unavailable",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/product_physics/src/retained_wire.rs",
+    "line": 2275,
+    "via": "json code"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/retained_wire.rs",
+     "line": 2275,
+     "via": "json code",
+     "severity": null
+    }
+   ],
+   "messages": [],
+   "classification": "numerical_standing",
+   "reason": "A retained-precision reason: the case's source preparation was refused, so no retained source, Run or response exists; the ordinary result stands.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": null,
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "support_attribution_ambiguous",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/product_physics/src/source_receipt.rs",
+    "line": 689,
+    "via": "json code"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/source_receipt.rs",
+     "line": 689,
+     "via": "json code",
+     "severity": null
+    }
+   ],
+   "messages": [],
+   "classification": "absent_capability",
+   "reason": "A source-recovery failure code (failure record of the source receipt, with SOURCE_BLOCK_RECOVERY_UNAVAILABLE): coincident supports make the retained-source support attribution ambiguous, which the method does not resolve; the case keeps ordinary recovery. Coincident supports are a legitimate model, so this is a method not built rather than an input to correct.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": "unnamed",
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "unsupported_block",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/product_physics/src/source_receipt.rs",
+    "line": 689,
+    "via": "json code"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/source_receipt.rs",
+     "line": 689,
+     "via": "json code",
+     "severity": null
+    }
+   ],
+   "messages": [],
+   "classification": "absent_capability",
+   "reason": "A source-recovery failure code: the exact boundary does not support a block of this order; the case keeps ordinary recovery.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": "unnamed",
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "unsupported_derived_quantity",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/product_physics/src/source_receipt.rs",
+    "line": 918,
+    "via": "json code"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/source_receipt.rs",
+     "line": 918,
+     "via": "json code",
+     "severity": null
+    }
+   ],
+   "messages": [],
+   "classification": "absent_capability",
+   "reason": "A source-recovery failure code (with SOURCE_RECOVERY_DERIVED_UNQUALIFIED): a derived quantity of the case is not one retained-source recovery qualifies; whole-envelope numerical use is withheld.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": "unnamed",
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "unsupported_family",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/product_physics/src/source_receipt.rs",
+    "line": 689,
+    "via": "json code"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/source_receipt.rs",
+     "line": 689,
+     "via": "json code",
+     "severity": null
+    }
+   ],
+   "messages": [],
+   "classification": "absent_capability",
+   "reason": "A source-recovery failure code: the case's source family (for example a non-straight objective connector, or a case the formation guard declines) is not one the retained-source method supports; the case keeps ordinary recovery.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": "unnamed",
+   "named_by_coverage": null,
+   "named_by_statement": null
+  },
+  {
+   "code": "unsupported_source_closure",
+   "crates": [
+    "core/product_physics"
+   ],
+   "severity": "not_stated",
+   "first_site": {
+    "file": "core/product_physics/src/source_receipt.rs",
+    "line": 689,
+    "via": "json code"
+   },
+   "sites": [
+    {
+     "file": "core/product_physics/src/source_receipt.rs",
+     "line": 689,
+     "via": "json code",
+     "severity": null
+    }
+   ],
+   "messages": [],
+   "classification": "absent_capability",
+   "reason": "A source-recovery failure code: the source closure needs a transform the retained-source method does not support; the case keeps ordinary recovery.",
+   "unsure": false,
+   "candidates": null,
+   "named_by": "unnamed",
+   "named_by_coverage": null,
+   "named_by_statement": null
+  }
+ ],
+ "pinned_sites": [
+  {
+   "file": "core/product_physics/src/retained_wire.rs",
+   "at": "json code",
+   "why": "built at run time (format!)",
+   "site_text": "\"reason\":{\"code\":code.0,\"phase\":code.1,\"cause\":cause}",
+   "values": [
+    "kernel_refused",
+    "kernel_unresolved"
+   ],
+   "reason": "code.0 is \"facade_certificate\" on the selected arm, which the scanner resolves, and format!(\"kernel_{other}\") on the other arm, where other is kind, the \"kind\" of the terminal that kernel_outcome builds. kernel_outcome matches k::ExecutionOutcome with no wildcard arm and gives the kinds selected, refused and unresolved; the selected kind is taken by the arm before the format!, so the format! yields exactly kernel_refused and kernel_unresolved. A preparation error returns before any code. The anchors are kernel_outcome whole, the line that reads kind from its terminal, and the match that builds the code.",
+   "anchors": [
+    {
+     "file": "core/product_physics/src/retained_wire.rs",
+     "text": "fn kernel_outcome<'a>(e: &Enc, outcome: &'a k::ExecutionOutcome) -> (&'a [k::AttemptRecord], Value) {\n    match outcome {\n        k::ExecutionOutcome::Selected(owner) => (&owner.evidence().attempts, json!({\"kind\":\"selected\",\"reason\":null})),\n        k::ExecutionOutcome::Refused { refusal: r, attempts, .. } => (attempts, json!({\"kind\":\"refused\",\"reason\":refusal(e,r)})),\n        k::ExecutionOutcome::Unresolved { reason, attempts, .. } => (attempts, json!({\"kind\":\"unresolved\",\"reason\":unresolved(e,reason)})),\n    }\n}"
+    },
+    {
+     "file": "core/product_physics/src/retained_wire.rs",
+     "text": "let (records, terminal) = kernel_outcome(e, &case.outcome);\n    let run_v = run_value_owned(e, run, records, terminal, json!({\"kind\":\"combination\",\"index\":combination.index}))?;\n    let (result, part) = match &combination.end {\n        rp::CombinationEnd::Frozen(frozen) => {\n            let k::ExecutionOutcome::Selected(owner) = &case.outcome else { return Err(fail(ReceiptCheck::Scope, \"combinations[].disposition\")) };\n            let certificate = frozen.certificate();\n            if !certificate.owner_matches(owner) {\n                return Err(assoc(\"combinations[].selection.owner\"));\n            }\n            if !certificate.passed() {\n                return Err(assoc(\"combinations[].selection.certificate\"));\n            }\n            let scope = rp::CaseScope::block(rows.clone(), pc.route());\n            let bound = pc.bind_combination_rows_scoped(staged, &scope, owner, combination_id).map_err(|_| assoc(\"combinations[].selection.absolute_verified\"))?;\n            let results = env[\"results\"].as_array().ok_or(assoc(\"results\"))?;\n            let results = results.get(rows).ok_or(assoc(\"results\"))?;\n            let row_ids: Vec<String> = results.iter().map(|r| r[\"id\"].as_str().map(str::to_owned)).collect::<Option<_>>().ok_or(assoc(\"results[].id\"))?;\n            if bound.len() != row_ids.len() || bound.iter().zip(&row_ids).any(|(r, id)| r.id != id.as_str()) {\n                return Err(assoc(\"combinations[].selection.absolute_verified\"));\n            }\n            let recipes: Vec<k::ProductRecipe> = bound.iter().map(|r| r.recipe).collect();\n            let selection_v = selection(e, owner, pc, &view, certificate, &recipes, &row_ids)?;\n            let source_identity_sha256 = source_identity(&source_v)?;\n            (json!({\"kind\":\"ready\"}), json!({\"disposition\":\"retained_selected\",\"method\":METHOD,\"call_ref\":call.id,\"product_attempt_ref\":attempt_id,\n                \"run\":run_v,\"source_ref\":run.source,\"source_identity_sha256\":source_identity_sha256,\"selection\":selection_v}))\n        }\n        rp::CombinationEnd::Native | rp::CombinationEnd::Candidate(_) => {\n            if let rp::CombinationEnd::Candidate(refused) = &combination.end {\n                let owner = match &case.outcome { k::ExecutionOutcome::Selected(owner) => Some(&**owner), _ => None };\n                let bound = |matches: &dyn Fn(&k::RetainedSolve) -> bool| owner.is_some_and(matches);\n                if refused.proof_failure().is_some_and(|f| !bound(&|o| f.owner_matches(o))) || refused.certificate().is_some_and(|c| !bound(&|o| c.owner_matches(o))) {\n                    return Err(assoc(\"product_attempts[].proof.owner\"));\n                }\n            }\n            let rr::ResultRef::Unavailable(failure) = &view.result else { return Err(assoc(\"product_attempts[].result\")) };\n            let error = public_error(e, failure, pc);\n            // B2-C §4's reason table: a non-selected Run is the kernel's; after a selected Run,\n            // the facade's. A preparation error is refused.\n            let selected = matches!(case.outcome, k::ExecutionOutcome::Selected(_));\n            let (code, phase) = match (error[\"kind\"].as_str(), selected) {\n                (Some(\"preparation\"), _) => return Err(assoc(\"product_attempts[].result\")),\n                (_, true) => (\"facade_certificate\", \"facade\"),\n                (_, false) => (\"combination_unresolved\", \"kernel\"),\n            };\n            (json!({\"kind\":\"unavailable\",\"error\":error}), json!({\"disposition\":\"retained_unavailable\",\"call_ref\":call.id,\"product_attempt_ref\":attempt_id,\n                \"reason\":{\"code\":code,\"phase\":phase,\"cause\":{\"kind\":\"prepared_product_failure\",\"product_attempt_ref\":attempt_id}},\n                \"diagnostic_ref\":format!(\"diagnostic:retained-precision:{combination_id}:unavailable\"),\"run\":run_v,\"source_ref\":run.source}))\n        }\n        _ => return Err(assoc(\"combinations[].disposition\")),\n    };\n    let names = [\"native\", \"proof_start\", \"projection\", \"maxima\", \"values\", \"aliases\", \"certificate\", \"observables\", \"g5a\"];\n    let mut stages_v = Map::new();\n    for (n, s) in names.iter().zip(view.stages.iter().skip(1)) {\n        stages_v.insert((*n).into(), stage_name(e, *s));\n    }\n    let attempt_v = json!({\"id\":attempt_id,\"definition_id\":COMBINATION_DEFINITION_ID,\"owner_ref\":{\"kind\":\"combination\",\"index\":combination.index},\n        \"material_basis_ref\":e.basis_ref(pc.combinations.get(combination.index).and_then(|c| c.terms.first()).map_or(0, |t| t.0)),\"source_ref\":run.source,\"run_ref\":case.run,\"result\":result,\"stages\":stages_v,\"proof\":proof_trace(e,&view,pc),\n        \"adapter\":adapter_value(e,view.adapter),\"overlay_work\":scalar(view.overlay_work),\"g5a_work\":scalar(view.g5a_work)});\n    Ok((attempt_v, (run.source, source_v), part))\n}\n\n/// One case's Run in the invocation's one call (G-j): the kernel's Run for this case, owned by\n/// its batch ordinal.\nfn case_run<'a>(inv: &'a k::RecordedInvocation, case: &k::RecordedCase, ordinal: Option<usize>) -> Result<&'a k::RunOrigins, ReceiptFailure> {\n    let run = inv.runs().get(case.run).ok_or(fail(ReceiptCheck::Scope, \"cases[].run\"))?;\n    if run.id != case.run || run.call != 0 || !matches!((run.owner, ordinal), (k::NativeOwner::Case(i), Some(o)) if i == o) {\n        return Err(fail(ReceiptCheck::Association, \"cases[].run.origin\"));\n    }\n    Ok(run)\n}\n\n/// One product attempt's entries (T-11), on the capture with its case in place: its\n/// `product_attempts[]` entry, its `CaseSource` (by its index in `sources[]`) when it was\n/// submitted, and its case's status members.\n#[allow(clippy::too_many_arguments)]\nfn serialize_attempt(e: &Enc, pc: &rp::ProductCapture, attempt: &rp::CaseAttempt, inv: &k::RecordedInvocation, ordinal: Option<usize>,\n    case_scope: &rp::CaseScope, staged: &MechanicsEnvelope, env: &Value, case_id: &str, diagnostic_ref: Option<String>)\n    -> Result<(Value, Option<(usize, Value)>, Value), ReceiptFailure> {\n    let assoc = |p| fail(ReceiptCheck::Association, p);\n    let request = attempt.request;\n    let mut costs = rr::ProjectionWork::default();\n    if let rp::AttemptEnd::Frozen(frozen) = &attempt.end {\n        let case = pc.native.as_ref().ok_or(assoc(\"cases[].run\"))?;\n        let k::ExecutionOutcome::Selected(owner) = &case.outcome else { return Err(fail(ReceiptCheck::Scope, \"cases[].status\")) };\n        // U2 (RV77-N4): the proof must have started on this selected owner's own solve.\n        let certificate = frozen.certificate();\n        if !certificate.owner_matches(owner) {\n            return Err(assoc(\"cases[].selection.owner\"));\n        }\n        if !certificate.passed() {\n            return Err(assoc(\"cases[].selection.certificate\"));\n        }\n        let run = case_run(inv, case, ordinal)?;\n        let view = attempt.typed_trace(pc, &mut costs).map_err(|_| assoc(\"product_attempts[]\"))?;\n        // Row bindings: the producer's own QuantityId/recipe binding of the case's staged rows.\n        let rows = pc.bind_rows_scoped(staged, case_scope, owner).map_err(|_| assoc(\"cases[].selection.absolute_verified\"))?;\n        let results = env[\"results\"].as_array().ok_or(assoc(\"results\"))?;\n        let results = results.get(case_scope.row_range(results.len())).ok_or(assoc(\"results\"))?;\n        // D-5 on route E: a reduced-basis twin binds no kernel quantity (its value\n        // is its nominal row's), so the bound rows are the case's other rows.\n        let row_ids: Vec<String> = results.iter().filter(|r| !rp::reduced_twin_wire(pc.route(), &pc.distinct_bases, r)).map(|r| r[\"id\"].as_str().map(str::to_owned)).collect::<Option<_>>().ok_or(assoc(\"results[].id\"))?;\n        if rows.len() != row_ids.len() || rows.iter().zip(&row_ids).any(|(r, id)| r.id != id.as_str()) {\n            return Err(assoc(\"cases[].selection.absolute_verified\"));\n        }\n        let recipes: Vec<k::ProductRecipe> = rows.iter().map(|r| r.recipe).collect();\n        let (records, terminal) = kernel_outcome(e, &case.outcome);\n        let run_v = run_value(e, run, records, terminal, request)?;\n        let mut source = case_source(e, pc, owner.source(), inv, run, request, case_id, &view)?;\n        let attempt_v = product_attempt(e, &view, attempt.attempt, request, Some(run.source), Some(case.run), json!({\"kind\":\"ready\"}), pc, &attempt.parts.reduced_preparations);\n        bind_preparation(&mut source, &attempt_v, attempt.attempt, pc.route())?;\n        let source_identity = {\n            let mut binding = source.clone();\n            binding.as_object_mut().ok_or(assoc(\"sources[]\"))?.remove(\"index\");\n            domain_hash(\"retained_precision_source_mp_v2\", &binding).ok_or(fail(ReceiptCheck::Encoding, \"cases[].source_identity_sha256\"))?\n        };\n        let selection_v = selection(e, owner, pc, &view, certificate, &recipes, &row_ids)?;\n        let part = json!({\"status\":\"selected\",\"method\":METHOD,\"run\":run_v,\"source_ref\":run.source,\"source_identity_sha256\":source_identity,\"selection\":selection_v});\n        return Ok((attempt_v, Some((run.source, source)), part));\n    }\n    let diagnostic_ref = diagnostic_ref.ok_or(assoc(\"cases[].diagnostic_ref\"))?;\n    let selected_owner = pc.native.as_ref().and_then(|case| match &case.outcome { k::ExecutionOutcome::Selected(o) => Some(&**o), _ => None });\n    // U2 on the failure path: refused proof work and any certificate bind to the selected\n    // owner structurally (before any projection reads them).\n    if let rp::AttemptEnd::Candidate(refused) = &attempt.end {\n        let bound = |matches: &dyn Fn(&k::RetainedSolve) -> bool| selected_owner.is_some_and(matches);\n        if refused.proof_failure().is_some_and(|f| !bound(&|o| f.owner_matches(o))) {\n            return Err(assoc(\"product_attempts[].proof.owner\"));\n        }\n        if refused.certificate().is_some_and(|c| !bound(&|o| c.owner_matches(o))) {\n            return Err(assoc(\"product_attempts[].proof.owner\"));\n        }\n    }\n    let view = attempt.typed_trace(pc, &mut costs).map_err(|_| assoc(\"product_attempts[]\"))?;\n    let rr::ResultRef::Unavailable(failure) = &view.result else { return Err(assoc(\"product_attempts[].result\")) };\n    let error = public_error(e, failure, pc);\n    let cause = json!({\"kind\":\"prepared_product_failure\",\"product_attempt_ref\":attempt.attempt});\n    match pc.native.as_ref() {\n        // T-7: preparation refused, so no CaseSource, Run or execution entry.\n        None => {\n            if matches!(failure, rr::FailureRef::Preparation { capture: rp::CaptureError::Source(_), .. }) {\n                return Err(fail(ReceiptCheck::Untranslated, \"cases[].source_decline\"));\n            }\n            if view.prepared_source.is_some() || ordinal.is_some() {\n                return Err(fail(ReceiptCheck::Untranslated, \"sources[].kernel_source_sha256\"));\n            }\n            let attempt_v = product_attempt(e, &view, attempt.attempt, request, None, None, json!({\"kind\":\"unavailable\",\"error\":error}), pc, &attempt.parts.reduced_preparations);\n            let part = json!({\"status\":\"unavailable\",\"reason\":{\"code\":\"source_unavailable\",\"phase\":\"preparation\",\"cause\":cause},\n                \"diagnostic_ref\":diagnostic_ref,\"run\":null,\"source_ref\":null});\n            Ok((attempt_v, None, part))\n        }\n        // T-8 (a Run not selected) or T-9 (refused after a selected Run).\n        Some(case) => {\n            let run = case_run(inv, case, ordinal)?;\n            let (records, terminal) = kernel_outcome(e, &case.outcome);\n            let kind = terminal[\"kind\"].as_str().unwrap_or_default().to_owned();"
+    },
+    {
+     "file": "core/product_physics/src/retained_wire.rs",
+     "text": "let code = match (error[\"kind\"].as_str(), kind.as_str()) {\n                (Some(\"preparation\"), _) => return Err(assoc(\"product_attempts[].result\")),\n                (_, \"selected\") => (\"facade_certificate\".to_owned(), \"facade\"),\n                (_, other) => (format!(\"kernel_{other}\"), \"kernel\"),\n            };"
+    }
+   ]
   }
  ],
  "unresolved_sites": [],
@@ -19436,15 +20618,6 @@
    ]
   },
   {
-   "literal": "combination_unresolved",
-   "sites": [
-    "core/product_physics/src/retained_wire.rs:2037",
-    "core/product_physics/src/retained_wire.rs:2040",
-    "core/product_physics/src/retained_wire.rs:2042",
-    "core/product_physics/src/retained_wire.rs:2174"
-   ]
-  },
-  {
    "literal": "direction-range",
    "sites": [
     "core/product_physics/src/document_members.rs:877"
@@ -19460,12 +20633,6 @@
    "literal": "direction-skew-nonlinear-model",
    "sites": [
     "core/product_physics/src/document_members.rs:868"
-   ]
-  },
-  {
-   "literal": "facade_certificate",
-   "sites": [
-    "core/product_physics/src/retained_wire.rs:2174"
    ]
   },
   {
@@ -19529,12 +20696,6 @@
    ]
   },
   {
-   "literal": "source_unavailable",
-   "sites": [
-    "core/product_physics/src/retained_wire.rs:2275"
-   ]
-  },
-  {
    "literal": "standalone_body",
    "sites": [
     "core/product_physics/src/rigid_component.rs:609"
@@ -19550,12 +20711,6 @@
    "literal": "unresolvable_run_evidence",
    "sites": [
     "core/product_physics/src/rigid_component.rs:584"
-   ]
-  },
-  {
-   "literal": "unsupported_derived_quantity",
-   "sites": [
-    "core/product_physics/src/source_receipt.rs:918"
    ]
   },
   {
