@@ -36,7 +36,10 @@ INTERNAL_ONLY = "row_unmatched_internal_only"
 EXTERNAL_ONLY = "row_unmatched_external_only"
 TOLERANCE_TBD = "tolerance_tbd"
 NOT_APPLICABLE = "not_applicable"
-OUTCOMES = (MATCHED, EXCEEDS, INTERNAL_ONLY, EXTERNAL_ONLY, TOLERANCE_TBD, NOT_APPLICABLE)
+# SWBPIPE itself publishes the quantity's load case with a numerical quality other than checks passed: a check
+# against the external prover is not formed (core/handoff/caepipe_external/benchmark.py, SENSITIVE_SIDE_RULE).
+SENSITIVE_SIDE = "sensitive_side"
+OUTCOMES = (MATCHED, EXCEEDS, INTERNAL_ONLY, EXTERNAL_ONLY, TOLERANCE_TBD, NOT_APPLICABLE, SENSITIVE_SIDE)
 
 CAUSES = (
     "solver_defect_candidate", "export_mapping_issue", "parser_mapping_issue", "unit_or_axis_mismatch",
@@ -44,7 +47,7 @@ CAUSES = (
     "documented_behavior_difference", "caepipe_profile_unknown",
 )
 DISPOSITIONS = ("no_action", "assumption_recorded", "bug_report", "dossier_question", "proposed_code_fix",
-                "requires_professional_review")
+                "requires_professional_review", "awaits_owning_deliverable")
 
 # check name -> (left source, right source, case tolerance key); left is the internal side of the pair.
 CHECKS = {
@@ -115,12 +118,23 @@ def build_comparison_record(
     fault = case.get("fault_injection")
     header = (parsed_caepipe or {}).get("header") or {}
     labels_compared: set[str] = set()
+    # SWBPIPE's own numerical quality of every load case a quantity names and SWBPIPE solved, read from its result
+    # alone before anything of the external prover is read (lazy import: benchmark imports this module).
+    from .benchmark import CHECKS_PASSED, numerical_quality, sensitive_finding
+
+    solved = {(row.get("basis_ref") or {}).get("ref_id") for row in results if isinstance(row, Mapping)}
+    quality = numerical_quality(envelope, sorted({str(spec.get("load_case")) for spec in case.get("quantities") or []
+                                                  if spec.get("load_case") in solved}))
+    sensitive = sorted(load_case for load_case, value in quality.items() if value != CHECKS_PASSED)
 
     rows = []
     for spec in case.get("quantities") or []:
         si_unit = _SI_UNIT.get(spec.get("quantity"))
         if si_unit is None:
             raise ValueError(f"quantity {spec.get('id')!r}: unknown quantity kind {spec.get('quantity')!r}")
+        if spec.get("load_case") in sensitive:
+            rows.append(_sensitive_row(spec, si_unit, results, analytic, tolerances, quality[spec["load_case"]]))
+            continue
         swb, swb_source = _swbpipe_value(spec, results)
         cae, cae_source = _caepipe_value(spec, mbf, parsed_caepipe)
         if cae_source.get("caepipe_load_case"):
@@ -217,6 +231,40 @@ def build_comparison_record(
                       for row in rows if row["disposition"] != "no_action"],
         },
         "evidence_classification": EVIDENCE_CLASSIFICATION,
+        # SWBPIPE's own numerical quality and the load cases not compared with the prover: present in every record.
+        "numerical_quality": {"status": (envelope.get("numerical_quality") or {}).get("status"), "cases": quality},
+        "sensitive_side": [sensitive_finding(envelope, load_case, quality[load_case]) for load_case in sensitive],
+    }
+
+
+def _sensitive_row(spec: Mapping[str, Any], si_unit: str, results: list[Any],
+                   analytic: Mapping[str, Mapping[str, Any]], tolerances: Mapping[str, Any],
+                   solve_quality: str) -> dict[str, Any]:
+    """A quantity of a load case SWBPIPE publishes as other than checks passed: SWBPIPE's value and its own check
+    against the analytic value only. The external prover's results are not read for it, and no prover value or
+    difference is recorded."""
+    swb, swb_source = _swbpipe_value(spec, results)
+    reference = analytic.get(spec["id"])
+    ana = _si(reference.get("value"), reference.get("unit")) if isinstance(reference, Mapping) else None
+    withheld = {"outcome": SENSITIVE_SIDE,
+                "reason": f"SWBPIPE publishes the numerical quality of {spec.get('load_case')} as {solve_quality}"}
+    key = CHECKS["analytic_vs_swbpipe"][2]
+    return {
+        "id": spec["id"], "quantity": spec["quantity"], "component": spec.get("component"),
+        "load_case": spec.get("load_case"),
+        **({"node": spec["node"]} if "node" in spec else {}),
+        **({"support": spec["support"]} if "support" in spec else {}),
+        "unit": si_unit,
+        "values": {"analytic": ana, "swbpipe": swb},
+        "value_sources": {
+            "analytic": ({name: reference.get(name) for name in ("formula", "basis", "unit")}
+                         if isinstance(reference, Mapping) else {"available": False}),
+            "swbpipe": swb_source,
+            "caepipe": {"withheld": "the load case is not compared while SWBPIPE publishes it so"},
+        },
+        "checks": {"analytic_vs_swbpipe": _check(ana, swb, tolerances.get(key), si_unit, analytic_side=True),
+                   "swbpipe_vs_caepipe": dict(withheld), "analytic_vs_caepipe": dict(withheld)},
+        "status": SENSITIVE_SIDE, "cause": None, "disposition": "awaits_owning_deliverable",
     }
 
 

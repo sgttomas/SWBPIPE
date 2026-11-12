@@ -1447,6 +1447,16 @@ EXACT_ROUTE_CHOICES = {
                              "the same model file bytes, with every differing line listed otherwise; a twin that "
                              "fails this is not compared"),
 }
+# The screening rule for a case SWBPIPE publishes as numerically sensitive (the SWBPIPE Agent 0, 12 November 2026;
+# DEL-17-05 REQ-020). Which cases these are is derived from each result, never listed here.
+SENSITIVE_SIDE_RULE_TEXT = (
+    "A benchmark case whose SWBPIPE side the solver publishes with a numerical quality other than checks passed is "
+    "not screened. Each of its values is classed sensitive_side, the case is recorded as one finding with the "
+    "integrity status and the cause the solver names, and its comparison waits for the answer of the deliverable "
+    "that owns that cause. Which cases these are is read from SWBPIPE's own result for each run, and from nothing "
+    "else; it is never a list kept here. The rule runs both ways: a case is sensitive_side whenever the solver "
+    "publishes it so, whether or not its values would have agreed, and while it is so published no value of the "
+    "target program and no difference is formed, recorded or shown for it, not even for information.")
 SIDES = {
     SIDE_EXACT: {
         "route": "exact", "pressure_contract": {**PRESSURE_CONTRACT, "shear_model": TIMOSHENKO},
@@ -1899,6 +1909,7 @@ def generate(seed: int = DEFAULT_SEED) -> dict[str, str]:
         "pressure_hypothesis": PRESSURE_HYPOTHESIS,
         "requirement": ("DEL-17-05 REQ-018 and AC-007 (execution/PKG-17/DEL-17-05/ScopeOfWork.md); the Benchmark "
                         "method section of docs/RELEASE_TARGET_v1.0.md"),
+        "sensitive_side_rule": SENSITIVE_SIDE_RULE_TEXT,
         "piping_code": PIPING_CODE,
         "materials": [{"id": name, "elastic_modulus_pa": e, "poisson_ratio": nu, "thermal_expansion_per_k": alpha,
                        "density_kg_per_m3": rho} for name, e, nu, alpha, rho in MATERIALS],

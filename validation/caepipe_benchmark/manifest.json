@@ -6272,6 +6272,7 @@
     "produced_by_caepipe": false
   },
   "requirement": "DEL-17-05 REQ-018 and AC-007 (execution/PKG-17/DEL-17-05/ScopeOfWork.md); the Benchmark method section of docs/RELEASE_TARGET_v1.0.md",
+  "sensitive_side_rule": "A benchmark case whose SWBPIPE side the solver publishes with a numerical quality other than checks passed is not screened. Each of its values is classed sensitive_side, the case is recorded as one finding with the integrity status and the cause the solver names, and its comparison waits for the answer of the deliverable that owns that cause. Which cases these are is read from SWBPIPE's own result for each run, and from nothing else; it is never a list kept here. The rule runs both ways: a case is sensitive_side whenever the solver publishes it so, whether or not its values would have agreed, and while it is so published no value of the target program and no difference is formed, recorded or shown for it, not even for information.",
   "series": {
     "bend-k-rd1-a45": {
       "description": "one bend geometry with k = 1 and a higher k",

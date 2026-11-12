@@ -27,8 +27,12 @@ from core.handoff.caepipe_external.benchmark import (  # noqa: E402
     BENCHMARK_RECORD_KIND,
     FINDING,
     OPERATING_LABEL,
+    QUALITY_INCONSISTENT,
+    QUALITY_MISSING,
     SCREENING_PROFILE,
+    SENSITIVE_SIDE,
     STATUS_MISMATCH,
+    NumericalQualityError,
     UNMATCHED,
     WITHIN,
     build_benchmark_record,
@@ -235,7 +239,11 @@ def test_every_model_solves_and_its_closed_forms_match_swbpipe_and_a_mirror_scre
         mbf, text = mirror_csv(document, payload)
         record = build_benchmark_record(document, swbpipe_result_payload=payload, mbf_result=mbf, mbf_text=mbf.text,
                                         parsed_caepipe=parse_caepipe_print_csv(text))
-        assert record["summary"]["by_classification"] == {WITHIN: record["summary"]["results"]}, document["model_id"]
+        # A case SWBPIPE publishes as other than checks passed is not screened; every other case is within profile.
+        withheld = set(record["screening"]["sensitive_side_cases"])
+        for row in record["results"]:
+            assert row["classification"] == (SENSITIVE_SIDE if row["case"] in withheld else WITHIN), \
+                (document["model_id"], row["case"], row["kind"])
         assert [case["case"] for case in record["load_cases"]] == ["case:expansion", "case:sustained", "operating"]
         for row in record["results"]:
             if "closed_form" in row:
@@ -838,7 +846,10 @@ def invented_payload() -> dict:
                                            -fy if component == "Fy" else 0.0, "N", end))
                 for component in ("Mx", "My", "Mz"):
                     rows.append(result_row("element_global_end_moment_v1", pipe, case, component, 0.0, "N*m", end))
-    return {"mechanics_envelope": {"results": rows}}
+    return {"mechanics_envelope": {"results": rows, "numerical_quality": {
+        "status": "checks_passed",
+        "cases": [{"basis_ref": {"ref_type": "load_case", "ref_id": case}, "solve_quality": "checks_passed"}
+                  for case in ("case:sustained", "case:expansion")]}}}
 
 
 def invented_print(*, sustained_uy="-4", drop_label=None, extra_anchor=False) -> str:
@@ -1004,6 +1015,227 @@ def test_a_parser_error_is_counted_unmatched_never_dropped():
     errors = [row for row in record["results"] if row["kind"] == "parser_error"]
     assert errors and all(row["classification"] == UNMATCHED for row in errors)
     assert record["summary"]["by_classification"].get(UNMATCHED, 0) >= len(errors)
+
+
+# -- a case SWBPIPE publishes as sensitive is not screened ----------------------------------------------------------
+# The record the builder gave, before the sensitive_side rule, for the invented cantilever with every case checks
+# passed (sha256 of its sorted JSON): the rule changes nothing in it apart from the members it adds to every record.
+RECORD_BEFORE_THE_RULE_SHA256 = "5b5588acc1f17377e1b139f5b07cc4b07974015bafe36d04f9ea878a7cee1bfd"
+NEW_RECORD_MEMBERS = ("numerical_quality", "screening")
+# Invented values the target-program side prints for the expansion and operating cases' node 30, in mm, in SI, and
+# their difference from SWBPIPE's invented 4.8 mm: none may appear in a record that does not screen those cases.
+INVENTED_PROVER_TEXT = ("9.87654", "0.00987654", "0.00507654", "5.07654")
+GUARD_SENTENCE = ("S11-G recovery guard (R-b'): load case case:expansion is Sensitive because 3 member or support "
+                  "group(s) of the certified rows exceed the 1e-9 member-relative criterion or have an unavailable "
+                  "comparison; every value is kept for inspection. Groups: [invented]")
+
+
+def sensitive_payload(case: str = "case:expansion") -> dict:
+    payload = invented_payload()
+    envelope = payload["mechanics_envelope"]
+    envelope["numerical_quality"]["status"] = "sensitive"
+    for entry in envelope["numerical_quality"]["cases"]:
+        if entry["basis_ref"]["ref_id"] == case:
+            entry["solve_quality"] = "sensitive"
+    envelope["diagnostics"] = [
+        {"id": "diagnostic:numerical-integrity:case:sustained", "code": "NUMERICAL_INTEGRITY_CHECKS_PASSED",
+         "severity": "info", "affected_refs": ["case:sustained"], "message": "invented passed report"},
+        {"id": f"diagnostic:numerical-integrity:{case}", "code": "NUMERICAL_INTEGRITY_SENSITIVE",
+         "severity": "warning", "affected_refs": [case],
+         "message": f"M03-INTEGRITY-v1 represented original-equation structural evidence for load case {case}: "
+                    f"invented report. {GUARD_SENTENCE.replace('case:expansion', case)}"}]
+    return payload
+
+
+class RecordingCases(dict):
+    """The parsed target-program load cases, recording every case whose tables are read."""
+
+    def __init__(self, cases: dict) -> None:
+        super().__init__(cases)
+        self.read: list[str] = []
+
+    def __getitem__(self, key):
+        self.read.append(key)
+        return super().__getitem__(key)
+
+    def get(self, key, default=None):
+        self.read.append(key)
+        return super().get(key, default)
+
+
+def prover_print() -> dict:
+    parsed = parse_caepipe_print_csv(invented_print().replace("30,4.8,", "30,9.87654,"))
+    parsed["load_cases"] = RecordingCases(parsed["load_cases"])
+    return parsed
+
+
+def build(payload: dict, parsed: dict, document: dict | None = None) -> dict:
+    document = document or invented_cantilever()
+    mbf = render_caepipe_mbf_si(document["model"], title="INVENTED", piping_code=document["piping_code"])
+    return build_benchmark_record(document, swbpipe_result_payload=payload, mbf_result=mbf, mbf_text=mbf.text,
+                                  parsed_caepipe=parsed)
+
+
+def test_a_record_with_no_sensitive_case_is_unchanged_apart_from_the_new_members():
+    record = build(invented_payload(), parse_caepipe_print_csv(invented_print()))
+    before = {key: value for key, value in record.items() if key not in NEW_RECORD_MEMBERS}
+    assert hashlib.sha256(json.dumps(before, sort_keys=True, allow_nan=False).encode()).hexdigest() == \
+        RECORD_BEFORE_THE_RULE_SHA256
+    assert record["numerical_quality"]["cases"] == {"case:expansion": "checks_passed", "case:sustained": "checks_passed"}
+    assert record["screening"] == {"screened_cases": ["case:expansion", "case:sustained", "operating"],
+                                   "sensitive_side_cases": [], "findings": []}
+
+
+def test_a_case_swbpipe_publishes_sensitive_is_not_screened(capsys):
+    """AC-006's sentence: every scalar of the case sensitive_side, none within_profile or finding; the status and the
+    solver's named cause recorded; the other cases screened as before; the case not counted as screened. The target
+    program's tables of the case are never read, and no value or difference of it is in the record or the output."""
+    parsed = prover_print()
+    record = build(sensitive_payload(), parsed)
+    reads = list(parsed["load_cases"].read)
+    out = capsys.readouterr()
+    withheld = {"case:expansion", "operating"}  # the operating case sums the sensitive case
+    rows = [row for row in record["results"] if row["case"] in withheld]
+    assert rows and {row["classification"] for row in rows} == {SENSITIVE_SIDE}
+    for row in rows:
+        assert set(row["values"]) <= {"swbpipe", "closed_form"} and "screen" not in row, row
+        assert "closed_form_vs_caepipe" not in row.get("closed_form", {})
+    tip = next(row for row in rows if (row["case"], row["kind"], row["entity"], row["component"]) ==
+               ("case:expansion", "displacement", "node:B", "x"))
+    assert tip["values"]["swbpipe"] == pytest.approx(0.0048)
+    assert tip["closed_form"]["closed_form_vs_swbpipe"] == "agree"  # SWBPIPE's own check stays
+    # The target program's tables of the withheld cases were never read.
+    assert "Expansion (T1)" not in reads and OPERATING_LABEL not in reads and "Sustained (W+P)" in reads
+    serialized = json.dumps(record, sort_keys=True) + out.out + out.err
+    assert not [text for text in INVENTED_PROVER_TEXT if text in serialized]
+    statuses = {case["case"]: case for case in record["load_cases"]}
+    assert "caepipe_printed" not in statuses["case:expansion"] and "caepipe_printed" not in statuses["operating"]
+    assert statuses["case:expansion"]["sensitive_side"] == {"case:expansion": "sensitive"}
+    # One finding, with the status, the codes and the solver's own sentence.
+    assert record["screening"]["findings"] == [{
+        "case": "case:expansion", "classification": SENSITIVE_SIDE, "solve_quality": "sensitive",
+        "numerical_quality_status": "sensitive", "diagnostic_codes": ["NUMERICAL_INTEGRITY_SENSITIVE"],
+        "cause": GUARD_SENTENCE,
+        "comparison": "not formed; waits for the answer of the deliverable that owns the cause"}]
+    # The other case is screened exactly as in a record with no sensitive case; counts exclude the withheld case.
+    passing = build(invented_payload(), parse_caepipe_print_csv(invented_print().replace("30,4.8,", "30,9.87654,")))
+    assert [row for row in record["results"] if row["case"] == "case:sustained"] == \
+        [row for row in passing["results"] if row["case"] == "case:sustained"]
+    assert record["screening"]["screened_cases"] == ["case:sustained"]
+    assert record["screening"]["sensitive_side_cases"] == ["case:expansion", "operating"]
+    sustained = sum(1 for row in record["results"] if row["case"] == "case:sustained")
+    assert record["summary"]["by_classification"] == {WITHIN: sustained, SENSITIVE_SIDE: len(rows)}
+
+
+def test_a_parser_error_in_a_withheld_case_is_counted_without_its_text():
+    text = invented_print().replace("30,4.8,0,0,0,0,0,,", "30,4.8,0,0,0,0,0,,\r\n30,9.87654,0,0,0,0,0,,", 1)
+    parsed = parse_caepipe_print_csv(text)
+    assert [item for item in parsed["diagnostics"] if item["severity"] == "error"]
+    record = build(sensitive_payload(), parsed)
+    errors = [row for row in record["results"] if row["kind"] == "parser_error"]
+    assert errors and all(row["classification"] == SENSITIVE_SIDE and set(row) == {
+        "case", "kind", "entity", "classification", "code", "reason"} for row in errors)
+    assert not [item for item in INVENTED_PROVER_TEXT if item in json.dumps(record)]
+
+
+def test_nothing_but_swbpipes_result_sets_the_class():
+    """No argument and no member of the benchmark document can make a sensitive case within_profile, or a passing
+    case sensitive_side: the class is read from SWBPIPE's result envelope alone."""
+    import inspect
+
+    assert set(inspect.signature(build_benchmark_record).parameters) == {
+        "benchmark_model", "swbpipe_result_payload", "mbf_result", "mbf_text", "parsed_caepipe"}
+    claims = {"numerical_quality": {"status": "checks_passed", "cases": {"case:expansion": "checks_passed"}},
+              "sensitive_side_cases": ["case:sustained"], "screening": {"sensitive_side_cases": ["case:sustained"]},
+              "solve_quality": {"case:expansion": "checks_passed", "case:sustained": "sensitive"}}
+    for name, claim in claims.items():
+        document = {**invented_cantilever(), name: claim}
+        sensitive = build(sensitive_payload(), prover_print(), document)
+        assert sensitive["screening"]["sensitive_side_cases"] == ["case:expansion", "operating"], name
+        assert not [row for row in sensitive["results"] if row["case"] == "case:expansion"
+                    and row["classification"] in (WITHIN, FINDING)], name
+        passing = build(invented_payload(), parse_caepipe_print_csv(invented_print()), document)
+        assert passing["screening"]["sensitive_side_cases"] == [], name
+        assert SENSITIVE_SIDE not in passing["summary"]["by_classification"], name
+
+
+@pytest.mark.parametrize("edit, code", [
+    (lambda envelope: envelope.pop("numerical_quality"), QUALITY_MISSING),
+    (lambda envelope: envelope["numerical_quality"]["cases"].pop(), QUALITY_MISSING),
+    (lambda envelope: envelope["numerical_quality"]["cases"].append(envelope["numerical_quality"]["cases"][0]),
+     QUALITY_MISSING),
+    (lambda envelope: envelope["numerical_quality"]["cases"][0].pop("solve_quality"), QUALITY_MISSING),
+    (lambda envelope: envelope["numerical_quality"].update(status="checks_passed"), QUALITY_INCONSISTENT),
+])
+def test_a_compared_case_without_a_consistent_quality_is_a_named_error(edit, code):
+    payload = sensitive_payload()
+    edit(payload["mechanics_envelope"])
+    with pytest.raises(NumericalQualityError) as raised:
+        build(payload, parse_caepipe_print_csv(invented_print()))
+    assert raised.value.code == code
+
+
+def test_the_correlation_pilot_forms_no_prover_check_on_a_sensitive_case():
+    from core.handoff.caepipe_external.correlation import build_comparison_record
+    from tests.test_caepipe_correlation import ANALYTIC, MBF, MODEL, SUS, parsed as pilot_print, swb_rows, \
+        synthetic_case
+
+    payload = swb_rows()
+    envelope = payload["mechanics_envelope"]
+    envelope["numerical_quality"] = {"status": "sensitive", "cases": [
+        {"basis_ref": {"ref_type": "load_case", "ref_id": "LC1"}, "solve_quality": "sensitive"}]}
+    envelope["diagnostics"] = [{"id": "diagnostic:numerical-integrity:LC1", "code": "NUMERICAL_INTEGRITY_SENSITIVE",
+                                "severity": "warning", "affected_refs": ["LC1"],
+                                "message": GUARD_SENTENCE.replace("case:expansion", "LC1")}]
+    printed = pilot_print(uy_mm=-98.7654)
+    printed["load_cases"] = RecordingCases(printed["load_cases"])
+    record = build_comparison_record(synthetic_case(), swbpipe_model=MODEL, swbpipe_result_payload=payload,
+                                     mbf_result=MBF, mbf_text="INVENTED\r\n", parsed_caepipe=printed,
+                                     analytic=ANALYTIC)
+    assert SUS not in printed["load_cases"].read
+    assert "98.7654" not in json.dumps(record) and "0.0987654" not in json.dumps(record)
+    for row in record["quantities"]:
+        assert row["status"] == SENSITIVE_SIDE and row["disposition"] == "awaits_owning_deliverable"
+        assert set(row["values"]) == {"analytic", "swbpipe"}
+        for name in ("swbpipe_vs_caepipe", "analytic_vs_caepipe"):
+            assert set(row["checks"][name]) == {"outcome", "reason"} and row["checks"][name]["outcome"] == SENSITIVE_SIDE
+        assert row["checks"]["analytic_vs_swbpipe"]["outcome"] == "matched_within_tolerance"
+    assert [finding["case"] for finding in record["sensitive_side"]] == ["LC1"]
+    assert record["comparison_basis"]["caepipe_load_cases_compared"] == []
+
+
+# The tranche 1 cases the solver publishes as other than checks passed, observed on 12 November 2026, on all three
+# sides. An expectation about the solver's present output, not a list that classes anything: the class is read from
+# each result. When the guard's owner changes it, this test fails and names the change as an expectation to revisit.
+OBSERVED_SENSITIVE = {(f"cpb-g1-{index:02d}", side, "case:expansion")
+                      for index in range(1, 8) for side in ("pressure_free", *benchmark_models.EXACT_SHEAR_MEMBERS)}
+
+
+def test_the_cases_swbpipe_publishes_sensitive_today():
+    runner = os.environ.get("OPENPIPESTRESS_RUNNER_BIN")
+    if not runner:
+        pytest.skip("OPENPIPESTRESS_RUNNER_BIN is not set")
+    observed, bends = set(), set()
+    for document in tranche_1():
+        if document["model"]["components"]:
+            bends.add(document["model_id"])
+        sides = [("pressure_free", document["model"])] + [
+            (shear, benchmark_models.exact_route_model(document["model"], shear))
+            for shear in benchmark_models.EXACT_SHEAR_MEMBERS]
+        for side, model in sides:
+            body = {"request": run_pilot.runner_request("benchmark-test"),
+                    "solve": {"preview_model": {"model": model, "materials": []}}}
+            completed = subprocess.run([runner, "solve", "--explicit-local-private-intent", "--input", "-"],
+                                       input=json.dumps(body), capture_output=True, text=True, check=False,
+                                       timeout=600)
+            quality = json.loads(completed.stdout)["payload"]["mechanics_envelope"]["numerical_quality"]
+            observed |= {(document["model_id"], side, entry["basis_ref"]["ref_id"]) for entry in quality["cases"]
+                         if entry["solve_quality"] != "checks_passed"}
+    assert not {model for model, _, _ in observed} & bends
+    assert observed == OBSERVED_SENSITIVE, (
+        "EXPECTATION TO REVISIT: the numerical quality SWBPIPE publishes for tranche 1 has changed (the owning "
+        "deliverable may have answered on the member recovery guard). Newly not checks passed: "
+        f"{sorted(observed - OBSERVED_SENSITIVE)}; now checks passed: {sorted(OBSERVED_SENSITIVE - observed)}")
 
 
 # -- run_pilot --benchmark -------------------------------------------------------------------------------------------

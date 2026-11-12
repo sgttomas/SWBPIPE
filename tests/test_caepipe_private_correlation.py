@@ -84,7 +84,14 @@ def test_stored_caepipe_correlation_classifications_are_stable(tmp_path):
                             .read_text(encoding="utf-8"))
         rebuilt = json.loads((copy_root / "cases" / case_id / "comparison" / "comparison.json").read_text(encoding="utf-8"))
         before, after = classification(stored), classification(rebuilt)
-        moved.extend(f"{case_id}/{quantity}/{check}" for quantity, check in sorted(set(before) | set(after))
-                     if before.get((quantity, check)) != after.get((quantity, check)))
+        for quantity, check in sorted(set(before) | set(after)):
+            if before.get((quantity, check)) == after.get((quantity, check)):
+                continue
+            # A stored record classed before the sensitive_side rule: SWBPIPE now publishes the quantity's load case
+            # as other than checks passed, so the rebuilt record forms no check against the prover there.
+            rebuilt_outcome = (after.get((quantity, check)) or (None,))[0]
+            note = " (reclassified sensitive_side: SWBPIPE publishes its load case as not checks passed)" \
+                if rebuilt_outcome == "sensitive_side" else ""
+            moved.append(f"{case_id}/{quantity}/{check}{note}")
     assert not failed_cases, f"cases without a rebuilt comparison record: {', '.join(failed_cases)}"
     assert not moved, f"classification moved for: {', '.join(moved)}"
