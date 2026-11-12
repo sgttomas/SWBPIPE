@@ -386,11 +386,47 @@ fn operands_of(case_ids: &[&str], combination: &super::PreviewCombination) -> Re
     }
 }
 
-/// A member's pressure-region record of one case (exactly one), or `None`.
-fn region_of<'v>(pressure: &'v [Value], case: &str, member: &str) -> Option<&'v Value> {
-    let mut hits = pressure.iter().filter(|r| r["load_case_id"] == case && r["member_pipe_ids"].as_array().is_some_and(|m| m.iter().any(|p| p == member)));
-    let first = hits.next()?;
-    hits.next().is_none().then_some(first)
+/// The pressure records indexed once per publish: each (case, member)'s
+/// region record, and each record's first `geometry` / `materials` entry of a
+/// pipe. Each lookup answers as a scan of the records in order would.
+struct PressureIndex<'v> {
+    /// (case, member) -> (first record listing it, whether a second record does).
+    regions: HashMap<(&'v str, &'v str), (usize, bool)>,
+    /// (record, field, pipe) -> the field's first entry of that pipe.
+    entries: HashMap<(usize, &'static str, &'v str), &'v Value>,
+}
+
+impl<'v> PressureIndex<'v> {
+    fn new(pressure: &'v [Value]) -> Self {
+        let mut regions: HashMap<(&str, &str), (usize, bool)> = HashMap::new();
+        let mut entries = HashMap::new();
+        for (i, record) in pressure.iter().enumerate() {
+            if let (Some(case), Some(members)) = (record["load_case_id"].as_str(), record["member_pipe_ids"].as_array()) {
+                for member in members.iter().filter_map(Value::as_str) {
+                    // A record listing a member twice is one record.
+                    let hit = regions.entry((case, member)).or_insert((i, false));
+                    if hit.0 != i {
+                        hit.1 = true;
+                    }
+                }
+            }
+            for field in ["geometry", "materials"] {
+                for entry in record[field].as_array().into_iter().flatten() {
+                    if let Some(pipe) = entry["pipe_id"].as_str() {
+                        entries.entry((i, field, pipe)).or_insert(entry);
+                    }
+                }
+            }
+        }
+        PressureIndex { regions, entries }
+    }
+    /// A member's pressure-region record of one case (exactly one), or `None`.
+    fn region_of(&self, case: &str, member: &str) -> Option<usize> {
+        match self.regions.get(&(case, member)) {
+            Some(&(first, false)) => Some(first),
+            _ => None,
+        }
+    }
 }
 
 fn bits_text(value: &Value) -> String {
@@ -398,13 +434,12 @@ fn bits_text(value: &Value) -> String {
 }
 
 /// D-6's premise on one member of a subtraction: bit-identical pressure inputs.
-fn equal_pressure(pressure: &[Value], minuend: &str, subtrahend: &str, member: &str) -> bool {
-    let (Some(a), Some(b)) = (region_of(pressure, minuend, member), region_of(pressure, subtrahend, member)) else { return false };
-    let entry = |region: &Value, field: &str| -> Option<String> {
-        region[field].as_array()?.iter().find(|e| e["pipe_id"] == member).map(bits_text)
-    };
+fn equal_pressure(pressure: &[Value], index: &PressureIndex<'_>, minuend: &str, subtrahend: &str, member: &str) -> bool {
+    let (Some(ia), Some(ib)) = (index.region_of(minuend, member), index.region_of(subtrahend, member)) else { return false };
+    let (a, b) = (&pressure[ia], &pressure[ib]);
+    let entry = |region: usize, field: &'static str| -> Option<String> { index.entries.get(&(region, field, member)).map(|e| bits_text(e)) };
     ["p_pa", "external_pressure_increment_pa", "pressure_basis"].iter().all(|f| a.get(*f).is_some() && bits_text(&a[*f]) == bits_text(&b[*f]))
-        && ["geometry", "materials"].iter().all(|f| entry(a, f).is_some() && entry(a, f) == entry(b, f))
+        && ["geometry", "materials"].iter().all(|f| entry(ia, f).is_some() && entry(ia, f) == entry(ib, f))
 }
 
 /// Publishes `contract_evidence.combination_certificate` and one diagnostic per
@@ -427,6 +462,8 @@ pub(crate) fn publish(combinations: &[super::PreviewCombination], case_ids: &[&s
     let index = CaseIndex::new(results);
     let mut by_sources: HashMap<(&str, Vec<&str>), Vec<usize>> = HashMap::new();
     let mut combination_rows: HashMap<&str, Vec<usize>> = HashMap::new();
+    // A combination's support magnitude rows by (combination, kind, entity), in row order.
+    let mut magnitude_rows: MagnitudeRows<'_> = HashMap::new();
     for (i, row) in results.iter().enumerate() {
         let Some(basis) = row.basis_ref.as_ref().filter(|b| b.ref_type == "combination") else { continue };
         if row.kind == MODULUS_RECORD {
@@ -434,7 +471,13 @@ pub(crate) fn publish(combinations: &[super::PreviewCombination], case_ids: &[&s
         }
         combination_rows.entry(basis.ref_id.as_str()).or_default().push(i);
         by_sources.entry((basis.ref_id.as_str(), row.source_result_refs.iter().map(String::as_str).collect())).or_default().push(i);
+        if row.kind == SUPPORT_FORCE || row.kind == SUPPORT_MOMENT {
+            magnitude_rows.entry((basis.ref_id.as_str(), row.kind.as_str(), row.entity_ref.as_str())).or_default().push(i);
+        }
     }
+    // Each operand case's groups by (entity, location, group): the first position.
+    let mut group_index: HashMap<&str, HashMap<(&str, &str, &str), usize>> = HashMap::new();
+    let mut pressure_index: Option<PressureIndex<'_>> = None;
     let case_order: Vec<String> = serde_json::to_value(&envelope.numerical_quality.cases)
         .ok()
         .and_then(|v| v.as_array().cloned())
@@ -489,6 +532,8 @@ pub(crate) fn publish(combinations: &[super::PreviewCombination], case_ids: &[&s
         };
         for (case, _) in &terms {
             used_cases.insert(case.clone());
+            let (case, operand) = operands.get_key_value(case).expect("every operand case carries groups");
+            group_index.entry(case.as_str()).or_insert_with(|| first_positions(operand));
         }
         let subtraction = combination.basis == "result_state_subtraction";
         let mut derived: Vec<Derived> = Vec::new();
@@ -503,7 +548,7 @@ pub(crate) fn publish(combinations: &[super::PreviewCombination], case_ids: &[&s
                 _ => None,
             };
             if let Some(components) = magnitude {
-                if let Some(d) = magnitude_group(results, id, group, components, &formed, &derived, &combination_rows) {
+                if let Some(d) = magnitude_group(results, id, group, components, &formed, &derived, &magnitude_rows) {
                     derived.push(d);
                 }
                 continue;
@@ -512,7 +557,7 @@ pub(crate) fn publish(combinations: &[super::PreviewCombination], case_ids: &[&s
             let mut per_operand = Vec::new();
             for (case, _) in &terms {
                 let operand = &operands[case];
-                let Some(own) = operand.groups.iter().find(|g| g.entity == group.entity && g.location == group.location && g.group == group.group) else { break };
+                let Some(own) = group_index[case.as_str()].get(&(group.entity.as_str(), group.location.as_str(), group.group.as_str())).map(|&i| &operand.groups[i]) else { break };
                 let Some(bound) = own.bound else { break };
                 per_operand.push((own, bound, coverage(&index, results, case, own)));
             }
@@ -577,7 +622,8 @@ pub(crate) fn publish(combinations: &[super::PreviewCombination], case_ids: &[&s
                     continue;
                 }
                 let member = d.json["entity"].as_str().unwrap_or_default().to_string();
-                if !equal_pressure(&pressure, &terms[0].0, &terms[1].0, &member) {
+                let pressure_index = pressure_index.get_or_insert_with(|| PressureIndex::new(&pressure));
+                if !equal_pressure(&pressure, pressure_index, &terms[0].0, &terms[1].0, &member) {
                     continue;
                 }
                 let location = d.json["location"].as_str().unwrap_or_default().trim_start_matches("wall_").to_string();
@@ -623,6 +669,20 @@ pub(crate) fn publish(combinations: &[super::PreviewCombination], case_ids: &[&s
     envelope.diagnostics.extend(diagnostics);
 }
 
+/// A combination's support magnitude rows (`SUPPORT_FORCE`, `SUPPORT_MOMENT`; no
+/// `MODULUS_RECORD`) by (combination, kind, entity), in row order.
+type MagnitudeRows<'a> = HashMap<(&'a str, &'a str, &'a str), Vec<usize>>;
+
+/// The first position of each (entity, location, group) among an operand's groups:
+/// the group a scan of them in order finds first.
+fn first_positions(operand: &Operand) -> HashMap<(&str, &str, &str), usize> {
+    let mut index = HashMap::with_capacity(operand.groups.len());
+    for (i, g) in operand.groups.iter().enumerate() {
+        index.entry((g.entity.as_str(), g.location.as_str(), g.group.as_str())).or_insert(i);
+    }
+    index
+}
+
 /// A support magnitude row of the combination: `norm3` of its derived component
 /// rows, bounded by their bound plus the correctly rounded root's error.
 fn magnitude_group(
@@ -632,12 +692,12 @@ fn magnitude_group(
     components: &str,
     formed: &HashMap<(String, String, String, usize), usize>,
     derived: &[Derived],
-    combination_rows: &HashMap<&str, Vec<usize>>,
+    magnitude_rows: &MagnitudeRows<'_>,
 ) -> Option<Derived> {
     let kind = if components == "support_force" { SUPPORT_FORCE } else { SUPPORT_MOMENT };
     let component = &derived[*formed.get(&(group.entity.clone(), group.location.clone(), components.to_string(), 0))?];
-    let candidates: Vec<usize> = combination_rows.get(combination)?.iter().copied().filter(|&r| results[r].kind == kind && results[r].entity_ref == group.entity).collect();
-    let [row] = candidates.as_slice() else { return None };
+    let candidates = magnitude_rows.get(&(combination, kind, group.entity.as_str())).map_or(&[][..], Vec::as_slice);
+    let [row] = candidates else { return None };
     let values: Vec<f64> = component.rows.iter().map(|&r| results[r].value).collect();
     let value = results[*row].value;
     if values.len() != 3 || norm3(values[0], values[1], values[2]).to_bits() != value.to_bits() {
@@ -675,6 +735,10 @@ pub(crate) fn not_assessed_message(id: &str, reason: &str) -> String {
         "combination {id}: its rows are not assessed against a stated bound ({reason}); they remain inspection results and do not count toward the document's numerical eligibility."
     )
 }
+
+#[cfg(test)]
+#[path = "combination_certificate_index_tests.rs"]
+mod index_tests;
 
 #[cfg(test)]
 mod tests {

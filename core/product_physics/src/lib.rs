@@ -7173,6 +7173,7 @@ fn solve_prepared_load_case(
             // T4-U2 (H-2): a realized arc's pressure rows.
             bend_pressure::append_arc_pressure_results(
                 &mut results,
+                member_rows_from,
                 diagnostics,
                 load_case,
                 &pipe.element_id,
@@ -7187,6 +7188,7 @@ fn solve_prepared_load_case(
         {
             append_exact_pressure_results(
                 &mut results,
+                member_rows_from,
                 diagnostics,
                 load_case,
                 &pipe.element_id,
@@ -7398,25 +7400,8 @@ fn solve_prepared_load_case(
     let pressure_assembly_evidence = exact_pressure.as_ref().map(|p| p.assembly_evidence.clone());
     let pressure_evidence = exact_pressure
         .map(|mut p| {
-            for evidence in &mut p.evidence {
-                let region_id = evidence
-                    .get("region_id")
-                    .and_then(|id| id.as_str())
-                    .unwrap_or("");
-                let members = p
-                    .pipe_states
-                    .iter()
-                    .filter(|(_, state)| state.region_id == region_id)
-                    .map(|(index, _)| built.pipes[*index].element_id.as_str())
-                    .collect::<HashSet<_>>();
-                evidence["result_ids"] = serde_json::json!(results
-                    .iter()
-                    .filter(|r| members.contains(r.entity_ref.as_str())
-                        && r.kind.starts_with("pipe_")
-                        && r.kind.ends_with("_v2"))
-                    .map(|r| &r.id)
-                    .collect::<Vec<_>>());
-            }
+            let members = p.pipe_states.iter().map(|(index, state)| (built.pipes[*index].element_id.as_str(), state.region_id.as_str()));
+            attach_pressure_result_ids(&mut p.evidence, members, &results);
             p.evidence
         })
         .unwrap_or_default();
@@ -13651,9 +13636,40 @@ fn append_signed_support_results(
     );
 }
 
+/// Each pressure evidence entry's `result_ids`: the case's pressure-family rows
+/// (`pipe_*_v2`) whose entity is a member (element identifier, region) of the
+/// entry's region (`""` when it names none), in row order.
+fn attach_pressure_result_ids<'a>(
+    evidence: &mut [serde_json::Value],
+    members: impl Iterator<Item = (&'a str, &'a str)>,
+    results: &[ResultItem],
+) {
+    let regions: HashMap<&str, &str> = members.collect();
+    let mut ids: HashMap<&str, Vec<&String>> = HashMap::new();
+    for r in results {
+        if r.kind.starts_with("pipe_") && r.kind.ends_with("_v2") {
+            if let Some(region) = regions.get(r.entity_ref.as_str()) {
+                ids.entry(*region).or_default().push(&r.id);
+            }
+        }
+    }
+    for evidence in evidence {
+        let region_id = evidence
+            .get("region_id")
+            .and_then(|id| id.as_str())
+            .unwrap_or("");
+        evidence["result_ids"] = serde_json::json!(ids.get(region_id).map_or(&[][..], Vec::as_slice));
+    }
+}
+
+#[cfg(test)]
+#[path = "pressure_result_ids_tests.rs"]
+mod pressure_result_ids_tests;
+
 #[allow(clippy::too_many_arguments)]
 fn append_exact_pressure_results(
     results: &mut Vec<ResultItem>,
+    from: usize,
     diagnostics: &mut Vec<Diagnostic>,
     case: &PreviewLoadCase,
     pipe_id: &str,
@@ -13693,16 +13709,7 @@ fn append_exact_pressure_results(
         ));
         return;
     };
-    results.retain(|r| {
-        r.entity_ref != pipe_id
-            || !matches!(
-                r.kind.as_str(),
-                "element_local_axial_force"
-                    | "element_local_axial_normal_stress"
-                    | "pipe_section_pressure_hoop_stress"
-                    | "pipe_section_pressure_longitudinal_stress"
-            )
-    });
+    bend_pressure::drop_replaced_rows(results, from, pipe_id);
     // `basis` names a stress row's section basis (D-5): each nominal stress row
     // is immediately followed by its reduced twin; force rows are published once.
     let mut append =
