@@ -12,6 +12,9 @@ import { STATE_OVERLAY_CLASSES, RUN_OVERLAY_CLASSES, stateOverlayMarks } from ".
 import type { ShownComparisonOverlay } from "../history/useModelStateHistory";
 import { ComparisonOverlayMode, labelPlacement, LABEL_MAX_CHARS, projectOverlayPoint, upright } from "./ComparisonOverlayMode";
 import { DisplayUnitsProvider } from "../display-units";
+import { COMPARISON_STATEMENT } from "../comparison/ComparisonOverlayLegend";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { loadPreviewModel } from "../../services/previewService";
 import { PipeViewport } from "./PipeViewport";
 
@@ -160,11 +163,19 @@ describe("the comparison schematic", () => {
   it("keeps a long name inside the room it has, on the side with more room", () => {
     const long = "Pipe support on the north rack, bay 12, level 3, at the expansion loop";
     const box = { x: 0, width: 100 };
-    // Plenty of room on the right: cut to the most a label shows.
+    // Plenty of room on the right: it runs to the most a label shows, 60 characters.
+    expect(LABEL_MAX_CHARS).toBe(60);
     const roomy = labelPlacement(long, 5, 1, box, 1);
     expect(roomy.side).toBe("start");
     expect([...roomy.text]).toHaveLength(LABEL_MAX_CHARS);
     expect(roomy.text.endsWith("…")).toBe(true);
+    // A name that fits the room is shown whole, however long within the cap.
+    const fits = "Variable spring VS1 (user stiffness)";
+    expect(labelPlacement(fits, 5, 1, box, 1).text).toBe(fits);
+    // The next mark on its row stops it short: cut to the room before that mark.
+    const blocked = labelPlacement(fits, 5, 1, box, 1, { right: 20 });
+    expect(blocked.text.endsWith("…")).toBe(true);
+    expect([...blocked.text].length * 0.62).toBeLessThanOrEqual(20 - 5 - 1);
     // Near the right edge: set to the left.
     expect(labelPlacement(long, 95, 1, box, 1).side).toBe("end");
     // Little room either side: cut to what fits (each character 0.62 of the font size).
@@ -174,14 +185,51 @@ describe("the comparison schematic", () => {
     expect(labelPlacement("Anchor", 95, 1, box, 1).text).toBe("Anchor");
   });
 
-  it("lists the marks in words, and choosing one moves the view to it without activating or selecting it", () => {
-    const { props } = mount();
-    const list = screen.getByRole("list", { name: "Marks (3)" });
+  it("lists every difference: the drawn ones, and those in the table only, which say so", () => {
+    mount();
+    // Changed 3 in the legend: the support (drawn), the material and the model entity (not drawn).
+    const list = screen.getByRole("list", { name: "Differences (5): 3 in the drawing, 2 in the table only" });
     expect(within(list).getAllByRole("button").map((button) => button.textContent)).toEqual([
       "+ Added node Added",
       "− C Removed, earlier saved state only",
-      "Δ Anchor, relabelled Changed"
+      "Δ Anchor, relabelled Changed",
+      "Δ Model Changed, not drawn in the schematic",
+      "Δ Material material:M-1 Changed, not drawn in the schematic"
     ]);
+    // Unchanged entities are never listed.
+    expect(within(list).queryByText(/Unchanged/u)).toBeNull();
+    expect(screen.getByTestId("comparison-overlay-legend").textContent).toContain(
+      "Choose a difference in the drawing to move the view to it, or one in the table only to open its row in the table."
+    );
+  });
+
+  it("opens the row of a difference not drawn, as activating a mark does, without moving the view or selecting it", () => {
+    const { props } = mount();
+    const before = viewBox();
+    const entry = screen.getByTestId("comparison-overlay-unplaced-material:M-1");
+    expect(entry.tagName).toBe("BUTTON");
+    fireEvent.click(entry);
+    expect(props.onActivate).toHaveBeenCalledWith("material:M-1", "material");
+    fireEvent.click(screen.getByTestId("comparison-overlay-unplaced-model"));
+    expect(props.onActivate).toHaveBeenLastCalledWith("model", "model");
+    expect(viewBox()).toEqual(before);
+  });
+
+  it("carries the registered comparison statement on the legend, word for word", () => {
+    mount();
+    expect(screen.getByTestId("comparison-overlay-statement")).toHaveTextContent(/^differences for review; the comparison does not establish either side as correct$/u);
+    expect(screen.getAllByText(/does not establish/u)).toHaveLength(1);
+    // It is a registered short variant of BS-COMPARE, whose placement names this legend.
+    const registry = readFileSync(resolve(__dirname, "../../../../../docs/claims_registry.md"), "utf8");
+    const entry = registry.slice(registry.indexOf("### BS-COMPARE"), registry.indexOf("###", registry.indexOf("### BS-COMPARE") + 4)).replace(/\s+/gu, " ");
+    const variants = [...entry.slice(entry.indexOf("**Short variants:**")).matchAll(/"([^"]+)"/gu)].map((match) => match[1]);
+    expect(variants).toContain(COMPARISON_STATEMENT);
+    expect(entry).toMatch(/\*\*Belongs on:\*\*[^*]*the legend of the desktop's comparison overlay/u);
+  });
+
+  it("moves the view to a drawn difference chosen in the list, without activating or selecting it", () => {
+    const { props } = mount();
+    const list = screen.getByRole("list", { name: /^Differences/u });
     const before = viewBox();
     const choice = within(list).getByRole("button", { name: /Added node/u });
     expect(choice.tagName).toBe("BUTTON");
@@ -244,12 +292,14 @@ describe("the comparison schematic", () => {
     expect(screen.getByTestId("comparison-overlay-up-readout")).toHaveTextContent("Up +Y: the model has no weight load and no generated self-weight load.");
   });
 
-  it("presents no comparison as validation, approval or compliance", () => {
+  it("presents no comparison as validation, approval or compliance, outside the registered statement", () => {
+    // Every text of the overlay but the registered comparison statement, which is checked word for word above.
+    const unregistered = () => screen.getByTestId("comparison-overlay").textContent!.replace(COMPARISON_STATEMENT, "");
     mount();
-    expect(screen.getByTestId("comparison-overlay").textContent).not.toMatch(/valid|approv|complian|certif|accept|verif|pass|fail|correct/iu);
+    expect(unregistered()).not.toMatch(/valid|approv|complian|certif|accept|verif|pass|fail|correct|right side|wrong/iu);
     cleanup();
     mount({ overlay: { ...overlayOf(LEFT, RIGHT), kind: "runs", marks: [] } });
-    expect(screen.getByTestId("comparison-overlay").textContent).not.toMatch(/valid|approv|complian|certif|accept|verif|pass|fail|correct/iu);
+    expect(unregistered()).not.toMatch(/valid|approv|complian|certif|accept|verif|pass|fail|correct|right side|wrong/iu);
   });
 
   it("projects with the authoring viewport's presets, Y up, and turns each signed up axis upward", () => {

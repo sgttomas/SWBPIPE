@@ -74,25 +74,29 @@ export function projectOverlayPoint(point: OverlayPoint, view: OverlayViewPreset
   return { x: (point.x - point.z) / Math.SQRT2, y: -(2 * point.y - point.x - point.z) / Math.sqrt(6) };
 }
 
-/** The most characters of a name a label shows; the title and the list hold the whole name. */
-export const LABEL_MAX_CHARS = 28;
+/** The most characters of a name a label shows, with room to spare; the title and the list hold the whole name. */
+export const LABEL_MAX_CHARS = 60;
 /** The fewest characters a label is cut to, however little room there is. */
 const LABEL_MIN_CHARS = 6;
 /** A monospace character's advance, as a share of the font size (the label's font is monospace). */
 const MONO_ADVANCE = 0.62;
 
-/** Where a label goes and what it shows, so that it stays inside the visible box: on the side of
- * its glyph with more room, cut with an ellipsis to the characters that fit there (at most
- * `LABEL_MAX_CHARS`, at least `LABEL_MIN_CHARS`). Distances are in drawing units. */
+/** Where a label goes and what it shows: on the side of its glyph with more room, running as far
+ * as the room it has there (up to `LABEL_MAX_CHARS`), and cut with an ellipsis only where it would
+ * leave the visible box or meet the next mark on its row (`obstacles`: the nearest marks' x on each
+ * side, if any). At least `LABEL_MIN_CHARS` are shown. Distances are in drawing units. */
 export function labelPlacement(
   text: string,
   anchorX: number,
   gap: number,
   box: { x: number; width: number },
-  fontSize: number
+  fontSize: number,
+  obstacles: { left?: number; right?: number } = {}
 ): { side: "start" | "end"; text: string } {
-  const right = box.x + box.width - anchorX - gap;
-  const left = anchorX - box.x - gap;
+  const rightEdge = Math.min(box.x + box.width, obstacles.right ?? Infinity);
+  const leftEdge = Math.max(box.x, obstacles.left ?? -Infinity);
+  const right = rightEdge - anchorX - gap;
+  const left = anchorX - leftEdge - gap;
   const side = right >= left ? "start" : "end";
   const room = Math.max(right, left);
   const fits = Math.floor(room / (fontSize * MONO_ADVANCE));
@@ -158,8 +162,8 @@ const POINT_PX = 3.5;
 export type ComparisonOverlayModeProps = {
   overlay: ShownComparisonOverlay;
   onLeave: () => void;
-  /** A marked entity was activated: show its row in the comparison table. */
-  onActivate: (ref: string, family: EntityFamily) => void;
+  /** A marked entity was activated, or a difference not drawn was chosen in the list: show its row in the comparison table. */
+  onActivate: (ref: string, family: EntityFamily | null) => void;
 };
 
 export function ComparisonOverlayMode({ overlay, onLeave, onActivate }: ComparisonOverlayModeProps) {
@@ -222,6 +226,34 @@ export function ComparisonOverlayMode({ overlay, onLeave, onActivate }: Comparis
     }
     return result;
   }, [drawing, glyphSize]);
+  // The next mark on either side of each mark, on its row (its glyph's height), so a label stops
+  // short of it: rows of about a label's height, each sorted by x.
+  const neighbours = useMemo(() => {
+    const row = labelSize * 1.4;
+    const rows = new Map<number, Array<{ entity: DrawnOverlayEntity; x: number }>>();
+    for (const item of drawing.projected) {
+      if (!item.marked) continue;
+      const y = item.anchor.y - glyphSize * 0.4 + (stacks.get(item.entity) ?? 0) * glyphSize * 1.15;
+      const key = Math.round(y / row);
+      rows.set(key, [...(rows.get(key) ?? []), { entity: item.entity, x: item.anchor.x }]);
+    }
+    const result = new Map<DrawnOverlayEntity, { left?: number; right?: number }>();
+    for (const [key, members] of rows) {
+      const nearby = [...(rows.get(key - 1) ?? []), ...members, ...(rows.get(key + 1) ?? [])];
+      for (const member of members) {
+        let left: number | undefined;
+        let right: number | undefined;
+        for (const other of nearby) {
+          if (other.entity === member.entity) continue;
+          if (other.x > member.x && (right === undefined || other.x < right)) right = other.x;
+          if (other.x < member.x && (left === undefined || other.x > left)) left = other.x;
+        }
+        // Stop a glyph's width short of the other mark's glyph.
+        result.set(member.entity, { left: left === undefined ? undefined : left + glyphSize, right: right === undefined ? undefined : right - glyphSize });
+      }
+    }
+    return result;
+  }, [drawing, glyphSize, labelSize, stacks]);
   const sides = overlay.kind === "states" ? "saved state" : "run";
   const placed: PlacedOverlayMark[] = useMemo(() => {
     const order = new Map(styles.map((style, index) => [style.markClass, index] as const));
@@ -290,6 +322,8 @@ export function ComparisonOverlayMode({ overlay, onLeave, onActivate }: Comparis
         leftText={overlay.leftText}
         rightText={overlay.rightText}
         presentation="a schematic in fixed views, not the three-dimensional viewport"
+        placeName="schematic"
+        reveal={onActivate}
         counts={scene.counts}
         notPlaced={scene.notDrawn}
         placed={placed}
@@ -353,7 +387,7 @@ export function ComparisonOverlayMode({ overlay, onLeave, onActivate }: Comparis
           const glyphY = anchor.y - glyphSize * 0.4 + stack * glyphSize * 1.15;
           // The label clears the whole glyph string, which is centred on the anchor and can hold several glyphs.
           const gap = [...glyphs].length * glyphSize * 0.3 + glyphSize * 0.4;
-          const label = labelPlacement(`${entity.label}${entity.ghost ? " (earlier only)" : ""}`, anchor.x, gap, visible, labelSize);
+          const label = labelPlacement(`${entity.label}${entity.ghost ? " (earlier only)" : ""}`, anchor.x, gap, visible, labelSize, neighbours.get(entity));
           const labelX = label.side === "start" ? anchor.x + gap : anchor.x - gap;
           return (
             <g
