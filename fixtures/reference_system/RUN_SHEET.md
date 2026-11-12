@@ -1,115 +1,117 @@
-# Reference system run sheet (exit criterion 7)
+# Reference system run sheet
 
-**Basis:** `main` at `66ecc9f17`, at `5bb2f9ff0` for the tee (§3.6 item 2), and at `148a1089b`
-for the run sheet's id cells and numbering (#41: §2, §3.4, §3.5, §3.7); fixture `fixtures/reference_system/reference_system.json`
-(tranche 1, model document 0.8.0) and its specification `reference-system.md` beside this
-document. Release target `docs/RELEASE_TARGET_v1.0.md`, exit criterion 7. Desktop paths are
-relative to `apps/desktop/src/`.
+This is the script a person follows to enter the reference system in the desktop from a
+blank project and solve it (release target exit criterion 7). It enters the fixture as
+committed, [`reference_system.json`](reference_system.json) (model document 0.9.0), whose
+system is stated in [`SPECIFICATION.md`](SPECIFICATION.md). Where the fixture and the
+specification differ, the fixture is what this sheet enters; §5 lists the families the
+specification holds and the fixture does not yet.
 
-## 1. Purpose, reading and boundaries
+Every value is the fixture's own invented data. Every duration is an estimate, not a
+measurement; the measured time comes from a person's timed entry (DEL-07-02, DEL-07-06). No
+person is timed until the scripted journey follows this sheet's route step for step
+(DEL-07-02 VER-007).
+Following this script tests authoring effort; it states nothing about the system or the
+product (F-PIP-2, F-PIP-3).
 
-This is the script a person follows to enter the reference system from blank and solve it.
-Criterion 7 says the system is "entered by run sheet and solved in ≤ 30 minutes
-*(provisional)*". The reading used here is the specification's §11.2: run-sheet rows plus
-follow-up forms for everything else, with small counts. The criterion text is the owner's.
+The route up to the solve is entered by script in
+[`referenceEntryJourney.session.test.tsx`](../../apps/desktop/src/features/workspace/referenceEntryJourney.session.test.tsx),
+which compares the entered model with the fixture record by record and allows only the
+differences of §4. That test runs no solve.
 
-Every value is the fixture's own invented data; where the fixture and the specification
-differ, the fixture wins. Every duration here is an estimate per step, not a measurement.
-The measured time comes from the walkthrough (DEL-07-06), which Agent 0 takes to the
-owner with the §11.2 reading. Following this script is a test of authoring effort, not a
-statement about the system or the product (F-PIP-2, F-PIP-3).
+## 1. Conventions
 
-**Text used throughout.** Two strings recur and are pasted, not retyped:
+**Pasted texts.** Two texts recur. Paste them; do not retype them. A form field takes a paste
+directly. A run-sheet grid cell does not: press **F2** to open the cell's editor, paste, and
+press **Enter** to commit.
 
-- **⟨P⟩** = `invented reference-system fixture input (DEL-09-01 Work/reference-system.md); not standard, supplier, commercial or project data`
-- **⟨S5⟩** = `invented user value, DEL-09-01 Work/reference-system.md §5`
+- **⟨P⟩** = `invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data`
+- **⟨S5⟩** = `invented user value, DEL-09-01`
 
-**Queue and apply.** Every form below queues an operation. A single intent is applied with
-**Apply** under *Review changes* (`features/operations/OperationApplyPanel.tsx`). Since #54,
-**Review all N queued changes as one batch** can move independent user intents to batch
-review in queue order. The move applies nothing; **Apply entire batch** validates and
-applies all or none, as one Undo (`features/toolkit/BatchReviewPanel.tsx`). **Validate
-batch** checks without applying and is required first for preview-gated operations,
-including `insert_bend_at_corner`. Dependent before-values are never adjusted; shared
-operation ids are named and refused before anything leaves the single queue. §5 retains
-the per-intent cycle counts before optional G9 batching; it assigns no separate timing
-rate to an Apply cycle, so no numerical time credit for batching is inferred.
+⟨P⟩ is the provenance of every record; ⟨S5⟩ is the source of every user value that needs
+one. Both are exactly the fixture's.
 
-## 2. Preconditions
+**Where things are.** The rail has four stages, **Model**, **Loads**, **Results** and
+**Review**, and opens pages, among them **Project** and **Analyze**, over the stage. The
+Model stage has two tabs: **Model**, the model tree with the property inspector beside it,
+and **Review changes**. The Loads stage has one tab, **Load Cases**; the Results stage has
+**Results** and **Evidence**. A selection in the model tree needs the Model stage's Model
+tab: a step that selects there after working on the Loads stage says so. The model tree
+switches between **Tree** and **Grid**; in Grid, the **Run sheet** button shows the run
+sheet. The inspector has the tabs **Properties** and **Task**. Properties shows **New
+section**, **New component** and, with a node selected, **New support configuration**.
 
-1. *Project* page: **Blank load/reference model** (`App.tsx:1043-1046`). In the dialog
-   "New blank load/reference model: units", keep **Preset** = SI and press **Create**
-   (`features/project-units/ProjectUnitsDialog.tsx:137-151, 205-212`). SI gives the
-   fixture's units exactly: m, N, N\*m, Pa, Pa, degC, rad (`services/projectService.ts:427-429`).
-   This blank already carries `pressure_contract` 3.0.0/exact_pressure_v3 and an empty
-   `reference_configurations`, but with the Timoshenko shear model
-   (`projectService.ts:494-509`); §3.1 changes it.
-2. The run sheet is the Model tree's **Grid** mode (`features/model-tree/ModelTree.tsx:249-267`),
-   **Grid family** = Run sheet (`ModelTree.tsx:1102-1108`). Its header
-   (`features/model-tree/runSheet/RunSheet.tsx:546-569`) is set before the first row; the
-   Numbering fields lock once any row has a number (`RunSheet.tsx:551`):
-   - **Source** = ⟨P⟩ (`RunSheet.tsx:547-548`; it becomes the `provenance` of every node, pipe,
-     support and bend record the sheet creates);
-   - **Length unit** = m (the project unit; the default, `RunSheet.tsx:549`);
-   - **Numbering** (`RunSheet.tsx:552-564`): **Node prefix** `node:RS-`, **Pipe prefix**
-     `pipe:RS-P`, **Start** 10 and **Step** 10 (the defaults, `runSheetModel.ts:102`),
-     **Pad numbers to N digits** 3, **Pipe number from** = its start node;
-   - the column groups **Section extras** and **Ids and sources** shown, each by its toggle
-     button (`RunSheet.tsx:566-568`; `runSheetView.ts:29`; both start hidden, `RunSheet.tsx:63`);
-   - the column units chosen in the headers: Ins. thk mm, Ins. dens. kg/m^3, Contents dens.
-     kg/m^3, Material density kg/m^3, Mill tolerance mm, Corrosion allowance mm. Bend R keeps
-     the project unit, m.
+**Task edits.** To change one stored value: select the entity; inspector **Task** tab;
+**Start task from current selection**; **Property to edit**; the value; **Add**; then Apply
+under Review changes. Afterwards press **Cancel** in the task footer and then the
+**Properties** tab. The inspector stays in its Task view otherwise, and selecting another
+entity does not leave it, so the next step's creation form would stay hidden.
 
-**How the sheet's ids meet the fixture's.** New P/R/B/V/L rows take a number
-when first entered. F and S do not consume numbers; previously assigned rows
-and stored model records keep their identities (DEL-07-02 `Work/run-sheet-entry.md`
-§3.2, §10). With pad 3, number 10 gives `node:RS-010`; pipes take their start
-node's sheet number when available, with the stated fallback to their own number.
-Support and bend ids/labels are still entered in Ids and sources as below.
+**Queue and apply.** Each form queues a change. A single queued change is applied with
+**Apply** under Review changes. A batch (the run sheet's rows, a self-weight plan) is
+applied under **Batch review** with **Validate batch** and then **Apply entire batch**, all
+or nothing, as one Undo step; a batch that realizes a bend applies only after a clean
+validation. Optionally, **Review all N queued changes as one batch** moves independent
+queued changes into one batch; §6 counts the cycles without that.
 
-Type the 26 rows in their ordinary table order, with the S row in place. An
-explicit unqueued pipe-id overwrite releases its earlier displayed reservation,
-so Pipe id need not be typed first. A successfully queued/applied pipe id remains
-reserved. The current count is **10** typed Node id and Pipe id cells:
-three temporary bend-corner ids; RS-P070 and RS-P090; branch node RS-215 and
-pipe RS-P210; RS-P220; and the final node RS-230 and pipe RS-P230.
-B3's temporary corner is explicitly `node:RS-B3-CORNER`, because its new counter
-number would otherwise give RS-230, the final node's id.
+**Steps.** Each step has a name and is self-contained: where it is done, what is entered,
+and how it is applied. The order in §2 is the order to follow; a step names any step it
+must follow. A family added to the fixture adds a step, or rows to a step's table, without
+renumbering the others. Fields not mentioned are left as the form shows them.
 
-Historical #41 figures were 9 ids with the special entry order (redundant F
-removed, S inserted last and Pipe ids entered first), and 35 typed strictly in
-order, compared with 40 before #41. Those are retained historical measurements;
-they are not the new numbering policy's count. No extra derivation rule is
-introduced to force the new count back to nine.
+## 2. Order of steps
 
-Ten of the eleven supports and all three bends are entered in the sheet with the fixture's
-ids; RS-VS1 stays a form (§3.7). Criteria 6 and 17 compare against the fixture's ids, which this route produces.
+| Step | Surface | Must follow |
+|---|---|---|
+| [units](#step-units) | Project page, units dialog | — |
+| [profile](#step-profile) | Loads › Load Cases, Pressure mechanics profile | units |
+| [material](#step-material) | Loads › Load Cases, Create explicit E/nu material; Model › Model, inspector | profile |
+| [sections](#step-sections) | Model › Model, inspector, New section | units |
+| [rows](#step-rows) | Model › Model, Grid, Run sheet | material, sections |
+| [rs050](#step-rs050) | Model › Model, inspector, Task | rows |
+| [joint](#step-joint) | Model › Model, inspector, New component | rows |
+| [tee](#step-tee) | Model › Model, inspector, New component; Task | rows |
+| [spring](#step-spring) | Model › Model, inspector, New support configuration | rows |
+| [reference](#step-reference) | Loads › Load Cases, Reference configurations | rows |
+| [weight](#step-weight) | Model › Review changes, Self weight | rs050, joint, tee, spring |
+| [regions](#step-regions) | Loads › Load Cases, Pressure regions | weight |
+| [states](#step-states) | Loads › Load Cases, Analysis state | reference, weight |
+| [combinations](#step-combinations) | Loads › Load Cases, Create combination | weight |
+| [solve](#step-solve) | Analyze page; Results › Results | every step above |
+
+The bends are realized in step rows, before any support, load, region or reference names a
+corner or a straight (`OP-BEND-CORNER-ATTACHMENT-UNSUPPORTED`); the supports the sheet
+creates name nodes, none of them a corner. The self-weight generator creates each case and
+refuses an existing case id, and it reads the finished geometry, sections and components, so
+step weight follows them.
 
 ## 3. Steps
 
-Durations are estimates (§5). Each step names its desktop surface; unlisted fields are left
-as the form shows them.
+### Step units
 
-### 3.1 Pressure profile (1 min)
+*Project* page, **Blank load/reference model**. In the units dialog keep **Preset** = SI and
+press **Create**. SI gives the fixture's units: m, N, N\*m, rad, Pa, Pa, degC. The blank
+already carries `pressure_contract` 3.0.0/exact_pressure_v3, with the Timoshenko shear
+model, and an empty `reference_configurations`; step profile sets the shear model.
 
-*Load Cases* section, panel "Pressure mechanics profile" (`features/load-cases/LoadCaseManagerPanel.tsx:536`;
-`features/pressure-authoring/PressureAuthoringPanel.tsx:116-131`): **Pressure profile** =
-exact_pressure_v3, **Shear model** = Euler–Bernoulli, **Queue pressure profile**, Apply. The
-fixture's `pressure_contract` is `{3.0.0, exact_pressure_v3, euler_bernoulli}`. Done first,
-the button's corrosion-allowance condition (`PressureAuthoringPanel.tsx:110-114`) holds
-because there are no members yet.
+### Step profile
 
-### 3.2 Material RS-M1 (6 min)
+*Loads* stage, *Load Cases* tab, panel **Pressure mechanics profile**: **Pressure profile** =
+exact_pressure_v3; **Shear model**: select Euler–Bernoulli (the blank shows Timoshenko).
+**Queue pressure profile**, Apply. Done
+before any member exists, the panel's corrosion-allowance condition holds.
 
-1. Same panel, **Create explicit E/nu material** (`PressureAuthoringPanel.tsx:46-65`):
-   **Exact material ID** `material:RS-M1`; **Exact material label** `RS-M1 invented
-   carbon-steel-like material`; **Constitutive basis** homogeneous_isotropic_E_nu_v1;
-   **Elastic modulus E** 200 GPa; **Poisson ratio nu** 0.3, unit 1; **Thermal expansion coefficient** 1.2e-5 1/K (`PressureAuthoringPanel.tsx:70`, since #36);
-   **Constitutive provenance** ⟨P⟩. **Queue exact material**, Apply.
-2. Select the material in the Model tree. Inspector, "Temperature-dependent properties"
-   (`features/material-temperature/MaterialTemperatureForm.tsx:52-89`): **Add temperature
-   point** four times, each with ID, Temperature, Elastic modulus, Poisson ratio (unit 1),
-   Thermal expansion coefficient and provenance ⟨P⟩; shear modulus left blank.
+### Step material
+
+1. Same panel, **Create explicit E/nu material**: **Exact material ID** `material:RS-M1`;
+   **Exact material label** `RS-M1 invented carbon-steel-like material`; **Constitutive
+   basis** homogeneous_isotropic_E_nu_v1; **Elastic modulus E** 200 GPa; **Poisson ratio
+   nu** 0.3, unit 1; **Thermal expansion coefficient** 1.2e-5 1/K; **Constitutive
+   provenance** ⟨P⟩. **Queue exact material**, Apply.
+2. Return to the Model stage's Model tab and select `material:RS-M1` in the model tree.
+   Inspector, **Temperature-dependent properties**: **Add temperature point** four times;
+   for each, ID, Temperature, Elastic modulus, Poisson ratio (unit 1), Thermal expansion
+   coefficient and **Point provenance** ⟨P⟩; leave the shear modulus blank. **Queue temperature points**, Apply.
 
    | Point ID | Temperature | Elastic modulus | Poisson ratio | Thermal expansion coefficient |
    |---|---|---|---|---|
@@ -118,42 +120,62 @@ because there are no members yet.
    | `point:RS-M1-T200` | 200 degC | 189 GPa | 0.3 | 1.2e-5 1/K |
    | `point:RS-M1-T300` | 300 degC | 182 GPa | 0.3 | 1.2e-5 1/K |
 
-   **Queue temperature points**, Apply.
-3. Same selection, "Expansion laws (current exact model)" (`material-temperature/ExpansionLawsEditor.tsx:39-79`):
-   **Add expansion law**; definition engineering_secant; ID `law:RS-M1-SECANT`; datum
-   temperature 20 degC; data constant; constant coefficient 1.2e-5 1/K; provenance ⟨P⟩.
-   **Queue expansion laws**, Apply.
+3. Same selection, **Expansion laws (current exact model)**: **Add expansion law**;
+   definition engineering_secant; ID `law:RS-M1-SECANT`; datum temperature 20 degC; data
+   constant; constant coefficient 1.2e-5 1/K; **Expansion law provenance** ⟨P⟩. **Queue
+   expansion laws**, Apply.
 
-### 3.3 Sections (3 min)
+### Step sections
 
-Inspector, **New section** (`features/model-tree/PropertyInspector.tsx:636-717`): Section ID,
-Name, Type pipe, Length unit mm, Outside diameter, Wall thickness, Provenance ⟨P⟩; **Queue
-section**, Apply. `section:RS-S270` (name RS-S270) 270 × 9.0; `section:RS-S220` 220 × 8.0;
-`section:RS-S170` 170 × 7.0. These are shared pipe sections (OD and wall only), as the run
-sheet requires (`runSheetModel.ts:410-421`).
+On the Model stage's Model tab, select the project in the model tree. Inspector, **New
+section**, three times: Section ID, Name, Length unit mm, Outside diameter, Wall thickness,
+**Provenance** ⟨P⟩; queue, Apply. Type is already pipe.
 
-### 3.4 Run-sheet rows, including valve and flanges (16.5 min)
+| Section ID | Name | Outside diameter | Wall thickness |
+|---|---|---|---|
+| `section:RS-S270` | RS-S270 | 270 | 9.0 |
+| `section:RS-S220` | RS-S220 | 220 | 8.0 |
+| `section:RS-S170` | RS-S170 | 170 | 7.0 |
 
-26 rows in two chains, from RS-010 and from the tee, queued as one batch (**Queue rows**,
-`RunSheet.tsx:637-639`), then Validate batch and Apply entire batch: the batch holds bends, so
-it applies only after a clean validation (`BatchReviewPanel.tsx:24-32`). Blank increments are
-zero. Section quantities are entered once and inherit down the chain (`run-sheet-entry.md` §2):
-on row 2, Ins. thk 60, Ins. dens. 140, Contents dens. 820, Material density 7850, Mill
-tolerance 1.0, Corrosion allowance 1.5. The `F` row naming RS-130 inherits row 14's values
-(§2.3 rule 1).
+These hold the outside diameter and wall only; the other section quantities are entered per
+member in step rows.
 
-Ids are written without their `node:` / `pipe:` prefix; the cells take the full id. **(t)**
-marks a typed cell; others are derived ids. **No.** is the id-counter number,
-not the grid's row position. Type all rows in table order; F/S rows have no counter
-number. Pipe-id overrides may follow the increments before the sheet is queued.
+### Step rows
 
-| # | No. | dX | dY | dZ | Kind | Node | Section | Orientation | Other entries | Node id | Pipe id |
+*Model* tab, model tree **Grid**, **Run sheet**.
+
+**Header**, before the first row (the Numbering fields lock once a row has a number):
+
+- **Source** ⟨P⟩. It becomes the provenance of every node, pipe, support and bend record the
+  sheet creates.
+- **Length unit** m (the default).
+- **Numbering**: **Node prefix** `node:RS-`; **Pipe prefix** `pipe:RS-P`; **Start** 10 and
+  **Step** 10 (the defaults); **Pad numbers to N digits** 3; **Pipe number from** its start
+  node.
+- Show the column groups **Section extras**, **Ids and sources** and **Component details**,
+  each by its header button.
+- Column units in the headers: Ins. thk mm; Ins. dens. kg/m^3; Contents dens. kg/m^3;
+  Material density kg/m^3; Mill tolerance mm; Corrosion allowance mm. Bend R keeps the
+  project unit, m.
+
+**Rows.** The sheet starts with one row. Type the 26 rows in table order. After completing
+each of rows 1 to 25, press **Enter** in its **Support** cell, empty or not: the row is then the
+last, so this adds the next row and moves to its dX cell. Do not press it after row 26. Then **Queue rows**, **Validate batch** and **Apply entire
+batch**. Blank increments are zero. Section, material and the section
+quantities are entered once and inherit down the chain; the `F` row continues from RS-130
+with row 14's values. The Condition set column stays blank: the fixture has no condition
+set. **No.** is the sheet's id number, not the grid row; `F` and `S` rows take none. Ids are
+written here without their `node:` or `pipe:` prefix; the cells take the full id. **(t)**
+marks an id typed in the Node id or Pipe id cell; the others are derived from the
+numbering.
+
+| # | No. | dX | dY | dZ | Kind | Node | Section | Orientation | Other cells | Node id | Pipe id |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | 1 | 10 | | | 1 | P | | | | Support A | RS-010 | |
-| 2 | 20 | 0.4 | | | | | section:RS-S270 | 0 0 1 | Material `material:RS-M1`; the six section quantities | RS-020 | RS-P010 |
-| 3 | 30 | 0.15 | | | L | | | | Flange F1; Component details | RS-030 | RS-P020 |
-| 4 | 40 | 0.6 | | | V | | | | Valve V1; Component details | RS-040 | RS-P030 |
-| 5 | 50 | 0.15 | | | L | | | | Flange F2; Component details | RS-050 | RS-P040 |
+| 2 | 20 | 0.4 | | | | | section:RS-S270 | 0 0 1 | Material `material:RS-M1`; Ins. thk 60, Ins. dens. 140, Contents dens. 820, Material density 7850, Mill tolerance 1.0, Corrosion allowance 1.5 | RS-020 | RS-P010 |
+| 3 | 30 | 0.15 | | | L | | | | Flange F1, Component details | RS-030 | RS-P020 |
+| 4 | 40 | 0.6 | | | V | | | | Valve V1, Component details | RS-040 | RS-P030 |
+| 5 | 50 | 0.15 | | | L | | | | Flange F2, Component details | RS-050 | RS-P040 |
 | 6 | 60 | 2.2 | | | | | | | Support LS1 | RS-060 | RS-P050 |
 | 7 | — | | | | S | | | | Support V060 | | |
 | 8 | 70 | 2.5 | | | B | | | | Bend B1 | RS-B1-CORNER (t) | RS-P060 |
@@ -176,38 +198,56 @@ number. Pipe-id overrides may follow the increments before the sheet is queued.
 | 25 | 230 | | | -2.5 | B | | | | Bend B3 | RS-B3-CORNER (t) | RS-P220 (t) |
 | 26 | 240 | 2 | | | | | | 0 0 1 | Support C | RS-230 (t) | RS-P230 (t) |
 
-The ten typed ids, and why each is typed: B1 and B2's default corner ids
-would coincide with their tangent ids, while B3's would coincide with final
-node RS-230, so all three temporary corners are named. The two straights after
-B1/B2 have unnumbered starts and need RS-P070/RS-P090 overrides. The branch's
-first node RS-215 is explicit and its pipe RS-P210 is a second pipe from
-RS-130. Its next pipe is explicitly RS-P220. The final row's own number is 240,
-so node RS-230 and pipe RS-P230 are explicit too. All final fixture identities
-remain unchanged; the temporary corners are removed by bend realization.
+Why the ten ids are typed: the three bend corners are temporary nodes, named so that their
+default ids do not coincide with a tangent node's or, for B3, with RS-230; the straights
+after B1 and B2 start at unnumbered tangent nodes; RS-215 and RS-P210 leave the tee as a
+second pipe from RS-130; RS-P220 follows; and the last row's own number is 240. Bend
+realization removes the corners.
 
-**Valve and flange rows (Component details).** Open Component details and use
-Kind L on rows 3 and 5 and V on row 4. The row supplies its displayed pipe and
-end node. Enter Component id and label, the table values, and the references
-below. Body length unit m, COG unit m and Weight unit N are shown from the
-project keys. Solver
-consumption `mechanics_geometry_only`; Stiffness scale 10.0 with source ⟨S5⟩; Component geometry
-source ⟨S5⟩; Component provenance ⟨P⟩; Stiffness behavior reference `rigid body, user stiffness
-scale 10.0 (DEC-045); ⟨S5⟩`; End A / End B reference `node:RS-0xx (body end on RS-P0xx)`
-from the table.
+**Labels.** Type each node's label in the row's Label cell; the bend tangent nodes take
+derived labels (§4).
 
-| Component ID | Label | Kind | Node | Realized pipe | Body length | Weight | COG X, Y, Z | End A / End B reference nodes |
-|---|---|---|---|---|---|---|---|---|
-| `component:RS-F1` | Flange F1 | flange | RS-030 | RS-P020 | 0.15 | 350 | −0.075, 0, 0 | RS-020 / RS-030 |
-| `component:RS-V1` | Valve V1 | valve | RS-040 | RS-P030 | 0.6 | 2600 | −0.3, 0, 0.3 | RS-030 / RS-040 |
-| `component:RS-F2` | Flange F2 | flange | RS-050 | RS-P040 | 0.15 | 350 | −0.075, 0, 0 | RS-040 / RS-050 |
+| # | Label |
+|---|---|
+| 1 | `RS-010 Anchor A (nozzle A)` |
+| 2 | `RS-020 Flange F1 start` |
+| 3 | `RS-030 Valve V1 start` |
+| 4 | `RS-040 Flange F2 start` |
+| 5 | `RS-050 Flange F2 end` |
+| 6 | `RS-060 Line stop LS1; vertical support V060` |
+| 9 | `RS-080 Variable spring VS1 (riser)` |
+| 11 | `RS-100 Constant-effort support CE1` |
+| 12 | `RS-110 Lift-off support LO1` |
+| 13 | `RS-120 Resting support with friction FR1` |
+| 14 | `RS-130 Tee T1` |
+| 15 | `RS-140 Gap guide G1; vertical support V140` |
+| 16 | `RS-150 Reducer R1, large end` |
+| 17 | `RS-160 Reducer R1, small end (eccentric, flat on bottom)` |
+| 18 | `RS-170 Guide G2` |
+| 19 | `RS-180 Expansion joint EJ1, face i` |
+| 20 | `RS-190 Expansion joint EJ1, face j` |
+| 21 | `RS-200 Vertical support V200` |
+| 22 | `RS-210 Anchor B (nozzle B)` |
+| 24 | `RS-215 Branch guide G3` |
+| 26 | `RS-230 Anchor C (nozzle C; seismic anchor movement)` |
 
-Enter **End A size** and **End B size** as 270, entering mm in each size-unit
-cell. Body length and COG keep their own m units. These inputs join the run-sheet
-batch; no separate component-form or end-size edit is needed. The existing forms
-remain an alternative, with the same values and validation (G6).
+**Valve and flanges** (rows 3–5, Component details). Kind L is a flange and V a valve, on the
+row's pipe at its end node. Enter for each: Component id and Component label; Body length;
+End A size 270 and End B size 270, each with its size unit mm; Weight; COG X, Y, Z; End A
+reference and End B reference; **Stiffness behavior reference**
+`rigid body, user stiffness scale 10.0 (DEC-045); invented user value, DEL-09-01`; Stiffness
+scale 10.0; **Stiffness scale source** ⟨S5⟩; Solver consumption mechanics_geometry_only;
+**Component geometry source** ⟨S5⟩; **Component provenance** ⟨P⟩. Leave Body length unit, Weight unit and COG unit blank:
+they show the project's m and N.
 
-**Supports** (Support and Restraints cells, `runSheetModel.ts:22, 764-778`; Support id and
-Support label in **Ids and sources**). `*` is all six restraints (`runSheetModel.ts:770`):
+| # | Component id | Component label | Body length | Weight | COG X, Y, Z | End A reference | End B reference |
+|---|---|---|---|---|---|---|---|
+| 3 | `component:RS-F1` | Flange F1 | 0.15 | 350 | −0.075, 0, 0 | `node:RS-020 (body end on RS-P020)` | `node:RS-030 (body end on RS-P020)` |
+| 4 | `component:RS-V1` | Valve V1 | 0.6 | 2600 | −0.3, 0, 0.3 | `node:RS-030 (body end on RS-P030)` | `node:RS-040 (body end on RS-P030)` |
+| 5 | `component:RS-F2` | Flange F2 | 0.15 | 350 | −0.075, 0, 0 | `node:RS-040 (body end on RS-P040)` | `node:RS-050 (body end on RS-P040)` |
+
+**Supports** (Support and Restraints cells; Support id and Support label under Ids and
+sources). Restraints `*` is all six.
 
 | # | Support | Restraints | Support id | Support label |
 |---|---|---|---|---|
@@ -222,391 +262,344 @@ Support label in **Ids and sources**). `*` is all six restraints (`runSheetModel
 | 24 | G | UX UY | `support:RS-G3` | Branch guide G3 |
 | 26 | A | * | `support:RS-C` | Anchor C (nozzle C) |
 
-Each creates `{id, label, node, restraints, family, provenance}` (`runSheetBatch.ts:150-153`),
-the fixture's record for these ten. RS-FR1V is the fixture's interim linear vertical support
-(spec §10), so code V carries it. RS-VS1 has no code: the codes are A, G, L and V only
-(`runSheetModel.ts:22`), and its hanger data has no cell (§3.7).
+The eleventh support, the variable spring RS-VS1, has hanger data that no support code
+carries; step spring enters it.
 
-**Bends** (Bend R, k and k source cells, `runSheetView.ts:57-59`; the rest in **Ids and
-sources**, `runSheetView.ts:65-69`):
+**Bends** (Bend R, k, k source and the two SIF cells; the ids and Bend geometry source under
+Ids and sources). Bend R inherits within a chain; k and the SIFs never inherit. The SIFs'
+source is the row's k source, the one source the bend keeps for k and both SIFs.
 
-| # | Corner | Bend R | k | k source | Bend start id | Bend end id | Bend arc id | Bend component id | Bend geometry source |
-|---|---|---|---|---|---|---|---|---|---|
-| 8 | B1 (6, 0, 1) | 0.4 | 4.2 | ⟨S5⟩ | `node:RS-070` | `node:RS-075` | `pipe:RS-P065` | `component:RS-B1` | ⟨S5⟩ |
-| 10 | B2 (6, 0, 7) | (inherits 0.4) | 4.2 | ⟨S5⟩ | `node:RS-090` | `node:RS-095` | `pipe:RS-P085` | `component:RS-B2` | ⟨S5⟩ |
-| 25 | B3 (6, 15, 2) | 0.25 | 3.6 | ⟨S5⟩ | `node:RS-220` | `node:RS-225` | `pipe:RS-P225` | `component:RS-B3` | ⟨S5⟩ |
+| # | Corner | Bend R | k | k source | In-plane SIF i_ip | Out-of-plane SIF i_op | Bend start id | Bend end id | Bend arc id | Bend component id | Bend geometry source |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 8 | B1 (6, 0, 1) | 0.4 | 4.2 | ⟨S5⟩ | 2.1 | 1.8 | `node:RS-070` | `node:RS-075` | `pipe:RS-P065` | `component:RS-B1` | ⟨S5⟩ |
+| 10 | B2 (6, 0, 7) | (inherits 0.4) | 4.2 | ⟨S5⟩ | 2.1 | 1.8 | `node:RS-090` | `node:RS-095` | `pipe:RS-P085` | `component:RS-B2` | ⟨S5⟩ |
+| 25 | B3 (6, 15, 2) | 0.25 | 3.6 | ⟨S5⟩ | 2.3 | 1.9 | `node:RS-220` | `node:RS-225` | `pipe:RS-P225` | `component:RS-B3` | ⟨S5⟩ |
 
-Bend R inherits within a chain and k never does (`runSheetModel.ts:46, 613-618`;
-`run-sheet-entry.md` §2.1). A `B` row needs the next row to be a run with the same section and
-material (`runSheetModel.ts:939-955`), which rows 9, 11 and 26 inherit. The bend takes the
-sheet's Source ⟨P⟩ as the provenance of its tangent nodes, arc and component
-(`runSheetBatch.ts:171-186`). The engine places the tangent points at R·tan(Φ/2) = R from the
-corner (`bend_authoring.rs:547, 642-643`); for these 90° corners they are exactly the
-fixture's (5.6, 0, 1), (6, 0, 1.4), (6, 0, 6.6), (6, 0.4, 7), (6, 15, 2.25), (6.25, 15, 2).
-The arc takes the incoming pipe's section and the incoming direction as `y_reference`
-(`bend_authoring.rs:659-666`), as the fixture records.
+A `B` row needs the next row to be a run with the same section and material, which rows 9,
+11 and 26 inherit. For these 90° corners the engine places the tangent points at R from the
+corner, exactly the fixture's nodes, and gives each arc the incoming pipe's section and
+direction.
 
-**Bends before anything names their corners or straights.** A bend refuses while any
-support, load, region or reference names its corner or either straight
-(`OP-BEND-CORNER-ATTACHMENT-UNSUPPORTED`,
-`core/model_operations/operation_applier/src/bend_authoring.rs:605-639`; RT-E1's finding).
-The order still holds with the bends in the sheet. Each bend's `insert_bend_at_corner` follows
-the next row's operations in the same batch (`runSheetBatch.ts:243-249`). The sheet refuses a
-support code on a `B` row and an `F` or `S` row at its corner (`runSheetModel.ts:850, 956-960`),
-and the supports it creates name nodes, none of them a corner, so nothing in the batch names a
-corner or a straight when its bend is inserted. Every later step (§3.5–§3.12) runs on the
-realized bends.
+### Step rs050
 
-The Label cell is optional. Blank, it is the node id's token; for the fixture's text, type
-`nodes[].label`. Pipe labels are always the pipe id's token (`runSheetModel.ts:757, 885`).
+The sheet adds increments in binary64, so RS-050 lands at 1.2999999999999998 m, one unit in
+the last place short of the fixture's 1.3; every other node lands exactly. A Task edit
+(§1): select RS-050 in the model tree; **Task**; **Start task from current selection**;
+**Property to edit** X position; value 1.3; **Add**; Apply. Then **Cancel** and
+**Properties**, so that step joint's **New component** shows.
 
-**Row 5 lands one unit in the last place short.** The sheet adds in binary64
-(`runSheetModel.ts:696-700`, §6.2 of the design): 1.15 + 0.15 = 1.2999999999999998, not
-the fixture's 1.3. Every other node lands exactly. After the batch applies, select RS-050,
-**Start task from current selection**, **Property to edit** = X position, value 1.3,
-**Add**, Apply (`PropertyInspector.tsx:474-560, 1700-1709`). (0.75 min)
+### Step joint
 
-### 3.5 Bend SIFs (in §3.4's rows)
+Select the project. Inspector, **New component**: Kind expansion_joint; **New component node** RS-190;
+**New component realized pipe** (the replaced span) RS-P180; ID `component:RS-EJ1`; label `Expansion joint EJ1 (tied)`.
+Then:
 
-The person's entries (spec §11.3) are cells of §3.4's `B` rows: **In-plane SIF i_ip** and
-**Out-of-plane SIF i_op**, beside k source (`model-tree/runSheet/runSheetView.ts`; DEL-07-02
-`Work/run-sheet-entry.md` §1.2). Rows 8 and 10 (RS-B1, RS-B2) take 2.1 / 1.8, and row 25
-(RS-B3) 2.3 / 1.9. Their source is the row's k source ⟨S5⟩: the fixture's
-`modifiers.source_reference` is ⟨S5⟩ for k and SIFs alike, and the sheet has no second source
-cell. The sheet's batch realizes each pair with one `bend_realization` right after that bend's
-insertion (`runSheetBatch.ts`), so the SIFs apply with §3.4's batch after its validation, as
-one Undo: no component selection, form or separate cycle. The inspector's "Bend realization"
-(`features/bend-authoring/BendAuthoringForms.tsx`) remains an alternative with the same values
-and checks. `runSheet/referenceBendSifs.test.tsx` enters these rows through the grid and
-compares the bend records with the fixture; it is not a timing measurement.
+- Connector axes (global) `0 -1 0; 1 0 0; 0 0 1`; End i node axes (global) and End j node
+  axes (global) `1 0 0; 0 1 0; 0 0 1`; End i offset (local) and End j offset (local)
+  `0 0 0`, Offset unit m.
+- Connector reference state stress_free; Reference translation q_ref `0 0 0` m; Reference
+  rotation q_ref `0 0 0` rad; Installed reference temperature 20 degC.
+- Translation scale 1 m; Work matrix upper triangle (N\*m)
+  `150000 0 0 0 0 0 400000 0 0 0 0 400000 0 0 0 500000 0 0 1500 0 1500`; Installed geometry
+  (calibration) `authored model geometry`.
+- Connector hardware explicit_axial_rods_v1; **Add tie rod** twice: Rod id
+  `rod:RS-EJ1-RYP` with both offsets `0 0.2 0`, and `rod:RS-EJ1-RYN` with both offsets
+  `0 -0.2 0`; for each, Offset unit m, Rod stiffness 1.2e8 N/m, Reference extension 0 m,
+  **Rod source reference** ⟨S5⟩.
+- Connector pressure model constant_effective_area_reference_v1; Joint effective area
+  0.049 m^2; Connector joint pressure basis internal_differential_zero_external_v1; **Joint
+  pressure area source reference** ⟨S5⟩.
+- **Stiffness source reference** ⟨S5⟩; **Measurement restraints** `invented; no measurement`;
+  **Basis transform reference** `none`; **Validity statement** `invented test object; no
+  applicability claim`; **New component provenance** ⟨P⟩.
 
-### 3.6 Remaining component forms (9.75 min)
+Queue, Apply.
 
-Inspector, **New component** (`PropertyInspector.tsx:912-1020`; fields `features/component-creation/RigidDraftFields.tsx:11-32`,
-`ConnectorDraftFields.tsx:36-73`; the tee's at `PropertyInspector.tsx:948-969`). **Queue ⟨kind⟩**, Apply.
+### Step tee
 
-1. **Expansion joint RS-EJ1** (6 min). ID `component:RS-EJ1`; Label `Expansion joint EJ1
-   (tied)`; Kind expansion_joint; node RS-190; realized pipe (the replaced span) RS-P180;
-   Connector axes (global) `0 -1 0; 1 0 0; 0 0 1`; End i and End j node axes `1 0 0; 0 1 0;
-   0 0 1`; End i and End j offset `0 0 0`, unit m; Reference state stress_free; q_ref
-   translation `0 0 0` m and rotation `0 0 0` rad; Installed reference temperature 20 degC;
-   Translation scale 1 m; Work matrix upper triangle
-   `150000 0 0 0 0 0 400000 0 0 0 0 400000 0 0 0 500000 0 0 1500 0 1500`; Installed
-   geometry `authored model geometry`; Hardware explicit_axial_rods_v1 with two tie rods,
-   `rod:RS-EJ1-RYP` at offsets `0 0.2 0` and `rod:RS-EJ1-RYN` at `0 -0.2 0` (both ends,
-   unit m), stiffness 1.2e8 N/m, reference extension 0 m, source ⟨S5⟩; Pressure model
-   constant_effective_area_reference_v1, effective area 0.049 m^2, basis
-   internal_differential_zero_external_v1, source ⟨S5⟩; Stiffness source reference ⟨S5⟩;
-   Measurement restraints `invented; no measurement`; Basis transform reference `none`;
-   Validity statement `invented test object; no applicability claim`; Provenance ⟨P⟩.
-2. **Tee RS-T1** (3.75 min), after the run sheet, which makes RS-130 join RS-P120, RS-P130
-   and RS-P210.
-   1. **New component**: ID `component:RS-T1`; Label `Tee T1`; Kind tee; **New component
-      node** RS-130; **New tee header pipe** RS-P120; **New tee branch pipe** RS-P210
-      (`PropertyInspector.tsx:947-951`); **Connection angle** 90 with **Angle unit** deg
-      (prefilled rad); **Size unit** mm (prefilled m); **Run size** 170 and **Header size** 270; **Connection type**
-      `invented unreinforced tee`; **Reinforcement reference** `invented: no reinforcement`;
-      Geometry source ⟨S5⟩; Provenance ⟨P⟩. **Queue tee**, Apply. The form requires the four
-      descriptive members before it queues (`component-creation/componentIntent.ts:380-392`),
-      and the applier refuses a tee without them (`OP-CREATE-TEE-GEOMETRY-INVALID`,
-      `core/model_operations/operation_applier/src/lib.rs:3387-3446`); spec §5 supplies them.
-      The created tee has no `modifiers` and no `mechanics_interface` (`lib.rs:2987-3006`),
-      which the solver reads as mechanics_geometry_only
-      (`core/product_physics/src/preview_physics.rs:307-313`), as for the fixture's record.
-   2. The person's SIFs (spec §11.3): select `component:RS-T1`, **Start task from current
-      selection**, **Property to edit** = Header SIF user value, value 2.4, **Add**, Apply;
-      again with Branch SIF user value, 2.0 (`PropertyInspector.tsx:474-560, 1981-1998`).
-   3. The person's modifier source (G11): select `component:RS-T1`, **Start task from
-      current selection**, **Property to edit** = Modifier source; enter ⟨S5⟩, **Add**,
-      then Apply. This writes the existing `modifiers.source_reference` through the
-      guarded user operation. No source is suggested or copied from geometry provenance;
-      the missing field shows `TBD` until the person enters it. Agent/import refusals remain.
+1. Inspector, **New component**: Kind tee; **New component node** RS-130; **New tee header pipe** RS-P120;
+   **New tee branch pipe** RS-P210; ID `component:RS-T1`; label `Tee T1`; Connection angle 90 with its
+   angle unit deg; length unit mm; Run size 170; Header size 270; Connection type
+   `invented unreinforced tee`; Reinforcement reference `invented: no reinforcement`;
+   **New component geometry source** ⟨S5⟩; **New component provenance** ⟨P⟩. Queue, Apply.
+   The form needs the four descriptive members before it queues; EX reads none of them.
+2. Three Task edits (§1) of `component:RS-T1`, each its own Apply and each followed by
+   **Cancel** and **Properties**: **Property to edit** Header SIF user value, 2.4; then
+   Branch SIF user value, 2.0; then **Modifier source** ⟨S5⟩. The last **Cancel** and
+   **Properties** let step spring's form show.
 
+### Step spring
 
-### 3.7 Variable spring RS-VS1 (1.75 min)
+Select node RS-080. Inspector, **New support configuration** (the **Support
+configuration** form, **Create support**): **Support ID** `support:RS-VS1`; **Support
+label** `Variable spring VS1 (user stiffness)`; **Support node** shows RS-080; **Support
+family** variable_spring_hanger; tick no restraint; **Support provenance** ⟨P⟩. Tick
+**Include hanger data**: **Hanger type** variable_spring_hanger; **Add hanger stiffness**,
+**Hanger stiffness DOF** UZ, quantity 180000 N/m; Hanger installed load 8000 N, cold load
+8000 N, hot load 7400 N, travel range 50 mm; **Hanger source reference** ⟨S5⟩; **Hanger
+mechanics consumption** linear_spring_primitive_user_stiffness. **Queue support creation**,
+Apply.
 
-The other ten supports are run-sheet rows (§3.4). RS-VS1 is a variable spring hanger with
-hanger data, which the sheet's codes and cells cannot carry, so it is entered in the
-inspector's support form: select RS-080, "New support configuration"
-(`PropertyInspector.tsx:607-611`; `features/support-configuration/SupportConfigurationForm.tsx:179-262`):
-**Support ID** `support:RS-VS1`; **Support label** `Variable spring VS1 (user stiffness)`;
-**Support node** RS-080; **Support family** Variable spring hanger; no **Restrain**
-checkbox; **Support provenance** ⟨P⟩. **Include hanger data** (`SupportConfigurationForm.tsx:223-255`):
-Hanger type variable_spring_hanger; **Add hanger stiffness**, DOF UZ, 180000 N/m; Hanger
-installed load 8000 N; cold load 8000 N; hot load 7400 N; travel range 50 mm; source
-reference ⟨S5⟩; mechanics consumption `linear_spring_primitive_user_stiffness`. **Queue
-support creation** (`:323`), Apply. The bends are already realized (§3.4), so this support
-cannot block them.
+### Step reference
 
-### 3.8 Reference configuration (1.5 min)
+*Loads* stage, *Load Cases* tab, **Reference configurations**: **Add reference configuration**; ID
+`reference:RS-INSTALLED`; label `Installed reference (20 degC)`; geometry
+authored_model_geometry. **Add member to reference configuration 1**: pipe RS-P010, basis
+temperature_reference, installation temperature 20 degC, fit none, **Member provenance** ⟨P⟩. Under
+**Fill reference configuration 1 members from a template**, template the RS-P010 row, targets
+every pipe without one, **Fill reference configuration 1 members**: the other 25 members, RS-P180 included.
+**Configuration provenance** ⟨P⟩. **Queue reference configurations**, Apply.
 
-*Load Cases* section, "Reference configurations" (`features/load-cases/LoadReferenceStateInputs.tsx:38-85`):
-**Add reference configuration**; ID `reference:RS-INSTALLED`; label `Installed reference
-(20 degC)`; geometry authored_model_geometry; provenance ⟨P⟩. One member typed for RS-P010:
-**Add member**, pipe, basis temperature_reference, installation temperature 20 degC, fit
-none, provenance ⟨P⟩. Then "Fill reference configuration 1 members from a template"
-(`LoadReferenceStateInputs.tsx:79`; `BulkFillControls.tsx:64-82`, since #38): template the
-RS-P010 row, targets every pipe without one, **Fill …**: the other 25 members, RS-P180
-included. **Queue reference configurations**, Apply.
+### Step weight
 
-### 3.9 Self-weight, which creates the cases (6 min)
-
-The self-weight generator creates its case and refuses an existing case id
-(`core/product_physics/src/self_weight.rs:205-222, 446`), so RS-SUS, RS-OPE and RS-SAM are
-created here. It reads the finished geometry, sections and components, so it follows
-§3.3–§3.7; the tee carries no weight. *Review changes* › **Self weight** (`App.tsx:548, 591-593`;
-`features/self-weight-authoring/SelfWeightPlanPanel.tsx:87-141`): **Self-weight action**
-Create a self-weight case; **Gravity value** -9.80665; **Gravity unit** m/s^2; **Gravity
-direction** Global Z; **Self-weight pipes**: every pipe except RS-P180 (25). Per case:
+*Model* stage, *Review changes* tab, tool tab **Self weight**, **Plan self-weight loads**, once per case,
+with **Self-weight action** Create a self-weight case, as it starts: **Self-weight case ID**;
+**Self-weight case label**; **Self-weight provenance**. For the first case also enter
+**Gravity value** -9.80665, **Gravity unit** m/s^2 and **Gravity direction** GLOBAL Z, and
+choose the 25 **Self-weight pipes**, every pipe except RS-P180; the panel keeps the gravity
+and the pipes for the next two cases. **Generate
+self-weight plan**, **Queue complete self-weight plan**, then Validate batch and Apply
+entire batch.
 
 | Self-weight case ID | Self-weight case label | Self-weight provenance |
 |---|---|---|
-| `load:RS-SUS` | RS-SUS sustained: W + P (operating pressure) | ⟨P⟩`; W of RS-SUS: self-weight of every member except RS-P180, component weights at their centres of gravity (spec §8.1)` |
-| `load:RS-OPE` | RS-OPE operating: W + P + T (210 degC, modulus at 210 degC) | as above, with RS-OPE |
-| `load:RS-SAM` | RS-SAM seismic anchor movement: W + P + anchor RS-C moved UX +15 mm, UY -10 mm | as above, with RS-SAM |
+| `load:RS-SUS` | `RS-SUS sustained: W + P (operating pressure)` | ⟨P⟩`; W of RS-SUS: self-weight of every member except RS-P180, component weights at their centres of gravity (spec §8.1)` |
+| `load:RS-OPE` | `RS-OPE operating: W + P + T (210 degC, modulus at 210 degC)` | ⟨P⟩`; W of RS-OPE: self-weight of every member except RS-P180, component weights at their centres of gravity (spec §8.1)` |
+| `load:RS-SAM` | `RS-SAM seismic anchor movement: W + P + anchor RS-C moved UX +15 mm, UY -10 mm` | ⟨P⟩`; W of RS-SAM: self-weight of every member except RS-P180, component weights at their centres of gravity (spec §8.1)` |
 
-**Generate self-weight plan**, **Queue complete self-weight plan**, then Validate batch and
-Apply entire batch. Each case gets the fixture's 28 primitives (22 pipe line loads, a force
-and a moment for each of RS-F1, RS-V1, RS-F2).
+Each case gets the fixture's 28 primitives: 22 line loads, and a force and a moment for each
+of RS-F1, RS-V1 and RS-F2.
 
-### 3.10 Pressure regions (5 min)
+### Step regions
 
-*Load Cases*, select the case in **Load cases** (`LoadCaseManagerPanel.tsx:841-866`), then
-"Pressure regions — ⟨case⟩" (`PressureAuthoringPanel.tsx:135-184`). Five regions per case,
-ids `region:⟨case⟩-RG-1` and so on (for example `region:RS-SUS-RG-1`). Each: **Add pressure
-region**; member pipes; pressure basis internal_differential_zero_external_v1; pressure
-1600 kPa; two ordered terminals, each `transfers_to_wall` with provenance ⟨P⟩; region
-provenance ⟨P⟩. **Queue pressure regions**, Apply. The five regions are typed for RS-SUS
-only. For RS-OPE and RS-SAM, "Copy pressure regions from another case"
-(`PressureAuthoringPanel.tsx:174`; `BulkFillControls.tsx:111-122`, since #38) copies RS-SUS's
-applied regions and re-derives their ids (`region:RS-SUS-RG-1` → `region:RS-OPE-RG-1`);
-Queue and Apply per case.
+*Loads* stage, *Load Cases* tab: select RS-SUS in **Load cases**; panel **Pressure regions — RS-SUS …**. For
+each region: **Add pressure region**; Region ID; member pipes (and, for RG-4, member
+connectors); pressure basis internal_differential_zero_external_v1; pressure 1600 kPa; two
+ordered terminals, each with node, closure transfer transfers_to_wall and **Terminal
+provenance** ⟨P⟩; **Region provenance** ⟨P⟩. **Queue pressure regions**, Apply.
 
-| Region | Member pipes | Member connectors | Terminals |
+| Region ID | Member pipes | Member connectors | Terminal 1, terminal 2 |
 |---|---|---|---|
-| RG-1 | RS-P010 … RS-P120 (14, arcs RS-P065, RS-P085 included) | | RS-010, RS-130 |
-| RG-2 | RS-P210, RS-P220, RS-P225, RS-P230 | | RS-130, RS-230 |
-| RG-3 | RS-P130, RS-P140 | | RS-130, RS-150 |
-| RG-R | RS-P150 | | RS-150, RS-160 |
-| RG-4 | RS-P160, RS-P170, RS-P190, RS-P200 | `component:RS-EJ1` | RS-160, RS-210 |
+| `region:RS-SUS-RG-1` | RS-P010, RS-P020, RS-P030, RS-P040, RS-P050, RS-P060, RS-P065, RS-P070, RS-P080, RS-P085, RS-P090, RS-P100, RS-P110, RS-P120 | | RS-010, RS-130 |
+| `region:RS-SUS-RG-2` | RS-P210, RS-P220, RS-P225, RS-P230 | | RS-130, RS-230 |
+| `region:RS-SUS-RG-3` | RS-P130, RS-P140 | | RS-130, RS-150 |
+| `region:RS-SUS-RG-R` | RS-P150 | | RS-150, RS-160 |
+| `region:RS-SUS-RG-4` | RS-P160, RS-P170, RS-P190, RS-P200 | `component:RS-EJ1` | RS-160, RS-210 |
 
-### 3.11 Analysis states (5 min)
+Then select RS-OPE: **Copy pressure regions from case** RS-SUS, **Replace this draft's
+pressure regions with the copy**, which re-derives the ids (`region:RS-OPE-RG-1`,
+`region:RS-OPE-RG-2`, `region:RS-OPE-RG-3`, `region:RS-OPE-RG-R`, `region:RS-OPE-RG-4`);
+**Queue pressure regions**, Apply. The same for RS-SAM (`region:RS-SAM-RG-1`,
+`region:RS-SAM-RG-2`, `region:RS-SAM-RG-3`, `region:RS-SAM-RG-R`, `region:RS-SAM-RG-4`).
 
-Same section and case, "Analysis state — ⟨case⟩" (`LoadReferenceStateInputs.tsx:87-114`):
-contract `openpipestress.load_reference_state/1.0.0`; reference configuration
-`reference:RS-INSTALLED`; history independent_equilibrium; provenance ⟨P⟩. Then three lists
-(`:125-228`), entered with the fills of #38: one row typed and the rest filled
-("Fill element states from a template", "Fill support states from a template", targets
-every pipe or support without one; `:147, :193`), and "Add every primitive of this case" at
-factor 1 for the load sources (`:228`; `BulkFillControls.tsx:102`). RS-SAM starts from
-"Copy analysis state from another case" (RS-SUS, `:107`): its RS-SUS load sources are left
-out and reported, then it adds its own primitives and RS-C's two motions. RS-P180's row is
-edited after each fill (its provenance; in RS-OPE also its temperature and thermal state). A
-fill or copy carries only the members a row shows. The rows are:
+### Step states
 
-- **Element states**, 26 per case, one per pipe in model order:
-  - RS-SUS and RS-SAM: material selection exact_point, material `material:RS-M1`, point
-    `point:RS-M1-T020`; thermal state unchanged_reference, provenance ⟨P⟩`; no temperature
-    in this case`, except RS-P180, whose provenance is ⟨P⟩`; replaced span RS-P180: zero
-    eigenstrain (spec §5.1)` in every case.
-  - RS-OPE: operating temperature 210 degC; material selection temperature_interpolation,
-    `material:RS-M1`, selection temperature 210 degC, piecewise_linear, forbidden; thermal
-    state free_length_state, expansion law `law:RS-M1-SECANT`. RS-P180 has no operating
-    temperature and keeps unchanged_reference with provenance ⟨P⟩`; replaced span RS-P180:
-    zero eigenstrain (spec §5.1)`; its material selection is as the others.
-- **Support states**, 11 per case, one per support, each active_model_device. In RS-SAM,
-  `support:RS-C` takes two boundary motions with meaning absolute_reference_displacement:
-  UX 15 mm and UY -10 mm.
-- **Load sources**, 28 per case: each of the case's self-weight primitives, factor 1.
+*Loads* stage, *Load Cases* tab, select the case; panel **Analysis state — ⟨case⟩**.
+Contract `openpipestress.load_reference_state/1.0.0`; reference configuration
+`reference:RS-INSTALLED`; history independent_equilibrium; **Analysis state provenance** ⟨P⟩.
+Each list is entered as one typed row and a fill: **Add element state** creates element
+state 1 and **Add support state** creates support state 1; after typing the row, **Fill
+element states from a template** or **Fill support states from a template**, with the typed
+row as template and targets every pipe or support without one. Then **Factor for every
+primitive (dimensionless)** 1 and **Add every primitive of this case**. **Queue analysis
+state**, Apply, per case.
 
-**Queue analysis state**, Apply, per case.
+- **RS-SUS.** **Add element state**. Element state 1: pipe RS-P010; material selection exact_point; material
+  `material:RS-M1`; material point `point:RS-M1-T020`; thermal state unchanged_reference;
+  **Thermal provenance** ⟨P⟩`; no temperature in this case`. Fill. Then edit RS-P180's
+  **Thermal provenance** to ⟨P⟩`; replaced span RS-P180: zero eigenstrain (spec §5.1)`.
+  **Add support state**. Support state 1: support RS-A, participation active_model_device;
+  fill. Add every primitive.
+- **RS-OPE.** The scripted journey
+  ([`referenceEntryJourney.session.test.tsx`](../../apps/desktop/src/features/workspace/referenceEntryJourney.session.test.tsx))
+  does not yet take this route, and it still re-enters values the forms keep.
+  **Copy analysis state from case** RS-SUS, **Replace this draft's analysis state
+  with the copy**: the copy keeps the contract, reference configuration, support states,
+  history and provenance, which are RS-OPE's too, and leaves out RS-SUS's load sources.
+  **Mark element_states absent**, then **Add element state**. Element state 1: pipe RS-P010; operating temperature 210 degC; material
+  selection temperature_interpolation; material `material:RS-M1`; selection temperature
+  210 degC; interpolation piecewise_linear; extrapolation forbidden; thermal state
+  free_length_state; expansion law `law:RS-M1-SECANT`. Fill. Then on RS-P180's row clear the
+  operating temperature (value and unit), set thermal state unchanged_reference and **Thermal
+  provenance** ⟨P⟩`; replaced span RS-P180: zero eigenstrain (spec §5.1)`; its material
+  selection stays as filled. Factor 1, **Add every primitive of this case**.
+- **RS-SAM.** **Copy analysis state from case** RS-SUS, **Replace this draft's analysis state
+  with the copy**: the copied RS-SUS load sources name primitives RS-SAM does not hold, and
+  the panel says so. Factor 1, **Add every primitive of this case**. On RS-C's support state,
+  **Add … boundary motion** twice: UX 15 mm and UY -10 mm, each with meaning
+  absolute_reference_displacement.
 
-### 3.12 Combinations (1.5 min)
+### Step combinations
 
-*Load Cases*, "Create combination" (`LoadCaseManagerPanel.tsx:724-830`): **Basis**
-result_state_subtraction; provenance ⟨P⟩; any rationale; **Queue combo**, Apply.
+*Loads* stage, *Load Cases* tab, **Create combination**, twice. For the first: ID; Label; Basis result_state_subtraction;
+leave the **Operating minus sustained difference** template unticked (its
+`difference_basis` is refused on a document with a pressure contract,
+`LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED`); **Subtraction minuend** and
+**Subtraction subtrahend**; **Provenance** ⟨P⟩. Leave Rationale as the form shows it; the
+record does not keep it. **Queue combo**, Apply. For the second, the form keeps the basis, the
+subtrahend, the provenance and the rationale: enter ID, Label and **Subtraction minuend**.
+**Queue combo**, Apply.
 
 | ID | Label | Minuend | Subtrahend |
 |---|---|---|---|
-| `combination:RS-EXP` | RS-EXP expansion: RS-OPE - RS-SUS | `load:RS-OPE` | `load:RS-SUS` |
-| `combination:RS-dSAM` | RS-dSAM anchor movement term: RS-SAM - RS-SUS | `load:RS-SAM` | `load:RS-SUS` |
+| `combination:RS-EXP` | `RS-EXP expansion: RS-OPE - RS-SUS` | `load:RS-OPE` | `load:RS-SUS` |
+| `combination:RS-dSAM` | `RS-dSAM anchor movement term: RS-SAM - RS-SUS` | `load:RS-SAM` | `load:RS-SUS` |
 
-### 3.13 Solve and key results (2 min)
+### Step solve
 
-*Analyze* section, **Run mechanics preview** (`features/solve/SolvePanel.tsx:130-133`); the
-resolved load/reference states list beside it (`solve/LoadReferenceStatesBlock.tsx:45`).
-Under *Results*: reactions at RS-A, RS-B and RS-C and the spring load (KR-01, KR-03) in
-**Support Load Summary** (`results/SupportLoadSummaryPanel.tsx:133-134`); largest translation
-(KR-02) in **Displacement Extremes** (`results/DisplacementExtremesPanel.tsx:155-156`); the
-**Key results** panel's "Anchors and equipment connections" group (`results/KeyResultsPanel.tsx:171, 223-224`).
-The solve time on the desktop is not measured here.
+*Analyze* page, **Run mechanics preview**. The timed entry's clock stops when this first
+solve of every static load case and combination the sheet enters completes with no blocking
+diagnostic (DEL-07-02 REQ-019). On the *Results* stage, *Results* tab: reactions at RS-A, RS-B and RS-C
+and the spring load (KR-01, KR-03) in **Support Load Summary**; the largest translation
+(KR-02) in **Displacement Extremes**; and the **Key results** panel's **Anchors and equipment
+connections**. The fixture's three cases solve on EX in the headless runner with nothing
+refused ([`tests/test_reference_system_fixture.py`](../../tests/test_reference_system_fixture.py));
+no maintained test solves the model entered through the desktop.
 
-### 3.14 What still differs from the fixture
+## 4. Differences from the fixture
 
-The route above gives the fixture's ids, numbers, units and tee modifier source.
-Text and form differences remain, none in criterion 6's identity set or a numerical value:
+The steps give the fixture's identities, numbers, units, provenance and sources. These
+differences remain; none is in criterion 6's identity set or a numerical value:
 
-- the project's id, name and description (`projectService.ts:440-455`);
-- labels the sheet derives: pipe labels (`runSheetModel.ts:757, 885`), and a bend's
-  "Bend start", "Bend end", "Bend arc" and "Bend" (`runSheetBatch.ts:23, 178-186`), which no
-  cell changes, against the fixture's `RS-070 Bend B1 near tangent`, `Bend B1` and so on.
-  Node labels can be typed in the Label cell (§3.4) or edited afterwards
-  (`PropertyInspector.tsx:1700`). Support labels now match: the ten in the sheet are typed in
-  Support label (§3.4), and RS-VS1's in its form (§3.7);
-- the connector's stiffness provenance, which the form fills with the connector's own
-  (`componentIntent.ts:206-210, 231`);
-- `terms: []` on each subtraction combination (`operation_applier/src/lib.rs:6179-6187`);
-  the fixture omits it, and the applier treats an empty list as no terms (`lib.rs:9045-9048`);
-- each self-weight primitive's provenance records the hash of the model it was generated
-  from, which differs from the fixture generator's capture model;
-- array order: the bend operation appends its nodes, arc and component
-  (`bend_authoring.rs:699-701, 710, 729`), and the sheet creates supports in row order with
-  RS-VS1 after them, not in the fixture's order, so records are compared by id.
+- **Project.** The project's id, name and description are the blank's
+  (`project:blank-local-…`, `Blank Local Load/reference Model …`), not `project:RS` and the
+  fixture's name and description.
+- **Blank document members.** The entered document keeps the blank's `analysis_status`
+  (`MODEL_INCOMPLETE`, `RULE_INPUTS_INCOMPLETE`, `NOT_PROVIDED`; the fixture's is
+  `ready_for_preview_diagnostics`, `not_performed_user_rule_inputs_missing`,
+  `not_provided`), its `data_boundary` (absent from the fixture) and its `diagnostics`, the
+  one `BLANK_PROJECT_AUTHORING_TARGET` entry naming the project (absent from the fixture).
+- **Derived pipe labels.** The sheet labels each straight pipe with its id's token
+  (`RS-P020`); the fixture adds what the member carries, on RS-P020, RS-P030, RS-P040,
+  RS-P120, RS-P130, RS-P150, RS-P170, RS-P180, RS-P190 and RS-P210 (for example
+  `RS-P020 (Flange F1)`).
+- **Derived bend labels.** Bend realization labels the tangent nodes `Bend start` and
+  `Bend end`, each arc `Bend arc` and each bend component `Bend`; the fixture's are, for
+  example, `RS-070 Bend B1 near tangent`, `RS-P065 (Bend B1 (arc))` and `Bend B1`. No cell
+  sets them.
+- **Joint stiffness measurement restraints.** The form writes RS-EJ1's stiffness provenance
+  from the connector's own references, so its measurement restraints read
+  `invented; no measurement`; the fixture's read `invented diagonal work matrix; no measurement`.
+- **Joint stiffness basis transform reference.** For the same reason its basis transform
+  reference reads `none`; the fixture's reads `none (authored directly in the connector basis)`.
+- **Combination terms.** Each subtraction combination carries `terms: []`, which the fixture
+  omits; an empty list means no terms.
+- **Self-weight hash.** Each self-weight primitive's provenance records the hash of the model
+  it was generated from, which is not the fixture generator's capture model.
+- **Order.** Records are created in step order, so collections and per-member lists are in a
+  different order from the fixture's; records are compared by id.
 
-## 4. Pending families
+## 5. Pending families
 
-When a spec §10 row lands, the generator adds its entities and this sheet gains a step. The
-run-sheet rows do not change, except row 13's support when RS-FR1V becomes one_way.
+When a family of the specification's §10 ledger enters the fixture, this sheet gains the
+step or rows that enter it, at the place below, and §6 is recounted. The run-sheet rows of
+step rows do not change, except row 13's support when RS-FR1V becomes one-way.
 
-| Row (spec §10) | Lane | Step it adds |
-|---|---|---|
-| Eccentric reducer RS-R1 | RT-A3 increment 2 | After §3.6: reducer on RS-P150 at RS-160, offset (0, 0, +25) mm, 300 N at the body midpoint, scale 2.0; before §3.9 |
-| Constant effort RS-CE1 | RT-A3 increment 3 | §3.7: RS-100, UZ, constant load 9.0 kN with its travel or movement limit and source |
-| Lift-off, friction, gap | RT-A3 increments 4–5 | §3.7: RS-LO1 (RS-110, UZ), RS-FR1 (RS-120, UY, μ 0.30, normal from RS-FR1V UZ), RS-G1 (RS-140, UX, 5 mm) |
-| RS-FR1V one_way | RT-A3, R-4 S7 | RS-FR1V becomes nonlinear one_way UZ, which code V cannot carry: it leaves row 13 of §3.4 for the support form of §3.7 |
-| `difference_basis` on RS-EXP | RT-A5 slice 1b | §3.12: the basis field |
-| Wind, static seismic | #1678 | Cases RS-WIN, RS-EQX/Y/Z and their difference combinations |
-| SRSS, absolute sum | RT-A4 | §3.12: RS-EQ-SRSS, RS-EQ-ABS, RS-OCC-SRSS, RS-OCC-ABS |
-| Hydrotest RS-HYD | RT-A6 | A case with test contents, test pressure and held supports |
-| Condition set | RT-G5 | One condition set; removes per-case temperature entries from §3.11 |
-| Modal | RT-A7 | A modal request on RS-OPE to 60 Hz |
-| Response spectrum RS-SP1 | RT-A8 | The spectrum and its request |
-| Hanger sizing | RT-A11 | A sizing request for RS-VS1 and RS-CE1 |
-| Snubber RS-SN1 | RT-A8 | §3.7: RS-110, UX, rigid |
+| Ledger family | Where it enters |
+|---|---|
+| Eccentric reducer RS-R1 | A step after step rows and before step weight: reducer on RS-P150 at RS-160, offset (0, 0, +25) mm, 300 N at the body midpoint, stiffness scale 2.0 |
+| Constant-effort support RS-CE1 | A step beside step spring: RS-100, UZ, constant load 9.0 kN |
+| Lift-off, friction and gap | A step beside step spring: RS-LO1 (RS-110, UZ), RS-FR1 (RS-120, UY, μ 0.30, normal from RS-FR1V UZ), RS-G1 (RS-140, UX, 5 mm) |
+| RS-FR1V one-way | RS-FR1V leaves row 13 for the support form, as nonlinear one_way UZ |
+| `difference_basis` on RS-EXP | Step combinations: the basis |
+| Wind and static seismic | Cases RS-WIN, RS-EQX, RS-EQY, RS-EQZ and their difference combinations |
+| SRSS and absolute sum | Step combinations: RS-EQ-SRSS, RS-EQ-ABS, RS-OCC-SRSS, RS-OCC-ABS |
+| Hydrotest RS-HYD | A case with test contents, test pressure and held supports |
+| Operating condition set | A condition set, assigned by the Condition set column of step rows; it replaces the per-member temperatures of step states |
+| Modal | A modal request on RS-OPE to 60 Hz, after step solve |
+| Response spectrum RS-SP1 | The spectrum and its request, after step solve |
+| Hanger sizing | A sizing request for RS-VS1 and RS-CE1, after step solve |
+| Snubber RS-SN1 | A step beside step spring: RS-110, UX, rigid |
 
-## 5. Counts and estimate
+## 6. Counts and estimate
 
-An entry is one typed value, selection or checkbox; buttons that add a row (**Add …**) and
-queue or apply buttons are not entries; a quantity whose unit is not prefilled is
-two. Times are estimates of a practised person pasting ⟨P⟩ and ⟨S5⟩, not measurements.
-The tee's row uses the rates of its neighbours: its form entries at the rigid-component
-form's pre-G6 rate (about 5.5 s per entry: its former 10 minutes less the six end-size edits, over
-its 60 form entries) and each SIF/source edit at the RS-050 correction's 0.75 minutes. The rows #41
-changed use the same two rates, rounded to the quarter minute: the run sheet at its own rate
-before #41, 8 minutes over 98 entries (about 4.9 s per entry), and the bend SIFs (§3.5) and
-RS-VS1 (§3.7) at the form rate.
+An **entry** is one typed or pasted value, one choice from a list or picker, or one checkbox
+or toggle; a unit is an entry where the person sets it. A **press** is one press of a button
+or tab the steps name other than queue, validate and apply, and each key the steps name for
+a purpose other than committing an entry: Add …, Fill …, Replace …, Mark …, Generate …, Enter
+in a Support cell to add a row, F2 to open a grid cell's editor, Start task, Cancel, the inspector's Task and Properties tabs, Blank
+load/reference model, Create and Run mechanics preview. A **cycle** is one Apply or one Apply
+entire batch. Moving between stages and pages is not counted.
 
-| Step | Entries | Queue/apply cycles | Estimate (min) |
-|---|---|---|---|
-| 3.1 Pressure profile | 2 | 1 | 1 |
-| 3.2 Material | 63 | 3 | 6 |
-| 3.3 Sections | 21 | 3 | 3 |
-| 3.4 Run sheet: 26 rows (189 cells, including 60 component entries and six bend SIFs) and header (14) | 203 | 1 | 16.5 |
-| 3.4 RS-050 correction | 3 | 1 | 0.75 |
-| 3.5 Bend SIFs (now six cells in §3.4) | 0 | 0 | 0 |
-| 3.6 Expansion joint | 53 | 1 | 6 |
-| 3.6 Tee RS-T1 (15 form entries), the person's two SIFs and source | 24 | 4 | 3.75 |
-| 3.7 Variable spring RS-VS1 | 20 | 1 | 1.75 |
-| 3.8 Reference configuration | 14 | 1 | 1.5 |
-| 3.9 Self-weight (creates the three cases) | 93 | 3 | 6.25 |
-| 3.10 Pressure regions | 86 | 3 | 5 |
-| 3.11 Analysis states | 68 | 3 | 5 |
-| 3.12 Combinations | 14 | 2 | 1.5 |
-| 3.13 Solve and results | 1 | — | 2 |
-| **Total** | **665** | **27** | **about 60 (60)** |
+The estimate rates every grid cell at about 4.9 s (8 minutes per 98 cells) and every form
+entry and every press at about 5.5 s, the rates of the earlier estimate of this sheet (a
+practised person pasting ⟨P⟩ and ⟨S5⟩). Each step's time is rounded to the nearest quarter
+minute, halves up. Step solve's press is entry; the solve itself is given a waiting allowance
+of 2 minutes, for the solve to run and its key results to show, which is waiting, not entry.
+The estimate does not count moving between stages and pages, the 27 cycles or waiting for a
+batch's validation. It is not a measurement. A timed entry records the entry time and the
+solve waiting time separately; their sum is compared with the threshold.
 
-Historical #41 counts (before the component rows below):
+| Step | Entries | Presses | Cycles | Arithmetic | Estimate (min) |
+|---|---|---|---|---|---|
+| units | 0 | 2 | 0 | 2 × 5.5 s = 11 s | 0.25 |
+| profile | 2 | 0 | 1 | 2 × 5.5 s = 11 s | 0.25 |
+| material | 59 | 5 | 3 | 64 × 5.5 s = 352 s | 5.75 |
+| sections | 19 | 0 | 3 | 19 × 5.5 s = 104.5 s | 1.75 |
+| rows | 224 | 40 | 1 | 224 × 8/98 min = 18.29 min; 40 × 5.5 s = 220 s | 22 |
+| rs050 | 3 | 4 | 1 | 7 × 5.5 s = 38.5 s | 0.75 |
+| joint | 52 | 2 | 1 | 54 × 5.5 s = 297 s | 5 |
+| tee | 24 | 12 | 4 | 36 × 5.5 s = 198 s | 3.25 |
+| spring | 20 | 1 | 1 | 21 × 5.5 s = 115.5 s | 2 |
+| reference | 12 | 3 | 1 | 15 × 5.5 s = 82.5 s | 1.5 |
+| weight | 37 | 3 | 3 | 40 × 5.5 s = 220 s | 3.75 |
+| regions | 86 | 7 | 3 | 93 × 5.5 s = 511.5 s | 8.5 |
+| states | 50 | 14 | 3 | 64 × 5.5 s = 352 s | 5.75 |
+| combinations | 9 | 0 | 2 | 9 × 5.5 s = 49.5 s | 0.75 |
+| solve | 0 | 1 | 0 | 1 × 5.5 s = 5.5 s entry; 2 min solve waiting | 0 entry + 2 waiting |
+| **Total** | **597** | **94** | **27** | | **about 61.25 entry + 2 waiting = about 63.25** |
 
-- **§3.4, 135 entries.** The header's 13: Source, the two prefixes, Pad numbers to N digits,
-  Pipe number from, the two group toggles and the six column units (the 10 before #41, plus
-  pad, Pipe number from and the Ids and sources toggle). The rows' 122 cells: 46 increments,
-  codes and section cells (the earlier 48, less the dropped `F` row's Kind and Node); 41 for
-  the supports (four cells each for ten supports, Support, Restraints, Support id and Support
-  label, and the `S` row's Kind); 26 for the bends (three `B` codes, two Bend R values, three
-  k, three k sources, twelve bend ids and three geometry sources); and the 9 typed node and
-  pipe ids. At about 4.9 s per entry, 135 × 8/98 = 11.0 minutes. Still one queue/apply cycle:
-  the bends are in the sheet's batch.
-- **§3.5, 9 entries.** Per bend, the component selection and two SIFs. At 5.5 s per entry,
-  9 × 5.5 s = 49.5 s, rounded to 0.75 minutes. One apply per bend, so three cycles.
-- **§3.7, 20 entries.** RS-VS1's 20 of the earlier 98, as reconstructed here: five support fields (id, label, node,
-  family, provenance) and fifteen hanger entries (the checkbox, the type, the stiffness DOF,
-  value and unit, four quantities of value and unit, the source and the mechanics
-  consumption). The other 78 were the ten supports now in the sheet: five fields each, 27
-  restraint checkboxes and V060's "Create a new support". At 5.5 s per entry, 20 × 5.5 s =
-  110 s, rounded to 1.75 minutes. One cycle.
+Two subtotals, both estimates: **entry** about 61.25 minutes (the grid cells, form entries and
+presses, each step rounded), and **solve waiting** 2 minutes (an allowance, not entry). Their
+sum is about 63.25 minutes.
 
-Before G6, the #41 totals were: entries 757 − 98 + 135 − 39 + 9 − 98 + 20 = 686, plus the tee's Size unit entry
-= 687; cycles 51 − 6 + 3 − 11 + 1 = 38; minutes 77.25 − 8 + 11 − 5.5 + 0.75 − 13 +
-1.75 = 64.25, plus 0.25 for the tee = 64.5.
+Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (373 form entries + 94
+presses) × 5.5/60 min = 18.286 + 42.808 = 61.09 minutes, and with the 2 minutes of solve
+waiting the sum is 63.09 minutes.
 
-G6 removes six end-size task edits (24 entries and six cycles), adding six size-unit
-selections in the creation forms. The step estimate is 10 - 6 × 0.75 + 6 × 5.5/60 =
-6.05 minutes, rounded to 6 under the existing quarter-minute convention. Thus 687 - 24
-+ 6 = 669 entries; 38 - 6 = 32 cycles; 64.5 - 10 + 6 = 60.5 minutes. This accounts for
-G6 only; it does not yet count G9 batching. The earlier totals above retain their
-historical basis.
+How the larger counts arise:
 
-The component rows add 61 sheet entries: 57 component fields (19 per component),
-three Kind codes and the Component details toggle. Node and pipe selectors disappear;
-all quantity values, references, sources and provenance remain explicit. Thus §3.4 is
-135 + 61 = 196 entries, or 196 × 8/98 = 16 minutes under the existing sheet rate.
-The 66-entry / three-cycle / six-minute valve/flange form step is removed. Totals:
-669 - 66 + 61 = 664 entries; 32 - 3 = 29 per-intent cycles; 60.5 - 6 + (16 - 11) =
-59.5 minutes. This is about one minute less than G6 alone, not a measured speedup.
-G9 batching still receives no inferred timing credit.
+- **material, 59 entries and 5 presses.** The E/nu form's 10 (ID, label, basis, three
+  quantities with their units, provenance); the material's selection; four temperature points
+  of 10 each (ID, four quantities with their units, provenance); the expansion law's 8. The
+  presses are Add temperature point four times and Add expansion law.
+- **sections, 19.** The project's selection and 6 for each of three sections (Type is
+  preset to pipe).
+- **rows, 224 entries and 40 presses.** The header's 14: Source, the two prefixes, the padding, Pipe number from,
+  three group toggles and six column units. The rows' 210 cells: 57 Component details cells
+  of the valve and flanges (19 each) with their 3 increments and 3 Kind codes; 39 bend
+  cells (13, 12 and 14 on rows 8, 10 and 25, including their increments, codes and corner
+  ids); 40 support cells (four for each of ten supports) and the `S` row's Kind; 21 node
+  labels; and 46 others (increments, section and material cells, section quantities,
+  orientations, the `F` row's two cells and the other typed ids). The 40 presses are Enter
+  in the Support cell of rows 1 to 25, which adds rows 2 to 26, and F2 before each of the 15
+  pasted grid cells (k source and Bend geometry source on three bend rows; Stiffness scale
+  source, Component geometry source and Component provenance on three component rows).
+- **rs050 and tee.** Each Task edit is 3 entries (selection, property, value) and 4 presses
+  (Task, Start task, Cancel, Properties): one edit for rs050 and three for the tee, whose
+  creation form adds 15 entries.
+- **joint, 52 entries and 2 presses.** The project's selection, kind, node and pipe, ID and
+  label; 18 connector, reference and stiffness fields; 9 for each of two tie rods; 10
+  pressure and provenance fields. The presses are Add tie rod twice.
+- **weight, 37 entries and 3 presses.** Case ID, label and provenance per case (9); the
+  gravity value, unit and direction once (3); the 25 pipes, chosen once. Generate self-weight
+  plan per case.
+- **regions, 86 entries and 7 presses.** RS-SUS's selection; 11 per region (ID, basis,
+  pressure value and unit, six terminal fields, provenance) for five regions; 26 picker
+  choices (25 member pipes and the connector); two entries for each copy. The presses are Add
+  pressure region five times and Replace once per copy.
+- **states, 50 entries and 14 presses.** RS-SUS 19: its selection, a typed element row of 6
+  fields, the element fill's two choices, one RS-P180 edit and 9 shared entries (contract,
+  reference, the typed support state's two fields, the support fill's two choices, factor,
+  history, provenance). RS-OPE 20: its selection, the copy's source, 11 element fields, two
+  fill choices, four RS-P180 edits and the factor. RS-SAM 11: its selection, the copy's
+  source, the factor and two motions of four fields. The presses: for RS-SUS, Add element
+  state, Fill element states, Add support state, Fill support states and Add every primitive;
+  for RS-OPE, Replace, Mark element_states absent, Add element state, Fill element states and
+  Add every primitive; for RS-SAM, Replace, Add every primitive and Add boundary motion twice.
+- **combinations, 9.** The first: ID, label, basis, minuend, subtrahend, provenance; the
+  second: ID, label, minuend.
 
-At the F/S numbering increment, the 26 rows could be entered in place and pipe
-overrides needed no special order. The B3 temporary-corner entry added one cell:
-197 sheet entries and 665 total. At the same rate, 197 × 8/98 = 16.08 minutes,
-rounded to 16 under the existing quarter-minute convention. The total was
-59.5 minutes with 29 per-intent cycles. This correctness fix receives no
-unmeasured navigation or timing credit.
-
-G11 adds the missing tee modifier-source edit: three entries (component selection,
-property selection and entered source) and one cycle, at the existing 0.75-minute
-field-edit rate. Totals become 668 entries, 30 per-intent cycles and 60.25 minutes.
-This closes an input capability gap; it is not a speed improvement or timed result.
-
-The bend SIF cells move §3.5 into the sheet. Its nine entries (three component selections and
-six SIFs) and three cycles become six SIF cells in the three `B` rows, with no selection and no
-cycle. §3.4 becomes 203 entries: 203 × 8/98 = 16.57 minutes, rounded to 16.5 under the
-quarter-minute convention, and §3.5's 0.75 minutes go. Totals: 668 − 9 + 6 = 665 entries,
-30 − 3 = 27 per-intent cycles and 60.25 − 0.75 + 0.5 = 60 minutes. This moves an input into
-the sheet; it is not a timed result.
-
-The estimate is about 60 minutes, about twice the provisional 30. It was about 77 before #41
-(the tee, #45, adds 3), and about 130 before #38's fills and case copies (gaps G7, G8),
-which brought the per-member load/reference state and pressure regions (§3.8, §3.10, §3.11)
-from about 1,450 entries and 66.5 minutes to 168 entries and about 11.5 minutes; those entry
-counts are the authoring lane's, measured by its round-trip test of the fixture (#38). #41's
-id cells and numbering (gaps G1–G3) moved ten supports and the three bends into the sheet:
-§3.4 to §3.7 went from about 27.25 minutes and 238 entries to about 14.25 minutes and 167
-entries. The 40 typed ids became 9, and the support and bend cells add 67. The authoring lane's
-round-trip test (#41) reports the 9 ids, the ten supports' ids and labels, and the twelve bend
-ids with three geometry sources; the other cells are counted here from the code. The
-remaining component forms (§3.6) take about 9.75 minutes; the run sheet itself,
-now including the valve, flanges and bend SIFs, takes about 16.5 minutes and is the largest step.
-
-## 6. Gaps found
-
-Each is a step the desktop on `main` cannot do as the fixture records it, or does only at a
-cost §5 shows. None is worked around outside the operation route.
-
-| # | Gap | Evidence | Owner | What the person does |
-|---|---|---|---|---|
-| G1 | Closed by #41 (authoring lane I3): **Support id** and **Support label** cells in the "Ids and sources" group, so two supports at one node take their own ids; ten of the eleven supports are rows, with the fixture's ids and labels. RS-VS1 stays a form: no support code carries a hanger | `runSheetView.ts:29, 63-64, 461-468`; `runSheetModel.ts:22, 764-778` | DEL-07-02 | Support cells (§3.4); RS-VS1 by form (§3.7) |
-| G2 | Closed by #41: **Bend start id**, **Bend end id**, **Bend arc id**, **Bend component id** and **Bend geometry source** cells on `B` rows, used by the bend insertion and the sheet's record projection. The bend labels stay fixed (§3.14) | `runSheetView.ts:65-69, 469-480`; `runSheetModel.ts:828-835, 852-856`; `runSheetBatch.ts:171-197` | DEL-07-02 | `B` rows (§3.4), with their directional SIFs in the same rows (#121) |
-| G3 | Closed by #41: **Pad numbers to N digits** and **Pipe number from** = its start node, with a stated fallback; a pipe id is fixed once shown | `RunSheet.tsx:557-563`; `runSheetModel.ts:287-298, 738-753`; `runSheetView.ts:300-311` | DEL-07-02 | Types 10 ids in natural row order; unused unqueued pipe reservations release (§2, §3.4) |
-| G4 | Increments add in binary64, so RS-050 lands at 1.2999999999999998 m (as designed, §6.2) | `runSheetModel.ts:696-700` | DEL-07-02 | One X-position edit (§3.4) |
-| G5 | Closed by #36 (authoring lane I1): the E/nu create form takes the material-level thermal expansion coefficient, and a wasm-engine test creates RS-M1 from the form equal to the fixture's record | `PressureAuthoringPanel.tsx:70` | DEL-07-03 | §3.2 step 1 |
-| G6 | Closed by independent units for body length, End A size, End B size and the COG vector in both creation forms | DEL-03-05 `Work/component-quantity-units.md`; `rigidQuantityUnits.test.tsx` | DEL-03-05 | Six size-unit selections in the component rows; no later end-size edits (§3.4) |
-| G7 | Closed by #38: "Fill … from a template" for reference-configuration members, element states and support states, "Add every primitive of this case" for load sources, and "Copy analysis state from another case" | `BulkFillControls.tsx:64-122`; `LoadReferenceStateInputs.tsx:79, 107, 147, 193, 228` | DEL-07-03 | §3.8, §3.11 |
-| G8 | Closed by #38: "Copy pressure regions from another case", with ids re-derived | `PressureAuthoringPanel.tsx:174` | DEL-07-03 | §3.10 |
-| G9 | Closed by #54: independent queued user intents can move to one reviewed atomic batch, with named refusals for stale dependencies and duplicate operation ids | DEL-07-02 `Work/queued-changes-batch.md`; `queuedChangesBatch.test.tsx` | DEL-07-02 | Optional batching under Review changes; §5 retains 27 per-intent cycles before batching, with no inferred time credit |
-| G10 | Closed in DEL-09-01: tee creation requires a run size, header size, connection type and reinforcement reference; spec §5 now gives invented values, which EX does not read | `componentIntent.ts:380-392`; `operation_applier/src/lib.rs:3387-3446` | DEL-09-01 (spec §5) | §3.6 |
-| G11 | Closed: tee Modifier source is entered explicitly through the existing inspector/applier field route; k/SIF values and non-user refusals are preserved | DEL-07-02 `Work/tee-modifier-source.md`; `teeModifierSource.test.tsx` | DEL-03-05 (original gap allocation); DEL-07-02 (GUI) | One source edit after the two SIFs (§3.6) |
-
-**RT-G2 candidates not named in spec §11.2:**
-- a unit per quantity on the rigid-component form (G6, implemented; see DEL-03-05 `Work/component-quantity-units.md`);
-- applying several queued intents as one reviewed batch (G9, implemented in #54);
-- a modifier-source field for a tee, beside its SIFs (G11, implemented).
+The estimate of about 63.25 minutes (61.25 entry and 2 solve waiting) is about twice the
+provisional 30. The four largest steps are rows (22), regions (8.5), material (5.75) and
+states (5.75).
