@@ -1640,6 +1640,8 @@ fn finish_source_groups(
             None => problem(diagnostics,"PRESSURE_ASSEMBLY_CANCELLATION_UNRESOLVED",&[&case.id],"different source factors strongly cancel beyond the bounded pressure-RHS screening domain; no source-accuracy or Current result is inferred from a small residual of rounded loads"),
         }
     }
+    // Nothing below reads the groups: they go before the assembly evidence is formed.
+    drop(groups);
     output.assembly_evidence = json!({"method":"source_factor_grouped_pressure_rhs_v1","load_case_id":case.id,
         "node_order":model.nodes.iter().map(|node|&node.id).collect::<Vec<_>>(),"dof_order":["Fx","Fy","Fz","Mx","My","Mz"],
         "assembled_pressure_rhs_global":output.assembled_loads,"groups":evidence,"rounded_cap_and_eigen_ledgers_are_observational":true,
