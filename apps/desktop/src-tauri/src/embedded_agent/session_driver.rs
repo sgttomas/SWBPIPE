@@ -286,6 +286,14 @@ impl SessionDriver {
             .protocol
             .submit_text(text.to_owned())
             .map_err(|_| Refusal::InvalidControl)?;
+        // The supplier reports its remote control status at start. No turn is
+        // sent until "disabled" has been seen: a first turn that would start
+        // without one ends the session, as a reported channel does. The turn
+        // built above is dropped unsent; nothing was pending.
+        if !self.protocol.remote_control_reported() {
+            self.close(Terminal::Protocol);
+            return Err(Refusal::Closed);
+        }
         self.send(value, backing)
     }
     pub fn interrupt(&mut self) -> Result<Submission, Refusal> {
@@ -705,6 +713,11 @@ mod tests {
                 .collect()
         }
         fn ready(&mut self) {
+            self.ready_with(true)
+        }
+        // `status`: whether the supplier reports "disabled" straight after its
+        // reply to initialize, as 0.160.0 is observed to do.
+        fn ready_with(&mut self, status: bool) {
             assert_eq!(
                 self.control(|d| d.initialize("test", "1")),
                 Ok(Submission::Queued)
@@ -718,6 +731,9 @@ mod tests {
             self.input.frame(json!({"id":1,"result":{"codexHome":"/test","platformFamily":"test","platformOs":"test","userAgent":"test"}}));
             assert!(matches!(self.event().events(), [Event::Initialized]));
             assert_eq!(self.sent(2)[1]["method"], "initialized");
+            if status {
+                self.input.frame(json!({"method":"remoteControl/status/changed","params":{"status":"disabled","installationId":"i","serverName":"s"}}));
+            }
             assert_eq!(
                 self.control(|d| d.start_thread(&options())),
                 Ok(Submission::Queued)
@@ -873,22 +889,40 @@ mod tests {
         assert_eq!(h.d().remote_control_before_first_turn, Some(true));
     }
     #[test]
-    fn no_remote_control_status_is_recorded_as_absent_at_first_turn() {
+    fn first_turn_without_a_disabled_status_ends_the_session_unsent() {
         let mut h = Harness::new();
-        h.ready();
+        h.ready_with(false);
         assert_eq!(h.d().remote_control_before_first_turn, None);
+        assert_eq!(h.control(|d| d.submit_text("hello")), Err(Refusal::Closed));
+        let o = h.wait(|o| o.terminal.is_some());
+        assert_eq!(o.terminal, Some(Terminal::Protocol));
+        assert!(o.events.unwrap().events().is_empty());
+        // Only initialize, initialized and thread/start were ever written.
+        assert_eq!(h.output.state.lock().unwrap().1, 3);
+        assert!(h.sent(3).iter().all(|v| v["method"] != "turn/start"));
+        assert_eq!(h.control(|d| d.submit_text("again")), Err(Refusal::Closed));
+    }
+    #[test]
+    fn invalid_turn_input_is_refused_as_before_and_a_late_status_still_admits_the_turn() {
+        let mut h = Harness::new();
+        h.ready_with(false);
+        assert_eq!(h.control(|d| d.submit_text("")), Err(Refusal::InvalidControl));
+        assert_eq!(h.wait(|_| true).terminal, None);
+        h.input.frame(remote_control(json!("disabled")));
+        let o = h.wait(|o| o.events.is_some() || o.terminal.is_some());
+        assert_eq!(o.terminal, None);
         assert_eq!(h.control(|d| d.submit_text("hello")), Ok(Submission::Queued));
-        h.sent(4);
-        h.input.frame(
-            json!({"id":3,"result":{"turn":{"id":"turn-1","items":[],"status":"inProgress"}}}),
-        );
-        assert!(matches!(h.event().events(), [Event::TurnStarted { .. }]));
-        assert_eq!(h.d().remote_control_before_first_turn, Some(false));
-        // A status reported after the first turn does not rewrite the record.
+        assert_eq!(h.sent(4)[3]["method"], "turn/start");
+    }
+    #[test]
+    fn status_seen_after_the_first_turn_does_not_rewrite_the_record() {
+        let mut h = Harness::new();
+        h.active();
+        assert_eq!(h.d().remote_control_before_first_turn, Some(true));
         h.input.frame(remote_control(json!("disabled")));
         h.call("rpc");
         let _ = h.event();
-        assert_eq!(h.d().remote_control_before_first_turn, Some(false));
+        assert_eq!(h.d().remote_control_before_first_turn, Some(true));
     }
     #[test]
     fn remote_control_other_than_disabled_ends_the_session_and_loses_pending_once() {
