@@ -62,7 +62,6 @@ use open_pipe_stress_report_package::exact_sections::{expected_exact_limitations
 use open_pipe_stress_report_package::model_input::model_input_tables;
 use open_pipe_stress_report_package::pf_timoshenko::{expected_limitation as expected_pf_limitation, is_pf_timoshenko_identity};
 use open_pipe_stress_report_package::user_release::{current_received_origin, current_result_document_base, report_envelope, result_coordinate_systems};
-use open_pipe_stress_report_renderer::{ExactAdmissionBinding, ExactRouteSection};
 use open_pipe_stress_result_export::derivative::{derive_document, digest};
 use serde_json::{json, Map, Value};
 use std::sync::Arc;
@@ -324,18 +323,20 @@ pub(crate) fn fill(mut frame: Value, basis: &FillBasis<'_>) -> Result<Value, Str
     if received != derivation.received_result_sha256 {
         return Err(mismatch("admission.received_result_sha256"));
     }
-    let admission = ExactAdmissionBinding {
-        semantic_contract_id: identity.clone(),
-        run_ref: run.clone(),
-        result_envelope_id: format!("result-envelope:{run}"),
-        received_result_sha256: received,
-        model_sha256: model_sha256.to_string(),
-        input_manifest_ref: derivation.input_manifest_ref.clone(),
-        input_manifest_sha256: derivation.input_manifest_sha256.clone(),
-        derivative_sha256: derivation.derivative_sha256.clone(),
-        native_job_id: native_job_id.to_string(),
-        received_bytes_sha256: received_bytes_sha256.to_string(),
-    };
+    // The renderer's `ExactAdmissionBinding`, field for field (written as a
+    // value: the shell names no renderer type, `user_release_reach_scan`).
+    let admission = json!({
+        "semantic_contract_id": identity,
+        "run_ref": run,
+        "result_envelope_id": format!("result-envelope:{run}"),
+        "received_result_sha256": received,
+        "model_sha256": model_sha256,
+        "input_manifest_ref": derivation.input_manifest_ref,
+        "input_manifest_sha256": derivation.input_manifest_sha256,
+        "derivative_sha256": derivation.derivative_sha256,
+        "native_job_id": native_job_id,
+        "received_bytes_sha256": received_bytes_sha256,
+    });
 
     let sections = object_at(&mut frame, &["report_sections"])?;
     // The result's Diagnostics first, with the session's provenance, then the frame's own.
@@ -374,18 +375,18 @@ pub(crate) fn fill(mut frame: Value, basis: &FillBasis<'_>) -> Result<Value, Str
                     "statement": entry.statement,
                 })));
             }
-            let route = ExactRouteSection {
-                semantic_contract_id: core.semantic_contract_id,
-                admission,
-                load_reference_states: core.load_reference_states,
-                headlines: core.headlines,
-            };
-            ("exact_route", serde_json::to_value(&route).map_err(|_| mismatch("exact_route"))?)
+            // The renderer's `ExactRouteSection`, field for field.
+            let headlines = serde_json::to_value(&core.headlines).map_err(|_| mismatch("headlines"))?;
+            ("exact_route", json!({
+                "semantic_contract_id": core.semantic_contract_id,
+                "admission": admission,
+                "load_reference_states": core.load_reference_states,
+                "headlines": headlines,
+            }))
         }
         Section::PfTimoshenko => {
             let entry = expected_pf_limitation(source, &run).map_err(|_| mismatch("limitations"))?;
             limitations.push(shared(entry));
-            let admission = serde_json::to_value(&admission).map_err(|_| mismatch(PF_TIMOSHENKO_SECTION))?;
             (PF_TIMOSHENKO_SECTION, json!({"semantic_contract_id": identity, "admission": admission}))
         }
     };
