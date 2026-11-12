@@ -108,6 +108,15 @@ describe("the property task's entry while the model changes under it", () => {
     expect(queue.mock.calls[0][0].change.after).toBe(JSON.stringify({ value: 200000000000, unit: "psi" }));
   });
 
+  it("choosing the unit already shown changes nothing and is not an edit: the entry still follows", async () => {
+    const { restore } = await modulusTask();
+    changeFormControl(screen.getByTestId("editor-intent-unit"), { target: { value: "Pa" } });
+    restore({ value: 195000000000, unit: "Pa" });
+    // Not 200000000000 kept and offered: a click that changed nothing does not make the old digits the person's proposal.
+    expect(value()).toHaveValue("195000000000");
+    expect(add()).toBeDisabled();
+  });
+
   it("Cancel and a new task start from the stored entry again", async () => {
     const { restore } = await modulusTask();
     fireEvent.change(value(), { target: { value: "210000000000" } });
@@ -117,6 +126,29 @@ describe("the property task's entry while the model changes under it", () => {
     expect(value()).toHaveValue("200000000000");
     restore({ value: 200000, unit: "MPa" });
     expect(value()).toHaveValue("200000");
+  });
+});
+
+describe("an unedited quantity offers nothing, whatever its stored unit normalizes to", () => {
+  it("a stored unit with spaces around it: nothing to Add until the person types or chooses a unit", async () => {
+    route.current = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
+    const queue = vi.fn<(intent: EditorOperationIntent) => void>();
+    render(
+      <DisplayUnitsProvider initialPreference="SI">
+        <PropertyInspector model={demo({ value: 200000000000, unit: " Pa " })} selection={steel} onQueueIntent={queue} onApplyIntent={async () => true} projectSessionGeneration={1} />
+      </DisplayUnitsProvider>
+    );
+    await waitFor(() => expect(screen.getByTestId("property-unit-catalog-status")).not.toHaveTextContent("loading"));
+    fireEvent.click(screen.getByRole("tab", { name: "Task" }));
+    fireEvent.click(screen.getByTestId("inspector-start-task"));
+    changeFormControl(screen.getByTestId("editor-intent-field"), { target: { value: "elastic_modulus.value" } });
+    expect(value()).toHaveValue("200000000000");
+    // Not the unchanged number with the unit trimmed, offered with nothing typed or chosen.
+    expect(add()).toBeDisabled();
+    expect(screen.getByTestId("validate-editor-intent-inline")).toBeDisabled();
+    expect(screen.getByTestId("apply-editor-intent-inline")).toBeDisabled();
+    fireEvent.change(value(), { target: { value: "210000000000" } });
+    expect(add()).toBeEnabled();
   });
 });
 

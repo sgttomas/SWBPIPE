@@ -254,7 +254,8 @@ export function PropertyInspector({
     // A value is a change only once the person has entered one: an unedited entry is the
     // stored entry, whatever its text normalizes to.
     ((enteredValue !== null && (proposedValue.trim() || "TBD") !== (selectedField.initialValue || selectedField.before)) ||
-      (selectedField.unitEditable && (proposedUnit.trim() || selectedField.unit) !== selectedField.unit))
+      // Likewise a unit is a change only once the person has chosen one.
+      (chosenUnit !== null && selectedField.unitEditable && (proposedUnit.trim() || selectedField.unit) !== selectedField.unit))
   );
   const unitRefusal = missingProjectUnitRefusal(model, selectedField, proposedUnit);
   const currentIntentComplete = Boolean(operationIntent && fieldChanged && !unitRefusal && operationIntentIsComplete(operationIntent));
