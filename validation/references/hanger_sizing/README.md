@@ -455,3 +455,14 @@ It does not cover the diagnostics, the memory pricing or the reference system
 python3 validation/references/hanger_sizing/generate_preload.py          # writes preload.json
 python3 validation/references/hanger_sizing/generate_preload.py --check  # exit 1 if the frozen file differs
 ```
+
+# Checksum list
+
+`SHA256SUMS` lists every file of this package except itself. It is regenerated last, after any
+generator or README change, and verified from inside the package directory:
+
+```sh
+cd validation/references/hanger_sizing
+LC_ALL=C shasum -a 256 $(ls | grep -v '^SHA256SUMS$' | LC_ALL=C sort) > SHA256SUMS   # regenerate
+shasum -a 256 -c SHA256SUMS                                                          # verify
+```
