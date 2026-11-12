@@ -39,8 +39,9 @@ needs:
 - from: DEL-03-07
   condition: >-
     The local library store keeps a section, component or hanger library document that the import
-    boundary accepted as private and returns it unchanged, so that what a user saved is what is
-    read back.
+    boundary accepted as private and returns it as it was saved, the whole document with its
+    units, values and provenance (DEL-03-07/REQ-009), so that what a user saved is what is read
+    back.
   gating: false
   when: Storing a library and reading it back.
 code_paths:

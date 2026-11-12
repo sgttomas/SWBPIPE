@@ -41,7 +41,7 @@ It serves SOW-056 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 These seven choices are the baseline. The rules that follow from them are stated in DEL-00-02 to DEL-00-08.
 
-**Boundary.** This deliverable records decisions and makes none. Its own files are the records under `docs/architecture/adr/`. The baseline in force is the owner's selection, and a change to it is the owner's, as is any choice `AGENTS.md` or `docs/RELEASE_TARGET_v1.0.md` ("Reserved to the owner") reserves to the owner. Any other architecture decision is made under the delegation in force.
+**Boundary.** This deliverable records decisions and makes none. Its own files are the records under `docs/architecture/adr/`. The baseline in force is the owner's selection. Where the owner has issued or protected it, or a part of it, that baseline changes only through a change the owner approves, and a choice `AGENTS.md` or `docs/RELEASE_TARGET_v1.0.md` ("Reserved to the owner") reserves to the owner is the owner's. Any other architecture decision, a change to another part of the baseline among them, follows its applicable decision path under the delegation in force and is recorded here.
 
 - DEL-00-02 to DEL-00-08 state the rule that follows from a decision about their own subject.
 - DEL-10-04 owns the build, the package and its signing; the solver deliverables of PKG-04 own the solver.

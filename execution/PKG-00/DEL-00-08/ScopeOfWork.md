@@ -65,7 +65,7 @@ It serves SOW-063 under OBJ-013 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 **Method choices that define the strategy.**
 
 - An obligation is assigned to the lowest layer that can observe it, and a higher layer repeats it only where the layers' interaction is what is being tested.
-- For a numerical result, where the expected value comes from is part of the test: an outside source, an owner ruling, or the product's own earlier output, which only guards against change.
+- For a numerical result, where the expected value comes from is part of the test. An expected value comes from an outside source or an independent derivation. A value selected as a target is a requirement to be assessed, not evidence that it is adequate. Agreement with the product's own earlier output shows consistency only and guards against change.
 - A gate reports what it measured. Acceptance, waivers and release are a person's acts and are not outputs of a test.
 
 **How each criterion is examined.**

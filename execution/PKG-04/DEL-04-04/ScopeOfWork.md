@@ -63,7 +63,7 @@ A classified state is a statement about the discrete model under the friction la
 **Undecided.**
 
 - Convergence tolerances and caps for classes and model sizes beyond the measured fixture set are not yet set. Until one is measured and adopted, the affected case states that its tolerance policy is undecided.
-- A friction model with history across load steps or cases is not defined; adopting one is a change of scope. It matters for differences between cases: on an invented bar whose sustained force slides it and whose operating case adds cooling, operating minus sustained gives an axial-force change of 0 N as solved, against +512 N under a sequential history that sticks from the sustained position.
+- No friction model with history across load steps or cases is selected; one enters only by a change of scope made under the delegation in force. It matters for differences between cases: on an invented bar whose sustained force slides it and whose operating case adds cooling, operating minus sustained gives an axial-force change of 0 N as solved, against +512 N under a sequential history that sticks from the sustained position.
 
 ### Acceptance criteria
 

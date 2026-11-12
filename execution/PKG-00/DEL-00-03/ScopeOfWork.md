@@ -57,7 +57,7 @@ It serves SOW-058 and SOW-062 under OBJ-013 (`execution/_Decomposition/SOFTWARE_
 
 - **AC-001** — Every service entry point is exactly one of command, query or job. A query leaves the model's canonical hash and the stored project unchanged.
 - **AC-002** — Every command and job returns a result envelope carrying its diagnostics. No entry point reports its outcome by a bare boolean, an exception text or an exit status alone. This includes persistence, rule-pack and library operations.
-- **AC-003** — For each of the five kinds of operation in REQ-003, an operation that fails at any step within the boundary that the Ontology defines leaves the model and the stored project as they were before it.
+- **AC-003** — For each kind of operation in REQ-003 whose transaction boundary is defined, as the Ontology establishes it (a model edit and a save), an operation that fails at any step within that boundary leaves the model and the stored project as they were before it. A solve run, report generation and an adapter call are examined in the same way once each boundary is defined (Ontology, Not yet defined).
 - **AC-004** — A solve, report or export job reports progress while it runs. A cancel request stops it and returns an envelope that says it was cancelled. A completed job's result records the reproducibility metadata.
 - **AC-005** — No envelope, status or record that a service produces states or implies that engineering work is approved, certified, sealed, authenticated or code-compliant (`docs/PRD.md` §21.2). A record of a person's acceptance is kept separate from solver, rule-pack, comparison and report outputs and is never presented as professional approval (`docs/PRD.md` §21.3). Mechanics solved and user-rule checked are separate values that no single flag merges.
 
@@ -73,7 +73,7 @@ AC-002, AC-003 and AC-004 carry commitment DEL-00-03:1.
 **How each criterion is examined.**
 
 - **VER-001** — AC-001, executable check: observes each entry point's declared kind, and the model hash and stored project before and after each query.
-- **VER-002** — AC-002 and AC-003, executable check: forces a failure at each step of each of the five kinds of operation, commands and jobs, and observes the returned envelope, its diagnostic, and the unchanged model and stored project.
+- **VER-002** — AC-002 and AC-003, executable check: forces a failure at each step of each kind of operation whose transaction boundary is defined, commands and jobs, and observes the returned envelope, its diagnostic, and the unchanged model and stored project.
 - **VER-003** — AC-004, executable check: starts each kind of job on an input large enough to show progress, cancels it, and observes the cancelled envelope; observes each reproducibility field on a completed result.
 - **VER-004** — AC-005, judgment by a reviewer who did not write the services: examines the envelope and status vocabularies against `docs/claims_registry.md`, with an executable check that no schema enumerates a professional-approval or compliance value as an outcome of computation.
 
