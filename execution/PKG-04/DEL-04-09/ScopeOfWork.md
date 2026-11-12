@@ -206,7 +206,8 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
   - the request form, including the absence of a pre-set bound in a new project and the remembered value in an existing one;
   - the modes table and its header lines;
   - the mode-shape view, including the reduced-motion path;
-  - the report section.
+  - the report section, which cites the modal result by its own identity;
+  - a project reopened after a modal solve: no modal result is shown, and the remembered bound is pre-filled and is not in the model document.
 
   A native smoke step solves a modal request and shows its table.
 
