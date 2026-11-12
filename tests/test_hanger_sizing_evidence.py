@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "fixtures/results"
 SCHEMA = json.loads((ROOT / "schemas/hanger_sizing_result.schema.json").read_text(encoding="utf-8"))
 CORPUS = json.loads((RESULTS / "hanger_sizing_corpus.json").read_text(encoding="utf-8"))["entries"]
-DOCUMENTS = ("two_span", "four_span", "refused", "forgery", "ex_pressurised", "ex_riser")
+DOCUMENTS = ("two_span", "four_span", "four_span_constant", "refused", "forgery", "ex_pressurised", "ex_riser")
 PYTHON_STANDINGS = ("closure", "binding", "arithmetic_consistent_with_published_positions")
 
 

@@ -40,6 +40,25 @@
       }
     },
     {
+      "id": "sized-constant-unconditional",
+      "note": "Every candidate a constant selection and the verification unconditional; its applied model is solved by tests/applied_agreement.rs.",
+      "document": "hanger_sizing_result_four_span_constant.json",
+      "input": "hanger_sizing_input_four_span_constant.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [],
+      "expected": {
+        "closure": "passed",
+        "binding": "passed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "passed",
+        "derivation": "passed",
+        "reproduction": "same_build"
+      }
+    },
+    {
       "id": "refused",
       "note": "An engine refusal: only closure and binding apply.",
       "document": "hanger_sizing_result_refused.json",

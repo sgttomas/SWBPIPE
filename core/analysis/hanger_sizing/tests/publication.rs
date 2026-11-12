@@ -222,6 +222,21 @@ fn four_span_input() -> Value {
     })
 }
 
+/// The four-span model with B and C under the constant policy and D left a rigid
+/// support: B's W (8wL/7 ≈ 4571 N) fits CE-2 and CE-3, and CE-3 (its range in
+/// lbf, 1124 lbf ≈ 4999.8 N) is taken by the smaller maximum working load; C's
+/// (13wL/14 ≈ 3714 N) fits CE-1. Every candidate has a constant selection and the
+/// verification is unconditional. Its applied model is the one a solve must reproduce exactly
+/// (`tests/applied_agreement.rs`).
+fn four_span_constant_input() -> Value {
+    let mut input = four_span_input();
+    input["sizing"]["candidates"] = json!([
+        {"support": "support:B", "family_policy": "constant"},
+        {"support": "support:C", "family_policy": "constant"}
+    ]);
+    input
+}
+
 /// The two-span input naming an unknown candidate: refused by the engine.
 fn refused_input() -> Value {
     let mut input = two_span_input();
@@ -302,9 +317,10 @@ fn ex_riser_input() -> Value {
     ex_input(1, "B-COLD", "sparse_interactive")
 }
 
-const INPUTS: [(&str, fn() -> Value); 5] = [
+const INPUTS: [(&str, fn() -> Value); 6] = [
     ("hanger_sizing_input_two_span.json", two_span_input),
     ("hanger_sizing_input_four_span.json", four_span_input),
+    ("hanger_sizing_input_four_span_constant.json", four_span_constant_input),
     ("hanger_sizing_input_refused.json", refused_input),
     ("hanger_sizing_input_ex_pressurised.json", ex_pressurised_input),
     ("hanger_sizing_input_ex_riser.json", ex_riser_input),
@@ -392,6 +408,16 @@ fn the_corpus_documents_cover_each_outcome_both_families_and_both_standings() {
     for document in [&two, &four, &refused] {
         assert_eq!(document["route"], "pressure_free");
     }
+    // Every candidate a constant selection, and the verification unconditional.
+    let constant = read_json("hanger_sizing_result_four_span_constant.json");
+    assert_eq!(constant["result"]["verification_standing"], "unconditional");
+    let selected: Vec<(&str, &str)> = constant["result"]["candidates"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|c| (c["selected"]["family"].as_str().unwrap(), c["selected"]["hanger_id"].as_str().unwrap()))
+        .collect();
+    assert_eq!(selected, [("constant_effort", "CE-3"), ("constant_effort", "CE-1")]);
     // The exact route: 2n + 3 solves, a variable and a constant selection, the
     // constant one failing its verified travel; and a riser with no pressurised region.
     let pressurised = read_json("hanger_sizing_result_ex_pressurised.json");
@@ -499,7 +525,7 @@ fn the_reader_returns_the_corpus_standings() {
         }
         assert_eq!(verdict["binding"]["not_checked"], expected["binding_not_checked"], "{id}");
     }
-    assert_eq!(same_build, 4, "the four genuine sized entries, two on each route");
+    assert_eq!(same_build, 5, "the five genuine sized entries: three on the pressure-free route, two on the exact route");
 }
 
 // --- the headless pipeline's refusals -----------------------------------------
