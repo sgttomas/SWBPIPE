@@ -1204,38 +1204,70 @@ def test_the_correlation_pilot_forms_no_prover_check_on_a_sensitive_case():
     assert record["comparison_basis"]["caepipe_load_cases_compared"] == []
 
 
-# The tranche 1 cases the solver publishes as other than checks passed, observed on 12 November 2026, on all three
-# sides. An expectation about the solver's present output, not a list that classes anything: the class is read from
-# each result. When the guard's owner changes it, this test fails and names the change as an expectation to revisit.
-OBSERVED_SENSITIVE = {(f"cpb-g1-{index:02d}", side, "case:expansion")
-                      for index in range(1, 8) for side in ("pressure_free", *benchmark_models.EXACT_SHEAR_MEMBERS)}
+def test_a_case_is_sensitive_side_exactly_when_the_solver_publishes_it_so():
+    """The rule's invariant on real solves of every tranche 1 model on all three sides: a case is classed
+    sensitive_side if and only if SWBPIPE's own result publishes its quality as other than checks passed; every scalar
+    of such a case carries the class, holds no value or difference of the other side, and its printed tables are not
+    read; every other case is screened exactly as it would be with no sensitive case.
 
+    Which cases the solver publishes so is not a property of the models: it can change with any change to recovery
+    arithmetic, on any build, so it is read from each result and never expected here. The test passes whatever the
+    number is, reports it, and says so when no solve exercised the sensitive path (the invented-payload tests above
+    always do). The mirror print is SWBPIPE's own values at printed resolution; nothing here is the other program's."""
+    import warnings
 
-def test_the_cases_swbpipe_publishes_sensitive_today():
     runner = os.environ.get("OPENPIPESTRESS_RUNNER_BIN")
     if not runner:
         pytest.skip("OPENPIPESTRESS_RUNNER_BIN is not set")
-    observed, bends = set(), set()
+    solves, sensitive_cases = 0, 0
     for document in tranche_1():
-        if document["model"]["components"]:
-            bends.add(document["model_id"])
-        sides = [("pressure_free", document["model"])] + [
-            (shear, benchmark_models.exact_route_model(document["model"], shear))
-            for shear in benchmark_models.EXACT_SHEAR_MEMBERS]
-        for side, model in sides:
+        sides = [document] + [benchmark_models.exact_route_document(document, shear)
+                              for shear in benchmark_models.EXACT_SHEAR_MEMBERS]
+        for side in sides:
             body = {"request": run_pilot.runner_request("benchmark-test"),
-                    "solve": {"preview_model": {"model": model, "materials": []}}}
+                    "solve": {"preview_model": {"model": side["model"], "materials": []}}}
             completed = subprocess.run([runner, "solve", "--explicit-local-private-intent", "--input", "-"],
                                        input=json.dumps(body), capture_output=True, text=True, check=False,
                                        timeout=600)
-            quality = json.loads(completed.stdout)["payload"]["mechanics_envelope"]["numerical_quality"]
-            observed |= {(document["model_id"], side, entry["basis_ref"]["ref_id"]) for entry in quality["cases"]
-                         if entry["solve_quality"] != "checks_passed"}
-    assert not {model for model, _, _ in observed} & bends
-    assert observed == OBSERVED_SENSITIVE, (
-        "EXPECTATION TO REVISIT: the numerical quality SWBPIPE publishes for tranche 1 has changed (the owning "
-        "deliverable may have answered on the member recovery guard). Newly not checks passed: "
-        f"{sorted(observed - OBSERVED_SENSITIVE)}; now checks passed: {sorted(OBSERVED_SENSITIVE - observed)}")
+            payload = json.loads(completed.stdout)["payload"]
+            solves += 1
+            label = (document["model_id"], side.get("shear_model", "pressure_free"))
+            published = {entry["basis_ref"]["ref_id"]: entry["solve_quality"]
+                         for entry in payload["mechanics_envelope"]["numerical_quality"]["cases"]}
+            mbf, text = mirror_csv(document, payload)  # the tracked document's model file: its maps bind the twin
+            sensitive = sorted(case for case in mbf.load_case_map if published[case] != "checks_passed")
+            withheld = set(sensitive) | ({"operating"} if sensitive else set())
+            sensitive_cases += len(sensitive)
+            parsed = parse_caepipe_print_csv(text)
+            parsed["load_cases"] = RecordingCases(parsed["load_cases"])
+            record = build_benchmark_record(side, swbpipe_result_payload=payload, mbf_result=mbf, mbf_text=mbf.text,
+                                            parsed_caepipe=parsed)
+            # The same result with every case published checks passed: how each case is screened with no rule.
+            passing = json.loads(json.dumps(payload))
+            passing["mechanics_envelope"]["numerical_quality"]["status"] = "checks_passed"
+            for entry in passing["mechanics_envelope"]["numerical_quality"]["cases"]:
+                entry["solve_quality"] = "checks_passed"
+            reference = build_benchmark_record(side, swbpipe_result_payload=passing, mbf_result=mbf,
+                                               mbf_text=mbf.text, parsed_caepipe=parse_caepipe_print_csv(text))
+            assert record["numerical_quality"]["cases"] == {case: published[case] for case in mbf.load_case_map}, label
+            assert set(record["screening"]["sensitive_side_cases"]) == withheld, label
+            assert [finding["case"] for finding in record["screening"]["findings"]] == sensitive, label
+            for row in record["results"]:
+                if row["case"] in withheld:
+                    assert row["classification"] == SENSITIVE_SIDE, (label, row["case"], row["kind"])
+                    assert set(row.get("values", {})) <= {"swbpipe", "closed_form"} and "screen" not in row, label
+                    assert "closed_form_vs_caepipe" not in row.get("closed_form", {}), label
+                else:
+                    assert row["classification"] != SENSITIVE_SIDE, (label, row["case"], row["kind"])
+            assert not {mbf.load_case_map.get(case, OPERATING_LABEL) for case in withheld} & set(parsed["load_cases"].read)
+            assert [row for row in record["results"] if row["case"] not in withheld] == \
+                [row for row in reference["results"] if row["case"] not in withheld], label
+    report = (f"{sensitive_cases} load case(s) published as other than checks passed in {solves} solves on this "
+              "build; re-formed from the solver's output at every solve")
+    if not sensitive_cases:
+        report += ("; NO solve exercised the sensitive path here, so this pass covers only the passing path (the "
+                   "invented-payload tests cover the sensitive path)")
+    warnings.warn(report, UserWarning)
 
 
 # -- run_pilot --benchmark -------------------------------------------------------------------------------------------
