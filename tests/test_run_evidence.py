@@ -193,18 +193,145 @@ def test_the_same_request_run_twice_gives_the_same_result_digest(runner, outputs
         assert _strict(again)[rv.MEMBER]["result"] == _strict(stdout)[rv.MEMBER]["result"]
 
 
-@pytest.mark.parametrize("member", ["9007199254740993", "1e16"])
-def test_a_request_outside_the_canonical_profile_is_stated_as_unavailable(runner, member):
+@pytest.mark.parametrize("member,code", [("9007199254740993", "CHECKED-JSON-UNSAFE-INTEGER"),
+                                         ("1e16", "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT"),
+                                         ("100000000000000000000", "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT")])
+def test_a_request_outside_the_canonical_profile_is_stated_unavailable_and_never_verified(runner, member, code):
+    """Request member: the canonical digest is unavailable by the profile's own code (this verifier works out
+    the same code), the raw digest still binds the bytes, and the answer is never verified or bound."""
     raw = _validate_admitted().rstrip()[:-1] + b',"note":' + member.encode() + b"}"
-    code, stdout = runner(["validate-input", "--explicit-local-private-intent"], raw)
-    assert code == 0
+    returncode, stdout = runner(["validate-input", "--explicit-local-private-intent"], raw)
+    assert returncode == 0
     emitted = _strict(stdout)
-    stated = emitted[rv.MEMBER]["request"]["canonical_sha256"]
-    assert type(stated) is dict and set(stated) == {"unavailable"} and stated["unavailable"].startswith("CHECKED-JSON-")
-    with pytest.raises(ValueError):
-        canonical_json.canonical_json(rv.checked_parse(raw))
-    assert rv.verify(raw, emitted) == []
+    assert emitted[rv.MEMBER]["request"]["canonical_sha256"] == {"unavailable": code}
+    with pytest.raises(rv.Refused) as refused:
+        rv.checked_parse(raw)
+    assert refused.value.code == code
+    assert rv.verify(raw, emitted) == ["request.canonical_sha256: unavailable"]
+    assert rv.bound(raw, emitted) == ("not bound: unavailable: request.canonical_sha256"
+                                      " (request.raw_sha256 binds the request bytes as read)")
+    assert rv.verify(_validate_admitted(), emitted) == ["request.canonical_sha256", "request.raw_sha256"]
     assert "note" not in json.dumps(emitted[rv.MEMBER])
+
+
+def _solve_with_a_result_outside_the_profile() -> bytes:
+    request = json.loads(_solve_admitted())
+    request["solve"]["preview_model"]["model"]["load_cases"][0]["primitive_loads"][0]["magnitude"]["value"] = 1e15
+    return json.dumps(request).encode()
+
+
+def test_a_result_outside_the_profile_binds_nothing_and_an_edit_under_it_is_never_verified(runner):
+    """Result member (review round 1, finding 1): the reviewer's tamper, the result edited under unchanged
+    evidence, is never reported verified or bound."""
+    raw = _solve_with_a_result_outside_the_profile()
+    returncode, stdout = runner(["solve", "--explicit-local-private-intent"], raw)
+    assert returncode == 0
+    emitted = _strict(stdout)
+    assert emitted[rv.MEMBER]["result"] == {"canonical_sha256": {"unavailable": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT"}}
+    assert rv.profile_refusal({k: v for k, v in emitted.items() if k != rv.MEMBER}) == "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT"
+    assert rv.verify(raw, emitted) == ["result.canonical_sha256: unavailable"]
+    assert rv.bound(raw, emitted) == "not bound: unavailable: result.canonical_sha256"
+    edited = deepcopy(emitted)
+    edited["payload"]["runner_result"]["run_id"] = "run:invented-edited-without-updating-any-evidence"
+    assert rv.verify(raw, edited) != [] and rv.bound(raw, edited) != rv.BOUND
+    assert rv.bound(raw, edited) == "not bound: unavailable: result.canonical_sha256"
+
+
+def test_a_model_outside_the_profile_is_stated_unavailable_with_its_request(runner):
+    """Model member: a size-hangers request holding an unsafe integer in its model document."""
+    request = _load(RESULTS / "hanger_sizing_input_two_span.json")
+    request["request"]["model"]["note"] = 2**53 + 1
+    raw = json.dumps(request).encode()
+    returncode, stdout = runner(["size-hangers", "--explicit-local-private-intent"], raw)
+    emitted = _strict(stdout)
+    assert emitted[rv.MEMBER]["model"] == {"pointer": "/request/model",
+                                          "canonical_sha256": {"unavailable": "CHECKED-JSON-UNSAFE-INTEGER"}}
+    assert rv.verify(raw, emitted) == ["request.canonical_sha256: unavailable", "model.canonical_sha256: unavailable"]
+    assert rv.bound(raw, emitted).startswith("not bound: unavailable: request.canonical_sha256, model.canonical_sha256")
+
+
+def test_a_refusal_code_outside_the_profiles_closed_list_is_not_taken():
+    raw = b'{"note": 9007199254740993}'
+    invocation = {"command": "validate-input", "solver_mode": None, "explicit_local_private_intent": True}
+    result = {"payload": None}
+    evidence = rv.form(raw, result, invocation)
+    assert evidence["request"]["canonical_sha256"] == {"unavailable": "CHECKED-JSON-UNSAFE-INTEGER"}
+    for code in ("CHECKED-JSON-INVENTED", "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT"):
+        stated = deepcopy(evidence)
+        stated["request"]["canonical_sha256"] = {"unavailable": code}
+        stated["binding_sha256"] = rv.binding(stated)
+        assert rv.verify(raw, dict(result, run_evidence=stated)) == ["request.canonical_sha256"], code
+    assert set(rv.PROFILE_REFUSAL_CODES) == {"CHECKED-JSON-INVALID", "CHECKED-JSON-UNSAFE-INTEGER", "CHECKED-JSON-NUMBER-INVALID",
+                                             "CHECKED-JSON-NON-FINITE", "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT"}
+
+
+def test_the_parse_depth_is_the_profiles(runner):
+    """127 nested containers are carried and hashed as the runner hashes them; the 128th is refused."""
+    def nested(arrays: int) -> bytes:
+        return _validate_admitted().rstrip()[:-1] + b',"note":' + b"[" * arrays + b"]" * arrays + b"}"
+    carried = nested(126)  # the request object and 126 arrays
+    assert rv.profile_refusal(rv.checked_parse(carried)) is None
+    returncode, stdout = runner(["validate-input", "--explicit-local-private-intent"], carried)
+    assert returncode == 0
+    assert rv.verify(carried, _strict(stdout)) == []
+    with pytest.raises(rv.Refused) as refused:
+        rv.checked_parse(nested(127))
+    assert refused.value.code == "CHECKED-JSON-INVALID"
+    refused_input = nested(127)
+    returncode, stdout = runner(["validate-input", "--explicit-local-private-intent"], refused_input)
+    emitted = _strict(stdout)
+    # Refused as CHECKED-JSON-INVALID, the request cannot be judged in full by the control: withheld.
+    assert emitted[rv.MEMBER]["request"] == {"withheld": "REQUEST_NOT_JUDGED_BY_LOCAL_PRIVATE_CONTROL"}
+    assert rv.verify(refused_input, emitted) == rv.WITHHELD_REPORT
+
+
+def test_an_unwritable_output_path_exits_2_prints_nothing_and_leaves_no_file(runner, tmp_path):
+    """Review round 1, finding 3: the output file is written first (temporary file in the same directory, moved
+    into place) and standard output only after; an existing directory as the path exits 2 with nothing on
+    standard output, nothing new at the path and no temporary file left."""
+    target = tmp_path / "an-existing-directory"
+    target.mkdir()
+    returncode, stdout, stderr = runner(["solve", "--explicit-local-private-intent", "--output", str(target)],
+                                        _solve_admitted(), stderr=True)
+    assert returncode == 2 and stdout == b"" and b"cannot write" in stderr
+    assert sorted(path.name for path in tmp_path.iterdir()) == ["an-existing-directory"]
+    assert list(target.iterdir()) == []
+    written = tmp_path / "result.json"
+    returncode, stdout = runner(["solve", "--explicit-local-private-intent", "--output", str(written)], _solve_admitted())
+    assert returncode == 0 and written.read_bytes() == stdout
+    assert sorted(path.name for path in tmp_path.iterdir()) == ["an-existing-directory", "result.json"]
+
+
+def _run_with_standard_output_closed(args: list[str], stdin: bytes) -> tuple[int, bytes]:
+    """Run the runner with its standard output already closed by the reader, so that writing it fails."""
+    binary = os.environ.get("OPENPIPESTRESS_RUNNER_BIN")
+    if not binary:
+        pytest.skip("OPENPIPESTRESS_RUNNER_BIN is neither supplied nor built")
+    process = subprocess.Popen([binary, *args], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process.stdout.close()
+    process.stdin.write(stdin)
+    process.stdin.close()
+    stderr = process.stderr.read()
+    return process.wait(timeout=600), stderr
+
+
+def test_a_failure_of_standard_output_after_the_file_is_published_leaves_it_whole_and_exits_2(tmp_path):
+    """Review round 1, finding 3, second order of failure: the file stands whole and its evidence verifies;
+    standard error names it; exit 2 says not every destination was written whole."""
+    written = tmp_path / "result.json"
+    raw = _solve_admitted()
+    returncode, stderr = _run_with_standard_output_closed(
+        ["solve", "--explicit-local-private-intent", "--output", str(written)], raw)
+    assert returncode == 2
+    assert b"was published whole before it and stands" in stderr and str(written).encode() in stderr
+    assert rv.verify(raw, _strict(written.read_bytes())) == []
+    assert sorted(path.name for path in tmp_path.iterdir()) == ["result.json"]
+
+
+def test_a_failure_of_standard_output_with_no_output_file_exits_2():
+    """Standard output is the only destination and fails: exit 2, and what reached it is not a result."""
+    returncode, stderr = _run_with_standard_output_closed(["solve", "--explicit-local-private-intent"], _solve_admitted())
+    assert returncode == 2 and b"what reached it is not a result" in stderr
 
 
 def _request_digests(command: str, raw: bytes) -> list[str]:
@@ -264,6 +391,13 @@ def test_withheld_absent_and_complete_evidence_are_told_apart_and_only_complete_
     half = deepcopy(withheld)
     half[rv.MEMBER]["model"] = complete[rv.MEMBER]["model"]
     assert rv.bound(raw, half).startswith("not bound: mismatch")
+    # The fourth state, unavailable, is told apart from all three.
+    outside = _solve_with_a_result_outside_the_profile()
+    unavailable = _strict(runner(["solve", "--explicit-local-private-intent"], outside)[1])
+    assert rv.verify(outside, unavailable) == ["result.canonical_sha256: unavailable"]
+    assert rv.bound(outside, unavailable) == "not bound: unavailable: result.canonical_sha256"
+    answers = {rv.bound(raw, complete), rv.bound(raw, withheld), rv.bound(raw, absent), rv.bound(outside, unavailable)}
+    assert len(answers) == 4 and [answer for answer in answers if not answer.startswith("not bound")] == [rv.BOUND]
 
 
 def test_a_request_the_control_passes_carries_complete_evidence_without_intent(runner):

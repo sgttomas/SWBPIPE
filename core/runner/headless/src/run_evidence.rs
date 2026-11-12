@@ -279,15 +279,22 @@ pub fn form(
     Value::Object(assemble(raw, &invocation, producer(), judgment, controlled_output))
 }
 
-/// What a check of run evidence established.
+/// What a check of run evidence established. Four states are told apart: a
+/// complete check ([`Checked::Verified`]); evidence whose request and model the
+/// control withheld, or with a digest the profile could not form
+/// ([`Checked::NotVerified`]); and, by `Err(["run_evidence"])`, a result with no
+/// run evidence at all.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Checked {
     /// Every digest was recomputed from the kept bytes and is equal.
     Verified,
-    /// The result digest and the binding are equal, but the named members were
-    /// withheld by the local-private control: they were not compared, so the
-    /// result is not shown to answer the request.
-    Withheld(Vec<String>),
+    /// Every digest that could be compared is equal, but `withheld` names the
+    /// members the local-private control withheld (`model`, `request`) and
+    /// `unavailable` the digests the profile could not form
+    /// (`request.canonical_sha256`, `model.canonical_sha256`,
+    /// `result.canonical_sha256`). Those were not compared: the result is not
+    /// shown to answer the request for what they would cover.
+    NotVerified { withheld: Vec<String>, unavailable: Vec<String> },
 }
 
 /// Whether a result is bound to the request bytes it is said to answer, for a
@@ -297,8 +304,14 @@ pub enum Binding {
     /// Every digest was recomputed from the kept bytes and is equal.
     Bound,
     /// Not bound: the request and model digests were withheld by the
-    /// local-private control, so nothing ties the result to a request.
-    NotBoundWithheld,
+    /// local-private control, so nothing ties the result to a request; any
+    /// digest also unavailable is named.
+    NotBoundWithheld { unavailable: Vec<String> },
+    /// Not bound: the named digests are unavailable (the profile cannot carry
+    /// what they would cover). An unavailable `result.canonical_sha256` binds no
+    /// result content at all; with an unavailable `request.canonical_sha256` the
+    /// verified `request.raw_sha256` still binds the request bytes as read.
+    NotBoundUnavailable(Vec<String>),
     /// Not bound: the result has no run evidence (made before run evidence
     /// existed, or with it removed); its absence establishes nothing.
     NotBoundNoRunEvidence,
@@ -310,10 +323,42 @@ impl Binding {
     pub fn is_bound(&self) -> bool {
         matches!(self, Binding::Bound)
     }
+
+    /// The named answer: `bound`, `not bound: withheld`, `not bound:
+    /// unavailable: …`, `not bound: no run evidence` or `not bound: mismatch: …`
+    /// (the same words as `tests/verifiers/run_evidence.py`'s `bound`).
+    pub fn answer(&self) -> String {
+        fn raw_note(unavailable: &[String]) -> &'static str {
+            if unavailable.iter().any(|name| name == "request.canonical_sha256") {
+                " (request.raw_sha256 binds the request bytes as read)"
+            } else {
+                ""
+            }
+        }
+        match self {
+            Binding::Bound => "bound".to_string(),
+            Binding::NotBoundWithheld { unavailable } if unavailable.is_empty() => {
+                "not bound: withheld".to_string()
+            }
+            Binding::NotBoundWithheld { unavailable } => {
+                format!("not bound: withheld; unavailable: {}", unavailable.join(", "))
+            }
+            Binding::NotBoundUnavailable(unavailable) => format!(
+                "not bound: unavailable: {}{}",
+                unavailable.join(", "),
+                raw_note(unavailable)
+            ),
+            Binding::NotBoundNoRunEvidence => "not bound: no run evidence".to_string(),
+            Binding::NotBoundMismatch(differing) => {
+                format!("not bound: mismatch: {}", differing.join(", "))
+            }
+        }
+    }
 }
 
 /// The binding check a consumer that requires the binding makes: it fails
-/// closed on withheld evidence and on a result without run evidence.
+/// closed on withheld evidence, on an unavailable digest and on a result
+/// without run evidence.
 pub fn bound(raw: &[u8], emitted: &Value) -> Binding {
     let has_member = emitted.as_object().is_some_and(|object| object.contains_key(MEMBER));
     if !has_member {
@@ -321,7 +366,10 @@ pub fn bound(raw: &[u8], emitted: &Value) -> Binding {
     }
     match verify(raw, emitted) {
         Ok(Checked::Verified) => Binding::Bound,
-        Ok(Checked::Withheld(_)) => Binding::NotBoundWithheld,
+        Ok(Checked::NotVerified { withheld, unavailable }) if !withheld.is_empty() => {
+            Binding::NotBoundWithheld { unavailable }
+        }
+        Ok(Checked::NotVerified { unavailable, .. }) => Binding::NotBoundUnavailable(unavailable),
         Err(differing) => Binding::NotBoundMismatch(differing),
     }
 }
@@ -345,8 +393,9 @@ fn withheld_code(member: Option<&Value>) -> Option<&str> {
 /// `request.canonical_sha256`, `model.canonical_sha256`,
 /// `result.canonical_sha256`, `binding_sha256`, and so on), or `run_evidence`
 /// when the member is missing or not an object. A request and model the control
-/// withheld cannot be compared: when everything else agrees the outcome is
-/// [`Checked::Withheld`], never [`Checked::Verified`]. The invocation and
+/// withheld, and a digest the profile could not form, cannot be compared: when
+/// everything else agrees the outcome is [`Checked::NotVerified`] naming them,
+/// never [`Checked::Verified`]. The invocation and
 /// producer are taken from the evidence (they cannot be recomputed from bytes);
 /// a change to either fails the binding.
 pub fn verify(raw: &[u8], emitted: &Value) -> Result<Checked, Vec<String>> {
@@ -408,10 +457,28 @@ pub fn verify(raw: &[u8], emitted: &Value) -> Result<Checked, Vec<String>> {
         }
     }
     if !differing.is_empty() {
-        Err(differing)
-    } else if withheld_as.is_some() {
-        Ok(Checked::Withheld(vec!["model".to_string(), "request".to_string()]))
+        return Err(differing);
+    }
+    // Every compared member agrees. A digest stated unavailable (and recomputed
+    // as unavailable with the same code) was not compared: it is named, never
+    // counted as verified.
+    let unavailable: Vec<String> = ["request", "model", "result"]
+        .iter()
+        .filter(|member| {
+            stated.get(**member).and_then(|value| value.get("canonical_sha256")).is_some_and(|digest| {
+                digest.as_object().is_some_and(|object| object.contains_key("unavailable"))
+            })
+        })
+        .map(|member| format!("{member}.canonical_sha256"))
+        .collect();
+    let withheld: Vec<String> = if withheld_as.is_some() {
+        vec!["model".to_string(), "request".to_string()]
     } else {
+        Vec::new()
+    };
+    if withheld.is_empty() && unavailable.is_empty() {
         Ok(Checked::Verified)
+    } else {
+        Ok(Checked::NotVerified { withheld, unavailable })
     }
 }

@@ -184,6 +184,27 @@ class GateTests(unittest.TestCase):
         with self.assertRaisesRegex(gate.AdmissionError, 'does not verify: result'):
             gate.run_evidence_binding(edited, sent, 'sparse_interactive')
 
+    def test_a_binding_check_fails_closed_on_an_unavailable_digest(self):
+        """Review round 1, finding 1: a result the profile cannot carry states its digest unavailable; that binds
+        no result content, so the required binding fails on it, and the harness admission refuses it."""
+        from tests.verifiers import run_evidence as rv
+        sent = json.dumps(self.input).encode()
+        wrapper = deepcopy(self.wrapper)
+        wrapper['payload']['mechanics_envelope']['results'][0]['value'] = 1e16
+        invocation = {'command': 'solve', 'solver_mode': 'sparse_interactive', 'explicit_local_private_intent': True}
+        doc = dict(wrapper, run_evidence=rv.form(sent, wrapper, invocation))
+        self.assertEqual(doc['run_evidence']['result'], {'canonical_sha256': {'unavailable': 'CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT'}})
+        self.assertEqual(gate.run_evidence_binding(doc, sent, 'sparse_interactive'),
+                         gate.NOT_BOUND_UNAVAILABLE + ': result.canonical_sha256')
+        with self.assertRaisesRegex(gate.AdmissionError, 'run evidence binding required: not bound: unavailable'):
+            gate.require_run_evidence_binding(doc, sent, 'sparse_interactive')
+        with self.assertRaisesRegex(gate.AdmissionError, 'run evidence not bound: unavailable'):
+            gate.admit_run_evidence(doc, sent, 'sparse_interactive')
+        edited = deepcopy(doc)
+        edited['payload']['runner_result']['run_id'] = 'run:invented-edited-without-updating-any-evidence'
+        with self.assertRaisesRegex(gate.AdmissionError, 'run evidence binding required: not bound: unavailable'):
+            gate.require_run_evidence_binding(edited, sent, 'sparse_interactive')
+
     def test_ledger_exists_before_process_starts(self):
         original = capture
         def observing(*args, **kwargs):

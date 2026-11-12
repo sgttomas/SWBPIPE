@@ -319,12 +319,10 @@ def test_both_runner_exposure_paths_are_controlled_before_stdout_or_file_write()
     final_source = FINAL_RUNNER_PATH.read_text(encoding="utf-8")
     compat_source = COMPAT_RUNNER_PATH.read_text(encoding="utf-8")
 
-    assert final_source.index("control_local_private(") < final_source.index(
-        'println!("{rendered}")'
-    )
-    assert final_source.index("control_local_private(") < final_source.index(
-        "std::fs::write(output_path"
-    )
+    # DEL-10-05 AC-013: the output file is published (whole or not at all) before standard output.
+    file_write = final_source.index("write_output_file(path, document.as_bytes())")
+    stdout_write = final_source.index("stdout.write_all(document.as_bytes())")
+    assert final_source.index("control_local_private(") < file_write < stdout_write
     assert 'args.verb != "export-results" || code == 0' in final_source
     assert "&& !controlled.blocked" in final_source
     assert "args.explicit_local_private_intent" in final_source

@@ -286,6 +286,10 @@ RUN_EVIDENCE_WITHHELD_CODES = ('REQUEST_BLOCKED_BY_LOCAL_PRIVATE_CONTROL', 'REQU
 RUN_EVIDENCE_BOUND = 'bound'
 NOT_BOUND_NO_RUN_EVIDENCE = 'not bound: no run evidence'
 NOT_BOUND_WITHHELD = 'not bound: withheld'
+NOT_BOUND_UNAVAILABLE = 'not bound: unavailable'
+# The checked profile's closed list of refusal codes (core/serialization/canonical_json/src/lib.rs lines 89-107).
+RUN_EVIDENCE_REFUSAL_CODES = ('CHECKED-JSON-INVALID', 'CHECKED-JSON-UNSAFE-INTEGER', 'CHECKED-JSON-NUMBER-INVALID',
+                              'CHECKED-JSON-NON-FINITE', 'CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT')
 UNBOUND_ADMISSION = ('admitted for this harness\'s own value comparison only; ' + NOT_BOUND_NO_RUN_EVIDENCE
                      + ', so the output is not bound to the input sent')
 
@@ -334,8 +338,10 @@ def _jcs(value) -> str:
 def run_evidence_binding(doc: dict, runner_input: bytes | None, mode: str) -> str:
     """Whether the wrapper is bound to `runner_input` (the bytes sent to `solve`): RUN_EVIDENCE_BOUND only when
     every digest is recomputed and equal; NOT_BOUND_NO_RUN_EVIDENCE without the member; NOT_BOUND_WITHHELD when
-    the control withheld the request and model digests (they cannot be compared). Evidence that does not verify
-    is refused (AdmissionError)."""
+    the control withheld the request and model digests; 'not bound: unavailable: <digests>' when a digest is
+    stated unavailable (the canonical profile cannot carry what it covers) and this gate cannot form it either.
+    Withheld and unavailable digests are not compared and bind nothing. Evidence that does not verify is
+    refused (AdmissionError)."""
     if RUN_EVIDENCE not in doc:
         return NOT_BOUND_NO_RUN_EVIDENCE
     require(runner_input is not None, 'run evidence present but the runner input was not supplied')
@@ -345,37 +351,70 @@ def run_evidence_binding(doc: dict, runner_input: bytes | None, mode: str) -> st
     require(type(invocation) is dict and set(invocation) == {'command', 'solver_mode', 'explicit_local_private_intent'}
             and invocation['command'] == 'solve' and invocation['solver_mode'] == mode
             and type(invocation['explicit_local_private_intent']) is bool, 'run evidence names another invocation')
-    digest = lambda value: sha256_bytes(_jcs(value).encode('utf-8'))  # noqa: E731
+    def digest(value):
+        try:
+            return sha256_bytes(_jcs(value).encode('utf-8'))
+        except AdmissionError:
+            return None  # outside the profile: only a stated refusal can match
+    unavailable = []
+
+    def same(member: str, want, have) -> bool:
+        if want is None:
+            if type(have) is dict and set(have) == {'unavailable'} and have['unavailable'] in RUN_EVIDENCE_REFUSAL_CODES:
+                unavailable.append(member)
+                return True
+            return False
+        return want == have
     withheld = [evidence[member] for member in ('request', 'model')]
     if any(type(member) is dict and 'withheld' in member for member in withheld):
         code = withheld[0].get('withheld') if type(withheld[0]) is dict else None
         require(all(member == {'withheld': code} for member in withheld)
                 and code in RUN_EVIDENCE_WITHHELD_CODES, 'run evidence withheld form invalid')
-        expected = {'result': {'canonical_sha256': digest({k: v for k, v in doc.items() if k != RUN_EVIDENCE})},
-                    'binding_sha256': digest({'domain': RUN_EVIDENCE_DOMAIN,
-                                              'payload': {k: v for k, v in evidence.items() if k != 'binding_sha256'}})}
-        differing = sorted(key for key, value in expected.items() if evidence[key] != value)
-        require(not differing, 'run evidence does not verify: ' + ', '.join(differing))
-        return NOT_BOUND_WITHHELD
+        result = digest({k: v for k, v in doc.items() if k != RUN_EVIDENCE})
+        binding = digest({'domain': RUN_EVIDENCE_DOMAIN, 'payload': {k: v for k, v in evidence.items() if k != 'binding_sha256'}})
+        differing = [] if type(evidence['result']) is dict and set(evidence['result']) == {'canonical_sha256'} and same(
+            'result.canonical_sha256', result, evidence['result']['canonical_sha256']) else ['result']
+        if binding is None or binding != evidence['binding_sha256']:
+            differing.append('binding_sha256')
+        require(not differing, 'run evidence does not verify: ' + ', '.join(sorted(differing)))
+        return NOT_BOUND_WITHHELD + ('; unavailable: ' + ', '.join(unavailable) if unavailable else '')
     request = strict_json(runner_input)
     model = request.get('solve', {}).get('preview_model', {}).get('model') if type(request.get('solve')) is dict else None
-    expected = {
-        'evidence_version': '1.0.0',
-        'canonical_profile': 'openpipestress_jcs_ijson_v1',
-        'request': {'raw_sha256': sha256_bytes(runner_input), 'canonical_sha256': digest(request)},
-        'model': ({'pointer': '/solve/preview_model/model', 'canonical_sha256': digest(model)} if model is not None
-                  else {'absent': 'MODEL_DOCUMENT_NOT_IN_REQUEST'}),
-        'result': {'canonical_sha256': digest({k: v for k, v in doc.items() if k != RUN_EVIDENCE})},
-        'binding_sha256': digest({'domain': RUN_EVIDENCE_DOMAIN,
-                                  'payload': {k: v for k, v in evidence.items() if k != 'binding_sha256'}}),
-    }
-    differing = sorted(key for key, value in expected.items() if evidence[key] != value)
-    require(not differing, 'run evidence does not verify: ' + ', '.join(differing))
+    request_digest = digest(request)
+    canonical = {'request': request_digest,
+                 'model': request_digest and (digest(model) if model is not None else None),
+                 'result': digest({k: v for k, v in doc.items() if k != RUN_EVIDENCE})}
+    binding = digest({'domain': RUN_EVIDENCE_DOMAIN, 'payload': {k: v for k, v in evidence.items() if k != 'binding_sha256'}})
+    differing = [key for key, value in (('evidence_version', '1.0.0'), ('canonical_profile', 'openpipestress_jcs_ijson_v1'))
+                 if evidence[key] != value]
+    stated_request, stated_model, stated_result = evidence['request'], evidence['model'], evidence['result']
+    if not (type(stated_request) is dict and set(stated_request) == {'raw_sha256', 'canonical_sha256'}
+            and stated_request['raw_sha256'] == sha256_bytes(runner_input)
+            and same('request.canonical_sha256', canonical['request'], stated_request['canonical_sha256'])):
+        differing.append('request')
+    if model is None:
+        model_ok = stated_model == {'absent': 'MODEL_DOCUMENT_NOT_IN_REQUEST'}
+    else:
+        model_ok = (type(stated_model) is dict and set(stated_model) == {'pointer', 'canonical_sha256'}
+                    and stated_model['pointer'] == '/solve/preview_model/model'
+                    and same('model.canonical_sha256', canonical['model'], stated_model['canonical_sha256']))
+    if not model_ok:
+        differing.append('model')
+    if not (type(stated_result) is dict and set(stated_result) == {'canonical_sha256'}
+            and same('result.canonical_sha256', canonical['result'], stated_result['canonical_sha256'])):
+        differing.append('result')
+    if binding is None or binding != evidence['binding_sha256']:
+        differing.append('binding_sha256')
+    require(not differing, 'run evidence does not verify: ' + ', '.join(sorted(differing)))
+    if unavailable:
+        return NOT_BOUND_UNAVAILABLE + ': ' + ', '.join(unavailable) + (
+            ' (request.raw_sha256 binds the request bytes as read)' if 'request.canonical_sha256' in unavailable else '')
     return RUN_EVIDENCE_BOUND
 
 
 def require_run_evidence_binding(doc: dict, runner_input: bytes | None, mode: str) -> None:
-    """For a check that requires the binding: fails closed on withheld evidence and on a wrapper without it."""
+    """For a check that requires the binding: fails closed on withheld evidence, on an unavailable digest and on a
+    wrapper without run evidence."""
     status = run_evidence_binding(doc, runner_input, mode)
     require(status == RUN_EVIDENCE_BOUND, 'run evidence binding required: ' + status)
 
@@ -383,9 +422,10 @@ def require_run_evidence_binding(doc: dict, runner_input: bytes | None, mode: st
 def admit_run_evidence(doc: dict, runner_input: bytes | None, mode: str) -> str:
     """The harnesses' admission for their own value comparison: bound evidence, or UNBOUND_ADMISSION for an older
     wrapper without the member (which binds nothing). Withheld evidence is refused: the result cannot be tied
-    to the input sent."""
+    to the input sent; nor is evidence with an unavailable digest."""
     status = run_evidence_binding(doc, runner_input, mode)
-    require(status != NOT_BOUND_WITHHELD, 'run evidence ' + NOT_BOUND_WITHHELD + '; the result cannot be tied to the input sent')
+    require(not status.startswith((NOT_BOUND_WITHHELD, NOT_BOUND_UNAVAILABLE)),
+            'run evidence ' + status + '; the result cannot be tied to the input sent')
     return RUN_EVIDENCE_BOUND if status == RUN_EVIDENCE_BOUND else UNBOUND_ADMISSION
 
 

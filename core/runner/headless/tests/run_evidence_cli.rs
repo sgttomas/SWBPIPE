@@ -143,6 +143,23 @@ fn cases() -> Vec<(&'static str, String, i32)> {
     ]
 }
 
+/// The outcome of a check of evidence whose request and model were withheld, all else complete.
+fn withheld_only() -> Checked {
+    Checked::NotVerified { withheld: vec!["model".into(), "request".into()], unavailable: vec![] }
+}
+
+fn unavailable(names: &[&str]) -> Checked {
+    Checked::NotVerified { withheld: vec![], unavailable: names.iter().map(|name| name.to_string()).collect() }
+}
+
+/// The reviewer's case (review round 1): the admitted solve with its first force at 1e15 N, an
+/// in-profile request whose result holds integral numbers beyond 2^53.
+fn solve_with_a_result_outside_the_profile() -> String {
+    let mut input: Value = serde_json::from_str(&solve_admitted()).unwrap();
+    *input.pointer_mut("/solve/preview_model/model/load_cases/0/primitive_loads/0/magnitude/value").unwrap() = json!(1e15);
+    serde_json::to_string(&input).unwrap()
+}
+
 fn intent_run(command: &str, input: &str) -> Run {
     run(&[command, "--explicit-local-private-intent"], input.as_bytes())
 }
@@ -236,14 +253,14 @@ fn without_intent_no_digest_of_the_request_leaves_the_process() {
         assert_eq!(evidence["invocation"]["explicit_local_private_intent"], false);
         assert_eq!(
             verify(input.as_bytes(), &document),
-            Ok(Checked::Withheld(vec!["model".into(), "request".into()])),
+            Ok(withheld_only()),
             "{command}"
         );
         // A withheld request cannot be compared: another request is not detected,
         // and the outcome is still withheld, never verified.
         assert_eq!(
             verify(SOLVE_INPUT.as_bytes(), &document),
-            Ok(Checked::Withheld(vec!["model".into(), "request".into()]))
+            Ok(withheld_only())
         );
         // The result digest is kept and still binds the result.
         let mut edited = document.clone();
@@ -307,7 +324,7 @@ fn a_request_the_control_cannot_judge_is_withheld_whatever_the_intent() {
             assert!(!out.stdout.contains(&sha(input.as_bytes())), "{member}");
             assert_eq!(
                 verify(input.as_bytes(), &document),
-                Ok(Checked::Withheld(vec!["model".into(), "request".into()]))
+                Ok(withheld_only())
             );
         }
     }
@@ -368,10 +385,10 @@ fn withheld_absent_and_complete_evidence_are_told_apart_and_only_complete_binds(
         assert_eq!(withheld["run_evidence"][member], json!({"withheld": run_evidence::WITHHELD_BLOCKED}));
     }
     assert_eq!(verify(input.as_bytes(), &complete), Ok(Checked::Verified));
-    assert_eq!(verify(input.as_bytes(), &withheld), Ok(Checked::Withheld(vec!["model".into(), "request".into()])));
+    assert_eq!(verify(input.as_bytes(), &withheld), Ok(withheld_only()));
     assert_eq!(verify(input.as_bytes(), &absent), Err(vec!["run_evidence".to_string()]));
     assert_eq!(bound(input.as_bytes(), &complete), Binding::Bound);
-    assert_eq!(bound(input.as_bytes(), &withheld), Binding::NotBoundWithheld);
+    assert_eq!(bound(input.as_bytes(), &withheld), Binding::NotBoundWithheld { unavailable: vec![] });
     assert_eq!(bound(input.as_bytes(), &absent), Binding::NotBoundNoRunEvidence);
     assert!(!bound(input.as_bytes(), &withheld).is_bound() && !bound(input.as_bytes(), &absent).is_bound());
     // Withholding only one member is not the withheld form: it is compared, and fails.
@@ -478,7 +495,8 @@ fn the_same_request_run_twice_gives_the_same_result_digest() {
 }
 
 #[test]
-fn a_request_outside_the_canonical_profile_is_stated_as_unavailable() {
+fn a_request_outside_the_canonical_profile_is_stated_unavailable_and_never_verified() {
+    use run_evidence::{bound, Binding};
     let base = validate_admitted();
     let trimmed = base.trim_end().strip_suffix('}').unwrap();
     for (member, code) in [("9007199254740993", "CHECKED-JSON-UNSAFE-INTEGER"), ("1e16", "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT")] {
@@ -491,8 +509,14 @@ fn a_request_outside_the_canonical_profile_is_stated_as_unavailable() {
         assert_eq!(evidence["request"]["raw_sha256"], sha(input.as_bytes()));
         // The refusal is stated by code; the evidence quotes no value of the request.
         assert!(!evidence.to_string().contains("9007199254740993") && !evidence.to_string().contains("note"));
-        assert_eq!(verify(input.as_bytes(), &document), Ok(Checked::Verified), "{member}");
+        // Request member: reported unavailable, never verified; the raw digest still binds the bytes.
+        assert_eq!(verify(input.as_bytes(), &document), Ok(unavailable(&["request.canonical_sha256"])), "{member}");
+        let binding = bound(input.as_bytes(), &document);
+        assert_eq!(binding, Binding::NotBoundUnavailable(vec!["request.canonical_sha256".into()]));
+        assert_eq!(binding.answer(), "not bound: unavailable: request.canonical_sha256 (request.raw_sha256 binds the request bytes as read)");
+        assert_eq!(verify(validate_admitted().as_bytes(), &document), Err(vec!["request.canonical_sha256".into(), "request.raw_sha256".into()]));
     }
+    // Model member (with its request): a size-hangers request holding an unsafe integer.
     let trimmed = SIZING_INPUT.trim_end().strip_suffix('}').unwrap();
     let input = format!("{trimmed},\"note\":9007199254740993}}");
     let document = emitted(&intent_run("size-hangers", &input));
@@ -500,5 +524,53 @@ fn a_request_outside_the_canonical_profile_is_stated_as_unavailable() {
         document["run_evidence"]["model"],
         json!({"pointer": run_evidence::SIZE_HANGERS_MODEL_POINTER, "canonical_sha256": {"unavailable": "CHECKED-JSON-UNSAFE-INTEGER"}})
     );
-    assert_eq!(verify(input.as_bytes(), &document), Ok(Checked::Verified));
+    assert_eq!(verify(input.as_bytes(), &document), Ok(unavailable(&["request.canonical_sha256", "model.canonical_sha256"])));
+    assert!(matches!(bound(input.as_bytes(), &document), Binding::NotBoundUnavailable(_)));
+}
+
+/// Review round 1, finding 1: a result outside the canonical profile states its digest
+/// unavailable; that digest binds no result content, so the binding check fails on it, and
+/// a result edited under unchanged evidence is still never reported verified or bound.
+#[test]
+fn a_result_outside_the_profile_binds_nothing_and_an_edit_under_it_is_never_verified() {
+    use run_evidence::{bound, Binding};
+    let input = solve_with_a_result_outside_the_profile();
+    let out = intent_run("solve", &input);
+    assert_eq!(out.code, 0, "{}", out.stdout);
+    let document = emitted(&out);
+    assert_eq!(
+        document["run_evidence"]["result"],
+        json!({"canonical_sha256": {"unavailable": "CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT"}})
+    );
+    assert!(document["run_evidence"]["request"]["canonical_sha256"].is_string());
+    assert_eq!(verify(input.as_bytes(), &document), Ok(unavailable(&["result.canonical_sha256"])));
+    let binding = bound(input.as_bytes(), &document);
+    assert_eq!(binding, Binding::NotBoundUnavailable(vec!["result.canonical_sha256".into()]));
+    assert_eq!(binding.answer(), "not bound: unavailable: result.canonical_sha256");
+    // The reviewer's tamper: the result edited, the evidence unchanged.
+    let mut edited = document.clone();
+    edited["payload"]["runner_result"]["run_id"] = json!("run:invented-edited-without-updating-any-evidence");
+    assert_ne!(verify(input.as_bytes(), &edited), Ok(Checked::Verified));
+    assert!(!bound(input.as_bytes(), &edited).is_bound());
+    assert_eq!(bound(input.as_bytes(), &edited), Binding::NotBoundUnavailable(vec!["result.canonical_sha256".into()]));
+    // Another request is still caught by the request digests.
+    assert_eq!(
+        verify(solve_admitted().as_bytes(), &document),
+        Err(vec!["model.canonical_sha256".into(), "request.canonical_sha256".into(), "request.raw_sha256".into()])
+    );
+}
+
+/// Review round 1, finding 3: an output path that cannot be written (an existing directory)
+/// exits 2 with nothing on standard output; the file is written before standard output.
+#[test]
+fn an_unwritable_output_path_exits_2_and_prints_no_result() {
+    let directory = std::env::temp_dir().join(format!("run-evidence-unwritable-{}", std::process::id()));
+    std::fs::create_dir_all(&directory).unwrap();
+    let path = directory.to_string_lossy().into_owned();
+    let input = solve_admitted();
+    let out = run(&["solve", "--explicit-local-private-intent", "--output", &path], input.as_bytes());
+    assert_eq!(out.code, 2, "{}", out.stderr);
+    assert!(out.stdout.is_empty(), "{}", out.stdout);
+    assert!(out.stderr.contains("cannot write"), "{}", out.stderr);
+    std::fs::remove_dir_all(&directory).unwrap();
 }

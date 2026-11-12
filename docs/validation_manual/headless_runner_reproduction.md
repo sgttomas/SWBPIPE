@@ -88,32 +88,50 @@ openpipestress-runner read <reader> [--input <reader-input.json>|-]
   `size-hangers`, else `absent`); `result` (`canonical_sha256` of the output
   less `run_evidence`); and `binding_sha256` over the rest. Expect
   `request.raw_sha256` to equal `shasum -a 256` of the input file, and two runs
-  of one input to give the same `result.canonical_sha256`. A digest the profile
-  cannot form is `{"unavailable": "<code>"}`. Where the local-private control,
+  of one input to give the same `result.canonical_sha256`. The evidence is in
+  one of four states. *Complete*: every digest formed. With
+  `--explicit-local-private-intent` the control passes the content, so its
+  digests may be formed; the evidence is complete only when every digest it
+  needs is available. *Unavailable*: a digest
+  the canonical profile cannot form (for example a result holding an integral
+  number beyond 2^53) is `{"unavailable": "<code>"}`, by the profile's refusal
+  code, and binds nothing for what it would cover; with an unavailable request
+  digest, `raw_sha256` still binds the input bytes. *Withheld*: where the local-private control,
   given the request itself and the intent as invoked, would block it (without
   `--explicit-local-private-intent`, any request naming a project or model),
   `request` and `model` each read `{"withheld":
   "REQUEST_BLOCKED_BY_LOCAL_PRIVATE_CONTROL"}` (or
   `REQUEST_NOT_JUDGED_BY_LOCAL_PRIVATE_CONTROL` for a request the control cannot
   judge in full, such as one with a duplicate member) and only the result digest
-  is kept: such a result is not bound to its request. A blocked output and a run
-  that exits 2 carry none, nor does `read`. It is not a signature, and its
-  absence establishes nothing. The independent check is
+  is kept: such a result is not bound to its request. *Absent*: a blocked
+  output and a run that exits 2 carry none, nor does `read`, nor an output made
+  before run evidence existed. It is not a signature, and its absence
+  establishes nothing. The independent check is
   `tests/verifiers/run_evidence.py`: `verify(input_bytes, output)` lists what
-  differs (`[]` only when every digest was recomputed), and `bound(input_bytes,
-  output)` answers `bound`, `not bound: withheld` or `not bound: no run
-  evidence`. Committed outputs made before this change, including the
+  differs, or what was not compared (`model: withheld`, `request: withheld`,
+  `<member>.canonical_sha256: unavailable`); it returns `[]` only when every
+  digest was recomputed. `bound(input_bytes, output)` answers `bound`, `not
+  bound: withheld`, `not bound: unavailable: <digests>`, `not bound: no run
+  evidence` or `not bound: mismatch: <members>`; only `bound` binds. Committed outputs made before this change, including the
   `validation/witness/generated/` witnesses and the dated evidence bundles,
   carry no run evidence and are not regenerated.
 - **`--output`.** The file holds the same JSON as stdout. It is written
   only when the export is not blocked, and for `export-results` only on
-  exit 0.
+  exit 0. It is published first, whole or not at all (a temporary file in the
+  same directory, then moved into place), and stdout is written only after
+  that. The two destinations are not one act: a path that cannot be written
+  exits 2 with no file at the path, no temporary file and nothing on stdout;
+  if stdout fails after the file is published, the file stands whole, stderr
+  names it, and the exit is 2; with no output file, a stdout that fails part
+  way exits 2 and what reached it is not a result. Exit 0 or 1 says every
+  destination asked for was written whole. Trust evidence by verifying its
+  binding (`bound`), never by an exit status alone.
 - **Exit codes.** 0 when no blocking diagnostic is present and the export
   is not blocked; 1 with a blocking diagnostic or a blocked export; 2 for a
   usage error, an unreadable input file, input that is not a JSON object of
   the expected shape (`HEADLESS_RUNNER_CLI_INPUT_JSON_INVALID`), an
-  unsupported verb (`HEADLESS_RUNNER_CLI_UNSUPPORTED_COMMAND`) or an
-  unwritable `--output` path.
+  unsupported verb (`HEADLESS_RUNNER_CLI_UNSUPPORTED_COMMAND`), an
+  unwritable `--output` path, or a stdout that fails (see `--output`).
 - **`read`.** Returns one product reader's verdict as JSON on stdout. It
   exits 0 when the reader passes the statement, 1 when it refuses it, and 2
   when the invocation or input is unusable. It takes no `--output` or intent

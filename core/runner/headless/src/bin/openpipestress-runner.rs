@@ -10,7 +10,7 @@
 //! r9 at #1682).
 #![forbid(unsafe_code)]
 
-use std::io::{self, Read};
+use std::io::{self, Read, Write};
 use std::process::ExitCode;
 
 use open_pipe_stress_headless_runner::{
@@ -217,15 +217,43 @@ fn main() -> ExitCode {
         run_evidence: evidence,
     })
     .expect("controlled CLI output must serialize as JSON");
-    println!("{rendered}");
+    let document = format!("{rendered}\n");
 
-    if (args.verb != "export-results" || code == 0) && !controlled.blocked {
-        if let Some(output_path) = args.output_path.as_deref() {
-            if let Err(error) = std::fs::write(output_path, format!("{rendered}\n")) {
-                eprintln!("openpipestress-runner: cannot write {output_path}: {error}");
-                return ExitCode::from(2);
-            }
+    // Two destinations are not published as one act. The output file comes
+    // first, whole or not at all (a temporary file in the same directory moved
+    // into place); standard output only after it is in place:
+    // - the file cannot be published: no file at the path, no temporary file,
+    //   nothing on standard output, exit 2;
+    // - standard output fails after the file is published: the file stands
+    //   whole, standard error names it, exit 2 (not every destination was
+    //   written whole);
+    // - no output file and standard output fails part way: exit 2; what reached
+    //   standard output is not a result.
+    // Exit 0 or 1 says every destination asked for was written whole. Evidence
+    // is trusted by verifying its binding, never by an exit status alone.
+    let output_path = args
+        .output_path
+        .as_deref()
+        .filter(|_| (args.verb != "export-results" || code == 0) && !controlled.blocked);
+    if let Some(path) = output_path {
+        if let Err(error) = write_output_file(path, document.as_bytes()) {
+            let _ = writeln!(io::stderr(), "openpipestress-runner: cannot write {path}: {error}");
+            return ExitCode::from(2);
         }
+    }
+    let mut stdout = io::stdout().lock();
+    if let Err(error) = stdout.write_all(document.as_bytes()).and_then(|()| stdout.flush()) {
+        let _ = match output_path {
+            Some(path) => writeln!(
+                io::stderr(),
+                "openpipestress-runner: cannot write standard output: {error}; {path} was published whole before it and stands"
+            ),
+            None => writeln!(
+                io::stderr(),
+                "openpipestress-runner: cannot write standard output: {error}; what reached it is not a result"
+            ),
+        };
+        return ExitCode::from(2);
     }
 
     ExitCode::from(if code == 2 {
@@ -238,6 +266,30 @@ fn main() -> ExitCode {
 }
 
 const SIZE_HANGERS: &str = "size-hangers";
+
+/// Write `bytes` to `path` whole or not at all: to a temporary file in the same
+/// directory, then moved into place. On any failure the temporary file is
+/// removed and nothing is left at `path` by this run.
+fn write_output_file(path: &str, bytes: &[u8]) -> io::Result<()> {
+    let target = std::path::Path::new(path);
+    let name = target.file_name().ok_or_else(|| {
+        io::Error::new(io::ErrorKind::InvalidInput, "the output path names no file")
+    })?;
+    let directory = target
+        .parent()
+        .filter(|parent| !parent.as_os_str().is_empty())
+        .unwrap_or_else(|| std::path::Path::new("."));
+    let temporary = directory.join(format!(
+        ".{}.openpipestress-runner-{}.tmp",
+        name.to_string_lossy(),
+        std::process::id()
+    ));
+    let placed = std::fs::write(&temporary, bytes).and_then(|()| std::fs::rename(&temporary, target));
+    if placed.is_err() {
+        let _ = std::fs::remove_file(&temporary);
+    }
+    placed
+}
 
 /// What a verb or a hosted command that takes a request writes: the controlled
 /// output's members in their order, then `run_evidence` when the control passed
