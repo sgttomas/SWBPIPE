@@ -443,7 +443,7 @@ fn projection(p: &Value, row: &Value) -> Result<(), String> {
     );
     Ok(())
 }
-/// the treatment of the section normal-stress extremes and
+/// T4-U4b §4.3: the treatment of the section normal-stress extremes and
 /// transverse-shear maxima a selected source case publishes beside its
 /// qualified rows, and the two formula recipes it names.
 pub(crate) const NOT_QUALIFIED: &str = "derived_not_qualified";
@@ -453,7 +453,7 @@ pub(crate) const NOT_QUALIFIED_KINDS: [&str; 2] =
 /// station rows that recipe reads, in formula order (the axial and bending
 /// stress rows of its station and basis for σ⁺/σ⁻; the station's two shear
 /// rows, the end-force rows at the ends and the section rows inside, for τ).
-/// σ⁺/σ⁻ are recomputed bit for bit; τ is nonnegative here and its
+/// σ⁺/σ⁻ are recomputed bit for bit (§2.3); τ is nonnegative here and its
 /// value is the base reader's check (c_b from the evidence's ν and sections).
 fn not_qualified_in(treatment: &Value, row: &Value, inputs: &[&Value]) -> Result<(), String> {
     let kind = text(&row["kind"])?;
@@ -925,7 +925,7 @@ pub(crate) fn validate_source_contract_in(
             let row = raw[id];
             let s = signature(row)?;
             let inputs = array(&treatment["input_result_ids"])?;
-            // on a selected exact case the two derived kinds carry
+            // T4-U4b §4.3: on a selected exact case the two derived kinds carry
             // exactly `derived_not_qualified` (any other kind carrying it is
             // refused in its branch, NOT_QUALIFIED_KIND).
             if success && method == Some(EXACT) && NOT_QUALIFIED_KINDS.contains(&text(&row["kind"])?) {
@@ -1014,7 +1014,7 @@ pub(crate) fn validate_source_contract_in(
                         "ORDINARY_ROW"
                     )
                 }
-                // a derived row formed from this publication's own
+                // T4-U4b §4.3: a derived row formed from this publication's own
                 // rows; it neither qualifies nor disqualifies the case (`usable`
                 // unchanged) and carries no REQ-002 guarantee.
                 NOT_QUALIFIED => {
@@ -1433,7 +1433,7 @@ fn summary(
             );
         }
     }
-    // the composite's stress headline is per basis, bound to
+    // T4-U6 (D-5, §2.2): the composite's stress headline is per basis, bound to
     // its own basis's maxima; no governing basis is chosen.
     require!(
         summary.get("max_open_formula_stress").is_some_and(Value::is_null),
@@ -1809,7 +1809,7 @@ mod explicit_resource_tests {
     }
 }
 
-/// The readers judge a receipt
+/// RF source-method extension (§7; §8 RF-16). The readers judge a receipt
 /// against the current producer, which solves exact blocks of order up to 4.
 /// The receipt schema admits only qualified cases (`failure` null), so a
 /// stored `unsupported_block` record of any order is refused at the receipt

@@ -6,7 +6,7 @@
 //! filesystem mutation surface.
 //!
 //! Holds no `unsafe` code: the reach scan requires `#![forbid(unsafe_code)]`
-//! at this root (code review
+//! at this root (DEL-08-01 Design `report-user-release.md` §2.8; code review
 //! r9 at #1682).
 #![forbid(unsafe_code)]
 
@@ -206,7 +206,7 @@ fn main() -> ExitCode {
 
 const SIZE_HANGERS: &str = "size-hangers";
 
-/// `size-hangers`: hanger sizing on
+/// `size-hangers` (DEL-04-11 design §8.3.2): hanger sizing on
 /// its own admission path. It takes no `CliInput.request` (no `RunnerRequest`,
 /// operation metadata or input-manifest reference is read or synthesized); the
 /// input text goes to the sizing crate's path-aware admission and pipeline. It
@@ -737,7 +737,7 @@ fn execute_export_results(
 }
 
 /// The runner's own bindings of its request to a version 2.0.0 package
-/// request. The
+/// request (DEL-08-01 Design `report-package-current-results.md` §2.7). The
 /// shared producer's checks (`report_package::bindings`) run after these, in
 /// `assemble_wire_request`. `source_model_ref` names the actual model; the
 /// runner request's model reference must equal the request alias the document's

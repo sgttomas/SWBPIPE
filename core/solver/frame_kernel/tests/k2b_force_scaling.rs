@@ -1159,6 +1159,9 @@ fn k2b_rv11_force_scaled_end_actions_are_checked_and_unscaled_once() {
 }
 
 // ------------------------------------------------------------------ RV11 delta fixes
+// (T3 `ROOT_RULINGS_V1.md`, ROOT's rulings on RV11's delta check; RV11's
+// review `REVIEW/K2B_REVIEW.md`, "Delta check at f385a8bc8", RV11D-1 and
+// RV11D-2.)
 
 /// RV11D-2: `force_scaled_end_actions` checks the local-displacement stage
 /// T * u_e too, at every b, b = 0 included. A member along (3, 4, 0) m has

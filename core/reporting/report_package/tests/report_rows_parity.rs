@@ -4,7 +4,7 @@
 //! is checked against the same file by
 //! `apps/desktop/src/features/report/reportResultRows.parity.test.ts`.
 //!
-//! Slice C5: the
+//! Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): the
 //! model-input projection `P(M, C)` against the shared vectors
 //! `fixtures/reports/invented/report_model_input_vectors.json`, which the
 //! desktop writes (`apps/desktop/src/features/report/modelInputTables.parity.test.ts`).
@@ -75,7 +75,7 @@ fn rust_report_rows_refuse_malformed_sources() {
     }
 }
 
-/// W-11: the
+/// W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.4): the
 /// section-basis suffix on exact-route rows, and none on a W-7 global
 /// end-force row, a row without metadata or metadata without a basis.
 #[test]

@@ -488,7 +488,7 @@ def _floor_reason(floors: list, owner: str) -> str | None:
 
 
 def _body_block(mass: Iv, cog, floors: list) -> dict:
-    """A point mass at the centre of gravity r from its node:
+    """A point mass at the centre of gravity r from its node (Design §2.2, §2.3):
     [[m·I, −m[r]×], [m[r]×, m(|r|²I − rrᵀ)]]; its own inertia is unentered, so zero."""
     r = [Iv(v) for v in cog]
     first = [mass * r[a] for a in range(3)]
@@ -802,7 +802,7 @@ def derive(request: Any) -> ModelMass:
     for pipe_id, body in bodies.items():
         node, weight, cog = body
         _body_range(weight, acceleration, cog, pipe_id)
-        mass_x = Iv(weight) / Iv(acceleration)            # W/a
+        mass_x = Iv(weight) / Iv(acceleration)            # W/a, Design §2.3
         mass_e = binary64(mass_x, f"component body on {pipe_id}")  # the producer's fl(W/a)
         floors = []
         exact_block, envelope_block = (_body_block(m, cog, floors) for m in (mass_x, mass_e))
@@ -874,7 +874,7 @@ def _weight(component):
 
 
 def _component_bodies(model, components, pipes, selected, curved, replaced, request, out):
-    """Self-weight's eligibility (W-15 slice b), by its stated rules: a
+    """Self-weight's eligibility (Design §2.3, W-15 slice b), by its stated rules: a
     mapping conflict refuses; `not_solver_consumed` keeps the pipe mass silently; an
     unmet condition (consumption undeclared or not geometry-only, the member not ending
     at the node, no finite positive weight, no finite centre of gravity, in that order)
@@ -1077,7 +1077,7 @@ def _direction_axis(support, support_id, restraints):
 
 
 def _partition(model, index, out):
-    """The axis restraint partition: a rigid support restrains its listed
+    """The axis restraint partition (Design §1.3): a rigid support restrains its listed
     DOFs; a spring or (variable) spring hanger leaves its DOF free; a constant-effort
     support is absent; a nonlinear support with no restraints and no stiffness enters
     only through the state case. A skewed record (modal-1 refuses skew before
@@ -1151,7 +1151,7 @@ def _state(request, model, index, out):
     out.state_case = case_id
 
 
-# --- the subject census ---------------------------------------------------------
+# --- the subject census (Design §5.3.2) ---------------------------------------------------------
 
 class Census:
     """The subjects a bound request's model gives a run, each list in model order: the
@@ -1519,7 +1519,7 @@ def mass_items(model: ModelMass, view) -> list[str]:
 
 
 def _centre(model: ModelMass, view, rounded, n_dofs, items):
-    """The mass centre from M's first moments: with F = M R_k about a point
+    """The mass centre from M's first moments (Design §1.5): with F = M R_k about a point
     p, the resultant moment is T_k·(c − p) × e_k, so c_x and c_y come from R_z and c_z
     from R_x. The producer takes p̃ = the node centroid (double word, rounded), divides
     the double-word moments by the binary64 totals and publishes fl(p̃ + fl(d))."""

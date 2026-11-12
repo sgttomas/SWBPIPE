@@ -350,7 +350,7 @@ pub(crate) fn prepare_modal(req: &ModalPreviewRequest) -> Result<Prepared<'_>, V
         )
         .chain(potential_contact_dofs.iter().flatten().copied())
         .collect::<HashSet<_>>();
-    // one ground row per stop and per positive skewed spring, as the static entry counts.
+    // §9: one ground row per stop and per positive skewed spring, as the static entry counts.
     let skewed_rows = crate::skew::ground_rows(built.skew.as_ref());
     if !(ground_dofs.is_empty() && skewed_rows == 0) && ground_dofs.len() + skewed_rows < DOF_PER_NODE {
         let (restrained, missing) = support_restraint_summary(&boundary.restrained_dofs);

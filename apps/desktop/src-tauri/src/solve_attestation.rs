@@ -238,7 +238,7 @@ mod tests {
         }
     }
 
-    // --- allocation checks -----------------------------------------
+    // --- allocation checks (§2.4, §6) -----------------------------------------
 
     /// The price of a `Vec` of `n` 8-byte entries (`Vec<&String>`).
     fn pointers(n: usize) -> u64 {
@@ -337,7 +337,7 @@ mod tests {
         )
     }
 
-    /// each transient piece, maximized on its own invented value,
+    /// §2.4 and §6: each transient piece, maximized on its own invented value,
     /// stays within the account. The numeric value, whose pieces are all
     /// small, shows that no canonical text is held.
     #[test]

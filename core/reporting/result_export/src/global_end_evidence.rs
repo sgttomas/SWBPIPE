@@ -1,4 +1,4 @@
-//! W-7: the reader checks of the
+//! W-7 (DEL-04-01 Design `global-end-actions.md`): the reader checks of the
 //! member end actions in global coordinates (`element_global_end_force_v1`,
 //! `element_global_end_moment_v1`), shared by the pressure-2 reader
 //! (`physics_evidence`) and the preview-physics-2 reader
@@ -51,9 +51,10 @@ const COMBINATION_BASES: [&str; 6] = [
     "explicit_user_linear_combination",
     "explicit_user_result_state_subtraction",
     "explicit_user_range_envelope",
+    // RT-A4 (DEL-05-02 absolute-sum-srss §4).
     "explicit_user_absolute_sum",
     "explicit_user_srss",
-    // RT-A5: a held-operand row, under its combination.
+    // RT-A5 (DEL-05-02 operating-case §7.6): a held-operand row, under its combination.
     "held_status_operand",
 ];
 const FORCE_COMPONENTS: [&str; 3] = ["Fx", "Fy", "Fz"];

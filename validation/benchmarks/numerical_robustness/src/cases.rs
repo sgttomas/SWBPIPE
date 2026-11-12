@@ -104,7 +104,7 @@ pub struct Model {
     pub nodes: Vec<[f64; 3]>,
     pub members: Vec<Member>,
     pub springs: Vec<SpringSpec>,
-    /// R1 springs with k = 0, omitted by the adapter (RF-MECH-K0).
+    /// R1 springs with k = 0, omitted by the adapter (RF-MECH-K0; plan §4.1).
     pub omitted_springs: Vec<String>,
     pub constraints: Vec<(u32, usize)>,
     pub loads: Vec<(u32, usize, f64, String)>,
@@ -388,7 +388,7 @@ pub fn load_large_model_described(
     (model, crate::sha256::sha256_hex(text.as_bytes()), facts)
 }
 
-/// The kernel quantity an R1 key is compared with.
+/// The kernel quantity an R1 key is compared with (plan §4.2).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Target {
     Displacement(Dof),

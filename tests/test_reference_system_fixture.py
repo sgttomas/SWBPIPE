@@ -439,7 +439,7 @@ def test_eq3_expansion_equals_operating_minus_sustained_on_every_component_row(m
     assert not failures, failures[:20]
 
 
-# KR-05: presence is an identity, checked here; its values come later from a verified solve, so no value is
+# KR-05 (spec §9.1): presence is an identity, checked here; its values come later from a verified solve, so no value is
 # read. The tee RS-T1 at RS-130 names RS-P120 (header, which ends there: end_j) and RS-P210 (branch, which starts there:
 # end_i); each side publishes one row per section basis, bound to its intensified_measures record.
 BRANCH_KIND = "branch_intensified_bending_stress_v1"

@@ -26,7 +26,7 @@ import previewRetained26dc from "../../../../fixtures/results/recorded_pre_rt_a5
 import previewPhysicsF41b from "../../../../fixtures/results/recorded_pre_rt_a5_mf/semantic_contract_v0_3_preview_physics_2.f41b9d3e.json?raw";
 import previewTimoshenko6f64 from "../../../../fixtures/results/recorded_pre_rt_a5_mf/semantic_contract_v0_3_preview_physics_timoshenko_1.6f649490.json?raw";
 import previewRetainedB437 from "../../../../fixtures/results/recorded_pre_rt_a5_mf/semantic_contract_v0_3_preview_physics_retained_1.b4377e73.json?raw";
-// main's exact successor table at 252bef969, before the combination certificate.
+// RT-A3 §4: main's exact successor table at 252bef969, before the combination certificate.
 import physicsRetained85c2 from "../../../../fixtures/results/recorded_pre_rt_a4/semantic_contract_v0_3_physics_retained_1.85c2678a.json?raw";
 // R-6/R-7 S-K1: main's tables at 9e5c69797, before the along-direction kind
 // (support_reaction_along_direction_v1) joined them.

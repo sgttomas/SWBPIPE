@@ -1,4 +1,4 @@
-"""CEF (RT-S3 constant-effort fallback publication; §8.61): the exact reviewed CE delta.
+"""CEF (RT-S3 constant-effort fallback publication; retained-pricing-rules.md §8.61): the exact reviewed CE delta.
 
 The CE correction adds one branch to `solve_prepared_load_case`'s support loop. A support with no selected source
 action, no nonlinear field and `is_constant_effort_support` restates `classify_constant_effort_consumption`'s

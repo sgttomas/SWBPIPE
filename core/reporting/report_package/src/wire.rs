@@ -383,7 +383,7 @@ pub(crate) fn assemble_wire_request_in(
     admitted: AdmittedSet,
 ) -> Result<package::ReportPackageContainerOutcome, String> {
     // Item 0, the route preflight, comes before any other check, including the
-    // audit conversion.
+    // audit conversion (DEL-08-01 Design §2.3).
     for document in &request.result_documents {
         crate::document_form::check_route_admitted_in(document, admitted)?;
     }

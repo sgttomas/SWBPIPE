@@ -376,7 +376,7 @@ fn no_combination_no_member() {
     assert!(!v["diagnostics"].as_array().unwrap().iter().any(|d| d["id"].as_str().unwrap().starts_with("diagnostic:combination-certificate:")));
 }
 
-/// Premise: the operand bounds are each operand
+/// Premise (Work `combination-certificate.md` §1): the operand bounds are each operand
 /// case's own. A subtrahend held at the minuend's final support status is a different
 /// system from its load case, so the combination is not assessed and binds no B_D,
 /// whatever its gate says (on this base G-1 also withholds it at the solve).

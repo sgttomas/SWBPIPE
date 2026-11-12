@@ -1,4 +1,4 @@
-//! V-K's seeded faults (the V-K brief's Scope 9; ROOT's
+//! V-K's seeded faults (T3 D1 §4.10 and §7.3; the V-K brief's Scope 9; ROOT's
 //! rulings on I17's plan, Q4 and Q8).
 //!
 //! This module and every fault site are compiled only under
@@ -19,27 +19,27 @@ use std::sync::OnceLock;
 /// I17's A1 stop).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum Fault {
-    /// the assembled K promoted from binary64.
+    /// §7.3-1: the assembled K promoted from binary64.
     F01,
-    /// u rounded to binary64 before recovery.
+    /// §7.3-2: u rounded to binary64 before recovery.
     F02,
-    /// the smallest contribution to each diagonal entry dropped.
+    /// §7.3-4: the smallest contribution to each diagonal entry dropped.
     F03,
-    /// e_x's first two components swapped in the member frame.
+    /// §7.3-4: e_x's first two components swapped in the member frame.
     F04,
-    /// no escalation after a rejected candidate.
+    /// §7.3-5: no escalation after a rejected candidate.
     F05,
-    /// the candidate accepted without the verification's verdict.
+    /// §7.3-6: the candidate accepted without the verification's verdict.
     F06,
-    /// the geometric mechanism check disabled.
+    /// §7.3-7: the geometric mechanism check disabled.
     F07,
-    /// member 1's i–j coupling block left out, sparse mode only.
+    /// §7.3-8: member 1's i–j coupling block left out, sparse mode only.
     F08,
     /// §7.3-10 (list-order form): the canonical sort skipped.
     F10,
-    /// the loads folded at p = 128 in listed order.
+    /// §7.3-13: the loads folded at p = 128 in listed order.
     F13,
-    /// every scaled row classified `relative_verified`.
+    /// §7.3-17: every scaled row classified `relative_verified`.
     F17,
     /// R7-M2: ê uncoupled.
     R02,

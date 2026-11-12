@@ -5,7 +5,7 @@
 //! private to this module, so no other code can construct one. [`PRODUCTION`],
 //! which wraps [`ADMITTED_SEMANTIC_CONTRACTS`], is the only value there is, in
 //! every build, test builds included: since the owner opened exact-route
-//! packages (owner, 2026-10-26) the production set admits preview-physics-2,
+//! packages (§5.1; owner, 2026-10-26) the production set admits preview-physics-2,
 //! pressure-2 and pressure-source-1, so the test-only widened set that the
 //! in-crate witness used before opening is removed. Every crate-private `_in`
 //! variant therefore receives the production set, whoever calls it. The set

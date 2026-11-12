@@ -88,7 +88,7 @@ if B7B_EXACT_BASE:
                               "B7b-LR (route E): " + LOAD_STATE_OFF + "; the producer adds contract_evidence.load_reference_states only "
                               "under is_load_state and RS project() copies contract_evidence, so the successor has none and "
                               "validate_pressure_evidence takes its physics arm (validate_physics_evidence_in(.., false, PressureV3))")]
-# W16-NS (route E; §8.23): imposed_motion::validate takes its pressure-free branch only when
+# W16-NS (route E; retained-pricing-rules.md §8.23): imposed_motion::validate takes its pressure-free branch only when
 # pressure_runtime::is_exact is false; route E is the exact branch (EXACT), so validate_pressure_free never runs there.
 _W16_IM = "core/product_physics/src/imposed_motion.rs"
 if os.path.exists(os.path.join(os.environ["SQ2_SNAP"], _W16_IM)):

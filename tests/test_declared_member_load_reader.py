@@ -262,7 +262,7 @@ def test_genuine_member_product_and_all_attested_hash_forgery():
 def test_genuine_exhaustion_and_diagnostic_encoding_association_mutants():
     """The genuine-exhaustion control's writer outputs, read and mutated.
 
-    Since the W1 coverage repair the
+    Since the W1 coverage repair (DEL-04-08 w1-coverage-repair.md section 1.4, option 2) the
     control is hook-driven: its writer runs only with product_physics'
     --features loaded-maximum-hooks and drives a real member to exhaustion at reduced search
     limits; it claims no production limit.

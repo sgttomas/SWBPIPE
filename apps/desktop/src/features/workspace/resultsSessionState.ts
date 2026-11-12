@@ -90,7 +90,7 @@ export function useResultsSessionState() {
   const [result, setResult] = useState<SessionResult | null>(null);
   const [historicalRun, setHistoricalRun] = useState<HistoricalRunContext | null>(null);
   const [analysisRun, setAnalysisRun] = useState<SessionAnalysisRun | null>(null);
-  // C2 interim: a native result's full copy,
+  // C2 interim (DEL-04-05 `c1-native-custody-plan.md` slice 4): a native result's full copy,
   // loaded only when a C2 consumer asks for it (at or under 64 MiB). Comparisons read it.
   const [fullResultCopy, setFullResultCopy] = useState<{ of: SessionResult; copy: MechanicsResult } | null>(null);
   // Drop the actual reference, not only its visibility: disposal releases its

@@ -88,7 +88,7 @@ pub struct CertifiedLoadVector {
     pub rho: f64,
 }
 
-/// A failed precondition: the terms stay `CannotBound`.
+/// A failed precondition (DESIGN_R01 §3.5): the terms stay `CannotBound`.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ArcCertificateFailure {
     /// Class 2: a divisor ball reaches zero (L3).
@@ -116,7 +116,7 @@ impl From<WideError> for ArcCertificateFailure {
 type Failure = ArcCertificateFailure;
 
 // ---------------------------------------------------------------------------
-// Directed binary64 primitives, for a, b ≥ 0
+// Directed binary64 primitives (DESIGN_R01 §3.2), for a, b ≥ 0
 // ---------------------------------------------------------------------------
 
 /// ≥ a + b.
@@ -499,7 +499,7 @@ fn invert_verified(
 }
 
 // ---------------------------------------------------------------------------
-// The evaluation (the normative order)
+// The evaluation (DESIGN_R01 §3.3, the normative order)
 // ---------------------------------------------------------------------------
 
 /// Internal actions of one unit load: in-plane moment, out-of-plane moment,
@@ -681,7 +681,7 @@ fn arc_flexibility(
 }
 
 /// T4-U1b (R-1): the consistent uniform-load vector of the objective arc,
-/// certified. Order [node i; node j] × [F, M] in global axes.
+/// certified (DESIGN_R01 §3). Order [node i; node j] × [F, M] in global axes.
 pub fn certify_curved_uniform_load(
     bend: &CurvedFormation,
     intensity: [f64; 3],
@@ -869,7 +869,7 @@ pub(super) fn curved_uniform_load_balls(
 }
 
 // ---------------------------------------------------------------------------
-// O-13: the arc recovery certificate
+// O-13: the arc recovery certificate (`arc-recovery-guard.md`)
 // ---------------------------------------------------------------------------
 
 /// 2⁻⁵³ (exact): the relative representation error of a binary64 value.
@@ -896,7 +896,7 @@ fn half_exponent(m: &Wide2) -> Result<i64, Failure> {
     Ok(e.div_euclid(2))
 }
 
-/// L7′, the equilibrated verified inverse. With the
+/// L7′, the equilibrated verified inverse (T4-I34 DESIGN §2.3). With the
 /// exact scaling D = diag(2^−⌊eᵢ/2⌋), 2^eᵢ ≤ |m(Fᵢᵢ)| < 2^(eᵢ+1), and
 /// F′ = DFD: X̃′ is the Gauss–Jordan inverse of mid(F′) at p, R′ = I − F′X̃′
 /// in balls, ρ′ its row bound, c_k = max_j(|m| + r)(R′_jk) and
@@ -1292,7 +1292,7 @@ impl CertifiedArcRecovery {
     }
 }
 
-/// The output rule: the exact split of the midpoint, and
+/// The output rule (DESIGN_R01 §3.2): the exact split of the midpoint, and
 /// r̂ plus 2⁻¹⁰⁷⁴ when the split dropped bits below 2⁻¹⁰⁷⁴.
 fn finish_component(ball: &Ball, single_component: bool) -> Result<CertifiedLoadTerm, Failure> {
     let split = ball.m.split_binary64()?;

@@ -33,7 +33,7 @@ serde_json = { version = "1", features = ["float_roundtrip"] }
 open_pipe_stress_result_export = { path = "../reporting/result_export" }
 
 [features]
-# W1 coverage repair census: the
+# W1 coverage repair census (DEL-04-08 Design `w1-coverage-repair.md` §3.2): the
 # kernel's opt-in census probe. No dev-dependency enables it; the guard test
 # `census_probe_is_off_in_the_ordinary_test_build` asserts it is off there.
 census-probe = ["open_pipe_stress_frame_kernel/census-probe"]

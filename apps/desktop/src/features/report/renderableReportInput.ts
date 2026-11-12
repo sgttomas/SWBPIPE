@@ -95,7 +95,7 @@ export type ReportRenderContext = {
   generatedAt: string | null;
 };
 
-/** The user-released report context,
+/** The user-released report context (W-18b, DEL-08-01 Design `report-user-release.md` §2.6),
  * the DEL-12-02 vocabulary's single definition (`redactionExportControls.ts`; Rust
  * `report_package::user_release::USER_RELEASED_CONTEXT`), re-exported here. Only the
  * user-released report builder below writes it. */
@@ -762,7 +762,7 @@ function userRuleChecks(run: SessionRuleCheckRun) {
     grammar_version: run.result.grammar_version,
     aggregate_status: status(run.result.aggregate_status),
     // One outcome per check and load case or combination (rule-pack format
-    // 0.5.0): each carries
+    // 0.5.0; DEL-06-01 Design `rule-pack-0.5.0.md` §2.7, §6): each carries
     // the basis it was evaluated on. An outcome without one (a check the pack
     // gives no basis) omits the member, and the report shows "load case not
     // recorded".
@@ -805,7 +805,7 @@ export async function buildRenderableReportInput(args: RenderableReportInputArgs
   return renderableReportInput(args, null);
 }
 
-/** The user-released record as the report context carries it. Its form and
+/** The user-released record as the report context carries it (W-18b §2.3). Its form and
  * bound members are checked natively; the builder carries it as given. */
 export type UserReleaseRecordValue = Record<string, unknown>;
 
@@ -870,7 +870,7 @@ async function renderableReportInput(
     throw new Error("REPORT-COMPOSITION-CONTEXT-NOT-ADMITTED: composition requires a local private or user-released report");
   }
   const exact = isExactReportSource(result);
-  // a pressure-free Timoshenko source carries its
+  // DEL-05-03 `pf-timoshenko.md` §4: a pressure-free Timoshenko source carries its
   // limitation 0 entry always, and its `pf_timoshenko` section when it took the admission
   // (the rendered report; the package binds the entry against its source instead).
   const pfTimoshenko = isPfTimoshenkoReportSource(result);
@@ -1127,7 +1127,7 @@ async function renderableReportInput(
     // The minimal input carries no user-rule outcome member at all (§2.6).
     ...(minimal ? {} : { user_rule_checks: ruleCheckRun ? userRuleChecks(ruleCheckRun) : null }),
     ...(exactRoute ? { exact_route: exactRoute } : {}),
-    // absent on every other source, so its input is unchanged.
+    // DEL-05-03 `pf-timoshenko.md` §4: absent on every other source, so its input is unchanged.
     ...(pfInputs ? { pf_timoshenko: pfTimoshenkoSection(exactAdmission!.binding) } : {}),
     // W-11 slice (c) (§4.2): absent without references, so such an input is unchanged.
     ...(libraryRefs.length > 0 ? { library_references: libraryRefs } : {})

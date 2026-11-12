@@ -1,4 +1,4 @@
-//! Store tests of recorded analysis runs.
+//! Store tests of recorded analysis runs (W-12 S2; DEL-14-01 Design §3 and §6).
 use super::*;
 use crate::command_ingress::test_support::{admit_json, check_decode_bound, headers, registry};
 use crate::command_ingress::{admit_body_within, INGRESS_ARGS_JSON_V1};
@@ -3003,7 +3003,7 @@ fn the_history_commands_reach_long_project_ids_written_by_the_real_writers() {
 }
 
 // ---------------------------------------------------------------------------
-// Rule-pack reference diagnostics (FR-CMP-002): the
+// Rule-pack reference diagnostics (FR-CMP-002; DEL-14-01 Design §3): the
 // record's diagnostics are the result's, then one per model reference the
 // manifest leaves out of active_rule_packs, each exactly its code's and
 // identity's, at Record Run and at read. All rule-pack data are invented.
@@ -4025,7 +4025,7 @@ fn sqlite_allocations_for_an_oversized_id_are_admitted_before_sqlite_loads_it() 
 }
 
 /// SQLite's page cache, which stays within the accepted residual estimate
-/// (Codex r8 measured up to 2.48 MB of cache): an
+/// (DEL-14-01 Design §3; Codex r8 measured up to 2.48 MB of cache): an
 /// interval's SQLite peak may exceed what the read holds by at most this, and
 /// a command that never loads a large value peaks within it.
 const SQLITE_PAGE_CACHE_SLACK: u64 = 3 << 20;
@@ -4170,7 +4170,7 @@ fn a_blocked_delete_names_its_children_from_their_verification_without_reloading
 }
 
 // ---------------------------------------------------------------------------
-// Run comparison admission: the
+// Run comparison admission (W-12 S3b; DEL-14-01 Design §4.2, Memory): the
 // combined stored size of the two runs' results and input manifests (with the
 // session's current run when it is one side) against the per-invocation
 // budget, in one read transaction that reserves SQLite's working set first;

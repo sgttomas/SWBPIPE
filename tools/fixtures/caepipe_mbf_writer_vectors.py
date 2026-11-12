@@ -321,7 +321,7 @@ def coverage_inputs() -> list[tuple[str, dict, dict]]:
         "id": "support:coverage-spring", "node": free_node(m), "family": "spring", "restraints": ["UY"],
         "stiffness": {"dof": "UY", "value": {"value": 1000.0, "unit": "N/mm"}}}))
     variant("int-position-beyond-2-53", lambda m: m["nodes"][-1]["position"].update(x=2 ** 53 + 1))
-    # Sidecar format 4: the section library and its bindings, one change each where no suite reaches.
+    # Sidecar format 4 (Design §15): the section library and its bindings, one change each where no suite reaches.
     def library(model: dict, *section_ids: str, bind: int | None = 0) -> None:
         """Library sections of the first pipe's OD and wall; with `bind`, that pipe binds the first."""
         section = model["pipe_segments"][0]["section"]

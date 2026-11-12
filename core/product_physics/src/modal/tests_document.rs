@@ -1,4 +1,4 @@
-//! I3a tests: the modal result document, projected
+//! I3a tests (DEL-04-09 Design §5.3): the modal result document, projected
 //! from real `ModalOutcome`s of the reference models with **TEST-LOCAL,
 //! EXPERIMENTAL** parameters, and the maintained fixtures it generates.
 //!
@@ -185,7 +185,7 @@ fn a_member_named_model_is_not_the_aggregate_subject() {
     assert!(rows.iter().all(|r| ["member", "component_body", "model"].contains(&r["subject_kind"].as_str().unwrap())));
 }
 
-/// Producer edges: reported modes
+/// Producer edges (Design §5.3.4, the relation inventory): reported modes
 /// whose participation quantities are formed by the producer's own
 /// `normalize_mode` and `cumulative_effective_mass_fractions` on edge bases,
 /// and projected by the producer's own `modal_doc_solved`. Each is a set of

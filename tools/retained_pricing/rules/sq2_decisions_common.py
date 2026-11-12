@@ -362,7 +362,7 @@ PREFIX.update({
 ID_AUDIT = ID_AUDIT + [
     (rs_line('result_id: text(&row["id"]).into(),', "r_comb_1"), {'text(&row[""])': RS_}),
 ]
-# Silent-drop guard D3 (§8.19, SD-RK): PP preview_physics.rs append_combination_results names
+# Silent-drop guard D3 (retained-pricing-rules.md §8.19, SD-RK): PP preview_physics.rs append_combination_results names
 # every withheld row, so two basis keys of its audited sites no longer carry by line: the source-missing diagnostic's refs
 # (basis :990) moved into the `source_missing` closure, where its text is no longer unique in the function (the new
 # LOAD_COMBINATION_ROW_WITHHELD diagnostic has the same refs line), and a support component row's source refs (basis
@@ -393,7 +393,7 @@ if "let source_missing = |diagnostics: &mut Vec<Diagnostic>|" in _PP_SRC:
             "rows.push(combination_row(combination, &expression, " + _SD_SIGN + "sources[0], qualified_combination_result_id(&combination.id, &base(component)), value, sources.iter().map(|s| s.id.clone()).collect()));"),
     }
     ID_AUDIT = [(_sd_rekeys.get(k, k) if isinstance(k, str) and type(k).__name__ != "Resolved" else k, v) for k, v in ID_AUDIT]
-# RT-A4 D3 (§8.46, RT-A4-RK2..4): the wiring rewrite moves three decision keys, each re-keyed by
+# RT-A4 D3 (retained-pricing-rules.md §8.46, RT-A4-RK2..4): the wiring rewrite moves three decision keys, each re-keyed by
 # name at the snapshot to the same semantic site; a source without the method `CombinationExpression::evaluate_values`
 # keeps the basis keys.
 # - RK2 (EDGE_PER_CALL): preview_physics.rs's free `evaluate_values(expression, values, dimension)` is deleted and its
@@ -425,7 +425,7 @@ if "    fn evaluate_values(&self, values: &[f64], dimension: LoadDimension) -> O
         P_ + "preview_physics.rs:947": (_pp_combination_line("let mut refs = vec![combination.id.clone()];"), {"combination.id": IN}),
     }
     ID_AUDIT = [_a4_rk.get(k, (k, v)) if isinstance(k, str) and type(k).__name__ != "Resolved" else (k, v) for k, v in ID_AUDIT]
-# Model document 0.9.0 D3 (§8.36, S1-RK): validate_mechanics_combination names a term's
+# Model document 0.9.0 D3 (retained-pricing-rules.md §8.36, S1-RK): validate_mechanics_combination names a term's
 # operand (`operand_id`, a load case's or a combination's raw id: IN128 either way) in place of `term.load_case`, so the
 # factor diagnostic's two basis keys no longer carry with their audits: its id line (basis :2026, whose text carries but
 # whose argument is now `stable_suffix(operand_id)`) and its refs line (basis :2034, replaced by

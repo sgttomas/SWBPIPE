@@ -54,11 +54,11 @@ def discover_cargo_manifests(root: Path = ROOT) -> list[Path]:
     return manifests
 
 
-# the retained W1 path's stack witnesses at the R/64 = 1 MiB
+# b7-plan item 5a: the retained W1 path's stack witnesses at the R/64 = 1 MiB
 # headroom leg (core/product_physics retained_memory_witness_tests.rs). An overflow
 # aborts the test process, so each runs alone. In the registered build identity on
 # the qualification host they are VER-004's record; elsewhere they are an early
-# warning.
+# warning (DEL-04-08 Design, stack-headroom-repair.md).
 STACK_WITNESS_MANIFEST = Path("core/product_physics/Cargo.toml")
 STACK_WITNESSES = (
     "witness_headroom_w1_at_one_mebibyte",

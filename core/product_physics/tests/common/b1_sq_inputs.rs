@@ -27,7 +27,7 @@ const PROV: &str = "invented_t3_b1_sw_probe_input_no_library_data";
 /// I86's `input_sha` pins (sha256 of `serde_json::to_vec(&value)`). The silent-drop guard
 /// (2026-10-23) moved the stressed inputs' depth-16 value from an unknown root member to the
 /// declared `diagnostics` member (`stressed`), which re-pinned the i3 inputs below. Model
-/// document 0.8.0 (W-15 slice c) and 0.9.0 re-pinned every pin
+/// document 0.8.0 (W-15 slice c) and 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.6) re-pinned every pin
 /// below with its version-only re-authoring.
 pub const W2B_SHA256: &str = "2ebb4f3815b480399b668ed1399ac46f72f7425ca7d88a8b16e284e434932efe";
 pub const B2_K1E3_SHA256: &str = "07ef18a2ed1cc2bab70c651d66ed59d046cb74e1f9837641b6821df096935dfb";
@@ -426,7 +426,7 @@ pub fn w_cb2() -> Value {
     raw["model"]["combinations"] = json!([b2w_combination("case:a", "case:b", 1.0, "I98 B2-W R-7 count: A + B")]);
     raw
 }
-/// `b2_c1_range_mechanics`: the milestone with `[range(case), 2·case]` (z = 2, C_eq = 3).
+/// `b2_c1_range_mechanics` (REVISION_01 §5.1): the milestone with `[range(case), 2·case]` (z = 2, C_eq = 3).
 pub fn b2_c1_range_mechanics() -> Value {
     let mut raw = milestone();
     raw["model"]["combinations"] = json!([

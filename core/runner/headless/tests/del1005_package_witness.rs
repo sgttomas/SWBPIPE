@@ -252,7 +252,7 @@ fn the_shared_root_refuses_the_exact_witness_requests_under_the_runner_profile()
     }
 }
 
-/// the headless runner stays refused for exact-route results. Its
+/// W-11 §5.4: the headless runner stays refused for exact-route results. Its
 /// `export-results` command, given the committed runner witness input with
 /// each exact witness request as its payload, under the desktop and the
 /// runner profile, refuses with `REPORT-PACKAGE-ROUTE-NOT-ADMITTED` and

@@ -143,7 +143,7 @@
     };
   }
 
-  // Designate original source…: the model-document chooser returns `path`; the dialog then shows the
+  // Designate original source… (Design §5.4): the model-document chooser returns `path`; the dialog then shows the
   // designated review, or the designation's refusal over the ordinary review.
   async function designateSource(dialog, path) {
     await waitFor("Designate enabled", () => byTestId("mbf-import-designate", dialog)?.disabled === false, 300000);

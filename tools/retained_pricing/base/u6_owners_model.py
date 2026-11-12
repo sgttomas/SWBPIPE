@@ -59,7 +59,7 @@ def receipt_hash_copies(source_receipt_text):
         "#[derive(Serialize)]\nstruct DomainPayload<'a> {\n    domain: &'a str,\n    payload: &'a Value,\n}\n")
 
 
-# S6-HS (T4-S6, §8.8): the three publication-hash families stream the checked canonical text
+# S6-HS (T4-S6, retained-pricing-rules.md §8.8): the three publication-hash families stream the checked canonical text
 # of the borrowed {domain, payload} into SHA-256 through open_pipe_stress_canonical_json::checked_v1_domain_canonical
 # (no wrapper copy, no to_string text, no checked parse, no canonical text). The writer's production code, from
 # validate_checked_value to the test module, is bound by its sha256; each site by its exact text.

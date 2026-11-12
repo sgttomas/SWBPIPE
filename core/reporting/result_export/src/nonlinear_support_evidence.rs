@@ -87,10 +87,10 @@
 //!   nothing, so s·c is not checked for it;
 //! - friction, not inactive: |R| ≤ μN; sticking ⇒ δ = 0; sliding ⇒ |R| = μN,
 //!   opposite to a nonzero slip when μN > 0, and in a Passed case with an
-//!   explicit normal R = −sign(δ)·fl(μN) bit for bit.
+//!   explicit normal R = −sign(δ)·fl(μN) bit for bit (kd5 §3.1).
 //!
 //! Each "= 0" and "≥ 0" of the model checks holds within 1e-9 of the case's
-//! scale in the support's family (the largest published
+//! scale in the support's family (kd5's criterion; the largest published
 //! support component and μN for forces, the largest nodal translation or
 //! rotation and the clearance for displacements), except the exact rules named
 //! above.
@@ -200,7 +200,7 @@ struct Support<'a> {
     state: &'static str,
     /// The published final displacement in the row's unit (mm or rad).
     displacement: f64,
-    /// the bound relative displacement from a moved ground.
+    /// R-4 §3.7 S6: the bound relative displacement from a moved ground.
     relative: Option<f64>,
     reaction: f64,
     /// `(derived, value)` for a friction support.
@@ -255,7 +255,7 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
         let k = kind(row);
         require(PER_SUPPORT.contains(&k) || row["entity_ref"] == LOOP_ENTITY, "ROWS")?;
     }
-    // the moved grounds the case's load/reference-state record
+    // R-4 §3.7 S6: the moved grounds the case's load/reference-state record
     // states (module docs), by support id: (DOF token, value in m or rad).
     let mut grounds: Vec<(&str, &str, f64)> = Vec::new();
     for record in items(&source["contract_evidence"]["load_reference_states"]).iter().filter(|r| r["load_case_id"] == case) {
@@ -287,7 +287,7 @@ fn read_case<'a>(source: &'a Value, case: &'a str) -> Result<Case<'a>, String> {
         // Some node's published row (association, not ownership; module docs).
         let restated = in_case.iter().any(|r| kind(r) == NODAL[dof] && r["unit"] == length && same_bits(value(r), value(displacement[0])));
         require(restated, "DISPLACEMENT")?;
-        // the relative row exists exactly for a moved ground.
+        // R-4 §3.7 S6: the relative row exists exactly for a moved ground.
         let relatives = mine(RELATIVE);
         let relative = match grounds.iter().find(|(gid, _, _)| *gid == id) {
             None => {
@@ -646,7 +646,7 @@ pub(crate) fn model_checks(source: &Value, model: &Value) -> Check {
                     "sliding" => {
                         require((r.abs() - mu_n).abs() <= tolerance && (mu_n <= tolerance || r * delta < 0.0), "MODEL_SLIDE")?;
                         if case.code == PASSED && input.explicit_normal.is_some() {
-                            // fl(φ), φ = −dir·μ·|N| (dir the slip sign); +0 at μN = 0.
+                            // kd5 §3.1: fl(φ), φ = −dir·μ·|N| (dir the slip sign); +0 at μN = 0.
                             let exact = if mu_n == 0.0 { 0.0 } else { -(mu_n.copysign(delta)) };
                             require(same_bits(r, exact), "MODEL_SLIDE_EXACT")?;
                         }

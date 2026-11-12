@@ -79,7 +79,7 @@ fn the_timoshenko_table_is_pinned_and_preview_physics_2_is_unchanged() {
 
 /// E14's retired parity kind, for the Timoshenko table. This sits here rather than in
 /// `semantic_contract.rs`'s closed `e14_tests` module, whose bytes the retained-memory law
-/// pins.
+/// pins (pf-timoshenko.md §4).
 #[test]
 fn e14_the_timoshenko_table_does_not_carry_the_retired_parity_kind() {
     let row = json!({"kind":"sparse_live_path_dense_parity_relative_delta","unit":"unitless",

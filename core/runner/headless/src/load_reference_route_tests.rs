@@ -8,7 +8,7 @@
 //! - `pressure-source-1` with the group (joined): the actual solve of the
 //!   committed joined witnesses retains a receipt bound to the actual invocation.
 //!   A load/reference-state reading is never numerically eligible
-//!   (the join standing ruling), so the binding
+//!   (T1_WAVE1_RULINGS.md section 7; the join standing ruling), so the binding
 //!   builds no canonical document and mints no opaque proof.
 //! - Refusals, blocked load/reference-state envelopes and the SF-1 fallback,
 //!   through the runner.
@@ -812,7 +812,7 @@ fn blocked_load_state_envelopes_keep_the_exact_identity_through_the_runner() {
 /// `extra` declared tip loads added to the committed joined witness, cycling
 /// its three kinds (1e-6 N UZ and UY forces, a copy of the torque about RY),
 /// raising the live join work past the reservation. Under the metered
-/// charging rule P9's one to three loads no
+/// charging rule (RF source-method design §5.5) P9's one to three loads no
 /// longer reach the cliff; 1,300 to 1,700 do (live joins 4,658,279 to
 /// 5,973,073 against half of the public 8M limit).
 fn with_extra_loads(mut request: Value, extra: usize) -> Value {

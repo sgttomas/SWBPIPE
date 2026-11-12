@@ -16,7 +16,7 @@ atom is bound here to exactly one of:
 Every maximum is taken in the build, over the evaluated candidates (never chosen here).
 Usage: python3 g5_profile.py <profile_tree.json> <retained_memory.rs>   (rewrites the block in place)
 
-Point atoms (§8.53): the separate points L(2,1) and L(1,2) use atoms the merged tree does not,
+Point atoms (retained-pricing-rules.md §8.53): the separate points L(2,1) and L(1,2) use atoms the merged tree does not,
 so the profile's own listing cannot evaluate them. `--point-atoms` binds exactly those atoms, by the same BIND entries,
 into the GENERATED POINT ATOMS block of PP/src/retained_memory_law_tests.rs, whose `profile_` law test prints them as
 I65_G5_ATOM lines beside the profile's: the points are then evaluated at in-build values, never at ASSUMED strides.
@@ -59,7 +59,7 @@ BIND = {
     "s(Vec<&ForceTerm>)": sz(VEC),
     "s((&str,&T))": sz("(&'static str, &'static u8)"), "s((&str,&Value))": sz("(&'static str, &'static Value)"),
     "s((&str,usize))": sz("(&'static str, usize)"), "s((bool,&str))": sz("(bool, &'static str)"),   # S1-HS
-    # Model document 0.9.0 D3 (§8.36): the S1 owners (s1_owners_model.py)
+    # Model document 0.9.0 D3 (retained-pricing-rules.md §8.36): the S1 owners (s1_owners_model.py)
     "s((&str,Option<&str>))": sz("(&'static str, Option<&'static str>)"), "s((&str,Option<&T>))": sz("(&'static str, Option<&'static u8>)"),
     "s(SupportView)": sz("crate::document_members::SupportView<'static>"), "s(CombinationView)": sz("crate::document_members::CombinationView<'static>"),
     "s(TermView)": sz("crate::document_members::TermView<'static>"), "s(Finding)": sz("crate::document_members::Finding"),
@@ -79,7 +79,7 @@ BIND = {
     "s(Authored<Vec<ExpansionLawInput>>)": sz("crate::Authored<Vec<crate::ExpansionLawInput>>"),
     "s((String,DerivedSection))": sz("(String, crate::DerivedSection)"), "s((String,ResultItem))": sz("(String, crate::ResultItem)"),
     "s((String,ExactSectionBases))": sz("(String, crate::pressure_exact::ExactSectionBases)"),   # U6-ES
-    # T4-S5 D3 (§8.8): the T4-U4b/U5b owners (u4b_u5b_owners_model.py)
+    # T4-S5 D3 (retained-pricing-rules.md §8.8): the T4-U4b/U5b owners (u4b_u5b_owners_model.py)
     "s(BasisSection)": sz("crate::u4b_rows::BasisSection"),   # U4B-ST
     "s(SectionFactorResult)": sz("Result<f64, open_pipe_stress_stress_recovery::section_stress_quantities::SectionQuantityError>"),   # U4B-ST
     "s(StationWitnesses)": sz("(Option<crate::pressure_exact::SectionBasis>, Vec<(f64, f64)>)"),   # U4B-ST
@@ -89,7 +89,7 @@ BIND = {
     "s((&str,Vec<f64>))": sz("(&'static str, Vec<f64>)"), "s((String,Vec<f64>))": sz("(String, Vec<f64>)"),   # U4B-RD
     "s(U4bCoverEntry)": sz("((&'static str, &'static str, String), Vec<f64>)"),   # U4B-RD
     "s((&str,(f64,f64)))": sz("(&'static str, (f64, f64))"),   # U4B-RD
-    # O4 S5 D3 (§8.9): the O4 owners (o4_owners_model.py)
+    # O4 S5 D3 (retained-pricing-rules.md §8.9): the O4 owners (o4_owners_model.py)
     "s(ExactMemberBasis)": sz("crate::retained_product::ExactMemberBasis"),   # O4-PS
     "s(ReducedFacts)": sz("crate::retained_product::ReducedFacts"),   # O4-PS, O4-PA
     "s(ReducedPreparation)": sz("crate::retained_product::ReducedPreparation"),   # O4-PA
@@ -99,9 +99,9 @@ BIND = {
     "s((usize,Number))": sz("(usize, serde_json::Number)"),   # O4-PP: PreparedPayload.shear
     "s(StressComponents)": sz("open_pipe_stress_stress_recovery::StressComponents"),   # O4-SP
     "s((u64,&Value))": sz("(u64, &'static Value)"),   # O4-RD: native_bytes' leaves
-    # R-A D3 (§8.13): B1's hint vectors (ra_owners_model.py)
+    # R-A D3 (retained-pricing-rules.md §8.13): B1's hint vectors (ra_owners_model.py)
     "s(Option<u32>)": sz("Option<u32>"),   # RA-HS
-    # RT-A4 D3 (§8.46): the combination plan, κ and the readers' sets (rta4_owners_model.py)
+    # RT-A4 D3 (retained-pricing-rules.md §8.46): the combination plan, κ and the readers' sets (rta4_owners_model.py)
     "s(Target)": sz("crate::combination_plan::Target<'static>"),   # RT-A4-PL (the reader's Operand is the same enum)
     "s(FixedLoadCount)": sz("open_pipe_stress_load_case_algebra::FixedLoadCount"),   # RT-A4-PL, RT-A4-RD
     "s(PublishedBase)": sz("(String, std::collections::HashMap<String, crate::ResultItem>)"),   # RT-A4-CB
@@ -257,7 +257,7 @@ BIND = {
     "Node((String,String),())": node("(String, String)", "()"),
     "Node(String,BTreeMap)": node("String", "std::collections::BTreeMap<String, String>"),
 }
-# G6: the 42 design-record atoms, each bound to the actual owner its
+# G6 (I65 u4_g6_01 QUALIFICATION.md §2): the 42 design-record atoms, each bound to the actual owner its
 # roster line denotes, read at the G5 basis. "InBuild" sums are sums of in-build sizes; "SourceUpper"
 # terms are field-sum upper bounds over a private type's (nameable) field types. Where a roster line's
 # owner is already priced elsewhere (the C2 maps are ProductCapture's identity vectors, T11.1/T11.3),
@@ -348,7 +348,7 @@ _C7_UP = field_upper(_C7_FIELDS)
 _C7_A = align_expr(_C7_FIELDS + ["open_pipe_stress_result_export::retained_precision::ValidationError", "usize"])
 BIND.update({
     "Node((&str,&str),())": node("(&'static str, &'static str)", "()"),
-    # W-7 D3 (§8.20, W7-RD): the readers' global end coverage maps (w7_owners_model.py)
+    # W-7 D3 (retained-pricing-rules.md §8.20, W7-RD): the readers' global end coverage maps (w7_owners_model.py)
     "Node((&str,&str),[[Option<f64>;6];2])": node("(&'static str, &'static str)", "[[Option<f64>; 6]; 2]"),
     "Node((&str,&str),[Option<f64>;2])": node("(&'static str, &'static str)", "[Option<f64>; 2]"),
     "Node((&str,&str),[BTreeSet<bool>;2])": node("(&'static str, &'static str)", "[std::collections::BTreeSet<bool>; 2]"),
@@ -387,7 +387,7 @@ BIND["s(Option<FormationRecord>)"] = ("SourceUpper",
 BIND["s(RowBinding)"] = ("InBuild", "fkr::PRODUCT_FINAL_ROW",
     "bind_rows' element (retained_product.rs:1742): the kernel's ProductFinalRow, exported by structural::retained_resource")
 
-# O4 S5 D3 (§8.9): private O4 records by field sum, and the kernel's per-member stack staging.
+# O4 S5 D3 (retained-pricing-rules.md §8.9): private O4 records by field sum, and the kernel's per-member stack staging.
 BIND["s(PreparedSectionPatch)"] = ("SourceUpper", field_upper(["usize", "u32", "[serde_json::Number; 4]"]),
     "O4-PP: retained_product.rs PreparedSectionPatch {evidence_index: usize, member: u32, numbers: [Number; 4]} (private): field-sum upper")
 BIND["s(CompositeMaximum)"] = ("SourceUpper", field_upper(["f64", "Value", "std::borrow::Cow<'static, str>", "usize"]),

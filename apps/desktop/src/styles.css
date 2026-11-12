@@ -2933,7 +2933,7 @@ fieldset.viewport-intent-controls {
   overflow-wrap: anywhere;
 }
 
-/* A1: the results navigator. An end's button stays
+/* A1: the results navigator (DEL-07-05 Design `results-navigator.md` §2). An end's button stays
    focusable (aria-disabled), so it is dimmed here rather than by :disabled. */
 .results-navigator-axis {
   display: flex;
@@ -2966,7 +2966,7 @@ fieldset.viewport-intent-controls {
   cursor: not-allowed;
 }
 
-/* A2: the per-support load summary. */
+/* A2: the per-support load summary (DEL-07-05 Design `support-load-summary.md` §5). */
 .support-load-stepper {
   display: flex;
   align-items: center;
@@ -2994,7 +2994,7 @@ fieldset.viewport-intent-controls {
   border-top: 1px solid #c9d2ce;
 }
 
-/* A3: the sorted stress and ratio table. */
+/* A3: the sorted stress and ratio table (DEL-07-05 Design `stress-ratio-table.md` §7). */
 .stress-ratio-controls {
   display: flex;
   flex-wrap: wrap;
@@ -3045,7 +3045,7 @@ fieldset.viewport-intent-controls {
   cursor: pointer;
 }
 
-/* A8: the displacement extremes table. */
+/* A8: the displacement extremes table (DEL-07-05 Design `displacement-extremes.md` §6). */
 .displacement-extremes-controls,
 .displacement-extremes-pager {
   display: flex;
@@ -3098,7 +3098,7 @@ fieldset.viewport-intent-controls {
   cursor: pointer;
 }
 
-/* A9: the weight and centre-of-gravity summary. */
+/* A9: the weight and centre-of-gravity summary (DEL-07-05 Design `weight-cog-summary.md` §6). */
 .weight-summary-controls {
   display: flex;
   flex-wrap: wrap;
@@ -4633,7 +4633,7 @@ body { min-width: 760px; min-height: 540px; }
   overflow-wrap: anywhere;
 }
 
-/* Solve progress panel: a raised
+/* Solve progress panel (DEL-07-07 Design `solve-progress-panel.md`): a raised
    card over the workspace's bottom-right corner, above the status bar. */
 .solve-progress-panel {
   position: fixed;
@@ -4663,7 +4663,7 @@ body { min-width: 760px; min-height: 540px; }
 .solve-progress-actions { display: flex; justify-content: flex-end; gap: var(--space-3); }
 .solve-progress-actions [aria-disabled="true"] { opacity: 0.6; cursor: default; }
 
-/* On-demand model checks. */
+/* On-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`). */
 .model-checks-actions { display: flex; align-items: center; gap: var(--space-3); }
 .model-checks-list { display: grid; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
 .model-checks-list ul { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; padding: 0; list-style: none; }
@@ -4690,7 +4690,7 @@ body { min-width: 760px; min-height: 540px; }
 .context-menu-reason { grid-column: 1 / -1; font-size: var(--type-size-caption); color: var(--ui-disabled-text, #667680); white-space: normal; }
 .context-menu-separator { height: 1px; margin: var(--space-2) var(--space-1); background: var(--ui-divider, var(--border-hairline)); }
 
-/* Key results (A6): a raised card over the
+/* Key results (A6; DEL-07-05 Design `key-results-panel.md` §5): a raised card over the
    workspace's top-right corner, below the toolbar, clear of the solve progress card. */
 .key-results-panel {
   position: fixed;
@@ -4726,7 +4726,7 @@ body { min-width: 760px; min-height: 540px; }
 .key-results-action[aria-disabled="true"] { opacity: 0.6; cursor: default; }
 .key-results-every-solve { display: flex; align-items: center; gap: var(--space-2); }
 
-/* === Workstation presentation conventions ===
+/* === Workstation presentation conventions (DEL-07-06 Work `workspace-presentation.md`) ===
  * One shared vocabulary for every pane, built only from the maintained tokens:
  *   type   caption 11/14 (eyebrows, captions, ids), body 13/18 (everything read), title 15/20
  *          (a pane's section heading); weights 400 / 500 / 600; figures tabular.
@@ -4831,7 +4831,7 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .results-panel .result-value-cell { white-space: nowrap; overflow-wrap: normal; }
 .app-shell .results-panel .dual-unit-cell { overflow-wrap: break-word; }
 
-/* Form fields. The shared authoring fields
+/* Form fields (DEL-07-06 Work `workspace-presentation.md`, section 2). The shared authoring fields
    (rich-authoring `formSupport.tsx`) lay out the same way in every form. A field is a grid whose
    tracks wrap by width, not by context: where it has room the label and its control sit side by
    side, with every field of a form sharing the same columns; where it does not (the inspector, a

@@ -1722,6 +1722,8 @@ fn k2b_rv11_the_orchestrators_census_includes_the_curved_slots() {
 }
 
 // ------------------------------------------------------------------ RV11 delta fixes
+// (T3 `ROOT_RULINGS_V1.md`, ROOT's rulings on RV11's delta check; RV11's
+// review `REVIEW/K2B_REVIEW.md`, "Delta check at f385a8bc8", RV11D-1.)
 
 /// RV11D-1, pinned in both modes and both representations: RV11's probe F-S.
 /// The long member W of F-A2 with N0 UY also free and a ground spring of

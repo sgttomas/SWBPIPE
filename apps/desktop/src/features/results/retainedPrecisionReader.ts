@@ -85,7 +85,7 @@ export async function validateRetainedPrecision(source: unknown, invocation?: un
   return validateRetainedPrecisionBytes(sourceJson, invocation);
 }
 
-/** the reader (G0-G7, no invocation) on a recorded successor under its record's
+/** RT-A4 §10.4: the reader (G0-G7, no invocation) on a recorded successor under its record's
  * binding (`reader_verdict::retained_recorded`): a registry variant of the successor's identity
  * is read under its own tables; any binding but the current one or such a variant is refused at
  * G0 by name. Only the recorded-run read and compare paths call it. */

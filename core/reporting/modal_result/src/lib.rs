@@ -1,5 +1,5 @@
 //! The Rust reader of the modal result family `openpipestress.modal_result`
-//! 0.1.0, under the semantic table
+//! 0.1.0 (DEL-04-09 Design §5.3, increment I3a), under the semantic table
 //! `openpipestress.result_semantics/modal-1`. It shares no code with the
 //! producer (`product_physics::modal::document`) or with the Python reader
 //! (`tests/verifiers/modal_evidence.py`); the relations and their rounding
@@ -54,7 +54,7 @@
 //! **Admission.** Public engineering-result admission is disabled: the
 //! verdict states it for every document, with the open conditions.
 //!
-//! **Placement**: a leaf crate of its own, as the hanger-sizing
+//! **Placement** (Design §5.3): a leaf crate of its own, as the hanger-sizing
 //! family's reader is. The modal family is not the `results.v0.3` envelope
 //! that `result_export` reads, and the reader is reached from no retained
 //! root, so it is kept out of that crate's priced surface. It depends on no
@@ -82,7 +82,7 @@ pub const MODAL_RESULT_LIMITATIONS: [&str; 2] = [
     "Small-displacement, linear-elastic Euler-Bernoulli frame modal preview about the unloaded configuration, with any nonlinear supports at the stated state of a named solved case, with consistent mass on straight members and lumped rigid-body mass on realized arcs and component bodies; numerical integrity does not establish physical correctness.",
     "The integrity checks are numerical estimates under stated premises, not mathematical bounds: each mode's residual is evaluated against a double-double re-formation of the stiffness and mass, its eigenvalue error is a first-order estimate, and the Sturm count is relied on only at shifts where the estimated backward error of forming and factoring the shifted matrix is small against both its estimated distance from singularity and the shift's separation from the computed eigenvalues. They do not bound modelling, discretization or input error.",
 ];
-/// Why public engineering-result admission stays disabled.
+/// Why public engineering-result admission stays disabled (Design §5.3).
 pub const MODAL_RESULT_ADMISSION_CONDITIONS: [&str; 6] = [
     "production integrity parameters are not pinned (O-6, D-TOL): every document is formed with a labelled test-local set",
     "a document is fully validated only when every mandatory relation passes: an unresolved Bessel relation (interim contract), a subject census not re-derived from the bound request, or a partition from reported nonlinear support states leaves it unmet, whatever the units",
@@ -93,7 +93,7 @@ pub const MODAL_RESULT_ADMISSION_CONDITIONS: [&str; 6] = [
 ];
 
 const U: f64 = 1.1102230246251565e-16;
-/// The reader rounding allowance multiple of every tolerance.
+/// The reader rounding allowance multiple of every tolerance (Design §5.3).
 const ALLOW: f64 = 16.0;
 const TWO_PI: f64 = 2.0 * std::f64::consts::PI;
 const COMPONENTS: [&str; 6] = ["ux", "uy", "uz", "rx", "ry", "rz"];
@@ -151,7 +151,7 @@ const R_RAD_M: Rule = Rule::Catalog("unit:radian_per_meter", "rad/m", "rotation_
 const R_M_RAD: Rule = Rule::Catalog("unit:meter_per_radian", "m/rad", "length_per_rotation");
 const R_KGM2: Rule = Rule::Catalog("unit:kilogram_square_meter_per_square_radian", "kg*m^2/rad^2", "rotational_generalized_mass");
 const R_KGM_RAD: Rule = Rule::Catalog("unit:kilogram_meter_per_radian", "kg*m/rad", "mass_length_per_rotation");
-/// A magnitude of D·M·D, D = diag(|k_ii|^-½) of the formed K_ff: s².
+/// A magnitude of D·M·D, D = diag(|k_ii|^-½) of the formed K_ff: s² (Design §5.3.5).
 const R_S2: Rule = Rule::Catalog("unit:square_second", "s^2", "time_squared");
 
 /// modal-1, as this reader states it: (kind, table, selector, rules).
@@ -349,7 +349,7 @@ pub struct ModalReadVerdict {
     pub decision: &'static str,
 }
 
-/// What every verdict establishes, and no more.
+/// What every verdict establishes, and no more (Design §5.3.4).
 pub const MODAL_VERDICT_LIMIT: &str = "per-relation consistency, not joint realizability: each relation is decided on its own operands, so a document every relation admits may still have no single coherent set of underlying values; feasibility-oracle agreement does not establish payload coherence either";
 
 impl ModalReadVerdict {
@@ -885,7 +885,7 @@ impl<'v> Num<'v> {
     }
 }
 
-/// The values a quantity can take.
+/// The values a quantity can take (Design §5.3.4's relation inventory).
 /// `parts` are closed intervals of reals `(lo, hi, nonzero)`: an infinite end
 /// means unbounded, not ±∞, and `nonzero` excludes 0 (the producer's flagged
 /// 0, which is a nonzero value below 2⁻¹⁰²² with any extended exponent, or a
@@ -1039,7 +1039,7 @@ fn mr_published(n: &Num, signed: bool) -> Option<Reach> {
     }
 }
 
-/// The producer's rounding rule a field is published under.
+/// The producer's rounding rule a field is published under (Design §5.3.4).
 #[derive(Clone, Copy, PartialEq)]
 enum MrRule {
     /// `WideDd::to_published` (dd.rs:476): 0, normal, or a flagged nonzero
@@ -2109,7 +2109,7 @@ fn mr_mass(p: &Parsed) -> R<Vec<String>> {
             scope.push(format!("{MR_UNRESOLVED}Σ m_eff,{d} ≤ T_{d}: an operand is not finite (±∞ or NaN)"));
             continue;
         }
-        // Agent 0's interim contract: Bessel passes only where
+        // Agent 0's interim contract (Design §5.3.4): Bessel passes only where
         // sound arithmetic establishes Σ m_eff ≤ T_k from the published operands;
         // otherwise it is unresolved, never refused. The inequality holds for
         // modes orthogonal in the assembled M, which the document does not

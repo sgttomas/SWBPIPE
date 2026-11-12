@@ -515,7 +515,7 @@ fn preview_physics_standing_and_transport() {
         let d = rv::dispatch(&raw, Some(&model), None);
         assert_eq!((d["route"].as_str(), d["binding"]["id"].as_str()), (Some("preview_physics"), Some(sc::PREVIEW_PHYSICS_ID)));
         // Nonlinear supports: the converged states are confirmed and the cases
-        // Passed, so the
+        // Passed (DEL-04-01 kd5-nonlinear-active-set.md section 5), so the
         // standing is empty, as on the linear route.
         assert_eq!(findings(&d["standing"]), Vec::<&str>::new(), "{mode}: {}", d["standing"]);
         assert_eq!(rv::validate("preview-physics", &raw, Some(&model), None), json!({"ok": true}));
@@ -605,7 +605,7 @@ fn source_recovery_preserves_the_portable_commitment_check_depth() {
     assert_eq!(rv::validate("source-recovery", &ordinary_source(), None, None)["error"]["code"], "SOURCE_RECOVERY_METADATA_CONTRADICTION");
 }
 
-/// pressure-2: its
+/// pressure-2 (DEL-04-07 `pressure-contract.md`, "Reading pressure-2"): its
 /// own route and table binding, read by `validate_pressure_evidence` with G2's
 /// model checks and the ordinary standing, so every caller takes one verdict
 /// and one standing. Straight (0.3.0 and 0.4.0), arc and connector corpora.

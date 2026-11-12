@@ -694,6 +694,7 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
         "solve_skew_with_formation_check",
         "S-K1 A-1 (DEL-04-03 skew-restraints.md §6, §15 step 6): the linear skew entry; forms f' = Q^T f and attaches the physical primitives and force to FormationSource::restraint (SkewFormation); read-only",
     ),
+    // Nonlinear K-D5 (DEL-04-01 kd5-nonlinear-active-set.md §1.5, §1.6).
     (
         "SA/structural_adapter.rs",
         "confirm_with_formation_check",

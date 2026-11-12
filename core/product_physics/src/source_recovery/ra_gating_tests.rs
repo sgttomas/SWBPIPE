@@ -1,4 +1,4 @@
-//! R-A's gating test: every row
+//! R-A's gating test (DEL-04-08 Design `source-work-nondyadic-inputs.md` §3.2): every row
 //! that B1 or B2 takes equals the long evaluation's Ratio bit for bit. For one request and
 //! mode, the direct method's own steps run to its plan, then the same response is evaluated
 //! twice on one ledger: with R-A (the product path) and through the test-only long entry
@@ -66,7 +66,7 @@ pub(crate) fn gate(raw: &Value, mode: PreviewSolverMode) -> Option<Result<Gate, 
     })
 }
 
-/// R-A's change to one attempt's counted work, measured
+/// R-A's change to one attempt's counted work (Design §3.1 "As built", §4), measured
 /// against the pre-R-A path on `input`: the direct method's steps run to its plan on one
 /// ledger; the plan is then formed with B1's hints and without them, and the response is
 /// evaluated by the product path (hinted plan, B2 active) and by the test-only long entry

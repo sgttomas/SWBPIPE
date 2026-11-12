@@ -23,7 +23,7 @@ which = sys.argv[1] if len(sys.argv) > 1 else "caps"
 HERE = os.path.dirname(os.path.abspath(__file__))
 # KD5O1: history pricing preserves the registered earlier tree. On an
 # implementing snapshot, account for the actual owned correction/closure/group
-# structures. No product format fallback.
+# structures (Design retained-pricing-rules.md §F). No product format fallback.
 _snapshot = os.environ.get("RP_SNAPSHOT")
 _fc_path = os.path.join(_snapshot, "core/solver/frame_kernel/src/structural/formation_check.rs") if _snapshot else None
 KD5 = bool(_fc_path and os.path.exists(_fc_path) and "pub struct MemberBoundInputs" in open(_fc_path, encoding="utf-8").read())
@@ -68,7 +68,7 @@ import u6_owners_model as _u6_model
 _u6 = _u6_model.inspect(_snapshot) if _snapshot else {"exact_sections": False, "reduced_workspace": False,
                                                       "frame_members": False, "all_rows": False}
 _FM = (Xc("String", m) + B(m * textcap(_u6_model.MEMBER_PREFIX))) if _u6["frame_members"] else X()
-# T4-S5 D3 (shared epoch 4; §8.8): the T4-U4b/U5b owners outside the TEXT inventory, each
+# T4-S5 D3 (shared epoch 4; retained-pricing-rules.md §8.8): the T4-U4b/U5b owners outside the TEXT inventory, each
 # priced positively where its reviewed source exists (u4b_u5b_owners_model binds the function bodies): U5B-PD (the
 # published corrected nodal displacements), U4B-ST (one member's station quantities), U5B-AB (the absorbed-diagonal
 # refusal's free-DOF flags in each contribution-sum call).
@@ -133,7 +133,7 @@ DIAG = TXT.get("D", 0)
 PREVIEW = value_tree(3 * m + 2 * g, 3 + m + g, 9 + 15 * m + 2 * g,
                      m * (128 + 1024 + 3 * 120) + (2 * m + g) * 128 + g * (128 + 64),
                      (9 + 15 * m + 2 * g) * 40)
-# O4-EV (§8.9): a Timoshenko member's evidence beam_theory carries two number entries beyond
+# O4-EV (retained-pricing-rules.md §8.9): a Timoshenko member's evidence beam_theory carries two number entries beyond
 # the census entry (o4_owners_model.beam_theory_evidence), charged beside the evidence owner.
 import o4_owners_model as _o4_model
 _o4 = bool(_snapshot) and _o4_model.inspect(_snapshot)
@@ -161,7 +161,7 @@ def add(name, ph, req, mv=None):
     fam[name] = req; phase[name] = ph; mov[name] = mv or X()
 
 # ---------------- T_resident: T03 typed request at the typed capacity caps --------------
-# S1-TS (§8.36): the census of the admitted typed strings read at the snapshot (a pipe's 13, not
+# S1-TS (retained-pricing-rules.md §8.36): the census of the admitted typed strings read at the snapshot (a pipe's 13, not
 # the basis' 12; route E's three contract strings and the node-proximity tolerance's unit beyond the basis' six model
 # strings); a snapshot outside that reading keeps the basis count.
 import typed_strings_model as _ts_model
@@ -281,14 +281,14 @@ add("Sparse reduction (+ caller prescribed, observation force)", "CasePrefix",
 b = n
 add("Formation-guard Bodies (build + resident)", "CasePrefix",
     B(40 * n + 56 * b) + A("(usize,usize)", m) + HashReq("(usize,usize)", b) + B(8 * n + 8 * b))
-# W-8 topology warnings D3 (§8.16): the topology checks' transient working set, once per
+# W-8 topology warnings D3 (retained-pricing-rules.md §8.16): the topology checks' transient working set, once per
 # ordinary run after the build (W8-TW), and validation's node-degree map (W8-ND), each priced positively where its
 # reviewed source exists (w8_topology_model binds topology.rs and the validation bodies). Not per case.
 import w8_topology_model as _w8_model
 if _snapshot and _w8_model.inspect(_snapshot):
     add("W-8 topology warnings workspace (W8-TW)", "BuildScratch", _w8_model.topology_workspace(n, m, g))
     add("W-8 validation node-degree map (W8-ND)", "BuildScratch", _w8_model.node_degrees(m))
-# W-15 D3 (§8.21, W15-PM): the eligibility predicate's and mapping-conflict check's member
+# W-15 D3 (retained-pricing-rules.md §8.21, W15-PM): the eligibility predicate's and mapping-conflict check's member
 # maps (rigid_component pipe_map: two exact-size tables of m entries live at once in applied_scales; conflicts' in
 # validation), per ordinary run; every other owner of both is empty on D1 (P2). w15_owners_model binds the statements.
 import w15_owners_model as _w15_model
@@ -399,7 +399,7 @@ add("Legacy profile observation", "LegacyProfile", legacy_profile(), B(8 * appen
 dense_parity = (Mat(8, N, N) + Mat(8, F, F) * 2 + B(8 * F) + A("usize", F) + B(8 * k) + B(N)
                 + B(8 * F + 8 * max(F - 1, 0) + 8 * F) + legacy_profile())
 
-# ---------------- W2 ---------------------------------------------------------
+# ---------------- W2 (W2_RETURN.md) ---------------------------------------------------------
 def w2(mode, core_total, report, fidelity):
     scaled_children = _phase_owner("scaled_force_children") if _wide else X()
     scaled_force = ((Xc("LoadClosureRecord", force_q) + s("Vec") if KD5 else X()) + scaled_children
@@ -485,7 +485,7 @@ if _u45["station_quantities"]:
     # U4B-ST: one member's station-quantity transients (append_station_quantities and its caller), one member live.
     add("Station quantities of one member (U4B-ST)", "OrdinaryRecovery", _u45_model.ordinary_station_quantities())
 if _u45.get("published_index"):
-    # RT-A3 increment 1b (§8.37): the case solve's published-row index. RTA3B-PS: the case's
+    # RT-A3 increment 1b (retained-pricing-rules.md §8.37): the case solve's published-row index. RTA3B-PS: the case's
     # PublishedScope entity set (<= the case's rows, P; live to the end of the case solve, as U5B-PD). RTA3B-MR: one
     # member's MemberRows slots (<= its rows per member, the route's P_final coefficient of m; in U4B-ST's block).
     _rpm, _rem = divmod(P - (7 * n + 8 * g + 3), m)
@@ -539,7 +539,7 @@ add("Ordinary scalar maximum (one helper at a time)", "Maximum",
 # ---------------- Old case staging (BOUND :77-78) -------------------------------------------
 add("Source row qualification", "OldCaseStaging",
     HashReq("(String,String)", R0) + B(2 * R0 * ID) + Xc("ResultItem", R0) + tx("row") * R0 + tx("row") * 2)
-# W-7 D3 (§8.20, W7-QF): qualify_source_case_rows' references to the case's rows other than
+# W-7 D3 (retained-pricing-rules.md §8.20, W7-QF): qualify_source_case_rows' references to the case's rows other than
 # its global end rows, push-grown, live through the qualification.
 import w7_owners_model as _w7_model
 if _snapshot and _w7_model.inspect(_snapshot):
@@ -562,7 +562,7 @@ if _wide:
     add("Independent combination modulus record map (B7a stage 1)", "AggregationSuffix", _map_req, _map_mov)
     add("Additional held failed-manifest envelope owners (B7a stage 1)", "OldCaseStaging", _wide_model.failed_envelope_copy(CC, ID, _snapshot))
 add("Preview tree final copy (envelope evidence)", "AggregationSuffix", PREVIEW)
-# Silent-drop guard D3 (§8.19): the combination callee's withheld names and support-group rows
+# Silent-drop guard D3 (retained-pricing-rules.md §8.19): the combination callee's withheld names and support-group rows
 # (SD-WH, route L with combinations, beside the W1-L5 index), validation's per-combination term set (SD-HS) and the
 # closed-record scan's probe error (SD-PB), each priced positively where its reviewed source exists (sd_owners_model).
 import sd_owners_model as _sd_model
@@ -571,7 +571,7 @@ if _snapshot and _sd_model.inspect(_snapshot):
         add("Combination withheld names and group rows (SD-WH)", "AggregationSuffix", _sd_model.withheld_names(PA, g))
     add("Validation duplicate-term set (SD-HS)", "BuildScratch", _sd_model.seen_terms())
     add("Closed-record scan probe error (SD-PB)", "BuildScratch", _sd_model.probe_error())
-# RT-A4 D3 (§8.46): the combination plan of the modulus-basis records (RT-A4-PL, every z, both
+# RT-A4 D3 (retained-pricing-rules.md §8.46): the combination plan of the modulus-basis records (RT-A4-PL, every z, both
 # routes), and on route L with combinations the callee's plan and buffers (RT-A4-CB) and the derivation's transient
 # (RT-A4-DV), priced positively where the reviewed source exists (rta4_owners_model binds it).
 import rta4_owners_model as _rta4_model
@@ -600,7 +600,7 @@ if _snapshot and _rta3c_model.inspect(_snapshot):
             add("Certificate operand groups (RTA3C-OP, " + _ph + ")", _ph, _rta3c_model.operands(_c3_c, _c3_z, m, g))
         add("Certificate publication transient (RTA3C-PB)", "AggregationSuffix",
             _rta3c_model.publish(_c3_c, _c3_z, m, g, P, PA, value_tree))
-# Model document 0.9.0 D3 (§8.36): the lowering's views, findings and operand resolution
+# Model document 0.9.0 D3 (retained-pricing-rules.md §8.36): the lowering's views, findings and operand resolution
 # (S1-VW) and the withholding pass (S1-WH), once per ordinary run, priced positively where the reviewed modules exist
 # (s1_owners_model binds their bytes and the two calls).
 import s1_owners_model as _s1_model
@@ -608,7 +608,7 @@ if _snapshot and _s1_model.inspect(_snapshot):
     _s1_z = _mc.get("z", 0) if which == "caps" else 0
     add("Model document 0.9.0 lowering views and findings (S1-VW)", "Normalization", _s1_model.views_and_findings(m, CC, g, r, _s1_z))
     add("Model document 0.9.0 interim withholding (S1-WH)", "Normalization", _s1_model.withholding(CC, _s1_z))
-# W-16 slice a D3 (§8.23): case_prescribed's node index, once per case solved without a load
+# W-16 slice a D3 (retained-pricing-rules.md §8.23): case_prescribed's node index, once per case solved without a load
 # state, one case at a time (W16-NI), and validate's findings vector, <= one per primitive load (W16-VF), each priced
 # positively where its reviewed source exists (w16_owners_model binds imposed_motion.rs and the statements).
 import w16_owners_model as _w16_model

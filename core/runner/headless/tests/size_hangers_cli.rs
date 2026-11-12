@@ -161,7 +161,7 @@ fn assert_gate(c: &Value, blocked: bool, ctx: &str) {
     }), "{ctx}");
 }
 
-/// The whole document is local-private output, sized or refused (a
+/// The whole document is local-private output (§8.3.2), sized or refused (a
 /// refused document can name the library's id): without
 /// `--explicit-local-private-intent` it is blocked by one decision at `$`, with
 /// no payload, exit 1 and no `--output` file.

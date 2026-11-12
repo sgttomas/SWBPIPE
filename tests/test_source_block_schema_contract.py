@@ -173,7 +173,7 @@ def test_composite_work_limit_is_its_policy_bound():
 
 def test_actual_composite_maximum_metadata_has_a_method_scoped_canonical_route():
     source = read_received(COMPOSITE_ROOT / "n05-sparse_interactive.raw.json")
-    # the retained-source maximum's token names its section basis.
+    # T4-U6 (D-5 §2.1): the retained-source maximum's token names its section basis.
     actual = next(row["metadata"] for row in source["results"]
                   if row.get("metadata", {}).get("basis") == "retained_source_endpoint_normal_max_v1; section_basis=nominal_section")
     results = schema("results.v0.3.schema.yaml")
@@ -185,7 +185,7 @@ def test_actual_composite_maximum_metadata_has_a_method_scoped_canonical_route()
     # T4-U2 added pressure-2 (its branch held in results_pressure_2.v0.3); the join added
     # pressure-source-1; B1 removed precision-1's branch and B4/D1 (b) source-blocks-1's;
     # B7b removed the four exact v2 branches (physics-1, physics-source-1, load-reference-1, load-reference-source-1);
-    # PF Timoshenko added preview-physics-timoshenko-1's.
+    # PF Timoshenko added preview-physics-timoshenko-1's (pf-timoshenko.md §4).
     assert len(branches) == 6
     for branch in branches:
         # Keyed by the branch's pinned producer identity, not by position: the
@@ -195,7 +195,7 @@ def test_actual_composite_maximum_metadata_has_a_method_scoped_canonical_route()
         assert identity not in RETIRED_V2_IDS
         target = {"openpipestress.result_semantics/0.3.0/pressure-source-1": "PhysicsSourceResultSet",
                   "openpipestress.result_semantics/0.3.0/preview-physics-2": "PreviewPhysicsResultSet",
-                  # PF Timoshenko: preview-physics-2's rows and vocabulary.
+                  # PF Timoshenko: preview-physics-2's rows and vocabulary (pf-timoshenko.md §4).
                   "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1": "PreviewPhysicsResultSet",
                   # T3's F2a successor inherits the preview result sets (reader fan-in);
                   # B3b's exact successor keeps the default result set.

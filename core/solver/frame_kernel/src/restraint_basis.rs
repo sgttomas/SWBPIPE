@@ -26,7 +26,7 @@
 //! A model without a skewed record never builds a basis: consumers hold
 //! `Option<RestraintBasis>` = `None`, and an exactly axis-aligned direction is
 //! `DirectionError::AxisAligned` (`judge` returns `Ok(None)`), so today's path
-//! runs byte for byte. Everything this module allocates is
+//! runs byte for byte (§4.2 item 2, §6.5). Everything this module allocates is
 //! therefore inside the skew branch.
 use crate::exact_sum::{ExactAccumulator, SumError};
 use crate::load_ledger::{round_upward, AssembledForce, ForceTermKind, LedgerError, LoadLedger};
@@ -263,7 +263,7 @@ fn two_product(x: f64, y: f64) -> Option<(f64, f64)> {
 
 /// Four binary64 values whose exact sum is a·b·c (zeros where nothing is
 /// left), from one error-free pair split and a TwoProduct of each part with
-/// the third factor, trying (a·b), (b·c), (a·c) in that order (P1).
+/// the third factor, trying (a·b), (b·c), (a·c) in that order (P1, §10.2).
 /// `None` when no order stays in the split range: the caller names it and
 /// nothing is rounded.
 pub fn exact_triple_parts(a: f64, b: f64, c: f64) -> Option<[f64; 4]> {
@@ -286,7 +286,7 @@ pub fn exact_triple_parts(a: f64, b: f64, c: f64) -> Option<[f64; 4]> {
 // ------------------------------------------------------------------ direction
 
 /// R-7: an authored direction with two or more nonzero components, its
-/// canonical exact power-of-two scaling and its pivot. Never normalized.
+/// canonical exact power-of-two scaling and its pivot (§4). Never normalized.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct SkewDirection {
     authored: [f64; 3],
@@ -295,7 +295,7 @@ pub struct SkewDirection {
     pivot: usize,
 }
 
-/// Why an authored vector is not a skew direction.
+/// Why an authored vector is not a skew direction (§4.2).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DirectionError {
     /// A non-finite component (the validator's `SUPPORT_DIRECTION_INVALID`).
@@ -313,7 +313,7 @@ pub enum DirectionError {
 }
 
 impl SkewDirection {
-    /// classify and canonicalize, exactly.
+    /// §4.2: classify and canonicalize, exactly.
     pub fn new(authored: [f64; 3]) -> Result<Self, DirectionError> {
         if authored.iter().any(|x| !x.is_finite()) {
             return Err(DirectionError::NonFinite);
@@ -418,7 +418,7 @@ pub enum SkewCode {
     ReactionRange,
 }
 
-/// The facts skew admission reads for one record.
+/// The facts skew admission reads for one record (§2.2 items 2 to 4).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct SkewRecordFacts {
     pub authored: [f64; 3],
@@ -435,7 +435,7 @@ pub struct SkewRefusal {
     pub direction: Option<DirectionError>,
 }
 
-/// Skew admission for one record, in gate order: the validator's
+/// Skew admission for one record, in gate order (§2.2): the validator's
 /// invalid and zero codes (which the document rules give first), then for a
 /// skewed vector the first that applies of 2 (EX), 3 (nonlinear model) and
 /// 4 (range). An exactly axis-aligned vector is `Ok(None)`: no basis, today's
@@ -484,7 +484,7 @@ pub struct SkewSpring {
     pub stiffness: f64,
 }
 
-/// One constrained node: its stop, free axes F, pivot m on F, the
+/// One constrained node (§5.1): its stop, free axes F, pivot m on F, the
 /// restricted rescale w = 2^ŝ·d̃ (max_{i∈F}|w_i| ∈ [1, 2)) and Q, row-major
 /// (`q[i][c]`: physical translation i, coordinate slot c). Every entry of Q is
 /// a component of w (exact), 1.0 or +0.0.
@@ -510,7 +510,7 @@ impl NodeBasis {
     }
 }
 
-/// A boundary-preparation finding, per node.
+/// A boundary-preparation finding (§2.2 items 7 and 8), per node.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BasisFinding {
     StopsPerNode { node: usize, supports: Vec<String> },
@@ -529,7 +529,7 @@ impl BasisFinding {
     }
 }
 
-/// A published value of an attribution that left binary64.
+/// A published value of an attribution (§7.2) that left binary64.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PublishedValue {
     StopComponent { axis: usize },
@@ -547,9 +547,9 @@ pub enum BasisError {
     NonFinite { dof: usize },
     Shape(&'static str),
     Sum(SumError),
-    /// A nonzero value on an axis restraint at a stop's node.
+    /// A nonzero value on an axis restraint at a stop's node (§2.2 item 9).
     PrescribedMotion { dof: usize },
-    /// a published value outside binary64.
+    /// §2.2 item 11: a published value outside binary64.
     ReactionRange { node: usize, value: PublishedValue },
     Reduction(FrameKernelError),
     Ledger(LedgerError),
@@ -645,7 +645,7 @@ fn half_ulp(x: f64) -> f64 {
     }
 }
 
-/// K-D5's view of a skew case: the basis, and the **physical** ledger
+/// K-D5's view of a skew case (§10): the basis, and the **physical** ledger
 /// and stiffness contributions the intended source binds, while the gate's
 /// system carries the coordinate ones (K′, f′ and `transform_contributions`).
 /// `FormationSource.restraint` points at it.
@@ -691,14 +691,14 @@ pub struct AttributionTrace {
     pub n_w: f64,
 }
 
-/// A ground row for rigid-body screening.
+/// A ground row for rigid-body screening (§9).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum GroundRow {
     Axis(usize),
     Direction { node: usize, d: [f64; 3] },
 }
 
-/// K-D5's coordinate bound inputs lifted to physical DOFs. `bound`'s
+/// §10.4: K-D5's coordinate bound inputs lifted to physical DOFs. `bound`'s
 /// vectors are physical, and `bound.lift_radius` encloses the lift's rounding.
 #[derive(Debug, Clone, PartialEq)]
 pub struct LiftedMemberBound {
@@ -787,7 +787,7 @@ impl RestraintBasis {
                 });
                 continue;
             };
-            // ŝ ≥ 0 puts |w_m| in [1, 2); exact (scaling up), ŝ ≤ 1022.
+            // §5.1: ŝ ≥ 0 puts |w_m| in [1, 2); exact (scaling up), ŝ ≤ 1022.
             let restricted_scale_exponent = 1 - frexp_exponent(scaled[pivot]);
             let w = scaled.map(|x| scale_pow2(x, restricted_scale_exponent));
             let mut q = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
@@ -916,7 +916,7 @@ impl RestraintBasis {
     /// congruence terms in `q_row` order, exactly four binary64 parts whose
     /// exact sum is q_ir·v·q_jc (`exact_triple_parts`). So the exact sum of the
     /// coordinate contributions at (r, c) is (Qᵀ(Σ_e contrib_e)Q)_rc, and the
-    /// gate's contribution audits judge K′ against it. A product
+    /// gate's contribution audits judge K′ against it (§10.3). A product
     /// outside the split range is `SplitRange` at its coordinate row.
     pub fn transform_contributions(
         &self,
@@ -1014,7 +1014,7 @@ impl RestraintBasis {
         column
     }
 
-    /// The binary64 3×3 block of one skewed spring:
+    /// The binary64 3×3 block of one skewed spring (§6.1):
     /// fl(k·fl(fl(d̃_i·d̃_j)/n)), n = d̃ᵀd̃ rounded once; symmetric bit for bit.
     pub fn spring_block(&self, spring: usize) -> [[f64; 3]; 3] {
         let spring = &self.springs[spring];
@@ -1059,7 +1059,7 @@ impl RestraintBasis {
         out
     }
 
-    /// The node-block premise of K′'s pattern: at each
+    /// The node-block premise of K′'s pattern (§6.2, §2.2 item 6): at each
     /// constrained node the three translation rows share one column set that
     /// holds the node's own 3×3 translation block.
     fn check_node_blocks(&self, k: &SparseStiffness) -> Result<(), BasisError> {
@@ -1077,7 +1077,7 @@ impl RestraintBasis {
         Ok(())
     }
 
-    /// K′ = QᵀKQ on K's pattern: entries away from constrained nodes
+    /// K′ = QᵀKQ on K's pattern (§6.2): entries away from constrained nodes
     /// are K's values; each touched entry is one exact sum Σ q_ir·K_ij·q_jc
     /// rounded once (symmetric bit for bit, never −0.0).
     pub fn transform_stiffness(&self, k: &SparseStiffness) -> Result<SparseStiffness, BasisError> {
@@ -1116,12 +1116,12 @@ impl RestraintBasis {
         sum.round().map_err(|_| BasisError::NonFinite { dof: row })
     }
 
-    /// f′ = Qᵀf as a coordinate ledger: on each touched coordinate row
+    /// f′ = Qᵀf as a coordinate ledger (§6.3): on each touched coordinate row
     /// r, each physical term on DOF i with q_ir ≠ 0 becomes q_ir·v (a
     /// product) or, for a product a·b, the split parts of q_ir·a times b. Rows
     /// away from constrained nodes keep their terms. Each row's net is one
     /// exact sum rounded once. Formation records and load primitives are not
-    /// carried: K-D5 binds the physical ledger.
+    /// carried: K-D5 binds the physical ledger (§6.3, §10).
     pub fn transform_force(&self, force: &AssembledForce) -> Result<AssembledForce, BasisError> {
         let n = self.dimension();
         if force.len() != n {
@@ -1202,7 +1202,7 @@ impl RestraintBasis {
     }
 
     /// The coordinate partition and reduced right-hand side
-    /// f′_r − Σ_c K′_rc g_c, each free row one exact sum rounded once
+    /// f′_r − Σ_c K′_rc g_c (§6.3), each free row one exact sum rounded once
     /// (`reduce_assembled_sparse_system` on the coordinate ledger). `values`
     /// are aligned with `axis_restrained` (`None`: all zero).
     pub fn reduce(
@@ -1291,7 +1291,7 @@ impl RestraintBasis {
         Ok(sum)
     }
 
-    /// K-D5's coordinate bound inputs as physical ones:
+    /// K-D5's coordinate bound inputs as physical ones (§10.4):
     /// - u_p = fl(Q v); w_p = fl(exact(Q(v + w)) − u_p);
     ///   w₂,p = fl(exact(Q(v + w + w₂)) − u_p − w_p);
     /// - lift radius |exact(Q(v + w + w₂)) − u_p − w_p − w₂,p|, rounded up;
@@ -1382,7 +1382,7 @@ impl RestraintBasis {
     }
 
     /// Binary64 attribution at one constrained node from its physical rows
-    /// r = (K u − f): the unique multiplier, range-safe.
+    /// r = (K u − f) (§7.2): the unique multiplier, range-safe.
     pub fn attribute(&self, node: usize, r: [f64; 3]) -> Result<NodeAttribution, BasisError> {
         self.attribute_traced(node, r).map(|(a, _)| a)
     }
@@ -1455,7 +1455,7 @@ impl RestraintBasis {
         ))
     }
 
-    /// One skewed spring's reaction: t = d̃ᵀu (exact, rounded once),
+    /// One skewed spring's reaction (§7.2): t = d̃ᵀu (exact, rounded once),
     /// κ = fl(k·t); components fl(−fl(κ/n)·d̃_i), along −fl(κ/ν). Both branch
     /// from κ; no chained division.
     ///
@@ -1510,7 +1510,7 @@ impl RestraintBasis {
         Ok(StopReaction { global, along })
     }
 
-    /// Ground rows for rigid-body screening: axis DOFs as today, then
+    /// Ground rows for rigid-body screening (§9): axis DOFs as today, then
     /// one direction row per stop and per positive skewed spring (d̃).
     pub fn ground_rows(&self) -> Vec<GroundRow> {
         self.axis_restrained

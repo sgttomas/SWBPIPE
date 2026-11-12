@@ -1,4 +1,4 @@
-//! U4 G5 part 2: the S1 stack witnesses W1–W7.
+//! U4 G5 part 2: the S1 stack witnesses W1–W7 (STACK_PLAN.md §4; STACK_INVENTORY.md §3).
 //!
 //! Each witness runs, on one thread with R/k = 4 MiB of reserved stack (the
 //! `on_reserved_stack` the permitted dispatch uses), the work the permitted path
@@ -89,7 +89,7 @@ fn permitted_work(raw: Value, mode: PreviewSolverMode, before_w1: impl FnOnce(&m
     }
     let w1 = std::time::Instant::now();
     let retained = crate::retained_w1(observer, ordinary, &capture).1;
-    // B1 SQ: the ordinary observed run's and W1's wall times, in this build.
+    // B1 SQ (PLAN_v2 §3.6): the ordinary observed run's and W1's wall times, in this build.
     println!("I104_SQ_WITNESS_TIME {mode:?} parse_and_ordinary_ms={ordinary_ms:.1} w1_ms={:.1}", w1.elapsed().as_secs_f64() * 1e3);
     match retained {
         Ok(_) => Ran::Successor,
@@ -192,7 +192,7 @@ per_mode! {
 
 per_mode! {
     /// W2b's input: the cap-maximal shape made solvable (one rigid support, 31 scalar springs). Its
-    /// ordinary report passes (`checks_passed`, no W2), so under T-4
+    /// ordinary report passes (`checks_passed`, no W2; R/I81/b1_probe_01 PROBE §2.1), so under T-4
     /// (B1) A is empty and it pins `NoTriggeredCase` at the largest counts: the exact ordinary bytes
     /// and no W1 work (RR "I81's B1-0 probe verified…", ruling 4). Its former role, the only full
     /// native run at the cap-maximal counts, moves to W2b's replacement below.
@@ -326,7 +326,7 @@ per_mode! {
 /// W6's input before B1: PHYS-R4's cantilever (OD 4e-77 m, tip load about 1e-307) in the
 /// legacy namespace, so the ordinary run scales by an exact power of two (f1b_w2_runtime.rs
 /// `phys_r4(false)`, without its pressure contract). It is W2-published with the published
-/// verdict `checks_passed`, so since B1 it is a `NoTriggeredCase`
+/// verdict `checks_passed` (R/I81/b1_probe_01 PROBE §2.1), so since B1 it is a `NoTriggeredCase`
 /// pin, and W6's stack witness runs on W-C2's case C.
 pub(super) fn w6_input() -> Value {
     let (a, b) = ("node:section-a", "node:section-b");
@@ -418,10 +418,10 @@ per_mode! {
     }
 }
 
-// ---- B1 SQ: the multi-case and cap-maximal witnesses --------------------------
+// ---- B1 SQ (PLAN_v2 §3.4): the multi-case and cap-maximal witnesses --------------------------
 
 per_mode! {
-    /// W-C2 (the facade tests' `w_c2()`): three cases, A and C in A. A
+    /// W-C2 (R/I81/b1_probe_01 PROBE §4; the facade tests' `w_c2()`): three cases, A and C in A. A
     /// successor at R/16, and again at R/64 = 1 MiB as headroom.
     witness_w_c2_publishes, |mode| {
         for stack in [WITNESS_STACK, RESERVED_STACK_BYTES / 64] {
@@ -494,7 +494,7 @@ per_mode! {
     /// Every case reaches the staged selected state. Its body-0 translation and
     /// rotation scales formerly differed by one ulp between the native candidate
     /// and the final rows, so G5b refused it; since the W1 coverage repair's
-    /// corner 2 the receipt states the
+    /// corner 2 (Design `w1-coverage-repair.md` §2.2, §3.5) the receipt states the
     /// final scales the gate used, every row's gate verdict passes under them, and
     /// the successor publishes.
     witness_w1_member_load_three_case_three_basis_128, |mode| {
@@ -711,7 +711,7 @@ fn f1_g_c_contract_evidence_bounds_are_per_route() {
     use crate::retained_product::W1Route;
     let (l, e) = (phase_caps_on(W1Route::Preview), phase_caps_on(W1Route::Exact));
     assert_eq!((l.late, l.complete), (phase_caps().late, phase_caps().complete), "route L's bounds are phase_caps()");
-    // W-7 (§8.20): 78 and 114 rows per member (W7-RL, W7-RP).
+    // W-7 (retained-pricing-rules.md §8.20): 78 and 114 rows per member (W7-RL, W7-RP).
     assert_eq!(l.complete[..2], [8_937, 16_384], "route L: C_eq times route L's P_final, and its push capacity");
     assert_eq!(e.complete[..2], [12_393, 16_384], "route E: C_eq times route E's P_final, and its push capacity");
     assert_eq!(l.complete[9..14], [480, 201, 1_654, 200_448, 66_360], "route L: C times the preview tree, entries cut to the priced nodes");

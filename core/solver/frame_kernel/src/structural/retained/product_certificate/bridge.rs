@@ -195,12 +195,12 @@ struct Majorants {
     inv: Endpoint,
     dg: [Endpoint; 4],
     dd: [Endpoint; 4],
-    /// a Timoshenko member's bending majorants per plane [z, y] as
+    /// O4 §4.3: a Timoshenko member's bending majorants per plane [z, y] as
     /// [diagonal, off-diagonal]: `tg` the d̄ majorant (c + c_s at ℓ, both
     /// entries), `td` the D-entry gaps [|Δd₁|, |Δd₂|] at the exact length.
     t: Option<([[Endpoint; 2]; 2], [[Endpoint; 2]; 2])>,
 }
-/// one plane's (d₁, d₂) enclosures from EI and K_s at a length
+/// O4 §4.3: one plane's (d₁, d₂) enclosures from EI and K_s at a length
 /// enclosure; d₂ = c_s − c is signed, formed endpoint by endpoint.
 fn timoshenko_plane(
     work: &mut BridgeWork,
@@ -313,7 +313,7 @@ fn majorants(
         dg[k] = work.div(c.coefficients[k].hi, ell)?;
         dd[k] = work.div(c.coefficient_differences[k], ell)?;
     }
-    // a Timoshenko member. The d̄ majorant may use ℓ, since
+    // O4 §4.3: a Timoshenko member. The d̄ majorant may use ℓ, since
     // c + c_s = EI/L + 3EI·L/(L² + k) decreases in L (max over x of
     // 3x(1−x)/(1+x)² is 3/8 < 1); the D-entry gaps are formed at the exact
     // length, since a Timoshenko gap is not monotone in L.
@@ -408,7 +408,7 @@ fn d_apply(
         work.visit()?;
         work.d_products = work.d_products.add(WorkTotal::exact_count(1));
         work.check()?;
-        // a Timoshenko plane's majorant entries replace the 4/2
+        // O4 §4.3: a Timoshenko plane's majorant entries replace the 4/2
         // pattern on the bending rows.
         let entry = match (t, property) {
             (Some(t), 2 | 3) => t[property - 2][usize::from(r != c)],

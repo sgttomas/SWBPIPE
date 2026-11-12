@@ -2,7 +2,7 @@
 
 Replaces G2 caps_arithmetic.py section (3). Every owner of the selected-or-refused
 legacy-exact path (PP source_recovery::solve, :1434-1600) is listed once, everything live
-at once (a conservative sum of the phase maxima).
+at once (a conservative sum of the phase maxima). Sources are cited in RESIDUALS_G3.md.
 
 Changes from G2 (RV83 S-1):
   (a) both Snapshot.identity copies (FKS exact_boundary.rs:466 Context, :1429 retained);
@@ -26,7 +26,7 @@ from rf_source_model import active as rf_active, coefficient_max
 import ra_owners_model as _ra_model
 
 RF = rf_active(os.environ.get("RP_SNAPSHOT"))
-# R-A D3 (§8.13): B1's hint vectors and evaluate's Shortcuts (ra_owners_model binds every
+# R-A D3 (retained-pricing-rules.md §8.13): B1's hint vectors and evaluate's Shortcuts (ra_owners_model binds every
 # owner); added only on R-A's source.
 RA = _ra_model.active(os.environ.get("RP_SNAPSHOT"))
 

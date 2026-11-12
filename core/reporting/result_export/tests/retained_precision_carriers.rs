@@ -19,9 +19,9 @@ const DENSE: &str = include_str!(
 );
 /// PP's pins: retained_facade_tests.rs `PINNED` and retained_wire_tests.rs
 /// `SUCCESSOR_SHA256` (file sha256, then receipt sha256), per mode.
-/// Model 0.9.0 re-pin: read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-/// RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only `formulation_basis.limitations[6]` and the
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only `formulation_basis.limitations[6]` (§10.2) and the
 /// digests binding it; each restated to the former sentence and resealed (Python 07e) reproduces its former pin.
 const PINNED: [(&str, &str, &str, &str); 2] = [
     (
@@ -416,7 +416,7 @@ fn u6a_derivative_carries_the_receipt_and_it_comes_back_out() {
                     assert!(!message.contains("stop") && !message.contains("enclos"), "{message}");
                     assert_eq!(x["source_value"], m.source["results"][i]["value"]);
                 }
-                // the member's derived σ⁺, σ⁻ and τ_v,max rows are not covered and disclosed so.
+                // T4-U4b (§4.1): the member's derived σ⁺, σ⁻ and τ_v,max rows are not covered and disclosed so.
                 rp::AccuracyClass::NotCovered => {
                     counts[4] += 1;
                     assert_eq!(accounting[i]["disposition"], "disclosed");

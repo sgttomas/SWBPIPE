@@ -22,7 +22,7 @@ export const RUN_SHEET_SOURCE = {
   source_channel: "local_desktop_preview",
   source_role: "gui_editor",
 } as const;
-/** The form's labels for a bend's records (`InsertBendAtCornerForm`). */
+/** The form's labels for a bend's records (§3.2, `InsertBendAtCornerForm`). */
 export const BEND_LABELS = { start: "Bend start", end: "Bend end", arc: "Bend arc", component: "Bend" } as const;
 
 type NodeRecord = PreviewModel["nodes"][number];
@@ -101,7 +101,7 @@ function intent(input: {
 }
 
 /** The node record `create_node` writes, as the applier stores it. The resolver
- * already normalized −0, so the displayed value is the emitted one; the
+ * already normalized −0 (§6.2), so the displayed value is the emitted one; the
  * normalization is repeated here so no −0 can reach a payload or the projection. */
 export function nodeRecord(row: ResolvedRunSheetRow, source: string): NodeRecord {
   const { x, y, z } = row.end!.position;
@@ -132,7 +132,7 @@ export function pipeRecord(row: ResolvedRunSheetRow, source: string): PipeRecord
   };
 }
 
-/** Build the one batch for the resolved rows. Refuses a sheet the rules refuse. */
+/** Build the one batch for the resolved rows (§3.3). Refuses a sheet the rules refuse. */
 export async function buildRunSheetBatch(resolved: ResolvedRunSheet): Promise<RunSheetBuild> {
   if (!resolved.queueable) throw new Error("The run sheet has refused rows, sheet-level findings or pending conversions; nothing is built.");
   const source = resolved.source;
@@ -280,7 +280,7 @@ export async function buildRunSheetBatch(resolved: ResolvedRunSheet): Promise<Ru
       default:
         throw new Error(`Row ${row.number} has no kind.`);
     }
-    // A bend run's insertion follows the next run row's operations.
+    // A bend run's insertion follows the next run row's operations (§3.3).
     if (pendingBend) {
       await insertBend(pendingBend);
       if (pendingBend.bend!.sifs) await realizeSifs(pendingBend);

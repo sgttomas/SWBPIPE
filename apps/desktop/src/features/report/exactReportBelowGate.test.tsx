@@ -1,7 +1,7 @@
-/** W-11:
+/** W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.1-§3.6, §5.1, §5.5, §7):
  * the desktop's exact-route report sections and their Export Result JSON admission.
  * Since the owner opened the rendered report and the report package for pressure-2 and
- * pressure-source-1 (owner, 2026-10-26: "My two decisions are to approve your
+ * pressure-source-1 (§5.1; owner, 2026-10-26: "My two decisions are to approve your
  * recommendations in both cases. Proceed accordingly."), these tests reach the sections
  * through the production builder, the panel's build step (`assembleRenderedReport`) and
  * the production package request (`buildReportPackageRequest`) under the native-capture
@@ -11,7 +11,7 @@
  * - the projection against the shared vectors `exact_report_sections_parity.json`;
  * - the admission binding, same-run substitution, copies and asynchronous retirement;
  * - the panel and the package request send no IPC once the admission is retired;
- * - the opened surfaces, and the report JSON packet, which still refuses;
+ * - the opened surfaces, and the report JSON packet, which still refuses (§5.4);
  * - the witness and substitute requests the native and Rust witnesses read
  *   (`fixtures/reports/invented/exact_report_package_requests/`, stale fails;
  *   `OPENPIPESTRESS_WRITE_EXACT_PACKAGE_REQUESTS=<dir>` writes them).
@@ -139,7 +139,7 @@ async function utf8Sha256(value: string): Promise<string> {
 }
 
 /* -------------------------------------------------------------------------- *
- * The projection against the shared vectors
+ * The projection against the shared vectors (§3.5)
  * -------------------------------------------------------------------------- */
 function resolveVector(spec: Json): MechanicsResult {
   const document = JSON.parse(text(spec.path));
@@ -179,13 +179,13 @@ describe("the exact-section projection against the shared vectors (§3.5)", () =
 
   it("names Rust's admitted set as the package's (REPORT_PACKAGE_ADMITTED_CONTRACT_IDS)", () => {
     expect([...REPORT_PACKAGE_ADMITTED_CONTRACT_IDS]).toEqual(parity.admitted_semantic_contracts);
-    // the pressure-free Timoshenko identity follows preview-physics-2.
+    // DEL-05-03 `pf-timoshenko.md` §4: the pressure-free Timoshenko identity follows preview-physics-2.
     expect([...REPORT_PACKAGE_ADMITTED_CONTRACT_IDS]).toEqual([ALL_IDS[0], "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1", ...ALL_IDS.slice(1)]);
   });
 });
 
 /* -------------------------------------------------------------------------- *
- * The admission
+ * The admission (§3.1)
  * -------------------------------------------------------------------------- */
 describe("admitExactReportSource (§3.1)", () => {
   it("binds each field to its document value and its recomputed value", async () => {
@@ -305,7 +305,7 @@ describe("admitExactReportSource (§3.1)", () => {
 });
 
 /* -------------------------------------------------------------------------- *
- * The sections in the report, below the gate
+ * The sections in the report, below the gate (§2.4, §3.2-§3.4)
  * -------------------------------------------------------------------------- */
 describe("the exact sections in the renderer input", () => {
   async function assemble(session: Session) {
@@ -321,7 +321,7 @@ describe("the exact sections in the renderer input", () => {
     const run = result.run_id;
     const core = await exactRouteCore(result);
     expect(input.exact_route).toEqual({ semantic_contract_id: result.producer!.semantic_contract_id, admission: { ...assembly.admission!.binding }, load_reference_states: core.load_reference_states, headlines: core.headlines });
-    // The binding agrees with the report's own records, as the renderer checks.
+    // The binding agrees with the report's own records, as the renderer checks (§3.2).
     const binding = input.exact_route.admission;
     expect(binding.run_ref).toBe(input.report_sections.run_ref.ref_id);
     expect(binding.model_sha256).toBe(input.calculation_report.model_input_summary.model_hash.value);
@@ -340,7 +340,7 @@ describe("the exact sections in the renderer input", () => {
         if (published.unit === "Pa") expect(headline.value_display).toMatch(/ MPa$/);
       }
     }
-    // `conversion_performed`:
+    // `conversion_performed` (DEL-08-01 Design `report-package-current-results.md` §2.3 item 5):
     // the exact headlines are stored in Pa and displayed in MPa; the stored units are unchanged.
     const display = input.calculation_report.model_input_summary.unit_display_summary;
     expect(display.conversion_performed).toBe(true);
@@ -396,7 +396,7 @@ describe("the exact sections in the renderer input", () => {
 });
 
 /* -------------------------------------------------------------------------- *
- * No IPC once the admission is retired
+ * No IPC once the admission is retired (§3.1)
  * -------------------------------------------------------------------------- */
 describe("retirement after the build sends no IPC", () => {
   it("the panel's build step: the pre-IPC re-check refuses and the render is not sent", async () => {
@@ -435,7 +435,7 @@ describe("retirement after the build sends no IPC", () => {
 });
 
 /* -------------------------------------------------------------------------- *
- * Opened, and what stays refused
+ * Opened (§5.1, §7), and what stays refused (§5.4)
  * -------------------------------------------------------------------------- */
 describe("opened: the rendered report and the report package admit an exact-route result", () => {
   it("the exact routes' cells: result-export, stress-neutral, rule-check, rendered-report and report-package admit; report and the other surfaces refuse", () => {
@@ -461,7 +461,7 @@ describe("opened: the rendered report and the report package admit an exact-rout
     const request = await buildReportPackageRequest(packageInput(session)) as Json;
     expect(request.result_documents[0].result_envelope.producer.semantic_contract_id).toBe(result.producer!.semantic_contract_id);
     expect(request.report.exact_route.semantic_contract_id).toBe(result.producer!.semantic_contract_id);
-    // What stays refused: the report JSON packet and the handoff preview.
+    // What stays refused (§5.4): the report JSON packet and the handoff preview.
     expect(surfaceRouteRefusal(result, "report")).toBe(refusal);
     expect(surfaceOutputRefusal(result, model, "report")).toBe(refusal);
     expect(surfaceRouteRefusal(result, "handoff")).toBe(refusal);
@@ -469,7 +469,7 @@ describe("opened: the rendered report and the report package admit an exact-rout
 });
 
 /* -------------------------------------------------------------------------- *
- * The witness and substitute requests
+ * The witness and substitute requests (§5.5)
  * -------------------------------------------------------------------------- */
 const WITNESS_DIR = "fixtures/reports/invented/exact_report_package_requests";
 const GENERATOR = "apps/desktop/src/features/report/exactReportBelowGate.test.tsx";
@@ -507,7 +507,7 @@ function witnessFile(item: Shape, session: Session, request: Json, extra: Record
   }, hint)}\n`;
 }
 
-/** The substitute: the pressure-2 straight source with one row value
+/** The substitute (§5.5, §7): the pressure-2 straight source with one row value
  * changed, solved, recorded and assembled by the same builders, so every hash in the
  * document, report and handoff records is rebound; then given the genuine request's
  * `native_job_id` and `received_bytes_sha256`. */
@@ -567,7 +567,7 @@ describe("the witness requests (§5.5)", () => {
       const request = await buildReportPackageRequest(packageInput(session)) as Json;
       expect(request.result_documents[0].result_envelope.producer.semantic_contract_id).toBe(session.result.producer!.semantic_contract_id);
       expect(request.report.exact_route.admission.native_job_id).toBe(deliveredMechanicsResultJob(session.result));
-      // No rule-check run in the witness inputs.
+      // No rule-check run in the witness inputs (§1.7, §5.5).
       expect(request.report.user_rule_checks).toBeNull();
       expect(request.rule_check_aggregate).toBeNull();
       if (item.name === "pressure_2_straight") straight = request;

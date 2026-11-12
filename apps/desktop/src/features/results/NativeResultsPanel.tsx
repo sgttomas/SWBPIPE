@@ -8,7 +8,7 @@
  * `INGRESS-ARGS-INVALID`) is shown as that typed refusal, never as no rows. The webview holds one
  * page of rows, never the envelope.
  *
- * The results navigator steps all three axes as `ResultsPanel`
+ * The results navigator (DEL-07-05 `results-navigator.md`) steps all three axes as `ResultsPanel`
  * does: kinds and cases from S; supports and elements from the native navigator query
  * (`query_preview_mechanics_job_navigator`: the distinct entities of the rows the filters admit,
  * other than "Selected entity only", in first-publication order, with each one's first row), so a
@@ -111,7 +111,7 @@ function standaloneNativeHealth(custody: NativeCustody): NumericalHealthView | n
   return standing ? numericalHealthView(parseNumericalHealth(custody.summary.header.numerical_health), { eligible: standing.eligible, verdictHold: false }) : null;
 }
 
-/** A row read under a table other than the handle's: refused, never read. */
+/** A row read under a table other than the handle's (RT-A4 §10.4): refused, never read. */
 const RECORDED_TABLE_REFUSED: RowSemanticsOutcome = Object.freeze({ ok: false, error: Object.freeze({ code: "SOURCE_RECORDED_BINDING_UNKNOWN", detail: null }) }) as RowSemanticsOutcome;
 
 type PageState =
@@ -135,7 +135,7 @@ export function NativeResultsPanel({
   recordedTableRead = null
 }: {
   result: NativeResult;
-  /** a reopened run recorded before RT-A4 names the registry table it was read under
+  /** RT-A4 §10.4: a reopened run recorded before RT-A4 names the registry table it was read under
    * (the native reopen's, which this handle's native readers read under); the panel then classifies
    * and states it as read under that table, labelled as-recorded. A table other than the handle's is
    * refused (no route, no row semantics), never read under the current reader. */
@@ -155,7 +155,7 @@ export function NativeResultsPanel({
 }) {
   const displayResolver = useDisplayQuantityResolver();
   const custody = nativeCustody(result);
-  // the native row semantics are read under the handle's held table; read under any
+  // RT-A4 §10.4: the native row semantics are read under the handle's held table; read under any
   // other table they are refused, as `recordedReaderRowSemantics` refuses a binding it does not read.
   const tableAgrees = sameContractBinding(custody.recordedTable ?? null, recordedTableRead);
   const semanticsOf = (ordinals: readonly number[]): Promise<readonly RowSemanticsOutcome[]> =>
@@ -231,7 +231,7 @@ export function NativeResultsPanel({
   const page = { items, pageIndex: safeIndex, pageCount, start: filteredCount === 0 ? 0 : safeIndex * pageSize + 1, end: Math.min(safeIndex * pageSize + items.length, filteredCount) };
   const labels = ready?.labels ?? labelsOf([], []);
   const groups = groupResults(items, labels);
-  // a run recorded before RT-A4 is classified under its recorded table.
+  // RT-A4 §10.4: a run recorded before RT-A4 is classified under its recorded table.
   const route = displayRoute(result, recordedTableRead);
   // DEL-07-05: the historical panel passes no health; a reopened run then shows its own (review F2).
   const ownHealth = useMemo(() => (numericalHealth === undefined ? standaloneNativeHealth(custody) : null), [numericalHealth, custody]);
@@ -239,7 +239,7 @@ export function NativeResultsPanel({
   // The row labels apply to preview-physics-2 and its successors (a reopened successor included).
   const labelSource = ["preview_physics", "retained_preview_physics", "retained_physics"].includes(route) ? result : null;
   const intensified = useNativeKindPresence(result, PREVIEW_INTENSIFIED_KIND);
-  // the along-direction notice, by the same bounded native lookup.
+  // S-K1 R-6/R-7 (§7.1): the along-direction notice, by the same bounded native lookup.
   const alongDirection = useNativeKindPresence(result, PREVIEW_ALONG_DIRECTION_KIND);
   const notices = useMemo(() => knownSemanticNotices(result, recordedTableRead, { hasIntensified: intensified, hasAlongDirection: alongDirection }), [result, recordedTableRead, intensified, alongDirection]);
   const recovery = custody.recovery;
@@ -287,7 +287,7 @@ export function NativeResultsPanel({
     return { fileName: streamed.fileName, jobId: custody.jobId, chunks: streamed.chunks };
   };
 
-  /* ---- A1: the results navigator, on native lists ---- */
+  /* ---- A1: the results navigator (DEL-07-05 `results-navigator.md`), on native lists ---- */
   const panelRef = useRef<HTMLElement>(null);
   // RT-U4: a fresh solve's first paint is the frame showing this table's first page: its rows and
   // their row semantics read (`ready`) and committed while the table can be seen, then two frames

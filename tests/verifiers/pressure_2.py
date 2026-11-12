@@ -22,7 +22,7 @@ T4-U6/U8 (D-5, D-6): every ``pipe_sections`` entry states the nominal section,
 the reduced section and the pressure bore, rederived from its captured authored
 values in the fixed binary64 order, and its beam theory (kappa_E and A_s bit for
 bit for a Timoshenko straight; arcs Euler-Bernoulli). A realized arc's entry,
-and only an arc's, carries ``member_kind = "realized_arc"``, so every arc
+and only an arc's, carries ``member_kind = "realized_arc"`` (§2.5), so every arc
 is known without the model, in a pressure region or not. Every stress row is
 published on both bases and names its basis; each twin pair is checked against
 the two sections; each basis has its own maximum coverage and headline, and
@@ -67,7 +67,7 @@ PROFILE = "exact_pressure_v3"
 PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
 PRODUCER = {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": CONTRACT_ID}
 TABLE_PATH = PROJECT / "fixtures/results/semantic_contract_v0_3_pressure_2.json"
-# one stress signature per (recovery token x section basis); T4-U5b adds the tie-rod force and
+# T4-U6 (D-5, §2.4): one stress signature per (recovery token x section basis); T4-U5b adds the tie-rod force and
 # T4-U4b its 22 per-basis signatures: 129 signatures over 66 kinds; W-7 (DEL-04-01) the six global end-action
 # signatures: 135 over 68; RT-A3 increment 1 the two branch intensified signatures: 137 over 69.
 TABLE_SHA256 = "c5fe09a2dc82068f46ce8dd0b5873071af1ec13e62c9bacf0a009570d7e5d2ad"
@@ -88,7 +88,7 @@ SOURCE_EXACT_PRESSURE_V2_RETIRED = "SOURCE_EXACT_PRESSURE_V2_RETIRED"
 MODEL_VERSION = "0.9.0"
 V2_RETIRED_TEXT = (f"{SOURCE_EXACT_PRESSURE_V2_RETIRED}: 2.0.0/exact_straight_pressure_v2 results are no longer read; "
                    f"re-author the model as {MODEL_VERSION} with the current exact pressure contract and re-run the analysis")
-# Model 0.6.0: the retired pressure-1 identity, refused by name.
+# Model 0.6.0 (DEL-04-07 Design u4b-u5b-implementation.md §1.2): the retired pressure-1 identity, refused by name.
 RETIRED_PRESSURE_1_ID = "openpipestress.result_semantics/0.3.0/pressure-1"
 SOURCE_PRESSURE_1_RETIRED = "SOURCE_PRESSURE_1_RETIRED"
 PRESSURE_1_RETIRED_TEXT = f"{SOURCE_PRESSURE_1_RETIRED}: pressure-1 results are no longer read; re-run the analysis"
@@ -149,7 +149,7 @@ JOINT_APPROXIMATION = "straight_lame_annulus_and_joint_area_difference_h2_small_
 ARC_JOINT_APPROXIMATION = "straight_lame_annulus_realized_arc_and_joint_area_difference_h2_small_strain_v3"
 ARC_TANGENCY_TOLERANCE_RAD = 1e-3
 ARC_TANGENCY_RULE = "a region changes direction only at a realized bend; each straight run keeps the 64*epsilon collinearity guard (a straight-straight kink is PRESSURE_REGION_NONCOLLINEAR); at each bend-adjacent junction theta = atan2(|t_in x t_out|, t_in . t_out) <= alpha_tan is admitted and carried exactly by the remainder pAi(t_in - t_out), and a larger theta is refused as a mitre (PRESSURE_REGION_MITRE_UNSUPPORTED)"
-# the straight Lame kinds stay off arcs; the region names the two arc definitions.
+# T4-U4b (§2.5): the straight Lame kinds stay off arcs; the region names the two arc definitions.
 ARC_WITHHELD_KINDS = ["pipe_lame_radial_stress_v2", "pipe_lame_hoop_stress_v2"]
 ARC_STRESS_DEFINITIONS = [
     {"definition": "bore_load_transferred_toroidal_membrane_v1", "statement": "the toroidal membrane hoop is the cut average of a complete torus in an axisymmetric membrane state under p on each basis bore, and the radial values are -p at the bore and 0 outside; ovalization, hoop bending from moments, bending boundary layers, tangent-end effects, the through-thickness distribution and transverse-shear resultants on the cuts are not represented"},
@@ -172,7 +172,7 @@ ARC_STATIONS = {("end_i", "wall_axial_end_action"), ("end_j", "wall_axial_end_ac
 STRAIGHT_STATIONS = {(station, component) for station in STATIONS for component in ("wall_axial_force", "effective_axial_force", "axial_membrane_stress", "lame_inner_radial_stress", "lame_outer_radial_stress", "lame_inner_hoop_stress", "lame_outer_hoop_stress")} | {("end_i", "wall_axial_end_action"), ("end_j", "wall_axial_end_action")}
 STRESS_COMPONENTS = {"axial_membrane_stress", "lame_inner_radial_stress", "lame_outer_radial_stress", "lame_inner_hoop_stress", "lame_outer_hoop_stress"}
 REGION_KEYS = {"load_case_id", "region_id", "profile_mode", "profile_version", "pressure_basis", "p_pa", "external_pressure_increment_pa", "member_pipe_ids", "geometry", "materials", "terminals", "applied_loads", "approximation", "provenance", "geometry_representation_guard", "result_ids"}
-# the pipe_sections entry's keys.
+# T4-U6 (D-5, §2.5): the pipe_sections entry's keys.
 GEOMETRY = sb.SECTION_KEYS
 MATERIAL = {"pipe_id", "material_id", "E_pa", "nu", "G_pa", "constitutive_basis", "thermal_consumed", "alpha_per_kelvin", "provenance"}
 EVIDENCE_KEYS_0_3_0 = {"pressure", "connector", "exact_cases"}
@@ -237,7 +237,7 @@ def _validate_direct_pressure_evidence(source: Mapping[str, Any]) -> None:
             _physics(source)
         except (TypeError, KeyError, AttributeError, OverflowError) as error:
             raise ValueError("SOURCE_PHYSICS_EVIDENCE_INVALID: malformed evidence") from error
-    # the nonlinear support results, their laws and standing (Rust
+    # RT-A3 increment 4 (R-4 §2.4): the nonlinear support results, their laws and standing (Rust
     # `nonlinear_support_evidence::check`); a no-op without them.
     nonlinear_support_evidence.check(source)
 
@@ -342,7 +342,7 @@ def _member(value: Any, allowed: set[str]) -> bool:
 # --------------------------------------------------------------------------
 
 
-# the exact route's D-5 mass method (PP self_weight::EXACT_MASS_METHOD).
+# W-16 slice c (§2): the exact route's D-5 mass method (PP self_weight::EXACT_MASS_METHOD).
 EXACT_MASS_METHOD = "source_od_nominal_wall_pressure_bore_areas/v1"
 
 
@@ -415,7 +415,7 @@ def arc_members(region: Any) -> set[str]:
         radius = geometry.get("bend_radius_m")
         _require(geometry.get("member_kind") == ARC_MEMBER_KIND and isinstance(tangents, list) and len(tangents) == 2 and all(_vector(t, 3) for t in tangents)
                  and _number(radius) and radius > 0, "arc geometry")
-        # a realized arc is Euler-Bernoulli under either shear model.
+        # T4-U8 (§2.5, §3.6): a realized arc is Euler-Bernoulli under either shear model.
         _require(geometry.get("beam_theory") == {"model": sb.EULER_BERNOULLI}, "arc beam theory")
         arcs.add(geometry.get("pipe_id"))
     return arcs
@@ -500,7 +500,7 @@ def _physics(source: Mapping[str, Any]) -> None:
     _require(isinstance(evidence["connector"], list) and isinstance(evidence["pressure"], list), "unsupported connector")
     cases = _indexed(evidence["exact_cases"], "load_case_id", "exact cases")
     arcs_by_case: dict[str, set[str]] = {}
-    # each member a region's geometry records, by case; its record and its case section mark the same arcs.
+    # §2.5: each member a region's geometry records, by case; its record and its case section mark the same arcs.
     region_members: set[tuple[Any, Any]] = set()
     for region in evidence["pressure"]:
         cid = region.get("load_case_id") if isinstance(region, Mapping) else None
@@ -524,11 +524,11 @@ def _physics(source: Mapping[str, Any]) -> None:
     straight_models: set[str] = set()
     extrema_ids: set[str] = set()
     arc_extrema: list[tuple[str, str, Any, Any]] = []
-    # the document's realized arcs, as every case's pipe_sections marks them (member_kind = "realized_arc"),
+    # §2.5: the document's realized arcs, as every case's pipe_sections marks them (member_kind = "realized_arc"),
     # including arcs outside every pressure region; a model fact, so every case marks the same members.
     marked: set[str] | None = None
     for cid, case in cases.items():
-        # intensified_measures only when non-empty.
+        # T4-U4b (§2.6): intensified_measures only when non-empty.
         directional = "intensified_measures" in case
         _require(not directional or (isinstance(case["intensified_measures"], list) and case["intensified_measures"]), "case shape")
         # W-16 slice c (DEL-05-01 Design exact-equivalent-static.md §2): a generating case's closed record.
@@ -589,11 +589,11 @@ def _physics(source: Mapping[str, Any]) -> None:
             _require(row.get("value") == extremum["value_lower_pa"] + 0.5 * (extremum["value_upper_pa"] - extremum["value_lower_pa"]), "extrema published witness")
             _require(all(_number(extremum[k]) for k in ("station_fraction", "local_fraction", "value_lower_pa", "value_upper_pa", "global_upper_bound_pa", "certified_gap_pa")), "extrema numeric values")
             _require(0 <= extremum["station_fraction"] <= 1 and 0 <= extremum["local_fraction"] <= 1 and 0 <= extremum["value_lower_pa"] <= extremum["value_upper_pa"] <= extremum["global_upper_bound_pa"] and 0 <= extremum["global_upper_bound_pa"] - extremum["value_lower_pa"] <= extremum["certified_gap_pa"] <= 1e-12 + 1e-12 * extremum["value_lower_pa"], "extrema bounds")
-            # the public
+            # K-D5 (DEL-04-01 kd5-member-relative-bound.md section 3.2): the public
             # upper bound is the global maximum enclosure's.
             _require(extremum["value_upper_pa"] == extremum["global_upper_bound_pa"], "extrema bounds")
             if pid in case_arcs:
-                # the arc record, checked with its station cover once the rows are read.
+                # T4-U4b (§2.3): the arc record, checked with its station cover once the rows are read.
                 arc_extrema.append((cid, pid, extremum, row))
                 continue
             _require(type(extremum["span_index"]) is int and extremum["span_index"] >= 0 and type(extremum["subdivisions"]) is int and 0 <= extremum["subdivisions"] <= 131072 and extremum["approximation"] == "piecewise_quadratic_straight_section_statics" and extremum["coefficient_basis"] == "j_side_section_equilibrium_binary64_enclosures" and extremum["enclosure_scope"] == "supplied_binary64_polynomial_coefficient_enclosures; solution error is separate", "extrema witness")
@@ -633,7 +633,7 @@ def _physics(source: Mapping[str, Any]) -> None:
         _require(set(gm) == set(mm) == set(loads) == set(members), "region evidence coverage")
         for pid in members:
             _shape(gm[pid], GEOMETRY | {"traversal_forward"} | (ARC_GEOMETRY_KEYS if pid in arcs else set()), "region geometry shape")
-            # an arc's record adds only its end tangents and bend radius to its case section, which carries the marker.
+            # §2.5: an arc's record adds only its end tangents and bend radius to its case section, which carries the marker.
             _require(type(gm[pid]["traversal_forward"]) is bool and {k: v for k, v in gm[pid].items() if k not in {"traversal_forward", "arc_end_tangents_global", "bend_radius_m"}} == geometries[cid][pid], "geometry disagreement")
             _shape(mm[pid], MATERIAL | {"temperature_basis"}, "region material shape")
             _temperature_basis(mm[pid]["temperature_basis"], cases[cid]["material_basis"], mm[pid]["material_id"])
@@ -658,7 +658,7 @@ def _physics(source: Mapping[str, Any]) -> None:
             _require(not any(row.get("kind") in ARC_WITHHELD_KINDS and row.get("entity_ref") in arcs and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid} for row in rows.values()), "arc withheld")
         for pid in members:
             physical = [row for row in rows.values() if row.get("entity_ref") == pid and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid} and row.get("kind") in PIPE_KINDS - {"pipe_elastic_normal_stress_maximum_v2"}]
-            # a stress slot is published on both bases, a force slot once.
+            # T4-U6 (§2.1): a stress slot is published on both bases, a force slot once.
             observed = [(row.get("metadata", {}).get("location"), row.get("metadata", {}).get("component"),
                          (sb.split_token(row.get("metadata", {}).get("basis")) or (None, "unnamed"))[1] if row.get("kind") in sb.STRESS_KINDS else None) for row in physical]
             expected_locations = {(station, component, basis) for station, component in (ARC_STATIONS if pid in arcs else STRAIGHT_STATIONS)
@@ -681,7 +681,7 @@ def _physics(source: Mapping[str, Any]) -> None:
         _require(basis["ref_type"] == "load_case" and basis["ref_id"] in cases, "row case scope")
         _require(all(_text(row.get(key)) for key in ("kind", "entity_ref", "unit")), "source row identity")
         _require(row.get("source_result_refs", []) == [], "unsupported direct-row derivation")
-        # an inherited thin-wall row names no section basis; every stress row names its basis (token and
+        # T4-U6 (§2.4): an inherited thin-wall row names no section basis; every stress row names its basis (token and
         # id) and belongs to a member whose sections its case states.
         _require(row.get("kind") not in sb.THIN_WALL_KINDS, "thin-wall row names no section basis")
         stress = row.get("kind") in sb.STRESS_KINDS
@@ -716,7 +716,7 @@ def _physics(source: Mapping[str, Any]) -> None:
                 _require(row["id"] in extrema_ids, "unbound extrema row")
             else:
                 _require((cid, pid) in owners and row["id"] in bindings, "unbound pressure row")
-        # the new kinds' signatures and declared semantics.
+        # T4-U4b (§5.1): the new kinds' signatures and declared semantics.
         if row.get("kind") in u4b.KINDS:
             metadata = row.get("metadata") or {}
             _require(len([entry for entry in table["rows"] if entry["kind"] == row["kind"] and entry["unit"] == row.get("unit") and entry["component"] == metadata.get("component") and entry.get("source_basis") == metadata.get("basis")]) == 1, "physical signature")
@@ -732,7 +732,7 @@ def _physics(source: Mapping[str, Any]) -> None:
     _validate_connectors(evidence["connector"], evidence["pressure"], rows, {pid for cid in cases for pid in geometries[cid]}, list(cases), source.get("status", {}).get("mechanics") == "MECHANICS_SOLVED")
     for components in support_components.values():
         _require(len(components) == 8 and set(components) == {"Fx", "Fy", "Fz", "Mx", "My", "Mz", "force_magnitude", "moment_magnitude"}, "support component coverage")
-    # no governing basis; one headline per basis.
+    # T4-U6 (D-5, §2.2): no governing basis; one headline per basis.
     _basis(sb.headlines, source.get("summary"), rows, complete, bodies)
     for cid, case in cases.items():
         arcs = arcs_by_case.get(cid, set())
@@ -874,7 +874,7 @@ def _rust_f64_sum(values: Iterable[float]) -> float:
 
 
 def _tie_rods(record: Mapping[str, Any]) -> list[tuple[str, float]]:
-    """a record's closed ``tie_rods`` entries, as (id, axial share). The axial share is
+    """T4-U5b (§3.3, §5.1): a record's closed ``tie_rods`` entries, as (id, axial share). The axial share is
     RN(n.Q_x), recomputed here from the published direction and the record's Q as an exact rational."""
     rods = record.get("tie_rods")
     _require(isinstance(rods, list) and rods, "connector tie-rod record")
@@ -918,7 +918,7 @@ def _tie_rods(record: Mapping[str, Any]) -> list[tuple[str, float]]:
 
 
 def _effective_axial_binding(s: float, g: float, pe: float, rods: list[tuple[float, float]]) -> bool:
-    """|s_x - Sigma| <= (64 + n_r)eps(|g_x| + |Pe| + sum|t_r*share|) + (n_r + 2)*2^-1074, with
+    """§5.1: |s_x - Sigma| <= (64 + n_r)eps(|g_x| + |Pe| + sum|t_r*share|) + (n_r + 2)*2^-1074, with
     Sigma = g_x - Pe + sum_r RN(t_r*share_r) summed as exact rationals and rounded once. Every operand is binary64, as
     the Rust reader's (`as_f64`): a JSON integer is converted before it is multiplied or summed."""
     s, g, pe = float(s), float(g), float(pe)
@@ -1005,7 +1005,7 @@ def _validate_connectors(records: Any, regions: Any, rows: Mapping[str, Any], me
             for record in records:
                 constant = record["pressure_model"] == "constant_effective_area_reference_v1"
                 rod_ids = [entry["id"] for entry in record.get("tie_rods") or []]
-                # A rod record without its rows is refused by name.
+                # A rod record without its rows is refused by name (§5.1).
                 _require(all((case, record["component_id"], TIE_ROD_KIND, "t_r", "tie_rod", rid) in slots for rid in rod_ids), "connector tie-rod rows missing")
                 expected = CONNECTOR_ROWS_PER_CASE + int(constant) + int(constant or bool(rod_ids)) + len(rod_ids)
                 _require(counts.get((case, record["component_id"])) == expected, "connector row coverage")
@@ -1042,7 +1042,7 @@ def _joint_pressure_bindings(records: Any, regions: Any, rows: Mapping[str, Any]
             geometry = _indexed(region["geometry"], "pipe_id", "joint face geometry")
             for end, face in enumerate((edge["face_i_pipe_id"], edge["face_j_pipe_id"])):
                 _require(face in region["member_pipe_ids"] and face in geometry and "member_kind" not in geometry[face] and not any(terminal["node_ref"] == edge["node_i_ref" if end == 0 else "node_j_ref"] for terminal in region["terminals"]), "joint face binding")
-                # the joint face p(Ae - Ai) acts on the pressure bore; the region geometry
+                # T4-U6 (D-5, §1, §2.3): the joint face p(Ae - Ai) acts on the pressure bore; the region geometry
                 # carries Ai only there.
                 bore = geometry[face].get("pressure_bore")
                 ai = bore.get("Ai_m2") if isinstance(bore, Mapping) else None
@@ -1243,7 +1243,7 @@ def _transport(source: Mapping[str, Any]) -> None:
         mm = _indexed(region["materials"], "pipe_id", "transport region materials")
         _require(_strings(region["member_pipe_ids"], True) and set(gm) == set(mm) == set(region["member_pipe_ids"]) and set(gm) <= set(sections), "transport region members")
         for pid in gm:
-            # an arc's record adds only its end tangents (T4-U4b: and its bend radius) to its case section, which
+            # §2.5: an arc's record adds only its end tangents (T4-U4b: and its bend radius) to its case section, which
             # carries the marker.
             _require({k: v for k, v in gm[pid].items() if k not in {"traversal_forward", "arc_end_tangents_global", "bend_radius_m"}} == sections[pid]
                      and {k: v for k, v in mm[pid].items() if k != "temperature_basis"} == {k: v for k, v in materials[pid].items() if k not in resolved}, "transport region member facts")
@@ -1476,7 +1476,7 @@ def _ls_prepass(source: Mapping[str, Any]) -> None:
     # S7 exact cases, their resolved materials and section identities.
     cases: list[tuple[str, Mapping[str, Any]]] = []
     for case in exact:
-        # a case with a directional arc adds intensified_measures (checked by the physics pass).
+        # T4-U4b (§2.6): a case with a directional arc adds intensified_measures (checked by the physics pass).
         _ls_require(_ls_keys(case, LS_CASE_KEYS + (["intensified_measures"] if isinstance(case, Mapping) and "intensified_measures" in case else [])), "CASE_SHAPE")
         case_id = _ls_text(case["load_case_id"])
         _ls_require(all(known != case_id for known, _ in cases), "CASE_DUPLICATE")
@@ -1692,7 +1692,7 @@ def _ls_record(record: Mapping[str, Any], cases: list[tuple[str, Mapping[str, An
     _ls_require(of_kind("pressure_region") == expected_regions, "PRESSURE_CONTRIBUTION_COVERAGE")
 
 
-# a support component's (law, source) pair and its contribution
+# R-4 §3.7 S6: a support component's (law, source) pair and its contribution
 # classification (Rust ``load_reference::support_law_classification``).
 _LS_SUPPORT_LAWS = {
     ("rigid_prescribed", "support_state.boundary_motion"): "prescribed_boundary",

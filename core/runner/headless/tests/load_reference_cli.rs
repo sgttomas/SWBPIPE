@@ -520,7 +520,7 @@ fn cli_blocked_load_state_documents_keep_the_exact_identity() {
 
 /// The CP3 reviewer's budget-cliff probe P9 (see
 /// `core/product_physics/src/source_receipt/load_state_fallback_tests.rs`),
-/// re-derived for the metered charging rule:
+/// re-derived for the metered charging rule (RF source-method design §5.5):
 /// `extra` tip loads cycling P9's three kinds; 1,300 to 1,700 put the live
 /// join past half of the public 8M limit.
 fn with_extra_loads(mut request: Value, extra: usize) -> Value {

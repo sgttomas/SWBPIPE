@@ -288,7 +288,7 @@ HEAP_MARGIN = 512 * MIB      # heap cap = C - 512 MiB
 TIMEOUT_SMALL, TIMEOUT_LARGE = 600, 1800   # P1's (DETECTION/scripts/run.py.txt:21-22)
 BUDGET_MARGIN = 60           # --time-budget-s = timeout - 60
 FIRST_REPEAT_LIMIT = 600
-POLL_S = 0.1                 # the watchdog's 100 ms
+POLL_S = 0.1                 # the watchdog's 100 ms (DESIGN.md:826)
 MEMORYSTATUS_FLOOR = 80      # ROOT's K6 ruling N18
 LOAD_HIGH, LOAD_RESUME = 8.0, 6.0   # ROOT's B1 grant: above 8, wait until below 6 (the gate's rule)
 # K6's four modes, frozen: K6's tiers use this tuple, so K6's 138 rows keep their order and ids.

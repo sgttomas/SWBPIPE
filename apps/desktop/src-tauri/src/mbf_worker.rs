@@ -8,7 +8,7 @@
 //! was admitted under, 12 GiB)), and the arguments' bound grows it before they are parsed
 //! (`command_ingress::admit_raw`). The pipeline of `mbf_export` then runs within that ledger.
 //!
-//! The run of task 3, in order:
+//! The run of task 3 (§3.9.5), in order:
 //!
 //! 1. **Bound.** The worker's maximum grant is the rest of the command's budget after its live leases, the parent's
 //!    copy of the request and the largest result lease (the 64 MiB output ceiling's envelope). Those three are
@@ -118,7 +118,7 @@ use std::time::{Duration, Instant};
 use tauri::http::HeaderMap;
 use tauri::ipc::InvokeBody;
 
-/// How long task 3 waits for its worker's starting grant: the model checks' window ("the 2 s wait for a
+/// How long task 3 waits for its worker's starting grant: the model checks' window (§3.9.5, "the 2 s wait for a
 /// slot").
 pub(crate) const MBF_START_WAIT: Duration = crate::solve_jobs::MODEL_CHECKS_START_WAIT;
 
@@ -526,7 +526,7 @@ impl SupervisorHooks for MbfHooks<'_> {
 
     fn footprint_observed(&mut self, _footprint_bytes: u64) {}
 
-    /// The 64 MiB output ceiling, checked on the announced length before any result lease or read.
+    /// The 64 MiB output ceiling (§3.7), checked on the announced length before any result lease or read.
     fn result_limit(&self) -> Option<u64> {
         Some(mbf::MBF_EXPORT_OUTPUT_MAX_BYTES)
     }
@@ -751,7 +751,7 @@ pub(crate) fn review_command<R>(
     Ok(response)
 }
 
-/// `save_mbf_export` after [`reserve`]: admission, the request's ticket as the review's, the save with task 3
+/// `save_mbf_export` after [`reserve`]: admission, the request's ticket as the review's, the save (§3.6) with task 3
 /// in the capped worker, the chooser `choose` and the store `open_store`, and `respond` as for the review.
 pub(crate) fn save_command<R>(
     registry: &SolveJobRegistry,

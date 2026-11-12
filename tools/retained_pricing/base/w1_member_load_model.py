@@ -277,7 +277,7 @@ def case_clone_audit(snapshot):
     inspect(snapshot)
     file = "core/solver/frame_kernel/src/structural/retained/adaptive.rs"
     lines = (Path(snapshot) / file).read_text().splitlines()
-    # O4 S5 (§8.9): the Timoshenko arm `if shear.is_some() { CasePrep::new_with_shear(..) }`
+    # O4 S5 (retained-pricing-rules.md §8.9): the Timoshenko arm `if shear.is_some() { CasePrep::new_with_shear(..) }`
     # precedes the nodal arm, so the same clone statement is the `else if` line; the audit follows it unchanged.
     text = ("let prepared = if composite.member_loads().is_empty() { CasePrep::new(source.clone()) }",
             "else if composite.member_loads().is_empty() { CasePrep::new(source.clone()) }")
@@ -310,7 +310,7 @@ def text_decisions(snapshot, resolved):
         if len(hits) != count:
             raise ValueError("W1 stage2: new argument site changed: " + file)
         return [resolved(file + ":" + str(h)) for h in hits] if count != 1 else resolved(file + ":" + str(hits[0]))
-    # O4 S5 (§8.9): CasePrep::new_with_shear's nodal arm makes the same PrimitiveSource
+    # O4 S5 (retained-pricing-rules.md §8.9): CasePrep::new_with_shear's nodal arm makes the same PrimitiveSource
     # clone as new_member (`Self::new(source.source().clone())`), so the one audit applies at both statements.
     _adaptive = "core/solver/frame_kernel/src/structural/retained/adaptive.rs"
     _clones = 2 if "pub(crate) fn new_with_shear(" in (Path(snapshot) / _adaptive).read_text() else 1

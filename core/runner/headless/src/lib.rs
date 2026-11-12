@@ -7,7 +7,7 @@
 //! or code-compliance claims.
 //!
 //! Holds no `unsafe` code: the reach scan requires `#![forbid(unsafe_code)]`
-//! at this root (code review
+//! at this root (DEL-08-01 Design `report-user-release.md` §2.8; code review
 //! r9 at #1682).
 #![forbid(unsafe_code)]
 
@@ -1513,7 +1513,7 @@ mod tests {
         // legacy pressure primitive from a local input; keep fixture bytes intact.
         // A linear-route preview model whose cases are CHECKS_PASSED, so the qualified export
         // is exercised. (The invented model has nonlinear supports, whose converged cases K-D5
-        // publishes Sensitive and not exportable.)
+        // publishes Sensitive and not exportable: DEL-04-01 kd5-member-relative-bound.md §5.)
         let mut ordinary: Value = serde_json::json!({"model": serde_json::from_str::<Value>(include_str!(
             "../../../../fixtures/model_operations/precision_connected_ui_model.json"
         )).unwrap(), "materials": []});

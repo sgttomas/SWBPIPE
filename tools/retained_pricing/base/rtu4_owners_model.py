@@ -1,4 +1,4 @@
-"""RT-U4 D3 (RTU4-RC): the positive owner the exact reader's one-pass region binding adds.
+"""RT-U4 D3 (retained-pricing-rules.md, RTU4-RC): the positive owner the exact reader's one-pass region binding adds.
 
 RTU4-RC: validate_physics_evidence_in (result_export physics_evidence.rs; route E's G7 base read of the projection,
 T17 V5) counts the published pipe rows by (load case, member) once, `pipe_rows: HashMap<(&str, &str), usize>`, and

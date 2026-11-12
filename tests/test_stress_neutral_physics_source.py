@@ -276,7 +276,7 @@ def test_value_bits_annotation_refuses_nonfinite_mismatch_and_noncanonical_zero(
 
 @pytest.mark.parametrize("mode", ["sparse_interactive", "dense_scrutiny"])
 def test_cr02_actual_mixed_signed_zeros_survive_materialize_reopen_and_bind_original(mode, tmp_path):
-    # the composite `mixed` source's CHECKS_PASSED
+    # K-D5 (DEL-04-01 kd5-member-relative-bound.md §§3.1, 3.4): the composite `mixed` source's CHECKS_PASSED
     # case now publishes its exactly-zero certified rows as +0 (its 31 received -0 rows are gone). B4/D1 (b)
     # retired the source-block multicase capture; the actual producer source with both received zero signs is
     # the preview route's output for the same request (PP `tests/source_block_recovery.rs`, OPS_W1_CONTROL_RAW_DIR).

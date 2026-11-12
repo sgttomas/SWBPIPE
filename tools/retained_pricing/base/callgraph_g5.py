@@ -73,7 +73,7 @@ import loopscan
 sys.setrecursionlimit(100000)
 
 root, out_path, root_names = sys.argv[1], sys.argv[2], sys.argv[3].split(",")
-# W1R-FG (§8.11): files the registered build does not compile (guarded in loopscan).
+# W1R-FG (retained-pricing-rules.md §8.11): files the registered build does not compile (guarded in loopscan).
 OFF_BUILD = loopscan.off_build_files(root)
 paths = []
 for p in sys.argv[4:]:

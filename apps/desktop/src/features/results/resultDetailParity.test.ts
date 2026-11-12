@@ -30,7 +30,7 @@ import { rowsUnderFilters } from "./ResultsPanel";
 import { rememberReceivedText } from "./resultReader";
 import { semanticLabels } from "./resultSemantics";
 
-/** C1 slice 3: the TypeScript readers over the full rows
+/** C1 slice 3 (DEL-04-05 `c1-native-custody-plan.md`): the TypeScript readers over the full rows
  * are the oracle of the native detail commands (`src-tauri/src/result_detail.rs`). For every case
  * of `resultDetailCases.ts` (committed as `fixtures/results/result_detail_cases.json`), each
  * outcome the Rust test commits (`result_detail_outcomes.json`) is compared with:

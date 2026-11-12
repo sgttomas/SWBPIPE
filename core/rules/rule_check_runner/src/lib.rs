@@ -40,21 +40,21 @@
 //!   (precedent `DEC-038` / `library_value_ref`); equality acceptance is a
 //!   deliberate non-goal of the member.
 //!
-//! ## Bases (rule-pack format 0.5.0)
+//! ## Bases (rule-pack format 0.5.0; DEL-06-01 Design `rule-pack-0.5.0.md`)
 //!
 //! Each check names a stress category; the category's one load-case mapping
 //! lists the required load cases (model load cases or combinations) the check
 //! is evaluated on, its **bases**. The run yields one [`CheckOutcome`] per
-//! check and basis, in check order and then mapping order, each
+//! check and basis, in check order and then mapping order (§2.7), each
 //! evaluated with only that basis's solver values, refusals and bounds; a
-//! basis the caller reports unavailable ([`UnavailableBasis`]) is
+//! basis the caller reports unavailable ([`UnavailableBasis`], §2.6) is
 //! incomplete and never evaluated. The pack aggregate keeps its rule
 //! (incomplete above failed above checked) over all outcomes.
 //!
 //! ## Input binding
 //!
 //! The caller resolves each `solver_result` input on each basis from the
-//! pack's own selector (`solver_result_ref`) and passes the one matched
+//! pack's own selector (`solver_result_ref`, §2.5) and passes the one matched
 //! row's value as a [`SolverResultBinding`] naming its basis, or a
 //! [`RefusedSolverResult`] when no row, more than one row, or a refused row
 //! matched; user values and limit slots
@@ -87,7 +87,7 @@ use open_pipe_stress_rule_pack_document::{
     decode_dimension, decode_expression, encode_dimension, plan_check_bases,
 };
 /// The load case or combination an outcome is evaluated on (rule-pack format
-/// 0.5.0).
+/// 0.5.0, DEL-06-01 Design `rule-pack-0.5.0.md` §2.3).
 pub use open_pipe_stress_rule_pack_document::BasisRef;
 use open_pipe_stress_units::{convert_for_dimension, unit_by_symbol, Dimension as UnitDimension};
 
@@ -101,7 +101,7 @@ pub const PROFESSIONAL_BOUNDARY_NOTICE: &str =
      user-supplied rules and data. Human review remains required.";
 
 /// One solver value the caller resolved from a solved mechanics envelope for a
-/// `solver_result` required input on one basis: the one row the
+/// `solver_result` required input on one basis (design §2.5): the one row the
 /// input's selector matched among the rows whose `basis_ref` is `basis_ref`.
 /// It binds on that basis only.
 #[derive(Debug, Clone)]
@@ -114,8 +114,8 @@ pub struct SolverResultBinding {
     pub unit: String,
 }
 
-/// The verified absolute bound `b` of one `solver_result` input
-/// in the unit of the input's [`SolverResultBinding`]. The
+/// The verified absolute bound `b` of one `solver_result` input (T3 D2
+/// §4.11.2, option C), in the unit of the input's [`SolverResultBinding`]. The
 /// caller copies `b` from a validated receipt's `absolute_verified` row; the
 /// runner never derives it. With `b > 0` the input binds as the outward
 /// enclosure `[next_down(fl(q - b)), next_up(fl(q + b))]` and its check runs in
@@ -134,17 +134,17 @@ pub struct SolverResultBound {
     pub absolute_bound: f64,
 }
 
-/// Interval-mode outcome code: the check passes for every value
+/// Interval-mode outcome code (D2 §4.11.5): the check passes for every value
 /// within the verified bounds (`USER_RULE_CHECKED`, info).
 pub const RULE_INTERVAL_ALL_PASS: &str = "RULE_INTERVAL_ALL_PASS";
-/// Interval-mode outcome code: the check fails for every value
+/// Interval-mode outcome code (D2 §4.11.5): the check fails for every value
 /// within the verified bounds (`USER_RULE_FAILED`, info).
 pub const RULE_INTERVAL_ALL_FAIL: &str = "RULE_INTERVAL_ALL_FAIL";
-/// Interval-mode outcome code: the check passes for some values
+/// Interval-mode outcome code (D2 §4.11.5): the check passes for some values
 /// in the bounds and fails for others, or cannot be enclosed soundly
 /// (`RULE_INPUTS_INCOMPLETE`, warning). Never a pass.
 pub const RULE_RESULT_INDETERMINATE: &str = "RULE_RESULT_INDETERMINATE";
-/// Interval-mode finding: a divisor range contains zero.
+/// Interval-mode finding (D2 §4.11.3): a divisor range contains zero.
 pub const RULE_INTERVAL_DIVIDE_BY_ZERO_RANGE: &str = "RULE_INTERVAL_DIVIDE_BY_ZERO_RANGE";
 
 /// A `solver_result` input the caller could not bind on one basis, with the
@@ -164,7 +164,7 @@ pub struct RefusedSolverResult {
     pub message: Option<String>,
 }
 
-/// A required load case the run cannot evaluate on: absent from
+/// A required load case the run cannot evaluate on (design §2.6): absent from
 /// the model (`RULE_REQUIRED_LOAD_CASE_MISSING`) or present with no rows in
 /// the solved envelope (`RULE_REQUIRED_LOAD_CASE_UNSOLVED`). Every check whose
 /// category maps it is `RULE_INPUTS_INCOMPLETE` on that basis with a finding
@@ -213,11 +213,11 @@ pub struct RuleCheckRunInput<'a> {
     /// document validation; the runner surfaces structural findings (missing
     /// references) but does not re-validate the checksum or lifecycle.
     pub rule_pack_document: &'a Value,
-    /// Per-basis solver values; each binds on its basis only.
+    /// Per-basis solver values (design §2.5); each binds on its basis only.
     pub solver_results: Vec<SolverResultBinding>,
     /// Solver-result inputs refused or unmatched on a basis; empty when none were.
     pub refused_solver_results: Vec<RefusedSolverResult>,
-    /// Required load cases missing from the model or unsolved.
+    /// Required load cases missing from the model or unsolved (design §2.6).
     pub unavailable_bases: Vec<UnavailableBasis>,
     pub supplied_values: Vec<SuppliedValueBinding>,
     /// Values resolved from saved private libraries for `private_library_value`
@@ -296,7 +296,7 @@ pub struct RunFinding {
     pub message: String,
 }
 
-/// The outcome of one `check_definition` on one of its bases.
+/// The outcome of one `check_definition` on one of its bases (design §2.7).
 /// A check has one outcome per required load case its category maps, in
 /// mapping order; every member is for that basis alone and nothing is merged
 /// across bases. Outcome identity is (`check_id`, `basis_ref.ref_type`,
@@ -341,7 +341,7 @@ pub struct RuleCheckRunResult {
 
 /// How many of a run's outcomes ended in each status: the counts behind the
 /// pack headline "INCOMPLETE — n check(s) failed; m check(s) blocked". Since
-/// format 0.5.0 they count outcomes, one per check and basis,
+/// format 0.5.0 they count outcomes, one per check and basis (design §2.7),
 /// so one check can contribute more than once.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct RuleCheckStatusCounts {
@@ -378,7 +378,7 @@ pub fn run_rule_checks(input: &RuleCheckRunInput) -> RuleCheckRunResult {
 /// A check whose formula binds no interval input follows [`run_rule_checks`]'s
 /// point path unchanged. A check with at least one interval input is evaluated
 /// in interval mode, including the synthesized `Compare(formula, relation,
-/// limit)`, and reads three-valued:
+/// limit)`, and reads three-valued (D2 §4.11.5):
 /// - every value passes: `USER_RULE_CHECKED` with [`RULE_INTERVAL_ALL_PASS`];
 /// - every value fails: `USER_RULE_FAILED` with [`RULE_INTERVAL_ALL_FAIL`];
 /// - otherwise: `RULE_INPUTS_INCOMPLETE` with [`RULE_RESULT_INDETERMINATE`];
@@ -405,7 +405,7 @@ pub fn run_rule_checks_with_bounds(
     let value_slot_index = index_by(doc, "value_slots", "slot_id");
     let formula_index = index_by(doc, "formula_declarations", "formula_id");
     // User-supplied values, value slots and library values are the same for
-    // every basis.
+    // every basis (design §2.5, last bullet).
     let supplied_by_ref: HashMap<&str, &SuppliedValueBinding> = input
         .supplied_values
         .iter()
@@ -533,14 +533,14 @@ struct RunContext<'a> {
     /// (D2 §4.11.2; design §2.8).
     bound_by_input: HashMap<&'a str, BoundEntry>,
     /// Blocking findings that make this basis incomplete before any binding
-    /// (a required load case missing or unsolved). When present
+    /// (a required load case missing or unsolved, design §2.6). When present
     /// no solver value is visible to the basis and the check is not evaluated.
     basis_findings: Vec<RunFinding>,
     current_statuses: &'a [AnalysisStatus],
     grammar_version: &'a str,
 }
 
-/// The bound of one input on one basis.
+/// The bound of one input on one basis (design §2.8).
 #[derive(Debug, Clone, Copy)]
 enum BoundEntry {
     Bound(f64),
@@ -551,7 +551,7 @@ enum BoundEntry {
     NoBasis,
 }
 
-/// The bounds that apply on `basis`: those naming the basis,
+/// The bounds that apply on `basis` (design §2.8): those naming the basis,
 /// keyed by input. A bound naming no basis refuses its input on every basis;
 /// a bound naming another basis is invisible here.
 fn bounds_on_basis<'a>(
@@ -601,7 +601,7 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
         .unwrap_or_default();
     let diagnostic_policy = check.get("diagnostic_policy");
 
-    // A basis the run cannot evaluate on carries its blocking
+    // A basis the run cannot evaluate on (design §2.6) carries its blocking
     // finding first; completeness then stops the check before evaluation.
     let mut completeness_findings: Vec<RunFinding> = ctx.basis_findings.clone();
     let mut evaluator_findings: Vec<RunFinding> = Vec::new();
@@ -777,7 +777,7 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                 None => (None, None, None, BindingSource::RulePackRequiredInput, None),
             },
         };
-        // a verified absolute bound for a bound solver result.
+        // D2 §4.11.2: a verified absolute bound for a bound solver result.
         let bound = match source_kind {
             SourceKind::SolverResult if raw_value.is_some() => {
                 ctx.bound_by_input.get(ref_id).copied()
@@ -840,7 +840,7 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
                     None,
                 )
             }
-            // b = 0 binds the exact point q, with no widening.
+            // b = 0 binds the exact point q, with no widening (D2 §4.11.2).
             Some(BoundEntry::Bound(b)) if b == 0.0 => (raw_value, raw_unit, note, None),
             Some(BoundEntry::Bound(b)) => {
                 let source = raw_value.zip(raw_unit.clone()).map(|(q, u)| (q, u, b));
@@ -907,7 +907,7 @@ fn run_one_check(ctx: &RunContext, check: &Value) -> CheckOutcome {
 
         if let (Some(v), Some(u)) = (value, unit) {
             // The interval's ends are normalized like the point, each floating
-            // operation of the conversion stepped outward.
+            // operation of the conversion stepped outward (D2 §4.11.2).
             let interval = interval_source.map(|(q, entered_unit, b)| {
                 normalize_enclosure_to_declared_unit(
                     enclosure_from_bound(q, b),
@@ -1624,7 +1624,7 @@ impl CheckRecords {
             basis_ref: None,
             status,
             // An interval check computes an enclosure, not one value; the
-            // enclosure is reported in the outcome finding.
+            // enclosure is reported in the outcome finding (D2 §4.11.5).
             computed_value: None,
             limit_value,
             acceptability_relation,

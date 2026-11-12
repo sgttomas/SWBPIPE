@@ -1,6 +1,6 @@
 //! C1 slice 1: the native verdict on a retained result (`native_verdict`).
 //!
-//! The differential: every file-backed statement of the
+//! The differential (plan §4, leg 3): every file-backed statement of the
 //! shared base reader corpus (`result_export/tests/base_reader_outcomes.rs`,
 //! `corpus()`: the 52 base statements with their models and invocations,
 //! the two demo results among them) is published as a real job's result and

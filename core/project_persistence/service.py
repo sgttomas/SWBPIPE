@@ -19,7 +19,7 @@ from typing import Any, Mapping, Sequence
 
 SCHEMA_VERSION = "0.1.0"
 DOCUMENT_KIND = "openpipestress.project_persistence"
-# Model document 0.8.0: the model payload's version is the
+# Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.1, §3.3): the model payload's version is the
 # desktop's. Every non-current model document is refused by name on validate, create, save and open, with the
 # desktop's state, code and text (the applier's `model_document_version`, which src-tauri delegates to; the shared
 # table is fixtures/model_document/version_states.json): an older one as MODEL_SCHEMA_VERSION_RETIRED (then

@@ -552,7 +552,7 @@ fn add_control_entries(control: &Control, entries: &mut Vec<Value>) {
     }
     check_export_binds_the_received_receipt(source, &invocation["request"]["model"], &prefix);
 }
-/// the composite reader recomputes every
+/// T4-U4b S4 round 2 (§4.3, §5.1): the composite reader recomputes every
 /// straight member's derived rows on every case, so each statement below is
 /// refused by name though its publication and receipt are resealed. Each
 /// change is made on both bases at once (end i), so the bit-equal twin rule of
@@ -863,7 +863,7 @@ fn current_fixture(control: &Control) {
         control.invocation["request"]
     );
 }
-/// genuine public bases for both new congruence publications
+/// RF design §7: genuine public bases for both new congruence publications
 /// and the invented sensitive order-4 request. The census requests use the
 /// same current-document re-authoring as the lib census; no result is edited.
 fn add_rf_source_method_bases(entries: &mut Vec<Value>) {

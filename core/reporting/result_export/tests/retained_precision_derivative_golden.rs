@@ -44,9 +44,9 @@ const DENSE: &str = include_str!(
 );
 /// PP's pins of the two successors (retained_facade_tests.rs `PINNED`):
 /// mode, file text, file sha256, receipt sha256.
-/// Model 0.9.0 re-pin: read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-/// RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only `formulation_basis.limitations[6]` and the
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only `formulation_basis.limitations[6]` (§10.2) and the
 /// digests binding it; each restated to the former sentence and resealed (Python 07e) reproduces its former pin.
 const PINNED: [(&str, &str, &str, &str); 2] = [
     (
@@ -63,9 +63,9 @@ const PINNED: [(&str, &str, &str, &str); 2] = [
     ),
 ];
 /// The committed goldens' file sha256 (= the documents' canonical digests).
-/// Model 0.9.0 re-pin: read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-/// RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated goldens move only `limitations[6]`, the two seals,
+/// RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated goldens move only `limitations[6]` (§10.2), the two seals,
 /// `received_carrier_checksum` and `derivative_hash`, each equal to its recomputation (the RT-A3 CE guard's derived_pairs).
 const GOLDEN_SHA256: [(&str, &str); 2] = [
     ("sparse_interactive", "f8f30a04084333e3686fd9765cbe8a9fe82ece183fc751966e531cdc1f0b2dc3"),
@@ -81,11 +81,11 @@ const CLASSES: [(&str, [usize; 5]); 2] = [
 /// B3b-T: lane P's m3x exact successors (PP retained_facade_tests.rs `EXACT_PINNED`):
 /// mode, file text, file sha256 (the fixture document's), receipt sha256.
 /// O4 (W1-E): re-pinned with the exact goldens after DEF-E's revision (only DEF-E-bound hashes moved).
-/// O4 limitation re-pin: the base limitation [7] and the hashes binding it moved.
+/// O4 limitation re-pin (§3.3, §4.9): the base limitation [7] and the hashes binding it moved.
 /// W-15 (DEL-03-05): re-pinned for the pressure-2 identity limitation and the hashes binding it.
 /// W-16 slice b (DEL-05-02): re-pinned again for the pressure-2 identity limitation and the hashes binding it.
 /// RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only).
-/// Model 0.9.0 re-pin: read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 /// RT-A3 S6 (§8.59): S1's nonlinear clause restated; PP `EXACT_PINNED`'s S6 re-pin (restating it to main 394f4c623's
 /// and resealing with the Python 07e rule reproduces main's document and receipt).
@@ -104,7 +104,7 @@ const EXACT_PINNED: [(&str, &str, &str, &str); 2] = [
     ),
 ];
 /// The committed exact goldens' file sha256.
-/// Model 0.9.0 re-pin: read from the regenerated producer bytes on
+/// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const EXACT_GOLDEN_SHA256: [(&str, &str); 2] = [
     // W-15 (DEL-03-05) on W-7: the exact successors restate the pressure-2 identity limitation.

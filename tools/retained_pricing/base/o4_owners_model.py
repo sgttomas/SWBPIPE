@@ -1,5 +1,5 @@
 """O4 S5 D3 (the Timoshenko and corrosion-allowance source extension): heap owners the O4 source adds outside the chain's
-TEXT inventory, priced positively (§8.9: O4-PS, O4-PA, O4-ID, O4-RS, O4-NC, O4-PP, O4-KS,
+TEXT inventory, priced positively (retained-pricing-rules.md §8.9: O4-PS, O4-PA, O4-ID, O4-RS, O4-NC, O4-PP, O4-KS,
 O4-TR, O4-WR, O4-RD, O4-SR, O4-SP). Each owner is bound to the sha256 of the function bodies (text from `fn <name>`
 to its closing brace at the same indentation) or the exact source span that allocates it; every file is also under
 an existing full-file pin. A snapshot without the O4 functions adds nothing, so earlier registered trees keep their
@@ -58,7 +58,7 @@ BODY_PINS = {
     (RP, "freeze_case_commit"): "97088782f6b5a7469ec7cf15198bf18ba3d1dce6670cb0e2f891e50e85ba9924",
     # O4-WR (the receipt's section-term keys and reduced preparation records)
     (RW, "case_source_at"): "28f05373993894b3a4df7664dfdc2f410f80be81fd87604b325dc0a89dc83679",
-    # W1 coverage repair D3 (§8.11): read 3bbfdd5080; selection borrows the certified proof
+    # W1 coverage repair D3 (retained-pricing-rules.md §8.11): read 3bbfdd5080; selection borrows the certified proof
     # and writes body_scales from its final scales (W1R-FS, W1R-L1). Its section terms, the keys O4-WR prices, are
     # unchanged.
     (RW, "selection"): "4603dee55a5f4d98bd56d21dc1869bc0c66626d70060ee98ba7e8132e5b616cb",
@@ -112,7 +112,7 @@ BODY_PINS = {
     # O4-KS (kernel sidecar, identity block, ReducedSectionSet maps): the bodies that allocate them
     (FKO, "solve_timoshenko_cases"): "1c949e3cd60a8adb1f46cdb574b241fa3f089b89b1710050152daab82e3f45ae",
     (FKF, "reduced_index"): "0ff5eaec24cb7d64f50ee6155100bd817531481703c71c5a3597a348d2cff16a",
-    # W-7 D3 (§8.20): row_scales_reduced admits a not-covered force or moment row in a combination (a predicate); no owner changes.
+    # W-7 D3 (retained-pricing-rules.md §8.20): row_scales_reduced admits a not-covered force or moment row in a combination (a predicate); no owner changes.
     (FKF, "row_scales_reduced"): "3322775097f9f9ab59aac76ff2b38bf3dfa3769a76debebe8b155d9403068d26",
 }
 # FK source.rs from the TimoshenkoLeaf doc comment to the Station doc comment: the leaf, its error, the validated set

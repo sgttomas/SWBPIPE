@@ -24,7 +24,7 @@ use std::cell::{Cell, RefCell};
 /// The census switches. All off by default, and always off without the feature.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct Switches {
-    /// The corner-1 repair: drive an interval represented Z at z_lo.
+    /// The corner-1 repair (§1.2): drive an interval represented Z at z_lo.
     pub corner1: bool,
     /// Counterfactual (b): the annular lane takes the admitted section leaves.
     pub same_section: bool,

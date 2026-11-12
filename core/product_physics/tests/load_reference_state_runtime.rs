@@ -184,7 +184,7 @@ fn differs(actual: f64, expected: f64, wrong: f64, zero_scale: f64, context: &st
 }
 
 // ---------------------------------------------------------------------------
-// 0.4.0 request builder
+// 0.4.0 request builder (CP2_WIRE.md)
 // ---------------------------------------------------------------------------
 
 fn qv(value: f64, unit: &str) -> Value {

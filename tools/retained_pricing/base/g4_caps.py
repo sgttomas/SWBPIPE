@@ -132,7 +132,7 @@ import rta3c_owners_model as _rta3c_env
 if _rta3c_env.inspect(SNAP) and which == "caps":
     _c3_mv = _rta3c_env.member_value(_actual_cases, CAPS.get("z", 0), m, g, 64)
     ENV_S = ENV_S + VF(arr=_c3_mv[0], obj=_c3_mv[1], ent=_c3_mv[2], strb=_c3_mv[3], keyb=_c3_mv[4], nums=_c3_mv[5], depth=6)
-# O4 S5 D3 (§8.9; o4_owners_model binds every owner): O4-EV, a Timoshenko member's evidence
+# O4 S5 D3 (retained-pricing-rules.md §8.9; o4_owners_model binds every owner): O4-EV, a Timoshenko member's evidence
 # beam_theory carries two number entries beyond the census entry, in every case's evidence.
 import o4_owners_model as _o4_model
 _o4 = _o4_model.inspect(SNAP)
@@ -276,7 +276,7 @@ _FAILED_QUALITY = (V("NumericalCaseQuality", CC)
                    + V("String", 3) * CC + s("String") * CC
                    + B(CC * (ID + 64 + 3 * L_DIAGID) + 3 * 64))
 _FAILED_MANIFEST_COPY = STAGED + _FAILED_QUALITY
-# T4-S5 D3 (§8.8, U4B-W1): failed_manifest's Poisson flags and its diagnostics clone grown
+# T4-S5 D3 (retained-pricing-rules.md §8.8, U4B-W1): failed_manifest's Poisson flags and its diagnostics clone grown
 # by the Poisson warnings, per requested case (u4b_u5b_owners_model binds failed_manifest's body).
 import u4b_u5b_owners_model as _u45_model
 _u45 = _u45_model.inspect(SNAP)
@@ -298,14 +298,14 @@ ENV_GROWTH = s("Value") * DENV
 # and the originals live in serialize_selected_from until it returns, after finish()'s P2-P4
 THIRD = RUN.scale(AA).tree() + SELECTION.scale(AA).tree()   # I82: every case_v json! copy
 MEMBERS = BODY.tree()                                                                 # finish()'s member Values (moved in, then copied by json!)
-# U6-DH (T4-U6): T16's three hashes (source identity,
+# U6-DH (T4-U6, DEL-05-03 Design section 9; retained-pricing-rules.md "U6-DH"): T16's three hashes (source identity,
 # publication, receipt: retained_wire.rs serialize/finish) call retained_wire::domain_hash. Where it serializes the
 # borrowed DomainPayload {domain, payload} (checked: its exact text) instead of json!'s copy of the payload into a new
 # Value, the route makes no wrapper copy; the text and hash are the same. Any other form stops here
 # (u6_owners_model.domain_hash_copies). T17 (the RS reader: result_export source_blocks::domain_hash) still copies
 # (json!); T25 (source_receipt's hash) is U6-SH, in t25_g4.py.
 import u6_owners_model as _u6_model
-# S6-HS (T4-S6, §8.8): where domain_hash streams the checked canonical text of the borrowed
+# S6-HS (T4-S6, retained-pricing-rules.md §8.8): where domain_hash streams the checked canonical text of the borrowed
 # {domain, payload} into SHA-256 (u6_owners_model.domain_hash_streams: its exact text and the canonical writer's pin),
 # each T16 hash holds only the streamed route (no copy, text, parse tree or canonical output) and T16's moving is the
 # string temporary's previous backing. The former forms keep their former prices.
@@ -389,7 +389,7 @@ if _prescribed_keys.borrowed(SNAP):
                     "s(BTreeSetBorrowed)": 24, "s(PairBorrowed)": 32, "s(NumericCaseResultBorrowed)": 240})
     evv.update(ASSUMED)
 if _u6_model.inspect(SNAP)["all_rows"]:
-    # U6-RS (T4-U6 D3): NumericCase's tenth field `all_rows` (a Vec header per
+    # U6-RS (T4-U6 D3; retained-pricing-rules.md "U6-RS"): NumericCase's tenth field `all_rows` (a Vec header per
     # numeric case and per Result carrier, beyond NumericCaseBorrowed's nine-field upper) holding every published row
     # of its case, rows_for's transient full vector beside its filtered one, g5c's drained `bound` classes (<= P)
     # beside the rebuilt classes, and the one `last` class clone (its id and basis_ref). Review R1: rows_all_for is a
@@ -419,22 +419,22 @@ if _o4:
 # the case's diagnostic_refs as a Vec<&Value> (exact size, <= D_env: the refs are unique and resolve);
 # both live for the comparison and drop at the end of the case's iteration (V4)
 F5_EXACT = s("&Value") * (pushcap(DENV) + DENV)
-# T4-S5 D3 (§8.8, U4B-RD): G7's base read of the projection and route L's model checks
+# T4-S5 D3 (retained-pricing-rules.md §8.8, U4B-RD): G7's base read of the projection and route L's model checks
 # (u4b_evidence's row index, covers and sets; the captured model's array clones), beside the projection.
 _U4B_RD = _u45_model.reader_working_sets(PA, CC, m, RAW_VF.tree()) if _u45["readers"] else X()
-# W-7 D3 (§8.20, W7-RD): the base read's global end coverage maps over its <= cases*m
+# W-7 D3 (retained-pricing-rules.md §8.20, W7-RD): the base read's global end coverage maps over its <= cases*m
 # (load case, member) keys, beside U4B-RD's working sets; RT-U4 (order): its member HashSet only on a source that has it.
 import w7_owners_model as _w7_model
 _W7_RD = _w7_model.reader_coverage(CC * m, _w7_model.reader_member_set(SNAP)) if _w7_model.inspect(SNAP) else X()
-# W-15 D3 (§8.21, W15-RB): the base read's component-body check (source_bodies' case and entry
+# W-15 D3 (retained-pricing-rules.md §8.21, W15-RB): the base read's component-body check (source_bodies' case and entry
 # lists) and the shape checks' one cloned extremum and coverage entry, beside U4B-RD's and W7-RD's sets.
 import w15_owners_model as _w15_model
 _W15_RB = _w15_model.reader_working_set(CC, m, VF) if _w15_model.inspect(SNAP) else X()
-# RT-U4 D3 (RTU4-RC): the exact base read's region-binding count over its <= cases*m
+# RT-U4 D3 (retained-pricing-rules.md, RTU4-RC): the exact base read's region-binding count over its <= cases*m
 # (load case, member) keys, held to the read's end beside U4B-RD's, W7-RD's and W15-RB's sets.
 import rtu4_owners_model as _rtu4_model
 _RTU4_RC = _rtu4_model.reader_count(CC * m) if _rtu4_model.inspect(SNAP) else X()
-# RT-A4 D3 (§8.46, RT-A4-RD): the model-free preview reader's row index, case and withheld sets
+# RT-A4 D3 (retained-pricing-rules.md §8.46, RT-A4-RD): the model-free preview reader's row index, case and withheld sets
 # and, with a nested record (z >= 2), its derivation records, κ graph, row index and one re-derivation, beside U4B-RD.
 import rta4_owners_model as _rta4_model
 _rta4 = _rta4_model.inspect(SNAP)
@@ -547,7 +547,7 @@ for k_, v_ in T25["stage_forms"].items():
 form("T25_moving", X(T25["moving_form"]))
 for t_ in ("T11", "T12", "T13", "T14", "T15"):
     form(t_, parse_sym(J(f"producer_caps.{which}.out.json")["symbolic_terms"][t_]))
-# the gate bounds: T11 without its late capture (G-B), and the ordinary seed (G-C)
+# the gate bounds (API_G4.md §2): T11 without its late capture (G-B), and the ordinary seed (G-C)
 _prows = J(f"producer_caps.{which}.out.json")["rows"]
 form("T11_late_capture", parse_sym(next(v_["symbolic"] for k_, v_ in _prows.items() if k_.startswith("T11.5"))))
 form("T11_ordinary_seed", parse_sym(next(v_["symbolic"] for k_, v_ in _prows.items() if k_.startswith("T11.4"))))
@@ -585,7 +585,7 @@ _X3 = _phase_model.republishes(SNAP)
 def phases_of(mode):
     ob = f"O_base_{mode}"
     w2 = [ob, "TAV_W", "T12_T15", "NOTICE"] + EVERY
-    # PU-X3 (§8.14): the republication's second ordinary span. The first run returned and its
+    # PU-X3 (retained-pricing-rules.md §8.14): the republication's second ordinary span. The first run returned and its
     # envelope (reduced to the fail-closed form) dropped before it, and on the Direct entry the observer did too; only
     # the capture, the ledger and the recorded cause persist, each already priced (R_raw and T_resident in O_base, the
     # cause texts in TAV). Its attempts are live T07 attempts that are then declined, so its moving candidates are W1's;

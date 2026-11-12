@@ -49,7 +49,7 @@ pub(crate) fn held(registry: &SolveJobRegistry, gate: &Gate, text: &str) -> Stri
     receipt.job_id
 }
 
-/// a restored handle holding `text`, read under the registry table `table` names (a
+/// RT-A4 §10.4: a restored handle holding `text`, read under the registry table `table` names (a
 /// request recorded with its handle's `recorded_table`, `nativeReopenEmulation.ts`), as
 /// `stored_custody` restores a run recorded before RT-A4.
 pub(crate) fn restored(registry: &SolveJobRegistry, text: &str, table: &Value) -> String {
@@ -119,7 +119,7 @@ fn source_text(request: &Value, sources: &Value) -> String {
 #[test]
 fn every_recorded_webview_request_is_answered_by_its_actual_command() {
     let requests: Value = serde_json::from_str(&std::fs::read_to_string(root().join(REQUESTS)).unwrap()).unwrap();
-    // Grouped by the held bytes and, for a restored handle, the table it holds.
+    // Grouped by the held bytes and, for a restored handle, the table it holds (RT-A4 §10.4).
     let mut by_source: std::collections::BTreeMap<(String, String), (String, Vec<&Value>)> = Default::default();
     // Each distinct source (a committed fixture path, or a kept text by its digest) is read and
     // hashed once; every request still checks its recorded digest against that source's digest.

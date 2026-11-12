@@ -219,7 +219,7 @@ if fnkey("classify_connectors", PP_ + "joint.rs"):
     ]
 
 # ---- O-10, T4 batch 2's final head (e9cc7e3f5f; HELP_HUMAN's rulings 3 and 5): classifications. Each new site is kept
-# priced (no zero); only its identifier and static arguments are classed.
+# priced (no zero); only its identifier and static arguments are classed. Arguments in DEL-04-08 Design/retained-pricing-rules.md, section C.
 if fnkey("append_retained_source_not_joined", PP_ + "lib.rs"):
     _L = PP_ + "lib.rs"
     def _const_len(f, name):
@@ -309,7 +309,7 @@ if fnkey("add_curved_bend_pressure_equivalent_load", PP_ + "lib.rs"):
             O10_ID_AUDIT += [(site("append_arc_pressure_results", _BP, _text, full=True, row="format!(" if _text.startswith('"result:') else None), _values)]
     _L = PP_ + "lib.rs"
     if fnkey("section_basis_row", _L) and fnkey("published_nodal_displacements", _L):
-        # U4B-K (T4-U4b): the arc branch's withheld maximum is gone; a realized arc's certified maximum, when
+        # U4B-K (T4-U4b, §2.3): the arc branch's withheld maximum is gone; a realized arc's certified maximum, when
         # unavailable, warns with the case-qualified id beside the straight id, each ending in the basis's static
         # hyphen segment. The classes are U6-K's.
         O10_ID_AUDIT += [
@@ -482,7 +482,7 @@ if fnkey("member_group_fires", _FG):
         ("for p in source.loads.iter().filter(|p| p.term_index == i)", "0", O10 + "KD5L12: supplied load primitive list is empty by KD5L3", ["structural/formation_check.rs:evaluate"]),
     ]
     O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [{"re": r"^route$", "max": 128, "why": O10 + "KD5A3: unavailable-route sentence selects 'on this route' or 'on the nonlinear-support route', static <=128"}]
-    # W7-SF (W-7): the notice's sentence names the element-local member rows
+    # W7-SF (W-7, DEL-04-01 Design `global-end-actions.md`): the notice's sentence names the element-local member rows
     # and the support rows it bounds; its site is re-keyed by that text, with the same audit (case_id IN128; the two
     # bounds are `{:e}` numbers). A source before W-7 keeps the former text.
     _W7_SF = 'format!("Load case {case_id}: every element-local member'
@@ -643,13 +643,13 @@ if fnkey("fallback_circular_maximum", _CP):
         "case_state/thermal.rs": ["integral", "dilation_difference", "check_path"],
         "certified_publication.rs": ["fallback_denominator_relative_error"],
     }
-    # W8-CG (W-8 topology warnings, §8.16, §8.18): near_duplicate_nodes' min/max receivers
+    # W8-CG (W-8 topology warnings, retained-pricing-rules.md §8.16, §8.18): near_duplicate_nodes' min/max receivers
     # are an edge's usize node indices (`a.min(b)`, `a.max(b)`; the bounding box's f64 `low`/`high` folds are gone with
     # the absolute tolerance); scaled_norm's fold takes `m.max(x.abs())` over f64. Only where the topology checks exist.
     if fnkey("near_duplicate_nodes", PP_ + "topology.rs"):
         _primitive_minmax_callers["topology.rs"] = ["near_duplicate_nodes"] + (
             ["scaled_norm"] if fnkey("scaled_norm", PP_ + "topology.rs") else [])
-    # W15C-CG (W-15 slice c, the eccentric offset; §8.26): arc_evidence's two min/max
+    # W15C-CG (W-15 slice c, the eccentric offset; retained-pricing-rules.md §8.26): arc_evidence's two min/max
     # receivers are f64 (`(...).max(...)` of two angle differences and `(c - eps).max(0.0)`, and `(...).sqrt().min(1.0)`).
     # Only where the offset check exists.
     if fnkey("arc_evidence", PP_ + "rigid_component.rs"):
@@ -901,7 +901,7 @@ if fnkey("hardware", _JR) and fnkey("problem", PP_ + "pressure_runtime.rs"):
         O10 + "U5B-JV: `problem` in `problems.push(problem)` is hardware's match binding `Err(Some(problem))`, a String; "
         "pressure_runtime::problem is a private fn of another module that joint.rs never calls")]
 
-# RA-EDGE (R-A D3, §8.13): `publication_predicate(&h, row, scale, meter)` in adaptive.rs
+# RA-EDGE (R-A D3, retained-pricing-rules.md §8.13): `publication_predicate(&h, row, scale, meter)` in adaptive.rs
 # `certify_rows` passes the loop's pattern binding `((row, meta), v)`, a published row, not a function; the by-name
 # function-as-value scan picks R-A's row-trace recorder `fn row` in exact_boundary/exact_operation_count.rs, a module
 # exact_boundary.rs declares only under `#[cfg(any(test, feature = "exact-operation-count"))]` (blanked as TEST_ATTR;
@@ -927,7 +927,7 @@ if fnkey("certify_rows", FK_ + "structural/retained/adaptive.rs") and fnkey("row
 # o10_check.py fails the run if any is ever positive or no longer present.
 _J7C = PP_ + "source_recovery/j7_rf_census.rs"
 if _os.path.exists(_os.path.join(_SNAP, _J7C)):
-    # O4 S5 (§8.9): O4's test modules reach the census through `pub(crate) mod`; the
+    # O4 S5 (retained-pricing-rules.md §8.9): O4's test modules reach the census through `pub(crate) mod`; the
     # declaration is still the one #[cfg(test)] item, so either visibility keeps the module test-only.
     _j7_decl = open(_os.path.join(_SNAP, PP_ + "source_recovery.rs"), encoding="utf-8").read()
     if not any("#[cfg(test)]\n#[path = \"source_recovery/j7_rf_census.rs\"]\n" + vis + "mod j7_rf_census;" in _j7_decl
@@ -962,7 +962,7 @@ if _os.path.exists(_os.path.join(_SNAP, _J7C)):
                 "entity-keyed maps of D1-capped ids) or of the test's literals: RES"}}),
     )
     if fnkey("u4b_every_selected_census_case_still_selects_with_its_new_charge", _J7C):
-        # U4B-J3 (test code): the census's new capability test formats two report lines; J3's
+        # U4B-J3 (T4-U4b §4.3, test code): the census's new capability test formats two report lines; J3's
         # multiplicity-0 sizes apply. Its `largest.max(..)` receivers are u64 (`let mut largest = 0u64`), so the
         # by-name call cannot reach certified_publication's private FallbackError::max.
         _u4b_j3 = "u4b_every_selected_census_case_still_selects_with_its_new_charge"
@@ -1077,7 +1077,7 @@ if fnkey("shape_in_resources", _SBK):
     O10_RECURSION_REVIEWED = [(fnkey("shape_in_resources", _SBK), "J6: shape_in's reviewed recursion moved here with its body; "
         "multiplicity 0 on D1 (the source-block shape check is not on the D1 path; J5); text only on its error path")]
 
-# NLKD5: the
+# NLKD5 (DEL-04-01 kd5-nonlinear-active-set.md section 3.3, section 4): the
 # nonlinear K-D5 confirmation. The Passed evidence line finds the case's one
 # integrity diagnostic by id in the case's diagnostic Vec (one scan, <= D, as
 # KD5L8). The confirmation's gate-refusal reason prints the gate's
@@ -1176,7 +1176,7 @@ _RP = RE_ + "retained_precision.rs"
 if fnkey("section_allowances", _RP):
     _rp_src = open(_os.path.join(_SNAP, _RP), encoding="utf-8").read()
     _sa = _rp_src.split("fn section_allowances(", 1)[1].split("\n}\n", 1)[0]
-    # O4 S5 (§8.9): the exact arm converts the allowance, the wall and (when present) the
+    # O4 S5 (retained-pricing-rules.md §8.9): the exact arm converts the allowance, the wall and (when present) the
     # mill tolerance, three unit_value call sites in the same one visit per pipe; the loop is unchanged.
     if _sa.count("list(&model[\"pipe_segments\"]).iter().all(") != 1 or _sa.count("unit_value(") not in (1, 3) or "for " in _sa:
         raise SystemExit("B7b-ZA: section_allowances changed; re-review its loop and conversions")
@@ -2083,7 +2083,7 @@ if fnkey("not_qualified_for", PP_ + "source_receipt/rows.rs"):
         (site("not_qualified_for", _RW, "input_result_ids: inputs.iter().map(|r| r.id.clone()).collect(),", full=True), {"r.id": RS_}),
     ]
 
-# ---- O4 S5 (actual-source D3; §8.9). O4 admits timoshenko_annulus_energy_v1 documents and
+# ---- O4 S5 (actual-source D3; retained-pricing-rules.md §8.9). O4 admits timoshenko_annulus_energy_v1 documents and
 # nonzero mill tolerance/corrosion allowance on route E (W1-E) and on the pressure-source route. Its new loops and text
 # arguments are bounded here by name; its heap owners are priced positively by base/o4_owners_model.py.
 if fnkey("reduced_section_set", PP_ + "retained_product.rs"):
@@ -2197,7 +2197,7 @@ if fnkey("republication", _PU_LIB) and fnkey("fail_closed_form", _PU_LIB):
     for _k, (_t, _body, _lit) in _PU_TEMPLATES.items():
         if _body.count(_t) != 1:
             raise SystemExit(f"PU-TX: the {_k} cause template changed; re-review")
-    _PU_ERR = 8192   # error_display
+    _PU_ERR = 8192   # error_display (TEXT.md section 3)
     _PU_S2 = _PU_TEMPLATES["s2"][2] + 128 + _PU_ERR                                  # 8,335
     _PU_CAUSE = max(_PU_TEMPLATES["s1"][2] + _PU_ERR, _PU_TEMPLATES["s3"][2] + 128 + _PU_S2,
                     _PU_TEMPLATES["s4"][2] + _PU_ERR)                                 # 8,470 (S3 carrying the S2 cause)
@@ -2277,7 +2277,7 @@ if fnkey("append_topology_diagnostics", _W8):
     if (_W8_TOP.count("n.id.clone()") != 1 or _W8_DIS.count('.join("; ")') != 1 or _W8_NEAR.count('.join("; ")') != 2
             or '"supported"' not in _W8_DIS or '"no support"' not in _W8_DIS):
         raise SystemExit("W8-TX: the topology texts changed; re-review the W-8 text bounds")
-    _W8_INT = 20                                                     # a usize's Display
+    _W8_INT = 20                                                     # a usize's Display (TEXT.md `int`)
     _W8_ID = max(128, _W8_T["node"][2] + _W8_INT)                     # node_id: an admitted id (l <= 128) or node#{index}
     _W8_PART = _W8_T["part"][2] + _W8_INT + _W8_ID + _W8_INT + len("s") + len("no support")       # 201
     _W8_MORE = _W8_T["more_d"][2] + _W8_INT                                                   # 31
@@ -2379,7 +2379,7 @@ if fnkey("branch_topology_invalid", _W8V):
     # §8.18: the warning's message is a multi-line format!, so its TEXT row is the `format!(` line.
     O10_ID_AUDIT += [(site("validate_components", _W8V, "joins {degree}", full=True, row="format!("),
                       {"degree": {"bytes": 20, "source": O10 + "W8-BT: a usize member count"}})]
-# W8-BF (§8.18): the branch-topology warning's statement of the branch stress factors still
+# W8-BF (retained-pricing-rules.md §8.18): the branch-topology warning's statement of the branch stress factors still
 # applied is added after publication by `state_applied_branch_factors(components, preview_cases, diagnostics)`, called
 # once, from run_linear_static_preview_observed_inner's solved preview envelope with `&model.components`. Everything it
 # allocates lies inside its loop over those components, which D1 refuses (P2, D1.4: `F::Components`), so the loop is
@@ -2581,7 +2581,7 @@ if fnkey("resolve_case", _SZ_R) and '"LOAD_STATE_SOURCE_EXCLUDED",' in _fn_text(
     if fnkey("refuse_all_reference_states", _SZ_R):
         O10_MULT0_SITES += [(site("refuse_all_reference_states", _SZ_R, '"LOAD_INPUT_MISSING",', row="diag("), _SZ_LS)]
 
-# S1B-MV (W-13 S1b, model document 0.7.0; §8.17): the load/reference-state version-mismatch
+# S1B-MV (W-13 S1b, model document 0.7.0; retained-pricing-rules.md §8.17): the load/reference-state version-mismatch
 # diagnostic (`case_state/resolve.rs`) and the joint authoring refusal (`joint.rs authoring_findings`) name the current
 # model version through the shared constant. The argument `crate::MODEL_SCHEMA_VERSION` is a `&'static str` whose bytes
 # are model_format.rs's one plain literal, read here at the snapshot; any other form stops the run.
@@ -2593,7 +2593,7 @@ O10_ARGS_FIRST = list(globals().get("O10_ARGS_FIRST", [])) + [
     {"re": r"^crate::MODEL_SCHEMA_VERSION$", "max": len(_S1B_MV.group(1).encode()),
      "why": O10 + "S1B-MV: the current model version constant, a static literal of " + str(len(_S1B_MV.group(1).encode())) + " B"}]
 
-# M08-VZ (model document 0.8.0, §8.26): validate_profile's two current-version texts format
+# M08-VZ (model document 0.8.0, retained-pricing-rules.md §8.26): validate_profile's two current-version texts format
 # the shared constant (S1B-MV) where they were literals, so each is a TEXT site of its own. Neither is reached on D1:
 # D1.3 (family_clauses refuses whatever namespace_branch refuses) admits only the current version, pressure-free (L) or
 # with a (3.0.0, exact_pressure_v3) contract (E). So the `_` arm (a version neither current nor retired) never runs, and
@@ -3568,8 +3568,8 @@ if fnkey("case_spring_ground", _W16_IM):
                         "nonlinear support); the relative-displacement rows are never formed",
                         ["lib.rs:append_nonlinear_relative_displacements"])]
 
-# ---- W-16 slices b and c: exact-route load combinations and exact-route
-# equivalent-static generation; §8.27. D1
+# ---- W-16 slices b and c: exact-route load combinations (DEL-05-02 Design `exact-combinations.md`) and exact-route
+# equivalent-static generation (DEL-05-01 Design `exact-equivalent-static.md`); retained-pricing-rules.md §8.27. D1
 # admits neither on a retained branch: D1.4's exact clause refuses every combination on route E and route L has no
 # exact contract (W16B-CB); D1.5 refuses every case with equivalent_static on both routes (W16C-ES). What the new code
 # reaches on D1 is the pressure-2 reader's combination test (W16B-RD); every by-name edge into the two new modules'
@@ -4814,7 +4814,7 @@ if fnkey("prepare_modal", _MODAL + "prepare.rs"):
         _M_STATE = _m_vocabulary("core/solver/nonlinear_supports/src/lib.rs", "ActiveSetState",
                                  "ActiveSetState::as_str, its longest literal")
         # NotEstablished's sentence is nonlinear_not_established_sentence's text: its literal bytes and its `reason`,
-        # which the base classifies by name as error_display (8192 B).
+        # which the base classifies by name as error_display (8192 B, TEXT.md section 3).
         _ne = _fn_text("nonlinear_not_established_sentence", _LIB)
         _ne_fmt = _re.findall(r'format!\("((?:[^"\\]|\\.)*)"\)', _ne)
         if len(_ne_fmt) != 1 or _re.findall(r"\{[^{}]*\}", _ne_fmt[0]) != ["{reason}"] or "{{" in _ne_fmt[0]:
@@ -5348,7 +5348,7 @@ if fnkey("solved_state_plus_increments", _A4_PLAN):
          {"stable_suffix(id)": IN, "stable_suffix(base)": RS_, "stable_suffix(code)": ST}),
     ]
 
-# RT-A4-HS (the historical read merged at 1b68b8401; §8.46): recorded_tables' variant selection. Its
+# RT-A4-HS (RT-A4 §10.4, the historical read merged at 1b68b8401; §8.46): recorded_tables' variant selection. Its
 # thread-local SELECTED is a const-initialized Cell<Option<&'static RecordedVariant>> (no heap). Only read_recorded sets
 # it (and its Restore guard resets it); read_recorded's one production caller is reader_verdict's `recorded`, called
 # only by the public `*_recorded` entries (runner, wasm and desktop bindings), which no retained root reaches. So on the
@@ -5529,7 +5529,7 @@ if fnkey("read_case", _NL_EV):
                       {"s.state": {"bytes": 8, "source": O10 + "RTA3NL-ID: a STATES entry (inactive, active, sticking, "
                                                             "sliding), at most 8 B"}})]
 
-# ---- §8.51.
+# ---- §8.51: operating-case slice 1b (DEL-05-02 operating-case.md §1.2, §6; DEL-02-01 model-document-0.9.0.md §2.2).
 # A result_state_subtraction declaring difference_basis = "operating_minus_sustained" is gated by G-1 and G-2 at the
 # solve (difference_basis.rs), publishes difference_basis_derivation and is read model-free from it
 # (preview_difference_basis.rs). D1.4 refuses every combination with a difference basis (family_clauses' member
@@ -6236,7 +6236,7 @@ if fnkey("solve_held_combinations", _H_PP) and fnkey("check", _H_RE):
         raise SystemExit("RTA5-ID: the held derivation member key changed; re-review §8.54")
 
 
-# ---- R-6/R-7 S-K1: skewed restraints (§8.55). Each rule applies only
+# ---- R-6/R-7 S-K1: skewed restraints (§8.55; DEL-04-03 Work `skew-restraints.md` §11.2, §12). Each rule applies only
 # where S-K1's code exists, so earlier revisions price as before.
 _SKW_PP = PP_ + "skew.rs"
 if _os.path.exists(_os.path.join(_SNAP, _SKW_PP)):

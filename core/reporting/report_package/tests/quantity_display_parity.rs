@@ -1,5 +1,6 @@
-//! The report's display rule
-//! against the shared parity vectors
+//! The report's display rule (DEL-08-01 Design
+//! `report-package-current-results.md` §2.3 item 6 and its display
+//! resolution) against the shared parity vectors
 //! `fixtures/reports/invented/report_quantity_display_parity.json`. The
 //! desktop's rule is checked against the same file by
 //! `apps/desktop/src/features/report/reportQuantityDisplay.parity.test.ts`.
@@ -55,7 +56,7 @@ fn the_rule_shifts_and_rounds_the_text() {
     assert_eq!(display_number("999999.5", 6), "1");
 }
 
-/// `conversion_performed`: true only when a displayed value is
+/// `conversion_performed` (§2.3 item 5): true only when a displayed value is
 /// stored in Pa: a result row, or an exact-route headline that is not withheld.
 #[test]
 fn a_scaled_value_is_displayed_only_for_pa() {

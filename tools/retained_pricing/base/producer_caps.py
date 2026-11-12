@@ -55,7 +55,7 @@ import w1_member_load_model as _w1_member_model
 _w1_member_model.inspect(os.environ["RP_SNAPSHOT"])
 E_src += 4 + l * (32 + ID)
 E_led = 10 + (18 + 8 * 128) * N
-# O4-ID (§8.9): a Timoshenko document's K4SRC and K4STF carry the framed sidecar block
+# O4-ID (retained-pricing-rules.md §8.9): a Timoshenko document's K4SRC and K4STF carry the framed sidecar block
 # (tag, count, 12 bytes per member) wherever either identity is held (o4_owners_model binds encode_block's span).
 import o4_owners_model as _o4_model
 _o4 = bool(os.environ.get("RP_SNAPSHOT")) and _o4_model.inspect(os.environ["RP_SNAPSHOT"])
@@ -198,12 +198,12 @@ rows["T15 C3 event storage and evidence completion"] = (
 # W1-CAP/LED/REC/L4: positive actual-source owners. Existing nodal owners,
 # reservations, the original nodal ledger and the PP maximum helper remain.
 rows.update(_w1_member_model.producer_additions(n, m, l, CC, ID))
-# T4-S5 D3 (§8.8, U4B-W1): freeze_case's prepared_not_covered reserves one operand table
+# T4-S5 D3 (retained-pricing-rules.md §8.8, U4B-W1): freeze_case's prepared_not_covered reserves one operand table
 # per member, live while the case's not-covered rows complete (per attempted case, scaled below with T14).
 import u4b_u5b_owners_model as _u45_model
 if os.environ.get("RP_SNAPSHOT") and _u45_model.inspect(os.environ["RP_SNAPSHOT"])["not_covered"]:
     rows["T14.4 prepared_not_covered operand table (U4B-W1)"] = _u45_model.producer_not_covered(m)
-# W-7 D3 (§8.20, W7-NC): prepared_not_covered's end-action table beside U4B-W1's, one
+# W-7 D3 (retained-pricing-rules.md §8.20, W7-NC): prepared_not_covered's end-action table beside U4B-W1's, one
 # [[Option<usize>; 6]; 2] per member, per attempted result set (freeze_combination completes its global end rows too).
 import w7_owners_model as _w7_model
 if os.environ.get("RP_SNAPSHOT") and _w7_model.inspect(os.environ["RP_SNAPSHOT"]):
@@ -216,7 +216,7 @@ if _o4:
     rows["T12.14 O4 preparation sidecars, CasePrep set clone, replaced identity (O4-PA)"] = _o4_model.prepare_sidecars(m, E_src)
     rows["T14.5 O4 ReducedSectionSet, reduced maps, operand tables, maxima and payload (O4-RS/NC/PP/KS)"] = _o4_model.proof_owners(m, P_final, ID)
     rows["T15.2 O4 second preparation record premises (O4-TR)"] = _o4_model.trace_owners(m)
-# W1 coverage repair D3 (§8.11, W1R-FS): the certified proof keeps the gate's final per-body
+# W1 coverage repair D3 (retained-pricing-rules.md §8.11, W1R-FS): the certified proof keeps the gate's final per-body
 # scales to serialization (the vector check_intervals used; no new allocation, but a longer lifetime) and every proof
 # holder is one Vec header larger. Per attempted case (scaled below with T14), beside T14.3's transient scales.
 import w1r_owners_model as _w1r_model

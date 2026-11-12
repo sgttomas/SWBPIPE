@@ -329,7 +329,7 @@ fn the_catalogue_is_the_six_result_sections_then_the_five_model_input_sections()
     );
 }
 
-/// Slice C5: a model-input section takes all cases and the `all` view
+/// Slice C5 (§2.7): a model-input section takes all cases and the `all` view
 /// only, shows no result row and is never an overlap with `result_rows_all`.
 #[test]
 fn model_input_sections_take_only_all_cases_and_the_all_view() {

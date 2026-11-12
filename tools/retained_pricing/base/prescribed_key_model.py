@@ -5,7 +5,7 @@ FILE = "core/reporting/result_export/src/retained_precision.rs"
 # T4-U6 (D-5): NumericCase gains `all_rows` (every published row, reduced twins included) and g5c gives each reduced
 # twin its nominal row's class; the prescribed set, its borrowed pairs and their lifetimes are unchanged. The new
 # field and its Vec are priced by U6-RS (`all_rows_field`, u6_owners_model.py and g4_caps.py).
-# O4 S5 (§8.9, O4-RD): g5c builds the case's distinct-basis member set (a BTreeSet of <= m
+# O4 S5 (retained-pricing-rules.md §8.9, O4-RD): g5c builds the case's distinct-basis member set (a BTreeSet of <= m
 # borrowed ids, priced by O4-RD) and classes a distinct member's reduced rows as bound rows; the drain, the one
 # `last` clone and the borrowed prescribed pairs are unchanged.
 PINS = {"numeric_cases":"9342fa881a9a15724197456be1dab39570904d2e4120a5185b366a19e9163cd9",

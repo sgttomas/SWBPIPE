@@ -18,7 +18,7 @@
 //! errors.
 //!
 //! Holds no `unsafe` code: the reach scan requires `#![forbid(unsafe_code)]`
-//! at this root (code review
+//! at this root (DEL-08-01 Design `report-user-release.md` §2.8; code review
 //! r9 at #1682).
 #![forbid(unsafe_code)]
 

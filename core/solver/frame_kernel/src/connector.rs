@@ -1,5 +1,5 @@
 //! T4-U3 (J-A): the objective connector, a symmetric-midpoint, small-rotation,
-//! elastic two-node element (`ObjectiveConnectorV1`).
+//! elastic two-node element (JR §2; `ObjectiveConnectorV1`).
 //!
 //! Kinematics, with d = [u_i, θ_i, u_j, θ_j] (global translations and
 //! infinitesimal rotation vectors), node positions x_i, x_j, global attachment
@@ -30,7 +30,7 @@
 //!   root and no tolerance), on the authored H and on the binary64 K.
 //!
 //! The representation guards (orthonormal triads, Q.x along r) are
-//! machine-precision-scaled arithmetic guards, not
+//! machine-precision-scaled arithmetic guards (CONNECTOR_CONTRACT_V1 §2), not
 //! physical installation tolerances.
 use crate::exact_sum::{ExactAccumulator, SumError};
 use crate::load_ledger::{gamma, product_upward, round_upward, UNIT_ROUNDOFF};
@@ -1152,7 +1152,7 @@ pub fn exact_definiteness(matrix: &Matrix6) -> ConnectorDefiniteness {
 mod tests {
     use super::*;
 
-    /// DEL-03-06 split constant: one
+    /// DEL-03-06 split constant (DEL-04-03 Work `skew-restraints.md` §11.3): one
     /// crate-visible definition, 2^-969, bit for bit; `tie_rod.rs` and
     /// `restraint_basis.rs` import it.
     #[test]

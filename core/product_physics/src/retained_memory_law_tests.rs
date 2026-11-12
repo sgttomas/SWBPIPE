@@ -381,12 +381,12 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // after the resume, the closed `w1_member_reader_gate_tests` module's invocation
             // version; no include, path module, static or production entered the suffix, and
             // the two production functions after the resume are byte-identical.
-            // Re-audited for model 0.9.0: the same
+            // Re-audited for model 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.5): the same
             // places changed their version token only (0.8.0 -> 0.9.0, same length), with no other
             // byte of the suffix: the closed `b7a_preview_namespace_tests` module and, after the
             // resume, the closed `w1_member_reader_gate_tests` module's invocation version; no
             // include, path module, static or production entered the suffix.
-            // Re-audited for model 0.9.0's retained boundary: after the
+            // Re-audited for model 0.9.0's retained boundary (model-document-0.9.0.md §3.8): after the
             // resume, one closed module is added, `model_0_9_0_g8_tests` (its one test builds its
             // invocation inline; no include), between `t4_u6_g8_tests` and `w1_member_reader_gate_tests`;
             // no include, path module, static or production entered the suffix.
@@ -409,11 +409,11 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // `actual_materials_bind_each_section_beam_theory_to_the_contract_selection`
             // (both admitted contracts and an unknown one; the same request-fixture
             // include); no include, path module, static or production entered the suffix.
-            // Re-audited for model 0.9.0 S1: the closed module gains
+            // Re-audited for model 0.9.0 S1 (model-document-0.9.0.md §3.7): the closed module gains
             // one test, `a_case_condition_use_is_declined_by_name`, whose two includes are the n05
             // raw source and request fixtures (test-only); nothing else in the suffix changed and it
             // still holds no production.
-            // Re-audited for model 0.9.0's retained boundary: the closed module gains one test,
+            // Re-audited for model 0.9.0's retained boundary (§3.8): the closed module gains one test,
             // `condition_sets_spectra_and_set_references_are_declined_by_name`, whose two includes are
             // the same n05 raw source and request fixtures (test-only); it still holds no production.
             complete_suffix_sha256: "6df0a088632d93f33edee42f6da002e5687cbe1802327c25e1d508b794d946e2",
@@ -452,7 +452,7 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // Re-audited for model 0.7.0 (W-13 S1b): only the inspected production's
             // current_header v2 re-author text changed its model version token (0.6.0 -> 0.7.0,
             // same length); the closed `b7b_current_table_tests` module and E14 are byte-identical.
-            // Re-audited for W-7: only the closed
+            // Re-audited for W-7 (DEL-04-01 Design global-end-actions.md): only the closed
             // `b7b_current_table_tests` module changed (pressure-2's 129 -> 135 rows, with its
             // comment); the inspected production after the resume and E14 are byte-identical.
             // Re-audited on W-7 merged with main 2653f87392: the closed module is W-7's, the inspected
@@ -1169,7 +1169,7 @@ fn every_family_clause_refuses_with_its_fact() {
     // D1.4 (B1 SA, PLAN_v2 §2.3 and RV107 SF-2): C + 1 cases and 0 cases refuse.
     assert_eq!(with(&|r| *r = with_cases(r.clone(), caps::LOAD_CASES + 1)), family(C::Invocation, F::LoadCases), "C + 1 cases");
     assert_eq!(with(&|r| r["model"]["load_cases"] = json!([])), family(C::Invocation, F::LoadCases), "0 cases");
-    // B2-A: a combination is inside D1.4; one whose id is a load case's is not (C-9).
+    // B2-A (B2-C §9): a combination is inside D1.4; one whose id is a load case's is not (C-9).
     assert_eq!(with(&|r| r["model"]["combinations"] = json!([{"id": "c", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 1.0}]}])),
         None);
     assert_eq!(with(&|r| r["model"]["combinations"] = json!([{"id": "case", "basis": "mechanics", "terms": [{"load_case": "case", "factor": 1.0}]}])),
@@ -1812,7 +1812,7 @@ fn structural_budgets_are_u3s() {
     assert_eq!(b.reserved_stack_bytes, RESERVED_STACK_BYTES as u64);
     assert_eq!(b.thread_heap_bytes, 8192 + std::mem::size_of::<crate::RetainedPreviewOutput>() as u64);
     let diagnostic = std::mem::size_of::<crate::Diagnostic>() as u64;
-    // B1 SA (B-6): one notice reserve per case in A, |A| ≤ C.
+    // B1 SA (B-6; I82 STUDY §4.3): one notice reserve per case in A, |A| ≤ C.
     assert_eq!(b.notice_reserve_bytes, NOTICE_RESERVE_BYTES * caps::LOAD_CASES as u64, "B-6 = NOTICE_RESERVE_BYTES × C");
     assert!(NOTICE_RESERVE_BYTES >= diagnostic + 196, "the slot and the 196-byte message reservation");
     assert!(NOTICE_RESERVE_BYTES <= 2_048, "G4's push-growth figure tightened to grant 1b's exact reservation");
@@ -2078,10 +2078,10 @@ fn profile_in_build_record() {
         println!("I65_G5_ATOM {:?}\t{}\t{}\t{}", ATOM_BINDINGS[i], ATOM_NAMES[i], ATOM_VALUES[i], ATOM_ASSUMED[i]);
     }
     assert!(SPARSE.is_some() && DENSE.is_some());
-    // Pre-0.4 failure unification D3 (§8.14, PU-X3): X3, the republication's second ordinary
+    // Pre-0.4 failure unification D3 (retained-pricing-rules.md §8.14, PU-X3): X3, the republication's second ordinary
     // span after a selected source could not finalize, is its own phase.
     assert_eq!(PHASE_NAMES.map(|n| n.split(' ').next().unwrap()), ["W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3"]);
-    // The pinned record G6 qualifies: each phase's requested
+    // The pinned record G6 qualifies (R/I65/u4_g6_01/QUALIFICATION.md §3; B1: R/I104/b1_sq_01/QUAL_B1.md): each phase's requested
     // + moving bytes, without R, in the build whose identity is PINNED_RECORD_IDENTITY. It is
     // asserted only in that build (ROOT's ruling on part 2's decision 1); another identity has
     // its own layouts and prints a skip. Any change to a binding, form, combination or phase
@@ -2259,7 +2259,7 @@ fn challenge_bounds_are_the_profile() {
     let line = text.lines().find(|l| l.starts_with("const MAX_PHASE_BYTES: [u64; 2] = [")).unwrap();
     let digits: Vec<u64> = line.split(['[', ']', ',']).filter_map(|t| t.trim().replace('_', "").parse().ok()).collect();
     assert_eq!(digits, [profile::SPARSE.unwrap().0, profile::DENSE.unwrap().0]);
-    // B1 SQ: the abort cap is 16 GiB, above E_mov,max + R and above M; and the
+    // B1 SQ (PLAN_v2 §3.5): the abort cap is 16 GiB, above E_mov,max + R and above M; and the
     // challenge reads W1 work from the public surface by the N1 notice's own text (A1-S-1).
     assert_eq!(text.lines().filter(|l| l.starts_with("const CAP_BYTES: usize = ")).collect::<Vec<_>>(), ["const CAP_BYTES: usize = 16 << 30;"]);
     let r = RESERVED_STACK_BYTES as u64;
@@ -2684,7 +2684,7 @@ fn registered_g_c_declines_only_unattempted_solves() {
     }
 }
 
-// ---- B1 SA: admission at option S3 ----------------------------------
+// ---- B1 SA: admission at option S3 (PLAN_v2 §2.3) ----------------------------------
 
 /// D1.4 admits 1 ≤ c ≤ C load cases. c = 0 and c = C + 1 refuse with `(Invocation,
 /// LoadCases)`; c = 1, 2 and 3 are inside D1, and the registered build grants each a permit,
@@ -2714,7 +2714,7 @@ fn b1_sa_d1_4_admits_one_to_c_load_cases() {
 /// `pub(crate)` `caps`, and no D1 item's visibility changes for a test, so it builds a literal
 /// C_eq + 1 = 4 case-equivalents: the milestone's case three times (C) and one mechanics
 /// combination. B2-A re-bases it from B1's C + 1 load cases (PLAN_v2 SF-2) to C_eq + 1 (I93
-/// PLAN §1.2.4). This test builds the same input and ties the literal to the producer:
+/// PLAN §1.2.4; B2-C §9). This test builds the same input and ties the literal to the producer:
 /// 4 is `CASE_EQUIVALENTS + 1`, and `admit` refuses it at D1.9's `CaseEquivalents` row. If C_eq
 /// or C changes, this test fails first and names the runner test to re-base.
 fn runner_oracle() -> Value {
@@ -2773,7 +2773,7 @@ fn b1_sa_total_loads_row_admits_l_and_refuses_l_plus_one() {
     }
 }
 
-/// G-B (RV107 SF-4; RV109 N-3): `CaseLoads` reads the case at hand (≤ l) and the
+/// G-B (PLAN_v2 §2.3; RV107 SF-4; RV109 N-3): `CaseLoads` reads the case at hand (≤ l) and the
 /// new `CaseLoadsTotal` the capture's running total `late_loads_total` (ST's seam; ≤ L), so G-B
 /// at case k bounds Σ_{i≤k} l_i. Each refuses one above its cap whatever the other reads, in
 /// table order. A saturated total (`usize::MAX`, the reading a saturating seam would give on
@@ -2863,7 +2863,7 @@ fn b1_sa_envelope_results_bound_is_c_times_p_final() {
     }
 }
 
-/// T-3 (e) (RV105 N-1): G-C's attempt fact counts the requested cases. It holds
+/// T-3 (e) (DESIGN_v2 §1.2; RV105 N-1): G-C's attempt fact counts the requested cases. It holds
 /// exactly when c ≥ 1, the capture has one seed per requested case, and every seed's `initial`
 /// is set. A run that blocks at case k < c − 1 leaves the later cases unseeded although every
 /// seed it left is attempted: G-C declines it, and Direct publishes the exact ordinary bytes
@@ -2948,7 +2948,7 @@ fn b1_sa_t3_e_counts_the_requested_cases() {
     }
 }
 
-/// SF-4's back edge: every gate bound at C = 3, by its fact. The bounds that read
+/// SF-4's back edge (PLAN_v2 §2.3): every gate bound at C = 3, by its fact. The bounds that read
 /// the regenerated profile (`profile::F_T11`, `F_T11_LATE_CAPTURE`, `F_T11_ORDINARY_SEED`,
 /// `text_atoms::*`) are asserted as expressions: the named form, or the atom times its count.
 /// SQ fixes their values; RV-Q round 1 reviews these expressions. The bounds that read only D1's
@@ -3024,7 +3024,7 @@ fn b1_sa_retained_error_text_reads_every_case_slot() {
 }
 
 // ---- B3a dropped: D1.3 refuses 0.3.0 `legacy_pressure_v1` (RR "Owner decisions: the legacy ----
-// ---- pressure contract is retired product-wide; …"; formerly B3a-A, I93 PLAN §1.3) ----
+// ---- pressure contract is retired product-wide; …"; formerly B3a-A, I93 PLAN §1.3; B3-D §4.1) ----
 
 /// `raw` carrying the retired `legacy_pressure_v1` label with zero pressure: I99's `legacy3`
 /// (B3-W's `m3l` when `raw` is the milestone): the contract changes, nothing else. B3a is
@@ -3193,7 +3193,7 @@ fn b3a_dropped_direct_entry_refuses_m3l() {
     }
 }
 
-// ---- B2-A: D1.4 with combinations, C_eq and terms (I93 PLAN §1.2.4) -------------
+// ---- B2-A: D1.4 with combinations, C_eq and terms (B2-C §9; I93 PLAN §1.2.4) -------------
 
 /// `raw` with `z` mechanics combinations `combination:k` (k = 1, …, z), each 1·(the first case),
 /// with the provenance the ordinary validation requires.
@@ -3206,7 +3206,7 @@ fn with_combinations(mut raw: Value, z: usize) -> Value {
     raw
 }
 
-/// D1.4 and D1.9: 1 ≤ c ≤ C, z ≤ 2 and C_eq = c + z ≤ 3. Over c = 1..C and z = 0..3,
+/// D1.4 and D1.9 (B2-C §9): 1 ≤ c ≤ C, z ≤ 2 and C_eq = c + z ≤ 3. Over c = 1..C and z = 0..3,
 /// a request is inside D1 exactly when z ≤ 2 and c + z ≤ 3; otherwise `Combinations` refuses
 /// first (z = 3), then `CaseEquivalents`. Every basis counts toward z and C_eq.
 #[test]
@@ -3273,7 +3273,7 @@ fn b2_a_combination_ids_are_disjoint_from_load_case_ids() {
     assert_eq!(AdmissionRefusal::Family(D1Clause::Invocation, FamilyFact::CombinationIds).precondition().as_str(), "source_family");
 }
 
-/// D1.9: each combination's terms (repeats counted) and operand ids, ≤ 3, and their
+/// D1.9 (B2-C §9): each combination's terms (repeats counted) and operand ids, ≤ 3, and their
 /// typed capacities, over every combination of any basis.
 #[test]
 fn b2_a_terms_and_range_operands_are_at_most_three() {
@@ -3421,7 +3421,7 @@ fn b2_a_admitted_combinations_run_w1_and_publish_the_validated_successor() {
     }
 }
 
-// ---- B3b-A: D1.3, D1.4 and D1.5 for the exact route (provisional on B1's M) ---
+// ---- B3b-A: D1.3, D1.4 and D1.5 for the exact route (B3-D §4.2; provisional on B1's M) ---
 
 /// `raw` authored as exact: I99's `exact` (B3-W's `m3x` when `raw` is the milestone): the exact
 /// contract, the common E/ν basis with E = 2e11 Pa and ν = 0.25 and no shear modulus, and
@@ -3548,7 +3548,7 @@ fn b7a_d1_exact_route_keeps_member_loads_and_selectors_out() {
     }
 }
 
-/// W-16 slice a: the census reads a
+/// W-16 slice a (DEL-04-03 Design `pf-imposed-displacement.md` §3): the census reads a
 /// support target's two strings and D1.7 refuses it by its target fact on both branches, as
 /// the first or last primitive of the first or last of C cases. D1 alone, so this holds in
 /// any build, registered or not.
@@ -3655,7 +3655,7 @@ fn spectrum() -> Value {
         "interpolation": {"abscissa": "log", "ordinate": "log"}, "points": [[1.0, 0.2], [10.0, 0.5]]})
 }
 
-/// Model document 0.9.0: D1.3 declines a
+/// Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §3.7, §3.8): D1.3 declines a
 /// non-empty `condition_sets` or `spectra`, and any pipe's `condition_set_ref` (an empty string
 /// included), by name, on both branches and for Direct and headless callers alike. An empty
 /// owner is admitted only with typed capacity 0, which an absent member and a parsed `[]` both
@@ -3786,7 +3786,7 @@ fn b1_sq_late_capture_form_is_c_times_one_case() {
         phase_caps().late[LATE_FACTS - 1]);
 }
 
-// ---- The caller's limit L -------------------------
+// ---- The caller's limit L (memory-budget-decision.md) -------------------------
 
 /// L above the registered profile's qualified M refuses `Unqualified`, before pricing and
 /// never clamped; the actual admission then mints no permit in any build.

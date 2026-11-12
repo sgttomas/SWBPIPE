@@ -49,7 +49,7 @@ import {
 } from "./mbfExport";
 import { markMbfExportUnavailable, mbfExportUnavailable, subscribeMbfExportUnavailable } from "./mbfExportCancel";
 
-/** The open Export MBF… dialog. The workspace
+/** The open Export MBF… dialog (DEL-17-04 Design `desktop-mbf-export-import.md` §3.1–§3.3, §3.9.5). The workspace
  * session (slice 4b.2b) opens it from File > Export MBF… and the Exports section's Model batch file panel, and supplies
  * the barrier's `reviewMbfExport` and `saveMbfExport` (`mbfExportCancel.ts`: the native `review_mbf_export` and
  * `save_mbf_export`) and its `retire`. */
@@ -66,7 +66,7 @@ export type MbfExportDialogRequest = {
    * writes; a save past its commit is not interrupted, and the session reports its outcome. */
   retire: () => void;
   saveMbfExport: SaveMbfExport;
-  /** The native review, or null in the browser-only route, which has no native review and no save: the
+  /** The native review (§3.9.5), or null in the browser-only route, which has no native review and no save: the
    * dialog then declines the review with `MBF-REVIEW-NATIVE-ONLY` and runs no writer. */
   reviewMbfExport: ReviewMbfExport | null;
   /** The model's library references resolved against the local store (`resolveLibraryDispositions`). */

@@ -220,7 +220,7 @@ export type ModelDocumentSlotFinding = ModelFileDiagnostic & {
 type ValidatorFinding = { code: string; severity: string; path: string; message: string; affected_refs?: string[] };
 
 /**
- * the model-data slots (tags, notes, lines, assumptions, constraints,
+ * W-13 §5.3: the model-data slots (tags, notes, lines, assumptions, constraints,
  * equipment interfaces, rule-pack references, provenance records), checked by the
  * applier's Rust validator through the wasm engine. The webview never re-implements
  * it; without the engine, or when the engine reports an input error, the result is

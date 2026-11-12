@@ -131,7 +131,7 @@ fn derivation_vectors_match_the_desktop_builders() {
         assert_eq!(digest(&derived.request).unwrap(), expected["request_sha256"].as_str().unwrap(), "{name}: request");
         let request = case.expected_request(document);
         assert_eq!(check_matches_derivation(&derived, &case.vector["input_manifest"], &request), Ok(()), "{name}");
-        // Scope R's member contract.
+        // Scope R's member contract (§2.1).
         let request = &derived.request;
         assert_eq!(request["export_profile_id"], USER_RELEASED_DESKTOP_PROFILE);
         assert_eq!(request["report"]["report_context"]["export_context"], USER_RELEASED_CONTEXT);
@@ -192,7 +192,7 @@ fn member_pointers(value: &Value, pointer: &str, depth: usize, out: &mut Vec<Str
 }
 
 /// A mutation of each member of a derived request is refused, naming its
-/// pointer: a changed value, and an extra member added only in the
+/// pointer (§6): a changed value, and an extra member added only in the
 /// request.
 #[test]
 fn a_mutation_of_each_member_is_refused_naming_its_pointer() {
@@ -268,7 +268,7 @@ fn user_release_keeps_full_row_metadata_and_refuses_composition_until_c4() {
     assert!(refusal.contains("/report/report_composition"), "{refusal}");
 }
 
-/// `user_release_display_rule`: the vector whose S has rows stored in
+/// `user_release_display_rule` (§6): the vector whose S has rows stored in
 /// `Pa` and rows with more than six significant digits. The derived rows show
 /// six significant digits and `MPa`, `conversion_performed` is true, and the
 /// row checksums are the full-precision digests. A stored value changed in
@@ -381,7 +381,7 @@ fn d6_exact_derivation_vectors_match_typescript() {
     }
 }
 
-/// Slice C5: the composed
+/// Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): the composed
 /// vector that lists model-input sections carries `P(M, C)` in its derived
 /// request, and whole-request equality refuses a forged table or a removed
 /// one, naming the pointer only.

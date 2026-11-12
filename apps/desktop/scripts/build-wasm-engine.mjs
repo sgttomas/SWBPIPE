@@ -8,7 +8,7 @@
 // asset protocol — the previous `src/.../__generated__/` location was never
 // emitted into `dist`). Generated artifacts are not committed. Every missing
 // prerequisite fails with the exact remediation command — no silent fallback
-// (ADR-0001).
+// (operation-seam plan §3 T3; ADR-0001).
 // Glue is written to a temp directory and renamed into place so concurrent
 // readers never see a half-written artifact set (DEC-025 F-4 rider).
 // Each engine folder also receives `source-stamp.json`, the content stamp of

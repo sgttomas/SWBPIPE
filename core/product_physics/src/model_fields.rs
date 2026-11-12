@@ -223,7 +223,7 @@ pub(crate) struct RecordFields {
     pub(crate) mechanics_interface: &'static [&'static str],
     pub(crate) material: &'static [&'static str],
     pub(crate) temperature_point: &'static [&'static str],
-    // Model document 0.9.0's records.
+    // Model document 0.9.0's records (DEL-02-01 Design `model-document-0.9.0.md` §3.4).
     pub(crate) condition_set: &'static [&'static str],
     pub(crate) condition: &'static [&'static str],
     pub(crate) condition_values: &'static [&'static str],

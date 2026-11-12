@@ -39,7 +39,7 @@ APPLIER_RS = ROOT / "core" / "model_operations" / "operation_applier" / "src"
 # current version moves while the list still names the old one, so the next ripple
 # re-checks each site and cannot leave one silently at a retired version.
 EXTENDED_RS = (ROOT / "core" / "product_physics" / "src", ROOT / "core" / "reporting" / "result_export" / "src")
-# Re-checked at model document 0.9.0: each site below edited by
+# Re-checked at model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.5): each site below edited by
 # token, the counts unchanged.
 READER_TOKEN_VERSION = "0.9.0"
 READER_TOKEN_SITES = {
@@ -50,7 +50,7 @@ READER_TOKEN_SITES = {
     # `semantic_contract.rs` :508: the retired v2 contract's re-author text.
     "core/reporting/result_export/src/semantic_contract.rs": 1,
 }
-# The Python verifiers and validation tools that state a model version. Each
+# The Python verifiers and validation tools that state a model version (MD8 §5). Each
 # names the current version once, as a module-level `MODEL_VERSION` definition that every
 # gate and message reads; any other literal holding the current version, or naming a
 # model version in words, is refused. Docstrings and comments are free text.
@@ -294,7 +294,7 @@ def test_a_cfg_test_module_file_is_not_production_code():
 
 
 def test_python_verifiers_and_tools_name_the_version_only_through_their_definition():
-    """the Python verifiers and validation tools hold the current version only in
+    """MD8 §5: the Python verifiers and validation tools hold the current version only in
     their module-level `MODEL_VERSION` definitions, each current."""
     found, definitions = python_version_literals()
     assert not found, "\n".join(f"{where}: {kind}: {text}" for where, kind, text in found)

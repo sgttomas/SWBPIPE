@@ -125,7 +125,7 @@ def apply_mutation(base, mutation, *, rust_test_generator=False):
         # exact route's member-load decline. Preview remains the default.
         definition_hash = rp.EXACT_DEFINITION_HASH if value.get("producer", {}).get("semantic_contract_id") == rp.EXACT_CONTRACT_ID else rp.DEFINITION_HASH
         records = body.get("operand_preparations") if isinstance(body.get("operand_preparations"), list) else []
-        # the CaseSource preparation hashes. A CombinationSource has no
+        # B2-C REVISION_01 §5.2 (S-6), steps 1 and 2: the CaseSource preparation hashes. A CombinationSource has no
         # `preparation`, and an operand-prepared CaseSource's names its record, so both reads are guarded.
         for source in body["sources"]:
             preparation = source.get("preparation")
@@ -243,9 +243,9 @@ def _corpus_entries():
             yield entry["id"], source, invocation, entry.get("expected_eligibility")
 
 
-# Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on the
+# Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
 # registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] and the
+# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] (§10.2) and the
 # digests binding it; each restated to the former sentence and resealed (Python 07e) reproduces its former pin.
 MILESTONE_PINS = {
     "sparse_interactive": ("49dfe6ebab459bbfdb68a541080313199cc24f85e649f1bbfb005c5be155a567", [25, 69, 3, 1]),
@@ -1016,9 +1016,9 @@ def test_rv80_n2_integral_normalization_touches_only_the_receipt(monkeypatch):
 # ---------------------------------------------------------------------------------------------
 # PP's pinned L = 0 successor files (U8-1, `u8_l0_isolated_node_publishes_pinned_successor` at the U8
 # head): (file sha256, receipt sha256, class counts), the counts as all three readers observed them (I68).
-# Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on the
+# Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
 # registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] and the
+# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] (§10.2) and the
 # digests binding it; each restated to the former sentence and resealed (Python 07e) reproduces its former pin.
 L0_PINS = {
     "sparse_interactive": ("c51f7d8d537cba2d5858b24575e41f6dbb3cea13443d2b0bf3116b1dc61ae701",
@@ -1119,7 +1119,7 @@ def test_exact_baseline_fixture_alias_is_explicit_and_rejects_a_changed_id():
 
 
 # ---------------------------------------------------------------------------------------------
-# B1 SR-PY (I91; RV108 N2): reader-local tests on
+# B1 SR-PY (I91; PLAN_v2 §2.4; DESIGN_v2 §2 and §3.2-§3.3; RV108 N2): reader-local tests on
 # synthetic n-case receipts, derived from the shared two-case bases and 07j's must-pass entry. They
 # are not shared corpus entries: SC's 07n pins the shared ones (W-C2, `d38_beside_selected` with
 # m1-m8, F-1's five and `not_required`'s three).
@@ -1165,7 +1165,7 @@ def _b1_parity_row(case, row_id):
 
 
 def _d38_edits():
-    """R-D38 (4b) on F_BASE, as SC's `d38_beside_selected` rewrites W-C2's case C:
+    """R-D38 (4b) (DESIGN_v2 §2) on F_BASE, as SC's `d38_beside_selected` rewrites W-C2's case C:
     case 1 (unavailable, with its own registered CaseSource and a prepared attempt) failed its native
     stage before any Run, beside selected case 0. Its Run, `execution_order` entry and Call and Group
     entries go, the call's after-value and `charged` are recomputed (case 1's Run built nothing: it
@@ -1190,7 +1190,7 @@ def _d38_edits():
 def test_b1_d38_capture_before_any_run_beside_a_selected_case():
     """R-D38 (4b) beside a selected case is admitted: G0-G8 pass, the standing is needs_recompute and
     case 0's classifications are the base's. Before B1, Python refused it at G5 PRODUCT_ATTEMPT (an
-    entered native stage needed a Run). m1-m8 and the other (4b) conjuncts are refused,
+    entered native stage needed a Run). m1-m8 (DESIGN_v2 §2) and the other (4b) conjuncts are refused,
     each at this reader's first failure."""
     d38 = _d38_edits()
     assert _b1_verdict(F_BASE, d38) == ("admitted", False, "needs_recompute")
@@ -1292,7 +1292,7 @@ def _w2_published(index, tag="evaluation"):
 
 
 def test_b1_g5_not_required_admits_a_w2_published_case():
-    """G5's `not_required` rule (decision 9), on 07j's two-case statement (selected,
+    """G5's `not_required` rule (DESIGN_v2 §3.3, decision 9), on 07j's two-case statement (selected,
     then not_required): a W2-published case with the verdict checks_passed (T-4's case B), by an
     evaluation or a formation trigger, is admitted and the statement is eligible. Rust's three extra
     conjuncts (a Passed report, W2 untriggered) are not Python's rule. A non-null product attempt,
@@ -1317,7 +1317,7 @@ def test_b1_g5_not_required_admits_a_w2_published_case():
 
 
 def test_b1_g8_mode_row_and_requested_mode_for_every_case():
-    """F-1 text B's P1 and the requested mode, in G8's per-case loop: every case
+    """F-1 text B's P1 and the requested mode (DESIGN_v2 §3.2-§3.3), in G8's per-case loop: every case
     is checked, here the second one, unavailable (F_BASE) or not_required (07j). Before B1 Python
     checked neither, on any case."""
     fm = _b1_row(F_BASE, "linear_solver_mode_basis", UNAVAILABLE_ROW)

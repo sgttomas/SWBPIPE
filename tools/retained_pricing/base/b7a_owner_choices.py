@@ -41,7 +41,7 @@ SOURCE_RULE = "structural.rs:%d" % SOURCE_LINE
 # sparse.rs +40, retained_product.rs +6..+203, lib.rs +314/+356). U4B-W1 adds one mutually exclusive base recipe, the
 # NotCovered arm's `result:stress:{suffix}:{loc}:{tail}` (3398): 16 literal bytes + suffix 128 + location <= 9
 # ("quarter-1") + tail <= 20 ("transverse-shear-max") = 173 B, below the group's 338 B upper.
-# O4 S5 (§8.9): every snapshot line moved with unchanged text (structural.rs +3 from the
+# O4 S5 (retained-pricing-rules.md §8.9): every snapshot line moved with unchanged text (structural.rs +3 from the
 # retained_api re-exports; retained_product.rs +137 to +411 from the O4 sidecars and ProductCaseView's second lifetime,
 # bind_rows_subject's signature line among them). No recipe, error, source-copy or helper site changed.
 # Stack-headroom D3 (§8.10): freeze_combination carries +59 through the line map; its text and callers are unchanged.

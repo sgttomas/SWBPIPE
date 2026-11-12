@@ -6,6 +6,7 @@ import { unitCatalogFixture } from "../../test-support/unitCatalogFixture";
 import { useWorkspaceSession } from "../workspace/workspaceSession";
 import { ProjectUnitsDialog, type BlankProjectUnitsRequest } from "./ProjectUnitsDialog";
 
+// W-17 slice (a), DEL-02-02 Design `project-unit-selection.md` §3 "Units at creation".
 const route = vi.hoisted(() => ({ current: null as UnitCatalogRoute | null }));
 vi.mock("../../services/unitCatalogService", async (original) => ({
   ...await original<typeof import("../../services/unitCatalogService")>(),

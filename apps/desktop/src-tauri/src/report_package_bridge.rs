@@ -29,7 +29,7 @@ pub fn assemble_request(
     )
 }
 
-/// Route 010's producer entry: the admitting entry's preflight,
+/// Route 010's producer entry (§2.5 step 9): the admitting entry's preflight,
 /// the whole-request derivation from the bound basis (`inputs`, with `S` the
 /// request's own attested source) and the input manifest, then the shared
 /// producer under the user-release entry.

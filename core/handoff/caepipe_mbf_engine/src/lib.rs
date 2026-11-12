@@ -1,4 +1,4 @@
-//! CAEPIPE MBF engine: byte-faithful Rust ports
+//! CAEPIPE MBF engine (DEL-17-04 Design `desktop-mbf-export-import.md` §2, slices 2 and 3): byte-faithful Rust ports
 //! of the MBF importer `core/handoff/caepipe_mbf/importer.py` and the SI MBF writer
 //! `core/handoff/caepipe_mbf/si_writer.py`, for the desktop's native code and its wasm engine.
 //!
@@ -15,7 +15,7 @@
 //! instead of approximating it. The crate does no file I/O and depends on no reporting crate.
 //!
 //! A bound import with a format 2, 3, 4 or 6 sidecar ends with the regeneration identity: the SI writer regenerates the
-//! sidecar from the imported model and the given sidecar must equal it. The
+//! sidecar from the imported model and the given sidecar must equal it (Design `caepipe-mbf-import.md` §14). The
 //! crate's own writer ([`SiWriter`], [`regenerate_caepipe_sidecar`]) does this unless the caller supplies another
 //! [`SidecarRegenerator`]; and the writer's own preflight (`MBF-SI-PREFLIGHT-REFUSED`) is this crate's importer.
 //!
@@ -73,7 +73,7 @@ pub const REPORT_KIND: &str = importer::REPORT_KIND;
 pub const MBF_VERSION: &str = importer::MBF_VERSION;
 /// The sidecar formats the importer reads (legacy has no `sidecar_format`).
 pub const SIDECAR_FORMATS: [i64; 4] = sidecar::SIDECAR_FORMATS;
-/// The format the writer records for every export (Format 6).
+/// The format the writer records for every export (Design §15, Format 6).
 pub const SIDECAR_FORMAT: i64 = sidecar::SIDECAR_FORMAT;
 
 /// The writer sidecar as the caller has it.
@@ -182,7 +182,7 @@ pub const ASSUMPTION_ID_UNAVAILABLE: &str = "unavailable";
 /// Every structured assumption identifier the importer records ([`AssumptionFact::id`]).
 pub const ASSUMPTION_IDS: [&str; 16] = importer::ASSUMPTION_IDS;
 
-/// The importer's identity-recovery accounting, counted at
+/// The importer's identity-recovery accounting (DEL-17-04 Design `desktop-mbf-export-import.md` §5.3), counted at
 /// the emissions that report it: Python `IdentityRecoveryFacts`. Fixed-size producer facts for the bounded review,
 /// not part of `to_dict()`, the report, the model or the id map. Neither count establishes that the original source
 /// was completely represented; the exchange never establishes that.
@@ -198,7 +198,7 @@ pub struct IdentityRecoveryFacts {
     pub unrecovered_fields: u64,
 }
 
-/// A format-6 sidecar's `derivation.export_settings` (Format 6): the writer inputs
+/// A format-6 sidecar's `derivation.export_settings` (Design `caepipe-mbf-import.md` §15, Format 6): the writer inputs
 /// outside the model document that can change the MBF bytes, as the writer used them. Python `SidecarExportSettings`.
 #[derive(Clone, Debug, PartialEq)]
 pub struct SidecarExportSettings {
@@ -212,7 +212,7 @@ pub struct SidecarExportSettings {
     pub piping_code: Option<String>,
 }
 
-/// A bound format-6 sidecar's `derivation` (Format 6), as the sidecar declares it:
+/// A bound format-6 sidecar's `derivation` (Design `caepipe-mbf-import.md` §15, Format 6), as the sidecar declares it:
 /// the SHA-256 of the canonical model document the writer read, and the export settings. Held at the sidecar's
 /// source-free trust level for a later check against a designated source document; the import neither verifies nor
 /// uses it. Python `SidecarDerivation`.
@@ -369,7 +369,7 @@ pub fn sidecar_self_digest(sidecar: &Value) -> Result<String, (String, String)> 
 }
 
 /// si_writer `model_canonical_bytes(model)` as a SHA-256: the digest a format-6 sidecar records as
-/// `derivation.source_model_sha256` for the model document the writer read (Format 6), or the path and
+/// `derivation.source_model_sha256` for the model document the writer read (Design §15, Format 6), or the path and
 /// reason that leave the document without a canonical form. A document beyond [`value::MAX_VALUE_NESTING`] has none
 /// here: `("model", reason)`.
 pub fn model_canonical_sha256(model: &Value) -> Result<String, (String, String)> {

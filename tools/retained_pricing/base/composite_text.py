@@ -109,7 +109,7 @@ summary = struct("RecoverySummary", [(f, U) for f in ["dofs", "stiffness_contrib
                  "support_components", "published_nodal_components", "functional_count", "dof_projection_count"]]
                  + [(f, F64D) for f in ["max_absolute_projection_error", "max_relative_projection_error", "relative_limit"]]
                  + [("work", work_report)])
-ERR = 8192                                               # error Display bound
+ERR = 8192                                               # error Display bound (TEXT.md §3)
 formation_check_line = max(120 + dof_label + 3 * F64D, 70 + 30 + ERR)
 range_entry = 2 + max(9 + 600 + 600 + 60, 64 + 600 + 24)
 range_line = 80 + 20 + 6 * range_entry + 30              # NAMED = 6 entries + "more=" (PP lib.rs:1754-1768)

@@ -250,7 +250,7 @@ function AppSession() {
     requestSaveShareableReportPackage,
     userReleaseRequest
   } = session.results;
-  // Save Report Package…:
+  // Save Report Package… (DEL-08-01 Design `report-package-current-results.md` §2.1):
   // enablement is synchronous, the output policy's route gate plus the presence
   // checks below. The builder's own refusals (admission, rule-check binding, rule
   // packs) are shown in the report panel's status line after an attempt.
@@ -359,7 +359,7 @@ function AppSession() {
     exposeViewportForNarrowInteraction,
     toggleWorkspaceRail
   } = session.chrome;
-  // "Show solver diagnostic": the Issues drawer's
+  // "Show solver diagnostic" (DEL-07-05 numerical health §3): the Issues drawer's
   // Diagnostics panel opens filtered to exactly that diagnostic, once.
   const { filterRequest: diagnosticFilterRequest, requestDiagnosticFilter } = useDiagnosticFilterRequest({ issuesDrawerOpen, result, analysisRun });
   // A6 (DEL-07-05 Design `key-results-panel.md`): the key-results panel's open state, auto-open

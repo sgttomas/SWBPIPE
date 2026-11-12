@@ -231,7 +231,7 @@ def _user_release_route_decision(
     explicit_local_private_intent: bool,
     explicit_user_release_intent: bool,
 ) -> LocalFirstRouteDecision:
-    """Route 010 in ``user_released_report``."""
+    """Route 010 in ``user_released_report`` (§3.3)."""
 
     if not explicit_user_release_intent:
         return LocalFirstRouteDecision(

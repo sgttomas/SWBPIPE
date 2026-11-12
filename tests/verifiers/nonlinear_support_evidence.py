@@ -133,7 +133,7 @@ class _Support:
         # The published final displacement in the row's unit (mm or rad).
         self.displacement, self.reaction = displacement, reaction
         self.normal, self.source = normal, source
-        # the bound relative displacement from a moved ground.
+        # R-4 §3.7 S6: the bound relative displacement from a moved ground.
         self.relative = relative
 
 
@@ -192,7 +192,7 @@ def _read_case(source: Mapping, case: str) -> _Case:
     _require(bool(mode) and " " not in mode, "LOOP")
     for row in nonlinear:
         _require(_kind(row) in PER_SUPPORT or _get(row, "entity_ref") == LOOP_ENTITY, "ROWS")
-    # the moved grounds the case's load/reference-state record
+    # R-4 §3.7 S6: the moved grounds the case's load/reference-state record
     # states (the Rust module docs), as (support id, DOF token, value in m or rad).
     grounds: list[tuple[str, str, float]] = []
     for record in _items(_get(source, "contract_evidence", "load_reference_states")):
@@ -233,7 +233,7 @@ def _read_case(source: Mapping, case: str) -> _Case:
         # Some node's published row (association, not ownership; Rust module docs).
         _require(any(_kind(r) == NODAL[dof] and _get(r, "unit") == length and _bits(_value(r)) == _bits(_value(displacement[0]))
                      for r in in_case), "DISPLACEMENT")
-        # the relative row exists exactly for a moved ground.
+        # R-4 §3.7 S6: the relative row exists exactly for a moved ground.
         relatives = mine(RELATIVE)
         ground = next((x for x in grounds if x[0] == sid), None)
         relative = None

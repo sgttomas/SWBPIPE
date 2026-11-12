@@ -1,4 +1,4 @@
-//! The zero-scale floor check (V1-S8, F2).
+//! The zero-scale floor check (T3 D1 §4.10, V1-S8, F2; plan §7).
 //!
 //! S\* per kind is formed from the case's reference values by D1 §4.1.6.1
 //! items 4–6, in binary64 and in the stated order: S(kind) is the largest
@@ -11,7 +11,7 @@
 use crate::cases::{Case, Model, Row};
 use std::collections::BTreeMap;
 
-/// R = 2^-34 (bits `0x3DD0000000000000`).
+/// R = 2^-34 (D1 §4.1.6, bits `0x3DD0000000000000`).
 pub const R_BITS: u64 = 0x3DD0_0000_0000_0000;
 
 pub fn r() -> f64 {
@@ -102,7 +102,7 @@ fn kind_index(kind: &str) -> Option<usize> {
         .position(|k| *k == kind)
 }
 
-/// L_b from the body's node coordinates.
+/// D1 §4.1.6.1 item 5: L_b from the body's node coordinates.
 pub fn body_extent(nodes: &[[f64; 3]]) -> f64 {
     let mut d = [0.0f64; 3];
     for (a, slot) in d.iter_mut().enumerate() {

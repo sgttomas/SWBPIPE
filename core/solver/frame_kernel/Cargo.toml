@@ -12,7 +12,7 @@ path = "src/lib.rs"
 open_pipe_stress_correct_norm = { path = "../../numerics/correct_norm" }
 
 [features]
-# V-K's seeded faults: only numerical_robustness's mutation run
+# V-K's seeded faults (T3 D1 §4.10): only numerical_robustness's mutation run
 # enables this, through its own `seeded-faults` feature; no product manifest
 # may name it (numerical_robustness's feature-guard test).
 mutation-controls = []

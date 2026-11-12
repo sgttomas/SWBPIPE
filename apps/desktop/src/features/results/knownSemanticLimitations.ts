@@ -1,4 +1,4 @@
-/** Frozen T0R notices, gate reasons and standing reasons.
+/** Frozen T0R notices, gate reasons and standing reasons (S1_INTERFACE §10).
  * Text only. N-A: these strings are UI labels and reasons; they are never
  * written into an exported results or stress-neutral document or its manifest. */
 import { PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID, PRESSURE_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID, isRetainedIdentity, isRetainedRoute } from "./numericalResultQuality";
@@ -13,13 +13,13 @@ import { derivedRowNote } from "../viewport/resultColourOverlay";
  * U6d (D-U6-6; D2 4.7 S-1) adds the F2a preview successor: membership is not
  * standing, which comes only from the accepted reader's registered validation.
  * B7b removed the retired v2 identities (physics-1, physics-source-1 and T1's
- * load-reference-1 and load-reference-source-1). Epoch 8
- * adds pressure-2 and pressure-source-1, so the set
+ * load-reference-1 and load-reference-source-1). Epoch 8 (DEL-04-07 Design
+ * `desktop-exact-outputs.md` §4.1) adds pressure-2 and pressure-source-1, so the set
  * equals Rust's `FRESH_IDENTITIES`; their outputs are governed per surface by
  * `outputPolicy.ts`. */
 export const FRESH_SEMANTIC_CONTRACT_IDS: readonly string[] = Object.freeze([
   PREVIEW_PHYSICS_CONTRACT_ID,
-  // the pressure-free Timoshenko identity (Rust's set too).
+  // DEL-05-03 pf-timoshenko.md §4: the pressure-free Timoshenko identity (Rust's set too).
   PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID,
   PRESSURE_SOURCE_CONTRACT_ID,
   PRESSURE_CONTRACT_ID,
@@ -36,7 +36,7 @@ export const COMBINATION_GATE_REASONS: Readonly<Record<string, string>> = Object
   COMBINATION_MODULUS_BASIS_MIXED: "Combination withheld: its load cases were solved on different modulus bases.",
 });
 
-/** RT-A5: each admitted `minuend_final` combination's held standing, as its evidence states it.
+/** RT-A5 (§7.6): each admitted `minuend_final` combination's held standing, as its evidence states it.
  * Reads `contract_evidence` only, which a C1 native handle carries in S's header (as
  * `previewCombinationGates`), so a native handle gives the whole value's standings. */
 export function heldStatusStandings(source: MechanicsResult | NativeResult): { combination_id: string; kind: string; reason: string }[] {
@@ -52,7 +52,7 @@ export function heldStatusStandings(source: MechanicsResult | NativeResult): { c
 
 export const PREVIEW_INTENSIFIED_KIND = "component_equal_factor_intensified_bending_stress_v1";
 export const PREVIEW_MAXIMUM_KIND = "pipe_elastic_normal_stress_maximum_v2";
-/** R-6/R-7 S-K1: a skewed support's reaction along its
+/** R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §7.1): a skewed support's reaction along its
  * stored direction. A known kind with its own row label and notice; it is not a global component,
  * so the reaction overlay (`REACTION_COMPONENT_KIND`) never draws it. */
 export const PREVIEW_ALONG_DIRECTION_KIND = "support_reaction_along_direction_v1";
@@ -67,7 +67,7 @@ export function alongDirectionDerivedLabel(note: string): string {
  * before S-I. They never demote the envelope's standing. */
 export const RULE_QUANTITY_BELOW_VERIFIED_FLOOR = "RULE_QUANTITY_BELOW_VERIFIED_FLOOR";
 export const RULE_QUANTITY_NOT_COVERED = "RULE_QUANTITY_NOT_COVERED";
-/** W-15 slice d: the binding refusal of a component body's row. */
+/** W-15 slice d (DEL-03-05 Design §5): the binding refusal of a component body's row. */
 export const COMPONENT_BODY_REFERENCE_SECTION = "COMPONENT_BODY_REFERENCE_SECTION";
 /** D2 4.9.9 notice texts (before S-I). `{b}` is the receipt's published absolute
  * bound and `{unit}` the SI unit the reader classified the quantity in. */

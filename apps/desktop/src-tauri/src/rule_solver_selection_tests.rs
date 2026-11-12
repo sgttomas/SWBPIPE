@@ -65,7 +65,7 @@ fn load_case(id: &str) -> BasisRef {
     BasisRef::new("load_case", id)
 }
 
-/// in every committed result and witness envelope, every row that has a
+/// §5: in every committed result and witness envelope, every row that has a
 /// `basis_ref` is selected by exactly one selector within its basis, its own
 /// (the connector reader corpus included).
 #[test]
@@ -229,7 +229,7 @@ fn tie_rod_matcher_agrees_with_the_reader_binding_on_the_corpus() {
     assert!(checked >= 6, "{checked} rod rows");
 }
 
-/// two tie rods of one connector are selected separately; without
+/// §5: two tie rods of one connector are selected separately; without
 /// `tie_rod` neither is selected (an absent member matches only a row without
 /// a rod).
 #[test]
@@ -636,7 +636,7 @@ fn selection_is_stable_when_the_envelope_rows_are_reordered() {
     assert_eq!(forward.solver_results.len(), 3);
 }
 
-/// a retained row that `rule_binding_refusal` refuses is refused on its
+/// §2.5: a retained row that `rule_binding_refusal` refuses is refused on its
 /// basis, with the reader's reason, and never bound; the shared helper is the
 /// gate, applied per matched row.
 #[test]

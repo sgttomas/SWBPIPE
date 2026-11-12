@@ -83,7 +83,7 @@ export function StressNeutralExportPanel({
   const currentFingerprint = liveStressBinding(model, result, analysisRun);
   const outputRefusal = surfaceOutputRefusal(result, model, "stress-neutral");
   const retainedSummary = retainedPrecisionSummaryLine(result, model);
-  // Epoch 8: shown only while the live
+  // Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §5.4): shown only while the live
   // binding admits the result.
   const loadReferenceLine = currentFingerprint !== null ? loadReferenceDisclosure(result, "stress-neutral") : null;
   const currentPacket = binding?.[0] === model && binding?.[1] === result && binding?.[2] === analysisRun
@@ -611,7 +611,7 @@ export async function validateStressNeutralExportPacket(packet: any, source?: Me
     if (analysisRun !== undefined) await validateAnalysisRunV03(analysisRun, source, expectedBasisRefs);
     const same = async (a: unknown, b: unknown) => a !== undefined && b !== undefined && await canonicalSha256HexCheckedV1(a) === await canonicalSha256HexCheckedV1(b);
     for (const key of ["producer", "numerical_quality", "formulation_basis"] as const) if (!await same(packet[key], source[key])) throw new Error("SN-PRECISION-SOURCE-METADATA-MISMATCH");
-    // Epoch 8: the receipt is present and equal on pressure-source-1 only.
+    // Epoch 8 (design §4.3): the receipt is present and equal on pressure-source-1 only.
     if (sourceContract(source) === "pressure_source") {
       if (!Object.hasOwn(packet, "source_block_recovery")) throw new Error("SN-SOURCE-RECOVERY-CONTRADICTION");
       if (!await same(packet.source_block_recovery, source.source_block_recovery)) throw new Error("SN-SOURCE-BLOCK-RECEIPT-MISMATCH");
@@ -927,7 +927,7 @@ const SEMANTIC_TABLE_FILES: Readonly<Record<Exclude<SourceContract, "unsupported
   retained_physics: "semantic_contract_v0_3_physics_retained_1.json",
   pressure_source: "semantic_contract_v0_3_pressure_source_1.json", pressure: "semantic_contract_v0_3_pressure_2.json",
 });
-/** the preview route's table by the source's identity. */
+/** DEL-05-03 `pf-timoshenko.md` §4: the preview route's table by the source's identity. */
 const PREVIEW_IDENTITY_TABLE_FILES: Readonly<Record<string, string>> = Object.freeze({
   [PREVIEW_PHYSICS_CONTRACT_ID]: "semantic_contract_v0_3_preview_physics_2.json",
   [PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID]: "semantic_contract_v0_3_preview_physics_timoshenko_1.json",
@@ -953,7 +953,7 @@ async function validateNeutralTransportEvidence(header: MechanicsResult, source?
     // shallow source-recovery check omits raw-row validation.
     if (source !== undefined) readerValidate("pressure-source", source);
   }
-  // Epoch 8: pressure-2 has no transport reader, so its package is read
+  // Epoch 8 (design §3, §4.3): pressure-2 has no transport reader, so its package is read
   // through its supplied source, as Python reads it; the source bindings above tie every
   // copied member to it. Without a source, Rust refuses by name
   // (SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED).

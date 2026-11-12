@@ -284,7 +284,7 @@ pub(crate) fn admit_model_document_text_screened_with<V: std::borrow::Borrow<Val
 }
 
 /// The admission's checks before the screening, without route evidence or the disposition screen (the MBF export
-/// review): the 64 MiB cap, the canonical text,
+/// review, DEL-17-04 `desktop-mbf-export-import.md` §3.9.5: §3.6 steps 2 and 3): the 64 MiB cap, the canonical text,
 /// its hash against the claim, and the open path's checks. Returns the canonical text.
 #[cfg_attr(not(test), allow(dead_code))] // Slice 4b.2 registers the MBF review command that calls it.
 pub(crate) fn admit_model_document_text_unscreened(

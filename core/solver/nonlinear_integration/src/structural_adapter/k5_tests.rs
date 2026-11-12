@@ -1,4 +1,4 @@
-//! K5 adapter tests (W4; ROOT's K5 rulings Q1(b),
+//! K5 adapter tests (T3 D1 revision 5a.2 §4.9, W4; ROOT's K5 rulings Q1(b),
 //! Q2(b), Q5(a) and Q7(a)): the constrained-body witness runs in the four
 //! selected branches of the formation-checked entries only.
 //!
@@ -881,7 +881,7 @@ fn k5_w4_entry_is_named_only_in_the_four_selected_bodies() {
     let control = strip_cfg_test(&lex("// constrained_geometry(\nlet s = \"constrained_geometry(\";\n#[cfg(test)]\nmod t { fn f() { constrained_geometry(); } }\nfn g() { x.constrained_geometry(a); }"));
     assert_eq!(tokens(&control, "constrained_geometry"), 1);
     let code = strip_cfg_test(&lex(include_str!("../structural_adapter.rs")));
-    // the nonlinear route's
+    // R2 (DEL-04-01 kd5-nonlinear-active-set.md §1.5): the nonlinear route's
     // confirmation entry is a fifth formation-checked body and screens its
     // converged state with W4 like the other four; RT-A3 P step 5 adds its
     // pattern sibling, which screens the same way.
@@ -1228,7 +1228,7 @@ fn k5_basis_text_and_family_flag_are_unchanged() {
                     .unwrap()
                     .ends_with(MIXED));
                 if solution.formation_check.is_none() {
-                    // K-D5: a
+                    // K-D5 (DEL-04-01 kd5-member-relative-bound.md §7): a
                     // check that runs and passes returns its recovery-only
                     // `member_bound` beside the unchanged report; the plain
                     // entry runs no check. Everything else is the plain outcome.
@@ -1262,7 +1262,7 @@ fn selected_is_unselected(m: &Model, sources: &[CurvedBendMacroElement], what: &
     }
 }
 
-/// RV14-2 (Q2(b)): two matched bends meet at node 1, which
+/// RV14-2 (Q2(b), RETURN §2.3 Step 2): two matched bends meet at node 1, which
 /// no frame or connector touches, and their macro sources disagree on it:
 /// A ends at (0.25, 0.25, 0), B starts at (0.5, 0.25, 0). W4 takes a
 /// curved-only node's coordinates from its matched sources, so they must agree

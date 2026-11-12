@@ -1,7 +1,7 @@
-//! PF Timoshenko at the public value
+//! PF Timoshenko (DEL-05-03 Design `pf-timoshenko.md` §§2–5) at the public value
 //! entry, in both solver modes: each refusal and warning by name, admission
-//! following consumption, the named arc disclosure
-//! and its bound, the result identity on blocked envelopes, and the
+//! following consumption (§2, "Construction boundary"), the named arc disclosure
+//! and its bound (§4), the result identity on blocked envelopes, and the
 //! geometry-only bend's straight-member rows. The documents are the frozen
 //! `validation/references/pf_timoshenko` requests used as templates and changed
 //! in memory; no expected value here is a reference row (those are judged in
@@ -10,7 +10,7 @@ use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode
 use serde_json::{json, Value};
 use std::collections::BTreeMap;
 
-// Model document 0.9.0: the frozen 0.8.0 requests keep their
+// Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.6): the frozen 0.8.0 requests keep their
 // bytes; each parsed copy is re-authored to the current version by its token (common/current_model.rs).
 #[path = "common/current_model.rs"]
 mod current_model;
@@ -113,7 +113,7 @@ fn case_values(envelope: &Value, case: &str) -> BTreeMap<(String, String, String
 
 // ---------------------------------------------------------------- refusals
 
-/// a wind exposed span (a partial-span member load) on a Timoshenko straight member is
+/// §3: a wind exposed span (a partial-span member load) on a Timoshenko straight member is
 /// refused by name, naming the member and the load, before any solve. The Euler–Bernoulli
 /// twin and a whole-span marking on the Timoshenko document both solve.
 #[test]
@@ -146,7 +146,7 @@ fn a_partial_span_on_a_timoshenko_member_is_refused_by_name() {
     }
 }
 
-/// ν = E/(2G) − 1 outside the factor's range blocks the solve by name, naming the member,
+/// §2: ν = E/(2G) − 1 outside the factor's range blocks the solve by name, naming the member,
 /// the material, the consuming cases and the basis; there is no default factor. The
 /// Euler–Bernoulli twin forms no factor and solves.
 #[test]
@@ -168,7 +168,7 @@ fn an_out_of_range_shear_factor_blocks_by_name() {
     }
 }
 
-/// an authored `poisson_ratio` that differs from E/(2G) − 1 by more than 1e-6 of the larger
+/// §2: an authored `poisson_ratio` that differs from E/(2G) − 1 by more than 1e-6 of the larger
 /// magnitude is disclosed (not consumed): one warning per material and basis. Equal values,
 /// two zeros and a difference inside the threshold give none; an Euler–Bernoulli document none.
 #[test]
@@ -210,7 +210,7 @@ fn the_authored_poisson_ratio_warning_follows_its_threshold() {
     }
 }
 
-/// an authored objective connector keeps PF's existing refusal on a Timoshenko document.
+/// §3: an authored objective connector keeps PF's existing refusal on a Timoshenko document.
 #[test]
 fn an_objective_connector_keeps_its_refusal_on_a_timoshenko_document() {
     let mut request = template(CANTILEVER);
@@ -256,7 +256,7 @@ fn plain(elastic: f64, shear: f64, mode: PreviewSolverMode) -> Value {
     envelope
 }
 
-/// a base basis whose ν is out of range (E 210 GPa, G 60 GPa: ν = 0.75) does not block a
+/// §2: a base basis whose ν is out of range (E 210 GPa, G 60 GPa: ν = 0.75) does not block a
 /// document whose every case selects a temperature point, by name and by interpolation,
 /// with a nonlinear support. The seed is never solved; each case solves on its own basis,
 /// with the same row values as a document authoring that basis's moduli as its base.
@@ -279,7 +279,7 @@ fn an_unconsumed_out_of_range_base_does_not_block_named_or_interpolated_selectio
     }
 }
 
-/// a consumed base basis whose ν is out of range blocks by name, naming only the cases
+/// §2: a consumed base basis whose ν is out of range blocks by name, naming only the cases
 /// that consume it.
 #[test]
 fn a_consumed_out_of_range_base_blocks_naming_its_cases() {
@@ -294,7 +294,7 @@ fn a_consumed_out_of_range_base_blocks_naming_its_cases() {
     }
 }
 
-/// a document whose cases consume both the base and a selected basis solves each case on
+/// §2: a document whose cases consume both the base and a selected basis solves each case on
 /// its own basis; the authored-ν warning is local to each basis and names its cases.
 #[test]
 fn the_base_and_a_selected_basis_are_each_consumed_by_their_own_cases() {
@@ -317,7 +317,7 @@ fn the_base_and_a_selected_basis_are_each_consumed_by_their_own_cases() {
     }
 }
 
-/// an out-of-range selected basis blocks by name, naming its basis and only its cases; the
+/// §2: an out-of-range selected basis blocks by name, naming its basis and only its cases; the
 /// Euler–Bernoulli twin solves.
 #[test]
 fn an_out_of_range_selected_basis_blocks_by_name() {
@@ -353,7 +353,7 @@ fn near_minus_one(elastic_gpa: f64, shear_gpa: f64) -> Value {
     request
 }
 
-/// κ_E is formed from E and G without 1 + ν, so ν within ulps of −1 keeps the
+/// §2: κ_E is formed from E and G without 1 + ν, so ν within ulps of −1 keeps the
 /// factor's accuracy. The review's model published UY 55.6% low through the re-formed
 /// 1 + ν; it now agrees with the review's independent exact value. At E/(2G) = 2^-54
 /// the binary64 ν = E/(2G) − 1 rounds to −1 and the unchanged range check refuses it.
@@ -389,7 +389,7 @@ fn nu_within_ulps_of_minus_one_keeps_the_factor_accurate() {
 
 // ------------------------------------------------------------- arc disclosure
 
-/// a Timoshenko result with a realized arc names it once; a result without one, and an
+/// §4: a Timoshenko result with a realized arc names it once; a result without one, and an
 /// Euler–Bernoulli result with one, carry no such diagnostic.
 #[test]
 fn realized_arcs_are_disclosed_once_and_only_on_a_timoshenko_result() {
@@ -412,7 +412,7 @@ fn realized_arcs_are_disclosed_once_and_only_on_a_timoshenko_result() {
     }
 }
 
-/// forty realized arcs: every arc is referenced, the first 32 in code-point order are
+/// §4: forty realized arcs: every arc is referenced, the first 32 in code-point order are
 /// named, the rest counted, and the message stays within 1,000 Unicode scalar values.
 #[test]
 fn more_than_32_arcs_are_named_up_to_the_bound_and_counted() {
@@ -479,7 +479,7 @@ fn more_than_32_arcs_are_named_up_to_the_bound_and_counted() {
 
 // --------------------------------------------------------- geometry-only bend
 
-/// a geometry-only bend is analysed as its mapped straight frame, so on a Timoshenko
+/// §1: a geometry-only bend is analysed as its mapped straight frame, so on a Timoshenko
 /// document it gives the same rows as its plain straight twin (the bend component removed),
 /// and it is not a realized arc.
 #[test]

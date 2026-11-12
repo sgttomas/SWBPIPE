@@ -21,7 +21,7 @@ mod twin;
 mod current_model;
 
 /// **TEST-LOCAL, NON-PRODUCTION bound.** D-TOL (the weight-basis identity
-/// tolerance) is experimental and unpinned: this pair exists only
+/// tolerance, Design §2.5) is experimental and unpinned: this pair exists only
 /// for these tests' assertions. It is not an admission tolerance, it pins
 /// nothing, and no production path reads it.
 pub(super) const TEST_LOCAL_IDENTITY_BOUND: IdentityTolerance = IdentityTolerance { relative: 1e-12, absolute: 0.0 };

@@ -37,7 +37,7 @@ while todo:
         if w not in reach:
             reach.add(w); todo.append(w)
 
-# RT-A4 D3 (§8.46, RT-A4-TK): `token` joins the names. evaluate_values copies each operand's
+# RT-A4 D3 (retained-pricing-rules.md §8.46, RT-A4-TK): `token` joins the names. evaluate_values copies each operand's
 # token (an operand id or its position) with `token.clone()` where the deleted preview evaluate_values used
 # `case.to_string()`; without the name the three String copies per operand would be read as data clones.
 TEXT_NAMES = re.compile(

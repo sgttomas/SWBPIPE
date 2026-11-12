@@ -29,7 +29,7 @@ SOURCES = {
 # W1-L5: unchanged error owners/sites/callers after aggregation shift +2.
 # T4-S5 (epoch): every owner, site and caller moved with unchanged text (lib.rs +177/+314; retained_product.rs
 # +5/+27/+95/+203); no owner gains a caller.
-# O4 S5 (§8.9): every owner, site and caller moved with unchanged text (lib.rs +3; retained_product.rs
+# O4 S5 (retained-pricing-rules.md §8.9): every owner, site and caller moved with unchanged text (lib.rs +3; retained_product.rs
 # +61/+167/+303/+412). prepared_maxima calls exact_straight_summary_extrema once more for a distinct-basis member's
 # reduced maximum (the same caller node; the chain counts its multiplicity); no owner gains a caller.
 # Stack-headroom D3 (§8.10): combination_observables carries +59 through the line map; its text and callers are unchanged.

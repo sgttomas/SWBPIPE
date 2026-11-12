@@ -29,6 +29,7 @@ import {
   rotationalStiffnessFieldDefault
 } from "./projectUnitSelection";
 
+// W-17 slice (a), DEL-02-02 Design `project-unit-selection.md` §2.1-2.4 and §4.
 const AT = new Date("2026-06-12T00:00:00Z");
 const CATALOG: UnitCatalogRoute = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
 const PREVIEW: UnitCatalogRoute = { route: "unavailable_browser_preview", diagnostic: "UNIT-CATALOG-DESKTOP-ONLY: fixture" };
@@ -224,6 +225,7 @@ describe("the catalog fixture against the core unit engine", () => {
   });
 });
 
+// W-17 slice (c), DEL-02-02 Design §7.2, §7.3, §7.6.
 describe("slice (c) field defaults", () => {
   it("project temperature: the stored symbol, C as degC, and \"\" for an absent, empty, whitespace-only or non-string key", () => {
     expect(projectTemperatureDefault({ temperature: "degF" })).toBe("degF");

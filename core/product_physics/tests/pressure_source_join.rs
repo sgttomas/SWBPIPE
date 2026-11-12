@@ -511,7 +511,7 @@ const CURRENT_SOURCE_BASIS: [(Family, &str, &str, PreviewSolverMode, usize, &str
     (Family::LoadReference, "mixed", "97556596c03da64534ff962bd7d3a07100702e6e867dffe200a46d5e72c9977b", PreviewSolverMode::SparseInteractive, 376271, "93095b19c2ca86d9bf5339f999c23b102756533c6dca51f997342ff7b7cd740f"),
     (Family::LoadReference, "mixed", "97556596c03da64534ff962bd7d3a07100702e6e867dffe200a46d5e72c9977b", PreviewSolverMode::DenseScrutiny, 376252, "4032596e511b534ee8235a3d849a30b8918894beb41e0a91d49c05cfe3871819"),
 ];
-// the ten load/reference-state publications restate S13 and S15 (the uniform ordinary load-state
+// RT-A3 S6 (§3.7): the ten load/reference-state publications restate S13 and S15 (the uniform ordinary load-state
 // motion and history limitations; +465 B each) and re-seal; every other byte is unchanged (the S6 text-only guard).
 
 /// MJ6's kill (B7b meaning): changing the established source work limit

@@ -349,7 +349,7 @@ pub(crate) fn assemble_report_package_container_in(
     }
 
     // State/comparison/handoff report-section members (DEL-08-06). A
-    // user-released package carries none.
+    // user-released package carries none (W-18b §2.1, §2.8).
     if record_value.is_some() {
         if !input.state_comparison_handoff_records.is_empty() {
             blocking_reasons.push(format!(
@@ -753,14 +753,14 @@ pub(crate) struct ManifestFields<'a> {
     pub(crate) source_basis_refs: &'a [PackageRef],
     pub(crate) export_blocked: bool,
     pub(crate) blocking_reasons: &'a [String],
-    /// The caller's user-release record, without
+    /// The caller's user-release record (W-18b §2.3), without
     /// `content_binding`: the manifest writes it with the binding over
     /// `members`. `None` for every other package.
     pub(crate) user_release: Option<&'a Value>,
 }
 
 /// The package manifest's boundary notes: the three of every package, or,
-/// with a user-release record, the user-released set.
+/// with a user-release record, the user-released set (W-18b §5.3).
 fn boundary_notes(user_released: bool) -> Value {
     if user_released {
         json!([
@@ -856,7 +856,7 @@ pub(crate) fn package_manifest_document(
             "software_makes_authentication_claim": false
         }
     });
-    // the caller's record plus the binding of every other member,
+    // W-18b §2.3: the caller's record plus the binding of every other member,
     // written only when present.
     if let Some(record) = fields.user_release {
         let mut record = record.clone();

@@ -41,7 +41,7 @@ pub const D5_STRESS_KINDS: [&str; 8] = [
     "pipe_lame_hoop_stress_v2",
     "pipe_elastic_normal_stress_maximum_v2",
 ];
-/// The two section bases, nominal first.
+/// The two section bases, nominal first (Design §2.5).
 pub const BASES: [&str; 2] = ["nominal_section", "reduced_section"];
 
 pub fn number(value: &Value) -> f64 {

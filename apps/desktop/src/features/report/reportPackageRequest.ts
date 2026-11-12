@@ -15,7 +15,7 @@ import type { ReportComposition } from "./reportComposition";
 // admits `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS`, and the producer's Rust boundary admits
 // the same three identities. The retained successors stay refused by the cell.
 //
-// `buildReportPackageRequest` is the cell check followed by the
+// W-11 (§3.1, §3.5, §5.5): `buildReportPackageRequest` is the cell check followed by the
 // assembly with the production admitted set. An exact source is assembled from its
 // Export Result JSON admission (whose document is the result member, so the package and
 // the report name one admission), and `reportPackageExactSubmission` re-checks it
@@ -50,7 +50,7 @@ import { currentLibraryRefFindings } from "../library/libraryRefFindings";
 
 /** The desktop's export profile (`report_package::bindings::DESKTOP_PROFILE`). */
 export const REPORT_PACKAGE_DESKTOP_PROFILE = "desktop_local_private_report_package_1";
-/** The user-released export profile (W-18b,
+/** The user-released export profile (W-18b, DEL-08-01 Design `report-user-release.md` §2.1;
  * `report_package::user_release::USER_RELEASED_DESKTOP_PROFILE`). */
 export const REPORT_PACKAGE_USER_RELEASED_PROFILE = "desktop_user_released_report_package_1";
 /** The result document's identity is not one the package admits. */
@@ -61,18 +61,18 @@ export const REPORT_PACKAGE_ROUTE_NOT_ADMITTED = "REPORT-PACKAGE-ROUTE-NOT-ADMIT
  * owner, 2026-10-26). */
 export const REPORT_PACKAGE_ADMITTED_CONTRACT_IDS: readonly string[] = Object.freeze([
   PREVIEW_PHYSICS_CONTRACT_ID,
-  // the pressure-free Timoshenko identity, with its projection.
+  // DEL-05-03 pf-timoshenko.md §4: the pressure-free Timoshenko identity, with its projection.
   PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID,
   PRESSURE_CONTRACT_ID,
   PRESSURE_SOURCE_CONTRACT_ID,
 ]);
 /** The rule-check aggregate, the rule-check run and the analysis record do not name one rule check. */
 export const REPORT_PACKAGE_RULE_CHECK_BINDING_MISMATCH = "REPORT-PACKAGE-RULE-CHECK-BINDING-MISMATCH";
-/** A rule-pack checksum whose declared pair has no audit basis the package can name. */
+/** A rule-pack checksum whose declared pair has no audit basis the package can name (§2.4). */
 export const REPORT_PACKAGE_RULE_PACK_CHECKSUM_BASIS_UNSUPPORTED = "REPORT-PACKAGE-RULE-PACK-CHECKSUM-BASIS-UNSUPPORTED";
-/** The package's rule packs (the rule-check run's) are not the packs the solve recorded. */
+/** The package's rule packs (the rule-check run's) are not the packs the solve recorded (§2.5). */
 export const REPORT_PACKAGE_RULE_PACKS_DISAGREE = "REPORT-PACKAGE-RULE-PACKS-DISAGREE";
-/** The report's result rows are not the source rows' projection. */
+/** The report's result rows are not the source rows' projection (§2.3 item 6). */
 export const REPORT_PACKAGE_REPORT_ROWS_MISMATCH = "REPORT-PACKAGE-REPORT-ROWS-MISMATCH";
 
 const RULE_TOKENS = new Set(["RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED"]);
@@ -85,10 +85,10 @@ const PROFESSIONAL_BOUNDARY = {
   software_makes_authentication_claim: false
 };
 
-/** The route gate: the output policy's `report-package` cell. Synchronous, for
+/** The route gate (§2.1): the output policy's `report-package` cell. Synchronous, for
  * the menu and the report panel. Null admits the route to the builder's own checks:
  * `preview_physics` is ungated, the exact routes are admitted to the builder's
- * Export Result JSON admission, both retained successors are refused with
+ * Export Result JSON admission (W-11 §5.1), both retained successors are refused with
  * their routes' reasons, and an unsupported statement falls to the builder's contract
  * check. */
 export function reportPackageUnavailableReason(result: SessionResult | null | undefined): string | null {
@@ -97,7 +97,7 @@ export function reportPackageUnavailableReason(result: SessionResult | null | un
 
 /** The identities a shareable (user-released, route `DREP-PACKAGE-USER-RELEASE-010`) package
  * admits: a pressure-free `preview-physics-2` result (record 1.0.0), and, since D-6 (owner,
- * 2026-10-29), an eligible `pressure-2` or
+ * 2026-10-29; DEL-08-01 Design `report-user-release.md` §11), an eligible `pressure-2` or
  * `pressure-source-1` result (record 1.1.0). Native admission and the derivation
  * (`report_package::user_release`) admit the same three and refuse the pressure-free
  * Timoshenko identity, which the local-private package admits. */
@@ -107,7 +107,7 @@ export const USER_RELEASED_ADMITTED_CONTRACT_IDS: readonly string[] = Object.fre
   PRESSURE_SOURCE_CONTRACT_ID
 ]);
 
-/** The route-010 cell: synchronous, for the dialog. The package cell's refusal (the
+/** The route-010 cell (§2.2): synchronous, for the dialog. The package cell's refusal (the
  * retained routes), else a result whose identity a shareable package does not admit
  * (`USER_RELEASED_ADMITTED_CONTRACT_IDS`), else null. An exact-route result is admitted here;
  * its eligible standing and live custody are the builder's Export Result JSON admission's
@@ -160,7 +160,7 @@ function identityText(set: readonly RulePackIdentity[]): string {
     : set.map((pack) => `${pack.rule_pack_id}@${pack.version} (sha256 ${pack.checksum})`).join(", ");
 }
 
-/** Solve and rule-check rule packs agree: the package's set (the
+/** Solve and rule-check rule packs agree (§2.5, decided): the package's set (the
  * rule-check run's pack, else empty) equals the input manifest's `active_rule_packs`,
  * compared as sets of `{rule_pack_id, version, checksum value}`. This is the early
  * refusal; the native command re-checks the same rule against the input-manifest
@@ -183,7 +183,7 @@ export function checkRulePacksAgree(
 }
 
 /** The safe-reference projection of the report's rule-pack reference to the audit
- * manifest's `RulePackAuditRef`. Any other declared checksum pair refuses. */
+ * manifest's `RulePackAuditRef` (§2.4). Any other declared checksum pair refuses. */
 function auditRulePackRef(pack: JsonRecord) {
   const checksum = pack.checksum ?? {};
   const id = pack.rule_pack_id as string;
@@ -222,7 +222,7 @@ function auditRulePackRef(pack: JsonRecord) {
  * and its inputs (module-private: only the assembly records one). */
 const exactRequests = new WeakMap<object, { admission: ExactReportAdmission; inputs: ExactReportAdmissionInputs }>();
 
-/** Builds the version 2.0.0 request: the
+/** Builds the version 2.0.0 request (§2.1 admission, §2.3, §2.4, §2.5): the
  * `report-package` cell, then the assembly with the production admitted set. Refusals
  * throw with their own codes; nothing here grants export authority (the route control
  * and the native admission decide). */
@@ -236,7 +236,7 @@ export async function buildReportPackageRequest(input: ReportPackageRequestInput
   return assembleReportPackageRequest(input, REPORT_PACKAGE_ADMITTED_CONTRACT_IDS);
 }
 
-/** The pre-IPC re-check of a request assembled from an exact source:
+/** The pre-IPC re-check of a request assembled from an exact source (§3.1, §3.6):
  * synchronous, immediately before `save_report_package`; returns the texts the native
  * save re-reads, or null for a request from a pressure-free source. Throws once the
  * admission no longer holds (`REPORT-EXACT-ADMISSION-STALE`). */
@@ -245,12 +245,12 @@ export function reportPackageExactSubmission(request: object): ExactSourceSubmis
   return exact ? exactSourceSubmission(exact.admission, exact.inputs) : null;
 }
 
-/** The assembly after the cell: `admittedContractIds` is the identity check's
+/** The assembly after the cell (§5.5): `admittedContractIds` is the identity check's
  * set, `REPORT_PACKAGE_ADMITTED_CONTRACT_IDS` in production. */
 async function assembleReportPackageRequest(input: ReportPackageRequestInput, admittedContractIds: readonly string[]) {
   const { model, result, analysisRun, inputManifest, projectSummary, comparison, comparisonUnavailable = null, ruleCheckAggregate, ruleCheckRun } = input;
 
-  // Rule-check threading: aggregate present exactly when the run is, and the
+  // Rule-check threading (§2.5): aggregate present exactly when the run is, and the
   // run's aggregate is the session's.
   if ((ruleCheckAggregate === null) !== (ruleCheckRun === null)) {
     throw ruleCheckMismatch("the rule-check aggregate and the rule-check run must be present together.");
@@ -316,7 +316,7 @@ async function assembleReportPackageRequest(input: ReportPackageRequestInput, ad
     source_basis_refs: [reference("analysis_run", run.run_id), ...loadBasisRefs],
     report,
     audit_manifest: {
-      // named by the run's input-manifest reference, as the result document's
+      // §2.4: named by the run's input-manifest reference, as the result document's
       // `audit_manifest_ref` names it.
       manifest_id: manifestRef,
       model_hash: {
@@ -369,7 +369,7 @@ export type UserReleasedReportPackageRequestInput = {
   reportComposition?: ReportComposition | null;
 };
 
-/** The user-released request's assembly: the Export Result JSON
+/** The user-released request's assembly (§2.6; scope R, §2.1): the Export Result JSON
  * document of a pressure-free or eligible exact result, the minimal renderer input, an
  * audit manifest with no rule-pack reference or asset, and no state/comparison/handoff
  * record. The run record carries the solve's own rule status. The native host derives the
@@ -445,11 +445,11 @@ async function assembleUserReleased(
   return request;
 }
 
-/** A model with a detectable library origin (rules 1-3). */
+/** A model with a detectable library origin (§2.7, rules 1-3). */
 export const REPORT_USER_RELEASE_LIBRARY_REFERENCED = "REPORT-USER-RELEASE-LIBRARY-REFERENCED";
-/** A model with a rule-pack reference, or a run whose input manifest records an active pack. */
+/** A model with a rule-pack reference, or a run whose input manifest records an active pack (§2.7). */
 export const REPORT_USER_RELEASE_RULE_PACK_REFERENCED = "REPORT-USER-RELEASE-RULE-PACK-REFERENCED";
-/** The confirmation time is not of the record's form (`YYYY-MM-DDTHH:MM:SSZ`). */
+/** The confirmation time is not of the record's form (§2.3, `YYYY-MM-DDTHH:MM:SSZ`). */
 export const REPORT_USER_RELEASE_RECORD_INVALID = "REPORT-USER-RELEASE-RECORD-INVALID";
 
 const LIBRARY_PROVENANCE_PREFIXES = ["library:material:", "library:section:", "library:component:", "library:hanger:"];
@@ -498,7 +498,7 @@ function embeddedLegacyEvidence(text: string): boolean {
     || textSite(parsed, (inner) => libraryProvenanceText(inner) || inner.includes(LEGACY_HANGER_SELECTION)) !== null;
 }
 
-/** The webview's early model check for a shareable package: the first library
+/** The webview's early model check for a shareable package (§2.2, §2.7): the first library
  * site (rule 1, then rule 2, then rule 3, each in document order), else the first rule-pack
  * reference in the model or an active pack in the run's input manifest, else null. Native
  * admission decides; this only lets the dialog say early which models cannot be shared yet. */
@@ -517,11 +517,11 @@ export function userReleaseModelRefusal(model: unknown, inputManifest?: CurrentS
   return null;
 }
 
-/** The record's constants, as `report_renderer`'s `USER_RELEASE_*` constants. */
+/** The record's constants (§2.3), as `report_renderer`'s `USER_RELEASE_*` constants. */
 export const USER_RELEASE_STATEMENT = "I hold the right to share this project's data, and I release my project data in this report for sharing.";
 const USER_RELEASE_STATEMENT_BASIS = "docs/IP_AND_DATA_BOUNDARY.md §6: a user intentionally exports their own data with documented redistribution rights";
 const USER_RELEASE_NOT_CARRIED = ["rule_pack_references", "user_rule_outcomes", "run_comparisons", "handoff_records", "library_records", "audit_assets"];
-/** Record 1.0.0 (pressure-free) and the D-6 widened record 1.1.0 (exact routes). */
+/** Record 1.0.0 (pressure-free) and the D-6 widened record 1.1.0 (exact routes, §11). */
 const USER_RELEASE_RECORD_VERSION = "1.0.0";
 const USER_RELEASE_EXACT_RECORD_VERSION = "1.1.0";
 
@@ -530,8 +530,8 @@ export function userReleasedAtOf(date: Date): string {
   return date.toISOString().replace(/\.\d{3}Z$/, "Z");
 }
 
-/** The user's record U for one report, bound to the session's identities and the
- * result document the package carries. Record 1.1.0 for an exact-route document, else
+/** The user's record U (§2.3) for one report, bound to the session's identities and the
+ * result document the package carries. Record 1.1.0 for an exact-route document (§11), else
  * 1.0.0. Native admission re-derives and binds every member but `user_released_at`. */
 export async function userReleaseRecord(args: {
   model: PreviewModel;
@@ -573,13 +573,13 @@ export async function userReleaseRecord(args: {
   };
 }
 
-/** The inputs of `buildUserReleasedReportPackageRequest`: the user-released basis
- * and the confirmation time; the record is bound here, not by the caller. */
+/** The inputs of `buildUserReleasedReportPackageRequest`: the user-released basis (§2.3
+ * "Session") and the confirmation time; the record is bound here, not by the caller. */
 export type UserReleasedReportPackageBuildInput = Omit<UserReleasedReportPackageRequestInput, "userRelease"> & {
   userReleasedAt: string;
 };
 
-/** Builds the route-010 request: the user-release cell, the early model check,
+/** Builds the route-010 request (§2.2, §2.6): the user-release cell, the early model check,
  * the package surface's eligible standing, then the assembly with the record bound to the
  * session and the document it carries. Refusals throw with their own codes; nothing here
  * grants export authority (native admission derives the whole request and decides). */

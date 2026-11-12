@@ -4,7 +4,7 @@
 //! This binary's own global allocator records the peak of live requested heap bytes (the
 //! f1b_sparse_pattern_memory.rs pattern), like-for-like with E_mov,max. Each entry point runs one
 //! input in one mode, through one route, and is meant to run as its own process
-//! (`<binary> <name> --exact --ignored --test-threads=1 --nocapture`):
+//! (`<binary> <name> --exact --ignored --test-threads=1 --nocapture`; RSS_TIME.md's runs):
 //! - `direct_*`: the public retained Direct entry (G-A's census and law, the parse, the ordinary
 //!   run, and the W1 phases when the registered build permits the call);
 //! - `ordinary_*`: the ordinary value route alone (the control for W1's increment);
@@ -106,7 +106,7 @@ const W1_PHASE_BYTES: [u64; 2] = [6_450_393_241, 6_509_524_585];
 // §8.55 (S-K1 skewed restraint directions): +17,872 B (W3 stays the maximum; every phase +17,872 B).
 // §8.59 (RT-A3 S6, proposed): +18,761 B (W3 stays the maximum; every phase +18,761 B).
 const MAX_PHASE_BYTES: [u64; 2] = [8_744_123_630, 8_803_254_974];
-/// The abort cap: above E_mov,max + R at M and within T3's host allowance.
+/// The abort cap: above E_mov,max + R at M and within T3's host allowance (PLAN_v2 §3.5).
 const CAP_BYTES: usize = 16 << 30;
 /// The N1 notice's fixed text (lib.rs `RETAINED_UNAVAILABLE_NOTICE`), as the base publication shows it.
 const N1_NOTICE: &str = "Retained-precision recovery is unavailable for this load case.";

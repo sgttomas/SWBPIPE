@@ -248,7 +248,7 @@ impl CurvedBendStiffnessElement {
 pub struct NonlinearFrameSolveInput {
     pub node_count: usize,
     pub elements: Vec<FrameElement>,
-    /// objective connectors (with their tie rods) are assembled
+    /// R-4 §3.7 S6: objective connectors (with their tie rods) are assembled
     /// beside the frame elements in every linearized iteration, as the
     /// confirmation re-forms them. Each is a validated kernel object; its
     /// node indices are checked by the assembly. Their reference loads and
@@ -262,7 +262,7 @@ pub struct NonlinearFrameSolveInput {
     /// an absent DOF is prescribed at +0. Each entry must lie on
     /// `base_restrained_dofs`, appear once and be finite.
     pub base_prescribed: Vec<(usize, f64)>,
-    /// the case's ground offset g_s of nonlinear
+    /// W-16 stage 2, R-b (§1): the case's ground offset g_s of nonlinear
     /// supports, by support id, sparse; an absent support's ground is fixed
     /// at 0. A support's state is measured on u_d - g_s, and an active or
     /// sticking state prescribes g_s (g_s + sigma*c for an active gap). Each
@@ -457,7 +457,7 @@ impl From<NonlinearSupportError> for NonlinearIntegrationError {
     }
 }
 
-/// §8.30 correction 2 (RT-U4, RT-A2): the leading
+/// §8.30 correction 2 (RT-U4, RT-A2; R-4 design C-6 and §3.6): the leading
 /// dense storage of the dense-scrutiny active-set loop, in bytes per entry. That
 /// loop holds the dense global stiffness and, inside FK's `prepare_bound` audit,
 /// its two dense symmetry views and the contribution sums and differences
@@ -468,13 +468,13 @@ impl From<NonlinearSupportError> for NonlinearIntegrationError {
 /// process itself are not counted. Since R-4 stage P the sparse-interactive loop
 /// runs on the sparse pattern and holds none of these dense buffers; the same
 /// estimate and limit are deliberately kept as its admission cap until the
-/// owner's O-2 decision on heavy-run evidence.
+/// owner's O-2 decision on heavy-run evidence (R-4 §6.3).
 pub const DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY: u128 = 88;
 /// See [`DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY`].
 pub const DENSE_LOOP_BYTES_PER_FREE_ENTRY: u128 = 16;
 /// Provisional limit on the estimate: floor(0.9 M) with M = 12 GiB, the
 /// product's per-invocation memory budget on the 16 GiB base machine (owner,
-/// 2026-10-11), less the 0.9 M
+/// 2026-10-11; DEL-04-07 Design `memory-budget-decision.md`), less the 0.9 M
 /// qualification margin, which leaves 0.1 M for what the estimate does not
 /// count. It admits about 1,759 nodes when every DOF is free. It applies in
 /// both modes; in sparse mode it is the retained admission cap described above.
@@ -912,7 +912,7 @@ fn solve_active_set_loop(
     unreachable!("positive max_iterations loop must return on the capped final iteration")
 }
 
-/// RT-A5 S2 (boundary fixed by RT-A3, the loop's owner):
+/// RT-A5 S2 (DEL-05-02 Work `operating-case.md` §7.3; boundary fixed by RT-A3, the loop's owner):
 /// what the loop holds for one solved iterate's tail, borrowed. Crate-private; it adds no meaning.
 struct IterationContext<'a> {
     input: &'a NonlinearFrameSolveInput,
@@ -939,7 +939,7 @@ enum IterationExit {
     /// The loop: on convergence, a blocking classification or the iteration cap.
     AtConvergenceOrCap,
     /// After this iterate, whatever its outcome: the held-status wrapper
-    /// (`solve_held_status_iteration`) is its only caller.
+    /// (`solve_held_status_iteration`, `operating-case.md` §7.3) is its only caller.
     Now,
 }
 
@@ -1432,7 +1432,7 @@ fn validate_input(input: &NonlinearFrameSolveInput) -> Result<(), NonlinearInteg
             detail: "node_count must be positive".to_string(),
         });
     }
-    // each connector is a validated kernel object (its law,
+    // R-4 §3.7 S6: each connector is a validated kernel object (its law,
     // definiteness and tie rods are checked at construction); its nodes must
     // lie in the model, which the assembly also checks.
     for (index, connector) in input.connectors.iter().enumerate() {
@@ -2479,7 +2479,7 @@ pub(crate) fn gap_sense(closes_when: GapDirection) -> f64 {
     }
 }
 
-/// W-16 stage 2 (R-b): a gap's closing position
+/// W-16 stage 2 (R-b, §1 item 1 and §3.2): a gap's closing position
 /// c + sigma*g_s, when it is finite and exact in binary64 (a zero TwoSum
 /// residual); `None` otherwise. sigma*g_s is exact; a rounded closing position
 /// is never used.
@@ -4112,7 +4112,7 @@ mod tests {
     }
     // CONTACT_RECOVERY_FROZEN_END
 
-    /// the loop assembles an objective connector beside the
+    /// R-4 §3.7 S6: the loop assembles an objective connector beside the
     /// frame (the blanket refusal is lifted), and a connector naming a node
     /// outside the model is refused by name at the execution boundary.
     #[test]

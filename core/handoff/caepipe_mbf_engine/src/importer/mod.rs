@@ -448,7 +448,7 @@ impl<'a> Importer<'a> {
         }
     }
 
-    /// A bound format-6 sidecar's derivation, as it declares it (Format 6); None otherwise.
+    /// A bound format-6 sidecar's derivation, as it declares it (Design §15, Format 6); None otherwise.
     fn derivation(&self) -> Option<crate::SidecarDerivation> {
         if !self.bound || self.sidecar_format != Some(crate::sidecar::SIDECAR_FORMAT) {
             return None;
@@ -801,7 +801,7 @@ impl<'a> Importer<'a> {
         Ok(())
     }
 
-    // -- sidecar -----------------------------------------------------
+    // -- sidecar (§15) -----------------------------------------------------
     fn bind_sidecar(&mut self) -> R<()> {
         let Some(given) = &self.options.sidecar else {
             if self.options.rebind_by_node_number {

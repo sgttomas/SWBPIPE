@@ -35,7 +35,7 @@ PREVIEW_T = (s("Value") * _PX["arr"] + X({"Node(String,Value)": _PX["obj"] + _PX
     # U6-RP (T4-U6, D-5): a census taken under D-5 states the route's rows per member, measured on every committed
     # empty-region exact case (census_exact.py); the route's P_final and R0 take it in place of 51 at the caps.
     rpm = census.get("rows_per_member", 51)
-    # W7-RP (W-7, §8.20): the twelve global end rows per member the ordinary pressure-2
+    # W7-RP (W-7, retained-pricing-rules.md §8.20): the twelve global end rows per member the ordinary pressure-2
     # envelope carries and the census's pressure-source-1 fixtures omit (`global_end_rows_published`).
     w7 = census.get("global_end_rows_per_member", 0)
     rpm += w7

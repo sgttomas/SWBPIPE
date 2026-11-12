@@ -1,6 +1,6 @@
 //! The bounded JSON Schema evaluator against its committed behavioural vectors
 //! (`fixtures/results/schema_eval_vectors.json`) and the closure's keyword
-//! census.
+//! census (DEL-08-01 Design `report-package-current-results.md` §2.3 item 1).
 //! The same vectors are checked against the independent Python Draft 2020-12
 //! oracle by `tests/test_schema_eval_parity.py`. Parity is regression
 //! evidence, not a claim of general-validator equivalence.
@@ -89,7 +89,7 @@ fn every_vector_has_its_expected_verdict() {
         let instance = instance(case);
         // The one enumerated oracle-disagreement class: the evaluator gives the
         // ECMA-262 verdict (invalid) for a `pattern` string ending in a line
-        // feed, which Python's `re` accepts.
+        // feed, which Python's `re` accepts (DEL-08-01 Design §2.3 item 1).
         // The case is in the class only if its sole failure is the anchored
         // `pattern` at the recorded string, and removing the final line feed
         // makes it valid.

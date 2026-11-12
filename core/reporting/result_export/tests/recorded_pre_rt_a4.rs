@@ -140,7 +140,7 @@ fn the_registry_is_closed_and_each_variant_is_its_pinned_bytes() {
         "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9",
         "6f6494907e3ead979ea27e5ff85f54617589c9195dc84d40a02752a0b006ef44",
         "b4377e73e8a83edb57b4f0c41dbaef384385e0f6b4810103a106a334c8edbe14",
-        // main's exact successor table at 252bef969.
+        // RT-A3 §4: main's exact successor table at 252bef969.
         EXACT_CERT_SHA,
         // R-6/R-7 S-K1: main's tables at 9e5c69797, before S-K1 (`recorded_pre_sk1/`).
         "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89",

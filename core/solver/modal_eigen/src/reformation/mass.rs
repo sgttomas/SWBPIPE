@@ -1,7 +1,7 @@
 //! Element mass re-formation in double-double (design §2.2 to §2.4; §3.4
 //! check 1 (ii)).
 //!
-//! **Straight, Euler–Bernoulli**. In member axes, axial m̄L·[1/3, 1/6]
+//! **Straight, Euler–Bernoulli** (§2.2). In member axes, axial m̄L·[1/3, 1/6]
 //! on (u_x,i, u_x,j), torsional j̄L·[1/3, 1/6] on (θ_x,i, θ_x,j), and in each
 //! bending plane the consistent m̄L/420·[156, 22L, 54, −13L; …] plus the
 //! Rayleigh ī/(30L)·[36, 3L, −36, 3L; …]. The plane matrices act on
@@ -11,7 +11,7 @@
 //! R's rows the member axes formed from the chord and the y reference as the
 //! frame kernel forms them.
 //!
-//! **Realized arc**. With d = x_j − x_i, L = |d|, n̂ the unit part of
+//! **Realized arc** (§2.4). With d = x_j − x_i, L = |d|, n̂ the unit part of
 //! the y reference normal to d̂ (the bow side), s = sin α = L/(2R),
 //! c = cos α = √(R² − L²/4)/R and α = 2·atan(s/(1 + c)) the half-angle. Each
 //! half is a rigid lump about its end node in its own frame: e1 radial

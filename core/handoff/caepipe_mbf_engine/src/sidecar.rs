@@ -1,4 +1,4 @@
-//! The writer sidecar as the importer reads it: the self-digest (si_writer `sidecar_canonical_bytes`),
+//! The writer sidecar as the importer reads it (Design §15): the self-digest (si_writer `sidecar_canonical_bytes`),
 //! the strict `_SidecarParser`, and the regeneration identity's comparison (`canonical_sidecar`,
 //! `sidecar_difference`, `summed_entries`, `primitive_key`).
 
@@ -12,8 +12,8 @@ use sha2::{Digest, Sha256};
 
 pub const KEYED_MAPS: [&str; 7] =
     ["node_map", "element_map", "support_map", "load_case_map", "material_map", "section_map", "load_map"];
-/// The current writer's format: 6, which is 4 (3 with `section_map`) plus
-/// `derivation` and each bend entry's `node` (Format 6). Format 5 is the held Route 1 design: never written,
+/// The current writer's format: 6, which is 4 (3 with `section_map`, Design §15, Format 4: section identities) plus
+/// `derivation` and each bend entry's `node` (Format 6). Format 5 is the held Route 1 design (§20.4.5): never written,
 /// and refused as any format this importer does not read.
 pub const SIDECAR_FORMAT: i64 = 6;
 pub const SIDECAR_FORMATS: [i64; 4] = [2, 3, 4, SIDECAR_FORMAT];
@@ -168,7 +168,7 @@ fn jcs_walk(value: &Value, path: &str, out: &mut String) -> Result<(), Result<No
 }
 
 /// si_writer `model_canonical_bytes`: the RFC 8785 bytes of the whole model document, by the same serialisation as
-/// [`sidecar_canonical_bytes`] with nothing removed (format 6's `derivation.source_model_sha256`).
+/// [`sidecar_canonical_bytes`] with nothing removed (format 6's `derivation.source_model_sha256`, Design §15).
 pub fn model_canonical_bytes(model: &Value) -> Result<Vec<u8>, Result<NotCanonical, PyError>> {
     if model.as_dict().is_none() {
         return Err(Ok(NotCanonical { path: "model".into(), reason: "must be an object".into() }));
@@ -400,7 +400,7 @@ impl SidecarParser {
             ),
             F::BendComponent => self.record(value, path, &[("component", F::Text)], &[]),
             F::BendIdentity => self.record(value, path, &[("component", F::Text), ("node", F::Text)], &[]),
-            // Format 6: the SHA-256 of the canonical model document the writer read, and the export
+            // Format 6 (Design §15): the SHA-256 of the canonical model document the writer read, and the export
             // settings the writer used.
             F::Derivation => self.record(value, path, &[("source_model_sha256", F::Digest), ("export_settings", F::ExportSettings)], &[]),
             F::ExportSettings => self.record(
@@ -463,7 +463,7 @@ impl SidecarParser {
                 ],
                 &[],
             ),
-            // Format 4: the library section a PIPE record's pipes reference, or null for none.
+            // Format 4: the library section a PIPE record's pipes reference, or null for none (Design §15).
             F::SectionIdentity => self.record(value, path, &[("swbpipe_section", F::TextOrNull)], &[]),
             F::TextOrNull => match value {
                 Value::Null => Value::Null,

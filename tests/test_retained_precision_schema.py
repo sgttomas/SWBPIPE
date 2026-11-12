@@ -99,10 +99,10 @@ SUCC_SHA = "ef59ef338d4e2cafca7017e13b7a450d1094ede8068c47cf5e44416c1adc177a"
 PREVIEW_SHA = "16eeb49cb298c6d3634594bbd9ebf6bf86be8f114e2e524dbd624e401e31a729"
 PROFILE = "product_preview_retained_w1a_v2"
 CODES = ["retained_precision_absolute_verified", "retained_precision_not_covered"]
-# the exact successor `<physics-retained>`, whose carrier branches follow
+# B3b (B3-D §7): the exact successor `<physics-retained>`, whose carrier branches follow
 # the preview successor's. Both successors, and only they, carry a receipt.
 EXACT = "openpipestress.result_semantics/0.3.0/physics-retained-1"
-# T4-U6 (D-5): follows pressure-2's per-basis table by its inherited hash (was 69581249...).
+# T4-U6 (D-5, §2.4): follows pressure-2's per-basis table by its inherited hash (was 69581249...).
 EXACT_SHA = "f17bd9d57ee8d1cef4b465715e4edbf030faa5aa4f5282ad7927c25e3f6668d3"
 EXACT_PROFILE = "exact_straight_retained_w1a_v2"
 SUCCESSORS = (SUCC, EXACT)
@@ -112,9 +112,9 @@ PRESSURE_SOURCE = "openpipestress.result_semantics/0.3.0/pressure-source-1"
 PRESSURE_SOURCE_SHA = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9"
 # B7b: the composite source statement is pressure-source-1's (physics-source-1 is retired).
 SOURCE_RAW = "pressure_source/physics_source/n05-sparse_interactive.raw.json"
-# Model 0.9.0 re-pin (S1): read from the regenerated producer bytes on the
+# Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
 # registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] and the
+# RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated carriers move only formulation_basis.limitations[6] (§10.2) and the
 # digests binding it; each restated to the former sentence and resealed (Python 07e) reproduces its former pin.
 MILESTONES = {
     "sparse_interactive": "49dfe6ebab459bbfdb68a541080313199cc24f85e649f1bbfb005c5be155a567",
@@ -342,7 +342,7 @@ def test_every_existing_analysis_run_branch_refuses_a_receipt():
         assert ("retained_precision" in branch.get("required", [])) is (sid in SUCCESSORS), sid
     # T4-U2 added pressure-1; the pressure-source join added pressure-source-1;
     # B1 removed precision-1 and B4/D1 (b) source-blocks-1; B7b the four exact v2 identities;
-    # PF Timoshenko added preview-physics-timoshenko-1, which refuses a receipt above.
+    # PF Timoshenko added preview-physics-timoshenko-1 (pf-timoshenko.md §4), which refuses a receipt above.
     assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and ids.count(PRESSURE_SOURCE) == 1 and len(ids) == 6
     contract = schema["$defs"]["SemanticContract"]
     assert {"properties": {"id": {"const": SUCC}, "sha256": {"const": SUCC_SHA}}} in contract["oneOf"]
@@ -427,7 +427,7 @@ def test_every_existing_stress_neutral_branch_refuses_a_receipt():
     assert ids.count(SUCC) == 1 and ids.count(EXACT) == 1 and ids.count(PRESSURE_SOURCE) == 1 and len(ids) == 6
 
 
-# ---- B3b (I101, lane T): the exact successor's carrier branches.
+# ---- B3b (I101, lane T): the exact successor's carrier branches (B3-D §7; REVISION_01 §6).
 # Shape checks only, on a pressure-2 fixture (B7b, D4 (a): the exact successor's G7 projection is
 # pressure-2/exact_pressure_v3) re-stated under the exact identity with a shape-valid receipt:
 # schema validity creates no standing.

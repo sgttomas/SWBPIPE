@@ -33,11 +33,11 @@ use super::*;
 use combination_plan::Target;
 use serde_json::{json, Value};
 
-/// `exact_combinations[].standing`.
+/// `exact_combinations[].standing` (§5).
 pub(crate) const STANDING: &str = "derived_from_case_results";
-/// The provenance of a recovered operand value.
+/// The provenance of a recovered operand value (§3).
 pub(crate) const RECOVERY_METHOD: &str = "pressure_free_operand_recovery";
-/// `exact_combinations[].source_recovery`.
+/// `exact_combinations[].source_recovery` (§7).
 pub(crate) const SOURCE_RECOVERY_EXCLUSION: &str = "excluded: a document with a load combination attempts no retained-source recovery for any of its cases, primitive cases included; every case publishes ordinary structural recovery";
 /// §4 gate 1, as on PF.
 pub(crate) const MODULUS_BASIS_MIXED: &str = "COMBINATION_MODULUS_BASIS_MIXED";
@@ -69,9 +69,9 @@ pub(crate) const CONSTANT_EFFORT_UNSIGNED: &str = "CONSTANT_EFFORT_UNSIGNED_COMB
 /// whose κ is undefined, in a model with a consuming constant-effort support (PF's
 /// code and text).
 pub(crate) const CONSTANT_EFFORT_OPERAND_MIXED: &str = preview_physics::CONSTANT_EFFORT_OPERAND_MIXED;
-/// the product text of a published combination.
+/// §5: the product text of a published combination.
 pub(crate) const DERIVED: &str = "EXACT_COMBINATION_DERIVED_FROM_CASE_RESULTS";
-/// the user-facing statement of the source-recovery exclusion.
+/// §7: the user-facing statement of the source-recovery exclusion.
 pub(crate) const SOURCE_RECOVERY_EXCLUDED: &str = "EXACT_COMBINATION_SOURCE_RECOVERY_EXCLUDED";
 const SOURCE_MISSING: &str = "LOAD_COMBINATION_SOURCE_RESULT_MISSING";
 const ROW_WITHHELD: &str = "LOAD_COMBINATION_ROW_WITHHELD";
@@ -134,7 +134,7 @@ const DISPLACEMENT_COMPONENTS: [(&str, &str); 3] = [
     ("global_nodal_displacement_y", "nodal_displacement_y"),
     ("global_nodal_displacement_z", "nodal_displacement_z"),
 ];
-/// pressure-only quantities, exactly zero at p = 0.
+/// §3: pressure-only quantities, exactly zero at p = 0.
 const ZERO_AT_NO_PRESSURE: [&str; 4] = [
     "pipe_lame_radial_stress_v2",
     "pipe_lame_hoop_stress_v2",
@@ -146,7 +146,7 @@ const EFFECTIVE_FORCE: &str = "pipe_effective_axial_force_v2";
 const END_ACTION: &str = "pipe_wall_endpoint_action_v2";
 const MEMBRANE: &str = "pipe_axial_membrane_stress_v2";
 const AXIAL_FORCE: &str = "element_local_axial_force";
-/// The withheld reasons.
+/// The withheld reasons (§3).
 const TIE_ROD_ROW: &str = "tie-rod row";
 const MISSING_KEY_FIELDS: &str = "row missing key fields";
 const DIMENSIONLESS: &str = "dimensionless row";
@@ -162,7 +162,7 @@ pub(crate) struct Facts<'a> {
     pub connector: &'a Value,
 }
 
-/// The typed structural pairing key. Its fields borrow from the keyed row
+/// The typed structural pairing key (§3). Its fields borrow from the keyed row
 /// (the section from its metadata basis) or are constants; they compare by value.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 struct Key<'r> {
@@ -181,7 +181,7 @@ impl<'r> Key<'r> {
     fn of(row: &'r ResultItem) -> Option<Self> {
         // A magnitude is keyed by kind, unit and node: a load case's row carries no
         // metadata, and an unsigned or nested combination's states only its
-        // derivation.
+        // derivation (absolute-sum-srss §4).
         let (location, component, frame, section) = match &row.metadata {
             _ if row.kind == "displacement_magnitude" => Default::default(),
             Some(m) => (m.location.as_str(), m.component.as_str(), m.coordinate_system.as_str(), section_of(&m.basis)),
@@ -219,7 +219,7 @@ fn support_kind(kind: &str) -> bool {
 }
 
 /// One operand value of a combined row: an operand's row (a load case's, or a
-/// combination's own published row), or a load case's
+/// combination's own published row, absolute-sum-srss §4), or a load case's
 /// recovered value.
 #[derive(Debug, Clone)]
 enum Source<'a> {
@@ -334,7 +334,7 @@ fn installed_reference(connector: &Value) -> bool {
     })
 }
 
-/// The gates, in precedence order: a withheld operand
+/// The gates (§4; absolute-sum-srss §5), in precedence order: a withheld operand
 /// combination; then, for `mechanics`, `absolute_sum` and `srss`, gates 1 and 2
 /// over every load case the combination reaches through its operands, and gate 3
 /// on the fixed-load count κ. Subtractions and envelopes are ungated otherwise. A
@@ -412,7 +412,7 @@ fn gate_reason(
     // gate 3, which wins where both hold. As on PF, a mechanics operand with an
     // undefined κ withholds as CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED; a
     // mechanics combination whose own κ is undefined, its operands' defined, as
-    // CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE.
+    // CONSTANT_EFFORT_COMBINATION_REQUIRES_SOLVE (§5.1).
     if constant_effort_solve_dispositions(model).iter().any(|(_, disposition)| disposition.is_ok()) {
         if let Some(withholding) = fixed_load_withholding() {
             use open_pipe_stress_load_case_algebra::FixedLoadWithholding as W;
@@ -490,7 +490,7 @@ fn case_rows<'r>(results: &'r [ResultItem], target: &Target<'_>) -> CaseRows<'r>
     CaseRows { by_key, order }
 }
 
-/// the operand value of a pressure-family key that the operand case lacks,
+/// §3: the operand value of a pressure-family key that the operand case lacks,
 /// recovered at p = 0, with its witness; `None` when the member does not
 /// qualify or a source row is missing (a missing source).
 fn recover<'r>(key: &Key<'r>, case: &str, rows: &CaseRows<'r>, facts: &CaseFacts<'_>) -> Option<(f64, Value)> {
@@ -558,7 +558,7 @@ fn combined_row_with(combination: &PreviewCombination, expression: &CombinationE
     row.source_result_refs = refs;
     row.component_body = None;
     if let Some(metadata) = row.metadata.as_mut() {
-        // a stress row keeps its operand rows' metadata basis (recovery token
+        // §2: a stress row keeps its operand rows' metadata basis (recovery token
         // and section-basis suffix), so it keeps its pressure-2 signature, whose
         // `source_basis` is that token; PF's generic basis replacement is used
         // for the other rows only. The sign convention follows the expression.
@@ -589,7 +589,7 @@ fn build<'r>(combination: &PreviewCombination, expression: &CombinationExpressio
     let range = matches!(expression, CombinationExpression::RangeEnvelope { .. });
     let rows: Vec<CaseRows<'_>> = operands.iter().map(|target| case_rows(results, target)).collect();
     // A combination operand publishes every row it forms; only a load case's
-    // pressure-family value is ever recovered.
+    // pressure-family value is ever recovered (§3).
     let case_facts: Vec<Option<CaseFacts<'_>>> = operands
         .iter()
         .map(|target| match target {
@@ -739,7 +739,7 @@ fn build<'r>(combination: &PreviewCombination, expression: &CombinationExpressio
     // displacement component (`solve_prepared_load_case`), and `order` follows
     // operand publication order. A component taken first would read as missing.
     // A combination operand publishes in its own key order, so it keeps the
-    // invariant for its dependants.
+    // invariant for its dependants (absolute-sum-srss §4).
     for (place, (key, template)) in order.iter().enumerate() {
         if recomputed(key.kind) && !range {
             let components: Vec<Key<'_>> = DISPLACEMENT_COMPONENTS
@@ -783,7 +783,7 @@ fn build<'r>(combination: &PreviewCombination, expression: &CombinationExpressio
                 withhold(&mut built, template.id.clone(), ALGEBRA_REFUSED);
                 continue;
             }
-            // an unsigned magnitude outside the binary64 range is refused,
+            // §3, §6: an unsigned magnitude outside the binary64 range is refused,
             // never published as an infinity; a linear combination keeps today's rule.
             let value = norm3(vector[0], vector[1], vector[2]);
             if expression.is_unsigned() && !value.is_finite() {
@@ -812,7 +812,7 @@ fn build<'r>(combination: &PreviewCombination, expression: &CombinationExpressio
 
     // Signed support actions, one group per support that publishes an Fx row
     // in some operand (in operand and publication order): whole or not at
-    // all, withheld by name, as on PF.
+    // all, withheld by name (§3), as on PF.
     let mut supports: Vec<&str> = Vec::new();
     for case_rows in &rows {
         for row in &case_rows.order {
@@ -857,7 +857,7 @@ fn build<'r>(combination: &PreviewCombination, expression: &CombinationExpressio
                 } else {
                     let c = &combined[slots.clone()];
                     let value = norm3(c[0], c[1], c[2]);
-                    // as for the node magnitudes; the group is withheld.
+                    // §3, §6: as for the node magnitudes; the group is withheld.
                     if expression.is_unsigned() && !value.is_finite() {
                         return Err(ALGEBRA_REFUSED);
                     }
@@ -879,7 +879,7 @@ fn build<'r>(combination: &PreviewCombination, expression: &CombinationExpressio
             Err(reason) => withhold(&mut built, format!("support-action:{}:{}", support.len(), support), reason),
         }
     }
-    // a magnitude row of an unsigned or nested combination states its derivation;
+    // §4: a magnitude row of an unsigned or nested combination states its derivation;
     // a flat combination's keeps the load case's absent metadata (V-8).
     if expression.is_unsigned() || operands.iter().any(|t| matches!(t, Target::Combination(_))) {
         let sign = match expression {
@@ -894,7 +894,7 @@ fn build<'r>(combination: &PreviewCombination, expression: &CombinationExpressio
 }
 
 /// The complete expression as authored. A term names its operand by kind:
-/// `{load_case_id, factor}` or `{combination_id, factor}`.
+/// `{load_case_id, factor}` or `{combination_id, factor}` (absolute-sum-srss §2).
 pub(crate) fn expression_evidence(combination: &PreviewCombination) -> Value {
     match combination.basis.as_str() {
         "mechanics" | "absolute_sum" | "srss" => json!({"terms": combination.terms.iter().map(|t| match &t.combination {
@@ -907,7 +907,7 @@ pub(crate) fn expression_evidence(combination: &PreviewCombination) -> Value {
 }
 
 /// One operand's record: a load case's modulus selection and standing, or the
-/// combination it names, whose own record states its operands.
+/// combination it names, whose own record states its operands (§4).
 pub(crate) fn operand_evidence(model: &PreviewModel, target: &Target<'_>) -> Value {
     let case = match target {
         Target::Case(case) => *case,
@@ -929,14 +929,14 @@ fn identity(parts: &[&str]) -> String {
 
 /// Appends every combination's rows and diagnostics on an exact-route envelope
 /// and returns `contract_evidence.exact_combinations`, one record per
-/// combination. Called only when the model has combinations.
+/// combination (§6). Called only when the model has combinations.
 pub(crate) fn append(model: &PreviewModel, facts: Facts<'_>, results: &mut Vec<ResultItem>, diagnostics: &mut Vec<Diagnostic>) -> Vec<Value> {
     let has_maximum = results.iter().any(|r| r.basis_ref.as_ref().is_some_and(|b| b.ref_type == "load_case")
         && matches!(r.kind.as_str(), "pipe_elastic_normal_stress_maximum_v2" | u4b_rows::EXTREME_KIND | u4b_rows::SHEAR_MAX_KIND));
     let has_intensified = results.iter().any(|r| r.basis_ref.as_ref().is_some_and(|b| b.ref_type == "load_case")
         && matches!(r.kind.as_str(), u4b_rows::DIRECTIONAL_KIND | u4b_rows::DIRECTIONAL_MAX_KIND | u4b_rows::BRANCH_KIND));
     let mut records = Vec::new();
-    // Every combination in evaluation order: an operand
+    // Every combination in evaluation order (absolute-sum-srss §2): an operand
     // combination's rows are appended before its dependants read them.
     let plan = combination_plan::Plan::new(model);
     let mut withheld_combinations: HashMap<String, &'static str> = HashMap::new();
@@ -981,7 +981,7 @@ pub(crate) fn append(model: &PreviewModel, facts: Facts<'_>, results: &mut Vec<R
             withheld_combinations.insert(combination.id.clone(), code);
             continue;
         }
-        // Decision OQ-1's rows state their own sign convention.
+        // Decision OQ-1's rows state their own sign convention (§5.2).
         let oq1 = has_nonlinear_support(model) && plan.solved_state_plus_increments(combination);
         let built = build(combination, &expression, oq1, &operands, results.as_slice(), &facts);
         for missing in &built.missing {
@@ -1061,14 +1061,14 @@ pub(crate) fn append(model: &PreviewModel, facts: Facts<'_>, results: &mut Vec<R
     records
 }
 
-/// each operand's standing and numerical findings, from the envelope's own
+/// §5: each operand's standing and numerical findings, from the envelope's own
 /// assessed numerical quality (its load-case record, verbatim; keyed on the record's
 /// `basis_ref` type and id, as both readers key it).
 pub(crate) fn state_operand_standing(records: &mut [Value], quality: &NumericalQuality) {
     let cases = serde_json::to_value(&quality.cases).unwrap_or(Value::Null);
     for record in records {
         if let Some(operands) = record["operands"].as_array_mut() {
-            // A combination operand states its standing in its own record.
+            // A combination operand states its standing in its own record (§4).
             // RT-A5: a held operand's standing is the held solve's (`held_standing`), not the case's.
             for operand in operands.iter_mut().filter(|o| o.get("load_case_id").is_some() && o.get("support_state").is_none()) {
                 let case = operand["load_case_id"].clone();
@@ -1152,7 +1152,7 @@ mod tests {
                 basis: "recovered_from_local_element_stiffness".into(), sign_convention: "s".into() }) }
     }
 
-    /// a pressure-family operand value is recovered only for a member the
+    /// §3: a pressure-family operand value is recovered only for a member the
     /// case publishes outside every one of its regions, from its own axial
     /// force row; every other absence is a missing source.
     #[test]

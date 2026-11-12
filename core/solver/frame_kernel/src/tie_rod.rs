@@ -1,6 +1,6 @@
 //! T4-U5b: an explicit bilateral linear elastic tie rod
 //! (`explicit_axial_rods_v1`, law `bilateral_linear`) on an objective
-//! connector.
+//! connector (DEL-04-07 Design `u4b-u5b-implementation.md` §3.2).
 //!
 //! Each rod is its own two-node element beside its connector. Its end nodes
 //! are always the connector's end nodes; its offsets are authored in the

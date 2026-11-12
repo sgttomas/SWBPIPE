@@ -302,7 +302,7 @@ def _build_analysis_run(
     return envelope
 
 
-# W-12 S2: a recorded
+# W-12 S2 (DEL-14-01 Design `desktop-states-runs-comparison.md` section 3): a recorded
 # revision. The desktop store's Record Run (`apps/desktop/src-tauri/src/analysis_runs.rs`)
 # writes a new immutable revision of a solve's transient record, tied to a saved model
 # state; `recorded_revision` mirrors it and the TypeScript `recordedAnalysisRunRevision`,
@@ -486,7 +486,7 @@ def verify_analysis_run_record(envelope: Mapping[str, Any], hash_fn: Callable[[A
 # pressure-source-1: the retained-source composite (receipt required); its record carries source_block_recovery and
 # contract_evidence.
 PRESSURE_SOURCE_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/pressure-source-1"
-# pressure-2, pressure-source-1 and physics-retained-1 carry one stress signature per (recovery
+# T4-U6 (D-5, §2.4): pressure-2, pressure-source-1 and physics-retained-1 carry one stress signature per (recovery
 # token x section basis); a record binding the former table hashes is refused (ANALYSIS_SEMANTIC_CONTRACT_MISMATCH).
 PRESSURE_SOURCE_CONTRACT_SHA256 = "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9"
 _PRESSURE_SOURCE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_source_1.json"
@@ -549,7 +549,7 @@ _PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0
 PREVIEW_PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/preview-physics-retained-1"
 PREVIEW_PHYSICS_RETAINED_CONTRACT_SHA256 = "ef59ef338d4e2cafca7017e13b7a450d1094ede8068c47cf5e44416c1adc177a"
 _PREVIEW_PHYSICS_RETAINED_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_preview_physics_retained_1.json"
-# B3b: the exact successor, whose base is pressure-2 since B7b D4 (a). As the preview successor, its
+# B3b (B3-D §2, §6.1): the exact successor, whose base is pressure-2 since B7b D4 (a). As the preview successor, its
 # statements are checked only by the accepted reader, which dispatches on this identity, and its standing comes only
 # from that reader.
 PHYSICS_RETAINED_CONTRACT_ID = "openpipestress.result_semantics/0.3.0/physics-retained-1"
@@ -563,7 +563,7 @@ ANALYSIS_RETAINED_PRECISION_RECEIPT_MISMATCH = "ANALYSIS_RETAINED_PRECISION_RECE
 ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "ANALYSIS_RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
 RULE_QUANTITY_BELOW_VERIFIED_FLOOR = "RULE_QUANTITY_BELOW_VERIFIED_FLOOR"
 RULE_QUANTITY_NOT_COVERED = "RULE_QUANTITY_NOT_COVERED"
-# Static fresh-publication identities (Rust `FRESH_IDENTITIES`); no route predicate.
+# Static fresh-publication identities (S1 §10; Rust `FRESH_IDENTITIES`); no route predicate.
 FRESH_CONTRACT_IDS = frozenset({PREVIEW_PHYSICS_CONTRACT_ID, PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID, PRESSURE_SOURCE_CONTRACT_ID,
                                 # T4-U2: pressure-2 (`3.0.0/exact_pressure_v3`).
                                 PRESSURE_CONTRACT_ID,
@@ -613,7 +613,7 @@ RECORDED_PRE_RT_A4_TABLES = {
     # RT-A4 main line's exact successor table (main at bbf384dec) is history too, a recorded binding only.
     (PHYSICS_RETAINED_CONTRACT_ID, "040ef9a613607cb6cb4aab6f34646481efd81e060681c364b72df4e129c8c034"):
         _RECORDED_DIR / "semantic_contract_v0_3_physics_retained_1.040ef9a6.json",
-    # Operating-case slice 1b: main's tables at bbf384dec, before 1b
+    # Operating-case slice 1b (DEL-05-02 operating-case.md "As built (1b)"): main's tables at bbf384dec, before 1b
     # restated the preview-physics combination policy (v2 -> v3).
     (PREVIEW_PHYSICS_CONTRACT_ID, "e7b93f416f700f8efdb31bf1ba26dedde52963d768d6ead5a73dbf1c645a360c"):
         _RECORDED_1B_DIR / "semantic_contract_v0_3_preview_physics_2.e7b93f41.json",
@@ -621,7 +621,7 @@ RECORDED_PRE_RT_A4_TABLES = {
         _RECORDED_1B_DIR / "semantic_contract_v0_3_preview_physics_timoshenko_1.ce49ebe0.json",
     (PREVIEW_PHYSICS_RETAINED_CONTRACT_ID, "26dce9c21261b1ca894af05a3b6f4a94db88904894cb47f7296f892e72ecfb7e"):
         _RECORDED_1B_DIR / "semantic_contract_v0_3_preview_physics_retained_1.26dce9c2.json",
-    # RT-A5 minuend_final: main's tables at b32a17761, before the
+    # RT-A5 minuend_final (DEL-05-02 operating-case.md section 7.6): main's tables at b32a17761, before the
     # preview-physics combination policy's v4 restatement.
     (PREVIEW_PHYSICS_CONTRACT_ID, "f41b9d3ed0c1b7abaee0b98ca1a28aa1a2d109bce443b98d53a2080c1c504ce9"):
         _RECORDED_MF_DIR / "semantic_contract_v0_3_preview_physics_2.f41b9d3e.json",
@@ -633,7 +633,7 @@ RECORDED_PRE_RT_A4_TABLES = {
     # main's exact successor table at 252bef969 is history too, a recorded binding only.
     (PHYSICS_RETAINED_CONTRACT_ID, "85c2678a78e794b44761c11efb73c215645c7e2560d802ac8ad6075e7804c691"):
         _RECORDED_DIR / "semantic_contract_v0_3_physics_retained_1.85c2678a.json",
-    # R-6/R-7 S-K1: main's tables at 9e5c69797, before the
+    # R-6/R-7 S-K1 (DEL-04-03 skew-restraints.md section 7.1): main's tables at 9e5c69797, before the
     # support_reaction_along_direction_v1 kind; only a kind is added, so older statements read as before.
     (PREVIEW_PHYSICS_CONTRACT_ID, "563db3c7c44279face3adc60a76a512de38520357e89ea4b49ad11d20946db89"):
         _RECORDED_SK1_DIR / "semantic_contract_v0_3_preview_physics_2.563db3c7.json",
@@ -713,7 +713,7 @@ def _retained_contract(source: Mapping[str, Any], *, check_receipt: bool, record
     else:
         _retained_validation(source, recorded_binding=binding)
     contract = source["producer"]["semantic_contract_id"]
-    # the reader read the statement under the record's variant (whose identity it checked is the
+    # RT-A4 §10.4: the reader read the statement under the record's variant (whose identity it checked is the
     # statement's), so the record's rows are interpreted under that variant's table.
     return recorded if recorded else (contract, *RETAINED_CONTRACTS[contract])
 
@@ -729,7 +729,7 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True,
     has no transport reader (Rust refuses it by name, `SOURCE_PRESSURE_TRANSPORT_UNSUPPORTED`).
     Interpretation dispatch does not authenticate a producer or qualify Current.
 
-    `recorded`, a registry variant (`recorded_pre_rt_a4_variant`) a record binds, is given only by the
+    RT-A4 §10.4: `recorded`, a registry variant (`recorded_pre_rt_a4_variant`) a record binds, is given only by the
     recorded-run read; every reader call then carries its binding, and the reader reads the statement under it (or
     refuses a binding of another identity by name). No other caller passes it."""
     binding_in = {"id": recorded[0], "sha256": recorded[1]} if recorded else None
@@ -810,7 +810,7 @@ def is_fresh_contract_id(contract_id: Any) -> bool:
 
 
 def rule_binding_refusal(envelope: Mapping[str, Any], row: Mapping[str, Any]) -> str | None:
-    """The Rust reader's ``semantic_contract::rule_binding_refusal`` (D2 4.9.9).
+    """The Rust reader's ``semantic_contract::rule_binding_refusal`` (S1 §10; D2 4.9.9).
 
     A successor row binds only as its validated class allows. A statement that is not JSON is refused
     (ValueError or TypeError): no reader reads it, so no row of it is bound.
@@ -909,7 +909,7 @@ def validate_analysis_run_v0_3(envelope: Mapping[str, Any], source: Mapping[str,
     "input_manifest"}``, checked against that state's model hash.
     This accepts supplied evidence only; it does not authenticate a claimed build.
 
-    ``recorded_read``: the recorded-run read, compare and re-save paths only. A record whose binding
+    ``recorded_read`` (RT-A4 §10.4): the recorded-run read, compare and re-save paths only. A record whose binding
     names a variant of RECORDED_PRE_RT_A4_TABLES has its statement read under that variant (the Rust reader's
     recorded read) and its rows interpreted under the variant's table, so a run recorded before RT-A4 reads as it
     did. Without it (the record builder, the export and every current path) only the current tables are read.

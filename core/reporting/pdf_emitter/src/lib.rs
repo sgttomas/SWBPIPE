@@ -150,7 +150,7 @@ pub fn pdf_from_render(
     input: &renderer::RenderableReportInput,
     render: &renderer::RenderOutcome,
 ) -> PdfEmissionOutcome {
-    // a render refused for its provenance records is
+    // W-11 slice (c) (§6.2): a render refused for its provenance records is
     // metadata-only, and so is its PDF: no document is emitted from the input.
     if render.content_withheld {
         return PdfEmissionOutcome {

@@ -468,7 +468,7 @@ fn u5b_discriminator_wrong_values_are_separated_from_the_product_in_both_modes()
 }
 
 /// The committed builder outputs (README "Binding to model 0.9.0"), kept beside
-/// this test, outside the frozen reference tree.
+/// this test, outside the frozen reference tree (DEL-04-07 Design §1.4).
 const COMMITTED: [(&str, &str); 39] = [
     ("AS-A.request.json", include_str!("t4_u5b_requests/AS-A.request.json")),
     ("AS-A-ER.request.json", include_str!("t4_u5b_requests/AS-A-ER.request.json")),

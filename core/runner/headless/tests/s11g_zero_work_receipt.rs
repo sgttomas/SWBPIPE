@@ -11,8 +11,8 @@
 //! by authored nodal inputs, plus 0.2 N*m at the tip RZ and a 1e-10 N*m tip
 //! torque) runs on an invented temperature point (E = 1 Pa, G = 1e-12 Pa). The
 //! torque twists the torsionally soft pipe by about 3e6 rad, so K-D5's per-DOF
-//! rule passes the tip:RZ formation defect on the closed residual
-//! and case B is Passed, while its load-row
+//! rule passes the tip:RZ formation defect on the closed residual (DEL-04-01
+//! kd5-member-relative-bound.md §1) and case B is Passed, while its load-row
 //! formation guard still fires. Case B's receipt entry is the zero-work
 //! decline: `unsupported`, `source_validation` / `unsupported_family`, work
 //! {limit 0, charged 0, rejected 0}, ordinary outcome `sensitive`. Inputs are

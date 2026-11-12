@@ -1,4 +1,4 @@
-//! Shared W-15c benchmark binding:
+//! Shared W-15c benchmark binding (DEL-03-05 Design `eccentric-reducer-offset.md` §7):
 //! reading the frozen references, authoring a case's request on either route, solving
 //! and comparing every row. Used by `w15c_eccentric_reducer_benchmarks.rs` and
 //! `w15c_offset_convention.rs`.

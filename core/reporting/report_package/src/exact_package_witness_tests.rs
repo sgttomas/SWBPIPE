@@ -286,7 +286,7 @@ fn the_runner_profile_is_refused_in_the_producer_and_the_reader() {
     }
 }
 
-/// the shared checks alone cannot see a coherent same-run substitute.
+/// §3.5: the shared checks alone cannot see a coherent same-run substitute.
 /// It passes items 0-9; the native source binding of the desktop's save is
 /// what refuses it.
 #[test]

@@ -1,4 +1,4 @@
-//! Exact accumulation of sums of products (admission range:
+//! Exact accumulation of sums of products (design §3.2, admission range:
 //! bilinear forms are "accumulated so that no contribution dropped by
 //! exponent alignment can be exposed by later cancellation").
 //!
@@ -19,7 +19,7 @@
 //! Every add is O(1) limb operations; carries are propagated every 2²⁸ adds
 //! and before a result is read.
 //!
-//! **Storage** (Agent 0's option (c)). A sum's limbs grow
+//! **Storage** (design §5.3.8, Agent 0's option (c)). A sum's limbs grow
 //! only through [`reserve_limbs`], which requests max(2·capacity, required,
 //! 4) elements (capped at an allotment when one is given) with
 //! `Vec::reserve_exact`, so a limb vector's requested capacity is at most
@@ -288,7 +288,7 @@ impl ExactSum {
         }
     }
 
-    /// the exact product of
+    /// R-6/R-7 (DEL-04-03 skew-restraints.md §11.3 D-1 (a)): the exact product of
     /// at most four finite factors times 2^exponent, under an optional limb
     /// allotment: q_ir·k·q_jc·x of a congruence term. Each factor is split into
     /// its exponent and a significand in [1, 2), so every TwoProduct is exact
@@ -634,7 +634,7 @@ mod tests {
         sum.add_f64(p(-1074));
     }
 
-    /// Option (c)'s reset: a sum after a non-trivial use (a
+    /// Option (c)'s reset (design §5.3.8): a sum after a non-trivial use (a
     /// span of about 190 limbs, a negative top, pending adds and a
     /// non-finite part) is reset to exactly the fresh state, keeps its
     /// capacity, and then gives exactly the fresh result.

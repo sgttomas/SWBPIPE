@@ -252,7 +252,7 @@ test("guided workbench shell keeps journey steps, details, and compact status re
   // properties start open, and the agent workbench is an explicit review tab.
   await expect(page.getByTestId("workspace-dock")).toHaveClass(/collapsed/);
   await expect(page.getByTestId("toggle-tree")).toHaveAttribute("aria-expanded", String(page.viewportSize()!.width >= 1280));
-  // Slice B3: the Both view's docked inspector is closed at first open.
+  // Slice B3: the Both view's docked inspector is closed at first open (specification §2.3).
   await expect(page.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "false");
   await expect(page.getByTestId("viewport-canvas")).toBeVisible();
   await expect(page.getByTestId("agent-workbench-panel")).toBeHidden();
@@ -330,7 +330,7 @@ test("DEC-077 solve temperature queues an explicit unit-bearing operation", asyn
   const editorIntentPanel = page.getByTestId("editor-intent-panel");
   await selectCompactOption(editorIntentPanel
     .getByTestId("editor-intent-field"), "modulus_basis_temperature.value");
-  // the default is project.units.temperature (degC in the demo), no longer K.
+  // W-17 slice (c) §7.2: the default is project.units.temperature (degC in the demo), no longer K.
   await expect(editorIntentPanel.getByTestId("editor-intent-unit")).toHaveAttribute("data-value", "degC");
   await editorIntentPanel.getByTestId("editor-intent-value").fill("400");
   await openNamedDisclosure(editorIntentPanel, "Operation details");

@@ -530,7 +530,7 @@ impl MemoryPool {
     }
 
     /// [`Self::acquire_resampling`] for a native reader's parse of a held
-    /// result (C1 native custody):
+    /// result (C1 native custody, DEL-04-05 `c1-native-custody-plan.md`):
     /// before every attempt, under the pool lock, `bytes` above the
     /// per-invocation budget, and never above the owner-adopted
     /// [`DEFAULT_INVOCATION_BUDGET_BYTES`] whatever budget is configured, is
@@ -614,7 +614,7 @@ impl MemoryPool {
     }
 
     /// [`Self::acquire_interactive`] for a native reader's arguments (C1
-    /// native custody): the lease
+    /// native custody, DEL-04-05 `c1-native-custody-plan.md` §8): the lease
     /// and every growth of it ([`Lease::grow_to`], under the pool lock) are
     /// bounded by the per-invocation budget and never above the owner-adopted
     /// [`DEFAULT_INVOCATION_BUDGET_BYTES`], whatever budget is configured.

@@ -92,7 +92,7 @@ fn created_coordinates_keep_the_emitted_bits() {
     }
 }
 
-/// 0.1 m + 0.3 in is convert_for_dimension(0.3, in → m) plus one addition,
+/// §6.2: 0.1 m + 0.3 in is convert_for_dimension(0.3, in → m) plus one addition,
 /// 0.10762000000000001 m, not the absolute-entry value 0.10762000000000002 m.
 #[test]
 fn non_identity_increment_is_converted_then_added() {

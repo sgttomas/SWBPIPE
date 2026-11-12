@@ -1,5 +1,5 @@
 //! The native render's binding of the pressure-free Timoshenko report
-//! projection:
+//! projection (DEL-05-03 Design `pf-timoshenko.md` §4, "Source binding on PF"):
 //! an input with the top-level `pf_timoshenko` section takes the exact route's
 //! custody steps on its admission, then the re-derivation of its Diagnostics and
 //! its limitation 0 entry from the delivered result. Removing or altering the

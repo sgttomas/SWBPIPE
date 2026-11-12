@@ -5,6 +5,7 @@ with the independent Python Draft 2020-12 validator (``jsonschema`` through
 ``tests/schema_validation.py``). The Rust evaluator,
 ``core/reporting/report_package/src/schema_eval.rs``, is checked against the
 same expected verdicts by ``core/reporting/report_package/tests/schema_eval.rs``.
+See DEL-08-01 Design ``report-package-current-results.md`` §2.3 item 1.
 
 This test does not skip when ``jsonschema`` is missing: in its routed lane the
 dependency is required, and a missing one is a failure. Parity is regression
@@ -91,7 +92,7 @@ def test_the_oracle_dependency_is_present():
     assert _draft202012_validator() is not None
 
 
-# The one admitted disagreement class: an
+# The one admitted disagreement class (DEL-08-01 Design §2.3 item 1): an
 # ECMA-262 `$` does not match before a final line feed; Python's `re` does.
 FINAL_LF_CLASS = "ecma_dollar_before_final_line_feed"
 CLOSURE_TEXT = "".join(

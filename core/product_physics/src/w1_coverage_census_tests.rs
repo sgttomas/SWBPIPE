@@ -1,5 +1,5 @@
-//! The W1 coverage repair census and
-//! W1-E's product-side confirmation census,
+//! The W1 coverage repair census (DEL-04-08 Design `w1-coverage-repair.md` §3) and
+//! W1-E's product-side confirmation census (`w1e-sharper-exact-coverage.md` §6.2),
 //! through the actual producer: the observed ordinary run, then `retained_w1`
 //! (preparation, native solve, freeze, serialization, precommit reader).
 //!
@@ -101,7 +101,7 @@ fn corpus_hook(label: &str) {
     }
 }
 
-/// C1-a: the committed route-L member-load inputs (the group-3 trials and
+/// C1-a (§3.2): the committed route-L member-load inputs (the group-3 trials and
 /// every corpus member-load base). The cap witnesses run as their own targets.
 fn c1a_inputs() -> Vec<Input> {
     let mut v = Vec::new();
@@ -157,7 +157,7 @@ fn uniform(id: &str, direction: &str, value: f64) -> Value {
 }
 /// One loaded member `ss:pipe` from `ss:root` at (4, 0, 0) to `ss:root` + `span`, added
 /// to n05's sensitive torque case, whose independent soft-spring member makes the
-/// ordinary result Sensitive.
+/// ordinary result Sensitive (stage 2 §4.4's controls).
 fn loaded_member(span: [f64; 3], d: f64, t: f64, mill: Option<f64>, supports: [&[&str]; 2], loads: Vec<Value>) -> Value {
     let mut raw = n05_request(vec![n05_torques()]);
     let m = &mut raw["model"];
@@ -266,7 +266,7 @@ fn control_request(label: &str, text: &str) -> Input {
     let raw = if v.get("request").is_some() { v["request"].clone() } else { v };
     input(label, raw, vec![mode])
 }
-/// C2-a: every corpus base, the successor fixtures, the W1 controls, the 54
+/// C2-a (§3.2): every corpus base, the successor fixtures, the W1 controls, the 54
 /// B4/D1 trials (with N06 and CX-F among the controls) and the route-E successors.
 /// C1-a is its own target, measured with the corner-1 switch as well.
 fn c2a_inputs(group: &str) -> Vec<Input> {
@@ -454,7 +454,7 @@ fn w1_coverage_census_switched_path_control() {
     }
 }
 
-/// C1-a's cap inputs: the cap-law input and the two 4 MiB member-cap witnesses'
+/// C1-a's cap inputs (§3.2): the cap-law input and the two 4 MiB member-cap witnesses'
 /// inputs (`witness_w1_member_load_three_case_three_basis_128` and `..._dyadic`), on
 /// one large-stack thread (the census measures outcomes, not stack; the witnesses
 /// themselves stay the stack evidence).

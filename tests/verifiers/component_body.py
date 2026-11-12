@@ -120,7 +120,7 @@ def headline_not_body(headline: Any, bodies: Mapping[str, Any]) -> None:
 
 
 def model_bodies(model: Mapping[str, Any]) -> dict[str, tuple[str, float]]:
-    """The model's expected bodies by the producer's eligibility predicate."""
+    """The model's expected bodies by the producer's eligibility predicate (DEL-03-05 Design §2.3)."""
     pipes = model.get("pipe_segments") or []
     bodies: dict[str, tuple[str, float]] = {}
     for component in model.get("components") or []:

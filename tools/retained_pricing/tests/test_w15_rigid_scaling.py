@@ -1,4 +1,4 @@
-"""W15-PM, W15-RB, W15-NZ, W15-L1 and W15-SK (§8.21): W-15's working sets are priced only where
+"""W15-PM, W15-RB, W15-NZ, W15-L1 and W15-SK (retained-pricing-rules.md §8.21): W-15's working sets are priced only where
 its code exists, positively, and a changed or partly present source stops the run."""
 from pathlib import Path
 import os

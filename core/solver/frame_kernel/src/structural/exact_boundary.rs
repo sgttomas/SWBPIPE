@@ -3,10 +3,10 @@
 //! This is not the ordinary structural gate, a primitive-engineering certificate,
 //! or a replacement for it. Every free connected component must have order at
 //! most its entry's cap: 4 on the functional entry and its replay, 2 on the
-//! legacy entries. On the functional entry, a
+//! legacy entries (RF source-method design §2.1). On the functional entry, a
 //! declared congruence member's exact entries are Tᵀ·K_local·T, formed exactly
 //! from its declared binary64 operands, in place of its rounded global
-//! contributions ([`CongruenceMember`]).
+//! contributions (RF design §3.3, [`CongruenceMember`]).
 //! Private owned source and private response construction prevent caller-supplied
 //! reports from serving as proofs. Projection is explicitly distinct from proof.
 use super::retained::work::WorkTotal;
@@ -103,7 +103,7 @@ const CONGRUENCE_VALUES: usize = 288;
 /// The scalars inspected and copied per congruence member: its 288 operand
 /// values, its 12 DOF map entries and its contribution range's 2 bounds.
 const CONGRUENCE_SCALARS: usize = 302;
-/// refuses a malformed congruence list (`Invalid`) before any
+/// RF design §3.3: refuses a malformed congruence list (`Invalid`) before any
 /// formation: a DOF map entry outside the source, a non-finite operand, a
 /// contribution range that is out of bounds, not 144 long, overlapping
 /// another's or not at its map's (row, column) pairs in local row-major
@@ -206,7 +206,7 @@ fn congruence_entries(
     }
     Ok(g)
 }
-/// adds a congruence member's exact entries into k at its DOF
+/// RF design §3.3: adds a congruence member's exact entries into k at its DOF
 /// map, entry by entry in local row-major order (its contributions' order).
 fn add_congruence(
     k: &mut [Vec<Expansion>],
@@ -320,7 +320,7 @@ impl Work {
         Ok(x)
     }
     /// Metered multiplication, the single work-charging rule of every exact
-    /// attempt (HELP_HUMAN ruling 2026-10-16).
+    /// attempt (RF source-method design §5; HELP_HUMAN ruling 2026-10-16).
     /// Both Context entries, every `Response` and `RetainedResponse` method and
     /// the functional set multiply here: there is no flag and no second regime.
     ///
@@ -417,7 +417,7 @@ pub struct BlockWitness {
     b: Option<Vec<f64>>,
     c: Option<Vec<f64>>,
     determinant: Option<Vec<f64>>,
-    /// Orders 3 and 4 only: the terms of the o(o+1)/2
+    /// Orders 3 and 4 only (RF design §2.6): the terms of the o(o+1)/2
     /// upper-triangle entries a[p][q], p <= q, row-major.
     upper: Option<Vec<Vec<f64>>>,
     /// Orders 3 and 4 only: the terms of the leading principal minors
@@ -678,7 +678,7 @@ struct Snapshot {
     free: Vec<usize>,
     prescribed: Vec<(usize, f64)>,
     contributions: Vec<StiffnessContribution>,
-    /// the functional entry's congruence members (their
+    /// RF design §3.3: the functional entry's congruence members (their
     /// operands, maps and contribution ranges); empty on the legacy entries.
     congruence: Vec<CongruenceMember>,
     force_terms: Option<Vec<ForceContribution>>,
@@ -698,7 +698,7 @@ pub struct Context {
     /// empty for orders 1 and 2. Its denominator Δo is the witness's last
     /// minor.
     adjugates: Vec<Vec<Expansion>>,
-    /// the largest free block order its entry admitted.
+    /// RF design §2.1: the largest free block order its entry admitted.
     order_cap: usize,
     limits: Limits,
     preparation_operations: usize,
@@ -718,9 +718,9 @@ impl Context {
         };
         Self::new_charged(system, identity, force_basis, &[], limits, &mut w, LEGACY_ORDER_CAP)
     }
-    /// `order_cap` is the entry's block-order cap: the first
+    /// `order_cap` is the entry's block-order cap (RF design §2.1): the first
     /// free component above it is refused as `UnsupportedBlock`. `congruence`
-    /// is the functional entry's congruence list; the legacy
+    /// is the functional entry's congruence list (RF design §3.3); the legacy
     /// entries pass none.
     fn new_charged(
         system: &StructuralSystem<'_>,
@@ -797,7 +797,7 @@ impl Context {
             if c.row >= n || c.col >= n || !c.value.is_finite() {
                 return Err(Error::Invalid("stiffness contribution"));
             }
-            // a congruence member's rounded contributions stay
+            // RF design §3.3: a congruence member's rounded contributions stay
             // in the ordered fold, which the coverage check below compares
             // with the aggregate, but not in k: its exact entries enter k at
             // the position of its first contribution instead.
@@ -1035,7 +1035,7 @@ impl Context {
                     denominator: self.k[i][i].clone(),
                 };
             } else if block.len() > 2 {
-                // num_p = Σ_q adj[p][q]·h_q, each product summed
+                // RF design §2.4: num_p = Σ_q adj[p][q]·h_q, each product summed
                 // with its cofactor sign; every DOF takes a clone of the same Δo.
                 let order = block.len();
                 let delta = self.block_denominator(b)?;
@@ -1070,7 +1070,7 @@ impl Context {
                 };
             }
         }
-        // a column in a block of order 3 or 4 is grouped by
+        // RF design §2.4: a column in a block of order 3 or 4 is grouped by
         // its block, so that the block's shared Δo enters each reaction once
         // rather than once per DOF. Columns in blocks of order 1 or 2 keep the
         // per-DOF loop, in the same order.
@@ -1136,7 +1136,7 @@ impl Context {
         })
     }
     /// An order-3/4 block's shared denominator Δo: its witness's last
-    /// leading principal minor, kept privately in this Context.
+    /// leading principal minor, kept privately in this Context (RF §2.4).
     fn block_denominator(&self, b: usize) -> Result<Expansion, Error> {
         let terms = self.witnesses[b]
             .minors
@@ -1742,7 +1742,7 @@ impl ReplayCheck {
 }
 impl Snapshot {
     /// Bit-for-bit equality with an expected source, including the congruence
-    /// members' operands, maps and contribution ranges, in order.
+    /// members' operands, maps and contribution ranges, in order (RF §3.3).
     fn matches(
         &self,
         system: &StructuralSystem<'_>,
@@ -1844,7 +1844,7 @@ impl Snapshot {
             n = n.saturating_add(row.len());
         }
         n = n.saturating_add(self.contributions.len().saturating_mul(3));
-        // each congruence member's operands, map and range.
+        // RF design §3.3: each congruence member's operands, map and range.
         n = n.saturating_add(self.congruence.len().saturating_mul(CONGRUENCE_SCALARS));
         if let Some(t) = &self.force_terms {
             for x in t {
@@ -2023,7 +2023,7 @@ impl RetainedResponse {
     pub fn force_basis(&self) -> ForceBasis<'_> {
         self.source.force_basis()
     }
-    /// the congruence members of the retained source, whose
+    /// RF design §3.3: the congruence members of the retained source, whose
     /// exact entries replaced their rounded contributions; empty unless the
     /// functional entry was given some.
     pub fn congruence_members(&self) -> &[CongruenceMember] {
@@ -2095,7 +2095,7 @@ impl RetainedResponse {
             {
                 return Err(Error::Invalid("retained source count"));
             }
-            // the legacy entries take no congruence list, so a
+            // RF design §3.3: the legacy entries take no congruence list, so a
             // source retained with congruence members cannot bind to the
             // legacy expected source. Refused before any copy or arithmetic.
             if !self.source.congruence.is_empty() {

@@ -14,13 +14,13 @@ LIB = "core/product_physics/src/lib.rs"
 # T4-U6 (D-5): fallback_circular_maximum takes (state, basis) and binds that basis's area (two added comment lines
 # move its sites at offsets 25/142/162 to 27/144/164); straight_stress_spans and the two pressure helpers read the
 # pressure bore from ExactSectionBases. No allocation is added or removed in these bodies, and every first-return
-# alternative still returns.
+# alternative still returns (retained-pricing-rules.md, "T4-U6/U8: actual-source D3").
 # PP: straight_stress_spans takes the case's formation source and binds its member loads to it (a borrow).
 # Epoch addbdc030e: solve_prepared_load_case's `pipe_sections` is `exact_pipe_sections(built)` (no first-return change).
 # T4-S5 D3 (epoch): certified_publication.rs adds only connector_record's tie-rod groups (connectors only: P3); every
 # pinned private helper, root and C6 site is unchanged. solve_prepared_load_case adds the U4b station rows, realized-arc
 # maxima (arcs only) and the corrected displacement; its consumption of the fallback attempts is unchanged.
-# O4 S5 (§8.9, O4-SR): solve_prepared_load_case's selected-source maximum takes one
+# O4 S5 (retained-pricing-rules.md §8.9, O4-SR): solve_prepared_load_case's selected-source maximum takes one
 # composite_member_maximum call per distinct basis (no fallback attempt) and drops SOURCE_MAXIMUM_BASES_DISTINCT; its
 # consumption of the fallback attempts and every first-return alternative are unchanged.
 CPP_FILE_PIN = '54ae0639313c3e5785c9e65f1a9574b535bc3dbe94b49a5788b7f976f935c57a'

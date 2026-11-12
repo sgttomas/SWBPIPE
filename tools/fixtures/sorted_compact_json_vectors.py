@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Sorted-compact JSON vectors for the W-12 model-state record hash.
 
+DEL-14-01 Design `desktop-states-runs-comparison.md` section 2 (serializer pin).
 Every expected text and digest is computed by
 `core/project_persistence/service.py` `canonical_json`
 (`json.dumps(sort_keys=True, separators=(",", ":"), ensure_ascii=True)`). The

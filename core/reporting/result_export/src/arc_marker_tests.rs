@@ -1,4 +1,4 @@
-//! T4-U8: a
+//! T4-U8 (DEL-05-03 `section-bases-and-timoshenko.md` §2.5, §3.6, §5): a
 //! realized arc's `pipe_sections` entry, and only an arc's, carries
 //! `member_kind = "realized_arc"`, so the evidence reader knows every arc
 //! without the model, including an arc outside every pressure region; with the
@@ -40,7 +40,7 @@ fn annulus(wall: f64) -> Value {
 fn reduced_wall() -> f64 {
     sb::reduced_wall(WALL, 0.0, ALLOWANCE)
 }
-/// kappa_E and A_s on the nominal section with the member's nu.
+/// §3.1: kappa_E and A_s on the nominal section with the member's nu.
 fn timoshenko_beam() -> Value {
     let kappa = sb::timoshenko_shear_factor(OD * 0.5 - WALL, OD * 0.5, NU);
     json!({"model": sb::TIMOSHENKO, "shear_factor": kappa, "shear_area_m2": kappa * f(&annulus(WALL)["As_m2"])})

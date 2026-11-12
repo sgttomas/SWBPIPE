@@ -146,7 +146,7 @@ pub enum PackageReadRefusal {
     /// A member disagrees with the manifest inventory or its own form.
     MemberIntegrity { file_name: String, reason: String },
     /// A user-release record that is not of its form, not bound to this
-    /// package's members, or in a package it may not be in.
+    /// package's members, or in a package it may not be in (W-18b §2.9).
     UserReleaseUnbound { reason: String },
 }
 
@@ -277,12 +277,12 @@ pub(crate) fn read_report_package_container_in(
     let fields = manifest_fields(manifest_object)?;
     let rows = manifest_member_rows(manifest_object)?;
     // A record, or the user-released profile, selects the user-released
-    // member rule; the record's own checks then decide.
+    // member rule; the record's own checks then decide (W-18b §2.9).
     let user_released = fields.user_release.is_some() || fields.export_profile_id == crate::user_release::USER_RELEASED_DESKTOP_PROFILE;
     let exact_user_release = fields.user_release.as_ref().and_then(|record| record["record_version"].as_str())
         == Some(open_pipe_stress_report_renderer::USER_RELEASE_EXACT_RECORD_VERSION);
     let members = verify_members(bytes, &archive, &rows, fields.export_blocked, &fields.export_profile_id, user_released, exact_user_release, admitted)?;
-    // W-18b: the record's checks, after the members are verified and
+    // W-18b (§2.9): the record's checks, after the members are verified and
     // before the rebuild; the rebuild then holds the record's form exactly.
     let caller_record = match &fields.user_release {
         Some(record) => Some(check_user_release(&fields, record, &members)?),
@@ -992,7 +992,7 @@ fn verify_members(
                     .map_err(|reason| defect(reason.to_string()))?;
                 match row.role.as_str() {
                     ROLE_AUDIT_MANIFEST => {
-                        // Checksum subjects.
+                        // Checksum subjects (DEL-08-01 Design §2.4).
                         if !export_blocked {
                             document_form::check_audit_subjects(&document).map_err(&defect)?;
                         }
@@ -1010,7 +1010,7 @@ fn verify_members(
                         document_form::check_result_member_form(&document).map_err(&defect)?;
                         if !export_blocked {
                             document_form::check_route_admitted_in(&document, admitted).map_err(&defect)?;
-                            // the runner profile packages no exact identity.
+                            // W-11 §3.5: the runner profile packages no exact identity.
                             exact_sections::check_runner_profile(export_profile_id, &document).map_err(&defect)?;
                             // Keep the legacy record's refusal and its precedence.
                             if user_released && !exact_user_release {
@@ -1048,7 +1048,7 @@ fn verify_members(
     }
     // The writer blocks a package without a result export or a
     // state/comparison/handoff member, so an unblocked one carries both; a
-    // user-released package carries no state/comparison/handoff
+    // user-released package (W-18b §2.9) carries no state/comparison/handoff
     // member, so only its result member is required here (its cardinality is
     // the user-release check's).
     if !export_blocked && user_released {
@@ -1131,14 +1131,14 @@ fn check_member_document(
 }
 
 // ---------------------------------------------------------------------------
-// User release (W-18b).
+// User release (W-18b, DEL-08-01 Design `report-user-release.md` §2.9).
 // ---------------------------------------------------------------------------
 
 fn user_release_unbound(reason: impl Into<String>) -> PackageReadRefusal {
     PackageReadRefusal::UserReleaseUnbound { reason: reason.into() }
 }
 
-/// The checks of a package whose manifest records a user release,
+/// The checks of a package whose manifest records a user release (§2.9),
 /// each failure `OPSPROJ_USER_RELEASE_UNBOUND` with its reason. They are
 /// equality checks: they establish that the record, the members and the
 /// member bytes agree with each other, not that a person made the statement,
@@ -1167,7 +1167,7 @@ fn check_user_release(
             "a user-released package carries exactly one HTML, PDF, audit and result member and no state/comparison/handoff member",
         ));
     }
-    // The record's form: the caller's members plus `content_binding`.
+    // The record's form: the caller's members (§2.3) plus `content_binding`.
     let mut caller = manifest_record.clone();
     let binding = caller.as_object_mut().and_then(|object| object.remove("content_binding"));
     let record: UserReleaseRecord =

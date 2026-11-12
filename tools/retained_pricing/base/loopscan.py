@@ -143,7 +143,7 @@ def blank_rust(text):
 
 TEST_ATTR = re.compile(r"#\[cfg\((?:test|any\(\s*test\b[^\]]*)\)\]")
 
-# W1R-FG (§8.11): opt-in features the registered build leaves off. The registered
+# W1R-FG (retained-pricing-rules.md §8.11): opt-in features the registered build leaves off. The registered
 # identity is built with no features, so an item or statement under exactly `#[cfg(feature = "<f>")]` or
 # `#[cfg(all(test, feature = "<f>"))]` for such a feature is compiled out of it, as a `#[cfg(test)]` item is,
 # and is blanked the same way. A `#[cfg(not(feature = ..))]` arm is compiled in and stays priced. The

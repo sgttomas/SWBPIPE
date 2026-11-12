@@ -34,7 +34,7 @@ const DERIVATIVE: &str = "444444444444444444444444444444444444444444444444444444
 const BYTES: &str = "5555555555555555555555555555555555555555555555555555555555555555";
 
 /// The production step 0's refusal of an exact identity outside its set
-/// (physics-retained-1), naming the admitted set.
+/// (physics-retained-1), naming the admitted set (§5.1 item 4).
 const RETAINED_REFUSAL: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report admits only the exact-route identities openpipestress.result_semantics/0.3.0/pressure-2, openpipestress.result_semantics/0.3.0/pressure-source-1; found openpipestress.result_semantics/0.3.0/physics-retained-1.";
 /// The same refusal's prefix, for any `found`.
 const ADMITS_ONLY: &str = "REPORT-RENDER-ROUTE-NOT-ADMITTED: the rendered report admits only the exact-route identities openpipestress.result_semantics/0.3.0/pressure-2, openpipestress.result_semantics/0.3.0/pressure-source-1; found";
@@ -815,7 +815,7 @@ mod direct_native {
     const ROWS_MISMATCH: &str = "REPORT-PACKAGE-REPORT-ROWS-MISMATCH";
     /// The standing line's start, HTML-escaped: without an integrity warning,
     /// and on pressure-source-1 (synthetic n05), whose Diagnostics carry
-    /// `NUMERICAL_INTEGRITY_SENSITIVE`.
+    /// `NUMERICAL_INTEGRITY_SENSITIVE` (§3.2).
     const PLAIN_STANDING: &str = "Numerical standing: integrity checked (the Rust reader&#39;s standing for the result";
     const SENSITIVE_STANDING: &str = "Numerical standing: integrity warning present in the Diagnostics: NUMERICAL_INTEGRITY_SENSITIVE (see the Diagnostics table under Warnings, Assumptions, And Provenance); integrity checked (the Rust reader&#39;s standing for the result";
 
@@ -955,7 +955,7 @@ mod direct_native {
         assert_eq!((code.as_str(), message.contains("exact_route")), (SECTIONS_MISMATCH, true), "{message}");
     }
 
-    /// Every witness shape, through the production roots: with its live
+    /// Every witness shape (§5.5), through the production roots: with its live
     /// job and genuine texts, the render input renders (HTML and the derived
     /// print view, export gates passed, no numerical-health line), and the
     /// save request passes the native binding and is assembled into an
@@ -968,7 +968,7 @@ mod direct_native {
             let rendered = production_render_on(&live, &genuine_render_args(&w, &live.job)).unwrap_or_else(|error| panic!("{name}: {error:?}"));
             assert_eq!(rendered["export_blocked"], json!(false), "{name}: {}", rendered["blocking_reasons"]);
             let html = rendered["html"].as_str().unwrap();
-            // Observation 4 (owner, 2026-10-26, option A): beside an
+            // Observation 4 (owner, 2026-10-26, option A; §3.2): beside an
             // integrity warning the standing line names it and points to it.
             let standing = if name == "pressure_source_1" { SENSITIVE_STANDING } else { PLAIN_STANDING };
             assert!(html.contains(EXACT_ROUTE_SUBHEADING) && html.contains(standing), "{name}");
@@ -1671,7 +1671,7 @@ mod direct_native {
         assert_eq!(refused, format!("{SECTIONS_MISMATCH}: exact_route"));
     }
 
-    /// The rows' full-precision binding on both identities (Codex review
+    /// The rows' full-precision binding on both identities (§3.7; Codex review
     /// round 1 of #1655): the displayed rows are rounded, so the render binds
     /// each row's reference and checksum to the delivered source. A checksum,
     /// a reference or the entry count that is not the delivered source's
@@ -2024,10 +2024,10 @@ mod direct_native {
     /// The whole-command counting-allocator check of the genuine exact render
     /// (from the raw body through the ingress admission and the production
     /// root) and of the genuine exact save (through the shared producer's
-    /// assembly of the admitted package): each priced peak
+    /// assembly of the admitted package, §5.1 item 8): each priced peak
     /// is within its lease, less the buffered body's envelope, which is
     /// allocated before the command runs. W M_r and the save's W M are measured
-    /// provisions for these witness inputs, not proven bounds.
+    /// provisions for these witness inputs, not proven bounds (§3.6).
     #[test]
     fn the_genuine_exact_render_and_save_stay_within_their_leases() {
         for (shape, text) in SHAPES {

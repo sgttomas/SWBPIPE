@@ -74,7 +74,7 @@ PHASE_NAMES = (
     "X1 ordinary span with T25 (selected finalization)",
     "X2 X completion: retained receipt + reserve + Direct completion",
 )
-# PU-X3 (pre-0.4 failure unification D3, §8.14): on a source whose captured route and Direct
+# PU-X3 (pre-0.4 failure unification D3, retained-pricing-rules.md §8.14): on a source whose captured route and Direct
 # entry republish a selected source that could not finalize, the republication is its own phase: the second ordinary
 # span on the same ledger, after the first run's envelope (reduced to its fail-closed form) and, on the Direct entry,
 # the observer dropped. W1 does not start (Coexistence), so no W phase follows it. Earlier sources keep seven phases.

@@ -34,7 +34,7 @@ fn rust_projection_matches_the_shared_parity_vectors() {
     for vector in &vectors {
         let reason = vector["reason"].as_str().unwrap();
         assert!(!reason.is_empty(), "every vector states its reason");
-        // a vector may state the result's combination evidence, rows and numerical cases.
+        // RT-A3 §4: a vector may state the result's combination evidence, rows and numerical cases.
         let mut source = json!({"diagnostics": vector["diagnostics"]});
         for member in ["contract_evidence", "results", "numerical_quality"] {
             if let Some(value) = vector.get(member) {
@@ -72,7 +72,7 @@ fn the_vectors_cover_the_stated_edge_cases() {
     assert!(has(&|s, e| s["severity"] == "warning" && e["severity"] == "warning" && e["class"] == "ASSUMPTION_WARNING"), "warning");
     assert!(has(&|s, e| s["severity"] == "info" && e["severity"] == "info" && e["class"] == "ASSUMPTION_WARNING"), "info");
     assert!(has(&|s, e| s["affected_refs"].as_array().is_some_and(|refs| refs.len() == 2) && affected(e).contains(", ")), "joined refs");
-    // supplied text quoted on a result with combinations, a roster entry copied, and prose copied on a
+    // RT-A3 §4: supplied text quoted on a result with combinations, a roster entry copied, and prose copied on a
     // result without one.
     let quoted = |s: &Value, e: &Value| e["message"] == format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{}\"", s["message"].as_str().unwrap());
     assert!(has(&|s, e| s["code"] == "REVIEW_NOTE" && quoted(s, e)), "supplied text quoted");
@@ -217,7 +217,7 @@ fn the_check_binds_each_field_the_order_and_the_appended_entries() {
     assert_eq!(check_report_diagnostics(&json!({}), &json!({"diagnostics": []})), Ok(()));
 }
 
-/// RT-A5: a held gate
+/// RT-A5 (DEL-05-02 `operating-case.md` §7.5; Work `combination-certificate.md` §2): a held gate
 /// notice's refusal text is bound to its held-status record, not verified as true, so the report
 /// quotes a diagnostic whose typed code is a held gate code whole as supplied text, though the
 /// roster names its combination and admitted it, whatever its text, and the source's bytes are

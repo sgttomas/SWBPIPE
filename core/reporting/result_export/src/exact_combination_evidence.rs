@@ -1,4 +1,4 @@
-//! W-16 slice b: the combination
+//! W-16 slice b (DEL-05-02 Design `exact-combinations.md` §6): the combination
 //! pass of the pressure-2 reader.
 //!
 //! The direct-case pass validates a document's primitive cases first, on a view
@@ -25,7 +25,7 @@
 //! ties to the smallest operand id; a recomputed magnitude is the correctly
 //! rounded norm of the combined components. Nothing here calls product code.
 //!
-//! RT-A4: absolute sums and
+//! RT-A4 (DEL-05-02 `absolute-sum-srss-combinations.md` §2-§6): absolute sums and
 //! SRSS are re-derived with the kernel's definitions (`load_case_algebra`), and so
 //! is the fixed-load count κ that gate 3 reads; a combination operand supplies its
 //! own published rows; the records follow the evaluation order (each operand
@@ -34,7 +34,7 @@
 //!
 //! These checks establish internal source consistency, not solver accuracy.
 //! Combination rows carry no numerical check of their own and never enter
-//! numerical eligibility, which stays with the primitive cases.
+//! numerical eligibility (§5), which stays with the primitive cases.
 use crate::combination_graph::{self as graph, Graph, Operand};
 use crate::section_basis::bit_equal;
 use open_pipe_stress_correct_norm::norm3;
@@ -761,7 +761,7 @@ fn consuming_constant_effort(model: &Value) -> Vec<ConstantEffortSupport<'_>> {
         .collect()
 }
 
-/// The gates of the combination `id`, read after every
+/// The gates (§4; absolute-sum-srss §5) of the combination `id`, read after every
 /// earlier record: a withheld operand combination; then, for the term bases, gates 1
 /// and 2 over every load case the combination reaches, and gates 3 and 4 on κ.
 #[allow(clippy::too_many_arguments)]
@@ -826,9 +826,9 @@ fn gate(
             return gated(RESOLVED_STIFFNESS_MIXED);
         }
     }
-    // Gates 3 and 4: one κ rule per fixed-load source,
+    // Gates 3 and 4 (absolute-sum-srss §5.1): one κ rule per fixed-load source,
     // each under its own codes, gate 3 first where both sources hold. Gate 3 names
-    // an undefined mechanics operand under its own code; gate 4, as on PF,
+    // an undefined mechanics operand under its own code (§10); gate 4, as on PF,
     // as CONSTANT_EFFORT_COMBINATION_OPERAND_MIXED.
     let fixed_load_withholding = || {
         let kappas: Vec<_> = operands.iter().map(|o| graph.kappa_of(o)).collect();

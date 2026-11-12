@@ -370,7 +370,7 @@ pub struct UserRuleCheckBasisRef {
     pub ref_id: String,
 }
 
-/// Shown once beside the rule-check headline: the counts count
+/// Shown once beside the rule-check headline (design §2.7): the counts count
 /// outcomes, one per check and load case or combination.
 pub const USER_RULE_CHECK_COUNT_SCOPE_NOTE: &str =
     "Counts are per check and load case or combination; one check can contribute more than once.";
@@ -437,7 +437,7 @@ pub struct ExactRouteSection {
     pub headlines: Vec<ReportHeadline>,
 }
 
-/// One library record the model references: safe metadata only,
+/// One library record the model references (W-11 §4.2): safe metadata only,
 /// no library payload or record snapshot.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -647,7 +647,7 @@ fn user_rule_check_status_display(status: &UserRuleCheckStatus) -> String {
     format!("User-rule-check authority · {label} ({token})")
 }
 
-/// FR-RULE-003: while any
+/// FR-RULE-003 (DEL-06-03 Design `pack-aggregate-incomplete.md`): while any
 /// check is incomplete the pack headline is "INCOMPLETE — n check(s) failed;
 /// m check(s) blocked", counted from the checks themselves, so a run recorded
 /// under the earlier failed-first aggregate never headlines a fail either.
@@ -1555,7 +1555,7 @@ sharing or publication.",
 }
 
 // ---------------------------------------------------------------------------
-// Readability:
+// Readability (DEL-08-01 Design `exact-route-report-sections.md` §3.7, §6.3):
 // the display rule statement, the diagnostic evidence block and the run-name
 // note. Every route; the HTML and the PDF carry them alike.
 // ---------------------------------------------------------------------------
@@ -1677,7 +1677,7 @@ pub fn run_name_note_text(input: &RenderableReportInput) -> Option<String> {
 
 // ---------------------------------------------------------------------------
 // W-11: the exact-route result block, its admission binding and its limitation
-// entries.
+// entries (DEL-08-01 Design `exact-route-report-sections.md` §3.2-§3.5).
 // ---------------------------------------------------------------------------
 
 /// The admission binding disagrees with the report's own records, or a field
@@ -2038,7 +2038,7 @@ pub fn provenance_disposition_blocking_reasons(input: &RenderableReportInput) ->
         input.report_context.as_ref().map(|context| context.export_context),
         Some(ReportExportContext::LocalPrivate)
     );
-    // W-18b: under
+    // W-18b (DEL-08-01 Design `report-user-release.md` §2.6): under
     // `user_released_report` with a record, a record whose privacy class is
     // `private_project_data` is the user-released class and does not trip
     // this rule; any other non-public class still does. Every other context

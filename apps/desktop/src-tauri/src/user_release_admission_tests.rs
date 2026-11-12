@@ -130,7 +130,7 @@ const HANGER_PROVENANCE: &str = "/supports/5/provenance";
 /// Rule 1's detector alone, through the rule: each `library_ref` member of
 /// the shared member table, held alone in a document, is a rule-1 site named
 /// by its pointer, whatever its value; an object states its kind and id, a
-/// non-object neither (Codex round 1 at revision 4, S2).
+/// non-object neither (§6, Codex round 1 at revision 4, S2).
 #[test]
 fn user_release_library_reference_sites_refused() {
     let table = parse(MEMBER_TABLE);
@@ -179,7 +179,7 @@ fn user_release_library_reference_sites_refused() {
     }
 }
 
-/// Codex round 2's counterexample: a bend applied from a component
+/// Codex round 2's counterexample (§6): a bend applied from a component
 /// library. Its `library_ref` is rule 1; with it removed, its modifiers'
 /// `library:component:` source reference is rule 2; with both removed, no
 /// library origin is detected (the reliance limit: the test pins the limit
@@ -224,7 +224,7 @@ fn library_provenance_strings_are_rule_2() {
 
 // --- Library rule 3: the legacy hanger selection -------------------------------
 
-/// Codex round 3's blocker: a model saved before `00af9112c0` whose hanger
+/// Codex round 3's blocker (§6): a model saved before `00af9112c0` whose hanger
 /// support's `provenance` is the legacy selection evidence, with no
 /// `library_ref` and no `library:` string, and whose solve has genuine
 /// `spring_hanger_user_input_review` rows. One case per recognition path,
@@ -295,7 +295,7 @@ fn user_release_legacy_hanger_selection_refused() {
     let inside = canonical_json(&json!({"note": full}));
     assert_eq!(site(&demo_with_hanger_provenance(&inside)), legacy_site(None, HANGER_PROVENANCE));
 
-    // Controls, each with no detected library origin (the reliance limit).
+    // Controls, each with no detected library origin (the reliance limit, §2.7).
     for control in [
         "{ this begins with a brace but is not JSON".to_string(),
         canonical_json(&json!([{"hanger_id": "h", "note": "an embedded array"}])),
@@ -324,7 +324,7 @@ fn rule_3b_unchecked_findings_are_the_prescans() {
     assert!(!is_candidate("x{") && is_candidate(" \t\r\n{") && !is_candidate("\u{a0}{"));
 }
 
-/// Rule 3 (b)'s lease: the ingress lease grows once, by the
+/// Rule 3 (b)'s lease (§2.7 "Cost", §6): the ingress lease grows once, by the
 /// largest candidate's priced parse, before any embedded parse; the candidates
 /// are parsed one at a time, so the measured peak stays within that growth and
 /// near a model with the largest candidate alone. No growth happens when an
@@ -480,7 +480,7 @@ fn user_release_rule_pack_reference_refused() {
     assert!(refuse_rule_pack_referenced(&model, &active).unwrap_err().contains("no active_rule_packs list"));
 }
 
-/// Codex round 1's private-class case: a rule-pack class with an
+/// Codex round 1's private-class case (§6): a rule-pack class with an
 /// unknown, `TBD` or null redistribution status is refused natively, and so
 /// is each other non-project private class, under either member name. A
 /// project or public class adds nothing.
@@ -507,7 +507,7 @@ fn user_release_private_class_refused() {
     assert_eq!(refuse_private_classes(&parse(CONNECTED_MODEL), "/model"), Ok(()));
 }
 
-// --- The run record ---------------------------------------------
+// --- The run record (§2.5 step 8) ---------------------------------------------
 
 struct RunCase {
     model: Value,
@@ -555,7 +555,7 @@ fn user_release_run_record_admits_the_solves_own_record() {
     assert_eq!(case.check(&case.rehashed(|_| {})), Ok(()));
 }
 
-/// `user_release_rule_aggregate_refused`: a run record whose status
+/// `user_release_rule_aggregate_refused` (§6): a run record whose status
 /// carries `USER_RULE_CHECKED` or `USER_RULE_FAILED` (the session's composed
 /// record), with its own checksum recomputed so Record Run's checks pass, is
 /// refused by route 010's status check.
@@ -573,7 +573,7 @@ fn user_release_rule_aggregate_refused() {
     }
 }
 
-/// Each of route 010's run-record checks, alone, and Record
+/// Each of route 010's run-record checks (§2.5 step 8), alone, and Record
 /// Run's own checks through the factored function: every failure is
 /// `REPORT-USER-RELEASE-ANALYSIS-RECORD-UNBOUND` with Record Run's detail.
 #[test]

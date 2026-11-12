@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unicode tables of the MBF engine crate.
+"""Unicode tables of the MBF engine crate (DEL-17-04 Design `desktop-mbf-export-import.md` §2).
 
 The Rust port of the MBF importer (`core/handoff/caepipe_mbf_engine`) reproduces three Python string behaviours the
 importer's outputs depend on: `str.isprintable` (which characters `repr` writes as themselves), the regular

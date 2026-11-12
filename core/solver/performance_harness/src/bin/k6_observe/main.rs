@@ -419,7 +419,7 @@ fn counts_line(
                 admission_estimate_bytes(m, c, &sizes, None).expect("non-W1 mode"),
             );
     }
-    // K6b: W1's counts, storage and estimate, when the
+    // K6b: W1's counts, storage and estimate (plan §3.4, §3.5), when the
     // counts carry them.
     // Under w1_source_ok=false the typed SourceRefused result emits positive
     // source-window max/sel128 and caller-only fixed. Its zero kernel fields

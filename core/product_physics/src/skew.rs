@@ -1,13 +1,13 @@
-//! R-6/R-7 S-K1 product path.
+//! R-6/R-7 S-K1 product path (DEL-04-03 Work `skew-restraints.md` §2.2, §6 to §9, P-2).
 //!
 //! A skewed record (an explicit `line_stop` or `spring` on one translational DOF with a
 //! `direction` of two or more nonzero components, admitted by `document_members`'
 //! `skew_admission`) never becomes a `LinearSupport`: its DOF token states only that it is
-//! translational. `build_basis` forms the model's one `RestraintBasis` beside
+//! translational (§6.4). `build_basis` forms the model's one `RestraintBasis` beside
 //! `prepare_boundary` (codes 6, 7 and 8, per node, ascending), the basis's skew spring
 //! blocks join the assembly (`node_blocks`), and the case solve runs on coordinates
 //! (`solve`), is lifted, and is attributed (`attribute`). A model without a skewed record
-//! builds no basis, and every path is today's.
+//! builds no basis, and every path is today's (§6.5).
 use super::*;
 use crate::document_members::{
     is_skewed_record, skew_code, SUPPORT_CONSTRAINT_REDUNDANT, SUPPORT_DIRECTION_NODE_UNCONNECTED,
@@ -125,7 +125,7 @@ pub(crate) fn build_basis(
     basis
 }
 
-/// The skew spring blocks for the assembly, in `springs()` order; empty (no
+/// The skew spring blocks for the assembly (§6.1), in `springs()` order; empty (no
 /// allocation) without a basis.
 pub(crate) fn node_blocks(basis: Option<&RestraintBasis>) -> Vec<(usize, [[f64; 3]; 3])> {
     match basis {
@@ -134,7 +134,7 @@ pub(crate) fn node_blocks(basis: Option<&RestraintBasis>) -> Vec<(usize, [[f64; 
     }
 }
 
-/// the skewed rows the ground count adds (stops and positive skewed springs).
+/// §9: the skewed rows the ground count adds (stops and positive skewed springs).
 pub(crate) fn ground_rows(basis: Option<&RestraintBasis>) -> usize {
     basis.map_or(0, |basis| basis.stops().len() + basis.springs().iter().filter(|s| s.stiffness > 0.0).count())
 }
@@ -157,7 +157,7 @@ pub(crate) fn prescribed_motion_refusal(basis: &RestraintBasis, prescribed: &[(u
     ))
 }
 
-/// a skew case whose ordinary formation left binary64 (W2 not attempted).
+/// §2.2 item 10: a skew case whose ordinary formation left binary64 (W2 not attempted).
 pub(crate) fn force_scaled_refusal(case_id: &str, detail: &str) -> Diagnostic {
     diag(
         &format!("diagnostic:load-case:{}:skew-force-scaled", stable_suffix(case_id)),
@@ -168,7 +168,7 @@ pub(crate) fn force_scaled_refusal(case_id: &str, detail: &str) -> Diagnostic {
     )
 }
 
-/// The static path's coordinate solve: NI's linear skew entry with its
+/// The static path's coordinate solve (§6.2, §6.3): NI's linear skew entry with its
 /// assembly and symmetry evidence on K′ and `restrained_coordinates`. The case solve
 /// (`solve`) and modal's singularity evidence (D-1 C1, on a zero force in
 /// `DenseScrutiny`) both run it.
@@ -250,7 +250,7 @@ pub(crate) fn solve(
     })
 }
 
-/// A case's attributed skew reactions.
+/// A case's attributed skew reactions (§7.2).
 pub(crate) struct SkewReactions {
     /// Global support-on-pipe force and along-direction value, by skewed record id.
     pub records: HashMap<String, StopReaction>,
@@ -305,7 +305,7 @@ pub(crate) fn attribute(
     Ok(SkewReactions { records })
 }
 
-/// a skewed record's along-direction row (N, positive along the authored +d).
+/// §7.1: a skewed record's along-direction row (N, positive along the authored +d).
 pub(crate) fn along_direction_row(case_id: &str, support_id: &str, value: f64, basis_text: &str) -> ResultItem {
     ResultItem {
         component_body: None,

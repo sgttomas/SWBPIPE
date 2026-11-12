@@ -72,7 +72,7 @@ pub fn parse_json(bytes: &[u8], what: &str, code: &'static str) -> Result<Value,
 }
 
 /// The export dialog's settings text `{title, referenceTemperature: {value, unit}, maxLayoutRows: null}` as the
-/// writer's arguments, by the engine's one mapping (`export_settings_from_json`): the title as given, at
+/// writer's arguments (Design §3.1), by the engine's one mapping (`export_settings_from_json`): the title as given, at
 /// most 4 KiB of UTF-8 (the writer trims it), the reference temperature as `reference_temperature_c` for `degC` or
 /// `reference_temperature_f` for `degF` (exact), and no row limit (`max_layout_rows=None`, Q-4). The native command
 /// is given the same text and maps it by the same function.

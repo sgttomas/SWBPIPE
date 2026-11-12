@@ -1,4 +1,4 @@
-// File > Export MBF… (slices 4a and
+// File > Export MBF… (DEL-17-04 Design `desktop-mbf-export-import.md` §3.1–§3.3, §3.5, §3.6, §3.9.5; slices 4a and
 // 4b.1): the export review's presentation and the native commands' argument and outcome types. The dialog
 // (`MbfExportDialog.tsx`) never runs the wasm writer: it asks the injected `reviewMbfExport` (the native
 // `review_mbf_export`, which runs the capped worker's task 3 in `review` mode) for the bounded review of the session's
@@ -16,7 +16,7 @@
 // displayed. Nothing here transmits anything (F-PIP-1).
 import type { ModelDocumentSaveArgs, ModelFileDiagnostic } from "../model-file/modelDocumentSave";
 
-/** The export dialog's writer settings. */
+/** The export dialog's writer settings (§3.1, §3.6). */
 export type MbfExportSettings = {
   title: string;
   referenceTemperature: { value: number; unit: "degC" | "degF" };
@@ -48,29 +48,29 @@ export const MBF_EXPORT_INTENT_LABEL =
 export const MBF_EXPORT_ROUTE = { routeId: MBF_EXPORT_ROUTE_ID, intentLabel: MBF_EXPORT_INTENT_LABEL } as const;
 /** The native refusal of a save whose model or settings changed after the review. */
 export const MBF_EXPORT_REVIEW_STALE = "MBF-EXPORT-REVIEW-STALE";
-/** Any truncated review blocks the save, whatever the entries not shown. */
+/** Any truncated review blocks the save (§3.3), whatever the entries not shown. */
 export const MBF_REVIEW_TRUNCATED = "MBF-REVIEW-TRUNCATED";
-/** The save result (MBF, identity file, review and framing) would exceed the 64 MiB output ceiling. */
+/** The save result (MBF, identity file, review and framing) would exceed the 64 MiB output ceiling (§3.7). */
 export const MBF_EXPORT_OUTPUT_TOO_LARGE = "MBF-EXPORT-OUTPUT-TOO-LARGE";
-/** The browser-only route has no native review and no save. */
+/** The browser-only route has no native review and no save (§3.9.5). */
 export const MBF_REVIEW_NATIVE_ONLY = "MBF-REVIEW-NATIVE-ONLY";
 /** The native save's refusal of a model the writer refuses; its reply carries the bounded review. */
 export const MBF_EXPORT_WRITER_REFUSED = "MBF-EXPORT-WRITER-REFUSED";
-/** What each global blocking condition says. */
+/** What each global blocking condition says (§3.3, §3.9.5). */
 export const MBF_REVIEW_TRUNCATED_SENTENCE = "The loss report is too large to show in full, so the export is not offered.";
 export const MBF_OUTPUT_TOO_LARGE_SENTENCE =
   "The model batch file, its identity file and the review together are larger than the 64 MiB an export may write, so the export is not offered.";
 export const MBF_REVIEW_NATIVE_ONLY_SENTENCE = "The model batch file review runs in the desktop app.";
 /** What native code appends to the chosen file's stem to name the identity file (A-5). */
 export const MBF_IDENTITY_FILE_SUFFIX = ".swbpipe-ids.json";
-/** The open items the writer's profile carries. */
+/** The open items the writer's profile carries (§3.3). */
 export const MBF_PROFILE_OPEN_ITEMS = ["TBD-17-01-001", "TBD-17-01-002", "TBD-17-01-003"] as const;
-/** The profile as the review names it: not the writer's internal profile id. */
+/** The profile as the review names it (§3.3): not the writer's internal profile id. */
 export const MBF_PROFILE_LABEL = "SI model batch file, pilot subset";
-/** In place of the writer's assumptions, which the review does not display. */
+/** In place of the writer's assumptions, which the review does not display (§3.3). */
 export const MBF_ASSUMPTIONS_SENTENCE = "The writer's assumptions are not displayed here.";
 
-/** The sentence that ends the description of every blocking code. */
+/** The sentence that ends the description of every blocking code (§3.3). */
 export const MBF_BLOCKING_SENTENCE = "so SWBPIPE does not write the file.";
 
 /** The codes the writer raises as errors (`refuse`, or a diagnostic of severity `error`): each one alone keeps the file
@@ -79,7 +79,7 @@ export const MBF_BLOCKING_CODES: ReadonlySet<string> = new Set([
   "MBF-SI-BEND-FLEXIBILITY-MISSING", "MBF-SI-BEND-GEOMETRY-INCONSISTENT", "MBF-SI-BEND-SIF-INCOMPLETE", "MBF-SI-BEND-UNSUPPORTED", "MBF-SI-COMBINATION-BASIS-UNSUPPORTED", "MBF-SI-COMBINATION-NESTED-UNSUPPORTED", "MBF-SI-COMPONENT-UNSUPPORTED", "MBF-SI-CONDITION-USE-UNSUPPORTED", "MBF-SI-CORROSION-ALLOWANCE-MISSING", "MBF-SI-DIFFERENCE-BASIS-UNSUPPORTED", "MBF-SI-GEOMETRY-UNSUPPORTED", "MBF-SI-IMPOSED-DISPLACEMENT-UNSUPPORTED", "MBF-SI-INPUT-INVALID", "MBF-SI-LOAD-CASE-FEATURE-UNSUPPORTED", "MBF-SI-LOAD-CASE-MAPPING-UNSUPPORTED", "MBF-SI-LOAD-UNSUPPORTED", "MBF-SI-MATERIAL-EXPANSION-MISSING", "MBF-SI-MATERIAL-POISSON-MISSING", "MBF-SI-NODE-NUMBER-LIMIT", "MBF-SI-PIPING-CODE-UNSUPPORTED", "MBF-SI-PREFLIGHT-REFUSED", "MBF-SI-PRESSURE-CASE-UNSUPPORTED", "MBF-SI-PRESSURE-REGION-FORMAT", "MBF-SI-PRESSURE-UNSUPPORTED", "MBF-SI-PROJECT-UNIT-UNSUPPORTED", "MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED", "MBF-SI-REFERENCE-UNRESOLVED", "MBF-SI-SCHEMA-VERSION", "MBF-SI-SECTION-BINDING-UNSUPPORTED", "MBF-SI-SECTION-REFERENCE-STALE", "MBF-SI-SECTION-UNSUPPORTED", "MBF-SI-SHEAR-MODEL-UNSUPPORTED", "MBF-SI-SNUBBER-UNSUPPORTED", "MBF-SI-SPECTRUM-UNSUPPORTED", "MBF-SI-SUBTRAHEND-SUPPORT-STATE-UNSUPPORTED", "MBF-SI-SUPPORT-DIRECTION-UNSUPPORTED", "MBF-SI-SUPPORT-UNSUPPORTED", "MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED", "MBF-SI-TEST-CONDITION-UNSUPPORTED", "MBF-SI-TOPOLOGY-UNSUPPORTED", "MBF-SI-UNIT-UNSUPPORTED", "MBF-SI-VALUE-OUT-OF-RANGE", "MODEL_SCHEMA_VERSION_RETIRED"
 ]);
 
-/** What SWBPIPE did or did not write, for each code the writer can emit. The engine's own messages are not
+/** What SWBPIPE did or did not write, for each code the writer can emit (§3.3). The engine's own messages are not
  * shown: they are the engine's and its Python twin's, kept byte for byte, and some describe another program. Each
  * description states only what this export writes; a blocking code's says that SWBPIPE does not write the file. */
 export const MBF_LOSS_DESCRIPTIONS: Readonly<Record<string, string>> = {
@@ -144,7 +144,7 @@ export const MBF_LOSS_DESCRIPTIONS: Readonly<Record<string, string>> = {
   "MODEL_SCHEMA_VERSION_RETIRED": "The model's schema version is retired, so SWBPIPE does not write the file."
 };
 
-/** The product-side description of a writer code; a code without one is named as such, never by the engine's
+/** The product-side description of a writer code (§3.3); a code without one is named as such, never by the engine's
  * message, and a blocking one says the file is not written. */
 export function lossDescription(code: string, blocking = MBF_BLOCKING_CODES.has(code)): string {
   return MBF_LOSS_DESCRIPTIONS[code] ?? (blocking
@@ -160,7 +160,7 @@ export const MBF_REPLACE_SENTENCE =
   "If you replace an existing .mbf file, the identity file of the same name beside it is replaced with it.";
 export const MBF_UNDECLARED_MATERIAL_SENTENCE = "importing this file asks where these values came from";
 
-/** The native command's arguments; the route evidence keeps the sibling saves' member name. */
+/** The native command's arguments (§3.6); the route evidence keeps the sibling saves' member name. */
 export type MbfExportArgs = ModelDocumentSaveArgs & {
   /** The settings text the review ran with (`mbfSettingsJson`): the native save reads the same text. */
   settingsJson: string;
@@ -234,7 +234,7 @@ export type MbfReviewPayload = {
   undeclared_materials: MbfReviewField[];
 };
 
-/** The native `review_mbf_export`'s arguments: the same model, settings and binding a save would write. */
+/** The native `review_mbf_export`'s arguments (§3.9.5): the same model, settings and binding a save would write. */
 export type MbfReviewArgs = { canonicalText: string; claimedModelHash: string; settingsJson: string };
 
 export type MbfReviewOutcome =
@@ -244,18 +244,18 @@ export type MbfReviewOutcome =
 /** The review the dialog is given: the barrier's `reviewMbfExport` (the native `review_mbf_export` through ingress). */
 export type ReviewMbfExport = (args: MbfReviewArgs, stillCurrent: MbfStillCurrent) => Promise<MbfStartedOutcome<MbfReviewOutcome>>;
 
-/** The default reference temperature: 20 °C, or 68 °F in a degF project (passed as
+/** The default reference temperature (§3.1): 20 °C, or 68 °F in a degF project (passed as
  * `reference_temperature_f`, exact). */
 export function defaultReferenceTemperature(projectTemperatureUnit: unknown): MbfExportSettings["referenceTemperature"] {
   return projectTemperatureUnit === "degF" ? { value: 68, unit: "degF" } : { value: 20, unit: "degC" };
 }
 
-/** The writer settings: no row limit (Q-4). */
+/** The writer settings (§3.1): no row limit (Q-4). */
 export function mbfExportSettings(title: string, referenceTemperature: MbfExportSettings["referenceTemperature"]): MbfExportSettings {
   return { title, referenceTemperature, maxLayoutRows: null };
 }
 
-/** A label's slug: lowercase ASCII letters and digits in single-hyphen tokens. */
+/** A label's slug: lowercase ASCII letters and digits in single-hyphen tokens (DEL-07-01 `export-file-names.md`). */
 export function fileNameSlug(label: string): string {
   return label
     .normalize("NFKD")
@@ -333,7 +333,7 @@ export type MbfReview = {
   lists: Record<MbfReviewListName, MbfReviewListCounts>;
 };
 
-/** The dialog's review from the engine's bounded review: the engine has classified the entries; this adds the
+/** The dialog's review from the engine's bounded review (§3.3): the engine has classified the entries; this adds the
  * product descriptions and the families. */
 export function mbfReview(payload: MbfReviewPayload): MbfReview {
   const notWritten: MbfReview["notWritten"] = [];
@@ -376,19 +376,19 @@ export function mbfReview(payload: MbfReviewPayload): MbfReview {
   };
 }
 
-/** The review's global blocking conditions: a truncated review, and a save result above the output ceiling. */
+/** The review's global blocking conditions (§3.3): a truncated review, and a save result above the output ceiling. */
 export function reviewBlockingCodes(review: MbfReview): string[] {
   return [...(review.complete ? [] : [MBF_REVIEW_TRUNCATED]), ...(review.outputWithinCeiling ? [] : [MBF_EXPORT_OUTPUT_TOO_LARGE])];
 }
 
-/** Whether the review admits Save: written, nothing blocking, complete, within the output ceiling and with both
+/** Whether the review admits Save (§3.3): written, nothing blocking, complete, within the output ceiling and with both
  * digests. The native save checks all of it again in its own run. */
 export function reviewAdmitsSave(review: MbfReview | null): boolean {
   return review !== null && review.status === "written" && !review.blocking && review.notWritten.length === 0
     && review.complete && review.outputWithinCeiling && review.mbfSha256 !== null && review.sidecarSha256 !== null;
 }
 
-/** The status line after a save: both files and the count of omitted entries. */
+/** The status line after a save (§3.1 step 5): both files and the count of omitted entries. */
 export function savedStatusLine(outcome: Extract<MbfExportSaveOutcome, { outcome: "saved" }>, omittedCount: number): string {
   const durability = outcome.durability === "durable" ? "" : " The folder's update may not be durable yet.";
   return `Saved ${outcome.mbf.file_name} and its identity file ${outcome.identity_file.file_name}; ${omittedCount} omitted ${omittedCount === 1 ? "entry" : "entries"}.${durability}`;
@@ -403,7 +403,7 @@ export const MBF_EXPORT_EPOCH_INVALID = "MBF-EXPORT-EPOCH-INVALID";
 export const MBF_EXPORT_EPOCH_EXHAUSTED = "MBF-EXPORT-EPOCH-EXHAUSTED";
 export const MBF_EXPORT_RETIREMENT_ID_INVALID = "MBF-EXPORT-RETIREMENT-ID-INVALID";
 /** A start refused at the native ingress once this window's connection to the app has switched to its fallback, which
- * cannot carry the export's request. For a review this means nothing was written; for
+ * cannot carry the export's request (§3.7, "Source basis and limits"). For a review this means nothing was written; for
  * a save the outcome is unknown (`MBF_SAVE_REFUSAL_TEXT`). */
 export const INGRESS_RAW_BODY_REQUIRED = "INGRESS-RAW-BODY-REQUIRED";
 /** A start this page did not send because an earlier save's outcome was unknown (`mbfSaveOutcomeUnknown`): the page's
@@ -430,7 +430,7 @@ export const MBF_EXPORT_REFUSAL_TEXT: Readonly<Record<string, string>> = {
     "Export isn't available in this window: SWBPIPE could not confirm whether an earlier export wrote its files. This export did not start. If you chose a folder for the earlier export, check that folder for the model batch file and its identity file. Reload the window or restart SWBPIPE to export again."
 };
 
-/** The save's own text for the codes whose meaning differs for a save. A review
+/** The save's own text for the codes whose meaning differs for a save (§3.3, §3.7 "Source basis and limits"). A review
  * writes nothing, so `MBF_EXPORT_REFUSAL_TEXT` holds for it. A save refused `INGRESS-RAW-BODY-REQUIRED` has an unknown
  * outcome: Tauri 2.11.1's transport resends an invoke through its fallback when its `fetch` fails or when reading the
  * reply fails, so the original save may have committed, written or undone itself before its reply was lost, and the

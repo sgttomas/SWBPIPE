@@ -46,7 +46,7 @@
   // is sent only when the section is not shown; then the wait is for it to show.
   // Sending it regardless raced: right after a second choice of an open page the
   // wait passed only if its first sample ran before the close was drawn, and
-  // otherwise timed out.
+  // otherwise timed out (DEL-07-11 Design `model-document-open-and-native-smoke.md`).
   const sectionShown = (section) => {
     const element = byTestId(`workspace-section-${section}`);
     return Boolean(element && element.offsetParent !== null);
@@ -808,7 +808,7 @@
       report_package_refusal: text("report-package-source-unavailable"),
       report_package_controls: Boolean(byTestId("report-package-controls"))
     };
-    // the exact report rendered under the local-private selection, and
+    // W-11 §5.1 item 6: the exact report rendered under the local-private selection, and
     // its package saved and re-read with the product's reader.
     gates.report_render = await renderLocalPrivateReport("exact/report");
     if (plan.exact.report_package) gates.report_package = await saveReportPackage(plan.exact.report_package.path, "exact/report-package");

@@ -241,16 +241,16 @@ CAPS_PIN = "e6759d84e480f0480f381933d4d36d9891f103158c35874fc7dd4acae7d9e71d"
 # Both only narrow admission; the caps, census and late admission bodies are unchanged.
 # T4-S5 (epoch): family_clauses and the admission prefix change only in comments (the branch documents read 0.6.0
 # for 0.5.0); the admission code, caps, census and late bodies are unchanged.
-# O4 S5 D3 (§8.9, O4-AD): O4 removes the two T4-U6/U8 narrowings. FamilyFact loses ShearModel
+# O4 S5 D3 (retained-pricing-rules.md §8.9, O4-AD): O4 removes the two T4-U6/U8 narrowings. FamilyFact loses ShearModel
 # and SectionAllowance; contract_is admits shear_model euler_bernoulli or timoshenko_annulus_energy_v1 (namespace_branch
 # drops its Timoshenko arm), and family_clauses drops the branch-E nonzero mill tolerance/allowance refusal. Route E's
 # D1 now holds Timoshenko documents and distinct section bases, whose owners O4's model prices
 # (o4_owners_model.py); the caps module, census, late admission bodies and every other clause are byte-identical.
-# W-15 slice b D3 (§8.22, W15B-NS): family_clauses' node arm refuses a node load whose id
+# W-15 slice b D3 (retained-pricing-rules.md §8.22, W15B-NS): family_clauses' node arm refuses a node load whose id
 # starts with `load:self-weight:` (GeneratedLoadIdentity), the namespace inspect_applied_self_weight now treats as
 # generated on a node target; it only narrows admission. The caps module, census and late admission bodies are
 # byte-identical.
-# W-16 slice a D3 (§8.23, W16-NS): LoadTargetInput gains the Support arm; the census walk
+# W-16 slice a D3 (retained-pricing-rules.md §8.23, W16-NS): LoadTargetInput gains the Support arm; the census walk
 # counts its two strings (support, dof) as it does every load's other texts, and family_clauses' D1.7 refuses it
 # (C::Loads, F::LoadTarget) on both routes; it only narrows admission. The caps module and late admission bodies are
 # byte-identical.
@@ -324,7 +324,7 @@ def leaf_seam(text):
 
 def inspect(snapshot):
     fingerprints, projected = {}, []
-    # CEF-PJ (RT-S3 CE fallback, §8.61): lib.rs is compared without the exact reviewed CE
+    # CEF-PJ (RT-S3 CE fallback, retained-pricing-rules.md §8.61): lib.rs is compared without the exact reviewed CE
     # delta, so its pin stays S6's and binds every other byte; CEF-D1 binds the branch itself (o10_rules.py).
     ce = runpy.run_path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ce_fallback_model.py"))
     for file, expected in SOURCE_FILES.items():

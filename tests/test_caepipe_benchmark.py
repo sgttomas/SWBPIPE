@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Focused tests for the CAEPIPE benchmark tranche 1 (RT-V2): the seeded model generator,
+"""Focused tests for the CAEPIPE benchmark tranche 1 (DEL-17-05 Design §11, RT-V2): the seeded model generator,
 the element-row binding, the two-way comparison and `run_pilot --benchmark` (invented inputs and invented CSV text
 only; nothing here runs the external program or reads its output)."""
 

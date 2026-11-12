@@ -49,7 +49,7 @@ use std::collections::{BTreeSet, HashMap};
 /// only to name the reason (never its message).
 const LOOP_NOT_CONVERGED: &str = "NONLINEAR_SUPPORT_LOOP_NOT_CONVERGED";
 
-/// How one nonlinear support enters the modal model.
+/// How one nonlinear support enters the modal model (§1.3's table).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ModalSupportTreatment {
     /// Active or sticking: its DOF is added to the restrained set; an imposed
@@ -107,7 +107,7 @@ pub(crate) enum StateCaseRefusal {
     /// No evidence, and the solve's blocking diagnostic codes.
     MissingEvidence(Vec<String>),
     CaseMismatch { expected: String, found: String },
-    /// the evidence's consumed motion is not the bound case's.
+    /// R-4 §3.7 S6: the evidence's consumed motion is not the bound case's.
     MotionMismatch,
     ModeMismatch { requested: PreviewSolverMode, solved: PreviewSolverMode },
     /// Only the dense path is built; the state solve runs only in its mode.
@@ -384,7 +384,7 @@ pub(crate) fn solve_modal_state_case(prepared: &Prepared, mode: PreviewSolverMod
             return Err(state_case_refusal(diagnostics, case_id, &StateCaseRefusal::SolveFailed(error.to_string())));
         }
     };
-    // the state case's own motion, by the static resolvers.
+    // R-4 §3.7 S6: the state case's own motion, by the static resolvers.
     let motion = CaseMotionEvidence::resolve(
         &prepared.model,
         &prepared.model.load_cases[bound.case_index],
