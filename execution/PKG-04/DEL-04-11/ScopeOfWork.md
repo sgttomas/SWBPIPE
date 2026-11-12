@@ -256,12 +256,12 @@ A sizing result is a numerical statement about the discrete model under the user
 - **REQ-014** — *A variable spring carries its cold load.*
   - **Preload.** On both routes, the solve models a variable spring hanger as DEL-04-03/REQ-014 states: its stiffness plus its `cold_load` as a constant force along its stiffness DOF. The cold load acts in every load case, through the constant-effort seam and under the same combination gate. The spring carries the cold load minus its rate times its displacement from the drawn geometry, relative to its base where the base moves.
   - **Held springs.** In a case whose test condition holds springs, a held spring (DEL-05-01's held support) is a rigid restraint of its DOF, and neither its stiffness nor its preload acts.
-  - **Recovery.** The spring's published support force includes the preload.
+  - **Recovery.** The spring's published support force includes the preload. A case that applies the cold load also publishes that force as the support's applied force, as a consumed constant-effort support's force is published (DEL-04-07/CLM-004). A held spring publishes no applied force.
   - **Diagnostics.** No solve warns that a spring hanger's load is not applied as preload (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD` has no place). A warning is published where `installed_load` and `cold_load` differ.
   - **Behaviour change.** A document that carries `cold_load` solves differently with the preload than without it, and the release notes say so.
   - DEL-04-03/REQ-014 states the model; the rest of the law is stated here.
 - **AC-014** — Maintained checks show:
-  - the preload reference agrees with the force-plus-spring derived solve, in displacements and in published support forces, including a moved base;
+  - the preload reference agrees with the force-plus-spring derived solve, in displacements, in published support forces and in the published applied force, including a moved base;
   - targeted regression covers the spring-hanger tests and diagnostics, the combination gate, and a held and an unheld spring, with no preload on the held one;
   - the retained route's memory profile priced with the preload term, under the memory-pricing law (DEL-04-08/REQ-004);
   - the reference system's spring results including the preload.
