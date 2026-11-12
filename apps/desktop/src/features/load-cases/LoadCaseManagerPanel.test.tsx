@@ -247,6 +247,11 @@ describe("LoadCaseManagerPanel primitive-load creation", () => {
     expect(byId("load-manager-create-primitive-unit")).toHaveValue("mm");
     type("load-manager-create-primitive-direction", "RX");
     expect(byId("load-manager-create-primitive-unit")).toHaveValue("rad");
+    // The unit moved (mm to rad) by the direction, not by the person's choice of the unit:
+    // the magnitude is cleared and the form says so (DEL-02-02 REQ-022). The person enters it.
+    expect(byId("load-manager-create-primitive-magnitude")).toHaveValue("");
+    expect(byId("load-manager-create-primitive-unit-cleared")).toHaveTextContent("The magnitude unit changed from mm to rad; the values beside it were cleared.");
+    type("load-manager-create-primitive-magnitude", "250");
     await waitFor(() => expect(convert).toHaveBeenLastCalledWith([expect.objectContaining({ from_unit: "rad", dimension_id: "rotation" })]));
     await waitFor(() => expect(byId("queue-create-primitive-intent")).toBeEnabled());
     fireEvent.click(byId("queue-create-primitive-intent"));
@@ -676,7 +681,7 @@ describe("LoadCaseManagerPanel creation sources", () => {
 
 // A typed number when the project unit moves (decided by the SWBPIPE Agent 0; DEL-02-02
 // AC-011): the magnitude beside a unit the user did not change is cleared when that unit
-// moves with the project units, and the form says so; everything else typed is kept.
+// moves by anything other than the person's own choice of it, and the form says so.
 describe("A typed number when the project unit moves (primitive load)", () => {
   it("the magnitude is cleared and the form says so; the source and target are kept", () => {
     const { model, rerender } = mount();
@@ -691,7 +696,7 @@ describe("A typed number when the project unit moves (primitive load)", () => {
     expect(byId("load-manager-create-primitive-provenance")).toHaveValue("load source");
     expect(byId("load-manager-create-primitive-heading")).toHaveTextContent("target=node:A");
     expect(byId("load-manager-create-primitive-unit-cleared")).toHaveTextContent(
-      "The magnitude unit changed from kN to N with the project units; the values beside it were cleared."
+      "The magnitude unit changed from kN to N; the values beside it were cleared."
     );
   });
 
@@ -724,5 +729,34 @@ describe("choosing another case for a primitive load", () => {
     expect(byId("load-manager-create-primitive-id")).toHaveValue("load:hot-I300");
     expect(screen.queryByTestId("load-manager-create-primitive-unit-cleared")).toBeNull();
   });
+});
+
+// The one rule on the primitive load (DEL-02-02 REQ-022). The exception that once kept the
+// magnitude across a category or direction change was decided and then withdrawn: a force
+// of 250 becoming a moment of 250 because the category moved is the same wrong output.
+describe("the one rule on the primitive load", () => {
+  it("a category change clears the magnitude and says so", () => {
+    mount();
+    type("load-manager-create-primitive-magnitude", "12");
+    type("load-manager-create-primitive-category", "concentrated_moment");
+    expect(byId("load-manager-create-primitive-magnitude")).toHaveValue("");
+    expect(byId("load-manager-create-primitive-unit-cleared")).toHaveTextContent("The magnitude unit changed from kN to kN*m; the values beside it were cleared.");
+  });
+
+  it("a direction change that moves the unit clears the magnitude; one that leaves it clears nothing", () => {
+    const model = inventedModel();
+    model.supports = [{ ...model.supports[0], restraints: ["UX", "UY", "UZ", "RX", "RY", "RZ"] }];
+    mount(model);
+    type("load-manager-create-primitive-category", "imposed_displacement");
+    type("load-manager-create-primitive-magnitude", "3");
+    type("load-manager-create-primitive-direction", "UX");
+    expect(byId("load-manager-create-primitive-magnitude")).toHaveValue("3");
+    type("load-manager-create-primitive-direction", "RX");
+    expect(byId("load-manager-create-primitive-magnitude")).toHaveValue("");
+    expect(byId("load-manager-create-primitive-unit-cleared")).toHaveTextContent("The magnitude unit changed from mm to rad; the values beside it were cleared.");
+  });
+
+  // The person's own choice of the unit is tested where a catalog offers more than one unit
+  // (composedDefaultForms.test.tsx).
 });
 

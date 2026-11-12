@@ -1,4 +1,4 @@
-import type { FollowedUnit } from "../workspace/entryRules";
+import type { GuardedEntry } from "../workspace/entryRules";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 import { isPressureV3 } from "../pressure-authoring/pressureContract";
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
@@ -68,13 +68,13 @@ export const COMPONENT_UNIT_FIELDS: Record<ComponentProjectUnitKey, { label: str
   forceUnit: { label: "weight", fields: ["weight"] }
 };
 
-/** Each project-derived unit of a shown draft, whether it follows the project, and the numbers beside it. */
-export function componentFollowedUnits(draft: ComponentDraft): Record<string, FollowedUnit> {
-  const changed = new Set(draft.userUnits ?? []);
+/** Each project-derived unit of a shown draft and the numbers typed beside it, for the one
+ * rule in `useClearOnUnitMove`. Whether the person chose a unit is told by the unit control
+ * itself (`chose`), not here. */
+export function componentGuardedEntries(draft: ComponentDraft): Record<string, GuardedEntry> {
   return Object.fromEntries(COMPONENT_PROJECT_UNIT_KEYS.map((key) => [key, {
     label: COMPONENT_UNIT_FIELDS[key].label,
     unit: draft[key],
-    follows: !changed.has(key),
     values: COMPONENT_UNIT_FIELDS[key].fields.map((field) => String(draft[field] ?? ""))
   }]));
 }

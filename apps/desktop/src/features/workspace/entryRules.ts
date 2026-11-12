@@ -1,54 +1,63 @@
-// Entry rules shared by the creation forms (PRD §5.5; DEL-02-02 REQ-022 and AC-011;
-// DEL-07-03 AC-001).
+// Entry rules shared by the entry forms and the property task (PRD §5.5; DEL-02-02 REQ-022
+// and AC-011; DEL-07-03 AC-001).
 //
-// A number typed beside a unit is an authored quantity. When a unit the user did not
-// change moves with the project units, the numbers beside it are cleared, everything
-// else typed is kept, and the form says which unit changed and that the values beside
-// it were cleared. A record without its source is refused by name, in place.
-import { useLayoutEffect, useRef } from "react";
+// One rule, enforced here and nowhere else: when a unit shown beside a typed number moves
+// by anything other than the person's own choice of that unit, the number is cleared and
+// the form says which unit changed, from and to; no number is converted. The only
+// exemption is `chose(key)`, called solely from that entry's own unit control.
+// A record without its source is refused by name, in place.
+import { useCallback, useLayoutEffect, useMemo, useRef } from "react";
 
-/** One unit of a form that may follow the project units, and the numbers typed beside it. */
-export type FollowedUnit = {
+/** One entry of a form: the unit shown beside it and the digits typed beside that unit. */
+export type GuardedEntry = {
   /** How the form names the unit in its notice, e.g. "length". */
   label: string;
   unit: string;
-  /** True while the user has not changed this unit, so it follows the project units. */
-  follows: boolean;
   values: string[];
 };
 
 export type UnitMove = { key: string; label: string; from: string; to: string };
 
+/** Marks that the person's own act on an entry's unit control chose its unit. */
+export type UnitGuard = { chose: (key: string) => void };
+
 /**
- * Calls `onClear` with each followed unit that moved since the last render while numbers
- * stood beside it, and `onSuperseded` with each followed unit that moved with nothing beside
- * it (so a notice of an earlier clearing can name where the unit now is). A change of
- * `baseline` (a new project session, another target or field, or the user choosing a
- * different kind of quantity on the form) starts afresh without clearing anything.
+ * Remembers, per entry, the unit shown and whether digits stood beside it on the last
+ * render. When the unit shown changes and the change was not the person's own choice of
+ * that unit (`chose`), `onClear` gets the move if digits stood beside the old unit, else
+ * `onSuperseded` gets it (so a notice of an earlier clearing can name where the unit now
+ * is). Whatever moved the unit does not matter. A change of `baseline` means the entries
+ * were replaced (another project session, or the task's other target or field): nothing
+ * is compared across it.
  */
 export function useClearOnUnitMove(
-  units: Record<string, FollowedUnit>,
+  entries: Record<string, GuardedEntry>,
   baseline: string,
   onClear: (moves: UnitMove[]) => void,
   onSuperseded?: (moves: UnitMove[]) => void
-): void {
-  const last = useRef<{ baseline: string; units: Record<string, string> } | null>(null);
+): UnitGuard {
+  const last = useRef<{ baseline: string; entries: Record<string, { unit: string; typed: boolean }> } | null>(null);
+  const chosen = useRef(new Set<string>());
   useLayoutEffect(() => {
     const previous = last.current;
-    last.current = { baseline, units: Object.fromEntries(Object.entries(units).map(([key, entry]) => [key, entry.unit])) };
+    last.current = {
+      baseline,
+      entries: Object.fromEntries(Object.entries(entries).map(([key, entry]) => [key, { unit: entry.unit, typed: entry.values.some((value) => value.trim() !== "") }]))
+    };
+    const own = chosen.current;
+    chosen.current = new Set();
     if (!previous || previous.baseline !== baseline) return;
-    const moved = Object.entries(units)
-      .filter(([key, entry]) =>
-        entry.follows &&
-        key in previous.units &&
-        previous.units[key] !== entry.unit
-      );
-    const asMove = ([key, entry]: [string, FollowedUnit]): UnitMove => ({ key, label: entry.label, from: previous.units[key] || "none", to: entry.unit || "none" });
-    const moves = moved.filter(([, entry]) => entry.values.some((value) => value.trim() !== "")).map(asMove);
-    const emptyMoves = moved.filter(([, entry]) => !entry.values.some((value) => value.trim() !== "")).map(asMove);
-    if (moves.length > 0) onClear(moves);
-    if (emptyMoves.length > 0) onSuperseded?.(emptyMoves);
+    const moved = Object.entries(entries).filter(([key, entry]) =>
+      key in previous.entries && previous.entries[key].unit !== entry.unit && !own.has(key)
+    );
+    const asMove = ([key, entry]: [string, GuardedEntry]): UnitMove => ({ key, label: entry.label, from: previous.entries[key].unit || "none", to: entry.unit || "none" });
+    const cleared = moved.filter(([key]) => previous.entries[key].typed).map(asMove);
+    const superseded = moved.filter(([key]) => !previous.entries[key].typed).map(asMove);
+    if (cleared.length > 0) onClear(cleared);
+    if (superseded.length > 0) onSuperseded?.(superseded);
   });
+  const chose = useCallback((key: string) => { chosen.current.add(key); }, []);
+  return useMemo(() => ({ chose }), [chose]);
 }
 
 /**
@@ -66,8 +75,8 @@ export function supersedeMoves(current: UnitMove[] | null, later: UnitMove[]): U
 export function unitMoveNotice(moves: UnitMove[]): string {
   return moves
     .map((move) => move.from === move.to
-      ? `The ${move.label} unit changed with the project units and is ${move.to} again; the values beside it were cleared.`
-      : `The ${move.label} unit changed from ${move.from} to ${move.to} with the project units; the values beside it were cleared.`)
+      ? `The ${move.label} unit changed and is ${move.to} again; the values beside it were cleared.`
+      : `The ${move.label} unit changed from ${move.from} to ${move.to}; the values beside it were cleared.`)
     .join(" ");
 }
 

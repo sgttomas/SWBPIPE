@@ -6,7 +6,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 import type { UnitCatalogRoute } from "../../services/unitCatalogService";
@@ -15,13 +15,13 @@ import { changeFormControl, chooseCompactOption, expectFormControlValue } from "
 import { DisplayUnitsProvider } from "../display-units";
 import { PropertyInspector } from "./PropertyInspector";
 
-const route = vi.hoisted(() => ({ current: null as UnitCatalogRoute | null }));
+const route = vi.hoisted(() => ({ current: null as UnitCatalogRoute | null, delayed: null as Promise<UnitCatalogRoute | null> | null }));
 vi.mock("../../services/unitCatalogService", async (original) => ({
   ...await original<typeof import("../../services/unitCatalogService")>(),
-  loadUnitCatalog: () => Promise.resolve(route.current)
+  loadUnitCatalog: () => route.delayed ?? Promise.resolve(route.current)
 }));
 
-afterEach(() => { cleanup(); route.current = null; });
+afterEach(() => { cleanup(); route.current = null; route.delayed = null; });
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
 const demo = (): PreviewModel =>
@@ -215,7 +215,7 @@ describe("material and component units the user did not change follow the projec
 // and every other entry are kept. A unit the user changed does not move; a project-unit
 // change that leaves a form's unit as it was clears nothing.
 const cleared = (label: string, from: string, to: string) =>
-  `The ${label} unit changed from ${from} to ${to} with the project units; the values beside it were cleared.`;
+  `The ${label} unit changed from ${from} to ${to}; the values beside it were cleared.`;
 
 function withUnits(units: Record<string, string>): PreviewModel {
   const model = demo();
@@ -470,6 +470,81 @@ describe("an expansion joint names every source it lacks (inspector)", () => {
     expect(byId("create-component-source-reason")).toHaveTextContent(
       "Not queued: enter the component's stiffness source and provenance. A record without its source is refused."
     );
+  });
+});
+
+// DEL-02-02 REQ-022: whatever moves a unit shown beside typed digits, other than the person's
+// own choice of that unit, clears them. These are the causes other than the project units,
+// and the places where an entry is replaced (a baseline) or where nothing moves.
+describe("the one rule on the inspector's creation forms", () => {
+  it("a catalog arriving late clears digits typed early beside a composed unit it lacks", async () => {
+    let release!: (value: UnitCatalogRoute | null) => void;
+    route.delayed = new Promise((resolve) => { release = resolve; });
+    const model = withUnits({ length: "mm" });
+    render(
+      <DisplayUnitsProvider initialPreference="SI">
+        <PropertyInspector model={model} selection={{ type: "node", id: "node:N-110" }} onQueueIntent={vi.fn()} projectSessionGeneration={1} />
+      </DisplayUnitsProvider>
+    );
+    expectFormControlValue(byId("create-support-stiffness-unit"), "N/mm");
+    type("create-support-stiffness", "1500");
+    await act(async () => release({ route: "tauri_unit_catalog", catalog: unitCatalogFixture() }));
+    await waitFor(() => expect(byId("create-support-stiffness")).toHaveValue(""));
+    expect(byId("create-support-unit-cleared")).toHaveTextContent("The stiffness unit changed from N/mm to none; the values beside it were cleared.");
+  });
+
+  it("baseline: another project session raises no notice; within the session a real move clears", async () => {
+    const { rerender } = await mount({ type: "project", id: "project:invented-demo" });
+    type("create-section-od", "100");
+    rerender(withUnits({ length: "mm" }), 2);
+    expect(screen.queryByTestId("create-section-unit-cleared")).toBeNull();
+    type("create-section-od", "100");
+    rerender(withUnits({ length: "in" }), 2);
+    expect(byId("create-section-unit-cleared")).toHaveTextContent(cleared("length", "mm", "in"));
+  });
+
+  it("a fresh draft after Queue raises no notice: the unit it starts in is the one shown", async () => {
+    const { rerender } = await mount({ type: "project", id: "project:invented-demo" });
+    type("create-section-od", "100");
+    type("create-section-wall", "5");
+    type("create-section-provenance", "section source");
+    fireEvent.click(byId("queue-create-section-intent"));
+    expect(screen.queryByTestId("create-section-unit-cleared")).toBeNull();
+    type("create-section-od", "120");
+    rerender(withUnits({ length: "mm" }));
+    expect(byId("create-section-unit-cleared")).toHaveTextContent(cleared("length", "m", "mm"));
+  });
+
+  it("a component's kind change removes its clearing notice; a later real move raises a new one", async () => {
+    const { rerender } = await mount({ type: "node", id: "node:N-110" });
+    type("create-component-radius", "0.45");
+    rerender(withUnits({ length: "mm" }));
+    expect(byId("create-component-unit-cleared")).toHaveTextContent(cleared("length", "m", "mm"));
+    changeFormControl(byId("create-component-kind"), { target: { value: "valve" } });
+    expect(screen.queryByTestId("create-component-unit-cleared")).toBeNull();
+    type("create-component-weight", "245");
+    rerender(withUnits({ length: "mm", force: "kN" }));
+    expect(byId("create-component-unit-cleared")).toHaveTextContent(cleared("weight", "N", "kN"));
+  });
+
+  it("the person's own choice of each unit clears nothing (material, support, component)", async () => {
+    const { rerender } = await mount({ type: "node", id: "node:N-110" });
+    rerender(withUnits({ linear_stiffness: "kN/m" }));
+    type("create-support-stiffness", "1500");
+    chooseCompactOption(byId("create-support-stiffness-unit"), "N/m");
+    expect(byId("create-support-stiffness")).toHaveValue("1500");
+    expect(screen.queryByTestId("create-support-unit-cleared")).toBeNull();
+    expect(byId("queue-create-support-intent").getAttribute("aria-describedby") ?? "").not.toContain("create-support-queue-hold-reason");
+    type("create-material-elastic", "200000");
+    chooseCompactOption(byId("create-material-stress-unit"), "MPa");
+    expect(byId("create-material-elastic")).toHaveValue("200000");
+    type("create-material-thermal", "0.000012");
+    chooseCompactOption(byId("create-material-thermal-unit"), "1/K");
+    expect(byId("create-material-thermal")).toHaveValue("0.000012");
+    type("create-component-radius", "450");
+    chooseCompactOption(byId("create-component-radius-unit"), "mm");
+    expect(byId("create-component-radius")).toHaveValue("450");
+    for (const id of ["create-material-unit-cleared", "create-component-unit-cleared"]) expect(screen.queryByTestId(id)).toBeNull();
   });
 });
 

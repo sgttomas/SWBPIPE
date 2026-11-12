@@ -59,7 +59,7 @@ import {
   componentDraftForNode,
   componentDraftWithField,
   componentDraftWithProjectUnits,
-  componentFollowedUnits,
+  componentGuardedEntries,
   componentSourceFields,
   creatableComponentKinds,
   defaultComponentDraft,
@@ -127,7 +127,8 @@ export function PropertyInspector({
   // chosen unit. A stored unit is the field's default and is kept.
   const [chosenUnit, setChosenUnit] = useState<string | null>(null);
   const [taskUnitNotice, setTaskUnitNotice] = useState<UnitMove[] | null>(null);
-  const chooseProposedUnit = (unit: string) => { setTaskUnitNotice(null); setChosenUnit(unit); };
+  // Called only by the task's two unit controls: the person's own choice of the unit.
+  const chooseProposedUnit = (unit: string) => { taskGuard.chose("value"); setTaskUnitNotice(null); setChosenUnit(unit); };
   const [rationale, setRationale] = useState("user_entered_preview_change");
   const [sectionDraftState, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
   const [materialDraftState, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
@@ -229,8 +230,8 @@ export function PropertyInspector({
         unitCatalogRoute
       })
     : null;
-  // A number typed beside a unit the user did not change is cleared when that unit moves
-  // with the project units; the form says which unit changed (DEL-02-02 AC-011).
+  // A number typed beside a unit is cleared when the unit shown moves by anything other than
+  // the person's own choice of it; the form says which unit changed (DEL-02-02 REQ-022, AC-011).
   const [unitClearNotices, setUnitClearNotices] = useState<Record<CreationForm, UnitMove[] | null>>(NO_UNIT_CLEAR_NOTICES);
   const supersede = (form: CreationForm) => (moves: UnitMove[]) =>
     setUnitClearNotices((current) => {
@@ -244,15 +245,18 @@ export function PropertyInspector({
   const releaseHold = (form: "support" | "material") => setQueueHolds((current) => (current[form] ? { ...current, [form]: false } : current));
   const clearNotice = (form: CreationForm) => setUnitClearNotices((current) => (current[form] === null ? current : { ...current, [form]: null }));
   const sessionBaseline = String(projectSessionGeneration);
-  useClearOnUnitMove({
-    length: { label: "length", unit: sectionDraft.lengthUnit, follows: sectionDraftState.lengthUnitSource === "default", values: [sectionDraft.outsideDiameter, sectionDraft.wallThickness] }
+  // One rule (DEL-02-02 REQ-022): a unit shown beside typed digits that moves by anything other
+  // than the person's own choice of it (`…Guard.chose`, called only from its unit control)
+  // clears the digits and says so. The only baseline is the project session.
+  const sectionGuard = useClearOnUnitMove({
+    length: { label: "length", unit: sectionDraft.lengthUnit, values: [sectionDraft.outsideDiameter, sectionDraft.wallThickness] }
   }, sessionBaseline, (moves) => {
     setSectionDraft((current) => ({ ...current, outsideDiameter: "", wallThickness: "" }));
     setUnitClearNotices((current) => ({ ...current, section: moves }));
   }, supersede("section"));
-  useClearOnUnitMove({
-    modulus: { label: "modulus", unit: materialDraft.stressUnit, follows: materialDraftState.stressUnitSource === "default", values: [materialDraft.elasticModulus, materialDraft.shearModulus] },
-    expansion: { label: "thermal expansion", unit: materialDraft.thermalExpansionUnit, follows: materialDraftState.thermalExpansionUnitSource === "default", values: [materialDraft.thermalExpansion] }
+  const materialGuard = useClearOnUnitMove({
+    modulus: { label: "modulus", unit: materialDraft.stressUnit, values: [materialDraft.elasticModulus, materialDraft.shearModulus] },
+    expansion: { label: "thermal expansion", unit: materialDraft.thermalExpansionUnit, values: [materialDraft.thermalExpansion] }
   }, sessionBaseline, (moves) => {
     const moved = new Set(moves.map((move) => move.key));
     setMaterialDraft((current) => ({
@@ -263,26 +267,26 @@ export function PropertyInspector({
     setUnitClearNotices((current) => ({ ...current, material: moves }));
     if (moved.has("expansion")) setQueueHolds((current) => ({ ...current, material: true }));
   }, supersede("material"));
-  useClearOnUnitMove({
-    stiffness: { label: "stiffness", unit: supportDraft.linearStiffnessUnit, follows: supportDraftState.linearStiffnessUnitSource === "default", values: [supportDraft.linearStiffness] }
+  const supportGuard = useClearOnUnitMove({
+    stiffness: { label: "stiffness", unit: supportDraft.linearStiffnessUnit, values: [supportDraft.linearStiffness] }
   }, sessionBaseline, (moves) => {
     setSupportDraft((current) => ({ ...current, linearStiffness: "" }));
     setUnitClearNotices((current) => ({ ...current, support: moves }));
     setQueueHolds((current) => ({ ...current, support: true }));
   }, supersede("support"));
-  useClearOnUnitMove(componentFollowedUnits(componentDraft), sessionBaseline, (moves) => {
+  const componentGuard = useClearOnUnitMove(componentGuardedEntries(componentDraft), sessionBaseline, (moves) => {
     setComponentDraft((current) => componentDraftClearingBeside(current, moves.map((move) => move.key)));
     setUnitClearNotices((current) => ({ ...current, component: moves }));
   }, supersede("component"));
-  // The property task: an absent member's quantity or vector takes its unit from the project
-  // (as a node position always does); a value typed beside it is cleared when that unit moves.
-  // A stored unit and a unit the person chose never clear.
+  // The property task: whatever moves the unit shown beside a typed value (the project units,
+  // a stored value replaced, an absent member becoming stored), other than the person's own
+  // choice in the task's unit control, clears the value. Baseline: the session, the target
+  // and the field, since another target or field is another entry.
   const taskStartingValue = fieldEntryValue(selectedField);
-  useClearOnUnitMove({
+  const taskGuard = useClearOnUnitMove({
     value: {
       label: selectedField ? selectedFieldLabel.toLowerCase() : "property",
       unit: proposedUnit,
-      follows: chosenUnit === null && Boolean(selectedField?.unitFromProject),
       values: [proposedValue !== taskStartingValue ? proposedValue : ""]
     }
   }, `${sessionBaseline}:${draftTarget.type}:${draftTarget.id}:${selectedField?.fieldPath ?? ""}`, (moves) => {
@@ -824,7 +828,7 @@ export function PropertyInspector({
             <CompactSelect
               aria-label="New section length unit"
               data-testid="create-section-length-unit"
-              onValueChange={(value) => updateSectionDraft("lengthUnit", value)}
+              onValueChange={(value) => { sectionGuard.chose("length"); updateSectionDraft("lengthUnit", value); }}
               value={sectionDraft.lengthUnit}
               options={lengthUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
             />
@@ -902,7 +906,7 @@ export function PropertyInspector({
             <CompactSelect
               aria-label="New material modulus unit"
               data-testid="create-material-stress-unit"
-              onValueChange={(value) => updateMaterialDraft("stressUnit", value)}
+              onValueChange={(value) => { materialGuard.chose("modulus"); updateMaterialDraft("stressUnit", value); }}
               value={materialDraft.stressUnit}
               options={stressUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
             />
@@ -932,7 +936,7 @@ export function PropertyInspector({
             <CompactSelect
               aria-label="New material thermal expansion unit"
               data-testid="create-material-thermal-unit"
-              onValueChange={(value) => updateMaterialDraft("thermalExpansionUnit", value)}
+              onValueChange={(value) => { materialGuard.chose("expansion"); updateMaterialDraft("thermalExpansionUnit", value); }}
               value={materialDraft.thermalExpansionUnit}
               options={thermalExpansionUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
             />
@@ -1042,7 +1046,7 @@ export function PropertyInspector({
             <CompactSelect
               aria-label="New support linear stiffness unit"
               data-testid="create-support-stiffness-unit"
-              onValueChange={(value) => updateSupportDraft("linearStiffnessUnit", value)}
+              onValueChange={(value) => { supportGuard.chose("stiffness"); updateSupportDraft("linearStiffnessUnit", value); }}
               value={supportDraft.linearStiffnessUnit}
               options={supportStiffnessUnitOptions.map((option) => ({ value: option.symbol, label: option.label }))}
             />
@@ -1124,11 +1128,13 @@ export function PropertyInspector({
               aria-label="New component kind"
               data-testid="create-component-kind"
               value={componentDraft.kind}
-              onValueChange={(value) =>
+              onValueChange={(value) => {
+                // Another kind replaces the entries a clearing notice spoke of (third reading, finding 4).
+                clearNotice("component");
                 setComponentDraft((current) =>
                   componentDraftForKind(model, current, value as CreatableComponentKind)
-                )
-              }
+                );
+              }}
               options={creatableComponentKinds.map((kind) => ({ value: kind, label: kind }))}
             />
           </label>
@@ -1140,18 +1146,18 @@ export function PropertyInspector({
           {componentDraft.kind === "bend" ? (
             <>
               <ComponentTextInput label="Radius" testId="create-component-radius" value={componentDraft.bendRadius} onChange={(value) => updateComponentDraft("bendRadius", value)} />
-              <ComponentUnitSelect label="Radius unit" testId="create-component-radius-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+              <ComponentUnitSelect label="Radius unit" testId="create-component-radius-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => { componentGuard.chose("lengthUnit"); updateComponentDraft("lengthUnit", value); }} />
               <ComponentTextInput label="Angle" testId="create-component-angle" value={componentDraft.bendAngle} onChange={(value) => updateComponentDraft("bendAngle", value)} />
-              <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => updateComponentDraft("angleUnit", value)} />
+              <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => { componentGuard.chose("angleUnit"); updateComponentDraft("angleUnit", value); }} />
             </>
           ) : null}
           {componentDraft.kind === "tee" ? (
             <>
               <ComponentTextInput label="Run size" testId="create-component-run-size" value={componentDraft.branchRunSize} onChange={(value) => updateComponentDraft("branchRunSize", value)} />
               <ComponentTextInput label="Header size" testId="create-component-header-size" value={componentDraft.branchHeaderSize} onChange={(value) => updateComponentDraft("branchHeaderSize", value)} />
-              <ComponentUnitSelect label="Size unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+              <ComponentUnitSelect label="Size unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => { componentGuard.chose("lengthUnit"); updateComponentDraft("lengthUnit", value); }} />
               <ComponentTextInput label="Connection angle" testId="create-component-connection-angle" value={componentDraft.branchConnectionAngle} onChange={(value) => updateComponentDraft("branchConnectionAngle", value)} />
-              <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => updateComponentDraft("angleUnit", value)} />
+              <ComponentUnitSelect label="Angle unit" testId="create-component-angle-unit" value={componentDraft.angleUnit} options={componentAngleUnitOptions} onChange={(value) => { componentGuard.chose("angleUnit"); updateComponentDraft("angleUnit", value); }} />
               <ComponentTextInput label="Connection type" testId="create-component-connection-type" value={componentDraft.branchConnectionType} onChange={(value) => updateComponentDraft("branchConnectionType", value)} />
               <ComponentTextInput label="Reinforcement reference" testId="create-component-reinforcement" value={componentDraft.branchReinforcementReference} onChange={(value) => updateComponentDraft("branchReinforcementReference", value)} />
             </>
@@ -1162,17 +1168,17 @@ export function PropertyInspector({
           {componentDraft.kind !== "bend" && componentDraft.kind !== "tee" && componentDraft.kind !== "expansion_joint" ? (
             <>
               <ComponentTextInput label="Body length" testId="create-component-body-length" value={componentDraft.rigidBodyLength} onChange={(value) => updateComponentDraft("rigidBodyLength", value)} />
-              <ComponentUnitSelect label="Body length unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("lengthUnit", value)} />
+              <ComponentUnitSelect label="Body length unit" testId="create-component-length-unit" value={componentDraft.lengthUnit} options={lengthUnitOptions} onChange={(value) => { componentGuard.chose("lengthUnit"); updateComponentDraft("lengthUnit", value); }} />
               <ComponentTextInput label="End A size" testId="create-component-end-a-size" value={componentDraft.endASize} onChange={(value) => updateComponentDraft("endASize", value)} />
-              <ComponentUnitSelect label="End A size unit" testId="create-component-end-a-size-unit" value={componentDraft.endASizeUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("endASizeUnit", value)} />
+              <ComponentUnitSelect label="End A size unit" testId="create-component-end-a-size-unit" value={componentDraft.endASizeUnit} options={lengthUnitOptions} onChange={(value) => { componentGuard.chose("endASizeUnit"); updateComponentDraft("endASizeUnit", value); }} />
               <ComponentTextInput label="End B size" testId="create-component-end-b-size" value={componentDraft.endBSize} onChange={(value) => updateComponentDraft("endBSize", value)} />
-              <ComponentUnitSelect label="End B size unit" testId="create-component-end-b-size-unit" value={componentDraft.endBSizeUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("endBSizeUnit", value)} />
+              <ComponentUnitSelect label="End B size unit" testId="create-component-end-b-size-unit" value={componentDraft.endBSizeUnit} options={lengthUnitOptions} onChange={(value) => { componentGuard.chose("endBSizeUnit"); updateComponentDraft("endBSizeUnit", value); }} />
               <ComponentTextInput label="Weight" testId="create-component-weight" value={componentDraft.weight} onChange={(value) => updateComponentDraft("weight", value)} />
-              <ComponentUnitSelect label="Weight unit" testId="create-component-force-unit" value={componentDraft.forceUnit} options={componentForceUnitOptions} onChange={(value) => updateComponentDraft("forceUnit", value)} />
+              <ComponentUnitSelect label="Weight unit" testId="create-component-force-unit" value={componentDraft.forceUnit} options={componentForceUnitOptions} onChange={(value) => { componentGuard.chose("forceUnit"); updateComponentDraft("forceUnit", value); }} />
               <ComponentTextInput label="COG X" testId="create-component-cog-x" value={componentDraft.centerOfGravityX} onChange={(value) => updateComponentDraft("centerOfGravityX", value)} />
               <ComponentTextInput label="COG Y" testId="create-component-cog-y" value={componentDraft.centerOfGravityY} onChange={(value) => updateComponentDraft("centerOfGravityY", value)} />
               <ComponentTextInput label="COG Z" testId="create-component-cog-z" value={componentDraft.centerOfGravityZ} onChange={(value) => updateComponentDraft("centerOfGravityZ", value)} />
-              <ComponentUnitSelect label="COG unit" testId="create-component-cog-unit" value={componentDraft.centerOfGravityUnit} options={lengthUnitOptions} onChange={(value) => updateComponentDraft("centerOfGravityUnit", value)} />
+              <ComponentUnitSelect label="COG unit" testId="create-component-cog-unit" value={componentDraft.centerOfGravityUnit} options={lengthUnitOptions} onChange={(value) => { componentGuard.chose("centerOfGravityUnit"); updateComponentDraft("centerOfGravityUnit", value); }} />
               <ComponentTextInput label="End A reference" testId="create-component-end-a-ref" value={componentDraft.connectionEndAReference} onChange={(value) => updateComponentDraft("connectionEndAReference", value)} />
               <ComponentTextInput label="End B reference" testId="create-component-end-b-ref" value={componentDraft.connectionEndBReference} onChange={(value) => updateComponentDraft("connectionEndBReference", value)} />
               <ComponentTextInput label="Stiffness behavior reference" testId="create-component-stiffness-ref" value={componentDraft.stiffnessBehaviorReference} onChange={(value) => updateComponentDraft("stiffnessBehaviorReference", value)} />
@@ -1414,8 +1420,6 @@ type EditableField = {
   missingProjectUnit?: { key: ProjectUnitKey; mode: MissingProjectUnitMode };
   /** why a composed default gives no unit (not a catalog unit, or an invalid key). */
   unitNotice?: string;
-  /** the unit is the project's, not a stored one: the member is absent, or it is a node position (DEL-02-02 REQ-022). */
-  unitFromProject?: boolean;
 };
 
 /** The value a field's entry starts from. */
@@ -2046,7 +2050,7 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef, route: Un
         "set_field",
         true
       ),
-      inheritsStoredUnit(projectUnitDefault(quantityField(
+      projectUnitDefault(quantityField(
         "Mill tolerance",
         "section.mill_tolerance.value",
         pipe.section.mill_tolerance?.value ?? "TBD",
@@ -2055,8 +2059,8 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef, route: Un
         pipe.section.mill_tolerance?.unit ?? pipe.section.wall_thickness?.unit ?? units.length ?? "",
         "set_field",
         true
-      ), "length", "choose"), Boolean(pipe.section.wall_thickness?.unit)),
-      inheritsStoredUnit(projectUnitDefault(quantityField(
+      ), "length", "choose"),
+      projectUnitDefault(quantityField(
         "Corrosion allowance (explicit zero or greater)",
         "section.corrosion_allowance.value",
         pipe.section.corrosion_allowance?.value ?? "TBD",
@@ -2065,7 +2069,7 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef, route: Un
         pipe.section.corrosion_allowance?.unit ?? pipe.section.wall_thickness?.unit ?? units.length ?? "",
         "set_field",
         true
-      ), "length", "choose"), Boolean(pipe.section.wall_thickness?.unit)),
+      ), "length", "choose"),
       ...([
         ["material_density", "Material density (positive)", "density"],
         ["contents_density", "Contents density (zero or greater)", "density"],
@@ -2816,30 +2820,14 @@ function quantityField(
 /** A field whose default unit is a project key's: with the key absent the field has
  * no unit ("", unselected) and names the key; nothing is assumed. */
 function projectUnitDefault(field: EditableField, key: ProjectUnitKey, mode: MissingProjectUnitMode): EditableField {
-  const marked = withProjectUnitMarker(field);
-  return marked.unit === "" ? { ...marked, missingProjectUnit: { key, mode } } : marked;
-}
-
-/** A field whose absent member takes another member's stored unit first (a mill tolerance
- * and a corrosion allowance take the wall thickness's): it follows the project only when
- * there is none. */
-function inheritsStoredUnit(field: EditableField, stored: boolean): EditableField {
-  return stored ? { ...field, unitFromProject: false } : field;
-}
-
-/** An absent member takes its unit from the project; a node position's unit is always the
- * project length. Any other unit is stored. */
-function withProjectUnitMarker(field: EditableField): EditableField {
-  const fromProject = field.before === "TBD" || (field.objectType === "Node" && field.fieldPath.startsWith("position."));
-  return fromProject ? { ...field, unitFromProject: true } : field;
+  return field.unit === "" ? { ...field, missingProjectUnit: { key, mode } } : field;
 }
 
 /** A field whose default unit is composed from project keys: a
  * stored unit is kept; otherwise the composed default, or no unit ("") with the
  * absent key named or the notice given. The field has its own unit selector, so a
  * unit picked there lifts the refusal. */
-function composedUnitDefault(unmarked: EditableField, choice: FieldUnitDefault): EditableField {
-  const field = withProjectUnitMarker(unmarked);
+function composedUnitDefault(field: EditableField, choice: FieldUnitDefault): EditableField {
   if (field.unit !== "") return field;
   if (choice.symbol) return { ...field, unit: choice.symbol };
   if (choice.missingKey && isProjectUnitKey(choice.missingKey)) return { ...field, missingProjectUnit: { key: choice.missingKey, mode: "choose" } };

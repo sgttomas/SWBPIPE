@@ -5568,6 +5568,9 @@ describe("SWBPIPE desktop preview", () => {
         target: { value: "distributed_force" },
       },
     );
+    // The unit beside the magnitude moved with the category or direction, so the
+    // magnitude was cleared (DEL-02-02 REQ-022); the person enters one.
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "250" } });
     expect(
       within(manager).getByTestId("load-manager-create-primitive-id"),
     ).toHaveValue("load:L-100-D300");
@@ -5655,6 +5658,9 @@ describe("SWBPIPE desktop preview", () => {
         target: { value: "concentrated_moment" },
       },
     );
+    // The unit beside the magnitude moved with the category or direction, so the
+    // magnitude was cleared (DEL-02-02 REQ-022); the person enters one.
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "250" } });
     expect(
       within(manager).getByTestId("load-manager-create-primitive-id"),
     ).toHaveValue("load:L-100-M300");
@@ -5763,6 +5769,9 @@ describe("SWBPIPE desktop preview", () => {
         target: { value: "thermal" },
       },
     );
+    // The unit beside the magnitude moved with the category or direction, so the
+    // magnitude was cleared (DEL-02-02 REQ-022); the person enters one.
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "250" } });
     expect(
       within(manager).getByTestId("load-manager-create-primitive-id"),
     ).toHaveValue("load:L-100-T300");
@@ -5857,6 +5866,9 @@ describe("SWBPIPE desktop preview", () => {
         target: { value: "imposed_displacement" },
       },
     );
+    // The unit beside the magnitude moved with the category or direction, so the
+    // magnitude was cleared (DEL-02-02 REQ-022); the person enters one.
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "250" } });
     expect(
       within(manager).getByTestId("load-manager-create-primitive-id"),
     ).toHaveValue("load:L-100-I300");
@@ -11987,6 +11999,9 @@ describe("SWBPIPE desktop preview", () => {
         target: { value: "imposed_displacement" },
       },
     );
+    // The unit beside the magnitude moved with the category or direction, so the
+    // magnitude was cleared (DEL-02-02 REQ-022); the person enters one.
+    fireEvent.change(within(manager).getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "250" } });
     fireEvent.change(
       within(manager).getByTestId("load-manager-create-primitive-magnitude"),
       {

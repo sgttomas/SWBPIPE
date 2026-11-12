@@ -196,7 +196,7 @@ describe("A typed number when the project unit moves (viewport)", () => {
     </DisplayUnitsProvider>
   );
   const cleared = (label: string, from: string, to: string) =>
-    `The ${label} unit changed from ${from} to ${to} with the project units; the values beside it were cleared.`;
+    `The ${label} unit changed from ${from} to ${to}; the values beside it were cleared.`;
 
   it("node: X, Y and Z are cleared and the form says so; the id, label and source are kept", () => {
     const view = render(tree(withUnits({ length: "m" })));
@@ -341,13 +341,14 @@ describe("viewport route drafts when the project length unit moves", () => {
       <PipeViewport model={model} modelIndex={modelIndexFor(model, 1, 0)} selection={{ type: "node", id: "node:N-110" }} onSelect={vi.fn()} onQueueIntent={vi.fn()} onArmCreationTool={vi.fn()} />
     </DisplayUnitsProvider>
   );
-  const notice = "The length unit changed from m to mm with the project units; the values beside it were cleared.";
+  const pipeNotice = "The pipe length unit changed from m to mm; the values beside it were cleared.";
+  const endNotice = "The route end coordinate unit changed from m to mm; the values beside it were cleared.";
 
   it("pipe: the diameter is gone and the form says which unit changed", async () => {
     const view = render(tree(withUnits({ length: "m" })));
     type("viewport-create-pipe-od", "0.168");
     view.rerender(tree(withUnits({ length: "mm" })));
-    await waitFor(() => expect(byId("viewport-create-pipe-unit-cleared")).toHaveTextContent(notice));
+    await waitFor(() => expect(byId("viewport-create-pipe-unit-cleared")).toHaveTextContent(pipeNotice));
     expect(byId("viewport-create-pipe-od")).toHaveValue("");
   });
 
@@ -356,7 +357,7 @@ describe("viewport route drafts when the project length unit moves", () => {
     fireEvent.click(document.querySelector<HTMLInputElement>('input[name="route-end-mode"][value="new"]')!);
     type("viewport-route-end-x", "1.5");
     view.rerender(tree(withUnits({ length: "mm" })));
-    await waitFor(() => expect(byId("viewport-create-pipe-unit-cleared")).toHaveTextContent(notice));
+    await waitFor(() => expect(byId("viewport-create-pipe-unit-cleared")).toHaveTextContent(endNotice));
   });
 
   it("a model change that leaves the length unit says nothing about units", async () => {
@@ -413,9 +414,78 @@ describe("viewport: a node notice names where the unit now is after a later move
     const view = render(tree(withLength("m")));
     type("viewport-create-node-x", "1.5");
     view.rerender(tree(withLength("mm")));
-    expect(byId("viewport-create-node-unit-cleared")).toHaveTextContent("The coordinate unit changed from m to mm with the project units; the values beside it were cleared.");
+    expect(byId("viewport-create-node-unit-cleared")).toHaveTextContent("The coordinate unit changed from m to mm; the values beside it were cleared.");
     view.rerender(tree(withLength("in")));
-    expect(byId("viewport-create-node-unit-cleared")).toHaveTextContent("The coordinate unit changed from m to in with the project units; the values beside it were cleared.");
+    expect(byId("viewport-create-node-unit-cleared")).toHaveTextContent("The coordinate unit changed from m to in; the values beside it were cleared.");
+  });
+});
+
+// DEL-02-02 REQ-022 and AC-011: the one rule on the viewport, and the route drafts' discard.
+describe("the one rule on the viewport", () => {
+  const withUnits = (units: Record<string, string>): PreviewModel => {
+    const model = demo();
+    model.project.units = { ...model.project.units, ...units } as PreviewModel["project"]["units"];
+    return model;
+  };
+  const tree = (model: PreviewModel, session = 1) => (
+    <DisplayUnitsProvider initialPreference="SI">
+      <PipeViewport model={model} modelIndex={modelIndexFor(model, session, 0)} selection={{ type: "node", id: "node:N-110" }} onSelect={vi.fn()} onQueueIntent={vi.fn()} onArmCreationTool={vi.fn()} />
+    </DisplayUnitsProvider>
+  );
+
+  it("the reviewer's case: a unit the person chose on the pipe form, then an unrelated edit, names the unit", async () => {
+    route.current = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
+    const view = render(tree(withUnits({ length: "m" })));
+    await waitFor(() => expect(byId("viewport-create-node-unit-basis")).not.toHaveTextContent(/unavailable|pending/i));
+    chooseCompactOption(byId("viewport-create-pipe-length-unit"), "mm");
+    type("viewport-create-pipe-od", "168");
+    view.rerender(tree(withUnits({ length: "m", pressure: "MPa" })));
+    await waitFor(() => expect(byId("viewport-create-pipe-unit-cleared")).toHaveTextContent(
+      "The pipe length unit changed from mm to m; the values beside it were cleared."
+    ));
+    expect(byId("viewport-create-pipe-od")).toHaveValue("");
+  });
+
+  it("the reviewer's case: route end coordinates in a unit the person chose, then an unrelated edit", async () => {
+    route.current = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
+    const view = render(tree(withUnits({ length: "m" })));
+    await waitFor(() => expect(byId("viewport-create-node-unit-basis")).not.toHaveTextContent(/unavailable|pending/i));
+    fireEvent.click(document.querySelector<HTMLInputElement>('input[name="route-end-mode"][value="new"]')!);
+    chooseCompactOption(byId("viewport-route-end-unit"), "mm");
+    type("viewport-route-end-x", "1500");
+    view.rerender(tree(withUnits({ length: "m", pressure: "MPa" })));
+    await waitFor(() => expect(byId("viewport-create-pipe-unit-cleared")).toHaveTextContent(
+      "The route end coordinate unit changed from mm to m; the values beside it were cleared."
+    ));
+  });
+
+  it("baseline: another project session raises no notice on the node form; within the session a real move clears", () => {
+    const view = render(tree(withUnits({ length: "m" })));
+    type("viewport-create-node-x", "1.5");
+    view.rerender(tree(withUnits({ length: "mm" }), 2));
+    expect(screen.queryByTestId("viewport-create-node-unit-cleared")).toBeNull();
+    type("viewport-create-node-x", "1500");
+    view.rerender(tree(withUnits({ length: "in" }), 2));
+    expect(byId("viewport-create-node-unit-cleared")).toHaveTextContent("The coordinate unit changed from mm to in; the values beside it were cleared.");
+  });
+
+  it("a component's kind change removes its clearing notice", () => {
+    const view = render(tree(withUnits({ length: "m" })));
+    type("viewport-create-component-radius", "0.45");
+    view.rerender(tree(withUnits({ length: "mm" })));
+    expect(byId("viewport-create-component-unit-cleared")).toBeInTheDocument();
+    changeFormControl(byId("viewport-create-component-kind"), { target: { value: "valve" } });
+    expect(screen.queryByTestId("viewport-create-component-unit-cleared")).toBeNull();
+  });
+
+  it("the person's own choice of the node's unit clears nothing", async () => {
+    route.current = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
+    render(tree(withUnits({ length: "m" })));
+    await waitFor(() => expect(byId("viewport-create-node-unit-basis")).not.toHaveTextContent(/unavailable|pending/i));
+    type("viewport-create-node-x", "1.5");
+    chooseCompactOption(byId("viewport-create-node-unit"), "mm");
+    expect(byId("viewport-create-node-x")).toHaveValue("1.5");
+    expect(screen.queryByTestId("viewport-create-node-unit-cleared")).toBeNull();
   });
 });
 

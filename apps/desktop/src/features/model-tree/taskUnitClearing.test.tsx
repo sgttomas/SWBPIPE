@@ -1,8 +1,9 @@
-// The inspector's property task under DEL-02-02 REQ-022 and AC-011 (second independent
-// reading, finding 1): an absent member's quantity or vector takes its unit from the
-// project, as a node position always does. A value typed beside it is cleared when that
-// unit moves with the project units, and the task says which unit changed. A stored unit
-// and a unit the person chose never clear. Invented data only.
+// The inspector's property task under DEL-02-02 REQ-022 and AC-011: when the unit shown
+// beside a typed value moves by anything other than the person's own choice of that unit
+// in the task's unit control, the value is cleared and the task says which unit changed.
+// The cause does not matter: the project units, another stored value replaced, the
+// field's own stored value replaced from outside, an absent member becoming stored.
+// Invented data only.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -69,7 +70,7 @@ async function startTask(selection: EntityRef, fieldPath: string, units: Record<
 }
 
 const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
-const cleared = (from: string, to: string) => new RegExp(`unit changed from ${escape(from)} to ${escape(to)} with the project units; the values beside it were cleared\\.`);
+const cleared = (from: string, to: string) => new RegExp(`unit changed from ${escape(from)} to ${escape(to)}; the values beside it were cleared\\.`);
 
 describe("the property task clears a value typed beside a unit taken from the project", () => {
   it("the reviewer's case: an absent solve temperature, 400 typed, the project temperature unit changed", async () => {
@@ -101,9 +102,8 @@ describe("the property task clears a value typed beside a unit taken from the pr
     expect(notice()).toHaveTextContent(to === null ? new RegExp(`unit changed from ${escape(from)} to `) : cleared(from, to));
   });
 
-  it("a stored unit never clears", async () => {
-    // The valve's body length is stored with its own unit. (Likewise a mill tolerance on a
-    // pipe whose wall thickness is stored takes that stored unit.)
+  it("a stored unit that does not move clears nothing", async () => {
+    // The valve's body length is stored with its own unit; a project length change leaves it.
     const { rerender } = await startTask({ type: "component", id: "component:C-130" }, "geometry.rigid_body_length.value");
     fireEvent.change(byId("editor-intent-value"), { target: { value: "0.4" } });
     rerender({ length: "mm" });
@@ -111,18 +111,60 @@ describe("the property task clears a value typed beside a unit taken from the pr
     expect(notice()).toBeNull();
   });
 
-  it("a mill tolerance on a pipe with a stored wall thickness takes that stored unit: it moves only with the record and never clears", async () => {
-    const { rerender } = await startTask({ type: "pipe", id: "pipe:P-100" }, "section.mill_tolerance.value");
-    fireEvent.change(byId("editor-intent-value"), { target: { value: "0.001" } });
+  // The third reading's case. The earlier version of this test expected the typed 0.001 to
+  // stay while its unit moved from m to mm: it had recorded the defect as behaviour.
+  it.each([
+    ["section.mill_tolerance.value", "0.001"],
+    ["section.corrosion_allowance.value", "0.002"]
+  ])("%s beside a wall thickness re-stored in another unit is cleared", async (fieldPath, typed) => {
+    const { rerender } = await startTask({ type: "pipe", id: "pipe:P-100" }, fieldPath);
+    fireEvent.change(byId("editor-intent-value"), { target: { value: typed } });
     rerender({ length: "mm" });
-    expect(byId("editor-intent-value")).toHaveValue("0.001");
-    // An applied edit stores the wall thickness in mm: the mill tolerance's unit follows the
-    // stored member, not the project units, so the typed value stays.
+    expect(byId("editor-intent-value")).toHaveValue(typed);
+    expect(notice()).toBeNull();
+    // Another edit stores the wall thickness in mm: the unit shown moves without the person's choice.
     rerender({ length: "mm" }, 1, (model) => {
       const wall = model.pipe_segments[0].section.wall_thickness!;
       model.pipe_segments[0].section.wall_thickness = { value: Number(wall.value) * 1000, unit: "mm" };
     });
-    expect(byId("editor-intent-value")).toHaveValue("0.001");
+    expect(byId("editor-intent-value")).not.toHaveValue(typed);
+    expect(notice()).toHaveTextContent(cleared("m", "mm"));
+  });
+
+  it("the field's own stored value replaced from outside in another unit clears the typed value", async () => {
+    const { rerender } = await startTask({ type: "component", id: "component:C-130" }, "geometry.rigid_body_length.value");
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "0.4" } });
+    rerender({}, 1, (model) => {
+      const valve = model.components.find((component) => component.id === "component:C-130")!;
+      const length = valve.geometry!.rigid_body_length!;
+      valve.geometry!.rigid_body_length = { value: Number(length.value) * 1000, unit: "mm" };
+    });
+    expect(byId("editor-intent-value")).not.toHaveValue("0.4");
+    expect(notice()).toHaveTextContent(cleared("m", "mm"));
+  });
+
+  it("an absent member becoming stored in another unit clears the typed value", async () => {
+    const { rerender } = await startTask({ type: "load", id: "load:L-100" }, "modulus_basis_temperature.value");
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "400" } });
+    rerender({}, 1, (model) => { model.load_cases[0].modulus_basis_temperature = { value: 300, unit: "K" }; });
+    expect(byId("editor-intent-value")).toHaveValue("300");
+    expect(notice()).toHaveTextContent(cleared("degC", "K"));
+  });
+
+  it("baseline: another field is another entry, so switching field raises no notice; a real move on the new field still clears", async () => {
+    const { rerender } = await startTask({ type: "load", id: "load:L-100" }, "modulus_basis_temperature.value");
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "400" } });
+    changeFormControl(byId("editor-intent-field"), { target: { value: "equivalent_static.wind.pressure.value" } });
+    expect(notice()).toBeNull();
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "5" } });
+    rerender({ pressure: "MPa" });
+    expect(notice()).toHaveTextContent(cleared("Pa", "MPa"));
+  });
+
+  it("baseline: another project session raises no notice", async () => {
+    const { rerender } = await startTask({ type: "load", id: "load:L-100" }, "modulus_basis_temperature.value");
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "400" } });
+    rerender({ temperature: "K" }, 2);
     expect(notice()).toBeNull();
   });
 
@@ -132,7 +174,7 @@ describe("the property task clears a value typed beside a unit taken from the pr
     rerender({ pressure: "MPa" });
     expect(byId("editor-intent-value")).toHaveValue("400");
     expect(notice()).toBeNull();
-    // The person's own choice of unit after typing is not a move with the project units.
+    // The person's own choice of the unit after typing is the one exemption.
     chooseCompactOption(byId("editor-intent-unit"), "K");
     expect(byId("editor-intent-value")).toHaveValue("400");
     expect(notice()).toBeNull();

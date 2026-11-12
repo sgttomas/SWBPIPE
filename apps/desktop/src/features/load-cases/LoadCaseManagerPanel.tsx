@@ -250,13 +250,15 @@ export function LoadCaseManagerPanel({
   const primitiveLoadDraft: PrimitiveLoadDraft = primitiveLoadDraftState.unitSource === "default"
     ? { ...primitiveLoadDraftState, unit: primitiveLoadDefaultUnit(model, primitiveLoadDraftState.category, primitiveLoadDraftState.direction, unitCatalogRoute) }
     : primitiveLoadDraftState;
-  // A magnitude typed beside a unit the user did not change is cleared when that unit
-  // moves with the project units; the form says which unit changed (DEL-02-02 AC-011).
-  // Choosing another category or direction is the user's own act and starts afresh.
+  // One rule (DEL-02-02 REQ-022): a magnitude beside a unit that moves by anything other than
+  // the person's own choice of that unit (the unit control's `chose`) is cleared and the
+  // form says so: the project units, the catalog, and another category or direction alike
+  // (a force of 250 must not become a moment of 250). No baseline: the panel is remounted
+  // per project session.
   const [primitiveUnitClearNotice, setPrimitiveUnitClearNotice] = useState<UnitMove[] | null>(null);
-  useClearOnUnitMove({
-    magnitude: { label: "magnitude", unit: primitiveLoadDraft.unit, follows: primitiveLoadDraftState.unitSource === "default", values: [primitiveLoadDraft.magnitude] }
-  }, `${primitiveLoadDraft.category}:${primitiveLoadDraft.direction}`, (moves) => {
+  const primitiveGuard = useClearOnUnitMove({
+    magnitude: { label: "magnitude", unit: primitiveLoadDraft.unit, values: [primitiveLoadDraft.magnitude] }
+  }, "", (moves) => {
     setPrimitiveLoadDraft((current) => ({ ...current, magnitude: "" }));
     setPrimitiveUnitClearNotice(moves);
   }, (moves) => setPrimitiveUnitClearNotice((current) => supersedeMoves(current, moves)));
@@ -807,7 +809,7 @@ export function LoadCaseManagerPanel({
             <select
               aria-label="Primitive load unit"
               data-testid="load-manager-create-primitive-unit"
-              onChange={(event) => updatePrimitiveLoadDraft("unit", event.target.value)}
+              onChange={(event) => { primitiveGuard.chose("magnitude"); updatePrimitiveLoadDraft("unit", event.target.value); }}
               value={primitiveLoadDraft.unit}
             >
               {primitiveDraftUnitOptions.map((option) => (
