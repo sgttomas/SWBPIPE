@@ -41,17 +41,18 @@ needs:
   when: Applying a sized selection
   condition: >-
     The session keeps a precondition beside a queued batch and outside it, checks it when the person
-    applies the batch and applies nothing on a refusal, and refuses to register without one a batch
-    whose contents require it (DEL-07-11/REQ-002), so that a sized selection is applied only while
-    the stored library is the one its sizing result binds.
+    applies the batch and applies nothing on a refusal, and refuses to register a requeued stored
+    record or an imported batch that writes a support's hanger selection (DEL-07-11/REQ-002), so
+    that a sized selection is applied only while the stored library is the one its sizing result
+    binds.
   gating: true
 - from: DEL-02-01
-  when: Replacing the label that marks a batch as a sized hanger selection
+  when: Admitting a requeued or imported sized selection instead of refusing it
   condition: >-
     The model document's provenance record has structured members for the sizing request's digest
-    and the library's hash of an applied sized selection, so that a batch is recognized as a sized
-    selection from those members and not from an operation's field label. Not provided today; the
-    label is read until it is.
+    and the library's hash of an applied sized selection, so that a requeued or imported batch can
+    be recognized as a sized selection from those members and guarded by its precondition. Not
+    provided today; until it is, every requeued or imported hanger write is refused.
   gating: false
 - from: DEL-03-02
   condition: >-
