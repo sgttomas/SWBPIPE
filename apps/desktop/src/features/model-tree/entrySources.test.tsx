@@ -480,17 +480,18 @@ describe("the one rule on the inspector's creation forms", () => {
   it("a catalog arriving late clears digits typed early beside a composed unit it lacks", async () => {
     let release!: (value: UnitCatalogRoute | null) => void;
     route.delayed = new Promise((resolve) => { release = resolve; });
-    const model = withUnits({ length: "mm" });
+    // N/in: composed from the project units, and absent from the invented catalog.
+    const model = withUnits({ length: "in" });
     render(
       <DisplayUnitsProvider initialPreference="SI">
         <PropertyInspector model={model} selection={{ type: "node", id: "node:N-110" }} onQueueIntent={vi.fn()} projectSessionGeneration={1} />
       </DisplayUnitsProvider>
     );
-    expectFormControlValue(byId("create-support-stiffness-unit"), "N/mm");
+    expectFormControlValue(byId("create-support-stiffness-unit"), "N/in");
     type("create-support-stiffness", "1500");
     await act(async () => release({ route: "tauri_unit_catalog", catalog: unitCatalogFixture() }));
     await waitFor(() => expect(byId("create-support-stiffness")).toHaveValue(""));
-    expect(byId("create-support-unit-cleared")).toHaveTextContent("The stiffness unit changed from N/mm to none; the values beside it were cleared.");
+    expect(byId("create-support-unit-cleared")).toHaveTextContent("The stiffness unit changed from N/in to none; the values beside it were cleared.");
   });
 
   it("baseline: another project session raises no notice; within the session a real move clears", async () => {

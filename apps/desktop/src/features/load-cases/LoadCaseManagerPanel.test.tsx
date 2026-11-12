@@ -245,6 +245,7 @@ describe("LoadCaseManagerPanel primitive-load creation", () => {
     expect(byId("load-manager-create-primitive-direction")).toHaveValue("UZ");
     expect(optionValues("load-manager-create-primitive-direction")).toEqual(["UX", "UY", "UZ", "RX", "RY", "RZ"]);
     expect(byId("load-manager-create-primitive-unit")).toHaveValue("mm");
+    type("load-manager-create-primitive-magnitude", "12");
     type("load-manager-create-primitive-direction", "RX");
     expect(byId("load-manager-create-primitive-unit")).toHaveValue("rad");
     // The unit moved (mm to rad) by the direction, not by the person's choice of the unit:
