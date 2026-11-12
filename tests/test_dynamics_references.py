@@ -6,12 +6,18 @@ regenerates byte for byte from its generator, and the generator imports no
 product code.
 
 Threat model: a generator that imports, opens or names a product path in the
-ordinary way. For every generator file this checks its imports (standard
-library, its own directory, or a named module of another frozen reference
-package whose bytes that package's SHA256SUMS pins), that it has no relative
-import and no dynamic import or evaluation call, and that no string constant
-names a product path. Outside the model, recorded and not repaired: a path
-assembled at run time to hide its segments.
+ordinary way. For every generator file, at any depth under `generators/`,
+this checks its imports (standard library other than the import machinery,
+its own directory, or a named module of another frozen reference package
+whose bytes that package's SHA256SUMS pins and that nothing beside the
+importer shadows), that it has no relative import, that it neither imports
+nor names a dynamic import or evaluation facility under any alias, and that
+no string constant names a product path or a product module. Outside the
+model, recorded and not repaired: a path or module name assembled at run
+time to hide its segments.
+
+The scan rule here is moving: one module, `tools/validation/reference_independence.py`,
+is to hold it for every reference package's test, and this file then imports it.
 """
 import ast
 import hashlib
@@ -60,12 +66,31 @@ FIXTURE_SCRIPTS = {
 }
 
 PRODUCT_ROOTS = {"core", "apps", "api", "tests", "tools", "fixtures", "schemas"}
-FORBIDDEN_CALLS = {"__import__", "import_module", "exec", "eval", "spec_from_file_location"}
+# Facilities that load or evaluate code named at run time. A generator may not name one, as a call,
+# a reference or an import alias, and may not import the modules that provide them.
+FORBIDDEN_NAMES = {
+    "__import__", "import_module", "exec", "eval", "compile", "exec_module", "load_module", "run_path", "run_module",
+    "spec_from_file_location", "spec_from_loader", "module_from_spec", "SourceFileLoader",
+}
+FORBIDDEN_MODULES = {"importlib", "runpy", "imp", "pkgutil", "zipimport"}
+
+
+def _has_product_segment(text):
+    return bool(PRODUCT_ROOTS & set(re.split(r"[\\/]+", text)))
 
 
 def names_product_path(text):
-    """A string constant names a product path when any of its path segments is a product root."""
-    return bool(text) and not re.search(r"\s", text) and bool(PRODUCT_ROOTS & set(re.split(r"[\\/]+", text)))
+    """A string constant names a product path when a path segment is a product root: of the whole
+    string, so that a directory name with a space in it does not hide the path, or of any
+    whitespace-separated token that is itself a path. It names a product module when it is a dotted
+    name whose first part is a product root."""
+    if not text:
+        return False
+    if _has_product_segment(text):
+        return True
+    if any(re.search(r"[\\/]", token) and _has_product_segment(token) for token in text.split()):
+        return True
+    return bool(re.fullmatch(r"[A-Za-z_]\w*(\.[A-Za-z_]\w*)+", text)) and text.split(".")[0] in PRODUCT_ROOTS
 
 
 def sha256(path):
@@ -90,7 +115,7 @@ def package_files(package):
 
 
 def generator_files(package):
-    return sorted((REFERENCES / package / "generators").glob("*.py"))
+    return sorted(path for path in (REFERENCES / package / "generators").rglob("*.py") if "__pycache__" not in path.parts)
 
 
 def independence_findings(path, admitted):
@@ -98,17 +123,21 @@ def independence_findings(path, admitted):
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
     local = {sibling.stem for sibling in path.parent.glob("*.py")}
     admitted_names = set().union(*admitted.values()) if admitted else set()
+    # A string that stands alone as a statement (a docstring) is read by nothing.
+    inert = {id(node.value) for node in ast.walk(tree) if isinstance(node, ast.Expr) and isinstance(node.value, ast.Constant)}
     found = []
 
     def judge_import(name, line):
         top = name.split(".")[0]
-        if top in sys.stdlib_module_names or top in local or top in admitted_names:
-            return
-        found.append(("import", line, name))
+        if top in FORBIDDEN_MODULES:
+            found.append(("import machinery", line, name))
+        elif not (top in sys.stdlib_module_names or top in local or top in admitted_names):
+            found.append(("import", line, name))
 
     for node in ast.walk(tree):
-        if isinstance(node, ast.Constant) and isinstance(node.value, str) and names_product_path(node.value):
-            found.append(("product path", node.lineno, node.value))
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            if id(node) not in inert and names_product_path(node.value):
+                found.append(("product path", node.lineno, node.value))
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 judge_import(alias.name, node.lineno)
@@ -117,11 +146,13 @@ def independence_findings(path, admitted):
                 found.append(("relative import", node.lineno, node.module or ""))
             else:
                 judge_import(node.module or "", node.lineno)
-        elif isinstance(node, ast.Call):
-            called = node.func
-            name = called.id if isinstance(called, ast.Name) else called.attr if isinstance(called, ast.Attribute) else None
-            if name in FORBIDDEN_CALLS:
-                found.append(("call", node.lineno, name))
+                for alias in node.names:
+                    if alias.name in FORBIDDEN_NAMES:
+                        found.append(("dynamic facility", node.lineno, alias.name))
+        elif isinstance(node, ast.Name) and node.id in FORBIDDEN_NAMES:
+            found.append(("dynamic facility", node.lineno, node.id))
+        elif isinstance(node, ast.Attribute) and node.attr in FORBIDDEN_NAMES:
+            found.append(("dynamic facility", node.lineno, node.attr))
     return found
 
 
@@ -163,14 +194,28 @@ def test_an_admitted_reference_import_is_a_file_its_own_package_pins():
                 name = f"generators/{module}.py"
                 assert name in listed, (importer, source, module)
                 assert sha256(REFERENCES / source / name) == listed[name], (importer, source, module)
-                # The admitted name must not be shadowed by a file beside the importer.
-                if not importer.startswith("script:"):
-                    assert not (REFERENCES / importer / "generators" / f"{module}.py").exists(), (importer, module)
+                # The admitted name must not be shadowed by a file or a package beside the importer.
+                if importer.startswith("script:"):
+                    beside = (PROJECT / importer.removeprefix("script:")).parent
+                else:
+                    beside = REFERENCES / importer / "generators"
+                assert not (beside / f"{module}.py").exists(), (importer, module)
+                assert not (beside / module).exists(), (importer, module)
+
+
+@pytest.mark.parametrize("package", sorted(PACKAGES))
+def test_a_generators_directory_holds_only_modules(package):
+    """No package directory under `generators/`: one would be importable by name ahead of a pinned module."""
+    nested = [path.name for path in (REFERENCES / package / "generators").iterdir() if path.is_dir() and path.name != "__pycache__"]
+    assert not nested, nested
 
 
 @pytest.mark.parametrize(
     "text",
-    ["core", "core/x.py", "../core/x.py", "..\\apps\\desktop", "validation/../tests/a.py", "fixtures", "a/tools/b", "api/x"],
+    [
+        "core", "core/x.py", "../core/x.py", "..\\apps\\desktop", "validation/../tests/a.py", "fixtures", "a/tools/b", "api/x",
+        "/Users/a b/checkout/core/x.py", "run core/x.py now", "core.model_operations.audit_trail.engine", "tools.ci",
+    ],
 )
 def test_the_path_rule_flags_a_product_segment_wherever_it_stands(text):
     assert names_product_path(text)
@@ -178,7 +223,10 @@ def test_the_path_rule_flags_a_product_segment_wherever_it_stands(text):
 
 @pytest.mark.parametrize(
     "text",
-    ["", "validation/references/f1_modal", "generators/generate.py", "a core of steel", "core_values", "hardcore/x", "testsuite"],
+    [
+        "", "validation/references/f1_modal", "generators/generate.py", "a core of steel", "core_values", "hardcore/x", "testsuite",
+        "numerics.core", "the tests of this package", "a.b",
+    ],
 )
 def test_the_path_rule_passes_what_names_no_product_root(text):
     assert not names_product_path(text)
@@ -196,8 +244,23 @@ def test_the_independence_rule_catches_each_kind(tmp_path):
         "q = Path('../fixtures/y.json')\n"
         "m = __import__('os')\n"
         "import importlib\n"
-        "n = importlib.import_module('sys')\n",
+        "n = importlib.import_module('sys')\n"
+        "from importlib import import_module as load\n"
+        "k = load('core.model_operations')\n"
+        "'a statement string naming core/x.py is read by nothing'\n",
         encoding="utf-8",
     )
-    kinds = sorted(kind for kind, _, _ in independence_findings(generator, {}))
-    assert kinds == ["call", "call", "import", "product path", "product path", "relative import"]
+    found = independence_findings(generator, {})
+    kinds = sorted(kind for kind, _, _ in found)
+    assert kinds == [
+        "dynamic facility", "dynamic facility", "dynamic facility", "import", "import machinery", "import machinery",
+        "product path", "product path", "product path", "relative import",
+    ], found
+
+
+def test_the_scan_reaches_a_generator_below_the_top_directory(tmp_path, monkeypatch):
+    nested = tmp_path / "pkg" / "generators" / "numerics"
+    nested.mkdir(parents=True)
+    (nested / "__init__.py").write_text("import numpy\n", encoding="utf-8")
+    monkeypatch.setattr(sys.modules[__name__], "REFERENCES", tmp_path)
+    assert [path.name for path in generator_files("pkg")] == ["__init__.py"]
