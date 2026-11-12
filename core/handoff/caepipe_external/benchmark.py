@@ -45,8 +45,8 @@ SCREENING_PROFILE = {
               "tightened"),
     "relative": {EXACT: 1.0e-4, NAMED_INEXACT: 5.0e-3},
     "floor": {"m": 1.0e-6, "rad": math.radians(1.0e-4), "N": 1.0, "N*m": 1.0},
-    "floor_basis": ("one printed unit of the CSV per kind: 0.001 mm, 0.0001 deg, 1 N, 1 N*m (screening profile, "
-                    "execution/PKG-17/DEL-17-05/ScopeOfWork.md)"),
+    "floor_basis": ("one printed unit of the CSV per kind: 0.001 mm, 0.0001 deg, 1 N, 1 N*m; the printed resolution "
+                    "of the result file, observed format behaviour"),
     "near_zero_fraction": 1.0e-3,
     "rule": "|S - C| <= floor_k + r * max(|S|, |C|, near_zero_fraction * Q_k); Q_k the case maximum of kind k",
 }

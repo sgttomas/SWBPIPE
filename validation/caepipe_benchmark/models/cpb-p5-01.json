@@ -22,18 +22,58 @@
       "shear_deformation",
       "bend_flexibility_application",
       "bend_transverse_shear",
-      "bend_bourdon_opening",
-      "pressure_elongation_convention",
       "pressure_thrust_convention"
     ],
     "operating": [
-      "bend_bourdon_opening",
       "bend_flexibility_application",
       "bend_transverse_shear",
-      "pressure_elongation_convention",
       "pressure_thrust_convention",
       "shear_deformation"
     ]
+  },
+  "inexact_inputs_by_series": {
+    "pressure-default": {
+      "case:expansion": [
+        "shear_deformation",
+        "bend_flexibility_application",
+        "bend_transverse_shear"
+      ],
+      "case:sustained": [
+        "shear_deformation",
+        "bend_flexibility_application",
+        "bend_transverse_shear",
+        "pressure_thrust_convention"
+      ],
+      "operating": [
+        "bend_flexibility_application",
+        "bend_transverse_shear",
+        "pressure_thrust_convention",
+        "shear_deformation"
+      ]
+    },
+    "pressure-elongation-on": {
+      "case:expansion": [
+        "shear_deformation",
+        "bend_flexibility_application",
+        "bend_transverse_shear"
+      ],
+      "case:sustained": [
+        "shear_deformation",
+        "bend_flexibility_application",
+        "bend_transverse_shear",
+        "pressure_thrust_convention",
+        "pressure_elongation_convention",
+        "bend_bourdon_opening"
+      ],
+      "operating": [
+        "bend_bourdon_opening",
+        "bend_flexibility_application",
+        "bend_transverse_shear",
+        "pressure_elongation_convention",
+        "pressure_thrust_convention",
+        "shear_deformation"
+      ]
+    }
   },
   "model": {
     "analysis_status": {
@@ -580,6 +620,7 @@
   "series": [
     "pressure-default",
     "pressure-elongation-on",
+    "pressure-bourdon-expansion-capture",
     "pressure-k-z"
   ],
   "tranche": "2"

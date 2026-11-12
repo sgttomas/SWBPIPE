@@ -95,8 +95,8 @@ def test_the_manifest_records_seed_family_parameters_and_hashes():
         assert document["provenance"]["origin"] == "invented" and document["provenance"]["produced_by_caepipe"] is False
     assert counts == {"G1": 10, "G2": 16, "G3": 12, "G4": 6, "G5": 6, "G6": 3, "G7": 3, "G8": 4}
     assert sum(counts.values()) == 60
-    assert pressure_counts == {"P1": 6, "P2": 4, "P3": 4, "P4": 4, "P5": 2, "P6": 1}
-    assert [entry["tranche"] for entry in manifest["models"]] == ["1"] * 60 + ["2"] * 21  # tranche 2 is appended
+    assert pressure_counts == {"P1": 6, "P2": 4, "P3": 4, "P4": 4, "P5": 2, "P6": 1, "P7": 1}
+    assert [entry["tranche"] for entry in manifest["models"]] == ["1"] * 60 + ["2"] * 22  # tranche 2 is appended
     assert sorted(manifest["tranches"]) == ["1", "2"]
     series = manifest["series"]
     assert [member["value"] for member in series["shear-dt"]["members"]] == [10.0, 20.0, 40.0, 100.0]
@@ -308,30 +308,88 @@ def test_the_elongation_off_closed_forms_are_listed_and_compared_only_on_a_build
             assert row["closed_form"]["closed_form_vs_swbpipe"] == "agree", (document["model_id"], row)
 
 
-def test_every_pressurised_model_runs_in_both_series_from_the_same_file():
+RUNS = (benchmark_models.SERIES_DEFAULT, benchmark_models.SERIES_ELONGATION_ON,
+        benchmark_models.SERIES_BOURDON_EXPANSION)
+
+
+def test_every_pressurised_model_declares_three_runs_of_the_same_file():
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     pressurised = [entry for entry in manifest["models"] if entry["tranche"] == "2"]
     names = [entry["model_id"] for entry in pressurised]
-    for name, value in ((benchmark_models.SERIES_DEFAULT, "off"), (benchmark_models.SERIES_ELONGATION_ON, "on")):
+    lines = {benchmark_models.SERIES_DEFAULT: "0,0,0,1,0", benchmark_models.SERIES_ELONGATION_ON: "0,1,0,1,1",
+             benchmark_models.SERIES_BOURDON_EXPANSION: "0,1,0,1,0"}
+    for name in RUNS:
         declared = manifest["series"][name]
-        assert declared["parameter"] == "pressure_elongation" and declared["value"] == value
+        assert declared["oppres_line"] == lines[name] and declared["screened"] is (name != RUNS[2])
         assert [member["model_id"] for member in declared["members"]] == names
-        assert {member["elongation_load_case"] for member in declared["members"]} == {"case:sustained"}
-    assert manifest["series"][benchmark_models.SERIES_ELONGATION_ON]["variant_of"] == benchmark_models.SERIES_DEFAULT
+    assert manifest["series"][RUNS[2]]["swbpipe"] is None and "screened against nothing" in \
+        manifest["series"][RUNS[2]]["description"]
+    hypothesis = manifest["pressure_hypothesis"]
+    assert hypothesis["statement"].startswith("HYPOTHESIS") and "tests and does not assume" in hypothesis["statement"]
+    assert "docs.sstcae.com/users_manual/import_mbf.htm" in hypothesis["format_source"]
+    assert "2026-11-12" in hypothesis["format_source"] and hypothesis["refuted_by"]
+    documents = {document["model_id"]: document for document in pressurised_models()}
     for entry in pressurised:
-        default, on = entry["runs"]
-        assert (default["series"], default["variant_of"]) == (benchmark_models.SERIES_DEFAULT, None)
-        assert (on["series"], on["variant_of"]) == (benchmark_models.SERIES_ELONGATION_ON, benchmark_models.SERIES_DEFAULT)
-        assert default["file"] == on["file"] == entry["file"]
+        document = documents[entry["model_id"]]
+        writer = render_caepipe_mbf_si(document["model"], title=document["model_id"],
+                                       reference_temperature_c=document["reference_temperature_c"],
+                                       piping_code=document["piping_code"]).text
+        assert [run["series"] for run in entry["runs"]] == list(RUNS)
+        assert len({run["run_id"] for run in entry["runs"]}) == 3
+        default, on, capture = entry["runs"]
+        assert default["variant_of"] is None and on["variant_of"] == capture["variant_of"] == RUNS[0]
+        assert default["file"] == on["file"] == capture["file"] == entry["file"]
+        assert default["mbf"] == {"oppres_line": "0,0,0,1,0", "source": "writer output",
+                                  "sha256": hashlib.sha256(writer.encode("utf-8")).hexdigest()}
+        for run in (on, capture):
+            substituted = benchmark_models.substituted_mbf_text(writer, run["mbf"]["oppres_line"])
+            assert substituted != writer and substituted.replace(f"\r\nOPPRES\r\n{run['mbf']['oppres_line']}\r\n",
+                                                                 "\r\nOPPRES\r\n0,0,0,1,0\r\n") == writer
+            assert run["mbf"] == {"oppres_line": run["mbf"]["oppres_line"], "source": "substituted",
+                                  "base_line": "0,0,0,1,0", "writer_output": False,
+                                  "sha256": hashlib.sha256(substituted.encode("utf-8")).hexdigest(),
+                                  "writer_sha256": default["mbf"]["sha256"]}
         assert default["swbpipe_model_hash"] == entry["model_hash"] != on["swbpipe_model_hash"]
         assert on["swbpipe_model_settings"] == {"pressure_elongation": {"operating_load_cases": ["case:sustained"]}}
+        assert (capture["screened"], capture["swbpipe_model_hash"], capture["closed_forms"]) == (False, None, 0)
     # The thrust series: one target-program input, SWBPIPE's anchor terminal transferring or not.
     for index in (1, 2):
         members = manifest["series"][f"pressure-closure-{index:02d}"]["members"]
         assert [(member["model_id"], member["value"]) for member in members] == [
             (f"cpb-p2-{index:02d}", "transfers_to_wall"), (f"cpb-p3-{index:02d}", "separately_supported_or_compensated")]
-    # Tranche 1 belongs to neither run series.
+    # The bend-opening series: P7's default and on runs.
+    assert manifest["series"]["pressure-bend-opening"]["members"] == [
+        {"model_id": "cpb-p7-01", "run": RUNS[0]}, {"model_id": "cpb-p7-01", "run": RUNS[1]}]
     assert not [entry for entry in manifest["models"] if entry["tranche"] == "1" and "runs" in entry]
+
+
+def test_the_substitution_refuses_a_file_without_exactly_one_writer_oppres_line():
+    writer = render_caepipe_mbf_si(pressurised_models()[0]["model"], title="T", piping_code="B311-80").text
+    for text in (writer.replace("\r\nOPPRES\r\n0,0,0,1,0\r\n", "\r\nOPPRES\r\n0,0,0,1,1\r\n"),
+                 writer + "OPPRES\r\n0,0,0,1,0\r\n", writer.replace("OPPRES", "OPTEMP")):
+        with pytest.raises(ValueError):
+            benchmark_models.substituted_mbf_text(text, "0,1,0,1,1")
+    assert benchmark_models.substituted_mbf_text(writer, "0,0,0,1,0") == writer
+
+
+def test_inexact_inputs_follow_the_run_and_the_case():
+    bends = {"P4", "P5", "P7"}
+    for document in pressurised_models():
+        default = benchmark_models.series_document(document, RUNS[0])["inexact_inputs"]
+        on = benchmark_models.series_document(document, RUNS[1])["inexact_inputs"]
+        assert document["inexact_inputs"] == default
+        for case in ("case:sustained", "operating"):
+            assert "pressure_thrust_convention" in default[case] and "pressure_thrust_convention" in on[case]
+            assert "pressure_elongation_convention" not in default[case] and "pressure_elongation_convention" in on[case]
+            assert "bend_bourdon_opening" not in default[case]
+            assert ("bend_bourdon_opening" in on[case]) is (document["family"] in bends)
+        assert default["case:expansion"] == on["case:expansion"]
+        assert not {"pressure_elongation_convention", "bend_bourdon_opening", "pressure_thrust_convention"} & set(
+            on["case:expansion"])
+        if document["family"] in ("P1", "P2", "P3"):
+            assert default["case:expansion"] == []  # axial only: the exact class
+        capture = benchmark_models.series_document(document, RUNS[2])
+        assert capture["capture_only"] is True and capture["closed_form"] == [] and capture["inexact_inputs"] == {}
 
 
 def test_no_tracked_model_carries_model_settings_and_the_series_document_adds_it_without_writing():
@@ -363,8 +421,7 @@ def test_every_pressurised_case_carries_an_unbalanced_thrust_or_one_straight_mem
             members = region["member_pipe_ids"]
             open_end = any(terminal["closure_transfer"] != "transfers_to_wall" for terminal in region["terminals"])
             assert len(members) == 1 or set(members) & bends or open_end, (document["model_id"], region["id"])
-        assert {"pressure_elongation_convention", "pressure_thrust_convention"} <= set(
-            document["inexact_inputs"]["case:sustained"])
+        assert "pressure_thrust_convention" in document["inexact_inputs"]["case:sustained"]
         assert model["pressure_contract"] == {"version": "3.0.0", "mode": "exact_pressure_v3",
                                               "shear_model": "timoshenko_annulus_energy_v1"}
 
@@ -637,10 +694,11 @@ def test_a_parser_error_is_counted_unmatched_never_dropped():
 
 
 # -- run_pilot --benchmark -------------------------------------------------------------------------------------------
-def benchmark_manifest(tmp_path: Path, count: int = 5) -> Path:
-    """A copy of the first `count` tracked models and a manifest naming them."""
+def benchmark_manifest(tmp_path: Path, count: int = 5, ids: tuple[str, ...] = ()) -> Path:
+    """A copy of the first `count` tracked models (or of the models `ids`) and a manifest naming them."""
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    manifest["models"] = manifest["models"][:count]
+    manifest["models"] = ([entry for entry in manifest["models"] if entry["model_id"] in ids] if ids
+                          else manifest["models"][:count])
     (tmp_path / "models").mkdir(parents=True)
     for entry in manifest["models"]:
         (tmp_path / entry["file"]).write_bytes((BENCHMARK / entry["file"]).read_bytes())
@@ -657,11 +715,12 @@ def fake_benchmark(tmp_path, monkeypatch):
     monkeypatch.setattr(run_pilot, "resolve_harness_config", lambda environ, require_vm_tools: config)
     monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: (
         {"invented": case["source_location"]}, {"payload": invented_payload()}, ""))
-    state = {"calls": [], "outcomes": [], "session": [], "alive": [], "sleeps": [], "events": [],
+    state = {"calls": [], "outcomes": [], "session": [], "alive": [], "sleeps": [], "events": [], "mbf": {},
              "clean": {"settings_guard": {"status": "unchanged"}}}
 
     def round_trip(config_, case_id, mbf_text, **kwargs):
         state["calls"].append((case_id, kwargs))
+        state["mbf"][case_id] = mbf_text
         state["events"].append(("round_trip", case_id))
         outcome = state["outcomes"].pop(0) if state["outcomes"] else state["clean"]
         if isinstance(outcome, BaseException):
@@ -734,6 +793,82 @@ def test_the_benchmark_option_writes_a_private_record_per_model_one_at_a_time(fa
     assert run_pilot.main(offline + ["--case", "cpb-g1-02"], environ={}) == 0
     assert state["calls"] == [] and state["sleeps"] == []
     assert "cpb-g1-02: route=csv_from_batch; benchmark record written" in capsys.readouterr().out
+
+
+def test_a_model_that_declares_runs_is_refused_without_a_series(tmp_path, capsys):
+    path = benchmark_manifest(tmp_path / "set", ids=("cpb-g1-01", "cpb-p1-01"))
+    with pytest.raises(ValueError, match=r"name one with --series: cpb-p1-01 \(runs: pressure-bourdon-expansion-"
+                                         r"capture, pressure-default, pressure-elongation-on\)"):
+        run_pilot.load_benchmark(path)
+    # A model without runs, alone, loads as before; with a series it has no run of, it is refused by name.
+    assert [document["model_id"] for document in run_pilot.load_benchmark(path, ["cpb-g1-01"])] == ["cpb-g1-01"]
+    assert "run_id" not in run_pilot.load_benchmark(path, ["cpb-g1-01"])[0]
+    with pytest.raises(ValueError, match="no pressure-default run is declared for: cpb-g1-01"):
+        run_pilot.load_benchmark(path, ["cpb-g1-01"], benchmark_models.SERIES_DEFAULT)
+    with pytest.raises(ValueError, match="no model declares a pressure-x run"):
+        run_pilot.load_benchmark(path, None, "pressure-x")
+    # With a series and no selection, the models declaring that run are taken.
+    taken = run_pilot.load_benchmark(path, None, benchmark_models.SERIES_DEFAULT)
+    assert [document["run_id"] for document in taken] == ["cpb-p1-01--pressure-default"]
+
+
+def test_each_run_takes_its_state_document_closed_forms_and_mbf(tmp_path):
+    path = benchmark_manifest(tmp_path / "set", ids=("cpb-p2-01",))
+    document = json.loads((BENCHMARK / "models" / "cpb-p2-01.json").read_text(encoding="utf-8"))
+    for series in RUNS:
+        [run] = run_pilot.load_benchmark(path, ["cpb-p2-01"], series)
+        assert run == benchmark_models.series_document(document, series)
+        assert run["run_id"] == f"cpb-p2-01--{series}" and run["model_id"] == "cpb-p2-01"
+    default, on, capture = (run_pilot.load_benchmark(path, None, series)[0] for series in RUNS)
+    assert default["model"] == document["model"] and "model_settings" not in default["model"]
+    assert on["model"]["model_settings"] == {"pressure_elongation": {"operating_load_cases": ["case:sustained"]}}
+    assert default["closed_form"] == document["closed_form"] + document["closed_form_by_series"][RUNS[0]]
+    assert on["closed_form"] == document["closed_form"] + document["closed_form_by_series"][RUNS[1]]
+    assert [entry["formula"] for entry in on["closed_form"] if entry["load_case"] == "case:sustained"
+            and entry["quantity"] == "displacement"] == ["(1 - 2 nu) p A_i L/(E A_s)"]
+    assert [entry["value"] for entry in default["closed_form"] if entry["load_case"] == "case:sustained"
+            and entry["quantity"] == "displacement"] == [0.0]
+    assert capture["capture_only"] and capture["closed_form"] == []
+    writer = render_caepipe_mbf_si(document["model"], title="cpb-p2-01", piping_code="B311-80").text
+    for run, line in ((default, "0,0,0,1,0"), (on, "0,1,0,1,1"), (capture, "0,1,0,1,0")):
+        assert f"\r\nOPPRES\r\n{line}\r\n" in benchmark_models.run_mbf_text(run, writer)
+
+
+def test_two_states_of_one_model_leave_two_distinct_records(fake_benchmark, monkeypatch, capsys):
+    state = fake_benchmark
+    path = benchmark_manifest(state["manifest"].parent.parent / "pressure-set", ids=("cpb-p2-01",))
+    solved = {}
+
+    def solve(runner, case):
+        solved[case["case_id"]] = case["model"]
+        return {"invented": case["source_location"]}, {"payload": invented_payload()}, ""
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", solve)
+    argv = ["--benchmark", str(path)] + state["argv"][2:]
+    assert run_pilot.main(argv, environ={}) == 2
+    assert "these models declare runs; name one with --series: cpb-p2-01" in capsys.readouterr().err
+    root = state["config"].exchange_root
+    for series in RUNS:
+        assert run_pilot.main(argv + ["--series", series], environ={}) == 0
+    run_ids = [f"cpb-p2-01--{series}" for series in RUNS]
+    assert [call[0] for call in state["calls"]] == run_ids
+    assert [state["mbf"][run_id].split("\r\nOPPRES\r\n")[1].split("\r\n")[0] for run_id in run_ids] == [
+        "0,0,0,1,0", "0,1,0,1,1", "0,1,0,1,0"]
+    # SWBPIPE solves each screened state's model; the capture run solves nothing.
+    assert sorted(solved) == run_ids[:2] and "model_settings" not in solved[run_ids[0]]
+    assert solved[run_ids[1]]["model_settings"]["pressure_elongation"] == {"operating_load_cases": ["case:sustained"]}
+    records = [root / "cases" / run_id / "comparison" / "benchmark_comparison.json" for run_id in run_ids]
+    assert records[0].is_file() and records[1].is_file() and not records[2].exists()
+    first, second = (json.loads(record.read_text()) for record in records[:2])
+    assert first["model_id"] == second["model_id"] == "cpb-p2-01"
+    sustained = {record["model_id"] + str(index): record["load_cases"][1]["inexact_inputs"]
+                 for index, record in enumerate((first, second))}
+    assert "pressure_elongation_convention" not in sustained["cpb-p2-010"]
+    assert "pressure_elongation_convention" in sustained["cpb-p2-011"]
+    manifests = [json.loads((root / "cases" / run_id / "case_manifest.json").read_text()) for run_id in run_ids]
+    assert [(item["case_id"], item["series_run"], item["oppres_line"], item["outcome"]) for item in manifests] == [
+        (run_ids[0], RUNS[0], "0,0,0,1,0", "recorded"), (run_ids[1], RUNS[1], "0,1,0,1,1", "recorded"),
+        (run_ids[2], RUNS[2], "0,1,0,1,0", "captured")]
+    assert "captured, screened against nothing" in capsys.readouterr().out
 
 
 def test_the_pace_is_the_callers(fake_benchmark):
@@ -878,6 +1013,7 @@ def test_benchmark_refusals(fake_benchmark, monkeypatch, capsys, tmp_path):
     for argv, message in ((base + ["--authored"], "--benchmark takes only"),
                           (base + ["--export-mbf"], "--benchmark takes only"),
                           (["--batch", "1"], "need --benchmark"),
+                          (["--series", "pressure-default"], "need --benchmark"),
                           (["--freeze-file", "x"], "need --benchmark"),
                           (base + ["--batch-size", "0"], "--batch-size must be at least 1"),
                           (base + ["--pace-s", "-1"], "--pace-s must be a non-negative number"),

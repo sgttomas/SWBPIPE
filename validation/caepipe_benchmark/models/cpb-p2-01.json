@@ -69,14 +69,38 @@
     "case:expansion": [],
     "case:sustained": [
       "shear_deformation",
-      "pressure_elongation_convention",
       "pressure_thrust_convention"
     ],
     "operating": [
-      "pressure_elongation_convention",
       "pressure_thrust_convention",
       "shear_deformation"
     ]
+  },
+  "inexact_inputs_by_series": {
+    "pressure-default": {
+      "case:expansion": [],
+      "case:sustained": [
+        "shear_deformation",
+        "pressure_thrust_convention"
+      ],
+      "operating": [
+        "pressure_thrust_convention",
+        "shear_deformation"
+      ]
+    },
+    "pressure-elongation-on": {
+      "case:expansion": [],
+      "case:sustained": [
+        "shear_deformation",
+        "pressure_thrust_convention",
+        "pressure_elongation_convention"
+      ],
+      "operating": [
+        "pressure_elongation_convention",
+        "pressure_thrust_convention",
+        "shear_deformation"
+      ]
+    }
   },
   "model": {
     "analysis_status": {
@@ -285,6 +309,7 @@
   "series": [
     "pressure-default",
     "pressure-elongation-on",
+    "pressure-bourdon-expansion-capture",
     "pressure-closure-01"
   ],
   "tranche": "2"

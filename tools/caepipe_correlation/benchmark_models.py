@@ -22,14 +22,15 @@ libm, so the same seed gives the same bytes on every platform.
 Closed-form Euler-Bernoulli values are attached to the straight members whose response has one (G1, G8); they
 are the third, independent value of the comparison.
 
-Tranche 2, families P1-P6, is pressurised: closed straights between anchors, closed cantilevers, cantilevers with
-one non-transferring terminal, single bends, Z runs and one tee, each on the exact pressure contract with its
-pressure regions in the sustained case beside weight and its thermal change in a case of its own. Its families
-are appended after tranche 1's, so tranche 1 consumes the same draws and its files keep their bytes. Every
-tranche 2 model belongs to two series over the same model file (`PRESSURE_RUN_SERIES`): `pressure-default` and
-`pressure-elongation-on`, the latter a variant run of the same file; `series_document` gives the document each run
-solves and screens. Closed forms derived from the Lame closed-cylinder stresses and Hooke's law are attached per
-series state where the state changes them.
+Tranche 2, families P1-P7, is pressurised: closed straights between anchors, closed cantilevers, cantilevers with
+one non-transferring terminal, single bends, Z runs, one tee and one closed cantilever L, each on the exact pressure
+contract with its pressure regions in the sustained case beside weight and its thermal change in a case of its own.
+Its families are appended after tranche 1's, so tranche 1 consumes the same draws and its files keep their bytes.
+Every tranche 2 model file has three declared runs (`PRESSURE_RUN_SERIES`), each a series over the same files:
+`pressure-default`, `pressure-elongation-on` and `pressure-bourdon-expansion-capture`, the latter two variant runs
+whose MBF has its OPPRES line substituted (`substituted_mbf_text`). `series_document` gives the document each run
+solves and screens, with that run's closed forms and inexact inputs. Closed forms derived from the Lame
+closed-cylinder stresses, Hooke's law and statics are attached per series state where the state changes them.
 
 Nothing here runs either program, and nothing here records a result.
 """
@@ -182,37 +183,93 @@ COMPENSATED = "separately_supported_or_compensated"
 # Internal gauge pressure, invented: 1 to 50 bar, log-uniform, three significant digits, authored in whole pascals
 # so that the writer's bar value is exact.
 PRESSURE_RANGE_BAR = (1.0, 50.0)
-# Inputs of the pressurised cases that no admitted public page settles for the target program, so they are not held
-# equal: what its Bourdon option does to the axial growth of straight pipe (carried by the pressure-default and
-# pressure-elongation-on runs of each file); whether and where it applies the end thrust of pressure, which the MBF
-# cannot state because it carries no terminal closure (carried by the pressure-closure series, whose members are the
-# same target-program input with SWBPIPE's terminal closure changed); and, on bends, the bend opening its Bourdon
-# option may add, which SWBPIPE does not model (DEL-04-07 REQ-009 is off).
+# Inputs of the pressurised cases that are not held equal, named per run state and per case (`_pressure_inexact`):
+# - pressure_thrust_convention: whether and where the target program applies the end thrust of pressure. The MBF
+#   carries no terminal closure, so no pressurised case holds it equal; carried by the pressure-closure series, whose
+#   members are one target-program input with SWBPIPE's terminal closure changed.
+# - pressure_elongation_convention: on the pressure-elongation-on run only, on each case the substituted Bourdon
+#   options can touch. The correspondence it rests on is the hypothesis below, which that run tests.
+# - bend_bourdon_opening: on the pressure-elongation-on run only, on bend models: the target program's Bourdon switch
+#   may act on bends, and SWBPIPE's elongation setting does not open bends (DEL-04-07 REQ-009 is off). Isolated by
+#   the pressure-bend-opening series. On the default run both options are off on both sides, so it is not named.
 ELONGATION = "pressure_elongation_convention"
 THRUST = "pressure_thrust_convention"
 BEND_BOURDON = "bend_bourdon_opening"
 SERIES_DEFAULT = "pressure-default"
 SERIES_ELONGATION_ON = "pressure-elongation-on"
-# The two runs of every tranche 2 model file. Each is a series over the same files with one parameter, the pressure
-# elongation state; the second is a variant run of the file the first runs.
+SERIES_BOURDON_EXPANSION = "pressure-bourdon-expansion-capture"
+# The pressure options record (OPPRES) of an MBF. Format facts only, from the vendor's public import page
+# (CAEPIPE-IMPORT-MBF in DEL-17-01's Source_Basis_Register.md; https://docs.sstcae.com/users_manual/import_mbf.htm,
+# section "Format of .MBF", fetched 2026-11-12): its fields in order are the pressure stress option; the Bourdon
+# effect, 0 off, 1 on; the pressure correction for bends, 0 off, 1 on; the peak pressure factor; and, from version
+# 13.00, whether Bourdon is included in the expansion load cases (0) or the sustained load cases (1).
+OPPRES_SOURCE = ("https://docs.sstcae.com/users_manual/import_mbf.htm, section \"Format of .MBF\" (CAEPIPE-IMPORT-MBF, "
+                 "execution/PKG-17/DEL-17-01/Source_Basis_Register.md), fetched 2026-11-12")
+OPPRES_FIELDS = ["pressure stress option", "Bourdon effect: 0 off, 1 on", "pressure correction for bends: 0 off, 1 on",
+                 "peak pressure factor", "from version 13.00: Bourdon included in the expansion load cases (0) or the "
+                 "sustained load cases (1)"]
+OPPRES_WRITER_LINE = "0,0,0,1,0"  # what the writer writes (core/handoff/caepipe_mbf/si_writer.py OPPRES_LINE)
+# The three runs of every tranche 2 model file: the OPPRES line each run's MBF carries, and what SWBPIPE solves.
 PRESSURE_RUN_SERIES = {
     SERIES_DEFAULT: {
-        "kind": "run_state", "parameter": "pressure_elongation", "value": "off", "hypothesis": ELONGATION,
-        "caepipe": "the MBF as the writer writes it: OPPRES with the Bourdon option off",
+        "kind": "run_state", "parameter": "pressure_options", "oppres_line": OPPRES_WRITER_LINE,
+        "mbf": "the writer's output as written",
         "swbpipe": ("the tracked model document as it is, without model_settings.pressure_elongation, solved on a "
                     "build whose model document has that setting (absent, it solves with pressure elongation off)"),
-        "description": "every tranche 2 model, pressure elongation off on both sides as far as the inputs state"},
+        "screened": True,
+        "description": "Bourdon effect off on the target program's side; pressure elongation off on SWBPIPE's"},
     SERIES_ELONGATION_ON: {
-        "kind": "run_state", "parameter": "pressure_elongation", "value": "on", "hypothesis": ELONGATION,
-        "variant_of": SERIES_DEFAULT,
-        "caepipe": ("the SAME MBF file, with the Bourdon option switched on by hand in the target program before the "
-                    "analysis: a manual change the run's record must state"),
+        "kind": "run_state", "parameter": "pressure_options", "oppres_line": "0,1,0,1,1",
+        "variant_of": SERIES_DEFAULT, "hypothesis": ELONGATION,
+        "mbf": ("the writer's output with its one OPPRES line 0,0,0,1,0 replaced by 0,1,0,1,1 (Bourdon effect on, "
+                "pressure correction for bends off, Bourdon in the sustained load cases): not writer output, with its "
+                "own hash (substituted_mbf_text)"),
         "swbpipe": ("series_document(document, 'pressure-elongation-on'): the tracked model with "
-                    "model_settings.pressure_elongation naming the model's elongation_load_case"),
-        "description": ("every tranche 2 model, pressure elongation on; the target program forms its expansion case "
-                        "from its operating and sustained cases, so a difference in that case on this run is triaged "
-                        "under pressure_elongation_convention")},
+                    "model_settings.pressure_elongation naming case:sustained, the case that carries pressure"),
+        "screened": True,
+        "description": ("Bourdon effect on, placed in the sustained load cases, against SWBPIPE's pressure elongation "
+                        "on in case:sustained. As far as the public page states, the fifth field at 1 places Bourdon "
+                        "in the target program's sustained and operating printed cases; pressure_elongation_convention "
+                        "is named on those cases (case:sustained and operating) and not on case:expansion")},
+    SERIES_BOURDON_EXPANSION: {
+        "kind": "run_state", "parameter": "pressure_options", "oppres_line": "0,1,0,1,0",
+        "variant_of": SERIES_DEFAULT,
+        "mbf": ("the writer's output with its one OPPRES line 0,0,0,1,0 replaced by 0,1,0,1,0 (Bourdon effect on, "
+                "pressure correction for bends off, Bourdon in the expansion load cases): not writer output, with its "
+                "own hash (substituted_mbf_text)"),
+        "swbpipe": None,
+        "screened": False,
+        "description": ("the target program's alternative placement of Bourdon, captured only. No SWBPIPE state of "
+                        "these models equals it, since their expansion cases carry no pressure; its printed results "
+                        "are screened against nothing")},
 }
+# The correspondence the pressure-elongation-on run tests; stated so that it is never assumed.
+PRESSURE_HYPOTHESIS = {
+    "statement": ("HYPOTHESIS, which the pressure-elongation-on series tests and does not assume: the target "
+                  "program's Bourdon effect switch, with Bourdon in the sustained load cases, corresponds on straight "
+                  "pipe to SWBPIPE's pressure elongation, the closed-end free pressure strain (1 - 2 nu) p A_i/(E A_s), "
+                  "applied in case:sustained. Nothing about the target program is stated beyond the format facts of "
+                  "its OPPRES record."),
+    "format_source": OPPRES_SOURCE,
+    "oppres_fields": OPPRES_FIELDS,
+    "refuted_by": ("on the closed straights P1 and P2, the target program's change between the pressure-default and "
+                   "pressure-elongation-on runs differs, beyond the screening profile, from the closed forms' change: "
+                   "each anchor's axial reaction changing by (1 - 2 nu) p A_i (P1), or the free end's axial "
+                   "displacement changing by (1 - 2 nu) p A_i L/(E A_s) (P2); or its axial results there do not "
+                   "change at all"),
+}
+
+
+def substituted_mbf_text(writer_text: str, line: str) -> str:
+    """The MBF of a run whose OPPRES line is `line`: the writer's text with its one OPPRES record line replaced.
+    Refused unless the writer's line occurs exactly once as the OPPRES record's line. The result is not writer
+    output and has its own hash."""
+    base = f"\r\nOPPRES\r\n{OPPRES_WRITER_LINE}\r\n"
+    if writer_text.count(base) != 1 or writer_text.count("\r\nOPPRES\r\n") != 1:
+        raise ValueError(f"the MBF must carry the OPPRES line {OPPRES_WRITER_LINE} exactly once")
+    if line == OPPRES_WRITER_LINE:
+        return writer_text
+    return writer_text.replace(base, f"\r\nOPPRES\r\n{line}\r\n")
 
 
 # -- sampling ------------------------------------------------------------------------------------------------------
@@ -932,13 +989,23 @@ def pressure_areas(od_mm: float, wall_mm: float) -> tuple[float, float]:
     return math.pi * cr_pow(ri, 2), math.pi * (cr_pow(ro, 2) - cr_pow(ri, 2))
 
 
-def _pressure_inexact(*, bends: bool, shear: bool = True) -> dict[str, list[str]]:
-    sustained = [SHEAR] if shear else []
-    expansion: list[str] = []
-    if bends:
-        sustained += [BEND_K, BEND_SHEAR, BEND_BOURDON]
-        expansion = [SHEAR, BEND_K, BEND_SHEAR]
-    return {SUSTAINED: [*sustained, ELONGATION, THRUST], EXPANSION: expansion}
+def _pressure_inexact(*, bends: bool, expansion: list[str] | None = None) -> dict[str, dict[str, list[str]]]:
+    """{run: {case: inputs not held equal}} of a pressurised model, for the two screened runs (see ELONGATION).
+    The expansion case carries no pressure on SWBPIPE's side and, with Bourdon placed in the sustained cases, none
+    of the substituted options as far as the public page states, so it keeps tranche 1's naming."""
+    shape = [BEND_K, BEND_SHEAR] if bends else []
+    expansion = list(expansion if expansion is not None else ([SHEAR, *shape] if bends else []))
+    default_sustained = [SHEAR, *shape, THRUST]
+    on_sustained = [*default_sustained, ELONGATION, *([BEND_BOURDON] if bends else [])]
+    out = {}
+    for run, sustained in ((SERIES_DEFAULT, default_sustained), (SERIES_ELONGATION_ON, on_sustained)):
+        out[run] = {SUSTAINED: sustained, EXPANSION: expansion,
+                    OPERATING: sorted(set(sustained) | set(expansion))}
+    return out
+
+
+def _no_state_forms() -> dict[str, list[dict]]:
+    return {SERIES_DEFAULT: [], SERIES_ELONGATION_ON: []}
 
 
 def _straight_spec(point: list[float], config: str, sampling: str) -> Spec:
@@ -1024,7 +1091,7 @@ def build_p2_p3(model_id: str, spec: Spec) -> tuple[dict, list[dict], dict, dict
     bore, wall_area = pressure_areas(od, wall)
     every = [closed("displacement", "x", EXPANSION, alpha * spec["delta_t"] * span, "m", "alpha dT L", node=tip),
              closed("reaction_force", "x", EXPANSION, 0.0, "N", "0 (free thermal growth)", support=anchor)]
-    by_state: dict[str, list[dict]] = {SERIES_DEFAULT: [], SERIES_ELONGATION_ON: []}
+    by_state: dict[str, list[dict]] = _no_state_forms()
     if spec["config"] == "closed":
         every.append(closed("reaction_force", "x", SUSTAINED, 0.0, "N",
                             "0 (closed region on a cantilever: self-equilibrated, free axial strain)",
@@ -1082,7 +1149,7 @@ def build_p4(model_id: str, spec: Spec) -> tuple[dict, list[dict], dict, dict]:
     b.region("R1", [first, bend, last], pressure_pa(spec["pressure_bar"]), (a, TRANSFERS), (tip, TRANSFERS))
     b.add_weight()
     b.add_thermal(spec["delta_t"])
-    return b.model(), [], _pressure_inexact(bends=True), {SERIES_DEFAULT: [], SERIES_ELONGATION_ON: []}
+    return b.model(), [], _pressure_inexact(bends=True), _no_state_forms()
 
 
 def p5_z(rng: random.Random) -> list[Spec]:
@@ -1120,7 +1187,7 @@ def build_p5(model_id: str, spec: Spec) -> tuple[dict, list[dict], dict, dict]:
     b.region("R1", chain, pressure_pa(spec["pressure_bar"]), (first, TRANSFERS), (last, TRANSFERS))
     b.add_weight()
     b.add_thermal(spec["delta_t"])
-    return b.model(), [], _pressure_inexact(bends=True), {SERIES_DEFAULT: [], SERIES_ELONGATION_ON: []}
+    return b.model(), [], _pressure_inexact(bends=True), _no_state_forms()
 
 
 def p6_tee(rng: random.Random) -> list[Spec]:
@@ -1152,12 +1219,48 @@ def build_p6(model_id: str, spec: Spec) -> tuple[dict, list[dict], dict, dict]:
     b.region("BRANCH", [leg], p, (tee, TRANSFERS), (end, TRANSFERS))
     b.add_weight()
     b.add_thermal(spec["delta_t"])
-    inexact = _pressure_inexact(bends=False)
-    inexact[EXPANSION] = [SHEAR]
-    return b.model(), [], inexact, {SERIES_DEFAULT: [], SERIES_ELONGATION_ON: []}
+    return b.model(), [], _pressure_inexact(bends=False, expansion=[SHEAR]), _no_state_forms()
 
 
-TRANCHE_2 = ("P1", "P2-P3", "P4", "P5", "P6")
+def p7_bend_opening(rng: random.Random) -> list[Spec]:
+    point = latin_hypercube(rng, 1, 7)[0]
+    od, dt, _ = section(point[0], point[1])
+    return [{"config": "closed_cantilever_l", "sampling": "lhs", "rd": 1.5, "angle": 90.0, "k": 1.0, "od": od,
+             "dt": dt, "clear_1": scale(point[2], 1.0, 4.0, digits=3), "clear_2": scale(point[3], 1.0, 4.0, digits=3),
+             "material": min(2, int(point[4] * 3)),
+             "pressure_bar": scale(point[5], *PRESSURE_RANGE_BAR, log=True, digits=3),
+             "delta_t": scale(point[6], *DELTA_T_RANGE), "series": ["pressure-bend-opening"]}]
+
+
+def build_p7(model_id: str, spec: Spec) -> tuple[dict, list[dict], dict, dict]:
+    """A closed cantilever L in the X-Z plane: anchor A, a straight along +X, a realized 90-degree bend with k = 1, a
+    straight along +Z to the capped free end B; one region, both terminals transferring.
+
+    Why it isolates bend opening (the pressure-bend-opening series, declared before any run): the cantilever is
+    statically determinate, so a free axial strain makes no internal force. Elongation of a straight leg translates
+    what lies beyond it without turning it, and a uniform axial strain of the arc scales it without changing the
+    angle between its ends; so pressure elongation leaves the free end's rotation about Y unchanged. Weight and the
+    end and kink thrusts are the same in both runs. SWBPIPE's change of that rotation between the pressure-default
+    and pressure-elongation-on runs is therefore 0, and the target program's change, if any, is the bend opening of
+    its Bourdon switch."""
+    b = Builder(model_id, spec["material"], pressure=True)
+    od, wall = spec["od"], float(f"{spec['od'] / spec['dt']:.4g}")
+    radius = spec["rd"] * od / 1000.0
+    a = b.node("A", (0, 0, 0))
+    ti = (spec["clear_1"] + radius, 0.0, 0.0)  # tangent length R for 90 degrees
+    near, far, bend, end = corner_bend(b, "BEND1", a, ti, (0.0, 0.0, 1.0), radius, spec["clear_2"], spec["k"], od,
+                                       wall)
+    tip = b.node("B", end)
+    first = b.pipe("P1", a, near, od, wall)
+    last = b.pipe("P2", far, tip, od, wall)
+    b.anchor("A", a)
+    b.region("R1", [first, bend, last], pressure_pa(spec["pressure_bar"]), (a, TRANSFERS), (tip, TRANSFERS))
+    b.add_weight()
+    b.add_thermal(spec["delta_t"])
+    return b.model(), [], _pressure_inexact(bends=True), _no_state_forms()
+
+
+TRANCHE_2 = ("P1", "P2-P3", "P4", "P5", "P6", "P7")
 
 
 def elongation_on_model(model: dict[str, Any], load_case: str) -> dict[str, Any]:
@@ -1169,19 +1272,37 @@ def elongation_on_model(model: dict[str, Any], load_case: str) -> dict[str, Any]
 
 
 def series_document(document: dict[str, Any], series: str) -> dict[str, Any]:
-    """The benchmark document one run of a tranche 2 model solves and screens: for `pressure-default` the tracked
-    model as it is, for `pressure-elongation-on` the tracked model with the setting naming its elongation_load_case;
-    either way its closed forms are those valid in every state plus those of that series state. Deterministic, and
-    nothing is written to the tracked set."""
+    """The benchmark document of one run of a tranche 2 model; deterministic, and nothing is written to the tracked
+    set. `pressure-default`: the tracked model as it is. `pressure-elongation-on`: the tracked model with the setting
+    naming its elongation_load_case. Either carries the closed forms valid in every state plus that state's, and that
+    run's inexact inputs. `pressure-bourdon-expansion-capture`: the tracked model, marked `capture_only`, with no
+    closed form and no inexact input: its printed results are captured and screened against nothing. Every run
+    document names its `oppres_line` (the MBF's OPPRES line, substituted by `substituted_mbf_text`) and its
+    `run_id`, distinct per run."""
     if series not in PRESSURE_RUN_SERIES or series not in document.get("series", []):
         raise ValueError(f"{document.get('model_id')} has no {series!r} run")
     out = copy.deepcopy(document)
     out.pop("closed_form_by_series", None)
+    out.pop("inexact_inputs_by_series", None)
     out["series_run"] = series
-    out["closed_form"] = [*document["closed_form"], *document["closed_form_by_series"][series]]
+    out["run_id"] = f"{document['model_id']}--{series}"
+    out["oppres_line"] = PRESSURE_RUN_SERIES[series]["oppres_line"]
+    if PRESSURE_RUN_SERIES[series]["screened"]:
+        out["closed_form"] = [*document["closed_form"], *document["closed_form_by_series"][series]]
+        out["inexact_inputs"] = copy.deepcopy(document["inexact_inputs_by_series"][series])
+    else:
+        out["capture_only"] = True
+        out["closed_form"] = []
+        out["inexact_inputs"] = {}
     if series == SERIES_ELONGATION_ON:
         out["model"] = elongation_on_model(document["model"], document["elongation_load_case"])
     return out
+
+
+def run_mbf_text(document: dict[str, Any], writer_text: str) -> str:
+    """The MBF a benchmark document's run carries: the writer's text, with the OPPRES line of a series run."""
+    line = document.get("oppres_line")
+    return writer_text if line is None else substituted_mbf_text(writer_text, line)
 
 
 FAMILIES: tuple[tuple[str, str, Callable[[random.Random], list[Spec]], Callable[..., Any]], ...] = (
@@ -1202,6 +1323,8 @@ FAMILIES: tuple[tuple[str, str, Callable[[random.Random], list[Spec]], Callable[
     ("P5", "pressurised anchored Z, one closed region, user k 1 and a higher k", p5_z, build_p5),
     ("P6", "pressurised tee: three anchored legs, one closed region per leg meeting at a pressure junction", p6_tee,
      build_p6),
+    ("P7", "pressurised closed cantilever L, one realized bend with k = 1: isolates bend opening", p7_bend_opening,
+     build_p7),
 )
 
 SERIES = {
@@ -1214,18 +1337,34 @@ SERIES = {
         "description": ("one pressurised cantilever with its anchor terminal transferring to the wall (closed) and "
                         "separately supported or compensated (open): the same target-program input, since the MBF "
                         "carries no terminal closure, with SWBPIPE's end thrust changed")} for index in (1, 2)},
+    "pressure-bend-opening": {
+        "swept": "run", "hypothesis": BEND_BOURDON, "runs": [SERIES_DEFAULT, SERIES_ELONGATION_ON],
+        "observed": "case:sustained rotation about Y of the free end node:B",
+        "swbpipe_change": 0.0,
+        "description": ("the closed cantilever L of P7 in its pressure-default and pressure-elongation-on runs. "
+                        "Pressure elongation does not turn the free end of a closed cantilever (build_p7), so "
+                        "SWBPIPE's change of that rotation between the runs is 0 and the target program's change "
+                        "isolates the bend opening of its Bourdon switch. The same pair of an anchored L (P4) does "
+                        "not isolate it: between anchors the legs' elongation bends the L and turns its ends too")},
 }
 TRANCHES = {
     "1": {"families": ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8"], "description": "linear static models"},
-    "2": {"families": ["P1", "P2", "P3", "P4", "P5", "P6"],
-          "description": ("pressurised linear static models on the exact pressure contract, each run in the "
-                          "pressure-default and pressure-elongation-on series; no model document carries "
-                          "model_settings")},
+    "2": {"families": ["P1", "P2", "P3", "P4", "P5", "P6", "P7"],
+          "description": ("pressurised linear static models on the exact pressure contract, each file run in the "
+                          "pressure-default, pressure-elongation-on and pressure-bourdon-expansion-capture series "
+                          "(each model's runs); no model document carries model_settings")},
 }
 
 
 def _dump(value: Any) -> str:
     return json.dumps(value, indent=2, sort_keys=True, ensure_ascii=True, allow_nan=False) + "\n"
+
+
+def writer_mbf_text(document: dict[str, Any]) -> str:
+    """The writer's MBF text of a benchmark model, titled by its model id, as the runner renders it."""
+    return render_caepipe_mbf_si(document["model"], title=document["model_id"],
+                                 reference_temperature_c=document["reference_temperature_c"],
+                                 piping_code=document["piping_code"]).text
 
 
 def layout_rows(document: dict[str, Any]) -> int:
@@ -1254,6 +1393,8 @@ def generate(seed: int = DEFAULT_SEED) -> dict[str, str]:
             model_id = f"cpb-{sub_family.lower()}-{counters[sub_family]:02d}"
             built = build(model_id, spec)
             model, closed_forms, inexact = built[:3]
+            if pressurised:
+                inexact = inexact[SERIES_DEFAULT]  # the tracked document is the pressure-default run's model
             operating = sorted(set(inexact.get(SUSTAINED, [])) | set(inexact.get(EXPANSION, [])))
             parameters = {key: value for key, value in spec.items() if key not in ("sampling", "series", "family")}
             member_of = [*(PRESSURE_RUN_SERIES if pressurised else ()), *spec.get("series", [])]
@@ -1282,6 +1423,7 @@ def generate(seed: int = DEFAULT_SEED) -> dict[str, str]:
                 # pressure-elongation-on run.
                 document["elongation_load_case"] = SUSTAINED
                 document["closed_form_by_series"] = built[3]
+                document["inexact_inputs_by_series"] = built[2]
             text = _dump(document)
             relative = f"models/{model_id}.json"
             files[relative] = text
@@ -1289,28 +1431,36 @@ def generate(seed: int = DEFAULT_SEED) -> dict[str, str]:
                 series.setdefault(name, {**SERIES.get(name, {"swept": "k", "hypothesis": BEND_K,
                                                              "description": "one bend geometry with k = 1 and a "
                                                                             "higher k"}), "members": []})
-                series[name]["members"].append({"model_id": model_id, "value": spec.get(series[name]["swept"])})
+                if "runs" in series[name]:
+                    series[name]["members"] += [{"model_id": model_id, "run": run} for run in series[name]["runs"]]
+                else:
+                    series[name]["members"].append({"model_id": model_id, "value": spec.get(series[name]["swept"])})
             entry = {"model_id": model_id, "family": sub_family, "tranche": "2" if pressurised else "1",
                      "sampling": spec["sampling"], "parameters": parameters, "series": member_of, "file": relative,
                      "model_hash": canonical_model_hash(model),
                      "file_sha256": hashlib.sha256(text.encode("ascii")).hexdigest()}
             if pressurised:
+                writer_text = writer_mbf_text(document)
                 entry["layout_row_count"] = layout_rows(document)
                 entry["elongation_load_case"] = SUSTAINED
-                on_model = elongation_on_model(model, SUSTAINED)
-                entry["runs"] = [
-                    {"series": SERIES_DEFAULT, "file": relative, "variant_of": None,
-                     "swbpipe_model_hash": canonical_model_hash(model),
-                     "closed_forms": len(closed_forms) + len(built[3][SERIES_DEFAULT])},
-                    {"series": SERIES_ELONGATION_ON, "file": relative, "variant_of": SERIES_DEFAULT,
-                     "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
-                     "swbpipe_model_hash": canonical_model_hash(on_model),
-                     "swbpipe_model_settings": on_model["model_settings"],
-                     "closed_forms": len(closed_forms) + len(built[3][SERIES_ELONGATION_ON])},
-                ]
-                for name in PRESSURE_RUN_SERIES:
-                    series.setdefault(name, {**PRESSURE_RUN_SERIES[name], "members": []})
-                    series[name]["members"].append({"model_id": model_id, "value": PRESSURE_RUN_SERIES[name]["value"],
+                entry["runs"] = []
+                for name, declared in PRESSURE_RUN_SERIES.items():
+                    run = series_document(document, name)
+                    mbf = {"oppres_line": declared["oppres_line"],
+                           "sha256": hashlib.sha256(run_mbf_text(run, writer_text).encode("utf-8")).hexdigest()}
+                    if declared["oppres_line"] == OPPRES_WRITER_LINE:
+                        mbf["source"] = "writer output"
+                    else:
+                        mbf.update(source="substituted", base_line=OPPRES_WRITER_LINE, writer_output=False,
+                                   writer_sha256=hashlib.sha256(writer_text.encode("utf-8")).hexdigest())
+                    entry["runs"].append({
+                        "series": name, "run_id": run["run_id"], "file": relative,
+                        "variant_of": declared.get("variant_of"), "mbf": mbf, "screened": declared["screened"],
+                        "swbpipe_model_hash": canonical_model_hash(run["model"]) if declared["screened"] else None,
+                        "swbpipe_model_settings": run["model"].get("model_settings") if declared["screened"] else None,
+                        "closed_forms": len(run["closed_form"])})
+                    series.setdefault(name, {**declared, "members": []})
+                    series[name]["members"].append({"model_id": model_id, "run_id": run["run_id"],
                                                     "elongation_load_case": SUSTAINED})
             entries.append(entry)
     files["manifest.json"] = _dump({
@@ -1318,6 +1468,7 @@ def generate(seed: int = DEFAULT_SEED) -> dict[str, str]:
         "generator": {"version": GENERATOR_VERSION, "module": "tools/caepipe_correlation/benchmark_models.py",
                       "seed": seed, "rng": "random.Random(seed).random() only"},
         "tranches": TRANCHES,
+        "pressure_hypothesis": PRESSURE_HYPOTHESIS,
         "requirement": ("DEL-17-05 REQ-018 and AC-007 (execution/PKG-17/DEL-17-05/ScopeOfWork.md); the Benchmark "
                         "method section of docs/RELEASE_TARGET_v1.0.md"),
         "piping_code": PIPING_CODE,
