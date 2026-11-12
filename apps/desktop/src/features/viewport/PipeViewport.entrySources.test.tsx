@@ -446,6 +446,23 @@ describe("the one rule on the viewport", () => {
     expect(byId("viewport-create-pipe-od")).toHaveValue("");
   });
 
+  it("baseline: another project session raises no discard notice; within the session a discard names the unit", async () => {
+    route.current = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
+    const view = render(tree(withUnits({ length: "m" })));
+    await waitFor(() => expect(byId("viewport-create-node-unit-basis")).not.toHaveTextContent(/unavailable|pending/i));
+    chooseCompactOption(byId("viewport-create-pipe-length-unit"), "mm");
+    type("viewport-create-pipe-od", "168");
+    view.rerender(tree(withUnits({ length: "m", pressure: "MPa" }), 2));
+    await waitFor(() => expect(byId("viewport-create-pipe-od")).toHaveValue(""));
+    expect(screen.queryByTestId("viewport-create-pipe-unit-cleared")).toBeNull();
+    chooseCompactOption(byId("viewport-create-pipe-length-unit"), "mm");
+    type("viewport-create-pipe-od", "170");
+    view.rerender(tree(withUnits({ length: "m", pressure: "kPa" }), 2));
+    await waitFor(() => expect(byId("viewport-create-pipe-unit-cleared")).toHaveTextContent(
+      "The pipe length unit changed from mm to m; the values beside it were cleared."
+    ));
+  });
+
   it("the reviewer's case: route end coordinates in a unit the person chose, then an unrelated edit", async () => {
     route.current = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
     const view = render(tree(withUnits({ length: "m" })));
@@ -486,6 +503,16 @@ describe("the one rule on the viewport", () => {
     chooseCompactOption(byId("viewport-create-node-unit"), "mm");
     expect(byId("viewport-create-node-x")).toHaveValue("1.5");
     expect(screen.queryByTestId("viewport-create-node-unit-cleared")).toBeNull();
+  });
+
+  it("the person's own choice of a component's unit clears nothing", async () => {
+    route.current = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
+    render(tree(withUnits({ length: "m" })));
+    await waitFor(() => expect(byId("viewport-create-node-unit-basis")).not.toHaveTextContent(/unavailable|pending/i));
+    type("viewport-create-component-radius", "450");
+    chooseCompactOption(byId("viewport-create-component-radius-unit"), "mm");
+    expect(byId("viewport-create-component-radius")).toHaveValue("450");
+    expect(screen.queryByTestId("viewport-create-component-unit-cleared")).toBeNull();
   });
 });
 
