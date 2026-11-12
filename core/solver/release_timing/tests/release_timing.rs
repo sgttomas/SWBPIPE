@@ -264,17 +264,33 @@ fn the_build_identity_is_printed_with_a_three_state_dirty_flag() {
 
 #[test]
 fn a_driver_whose_supervisor_is_not_its_parent_stops_at_once() {
-    // A supervisor that died before the driver armed its watch: the named pid is not the parent.
+    // A supervisor that died before the driver armed its watch: the pid passed is not the parent.
     let model = fixture("invented_demo_model.json");
-    let output = Command::new(BIN)
-        .arg(&model)
-        .env("RELEASE_TIMING_SUPERVISOR_PID", "1")
-        .output()
-        .expect("run release_timing");
+    let output = Command::new(BIN).args(["--supervised-by", "1"]).arg(&model).output().expect("run release_timing");
     assert_eq!(output.status.code(), Some(125));
     assert!(String::from_utf8_lossy(&output.stderr).contains("supervisor that started this driver is gone"));
     assert!(output.stdout.is_empty(), "no stage ran");
-    // Without the variable (a direct run, or the Python runner's), nothing changes.
+    // Without the argument (a direct run, or the Python runner's), nothing changes.
     let (code, _) = run(&[model.to_str().unwrap()]);
     assert_eq!(code, 0);
+}
+
+#[test]
+fn a_driver_started_without_the_argument_ignores_the_old_environment_variable() {
+    // The third review's case: an ordinary invocation that inherits the variable the supervisor
+    // once set, with a value that is not its parent (or not a pid), exited 125 with no driver
+    // line. The supervisor's pid is now an argument; a driver without it watches nothing.
+    let model = fixture("invented_demo_model.json");
+    for value in ["2147483647", "not-a-pid", "1"] {
+        let output = Command::new(BIN)
+            .arg(&model)
+            .arg("--model-checks")
+            .env("RELEASE_TIMING_SUPERVISOR_PID", value)
+            .output()
+            .expect("run release_timing");
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        assert_eq!(output.status.code(), Some(0), "{value}: {}", String::from_utf8_lossy(&output.stderr));
+        let line: Value = serde_json::from_str(stdout.trim()).expect("one driver line");
+        assert_eq!(line["schema"], "release-timing-v2", "{value}");
+    }
 }

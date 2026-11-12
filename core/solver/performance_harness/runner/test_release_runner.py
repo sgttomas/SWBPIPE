@@ -487,6 +487,30 @@ class RunIds(unittest.TestCase):
         for good in ('linear-ex-n2000-sparse', 'model-checks-linear-ex-n1000', 'a.b_c-1'):
             rr.check_run_ids([{'run_id': good}])
 
+    def test_run_ids_that_would_name_one_file_twice_are_refused_before_anything_is_written(self):
+        # The third review's cases: the run id `records` made its stdout record the aggregate
+        # record, and `Case` and `case` were one set of files on a case-insensitive volume.
+        cases = {('records',): 'records.jsonl', ('Records',): 'records.jsonl', ('Case', 'case'): 'same ignoring case'}
+        for name in rr.FOLDER_NAMES:
+            cases[(name,)] = 'a name the runner writes'
+            cases[(name.upper(),)] = 'a name the runner writes'
+        for ids, message in cases.items():
+            with tempfile.TemporaryDirectory() as folder:
+                plan = rr.build_plan(tuple(('linear-ex', 100 + i, 60, 1, 'solved') for i in range(len(ids))))
+                for r, run_id in zip(plan, ids):
+                    r['run_id'] = run_id
+                with self.assertRaises(ValueError) as refused:
+                    rr.run_plan(plan, folder, os.path.join(folder, 'out'), '/bin/false', launch=None, quiet=None,
+                                log=lambda *a: None, md={})
+                self.assertIn(message, str(refused.exception), ids)
+                self.assertEqual(os.listdir(folder), [], 'nothing written')
+                with self.assertRaises(ValueError):
+                    rr.plan_document(plan)
+        # The default plan's ids, and every pair of suffix-shaped ids, name distinct files.
+        rr.check_run_ids(rr.default_plan())
+        rr.check_run_ids([{'run_id': i} for i in ('x', 'x.record', 'x.stderr', 'x.time', 'x.jsonl', 'x.json', 'x.txt',
+                                                   'x.sample-000', 'x.result')])
+
 
 class PacketAggregation(unittest.TestCase):
     def test_a_record_of_an_earlier_driver_is_refused_by_name(self):
@@ -683,6 +707,22 @@ class LiveLaunch(unittest.TestCase):
         self.assertEqual(r['driver']['argv_tail'], ['--mode', 'sparse'])
         self.assertEqual(r['launch']['argv'][0], 'release_timing', 'record argv holds no path')
         self.assertTrue(r['as_expected'])
+
+    def test_each_recorded_hash_is_its_files_at_the_end_of_a_multi_run_plan(self):
+        with tempfile.TemporaryDirectory() as folder:
+            binary = executable(folder, 'release_timing', STAND_IN_DRIVER)
+            models = self.models(folder)
+            with open(os.path.join(models, rr.model_name('nonlinear-pf', 200)), 'w') as fh:
+                fh.write('{}')
+            plan = rr.build_plan((('nonlinear-pf', 100, 60, 1, 'solved'), ('nonlinear-pf', 200, 60, 1, 'solved')),
+                                 rss_cap_bytes=128 * k6.MIB)
+            out = os.path.join(folder, 'out')
+            records = rr.run_plan(plan, models, out, binary, quiet=lambda log, wait: {'quiet': True},
+                                  log=lambda *a: None, md={})
+            self.assertEqual(len(records), 2)
+            for r in records:
+                with open(os.path.join(out, r['run_id'] + k6.STDOUT_SUFFIX), 'rb') as fh:
+                    self.assertEqual(r['launch']['stdout_sha256'], hashlib.sha256(fh.read()).hexdigest(), r['run_id'])
 
     def test_a_growing_child_is_killed_at_the_cap(self):
         # macOS: the ps RSS watchdog kills it. Linux: RLIMIT_AS stops its growth (MemoryError).

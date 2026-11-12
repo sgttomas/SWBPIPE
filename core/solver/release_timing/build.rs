@@ -9,10 +9,12 @@
 //!
 //! `source_dirty` has three states: `false` only when `git status --porcelain --untracked-files=all`
 //! ran and listed nothing (the whole repository, every untracked file included whatever the
-//! repository's configuration says, so every linked crate's source is covered); `true` when it
-//! listed anything; and `"unknown"` whenever git cannot establish it (no git, no repository, a
-//! repository that is not this crate's, a failed status, or no commit), never `false` then. Where
-//! git or a tool is absent, each other value is "unknown".
+//! repository's configuration says, so every linked crate's source is covered) and no index entry
+//! carries a flag that hides a file's changes from that status (`git ls-files -v`: assume-unchanged,
+//! a lower-case tag, or skip-worktree, `S`); `true` when the status listed anything; and
+//! `"unknown"` whenever git cannot establish it (no git, no repository, a repository that is not
+//! this crate's, a failed status or listing, no commit, or a clean status with such a flag set),
+//! never `false` then. Where git or a tool is absent, each other value is "unknown".
 //!
 //! Every git call is isolated, so that the identity can only describe the repository this crate
 //! sits in: each runs with every inherited `GIT_*` variable removed (an inherited `GIT_DIR` or
@@ -60,10 +62,25 @@ fn git(args: &[&str], dir: &Path) -> Option<String> {
     output.status.success().then(|| String::from_utf8_lossy(&output.stdout).trim_end().to_string())
 }
 
-/// The commit, its tree and the status of the repository whose top level is `root`, or `None`
-/// for each that cannot be verified.
-fn source_state(crate_dir: &Path) -> (Option<String>, Option<String>, Option<String>) {
-    let none = (None, None, None);
+/// What the repository whose top level is the crate's root says: each value `None` where it cannot
+/// be verified.
+struct SourceState {
+    commit: Option<String>,
+    tree: Option<String>,
+    /// `git status --porcelain` output.
+    status: Option<String>,
+    /// Whether an index entry is flagged assume-unchanged or skip-worktree.
+    index_flags: Option<bool>,
+}
+
+/// Whether `git ls-files -v -z` output lists an entry whose changes `git status` does not show:
+/// assume-unchanged (a lower-case tag) or skip-worktree (`S`, or `s` with both).
+fn hides_changes(listing: &str) -> bool {
+    listing.split('\0').filter_map(|entry| entry.chars().next()).any(|tag| tag.is_ascii_lowercase() || tag == 'S')
+}
+
+fn source_state(crate_dir: &Path) -> SourceState {
+    let none = SourceState { commit: None, tree: None, status: None, index_flags: None };
     let Some(root) = crate_dir.join("../../..").canonicalize().ok() else { return none };
     let same = |reported: Option<String>| reported.and_then(|p| Path::new(&p).canonicalize().ok()).is_some_and(|p| p == root);
     if !same(git(&["rev-parse", "--show-toplevel"], crate_dir)) {
@@ -82,7 +99,8 @@ fn source_state(crate_dir: &Path) -> (Option<String>, Option<String>, Option<Str
     let commit = bound(&["rev-parse", "--verify", "HEAD"]);
     let tree = bound(&["rev-parse", "--verify", "HEAD^{tree}"]);
     let status = bound(&["status", "--porcelain", "--untracked-files=all", "--ignore-submodules=none"]);
-    (commit, tree, status)
+    let index_flags = bound(&["ls-files", "-v", "-z"]).map(|listing| hides_changes(&listing));
+    SourceState { commit, tree, status, index_flags }
 }
 
 fn quote(text: &str) -> String {
@@ -109,11 +127,13 @@ fn lines(text: Option<String>) -> String {
     }
 }
 
-/// `source_dirty` as JSON: `true`, `false`, or `"unknown"` (never `false` without a clean status
-/// of a tree that has a commit).
-fn dirty_flag(commit: Option<&str>, status: Option<&str>) -> String {
-    match (commit, status) {
-        (Some(_), Some(status)) => (!status.is_empty()).to_string(),
+/// `source_dirty` as JSON: `true` when the status lists a change, `false` only for a clean status
+/// of a tree that has a commit and no index entry flagged to hide its changes, and otherwise
+/// `"unknown"`.
+fn dirty_flag(state: &SourceState) -> String {
+    match (&state.commit, &state.status, state.index_flags) {
+        (Some(_), Some(status), _) if !status.is_empty() => "true".to_string(),
+        (Some(_), Some(_), Some(false)) => "false".to_string(),
         _ => quote("unknown"),
     }
 }
@@ -122,7 +142,7 @@ fn main() {
     let dir = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR"));
     assert!(!dir.join(ALWAYS_RERUN).exists(), "{ALWAYS_RERUN} must not exist: it makes the build identity current");
     println!("cargo:rerun-if-changed={ALWAYS_RERUN}");
-    let (commit, tree, status) = source_state(&dir);
+    let state = source_state(&dir);
     let tool = |var: &str, fallback: &str| std::env::var(var).unwrap_or_else(|_| fallback.to_string());
     let rustc = run(&tool("RUSTC", "rustc"), &["-Vv"], &dir);
     let cargo = run(&tool("CARGO", "cargo"), &["-Vv"], &dir);
@@ -132,9 +152,9 @@ fn main() {
     // environment variable that `src/lib.rs` reads with `env!`.
     let identity = format!(
         "{{\"source_commit\": {}, \"source_tree\": {}, \"source_dirty\": {}, \"build_profile\": {}, \"rustc\": {}, \"cargo\": {}}}",
-        text(commit.as_deref()),
-        text(tree.as_deref()),
-        dirty_flag(commit.as_deref(), status.as_deref()),
+        text(state.commit.as_deref()),
+        text(state.tree.as_deref()),
+        dirty_flag(&state),
         text(profile.as_deref()),
         lines(rustc),
         lines(cargo),

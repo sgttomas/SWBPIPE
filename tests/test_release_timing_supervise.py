@@ -234,3 +234,15 @@ def test_each_supervisor_keeps_the_same_per_run_files(outcomes):
             assert (py / (run_id + suffix)).is_file() and (rs / (run_id + suffix)).is_file(), (case, suffix)
         for out in (py, rs):
             assert str(out.parent) not in (out / "records.jsonl").read_text(), "no machine path in a record"
+
+
+def test_a_python_runner_run_with_the_old_supervisor_variable_set_runs_normally(binary, tmp_path, monkeypatch):
+    """The third review's case: the Python runner's driver inherited RELEASE_TIMING_SUPERVISOR_PID
+    with a value that was not its parent and exited 125 with no driver line. The supervisor's pid
+    is now an argument that only the self-supervisor passes; the variable means nothing."""
+    monkeypatch.setenv("RELEASE_TIMING_SUPERVISOR_PID", "2147483647")
+    plan = rr.build_plan((("linear-ex", 100, 60, 1, "solved"),))
+    rows = rr.run_plan(plan, str(models(tmp_path)), str(tmp_path / "out"), str(binary), quiet_wait_s=0,
+                       log=lambda *a: None, md={})
+    assert [(r["classification"], (r["driver"] or {}).get("schema")) for r in rows] == [("ok", rr.DRIVER_SCHEMA)], rows
+    assert rows[0]["launch"]["exit_code"] == 0

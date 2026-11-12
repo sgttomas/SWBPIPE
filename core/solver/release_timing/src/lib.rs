@@ -14,3 +14,9 @@ pub mod supervise;
 /// and `cargo`. `release_timing --build-identity` prints it; the supervise mode's metadata
 /// records it.
 pub const BUILD_IDENTITY: &str = env!("RELEASE_TIMING_BUILD_IDENTITY");
+
+/// The argument, followed by a pid, that `release_timing --supervise` puts first on the driver it
+/// starts: the driver watches that pid and stops when it is gone (`src/main.rs`
+/// `watch_supervisor`). A driver started without it watches nothing. It is not part of the
+/// driver's usage.
+pub const SUPERVISOR_PID_ARG: &str = "--supervised-by";

@@ -246,11 +246,57 @@ RUN_ID_PATTERN = r'[A-Za-z0-9][A-Za-z0-9._-]{0,127}'
 _RUN_ID = re.compile(RUN_ID_PATTERN)
 
 
+# The names `run_plan` and `write_packet` write in the output folder apart from each run's.
+METADATA_NAME = 'metadata.json'
+PACKET_NAME = 'packet.json'
+RESULTS_NAME = 'results'
+FOLDER_NAMES = (k6.RECORDS_NAME, METADATA_NAME, PACKET_NAME, RESULTS_NAME)
+# An attribution run's raw sample report, `<run_id>.sample-NNN.txt` (`Attributor._take`), and a
+# kept result, `results/<run_id>.result.json` (`driver_argv`).
+SAMPLE_SUFFIX = '.sample-%03d.txt'
+RESULT_SUFFIX = '.result.json'
+
+
+def names_written(run_ids):
+    """Every name the runner writes in the output folder for a plan of `run_ids`: FOLDER_NAMES,
+    each run's launch files (`k6.LAUNCH_SUFFIXES`), its first sample report (the later ones differ
+    from it only in their digits, which no other suffix ends in) and its kept result."""
+    names = list(FOLDER_NAMES)
+    for run_id in run_ids:
+        names += [run_id + suffix for suffix in k6.LAUNCH_SUFFIXES]
+        names += [run_id + SAMPLE_SUFFIX % 0, RESULTS_NAME + '/' + run_id + RESULT_SUFFIX]
+    return names
+
+
 def check_run_ids(plan):
-    """Refuses a plan holding a run id that is not a bare name (`RUN_ID_PATTERN`)."""
+    """Refuses a plan holding a run id that is not a bare name (`RUN_ID_PATTERN`), two run ids equal
+    ignoring case (a case-insensitive volume, the macOS default, opens them as one), a run id equal,
+    ignoring case, to a name the runner writes, or run ids that make any two names the runner
+    writes equal ignoring case (the run id `records` would make its stdout record `records.jsonl`,
+    the aggregate record). Run ids are ASCII, so ASCII case folding is the volume's."""
     bad = [r.get('run_id') for r in plan if not isinstance(r.get('run_id'), str) or not _RUN_ID.fullmatch(r['run_id'])]
     if bad:
         raise ValueError('run ids must be bare names (%s): %s' % (RUN_ID_PATTERN, ', '.join(map(repr, bad))))
+    ids, folded = [r['run_id'] for r in plan], {}
+    for run_id in ids:
+        if run_id.lower() in folded:
+            raise ValueError('run ids %s and %s are the same ignoring case, so on a case-insensitive volume they '
+                             'name the same files' % (folded[run_id.lower()], run_id))
+        folded[run_id.lower()] = run_id
+        for name in FOLDER_NAMES:
+            if name.lower() == run_id.lower():
+                raise ValueError('run id %s is, ignoring case, %s, a name the runner writes in the output folder'
+                                 % (run_id, name))
+    written = [('the runner', name) for name in FOLDER_NAMES]
+    for run_id in ids:
+        written += [('run ' + run_id, name) for name in names_written([run_id])[len(FOLDER_NAMES):]]
+    owners = {}
+    for owner, name in written:
+        if name.lower() in owners:
+            other_owner, other_name = owners[name.lower()]
+            raise ValueError("%s's %s and %s's %s are the same file ignoring case; rename the run"
+                             % (other_owner, other_name, owner, name))
+        owners[name.lower()] = (owner, name)
 PLAN_RUN_KEYS = ('order', 'run_id', 'task', 'profile', 'nodes', 'mode', 'timeout_s', 'footprint_budget_bytes',
                  'rss_cap_bytes', 'estimate_s', 'expect', 'attribute')
 
@@ -578,7 +624,7 @@ class Attributor:
         self.thread.start()
 
     def _take(self, pid, snapshot):
-        path = os.path.join(self.record_dir, '%s.sample-%03d.txt' % (self.run_id, snapshot['index']))
+        path = os.path.join(self.record_dir, self.run_id + SAMPLE_SUFFIX % snapshot['index'])
         try:
             done = self.run([self.tool, str(pid), str(self.duration_s), str(self.sampling_ms), '-file', path],
                             capture_output=True, text=True, timeout=self.duration_s + 60, check=False)
@@ -629,7 +675,7 @@ def progress_lines(stderr_text):
 
 def last_progress(record_dir, run_id):
     """(last_stage, last_stage_memory, stages_finished) from the run's stderr record."""
-    path = os.path.join(record_dir, run_id + '.stderr.txt')
+    path = os.path.join(record_dir, run_id + k6.STDERR_SUFFIX)
     if not os.path.exists(path):
         return None, None, 0
     with open(path) as fh:
@@ -778,7 +824,7 @@ def as_expected(expect, classification, detail):
 
 
 def driver_line(record_dir, run_id):
-    path = os.path.join(record_dir, run_id + '.jsonl')
+    path = os.path.join(record_dir, run_id + k6.STDOUT_SUFFIX)
     if not os.path.exists(path):
         return None
     with open(path) as fh:
@@ -796,7 +842,7 @@ def driver_argv(binary, model_path, run, results_dir=None):
     else:
         argv = [binary, model_path, '--mode', run['mode']]
     if results_dir:
-        argv += ['--write', os.path.join(results_dir, run['run_id'] + '.result.json')]
+        argv += ['--write', os.path.join(results_dir, run['run_id'] + RESULT_SUFFIX)]
     return argv
 
 
@@ -849,17 +895,17 @@ def run_plan(plan, models_dir, out_dir, binary, *, budget_s=WINDOW_BUDGET_S, wri
     if wrapper is None:
         wrapper = os.path.exists(k6.TIME_WRAPPER)
     os.makedirs(out_dir, exist_ok=True)
-    if os.path.exists(os.path.join(out_dir, 'records.jsonl')):
+    if os.path.exists(os.path.join(out_dir, k6.RECORDS_NAME)):
         raise RuntimeError('records already exist in the output folder; use a new one')
     if md is None:
         md = metadata(binary, *source_identity())
     md = dict(md, budget_s=budget_s, write_results=write_results, quiet_wait_s=quiet_wait_s,
               plan=[r['run_id'] for r in plan])
-    with open(os.path.join(out_dir, 'metadata.json'), 'w') as fh:
+    with open(os.path.join(out_dir, METADATA_NAME), 'w') as fh:
         json.dump(md, fh, indent=1, sort_keys=True)
         fh.write('\n')
     manifest = read_manifest(models_dir).get('models', {})
-    results_dir = os.path.join(out_dir, 'results') if write_results else None
+    results_dir = os.path.join(out_dir, RESULTS_NAME) if write_results else None
     if results_dir:
         os.makedirs(results_dir, exist_ok=True)
     records = []
@@ -1023,7 +1069,7 @@ def packet(out_dir):
         message = stale_driver_message(r)
         if message:
             raise ValueError(message)
-    md_path = os.path.join(out_dir, 'metadata.json')
+    md_path = os.path.join(out_dir, METADATA_NAME)
     md = None
     if os.path.exists(md_path):
         with open(md_path) as fh:
@@ -1049,7 +1095,7 @@ def packet(out_dir):
 
 def write_packet(out_dir):
     result = packet(out_dir)
-    with open(os.path.join(out_dir, 'packet.json'), 'w') as fh:
+    with open(os.path.join(out_dir, PACKET_NAME), 'w') as fh:
         json.dump(result, fh, indent=1, sort_keys=True)
         fh.write('\n')
     return result

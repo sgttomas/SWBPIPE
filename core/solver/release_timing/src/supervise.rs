@@ -14,19 +14,27 @@
 //! not exist here (`/usr/bin/time`, `ps`) the key is kept with null and a named sibling carries
 //! this supervisor's reading. Observation only: nothing here asserts a time or memory bound.
 //!
-//! Run ids are bare names ([`check_run_id`]), refused at plan load otherwise. The output folder is
-//! opened once as a directory without following a link ([`OutDir`]), and every record is created
-//! relative to it, so a later replacement of its path cannot redirect a record. A run's output
-//! files are created before its driver is spawned, without following a symbolic link and without
-//! blocking on the open: a destination that is not a regular file refuses the run before any
-//! process starts. From the spawn on, one owner ([`Spawned`]) holds the driver: every return,
-//! error and unwind path kills its process group and reaps it, and nothing between the spawn and
-//! the watch loop touches the file system. The driver watches the supervisor and exits if it dies
-//! (`src/main.rs` `watch_supervisor`), which covers SIGKILL and the faults no handler can catch;
-//! the other terminating signals are handled as SIGTERM is ([`TERMINATING_SIGNALS`]). A write to
-//! a regular file can still block on a stalled file system: record writes are bounded by a
-//! watchdog ([`WriteWatch`]) that ends the supervisor with [`RECORDS_INCOMPLETE_EXIT`]. A failed
-//! write of the stdout record is the run's error, and no hash of unwritten bytes is recorded.
+//! What it promises about its records: it writes only entries it created exclusively in the
+//! output folder it opened, and reports only what it wrote. Run ids are bare names
+//! ([`check_run_id`]), and no two names it would write are the same ignoring case
+//! ([`check_run_names`]), both refused at plan load. The output folder is opened once as a
+//! directory without following a link ([`OutDir`]); a folder that already holds any name the run
+//! would write is refused before anything is written or any driver starts. Every record is created
+//! relative to the opened folder with `O_CREAT | O_EXCL` ([`OutDir::create_new`]), so an existing
+//! entry (a file, a FIFO, a symbolic or hard link) is never opened for writing: one that appears
+//! during the run is the run's named error. The aggregate record is created once and written
+//! through that one descriptor; the packet is written under a fresh exclusive name and renamed
+//! into place, which replaces the directory entry and leaves any other link of the old file
+//! untouched. The final summary comes from the packet just built, never from a read by path. From
+//! the spawn on, one owner ([`Spawned`]) holds the driver: every return, error and unwind path
+//! kills its process group and reaps it, and nothing between the spawn and the watch loop touches
+//! the file system. The driver is passed this supervisor's pid as an argument
+//! ([`crate::SUPERVISOR_PID_ARG`]), watches it and exits if it dies (`src/main.rs`
+//! `watch_supervisor`), which covers SIGKILL and the faults no handler can catch; the other
+//! terminating signals are handled as SIGTERM is ([`TERMINATING_SIGNALS`]). A write to a regular
+//! file can still block on a stalled file system: record writes are bounded by a watchdog
+//! ([`WriteWatch`]) that ends the supervisor with [`RECORDS_INCOMPLETE_EXIT`]. A failed write of
+//! the stdout record is the run's error, and no hash of unwritten bytes is recorded.
 
 use crate::classify::{self, int, jsonl, py_str, sanitize, truthy};
 use crate::host;
@@ -100,10 +108,6 @@ pub const TERMINATING_SIGNALS: [libc::c_int; 12] = [
     libc::SIGVTALRM,
     libc::SIGPROF,
 ];
-
-/// The environment variable that tells a driver it was started by this supervisor: the
-/// supervisor's pid, which the driver watches (`src/main.rs` `watch_supervisor`).
-pub const SUPERVISOR_PID_ENV: &str = "RELEASE_TIMING_SUPERVISOR_PID";
 
 /// Each of [`TERMINATING_SIGNALS`] sets a flag that the watch loop reads every poll: it kills the
 /// running driver's group and the supervisor exits with 128 + the signal (the Python runner's
@@ -199,6 +203,7 @@ pub fn read_plan(text: &str) -> Result<Plan, String> {
     let quiet_wait_s = integer(&document, "quiet_wait_s")?;
     let mut runs = Vec::new();
     let mut seen = std::collections::BTreeSet::new();
+    let mut ids = Vec::new();
     for run in document.get("runs").and_then(Value::as_array).ok_or("plan: runs must be a list")? {
         let mut entry = Map::new();
         for key in PLAN_RUN_KEYS {
@@ -226,6 +231,7 @@ pub fn read_plan(text: &str) -> Result<Plan, String> {
         if !seen.insert(run_id.clone()) {
             return Err(format!("plan: {run_id} appears twice"));
         }
+        ids.push(run_id.clone());
         runs.push(Run {
             entry,
             task,
@@ -241,7 +247,79 @@ pub fn read_plan(text: &str) -> Result<Plan, String> {
             run_id,
         });
     }
+    check_run_names(&ids)?;
     Ok(Plan { window_budget_s, quiet_wait_s, runs })
+}
+
+// ------------------------------------------------------------------ the names written
+
+/// The aggregate record, one line per run.
+pub const RECORDS_NAME: &str = "records.jsonl";
+pub const METADATA_NAME: &str = "metadata.json";
+pub const PACKET_NAME: &str = "packet.json";
+/// The packet is written under this name, then renamed to [`PACKET_NAME`]. It begins with a dot,
+/// which no run id can ([`check_run_id`]).
+pub const PACKET_PARTIAL_NAME: &str = ".packet.json.partial";
+/// The folder of kept results (`--write-results`).
+pub const RESULTS_NAME: &str = "results";
+/// Every name the supervisor writes in the output folder apart from each run's.
+pub const FOLDER_NAMES: [&str; 5] = [RECORDS_NAME, METADATA_NAME, PACKET_NAME, PACKET_PARTIAL_NAME, RESULTS_NAME];
+/// A run's stdout record, `<run_id>.jsonl`.
+pub const STDOUT_SUFFIX: &str = ".jsonl";
+/// A run's sanitized stderr, `<run_id>.stderr.txt`.
+pub const STDERR_SUFFIX: &str = ".stderr.txt";
+/// A run's launch record, `<run_id>.record.json`.
+pub const LAUNCH_RECORD_SUFFIX: &str = ".record.json";
+/// Each run's files in the output folder, `<run_id><suffix>`, all written by [`launch`].
+pub const RUN_SUFFIXES: [&str; 3] = [STDOUT_SUFFIX, STDERR_SUFFIX, LAUNCH_RECORD_SUFFIX];
+/// A kept result, `results/<run_id>.result.json`, written by the driver ([`driver_argv`]).
+pub const RESULT_SUFFIX: &str = ".result.json";
+
+/// Every name the supervisor writes in the output folder for a plan of `run_ids`: the
+/// [`FOLDER_NAMES`], each run's [`RUN_SUFFIXES`], and each kept result inside [`RESULTS_NAME`]
+/// (whether or not results are kept, so that one plan has one set of names).
+pub fn names_written(run_ids: &[String]) -> Vec<String> {
+    let mut names: Vec<String> = FOLDER_NAMES.iter().map(|n| n.to_string()).collect();
+    for run_id in run_ids {
+        names.extend(RUN_SUFFIXES.iter().map(|suffix| format!("{run_id}{suffix}")));
+        names.push(format!("{RESULTS_NAME}/{run_id}{RESULT_SUFFIX}"));
+    }
+    names
+}
+
+/// Refuses a plan whose run ids would make two of the names it writes one file: two ids equal
+/// ignoring case (a case-insensitive volume, the macOS default, opens them as one), an id equal,
+/// ignoring case, to a name the supervisor writes, or any two names of [`names_written`] equal
+/// ignoring case (the run id `records` would make its stdout record `records.jsonl`, the
+/// aggregate record). Run ids are ASCII ([`check_run_id`]), so ASCII case folding is the volume's.
+pub fn check_run_names(run_ids: &[String]) -> Result<(), String> {
+    let fold = |name: &str| name.to_ascii_lowercase();
+    let mut ids = std::collections::BTreeMap::new();
+    for run_id in run_ids {
+        if let Some(other) = ids.insert(fold(run_id), run_id) {
+            return Err(format!(
+                "plan: run ids {other} and {run_id} are the same ignoring case, so on a case-insensitive volume they name the same files"
+            ));
+        }
+        if let Some(name) = FOLDER_NAMES.iter().find(|n| fold(n) == fold(run_id)) {
+            return Err(format!("plan: run id {run_id} is, ignoring case, {name}, a name this supervisor writes in the output folder"));
+        }
+    }
+    // Each name with what writes it: the supervisor's own names, then each run's.
+    let mut written: Vec<(String, String)> = FOLDER_NAMES.iter().map(|n| ("the supervisor".to_string(), n.to_string())).collect();
+    for run_id in run_ids {
+        let own = names_written(std::slice::from_ref(run_id)).split_off(FOLDER_NAMES.len());
+        written.extend(own.into_iter().map(|name| (format!("run {run_id}"), name)));
+    }
+    let mut owners = std::collections::BTreeMap::new();
+    for (owner, name) in written {
+        if let Some((other_owner, other_name)) = owners.insert(fold(&name), (owner.clone(), name.clone())) {
+            return Err(format!(
+                "plan: {other_owner}'s {other_name} and {owner}'s {name} are the same file ignoring case; rename the run"
+            ));
+        }
+    }
+    Ok(())
 }
 
 // ------------------------------------------------------------------ helpers
@@ -325,7 +403,9 @@ impl OutDir {
         let fd = unsafe { libc::openat(self.fd.as_raw_fd(), cname.as_ptr(), flags | libc::O_NOFOLLOW | libc::O_NONBLOCK | libc::O_CLOEXEC, 0o644 as libc::c_uint) };
         if fd < 0 {
             let error = std::io::Error::last_os_error();
-            return Err(std::io::Error::new(error.kind(), format!("cannot open the record {name}: {error}")));
+            let verb = if flags & libc::O_CREAT != 0 { "create" } else { "open" };
+            let already = if error.kind() == std::io::ErrorKind::AlreadyExists { " (an entry of that name already exists; it is never opened for writing)" } else { "" };
+            return Err(std::io::Error::new(error.kind(), format!("cannot {verb} the record {name}: {error}{already}")));
         }
         // SAFETY: `fd` was just opened here and is owned by nothing else.
         let file = unsafe { std::fs::File::from_raw_fd(fd) };
@@ -335,13 +415,28 @@ impl OutDir {
         Ok(file)
     }
 
-    /// Creates (or truncates, or appends to) the record `name` in this folder, without following a
-    /// symbolic link and without blocking on the open (`O_NONBLOCK`: opening a FIFO that has no
-    /// reader fails at once). Anything that is not a regular file once open (a FIFO with a reader,
-    /// a device) is refused. A write to the file it returns can still block on a stalled file
-    /// system; the supervisor bounds its record writes with [`WriteWatch`].
-    pub fn create(&self, name: &str, append: bool) -> std::io::Result<std::fs::File> {
-        self.at(name, libc::O_WRONLY | libc::O_CREAT | if append { libc::O_APPEND } else { libc::O_TRUNC })
+    /// Creates the record `name` in this folder as a new file (`O_CREAT | O_EXCL`): an entry of
+    /// that name of any kind (a file, a FIFO, a symbolic or hard link to a file elsewhere) is
+    /// refused and never opened, so the file returned is one no other name or link reaches. A
+    /// write to it can still block on a stalled file system; the supervisor bounds its record
+    /// writes with [`WriteWatch`].
+    pub fn create_new(&self, name: &str) -> std::io::Result<std::fs::File> {
+        self.at(name, libc::O_WRONLY | libc::O_CREAT | libc::O_EXCL)
+    }
+
+    /// Renames the entry `from` to `to` within this folder (`renameat`): the entry `to`, if any,
+    /// is replaced, and the file it named is not opened or written, so any other link of it is
+    /// left as it was.
+    fn rename(&self, from: &str, to: &str) -> std::io::Result<()> {
+        use std::os::fd::AsRawFd;
+        let (cfrom, cto) = (bare(from)?, bare(to)?);
+        let fd = self.fd.as_raw_fd();
+        // SAFETY: a valid directory descriptor and two NUL-terminated bare names.
+        if unsafe { libc::renameat(fd, cfrom.as_ptr(), fd, cto.as_ptr()) } != 0 {
+            let error = std::io::Error::last_os_error();
+            return Err(std::io::Error::new(error.kind(), format!("cannot rename {from} to {to}: {error}")));
+        }
+        Ok(())
     }
 
     /// The text of the record `name` in this folder, if it is a regular file.
@@ -360,16 +455,15 @@ impl OutDir {
         unsafe { libc::fstatat(self.fd.as_raw_fd(), cname.as_ptr(), stat.as_mut_ptr(), libc::AT_SYMLINK_NOFOLLOW) == 0 }
     }
 
-    /// Creates the folder `name` in this folder (or keeps an existing real one).
+    /// Creates the folder `name` in this folder, as a new one: an existing entry of that name is
+    /// refused.
     fn subfolder(&self, name: &str) -> std::io::Result<()> {
         use std::os::fd::AsRawFd;
         let cname = bare(name)?;
         // SAFETY: a valid directory descriptor and a NUL-terminated bare name.
         if unsafe { libc::mkdirat(self.fd.as_raw_fd(), cname.as_ptr(), 0o755) } != 0 {
             let error = std::io::Error::last_os_error();
-            if error.kind() != std::io::ErrorKind::AlreadyExists {
-                return Err(error);
-            }
+            return Err(std::io::Error::new(error.kind(), format!("cannot create the folder {name}: {error}")));
         }
         Ok(())
     }
@@ -388,20 +482,26 @@ pub fn check_run_id(run_id: &str) -> Result<(), String> {
     }
 }
 
-fn write_json(out: &OutDir, name: &str, value: &Value) -> std::io::Result<()> {
-    write_json_to(out.create(name, false)?, value)
-}
-
 fn write_json_to(mut file: std::fs::File, value: &Value) -> std::io::Result<()> {
     let mut text = serde_json::to_string_pretty(value).expect("JSON");
     text.push('\n');
     file.write_all(text.as_bytes())
 }
 
-/// `k6.append_record`.
-fn append_record(out: &OutDir, record: &Value) -> std::io::Result<()> {
-    let mut file = out.create("records.jsonl", true)?;
-    writeln!(file, "{record}")
+/// The aggregate record ([`RECORDS_NAME`]), created once as a new file; every line is written
+/// through this one descriptor (`k6.append_record` reopens it by name for each line).
+struct Records {
+    file: std::fs::File,
+}
+
+impl Records {
+    fn create(out: &OutDir) -> std::io::Result<Records> {
+        Ok(Records { file: out.create_new(RECORDS_NAME)? })
+    }
+
+    fn append(&mut self, record: &Value) -> std::io::Result<()> {
+        self.file.write_all(format!("{record}\n").as_bytes())
+    }
 }
 
 /// The exit status of a supervisor whose record writes did not finish within
@@ -451,7 +551,7 @@ pub fn read_records(out_dir: &Path) -> Vec<Value> {
 }
 
 fn records_in(out: &OutDir) -> Vec<Value> {
-    out.read("records.jsonl")
+    out.read(RECORDS_NAME)
         .map(|text| text.lines().filter(|l| !l.trim().is_empty()).filter_map(|l| serde_json::from_str(l).ok()).collect())
         .unwrap_or_default()
 }
@@ -718,18 +818,21 @@ pub struct Launched {
 /// files, spawn, watch, classify, record. Returns the launch record, also written to
 /// `<run_id>.record.json`, and the driver's output.
 ///
-/// The three output files (`<run_id>.jsonl`, `.stderr.txt`, `.record.json`) are created in the
-/// opened output folder ([`OutDir::create`]) before the spawn, so a destination that is not a
-/// regular file refuses the run before any process starts, no file is opened between the spawn
+/// The three output files ([`RUN_SUFFIXES`]) are created as new files in the opened output folder
+/// ([`OutDir::create_new`]) before the spawn, so an existing entry of any of those names refuses
+/// the run before any process starts and is never opened, no file is opened between the spawn
 /// and the watch loop, and a later replacement of the folder's path cannot redirect them. From
-/// the spawn on, [`Spawned`] owns the driver. The driver is told the supervisor's pid
-/// ([`SUPERVISOR_PID_ENV`]) and exits if the supervisor dies. A failed write or flush of the
-/// stdout record stops its hash: the launch record then has `stdout_sha256` null and
-/// `stdout_record_error` set, never a hash over bytes that were not written.
+/// the spawn on, [`Spawned`] owns the driver. With `watched`, the driver's arguments are preceded
+/// by [`crate::SUPERVISOR_PID_ARG`] and this supervisor's pid, and the driver exits if the
+/// supervisor dies; the record's `argv` is the driver's own arguments, without that pair (as the
+/// Python runner records them). A failed write or flush of the stdout record stops its hash: the
+/// launch record then has `stdout_sha256` null and `stdout_record_error` set, never a hash over
+/// bytes that were not written.
 #[allow(clippy::too_many_arguments)]
 pub fn launch(
     binary: &Path,
     argv_tail: &[String],
+    watched: bool,
     rss_cap_bytes: u64,
     footprint_budget_bytes: u64,
     timeout_s: i64,
@@ -755,21 +858,20 @@ pub fn launch(
     record.insert("load_before".into(), load());
     record.insert("memorystatus_before".into(), json!(host::memorystatus_level()));
 
-    // Every output, prepared before the spawn: a destination that is not a regular file (or a new
-    // file in a real directory) is refused here, before any process starts.
-    let out_file = record_dir.create(&with_suffix(".jsonl"), false)?;
+    // Every output, prepared before the spawn as a new file: an existing entry of any of these
+    // names is refused here, before any process starts, and never opened.
+    let out_file = record_dir.create_new(&with_suffix(STDOUT_SUFFIX))?;
     let mut out_file: Box<dyn Write + Send> = match stdout_record {
         Some(wrap) => wrap(out_file),
         None => Box::new(out_file),
     };
-    let mut err_file = record_dir.create(&with_suffix(".stderr.txt"), false)?;
-    let record_file = record_dir.create(&with_suffix(".record.json"), false)?;
+    let mut err_file = record_dir.create_new(&with_suffix(STDERR_SUFFIX))?;
+    let record_file = record_dir.create_new(&with_suffix(LAUNCH_RECORD_SUFFIX))?;
     let mut command = std::process::Command::new(binary);
-    command
-        .args(argv_tail)
-        .env(SUPERVISOR_PID_ENV, std::process::id().to_string())
-        .stdout(std::process::Stdio::piped())
-        .stderr(std::process::Stdio::piped());
+    if watched {
+        command.arg(crate::SUPERVISOR_PID_ARG).arg(std::process::id().to_string());
+    }
+    command.args(argv_tail).stdout(std::process::Stdio::piped()).stderr(std::process::Stdio::piped());
     // SAFETY: setsid is async-signal-safe; the child starts a new session and process group
     // (Python `subprocess.Popen(start_new_session=True)`), so its pgid is its pid.
     unsafe {
@@ -950,7 +1052,7 @@ pub fn driver_argv(model: &Path, run: &Run, results_dir: Option<&Path>) -> Vec<S
     }
     if let Some(dir) = results_dir {
         tail.push("--write".into());
-        tail.push(dir.join(format!("{}.result.json", run.run_id)).to_string_lossy().to_string());
+        tail.push(dir.join(format!("{}{RESULT_SUFFIX}", run.run_id)).to_string_lossy().to_string());
     }
     tail
 }
@@ -1003,8 +1105,17 @@ const LAUNCH_KEYS: [&str; 25] = [
     "stdout_record_error",
 ];
 
-/// `rr.run_plan`: the plan's runs in order, one at a time, within the window budget.
-pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Vec<Value>, String> {
+/// What a supervised plan wrote: its run records and the last packet written.
+pub struct Supervised {
+    pub records: Vec<Value>,
+    pub packet: Value,
+}
+
+/// `rr.run_plan`: the plan's runs in order, one at a time, within the window budget. A folder that
+/// already holds any name the run would write is refused before anything is written; every record
+/// is a new file ([`OutDir::create_new`]); the packet is built from the records written here,
+/// never read back, and is what is returned.
+pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Supervised, String> {
     let start = Instant::now();
     let clock = || start.elapsed().as_secs_f64();
     let out_dir = &options.out_dir;
@@ -1013,24 +1124,32 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Vec<Value>, Str
     std::fs::create_dir_all(out_dir).map_err(|e| format!("cannot create the output folder: {e}"))?;
     // Opened once: every record below is created relative to this descriptor.
     let out = OutDir::open(out_dir).map_err(|e| format!("cannot use the output folder: {e}"))?;
-    if out.holds("records.jsonl") {
-        return Err("records already exist in the output folder; use a new one".into());
+    let run_ids: Vec<String> = plan.runs.iter().map(|r| r.run_id.clone()).collect();
+    if let Some(used) = names_written(&run_ids).into_iter().find(|name| out.holds(name)) {
+        return Err(format!(
+            "the output folder already holds {used}, a name this run would write; nothing was written and no driver was started: give --out a new folder"
+        ));
     }
     let mut md = metadata(&options.binary);
     md.insert("budget_s".into(), json!(plan.window_budget_s));
     md.insert("write_results".into(), json!(options.write_results));
     md.insert("quiet_wait_s".into(), json!(plan.quiet_wait_s));
-    md.insert("plan".into(), json!(plan.runs.iter().map(|r| r.run_id.clone()).collect::<Vec<_>>()));
+    md.insert("plan".into(), json!(run_ids));
+    let md = Value::Object(md);
     let io = |e: std::io::Error| format!("cannot write the records: {e}");
-    {
-        let _watch = WriteWatch::arm("metadata.json", "no driver had been started");
-        write_json(&out, "metadata.json", &Value::Object(md)).map_err(io)?;
-    }
+    let mut aggregate = {
+        let _watch = WriteWatch::arm(METADATA_NAME, "no driver had been started");
+        let aggregate = Records::create(&out).map_err(io)?;
+        write_json_to(out.create_new(METADATA_NAME).map_err(io)?, &md).map_err(io)?;
+        aggregate
+    };
     // The driver writes a kept result by path (it is given the path, not a descriptor).
-    let results_dir = options.write_results.then(|| out_dir.join("results"));
+    let results_dir = options.write_results.then(|| out_dir.join(RESULTS_NAME));
     if results_dir.is_some() {
-        out.subfolder("results").map_err(io)?;
+        out.subfolder(RESULTS_NAME).map_err(io)?;
     }
+    let packet_error = |e: String| format!("cannot write the packet: {e}");
+    let mut written_packet = None;
     let mut records = Vec::new();
     let mut launched_any = false;
     for run in &plan.runs {
@@ -1084,10 +1203,10 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Vec<Value>, Str
                     record.insert("window_elapsed_after_s".into(), json!(round_to(clock(), 3)));
                     let value = Value::Object(record);
                     let _watch = WriteWatch::arm(&format!("the records of {}", run.run_id), "no driver had been started");
-                    append_record(&out, &value).map_err(io)?;
+                    aggregate.append(&value).map_err(io)?;
                     records.push(value);
                     log(&format!("{}: skipped_window_budget after the host check", run.run_id));
-                    write_packet(&out).map_err(|e| format!("cannot write the packet: {e}"))?;
+                    written_packet = Some(write_packet(&out, &records, &md).map_err(packet_error)?);
                     continue;
                 }
                 let timeout = run.timeout_s.min(remaining.trunc() as i64);
@@ -1097,6 +1216,7 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Vec<Value>, Str
                 let Launched { record: launched, stdout, stderr } = launch(
                     &options.binary,
                     &tail,
+                    true,
                     run.rss_cap_bytes,
                     run.footprint_budget_bytes,
                     timeout,
@@ -1141,8 +1261,8 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Vec<Value>, Str
         record.insert("window_elapsed_after_s".into(), json!(round_to(clock(), 3)));
         let value = Value::Object(record);
         let _watch = WriteWatch::arm(&format!("the records of {}", run.run_id), "the run's driver had already been reaped, or none was started");
-        append_record(&out, &value).map_err(io)?;
-        let wall = value.get("launch").and_then(|l| l.get("wall_s")).and_then(Value::as_f64);
+        aggregate.append(&value).map_err(io)?;
+        let wall =value.get("launch").and_then(|l| l.get("wall_s")).and_then(Value::as_f64);
         let detail = value.get("classification_detail").filter(|d| truthy(d)).map(|d| format!(" [{}]", py_str(Some(d))));
         log(&format!(
             "{}: {}{} ({}; window {:.0} s)",
@@ -1153,9 +1273,17 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Vec<Value>, Str
             value["window_elapsed_after_s"].as_f64().unwrap_or(0.0),
         ));
         records.push(value);
-        write_packet(&out).map_err(|e| format!("cannot write the packet: {e}"))?;
+        written_packet = Some(write_packet(&out, &records, &md).map_err(packet_error)?);
     }
-    Ok(records)
+    let packet = match written_packet {
+        Some(packet) => packet,
+        // A plan with no runs still leaves its (empty) packet.
+        None => {
+            let _watch = WriteWatch::arm(PACKET_NAME, "no driver had been started");
+            write_packet(&out, &records, &md).map_err(packet_error)?
+        }
+    };
+    Ok(Supervised { records, packet })
 }
 
 // ------------------------------------------------------------------ packet
@@ -1257,20 +1385,23 @@ pub fn stale_driver_message(record: &Value) -> Option<String> {
     })
 }
 
-/// `rr.packet` of the records in `out_dir`; a record whose driver line is not the current form
-/// is refused by name ([`stale_driver_message`]), never repackaged under the current conditions.
+/// `rr.packet` of the records in the folder `out_dir`, read back (the supervisor itself never
+/// reads its records back: it builds its packet from what it wrote, [`packet_of`]).
 pub fn packet(out_dir: &Path) -> Result<Value, String> {
-    packet_in(&OutDir::open(out_dir).map_err(|e| e.to_string())?)
+    let out = OutDir::open(out_dir).map_err(|e| e.to_string())?;
+    let md: Value = out.read(METADATA_NAME).and_then(|t| serde_json::from_str(&t).ok()).unwrap_or(Value::Null);
+    packet_of(&records_in(&out), &md)
 }
 
-fn packet_in(out: &OutDir) -> Result<Value, String> {
-    let records: Vec<Value> =
-        records_in(out).into_iter().filter(|r| r.get("schema").and_then(Value::as_str) == Some(RECORD_SCHEMA)).collect();
-    if let Some(message) = records.iter().find_map(stale_driver_message) {
+/// `rr.packet` of `records` with the metadata `md`; a record whose driver line is not the current
+/// form is refused by name ([`stale_driver_message`]), never repackaged under the current
+/// conditions.
+pub fn packet_of(records: &[Value], md: &Value) -> Result<Value, String> {
+    let records: Vec<&Value> = records.iter().filter(|r| r.get("schema").and_then(Value::as_str) == Some(RECORD_SCHEMA)).collect();
+    if let Some(message) = records.iter().copied().find_map(stale_driver_message) {
         return Err(message);
     }
-    let md: Value = out.read("metadata.json").and_then(|t| serde_json::from_str(&t).ok()).unwrap_or(Value::Null);
-    let runs: Vec<Value> = records.iter().filter(|r| r.get("launch").is_some()).map(packet_row).collect();
+    let runs: Vec<Value> = records.iter().filter(|r| r.get("launch").is_some()).map(|r| packet_row(r)).collect();
     let not_run: Vec<Value> = records
         .iter()
         .filter(|r| r.get("launch").is_none())
@@ -1315,9 +1446,15 @@ fn packet_in(out: &OutDir) -> Result<Value, String> {
     }))
 }
 
-fn write_packet(out: &OutDir) -> Result<Value, String> {
-    let result = packet_in(out)?;
-    write_json(out, "packet.json", &result).map_err(|e| e.to_string())?;
+/// Writes the packet of `records` under a new file ([`PACKET_PARTIAL_NAME`], created
+/// exclusively) and renames it to [`PACKET_NAME`] in the opened folder: whatever entry had that
+/// name is replaced, never opened, so a file it linked elsewhere is untouched. Returns the packet
+/// written.
+fn write_packet(out: &OutDir, records: &[Value], md: &Value) -> Result<Value, String> {
+    let result = packet_of(records, md)?;
+    let file = out.create_new(PACKET_PARTIAL_NAME).map_err(|e| e.to_string())?;
+    write_json_to(file, &result).map_err(|e| e.to_string())?;
+    out.rename(PACKET_PARTIAL_NAME, PACKET_NAME).map_err(|e| e.to_string())?;
     Ok(result)
 }
 
@@ -1376,12 +1513,10 @@ pub fn main(args: &[String]) -> i32 {
         let _ = std::io::stdout().flush();
     };
     match run_plan(&options, &log) {
-        Ok(records) => {
-            let counts = match packet(&options.out_dir) {
-                Ok(packet) => packet["classification_counts"].clone(),
-                Err(message) => return usage(&message),
-            };
-            println!("{}", json!({"packet": "packet.json", "classification_counts": counts}));
+        Ok(Supervised { records, packet }) => {
+            // The summary of the packet just written, never a second read by path: the folder's
+            // path may by now name another folder.
+            println!("{}", json!({"packet": PACKET_NAME, "classification_counts": packet["classification_counts"]}));
             let bad = records.iter().any(|r| {
                 matches!(r.get("classification").and_then(Value::as_str), Some("error" | "model_missing" | "model_mismatch"))
             });

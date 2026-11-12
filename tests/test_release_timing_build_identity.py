@@ -14,6 +14,12 @@ what they compile in (the tracked files under `core/`, `fixtures/`, `schemas/` a
 made into a fresh repository under pytest's temporary folder. Only the copy is edited; the
 project's own files are only read.
 
+A third review found that an index flag hides an edit from `git status`: with a linked source
+marked assume-unchanged and then edited, the status printed nothing and the identity said clean.
+The build script now also lists the index's flags (`git ls-files -v`), and a clean status with an
+entry flagged assume-unchanged or skip-worktree gives "unknown", never false;
+`test_an_index_flag_that_hides_an_edit_makes_the_flag_unknown` sets each flag in the copy only.
+
 No call here can reach another repository. A second review found that git obeys an inherited
 GIT_DIR and GIT_WORK_TREE, so that the copy's `git init`, `add` and `commit`, and the build
 script's queries, could act on whatever repository those named. Every git call here and in
@@ -199,3 +205,38 @@ def test_an_inherited_git_dir_reaches_no_other_repository(tmp_path, hostile_repo
     assert (identity["source_commit"], identity["source_dirty"]) == (commit, False), identity
     assert identity["source_commit"] != other_commit
     assert snapshot(hostile_repository) == before, "the other repository was touched"
+
+
+def project_index_flags() -> str:
+    """The project's own index entry for EDITED with its flag tag, read (never written) through the
+    same isolated, bound call as `copy_workspace`."""
+    project_git = ["git", "--no-optional-locks", "-C", str(PROJECT)]
+    return subprocess.run([*project_git, "ls-files", "-v", "--", EDITED.as_posix()], capture_output=True, text=True,
+                          check=True, env=isolated_env(PROJECT.parent)).stdout
+
+
+@RUNS_CARGO
+def test_an_index_flag_that_hides_an_edit_makes_the_flag_unknown(tmp_path):
+    original, flags = (PROJECT / EDITED).read_bytes(), project_index_flags()
+    copy, target = tmp_path / "workspace", tmp_path / "target"
+    copy_workspace(copy)
+    commit = new_repository(copy, "the copy, clean")
+    env = {name: value for name, value in os.environ.items() if not name.startswith("GIT_")}
+    clean = build_identity(copy, target, env)
+    assert (clean["source_commit"], clean["source_dirty"]) == (commit, False), clean
+
+    source = copy / EDITED
+    before = source.read_bytes()
+    for flag in ("assume-unchanged", "skip-worktree"):
+        # In the copy only: the flag on a linked source, then an edit that git status no longer shows.
+        run_git(copy, "update-index", "--" + flag, EDITED.as_posix())
+        source.write_bytes(before + b"\n// release timing build identity regression: an edit hidden by " + flag.encode()
+                           + b"\n")
+        assert run_git(copy, "status", "--porcelain", "--untracked-files=all") == "", "git status hides the edit"
+        hidden = build_identity(copy, target, env)
+        assert (hidden["source_commit"], hidden["source_dirty"]) == (commit, "unknown"), (flag, hidden)
+        source.write_bytes(before)
+        run_git(copy, "update-index", "--no-" + flag, EDITED.as_posix())
+
+    assert (PROJECT / EDITED).read_bytes() == original, "the project's own source was not touched"
+    assert project_index_flags() == flags, "the project's own index was not touched"

@@ -65,6 +65,7 @@
 //! process at a time, watched from outside (`src/supervise.rs`). The modes above are unchanged by it.
 
 use open_pipe_stress_operation_applier::model_checks_owned;
+use open_pipe_stress_release_timing::SUPERVISOR_PID_ARG;
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, MechanicsEnvelope, PreviewSolverMode};
 use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
@@ -386,8 +387,8 @@ fn usage(message: &str) -> ! {
     std::process::exit(USAGE_EXIT)
 }
 
-fn parse_args() -> Args {
-    let mut args = std::env::args().skip(1);
+fn parse_args(args: Vec<String>) -> Args {
+    let mut args = args.into_iter();
     let (mut path, mut mode, mut model_checks, mut write, mut repeats) = (None, None, false, None, 1usize);
     while let Some(arg) = args.next() {
         match arg.as_str() {
@@ -445,9 +446,6 @@ fn other_modes_if_asked() {
     }
 }
 
-/// The variable `release_timing --supervise` sets on the driver it starts: its own pid
-/// (`supervise::SUPERVISOR_PID_ENV`).
-const SUPERVISOR_PID_ENV: &str = "RELEASE_TIMING_SUPERVISOR_PID";
 /// The exit status of a driver that stops because its supervisor is gone.
 const ORPHANED_EXIT: i32 = 125;
 
@@ -456,19 +454,31 @@ fn exit_orphaned(reason: &str) -> ! {
     std::process::exit(ORPHANED_EXIT)
 }
 
-/// A driver started by `release_timing --supervise` (which sets [`SUPERVISOR_PID_ENV`]) watches
-/// that supervisor and exits when it is gone, so that no death of the supervisor (SIGKILL, a fault,
-/// a signal it does not handle) leaves the driver running unwatched in its own session. At start
-/// the parent must be that supervisor (a supervisor that died before the watch was armed is
-/// caught here); on macOS a kernel event on the supervisor's pid (kqueue `EVFILT_PROC`,
-/// `NOTE_EXIT`) is then armed, the parent checked again, and a thread waits for the event; on Linux
-/// the kernel kills the driver when its parent exits (`prctl(PR_SET_PDEATHSIG, SIGKILL)`), set
-/// before the second check. A driver started otherwise (directly, or by the Python runner) is
-/// unaffected.
-fn watch_supervisor() {
-    let Some(text) = std::env::var_os(SUPERVISOR_PID_ENV) else { return };
-    let Some(supervisor) = text.to_str().and_then(|t| t.parse::<i32>().ok()) else {
-        exit_orphaned(&format!("{SUPERVISOR_PID_ENV} is not a process id"))
+/// The driver's arguments, after the program name, and the supervisor's pid when the first two
+/// are [`SUPERVISOR_PID_ARG`] and a pid: only `release_timing --supervise` passes them, to the
+/// driver it starts. They are not part of the driver's usage.
+fn driver_arguments() -> (Option<String>, Vec<String>) {
+    let mut args: Vec<String> = std::env::args().skip(1).collect();
+    if args.first().map(String::as_str) != Some(SUPERVISOR_PID_ARG) {
+        return (None, args);
+    }
+    let rest = args.split_off(2.min(args.len()));
+    (Some(args.get(1).cloned().unwrap_or_default()), rest)
+}
+
+/// A driver started by `release_timing --supervise` (which passes its own pid after
+/// [`SUPERVISOR_PID_ARG`]) watches that supervisor and exits when it is gone, so that no death of
+/// the supervisor (SIGKILL, a fault, a signal it does not handle) leaves the driver running
+/// unwatched in its own session. At start the parent must be that supervisor (a supervisor that
+/// died before the watch was armed is caught here); on macOS a kernel event on the supervisor's
+/// pid (kqueue `EVFILT_PROC`, `NOTE_EXIT`) is then armed, the parent checked again, and a thread
+/// waits for the event; on Linux the kernel kills the driver when its parent exits
+/// (`prctl(PR_SET_PDEATHSIG, SIGKILL)`), set before the second check. A driver started without
+/// the argument (directly, or by the Python runner) watches nothing, whatever its environment.
+fn watch_supervisor(supervisor: Option<String>) {
+    let Some(text) = supervisor else { return };
+    let Some(supervisor) = text.parse::<i32>().ok().filter(|pid| *pid > 0) else {
+        exit_orphaned(&format!("{SUPERVISOR_PID_ARG} needs a process id"))
     };
     // SAFETY: getppid has no preconditions.
     let parent = || unsafe { libc::getppid() };
@@ -516,8 +526,9 @@ fn watch_supervisor() {
 
 fn main() {
     other_modes_if_asked();
-    watch_supervisor();
-    let args = parse_args();
+    let (supervisor, args) = driver_arguments();
+    watch_supervisor(supervisor);
+    let args = parse_args(args);
     let (invocation, stages, limits): (&str, &[&str], &[&str]) = if args.model_checks {
         ("model_checks", &MODEL_CHECK_STAGES, &MODEL_CHECK_LIMITS)
     } else {

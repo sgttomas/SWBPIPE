@@ -291,8 +291,9 @@ fn the_sweep_pattern_matches_as_pgrep_f_does() {
 #[cfg(target_os = "macos")]
 mod live {
     use open_pipe_stress_release_timing::supervise::{
-        check_run_id, launch, packet, read_records, record_error_class, stale_driver_message, Hooks, OutDir, WriteWatch,
-        PACKET_SCHEMA, PLAN_SCHEMA, RECORDS_INCOMPLETE_EXIT, RECORD_SCHEMA, TERMINATING_SIGNALS,
+        check_run_id, check_run_names, launch, names_written, packet, read_records, record_error_class, sha256_hex,
+        stale_driver_message, Hooks, OutDir, WriteWatch, FOLDER_NAMES, PACKET_SCHEMA, PLAN_SCHEMA, RECORDS_INCOMPLETE_EXIT,
+        RECORD_SCHEMA, TERMINATING_SIGNALS,
     };
     use serde_json::{json, Value};
     use std::path::{Path, PathBuf};
@@ -449,10 +450,18 @@ mod live {
                 assert!(row.get(key).is_none(), "observations only");
             }
         }
-        // A folder with records is refused.
-        let (code, _, stderr) = supervise(&dir, vec![run(0, "ok", "demo.json", 60, 1, "solved", BUDGET)], 900);
-        assert_eq!(code, 2);
-        assert!(stderr.contains("records already exist"), "{stderr}");
+        // Every recorded hash is the hash of its file as the run left it, in the run record and in
+        // the launch record (the third review: a run id that named another record's file left a
+        // hash that was not the file's).
+        for r in records.iter().filter(|r| r.get("launch").is_some()) {
+            let id = r["run_id"].as_str().unwrap();
+            let file = sha256_hex(&std::fs::read(out.join(format!("{id}.jsonl"))).unwrap());
+            assert_eq!(r["launch"]["stdout_sha256"], json!(file), "{id}");
+            assert!(r["launch"]["stdout_record_error"].is_null(), "{id}");
+            let launch: Value = serde_json::from_str(&std::fs::read_to_string(out.join(format!("{id}.record.json"))).unwrap()).unwrap();
+            assert_eq!(launch["stdout_sha256"], json!(file), "{id}");
+        }
+        assert!(stdout.ends_with(&format!("{}\n", json!({"packet": "packet.json", "classification_counts": written["classification_counts"]}))), "{stdout}");
         std::fs::remove_dir_all(dir).unwrap();
     }
 
@@ -535,12 +544,13 @@ mod live {
         std::fs::remove_dir_all(dir).unwrap();
     }
 
-    /// The pids of processes whose command line contains `needle`.
+    /// The pids of processes whose command line contains `needle`, supervisors left out (a
+    /// driver's own line carries `--supervised-by`, which is not `--supervise`).
     fn driver_pids(needle: &str) -> Vec<i32> {
         let ps = Command::new("/bin/ps").args(["-axo", "pid=,command="]).output().unwrap();
         String::from_utf8_lossy(&ps.stdout)
             .lines()
-            .filter(|l| l.contains(needle) && !l.contains("--supervise"))
+            .filter(|l| l.contains(needle) && !l.split_whitespace().any(|word| word == "--supervise"))
             .filter_map(|l| l.split_whitespace().next()?.parse().ok())
             .collect()
     }
@@ -563,7 +573,7 @@ mod live {
     /// `supervise::launch` of `/usr/bin/touch <marker>`, so that a spawn leaves a mark.
     fn launch_touch(record_dir: &Path, marker: &Path, after_spawn: &mut dyn FnMut(i32) -> std::io::Result<()>) -> std::io::Result<()> {
         let out = OutDir::open(record_dir)?;
-        launch(Path::new("/usr/bin/touch"), &[marker.to_str().unwrap().to_string()], 16 << 30, BUDGET, 60, &out, "r", Hooks::none(after_spawn))
+        launch(Path::new("/usr/bin/touch"), &[marker.to_str().unwrap().to_string()], false, 16 << 30, BUDGET, 60, &out, "r", Hooks::none(after_spawn))
             .map(|_| ())
     }
 
@@ -598,11 +608,18 @@ mod live {
         symlink(&linked, &dir.join("folder-link"));
         assert!(launch_touch(&dir.join("folder-link"), &marker, &mut |_| Ok(())).is_err());
         assert!(!marker.exists());
-        // A regular file, or a new one, is a destination.
+        // An existing regular file is refused too, and keeps its bytes: every record is a new file.
         let plain = dir.join("plain");
         std::fs::create_dir_all(&plain).unwrap();
         std::fs::write(plain.join("r.stderr.txt"), "old").unwrap();
-        launch_touch(&plain, &marker, &mut |_| Ok(())).expect("a regular destination");
+        let error = launch_touch(&plain, &marker, &mut |_| Ok(())).expect_err("an existing record is refused");
+        assert!(error.to_string().contains("r.stderr.txt") && error.to_string().contains("already exists"), "{error}");
+        assert!(!marker.exists());
+        assert_eq!(std::fs::read(plain.join("r.stderr.txt")).unwrap(), b"old");
+        // A new file in a real directory is a destination.
+        let fresh = dir.join("fresh");
+        std::fs::create_dir_all(&fresh).unwrap();
+        launch_touch(&fresh, &marker, &mut |_| Ok(())).expect("a new destination");
         assert!(marker.exists());
         std::fs::remove_dir_all(dir).unwrap();
     }
@@ -639,7 +656,9 @@ mod live {
         let mut stderr = String::new();
         std::io::Read::read_to_string(&mut supervisor.stderr.take().unwrap(), &mut stderr).unwrap();
         assert_eq!(status.code(), Some(2), "{stderr}");
-        assert!(stderr.contains("cannot launch zero") && stderr.contains("zero.jsonl"), "{stderr}");
+        assert!(stderr.contains("already holds zero.jsonl") && stderr.contains("new folder"), "{stderr}");
+        let left: Vec<_> = std::fs::read_dir(dir.join("out")).unwrap().map(|e| e.unwrap().file_name()).collect();
+        assert_eq!(left, ["zero.jsonl"], "nothing was written");
         assert!(driver_pids(dir.join("demo.json").to_str().unwrap()).is_empty());
         assert!(read_records(&dir.join("out")).is_empty(), "no run record");
         std::fs::remove_dir_all(dir).unwrap();
@@ -653,7 +672,7 @@ mod live {
         let sleeper = [String::from("30")];
         let mut seen = None;
         let out = OutDir::open(&dir).unwrap();
-        let error = launch(Path::new("/bin/sleep"), &sleeper, 16 << 30, BUDGET, 60, &out, "r", Hooks::none(&mut |pid| {
+        let error = launch(Path::new("/bin/sleep"), &sleeper, false, 16 << 30, BUDGET, 60, &out, "r", Hooks::none(&mut |pid| {
             seen = Some(pid);
             Err(std::io::Error::other("injected after the spawn"))
         }))
@@ -663,7 +682,7 @@ mod live {
         let pid = seen.expect("the driver was spawned");
         assert!(!alive(pid), "pid {pid} is still running or unreaped after the error");
         let panicked = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            let _ = launch(Path::new("/bin/sleep"), &sleeper, 16 << 30, BUDGET, 60, &out, "r", Hooks::none(&mut |pid| {
+            let _ = launch(Path::new("/bin/sleep"), &sleeper, false, 16 << 30, BUDGET, 60, &out, "r2", Hooks::none(&mut |pid| {
                 seen = Some(pid);
                 panic!("injected panic after the spawn")
             }));
@@ -706,7 +725,7 @@ mod live {
         std::fs::rename(&out_path, &moved).unwrap();
         symlink(&elsewhere, &out_path);
         let marker = dir.join("spawned");
-        launch(Path::new("/usr/bin/touch"), &[marker.to_str().unwrap().to_string()], 16 << 30, BUDGET, 60, &out, "r", Hooks::none(&mut |_| Ok(())))
+        launch(Path::new("/usr/bin/touch"), &[marker.to_str().unwrap().to_string()], false, 16 << 30, BUDGET, 60, &out, "r", Hooks::none(&mut |_| Ok(())))
             .expect("the launch");
         for name in ["r.jsonl", "r.stderr.txt", "r.record.json"] {
             assert!(moved.join(name).is_file(), "{name} is in the folder that was opened");
@@ -733,7 +752,7 @@ mod live {
         let out = OutDir::open(&dir).unwrap();
         let tail = [dir.join("demo.json").to_str().unwrap().to_string()];
         let hooks = Hooks { after_spawn: &mut |_| Ok(()), stdout_record: Some(Box::new(|_file| Box::new(Failing))) };
-        let launched = launch(Path::new(BIN), &tail, 16 << 30, BUDGET, 60, &out, "r", hooks).expect("the launch");
+        let launched = launch(Path::new(BIN), &tail, true, 16 << 30, BUDGET, 60, &out, "r", hooks).expect("the launch");
         assert!(launched.stdout.contains("release-timing-v2"), "the driver's line was received from the pipe");
         assert!(launched.record["stdout_sha256"].is_null(), "no hash of bytes that were never written");
         assert!(launched.record["stdout_record_error"].as_str().unwrap().contains("injected"));
@@ -799,7 +818,11 @@ mod live {
 
     #[test]
     fn a_driver_whose_supervisor_is_killed_with_sigkill_stops() {
-        // SIGKILL runs no handler and no drop: the driver, in its own session, watches its parent.
+        // SIGKILL runs no handler and no drop. This test passes with or without the driver's watch
+        // of its supervisor, because this driver (one parse of a large model) ends by itself within
+        // the limit, so it does not discriminate; the test that does is
+        // `a_long_driver_stops_within_seconds_of_its_supervisors_sigkill`. It is kept because it
+        // is cheap and runs the whole supervisor, not a stand-in parent.
         let (dir, mut supervisor, needle, driver) = supervised_big_run("sigkill");
         unsafe { libc::kill(supervisor.id() as i32, libc::SIGKILL) };
         supervisor.wait().unwrap();
@@ -811,14 +834,15 @@ mod live {
     #[test]
     fn a_long_driver_stops_within_seconds_of_its_supervisors_sigkill() {
         // The discriminating case: a driver that would run for a very long time (a million
-        // repeats of the demo model) under a parent that names itself as its supervisor. Killed
-        // with SIGKILL, the parent runs nothing; the driver must notice and stop by itself.
+        // repeats of the demo model) under a parent that passes its own pid as the supervisor's
+        // (the argument `release_timing --supervise` passes). Killed with SIGKILL, the parent runs
+        // nothing; the driver must notice and stop by itself.
         let dir = folder("parent-sigkill");
         std::fs::write(dir.join("demo.json"), demo()).unwrap();
         let model = dir.join("demo.json").to_str().unwrap().to_string();
         let mut parent = Command::new("/bin/sh")
             .arg("-c")
-            .arg("RELEASE_TIMING_SUPERVISOR_PID=$$ \"$0\" \"$1\" --repeats 1000000 >/dev/null 2>&1; :")
+            .arg("\"$0\" --supervised-by $$ \"$1\" --repeats 1000000 >/dev/null 2>&1; :")
             .arg(BIN)
             .arg(&model)
             .spawn()
@@ -869,5 +893,202 @@ mod live {
         assert_eq!(stale_driver_message(&old).as_deref(), Some(expected));
         assert_eq!(packet(&dir), Err(expected.to_string()));
         std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    // ----------------------------------------------------------- the names written (third review)
+
+    #[test]
+    fn run_ids_that_would_name_one_file_twice_are_refused_at_plan_load() {
+        let ids = |list: &[&str]| list.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+        // A run id whose stdout record is the aggregate record, in any case.
+        for reserved in ["records", "Records", "RECORDS"] {
+            let error = check_run_names(&ids(&[reserved])).expect_err(reserved);
+            assert!(error.contains("records.jsonl") && error.contains("same file ignoring case"), "{error}");
+        }
+        // A run id that is a name the supervisor writes.
+        for name in FOLDER_NAMES.iter().filter(|n| check_run_id(n).is_ok()) {
+            let upper = name.to_ascii_uppercase();
+            for id in [name.to_string(), upper] {
+                assert!(check_run_names(&ids(&[id.as_str()])).unwrap_err().contains("a name this supervisor writes"), "{id}");
+            }
+        }
+        // Two run ids equal ignoring case.
+        let error = check_run_names(&ids(&["Case", "case"])).unwrap_err();
+        assert!(error.contains("Case and case are the same ignoring case"), "{error}");
+        // Ids that differ, as the plans write them.
+        assert!(check_run_names(&ids(&["linear-ex-n0250-sparse", "model-checks-linear-ex-n1000", "records2", "a.record"])).is_ok());
+        // No two names the supervisor writes for a plan are the same ignoring case: every suffix it
+        // appends is distinct from every other one's tail, so two ids that differ ignoring case
+        // never meet. Checked over every pair of suffix-shaped ids.
+        let shaped: Vec<String> = ["x", "x.record", "x.stderr", "x.jsonl", "x.json", "x.txt", "x.result", "x.l"]
+            .iter()
+            .map(|s| s.to_string())
+            .collect();
+        assert!(check_run_names(&shaped).is_ok(), "{:?}", names_written(&shaped));
+
+        // The whole binary: refused before anything is written, the output folder included.
+        for (label, plan_ids) in [("reserved", vec!["records"]), ("case", vec!["Case", "case"]), ("packet", vec!["packet.json"])] {
+            let dir = folder(&format!("names-{label}"));
+            std::fs::write(dir.join("demo.json"), demo()).unwrap();
+            let runs = plan_ids.iter().enumerate().map(|(i, id)| run(i as u64, id, "demo.json", 60, 1, "solved", BUDGET)).collect();
+            let (code, stdout, stderr) = supervise(&dir, runs, 900);
+            assert_eq!(code, 2, "{label}: {stdout}{stderr}");
+            assert!(stderr.contains("plan: "), "{label}: {stderr}");
+            assert!(!dir.join("out").exists(), "{label}: nothing written");
+            std::fs::remove_dir_all(dir).unwrap();
+        }
+    }
+
+    /// Opens the FIFO `gate` for writing once the supervisor has opened it for reading, writes
+    /// `{}` and closes it; never blocks past `limit`.
+    fn open_gate(gate: &Path, limit: Duration) {
+        use std::os::unix::fs::OpenOptionsExt;
+        let started = Instant::now();
+        loop {
+            match std::fs::OpenOptions::new().write(true).custom_flags(libc::O_NONBLOCK).open(gate) {
+                Ok(mut file) => {
+                    std::io::Write::write_all(&mut file, b"{}").unwrap();
+                    return;
+                }
+                Err(error) if error.raw_os_error() == Some(libc::ENXIO) && started.elapsed() < limit => {
+                    std::thread::sleep(Duration::from_millis(20));
+                }
+                Err(error) => panic!("the supervisor never opened the gate: {error}"),
+            }
+        }
+    }
+
+    /// The reviewer's gate: a plan whose first run's model is a FIFO, which the supervisor opens
+    /// (to hash it) after it has opened the output folder and written its metadata. `mutate` runs
+    /// while it waits there; the gate is then opened and the supervisor finishes. The first run's
+    /// sha256 differs from the plan's, so it is model_mismatch and starts no driver; `more` runs
+    /// follow it. Returns the folder and the supervisor's exit code, stdout and stderr.
+    fn gated(name: &str, more: Vec<Value>, mutate: impl FnOnce(&Path)) -> (PathBuf, i32, String, String) {
+        let dir = folder(name);
+        std::fs::write(dir.join("demo.json"), demo()).unwrap();
+        fifo(&dir.join("gate.json"));
+        let mut gate = run(0, "r", "gate.json", 60, 1, "solved", BUDGET);
+        gate["expected_model_sha256"] = json!("0".repeat(64));
+        let mut runs = vec![gate];
+        runs.extend(more);
+        let plan = json!({"schema": PLAN_SCHEMA, "window_budget_s": 900, "quiet_wait_s": 0, "runs": runs});
+        std::fs::write(dir.join("plan.json"), plan.to_string()).unwrap();
+        let mut supervisor = Command::new(BIN)
+            .args(["--supervise", "plan.json", "--out", "out"])
+            .current_dir(&dir)
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+            .unwrap();
+        let started = Instant::now();
+        while !dir.join("out").join("metadata.json").exists() {
+            assert!(started.elapsed() < Duration::from_secs(30), "the supervisor never wrote its metadata");
+            assert!(supervisor.try_wait().unwrap().is_none(), "the supervisor ended before the gate");
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        mutate(&dir);
+        open_gate(&dir.join("gate.json"), Duration::from_secs(30));
+        let output = supervisor.wait_with_output().unwrap();
+        (
+            dir,
+            output.status.code().unwrap_or(-1),
+            String::from_utf8_lossy(&output.stdout).to_string(),
+            String::from_utf8_lossy(&output.stderr).to_string(),
+        )
+    }
+
+    fn hard_link(target: &Path, link: &Path) {
+        std::fs::hard_link(target, link).unwrap();
+    }
+
+    #[test]
+    fn a_hard_link_placed_in_the_folder_is_never_opened_for_writing() {
+        // The third review's case: a hard link to a file outside the folder, placed as packet.json
+        // after the folder was opened, was truncated and overwritten. The packet is now written
+        // under a new name and renamed into place: the entry is replaced, the outside file is not.
+        const KEPT: &[u8] = b"KEEP THIS OUTSIDE FILE\n";
+        let (dir, code, stdout, stderr) = gated("hardlink", vec![], |dir| {
+            std::fs::write(dir.join("outside.txt"), KEPT).unwrap();
+            hard_link(&dir.join("outside.txt"), &dir.join("out").join("packet.json"));
+        });
+        assert_eq!(code, 1, "model_mismatch: {stdout}{stderr}");
+        assert_eq!(std::fs::read(dir.join("outside.txt")).unwrap(), KEPT, "the outside file is byte-unchanged");
+        let packet: Value = serde_json::from_str(&std::fs::read_to_string(dir.join("out").join("packet.json")).unwrap()).unwrap();
+        assert_eq!(packet["classification_counts"], json!({"model_mismatch": 1}));
+        assert!(!dir.join("out").join(".packet.json.partial").exists());
+
+        // The same placed as a later run's stdout record: that run is refused by name, before its
+        // driver starts, and the outside file is untouched.
+        let (dir2, code, stdout, stderr) = gated("hardlink-run", vec![run(1, "second", "demo.json", 60, 1, "solved", BUDGET)], |dir| {
+            std::fs::write(dir.join("outside.txt"), KEPT).unwrap();
+            hard_link(&dir.join("outside.txt"), &dir.join("out").join("second.jsonl"));
+        });
+        assert_eq!(code, 2, "{stdout}{stderr}");
+        assert!(stderr.contains("cannot launch second") && stderr.contains("second.jsonl") && stderr.contains("already exists"), "{stderr}");
+        assert_eq!(std::fs::read(dir2.join("outside.txt")).unwrap(), KEPT, "the outside file is byte-unchanged");
+        assert!(driver_pids(dir2.join("demo.json").to_str().unwrap()).is_empty());
+        std::fs::remove_dir_all(dir).unwrap();
+        std::fs::remove_dir_all(dir2).unwrap();
+    }
+
+    #[test]
+    fn the_summary_is_the_packet_written_in_the_folder_that_was_opened() {
+        // The third review's case: once the folder was renamed and another put at its path, the
+        // final summary was read from that other folder. It is now the packet just written.
+        let (dir, code, stdout, stderr) = gated("summary-swap", vec![], |dir| {
+            std::fs::rename(dir.join("out"), dir.join("opened-out")).unwrap();
+            std::fs::create_dir(dir.join("out")).unwrap();
+            let foreign = json!({"schema": RECORD_SCHEMA, "run_id": "foreign", "classification": "FOREIGN"});
+            std::fs::write(dir.join("out").join("records.jsonl"), format!("{foreign}\n")).unwrap();
+            std::fs::write(dir.join("out").join("metadata.json"), "{}").unwrap();
+        });
+        assert_eq!(code, 1, "{stdout}{stderr}");
+        let opened: Value = serde_json::from_str(&std::fs::read_to_string(dir.join("opened-out").join("packet.json")).unwrap()).unwrap();
+        let summary: Value = serde_json::from_str(stdout.lines().last().unwrap()).unwrap();
+        assert_eq!(summary, json!({"packet": "packet.json", "classification_counts": opened["classification_counts"]}));
+        assert_eq!(summary["classification_counts"], json!({"model_mismatch": 1}));
+        let mut left: Vec<_> = std::fs::read_dir(dir.join("out")).unwrap().map(|e| e.unwrap().file_name()).collect();
+        left.sort();
+        assert_eq!(left, ["metadata.json", "records.jsonl"], "nothing was written in the replacement folder");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    /// Every entry of `dir` with its bytes (none of the folders here nest).
+    fn contents(dir: &Path) -> Vec<(std::ffi::OsString, Vec<u8>)> {
+        let mut found: Vec<_> = std::fs::read_dir(dir)
+            .unwrap()
+            .map(|e| {
+                let e = e.unwrap();
+                let bytes = if e.file_type().unwrap().is_file() { std::fs::read(e.path()).unwrap() } else { Vec::new() };
+                (e.file_name(), bytes)
+            })
+            .collect();
+        found.sort();
+        found
+    }
+
+    #[test]
+    fn a_used_folder_is_refused_before_any_driver_starts_and_left_as_it_was() {
+        let dir = folder("used");
+        std::fs::write(dir.join("demo.json"), demo()).unwrap();
+        let (code, stdout, stderr) = supervise(&dir, vec![run(0, "first", "demo.json", 60, 1, "solved", BUDGET)], 900);
+        assert_eq!(code, 0, "{stdout}{stderr}");
+        let before = contents(&dir.join("out"));
+        // Another plan into the same folder: a different run, so only the folder's own names meet.
+        let (code, stdout, stderr) = supervise(&dir, vec![run(0, "second", "demo.json", 60, 1, "solved", BUDGET)], 900);
+        assert_eq!(code, 2, "{stdout}{stderr}");
+        assert!(stderr.contains("already holds") && stderr.contains("give --out a new folder"), "{stderr}");
+        assert!(stdout.is_empty(), "no run was started: {stdout}");
+        assert_eq!(contents(&dir.join("out")), before, "nothing in the folder changed");
+        // A folder holding only an unrelated file is not a used one.
+        let fresh = folder("used-unrelated");
+        std::fs::write(fresh.join("demo.json"), demo()).unwrap();
+        std::fs::create_dir(fresh.join("out")).unwrap();
+        std::fs::write(fresh.join("out").join("notes.txt"), "mine").unwrap();
+        let (code, stdout, stderr) = supervise(&fresh, vec![run(0, "first", "demo.json", 60, 1, "solved", BUDGET)], 900);
+        assert_eq!(code, 0, "{stdout}{stderr}");
+        assert_eq!(std::fs::read(fresh.join("out").join("notes.txt")).unwrap(), b"mine");
+        std::fs::remove_dir_all(dir).unwrap();
+        std::fs::remove_dir_all(fresh).unwrap();
     }
 }
