@@ -33,6 +33,7 @@ import {
   componentDraftForNode,
   creatableComponentKinds,
   defaultComponentDraft,
+  keepComponentSources,
   isComponentDraftValid,
   type ComponentDraft,
   type CreatableComponentKind
@@ -1870,7 +1871,7 @@ export function PipeViewport({
     });
     queueIntent(intent);
     setComponentDraft(
-      defaultComponentDraft(model, selection, [...queuedIntents, ...localIntents, intent], componentDraft.kind)
+      keepComponentSources(defaultComponentDraft(model, selection, [...queuedIntents, ...localIntents, intent], componentDraft.kind), componentDraft)
     );
   }
 
@@ -3955,73 +3956,6 @@ function buildIntent(
       software_makes_authentication_claim: false
     },
     rationale: `${commandType} viewport gesture requires application-service validation before any durable model change.`
-  };
-}
-
-function buildExplicitNodeIntent(
-  _model: PreviewModel,
-  draft: NodeDraft,
-  unitCatalogRoute: UnitCatalogRoute | null,
-  sequence: number
-): EditorOperationIntent {
-  const nodeId = draft.id.trim();
-  const label = draft.label.trim();
-  const lengthUnit = draft.coordinateUnit.trim() || "TBD";
-  const payload = {
-    id: nodeId,
-    label,
-    position: {
-      x: Number(draft.x),
-      y: Number(draft.y),
-      z: Number(draft.z)
-    },
-    provenance: "user_entered_local_preview"
-  };
-
-  return {
-    operation_id: `op:viewport-create-node-${safeToken(nodeId)}-${sequence.toString().padStart(3, "0")}`,
-    operation_kind: "create",
-    operation_status: "proposed",
-    author_type: "user",
-    source: {
-      source_ref: "apps/desktop/src/features/viewport/PipeViewport.tsx",
-      source_channel: "local_desktop_preview",
-      source_role: "viewport_editor"
-    },
-    target: { object_type: "Node", ref: nodeId },
-    change: {
-      change_id: `change:viewport:create-node:${safeToken(nodeId)}`,
-      change_kind: "create_node",
-      field_label: "Explicit node geometry",
-      field_path: "nodes",
-      before: "not_present",
-      after: JSON.stringify(payload),
-      unit: lengthUnit,
-      dimension: "length",
-      source_note: "explicit user-entered viewport node geometry"
-    },
-    validation: {
-      schema_validation: "not_run",
-      constraint_validation: "not_run",
-      unit_validation: `length=${unitDimensionValidationStatus(unitCatalogRoute, lengthUnit, "length")}`,
-      diff_preview_status: "not_generated",
-      application_status: "not_applied"
-    },
-    audit_boundary: {
-      mutation_route: "structured_operations_only",
-      direct_model_mutation_allowed: false,
-      requires_user_acceptance: true,
-      mutates_accepted_model_state: false
-    },
-    professional_boundary: {
-      human_review_required: true,
-      software_makes_compliance_claim: false,
-      software_makes_certification_claim: false,
-      software_makes_sealing_claim: false,
-      software_makes_approval_claim: false,
-      software_makes_authentication_claim: false
-    },
-    rationale: "explicit user-entered node geometry; requires service validation before durable model change."
   };
 }
 

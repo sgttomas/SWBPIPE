@@ -348,6 +348,8 @@ describe("PropertyInspector inline validation outcome", () => {
 describe("PropertyInspector creation forms", () => {
   it("validates and queues a new section, then reserves its id", async () => {
     const { queue } = mount({ type: "project", id: "project" });
+    // The source starts empty; the person types it, and the next record keeps it.
+    type("create-section-provenance", "user_entered_local_preview");
     await catalogSettled();
     expect(byId("create-section-id")).toHaveValue("section:S-2");
     expect(byId("create-section-name")).toHaveValue("Section S-2");
@@ -382,6 +384,8 @@ describe("PropertyInspector creation forms", () => {
 
   it("reserves the default section id once it is queued", () => {
     const { queue } = mount({ type: "project", id: "project" });
+    // The source starts empty; the person types it, and the next record keeps it.
+    type("create-section-provenance", "user_entered_local_preview");
     type("create-section-od", "100");
     type("create-section-wall", "5");
     fireEvent.click(byId("queue-create-section-intent"));
@@ -391,6 +395,8 @@ describe("PropertyInspector creation forms", () => {
 
   it("queues a material with optional thermal expansion and validates both units", async () => {
     const { queue } = mount({ type: "project", id: "project" });
+    // The source starts empty; the person types it, and the next record keeps it.
+    type("create-material-provenance", "user_entered_local_preview");
     await catalogSettled();
     expect(byId("create-material-id")).toHaveValue("material:M-1");
     const button = byId("queue-create-material-intent");
@@ -419,6 +425,8 @@ describe("PropertyInspector creation forms", () => {
 
   it("drafts a support on the selected node and requires restraints and positive stiffness", async () => {
     const { queue } = mount({ type: "node", id: "node:B" });
+    // The source starts empty; the person types it, and the next record keeps it.
+    type("create-support-provenance", "user_entered_local_preview");
     await catalogSettled();
     expect(byId("create-support-id")).toHaveValue("support:S-1");
     const button = byId("queue-create-support-intent");

@@ -310,9 +310,16 @@ export function defaultComponentDraft(
     rigidScaleSourceReference: "",
     rigidSolverConsumption: "",
     ...emptyConnectorDraft(),
-    geometrySourceReference: kind === "expansion_joint" ? "" : "user_entered_component_form",
-    provenance: kind === "expansion_joint" ? "" : "user_entered_local_preview"
+    // Sources are the user's own statements: they start empty (PRD §5.5; DEL-07-03 AC-001).
+    geometrySourceReference: "",
+    provenance: ""
   };
+}
+
+/** The next component draft after a queue shows the user's own last sources,
+ * visible and editable before the next record is queued; nothing else carries. */
+export function keepComponentSources(next: ComponentDraft, previous: ComponentDraft): ComponentDraft {
+  return { ...next, geometrySourceReference: previous.geometrySourceReference, provenance: previous.provenance };
 }
 
 export function componentDraftForKind(
@@ -325,12 +332,7 @@ export function componentDraftForKind(
   return {
     ...draft,
     ...(kind === "expansion_joint" ? emptyExpansionJointInputs() : {}),
-    ...(leavingExpansionJoint
-      ? {
-          geometrySourceReference: "user_entered_component_form",
-          provenance: "user_entered_local_preview"
-        }
-      : {}),
+    ...(leavingExpansionJoint ? { geometrySourceReference: "", provenance: "" } : {}),
     kind,
     label: `${componentKindLabel(kind)} ${shortEntityToken(draft.id)}`,
     primaryPipeRef,

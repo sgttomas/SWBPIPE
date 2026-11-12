@@ -57,6 +57,7 @@ import {
   creatableComponentKinds,
   defaultComponentDraft,
   isComponentDraftValid,
+  keepComponentSources,
   type ComponentDraft,
   type CreatableComponentKind
 } from "../component-creation/componentIntent";
@@ -372,14 +373,21 @@ export function PropertyInspector({
   function handleQueueSupportIntent() {
     if (multiSelection || !supportCreateIntent) return;
     onQueueIntent(supportCreateIntent);
-    setSupportDraft(defaultSupportDraftWithReserved(model, propertiesTarget, [...queuedIntents, supportCreateIntent], unitCatalogRoute));
+    // The next record shows the user's own last source, editable before it is queued.
+    setSupportDraft({
+      ...defaultSupportDraftWithReserved(model, propertiesTarget, [...queuedIntents, supportCreateIntent], unitCatalogRoute),
+      provenance: supportDraft.provenance
+    });
   }
 
   function handleQueueComponentIntent() {
     if (multiSelection || !componentCreateIntent) return;
     onQueueIntent(componentCreateIntent);
     setComponentDraft(
-      defaultComponentDraft(model, propertiesTarget, [...queuedIntents, componentCreateIntent], componentDraft.kind)
+      keepComponentSources(
+        defaultComponentDraft(model, propertiesTarget, [...queuedIntents, componentCreateIntent], componentDraft.kind),
+        componentDraft
+      )
     );
   }
 
@@ -401,13 +409,21 @@ export function PropertyInspector({
   function handleQueueMaterialIntent() {
     if (multiSelection || !materialCreateIntent) return;
     onQueueIntent(materialCreateIntent);
-    setMaterialDraft(defaultMaterialDraftWithReserved(model, [...queuedIntents, materialCreateIntent], unitCatalogRoute));
+    setMaterialDraft({
+      ...defaultMaterialDraftWithReserved(model, [...queuedIntents, materialCreateIntent], unitCatalogRoute),
+      provenance: materialDraft.provenance
+    });
   }
 
   function handleQueueSectionIntent() {
     if (multiSelection || !sectionCreateIntent) return;
     onQueueIntent(sectionCreateIntent);
-    setSectionDraft(defaultSectionDraftWithReserved(model, [...queuedIntents, sectionCreateIntent]));
+    // The user's own last length unit and source stay, shown and editable, in place of the project unit.
+    setSectionDraft({
+      ...defaultSectionDraftWithReserved(model, [...queuedIntents, sectionCreateIntent]),
+      lengthUnit: sectionDraft.lengthUnit,
+      provenance: sectionDraft.provenance
+    });
   }
 
   function updateSectionDraft<K extends keyof SectionDraft>(key: K, value: SectionDraft[K]) {
@@ -3089,7 +3105,8 @@ function defaultSectionDraftWithReserved(model: PreviewModel, queuedIntents: Edi
     lengthUnit: lengthUnit(model),
     outsideDiameter: "",
     wallThickness: "",
-    provenance: "user_entered_local_preview"
+    // The source is the user's own statement: it starts empty (PRD §5.5; DEL-07-03 AC-001).
+    provenance: ""
   };
 }
 
@@ -3108,7 +3125,8 @@ function defaultMaterialDraftWithReserved(model: PreviewModel, queuedIntents: Ed
     thermalExpansionUnit: thermalExpansionUnit(model, route),
     thermalExpansionUnitSource: "default",
     thermalExpansion: "",
-    provenance: "user_entered_local_preview"
+    // The source is the user's own statement: it starts empty (PRD §5.5; DEL-07-03 AC-001).
+    provenance: ""
   };
 }
 
@@ -3140,7 +3158,8 @@ function defaultSupportDraftWithReserved(
     linearStiffnessUnitSource: "default",
     linearStiffness: "",
     familyChoice: null,
-    provenance: "user_entered_local_preview"
+    // The source is the user's own statement: it starts empty (PRD §5.5; DEL-07-03 AC-001).
+    provenance: ""
   };
 }
 

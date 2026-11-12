@@ -43,12 +43,16 @@ const choose = (testId: string, value: string) => fireEvent.change(byId(testId),
 function mountLoads(model: PreviewModel) {
   const queue = vi.fn<(intent: EditorOperationIntent) => void>();
   render(<LoadCaseManagerPanel model={model} onQueueIntent={queue} onSelect={vi.fn()} selection={{ type: "project", id: model.project.id }} />);
+  // Sources start empty; the person types them.
+  fireEvent.change(byId("load-manager-create-primitive-provenance"), { target: { value: "invented source" } });
   return queue;
 }
 
 function mountInspector(model: PreviewModel) {
   const queue = vi.fn<(intent: EditorOperationIntent) => void>();
   render(<DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} selection={{ type: "node", id: "node:B" }} onQueueIntent={queue} /></DisplayUnitsProvider>);
+  // Sources start empty; the person types them.
+  fireEvent.change(byId("create-support-provenance"), { target: { value: "invented source" } });
   return queue;
 }
 
@@ -199,6 +203,8 @@ describe("a replaced project never keeps an inherited default unit (Codex P2 on 
     const view = render(<LoadCaseManagerPanel model={model} onQueueIntent={queue} onSelect={vi.fn()} selection={{ type: "project", id: model.project.id }} />);
     const replace = (next: PreviewModel) =>
       view.rerender(<LoadCaseManagerPanel model={next} onQueueIntent={queue} onSelect={vi.fn()} selection={{ type: "project", id: next.project.id }} />);
+    // Sources start empty; the person types them.
+    fireEvent.change(byId("load-manager-create-primitive-provenance"), { target: { value: "invented source" } });
     return { queue, replace };
   }
 
@@ -285,6 +291,8 @@ describe("a replaced project never keeps an inherited default unit (Codex P2 on 
     const first = blankWith(SI_PROJECT_UNITS);
     const tree = (model: PreviewModel) => <DisplayUnitsProvider initialPreference="SI"><PropertyInspector model={model} selection={{ type: "node", id: "node:B" }} onQueueIntent={queue} /></DisplayUnitsProvider>;
     const view = render(tree(first));
+    // Sources start empty; the person types them.
+    fireEvent.change(byId("create-support-provenance"), { target: { value: "invented source" } });
     expectFormControlValue(byId("create-support-stiffness-unit"), "N/m");
     expectFormControlValue(byId("create-material-thermal-unit"), "1/degC");
     fireEvent.change(byId("create-support-stiffness"), { target: { value: "1500" } });

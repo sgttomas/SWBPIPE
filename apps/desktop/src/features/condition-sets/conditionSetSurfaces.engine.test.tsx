@@ -133,6 +133,8 @@ describe("the load manager's kind suggestion and difference template", () => {
     expect(within(manager).getByTestId("queue-create-combination-intent")).toBeDisabled();
     chooseVirtualTarget(manager, "load-manager-create-combination-minuend", "WIND");
     chooseVirtualTarget(manager, "load-manager-create-combination-subtrahend", "SUS");
+    // The source starts empty; the person types it.
+    fireEvent.change(within(manager).getByTestId("load-manager-create-combination-provenance"), { target: { value: "invented source" } });
     fireEvent.click(within(manager).getByTestId("queue-create-combination-intent"));
     expect(queued).toHaveLength(1);
     const payload = JSON.parse(queued[0].change.after);

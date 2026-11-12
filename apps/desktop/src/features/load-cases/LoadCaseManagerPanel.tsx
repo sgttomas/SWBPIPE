@@ -1663,7 +1663,8 @@ function defaultLoadCaseDraft(id: string): LoadCaseDraft {
     label: "User load case",
     kind: "primitive_user_load",
     status: "draft",
-    provenance: "user_entered_local_preview"
+    // The source is the user's own statement: it starts empty (PRD §5.5; DEL-07-03 AC-001).
+    provenance: ""
   };
 }
 
@@ -1681,7 +1682,8 @@ function defaultPrimitiveLoadDraft(model: PreviewModel, loadCaseId: string): Pri
     magnitude: "250",
     unit: primitiveLoadDefaultUnit(model, category, direction),
     unitSource: "default",
-    provenance: "user_entered_local_preview"
+    // The source is the user's own statement: it starts empty (PRD §5.5; DEL-07-03 AC-001).
+    provenance: ""
   };
 }
 
@@ -1709,7 +1711,8 @@ function defaultCombinationDraft(model: PreviewModel, id: string): CombinationDr
     subtrahendId: "",
     operandIds: [],
     mode: "",
-    provenance: "user_entered_local_preview",
+    // The source is the user's own statement: it starts empty (PRD §5.5; DEL-07-03 AC-001).
+    provenance: "",
     rationale: "user_entered_combination_create_preview_change",
     operatingDifference: false
   };

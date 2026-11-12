@@ -23,6 +23,8 @@ function mount(withExistingPrimitive = false) {
   }];
   const queue = vi.fn();
   render(<LoadCaseManagerPanel model={model} onQueueIntent={queue} onSelect={vi.fn()} selection={{ type: "project", id: model.project.id }} />);
+  // The source starts empty; the person types it.
+  fireEvent.change(screen.getByTestId("load-manager-create-primitive-provenance"), { target: { value: "invented source" } });
   return queue;
 }
 
