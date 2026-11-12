@@ -1692,11 +1692,11 @@ HEADER = {
     },
     'named_by': ('for an absent_capability code, the LIM-nnn entry of docs/RELEASE_LIMITATIONS_v1.0.md that names '
                  'the code, or "unnamed"; null for the other classes'),
-    'named_by_statement': ('for an absent_capability code, the product text that names it: {"status": "in_product", '
-                           '"text", "where"} when text the product publishes today (a formulation_basis limitation) '
-                           'names the code; {"status": "planned", "statement", "subject", "lands_with"} when only a '
-                           'per-document limitation statement not yet in the product will; null when neither. A planned '
-                           'statement names nothing today.'),
+    'named_by_statement': ('the product texts that name the code, as a list, or null when none does: '
+                           '{"status": "in_product", "text", "where"} for text the product publishes today (a '
+                           'formulation_basis limitation); {"status": "planned", "statement", "subject", "lands_with"} '
+                           'for a per-document limitation statement not yet in the product, which names nothing '
+                           'today. Planned statements may name codes of any class.'),
     'scope': list(SCOPE) + [f'{p} (re-used solve refusals only)' for p in REUSE_SCOPE],
 }
 

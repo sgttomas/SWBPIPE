@@ -8,7 +8,7 @@
   "internal": "an invariant, a wire or version mismatch, something no document a user authors should reach"
  },
  "named_by": "for an absent_capability code, the LIM-nnn entry of docs/RELEASE_LIMITATIONS_v1.0.md that names the code, or \"unnamed\"; null for the other classes",
- "named_by_statement": "for an absent_capability code, the product text that names it: {\"status\": \"in_product\", \"text\", \"where\"} when text the product publishes today (a formulation_basis limitation) names the code; {\"status\": \"planned\", \"statement\", \"subject\", \"lands_with\"} when only a per-document limitation statement not yet in the product will; null when neither. A planned statement names nothing today.",
+ "named_by_statement": "the product texts that name the code, as a list, or null when none does: {\"status\": \"in_product\", \"text\", \"where\"} for text the product publishes today (a formulation_basis limitation); {\"status\": \"planned\", \"statement\", \"subject\", \"lands_with\"} for a per-document limitation statement not yet in the product, which names nothing today. Planned statements may name codes of any class.",
  "scope": [
   "core/product_physics",
   "core/solver/*",
@@ -928,11 +928,13 @@
    "unsure": false,
    "candidates": null,
    "named_by": "unnamed",
-   "named_by_statement": {
-    "status": "in_product",
-    "text": "formulation_basis limitations of 3.0.0/exact_pressure_v3",
-    "where": "core/product_physics/src/exact_admission.rs:156"
-   }
+   "named_by_statement": [
+    {
+     "status": "in_product",
+     "text": "formulation_basis limitations of 3.0.0/exact_pressure_v3",
+     "where": "core/product_physics/src/exact_admission.rs:156"
+    }
+   ]
   },
   {
    "code": "CONSTANT_EFFORT_LOAD_MISSING",
@@ -1755,11 +1757,19 @@
    "unsure": false,
    "candidates": null,
    "named_by": "unnamed",
-   "named_by_statement": {
-    "status": "in_product",
-    "text": "formulation_basis limitations of 3.0.0/exact_pressure_v3",
-    "where": "core/product_physics/src/exact_admission.rs:178"
-   }
+   "named_by_statement": [
+    {
+     "status": "in_product",
+     "text": "formulation_basis limitations of 3.0.0/exact_pressure_v3",
+     "where": "core/product_physics/src/exact_admission.rs:178"
+    },
+    {
+     "status": "planned",
+     "statement": "C",
+     "subject": "generated loads on a load/reference-state document",
+     "lands_with": "the first landing after pull request 217, unless its own unit lands first"
+    }
+   ]
   },
   {
    "code": "EXACT_IMPOSED_DISPLACEMENT_PRIMITIVE_UNSUPPORTED",
@@ -1867,11 +1877,13 @@
    "unsure": false,
    "candidates": null,
    "named_by": "unnamed",
-   "named_by_statement": {
-    "status": "in_product",
-    "text": "formulation_basis limitations of 3.0.0/exact_pressure_v3",
-    "where": "core/product_physics/src/exact_admission.rs:154"
-   }
+   "named_by_statement": [
+    {
+     "status": "in_product",
+     "text": "formulation_basis limitations of 3.0.0/exact_pressure_v3",
+     "where": "core/product_physics/src/exact_admission.rs:154"
+    }
+   ]
   },
   {
    "code": "EXACT_PRESSURE_JUNCTION_PIPE_OUTSIDE_REGIONS",
@@ -2214,11 +2226,13 @@
    "unsure": false,
    "candidates": null,
    "named_by": "unnamed",
-   "named_by_statement": {
-    "status": "in_product",
-    "text": "formulation_basis limitations of 3.0.0/exact_pressure_v3",
-    "where": "core/product_physics/src/exact_admission.rs:156"
-   }
+   "named_by_statement": [
+    {
+     "status": "in_product",
+     "text": "formulation_basis limitations of 3.0.0/exact_pressure_v3",
+     "where": "core/product_physics/src/exact_admission.rs:156"
+    }
+   ]
   },
   {
    "code": "EXACT_PRESSURE_REDUNDANT_G_IGNORED",
@@ -4651,12 +4665,14 @@
    "unsure": false,
    "candidates": null,
    "named_by": "unnamed",
-   "named_by_statement": {
-    "status": "planned",
-    "statement": null,
-    "subject": "operating conditions on the exact route",
-    "lands_with": null
-   }
+   "named_by_statement": [
+    {
+     "status": "planned",
+     "statement": "D",
+     "subject": "use of operating conditions",
+     "lands_with": "the first landing after pull request 217, unless its own unit lands first"
+    }
+   ]
   },
   {
    "code": "LOAD_CASE_CONDITION_WIND_EXPOSURE_CONFLICT",
@@ -4744,16 +4760,18 @@
     "load case `{}` is a hydrostatic test condition; the test-case mechanics (held supports, test contents and pressure) are not built yet, so nothing is solved"
    ],
    "classification": "absent_capability",
-   "reason": "Every hydrostatic test case is refused whole until the hydrostatic test is built (DEL-05-01/REQ-014). LIM-003 in PR 244 names it; not on this base.",
+   "reason": "Every hydrostatic test case is refused whole until the hydrostatic test is built (DEL-05-01/REQ-014). LIM-003 names it as today's refusal under its entry for a combination that includes a test case.",
    "unsure": false,
    "candidates": null,
-   "named_by": "unnamed",
-   "named_by_statement": {
-    "status": "planned",
-    "statement": null,
-    "subject": "hydrostatic test case",
-    "lands_with": null
-   }
+   "named_by": "LIM-003",
+   "named_by_statement": [
+    {
+     "status": "planned",
+     "statement": "B",
+     "subject": "hydrostatic test",
+     "lands_with": "the first landing after pull request 217, unless its own unit lands first"
+    }
+   ]
   },
   {
    "code": "LOAD_CATEGORY_PREVIEW_MAPPED",
@@ -4824,16 +4842,18 @@
     "combination `{}` declares a difference basis on a document with a pressure contract; the exact route's operating comparison is not built"
    ],
    "classification": "absent_capability",
-   "reason": "A declared difference basis (operating minus sustained) is refused on the exact route: the exact route's operating comparison is not built. LIM-004 in PR 244 names it; not on this base.",
+   "reason": "A declared difference basis (operating minus sustained) is refused on the exact route: the exact route's operating comparison is not built. LIM-004 names it as today's refusal under its entry for the held-status subtrahend.",
    "unsure": false,
    "candidates": null,
-   "named_by": "unnamed",
-   "named_by_statement": {
-    "status": "planned",
-    "statement": null,
-    "subject": "exact-route operating comparison",
-    "lands_with": null
-   }
+   "named_by": "LIM-004",
+   "named_by_statement": [
+    {
+     "status": "planned",
+     "statement": "J",
+     "subject": "declared difference basis",
+     "lands_with": "the first landing after pull request 217, unless its own unit lands first"
+    }
+   ]
   },
   {
    "code": "LOAD_COMBINATION_DIFFERENCE_BASIS_MISPLACED",
@@ -6095,12 +6115,14 @@
    "unsure": false,
    "candidates": null,
    "named_by": "unnamed",
-   "named_by_statement": {
-    "status": "planned",
-    "statement": null,
-    "subject": "per-case mass state",
-    "lands_with": null
-   }
+   "named_by_statement": [
+    {
+     "status": "planned",
+     "statement": null,
+     "subject": "the always-present load-state sentence",
+     "lands_with": "the first landing after pull request 217, unless its own unit lands first"
+    }
+   ]
   },
   {
    "code": "LOAD_STATE_MATERIAL_APPLICABILITY_REQUIRED",
@@ -8863,11 +8885,13 @@
    "unsure": false,
    "candidates": null,
    "named_by": "unnamed",
-   "named_by_statement": {
-    "status": "in_product",
-    "text": "formulation_basis limitations of 3.0.0/exact_pressure_v3",
-    "where": "core/product_physics/src/exact_admission.rs:156"
-   }
+   "named_by_statement": [
+    {
+     "status": "in_product",
+     "text": "formulation_basis limitations of 3.0.0/exact_pressure_v3",
+     "where": "core/product_physics/src/exact_admission.rs:156"
+    }
+   ]
   },
   {
    "code": "NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED",
@@ -9003,7 +9027,14 @@
    "unsure": false,
    "candidates": null,
    "named_by": null,
-   "named_by_statement": null
+   "named_by_statement": [
+    {
+     "status": "planned",
+     "statement": "F",
+     "subject": "friction normal source",
+     "lands_with": "the first landing after pull request 217, unless its own unit lands first"
+    }
+   ]
   },
   {
    "code": "NONLINEAR_FRICTION_NORMAL_SOURCE_DOF_UNRESTRAINED",
@@ -9058,12 +9089,14 @@
    "unsure": false,
    "candidates": null,
    "named_by": "unnamed",
-   "named_by_statement": {
-    "status": "planned",
-    "statement": "F",
-    "subject": "friction normal source",
-    "lands_with": "the first landing after PR 217"
-   }
+   "named_by_statement": [
+    {
+     "status": "planned",
+     "statement": "F",
+     "subject": "friction normal source",
+     "lands_with": "the first landing after pull request 217, unless its own unit lands first"
+    }
+   ]
   },
   {
    "code": "NONLINEAR_FRICTION_NORMAL_SOURCE_NODE_UNKNOWN",
@@ -9737,7 +9770,14 @@
    "unsure": false,
    "candidates": null,
    "named_by": null,
-   "named_by_statement": null
+   "named_by_statement": [
+    {
+     "status": "planned",
+     "statement": "G",
+     "subject": "gap standing",
+     "lands_with": "the first landing after pull request 217, unless its own unit lands first"
+    }
+   ]
   },
   {
    "code": "NUMERICAL_INTEGRITY_SENSITIVE",
@@ -12779,7 +12819,14 @@
    "unsure": false,
    "candidates": null,
    "named_by": "unnamed",
-   "named_by_statement": null
+   "named_by_statement": [
+    {
+     "status": "planned",
+     "statement": "S",
+     "subject": "snubber",
+     "lands_with": "the unit that removes SNUBBER_DYNAMIC_ONLY_UNSUPPORTED as a refusal of static solves"
+    }
+   ]
   },
   {
    "code": "SNUBBER_MEMBER_CONFLICT",
@@ -13609,7 +13656,14 @@
     "disclosure"
    ],
    "named_by": "unnamed",
-   "named_by_statement": null
+   "named_by_statement": [
+    {
+     "status": "planned",
+     "statement": "H",
+     "subject": "variable spring hanger",
+     "lands_with": "the first landing after pull request 217, unless its own unit lands first"
+    }
+   ]
   },
   {
    "code": "SPRING_HANGER_SOURCE_MISSING",

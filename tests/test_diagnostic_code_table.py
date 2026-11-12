@@ -32,8 +32,8 @@ CI_READS = ('core/product_physics/src/**', 'core/solver/*/src/**', 'core/loads/*
 # Pins: no count may grow unnoticed. When one falls, lower its pin to the new count. The last falls to zero
 # only when every absent capability is named by a limitation entry or by text the product publishes.
 UNSURE_PIN = 30
-UNNAMED_ABSENT_CAPABILITY_PIN = 54
-NAMED_NOWHERE_TODAY_PIN = 49
+UNNAMED_ABSENT_CAPABILITY_PIN = 52
+NAMED_NOWHERE_TODAY_PIN = 47
 
 REFRESH = 'run `python3 tools/validation/diagnostic_codes.py --write` and classify the new records by hand'
 
@@ -116,26 +116,30 @@ def test_a_statement_said_to_name_a_code_names_it_today():
     longer text literal. A `planned` statement names nothing yet and is counted as named nowhere."""
     problems = []
     for c in table()['codes']:
-        s = c.get('named_by_statement')
-        if s is None:
+        statements = c.get('named_by_statement')
+        if statements is None:
             continue
-        if c.get('classification') != 'absent_capability':
-            problems.append(f'{c["code"]}: named_by_statement is for absent capabilities only')
+        if not isinstance(statements, list) or not statements:
+            problems.append(f'{c["code"]}: named_by_statement is a nonempty list or null')
             continue
-        if s.get('status') == 'in_product':
-            path = PROJECT / s['where'].rsplit(':', 1)[0]
-            texts = [t.val for t in tokenize(path.read_text(encoding='utf-8')) if t.kind == 'str']
-            if not any(c['code'] in text and text != c['code'] for text in texts):
-                problems.append(f'{c["code"]}: {s["where"]} has no text that names it')
-        elif s.get('status') != 'planned':
-            problems.append(f'{c["code"]}: named_by_statement status {s.get("status")!r}')
+        for s in statements:
+            if s.get('status') == 'in_product':
+                path = PROJECT / s['where'].rsplit(':', 1)[0]
+                texts = [t.val for t in tokenize(path.read_text(encoding='utf-8')) if t.kind == 'str']
+                if not any(c['code'] in text and text != c['code'] for text in texts):
+                    problems.append(f'{c["code"]}: {s["where"]} has no text that names it')
+            elif s.get('status') == 'planned':
+                if not s.get('subject') or not s.get('lands_with'):
+                    problems.append(f'{c["code"]}: a planned statement needs its subject and when it lands')
+            else:
+                problems.append(f'{c["code"]}: named_by_statement status {s.get("status")!r}')
     assert not problems, problems
 
 
 def named_nowhere_today(c):
-    s = c.get('named_by_statement') or {}
+    statements = c.get('named_by_statement') or []
     return c.get('classification') == 'absent_capability' and c.get('named_by') == 'unnamed' \
-        and s.get('status') != 'in_product'
+        and not any(s.get('status') == 'in_product' for s in statements)
 
 
 def test_unsure_and_unnamed_counts_do_not_rise():
