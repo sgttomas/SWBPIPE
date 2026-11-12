@@ -63,7 +63,7 @@ needs:
     A response-spectrum request takes user-entered spectra, direction assignments, modal and
     directional combination choices and the missing-mass input, and publishes unsigned combined
     displacements, element end forces and support reactions (estimates of the peak, or under an
-    absolute-sum rule an upper bound on it), refusing by name what it does not admit. The guide's response-spectrum entry describes that request and result.
+    absolute-sum rule the sum of the magnitudes it combines), refusing by name what it does not admit. The guide's response-spectrum entry describes that request and result.
   when: Writing the response-spectrum entry
   gating: true
 - from: DEL-04-11
