@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The diagnostic codes a solve of a model document can raise, read from the Rust sources.
+"""The diagnostic codes the solve crates construct, read from the Rust sources.
 
 Exit criterion 3 of `docs/RELEASE_TARGET_v1.0.md` needs every remaining refusal of a required
 capability listed in `docs/RELEASE_LIMITATIONS_v1.0.md`. The codes are string literals at their
@@ -12,13 +12,18 @@ inside messages are not codes, and the table is not an inventory of every refusa
 (`HEADER['scope']`). `fixtures/diagnostics/
 exact_route_codes.json` holds the result, with a hand-made classification of each code that
 `--write` keeps; `tests/test_diagnostic_code_table.py` checks that the two agree over the producer
-shapes listed in `PRODUCER_SHAPES`, each with a witness. That is agreement, not completeness.
+shapes listed in `PRODUCER_SHAPES` and the forms in `READ_FORMS`, each with a witness. That is
+agreement, not completeness.
 
 What counts as production code: the modules reachable from each crate's `src/lib.rs` (or
-`src/main.rs`) through `mod` declarations, following `#[path]`, with every item or statement under
-`#[cfg(test)]` removed (a test-only `if`, `match`, `for`, `while` or `loop` ends at the brace that
-closes its last block) and every file or directory whose name marks it a test (`tests`, `*_tests`,
-`tests_*`) left out. `src/bin/` harness binaries are not crate roots here and are not read.
+`src/main.rs`) through `mod` declarations, following `#[path]`, with every item or statement under a
+test-only attribute removed and every file or directory whose name marks it a test (`tests`,
+`*_tests`, `tests_*`) left out. A test-only attribute is `cfg(test)` or `cfg(all(test, ..))`; code
+under `cfg(any(test, feature = ".."))` may be built in production and is read as production (the
+conservative choice). The stripper removes only a statement form it recognises (`_skip_item`); a
+test-only attribute on any other form is a strip failure, named by file and line, and the test fails
+on it. `src/bin/` harness binaries are not crate roots here and are not read. `STRIPPER_FINDING`
+records what repairing the stripper found about the tool as committed until then.
 
 How a code is found. A code is the value that reaches a *code position*:
 - the `code` field of a diagnostic record (a struct or enum variant with `code` and `message` or
@@ -37,10 +42,14 @@ tuples their source yields (`vec![..]`, `push`, `extend`, `Some`/`Ok`/`Err`, ite
 `map` closures, a record field's constructions). A value relayed from another record's `.code` field
 or a struct pattern's `code` is not a new code: every construction of that field is itself a site.
 
-Nothing at a code position is dropped. A value the scanner cannot resolve (built at run time,
-behind a signature it cannot follow, too deep) is an unresolved site; the test fails on each unless
-the table pins it by hand (`pinned_sites`) with its values, the reason they are known and anchors
-in the source that the test checks. Every code-shaped literal (`UPPER_SNAKE` with an underscore) in
+Every code position the scanner reads is resolved, pinned with its values, or listed as unresolved
+with its reason; none is dropped. A part of a value yields no code only in a case of the closed list
+`PROVEN_EMPTY`; any other expression that yields no values, or that the scanner cannot follow (built
+at run time, behind a signature or a record type it cannot prove, too deep), is an unresolved site.
+The test fails on an unresolved site unless the table pins it by hand (`pinned_sites`, with its values
+and whole-function anchors the test checks) or lists it (`listed_unresolved_sites`, with the text of
+its line and why its value is believed to relay a code built at a position the scanner reads, or that
+this is not known). Every code-shaped literal (`UPPER_SNAKE` with an underscore) in
 production code that the scanner does not find raised, and that is not only compared against, is
 listed (`unclaimed_literals`), with any value at a position known only by shape or name.
 
@@ -96,9 +105,46 @@ STRINGISH = re.compile(r"^(&\s*('[a-z_]+\s*)?(mut\s*)?str|String|impl\s*Into\s*<
 PRIMITIVES = {'u8', 'u16', 'u32', 'u64', 'u128', 'usize', 'i8', 'i16', 'i32', 'i64', 'i128', 'isize',
               'f32', 'f64', 'bool', 'char', 'str', 'String'}
 WRAPPERS = {'String::from', 'Some', 'Cow::Borrowed', 'Cow::Owned', 'Ok', 'Err', 'Box::from'}
-SAME_VALUE_METHODS = {'to_string', 'into', 'to_owned', 'clone', 'as_ref', 'to_ascii_uppercase'}
+SAME_VALUE_METHODS = {'to_string', 'into', 'to_owned', 'clone', 'as_ref'}
 MESSAGE_PARAMS = ('message', 'msg', 'detail', 'text', 'reason', 'remedy')
 MAX_DEPTH = 12
+
+# The closed list of cases in which a value at a code position, or a part of one, yields no code. They are
+# the only places the resolver returns no values (as a ('none', case) result, dropped when recorded); each
+# names why it cannot carry a code. Any other expression that yields no values is an unresolved site, which
+# fails the test (`Scan.resolve` and `Scan.tuple_values` turn an empty result into one, and `record` does
+# the same for a position left with nothing).
+PROVEN_EMPTY = {
+    'option_none': '`None`: an absent value carries no code',
+    'diverges': ('`return`, `break`, `continue`, or a `panic!`, `unreachable!`, `todo!` or `unimplemented!` '
+                 'arm or block tail: control leaves, so no value is produced there (a `return` is read as a '
+                 'return point of its own function)'),
+    'unit_block': 'a block with no tail expression: its value is `()`, which is not text',
+    'other_side_of_wrapper': ('an `Ok` or `Some` value where the pattern binds `Err`, or the reverse: that arm does '
+                              'not bind it'),
+    'empty_collection': ('a collection built empty (`vec![]`, `[]`, or `new()`, `default()` or `with_capacity(..)` '
+                         'of Vec, VecDeque, HashMap, BTreeMap, HashSet or BTreeSet): it holds nothing until a '
+                         'mutation, which is read separately or makes the local unresolved'),
+    'recursion': ('a recursive call met while its function\'s return points are being read: its values are those '
+                  'return points, read once'),
+    'relay': ('a read of the code field of a record whose type is proven to be built only by code positions the '
+              'scanner reads: the type is known and defined in a scanned crate without Deserialize, or the '
+              'crate can name no type with a code field defined elsewhere; the value is recorded where the '
+              'record is built'),
+    'flows_to_callers': ('a text parameter that is itself a code parameter: the value is recorded at each of its '
+                         'callers\' arguments'),
+    'enum_code_field': ('an enum value at a code field whose declared type is that enum: its text comes from the '
+                        'enum\'s as_str, read as an enum code producer'),
+}
+EMPTY_COLLECTION_TYPES = {'Vec', 'VecDeque', 'HashMap', 'BTreeMap', 'HashSet', 'BTreeSet'}
+CASE_CONVERSIONS = {'to_ascii_uppercase': str.upper, 'to_uppercase': str.upper,
+                    'to_ascii_lowercase': str.lower, 'to_lowercase': str.lower}
+
+
+def _none(case):
+    """No values, for a case on the closed list."""
+    assert case in PROVEN_EMPTY, case
+    return [('none', case)]
 
 
 # ---------------------------------------------------------------- tokens
@@ -225,21 +271,41 @@ def _is(t, kind, val=None):
     return t is not None and t.kind == kind and (val is None or t.val == val)
 
 
-def strip_cfg_test(toks):
-    """The tokens with every item under `#[cfg(test)]` (or `cfg(all(test, ...))`) removed, and the
-    `mod` names those items declared (so that their files are not read)."""
+def _attr_test_only(body):
+    """Whether the attribute tokens `body` (inside `#[...]`) make what follows test-only: `cfg(test)`, or
+    `cfg(all(...))` with `test` among the arguments of `all` and no `any` or `not` anywhere. Any other
+    cfg that mentions test (`cfg(any(test, feature = ".."))`) may hold in a production build and is
+    read as production."""
+    vals = [(x.kind, x.val) for x in body]
+    if vals == [('id', 'cfg'), ('p', '('), ('id', 'test'), ('p', ')')]:
+        return True
+    if vals[:4] != [('id', 'cfg'), ('p', '('), ('id', 'all'), ('p', '(')] or \
+            any(v in (('id', 'any'), ('id', 'not')) for v in vals):
+        return False
+    return any(vals[i] == ('id', 'test') and vals[i - 1] in (('p', '('), ('p', ',')) and
+               vals[i + 1] in (('p', ','), ('p', ')')) for i in range(4, len(vals) - 1))
+
+
+def strip_cfg_test(toks, failures=None):
+    """The tokens with every item or statement under a test-only attribute (`_attr_test_only`) removed.
+    A test-only attribute on a form `_skip_item` does not recognise is not guessed at: (line, why) goes to
+    `failures`, and only the attribute is removed, so the form is read as production."""
     out, k, n = [], 0, len(toks)
     if n >= 3 and _is(toks[0], 'p', '#') and _is(toks[1], 'p', '!') and _is(toks[2], 'p', '['):
-        body = [x.val for x in toks[3:_match_forward(toks, 2)]]
-        if body[:1] == ['cfg'] and 'test' in body and 'not' not in body:
+        if _attr_test_only(toks[3:_match_forward(toks, 2)]):
             return []                    # `#![cfg(test)]`: the whole file is a test
     while k < n:
         t = toks[k]
         if _is(t, 'p', '#') and k + 1 < n and _is(toks[k + 1], 'p', '['):
             end = _match_forward(toks, k + 1)
-            body = [x.val for x in toks[k + 2:end]]
-            if body[:1] == ['cfg'] and 'test' in body and 'not' not in body:
-                k = _skip_item(toks, end + 1)
+            if _attr_test_only(toks[k + 2:end]):
+                after, why = _skip_item(toks, end + 1)
+                if why is None:
+                    k = after
+                    continue
+                if failures is not None:
+                    failures.append((t.line, why))
+                k = end + 1
                 continue
         out.append(t)
         k += 1
@@ -264,14 +330,49 @@ ITEM_KEYWORDS = {'fn', 'mod', 'impl', 'struct', 'enum', 'trait', 'union', 'macro
 
 
 def _skip_item(toks, k):
-    """The index after the item or statement that starts at `k` (after its attributes)."""
+    """(the index after the item or statement that starts at `k`, after its attributes, None), or (None,
+    why) when its form is not one recognised here: an item (`fn`, `const fn`, `mod`, `impl`, `struct`, `enum`,
+    `trait`, `union`, `macro_rules!`, `extern`, `use`, `const`, `static`, `type`, with `pub`, `unsafe`, `async`); a
+    field, variant, argument, element or match arm; a `let` or expression statement ending in `;`; a block
+    (`{..}`, `unsafe {..}`, `async {..}`); `if`/`else` chains, `while`, `for`, `loop` and `match`, with or
+    without a label; and a macro invocation, brace-delimited or ending in `;`."""
     n = len(toks)
     while k < n and _is(toks[k], 'p', '#') and k + 1 < n and _is(toks[k + 1], 'p', '['):
         k = _match_forward(toks, k + 1) + 1
     if k >= n:
-        return n
+        return None, 'a test-only attribute with nothing after it'
     first = toks[k]
-    if first.kind == 'id' and first.val in ITEM_KEYWORDS and first.val not in ('const', 'static', 'type', 'use'):
+    if first.kind == 'life' and k + 2 < n and _is(toks[k + 1], 'p', ':'):
+        if toks[k + 2].kind == 'id' and toks[k + 2].val in ('loop', 'while', 'for'):
+            return _skip_block_like(toks, k + 2)
+        return None, 'a label before something that is not a loop'
+    if first.kind == 'id' and first.val in ('if', 'while', 'for', 'loop', 'match'):
+        return _skip_block_like(toks, k)
+    if _is(first, 'p', '{'):
+        return _match_forward(toks, k) + 1, None
+    if first.kind == 'id' and first.val in ('unsafe', 'async'):
+        q = k + 1 + (1 if k + 1 < n and _is(toks[k + 1], 'id', 'move') else 0)
+        if q < n and _is(toks[q], 'p', '{'):
+            return _match_forward(toks, q) + 1, None
+    # a macro invocation: path!{..} ends at its brace; path!(..) and path![..] end at their `;`
+    q = k
+    while q + 2 < n and toks[q].kind == 'id' and _is(toks[q + 1], 'p', '::'):
+        q += 2
+    if toks[q].kind == 'id' and toks[q].val != 'macro_rules' and q + 2 < n and _is(toks[q + 1], 'p', '!') \
+            and _is(toks[q + 2], 'p', '{'):
+        e = _match_forward(toks, q + 2) + 1
+        return (e + 1 if e < n and _is(toks[e], 'p', ';') else e), None
+    const_item = _is(first, 'id', 'const') and k + 1 < n and toks[k + 1].kind == 'id' and \
+        toks[k + 1].val in ('fn', 'unsafe', 'async', 'extern')          # `const fn`: an item, not a constant
+    if first.kind == 'id' and first.val in ITEM_KEYWORDS and (first.val not in ('const', 'static', 'type', 'use')
+                                                              or const_item):
+        q = k
+        if _is(toks[q], 'id', 'pub'):
+            q += 1
+            if q < n and _is(toks[q], 'p', '('):
+                q = _match_forward(toks, q) + 1
+        if q + 1 < n and toks[q].kind == 'id' and toks[q].val not in ITEM_KEYWORDS and _is(toks[q + 1], 'p', ':'):
+            return _skip_generic(toks, k)       # a `pub` field
         depth = 0
         for j in range(k, n):
             t = toks[j]
@@ -279,17 +380,23 @@ def _skip_item(toks, k):
                 continue
             if t.val in '([':
                 depth += 1
-            elif t.val in ')]':
+            elif t.val in ')]}':
+                if depth == 0:
+                    return None, 'an item the stripper cannot end'
                 depth -= 1
             elif depth == 0 and t.val == ';':
-                return j + 1
+                return j + 1, None
             elif depth == 0 and t.val == '{':
-                return _match_forward(toks, j) + 1
-        return n
-    if _is(first, 'p', '{'):
-        return _match_forward(toks, k) + 1
-    block_like = first.kind == 'id' and first.val in ('if', 'match', 'for', 'while', 'loop')
-    depth = 0
+                return _match_forward(toks, j) + 1, None
+        return None, 'an item with no end'
+    return _skip_generic(toks, k)
+
+
+def _skip_generic(toks, k):
+    """A statement or list member that ends at `;` or `,` at depth 0, or before the bracket that closes
+    its list; a block inside it must be followed by more of the expression or by that end, or the form is
+    not recognised."""
+    n, depth = len(toks), 0
     for j in range(k, n):
         t = toks[j]
         if t.kind != 'p':
@@ -298,27 +405,66 @@ def _skip_item(toks, k):
             depth += 1
         elif t.val in CLOSE:
             if depth == 0:
-                return j
+                return j, None
             depth -= 1
-            if block_like and depth == 0 and t.val == '}':
-                # `if .. {..} else {..}`, `match .. {..}`, `for .. {..}`: the statement ends at the brace
-                # that closes its last block, unless the expression goes on (`else`, `.method()`, `?`)
+            if depth == 0 and t.val == '}':
                 nxt = toks[j + 1] if j + 1 < n else None
                 if nxt is None:
-                    return n
+                    return None, 'a statement with no end'
+                if nxt.kind == 'p' and nxt.val in (';', ','):
+                    return j + 2, None
+                if nxt.kind == 'p' and nxt.val in (')', ']', '}'):
+                    return j + 1, None
                 if _continues(nxt):
-                    if _is(nxt, 'id', 'else'):
-                        continue
-                    block_like = False      # `match .. {..}.method();` ends at its `;`
                     continue
-                return j + 1
+                return None, 'a statement ending in a block that the stripper does not recognise'
         elif depth == 0 and t.val in (';', ','):
-            return j + 1
+            return j + 1, None
         elif depth == 0 and t.val == '=>' and j + 1 < n and _is(toks[j + 1], 'p', '{'):
-            # a test-only match arm with a block body: `#[cfg(test)] Pat => { .. }`
-            e = _match_forward(toks, j + 1) + 1
-            return e + 1 if e < n and _is(toks[e], 'p', ',') else e
-    return n
+            e = _match_forward(toks, j + 1) + 1    # a match arm with a block body
+            return (e + 1 if e < n and _is(toks[e], 'p', ',') else e), None
+    return None, 'a statement with no end'
+
+
+def _skip_block_like(toks, k):
+    """`if`/`else if`/`else`, `while`, `for`, `loop` or `match` at `k`: it ends at the brace closing its last
+    block (its body found after its condition, pattern or scrutinee), or at the `;` after a method chain on
+    it."""
+    n, kw, j = len(toks), toks[k].val, k + 1
+    while True:
+        if kw == 'loop':
+            body = j if j < n and _is(toks[j], 'p', '{') else None
+        elif kw == 'for':
+            q, depth = j, 0
+            while q < n and not (depth == 0 and _is(toks[q], 'id', 'in')):
+                if toks[q].kind == 'p' and toks[q].val in OPEN:
+                    depth += 1
+                elif toks[q].kind == 'p' and toks[q].val in CLOSE:
+                    depth -= 1
+                q += 1
+            body = _body_brace(toks, q + 1) if q < n else None
+        else:
+            body = _body_brace(toks, j)
+        if body is None:
+            return None, f'a test-only {kw} whose body the stripper cannot find'
+        e = _match_forward(toks, body)
+        if kw == 'if' and e + 1 < n and _is(toks[e + 1], 'id', 'else'):
+            if e + 2 < n and _is(toks[e + 2], 'id', 'if'):
+                j = e + 3
+                continue
+            if e + 2 < n and _is(toks[e + 2], 'p', '{'):
+                e = _match_forward(toks, e + 2)
+            else:
+                return None, 'an else the stripper cannot read'
+        break
+    nxt = toks[e + 1] if e + 1 < n else None
+    if nxt is None:
+        return n, None
+    if _is(nxt, 'p', ';'):
+        return e + 2, None
+    if _continues(nxt) and not (nxt.kind == 'p' and nxt.val in (')', ']', '}', ',')):
+        return _skip_generic(toks, e + 1)       # `match x {..}.method();`
+    return e + 1, None
 
 
 # ---------------------------------------------------------------- module tree
@@ -360,8 +506,9 @@ def _module_files(path, project, seen):
         return []
     seen.add(path)
     rel = path.relative_to(project).as_posix()
-    toks = strip_cfg_test(tokenize(path.read_text(encoding='utf-8')))
-    found = [(rel, toks)]
+    failures = []
+    toks = strip_cfg_test(tokenize(path.read_text(encoding='utf-8')), failures)
+    found = [(rel, toks, failures)]
     mod_rs = path.name in ('lib.rs', 'main.rs', 'mod.rs')
     base = path.parent if mod_rs else path.parent / path.stem
     pairs = brackets(toks)
@@ -460,8 +607,9 @@ def crate_dependencies(project, crates):
 def load_sources(project, patterns):
     sources, seen = [], set()
     for crate, root in crate_roots(project, patterns):
-        for rel, toks in _module_files(root, project, seen):
+        for rel, toks, failures in _module_files(root, project, seen):
             sources.append(Source(crate, rel, toks))
+            sources[-1].strip_failures = failures
     return sources
 
 
@@ -729,7 +877,10 @@ class Scan:
                     self.aliases[toks[k + 1].val] = toks[k - 1].val
         self.codes = {}          # code -> {'sites': {(file, line): site}}
         self.diag_types = {}     # diagnostic record type -> its declared code type
-        self.unresolved = {}     # (file, line, expression) -> why
+        self.unresolved = {}     # (file, line, via) -> why
+        self.unresolved_expr = {}    # (file, line, via) -> the text of the value at that code position
+        self.strip_failures = sorted((src.rel, line, why) for src in self.all_sources
+                                     for line, why in getattr(src, 'strip_failures', []))
         self.pin_problems = []
         self.unclaimed_values = {}   # a non-code-shaped value at a position known only by shape or name
         self.claimed = set()     # (file, token index) of literals counted as raised or compared
@@ -796,8 +947,13 @@ class Scan:
     # -- expression resolution
 
     def resolve(self, toks, fn, src, depth, base=0):
-        """[('code', value, src, line, via, token index) | ('param', index) | ('relay',) |
-        ('enum',) | ('unresolved', why)] for the value of the expression `toks`."""
+        """[('code', value, src, line, via, token index) | ('param', index) | ('enum',) | ('none', case) |
+        ('unresolved', why)] for the value of the expression `toks`. No values at all is never an answer: an
+        expression form the resolver does not read is unresolved."""
+        out = self._resolve(toks, fn, src, depth, base)
+        return out or [('unresolved', f'no values from {_text(toks[:8]) or "an empty expression"}')]
+
+    def _resolve(self, toks, fn, src, depth, base=0):
         if depth > MAX_DEPTH:
             return [('unresolved', 'resolution too deep')]
         a, b = 0, len(toks)
@@ -830,12 +986,19 @@ class Scan:
         seg = toks[a:b]
         if not seg:
             return [('unresolved', 'empty expression')]
+        # `x.to_ascii_uppercase()` and the like: the value of x, converted
+        if len(seg) >= 5 and _is(seg[-1], 'p', ')') and _is(seg[-2], 'p', '(') and seg[-3].kind == 'id' and \
+                seg[-3].val in CASE_CONVERSIONS and _is(seg[-4], 'p', '.'):
+            convert = CASE_CONVERSIONS[seg[-3].val]
+            return [('code', convert(r[1]), r[2], r[3], r[4] + [f'{seg[-3].val}()'], r[5]) if r[0] == 'code' else
+                    (('unresolved', f'a parameter changed by {seg[-3].val}()') if r[0] == 'param' else r)
+                    for r in self.resolve(seg[:-4], fn, src, depth + 1, base + a)]
         if len(seg) == 1 and seg[0].kind == 'str':
             return [('code', seg[0].val, src, seg[0].line, [], base + a)]
         if len(seg) == 1 and seg[0].kind == 'num':
             return [('unresolved', 'a number')]
         if len(seg) == 1 and _is(seg[0], 'id', 'None'):
-            return []                           # no code: the arm raises nothing
+            return _none('option_none')
         # a path
         if all(x.kind == 'id' or _is(x, 'p', '::') for x in seg):
             path = [x.val for x in seg if x.kind == 'id']
@@ -855,7 +1018,7 @@ class Scan:
         if len(seg) >= 3 and _is(seg[-2], 'p', '.') and seg[-1].kind == 'id' and \
                 all(x.kind == 'id' or (x.kind == 'p' and x.val in ('.', '::')) for x in seg):
             if seg[-1].val in ('code', 'reason_code'):
-                return [('relay',)]
+                return self._relay(seg[:-2], fn, src, base + a)
             return [('unresolved', f'field .{seg[-1].val}')]
         # x.code.as_str(), code.as_str(): an enum-to-string producer when `code` is enum-typed
         if len(seg) >= 5 and [x.val for x in seg[-4:]] == ['.', 'as_str', '(', ')'] and \
@@ -912,6 +1075,218 @@ class Scan:
             fn = self.enclosing_fn(fn.src, fn.start)
         return fn.impl_type if fn is not None else None
 
+    def _collect_code_field_types(self):
+        """The names of the structs and enum variants with a `code` field: those defined in the scanned
+        crates without Deserialize (`code_types`), and, per crate, those it can name that are defined
+        elsewhere or derive Deserialize (`outside_code_types`), whose values the scanner does not see built."""
+        def types_in(sources):
+            found = []
+            for src in sources:
+                toks = src.toks
+                for k in range(len(toks) - 2):
+                    if not ((_is(toks[k], 'id', 'struct') or _is(toks[k], 'id', 'enum')) and toks[k + 1].kind == 'id'):
+                        continue
+                    j = k + 2
+                    while j < len(toks) and not (toks[j].kind == 'p' and toks[j].val in ('{', ';', '(')):
+                        j += 1
+                    if j >= len(toks) or not _is(toks[j], 'p', '{'):
+                        continue
+                    end = _match_forward(toks, j)
+                    attrs, q = [], k - 1
+                    while q >= 0 and (toks[q].kind == 'id' and toks[q].val in ('pub', 'crate', 'super', 'in') or
+                                      _is(toks[q], 'p', '(') or _is(toks[q], 'p', ')')):
+                        q -= 1
+                    while q >= 1 and _is(toks[q], 'p', ']'):
+                        o = q
+                        while o > 0 and not (_is(toks[o], 'p', '[') and _is(toks[o - 1], 'p', '#')):
+                            o -= 1
+                        attrs += [x.val for x in toks[o + 1:q]]
+                        q = o - 2
+                    deser = 'Deserialize' in attrs
+                    if _is(toks[k], 'id', 'struct'):
+                        holders = [(toks[k + 1].val, j, end)]
+                    else:                       # each variant with named fields
+                        holders = []
+                        for m in range(j + 1, end):
+                            if toks[m].kind == 'id' and _is(toks[m + 1], 'p', '{') and _depth_of(toks, j + 1, m) == 0:
+                                holders.append((toks[m].val, m + 1, _match_forward(toks, m + 1)))
+                    for name, a, b in holders:
+                        if any(_is(toks[m], 'id', 'code') and _is(toks[m + 1], 'p', ':') and toks[m - 1].kind == 'p'
+                               and toks[m - 1].val in ('{', ',') or _is(toks[m - 1], 'id', 'pub') and _is(toks[m], 'id', 'code')
+                               and _is(toks[m + 1], 'p', ':') for m in range(a + 1, b)):
+                            found.append((src.crate, name, deser))
+            return found
+        scanned = types_in(self.all_sources)
+        self.code_types = {name for _c, name, deser in scanned if not deser}
+        scanned_crates = {s.crate for s in self.all_sources}
+        others = sorted({d for deps in self.deps.values() for d in deps if d not in scanned_crates and
+                         (self.project / d / 'Cargo.toml').is_file()})
+        outside = types_in(load_sources(self.project, others)) if others else []
+        self.outside_code_types = {}
+        for crate in scanned_crates:
+            visible = self.deps.get(crate, {crate})
+            self.outside_code_types[crate] = {name for c, name, deser in scanned + outside
+                                              if c in visible and (deser or c not in scanned_crates)}
+
+    def _receiver_type(self, receiver, fn, src, at):
+        """The type (last path segment) of the receiver tokens of a field read, when the scanner can tell it:
+        `self` in an impl, a typed parameter, or a local bound to a struct literal or annotated with a type."""
+        ids = [x for x in receiver if not (_is(x, 'p', '&') or _is(x, 'p', '*'))]
+        if len(ids) != 1 or ids[0].kind != 'id':
+            return None
+        name = ids[0].val
+        if name == 'self':
+            return self._impl_of(fn)
+        if fn is None:
+            return None
+        toks = src.toks
+        iterated = self._iterated_type(src, fn, name, at)
+        if iterated is not None:
+            return iterated
+        bound = self._binding_before(src, fn, name, at)
+        near = self._pattern_binding(src, fn, name, at)
+        if near is not None and near[1] is not None and (bound is None or near[0] > bound[1][1]):
+            j, o, m = near                      # `Err(error) =>` in a match over a call
+            if _is(toks[o], 'p', '(') and o >= 1 and toks[o - 1].kind == 'id' and \
+                    toks[o - 1].val in ('Ok', 'Err', 'Some') and len(_split_commas(toks, o + 1, src.pairs[o])) == 1:
+                source = self._pattern_source(src, fn, o, m)
+                if source is not None:
+                    (a, b), ctx = source
+                    return self._wrapped_call_type(toks[a:b], toks[o - 1].val, ctx, src)
+            return None
+        if bound is not None:
+            _let, (pa, pb), (va, vb) = bound
+            pat = [x for x in toks[pa:pb] if not _is(x, 'id', 'mut')]
+            if len(pat) == 4 and pat[0].kind == 'id' and pat[0].val in ('Ok', 'Err', 'Some') and \
+                    _is(pat[1], 'p', '(') and _is(pat[2], 'id', name) and _is(pat[3], 'p', ')'):
+                return self._wrapped_call_type(toks[va:vb], pat[0].val, fn, src)    # `if let Err(error) = f(..)`
+            if len(pat) == 1:
+                colon = next((w for w in range(pb, va) if _is(toks[w], 'p', ':')), None)
+                value = toks[va:vb]
+                brace = next((w for w, x in enumerate(value) if _is(x, 'p', '{')), None)
+                if brace is not None and brace >= 1 and value[brace - 1].kind == 'id' and \
+                        all(x.kind == 'id' or _is(x, 'p', '::') for x in value[:brace]):
+                    return value[brace - 1].val
+            return None
+        return self._param_type(fn, name)
+
+    def _iterated_type(self, src, fn, name, at):
+        """The element type of the collection `name` is bound from when it is a closure's only parameter
+        (`.map(|r| ..)` on an element method) or a `for` variable, over a named collection whose declared
+        type is a slice or Vec of a type (a typed parameter, or a `let` with a type): that type's last path
+        segment; otherwise None."""
+        toks = src.toks
+        lo = fn.body[0] if fn.body else 0
+        for j in range(at - 1, lo, -1):
+            if not _is(toks[j], 'id', name):
+                continue
+            source = None
+            if _is(toks[j - 1], 'p', '|') and j + 1 < len(toks) and _is(toks[j + 1], 'p', '|'):
+                call = src.paren_at[j - 1]
+                if call < 2 or call != j - 2 or toks[call - 1].kind != 'id' or not _is(toks[call - 2], 'p', '.') or \
+                        toks[call - 1].val not in self.ELEMENT_CLOSURE_METHODS:
+                    return None
+                if not (j < at < src.pairs.get(call, j)):
+                    continue
+                start = call - 2
+                while start > 0 and (toks[start - 1].kind == 'id' or (toks[start - 1].kind == 'p' and
+                                                                     toks[start - 1].val in ('.', '&', ')'))):
+                    if _is(toks[start - 1], 'p', ')'):
+                        opener = _match_back(toks, 0, start - 1)
+                        if opener is None:
+                            return None
+                        start = opener
+                    else:
+                        start -= 1
+                source = toks[start:call - 2]
+            elif _is(toks[j - 1], 'id', 'for') and j + 1 < len(toks) and _is(toks[j + 1], 'id', 'in'):
+                body = _body_brace(toks, j + 2)
+                if body is None or not (body < at < src.pairs.get(body, body)):
+                    continue
+                source = toks[j + 2:body]
+            else:
+                continue
+            seg = [x for x in source if not _is(x, 'p', '&')]
+            while len(seg) >= 4 and _is(seg[-1], 'p', ')') and _is(seg[-2], 'p', '(') and seg[-3].kind == 'id' and \
+                    seg[-3].val in ('iter', 'into_iter', 'drain') and _is(seg[-4], 'p', '.'):
+                seg = seg[:-4]
+            if len(seg) != 1 or seg[0].kind != 'id':
+                return None
+            collection = seg[0].val
+            ptype = next((t for p, t in fn.params if p == collection), None)
+            if ptype is None:
+                bound = self._binding_before(src, fn, collection, j)
+                if bound is not None:
+                    _let, (pa, pb), (va, vb) = bound
+                    colon = next((w for w in range(pa, va) if _is(toks[w], 'p', ':')), None)
+                    ptype = _text(toks[colon + 1:va - 1]) if colon is not None else None
+            if not ptype or not re.search(r'(\[|\bVec\s*<)', ptype):
+                return None
+            names = [n for n in re.findall(r'[A-Za-z_][A-Za-z0-9_]*', re.sub(r"'[a-z_]+", '', ptype))
+                     if n[:1].isupper() and n not in ('Vec', 'Box', 'Option')]
+            return names[-1] if names else None
+        return None
+
+    def _wrapped_call_type(self, value, wrapper, fn, src):
+        """The type `Err(x)`, `Ok(x)` or `Some(x)` binds over `value` when value is a direct call `path(..)`
+        or `x.method(..)` whose candidates all declare one return type `Result<T, E>` or `Option<T>`: the
+        last path segment of E (Err), T (Ok, Some); otherwise None."""
+        seg = [x for x in value if not _is(x, 'p', '&')]
+        if not seg or not _is(seg[-1], 'p', ')'):
+            return None
+        opener = _match_back(seg, 0, len(seg) - 1)
+        if opener is None or opener < 1 or seg[opener - 1].kind != 'id':
+            return None
+        name = seg[opener - 1].val
+        args = _split_commas(seg, opener + 1, len(seg) - 1)
+        visible = self.deps.get(src.crate, {src.crate})
+        candidates = [f for f in self._callable(self.by_name.get(name, []), seg, opener - 1, fn)
+                      if len(f.params) == len(args) and f.src.crate in visible]
+        types = set()
+        for f in candidates:
+            ret = re.sub(r"\s+", '', f.ret or '')
+            m = re.fullmatch(r'(?:[A-Za-z_:]*::)?(Result|Option)<(.*)>', ret)
+            if not m:
+                return None
+            inner, depth, parts, cur = m.group(2), 0, [], ''
+            for ch in inner:
+                if ch in '<([':
+                    depth += 1
+                elif ch in '>)]':
+                    depth -= 1
+                if ch == ',' and depth == 0:
+                    parts.append(cur)
+                    cur = ''
+                else:
+                    cur += ch
+            parts.append(cur)
+            if m.group(1) == 'Option' and wrapper == 'Some' and len(parts) == 1:
+                chosen = parts[0]
+            elif m.group(1) == 'Result' and len(parts) == 2 and wrapper in ('Ok', 'Err'):
+                chosen = parts[0] if wrapper == 'Ok' else parts[1]
+            else:
+                return None
+            names = [n for n in re.findall(r'[A-Za-z_][A-Za-z0-9_]*', re.sub(r"'[a-z_]+", '', chosen))
+                     if n[:1].isupper() and n not in ('Box', 'Vec', 'Option', 'Result')]
+            if not names:
+                return None
+            types.add(names[-1])
+        return types.pop() if len(types) == 1 else None
+
+    def _relay_proven(self, type_name, src):
+        if type_name is not None:
+            return type_name in self.code_types and type_name not in self.outside_code_types.get(src.crate, set())
+        return not self.outside_code_types.get(src.crate, set())
+
+    def _relay(self, receiver, fn, src, at):
+        """A read `<receiver>.code`: recorded where the record is built, when that is proven (see
+        PROVEN_EMPTY['relay']); otherwise unresolved."""
+        rtype = self._receiver_type(receiver, fn, src, at)
+        if self._relay_proven(rtype, src):
+            return _none('relay')
+        return [('unresolved', f'the code field of {_text(receiver) or "a value"}, whose record type the scanner '
+                               f'cannot prove is built only at code positions it reads')]
+
     def resolve_enum_code(self, path, fn, src, depth, at):
         """`<receiver>.code` or `code` read through `.as_str()`: the strings the `as_str` of its declared
         type returns. The type comes from the receiver (`self`, a typed parameter, or a parameter `code`
@@ -937,26 +1312,29 @@ class Scan:
         candidates = [f for f in self.by_name.get('as_str', []) if f.has_self and f.impl_type in types
                       and f.src.crate in visible]
         if not candidates:
-            return [('relay',)]                  # a String code: the record's own construction is the site
+            if known and stringy(code_type):
+                return self._relay(path[:-2] if len(ids) == 2 else path, fn, src, at)
+            return [('unresolved', 'a code read through as_str() of a type the scanner cannot find')]
         out = []
         for g in candidates:
             note = f'returned by {g.impl_type}::as_str()' + ('' if known else ' [by name]')
             for r in self.returned(g, depth + 1):
-                if r[0] == 'code':
-                    out.append(('code', r[1], r[2], r[3], r[4] + [note], r[5]))
-        return out or [('relay',)]
+                out.append(('code', r[1], r[2], r[3], r[4] + [note], r[5]) if r[0] == 'code' else r)
+        return out
 
     def resolve_name(self, name, fn, src, depth, at):
         if fn is not None:
-            for idx, (pname, _type) in enumerate(fn.params):
-                if pname == name and self._binding_before(src, fn, name, at) is None:
-                    return [('param', idx)]
             bound = self._binding_before(src, fn, name, at)
+            bound_by = self._pattern_binding(src, fn, name, at)
+            if bound_by is not None and bound_by[1] is None and bound is None:
+                bound_by = None                 # a closure's own plain parameter: read as its parameter
+            if bound_by is not None and (bound is None or bound_by[0] > bound[1][1]):
+                return self.resolve_pattern(bound_by, fn, src, depth)       # the nearer binding shadows
             if bound is not None:
                 return self.resolve_binding(bound, name, fn, src, depth)
-            bound_by = self._pattern_binding(src, fn, name, at)
-            if bound_by is not None:
-                return self.resolve_pattern(bound_by, fn, src, depth)
+            for idx, (pname, _type) in enumerate(fn.params):
+                if pname == name:
+                    return [('param', idx)]
             if fn.closure:                      # a name the closure captures from the function around it
                 outer = self.enclosing_fn(src, fn.start)
                 if outer is not None and outer is not fn:
@@ -983,8 +1361,69 @@ class Scan:
             while m < len(toks) and toks[m].kind == 'p' and toks[m].val in (')', '}'):
                 m += 1
             if m < len(toks) and (_is(toks[m], 'id', 'in') or (toks[m].kind == 'p' and toks[m].val in ('=', '=>', '|', ':'))):
-                return (j, o, m)
+                if self._pattern_scope_holds(src, fn, o, m, at):
+                    return (j, o, m)
         return None
+
+    def _pattern_scope_holds(self, src, fn, o, m, at):
+        """Whether `at` lies where the pattern ending before `m` binds: the body of its `for`, `if let` or
+        `while let`, its match arm, or its closure's body; a plain `let` binds to the end of its block."""
+        toks = src.toks
+        t = toks[m]
+        start = o
+        while start > 0 and ((toks[start - 1].kind == 'id' and toks[start - 1].val not in PATTERN_STOPS) or
+                             (toks[start - 1].kind == 'p' and toks[start - 1].val in ('::', '&', '('))):
+            start -= 1
+        kw = toks[start - 1] if start >= 1 else None
+        if _is(t, 'id', 'in') or (_is(t, 'p', '=') and _is(kw, 'id', 'let') and start >= 2 and
+                                  toks[start - 2].kind == 'id' and toks[start - 2].val in ('if', 'while')):
+            e, d = m + 1, 0
+            while e < len(toks):                # the body: the first `{` at depth 0 after the source
+                x = toks[e]
+                if x.kind == 'p' and x.val in ('(', '['):
+                    d += 1
+                elif x.kind == 'p' and x.val in (')', ']'):
+                    d -= 1
+                elif d == 0 and _is(x, 'p', '{') and e > m + 1 and _ends_operand(toks[e - 1]):
+                    break
+                elif d == 0 and _is(x, 'p', '{'):
+                    e = src.pairs.get(e, e)
+                e += 1
+            end = src.pairs.get(e)
+            return end is not None and e < at < end
+        if _is(t, 'p', '=>'):
+            e, d = m + 1, 0
+            if e < len(toks) and _is(toks[e], 'p', '{'):
+                return e < at < src.pairs.get(e, e)
+            while e < len(toks):
+                x = toks[e]
+                if x.kind == 'p' and x.val in OPEN:
+                    d += 1
+                elif x.kind == 'p' and x.val in CLOSE:
+                    if d == 0:
+                        break
+                    d -= 1
+                elif d == 0 and _is(x, 'p', ','):
+                    break
+                e += 1
+            return m < at < e
+        if _is(t, 'p', '|'):
+            e, d = m + 1, 0
+            if e < len(toks) and _is(toks[e], 'p', '{'):
+                return e < at < src.pairs.get(e, e)
+            while e < len(toks):
+                x = toks[e]
+                if x.kind == 'p' and x.val in OPEN:
+                    d += 1
+                elif x.kind == 'p' and x.val in CLOSE:
+                    if d == 0:
+                        break
+                    d -= 1
+                elif d == 0 and x.kind == 'p' and x.val in (',', ';'):
+                    break
+                e += 1
+            return m < at <= e
+        return True
 
     def resolve_pattern(self, bound_by, fn, src, depth):
         """The values a name bound by a pattern can take. A struct or enum-variant pattern (`Refused {
@@ -996,7 +1435,14 @@ class Scan:
         if o is None:
             return [('unresolved', 'a closure parameter whose argument the scanner cannot follow')]
         if toks[o].val == '{':
-            return [('relay',)]
+            field = toks[j - 2].val if j >= 2 and _is(toks[j - 1], 'p', ':') and toks[j - 2].kind == 'id' else toks[j].val
+            type_name = toks[o - 1].val if o >= 1 and toks[o - 1].kind == 'id' else None
+            if field not in ('code', 'reason_code'):
+                return [('unresolved', f'{toks[j].val} bound from field {field} of a record pattern')]
+            if type_name is not None and self._relay_proven(type_name, src):
+                return _none('relay')
+            return [('unresolved', f'the code field of a {type_name} pattern, which the scanner cannot prove is '
+                                   f'built only at code positions it reads')]
         parts = _split_commas(toks, o + 1, src.pairs[o])
         index = next((p for p, (s, e) in enumerate(parts) if s <= j < e), None)
         if index is None or len(parts) < 2:
@@ -1018,6 +1464,7 @@ class Scan:
         outer = self.enclosing_fn(src, o)
 
         def to_brace_or_semicolon(s):
+            # the source ends at the body `{` (after an operand) or at `;`; a block inside it is skipped
             e, d = s, 0
             while e < len(toks):
                 x = toks[e]
@@ -1025,10 +1472,22 @@ class Scan:
                     d += 1
                 elif x.kind == 'p' and x.val in (')', ']'):
                     d -= 1
-                elif d == 0 and x.kind == 'p' and x.val in ('{', ';'):
+                elif d == 0 and _is(x, 'p', ';'):
                     return e
+                elif d == 0 and _is(x, 'p', '{'):
+                    if e > s and _ends_operand(toks[e - 1]):
+                        return e
+                    e = src.pairs.get(e, e)
                 e += 1
             return e
+        if _is(t, 'p', '='):
+            start = o
+            while start > 0 and not (toks[start - 1].kind == 'id' and toks[start - 1].val == 'let'):
+                start -= 1
+            conditional = start >= 2 and toks[start - 2].kind == 'id' and toks[start - 2].val in ('if', 'while')
+            if not conditional:                 # a plain `let PAT = value;`: the value runs to its `;`
+                e = self._value_end(toks, m + 1, stop=';')
+                return (m + 1, e), outer
         if _is(t, 'id', 'in') or _is(t, 'p', '='):
             return (m + 1, to_brace_or_semicolon(m + 1)), outer
         if _is(t, 'p', '=>'):
@@ -1041,7 +1500,8 @@ class Scan:
             return ((k + 1, arms), outer) if k > 0 else None
         if _is(t, 'p', '|'):
             call = src.paren_at[o]                      # the `(` of the method the closure is passed to
-            if call < 2 or toks[call - 1].kind != 'id' or not _is(toks[call - 2], 'p', '.'):
+            if call < 2 or toks[call - 1].kind != 'id' or not _is(toks[call - 2], 'p', '.') or \
+                    toks[call - 1].val not in self.ELEMENT_CLOSURE_METHODS:
                 return None
             start = call - 2                            # walk back over the receiver chain
             while start > 0:
@@ -1060,13 +1520,24 @@ class Scan:
             return (start, call - 2), receiver
         return None
 
+    # Methods that yield the receiver's elements unchanged (some as Some(element)); `chain` is not among them
+    # (its argument adds elements) and a method not listed is read as a call, so unresolved unless it is one.
     TUPLE_ADAPTERS = {'iter', 'into_iter', 'iter_mut', 'as_ref', 'as_deref', 'cloned', 'copied', 'clone', 'drain',
-                      'as_slice', 'to_vec', 'rev', 'filter', 'take', 'skip', 'chain', 'flatten', 'into_values', 'find', 'first',
+                      'as_slice', 'to_vec', 'rev', 'filter', 'take', 'skip', 'flatten', 'find', 'first',
                       'last', 'next', 'unwrap_or_default', 'collect'}
+    OPTION_ADAPTERS = {'find', 'first', 'last', 'next'}
+    # Methods whose closure argument receives the receiver's element (or an Option's or Result's Ok value).
+    ELEMENT_CLOSURE_METHODS = {'map', 'for_each', 'filter', 'filter_map', 'flat_map', 'find', 'find_map', 'any',
+                               'all', 'inspect', 'position', 'take_while', 'skip_while', 'map_while', 'and_then',
+                               'is_some_and', 'is_ok_and'}
     TUPLE_MAPPERS = {'map', 'filter_map', 'flat_map', 'and_then', 'find_map'}
     EMPTY_CONSTRUCTORS = {'new', 'default', 'with_capacity'}
 
     def tuple_values(self, toks, index, fn, src, depth, base, wrap=None):
+        out = self._tuple_values(toks, index, fn, src, depth, base, wrap)
+        return out or [('unresolved', f'no tuples from {_text(toks[:8]) or "an empty expression"}')]
+
+    def _tuple_values(self, toks, index, fn, src, depth, base, wrap=None):
         """The values element `index` takes in the tuples the expression `toks` can yield, as `resolve`
         results: a tuple; `Some`/`Ok`/`Err` around one; the elements of `vec![..]` or `[..]`; `match`
         and `if` arms and block tails; a call's return points (its parameters mapped back to the call's
@@ -1103,28 +1574,30 @@ class Scan:
                     name_at = q - 2 if q - 2 > a and _is(toks[q - 1], 'p', '::') else None
                 if name_at is not None and name_at >= a + 1 and toks[name_at].kind == 'id' and \
                         toks[name_at].val in self.TUPLE_ADAPTERS and _is(toks[name_at - 1], 'p', '.'):
+                    if toks[name_at].val in self.OPTION_ADAPTERS and wrap == 'Some':
+                        wrap = None             # `find(..)`, `next()`: Some(element), read as the element
                     b = name_at - 1
                     changed = True
         seg = toks[a:b]
         if not seg:
-            return []
+            return [('unresolved', 'an empty tuple source')]
         first = seg[0]
         # no tuple: an absent value or a diverging arm
         if len(seg) == 1 and _is(first, 'id', 'None'):
-            return []
+            return _none('option_none')
         if first.kind == 'id' and first.val in ('return', 'break', 'continue'):
-            return []
+            return _none('diverges')
         if first.kind == 'id' and first.val in ('panic', 'unreachable', 'todo', 'unimplemented') and \
                 len(seg) > 1 and _is(seg[1], 'p', '!'):
-            return []
+            return _none('diverges')
         whole = lambda k: _is(seg[k], 'p', '(') or _is(seg[k], 'p', '[')
         if first.kind == 'id' and first.val in ('Some', 'Ok', 'Err') and len(seg) > 2 and _is(seg[1], 'p', '(') \
                 and _match_forward(seg, 1) == len(seg) - 1:
             if wrap is not None and first.val != wrap:
-                return []                       # the other side of a Result or Option: not what the pattern binds
+                return _none('other_side_of_wrapper')
             return self.tuple_values(seg[2:-1], index, fn, src, depth, base + a + 2)
         if wrap is not None and (_is(first, 'p', '(') or _is(first, 'p', '[') or _is(first, 'id', 'vec')):
-            return []                           # a bare value where the pattern binds a wrapped one
+            return [('unresolved', f'a bare value where the pattern binds {wrap}(..)')]
         if _is(first, 'p', '(') and _match_forward(seg, 0) == len(seg) - 1:
             parts = _split_commas(seg, 1, len(seg) - 1)
             if len(parts) == 1:
@@ -1133,36 +1606,50 @@ class Scan:
                 return [('unresolved', 'a tuple with too few elements')]
             s, e = parts[index]
             return self.resolve(seg[s:e], fn, src, depth + 1, base + a + s)
-        if (_is(first, 'id', 'vec') and len(seg) > 3 and _is(seg[1], 'p', '!') and whole(2)) or \
+        if (_is(first, 'id', 'vec') and len(seg) > 3 and _is(seg[1], 'p', '!') and whole(2) and
+                _match_forward(seg, 2) == len(seg) - 1) or \
                 (_is(first, 'p', '[') and _match_forward(seg, 0) == len(seg) - 1):
             open_k = 2 if _is(first, 'id', 'vec') else 0
+            elements = _split_commas(seg, open_k + 1, _match_forward(seg, open_k))
+            if not elements:
+                return _none('empty_collection')
             out = []
-            for s, e in _split_commas(seg, open_k + 1, _match_forward(seg, open_k)):
+            for s, e in elements:
                 if any(_is(x, 'p', ';') for x in seg[s:e]):
                     return [('unresolved', 'a repeated array element')]
                 out += self.tuple_values(seg[s:e], index, fn, src, depth, base + a + s)
             return out
         if _is(first, 'id', 'match'):
+            arms = self.arm_values(seg)
+            if arms is None:
+                return [('unresolved', 'a match whose arms the scanner cannot find')]
             out = []
-            for s, e in self.arm_values(seg):
+            for s, e in arms:
                 out += self.tuple_values(seg[s:e], index, fn, src, depth, base + a + s, wrap)
             return out
+        if _is(first, 'id', 'if') and not _is(seg[-1], 'p', '}'):
+            return [('unresolved', 'an if followed by more of the expression')]
         if _is(first, 'id', 'if') or (_is(first, 'p', '{') and _match_forward(seg, 0) == len(seg) - 1):
             out, k = [], 0
             while k < len(seg):
                 if _is(seg[k], 'p', '{') and _depth_of(seg, 0, k) == 0:
                     end = _match_forward(seg, k)
-                    tail = self._block_tail(seg, k)
-                    if tail is not None:
-                        out += self.tuple_values(seg[tail:end], index, fn, src, depth, base + a + tail, wrap)
+                    tail, case = self._block_tail(seg, k)
+                    out += (self.tuple_values(seg[tail:end], index, fn, src, depth, base + a + tail, wrap)
+                            if tail is not None else _none(case))
                     k = end + 1
                     continue
                 k += 1
             return out
-        # an empty collection: `Vec::new()`, `BTreeMap::new()`, `Default::default()`
-        if len(seg) >= 3 and _is(seg[-1], 'p', ')') and _is(seg[-2], 'p', '(') and seg[-3].kind == 'id' and \
-                seg[-3].val in self.EMPTY_CONSTRUCTORS:
-            return []
+        # a collection built empty: `Vec::new()`, `BTreeMap::<K, V>::new()`, `Vec::with_capacity(n)`
+        if _is(seg[-1], 'p', ')') and seg and seg[0].kind == 'id' and seg[0].val in EMPTY_COLLECTION_TYPES:
+            opener = _match_back(seg, 0, len(seg) - 1)
+            if opener is not None and opener >= 2 and seg[opener - 1].kind == 'id' and \
+                    seg[opener - 1].val in self.EMPTY_CONSTRUCTORS and _is(seg[opener - 2], 'p', '::') and \
+                    (seg[opener - 1].val == 'with_capacity' or opener + 1 == len(seg) - 1) and \
+                    all(x.kind == 'id' or (x.kind == 'p' and x.val in ('::', '<', '>', ',', '_', '&')) or
+                        x.kind == 'life' for x in seg[1:opener - 1]):
+                return _none('empty_collection')
         if all(x.kind == 'id' for x in seg[:1]) and len(seg) == 1:
             return self.tuple_name(seg[0].val, index, fn, src, depth, base + a, wrap)
         if len(seg) >= 3 and _is(seg[-2], 'p', '.') and seg[-1].kind == 'id' and \
@@ -1180,7 +1667,17 @@ class Scan:
                     bar = next((q for q in range(c + 1, len(seg) - 1) if _is(seg[q], 'p', '|')), None)
                     if bar is not None:
                         ctx = self.enclosing_fn(src, base + a + bar + 1) or fn
-                        return self.tuple_values(seg[bar + 1:-1], index, ctx, src, depth, base + a + bar + 1, wrap)
+                        body = seg[bar + 1:-1]
+                        out = self.tuple_values(body, index, ctx, src, depth, base + a + bar + 1, wrap)
+                        for q in range(len(body)):      # a `return` in the closure returns from the closure
+                            if _is(body[q], 'id', 'return'):
+                                e = q + 1
+                                while e < len(body) and not (_is(body[e], 'p', ';') and _depth_of(body, q + 1, e) == 0) \
+                                        and _depth_of(body, q + 1, e) >= 0:
+                                    e += 1
+                                out += self.tuple_values(body[q + 1:e], index, ctx, src, depth,
+                                                         base + a + bar + 1 + q + 1, wrap)
+                        return out
                 return [('unresolved', f'a tuple yielded through {seg[opener - 1].val}() by something not a closure')]
             if opener is not None and opener >= 1 and seg[opener - 1].kind == 'id':
                 return self.tuple_call(seg, opener, index, fn, src, depth, base + a, wrap)
@@ -1235,9 +1732,13 @@ class Scan:
                     last = j + 1
             elif d == 0 and _is(x, 'p', ';'):
                 last = j + 1
-        if last >= end or (seg[last].kind == 'id' and seg[last].val in ('return', 'panic', 'unreachable', 'continue', 'break')):
-            return None
-        return last
+        if last >= end:
+            return None, 'unit_block'
+        if seg[last].kind == 'id' and seg[last].val in ('return', 'continue', 'break') or \
+                (seg[last].kind == 'id' and seg[last].val in ('panic', 'unreachable', 'todo', 'unimplemented') and
+                 last + 1 < end and _is(seg[last + 1], 'p', '!')):
+            return None, 'diverges'
+        return last, None
 
     def tuple_name(self, name, index, fn, src, depth, at, wrap=None):
         """A local's tuples: its `let` binding and every `push`, `extend`, `entry` and `insert` on it in
@@ -1257,6 +1758,9 @@ class Scan:
             return [('unresolved', f'a tuple source that is parameter {name} of {outer.name}()')]
         out = []
         bound = self._binding_before(src, outer, name, at)
+        near = self._pattern_binding(src, outer, name, at)
+        if near is not None and bound is not None and near[0] > bound[1][1]:
+            bound = None                        # a pattern binding nearer than the let shadows it
         if bound is not None:
             _let, (pa, pb), (va, vb) = bound
             pat = [x for x in toks[pa:pb] if not _is(x, 'id', 'mut')]
@@ -1279,11 +1783,20 @@ class Scan:
                     return [('unresolved', f'a tuple source {name} whose pattern source the scanner cannot find')]
                 (sa, sb), ctx = source
                 return self.tuple_values(toks[sa:sb], index, ctx, src, depth + 1, sa, toks[pb[1] - 1].val)
+            if pb is not None:
+                return [('unresolved', f'a tuple source {name} bound by a pattern the scanner does not follow')]
         if outer.body is None:
             return out
         for k in range(outer.body[0], outer.body[1] - 3):
-            if not (_is(toks[k], 'id', name) and _is(toks[k + 1], 'p', '.') and toks[k + 2].kind == 'id'
-                    and _is(toks[k + 3], 'p', '(')) or (k > 0 and _is(toks[k - 1], 'p', '.')):
+            if not _is(toks[k], 'id', name) or (k > 0 and (_is(toks[k - 1], 'p', '.') or _is(toks[k - 1], 'p', '::'))):
+                continue
+            if bound is not None and k <= bound[1][1]:
+                continue                        # the binding itself
+            change = self._local_change(toks, k)
+            if change is not None:
+                out.append(('unresolved', f'a tuple local {name} {change}'))
+                continue
+            if not (_is(toks[k + 1], 'p', '.') and toks[k + 2].kind == 'id' and _is(toks[k + 3], 'p', '(')):
                 continue
             method, close = toks[k + 2].val, src.pairs.get(k + 3)
             if close is None:
@@ -1303,6 +1816,36 @@ class Scan:
         if bound is None and not out:
             return [('unresolved', f'a tuple source {name} the scanner cannot follow')]
         return out
+
+    # Methods on a local that only read it or take elements away; with push, extend, entry and insert
+    # (read as adding tuples), any other method on a tuple local makes it unresolved.
+    LOCAL_READS = {'iter', 'into_iter', 'len', 'is_empty', 'contains', 'contains_key', 'get', 'first', 'last',
+                   'clone', 'keys', 'values', 'to_vec', 'as_slice', 'join', 'concat', 'starts_with', 'ends_with',
+                   'binary_search', 'to_owned', 'as_ref', 'is_some', 'is_none', 'is_ok', 'is_err', 'windows',
+                   'chunks', 'retain', 'clear', 'truncate', 'sort', 'sort_by', 'sort_by_key', 'sort_unstable',
+                   'sort_unstable_by', 'sort_unstable_by_key', 'dedup', 'dedup_by', 'dedup_by_key', 'reverse',
+                   'pop', 'remove', 'swap_remove', 'drain', 'take', 'iter().any', 'unwrap_or_default'}
+    LOCAL_ADDS = {'push', 'extend', 'entry', 'insert'}
+
+    def _local_change(self, toks, k):
+        """How the use of a local at toks[k] could change its tuples in a way the scanner does not read, or
+        None: a method that is neither a read nor push, extend, entry or insert; a mutable borrow; an
+        assignment, to it or to one of its elements."""
+        nxt = toks[k + 1] if k + 1 < len(toks) else None
+        if k >= 2 and _is(toks[k - 1], 'id', 'mut') and _is(toks[k - 2], 'p', '&'):
+            return 'lent mutably'
+        if _is(nxt, 'p', '=') or (nxt is not None and nxt.kind == 'p' and nxt.val in ('+=', '-=', '|=', '&=')):
+            return 'reassigned'
+        if _is(nxt, 'p', '['):
+            close = _match_forward(toks, k + 1)
+            if close + 1 < len(toks) and _is(toks[close + 1], 'p', '='):
+                return 'changed through an index'
+        if _is(nxt, 'p', '.') and k + 3 < len(toks) and toks[k + 2].kind == 'id' and \
+                (_is(toks[k + 3], 'p', '(') or _is(toks[k + 3], 'p', '::')):
+            method = toks[k + 2].val
+            if method not in self.LOCAL_READS and method not in self.LOCAL_ADDS:
+                return f'changed or read by {method}(), which the scanner does not read'
+        return None
 
     def tuple_call(self, seg, open_k, index, fn, src, depth, base, wrap=None):
         """The tuples a call returns: each candidate's return points (its block tail and `return`
@@ -1334,9 +1877,9 @@ class Scan:
             return self.tuple_values(toks[s:e], index, g, g.src, depth, s, wrap)
         a, b = g.body
         out = []
-        tail = self._block_tail(toks[a:b + 1], 0)
-        if tail is not None:
-            out += self.tuple_values(toks[a + tail:b], index, g, g.src, depth, a + tail, wrap)
+        tail, case = self._block_tail(toks[a:b + 1], 0)
+        out += (self.tuple_values(toks[a + tail:b], index, g, g.src, depth, a + tail, wrap)
+                if tail is not None else _none(case))
         for k in range(a, b):
             if _is(toks[k], 'id', 'return') and self.enclosing_fn(g.src, k) is g:
                 e, d = k + 1, 0
@@ -1446,8 +1989,15 @@ class Scan:
                 names.append(ids[-1] if ids else None)
             if name in names:
                 return self.tuple_values(value, names.index(name), fn, src, depth + 1, va)
-        if any(_is(x, 'p', '{') for x in pat):
-            return [('relay',)]                 # `if let Refused { code, message } = ...`: a record's code field
+        if any(_is(x, 'p', '{') for x in pat):     # `if let Refused { code, message } = ...`
+            q = next((w for w, x in enumerate(pat) if _is(x, 'id', name)), None)
+            field = pat[q - 2].val if q is not None and q >= 2 and _is(pat[q - 1], 'p', ':') else name
+            brace = next(w for w, x in enumerate(pat) if _is(x, 'p', '{'))
+            type_name = pat[brace - 1].val if brace >= 1 and pat[brace - 1].kind == 'id' else None
+            if field in ('code', 'reason_code') and type_name is not None and self._relay_proven(type_name, src):
+                return _none('relay')
+            return [('unresolved', f'{name} bound from field {field} of a {type_name} pattern, which the scanner '
+                                   f'cannot prove is built only at code positions it reads')]
         if len(pat) >= 4 and pat[0].kind == 'id' and pat[0].val in ('Some', 'Ok', 'Err') and _is(pat[1], 'p', '(') \
                 and _is(pat[2], 'p', '(') and _is(pat[-1], 'p', ')'):
             inner = pat[2:-1]                   # `if let Some((code, message)) = value`
@@ -1486,9 +2036,14 @@ class Scan:
         return out
 
     def arm_values(self, seg):
-        """[(start, end)] of the arm values of the `match` expression `seg`."""
-        brace = next(j for j in range(len(seg)) if _is(seg[j], 'p', '{') and _depth_of(seg, 0, j) == 0)
+        """[(start, end)] of the arm values of the `match` expression `seg`; None when its arms cannot be found
+        or more of the expression follows them (`match x {..}.into_iter()`)."""
+        brace = _body_brace(seg, 1)
+        if brace is None:
+            return None
         end = _match_forward(seg, brace)
+        if end != len(seg) - 1:
+            return None
         out, j = [], brace + 1
         while j < end:
             # pattern up to => at depth 0
@@ -1524,40 +2079,44 @@ class Scan:
         return out
 
     def resolve_match(self, seg, fn, src, depth, base):
+        arms = self.arm_values(seg)
+        if arms is None:
+            return [('unresolved', 'a match whose arms the scanner cannot find')]
         out = []
-        for s, e in self.arm_values(seg):
+        for s, e in arms:
             out += self.resolve(seg[s:e], fn, src, depth + 1, base + s)
-        return [r for r in out if not (r[0] == 'unresolved' and r[1] in ('a diverging arm',))]
+        return out
 
     def resolve_block(self, seg, k, fn, src, depth, base):
-        """The value of the block opening at seg[k]: its tail expression after the last `;`."""
+        """The value of the block opening at seg[k]: its tail expression, after the last statement."""
         end = _match_forward(seg, k)
-        last, d = k + 1, 0
-        for j in range(k + 1, end):
-            x = seg[j]
-            if x.kind == 'p' and x.val in OPEN:
-                d += 1
-            elif x.kind == 'p' and x.val in CLOSE:
-                d -= 1
-            elif d == 0 and _is(x, 'p', ';'):
-                last = j + 1
-        tail = seg[last:end]
-        if not tail:
-            return [('unresolved', 'a diverging arm')]
-        if tail[0].kind == 'id' and tail[0].val in ('return', 'panic', 'unreachable', 'continue', 'break'):
-            return [('unresolved', 'a diverging arm')]
-        return self.resolve(tail, fn, src, depth + 1, base + last)
+        tail, case = self._block_tail(seg, k)
+        if tail is None:
+            return _none(case)
+        return self.resolve(seg[tail:end], fn, src, depth + 1, base + tail)
 
     def resolve_if(self, seg, fn, src, depth, base):
-        out, j = [], 0
+        """The values of the branches of `if c {..} else if c {..} else {..}`: each body block, found
+        after its condition (a block expression inside a condition is not a branch)."""
+        out, j = [], 1
         while j < len(seg):
-            if _is(seg[j], 'p', '{') and _depth_of(seg, 0, j) == 0:
-                end = _match_forward(seg, j)
-                out += self.resolve_block(seg, j, fn, src, depth, base)
-                j = end + 1
-                continue
-            j += 1
-        return [r for r in out if not (r[0] == 'unresolved' and r[1] == 'a diverging arm')]
+            body = _body_brace(seg, j)
+            if body is None:
+                return [('unresolved', 'an if whose branches the scanner cannot find')]
+            end = _match_forward(seg, body)
+            out += self.resolve_block(seg, body, fn, src, depth, base)
+            j = end + 1
+            if j < len(seg) and _is(seg[j], 'id', 'else'):
+                if j + 1 < len(seg) and _is(seg[j + 1], 'id', 'if'):
+                    j += 2
+                    continue
+                if j + 1 < len(seg) and _is(seg[j + 1], 'p', '{'):
+                    out += self.resolve_block(seg, j + 1, fn, src, depth, base)
+                    j = _match_forward(seg, j + 1) + 1
+            if j < len(seg):
+                return [('unresolved', 'an if followed by more of the expression')]
+            break
+        return out
 
     def resolve_call(self, seg, open_k, fn, src, depth, base):
         name = seg[open_k - 1].val
@@ -1607,7 +2166,7 @@ class Scan:
                     out.append(('code', r[1], r[2], r[3], r[4] + [note], r[5]))
                 else:
                     out.append(r)
-        codes = [r for r in out if r[0] in ('code', 'param', 'relay')]
+        codes = [r for r in out if r[0] in ('code', 'param', 'none')]
         if not codes:
             return [('unresolved', f'call {name}() returns no resolvable code')]
         # every return point counts: a computed text beside the resolved codes stays unresolved
@@ -1637,7 +2196,7 @@ class Scan:
         brace = next((j for j in range(len(body)) if _is(body[j], 'p', '{')), None)
         if brace is None:
             return None
-        for vs, ve in self.arm_values(body):
+        for vs, ve in self.arm_values(body) or []:
             # the arm's pattern: the tokens between the previous arm (or the brace) and `=>`
             j = vs - 2
             while j > brace and not (_is(body[j], 'p', ',') and _depth_of(body, brace + 1, j) == 0) and \
@@ -1646,17 +2205,17 @@ class Scan:
             pattern = [x.val for x in body[j + 1:vs - 1]]
             if variant in pattern or pattern == ['_']:
                 out += self.resolve(body[vs:ve], g, g.src, 1, a + 1 + vs)
-                if variant in pattern:
+                if variant in pattern and 'if' not in pattern:
                     break
-        return out
+        return out or 'any'
 
     def returned(self, g, depth):
         if g.body is None:
-            return []
+            return [('unresolved', f'{g.name}() has no body the scanner can read')]
         key = ('returned', depth > 4)
         if key in g.local_cache:
             return g.local_cache[key]
-        g.local_cache[key] = []          # recursion guard
+        g.local_cache[key] = _none('recursion')         # recursion guard
         toks = g.src.toks
         a, b = g.body
         if g.expr_body is not None:
@@ -1680,7 +2239,6 @@ class Scan:
                         break
                     e += 1
                 out += self.resolve(toks[k + 1:e], g, g.src, depth, k + 1)
-        out = [r for r in out if not (r[0] == 'unresolved' and r[1] == 'a diverging arm')]
         g.local_cache[key] = out
         return out
 
@@ -1902,6 +2460,7 @@ class Scan:
         return self.call_cache[src.rel]
 
     def run(self):
+        self._collect_code_field_types()
         self.collect_diagnostic_types()
         self.callables()
         for f in self.fns:
@@ -1929,8 +2488,8 @@ class Scan:
                 via = f'{g.impl_type}::as_str() (enum code producer)'
             else:
                 continue
-            results = [r for r in self.returned(g, 1) if r[0] in ('code', 'unresolved')]
-            self.record(results, g.src, g.start, via, None, None, False, verified=True)
+            results = self._settle(self.returned(g, 1), g)
+            self.record(results, g.src, g.start, via, None, None, False, verified=True, expr=f'{g.name}()')
 
     def fix_severity(self, f, seen=None):
         """The one severity every diagnostic `f` builds states, when `f` has no severity parameter."""
@@ -1964,7 +2523,7 @@ class Scan:
             f.fixed_severity = found.pop()
         return f.fixed_severity
 
-    def record(self, results, src, k, via, severity, message, reuse, verified=False, prefix=False):
+    def record(self, results, src, k, via, severity, message, reuse, verified=False, prefix=False, expr=None):
         """Record each resolved code at its site. At a verified diagnostic position a value counts
         whatever its spelling. At a position known only by a shape or a name (a parameter called
         `code` whose sink is not traced, a struct not known as a diagnostic record, a pair) a
@@ -1972,7 +2531,14 @@ class Scan:
         prefix is a shape by nature: there only a code-shaped value is a code."""
         toks = src.toks
         expr_line = toks[k].line
+        if not results:
+            results = [('unresolved', 'no values at a code position')]
         for r in results:
+            if r[0] == 'none':
+                assert r[1] in PROVEN_EMPTY, r
+                continue
+            if r[0] in ('param', 'enum', 'relay'):
+                r = ('unresolved', f'an unsettled {r[0]} result')     # never expected: _settle runs first
             if r[0] == 'code' and not verified and not CODE_SHAPE.match(r[1]):
                 if not prefix and not reuse and r[1].strip() and r[1] not in SEVERITIES:
                     self.unclaimed_values.setdefault(r[1], set()).add(f'{src.rel}:{expr_line}')
@@ -2001,8 +2567,9 @@ class Scan:
                     if note not in site['through']:
                         site['through'].append(note)
                         site['through'].sort()
-            elif r[0] == 'unresolved' and not reuse:
+            elif r[0] == 'unresolved':
                 self.unresolved[(src.rel, expr_line, via)] = r[1]
+                self.unresolved_expr[(src.rel, expr_line, via)] = expr
 
     def scan_source(self, src, reuse):
         toks = src.toks
@@ -2017,7 +2584,7 @@ class Scan:
                     continue
                 types = [h.params[idx][1] for h in coded if idx < len(h.params)]
                 if types and all(t and not _stringish(t) and t[:1].isupper() for t in types):
-                    continue                # an enum-typed code: its text comes from a mapping resolved elsewhere
+                    continue                # an enum-typed parameter: settled where the callee uses it (_param_result)
                 s, e = args[idx]
                 results = self.resolve(toks[s:e], caller, src, 0, s)
                 severity = None
@@ -2033,15 +2600,10 @@ class Scan:
                     if midx < len(args):
                         message = self.message_text(toks[args[midx][0]:args[midx][1]])
                         break
-                results = [r for r in results if r[0] != 'param' or self._param_unmarked(caller, r[1])]
-                results = [('unresolved', f'parameter {caller.params[r[1]][0]} of {caller.name}()')
-                           if r[0] == 'param' else r for r in results]
                 verified = any(idx in h.verified_params for h in coded)
-                if verified:
-                    results = [('unresolved', 'an enum value turned into text at a diagnostic code')
-                               if r[0] == 'enum' else r for r in results]
-                results = [r for r in results if r[0] not in ('relay', 'enum')]
-                self.record(results, src, k, f'{g.name}()', severity, message, reuse, verified=verified)
+                results = self._settle(results, caller)
+                self.record(results, src, k, f'{g.name}()', severity, message, reuse, verified=verified,
+                            expr=_text(toks[s:e]))
         # verified diagnostic positions: a diagnostic record's `code` field, a json diagnostic's
         # "code", an assignment `.code =`
         verified_at = set()
@@ -2050,11 +2612,10 @@ class Scan:
             results = self.resolve(src.toks[a:b], fn, src, 0, a)
             record_type = self._literal_type(src, self._enclosing_brace(src, k), fn) if via == 'field code' else None
             text_code = record_type is None or bool(re.search(r'\b(str|String)\b', self.diag_types.get(record_type, 'str')))
-            if text_code:
-                # an enum value turned into text (Display, Into) at a text code: listed, never dropped
-                results = [('unresolved', 'an enum value turned into text at a diagnostic code')
-                           if r[0] == 'enum' else r for r in results]
-            self.record_field(results, src, k, fn, via, reuse, verified=True)
+            # an enum value at a text code (Display, Into) is unresolved; at an enum-typed code field it is
+            # read through that enum's as_str
+            self.record_field(results, src, k, fn, via, reuse, verified=True, enum_field=not text_code,
+                              expr=_text(src.toks[a:b]))
         # other `code` fields, of a struct not known as a diagnostic record: code-shaped values count,
         # any other value is listed as unclaimed
         for k, t in enumerate(toks):
@@ -2070,12 +2631,12 @@ class Scan:
                     continue
                 fn = self.enclosing_fn(src, k)
                 results = self.resolve(value, fn, src, 0, k + 2)
-                self.record_field(results, src, k, fn, 'field code', reuse, verified=False)
+                self.record_field(results, src, k, fn, 'field code', reuse, verified=False, expr=_text(value))
             elif nxt is not None and prev.kind == 'p' and prev.val in ('{', ',') and nxt.kind == 'p' and \
                     nxt.val in (',', '}') and self._struct_literal(src, k):
                 fn = self.enclosing_fn(src, k)
                 results = self.resolve([t], fn, src, 0, k)
-                self.record_field(results, src, k, fn, 'field code', reuse, verified=False)
+                self.record_field(results, src, k, fn, 'field code', reuse, verified=False, expr='code')
         # message prefixes `CODE: ...` and `{CONST}: ...`
         if reuse:
             return
@@ -2092,7 +2653,8 @@ class Scan:
             m = PREFIX_FORMAT.match(t.val)
             if m and self._in_format_macro(src, k):
                 results = self.resolve_const([m.group(1)], src, 0)
-                self.record(results, src, k, 'message prefix', None, self.message_text([t]), reuse, prefix=True)
+                self.record(results, src, k, 'message prefix', None, self.message_text([t]), reuse, prefix=True,
+                            expr=t.val[:80])
 
     def _in_format_macro(self, src, k):
         """Whether the literal at k is the format string of `format!`, `write!` or `writeln!`."""
@@ -2141,15 +2703,16 @@ class Scan:
                 if not self._message_like(message):
                     continue
                 results = self.resolve(first, fn, src, 0, parts[at][0])
-                results = [r for r in results if r[0] == 'code' and TOKEN_SHAPE.match(r[1])]
-                if not results:
-                    continue
+                if any(r[0] == 'code' and not TOKEN_SHAPE.match(r[1]) for r in results):
+                    continue                    # a constant that is not a token: not a code-message pair
+                results = self._settle(results, fn)
                 severity = None
                 for p in parts:
                     sev = [x.val for x in toks[p[0]:p[1]] if x.kind == 'str' and x.val in SEVERITIES]
                     if len(sev) == 1 and p[1] - p[0] == 1:
                         severity = sev[0]
-                self.record(results, src, k, 'code-message pair', severity, self.message_text(message), False)
+                self.record(results, src, k, 'code-message pair', severity, self.message_text(message), False,
+                            expr=_text(first))
                 break
         # `Err("CODE")`: a code returned whole as an error value
         for k, t in enumerate(toks):
@@ -2193,20 +2756,36 @@ class Scan:
             return True
         return False
 
-    def _param_unmarked(self, caller, idx):
-        """A parameter result to report: not a code parameter of the caller (whose own call sites are the
-        sites), and of string type (an enum-typed `code` is mapped to its text elsewhere)."""
-        if caller is None or idx in caller.code_params:
-            return False
-        ptype = caller.params[idx][1]
-        return _stringish(ptype) or (caller.closure and not ptype)
+    def _param_result(self, caller, idx, enum_field=False):
+        """What a parameter of `caller` at a code position comes to. A text code parameter's values are
+        recorded at its callers' arguments (proven empty here). An enum-typed one at a code field whose type is
+        that enum is read through the enum's as_str. Anything else is unresolved."""
+        pname, ptype = caller.params[idx]
+        text = _stringish(ptype) or (caller.closure and not ptype)
+        if idx in caller.code_params and text:
+            return _none('flows_to_callers')
+        if not text and enum_field:
+            return _none('enum_code_field')
+        if not text:
+            return [('unresolved', f'parameter {pname} of {caller.name}(), of type {ptype}, turned into text')]
+        return [('unresolved', f'parameter {pname} of {caller.name}()')]
 
-    def record_field(self, results, src, k, fn, via, reuse, verified=False):
-        results = [r for r in results if r[0] not in ('relay', 'enum')]
-        if fn is not None:
-            results = [r for r in results if r[0] != 'param' or self._param_unmarked(fn, r[1])]
-            results = [('unresolved', f'parameter {fn.params[r[1]][0]} of {fn.name}()') if r[0] == 'param' else r
-                       for r in results]
+    def _settle(self, results, fn, enum_field=False):
+        """Parameters and enum values among `results`, settled for recording at a code position."""
+        out = []
+        for r in results:
+            if r[0] == 'param':
+                out += self._param_result(fn, r[1], enum_field) if fn is not None else \
+                    [('unresolved', 'a parameter outside a function')]
+            elif r[0] == 'enum':
+                out += _none('enum_code_field') if enum_field else \
+                    [('unresolved', 'an enum value turned into text at a diagnostic code')]
+            else:
+                out.append(r)
+        return out
+
+    def record_field(self, results, src, k, fn, via, reuse, verified=False, enum_field=False, expr=None):
+        results = self._settle(results, fn, enum_field)
         toks = src.toks
         brace = self._enclosing_brace(src, k)
         severity, message = None, None
@@ -2233,7 +2812,7 @@ class Scan:
                         severity = lits[0] if len(lits) == 1 else severity
                     else:
                         message = self.message_text(toks[j + 2:e])
-        self.record(results, src, k, via, severity, message, reuse, verified=verified)
+        self.record(results, src, k, via, severity, message, reuse, verified=verified, expr=expr)
 
     def _enclosing_brace(self, src, k):
         return src.brace_at[k] if src.brace_at[k] >= 0 else None
@@ -2425,6 +3004,11 @@ class Scan:
         first, last = toks[at[0]].line, toks[end].line
         return first, last, '\n'.join(text.split('\n')[first - 1:last])
 
+    def line_text(self, rel, line):
+        text = self._read(rel)
+        lines = text.split('\n') if text is not None else []
+        return lines[line - 1].strip() if 0 < line <= len(lines) else ''
+
     def _read(self, rel):
         if not rel:
             return None
@@ -2458,10 +3042,14 @@ class Scan:
             if all(s['by_name'] for s in sites):
                 record['sites_by_name_only'] = True
             codes.append(record)
-        unresolved = [{'file': f, 'line': line, 'at': via, 'why': why}
+        unresolved = [{'file': f, 'line': line, 'at': via, 'why': why,
+                       'expression': self.unresolved_expr.get((f, line, via)) or '',
+                       'line_text': self.line_text(f, line)}
                       for (f, line, via), why in sorted(self.unresolved.items())]
         unclaimed = [{'literal': lit, 'sites': sorted(sites)} for lit, sites in sorted(self.unclaimed.items())]
-        return {'codes': codes, 'unresolved_sites': unresolved, 'unclaimed_literals': unclaimed}
+        strip = [{'file': f, 'line': line, 'why': why} for f, line, why in self.strip_failures]
+        return {'codes': codes, 'unresolved_sites': unresolved, 'unclaimed_literals': unclaimed,
+                'strip_failures': strip}
 
     def _crate_of(self, rel):
         for src in self.all_sources:
@@ -2471,6 +3059,42 @@ class Scan:
 
 
 BLOCK_STATEMENTS = {'if', 'match', 'for', 'while', 'loop', 'unsafe', '{'}
+
+
+PATTERN_STOPS = {'let', 'if', 'while', 'for', 'match', 'in', 'else', 'return', 'loop', 'move'}
+
+
+def _body_brace(seg, j):
+    """The index of the body `{` of the `if`, `while`, `for` or `match` whose condition, pattern or
+    scrutinee starts at seg[j]: the first `{` at depth 0 after an operand (a `{` after an operator or keyword
+    is a block expression inside the condition); a `let` pattern is skipped to its `=` and a `for` pattern to
+    its `in` first. None when there is none."""
+    k, depth = j, 0
+    if k < len(seg) and seg[k].kind == 'id' and seg[k].val in ('let',):
+        while k < len(seg) and not (_is(seg[k], 'p', '=') and _depth_of(seg, j, k) == 0):
+            k += 1
+        k += 1
+    while k < len(seg):
+        x = seg[k]
+        if x.kind == 'p' and x.val in ('(', '['):
+            depth += 1
+        elif x.kind == 'p' and x.val in (')', ']'):
+            depth -= 1
+        elif depth == 0 and _is(x, 'p', '{'):
+            if k > j and _ends_operand(seg[k - 1]):
+                return k
+            k = _match_forward(seg, k)
+        k += 1
+    return None
+
+
+def _ends_operand(t):
+    """Whether token t can end an operand, so that a `{` after it opens a body rather than a block
+    expression (`if x {` against `if {`, `if a && {`)."""
+    if t.kind == 'id':
+        return t.val not in ('if', 'in', 'match', 'while', 'for', 'let', 'return', 'else', 'mut', 'move', 'as',
+                             'loop', 'break', 'unsafe')
+    return t.kind in ('str', 'num', 'char', 'life') or (t.kind == 'p' and t.val in (')', ']', '}', '?'))
 
 
 def _continues(t):
@@ -2580,6 +3204,38 @@ CONSTRUCTED_NOT_PUBLISHED = [
     ]
 ]
 
+# What repairing the test-code stripper found about the tool as committed on this branch until then.
+STRIPPER_FINDING = (
+    'A finding about this tool as committed on its branch before the stripper was repaired: its test-code '
+    'stripper silently removed production code in 25 files. In 12 of them the code removed is compiled in every '
+    'build: a test-only thread_local! { .. } swallowed what followed it (526 lines of '
+    'core/model_operations/operation_applier/src/numerical_health.rs, 270 of '
+    'core/solver/nonlinear_integration/src/lib.rs), a test-only struct field (`#[cfg(test)] pub trace_fault: ..,` '
+    'at core/product_physics/src/retained_product.rs 187) swallowed the fields and code after it, a test-only '
+    'if let swallowed the rest of its function and the next, and a test-only const fn swallowed what followed '
+    'it; core/product_physics/src/lib.rs 4672 to 4703, which holds the SOLVER_SYSTEM_BLOCKED diagnostic site at '
+    '4681, was not read. In the other 14 (one file is in both groups) the code removed is compiled under '
+    'cfg(any(test, feature = "..")), now read as production. Reading all of it again added no code to the '
+    'table: it added the one site at core/product_physics/src/lib.rs 4681 for a code the table already held, '
+    'and sixteen unclaimed literals from core/solver/frame_kernel/src/structural/retained/seeded.rs.')
+
+# Forms the scanner reads besides the producer shapes below, each with its own witness in the test.
+READ_FORMS = [
+    'a record\'s code field read through a receiver whose type the scanner can prove (self in an impl, a typed '
+    'parameter, a local bound to a struct literal or annotated with a type, Err(x), Ok(x) or Some(x) over a direct '
+    'call whose declared Result or Option return type names it, or a closure parameter or for variable over a '
+    'named slice or Vec): recorded where the record is built, when that type is defined in a scanned crate '
+    'without Deserialize and no type of that name with a code field is defined elsewhere for the crate',
+    'the nearer of a let and a pattern binding of a name, read only within the pattern\'s scope',
+    'the statement forms the test-code stripper recognises under a test-only attribute: items (const fn among '
+    'them), fields, labelled loops, brace-delimited macro invocations, if (its condition may be a block) with else '
+    'if and else, while, for, loop, match, a method chain after a block, let and expression statements',
+    'a module or item under cfg(any(test, feature = "..")), read as production (the conservative choice): '
+    'core/solver/frame_kernel/src/structural/retained/seeded.rs under mutation-controls and '
+    'exact_boundary/exact_operation_count.rs under exact-operation-count among them; seeded.rs adds sixteen '
+    'unclaimed literals (VK-F01 to VK-F17, VK-R02, VK-R28, VK-S1, VK-S2 and FK_SEEDED_FAULT)',
+]
+
 # The producer shapes the scanner reads, each with the code its witness adds or removes, the `via` the
 # scanner gives that site, and the witness source (tests/test_diagnostic_code_table.py adds each to a
 # synthetic crate and removes it again; the comparison must see exactly that code come and go).
@@ -2635,6 +3291,8 @@ PRODUCER_SHAPES = [
     ('a value followed through a tuple element code.0', 'ShapeProjection', 'json code',
      'pub fn s_proj(x: u8) -> String { let c = match x { 1 => ("ShapeProjection", "p"), _ => ("ShapeProjection", "q") }; '
      'serde_json::json!({"code": c.0, "phase": c.1}).to_string() }'),
+    ('a value converted by to_ascii_uppercase(), to_uppercase(), to_ascii_lowercase() or to_lowercase()',
+     'SHAPE_CONVERTED', 'emit()', 'pub fn s_convert() -> Diagnostic { emit(&"shape_converted".to_ascii_uppercase(), "m") }'),
     ('production code after a test-only if', 'ShapeAfterTestIf', 'emit()',
      'pub fn s_after_if() -> Diagnostic {\n    #[cfg(test)]\n    if true { let _ = emit("ShapeInsideTestIf", "m"); }\n'
      '    emit("ShapeAfterTestIf", "m")\n}'),
@@ -2652,9 +3310,11 @@ HEADER = {
               'tools/validation/diagnostic_codes.py, with a hand-made classification of each. What a code is, what '
               'is read and what is not, and what the test establishes are in scope. The scanner writes code, crates, '
               'severity, first_site, sites and messages; classification, reason, unsure, candidates, named_by, '
-              'named_by_coverage and named_by_statement are hand-made and kept by --write, as is pinned_sites. The '
-              'test cannot check that a text covers a refusal, only that it mentions a code: each naming carries a '
-              'hand-made coverage, whole or partial, and only a whole naming counts as naming the refusal.'),
+              'named_by_coverage and named_by_statement are hand-made and kept by --write, as are pinned_sites and '
+              'listed_unresolved_sites. Every code position the scanner reads is resolved, pinned with its values, '
+              'or listed as unresolved with its reason; none is dropped. The test cannot check that a text covers a '
+              'refusal, only that it mentions a code: each naming carries a hand-made coverage, whole or partial, '
+              'and only a whole naming counts as naming the refusal. ' + STRIPPER_FINDING),
     'first_site': ('the first raising site resolved by type (and, where a mapping is involved, by the arm its '
                    'argument selects); a site resolved only by a method\'s name carries by_name, one that may '
                    'raise any arm of a mapping carries any_arm, and neither is chosen as first while another '
@@ -2687,7 +3347,16 @@ HEADER = {
                     'where site_text stands (once in the file), and each anchor is a whole function, defined once '
                     'in its file, whose text equals the anchor text character for character; one anchor must be '
                     'the function the site stands in, which binds, builds and uses the value. A holding pin turns '
-                    'the site into sites of its values. Any other unresolved site fails the test.'),
+                    'the site into sites of its values. Any other unresolved site must be listed in '
+                    'listed_unresolved_sites, or the test fails.'),
+    'listed_unresolved_site': ('an entry of listed_unresolved_sites, kept by hand: {"file", "line_text", "at", '
+                               '"expression", "form", "outside_unit", "not_known", and "relay_of" or "reason"}. An '
+                               'unresolved code position the scanner reports must match an entry by file, at, '
+                               'expression and the text of its line, or the test fails; an entry that matches no '
+                               'reported site (its text changed, or it was resolved) fails too. relay_of says why '
+                               'the value is believed to relay a code built at a position the scanner reads, naming '
+                               'it; not_known true says that is not known (reason). outside_unit true marks an '
+                               'operation applier code position whose own codes are outside the unit.'),
     'scope': {
         'unit': ('The unit of this table is the code: the value of the code field of a diagnostic, finding, '
                  'refusal or reason record that production code of the scanned crates constructs. There is one '
@@ -2720,11 +3389,19 @@ HEADER = {
                                               'several materially different refusals, and a missing control can '
                                               'withhold a capability with no code at all. Product text that names a '
                                               'limitation is not a declaration of one.'),
+        'every_code_position': ('Every code position the scanner reads is resolved, pinned with its values '
+                                '(pinned_sites), or listed as unresolved with its reason (listed_unresolved_sites); '
+                                'none is dropped. A part of a value yields no code only in one of the cases of '
+                                'proven_empty_cases; anything else that yields none is an unresolved site.'),
+        'proven_empty_cases': PROVEN_EMPTY,
+        'listed_unresolved': None,      # filled by merge from listed_unresolved_sites
         'crates': list(SCOPE) + [f'{p} (a solve\'s code it relays unchanged only)' for p in REUSE_SCOPE],
         'operation_applier': ('core/model_operations/operation_applier is read only for a solve\'s code that it '
                               'relays unchanged: a code position there whose value is a constant declared in a '
                               'scanned solve crate. The applier\'s own codes are excluded, including an applier '
-                              'code that wraps a solve refusal.'),
+                              'code that wraps a solve refusal. An applier code position whose value the scanner '
+                              'cannot resolve is listed in listed_unresolved_sites like any other, and its entry '
+                              'says whether it is outside the unit.'),
         'outside_the_unit': ('Reason tokens printed inside messages are not inventoried by this table, and no '
                              'inventory of them exists. The arc-maximum reason tokens below are such tokens: each '
                              'is produced by a named refusal method or a map_err or Err literal, and is printed '
@@ -2733,22 +3410,27 @@ HEADER = {
                              'reason) are not codes either.'),
         'reason_tokens_outside_the_unit': ARC_REASON_TOKENS,
         'what_the_test_establishes': ('tests/test_diagnostic_code_table.py establishes that this table agrees '
-                                      'with the scanner\'s observation of the sources over the producer shapes '
-                                      'listed in shapes_read, each shape with a witness in that test that adding '
-                                      'or removing a code at it fails the test. It does not establish that the '
-                                      'table is complete.'),
-        'shapes_read': [shape for shape, _code, _via, _source in PRODUCER_SHAPES],
+                                      'with the scanner\'s observation of the sources over the shapes and forms '
+                                      'listed in shapes_read, each with a witness in that test (for a producer '
+                                      'shape, that adding or removing a code at it fails the test), and that every '
+                                      'code position the scanner reads is resolved, pinned or listed. It does not '
+                                      'establish that the table is complete. A third independent review found no '
+                                      'code missing from the table in the present sources, all twenty producer-'
+                                      'shape witnesses working, and its blind classification of the sixteen codes '
+                                      'then new agreeing 16 of 16.'),
+        'shapes_read': [shape for shape, _code, _via, _source in PRODUCER_SHAPES] + READ_FORMS,
         'shapes_not_read': [
             'named refusal methods (a reason() returning a token) and map_err or Err literals carried into a '
             'message: outside the unit (outside_the_unit); a code-shaped Err literal is still read',
-            'raw enum codes never published as text: an enum value reaching a code position as an enum is not '
-            'read; one turned into text there is an unresolved site',
+            'raw enum codes never published as text: an enum value at a code field declared with that enum is read '
+            'through its as_str only; enum variant names that serde or Display turn into text elsewhere are not read',
+            'codes that reach a person by a route that is not a code position: a field not named code, a reason or '
+            'tag token, a map value, text built in a macro_rules body or generated code',
             'tuple-returning helpers whose values are not published at a code position',
-            'values behind a signature the scanner cannot resolve: at a code position each is an unresolved site, '
-            'which fails the test unless pinned in pinned_sites',
+            'a receiver type behind a crate-local Result alias, a field\'s declared type, a method chain or a run-time '
+            'choice of function: such a code field read is an unresolved site, listed with its reason',
+            'test-only code marked other than by cfg(test) or cfg(all(test, ..)): it is read as production',
             'mixed-case message prefixes: only an upper-case CODE: or {CONST}: prefix is read',
-            'production code after test-only control flow: read since the stripper ends a test-only if, match, '
-            'for, while or loop at the brace that closes its last block (it was not read before)',
         ],
     },
 }
@@ -2765,8 +3447,37 @@ def merge(mechanical, existing):
         if merged['named_by_statement'] is None:
             merged['named_by_statement'] = None
         codes.append(merged)
-    return dict(HEADER, codes=codes, pinned_sites=(existing or {}).get('pinned_sites', []),
-                unresolved_sites=mechanical['unresolved_sites'], unclaimed_literals=mechanical['unclaimed_literals'])
+    listed = (existing or {}).get('listed_unresolved_sites', [])
+    header = json.loads(json.dumps(HEADER))
+    header['scope']['listed_unresolved'] = listed_summary(listed)
+    return dict(header, codes=codes, pinned_sites=(existing or {}).get('pinned_sites', []),
+                listed_unresolved_sites=listed, unresolved_sites=mechanical['unresolved_sites'],
+                strip_failures=mechanical['strip_failures'], unclaimed_literals=mechanical['unclaimed_literals'])
+
+
+def listed_summary(listed):
+    return (f'{len(listed)} code positions are listed as unresolved (listed_unresolved_sites), '
+            f'{sum(1 for e in listed if e.get("not_known"))} of them marked not known; '
+            f'{sum(1 for e in listed if e.get("outside_unit"))} are operation applier positions outside the unit.')
+
+
+def listing_problems(unresolved_sites, listed):
+    """The unresolved sites a scan reports that no entry lists, and the entries that match no reported site,
+    matched as multisets by (file, at, expression, line text); and entries missing a reason."""
+    from collections import Counter
+    key = lambda x: (x.get('file'), x.get('at'), x.get('expression'), x.get('line_text'))
+    reported, held = Counter(key(u) for u in unresolved_sites), Counter(key(e) for e in listed)
+    problems = [f'unlisted unresolved site {k[0]}: {k[3]!r} ({k[1]}: {k[2]})' for k in sorted((reported - held).elements())]
+    problems += [f'listed site that no longer stands as listed {k[0]}: {k[3]!r} ({k[1]}: {k[2]})'
+                 for k in sorted((held - reported).elements())]
+    for e in listed:
+        if not e.get('form') or not isinstance(e.get('not_known'), bool) or not isinstance(e.get('outside_unit'), bool):
+            problems.append(f'listed site {e.get("file")}: {e.get("line_text")!r} lacks form, not_known or outside_unit')
+        elif e['not_known'] and not str(e.get('reason', '')).strip():
+            problems.append(f'listed site {e.get("file")}: {e.get("line_text")!r} is marked not known with no reason')
+        elif not e['not_known'] and not str(e.get('relay_of', '')).strip():
+            problems.append(f'listed site {e.get("file")}: {e.get("line_text")!r} names no relay_of')
+    return problems
 
 
 def committed_pins(project):

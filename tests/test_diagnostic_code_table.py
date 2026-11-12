@@ -13,15 +13,23 @@ read and when to recheck it) and is unresolved for the rest; this test does not 
 supports the work exit criterion 3 needs (from a required capability to its reachable refusal, its consequence
 and a declared limitation) and does not do it.
 
-What this test establishes: the table agrees with the scanner's observation of the sources over the producer
-shapes the scanner lists (`PRODUCER_SHAPES`, the table's `scope.shapes_read`), each shape with a witness here
-that adding or removing a code at it fails the test. It does not establish that the table is complete. The
-shapes the scanner does not read are named in `scope.shapes_not_read`. A code position whose value the
-scanner cannot resolve fails the test unless it is pinned by hand (`pinned_sites`) with its values and the
-source text the reason rests on, which is checked, so that a change there fails the test too. The test also
-fails when a record lacks a classification or a reason, when a value at a position known only by shape or
-name appears or goes, and when the number of unsure records or of absent capabilities not named rises above
-its pin.
+What this test establishes: the table agrees with the scanner's observation of the sources over the shapes
+and forms the scanner lists (`PRODUCER_SHAPES` and `READ_FORMS`, the table's `scope.shapes_read`), each with a
+witness here (for a producer shape, that adding or removing a code at it fails the test); and every code
+position the scanner reads is resolved, pinned with its values, or listed as unresolved with its reason, none
+dropped. It does not establish that the table is complete. The shapes the scanner does not read are named in
+`scope.shapes_not_read`. A third independent review found no code missing from the table in the present
+sources, all twenty producer-shape witnesses working, and its blind classification of the sixteen codes then
+new agreeing 16 of 16.
+
+The test fails on: an unresolved site that is neither pinned (`pinned_sites`, its values and the whole
+functions its reason rests on checked character for character) nor listed (`listed_unresolved_sites`, matched
+by file, position, expression and the text of its line); a listed site whose text has changed or that no
+longer stands; a statement under a test-only attribute that the stripper does not recognise (named by file and
+line); a part of a value yielding no values outside the closed list of proven-empty cases (it becomes an
+unresolved site); a record without a classification or a reason; a value at a position known only by shape or
+name appearing or going; and the number of unsure records or of absent capabilities not named rising above its
+pin. Whether each listed entry's stated relay is true is hand-kept and not checked here.
 
 The test cannot check that a text covers a refusal, only that it mentions a code. Each naming (a LIM
 entry, or product text) carries a hand-made coverage, whole or partial, with its reason; only a whole
@@ -40,8 +48,10 @@ import warnings
 
 PROJECT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT))
+import tools.validation.diagnostic_codes as scanner_module  # noqa: E402
 from tools.validation.diagnostic_codes import (  # noqa: E402
-    ARC_REASON_TOKENS, CLASSES, PRODUCER_SHAPES, TABLE, Scan, tokenize)
+    ARC_REASON_TOKENS, CLASSES, PRODUCER_SHAPES, PROVEN_EMPTY, READ_FORMS, TABLE, Scan, listed_summary,
+    listing_problems, tokenize)
 
 # The scan reads every production Rust file of these crates through their module trees.
 CI_READS = ('core/product_physics/src/**', 'core/solver/*/src/**', 'core/loads/*/src/**',
@@ -110,15 +120,21 @@ def test_the_table_is_sorted_with_one_record_per_code():
     assert codes == sorted(set(codes))
 
 
-def test_no_code_position_is_left_unresolved_unless_pinned():
-    """Nothing is dropped: a code position whose value the scanner cannot resolve is an unresolved site, and
-    each fails here unless a pin in the table settles it. A pin that no longer holds (its site moved or
-    resolved, or the source text its reason rests on changed) fails here too."""
+def test_every_unresolved_code_position_is_pinned_or_listed():
+    """Nothing is dropped silently: a code position whose value the scanner cannot resolve is an unresolved site,
+    and each fails here unless a pin in the table settles it or an entry of listed_unresolved_sites lists it by
+    the text of its line. A pin that no longer holds, or a listed entry whose site changed or went, fails too."""
     problems = list(scanned().pin_problems)
-    problems += [f'{s["file"]}:{s["line"]} ({s["at"]}): {s["why"]}' for s in scan()['unresolved_sites']]
-    assert not problems, f'unresolved code positions and pins that do not hold: {problems}; resolve each, ' \
-        'or pin it by hand in pinned_sites with its values, reason and anchors'
-    assert table()['unresolved_sites'] == [], REFRESH
+    problems += listing_problems(scan()['unresolved_sites'], table().get('listed_unresolved_sites', []))
+    assert not problems, f'{problems}; resolve each site, pin it, or list it by hand with its reason'
+    key = lambda u: (u['file'], u['at'], u['expression'], u['line_text'])
+    assert sorted(map(key, scan()['unresolved_sites'])) == sorted(map(key, table()['unresolved_sites'])), REFRESH
+
+
+def test_no_test_only_statement_is_guessed_at():
+    """A test-only attribute on a statement form the stripper does not recognise is a failure by file and line."""
+    assert scan()['strip_failures'] == [], scan()['strip_failures']
+    assert table()['strip_failures'] == [], REFRESH
 
 
 def test_pinned_values_are_table_codes():
@@ -146,7 +162,9 @@ def test_the_scope_names_what_the_table_reads_and_leaves_out():
     """The scope lists the shapes the witnesses below exercise, and each reason token it places outside the unit
     stands as a text in the file it names and is printed by codes the table holds."""
     scope = table()['scope']
-    assert scope['shapes_read'] == [shape for shape, _c, _v, _s in PRODUCER_SHAPES], REFRESH
+    assert scope['shapes_read'] == [shape for shape, _c, _v, _s in PRODUCER_SHAPES] + READ_FORMS, REFRESH
+    assert scope['proven_empty_cases'] == PROVEN_EMPTY, REFRESH
+    assert scope['listed_unresolved'] == listed_summary(table().get('listed_unresolved_sites', [])), REFRESH
     assert scope['reason_tokens_outside_the_unit'] == ARC_REASON_TOKENS, REFRESH
     codes = {c['code'] for c in table()['codes']}
     problems = []
@@ -424,3 +442,153 @@ def test_witness_a_nested_wrapper_pattern_reads_only_its_arm(tmp_path):
     _s, found = witness_scan(tmp_path, NESTED_WRAPPER, 'nested')
     codes = {c['code'] for c in found['codes']}
     assert 'error_only' in codes and 'ok_only' not in codes, sorted(codes - FOUND)
+
+
+# ---------------------------------------------------------------- part two: nothing is dropped silently
+
+def test_witness_no_values_outside_the_closed_list_is_an_unresolved_site(tmp_path):
+    """The closed list of proven-empty cases: a case not on it cannot be returned, every case on it is used by the
+    scanner and no other is, and an expression that yields no values outside it is an unresolved site (here the
+    resolver and the tuple reader are made to yield nothing, and every code position they read becomes one)."""
+    try:
+        scanner_module._none('not_on_the_list')
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError('a proven-empty case not on the list was accepted')
+    source = (PROJECT / 'tools/validation/diagnostic_codes.py').read_text(encoding='utf-8')
+    used = set(re.findall(r"_none\('([a-z_]+)'\)", source)) | set(re.findall(r"return None, '([a-z_]+)'", source))
+    assert used == set(PROVEN_EMPTY), (sorted(used - set(PROVEN_EMPTY)), sorted(set(PROVEN_EMPTY) - used))
+    root = tmp_path / 'empty'
+    (root / 'core/product_physics/src').mkdir(parents=True)
+    (root / 'core/product_physics/src/lib.rs').write_text(WITNESS.replace('EXTRA', ''), encoding='utf-8')
+    silent = Scan(root)
+    silent._resolve = lambda *args, **kwargs: []
+    silent._tuple_values = lambda *args, **kwargs: []
+    found = silent.run().table()
+    assert found['codes'] == [] or all(c['code'] in ('InputTooLarge', 'MissingThing', 'other_thing')
+                                       for c in found['codes']), [c['code'] for c in found['codes']]
+    assert len(found['unresolved_sites']) >= 8, found['unresolved_sites']
+    assert {u['why'][:14] for u in found['unresolved_sites']} == {'no values from'}
+
+
+REVIEWER_SHAPES = {
+    'chain': 'pub fn s_chain() { for (code, _n) in vec![("first_code", 0)].into_iter().chain(vec![("second_code", 1)]) '
+             '{ let _ = emit(code, "m"); } }',
+    'new': 'pub struct Maker; impl Maker { fn new() -> (String, u8) { (format!("built_{}", 1), 0) } }\n'
+           'pub fn s_new() -> Diagnostic { let (code, _n) = Maker::new(); emit(&code, "m") }',
+    'struct_pattern': 'pub struct Reason { pub tag: String }\n'
+                      'pub fn s_reason(k: &str) -> Diagnostic { let Reason { tag } = Reason { tag: format!("tag_{k}") }; '
+                      'emit(&tag, "m") }',
+}
+
+
+def test_witness_the_third_reviews_three_shapes_fail_closed(tmp_path):
+    """An iterator's .chain() argument, a constructor named new, and a struct pattern binding a field that is not
+    a code field: each left an unresolved site neither silently empty nor assumed a relay, without a special case
+    for any of them."""
+    for name, extra in REVIEWER_SHAPES.items():
+        _s, found = witness_scan(tmp_path, extra, f'reviewer_{name}')
+        sites = [u for u in found['unresolved_sites'] if u['at'] == 'emit()']
+        assert sites, (name, found['unresolved_sites'])
+
+
+CHEAP_FORM = """pub struct Problem { pub code: &'static str, pub message: String }
+fn check(x: u8) -> Result<u8, Problem> { if x > 1 { Ok(x) } else { Err(Problem { code: "PROBLEM_BUILT", message: String::new() }) } }
+pub fn s_typed(x: u8) -> Option<Diagnostic> { if let Err(e) = check(x) { return Some(emit(e.code, "m")); } None }
+pub fn s_arm(x: u8) -> Option<Diagnostic> { match check(x) { Err(e) => Some(emit(e.code, "m")), Ok(_) => None } }
+pub fn s_iter(problems: &[Problem]) -> Vec<Diagnostic> { problems.iter().map(|p| emit(p.code, "m")).collect() }
+pub fn s_for(problems: Vec<Problem>) -> Vec<Diagnostic> { let mut out = Vec::new(); for p in problems { out.push(emit(p.code, "m")); } out }"""
+
+
+def test_witness_a_code_field_read_through_a_pattern_or_iterator_is_a_relay(tmp_path):
+    """The cheap form: `e.code` where e is bound by Err(e) over a call declaring Result<_, Problem>, in an if let
+    or a match arm, or by a closure parameter or a for variable over a named slice or Vec of Problem, is a relay
+    of Problem's own construction (recorded there); the same read through a receiver of unknown type stays an
+    unresolved site."""
+    _s, found = witness_scan(tmp_path, CHEAP_FORM, 'cheap')
+    assert found['unresolved_sites'] == [], found['unresolved_sites']
+    assert 'PROBLEM_BUILT' in {c['code'] for c in found['codes']}
+    # a crate the scanned one can name, defining a type with a code field the scanner does not read
+    unknown = CHEAP_FORM + '\npub fn s_unknown(v: &serde_json::Value) -> Diagnostic { let p = pick(v); emit(p.code, "m") }'
+    root = tmp_path / 'cheap_unknown'
+    (root / 'core/product_physics/src').mkdir(parents=True)
+    (root / 'core/product_physics/src/lib.rs').write_text(WITNESS.replace('EXTRA', unknown), encoding='utf-8')
+    (root / 'core/product_physics/Cargo.toml').write_text('[dependencies]\nother = { path = "../other" }\n', encoding='utf-8')
+    (root / 'core/other/src').mkdir(parents=True)
+    (root / 'core/other/Cargo.toml').write_text('[package]\nname = "other"\n', encoding='utf-8')
+    (root / 'core/other/src/lib.rs').write_text('pub struct Outside { pub code: String }\n', encoding='utf-8')
+    found = Scan(root).run().table()
+    assert [u['expression'] for u in found['unresolved_sites']] == ['p.code'], found['unresolved_sites']
+
+
+STRIP_FORMS = {
+    'labelled loop': "#[cfg(test)]\n    'outer: loop { let _ = emit(\"InsideLabel\", \"m\"); break 'outer; }",
+    'brace macro': '#[cfg(test)]\n    debug_only! { let _ = emit("InsideMacro", "m"); }',
+    'if with a block condition': '#[cfg(test)]\n    if { let _ = emit("InsideCondition", "m"); true } '
+                                 '{ let _ = emit("InsideThen", "m"); }',
+    'else if chain': '#[cfg(test)]\n    if a() { let _ = emit("InsideIf", "m"); } else if b() { let _ = emit("InsideElseIf", "m"); } '
+                     'else { let _ = emit("InsideElse", "m"); }',
+    'if let': '#[cfg(test)]\n    if let Some(x) = Some(1).map(|v| v + 1) { let _ = emit("InsideIfLet", "m"); let _ = x; }',
+    'while': '#[cfg(test)]\n    while a() { let _ = emit("InsideWhile", "m"); }',
+    'loop': '#[cfg(test)]\n    loop { let _ = emit("InsideLoop", "m"); break; }',
+    'match with a method chain': '#[cfg(test)]\n    match 1 { _ => emit("InsideChain", "m") }.code.len();',
+    'let': '#[cfg(test)]\n    let _x = emit("InsideLet", "m");',
+    'unsafe block': '#[cfg(test)]\n    unsafe { let _ = emit("InsideUnsafe", "m"); }',
+}
+ITEM_FORMS = {
+    'const fn': '#[cfg(test)]\nconst fn note() -> &\'static str { "InsideConstFn" }',
+    'thread_local! macro item': '#[cfg(test)]\nthread_local! { static LOCAL: u8 = const { 0 }; }',
+    'pub field': 'pub struct Held { #[cfg(test)] pub probe: Option<u8>, pub kept: u8 }',
+    'item fn': '#[cfg(test)]\nfn only_in_tests() -> Diagnostic { emit("InsideItemFn", "m") }',
+}
+
+
+def test_witness_each_statement_form_the_stripper_recognises(tmp_path):
+    """For each statement form the stripper recognises under a test-only attribute: what is inside it is not read,
+    the production statement after it is, and nothing fails to strip. Items likewise, with a production function
+    after them."""
+    problems = []
+    for i, (form, test_only) in enumerate(STRIP_FORMS.items()):
+        extra = f'pub fn s_strip_{i}() -> Diagnostic {{\n    {test_only}\n    emit("AfterForm{i}", "m")\n}}'
+        _s, found = witness_scan(tmp_path, extra, f'strip_{i}')
+        codes = {c['code'] for c in found['codes']}
+        inside = set(re.findall(r'"(Inside[A-Za-z]+)"', test_only))
+        if f'AfterForm{i}' not in codes or inside & codes or found['strip_failures']:
+            problems.append((form, sorted(inside & codes), f'AfterForm{i}' in codes, found['strip_failures']))
+    for i, (form, test_only) in enumerate(ITEM_FORMS.items()):
+        extra = f'{test_only}\npub fn s_after_item_{i}() -> Diagnostic {{ emit("AfterItem{i}", "m") }}'
+        _s, found = witness_scan(tmp_path, extra, f'item_{i}')
+        codes = {c['code'] for c in found['codes']}
+        inside = set(re.findall(r'"(Inside[A-Za-z]+)"', test_only))
+        if f'AfterItem{i}' not in codes or inside & codes or found['strip_failures']:
+            problems.append((form, sorted(inside & codes), f'AfterItem{i}' in codes, found['strip_failures']))
+    assert not problems, problems
+
+
+def test_witness_an_unrecognised_test_only_form_fails_by_name(tmp_path):
+    """A test-only attribute on a form the stripper does not recognise (a labelled block, an inline const block) is
+    not guessed at: it is a strip failure naming the file and line, and the form is read as production."""
+    for name, form in [('labelled block', "#[cfg(test)]\n    'blk: { let _ = emit(\"ReadAsProduction\", \"m\"); }"),
+                       ('inline const', '#[cfg(test)]\n    const { let _ = emit("ReadAsProduction", "m"); }')]:
+        extra = f'pub fn s_unknown_form() -> Diagnostic {{\n    {form}\n    emit("AfterUnknown", "m")\n}}'
+        _s, found = witness_scan(tmp_path, extra, f'unknown_{name.replace(" ", "_")}')
+        failures = found['strip_failures']
+        assert len(failures) == 1 and failures[0]['file'] == 'core/product_physics/src/lib.rs', (name, failures)
+        assert {'ReadAsProduction', 'AfterUnknown'} <= {c['code'] for c in found['codes']}, name
+
+
+def test_witness_listing_fails_on_an_unlisted_or_changed_site(tmp_path):
+    """An unresolved site with no entry fails; an entry made from it passes; when the site's line changes, the old
+    entry no longer stands and the changed site is unlisted, so both fail; an entry needs its reason."""
+    _s, found = witness_scan(tmp_path, RUNTIME, 'listing')
+    sites = found['unresolved_sites']
+    assert len(sites) == 1
+    assert listing_problems(sites, []) and listing_problems(sites, [])[0].startswith('unlisted unresolved site')
+    entry = {k: sites[0][k] for k in ('file', 'at', 'expression', 'line_text')}
+    entry.update(form='a value built at run time', outside_unit=False, not_known=True, reason='the witness')
+    assert listing_problems(sites, [entry]) == []
+    _s, changed = witness_scan(tmp_path, RUNTIME.replace('"m")', '"changed")'), 'listing_changed')
+    problems = listing_problems(changed['unresolved_sites'], [entry])
+    assert any(p.startswith('unlisted') for p in problems) and any(p.startswith('listed site that no longer') for p in problems)
+    assert listing_problems(sites, [dict(entry, reason='')]), 'an entry marked not known needs its reason'

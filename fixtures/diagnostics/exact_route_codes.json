@@ -1,5 +1,5 @@
 {
- "about": "The diagnostic codes production code of the solve crates constructs, read from those sources by tools/validation/diagnostic_codes.py, with a hand-made classification of each. What a code is, what is read and what is not, and what the test establishes are in scope. The scanner writes code, crates, severity, first_site, sites and messages; classification, reason, unsure, candidates, named_by, named_by_coverage and named_by_statement are hand-made and kept by --write, as is pinned_sites. The test cannot check that a text covers a refusal, only that it mentions a code: each naming carries a hand-made coverage, whole or partial, and only a whole naming counts as naming the refusal.",
+ "about": "The diagnostic codes production code of the solve crates constructs, read from those sources by tools/validation/diagnostic_codes.py, with a hand-made classification of each. What a code is, what is read and what is not, and what the test establishes are in scope. The scanner writes code, crates, severity, first_site, sites and messages; classification, reason, unsure, candidates, named_by, named_by_coverage and named_by_statement are hand-made and kept by --write, as are pinned_sites and listed_unresolved_sites. Every code position the scanner reads is resolved, pinned with its values, or listed as unresolved with its reason; none is dropped. The test cannot check that a text covers a refusal, only that it mentions a code: each naming carries a hand-made coverage, whole or partial, and only a whole naming counts as naming the refusal. A finding about this tool as committed on its branch before the stripper was repaired: its test-code stripper silently removed production code in 25 files. In 12 of them the code removed is compiled in every build: a test-only thread_local! { .. } swallowed what followed it (526 lines of core/model_operations/operation_applier/src/numerical_health.rs, 270 of core/solver/nonlinear_integration/src/lib.rs), a test-only struct field (`#[cfg(test)] pub trace_fault: ..,` at core/product_physics/src/retained_product.rs 187) swallowed the fields and code after it, a test-only if let swallowed the rest of its function and the next, and a test-only const fn swallowed what followed it; core/product_physics/src/lib.rs 4672 to 4703, which holds the SOLVER_SYSTEM_BLOCKED diagnostic site at 4681, was not read. In the other 14 (one file is in both groups) the code removed is compiled under cfg(any(test, feature = \"..\")), now read as production. Reading all of it again added no code to the table: it added the one site at core/product_physics/src/lib.rs 4681 for a code the table already held, and sixteen unclaimed literals from core/solver/frame_kernel/src/structural/retained/seeded.rs.",
  "first_site": "the first raising site resolved by type (and, where a mapping is involved, by the arm its argument selects); a site resolved only by a method's name carries by_name, one that may raise any arm of a mapping carries any_arm, and neither is chosen as first while another exists; sites_by_name_only says that every site was resolved by name",
  "named_by_coverage": "for a code named by a LIM entry: {\"coverage\": \"whole\" or \"partial\", \"reason\"}; a partial naming counts as unnamed",
  "classes": {
@@ -11,7 +11,8 @@
  },
  "named_by": "for an absent_capability code, the LIM-nnn entry of docs/RELEASE_LIMITATIONS_v1.0.md that names the code, or \"unnamed\"; null for the other classes",
  "named_by_statement": "the product texts that name the code, as a list, or null when none does: {\"status\": \"in_product\", \"text\", \"where\", \"coverage\", \"coverage_reason\"} for text the product publishes today (a formulation_basis limitation), whole or partial as for named_by_coverage; {\"status\": \"planned\", \"statement\", \"subject\", \"lands_with\"} for a per-document limitation statement not yet in the product, which names nothing today. Planned statements may name codes of any class.",
- "pinned_site": "an entry of pinned_sites: a code position whose value the scanner cannot resolve but the source settles, pinned by hand: {\"file\", \"at\", \"why\", \"site_text\", \"values\", \"reason\", \"anchors\": [{\"file\", \"function\", \"text\"}]}. A pin holds only while the scan leaves a site unresolved with that file, at and why on the line where site_text stands (once in the file), and each anchor is a whole function, defined once in its file, whose text equals the anchor text character for character; one anchor must be the function the site stands in, which binds, builds and uses the value. A holding pin turns the site into sites of its values. Any other unresolved site fails the test.",
+ "pinned_site": "an entry of pinned_sites: a code position whose value the scanner cannot resolve but the source settles, pinned by hand: {\"file\", \"at\", \"why\", \"site_text\", \"values\", \"reason\", \"anchors\": [{\"file\", \"function\", \"text\"}]}. A pin holds only while the scan leaves a site unresolved with that file, at and why on the line where site_text stands (once in the file), and each anchor is a whole function, defined once in its file, whose text equals the anchor text character for character; one anchor must be the function the site stands in, which binds, builds and uses the value. A holding pin turns the site into sites of its values. Any other unresolved site must be listed in listed_unresolved_sites, or the test fails.",
+ "listed_unresolved_site": "an entry of listed_unresolved_sites, kept by hand: {\"file\", \"line_text\", \"at\", \"expression\", \"form\", \"outside_unit\", \"not_known\", and \"relay_of\" or \"reason\"}. An unresolved code position the scanner reports must match an entry by file, at, expression and the text of its line, or the test fails; an entry that matches no reported site (its text changed, or it was resolved) fails too. relay_of says why the value is believed to relay a code built at a position the scanner reads, naming it; not_known true says that is not known (reason). outside_unit true marks an operation applier code position whose own codes are outside the unit.",
  "scope": {
   "unit": "The unit of this table is the code: the value of the code field of a diagnostic, finding, refusal or reason record that production code of the scanned crates constructs. There is one record per distinct value, whatever its spelling.",
   "what_in_the_table_means": "The table is conservative about publication among the constructions the scanner discovers: it lists a code whether or not the record carrying it is published. It is not a superset of all refusals a person can meet: the scanner does not claim completeness (shapes_not_read), excludes reason tokens printed inside messages and some producer forms (outside_the_unit), and does not cover every product surface (crates). That a code is in the table does not mean that a person can meet the refusal it names.",
@@ -85,6 +86,19 @@
    }
   ],
   "what_exit_criterion_3_still_needs": "This table supports the work exit criterion 3 needs and does not do it. That work is the connection from a required capability to its reachable refusal, its practical consequence and a declared limitation. It is traced by shared producer and publication boundaries, not code by code through this table: one code can cover several materially different refusals, and a missing control can withhold a capability with no code at all. Product text that names a limitation is not a declaration of one.",
+  "every_code_position": "Every code position the scanner reads is resolved, pinned with its values (pinned_sites), or listed as unresolved with its reason (listed_unresolved_sites); none is dropped. A part of a value yields no code only in one of the cases of proven_empty_cases; anything else that yields none is an unresolved site.",
+  "proven_empty_cases": {
+   "option_none": "`None`: an absent value carries no code",
+   "diverges": "`return`, `break`, `continue`, or a `panic!`, `unreachable!`, `todo!` or `unimplemented!` arm or block tail: control leaves, so no value is produced there (a `return` is read as a return point of its own function)",
+   "unit_block": "a block with no tail expression: its value is `()`, which is not text",
+   "other_side_of_wrapper": "an `Ok` or `Some` value where the pattern binds `Err`, or the reverse: that arm does not bind it",
+   "empty_collection": "a collection built empty (`vec![]`, `[]`, or `new()`, `default()` or `with_capacity(..)` of Vec, VecDeque, HashMap, BTreeMap, HashSet or BTreeSet): it holds nothing until a mutation, which is read separately or makes the local unresolved",
+   "recursion": "a recursive call met while its function's return points are being read: its values are those return points, read once",
+   "relay": "a read of the code field of a record whose type is proven to be built only by code positions the scanner reads: the type is known and defined in a scanned crate without Deserialize, or the crate can name no type with a code field defined elsewhere; the value is recorded where the record is built",
+   "flows_to_callers": "a text parameter that is itself a code parameter: the value is recorded at each of its callers' arguments",
+   "enum_code_field": "an enum value at a code field whose declared type is that enum: its text comes from the enum's as_str, read as an enum code producer"
+  },
+  "listed_unresolved": "34 code positions are listed as unresolved (listed_unresolved_sites), 2 of them marked not known; 13 are operation applier positions outside the unit.",
   "crates": [
    "core/product_physics",
    "core/solver/*",
@@ -93,7 +107,7 @@
    "core/numerics/*",
    "core/model_operations/operation_applier (a solve's code it relays unchanged only)"
   ],
-  "operation_applier": "core/model_operations/operation_applier is read only for a solve's code that it relays unchanged: a code position there whose value is a constant declared in a scanned solve crate. The applier's own codes are excluded, including an applier code that wraps a solve refusal.",
+  "operation_applier": "core/model_operations/operation_applier is read only for a solve's code that it relays unchanged: a code position there whose value is a constant declared in a scanned solve crate. The applier's own codes are excluded, including an applier code that wraps a solve refusal. An applier code position whose value the scanner cannot resolve is listed in listed_unresolved_sites like any other, and its entry says whether it is outside the unit.",
   "outside_the_unit": "Reason tokens printed inside messages are not inventoried by this table, and no inventory of them exists. The arc-maximum reason tokens below are such tokens: each is produced by a named refusal method or a map_err or Err literal, and is printed inside the message of an enclosing diagnostic whose code is listed here. Other token fields of a published record (a reason's tag, kind, stage or cause, a disposition's reason) are not codes either.",
   "reason_tokens_outside_the_unit": [
    {
@@ -205,7 +219,7 @@
     ]
    }
   ],
-  "what_the_test_establishes": "tests/test_diagnostic_code_table.py establishes that this table agrees with the scanner's observation of the sources over the producer shapes listed in shapes_read, each shape with a witness in that test that adding or removing a code at it fails the test. It does not establish that the table is complete.",
+  "what_the_test_establishes": "tests/test_diagnostic_code_table.py establishes that this table agrees with the scanner's observation of the sources over the shapes and forms listed in shapes_read, each with a witness in that test (for a producer shape, that adding or removing a code at it fails the test), and that every code position the scanner reads is resolved, pinned or listed. It does not establish that the table is complete. A third independent review found no code missing from the table in the present sources, all twenty producer-shape witnesses working, and its blind classification of the sixteen codes then new agreeing 16 of 16.",
   "shapes_read": [
    "the code field of a diagnostic record (a struct or enum variant with code and message or severity) in a literal",
    "an assignment .code = on a diagnostic record",
@@ -224,17 +238,23 @@
    "a value followed through if let Err(x) over a function's return and a closure's tuple pattern",
    "a value followed through a record field holding a tuple, read by a closure pattern",
    "a value followed through a tuple element code.0",
+   "a value converted by to_ascii_uppercase(), to_uppercase(), to_ascii_lowercase() or to_lowercase()",
    "production code after a test-only if",
    "production code after a test-only match",
-   "production code after a test-only for"
+   "production code after a test-only for",
+   "a record's code field read through a receiver whose type the scanner can prove (self in an impl, a typed parameter, a local bound to a struct literal or annotated with a type, Err(x), Ok(x) or Some(x) over a direct call whose declared Result or Option return type names it, or a closure parameter or for variable over a named slice or Vec): recorded where the record is built, when that type is defined in a scanned crate without Deserialize and no type of that name with a code field is defined elsewhere for the crate",
+   "the nearer of a let and a pattern binding of a name, read only within the pattern's scope",
+   "the statement forms the test-code stripper recognises under a test-only attribute: items (const fn among them), fields, labelled loops, brace-delimited macro invocations, if (its condition may be a block) with else if and else, while, for, loop, match, a method chain after a block, let and expression statements",
+   "a module or item under cfg(any(test, feature = \"..\")), read as production (the conservative choice): core/solver/frame_kernel/src/structural/retained/seeded.rs under mutation-controls and exact_boundary/exact_operation_count.rs under exact-operation-count among them; seeded.rs adds sixteen unclaimed literals (VK-F01 to VK-F17, VK-R02, VK-R28, VK-S1, VK-S2 and FK_SEEDED_FAULT)"
   ],
   "shapes_not_read": [
    "named refusal methods (a reason() returning a token) and map_err or Err literals carried into a message: outside the unit (outside_the_unit); a code-shaped Err literal is still read",
-   "raw enum codes never published as text: an enum value reaching a code position as an enum is not read; one turned into text there is an unresolved site",
+   "raw enum codes never published as text: an enum value at a code field declared with that enum is read through its as_str only; enum variant names that serde or Display turn into text elsewhere are not read",
+   "codes that reach a person by a route that is not a code position: a field not named code, a reason or tag token, a map value, text built in a macro_rules body or generated code",
    "tuple-returning helpers whose values are not published at a code position",
-   "values behind a signature the scanner cannot resolve: at a code position each is an unresolved site, which fails the test unless pinned in pinned_sites",
-   "mixed-case message prefixes: only an upper-case CODE: or {CONST}: prefix is read",
-   "production code after test-only control flow: read since the stripper ends a test-only if, match, for, while or loop at the brace that closes its last block (it was not read before)"
+   "a receiver type behind a crate-local Result alias, a field's declared type, a method chain or a run-time choice of function: such a code field read is an unresolved site, listed with its reason",
+   "test-only code marked other than by cfg(test) or cfg(all(test, ..)): it is read as production",
+   "mixed-case message prefixes: only an upper-case CODE: or {CONST}: prefix is read"
   ]
  },
  "codes": [
@@ -6033,8 +6053,7 @@
      "via": "push()",
      "severity": "blocking",
      "through": [
-      "const TIE_ROD_INPUT_INVALID (core/product_physics/src/joint.rs:175)",
-      "const TIE_ROD_INPUT_INVALID <- returned by tie_rod_code() [any arm] (core/product_physics/src/joint.rs:175)"
+      "const TIE_ROD_INPUT_INVALID (core/product_physics/src/joint.rs:175)"
      ]
     },
     {
@@ -6079,20 +6098,10 @@
    "severity": "blocking",
    "first_site": {
     "file": "core/product_physics/src/joint.rs",
-    "line": 761,
-    "via": "push()"
+    "line": 944,
+    "via": "diag()"
    },
    "sites": [
-    {
-     "file": "core/product_physics/src/joint.rs",
-     "line": 761,
-     "via": "push()",
-     "severity": "blocking",
-     "any_arm": true,
-     "through": [
-      "const TIE_ROD_ZERO_LENGTH <- returned by tie_rod_code() [any arm] (core/product_physics/src/joint.rs:178)"
-     ]
-    },
     {
      "file": "core/product_physics/src/joint.rs",
      "line": 944,
@@ -6105,7 +6114,6 @@
     }
    ],
    "messages": [
-    "message",
     "objective connector {}: tie rod {} cannot be formed: {error}; it is never assembled with assumed values"
    ],
    "classification": "input_error",
@@ -17375,6 +17383,12 @@
     },
     {
      "file": "core/product_physics/src/lib.rs",
+     "line": 4681,
+     "via": "diag()",
+     "severity": "blocking"
+    },
+    {
+     "file": "core/product_physics/src/lib.rs",
      "line": 6006,
      "via": "diag()",
      "severity": "blocking"
@@ -17460,9 +17474,9 @@
    ],
    "messages": [
     "fewer than six independent ground constraints including positive springs: the six rigid-body modes of a connected structure cannot all be removed; directly restrained global DOF classes: {restrained}; global DOF classes with no direct restraint: {missing} (not a rigid-body mode analysis; separated restraints can resist rotations); support contributions: {}{skewed}",
+    "dense scrutiny resource guard: estimated dense-path peak {} bytes ({} bytes x {} dense entries, {} global DOFs squared) exceeds the provisional ceiling {} bytes; the model is refused before any n^2 allocation. The estimate is a stated formula, not a measurement; sparse_interactive does not use it, and no automatic dense fallback exists",
     "nonlinear selected mechanics state is unavailable or did not converge",
-    "error.to_string()",
-    "fewer than six independent ground constraints including positive springs: the six rigid-body modes of a connected structure cannot all be removed; directly restrained global DOF classes: {restrained}; global DOF classes with no direct restraint: {missing} (not a rigid-body mode analysis; separated restraints can resist rotations); support contributions: {}"
+    "error.to_string()"
    ],
    "classification": "input_error",
    "reason": "Fewer than six independent ground constraints: the model is under-restrained.",
@@ -20175,7 +20189,623 @@
    ]
   }
  ],
- "unresolved_sites": [],
+ "listed_unresolved_sites": [
+  {
+   "file": "core/analysis/hanger_sizing/src/derived.rs",
+   "line_text": ".map(|(code, names)| refusal(code, names, \"the candidate does not meet the sizing rules of Design §3\"))",
+   "at": "refusal()",
+   "expression": "code",
+   "form": "a closure pattern over a call whose returned values come from a parameter the scanner cannot type",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "the codes the flag(code, id) closure of check_candidates (core/analysis/hanger_sizing/src/derived.rs 216) files into refusals; each flag call passes a HANGER_SIZING_CANDIDATE_* literal, read by the scanner at that call (flag's parameter is named code)"
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line_text": ".map(|d| json!({\"code\": d.code, \"names\": d.names, \"message\": d.message}))",
+   "at": "json code",
+   "expression": "d.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "the Disclosure records of run.disclosures, built at core/analysis/hanger_sizing/src/derived.rs 570 and 575 (Disclosure { code: \"HANGER_SIZING_SUPPORT_STATE_DIFFERS\" .. } and \"HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS\"), code fields the scanner reads"
+  },
+  {
+   "file": "core/loads/self_weight_wasm/src/lib.rs",
+   "line_text": "\"code\":d.code,\"severity\":\"blocking\",\"message\":d.message,",
+   "at": "json code",
+   "expression": "d.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "the Err(Vec<Diagnostic>) of product_physics generate_self_weight_operations (core/product_physics/src/self_weight.rs 135): the product_physics Diagnostic records, built at diag() (core/product_physics/src/lib.rs, fn diag) and at the Diagnostic literals the scanner reads; the name Diagnostic is also a type of core/reporting/result_export, so the scanner cannot prove which"
+  },
+  {
+   "file": "core/loads/self_weight_wasm/src/lib.rs",
+   "line_text": "diagnostics.extend(check.diagnostics.into_iter().map(|d| json!({\"code\":d.code,\"severity\":\"blocking\",",
+   "at": "json code",
+   "expression": "d.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "check.diagnostics of the product_physics applied self-weight check (its type was not read): believed to be the product_physics Diagnostic records, built at diag() (core/product_physics/src/lib.rs, fn diag) and at the Diagnostic literals the scanner reads; the name Diagnostic is also a type of core/reporting/result_export, so the scanner cannot prove which"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/atomic_batch.rs",
+   "line_text": "diagnostics.push(diagnostic(error.code, error.message, vec![batch_id.into()]))",
+   "at": "diagnostic()",
+   "expression": "error.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": true,
+   "not_known": false,
+   "relay_of": "BoundaryError records (core/model_operations/operation_applier/src/boundary_association.rs 11) returned by boundary_association::preflight_batch, built in that file; the operation applier's own code position: its codes are outside the unit"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/bend_authoring.rs",
+   "line_text": "let k = flexibility(Some(&payload[\"flexibility_factor\"])).map_err(|e| corner_err(e.code, e.message, vec![corner.into()]))?;",
+   "at": "corner_err()",
+   "expression": "e.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": true,
+   "not_known": false,
+   "relay_of": "RichError records (core/model_operations/operation_applier/src/rich_authoring.rs 8) returned by flexibility() (bend_authoring.rs 265), built in the applier; the operation applier's own code position: its codes are outside the unit"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
+   "line_text": "let severity = if is_staged_code(&code) { \"warning\" } else { \"blocking\" };",
+   "at": "is_staged_code()",
+   "expression": "&code",
+   "form": "a code read back from a published diagnostic's JSON",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "the \"code\" of each diagnostic of the solve's preview output (preview[\"diagnostics\"]), read back unchanged: the solve's published diagnostics, the product_physics Diagnostic records, built at diag() (core/product_physics/src/lib.rs, fn diag) and at the Diagnostic literals the scanner reads; the name Diagnostic is also a type of core/reporting/result_export, so the scanner cannot prove which"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
+   "line_text": "code,",
+   "at": "field code",
+   "expression": "code",
+   "form": "a code read back from a published diagnostic's JSON",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "the same code as line 274, stored in a JudgedFinding: the solve's published diagnostics, the product_physics Diagnostic records, built at diag() (core/product_physics/src/lib.rs, fn diag) and at the Diagnostic literals the scanner reads; the name Diagnostic is also a type of core/reporting/result_export, so the scanner cannot prove which"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
+   "line_text": "&& !is_route_or_admission(&finding.code)",
+   "at": "is_route_or_admission()",
+   "expression": "&finding.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "JudgedFinding codes, built at condition_set_authoring.rs 285 from the solve's published diagnostics (see that entry)"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
+   "line_text": "checker.push(&finding.code, finding.severity, finding.message, remediation, finding.affected_refs);",
+   "at": "push()",
+   "expression": "&finding.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "JudgedFinding codes, built at condition_set_authoring.rs 285 from the solve's published diagnostics (see that entry)"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/document_validator.rs",
+   "line_text": "JsonFinding::Rule(rule) => self.block(rule.code, &rule.path, rule.message, rule.refs),",
+   "at": "block()",
+   "expression": "rule.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "document_members Finding records of product_physics (core/product_physics/src/document_members.rs 139, built by Finding::new at 147 to 149 from the rule constants of that file), relayed unchanged"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line_text": "Err(error) => checker.push(error.code,\"blocking\",error.message,\"Correct the explicit geometry payload and resolve affected attachments before retrying.\",error.affected_refs),",
+   "at": "push()",
+   "expression": "error.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": true,
+   "not_known": false,
+   "relay_of": "GeometryError records (core/model_operations/operation_applier/src/geometry_operations.rs 13) of insert_at_corner or resolve_geometry, built in the applier; the operation applier's own code position: its codes are outside the unit"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line_text": "checker.push(warning.code, \"warning\", warning.message, &warning.remediation, warning.affected_refs);",
+   "at": "push()",
+   "expression": "warning.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": true,
+   "not_known": false,
+   "relay_of": "ReconnectWarning records (core/model_operations/operation_applier/src/pipe_reconnect.rs 30), built in pipe_reconnect.rs; the operation applier's own code position: its codes are outside the unit"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line_text": "checker.push(block.code, \"blocking\", block.message, &block.remediation, block.affected_refs);",
+   "at": "push()",
+   "expression": "block.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": true,
+   "not_known": false,
+   "relay_of": "ReconnectBlock records (core/model_operations/operation_applier/src/pipe_reconnect.rs 43), built in pipe_reconnect.rs; the operation applier's own code position: its codes are outside the unit"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line_text": "checker.push(",
+   "at": "push()",
+   "expression": "error.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": true,
+   "not_known": false,
+   "relay_of": "GeometryError records of model_settings_authoring::resolve (model_settings_authoring.rs 74), built in the applier (its refusal() calls at 160 and 195 relay product_physics ModelSettingError codes, now resolved there); the operation applier's own code position: its codes are outside the unit"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line_text": "checker.push(",
+   "at": "push()",
+   "expression": "error.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": true,
+   "not_known": false,
+   "relay_of": "GeometryError records of condition_set_authoring::resolve (condition_set_authoring.rs 615), built in the applier; the operation applier's own code position: its codes are outside the unit"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line_text": "checker.push(",
+   "at": "push()",
+   "expression": "error.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": true,
+   "not_known": false,
+   "relay_of": "GeometryError records of project_units_authoring::resolve (project_units_authoring.rs 76), built in the applier; the operation applier's own code position: its codes are outside the unit"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line_text": "checker.push(",
+   "at": "push()",
+   "expression": "error.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": true,
+   "not_known": false,
+   "relay_of": "GeometryError records of library_apply::resolve (library_apply.rs 294), built in the applier; the operation applier's own code position: its codes are outside the unit"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line_text": "checker.push(",
+   "at": "push()",
+   "expression": "error.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": true,
+   "not_known": true,
+   "reason": "the error of resolver(..) (lib.rs 1966), a resolver chosen at run time; its record type was not traced. the operation applier's own code position: its codes are outside the unit"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line_text": "checker.push(",
+   "at": "push()",
+   "expression": "finding.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "document_validator findings of validate_model_document, built at the validator's block() calls (document_validator.rs), whose code parameter the scanner reads: the applier's own codes and solve codes it relays unchanged (as at document_validator.rs 372)"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line_text": "checker.push(error.code, \"blocking\", error.message, \"Supply explicit E/nu constitutive inputs.\", vec![target_ref.to_string()]);",
+   "at": "push()",
+   "expression": "error.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": true,
+   "not_known": false,
+   "relay_of": "RichError records of pressure_authoring::validate_create_material (pressure_authoring.rs; its Result alias is RichError, line 6), built in the applier; the operation applier's own code position: its codes are outside the unit"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line_text": "checker.push(error.code, \"blocking\", error.message, \"Correct the explicit boundary association/member or use one validated new-group batch.\", vec![target_ref.to_string()]);",
+   "at": "push()",
+   "expression": "error.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": true,
+   "not_known": false,
+   "relay_of": "BoundaryError records of boundary_association::validate_create (Result alias, boundary_association.rs 16), built in the applier; the operation applier's own code position: its codes are outside the unit"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line_text": "checker.push(",
+   "at": "push()",
+   "expression": "error.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": true,
+   "not_known": false,
+   "relay_of": "RichError records of rich_authoring::validate_support_configuration (Result alias, rich_authoring.rs 19), built in the applier; the operation applier's own code position: its codes are outside the unit"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line_text": "refuse_interim_member(checker, target_ref, refusal.code, refusal.message);",
+   "at": "refuse_interim_member()",
+   "expression": "refusal.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "GeometryError records of condition_set_authoring::admit_case_use (condition_set_authoring.rs 206), built from the product_physics LOAD_CASE_CONDITION_* constants at its refusal() calls (condition_set_authoring.rs 212, 221, 228), which the table records"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line_text": "refuse_interim_member(checker, target_ref, code, message.into());",
+   "at": "refuse_interim_member()",
+   "expression": "code",
+   "form": "a let-else tuple source",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "the constant pp_members::LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED of product_physics document_members, the one code of the tuple `refusal` built three lines above, which the table holds"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/numerical_health.rs",
+   "line_text": "code: code.map(String::from),",
+   "at": "field code",
+   "expression": "code.map(String::from)",
+   "form": "a code read back from a published diagnostic's JSON",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "the \"code\" of the case's integrity diagnostic in the solve's output (numerical_health.rs 334, d[\"code\"]): the solve's published diagnostics, the product_physics Diagnostic records, built at diag() (core/product_physics/src/lib.rs, fn diag) and at the Diagnostic literals the scanner reads; the name Diagnostic is also a type of core/reporting/result_export, so the scanner cannot prove which"
+  },
+  {
+   "file": "core/product_physics/src/case_state/resolve.rs",
+   "line_text": "block(",
+   "at": "block()",
+   "expression": "error.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "MaterialSelectionError records (core/product_physics/src/case_state/material.rs 59) returned by material::select_for_member through that file's Result alias, built in material.rs"
+  },
+  {
+   "file": "core/product_physics/src/joint.rs",
+   "line_text": "push(diagnostics, code, None, message);",
+   "at": "push()",
+   "expression": "code",
+   "form": "a tuple local changed by a method the scanner does not read (last_mut)",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "by_code of tie_rod_formation_findings (core/product_physics/src/joint.rs): each code is tie_rod_code(&error), pushed as (code, Vec::new()); last_mut only reaches the entry whose messages grow. tie_rod_code's values are the JOINT_TIE_ROD_* constants of joint.rs, which the table holds"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "line_text": "return (prepared.into_ordinary(), Err((W1Fallback::Precommit { gate: error.gate, code: error.code }, selected)));",
+   "at": "field code",
+   "expression": "error.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": false,
+   "not_known": true,
+   "reason": "the code of the error core/reporting/result_export's retained_precision::validate returns, built in core/reporting/result_export, which the scanner does not read; carried in W1Fallback::Precommit, whose publication was not traced"
+  },
+  {
+   "file": "core/product_physics/src/modal/document.rs",
+   "line_text": "json!({\"diagnostic_id\": diagnostic.id, \"code\": diagnostic.code, \"severity\": diagnostic.severity, \"message\": diagnostic.message,",
+   "at": "json code",
+   "expression": "diagnostic.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "the diagnostic: &Diagnostic parameter, crate::Diagnostic (modal/document.rs 38): the product_physics Diagnostic records, built at diag() (core/product_physics/src/lib.rs, fn diag) and at the Diagnostic literals the scanner reads; the name Diagnostic is also a type of core/reporting/result_export; the scanner matches types by name and cannot tell them apart"
+  },
+  {
+   "file": "core/product_physics/src/preview_physics.rs",
+   "line_text": "diagnostics.push(diag(",
+   "at": "diag()",
+   "expression": "code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "gate_reason (preview_physics.rs 857) returns refusal.code of held_status::HeldOutcome::Withheld(refusal) (line 880): held_status's named refusal records (core/product_physics/src/held_status.rs 122), built in held_status.rs"
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line_text": "seed.initial = Some(InitialSeed::Report { code: record.code.clone(), report_diagnostic_ref: record.id.clone() });",
+   "at": "field code",
+   "expression": "record.code.clone()",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "the record: &Diagnostic parameter (retained_product.rs 701, a module that uses super::*): believed to be the product_physics Diagnostic records, built at diag() (core/product_physics/src/lib.rs, fn diag) and at the Diagnostic literals the scanner reads; the name Diagnostic is also a type of core/reporting/result_export, so the scanner cannot prove which"
+  },
+  {
+   "file": "core/product_physics/src/validation.rs",
+   "line_text": "diagnostics.push(diag(",
+   "at": "diag()",
+   "expression": "error.code",
+   "form": "record code field through an unproven receiver type",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "ModelSettingError records of model_settings::shear_model_refusal (core/product_physics/src/model_settings.rs 137 to 139), built from the MODEL_SETTING_SHEAR_MODEL_* constants of that file"
+  },
+  {
+   "file": "core/solver/frame_kernel/src/restraint_basis.rs",
+   "line_text": "Err(SkewRefusal { code, direction })",
+   "at": "field code",
+   "expression": "code",
+   "form": "an enum-typed parameter at the code field of a record that is not a diagnostic record",
+   "outside_unit": false,
+   "not_known": false,
+   "relay_of": "a SkewCode value; its text is given by product_physics skew_code() (core/product_physics/src/document_members.rs 34 to 64), whose arms the scanner reads (the SUPPORT_DIRECTION_* and SUPPORT_SKEW_* codes)"
+  }
+ ],
+ "unresolved_sites": [
+  {
+   "file": "core/analysis/hanger_sizing/src/derived.rs",
+   "line": 268,
+   "at": "refusal()",
+   "why": "parameter request_doc of check_candidates(), of type &Value, turned into text",
+   "expression": "code",
+   "line_text": ".map(|(code, names)| refusal(code, names, \"the candidate does not meet the sizing rules of Design §3\"))"
+  },
+  {
+   "file": "core/analysis/hanger_sizing/src/publish.rs",
+   "line": 706,
+   "at": "json code",
+   "why": "the code field of d, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "d.code",
+   "line_text": ".map(|d| json!({\"code\": d.code, \"names\": d.names, \"message\": d.message}))"
+  },
+  {
+   "file": "core/loads/self_weight_wasm/src/lib.rs",
+   "line": 92,
+   "at": "json code",
+   "why": "the code field of d, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "d.code",
+   "line_text": "\"code\":d.code,\"severity\":\"blocking\",\"message\":d.message,"
+  },
+  {
+   "file": "core/loads/self_weight_wasm/src/lib.rs",
+   "line": 152,
+   "at": "json code",
+   "why": "the code field of d, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "d.code",
+   "line_text": "diagnostics.extend(check.diagnostics.into_iter().map(|d| json!({\"code\":d.code,\"severity\":\"blocking\","
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/atomic_batch.rs",
+   "line": 115,
+   "at": "diagnostic()",
+   "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "error.code",
+   "line_text": "diagnostics.push(diagnostic(error.code, error.message, vec![batch_id.into()]))"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/bend_authoring.rs",
+   "line": 561,
+   "at": "corner_err()",
+   "why": "the code field of e, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "e.code",
+   "line_text": "let k = flexibility(Some(&payload[\"flexibility_factor\"])).map_err(|e| corner_err(e.code, e.message, vec![corner.into()]))?;"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
+   "line": 274,
+   "at": "is_staged_code()",
+   "why": "call unwrap_or() returns no resolvable code",
+   "expression": "&code",
+   "line_text": "let severity = if is_staged_code(&code) { \"warning\" } else { \"blocking\" };"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
+   "line": 285,
+   "at": "field code",
+   "why": "call unwrap_or() returns no resolvable code",
+   "expression": "code",
+   "line_text": "code,"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
+   "line": 517,
+   "at": "is_route_or_admission()",
+   "why": "the code field of finding, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "&finding.code",
+   "line_text": "&& !is_route_or_admission(&finding.code)"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/condition_set_authoring.rs",
+   "line": 549,
+   "at": "push()",
+   "why": "the code field of finding, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "&finding.code",
+   "line_text": "checker.push(&finding.code, finding.severity, finding.message, remediation, finding.affected_refs);"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/document_validator.rs",
+   "line": 372,
+   "at": "block()",
+   "why": "the code field of rule, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "rule.code",
+   "line_text": "JsonFinding::Rule(rule) => self.block(rule.code, &rule.path, rule.message, rule.refs),"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line": 1708,
+   "at": "push()",
+   "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "error.code",
+   "line_text": "Err(error) => checker.push(error.code,\"blocking\",error.message,\"Correct the explicit geometry payload and resolve affected attachments before retrying.\",error.affected_refs),"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line": 1733,
+   "at": "push()",
+   "why": "the code field of warning, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "warning.code",
+   "line_text": "checker.push(warning.code, \"warning\", warning.message, &warning.remediation, warning.affected_refs);"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line": 1742,
+   "at": "push()",
+   "why": "the code field of block, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "block.code",
+   "line_text": "checker.push(block.code, \"blocking\", block.message, &block.remediation, block.affected_refs);"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line": 1789,
+   "at": "push()",
+   "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "error.code",
+   "line_text": "checker.push("
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line": 1818,
+   "at": "push()",
+   "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "error.code",
+   "line_text": "checker.push("
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line": 1844,
+   "at": "push()",
+   "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "error.code",
+   "line_text": "checker.push("
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line": 1880,
+   "at": "push()",
+   "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "error.code",
+   "line_text": "checker.push("
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line": 2039,
+   "at": "push()",
+   "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "error.code",
+   "line_text": "checker.push("
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line": 2725,
+   "at": "push()",
+   "why": "the code field of finding, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "finding.code",
+   "line_text": "checker.push("
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line": 5190,
+   "at": "push()",
+   "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "error.code",
+   "line_text": "checker.push(error.code, \"blocking\", error.message, \"Supply explicit E/nu constitutive inputs.\", vec![target_ref.to_string()]);"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line": 5513,
+   "at": "push()",
+   "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "error.code",
+   "line_text": "checker.push(error.code, \"blocking\", error.message, \"Correct the explicit boundary association/member or use one validated new-group batch.\", vec![target_ref.to_string()]);"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line": 5559,
+   "at": "push()",
+   "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "error.code",
+   "line_text": "checker.push("
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line": 5684,
+   "at": "refuse_interim_member()",
+   "why": "the code field of refusal, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "refusal.code",
+   "line_text": "refuse_interim_member(checker, target_ref, refusal.code, refusal.message);"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/lib.rs",
+   "line": 6314,
+   "at": "refuse_interim_member()",
+   "why": "a tuple source the scanner cannot follow",
+   "expression": "code",
+   "line_text": "refuse_interim_member(checker, target_ref, code, message.into());"
+  },
+  {
+   "file": "core/model_operations/operation_applier/src/numerical_health.rs",
+   "line": 407,
+   "at": "field code",
+   "why": "call map() returns no resolvable code",
+   "expression": "code.map(String::from)",
+   "line_text": "code: code.map(String::from),"
+  },
+  {
+   "file": "core/product_physics/src/case_state/resolve.rs",
+   "line": 788,
+   "at": "block()",
+   "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "error.code",
+   "line_text": "block("
+  },
+  {
+   "file": "core/product_physics/src/joint.rs",
+   "line": 761,
+   "at": "push()",
+   "why": "a tuple local by_code changed or read by last_mut(), which the scanner does not read",
+   "expression": "code",
+   "line_text": "push(diagnostics, code, None, message);"
+  },
+  {
+   "file": "core/product_physics/src/lib.rs",
+   "line": 4317,
+   "at": "field code",
+   "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "error.code",
+   "line_text": "return (prepared.into_ordinary(), Err((W1Fallback::Precommit { gate: error.gate, code: error.code }, selected)));"
+  },
+  {
+   "file": "core/product_physics/src/modal/document.rs",
+   "line": 349,
+   "at": "json code",
+   "why": "the code field of diagnostic, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "diagnostic.code",
+   "line_text": "json!({\"diagnostic_id\": diagnostic.id, \"code\": diagnostic.code, \"severity\": diagnostic.severity, \"message\": diagnostic.message,"
+  },
+  {
+   "file": "core/product_physics/src/preview_physics.rs",
+   "line": 1057,
+   "at": "diag()",
+   "why": "the code field of refusal, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "code",
+   "line_text": "diagnostics.push(diag("
+  },
+  {
+   "file": "core/product_physics/src/retained_product.rs",
+   "line": 706,
+   "at": "field code",
+   "why": "the code field of record, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "record.code.clone()",
+   "line_text": "seed.initial = Some(InitialSeed::Report { code: record.code.clone(), report_diagnostic_ref: record.id.clone() });"
+  },
+  {
+   "file": "core/product_physics/src/validation.rs",
+   "line": 47,
+   "at": "diag()",
+   "why": "the code field of error, whose record type the scanner cannot prove is built only at code positions it reads",
+   "expression": "error.code",
+   "line_text": "diagnostics.push(diag("
+  },
+  {
+   "file": "core/solver/frame_kernel/src/restraint_basis.rs",
+   "line": 446,
+   "at": "field code",
+   "why": "parameter code of refuse(), of type SkewCode, turned into text",
+   "expression": "code",
+   "line_text": "Err(SkewRefusal { code, direction })"
+  }
+ ],
+ "strip_failures": [],
  "unclaimed_literals": [
   {
    "literal": "ASSUMPTION_WARNING",
@@ -20234,6 +20864,12 @@
    "literal": "FAILED_MANIFEST_COPY",
    "sites": [
     "core/product_physics/src/retained_memory.rs:2958"
+   ]
+  },
+  {
+   "literal": "FK_SEEDED_FAULT",
+   "sites": [
+    "core/solver/frame_kernel/src/structural/retained/seeded.rs:88"
    ]
   },
   {
@@ -20634,6 +21270,96 @@
    "literal": "TAV_X",
    "sites": [
     "core/product_physics/src/retained_memory.rs:3004"
+   ]
+  },
+  {
+   "literal": "VK-F01",
+   "sites": [
+    "core/solver/frame_kernel/src/structural/retained/seeded.rs:55"
+   ]
+  },
+  {
+   "literal": "VK-F02",
+   "sites": [
+    "core/solver/frame_kernel/src/structural/retained/seeded.rs:56"
+   ]
+  },
+  {
+   "literal": "VK-F03",
+   "sites": [
+    "core/solver/frame_kernel/src/structural/retained/seeded.rs:57"
+   ]
+  },
+  {
+   "literal": "VK-F04",
+   "sites": [
+    "core/solver/frame_kernel/src/structural/retained/seeded.rs:58"
+   ]
+  },
+  {
+   "literal": "VK-F05",
+   "sites": [
+    "core/solver/frame_kernel/src/structural/retained/seeded.rs:59"
+   ]
+  },
+  {
+   "literal": "VK-F06",
+   "sites": [
+    "core/solver/frame_kernel/src/structural/retained/seeded.rs:60"
+   ]
+  },
+  {
+   "literal": "VK-F07",
+   "sites": [
+    "core/solver/frame_kernel/src/structural/retained/seeded.rs:61"
+   ]
+  },
+  {
+   "literal": "VK-F08",
+   "sites": [
+    "core/solver/frame_kernel/src/structural/retained/seeded.rs:62"
+   ]
+  },
+  {
+   "literal": "VK-F10",
+   "sites": [
+    "core/solver/frame_kernel/src/structural/retained/seeded.rs:63"
+   ]
+  },
+  {
+   "literal": "VK-F13",
+   "sites": [
+    "core/solver/frame_kernel/src/structural/retained/seeded.rs:64"
+   ]
+  },
+  {
+   "literal": "VK-F17",
+   "sites": [
+    "core/solver/frame_kernel/src/structural/retained/seeded.rs:65"
+   ]
+  },
+  {
+   "literal": "VK-R02",
+   "sites": [
+    "core/solver/frame_kernel/src/structural/retained/seeded.rs:66"
+   ]
+  },
+  {
+   "literal": "VK-R28",
+   "sites": [
+    "core/solver/frame_kernel/src/structural/retained/seeded.rs:67"
+   ]
+  },
+  {
+   "literal": "VK-S1",
+   "sites": [
+    "core/solver/frame_kernel/src/structural/retained/seeded.rs:68"
+   ]
+  },
+  {
+   "literal": "VK-S2",
+   "sites": [
+    "core/solver/frame_kernel/src/structural/retained/seeded.rs:69"
    ]
   },
   {
