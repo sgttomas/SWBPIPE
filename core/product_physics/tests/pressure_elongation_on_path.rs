@@ -1,4 +1,4 @@
-//! RT-L2 regression anchor (DEL-04-07 `pressure-elongation.md` §7 item 1):
+//! RT-L2 regression anchor (DEL-04-07):
 //! "included" is today's mechanics exactly. Each committed pressure envelope
 //! below was produced before the switch existed, when every pressurised case
 //! included the closed-end free pressure strain. Its document is solved again

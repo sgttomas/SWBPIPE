@@ -178,7 +178,7 @@ fn phys_r4(pressurized: bool) -> Value {
             "provenance": PROV}], "combinations": []
     }, "materials": []});
     if pressurized {
-        // The public fixture is today's mechanics: its case includes pressure elongation (RT-L2 §7).
+        // The public fixture is today's mechanics: its case includes pressure elongation (RT-L2).
         request["model"]["model_settings"] = json!({"pressure_elongation": {"operating_load_cases": ["case:source-section"]}});
     }
     request

@@ -220,7 +220,7 @@ pub fn request(name: &str, case: &Value) -> Value {
     request
 }
 
-/// DEL-04-07 `pressure-elongation.md` §7: the t4_u5a base names its
+/// DEL-04-07: the t4_u5a base names its
 /// pressurised cases in `model_settings.pressure_elongation`; the built request
 /// keeps only the cases that still carry a pressure region (MO-* remove it), and
 /// states no setting when none does.

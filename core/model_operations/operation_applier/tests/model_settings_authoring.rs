@@ -411,7 +411,7 @@ fn the_shear_model_refusals_are_named_at_authoring_and_at_the_validator() {
 }
 
 // ---- model document 0.9.0: model_settings.pressure_elongation ----------------
-// (DEL-04-07 Design `pressure-elongation.md` §3.1.)
+// (DEL-04-07.)
 
 const ELONGATION: &str = "model_settings.pressure_elongation";
 

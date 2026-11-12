@@ -17,6 +17,7 @@ vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test
 import fixture from "../../../../../fixtures/model_operations/pressure_v3_l_line_authoring.json";
 import { BendAuthoringForms } from "./BendAuthoringForms";
 import { PressureAuthoringPanel } from "../pressure-authoring/PressureAuthoringPanel";
+import { ModelSettingsSection } from "../model-settings/ModelSettingsSection";
 import { makeRichIntent } from "../rich-authoring/formSupport";
 import { applyModelOperation } from "../../services/operationService";
 import { canonicalJsonString, computeModelHash } from "../../services/hashService";
@@ -101,6 +102,17 @@ describe("the L line authored on the desktop (T4-U2)", () => {
     const profile = await queued(() => fireEvent.click(screen.getByRole("button", { name: "Queue pressure profile" })), queue);
     expect(JSON.parse(profile.change.after)).toEqual({ schema_version: "0.9.0", pressure_contract: { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" } });
     model = await apply(model, profile);
+    cleanup();
+
+    // Pressure elongation (DEL-04-07), switched on in Model settings with the operating case
+    // ticked, as the applier's L line names it (today's mechanics).
+    queue = vi.fn();
+    render(<ModelSettingsSection model={model} onQueueIntent={queue} />);
+    fireEvent.click(screen.getByRole("switch", { name: "Include pressure elongation" }));
+    fireEvent.click(screen.getByTestId("model-settings-pressure-elongation-case-case:u2"));
+    const elongation = await queued(() => fireEvent.click(screen.getByTestId("model-settings-pressure-elongation-queue")), queue);
+    expect(JSON.parse(elongation.change.after)).toEqual({ operating_load_cases: ["case:u2"] });
+    model = await apply(model, elongation);
     cleanup();
 
     // Thermal and weight loads, as entered.

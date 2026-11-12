@@ -233,7 +233,7 @@ def test_copy_checks_accept_exact_stored_and_javascript_written_copies(joined) -
     validate_analysis_run_v0_3(written, source)
 
 
-# RT-L2 (DEL-04-07 Design pressure-elongation.md §5): the ordinary identity moved to pressure-3, and the pressure-2
+# RT-L2 (DEL-04-07): the ordinary identity moved to pressure-3, and the pressure-2
 # recorded-table bases (model documents 0.8.0 and 0.9.0, RT-A3 reducers 2a and 2b, increments 3 and 4, RT-A4 and the
 # combination certificate) are not carried into it. Each pressure-2 run recorded under them, main's records verbatim
 # (fixtures/persistence/recorded_model_*), follows the retired-identity rule: its source is refused by name, and its

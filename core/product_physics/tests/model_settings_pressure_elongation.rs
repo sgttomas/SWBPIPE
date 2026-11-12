@@ -1,8 +1,7 @@
-//! Model document 0.9.0's `model_settings.pressure_elongation` (DEL-04-07 Design
-//! `pressure-elongation.md` §3.1), at solve, through the public value entry in both solver
+//! Model document 0.9.0's `model_settings.pressure_elongation` (DEL-04-07), at solve, through the public value entry in both solver
 //! modes: each content refusal is named and nothing is solved; an admitted setting raises
 //! none of them; a document without the member solves as before. The mechanics that read
-//! the setting are not this file's (DEL-04-07 §4).
+//! the setting are not this file's.
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::{json, Value};
 
@@ -72,7 +71,7 @@ fn each_refusal_is_named_at_solve() {
 #[test]
 fn an_admitted_setting_raises_no_refusal_and_absence_solves_as_before() {
     let mut exact: Value = serde_json::from_str(EXACT).unwrap();
-    // The committed X0 names its pressurised case (RT-L2 §7); absence is the copy without the setting.
+    // The committed X0 names its pressurised case (RT-L2); absence is the copy without the setting.
     assert_eq!(exact["model"]["model_settings"], json!({"pressure_elongation": {"operating_load_cases": ["case:closed-pressure"]}}));
     exact["model"].as_object_mut().unwrap().remove("model_settings");
     let authored = with_setting(&exact, json!({"operating_load_cases": ["case:closed-pressure"]}));

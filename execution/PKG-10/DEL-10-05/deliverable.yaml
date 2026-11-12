@@ -120,6 +120,18 @@ needs:
     The hanger sizing entry takes the sizing input as text, applies its own admission, and returns
     one published document that says whether it sized or refused.
   gating: true
+- from: DEL-04-09
+  when: Hosting the modal command
+  condition: >-
+    The modal entry takes a model document and a modal request as text, applies its own admission,
+    and returns one published document, a modal result or its refusals.
+  gating: true
+- from: DEL-04-10
+  when: Hosting the spectrum command
+  condition: >-
+    The spectrum entry takes a model document and a spectrum request as text, applies its own
+    admission, and returns one published document, a spectrum result or its refusals.
+  gating: true
 - from: DEL-10-04
   condition: >-
     Hosted verification builds the runner's crate and runs its tests when its inputs change, and

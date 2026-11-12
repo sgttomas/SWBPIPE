@@ -57,7 +57,7 @@ pub(crate) const REGION_KEYS: &[&str] = &[
     "pressure_elongation",
 ];
 
-/// RT-L2 (DEL-04-07 Design `pressure-elongation.md` §5): every pressure region of a case
+/// RT-L2 (DEL-04-07): every pressure region of a case
 /// states whether the case includes pressure elongation (the closed-end free pressure
 /// strain). Included: the straight Poisson group's coefficient is sign·2ν and a realized
 /// arc carries its signed nonzero free strain; not included: sign·1 and exactly zero.
@@ -1505,13 +1505,10 @@ fn assembly(
             require(!passing, "RHS_SCREEN_EXCEPTION_BESIDE_PASSING_SCREEN")?;
             require(screen.is_null() || screen.as_f64().is_some_and(|s| s.is_finite() && s > 1e-9), "RHS_SCREEN")?;
             require(
-                keys(record, &["basis", "residual_to_source_ratio", "residual_to_source_ratio_limit"])
-                    && record["basis"] == CANCELLATION_EXCEPTION_BASIS
-                    && record["residual_to_source_ratio_limit"] == CANCELLATION_RESIDUAL_RATIO_LIMIT,
+                keys(record, &EXCEPTION_RECORD_KEYS)
+                    && record["basis"] == CANCELLATION_EXCEPTION_BASIS,
                 "RHS_SCREEN_EXCEPTION",
             )?;
-            let ratio = number(&record["residual_to_source_ratio"])?;
-            require((0.0..=CANCELLATION_RESIDUAL_RATIO_LIMIT).contains(&ratio), "RHS_SCREEN_EXCEPTION_RATIO")?;
         }
     }
     for values in [
@@ -1722,31 +1719,120 @@ fn assembly(
                 _ => return Err("SOURCE_PHYSICS_RHS_TERM_KIND".into()),
             }
         }
+        if exception.is_some() {
+            bore_group_value(group, number(&group["direction_component_magnitude"])?)?;
+        }
     }
     if let Some(record) = exception {
+        assembled_is_group_sum(v)?;
         cancellation_exception(v, case, regions, elongation, &nodes, record)?;
+    }
+    Ok(())
+}
+
+/// DEL-04-07, on a case that publishes the cancellation-screen exception
+/// (the path without it is unchanged; see `assembled_is_group_sum`): a bore
+/// group's published value is the re-formation of the
+/// operands it publishes, as the producer forms it (`pressure_group_value`):
+/// p·(π·r·r)·c·d, each product rounded, with p and r the group's pressure and
+/// bore-radius bits, c its coefficient sum (itself the correctly rounded exact
+/// sum of its terms' coefficients) and d its direction magnitude. The
+/// producer's intermediates carry an unbounded exponent, so a subnormal value
+/// may differ from this binary64 chain by one subnormal step.
+fn bore_group_value(group: &Value, magnitude: f64) -> Check {
+    use crate::connector_evidence::ExactSum;
+    let mut coefficients = ExactSum::default();
+    for term in array(&group["terms"])? {
+        coefficients.add(number(&term["coefficient"])?);
+    }
+    let coefficient = number(&group["coefficient_sum"])?;
+    require(coefficients.round() == Some(coefficient), "RHS_GROUP_COEFFICIENT")?;
+    let bits = |key: &str| -> Result<f64, String> {
+        Ok(f64::from_bits(u64::from_str_radix(text(&group[key])?, 16).map_err(|_| "SOURCE_PHYSICS_RHS_SOURCE_BITS")?))
+    };
+    let (p, r) = (bits("pressure_bits")?, bits("source_inner_radius_hi_bits")?);
+    let expected = p * (std::f64::consts::PI * r * r) * coefficient * magnitude;
+    let value = number(&group["assembled_force_n"])?;
+    let exact = expected == 0.0 || expected.is_normal();
+    require(expected.is_finite() && if exact { value == expected } else { (value - expected).abs() <= f64::from_bits(2) }, "RHS_GROUP_VALUE")
+}
+
+/// DEL-04-07, on a case that publishes the cancellation-screen exception:
+/// the published translational pressure load is the sum of the published
+/// groups, degree of freedom by degree of freedom: each entry is the correctly
+/// rounded exact sum of the values of the groups at it (0 where none is
+/// published; a group whose binary64 direction folds to zero adds exactly zero
+/// and is not published), so the exception is not read from a vector that its
+/// groups do not bear out. A case whose original screen passes is read as
+/// before: its vector and group values are taken from the producer, because
+/// binding them would refuse documents the readers accept today (the
+/// hand-formed not-included corpora of the pressure-elongation reader tests,
+/// whose coefficients are re-stamped without their group values).
+fn assembled_is_group_sum(v: &Value) -> Check {
+    use crate::connector_evidence::ExactSum;
+    let order = array(&v["node_order"])?.iter().map(text).collect::<Result<Vec<_>, _>>()?;
+    let assembled = array(&v["assembled_pressure_rhs_global"])?.iter().map(number).collect::<Result<Vec<_>, _>>()?;
+    let mut sums: HashMap<usize, ExactSum> = HashMap::new();
+    for group in array(&v["groups"])? {
+        sums.entry(group_dof(group, &order)?.0).or_default().add(number(&group["assembled_force_n"])?);
+    }
+    for (dof, value) in assembled.iter().enumerate().filter(|(dof, _)| dof % 6 < 3) {
+        let expected = match sums.remove(&dof) { Some(sum) => sum.round().ok_or("SOURCE_PHYSICS_RHS_ASSEMBLED_SUM")?, None => 0.0 };
+        require(*value == expected, "RHS_ASSEMBLED_SUM")?;
     }
     Ok(())
 }
 
 /// The fixed token of the cancellation-screen exception's family
 /// (DEL-04-07; product physics `CANCELLATION_EXCEPTION_BASIS`).
-pub(crate) const CANCELLATION_EXCEPTION_BASIS: &str = "straight_region_interior_cap_pairs_without_pressure_elongation";
-/// The exception's ratio limit (product physics `CANCELLATION_RESIDUAL_RATIO_LIMIT`).
-pub(crate) const CANCELLATION_RESIDUAL_RATIO_LIMIT: f64 = 1e-9;
+pub(crate) const CANCELLATION_EXCEPTION_BASIS: &str = "straight_region_interior_cap_pairs_representation_guard_departure_thrust";
+/// The exception record's members.
+const EXCEPTION_RECORD_KEYS: [&str; 7] = ["basis", "node_ref", "member_pipe_ids", "member_lengths_m", "region_span_m", "thrust_to_bore_force_ratio", "consistency_bound_ratio"];
+/// The constants of the consistency bound (product physics
+/// `BORE_DEPARTURE_RATIO`, `ALIGNMENT_DEPARTURE_RATIO`,
+/// `FORMATION_ALLOWANCE_RATIO`, `SUBNORMAL_ALLOWANCE`).
+const BORE_DEPARTURE_RATIO: f64 = 256.0 * f64::EPSILON;
+const ALIGNMENT_DEPARTURE_RATIO: f64 = 152.0 * f64::EPSILON;
+const FORMATION_ALLOWANCE_RATIO: f64 = 32.0 * f64::EPSILON;
+const SUBNORMAL_ALLOWANCE: f64 = f64::from_bits(8);
+
+/// β, product physics `departure_bound_ratio`.
+fn departure_bound_ratio(span: f64, lengths: [f64; 2]) -> f64 {
+    let member = |length: f64| {
+        let omega = ALIGNMENT_DEPARTURE_RATIO * span / length;
+        if omega <= 0.5 { omega * (1.0 + omega * omega) } else { 2.0 }
+    };
+    BORE_DEPARTURE_RATIO + (member(lengths[0]) + member(lengths[1])).min(2.0) + FORMATION_ALLOWANCE_RATIO
+}
 
 /// DEL-04-07: an assembly that publishes the cancellation-screen exception is
-/// re-derived from its own groups and its case's regions. The original screen
-/// is recomputed and must be the published, failed value; the case must not
-/// include pressure elongation, list a connector or carry a realized arc; every
-/// published group must be a bore group whose terms are either one member's
-/// `poisson_eigen` and `terminal_cap` at a transferring terminal of exactly
-/// that region, or at most two `poisson_eigen` terms of distinct members of
+/// re-derived from its own groups and its case's regions. The case must not
+/// include pressure elongation, list a connector or carry a realized arc;
+/// every published group must be a bore group whose terms are either one
+/// member's `poisson_eigen` and `terminal_cap` at a transferring terminal of
+/// exactly that region, or `poisson_eigen` terms of two distinct members of
 /// one region at a node that is no region's terminal (a group whose binary64
-/// direction folds to zero is not published and adds exactly zero); and the
-/// ratio of each degree of freedom's assembled load to the summed magnitudes
-/// of its published group values, the largest of them, must be the published
-/// ratio, bit for bit.
+/// direction folds to zero is not published and adds exactly zero). Each
+/// term is bound to its member's published direction (`applied_loads`
+/// `local_x_global`): its group's magnitude is that component's, and its
+/// coefficient carries the component's sign times one end sign per member and
+/// node, the same on every axis; the two members at an interior node act in
+/// opposition (their signed directions have a negative dot product). The load
+/// at a transferring terminal is exactly zero. At each interior node |F|, the
+/// correctly rounded norm of its translational load, and |p|·A_hi, re-formed
+/// from the groups' pressure and bore bits, give the measured ratio; the
+/// record's node is the first in node order with the largest; its ratio and
+/// its bound β, re-formed from the record's span and lengths, are the
+/// published values bit for bit, and |F| ≤ |p|·A_hi·β + 8·2^-1074 there. The
+/// original screen is recomputed and must be the published, failed value.
+///
+/// From the envelope alone the reader therefore re-forms every group value,
+/// the assembled vector, every interior |F| and |p|·A_hi, the measured ratio
+/// and the bound at the recorded node; it takes the span and the two member
+/// lengths from the record. Given the model (`exception_model_checks`) it
+/// re-forms the span and lengths from the model's coordinates, checks the
+/// bound at every interior node and binds each term's end sign to the
+/// member's end at that node.
 fn cancellation_exception(
     v: &Value,
     case: &str,
@@ -1760,6 +1846,7 @@ fn cancellation_exception(
     let order = array(&v["node_order"])?.iter().map(text).collect::<Result<Vec<_>, _>>()?;
     require(order.len() == nodes.len(), "RHS_NODES")?;
     let mut terminals = Vec::new();
+    let mut directions: HashMap<(&str, &str), [f64; 3]> = HashMap::new();
     for ((c, region_id), region) in regions {
         if *c != case {
             continue;
@@ -1772,61 +1859,47 @@ fn cancellation_exception(
         for terminal in array(&region["terminals"])? {
             terminals.push((*region_id, text(&terminal["node_ref"])?, terminal["closure_transfer"] == "transfers_to_wall"));
         }
-    }
-    let assembled = array(&v["assembled_pressure_rhs_global"])?.iter().map(number).collect::<Result<Vec<_>, _>>()?;
-    let mut by_dof: HashMap<usize, Vec<&Value>> = HashMap::new();
-    for group in array(&v["groups"])? {
-        require(group.get("effective_area_bits").is_none(), "RHS_SCREEN_EXCEPTION_FAMILY")?;
-        let name = text(&group["node_ref"])?;
-        let node = order.iter().position(|n| *n == name).ok_or("SOURCE_PHYSICS_RHS_GROUP_NODE")?;
-        let axis = match group["component"].as_str() { Some("Fx") => 0, Some("Fy") => 1, Some("Fz") => 2, _ => return Err("SOURCE_PHYSICS_RHS_GROUP_NODE".into()) };
-        by_dof.entry(node * 6 + axis).or_default().push(group);
-    }
-    let mut largest = 0.0_f64;
-    for (dof, groups) in &by_dof {
-        let node = order[dof / 6];
-        let terms = groups.iter().map(|g| array(&g["terms"])).collect::<Result<Vec<_>, _>>()?.into_iter().flatten().collect::<Vec<_>>();
-        let kind = |t: &Value| t["kind"].as_str().unwrap_or_default().to_owned();
-        let ending = terminals.iter().filter(|t| t.1 == node).collect::<Vec<_>>();
-        let admitted = match terms[..] {
-            [a, b] if !ending.is_empty() => {
-                let mut kinds = [kind(a), kind(b)];
-                kinds.sort();
-                groups.len() == 1
-                    && kinds == ["poisson_eigen", "terminal_cap"]
-                    && a["region_id"] == b["region_id"]
-                    && a["pipe_id"] == b["pipe_id"]
-                    && matches!(ending[..], [&(region, _, true)] if a["region_id"] == region)
-            }
-            [a] if ending.is_empty() => kind(a) == "poisson_eigen",
-            [a, b] if ending.is_empty() => {
-                kind(a) == "poisson_eigen" && kind(b) == "poisson_eigen" && a["region_id"] == b["region_id"] && a["pipe_id"] != b["pipe_id"]
-            }
-            _ => false,
-        };
-        require(admitted, "RHS_SCREEN_EXCEPTION_FAMILY")?;
-        let mut scale = ExactSum::default();
-        for group in groups {
-            scale.add(number(&group["assembled_force_n"])?.abs());
+        for load in array(&region["applied_loads"])? {
+            let x = array(&load["local_x_global"])?.iter().map(number).collect::<Result<Vec<_>, _>>()?;
+            let [a, b, c] = x[..] else { return Err("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_DIRECTION".into()) };
+            directions.insert((*region_id, text(&load["pipe_id"])?), [a, b, c]);
         }
-        let scale = scale.round().ok_or("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO")?;
-        let load = assembled[*dof].abs();
-        let ratio = if load == 0.0 { 0.0 } else { load / scale };
-        require(ratio.is_finite(), "RHS_SCREEN_EXCEPTION_RATIO")?;
-        largest = largest.max(ratio);
     }
-    require(
-        number(&record["residual_to_source_ratio"])?.to_bits() == largest.to_bits(),
-        "RHS_SCREEN_EXCEPTION_RATIO",
-    )?;
+    let (interior, _) = family_interior(v, &order, &terminals, &directions)?;
+    // The record's node: the first, in node order, of the largest measured ratio.
+    let mut largest: Option<&Interior> = None;
+    for node in &interior {
+        if largest.is_none_or(|best| node.ratio > best.ratio) {
+            largest = Some(node);
+        }
+    }
+    let node = largest.ok_or("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY")?;
+    let region = regions.get(&(case, node.region)).ok_or("SOURCE_PHYSICS_RHS_REGION_UNRESOLVED")?;
+    let members = array(&region["member_pipe_ids"])?.iter().map(text).collect::<Result<Vec<_>, _>>()?;
+    let mut ordered = node.pipes;
+    ordered.sort_by_key(|pipe| members.iter().position(|m| m == pipe));
+    require(record["node_ref"] == node.node && record["member_pipe_ids"] == json!(ordered), "RHS_SCREEN_EXCEPTION_NODE")?;
+    let lengths = array(&record["member_lengths_m"])?.iter().map(number).collect::<Result<Vec<_>, _>>()?;
+    let span = number(&record["region_span_m"])?;
+    let [l1, l2] = lengths[..] else { return Err("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION".into()) };
+    require(span > 0.0 && l1 > 0.0 && l2 > 0.0, "RHS_SCREEN_EXCEPTION")?;
+    let bound = departure_bound_ratio(span, [l1, l2]);
+    require(number(&record["consistency_bound_ratio"])?.to_bits() == bound.to_bits(), "RHS_SCREEN_EXCEPTION_BOUND")?;
+    require(number(&record["thrust_to_bore_force_ratio"])?.to_bits() == node.ratio.to_bits(), "RHS_SCREEN_EXCEPTION_RATIO")?;
+    require(node.force <= node.bore_force * bound + SUBNORMAL_ALLOWANCE, "RHS_SCREEN_EXCEPTION_BOUND")?;
     // The original screen, as the producer forms it: 32 epsilon times the
     // largest per-DOF sum of group magnitudes over the largest assembled
     // translational load; not finite (null) when that load is 0 and a group
     // value is not, or when a sum is not representable.
+    let assembled = array(&v["assembled_pressure_rhs_global"])?.iter().map(number).collect::<Result<Vec<_>, _>>()?;
+    let mut by_dof: HashMap<usize, Vec<f64>> = HashMap::new();
+    for group in array(&v["groups"])? {
+        let (dof, _) = group_dof(group, &order)?;
+        by_dof.entry(dof).or_default().push(number(&group["assembled_force_n"])?);
+    }
     let max_rhs = assembled.iter().enumerate().filter(|(i, _)| i % 6 < 3).fold(0.0_f64, |m, (_, x)| m.max(x.abs()));
     let mut maximum_ratio = 0.0_f64;
-    for groups in by_dof.values() {
-        let values = groups.iter().map(|g| number(&g["assembled_force_n"])).collect::<Result<Vec<_>, _>>()?;
+    for values in by_dof.values() {
         if max_rhs == 0.0 {
             if values.iter().any(|x| *x != 0.0) {
                 maximum_ratio = f64::INFINITY;
@@ -1849,6 +1922,188 @@ fn cancellation_exception(
         if screen.is_finite() { v["cancellation_screen"].as_f64().map(f64::to_bits) == Some(screen.to_bits()) } else { v["cancellation_screen"].is_null() },
         "RHS_SCREEN_RECOMPUTED",
     )
+}
+
+/// A published group's degree of freedom (node order position times six plus
+/// its axis) and its axis.
+fn group_dof(group: &Value, order: &[&str]) -> Result<(usize, usize), String> {
+    let name = text(&group["node_ref"])?;
+    let node = order.iter().position(|n| *n == name).ok_or("SOURCE_PHYSICS_RHS_GROUP_NODE")?;
+    let axis = match group["component"].as_str() { Some("Fx") => 0, Some("Fy") => 1, Some("Fz") => 2, _ => return Err("SOURCE_PHYSICS_RHS_GROUP_NODE".into()) };
+    Ok((node * 6 + axis, axis))
+}
+
+/// One interior node of an exception's family as the envelope gives it.
+struct Interior<'a> {
+    node: &'a str,
+    region: &'a str,
+    pipes: [&'a str; 2],
+    /// |F|, the correctly rounded norm of the node's translational load.
+    force: f64,
+    /// |p|·A_hi, the larger of the two members' re-formed p·(π·r·r).
+    bore_force: f64,
+    /// |F|/(|p|·A_hi), 0 when |F| is 0.
+    ratio: f64,
+}
+
+/// The family's structure, each term's binding to its member's direction and
+/// end, the opposition at each node, the exact zero at each transferring
+/// terminal, and every interior node's |F| and |p|·A_hi.
+fn family_interior<'a>(
+    v: &'a Value,
+    order: &[&'a str],
+    terminals: &[(&str, &str, bool)],
+    directions: &HashMap<(&str, &str), [f64; 3]>,
+) -> Result<(Vec<Interior<'a>>, Vec<(&'a str, &'a str, f64)>), String> {
+    let assembled = array(&v["assembled_pressure_rhs_global"])?.iter().map(number).collect::<Result<Vec<_>, _>>()?;
+    let mut by_dof: std::collections::BTreeMap<usize, Vec<&Value>> = std::collections::BTreeMap::new();
+    for group in array(&v["groups"])? {
+        require(group.get("effective_area_bits").is_none(), "RHS_SCREEN_EXCEPTION_FAMILY")?;
+        by_dof.entry(group_dof(group, order)?.0).or_default().push(group);
+    }
+    let kind = |t: &Value| t["kind"].as_str().unwrap_or_default().to_owned();
+    // (node, pipe) -> (region, end sign, direction, |p|·A of its group).
+    let mut faces: std::collections::BTreeMap<(usize, &str), (&str, f64, [f64; 3], f64)> = std::collections::BTreeMap::new();
+    let mut closed = HashSet::new();
+    for (dof, groups) in &by_dof {
+        let node = order[dof / 6];
+        let axis = dof % 6;
+        let terms = groups.iter().map(|g| array(&g["terms"])).collect::<Result<Vec<_>, _>>()?.into_iter().flatten().collect::<Vec<_>>();
+        let ending = terminals.iter().filter(|t| t.1 == node).collect::<Vec<_>>();
+        let admitted = match terms[..] {
+            [a, b] if !ending.is_empty() => {
+                let mut kinds = [kind(a), kind(b)];
+                kinds.sort();
+                groups.len() == 1
+                    && kinds == ["poisson_eigen", "terminal_cap"]
+                    && a["region_id"] == b["region_id"]
+                    && a["pipe_id"] == b["pipe_id"]
+                    && matches!(ending[..], [&(region, _, true)] if a["region_id"] == region)
+            }
+            [a] if ending.is_empty() => kind(a) == "poisson_eigen",
+            [a, b] if ending.is_empty() => {
+                kind(a) == "poisson_eigen" && kind(b) == "poisson_eigen" && a["region_id"] == b["region_id"] && a["pipe_id"] != b["pipe_id"]
+            }
+            _ => false,
+        };
+        require(admitted, "RHS_SCREEN_EXCEPTION_FAMILY")?;
+        if !ending.is_empty() {
+            closed.insert(dof / 6);
+        }
+        for group in groups {
+            let magnitude = number(&group["direction_component_magnitude"])?;
+            let bits = |key: &str| -> Result<f64, String> {
+                Ok(f64::from_bits(u64::from_str_radix(text(&group[key])?, 16).map_err(|_| "SOURCE_PHYSICS_RHS_SOURCE_BITS")?))
+            };
+            let (p, r) = (bits("pressure_bits")?, bits("source_inner_radius_hi_bits")?);
+            let bore_force = (p * (std::f64::consts::PI * r * r)).abs();
+            for term in array(&group["terms"])? {
+                let (region, pipe) = (text(&term["region_id"])?, text(&term["pipe_id"])?);
+                let direction = *directions.get(&(region, pipe)).ok_or("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_DIRECTION")?;
+                let component = direction[axis];
+                require(component != 0.0 && component.abs().to_bits() == magnitude.to_bits(), "RHS_SCREEN_EXCEPTION_DIRECTION")?;
+                let coefficient = number(&term["coefficient"])?;
+                let cap = if kind(term) == "terminal_cap" { -1.0 } else { 1.0 };
+                let face = coefficient * component.signum() * cap;
+                require(face.abs() == 1.0, "RHS_SCREEN_EXCEPTION_DIRECTION")?;
+                let entry = faces.entry((dof / 6, pipe)).or_insert((region, face, direction, bore_force));
+                require(entry.1 == face && entry.3.to_bits() == bore_force.to_bits(), "RHS_SCREEN_EXCEPTION_DIRECTION")?;
+            }
+        }
+    }
+    let load = |node: usize| [0, 1, 2].map(|axis| assembled[node * 6 + axis]);
+    for node in &closed {
+        require(load(*node).iter().all(|value| *value == 0.0), "RHS_SCREEN_EXCEPTION_TERMINAL")?;
+    }
+    let mut interior = Vec::new();
+    let mut nodes = faces.keys().map(|(node, _)| *node).filter(|node| !closed.contains(node)).collect::<Vec<_>>();
+    nodes.dedup();
+    for node in nodes {
+        let members = faces.range((node, "")..).take_while(|((n, _), _)| *n == node).collect::<Vec<_>>();
+        let [((_, a), (region, face_a, x_a, force_a)), ((_, b), (region_b, face_b, x_b, force_b))] = members[..] else {
+            return Err("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY".into());
+        };
+        require(region == region_b, "RHS_SCREEN_EXCEPTION_FAMILY")?;
+        let dot = x_a[0] * x_b[0] + x_a[1] * x_b[1] + x_a[2] * x_b[2];
+        require(face_a * face_b * dot < 0.0, "RHS_SCREEN_EXCEPTION_OPPOSITION")?;
+        let [x, y, z] = load(node);
+        let force = open_pipe_stress_correct_norm::norm3(x, y, z);
+        let bore_force = force_a.max(*force_b);
+        let ratio = if force == 0.0 { 0.0 } else { force / bore_force };
+        require(ratio.is_finite(), "RHS_SCREEN_EXCEPTION_RATIO")?;
+        interior.push(Interior { node: order[node], region, pipes: [a, b], force, bore_force, ratio });
+    }
+    let ends = faces.iter().map(|((node, pipe), (_, face, ..))| (order[*node], *pipe, *face)).collect();
+    Ok((interior, ends))
+}
+
+/// DEL-04-07, given the model: each exception record's span and member
+/// lengths are the model's (its region's terminals and the members' end
+/// nodes, at the producer's length normalization, each a correctly rounded
+/// norm of the coordinate differences), bit for bit, and every interior node
+/// of the family is within the bound its own members and span give.
+pub(crate) fn exception_model_checks(source: &Value, model: &Value) -> Check {
+    use open_pipe_stress_units::Dimension;
+    let evidence = &source["contract_evidence"];
+    let Some(cases) = evidence["exact_cases"].as_array() else { return Ok(()) };
+    let unit = model["project"]["units"]["length"].as_str().unwrap_or("m");
+    let position = |id: &str| -> Result<[f64; 3], String> {
+        let node = model["nodes"].as_array().and_then(|n| n.iter().find(|n| n["id"] == id)).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_GEOMETRY")?;
+        let mut out = [0.0; 3];
+        for (k, axis) in ["x", "y", "z"].iter().enumerate() {
+            out[k] = crate::physics_source::normalized_quantity(&json!({"value": node["position"][axis], "unit": unit}), Dimension::Length)?;
+        }
+        Ok(out)
+    };
+    let distance = |a: [f64; 3], b: [f64; 3]| open_pipe_stress_correct_norm::norm3(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+    let pipe_length = |id: &str| -> Result<f64, String> {
+        let pipe = model["pipe_segments"].as_array().and_then(|p| p.iter().find(|p| p["id"] == id)).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_GEOMETRY")?;
+        Ok(distance(position(text(&pipe["from"])?)?, position(text(&pipe["to"])?)?))
+    };
+    for case in cases {
+        let rhs = &case["pressure_rhs_assembly"];
+        let Some(record) = rhs.get("cancellation_screen_exception") else { continue };
+        let cid = text(&case["load_case_id"])?;
+        let regions = array(&evidence["pressure"])?.iter().filter(|r| r["load_case_id"] == cid).collect::<Vec<_>>();
+        let order = array(&rhs["node_order"])?.iter().map(text).collect::<Result<Vec<_>, _>>()?;
+        let mut terminals = Vec::new();
+        let mut directions: HashMap<(&str, &str), [f64; 3]> = HashMap::new();
+        let mut spans: HashMap<&str, f64> = HashMap::new();
+        for region in &regions {
+            let id = text(&region["region_id"])?;
+            let ends = array(&region["terminals"])?;
+            for terminal in ends {
+                terminals.push((id, text(&terminal["node_ref"])?, terminal["closure_transfer"] == "transfers_to_wall"));
+            }
+            let [o, e] = &ends[..] else { return Err("SOURCE_PHYSICS_MODEL_EXCEPTION_GEOMETRY".into()) };
+            spans.insert(id, distance(position(text(&o["node_ref"])?)?, position(text(&e["node_ref"])?)?));
+            for load in array(&region["applied_loads"])? {
+                let x = array(&load["local_x_global"])?.iter().map(number).collect::<Result<Vec<_>, _>>()?;
+                let [a, b, c] = x[..] else { return Err("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_DIRECTION".into()) };
+                directions.insert((id, text(&load["pipe_id"])?), [a, b, c]);
+            }
+        }
+        let (interior, ends) = family_interior(rhs, &order, &terminals, &directions)?;
+        // Each term's end sign is +1 at its member's `from` node and -1 at its `to` node.
+        for (node, pipe, face) in ends {
+            let segment = model["pipe_segments"].as_array().and_then(|p| p.iter().find(|p| p["id"] == pipe)).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_GEOMETRY")?;
+            let expected = if segment["from"] == node { 1.0 } else if segment["to"] == node { -1.0 } else { 0.0 };
+            require(face == expected, "MODEL_EXCEPTION_DIRECTION")?;
+        }
+        for node in &interior {
+            let span = *spans.get(node.region).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_GEOMETRY")?;
+            let lengths = [pipe_length(node.pipes[0])?, pipe_length(node.pipes[1])?];
+            let bound = departure_bound_ratio(span, lengths);
+            require(node.force <= node.bore_force * bound + SUBNORMAL_ALLOWANCE, "MODEL_EXCEPTION_BOUND")?;
+            if record["node_ref"] == node.node {
+                let recorded = array(&record["member_pipe_ids"])?.iter().map(text).collect::<Result<Vec<_>, _>>()?;
+                let recorded_lengths = recorded.iter().map(|id| pipe_length(id)).collect::<Result<Vec<_>, _>>()?;
+                let same_span = record["region_span_m"].as_f64().map(f64::to_bits) == Some(span.to_bits());
+                require(same_span && record["member_lengths_m"] == json!(recorded_lengths), "MODEL_EXCEPTION_GEOMETRY")?;
+            }
+        }
+    }
+    Ok(())
 }
 
 /// Current exact-retained G7 transport checks on the receipt's pressure-2

@@ -2,6 +2,7 @@
 name = "open_pipe_stress_hanger_sizing"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 description = "DEL-04-11 hanger sizing: loads, fit tests, selection and verification arithmetic"
 publish = false
 

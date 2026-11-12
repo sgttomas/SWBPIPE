@@ -55,7 +55,7 @@ regenerates in memory and requires ``MANIFEST.json`` and any present case file
 to be byte identical. ``--pressure-elongation {absent,all,none}`` (default:
 $SWBPIPE_PRESSURE_ELONGATION, else absent) sets ``model_settings.pressure_elongation``
 in each product request through the shared ``tools/validation/pressure_elongation.py``
-(DEL-04-07 ``Work/pressure-elongation.md`` §7); the committed package is ``all``: every
+(DEL-04-07); the committed package is ``all``: every
 pressurised case includes pressure elongation, today's mechanics, which the references are.
 """
 from __future__ import annotations

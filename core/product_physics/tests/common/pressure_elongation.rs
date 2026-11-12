@@ -1,4 +1,4 @@
-//! RT-L2 (DEL-04-07 `pressure-elongation.md` §7 items 1–2): shared test
+//! RT-L2 (DEL-04-07): shared test
 //! oracles for the pressure-elongation switch.
 //!
 //! - [`with_elongation`] names every case with a non-empty pressure region in

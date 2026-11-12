@@ -34,7 +34,7 @@ const PROVENANCE: &str = "invented T4-U2 phase-2 reader corpus input (from T4-I7
 
 /// A frozen T4-I7 sketch document (bytes unchanged), its copy re-authored by
 /// B7b to the current 0.9.0 exact document (`common/current_model.rs`), with
-/// every pressurised case including pressure elongation (RT-L2 §7: today's
+/// every pressurised case including pressure elongation (RT-L2: today's
 /// mechanics, stated explicitly).
 fn i7(id: &str, version: &str) -> Value {
     let documents: Value = serde_json::from_str(I7_DOCUMENTS).unwrap();

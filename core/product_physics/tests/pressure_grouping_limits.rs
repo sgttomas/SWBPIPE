@@ -218,7 +218,7 @@ fn values<'a>(output: &'a Value, kind: &str) -> Vec<f64> {
     output["results"].as_array().unwrap().iter().filter(|r| r["kind"] == kind).map(|r| r["value"].as_f64().unwrap()).collect()
 }
 
-const EXCEPTION_BASIS: &str = "straight_region_interior_cap_pairs_without_pressure_elongation";
+const EXCEPTION_BASIS: &str = "straight_region_interior_cap_pairs_representation_guard_departure_thrust";
 
 fn assembly(output: &Value) -> &Value {
     &output["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]
@@ -226,9 +226,10 @@ fn assembly(output: &Value) -> &Value {
 
 /// How a solved case's cancellation screen was judged. `true`: the original
 /// screen failed and the case was admitted by the exception, whose record
-/// states its family and a measured ratio within its limit. `false`: the
-/// original screen passed and no exception record is published.
-fn assert_screen(output: &Value, by_exception: bool, label: &str) {
+/// names its family and states a measured |F|/(|p|·A_hi) within the
+/// consistency bound beside it. `false`: the original screen passed and no
+/// exception record is published. Returns the record (or null).
+fn assert_screen(output: &Value, by_exception: bool, label: &str) -> Value {
     let assembly = assembly(output);
     let screen = &assembly["cancellation_screen"];
     let record = assembly.get("cancellation_screen_exception");
@@ -236,13 +237,30 @@ fn assert_screen(output: &Value, by_exception: bool, label: &str) {
         assert!(screen.is_null() || screen.as_f64().unwrap() > 1e-9, "{label}: the original screen {screen} must have failed");
         let record = record.unwrap_or_else(|| panic!("{label}: exception record"));
         assert_eq!(record["basis"], EXCEPTION_BASIS, "{label}");
-        assert_eq!(record["residual_to_source_ratio_limit"], 1e-9, "{label}");
-        let ratio = record["residual_to_source_ratio"].as_f64().unwrap();
-        assert!((0.0..=1e-9).contains(&ratio), "{label}: ratio {ratio}");
+        let ratio = record["thrust_to_bore_force_ratio"].as_f64().unwrap();
+        let bound = record["consistency_bound_ratio"].as_f64().unwrap();
+        assert!(ratio >= 0.0 && ratio <= bound, "{label}: ratio {ratio} bound {bound}");
+        record.clone()
     } else {
         assert!((0.0..=1e-9).contains(&screen.as_f64().unwrap()), "{label}: screen {screen}");
         assert!(record.is_none(), "{label}: no exception record beside a passing screen");
+        Value::Null
     }
+}
+
+/// The standing the product publishes for the (one) case: its solve quality,
+/// and whether its integrity diagnostic names the formation of the loads as
+/// the reason (`formation_check: reason=estimate`, K-D5's re-formation of
+/// every pressure operand, or the S11-G load-row guard's formation-noise
+/// sentence naming the region). An observation recorded per model (DEL-04-07);
+/// the standing logic is DEL-04-01's.
+fn standing(output: &Value) -> (String, bool) {
+    let quality = output["numerical_quality"]["cases"][0]["solve_quality"].as_str().unwrap().to_owned();
+    let message = output["diagnostics"].as_array().unwrap().iter()
+        .find(|d| d["id"].as_str().is_some_and(|id| id.starts_with("diagnostic:numerical-integrity:")))
+        .map_or("", |d| d["message"].as_str().unwrap());
+    let formation = message.contains("formation_check: reason=estimate") || message.contains("S11-G formation-noise guard");
+    (quality, formation)
 }
 
 fn assert_refused(input: &Value, label: &str) {
@@ -257,13 +275,17 @@ fn assert_refused(input: &Value, label: &str) {
     }
 }
 
-/// An anchored closed straight run without pressure elongation. What the
-/// exception bounds is the assembled load: at most 1e-9 of the source terms
-/// that cancelled to form it, wherever it is formed. The response is
-/// observed, not bounded by it: for these small, well-conditioned models the
-/// reactions and the effective force S are within 1e-9*p*Ai of the closed form
-/// 0, and the wall force N_w within 1e-9*p*Ai of the closed form p*Ai.
-fn assert_closed_off(input: &Value, by_exception: bool, label: &str) -> Value {
+/// An anchored closed straight run without pressure elongation. The formed
+/// load at an interior node is the thrust of the bore and alignment
+/// differences the region guards admit, and the record's bound only checks
+/// that it is consistent with them. The response is observed, not bounded by
+/// it: for these small models the reactions and the effective force S are
+/// within 1e-9*p*Ai of the closed form 0 of the idealised reference with
+/// equal bores and exact collinearity, and the wall force N_w within 1e-9*p*Ai
+/// of its closed form p*Ai. `expected` is the standing the product publishes
+/// (solve quality, and whether the integrity diagnostic names the loads'
+/// formation as its reason), recorded for each model.
+fn assert_closed_off(input: &Value, by_exception: bool, expected: (&str, bool), label: &str) -> Value {
     let pai = 2e6 * std::f64::consts::PI * 0.05 * 0.05;
     let mut last = Value::Null;
     for mode in MODES {
@@ -271,6 +293,8 @@ fn assert_closed_off(input: &Value, by_exception: bool, label: &str) -> Value {
         assert_eq!(output["status"]["mechanics"], "MECHANICS_SOLVED", "{label} {mode:?}: {}", output["diagnostics"]);
         assert_eq!(assembly(&output)["pressure_elongation"], "not_included", "{label}");
         assert_screen(&output, by_exception, label);
+        let (quality, formation) = standing(&output);
+        assert_eq!((quality.as_str(), formation), expected, "{label} {mode:?}");
         for value in values(&output, "support_reaction_force_magnitude_v2") {
             assert!(value.abs() <= 1e-9 * pai, "{label} {mode:?}: reaction {value}");
         }
@@ -292,17 +316,20 @@ fn assert_closed_off(input: &Value, by_exception: bool, label: &str) -> Value {
 fn a_closed_straight_run_whose_members_are_equal_within_the_region_guards_is_admitted_without_elongation() {
     let x = [[0.0; 3], [3.0, 0.0, 0.0], [LENGTH, 0.0, 0.0]];
     // Bit-equal members: every pressure group cancels exactly and the
-    // original screen passes; no exception is taken.
-    assert_closed_off(&chain(&x, &[0.12, 0.12], &[0, 2]), false, "bit-equal");
+    // original screen passes; no exception is taken. Published established.
+    assert_closed_off(&chain(&x, &[0.12, 0.12], &[0, 2]), false, ("checks_passed", false), "bit-equal");
     // Outside diameters 1 and 60 ulps apart: bores equal within 64 epsilon.
-    assert_closed_off(&chain(&x, &[0.12, next_up(0.12, 1)], &[0, 2]), true, "1 ulp");
-    assert_closed_off(&chain(&x, &[0.12, next_up(0.12, 60)], &[0, 2]), true, "60 ulps");
+    // Each is published Sensitive because K-D5, re-forming every pressure
+    // operand from the recorded geometry, finds the formation of the
+    // interior thrust too uncertain relative to the response it drives.
+    assert_closed_off(&chain(&x, &[0.12, next_up(0.12, 1)], &[0, 2]), true, ("sensitive", true), "1 ulp");
+    assert_closed_off(&chain(&x, &[0.12, next_up(0.12, 60)], &[0, 2]), true, ("sensitive", true), "60 ulps");
     // Three members with mixed ulps: two interior nodes, each a cap pair.
     let three = [[0.0; 3], [2.0, 0.0, 0.0], [4.0, 0.0, 0.0], [LENGTH, 0.0, 0.0]];
-    assert_closed_off(&chain(&three, &[0.12, next_up(0.12, 1), next_up(0.12, 3)], &[0, 3]), true, "three members");
+    assert_closed_off(&chain(&three, &[0.12, next_up(0.12, 1), next_up(0.12, 3)], &[0, 3]), true, ("sensitive", true), "three members");
     // Directions equal within the collinearity guard, the interior node 1/1000
     // of the span from a terminal and 50 epsilon of the span off the chord.
-    assert_closed_off(&chain(&skew(1e-3, 50.0 * f64::EPSILON * 3.0), &[0.12, 0.12], &[0, 2]), true, "skew");
+    assert_closed_off(&chain(&skew(1e-3, 50.0 * f64::EPSILON * 3.0), &[0.12, 0.12], &[0, 2]), true, ("sensitive", true), "skew");
 }
 
 #[test]
@@ -310,10 +337,11 @@ fn a_cantilevered_closed_run_admitted_without_elongation_is_observed_not_to_move
     // Anchored at one end only, outside diameters one ulp apart. Observed for
     // this model: the forces as in `assert_closed_off`, and every nodal
     // translation within the axial stretch that a load of 1e-9*p*Ai would
-    // give the whole run, 1e-9*p*Ai*L/(E*As).
+    // give the whole run, 1e-9*p*Ai*L/(E*As). Published Sensitive, K-D5 naming
+    // the loads' formation.
     let x = [[0.0; 3], [3.0, 0.0, 0.0], [LENGTH, 0.0, 0.0]];
     let input = chain(&x, &[0.12, next_up(0.12, 1)], &[0]);
-    assert_closed_off(&input, true, "cantilever");
+    assert_closed_off(&input, true, ("sensitive", true), "cantilever");
     let pai = 2e6 * std::f64::consts::PI * 0.05 * 0.05;
     let area = std::f64::consts::PI * (0.06 * 0.06 - 0.05 * 0.05);
     let stretch = 1e-9 * pai * LENGTH / (200e9 * area);
@@ -331,12 +359,79 @@ fn a_cantilevered_closed_run_admitted_without_elongation_is_observed_not_to_move
 }
 
 #[test]
-fn a_residual_above_one_billionth_of_its_source_terms_stays_unqualified_without_elongation() {
+fn a_member_of_a_millionth_of_the_span_within_the_collinearity_guard_is_admitted_without_elongation() {
     // The interior node 1e-6 of the span from a terminal, 50 epsilon of the
-    // span off the chord: admitted by the collinearity guard and of the
-    // exception's family, but the members' directions differ by about 1e-8,
-    // so the cap residual there is above 1e-9 of the caps that formed it.
-    assert_refused(&chain(&skew(1e-6, 50.0 * f64::EPSILON * 3.0), &[0.12, 0.12], &[0, 2]), "short member");
+    // span off the chord: admitted by the collinearity guard, which is
+    // relative to the span and not to a member's length, and of the
+    // exception's family. The members' directions differ by about 1e-8, so
+    // the thrust at the interior node is about 1e-8 of the caps that form it.
+    // The former constant 1e-9 refused it; it had no derivation from the
+    // guards, and the bound derived from them admits what they admit (the
+    // thrust is 0.33 of it here). Published Sensitive: the solve's condition
+    // estimate is below the square root of epsilon, so K-D5 does not run and
+    // the diagnostic names the conditioning, not the loads' formation.
+    let input = chain(&skew(1e-6, 50.0 * f64::EPSILON * 3.0), &[0.12, 0.12], &[0, 2]);
+    for mode in MODES {
+        let output = serde_json::to_value(solve(input.clone(), mode)).unwrap();
+        assert_eq!(output["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {}", output["diagnostics"]);
+        let record = assert_screen(&output, true, "short member");
+        assert_eq!(record["node_ref"], "node:C1");
+        assert_eq!(standing(&output), ("sensitive".to_owned(), false), "{mode:?}");
+    }
+}
+
+/// DEL-04-07, the consistency bound at the guards' edges: the members at an
+/// interior node differ in bore by twice the equal-bore guard (one at +64ε of
+/// the reference radius, the other at −64ε), and the node lies at the
+/// collinearity guard's edge with a short member, its neighbours on the other
+/// side of the chord, at every scale of pressure and either sign. Each is
+/// admitted, its measured ratio within the bound, and the record's ratio and
+/// bound do not depend on p.
+#[test]
+fn the_consistency_bound_holds_at_the_guards_edges_for_every_pressure() {
+    let reference = 0.12_f64;
+    let edge = |direction: f64| {
+        let radius = |od: f64| od * 0.5 - 0.01;
+        let admits = |od: f64| (radius(reference) - radius(od)).abs() <= 64.0 * f64::EPSILON * radius(reference).max(radius(od));
+        let mut od = reference;
+        loop {
+            let next = if direction > 0.0 { od.next_up() } else { od.next_down() };
+            if !admits(next) { return od; }
+            od = next;
+        }
+    };
+    let (up, down) = (edge(1.0), edge(-1.0));
+    let four = [[0.0; 3], [2.0, 0.0, 0.0], [4.0, 0.0, 0.0], [LENGTH, 0.0, 0.0]];
+    let output = serde_json::to_value(solve(chain(&four, &[reference, up, down], &[0, 3]), MODES[0])).unwrap();
+    let record = assert_screen(&output, true, "pairwise bores");
+    // The bore term alone: up to 2*64ε of the radius between the two members (each
+    // against the reference, on opposite sides), so above one guard's 128ε of the area.
+    let ratio = record["thrust_to_bore_force_ratio"].as_f64().unwrap();
+    assert!(ratio > 128.0 * f64::EPSILON, "pairwise bores: ratio {ratio}");
+    // A short member at the collinearity guard's edge, on the other side of the chord from its neighbour.
+    let (u, n) = ([2.0 / 13f64.sqrt(), 3.0 / 13f64.sqrt()], [-3.0 / 13f64.sqrt(), 2.0 / 13f64.sqrt()]);
+    let at = |t: f64, offset: f64| [LENGTH * t * u[0] + offset * n[0], LENGTH * t * u[1] + offset * n[1], 0.0];
+    let off = 63.9 * f64::EPSILON * LENGTH;
+    let points = [[0.0; 3], at(0.5, off), at(0.5 + 1e-3 / LENGTH, -off), at(1.0, 0.0)];
+    let mut first: Option<Value> = None;
+    for p in [2e6, -2e6, 1.5, 1e-100, 4503599627370495.5] {
+        let mut input = chain(&points, &[reference, up, down], &[0, 3]);
+        input["model"]["load_cases"][0]["pressure_regions"][0]["pressure"]["value"] = json!(p);
+        let output = serde_json::to_value(solve(input, MODES[0])).unwrap();
+        assert_eq!(output["status"]["mechanics"], "MECHANICS_SOLVED", "p={p}: {}", output["diagnostics"]);
+        let record = assert_screen(&output, true, &format!("guard edge p={p}"));
+        let used = record["thrust_to_bore_force_ratio"].as_f64().unwrap() / record["consistency_bound_ratio"].as_f64().unwrap();
+        assert!(used > 0.5 && used < 1.0, "p={p}: used {used}");
+        assert_eq!(standing(&output).0, "sensitive", "p={p}");
+        match &first {
+            None => first = Some(record),
+            Some(base) => {
+                assert_eq!(record["consistency_bound_ratio"], base["consistency_bound_ratio"], "p={p}");
+                let (a, b) = (record["thrust_to_bore_force_ratio"].as_f64().unwrap(), base["thrust_to_bore_force_ratio"].as_f64().unwrap());
+                assert!((a - b).abs() <= 1e-5 * b, "p={p}: {a} against {b}");
+            }
+        }
+    }
 }
 
 /// Two or three collinear-or-branching regions meeting at node J, every
@@ -429,34 +524,130 @@ fn the_readers_recompute_the_exception_from_the_published_groups() {
         chain(&skew(1e-3, 50.0 * f64::EPSILON * 3.0), &[0.12, 0.12], &[0, 2]),
     ];
     const RHS: &str = "/contract_evidence/exact_cases/0/pressure_rhs_assembly";
-    let refused = |output: &Value, pointer: &str, value: Option<Value>| {
+    let changed = |output: &Value, change: &dyn Fn(&mut Value)| {
         let mut changed = output.clone();
-        let (parent, key) = pointer.rsplit_once('/').unwrap();
-        let object = changed.pointer_mut(parent).unwrap().as_object_mut().unwrap();
-        match value {
-            Some(value) => object.insert(key.to_string(), value),
-            None => object.remove(key),
-        };
-        validate_pressure_evidence(&changed).unwrap_err()
+        change(changed.pointer_mut(RHS).unwrap());
+        changed
+    };
+    let refused = |output: &Value, change: &dyn Fn(&mut Value)| validate_pressure_evidence(&changed(output, change)).unwrap_err();
+    let set = |pointer: &str, value: Option<Value>| {
+        let pointer = pointer.to_string();
+        move |rhs: &mut Value| {
+            let (parent, key) = pointer.rsplit_once('/').unwrap();
+            let object = if parent.is_empty() { rhs.as_object_mut().unwrap() } else { rhs.pointer_mut(parent).unwrap().as_object_mut().unwrap() };
+            match &value {
+                Some(value) => object.insert(key.to_string(), value.clone()),
+                None => object.remove(key),
+            };
+        }
+    };
+    // The interior groups of the record's node.
+    let interior = |rhs: &Value| -> Vec<usize> {
+        let node = rhs["cancellation_screen_exception"]["node_ref"].clone();
+        rhs["groups"].as_array().unwrap().iter().enumerate().filter(|(_, g)| g["node_ref"] == node).map(|(i, _)| i).collect()
     };
     for (index, input) in admitted.iter().enumerate() {
         for mode in MODES {
             let output = serde_json::to_value(solve(input.clone(), mode)).unwrap();
-            assert_screen(&output, true, "admitted");
+            let record = assert_screen(&output, true, "admitted");
             validate_pressure_evidence(&output).unwrap_or_else(|e| panic!("{index} {mode:?}: {e}"));
-            let ratio = output.pointer(&format!("{RHS}/cancellation_screen_exception/residual_to_source_ratio")).unwrap().as_f64().unwrap();
+            let model = &input["model"];
+            let verdict = |document: &Value| open_pipe_stress_result_export::reader_verdict::validate("pressure", document, Some(model), None);
+            assert_eq!(verdict(&output)["ok"], true, "{index} {mode:?}: {}", verdict(&output));
+            let ratio = record["thrust_to_bore_force_ratio"].as_f64().unwrap();
+            let bound = record["consistency_bound_ratio"].as_f64().unwrap();
             let screen = output.pointer(&format!("{RHS}/cancellation_screen")).unwrap().as_f64().unwrap();
-            let exception = format!("{RHS}/cancellation_screen_exception");
-            assert_eq!(refused(&output, &exception, None), "SOURCE_PHYSICS_RHS_SCREEN");
-            assert_eq!(refused(&output, &format!("{exception}/basis"), Some(json!("source_group_magnitudes"))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION");
-            assert_eq!(refused(&output, &format!("{exception}/residual_to_source_ratio_limit"), Some(json!(1e-8))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION");
-            assert_eq!(refused(&output, &format!("{exception}/extra"), Some(json!(0))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION");
-            assert_eq!(refused(&output, &format!("{exception}/residual_to_source_ratio"), Some(json!(next_up(ratio, 1)))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO");
-            assert_eq!(refused(&output, &format!("{exception}/residual_to_source_ratio"), Some(json!(2e-9))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO");
-            assert_eq!(refused(&output, &format!("{RHS}/cancellation_screen"), Some(json!(1e-12))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BESIDE_PASSING_SCREEN");
-            assert_eq!(refused(&output, &format!("{RHS}/cancellation_screen"), Some(json!(next_up(screen, 1)))), "SOURCE_PHYSICS_RHS_SCREEN_RECOMPUTED");
-            assert_eq!(refused(&output, &format!("{RHS}/cancellation_screen"), Some(Value::Null)), "SOURCE_PHYSICS_RHS_SCREEN_RECOMPUTED");
-            assert_eq!(refused(&output, &format!("{RHS}/cancellation_screen"), Some(json!("over"))), "SOURCE_PHYSICS_RHS_SCREEN");
+            let rhs = output.pointer(RHS).unwrap();
+            let groups = interior(rhs);
+            // The record and the original screen.
+            assert_eq!(refused(&output, &set("/cancellation_screen_exception", None)), "SOURCE_PHYSICS_RHS_SCREEN");
+            assert_eq!(refused(&output, &set("/cancellation_screen_exception/basis", Some(json!("straight_region_interior_cap_pairs_without_pressure_elongation")))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION");
+            assert_eq!(refused(&output, &set("/cancellation_screen_exception/extra", Some(json!(0)))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION");
+            assert_eq!(refused(&output, &set("/cancellation_screen_exception/thrust_to_bore_force_ratio", Some(json!(next_up(ratio, 1))))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO");
+            assert_eq!(refused(&output, &set("/cancellation_screen_exception/consistency_bound_ratio", Some(json!(next_up(bound, 1))))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BOUND");
+            assert_eq!(refused(&output, &set("/cancellation_screen_exception/node_ref", Some(rhs["node_order"][0].clone()))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_NODE");
+            let mut swapped = record["member_pipe_ids"].clone();
+            swapped.as_array_mut().unwrap().reverse();
+            assert_eq!(refused(&output, &set("/cancellation_screen_exception/member_pipe_ids", Some(swapped))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_NODE");
+            // A span a millionth of the published one gives a smaller bound than the record's.
+            let span = record["region_span_m"].as_f64().unwrap();
+            assert_eq!(refused(&output, &set("/cancellation_screen_exception/region_span_m", Some(json!(span * 1e-6)))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BOUND");
+            // A length one ulp off may leave the bound's bits unchanged: from the
+            // envelope alone the lengths are the record's; given the model, they are refused.
+            let mut lengths = record["member_lengths_m"].clone();
+            lengths[0] = json!(next_up(lengths[0].as_f64().unwrap(), 1));
+            let moved = changed(&output, &set("/cancellation_screen_exception/member_lengths_m", Some(lengths)));
+            let expected = match validate_pressure_evidence(&moved) {
+                Ok(()) => "SOURCE_PHYSICS_MODEL_EXCEPTION_GEOMETRY",
+                Err(code) => {
+                    assert_eq!(code, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BOUND", "{index} {mode:?}");
+                    "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BOUND"
+                }
+            };
+            assert_eq!(verdict(&moved)["error"]["code"], expected, "{index} {mode:?}");
+            assert_eq!(refused(&output, &set("/cancellation_screen", Some(json!(1e-12)))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BESIDE_PASSING_SCREEN");
+            assert_eq!(refused(&output, &set("/cancellation_screen", Some(json!(next_up(screen, 1))))), "SOURCE_PHYSICS_RHS_SCREEN_RECOMPUTED");
+            assert_eq!(refused(&output, &set("/cancellation_screen", Some(Value::Null))), "SOURCE_PHYSICS_RHS_SCREEN_RECOMPUTED");
+            assert_eq!(refused(&output, &set("/cancellation_screen", Some(json!("over")))), "SOURCE_PHYSICS_RHS_SCREEN");
+            // Finding 2: the reviewer's two mutations and their neighbours.
+            let negative = groups.iter().copied().find(|&g| rhs["groups"][g]["assembled_force_n"].as_f64().unwrap() < 0.0).unwrap();
+            let same_sign = |rhs: &mut Value| {
+                let group = &mut rhs["groups"][negative];
+                group["assembled_force_n"] = json!(-group["assembled_force_n"].as_f64().unwrap());
+                group["coefficient_sum"] = json!(-group["coefficient_sum"].as_f64().unwrap());
+                for term in group["terms"].as_array_mut().unwrap() {
+                    term["coefficient"] = json!(-term["coefficient"].as_f64().unwrap());
+                }
+            };
+            assert_eq!(refused(&output, &same_sign), "SOURCE_PHYSICS_RHS_ASSEMBLED_SUM", "same-sign groups");
+            let zero = |rhs: &mut Value| {
+                let n = rhs["assembled_pressure_rhs_global"].as_array().unwrap().len();
+                rhs["assembled_pressure_rhs_global"] = json!(vec![0.0; n]);
+            };
+            assert_eq!(refused(&output, &zero), "SOURCE_PHYSICS_RHS_ASSEMBLED_SUM", "zeroed vector");
+            let one_group = |rhs: &mut Value| {
+                let value = rhs["groups"][groups[0]]["assembled_force_n"].as_f64().unwrap();
+                rhs["groups"][groups[0]]["assembled_force_n"] = json!(next_up(value, 1));
+            };
+            assert_eq!(refused(&output, &one_group), "SOURCE_PHYSICS_RHS_GROUP_VALUE", "one group's force");
+            let node = rhs["node_order"].as_array().unwrap().iter().position(|n| *n == record["node_ref"]).unwrap();
+            let vector_only = |rhs: &mut Value| {
+                let value = rhs["assembled_pressure_rhs_global"][node * 6].as_f64().unwrap();
+                rhs["assembled_pressure_rhs_global"][node * 6] = json!(if value == 0.0 { 1e-300 } else { next_up(value, 1) });
+            };
+            assert_eq!(refused(&output, &vector_only), "SOURCE_PHYSICS_RHS_ASSEMBLED_SUM", "vector alone");
+            let flip = |rhs: &mut Value| {
+                let term = &mut rhs["groups"][groups[0]]["terms"][0]["coefficient"];
+                *term = json!(-term.as_f64().unwrap());
+            };
+            assert_eq!(refused(&output, &flip), "SOURCE_PHYSICS_RHS_GROUP_COEFFICIENT", "a coefficient sign flipped");
+            // The same flip carried through the group's sum, its value and the
+            // vector: only the binding to the member's direction and the
+            // opposition at the node can see it.
+            let consistent = |rhs: &mut Value| {
+                let group = &mut rhs["groups"][groups[0]];
+                for key in ["coefficient_sum", "assembled_force_n"] {
+                    group[key] = json!(-group[key].as_f64().unwrap());
+                }
+                let term = &mut group["terms"][0]["coefficient"];
+                *term = json!(-term.as_f64().unwrap());
+                let (target, component) = (group["node_ref"].clone(), group["component"].clone());
+                let axis = ["Fx", "Fy", "Fz"].iter().position(|c| component == *c).unwrap();
+                let at = rhs["groups"].as_array().unwrap().iter().filter(|g| g["node_ref"] == target && g["component"] == component)
+                    .map(|g| g["assembled_force_n"].as_f64().unwrap()).collect::<Vec<_>>();
+                let sum = if let [a, b] = at[..] { a + b } else { at[0] };
+                rhs["assembled_pressure_rhs_global"][node * 6 + axis] = json!(sum);
+            };
+            let code = refused(&output, &consistent);
+            assert!(["SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_DIRECTION", "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_OPPOSITION"].contains(&code.as_str()), "{index} {mode:?}: {code}");
+            // A member's published direction negated: from the envelope alone
+            // that is the member reversed, with each end sign reversed too;
+            // given the model, the end signs are bound to its from and to.
+            let mut reversed = output.clone();
+            let loads = reversed.pointer_mut("/contract_evidence/pressure/0/applied_loads").unwrap().as_array_mut().unwrap();
+            loads[1]["local_x_global"] = json!(loads[1]["local_x_global"].as_array().unwrap().iter().map(|x| -x.as_f64().unwrap()).collect::<Vec<_>>());
+            validate_pressure_evidence(&reversed).unwrap();
+            assert_eq!(verdict(&reversed)["error"]["code"], "SOURCE_PHYSICS_MODEL_EXCEPTION_DIRECTION", "{index} {mode:?}");
         }
     }
     // A passing screen: no record may stand beside it, and a forged failing
@@ -464,13 +655,14 @@ fn the_readers_recompute_the_exception_from_the_published_groups() {
     for mode in MODES {
         let output = serde_json::to_value(solve(chain(&x, &[0.12, 0.12], &[0, 2]), mode)).unwrap();
         validate_pressure_evidence(&output).unwrap();
-        let record = json!({"basis": EXCEPTION_BASIS, "residual_to_source_ratio": 0.0, "residual_to_source_ratio_limit": 1e-9});
-        assert_eq!(refused(&output, &format!("{RHS}/cancellation_screen_exception"), Some(record.clone())), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BESIDE_PASSING_SCREEN");
+        let record = json!({"basis": EXCEPTION_BASIS, "node_ref": "node:C1", "member_pipe_ids": ["pipe:C0", "pipe:C1"], "member_lengths_m": [3.0, 3.0],
+            "region_span_m": LENGTH, "thrust_to_bore_force_ratio": 0.0, "consistency_bound_ratio": 1e-13});
+        assert_eq!(refused(&output, &set("/cancellation_screen_exception", Some(record.clone()))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BESIDE_PASSING_SCREEN");
         let mut open = chain(&x, &[0.12, next_up(0.12, 1)], &[0, 2]);
         open["model"]["load_cases"][0]["pressure_regions"][0]["terminals"][1]["closure_transfer"] = json!("separately_supported_or_compensated");
         let mut forged = serde_json::to_value(solve(open, mode)).unwrap();
         assert_screen(&forged, false, "a terminal that does not transfer");
         forged.pointer_mut(RHS).unwrap()["cancellation_screen"] = json!(1.0);
-        assert_eq!(refused(&forged, &format!("{RHS}/cancellation_screen_exception"), Some(record)), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY");
+        assert_eq!(refused(&forged, &set("/cancellation_screen_exception", Some(record))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY");
     }
 }

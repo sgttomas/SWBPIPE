@@ -497,7 +497,7 @@ PRESSURE_CONTRACT_SHA256 = "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb1
 _PRESSURE_CONTRACT_PATH = _RESULTS_DIR / "semantic_contract_v0_3_pressure_3.json"
 # Recorded-run table bases: (id, recorded digest, current digest), each read by the record validator only as the
 # recorded basis of exactly that current table. The pressure-2 bases that model documents 0.8.0 and 0.9.0, RT-A3 and
-# RT-A4 added are not carried into pressure-3 (RT-L2, DEL-04-07 Design pressure-elongation.md §5): a pressure-2 record
+# RT-A4 added are not carried into pressure-3 (RT-L2, DEL-04-07): a pressure-2 record
 # follows the retired-identity rule and is refused by name (SOURCE_PRESSURE_2_RETIRED). None is current.
 # The desktop's twin is analysisRunCompatibility.ts RECORDED_RUN_TABLE_BASES.
 RECORDED_RUN_TABLE_BASES: tuple[tuple[str, str, str], ...] = ()

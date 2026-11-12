@@ -2955,7 +2955,7 @@
                   "included",
                   "not_included"
                 ],
-                "description": "RT-L2 (DEL-04-07 Design pressure-elongation.md §5): whether this case includes pressure elongation, the closed-end free pressure strain (1 - 2nu)pAi/(E As). Included: the straight Poisson group's coefficient is sign*2nu and a realized arc carries its signed nonzero free strain; not_included: sign*1 and exactly zero. Every pressure region of a case states the same value."
+                "description": "RT-L2 (DEL-04-07): whether this case includes pressure elongation, the closed-end free pressure strain (1 - 2nu)pAi/(E As). Included: the straight Poisson group's coefficient is sign*2nu and a realized arc carries its signed nonzero free strain; not_included: sign*1 and exactly zero. Every pressure region of a case states the same value."
               }
             }
           }
@@ -3280,23 +3280,53 @@
                     "additionalProperties": false,
                     "required": [
                       "basis",
-                      "residual_to_source_ratio",
-                      "residual_to_source_ratio_limit"
+                      "node_ref",
+                      "member_pipe_ids",
+                      "member_lengths_m",
+                      "region_span_m",
+                      "thrust_to_bore_force_ratio",
+                      "consistency_bound_ratio"
                     ],
                     "properties": {
                       "basis": {
-                        "const": "straight_region_interior_cap_pairs_without_pressure_elongation"
+                        "const": "straight_region_interior_cap_pairs_representation_guard_departure_thrust"
                       },
-                      "residual_to_source_ratio": {
+                      "node_ref": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "member_pipe_ids": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "member_lengths_m": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 2,
+                        "items": {
+                          "type": "number",
+                          "exclusiveMinimum": 0
+                        }
+                      },
+                      "region_span_m": {
                         "type": "number",
-                        "minimum": 0,
-                        "maximum": 1e-09
+                        "exclusiveMinimum": 0
                       },
-                      "residual_to_source_ratio_limit": {
-                        "const": 1e-09
+                      "thrust_to_bore_force_ratio": {
+                        "type": "number",
+                        "minimum": 0
+                      },
+                      "consistency_bound_ratio": {
+                        "type": "number",
+                        "exclusiveMinimum": 0
                       }
                     },
-                    "description": "DEL-04-07: present exactly when the original screen failed and the case was admitted because it is of the family the basis names (no pressure elongation; closed straight regions whose only formed pressure loads are interior cap pairs of two members of one region) and the largest ratio of a degree of freedom's assembled load to the summed magnitudes of its source-group values is within the limit."
+                    "description": "DEL-04-07: present exactly when the original screen failed and the case was admitted because it is of the family the basis names: no pressure elongation, closed straight regions whose only formed pressure loads are the interior cap pairs of two members of one region. Their sum F at an interior node is the thrust of the bore and alignment differences between the two members that the region's representation guards admit; the product solves the recorded geometry, for which that thrust is real. The record states the interior node of the largest |F|/(|p|*A_hi), its two members (in the region's order) and their lengths, the region's span, that ratio, and the bound beta formed from the span and lengths by the derivation in product physics (pressure_runtime BORE_DEPARTURE_RATIO). The bound is a consistency check that the formed force agrees with what the guards admit; it does not bound the response or establish its accuracy or acceptability, which the case's numerical standing addresses."
                   },
                   "screen_limit": {
                     "const": 1e-09

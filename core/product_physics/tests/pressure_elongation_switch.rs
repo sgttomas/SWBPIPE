@@ -1,4 +1,4 @@
-//! RT-L2 controls (DEL-04-07 `pressure-elongation.md` §4.3, §7 item 2): the
+//! RT-L2 controls (DEL-04-07): the
 //! pressure-elongation switch on the exact route, through the public entry in
 //! both solver modes.
 //!

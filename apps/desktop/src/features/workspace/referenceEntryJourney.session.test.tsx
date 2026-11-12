@@ -87,6 +87,13 @@ const ALLOWED_DIFFERENCES = [
  */
 const DOCUMENT_DIFFERENCES_NOT_IN_3_14 = ["analysis_status", "data_boundary", "diagnostics"] as const;
 
+/**
+ * The fixture's pressure-elongation setting (DEL-04-07): its producer names every pressurised case,
+ * today's mechanics. The run sheet has no step that switches it on, so the journey's document states
+ * no `model_settings`; the test asserts both sides exactly, so the difference cannot grow silently.
+ */
+const FIXTURE_ONLY_SETTING = { pressure_elongation: { operating_load_cases: ["load:RS-SUS", "load:RS-OPE", "load:RS-SAM"] } };
+
 /** Row labels the person types in the Label cell (§3.4: "for the fixture's text, type nodes[].label"). */
 const ROW_NODES: Record<number, string> = {
   0: "RS-010", 1: "RS-020", 2: "RS-030", 3: "RS-040", 4: "RS-050", 5: "RS-060", 8: "RS-080", 10: "RS-100", 11: "RS-110",
@@ -199,8 +206,10 @@ function compareWithFixture(model: PreviewModel, where: string): number {
   // description (§3.14) and the blank's own members §3.14 does not list, asserted to be the blank's.
   const document = model as unknown as AnyRecord, fixtureDocument = reference as unknown as AnyRecord;
   const members = [...new Set([...Object.keys(document), ...Object.keys(fixtureDocument)])].filter((key) => !(COLLECTIONS as readonly string[]).includes(key)).sort();
-  expect(members, `${where}: document members`).toEqual(["analysis_status", "data_boundary", "diagnostics", "document_kind", "pressure_contract", "project", "schema_version"]);
-  for (const key of members.filter((key) => key !== "project" && !(DOCUMENT_DIFFERENCES_NOT_IN_3_14 as readonly string[]).includes(key))) expect(document[key], `${where}: ${key}`).toEqual(fixtureDocument[key]);
+  expect(members, `${where}: document members`).toEqual(["analysis_status", "data_boundary", "diagnostics", "document_kind", "model_settings", "pressure_contract", "project", "schema_version"]);
+  for (const key of members.filter((key) => key !== "project" && key !== "model_settings" && !(DOCUMENT_DIFFERENCES_NOT_IN_3_14 as readonly string[]).includes(key))) expect(document[key], `${where}: ${key}`).toEqual(fixtureDocument[key]);
+  expect(document.model_settings, `${where}: model_settings (the run sheet authors no setting)`).toBeUndefined();
+  expect(fixtureDocument.model_settings, "fixture: model_settings (its producer's setting)").toEqual(FIXTURE_ONLY_SETTING);
   const { id, name, description, ...project } = model.project;
   expect([id, name, description], `${where}: project (§3.14)`).toEqual([expect.stringMatching(/^project:blank-local-/), expect.stringMatching(/^Blank Local Load\/reference Model/), BLANK.project.description]);
   expect(project, `${where}: project.units`).toEqual({ units: reference.project.units });

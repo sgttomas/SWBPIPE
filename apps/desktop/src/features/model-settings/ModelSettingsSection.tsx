@@ -16,7 +16,7 @@
 // `pressure_contract.shear_model`, set in the pressure panel.
 //
 // On a document with a pressure contract it also holds Pressure elongation (Bourdon)
-// (DEL-04-07 Design pressure-elongation.md §3.3): one switch, "Include pressure
+// (DEL-04-07): one switch, "Include pressure
 // elongation". Switched on, a checklist "Operating load cases" of the document's load
 // cases, preselected with those whose kind is "operating" and editable; queueing "on"
 // needs at least one ticked case. Switching off queues clear_model_setting. While the

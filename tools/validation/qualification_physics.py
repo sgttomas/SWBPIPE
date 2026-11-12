@@ -65,8 +65,10 @@ DEPENDENCIES = {
     # merged with RT-U4 order (was fe65101b... on RT-U4 order and 2e9b087d... on RT-A3 increment 4); then RT-A3 §4
     # (DEL-05-02 Work `combination-certificate.md`): the pass reads the document without the combination certificate,
     # then the certificate on the whole document, merged with RT-U4 order (was 0baf783f... on RT-U4 order and
-    # fd69f9be... on RT-A3 §4).
-    MODULE: 'e85432423110e72022cb93f8c8324ffb4aa6dc48f1ed32a0cb20a28a986e0d73',
+    # fd69f9be... on RT-A3 §4); then RT-L2 (DEL-04-07): pressure-3, the reader keyed on each case's
+    # `pressure_elongation` evidence, and the readers' recomputation of the cancellation-screen exception (was
+    # e8543242...).
+    MODULE: 'dfc556bb23c64801d80fa3bff92f7e8d9d3ce7160f15076420eecc50f9188e18',
     TABLE: TABLE_SHA256,
     # The units authority: then DEL-04-09 I3a's mass_length_per_rotation family (kg*m/rad, lb*in/rad, lb*ft/rad),
     # an addition only; every existing unit, dimension and conversion is unchanged (was 5a412c57...); then the

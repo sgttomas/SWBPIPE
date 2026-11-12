@@ -425,7 +425,7 @@ fn the_readers_admit_two_tees_on_one_end_and_refuse_a_forged_source_reference() 
 #[path = "common/pressure_elongation.rs"]
 mod pressure_elongation;
 
-/// RT-L2 (DEL-04-07 `pressure-elongation.md` §4.3): with pressure elongation not
+/// RT-L2 (DEL-04-07): with pressure elongation not
 /// included, each tee and junction case is the unbalanced-thrust model: a closed
 /// junction carries no pressure load, a compensated terminal its member's
 /// uncancelled cap p·A_i, and every member's N_w exceeds the p = 0 value by p·A_i.

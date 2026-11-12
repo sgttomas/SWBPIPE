@@ -4,8 +4,8 @@
 // (`analysisRunCompatibility.ts` RECORDED_RUN_TABLE_BASES; Python's twin is `compatibility.py`).
 // Each pressure-2 run recorded under them, main's records verbatim (fixtures/persistence/
 // recorded_model_*, outside `repin`'s reach), follows the retired-identity rule: its record still
-// verifies against its own checksum, its source is refused by name, and the record binds no current
-// table (the desktop record check refuses it before the reader, as for any other retired identity).
+// verifies against its own checksum, and both its source and its record are refused by name with the
+// message that the result predates the pressure elongation setting and must be re-solved.
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
@@ -41,7 +41,7 @@ describe.each(RECORDED)("a pressure-2 run recorded under an earlier table (%s)",
     expect(recordedRunSemanticBinding(record().analysis_run.reproducibility.semantic_contract, current)).toEqual(current);
   });
 
-  it("is refused: its source by name at Rust's header dispatch, its record as binding no current table", async () => {
+  it("is refused by name: its source at Rust's header dispatch, its record with the same code and message", async () => {
     const dispatch = readerDispatch(source());
     expect(dispatch.ok).toBe(false);
     expect(dispatch.error?.code).toBe("SOURCE_PRESSURE_2_RETIRED");
@@ -49,6 +49,7 @@ describe.each(RECORDED)("a pressure-2 run recorded under an earlier table (%s)",
     expect(dispatch.error?.detail).toBe(
       "SOURCE_PRESSURE_2_RETIRED: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model");
     const run = record();
-    await expect(validateAnalysisRunV03(run, source(), run.analysis_run.load_basis_refs)).rejects.toThrow("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
+    await expect(validateAnalysisRunV03(run, source(), run.analysis_run.load_basis_refs)).rejects.toMatchObject({ code: "SOURCE_PRESSURE_2_RETIRED", message: dispatch.error?.detail });
+    await expect(validateAnalysisRunV03(run, source(), run.analysis_run.load_basis_refs, undefined, { recordedRead: true })).rejects.toMatchObject({ code: "SOURCE_PRESSURE_2_RETIRED", message: dispatch.error?.detail });
   });
 });

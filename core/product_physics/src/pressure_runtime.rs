@@ -116,7 +116,7 @@ pub(crate) struct ExactPressurePipeState {
     /// T4-U2: a realized curved bend's pressure data (H-2); `None` on a
     /// straight member.
     pub arc: Option<ArcPressure>,
-    /// RT-L2 (DEL-04-07 `pressure-elongation.md` §4): whether this case includes
+    /// RT-L2 (DEL-04-07): whether this case includes
     /// pressure elongation (`PreviewModel::pressure_elongation_included`). Included:
     /// κ = 2ν on a straight member and the arc's K_b·u_free(ε_p) push and
     /// u_free(ε_th + ε_p) recovery. Not included: κ = 1 (the cap pair alone), no arc
@@ -777,7 +777,7 @@ fn assemble_pressure_case(
         evidence: Vec::new(),
         joint_pressures: BTreeMap::new(),
     };
-    // RT-L2 (`pressure-elongation.md` §4): one boolean per case.
+    // RT-L2: one boolean per case.
     let elongation_included = model.pressure_elongation_included(&case.id);
     let mut factor_groups = BTreeMap::new();
     let mut cap_terms = vec![Vec::new(); output.cap_loads.len()];
@@ -1501,6 +1501,7 @@ fn finish_source_groups(
     diagnostics: &mut Vec<Diagnostic>,
 ) {
     let eligible = cancellation_exception_eligible(model, case, output, &groups);
+    let family = eligible.then(|| family_nodes(model, case, &groups));
     let mut by_dof = vec![Vec::new(); output.assembled_loads.len()];
     let mut evidence = Vec::new();
     for ((dof, pbits, area, _), group) in groups {
@@ -1618,15 +1619,18 @@ fn finish_source_groups(
     }
     let screen = 32.0 * f64::EPSILON * maximum_ratio;
     // The original screen stays as it is. Only when it fails, and only for a
-    // case of the structural family below, is the case admitted on the
-    // residual's ratio to the source terms that formed it; the case is then
-    // solved with the formed residual, not with a zeroed RHS, so the
-    // published groups still sum to the assembled load.
+    // case of the structural family below, is the case admitted, after the
+    // consistency check of `departure_thrust_record`; the case is then solved
+    // with the formed load, not with a zeroed RHS, so the published groups
+    // still sum to the assembled load.
     let mut exception = None;
     if !screen.is_finite() || screen > 1e-9 {
-        let ratio = if eligible { cancellation_residual_ratio(&output.assembled_loads, &by_dof) } else { None };
-        match ratio {
-            Some(ratio) if ratio <= CANCELLATION_RESIDUAL_RATIO_LIMIT => exception = Some(ratio),
+        let record = match &family {
+            Some(Some(family)) => departure_thrust_record(model, built, case, output, family),
+            _ => None,
+        };
+        match record {
+            Some(record) => exception = Some(record),
             _ => problem(diagnostics,"PRESSURE_ASSEMBLY_CANCELLATION_UNRESOLVED",&[&case.id],"different source factors strongly cancel beyond the bounded pressure-RHS screening domain; no source-accuracy or Current result is inferred from a small residual of rounded loads"),
         }
     }
@@ -1636,11 +1640,10 @@ fn finish_source_groups(
         "rounded_cap_rhs_global":output.cap_loads,"rounded_poisson_rhs_global":output.eigenloads,"dof_units":["N","N","N","N*m","N*m","N*m"],
         "cancellation_screen":if screen.is_finite(){Some(screen)}else{None},"screen_limit":1e-9,"screen_roundoff_multiplier":32,
         "screen_is_not_numerical_qualification":true});
-    if let Some(ratio) = exception {
-        output.assembly_evidence["cancellation_screen_exception"] = json!({"basis":CANCELLATION_EXCEPTION_BASIS,
-            "residual_to_source_ratio":ratio,"residual_to_source_ratio_limit":CANCELLATION_RESIDUAL_RATIO_LIMIT});
+    if let Some(record) = exception {
+        output.assembly_evidence["cancellation_screen_exception"] = record;
     }
-    // RT-L2 (`pressure-elongation.md` §5): a case with pressure regions states
+    // RT-L2: a case with pressure regions states
     // whether it includes pressure elongation; a pressure-free case is unchanged.
     if case.pressure_regions.as_ref().is_some_and(|regions| !regions.is_empty()) {
         output.assembly_evidence["pressure_elongation"] =
@@ -1649,18 +1652,121 @@ fn finish_source_groups(
 }
 
 /// The fixed token naming the family a cancellation-screen exception is
-/// admitted for (`cancellation_screen_exception.basis`).
-pub(crate) const CANCELLATION_EXCEPTION_BASIS: &str = "straight_region_interior_cap_pairs_without_pressure_elongation";
+/// admitted for (`cancellation_screen_exception.basis`): interior cap pairs
+/// of straight regions without pressure elongation, whose formed load is the
+/// thrust of the bore and alignment differences between adjacent members that
+/// the region's representation guards admit.
+pub(crate) const CANCELLATION_EXCEPTION_BASIS: &str = "straight_region_interior_cap_pairs_representation_guard_departure_thrust";
 
-/// The bound of the cancellation-screen exception: it compares the load
-/// assembled at a degree of freedom against the summed magnitudes of the
-/// source-group terms that cancelled to form it there. Its value is under
-/// independent numerical scrutiny.
-pub(crate) const CANCELLATION_RESIDUAL_RATIO_LIMIT: f64 = 1e-9;
+/// DEL-04-07, the consistency check of the cancellation-screen exception.
+///
+/// What it is. Inside the family of [`cancellation_exception_eligible`] the
+/// only formed pressure load is, at each interior node N, the sum of the cap
+/// pairs of the two members meeting there: F = p(A2 u2 − A1 u1), with A_k the
+/// bore area and u_k the traversal-direction unit vector of member k. The
+/// product solves the recorded binary64 geometry, and for that geometry F is
+/// a real thrust: the bores and directions of adjacent members differ by what
+/// the region's two representation guards admit. F is zero only for an
+/// idealised reference with equal bores and exact collinearity, which is not
+/// what is solved. The check below shows only that the formed |F| is
+/// consistent with the bore and alignment differences the region admits. It
+/// is a consistency check on the evidence, not a filter: every case that
+/// passed the region guards is expected to pass it, and a case above it means
+/// the code or the evidence disagrees with the guards (it is refused with
+/// PRESSURE_ASSEMBLY_CANCELLATION_UNRESOLVED). It says nothing about whether
+/// the response to F is acceptable or accurate, and does not bound it. The
+/// original screen's protection does not operate inside the family; what
+/// stands in its place is the structural eligibility, this record, and the
+/// standing the product's own integrity checks give the response.
+///
+/// The guards as implemented (this file).
+/// - Equal bore (`PRESSURE_REGION_BORE_MISMATCH`, in the region loop): each
+///   member's pressure-bore radius r (binary64 D/2 − t_r) against the first
+///   member's in traversal, r_ref: |r_ref − r| ≤ 64ε·max(r_ref, r). The
+///   subtraction is exact (Sterbenz) and 64ε·max is exact (a power of two), so
+///   the guard holds exactly. It is not pairwise and not on diameter.
+/// - Collinearity (`collinear_run`, `PRESSURE_REGION_NONCOLLINEAR`): in a
+///   region without a realized arc, one chain from the first listed terminal O
+///   to the second E, of span S = |E − O|; for each step's end node P, with
+///   x = (P − O)/S, the computed normal part of x against the computed chord
+///   direction is at most 64ε, and the computed projections increase strictly
+///   along the traversal. It is relative to the span, not per member or pair.
+///
+/// The bound, with u = ε/2 and A_hi = π·max(r1, r2)². |F| ≤ p|A2 − A1| +
+/// pA1|u2 − u1| (F = p[(A2 − A1)u2 + A1(u2 − u1)], |u2| = 1).
+/// - Bore term, c_b = 256ε. Both radii are within 64ε·max(r_ref, r_k) of
+///   r_ref. If r1 and r2 lie on one side of r_ref, |r1 − r2| ≤ 64ε·r_ref; if
+///   on opposite sides, r_ref ≤ r_hi and |r1 − r2| ≤ 2·64ε·r_hi (the first
+///   factor of two: both members may differ from the reference, in opposite
+///   directions). With r_ref above both, r_ref ≤ r_hi/(1 − 64ε), so in every
+///   case |r1 − r2| ≤ 128ε·r_hi. Then |A2 − A1| = π|r2 − r1|(r1 + r2) ≤
+///   π·128ε·r_hi·2r_hi = 256ε·A_hi (the second factor of two: the area is
+///   quadratic in r).
+/// - Alignment term, c_d = 2H with H = 76ε. The guard's computed normal part
+///   differs from the true one, |x − (x·ĉ)ĉ| against the exact chord direction
+///   ĉ, by at most 20u·|x| + u·h to first order: the chord, the span and the
+///   delta are each formed with relative error at most 4u per component
+///   (subtraction, correctly rounded norm, division), the three-term
+///   projection adds 3u, its product with the direction u, and the final
+///   subtraction and norm u each. With |x| ≤ 1 + 64ε, every node's true
+///   distance from the chord line is at most (64ε + 10ε)S = 74ε·S; H = 76ε
+///   leaves 2ε for every second-order term and for the binary64 evaluation of
+///   S/L below (relative error at most 6u). A member's vector is ℓĉ + w with
+///   w ⊥ ĉ and |w| ≤ 2H·S (the third factor of two: its two ends may lie on
+///   opposite sides of the chord), so ω = |w|/L ≤ c_d·S/L. For ℓ ≥ 0,
+///   |u − ĉ| ≤ ω/√(1 − ω²/2) ≤ ω(1 + ω²) while ω ≤ 1/2. A member whose
+///   true axial advance is negative (ℓ < 0) despite the strictly increasing
+///   computed projections, which carry at most 11u error each, has
+///   L² ≤ (22u·S)² + (2H·S)², so ω ≥ 0.997: it falls in the branch ω > 1/2,
+///   which takes |u − ĉ| ≤ 2. Then |u2 − u1| ≤ min(2, D1 + D2) with D_k =
+///   ω_k(1 + ω_k²) for ω_k ≤ 1/2 and 2 otherwise. A short member enters
+///   through S/L: a member of a millionth of the span admits a direction
+///   change of about 152ε·10⁶, and the bound grows with it; this is what the
+///   collinearity guard admits, since it is not relative to member length.
+/// - Formation allowance, c_r = 32ε. Each group value is
+///   ±p·fl(fl(π̂·r)·r)·|d̃| with π̂ = binary64 π: the area carries at most 3u
+///   (π̂, two products), the product with p and with |d̃| u each, and the
+///   formed unit direction d̃ (a chord subtraction and two normalizations)
+///   at most 9u per component against the exact unit vector, so each formed
+///   term is within 14u of its exact counterpart, componentwise and hence as
+///   a vector. The two terms at N give at most 28u·pA_hi = 14ε·pA_hi, and
+///   the correctly rounded sum per component adds u·|F|. The binary64
+///   evaluation of |F| (correctly rounded), of pA_hi (at most 5u) and of the
+///   bound adds at most 8u·(c_b + 2) = 8ε·pA_hi at its largest. 14ε + 8ε
+///   rounds up to 32ε. Every product here is homogeneous in p, so the bound
+///   holds for any magnitude of p, of either sign (|p| is used; two regions
+///   never share an interior node in the family). Where values are
+///   subnormal, the roundings are absolute: at most 2^-1075 per group value
+///   and per sum, and per product of the bound, so an absolute allowance of
+///   8·2^-1074 is added.
+///
+/// The check: at each interior node, |F| ≤ fl(fl(pA_hi·β) + 8·2^-1074) with
+/// β = c_b + min(2, D1 + D2) + c_r and |F| the correctly rounded norm of the
+/// assembled translational load there. At a transferring terminal the
+/// member's own cap pair shares one group and cancels exactly: the assembled
+/// load there must be exactly zero.
+pub(crate) const BORE_DEPARTURE_RATIO: f64 = 256.0 * f64::EPSILON;
+/// c_d of [`BORE_DEPARTURE_RATIO`]'s derivation: 2·76ε.
+pub(crate) const ALIGNMENT_DEPARTURE_RATIO: f64 = 152.0 * f64::EPSILON;
+/// c_r of [`BORE_DEPARTURE_RATIO`]'s derivation.
+pub(crate) const FORMATION_ALLOWANCE_RATIO: f64 = 32.0 * f64::EPSILON;
+/// The absolute allowance for subnormal roundings, 8·2^-1074.
+pub(crate) const SUBNORMAL_ALLOWANCE: f64 = f64::from_bits(8);
+
+/// β of [`BORE_DEPARTURE_RATIO`]'s derivation for one interior node: the
+/// bound on |F|/(|p|·A_hi) from the region span and the two members' lengths.
+pub(crate) fn departure_bound_ratio(span: f64, lengths: [f64; 2]) -> f64 {
+    let member = |length: f64| {
+        let omega = ALIGNMENT_DEPARTURE_RATIO * span / length;
+        if omega <= 0.5 { omega * (1.0 + omega * omega) } else { 2.0 }
+    };
+    BORE_DEPARTURE_RATIO + (member(lengths[0]) + member(lengths[1])).min(2.0) + FORMATION_ALLOWANCE_RATIO
+}
 
 /// DEL-04-07, the family that may be admitted when the original cancellation
-/// screen fails: a case that carries a physically zero pressure load because
-/// of how its terms are formed, decided from the terms as they are grouped
+/// screen fails: a case whose only formed pressure load is the thrust of the
+/// bore and alignment differences between adjacent members of a closed
+/// straight region ([`BORE_DEPARTURE_RATIO`]), decided from the terms as they are grouped
 /// (member kind, region membership, node role, term kind), never from their
 /// values. The case does not include pressure elongation (κ = 1, so a member's
 /// Poisson pair is its cap pair alone); no member of its regions is a realized
@@ -1749,24 +1855,95 @@ fn cancellation_exception_terms_eligible(
     true
 }
 
-/// The largest ratio, over the degrees of freedom that carry source groups, of
-/// the assembled load to the summed magnitudes of the group values formed
-/// there (0 where both are 0). `None` when a sum is not representable.
-fn cancellation_residual_ratio(assembled: &[f64], by_dof: &[Vec<f64>]) -> Option<f64> {
-    let mut largest = 0.0_f64;
-    for (dof, values) in by_dof.iter().enumerate() {
-        if values.is_empty() {
+/// The nodes of a case of the family: (closed member ends at transferring
+/// terminals, interior nodes as (node, region, the two members' model pipe
+/// indices in the order the region lists them)). `None` when an interior
+/// node does not name exactly two members of one region.
+type FamilyNodes = (Vec<usize>, Vec<(usize, String, [usize; 2])>);
+
+fn family_nodes(model: &PreviewModel, case: &PreviewLoadCase, groups: &BTreeMap<FactorKey, FactorGroup>) -> Option<FamilyNodes> {
+    let terminal_nodes = case.pressure_regions.as_deref().unwrap_or_default().iter()
+        .flat_map(|region| region.terminals.as_deref().unwrap_or_default())
+        .filter_map(|terminal| model.nodes.iter().position(|node| Some(&node.id) == terminal.node_ref.as_ref()))
+        .collect::<HashSet<_>>();
+    let mut terms: BTreeMap<usize, Vec<&(f64, String, String, &'static str)>> = BTreeMap::new();
+    for ((dof, ..), group) in groups {
+        terms.entry(dof / DOF_PER_NODE).or_default().extend(&group.terms);
+    }
+    let mut closed = Vec::new();
+    let mut interior = Vec::new();
+    for (node, terms) in terms {
+        if terminal_nodes.contains(&node) {
+            closed.push(node);
             continue;
         }
-        let scale = crate::pressure_sum::exact_sum(values.iter().map(|v| v.abs())).ok()?;
-        let load = assembled[dof].abs();
-        let ratio = if load == 0.0 { 0.0 } else { load / scale };
-        if !ratio.is_finite() {
+        let region = terms.first()?.1.clone();
+        let listed = case.pressure_regions.as_deref().unwrap_or_default().iter()
+            .find(|candidate| candidate.id.as_deref() == Some(region.as_str()))?.member_pipe_ids.as_deref()?;
+        let place = |id: &str| listed.iter().position(|member| member == id);
+        let mut pipes = terms.iter().map(|term| term.2.as_str()).collect::<Vec<_>>();
+        pipes.sort_unstable_by_key(|id| place(id));
+        pipes.dedup();
+        let [a, b] = pipes[..] else { return None };
+        place(a)?;
+        place(b)?;
+        let index = |id: &str| model.pipe_segments.iter().position(|pipe| pipe.id == id);
+        interior.push((node, region, [index(a)?, index(b)?]));
+    }
+    Some((closed, interior))
+}
+
+/// The record of the cancellation-screen exception, or `None` (refused) when
+/// the check of [`BORE_DEPARTURE_RATIO`] fails anywhere or cannot be formed.
+/// The record states the interior node of the largest |F|/(|p|·A_hi), that
+/// ratio, the bound β there, and the operands β is formed from (the region's
+/// span and the two members' lengths, in metres), so that a reader recomputes
+/// both numbers from the envelope and, given the model, from its geometry.
+fn departure_thrust_record(
+    model: &PreviewModel,
+    built: &BuiltModel,
+    case: &PreviewLoadCase,
+    output: &ExactPressureCase,
+    (closed, interior): &FamilyNodes,
+) -> Option<Value> {
+    let load = |node: usize| [0, 1, 2].map(|axis| output.assembled_loads[node * DOF_PER_NODE + axis]);
+    if closed.iter().any(|&node| load(node).iter().any(|value| *value != 0.0)) {
+        return None;
+    }
+    let distance = |a: [f64; 3], b: [f64; 3]| norm3(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+    let mut largest: Option<(f64, Value)> = None;
+    for (node, region_id, pipes) in interior {
+        let region = case.pressure_regions.as_deref().unwrap_or_default().iter().find(|region| region.id.as_deref() == Some(region_id.as_str()))?;
+        let ends = region.terminals.as_deref().unwrap_or_default().iter()
+            .map(|terminal| model.nodes.iter().position(|node| Some(&node.id) == terminal.node_ref.as_ref()))
+            .collect::<Option<Vec<_>>>()?;
+        let [o, e] = ends[..] else { return None };
+        let span = distance(built.nodes.get(o)?.coordinates, built.nodes.get(e)?.coordinates);
+        let mut lengths = [0.0; 2];
+        let mut bore_force = 0.0_f64;
+        for (slot, pipe) in pipes.iter().enumerate() {
+            let built_index = built.pipes.iter().position(|candidate| candidate.element_id == model.pipe_segments[*pipe].id)?;
+            let member = &built.pipes[built_index];
+            lengths[slot] = distance(member.node_i.coordinates, member.node_j.coordinates);
+            let state = output.pipe_states.get(&built_index)?;
+            bore_force = bore_force.max(state.sections.pressure_group_value(state.pressure, 1.0, 1.0).ok()?.abs());
+        }
+        let [x, y, z] = load(*node);
+        let force = norm3(x, y, z);
+        let ratio = departure_bound_ratio(span, lengths);
+        if !(span.is_finite() && span > 0.0 && lengths.iter().all(|l| l.is_finite() && *l > 0.0) && ratio.is_finite())
+            || !(force <= bore_force * ratio + SUBNORMAL_ALLOWANCE)
+        {
             return None;
         }
-        largest = largest.max(ratio);
+        let measured = if force == 0.0 { 0.0 } else { force / bore_force };
+        if largest.as_ref().is_none_or(|(value, _)| measured > *value) {
+            largest = Some((measured, json!({"basis":CANCELLATION_EXCEPTION_BASIS,"node_ref":model.nodes[*node].id,
+                "member_pipe_ids":pipes.map(|pipe| model.pipe_segments[pipe].id.clone()),"member_lengths_m":lengths,"region_span_m":span,
+                "thrust_to_bore_force_ratio":measured,"consistency_bound_ratio":ratio})));
+        }
     }
-    Some(largest)
+    largest.map(|(_, record)| record)
 }
 
 fn temperature_basis(case: &PreviewLoadCase) -> Value {
@@ -2175,7 +2352,7 @@ fn collinear_run(
 #[path = "joint_pressure_tests.rs"]
 mod joint_pressure_tests;
 
-/// RT-L2 test support (DEL-04-07 `pressure-elongation.md` §7 item 1): a pre-switch
+/// RT-L2 test support (DEL-04-07): a pre-switch
 /// test model's meaning on the current engine, every pressurised case including
 /// pressure elongation. A no-op without a pressure contract, without a pressurised
 /// case, or when the model already states the setting.
@@ -2885,10 +3062,17 @@ mod cancellation_exception_tests {
     }
 
     #[test]
-    fn the_residual_ratio_is_the_largest_load_over_its_source_magnitudes() {
-        let assembled = [0.0, 1e-12, 0.0, 0.0, 0.0, 0.0, 0.0];
-        let by_dof = vec![vec![1.0, -1.0], vec![2.0, -2.0 + 1e-12], vec![], vec![], vec![], vec![], vec![0.0]];
-        assert_eq!(cancellation_residual_ratio(&assembled, &by_dof), Some(1e-12 / (4.0 - 1e-12)));
-        assert_eq!(cancellation_residual_ratio(&[1.0], &[vec![]]), Some(0.0));
+    fn the_consistency_bound_is_the_bore_term_the_alignment_terms_and_the_allowance() {
+        let eps = f64::EPSILON;
+        // Equal span and lengths: omega = 152ε per member, its cube negligible.
+        assert_eq!(departure_bound_ratio(1.0, [1.0, 1.0]), 256.0 * eps + (152.0 * eps * (1.0 + (152.0 * eps) * (152.0 * eps))) * 2.0 + 32.0 * eps);
+        // A member of a millionth of the span: its own term grows with S/L.
+        let short = departure_bound_ratio(1.0, [1e-6, 1.0]);
+        assert!(short > 152.0 * eps * 1e6 && short < 152.0 * eps * 1.0e6 * 1.001 + 512.0 * eps, "{short}");
+        // Beyond omega = 1/2 a member's direction may differ from the chord by
+        // anything up to a reversal (2), and the two members' difference by at most 2.
+        let tiny = 152.0 * eps;
+        assert_eq!(departure_bound_ratio(1.0, [tiny, 1.0]), 256.0 * eps + 2.0 + 32.0 * eps);
+        assert_eq!(departure_bound_ratio(1.0, [tiny, tiny]), 256.0 * eps + 2.0 + 32.0 * eps);
     }
 }

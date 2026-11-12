@@ -24,7 +24,7 @@ pub fn solve(request: &Value, mode: PreviewSolverMode) -> Value {
     .unwrap()
 }
 
-/// RT-L2 (DEL-04-07 `pressure-elongation.md` §7 item 1): the frozen references are
+/// RT-L2 (DEL-04-07): the frozen references are
 /// pre-switch mechanics, in which every pressurised case included pressure
 /// elongation; the copy names every such case (a no-op without a pressure contract).
 fn with_frozen_elongation(mut request: Value) -> Value {

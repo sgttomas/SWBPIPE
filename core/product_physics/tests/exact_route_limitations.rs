@@ -678,7 +678,7 @@ const WITNESS_INPUTS: [(&str, &str, &str); 2] = [
 fn exact_report_witness_inputs_are_current() {
     let requests = [
         ("pressure_2_connector", t4_u5b::request("AS-F", &t4_u5b::oracle()["cases"]["AS-F"]), (PRESSURE_3.to_string(), false, true, false)),
-        // The arc corpus's input, its pressurised case including pressure elongation (RT-L2 §7).
+        // The arc corpus's input, its pressurised case including pressure elongation (RT-L2).
         ("pressure_2_realized_bend", pressure_elongation::with_elongation_if_pressurised(&i7("U2-L-ANCH-PTW-K2", "0.3.0")), (PRESSURE_3.to_string(), false, false, true)),
     ];
     let target = std::env::var(WITNESS_INPUTS_ENV).ok();

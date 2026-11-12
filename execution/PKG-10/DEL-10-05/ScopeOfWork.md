@@ -30,7 +30,7 @@ It serves SOW-054 and SOW-032 under OBJ-008, OBJ-009 and OBJ-012 (`execution/_De
 - *Process policy.* One local process in the foreground. No daemon, no separate solver process, no network listener or connection, no telemetry, no write the caller did not name, no scan of the user's home, no write of private data to a repository default location, and no SQL or direct access to a project store.
 - *Local-private intent.* The caller's explicit statement, by a flag, that output holding private values is meant for a local private destination. Without it such output is blocked.
 - *Suite.* A benchmark or regression suite owned by a validation deliverable: mechanics (DEL-09-01), stress (DEL-09-02) and nonlinear (DEL-09-03). A suite holds its cases, their recorded comparison values and the comparison that decides a match.
-- *Hosted command.* A command of the same program that belongs to another deliverable and passes through the runner: `read`, which returns a product result reader's verdict (DEL-05-02, DEL-04-08), and `size-hangers`, which runs hanger sizing (DEL-04-11).
+- *Hosted command.* A command of the same program that belongs to another deliverable and passes through the runner: `read`, which returns a product result reader's verdict (DEL-05-02, DEL-04-08); `size-hangers`, which runs hanger sizing (DEL-04-11); `modal`, which runs a modal request (DEL-04-09); and `spectrum`, which runs a response-spectrum request (DEL-04-10).
 
 **Boundary.** The runner is a caller of the product's services. It contains no solver, no unit conversion, no rule evaluator, no result format and no engineering default of its own.
 
@@ -43,8 +43,7 @@ It serves SOW-054 and SOW-032 under OBJ-008, OBJ-009 and OBJ-012 (`execution/_De
 
 **Not decided.**
 
-- Whether the stable verb set grows beyond the five. The stable verbs are five; the hosted commands `read` and `size-hangers` are not among them.
-- Whether modal and response-spectrum requests have a headless entry, and whether as a verb or as a hosted command. Either way the runner supplies no engineering value to such a request and returns the owning entry's document and refusals unchanged, as the Boundary and REQ-015 state.
+- Whether the stable verb set grows beyond the five. The stable verbs are five; the hosted commands `read`, `size-hangers`, `modal` and `spectrum` are not among them.
 - Whether the runner reads a persisted project. It takes a model document in its request and opens no project store.
 
 ## Completion and Reliance Basis — Epistemology

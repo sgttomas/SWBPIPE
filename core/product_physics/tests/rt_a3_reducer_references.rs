@@ -852,7 +852,7 @@ fn adjacent_body_regions_are_each_checked_as_a_step() {
 #[path = "common/pressure_elongation.rs"]
 mod pressure_elongation;
 
-/// RT-L2 (DEL-04-07 `pressure-elongation.md` §4.3): with pressure elongation not
+/// RT-L2 (DEL-04-07): with pressure elongation not
 /// included, each concentric reducer step is the unbalanced-thrust model on both
 /// shear models: its closed terminals carry no pressure load, and every member's
 /// N_w exceeds the p = 0 value by its own p·A_i.

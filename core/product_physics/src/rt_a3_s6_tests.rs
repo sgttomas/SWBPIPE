@@ -71,7 +71,7 @@ fn single_case(request: &Value, case: &str) -> Value {
     let cases = wire["model"]["load_cases"].as_array_mut().unwrap();
     cases.retain(|c| c["id"] == case);
     assert_eq!(cases.len(), 1, "{case}");
-    // The request's pressure-elongation setting (RT-L2 §7) keeps naming only the retained case.
+    // The request's pressure-elongation setting (RT-L2) keeps naming only the retained case.
     if let Some(named) = wire["model"].pointer_mut("/model_settings/pressure_elongation/operating_load_cases").and_then(Value::as_array_mut) {
         named.retain(|id| id == case);
         if named.is_empty() {

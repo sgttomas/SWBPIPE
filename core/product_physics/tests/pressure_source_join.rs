@@ -485,7 +485,7 @@ fn v3_rescued_cases_publish_pressure_source() {
 /// RT-A3 increment 3 review repair: every publication restates the support-attribution
 /// limitation (S7) for a consumed constant-effort support, 67 bytes longer each; nothing
 /// else moved but the hashes binding it (the same preservation test).
-/// RT-L2 (DEL-04-07 `pressure-elongation.md` §5, §7): every publication states one
+/// RT-L2 (DEL-04-07): every publication states one
 /// pressure-elongation statement, 156 bytes longer each without a pressurised case; the
 /// mixed requests name their pressurised case, so they state the inclusion statement and
 /// the per-case label, their request digests move, and the receipt's request-bound work

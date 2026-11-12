@@ -59,7 +59,7 @@ fn cantilever(exact: bool, cases: &[(&str, f64, f64)], combinations: Value) -> V
         model["pipe_segments"][0]["section"] = section;
         model["pressure_contract"] = json!({"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": "euler_bernoulli"});
         material = json!({"id": "material:m", "constitutive_basis": "homogeneous_isotropic_E_nu_v1", "elastic_modulus": qv(2.0e11, "Pa"), "poisson_ratio": qv(0.3, "1"), "provenance": PROV});
-        // The references are today's mechanics: every pressurised case includes pressure elongation (RT-L2 §7).
+        // The references are today's mechanics: every pressurised case includes pressure elongation (RT-L2).
         model["model_settings"] = json!({"pressure_elongation": {"operating_load_cases": cases.iter().map(|(id, _, _)| *id).collect::<Vec<_>>()}});
     }
     model["materials"] = json!([material]);

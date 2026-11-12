@@ -1,5 +1,4 @@
-// The Model settings "Pressure elongation (Bourdon)" control (DEL-04-07 Design
-// pressure-elongation.md §3.1, §3.3): one switch, "Include pressure elongation", shown only on
+// The Model settings "Pressure elongation (Bourdon)" control (DEL-04-07): one switch, "Include pressure elongation", shown only on
 // a document with a pressure contract; switched on, a checklist "Operating load cases"
 // preselected with the cases whose kind is "operating" and editable; queueing "on" needs at
 // least one ticked case; switching off queues clear_model_setting. A contextual note while
