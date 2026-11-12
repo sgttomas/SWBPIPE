@@ -1,5 +1,6 @@
 import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewComparison, PreviewModel } from "../../types";
+import { comparisonSections as recordComparisonSections, holdsWarnings, pythonSorted, sectionTbds, setLevelDiagnostics, settleDiagnostics, type ComparisonRecords } from "./comparisonSections";
 
 const PROFESSIONAL_BOUNDARY = {
   human_review_required: true,
@@ -201,7 +202,8 @@ export function buildStateComparisonHandoffSections({
   analysisRun,
   comparison,
   comparisonUnavailable = null,
-  modelHash
+  modelHash,
+  sessionComparisons = null
 }: {
   model: PreviewModel;
   result: MechanicsResult;
@@ -212,13 +214,32 @@ export function buildStateComparisonHandoffSections({
    * does not hold), and only when present, so other records are unchanged. */
   comparisonUnavailable?: PreviewComparisonUnavailable | null;
   modelHash: string;
+  /** The records of the saved-state and run comparisons the session includes in the report
+   * (`comparisonRecords.ts`). Their sections are the reference assembler's
+   * (`comparisonSections.ts`), and with them the set carries the set-level rules those
+   * sections touch: the source and set-level diagnostics of the comparison sections, the
+   * coverage of their warnings, their unresolved values and the canonical order. Without
+   * any, the set is as it was. */
+  sessionComparisons?: ComparisonRecords | null;
 }) {
   const stateRunSections = stableSort([
     modelStateSection(model, result, modelHash),
     analysisRunSection(model, result, analysisRun)
   ]);
-  const comparisonSections = comparison ? [comparisonSection(model, comparison)] : [];
+  const withinRunSections = comparison ? [comparisonSection(model, comparison)] : [];
+  const included = sessionComparisons && (sessionComparisons.model_state_comparisons.length > 0 || sessionComparisons.analysis_run_comparisons.length > 0)
+    ? sessionComparisons
+    : null;
+  const sourceDiagnostics: JsonRecord[] = [];
+  const comparisonSections = included
+    ? pythonSorted([...withinRunSections, ...recordComparisonSections(included, sourceDiagnostics)])
+    : withinRunSections;
   const handoffSections: JsonRecord[] = [];
+  const layoutTbd = {
+    tbd_id: "DEL-08-06-TBD-FINAL-LAYOUT",
+    description: "Final report styling, layout, transport, and release thresholds remain outside this deliverable.",
+    review_needed: true
+  };
   return {
     schema_version: "0.1.0",
     deliverable_id: "DEL-08-06",
@@ -239,7 +260,7 @@ export function buildStateComparisonHandoffSections({
     sow_024_coverage: {
       inputs: "represented_by_state_run_and_handoff_references",
       sources: "represented_by_source_provenance_and_source_notes",
-      warnings: stateRunSections.some((item) => (item.diagnostics as unknown[]).length > 0)
+      warnings: stateRunSections.some((item) => (item.diagnostics as unknown[]).length > 0) || (included !== null && comparisonSections.some(holdsWarnings))
         ? "represented_by_warning_and_diagnostic_lists"
         : "TBD",
       assumptions: "TBD",
@@ -255,14 +276,13 @@ export function buildStateComparisonHandoffSections({
         human_review_required: true
       }
     ],
-    unresolved_tbds: [
-      {
-        tbd_id: "DEL-08-06-TBD-FINAL-LAYOUT",
-        description: "Final report styling, layout, transport, and release thresholds remain outside this deliverable.",
-        review_needed: true
-      }
-    ],
-    diagnostics: [],
+    unresolved_tbds: included ? pythonSorted([layoutTbd, ...sectionTbds(comparisonSections)]) : [layoutTbd],
+    diagnostics: included
+      ? settleDiagnostics([
+        ...sourceDiagnostics,
+        ...comparisonSections.flatMap((section, index) => setLevelDiagnostics(section, `$.sections.comparison_sections[${index}]`))
+      ])
+      : [],
     professional_boundary: PROFESSIONAL_BOUNDARY,
     provenance: privateSessionProvenance(model)
   };

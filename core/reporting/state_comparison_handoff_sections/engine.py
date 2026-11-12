@@ -388,6 +388,8 @@ def _comparison_sections(
                 "left_ref": deepcopy(item.get("left_state_ref")),
                 "right_ref": deepcopy(item.get("right_state_ref")),
                 "summary": deepcopy(item.get("summary")),
+                "changed_entities": _changed_entities(_list(item.get("entities"))),
+                "hash_refs": _hash_refs(item.get("hashes")),
                 "manual_mappings": _manual_mappings(_list(item.get("entities"))),
                 "unmatched_classifications": _unmatched_classifications(_list(item.get("entities"))),
                 "tolerance_profile_refs": [],
@@ -414,6 +416,7 @@ def _comparison_sections(
                 "section_kind": "analysis_run_comparison",
                 "comparison_ref": comparison_ref,
                 "run_context": deepcopy(item.get("run_context")),
+                "hash_refs": _hash_refs(item.get("hashes")),
                 "manual_mappings": _manual_mappings(deltas),
                 "unmatched_classifications": _unmatched_classifications(_list(item.get("diagnostics"))),
                 "tolerance_profile_refs": sorted(
@@ -878,6 +881,50 @@ def _safe_refs(value: Any) -> list[Any]:
         else:
             refs.append(deepcopy(item))
     return sorted(refs, key=canonical_json)
+
+
+UNCHANGED_CLASSIFICATIONS = {"unchanged", "mapped_unchanged"}
+
+CHANGE_VALUE_KEYS = {"left", "right", "left_value", "right_value", "value"}
+
+
+def _changed_entities(items: list[Any]) -> list[dict[str, Any]]:
+    """Every entity row that is not unchanged, by identity, with its changed paths.
+
+    REQ-011: the section preserves the comparison as computed by stable identifier.
+    The changed fields keep their paths, change kinds and units; their values stay
+    in the source comparison record, which the section names by its hash.
+    """
+
+    changed = []
+    for item in items:
+        if not isinstance(item, Mapping):
+            continue
+        if str(item.get("classification")) in UNCHANGED_CLASSIFICATIONS:
+            continue
+        changed.append(
+            {
+                "classification": deepcopy(item.get("classification")),
+                "left_ref": deepcopy(item.get("left_ref")),
+                "right_ref": deepcopy(item.get("right_ref")),
+                "changes": [
+                    {
+                        str(key): deepcopy(value)
+                        for key, value in change.items()
+                        if str(key) not in CHANGE_VALUE_KEYS
+                    }
+                    for change in _list(item.get("changes"))
+                    if isinstance(change, Mapping)
+                ],
+            }
+        )
+    return sorted(changed, key=canonical_json)
+
+
+def _hash_refs(value: Any) -> list[Any]:
+    """The comparison record's own hash references, as the record states them."""
+
+    return sorted((deepcopy(item) for item in _list(value)), key=canonical_json)
 
 
 def _manual_mappings(items: list[Any]) -> list[Any]:

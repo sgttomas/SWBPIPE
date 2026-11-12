@@ -28,7 +28,8 @@ export const NOT_COMPARED_LABELS: Record<NotComparedReason, string> = {
   right_run_needs_recompute: "the right run reads needs_recompute",
   family_not_compared: `no delta for this result family (deltas are computed for ${SUPPORTED_RESULT_FAMILIES.join(", ")} results, as in the reference comparison)`,
   units_differ: "the units differ (nothing is converted)",
-  value_not_numeric: "a value is not a finite number"
+  value_not_numeric: "a value is not a finite number",
+  dimension_missing: "the rows state no dimension, so no difference is formed"
 };
 
 export const UNMATCHED_LABELS: Record<UnmatchedReason, string> = {
