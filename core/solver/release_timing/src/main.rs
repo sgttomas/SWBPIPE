@@ -39,6 +39,10 @@
 //! one JSON line (schema `release-timing-v1`). Exit 0 when the entry returned
 //! an envelope (solved or blocked), 3 on an entry error (still one JSON line),
 //! 2 on a usage or file error.
+//!
+//! `release_timing --supervise <plan.json> --out <dir> [--models <dir>] [--write-results]`
+//! (macOS) instead supervises a plan's runs of this same binary in the mode above, one child
+//! process at a time, watched from outside (`src/supervise.rs`). The mode above is unchanged by it.
 
 use open_pipe_stress_operation_applier::model_checks_owned;
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, MechanicsEnvelope, PreviewSolverMode};
@@ -366,7 +370,24 @@ fn emit(out: &Map<String, Value>) {
     println!("{}", Value::Object(out.clone()));
 }
 
+/// `--supervise` as the first argument selects the supervise mode; any other arguments are the
+/// driver's, parsed as before.
+fn supervise_if_asked() {
+    let args: Vec<String> = std::env::args().skip(1).collect();
+    if args.first().map(String::as_str) != Some("--supervise") {
+        return;
+    }
+    #[cfg(target_os = "macos")]
+    std::process::exit(open_pipe_stress_release_timing::supervise::main(&args));
+    #[cfg(not(target_os = "macos"))]
+    {
+        eprintln!("release_timing --supervise: the supervisor reads proc_pid_rusage, which only macOS has; use the Python runner elsewhere");
+        std::process::exit(USAGE_EXIT);
+    }
+}
+
 fn main() {
+    supervise_if_asked();
     let args = parse_args();
     let mut out = Map::new();
     out.insert("schema".into(), json!(SCHEMA));

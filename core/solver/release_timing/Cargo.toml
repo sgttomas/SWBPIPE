@@ -13,6 +13,13 @@ publish = false
 # desktop's features (apps/desktop/src-tauri/Cargo.toml), and no release profile
 # is set here because the desktop sets none (cargo's default release profile).
 # Cargo.lock pins the registry packages to the desktop lock's versions.
+# build.rs uses the standard library only (no build dependency): it embeds the source and
+# toolchain identity that `release_timing --supervise` records.
+
+# The supervise mode's watch, classification and records (src/lib.rs); the driver mode uses none
+# of it.
+[lib]
+path = "src/lib.rs"
 
 [[bin]]
 name = "release_timing"
