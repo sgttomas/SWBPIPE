@@ -153,15 +153,16 @@ it("a withheld request leaves a held result, its rule-check aggregate and run, a
     if (!isDeepStrictEqual({ model: request.model, mode: request.mode }, { model, mode: "sparse_interactive" })) throw new Error("REPLAY_REQUEST_MISMATCH");
     return bytes;
   }, { jobIdPrefix: `unit-solve-withheld:${++sequence}` });
-  // The invented check replies: clean for the first solve; then a blocking solve finding for the
-  // same model value, as a later run of the checks reports it (the native replay applies no edit).
-  let checkReply = report();
+  // The check at the first Solve could not run (the native host refused it, as when every worker
+  // slot is occupied), so the solve proceeded as before the gate; the person's later Check Model
+  // runs and reports a blocking finding (an invented reply) for the same model value.
+  let checkReply: unknown = new Error("invented native refusal of the check");
   invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) => {
     if (command === "get_local_storage_capability") return storage;
     if (command === "load_design_knowledge") return knowledge;
     if (command === "sync_native_shell_state") return null;
     if (command === "load_preview_model" && args === undefined) return structuredClone(model);
-    if (command === "check_preview_model") return checkReply;
+    if (command === "check_preview_model") { if (checkReply instanceof Error) throw checkReply; return checkReply; }
     return transport.invoke(command, args, options);
   });
   tauri(true);
@@ -171,6 +172,7 @@ it("a withheld request leaves a held result, its rule-check aggregate and run, a
   await act(async () => { await hook.current.results.handleRun(); });
   await waitFor(() => expect(hook.current.results.solveJob.state).toBe("completed"));
   expect(hook.current.results.currentSolvedResult).not.toBeNull();
+  expect(hook.current.results.solveGate).toEqual({ kind: "unknown", reason: "checks_unavailable" });
   act(() => hook.current.results.setReportPackagePrivateIntent(true));
   const current = hook.current;
   await act(async () => {
@@ -194,9 +196,12 @@ it("a withheld request leaves a held result, its rule-check aggregate and run, a
   const before = {
     result: r.result, currentSolvedResult: r.currentSolvedResult, analysisRun: r.analysisRun, inputManifest: r.inputManifest,
     solveJob: r.solveJob, solveProof: r.solveProof, ruleCheckAggregate: r.ruleCheckAggregate, ruleCheckReportRun: r.ruleCheckReportRun,
-    reportPackageRoute: r.reportPackageRoute, reportPackageRedaction: r.reportPackageRedaction, reportComposition: r.reportComposition
+    reportPackageRoute: r.reportPackageRoute, reportPackageRedaction: r.reportPackageRedaction, reportComposition: r.reportComposition,
+    numericalHealth: r.numericalHealth, historicalRun: r.historicalRun, dormantOutputBasis: r.dormantOutputBasis
   };
   expect(before.result).not.toBeNull();
+  expect(before.solveProof).not.toBeNull();
+  expect(before.analysisRun).not.toBeNull();
   expect(before.ruleCheckAggregate).toBe("RULE_INPUTS_INCOMPLETE");
   expect(before.ruleCheckReportRun).not.toBeNull();
   const starts = calls("start_preview_mechanics_job");
