@@ -125,6 +125,30 @@
 //   engine stamps count CARGO_BUILD_* as build context, so an engine last stamped without it is rebuilt
 //   once.
 //
+// Two pieces of evidence about the owner's home, never one standing for the other:
+// - WRITTEN, by observation at each run: the real Library's listing before and after (finishRun) shows no
+//   created, modified or removed entry in a folder named for the bundle identifier or the executable, and
+//   the in-home check (launch) shows the web view's data inside the throwaway home. It shows what was
+//   written, not that nothing was read.
+// - READ, by reading the source at the head under test: what the app reads from a home folder resolves
+//   through HOME or through Foundation's home, both redirected. The store, the autosave folder and its
+//   settings: Tauri's app_local_data_dir (lib.rs:551 app_store_path, including the one-time carry-forward
+//   from the former identifier's folder; lib.rs:2369; lib.rs:6193; autosave_commands.rs:97
+//   data_directory) → dirs::data_local_dir → $HOME/Library/Application Support/<identifier> (tauri 2.11.1
+//   src/path/desktop.rs:256-260; dirs 6.0.0 src/mac.rs:5,7,13; dirs-sys 0.5.0 src/lib.rs:33-36, which
+//   reads HOME first). Downloads: download_dir (lib.rs:6054, 6088) → $HOME/Downloads (dirs mac.rs:22). The
+//   choosers' default folders: document_dir and home_dir (lib.rs:2031, 2098, 2371, 2462; backup.rs:1440),
+//   also $HOME-based, and the journeys answer every chooser with a path under the run's folder. The system
+//   web view's data: through Foundation's home, redirected by CFFIXED_USER_HOME. The one thing the app
+//   itself keeps in the web view's storage: its interface preferences in local storage under one key,
+//   "chirality.desktop.ui-preferences.v1" (apps/desktop/src/features/workspace/uiPreferences.ts:47 read,
+//   :73 write). A search of the desktop's source outside tests (src, index.html, public; the pattern
+//   localStorage|sessionStorage|indexedDB|IDBFactory|document.cookie|caches.|CacheStorage|openDatabase|
+//   navigator.storage|serviceWorker) finds those two lines and nothing else; the journeys' driver uses
+//   none of them. Not covered by either: what the operating system or the web view reads on its own
+//   account (for example its own preferences, frameworks and system caches), which no source of this
+//   repository decides.
+//
 // Waits on a loaded host. Every wait is for an observed condition, bounded by a named timeout (TIMEOUTS
 // below, passed to the driver in the plan); none is a fixed sleep that assumes a quiet machine. The only
 // sleeps are the driver's polling (100 ms), its retry backoffs (0.5 s after a model hash still being
