@@ -13,7 +13,7 @@
 //!
 //! Floors, as `derived_solves.rs` chooses its own: a position gets 1e-9 of the
 //! largest expected position of its group (one solve's candidates), never below
-//! 1e-12 m; a force gets 1e-9 of the largest expected force of its candidate,
+//! 1e-12 m; a force gets 1e-9 of its candidate's expected hot-load basis W,
 //! never below 1e-12 N; a ratio gets 1e-12. A closed-form zero (u_C, the
 //! departure) is judged by its floor.
 //!
