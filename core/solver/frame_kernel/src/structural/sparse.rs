@@ -1381,6 +1381,7 @@ impl Represented for SparseStructuralSystem<'_> {
         ledger: Option<&AssembledForce>,
         condition:(f64,f64,f64),
         projected:&impl Fn(usize,usize)->f64,
+        prepared: Option<(&[usize], &[usize])>,
         scale_exponents: &[i32],
         u: &[f64],
         solve: &F,
@@ -1401,7 +1402,14 @@ impl Represented for SparseStructuralSystem<'_> {
             contribution_groups: self.contribution_groups,
             symmetry: None,
         };
-        formation_check::check(&view, source, ledger, scale_exponents, u, condition, &|i,j|self.stiffness.get(i,j), projected, solve)
+        // The assembled callback reads this pattern and `projected` the
+        // prepared block's: epsilon_E walks only their stored positions.
+        let pattern = prepared.map(|(starts, columns)| formation_check::StoredPattern {
+            assembled: self.stiffness.pattern(),
+            prepared_starts: starts,
+            prepared_columns: columns,
+        });
+        formation_check::check_at(&view, source, ledger, scale_exponents, u, condition, &|i,j|self.stiffness.get(i,j), projected, solve, true, None, pattern)
     }
 }
 
@@ -1944,6 +1952,9 @@ impl PreparedGate for SparsePreparedSystem<'_> {
     fn gate_value(&self,r:usize,c:usize)->f64 {
         self.columns[self.row_range(r)].binary_search(&c).map_or(0.0,|k|self.values[self.row_starts[r]+k])
     }
+    fn gate_pattern(&self) -> Option<(&[usize], &[usize])> {
+        Some((&self.row_starts, &self.columns))
+    }
     fn gate_rhs(&self) -> &[f64] {
         &self.rhs
     }
@@ -2216,6 +2227,11 @@ impl SparseConfirmationAttempt<'_, '_, '_> {
             &|rhs: &[f64]| self.factor.factor.solve(rhs),
             judged,
             Some(&self.epsilon),
+            prepared.gate_pattern().map(|(starts, columns)| formation_check::StoredPattern {
+                assembled: s.stiffness.pattern(),
+                prepared_starts: starts,
+                prepared_columns: columns,
+            }),
         ))
     }
 }

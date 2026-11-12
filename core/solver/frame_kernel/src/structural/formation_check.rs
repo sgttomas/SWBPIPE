@@ -411,6 +411,40 @@ impl FormationCheck {
     }
 }
 
+/// The stored positions behind `epsilon_e`'s two entry callbacks on a sparse
+/// representation. `assembled` holds every global (i, j) at which the
+/// assembled callback can return anything but +0.0; prepared free row `r`,
+/// `prepared_columns[prepared_starts[r]..prepared_starts[r + 1]]`, every
+/// free column at which the projected callback can. Off both patterns and off
+/// the stiffness contributions a pair's charge is +0.0 and none of its
+/// operations can fail, so the exact assembly error walks only these pairs.
+/// `None` (the dense representation) walks every free pair.
+#[derive(Debug, Clone, Copy)]
+pub(super) struct StoredPattern<'a> {
+    pub(super) assembled: &'a super::sparse::SparsePattern,
+    pub(super) prepared_starts: &'a [usize],
+    pub(super) prepared_columns: &'a [usize],
+}
+impl StoredPattern<'_> {
+    /// The shape the walk reads: `dofs` global and `free` prepared rows, and
+    /// prepared columns inside the free block. Anything else walks every pair.
+    fn fits(&self, dofs: usize, free: usize) -> bool {
+        self.assembled.dimension() == dofs
+            && self.prepared_starts.len() == free + 1
+            && self.prepared_starts.first() == Some(&0)
+            && self.prepared_starts.windows(2).all(|w| w[0] <= w[1])
+            && self.prepared_starts.last() == Some(&self.prepared_columns.len())
+            && self.prepared_columns.iter().all(|&c| c < free)
+    }
+}
+/// The members of `order` whose `key` is `value`, in `order`'s order, when
+/// `order` is sorted by `key` (`partition_point` on both ends).
+fn group_of(order: &[usize], key: impl Fn(usize) -> usize, value: usize) -> &[usize] {
+    let start = order.partition_point(|&k| key(k) < value);
+    let end = order.partition_point(|&k| key(k) <= value);
+    &order[start..end]
+}
+
 /// Why an evaluation could not complete; every variant fails closed.
 #[derive(Debug)]
 enum Failure {
@@ -480,11 +514,14 @@ where
         solve,
         true,
         None,
+        None,
     )
 }
 /// `check` at a supplied u with the D5C-1 rule on or off and an optional
 /// per-attempt epsilon_E cache (kd5-nonlinear-active-set.md §1.5): the
 /// confirmation attempt evaluates several systems that share one factor.
+/// `pattern` is the sparse representation's stored positions
+/// (`StoredPattern`), `None` on the dense representation.
 #[allow(clippy::too_many_arguments)]
 pub(super) fn check_at<F, A, P>(
     system: &StructuralSystem<'_>,
@@ -498,6 +535,7 @@ pub(super) fn check_at<F, A, P>(
     solve: &F,
     judged: bool,
     epsilon_cache: Option<&std::cell::Cell<Option<f64>>>,
+    pattern: Option<StoredPattern<'_>>,
 ) -> (Option<FormationCheck>, Option<MemberBoundInputs>)
 where
     F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
@@ -526,6 +564,7 @@ where
             solve,
             judged,
             epsilon_cache,
+            pattern,
         ),
     };
     match evaluated {
@@ -533,10 +572,12 @@ where
         Err(failure) => (Some(FormationCheck::unavailable(failure.detail())), None),
     }
 }
+/// On success, the indices of `source.loads` grouped by term, each term's in
+/// source order (`group_of` by `term_index` reads one term's).
 fn load_closure(
     source: &FormationSource,
     ledger: &crate::load_ledger::AssembledForce,
-) -> Result<(), Failure> {
+) -> Result<Vec<usize>, Failure> {
     let terms = ledger.terms();
     let records = ledger.closure_records();
     if records.len() != terms.len() {
@@ -667,6 +708,11 @@ fn load_closure(
             )));
         }
     }
+    // Every term_index is now a term's: each term's primitives, in source
+    // order (the index breaks ties, so the order is the filter's).
+    let mut by_term: Vec<usize> = (0..source.loads.len()).collect();
+    by_term.sort_unstable_by_key(|&k| (source.loads[k].term_index, k));
+    let term_of = |k: usize| source.loads[k].term_index;
     for (i, (term, record)) in terms.iter().zip(records).enumerate() {
         if !record.formed {
             continue;
@@ -681,7 +727,8 @@ fn load_closure(
                 term.source
             )));
         }
-        let actual_count = source.loads.iter().filter(|p| p.term_index == i).count();
+        let own = group_of(&by_term, term_of, i);
+        let actual_count = own.len();
         if actual_count != manifest.len() {
             return Err(Failure::Closure(format!(
                 "{}: missing, duplicate or extra summand",
@@ -698,10 +745,10 @@ fn load_closure(
                     term.source
                 )));
             }
-            let mut matching = source
-                .loads
+            let mut matching = own
                 .iter()
-                .filter(|p| p.term_index == i && p.identity == expected.identity);
+                .map(|&k| &source.loads[k])
+                .filter(|p| p.identity == expected.identity);
             let p = matching.next().ok_or_else(|| {
                 Failure::Closure(format!(
                     "{}: missing or mismatched summand identity",
@@ -722,7 +769,7 @@ fn load_closure(
             }
         }
     }
-    Ok(())
+    Ok(by_term)
 }
 fn intended_stiffness_pass<F>(source: &FormationSource, mut consume: F) -> Result<(), Failure>
 where
@@ -841,6 +888,7 @@ fn epsilon_e<A, P>(
     exponents: &[i32],
     assembled: &A,
     projected: &P,
+    pattern: Option<StoredPattern<'_>>,
 ) -> Result<f64, Failure>
 where
     A: Fn(usize, usize) -> f64,
@@ -903,34 +951,78 @@ where
     }
     // Exact assembly error, one reusable row of accumulators rather than a matrix.
     let mut sums = vec![ExactAccumulator::new(); n];
-    for (r, &i) in system.free_dofs.iter().enumerate() {
-        for sum in &mut sums {
-            *sum = ExactAccumulator::new();
+    // One free pair's term, the same operations in the same order on either walk.
+    let mut pair = |sums: &mut [ExactAccumulator], r: usize, i: usize, c: usize, j: usize| -> Result<(), Failure> {
+        let stored = assembled(i, j);
+        sums[c].add(-stored)?;
+        let assembly = exact_abs_scaled_up(&sums[c], exponents[r] + exponents[c])?;
+        let mut projection = ExactAccumulator::new();
+        let scaled = Wide2::from_f64(stored)?
+            .mul_pow2(i64::from(exponents[r]) + i64::from(exponents[c]))?;
+        let split = scaled.split_binary64()?;
+        for &x in split.terms() {
+            projection.add(x)?;
         }
-        for e in contributions {
-            if e.row == i {
-                if let Some(c) = index[e.col] {
-                    sums[c].add(e.value)?;
+        projection.add(-projected(r, c))?;
+        let mut change = exact_abs_scaled_up(&projection, 0)?;
+        if split.truncated_below_min_subnormal() {
+            change = add_up(change, f64::from_bits(1));
+        }
+        charge(r, c, add_up(assembly, change));
+        Ok(())
+    };
+    match pattern.filter(|p| p.fits(index.len(), n)) {
+        None => {
+            for (r, &i) in system.free_dofs.iter().enumerate() {
+                for sum in &mut sums {
+                    *sum = ExactAccumulator::new();
+                }
+                for e in contributions {
+                    if e.row == i {
+                        if let Some(c) = index[e.col] {
+                            sums[c].add(e.value)?;
+                        }
+                    }
+                }
+                for (c, &j) in system.free_dofs.iter().enumerate() {
+                    pair(&mut sums, r, i, c, j)?;
                 }
             }
         }
-        for (c, &j) in system.free_dofs.iter().enumerate() {
-            let stored = assembled(i, j);
-            sums[c].add(-stored)?;
-            let assembly = exact_abs_scaled_up(&sums[c], exponents[r] + exponents[c])?;
-            let mut projection = ExactAccumulator::new();
-            let scaled = Wide2::from_f64(stored)?
-                .mul_pow2(i64::from(exponents[r]) + i64::from(exponents[c]))?;
-            let split = scaled.split_binary64()?;
-            for &x in split.terms() {
-                projection.add(x)?;
+        // Off the contributions and both stored patterns a pair's accumulator
+        // is fresh and both callbacks return +0.0: each of its operations
+        // succeeds on a zero and its charge, +0.0, leaves both sums' bits
+        // unchanged (`add_up`). So only the union is walked, rows and columns
+        // ascending, with each row's contributions in their list order.
+        Some(pattern) => {
+            let free_of = |dof: usize| index.get(dof).copied().flatten();
+            let mut by_row: Vec<usize> = (0..contributions.len())
+                .filter(|&k| free_of(contributions[k].row).is_some() && free_of(contributions[k].col).is_some())
+                .collect();
+            by_row.sort_unstable_by_key(|&k| (contributions[k].row, k));
+            let mut visit = Vec::new();
+            for (r, &i) in system.free_dofs.iter().enumerate() {
+                let own = group_of(&by_row, |k| contributions[k].row, i);
+                visit.clear();
+                visit.extend(own.iter().filter_map(|&k| free_of(contributions[k].col)));
+                visit.extend(pattern.assembled.row(i).iter().filter_map(|&j| index[j]));
+                visit.extend_from_slice(
+                    &pattern.prepared_columns[pattern.prepared_starts[r]..pattern.prepared_starts[r + 1]],
+                );
+                visit.sort_unstable();
+                visit.dedup();
+                for &c in &visit {
+                    sums[c] = ExactAccumulator::new();
+                }
+                for &k in own {
+                    if let Some(c) = free_of(contributions[k].col) {
+                        sums[c].add(contributions[k].value)?;
+                    }
+                }
+                for &c in &visit {
+                    pair(&mut sums, r, i, c, system.free_dofs[c])?;
+                }
             }
-            projection.add(-projected(r, c))?;
-            let mut change = exact_abs_scaled_up(&projection, 0)?;
-            if split.truncated_below_min_subnormal() {
-                change = add_up(change, f64::from_bits(1));
-            }
-            charge(r, c, add_up(assembly, change));
         }
     }
     Ok(row_sums.into_iter().chain(col_sums).fold(0.0, f64::max))
@@ -947,6 +1039,7 @@ fn evaluate<F, A, P>(
     solve: &F,
     judged: bool,
     epsilon_cache: Option<&std::cell::Cell<Option<f64>>>,
+    pattern: Option<StoredPattern<'_>>,
 ) -> Result<(Option<FormationCheck>, Option<MemberBoundInputs>), Failure>
 where
     F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>,
@@ -954,7 +1047,7 @@ where
     P: Fn(usize, usize) -> f64,
 {
     let ledger = ledger.ok_or_else(|| Failure::Closure("no ledger".into()))?;
-    load_closure(source, ledger)?;
+    let by_term = load_closure(source, ledger)?;
     straight_frames_bound(source)?;
     let n = system.force.len();
     let free = system.free_dofs;
@@ -979,7 +1072,8 @@ where
                 term.accumulate(&mut rho[r], false)?;
             }
         } else {
-            for p in source.loads.iter().filter(|p| p.term_index == i) {
+            let own = group_of(&by_term, |k| source.loads[k].term_index, i);
+            for p in own.iter().map(|&k| &source.loads[k]) {
                 let (v, radius) = load_reformation(p)
                     .map_err(|e| Failure::Closure(format!("{}: reformation {e:?}", term.source)))?;
                 let Some(r) = index[term.dof] else {
@@ -993,6 +1087,7 @@ where
             }
         }
     }
+    drop(by_term);
     subtract_action(source, &index, u, &mut rho, &mut psi)?;
     let w = correction(&rho, free, scale_exponents, n, solve)?;
     let scales = if judged {
@@ -1076,6 +1171,7 @@ where
                 scale_exponents,
                 assembled,
                 projected,
+                pattern,
             )?;
             if let Some(cache) = epsilon_cache {
                 cache.set(Some(epsilon));
@@ -3422,3 +3518,6 @@ mod timoshenko_tests;
 #[cfg(test)]
 #[path = "tie_rod_kd5_tests.rs"]
 mod tie_rod_tests;
+#[cfg(test)]
+#[path = "formation_check_walk_tests.rs"]
+mod walk_tests;
