@@ -146,6 +146,51 @@ pub(crate) fn render_calculation_report_args_in(
     crate::render_calculation_report_value(input).map_err(CommandError::Command)
 }
 
+/// The render from custody (increment 1A-i, `report_native_fill`): the
+/// webview sends the job identity, the frame, the model text and the input
+/// manifest text, and no result text. The frame's object form, then the fill
+/// from the result in custody (custody, caps, the model text's digest, the
+/// lease growth, the one parse of the held text, the derivation, the fill),
+/// then the SAME admission [`render_calculation_report_args_in`] gives the
+/// webview's input, on the host's own fill: object form, step 0 against
+/// `admitted`, the one-section rule, the exact context check, the source
+/// binding on the filled admission (steps 1, 2 and 5 on the held text, the
+/// input manifest, the re-derivation, the model-input tables), the user-release
+/// refusal and the renderer.
+pub(crate) fn render_calculation_report_from_custody_args_in(
+    args: &mut Args,
+    registry: &SolveJobRegistry,
+    lease: &mut Lease,
+    admitted: RenderAdmittedSet,
+) -> Result<Value, CommandError> {
+    let request = crate::report_native_fill::CustodyRenderRequest::decode(args)?;
+    check_object_form(&request.frame).map_err(CommandError::Command)?;
+    let filled = crate::report_native_fill::fill_from_custody(request, registry, lease)?;
+    let input = filled.input;
+    check_object_form(&input).map_err(CommandError::Command)?;
+    check_render_route_admitted(&input, admitted).map_err(CommandError::Command)?;
+    let exact = input.get("exact_route").is_some_and(|route| !route.is_null());
+    let pf_timoshenko = input.get(PF_TIMOSHENKO_SECTION).is_some_and(|section| !section.is_null());
+    let (admission, rederive): (&Value, Rederive) = match (exact, pf_timoshenko) {
+        (true, false) => {
+            check_exact_render_context(&input).map_err(CommandError::Command)?;
+            (&input["exact_route"]["admission"], rederive)
+        }
+        (false, true) => (&input[PF_TIMOSHENKO_SECTION]["admission"], rederive_pf_timoshenko),
+        (true, true) => return Err(CommandError::Command(sections_mismatch(PF_TIMOSHENKO_SECTION).message)),
+        (false, false) => return Err(CommandError::Command(sections_mismatch("exact_route").message)),
+    };
+    // Steps 1 and 2 on the filled admission and the held bytes, hashed in place.
+    let digests = binding::check_custody(admission, &|job| registry.custody_binding(job)).map_err(refused)?;
+    check_text_sizes(Some(filled.held.text()), Some(&filled.intake), Some(&filled.input_manifest)).map_err(CommandError::Command)?;
+    binding::check_delivered_texts(admission, &digests, Some(filled.held.text()), Some(&filled.intake)).map_err(refused)?;
+    // Step 3's growth and parse were the fill's; step 5 on its parse.
+    binding::check_source_digests(admission, &filled.bound).map_err(refused)?;
+    bind_parsed_admission(&input, admission, &digests, &filled.bound, &filled.input_manifest, rederive)?;
+    drop((filled.bound, filled.held, filled.intake, filled.input_manifest));
+    crate::render_calculation_report_value(input).map_err(CommandError::Command)
+}
+
 /// Object form: no struct, at any depth, is in positional (JSON array) form.
 /// The renderer's decode reads a positional struct by field order, while
 /// step 0, the exact context check and the source binding read members by
@@ -215,10 +260,16 @@ pub(crate) fn exact_render_growth_bytes(result: &str, intake: &str, input_manife
 
 /// The size caps of the save, before any parse (§3.6).
 fn check_render_text_sizes(texts: &ExactRenderTexts) -> Result<(), String> {
+    check_text_sizes(texts.result.as_deref(), texts.intake.as_deref(), texts.input_manifest.as_deref())
+}
+
+/// [`check_render_text_sizes`] on borrowed texts: the render from custody
+/// (`report_native_fill`) applies the same caps to the held result text.
+pub(crate) fn check_text_sizes(result: Option<&str>, intake: Option<&str>, input_manifest: Option<&str>) -> Result<(), String> {
     for (what, text, cap) in [
-        ("result", texts.result.as_deref(), MAX_REQUEST_TEXT_BYTES),
-        ("model", texts.intake.as_deref(), MAX_MODEL_TEXT_BYTES),
-        ("input_manifest", texts.input_manifest.as_deref(), MAX_INPUT_MANIFEST_TEXT_BYTES),
+        ("result", result, MAX_REQUEST_TEXT_BYTES),
+        ("model", intake, MAX_MODEL_TEXT_BYTES),
+        ("input_manifest", input_manifest, MAX_INPUT_MANIFEST_TEXT_BYTES),
     ] {
         let bytes = text.map_or(0, str::len) as u64;
         if bytes > cap {
@@ -276,6 +327,20 @@ fn bind_render_admission(
     lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
     // Steps 3-5: parse, the native standing, the result and model digests.
     let bound = binding::read_delivered_source(admission, &digests, result, intake).map_err(refused)?;
+    bind_parsed_admission(input, admission, &digests, &bound, manifest_text, rederive)
+}
+
+/// The binding after the parse: the input manifest, `rederive` and the
+/// model-input tables. The existing render reaches it after its own parse; the
+/// render from custody after the fill's one parse of the held text.
+fn bind_parsed_admission(
+    input: &Value,
+    admission: &Value,
+    digests: &crate::solve_jobs::CustodyDigests,
+    bound: &binding::BoundSource,
+    manifest_text: &str,
+    rederive: Rederive,
+) -> Result<(), CommandError> {
     // The input manifest, parsed as the save parses its own: its SHA-256 is the
     // binding's, and its model is the bound model.
     let manifest = crate::report_package_save::parse_canonical("input_manifest", manifest_text)
@@ -287,7 +352,7 @@ fn bind_render_admission(
     crate::report_package_save::check_manifest_model(&manifest, &bound.model, &bound.model_sha256)
         .map_err(|_| refused(sections_mismatch("input_manifest.model_basis")))?;
     drop(manifest);
-    rederive(input, &bound.source, &bound.model_sha256, &digests).map_err(|section| refused(sections_mismatch(&section)))?;
+    rederive(input, &bound.source, &bound.model_sha256, digests).map_err(|section| refused(sections_mismatch(&section)))?;
     // Slice C5 (DEL-08-01 Design `report-section-composer.md` §2.7): the
     // model-input tables are P(M, C) of the bound intake model and the input's
     // own composition; the refusal names a JSON pointer, never a value.
