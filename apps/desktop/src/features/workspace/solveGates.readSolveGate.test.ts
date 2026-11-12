@@ -44,12 +44,12 @@ describe("readSolveGate", () => {
 
   it("withholds when the solve cannot read the model, with the solve's refusal text", () => {
     const reading = readSolveGate(model, run({ solve: { kind: "refused", refusal: "invented refusal" } }));
-    expect(reading).toEqual({ kind: "withheld", model, findings: [], diagnostics: [], notListedBlocking: 0, refusal: "invented refusal" });
+    expect(reading).toEqual({ kind: "withheld", model, findings: [], diagnostics: [], notListedBlocking: 0, refusal: "invented refusal", laterCheckNotCompleted: null });
   });
 
   it("withholds on unlisted blocking findings the report counted in the solve group", () => {
     const reading = readSolveGate(model, run({ notShown: { solve: 3, slots: 0, library: 0 }, notShownBlocking: 2, notShownBlockingByGroup: { solve: 2, slots: 0, library: 0 } }));
-    expect(reading).toEqual({ kind: "withheld", model, findings: [], diagnostics: [], notListedBlocking: 2, refusal: null });
+    expect(reading).toEqual({ kind: "withheld", model, findings: [], diagnostics: [], notListedBlocking: 2, refusal: null, laterCheckNotCompleted: null });
   });
 
   it("stays open on blocking slot, library and unlisted non-solve findings: only the solve group withholds", () => {
@@ -75,9 +75,20 @@ describe("readSolveGate", () => {
     expect(readSolveGate(model, run({ solve: { kind: "unavailable", reason: "invented" } }))).toEqual({ kind: "unknown", reason: "checks_unavailable" });
   });
 
-  it("states the reason with the count of standing findings and where they are listed", () => {
-    const reading = readSolveGate(model, run({ findings: [finding("solve", "blocking", "B")], notShownBlockingByGroup: { solve: 1, slots: 0, library: 0 } }));
-    if (reading.kind !== "withheld") throw new Error("expected withheld");
-    expect(solveWithheldReason(reading)).toBe("Solve is withheld: 2 solve-blocking findings stand for this model. The findings are listed in Model checks, in the Issues drawer.");
+  it("states the reason telling apart listed findings, counted omissions and a refusal", () => {
+    const listedAndCounted = readSolveGate(model, run({ findings: [finding("solve", "blocking", "B")], notShownBlockingByGroup: { solve: 2, slots: 0, library: 0 } }));
+    if (listedAndCounted.kind !== "withheld") throw new Error("expected withheld");
+    expect(solveWithheldReason(listedAndCounted)).toBe("Solve is withheld: 1 solve-blocking finding stands for this model, listed in Model checks in the Issues drawer; 2 more solve-blocking findings were counted by the bounded report but not listed.");
+    const countedOnly = readSolveGate(model, run({ notShownBlockingByGroup: { solve: 1, slots: 0, library: 0 } }));
+    if (countedOnly.kind !== "withheld") throw new Error("expected withheld");
+    expect(solveWithheldReason(countedOnly)).toBe("Solve is withheld: 1 solve-blocking finding was counted by the bounded report but not listed.");
+    const refusalOnly = readSolveGate(model, run({ solve: { kind: "refused", refusal: "invented refusal" } }));
+    if (refusalOnly.kind !== "withheld") throw new Error("expected withheld");
+    expect(solveWithheldReason(refusalOnly)).toBe("Solve is withheld: the solve cannot read this model (invented refusal).");
+  });
+
+  it("carries a later check that did not complete beside the standing findings", () => {
+    const reading = readSolveGate(model, run({ findings: [finding("solve", "blocking", "B")], laterCheckNotCompleted: "invented admission refusal" }));
+    expect(reading).toMatchObject({ kind: "withheld", laterCheckNotCompleted: "invented admission refusal" });
   });
 });

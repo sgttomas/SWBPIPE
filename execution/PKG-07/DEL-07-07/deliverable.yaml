@@ -154,6 +154,7 @@ checks:
 - apps/desktop/src/features/workspace/solveWithheld.session.test.tsx
 - apps/desktop/src/features/workspace/solveWithheld.native.session.test.tsx
 - apps/desktop/src/features/workspace/solveWithheld.reopen.session.test.tsx
+- apps/desktop/src/features/diagnostics/modelChecks.incomplete.test.tsx
 - apps/desktop/src/features/solve/SolveProgressPanel.test.tsx
 - apps/desktop/src/App.solveProgress.test.tsx
 - apps/desktop/src/features/workspace/solveJobResource.session.test.tsx

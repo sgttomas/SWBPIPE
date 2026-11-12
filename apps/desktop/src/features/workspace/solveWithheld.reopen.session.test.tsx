@@ -110,62 +110,73 @@ function held(state: WorkspaceSession, container: HTMLElement) {
 }
 const calls = (command: string) => invokeMock.mock.calls.filter(([name]) => name === command).length;
 
-it.each(["cancel", "model change"] as const)("a %s while the Solve request's check runs leaves the reopened saved run, its handle and the results surface as they were", async (interruption) => {
+it("a cancel while the Solve request's check runs leaves the reopened saved run, its handle and the results surface as they were", async () => {
   let release: (value: unknown) => void = () => {};
   const { state, view, handle } = await reopenedSession(() => new Promise((resolve) => { release = resolve; }));
-  let before = held(state(), view.container);
+  const before = held(state(), view.container);
   expect(before.historicalRun?.restored?.handle).toBe(handle);
   const disposals = calls("dispose_preview_mechanics_result");
-  let solving: Promise<void> = Promise.resolve();
+  let solving: Promise<unknown> = Promise.resolve();
   act(() => { solving = state().results.handleRun(); });
   await waitFor(() => expect(calls("check_preview_model")).toBe(1));
   expect(state().results.running).toBe(true);
-  if (interruption === "cancel") {
-    act(() => { state().results.handleCancelRun(); });
-  } else {
-    // The edit runs in the browser engine; what it does to the held run is the edit's own, read after it.
-    delete (window as Json).__TAURI_INTERNALS__;
-    const model = state().model.model!;
-    const batch = await buildBulkChangeBatch(model, [{ type: "pipe", id: model.pipe_segments[0].id }], { kind: "tag", tag: "invented-edit" }, canonicalJsonString, "solve-withheld-reopen-edit");
-    await act(async () => { await state().operations.handleQueueOperationBatch(batch); });
-    await act(async () => { await state().operations.handleRunOperationBatch(state().operations.queuedBatches[0], false); });
-    await act(async () => { await state().operations.handleRunOperationBatch(state().operations.queuedBatches[0], true); });
-    before = held(state(), view.container);
-  }
+  act(() => { state().results.handleCancelRun(); });
   // While the check is still pending: its native cancel, no solve, nothing of the session changed.
   expect(calls("cancel_model_checks")).toBe(1);
   expect(calls("start_preview_mechanics_job")).toBe(0);
   expect(state().results.running).toBe(false);
-  expect(held(state(), view.container)).toEqual(before);
-  for (const [key, value] of Object.entries(before)) if (key !== "surface") expect(held(state(), view.container)[key as keyof typeof before], key).toBe(value);
+  for (const [key, value] of Object.entries(before)) expect(held(state(), view.container)[key as keyof typeof before], key).toBe(value);
   // The late reply changes nothing.
   await act(async () => { release({ checked: true, diagnostics: [], diagnostics_not_shown: 0, slot_findings: [], slot_findings_not_shown: 0 }); await solving; });
   expect(calls("start_preview_mechanics_job")).toBe(0);
-  for (const [key, value] of Object.entries(before)) if (key !== "surface") expect(held(state(), view.container)[key as keyof typeof before], key).toBe(value);
-  expect(view.container.innerHTML).toBe(before.surface);
-  if (interruption === "cancel") expect(calls("dispose_preview_mechanics_result")).toBe(disposals);
+  for (const [key, value] of Object.entries(before)) expect(held(state(), view.container)[key as keyof typeof before], key).toBe(value);
+  expect(calls("dispose_preview_mechanics_result")).toBe(disposals);
 });
 
-it("a check that fails leaves the saved run as it was until the solve starts, and the solve proceeds as before the gate", async () => {
+it("a model change while the Solve request's check runs: the edit's own effect is all that changes; the gate starts nothing and changes nothing after it", async () => {
+  // The gate cannot keep a saved run across an edit: the edit itself retires it (the
+  // output no longer describes the model). This shows only that the gate's ended check
+  // adds nothing to the edit's effect: no solve, no further change, its late reply inert.
+  let release: (value: unknown) => void = () => {};
+  const { state, view } = await reopenedSession(() => new Promise((resolve) => { release = resolve; }));
+  const beforeEdit = held(state(), view.container);
+  let solving: Promise<unknown> = Promise.resolve();
+  act(() => { solving = state().results.handleRun(); });
+  await waitFor(() => expect(calls("check_preview_model")).toBe(1));
+  // The edit runs in the browser engine; the check it ends is native.
+  delete (window as Json).__TAURI_INTERNALS__;
+  const model = state().model.model!;
+  const batch = await buildBulkChangeBatch(model, [{ type: "pipe", id: model.pipe_segments[0].id }], { kind: "tag", tag: "invented-edit" }, canonicalJsonString, "solve-withheld-reopen-edit");
+  await act(async () => { await state().operations.handleQueueOperationBatch(batch); });
+  await act(async () => { await state().operations.handleRunOperationBatch(state().operations.queuedBatches[0], false); });
+  await act(async () => { await state().operations.handleRunOperationBatch(state().operations.queuedBatches[0], true); });
+  const afterEdit = held(state(), view.container);
+  expect(afterEdit.historicalRun).not.toBe(beforeEdit.historicalRun);
+  expect(calls("cancel_model_checks")).toBe(1);
+  expect(calls("start_preview_mechanics_job")).toBe(0);
+  expect(state().results.running).toBe(false);
+  await act(async () => { release({ checked: true, diagnostics: [], diagnostics_not_shown: 0, slot_findings: [], slot_findings_not_shown: 0 }); await solving; });
+  expect(calls("start_preview_mechanics_job")).toBe(0);
+  for (const [key, value] of Object.entries(afterEdit)) expect(held(state(), view.container)[key as keyof typeof afterEdit], key).toBe(value);
+});
+
+it("a check that fails during the Solve request leaves the saved run and the results surface as they were while it runs; the solve then proceeds as before the gate", async () => {
+  // Once the solve proceeds, its own start retires the saved run as any solve does; the
+  // gate cannot keep it past a solve it lets start. What is shown is the gate's part:
+  // nothing changed up to and during the check, and the solve then started.
   const { state, view } = await reopenedSession(() => Promise.reject(new Error("invented native failure of the check")));
   const before = held(state(), view.container);
   const disposals = calls("dispose_preview_mechanics_result");
-  // The solve's own start is where its clearing is observed: up to it, the gate changed nothing.
-  let atStart: ReturnType<typeof held> | null = null;
+  const atCheck: Array<ReturnType<typeof held>> = [];
   const inner = invokeMock.getMockImplementation()!;
   invokeMock.mockImplementation(async (command: string, args: Json) => {
-    if (command === "check_preview_model") {
-      const snapshot = held(state(), view.container);
-      expect(snapshot.historicalRun).toBe(before.historicalRun);
-      expect(snapshot.surface).toBe(before.surface);
-    }
-    if (command === "start_preview_mechanics_job" && atStart === null) atStart = held(state(), view.container);
+    if (command === "check_preview_model") atCheck.push(held(state(), view.container));
     return inner(command, args);
   });
   await act(async () => { await state().results.handleRun(); });
-  expect(calls("check_preview_model")).toBe(1);
+  expect(atCheck).toHaveLength(1);
+  for (const [key, value] of Object.entries(before)) expect(atCheck[0][key as keyof typeof before], key).toBe(value);
   expect(calls("start_preview_mechanics_job")).toBe(1);
-  expect(atStart).not.toBeNull();
   expect(calls("dispose_preview_mechanics_result")).toBe(disposals);
   expect(state().results.solveGate).toEqual({ kind: "unknown", reason: "checks_unavailable" });
   expect(state().results.running).toBe(false);

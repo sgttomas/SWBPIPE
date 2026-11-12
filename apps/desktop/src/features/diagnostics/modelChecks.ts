@@ -43,7 +43,9 @@ export type ModelCheckFinding = Readonly<{
 export type SolveChecksOutcome =
   | Readonly<{ kind: "checked" }>
   | Readonly<{ kind: "refused"; refusal: string }>
-  | Readonly<{ kind: "unavailable"; reason: string }>;
+  /** `started` where the checks started and failed before they finished; otherwise
+   * they did not run. */
+  | Readonly<{ kind: "unavailable"; reason: string; started?: boolean }>;
 
 export type ModelCheckRun = Readonly<{
   /** The model value the checks read; a later model is a different value. */
@@ -56,6 +58,12 @@ export type ModelCheckRun = Readonly<{
   notShownBlocking: number;
   /** The same count for each group. */
   notShownBlockingByGroup: Readonly<Record<ModelCheckGroupId, number>>;
+  /** Where the library-reference findings could not be collected, why; the library
+   * group then lists nothing and its findings are unknown. */
+  libraryNotCompleted?: string;
+  /** Where a later run of the checks on this same model value did not complete, why.
+   * The findings are this run's, the last that completed for the model value. */
+  laterCheckNotCompleted?: string;
 }>;
 
 /** The browser engine's input bound, as the engine itself refuses above it
@@ -150,11 +158,12 @@ function checkFailureText(error: unknown): string {
  * wasm engine, for a model text of at most `MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES`
  * UTF-8 bytes, counted before the text is passed to the engine. A refusal leaves
  * both groups not run. */
-export async function engineModelChecks(model: PreviewModel): Promise<EngineChecks> {
+export async function engineModelChecks(model: PreviewModel, options: { stillCurrent?: () => boolean } = {}): Promise<EngineChecks> {
   let report: ModelChecksReport;
   if (isTauriRuntime()) {
     try {
-      report = await invokeWithIngress<ModelChecksReport>("check_preview_model", { model });
+      // A request its caller has retired is never sent, nor resent after a headroom refusal.
+      report = await invokeWithIngress<ModelChecksReport>("check_preview_model", { model }, { stillCurrent: options.stillCurrent });
     } catch (error) {
       return unavailable(checkFailureText(error));
     }
@@ -193,12 +202,12 @@ export async function engineModelChecks(model: PreviewModel): Promise<EngineChec
   return { outcome, solve, slots, notShown, notShownBlocking, notShownBlockingByGroup, bytes };
 }
 
-/** A run whose checks could not complete (the check itself failed): read as the
- * checks unavailable, with the failure's text. */
+/** A run whose checks started and could not complete (the check itself failed):
+ * read as the checks unavailable, with the failure's text. */
 export function modelChecksNotCompleted(model: PreviewModel, error: unknown): ModelCheckRun {
   return {
     model,
-    solve: { kind: "unavailable", reason: `The model checks did not complete: ${error instanceof Error ? error.message : String(error)}` },
+    solve: { kind: "unavailable", reason: error instanceof Error ? error.message : String(error), started: true },
     findings: [],
     notShown: { solve: 0, slots: 0, library: 0 },
     notShownBlocking: 0,
@@ -229,14 +238,23 @@ function entityFor(model: PreviewModel, diagnostic: Diagnostic): EntityRef | nul
  * own order, within the report's bound: the library-reference findings take
  * what the engine's report leaves of it, and are read only when the engine's
  * checks were admitted. */
-export async function runModelChecks(model: PreviewModel, libraryReferenceDiagnostics: () => readonly Diagnostic[] = () => []): Promise<ModelCheckRun> {
-  const engine = await engineModelChecks(model);
+export async function runModelChecks(
+  model: PreviewModel,
+  libraryReferenceDiagnostics: () => readonly Diagnostic[] = () => [],
+  options: { stillCurrent?: () => boolean } = {}
+): Promise<ModelCheckRun> {
+  const engine = await engineModelChecks(model, options);
+  let libraryNotCompleted: string | undefined;
   let library: Diagnostic[] = [];
   let libraryNotShown = 0;
   let libraryNotShownBlocking = 0;
   if (engine.outcome.kind !== "unavailable") {
     let remaining = MODEL_CHECKS_MAX_RESPONSE_BYTES - engine.bytes;
-    for (const diagnostic of libraryReferenceDiagnostics()) {
+    // A collection that fails leaves the engine's findings standing and the library group unknown.
+    let collected: readonly Diagnostic[] = [];
+    try { collected = libraryReferenceDiagnostics(); }
+    catch (error) { libraryNotCompleted = error instanceof Error ? error.message : String(error); }
+    for (const diagnostic of collected) {
       const length = utf8ByteLength(JSON.stringify(diagnostic)) + 1;
       if (libraryNotShown > 0 || length > remaining) {
         libraryNotShown += 1;
@@ -266,6 +284,7 @@ export async function runModelChecks(model: PreviewModel, libraryReferenceDiagno
     findings,
     notShown: { solve: engine.notShown.solve, slots: engine.notShown.slots, library: libraryNotShown },
     notShownBlocking: engine.notShownBlocking + libraryNotShownBlocking,
-    notShownBlockingByGroup: { solve: engine.notShownBlockingByGroup.solve, slots: engine.notShownBlockingByGroup.slots, library: libraryNotShownBlocking }
+    notShownBlockingByGroup: { solve: engine.notShownBlockingByGroup.solve, slots: engine.notShownBlockingByGroup.slots, library: libraryNotShownBlocking },
+    ...(libraryNotCompleted === undefined ? {} : { libraryNotCompleted })
   };
 }

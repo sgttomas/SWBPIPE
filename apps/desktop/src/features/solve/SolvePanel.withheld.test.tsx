@@ -18,8 +18,8 @@ function finding(model: PreviewModel, diagnostic: Diagnostic, index = 0): ModelC
   return { key: `solve:${index}:${diagnostic.code}`, group: "solve", diagnostic, entity: ref ? resolveModelCheckEntity(model, ref) : null };
 }
 
-async function renderPanel(reading: SolveGateReading | null) {
-  const model = await loadPreviewModel();
+async function renderPanel(reading: SolveGateReading | null, panelModel?: PreviewModel) {
+  const model = panelModel ?? await loadPreviewModel();
   const onRun = vi.fn();
   const onSelectEntity = vi.fn();
   const onOpenModelChecks = vi.fn();
@@ -48,7 +48,7 @@ it("withholds Solve, states why in the accessibility tree, and names each findin
   };
   const bare: Diagnostic = { code: "INVENTED_BARE", severity: "error", message: "invented bare finding" };
   const findings = [finding(model, full), finding(model, bare, 1)];
-  const reading: SolveGateReading = { kind: "withheld", model, findings, diagnostics: findings.map((item) => item.diagnostic), notListedBlocking: 0, refusal: null };
+  const reading: SolveGateReading = { kind: "withheld", model, findings, diagnostics: findings.map((item) => item.diagnostic), notListedBlocking: 0, refusal: null, laterCheckNotCompleted: null };
   const { onRun, onSelectEntity } = await renderPanel(reading);
 
   const solve = screen.getByRole("button", { name: "Run mechanics preview (withheld)" });
@@ -80,18 +80,20 @@ it("bounds the list and points to Model checks for the rest, counting unlisted f
   const model = await loadPreviewModel();
   const findings = Array.from({ length: SOLVE_WITHHELD_LISTED + 2 }, (_, index) =>
     finding(model, { code: `INVENTED_${index}`, severity: "blocking", message: `invented ${index}` }, index));
-  const { onOpenModelChecks } = await renderPanel({ kind: "withheld", model, findings, diagnostics: findings.map((item) => item.diagnostic), notListedBlocking: 3, refusal: null });
+  const { onOpenModelChecks } = await renderPanel({ kind: "withheld", model, findings, diagnostics: findings.map((item) => item.diagnostic), notListedBlocking: 3, refusal: null, laterCheckNotCompleted: null });
   const notice = screen.getByRole("region", { name: "Solve is withheld" });
   expect(within(notice).getAllByRole("button", { name: /^INVENTED_\d+ blocking/ })).toHaveLength(SOLVE_WITHHELD_LISTED);
   expect(within(notice).getByTestId("solve-withheld-summary")).toHaveTextContent(`${SOLVE_WITHHELD_LISTED + 5} solve-blocking findings stand`);
-  expect(within(notice).getByTestId("solve-withheld-rest")).toHaveTextContent("5 more solve-blocking findings are not listed here.");
+  const rest = within(notice).getByTestId("solve-withheld-rest");
+  expect(rest).toHaveTextContent("2 more solve-blocking findings are listed in Model checks.");
+  expect(rest).toHaveTextContent("3 more solve-blocking findings were counted by the bounded report but not listed.");
   fireEvent.click(within(notice).getByRole("button", { name: "Show Model checks" }));
   expect(onOpenModelChecks).toHaveBeenCalledOnce();
 });
 
 it("states the solve's own refusal when it cannot read the model", async () => {
   const model = await loadPreviewModel();
-  await renderPanel({ kind: "withheld", model, findings: [], diagnostics: [], notListedBlocking: 0, refusal: "invented refusal text" });
+  await renderPanel({ kind: "withheld", model, findings: [], diagnostics: [], notListedBlocking: 0, refusal: "invented refusal text", laterCheckNotCompleted: null });
   expect(screen.getByRole("button", { name: "Run mechanics preview (withheld)" })).toHaveAccessibleDescription(/The solve cannot read this model: invented refusal text/);
 });
 
@@ -135,7 +137,7 @@ it("offers each entity a finding names: the first by the finding, the second by 
   const [first, second] = [model.nodes[0].id, model.supports[0].id];
   const diagnostic: Diagnostic = { code: "INVENTED_TWO_ENTITIES", severity: "blocking", message: "invented finding naming two entities", affected_refs: [first, second] };
   const findings = [finding(model, diagnostic)];
-  const { onSelectEntity } = await renderPanel({ kind: "withheld", model, findings, diagnostics: [diagnostic], notListedBlocking: 0, refusal: null });
+  const { onSelectEntity } = await renderPanel({ kind: "withheld", model, findings, diagnostics: [diagnostic], notListedBlocking: 0, refusal: null, laterCheckNotCompleted: null });
   const notice = screen.getByRole("region", { name: "Solve is withheld" });
   fireEvent.click(within(notice).getByRole("button", { name: /INVENTED_TWO_ENTITIES blocking/ }));
   expect(onSelectEntity).toHaveBeenLastCalledWith({ type: "node", id: first });
@@ -159,4 +161,30 @@ it("states plainly a refusal with no findings: the solve's own text, and no empt
   expect(within(notice).queryByRole("list")).toBeNull();
   expect(within(notice).queryByTestId("solve-withheld-rest")).toBeNull();
   expect(screen.getByRole("button", { name: "Run mechanics preview (withheld)" })).toHaveAccessibleDescription(/The solve cannot read this model: request: missing field `outside_diameter`/);
+});
+
+it("leads a finding that names a section to that section record, in the Model checks list and in the notice", async () => {
+  const model = JSON.parse(JSON.stringify(await loadPreviewModel())) as PreviewModel;
+  const section = { id: "section:invented-gate", name: "Invented section", section_type: "pipe", properties: {}, provenance: "invented" };
+  model.sections = [...(model.sections ?? []), section as never];
+  const diagnostic: Diagnostic = { code: "INVENTED_SECTION_INPUT_MISSING", severity: "blocking", message: "invented section finding", affected_refs: [section.id] };
+  const standing = finding(model, diagnostic);
+  expect(standing.entity).toEqual({ type: "section", id: section.id });
+
+  const listSelect = vi.fn();
+  const run: ModelCheckRun = { model, solve: { kind: "checked" }, findings: [standing], notShown: { solve: 0, slots: 0, library: 0 }, notShownBlocking: 0, notShownBlockingByGroup: { solve: 0, slots: 0, library: 0 } };
+  const list = render(<ModelChecksPanel model={model} run={run} onRun={() => {}} onSelectEntity={listSelect} />);
+  const inList = list.getByTestId("model-check-INVENTED_SECTION_INPUT_MISSING");
+  expect(inList).toHaveAttribute("aria-disabled", "false");
+  act(() => inList.focus());
+  expect(document.activeElement).toBe(inList);
+  fireEvent.click(inList);
+  expect(listSelect).toHaveBeenCalledWith({ type: "section", id: section.id });
+  list.unmount();
+
+  const { onSelectEntity } = await renderPanel(readSolveGate(model, run), model);
+  const notice = screen.getByRole("region", { name: "Solve is withheld" });
+  fireEvent.click(within(notice).getByRole("button", { name: /INVENTED_SECTION_INPUT_MISSING blocking/ }));
+  expect(onSelectEntity).toHaveBeenCalledWith({ type: "section", id: section.id });
+  expect(notice).not.toHaveTextContent("names no model entity");
 });

@@ -100,6 +100,9 @@ export type SolveGateReading =
       diagnostics: readonly Diagnostic[];
       notListedBlocking: number;
       refusal: string | null;
+      /** Where a later run of the checks on this model value did not complete, why; the
+       * findings are those of the last run that completed, and they stand. */
+      laterCheckNotCompleted: string | null;
     }>;
 
 /** Why a Solve request's model check ended before its reading was taken. */
@@ -110,10 +113,14 @@ export type SolveGateStop = "cancelled" | "model_changed" | "check_retired" | "u
  *   could run or complete (the solve then proceeds as it did before the gate);
  * - `withheld`: a solve-blocking finding stands; the reading names it;
  * - `cancelled`: the person cancelled while the request's check ran;
- * - `superseded`: the check ended without a reading for this request: the model
- *   value changed (`model_changed`), a later check or a new project session
- *   retired it (`check_retired`), the workspace unmounted (`unmounted`), or the
- *   check's continuation failed (`check_failed`).
+ * - `superseded`: the check ended without a reading for this request:
+ *   `model_changed`: the model value changed or the request's run was invalidated
+ *   (an applied operation, an undo or redo, or another project or model opened,
+ *   which is how a new project session normally reads here);
+ *   `check_retired`: a later check superseded the request's check (the person's
+ *   Run model checks), or the project session changed while the model revision did
+ *   not; `unmounted`: the workspace unmounted; `check_failed`: the check or the
+ *   gate's own continuation failed.
  * Only `proceed` starts a solve; in every other case nothing of the session is
  * cleared and the model is untouched. */
 export type SolveGateOutcome =
@@ -138,17 +145,22 @@ export function readSolveGate(model: PreviewModel | null, run: ModelCheckRun | n
   const notListedBlocking = run.notShownBlockingByGroup.solve;
   const refusal = run.solve.kind === "refused" ? run.solve.refusal : null;
   if (findings.length === 0 && notListedBlocking === 0 && refusal === null) return { kind: "open" };
-  return { kind: "withheld", model: run.model, findings, diagnostics: findings.map((finding) => finding.diagnostic), notListedBlocking, refusal };
+  return {
+    kind: "withheld", model: run.model, findings, diagnostics: findings.map((finding) => finding.diagnostic), notListedBlocking, refusal,
+    laterCheckNotCompleted: run.laterCheckNotCompleted ?? null
+  };
 }
 
 /** The reason a withheld Solve command states wherever it is offered (the
- * toolbar's Run, the Analyze menu, the Solve panel). It names how many findings
- * stand and where they are listed; the findings themselves are named by the
- * Solve panel's notice and the Model checks list. */
+ * toolbar's Run, the Analyze menu, the Solve panel). It tells apart the findings
+ * listed in Model checks, the solve-blocking findings the bounded report counted
+ * but did not list, and the solve's refusal to read the model. */
 export function solveWithheldReason(reading: Extract<SolveGateReading, { kind: "withheld" }>): string {
-  const count = reading.findings.length + reading.notListedBlocking;
+  const listed = reading.findings.length;
+  const counted = reading.notListedBlocking;
   const parts: string[] = [];
-  if (count > 0) parts.push(`${count} solve-blocking ${count === 1 ? "finding stands" : "findings stand"} for this model`);
+  if (listed > 0) parts.push(`${listed} solve-blocking ${listed === 1 ? "finding stands" : "findings stand"} for this model, listed in Model checks in the Issues drawer`);
+  if (counted > 0) parts.push(`${listed > 0 ? `${counted} more` : counted} solve-blocking ${counted === 1 ? "finding was" : "findings were"} counted by the bounded report but not listed`);
   if (reading.refusal !== null) parts.push(`the solve cannot read this model (${reading.refusal})`);
-  return `Solve is withheld: ${parts.join("; ")}. The findings are listed in Model checks, in the Issues drawer.`;
+  return `Solve is withheld: ${parts.join("; ")}.`;
 }

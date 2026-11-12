@@ -45,18 +45,19 @@ async function heldCheckSession() {
   vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(loaded);
   const start = vi.spyOn(previewService, "startPreviewMechanicsJob").mockRejectedValue(new Error("INVENTED-START-OBSERVED"));
   const held: Array<(value: unknown) => void> = [];
+  const refuse: Array<(error: unknown) => void> = [];
   invokeMock.mockImplementation((command: string) => {
-    if (command === "check_preview_model") return new Promise((resolve) => held.push(resolve));
+    if (command === "check_preview_model") return new Promise((resolve, reject) => { held.push(resolve); refuse.push(reject); });
     return Promise.resolve(null);
   });
   const hook = renderHook(() => useWorkspaceSession());
   await waitFor(() => expect(hook.result.current.model.model).not.toBeNull());
-  return { ...hook, start, held, material };
+  return { ...hook, start, held, refuse, material };
 }
 
 async function pressSolveWithHeldCheck(result: { current: WorkspaceSession }, held: unknown[]) {
   tauri(true);
-  let solving: Promise<void> = Promise.resolve();
+  let solving: Promise<unknown> = Promise.resolve();
   act(() => { solving = result.current.results.handleRun(); });
   await waitFor(() => expect(held).toHaveLength(1));
   expect(result.current.results.running).toBe(true);
@@ -78,7 +79,7 @@ it("a cancel during the Solve request's check cancels that check natively and re
   const after = result.current.results;
   for (const [key, value] of Object.entries(before)) expect(after[key as keyof typeof before], key).toBe(value);
   // Solve is free again: a new request takes the token and starts its own check.
-  let again: Promise<void> = Promise.resolve();
+  let again: Promise<unknown> = Promise.resolve();
   act(() => { again = result.current.results.handleRun(); });
   await waitFor(() => expect(held).toHaveLength(2));
   // The cancelled check's late result changes nothing; the new request's check stands.
@@ -210,4 +211,82 @@ it("a withheld request leaves a held result, its rule-check aggregate and run, a
   const after = hook.current.results;
   for (const [key, value] of Object.entries(before)) expect(after[key as keyof typeof before], key).toBe(value);
   expect(after.running).toBe(false);
+});
+
+const HEADROOM_REFUSAL = { code: "RESOURCE_UNAVAILABLE", refusal: { kind: "headroom_insufficient", required_bytes: 2, available_bytes: 1 }, pool: null };
+/** Longer than the ingress's resend pause after a headroom refusal (`HEADROOM_RESEND_INTERVAL_MS`). */
+const pastResendPause = () => new Promise((resolve) => setTimeout(resolve, 300));
+
+it("a refresh that cannot complete keeps the established blocking finding of the same model; Solve stays withheld and says the later check did not finish", async () => {
+  const { result, start, held, refuse } = await heldCheckSession();
+  const { solving } = await pressSolveWithHeldCheck(result, held);
+  const blocking = { id: "d:established", code: "INVENTED_INPUT_MISSING", severity: "blocking", message: "invented missing value", affected_refs: [PIPE] };
+  await act(async () => { held[0](report([blocking])); await solving; });
+  expect(result.current.results.solveGate.kind).toBe("withheld");
+  const established = result.current.chrome.modelCheckRun!;
+  // The person runs the checks again on the unchanged model; the native host refuses them.
+  let checking: Promise<void> = Promise.resolve();
+  act(() => { checking = result.current.chrome.handleRunModelChecks(); });
+  await waitFor(() => expect(held).toHaveLength(2));
+  await act(async () => { refuse[1]({ code: "INVALID_REQUEST", message: "invented refusal of the check" }); await checking; });
+  const kept = result.current.chrome.modelCheckRun!;
+  expect(kept.model).toBe(established.model);
+  expect(kept.findings).toBe(established.findings);
+  expect(kept.laterCheckNotCompleted).toContain("invented refusal of the check");
+  const gate = result.current.results.solveGate;
+  expect(gate.kind).toBe("withheld");
+  expect(gate.kind === "withheld" && gate.diagnostics.map((item) => item.code)).toEqual(["INVENTED_INPUT_MISSING"]);
+  expect(gate.kind === "withheld" && gate.laterCheckNotCompleted).toContain("invented refusal of the check");
+  // The next Solve is still withheld; nothing starts.
+  let outcome: unknown;
+  await act(async () => { outcome = await result.current.results.handleSolveRequest(); });
+  expect(outcome).toMatchObject({ gate: { kind: "withheld" }, receipt: undefined });
+  expect(start).not.toHaveBeenCalled();
+});
+
+it("a request retired during the ingress's resend pause never resends: a cancelled Solve request starts no native check", async () => {
+  const { result, start, held, refuse } = await heldCheckSession();
+  const { solving } = await pressSolveWithHeldCheck(result, held);
+  await act(async () => { refuse[0](HEADROOM_REFUSAL); await Promise.resolve(); });
+  act(() => { result.current.results.handleCancelRun(); });
+  await act(async () => { await pastResendPause(); await solving; });
+  expect(calls("check_preview_model")).toBe(1);
+  expect(start).not.toHaveBeenCalled();
+  expect(result.current.results.running).toBe(false);
+});
+
+it("a request superseded during the ingress's resend pause never resends, so it cancels nothing newer", async () => {
+  const { result, start, held, refuse } = await heldCheckSession();
+  const { solving } = await pressSolveWithHeldCheck(result, held);
+  await act(async () => { refuse[0](HEADROOM_REFUSAL); await Promise.resolve(); });
+  // The person's own check supersedes the Solve request's while it waits to resend.
+  let checking: Promise<void> = Promise.resolve();
+  act(() => { checking = result.current.chrome.handleRunModelChecks(); });
+  await waitFor(() => expect(held).toHaveLength(2));
+  await act(async () => { await pastResendPause(); });
+  expect(calls("check_preview_model")).toBe(2);
+  expect(calls("cancel_model_checks")).toBe(0);
+  await act(async () => { held[1](report([{ id: "d:newer", code: "INVENTED_NEWER", severity: "warning", message: "invented newer check", affected_refs: [] }])); await checking; await solving; });
+  expect(result.current.chrome.modelCheckRun?.findings.map((finding) => finding.diagnostic.code)).toEqual(["INVENTED_NEWER"]);
+  expect(start).not.toHaveBeenCalled();
+});
+
+it("an unmount retires every outstanding check: a newer check the person started is cancelled natively too, and resolves into nothing", async () => {
+  const { result, start, held, unmount } = await heldCheckSession();
+  const { solving } = await pressSolveWithHeldCheck(result, held);
+  let checking: Promise<void> = Promise.resolve();
+  act(() => { checking = result.current.chrome.handleRunModelChecks(); });
+  await waitFor(() => expect(held).toHaveLength(2));
+  const lastRender = result.current;
+  unmount();
+  // The Solve request's own check is not the newest, so it cancels nothing; the workspace's end cancels the newer one.
+  expect(calls("cancel_model_checks")).toBe(1);
+  held[1](report([{ id: "d:late", code: "INVENTED_LATE", severity: "blocking", message: "invented late finding", affected_refs: [] }]));
+  held[0](report());
+  await checking;
+  await solving;
+  expect(result.current).toBe(lastRender);
+  expect(lastRender.chrome.modelCheckRun).toBeNull();
+  expect(start).not.toHaveBeenCalled();
+  expect(calls("cancel_model_checks")).toBe(1);
 });

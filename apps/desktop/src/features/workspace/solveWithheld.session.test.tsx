@@ -122,7 +122,7 @@ it.each(["cancel", "model change"] as const)("a %s during the Solve request's ch
   const { result, start, material } = await session();
   const cells = solveCells(result.current);
   const release = holdNextCheck();
-  let solving: Promise<void> = Promise.resolve();
+  let solving: Promise<unknown> = Promise.resolve();
   act(() => { solving = result.current.results.handleRun(); });
   expect(result.current.results.running).toBe(true);
   expect(result.current.chrome.modelCheckBusy).toBe(true);
@@ -164,7 +164,7 @@ it("an older Solve request's end never retires the re-check that follows an edit
   await applyMaterial(result, material);
   expect(result.current.chrome.modelCheckBusy).toBe(true); // The re-check of the supplied value is pending.
   // A Solve request on the supplied value supersedes that re-check with its own.
-  let solving: Promise<void> = Promise.resolve();
+  let solving: Promise<unknown> = Promise.resolve();
   act(() => { solving = result.current.results.handleRun(); });
   expect(result.current.results.running).toBe(true);
   // Undo ends the Solve request (its check is the newest, so it is retired) and re-checks the restored value.
@@ -187,7 +187,8 @@ it("a check that throws is read as the checks unavailable: the solve proceeds an
   expect(result.current.results.running).toBe(false);
   expect(result.current.chrome.modelCheckBusy).toBe(false);
   expect(result.current.results.solveGate).toEqual({ kind: "unknown", reason: "checks_unavailable" });
-  expect(result.current.chrome.modelCheckRun?.solve).toEqual({ kind: "unavailable", reason: "The model checks did not complete: invented library-reference failure" });
+  // No evidence was held for this model, so the check that could not complete lets the solve proceed.
+  expect(result.current.chrome.modelCheckRun?.solve).toEqual({ kind: "unavailable", reason: "invented library-reference failure", started: true });
   // The token was released: a second request runs.
   await act(async () => { await result.current.results.handleRun(); });
   expect(start).toHaveBeenCalledTimes(2);
@@ -203,10 +204,29 @@ it("an unmount during the Solve request's check starts nothing when the check la
   let release: () => void = () => {};
   const held = new Promise<void>((resolve) => { release = resolve; });
   vi.spyOn(modelChecks, "runModelChecks").mockImplementationOnce(async () => { await held; return { ...(await real(supplied)), model }; });
-  let solving: Promise<void> = Promise.resolve();
+  let solving: Promise<unknown> = Promise.resolve();
   act(() => { solving = result.current.results.handleRun(); });
   unmount();
   release();
   await solving;
   expect(start).not.toHaveBeenCalled();
+});
+
+it("a refresh that throws keeps the established finding of the same model; Solve stays withheld", async () => {
+  const { result, start } = await session();
+  await act(async () => { await result.current.results.handleRun(); });
+  const established = result.current.chrome.modelCheckRun!;
+  expect(result.current.results.solveGate.kind).toBe("withheld");
+  vi.spyOn(modelChecks, "runModelChecks").mockRejectedValueOnce(new Error("invented failure of the refresh"));
+  await act(async () => { await result.current.chrome.handleRunModelChecks(); });
+  const kept = result.current.chrome.modelCheckRun!;
+  expect(kept.findings).toBe(established.findings);
+  expect(kept.solve).toBe(established.solve);
+  expect(kept.laterCheckNotCompleted).toBe("invented failure of the refresh");
+  await act(async () => { await result.current.results.handleRun(); });
+  expect(start).not.toHaveBeenCalled();
+  // A completed check of the same model replaces the kept run, and its note.
+  await act(async () => { await result.current.chrome.handleRunModelChecks(); });
+  expect(result.current.chrome.modelCheckRun!.laterCheckNotCompleted).toBeUndefined();
+  expect(result.current.results.solveGate.kind).toBe("withheld");
 });

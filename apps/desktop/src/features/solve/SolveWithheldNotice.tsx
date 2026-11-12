@@ -35,15 +35,22 @@ export function SolveWithheldNotice({
   const titleId = useId();
   const listed = reading.findings.slice(0, SOLVE_WITHHELD_LISTED);
   const total = reading.findings.length + reading.notListedBlocking;
-  const rest = total - listed.length;
+  // Listed in Model checks but beyond this notice's bound; and counted by the bounded report but listed nowhere.
+  const restListed = reading.findings.length - listed.length;
+  const counted = reading.notListedBlocking;
   return (
     <section aria-labelledby={titleId} className="memory-pool-message warning solve-withheld-notice" data-testid="solve-withheld-notice">
       <strong id={titleId}>Solve is withheld</strong>
       <p data-testid="solve-withheld-summary" id={summaryId}>
         {total > 0 ? `${total} solve-blocking ${total === 1 ? "finding stands" : "findings stand"} for this model. ` : null}
         {reading.refusal !== null ? `The solve cannot read this model: ${reading.refusal}. ` : null}
-        Solve starts once the model checks find none; they run again by themselves after each model change.
+        Solve becomes available once the model checks find no solve-blocking finding; they run again by themselves after each model change.
       </p>
+      {reading.laterCheckNotCompleted !== null ? (
+        <p data-testid="solve-withheld-later-not-completed">
+          A later run of the checks on this model could not finish ({reading.laterCheckNotCompleted}). The findings below are from the last run that finished, and they still apply.
+        </p>
+      ) : null}
       {listed.length > 0 ? (
         <ol aria-label="Findings that withhold Solve" className="model-checks-list" data-testid="solve-withheld-findings">
           {listed.map((finding) => (
@@ -54,9 +61,10 @@ export function SolveWithheldNotice({
           ))}
         </ol>
       ) : null}
-      {rest > 0 ? (
+      {restListed > 0 || counted > 0 ? (
         <p data-testid="solve-withheld-rest">
-          {rest} more solve-blocking {rest === 1 ? "finding is" : "findings are"} not listed here.{" "}
+          {restListed > 0 ? `${restListed} more solve-blocking ${restListed === 1 ? "finding is" : "findings are"} listed in Model checks. ` : null}
+          {counted > 0 ? `${counted} more solve-blocking ${counted === 1 ? "finding was" : "findings were"} counted by the bounded report but not listed. ` : null}
           <button className="secondary-action" data-testid="solve-withheld-open-checks" onClick={onOpenModelChecks} type="button">
             Show Model checks
           </button>

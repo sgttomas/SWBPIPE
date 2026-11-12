@@ -98,7 +98,17 @@ export function ModelChecksPanel({
         <p className="memory-pool-message warning" data-testid="model-checks-solve-unchecked">
           {run.solve.kind === "refused"
             ? `The solve's checks did not run: the solve cannot read this model (${run.solve.refusal}).`
-            : `The model checks did not run: ${run.solve.reason}`}
+            : run.solve.started ? `The model checks did not complete: ${run.solve.reason}` : `The model checks did not run: ${run.solve.reason}`}
+        </p>
+      ) : null}
+      {run?.laterCheckNotCompleted !== undefined ? (
+        <p className="memory-pool-message warning" data-testid="model-checks-later-not-completed">
+          A later run of the checks on this model could not finish ({run.laterCheckNotCompleted}). The findings below are from the last run that finished, and they still apply.
+        </p>
+      ) : null}
+      {run?.libraryNotCompleted !== undefined ? (
+        <p className="memory-pool-message warning" data-testid="model-checks-library-not-completed">
+          The library-reference findings could not be collected ({run.libraryNotCompleted}); that group is not complete.
         </p>
       ) : null}
       {run ? (
@@ -154,7 +164,9 @@ function notShownTotal(run: ModelCheckRun): number {
 }
 
 function groupCount(run: ModelCheckRun, group: ModelCheckGroupId, listed: number): string {
-  if (run.solve.kind === "unavailable" || (group === "solve" && run.solve.kind !== "checked")) return "not run";
+  if (run.solve.kind === "unavailable") return run.solve.started ? "not completed" : "not run";
+  if (group === "solve" && run.solve.kind !== "checked") return "not run";
+  if (group === "library" && run.libraryNotCompleted !== undefined) return "not completed";
   const counted = run.notShown[group];
   return `${listed} ${listed === 1 ? "finding" : "findings"}${counted > 0 ? `; ${counted} more not listed` : ""}`;
 }
