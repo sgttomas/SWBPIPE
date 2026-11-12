@@ -9,6 +9,7 @@ from __future__ import annotations
 import base64
 import dataclasses
 import hashlib
+import importlib.util
 import json
 import math
 import os
@@ -574,6 +575,8 @@ def test_last_json_object_takes_the_final_top_level_object():
 
 def fake_config(tmp_path: Path) -> HarnessConfig:
     root = exchange(tmp_path)
+    GUEST_VIEW.clear()
+    GUEST_VIEW["Z:\\invented"] = root.resolve()
     return HarnessConfig(exchange_root=root, vm_name="invented-vm", guest_executable="C:\\Invented\\tool.exe",
                          guest_exchange_root="Z:\\invented", guest_work_root="C:\\invented-work",
                          prlctl="/invented/prlctl", acknowledged=True, trial_first_launch_date="2026-10-26",
@@ -582,6 +585,61 @@ def fake_config(tmp_path: Path) -> HarnessConfig:
 
 MBF_TEXT = "INVENTED\r\nMBF\r\n"
 MBF_SHA = hashlib.sha256(MBF_TEXT.encode("utf-8")).hexdigest()
+
+
+# What the invented guest sees: each guest root (a drive letter, optionally with a folder) maps to a host folder.
+# `fake_config` maps the configured root to its exchange folder; a test may map other letters.
+GUEST_VIEW: dict[str, Path] = {}
+
+
+def guest_file(path: str, view: dict[str, Path]) -> Path | None:
+    for prefix in sorted(view, key=len, reverse=True):
+        if path.lower().startswith(prefix.lower() + "\\"):
+            return view[prefix].joinpath(*path[len(prefix) + 1:].split("\\"))
+    return None
+
+
+def exchange_items(command: str) -> list[dict] | None:
+    """The labels and guest paths of the harness's exchange check (`harness._exchange_check_command`), else None."""
+    if not command.startswith("powershell ") or " -EncodedCommand " not in command:
+        return None
+    script = base64.b64decode(command.rsplit(" ", 1)[1]).decode("utf-16-le")
+    if "Get-FileHash" not in script:
+        return None
+    items = json.loads(base64.b64decode(re.search(r"FromBase64String\('([A-Za-z0-9+/=]*)'\)", script)[1]))
+    return items if isinstance(items, list) else None
+
+
+def net_use_listing(view: dict[str, Path]) -> str:
+    rows = sorted({root[:2].upper() for root in view})
+    return ("New connections will be remembered.\r\n\r\nStatus       Local     Remote                    Network\r\n"
+            + "-" * 40 + "\r\n" + "".join(f"OK           {letter}        \\\\Mac\\invented-share-{letter[0]}    "
+                                       "Parallels Shared Folders\r\n" for letter in rows)
+            + "The command completed successfully.\r\n")
+
+
+def exchange_answer(argv, view: dict[str, Path] | None = None,
+                    listing: str | None = None) -> subprocess.CompletedProcess | None:
+    """The invented guest's answer to the harness's exchange check (the SHA-256 of each file it sees through `view`,
+    default GUEST_VIEW) and to its drive listing, or None when `argv` is another command."""
+    view = GUEST_VIEW if view is None else view
+    command = argv[6]
+    if command == "net use":
+        return subprocess.CompletedProcess(argv, 0, net_use_listing(view) if listing is None else listing, "")
+    items = exchange_items(command)
+    if items is None:
+        return None
+    lines = []
+    for item in items:
+        host = guest_file(item["path"], view)
+        lines.append(f"sha256 {item['label']} {hashlib.sha256(host.read_bytes()).hexdigest()}"
+                     if host is not None and host.is_file() else f"missing {item['label']}")
+    return subprocess.CompletedProcess(argv, 0, "\r\n".join(lines) + "\r\n", "")
+
+
+def sees_exchange(runner):
+    """`runner` behind a guest that sees the exchange share: the exchange check is answered here, never passed on."""
+    return lambda argv, **kwargs: exchange_answer(argv) or runner(argv, **kwargs)
 
 
 def test_round_trip_records_route_and_never_runs_a_real_prlctl(tmp_path):
@@ -602,7 +660,7 @@ def test_round_trip_records_route_and_never_runs_a_real_prlctl(tmp_path):
             (config.exchange_root / "cases" / "cpc-x" / "caepipe_out" / "model_results.csv").write_text("Invented\n")
         return subprocess.CompletedProcess(argv, 0, stdout, "")
 
-    record_ = run_caepipe_round_trip(config, "cpc-x", MBF_TEXT, runner=runner)
+    record_ = run_caepipe_round_trip(config, "cpc-x", MBF_TEXT, runner=sees_exchange(runner))
     assert [call[6].split(" ")[0] for call in calls] == ["(if", "powershell", "copy"]
     assert '"C:\\invented-work\\cpc-x\\model.mbf"' in calls[0][6].split(" & copy ")[0]  # old guest MBF deleted
     assert record_["guest_mbf_sha256"] == MBF_SHA and record_["input_hash_verified"] is True
@@ -644,7 +702,7 @@ def _batch_print_round_trip(tmp_path, files: dict[str, bytes], status: str = "cs
                 (config.exchange_root / "cases" / "cpc-p" / "caepipe_out" / name).write_bytes(data)
         return subprocess.CompletedProcess(argv, 0, stdout, "")
 
-    return run_caepipe_round_trip(config, "cpc-p", MBF_TEXT, runner=runner)
+    return run_caepipe_round_trip(config, "cpc-p", MBF_TEXT, runner=sees_exchange(runner))
 
 
 def test_round_trip_accepts_a_txt_batch_print_only_in_the_print_csv_layout(tmp_path):
@@ -690,7 +748,7 @@ def test_round_trip_falls_back_to_a_guest_local_script_copy(tmp_path):
                                  "mbf_sha256": hashlib.sha256(b"X\r\n").hexdigest()})
         return subprocess.CompletedProcess(argv, 0, stdout, "cannot run script" if not stdout else "")
 
-    record_ = run_caepipe_round_trip(config, "cpc-y", "X\r\n", runner=runner)
+    record_ = run_caepipe_round_trip(config, "cpc-y", "X\r\n", runner=sees_exchange(runner))
     assert len(commands) == 5
     assert record_["guest_script"]["run_from"] == "guest_work_dir"
     assert record_["route"] == "no_results_after_batch"
@@ -707,7 +765,7 @@ def test_round_trip_stops_before_solving_when_preparation_fails(tmp_path):
             raise AssertionError("solve must not run after a failed prepare step")
         return subprocess.CompletedProcess(argv, 1, "", "The system cannot find the file specified.")
 
-    record_ = run_caepipe_round_trip(config, "cpc-p", MBF_TEXT, runner=runner)
+    record_ = run_caepipe_round_trip(config, "cpc-p", MBF_TEXT, runner=sees_exchange(runner))
     assert len(commands) == 1 and commands[0].startswith("(if not exist")
     assert record_["route"] == "prepare_failed"
     assert record_["observed_csv_path"]["host"] is None and record_["guest_mbf_sha256"] is None
@@ -720,11 +778,11 @@ def test_prepare_steps_bracket_the_folder_check_so_a_rerun_still_replaces_the_gu
     (tmp_path / "s").mkdir()
     config, out = solved_case(tmp_path / "r", "cpc-r")
     commands: list[str] = []
-    run_caepipe_round_trip(config, "cpc-r", MBF_TEXT, runner=lambda argv, **k: commands.append(argv[6]) or
-                           subprocess.CompletedProcess(argv, 1, "", ""))
+    run_caepipe_round_trip(config, "cpc-r", MBF_TEXT, runner=sees_exchange(lambda argv, **k: commands.append(argv[6]) or
+                           subprocess.CompletedProcess(argv, 1, "", "")))
     config, out = solved_case(tmp_path / "s", "cpc-s")
-    run_caepipe_mbf_export(config, "cpc-s", MBF_SHA, runner=lambda argv, **k: commands.append(argv[6]) or
-                           subprocess.CompletedProcess(argv, 1, "", ""))
+    run_caepipe_mbf_export(config, "cpc-s", MBF_SHA, runner=sees_exchange(lambda argv, **k: commands.append(argv[6]) or
+                           subprocess.CompletedProcess(argv, 1, "", "")))
     work = {"cpc-r": "C:\\invented-work\\cpc-r", "cpc-s": "C:\\invented-work\\cpc-s\\export"}
     assert commands[0].startswith(f'(if not exist "{work["cpc-r"]}" mkdir "{work["cpc-r"]}") & del /Q ')
     assert commands[1].startswith(f'(if not exist "{work["cpc-s"]}" mkdir "{work["cpc-s"]}") & del /Q ')
@@ -739,6 +797,8 @@ def test_round_trip_accepts_a_drive_root_exchange_share(tmp_path):
     root = exchange(tmp_path, config=config)
     resolved = resolve_harness_config({ENV_VAR: str(root), "PATH": git_only_path(tmp_path)}, require_vm_tools=False)
     assert isinstance(resolved, HarnessConfig) and resolved.guest_exchange_root == "Z:"
+    GUEST_VIEW.clear()
+    GUEST_VIEW["Z:"] = root.resolve()
     commands = []
 
     def runner(argv, **kwargs):
@@ -746,7 +806,7 @@ def test_round_trip_accepts_a_drive_root_exchange_share(tmp_path):
         return subprocess.CompletedProcess(argv, 1, "", "invented failure")
 
     record_ = run_caepipe_round_trip(dataclasses.replace(resolved, prlctl="/invented/prlctl"), "cpc-z", MBF_TEXT,
-                                     runner=runner)
+                                     runner=sees_exchange(runner))
     assert record_["route"] == "prepare_failed"
     assert "Z:\\cases\\cpc-z\\caepipe_in\\model.mbf" in commands[0]
 
@@ -766,7 +826,7 @@ def test_round_trip_refuses_outputs_of_a_different_guest_mbf(tmp_path):
             (out / "model.csv").write_text("Invented\n", encoding="utf-8")
         return subprocess.CompletedProcess(argv, 0, stdout, "")
 
-    record_ = run_caepipe_round_trip(config, "cpc-h", MBF_TEXT, runner=runner)
+    record_ = run_caepipe_round_trip(config, "cpc-h", MBF_TEXT, runner=sees_exchange(runner))
     assert record_["route"] == "input_hash_mismatch"
     assert record_["guest_mbf_sha256"] == "0" * 64 and record_["input_hash_verified"] is False
     assert record_["observed_csv_path"]["host"] is None
@@ -853,7 +913,7 @@ def test_case_variant_output_links_are_refused_before_collection(tmp_path):
         return subprocess.CompletedProcess(argv, 0, stdout, "")
 
     with pytest.raises(ContainmentError):
-        run_caepipe_round_trip(config, "cpc-w", MBF_TEXT, runner=runner)
+        run_caepipe_round_trip(config, "cpc-w", MBF_TEXT, runner=sees_exchange(runner))
     assert not any("caepipe_out" in command and command.startswith("copy") for command in commands)
     assert victim.read_text(encoding="utf-8") == "keep\n"
 
@@ -887,7 +947,7 @@ def test_directories_at_output_names_are_refused_before_collection(tmp_path):
         return subprocess.CompletedProcess(argv, 0, stdout, "")
 
     with pytest.raises(ContainmentError):
-        run_caepipe_round_trip(config, "cpc-m", MBF_TEXT, runner=runner)
+        run_caepipe_round_trip(config, "cpc-m", MBF_TEXT, runner=sees_exchange(runner))
     assert not any("caepipe_out" in command and command.startswith("copy") for command in commands)
     assert victim.read_text(encoding="utf-8") == "keep\n"
 
@@ -919,6 +979,8 @@ def export_runner(out: Path, commands: list[str], *, guest: dict | None = None, 
 
     def runner(argv, **kwargs):
         assert argv[:6] == ["/invented/prlctl", "exec", "invented-vm", "--current-user", "cmd", "/c"]
+        if exchange_answer(argv):
+            return exchange_answer(argv)
         command = argv[6]
         commands.append(command)
         stdout = ""
@@ -1021,9 +1083,10 @@ def test_mbf_export_records_a_guest_failure_and_retries_the_prlctl_client(tmp_pa
         stdout = json.dumps({"status": "export_failed", "mod_sha256": MOD_SHA}) if argv[6].startswith("powershell") else ""
         return subprocess.CompletedProcess(argv, 0 if not stdout else 4, stdout, "")
 
-    entry = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=runner)
+    entry = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=sees_exchange(runner))
     assert entry["route"] == "export_failed"
-    assert entry["steps"][0]["name"] == "export_prepare" and entry["steps"][0]["attempts"] == 2
+    assert entry["steps"][0]["name"] == "exchange_check"
+    assert entry["steps"][1]["name"] == "export_prepare" and entry["steps"][1]["attempts"] == 2
     assert not any(command.startswith("copy") for command in calls)
     assert json.loads((out / "run_record.json").read_text(encoding="utf-8"))["mbf_export"]["route"] == "export_failed"
 
@@ -1064,7 +1127,7 @@ def test_a_new_solve_clears_the_previous_export_and_hashes_its_outputs(tmp_path)
             (out / "model.mod").write_bytes(MOD_BYTES)
         return subprocess.CompletedProcess(argv, 0, stdout, "")
 
-    record_ = run_caepipe_round_trip(config, "cpc-x", MBF_TEXT, runner=runner)
+    record_ = run_caepipe_round_trip(config, "cpc-x", MBF_TEXT, runner=sees_exchange(runner))
     assert not any((out / name).exists() for name in ("exported.mbf", "export_guest_log.json",
                                                       "export_guest_stdout.txt"))
     assert "mbf_export" not in record_
@@ -1271,6 +1334,8 @@ class FakeGuest:
 
     def runner(self, on_solve, config: HarnessConfig):
         def run(argv, **kwargs):
+            if exchange_answer(argv):  # the guest sees the exchange share; the check is not one of its commands
+                return exchange_answer(argv)
             command = argv[6]
             self.commands.append(command)
             literal = _literal_payload(command)
@@ -1407,7 +1472,7 @@ def test_settings_guard_reads_the_whole_key_confirms_exit_and_never_writes(tmp_p
     assert record_["settings_guard"]["status"] == "unchanged"
     assert record_["settings_guard"]["owned_processes"] == {"status": "exited", "owned_pids": [4242]}
     assert [step["name"] for step in record_["steps"]] == [
-        "precondition_process_list", "settings_before", "prepare", "solve", "collect", "owned_pids", "process_list",
+        "exchange_check", "precondition_process_list", "settings_before", "prepare", "solve", "collect", "owned_pids", "process_list",
         "settings_after"]
     # The whole version key with every subkey, not the recent-files subkey alone.
     assert guest.commands[1] == 'reg query "HKCU\\Software\\Invented Vendor\\Tool\\1.0" /s'
@@ -1564,7 +1629,7 @@ def test_settings_guard_runs_nothing_when_the_settings_cannot_be_read(tmp_path):
             return subprocess.CompletedProcess(argv, 0, '"other.exe","9999","Console","2","1 K"\r\n', "")
         return subprocess.CompletedProcess(argv, 1, "", "ERROR: invented")
 
-    record_ = run_caepipe_round_trip(config, "cx-h", MBF_TEXT, runner=runner)
+    record_ = run_caepipe_round_trip(config, "cx-h", MBF_TEXT, runner=sees_exchange(runner))
     assert record_["route"] == "settings_check_failed"
     assert record_["settings_guard"]["status"] == "settings_check_failed"
     assert commands == ["tasklist /FO CSV /NH", 'reg query "HKCU\\Software\\Invented Vendor\\Tool\\1.0" /s']
@@ -2324,7 +2389,8 @@ def test_settings_guard_read_that_keeps_failing_stops_the_run(tmp_path, monkeypa
     guest.flaky = {"tasklist": 6}
     record_ = guarded(tmp_path, guest, _open_model, guard=RESTORING_GUARD)
     assert record_["route"] == "precondition_unknown" and guest.writes == [] and not guest.solved
-    assert [(step["name"], step["attempts"]) for step in record_["steps"]] == [("precondition_process_list", 6)]
+    assert [(step["name"], step["attempts"]) for step in record_["steps"]] == [("exchange_check", 1),
+                                                                                ("precondition_process_list", 6)]
     # The attempts stay within the call's timeout: with 2 s between attempts and a 7 s call, four attempts at most.
     clock = {"t": 1000.0}
     monkeypatch.setattr(harness, "time", SimpleNamespace(monotonic=lambda: clock["t"]))
@@ -2334,7 +2400,7 @@ def test_settings_guard_read_that_keeps_failing_stops_the_run(tmp_path, monkeypa
     guest = FakeGuest()
     guest.flaky = {"tasklist": 6}
     record_ = guarded(second, guest, _open_model, guard=dataclasses.replace(RESTORING_GUARD, call_timeout_s=7.0))
-    step = record_["steps"][0]
+    step = record_["steps"][1]
     assert record_["route"] == "precondition_unknown" and step["attempts"] == 4
     assert step["attempts_stopped_by"] == "deadline" and all(timeout <= 7.0 for _, timeout in guest.timeouts)
 
@@ -3417,3 +3483,474 @@ def test_an_interruption_after_the_restore_returned_keeps_failed_write_stderr(tm
         assert guard["status"] == "settings_restore_failed"
         assert [(item["step"], item["stderr_text"]) for item in guard["failed_write_stderr"]] == \
             [("settings_restore_2", TRANSPORT[2])]
+
+
+# --------------------------------------------------------------------------
+# stored results: the exchange check and the kept copy before anything is cleared (invented bytes, fake prlctl)
+# --------------------------------------------------------------------------
+STORED_PRINT = b"Invented stored print\r\n"
+
+
+def stored_outputs(config: HarnessConfig, case_id: str, mbf_sha: str = MBF_SHA) -> tuple[Path, dict[str, bytes]]:
+    """An invented stored result in the case's caepipe_out/: a run record binding a CSV, the solved model, the
+    guest logs and an earlier MBF export. Returns the layer and its files' bytes."""
+    out = case_paths(config, case_id)["caepipe_out"]
+    files = {
+        "model.csv": STORED_PRINT, "model.mod": MOD_BYTES, "model.res": b"INVENTED RESULTS\r\n",
+        "guest_stdout.txt": b"invented guest output\r\n", "guest_stderr.txt": b"",
+        "guest_log.json": b'{"status": "csv_from_batch"}\n', "exported.mbf": EXPORTED_BYTES,
+        "export_guest_log.json": b'{"status": "mbf_exported"}\n',
+    }
+    files["run_record.json"] = json.dumps({
+        "document_kind": harness.RUN_RECORD_KIND, "route": "csv_from_batch", "mbf": {"sha256": mbf_sha},
+        "guest_mbf_sha256": mbf_sha, "observed_csv_path": {"host": "caepipe_out/model.csv"},
+        "outputs_collected": ["model.csv", "model.mod", "model.res"],
+        "outputs_sha256": {"model.mod": MOD_SHA}, "invented": "stored run record"}, sort_keys=True).encode("utf-8")
+    for name, data in files.items():
+        (out / name).write_bytes(data)
+    return out, files
+
+
+def layer(path: Path) -> dict[str, bytes]:
+    return {entry.name: entry.read_bytes() for entry in path.iterdir()}
+
+
+def kept_layers(case_dir: Path) -> list[Path]:
+    return sorted((case_dir / harness.KEPT_DIR).glob("*/caepipe_out"))
+
+
+def drive_missing(argv, **kwargs):
+    """A guest without the exchange drive (no drive at all): it answers the exchange check and its drive listing,
+    and nothing else may be asked of it."""
+    answer = exchange_answer(argv, view={})
+    if answer is None:
+        pytest.fail(f"a guest command ran after the exchange check failed: {argv[6]}")
+    return answer
+
+
+def guest_not_answering(argv, **kwargs):
+    if exchange_items(argv[6]) is None and argv[6] != "net use":
+        pytest.fail(f"a guest command ran after the exchange check failed: {argv[6]}")
+    return subprocess.CompletedProcess(argv, 255, "", "Failed to exec: PrlJob_invented transport")
+
+
+def live_paths(path_kind: str, runner, config: HarnessConfig, case_id: str, mbf_text: str = MBF_TEXT):
+    """Run one of the four live paths over `case_id` with `runner`: (route, record) for the harness steps, (success,
+    emitted lines) for the authored path."""
+    lines: list[str] = []
+    if path_kind in ("batch", "gui_print"):
+        record_ = run_caepipe_round_trip(config, case_id, mbf_text, runner=runner,
+                                         gui_fallback=path_kind == "gui_print")
+        return record_["route"], record_
+    if path_kind == "export":
+        entry = run_caepipe_mbf_export(config, case_id, hashlib.sha256(mbf_text.encode("utf-8")).hexdigest(),
+                                       runner=runner)
+        return entry["route"], entry
+    case = next(item for item in run_pilot.load_authored_cases() if item["case_id"] == case_id)
+    ok = run_pilot.run_authored_case(
+        case, config, emit=lines.append,
+        round_trip=lambda c, i, t, **k: run_caepipe_round_trip(c, i, t, runner=runner, **k),
+        export=lambda c, i, s: run_caepipe_mbf_export(c, i, s, runner=runner))
+    return ok, lines
+
+
+AUTHORED_ID = "cpa-05-guide"
+
+
+def authored_text() -> str:
+    case = next(item for item in run_pilot.load_authored_cases() if item["case_id"] == AUTHORED_ID)
+    return run_pilot.authored_mbf_bytes(case).decode("ascii")
+
+
+@pytest.mark.parametrize("guest", [drive_missing, guest_not_answering])
+@pytest.mark.parametrize("path_kind", ["batch", "gui_print", "export", "authored"])
+def test_a_guest_without_the_exchange_drive_leaves_the_stored_result_byte_for_byte(tmp_path, path_kind, guest):
+    config = fake_config(tmp_path)
+    case_id = AUTHORED_ID if path_kind == "authored" else "cpc-k"
+    text = authored_text() if path_kind == "authored" else MBF_TEXT
+    out, files = stored_outputs(config, case_id, hashlib.sha256(text.encode("utf-8")).hexdigest())
+    case_dir = out.parent
+    route, result = live_paths(path_kind, guest, config, case_id, text)
+    assert layer(out) == files  # every stored file byte for byte, nothing added
+    assert not (case_dir / harness.KEPT_DIR).exists()  # nothing was even copied
+    refused = sorted((case_dir / harness.REFUSED_DIR).iterdir())
+    assert len(refused) == 1
+    record_ = json.loads(refused[0].read_text(encoding="utf-8"))
+    step = record_.get("mbf_export", record_)
+    assert step["route"] == "exchange_drive_unavailable"
+    assert step["exchange_check"]["status"] == "unavailable"
+    if guest is drive_missing:
+        assert set(step["exchange_check"]["configured_check"].values()) == {"missing"}
+        assert step["exchange_check"]["listing"]["letters_tested"] == []
+    if path_kind == "authored":  # `live_paths` returns the run's success and its emitted lines
+        assert route is False and refused[0].name.endswith("-round_trip.json")
+        assert any("route=exchange_drive_unavailable" in line and "nothing in caepipe_out was cleared" in line
+                   for line in result)
+    else:
+        assert route == "exchange_drive_unavailable" and result["refused_record"] == \
+            refused[0].relative_to(config.exchange_root.resolve()).as_posix()
+        assert "nothing in caepipe_out was" in result["reason"]
+    assert harness.stored_run_record(config.exchange_root, out) == json.loads(files["run_record.json"])
+    assert not (config.exchange_root / "_harness" / "round_trip.lock").exists()
+
+
+def test_the_authored_export_only_step_is_refused_too_without_the_drive(tmp_path):
+    config = fake_config(tmp_path)
+    out, files = stored_outputs(config, AUTHORED_ID, hashlib.sha256(authored_text().encode("ascii")).hexdigest())
+    case = next(item for item in run_pilot.load_authored_cases() if item["case_id"] == AUTHORED_ID)
+    lines: list[str] = []
+    assert not run_pilot.run_authored_case(case, config, export_only=True, emit=lines.append,
+                                           export=lambda c, i, s: run_caepipe_mbf_export(c, i, s, runner=drive_missing))
+    assert layer(out) == files
+    assert lines and "export route=exchange_drive_unavailable" in lines[0]
+
+
+def instrument_removals(monkeypatch, out: Path, original: dict[str, bytes]) -> list[tuple[str, str]]:
+    """Fail the test if a file in `out` is removed or replaced before a complete kept copy of `original` exists."""
+    resolved = out.resolve()
+    events: list[tuple[str, str]] = []
+
+    def kept_copy_exists() -> bool:
+        return any(layer(kept) == original for kept in kept_layers(resolved.parent))
+
+    real_unlink = Path.unlink
+
+    def unlink(self, *args, **kwargs):
+        if self.parent.resolve() == resolved:
+            assert kept_copy_exists(), f"{self.name} was removed before the verified kept copy existed"
+            events.append(("unlink", self.name))
+        return real_unlink(self, *args, **kwargs)
+
+    real_write = harness.write_private
+
+    def write_private(root, path, data):
+        if Path(path).parent.resolve() == resolved and Path(path).exists():
+            assert kept_copy_exists(), f"{Path(path).name} was replaced before the verified kept copy existed"
+            events.append(("replace", Path(path).name))
+        return real_write(root, path, data)
+
+    monkeypatch.setattr(Path, "unlink", unlink)
+    monkeypatch.setattr(harness, "write_private", write_private)
+    return events
+
+
+def present_guest(case_id: str, out: Path, commands: list[str], *, status: str = "csv_from_batch",
+                  mbf_sha: str = MBF_SHA):
+    """A guest that sees the exchange share and completes the step: a solve printing a CSV, or an export."""
+    def runner(argv, **kwargs):
+        command = argv[6]
+        commands.append(command)
+        answer = exchange_answer(argv)
+        if answer is not None:
+            return answer
+        stdout = ""
+        if command.startswith("powershell") and "-ExportMod" in command:
+            stdout = json.dumps({"status": "mbf_exported", "mod_sha256": MOD_SHA, "exported_mbf_sha256": EXPORTED_SHA})
+        elif command.startswith("powershell"):
+            stdout = json.dumps({"status": status, "gui": {"used": status == "csv_from_gui_print"},
+                                 "mbf_sha256": mbf_sha, "csv_path": f"C:\\invented-work\\{case_id}\\model.csv"})
+        elif command.startswith("copy /Y") and "exported.mbf" in command:
+            (out / "exported.mbf").write_bytes(EXPORTED_BYTES)
+        elif command.startswith("copy /Y") and "caepipe_out" in command and status in harness.CSV_ROUTES:
+            (out / "model.csv").write_bytes(b"Invented new print\r\n")
+            (out / "model.mod").write_bytes(MOD_BYTES)
+        return subprocess.CompletedProcess(argv, 0, stdout, "")
+    return runner
+
+
+@pytest.mark.parametrize("path_kind", ["batch", "gui_print", "export", "authored"])
+def test_the_earlier_outputs_are_kept_and_verified_before_anything_is_removed(tmp_path, monkeypatch, path_kind):
+    config = fake_config(tmp_path)
+    case_id = AUTHORED_ID if path_kind == "authored" else "cpc-k"
+    text = authored_text() if path_kind == "authored" else MBF_TEXT
+    sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    out, files = stored_outputs(config, case_id, sha)
+    commands: list[str] = []
+    events = instrument_removals(monkeypatch, out, files)
+    status = "csv_from_gui_print" if path_kind == "gui_print" else "csv_from_batch"
+    route, result = live_paths(path_kind, present_guest(case_id, out, commands, status=status, mbf_sha=sha),
+                               config, case_id, text)
+    checked = {item["label"]: item["path"] for item in exchange_items(commands[0])}  # before any guest command
+    assert checked == {
+        "marker": f"Z:\\invented\\cases\\{case_id}\\caepipe_in\\exchange_check.txt",
+        "model": (f"Z:\\invented\\cases\\{case_id}\\caepipe_out\\model.mod" if path_kind == "export" else
+                  f"Z:\\invented\\cases\\{case_id}\\caepipe_in\\model.mbf"),
+        "script": "Z:\\invented\\_harness\\Invoke-CaepipeRoundTrip.ps1"}
+    assert "net use" not in commands  # the configured root passed: no listing is asked for
+    assert events, "the step removed or replaced nothing; the order check proved nothing"
+    kept = kept_layers(out.parent)
+    assert len(kept) == (2 if path_kind == "authored" else 1)  # the authored path keeps before its export too
+    assert layer(kept[0]) == files  # the earlier result, byte for byte
+    stamp = kept[0].parent.name
+    assert re.fullmatch(r"\d{8}T\d{6}\.\d{6}Z", stamp)
+    record_ = json.loads((out / "run_record.json").read_text(encoding="utf-8"))
+    step = record_["mbf_export"] if path_kind in ("export", "authored") else record_
+    assert step["exchange_check"]["status"] == "ready"
+    assert step["kept_outputs"]["status"] == "kept"
+    if path_kind != "authored":
+        assert route in ("csv_from_batch", "csv_from_gui_print", "mbf_exported")
+        assert step["kept_outputs"]["path"] == f"kept/{stamp}/caepipe_out"
+        assert step["kept_outputs"]["files"] == {name: hashlib.sha256(data).hexdigest() for name, data in files.items()}
+    else:
+        assert route is True
+
+
+def test_an_empty_output_layer_needs_no_kept_copy(tmp_path):
+    config = fake_config(tmp_path)
+    out = case_paths(config, "cpc-k")["caepipe_out"]
+    record_ = run_caepipe_round_trip(config, "cpc-k", MBF_TEXT, runner=present_guest("cpc-k", out, []))
+    assert record_["route"] == "csv_from_batch" and record_["kept_outputs"] == {"status": "empty"}
+    assert not (out.parent / harness.KEPT_DIR).exists()
+
+
+@pytest.mark.parametrize("fault", ["raises", "differs", "extra_file"])
+@pytest.mark.parametrize("path_kind", ["batch", "export", "export_not_bound"])
+def test_a_failed_or_mismatching_kept_copy_stops_the_step_with_nothing_removed(tmp_path, monkeypatch, path_kind,
+                                                                              fault):
+    config = fake_config(tmp_path)
+    out, files = stored_outputs(config, "cpc-k", "3" * 64 if path_kind == "export_not_bound" else MBF_SHA)
+    real = harness._copy_kept
+
+    def faulty(source, target):
+        if fault == "raises":
+            raise OSError("invented copy failure")
+        real(source, target)
+        if fault == "differs" and source.name == "model.res":
+            target.write_bytes(b"INVENTED OTHER BYTES\r\n")
+        if fault == "extra_file":
+            (target.parent / "stray.txt").write_bytes(b"invented\r\n")
+
+    monkeypatch.setattr(harness, "_copy_kept", faulty)
+
+    def guest(argv, **kwargs):  # sees the share; nothing after the check may run
+        answer = exchange_answer(argv)
+        if answer is None:
+            pytest.fail(f"a guest command ran after the kept copy failed: {argv[6]}")
+        return answer
+
+    if path_kind == "batch":
+        result = run_caepipe_round_trip(config, "cpc-k", MBF_TEXT, runner=guest)
+    else:
+        result = run_caepipe_mbf_export(config, "cpc-k", MBF_SHA, runner=guest)
+    assert result["route"] == "kept_copy_failed"
+    assert layer(out) == files
+    refused = sorted((out.parent / harness.REFUSED_DIR).iterdir())
+    assert len(refused) == 1
+    stored = json.loads(refused[0].read_text(encoding="utf-8"))
+    assert stored.get("mbf_export", stored)["route"] == "kept_copy_failed"
+    assert "nothing in caepipe_out was" in result["reason"]
+
+
+def test_kept_and_refused_folders_are_not_read_as_a_current_result(tmp_path, monkeypatch):
+    case = next(item for item in run_pilot.load_cases() if item["case_id"] == "cpc-01-cantilever-force")
+    _, _, text = run_pilot.render_case_mbf(case)
+    sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
+    config = fake_config(tmp_path)
+    root = config.exchange_root.resolve()
+    out, files = stored_outputs(config, case["case_id"], sha)
+    paths = case_paths(config, case["case_id"])
+    (paths["comparison"] / "comparison.json").write_text('{"invented": true}\n', encoding="utf-8")
+    # A refused run (no drive), then a live run whose guest prints no CSV: the bound earlier result now lives only
+    # in kept/, beside a refused record of the run record's own kind.
+    run_caepipe_round_trip(config, case["case_id"], text, runner=drive_missing)
+    record_ = run_caepipe_round_trip(config, case["case_id"], text, runner=present_guest(
+        case["case_id"], out, [], status="no_results_after_batch", mbf_sha=sha))
+    assert record_["route"] == "no_results_after_batch"
+    assert len(kept_layers(out.parent)) == 1 and layer(kept_layers(out.parent)[0]) == files
+    assert len(list((out.parent / harness.REFUSED_DIR).iterdir())) == 1
+
+    stored = harness.stored_run_record(root, out)
+    assert stored["route"] == "no_results_after_batch"  # the current record, not the kept or the refused one
+    csv_path, route, reason = run_pilot.bound_csv(root, paths, stored, sha)
+    assert csv_path is None and route == "no_results_after_batch" and "names no collected" in reason
+    # The offline rebuild finds no bound CSV either; it does not reach kept/.
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case_: ({}, {"payload": {}}, ""))
+    lines: list[str] = []
+    assert run_pilot.run_case(case, config, runner="unused", offline=True, hand_calcs=hand_calcs,
+                              emit=lines.append) is False
+    assert lines == [f"{case['case_id']}: route=no_results_after_batch; the run record names no collected CAEPIPE "
+                     "CSV; no comparison record"]
+    # The private regression check lists only cases whose caepipe_out/ holds a CSV.
+    spec = importlib.util.spec_from_file_location("private_correlation_check",
+                                                  ROOT / "tests" / "test_caepipe_private_correlation.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert module.stored_cases(config) == []
+
+
+def test_a_refused_benchmark_model_stops_the_run_and_keeps_its_stored_records(tmp_path, monkeypatch):
+    entry = run_pilot.load_benchmark(ROOT / "validation" / "caepipe_benchmark" / "manifest.json")[0]
+    config = dataclasses.replace(fake_config(tmp_path), settings_guard=INVENTED_GUARD)
+    out, files = stored_outputs(config, entry["model_id"])
+    manifest = case_paths(config, entry["model_id"])["manifest"]
+    manifest.write_text('{"invented": "stored benchmark run record"}\n', encoding="utf-8")
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case: ({}, {"payload": {}}, ""))
+    lines: list[str] = []
+    with pytest.raises(run_pilot.RunStopped):
+        run_pilot.run_benchmark_model(entry, config, runner="unused", offline=False, emit=lines.append,
+                                      round_trip=lambda c, i, t, **k: run_caepipe_round_trip(c, i, t,
+                                                                                            runner=drive_missing, **k))
+    assert layer(out) == files
+    assert manifest.read_text(encoding="utf-8") == '{"invented": "stored benchmark run record"}\n'
+    assert lines and f"{entry['model_id']}: route=exchange_drive_unavailable" in lines[-1]
+
+
+def test_a_writer_case_refused_without_the_drive_writes_no_comparison(tmp_path, monkeypatch):
+    case = next(item for item in run_pilot.load_cases() if item["case_id"] == "cpc-01-cantilever-force")
+    config = fake_config(tmp_path)
+    out, files = stored_outputs(config, case["case_id"])
+    monkeypatch.setattr(run_pilot, "solve_swbpipe", lambda runner, case_: ({}, {"payload": {}}, ""))
+    lines: list[str] = []
+    assert run_pilot.run_case(case, config, runner="unused", offline=False, hand_calcs=hand_calcs, emit=lines.append,
+                              round_trip=lambda c, i, t: run_caepipe_round_trip(c, i, t, runner=drive_missing)) is False
+    assert layer(out) == files
+    assert len(lines) == 1 and lines[0].startswith(f"{case['case_id']}: route=exchange_drive_unavailable; ")
+    assert "Z:\\" not in lines[0]  # operational status only: labels, not guest paths
+
+
+# --------------------------------------------------------------------------
+# the guest exchange root resolved by content (invented shares mapped to guest drive letters)
+# --------------------------------------------------------------------------
+def other_share(tmp_path: Path, name: str, case_id: str, *, marker: bytes | None = b"stale marker\n") -> Path:
+    """Another invented shared folder with the exchange folder's layout and, at the expected paths, the same input
+    MBF and guest script bytes (the worst case), with a marker of its own unless `marker` is None."""
+    share = tmp_path / name
+    (share / "cases" / case_id / "caepipe_in").mkdir(parents=True)
+    (share / "cases" / case_id / "caepipe_out").mkdir()
+    (share / "_harness").mkdir()
+    (share / "cases" / case_id / "caepipe_in" / "model.mbf").write_bytes(MBF_TEXT.encode("utf-8"))
+    (share / "cases" / case_id / "caepipe_out" / "model.mod").write_bytes(MOD_BYTES)
+    (share / "_harness" / harness.GUEST_SCRIPT.name).write_bytes(harness.GUEST_SCRIPT.read_bytes())
+    if marker is not None:
+        (share / "cases" / case_id / "caepipe_in" / harness.EXCHANGE_MARKER).write_bytes(marker)
+    return share
+
+
+def tree(path: Path) -> dict[str, bytes]:
+    return {str(item.relative_to(path)): item.read_bytes() for item in sorted(path.rglob("*")) if item.is_file()}
+
+
+def checks_only(commands: list[str], listing: str | None = None):
+    """A guest that answers the exchange checks and its drive listing through GUEST_VIEW; nothing else may run."""
+    def runner(argv, **kwargs):
+        commands.append(argv[6])
+        answer = exchange_answer(argv, listing=listing)
+        if answer is None:
+            pytest.fail(f"a guest command ran after the exchange root was refused: {argv[6]}")
+        return answer
+    return runner
+
+
+def guest_paths(command: str) -> list[str]:
+    """Every exchange-share path in a guest command, the encoded exchange checks included."""
+    items = exchange_items(command)
+    if items is not None:
+        return [item["path"] for item in items]
+    return re.findall(r'"([A-Z]:\\invented(?:\\[^"]*)?)"', command)
+
+
+def test_the_configured_root_is_used_without_a_listing_when_it_holds_this_exchange_folder(tmp_path):
+    config = fake_config(tmp_path)
+    out, _ = stored_outputs(config, "cpc-k")
+    commands: list[str] = []
+    record_ = run_caepipe_round_trip(config, "cpc-k", MBF_TEXT, runner=present_guest("cpc-k", out, commands))
+    assert record_["route"] == "csv_from_batch"
+    assert "net use" not in commands
+    resolution = record_["exchange_check"]
+    assert (resolution["configured_letter"], resolution["used_letter"], resolution["differed"]) == ("Z:", "Z:", False)
+    assert resolution["listing"] == "not asked"
+    assert resolution["configured_check"] == {"marker": "matches", "model": "matches", "script": "matches"}
+
+
+def test_the_exchange_folder_at_another_letter_is_resolved_by_content_for_this_step_only(tmp_path):
+    config = fake_config(tmp_path)
+    out, files = stored_outputs(config, "cpc-k")
+    share = other_share(tmp_path, "other-share", "cpc-k")  # another folder at the configured letter
+    GUEST_VIEW.clear()
+    GUEST_VIEW.update({"Z:\\invented": share, "Y:\\invented": config.exchange_root.resolve()})
+    config_bytes = (config.exchange_root / "harness_config.json").read_bytes()
+    share_before = tree(share)
+
+    commands: list[str] = []
+    record_ = run_caepipe_round_trip(config, "cpc-k", MBF_TEXT, runner=present_guest("cpc-k", out, commands))
+    assert record_["route"] == "csv_from_batch"
+    resolution = record_["exchange_check"]
+    assert (resolution["configured_letter"], resolution["used_letter"], resolution["differed"]) == ("Z:", "Y:", True)
+    assert resolution["configured_check"]["marker"] == "differs"  # same model and script bytes, not this run's marker
+    assert resolution["listing"]["letters_tested"] == ["Y:"] and resolution["listing"]["letters_matched"] == ["Y:"]
+    assert [step["name"] for step in record_["steps"]][:4] == [
+        "exchange_check", "drive_listing", "exchange_check_drives", "exchange_check_resolved"]
+    # The candidate is asked for one hash at one path; every later guest path is formed from the resolved letter.
+    assert exchange_items(commands[2]) == [
+        {"label": "drive_y", "path": "Y:\\invented\\cases\\cpc-k\\caepipe_in\\exchange_check.txt"}]
+    later = [path for command in commands[3:] for path in guest_paths(command)]
+    assert later and all(path.startswith("Y:\\invented\\") for path in later)
+    solve = next(command for command in commands if command.startswith("powershell -NoProfile -ExecutionPolicy"))
+    assert '-File "Y:\\invented\\_harness\\Invoke-CaepipeRoundTrip.ps1"' in solve
+    assert (config.exchange_root / "harness_config.json").read_bytes() == config_bytes  # never written
+    assert tree(share) == share_before  # the other folder: nothing read but the one hash, nothing written
+    assert layer(kept_layers(out.parent)[0]) == files
+
+    # The export step resolves on its own, the same way.
+    commands.clear()
+    entry = run_caepipe_mbf_export(config, "cpc-k", MBF_SHA, runner=present_guest("cpc-k", out, commands))
+    assert entry["route"] == "mbf_exported"
+    assert (entry["exchange_check"]["used_letter"], entry["exchange_check"]["differed"]) == ("Y:", True)
+    later = [path for command in commands[3:] for path in guest_paths(command)]
+    assert later and all(path.startswith("Y:\\invented\\") for path in later)
+    assert tree(share) == share_before
+
+
+@pytest.mark.parametrize("step_kind", ["round_trip", "export"])
+@pytest.mark.parametrize("view_kind, route", [("two_match", "exchange_drive_ambiguous"),
+                                              ("none_match", "exchange_drive_unavailable")])
+def test_several_or_no_matching_letters_refuse_with_nothing_cleared(tmp_path, step_kind, view_kind, route):
+    config = fake_config(tmp_path)
+    out, files = stored_outputs(config, "cpc-k")
+    root = config.exchange_root.resolve()
+    GUEST_VIEW.clear()
+    GUEST_VIEW["Z:\\invented"] = other_share(tmp_path, "share-z", "cpc-k")
+    if view_kind == "two_match":  # the exchange folder mapped twice: neither mapping is taken
+        GUEST_VIEW.update({"Y:\\invented": root, "X:\\invented": root})
+    else:
+        GUEST_VIEW.update({"Y:\\invented": other_share(tmp_path, "share-y", "cpc-k", marker=None)})
+    commands: list[str] = []
+    if step_kind == "round_trip":
+        result = run_caepipe_round_trip(config, "cpc-k", MBF_TEXT, runner=checks_only(commands))
+    else:
+        result = run_caepipe_mbf_export(config, "cpc-k", MBF_SHA, runner=checks_only(commands))
+    assert result["route"] == route
+    assert layer(out) == files and not (out.parent / harness.KEPT_DIR).exists()
+    refused = sorted((out.parent / harness.REFUSED_DIR).iterdir())
+    assert len(refused) == 1
+    resolution = result["exchange_check"]
+    assert resolution["listing"]["letters_matched"] == (["X:", "Y:"] if view_kind == "two_match" else [])
+    assert len(commands) == 3  # the configured check, the listing, one check of the candidates
+
+
+def test_malformed_and_network_style_listing_entries_are_ignored(tmp_path):
+    config = fake_config(tmp_path)
+    out, files = stored_outputs(config, "cpc-k")
+    GUEST_VIEW.clear()
+    GUEST_VIEW.update({"Z:\\invented": other_share(tmp_path, "share-z", "cpc-k"),
+                       "Y:\\invented": config.exchange_root.resolve(),
+                       "V:\\invented": other_share(tmp_path, "share-v", "cpc-k", marker=None)})
+    # Y: holds the exchange folder, but the listing names it only in shapes that are not a plain drive letter.
+    listing = ("Status       Local     Remote                    Network\r\n"
+               "-------------------------------------------------------------\r\n"
+               "OK                     \\\\Mac\\invented-exchange    Parallels Shared Folders\r\n"
+               "OK           YY:       \\\\Mac\\invented-a          Parallels Shared Folders\r\n"
+               "OK           1:        \\\\Mac\\invented-b          Parallels Shared Folders\r\n"
+               "OK           Y:\\       \\\\Mac\\invented-c          Parallels Shared Folders\r\n"
+               "Unavailable  Y:x       \\\\Mac\\invented-d          Parallels Shared Folders\r\n"
+               "OK           \\\\Mac\\e   Y:                        Parallels Shared Folders\r\n"
+               "OK           V:        \\\\Mac\\invented-v          Parallels Shared Folders\r\n"
+               "The command completed successfully.\r\n")
+    commands: list[str] = []
+    result = run_caepipe_round_trip(config, "cpc-k", MBF_TEXT, runner=checks_only(commands, listing))
+    assert result["route"] == "exchange_drive_unavailable"
+    assert result["exchange_check"]["listing"]["letters_tested"] == ["V:"]
+    assert exchange_items(commands[2]) == [
+        {"label": "drive_v", "path": "V:\\invented\\cases\\cpc-k\\caepipe_in\\exchange_check.txt"}]
+    assert layer(out) == files
+    assert harness._listed_drive_letters(listing) == ["V:"]

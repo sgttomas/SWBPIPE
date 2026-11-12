@@ -676,6 +676,25 @@ def test_an_unresponsive_guest_is_checked_again_after_two_minutes_then_stops_the
     assert "stopped before cpb-g1-01: liveness unreachable; invented" in capsys.readouterr().out
 
 
+def test_the_liveness_wait_is_settable_and_defaults_to_two_minutes(fake_benchmark, capsys):
+    state = fake_benchmark
+    assert run_pilot.BENCHMARK_RETRY_WAIT_S == 120.0
+    down = {"status": "unreachable", "reason": "invented"}
+    state["alive"][:] = [down]
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
+    assert state["sleeps"] == [120.0]  # unchanged default
+    state["alive"][:] = [down]
+    state["sleeps"].clear()
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--liveness-wait-s", "300"], environ={}) == 0
+    assert state["sleeps"] == [300.0]
+    assert "checking again in 300 s" in capsys.readouterr().out
+    # The retry of a failed model keeps its own fixed wait.
+    state["outcomes"][:] = [raised_after_a_clean_check()]
+    state["sleeps"].clear()
+    assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01", "--liveness-wait-s", "300"], environ={}) == 0
+    assert state["sleeps"] == [120.0]
+
+
 def test_the_freeze_file_stops_the_run_before_the_next_model(fake_benchmark, monkeypatch, capsys):
     state = fake_benchmark
     # The freeze file appears during the pause after the first model.
@@ -735,6 +754,9 @@ def test_benchmark_refusals(fake_benchmark, monkeypatch, capsys, tmp_path):
                           (["--freeze-file", "x"], "need --benchmark"),
                           (base + ["--batch-size", "0"], "--batch-size must be at least 1"),
                           (base + ["--pace-s", "-1"], "--pace-s must be a non-negative number"),
+                          (["--liveness-wait-s", "300"], "need --benchmark"),
+                          (base + ["--liveness-wait-s", "-1"], "--liveness-wait-s must be a non-negative number"),
+                          (base + ["--liveness-wait-s", "nan"], "--liveness-wait-s must be a non-negative number"),
                           (base[:4], "a live --benchmark run needs --freeze-file and --exclusive-file"),
                           (base[:6], "a live --benchmark run needs --freeze-file and --exclusive-file")):
         with pytest.raises(SystemExit) as raised:
