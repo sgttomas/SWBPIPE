@@ -48,7 +48,8 @@ import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selec
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
 import { RigidDraftFields } from "../component-creation/RigidDraftFields";
-import { missingSourceReason, unitMoveNotice, useClearOnUnitMove } from "../workspace/entryRules";
+import { missingSourceReason, supersedeMoves, unitMoveNotice, useClearOnUnitMove, type UnitMove } from "../workspace/entryRules";
+import { DisabledReason } from "../workspace/shell/DisabledReason";
 import { ECCENTRIC_OFFSET_CONVENTION } from "../component-creation/eccentricOffsetConvention";
 import {
   buildCreateComponentIntent,
@@ -59,6 +60,7 @@ import {
   componentDraftWithField,
   componentDraftWithProjectUnits,
   componentFollowedUnits,
+  componentSourceFields,
   creatableComponentKinds,
   defaultComponentDraft,
   isComponentDraftValid,
@@ -124,7 +126,8 @@ export function PropertyInspector({
   // arrives late, or a project-unit change, replaces an inherited default but never a
   // chosen unit. A stored unit is the field's default and is kept.
   const [chosenUnit, setChosenUnit] = useState<string | null>(null);
-  const chooseProposedUnit = (unit: string) => setChosenUnit(unit);
+  const [taskUnitNotice, setTaskUnitNotice] = useState<UnitMove[] | null>(null);
+  const chooseProposedUnit = (unit: string) => { setTaskUnitNotice(null); setChosenUnit(unit); };
   const [rationale, setRationale] = useState("user_entered_preview_change");
   const [sectionDraftState, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
   const [materialDraftState, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
@@ -228,15 +231,25 @@ export function PropertyInspector({
     : null;
   // A number typed beside a unit the user did not change is cleared when that unit moves
   // with the project units; the form says which unit changed (DEL-02-02 AC-011).
-  const [unitClearNotices, setUnitClearNotices] = useState<Record<CreationForm, string | null>>(NO_UNIT_CLEAR_NOTICES);
+  const [unitClearNotices, setUnitClearNotices] = useState<Record<CreationForm, UnitMove[] | null>>(NO_UNIT_CLEAR_NOTICES);
+  const supersede = (form: CreationForm) => (moves: UnitMove[]) =>
+    setUnitClearNotices((current) => {
+      const next = supersedeMoves(current[form], moves);
+      return next === current[form] ? current : { ...current, [form]: next };
+    });
+  // Support and material: a clearing can leave a different record that could be queued (a
+  // support without its stiffness, a material without its expansion). Queue is withheld
+  // until the person edits the form or confirms the cleared fields are meant to be empty.
+  const [queueHolds, setQueueHolds] = useState<{ support: boolean; material: boolean }>({ support: false, material: false });
+  const releaseHold = (form: "support" | "material") => setQueueHolds((current) => (current[form] ? { ...current, [form]: false } : current));
   const clearNotice = (form: CreationForm) => setUnitClearNotices((current) => (current[form] === null ? current : { ...current, [form]: null }));
   const sessionBaseline = String(projectSessionGeneration);
   useClearOnUnitMove({
     length: { label: "length", unit: sectionDraft.lengthUnit, follows: sectionDraftState.lengthUnitSource === "default", values: [sectionDraft.outsideDiameter, sectionDraft.wallThickness] }
   }, sessionBaseline, (moves) => {
     setSectionDraft((current) => ({ ...current, outsideDiameter: "", wallThickness: "" }));
-    setUnitClearNotices((current) => ({ ...current, section: unitMoveNotice(moves) }));
-  });
+    setUnitClearNotices((current) => ({ ...current, section: moves }));
+  }, supersede("section"));
   useClearOnUnitMove({
     modulus: { label: "modulus", unit: materialDraft.stressUnit, follows: materialDraftState.stressUnitSource === "default", values: [materialDraft.elasticModulus, materialDraft.shearModulus] },
     expansion: { label: "thermal expansion", unit: materialDraft.thermalExpansionUnit, follows: materialDraftState.thermalExpansionUnitSource === "default", values: [materialDraft.thermalExpansion] }
@@ -247,25 +260,39 @@ export function PropertyInspector({
       ...(moved.has("modulus") ? { elasticModulus: "", shearModulus: "" } : {}),
       ...(moved.has("expansion") ? { thermalExpansion: "" } : {})
     }));
-    setUnitClearNotices((current) => ({ ...current, material: unitMoveNotice(moves) }));
-  });
+    setUnitClearNotices((current) => ({ ...current, material: moves }));
+    if (moved.has("expansion")) setQueueHolds((current) => ({ ...current, material: true }));
+  }, supersede("material"));
   useClearOnUnitMove({
     stiffness: { label: "stiffness", unit: supportDraft.linearStiffnessUnit, follows: supportDraftState.linearStiffnessUnitSource === "default", values: [supportDraft.linearStiffness] }
   }, sessionBaseline, (moves) => {
     setSupportDraft((current) => ({ ...current, linearStiffness: "" }));
-    setUnitClearNotices((current) => ({ ...current, support: unitMoveNotice(moves) }));
-  });
+    setUnitClearNotices((current) => ({ ...current, support: moves }));
+    setQueueHolds((current) => ({ ...current, support: true }));
+  }, supersede("support"));
   useClearOnUnitMove(componentFollowedUnits(componentDraft), sessionBaseline, (moves) => {
     setComponentDraft((current) => componentDraftClearingBeside(current, moves.map((move) => move.key)));
-    setUnitClearNotices((current) => ({ ...current, component: unitMoveNotice(moves) }));
-  });
+    setUnitClearNotices((current) => ({ ...current, component: moves }));
+  }, supersede("component"));
+  // The property task: an absent member's quantity or vector takes its unit from the project
+  // (as a node position always does); a value typed beside it is cleared when that unit moves.
+  // A stored unit and a unit the person chose never clear.
+  const taskStartingValue = fieldEntryValue(selectedField);
+  useClearOnUnitMove({
+    value: {
+      label: selectedField ? selectedFieldLabel.toLowerCase() : "property",
+      unit: proposedUnit,
+      follows: chosenUnit === null && Boolean(selectedField?.unitFromProject),
+      values: [proposedValue !== taskStartingValue ? proposedValue : ""]
+    }
+  }, `${sessionBaseline}:${draftTarget.type}:${draftTarget.id}:${selectedField?.fieldPath ?? ""}`, (moves) => {
+    setProposedValue(taskStartingValue);
+    setTaskUnitNotice(moves);
+  }, (moves) => setTaskUnitNotice((current) => supersedeMoves(current, moves)));
   const sectionSourceReason = missingSourceReason("section", [{ name: "provenance", value: sectionDraft.provenance }]);
   const materialSourceReason = missingSourceReason("material", [{ name: "provenance", value: materialDraft.provenance }]);
   const supportSourceReason = missingSourceReason("support", [{ name: "provenance", value: supportDraft.provenance }]);
-  const componentSourceReason = missingSourceReason("component", [
-    ...(componentDraft.kind === "expansion_joint" ? [] : [{ name: "geometry source", value: componentDraft.geometrySourceReference }]),
-    { name: "provenance", value: componentDraft.provenance }
-  ]);
+  const componentSourceReason = missingSourceReason("component", componentSourceFields(componentDraft));
   const sectionCreateIntent = isSectionDraftValid(model, sectionDraft)
     ? buildCreateSectionIntent(sectionDraft, model, unitCatalogRoute)
     : null;
@@ -307,12 +334,14 @@ export function PropertyInspector({
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(fieldEntryValue(firstField));
     setChosenUnit(null);
+    setTaskUnitNotice(null);
     setRationale("user_entered_preview_change");
     setSupportDraft(defaultSupportDraft(model, selection, queuedIntents, unitCatalogRoute));
     setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
     setMaterialDraft(defaultMaterialDraft(model, queuedIntents, unitCatalogRoute));
     setSectionDraft(defaultSectionDraft(model, queuedIntents));
     setUnitClearNotices(NO_UNIT_CLEAR_NOTICES);
+    setQueueHolds({ support: false, material: false });
     setInspectorView("properties");
     setTaskActive(false);
   }, [projectSessionGeneration]);
@@ -331,6 +360,7 @@ export function PropertyInspector({
       setSelectedFieldPath(firstField?.fieldPath ?? "");
       setProposedValue(fieldEntryValue(firstField));
       setChosenUnit(null);
+    setTaskUnitNotice(null);
       setRationale("user_entered_preview_change");
       setTaskActive(true);
     } else if (!multiSelection) {
@@ -382,6 +412,7 @@ export function PropertyInspector({
     setSelectedFieldPath(fieldPath);
     setProposedValue(fieldEntryValue(nextField));
     setChosenUnit(null);
+    setTaskUnitNotice(null);
   }
 
   function beginPropertyTaskFromSelection() {
@@ -392,6 +423,7 @@ export function PropertyInspector({
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(fieldEntryValue(firstField));
     setChosenUnit(null);
+    setTaskUnitNotice(null);
     setRationale("user_entered_preview_change");
     setInspectorView("task");
     setTaskActive(true);
@@ -403,6 +435,7 @@ export function PropertyInspector({
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(fieldEntryValue(firstField));
     setChosenUnit(null);
+    setTaskUnitNotice(null);
     setRationale("user_entered_preview_change");
     setTaskActive(false);
   }
@@ -499,6 +532,7 @@ export function PropertyInspector({
 
   function updateMaterialDraft<K extends keyof MaterialDraft>(key: K, value: MaterialDraft[K]) {
     clearNotice("material");
+    releaseHold("material");
     setMaterialDraft((current) => ({
       ...current,
       [key]: value,
@@ -509,6 +543,7 @@ export function PropertyInspector({
 
   function updateSupportDraft<K extends keyof SupportDraft>(key: K, value: SupportDraft[K]) {
     clearNotice("support");
+    releaseHold("support");
     setSupportDraft((current) => ({
       ...current,
       [key]: value,
@@ -522,6 +557,8 @@ export function PropertyInspector({
   }
 
   function toggleSupportRestraint(restraint: string) {
+    clearNotice("support");
+    releaseHold("support");
     setSupportDraft((current) => {
       const present = current.restraints.includes(restraint);
       return {
@@ -622,6 +659,7 @@ export function PropertyInspector({
                   inputMode={selectedField?.valueKind === "quantity" ? "decimal" : "text"}
                   onChange={(event) => {
                     taskGenerationRef.current += 1;
+                    setTaskUnitNotice(null);
                     setProposedValue(event.target.value);
                   }}
                   value={proposedValue}
@@ -649,6 +687,7 @@ export function PropertyInspector({
                   <datalist id="mass-unit-options">{selectedFieldUnitOptions.filter((option) => option.symbol && option.symbol !== "TBD").map((option) => <option key={option.symbol} value={option.symbol}>{option.label}</option>)}</datalist>
                 </label>
               ) : null}
+              {taskUnitNotice ? <p role="status" data-testid="editor-intent-unit-cleared">{unitMoveNotice(taskUnitNotice)}</p> : null}
               {unitRefusal ? <p role={unitRefusal.hardLock ? "alert" : "status"} data-testid="editor-intent-missing-project-unit" data-key={selectedField?.missingProjectUnit?.key}>{unitRefusal.text}</p> : null}
               <footer className="task-action-footer" aria-label="Task actions" data-testid="task-action-footer">
                 <button
@@ -819,7 +858,7 @@ export function PropertyInspector({
               value={sectionDraft.provenance}
             />
           </label>
-          {unitClearNotices.section ? <p role="status" data-testid="create-section-unit-cleared">{unitClearNotices.section}</p> : null}
+          {unitClearNotices.section ? <p role="status" data-testid="create-section-unit-cleared">{unitMoveNotice(unitClearNotices.section)}</p> : null}
           {sectionSourceReason ? <small id="create-section-source-reason" data-testid="create-section-source-reason">{sectionSourceReason}</small> : null}
           <button
             aria-describedby={sectionSourceReason ? "create-section-source-reason" : undefined}
@@ -918,12 +957,22 @@ export function PropertyInspector({
               value={materialDraft.provenance}
             />
           </label>
-          {unitClearNotices.material ? <p role="status" data-testid="create-material-unit-cleared">{unitClearNotices.material}</p> : null}
+          {unitClearNotices.material ? (
+            <p role="status" data-testid="create-material-unit-cleared">
+              {unitMoveNotice(unitClearNotices.material)}
+              {queueHolds.material ? (
+                <button data-testid="create-material-unit-cleared-confirm" onClick={() => { releaseHold("material"); clearNotice("material"); }} type="button">
+                  Leave the cleared values empty
+                </button>
+              ) : null}
+            </p>
+          ) : null}
           {materialSourceReason ? <small id="create-material-source-reason" data-testid="create-material-source-reason">{materialSourceReason}</small> : null}
+          <span className="queue-with-reason">
           <button
-            aria-describedby={materialSourceReason ? "create-material-source-reason" : undefined}
+            aria-describedby={[materialSourceReason ? "create-material-source-reason" : "", queueHolds.material ? "create-material-queue-hold-reason" : ""].filter(Boolean).join(" ") || undefined}
             data-testid="queue-create-material-intent"
-            disabled={multiSelection || !materialCreateIntent}
+            disabled={multiSelection || !materialCreateIntent || queueHolds.material}
             onClick={handleQueueMaterialIntent}
             title="Queue material create intent"
             type="button"
@@ -931,6 +980,8 @@ export function PropertyInspector({
             <PlusCircle size={14} aria-hidden="true" />
             Queue material
           </button>
+          {queueHolds.material ? <DisabledReason id="create-material-queue-hold-reason" text={QUEUE_HOLD_REASONS.material} /> : null}
+          </span>
         </div>
         {materialCreateIntent ? <OperationIntentPreview intent={materialCreateIntent} /> : null}
       </section>
@@ -1016,12 +1067,22 @@ export function PropertyInspector({
               value={supportDraft.provenance}
             />
           </label>
-          {unitClearNotices.support ? <p role="status" data-testid="create-support-unit-cleared">{unitClearNotices.support}</p> : null}
+          {unitClearNotices.support ? (
+            <p role="status" data-testid="create-support-unit-cleared">
+              {unitMoveNotice(unitClearNotices.support)}
+              {queueHolds.support ? (
+                <button data-testid="create-support-unit-cleared-confirm" onClick={() => { releaseHold("support"); clearNotice("support"); }} type="button">
+                  Leave the cleared values empty
+                </button>
+              ) : null}
+            </p>
+          ) : null}
           {supportSourceReason ? <small id="create-support-source-reason" data-testid="create-support-source-reason">{supportSourceReason}</small> : null}
+          <span className="queue-with-reason">
           <button
-            aria-describedby={supportSourceReason ? "create-support-source-reason" : undefined}
+            aria-describedby={[supportSourceReason ? "create-support-source-reason" : "", queueHolds.support ? "create-support-queue-hold-reason" : ""].filter(Boolean).join(" ") || undefined}
             data-testid="queue-create-support-intent"
-            disabled={multiSelection || !supportCreateIntent}
+            disabled={multiSelection || !supportCreateIntent || queueHolds.support}
             onClick={handleQueueSupportIntent}
             title="Queue support create intent"
             type="button"
@@ -1029,6 +1090,8 @@ export function PropertyInspector({
             <PlusCircle size={14} aria-hidden="true" />
             Queue support
           </button>
+          {queueHolds.support ? <DisabledReason id="create-support-queue-hold-reason" text={QUEUE_HOLD_REASONS.support} /> : null}
+          </span>
         </div>
         {supportCreateIntent ? <OperationIntentPreview intent={supportCreateIntent} /> : null}
       </section>
@@ -1137,7 +1200,7 @@ export function PropertyInspector({
           {componentUnitNotices.map(({ key, text }) => (
             <p key={key} role="status" data-testid={`create-component-missing-project-unit-${key}`}>{text}</p>
           ))}
-          {unitClearNotices.component ? <p role="status" data-testid="create-component-unit-cleared">{unitClearNotices.component}</p> : null}
+          {unitClearNotices.component ? <p role="status" data-testid="create-component-unit-cleared">{unitMoveNotice(unitClearNotices.component)}</p> : null}
           {componentSourceReason ? <small id="create-component-source-reason" data-testid="create-component-source-reason">{componentSourceReason}</small> : null}
           <button
             aria-describedby={componentSourceReason ? "create-component-source-reason" : undefined}
@@ -1351,6 +1414,8 @@ type EditableField = {
   missingProjectUnit?: { key: ProjectUnitKey; mode: MissingProjectUnitMode };
   /** why a composed default gives no unit (not a catalog unit, or an invalid key). */
   unitNotice?: string;
+  /** the unit is the project's, not a stored one: the member is absent, or it is a node position (DEL-02-02 REQ-022). */
+  unitFromProject?: boolean;
 };
 
 /** The value a field's entry starts from. */
@@ -1388,7 +1453,11 @@ type MaterialDraft = {
 };
 
 type CreationForm = "section" | "material" | "support" | "component";
-const NO_UNIT_CLEAR_NOTICES: Record<CreationForm, string | null> = { section: null, material: null, support: null, component: null };
+const QUEUE_HOLD_REASONS = {
+  support: "Not queued: the stiffness was cleared when its unit changed, and a support without a stiffness is a different record. Enter the stiffness again, or confirm it is meant to be empty.",
+  material: "Not queued: the thermal expansion was cleared when its unit changed, and a material without it is a different record. Enter it again, or confirm it is meant to be empty."
+} as const;
+const NO_UNIT_CLEAR_NOTICES: Record<CreationForm, UnitMove[] | null> = { section: null, material: null, support: null, component: null };
 
 type SectionDraft = {
   id: string;
@@ -1977,7 +2046,7 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef, route: Un
         "set_field",
         true
       ),
-      projectUnitDefault(quantityField(
+      inheritsStoredUnit(projectUnitDefault(quantityField(
         "Mill tolerance",
         "section.mill_tolerance.value",
         pipe.section.mill_tolerance?.value ?? "TBD",
@@ -1986,8 +2055,8 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef, route: Un
         pipe.section.mill_tolerance?.unit ?? pipe.section.wall_thickness?.unit ?? units.length ?? "",
         "set_field",
         true
-      ), "length", "choose"),
-      projectUnitDefault(quantityField(
+      ), "length", "choose"), Boolean(pipe.section.wall_thickness?.unit)),
+      inheritsStoredUnit(projectUnitDefault(quantityField(
         "Corrosion allowance (explicit zero or greater)",
         "section.corrosion_allowance.value",
         pipe.section.corrosion_allowance?.value ?? "TBD",
@@ -1996,7 +2065,7 @@ function editorFieldOptions(model: PreviewModel, selection: EntityRef, route: Un
         pipe.section.corrosion_allowance?.unit ?? pipe.section.wall_thickness?.unit ?? units.length ?? "",
         "set_field",
         true
-      ), "length", "choose"),
+      ), "length", "choose"), Boolean(pipe.section.wall_thickness?.unit)),
       ...([
         ["material_density", "Material density (positive)", "density"],
         ["contents_density", "Contents density (zero or greater)", "density"],
@@ -2747,14 +2816,30 @@ function quantityField(
 /** A field whose default unit is a project key's: with the key absent the field has
  * no unit ("", unselected) and names the key; nothing is assumed. */
 function projectUnitDefault(field: EditableField, key: ProjectUnitKey, mode: MissingProjectUnitMode): EditableField {
-  return field.unit === "" ? { ...field, missingProjectUnit: { key, mode } } : field;
+  const marked = withProjectUnitMarker(field);
+  return marked.unit === "" ? { ...marked, missingProjectUnit: { key, mode } } : marked;
+}
+
+/** A field whose absent member takes another member's stored unit first (a mill tolerance
+ * and a corrosion allowance take the wall thickness's): it follows the project only when
+ * there is none. */
+function inheritsStoredUnit(field: EditableField, stored: boolean): EditableField {
+  return stored ? { ...field, unitFromProject: false } : field;
+}
+
+/** An absent member takes its unit from the project; a node position's unit is always the
+ * project length. Any other unit is stored. */
+function withProjectUnitMarker(field: EditableField): EditableField {
+  const fromProject = field.before === "TBD" || (field.objectType === "Node" && field.fieldPath.startsWith("position."));
+  return fromProject ? { ...field, unitFromProject: true } : field;
 }
 
 /** A field whose default unit is composed from project keys: a
  * stored unit is kept; otherwise the composed default, or no unit ("") with the
  * absent key named or the notice given. The field has its own unit selector, so a
  * unit picked there lifts the refusal. */
-function composedUnitDefault(field: EditableField, choice: FieldUnitDefault): EditableField {
+function composedUnitDefault(unmarked: EditableField, choice: FieldUnitDefault): EditableField {
+  const field = withProjectUnitMarker(unmarked);
   if (field.unit !== "") return field;
   if (choice.symbol) return { ...field, unit: choice.symbol };
   if (choice.missingKey && isProjectUnitKey(choice.missingKey)) return { ...field, missingProjectUnit: { key: choice.missingKey, mode: "choose" } };

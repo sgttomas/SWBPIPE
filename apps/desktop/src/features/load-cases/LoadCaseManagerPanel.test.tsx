@@ -705,3 +705,24 @@ describe("A typed number when the project unit moves (primitive load)", () => {
     expect(screen.queryByTestId("load-manager-create-primitive-unit-cleared")).toBeNull();
   });
 });
+
+// The second independent reading, finding 2: choosing another case is not choosing a direction.
+describe("choosing another case for a primitive load", () => {
+  it("keeps the direction, the unit and the typed magnitude; only the identifier is regenerated", async () => {
+    // The reviewer's case: a support restraining both translations and rotations.
+    const model = inventedModel();
+    model.supports = [{ ...model.supports[0], restraints: ["UX", "UY", "UZ", "RX", "RY", "RZ"] }];
+    mount(model);
+    type("load-manager-create-primitive-category", "imposed_displacement");
+    type("load-manager-create-primitive-direction", "RX");
+    type("load-manager-create-primitive-magnitude", "0.01");
+    expect(byId("load-manager-create-primitive-unit")).toHaveValue("rad");
+    chooseVirtualTarget("load-manager-create-primitive-load-case", "load:hot");
+    expect(byId("load-manager-create-primitive-direction")).toHaveValue("RX");
+    expect(byId("load-manager-create-primitive-heading")).toHaveTextContent(/unit=rad$/);
+    expect(byId("load-manager-create-primitive-magnitude")).toHaveValue("0.01");
+    expect(byId("load-manager-create-primitive-id")).toHaveValue("load:hot-I300");
+    expect(screen.queryByTestId("load-manager-create-primitive-unit-cleared")).toBeNull();
+  });
+});
+

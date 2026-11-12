@@ -211,6 +211,21 @@ function tieRodsValid(text: string): boolean {
 }
 export const CONNECTOR_PRESSURE_MODELS = ["unpressurized"] as const;
 export const CURRENT_CONNECTOR_PRESSURE_MODELS = ["unpressurized", "constant_effective_area_reference_v1"] as const;
+/** Every source a component draft needs, named as a reason names them (DEL-07-03 AC-001):
+ * an expansion joint's stiffness source, its pressure area source and each tie rod's source
+ * where they apply; any other kind's geometry source; and the provenance. */
+export function componentSourceFields(draft: ComponentDraft): Array<{ name: string; value: string }> {
+  if (draft.kind !== "expansion_joint") {
+    return [{ name: "geometry source", value: draft.geometrySourceReference }, { name: "provenance", value: draft.provenance }];
+  }
+  const rods = draft.hardwareKind === "explicit_axial_rods_v1" ? tieRodDrafts(draft.tieRods) : [];
+  return [
+    { name: "stiffness source", value: draft.stiffnessSourceReference },
+    ...(draft.pressureModel === "constant_effective_area_reference_v1" ? [{ name: "pressure area source", value: draft.pressureSourceReference }] : []),
+    ...rods.map((row, index) => ({ name: `tie rod ${row.id.trim() || index + 1} source`, value: row.sourceReference })),
+    { name: "provenance", value: draft.provenance }
+  ];
+}
 export function connectorPressureModels(model: PreviewModel): readonly string[] {
   return model.schema_version === MODEL_SCHEMA_VERSION ? CURRENT_CONNECTOR_PRESSURE_MODELS : CONNECTOR_PRESSURE_MODELS;
 }

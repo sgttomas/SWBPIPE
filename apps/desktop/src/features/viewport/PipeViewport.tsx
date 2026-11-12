@@ -35,6 +35,7 @@ import {
   componentDraftWithField,
   componentDraftWithProjectUnits,
   componentFollowedUnits,
+  componentSourceFields,
   creatableComponentKinds,
   defaultComponentDraft,
   keepComponentSources,
@@ -42,7 +43,7 @@ import {
   type ComponentDraft,
   type CreatableComponentKind
 } from "../component-creation/componentIntent";
-import { missingSourceReason, unitMoveNotice, useClearOnUnitMove } from "../workspace/entryRules";
+import { missingSourceReason, supersedeMoves, unitMoveNotice, useClearOnUnitMove, type UnitMove } from "../workspace/entryRules";
 import {
   buildNodeCreationSubmission,
   buildRouteSubmission,
@@ -546,11 +547,11 @@ export function PipeViewport({
     defaultComponentDraft(model, selection, queuedIntents)
   );
   const componentDraft = componentDraftWithProjectUnits(model, componentDraftState);
-  const [nodeUnitClearNotice, setNodeUnitClearNotice] = useState<string | null>(null);
-  const [componentUnitClearNotice, setComponentUnitClearNotice] = useState<string | null>(null);
+  const [nodeUnitClearNotice, setNodeUnitClearNotice] = useState<UnitMove[] | null>(null);
+  const [componentUnitClearNotice, setComponentUnitClearNotice] = useState<UnitMove[] | null>(null);
   // Remounts the route's direction-entry aid on a new project session and on Cancel route.
   const [directionEntryEpoch, setDirectionEntryEpoch] = useState(0);
-  const [routeUnitClearNotice, setRouteUnitClearNotice] = useState<string | null>(null);
+  const [routeUnitClearNotice, setRouteUnitClearNotice] = useState<UnitMove[] | null>(null);
   const [pipeEndpointPickMode, setPipeEndpointPickMode] = useState<PipeEndpointPickMode>(null);
   const [routingPlane, setRoutingPlane] = useState<RoutingPlane>("XZ");
   const [routingAxis, setRoutingAxis] = useState<RoutingAxisConstraint>("Free");
@@ -918,16 +919,13 @@ export function PipeViewport({
     coordinates: { label: "coordinate", unit: nodeDraft.coordinateUnit, follows: nodeDraftState.coordinateUnitSource !== "user", values: [nodeDraft.x, nodeDraft.y, nodeDraft.z] }
   }, viewportSessionBaseline, (moves) => {
     setNodeDraft((current) => ({ ...current, x: "", y: "", z: "" }));
-    setNodeUnitClearNotice(unitMoveNotice(moves));
-  });
+    setNodeUnitClearNotice(moves);
+  }, (moves) => setNodeUnitClearNotice((current) => supersedeMoves(current, moves)));
   useClearOnUnitMove(componentFollowedUnits(componentDraft), viewportSessionBaseline, (moves) => {
     setComponentDraft((current) => componentDraftClearingBeside(current, moves.map((move) => move.key)));
-    setComponentUnitClearNotice(unitMoveNotice(moves));
-  });
-  const componentSourceReason = missingSourceReason("component", [
-    ...(componentDraft.kind === "expansion_joint" ? [] : [{ name: "geometry source", value: componentDraft.geometrySourceReference }]),
-    { name: "provenance", value: componentDraft.provenance }
-  ]);
+    setComponentUnitClearNotice(moves);
+  }, (moves) => setComponentUnitClearNotice((current) => supersedeMoves(current, moves)));
+  const componentSourceReason = missingSourceReason("component", componentSourceFields(componentDraft));
   const componentDraftValid = isComponentDraftValid(model, componentDraft, [
     ...queuedIntents,
     ...localIntents
@@ -1117,9 +1115,9 @@ export function PipeViewport({
       const typed = (values: string[]) => values.some((value) => value.trim() !== "");
       const pipeNumbers = pipeDraft.lengthUnit === previousRouteUnit.unit && typed([pipeDraft.outsideDiameter, pipeDraft.wallThickness]);
       const endNumbers = newEndDraft.coordinateUnit === previousRouteUnit.unit && typed([newEndDraft.x, newEndDraft.y, newEndDraft.z]);
-      if (pipeNumbers || endNumbers) {
-        setRouteUnitClearNotice(unitMoveNotice([{ key: "length", label: "length", from: previousRouteUnit.unit || "none", to: defaultLengthUnit || "none" }]));
-      }
+      const move = { key: "length", label: "length", from: previousRouteUnit.unit || "none", to: defaultLengthUnit || "none" };
+      if (pipeNumbers || endNumbers) setRouteUnitClearNotice([move]);
+      else setRouteUnitClearNotice((current) => supersedeMoves(current, [move]));
     }
     const continuation = pendingAppliedRoute.current;
     if (continuation && modelCommitToken === continuation.commitToken) {
@@ -1997,6 +1995,7 @@ export function PipeViewport({
   // in the project length unit, so the create_node conversion is the identity.
   function useDirectionEndPoint(position: EntryVec3, unit: string) {
     clearPointerPlacement();
+    setRouteUnitClearNotice(null);
     invalidateDraftReview();
     setNewEndDraft((current) => ({ ...current, coordinateUnit: unit, x: exactCoordinateText(position.x), y: exactCoordinateText(position.y), z: exactCoordinateText(position.z) }));
   }
@@ -2408,8 +2407,10 @@ export function PipeViewport({
           coordinateUnit
         );
         setNodeDraft((current) => (current.coordinateUnitSource === "user" ? { ...captured, coordinateUnitSource: "user" } : captured));
+        setNodeUnitClearNotice(null);
       } else {
         const identity = nextViewportNodeIdentity(model, [...queuedIntents, ...localIntents]);
+        setRouteUnitClearNotice(null);
         setNewEndDraft({
           id: identity.id,
           label: identity.label,
@@ -3120,7 +3121,7 @@ export function PipeViewport({
                 value={nodeDraft.provenance}
               />
             </label>
-            {nodeUnitClearNotice ? <p role="status" data-testid="viewport-create-node-unit-cleared">{nodeUnitClearNotice}</p> : null}
+            {nodeUnitClearNotice ? <p role="status" data-testid="viewport-create-node-unit-cleared">{unitMoveNotice(nodeUnitClearNotice)}</p> : null}
             <button
               data-testid="queue-explicit-node-intent"
               disabled={!nodeDraftValid || draftReviewBusy}
@@ -3369,7 +3370,7 @@ export function PipeViewport({
             >
               Cancel pipe draft
             </button>
-            {routeUnitClearNotice ? <p role="status" data-testid="viewport-create-pipe-unit-cleared">{routeUnitClearNotice}</p> : null}
+            {routeUnitClearNotice ? <p role="status" data-testid="viewport-create-pipe-unit-cleared">{unitMoveNotice(routeUnitClearNotice)}</p> : null}
             <button
               data-testid="queue-explicit-pipe-intent"
               disabled={!pipeDraftValid || draftReviewBusy}
@@ -3488,7 +3489,7 @@ export function PipeViewport({
             {componentUnitNotices.map(({ key, text }) => (
               <p key={key} role="status" data-testid={`viewport-create-component-missing-project-unit-${key}`}>{text}</p>
             ))}
-            {componentUnitClearNotice ? <p role="status" data-testid="viewport-create-component-unit-cleared">{componentUnitClearNotice}</p> : null}
+            {componentUnitClearNotice ? <p role="status" data-testid="viewport-create-component-unit-cleared">{unitMoveNotice(componentUnitClearNotice)}</p> : null}
             {componentSourceReason ? <small id="viewport-create-component-source-reason" data-testid="viewport-create-component-source-reason">{componentSourceReason}</small> : null}
             <button
               aria-describedby={componentSourceReason ? "viewport-create-component-source-reason" : undefined}

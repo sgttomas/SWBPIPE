@@ -11,7 +11,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 import type { UnitCatalogRoute } from "../../services/unitCatalogService";
 import { unitCatalogFixture } from "../../test-support/unitCatalogFixture";
-import { chooseCompactOption, expectFormControlValue } from "../../test-support/workspaceTestControls";
+import { changeFormControl, chooseCompactOption, expectFormControlValue } from "../../test-support/workspaceTestControls";
 import { DisplayUnitsProvider } from "../display-units";
 import { PropertyInspector } from "./PropertyInspector";
 
@@ -379,3 +379,97 @@ describe("a missing source is named beside Queue (inspector)", () => {
     expect(screen.queryByTestId("create-component-source-reason")).toBeNull();
   });
 });
+
+// Support and material: a clearing can leave a different record that could be queued, so
+// Queue is withheld with its reason until the person edits the form or confirms (AC-011).
+describe("Queue is withheld after a clearing on support and material", () => {
+  const holdReason = (form: string) => screen.queryByText((_content, element) => element?.id === `create-${form}-queue-hold-reason`);
+
+  it("support: withheld after the stiffness is cleared; released by an edit", async () => {
+    const { rerender } = await mount({ type: "node", id: "node:N-110" });
+    type("create-support-stiffness", "1500");
+    type("create-support-provenance", "support source");
+    expect(byId("queue-create-support-intent")).toBeEnabled();
+    rerender(withUnits({ linear_stiffness: "kN/m" }));
+    expect(byId("create-support-stiffness")).toHaveValue("");
+    expect(byId("queue-create-support-intent")).toBeDisabled();
+    expect(holdReason("support")).toHaveTextContent("Not queued: the stiffness was cleared when its unit changed");
+    expect(byId("queue-create-support-intent").getAttribute("aria-describedby")).toContain("create-support-queue-hold-reason");
+    type("create-support-provenance", "support source, checked");
+    expect(byId("queue-create-support-intent")).toBeEnabled();
+    expect(holdReason("support")).toBeNull();
+  });
+
+  it("support: released by confirming the cleared stiffness is meant to be empty", async () => {
+    const { rerender } = await mount({ type: "node", id: "node:N-110" });
+    type("create-support-stiffness", "1500");
+    type("create-support-provenance", "support source");
+    rerender(withUnits({ linear_stiffness: "kN/m" }));
+    expect(byId("queue-create-support-intent")).toBeDisabled();
+    fireEvent.click(byId("create-support-unit-cleared-confirm"));
+    expect(byId("queue-create-support-intent")).toBeEnabled();
+    expect(screen.queryByTestId("create-support-unit-cleared")).toBeNull();
+  });
+
+  it("support: not withheld when nothing was cleared", async () => {
+    const { rerender } = await mount({ type: "node", id: "node:N-110" });
+    type("create-support-provenance", "support source");
+    rerender(withUnits({ linear_stiffness: "kN/m" }));
+    expect(byId("queue-create-support-intent")).toBeEnabled();
+    expect(holdReason("support")).toBeNull();
+  });
+
+  it("material: withheld after the thermal expansion is cleared; released by an edit or by confirming", async () => {
+    const { rerender } = await mount({ type: "project", id: "project:invented-demo" });
+    type("create-material-elastic", "200000");
+    type("create-material-shear", "80000");
+    type("create-material-thermal", "0.000012");
+    type("create-material-provenance", "material source");
+    expect(byId("queue-create-material-intent")).toBeEnabled();
+    rerender(withUnits({ temperature: "K" }));
+    expect(byId("create-material-thermal")).toHaveValue("");
+    expect(byId("queue-create-material-intent")).toBeDisabled();
+    expect(holdReason("material")).toHaveTextContent("Not queued: the thermal expansion was cleared when its unit changed");
+    fireEvent.click(byId("create-material-unit-cleared-confirm"));
+    expect(byId("queue-create-material-intent")).toBeEnabled();
+    rerender(withUnits({ temperature: "degF" }));
+    expect(byId("queue-create-material-intent")).toBeEnabled();
+    type("create-material-thermal", "0.00002");
+    rerender(withUnits({ temperature: "K" }));
+    expect(byId("queue-create-material-intent")).toBeDisabled();
+    type("create-material-thermal", "0.000012");
+    expect(byId("queue-create-material-intent")).toBeEnabled();
+  });
+
+  it("material: a cleared modulus withholds nothing more; the modulus is required anyway", async () => {
+    const { rerender } = await mount({ type: "project", id: "project:invented-demo" });
+    type("create-material-elastic", "200000");
+    type("create-material-shear", "80000");
+    type("create-material-provenance", "material source");
+    rerender(withUnits({ pressure: "MPa" }));
+    expect(holdReason("material")).toBeNull();
+    expect(screen.queryByTestId("create-material-unit-cleared-confirm")).toBeNull();
+  });
+});
+
+describe("a notice names where the unit now is after a later move that clears nothing", () => {
+  it("section", async () => {
+    const { rerender } = await mount({ type: "project", id: "project:invented-demo" });
+    type("create-section-od", "100");
+    rerender(withUnits({ length: "mm" }));
+    expect(byId("create-section-unit-cleared")).toHaveTextContent(cleared("length", "m", "mm"));
+    rerender(withUnits({ length: "in" }));
+    expect(byId("create-section-unit-cleared")).toHaveTextContent(cleared("length", "m", "in"));
+  });
+});
+
+describe("an expansion joint names every source it lacks (inspector)", () => {
+  it("names the stiffness source and the provenance", async () => {
+    await mount({ type: "node", id: "node:N-110" });
+    changeFormControl(byId("create-component-kind"), { target: { value: "expansion_joint" } });
+    expect(byId("create-component-source-reason")).toHaveTextContent(
+      "Not queued: enter the component's stiffness source and provenance. A record without its source is refused."
+    );
+  });
+});
+

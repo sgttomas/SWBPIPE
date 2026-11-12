@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCreateComponentIntent, CENTER_OF_GRAVITY_CONVENTION, componentDraftForKind, componentDraftWithField, defaultComponentDraft, isComponentDraftValid, keepComponentSources, rigidInterfacesValid, tieRodIdsDistinct, type ComponentDraft } from "./componentIntent";
+import { buildCreateComponentIntent, CENTER_OF_GRAVITY_CONVENTION, componentDraftForKind, componentDraftWithField, defaultComponentDraft, isComponentDraftValid, keepComponentSources, componentSourceFields, rigidInterfacesValid, tieRodIdsDistinct, type ComponentDraft } from "./componentIntent";
 import { componentDraftMissingUnitKeys } from "../project-units/missingProjectUnit";
 import type { PreviewModel } from "../../types";
 
@@ -122,3 +122,18 @@ describe("component sources start empty and the next record keeps the user's own
     expect([bend.geometrySourceReference, bend.provenance]).toEqual(["", ""]);
   });
 });
+
+describe("componentSourceFields names every source a joint needs (DEL-07-03 AC-001)", () => {
+  const model = { schema_version: "0.9.0", project: { id: "p", units: { length: "m" } }, nodes: [], pipe_segments: [], components: [], supports: [], load_cases: [] } as unknown as PreviewModel;
+  const joint = (extra: Partial<ComponentDraft> = {}): ComponentDraft => ({ ...defaultComponentDraft(model, null, [], "expansion_joint"), ...extra });
+  const names = (draft: ComponentDraft) => componentSourceFields(draft).filter((field) => !field.value.trim()).map((field) => field.name);
+  it("the stiffness source and provenance always; the pressure area source and each tie rod's where they apply", () => {
+    expect(names(joint())).toEqual(["stiffness source", "provenance"]);
+    expect(names(joint({ pressureModel: "constant_effective_area_reference_v1" }))).toEqual(["stiffness source", "pressure area source", "provenance"]);
+    const rods = JSON.stringify([{ id: "rod:1", offsetI: "", offsetJ: "", offsetUnit: "", stiffness: "", stiffnessUnit: "", referenceExtension: "", referenceExtensionUnit: "", sourceReference: "" }]);
+    expect(names(joint({ hardwareKind: "explicit_axial_rods_v1", tieRods: rods }))).toEqual(["stiffness source", "tie rod rod:1 source", "provenance"]);
+    expect(names(joint({ stiffnessSourceReference: "s", provenance: "p" }))).toEqual([]);
+    expect(names(defaultComponentDraft(model, null, [], "valve"))).toEqual(["geometry source", "provenance"]);
+  });
+});
+

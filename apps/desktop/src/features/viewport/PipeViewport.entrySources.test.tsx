@@ -9,7 +9,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PreviewModel } from "../../types";
 import type { UnitCatalogRoute } from "../../services/unitCatalogService";
 import { unitCatalogFixture } from "../../test-support/unitCatalogFixture";
-import { chooseCompactOption, expectFormControlValue } from "../../test-support/workspaceTestControls";
+import { changeFormControl, chooseCompactOption, expectFormControlValue } from "../../test-support/workspaceTestControls";
 import { DisplayUnitsProvider } from "../display-units";
 import { modelIndexFor } from "../workspace/modelIndex";
 import { PipeViewport } from "./PipeViewport";
@@ -364,6 +364,36 @@ describe("viewport route drafts when the project length unit moves", () => {
     type("viewport-create-pipe-od", "0.168");
     view.rerender(tree(withUnits({ length: "m", pressure: "MPa" })));
     await waitFor(() => expect(byId("viewport-create-pipe-od")).toHaveValue(""));
+    expect(screen.queryByTestId("viewport-create-pipe-unit-cleared")).toBeNull();
+  });
+});
+
+describe("viewport: an expansion joint names its sources; the route form says the model changed", () => {
+  const tree = (model: PreviewModel, onAddDraft?: () => Promise<null>) => (
+    <DisplayUnitsProvider initialPreference="SI">
+      <PipeViewport model={model} modelIndex={modelIndexFor(model, 1, 0)} selection={{ type: "node", id: "node:N-110" }} onSelect={vi.fn()} onQueueIntent={vi.fn()} onArmCreationTool={vi.fn()} onAddDraft={onAddDraft} />
+    </DisplayUnitsProvider>
+  );
+
+  it("an expansion joint names the stiffness source and the provenance", () => {
+    render(tree(demo()));
+    changeFormControl(byId("viewport-create-component-kind"), { target: { value: "expansion_joint" } });
+    expect(byId("viewport-create-component-source-reason")).toHaveTextContent(
+      "Not queued: enter the component's stiffness source and provenance. A record without its source is refused."
+    );
+  });
+
+  it("a model change that leaves the length unit discards the pipe draft and says the model changed", async () => {
+    const first = demo();
+    const view = render(tree(first, vi.fn(async () => null)));
+    type("viewport-create-pipe-od", "0.168");
+    type("viewport-create-pipe-provenance", "pipe source");
+    const next = demo();
+    next.project.units = { ...next.project.units, pressure: "MPa" } as PreviewModel["project"]["units"];
+    view.rerender(tree(next, vi.fn(async () => null)));
+    await waitFor(() => expect(byId("viewport-draft-review-message")).toHaveTextContent("The model changed. Add again to review the current draft."));
+    expect(byId("viewport-create-pipe-od")).toHaveValue("");
+    expect(byId("viewport-create-pipe-provenance")).toHaveValue("");
     expect(screen.queryByTestId("viewport-create-pipe-unit-cleared")).toBeNull();
   });
 });
