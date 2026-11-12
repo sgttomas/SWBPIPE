@@ -65,9 +65,13 @@ pub fn take_chosen_path<R: Runtime>(app: &AppHandle<R>, chooser: &str) -> Option
 
 /// A chooser's decision, made without the app handle:
 /// - an answer is queued: it is taken, except that in strict chooser mode an answer outside the home this process
-///   was given ([`inside_home`]) ends the app here instead, before anything is read or written at it;
-/// - nothing is queued: in strict chooser mode the app ends here, before any native dialog; otherwise `None`, and
-///   the chooser shows its native dialog.
+///   was given ([`inside_home`]) ends the app here instead;
+/// - nothing is queued: in strict chooser mode the app ends here, before that chooser's native dialog; otherwise
+///   `None`, and the chooser shows its native dialog.
+///
+/// The answer is judged when it is taken, on resolved paths. The operations that follow open it by name, so a
+/// change of that path after the check is not seen; nothing in the reviewed code makes such a change. The mode
+/// governs these choosers only, not any other panel the app or the system can raise.
 ///
 /// Ending the app logs which chooser was reached and why, never the answer's path, and exits STRICT_CHOOSER_EXIT.
 /// With strict chooser mode off, a queued answer is taken wherever it points.

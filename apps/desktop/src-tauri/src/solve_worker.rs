@@ -621,9 +621,11 @@ pub(crate) trait WorkerLauncher: Send + Sync {
 /// temporary folder, so that the worker and the system frameworks it loads
 /// resolve the same home and temporary folder as the app. A closed list, read
 /// in the product only by [`CurrentExeLauncher`]; nothing else passes. With none of them set
-/// the worker falls back to the account's own (as it did with none passed),
-/// and an ordinary launch sets them to those same values, so ordinary use is
-/// unchanged; a launch confined to another home keeps its worker there too.
+/// the worker falls back to the account's own, as it did with none passed. A
+/// launch whose environment sets them hands the worker the same values the app
+/// has. Where a launch sets one to something other than the account's own, the
+/// worker now follows the app there, which is the purpose and differs from
+/// before: these are three variables, not a confinement of the worker.
 pub(crate) const WORKER_PASSED_ENV: [&str; 3] = ["HOME", "CFFIXED_USER_HOME", "TMPDIR"];
 
 /// The product launcher: this executable with [`WORKER_FLAG`] and a cleared
