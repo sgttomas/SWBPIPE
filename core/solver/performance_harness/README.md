@@ -168,7 +168,10 @@ memory bound.
     commit and tree, `source_dirty` and the toolchain. The build script runs on every build, so
     the identity is that of the tree the binary was linked from. `source_dirty` is `true`,
     `false`, or `"unknown"` where git cannot establish it (no git, no repository, no commit), never
-    `false` then; the Python runner records its own checkout the same way.
+    `false` then; the Python runner records its own checkout the same way. The identity says
+    clean only when the status is clean and no index entry is flagged assume-unchanged or
+    skip-worktree (`git ls-files -v`), since either flag hides a file's changes from the status;
+    a clean status with such a flag is `"unknown"`.
 
   How to read the figures: a solve's stage seconds and memory readings are the driver's, in one
   process. `driver_peak_footprint_bytes` is the driver's lifetime-maximum
@@ -220,30 +223,60 @@ memory bound.
   `exceeds_base_machine_budget` here and `killed_by_rss_cap` in the runner. Each record's
   `classification_readings` names the readings its classification used.
 
-  Run ids are bare names (`[A-Za-z0-9][A-Za-z0-9._-]{0,127}`); both supervisors refuse any other
-  at plan load, before anything is written. The output folder is opened once, as a directory and
-  without following a link, and every record is created relative to it, so a later replacement
-  of its path cannot redirect a record. Each run's output files are created before its driver
-  starts, without following a link and without blocking on the open; a destination that is not a
-  regular file refuses the run before any process starts, and from the start on, any failure
-  kills and reaps the driver. A write to a regular file can still block on a stalled file system:
-  each group of record writes is bounded (120 s), and past that the supervisor stops with exit
-  status 4 and a message that the records are incomplete (no driver is running then: the run's
-  driver has already been reaped). A failed write of a run's stdout record makes the run `error`
+  What the self-supervisor promises about its records and its drivers:
+
+  - It writes only entries it created exclusively in the output folder it opened, and reports
+    only what it wrote. No plan content and no state of that folder, before or during a run,
+    makes it write elsewhere or record a hash that is not the file's. No two records it writes
+    can be the same file, by name, by case or by link.
+  - A driver it started does not outlive it; a driver it did not start is not affected by it.
+  - Its build identity says clean only when Git status is clean and no index flag hides a file;
+    otherwise it says unknown or dirty.
+
+  It promises nothing against someone who can replace the `git` executable, forge objects in
+  the checkout, or write into the output folder's parent between its own operations in ways the
+  exclusive-creation rule does not already refuse.
+
+  How it keeps them. Run ids are bare names (`[A-Za-z0-9][A-Za-z0-9._-]{0,127}`), and both
+  supervisors refuse at plan load, before anything is written, any other id, two ids that are
+  the same ignoring case (a case-insensitive volume, the macOS default, opens them as one file),
+  an id that is, ignoring case, a name the supervisor writes, and any plan whose ids would make
+  two names it writes the same ignoring case (the id `records` would make its stdout record
+  `records.jsonl`). The output folder is opened once, as a directory and without following a
+  link, and every record is created relative to it, so a later replacement of its path cannot
+  redirect a record. Each run needs a new folder: a folder that already holds any name the run
+  would write is refused before anything is written and before any driver starts, with a
+  message to give `--out` a new folder. Every record is created as a new file (`O_CREAT |
+  O_EXCL`), so an existing entry of that name, whether a file, a FIFO, a symbolic link or a hard
+  link to a file elsewhere, is never opened for writing; one that appears during the run is
+  refused by name as that run's error, before its driver starts. `records.jsonl` is created once
+  and written through that one descriptor. `packet.json` is written under a new name and renamed
+  into place, which replaces the folder's entry and leaves any other link of the old file as it
+  was. The summary printed at the end is the packet just written, never a second read of the
+  folder's path. A write to a regular file can still block on a stalled file system: each group
+  of record writes is bounded (120 s), and past that the supervisor stops with exit status 4 and
+  a message that the records are incomplete (no driver is running then: the run's driver has
+  already been reaped). A failed write of a run's stdout record makes the run `error`
   (`stdout_record_write_failed`), with `stdout_sha256` null and `stdout_record_error` saying why:
-  no hash of bytes that were not written is recorded. SIGINT, SIGTERM, SIGHUP, SIGQUIT and the
-  other signals that end a process without a fault kill and reap the running driver before the
-  supervisor exits (128 + the signal). For a death no handler sees (SIGKILL, a fault), the driver
-  watches its supervisor and stops when it is gone (exit 125; a kernel event on the supervisor's
-  pid on macOS, the parent-death signal on Linux). `--packet` (the runner) and the supervisor's
-  packet refuse, by name, a record whose driver line is not `release-timing-v2`: "record ID: its
-  driver line has schema S, not release-timing-v2; an earlier driver's record is not
-  repackaged".
+  no hash of bytes that were not written is recorded. From a driver's start on, any failure
+  kills and reaps it. SIGINT, SIGTERM, SIGHUP, SIGQUIT and the other signals that end a process
+  without a fault kill and reap the running driver before the supervisor exits (128 + the
+  signal). For a death no handler sees (SIGKILL, a fault), the supervisor passes the driver it
+  starts its own process id as an argument, and that driver watches it and stops when it is
+  gone; a driver started without that argument (directly, or by the Python runner) watches
+  nothing, whatever its environment. On macOS the driver exits 125 when the kernel event reports
+  its supervisor's exit; on Linux the kernel sends SIGKILL when its parent exits. `--packet` (the
+  runner) and the supervisor's packet refuse, by name, a record whose driver line is not
+  `release-timing-v2`: "record ID: its driver line has schema S, not release-timing-v2; an
+  earlier driver's record is not repackaged".
 
   A difference from the Python runner: it has no such watch. A Python-supervised run whose runner
   is killed (SIGKILL, or any death that skips its handlers) can leave a driver running, in its
   own session. Find it by its process name and the model path in its arguments, for example
-  `pgrep -fl 'release_timing .*linear-ex-n2000.json'`, and stop it with `kill`.
+  `pgrep -fl 'release_timing .*linear-ex-n2000.json'`, and stop it with `kill`. The Python
+  runner opens record paths by name and does not pin its output directory; replacing that path
+  can redirect its record reads and writes. With `--write-results`, both routes pass the driver a
+  pathname rather than a directory descriptor, so kept result bytes have the same limitation.
 
   Host facts come from `sysctl`, and the cargo
   and sweep checks from the process table. The source commit, tree, dirty flag and toolchain are
@@ -272,8 +305,9 @@ memory bound.
   cd FOLDER && ./release_timing --supervise plan.json --out results
   ```
 
-  It writes only inside `results/`: `metadata.json`, `records.jsonl` (one line as each run
-  ends), `packet.json` (rewritten after each run), and per run its stdout line (`.jsonl`), its
+  It writes only inside `results/`, which must be a new folder (one that already holds any of
+  the names below is refused before anything starts): `metadata.json`, `records.jsonl` (one line
+  as each run ends), `packet.json` (replaced after each run), and per run its stdout line (`.jsonl`), its
   stderr progress lines (`.stderr.txt`) and the launch record (`.record.json`). `--write-results`
   also keeps each result's bytes; `--models DIR` reads the models from another folder. Ctrl-C
   kills the running driver before the supervisor exits. Nothing is installed, and no tool
