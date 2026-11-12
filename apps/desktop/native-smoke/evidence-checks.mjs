@@ -222,6 +222,38 @@ export function inspectReportPackage(buffer, notice) {
   };
 }
 
+/** A CSV table file as the product writes it (csvTable.ts): a UTF-8 BOM, `key,value` preamble rows,
+ * one empty row, the header row and the data rows, each ended by CRLF; fields quoted per RFC 4180
+ * (a quoted field may hold commas, quotes and line ends). Read by this runner, not by the product. */
+export function parseCsvFile(text) {
+  const source = String(text);
+  const bom = source.startsWith("﻿");
+  const body = bom ? source.slice(1) : source;
+  const records = [];
+  let field = "";
+  let record = [];
+  let quoted = false;
+  let crlfOnly = true;
+  for (let index = 0; index < body.length; index += 1) {
+    const char = body[index];
+    if (quoted) {
+      if (char === '"' && body[index + 1] === '"') { field += '"'; index += 1; }
+      else if (char === '"') quoted = false;
+      else field += char;
+      continue;
+    }
+    if (char === '"' && field === "") { quoted = true; continue; }
+    if (char === ",") { record.push(field); field = ""; continue; }
+    if (char === "\r" && body[index + 1] === "\n") { record.push(field); records.push(record); field = ""; record = []; index += 1; continue; }
+    if (char === "\n") { crlfOnly = false; record.push(field); records.push(record); field = ""; record = []; continue; }
+    field += char;
+  }
+  if (field !== "" || record.length > 0) records.push([...record, field]);
+  const blank = records.findIndex((row) => row.length === 1 && row[0] === "");
+  if (blank < 0) return { bom, crlf_only: crlfOnly, preamble: [], header: records[0] ?? [], rows: records.slice(1) };
+  return { bom, crlf_only: crlfOnly, preamble: records.slice(0, blank), header: records[blank + 1] ?? [], rows: records.slice(blank + 2) };
+}
+
 /** The fields of a report-package status line (`outcome=…; code=…; …`). */
 export function packageStatusFields(status) {
   const fields = {};

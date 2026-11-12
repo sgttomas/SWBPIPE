@@ -9,7 +9,7 @@ import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import {
   autosaveIntervalTerms, autosaveSlot, canonical, crc32, documentSha256, driverTimeout, dumpStore, inspectReportPackage, isCanonicalText,
-  judgeAutosaveRecord, launchedPid, packageStatusFields, parseAutosaveName, prdRequiredNotice, readStoredZip,
+  judgeAutosaveRecord, launchedPid, packageStatusFields, parseAutosaveName, parseCsvFile, prdRequiredNotice, readStoredZip,
   screenLockedFromIoreg, sha256Hex, timeoutText, underHostSlot
 } from "./evidence-checks.mjs";
 
@@ -153,6 +153,21 @@ test("a package is inspected from its own bytes", () => {
   assert.equal(inspectReportPackage(packageBytes({ notices: ["user"] }), NOTICE).required_notice_count, 0);
   assert.equal(inspectReportPackage(packageBytes({ bindingSha: "0".repeat(64) }), NOTICE).content_binding_matches, false);
   assert.throws(() => inspectReportPackage(storedZip([["other.json", "{}"]]), NOTICE), /first member/);
+});
+
+test("a CSV table file is read in the product's layout", () => {
+  const text = "﻿notice,\"a, quoted \"\"notice\"\"\"\r\nmodel_hash,sha256:ab\r\n\r\nId,Label,UX [mm]\r\nr1,\"two\r\nlines\",1.5\r\nr2,plain,-2\r\n";
+  const csv = parseCsvFile(text);
+  assert.equal(csv.bom, true);
+  assert.equal(csv.crlf_only, true);
+  assert.deepEqual(csv.preamble, [["notice", 'a, quoted "notice"'], ["model_hash", "sha256:ab"]]);
+  assert.deepEqual(csv.header, ["Id", "Label", "UX [mm]"]);
+  assert.deepEqual(csv.rows, [["r1", "two\r\nlines", "1.5"], ["r2", "plain", "-2"]]);
+  const bare = parseCsvFile("a,b\nc,d\n");
+  assert.equal(bare.bom, false);
+  assert.equal(bare.crlf_only, false);
+  assert.deepEqual(bare.header, ["a", "b"]);
+  assert.deepEqual(bare.rows, [["c", "d"]]);
 });
 
 test("a package status line's fields", () => {

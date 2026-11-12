@@ -134,11 +134,20 @@
     click("rendered-report-render");
     await waitFor(`${label} render`, () => byTestId("rendered-report-hash") || byTestId("rendered-report-error") || byTestId("rendered-report-route"), T.save);
     await waitFor(`${label} render settled`, () => !/Rendering/.test(byTestId("rendered-report-render")?.textContent ?? ""), T.save);
+    const preview = byTestId("rendered-report-preview")?.getAttribute("srcdoc") ?? null;
     return {
+      label,
       hash: text("rendered-report-hash"),
       gate: text("rendered-report-gate"),
       error: text("rendered-report-error"),
-      // Recorded only: save and print are not observed by this journey (see the runner's header).
+      redaction: text("rendered-report-redaction-summary"),
+      intent_checked: byTestId("rendered-report-local-private-intent")?.checked === true,
+      intent_label: byTestId("rendered-report-local-private-intent")?.closest("label")?.textContent?.trim() ?? null,
+      local_private_warning: text("rendered-report-local-private-warning"),
+      // The preview is the canonical HTML itself (the panel shows the controlled copy only when it is
+      // byte-identical), so the runner recomputes its SHA-256 from this text.
+      preview_html: preview,
+      // Recorded only: save and print are not checked by this journey (see the runner's header).
       save_control: Boolean(byTestId("rendered-report-save-local-private")),
       print_control: Boolean(byTestId("rendered-report-print"))
     };
@@ -254,9 +263,45 @@
     report.user_released = await saveUserReleasedPackage(plan.user_released_package, `${plan.route}/user-released`);
     if (!report.user_released.status?.startsWith("outcome=saved")) throw new Error(`user-released package not saved: ${report.user_released.refusal ?? report.user_released.status}`);
     report.reopened_dialog = await reopenUserReleaseDialog();
+    // DEL-08-01 AC-010: the next report is local private. Rendered again after the user release.
+    report.second_render = await renderLocalPrivateReport(`${plan.route}/second-render`);
+    report.second_render.user_release_line_in_panel = text("report-package-user-release-status");
     report.local = await saveLocalPackage(plan.local_package, `${plan.route}/local`);
+    if (plan.csv_save) report.csv = await saveResultGroupCsv(plan.csv_save);
     report.model_document = await saveModelDocument(plan.model_document, `${plan.route}/model-document`);
     report.save_html = await observeSaveCanonicalHtml(plan, report);
+  }
+
+  // The results table's CSV export through its own control: a button that saves natively to the
+  // app's Downloads folder with no chooser (lib.rs `begin_local_csv_stream`, native_csv_stream.rs).
+  // The group's own row count is the one its family button shows; the filter is left empty.
+  async function saveResultGroupCsv({ group, family, sentinel_chooser_path: sentinel }) {
+    await showSection("results");
+    const testId = `result-group-${group}-export-csv`;
+    const control = await waitFor(`${testId} control`, () => byTestId(testId), T.step);
+    const record = {
+      control: testId,
+      tag: control.tagName.toLowerCase(),
+      href: control.getAttribute("href"),
+      download: control.getAttribute("download"),
+      filter: byTestId("result-filter-input")?.value ?? null,
+      family_count: text(`result-family-count-${family}`),
+      filter_summary: text("result-filter-summary")
+    };
+    // A data: download link would do nothing in this webview; it is not pressed as a save.
+    if (record.tag === "a") return { ...record, pressed: false };
+    const prior = text(`${testId}-status`);
+    // A chooser path queued first: a chooser the press reached would take it (and show nothing);
+    // one still queued afterwards was never asked for.
+    await call("native_smoke_choose", { path: sentinel });
+    control.click();
+    record.status = await waitFor(`${testId} saved`, () => {
+      const now = text(`${testId}-status`);
+      return now && now !== prior && /^(Saved |CSV export did not complete|Downloaded )/.test(now) ? now : null;
+    }, T.save);
+    record.chooser_paths_unused = await call("native_smoke_clear_choices");
+    record.pressed = true;
+    return record;
   }
 
   // ------------------------------------------------------------ observations (recorded, not judged)
@@ -271,11 +316,31 @@
   async function observeSelection() {
     await showSection("results");
     await waitFor("results table rows", () => document.querySelector('[data-testid^="result-row-dual-"]'), T.step);
+    // What each surface itself states about rows shown against rows in all, and whether a CSV export
+    // control sits beside it (in its own panel or group), read from the window.
+    const csvBeside = (root) => [...(root?.querySelectorAll('[data-testid$="-export-csv"], [data-testid$="-export-csv-all"]') ?? [])].map((item) => item.getAttribute("data-testid"));
     const surfaces = [
-      ["model tree", () => document.querySelector('[aria-label="Model"]'), () => ({ rows_rendered: document.querySelectorAll('[data-testid^="tree-row-"]').length })],
-      ["results table", () => document.querySelector('[data-testid^="result-row-dual-"]')?.closest("table"), () => ({ rows_rendered: document.querySelectorAll('tr[data-testid^="result-row-"]').length, summary: text("result-filter-summary") })],
-      ["displacement extremes table", () => byTestId("displacement-extremes-table"), () => ({ rows_rendered: byTestId("displacement-extremes-table")?.querySelectorAll("tbody tr").length ?? 0, page: text("displacement-extremes-page") })],
-      ["support load summary", () => byTestId("support-load-summary"), () => ({ rows_rendered: byTestId("support-load-summary")?.querySelectorAll("tbody tr").length ?? 0, position: text("support-load-position") })]
+      ["model tree", () => document.querySelector('[aria-label="Model"]'), () => ({
+        rows_rendered: document.querySelectorAll('[data-testid^="tree-row-"]').length,
+        stated: text("model-tree-filter-summary"),
+        // The tree's own panel: its filter controls' parent, which also holds the tree.
+        csv_beside: csvBeside(byTestId("model-tree-controls")?.parentElement)
+      })],
+      ["results table", () => document.querySelector('[data-testid^="result-row-dual-"]')?.closest("table"), () => ({
+        rows_rendered: document.querySelectorAll('tr[data-testid^="result-row-"]').length,
+        stated: [text("result-filter-summary"), text("result-page-summary")].filter(Boolean).join(" | "),
+        csv_beside: csvBeside(document.querySelector('[data-testid^="result-row-dual-"]')?.closest("section.result-group"))
+      })],
+      ["displacement extremes table", () => byTestId("displacement-extremes-table"), () => ({
+        rows_rendered: byTestId("displacement-extremes-table")?.querySelectorAll("tbody tr").length ?? 0,
+        stated: text("displacement-extremes-page"),
+        csv_beside: csvBeside(byTestId("displacement-extremes-panel"))
+      })],
+      ["support load summary", () => byTestId("support-load-summary"), () => ({
+        rows_rendered: byTestId("support-load-summary")?.querySelectorAll("tbody tr").length ?? 0,
+        stated: text("support-load-position"),
+        csv_beside: csvBeside(byTestId("support-load-summary"))
+      })]
     ];
     const observed = [];
     for (const [name, find, extent] of surfaces) {
@@ -453,6 +518,60 @@
     report.model_document = await saveModelDocument(plan.model_document, "autosave/recovered");
   }
 
+  // ------------------------------------------------------------ the reference system (kept apart)
+
+  // The solve job's own record, as its export link carries it (the record a person can save).
+  function solveJobResource() {
+    try {
+      const href = byTestId("solve-job-export-link")?.getAttribute("href") ?? "";
+      if (!href.startsWith("data:")) return null;
+      return JSON.parse(decodeURIComponent(href.slice(href.indexOf(",") + 1)))?.resource ?? null;
+    } catch {
+      return null;
+    }
+  }
+
+  // The viewport's controls whose label names an up direction or a vertical axis, as the window shows them.
+  function viewportUpControls() {
+    const viewport = document.querySelector('[aria-label="Viewport controls"]')?.closest("section, div.viewport, [data-testid]") ?? document;
+    return [...viewport.querySelectorAll("button, select, input, [role='radio'], [role='switch']")]
+      .map((item) => ({ label: item.getAttribute("aria-label") ?? item.textContent?.trim() ?? "", value: item.value ?? null, pressed: item.getAttribute("aria-pressed") }))
+      .filter((item) => /\bup\b|vertical|z-up|y-up|up axis/i.test(item.label));
+  }
+
+  async function phaseReference(plan, report) {
+    report.opened = await openModelDocument(plan.open);
+    await waitFor("reference system in the model tree", () => treeRow(plan.project_id), T.step);
+    await showSection("solve");
+    click("solver-mode-sparse");
+    await waitFor("sparse selected", () => byTestId("solver-mode-sparse")?.getAttribute("aria-pressed") === "true", T.ui);
+    const proofText = () => byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
+    const prior = proofText();
+    const runAt = Date.now();
+    await menu("analyze.run");
+    await waitFor("reference system solve", () => {
+      const summary = text("solve-job-summary") ?? "";
+      if (/\bstate=(failed|cancelled|refused)(?:;|$)/.test(summary)) throw new Error(`reference: ${summary}; ${text("solve-job-error") ?? ""}`);
+      const proof = proofText();
+      return summary.includes("state=completed") && proof && proof !== prior && proof.includes(`project=${plan.project_id}`);
+    }, T.solve);
+    const solvedAt = Date.now();
+    await showSection("results");
+    await waitFor("the results table's first rows", () => document.querySelector('[data-testid^="result-row-dual-"]'), T.step);
+    report.solve = {
+      summary: text("solve-job-summary"), proof: proofText(), standing: text("numerical-result-standing"),
+      run_to_completed_ms: solvedAt - runAt, run_to_first_rows_ms: Date.now() - runAt,
+      filter_summary: text("result-filter-summary"),
+      // The webview's request is not exposed by the product; the job record states only the bound
+      // reserved for the model intake, which is not the request's byte count.
+      job_resource: solveJobResource()
+    };
+    report.up = { controls: viewportUpControls() };
+    report.render = await renderLocalPrivateReport("reference/render");
+    report.local = await saveLocalPackage(plan.local_package, "reference/local");
+    report.model_document = await saveModelDocument(plan.model_document, "reference/model-document");
+  }
+
   (async () => {
     const report = { phase: null, ok: false, user_agent: navigator.userAgent };
     try {
@@ -464,6 +583,7 @@
       if (plan.phase === "report") await phaseReport(plan, report);
       else if (plan.phase === "autosave-end") await phaseAutosaveEnd(plan, report);
       else if (plan.phase === "autosave-reopen") await phaseAutosaveReopen(plan, report);
+      else if (plan.phase === "reference") await phaseReference(plan, report);
       else throw new Error(`unknown phase ${plan.phase}`);
       report.ok = true;
     } catch (error) {

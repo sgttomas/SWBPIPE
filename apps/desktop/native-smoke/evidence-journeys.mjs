@@ -12,12 +12,19 @@
 //   report-pressure-free  1 launch. The bundled demo: solve (sparse); an observation of selection by keyboard
 //                         (below); render the local-private report; File > Save Shareable Report Package…
 //                         through the dialog's own tick box and statement, the save chooser answered by
-//                         script; the dialog opened again (it starts unticked) and cancelled; File > Save
-//                         Report Package… (local private); Save Model Document… of the session; an
-//                         observation of "Save canonical HTML" (below).
+//                         script; the dialog opened again (it starts unticked) and cancelled; the report
+//                         rendered again, which must be local private (DEL-08-01 AC-010): its context, intent,
+//                         warning and notice, no user-release notice, and its canonical hash recomputed by the
+//                         runner from the canonical HTML, as for the first render; File > Save Report Package…
+//                         (local private); the results table's CSV export through its own control (a native
+//                         save into Downloads with no chooser): its data rows against the group's own count as
+//                         the window states it, its model hash and the product's layout; Save Model Document…
+//                         of the session; an observation of "Save canonical HTML" (below).
 //   report-exact          1 launch. The same on the exact route, after File > Open Model Document… of
 //                         `fixtures/model_operations/exact_pressure_authoring_model.json`, without the
-//                         selection observation.
+//                         selection observation and the CSV save.
+//   reference-system      Kept apart: named alone, never part of --all, and not run under the present
+//                         leave. 1 launch; see referenceJourney below.
 //   autosave-recovery     2 launches. A fresh settings folder: the interval as first shown, turned off (the
 //                         notice) and on at DEL-02-05's shortest choice through the product's own control; the
 //                         demo saved as a local project; a checkpoint with a read-only copy of the store; a
@@ -43,10 +50,16 @@
 //   the displacement extremes table and the support load summary: no surface offers a select-all or copy
 //   of its own; each is focused and WebKit's SelectAll editing command, the one Edit > Select All (⌘A)
 //   sends, is run in the page; the selection's text, which is what Copy takes, is compared with the text
-//   the surface shows. Copy is not pressed and the system pasteboard is neither written nor read. Not
-//   covered: the key press itself and the Copy menu item's enabled state; reading either needs
-//   Objective-C calls from native code, and native_smoke.rs may not hold `unsafe` code (the shell's
-//   unsafe-code list is pinned by the user-release reach scan).
+//   the surface shows; and each surface's own statement of rows shown against rows in all, and whether a
+//   CSV export control sits beside it, is recorded. Observed: selectable, and the selection is what Copy
+//   would take. Unobserved: that Copy is enabled for it, and the key press itself; reading either needs
+//   Objective-C calls from native code, and native_smoke.rs holds no `unsafe` code (the shell's
+//   unsafe-code list, pinned by the user-release reach scan, is not widened for this). Copy is not
+//   pressed and the system pasteboard is neither written nor read: pressing Copy is an act a person's
+//   hands observe.
+// - The CSV save in report-pressure-free: whether a chooser was presented (a chooser path is queued
+//   first), where under the throwaway home the file was written, and the exact words the window shows the
+//   person about it.
 //
 // What these journeys do not check, and why: the print of the rendered report and the "Save canonical
 // HTML" link. Read from the sources of this build's webview stack (tauri 2.11.1, wry 0.55.1), the
@@ -110,7 +123,7 @@ import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mj
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 import {
   autosaveIntervalTerms, autosaveSlot, documentSha256, dumpStore, inspectReportPackage, isCanonicalText, judgeAutosaveRecord,
-  driverTimeout, launchedPid, packageStatusFields, parseAutosaveName, prdRequiredNotice, screenLockedFromIoreg, sha256Hex, timeoutText, underHostSlot
+  driverTimeout, launchedPid, packageStatusFields, parseAutosaveName, parseCsvFile, prdRequiredNotice, readStoredZip, screenLockedFromIoreg, sha256Hex, timeoutText, underHostSlot
 } from "./evidence-checks.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -120,6 +133,8 @@ const tauriDir = path.join(desktop, "src-tauri");
 const argv = process.argv.slice(2);
 const args = new Set(argv);
 const JOURNEYS = ["report-pressure-free", "report-exact", "autosave-recovery"];
+// Kept apart: named alone, never part of --all.
+const SEPARATE_JOURNEYS = ["reference-system"];
 // The named timeouts (ms). ui: a control's response to a click; step: a dialog, the shell at start, the
 // settings read, an applied edit, the recovery offer, the results table for the selection observation;
 // solve: one sparse solve; save: a render, a package save, a model document save; record: the driver's
@@ -142,7 +157,8 @@ const loadNow = () => os.loadavg().map((value) => value.toFixed(2)).join(" / ");
 if (process.platform !== "darwin") refuse("macOS only");
 const named = argv.includes("--journey") ? (argv[argv.indexOf("--journey") + 1] ?? "").split(",").filter(Boolean) : [];
 const selected = args.has("--all") ? JOURNEYS : named;
-if (selected.length === 0 || selected.some((name) => !JOURNEYS.includes(name))) refuse(`choose --all or --journey with one or more of ${JOURNEYS.join(", ")}`);
+if (selected.length === 0 || selected.some((name) => !JOURNEYS.includes(name) && !SEPARATE_JOURNEYS.includes(name))) refuse(`choose --all or --journey with one or more of ${JOURNEYS.join(", ")} (or ${SEPARATE_JOURNEYS.join(", ")} alone)`);
+if (selected.some((name) => SEPARATE_JOURNEYS.includes(name)) && (selected.length > 1 || args.has("--all"))) refuse(`${SEPARATE_JOURNEYS.join(", ")} runs alone: name it as the only journey`);
 const psRows = () => execFileSync("/bin/ps", ["-axo", "pid=,ppid=,command="], { encoding: "utf8" });
 if (!underHostSlot(psRows(), process.pid)) refuse("not under the host's slot wrapper; start it as tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs …");
 
@@ -289,7 +305,7 @@ function journeyRoot(name) {
 
 // One launch of the private copy with `plan`. With `whileRunning`, that function is polled while the
 // app runs; when it returns a value the app is ended with SIGKILL and the value is returned with the outcome.
-async function launch(where, plan, whileRunning = null, waitLimitMs = RECORD_WAIT_MS) {
+async function launch(where, plan, whileRunning = null, waitLimitMs = RECORD_WAIT_MS, launchTimeoutMs = PHASE_TIMEOUT_MS) {
   const report = path.join(where.root, `report-${plan.phase}.json`);
   console.log(`\n== ${journey}: phase ${plan.phase} (HOME=${where.home})`);
   if (guardSession()) await new Promise(() => {});
@@ -297,7 +313,7 @@ async function launch(where, plan, whileRunning = null, waitLimitMs = RECORD_WAI
     console.error(`evidence journeys: ${binary} changed since it was checked; not launched`);
     await exitAfterSignals(2);
   }
-  const env = { ...process.env, HOME: where.home, SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "evidence-journeys.js"), SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify({ ...plan, timeouts: TIMEOUTS }), SWBPIPE_NATIVE_SMOKE_REPORT: report };
+  const env = { ...process.env, HOME: where.home, SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "evidence-journeys.js"), SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify({ ...plan, timeouts: { ...TIMEOUTS, ...(plan.timeouts ?? {}) } }), SWBPIPE_NATIVE_SMOKE_REPORT: report };
   const samples = [];
   const sample = () => { samples.push({ at: Date.now(), load: os.loadavg() }); if (samples.length > 2000) samples.shift(); };
   sample();
@@ -305,7 +321,7 @@ async function launch(where, plan, whileRunning = null, waitLimitMs = RECORD_WAI
   const launchedAt = Date.now();
   delete env.SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY;
   let exited = null;
-  const running = runUnderLock("/usr/bin/caffeinate", ["-di", binary], { cwd: where.root, env, stdio: ["ignore", "inherit", "inherit"], timeoutMs: PHASE_TIMEOUT_MS })
+  const running = runUnderLock("/usr/bin/caffeinate", ["-di", binary], { cwd: where.root, env, stdio: ["ignore", "inherit", "inherit"], timeoutMs: launchTimeoutMs })
     .then((outcome) => { exited = outcome; return outcome; });
   let ended = null;
   if (whileRunning) {
@@ -333,7 +349,7 @@ async function launch(where, plan, whileRunning = null, waitLimitMs = RECORD_WAI
   }
   const outcome = await running;
   clearInterval(sampler);
-  if (outcome.timedOut) console.error(`${journey}: TIMEOUT of the whole launch (phase ${plan.phase}): ${Math.round((Date.now() - launchedAt) / 1000)} s elapsed of a ${PHASE_TIMEOUT_MS / 1000} s limit; load average ${loadNow()} (1/5/15 min), on ${os.cpus().length} processors`);
+  if (outcome.timedOut) console.error(`${journey}: TIMEOUT of the whole launch (phase ${plan.phase}): ${Math.round((Date.now() - launchedAt) / 1000)} s elapsed of a ${launchTimeoutMs / 1000} s limit; load average ${loadNow()} (1/5/15 min), on ${os.cpus().length} processors`);
   const result = existsSync(report) ? JSON.parse(readFileSync(report, "utf8")) : { ok: false, error: `no report (exit ${outcome.status ?? outcome.signal}${outcome.timedOut ? "; the launch timed out" : ""})` };
   const timeout = driverTimeout(result.error, samples);
   if (timeout) {
@@ -372,13 +388,15 @@ async function reportJourney(route) {
     projectId = exactDocument.project.id;
   }
   const sentinel = path.join(where.saved, "chooser-sentinel.html");
+  const csvSentinel = path.join(where.saved, "chooser-sentinel.csv");
   const { report } = await launch(where, {
     phase: "report", route, open, project_id: projectId, bundled_project_id: demo.project.id, ...files,
-    observe_selection: route === "pressure-free", sentinel_chooser_path: sentinel, save_html_window_ms: SAVE_HTML_WINDOW_MS
+    observe_selection: route === "pressure-free", sentinel_chooser_path: sentinel, save_html_window_ms: SAVE_HTML_WINDOW_MS,
+    csv_save: route === "pressure-free" ? { group: "displacement", family: "displacement", sentinel_chooser_path: csvSentinel } : null
   });
   check("the journey completed", report.ok, failure(report));
   check("solved: the job completed, its proof bound to the session's project", report.solve?.summary?.includes("state=completed") && report.solve?.proof?.includes(`project=${projectId}`), report.solve?.summary);
-  check("local-private report rendered, export gates passed", /^Canonical HTML SHA-256: [0-9a-f]{64}$/.test(report.render?.hash ?? "") && report.render.gate === "export gates passed", report.render && { hash: report.render.hash, gate: report.render.gate, error: report.render.error });
+  judgeRender("first local-private render", report.render);
   if (report.render) console.log(`INFO  ${journey}: save and print controls shown: save=${report.render.save_control}; print=${report.render.print_control} (not activated; see the header)`);
 
   // The user-released package.
@@ -403,9 +421,79 @@ async function reportJourney(route) {
   check("the next package is saved local private, with no user release recorded",
     localStatus.outcome === "saved" && localStatus.code === "REPORT-PACKAGE-SAVED" && local.user_release_status === null && existsSync(files.local_package), { status: local.status, user_release: local.user_release_status });
   judgePackage("next (local-private) package", files.local_package, local, { route, profile: LOCAL_PROFILE, userReleased: false, modelSha256: model.sha256 });
+  // DEL-08-01 AC-010: rendered again after the user release, the report is local private.
+  judgeRender("second render, after the user release", report.second_render);
+  if (report.second_render) {
+    observe("second render: the package area's user-release line at that moment (it describes the last package saved, not the render)", report.second_render.user_release_line_in_panel ?? "none shown");
+  }
+  if (report.csv) judgeCsv(where, report.csv, model.sha256, csvSentinel);
   observeSelection(report.selection);
   observeSaveHtml(where, report.save_html, sentinel);
   return where;
+}
+
+// A local-private render: rendered in the local-private context with the intent shown ticked, the
+// local-private warning shown, the document's own local-private notice present and no user-release
+// notice; its canonical hash, shown by the panel, is the SHA-256 the runner recomputes from the
+// canonical HTML the preview holds, and the export gates passed.
+function judgeRender(label, render) {
+  if (!render) return check(`${label}: rendered`, false, "no render recorded");
+  const html = typeof render.preview_html === "string" ? render.preview_html : null;
+  const shown = render.hash?.match(/^Canonical HTML SHA-256: ([0-9a-f]{64})$/)?.[1] ?? null;
+  const flat = html === null ? "" : html.replace(/\s+/g, " ");
+  check(`${label}: rendered, export gates passed`, shown !== null && render.gate === "export gates passed" && !render.error, { hash: render.hash, gate: render.gate, error: render.error });
+  check(`${label}: its canonical hash is the SHA-256 the runner recomputes from the canonical HTML`, html !== null && shown === sha256Hex(Buffer.from(html, "utf8")), shown);
+  check(`${label}: local private: the context, the intent shown ticked and the warning shown`,
+    /context=local_private/.test(render.redaction ?? "") && /blocked=false/.test(render.redaction ?? "") && render.intent_checked === true && Boolean(render.local_private_warning),
+    { redaction: render.redaction, intent: render.intent_checked, warning: Boolean(render.local_private_warning) });
+  check(`${label}: the document carries the local-private notice and no user-release notice`,
+    flat.includes("LOCAL PRIVATE REPORT —") && !flat.includes("USER-RELEASED REPORT"), { local_private: flat.includes("LOCAL PRIVATE REPORT —"), user_release: flat.includes("USER-RELEASED REPORT") });
+}
+
+// The results table's native CSV save. Checked: the file exists as the status line names it, its
+// bytes and the product's layout, its model hash the session's, and its data rows the group's own count
+// as its family button states it. Observed: whether a chooser was asked for, where the file landed under
+// the throwaway home, and the exact words the window shows about it.
+function judgeCsv(where, csv, modelSha256, sentinel) {
+  if (!csv.pressed) {
+    observe(`CSV export: the control is a <${csv.tag}> link (href scheme ${(csv.href ?? "").split(":")[0] || "none"}, download="${csv.download}"), not pressed as a save`);
+    return;
+  }
+  const saved = csv.status?.match(/^Saved (.+) \((\d+) bytes\)\.$/);
+  const name = saved?.[1] ?? null;
+  const found = name ? findUnder(where.home, name) : [];
+  observe(`CSV export: a chooser was ${csv.chooser_paths_unused === 1 ? "not presented (the queued chooser path was never asked for)" : `asked for (queued paths left: ${csv.chooser_paths_unused})`}; the sentinel file ${existsSync(sentinel) ? "exists" : "does not exist"}`);
+  observe("CSV export: written under the throwaway home at", found.length > 0 ? found.map((file) => path.relative(where.home, file)) : "not found");
+  observe("CSV export: the words the window shows the person about the file", csv.status ?? "none");
+  const file = found.length === 1 ? found[0] : null;
+  const bytes = file ? readFileSync(file) : null;
+  check("CSV export: saved, the file the status line names found once under the throwaway home with the byte count it states",
+    name !== null && bytes !== null && bytes.length === Number(saved[2]), { status: csv.status, found: found.map((item) => path.relative(where.home, item)) });
+  if (!bytes) return;
+  const table = parseCsvFile(bytes.toString("utf8"));
+  const preamble = Object.fromEntries(table.preamble.map(([key, value]) => [key, value]));
+  check("CSV export: the product's layout (BOM, CRLF rows, preamble, empty row, header)", table.bom && table.crlf_only && table.preamble.length > 0 && table.header.length > 0, { preamble_keys: Object.keys(preamble) });
+  check("CSV export: its model hash is the session's model by RFC 8785 SHA-256", preamble.model_hash === `sha256:${modelSha256}`, preamble.model_hash);
+  const stated = Number(csv.family_count);
+  check(`CSV export: its data rows are the ${csv.control} group's own count as its family button states it`, Number.isInteger(stated) && table.rows.length === stated && csv.filter === "",
+    { rows: table.rows.length, family_count: csv.family_count, filter: csv.filter, filter_summary: csv.filter_summary });
+  observe("CSV export: the header as the product writes it", table.header);
+}
+
+function findUnder(root, name) {
+  const found = [];
+  const pending = [root];
+  while (pending.length > 0) {
+    const dir = pending.pop();
+    let entries = [];
+    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { continue; }
+    for (const entry of entries) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) pending.push(full);
+      else if (entry.name === name) found.push(full);
+    }
+  }
+  return found;
 }
 
 // Observations print OBSERVED lines and are not checks: they record what the app did and pass or fail nothing.
@@ -417,7 +505,8 @@ function observeSelection(selection) {
   for (const item of selection) {
     if (!item.present) { observe(`${item.surface}: not on screen`); continue; }
     observe(`${item.surface}: Select All ${item.select_all_command ? "ran" : "did not run"}; the selection ${item.selection_includes_shown_text ? "includes" : "does not include"} the text the surface shows${item.selection_is_shown_text ? " and is exactly it" : ", and is not only it"}; a selection of the surface alone ${item.surface_range_is_shown_text ? "gives" : "does not give"} its shown text`,
-      { focused: item.focused, selection_chars: item.selection_chars, shown_chars: item.shown_chars, rows_rendered: item.rows_rendered, summary: item.summary, page: item.page, position: item.position });
+      { focused: item.focused, selection_chars: item.selection_chars, shown_chars: item.shown_chars });
+    observe(`${item.surface}: the surface states "${item.stated ?? "nothing"}"; rows in the page: ${item.rows_rendered}; CSV control beside it: ${item.csv_beside?.length ? item.csv_beside.join(", ") : "none"}`);
   }
 }
 
@@ -581,6 +670,72 @@ async function autosaveJourney() {
   return where;
 }
 
+// ---------------------------------------------------------------- the reference system (kept apart)
+
+// Not part of --all and not run under the present leave. One launch: File > Open Model Document… of the
+// reference system fixture, a solve by the desktop's own controls (its route is the document's: its
+// pressure_contract names exact_pressure_v3), the solve's summary, proof and standing as the window shows
+// them, the time from Run to the results table's first rows, the local-private report and its package, and
+// the session's model document. Bytes: the package file and its result member, read by the runner; the
+// request the webview built is not exposed by the product (the job record states only the bound reserved
+// for the model intake), which is recorded as such.
+const REFERENCE_FIXTURE = "fixtures/reference_system/reference_system.json";
+const REFERENCE_SOLVE_MS = 45 * 60 * 1000;
+const REFERENCE_LAUNCH_MS = 75 * 60 * 1000;
+
+async function referenceJourney() {
+  const where = journeyRoot("reference-system");
+  const document = JSON.parse(readFileSync(path.join(project, REFERENCE_FIXTURE), "utf8"));
+  const open = path.join(where.models, path.basename(REFERENCE_FIXTURE));
+  copyFileSync(path.join(project, REFERENCE_FIXTURE), open);
+  const files = { local_package: path.join(where.saved, "reference-local.opsproj"), model_document: path.join(where.saved, "reference-model-document.json") };
+  const { report } = await launch(where, {
+    phase: "reference", open, project_id: document.project.id, bundled_project_id: demo.project.id, ...files,
+    timeouts: { solve: REFERENCE_SOLVE_MS }
+  }, null, RECORD_WAIT_MS, REFERENCE_LAUNCH_MS);
+  check("the journey completed", report.ok, failure(report));
+  const contract = document.pressure_contract ? `${document.pressure_contract.version}/${document.pressure_contract.mode}` : "none";
+  check("opened by File > Open Model Document…", report.opened?.includes(`Opened model document ${path.basename(REFERENCE_FIXTURE)} `), report.opened);
+  check("solved by the desktop's controls: the job completed, its proof bound to the reference project", report.solve?.summary?.includes("state=completed") && report.solve?.proof?.includes(`project=${document.project.id}`), report.solve?.summary);
+  check(`the standing names the document's route (${contract})`, contract !== "none" && report.solve?.standing?.includes(contract), report.solve?.standing?.slice(0, 120));
+  observe("solve as the window shows it", { summary: report.solve?.summary, proof: report.solve?.proof, standing: report.solve?.standing?.slice(0, 300), document_pressure_contract: contract });
+  observe("time from Run to the job completed and to the results table's first rows (ms)", { completed: report.solve?.run_to_completed_ms, first_rows: report.solve?.run_to_first_rows_ms, rows: report.solve?.filter_summary });
+  judgeRender("local-private render", report.render);
+  const local = report.local ?? {};
+  const status = packageStatusFields(local.status);
+  check("local-private package saved (REPORT-PACKAGE-SAVED)", status.outcome === "saved" && status.code === "REPORT-PACKAGE-SAVED" && existsSync(files.local_package), local.status);
+  const model = savedDocument(files.model_document);
+  check("the session's model document is the opened fixture's model by RFC 8785 SHA-256", model.canonical && model.sha256 === documentSha256(document), model.sha256);
+  let seen = null;
+  try { seen = existsSync(files.local_package) ? inspectReportPackage(readFileSync(files.local_package), NOTICE) : null; } catch (error) { seen = { error: error.message }; }
+  const members = seen && !seen.error ? readStoredZip(readFileSync(files.local_package)) : [];
+  const resultMember = members.find((member) => /result/i.test(member.name) && member.name.endsWith(".json") && member.name !== "package_manifest.json");
+  observe("bytes", {
+    package_file: seen?.file_byte_length ?? null,
+    result_member: resultMember ? { name: resultMember.name, bytes: resultMember.bytes.length } : null,
+    model_document: model.bytes?.length ?? null,
+    request_built_by_the_webview: "not exposed by the product without new product code",
+    model_intake_reserved_bytes: report.solve?.job_resource?.ingress_reserved_bytes ?? null
+  });
+  // The model's vertical axis as the document states it: no field names one (searched for vertical, up
+  // and gravity keys); what the document does state is the direction of its loads.
+  const axisKeys = [];
+  const directions = {};
+  (function walk(value, at) {
+    if (Array.isArray(value)) value.forEach((item, index) => walk(item, `${at}/${index}`));
+    else if (value && typeof value === "object") {
+      for (const [key, item] of Object.entries(value)) {
+        if (/vertical|up_axis|upAxis|gravity/i.test(key)) axisKeys.push({ at: `${at}/${key}`, value: item });
+        if (key === "direction" && typeof item === "string") directions[item] = (directions[item] ?? 0) + 1;
+        walk(item, `${at}/${key}`);
+      }
+    }
+  })(document, "");
+  observe("the model's vertical axis as the document states it", { axis_fields: axisKeys.length > 0 ? axisKeys.slice(0, 10) : "none", load_directions: directions });
+  observe("the viewport's up-axis controls as the window shows them", report.up?.controls?.length ? report.up.controls : "none found (no viewport control is labelled for an up direction or vertical axis)");
+  return where;
+}
+
 // ---------------------------------------------------------------- run
 
 let revision = null;
@@ -588,7 +743,9 @@ try { revision = execFileSync("git", ["-C", project, "rev-parse", "HEAD"], { enc
 const roots = [];
 for (const name of selected) {
   journey = name;
-  const where = name === "autosave-recovery" ? await autosaveJourney() : await reportJourney(name === "report-exact" ? "exact" : "pressure-free");
+  const where = name === "autosave-recovery" ? await autosaveJourney()
+    : name === "reference-system" ? await referenceJourney()
+      : await reportJourney(name === "report-exact" ? "exact" : "pressure-free");
   roots.push(where.root);
   writeFileSync(path.join(where.root, "summary.json"), JSON.stringify({ journey: name, source_revision: revision, app: { binary: app.binary, identity: app.identity }, checks: checks.filter((item) => item.journey === name) }, null, 2));
   if (args.has("--keep")) console.log(`evidence kept in ${where.root}`);
