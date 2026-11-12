@@ -607,8 +607,13 @@ const ENTRY_RULES: [(&str, &str, Entry); 6] = [
 /// `adopt_mbf_import` (the previous digest `d01b1ab8…08f9cf1b` reproduced
 /// first; the macro's only change is that line; reviewed likewise: no `mod`,
 /// no `$parameter ::`, no scanned name).
+/// DEL-08-01 REQ-022's native report routes add three ordinary handler
+/// entries after `save_report_package`: `save_rendered_report_html`,
+/// `print_rendered_report` and `retire_rendered_report` (the previous digest
+/// `d4ab78a9…18f9bf` reproduced first; the macro's only change is those lines;
+/// reviewed likewise: no `mod`, no `$parameter ::`, no scanned name).
 const MACRO_DEFINITIONS: [(&str, &str, &str); 3] = [
-    ("src-tauri/src/lib.rs", "app_invoke_handler", "d4ab78a96c031f758f4476e3052dfec2f7981dd015509d2bac19f6621718f9bf"),
+    ("src-tauri/src/lib.rs", "app_invoke_handler", "c3bfbbe24da8e9309625c0a50e546c8b5de096ef5998debfb9eb2a204fe6123b"),
     ("headless/src/reader_binding.rs", "base", "d80e766036e0f651522ebfe11ebc6ba1fc32ec2b9c2b3702e0b978eb86558cb2"),
     ("headless/src/reader_binding.rs", "transport", "057aa56311a7531f094632a3fe9f2d781b9364ab4865add6c7d257403732169a"),
 ];

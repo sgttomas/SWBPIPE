@@ -17,11 +17,14 @@
 //!   webview or read from or saved to the Keychain (RT-E1 D4,
 //!   DEL-16-06).
 //!
-//! The harness substitutes exactly two things for a person at the machine: it
+//! The harness substitutes exactly three things for a person at the machine: it
 //! names the file the next model-document chooser returns (`native_smoke_choose`;
 //! the Open Model Document…, Save Model Document…, Save Handoff…, Save Report
-//! Package…, Export MBF's save and Import MBF's open choosers) instead of showing the chooser, and it delivers native menu commands through the same
-//! dispatch a menu click uses (`native_smoke_menu`). Everything else, from the
+//! Package…, Save canonical HTML…, Export MBF's save and Import MBF's open choosers) instead of showing the chooser, it delivers native menu commands through the same
+//! dispatch a menu click uses (`native_smoke_menu`), and in place of the report
+//! print's system dialog it records which print document reached the native
+//! print (`record_report_print`, read by `native_smoke_take_report_prints`), so
+//! no page reaches a printer or a print queue. Everything else, from the
 //! open checks to solve, persistence and export, runs on the product's code.
 
 use serde::Serialize;
@@ -60,6 +63,40 @@ pub fn native_smoke_clear_choices(app: AppHandle) -> Result<(), String> {
         .map_err(|_| "native smoke state poisoned".to_string())?
         .clear();
     Ok(())
+}
+
+/// One report print that reached the native print (`rendered_report_print`):
+/// the SHA-256 of the print document loaded in its window and of the
+/// canonical HTML it was derived from, whether the print protocol served the
+/// document to that window, and the window's label. No dialog was presented.
+#[derive(Clone, Debug, Serialize)]
+pub struct ReportPrintObservation {
+    pub print_sha256_hex: String,
+    pub canonical_sha256_hex: String,
+    pub served_to_print_window: bool,
+    pub window_label: String,
+    pub dialog_presented: bool,
+}
+
+static REPORT_PRINTS: Mutex<Vec<ReportPrintObservation>> = Mutex::new(Vec::new());
+
+/// Records a report print in place of presenting its dialog.
+pub fn record_report_print(print_sha256_hex: &str, canonical_sha256_hex: &str, served: bool, window_label: &str) {
+    let observation = ReportPrintObservation {
+        print_sha256_hex: print_sha256_hex.to_string(),
+        canonical_sha256_hex: canonical_sha256_hex.to_string(),
+        served_to_print_window: served,
+        window_label: window_label.to_string(),
+        dialog_presented: false,
+    };
+    eprintln!("[native-smoke] report print reached the native print; print document sha256 {print_sha256_hex}; no dialog presented");
+    REPORT_PRINTS.lock().unwrap_or_else(std::sync::PoisonError::into_inner).push(observation);
+}
+
+/// The report prints recorded since the last call, oldest first.
+#[tauri::command]
+pub fn native_smoke_take_report_prints() -> Vec<ReportPrintObservation> {
+    std::mem::take(&mut *REPORT_PRINTS.lock().unwrap_or_else(std::sync::PoisonError::into_inner))
 }
 
 #[tauri::command]
