@@ -392,6 +392,32 @@ def case_elongation(regions: Any, cid: str) -> bool | None:
     return next(iter(stated), None)
 
 
+# RT-L2 (DEL-04-07; Rust `physics_evidence::ELONGATION_*_STATEMENT`): the three fixed pressure-elongation
+# statements the producer publishes: the setting absent; a named case carries pressure; the setting names only
+# cases without a pressure region.
+ELONGATION_NOT_INCLUDED_STATEMENT = ("Pressure elongation is not included in any load case: the closed-end free pressure strain "
+                                     "is omitted; pressure thrust at unbalanced locations is applied.")
+ELONGATION_INCLUDED_STATEMENT = ("Pressure elongation is included only in the operating load cases the model settings name, as the "
+                                 "closed-end free strain (1 \u2212 2\u03bd)\u00b7p\u00b7A_i/(E\u00b7A_s), with A_i on the pressure bore and "
+                                 "A_s the nominal section area; it is not a thin-wall mean-diameter form.")
+ELONGATION_NO_EFFECT_STATEMENT = "Pressure elongation is set, but none of the cases it names carries pressure; it has no effect."
+ELONGATION_STATEMENTS = (ELONGATION_NOT_INCLUDED_STATEMENT, ELONGATION_INCLUDED_STATEMENT, ELONGATION_NO_EFFECT_STATEMENT)
+
+
+def elongation_statement(formulation: Any, regions: Any) -> None:
+    """A non-empty limitation list carries exactly one of the three statements, and the included one whenever a
+    pressure region states ``included``. Without such a region any of the three can be true (the setting is a fact of
+    the document; a named pressurised case may have no region evidence, unsolved or outside a load/reference-state
+    group's solved cases). A missing or empty list is the formulation-basis checks' refusal."""
+    limitations = formulation.get("limitations") if isinstance(formulation, Mapping) else None
+    if not isinstance(limitations, list) or not limitations:
+        return
+    included = any([elongation_included(r) for r in regions if isinstance(r, Mapping)])
+    stated = [text for text in limitations if isinstance(text, str) and text in ELONGATION_STATEMENTS]
+    _require(len(stated) == 1 and (not included or stated[0] == ELONGATION_INCLUDED_STATEMENT),
+             "SOURCE_PHYSICS_PRESSURE_ELONGATION_STATEMENT_MISMATCH")
+
+
 def poisson_coefficient(coefficient: float, nu: float, included: bool) -> None:
     two_nu = abs(2 * nu)
     expected, other = (two_nu, 1.0) if included else (1.0, two_nu)
@@ -717,6 +743,9 @@ def _physics(source: Mapping[str, Any]) -> None:
         expected = {row["id"] for row in rows.values() if row.get("kind") in PIPE_KINDS and row.get("entity_ref") in members and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid}}
         _require(_strings(ids, True) and set(ids) == expected and not bindings.intersection(ids), "region result binding")
         bindings.update(ids)
+    # RT-L2 (DEL-04-07; Rust `physics_evidence::elongation_statement`): the published statement is the one the
+    # regions call for.
+    elongation_statement(source.get("formulation_basis"), evidence["pressure"])
     table = pressure_table()
     support_components: dict[tuple[str, str], list[str]] = {}
     physical_slots: set[tuple[str, str, str, str, str]] = set()

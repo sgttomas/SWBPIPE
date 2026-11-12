@@ -5,10 +5,15 @@
 //! coefficients (or arc strain) disagree is refused by name, as is a case whose regions,
 //! or whose assembly, state different settings.
 //!
+//! The published formulation limitations carry exactly one of the three fixed
+//! elongation statements, the included one whenever a region states `included`; any
+//! other is refused by name (`SOURCE_PHYSICS_PRESSURE_ELONGATION_STATEMENT_MISMATCH`).
+//!
 //! The inputs are the committed straight and arc reader corpora with the member stamped
-//! and, for "not included", the Poisson coefficients and arc strains re-formed by hand:
-//! the readers check bindings and declared semantics, never the assembled values, so
-//! these hand-built statements exercise exactly the switch.
+//! and, for "not included", the Poisson coefficients and arc strains re-formed by hand,
+//! and the not-included statement published, as the producer publishes it without the
+//! setting: the readers check bindings and declared semantics, never the assembled
+//! values, so these hand-built statements exercise exactly the switch.
 use open_pipe_stress_result_export::semantic_contract as s;
 use serde_json::{json, Value};
 
@@ -37,6 +42,17 @@ fn arc_loads(e: &Value) -> impl Iterator<Item = &Value> {
 }
 fn token(included: bool) -> &'static str {
     if included { "included" } else { "not_included" }
+}
+const NOT_INCLUDED: &str = "Pressure elongation is not included in any load case: the closed-end free pressure strain is omitted; pressure thrust at unbalanced locations is applied.";
+const INCLUDED: &str = "Pressure elongation is included only in the operating load cases the model settings name, as the closed-end free strain (1 \u{2212} 2\u{3bd})\u{b7}p\u{b7}A_i/(E\u{b7}A_s), with A_i on the pressure bore and A_s the nominal section area; it is not a thin-wall mean-diameter form.";
+const NO_EFFECT: &str = "Pressure elongation is set, but none of the cases it names carries pressure; it has no effect.";
+/// `e` with its elongation statement replaced by `statements` (none, one or several), in place.
+fn with_statements(e: &Value, statements: &[&str]) -> Value {
+    let mut e = e.clone();
+    let list = e["formulation_basis"]["limitations"].as_array_mut().unwrap();
+    let at = list.iter().position(|text| [NOT_INCLUDED, INCLUDED, NO_EFFECT].contains(&text.as_str().unwrap())).expect("an elongation statement");
+    list.splice(at..=at, statements.iter().map(|text| json!(text)));
+    e
 }
 fn poisson_terms(e: &mut Value) -> impl Iterator<Item = &mut Value> {
     e["contract_evidence"]["exact_cases"].as_array_mut().unwrap().iter_mut().flat_map(|case| {
@@ -74,7 +90,7 @@ fn stamped(envelope: &Value, included: bool) -> Value {
             term["coefficient"] = json!(if c.is_sign_negative() { -1.0 } else { 1.0 });
         }
     }
-    e
+    with_statements(&e, &[if included { INCLUDED } else { NOT_INCLUDED }])
 }
 
 fn refusal(e: &Value) -> String {
@@ -220,4 +236,49 @@ fn a_pressure_2_statement_is_refused_by_name() {
             assert_eq!(refusal, format!("{}: pressure-2 results are no longer read; re-run the analysis", s::SOURCE_PRESSURE_2_RETIRED), "{label}");
         }
     }
+}
+
+/// RT-L2: the reader refuses a statement the regions contradict. A region stating
+/// `included` calls for the included statement. Without one, any of the three can be
+/// true of the document (a named pressurised case may have no region evidence in the
+/// envelope), so each is admitted. No statement, or two, is refused.
+#[test]
+fn a_statement_the_regions_contradict_is_refused_by_name() {
+    const CODE: &str = "SOURCE_PHYSICS_PRESSURE_ELONGATION_STATEMENT_MISMATCH";
+    for (label, envelope) in straight().into_iter().chain(arcs()) {
+        let included = stamped(&envelope, true);
+        let excluded = stamped(&envelope, false);
+        for (what, e) in [
+            ("included regions, not-included statement", with_statements(&included, &[NOT_INCLUDED])),
+            ("included regions, no-effect statement", with_statements(&included, &[NO_EFFECT])),
+            ("no statement", with_statements(&included, &[])),
+            ("two statements", with_statements(&included, &[INCLUDED, NO_EFFECT])),
+            ("the same statement twice", with_statements(&excluded, &[NOT_INCLUDED, NOT_INCLUDED])),
+        ] {
+            assert_refused(&e, CODE, format_args!("{label}: {what}"));
+        }
+        for statement in [NOT_INCLUDED, NO_EFFECT, INCLUDED] {
+            s::validate_pressure_evidence(&with_statements(&excluded, &[statement]))
+                .unwrap_or_else(|error| panic!("{label}: not-included regions admit {statement:.40}: {error}"));
+        }
+    }
+    // A load/reference-state envelope reads the same rule (the refusal carries its prefix).
+    let load_state: Value = serde_json::from_str(include_str!(
+        "../../../../fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json"
+    ))
+    .unwrap();
+    s::validate_pressure_evidence(&load_state).unwrap_or_else(|error| panic!("load/reference state: {error}"));
+    assert_refused(&with_statements(&load_state, &[NOT_INCLUDED]), CODE, format_args!("load/reference state"));
+    // The producer's real no-effect envelope (a connector document naming a case without
+    // a pressure region) is admitted with its statement; two statements are refused.
+    let connector: Value = serde_json::from_str(include_str!("../../../../fixtures/results/pressure_v3_connector_reader_corpus.json")).unwrap();
+    let no_effect = connector["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|case| case["envelope"].clone())
+        .find(|e| e["formulation_basis"]["limitations"].as_array().unwrap().iter().any(|text| text == NO_EFFECT))
+        .expect("the connector corpus's no-effect envelope");
+    s::validate_pressure_evidence(&no_effect).unwrap_or_else(|error| panic!("no-effect envelope: {error}"));
+    assert_refused(&with_statements(&no_effect, &[NO_EFFECT, NOT_INCLUDED]), CODE, format_args!("no-effect envelope"));
 }

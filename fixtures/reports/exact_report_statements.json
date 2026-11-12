@@ -63,6 +63,10 @@
       "statement": "One resolved case per load case supplies each member's selected E/nu with derived G, actual/selected/installation temperatures and explicit expansion definition; each case is solved independently."
     },
     {
+      "producer_sha256": "cdb4ce4dc22faa428f30217d62e79a8956930a441cb635bb235efcab1bfda2bb",
+      "statement": "Pressure elongation is set, but none of the cases it names carries pressure; it has no effect."
+    },
+    {
       "producer_sha256": "daa48a4c191547020a5894f475950a2b0bdc34f551d95659aae5cce72ee6871d",
       "statement": "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state."
     },

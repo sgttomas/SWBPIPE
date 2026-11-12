@@ -18,9 +18,9 @@ use std::sync::OnceLock;
 
 /// The embedded table, as the TypeScript table's test writes it.
 pub const EXACT_STATEMENTS_JSON: &str = include_str!("../../../../fixtures/reports/exact_report_statements.json");
-/// The number of distinct exact-route producer strings (RT-L2 adds the two
+/// The number of distinct exact-route producer strings (RT-L2 adds the three
 /// pressure-elongation statements).
-pub const EXACT_STATEMENT_COUNT: usize = 21;
+pub const EXACT_STATEMENT_COUNT: usize = 22;
 /// The refusal of a malformed table.
 pub const EXACT_STATEMENT_TABLE_INVALID: &str = "REPORT-EXACT-STATEMENT-TABLE-INVALID";
 
@@ -146,17 +146,17 @@ mod tests {
     }
 
     #[test]
-    fn the_embedded_table_parses_with_twenty_one_entries() {
+    fn the_embedded_table_parses_with_twenty_two_entries() {
         let table = exact_statement_table().expect("the embedded table is well formed");
         assert_eq!(table.len(), EXACT_STATEMENT_COUNT);
-        assert_eq!(table.len(), 21);
+        assert_eq!(table.len(), 22);
     }
 
     #[test]
     fn its_digests_are_the_coverage_fixtures_strings_digests() {
         let table = exact_statement_table().unwrap();
         let strings = coverage_strings();
-        assert_eq!(strings.len(), 21);
+        assert_eq!(strings.len(), 22);
         let mut fixture: Vec<String> = strings.iter().map(|text| producer_sha256(text)).collect();
         fixture.sort();
         let table_digests: Vec<String> = table.entries().map(|(digest, _)| digest.to_string()).collect();

@@ -86,12 +86,13 @@ IDENTITY_SUBSTITUTIONS = (
     ("pressure-3", "pressure-2"),  # §5 the semantic identity pressure-2 -> pressure-3, in any string
 )
 LIMITATIONS_KEY = "limitations"
-ADDED_LIMITATION_STATEMENTS = frozenset({  # §5 the two fixed statements, dropped from any `limitations` list
+ADDED_LIMITATION_STATEMENTS = frozenset({  # §5 the three fixed statements, dropped from any `limitations` list
     "Pressure elongation is not included in any load case: the closed-end free pressure strain is omitted; "
     "pressure thrust at unbalanced locations is applied.",
     "Pressure elongation is included only in the operating load cases the model settings name, as the "
     "closed-end free strain (1 − 2ν)·p·A_i/(E·A_s), with A_i on the pressure bore and A_s the nominal "
     "section area; it is not a thin-wall mean-diameter form.",
+    "Pressure elongation is set, but none of the cases it names carries pressure; it has no effect.",
 })
 # §5 the bend statement's pressure clause, revised to say the push applies only in a case that includes
 # pressure elongation; the solve's revised clause is mapped back to today's before comparing.

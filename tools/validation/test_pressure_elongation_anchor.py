@@ -91,7 +91,7 @@ def test_the_exclusion_list_is_explicit_and_minimal():
     assert A.EXCLUDED_KEYS == frozenset({"pressure_elongation"})
     assert A.IDENTITY_SUBSTITUTIONS == (("pressure-3", "pressure-2"),)
     assert A.LIMITATIONS_KEY == "limitations"
-    assert len(A.ADDED_LIMITATION_STATEMENTS) == 2
+    assert len(A.ADDED_LIMITATION_STATEMENTS) == 3
 
 
 # ----------------------------------------------------------------------------- the comparison

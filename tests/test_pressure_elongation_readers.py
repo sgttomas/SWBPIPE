@@ -3,11 +3,13 @@ switch-aware, keyed on each case's ``pressure_elongation`` evidence, as the Rust
 (``core/reporting/result_export/tests/pressure_elongation_contract.rs``). Included: the straight
 Poisson coefficient is sign*2nu and a realized arc carries its signed nonzero free strain; not
 included: sign*1 and exactly zero. A case whose evidence and coefficients (or arc strain) disagree is
-refused by name.
+refused by name. The formulation limitations carry exactly one of the three fixed elongation
+statements, the included one whenever a region states ``included``; any other is refused by name.
 
 The inputs are the committed straight and arc reader corpora with the member stamped and, for "not
-included", the Poisson coefficients and arc strains re-formed by hand: the readers check bindings and
-declared semantics, never the assembled values."""
+included", the Poisson coefficients and arc strains re-formed by hand and the not-included statement
+published, as the producer publishes it without the setting: the readers check bindings and declared
+semantics, never the assembled values."""
 from __future__ import annotations
 
 import json
@@ -16,7 +18,13 @@ from pathlib import Path
 
 import pytest
 
-from tests.verifiers.pressure_3 import CONTRACT_ID, validate_pressure_evidence
+from tests.verifiers.pressure_3 import (
+    CONTRACT_ID,
+    ELONGATION_INCLUDED_STATEMENT as INCLUDED,
+    ELONGATION_NO_EFFECT_STATEMENT as NO_EFFECT,
+    ELONGATION_NOT_INCLUDED_STATEMENT as NOT_INCLUDED,
+    validate_pressure_evidence,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -39,6 +47,15 @@ STRAIGHT = _corpus("pressure_v3_straight_reader_corpus")
 ARCS = [(label, e) for label, e in _corpus("pressure_v3_arc_reader_corpus") if _arc_loads(e)]
 
 
+def with_statements(envelope: dict, statements: list[str]) -> dict:
+    """The envelope with its elongation statement replaced by ``statements`` (none, one or several), in place."""
+    e = deepcopy(envelope)
+    limitations = e["formulation_basis"]["limitations"]
+    at = next(i for i, text in enumerate(limitations) if text in (NOT_INCLUDED, INCLUDED, NO_EFFECT))
+    limitations[at:at + 1] = statements
+    return e
+
+
 def stamped(envelope: dict, included: bool) -> dict:
     e = deepcopy(envelope)
     e["producer"]["semantic_contract_id"] = CONTRACT_ID
@@ -55,7 +72,7 @@ def stamped(envelope: dict, included: bool) -> dict:
             load["arc_pressure_strain"] = 0.0
         for term in _poisson_terms(e):
             term["coefficient"] = -1.0 if term["coefficient"] < 0 else 1.0
-    return e
+    return with_statements(e, [INCLUDED if included else NOT_INCLUDED])
 
 
 def _refused(e: dict, name: str) -> None:
@@ -118,3 +135,29 @@ def test_the_setting_is_required_closed_and_agreed_within_a_case(label, envelope
     absent = deepcopy(base)
     del absent["contract_evidence"]["exact_cases"][at]["pressure_rhs_assembly"]["pressure_elongation"]
     _refused(absent, "pressure RHS shape")
+
+
+STATEMENT_MISMATCH = "SOURCE_PHYSICS_PRESSURE_ELONGATION_STATEMENT_MISMATCH"
+
+
+@pytest.mark.parametrize("label,envelope", STRAIGHT + ARCS)
+def test_a_statement_the_regions_contradict_is_refused_by_name(label, envelope):
+    """Rust ``a_statement_the_regions_contradict_is_refused_by_name``: a region stating ``included`` calls for the
+    included statement; without one, any of the three can be true of the document. No statement, or two, is
+    refused."""
+    included, excluded = stamped(envelope, True), stamped(envelope, False)
+    for e in (with_statements(included, [NOT_INCLUDED]), with_statements(included, [NO_EFFECT]),
+              with_statements(included, []), with_statements(included, [INCLUDED, NO_EFFECT]),
+              with_statements(excluded, [NOT_INCLUDED, NOT_INCLUDED])):
+        _refused(e, STATEMENT_MISMATCH)
+    for statement in (NOT_INCLUDED, NO_EFFECT, INCLUDED):
+        validate_pressure_evidence(with_statements(excluded, [statement]))
+
+
+def test_the_producers_no_effect_and_load_state_envelopes_read_the_same_rule():
+    no_effect = next(e for _, e in _corpus("pressure_v3_connector_reader_corpus") if NO_EFFECT in e["formulation_basis"]["limitations"])
+    validate_pressure_evidence(no_effect)
+    _refused(with_statements(no_effect, [NO_EFFECT, NOT_INCLUDED]), STATEMENT_MISMATCH)
+    load_state = json.loads((ROOT / "fixtures/product_preview/pressure/load_reference/pressure-sparse_interactive.raw.json").read_text())
+    validate_pressure_evidence(load_state)
+    _refused(with_statements(load_state, [NOT_INCLUDED]), STATEMENT_MISMATCH)

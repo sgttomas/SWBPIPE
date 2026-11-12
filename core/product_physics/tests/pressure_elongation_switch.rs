@@ -14,8 +14,11 @@
 //!   unbalanced-thrust model (`common/pressure_elongation.rs`); the arc's free
 //!   strain evidence is exactly 0 and no beam theory is assumed.
 //! - The expansion joint's assembled attachment load is p·A_e.
-//! - The formulation limitations carry exactly one of the two fixed statements,
-//!   immediately after the D-3 sentence.
+//! - The formulation limitations carry exactly one of the three fixed statements,
+//!   immediately after the D-3 sentence, the one true of the document: not
+//!   included without the setting; included when a named case carries pressure
+//!   (has a pressure region, whatever its value); no effect when the setting
+//!   names only cases without a pressure region.
 
 #[path = "common/pressure_elongation.rs"]
 mod pressure_elongation;
@@ -39,6 +42,7 @@ const AS: f64 = PI * 0.0011;
 const D3: &str = "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.";
 const NOT_INCLUDED: &str = "Pressure elongation is not included in any load case: the closed-end free pressure strain is omitted; pressure thrust at unbalanced locations is applied.";
 const INCLUDED: &str = "Pressure elongation is included only in the operating load cases the model settings name, as the closed-end free strain (1 − 2ν)·p·A_i/(E·A_s), with A_i on the pressure bore and A_s the nominal section area; it is not a thin-wall mean-diameter form.";
+const NO_EFFECT: &str = "Pressure elongation is set, but none of the cases it names carries pressure; it has no effect.";
 
 fn terminal(node: &str, transfer: bool) -> Value {
     json!({"node_ref": node, "closure_transfer": if transfer { "transfers_to_wall" } else { "separately_supported_or_compensated" },
@@ -114,10 +118,15 @@ fn limitations(envelope: &Value) -> Vec<String> {
 }
 
 fn assert_statement(envelope: &Value, included: bool) {
+    assert_stated(envelope, if included { INCLUDED } else { NOT_INCLUDED });
+}
+
+/// `expected` follows the D-3 sentence, and no other elongation statement is published.
+fn assert_stated(envelope: &Value, expected: &str) {
     let list = limitations(envelope);
     let at = list.iter().position(|s| s == D3).expect("the D-3 sentence");
-    assert_eq!(list[at + 1], if included { INCLUDED } else { NOT_INCLUDED });
-    assert_eq!(list.iter().filter(|s| s.as_str() == INCLUDED || s.as_str() == NOT_INCLUDED).count(), 1);
+    assert_eq!(list[at + 1], expected);
+    assert_eq!(list.iter().filter(|s| [INCLUDED, NOT_INCLUDED, NO_EFFECT].contains(&s.as_str())).count(), 1);
 }
 
 /// The wall, effective and membrane rows of the member at every station, and
@@ -300,5 +309,63 @@ fn an_expansion_joint_attachment_feels_p_ae_when_not_included() {
                 close(f[k], 0.0, p * ae, &format!("{node} component {k}"));
             }
         }
+    }
+}
+
+/// `straight(true, true, cases)` with the case `pressure_free` stripped of its
+/// pressure region (an explicit `pressure_regions: []`) and given a nodal force,
+/// so it solves as an ordinary pressure-free case on the exact route.
+fn with_pressure_free_case(cases: &[&str], pressure_free: &str) -> Value {
+    let mut document = straight(false, true, cases);
+    let case = document["model"]["load_cases"].as_array_mut().unwrap().iter_mut().find(|c| c["id"] == pressure_free).unwrap();
+    case["pressure_regions"] = json!([]);
+    case["primitive_loads"] = json!([{"id": "load:tip", "category": "concentrated_force", "target": {"type": "node", "node": "node:B"},
+        "direction": "global_y", "magnitude": {"value": 1000.0, "unit": "N"}, "dimension": "force", "provenance": "rt_l2_control"}]);
+    document
+}
+
+/// The statement selection on the public entry, one document per branch: the
+/// setting absent; a named case with a pressure region; a named case whose region
+/// is at p = 0 (it has a pressure region, so the case carries pressure); a named
+/// pressurised case beside a named pressure-free one; and settings that name only
+/// pressure-free cases, in a document that also has a pressurised case and in one
+/// that has none.
+#[test]
+fn the_published_statement_is_the_one_true_of_the_document() {
+    let mut zero = straight(true, true, &["case:P"]);
+    zero["model"]["load_cases"][0]["pressure_regions"][0]["pressure"]["value"] = json!(0.0);
+    let mut none_pressurised = with_pressure_free_case(&["case:W"], "case:W");
+    none_pressurised["model"]["load_cases"][0]["id"] = json!("case:W");
+    let branches: [(&str, Value, &str); 6] = [
+        ("absent", straight(true, true, &["case:P"]), NOT_INCLUDED),
+        ("named pressurised", with_cases(&straight(true, true, &["case:P"]), &["case:P".into()]), INCLUDED),
+        ("named at p = 0", with_cases(&zero, &["case:P".into()]), INCLUDED),
+        (
+            "named pressurised and pressure-free",
+            with_cases(&with_pressure_free_case(&["case:P", "case:W"], "case:W"), &["case:P".into(), "case:W".into()]),
+            INCLUDED,
+        ),
+        ("named pressure-free only", with_cases(&with_pressure_free_case(&["case:P", "case:W"], "case:W"), &["case:W".into()]), NO_EFFECT),
+        ("named in a document without pressure", with_cases(&none_pressurised, &["case:W".into()]), NO_EFFECT),
+    ];
+    for mode in MODES {
+        for (label, document, expected) in &branches {
+            let envelope = solve(document, mode);
+            assert_eq!(envelope["status"]["mechanics"], "MECHANICS_SOLVED", "{label}: {:?}", envelope["diagnostics"]);
+            assert_eq!(envelope["formulation_basis"]["profile_id"], "exact_pressure_v3", "{label}");
+            assert_stated(&envelope, expected);
+        }
+    }
+    // A named pressure-free case states nothing per case and solves as it did
+    // without the setting: the setting has no effect, as the statement says.
+    for mode in MODES {
+        let document = with_pressure_free_case(&["case:P", "case:W"], "case:W");
+        let off = solve(&document, mode);
+        let set = solve(&with_cases(&document, &["case:W".into()]), mode);
+        pressure_elongation::assert_physical_identity(&set, &off, "named pressure-free only");
+        assert_case_token(&set, "case:P", "not_included");
+        let cases = set["contract_evidence"]["exact_cases"].as_array().unwrap();
+        let w = cases.iter().find(|c| c["load_case_id"] == "case:W").unwrap();
+        assert!(w["pressure_rhs_assembly"].get("pressure_elongation").is_none(), "{w}");
     }
 }

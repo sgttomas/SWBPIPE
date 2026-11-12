@@ -41,11 +41,14 @@ const PRESSURE_SOURCE_1: &str = "openpipestress.result_semantics/0.3.0/pressure-
 const BEND_REFUSAL: &str = "realized curved bend (curved_bend_macro_element) is not a straight source family";
 const CONNECTOR_REFUSAL: &str = "objective connector is not a straight source family";
 const PROVENANCE: &str = "invented W-11 exact-route limitation coverage input; not library, component, catalog or code-rule data";
-/// RT-L2 (DEL-04-07 Design `pressure-elongation.md` §5): exactly one of the two fixed
-/// pressure-elongation statements is on every exact-route list, after the D-3 "Not
-/// modelled" statement: `NOT_INCLUDED` without the setting, `INCLUDED` with it.
+/// RT-L2 (DEL-04-07): exactly one of the three fixed pressure-elongation statements
+/// is on every exact-route list, after the D-3 "Not modelled" statement:
+/// `NOT_INCLUDED` without the setting, `INCLUDED` when a named case has a pressure
+/// region, `NO_EFFECT` when no named case has one.
 const ELONGATION_NOT_INCLUDED: &str = "Pressure elongation is not included in any load case: the closed-end free pressure strain is omitted; pressure thrust at unbalanced locations is applied.";
 const ELONGATION_INCLUDED: &str = "Pressure elongation is included only in the operating load cases the model settings name, as the closed-end free strain (1 \u{2212} 2\u{3bd})\u{b7}p\u{b7}A_i/(E\u{b7}A_s), with A_i on the pressure bore and A_s the nominal section area; it is not a thin-wall mean-diameter form.";
+const ELONGATION_NO_EFFECT: &str = "Pressure elongation is set, but none of the cases it names carries pressure; it has no effect.";
+const ELONGATION_STATEMENTS: [&str; 3] = [ELONGATION_NOT_INCLUDED, ELONGATION_INCLUDED, ELONGATION_NO_EFFECT];
 
 // Invented inputs (committed requests; frozen references are read, never edited).
 /// Straight `pressure-2`, without the load/reference-state group.
@@ -62,6 +65,10 @@ const SOURCE_REQUEST: &str =
     include_str!("../../../fixtures/product_preview/pressure_source/physics_source/n05.request.json");
 const LOAD_STATE_SOURCE_REQUEST: &str =
     include_str!("../../../fixtures/product_preview/pressure_source/load_reference_source/n05.request.json");
+const MIXED_SOURCE_REQUEST: &str =
+    include_str!("../../../fixtures/product_preview/pressure_source/physics_source/mixed.request.json");
+const LOAD_STATE_MIXED_SOURCE_REQUEST: &str =
+    include_str!("../../../fixtures/product_preview/pressure_source/load_reference_source/mixed.request.json");
 /// A pressure-free (`preview-physics-2`) model.
 const PRESSURE_FREE_MODEL: &str = include_str!("fixtures/preview_physics_invented_model.json");
 
@@ -101,8 +108,10 @@ struct CoverageList {
     load_reference_states: bool,
     objective_connectors: bool,
     realized_bends: bool,
-    /// RT-L2: whether the request's model settings name pressure-elongation cases.
-    pressure_elongation: bool,
+    /// RT-L2: the pressure-elongation statement the list carries: `not_included`
+    /// (no setting), `included` (a named case carries pressure) or `no_effect` (the
+    /// setting names only cases without a pressure region).
+    pressure_elongation: &'static str,
     limitations: Vec<String>,
 }
 
@@ -267,6 +276,34 @@ fn rename_support(model: &mut Value, from: &str, to: &str, node: &str) {
     }
 }
 
+/// RT-L2: `request` with every pressure region removed (each case keeps an explicit
+/// `pressure_regions: []`), so a setting naming its cases has no effect.
+fn without_pressure(mut request: Value) -> Value {
+    for case in request["model"]["load_cases"].as_array_mut().unwrap() {
+        case["pressure_regions"] = json!([]);
+    }
+    request
+}
+
+/// RT-L2: the producer's request for each of a shape's elongation statements: the
+/// setting absent; every case named; and, when a case carries pressure (so naming
+/// every case includes pressure elongation), every case named with the pressure
+/// regions removed. The statement does not depend on the rest of the list.
+fn elongation_variants(request: Value) -> Vec<(&'static str, Value)> {
+    let mut variants = vec![(NOT_INCLUDED_KEY, pressure_elongation::without_elongation(&request))];
+    if pressure_elongation::pressurised_cases(&request).is_empty() {
+        variants.push((NO_EFFECT_KEY, with_elongation(request)));
+    } else {
+        variants.push((INCLUDED_KEY, with_elongation(request.clone())));
+        variants.push((NO_EFFECT_KEY, with_elongation(without_pressure(pressure_elongation::without_elongation(&request)))));
+    }
+    variants
+}
+
+const NOT_INCLUDED_KEY: &str = "not_included";
+const INCLUDED_KEY: &str = "included";
+const NO_EFFECT_KEY: &str = "no_effect";
+
 /// RT-L2: `request` with pressure elongation switched on in every one of its load
 /// cases (`model_settings.pressure_elongation`).
 fn with_elongation(mut request: Value) -> Value {
@@ -280,12 +317,16 @@ fn with_elongation(mut request: Value) -> Value {
 }
 
 /// The eight `pressure-3` shapes and the two `pressure-source-1` shapes the
-/// producer emits, in fixture order, each with its invented request.
+/// producer emits, in fixture order, each with its invented request (a shape may
+/// have a second request that supplies a statement the first cannot).
 fn producer_inputs() -> Vec<(Shape, Value)> {
     vec![
         ((PRESSURE_3, false, false, false), parse(STRAIGHT_REQUEST)),
         ((PRESSURE_3, false, false, true), i7("U2-L-ANCH-PTW-K2", "0.3.0")),
         ((PRESSURE_3, false, true, false), u3("U3-SYS-DEMO-CONNECTOR-001", "document_v3_0.3.0")),
+        // RT-L2: U3-SYS-DEMO-CONNECTOR-001 carries no pressure, so the pressurised
+        // connector (T4-U5b AS-F) gives the shape its included list.
+        ((PRESSURE_3, false, true, false), t4_u5b::request("AS-F", &t4_u5b::oracle()["cases"]["AS-F"])),
         ((PRESSURE_3, false, true, true), l_line_with_connector("0.3.0")),
         ((PRESSURE_3, true, false, false), parse(LOAD_STATE_REQUEST)),
         ((PRESSURE_3, true, false, true), i7("U2-L-ANCH-PTW-K2", "0.4.0")),
@@ -293,6 +334,10 @@ fn producer_inputs() -> Vec<(Shape, Value)> {
         ((PRESSURE_3, true, true, true), l_line_with_connector("0.4.0")),
         ((PRESSURE_SOURCE_1, false, false, false), parse(SOURCE_REQUEST)),
         ((PRESSURE_SOURCE_1, true, false, false), parse(LOAD_STATE_SOURCE_REQUEST)),
+        // RT-L2: the source controls carry no pressure; the mixed controls (a selected
+        // source case beside an ordinary pressurised case) give the included lists.
+        ((PRESSURE_SOURCE_1, false, false, false), parse(MIXED_SOURCE_REQUEST)),
+        ((PRESSURE_SOURCE_1, true, false, false), parse(LOAD_STATE_MIXED_SOURCE_REQUEST)),
     ]
 }
 
@@ -303,8 +348,29 @@ fn produced_lists() -> &'static [CoverageList] {
     LISTS.get_or_init(|| {
         producer_inputs()
             .into_iter()
-            .flat_map(|(shape, request)| [(shape, false, pressure_elongation::without_elongation(&request)), (shape, true, with_elongation(request))])
+            .flat_map(|(shape, request)| elongation_variants(request).into_iter().map(move |(elongation, request)| (shape, elongation, request)))
+            // One list per (shape, statement): a later request supplies only what the earlier lacked.
+            .scan(BTreeSet::new(), |seen, (shape, elongation, request)| {
+                Some(seen.insert((shape, elongation)).then_some((shape, elongation, request)))
+            })
+            .flatten()
             .map(|((id, load_state, connectors, bends), elongation, request)| {
+                // RT-L2: the statement true of the request, read from the request itself:
+                // no setting; a named case with a pressure region; or named cases without one.
+                let named = request["model"]["model_settings"]["pressure_elongation"]["operating_load_cases"].as_array().cloned();
+                let stated = match named {
+                    None => ELONGATION_NOT_INCLUDED,
+                    Some(named) if pressure_elongation::pressurised_cases(&request).iter().any(|case| named.contains(&json!(case))) => {
+                        ELONGATION_INCLUDED
+                    }
+                    Some(_) => ELONGATION_NO_EFFECT,
+                };
+                let key = [(ELONGATION_NOT_INCLUDED, NOT_INCLUDED_KEY), (ELONGATION_INCLUDED, INCLUDED_KEY), (ELONGATION_NO_EFFECT, NO_EFFECT_KEY)]
+                    .into_iter()
+                    .find(|(text, _)| *text == stated)
+                    .unwrap()
+                    .1;
+                assert_eq!(key, elongation, "{id}: the variant's intended statement");
                 let envelope = run(request);
                 assert_eq!(
                     envelope["status"]["mechanics"],
@@ -319,16 +385,10 @@ fn produced_lists() -> &'static [CoverageList] {
                 );
                 assert_eq!(envelope["formulation_basis"]["profile_id"], "exact_pressure_v3");
                 let limitations = limitations(&envelope);
-                // RT-L2: exactly one elongation statement, the setting's, after "Not modelled".
-                let (stated, other) = if elongation {
-                    (ELONGATION_INCLUDED, ELONGATION_NOT_INCLUDED)
-                } else {
-                    (ELONGATION_NOT_INCLUDED, ELONGATION_INCLUDED)
-                };
+                // RT-L2: exactly one elongation statement, the one true of the request, after "Not modelled".
                 let at = limitations.iter().position(|text| text.starts_with("Not modelled: ")).expect("the D-3 statement");
                 assert_eq!(limitations.get(at + 1).map(String::as_str), Some(stated), "{id} elongation {elongation}");
-                assert_eq!(limitations.iter().filter(|text| *text == stated).count(), 1);
-                assert!(!limitations.iter().any(|text| text == other));
+                assert_eq!(limitations.iter().filter(|text| ELONGATION_STATEMENTS.contains(&text.as_str())).count(), 1);
                 CoverageList {
                     semantic_contract_id: id.to_string(),
                     load_reference_states: load_state,
@@ -380,11 +440,25 @@ fn corpus_lists() -> Vec<(String, String, Vec<String>)> {
 #[test]
 fn exact_route_limitations_fixture_is_current() {
     let fixture = coverage_fixture();
-    // the ten shapes the producer emits, each without and with pressure
-    // elongation (RT-L2). The six pressure-source-1 shapes with a connector or a
-    // realized bend are never emitted (see the guard).
-    assert_eq!(fixture.lists.len(), 20);
-    assert_eq!(fixture.strings.len(), 21, "§1.3: 2 + 6 + 2 + 5 + 1 + 1 + 2 distinct strings, plus the two elongation statements");
+    // the ten shapes the producer emits, each with every pressure-elongation
+    // statement it can carry (RT-L2): not included, no effect, and included where
+    // the shape's input carries pressure. The six pressure-source-1 shapes with a
+    // connector or a realized bend are never emitted (see the guard).
+    let shapes: BTreeSet<Shape> = producer_inputs().iter().map(|(shape, _)| *shape).collect();
+    let with_pressure: BTreeSet<Shape> = producer_inputs()
+        .iter()
+        .filter(|(_, request)| !pressure_elongation::pressurised_cases(request).is_empty())
+        .map(|(shape, _)| *shape)
+        .collect();
+    assert_eq!(shapes.len(), 10);
+    assert_eq!(fixture.lists.len(), 2 * shapes.len() + with_pressure.len());
+    for key in [NOT_INCLUDED_KEY, INCLUDED_KEY, NO_EFFECT_KEY] {
+        assert!(fixture.lists.iter().any(|list| list.pressure_elongation == key), "a {key} list");
+    }
+    assert_eq!(fixture.strings.len(), 22, "§1.3: 2 + 6 + 2 + 5 + 1 + 1 + 2 distinct strings, plus the three elongation statements");
+    for statement in ELONGATION_STATEMENTS {
+        assert!(fixture.strings.iter().any(|text| text == statement), "the producer emits {statement:.40}");
+    }
     for list in &fixture.lists {
         assert!((11..=18).contains(&list.limitations.len()), "{} entries", list.limitations.len());
     }
@@ -539,7 +613,7 @@ fn pressure_source_1_is_never_emitted_with_a_connector_or_a_realized_bend() {
                 .iter()
                 .find(|list| {
                     list.semantic_contract_id == PRESSURE_3
-                        && !list.pressure_elongation
+                        && list.pressure_elongation == NOT_INCLUDED_KEY
                         && (list.load_reference_states, list.objective_connectors, list.realized_bends) == (load_state, connectors, bends)
                 })
                 .unwrap();

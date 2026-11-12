@@ -192,12 +192,24 @@ fn formulation_helpers_preserve_held_callers_and_name_the_actual_publication() {
                 .get("load_reference_states")
                 .is_some();
             // RT-L2: the corpora carry no document, and a pretension-only case has no region evidence, so which of
-            // the two fixed elongation statements was published says whether the document named a case; every
-            // other limitation is still compared below.
-            let named = case["envelope"]["formulation_basis"]["limitations"].as_array().unwrap().iter()
-                .any(|text| text.as_str().is_some_and(|s| s.starts_with("Pressure elongation is included only")));
+            // the three fixed elongation statements was published is read from the envelope; every other
+            // limitation is still compared below (the choice itself is tested in `pressure_elongation_switch.rs`).
+            let published_elongation = case["envelope"]["formulation_basis"]["limitations"].as_array().unwrap().iter()
+                .filter_map(|text| text.as_str())
+                .filter_map(|text| {
+                    [
+                        exact_admission::ElongationStatement::NotIncluded,
+                        exact_admission::ElongationStatement::Included,
+                        exact_admission::ElongationStatement::NoEffect,
+                    ]
+                    .into_iter()
+                    .find(|statement| statement.text() == text)
+                })
+                .collect::<Vec<_>>();
+            assert_eq!(published_elongation.len(), 1, "exactly one elongation statement is published");
+            let elongation = published_elongation[0];
             let unselected = exact_admission::pressure_v3_formulation_basis_with_source(
-                load_state, connectors, false, named,
+                load_state, connectors, false, elongation,
             );
             // The producer (`formulation_basis_for_model_with_source`) appends
             // K-D5's two route-independent certified-recovery statements.
@@ -213,7 +225,7 @@ fn formulation_helpers_preserve_held_callers_and_name_the_actual_publication() {
             assert_eq!(unselected.limitations[0], PRESSURE_1_IDENTITY);
             assert_eq!(unselected.limitations[8], JOINED_LIMITATION_7);
             let selected = exact_admission::pressure_v3_formulation_basis_with_source(
-                load_state, connectors, true, named,
+                load_state, connectors, true, elongation,
             );
             assert_eq!(selected.profile_id, unselected.profile_id);
             assert_eq!(selected.limitations.len(), unselected.limitations.len());

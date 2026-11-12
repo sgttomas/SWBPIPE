@@ -144,7 +144,7 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
     load_state: bool,
     connectors: bool,
     selected: bool,
-    elongation_named: bool,
+    elongation: ElongationStatement,
 ) -> FormulationBasis {
     // Whole static strings: neither identity nor limitations are substituted at
     // run time. D-5/D-6 (DEL-05-03 Design `section-bases-and-timoshenko.md`
@@ -165,11 +165,9 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
         identity.to_string(),
         "Pressure is a signed internal differential with zero external pressure increment, uniform within each explicit case-scoped collinear equal-bore region with explicit closure-transfer paths. A negative differential is admitted, but external-pressure stability and collapse are not assessed.".to_string(),
         "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization.".to_string(),
-        // RT-L2 (DEL-04-07 `pressure-elongation.md` §5): immediately after the D-3
-        // sentence, exactly one of two fixed statements says whether any load case
-        // includes pressure elongation.
-        if elongation_named { PRESSURE_ELONGATION_INCLUDED_LIMITATION } else { PRESSURE_ELONGATION_NOT_INCLUDED_LIMITATION }
-            .to_string(),
+        // RT-L2 (DEL-04-07): immediately after the D-3 sentence, exactly one of
+        // three fixed statements, the one that is true of the document.
+        elongation.text().to_string(),
         "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly.".to_string(),
         "Structural line loads act as entered; contents density does not imply hydrostatic pressure head or a coupled static-fluid pressure/weight state.".to_string(),
         "Signed support actions are attributed only for admitted linear restraints, springs and nonlinear supports and, as its constant force, for a consumed constant-effort support; ambiguous coincident rigid attribution is refused.".to_string(),
@@ -191,12 +189,59 @@ pub(crate) fn pressure_v3_formulation_basis_with_source(
     FormulationBasis { profile_id: PRESSURE_PROFILE_ID.to_string(), limitations }
 }
 
-/// RT-L2 (`pressure-elongation.md` §5): the statement of a model whose settings name
-/// no load case that includes pressure elongation (the default).
+/// RT-L2 (DEL-04-07): the statement of a model without `model_settings.pressure_elongation`
+/// (the default): no load case includes pressure elongation.
 pub(crate) const PRESSURE_ELONGATION_NOT_INCLUDED_LIMITATION: &str = "Pressure elongation is not included in any load case: the closed-end free pressure strain is omitted; pressure thrust at unbalanced locations is applied.";
-/// RT-L2 (`pressure-elongation.md` §5): the statement of a model whose settings name
-/// the operating load cases that include pressure elongation.
+/// RT-L2 (DEL-04-07): the statement of a model whose setting names at least one load
+/// case that carries pressure (has a pressure region).
 pub(crate) const PRESSURE_ELONGATION_INCLUDED_LIMITATION: &str = "Pressure elongation is included only in the operating load cases the model settings name, as the closed-end free strain (1 − 2ν)·p·A_i/(E·A_s), with A_i on the pressure bore and A_s the nominal section area; it is not a thin-wall mean-diameter form.";
+/// RT-L2 (DEL-04-07): the statement of a model whose setting names load cases none of
+/// which carries pressure. The named cases appear where the setting itself is reported.
+pub(crate) const PRESSURE_ELONGATION_NO_EFFECT_LIMITATION: &str = "Pressure elongation is set, but none of the cases it names carries pressure; it has no effect.";
+
+/// RT-L2 (DEL-04-07): which of the three fixed pressure-elongation statements a
+/// document's formulation limitations carry. Each is a whole static string.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ElongationStatement {
+    /// `model_settings.pressure_elongation` is absent.
+    NotIncluded,
+    /// The setting names at least one case that carries pressure.
+    Included,
+    /// The setting names cases, none of which carries pressure.
+    NoEffect,
+}
+
+impl ElongationStatement {
+    /// The statement of `model`: absent setting, a named case with a pressure region,
+    /// or named cases without one. A case carries pressure when it has a pressure
+    /// region (`pressure_regions` non-empty), the predicate that also gives a case its
+    /// `pressure_elongation` evidence; a region's pressure value is not consulted.
+    pub(crate) fn of(model: &PreviewModel) -> Self {
+        let named: Vec<&PreviewLoadCase> =
+            model.load_cases.iter().filter(|case| model.pressure_elongation_included(&case.id)).collect();
+        if named.is_empty() {
+            ElongationStatement::NotIncluded
+        } else if named.iter().any(|case| carries_pressure(case)) {
+            ElongationStatement::Included
+        } else {
+            ElongationStatement::NoEffect
+        }
+    }
+
+    pub(crate) const fn text(self) -> &'static str {
+        match self {
+            ElongationStatement::NotIncluded => PRESSURE_ELONGATION_NOT_INCLUDED_LIMITATION,
+            ElongationStatement::Included => PRESSURE_ELONGATION_INCLUDED_LIMITATION,
+            ElongationStatement::NoEffect => PRESSURE_ELONGATION_NO_EFFECT_LIMITATION,
+        }
+    }
+}
+
+/// RT-L2 (DEL-04-07): whether a load case carries pressure, that is, has a pressure
+/// region. The same predicate decides whether the case states `pressure_elongation`.
+pub(crate) fn carries_pressure(case: &PreviewLoadCase) -> bool {
+    case.pressure_regions.as_ref().is_some_and(|regions| !regions.is_empty())
+}
 
 /// W-16 slice c (DEL-05-01 Design `exact-equivalent-static.md` §3): a case's
 /// `equivalent_static` on a load/reference-state document. Generated loads

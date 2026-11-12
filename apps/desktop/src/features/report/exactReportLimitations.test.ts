@@ -43,9 +43,17 @@ type CoverageList = {
   load_reference_states: boolean;
   objective_connectors: boolean;
   realized_bends: boolean;
-  pressure_elongation: boolean;
+  /** RT-L2: the elongation statement the list carries. */
+  pressure_elongation: "not_included" | "included" | "no_effect";
   limitations: string[];
 };
+
+/** RT-L2: the three fixed elongation statements, by the coverage list's key. */
+const ELONGATION_STATEMENTS: Readonly<Record<CoverageList["pressure_elongation"], string>> = Object.freeze({
+  not_included: "Pressure elongation is not included in any load case: the closed-end free pressure strain is omitted; pressure thrust at unbalanced locations is applied.",
+  included: "Pressure elongation is included only in the operating load cases the model settings name, as the closed-end free strain (1 \u2212 2\u03bd)\u00b7p\u00b7A_i/(E\u00b7A_s), with A_i on the pressure bore and A_s the nominal section area; it is not a thin-wall mean-diameter form.",
+  no_effect: "Pressure elongation is set, but none of the cases it names carries pressure; it has no effect."
+});
 type Coverage = { schema_version: string; generator: string; lists: CoverageList[]; strings: string[] };
 
 const coverage = JSON.parse(readFileSync(COVERAGE, "utf8")) as Coverage;
@@ -90,15 +98,16 @@ function strings(value: unknown, out: string[] = []): string[] {
 describe("exact-route statement table (W-11 slice (a))", () => {
   it("covers exactly the coverage fixture's strings, keyed by the SHA-256 of their UTF-8 bytes", async () => {
     expect(coverage.schema_version).toBe("1.0.0");
-    // The ten shapes the producer emits, each without and with pressure
-    // elongation (RT-L2): the six pressure-source-1 shapes with a connector or a
-    // realized bend are never emitted, because source recovery refuses both.
-    expect(coverage.lists).toHaveLength(20);
-    expect(coverage.strings).toHaveLength(21);
+    // The ten shapes the producer emits, each with every elongation statement it
+    // can carry (RT-L2): not included and no effect on all ten, included on the
+    // seven with a pressurised input. The six pressure-source-1 shapes with a
+    // connector or a realized bend are never emitted, because source recovery refuses both.
+    expect(coverage.lists).toHaveLength(27);
+    expect(coverage.strings).toHaveLength(22);
     const fixtureDigests = await Promise.all(coverage.strings.map(producerStringSha256));
     const tableDigests = EXACT_REPORT_STATEMENTS.map((item) => item.producer_sha256);
-    expect(EXACT_REPORT_STATEMENTS).toHaveLength(21);
-    expect(new Set(tableDigests).size).toBe(21);
+    expect(EXACT_REPORT_STATEMENTS).toHaveLength(22);
+    expect(new Set(tableDigests).size).toBe(22);
     expect([...tableDigests].sort()).toEqual([...fixtureDigests].sort());
     for (const digest of tableDigests) expect(digest).toMatch(/^[0-9a-f]{64}$/);
     // The fixture's strings are its lists' strings, and nothing else.
@@ -136,13 +145,14 @@ describe("exact-route statement table (W-11 slice (a))", () => {
     // pressure-source-1 lists' ninth entry (after RT-L2's elongation statement).
     const ninth = new Set(coverage.lists.map((list) => list.limitations[8]));
     expect(ninth).toEqual(new Set(omitted));
-    // RT-L2: each list carries exactly one elongation statement, the setting's, after "Not modelled".
+    // RT-L2: each list carries exactly one elongation statement, the one its key names, after "Not modelled".
     for (const list of coverage.lists) {
       const at = list.limitations.findIndex((text) => text.startsWith("Not modelled: "));
       const stated = list.limitations.filter((text) => text.startsWith("Pressure elongation is "));
       expect(stated).toEqual([list.limitations[at + 1]]);
-      expect(stated[0].startsWith(list.pressure_elongation ? "Pressure elongation is included" : "Pressure elongation is not included")).toBe(true);
+      expect(stated[0]).toBe(ELONGATION_STATEMENTS[list.pressure_elongation]);
     }
+    for (const text of Object.values(ELONGATION_STATEMENTS)) expect(coverage.strings).toContain(text);
   });
 
   it("maps every fixture list, in the producer's order, one statement per string", async () => {
@@ -174,8 +184,8 @@ describe("exact-route statement table (W-11 slice (a))", () => {
     }
   });
 
-  it("RT-L2: binds the two elongation statements and refuses the retired bend statement and a transliterated producer string", async () => {
-    const included = coverage.lists.find((list) => list.pressure_elongation && list.realized_bends);
+  it("RT-L2: binds the included elongation statement and refuses the retired bend statement and a transliterated producer string", async () => {
+    const included = coverage.lists.find((list) => list.pressure_elongation === "included" && list.realized_bends);
     expect(included).toBeDefined();
     const list = included!.limitations;
     const at = list.findIndex((text) => text.startsWith("Pressure elongation is included"));

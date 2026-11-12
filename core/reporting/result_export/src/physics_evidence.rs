@@ -94,6 +94,41 @@ fn case_elongation(regions: &HashMap<(&str, &str), &Value>, case: &str) -> Resul
         _ => Err(SOURCE_PHYSICS_PRESSURE_ELONGATION_CASE_MISMATCH.into()),
     }
 }
+/// RT-L2 (DEL-04-07): the three fixed pressure-elongation statements the producer
+/// publishes (`product_physics` `exact_admission`), each a whole string: the setting
+/// absent; a named case carries pressure; the setting names only cases without a
+/// pressure region.
+pub(crate) const ELONGATION_NOT_INCLUDED_STATEMENT: &str = "Pressure elongation is not included in any load case: the closed-end free pressure strain is omitted; pressure thrust at unbalanced locations is applied.";
+pub(crate) const ELONGATION_INCLUDED_STATEMENT: &str = "Pressure elongation is included only in the operating load cases the model settings name, as the closed-end free strain (1 \u{2212} 2\u{3bd})\u{b7}p\u{b7}A_i/(E\u{b7}A_s), with A_i on the pressure bore and A_s the nominal section area; it is not a thin-wall mean-diameter form.";
+pub(crate) const ELONGATION_NO_EFFECT_STATEMENT: &str = "Pressure elongation is set, but none of the cases it names carries pressure; it has no effect.";
+/// The formulation limitations do not carry exactly one elongation statement, or carry
+/// one other than the included statement while a region states `included`.
+pub const SOURCE_PHYSICS_PRESSURE_ELONGATION_STATEMENT_MISMATCH: &str =
+    "SOURCE_PHYSICS_PRESSURE_ELONGATION_STATEMENT_MISMATCH";
+
+/// RT-L2 (DEL-04-07): a non-empty limitation list carries exactly one of the three
+/// statements, and the included one whenever a pressure region states `included` (only
+/// a named case with a pressure region states it). Without such a region any of the
+/// three can be true: the setting is a fact of the document, not of the envelope, and a
+/// named pressurised case may have no region evidence here (an unsolved envelope, or a
+/// case outside a load/reference-state group's solved cases). A missing or empty list is
+/// the formulation-basis checks' refusal, not this one's.
+pub(crate) fn elongation_statement<'a>(formulation: &Value, regions: impl IntoIterator<Item = &'a Value>) -> Check {
+    let Some(limitations) = formulation["limitations"].as_array().filter(|list| !list.is_empty()) else {
+        return Ok(());
+    };
+    let mut included = false;
+    for region in regions {
+        included |= elongation_included(region)?;
+    }
+    let statements = [ELONGATION_NOT_INCLUDED_STATEMENT, ELONGATION_INCLUDED_STATEMENT, ELONGATION_NO_EFFECT_STATEMENT];
+    let stated: Vec<&str> = limitations.iter().filter_map(Value::as_str).filter(|text| statements.contains(text)).collect();
+    let ok = match stated.as_slice() {
+        [one] => !included || *one == ELONGATION_INCLUDED_STATEMENT,
+        _ => false,
+    };
+    if ok { Ok(()) } else { Err(SOURCE_PHYSICS_PRESSURE_ELONGATION_STATEMENT_MISMATCH.into()) }
+}
 fn elongation_token(included: bool) -> &'static str {
     if included { PRESSURE_ELONGATION_INCLUDED } else { PRESSURE_ELONGATION_NOT_INCLUDED }
 }
@@ -1249,6 +1284,8 @@ pub(crate) fn validate_physics_evidence_in(
             }
         }
     }
+    // RT-L2 (DEL-04-07): the published elongation statement is the one the regions call for.
+    elongation_statement(&source["formulation_basis"], regions.values().copied())?;
     // T4-U6 (§2.1): each straight member's Lame rows on each basis against that
     // basis's own annulus and its region's pressure.
     for ((case, member, _, basis), values) in &lame {

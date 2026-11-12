@@ -37,7 +37,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from . import section_basis as sb
-from .pressure_3 import ARC_GEOMETRY_KEYS, case_elongation, elongation_included, equivalent_static_record, poisson_coefficient, rhs_elongation
+from .pressure_3 import ARC_GEOMETRY_KEYS, case_elongation, elongation_included, elongation_statement, equivalent_static_record, poisson_coefficient, rhs_elongation
 
 PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
 PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-3"
@@ -270,6 +270,9 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
         expected = {row["id"] for row in rows.values() if row.get("kind") in PIPE_KINDS and row.get("entity_ref") in members and row.get("basis_ref") == {"ref_type": "load_case", "ref_id": cid}}
         _require(_strings(ids, True) and set(ids) == expected and not bindings.intersection(ids), "region result binding")
         bindings.update(ids)
+    # RT-L2 (DEL-04-07; Rust `physics_evidence::elongation_statement`, which the composite reads too): the published
+    # statement is the one the regions call for.
+    elongation_statement(source.get("formulation_basis"), evidence["pressure"])
     table = context.TABLE
     support_components: dict[tuple[str, str], list[str]] = {}
     physical_slots: set[tuple[str, str, str, str, str]] = set()

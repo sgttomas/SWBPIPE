@@ -33,8 +33,8 @@ function entry(producer_sha256: string, statement: string): ExactReportStatement
   return Object.freeze({ producer_sha256, statement });
 }
 
-/** The 21 entries, in the producer's composition order; RT-L2 adds S4a and S4b, of
- * which each exact-route list carries exactly one. */
+/** The 22 entries, in the producer's composition order; RT-L2 adds S4a, S4b and S4c,
+ * of which each exact-route list carries exactly one. */
 export const EXACT_REPORT_STATEMENTS: readonly ExactReportStatement[] = Object.freeze([
   // S1 identity, pressure-3
   entry("2df7af7f618e67ef1723d77e9a3015b88a22679aab13aee6bf1c06371d37dfb3",
@@ -48,13 +48,17 @@ export const EXACT_REPORT_STATEMENTS: readonly ExactReportStatement[] = Object.f
   // S4 not modelled
   entry("0cd182f3d07b99b573b7ba3b68d9a672d232a0f5c365e2072555a49fe5ce9a22",
     "Not modelled: steady-flow momentum and transient pressure loads; bend opening under pressure (Bourdon effect); pressure stiffening of flexibility factors and stress intensification; ovalization."),
-  // S4a pressure elongation not included (RT-L2, DEL-04-07 Design `pressure-elongation.md` §5)
+  // S4a pressure elongation not included: the setting is absent (RT-L2, DEL-04-07)
   entry("9a7f3eaa5ab839574476eb1e1c927b5c91401feca79ffd0c5634d3c4bd5a655b",
     "Pressure elongation is not included in any load case: the closed-end free pressure strain is omitted; pressure thrust at unbalanced locations is applied."),
-  // S4b pressure elongation included. The producer's minus sign (U+2212) and nu (U+03BD) are
-  // not WinAnsi-encodable, so the statement spells them "-" and "nu" (ELONGATION_TRANSLITERATION).
+  // S4b pressure elongation included: a named case carries pressure. The producer's minus sign
+  // (U+2212) and nu (U+03BD) are not WinAnsi-encodable, so the statement spells them "-" and "nu"
+  // (ELONGATION_TRANSLITERATION).
   entry("ee6a45cc4bb5a6f4fb1af3048ec38ae0279ad747987758e98cac1a61990db9a0",
     "Pressure elongation is included only in the operating load cases the model settings name, as the closed-end free strain (1 - 2nu)·p·A_i/(E·A_s), with A_i on the pressure bore and A_s the nominal section area; it is not a thin-wall mean-diameter form."),
+  // S4c pressure elongation set without effect: no named case carries pressure
+  entry("cdb4ce4dc22faa428f30217d62e79a8956930a441cb635bb235efcab1bfda2bb",
+    "Pressure elongation is set, but none of the cases it names carries pressure; it has no effect."),
   // S5 contribution ledgers
   entry("a61ae24cdd3c5325cf87fb20b02f682a91bbc0f57e8e5aeed0559f8f6bb862d9",
     "Mechanical, pressure-eigen and cap-transfer contributions remain distinct; rounded cap/eigen ledgers are observational and do not replace source-grouped pressure assembly."),

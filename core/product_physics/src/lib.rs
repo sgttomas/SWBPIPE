@@ -1447,13 +1447,13 @@ fn formulation_basis_for_model_with_source(model: &PreviewModel, source_selected
         // names the publication (pressure-source-1 or pressure-2).
         let load_state = case_state::is_load_state(model);
         let connectors = model.components.iter().any(|c| c.objective_connector.is_some());
-        // RT-L2: whether any load case includes pressure elongation.
-        let elongation_named = model.load_cases.iter().any(|case| model.pressure_elongation_included(&case.id));
+        // RT-L2: which pressure-elongation statement is true of the document.
+        let elongation = exact_admission::ElongationStatement::of(model);
         let mut basis = exact_admission::pressure_v3_formulation_basis_with_source(
             load_state,
             connectors,
             source_selected,
-            elongation_named,
+            elongation,
         );
         // T4-U2: a model with a realized bend states the bend's terms; a
         // straight-only v3 model keeps its text unchanged (SP-1).
