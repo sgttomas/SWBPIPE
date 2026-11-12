@@ -240,6 +240,17 @@ describe("the property task clears a value typed beside a unit taken from the pr
     expect(add()).toBeDisabled();
   });
 
+  it("the field ceases to exist while its target stays: the entry goes to no other field", async () => {
+    const pipe = { type: "pipe", id: "pipe:P-100" } as const;
+    const { rerender } = await startTask(pipe, "section.wall_thickness.value");
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "0.012" } });
+    // Outside, the pipe takes a shared section: its own wall thickness is no longer a field of it.
+    rerender({}, 1, (model) => { (model.pipe_segments[0] as { section_ref?: string }).section_ref = "section:T-SHARED"; });
+    expect(byId("editor-intent-target-absent")).toHaveTextContent("The task's field, section.wall_thickness.value, is not on pipe: pipe:P-100, so nothing can be added.");
+    expect(screen.queryByDisplayValue("0.012")).toBeNull();
+    expect(screen.queryByTestId("queue-editor-intent")).toBeNull();
+  });
+
   it("stale: an edited entry whose stored value changes under the same unit is shown against the changed value and cannot be added", async () => {
     const { rerender, queue } = await startTask(steel, "elastic_modulus.value");
     fireEvent.change(byId("editor-intent-value"), { target: { value: "210000000000" } });
