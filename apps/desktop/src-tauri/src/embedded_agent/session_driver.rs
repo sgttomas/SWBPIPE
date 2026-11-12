@@ -286,11 +286,12 @@ impl SessionDriver {
             .protocol
             .submit_text(text.to_owned())
             .map_err(|_| Refusal::InvalidControl)?;
-        // The supplier reports its remote control status at start. No turn is
-        // sent until "disabled" has been seen: a first turn that would start
-        // without one ends the session, as a reported channel does. The turn
-        // built above is dropped unsent; nothing was pending.
-        if !self.protocol.remote_control_reported() {
+        // The absence rule's deadline: a turn the protocol has admitted (the
+        // thread/start reply already processed, nothing pending or
+        // outstanding) and not yet queued to the supplier. With no remote
+        // control status seen by then, the turn is dropped unsent and the
+        // session ends; nothing was pending.
+        if self.protocol.require_remote_control_status().is_err() {
             self.close(Terminal::Protocol);
             return Err(Refusal::Closed);
         }
@@ -913,6 +914,34 @@ mod tests {
         assert_eq!(o.terminal, None);
         assert_eq!(h.control(|d| d.submit_text("hello")), Ok(Submission::Queued));
         assert_eq!(h.sent(4)[3]["method"], "turn/start");
+    }
+    #[test]
+    fn status_arriving_after_the_deadline_does_not_revive_the_session() {
+        let mut h = Harness::new();
+        h.ready_with(false);
+        assert_eq!(h.control(|d| d.submit_text("hello")), Err(Refusal::Closed));
+        assert_eq!(h.wait(|o| o.terminal.is_some()).terminal, Some(Terminal::Protocol));
+        h.input.frame(remote_control(json!("disabled")));
+        let o = h.wait(|_| true);
+        assert_eq!(o.terminal, Some(Terminal::Protocol));
+        assert!(o.events.is_none());
+        assert_eq!(h.control(|d| d.submit_text("hello")), Err(Refusal::Closed));
+        assert!(h.sent(3).iter().all(|v| v["method"] != "turn/start"));
+    }
+    #[test]
+    fn disabled_at_start_then_another_status_mid_session_ends_it() {
+        let mut h = Harness::new();
+        h.active();
+        assert_eq!(h.d().remote_control_before_first_turn, Some(true));
+        h.call("rpc");
+        let r = reference(&h.event());
+        h.input.frame(remote_control(json!("connecting")));
+        let o = h.wait(|o| o.terminal.is_some());
+        assert_eq!(o.terminal, Some(Terminal::Protocol));
+        assert!(
+            matches!(o.events.unwrap().events(), [Event::ToolLost { request_ref, .. }] if request_ref.as_str() == r)
+        );
+        assert!(h.wait(|_| true).events.is_none());
     }
     #[test]
     fn status_seen_after_the_first_turn_does_not_rewrite_the_record() {

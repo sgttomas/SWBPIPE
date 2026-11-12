@@ -266,6 +266,10 @@ fn unoffered_activity(item: &Value) -> bool {
 // ends the session: the host switches the feature off by name, and a channel
 // opening or open while the session continues is never accepted.
 pub(super) const REMOTE_CONTROL_REPORTED: Error = Error("remote control channel reported");
+/// The supplier reports its status at start (observed: once, straight after
+/// its reply to initialize, before thread/started). A first turn with none
+/// seen is never sent: a tripwire that passes on silence is half a tripwire.
+pub(super) const REMOTE_CONTROL_STATUS_MISSING: Error = Error("remote control status missing");
 pub(super) const REMOTE_CONTROL_STATUS: &str = "remoteControl/status/changed";
 pub(super) fn remote_control_status(params: Option<&Value>) -> Option<&'static str> {
     match params?.get("status")?.as_str()? {
@@ -284,6 +288,15 @@ impl Protocol {
     /// Whether a remote control status (necessarily "disabled") has been seen.
     pub fn remote_control_reported(&self) -> bool {
         self.remote_control_reported
+    }
+    /// The absence rule. The host calls this after a turn was admitted and
+    /// before it is sent; with no status seen it poisons the connection.
+    pub fn require_remote_control_status(&mut self) -> Result<(), Error> {
+        if self.remote_control_reported {
+            return Ok(());
+        }
+        self.phase = Phase::Poisoned;
+        Err(REMOTE_CONTROL_STATUS_MISSING)
     }
 
     /// Token must be host-generated, unpredictable and unique per connection;
@@ -951,6 +964,19 @@ mod tests {
     // server request. The supplier's remote control is turned on at run time
     // only by client requests (remoteControl/enable and the pairing requests),
     // so a method added here must fail this test and be looked at.
+    #[test]
+    fn missing_status_has_its_own_reason_and_poisons_the_connection() {
+        assert_ne!(REMOTE_CONTROL_STATUS_MISSING, REMOTE_CONTROL_REPORTED);
+        assert_ne!(REMOTE_CONTROL_STATUS_MISSING, Error("unoffered supplier tool activity"));
+        let mut p = ready();
+        p.submit_text("hello".into()).unwrap();
+        assert_eq!(p.require_remote_control_status().err(), Some(REMOTE_CONTROL_STATUS_MISSING));
+        assert!(p.handle_frame(remote_control(json!("disabled")), &basis()).is_err());
+        let mut q = ready();
+        q.handle_frame(remote_control(json!("disabled")), &basis()).unwrap();
+        q.submit_text("hello".into()).unwrap();
+        assert_eq!(q.require_remote_control_status(), Ok(()));
+    }
     #[test]
     fn host_writes_only_the_four_client_requests_and_initialized() {
         const REQUESTS: [&str; 4] = ["initialize", "thread/start", "turn/interrupt", "turn/start"];
