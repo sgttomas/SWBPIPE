@@ -86,7 +86,8 @@ needs:
   condition: Until a completed solve job's result is disposed of, the native host keeps with it the digests
     of the model text the job received and of the result it delivered, so that the model and result texts
     a later report request submits can be compared with them; a disposed result leaves nothing to match
-    (DEL-07-07/REQ-015).
+    (DEL-07-07/REQ-015). For a native-custody job, the host also provides shared access to the held result
+    bytes while that job remains in custody.
   when: Checking a report request's native source binding.
   gating: true
 - from: DEL-04-08
@@ -137,6 +138,8 @@ code_paths:
 - apps/desktop/src/services/reportPackageSaveService.ts
 # The native side: the render and save commands, the exact source binding and the user-release admission.
 - apps/desktop/src-tauri/src/report_render_exact.rs
+- apps/desktop/src-tauri/src/report_native_fill.rs
+- apps/desktop/src-tauri/src/report_session_diagnostics.rs
 - apps/desktop/src-tauri/src/report_package_bridge.rs
 - apps/desktop/src-tauri/src/report_package_save.rs
 - apps/desktop/src-tauri/src/atomic_report_package_save.rs
@@ -149,6 +152,7 @@ code_paths:
 - fixtures/reports/invented/calculation_report_fixture.json
 - fixtures/reports/invented/exact_report_package_requests/**
 - fixtures/reports/invented/exact_report_witness_inputs/**
+- fixtures/reports/invented/pf_timoshenko_render_inputs/**
 - fixtures/reports/invented/exact_report_sections_parity.json
 - fixtures/reports/invented/report_composition_families.json
 - fixtures/reports/invented/report_composition_vectors.json
@@ -162,6 +166,7 @@ code_paths:
 - fixtures/reports/invented/user_release_runner_refusal_request.json
 checks:
 - tests/test_report_generator_contract.py
+- apps/desktop/src-tauri/src/report_native_fill_tests.rs
 - core/reporting/report_renderer/tests/render.rs
 - core/reporting/report_renderer/tests/composition.rs
 - core/reporting/report_renderer/tests/object_form.rs

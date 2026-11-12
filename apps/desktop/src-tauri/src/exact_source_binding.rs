@@ -144,6 +144,16 @@ pub(crate) fn read_delivered_source(
     result_text: &str,
     intake_text: &str,
 ) -> Result<BoundSource, ExactRefusal> {
+    let bound = read_eligible_source(digests, result_text, intake_text)?;
+    check_source_digests(admission, &bound)?;
+    Ok(bound)
+}
+
+/// Steps 3 and 4 of [`read_delivered_source`]: parse and guard both texts and
+/// require eligible native standing; `model_sha256` is `digest(model)`. The
+/// render from custody (`report_native_fill`) reads the held text with it once,
+/// then takes step 5 ([`check_source_digests`]) on the admission it fills.
+pub(crate) fn read_eligible_source(digests: &CustodyDigests, result_text: &str, intake_text: &str) -> Result<BoundSource, ExactRefusal> {
     let source: Value = serde_json::from_str(result_text).map_err(|_| not_delivered("result"))?;
     guard_json(&source).map_err(|_| not_delivered("result"))?;
     let model: Value = serde_json::from_str(intake_text).map_err(|_| not_delivered("model"))?;
@@ -157,13 +167,22 @@ pub(crate) fn read_delivered_source(
             message: format!("{STANDING_NOT_ELIGIBLE}: the native reading of the delivered result is not numerically eligible."),
         });
     }
-    let source_sha256 = digest(&source).map_err(|_| not_delivered("result"))?;
+    // Both values passed the guard, so neither digest can refuse here or in
+    // step 5: the refusal order is the one before the split.
+    let model_sha256 = digest(&model).map_err(|_| not_delivered("model"))?;
+    Ok(BoundSource { source, model, model_sha256 })
+}
+
+/// Step 5 of [`read_delivered_source`]: the admission's
+/// `received_result_sha256` is `digest(source)` and its `model_sha256` is
+/// `digest(model)`.
+pub(crate) fn check_source_digests(admission: &Value, bound: &BoundSource) -> Result<(), ExactRefusal> {
+    let source_sha256 = digest(&bound.source).map_err(|_| not_delivered("result"))?;
     if source_sha256 != binding_text(admission, "received_result_sha256") {
         return Err(not_delivered("result"));
     }
-    let model_sha256 = digest(&model).map_err(|_| not_delivered("model"))?;
-    if model_sha256 != binding_text(admission, "model_sha256") {
+    if bound.model_sha256 != binding_text(admission, "model_sha256") {
         return Err(not_delivered("model"));
     }
-    Ok(BoundSource { source, model, model_sha256 })
+    Ok(())
 }

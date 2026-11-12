@@ -66,6 +66,10 @@ mod native_replay_tests;
 mod native_ledger_tests;
 mod report_package_bridge;
 mod report_package_save;
+mod report_native_fill;
+mod report_session_diagnostics;
+#[cfg(test)]
+mod report_native_fill_tests;
 mod report_render_exact;
 #[cfg(test)]
 mod report_render_exact_tests;
@@ -1912,6 +1916,40 @@ async fn render_calculation_report(
 /// opened exact-route report outputs (§5.1; 2026-10-26).
 fn render_calculation_report_args(args: &mut Args, registry: &SolveJobRegistry, lease: &mut memory_pool::Lease) -> Result<Value, CommandError> {
     report_render_exact::render_calculation_report_args_in(args, registry, lease, report_render_exact::PRODUCTION)
+}
+
+/// The rendered report built by the host from the result in its custody
+/// (increment 1A-i, `report_native_fill`): raw args body `{jobId, frame,
+/// intakeText, inputManifestText, ruleCheckAggregate, rulePackExclusions}`, no
+/// result text. It returns what `render_calculation_report` returns, on a
+/// blocking worker under the held lease, as that command does.
+///
+/// Recorded limit (review round 2 of c2cc050ea, R2): the response is
+/// serialized under the lease, then the lease is dropped and the owned body is
+/// returned to Tauri for delivery, so a second invocation can take the
+/// released capacity while the first body is still allocated. The pool has no
+/// charge that rides with a response until it is delivered; the existing
+/// render command has the same interval.
+#[tauri::command]
+async fn render_calculation_report_from_custody(
+    invoke: tauri::ipc::Request<'_>,
+    registry: tauri::State<'_, SolveJobRegistry>,
+) -> Result<tauri::ipc::Response, CommandError> {
+    let (mut args, mut lease) = command_ingress::admit(&registry, &invoke, "render_calculation_report_from_custody", ArgsDecoding::Moved)?;
+    let registry = registry.inner().clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        let outcome = render_calculation_report_from_custody_args(&mut args, &registry, &mut lease);
+        let response = respond(outcome);
+        drop(lease);
+        response
+    })
+    .await
+    .unwrap_or_else(|_| Err(CommandError::Command("RENDER-WORKER-FAILED: the render's worker did not complete.".to_string())))
+}
+
+/// The render from custody's production root: the production admitted set.
+fn render_calculation_report_from_custody_args(args: &mut Args, registry: &SolveJobRegistry, lease: &mut memory_pool::Lease) -> Result<Value, CommandError> {
+    report_render_exact::render_calculation_report_from_custody_args_in(args, registry, lease, report_render_exact::PRODUCTION)
 }
 
 /// The render command's refusal of a user-released input (W-18b, DEL-08-01
@@ -6326,6 +6364,7 @@ macro_rules! app_invoke_handler {
             check_model_library_refs,
             delete_local_library,
             render_calculation_report,
+            render_calculation_report_from_custody,
             save_report_package,
             save_local_result_json,
             begin_local_csv_stream,

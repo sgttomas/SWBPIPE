@@ -639,7 +639,11 @@ fn report_checksum(payload_ref: &Value, value: Option<&str>) -> Value {
     })
 }
 
-fn report_envelope(payload_ref: Value, schema_id: &str, value: Option<&str>, provenance: &Value) -> Value {
+/// One envelope of the report's reference lists (`renderableReportInput.ts`
+/// `envelope`): the reference, its schema, the `rfc8785_jcs` checksum of
+/// `value` (`TBD` when absent or empty), the private-project classification
+/// and the session's `provenance`.
+pub fn report_envelope(payload_ref: Value, schema_id: &str, value: Option<&str>, provenance: &Value) -> Value {
     json!({
         "ref": payload_ref,
         "schema_ref": reference("schema", schema_id),
@@ -647,6 +651,22 @@ fn report_envelope(payload_ref: Value, schema_id: &str, value: Option<&str>, pro
         "privacy_classification": "private_project_data",
         "provenance": provenance
     })
+}
+
+/// The report context's `result_coordinate_systems` (`buildReportContext`):
+/// the source rows' `metadata.coordinate_system` strings that are not blank
+/// after JavaScript's `trim` and not `TBD`, each once, in JavaScript's sort
+/// order. The user-released report context and the native render's fill from
+/// the result in custody (`apps/desktop/src-tauri/src/report_native_fill.rs`)
+/// both write it.
+pub fn result_coordinate_systems(source: &Value) -> Result<Vec<String>, String> {
+    Ok(sorted_unique(
+        array(source, "/results")?
+            .iter()
+            .filter_map(|row| row.pointer("/metadata/coordinate_system").and_then(Value::as_str))
+            .filter(|system| !js_trim(system).is_empty() && *system != "TBD")
+            .map(str::to_string),
+    ))
 }
 
 /// The report context `buildReportContext` writes, under
@@ -659,13 +679,7 @@ fn report_context(source: &Value, run: &Value, input_manifest: &Value, software:
     let mut keys: Vec<&String> = settings.keys().collect();
     keys.sort_by(|left, right| utf16_order(left, right));
     let solver_settings: Vec<Value> = keys.into_iter().map(|key| json!({"key": key, "value": canonical_json(&settings[key])})).collect();
-    let coordinate_systems = sorted_unique(
-        array(source, "/results")?
-            .iter()
-            .filter_map(|row| row.pointer("/metadata/coordinate_system").and_then(Value::as_str))
-            .filter(|system| !js_trim(system).is_empty() && *system != "TBD")
-            .map(str::to_string),
-    );
+    let coordinate_systems = result_coordinate_systems(source)?;
     let name = js_trim(&software.name);
     Ok(json!({
         "export_context": USER_RELEASED_CONTEXT,

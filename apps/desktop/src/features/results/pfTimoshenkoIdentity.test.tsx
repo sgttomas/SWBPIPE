@@ -11,6 +11,8 @@
  * transport for the replay model with `model_settings.shear_model` set. Unit transport replay
  * through mocked IPC; NOT a native UI qualification witness. Invented ids. */
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
 import type { MechanicsResult, PreviewModel } from "../../types";
@@ -186,6 +188,51 @@ describe("the pressure-free Timoshenko identity on the desktop", () => {
     expect(reported.map((item) => [item.message, item.affected_object.ref_id])).toEqual(arc.map((item) => [item.message, item.affected_refs[0]]));
     const assembly = await assembleRenderedReport({ model, result, inputManifest, analysisRun, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null });
     expect((assembly.input as Json)[PF_TIMOSHENKO_SECTION].semantic_contract_id).toBe(PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID);
+  });
+
+  /** The committed render input of the product's own Timoshenko result with a realized arc
+   * (`fixtures/reports/invented/pf_timoshenko_render_inputs/pf_timoshenko_arc.json`): the
+   * controlled payload of the panel's build step (`assembleRenderedReport`), which
+   * `renderCalculationReport` sends to the native render, with
+   * the texts it submits. The native render from custody fills its frame from the held result
+   * and must equal it (`src-tauri/src/report_native_fill_tests.rs`). Stale fails;
+   * `OPENPIPESTRESS_WRITE_PF_TIMOSHENKO_RENDER_INPUTS=<dir>` writes it. */
+  it("writes the Timoshenko render input witness; stale fails", async () => {
+    const rawPath = "fixtures/results/preview_physics_timoshenko_arc_sparse.json";
+    const requestPath = "validation/references/pf_timoshenko/requests/PFT-ARC-TIP-TIMOSHENKO.request.json";
+    // The renderer reads a label on each load case, which the frozen request does not carry:
+    // the case id as its label (an invented display field, as the exact witnesses add).
+    const labelled = structuredClone(arcRequest) as Json;
+    for (const loadCase of labelled.model.load_cases) if (loadCase.label === undefined) loadCase.label = loadCase.id;
+    const { model, result, inputManifest } = await productSession(productArc, labelled);
+    const analysisRun = await buildAnalysisRunPreview(result, { inputManifest });
+    const assembly = await assembleRenderedReport({ model, result, inputManifest, analysisRun, projectSummary: null, ruleCheckRun: null, numericalHealth: null, context: "local_private", intent: true, generatedAt: null });
+    const texts = assembly.exactSubmission!();
+    // The delivered bytes are the committed file's, so the witness names the file.
+    expect(texts.exactResultText).toBe(productArc);
+    // The panel sends the controlled payload (`renderCalculationReport`).
+    expect(assembly.controlled.blocked).toBe(false);
+    const content = `${JSON.stringify({
+      schema_version: "1.0.0",
+      generator: "apps/desktop/src/features/results/pfTimoshenkoIdentity.test.tsx",
+      description: "Pressure-free Timoshenko render input (DEL-05-03 Design pf-timoshenko.md section 4; DEL-08-01 render from custody): the input the desktop's build step assembles for the product's own preview-physics-timoshenko-1 result with a realized arc, with the texts it submits to the native render (the intake model text and the input manifest; the delivered result bytes are the committed raw file). Job ids are invented; unit transport replay of committed producer bytes, not a native UI qualification witness.",
+      shape: "pf_timoshenko_arc",
+      solver_mode: SOLVER.solver_mode,
+      raw_path: rawPath,
+      request_path: requestPath,
+      exact_intake_text: texts.exactIntakeText,
+      input_manifest: JSON.parse(texts.inputManifestText),
+      rule_check_aggregate: null,
+      report: assembly.controlled.payload
+    })}\n`;
+    const name = "fixtures/reports/invented/pf_timoshenko_render_inputs/pf_timoshenko_arc.json";
+    const outDir = process.env.OPENPIPESTRESS_WRITE_PF_TIMOSHENKO_RENDER_INPUTS;
+    if (outDir) {
+      mkdirSync(outDir, { recursive: true });
+      writeFileSync(resolve(outDir, "pf_timoshenko_arc.json"), content);
+      return;
+    }
+    expect(readFileSync(resolve(__dirname, "../../../../../", name), "utf8") === content, `${name} is stale; regenerate it with OPENPIPESTRESS_WRITE_PF_TIMOSHENKO_RENDER_INPUTS=<dir>`).toBe(true);
   });
 
   it("the product's blocked Timoshenko envelope carries the identity and is not eligible", async () => {

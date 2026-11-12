@@ -212,14 +212,52 @@ pub fn check_report_result_refs<'a>(report: &Value, source: &'a Value) -> Result
     require(result_refs.len() == rows.len(), "report result references cover the source rows")?;
     let mut row_digests = Vec::with_capacity(rows.len());
     for (row, entry) in rows.iter().zip(result_refs) {
-        let id = row["id"].as_str().ok_or_else(|| mismatch("source row id"))?;
-        let row_digest = digest(row).map_err(|detail| format!("{SOURCE_INVALID}: {detail}"))?;
-        let row_ref = reference("Result", id);
+        let (id, row_ref, row_digest) = report_result_ref(row)?;
         require(entry["ref"] == row_ref, format!("report result reference {id}"))?;
         check_hash(&entry["checksum"], &row_ref, &row_digest, &JCS_LABELS, &format!("report row checksum {id}"))?;
         row_digests.push((id, row_digest));
     }
     Ok(row_digests)
+}
+
+/// One source row's report reference and the SHA-256 of its canonical form:
+/// what [`check_report_result_refs`] requires of the row's entry and what
+/// [`expected_report_result_refs`] writes into it, so the two cannot drift.
+fn report_result_ref(row: &Value) -> Result<(&str, Value, String), String> {
+    let id = row["id"].as_str().ok_or_else(|| mismatch("source row id"))?;
+    let row_digest = digest(row).map_err(|detail| format!("{SOURCE_INVALID}: {detail}"))?;
+    Ok((id, reference("Result", id), row_digest))
+}
+
+/// The report's `calculation_report.result_export_refs` as the desktop writes
+/// them (`renderableReportInput.ts`, each run-record result reference as an
+/// envelope): one entry per source row, in order, its reference and checksum
+/// those [`check_report_result_refs`] requires (the `rfc8785_jcs` label), with
+/// the session's `provenance`. The producer the native render's fill from the
+/// result in custody uses (`apps/desktop/src-tauri/src/report_native_fill.rs`).
+pub fn expected_report_result_refs(source: &Value, provenance: &Value) -> Result<Vec<Value>, String> {
+    array(source, "/results")
+        .iter()
+        .map(|row| {
+            let (_, row_ref, row_digest) = report_result_ref(row)?;
+            Ok(user_release::report_envelope(row_ref, "schemas/results.schema.yaml", Some(&row_digest), provenance))
+        })
+        .collect()
+}
+
+/// The members of the unit display summary derived from the source, in the
+/// order [`check_unit_display_summary`] compares them: the storage convention,
+/// the complete display policy, `conversion_performed` and the source rows'
+/// stored units (sorted, each once, the empty unit left out).
+fn unit_display_from_source(source: &Value) -> [(&'static str, Value); 4] {
+    let rows = array(source, "/results");
+    let units: BTreeSet<&str> = rows.iter().filter_map(|row| row["unit"].as_str()).filter(|unit| !unit.is_empty()).collect();
+    [
+        ("storage_convention", json!(STORAGE_CONVENTION)),
+        ("quantity_display_policy", json!(QUANTITY_DISPLAY_POLICY)),
+        ("conversion_performed", json!(source_displays_scaled_value(source))),
+        ("result_units", json!(units.into_iter().collect::<Vec<_>>())),
+    ]
 }
 
 /// The report's unit display summary (§2.3 item 5): the storage convention,
@@ -230,12 +268,23 @@ pub fn check_report_result_refs<'a>(report: &Value, source: &'a Value) -> Result
 /// native exact render applies the same check to the delivered source.
 pub fn check_unit_display_summary(report: &Value, source: &Value) -> Result<(), String> {
     let display = &report["calculation_report"]["model_input_summary"]["unit_display_summary"];
-    require(display["storage_convention"] == STORAGE_CONVENTION, "unit display storage_convention")?;
-    require(display["quantity_display_policy"] == QUANTITY_DISPLAY_POLICY, "unit display quantity_display_policy")?;
-    require(display["conversion_performed"] == source_displays_scaled_value(source), "unit display conversion_performed")?;
-    let rows = array(source, "/results");
-    let units: BTreeSet<&str> = rows.iter().filter_map(|row| row["unit"].as_str()).filter(|unit| !unit.is_empty()).collect();
-    require(display["result_units"] == json!(units.into_iter().collect::<Vec<_>>()), "unit display result_units")
+    for (field, expected) in unit_display_from_source(source) {
+        require(display[field] == expected, format!("unit display {field}"))?;
+    }
+    Ok(())
+}
+
+/// The unit display summary the desktop writes (`buildUnitDisplaySummary`):
+/// the members [`check_unit_display_summary`] requires, from the source, and
+/// `model_units`, the model's `project.units` as given (the renderer reads it
+/// as a sorted map). The producer the native render's fill uses.
+pub fn expected_unit_display_summary(model_units: &Value, source: &Value) -> Value {
+    let mut summary = serde_json::Map::new();
+    summary.insert("model_units".to_string(), model_units.clone());
+    for (field, value) in unit_display_from_source(source) {
+        summary.insert(field.to_string(), value);
+    }
+    Value::Object(summary)
 }
 
 /// The remediation text the desktop gives each result diagnostic in the

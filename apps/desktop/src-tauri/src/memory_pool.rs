@@ -857,6 +857,11 @@ impl Lease {
         self.bytes
     }
 
+    /// The per-invocation budget this lease's growth is held to.
+    pub(crate) fn budget_bytes(&self) -> u64 {
+        self.admitted_budget_bytes
+    }
+
     #[cfg_attr(not(test), allow(dead_code))]
     pub(crate) fn purpose(&self) -> LeasePurpose {
         self.purpose
