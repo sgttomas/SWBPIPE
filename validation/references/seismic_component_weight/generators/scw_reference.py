@@ -2,7 +2,8 @@
 """Seismic component-weight references: the self-weight plan evaluated at the seismic case's gravity.
 
 Standard-library Python 3 only. This generator imports, reads and runs no
-product code and reads no file other than the ones it writes. Every expected
+product code and reads only its package's files (the outputs it writes,
+README.md and its own source). Every expected
 value is derived here in exact rational arithmetic, with pi carried
 symbolically, from linear-elastic small-displacement Euler-Bernoulli frame
 mechanics and from the seismic rule SWBPIPE's Agent 0 decided for DEL-05-01:
@@ -17,10 +18,12 @@ member whose component weight the plan does not apply (here: a component
 declared not consumed by the solve, DEL-03-05) keeps its distributed load.
 
 This is a force convention, not a statement that the seismic load uses one
-fixed mass. It coincides with acceleration of the model's self-weight mass only
-when the seismic case's gravity equals the gravity of an applied self-weight;
-when they differ, the pipes' loads scale with the seismic case's gravity and
-the component force does not. Where the applied self-weight's gravity is absent
+fixed mass. Equal gravities are a sufficient condition for it to coincide with
+acceleration of the model's self-weight mass: when the seismic case's gravity
+equals the gravity of an applied self-weight, the two agree. When they differ,
+the pipes' loads scale with the seismic case's gravity and the component force
+does not; the two then still agree on a component whose applied weight is zero,
+which contributes no difference at any gravity (boundary 4). Where the applied self-weight's gravity is absent
 or ambiguous, the equivalence of the two mass models is not established; the
 values here are what the convention yields. A product is expected to carry a
 model-check warning, an exception the convention names, on a seismic case that
@@ -259,12 +262,13 @@ _ULP = F(1, 2 ** 49)
 assert 8 <= _G_W_BITS < 16 and F(float(_G_W_BITS + _ULP)) == _G_W_BITS + _ULP
 assert float(_G_W_BITS + _ULP) > float(_G_W_BITS) and F(float(_G_W_BITS + _ULP / 2)) in (_G_W_BITS, _G_W_BITS + _ULP)
 INPUTS["g_w_bits"] = _G_W_BITS
+INPUTS["W_v_zero"] = F(0)  # N, boundary 4: the valve's entered weight, exactly zero, applied by the weight case
 INPUTS["g_s_ulp"] = _G_W_BITS + _ULP
 INPUT_UNITS = {"L_ab": "m", "L_bc": "m", "L_cd": "m", "D": "m", "t": "m", "c_m": "m", "c_a": "m", "t_i": "m",
                "rho_m": "kg/m^3", "rho_c": "kg/m^3", "rho_i": "kg/m^3", "E": "Pa", "nu": "1",
                "W_v": "N", "r_v": "m", "s_v": "1", "W_f": "N", "r_f": "m",
                "g_w": "m/s^2", "g_s": "m/s^2", "g_s_other": "m/s^2", "k": "1",
-               "g_w_bits": "m/s^2", "g_s_ulp": "m/s^2"}
+               "g_w_bits": "m/s^2", "g_s_ulp": "m/s^2", "W_v_zero": "N"}
 
 ROUTES = ("PF", "EX")
 MODELS = ("CANT", "FIXED")
@@ -330,7 +334,7 @@ def generate(inp, route, spec):
     vec (weight: unit gravity direction; seismic: the g-factor triple),
     valve ('reference' | 'today' | 'double' | 'no_moment' | 'rescaled' | 'not_consumed'),
     flange (None | 'not_consumed' | 'keyed_on_mapped'), mapped_g (gravity used for the
-    rescaled control's division)."""
+    rescaled control's division), W_v (the valve's entered weight, if not the input W_v)."""
     sec = section(inp, route)
     mu = P({1: sec["mu"]})
     g = spec["g"]
@@ -348,7 +352,8 @@ def generate(inp, route, spec):
         if distributed:
             member_loads[name] = tuple(mu * a for a in accel)
     if valve not in ("today", "not_consumed"):
-        f_scale = inp["W_v"] if valve != "rescaled" else inp["W_v"] / spec["mapped_g"] * g
+        w_v = spec.get("W_v", inp["W_v"])
+        f_scale = w_v if valve != "rescaled" else w_v / spec["mapped_g"] * g
         force = tuple(P.lift(f_scale * u) for u in unit_force)
         moment = ZERO3 if valve == "no_moment" else cross(inp["r_v"], force)
         wrenches.append(("C", force, tuple(P.lift(m) for m in moment)))
@@ -689,13 +694,23 @@ def case_specs(inp):
         ("BND-ULP-SEISMIC-XYZ", "reference", "boundary 3: valve applied, centre of gravity offset on all three "
          "axes; seismic XYZ at g_s_ulp, one binary64 unit above the weight case's g_w_bits",
          {"kind": "seismic", "g": inp["g_s_ulp"], "vec": k, "weight_g": inp["g_w_bits"], "models": ("CANT",)}),
+        ("BND-ZERO-WEIGHT-NZ", "reference", "boundary 4: the valve declared mechanics_geometry_only with entered "
+         "weight exactly 0, applied by the weight case; weight at g_w along -Z",
+         {"kind": "weight", "g": inp["g_w"], "vec": down, "W_v": inp["W_v_zero"], "models": ("CANT",)}),
+        ("BND-ZERO-SEISMIC-XYZ-G10", "reference", "boundary 4: the zero-weight valve's weight applied; seismic XYZ "
+         "at g_s_other != g_w; B-C loses its distributed load and the component force and couple are exactly 0",
+         {"kind": "seismic", "g": inp["g_s_other"], "vec": k, "W_v": inp["W_v_zero"], "models": ("CANT",)}),
+        ("CTRL-ZERO-AS-NOT-APPLIED", "control", "control: boundary 4 with a gate that treats a zero-weight "
+         "component as not applied, so B-C keeps its distributed seismic load (scale still applied)",
+         {"kind": "seismic", "g": inp["g_s_other"], "vec": k, "W_v": inp["W_v_zero"], "valve": "today",
+          "rule": "control: zero weight treated as not applied", "models": ("CANT",)}),
     ]
     return specs
 
 
 CONTROL_OF = {"CTRL-A-TODAY": "SEISMIC-XYZ", "CTRL-B-DOUBLE": "SEISMIC-XYZ", "CTRL-C-NO-MOMENT": "SEISMIC-XYZ",
               "CTRL-G-RESCALED": "SEISMIC-XYZ-G10", "CTRL-TWO-KEYED-ON-MAPPED": "TWO-SEISMIC-XYZ",
-              "CTRL-K-TIMES-WEIGHT-CASE": "SEISMIC-XYZ-G10"}
+              "CTRL-K-TIMES-WEIGHT-CASE": "SEISMIC-XYZ-G10", "CTRL-ZERO-AS-NOT-APPLIED": "BND-ZERO-SEISMIC-XYZ-G10"}
 DEFAULT_RULE = {"weight": "self-weight plan", "seismic": "decided"}
 CONTROL_RULE = {"CTRL-A-TODAY": "control (a): today's rule", "CTRL-B-DOUBLE": "control (b): double count",
                 "CTRL-C-NO-MOMENT": "control (c): moment omitted"}
@@ -776,9 +791,9 @@ def case_values(inp, route, model, spec, check):
     return {"rows": rows, "force": force, "moment": moment, "loads": loads, "wrenches": wrenches}
 
 
-def weight_moment_along(inp, route, axis_vec, g, flange, valve):
+def weight_moment_along(inp, route, axis_vec, g, flange, valve, w_v):
     """Total weight and the moment about the origin of the weight if gravity pointed along axis_vec."""
-    spec = {"kind": "weight", "g": g, "vec": axis_vec, "flange": flange, "valve": valve}
+    spec = {"kind": "weight", "g": g, "vec": axis_vec, "flange": flange, "valve": valve, "W_v": w_v}
     loads, wrenches = generate(inp, route, spec)
     force, moment = resultant(inp, loads, wrenches)
     total = sum((P.lift(c) * a for c, a in zip(force, axis_vec)), P())
@@ -798,7 +813,7 @@ def parity(inp, route, cid, val, spec, g_ref):
     total = None
     for a, axis in enumerate(("x", "y", "z")):
         ka = spec["vec"][a]
-        tot, mom = weight_moment_along(inp, route, AXES[axis], g_ref, flange, valve)
+        tot, mom = weight_moment_along(inp, route, AXES[axis], g_ref, flange, valve, spec.get("W_v", inp["W_v"]))
         total = tot
         exp_f = vadd(exp_f, vscale(AXES[axis], tot * ka))
         exp_m = vadd(exp_m, vscale(mom, ka))
@@ -951,6 +966,23 @@ def build_document(values):
         record_check("boundary 3: warning, parity fails by the pipes' share",
                      ulp["expected_model_check_warning"]["expected"] and not ulp["parity"]["holds"]
                      and "pipes_share_force" in ulp["parity"])
+        zkey = ("CANT", route, "BND-ZERO-SEISMIC-XYZ-G10")
+        zero = vmap[zkey][3]
+        ctrl = vmap[("CANT", route, "CTRL-ZERO-AS-NOT-APPLIED")][3]
+        wrench = [v for _, f, m in zero["wrenches"] for v in f + m]
+        record_check("boundary 4: B-C loses its load; the component force and couple are exactly zero",
+                     "BC" not in zero["loads"] and len(wrench) == 6 and all(v.is_zero() for v in wrench))
+        record_check("boundary 4: the not-applied control keeps the B-C load and differs from the reference",
+                     "BC" in ctrl["loads"] and any(not (a - b).is_zero() for a, b in
+                                                   zip(ctrl["force"] + ctrl["moment"], zero["force"] + zero["moment"])))
+        # finding-1 counterexample: at zero weight the fixed-mass-inertia force equals the convention's force
+        fm_spec = dict(vmap[zkey][2], valve="rescaled", mapped_g=INPUTS["g_w"])
+        fm_loads, fm_wrenches = generate(INPUTS, route, fm_spec)
+        record_check("boundary 4: fixed-mass inertia coincides with the convention at zero weight",
+                     fm_loads.keys() == zero["loads"].keys()
+                     and all(a == b for m in fm_loads for a, b in zip(fm_loads[m], zero["loads"][m]))
+                     and all(a == b for (_, f1, m1), (_, f2, m2) in zip(fm_wrenches, zero["wrenches"])
+                             for a, b in zip(f1 + m1, f2 + m2)))
     return cases, identity, stats
 
 
@@ -1060,8 +1092,9 @@ def build():
         "statement": "Independent references for static-equivalent seismic generated as the self-weight plan "
                      "evaluated at the seismic case's gravity, with each entered component force W held fixed "
                      "(DEL-05-01, decided by SWBPIPE's Agent 0). A force convention, not one fixed mass: it "
-                     "coincides with acceleration of the self-weight mass only when the seismic case's gravity "
-                     "equals an applied self-weight's; where that gravity is absent or ambiguous the equivalence "
+                     "coincides with acceleration of the self-weight mass when the seismic case's gravity equals an "
+                     "applied self-weight's (a sufficient condition; a component whose applied weight is zero adds "
+                     "no difference at any gravity); where that gravity is absent or ambiguous the equivalence "
                      "is not established and the values are what the convention yields. "
                      "Invented inputs; no internal pressure; generated by exact rational arithmetic without "
                      "product code.",
