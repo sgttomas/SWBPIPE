@@ -2,6 +2,7 @@
 name = "open_pipe_stress_report_package"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 description = "Deterministic full-report-package container assembly for OpenPipeStress (DEC-028 / DEC-057 / DEC-061, completion-plan row E3)"
 publish = false
 
