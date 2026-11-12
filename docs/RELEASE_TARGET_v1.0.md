@@ -300,18 +300,20 @@ target remains adequate. A failure alone does not justify relaxing one.
 - The owner's review of the full benchmark record (exit criterion 11), and the
   private CAEPIPE evaluation record and trial it rests on.
 - Purchases, credentials, and repository protections and settings.
-- Waiving a release gate, and risk accepted in order to release.
+- Release authority: waiving a release gate, or accepting a risk as the act of
+  releasing.
 - The native-smoke `expected.json` values.
 
 Agent 0 decides what else the target needs, under the grant in `AGENTS.md`
-("Posture for this phase"): changing an exit criterion or its value, declaring
-a remaining refusal acceptable (criterion 3), technical risk acceptance and
-technical holds. A hold that waits on evidence still waits on it. A numerical
-reference expectation is changed only on independent grounds, never to fit
-the implementation. Waiving a release gate, and risk accepted in order to
-release, are the owner's with the release. The release limitations that
-criterion 3 refers to are kept in `docs/RELEASE_LIMITATIONS_v1.0.md`, where
-lanes draft entries.
+("Posture for this phase"): changing an exit criterion or its value on product
+grounds, declaring a remaining refusal acceptable (criterion 3), technical
+risk decisions and technical holds, however near release is. Agent 0 may
+revise what the target requires; it may not treat an unmet requirement as
+passed, and it does not exercise the owner's release authority. A hold that
+waits on evidence still waits on it. A numerical reference expectation is
+changed only on independent grounds, never to fit the implementation. The
+release limitations that criterion 3 refers to are kept in
+`docs/RELEASE_LIMITATIONS_v1.0.md`, where lanes draft entries.
 
 Decisions edit the text they govern. This file is not a log and holds no
 status; Git keeps its history.
