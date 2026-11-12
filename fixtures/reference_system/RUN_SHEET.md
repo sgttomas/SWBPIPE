@@ -21,7 +21,9 @@ differences of §4. That test runs no solve.
 
 ## 1. Conventions
 
-**Pasted texts.** Two texts recur. Paste them; do not retype them.
+**Pasted texts.** Two texts recur. Paste them; do not retype them. A form field takes a paste
+directly. A run-sheet grid cell does not: press **F2** to open the cell's editor, paste, and
+press **Enter** to commit.
 
 - **⟨P⟩** = `invented reference-system fixture input (DEL-09-01); not standard, supplier, commercial or project data`
 - **⟨S5⟩** = `invented user value, DEL-09-01`
@@ -156,8 +158,10 @@ member in step rows.
   Material density kg/m^3; Mill tolerance mm; Corrosion allowance mm. Bend R keeps the
   project unit, m.
 
-**Rows.** Type the 26 rows in table order, then **Queue rows**, **Validate batch** and
-**Apply entire batch**. Blank increments are zero. Section, material and the section
+**Rows.** The sheet starts with one row. Type the 26 rows in table order. After completing a
+row, press **Enter** in its **Support** cell, empty or not: in the last row this adds the next
+row and moves to its dX cell. Then **Queue rows**, **Validate batch** and **Apply entire
+batch**. Blank increments are zero. Section, material and the section
 quantities are entered once and inherit down the chain; the `F` row continues from RS-130
 with row 14's values. The Condition set column stays blank: the fixture has no condition
 set. **No.** is the sheet's id number, not the grid row; `F` and `S` rows take none. Ids are
@@ -510,8 +514,9 @@ step rows do not change, except row 13's support when RS-FR1V becomes one-way.
 
 An **entry** is one typed or pasted value, one choice from a list or picker, or one checkbox
 or toggle; a unit is an entry where the person sets it. A **press** is one press of a button
-or tab the steps name other than queue, validate and apply: Add …, Fill …, Replace …,
-Mark …, Generate …, Start task, Cancel, the inspector's Task and Properties tabs, Blank
+or tab the steps name other than queue, validate and apply, and each key the steps name for
+a purpose other than committing an entry: Add …, Fill …, Replace …, Mark …, Generate …, Enter
+in a Support cell to add a row, F2 to open a grid cell's editor, Start task, Cancel, the inspector's Task and Properties tabs, Blank
 load/reference model, Create and Run mechanics preview. A **cycle** is one Apply or one Apply
 entire batch. Moving between stages and pages is not counted.
 
@@ -530,7 +535,7 @@ solve waiting time separately; their sum is compared with the threshold.
 | profile | 2 | 0 | 1 | 2 × 5.5 s = 11 s | 0.25 |
 | material | 59 | 5 | 3 | 64 × 5.5 s = 352 s | 5.75 |
 | sections | 19 | 0 | 3 | 19 × 5.5 s = 104.5 s | 1.75 |
-| rows | 224 | 0 | 1 | 224 × 8/98 min = 18.29 min | 18.25 |
+| rows | 224 | 40 | 1 | 224 × 8/98 min = 18.29 min; 40 × 5.5 s = 220 s | 22 |
 | rs050 | 3 | 4 | 1 | 7 × 5.5 s = 38.5 s | 0.75 |
 | joint | 52 | 2 | 1 | 54 × 5.5 s = 297 s | 5 |
 | tee | 24 | 12 | 4 | 36 × 5.5 s = 198 s | 3.25 |
@@ -541,15 +546,15 @@ solve waiting time separately; their sum is compared with the threshold.
 | states | 50 | 14 | 3 | 64 × 5.5 s = 352 s | 5.75 |
 | combinations | 9 | 0 | 2 | 9 × 5.5 s = 49.5 s | 0.75 |
 | solve | 0 | 1 | 0 | 1 × 5.5 s = 5.5 s entry; 2 min solve waiting | 0 entry + 2 waiting |
-| **Total** | **597** | **54** | **27** | | **about 57.5 entry + 2 waiting = about 59.5** |
+| **Total** | **597** | **94** | **27** | | **about 61.25 entry + 2 waiting = about 63.25** |
 
-Two subtotals, both estimates: **entry** about 57.5 minutes (the grid cells, form entries and
+Two subtotals, both estimates: **entry** about 61.25 minutes (the grid cells, form entries and
 presses, each step rounded), and **solve waiting** 2 minutes (an allowance, not entry). Their
-sum is about 59.5 minutes.
+sum is about 63.25 minutes.
 
-Unrounded, the entry is 18.29 min for the grid and (373 form entries + 54 presses) × 5.5 s =
-2348.5 s = 39.14 min for the forms, 57.43 minutes, and with the 2 minutes of solve waiting
-the sum is 59.43 minutes.
+Unrounded, the entry is 18.29 min for the grid cells and (373 form entries + 94 presses) ×
+5.5 s = 2568.5 s = 42.81 min for the rest, 61.10 minutes, and with the 2 minutes of solve
+waiting the sum is 63.10 minutes.
 
 How the larger counts arise:
 
@@ -559,14 +564,16 @@ How the larger counts arise:
   presses are Add temperature point four times and Add expansion law.
 - **sections, 19.** The project's selection and 6 for each of three sections (Type is
   preset to pipe).
-- **rows, 224.** The header's 14: Source, the two prefixes, the padding, Pipe number from,
+- **rows, 224 entries and 40 presses.** The header's 14: Source, the two prefixes, the padding, Pipe number from,
   three group toggles and six column units. The rows' 210 cells: 57 Component details cells
   of the valve and flanges (19 each) with their 3 increments and 3 Kind codes; 39 bend
   cells (13, 12 and 14 on rows 8, 10 and 25, including their increments, codes and corner
   ids); 40 support cells (four for each of ten supports) and the `S` row's Kind; 21 node
   labels; and 46 others (increments, section and material cells, section quantities,
-  orientations, the `F` row's two cells and the other typed ids). Enter in the last column
-  of the last row appends the next row.
+  orientations, the `F` row's two cells and the other typed ids). The 40 presses are Enter
+  in the Support cell of rows 1 to 25, which adds rows 2 to 26, and F2 before each of the 15
+  pasted grid cells (k source and Bend geometry source on three bend rows; Stiffness scale
+  source, Component geometry source and Component provenance on three component rows).
 - **rs050 and tee.** Each Task edit is 3 entries (selection, property, value) and 4 presses
   (Task, Start task, Cancel, Properties): one edit for rs050 and three for the tee, whose
   creation form adds 15 entries.
@@ -592,6 +599,6 @@ How the larger counts arise:
 - **combinations, 9.** The first: ID, label, basis, minuend, subtrahend, provenance; the
   second: ID, label, minuend.
 
-The estimate of about 59.5 minutes (57.5 entry and 2 solve waiting) is about twice the
-provisional 30. The four largest steps
-are rows (18.25), regions (8.5), material (5.75) and states (5.75).
+The estimate of about 63.25 minutes (61.25 entry and 2 solve waiting) is about twice the
+provisional 30. The four largest steps are rows (22), regions (8.5), material (5.75) and
+states (5.75).

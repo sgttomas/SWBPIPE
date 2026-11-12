@@ -282,16 +282,28 @@ def coverage_problems(spec: str, model: dict) -> list[str]:
     return problems
 
 
-def test_the_specification_ledger_agrees_with_the_generator_and_the_authoring_flags():
+def ledger_problems(spec: str) -> list[str]:
+    """The specification's §10 against the generator's LEDGER and authoring.json's pending rows, by
+    family: its flag and its identities."""
     stated = {family: {"in_tranche_1": row["in_tranche_1"], "entities": row["entities"]}
-              for family, row in spec_ledger(SPEC).items()}
-    generator = {family: {"in_tranche_1": state.startswith("in tranche 1"),
-                          "entities": sorted(GENERATOR.LEDGER_ENTITIES.get(family, []))}
-                 for family, state, _lane, _expected in GENERATOR.LEDGER}
-    authored = {row["family"]: {"in_tranche_1": row["in_tranche_1"], "entities": sorted(row["entities"])}
-                for row in AUTHORING["pending"]}
-    assert stated == generator, "the specification's §10 and the generator's LEDGER differ"
-    assert stated == authored, "the specification's §10 and authoring.json's pending rows differ"
+              for family, row in spec_ledger(spec).items()}
+    sources = {
+        "the generator's LEDGER": {family: {"in_tranche_1": state.startswith("in tranche 1"),
+                                            "entities": sorted(GENERATOR.LEDGER_ENTITIES.get(family, []))}
+                                   for family, state, _lane, _expected in GENERATOR.LEDGER},
+        "authoring.json": {row["family"]: {"in_tranche_1": row["in_tranche_1"], "entities": sorted(row["entities"])}
+                           for row in AUTHORING["pending"]},
+    }
+    problems = []
+    for source, rows in sources.items():
+        for family in sorted(set(stated) | set(rows)):
+            if stated.get(family) != rows.get(family):
+                problems.append(f"{family}: the specification says {stated.get(family)}, {source} {rows.get(family)}")
+    return problems
+
+
+def test_the_specification_ledger_agrees_with_the_generator_and_the_authoring_flags():
+    assert ledger_problems(SPEC) == []
 
 
 def test_each_ledger_row_agrees_with_what_the_fixture_holds():
@@ -337,23 +349,49 @@ def counted(identity: str) -> str:
     return f"{len(identity)}:{identity}"
 
 
+COMPONENT_PRIMITIVE = re.compile(r"component:(\d+):(component:RS-[A-Za-z0-9-]+):(force|moment):([xyz])")
+
+
 def primitive_identity_problems(model: dict, spec: str) -> list[str]:
-    """Every self-weight primitive's id follows the specification's rule (§8.1): a line load on every
-    weighted member that no rigid component maps, and a force and a moment for each rigid component."""
+    """Every self-weight primitive's id follows the specification's rule (§8.1) and names its own target:
+    a line load `<n>:<case>:<m>:<pipe>` on every weighted member that no rigid component maps, and for
+    each rigid component exactly one force and one moment `<n>:<case>:component:<m>:<component>:...`,
+    each counted correctly and applied at that component's node."""
     problems = []
-    rigid = [c for c in model["components"] if c.get("geometry", {}).get("rigid_pipe_ref")]
-    mapped = {c["geometry"]["rigid_pipe_ref"] for c in rigid}
-    weighted = [p["id"] for p in model["pipe_segments"] if p["id"] != f"pipe:{GENERATOR.REPLACED_SPAN}"]
+    rigid = {c["id"]: c for c in model["components"] if c.get("geometry", {}).get("rigid_pipe_ref")}
+    mapped = {c["geometry"]["rigid_pipe_ref"] for c in rigid.values()}
+    weighted = {p["id"] for p in model["pipe_segments"] if p["id"] != f"pipe:{GENERATOR.REPLACED_SPAN}"}
     for case in _cases(model):
         prefix = f"load:self-weight:{counted(case['id'])}:"
-        expected = {prefix + counted(pipe) for pipe in weighted if pipe not in mapped}
-        expected |= {prefix + f"component:{counted(c['id'])}:force:z" for c in rigid}
-        actual = {p["id"] for p in case["primitive_loads"]}
-        moments = {i for i in actual
-                   if re.fullmatch(re.escape(prefix) + r"component:\d+:component:RS-\w+:moment:[xyz]", i)}
-        if actual - moments != expected or len(moments) != len(rigid):
-            problems.append(f"{case['id']}: primitive identities do not follow the rule: "
-                            f"{sorted((actual - moments) ^ expected)}")
+        lines, per_component = set(), {cid: [] for cid in rigid}
+        for load in case["primitive_loads"]:
+            pid, target = load["id"], load.get("target", {})
+            if not pid.startswith(prefix):
+                problems.append(f"{pid}: does not start with its case {prefix}")
+                continue
+            rest = pid[len(prefix):]
+            component = COMPONENT_PRIMITIVE.fullmatch(rest)
+            if component:
+                count, cid, kind, axis = component.groups()
+                if int(count) != len(cid):
+                    problems.append(f"{pid}: counts {count} characters for {cid}, which has {len(cid)}")
+                if cid not in rigid:
+                    problems.append(f"{pid}: names {cid}, which is not a rigid component")
+                    continue
+                if target != {"node": rigid[cid]["node"], "type": "node"}:
+                    problems.append(f"{pid}: applied at {target}, not at {cid}'s node {rigid[cid]['node']}")
+                if kind == "force" and axis != "z":
+                    problems.append(f"{pid}: a component weight is a force along z")
+                per_component[cid].append(kind)
+            else:
+                if rest != counted(target.get("pipe", "")):
+                    problems.append(f"{pid}: names {rest}, its target is {target}")
+                lines.add(target.get("pipe"))
+        if lines != weighted - mapped:
+            problems.append(f"{case['id']}: line loads on {sorted(lines ^ (weighted - mapped))} differ from the rule")
+        for cid, kinds in per_component.items():
+            if sorted(kinds) != ["force", "moment"]:
+                problems.append(f"{case['id']}: {cid} has {sorted(kinds)}, not one force and one moment")
     examples = re.findall(r"`(load:self-weight:[^`<…]+)`", spec)
     held = {p["id"] for case in _cases(model) for p in case["primitive_loads"]}
     if not examples or not set(examples) <= held:
@@ -372,6 +410,9 @@ def pasted_texts(text: str) -> dict[str, str]:
     return texts
 
 
+VALUE = r"(?:to\s+)?(?:⟨(\w+)⟩(?:`([^`]*)`)?|`([^`]+)`)"
+
+
 def label_pattern(label: str) -> str:
     """A field label as the step writes it, bold or not, its words wrapped across lines or not."""
     return r"(?<![\w-])(?:\*\*)?" + r"\s+".join(map(re.escape, label.split())) + r"(?:\*\*)?\s+"
@@ -381,8 +422,7 @@ def instructed(text: str, step_name: str, label: str) -> list[str]:
     """Every value the step tells the person to enter in the field `label`: ⟨P⟩ or ⟨S5⟩, with any
     backticked text that follows, or a backticked literal."""
     texts = pasted_texts(text)
-    pattern = label_pattern(label) + r"(?:⟨(\w+)⟩(?:`([^`]*)`)?|`([^`]+)`)"
-    found = re.findall(pattern, step(text, step_name))
+    found = re.findall(label_pattern(label) + VALUE, step(text, step_name))
     assert found, f"step {step_name} no longer tells the person what to enter in {label!r}"
     return [texts[alias] + (suffix or "") if alias else re.sub(r"\s+", " ", literal) for alias, suffix, literal in found]
 
@@ -437,6 +477,9 @@ BINDINGS = [
      lambda m: [c["geometry"]["branch_geometry_source_reference"] for c in _components(m, "tee")]),
     ("tee", "New component provenance", lambda m: [c["provenance"] for c in _components(m, "tee")]),
     ("tee", "Modifier source", lambda m: [c["modifiers"]["source_reference"] for c in _components(m, "tee")]),
+    ("tee", "Connection type", lambda m: [c["geometry"]["branch_connection_type"] for c in _components(m, "tee")]),
+    ("tee", "Reinforcement reference",
+     lambda m: [c["geometry"]["branch_reinforcement_reference"] for c in _components(m, "tee")]),
     ("spring", "Support provenance", lambda m: [s["provenance"] for s in _supports(m, "variable_spring_hanger")]),
     ("spring", "Hanger source reference",
      lambda m: [s["hanger"]["source_reference"] for s in _supports(m, "variable_spring_hanger")]),
@@ -447,26 +490,40 @@ BINDINGS = [
      lambda m: [t["provenance"] for c in _cases(m) for r in c["pressure_regions"] for t in r["terminals"]]),
     ("regions", "Region provenance", lambda m: [r["provenance"] for c in _cases(m) for r in c["pressure_regions"]]),
     ("states", "Analysis state provenance", lambda m: [c["analysis_state"]["provenance"] for c in _cases(m)]),
-    ("states", "Thermal provenance", lambda m: [s["thermal_state"]["provenance"] for c in _cases(m)
-                                                for s in c["analysis_state"]["element_states"]
-                                                if "provenance" in s.get("thermal_state", {})]),
     ("combinations", "Provenance", lambda m: [c["provenance"] for c in m["combinations"]]),
 ]
 
 
+def listed(differences: str, label: str, value: str | None) -> bool:
+    """Whether the run sheet's differences list the field: one bullet names both the field's label and
+    the fixture's value (a value appearing under another field does not count)."""
+    bullets = [re.sub(r"\s+", " ", b) for b in re.split(r"(?m)^- ", differences)[1:]]
+    return value is not None and any(label.lower() in b.lower() and f"`{value}`" in b for b in bullets)
+
+
 def field_problems(text: str, model: dict) -> list[str]:
-    differences = re.sub(r"\s+", " ", level2_section(text, "differences"))
+    differences = level2_section(text, "differences")
     problems = []
+    # One value per field label, written to every record the binding names: each record is compared.
     for step_name, label, values in BINDINGS:
         entered = set(instructed(text, step_name, label))
-        held = set(values(model))
-        unlisted = sorted(value for value in held - entered if value not in differences)
-        stray = sorted(entered - held)
-        if unlisted or stray:
-            problems.append(f"step {step_name}, {label}: the fixture holds {unlisted or 'nothing else'}, "
-                            f"the sheet enters {stray or 'nothing else'}")
-    # Table-bound values: the bends' sources and each case's self-weight provenance.
+        if len(entered) != 1:
+            problems.append(f"step {step_name}, {label}: the sheet gives {len(entered)} values for one field")
+            continue
+        (value,) = entered
+        for held in values(model):
+            if held != value and not listed(differences, label, held):
+                problems.append(f"step {step_name}, {label}: a record holds {held!r}, the sheet enters {value!r}")
+    # Table-bound values, each compared with its own record: the bends' sources, the valve and flanges'
+    # end references, and each case's self-weight provenance.
     components = by_id(model, "components")
+    for column, field in (("End A reference", "connection_end_a_reference"),
+                          ("End B reference", "connection_end_b_reference")):
+        rows = table_values(text, "rows", "#", column, "Component id")
+        for component in _rigid(model):
+            value = rows.get(component["id"])
+            if value != component["geometry"][field]:
+                problems.append(f"step rows, {column} of {component['id']}: the sheet enters {value!r}")
     for column, field in (("k source", lambda c: c["modifiers"]["source_reference"]),
                           ("Bend geometry source", lambda c: c["geometry"]["bend_geometry_source_reference"])):
         for component, value in table_values(text, "rows", "#", column, "Bend component id").items():
@@ -482,8 +539,53 @@ def field_problems(text: str, model: dict) -> list[str]:
     connector = _connector(model)
     for key in ("measurement_restraints", "basis_transform_reference"):
         value = connector["stiffness"]["provenance"][key]
-        if value != connector["provenance"][key] and value not in differences:
+        if value != connector["provenance"][key] and not listed(differences, "stiffness provenance", value):
             problems.append(f"the joint's stiffness provenance {key} differs from the connector's and is not listed")
+    return problems + thermal_problems(text, model, differences)
+
+
+def thermal_problems(text: str, model: dict, differences: str) -> list[str]:
+    """Each element state's thermal provenance against what step states has the person enter for that
+    case and that member: a sentence naming a member binds its value to that member, the case's other
+    value is its template for every member; a case copied from another without marking its element
+    states absent keeps that case's values."""
+    body = step(text, "states")
+    parts = re.split(r"(?m)^- \*\*(RS-[A-Z]+)\.\*\*", body)
+    bullets = dict(zip(parts[1::2], parts[2::2]))
+    texts = pasted_texts(text)
+    expected: dict[str, dict[str, str | None]] = {}
+    for case, bullet in bullets.items():
+        copied = re.search(r"Copy analysis state from case\*\* (RS-[A-Z]+)", bullet)
+        own = {"*": None}
+        if copied and "Mark element_states absent" not in bullet:
+            own = dict(expected[copied.group(1)])
+        # The typed row is the fill's template: a value entered before the fill ("Fill.") is every
+        # member's; a value entered after it is the member its sentence names.
+        filled = re.search(r"(?<![\w*])Fill\.", bullet)
+        for match in re.finditer(label_pattern("Thermal provenance") + VALUE, bullet):
+            alias, suffix, literal = match.groups()
+            value = texts[alias] + (suffix or "") if alias else literal
+            if filled is None or match.start() < filled.start():
+                own["*"] = value
+                continue
+            sentence = bullet[max(bullet.rfind(". ", 0, match.start()), 0):match.start()]
+            pipes = re.findall(r"(?<![\w-])RS-P\d{3}(?![\w-])", sentence)
+            if not pipes:
+                return [f"step states, {case}: a thermal provenance after the fill names no member"]
+            own[f"pipe:{pipes[-1]}"] = value
+        expected[case] = own
+    problems = []
+    for case in _cases(model):
+        own = expected.get(tag(case["id"]))
+        if own is None:
+            problems.append(f"step states does not enter {case['id']}")
+            continue
+        for row in case["analysis_state"]["element_states"]:
+            want = own.get(row["pipe_ref"], own["*"])
+            held = row.get("thermal_state", {}).get("provenance")
+            if held != want and not listed(differences, "thermal provenance", held):
+                problems.append(f"step states, {case['id']} {row['pipe_ref']}: thermal provenance {held!r}, "
+                                f"the sheet enters {want!r}")
     return problems
 
 
@@ -606,37 +708,126 @@ def test_a_changed_sub_feature_or_interim_record_is_caught():
         assert any(problem.startswith(family + ":") for problem in coverage_problems(SPEC, model)), family
 
 
+def test_a_ledger_row_that_disagrees_with_the_generator_is_caught():
+    assert ledger_problems(SPEC) == [] and coverage_problems(SPEC, MODEL) == []
+    ledger = spec_ledger(SPEC)
+    family, row = next((f, r) for f, r in ledger.items() if not r["in_tranche_1"] and r["entities"])
+    line = next(l for l in SPEC.splitlines() if l.startswith(f"| {family} |"))
+    flipped = line.replace(f"| {row['state']} |", f"| in tranche 1; {row['state']} |", 1)
+    assert any(p.startswith(family + ":") for p in ledger_problems(SPEC.replace(line, flipped, 1)))
+    dropped = line.replace(f"`{row['entities'][0]}`", "`support:RS-A`", 1)
+    assert any(p.startswith(family + ":") for p in ledger_problems(SPEC.replace(line, dropped, 1)))
+    renamed = SPEC.replace(f"| {family} |", f"| {family} (renamed) |", 1)
+    assert any(p.startswith(family + ":") for p in ledger_problems(renamed))
+    assert any("no fixture predicate" in p for p in coverage_problems(renamed, MODEL))
+
+
+def test_a_ledger_identity_the_fixture_lacks_or_holds_wrongly_is_caught():
+    model = copy.deepcopy(MODEL)
+    model["components"] = [c for c in model["components"] if c["id"] != "component:RS-T1"]
+    assert "Tee RS-T1 with user SIFs: in tranche 1, but the fixture has no component:RS-T1" in coverage_problems(SPEC, model)
+    model = copy.deepcopy(MODEL)
+    model["supports"].append({"id": "support:RS-CE1", "family": "anchor"})
+    assert any("holds support:RS-CE1" in p for p in coverage_problems(SPEC, model))
+
+
 def test_a_missing_or_unknown_identity_is_caught():
+    assert all(missing_identities(r, t, MODEL) == [] and unknown_identities(t, MODEL) == [] for r, (_p, t) in RECORDS.items())
     for record, (_path, text) in RECORDS.items():
         dropped = sorted(fixture_identities(MODEL))[0]
         without = re.sub(rf"(?<![\w-]){re.escape(tag(dropped))}(?![\w-])", "", text)
         assert dropped in missing_identities(record, without, MODEL), record
         assert "RS-P999" in unknown_identities(text + "\n| RS-P999 | 999 → 998 | S270 | |\n", MODEL), record
         assert "component:RS-ZZ9" in unknown_identities(text + "\n`component:RS-ZZ9`\n", MODEL), record
-    model = copy.deepcopy(MODEL)
-    _cases(model)[0]["primitive_loads"][0]["id"] += "-renamed"
-    assert primitive_identity_problems(model, SPEC)
+    without_region = re.sub(r"(?<![\w-])RG-4(?![\w-])", "", SPEC)
+    assert "region:RS-SUS-RG-4" in missing_identities("SPECIFICATION.md", without_region, MODEL)
+
+
+def _primitive(model, case_index, contains):
+    return next(p for p in _cases(model)[case_index]["primitive_loads"] if contains in p["id"])
+
+
+def test_a_wrong_primitive_identity_count_component_or_target_is_caught():
+    assert primitive_identity_problems(MODEL, SPEC) == []
+    controls = {
+        "a renamed line load": lambda m: _primitive(m, 0, ":pipe:RS-P010").__setitem__("id", _primitive(m, 0, ":pipe:RS-P010")["id"] + "-x"),
+        "a wrong count in a moment": lambda m: _primitive(m, 0, "RS-F1:moment").__setitem__(
+            "id", _primitive(m, 0, "RS-F1:moment")["id"].replace("component:15:", "component:999:")),
+        "a moment naming another component": lambda m: _primitive(m, 0, "RS-F1:moment").__setitem__(
+            "id", _primitive(m, 0, "RS-F1:moment")["id"].replace("RS-F1", "RS-T1")),
+        "a moment at the wrong node": lambda m: _primitive(m, 0, "RS-F1:moment")["target"].__setitem__("node", "node:RS-010"),
+        "one moment too many": lambda m: _cases(m)[0]["primitive_loads"].append(
+            {**_primitive(m, 0, "RS-F1:moment"), "id": _primitive(m, 0, "RS-F1:moment")["id"][:-1] + "x"}),
+        "one moment too few": lambda m: _cases(m)[0]["primitive_loads"].remove(_primitive(m, 0, "RS-V1:moment")),
+    }
+    for name, change in controls.items():
+        model = copy.deepcopy(MODEL)
+        change(model)
+        assert primitive_identity_problems(model, SPEC), name
+    assert primitive_identity_problems(MODEL, SPEC.replace("load:self-weight:11:load:RS-SUS:12:pipe:RS-P010",
+                                                           "load:self-weight:11:load:RS-SUS:12:pipe:RS-P999"))
 
 
 def test_a_stale_source_or_a_changed_fixture_field_is_caught():
+    assert field_problems(RUN_SHEET, MODEL) == []
     texts = pasted_texts(RUN_SHEET)
     # A stale ⟨P⟩: every field it is written to now differs.
     assert field_problems(RUN_SHEET.replace(f"`{texts['P']}`", f"`{texts['P']} (stale)`", 1), MODEL)
-    # A literal entered in place of the pasted source, in each bound field in turn.
+    # A literal entered in place of each bound entry, one at a time.
     for step_name, label, _values in BINDINGS:
         body = step(RUN_SHEET, step_name)
-        literal = re.sub("(" + label_pattern(label) + r")(?:⟨\w+⟩|`[^`]+`)",
-                         r"\1`a stale text`", body, count=1)
+        literal = re.sub("(" + label_pattern(label) + r")(?:⟨\w+⟩|`[^`]+`)", r"\1`a stale text`", body, count=1)
         assert literal != body, (step_name, label)
         assert field_problems(RUN_SHEET.replace(body, literal, 1), MODEL), (step_name, label)
-    # Only the fixture's hanger source changes.
+    # Each fixture field the run sheet writes, altered in one record.
+    fixture_changes = {
+        "the hanger source": lambda m: _supports(m, "variable_spring_hanger")[0]["hanger"].__setitem__("source_reference", "x"),
+        "the tee's reinforcement reference": lambda m: _components(m, "tee")[0]["geometry"].__setitem__(
+            "branch_reinforcement_reference", "x"),
+        "the tee's connection type": lambda m: _components(m, "tee")[0]["geometry"].__setitem__("branch_connection_type", "x"),
+        "one flange's End A reference": lambda m: _rigid(m)[0]["geometry"].__setitem__("connection_end_a_reference", "x"),
+        "one flange's End B reference": lambda m: _rigid(m)[-1]["geometry"].__setitem__("connection_end_b_reference", "x"),
+        "one bend's k source": lambda m: _components(m, "bend")[1]["modifiers"].__setitem__("source_reference", "x"),
+        "one case's self-weight provenance": lambda m: _cases(m)[2].__setitem__("provenance", "x"),
+        "the joint's stiffness provenance, unlisted": lambda m: _connector(m)["stiffness"]["provenance"].__setitem__(
+            "measurement_restraints", "an unlisted stiffness measurement text"),
+    }
+    for name, change in fixture_changes.items():
+        model = copy.deepcopy(MODEL)
+        change(model)
+        assert field_problems(RUN_SHEET, model), name
+    # The valve and a flange's End A references swapped in the sheet's table: each record is compared.
+    a = [c["geometry"]["connection_end_a_reference"] for c in _rigid(MODEL)[:2]]
+    swapped = RUN_SHEET.replace(f"`{a[0]}`", "@@", 1).replace(f"`{a[1]}`", f"`{a[0]}`", 1).replace("@@", f"`{a[1]}`", 1)
+    assert swapped != RUN_SHEET and field_problems(swapped, MODEL)
+    # RS-SUS's two thermal provenance assignments swapped: the template's and RS-P180's.
+    bullet = re.search(r"(?ms)^- \*\*RS-SUS\.\*\*.*?(?=^- \*\*)", step(RUN_SHEET, "states")).group(0)
+    values = re.findall(r"⟨P⟩(`[^`]*`)", bullet)
+    assert len(set(values)) == 2
+    thermal_swap = bullet.replace(values[0], "@@", 1).replace(values[1], values[0], 1).replace("@@", values[1], 1)
+    assert thermal_swap != bullet
+    assert any("thermal provenance" in p for p in field_problems(RUN_SHEET.replace(bullet, thermal_swap, 1), MODEL))
+    # The same swap in the fixture alone.
     model = copy.deepcopy(MODEL)
-    _supports(model, "variable_spring_hanger")[0]["hanger"]["source_reference"] = "another source"
-    assert field_problems(RUN_SHEET, model)
+    rows = {r["pipe_ref"]: r for r in _case(model, "load:RS-SUS")["analysis_state"]["element_states"]}
+    rows["pipe:RS-P010"]["thermal_state"]["provenance"], rows["pipe:RS-P180"]["thermal_state"]["provenance"] = (
+        rows["pipe:RS-P180"]["thermal_state"]["provenance"], rows["pipe:RS-P010"]["thermal_state"]["provenance"])
+    assert any("thermal provenance" in p for p in field_problems(RUN_SHEET, model))
 
 
-def test_a_dead_link_a_dead_file_name_and_an_execution_path_are_caught():
+def test_a_dead_link_a_dead_file_name_an_execution_path_and_an_outside_path_are_caught():
     for record, (path, text) in RECORDS.items():
         assert citation_problems(path, text + "\n[gone](no-such-file.md)\n"), record
         assert citation_problems(path, text + "\nsee no_such_file.json\n"), record
         assert citation_problems(path, text + "\n`execution/PKG-09/DEL-09-01/ScopeOfWork.md`\n"), record
+        assert citation_problems(path, text + "\n[outside](../../../../../outside.md)\n"), record
+    assert citation_problems(SPEC_PATH, "no citation at all") == ["cites no path"]
+
+
+def test_a_field_the_sheet_stops_naming_or_an_undefined_pasted_text_is_refused():
+    body = step(RUN_SHEET, "spring")
+    unnamed = RUN_SHEET.replace(body, body.replace("Hanger source reference", "Hanger source", 1), 1)
+    with pytest.raises(AssertionError, match="Hanger source reference"):
+        field_problems(unnamed, MODEL)
+    with pytest.raises(AssertionError, match="defines"):
+        pasted_texts(RUN_SHEET.replace("**⟨P⟩** =", "**⟨Q⟩** =", 1))
