@@ -359,34 +359,68 @@ def test_witness_each_producer_shape_sees_a_code_added_and_removed(tmp_path):
     assert not problems, problems
 
 
-RUNTIME = 'pub fn s_runtime(k: &str) -> Diagnostic { emit(&format!("Built_{k}"), "m") }'
+RUNTIME = """pub fn s_runtime(k: &str) -> Diagnostic {
+    let kind = k.trim();
+    emit(&format!("Built_{kind}"), "m")
+}
+pub fn s_vocabulary() -> &'static str { "one" }"""
+RUNTIME_LIB = 'core/product_physics/src/lib.rs'
+
+
+def function_text(name, source=RUNTIME):
+    lines = source.split('\n')
+    first = next(i for i, line in enumerate(lines) if f'fn {name}(' in line)
+    last = next(i for i in range(first, len(lines)) if lines[i].rstrip().endswith('}') and
+                (i > first or lines[i].count('{') == lines[i].count('}')))
+    return '\n'.join(lines[first:last + 1])
 
 
 def runtime_pin(**change):
-    pin = {'file': 'core/product_physics/src/lib.rs', 'at': 'emit()', 'why': 'built at run time (format!)',
-           'site_text': 'emit(&format!("Built_{k}"), "m")', 'values': ['Built_one'],
-           'reason': 'the witness says so', 'anchors': [{'file': 'core/product_physics/src/lib.rs',
-                                                         'text': 'pub fn s_runtime(k: &str)'}]}
+    pin = {'file': RUNTIME_LIB, 'at': 'emit()', 'why': 'built at run time (format!)',
+           'site_text': 'emit(&format!("Built_{kind}"), "m")', 'values': ['Built_one'],
+           'reason': 'the witness says so',
+           'anchors': [{'file': RUNTIME_LIB, 'function': 's_runtime', 'text': function_text('s_runtime')},
+                       {'file': RUNTIME_LIB, 'function': 's_vocabulary', 'text': function_text('s_vocabulary')}]}
     pin.update(change)
     return [pin]
 
 
 def test_witness_an_unresolved_code_position_fails_unless_its_pin_holds(tmp_path):
     """A value built at run time at a code position is kept as an unresolved site, never dropped. A pin whose
-    site text and anchors stand turns it into the pinned values; a pin whose anchor or site has changed does
-    not hold, and the site stays unresolved."""
+    site text stands and whose anchors are, unchanged, the whole function the site stands in and the whole
+    function its reason rests on turns it into the pinned values. A pin does not hold, and the site stays
+    unresolved, when: a line is inserted anywhere in the function that binds, builds and uses the value (the
+    third review's mutation), the other anchored function changes, an anchor names no function of the file,
+    no anchor is the function the site stands in, or the site itself changes."""
     scanner, found = witness_scan(tmp_path, RUNTIME, 'unpinned')
     assert [(s['at'], s['why']) for s in found['unresolved_sites']] == [('emit()', 'built at run time (format!)')]
     assert not scanner.pin_problems
 
     scanner, found = witness_scan(tmp_path, RUNTIME, 'pinned', runtime_pin())
-    assert found['unresolved_sites'] == [] and not scanner.pin_problems
+    assert found['unresolved_sites'] == [] and not scanner.pin_problems, scanner.pin_problems
     assert [s.get('pinned') for c in found['codes'] if c['code'] == 'Built_one' for s in c['sites']] == [True]
 
-    moved = runtime_pin(anchors=[{'file': 'core/product_physics/src/lib.rs', 'text': 'pub fn s_runtime(key: &str)'}])
-    scanner, found = witness_scan(tmp_path, RUNTIME, 'anchor_changed', moved)
-    assert len(found['unresolved_sites']) == 1 and len(scanner.pin_problems) == 1
-    assert 'Built_one' not in {c['code'] for c in found['codes']}
+    inserted = RUNTIME.replace('    let kind = k.trim();\n', '    let kind = k.trim();\n    let kind = kind.to_uppercase();\n')
+    vocabulary = RUNTIME.replace('"one"', '"two"')
+    unenclosed = runtime_pin(anchors=runtime_pin()[0]['anchors'][1:])
+    unnamed = runtime_pin(anchors=[dict(runtime_pin()[0]['anchors'][0], function='s_absent')])
+    for name, source, pins in [('inserted', inserted, runtime_pin()), ('vocabulary', vocabulary, runtime_pin()),
+                               ('unenclosed', RUNTIME, unenclosed), ('unnamed', RUNTIME, unnamed),
+                               ('site_changed', RUNTIME.replace('Built_{kind}', 'Built_{kind}_2'), runtime_pin())]:
+        scanner, found = witness_scan(tmp_path, source, name, pins)
+        assert len(found['unresolved_sites']) == 1 and len(scanner.pin_problems) == 1, (name, scanner.pin_problems)
+        assert 'Built_one' not in {c['code'] for c in found['codes']}, name
 
-    scanner, found = witness_scan(tmp_path, RUNTIME.replace('Built_{k}', 'Built_{k}_2'), 'site_changed', runtime_pin())
-    assert len(found['unresolved_sites']) == 1 and len(scanner.pin_problems) == 1
+
+NESTED_WRAPPER = """fn result_pair(b: bool) -> Result<(&'static str, u8), (&'static str, u8)> {
+    if b { Ok(("ok_only", 0)) } else { Err(("error_only", 0)) }
+}
+pub fn s_nested(b: bool) { if let Err((code, _n)) = result_pair(b) { let _ = emit(code, "m"); } }"""
+
+
+def test_witness_a_nested_wrapper_pattern_reads_only_its_arm(tmp_path):
+    """`if let Err((code, ..)) = f()` reads the tuples f returns inside Err only: an Ok tuple is not a code
+    there (third review, finding 6)."""
+    _s, found = witness_scan(tmp_path, NESTED_WRAPPER, 'nested')
+    codes = {c['code'] for c in found['codes']}
+    assert 'error_only' in codes and 'ok_only' not in codes, sorted(codes - FOUND)

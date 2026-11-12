@@ -1456,7 +1456,8 @@ class Scan:
                 ids = [x.val for x in inner[s:e] if x.kind == 'id']
                 names.append(ids[-1] if ids else None)
             if name in names:
-                return self.tuple_values(value, names.index(name), fn, src, depth + 1, va)
+                # only what that arm of the Result or Option holds (`Err((..))` reads no `Ok` tuple)
+                return self.tuple_values(value, names.index(name), fn, src, depth + 1, va, pat[0].val)
         return [('unresolved', f'name {name} bound by a destructuring let')]
 
     def tuple_arms(self, value, base):
@@ -2350,9 +2351,11 @@ class Scan:
         """Pins by hand: an unresolved site whose values the source settles though the scanner cannot
         follow them. A pin holds only while (a) a site the scan left unresolved has its file, its `at`,
         its `why` and the line where the pin's `site_text` stands (once in that file), and (b) each of
-        its anchors (`text` in `file`) stands exactly once, so that a change at the site or at what
-        the reason rests on fails the test. A holding pin turns its site into sites of its values;
-        a pin that does not hold is a problem, and its site stays unresolved."""
+        its anchors is a whole function (`function` in `file`, defined once there) whose text is,
+        character for character, the anchor's `text`, and one of them is the function the site stands
+        in. Any change inside a function the reason rests on, the one that binds, builds and uses the
+        value included, fails the pin. A holding pin turns its site into sites of its values; a pin that
+        does not hold is a problem, and its site stays unresolved."""
         self.pin_problems = []
         for pin in pins or []:
             where = f'pin at {pin.get("file")} ({pin.get("site_text")!r})'
@@ -2363,12 +2366,22 @@ class Scan:
                 problems.append('its site_text does not stand exactly once in its file')
             else:
                 line = text[:text.index(pin['site_text'])].count('\n') + 1
+            encloses = False
             for anchor in pin.get('anchors') or []:
-                atext = self._read(anchor.get('file'))
-                if atext is None or not anchor.get('text') or atext.count(anchor['text']) != 1:
-                    problems.append(f'anchor {anchor.get("text")!r} does not stand exactly once in {anchor.get("file")}')
+                span = self._function_span(anchor.get('file'), anchor.get('function'))
+                if span is None:
+                    problems.append(f'anchor function {anchor.get("function")!r} is not defined exactly once in '
+                                    f'{anchor.get("file")}')
+                    continue
+                first, last, ftext = span
+                if ftext != anchor.get('text'):
+                    problems.append(f'anchor function {anchor["function"]} in {anchor["file"]} has changed')
+                if anchor.get('file') == pin.get('file') and line is not None and first <= line <= last:
+                    encloses = True
             if not pin.get('anchors'):
                 problems.append('it has no anchor')
+            elif line is not None and not encloses:
+                problems.append('no anchor is the whole function its site stands in')
             if not pin.get('values') or not pin.get('reason'):
                 problems.append('it names no values or no reason')
             key = (pin.get('file'), line, pin.get('at'))
@@ -2385,6 +2398,32 @@ class Scan:
                     'by_name': False, 'any_arm': False, 'pinned': True,
                     'through': [f'pinned by hand: {pin["why"]} (pinned_sites)']})
         return self
+
+    def _function_span(self, rel, name):
+        """(first line, last line, text) of the one function `name` defined in file `rel`, from the line of
+        its `fn` to the line of its closing brace; None when it is not defined exactly once."""
+        text = self._read(rel)
+        if text is None or not name:
+            return None
+        toks = tokenize(text)
+        at = [k for k in range(len(toks) - 1) if _is(toks[k], 'id', 'fn') and _is(toks[k + 1], 'id', name)]
+        if len(at) != 1:
+            return None
+        k, depth = at[0] + 2, 0
+        while k < len(toks):
+            t = toks[k]
+            if t.kind == 'p' and t.val in ('(', '['):
+                depth += 1
+            elif t.kind == 'p' and t.val in (')', ']'):
+                depth -= 1
+            elif depth == 0 and t.kind == 'p' and t.val in ('{', ';'):
+                break
+            k += 1
+        if k >= len(toks) or not _is(toks[k], 'p', '{'):
+            return None
+        end = _match_forward(toks, k)
+        first, last = toks[at[0]].line, toks[end].line
+        return first, last, '\n'.join(text.split('\n')[first - 1:last])
 
     def _read(self, rel):
         if not rel:
@@ -2496,21 +2535,34 @@ ARC_REASON_TOKENS = [
 # traced not published, unresolved. Only what was traced is recorded; every other code is unresolved.
 _NOT_PUBLISHED_TRACE = {
     'state': 'traced_not_published',
-    'revision': 'traced at 81bab5c14 (claude/diagnostic-code-table); confirmed by the assigner on main at 29226060d',
+    'revision': ('traced at 81bab5c14 and confirmed by the assigner on main at 29226060d; the admission step read '
+                 'in the sources of 72854e1b0 (claude/diagnostic-code-table)'),
     'entry_points_examined': ('the headless runner\'s retained entry: run_preview_model_value_with_retained_headless '
                               '(core/runner/headless/src/lib.rs 745), which calls '
-                              'run_linear_static_preview_value_with_retained_headless (lines 776 to 779); and every '
-                              'non-test Rust caller of into_publication() and into_parts() found by name in core and '
-                              'in the desktop\'s native crate'),
-    'decisive_discard': ('the headless path takes into_parts() (core/product_physics/src/lib.rs 2851: a successor '
-                         '"is dropped here, never published"), so the retained-precision successor envelope that '
-                         'carries the code is dropped and the ordinary envelope and the admission report are what '
-                         'is consumed'),
-    'no_caller_found': ('no caller of into_publication() was found outside tests. This is recorded as "no caller '
-                        'found" and not as "cannot reach a person"'),
+                              'run_linear_static_preview_value_with_retained_headless (lines 776 to 779) and takes '
+                              'into_parts() of its output; and every non-test Rust caller of '
+                              'run_linear_static_preview_value_with_retained_direct, into_publication() and '
+                              'into_parts() found by name in core and in the desktop\'s native crate'),
+    'decisive_step': ('admission refuses the headless caller: the dispatch (core/product_physics/src/lib.rs 2875 to '
+                      '2896) calls retained_memory::admit, whose law_order (core/product_physics/src/'
+                      'retained_memory.rs 4006 to 4017) applies caller_clause first (lines 1200 to 1206, "D1.0: '
+                      'Direct only (D-2; U3 F-5: admit refuses Headless)"); the refused invocation takes the '
+                      'unchanged ordinary route (ordinary_dispatch, lib.rs 2898 to 2915) with no retained result, '
+                      'so no retained-precision successor is built on this route and the code is never constructed '
+                      'there; the ordinary envelope and the admission report are what the runner consumes'),
+    'conditional_discard': ('into_parts() (core/product_physics/src/lib.rs 2851) would drop a successor if one were '
+                            'ever produced on the headless route ("dropped here, never published"); on this route '
+                            'none is produced'),
+    'no_caller_found': ('no production caller of the Direct entry (run_linear_static_preview_value_with_retained_'
+                        'direct) and no caller of into_publication() was found outside tests. This is recorded as '
+                        '"no caller found" and not as "cannot reach a person"'),
+    'registered_build': ('the one registered build identity is the development and test one (core/product_physics/'
+                         'src/retained_memory.rs 1 to 8: "One production profile is registered ... the dev/test '
+                         'identity"); every other build is Stale and keeps the ordinary route'),
     'not_read': ('the trace searched non-test Rust callers by name in core and in the desktop\'s native crate; the '
                  'wasm packaging and the TypeScript side were not read'),
-    'recheck_when': ('any change to the callers named above, to into_parts() or into_publication(), or to how a '
+    'recheck_when': ('any change to the callers named above, to admission\'s caller clause or law order, to the '
+                     'registered builds (REGISTERED_PROFILES), to into_parts() or into_publication(), or to how a '
                      'retained-precision successor is published must prompt rechecking this entry'),
 }
 CONSTRUCTED_NOT_PUBLISHED = [
@@ -2630,11 +2682,12 @@ HEADER = {
                            'today. Planned statements may name codes of any class.'),
     'pinned_site': ('an entry of pinned_sites: a code position whose value the scanner cannot resolve but the '
                     'source settles, pinned by hand: {"file", "at", "why", "site_text", "values", "reason", '
-                    '"anchors": [{"file", "text"}]}. A '
+                    '"anchors": [{"file", "function", "text"}]}. A '
                     'pin holds only while the scan leaves a site unresolved with that file, at and why on the line '
-                    'where site_text stands (once in the file), and each anchor text stands exactly once in its '
-                    'file; a holding pin turns the site into sites of its values. Any other unresolved site fails '
-                    'the test.'),
+                    'where site_text stands (once in the file), and each anchor is a whole function, defined once '
+                    'in its file, whose text equals the anchor text character for character; one anchor must be '
+                    'the function the site stands in, which binds, builds and uses the value. A holding pin turns '
+                    'the site into sites of its values. Any other unresolved site fails the test.'),
     'scope': {
         'unit': ('The unit of this table is the code: the value of the code field of a diagnostic, finding, '
                  'refusal or reason record that production code of the scanned crates constructs. There is one '
@@ -2655,8 +2708,9 @@ HEADER = {
                         'finalized or cannot be (core/product_physics/src/lib.rs, the composite finalization and '
                         'its republication).'),
         'publication_traced_note': ('This list is kept by hand and is not checked by the test. Each entry records '
-                                    'its revision, the entry points examined, the decisive discard and what was not '
-                                    'read, and says when it must be rechecked.'),
+                                    'its revision, the entry points examined, the decisive step, what would discard a '
+                                    'result conditionally, the callers not found, the registered build and what was '
+                                    'not read, and says when it must be rechecked.'),
         'publication_traced': CONSTRUCTED_NOT_PUBLISHED,
         'what_exit_criterion_3_still_needs': ('This table supports the work exit criterion 3 needs and does not do '
                                               'it. That work is the connection from a required capability to its '
