@@ -180,7 +180,7 @@ import {
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 import type { RuleCheckRunBasis } from "../rule-check/RuleCheckRunPanel";
 import { batchRequiresPreview, operationRequiresPreview, previewSatisfied, PREVIEW_REQUIRED_REASON, type QueuedBatch } from "../toolkit/BatchReviewPanel";
-import { carriesSizedHangerSelection, SIZED_HANGER_SELECTION_UNREGISTERED_TEXT } from "../hanger-selection/hangerSelection";
+import { SUPPORT_HANGER_WRITE_REFUSED_TEXT, writesSupportHangerSelection } from "../hanger-selection/hangerSelection";
 import { capabilityAvailability, capabilityRoute } from "../toolkit/capabilityCatalog";
 import type { ToolkitCapability } from "../toolkit/capabilityCatalog";
 import type { CreationTool, ViewportExposureInteraction } from "../viewport/PipeViewport";
@@ -1733,10 +1733,11 @@ export function useWorkspaceSession() {
   async function handleRequeueRetainedRecord(intent: unknown, index: number): Promise<string | null> {
     const result = requeueRetainedRecord(intent, index);
     if ("refused" in result) { setBatchMessage(`Record could not be requeued: ${result.refused}`); return result.refused; }
-    // A sized hanger selection is applied only from its sizing result, which supplies its precondition.
-    if (carriesSizedHangerSelection(result.batch)) {
-      setBatchMessage(`Record could not be requeued: ${SIZED_HANGER_SELECTION_UNREGISTERED_TEXT}`);
-      return SIZED_HANGER_SELECTION_UNREGISTERED_TEXT;
+    // A support's hanger selection is applied only from the hanger form or its sizing result, never requeued; read by
+    // the batch's structure, after requeue's own refusals.
+    if (writesSupportHangerSelection(result.batch)) {
+      setBatchMessage(`Record could not be requeued: ${SUPPORT_HANGER_WRITE_REFUSED_TEXT}`);
+      return SUPPORT_HANGER_WRITE_REFUSED_TEXT;
     }
     await registerOperationBatch(result.batch);
     return null;
@@ -1748,9 +1749,10 @@ export function useWorkspaceSession() {
    * the final Apply (`handleRunOperationBatch`); it is in no batch document, receipt, history or stored record. */
   async function registerOperationBatch(batch: OperationBatch, options: { reveal?: boolean; agentContext?: AgentContext; importContext?: ImportContext; precondition?: BatchPrecondition } = {}): Promise<string | null> {
     if (!model) return null;
-    // Every producer: a sized hanger selection is registered only with the precondition its sizing result supplies.
-    if (carriesSizedHangerSelection(batch) && !options.precondition) {
-      setBatchMessage(SIZED_HANGER_SELECTION_UNREGISTERED_TEXT);
+    // Offline intake (the only producer passing importContext) never registers a write of a support's hanger
+    // selection, read by the batch's structure; the host's own features and an agent's proposals register as before.
+    if (options.importContext && writesSupportHangerSelection(batch)) {
+      setBatchMessage(SUPPORT_HANGER_WRITE_REFUSED_TEXT);
       return null;
     }
     const revision = modelRevision.current;
@@ -5012,25 +5014,36 @@ export const PRECONDITION_TIMEOUT_MS = 10000;
 /** The refusal when a precondition throws, answers with anything but null or a text, or does not answer in time. */
 export const PRECONDITION_UNCHECKED_REASON = "Its precondition could not be checked.";
 
-/** The precondition's answer within `timeoutMs`: null, its refusal text, or the unchecked reason. A precondition that
- * never settles cannot hold the caller past the bound. */
-export async function checkBatchPrecondition(precondition: BatchPrecondition, timeoutMs: number = PRECONDITION_TIMEOUT_MS): Promise<string | null> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const bound = new Promise<string>((resolve) => { timer = setTimeout(() => resolve(PRECONDITION_UNCHECKED_REASON), timeoutMs); });
-  const answer = (async (): Promise<string | null> => {
-    try {
-      const result: unknown = await precondition();
-      if (result === null) return null;
-      return typeof result === "string" && result.trim() !== "" ? result : PRECONDITION_UNCHECKED_REASON;
-    } catch {
-      return PRECONDITION_UNCHECKED_REASON;
-    }
-  })();
-  try {
-    return await Promise.race([answer, bound]);
-  } finally {
-    clearTimeout(timer);
-  }
+/** The precondition's answer within the bound: null, its refusal text, or the unchecked reason. What is measured is
+ * the elapsed time on a monotonic clock (`now`, performance.now by default) from when this helper starts, which is
+ * when the precondition is asked, to when its answer arrives. An answer that arrives at or after `timeoutMs` is not
+ * accepted, whatever it says, and is the unchecked reason, whether or not the bound's timer has run yet; a late refusal
+ * text is reported as the unchecked reason too, so that no answer after the bound is taken as the precondition's. The
+ * timer refuses a precondition that never settles at the bound, so it cannot hold the caller. Every outcome goes
+ * through `decide`, which takes the first and drops every later one. */
+export function checkBatchPrecondition(
+  precondition: BatchPrecondition,
+  timeoutMs: number = PRECONDITION_TIMEOUT_MS,
+  now: () => number = () => performance.now()
+): Promise<string | null> {
+  const deadline = now() + timeoutMs;
+  return new Promise<string | null>((resolve) => {
+    let decided = false;
+    const decide = (value: string | null) => {
+      if (decided) return;
+      decided = true;
+      clearTimeout(timer);
+      resolve(value);
+    };
+    const timer = setTimeout(() => decide(PRECONDITION_UNCHECKED_REASON), timeoutMs);
+    const answered = (value: string | null) => decide(now() < deadline ? value : PRECONDITION_UNCHECKED_REASON);
+    Promise.resolve()
+      .then(() => precondition())
+      .then(
+        (result: unknown) => answered(result === null ? null : typeof result === "string" && result.trim() !== "" ? result : PRECONDITION_UNCHECKED_REASON),
+        () => decide(PRECONDITION_UNCHECKED_REASON)
+      );
+  });
 }
 
 /** The queue with entry `key`'s last-apply refusal set, or cleared when `refusal` is null. */

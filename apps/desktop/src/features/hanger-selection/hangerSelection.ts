@@ -43,21 +43,120 @@ export type SizedHangerLoads =
  * other record load enters the support. */
 export type HangerSizingApplication = Readonly<{ run: HangerSizingRunIdentity; loads: SizedHangerLoads }>;
 
-/** The closed field label of a sized selection's configuration change: the builder writes it, and
- * `carriesSizedHangerSelection` reads it, so the two cannot drift. */
+/** The presentation label of a sized selection's configuration change. Nothing decides on it: a reviewer may alter or
+ * remove a label, so the routes that must refuse a hanger write read the batch's structure
+ * (`writesSupportHangerSelection`). */
 export const SIZED_HANGER_SELECTION_FIELD_LABEL = "Sized hanger selection";
-/** The session's refusal to register a sized hanger selection that comes without its host precondition. */
-export const SIZED_HANGER_SELECTION_UNREGISTERED_TEXT =
-  "This batch applies a sized hanger selection and can only be applied from its sizing result; size and apply again.";
+/** The refusal of a requeued or imported batch that writes a support's hanger selection. */
+export const SUPPORT_HANGER_WRITE_REFUSED_TEXT =
+  "This batch writes a support's hanger selection and can only be applied from the hanger form or from its sizing result; make the selection again.";
 
-/** Whether `batch` carries a sized hanger selection: any operation on a Support with the sized selection's field label.
- * It reads the label, and only the label: a batch whose label was altered is not caught, until a structured member
- * says the same. */
-export function carriesSizedHangerSelection(batch: OperationBatch): boolean {
+/** The engine's names for a variable spring hanger and a constant-effort support (core/product_physics/src/lib.rs,
+ * `is_variable_spring_hanger` and `is_constant_effort_support`); a test pins them to the engine's source. */
+export const ENGINE_VARIABLE_SPRING_HANGER_TYPES: readonly string[] = ["variable_spring_hanger", "spring_hanger"];
+export const ENGINE_CONSTANT_EFFORT_SUPPORT_TYPES: readonly string[] = ["constant_effort_support"];
+
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
+
+/** The code points Rust's `str::trim` removes: those with the Unicode White_Space property, as `char::is_whitespace`
+ * reads it (U+0020 and U+0009 to U+000D directly, the rest from core's White_Space table, Unicode PropList.txt).
+ * JavaScript's `String.prototype.trim` removes a different set: it keeps U+0085 and removes U+FEFF. */
+export const RUST_WHITE_SPACE_CODE_POINTS: readonly number[] = [
+  0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x0020, 0x0085, 0x00a0, 0x1680,
+  0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200a,
+  0x2028, 0x2029, 0x202f, 0x205f, 0x3000
+];
+
+/** `text` with leading and trailing White_Space removed, as Rust's `str::trim` removes it. */
+export function rustTrim(text: string): string {
+  const points = Array.from(text);
+  const white = (point: string) => RUST_WHITE_SPACE_CODE_POINTS.includes(point.codePointAt(0)!);
+  let start = 0;
+  let end = points.length;
+  while (start < end && white(points[start])) start += 1;
+  while (end > start && white(points[end - 1])) end -= 1;
+  return points.slice(start, end).join("");
+}
+
+/** How the engine classifies a support value: one of its two hanger kinds, `document_refused` where its typed decode
+ * (core/product_physics/src/lib.rs, `PreviewSupport` and `SpringHangerInput`) refuses the members it reads (a `hanger`
+ * that is not an object or null, or a `hanger_type` or `family` that is not a text or null), or null for none. */
+export type EngineHangerKind = "variable_spring" | "constant_effort" | "document_refused" | null;
+
+/** The engine's classification of a support value, mirroring `support_hanger_type`: the Rust-trimmed
+ * `hanger.hanger_type` when it is a text that is not blank, else the Rust-trimmed `family`; then the names above. A
+ * member the engine's decode refuses is `document_refused`, never a fall back to another member. */
+export function engineHangerKind(value: unknown): EngineHangerKind {
+  if (!isRecord(value)) return null;
+  const hanger = value.hanger;
+  if (hanger !== undefined && hanger !== null && !isRecord(hanger)) return "document_refused";
+  const hangerType = isRecord(hanger) ? hanger.hanger_type : undefined;
+  if (hangerType !== undefined && hangerType !== null && typeof hangerType !== "string") return "document_refused";
+  if (value.family !== undefined && value.family !== null && typeof value.family !== "string") return "document_refused";
+  const trimmedType = typeof hangerType === "string" ? rustTrim(hangerType) : "";
+  const effective = trimmedType !== "" ? trimmedType : typeof value.family === "string" ? rustTrim(value.family) : null;
+  if (effective === null) return null;
+  if (ENGINE_VARIABLE_SPRING_HANGER_TYPES.includes(effective)) return "variable_spring";
+  if (ENGINE_CONSTANT_EFFORT_SUPPORT_TYPES.includes(effective)) return "constant_effort";
+  return null;
+}
+
+/** The field paths through which an operation on a Support can write its hanger member or family, checked against the
+ * operation route (core/model_operations/operation_applier): `configuration` (update_support, which replaces the
+ * support's configuration) and `supports` (create_support). A support deletion also travels on `supports`, but writes no
+ * hanger and is recognised by its kind (`isSupportDeletion`). The route's other Support paths (label, provenance, node,
+ * restraints, tags, notes, provenance_record) cannot write a hanger or family. */
+export const SUPPORT_HANGER_FIELD_PATHS: readonly string[] = ["configuration", "supports"];
+
+/** A change's before or after as the predicate reads it: absent (`not_present`), a value, or unreadable. */
+function changeValue(text: unknown): { kind: "absent" } | { kind: "value"; value: unknown } | { kind: "unreadable" } {
+  if (text === "not_present") return { kind: "absent" };
+  if (typeof text !== "string") return { kind: "unreadable" };
+  try {
+    return { kind: "value", value: JSON.parse(text) };
+  } catch {
+    return { kind: "unreadable" };
+  }
+}
+
+/** Whether a value written or replaced on a support is a hanger: it has a `hanger` member at all (any value), or the
+ * engine classifies it as one, or the engine's decode refuses a member it reads (`document_refused`). A value that is unreadable, or not a support object (such as a label text where a
+ * support was expected), counts as a hanger: it fails closed. */
+function isHangerValue(read: ReturnType<typeof changeValue>): boolean {
+  if (read.kind === "absent") return false;
+  if (read.kind === "unreadable" || !isRecord(read.value)) return true;
+  return "hanger" in read.value || engineHangerKind(read.value) !== null;
+}
+
+/** Whether an operation is one the operation route carries out only as a support deletion. The applier
+ * (core/model_operations/operation_applier/src/lib.rs) dispatches on `change.change_kind`: in `run_with_context`, only
+ * change_kind `delete_support` reaches `resolve_delete_support`, whose result is applied by `apply_deleted_support`, which
+ * removes the support and writes nothing; `resolve_delete_support` blocks unless the target is a Support, the field path
+ * `supports` and the after `not_present`; and `check_kinds` blocks a `delete_support` whose `operation_kind` is not
+ * `delete`. The other support writers are keyed on other change kinds (`create_support` for `resolve_create_support`,
+ * `update_support` for the `configuration` path, which blocks any other change_kind). So an operation with all of these
+ * members is either a deletion or blocked with its batch, and cannot write a hanger; one that lacks any of them is read
+ * as a possible write. */
+function isSupportDeletion(operation: Record<string, unknown> & { target: Record<string, unknown>; change: Record<string, unknown> }): boolean {
+  return operation.change.change_kind === "delete_support"
+    && operation.operation_kind === "delete"
+    && operation.target.object_type === "Support"
+    && operation.change.field_path === "supports"
+    && operation.change.after === "not_present";
+}
+
+/** Whether `batch` writes a support's hanger selection, by structure only: any operation on a Support, on one of
+ * `SUPPORT_HANGER_FIELD_PATHS`, other than a support deletion, whose after or before value is a hanger. A value that
+ * cannot be read as a support object counts as a hanger. No label, note or rationale is read. */
+export function writesSupportHangerSelection(batch: OperationBatch): boolean {
   const operations: unknown = (batch as { operations?: unknown } | null | undefined)?.operations;
   if (!Array.isArray(operations)) return false;
-  return operations.some((operation: { target?: { object_type?: unknown }; change?: { field_label?: unknown } } | null) =>
-    operation?.target?.object_type === "Support" && operation?.change?.field_label === SIZED_HANGER_SELECTION_FIELD_LABEL);
+  return operations.some((operation: unknown) => {
+    if (!isRecord(operation) || !isRecord(operation.target) || !isRecord(operation.change)) return false;
+    if (operation.target.object_type !== "Support" || !SUPPORT_HANGER_FIELD_PATHS.includes(String(operation.change.field_path))) return false;
+    if (isSupportDeletion(operation as Record<string, unknown> & { target: Record<string, unknown>; change: Record<string, unknown> })) return false;
+    return isHangerValue(changeValue(operation.change.after)) || isHangerValue(changeValue(operation.change.before));
+  });
 }
 
 const FAMILY_OF = { variable_spring: "variable_spring_hanger", constant_effort: "constant_effort_support" } as const;

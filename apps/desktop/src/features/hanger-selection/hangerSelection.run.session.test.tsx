@@ -78,7 +78,7 @@ describe("a sizing run's selections through the operation route", () => {
 
     const prepared = await prepareRunApplication(document, result.current.model.model!, library());
     if (prepared.kind !== "prepared") throw new Error(prepared.reason);
-    // A sized batch is registered only with a precondition (the session's gate); this one always holds.
+    // The sizing acts queue with a precondition; this one always holds.
     await act(async () => { await result.current.operations.handleQueueOperationBatch(prepared.batch, { precondition: async () => null }); });
     expect(await canonicalJsonString(result.current.model.model!)).toBe(original);
     expect(result.current.operations.undoStack).toHaveLength(0);

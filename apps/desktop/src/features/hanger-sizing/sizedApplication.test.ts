@@ -69,7 +69,7 @@ describe("a run's application with its precondition", () => {
       .toEqual({ kind: "refused", refusal: "library_unavailable", reason: HANGER_SIZING_LIBRARY_UNAVAILABLE_TEXT });
 
     const none = result();
-    (none.result as { candidates: unknown[] }).candidates = none.result.candidates.filter((candidate) => candidate.outcome === "no_record_fits");
+    (none.result as unknown as { candidates: unknown[] }).candidates = none.result.candidates.filter((candidate) => candidate.outcome === "no_record_fits");
     expect(await prepareSizedApplication(none, model(), PROJECT, store().read))
       .toEqual({ kind: "refused", refusal: "nothing_to_apply", reason: HANGER_SIZING_RUN_NOTHING_TEXT });
 
