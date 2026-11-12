@@ -507,7 +507,7 @@ fn kd5_u2_arc_wall_rows_refuse_an_unknown_section_location() {
         let stations = locations.map(|location| StationResultants { location, resultants: [0.0; 6] });
         let (mut results, mut diagnostics) = (Vec::new(), Vec::new());
         bend_pressure::append_arc_pressure_results(
-            &mut results, &mut diagnostics, load_case, "pipe:BEND", state, &[[0.0; 6]; 2], &stations, Some((&rows, &rows)),
+            &mut results, 0, &mut diagnostics, load_case, "pipe:BEND", state, &[[0.0; 6]; 2], &stations, Some((&rows, &rows)),
         );
         (results, diagnostics)
     };

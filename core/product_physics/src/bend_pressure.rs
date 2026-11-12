@@ -87,6 +87,35 @@ pub(super) fn certified_section_index(location: &str) -> Option<usize> {
     }
 }
 
+/// A row a pressurized member's pressure rows replace: its elastic axial rows
+/// and the pre-v2 pressure stress rows.
+fn replaced(row: &ResultItem, pipe_id: &str) -> bool {
+    row.entity_ref == pipe_id
+        && matches!(
+            row.kind.as_str(),
+            "element_local_axial_force"
+                | "element_local_axial_normal_stress"
+                | "pipe_section_pressure_hoop_stress"
+                | "pipe_section_pressure_longitudinal_stress"
+        )
+}
+
+/// Drops the member's replaced rows, keeping the order of every other row.
+/// `from` is the position the member's rows start at (`member_rows_from`): its
+/// rows are the case's tail from there, and no earlier row is one it replaces
+/// (only a pipe's own member functions publish these kinds, and a pipe
+/// identifier names one member), so the rows before `from` are not read.
+pub(super) fn drop_replaced_rows(results: &mut Vec<ResultItem>, from: usize, pipe_id: &str) {
+    let mut kept = from;
+    for i in from..results.len() {
+        if !replaced(&results[i], pipe_id) {
+            results.swap(kept, i);
+            kept += 1;
+        }
+    }
+    results.truncate(kept);
+}
+
 /// The pressure family's rows on a realized arc (H-2): `pipe_wall_*`,
 /// `pipe_effective_*` and `pipe_axial_membrane_*` at the two ends and three
 /// stations from the elastic section actions (tangent frame), and the wall
@@ -95,9 +124,11 @@ pub(super) fn certified_section_index(location: &str) -> Option<usize> {
 /// published on an arc. On a pre-guard Passed case (`certified` = the arc's
 /// certified wall and effective recoveries, K-D5) each N_w, S and N_w/As is
 /// the certified row rounded once; otherwise the binary64 `Scaled` path.
+/// `from`: the position the member's rows start at ([`drop_replaced_rows`]).
 #[allow(clippy::too_many_arguments)]
 pub(super) fn append_arc_pressure_results(
     results: &mut Vec<ResultItem>,
+    from: usize,
     diagnostics: &mut Vec<Diagnostic>,
     case: &PreviewLoadCase,
     pipe_id: &str,
@@ -106,16 +137,7 @@ pub(super) fn append_arc_pressure_results(
     stations: &[StationResultants],
     certified: Option<(&CertifiedMemberRecovery, &CertifiedMemberRecovery)>,
 ) {
-    results.retain(|r| {
-        r.entity_ref != pipe_id
-            || !matches!(
-                r.kind.as_str(),
-                "element_local_axial_force"
-                    | "element_local_axial_normal_stress"
-                    | "pipe_section_pressure_hoop_stress"
-                    | "pipe_section_pressure_longitudinal_stress"
-            )
-    });
+    drop_replaced_rows(results, from, pipe_id);
     let mut sections = vec![
         ("end_i", endpoint_resultants[0][UX]),
         ("end_j", endpoint_resultants[1][UX]),
@@ -225,6 +247,10 @@ pub(super) fn append_arc_pressure_results(
         }
     }
 }
+
+#[cfg(test)]
+#[path = "pressure_row_replacement_tests.rs"]
+mod replacement_tests;
 
 #[cfg(test)]
 mod tests {

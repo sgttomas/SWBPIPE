@@ -7173,6 +7173,7 @@ fn solve_prepared_load_case(
             // T4-U2 (H-2): a realized arc's pressure rows.
             bend_pressure::append_arc_pressure_results(
                 &mut results,
+                member_rows_from,
                 diagnostics,
                 load_case,
                 &pipe.element_id,
@@ -7187,6 +7188,7 @@ fn solve_prepared_load_case(
         {
             append_exact_pressure_results(
                 &mut results,
+                member_rows_from,
                 diagnostics,
                 load_case,
                 &pipe.element_id,
@@ -13654,6 +13656,7 @@ fn append_signed_support_results(
 #[allow(clippy::too_many_arguments)]
 fn append_exact_pressure_results(
     results: &mut Vec<ResultItem>,
+    from: usize,
     diagnostics: &mut Vec<Diagnostic>,
     case: &PreviewLoadCase,
     pipe_id: &str,
@@ -13693,16 +13696,7 @@ fn append_exact_pressure_results(
         ));
         return;
     };
-    results.retain(|r| {
-        r.entity_ref != pipe_id
-            || !matches!(
-                r.kind.as_str(),
-                "element_local_axial_force"
-                    | "element_local_axial_normal_stress"
-                    | "pipe_section_pressure_hoop_stress"
-                    | "pipe_section_pressure_longitudinal_stress"
-            )
-    });
+    bend_pressure::drop_replaced_rows(results, from, pipe_id);
     // `basis` names a stress row's section basis (D-5): each nominal stress row
     // is immediately followed by its reduced twin; force rows are published once.
     let mut append =
