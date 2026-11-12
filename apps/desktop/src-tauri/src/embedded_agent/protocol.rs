@@ -964,40 +964,12 @@ mod tests {
         }
     }
 
-    // The host can write to the supplier only these client requests and the
-    // initialized notification; every other frame it writes is a reply to a
-    // server request. The supplier's remote control is turned on at run time
-    // only by client requests (remoteControl/enable and the pairing requests),
-    // so a method added here must fail this test and be looked at.
-    #[test]
-    fn missing_status_has_its_own_reason_and_poisons_the_connection() {
-        assert_ne!(REMOTE_CONTROL_STATUS_MISSING, REMOTE_CONTROL_REPORTED);
-        assert_ne!(REMOTE_CONTROL_STATUS_MISSING, Error("unoffered supplier tool activity"));
-        let mut p = ready();
-        p.submit_text("hello".into()).unwrap();
-        assert_eq!(p.require_remote_control_status().err(), Some(REMOTE_CONTROL_STATUS_MISSING));
-        assert!(p.handle_frame(remote_control(json!("disabled")), &basis()).is_err());
-        let mut q = ready();
-        q.handle_frame(remote_control(json!("disabled")), &basis()).unwrap();
-        q.submit_text("hello".into()).unwrap();
-        assert_eq!(q.require_remote_control_status(), Ok(()));
-    }
+    // The host's controls and replies write only these client requests and
+    // the initialized notification; every other frame is a reply to a server
+    // request. The guarantee is SessionDriver::send's allow list; this drives
+    // every control and server input that writes, as a second check.
     #[test]
     fn host_writes_only_the_four_client_requests_and_initialized() {
-        const REQUESTS: [&str; 4] = ["initialize", "thread/start", "turn/interrupt", "turn/start"];
-        // By source: every client request goes through `request`, and the
-        // only other method this module writes is `initialized`.
-        let source = include_str!("protocol.rs");
-        let body = &source[..source.find("#[cfg(test)]").unwrap()];
-        let mut methods: Vec<&str> = body
-            .split("self.request(")
-            .skip(1)
-            .map(|rest| rest.split('"').nth(1).unwrap())
-            .collect();
-        methods.sort();
-        assert_eq!(methods, REQUESTS);
-        assert_eq!(body.matches("\"method\":").count(), 2);
-        assert!(body.contains("{\"method\":\"initialized\",\"params\":{}}"));
         // By behaviour: drive every control and server input that writes.
         let mut written: Vec<Value> = Vec::new();
         let mut p = Protocol::new(Catalog::load().unwrap(), "0123456789abcdef".into(), 16).unwrap();

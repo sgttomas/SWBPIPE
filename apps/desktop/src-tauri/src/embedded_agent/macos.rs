@@ -306,7 +306,17 @@ impl Prepared {
     pub(crate) fn spawn(self) -> Result<Launched, Error> {
         self.spawn_inner(false)
     }
-    fn spawn_inner(mut self, diagnostic_stderr: bool) -> Result<Launched, Error> {
+    fn spawn_inner(self, diagnostic_stderr: bool) -> Result<Launched, Error> {
+        self.spawn_with(diagnostic_stderr, |command| command.spawn())
+    }
+    /// The launch boundary: `launch` receives the supplier's final command,
+    /// and nothing changes it after. Production passes `Command::spawn`; a
+    /// test passes a closure that inspects the command and executes nothing.
+    fn spawn_with(
+        mut self,
+        diagnostic_stderr: bool,
+        launch: impl FnOnce(&mut Command) -> std::io::Result<Child>,
+    ) -> Result<Launched, Error> {
         let runtime = self.runtime.as_ref().ok_or(Error::Spawn)?;
         if !runtime.relay.is_ready() {
             return Err(Error::Spawn);
@@ -323,7 +333,7 @@ impl Prepared {
                     Stdio::null()
                 })
                 .process_group(0);
-            command.spawn()
+            launch(&mut command)
         };
         let child = result.map_err(|_| Error::Spawn)?;
         let observer = process_scope::Observer::new(&child);
@@ -630,6 +640,77 @@ mod tests {
             .collect();
         expected.sort();
         assert_eq!(envs, expected);
+    }
+    /// The final command at the launch boundary, captured and never executed.
+    #[test]
+    fn the_launched_command_is_exactly_the_fixed_one() {
+        let root = fixture();
+        let registry = SolveJobRegistry::new(MemoryPool::new(ScriptedHost::normal()));
+        let mut relay = ready_relay(&registry);
+        let endpoint = relay.endpoint().unwrap();
+        let capability = endpoint.scope().capability().to_owned();
+        let lease = registry.acquire_interactive_ingress(STARTUP_BYTES).unwrap();
+        let prepared = Prepared {
+            runtime: Some(Runtime {
+                root: root.join("runtime"),
+                marker: root.join("never-created.scope"),
+                scope: "invented-scope".into(),
+                relay: endpoint,
+                _lease: Arc::new(lease),
+            }),
+        };
+        let runtime_root = root.join("runtime");
+        let mut seen = None;
+        let result = prepared.spawn_with(false, |command| {
+            let args: Vec<String> = command.get_args().map(|a| a.to_str().unwrap().to_owned()).collect();
+            let mut envs: Vec<(String, Option<String>)> = command
+                .get_envs()
+                .map(|(k, v)| (k.to_str().unwrap().to_owned(), v.map(|v| v.to_str().unwrap().to_owned())))
+                .collect();
+            envs.sort();
+            seen = Some((
+                command.get_program().to_str().unwrap().to_owned(),
+                args,
+                envs,
+                command.get_current_dir().map(Path::to_path_buf),
+            ));
+            Err(std::io::Error::other("captured, not executed"))
+        });
+        assert!(matches!(result, Err(Error::Spawn)));
+        let (program, args, envs, cwd) = seen.unwrap();
+        let r = runtime_root.to_str().unwrap();
+        assert_eq!(program, "/usr/bin/sandbox-exec");
+        assert_eq!(
+            args,
+            [
+                "-f".to_owned(),
+                format!("{r}/sandbox.sb"),
+                format!("{r}/codex"),
+                "app-server".to_owned(),
+                "--listen".to_owned(),
+                "stdio://".to_owned(),
+            ]
+        );
+        assert_eq!(cwd, Some(runtime_root.join("work")));
+        let mut expected: Vec<(String, Option<String>)> = [
+            ("HOME", format!("{r}/home")),
+            ("CODEX_HOME", format!("{r}/home/codex")),
+            ("TMPDIR", format!("{r}/home/tmp")),
+            ("XDG_CACHE_HOME", format!("{r}/home/cache")),
+            ("XDG_CONFIG_HOME", format!("{r}/home/config")),
+            ("XDG_DATA_HOME", format!("{r}/home/data")),
+            ("PATH", "/usr/bin:/bin".to_owned()),
+            ("LANG", "en_US.UTF-8".to_owned()),
+            ("SWBPIPE_AGENT_RELAY_CAPABILITY", capability),
+            ("CODEX_INTERNAL_APP_SERVER_REMOTE_CONTROL_DISABLED", "1".to_owned()),
+        ]
+        .into_iter()
+        .map(|(k, v)| (k.to_owned(), Some(v)))
+        .collect();
+        expected.sort();
+        assert_eq!(envs, expected);
+        stop_relay(&mut relay);
+        let _ = fs::remove_dir_all(root);
     }
     #[test]
     fn contained_child_inherits_nothing_from_the_application_environment() {
