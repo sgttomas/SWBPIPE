@@ -326,6 +326,29 @@ function formatPackageSaveError(error: unknown): string {
   return String(error);
 }
 
+/** DEL-08-01 REQ-019, AC-010; DEL-02-05 AX-005: what a failed shareable save says about
+ * the file before its diagnostic. Before the native save is asked for, and for a coded
+ * refusal or a writer error of the save, nothing was written. A worker failure, or an
+ * error that cannot be read, leaves the outcome unknown, and it is reported as unknown. */
+const SHAREABLE_SAVE_NOT_WRITTEN = "Not saved: no shareable report package was written and no user release was made.";
+const SHAREABLE_SAVE_OUTCOME_UNKNOWN = "It is not known whether the shareable report package was written.";
+const REPORT_PACKAGE_SAVE_WORKER_FAILED = "REPORT-PACKAGE-SAVE-WORKER-FAILED";
+
+function shareableSaveFailureStatement(error: unknown, sent: boolean): string {
+  if (!sent) return SHAREABLE_SAVE_NOT_WRITTEN;
+  // The memory pool's refusal and the ingress's refusal of the arguments precede admission.
+  if (error instanceof ResourceUnavailableError) return SHAREABLE_SAVE_NOT_WRITTEN;
+  if (error instanceof Error && error.message.startsWith("INVALID_REQUEST: ")) return SHAREABLE_SAVE_NOT_WRITTEN;
+  // The save's own error (`ReportPackageSaveCommandError`): a refusal, or the atomic writer's.
+  if (error && typeof error === "object" && !(error instanceof Error)) {
+    const { code, stage, message } = error as { code?: unknown; stage?: unknown; message?: unknown };
+    if (typeof code === "string" && typeof stage === "string" && typeof message === "string" && code !== REPORT_PACKAGE_SAVE_WORKER_FAILED) {
+      return SHAREABLE_SAVE_NOT_WRITTEN;
+    }
+  }
+  return SHAREABLE_SAVE_OUTCOME_UNKNOWN;
+}
+
 /**
  * The workspace session: the six state hooks, all thirteen effects and every
  * handler, in one closure and in the order `AppSession` declared them.
@@ -3976,6 +3999,9 @@ export function useWorkspaceSession() {
     const resultRefusal = userReleasedReportPackageUnavailableReason(basis.result);
     const close = () => { userReleaseDialogOpenRef.current = false; setUserReleaseRequest(null); };
     userReleaseDialogOpenRef.current = true;
+    // A new shareable attempt begins: an earlier save's status, which may carry that save's
+    // user release, must not read as this attempt's, whether it is confirmed or cancelled.
+    setReportPackageRoute(null);
     setUserReleaseRequest({
       projectName: basis.model.project.name,
       modelDocumentSha256,
@@ -4009,6 +4035,8 @@ export function useWorkspaceSession() {
     reportPackageBusyGenerationRef.current = generation;
     setReportPackageBusy(true);
     setReportPackageRoute(null);
+    // Whether the native save was asked for: before it, nothing can have been written.
+    let sent = false;
     try {
       // The package reads full rows (C2): a native result's bounded full copy.
       const full = isNativeResult(basis.result) ? (await loadC2Full(basis.result)).result : (basis.result as MechanicsResult);
@@ -4030,13 +4058,14 @@ export function useWorkspaceSession() {
         if (prepared.args.exactResultText === undefined) return true;
         try { reportPackageExactSubmission(request); return true; } catch { return false; }
       };
+      sent = true;
       const saved = await invokeUserReleasedReportPackageSave(prepared, () => isCurrent() && exactStillCurrent());
       if (!isCurrent()) return;
       setReportPackageRoute(saved);
     } catch (error) {
       if (error instanceof IngressRequestRetiredError || !isCurrent()) return;
       setReportPackageRedaction(null);
-      setReportPackageRoute({ route: "redaction_blocked", diagnostic: formatPackageSaveError(error) });
+      setReportPackageRoute({ route: "redaction_blocked", diagnostic: `${shareableSaveFailureStatement(error, sent)} ${formatPackageSaveError(error)}` });
     } finally {
       // Released whenever this save still holds the busy mark, even when its basis moved on (a
       // rule-check record landing mid-save retires it without invalidating the package state).

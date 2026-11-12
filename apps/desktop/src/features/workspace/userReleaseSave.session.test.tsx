@@ -137,3 +137,72 @@ describe("Save Shareable Report Package… through the session (W-18b)", () => {
     expect(saveCalls()).toHaveLength(0);
   });
 });
+
+// DEL-08-01 REQ-019, AC-010; DEL-02-05 AX-005: no outcome of a shareable save says a package was
+// written or a user release made when none was, and an unknown outcome reads as unknown.
+const NOT_WRITTEN = "Not saved: no shareable report package was written and no user release was made.";
+const UNKNOWN = "It is not known whether the shareable report package was written.";
+
+describe("What a shareable save that writes nothing says (REQ-019, AC-010)", () => {
+  /** The session with the native save answered by `answer`. */
+  async function sessionAnswering(answer: () => Promise<unknown>) {
+    const rendered = await solvedSession();
+    const passThrough = invokeMock.getMockImplementation()!;
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) =>
+      command === "save_report_package" ? answer() : passThrough(command, args, options));
+    return rendered;
+  }
+
+  async function confirmOneSave(hook: { current: ReturnType<typeof useWorkspaceSession> }) {
+    await act(async () => { await hook.current.results.requestSaveShareableReportPackage(); });
+    await act(async () => { hook.current.results.userReleaseRequest!.save({ userReleasedAt: "2026-11-09T00:00:00Z" }); });
+    await waitFor(() => expect(hook.current.results.reportPackageRoute).not.toBeNull());
+    await waitFor(() => expect(hook.current.results.reportPackageBusy).toBe(false));
+    expect(saveCalls()).toHaveLength(1);
+    return hook.current.results.reportPackageRoute!;
+  }
+
+  function diagnostic(route: unknown): string {
+    const read = route as { route: string; diagnostic: string };
+    expect(read.route).toBe("redaction_blocked");
+    return read.diagnostic;
+  }
+
+  it("a cancelled chooser's receipt records no user release", async () => {
+    const cancelled = { ...RECEIPT, outcome: "cancelled", code: "REPORT-PACKAGE-SAVE-CANCELLED", byte_count: 0, durability: "not_applicable",
+      selected_basename: "", user_release_recorded: false, user_release_model_document_sha256: "" };
+    const { result: hook } = await sessionAnswering(async () => cancelled);
+    expect(await confirmOneSave(hook)).toEqual({ route: "tauri_report_package_save", receipt: cancelled });
+  });
+
+  it.each([
+    ["a coded refusal", { code: "REPORT-PACKAGE-SAVE-MODEL-UNBOUND", stage: "admit", message: "Invented refusal.", selected_basename: "", diagnostics: [] }],
+    ["a writer error", { code: "REPORT-PACKAGE-RENAME-FAILED", stage: "rename", message: "Invented rename failure.", os_error_kind: "Other", selected_basename: "invented.opsproj", diagnostics: [] }]
+  ])("%s says nothing was written, before its diagnostic", async (_name, error) => {
+    const { result: hook } = await sessionAnswering(async () => { throw error; });
+    expect(diagnostic(await confirmOneSave(hook))).toBe(`${NOT_WRITTEN} ${JSON.stringify(error)}`);
+  });
+
+  it.each([
+    ["a worker failure", { code: "REPORT-PACKAGE-SAVE-WORKER-FAILED", stage: "assemble", message: "REPORT-PACKAGE-SAVE-WORKER-FAILED: the save's worker did not complete; the destination may be unchanged.", diagnostics: [] }],
+    ["an unreadable error", "invented unreadable failure"]
+  ] as Array<[string, unknown]>)("%s says only that the outcome is not known", async (_name, error) => {
+    const { result: hook } = await sessionAnswering(async () => { throw error; });
+    const text = diagnostic(await confirmOneSave(hook));
+    expect(text.startsWith(`${UNKNOWN} `)).toBe(true);
+    expect(text).not.toContain("Not saved");
+    expect(text).not.toContain("no user release");
+    expect(text).not.toContain("user_release_recorded");
+  });
+
+  it("a new shareable attempt clears an earlier save's status, confirmed or cancelled", async () => {
+    const { result: hook } = await solvedSession();
+    expect(await confirmOneSave(hook)).toEqual({ route: "tauri_report_package_save", receipt: RECEIPT });
+    await act(async () => { await hook.current.results.requestSaveShareableReportPackage(); });
+    expect(hook.current.results.userReleaseRequest).not.toBeNull();
+    expect(hook.current.results.reportPackageRoute).toBeNull();
+    act(() => hook.current.results.userReleaseRequest!.cancel());
+    expect(hook.current.results.reportPackageRoute).toBeNull();
+    expect(saveCalls()).toHaveLength(1);
+  });
+});
