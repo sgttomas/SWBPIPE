@@ -99,8 +99,11 @@ STATUS_VOCABULARIES: dict[str, frozenset[str]] = {
     "delta_classifications": frozenset(
         {"not_classified", "within_tolerance_profile", "exceeds_tolerance_profile", "not_tolerance_checked"}
     ),
+    # The analysis_run engine's bases, the desktop's record, and the desktop's within-run
+    # comparison (previewService.ts buildPreviewComparison).
     "delta_classification_bases": frozenset(
         {
+            "governed_tolerance_profile_TBD_no_default_engineering_threshold",
             "no_tolerance_profile_supplied",
             "no_matching_tolerance_rule",
             "tolerance_rule_unit_not_normalized_unit",

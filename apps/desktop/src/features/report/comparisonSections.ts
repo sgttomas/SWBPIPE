@@ -60,7 +60,9 @@ export const STATUS_VOCABULARIES: Readonly<Record<string, ReadonlySet<string>>> 
   delta_classifications: new Set(["not_classified", "within_tolerance_profile", "exceeds_tolerance_profile", "not_tolerance_checked"]),
   delta_classification_bases: new Set([
     "no_tolerance_profile_supplied", "no_matching_tolerance_rule", "tolerance_rule_unit_not_normalized_unit",
-    "caller_supplied_relative_absolute_tolerance_rule", "tolerance_value_not_numeric", "caller_supplied_tolerance_rule", "no_tolerance_profile"
+    "caller_supplied_relative_absolute_tolerance_rule", "tolerance_value_not_numeric", "caller_supplied_tolerance_rule", "no_tolerance_profile",
+    // The desktop's within-run comparison (previewService.ts buildPreviewComparison).
+    "governed_tolerance_profile_TBD_no_default_engineering_threshold"
   ]),
   mapping_statuses: new Set(["automatic_match", "manual_match", "unresolved_mapping", "unmatched_left", "unmatched_right", "ignored", "TBD"]),
   settings_delta_kinds: new Set(["added", "removed", "changed"]),
