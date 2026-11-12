@@ -45,6 +45,15 @@
 //! reference exclusion is not served yet ([`FILL_NOT_SERVED`]): the mirror of
 //! the document's rule-pack diagnostics does not exist natively.
 //!
+//! **Size.** The derivation reserves [`DERIVATION_RESERVE_FACTOR`] times the
+//! held text before any parse; when the invocation's budget cannot hold it, the
+//! render is refused as a resource shortfall ([`check_fill_size`]). At present
+//! that admits about 49 MB of result text, an estimate of present sizing (the
+//! measured multiple with its margin, a 12 GiB budget with nothing else held),
+//! not a guaranteed size. It is below the 64 MiB the webview's bounded copy
+//! already admits: this command raises no size limit; it removes the
+//! resubmitted request text and the webview's copy only.
+//!
 //! Routes: an exact-route (pressure-2, pressure-source-1) or pressure-free
 //! Timoshenko result is filled; any other result in custody is refused
 //! ([`FILL_NOT_SERVED`]). Standard claim fence applies (claims taxonomy per
@@ -53,7 +62,7 @@
 use crate::analysis_run_v03_build::{self as record_build, Exclusion, ManifestArg};
 use crate::command_ingress::{Args, CommandError};
 use crate::exact_source_binding::{self as binding, sections_mismatch, BoundSource, ExactRefusal};
-use crate::memory_pool::Lease;
+use crate::memory_pool::{Lease, ResourceRefusal};
 use crate::report_render_exact::{check_text_sizes, exact_render_growth_bytes, PF_TIMOSHENKO_SECTION};
 use crate::solve_jobs::{sha256_in_place, HeldResult, SolveJobRegistry};
 use open_pipe_stress_report_package::bindings::{
@@ -419,11 +428,45 @@ pub(crate) fn fill(mut frame: Value, basis: &FillBasis<'_>) -> Result<Value, Str
     Ok(frame)
 }
 
+/// The derivation's reservation, as a multiple of the held result text's bytes
+/// (review of f3d02469c, finding 1). [`derive_binding`] holds at once the
+/// analysis-run record, the Current result document (`derive_document`, which
+/// copies the source evidence and builds per-row values, annotations,
+/// accounting and witnesses), the document's clone for validation and the
+/// canonical strings of its digests. Its peak, priced as the pool prices
+/// (`ingress::allocation_envelope` per allocation), measured with the counting
+/// allocator: 108 to 192 times the held text on the nine committed references
+/// (`report_native_fill_tests`) and 174 times on an 82-node nonlinear rack
+/// result of 10.7 MB solved at this head. 240 is the largest of those, 192,
+/// with a quarter added. A measured provision, not a proven bound; the
+/// regression `the_derivation_stays_within_its_reservation_on_every_committed_reference`
+/// fails when a committed reference exceeds it.
+pub(crate) const DERIVATION_RESERVE_FACTOR: u64 = 240;
+
+/// The derivation's reservation for a held text of `text_bytes`, when the
+/// invocation's `budget_bytes` holds it beside the `held_bytes` the command
+/// already holds or is about to take. Otherwise the pool's own refusal for a
+/// growth above the budget, `ingress_exceeds_budget` with the bytes required
+/// in all: a capability shortfall of this invocation, in the resource-refusal
+/// family every native command uses (the desktop reads it as
+/// `RESOURCE_UNAVAILABLE`), never a statement about the result's standing or
+/// binding. Decided before any parse: nothing result-sized is allocated
+/// before it.
+pub(crate) fn check_fill_size(text_bytes: u64, held_bytes: u64, budget_bytes: u64) -> Result<u64, ResourceRefusal> {
+    let reserved = text_bytes.saturating_mul(DERIVATION_RESERVE_FACTOR);
+    let required_bytes = held_bytes.saturating_add(reserved);
+    if required_bytes > budget_bytes {
+        return Err(ResourceRefusal::IngressExceedsBudget { required_bytes, budget_bytes });
+    }
+    Ok(reserved)
+}
+
 /// The fill from custody, before the admission (`report_render_exact.rs`): the
 /// frame rule; the job's custody digests (the existing path's step 1); the
 /// size caps; the model text against the custody's intake digest; the lease
-/// grown by the existing render's priced amounts, priced on the held text,
-/// before any parse; one parse of the held text with the native standing; the
+/// grown by the existing render's priced amounts and the derivation's
+/// reservation ([`check_fill_size`]), priced on the held text, before any
+/// parse; one parse of the held text with the native standing; the
 /// manifest's parse; the native derivation; then [`fill`].
 pub(crate) fn fill_from_custody(request: CustodyRenderRequest, registry: &SolveJobRegistry, lease: &mut Lease) -> Result<Filled, CommandError> {
     let CustodyRenderRequest { job_id, frame, intake, input_manifest, aggregate, exclusions } = request;
@@ -435,7 +478,14 @@ pub(crate) fn fill_from_custody(request: CustodyRenderRequest, registry: &SolveJ
         return Err(refused(binding::not_delivered("model")));
     }
     let growth = exact_render_growth_bytes(held.text(), &intake, &input_manifest).map_err(CommandError::Command)?;
-    lease.grow_to(lease.bytes().saturating_add(growth)).map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
+    // The derivation's reservation (review of f3d02469c, finding 1), refused as
+    // a resource shortfall before any parse when the invocation's budget cannot
+    // hold it, then taken with the render's growth in one step before any parse.
+    let reserved = check_fill_size(held.text().len() as u64, lease.bytes().saturating_add(growth), lease.budget_bytes())
+        .map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
+    lease
+        .grow_to(lease.bytes().saturating_add(growth).saturating_add(reserved))
+        .map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
     // Steps 3 and 4 of the existing binding, on the held text (borrowed, never
     // copied): its one parse. Step 5 runs in the admission, on the filled binding.
     let mut bound = binding::read_eligible_source(&digests, held.text(), &intake).map_err(refused)?;

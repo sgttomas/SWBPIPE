@@ -1050,3 +1050,117 @@ fn the_derivation_is_measured_on_a_scratch_result() {
     let (filled, measured) = crate::ingress::counting::measure(|| fill_only(&live, &args).map(|_| ()).map_err(message));
     eprintln!("scratch fill_from_custody: {filled:?}; priced peak {} ({:.2}x)", measured.peak_priced, measured.peak_priced as f64 / text);
 }
+
+/// Finding 1 (c), the regression: on every committed reference, the
+/// derivation's priced peak (its intermediates alive at once) is within the
+/// reservation the command takes for it, and the whole command's priced peak
+/// is within its grown lease, less the buffered body's envelope.
+#[test]
+fn the_derivation_stays_within_its_reservation_on_every_committed_reference() {
+    use crate::report_native_fill::DERIVATION_RESERVE_FACTOR;
+    for reference in every_reference() {
+        let name = &reference.name;
+        let live = live_job(&reference);
+        let manifest_text = canonical_json(&reference.manifest);
+        let peaks = derivation_peaks(&live.registry, &live.job, &reference.intake, &manifest_text, reference.aggregate.as_str());
+        let reserved = peaks.text * DERIVATION_RESERVE_FACTOR + peaks.derivation_reserved;
+        assert!(peaks.derivation_priced <= reserved, "{name}: the derivation's priced peak {} exceeds its reservation {reserved}", peaks.derivation_priced);
+        let frame = frame_of(&reference.report, source_diagnostic_count(&reference.result));
+        let (outcome, peak, lease, _) = command_peak(&live, &custody_args(&live.job, &frame, &reference));
+        assert!(outcome.is_ok() || name.starts_with("user_release_exact/"), "{name}: {outcome:?}");
+        assert!(peak <= lease, "{name}: the command's priced peak {peak} exceeds its lease {lease}");
+        eprintln!(
+            "{name}: text {} derivation priced {} ({:.1}x) reserved {} ({DERIVATION_RESERVE_FACTOR}x); command priced {peak} lease {lease}",
+            peaks.text,
+            peaks.derivation_priced,
+            peaks.derivation_priced as f64 / peaks.text as f64,
+            reserved
+        );
+    }
+}
+
+/// Finding 1 (c): a result the budget cannot reserve for is refused before any
+/// parse, as the resource shortfall `ingress_exceeds_budget` (not a refusal of
+/// the result's standing or binding): no result-sized allocation of the parse
+/// or the derivation is made, and the lease is not grown.
+#[test]
+fn a_result_too_large_to_reserve_for_is_refused_before_the_derivation() {
+    use crate::command_ingress::test_support::headers;
+    use crate::command_ingress::{admit_body, INGRESS_ARGS_JSON_V1};
+    use crate::memory_pool::ResourceRefusal;
+    use crate::report_native_fill::{check_fill_size, DERIVATION_RESERVE_FACTOR};
+    let reference = request_reference("pressure_2_straight");
+    let live = live_job(&reference);
+    let frame = frame_of(&reference.report, source_diagnostic_count(&reference.result));
+    let args = custody_args(&live.job, &frame, &reference);
+    let body = tauri::ipc::InvokeBody::Raw(serde_json::to_vec(&args).unwrap());
+    let headers = headers(Some(INGRESS_ARGS_JSON_V1));
+    let ingress = admit_body(&live.registry, &body, &headers, "render_calculation_report_from_custody", ArgsDecoding::Moved).unwrap().1.bytes();
+    let manifest = canonical_json(&reference.manifest);
+    let growth = crate::report_render_exact::exact_render_growth_bytes(&reference.result, &reference.intake, &manifest).unwrap();
+    let text = reference.result.len() as u64;
+    let required = ingress + growth + text * DERIVATION_RESERVE_FACTOR;
+    // A budget one byte short of the ingress lease, the render's growth and the reservation.
+    let budget = required - 1;
+    let (pool_bytes, _) = live.registry.pool().settings();
+    live.registry.configure_pool(pool_bytes, budget, false).unwrap();
+    let (mut decoded, mut lease) = admit_body(&live.registry, &body, &headers, "render_calculation_report_from_custody", ArgsDecoding::Moved).unwrap();
+    assert_eq!((lease.bytes(), lease.budget_bytes()), (ingress, budget));
+    let (outcome, measured) = crate::ingress::counting::measure(|| crate::render_calculation_report_from_custody_args(&mut decoded, &live.registry, &mut lease));
+    match outcome {
+        Err(CommandError::Ingress(crate::solve_jobs::SolveJobError::ResourceUnavailable { refusal, .. })) => {
+            assert_eq!(refusal, ResourceRefusal::IngressExceedsBudget { required_bytes: required, budget_bytes: budget });
+        }
+        other => panic!("not the resource refusal: {other:?}"),
+    }
+    assert_eq!(lease.bytes(), ingress, "the lease is not grown");
+    // Nothing result-sized: the held text is not parsed (a parse alone is
+    // several times the text) and the derivation never starts.
+    assert!(measured.peak_requested < text, "a result-sized allocation before the refusal: {measured:?}, text {text}");
+    // At exactly the budget the reservation fits.
+    assert_eq!(check_fill_size(text, ingress + growth, required), Ok(text * DERIVATION_RESERVE_FACTOR));
+}
+
+/// Where the derivation's peak goes (proposal of a one-pass derivative hash,
+/// review of f3d02469c): on the committed requests' Current result documents
+/// (the webview's, whose hash the native derivation reproduces), the parsed
+/// document's live bytes, its canonical text and each envelope member's share
+/// of it, a clone's cost, the canonical string's cost and `validate_document`'s
+/// peak; each against the held text. Printed; `--ignored --nocapture`.
+#[test]
+#[ignore = "measurement: the derivation's parts; run with --ignored --nocapture"]
+fn the_derivation_s_parts_are_measured_on_the_committed_documents() {
+    use open_pipe_stress_result_export::derivative::validate_document;
+    for shape in SHAPES {
+        let file = read_json(&format!("{REQUESTS}/{shape}.json"));
+        let text = std::fs::read_to_string(project(file["raw_path"].as_str().unwrap())).unwrap();
+        let t = text.len() as f64;
+        let source: Value = serde_json::from_str(&text).unwrap();
+        let document_text = serde_json::to_string(&file["request"]["result_documents"][0]).unwrap();
+        let canonical = canonical_json(&file["request"]["result_documents"][0]);
+        let (document, parsed) = crate::ingress::counting::measure(|| serde_json::from_str::<Value>(&document_text).unwrap());
+        let ((), source_parsed) = crate::ingress::counting::measure(|| drop(std::hint::black_box(serde_json::from_str::<Value>(&text).unwrap())));
+        let (copy, cloned) = crate::ingress::counting::measure(|| document.clone());
+        drop(copy);
+        let (outcome, validated) = crate::ingress::counting::measure(|| validate_document(&document, &source));
+        outcome.unwrap();
+        let ((), canonical_cost) = crate::ingress::counting::measure(|| drop(std::hint::black_box(canonical_json(&document))));
+        let envelope = document["result_envelope"].as_object().unwrap();
+        let mut members: Vec<(String, usize)> = envelope.iter().map(|(key, value)| (key.clone(), canonical_json(value).len())).collect();
+        members.sort_by(|a, b| b.1.cmp(&a.1));
+        let shares: Vec<String> = members.iter().take(8).map(|(key, bytes)| format!("{key} {:.1}x", *bytes as f64 / t)).collect();
+        eprintln!(
+            "{shape}: text {} | source parsed live {:.1}x priced peak {:.1}x | document canonical {:.1}x, parsed live {:.1}x (priced {:.1}x), clone priced {:.1}x, canonical string priced {:.1}x, validate_document priced peak {:.1}x | largest members: {}",
+            text.len(),
+            source_parsed.peak_requested as f64 / t,
+            source_parsed.peak_priced as f64 / t,
+            canonical.len() as f64 / t,
+            parsed.live_requested as f64 / t,
+            parsed.live_priced as f64 / t,
+            cloned.peak_priced as f64 / t,
+            canonical_cost.peak_priced as f64 / t,
+            validated.peak_priced as f64 / t,
+            shares.join(", "),
+        );
+    }
+}
