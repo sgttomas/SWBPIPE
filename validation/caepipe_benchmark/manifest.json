@@ -48,7 +48,8 @@
       "sampling": "series",
       "series": [
         "shear-dt"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G1",
@@ -68,7 +69,8 @@
       "sampling": "series",
       "series": [
         "shear-dt"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G1",
@@ -88,7 +90,8 @@
       "sampling": "series",
       "series": [
         "shear-dt"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G1",
@@ -108,7 +111,8 @@
       "sampling": "series",
       "series": [
         "shear-dt"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G1",
@@ -126,7 +130,8 @@
         "tip_force": -500.0
       },
       "sampling": "corner",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G1",
@@ -144,7 +149,8 @@
         "tip_force": -20000.0
       },
       "sampling": "corner",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G1",
@@ -162,7 +168,8 @@
         "tip_force": -3120.0
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G1",
@@ -180,7 +187,8 @@
         "tip_force": -323.0
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G1",
@@ -198,7 +206,8 @@
         "tip_force": -1400.0
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G1",
@@ -216,7 +225,8 @@
         "tip_force": -15700.0
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G2",
@@ -239,7 +249,8 @@
       "sampling": "corner",
       "series": [
         "bend-k-rd1-a45"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G2",
@@ -262,7 +273,8 @@
       "sampling": "corner",
       "series": [
         "bend-k-rd1-a45"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G2",
@@ -285,7 +297,8 @@
       "sampling": "corner",
       "series": [
         "bend-k-rd1-a90"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G2",
@@ -308,7 +321,8 @@
       "sampling": "corner",
       "series": [
         "bend-k-rd1-a90"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G2",
@@ -331,7 +345,8 @@
       "sampling": "corner",
       "series": [
         "bend-k-rd1.5-a45"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G2",
@@ -354,7 +369,8 @@
       "sampling": "corner",
       "series": [
         "bend-k-rd1.5-a45"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G2",
@@ -377,7 +393,8 @@
       "sampling": "corner",
       "series": [
         "bend-k-rd1.5-a90"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G2",
@@ -400,7 +417,8 @@
       "sampling": "corner",
       "series": [
         "bend-k-rd1.5-a90"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G2",
@@ -423,7 +441,8 @@
       "sampling": "corner",
       "series": [
         "bend-k-rd3-a45"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G2",
@@ -446,7 +465,8 @@
       "sampling": "corner",
       "series": [
         "bend-k-rd3-a45"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G2",
@@ -469,7 +489,8 @@
       "sampling": "corner",
       "series": [
         "bend-k-rd3-a90"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G2",
@@ -492,7 +513,8 @@
       "sampling": "corner",
       "series": [
         "bend-k-rd3-a90"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G2",
@@ -515,7 +537,8 @@
       "sampling": "corner",
       "series": [
         "bend-k-rd5-a45"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G2",
@@ -538,7 +561,8 @@
       "sampling": "corner",
       "series": [
         "bend-k-rd5-a45"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G2",
@@ -561,7 +585,8 @@
       "sampling": "corner",
       "series": [
         "bend-k-rd5-a90"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G2",
@@ -584,7 +609,8 @@
       "sampling": "corner",
       "series": [
         "bend-k-rd5-a90"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G3",
@@ -606,7 +632,8 @@
         "width": 1.0
       },
       "sampling": "corner",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G3",
@@ -628,7 +655,8 @@
         "width": 4.0
       },
       "sampling": "corner",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G3",
@@ -650,7 +678,8 @@
         "width": 1.49
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G3",
@@ -672,7 +701,8 @@
         "width": 2.73
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G3",
@@ -694,7 +724,8 @@
         "width": 3.95
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G3",
@@ -716,7 +747,8 @@
         "width": 2.36
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G3",
@@ -738,7 +770,8 @@
         "width": 1.0
       },
       "sampling": "corner",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G3",
@@ -760,7 +793,8 @@
         "width": 4.0
       },
       "sampling": "corner",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G3",
@@ -782,7 +816,8 @@
         "width": 3.24
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G3",
@@ -804,7 +839,8 @@
         "width": 3.48
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G3",
@@ -826,7 +862,8 @@
         "width": 1.13
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G3",
@@ -848,7 +885,8 @@
         "width": 2.11
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G4",
@@ -869,7 +907,8 @@
         "rise": 1.0
       },
       "sampling": "corner",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G4",
@@ -890,7 +929,8 @@
         "rise": 4.0
       },
       "sampling": "corner",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G4",
@@ -911,7 +951,8 @@
         "rise": 2.41
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G4",
@@ -932,7 +973,8 @@
         "rise": 1.57
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G4",
@@ -953,7 +995,8 @@
         "rise": 3.51
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G4",
@@ -974,7 +1017,8 @@
         "rise": 2.53
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G5",
@@ -996,7 +1040,8 @@
       "sampling": "series",
       "series": [
         "tee-ratio"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G5",
@@ -1018,7 +1063,8 @@
       "sampling": "series",
       "series": [
         "tee-ratio"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G5",
@@ -1040,7 +1086,8 @@
       "sampling": "series",
       "series": [
         "tee-ratio"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G5",
@@ -1062,7 +1109,8 @@
       "sampling": "series",
       "series": [
         "tee-ratio"
-      ]
+      ],
+      "tranche": "1"
     },
     {
       "family": "G5",
@@ -1082,7 +1130,8 @@
         "run": 6.93
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G5",
@@ -1102,7 +1151,8 @@
         "run": 5.63
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G6",
@@ -1121,7 +1171,8 @@
         "spring": 290000000.0
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G6",
@@ -1140,7 +1191,8 @@
         "spring": 10800000.0
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G6",
@@ -1159,7 +1211,8 @@
         "spring": 756000.0
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G7",
@@ -1178,7 +1231,8 @@
         "spring": 178000.0
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G7",
@@ -1197,7 +1251,8 @@
         "spring": 19000000.0
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G7",
@@ -1216,7 +1271,8 @@
         "spring": 99600000.0
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G8",
@@ -1235,7 +1291,8 @@
         "span": 4.72
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G8",
@@ -1254,7 +1311,8 @@
         "span": 9.38
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G8",
@@ -1273,7 +1331,8 @@
         "span": 6.18
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
     },
     {
       "family": "G8",
@@ -1292,7 +1351,1056 @@
         "span": 3.21
       },
       "sampling": "lhs",
-      "series": []
+      "series": [],
+      "tranche": "1"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P1",
+      "file": "models/cpb-p1-01.json",
+      "file_sha256": "bdb4011a1a9b0d66fd1bda9bb1270ab3b4fa69bee6bab579cf319bbda7727ecd",
+      "layout_row_count": 3,
+      "model_hash": "6331eedd34b0c3d30a80cba5b632f7b5bcd2f90a48a7f903b713b5e4fee12cdd",
+      "model_id": "cpb-p1-01",
+      "parameters": {
+        "config": "anchored",
+        "delta_t": 50.0,
+        "dt": 10.0,
+        "material": 1,
+        "od": 60.0,
+        "pressure_bar": 1.0,
+        "span": 1.0
+      },
+      "runs": [
+        {
+          "closed_forms": 3,
+          "file": "models/cpb-p1-01.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "6331eedd34b0c3d30a80cba5b632f7b5bcd2f90a48a7f903b713b5e4fee12cdd",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 3,
+          "file": "models/cpb-p1-01.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "0c58738aed8f14da0f04c5e61d942274b0ba324ac28e2e040c5d4e86785c8625",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "corner",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P1",
+      "file": "models/cpb-p1-02.json",
+      "file_sha256": "5a80657e3e65cd11988da9d14eb3ddebaf6d406cfee7e29bde02eed7fba2dc42",
+      "layout_row_count": 3,
+      "model_hash": "3b1a69cdbd93467611030507853ed967cb9f0e2927ad84038caa247ebb982558",
+      "model_id": "cpb-p1-02",
+      "parameters": {
+        "config": "anchored",
+        "delta_t": 250.0,
+        "dt": 100.0,
+        "material": 2,
+        "od": 610.0,
+        "pressure_bar": 50.0,
+        "span": 12.0
+      },
+      "runs": [
+        {
+          "closed_forms": 3,
+          "file": "models/cpb-p1-02.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "3b1a69cdbd93467611030507853ed967cb9f0e2927ad84038caa247ebb982558",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 3,
+          "file": "models/cpb-p1-02.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "39242f328945c689b103a2737dc22334f65c4af258314a4b8e816887305ab4da",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "corner",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P1",
+      "file": "models/cpb-p1-03.json",
+      "file_sha256": "35056b3f5caea8f476dd48f5daee02e92729c74cf5537a7773f1d7cb70605b66",
+      "layout_row_count": 3,
+      "model_hash": "28d89dffbe11a8545b2a2dc58a70b031cdcfa72dd660176cf656c69b2c5abdb4",
+      "model_id": "cpb-p1-03",
+      "parameters": {
+        "config": "anchored",
+        "delta_t": 69.26,
+        "dt": 35.0,
+        "material": 2,
+        "od": 341.8,
+        "pressure_bar": 1.02,
+        "span": 9.57
+      },
+      "runs": [
+        {
+          "closed_forms": 3,
+          "file": "models/cpb-p1-03.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "28d89dffbe11a8545b2a2dc58a70b031cdcfa72dd660176cf656c69b2c5abdb4",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 3,
+          "file": "models/cpb-p1-03.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "a4a02718a4e63fb07d0d2aa4e9f8cdfbd10f4cbbfa0c6cb9929e1bfff1a09258",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "lhs",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P1",
+      "file": "models/cpb-p1-04.json",
+      "file_sha256": "23847400deb475da5b0e12ed04ae958dac98d197b0ba242ffacad3a24037f93c",
+      "layout_row_count": 3,
+      "model_hash": "399a18978c440a3e329d5e63a6214ec0bd62e3737c85d68e8b042e038fad1ba8",
+      "model_id": "cpb-p1-04",
+      "parameters": {
+        "config": "anchored",
+        "delta_t": 236.2,
+        "dt": 62.2,
+        "material": 0,
+        "od": 112.9,
+        "pressure_bar": 21.6,
+        "span": 8.85
+      },
+      "runs": [
+        {
+          "closed_forms": 3,
+          "file": "models/cpb-p1-04.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "399a18978c440a3e329d5e63a6214ec0bd62e3737c85d68e8b042e038fad1ba8",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 3,
+          "file": "models/cpb-p1-04.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "1ac98371359b9bb9b4c6e9acd6e6313d8df13efae2e258b7819ba8d4792f2003",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "lhs",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P1",
+      "file": "models/cpb-p1-05.json",
+      "file_sha256": "cee6a4726770b4c0bc095baa8ce617be2245a38ae757e39f7e68141552b2565d",
+      "layout_row_count": 3,
+      "model_hash": "3f790d5703730f5d251239553fbbedc271dc6bee8be1944f8e463b64aedf1e08",
+      "model_id": "cpb-p1-05",
+      "parameters": {
+        "config": "anchored",
+        "delta_t": 159.3,
+        "dt": 17.1,
+        "material": 1,
+        "od": 88.36,
+        "pressure_bar": 8.12,
+        "span": 4.91
+      },
+      "runs": [
+        {
+          "closed_forms": 3,
+          "file": "models/cpb-p1-05.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "3f790d5703730f5d251239553fbbedc271dc6bee8be1944f8e463b64aedf1e08",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 3,
+          "file": "models/cpb-p1-05.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "941fac0c8b318f6bf1e80fb60ae1502d5920e4eff8230b7a00f3dfa884f90d6b",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "lhs",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P1",
+      "file": "models/cpb-p1-06.json",
+      "file_sha256": "2d2d4aa1ccf00002d18159d9b6742e8149c8c3a5f5e569af17b373e7d1aaa579",
+      "layout_row_count": 3,
+      "model_hash": "f50f3bacf0be58a154b6c427d58c8443ced97b9365628b6bdf22ca6f757225d0",
+      "model_id": "cpb-p1-06",
+      "parameters": {
+        "config": "anchored",
+        "delta_t": 140.6,
+        "dt": 20.9,
+        "material": 1,
+        "od": 273.9,
+        "pressure_bar": 6.98,
+        "span": 2.75
+      },
+      "runs": [
+        {
+          "closed_forms": 3,
+          "file": "models/cpb-p1-06.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "f50f3bacf0be58a154b6c427d58c8443ced97b9365628b6bdf22ca6f757225d0",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 3,
+          "file": "models/cpb-p1-06.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "cf9b8386dbaa798f449faaa48d25803abaeb7cb564f6c6b237eacaf74df4de84",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "lhs",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P2",
+      "file": "models/cpb-p2-01.json",
+      "file_sha256": "9c82678ec5339ee7345c15ef37c82f0a62af808eef9d50f69fb4fe0df562cd7d",
+      "layout_row_count": 3,
+      "model_hash": "f45dd2658d33dfd238213d157b474c0e27979e2ed5ae4a47706a2c6c15f1ef0c",
+      "model_id": "cpb-p2-01",
+      "parameters": {
+        "anchor_closure": "transfers_to_wall",
+        "config": "closed",
+        "delta_t": 183.6,
+        "dt": 11.2,
+        "material": 2,
+        "od": 553.6,
+        "pressure_bar": 1.2,
+        "span": 6.32
+      },
+      "runs": [
+        {
+          "closed_forms": 4,
+          "file": "models/cpb-p2-01.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "f45dd2658d33dfd238213d157b474c0e27979e2ed5ae4a47706a2c6c15f1ef0c",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 4,
+          "file": "models/cpb-p2-01.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "47348bbcfac3f2131e767697206ac9a8d3d909c92dfe22abc7671644ce9920ba",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "lhs",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on",
+        "pressure-closure-01"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P2",
+      "file": "models/cpb-p2-02.json",
+      "file_sha256": "e77426682dfb66acd286dc72ff08102e64e630002494d16d7a4ed300eb3040a6",
+      "layout_row_count": 3,
+      "model_hash": "36d4750e839f346243121af387af630da1206e12a18a89cc639d62ad90b10c8c",
+      "model_id": "cpb-p2-02",
+      "parameters": {
+        "anchor_closure": "transfers_to_wall",
+        "config": "closed",
+        "delta_t": 91.3,
+        "dt": 29.3,
+        "material": 1,
+        "od": 169.6,
+        "pressure_bar": 6.55,
+        "span": 8.41
+      },
+      "runs": [
+        {
+          "closed_forms": 4,
+          "file": "models/cpb-p2-02.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "36d4750e839f346243121af387af630da1206e12a18a89cc639d62ad90b10c8c",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 4,
+          "file": "models/cpb-p2-02.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "f6b8037f32468e638180fab1ba5a6a616981d0bb4403d2cb1297bed8010a19a4",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "lhs",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on",
+        "pressure-closure-02"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P2",
+      "file": "models/cpb-p2-03.json",
+      "file_sha256": "b57ab31b7cbc11d72cd4bbd1317f29af8e3b8ffc087b3d42d8a09608ad174310",
+      "layout_row_count": 3,
+      "model_hash": "1095dc2d1c56a61a49de0c55970ba52f04abef80567c7cce6bb3d7c6aafbd1ed",
+      "model_id": "cpb-p2-03",
+      "parameters": {
+        "anchor_closure": "transfers_to_wall",
+        "config": "closed",
+        "delta_t": 122.2,
+        "dt": 71.7,
+        "material": 2,
+        "od": 292.4,
+        "pressure_bar": 13.3,
+        "span": 10.4
+      },
+      "runs": [
+        {
+          "closed_forms": 4,
+          "file": "models/cpb-p2-03.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "1095dc2d1c56a61a49de0c55970ba52f04abef80567c7cce6bb3d7c6aafbd1ed",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 4,
+          "file": "models/cpb-p2-03.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "d254c4c8c6e9eb4bcd93d30406ccffc5b1dc38fe873755a0194b0ed3cf0d1a78",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "lhs",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P2",
+      "file": "models/cpb-p2-04.json",
+      "file_sha256": "a474f3ad3f28126580c012dca6096103e8bff98872fd3a4ed80766a07932af85",
+      "layout_row_count": 3,
+      "model_hash": "1124cf3ed8675f2380b7a1e21e2562bfb3f4e6d910dce2ec4fb5daabc6e96d25",
+      "model_id": "cpb-p2-04",
+      "parameters": {
+        "anchor_closure": "transfers_to_wall",
+        "config": "closed",
+        "delta_t": 217.1,
+        "dt": 45.8,
+        "material": 0,
+        "od": 66.6,
+        "pressure_bar": 23.0,
+        "span": 3.73
+      },
+      "runs": [
+        {
+          "closed_forms": 4,
+          "file": "models/cpb-p2-04.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "1124cf3ed8675f2380b7a1e21e2562bfb3f4e6d910dce2ec4fb5daabc6e96d25",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 4,
+          "file": "models/cpb-p2-04.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "015b4b7112eebc13d204d56ea5b082bf785d710235d39b8bfe374d762d640c7a",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "lhs",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P3",
+      "file": "models/cpb-p3-01.json",
+      "file_sha256": "acee304caff279d5ce2721fc66b84ac589395d60937e6b985d13ae79d6254751",
+      "layout_row_count": 3,
+      "model_hash": "133dc29bec63a336379ee0a17b2dfa5150680216debb6b9b751f2097b1f397e3",
+      "model_id": "cpb-p3-01",
+      "parameters": {
+        "anchor_closure": "separately_supported_or_compensated",
+        "config": "open_at_anchor",
+        "delta_t": 183.6,
+        "dt": 11.2,
+        "material": 2,
+        "od": 553.6,
+        "pressure_bar": 1.2,
+        "span": 6.32
+      },
+      "runs": [
+        {
+          "closed_forms": 3,
+          "file": "models/cpb-p3-01.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "133dc29bec63a336379ee0a17b2dfa5150680216debb6b9b751f2097b1f397e3",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 3,
+          "file": "models/cpb-p3-01.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "7daceea7a917a8403c4b35fbe1f2481de925d5d91f3f09edd6c90cf27a810508",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "lhs",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on",
+        "pressure-closure-01"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P3",
+      "file": "models/cpb-p3-02.json",
+      "file_sha256": "c0f7b63fdaaa2189caea21c5383bc390504316424904bfe3b6e1318cebd651b5",
+      "layout_row_count": 3,
+      "model_hash": "9167ac51a1fc3a5dbca6c10069b99c2a4d848a8e36c11aa3c322beb2ba023899",
+      "model_id": "cpb-p3-02",
+      "parameters": {
+        "anchor_closure": "separately_supported_or_compensated",
+        "config": "open_at_anchor",
+        "delta_t": 91.3,
+        "dt": 29.3,
+        "material": 1,
+        "od": 169.6,
+        "pressure_bar": 6.55,
+        "span": 8.41
+      },
+      "runs": [
+        {
+          "closed_forms": 3,
+          "file": "models/cpb-p3-02.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "9167ac51a1fc3a5dbca6c10069b99c2a4d848a8e36c11aa3c322beb2ba023899",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 3,
+          "file": "models/cpb-p3-02.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "e3d54dd1f081b515c4db5bb50c90316f2d2a47331076ae1713220ae62cec320f",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "lhs",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on",
+        "pressure-closure-02"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P3",
+      "file": "models/cpb-p3-03.json",
+      "file_sha256": "06ef438cc632d163e0c717879e67c612121fcd63a0f0a39b0b2c3f17ec5bc6e5",
+      "layout_row_count": 3,
+      "model_hash": "f00086e2a23f6ae9a0240511fc35c4768d62af27e26b02b3a949a5fb8d0c8a44",
+      "model_id": "cpb-p3-03",
+      "parameters": {
+        "anchor_closure": "transfers_to_wall",
+        "config": "open_at_free_end",
+        "delta_t": 122.2,
+        "dt": 71.7,
+        "material": 2,
+        "od": 292.4,
+        "pressure_bar": 13.3,
+        "span": 10.4
+      },
+      "runs": [
+        {
+          "closed_forms": 3,
+          "file": "models/cpb-p3-03.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "f00086e2a23f6ae9a0240511fc35c4768d62af27e26b02b3a949a5fb8d0c8a44",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 3,
+          "file": "models/cpb-p3-03.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "3846496f265ae62da118b27baf735b8b203f1a2ccbb0569d529c6d6ab0dd4e21",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "lhs",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P3",
+      "file": "models/cpb-p3-04.json",
+      "file_sha256": "6d4be6596b5f114e44c242d34eb97956020af2df1be0901e0cb56585160fb79b",
+      "layout_row_count": 3,
+      "model_hash": "be77f92befb3ebcfa4834c17bbc81c9a5595fc50c9b956d8850c19f797303fa8",
+      "model_id": "cpb-p3-04",
+      "parameters": {
+        "anchor_closure": "transfers_to_wall",
+        "config": "open_at_free_end",
+        "delta_t": 217.1,
+        "dt": 45.8,
+        "material": 0,
+        "od": 66.6,
+        "pressure_bar": 23.0,
+        "span": 3.73
+      },
+      "runs": [
+        {
+          "closed_forms": 3,
+          "file": "models/cpb-p3-04.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "be77f92befb3ebcfa4834c17bbc81c9a5595fc50c9b956d8850c19f797303fa8",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 3,
+          "file": "models/cpb-p3-04.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "5e90c0387ca6b12e98fc2d352a15709a115d616c0ba34b3963a2bd674d9a4f18",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "lhs",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P4",
+      "file": "models/cpb-p4-01.json",
+      "file_sha256": "41ba2d23abb0608b51d4d3f17bb925cb3c3d29aca07c8ae53613c5b8151cd875",
+      "layout_row_count": 4,
+      "model_hash": "e1b181ac41c7eb19197fd2ca3175d2a4337a9afaa65288a13c16150e34fdd80f",
+      "model_id": "cpb-p4-01",
+      "parameters": {
+        "angle": 90.0,
+        "clear_1": 4.5,
+        "clear_2": 4.76,
+        "delta_t": 177.7,
+        "dt": 36.5,
+        "k": 1.0,
+        "material": 1,
+        "od": 579.2,
+        "pressure_bar": 2.4,
+        "rd": 1.5
+      },
+      "runs": [
+        {
+          "closed_forms": 0,
+          "file": "models/cpb-p4-01.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "e1b181ac41c7eb19197fd2ca3175d2a4337a9afaa65288a13c16150e34fdd80f",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 0,
+          "file": "models/cpb-p4-01.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "11ad21dbfa4359071fd1783d952f76d7c22eeeabb880329ff79683966dbefb97",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "corner",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on",
+        "pressure-k-rd1.5-a90"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P4",
+      "file": "models/cpb-p4-02.json",
+      "file_sha256": "a36b265fafd637f9fb336aefc01395349acbec4570a2bbfcc07629a58c5370d4",
+      "layout_row_count": 4,
+      "model_hash": "23e354d86b8bde23142c453583e4707a7800324f33b5284645ed2982797c28fe",
+      "model_id": "cpb-p4-02",
+      "parameters": {
+        "angle": 90.0,
+        "clear_1": 4.5,
+        "clear_2": 4.76,
+        "delta_t": 177.7,
+        "dt": 36.5,
+        "k": 13.9,
+        "material": 1,
+        "od": 579.2,
+        "pressure_bar": 2.4,
+        "rd": 1.5
+      },
+      "runs": [
+        {
+          "closed_forms": 0,
+          "file": "models/cpb-p4-02.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "23e354d86b8bde23142c453583e4707a7800324f33b5284645ed2982797c28fe",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 0,
+          "file": "models/cpb-p4-02.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "a7a5e2e3eb4eb3f7cbe20b308c251e8f8e5c820bb4796897db5802c21a91ab4e",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "corner",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on",
+        "pressure-k-rd1.5-a90"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P4",
+      "file": "models/cpb-p4-03.json",
+      "file_sha256": "40b3ba066d6540e8b72fc5061c285fdbd04f7a7eb5dec34fdf892445bd7b787b",
+      "layout_row_count": 4,
+      "model_hash": "aca96dd6a0ff4c6bbb3c8fba91451199adf250a4a5a9ee194edfc3bf545fb0ac",
+      "model_id": "cpb-p4-03",
+      "parameters": {
+        "angle": 45.0,
+        "clear_1": 2.35,
+        "clear_2": 1.59,
+        "delta_t": 90.97,
+        "dt": 14.6,
+        "k": 1.0,
+        "material": 1,
+        "od": 118.7,
+        "pressure_bar": 26.7,
+        "rd": 3.0
+      },
+      "runs": [
+        {
+          "closed_forms": 0,
+          "file": "models/cpb-p4-03.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "aca96dd6a0ff4c6bbb3c8fba91451199adf250a4a5a9ee194edfc3bf545fb0ac",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 0,
+          "file": "models/cpb-p4-03.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "4d3e44230c87f9a55b967d37fd2607ffe24cd5b1bd01f52cd5101c0fa390d0a0",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "corner",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on",
+        "pressure-k-rd3-a45"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P4",
+      "file": "models/cpb-p4-04.json",
+      "file_sha256": "bf04eddff701305303f0e4f9b80e18a16616ac9f0149ecc797e1e1af9f2275ec",
+      "layout_row_count": 4,
+      "model_hash": "f7bd08e6cd2bd17c5d7c376657cacaefa585721a797747dde05d60069222910b",
+      "model_id": "cpb-p4-04",
+      "parameters": {
+        "angle": 45.0,
+        "clear_1": 2.35,
+        "clear_2": 1.59,
+        "delta_t": 90.97,
+        "dt": 14.6,
+        "k": 7.32,
+        "material": 1,
+        "od": 118.7,
+        "pressure_bar": 26.7,
+        "rd": 3.0
+      },
+      "runs": [
+        {
+          "closed_forms": 0,
+          "file": "models/cpb-p4-04.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "f7bd08e6cd2bd17c5d7c376657cacaefa585721a797747dde05d60069222910b",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 0,
+          "file": "models/cpb-p4-04.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "8086d3441de9d56e143b088661d0e8ad870d855bc560f4dbe4c99c25eb9c205c",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "corner",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on",
+        "pressure-k-rd3-a45"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P5",
+      "file": "models/cpb-p5-01.json",
+      "file_sha256": "a2b0b515ae9d422d28c175b8c386649db45d7adb2fec814e4f903d0ecc21b333",
+      "layout_row_count": 5,
+      "model_hash": "67b0d092404fd3895a362ddcbf9ba175662aba225ce1d1a51a684fdb5ae95518",
+      "model_id": "cpb-p5-01",
+      "parameters": {
+        "clear_1": 3.14,
+        "config": "z",
+        "delta_t": 209.4,
+        "dt": 34.8,
+        "height": 1.31,
+        "k": 1.0,
+        "material": 2,
+        "od": 309.3,
+        "pressure_bar": 4.04,
+        "rd": 4.49,
+        "width": 2.94
+      },
+      "runs": [
+        {
+          "closed_forms": 0,
+          "file": "models/cpb-p5-01.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "67b0d092404fd3895a362ddcbf9ba175662aba225ce1d1a51a684fdb5ae95518",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 0,
+          "file": "models/cpb-p5-01.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "9a7d603dbcf5c8ea5cf290b284e4c8c328a4f0a644b36c9f1d7882531b9fcd15",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "lhs",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on",
+        "pressure-k-z"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P5",
+      "file": "models/cpb-p5-02.json",
+      "file_sha256": "87ea95dee8818d2d5f7d6ac8b56c7e46dd1bfaef367807d41e6935aa70e12161",
+      "layout_row_count": 5,
+      "model_hash": "228bcee6b03e5605ca1b9abb91cf19cf2223f83eaaabccc80f8b02bff7675e4a",
+      "model_id": "cpb-p5-02",
+      "parameters": {
+        "clear_1": 3.14,
+        "config": "z",
+        "delta_t": 209.4,
+        "dt": 34.8,
+        "height": 1.31,
+        "k": 7.59,
+        "material": 2,
+        "od": 309.3,
+        "pressure_bar": 4.04,
+        "rd": 4.49,
+        "width": 2.94
+      },
+      "runs": [
+        {
+          "closed_forms": 0,
+          "file": "models/cpb-p5-02.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "228bcee6b03e5605ca1b9abb91cf19cf2223f83eaaabccc80f8b02bff7675e4a",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 0,
+          "file": "models/cpb-p5-02.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "7f4fd6f7a7728dacc48384867a4c6dddaf05cb2a960252562f0a96c662afbcdb",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "lhs",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on",
+        "pressure-k-z"
+      ],
+      "tranche": "2"
+    },
+    {
+      "elongation_load_case": "case:sustained",
+      "family": "P6",
+      "file": "models/cpb-p6-01.json",
+      "file_sha256": "b5afbf239e2dfb764bd3b094094fc34212154a5885bd95e282041e8a6582dd6a",
+      "layout_row_count": 6,
+      "model_hash": "92c8603214c0d238a86ae28cd5acd622c0028fbef9f95962211054f8e86f4c42",
+      "model_id": "cpb-p6-01",
+      "parameters": {
+        "branch": 1.15,
+        "config": "anchored_legs",
+        "delta_t": 184.7,
+        "dt": 10.7,
+        "material": 2,
+        "od": 345.8,
+        "pressure_bar": 12.6,
+        "ratio": 0.369,
+        "run": 9.78
+      },
+      "runs": [
+        {
+          "closed_forms": 0,
+          "file": "models/cpb-p6-01.json",
+          "series": "pressure-default",
+          "swbpipe_model_hash": "92c8603214c0d238a86ae28cd5acd622c0028fbef9f95962211054f8e86f4c42",
+          "variant_of": null
+        },
+        {
+          "caepipe_manual_change": "the Bourdon option switched on by hand before the analysis",
+          "closed_forms": 0,
+          "file": "models/cpb-p6-01.json",
+          "series": "pressure-elongation-on",
+          "swbpipe_model_hash": "3bccdc2c23e7b19d7272f615c6c6ffbbe6c49e54d6c7bb1a2c67370e9cda6f0c",
+          "swbpipe_model_settings": {
+            "pressure_elongation": {
+              "operating_load_cases": [
+                "case:sustained"
+              ]
+            }
+          },
+          "variant_of": "pressure-default"
+        }
+      ],
+      "sampling": "lhs",
+      "series": [
+        "pressure-default",
+        "pressure-elongation-on"
+      ],
+      "tranche": "2"
     }
   ],
   "piping_code": "B311-80",
@@ -1301,7 +2409,7 @@
     "origin": "invented",
     "produced_by_caepipe": false
   },
-  "requirement": "RT-V2 (docs/RELEASE_TARGET_v1.0.md section 3); DEL-17-05 Design section 11",
+  "requirement": "DEL-17-05 REQ-018 and AC-007 (execution/PKG-17/DEL-17-05/ScopeOfWork.md); the Benchmark method section of docs/RELEASE_TARGET_v1.0.md",
   "series": {
     "bend-k-rd1-a45": {
       "description": "one bend geometry with k = 1 and a higher k",
@@ -1423,6 +2531,314 @@
       ],
       "swept": "k"
     },
+    "pressure-closure-01": {
+      "description": "one pressurised cantilever with its anchor terminal transferring to the wall (closed) and separately supported or compensated (open): the same target-program input, since the MBF carries no terminal closure, with SWBPIPE's end thrust changed",
+      "hypothesis": "pressure_thrust_convention",
+      "members": [
+        {
+          "model_id": "cpb-p2-01",
+          "value": "transfers_to_wall"
+        },
+        {
+          "model_id": "cpb-p3-01",
+          "value": "separately_supported_or_compensated"
+        }
+      ],
+      "swept": "anchor_closure"
+    },
+    "pressure-closure-02": {
+      "description": "one pressurised cantilever with its anchor terminal transferring to the wall (closed) and separately supported or compensated (open): the same target-program input, since the MBF carries no terminal closure, with SWBPIPE's end thrust changed",
+      "hypothesis": "pressure_thrust_convention",
+      "members": [
+        {
+          "model_id": "cpb-p2-02",
+          "value": "transfers_to_wall"
+        },
+        {
+          "model_id": "cpb-p3-02",
+          "value": "separately_supported_or_compensated"
+        }
+      ],
+      "swept": "anchor_closure"
+    },
+    "pressure-default": {
+      "caepipe": "the MBF as the writer writes it: OPPRES with the Bourdon option off",
+      "description": "every tranche 2 model, pressure elongation off on both sides as far as the inputs state",
+      "hypothesis": "pressure_elongation_convention",
+      "kind": "run_state",
+      "members": [
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p1-01",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p1-02",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p1-03",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p1-04",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p1-05",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p1-06",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p2-01",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p2-02",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p2-03",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p2-04",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p3-01",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p3-02",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p3-03",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p3-04",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p4-01",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p4-02",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p4-03",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p4-04",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p5-01",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p5-02",
+          "value": "off"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p6-01",
+          "value": "off"
+        }
+      ],
+      "parameter": "pressure_elongation",
+      "swbpipe": "the tracked model document as it is, without model_settings.pressure_elongation, solved on a build whose model document has that setting (absent, it solves with pressure elongation off)",
+      "value": "off"
+    },
+    "pressure-elongation-on": {
+      "caepipe": "the SAME MBF file, with the Bourdon option switched on by hand in the target program before the analysis: a manual change the run's record must state",
+      "description": "every tranche 2 model, pressure elongation on; the target program forms its expansion case from its operating and sustained cases, so a difference in that case on this run is triaged under pressure_elongation_convention",
+      "hypothesis": "pressure_elongation_convention",
+      "kind": "run_state",
+      "members": [
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p1-01",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p1-02",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p1-03",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p1-04",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p1-05",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p1-06",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p2-01",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p2-02",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p2-03",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p2-04",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p3-01",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p3-02",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p3-03",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p3-04",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p4-01",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p4-02",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p4-03",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p4-04",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p5-01",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p5-02",
+          "value": "on"
+        },
+        {
+          "elongation_load_case": "case:sustained",
+          "model_id": "cpb-p6-01",
+          "value": "on"
+        }
+      ],
+      "parameter": "pressure_elongation",
+      "swbpipe": "series_document(document, 'pressure-elongation-on'): the tracked model with model_settings.pressure_elongation naming the model's elongation_load_case",
+      "value": "on",
+      "variant_of": "pressure-default"
+    },
+    "pressure-k-rd1.5-a90": {
+      "description": "one bend geometry with k = 1 and a higher k",
+      "hypothesis": "bend_flexibility_application",
+      "members": [
+        {
+          "model_id": "cpb-p4-01",
+          "value": 1.0
+        },
+        {
+          "model_id": "cpb-p4-02",
+          "value": 13.9
+        }
+      ],
+      "swept": "k"
+    },
+    "pressure-k-rd3-a45": {
+      "description": "one bend geometry with k = 1 and a higher k",
+      "hypothesis": "bend_flexibility_application",
+      "members": [
+        {
+          "model_id": "cpb-p4-03",
+          "value": 1.0
+        },
+        {
+          "model_id": "cpb-p4-04",
+          "value": 7.32
+        }
+      ],
+      "swept": "k"
+    },
+    "pressure-k-z": {
+      "description": "one bend geometry with k = 1 and a higher k",
+      "hypothesis": "bend_flexibility_application",
+      "members": [
+        {
+          "model_id": "cpb-p5-01",
+          "value": 1.0
+        },
+        {
+          "model_id": "cpb-p5-02",
+          "value": 7.59
+        }
+      ],
+      "swept": "k"
+    },
     "shear-dt": {
       "description": "cantilevers of one span and OD with D/t 10, 20, 40, 100",
       "hypothesis": "shear_deformation",
@@ -1470,5 +2886,30 @@
       "swept": "ratio"
     }
   },
-  "tranche": "1"
+  "tranches": {
+    "1": {
+      "description": "linear static models",
+      "families": [
+        "G1",
+        "G2",
+        "G3",
+        "G4",
+        "G5",
+        "G6",
+        "G7",
+        "G8"
+      ]
+    },
+    "2": {
+      "description": "pressurised linear static models on the exact pressure contract, each run in the pressure-default and pressure-elongation-on series; no model document carries model_settings",
+      "families": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6"
+      ]
+    }
+  }
 }

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Focused tests for the CAEPIPE benchmark tranche 1 (DEL-17-05 Design §11, RT-V2): the seeded model generator,
-the element-row binding, the two-way comparison and `run_pilot --benchmark` (invented inputs and invented CSV text
-only; nothing here runs the external program or reads its output)."""
+"""Focused tests for the CAEPIPE benchmark set, tranches 1 and 2 (DEL-17-05 REQ-018 and AC-007; the "Benchmark
+method" section of docs/RELEASE_TARGET_v1.0.md): the seeded model generator, the element-row binding, the two-way
+comparison and `run_pilot --benchmark` (invented inputs and invented CSV text only; nothing here runs the external
+program or reads its output)."""
 
 from __future__ import annotations
 
@@ -49,6 +50,10 @@ def tracked_models() -> list[dict]:
     return [json.loads((BENCHMARK / entry["file"]).read_text(encoding="utf-8")) for entry in manifest["models"]]
 
 
+def pressurised_models() -> list[dict]:
+    return [document for document in tracked_models() if document.get("tranche") == "2"]
+
+
 # -- generator -------------------------------------------------------------------------------------------------------
 def test_the_generator_is_deterministic_and_the_tracked_set_is_its_output():
     first, second = benchmark_models.generate(), benchmark_models.generate()
@@ -76,8 +81,10 @@ def test_the_manifest_records_seed_family_parameters_and_hashes():
     assert manifest["generator"]["seed"] == benchmark_models.DEFAULT_SEED
     assert manifest["piping_code"] == "B311-80"
     counts: dict[str, int] = {}
+    pressure_counts: dict[str, int] = {}
     for entry in manifest["models"]:
-        counts[entry["family"]] = counts.get(entry["family"], 0) + 1
+        tally = pressure_counts if entry["tranche"] == "2" else counts
+        tally[entry["family"]] = tally.get(entry["family"], 0) + 1
         text = (BENCHMARK / entry["file"]).read_bytes()
         document = json.loads(text)
         assert hashlib.sha256(text).hexdigest() == entry["file_sha256"]
@@ -88,6 +95,9 @@ def test_the_manifest_records_seed_family_parameters_and_hashes():
         assert document["provenance"]["origin"] == "invented" and document["provenance"]["produced_by_caepipe"] is False
     assert counts == {"G1": 10, "G2": 16, "G3": 12, "G4": 6, "G5": 6, "G6": 3, "G7": 3, "G8": 4}
     assert sum(counts.values()) == 60
+    assert pressure_counts == {"P1": 6, "P2": 4, "P3": 4, "P4": 4, "P5": 2, "P6": 1}
+    assert [entry["tranche"] for entry in manifest["models"]] == ["1"] * 60 + ["2"] * 21  # tranche 2 is appended
+    assert sorted(manifest["tranches"]) == ["1", "2"]
     series = manifest["series"]
     assert [member["value"] for member in series["shear-dt"]["members"]] == [10.0, 20.0, 40.0, 100.0]
     assert [member["value"] for member in series["tee-ratio"]["members"]] == [0.3, 0.5, 0.75, 1.0]
@@ -121,6 +131,8 @@ def test_sections_materials_and_bends_span_the_proposed_ranges():
 
 
 def test_every_model_is_written_with_its_explicit_piping_code_within_the_row_limit():
+    rows = {entry["model_id"]: entry.get("layout_row_count")
+            for entry in json.loads(MANIFEST.read_text(encoding="utf-8"))["models"]}
     for document in tracked_models():
         result = render_caepipe_mbf_si(document["model"], title=document["model_id"],
                                        reference_temperature_c=document["reference_temperature_c"],
@@ -131,6 +143,14 @@ def test_every_model_is_written_with_its_explicit_piping_code_within_the_row_lim
         assert not {item["code"] for item in result.diagnostics} & {"MBF-SI-PIPING-CODE-NOT-WRITTEN",
                                                                    "MBF-SI-LAYOUT-ROW-LIMIT"}
         assert sorted(result.load_case_map) == sorted(case["id"] for case in document["model"]["load_cases"])
+        if document.get("tranche") == "2":
+            # Written with the Bourdon option and bend pressure correction off, and its row count recorded.
+            assert "\r\nOPPRES\r\n0,0,0,1,0\r\n" in result.text
+            assert rows[document["model_id"]] == result.layout_row_count
+            assert result.load_case_map == {"case:sustained": "Sustained (W+P)", "case:expansion": "Expansion (T1)"}
+            assert result.pressure_map["contract"] == {"version": "3.0.0", "mode": "exact_pressure_v3"}
+        else:
+            assert "OPPRES" not in result.text and rows[document["model_id"]] is None
 
 
 def solve(model: dict) -> dict:
@@ -221,6 +241,132 @@ def test_every_model_solves_and_its_closed_forms_match_swbpipe_and_a_mirror_scre
                 closed += 1
                 assert row["closed_form"]["closed_form_vs_swbpipe"] == "agree", (document["model_id"], row)
     assert closed == sum(len(document["closed_form"]) for document in tracked_models())
+
+
+# -- tranche 2: pressure series --------------------------------------------------------------------------------------
+def build_has_pressure_elongation_setting() -> bool:
+    """Whether this checkout's model document has model_settings.pressure_elongation. Without it (main before the
+    setting), a pressurised document solves with pressure elongation on in every case; with it, a document that
+    lacks the member solves with elongation off. The runner the tests use is built from the same head."""
+    import yaml
+
+    schema = yaml.safe_load((ROOT / "schemas" / "model.schema.yaml").read_text(encoding="utf-8"))
+    return "pressure_elongation" in (schema["$defs"]["ModelSettings"].get("properties") or {})
+
+
+# The elongation-off closed forms, compared only on a build that has the setting. Each is listed so that none is
+# left out silently: (model id, number of closed forms valid in the pressure-default state only).
+PENDING_ELONGATION_OFF = (
+    *((f"cpb-p1-{index:02d}", 2) for index in range(1, 7)),  # both anchors' axial reactions, 0
+    *((f"cpb-p2-{index:02d}", 1) for index in range(1, 5)),  # the free end's axial displacement, 0
+)
+PENDING_REASON = ("the pressure-default closed forms need a build whose model document has "
+                  "model_settings.pressure_elongation (solved with the setting absent); this build has none, so a "
+                  "pressurised document solves with elongation on and these closed forms are not compared")
+
+
+def closed_form_rows(document: dict, solved_model: dict) -> list[dict]:
+    """The benchmark record's closed-form rows for `document` against SWBPIPE's solve of `solved_model`, with an
+    invented print that mirrors that solve."""
+    payload = solve(solved_model)
+    mbf, text = mirror_csv(document, payload)
+    record = build_benchmark_record(document, swbpipe_result_payload=payload, mbf_result=mbf, mbf_text=mbf.text,
+                                    parsed_caepipe=parse_caepipe_print_csv(text))
+    return [row for row in record["results"] if "closed_form" in row]
+
+
+def test_the_elongation_on_closed_forms_match_swbpipe():
+    """The pressure-elongation-on run of every pressurised model: on a build with the setting, the document the
+    series gives (the setting names the pressure case); without it, the tracked document, which then solves with
+    elongation on."""
+    has_setting = build_has_pressure_elongation_setting()
+    compared = 0
+    for document in pressurised_models():
+        run = benchmark_models.series_document(document, benchmark_models.SERIES_ELONGATION_ON)
+        rows = closed_form_rows(run, run["model"] if has_setting else document["model"])
+        assert len(rows) == len(run["closed_form"]), document["model_id"]
+        for row in rows:
+            assert row["closed_form"]["closed_form_vs_swbpipe"] == "agree", (document["model_id"], row)
+        compared += len(rows)
+    assert compared == sum(len(document["closed_form"]) + len(document["closed_form_by_series"]
+                                                              [benchmark_models.SERIES_ELONGATION_ON])
+                           for document in pressurised_models())
+
+
+def test_the_elongation_off_closed_forms_are_listed_and_compared_only_on_a_build_with_the_setting():
+    listed = {document["model_id"]: len(document["closed_form_by_series"][benchmark_models.SERIES_DEFAULT])
+              for document in pressurised_models()}
+    assert {model: count for model, count in listed.items() if count} == dict(PENDING_ELONGATION_OFF)
+    if not build_has_pressure_elongation_setting():
+        pytest.skip(f"pending, {sum(listed.values())} closed forms: {PENDING_REASON}")
+    for document in pressurised_models():
+        run = benchmark_models.series_document(document, benchmark_models.SERIES_DEFAULT)
+        assert run["model"] == document["model"]
+        rows = closed_form_rows(run, run["model"])
+        assert len(rows) == len(run["closed_form"]), document["model_id"]
+        for row in rows:
+            assert row["closed_form"]["closed_form_vs_swbpipe"] == "agree", (document["model_id"], row)
+
+
+def test_every_pressurised_model_runs_in_both_series_from_the_same_file():
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    pressurised = [entry for entry in manifest["models"] if entry["tranche"] == "2"]
+    names = [entry["model_id"] for entry in pressurised]
+    for name, value in ((benchmark_models.SERIES_DEFAULT, "off"), (benchmark_models.SERIES_ELONGATION_ON, "on")):
+        declared = manifest["series"][name]
+        assert declared["parameter"] == "pressure_elongation" and declared["value"] == value
+        assert [member["model_id"] for member in declared["members"]] == names
+        assert {member["elongation_load_case"] for member in declared["members"]} == {"case:sustained"}
+    assert manifest["series"][benchmark_models.SERIES_ELONGATION_ON]["variant_of"] == benchmark_models.SERIES_DEFAULT
+    for entry in pressurised:
+        default, on = entry["runs"]
+        assert (default["series"], default["variant_of"]) == (benchmark_models.SERIES_DEFAULT, None)
+        assert (on["series"], on["variant_of"]) == (benchmark_models.SERIES_ELONGATION_ON, benchmark_models.SERIES_DEFAULT)
+        assert default["file"] == on["file"] == entry["file"]
+        assert default["swbpipe_model_hash"] == entry["model_hash"] != on["swbpipe_model_hash"]
+        assert on["swbpipe_model_settings"] == {"pressure_elongation": {"operating_load_cases": ["case:sustained"]}}
+    # The thrust series: one target-program input, SWBPIPE's anchor terminal transferring or not.
+    for index in (1, 2):
+        members = manifest["series"][f"pressure-closure-{index:02d}"]["members"]
+        assert [(member["model_id"], member["value"]) for member in members] == [
+            (f"cpb-p2-{index:02d}", "transfers_to_wall"), (f"cpb-p3-{index:02d}", "separately_supported_or_compensated")]
+    # Tranche 1 belongs to neither run series.
+    assert not [entry for entry in manifest["models"] if entry["tranche"] == "1" and "runs" in entry]
+
+
+def test_no_tracked_model_carries_model_settings_and_the_series_document_adds_it_without_writing():
+    for document in tracked_models():
+        assert "model_settings" not in document["model"], document["model_id"]
+    document = pressurised_models()[0]
+    before = json.dumps(document, sort_keys=True)
+    on = benchmark_models.series_document(document, benchmark_models.SERIES_ELONGATION_ON)
+    assert on == benchmark_models.series_document(document, benchmark_models.SERIES_ELONGATION_ON)
+    assert json.dumps(document, sort_keys=True) == before
+    assert on["model"]["model_settings"] == {"pressure_elongation": {"operating_load_cases": ["case:sustained"]}}
+    assert {key: value for key, value in on["model"].items() if key != "model_settings"} == document["model"]
+    assert on["series_run"] == benchmark_models.SERIES_ELONGATION_ON and "closed_form_by_series" not in on
+    with pytest.raises(ValueError):
+        benchmark_models.series_document(tracked_models()[0], benchmark_models.SERIES_DEFAULT)
+    assert benchmark_models.generate() == benchmark_models.generate()  # nothing the call changed reaches the set
+
+
+def test_every_pressurised_case_carries_an_unbalanced_thrust_or_one_straight_member_per_region():
+    """Each region is one straight member, or holds a bend (whose kink leaves a thrust), or ends at a terminal that
+    is separately supported or compensated; so no case is a multi-member closed straight run without one."""
+    for document in pressurised_models():
+        model = document["model"]
+        bends = {component["geometry"]["bend_pipe_ref"] for component in model["components"]}
+        regions = [region for case in model["load_cases"] for region in case["pressure_regions"]]
+        assert regions and all(case["id"] == "case:sustained" for case in model["load_cases"]
+                               if case["pressure_regions"])
+        for region in regions:
+            members = region["member_pipe_ids"]
+            open_end = any(terminal["closure_transfer"] != "transfers_to_wall" for terminal in region["terminals"])
+            assert len(members) == 1 or set(members) & bends or open_end, (document["model_id"], region["id"])
+        assert {"pressure_elongation_convention", "pressure_thrust_convention"} <= set(
+            document["inexact_inputs"]["case:sustained"])
+        assert model["pressure_contract"] == {"version": "3.0.0", "mode": "exact_pressure_v3",
+                                              "shear_model": "timoshenko_annulus_energy_v1"}
 
 
 # -- element-row binding ---------------------------------------------------------------------------------------------
