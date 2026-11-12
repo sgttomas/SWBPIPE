@@ -722,9 +722,9 @@ CAPTURE_PATH_UNAVAILABLE = "capture_path_unavailable"
 
 
 def capture_refusal(entry: Mapping[str, Any], emit: Callable[[str], None]) -> tuple[str, str, str]:
-    """A capture-only run is a sealed capture: its collected result may not be read beyond hashing. The path that
-    collects it without reading it is a separate change, so on this branch the run is refused by name, live or
-    offline, and nothing is written but this status line."""
+    """A capture-only run is declared but not run on this build: the path that would collect its result is a
+    separate change, so the run is refused by name, live or offline, before anything is solved, written,
+    collected, hashed or read, and nothing is emitted but this status line."""
     reason = ("a capture-only run needs the capture-only path, which collects its result without reading it; that "
               "path is a separate change and is not on this build")
     emit(f"{benchmark_run_id(entry)}: route={CAPTURE_PATH_UNAVAILABLE}; {reason}; not run")

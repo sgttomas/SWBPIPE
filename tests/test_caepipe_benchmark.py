@@ -362,7 +362,7 @@ def test_every_pressurised_model_declares_three_runs_of_the_same_file():
         assert declared["oppres_line"] == lines[name] and declared["screened"] is (name != RUNS[2])
         assert [member["model_id"] for member in declared["members"]] == names
     capture_text = manifest["series"][RUNS[2]]["description"]
-    assert manifest["series"][RUNS[2]]["swbpipe"] is None and "sealed capture" in capture_text
+    assert manifest["series"][RUNS[2]]["swbpipe"] is None and "collects nothing for it" in capture_text
     assert "capture_path_unavailable" in capture_text and "screened against nothing" not in capture_text
     hypothesis = manifest["pressure_hypothesis"]
     assert hypothesis["statement"].startswith("HYPOTHESIS") and "tests and does not assume" in hypothesis["statement"]
@@ -945,43 +945,116 @@ def test_two_states_of_one_model_leave_two_distinct_records(fake_benchmark, monk
         (run_ids[0], RUNS[0], "0,0,0,1,0", "recorded"), (run_ids[1], RUNS[1], "0,1,0,1,1", "recorded")]
 
 
-def test_a_capture_run_is_refused_by_name_and_nothing_is_read_or_written(fake_benchmark, monkeypatch, capsys):
-    """A sealed capture may not be read beyond hashing, and the path that collects without reading is a separate
-    change: live or offline, the capture run is refused by name before any solve, write, round trip or parse."""
-    state = fake_benchmark
-    path = benchmark_manifest(state["manifest"].parent.parent / "pressure-set", ids=("cpb-p2-01",))
+CAPTURE_REFUSAL = ("cpb-p2-01--pressure-bourdon-expansion-capture: route=capture_path_unavailable; a capture-only run "
+                   "needs the capture-only path, which collects its result without reading it; that path is a "
+                   "separate change and is not on this build; not run")
 
-    def forbidden(*args, **kwargs):
-        raise AssertionError("a capture run must not be solved, written, round-tripped or parsed")
-    for target in (run_pilot, __import__("core.handoff.caepipe_external", fromlist=["x"]),
-                   __import__("core.handoff.caepipe_external.print_csv", fromlist=["x"])):
-        for name in ("read_caepipe_print_csv", "parse_caepipe_print_csv"):
-            if hasattr(target, name):
-                monkeypatch.setattr(target, name, forbidden)
+
+def test_a_capture_run_is_refused_by_name_and_nothing_is_read_or_written(fake_benchmark, monkeypatch, capsys):
+    """On this build a capture run is declared and refused by name, live or offline, at every entry point, before
+    anything is solved, written, collected, hashed or read. An invented stored result is seeded for its case, and every
+    spy records its call (and then raises), so a read through any parser alias, a recognition helper that swallows
+    the raised error, or a plain open of the seeded files still fails this test."""
+    import builtins
+    import io
+    from core.handoff.caepipe_external import harness, print_csv
+    import core.handoff.caepipe_external as external
+
+    state = fake_benchmark
+    path = benchmark_manifest(state["manifest"].parent.parent / "pressure-set", ids=("cpb-p2-01", "cpb-g1-01"))
+    [capture] = run_pilot.load_benchmark(path, ["cpb-p2-01"], RUNS[2])
+    [plain] = run_pilot.load_benchmark(path, ["cpb-g1-01"])
+    config = state["config"]
+    root = config.exchange_root
+    # An invented stored result for the capture run's case: obviously made-up text and a run record naming it.
+    out = case_paths(config, capture["run_id"])["caepipe_out"]
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "model.csv").write_text("INVENTED CAPTURE FIXTURE, NOT A RESULT OF ANY PROGRAM,\r\n", encoding="utf-8")
+    (out / "run_record.json").write_text(json.dumps({"document_kind": RUN_RECORD_KIND, "route": "csv_from_batch",
+                                                     "invented": True}), encoding="utf-8")
+    watched = (root / "cases" / capture["run_id"]).resolve()
+
+    def snapshot() -> dict[str, bytes]:
+        return {str(item.relative_to(root)): item.read_bytes() if item.is_file() else b"<dir>"
+                for item in sorted(root.rglob("*"))}
+    before = snapshot()
+
+    calls: list[str] = []
+    active = {"on": True}
+
+    def spy(name):
+        def call(*args, **kwargs):
+            if active["on"]:
+                calls.append(name)
+            raise AssertionError(f"a capture run must not reach {name}")
+        return call
+    for module in (run_pilot, external, print_csv, harness):
+        for name in ("read_caepipe_print_csv", "parse_caepipe_print_csv", "_print_layout_problem",
+                     "stored_run_record", "_sha256", "bound_csv", "case_paths"):
+            if hasattr(module, name):
+                monkeypatch.setattr(module, name, spy(f"{module.__name__}.{name}"))
     for name in ("solve_swbpipe", "render_caepipe_mbf_si", "write_private", "_write_json", "check_guest_alive",
-                 "check_no_foreign_instance"):
-        monkeypatch.setattr(run_pilot, name, forbidden)
-    root = state["config"].exchange_root
-    before = sorted(root.rglob("*"))
-    argv = ["--benchmark", str(path)] + state["argv"][2:] + ["--series", RUNS[2]]
-    for extra in ([], ["--offline"]):
-        command = argv if not extra else ["--benchmark", str(path), "--runner", state["runner"], "--offline",
-                                          "--series", RUNS[2]]
-        assert run_pilot.main(command, environ={}) == 2
-        out = capsys.readouterr().out
-        assert out.strip() == ("cpb-p2-01--pressure-bourdon-expansion-capture: route=capture_path_unavailable; a "
-                               "capture-only run needs the capture-only path, which collects its result without "
-                               "reading it; that path is a separate change and is not on this build; not run")
-    assert state["calls"] == [] and state["sleeps"] == [] and sorted(root.rglob("*")) == before
-    # The library entry points refuse it too.
-    [entry] = run_pilot.load_benchmark(path, None, RUNS[2])
+                 "check_no_foreign_instance", "resolve_harness_config"):
+        monkeypatch.setattr(run_pilot, name, spy(f"run_pilot.{name}"))
+    real_open, real_os_open = builtins.open, os.open
+
+    def touched(target) -> None:
+        try:
+            resolved = Path(os.fspath(target)).resolve()
+        except TypeError:
+            return  # a file descriptor
+        if active["on"] and (resolved == watched or watched in resolved.parents):
+            calls.append(f"open {resolved.relative_to(root.resolve())}")
+
+    def spy_open(file, *args, **kwargs):
+        touched(file)
+        return real_open(file, *args, **kwargs)
+
+    def spy_os_open(file, *args, **kwargs):
+        touched(file)
+        return real_os_open(file, *args, **kwargs)
+    monkeypatch.setattr(builtins, "open", spy_open)
+    monkeypatch.setattr(io, "open", spy_open)
+    monkeypatch.setattr(os, "open", spy_os_open)
+
+    def round_trip(*args, **kwargs):
+        calls.append("round_trip")
+        raise AssertionError("a capture run must not be round-tripped")
     lines: list[str] = []
-    assert run_pilot.run_benchmark([entry], state["config"], runner=state["runner"], offline=True,
-                                   emit=lines.append) == 2
-    assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=False,
-                                         emit=lines.append)[1] == "capture_path_unavailable"
-    assert len(lines) == 2 and all("route=capture_path_unavailable" in line for line in lines)
-    assert sorted(root.rglob("*")) == before
+    probes = {
+        "command live": lambda: run_pilot.main(["--benchmark", str(path), "--case", "cpb-p2-01", "--series", RUNS[2]]
+                                               + state["argv"][2:], environ={}),
+        "command offline": lambda: run_pilot.main(["--benchmark", str(path), "--case", "cpb-p2-01", "--runner",
+                                                   state["runner"], "--offline", "--series", RUNS[2]], environ={}),
+        "run_benchmark live": lambda: run_pilot.run_benchmark(
+            [capture], config, runner=state["runner"], offline=False, emit=lines.append, round_trip=round_trip),
+        "run_benchmark offline": lambda: run_pilot.run_benchmark([capture], config, runner=state["runner"],
+                                                                 offline=True, emit=lines.append),
+        "mixed batch": lambda: run_pilot.run_benchmark([plain, capture], config, runner=state["runner"],
+                                                       offline=True, emit=lines.append),
+        "run_benchmark_model live": lambda: run_pilot.run_benchmark_model(
+            capture, config, runner=state["runner"], offline=False, emit=lines.append, round_trip=round_trip)[1],
+        "run_benchmark_model offline": lambda: run_pilot.run_benchmark_model(
+            capture, config, runner=state["runner"], offline=True, emit=lines.append)[1],
+        "internal live": lambda: run_pilot._run_benchmark_model(
+            capture, config, runner=state["runner"], offline=False, emit=lines.append, round_trip=round_trip,
+            gui_fallback=False, attempt=1)[1],
+        "internal offline": lambda: run_pilot._run_benchmark_model(
+            capture, config, runner=state["runner"], offline=True, emit=lines.append, round_trip=round_trip,
+            gui_fallback=False, attempt=1)[1],
+    }
+    expected = {name: 2 for name in probes if name.startswith(("command", "run_benchmark ", "mixed"))}
+    for name, probe in probes.items():
+        lines.clear()
+        assert probe() == expected.get(name, "capture_path_unavailable"), name
+        assert calls == [], (name, calls)
+        if name.startswith("command"):
+            assert capsys.readouterr().out.strip() == CAPTURE_REFUSAL, name
+        else:
+            # Only the refusal's own status line; the mixed batch runs nothing, its other model included.
+            assert lines == [CAPTURE_REFUSAL], (name, lines)
+    active["on"] = False
+    assert state["calls"] == [] and state["sleeps"] == [] and snapshot() == before
 
 
 def test_the_pace_is_the_callers(fake_benchmark):

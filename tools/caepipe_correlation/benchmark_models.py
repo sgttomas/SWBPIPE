@@ -242,10 +242,9 @@ PRESSURE_RUN_SERIES = {
         "screened": False,
         "description": ("the target program's alternative placement of Bourdon, in the expansion load cases. For this "
                         "run: no SWBPIPE state on these models equals it, because the models' expansion cases carry no "
-                        "pressure; so the run has nothing to be screened against today, and it stays a sealed capture "
-                        "unless a SWBPIPE state that equals it is defined. The capture-only path that collects its "
-                        "result without reading it is a separate change; until it lands, run_pilot refuses this run by "
-                        "name (capture_path_unavailable)")},
+                        "pressure; so the run has nothing to be screened against today. It is declared here, and "
+                        "run_pilot refuses it by name (capture_path_unavailable) and collects nothing for it: the path "
+                        "that would collect its result is a separate change")},
 }
 # The correspondence the pressure-elongation-on run tests; stated so that it is never assumed.
 PRESSURE_HYPOTHESIS = {
@@ -1309,7 +1308,7 @@ def series_document(document: dict[str, Any], series: str) -> dict[str, Any]:
     naming its elongation_load_case. Either carries the closed forms valid in every state plus that state's, and that
     run's inexact inputs. `pressure-bourdon-expansion-capture`: the tracked model, marked `capture_only`, with no
     closed form and no inexact input, since no SWBPIPE state of these models equals that run (its declaration says
-    why); it is a sealed capture, which run_pilot refuses to run until the capture-only path lands. Every run
+    why); it is declared, and run_pilot refuses it by name and collects nothing for it. Every run
     document names its `oppres_line` (the MBF's OPPRES line, substituted by `substituted_mbf_text`) and its
     `run_id`, distinct per run."""
     if series not in PRESSURE_RUN_SERIES or series not in document.get("series", []):

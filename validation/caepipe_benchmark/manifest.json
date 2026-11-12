@@ -3410,7 +3410,7 @@
       "swept": "run"
     },
     "pressure-bourdon-expansion-capture": {
-      "description": "the target program's alternative placement of Bourdon, in the expansion load cases. For this run: no SWBPIPE state on these models equals it, because the models' expansion cases carry no pressure; so the run has nothing to be screened against today, and it stays a sealed capture unless a SWBPIPE state that equals it is defined. The capture-only path that collects its result without reading it is a separate change; until it lands, run_pilot refuses this run by name (capture_path_unavailable)",
+      "description": "the target program's alternative placement of Bourdon, in the expansion load cases. For this run: no SWBPIPE state on these models equals it, because the models' expansion cases carry no pressure; so the run has nothing to be screened against today. It is declared here, and run_pilot refuses it by name (capture_path_unavailable) and collects nothing for it: the path that would collect its result is a separate change",
       "kind": "run_state",
       "mbf": "the writer's output with its one OPPRES line 0,0,0,1,0 replaced by 0,1,0,1,0 (Bourdon effect on, pressure correction for bends off, Bourdon in the expansion load cases): not writer output, with its own hash (substituted_mbf_text)",
       "members": [
