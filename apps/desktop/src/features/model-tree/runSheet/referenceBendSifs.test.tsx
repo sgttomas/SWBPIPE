@@ -1,4 +1,4 @@
-// Reference proof for the run sheet's bend SIF cells (DEL-09-01 `reference-system-run-sheet.md`
+// Reference proof for the run sheet's bend SIF cells (DEL-09-01 `fixtures/reference_system/RUN_SHEET.md`
 // §2, §3.4, §3.5; DEL-07-02 `run-sheet-entry.md` §1.2, §3.3, §9). The 26 reference rows are
 // entered in table order with the run sheet's header and ids; the three bend rows (k, k source,
 // SIFs, ids, geometry source) and the valve/flange rows (Component details) are typed through

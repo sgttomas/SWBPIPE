@@ -76,7 +76,7 @@ code-compliance, target-validation, or security-certification claims.
 
 ### Embedded agent sandbox: the libinfo later-binding residual
 
-The following is lines 3 to 20 of `execution/PKG-16/DEL-16-06/Work/agent-libinfo-elimination.md` at commit 0d2d37260, restored unchanged; the allow it concerns is the single `mach-lookup` of `com.apple.system.opendirectoryd.libinfo` in the embedded agent's sandbox profile, `apps/desktop/src-tauri/src/embedded_agent/sandbox.rs`.
+The following is lines 3 to 20 of `execution/PKG-16/DEL-16-06/Work/agent-libinfo-elimination.md` at commit 0d2d37260, restored unchanged; the allow it concerns is the single `mach-lookup` of `com.apple.system.opendirectoryd.libinfo` in the embedded agent's sandbox profile, `apps/desktop/src-tauri/src/embedded_agent/sandbox.rs`. It is the record as written on its date. Its statements that the profile source is unwired, and its references to statements "below", describe that time; the host is wired now and the statements it points to are not restored. What stands is the residual: a directory binding (AD, LDAP or NIS) added later reopens the allow for review, and the allow is no guarantee that no brokered network access occurs.
 
 **Standing: source/manual characterization, one refused synthetic-identity
 diagnostic and accepted exact-libinfo config admission; no caller-capture run.**
