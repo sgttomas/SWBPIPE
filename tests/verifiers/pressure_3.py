@@ -426,6 +426,88 @@ def poisson_coefficient(coefficient: float, nu: float, included: bool) -> None:
         _require(False, "RHS term coefficient binding")
 
 
+CANCELLATION_EXCEPTION_BASIS = "straight_region_interior_cap_pairs_without_pressure_elongation"
+CANCELLATION_RESIDUAL_RATIO_LIMIT = 1e-9
+
+
+def rhs_screen_keys(rhs: Any, keys: set[str]) -> set[str]:
+    """A case admitted by the cancellation-screen exception carries its record beside the screen."""
+    return keys | {"cancellation_screen_exception"} if isinstance(rhs, Mapping) and "cancellation_screen_exception" in rhs else keys
+
+
+def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, regions: list[Any]) -> None:
+    """DEL-04-07, the cancellation screen (Rust ``physics_evidence::assembly`` and ``cancellation_exception``).
+
+    A screen within its limit is the original assurance and no exception record stands beside it. A screen over
+    its limit, or not finite (null), stands only with the exception's record, re-derived from the published groups
+    and the case's regions: the family (no pressure elongation, connector or realized arc; every group a bore group
+    whose terms are one member's poisson_eigen and terminal_cap at a transferring terminal of exactly that region,
+    or at most two poisson_eigen terms of distinct members of one region at a node that is no region's terminal),
+    the published ratio bit for bit, and the published original screen."""
+    screen, record = rhs["cancellation_screen"], rhs.get("cancellation_screen_exception")
+    passing = _number(screen) and 0 <= screen <= 1e-9
+    if record is None:
+        _require(passing, "SOURCE_PHYSICS_RHS_SCREEN")
+        return
+    _require(not passing, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BESIDE_PASSING_SCREEN")
+    _require(screen is None or (_number(screen) and screen > 1e-9), "SOURCE_PHYSICS_RHS_SCREEN")
+    _require(isinstance(record, Mapping) and set(record) == {"basis", "residual_to_source_ratio", "residual_to_source_ratio_limit"}
+             and record["basis"] == CANCELLATION_EXCEPTION_BASIS and record["residual_to_source_ratio_limit"] == CANCELLATION_RESIDUAL_RATIO_LIMIT,
+             "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION")
+    ratio = record["residual_to_source_ratio"]
+    _require(_number(ratio) and 0 <= ratio <= CANCELLATION_RESIDUAL_RATIO_LIMIT, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO")
+    family = "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY"
+    _require(elongation is False, family)
+    terminals = []
+    for region in regions:
+        _require(not region.get("member_connector_ids") and not any(isinstance(g, Mapping) and ("member_kind" in g or "arc_end_tangents_global" in g) for g in region.get("geometry") or []), family)
+        terminals += [(region["region_id"], t["node_ref"], t["closure_transfer"] == "transfers_to_wall") for t in region["terminals"]]
+    order, assembled = rhs["node_order"], rhs["assembled_pressure_rhs_global"]
+    by_dof: dict[int, list[Mapping[str, Any]]] = {}
+    for group in rhs["groups"]:
+        _require("effective_area_bits" not in group, family)
+        by_dof.setdefault(6 * order.index(group["node_ref"]) + ["Fx", "Fy", "Fz"].index(group["component"]), []).append(group)
+    largest = 0.0
+    for dof, groups in by_dof.items():
+        node = order[dof // 6]
+        terms = [term for group in groups for term in group["terms"]]
+        kinds = sorted(term["kind"] for term in terms)
+        ending = [t for t in terminals if t[1] == node]
+        if ending:
+            admitted = (len(groups) == 1 and kinds == ["poisson_eigen", "terminal_cap"] and terms[0]["region_id"] == terms[1]["region_id"]
+                        and terms[0]["pipe_id"] == terms[1]["pipe_id"] and len(ending) == 1 and ending[0][2] and ending[0][0] == terms[0]["region_id"])
+        else:
+            admitted = (kinds in (["poisson_eigen"], ["poisson_eigen", "poisson_eigen"]) and len({term["region_id"] for term in terms}) == 1
+                        and len({term["pipe_id"] for term in terms}) == len(terms))
+        _require(admitted, family)
+        try:
+            scale = math.fsum(abs(group["assembled_force_n"]) for group in groups)
+        except OverflowError:
+            _require(False, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO")
+        load = abs(assembled[dof])
+        value = 0.0 if load == 0 else load / scale
+        _require(math.isfinite(value), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO")
+        largest = max(largest, value)
+    _require(struct.pack("<d", float(ratio)) == struct.pack("<d", largest), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO")
+    # The original screen as the producer forms it.
+    max_rhs = max((abs(value) for index, value in enumerate(assembled) if index % 6 < 3), default=0.0)
+    maximum = 0.0
+    for groups in by_dof.values():
+        values = [group["assembled_force_n"] for group in groups]
+        if max_rhs == 0:
+            if any(value != 0 for value in values):
+                maximum = math.inf
+                break
+        else:
+            try:
+                maximum = max(maximum, math.fsum(abs(value) / max_rhs for value in values))
+            except OverflowError:
+                maximum = math.inf
+                break
+    expected = 32 * 2.0 ** -52 * maximum
+    _require(screen is None if not math.isfinite(expected) else (_number(screen) and struct.pack("<d", float(screen)) == struct.pack("<d", expected)), "SOURCE_PHYSICS_RHS_SCREEN_RECOMPUTED")
+
+
 def rhs_elongation(rhs: Mapping[str, Any], keys: set[str], elongation: bool | None) -> set[str]:
     """The assembly's keys: a case with pressure regions states its setting there too, equal to its regions'."""
     if elongation is None:
@@ -678,7 +760,8 @@ def _physics(source: Mapping[str, Any]) -> None:
             (region.get("region_id"), geometry.get("pipe_id")): geometry.get("arc_end_tangents_global")
             for region in evidence["pressure"] if isinstance(region, Mapping) and region.get("load_case_id") == cid
             for geometry in (region.get("geometry") if isinstance(region.get("geometry"), list) else [])
-            if isinstance(geometry, Mapping) and geometry.get("member_kind") == ARC_MEMBER_KIND})
+            if isinstance(geometry, Mapping) and geometry.get("member_kind") == ARC_MEMBER_KIND},
+            [region for region in evidence["pressure"] if isinstance(region, Mapping) and region.get("load_case_id") == cid])
     owners: dict[tuple[str, str], str] = {}
     bindings: set[str] = set()
     regions: set[tuple[str, str]] = set()
@@ -1178,16 +1261,16 @@ def _temperature_basis(basis: Any, case_basis: str, material_id: str) -> None:
         _require(False, "temperature selection")
 
 
-def _validate_rhs(rhs: Any, cid: str, elongation: bool | None = None, arc_tangents: Mapping[tuple[Any, Any], Any] | None = None) -> None:
+def _validate_rhs(rhs: Any, cid: str, elongation: bool | None = None, arc_tangents: Mapping[tuple[Any, Any], Any] | None = None, regions: list[Any] | None = None) -> None:
     """``arc_tangents``: the case's realized-arc members' published end tangents by (region, pipe). A realized arc's
     end tangent t = c*d + s*n is formed without renormalizing, so a component can round above 1; an arc term binds its
     group's direction magnitude exactly to one of its arc's end tangent components on the group's axis, and a group
     with no arc term keeps the bound 1 (a straight member's frame axis is at most 1). DEL-04-07 Work
     `pressure-contract.md`, "Direction magnitudes of arc tangents"; Rust `physics_evidence::assembly`."""
     arc_tangents = arc_tangents or {}
-    _shape(rhs, rhs_elongation(rhs, {"method", "load_case_id", "node_order", "dof_order", "dof_units", "assembled_pressure_rhs_global", "groups", "rounded_cap_rhs_global", "rounded_poisson_rhs_global", "rounded_cap_and_eigen_ledgers_are_observational", "cancellation_screen", "screen_limit", "screen_roundoff_multiplier", "screen_is_not_numerical_qualification"}, elongation), "pressure RHS shape")
+    _shape(rhs, rhs_elongation(rhs, rhs_screen_keys(rhs, {"method", "load_case_id", "node_order", "dof_order", "dof_units", "assembled_pressure_rhs_global", "groups", "rounded_cap_rhs_global", "rounded_poisson_rhs_global", "rounded_cap_and_eigen_ledgers_are_observational", "cancellation_screen", "screen_limit", "screen_roundoff_multiplier", "screen_is_not_numerical_qualification"}), elongation), "pressure RHS shape")
     _require(rhs["method"] == "source_factor_grouped_pressure_rhs_v1" and rhs["load_case_id"] == cid and _strings(rhs["node_order"], True) and rhs["dof_order"] == ["Fx", "Fy", "Fz", "Mx", "My", "Mz"] and rhs["dof_units"] == ["N", "N", "N", "N*m", "N*m", "N*m"], "pressure RHS basis")
-    _require(rhs["rounded_cap_and_eigen_ledgers_are_observational"] is True and rhs["screen_is_not_numerical_qualification"] is True and rhs["screen_limit"] == 1e-9 and rhs["screen_roundoff_multiplier"] == 32 and _number(rhs["cancellation_screen"]) and 0 <= rhs["cancellation_screen"] <= rhs["screen_limit"], "pressure RHS screen")
+    _require(rhs["rounded_cap_and_eigen_ledgers_are_observational"] is True and rhs["screen_is_not_numerical_qualification"] is True and rhs["screen_limit"] == 1e-9 and rhs["screen_roundoff_multiplier"] == 32, "pressure RHS screen")
     _require(all(_vector(rhs[k], 6 * len(rhs["node_order"])) for k in ("assembled_pressure_rhs_global", "rounded_cap_rhs_global", "rounded_poisson_rhs_global")) and isinstance(rhs["groups"], list), "pressure RHS vectors")
     for key in ("assembled_pressure_rhs_global", "rounded_cap_rhs_global", "rounded_poisson_rhs_global"):
         _require(all(value == 0 for index, value in enumerate(rhs[key]) if index % 6 >= 3), "unsupported pressure moment")
@@ -1233,6 +1316,7 @@ def _validate_rhs(rhs: Any, cid: str, elongation: bool | None = None, arc_tangen
         for term in group["terms"]:
             _shape(term, {"coefficient", "region_id", "pipe_id", "kind"}, "pressure RHS term")
             _require(_number(term["coefficient"]) and _text(term["region_id"]) and _text(term["pipe_id"]) and term["kind"] in {"poisson_eigen", "terminal_cap", "bend_cap_removed", "kink_remainder", "joint_face_cap"}, "pressure RHS term values")
+    rhs_screen(rhs, cid, elongation, regions or [])
 
 
 # --------------------------------------------------------------------------

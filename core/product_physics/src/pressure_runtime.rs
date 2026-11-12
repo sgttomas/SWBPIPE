@@ -1500,6 +1500,7 @@ fn finish_source_groups(
     groups: BTreeMap<FactorKey, FactorGroup>,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
+    let eligible = cancellation_exception_eligible(model, case, output, &groups);
     let mut by_dof = vec![Vec::new(); output.assembled_loads.len()];
     let mut evidence = Vec::new();
     for ((dof, pbits, area, _), group) in groups {
@@ -1616,8 +1617,18 @@ fn finish_source_groups(
         }
     }
     let screen = 32.0 * f64::EPSILON * maximum_ratio;
+    // The original screen stays as it is. Only when it fails, and only for a
+    // case of the structural family below, is the case admitted on the
+    // residual's ratio to the source terms that formed it; the case is then
+    // solved with the formed residual, not with a zeroed RHS, so the
+    // published groups still sum to the assembled load.
+    let mut exception = None;
     if !screen.is_finite() || screen > 1e-9 {
-        problem(diagnostics,"PRESSURE_ASSEMBLY_CANCELLATION_UNRESOLVED",&[&case.id],"different source factors strongly cancel beyond the bounded pressure-RHS screening domain; no source-accuracy or Current result is inferred from a small residual of rounded loads");
+        let ratio = if eligible { cancellation_residual_ratio(&output.assembled_loads, &by_dof) } else { None };
+        match ratio {
+            Some(ratio) if ratio <= CANCELLATION_RESIDUAL_RATIO_LIMIT => exception = Some(ratio),
+            _ => problem(diagnostics,"PRESSURE_ASSEMBLY_CANCELLATION_UNRESOLVED",&[&case.id],"different source factors strongly cancel beyond the bounded pressure-RHS screening domain; no source-accuracy or Current result is inferred from a small residual of rounded loads"),
+        }
     }
     output.assembly_evidence = json!({"method":"source_factor_grouped_pressure_rhs_v1","load_case_id":case.id,
         "node_order":model.nodes.iter().map(|node|&node.id).collect::<Vec<_>>(),"dof_order":["Fx","Fy","Fz","Mx","My","Mz"],
@@ -1625,12 +1636,137 @@ fn finish_source_groups(
         "rounded_cap_rhs_global":output.cap_loads,"rounded_poisson_rhs_global":output.eigenloads,"dof_units":["N","N","N","N*m","N*m","N*m"],
         "cancellation_screen":if screen.is_finite(){Some(screen)}else{None},"screen_limit":1e-9,"screen_roundoff_multiplier":32,
         "screen_is_not_numerical_qualification":true});
+    if let Some(ratio) = exception {
+        output.assembly_evidence["cancellation_screen_exception"] = json!({"basis":CANCELLATION_EXCEPTION_BASIS,
+            "residual_to_source_ratio":ratio,"residual_to_source_ratio_limit":CANCELLATION_RESIDUAL_RATIO_LIMIT});
+    }
     // RT-L2 (`pressure-elongation.md` §5): a case with pressure regions states
     // whether it includes pressure elongation; a pressure-free case is unchanged.
     if case.pressure_regions.as_ref().is_some_and(|regions| !regions.is_empty()) {
         output.assembly_evidence["pressure_elongation"] =
             json!(pressure_elongation_token(model.pressure_elongation_included(&case.id)));
     }
+}
+
+/// The fixed token naming the family a cancellation-screen exception is
+/// admitted for (`cancellation_screen_exception.basis`).
+pub(crate) const CANCELLATION_EXCEPTION_BASIS: &str = "straight_region_interior_cap_pairs_without_pressure_elongation";
+
+/// The bound of the cancellation-screen exception: it compares the load
+/// assembled at a degree of freedom against the summed magnitudes of the
+/// source-group terms that cancelled to form it there. Its value is under
+/// independent numerical scrutiny.
+pub(crate) const CANCELLATION_RESIDUAL_RATIO_LIMIT: f64 = 1e-9;
+
+/// DEL-04-07, the family that may be admitted when the original cancellation
+/// screen fails: a case that carries a physically zero pressure load because
+/// of how its terms are formed, decided from the terms as they are grouped
+/// (member kind, region membership, node role, term kind), never from their
+/// values. The case does not include pressure elongation (κ = 1, so a member's
+/// Poisson pair is its cap pair alone); no member of its regions is a realized
+/// arc and no region lists a connector; every group is a bore group at a
+/// translational degree of freedom; and every degree of freedom that carries a
+/// group is one of:
+///
+/// - a transferring terminal of exactly one region of the case, holding one
+///   group of exactly two terms of one member of that region: its
+///   `poisson_eigen` end term and its `terminal_cap`, which share the group
+///   key and cancel there by construction (the member's closed end); or
+/// - a node that is no region's terminal, interior to one region, where
+///   exactly two straight members of that region meet, holding exactly their
+///   two `poisson_eigen` end terms (the cap pair of each member's end there).
+///
+/// Anything else anywhere in the case (an uncancelled cap at a terminal that
+/// does not transfer, a kink remainder, a bend term, a joint term, a junction
+/// of regions or a reducer step between them, a second region's term at a
+/// node, an included elongation) makes the case ineligible, and it is judged
+/// by the original screen alone.
+fn cancellation_exception_eligible(
+    model: &PreviewModel,
+    case: &PreviewLoadCase,
+    output: &ExactPressureCase,
+    groups: &BTreeMap<FactorKey, FactorGroup>,
+) -> bool {
+    if model.pressure_elongation_included(&case.id)
+        || output.pipe_states.values().any(|state| state.arc.is_some() || state.elongation_included)
+    {
+        return false;
+    }
+    let regions = case.pressure_regions.as_deref().unwrap_or_default();
+    if regions.iter().any(|region| region.member_connector_ids.as_ref().is_some_and(|ids| !ids.is_empty())) {
+        return false;
+    }
+    // Every terminal of every region of the case: (region, node, transfers).
+    let mut terminals = Vec::new();
+    for region in regions {
+        for terminal in region.terminals.as_deref().unwrap_or_default() {
+            let Some(node) = model.nodes.iter().position(|node| Some(&node.id) == terminal.node_ref.as_ref()) else {
+                return false;
+            };
+            terminals.push((region.id.as_deref(), node, terminal.closure_transfer.as_deref() == Some("transfers_to_wall")));
+        }
+    }
+    cancellation_exception_terms_eligible(&terminals, groups)
+}
+
+/// The term-structure part of [`cancellation_exception_eligible`]: every
+/// group is a bore group at a translational degree of freedom, and every
+/// degree of freedom that carries a group is a transferring terminal's closed
+/// member end or an interior node's two straight-member cap pairs, as stated
+/// there. `terminals` lists every terminal of every region of the case as
+/// (region, node, transfers).
+fn cancellation_exception_terms_eligible(
+    terminals: &[(Option<&str>, usize, bool)],
+    groups: &BTreeMap<FactorKey, FactorGroup>,
+) -> bool {
+    let mut by_dof: BTreeMap<usize, Vec<&FactorGroup>> = BTreeMap::new();
+    for ((dof, _, area, _), group) in groups {
+        if !matches!(area, FactorArea::Bore(..)) || dof % DOF_PER_NODE >= 3 {
+            return false;
+        }
+        by_dof.entry(*dof).or_default().push(group);
+    }
+    for (dof, at_dof) in by_dof {
+        let node = dof / DOF_PER_NODE;
+        let terms = at_dof.iter().flat_map(|group| &group.terms).collect::<Vec<_>>();
+        let [a, b] = terms[..] else { return false };
+        let ending = terminals.iter().filter(|terminal| terminal.1 == node).collect::<Vec<_>>();
+        let admitted = if ending.is_empty() {
+            a.3 == "poisson_eigen" && b.3 == "poisson_eigen" && a.1 == b.1 && a.2 != b.2
+        } else {
+            let mut kinds = [a.3, b.3];
+            kinds.sort_unstable();
+            at_dof.len() == 1
+                && kinds == ["poisson_eigen", "terminal_cap"]
+                && a.1 == b.1
+                && a.2 == b.2
+                && matches!(ending[..], [&(Some(region), _, true)] if region == a.1.as_str())
+        };
+        if !admitted {
+            return false;
+        }
+    }
+    true
+}
+
+/// The largest ratio, over the degrees of freedom that carry source groups, of
+/// the assembled load to the summed magnitudes of the group values formed
+/// there (0 where both are 0). `None` when a sum is not representable.
+fn cancellation_residual_ratio(assembled: &[f64], by_dof: &[Vec<f64>]) -> Option<f64> {
+    let mut largest = 0.0_f64;
+    for (dof, values) in by_dof.iter().enumerate() {
+        if values.is_empty() {
+            continue;
+        }
+        let scale = crate::pressure_sum::exact_sum(values.iter().map(|v| v.abs())).ok()?;
+        let load = assembled[dof].abs();
+        let ratio = if load == 0.0 { 0.0 } else { load / scale };
+        if !ratio.is_finite() {
+            return None;
+        }
+        largest = largest.max(ratio);
+    }
+    Some(largest)
 }
 
 fn temperature_basis(case: &PreviewLoadCase) -> Value {
@@ -2667,5 +2803,92 @@ mod grouping_identity_tests {
         assert_eq!(group.direction.to_bits(), 0.0_f64.to_bits());
         assert_eq!(group.terms.iter().map(|term| term.0).collect::<Vec<_>>(), [-1.0, 1.0]);
         assert_eq!(annulus.pressure_group_value(pressure, 0.0, group.direction).unwrap(), 0.0);
+    }
+}
+
+#[cfg(test)]
+mod cancellation_exception_tests {
+    //! The term-structure part of the cancellation-screen exception's family,
+    //! one excluded kind at a time, on groups formed as the producer forms them.
+    use super::*;
+
+    const X: f64 = 1.0;
+
+    fn state(od: f64) -> ExactPressurePipeState {
+        let sections = ExactSectionBases::derive(od, 0.01, 0.0, 0.0).unwrap();
+        let material = IsotropicENu::new(200e9, 0.3).unwrap();
+        let pressure = InternalDifferentialPressure::new(2e6).unwrap();
+        ExactPressurePipeState {
+            region_id: "r".to_string(),
+            sections,
+            material,
+            pressure,
+            eigenload_pair: sections.poisson_eigenload_pair(material, pressure).unwrap(),
+            arc: None,
+            elongation_included: false,
+        }
+    }
+
+    /// A closed run A(0)-M(1)-B(2) of region "r", outside diameters one ulp
+    /// apart, both terminals transferring: the exception's family.
+    fn closed_run() -> (Vec<(Option<&'static str>, usize, bool)>, BTreeMap<FactorKey, FactorGroup>) {
+        let (a, b) = (state(0.12), state(f64::from_bits(0.12_f64.to_bits() + 1)));
+        let mut groups = BTreeMap::new();
+        add_factor_term(&mut groups, 0, &a, X, false, 1.0, "r", "p:A-M", "poisson_eigen");
+        add_factor_term(&mut groups, 0, &a, X, false, -1.0, "r", "p:A-M", "terminal_cap");
+        add_factor_term(&mut groups, DOF_PER_NODE, &a, X, false, -1.0, "r", "p:A-M", "poisson_eigen");
+        add_factor_term(&mut groups, DOF_PER_NODE, &b, X, false, 1.0, "r", "p:M-B", "poisson_eigen");
+        add_factor_term(&mut groups, 2 * DOF_PER_NODE, &b, X, false, -1.0, "r", "p:M-B", "poisson_eigen");
+        add_factor_term(&mut groups, 2 * DOF_PER_NODE, &b, X, false, 1.0, "r", "p:M-B", "terminal_cap");
+        (vec![(Some("r"), 0, true), (Some("r"), 2, true)], groups)
+    }
+
+    #[test]
+    fn a_closed_straight_run_is_of_the_family() {
+        let (terminals, groups) = closed_run();
+        assert!(cancellation_exception_terms_eligible(&terminals, &groups));
+    }
+
+    #[test]
+    fn every_other_kind_of_term_or_node_role_leaves_the_family() {
+        let a = state(0.12);
+        let bent = state(0.12);
+        let cases: Vec<(&str, Box<dyn Fn(&mut Vec<(Option<&'static str>, usize, bool)>, &mut BTreeMap<FactorKey, FactorGroup>)>)> = vec![
+            // A terminal that does not transfer: its member's uncancelled cap.
+            ("uncancelled terminal cap", Box::new(|terminals, groups| {
+                terminals[1].2 = false;
+                let key = *groups.keys().find(|key| key.0 == 2 * DOF_PER_NODE).unwrap();
+                groups.get_mut(&key).unwrap().terms.retain(|term| term.3 != "terminal_cap");
+            })),
+            ("kink remainder", Box::new(move |_, groups| add_factor_term(groups, DOF_PER_NODE, &a, X, false, 1.0, "r", "p:A-M", "kink_remainder"))),
+            ("bend term", Box::new(move |_, groups| add_factor_term(groups, DOF_PER_NODE, &bent, 0.5, false, 1.0, "r", "p:BEND", "bend_cap_removed"))),
+            ("joint face cap", Box::new(move |_, groups| add_factor_term(groups, 2 * DOF_PER_NODE, &state(0.12), X, false, 1.0, "r", "p:M-B", "joint_face_cap"))),
+            ("joint effective area", Box::new(|_, groups| {
+                groups.insert((2 * DOF_PER_NODE, 2e6_f64.to_bits(), FactorArea::Joint(0.004_f64.to_bits()), X.to_bits()),
+                    FactorGroup { geometry: None, pressure: InternalDifferentialPressure::new(2e6).unwrap(), direction: X, terms: vec![(1.0, "r".into(), "c:J".into(), "joint_effective_area")] });
+            })),
+            ("second region's term at an interior node", Box::new(|_, groups| add_factor_term(groups, DOF_PER_NODE, &state(0.2), X, false, 1.0, "s", "p:M-C", "poisson_eigen"))),
+            ("a third member at an interior node", Box::new(|_, groups| add_factor_term(groups, DOF_PER_NODE, &state(0.2), X, false, 1.0, "r", "p:M-C", "poisson_eigen"))),
+            ("junction of regions at a terminal", Box::new(|terminals, groups| {
+                terminals.push((Some("s"), 2, true));
+                let other = state(0.14);
+                add_factor_term(groups, 2 * DOF_PER_NODE, &other, X, false, 1.0, "s", "p:B-C", "poisson_eigen");
+                add_factor_term(groups, 2 * DOF_PER_NODE, &other, X, false, -1.0, "s", "p:B-C", "terminal_cap");
+            })),
+            ("pressure moment", Box::new(|_, groups| add_factor_term(groups, DOF_PER_NODE + 3, &state(0.12), X, false, 1.0, "r", "p:A-M", "poisson_eigen"))),
+        ];
+        for (label, change) in cases {
+            let (mut terminals, mut groups) = closed_run();
+            change(&mut terminals, &mut groups);
+            assert!(!cancellation_exception_terms_eligible(&terminals, &groups), "{label}");
+        }
+    }
+
+    #[test]
+    fn the_residual_ratio_is_the_largest_load_over_its_source_magnitudes() {
+        let assembled = [0.0, 1e-12, 0.0, 0.0, 0.0, 0.0, 0.0];
+        let by_dof = vec![vec![1.0, -1.0], vec![2.0, -2.0 + 1e-12], vec![], vec![], vec![], vec![], vec![0.0]];
+        assert_eq!(cancellation_residual_ratio(&assembled, &by_dof), Some(1e-12 / (4.0 - 1e-12)));
+        assert_eq!(cancellation_residual_ratio(&[1.0], &[vec![]]), Some(0.0));
     }
 }

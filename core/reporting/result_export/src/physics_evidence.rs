@@ -1442,29 +1442,31 @@ fn assembly(
     // RT-L2: a case with pressure regions states its setting on its assembly too,
     // equal to its regions'; a pressure-free case's assembly carries none.
     let elongation = case_elongation(regions, case)?;
-    require(
-        keys(
-            v,
-            &[
-                "method",
-                "load_case_id",
-                "node_order",
-                "dof_order",
-                "dof_units",
-                "assembled_pressure_rhs_global",
-                "groups",
-                "rounded_cap_rhs_global",
-                "rounded_poisson_rhs_global",
-                "rounded_cap_and_eigen_ledgers_are_observational",
-                "cancellation_screen",
-                "screen_limit",
-                "screen_roundoff_multiplier",
-                "screen_is_not_numerical_qualification",
-                "pressure_elongation",
-            ][..if elongation.is_some() { 15 } else { 14 }],
-        ),
-        "RHS_SHAPE",
-    )?;
+    let mut shape = vec![
+        "method",
+        "load_case_id",
+        "node_order",
+        "dof_order",
+        "dof_units",
+        "assembled_pressure_rhs_global",
+        "groups",
+        "rounded_cap_rhs_global",
+        "rounded_poisson_rhs_global",
+        "rounded_cap_and_eigen_ledgers_are_observational",
+        "cancellation_screen",
+        "screen_limit",
+        "screen_roundoff_multiplier",
+        "screen_is_not_numerical_qualification",
+    ];
+    if elongation.is_some() {
+        shape.push("pressure_elongation");
+    }
+    // DEL-04-07: a case admitted by the cancellation-screen exception carries its record.
+    let exception = v.get("cancellation_screen_exception");
+    if exception.is_some() {
+        shape.push("cancellation_screen_exception");
+    }
+    require(keys(v, &shape), "RHS_SHAPE")?;
     if let Some(included) = elongation {
         require(
             v["pressure_elongation"] == elongation_token(included),
@@ -1491,8 +1493,27 @@ fn assembly(
     ] {
         vector(&v[key], nodes.len() * 6)?;
     }
-    let screen = number(&v["cancellation_screen"])?;
-    require((0.0..=1e-9).contains(&screen), "RHS_SCREEN")?;
+    // The original screen within its limit is the original assurance, and no
+    // exception record stands beside it. A screen over its limit, or not
+    // finite (published as null), stands only with the exception's record,
+    // which is recomputed from the published groups below.
+    let screen = &v["cancellation_screen"];
+    let passing = screen.as_f64().is_some_and(|s| (0.0..=1e-9).contains(&s));
+    match exception {
+        None => require(passing, "RHS_SCREEN")?,
+        Some(record) => {
+            require(!passing, "RHS_SCREEN_EXCEPTION_BESIDE_PASSING_SCREEN")?;
+            require(screen.is_null() || screen.as_f64().is_some_and(|s| s.is_finite() && s > 1e-9), "RHS_SCREEN")?;
+            require(
+                keys(record, &["basis", "residual_to_source_ratio", "residual_to_source_ratio_limit"])
+                    && record["basis"] == CANCELLATION_EXCEPTION_BASIS
+                    && record["residual_to_source_ratio_limit"] == CANCELLATION_RESIDUAL_RATIO_LIMIT,
+                "RHS_SCREEN_EXCEPTION",
+            )?;
+            let ratio = number(&record["residual_to_source_ratio"])?;
+            require((0.0..=CANCELLATION_RESIDUAL_RATIO_LIMIT).contains(&ratio), "RHS_SCREEN_EXCEPTION_RATIO")?;
+        }
+    }
     for values in [
         "assembled_pressure_rhs_global",
         "rounded_cap_rhs_global",
@@ -1702,7 +1723,132 @@ fn assembly(
             }
         }
     }
+    if let Some(record) = exception {
+        cancellation_exception(v, case, regions, elongation, &nodes, record)?;
+    }
     Ok(())
+}
+
+/// The fixed token of the cancellation-screen exception's family
+/// (DEL-04-07; product physics `CANCELLATION_EXCEPTION_BASIS`).
+pub(crate) const CANCELLATION_EXCEPTION_BASIS: &str = "straight_region_interior_cap_pairs_without_pressure_elongation";
+/// The exception's ratio limit (product physics `CANCELLATION_RESIDUAL_RATIO_LIMIT`).
+pub(crate) const CANCELLATION_RESIDUAL_RATIO_LIMIT: f64 = 1e-9;
+
+/// DEL-04-07: an assembly that publishes the cancellation-screen exception is
+/// re-derived from its own groups and its case's regions. The original screen
+/// is recomputed and must be the published, failed value; the case must not
+/// include pressure elongation, list a connector or carry a realized arc; every
+/// published group must be a bore group whose terms are either one member's
+/// `poisson_eigen` and `terminal_cap` at a transferring terminal of exactly
+/// that region, or at most two `poisson_eigen` terms of distinct members of
+/// one region at a node that is no region's terminal (a group whose binary64
+/// direction folds to zero is not published and adds exactly zero); and the
+/// ratio of each degree of freedom's assembled load to the summed magnitudes
+/// of its published group values, the largest of them, must be the published
+/// ratio, bit for bit.
+fn cancellation_exception(
+    v: &Value,
+    case: &str,
+    regions: &HashMap<(&str, &str), &Value>,
+    elongation: Option<bool>,
+    nodes: &HashSet<&str>,
+    record: &Value,
+) -> Check {
+    use crate::connector_evidence::ExactSum;
+    require(elongation == Some(false), "RHS_SCREEN_EXCEPTION_FAMILY")?;
+    let order = array(&v["node_order"])?.iter().map(text).collect::<Result<Vec<_>, _>>()?;
+    require(order.len() == nodes.len(), "RHS_NODES")?;
+    let mut terminals = Vec::new();
+    for ((c, region_id), region) in regions {
+        if *c != case {
+            continue;
+        }
+        require(
+            region.get("member_connector_ids").is_none_or(|ids| ids.as_array().is_some_and(Vec::is_empty))
+                && crate::arc_evidence::members(region, true)?.is_empty(),
+            "RHS_SCREEN_EXCEPTION_FAMILY",
+        )?;
+        for terminal in array(&region["terminals"])? {
+            terminals.push((*region_id, text(&terminal["node_ref"])?, terminal["closure_transfer"] == "transfers_to_wall"));
+        }
+    }
+    let assembled = array(&v["assembled_pressure_rhs_global"])?.iter().map(number).collect::<Result<Vec<_>, _>>()?;
+    let mut by_dof: HashMap<usize, Vec<&Value>> = HashMap::new();
+    for group in array(&v["groups"])? {
+        require(group.get("effective_area_bits").is_none(), "RHS_SCREEN_EXCEPTION_FAMILY")?;
+        let name = text(&group["node_ref"])?;
+        let node = order.iter().position(|n| *n == name).ok_or("SOURCE_PHYSICS_RHS_GROUP_NODE")?;
+        let axis = match group["component"].as_str() { Some("Fx") => 0, Some("Fy") => 1, Some("Fz") => 2, _ => return Err("SOURCE_PHYSICS_RHS_GROUP_NODE".into()) };
+        by_dof.entry(node * 6 + axis).or_default().push(group);
+    }
+    let mut largest = 0.0_f64;
+    for (dof, groups) in &by_dof {
+        let node = order[dof / 6];
+        let terms = groups.iter().map(|g| array(&g["terms"])).collect::<Result<Vec<_>, _>>()?.into_iter().flatten().collect::<Vec<_>>();
+        let kind = |t: &Value| t["kind"].as_str().unwrap_or_default().to_owned();
+        let ending = terminals.iter().filter(|t| t.1 == node).collect::<Vec<_>>();
+        let admitted = match terms[..] {
+            [a, b] if !ending.is_empty() => {
+                let mut kinds = [kind(a), kind(b)];
+                kinds.sort();
+                groups.len() == 1
+                    && kinds == ["poisson_eigen", "terminal_cap"]
+                    && a["region_id"] == b["region_id"]
+                    && a["pipe_id"] == b["pipe_id"]
+                    && matches!(ending[..], [&(region, _, true)] if a["region_id"] == region)
+            }
+            [a] if ending.is_empty() => kind(a) == "poisson_eigen",
+            [a, b] if ending.is_empty() => {
+                kind(a) == "poisson_eigen" && kind(b) == "poisson_eigen" && a["region_id"] == b["region_id"] && a["pipe_id"] != b["pipe_id"]
+            }
+            _ => false,
+        };
+        require(admitted, "RHS_SCREEN_EXCEPTION_FAMILY")?;
+        let mut scale = ExactSum::default();
+        for group in groups {
+            scale.add(number(&group["assembled_force_n"])?.abs());
+        }
+        let scale = scale.round().ok_or("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO")?;
+        let load = assembled[*dof].abs();
+        let ratio = if load == 0.0 { 0.0 } else { load / scale };
+        require(ratio.is_finite(), "RHS_SCREEN_EXCEPTION_RATIO")?;
+        largest = largest.max(ratio);
+    }
+    require(
+        number(&record["residual_to_source_ratio"])?.to_bits() == largest.to_bits(),
+        "RHS_SCREEN_EXCEPTION_RATIO",
+    )?;
+    // The original screen, as the producer forms it: 32 epsilon times the
+    // largest per-DOF sum of group magnitudes over the largest assembled
+    // translational load; not finite (null) when that load is 0 and a group
+    // value is not, or when a sum is not representable.
+    let max_rhs = assembled.iter().enumerate().filter(|(i, _)| i % 6 < 3).fold(0.0_f64, |m, (_, x)| m.max(x.abs()));
+    let mut maximum_ratio = 0.0_f64;
+    for groups in by_dof.values() {
+        let values = groups.iter().map(|g| number(&g["assembled_force_n"])).collect::<Result<Vec<_>, _>>()?;
+        if max_rhs == 0.0 {
+            if values.iter().any(|x| *x != 0.0) {
+                maximum_ratio = f64::INFINITY;
+                break;
+            }
+        } else {
+            let mut sum = ExactSum::default();
+            values.iter().for_each(|x| sum.add(x.abs() / max_rhs));
+            match sum.round() {
+                Some(ratio) => maximum_ratio = maximum_ratio.max(ratio),
+                None => {
+                    maximum_ratio = f64::INFINITY;
+                    break;
+                }
+            }
+        }
+    }
+    let screen = 32.0 * f64::EPSILON * maximum_ratio;
+    require(
+        if screen.is_finite() { v["cancellation_screen"].as_f64().map(f64::to_bits) == Some(screen.to_bits()) } else { v["cancellation_screen"].is_null() },
+        "RHS_SCREEN_RECOMPUTED",
+    )
 }
 
 /// Current exact-retained G7 transport checks on the receipt's pressure-2

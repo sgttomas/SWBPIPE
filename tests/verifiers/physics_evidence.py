@@ -37,7 +37,7 @@ from collections.abc import Mapping
 from typing import Any
 
 from . import section_basis as sb
-from .pressure_3 import ARC_GEOMETRY_KEYS, case_elongation, elongation_included, elongation_statement, equivalent_static_record, poisson_coefficient, rhs_elongation
+from .pressure_3 import ARC_GEOMETRY_KEYS, case_elongation, rhs_screen, rhs_screen_keys, elongation_included, elongation_statement, equivalent_static_record, poisson_coefficient, rhs_elongation
 
 PRESSURE_V3 = ("3.0.0", "exact_pressure_v3")
 PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-3"
@@ -211,7 +211,7 @@ def _validate_physics_evidence(source: Mapping[str, Any], *, context: Any, contr
         for pid, nominal in extrema_by_basis[sb.NOMINAL].items():
             if pid in extrema_by_basis[sb.REDUCED]:
                 _basis(sb.extrema_twins, nominal, extrema_by_basis[sb.REDUCED][pid], sections[cid, pid])
-        _validate_rhs(case["pressure_rhs_assembly"], cid, case_elongation(evidence["pressure"], cid))
+        _validate_rhs(case["pressure_rhs_assembly"], cid, case_elongation(evidence["pressure"], cid), [r for r in evidence["pressure"] if isinstance(r, Mapping) and r.get("load_case_id") == cid])
     owners: dict[tuple[str, str], str] = {}
     bindings: set[str] = set()
     regions: set[tuple[str, str]] = set()
@@ -438,10 +438,10 @@ def _temperature_basis(basis: Any, case_basis: str, material_id: str) -> None:
         _require(False, "temperature selection")
 
 
-def _validate_rhs(rhs: Any, cid: str, elongation: bool | None = None) -> None:
-    _shape(rhs, rhs_elongation(rhs, {"method", "load_case_id", "node_order", "dof_order", "dof_units", "assembled_pressure_rhs_global", "groups", "rounded_cap_rhs_global", "rounded_poisson_rhs_global", "rounded_cap_and_eigen_ledgers_are_observational", "cancellation_screen", "screen_limit", "screen_roundoff_multiplier", "screen_is_not_numerical_qualification"}, elongation), "pressure RHS shape")
+def _validate_rhs(rhs: Any, cid: str, elongation: bool | None = None, regions: list[Any] | None = None) -> None:
+    _shape(rhs, rhs_elongation(rhs, rhs_screen_keys(rhs, {"method", "load_case_id", "node_order", "dof_order", "dof_units", "assembled_pressure_rhs_global", "groups", "rounded_cap_rhs_global", "rounded_poisson_rhs_global", "rounded_cap_and_eigen_ledgers_are_observational", "cancellation_screen", "screen_limit", "screen_roundoff_multiplier", "screen_is_not_numerical_qualification"}), elongation), "pressure RHS shape")
     _require(rhs["method"] == "source_factor_grouped_pressure_rhs_v1" and rhs["load_case_id"] == cid and _strings(rhs["node_order"], True) and rhs["dof_order"] == ["Fx", "Fy", "Fz", "Mx", "My", "Mz"] and rhs["dof_units"] == ["N", "N", "N", "N*m", "N*m", "N*m"], "pressure RHS basis")
-    _require(rhs["rounded_cap_and_eigen_ledgers_are_observational"] is True and rhs["screen_is_not_numerical_qualification"] is True and rhs["screen_limit"] == 1e-9 and rhs["screen_roundoff_multiplier"] == 32 and _number(rhs["cancellation_screen"]) and 0 <= rhs["cancellation_screen"] <= rhs["screen_limit"], "pressure RHS screen")
+    _require(rhs["rounded_cap_and_eigen_ledgers_are_observational"] is True and rhs["screen_is_not_numerical_qualification"] is True and rhs["screen_limit"] == 1e-9 and rhs["screen_roundoff_multiplier"] == 32, "pressure RHS screen")
     _require(all(_vector(rhs[k], 6 * len(rhs["node_order"])) for k in ("assembled_pressure_rhs_global", "rounded_cap_rhs_global", "rounded_poisson_rhs_global")) and isinstance(rhs["groups"], list), "pressure RHS vectors")
     for key in ("assembled_pressure_rhs_global", "rounded_cap_rhs_global", "rounded_poisson_rhs_global"):
         _require(all(value == 0 for index, value in enumerate(rhs[key]) if index % 6 >= 3), "unsupported pressure moment")
@@ -457,6 +457,7 @@ def _validate_rhs(rhs: Any, cid: str, elongation: bool | None = None) -> None:
         for term in group["terms"]:
             _shape(term, {"coefficient", "region_id", "pipe_id", "kind"}, "pressure RHS term")
             _require(_number(term["coefficient"]) and _text(term["region_id"]) and _text(term["pipe_id"]) and term["kind"] in {"poisson_eigen", "terminal_cap"}, "pressure RHS term values")
+    rhs_screen(rhs, cid, elongation, regions or [])
 
 
 def validate_transport_metadata(source: Mapping[str, Any]) -> None:
@@ -491,7 +492,7 @@ def validate_transport_metadata(source: Mapping[str, Any]) -> None:
             _require(ex["result_id"] not in result_ids, "transport maximum result ID")
             result_ids.add(ex["result_id"])
             _require(0 <= ex["value_lower_pa"] <= ex["value_upper_pa"] <= ex["global_upper_bound_pa"] and 0 <= ex["global_upper_bound_pa"]-ex["value_lower_pa"] <= ex["certified_gap_pa"] <= 1e-12+1e-12*ex["value_lower_pa"], "transport maximum bounds")
-        _validate_rhs(case["pressure_rhs_assembly"], cid, case_elongation(evidence["pressure"], cid))
+        _validate_rhs(case["pressure_rhs_assembly"], cid, case_elongation(evidence["pressure"], cid), [r for r in evidence["pressure"] if isinstance(r, Mapping) and r.get("load_case_id") == cid])
     for region in evidence["pressure"]:
         cid, rid = region["load_case_id"], region["region_id"]
         _require(cid in cases and (cid,rid) not in regions and region["p_pa"] >= 0, "transport pressure region")
