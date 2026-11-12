@@ -462,7 +462,7 @@ pub(crate) fn publish(combinations: &[super::PreviewCombination], case_ids: &[&s
     let index = CaseIndex::new(results);
     let RowIndexes { by_sources, combination_rows, magnitude_rows } = row_indexes(results);
     // Each operand case's groups by (entity, location, group): the first position.
-    let mut group_index: HashMap<&str, HashMap<(&str, &str, &str), usize>> = HashMap::new();
+    let mut group_index = GroupIndex::default();
     let mut pressure_index: Option<PressureIndex<'_>> = None;
     let case_order: Vec<String> = serde_json::to_value(&envelope.numerical_quality.cases)
         .ok()
@@ -518,8 +518,6 @@ pub(crate) fn publish(combinations: &[super::PreviewCombination], case_ids: &[&s
         };
         for (case, _) in &terms {
             used_cases.insert(case.clone());
-            let (case, operand) = operands.get_key_value(case).expect("every operand case carries groups");
-            group_index.entry(case.as_str()).or_insert_with(|| first_positions(operand));
         }
         let subtraction = combination.basis == "result_state_subtraction";
         let mut derived: Vec<Derived> = Vec::new();
@@ -542,8 +540,7 @@ pub(crate) fn publish(combinations: &[super::PreviewCombination], case_ids: &[&s
             // Every operand's same group, with a bound, and its coverage.
             let mut per_operand = Vec::new();
             for (case, _) in &terms {
-                let operand = &operands[case];
-                let Some(own) = group_index[case.as_str()].get(&(group.entity.as_str(), group.location.as_str(), group.group.as_str())).map(|&i| &operand.groups[i]) else { break };
+                let Some(own) = group_index.find(operands, case, &group.entity, &group.location, &group.group) else { break };
                 let Some(bound) = own.bound else { break };
                 per_operand.push((own, bound, coverage(&index, results, case, own)));
             }
@@ -695,6 +692,23 @@ fn first_positions(operand: &Operand) -> HashMap<(&str, &str, &str), usize> {
         index.entry((g.entity.as_str(), g.location.as_str(), g.group.as_str())).or_insert(i);
     }
     index
+}
+
+/// Each operand case's [`first_positions`], formed on the case's first lookup
+/// and kept for it, so that a lookup always reads its own case's groups.
+#[derive(Default)]
+struct GroupIndex<'o> {
+    cases: HashMap<&'o str, HashMap<(&'o str, &'o str, &'o str), usize>>,
+}
+
+impl<'o> GroupIndex<'o> {
+    /// The case's first group of (entity, location, group), as a scan of its
+    /// groups in order finds it; `None` for a miss or a case without groups.
+    fn find(&mut self, operands: &'o HashMap<String, Operand>, case: &str, entity: &str, location: &str, group: &str) -> Option<&'o OperandGroup> {
+        let (case, operand) = operands.get_key_value(case)?;
+        let index = self.cases.entry(case.as_str()).or_insert_with(|| first_positions(operand));
+        index.get(&(entity, location, group)).map(|&i| &operand.groups[i])
+    }
 }
 
 /// A support magnitude row of the combination: `norm3` of its derived component

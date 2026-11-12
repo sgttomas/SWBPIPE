@@ -14,8 +14,9 @@ fn find_scan<'o>(operand: &'o Operand, entity: &str, location: &str, kind: &str)
     operand.groups.iter().find(|g| g.entity == entity && g.location == location && g.group == kind)
 }
 
-fn find_indexed<'o>(operand: &'o Operand, entity: &str, location: &str, kind: &str) -> Option<&'o OperandGroup> {
-    first_positions(operand).get(&(entity, location, kind)).map(|&i| &operand.groups[i])
+/// publish's own lookup (`GroupIndex::find`) on a one-case operand map.
+fn find_indexed<'o>(operands: &'o HashMap<String, Operand>, entity: &str, location: &str, kind: &str) -> Option<&'o OperandGroup> {
+    GroupIndex::default().find(operands, "case:O", entity, location, kind)
 }
 
 /// Duplicate triples (two unavailable records of one entity; a connector with two
@@ -33,17 +34,43 @@ fn the_group_index_finds_the_first_of_duplicate_triples_and_misses_as_the_scan()
             group("rod:t", "node", "support_force", Some(5.0)),
         ],
     };
+    let operands = HashMap::from([("case:O".to_string(), operand)]);
+    let operand = &operands["case:O"];
+    let find_indexed = |e, l, k| find_indexed(&operands, e, l, k);
     // The first duplicate's bound is unavailable: publish's `let Some(bound) = own.bound else { break }`.
-    let own = find_indexed(&operand, "pipe:u", "end_i", "axial").expect("found");
+    let own = find_indexed("pipe:u", "end_i", "axial").expect("found");
     assert!(own.bound.is_none(), "the first of the duplicates, whose bound breaks");
-    assert_eq!(find_indexed(&operand, "rod:t", "node", "support_force").and_then(|g| g.bound), Some(4.0));
+    assert_eq!(find_indexed("rod:t", "node", "support_force").and_then(|g| g.bound), Some(4.0));
     let mut triples: Vec<(&str, &str, &str)> = operand.groups.iter().map(|g| (g.entity.as_str(), g.location.as_str(), g.group.as_str())).collect();
     triples.extend([("pipe:a", "midspan", "axial"), ("pipe:z", "end_i", "axial"), ("pipe:a", "end_i", "shear")]);
     for (e, l, k) in triples {
-        let (scan, indexed) = (find_scan(&operand, e, l, k), find_indexed(&operand, e, l, k));
+        let (scan, indexed) = (find_scan(operand, e, l, k), find_indexed(e, l, k));
         assert_eq!(scan.map(|g| g as *const _), indexed.map(|g| g as *const _), "{e} {l} {k}");
     }
-    assert!(find_indexed(&operand, "pipe:z", "end_i", "axial").is_none());
+    assert!(find_indexed("pipe:z", "end_i", "axial").is_none());
+}
+
+/// One `GroupIndex` across several operand cases (publish keeps one for the
+/// whole run): each lookup reads its own case's groups, whose order differs
+/// between cases (a case's unavailable record has other groups), and a case
+/// without groups finds none.
+#[test]
+fn the_group_index_reads_each_operand_cases_own_groups() {
+    let operands = HashMap::from([
+        ("case:O".to_string(), Operand { groups: vec![group("pipe:a", "end_i", "axial", Some(1.0)), group("pipe:b", "end_i", "axial", Some(2.0))] }),
+        ("case:S".to_string(), Operand { groups: vec![group("pipe:b", "end_i", "axial", Some(3.0)), group("pipe:a", "end_i", "axial", Some(4.0)), group("pipe:c", "end_i", "axial", Some(5.0))] }),
+    ]);
+    let mut index = GroupIndex::default();
+    let mut bound = |case: &str, entity: &str| index.find(&operands, case, entity, "end_i", "axial").and_then(|g| g.bound);
+    for _ in 0..2 {
+        assert_eq!(bound("case:O", "pipe:a"), Some(1.0));
+        assert_eq!(bound("case:S", "pipe:a"), Some(4.0));
+        assert_eq!(bound("case:S", "pipe:b"), Some(3.0));
+        assert_eq!(bound("case:O", "pipe:b"), Some(2.0));
+        assert_eq!(bound("case:O", "pipe:c"), None);
+        assert_eq!(bound("case:S", "pipe:c"), Some(5.0));
+        assert_eq!(bound("case:X", "pipe:a"), None);
+    }
 }
 
 fn row(id: &str, kind: &str, entity: &str, value: f64, combination: &str) -> ResultItem {
@@ -107,6 +134,29 @@ fn support_magnitude_candidates_match_the_scan_for_zero_one_and_two_rows() {
         assert_eq!(magnitude_rows[&(c, kind, "support:a")], vec![5, 6]);
         assert!(magnitude_rows.keys().all(|(_, kind, _)| *kind != MODULUS_RECORD));
     }
+}
+
+/// publish's row pass (`row_indexes`): a modulus record and a load case row are in
+/// no index; each combination's rows, and its rows by source rows, are in row order.
+#[test]
+fn the_row_pass_indexes_combination_rows_without_the_modulus_record() {
+    let with_sources = |mut r: ResultItem, sources: &[&str]| {
+        r.source_result_refs = sources.iter().map(|s| s.to_string()).collect();
+        r
+    };
+    let mut load_case_row = row("r:case", SUPPORT_FORCE, "support:a", 1.0, "case:O");
+    load_case_row.basis_ref = Some(ResultBasisRef { ref_type: "load_case".into(), ref_id: "comb:x".into() });
+    let results = vec![
+        with_sources(row("r:a", SUPPORT_COMPONENT, "support:a", 1.0, "comb:x"), &["s:1", "s:2"]),
+        with_sources(row("r:mod", MODULUS_RECORD, "support:a", 0.0, "comb:x"), &["s:1", "s:2"]),
+        load_case_row,
+        with_sources(row("r:b", SUPPORT_MOMENT, "support:a", 2.0, "comb:y"), &["s:3"]),
+        with_sources(row("r:c", SUPPORT_COMPONENT, "support:b", 3.0, "comb:x"), &["s:1", "s:2"]),
+    ];
+    let RowIndexes { by_sources, combination_rows, magnitude_rows } = row_indexes(&results);
+    assert_eq!(combination_rows, HashMap::from([("comb:x", vec![0, 4]), ("comb:y", vec![3])]));
+    assert_eq!(by_sources, HashMap::from([(("comb:x", vec!["s:1", "s:2"]), vec![0, 4]), (("comb:y", vec!["s:3"]), vec![3])]));
+    assert_eq!(magnitude_rows, HashMap::from([(("comb:y", SUPPORT_MOMENT, "support:a"), vec![3])]));
 }
 
 /// The replaced scans of D-6's premise.
