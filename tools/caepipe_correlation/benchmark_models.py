@@ -1359,10 +1359,13 @@ EXACT_ROUTE_CHOICES = {
                          "in front of it, using a frame model it wrote itself and not the exact route. The inputs of "
                          "the exact-route side had been fixed first, and none was changed afterwards. This is a "
                          "protocol correction after an earlier screen, not a comparison made without prior "
-                         "exposure. The candidate predictions of any series run to separate explanations are stated "
-                         "from textbook mechanics (no shear; a constant thin-wall shear factor; the "
-                         "thickness-dependent coefficient DEL-05-03 states), and any number fitted to the target "
-                         "program's results stays private."),
+                         "exposure. The estimate is not a reference of this set and stands on no footing beside one: "
+                         "nothing here rests on it, and it is not recorded here. The independent references are the "
+                         "closed forms, derived from the model inputs and stated mechanics without product code and "
+                         "without any value of the target program. Separately, what each series member is expected "
+                         "to show, so that a series can tell explanations apart, is stated only from textbook "
+                         "mechanics (no shear; a constant thin-wall shear factor; the thickness-dependent coefficient "
+                         "DEL-05-03 states); any number fitted to the target program's results stays private."),
     "shear_model": {
         "side_used_for_the_screen": TIMOSHENKO,
         "source": SHEAR_SOURCE,

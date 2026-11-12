@@ -1,7 +1,7 @@
 {
   "document_kind": "openpipestress.caepipe_benchmark.manifest",
   "exact_route_choices": {
-    "after_the_record": "After these choices were recorded and before any exact-route result existed, an estimate of what the exact-route side will show was made by an agent with the target program's values in front of it, using a frame model it wrote itself and not the exact route. The inputs of the exact-route side had been fixed first, and none was changed afterwards. This is a protocol correction after an earlier screen, not a comparison made without prior exposure. The candidate predictions of any series run to separate explanations are stated from textbook mechanics (no shear; a constant thin-wall shear factor; the thickness-dependent coefficient DEL-05-03 states), and any number fitted to the target program's results stays private.",
+    "after_the_record": "After these choices were recorded and before any exact-route result existed, an estimate of what the exact-route side will show was made by an agent with the target program's values in front of it, using a frame model it wrote itself and not the exact route. The inputs of the exact-route side had been fixed first, and none was changed afterwards. This is a protocol correction after an earlier screen, not a comparison made without prior exposure. The estimate is not a reference of this set and stands on no footing beside one: nothing here rests on it, and it is not recorded here. The independent references are the closed forms, derived from the model inputs and stated mechanics without product code and without any value of the target program. Separately, what each series member is expected to show, so that a series can tell explanations apart, is stated only from textbook mechanics (no shear; a constant thin-wall shear factor; the thickness-dependent coefficient DEL-05-03 states); any number fitted to the target program's results stays private.",
     "date": "2026-11-12",
     "decided_by": "the SWBPIPE Agent 0 decided the route (12 November 2026); the inputs below were recorded by the CAEPIPE interoperation Type 1",
     "model_file_condition": "the stored results of the target program are bound by hash to the model file written from the tracked document; a twin is a second SWBPIPE side of a stored result only if the writer, given the twin with the same piping code and reference temperature, writes the same model file bytes, with every differing line listed otherwise; a twin that fails this is not compared",
@@ -32,12 +32,11 @@
       },
       "side_used_for_the_screen": "timoshenko_annulus_energy_v1",
       "source": {
-        "bytes": 30147,
+        "citation": "Vendor public technical reference, \"Fiber Reinforced Plastic Piping (FRP)\", \"Stiffness matrix\", fetched 2026-11-12: the pipe stiffness includes a transverse shear flexibility term, shape factor \u00d7 L/(GA).",
         "fetched": "2026-11-12",
-        "http_status": 200,
-        "sha256_prefix": "c4ab34330fb7f8b6",
+        "section": "Stiffness matrix",
         "states": "the stiffness matrix of a pipe is calculated with an axial term L/EA, a shear term (shape factor x L/GA), a bending term L/EI and a torsion term, and for an isotropic material G = E/2(1 + Poisson's ratio): the public description of the pipe element includes a transverse shear flexibility term",
-        "title": "Fiber Reinforced Plastic Piping (FRP), section \"Stiffness matrix\" (the target program's public technical reference)",
+        "title": "Fiber Reinforced Plastic Piping (FRP)",
         "url": "https://docs.sstcae.com/tech_manual/fiber_reinforced_plastic_piping__frp_.htm"
       }
     }
