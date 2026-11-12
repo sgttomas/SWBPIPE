@@ -34,6 +34,8 @@ def test_the_path_rule_selects_the_check_for_the_tests_and_what_they_read():
         "apps/desktop/native-smoke/driver.js",
         "apps/desktop/native-smoke/perf.mjs",
         "apps/desktop/native-smoke/evidence-checks.mjs",
+        "apps/desktop/native-smoke/evidence-journeys.mjs",
+        "apps/desktop/src-tauri/src/native_smoke.rs",
         "apps/desktop/scripts/appBinaryBinding.mjs",
         "apps/desktop/scripts/engineSourceStamp.mjs",
         "apps/desktop/scripts/worktreeBuildLock.mjs",

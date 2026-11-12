@@ -4,18 +4,24 @@
 // without warning (DEL-02-05 AC-011 / VER-008, without its fault injection, AC-012).
 //
 //   tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs --build-only
-//   tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs --journey <names> [--skip-build] --library-listing <lister>
-//   tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs --all [--skip-build] --library-listing <lister>
-//
-// (<lister>: the real-Library lister, by absolute path, or SWBPIPE_LIBRARY_LISTING; no journey runs without it.)
+//   tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs --journey <names> [--skip-build]
+//   tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs --all [--skip-build]
 //
 // (`tools/t3_slot.sh` is the shared development host's slot wrapper,
 // `/Users/ryan/dev/chirality-t3/tools/t3_slot.sh` there.) --build-only checks the engines, builds and binds
 // the app exactly as a run does, checks the executable's identity against the binding, and exits: no copy,
-// no window, no launch, and the executable is never run. --all runs autosave-recovery, report-exact and
-// report-pressure-free in that order, so the run's first launch is its shortest (autosave-recovery's first:
-// settings, one save, two edits and at most one autosave interval), where the web view's data location is
-// decided. Journeys, each in its own throwaway HOME:
+// no window, no launch, and the executable is never run.
+//
+// NO JOURNEY LAUNCHES TODAY. Before anything is built for a launch, and again before the first launch,
+// the runner asks the committed launch guard (`tools/native_launch_guard.py`, the embedded agent lane's
+// helper) for the real Library's listing; this kit accepts no other lister and no path to one. Until that
+// helper is on main and this kit is wired to it, the seam (launchGuardRefusal, evidence-checks.mjs) refuses
+// every run that would launch: "refused: the committed launch guard is not present". A failed or
+// unreadable listing will refuse the same way.
+//
+// --all runs autosave-recovery, report-exact and report-pressure-free in that order, so the run's first
+// launch is its shortest (autosave-recovery's first: settings, one save, two edits and at most one autosave
+// interval), where the web view's data location is decided. Journeys, each in its own throwaway HOME:
 //
 //   report-pressure-free  1 launch. The bundled demo: solve (sparse); an observation of selection by keyboard
 //                         (below); render the local-private report; File > Save Shareable Report Package…
@@ -27,12 +33,11 @@
 //                         (local private); the results table's CSV export through its own control (a native
 //                         save into Downloads with no chooser): its data rows against the group's own count as
 //                         the window states it, its model hash and the product's layout; Save Model Document…
-//                         of the session; an observation of "Save canonical HTML" (below).
+//                         of the session.
 //   report-exact          1 launch. The same on the exact route, after File > Open Model Document… of
 //                         `fixtures/model_operations/exact_pressure_authoring_model.json`, without the
 //                         selection observation and the CSV save.
-//   reference-system      Kept apart: named alone, never part of --all, and not run under the present
-//                         leave. 1 launch; see referenceJourney below.
+//   reference-system      Kept apart: named alone, never part of --all. 1 launch; see referenceJourney below.
 //   autosave-recovery     2 launches. A fresh settings folder: the interval as first shown, turned off (the
 //                         notice) and on at DEL-02-05's shortest choice through the product's own control; the
 //                         demo saved as a local project; a checkpoint with a read-only copy of the store; a
@@ -49,87 +54,115 @@
 //                         hash is the record's, with the first edit and without the second. The store is
 //                         compared, row by row, before and after the whole sequence.
 //
-// Observations, printed as OBSERVED lines, pass or fail nothing:
-// - "Save canonical HTML", in each report journey: the control pressed once, the app watched for
-//   SAVE_HTML_WINDOW_MS; the app lists the throwaway home before and after (native_smoke_checkpoint), a
-//   chooser path is queued first so a chooser the press reached would take it and show nothing, and the
-//   page's location, dialogs and IPC response are read. Read from the sources (below), nothing is saved.
-// - Selection by keyboard, in report-pressure-free after the solve, for the model tree, the results table,
-//   the displacement extremes table and the support load summary: no surface offers a select-all or copy
-//   of its own; each is focused and WebKit's SelectAll editing command, the one Edit > Select All (⌘A)
-//   sends, is run in the page; the selection's text, which is what Copy takes, is compared with the text
-//   the surface shows; and each surface's own statement of rows shown against rows in all, and whether a
-//   CSV export control sits beside it, is recorded. Observed: selectable, and the selection is what Copy
-//   would take. Unobserved: that Copy is enabled for it, and the key press itself; reading either needs
-//   Objective-C calls from native code, and native_smoke.rs holds no `unsafe` code (the shell's
-//   unsafe-code list, pinned by the user-release reach scan, is not widened for this). Copy is not
-//   pressed and the system pasteboard is neither written nor read: pressing Copy is an act a person's
-//   hands observe.
-// - The CSV save in report-pressure-free: whether a chooser was presented (a chooser path is queued
-//   first), where under the throwaway home the file was written, and the exact words the window shows the
-//   person about it.
+// Unfinished by machine, observed by a person (UNFINISHED_BY_MACHINE): Save canonical HTML, Copy and Print.
+// None is pressed by any journey or by the driver.
+// - Save canonical HTML is a `download` link to a data: URL: a WebKit download navigation, whose save, if
+//   any, the web view and not the application would own, so no queued chooser answer reaches it. (Read
+//   from the sources of this build's webview stack, tauri 2.11.1 and wry 0.55.1: wry cancels a download
+//   when no download handler is set, wry src/wkwebview/navigation.rs navigation_policy, and the app sets
+//   none, its window coming from tauri.conf.json with no `on_download`.) Each report journey records only
+//   whether the control is shown.
+// - Print: the product's print call is `contentWindow.print()` of a srcdoc iframe (RenderedReportPanel.tsx).
+//   Tauri replaces `window.print` with its native print command only in the main frame (tauri
+//   src/webview/plugin.rs init(), for_main_frame_only: true) and wry's WKUIDelegate implements no print
+//   method (wry src/wkwebview/class/wry_web_view_ui_delegate.rs), but were that reading wrong a system print
+//   panel would appear that nothing in a journey may dismiss.
+// - Copy would write the owner's system pasteboard. Selection by keyboard, in report-pressure-free after the
+//   solve, is observed instead, for the model tree, the results table, the displacement extremes table and
+//   the support load summary: no surface offers a select-all or copy of its own; each is focused and
+//   WebKit's SelectAll editing command, the one Edit > Select All (⌘A) sends, is run in the page; the
+//   selection's text, which is what Copy takes, is compared with the text the surface shows; and each
+//   surface's own statement of rows shown against rows in all, and whether a CSV export control sits beside
+//   it, is recorded. Unobserved: that Copy is enabled, and the key press itself; reading either needs
+//   Objective-C calls from native code, and native_smoke.rs holds no `unsafe` code.
+// The other acts were checked for an opening the web view or the system would own instead of the
+// application: the model document open and save, the two package saves and the reference journey's package
+// save go through the application's choosers (lib.rs, native_smoke::take_chosen_path), answered by the
+// queue; the CSV export is a native save into the app's Downloads folder with no chooser (lib.rs
+// begin_local_csv_stream); the render fills an iframe's srcdoc; the menu commands go through the menu's own
+// dispatch; the selection observation runs an editing command in the page; the autosave controls and the
+// recovery offer are page controls. None is a web view download or a system-owned opening.
 //
-// What these journeys do not check, and why: the print of the rendered report and the "Save canonical
-// HTML" link. Read from the sources of this build's webview stack (tauri 2.11.1, wry 0.55.1), the
-// product's print call (`contentWindow.print()` of a srcdoc iframe, RenderedReportPanel.tsx) reaches no
-// native print dialog: Tauri replaces `window.print` with its native print command only in the main frame
-// (tauri src/webview/plugin.rs init(), `js_init_script`, for_main_frame_only: true), and wry's WKUIDelegate
-// implements no print delegate method (wry src/wkwebview/class/wry_web_view_ui_delegate.rs), which WebKit
-// needs to show a print panel for a frame's `window.print()`. Print is not pressed: were that reading
-// wrong, a system print panel would appear that nothing in the journey may dismiss. The data: link with
-// `download` is a download navigation; wry cancels it when no download handler is set (wry
-// src/wkwebview/navigation.rs, navigation_policy), and the app sets none (its window comes from
-// tauri.conf.json, no `on_download`). Both are product shortfalls, repaired as a separate unit.
+// The confinement term, the owner's proxy's, word for word (CONFINEMENT_TERM): "the product is confined by
+// construction (both home variables, an environment allowlist, TMPDIR inside the throwaway home, no chooser
+// that can fall through to a system dialog), and what is observed is the real Library compared before and
+// after and the throwaway home itself; a run's record states that nothing else on the disk was watched."
+// How each part is made true here:
+// - Both home variables: HOME (the app's own paths: its store, settings, autosave folder, Downloads, the
+//   choosers' default folders) and CFFIXED_USER_HOME (Foundation's home, through which the system web view
+//   keeps its website data and caches) are both the journey's throwaway home; a launch is refused by name
+//   unless both are set, equal and under the system temporary folder (homeRedirectionRefusal). THIS
+//   REDIRECTION IS UNTESTED UNTIL THE FIRST LAUNCH: every launch records the web view's data found under the
+//   throwaway home and checks that some is there; on a run's first launch, if none has appeared
+//   WEBVIEW_DATA_GRACE_MS after the shell loads, the app is ended at once and the run stops with "web view
+//   data did not appear under the throwaway home".
+// - An environment allowlist: the app's environment is built from nothing (applicationEnvironment): the two
+//   home variables, TMPDIR, PATH fixed to /usr/bin:/bin:/usr/sbin:/sbin, the kit's own driver, plan and
+//   report variables, the strict chooser variable, and inherited locale variables whose values are plain
+//   locale names. No other smoke hook (the provider key's among them), credential, proxy, XDG or loader
+//   variable reaches it; a launch whose environment holds any other name is refused
+//   (applicationEnvironmentRefusal).
+// - TMPDIR inside the throwaway home: `<home>/tmp`, created with the home.
+// - No chooser that can fall through to a system dialog: every launch sets the strict chooser variable
+//   (STRICT_CHOOSER: SWBPIPE_NATIVE_SMOKE_STRICT_CHOOSER=1). With it, a chooser of the application asked
+//   with no answer queued ends the app at once with exit code 86, before any native dialog
+//   (native_smoke.rs take_chosen_path). The runner reads that code as "a chooser was asked with no answer
+//   queued" and fails the journey, naming the act in progress (the driver writes "act: <name>" to the app's
+//   standard error before each act). Limit, exactly: a wrong chooser can still consume a queued answer,
+//   which writes inside the throwaway home, and the strict stop then fires at the next chooser.
+// - What is observed: the real Library, listed by the committed guard before the first launch and after the
+//   last and compared (LISTING_LIMITS states what a listing can and cannot show), and the throwaway home
+//   itself. The modification times of the owner's home folder and of its Desktop, Documents and Downloads
+//   folders are the committed helper's to observe; this kit never lists or reads inside those folders. Every
+//   run's record ends with "Nothing else on the disk was watched."
 //
-// Terms every launch runs under, made true here by construction:
+// Other terms every launch runs under:
 // - a private copy of the app built from this worktree's head with the `native-smoke` cargo feature
 //   (`scripts/appBinaryBinding.mjs`, as run.mjs), never the installed product and never a signed or
 //   notarized build; its identity is checked before each launch;
-// - the real Library listed, by names, sizes and times only, before the first launch and after the last,
-//   with the embedded agent lane's lister called unchanged (see finishRun): its listings and comparison are
-//   kept in the run's folder, and any created, modified or removed entry in a folder named for the bundle
-//   identifier or the executable stops the run with a named refusal and exit 5, printing the entries. The
-//   operating system's own records about an application that opens a window (six files under
-//   Library/Preferences) are stated in the run's record as existing and not opened, edited or removed;
-//   nothing under the real Library is opened, edited, removed or cleaned by this kit;
-// - a throwaway home under the system temporary folder (`os.tmpdir()`), one per journey inside the run's
-//   folder, removed at the end of the journey (and of the run, whatever stopped it) by this kit, and only
-//   that folder (homeRemovalRefusal: a home this run created, under the temporary folder, named `home`
-//   inside a swbpipe-evidence-<journey>- folder). The run's folder keeps the evidence. Two variables
-//   redirect to the home, both set to the same folder for every launch:
-//   HOME, which the app's own paths follow (its store, settings, autosave folder, Downloads), and
-//   CFFIXED_USER_HOME, which Foundation's home directory follows and through which the system web view
-//   keeps its website data and caches (Library/WebKit/<executable>, Library/Caches/<executable>). A launch
-//   is refused by name unless both are set, equal and under the temporary folder
-//   (homeRedirectionRefusal). No other variable was found documented as moving the web view's data, and
-//   none is set on a guess. THIS REDIRECTION IS UNTESTED UNTIL THE FIRST LAUNCH: every launch records
-//   the web view's data found under the throwaway home and checks that some is there; on a run's first
-//   launch, if none has appeared WEBVIEW_DATA_GRACE_MS after the shell loads, the app is ended at once and
-//   the run stops with "web view data did not appear under the throwaway home". The runner reads nothing
-//   under the owner's home. With it, the owner's project store, settings, Downloads and keychain are
-//   neither read nor written;
-// - no model, network, key, embedded agent or sign-in: the plan names none, the driver starts none, no
-//   provider key is passed (`SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY` is removed from the app's environment), and
+// - the system temporary folder is the system's own answer for this user (`getconf DARWIN_USER_TEMP_DIR`,
+//   which does not follow TMPDIR), resolved to its real path; the runner's TMPDIR is not used. The run's
+//   folder, each journey's folder and each throwaway home are created there, and the device and inode of
+//   each, and of the temporary folder, are recorded when made. A home is removed recursively only when it
+//   is one this run created (homeRemovalRefusal) and it and every folder above it up to the temporary
+//   folder are still real folders, not links, with the recorded device and inode
+//   (removalIdentityRefusal); otherwise it is left, and the run exits non-zero naming it;
+// - the app is started directly (no wrapper), in a process group of its own; the runner keeps the handle of
+//   the process it started and signals only that handle and that group, never a process found by a scan
+//   (`ps` is read only to learn whether the group still runs). Helpers the system starts for the web view
+//   (WebKit's networking, content and GPU processes, started by launchd through XPC) are outside the group;
+//   the runner neither signals nor waits for them. `caffeinate -di -w <pid>` keeps the display awake for that
+//   pid alone. A throwaway home is not removed until the started process and its group are seen gone;
+//   before each launch a record naming the home and, once started, the pid is written to the run's folder
+//   (launch-<n>.json);
+// - one finalizer ends every run that has made its folder: at the end of the journeys, on a thrown error, an
+//   unhandled rejection, and SIGINT, SIGTERM or SIGHUP. It ends the started process (SIGKILL to the handle
+//   and its group) and waits to see it gone, then lists and compares the real Library, then removes the
+//   throwaway homes, then writes the run's record. A home it cannot remove is named as left and the run
+//   exits non-zero. A home left counts as open until it is removed: only the lane that made it removes it,
+//   after verifying by the pids its own launch records name that none still runs; nobody removes another
+//   lane's home (LEFT_HOME_RULE);
+// - no model, network, key, embedded agent or sign-in: the plan names none, the driver starts none, and
 //   builds run offline (CARGO_NET_OFFLINE);
-// - run inside the host's slot wrapper: the runner refuses to build or launch unless an ancestor process is
-//   `t3_slot_run.sh` (the job `t3_slot.sh` starts once it holds a slot), so the slot is taken first, by a job
-//   that opens nothing, and the foreground is asked for only by the launches that follow the build;
+// - inside a held host slot: an ancestor of the runner must be the slot wrapper's lock holder, recognised by
+//   its executable (/usr/bin/lockf, as `lsof` reports it) and by holding one of the host's slot files open
+//   (heldSlotAncestor); an argument that names the wrapper is not enough. `lockf -t 0` runs its command only
+//   once it holds the lock, so a running descendant means the slot is held;
 // - under the worktree build lock (`scripts/worktreeBuildLock.mjs`), from the build through the last launch;
-// - before every launch, the screen session is read (`ioreg -n Root -d1 -a`, CGSSessionScreenIsLocked): if
-//   it is locked the runner prints "session locked" and stops, without retrying;
-// - no page reaches a printer and no system dialog is meant to appear: no journey presses Print, and the
-//   only press of "Save canonical HTML" has a chooser path queued, so a chooser it reached would show nothing;
-// - the system pasteboard is neither written nor read;
+// - before every launch, the screen session is read (`ioreg -n Root -d1 -a`): the runner launches only when
+//   it finds one session on the console and that session unlocked (screenState). It stops with "session
+//   locked" when it is locked and with "screen state not established" when the answer cannot be read or
+//   recognised, without retrying;
+// - the system pasteboard is neither written nor read, and no page reaches a printer;
 // - every cargo build the runner starts, directly or through `npm run build:wasm`, has at most 4 build
 //   jobs: CARGO_BUILD_JOBS=4 is set in the environment (lowered to 4 when larger) before any build. The
 //   engine stamps count CARGO_BUILD_* as build context, so an engine last stamped without it is rebuilt
 //   once.
 //
 // Two pieces of evidence about the owner's home, never one standing for the other:
-// - WRITTEN, by observation at each run: the real Library's listing before and after (finishRun) shows no
-//   created, modified or removed entry in a folder named for the bundle identifier or the executable, and
-//   the in-home check (launch) shows the web view's data inside the throwaway home. It shows what was
-//   written, not that nothing was read.
+// - WRITTEN, by observation at each run: the real Library compared before and after by the committed guard,
+//   and the in-home check (launch) showing the web view's data inside the throwaway home. It shows what was
+//   written in the folders listed, not that nothing was read.
 // - READ, by reading the source at the head under test: what the app reads from a home folder resolves
 //   through HOME or through Foundation's home, both redirected. The store, the autosave folder and its
 //   settings: Tauri's app_local_data_dir (lib.rs:551 app_store_path, including the one-time carry-forward
@@ -157,14 +190,17 @@
 // average every 2 s; a timeout is reported as "TIMEOUT waiting for …" with its elapsed time, its limit and
 // the load average read nearest its moment, so a failure by timing can be told from a failure of the product.
 //
-// Every check prints one line; the runner exits 1 if any check fails (2 on a refusal before any launch,
-// 3 on "session locked"). Expectations are computed here on independent grounds
+// Every check prints one line; the runner exits 1 if any check fails or a home is left, 2 on a refusal, 3
+// on "session locked" or "screen state not established", 4 when the web view's data did not appear under
+// the throwaway home, 5 when the real Library changed in a watched folder or could not be compared, and
+// 128 + the signal's number when stopped by a signal. Expectations are computed here on independent grounds
 // (`evidence-checks.mjs`): SHA-256 and RFC 8785 by the runner, the package read from its own bytes, the
 // notice compared with the text of PRD §19.3 read from docs/PRD.md, the autosave default and choices as
-// DEL-02-05's ScopeOfWork.md states them (written here; nothing under execution/ is read), the store compared with a copy taken before. Nothing here reads or
-// writes `expected.json`. This is evidence for the owner's review, not the owner's witness.
-import { execFileSync, spawnSync } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+// DEL-02-05's ScopeOfWork.md states them (written here; nothing under execution/ is read), the store
+// compared with a copy taken before. Nothing here reads or writes `expected.json`. This is evidence for the
+// owner's review, not the owner's witness.
+import { execFileSync, spawn, spawnSync } from "node:child_process";
+import { copyFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync, writeSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -172,10 +208,12 @@ import { DatabaseSync } from "node:sqlite";
 import { ENGINE_BUILDS } from "../scripts/build-wasm-engine.mjs";
 import { fileIdentity, prepareSmokeApp, privateLaunchCopy } from "../scripts/appBinaryBinding.mjs";
 import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
-import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
+import { BUILD_LOCK_TOKEN_ENV, STOP_SIGNALS, acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 import {
-  autosaveSlot, documentSha256, dumpStore, inspectReportPackage, isCanonicalText, judgeAutosaveRecord,
-  driverTimeout, homeRedirection, homeRedirectionRefusal, homeRemovalRefusal, launchedPid, packageStatusFields, parseRunnerArgs, webviewDataEntries, parseAutosaveName, parseCsvFile, prdRequiredNotice, readStoredZip, screenLockedFromIoreg, sha256Hex, timeoutText, underHostSlot
+  APP_PATH, CONFINEMENT_TERM, LAUNCH_GUARD, LEFT_HOME_RULE, LISTING_LIMITS, NOTHING_ELSE_WATCHED, PROCESS_SCOPE, STRICT_CHOOSER, STRICT_CHOOSER_LIMIT, UNFINISHED_BY_MACHINE,
+  applicationEnvironment, applicationEnvironmentRefusal, documentSha256, driverTimeout, dumpStore, groupRunning, heldSlotAncestor, homeRedirectionRefusal,
+  homeRemovalRefusal, inspectReportPackage, isCanonicalText, judgeAutosaveRecord, launchGuardRefusal, lsofFiles, packageStatusFields, parentsFromPs, parseAutosaveName,
+  parseCsvFile, parseRunnerArgs, prdRequiredNotice, readStoredZip, removalIdentityRefusal, screenState, sha256Hex, systemTempRoot, timeoutText, webviewDataEntries
 } from "./evidence-checks.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -183,10 +221,9 @@ const desktop = path.resolve(here, "..");
 const project = path.resolve(desktop, "..", "..");
 const tauriDir = path.join(desktop, "src-tauri");
 const argv = process.argv.slice(2);
-const args = new Set(argv);
 // --all runs ALL_JOURNEYS (evidence-checks.mjs) in its order: autosave-recovery first, whose first launch
 // is the run's shortest. reference-system is kept apart (SEPARATE_JOURNEYS): named alone, never in --all.
-const parsed = parseRunnerArgs(argv, process.env);
+const parsed = parseRunnerArgs(argv);
 // The named timeouts (ms). ui: a control's response to a click; step: a dialog, the shell at start, the
 // settings read, an applied edit, the recovery offer, the results table for the selection observation;
 // solve: one sparse solve; save: a render, a package save, a model document save; record: the driver's
@@ -209,24 +246,57 @@ const loadNow = () => os.loadavg().map((value) => value.toFixed(2)).join(" / ");
 if (process.platform !== "darwin") refuse("macOS only");
 if (parsed.error) refuse(parsed.error);
 const selected = parsed.journeys;
-if (!parsed.buildOnly && !existsSync(parsed.libraryListing)) refuse(`not launched: the real-Library lister is not at ${parsed.libraryListing}`);
-const psRows = () => execFileSync("/bin/ps", ["-axo", "pid=,ppid=,command="], { encoding: "utf8" });
-if (!underHostSlot(psRows(), process.pid)) refuse("not under the host's slot wrapper; start it as tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs …");
 
-// A window does not paint on a locked session: no launch is made then, and none is retried.
-function guardSession() {
+// Inside a held host slot (finding 7). The host's slot files, as t3_slot.sh names them (its SLOTS); the
+// slot is held by the wrapper's /usr/bin/lockf process, recognised by its executable and its open slot
+// file as lsof reports them (heldSlotAncestor), never by an argument.
+const HOST_SLOT_FILES = ["cargo_job.slot2.lock", "cargo_job.slot3.lock", "cargo_job.slot4.lock", "cargo_job.lock"]
+  .map((name) => path.join(os.userInfo().homedir, "dev", "chirality-t3", "guard", name));
+function heldSlot() {
+  let ps;
+  try { ps = execFileSync("/bin/ps", ["-axo", "pid=,ppid="], { encoding: "utf8", env: { PATH: "/usr/bin:/bin:/usr/sbin:/sbin" } }); } catch { return null; }
+  const filesOf = (pid) => {
+    const result = spawnSync("/usr/sbin/lsof", ["-w", "-a", "-p", String(pid), "-F", "fn"], { encoding: "utf8", env: { PATH: "/usr/bin:/bin:/usr/sbin:/sbin" } });
+    return result.stdout ? lsofFiles(result.stdout) : null;
+  };
+  return heldSlotAncestor(parentsFromPs(ps), process.pid, filesOf, HOST_SLOT_FILES);
+}
+const slot = heldSlot();
+if (!slot) refuse("not inside a held host slot (no ancestor is /usr/bin/lockf holding one of the host's slot files open); start it as tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs …");
+console.log(`evidence journeys: inside host slot ${path.basename(slot.slot)} (held by /usr/bin/lockf, pid ${slot.pid})`);
+
+// The launch guard seam (finding 3), asked before anything is built for a launch.
+function libraryGuard() {
+  return launchGuardRefusal(existsSync(path.join(project, LAUNCH_GUARD)));
+}
+if (!parsed.buildOnly) {
+  const refusal = libraryGuard();
+  if (refusal) refuse(refusal);
+}
+
+// A window does not paint on a locked session: no launch is made unless one session is on the console
+// and unlocked, and none is retried. Returns null, or the stop's words and exit code.
+function screenRefusal() {
   let plist;
   try {
-    plist = execFileSync("/usr/sbin/ioreg", ["-n", "Root", "-d1", "-a"], { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
-  } catch (error) {
-    console.error(`evidence journeys: the session's lock state could not be read (${error.message}); not launched`);
-    return exitAfterSignals(2);
+    plist = execFileSync("/usr/sbin/ioreg", ["-n", "Root", "-d1", "-a"], { encoding: "utf8", maxBuffer: 16 * 1024 * 1024, env: { PATH: "/usr/bin:/bin:/usr/sbin:/sbin" } });
+  } catch {
+    return { text: "screen state not established", code: 3 };
   }
-  if (screenLockedFromIoreg(plist)) {
-    console.error("session locked");
-    return exitAfterSignals(3);
-  }
+  const state = screenState(plist);
+  if (state === "locked") return { text: "session locked", code: 3 };
+  if (state !== "unlocked") return { text: "screen state not established", code: 3 };
   return null;
+}
+
+// The system temporary folder: the system's own answer for this user, not TMPDIR (finding 4).
+let TEMP_ROOT = null;
+if (!parsed.buildOnly) {
+  let answer = "";
+  try { answer = execFileSync("/usr/bin/getconf", ["DARWIN_USER_TEMP_DIR"], { encoding: "utf8", env: {} }); } catch (error) { refuse(`the system's temporary folder could not be read: ${error.message}`); }
+  const found = systemTempRoot(answer, (dir) => { try { return realpathSync(dir); } catch { return ""; } });
+  if (found.refusal) refuse(found.refusal);
+  TEMP_ROOT = found.root;
 }
 
 // Governing text and fixtures, read before anything is built.
@@ -256,8 +326,6 @@ const secondNode = demo.nodes.find((node) => node.id === SECOND_EDIT.node);
 for (const [node, edit] of [[editedNode, EDIT], [secondNode, SECOND_EDIT]]) {
   if (!node || String(node.position.y) === edit.y) refuse(`${DEMO_FIXTURE} no longer has ${edit.node} at a y other than ${edit.y}`);
 }
-// The report journeys' observation of "Save canonical HTML": how long the app is watched after the press.
-const SAVE_HTML_WINDOW_MS = 20_000;
 
 const commandFailed = (command, commandArgs, result) =>
   new Error(`Command failed: ${command} ${commandArgs.join(" ")}${result.error ? ` (${result.error.message})` : ""}`);
@@ -270,8 +338,11 @@ async function run(command, commandArgs, cwd, env = {}) {
 
 // ---------------------------------------------------------------- build and bind (as run.mjs)
 
-// A build opens no window, so --build-only does not read the session's lock state.
-if (!parsed.buildOnly && guardSession()) await new Promise(() => {});
+// A build opens no window, so --build-only does not read the session's screen state.
+if (!parsed.buildOnly) {
+  const screen = screenRefusal();
+  if (screen) { console.error(screen.text); process.exit(screen.code); }
+}
 let buildLock;
 try {
   buildLock = acquireBuildLock({ purpose: "evidence journeys" });
@@ -361,101 +432,176 @@ function check(name, ok, detail) {
   checks.push({ journey, name, ok: Boolean(ok), detail });
   console.log(`${ok ? "PASS" : "FAIL"}  ${journey}: ${name}${detail === undefined ? "" : `  [${typeof detail === "string" ? detail : JSON.stringify(detail)}]`}`);
 }
+// Written straight to standard error: the finalizer exits at once, and a pipe write could be lost.
+const say = (text) => { try { writeSync(2, `${text}\n`); } catch { /* the run's record holds it */ } };
+const nap = (ms) => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
 
-// The run's folder under the system temporary folder: the real-Library listings and their comparison,
-// the run's record and each journey's folder (its reports, saved files and throwaway home). It is kept
-// as the run's evidence; only the throwaway homes in it are removed, each by removeHome.
-const RUN_ROOT = parsed.buildOnly ? null : mkdtempSync(path.join(os.tmpdir(), "swbpipe-evidence-run-"));
+// The run's folder under the system temporary folder: the run's record, each launch's record and each
+// journey's folder (its reports, saved files and throwaway home). It is kept as the run's evidence; only the
+// throwaway homes in it are removed, each by removeHome. The device and inode of every folder the kit makes
+// here, and of the temporary folder itself, are recorded when made (removalIdentityRefusal).
+const identities = new Map();
+const remember = (dir) => { const seen = lstatSync(dir); identities.set(dir, { dev: seen.dev, ino: seen.ino }); };
+remember(TEMP_ROOT);
+const RUN_ROOT = mkdtempSync(path.join(TEMP_ROOT, "swbpipe-evidence-run-"));
+remember(RUN_ROOT);
+let revision = null;
+try { revision = execFileSync("git", ["-C", project, "rev-parse", "HEAD"], { encoding: "utf8" }).trim(); } catch { /* recorded as unknown */ }
+// From here every end of the run goes through the finalizer. Registered after the build lock's own
+// handlers: the lock's handler, holding the lock with no build running, only schedules its exit, so this
+// synchronous finalizer runs to its end (and exits) first.
+for (const signal of STOP_SIGNALS) process.on(signal, () => finalize(128 + os.constants.signals[signal], `stopped by ${signal}`));
+process.on("uncaughtException", (error) => finalize(1, `error: ${error?.stack ?? error}`));
+process.on("unhandledRejection", (error) => finalize(1, `unhandled rejection: ${error?.stack ?? error}`));
 const createdHomes = new Set();
 const removedHomes = [];
+const leftHomes = new Map();
+const launches = [];
 
 function journeyRoot(name) {
   const root = mkdtempSync(path.join(RUN_ROOT, `swbpipe-evidence-${name}-`));
+  remember(root);
   const home = path.join(root, "home");
-  for (const dir of [home, path.join(home, "Downloads"), path.join(root, "models"), path.join(root, "saved")]) mkdirSync(dir, { recursive: true });
+  mkdirSync(home);
+  remember(home);
   createdHomes.add(home);
-  return { root, home, data: path.join(home, "Library", "Application Support", IDENTIFIER), saved: path.join(root, "saved"), models: path.join(root, "models") };
+  const tmp = path.join(home, "tmp");
+  for (const dir of [tmp, path.join(home, "Downloads"), path.join(root, "models"), path.join(root, "saved")]) mkdirSync(dir, { recursive: true });
+  return { root, home, tmp, data: path.join(home, "Library", "Application Support", IDENTIFIER), saved: path.join(root, "saved"), models: path.join(root, "models") };
 }
 
-// Removes one throwaway home this run created, and only that folder (homeRemovalRefusal guards it).
+// Removes one throwaway home this run created, and only that folder, once it and every folder above it up
+// to the temporary folder are still the real folders the kit recorded. Returns null, or why it was left.
 function removeHome(home) {
-  if (!existsSync(home)) return;
-  const refusal = homeRemovalRefusal(home, createdHomes, os.tmpdir());
+  if (removedHomes.includes(home)) return null;
+  const refusal = homeRemovalRefusal(home, createdHomes, TEMP_ROOT) ?? removalIdentityRefusal(home, TEMP_ROOT, identities, lstatSync);
   if (refusal) {
-    console.error(`evidence journeys: not removed: ${refusal}`);
-    return;
+    leftHomes.set(home, refusal);
+    say(`evidence journeys: not removed: ${refusal}`);
+    return refusal;
   }
-  rmSync(home, { recursive: true, force: true });
+  try {
+    rmSync(home, { recursive: true });
+  } catch (error) {
+    leftHomes.set(home, `removal failed: ${error.message}`);
+    say(`evidence journeys: not removed: ${home}: ${error.message}`);
+    return error.message;
+  }
+  leftHomes.delete(home);
   removedHomes.push(home);
+  return null;
 }
 
-// ---------------------------------------------------------------- the real Library, by names, sizes and times
+// ---------------------------------------------------------------- the started process, by its handle
 
-// The embedded agent lane's lister, called unchanged (`--library-listing` or SWBPIPE_LIBRARY_LISTING). It
-// reads by lstat only, finds the real home from the password database (not from HOME or
-// CFFIXED_USER_HOME), and watches folders named for the bundle identifier (com.chirality.swbpipe) and the
-// executable (openpipestress-desktop): `snapshot` lists Library/WebKit and Library/Caches for both names;
-// `diff` compares two snapshots; `changed SINCE UNTIL` lists entries created or modified in the window under
-// Library/WebKit, Caches, HTTPStorages, Application Support, Preferences and Saved Application State, and
-// exits 1 when one is in a folder named for the product. Its outputs are kept in the run's folder.
-const LIBRARY_NAMES = { identifier: IDENTIFIER, executable: "openpipestress-desktop" };
-let libraryBefore = null;
-function lister(args, outName) {
-  const result = spawnSync("python3", ["-I", parsed.libraryListing, ...args], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
-  const text = `${result.stdout ?? ""}${result.stderr ?? ""}`;
-  if (outName) writeFileSync(path.join(RUN_ROOT, outName), text);
-  return { status: result.status, text, error: result.error ? result.error.message : null };
+// The launch in progress: the handle of the process the runner started, its pid (its process group's id,
+// since it is started as a group leader), how it exited, and the last act the driver named.
+let current = null;
+const psGroups = () => execFileSync("/bin/ps", ["-A", "-o", "pid=,pgid=,stat="], { encoding: "utf8", env: { PATH: APP_PATH } });
+// Signal the started process by its handle and, while it still runs (read, not signalled), its group.
+function signalStarted(started, signal) {
+  if (!started?.pid) return;
+  if (started.exited === null) { try { started.child.kill(signal); } catch { /* gone */ } }
+  let running = false;
+  try { running = groupRunning(psGroups(), started.pid); } catch { running = true; }
+  if (running) { try { process.kill(-started.pid, signal); } catch { /* gone */ } }
 }
-function listLibraryBefore() {
-  const out = path.join(RUN_ROOT, "library-before.json");
-  const result = lister(["snapshot", out], "library-before.txt");
-  if (result.status !== 0 || !existsSync(out)) {
-    console.error(`evidence journeys: not launched: the real-Library lister failed before the run: ${result.error ?? result.text.trim()}`);
-    return false;
+// Whether the started process's group is seen gone within `ms` (synchronous: the finalizer's).
+function goneWithin(started, ms) {
+  const deadline = Date.now() + ms;
+  for (;;) {
+    let running = true;
+    try { running = groupRunning(psGroups(), started.pid); } catch { running = true; }
+    if (!running) return true;
+    if (Date.now() >= deadline) return false;
+    nap(100);
   }
-  libraryBefore = { file: out, since: Date.now() / 1000 };
-  console.log(`evidence journeys: real Library listed before the run (${result.text.trim()})`);
-  return true;
+}
+// SIGKILL to the handle and its group, then wait to see the group gone. True when it is.
+function endStarted(started) {
+  if (!started?.pid) return true;
+  if (goneWithin(started, 0)) return true;
+  signalStarted(started, "SIGKILL");
+  if (goneWithin(started, 10_000)) return true;
+  signalStarted(started, "SIGKILL");
+  return goneWithin(started, 5_000);
+}
+const stopCaffeinate = (started) => { if (started?.caffeinate && started.caffeinate.exitCode === null) { try { started.caffeinate.kill("SIGTERM"); } catch { /* gone */ } } };
+
+// ---------------------------------------------------------------- the real Library (the seam)
+
+// SEAM (finding 3): the real Library is listed and compared by the committed launch guard and nothing else.
+// Until the helper is on main and this kit is wired to it, libraryGuard() refuses, so no run gets here; the
+// wiring is a later change, which will put the listing before the first launch and the comparison after
+// the last here. A failed or unreadable listing refuses (exit 2 before the first launch; exit 5 after).
+let libraryListedBefore = false;
+function listLibraryBefore() {
+  const refusal = libraryGuard();
+  if (refusal) return refusal;
+  libraryListedBefore = true;
+  return null;
+}
+function compareLibraryAfter() {
+  return libraryGuard() ?? null;
 }
 
-// The end of every run that launched: each throwaway home removed (guarded), the real Library listed again
-// and compared, the run's record written. Any created, modified or removed entry in a product-named folder
-// stops the run with a named refusal and exit 5, whatever the journeys' checks said.
-let finishing = false;
-async function finishRun(code, reason = null) {
-  if (finishing) return new Promise(() => {});
-  finishing = true;
-  for (const home of createdHomes) removeHome(home);
+// ---------------------------------------------------------------- the finalizer
+
+// One finalizer for every end of a run that has made its folder: the end of the journeys, a refusal, a
+// thrown error, an unhandled rejection and SIGINT, SIGTERM or SIGHUP. Synchronous from first to last: it
+// ends the started process and waits to see it gone, compares the real Library, removes the throwaway
+// homes, writes the run's record and exits. A home it cannot remove is named and the run exits non-zero.
+let finalizing = false;
+function finalize(code, reason = null) {
+  if (finalizing) return;
+  finalizing = true;
+  const started = current;
+  const gone = endStarted(started);
+  stopCaffeinate(started);
+  if (!gone) say(`evidence journeys: the started app (pid ${started.pid}) and its process group were not seen gone after SIGKILL; no throwaway home is removed`);
+  let library = null;
+  if (libraryListedBefore) {
+    const refusal = compareLibraryAfter();
+    library = { compared: refusal === null, refusal };
+    if (refusal) say(`evidence journeys: REFUSED: the real Library could not be compared after the run: ${refusal}`);
+  }
+  for (const home of createdHomes) {
+    if (removedHomes.includes(home)) continue;
+    if (gone) removeHome(home);
+    else leftHomes.set(home, `the started app (pid ${started.pid}) was not seen gone`);
+  }
+  for (const [home, why] of leftHomes) say(`evidence journeys: THROWAWAY HOME LEFT: ${home} (${why}). ${LEFT_HOME_RULE}`);
+  let exitCode = code;
+  if (library?.refusal) exitCode = 5;
+  if (leftHomes.size > 0 && exitCode === 0) exitCode = 1;
   const record = {
     run_folder: RUN_ROOT, source_revision: revision, app: app && { binary: app.binary, identity: app.identity },
-    journeys: selected, stopped_by: reason, homes_created: [...createdHomes], homes_removed: removedHomes,
-    redirection: "HOME and CFFIXED_USER_HOME, both set to each journey's throwaway home",
-    library_names_watched: LIBRARY_NAMES,
-    os_records_statement: "The operating system's own records about an application that opens a window (six files under the real Library/Preferences, as the owner's proxy states) exist; this kit did not open, edit or remove them, nor anything else under the real Library; the lister reads names, sizes and times only, by lstat.",
-    checks
+    journeys: selected, stopped_by: reason, exit_code: exitCode, host_slot: slot,
+    launches, homes_created: [...createdHomes], homes_removed: removedHomes,
+    homes_left: [...leftHomes].map(([home, why]) => ({ home, why })), left_home_rule: LEFT_HOME_RULE,
+    temporary_folder: { path: TEMP_ROOT, from: "getconf DARWIN_USER_TEMP_DIR, resolved; not TMPDIR" },
+    application_environment: "built from nothing: HOME and CFFIXED_USER_HOME (the throwaway home), TMPDIR (<home>/tmp), PATH (/usr/bin:/bin:/usr/sbin:/sbin), the kit's driver, plan and report variables, the strict chooser variable and plain locale variables; each launch's names are in its launch record",
+    strict_chooser: { ...STRICT_CHOOSER, limit: STRICT_CHOOSER_LIMIT },
+    process_scope: PROCESS_SCOPE,
+    real_library: { listed_before: libraryListedBefore, after: library, guard: LAUNCH_GUARD, limits: LISTING_LIMITS },
+    os_records_statement: "The operating system's own records about an application that opens a window (six files under the real Library/Preferences, as the owner's proxy states) exist; this kit did not open, edit or remove them, nor anything else under the real Library.",
+    unfinished_by_machine: UNFINISHED_BY_MACHINE,
+    checks,
+    confinement_term: CONFINEMENT_TERM,
+    disclosure: [
+      "Observed: the real Library, by the committed guard's listing before the first launch and after the last, and the throwaway home itself.",
+      "The modification times of the owner's home folder and of its Desktop, Documents and Downloads folders are the committed helper's to observe; this kit neither listed nor read inside those folders.",
+      NOTHING_ELSE_WATCHED
+    ]
   };
-  let refused = null;
-  if (libraryBefore) {
-    const until = Date.now() / 1000;
-    const after = path.join(RUN_ROOT, "library-after.json");
-    const snap = lister(["snapshot", after], "library-after.txt");
-    const diff = snap.status === 0 ? lister(["diff", libraryBefore.file, after], "library-diff.txt") : { status: null, text: "not compared: the after snapshot failed" };
-    const changed = lister(["changed", String(libraryBefore.since), String(until)], "library-changed.txt");
-    record.library = { since: libraryBefore.since, until, snapshot_after: snap.status, diff_status: diff.status, changed_status: changed.status };
-    if (snap.status !== 0 || diff.status !== 0 || changed.status !== 0) {
-      refused = "the real Library changed in a folder named for the product, or could not be compared";
-      console.error(`\nevidence journeys: REFUSED: ${refused}`);
-      console.error(diff.text.trim());
-      console.error(changed.text.split("\n").filter((line) => /PRODUCT|^\s+(created|modified)|^window|unreadable/.test(line)).join("\n"));
-    } else {
-      console.log(`evidence journeys: real Library compared: no product-named entry created, modified or removed (${diff.text.split("\n")[0]})`);
-    }
-  }
-  record.refused = refused;
-  writeFileSync(path.join(RUN_ROOT, "run-record.json"), JSON.stringify(record, null, 2));
-  console.log(`evidence journeys: run record and listings in ${RUN_ROOT}; throwaway homes removed: ${removedHomes.length} of ${createdHomes.size}`);
-  buildLock.release();
-  return exitAfterSignals(refused ? 5 : code);
+  try { writeFileSync(path.join(RUN_ROOT, "run-record.json"), JSON.stringify(record, null, 2)); } catch (error) { say(`evidence journeys: the run's record could not be written: ${error.message}`); }
+  say(`evidence journeys: run record in ${RUN_ROOT}; throwaway homes removed: ${removedHomes.length} of ${createdHomes.size}${reason ? `; stopped: ${reason}` : ""}`);
+  try { buildLock.release(); } catch { /* the exit handler releases it */ }
+  process.exit(exitCode);
+}
+// A stop inside a journey: the journey fails with `reason`, the run goes on to the next journey.
+class JourneyStopped extends Error {
+  constructor(reason, where) { super(reason); this.where = where; }
 }
 
 // Every file under `root`, by path relative to it; links listed, not followed. Used on throwaway homes only.
@@ -477,40 +623,71 @@ function listRelative(root) {
 // How long after the shell loads the web view may take to write its data under the throwaway home.
 const WEBVIEW_DATA_GRACE_MS = 15_000;
 let firstLaunchDone = false;
+const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+// After the started process has exited: its group seen gone, or SIGKILL to the group and seen gone, or the run ends.
+async function settleStarted(started) {
+  const deadline = Date.now() + 10_000;
+  for (;;) {
+    let running = true;
+    try { running = groupRunning(psGroups(), started.pid); } catch { running = true; }
+    if (!running) return;
+    if (Date.now() >= deadline) break;
+    await pause(100);
+  }
+  if (!endStarted(started)) finalize(1, `the started app's process group (pgid ${started.pid}) did not empty after it exited and SIGKILL`);
+}
 
-// One launch of the private copy with `plan`. With `whileRunning`, that function is polled while the
-// app runs; when it returns a value the app is ended with SIGKILL and the value is returned with the outcome.
+// One launch of the private copy with `plan`, started directly (no wrapper) as a process group leader in
+// the allowlisted environment. With `whileRunning`, that function is polled while the app runs; when it
+// returns a value the app is ended with SIGKILL (its handle and group) and the value is returned with the
+// outcome. A strict chooser stop throws JourneyStopped naming the act in progress.
 async function launch(where, plan, whileRunning = null, waitLimitMs = RECORD_WAIT_MS, launchTimeoutMs = PHASE_TIMEOUT_MS) {
   const report = path.join(where.root, `report-${plan.phase}.json`);
   console.log(`\n== ${journey}: phase ${plan.phase} (HOME=${where.home})`);
-  if (guardSession()) await new Promise(() => {});
-  if (JSON.stringify(fileIdentity(binary)) !== JSON.stringify(app.identity)) {
-    console.error(`evidence journeys: ${binary} changed since it was checked; not launched`);
-    await exitAfterSignals(2);
-  }
-  // Both homes redirected to the throwaway home: HOME for the app's own paths, CFFIXED_USER_HOME for
-  // Foundation's home directory, through which the system web view places its data. Refused by name
-  // otherwise, before anything starts.
-  const env = { ...process.env, ...homeRedirection(where.home), SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "evidence-journeys.js"), SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify({ ...plan, timeouts: { ...TIMEOUTS, ...(plan.timeouts ?? {}) } }), SWBPIPE_NATIVE_SMOKE_REPORT: report };
-  delete env.SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY;
-  const refusal = homeRedirectionRefusal(env, os.tmpdir());
-  if (refusal) {
-    console.error(`evidence journeys: not launched: the home redirection is refused: ${refusal}`);
-    await exitAfterSignals(2);
-  }
+  const screen = screenRefusal();
+  if (screen) { say(screen.text); finalize(screen.code, screen.text); }
+  if (JSON.stringify(fileIdentity(binary)) !== JSON.stringify(app.identity)) finalize(2, `${binary} changed since it was checked; not launched`);
+  const env = applicationEnvironment({
+    home: where.home, tmp: where.tmp, driver: path.join(here, "evidence-journeys.js"),
+    plan: JSON.stringify({ ...plan, timeouts: { ...TIMEOUTS, ...(plan.timeouts ?? {}) } }), report, strict: STRICT_CHOOSER, inherited: process.env
+  });
+  const refusal = applicationEnvironmentRefusal(env, STRICT_CHOOSER) ?? homeRedirectionRefusal(env, TEMP_ROOT);
+  if (refusal) finalize(2, `not launched: the application's environment is refused: ${refusal}`);
+  const record = { launch: launches.length + 1, journey, phase: plan.phase, home: where.home, executable: binary, environment_names: Object.keys(env).sort(), pid: null, started_at: null, exit: null };
+  const recordFile = path.join(RUN_ROOT, `launch-${record.launch}.json`);
+  launches.push(recordFile);
+  // Written before the launch, naming the home; written again with the pid as soon as there is one.
+  writeFileSync(recordFile, JSON.stringify(record, null, 2));
   const samples = [];
   const sample = () => { samples.push({ at: Date.now(), load: os.loadavg() }); if (samples.length > 2000) samples.shift(); };
   sample();
+  const child = spawn(binary, [], { cwd: where.root, env, detached: true, stdio: ["ignore", "inherit", "pipe"] });
+  const started = { child, pid: child.pid ?? null, exited: null, error: null, act: null, strict_message: false, caffeinate: null };
+  current = started;
+  record.pid = started.pid;
+  record.started_at = Date.now();
+  writeFileSync(recordFile, JSON.stringify(record, null, 2));
+  child.on("error", (error) => { started.error = error; });
+  child.on("exit", (status, signal) => { started.exited = { status, signal, at: Date.now() }; });
+  let pending = "";
+  child.stderr.on("data", (chunk) => {
+    process.stderr.write(chunk);
+    pending += chunk.toString("utf8");
+    for (let at = pending.indexOf("\n"); at >= 0; at = pending.indexOf("\n")) {
+      const line = pending.slice(0, at);
+      pending = pending.slice(at + 1);
+      const named = line.match(/^\[native-smoke\] act: (.+)$/);
+      if (named) started.act = named[1];
+      if (line.startsWith("[native-smoke] strict chooser:")) started.strict_message = true;
+    }
+  });
+  await new Promise((resolve) => { child.once("spawn", resolve); child.once("error", resolve); });
+  if (started.error || !started.pid) finalize(2, `the app could not be started: ${started.error?.message ?? "no pid"}`);
+  started.caffeinate = spawn("/usr/bin/caffeinate", ["-di", "-w", String(started.pid)], { stdio: "ignore", env: { PATH: APP_PATH } });
+  started.caffeinate.on("error", () => {});
   const sampler = setInterval(sample, 2000);
   const launchedAt = Date.now();
-  let exited = null;
-  const running = runUnderLock("/usr/bin/caffeinate", ["-di", binary], { cwd: where.root, env, stdio: ["ignore", "inherit", "inherit"], timeoutMs: launchTimeoutMs })
-    .then((outcome) => { exited = outcome; return outcome; });
-  const killNow = () => {
-    const pid = launchedPid(execFileSync("/bin/ps", ["-axo", "pid=,command="], { encoding: "utf8" }), binary);
-    if (pid !== null) process.kill(pid, "SIGKILL");
-    return pid;
-  };
+  let timedOut = false;
   // The web view's data under the throwaway home, watched from the start of the launch. It is decided
   // once the driver reports the shell loaded (its `shell-loaded` checkpoint), with WEBVIEW_DATA_GRACE_MS
   // more for the web view to write lazily. On the run's first launch, none there ends the app at once
@@ -518,8 +695,7 @@ async function launch(where, plan, whileRunning = null, waitLimitMs = RECORD_WAI
   const shellLoaded = `${report}.shell-loaded.json`;
   const webview = { entries: [], decided: false, shell_loaded_at: null };
   let ended = null;
-  const started = Date.now();
-  while (exited === null) {
+  while (started.exited === null) {
     if (!webview.decided) {
       webview.entries = webviewDataEntries(listRelative(where.home), path.basename(binary));
       if (webview.entries.length > 0) webview.decided = true;
@@ -528,12 +704,9 @@ async function launch(where, plan, whileRunning = null, waitLimitMs = RECORD_WAI
         if (Date.now() - webview.shell_loaded_at > WEBVIEW_DATA_GRACE_MS) {
           webview.decided = true;
           if (!firstLaunchDone) {
-            killNow();
-            await running;
-            clearInterval(sampler);
-            console.error("evidence journeys: web view data did not appear under the throwaway home");
-            console.error(`  (the shell had loaded ${Math.round(WEBVIEW_DATA_GRACE_MS / 1000)} s earlier; the home redirection did not take, so the run stops here: ${where.home})`);
-            await finishRun(4, "web view data did not appear under the throwaway home");
+            say("evidence journeys: web view data did not appear under the throwaway home");
+            say(`  (the shell had loaded ${Math.round(WEBVIEW_DATA_GRACE_MS / 1000)} s earlier; the home redirection did not take, so the run stops here: ${where.home})`);
+            finalize(4, "web view data did not appear under the throwaway home");
           }
         }
       }
@@ -542,22 +715,38 @@ async function launch(where, plan, whileRunning = null, waitLimitMs = RECORD_WAI
       const value = whileRunning();
       if (value) {
         const at = Date.now();
-        ended = { value, pid: killNow(), at, load: os.loadavg() };
-      } else if (Date.now() - started > waitLimitMs) {
-        console.error(`${journey}: TIMEOUT waiting for the condition to end the app (phase ${plan.phase}): ${Math.round((Date.now() - started) / 1000)} s elapsed of a ${Math.round(waitLimitMs / 1000)} s limit; load average ${loadNow()} (1/5/15 min), on ${os.cpus().length} processors`);
-        ended = { value: null, pid: killNow(), at: Date.now(), timed_out: true, load: os.loadavg() };
+        signalStarted(started, "SIGKILL");
+        ended = { value, pid: started.pid, at, load: os.loadavg() };
+      } else if (Date.now() - launchedAt > waitLimitMs) {
+        console.error(`${journey}: TIMEOUT waiting for the condition to end the app (phase ${plan.phase}): ${Math.round((Date.now() - launchedAt) / 1000)} s elapsed of a ${Math.round(waitLimitMs / 1000)} s limit; load average ${loadNow()} (1/5/15 min), on ${os.cpus().length} processors`);
+        signalStarted(started, "SIGKILL");
+        ended = { value: null, pid: started.pid, at: Date.now(), timed_out: true, load: os.loadavg() };
       }
     }
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    if (!timedOut && Date.now() - launchedAt > launchTimeoutMs) {
+      timedOut = true;
+      signalStarted(started, "SIGKILL");
+    }
+    await pause(200);
   }
+  clearInterval(sampler);
+  await settleStarted(started);
+  stopCaffeinate(started);
+  current = null;
   firstLaunchDone = true;
-  const outcome = await running;
+  record.exit = started.exited;
+  writeFileSync(recordFile, JSON.stringify(record, null, 2));
   if (!webview.decided) webview.entries = webviewDataEntries(listRelative(where.home), path.basename(binary));
   check(`phase ${plan.phase}: web view data appeared under the throwaway home`, webview.entries.length > 0, webview.entries.slice(0, 10));
   observe(`phase ${plan.phase}: web view data under the throwaway home`, webview.entries.length > 0 ? webview.entries.slice(0, 20) : "none");
-  clearInterval(sampler);
-  if (outcome.timedOut) console.error(`${journey}: TIMEOUT of the whole launch (phase ${plan.phase}): ${Math.round((Date.now() - launchedAt) / 1000)} s elapsed of a ${launchTimeoutMs / 1000} s limit; load average ${loadNow()} (1/5/15 min), on ${os.cpus().length} processors`);
-  const result = existsSync(report) ? JSON.parse(readFileSync(report, "utf8")) : { ok: false, error: `no report (exit ${outcome.status ?? outcome.signal}${outcome.timedOut ? "; the launch timed out" : ""})` };
+  if (started.exited.status === STRICT_CHOOSER.exit_code) {
+    const act = started.act ?? "unnamed (the driver had named no act)";
+    check(`phase ${plan.phase}: no chooser was asked with no answer queued`, false, `the app ended with the strict chooser's exit code ${STRICT_CHOOSER.exit_code}${started.strict_message ? " and its message" : ""} during the act: ${act}`);
+    throw new JourneyStopped(`a chooser was asked with no answer queued, during the act: ${act}`, where);
+  }
+  if (timedOut) console.error(`${journey}: TIMEOUT of the whole launch (phase ${plan.phase}): ${Math.round((Date.now() - launchedAt) / 1000)} s elapsed of a ${launchTimeoutMs / 1000} s limit; load average ${loadNow()} (1/5/15 min), on ${os.cpus().length} processors`);
+  const outcome = { status: started.exited.status, signal: started.exited.signal, timedOut };
+  const result = existsSync(report) ? JSON.parse(readFileSync(report, "utf8")) : { ok: false, error: `no report (exit ${outcome.status ?? outcome.signal}${timedOut ? "; the launch timed out" : ""})` };
   const timeout = driverTimeout(result.error, samples);
   if (timeout) {
     result.timeout = timeout;
@@ -594,17 +783,15 @@ async function reportJourney(route) {
     copyFileSync(path.join(project, EXACT_FIXTURE), open);
     projectId = exactDocument.project.id;
   }
-  const sentinel = path.join(where.saved, "chooser-sentinel.html");
   const csvSentinel = path.join(where.saved, "chooser-sentinel.csv");
   const { report } = await launch(where, {
     phase: "report", route, open, project_id: projectId, bundled_project_id: demo.project.id, ...files,
-    observe_selection: route === "pressure-free", sentinel_chooser_path: sentinel, save_html_window_ms: SAVE_HTML_WINDOW_MS,
+    observe_selection: route === "pressure-free",
     csv_save: route === "pressure-free" ? { group: "displacement", family: "displacement", sentinel_chooser_path: csvSentinel } : null
   });
   check("the journey completed", report.ok, failure(report));
   check("solved: the job completed, its proof bound to the session's project", report.solve?.summary?.includes("state=completed") && report.solve?.proof?.includes(`project=${projectId}`), report.solve?.summary);
   judgeRender("first local-private render", report.render);
-  if (report.render) console.log(`INFO  ${journey}: save and print controls shown: save=${report.render.save_control}; print=${report.render.print_control} (not activated; see the header)`);
 
   // The user-released package.
   const released = report.user_released ?? {};
@@ -635,7 +822,7 @@ async function reportJourney(route) {
   }
   if (report.csv) judgeCsv(where, report.csv, model.sha256, csvSentinel);
   observeSelection(report.selection);
-  observeSaveHtml(where, report.save_html, sentinel);
+  observeUnfinished(report.render);
   return where;
 }
 
@@ -717,21 +904,13 @@ function observeSelection(selection) {
   }
 }
 
-function observeSaveHtml(where, saved, sentinel) {
-  if (!saved?.control) { observe("Save canonical HTML: no control on screen", saved); return; }
-  const listing = (name) => readJson(path.join(where.root, `report-report.json.${name}.json`))?.home_listing ?? null;
-  const before = listing("before-save-html");
-  const after = listing("after-save-html");
-  const key = (file) => `${file.path}\u0000${file.bytes}\u0000${file.modified_unix_millis}`;
-  const known = new Set((before?.files ?? []).map(key));
-  const appeared = (after?.files ?? []).filter((file) => !known.has(key(file))).map((file) => file.path);
-  const downloads = appeared.filter((name) => name.startsWith("Downloads/"));
-  const named = appeared.filter((name) => saved.download && name.endsWith(saved.download));
-  observe(`Save canonical HTML pressed once (${saved.tag} ${saved.href_scheme}: link, download="${saved.download}"); watched for ${Math.round(saved.window_ms / 1000)} s`);
-  observe(`Save canonical HTML: files new or changed under the throwaway home: ${appeared.length} (in Downloads: ${downloads.length}; named as the download: ${named.length})`, appeared.slice(0, 20));
-  observe(`Save canonical HTML: the queued chooser path was ${saved.chooser_paths_unused === 1 ? "never asked for (no save chooser reached)" : `taken or missing (unused paths: ${saved.chooser_paths_unused})`}; the sentinel file ${existsSync(sentinel) ? "exists" : "does not exist"}`);
-  observe(`Save canonical HTML: the page ${saved.location_changed ? "navigated away" : "stayed"}; dialogs in the page: ${saved.dialogs_in_page}; the app answered IPC in ${saved.ipc_round_trip_ms} ms; status line`, saved.status_line);
-  observe("Print: not pressed. The print frame's print() reaches no print delegate in this build's webview stack, and a native print panel, if one appeared against that reading, is a system dialog nothing in the journey may dismiss");
+// The acts no machine finishes here: recorded as unfinished by machine, observed by a person. Each report
+// journey records whether its control is shown; none is pressed.
+function observeUnfinished(render) {
+  const shown = { "Save canonical HTML": render?.save_control, Copy: null, Print: render?.print_control };
+  for (const { act, why } of UNFINISHED_BY_MACHINE) {
+    observe(`${act}: unfinished by machine, observed by a person; not pressed`, { control_shown: shown[act] ?? "no control of its own", why });
+  }
 }
 
 function judgePackage(label, file, record, { route, profile, userReleased, modelSha256 }) {
@@ -955,24 +1134,32 @@ async function referenceJourney() {
   return where;
 }
 
+
 // ---------------------------------------------------------------- run
 
-let revision = null;
-try { revision = execFileSync("git", ["-C", project, "rev-parse", "HEAD"], { encoding: "utf8" }).trim(); } catch { /* recorded as unknown */ }
-// The real Library is listed before the first launch; finishRun lists it again after the last, compares,
-// removes the throwaway homes and writes the run's record.
-if (!listLibraryBefore()) {
-  buildLock.release();
-  await exitAfterSignals(2);
+try {
+  // The real Library is listed before the first launch (the seam: refused today); the finalizer compares
+  // it after the last, then removes the throwaway homes and writes the run's record.
+  const refusal = listLibraryBefore();
+  if (refusal) finalize(2, refusal);
+  for (const name of selected) {
+    journey = name;
+    let where;
+    try {
+      where = name === "autosave-recovery" ? await autosaveJourney()
+        : name === "reference-system" ? await referenceJourney()
+          : await reportJourney(name === "report-exact" ? "exact" : "pressure-free");
+    } catch (error) {
+      if (!(error instanceof JourneyStopped)) throw error;
+      check("the journey ran to its end", false, error.message);
+      where = error.where;
+    }
+    writeFileSync(path.join(where.root, "summary.json"), JSON.stringify({ journey: name, source_revision: revision, app: { binary: app.binary, identity: app.identity }, checks: checks.filter((item) => item.journey === name) }, null, 2));
+    removeHome(where.home);
+  }
+  const failed = checks.filter((item) => !item.ok);
+  console.log(`\nevidence journeys: ${checks.length - failed.length}/${checks.length} checks passed (${selected.join(", ")})`);
+  finalize(failed.length === 0 ? 0 : 1);
+} catch (error) {
+  finalize(1, `error: ${error?.stack ?? error}`);
 }
-for (const name of selected) {
-  journey = name;
-  const where = name === "autosave-recovery" ? await autosaveJourney()
-    : name === "reference-system" ? await referenceJourney()
-      : await reportJourney(name === "report-exact" ? "exact" : "pressure-free");
-  writeFileSync(path.join(where.root, "summary.json"), JSON.stringify({ journey: name, source_revision: revision, app: { binary: app.binary, identity: app.identity }, checks: checks.filter((item) => item.journey === name) }, null, 2));
-  removeHome(where.home);
-}
-const failed = checks.filter((item) => !item.ok);
-console.log(`\nevidence journeys: ${checks.length - failed.length}/${checks.length} checks passed (${selected.join(", ")})`);
-await finishRun(failed.length === 0 ? 0 : 1);

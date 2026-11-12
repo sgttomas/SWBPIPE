@@ -3,38 +3,176 @@
 //   node --test apps/desktop/native-smoke/evidence-checks.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, renameSync, rmSync, symlinkSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import {
   autosaveSlot, canonical, crc32, documentSha256, driverTimeout, dumpStore, inspectReportPackage, isCanonicalText,
-  judgeAutosaveRecord, launchedPid, packageStatusFields, parseAutosaveName, parseCsvFile, prdRequiredNotice, readStoredZip,
-  screenLockedFromIoreg, sha256Hex, timeoutText, underHostSlot, homeRedirection, homeRedirectionRefusal, webviewDataEntries,
-  ALL_JOURNEYS, parseRunnerArgs, homeRemovalRefusal
+  judgeAutosaveRecord, packageStatusFields, parseAutosaveName, parseCsvFile, prdRequiredNotice, readStoredZip,
+  sha256Hex, timeoutText, homeRedirection, homeRedirectionRefusal, webviewDataEntries,
+  ALL_JOURNEYS, parseRunnerArgs, homeRemovalRefusal, screenState, parentsFromPs, lsofFiles, heldSlotAncestor,
+  launchGuardRefusal, LAUNCH_GUARD, systemTempRoot, removalIdentityRefusal, applicationEnvironment, applicationEnvironmentRefusal,
+  APP_PATH, groupRunning, UNFINISHED_BY_MACHINE, CONFINEMENT_TERM, NOTHING_ELSE_WATCHED, LISTING_LIMITS, STRICT_CHOOSER
 } from "./evidence-checks.mjs";
 
-test("the runner's command line: --all in its order, named journeys, the separate journey alone, the lister, and --build-only", () => {
-  const L = "/x/library_listing.py";
+const STRICT = STRICT_CHOOSER;
+
+test("finding 5: the strict chooser constants agree between the runner and the native-smoke build", () => {
+  const rust = readFileSync(new URL("../src-tauri/src/native_smoke.rs", import.meta.url), "utf8");
+  const constant = (name) => rust.match(new RegExp(`const ${name}: [^=]+= ([^;]+);`))?.[1]?.trim();
+  assert.equal(constant("STRICT_CHOOSER_ENV"), JSON.stringify(STRICT_CHOOSER.variable));
+  assert.equal(constant("STRICT_CHOOSER_VALUE"), JSON.stringify(STRICT_CHOOSER.value));
+  assert.equal(Number(constant("STRICT_CHOOSER_EXIT")), STRICT_CHOOSER.exit_code);
+  assert.ok(![0, 1, 2, 97, 101].includes(STRICT_CHOOSER.exit_code) && !(STRICT_CHOOSER.exit_code >= 126 && STRICT_CHOOSER.exit_code <= 165) && !(STRICT_CHOOSER.exit_code >= 64 && STRICT_CHOOSER.exit_code <= 78));
+});
+
+test("the runner's command line: --all in its order, named journeys, the separate journey alone, --build-only, and no lister path", () => {
   assert.deepEqual(ALL_JOURNEYS[0], "autosave-recovery");
-  assert.deepEqual(parseRunnerArgs(["--all", "--library-listing", L]), { journeys: ALL_JOURNEYS, buildOnly: false, skipBuild: false, libraryListing: L });
-  assert.deepEqual(parseRunnerArgs(["--journey", "report-exact,report-pressure-free", "--skip-build"], { SWBPIPE_LIBRARY_LISTING: L }),
-    { journeys: ["report-exact", "report-pressure-free"], buildOnly: false, skipBuild: true, libraryListing: L });
-  assert.equal(parseRunnerArgs(["--all", "--library-listing", L], { SWBPIPE_LIBRARY_LISTING: "/other" }).libraryListing, L);
-  assert.match(parseRunnerArgs(["--all"]).error, /no real-Library lister given/);
-  assert.match(parseRunnerArgs(["--all", "--library-listing"]).error, /needs the lister's path/);
-  assert.match(parseRunnerArgs(["--all", "--library-listing", "relative.py"]).error, /must be absolute/);
-  assert.deepEqual(parseRunnerArgs(["--journey", "reference-system", "--skip-build", "--library-listing", L]).journeys, ["reference-system"]);
-  assert.match(parseRunnerArgs(["--journey", "reference-system,report-exact", "--library-listing", L]).error, /runs alone/);
+  assert.deepEqual(parseRunnerArgs(["--all"]), { journeys: ALL_JOURNEYS, buildOnly: false, skipBuild: false });
+  assert.deepEqual(parseRunnerArgs(["--journey", "report-exact,report-pressure-free", "--skip-build"]), { journeys: ["report-exact", "report-pressure-free"], buildOnly: false, skipBuild: true });
+  assert.deepEqual(parseRunnerArgs(["--journey", "reference-system", "--skip-build"]).journeys, ["reference-system"]);
+  assert.match(parseRunnerArgs(["--journey", "reference-system,report-exact"]).error, /runs alone/);
   assert.match(parseRunnerArgs(["--all", "--journey", "report-exact"]).error, /not both/);
   assert.match(parseRunnerArgs([]).error, /choose --all/);
   assert.match(parseRunnerArgs(["--journey"]).error, /needs one or more/);
   assert.match(parseRunnerArgs(["--journey", "nope"]).error, /choose --all/);
   assert.match(parseRunnerArgs(["--al"]).error, /unknown arguments: --al/);
-  assert.match(parseRunnerArgs(["--all", "--keep", "--library-listing", L]).error, /unknown arguments: --keep/);
-  assert.deepEqual(parseRunnerArgs(["--build-only"]), { journeys: [], buildOnly: true, skipBuild: false, libraryListing: null });
+  // An arbitrary lister path is not accepted in any form.
+  assert.match(parseRunnerArgs(["--all", "--library-listing", "/x/library_listing.py"]).error, /unknown arguments: --library-listing \/x\/library_listing.py/);
+  assert.match(parseRunnerArgs(["--all", "--keep"]).error, /unknown arguments: --keep/);
+  assert.deepEqual(parseRunnerArgs(["--build-only"]), { journeys: [], buildOnly: true, skipBuild: false });
   assert.match(parseRunnerArgs(["--build-only", "--all"]).error, /takes no journey/);
   assert.match(parseRunnerArgs(["--build-only", "--skip-build"]).error, /takes no journey/);
+});
+
+test("the launch guard seam refuses while the committed helper is absent, and while it is not wired", () => {
+  assert.equal(LAUNCH_GUARD, "tools/native_launch_guard.py");
+  assert.equal(launchGuardRefusal(false), "refused: the committed launch guard is not present");
+  assert.match(launchGuardRefusal(true), /^refused: the committed launch guard is present but this kit is not yet wired to it$/);
+  assert.match(LISTING_LIMITS, /cannot show what was read/);
+  assert.match(LISTING_LIMITS, /watches no writes outside the Library/);
+  assert.match(CONFINEMENT_TERM, /a run's record states that nothing else on the disk was watched\.$/);
+  assert.equal(NOTHING_ELSE_WATCHED, "Nothing else on the disk was watched.");
+});
+
+test("finding 7: the screen state needs a recognisable on-console session; anything else is not established", () => {
+  const plist = (session) => `<?xml version="1.0"?><plist><dict><key>IOConsoleUsers</key><array><dict>${session}</dict></array></dict></plist>`;
+  assert.equal(screenState(plist("<key>kCGSSessionOnConsoleKey</key><true/><key>kCGSSessionUserNameKey</key><string>u</string>")), "unlocked");
+  assert.equal(screenState(plist("<key>kCGSSessionOnConsoleKey</key><true/><key>CGSSessionScreenIsLocked</key><true/>")), "locked");
+  assert.equal(screenState(plist("<key>kCGSSessionOnConsoleKey</key><false/>")), "unknown");
+  // Two sessions on the console: which one paints is not established.
+  assert.equal(screenState(plist("<key>kCGSSessionOnConsoleKey</key><true/></dict><dict><key>kCGSSessionOnConsoleKey</key><true/>")), "unknown");
+  assert.equal(screenState("<plist><dict><key>Other</key><string>x</string></dict></plist>"), "unknown");
+  assert.equal(screenState(""), "unknown");
+  assert.equal(screenState("some successful output that is not a property list"), "unknown");
+});
+
+test("finding 7: a held slot is the lockf ancestor holding a slot file, not an argument naming the wrapper", () => {
+  const slot = "/Users/ryan/dev/chirality-t3/guard/cargo_job.slot2.lock";
+  const parents = parentsFromPs(" 63 62\n 62 61\n 61 60\n 60 50\n 70 69\n 69 50\n");
+  const lsof = {
+    61: "p61\nftxt\nn/usr/bin/lockf\nf3\nn" + slot + "\n",
+    62: "p62\nftxt\nn/bin/bash\nf255\nn/Users/ryan/dev/chirality-t3/tools/t3_slot_run.sh\n",
+    // A process whose arguments name the wrapper and a slot file, but which is not lockf.
+    69: "p69\nftxt\nn/usr/local/bin/node\nf3\nn" + slot + "\n"
+  };
+  const filesOf = (pid) => (lsof[pid] ? lsofFiles(lsof[pid]) : []);
+  assert.deepEqual(heldSlotAncestor(parents, 63, filesOf, [slot]), { pid: 61, slot });
+  assert.equal(heldSlotAncestor(parents, 70, filesOf, [slot]), null);
+  // lockf holding some other file is not a held slot.
+  assert.equal(heldSlotAncestor(parents, 63, (pid) => (pid === 61 ? lsofFiles("p61\nftxt\nn/usr/bin/lockf\nf3\nn/tmp/other.lock\n") : []), [slot]), null);
+  assert.deepEqual(lsofFiles("p1\nftxt\nn/usr/bin/lockf\nf3\nn/a\n"), [{ fd: "txt", name: "/usr/bin/lockf" }, { fd: "3", name: "/a" }]);
+});
+
+test("finding 1: the application's environment is an allowlist built from nothing", () => {
+  const inherited = {
+    SWBPIPE_NATIVE_SMOKE_INJECT_RESULT: "/Users/someone/secret.json", SWBPIPE_NATIVE_SMOKE_INJECT_ROOT: "/Users/someone",
+    SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY: "stdin", ANTHROPIC_API_KEY: "sk-invented", OPENAI_API_KEY: "sk-invented",
+    HTTPS_PROXY: "http://proxy.invalid:8080", http_proxy: "http://proxy.invalid:8080", XDG_CONFIG_HOME: "/Users/someone/.config",
+    DYLD_INSERT_LIBRARIES: "/tmp/evil.dylib", DYLD_LIBRARY_PATH: "/tmp", TMPDIR: "/Users/someone/tmp", PATH: "/Users/someone/bin:/usr/bin",
+    HOME: "/Users/someone", LANG: "en_GB.UTF-8", LC_ALL: "$(touch /tmp/x)"
+  };
+  const home = "/private/var/folders/ab/T/swbpipe-evidence-run-1/swbpipe-evidence-report-exact-2/home";
+  const env = applicationEnvironment({ home, tmp: `${home}/tmp`, driver: "/d.js", plan: "{}", report: "/r.json", strict: STRICT, inherited });
+  assert.deepEqual(Object.keys(env).sort(), ["CFFIXED_USER_HOME", "HOME", "LANG", "PATH", STRICT.variable, "SWBPIPE_NATIVE_SMOKE_DRIVER", "SWBPIPE_NATIVE_SMOKE_PLAN", "SWBPIPE_NATIVE_SMOKE_REPORT", "TMPDIR"].sort());
+  for (const name of ["SWBPIPE_NATIVE_SMOKE_INJECT_RESULT", "SWBPIPE_NATIVE_SMOKE_INJECT_ROOT", "SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY", "ANTHROPIC_API_KEY", "OPENAI_API_KEY", "HTTPS_PROXY", "http_proxy", "XDG_CONFIG_HOME", "DYLD_INSERT_LIBRARIES", "DYLD_LIBRARY_PATH", "LC_ALL"]) {
+    assert.equal(env[name], undefined, name);
+  }
+  assert.equal(env.HOME, home);
+  assert.equal(env.CFFIXED_USER_HOME, home);
+  assert.equal(env.TMPDIR, `${home}/tmp`);
+  assert.equal(env.PATH, APP_PATH);
+  assert.equal(env[STRICT.variable], "1");
+  assert.equal(applicationEnvironmentRefusal(env, STRICT), null);
+  assert.match(applicationEnvironmentRefusal({ ...env, SWBPIPE_NATIVE_SMOKE_INJECT_RESULT: "/x" }, STRICT), /outside the allowlist: SWBPIPE_NATIVE_SMOKE_INJECT_RESULT/);
+  assert.match(applicationEnvironmentRefusal({ ...env, TMPDIR: "/tmp" }, STRICT), /TMPDIR is not inside the home/);
+  assert.match(applicationEnvironmentRefusal({ ...env, [STRICT.variable]: "0" }, STRICT), /is not set to 1/);
+  assert.match(applicationEnvironmentRefusal({ ...env, PATH: "/usr/bin" }, STRICT), /fixed application PATH/);
+});
+
+test("finding 4: the temporary root is the system's answer, not TMPDIR", () => {
+  const realpath = (value) => value.replace(/^\/var\//, "/private/var/");
+  assert.deepEqual(systemTempRoot("/var/folders/ab/cd123/T/\n", realpath), { root: "/private/var/folders/ab/cd123/T" });
+  // An inherited TMPDIR plays no part: the answer comes from getconf, and a home under the inherited folder is refused.
+  const { root } = systemTempRoot("/var/folders/ab/cd123/T/", realpath);
+  const inheritedTmp = "/Users/someone/tmp";
+  assert.match(homeRedirectionRefusal(homeRedirection(`${inheritedTmp}/swbpipe-evidence-x/home`), root), /not under the system temporary folder/);
+  assert.match(systemTempRoot("/Users/someone/tmp", realpath).refusal, /not recognisable/);
+  assert.match(systemTempRoot("", realpath).refusal, /not recognisable/);
+  assert.match(systemTempRoot("/var/folders/ab/cd123/T/", () => "/Users/someone/tmp").refusal, /resolves somewhere unexpected/);
+});
+
+test("finding 4: a recursive removal is refused when the home or an ancestor was swapped for a link or another directory", () => {
+  const scratch = realpathSync(mkdtempSync(path.join(os.tmpdir(), "evidence-removal-")));
+  try {
+    const setup = () => {
+      const root = path.join(scratch, `T-${Math.random().toString(36).slice(2)}`);
+      const run = path.join(root, "swbpipe-evidence-run-A1");
+      const journey = path.join(run, "swbpipe-evidence-report-exact-B2");
+      const home = path.join(journey, "home");
+      mkdirSync(home, { recursive: true });
+      const recorded = new Map([root, run, journey, home].map((dir) => [dir, (({ dev, ino }) => ({ dev, ino }))(lstatSync(dir))]));
+      return { root, run, journey, home, recorded };
+    };
+    const intact = setup();
+    assert.equal(removalIdentityRefusal(intact.home, intact.root, intact.recorded, lstatSync), null);
+    // A swapped intermediate: the journey folder replaced by a link to elsewhere (holding a home of its own).
+    const middle = setup();
+    const elsewhere = path.join(scratch, "elsewhere-1");
+    mkdirSync(path.join(elsewhere, "home"), { recursive: true });
+    renameSync(middle.journey, `${middle.journey}.moved`);
+    symlinkSync(elsewhere, middle.journey);
+    assert.match(removalIdentityRefusal(middle.home, middle.root, middle.recorded, lstatSync), /is now a link|cannot be examined|not the directory/);
+    // A swapped final: the home itself replaced by a link.
+    const final = setup();
+    const target = path.join(scratch, "elsewhere-2");
+    mkdirSync(target);
+    rmSync(final.home, { recursive: true });
+    symlinkSync(target, final.home);
+    assert.match(removalIdentityRefusal(final.home, final.root, final.recorded, lstatSync), /home is now a link/);
+    // A replaced directory of the same name is not the one recorded.
+    const replaced = setup();
+    rmSync(replaced.home, { recursive: true });
+    mkdirSync(replaced.home);
+    assert.match(removalIdentityRefusal(replaced.home, replaced.root, replaced.recorded, lstatSync), /not the directory the kit recorded/);
+    // A home outside the root, and an unrecorded ancestor, are refused.
+    assert.match(removalIdentityRefusal("/Users/someone/home", intact.root, intact.recorded, lstatSync), /not under the temporary root/);
+    assert.match(removalIdentityRefusal(intact.home, intact.root, new Map(), lstatSync), /no identity was recorded/);
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+});
+
+test("finding 6: whether the started process's group still runs is read, not signalled", () => {
+  const ps = " 101 101 S\n 102 101 Z\n 200 200 R\n";
+  assert.equal(groupRunning(ps, 101), true);
+  assert.equal(groupRunning(" 102 101 Z\n", 101), false);
+  assert.equal(groupRunning(ps, 300), false);
+});
+
+test("finding 5: the three acts no machine finishes are named", () => {
+  assert.deepEqual(UNFINISHED_BY_MACHINE.map((item) => item.act), ["Save canonical HTML", "Copy", "Print"]);
 });
 
 test("only a throwaway home this run created is removed", () => {
@@ -145,29 +283,6 @@ test("RFC 8785 text and its hash", () => {
   assert.ok(!isCanonicalText(Buffer.from("not json")));
 });
 
-test("the session-lock guard reads ioreg's property", () => {
-  const plist = (value) => `<plist><dict><key>IOConsoleUsers</key><array><dict><key>CGSSessionScreenIsLocked</key>\n\t\t<${value}/></dict></array></dict></plist>`;
-  assert.equal(screenLockedFromIoreg(plist("true")), true);
-  assert.equal(screenLockedFromIoreg(plist("false")), false);
-  assert.equal(screenLockedFromIoreg("<plist><dict><key>IOConsoleUsers</key></dict></plist>"), false);
-});
-
-test("the runner knows whether it runs under the host slot", () => {
-  const ps = [
-    "  1     0 /sbin/launchd",
-    " 50     1 /bin/zsh",
-    " 60    50 /bin/bash /x/tools/t3_slot.sh node runner.mjs",
-    " 61    60 /usr/bin/lockf -s -k -t 0 /x/guard/cargo_job.slot2.lock /x/tools/t3_slot_run.sh /x/guard/run.60 cargo_job.slot2.lock node runner.mjs",
-    " 62    61 /bin/bash /x/tools/t3_slot_run.sh /x/guard/run.60 cargo_job.slot2.lock node runner.mjs",
-    " 63    62 node runner.mjs",
-    " 70    50 node runner.mjs",
-    " 80    50 node t3_slot_run.sh.bak"
-  ].join("\n");
-  assert.equal(underHostSlot(ps, 63), true);
-  assert.equal(underHostSlot(ps, 70), false);
-  assert.equal(underHostSlot(ps, 999), false);
-});
-
 test("a driver timeout is told apart, with the load average nearest its moment", () => {
   const samples = [{ at: 1700000000000, load: [10, 20, 30] }, { at: 1700000002000, load: [41.5, 38, 35] }];
   const seen = driverTimeout("x\nTIMEOUT waiting for exact solve: 900123 ms elapsed, limit 900000 ms, at 1700000001900\n  at stack", samples);
@@ -251,14 +366,6 @@ test("an autosave record is judged from its name and bytes", () => {
   assert.equal(judgeAutosaveRecord({ name, bytes, projectId: "project:y", endedAt: 1700000030000, intervalMs: 60000, notBefore: 0 }).slot_is_project, false);
   assert.equal(judgeAutosaveRecord({ name, bytes, projectId: "project:x", endedAt: 1700000060001, intervalMs: 60000, notBefore: 0 }).within_one_interval, false);
   assert.equal(judgeAutosaveRecord({ name, bytes: Buffer.from(`${canonical(document)}\n`), projectId: "project:x", endedAt: 1700000000000, intervalMs: 60000, notBefore: 0 }).bytes_hash_is_name_hash, false);
-});
-
-test("the process to end is the private launch copy alone", () => {
-  const exe = "/tmp/target/native-smoke/run-1/openpipestress-desktop";
-  const ps = ` 101 /usr/bin/caffeinate -di ${exe}\n 102 ${exe}\n 103 ${exe}-other\n`;
-  assert.equal(launchedPid(ps, exe), 102);
-  assert.equal(launchedPid(` 101 /usr/bin/caffeinate -di ${exe}\n`, exe), null);
-  assert.equal(launchedPid(` 102 ${exe}\n 104 ${exe} --x\n`, exe), null);
 });
 
 test("a store's logical dump ignores layout and sees a changed row", () => {

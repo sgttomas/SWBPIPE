@@ -365,6 +365,7 @@
       "paths": [
         "apps/desktop/native-smoke/**",
         "apps/desktop/scripts/**",
+        "apps/desktop/src-tauri/src/native_smoke.rs",
         "apps/desktop/package.json",
         "package-lock.json",
         "core/solver/performance_harness/observations/rack/**",

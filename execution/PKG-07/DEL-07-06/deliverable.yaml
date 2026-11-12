@@ -107,5 +107,6 @@ checks:
 # selection, and the key press itself; reading either needs Objective-C calls from native code, and
 # the shell's pinned list of modules allowed unsafe code is not widened for it, nor an accessibility
 # permission asked for. Copy is not pressed and the system pasteboard is not touched: pressing Copy is
-# an act a person's hands observe.
+# an act a person's hands observe. Save canonical HTML and Print are not pressed either: with Copy,
+# they are unfinished by machine and observed by a person.
 - apps/desktop/native-smoke/evidence-journeys.mjs

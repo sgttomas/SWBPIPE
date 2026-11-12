@@ -5,6 +5,7 @@
 // writes anything; `evidence-checks.test.mjs` tests them with `node --test`.
 import { createHash } from "node:crypto";
 import os from "node:os";
+import path from "node:path";
 
 export const sha256Hex = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
@@ -30,27 +31,57 @@ export function isCanonicalText(bytes) {
 
 // ---------------------------------------------------------------- the session-lock guard
 
-/** Whether `ioreg -n Root -d1 -a` (an XML property list) reports the console session's
- * screen locked. A window does not paint on a locked session, so no launch is made then.
- * The key is present only while a session is locked; anything but `<true/>` after it is
- * read as unlocked. */
-export function screenLockedFromIoreg(plist) {
-  return /<key>CGSSessionScreenIsLocked<\/key>\s*<true\s*\/>/.test(String(plist));
+/** The console session's screen state from `ioreg -n Root -d1 -a` (an XML property list): "locked",
+ * "unlocked", or "unknown" when the answer is not recognisable. Recognisable means an IOConsoleUsers array
+ * holding a session on the console (kCGSSessionOnConsoleKey true); that session is locked when its
+ * CGSSessionScreenIsLocked is true. Anything else, including output with no on-console session, is
+ * "unknown": a window does not paint on a locked session, and the runner launches only on "unlocked". */
+export function screenState(plist) {
+  const text = String(plist);
+  const start = text.search(/<key>IOConsoleUsers<\/key>\s*<array>/);
+  if (start < 0) return "unknown";
+  const open = text.indexOf("<array>", start);
+  const close = text.indexOf("</array>", open);
+  if (open < 0 || close < 0) return "unknown";
+  const sessions = text.slice(open + 7, close).split(/<dict>/).slice(1).map((dict) => dict.split(/<\/dict>/)[0]);
+  const onConsole = sessions.filter((dict) => /<key>kCGSSessionOnConsoleKey<\/key>\s*<true\s*\/>/.test(dict));
+  if (onConsole.length !== 1) return "unknown";
+  return /<key>CGSSessionScreenIsLocked<\/key>\s*<true\s*\/>/.test(onConsole[0]) ? "locked" : "unlocked";
 }
 
-/** Whether process `pid` runs under the host's slot wrapper: an ancestor's command runs
- * `t3_slot_run.sh`, the job `t3_slot.sh` starts while it holds a slot's lock. `ps` is the
- * output of `ps -axo pid=,ppid=,command=`. The slot is then taken before the runner builds or
- * asks for the foreground, and held until the runner ends. */
-export function underHostSlot(ps, pid) {
-  const rows = new Map(String(ps).split("\n").map((line) => line.match(/^\s*(\d+)\s+(\d+)\s+(.*)$/)).filter(Boolean)
-    .map(([, child, parent, command]) => [Number(child), { parent: Number(parent), command }]));
-  const seen = new Set();
-  for (let at = rows.get(pid)?.parent; at && at > 1 && !seen.has(at); at = rows.get(at)?.parent) {
-    seen.add(at);
-    if (/(^|\/|\s)t3_slot_run\.sh(\s|$)/.test(rows.get(at)?.command ?? "")) return true;
+/** The parent of each process, from `ps -axo pid=,ppid=`. */
+export function parentsFromPs(ps) {
+  return new Map(String(ps).split("\n").map((line) => line.match(/^\s*(\d+)\s+(\d+)\s*$/)).filter(Boolean)
+    .map(([, child, parent]) => [Number(child), Number(parent)]));
+}
+
+/** The open files of one process, from `lsof -a -p <pid> -F fn`: [{ fd, name }]. The executable is
+ * the entry whose fd is "txt" and comes first. */
+export function lsofFiles(output) {
+  const files = [];
+  let current = null;
+  for (const line of String(output).split("\n")) {
+    if (line.startsWith("f")) { current = { fd: line.slice(1), name: null }; files.push(current); }
+    else if (line.startsWith("n") && current) current.name = line.slice(1);
   }
-  return false;
+  return files;
+}
+
+/** The ancestor of `pid` that holds one of the host's slots, or null. A held slot shows as the wrapper's
+ * /usr/bin/lockf process (t3_slot.sh runs `/usr/bin/lockf -s -k -t 0 <slot file> t3_slot_run.sh …`) whose
+ * executable is /usr/bin/lockf and which has one of `slotFiles` open: an argument that merely names
+ * t3_slot_run.sh or a slot file is not enough. `filesOf(pid)` gives that ancestor's open files (from lsof). */
+export function heldSlotAncestor(parents, pid, filesOf, slotFiles) {
+  const seen = new Set();
+  for (let at = parents.get(pid); at && at > 1 && !seen.has(at); at = parents.get(at)) {
+    seen.add(at);
+    const files = filesOf(at) ?? [];
+    const executable = files.find((file) => file.fd === "txt")?.name ?? null;
+    if (executable !== "/usr/bin/lockf") continue;
+    const slot = files.find((file) => /^\d+$/.test(file.fd) && slotFiles.includes(file.name));
+    if (slot) return { pid: at, slot: slot.name };
+  }
+  return null;
 }
 
 // ---------------------------------------------------------------- timeouts on a loaded host
@@ -80,22 +111,21 @@ export const ALL_JOURNEYS = ["autosave-recovery", "report-exact", "report-pressu
 /** Named alone, never part of --all. */
 export const SEPARATE_JOURNEYS = ["reference-system"];
 
-/** The runner's command line: `--all` or `--journey a,b`, `--skip-build`, `--library-listing <path>`
- * (the real-Library lister; `env.SWBPIPE_LIBRARY_LISTING` stands in for it), and `--build-only` (check,
- * build and bind the app and its identity, then exit before any launch; it takes no journey and needs no
- * lister). A journey run without a lister is refused. Returns { journeys, buildOnly, skipBuild,
- * libraryListing } or { error }. */
-export function parseRunnerArgs(argv, env = {}) {
+/** The runner's command line: `--all` or `--journey a,b`, `--skip-build`, and `--build-only` (check,
+ * build and bind the app and its identity, then exit before any launch; it takes no journey). The
+ * real-Library guard is the committed tools/native_launch_guard.py and nothing else: no path to another
+ * lister is accepted. Returns { journeys, buildOnly, skipBuild } or { error }. */
+export function parseRunnerArgs(argv) {
   const args = new Set(argv);
-  const known = new Set(["--all", "--journey", "--skip-build", "--build-only", "--library-listing"]);
+  const known = new Set(["--all", "--journey", "--skip-build", "--build-only"]);
   const valueOf = (flag) => { const at = argv.indexOf(flag); return at >= 0 ? argv[at + 1] : undefined; };
-  const valued = new Set(["--journey", "--library-listing"].map((flag) => argv.indexOf(flag)).filter((at) => at >= 0).map((at) => at + 1));
+  const valued = new Set(["--journey"].map((flag) => argv.indexOf(flag)).filter((at) => at >= 0).map((at) => at + 1));
   const unknown = argv.filter((item, index) => !known.has(item) && !valued.has(index));
   if (unknown.length > 0) return { error: `unknown arguments: ${unknown.join(" ")}` };
   const buildOnly = args.has("--build-only");
   if (buildOnly) {
     if (args.has("--all") || args.has("--journey") || args.has("--skip-build")) return { error: "--build-only builds and binds the app and takes no journey and no --skip-build" };
-    return { journeys: [], buildOnly: true, skipBuild: false, libraryListing: null };
+    return { journeys: [], buildOnly: true, skipBuild: false };
   }
   const value = valueOf("--journey");
   if (args.has("--journey") && (!value || value.startsWith("--"))) return { error: "--journey needs one or more journey names" };
@@ -105,16 +135,65 @@ export function parseRunnerArgs(argv, env = {}) {
     return { error: `choose --all, --build-only or --journey with one or more of ${ALL_JOURNEYS.join(", ")} (or ${SEPARATE_JOURNEYS.join(", ")} alone)` };
   }
   if (journeys.some((name) => SEPARATE_JOURNEYS.includes(name)) && journeys.length > 1) return { error: `${SEPARATE_JOURNEYS.join(", ")} runs alone: name it as the only journey` };
-  const listing = valueOf("--library-listing");
-  if (args.has("--library-listing") && (!listing || listing.startsWith("--"))) return { error: "--library-listing needs the lister's path" };
-  const libraryListing = listing ?? env.SWBPIPE_LIBRARY_LISTING ?? null;
-  if (!libraryListing) return { error: "not launched: no real-Library lister given (--library-listing <path> or SWBPIPE_LIBRARY_LISTING)" };
-  if (!libraryListing.startsWith("/")) return { error: `the real-Library lister's path must be absolute: ${libraryListing}` };
-  return { journeys, buildOnly: false, skipBuild: args.has("--skip-build"), libraryListing };
+  return { journeys, buildOnly: false, skipBuild: args.has("--skip-build") };
+}
+
+// ---------------------------------------------------------------- the launch guard seam
+
+/** The committed real-Library guard, relative to the project root. It is the embedded agent lane's to
+ * write; this kit takes it from main and accepts no other path. */
+export const LAUNCH_GUARD = "tools/native_launch_guard.py";
+
+/** SEAM: why no launch may be made under the real-Library guard, or null. Fails closed: absent, the run is
+ * refused; present, it is refused too until this kit is wired to the helper's interface (a later change,
+ * once the helper is on main). Any failed or unreadable listing must also refuse. */
+export function launchGuardRefusal(present) {
+  if (!present) return "refused: the committed launch guard is not present";
+  return "refused: the committed launch guard is present but this kit is not yet wired to it";
+}
+
+/** The owner's proxy's term, word for word, which every run's record carries, and the disclosure that
+ * ends it. The home folder's and Desktop, Documents and Downloads folders' modification times are the
+ * committed helper's to observe (a stat of each folder only); this kit neither lists nor reads inside them. */
+export const CONFINEMENT_TERM = "the product is confined by construction (both home variables, an environment allowlist, TMPDIR inside the throwaway home, no chooser that can fall through to a system dialog), and what is observed is the real Library compared before and after and the throwaway home itself; a run's record states that nothing else on the disk was watched.";
+export const NOTHING_ELSE_WATCHED = "Nothing else on the disk was watched.";
+
+/** The strict chooser mode (finding 5): with this variable set to this value, the native-smoke build ends
+ * at once with this exit code when a chooser is asked with no answer queued, before any native dialog.
+ * The one JavaScript definition. The Rust copy is native_smoke.rs STRICT_CHOOSER_ENV, STRICT_CHOOSER_VALUE
+ * and STRICT_CHOOSER_EXIT (a node test checks they agree). Both move to tools/native_launch_guard.py when the
+ * embedded agent lane brings it to main; the runner will then read them from there and this definition goes.
+ * 86 is free: not node's (1, 3-14), the shell's (2, 126-165), cargo's or a Rust panic's (101), the slot
+ * wrapper's (97, 2), nor lockf's or the BSD sysexits (64-78); the runner's own codes are 0-5. */
+export const STRICT_CHOOSER = { variable: "SWBPIPE_NATIVE_SMOKE_STRICT_CHOOSER", value: "1", exit_code: 86 };
+
+/** The strict chooser mode's limit, stated exactly in the run's record and the kit's description. */
+export const STRICT_CHOOSER_LIMIT = "a wrong chooser can still consume a queued answer, which writes inside the throwaway home, and the strict stop then fires at the next chooser.";
+
+/** The rule for a throwaway home a run could not remove. */
+export const LEFT_HOME_RULE = "A throwaway home left by a run counts as open until it is removed. Only the lane that made it removes it, and only after verifying, by the pids its own launch records name, that none of them still runs; nobody removes another lane's home.";
+
+/** Which processes the runner signals and waits for. */
+export const PROCESS_SCOPE = "The runner signals only the process it started (by its handle) and that process's group, never a process found by a scan, and removes no throwaway home until that group is seen gone. Helpers the system starts for the web view (WebKit's networking, content and GPU processes, started by launchd through XPC) are outside that group: the runner neither signals nor waits for them.";
+
+/** What a real-Library listing can and cannot show, for the run's record. */
+export const LISTING_LIMITS = "A listing of the real Library shows the names, sizes and times of the entries in the folders it lists, at two moments; it cannot show what was read, what was written and restored in between, or anything outside the folders it lists, and this kit watches no writes outside the Library.";
+
+// ---------------------------------------------------------------- the temporary root, homes and removal
+
+/** The system's own per-user temporary folder from `/usr/bin/getconf DARWIN_USER_TEMP_DIR` (confstr
+ * _CS_DARWIN_USER_TEMP_DIR, which libSystem derives from the user's identity and not from TMPDIR), or a
+ * refusal. `realpath` resolves it (on macOS /var is a link to /private/var). */
+export function systemTempRoot(getconfOutput, realpath) {
+  const value = String(getconfOutput ?? "").trim();
+  if (!/^\/(private\/)?var\/folders\/[^\s]+\/T\/?$/.test(value)) return { refusal: `the system's temporary folder is not recognisable: ${JSON.stringify(value)}` };
+  const real = realpath(value.replace(/\/+$/, ""));
+  if (!/^\/private\/var\/folders\/[^\s]+\/T$/.test(real)) return { refusal: `the system's temporary folder resolves somewhere unexpected: ${real}` };
+  return { root: real };
 }
 
 /** Why `target` must not be removed, or null: only a throwaway home this run created, named `home`,
- * directly inside a `swbpipe-evidence-<journey>-` folder strictly under the system temporary folder. */
+ * directly inside a `swbpipe-evidence-<journey>-` folder strictly under the temporary root. */
 export function homeRemovalRefusal(target, created, tmp) {
   const base = String(tmp).replace(/\/+$/, "");
   if (typeof target !== "string" || !target.startsWith("/") || target.split("/").includes("..")) return `not an absolute path without ..: ${target}`;
@@ -124,6 +203,72 @@ export function homeRemovalRefusal(target, created, tmp) {
   if (parts.at(-1) !== "home" || !/^swbpipe-evidence-[a-z-]+-[A-Za-z0-9]+$/.test(parts.at(-2) ?? "")) return `not a throwaway home folder: ${target}`;
   return null;
 }
+
+/** Why a recursive removal of `home` must not happen now, or null: `home` and every ancestor up to and
+ * including the temporary root must still be real directories (not links) with the device and inode the
+ * kit recorded when it created or first met them (`recorded`: path → { dev, ino }). `lstat` is fs.lstatSync. */
+export function removalIdentityRefusal(home, root, recorded, lstat) {
+  const base = String(root).replace(/\/+$/, "");
+  if (!home.startsWith(`${base}/`)) return `${home} is not under the temporary root ${base}`;
+  const chain = [];
+  for (let at = home; at.length >= base.length; at = path.dirname(at)) {
+    chain.push(at);
+    if (at === base) break;
+  }
+  if (chain.at(-1) !== base) return `${home} does not lead to the temporary root ${base}`;
+  for (const dir of chain) {
+    const want = recorded.get(dir);
+    if (!want) return `no identity was recorded for ${dir}`;
+    let seen;
+    try { seen = lstat(dir); } catch (error) { return `${dir} cannot be examined (${error.code ?? error.message})`; }
+    if (seen.isSymbolicLink()) return `${dir} is now a link`;
+    if (!seen.isDirectory()) return `${dir} is no longer a directory`;
+    if (seen.dev !== want.dev || seen.ino !== want.ino) return `${dir} is not the directory the kit recorded (device and inode differ)`;
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------- the application's environment
+
+/** The fixed PATH the application gets; the runner's own PATH is not passed on. */
+export const APP_PATH = "/usr/bin:/bin:/usr/sbin:/sbin";
+const LOCALE_VARIABLES = ["LANG", "LC_ALL", "LC_COLLATE", "LC_CTYPE", "LC_MESSAGES", "LC_MONETARY", "LC_NUMERIC", "LC_TIME"];
+
+/** The application's environment, built from nothing: HOME and CFFIXED_USER_HOME (the throwaway home),
+ * TMPDIR (a folder inside it), the fixed PATH, the kit's own driver, plan and report variables, the
+ * strict-chooser variable, and the inherited locale variables whose values are plain locale names.
+ * Nothing else passes: no other smoke hook, credential, proxy, XDG or loader variable. */
+export function applicationEnvironment({ home, tmp, driver, plan, report, strict, inherited = {} }) {
+  const env = {
+    HOME: home, CFFIXED_USER_HOME: home, TMPDIR: tmp, PATH: APP_PATH,
+    SWBPIPE_NATIVE_SMOKE_DRIVER: driver, SWBPIPE_NATIVE_SMOKE_PLAN: plan, SWBPIPE_NATIVE_SMOKE_REPORT: report,
+    [strict.variable]: strict.value
+  };
+  for (const name of LOCALE_VARIABLES) {
+    const value = inherited[name];
+    if (typeof value === "string" && /^[A-Za-z0-9_.@-]{1,64}$/.test(value)) env[name] = value;
+  }
+  return env;
+}
+
+/** Why an application environment must not be used, or null: its names are exactly the allowlist's, and
+ * TMPDIR is inside the home. */
+export function applicationEnvironmentRefusal(env, strict) {
+  const allowed = new Set(["HOME", "CFFIXED_USER_HOME", "TMPDIR", "PATH", "SWBPIPE_NATIVE_SMOKE_DRIVER", "SWBPIPE_NATIVE_SMOKE_PLAN", "SWBPIPE_NATIVE_SMOKE_REPORT", strict.variable, ...LOCALE_VARIABLES]);
+  const extra = Object.keys(env).filter((name) => !allowed.has(name));
+  if (extra.length > 0) return `variables outside the allowlist: ${extra.join(", ")}`;
+  if (env.PATH !== APP_PATH) return "PATH is not the fixed application PATH";
+  if (env[strict.variable] !== strict.value) return `${strict.variable} is not set to ${strict.value}`;
+  if (!env.TMPDIR?.startsWith(`${env.HOME}/`)) return "TMPDIR is not inside the home";
+  return null;
+}
+
+/** The three acts no machine finishes in these journeys; a person observes them. */
+export const UNFINISHED_BY_MACHINE = [
+  { act: "Save canonical HTML", why: "a WebKit download link: the web view, not the application, would own its save dialog, which no queued chooser answer reaches, so it is not pressed" },
+  { act: "Copy", why: "Copy would write the owner's system pasteboard; the selection it would take is observed, its enabled state and the key press are not" },
+  { act: "Print", why: "the print call could present a system print panel nothing in the journey may dismiss, so it is not pressed" }
+];
 
 // ---------------------------------------------------------------- the home redirection
 
@@ -372,12 +517,11 @@ export function judgeAutosaveRecord({ name, bytes, projectId, endedAt, intervalM
   };
 }
 
-/** The process to end: the one whose command is exactly the private launch copy (with or
- * without arguments), from `ps -axo pid=,command=` output. Null when there is not exactly one. */
-export function launchedPid(psOutput, executable) {
-  const found = String(psOutput).split("\n").map((line) => line.match(/^\s*(\d+)\s+(.*)$/)).filter(Boolean)
-    .filter(([, , command]) => command === executable || command.startsWith(`${executable} `)).map(([, pid]) => Number(pid));
-  return found.length === 1 ? found[0] : null;
+/** Whether any process of group `pgid` is still running (not a zombie), from `ps -A -o pid=,pgid=,stat=`.
+ * Read only: the kit signals the handle it started and that handle's group, never a process found here. */
+export function groupRunning(ps, pgid) {
+  return String(ps).split("\n").map((line) => line.match(/^\s*(\d+)\s+(\d+)\s+(\S+)/)).filter(Boolean)
+    .some(([, , group, stat]) => Number(group) === pgid && !stat.startsWith("Z"));
 }
 
 // ---------------------------------------------------------------- the project store

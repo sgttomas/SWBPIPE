@@ -25,6 +25,9 @@
   const ipc = window.__TAURI_INTERNALS__;
   const call = (command, args) => ipc.invoke(command, args ?? {});
   const log = (line) => call("native_smoke_log", { line: String(line) }).catch(() => {});
+  // The act about to start, on the app's standard error ("[native-smoke] act: <name>"), awaited before the
+  // act begins: when the app ends with the strict chooser's exit code, the runner names the last act shown.
+  const act = (name) => log(`act: ${name}`);
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const byTestId = (id, root = document) => root.querySelector(`[data-testid="${CSS.escape(id)}"]`);
   const text = (id, root) => byTestId(id, root)?.textContent?.trim() ?? null;
@@ -147,7 +150,7 @@
       // The preview is the canonical HTML itself (the panel shows the controlled copy only when it is
       // byte-identical), so the runner recomputes its SHA-256 from this text.
       preview_html: preview,
-      // Recorded only: save and print are not checked by this journey (see the runner's header).
+      // Recorded only: the controls are shown or not; neither is pressed (the runner's header).
       save_control: Boolean(byTestId("rendered-report-save-local-private")),
       print_control: Boolean(byTestId("rendered-report-print"))
     };
@@ -254,22 +257,36 @@
 
   async function phaseReport(plan, report) {
     if (plan.open) {
+      await act("File > Open Model Document…");
       report.opened = await openModelDocument(plan.open);
       await waitFor("opened model in the model tree", () => treeRow(plan.project_id));
     }
+    await act("solve (Analyze > Run, sparse)");
     report.solve = await solve(plan.route, plan.project_id);
-    if (plan.observe_selection) report.selection = await observeSelection();
+    if (plan.observe_selection) {
+      await act("selection by keyboard (observation)");
+      report.selection = await observeSelection();
+    }
+    await act("render the local-private report");
     report.render = await renderLocalPrivateReport(`${plan.route}/render`);
+    await act("File > Save Shareable Report Package…");
     report.user_released = await saveUserReleasedPackage(plan.user_released_package, `${plan.route}/user-released`);
     if (!report.user_released.status?.startsWith("outcome=saved")) throw new Error(`user-released package not saved: ${report.user_released.refusal ?? report.user_released.status}`);
+    await act("the user-release dialog opened again and cancelled");
     report.reopened_dialog = await reopenUserReleaseDialog();
     // DEL-08-01 AC-010: the next report is local private. Rendered again after the user release.
+    await act("render the report again");
     report.second_render = await renderLocalPrivateReport(`${plan.route}/second-render`);
     report.second_render.user_release_line_in_panel = text("report-package-user-release-status");
+    await act("File > Save Report Package…");
     report.local = await saveLocalPackage(plan.local_package, `${plan.route}/local`);
-    if (plan.csv_save) report.csv = await saveResultGroupCsv(plan.csv_save);
+    if (plan.csv_save) {
+      await act("the results table's CSV export");
+      report.csv = await saveResultGroupCsv(plan.csv_save);
+    }
+    await act("File > Save Model Document…");
     report.model_document = await saveModelDocument(plan.model_document, `${plan.route}/model-document`);
-    report.save_html = await observeSaveCanonicalHtml(plan, report);
+    // Save canonical HTML, Copy and Print are not pressed: a person observes them (the runner's header).
   }
 
   // The results table's CSV export through its own control: a button that saves natively to the
@@ -378,46 +395,6 @@
     return observed;
   }
 
-  // "Save canonical HTML" pressed once: what the app does, from inside it. A chooser path is queued
-  // first, so a chooser the press reached would take it (and show nothing); one still queued afterwards
-  // was never asked for. The throwaway home is listed by the app before and after the wait.
-  async function observeSaveCanonicalHtml(plan, report) {
-    await showSection("report");
-    const link = byTestId("rendered-report-save-local-private") ?? byTestId("rendered-report-save");
-    const observed = { control: link ? link.getAttribute("data-testid") : null };
-    if (!link) return observed;
-    Object.assign(observed, {
-      tag: link.tagName.toLowerCase(),
-      href_scheme: (link.getAttribute("href") ?? "").split(":")[0] || null,
-      download: link.getAttribute("download"),
-      print_control: Boolean(byTestId("rendered-report-print")),
-      location_before: String(window.location)
-    });
-    await call("native_smoke_checkpoint", { name: "before-save-html", report: { ...report, save_html: observed }, storeSnapshot: false, homeListing: true });
-    await call("native_smoke_choose", { path: plan.sentinel_chooser_path });
-    observed.pressed_at = Date.now();
-    link.click();
-    // An observation window for something not to happen, not a wait for a condition.
-    const deadline = Date.now() + plan.save_html_window_ms;
-    let locationChanged = false;
-    while (Date.now() < deadline) {
-      if (String(window.location) !== observed.location_before) locationChanged = true;
-      await sleep(250);
-    }
-    const started = Date.now();
-    await call("native_smoke_plan");
-    Object.assign(observed, {
-      window_ms: plan.save_html_window_ms,
-      location_changed: locationChanged || String(window.location) !== observed.location_before,
-      dialogs_in_page: document.querySelectorAll('[role="dialog"], [role="alertdialog"]').length,
-      ipc_round_trip_ms: Date.now() - started,
-      chooser_paths_unused: await call("native_smoke_clear_choices"),
-      status_line: message()
-    });
-    await call("native_smoke_checkpoint", { name: "after-save-html", report: { ...report, save_html: observed }, storeSnapshot: false, homeListing: true });
-    return observed;
-  }
-
   // ------------------------------------------------------------ autosave
 
   async function openAppearance() {
@@ -453,6 +430,7 @@
   }
 
   async function phaseAutosaveEnd(plan, report) {
+    await act("the autosave interval: read, turned off, turned on at the shortest choice");
     await openAppearance();
     const select = await waitFor("autosave settings read", () => (intervalSelect() && !intervalSelect().disabled && intervalSelect().value !== "" ? intervalSelect() : null), T.step);
     report.setting_on_start = { value: select.value, options: [...select.options].map((option) => option.value), ...offNotices() };
@@ -461,6 +439,7 @@
     await chooseInterval(plan.interval_minutes);
     report.setting_on = { value: intervalSelect()?.value, autosave_status: text("autosave-status"), ...offNotices() };
     const before = message();
+    await act("File > New Local Project (the demo saved as a local project)");
     await menu("file.new-local");
     report.saved_project = await waitFor("demo saved as a local project", () => {
       const now = message();
@@ -469,6 +448,7 @@
     });
     report.before_edit_at = Date.now();
     await call("native_smoke_checkpoint", { name: "before-edit", report, storeSnapshot: true });
+    await act("first edit (node N-100)");
     report.edit = await editNode(plan.edit.node, plan.edit.y, 1);
     await call("native_smoke_checkpoint", { name: "edited", report, storeSnapshot: false });
     // The product's own report of a record written (its status line), then at once a second edit,
@@ -477,14 +457,16 @@
     // the record's: the runner ends the app before it, and observes that no record of the second edit exists.
     report.first_record_status = await waitFor("a recovery record written", () => /^Autosaved at /.test(text("autosave-status") ?? "") && text("autosave-status"), T.record);
     report.first_record_seen_at = Date.now();
+    await act("second edit (node N-110)");
     report.second_edit = await editNode(plan.second_edit.node, plan.second_edit.y, 2);
     await call("native_smoke_checkpoint", { name: "second-edit", report, storeSnapshot: false });
-    await log("autosave-end: waiting to be ended");
+    await act("waiting to be ended");
     // The runner ends this process with SIGKILL before the next interval elapses.
     await new Promise(() => {});
   }
 
   async function phaseAutosaveReopen(plan, report) {
+    await act("the recovery offer, read before any choice");
     const prompt = await waitFor("recovery offer", () => byTestId("autosave-recovery-prompt"), T.step);
     const windowState = () => ({
       project: text("toolbar-project-name"),
@@ -509,12 +491,14 @@
     await sleep(plan.hold_ms);
     report.before_choice_later = { ...windowState(), offer_open: Boolean(byTestId("autosave-recovery-prompt")) };
     const before = message();
+    await act("Open autosave");
     click("autosave-recovery-open");
     report.opened = await waitFor("autosave opened", () => {
       const now = message();
       return now !== before && now !== "" ? now : null;
     }, T.step);
     report.after_open = windowState();
+    await act("File > Save Model Document…");
     report.model_document = await saveModelDocument(plan.model_document, "autosave/recovered");
   }
 
@@ -540,6 +524,7 @@
   }
 
   async function phaseReference(plan, report) {
+    await act("File > Open Model Document…");
     report.opened = await openModelDocument(plan.open);
     await waitFor("reference system in the model tree", () => treeRow(plan.project_id), T.step);
     await showSection("solve");
@@ -548,6 +533,7 @@
     const proofText = () => byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
     const prior = proofText();
     const runAt = Date.now();
+    await act("solve (Analyze > Run, sparse)");
     await menu("analyze.run");
     await waitFor("reference system solve", () => {
       const summary = text("solve-job-summary") ?? "";
@@ -570,7 +556,9 @@
     // What a person meets after the solve, recorded in the window's own words. On main the reference
     // system solves "sensitive" (M03-INTEGRITY-v1) and the desktop reads "needs recompute", so the
     // report outputs may be refused: nothing here expects a package, and nothing is worked around.
+    await act("the report outputs as a person meets them (observation)");
     report.met = await observeReportOutputs(plan);
+    await act("File > Save Model Document…");
     report.model_document = await saveModelDocument(plan.model_document, "reference/model-document");
   }
 
@@ -643,6 +631,7 @@
       // home (on the run's first launch it ends the app if not). The app's own listing is recorded too.
       await call("native_smoke_checkpoint", { name: "shell-loaded", report: { phase: plan.phase, at: Date.now() }, storeSnapshot: false, homeListing: true });
       await log(`evidence journey phase ${plan.phase} started`);
+      await act("the desktop shell loaded");
       if (plan.phase === "report") await phaseReport(plan, report);
       else if (plan.phase === "autosave-end") await phaseAutosaveEnd(plan, report);
       else if (plan.phase === "autosave-reopen") await phaseAutosaveReopen(plan, report);
