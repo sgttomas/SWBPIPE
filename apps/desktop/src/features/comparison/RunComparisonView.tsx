@@ -127,7 +127,7 @@ export function RunComparisonView({ result, onClose, reportInclusion = null }: {
         Rows are mapped automatically when their result id, family, entity, basis, dimension, component, location, metadata
         basis, coordinate system and sign convention are all equal; there is no manual mapping. A delta is right − left in
         the rows' own unit. It is computed only when both runs' results read integrity_checked, both carry the same result
-        semantic identity, and the two units are equal; nothing is converted. A comparison shows what differs between two states, runs or cases of the user&apos;s own model. It is a review aid and establishes nothing about either side.
+        semantic identity, and the two units are equal; nothing is converted. A comparison shows differences between two selected model states, internal analysis runs, or load cases or combinations within a run. It is a review aid and does not establish that either side is correct.
       </p>
       {reportInclusion ? <ReportInclusionControl inclusion={reportInclusion} kind="run" testId="run-comparison-report" /> : null}
       {comparison.run_gate.length ? (

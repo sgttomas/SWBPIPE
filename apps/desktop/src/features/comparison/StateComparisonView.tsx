@@ -94,7 +94,7 @@ export function StateComparisonView({ result, onClose, reportInclusion = null }:
       </p>
       <p className="muted" data-testid="state-comparison-basis">
         Entities are mapped automatically by stable id within each family; there is no manual mapping. Values are shown as
-        stored, with their own units: nothing is converted or subtracted. A comparison shows what differs between two states, runs or cases of the user&apos;s own model. It is a review aid and establishes nothing about either side.
+        stored, with their own units: nothing is converted or subtracted. A comparison shows differences between two selected model states, internal analysis runs, or load cases or combinations within a run. It is a review aid and does not establish that either side is correct.
       </p>
       {reportInclusion ? <ReportInclusionControl inclusion={reportInclusion} kind="saved-state" testId="state-comparison-report" /> : null}
       <div className="comparison-summary" data-testid="state-comparison-summary">
