@@ -58,8 +58,8 @@ FROZEN = {
     # test_rt_a3_constant_effort_text_only_envelope_diff; after review, also the S7 support-attribution sentence.
     # RT-A3 increment 4: the identity (nonlinear supports) and the S7 support-attribution sentence only, bound by
     # test_rt_a3_nonlinear_text_only_envelope_diff.
-    # S6: the identity, load-state motion and static history disclosures only;
-    # test_rt_a3_s6_text_only_envelope_diff binds all numerical tokens and derived hashes.
+    # S6: the identity, load-state motion and static history disclosures only (a one-time migration whose replay,
+    # proven at its merge, has been retired).
     # Pressure elongation (RT-L2): the request names its pressurised cases; the raws differ only in the identity, the
     # bend clause, the elongation statement and the per-case label.
     "fixtures/product_preview/pressure/load_reference/connected-sparse_interactive.raw.json": "c241b75c27859f37c5e353e3a64d70687bc388f9f46852a31ad1b7311f8c6299",

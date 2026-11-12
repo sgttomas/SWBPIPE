@@ -273,7 +273,6 @@ checks:
 - tests/test_rt_a3_reducer_2b_text_only_envelope_diff.py
 - tests/test_rt_a3_constant_effort_text_only_envelope_diff.py
 - tests/test_rt_a3_nonlinear_text_only_envelope_diff.py
-- tests/test_rt_a3_s6_text_only_envelope_diff.py
 - core/product_physics/tests/rt_a3_constant_effort_references.rs
 - core/product_physics/tests/rt_a3_constant_effort_source_receipt.rs
 - tests/test_rt_a3_constant_effort_schema.py
