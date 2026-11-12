@@ -442,6 +442,17 @@ def test_repository_check_tests_are_the_governance_step_s():
     assert tuple(line.split('"${deselect[@]}"')[1].split()) == ci.python_test_reads.REPOSITORY_CHECK_TESTS
 
 
+def test_the_repository_checks_job_runs_the_routing_invariant_on_every_pull_request():
+    """Adding or changing a maintained test selects neither `tools/ci/` nor this file, so the invariant over every
+    maintained test's routing runs in the Repository checks job, which every product pull request runs."""
+    workflow = (PROJECT / '.github/workflows/governance-harness.yml').read_text()
+    line, = [line for line in workflow.splitlines() if 'tests/test_ci_python.py::' in line]
+    for name in ('test_every_maintained_test_runs_when_a_path_it_reads_changes',
+                 'test_a_specification_a_test_only_names_is_never_its_probe'):
+        assert f'"tests/test_ci_python.py::{name}"' in line, name
+        assert name in globals(), name
+
+
 def test_a_path_only_a_python_test_reads_starts_the_python_job():
     sys_path = str(PROJECT / 'tools/software_workflow')
     import sys
