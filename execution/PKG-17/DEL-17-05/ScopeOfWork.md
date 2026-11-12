@@ -102,6 +102,7 @@ It serves SOW-030, SOW-046 and SOW-075 under OBJ-007, OBJ-009, OBJ-017 and OBJ-0
 - The comparison works in SI base units, and the printed resolution of the prover's output sets the floor of every tolerance.
 - A difference is carried by a named hypothesis and a one-parameter series, never absorbed by a wider tolerance.
 - The cases, models, settings, comparison rule and code are public; runs, results, comparisons and classifications are private, except benchmark agreement that the owner publishes under the data boundary policy.
+- The execution path that runs a solve records the one digest of the runner's run evidence in its own run record at that moment; a later rewrite of the result file does not touch that record. Where unsealing verifies an origin it means that record, the build identity inside the evidence and reproduction of the result's digest from the same request on the build named; it is not a cryptographic signature.
 
 **How each criterion is examined.**
 

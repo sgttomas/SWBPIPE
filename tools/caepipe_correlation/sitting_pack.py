@@ -69,6 +69,13 @@ records sit beside it, never inside, so a returned file can never be taken for a
 binding and runs the parser on the returned print in place. Standard output carries operational status only: per item
 its id, kind, status and route, and for a checked or placed print the number of sections the parser read and of its
 error diagnostics. No result value is printed.
+
+Two limits. Storing results append-only does not by itself enforce the sealed-capture reading restrictions: those are
+the separate refusals this module and run_pilot make on every screening and parsing route, listed above. And the hand
+route is an acceptable fallback for the sitting only because it keeps the same case identities and capture bindings
+the harness would: the case id and designation come from the authoritative index, and the result is bound to the
+model file's hash the index records; a hand-route intake lands under that case id, bound to that hash, with that
+designation, for an ordinary case and a sealed one alike.
 """
 
 from __future__ import annotations
@@ -1573,6 +1580,7 @@ def seal_capture(folder: Path, item: Mapping[str, Any], tree: Tree, *, pack_inde
     outcome = _store_attempt(
         tree, ("cases", item["item_id"], SEALED), CAPTURE_RECORD, files, pack_inputs(item), {
             "document_kind": CAPTURE_KIND, "item_id": item["item_id"], "status": "sealed",
+            "item_kind": item["item_kind"], "capture": item["capture"],
             "reason": item.get("sealed_reason"), "pack_index_sha256": pack_index_sha256,
             "mbf_sha256": item["mbf"]["sha256"], "model_hash": (item.get("source") or {}).get("model_hash"),
             "swbpipe_request": item.get("swbpipe_request"),
@@ -1823,6 +1831,7 @@ def intake_case(folder: Path, item: Mapping[str, Any], tree: Tree, *, pack_index
     bound = binding == GUEST_BINDING and route in CSV_ROUTES and observed is not None
     tree.record(attempt + (INTAKE_RECORD,), {
         "document_kind": INTAKE_KIND, "item_id": item_id, "ingested_at": _now(), "route": route,
+        "item_kind": item["item_kind"], "capture": item["capture"], "mbf_sha256": mbf_sha,
         "sitting_route": sitting_route, "binding": binding, "bound": bound, "run": run,
         "returned_files": listing, "kept": f"{run}/{RETURNED}", "placed": collected, "parser": parser,
         "run_line": run_line.get("text"), "notes": notes, "variants": variants,

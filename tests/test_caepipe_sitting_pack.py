@@ -909,29 +909,63 @@ def test_the_reading_functions_refuse_a_sealed_case_themselves(sitting, reads, m
 def test_the_hand_route_can_be_rehearsed_end_to_end_with_invented_files(fake_benchmark, tmp_path, monkeypatch,
                                                                         capsys):
     """The hand route alone, from the generated pack: a script stands in for the program and places invented files
-    under the names the pack gives; ingest --check and ingest take them in, stored and hashed."""
+    under the names the pack gives; ingest --check and ingest take them in, stored and hashed. For an ordinary case
+    and a sealed one, the intake lands under the case id the authority index gives, bound to the model file hash it
+    records, with its designation: the same identities and bindings the harness route would keep."""
     state = fake_benchmark
     monkeypatch.setattr(sitting_pack, "resolve_harness_config", lambda environ, require_vm_tools: state["config"])
     pack, authority = tmp_path / "rehearsal", tmp_path / "rehearsal.authority"
-    plan = plan_file(tmp_path, [{"id": "dry", "kind": "dry_run", "select": {"model_ids": ["cpb-g1-01"]}}])
+    plan = plan_file(tmp_path, [
+        {"id": "dry", "kind": "dry_run", "select": {"model_ids": ["cpb-g1-01"]}},
+        {"id": "sealed", "kind": "sealed_capture", "sealed_reason": "invented: rehearsal",
+         "select": {"model_ids": ["cpb-g1-03"]}}])
     assert sitting_pack.main(["prepare", str(pack), "--manifest", str(state["manifest"]), "--plan", str(plan),
                               "--samples", str(sample_declaration(tmp_path / "samples", []))]) == 0
     instructions = (pack / "INSTRUCTIONS.md").read_text(encoding="utf-8")
     assert "`<stem>.print.csv`, `<stem>.mod` and `<stem>.res`" in instructions
-    case = json.loads((pack / "cases" / "cpb-g1-01" / "case.json").read_text(encoding="utf-8"))
-    folder = pack / "cases" / "cpb-g1-01"
-    invented = {}
-    for name in case["results"]["manual_print"]:  # the names the pack gives for the route
-        data = f"invented {name}\r\n".encode("utf-8")
-        (folder / name).write_bytes(data)
-        invented[name] = hashlib.sha256(data).hexdigest()
-    fill_run_line(folder, "manual_print")
+    designations = by_id(sitting_pack.load_authority(authority)[0])
+    invented: dict[str, dict[str, str]] = {}
+    for case_id in ("cpb-g1-01", "cpb-g1-03"):
+        folder = pack / "cases" / case_id
+        case = json.loads((folder / "case.json").read_text(encoding="utf-8"))
+        invented[case_id] = {}
+        for name in case["results"]["manual_print"]:  # the names the pack gives for the route
+            data = f"invented {name}\r\n".encode("utf-8")
+            (folder / name).write_bytes(data)
+            invented[case_id][name] = hashlib.sha256(data).hexdigest()
+        fill_run_line(folder, "manual_print")
     assert sitting_pack.main(["ingest", str(pack), "--authority", str(authority), "--check"], environ={}) == 0
-    assert "route=sitting_manual_print; binding=person_attested" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert "cpb-g1-01: benchmark case; checked; route=sitting_manual_print; binding=person_attested" in out
+    assert "cpb-g1-03: sealed capture; present; not opened" in out
     assert sitting_pack.main(["ingest", str(pack), "--authority", str(authority)], environ={}) == 0
-    assert "route=sitting_manual_print; binding=person_attested" in capsys.readouterr().out
-    run = next((state["config"].exchange_root / "cases" / "cpb-g1-01" / "sitting_runs").iterdir())
+    out = capsys.readouterr().out
+    assert "route=sitting_manual_print; binding=person_attested" in out and "cpb-g1-03: sealed capture; stored" in out
+    cases = state["config"].exchange_root / "cases"
+    # The ordinary case: under its own case id, bound to the authority's model file hash, with its designation.
+    ordinary = designations["cpb-g1-01"]
+    run = next((cases / ordinary["item_id"] / "sitting_runs").iterdir())
     record = json.loads((run / sitting_pack.INTAKE_RECORD).read_text(encoding="utf-8"))
-    for name, sha in invented.items():
+    run_record = json.loads((run / "caepipe_out" / "run_record.json").read_text(encoding="utf-8"))
+    assert record["item_id"] == run_record["case_id"] == ordinary["item_id"]
+    assert record["mbf_sha256"] == run_record["mbf"]["sha256"] == ordinary["mbf"]["sha256"]
+    assert hashlib.sha256((run / "caepipe_in" / "model.mbf").read_bytes()).hexdigest() == ordinary["mbf"]["sha256"]
+    assert (record["item_kind"], record["capture"]) == (ordinary["item_kind"], ordinary["capture"]) == (
+        "benchmark_case", "screened")
+    for name, sha in invented["cpb-g1-01"].items():
         assert record["returned_files"][name]["sha256"] == sha
         assert hashlib.sha256((run / "returned" / name).read_bytes()).hexdigest() == sha
+    # The sealed case: under its own case id, bound to the authority's model file hash, still designated sealed.
+    sealed = designations["cpb-g1-03"]
+    attempt = next((cases / sealed["item_id"] / "sealed").iterdir())
+    capture = json.loads((attempt / sitting_pack.CAPTURE_RECORD).read_text(encoding="utf-8"))
+    assert capture["item_id"] == sealed["item_id"] and capture["mbf_sha256"] == sealed["mbf"]["sha256"]
+    assert capture["model_hash"] == sealed["source"]["model_hash"]
+    assert (capture["item_kind"], capture["capture"], capture["status"], capture["reason"]) == (
+        sealed["item_kind"], sealed["capture"], "sealed", sealed["sealed_reason"]) == (
+        "benchmark_case", "sealed", "sealed", "invented: rehearsal")
+    assert capture["files"][sealed["mbf"]["file"]]["sha256"] == sealed["mbf"]["sha256"]
+    for name, sha in invented["cpb-g1-03"].items():
+        assert capture["files"][name] == {"bytes": os.path.getsize(attempt / "payload" / name), "sha256": sha,
+                                          "role": "returned"}
+    assert not (cases / "cpb-g1-03" / "sitting_runs").exists()
