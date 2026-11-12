@@ -52,6 +52,7 @@ import { RULE_PACKS_NOT_RESOLVED, type UnreadableRow } from "../../services/hist
 import { compareRunInputs, RunComparisonRefusal, type RunComparison } from "../comparison/runComparison";
 import { CURRENT_RUN_ID, currentRunBytes, currentRunSide, currentRunUnavailableReason, recordedRunSide, type RunComparisonSide } from "../comparison/runComparisonSides";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
+import { includedRunComparison, includedStateComparison, type ReportComparisonKind, type ReportComparisons } from "../comparison/comparisonRecords";
 import { nativeFailureText } from "../../services/nativeIngress";
 import { evaluateModelDocumentLocal } from "../../services/projectService";
 import { RETIRED_PROJECT_RUNS_NOTE } from "../../services/modelSchemaVersion";
@@ -131,7 +132,8 @@ export type RecordedRunCheck = {
 };
 
 /** A comparison of two saved states of the session's project (W-12 S3a): the
- * earlier-saved state is the left side. View-only; nothing is exported or kept. */
+ * earlier-saved state is the left side. Nothing is kept; it reaches a report package
+ * only when the person includes it (`includeComparisonInReport`). */
 export type StateComparisonResult = {
   projectId: string;
   left: ModelStateSummary;
@@ -140,8 +142,9 @@ export type StateComparisonResult = {
 };
 
 /** A comparison of two runs of the session's project (W-12 S3b): the earlier-recorded
- * run is the left side, and the current run, when it is one, the right. View-only;
- * nothing is exported or kept. */
+ * run is the left side, and the current run, when it is one, the right. Nothing is
+ * kept; it reaches a report package only when the person includes it
+ * (`includeComparisonInReport`). */
 export type RunComparisonResult = {
   projectId: string;
   left: RunComparisonSide;
@@ -229,6 +232,10 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   // this project session: the parent of the next state saved.
   const [basis, setBasis] = useState<{ generation: number; projectId: string; stateId: string } | null>(null);
   const listRequest = useRef(0);
+  // The comparison of each kind shown, as it is published (ahead of the render that
+  // shows it): what `includeComparisonInReport` includes. Cleared whenever the shown one
+  // is, so nothing here outlives the comparison shown.
+  const lastComparisons = useRef<{ state: StateComparisonResult | null; run: RunComparisonResult | null }>({ state: null, run: null });
   const depsRef = useRef(deps);
   depsRef.current = deps;
 
@@ -755,8 +762,8 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       }
       const comparison = compareModelDocuments(leftRead.model, rightRead.model);
       if (!sameSession()) return false;
-      setStateComparison({ projectId: left.project_id, left: leftRead.state, right: rightRead.state, comparison });
-      setRunComparison(null);
+      setStateComparison(lastComparisons.current.state = { projectId: left.project_id, left: leftRead.state, right: rightRead.state, comparison });
+      setRunComparison(lastComparisons.current.run = null);
       const { added, removed, changed, unchanged } = comparison.summary;
       setHistoryMessage(`Compared ${modelStateDescription(left)} with ${modelStateDescription(right)}: ${added} added, ${removed} removed, ${changed} changed, ${unchanged} unchanged. Neither state changes.`);
       setHistoryOperation("compare_states");
@@ -780,7 +787,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   const staleCurrentComparison = runComparison?.currentRun ? !sameCurrentRun(runComparison.currentRun, deps.runSlot) : false;
   useEffect(() => {
     if (!staleCurrentComparison) return;
-    setRunComparison(null);
+    setRunComparison(lastComparisons.current.run = null);
     setHistoryMessage("Run comparison closed: the current run it compared changed (an edit, another solve or a cleared result); compare again to see the current run.");
     setHistoryOperation("compare_runs_current_changed");
   }, [staleCurrentComparison]);
@@ -845,8 +852,8 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       const comparison = compareRunInputs(left.input, right.input);
       if (!sameSession()) return false;
       if (withCurrent) requireCurrentRun();
-      setRunComparison({ projectId: requestProjectId, left, right, comparison, currentRun: withCurrent ? captured : null });
-      setStateComparison(null);
+      setRunComparison(lastComparisons.current.run = { projectId: requestProjectId, left, right, comparison, currentRun: withCurrent ? captured : null });
+      setStateComparison(lastComparisons.current.state = null);
       const { compared, not_compared, unmatched_left, unmatched_right } = comparison.summary;
       setHistoryMessage(`Compared ${left.description} with ${right.description}: ${compared} row pair${compared === 1 ? "" : "s"} compared, ${not_compared} not compared, ${unmatched_left} only in the left run, ${unmatched_right} only in the right run. Neither run changes.`);
       setHistoryOperation("compare_runs");
@@ -861,11 +868,94 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // The comparisons included in the report (DEL-08-06 REQ-015, AC-009): at most one
+  // saved-state comparison and one run comparison, each the comparison of its two
+  // identifiers this session made, kept whichever comparison is shown (showing one
+  // kind hides the other; that never removes it from the report). The project
+  // changing removes both; a run comparison with a current side leaves the report
+  // when that run stops being the session's current run, by the rule that closes it
+  // when shown. Every included comparison goes into the next local-private report
+  // package saved. Set by the comparison views' "Include in report" control, and by
+  // the embedded agent through the same two functions. What is held is each comparison's
+  // record and two identifiers (`IncludedComparison`), never a side's rows.
+  const [reportComparisons, setReportComparisonsState] = useState<ReportComparisons & { projectId: string | null }>({ projectId: null, state: null, run: null });
+  const reportComparisonsRef = useRef(reportComparisons);
+  const setReportComparisons = (next: ReportComparisons & { projectId: string | null }) => {
+    reportComparisonsRef.current = next;
+    setReportComparisonsState(next);
+  };
+  useEffect(() => {
+    lastComparisons.current = { state: null, run: null };
+    setReportComparisons({ projectId, state: null, run: null });
+  }, [projectId, deps.projectSessionGeneration]);
+  const staleIncludedRun = reportComparisons.run?.currentRun ? !sameCurrentRun(reportComparisons.run.currentRun, deps.runSlot) : false;
+  useEffect(() => {
+    if (!staleIncludedRun) return;
+    setReportComparisons({ ...reportComparisonsRef.current, run: null });
+    setHistoryMessage("Run comparison removed from the report: the current run it compared changed (an edit, another solve or a cleared result); compare again to include the current run.");
+    setHistoryOperation("report_comparison_current_changed");
+  }, [staleIncludedRun]);
+
+  /** The comparisons the next report package holds, read now (for a save in progress). */
+  function reportComparisonsNow(): ReportComparisons {
+    const current = reportComparisonsRef.current;
+    const live = depsRef.current.currentModel.current?.project.id ?? null;
+    if (current.projectId !== live) return { state: null, run: null };
+    const run = current.run?.currentRun && !sameCurrentRun(current.run.currentRun, depsRef.current.runSlot) ? null : current.run;
+    return { state: current.state, run };
+  }
+
+  /** Includes in the report the comparison of kind `kind` of the two identifiers (two
+   * saved-state ids, or two run ids: a recording id or `CURRENT_RUN_ID`), in either
+   * order: the comparison of that kind shown, which must be of those two. It replaces a comparison of the same kind already included. False, with the
+   * reason in the history message, when no such comparison was made. */
+  function includeComparisonInReport(kind: ReportComparisonKind, firstId: string, secondId: string): boolean {
+    const live = depsRef.current.currentModel.current?.project.id ?? null;
+    const ids = (left: string, right: string) => (left === firstId && right === secondId) || (left === secondId && right === firstId);
+    const last = lastComparisons.current;
+    const state = kind === "state" && last.state && last.state.projectId === live && ids(last.state.left.state_id, last.state.right.state_id) ? last.state : null;
+    const run = kind === "run" && last.run && last.run.projectId === live && ids(last.run.left.id, last.run.right.id)
+      && !(last.run.currentRun && !sameCurrentRun(last.run.currentRun, depsRef.current.runSlot)) ? last.run : null;
+    if (!state && !run) {
+      setHistoryMessage(`Not included in the report: compare ${kind === "state" ? "the two saved states" : "the two runs"} ${firstId} and ${secondId} first; the ${kind === "state" ? "saved-state" : "run"} comparison shown is the one that can be included.`);
+      setHistoryOperation("report_comparison_refused");
+      return false;
+    }
+    const base = reportComparisonsRef.current.projectId === live ? reportComparisonsRef.current : { projectId: live, state: null, run: null };
+    setReportComparisons({ ...base, projectId: live, ...(state ? { state: includedStateComparison(state) } : { run: includedRunComparison(run!) }) });
+    setHistoryMessage(state
+      ? `Included in the report: the comparison of ${modelStateDescription(state.left)} with ${modelStateDescription(state.right)}. The next local private report package saved holds it.`
+      : `Included in the report: the comparison of ${run!.left.description} with ${run!.right.description}. The next local private report package saved holds it.`);
+    setHistoryOperation("report_comparison_included");
+    return true;
+  }
+
+  /** Removes the included comparison of kind `kind` from the report. False when none is included. */
+  function removeComparisonFromReport(kind: ReportComparisonKind): boolean {
+    const current = reportComparisonsRef.current;
+    if (!current[kind]) return false;
+    setReportComparisons({ ...current, [kind]: null });
+    setHistoryMessage(`Removed from the report: the ${kind === "state" ? "saved-state" : "run"} comparison. Report packages saved from now on do not hold it.`);
+    setHistoryOperation("report_comparison_removed");
+    return true;
+  }
+
+  const includedProject = reportComparisons.projectId === projectId;
+
   return {
+    /** The comparisons the next local-private report package holds (DEL-08-06 AC-009). */
+    reportComparisons: {
+      state: includedProject ? reportComparisons.state : null,
+      run: includedProject && !staleIncludedRun ? reportComparisons.run : null
+    } as ReportComparisons,
+    reportComparisonsNow,
+    includeComparisonInReport,
+    removeComparisonFromReport,
     /** The last comparison of two runs (view-only), or null. */
     runComparison: runComparison && runComparison.projectId === projectId && !staleCurrentComparison ? runComparison : null,
     compareRuns,
-    closeRunComparison: () => setRunComparison(null),
+    closeRunComparison: () => setRunComparison(lastComparisons.current.run = null),
     /** Why the session's current run cannot be compared, or null when it can. */
     currentRunUnavailableReason: currentRunReason,
     /** Recorded runs a read refused by name as recorded before rule-pack resolution, with the refusal. */
@@ -873,7 +963,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     /** The last comparison of two saved states (view-only), or null. */
     stateComparison: stateComparison && stateComparison.projectId === projectId ? stateComparison : null,
     compareStates,
-    closeStateComparison: () => setStateComparison(null),
+    closeStateComparison: () => setStateComparison(lastComparisons.current.state = null),
     runs: statesProjectId === projectId ? runs : null,
     /** The rows the store could not read, by id and refusal only. */
     unreadable: statesProjectId === projectId ? unreadable : null,

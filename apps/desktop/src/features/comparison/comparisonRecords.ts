@@ -19,7 +19,7 @@
 // The record is a difference report. It establishes nothing about either side; human
 // review is still required for any use of it.
 import { canonicalSha256Hex } from "../../services/hashService";
-import type { RunComparisonResult, StateComparisonResult } from "../history/useModelStateHistory";
+import type { CurrentRunIdentity, RunComparisonResult, StateComparisonResult } from "../history/useModelStateHistory";
 import type { RunComparisonSide } from "./runComparisonSides";
 import type { RunRowIdentity } from "./runComparison";
 import { pathText } from "./stateComparison";
@@ -231,13 +231,41 @@ export async function withRecordHash(record: JsonRecord): Promise<JsonRecord> {
   };
 }
 
-/** The comparisons a session includes in a report. */
-export type ReportComparisons = { state: StateComparisonResult | null; run: RunComparisonResult | null };
+/** A comparison a session includes in a report: its two side identifiers and its record,
+ * restated when it was included. It holds no side's rows: the comparison's own output is
+ * what the record restates, and nothing else of either side is kept. */
+export type IncludedComparison = {
+  kind: ReportComparisonKind;
+  projectId: string;
+  leftId: string;
+  rightId: string;
+  /** For a run comparison with a current side, that run's identity: the comparison leaves
+   * the report when the session's current run is another. */
+  currentRun: CurrentRunIdentity | null;
+  record: JsonRecord;
+};
+
+/** The comparisons a session includes in a report, at most one of each kind. */
+export type ReportComparisons = { state: IncludedComparison | null; run: IncludedComparison | null };
+
+/** A shown comparison as included: identifiers and record only. */
+export function includedStateComparison(result: StateComparisonResult): IncludedComparison {
+  return { kind: "state", projectId: result.projectId, leftId: result.left.state_id, rightId: result.right.state_id, currentRun: null, record: stateComparisonRecord(result) };
+}
+
+export function includedRunComparison(result: RunComparisonResult): IncludedComparison {
+  return { kind: "run", projectId: result.projectId, leftId: result.left.id, rightId: result.right.id, currentRun: result.currentRun ?? null, record: runComparisonRecord(result) };
+}
+
+/** Whether an included comparison is of these two identifiers, in either order. */
+export function includesComparisonOf(included: IncludedComparison | null, leftId: string, rightId: string): boolean {
+  return included !== null && ((included.leftId === leftId && included.rightId === rightId) || (included.leftId === rightId && included.rightId === leftId));
+}
 
 /** The records of the comparisons a session includes, each with its hash, in kind order. */
 export async function reportComparisonRecords(included: ReportComparisons): Promise<{ model_state_comparisons: JsonRecord[]; analysis_run_comparisons: JsonRecord[] }> {
   return {
-    model_state_comparisons: included.state ? [await withRecordHash(stateComparisonRecord(included.state))] : [],
-    analysis_run_comparisons: included.run ? [await withRecordHash(runComparisonRecord(included.run))] : []
+    model_state_comparisons: included.state ? [await withRecordHash(included.state.record)] : [],
+    analysis_run_comparisons: included.run ? [await withRecordHash(included.run.record)] : []
   };
 }

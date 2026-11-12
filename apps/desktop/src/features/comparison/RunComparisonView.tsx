@@ -21,6 +21,7 @@ import {
   type RunComparisonStatusFilter
 } from "./runComparisonCsv";
 import { heldStatusQuotedNotice, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
+import { ReportInclusionControl, type ReportInclusion } from "./ReportInclusionControl";
 
 /** RT-A5: a held-status notice (`HELD_STATUS_QUOTED_CODES`) is quoted whole as supplied text here too (`suppliedDiagnosticMessage`). */
 const NO_COMBINATIONS: ReadonlySet<string> = new Set();
@@ -32,9 +33,11 @@ const NO_COMBINATIONS: ReadonlySet<string> = new Set();
 // rows filterable by status, family and result id, paged at `COMPARISON_PAGE_ROWS`
 // rows so every row is reachable. A delta is `right − left` in the rows' own unit;
 // a pair the standing gate does not admit is shown `not compared` with its
-// reasons. The table exports to a local-private CSV (RT-R6, `runComparisonCsv.ts`); the
-// comparison envelope export is v0.2 (FR-CMP-010). It reports
-// differences and establishes nothing about either run (F-PIP-2, F-PIP-3).
+// reasons. The table exports to a local-private CSV (RT-R6, `runComparisonCsv.ts`), and
+// "Include in report" puts the comparison, as a record, in the next local-private report
+// package saved (DEL-08-06 REQ-015, `comparisonRecords.ts`); the comparison envelope export
+// is v0.2 (FR-CMP-010). It reports differences and establishes nothing about either run
+// (F-PIP-2, F-PIP-3).
 
 export { NOT_COMPARED_LABELS };
 
@@ -85,7 +88,7 @@ function testIdOf(row: TableRow): string {
   return `run-comparison-row-${row.status}-${row.identity.result_id}`.replace(/[^a-zA-Z0-9:_/-]+/g, "-");
 }
 
-export function RunComparisonView({ result, onClose }: { result: RunComparisonResult; onClose: () => void }) {
+export function RunComparisonView({ result, onClose, reportInclusion = null }: { result: RunComparisonResult; onClose: () => void; reportInclusion?: ReportInclusion | null }) {
   const { comparison, left, right } = result;
   const [status, setStatus] = useState<StatusFilter>("all");
   const [family, setFamily] = useState<string>("all");
@@ -124,9 +127,9 @@ export function RunComparisonView({ result, onClose }: { result: RunComparisonRe
         Rows are mapped automatically when their result id, family, entity, basis, dimension, component, location, metadata
         basis, coordinate system and sign convention are all equal; there is no manual mapping. A delta is right − left in
         the rows' own unit. It is computed only when both runs' results read integrity_checked, both carry the same result
-        semantic identity, and the two units are equal; nothing is converted. This lists differences between two runs only
-        and establishes nothing about either; human review is still required.
+        semantic identity, and the two units are equal; nothing is converted. A comparison shows what differs between two states, runs or cases of the user&apos;s own model. It is a review aid and establishes nothing about either side.
       </p>
+      {reportInclusion ? <ReportInclusionControl inclusion={reportInclusion} kind="run" testId="run-comparison-report" /> : null}
       {comparison.run_gate.length ? (
         <p className="muted" role="note" data-testid="run-comparison-gate">
           No row pair is compared: {comparison.run_gate.map((reason) => NOT_COMPARED_LABELS[reason]).join("; ")}.

@@ -576,3 +576,72 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def _comparison_parity_writer():
+    import importlib.util
+
+    path = ROOT / "tools/fixtures/state_comparison_handoff_comparison_parity.py"
+    spec = importlib.util.spec_from_file_location("state_comparison_handoff_comparison_parity", path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_comparison_parity_vector_is_the_reference_engine_output():
+    """DEL-08-06 AC-002: the shared comparison vector the desktop assembler is held to is
+    this engine's output for its invented records, written by its writer."""
+
+    writer = _comparison_parity_writer()
+    assert writer.FIXTURE.read_text(encoding="utf-8") == writer.text()
+    fixture = json.loads(writer.FIXTURE.read_text(encoding="utf-8"))
+    for case in fixture["cases"]:
+        assert build_state_comparison_handoff_report_sections(**case["inputs"]) == case["expected"], case["name"]
+    by_name = {case["name"]: case["expected"] for case in fixture["cases"]}
+    assert by_name["both_kinds"] == by_name["both_kinds_permuted"]
+
+
+def test_state_comparison_section_carries_changed_entities_without_values_and_its_hash():
+    """REQ-011: the comparison as computed, by stable identifier, with the record's hash."""
+
+    writer = _comparison_parity_writer()
+    record = writer.state_record()
+    kwargs = section_kwargs()
+    kwargs["model_state_comparisons"] = [record]
+
+    section = next(
+        item
+        for item in build_state_comparison_handoff_report_sections(**kwargs)["sections"]["comparison_sections"]
+        if item["section_kind"] == "model_state_comparison"
+    )
+
+    assert section["hash_refs"] == record["hashes"]
+    assert {row["classification"] for row in section["changed_entities"]} == {
+        "added", "removed", "changed", "mapped_changed", "unresolved"
+    }
+    assert section["left_ref"]["model_hash"] == record["left_state_ref"]["model_hash"]
+    mapped = next(row for row in section["changed_entities"] if row["classification"] == "mapped_changed")
+    assert mapped["changes"] == [{"field": "length"}]
+    changed = next(row for row in section["changed_entities"] if row["classification"] == "changed")
+    assert changed["changes"][0] == {"path": "position", "change_kind": "unit_changed", "left_unit": "m", "right_unit": "mm"}
+    assert "left" not in canonical_json(section["changed_entities"]).replace('"left_ref"', "").replace('"left_unit"', "")
+
+
+def test_run_comparison_section_carries_its_hash_and_its_context():
+    writer = _comparison_parity_writer()
+    record = writer.run_record()
+    kwargs = section_kwargs()
+    kwargs["analysis_run_comparisons"] = [record]
+
+    result = build_state_comparison_handoff_report_sections(**kwargs)
+    section = result["sections"]["comparison_sections"][0]
+
+    assert section["hash_refs"] == record["hashes"]
+    assert section["run_context"] == record["run_context"]
+    assert not [item for item in result["diagnostics"] if item["severity"] == "blocking"]
+
+
+def test_comparison_without_hashes_gives_an_empty_hash_inventory():
+    record = build_state_comparison_handoff_report_sections(**section_kwargs())
+    assert record["sections"]["comparison_sections"][0]["hash_refs"] == []

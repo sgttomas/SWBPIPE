@@ -206,6 +206,13 @@ import {
 } from "./projectPersistenceIntegrity";
 import { persistenceHashesMatch } from "./savedModelBasis";
 import { useModelStateHistory, type LandedProjectSave, type ProjectBinding } from "../history/useModelStateHistory";
+import { reportComparisonRecords, type ReportComparisons } from "../comparison/comparisonRecords";
+
+/** Two inclusions are the same when they hold the same comparisons (a change of the
+ * selection during preparation retires a report package save). */
+function sameReportComparisons(left: ReportComparisons, right: ReportComparisons): boolean {
+  return left.state === right.state && left.run === right.run;
+}
 import { unsavedChangesRefusal, useUnsavedChangesGuard } from "../project-storage/unsavedChangesGuard";
 import { openAutosaveSource, useAutosave } from "../autosave";
 import { createModalHolds, type ModalHolds } from "../project-storage/modalHolds";
@@ -3854,7 +3861,9 @@ export function useWorkspaceSession() {
       ruleCheckAggregate,
       ruleCheckRun: ruleCheckReportRun,
       reportComposition,
-      privateIntent: reportPackagePrivateIntent
+      privateIntent: reportPackagePrivateIntent,
+      // DEL-08-06 AC-009: the saved-state and run comparisons the person included.
+      reportComparisons: history.reportComparisonsNow()
     } as const;
     // Refs, because the awaited build and preparation outlive this render's closure.
     const isCurrent = () =>
@@ -3868,13 +3877,18 @@ export function useWorkspaceSession() {
       analysisBasisRef.current.value === basis.analysisRun &&
       ruleCheckAggregateRef.current === basis.ruleCheckAggregate &&
       ruleCheckReportRunRef.current === basis.ruleCheckRun &&
-      reportCompositionRef.current === basis.reportComposition;
+      reportCompositionRef.current === basis.reportComposition &&
+      sameReportComparisons(history.reportComparisonsNow(), basis.reportComparisons);
     reportPackageBusyGenerationRef.current = generation;
     setReportPackageBusy(true);
     setReportPackageRoute(null);
     try {
       // The report package reads full rows (C2): a native result's bounded full copy and record.
       const reportRun = basis.result && isNativeResult(basis.result) ? await loadC2Full(basis.result) : { result: basis.result as MechanicsResult, analysisRun: basis.analysisRun as AnalysisRunEnvelope };
+      if (!isCurrent()) return;
+      // The included comparisons as records (`comparisonRecords.ts`), from the rows each
+      // comparison already read when the person asked for it.
+      const sessionComparisons = await reportComparisonRecords(basis.reportComparisons);
       if (!isCurrent()) return;
       const request = await buildReportPackageRequest({
         model: basis.model,
@@ -3886,7 +3900,8 @@ export function useWorkspaceSession() {
         comparisonUnavailable: basis.comparisonUnavailable,
         ruleCheckAggregate: basis.ruleCheckAggregate,
         ruleCheckRun: basis.ruleCheckRun,
-        reportComposition: basis.reportComposition
+        reportComposition: basis.reportComposition,
+        sessionComparisons
       });
       if (!isCurrent()) return;
       const controlled = controlReportPackageRequest(request, basis.privateIntent);
