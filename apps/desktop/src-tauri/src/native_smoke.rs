@@ -23,6 +23,9 @@
 //! Package…, Export MBF's save and Import MBF's open choosers) instead of showing the chooser, and it delivers native menu commands through the same
 //! dispatch a menu click uses (`native_smoke_menu`). Everything else, from the
 //! open checks to solve, persistence and export, runs on the product's code.
+//! The evidence journeys (`native-smoke/evidence-journeys.mjs`) also write
+//! checkpoints of their report, and a read-only copy of the store, while the app
+//! runs (`native_smoke_checkpoint`); they change nothing the app does.
 
 use serde::Serialize;
 use serde_json::Value;
@@ -297,7 +300,58 @@ pub fn native_smoke_read_report_package(path: String) -> Result<Value, String> {
         "inventory": read.manifest["members"],
         "members": members,
         "result_member_text": result_member,
+        // The reader's user-release record, null for a package without one (W-18b).
+        "user_release": read.user_release,
     }))
+}
+
+/// A checkpoint name: 1 to 32 of `a-z`, `0-9` and `-`, so it can only name a file
+/// beside the report.
+fn checkpoint_name_ok(name: &str) -> bool {
+    (1..=32).contains(&name.len()) && name.bytes().all(|byte| matches!(byte, b'a'..=b'z' | b'0'..=b'9' | b'-'))
+}
+
+/// A journey's checkpoint, with the app left running (`evidence-journeys.mjs`, whose
+/// autosave journey ends the app itself with SIGKILL, so it never reaches
+/// `native_smoke_finish`). Writes `report` beside the final report as
+/// `<report>.<name>.json`, through a temporary file and a rename so the runner never
+/// reads it partial; with `store_snapshot`, first writes a consistent copy of the project
+/// store as `<report>.<name>.store.sqlite3` through a read-only connection
+/// (`VACUUM INTO`), so nothing in the store is written.
+#[tauri::command]
+pub fn native_smoke_checkpoint(app: AppHandle, name: String, report: Value, store_snapshot: bool) -> Result<(), String> {
+    if !checkpoint_name_ok(&name) {
+        return Err(format!("checkpoint name {name:?} refused"));
+    }
+    let base = std::env::var("SWBPIPE_NATIVE_SMOKE_REPORT").map_err(|_| "SWBPIPE_NATIVE_SMOKE_REPORT unset".to_string())?;
+    if store_snapshot {
+        let store = crate::app_store_path(&app)?;
+        let target = format!("{base}.{name}.store.sqlite3");
+        if std::path::Path::new(&target).exists() {
+            return Err(format!("{target} exists"));
+        }
+        let connection = rusqlite::Connection::open_with_flags(&store, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX)
+            .map_err(|error| format!("{}: {error}", store.display()))?;
+        connection.execute("VACUUM INTO ?1", [&target]).map_err(|error| format!("store snapshot: {error}"))?;
+    }
+    let path = format!("{base}.{name}.json");
+    let pending = format!("{path}.tmp");
+    let text = serde_json::to_string_pretty(&report).map_err(|error| error.to_string())?;
+    fs::write(&pending, text).map_err(|error| format!("{pending}: {error}"))?;
+    fs::rename(&pending, &path).map_err(|error| format!("{path}: {error}"))
+}
+
+#[cfg(test)]
+mod checkpoint_tests {
+    #[test]
+    fn a_checkpoint_name_names_only_a_file_beside_the_report() {
+        for name in ["before-edit", "edited", "a", "0123456789abcdef0123456789abcdef"] {
+            assert!(super::checkpoint_name_ok(name), "{name}");
+        }
+        for name in ["", "../store", "a/b", "Edited", "a.b", "0123456789abcdef0123456789abcdef0", "a b"] {
+            assert!(!super::checkpoint_name_ok(name), "{name}");
+        }
+    }
 }
 
 /// C1 P3, smoke builds only. Reads the current run's held bytes and the model

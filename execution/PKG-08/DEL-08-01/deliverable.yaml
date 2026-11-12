@@ -215,3 +215,4 @@ checks:
 - apps/desktop/e2e/report-package-dist.spec.ts
 - apps/desktop/e2e/r2-smoke.spec.ts
 - apps/desktop/native-smoke/run.mjs
+- apps/desktop/native-smoke/evidence-journeys.mjs
