@@ -1268,7 +1268,7 @@ fn kd5_epsilon_triangle_includes_formation_assembly_projection_and_both_norms() 
                 0.0
             }
     };
-    let eps = epsilon_e(&system, &source, &index, &[0, 0, 0], &assembled, &projected).unwrap();
+    let eps = epsilon_e(&system, &source, &index, &[0, 0, 0], &assembled, &projected, None).unwrap();
     assert!(eps >= 9.0 && eps < 9.0 + 1e-12, "{eps}");
 }
 

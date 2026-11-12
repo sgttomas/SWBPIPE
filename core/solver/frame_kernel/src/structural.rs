@@ -506,13 +506,17 @@ trait Represented {
         u: &[f64],
         terms: &[ForceTerm],
     ) -> Result<LoadFidelityReport, StructuralError>;
-    /// K-D5's formation check on these equations.
+    /// K-D5's formation check on these equations. `prepared` is the stored
+    /// pattern of the prepared free block `projected` reads (`gate_pattern`),
+    /// as (row starts, columns); `None` on the dense representation.
+    #[allow(clippy::too_many_arguments)]
     fn formation_check<F>(
         &self,
         source: &FormationSource<'_>,
         ledger: Option<&AssembledForce>,
         condition: (f64,f64,f64),
         projected: &impl Fn(usize,usize)->f64,
+        prepared: Option<(&[usize], &[usize])>,
         scale_exponents: &[i32],
         u: &[f64],
         solve: &F,
@@ -576,6 +580,7 @@ impl Represented for StructuralSystem<'_> {
         ledger: Option<&AssembledForce>,
         condition: (f64,f64,f64),
         projected: &impl Fn(usize,usize)->f64,
+        _prepared: Option<(&[usize], &[usize])>,
         scale_exponents: &[i32],
         u: &[f64],
         solve: &F,
@@ -596,6 +601,9 @@ trait PreparedGate {
     where
         F: Fn(&[f64]) -> Result<Vec<f64>, StructuralError>;
     fn gate_value(&self,r:usize,c:usize)->f64;
+    /// The prepared block's stored pattern as (row starts, columns): every
+    /// (r, c) at which `gate_value` can be anything but +0.0. `None`: dense.
+    fn gate_pattern(&self) -> Option<(&[usize], &[usize])>;
     fn gate_rhs(&self) -> &[f64];
     fn gate_scale_exponents(&self) -> &[i32];
     fn gate_binding(&self) -> ForceBinding<'_>;
@@ -617,6 +625,9 @@ impl PreparedGate for PreparedSystem<'_> {
         ConditionMatrix::estimate_condition(&self.matrix[..], solve)
     }
     fn gate_value(&self,r:usize,c:usize)->f64 {self.matrix[r][c]}
+    fn gate_pattern(&self) -> Option<(&[usize], &[usize])> {
+        None
+    }
     fn gate_rhs(&self) -> &[f64] {
         &self.rhs
     }
@@ -1972,6 +1983,7 @@ where
                     force_binding.assembled(),
                     condition,
                     &|r,c|prepared.gate_value(r,c),
+                    prepared.gate_pattern(),
                     scale_exponents,
                     &u,
                     &solve,
@@ -2231,6 +2243,7 @@ impl ConfirmationAttempt<'_, '_, '_> {
             &|rhs: &[f64]| self.factor.solve(rhs),
             judged,
             Some(&self.epsilon),
+            None,
         ))
     }
 }
