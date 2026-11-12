@@ -80,7 +80,7 @@ It serves SOW-055 under OBJ-006 and OBJ-007 (`execution/_Decomposition/SOFTWARE_
 
 ## Production and Verification Method — Praxeology
 
-**Method choices.** The job registry and the worker live in the native host, and the display polls the job and renders its reports; no state is inferred in the display. The panel is a plain function of the job's latest report. Custody keeps the result in the host, and consumers read it through the same summary and page queries, or through the full-result gate where they read whole rows. Where the host and the display each implement a reading of a result, they are held to equality on a committed set of cases.
+**Method choices.** The job registry and the worker live in the native host, and the display polls the job and renders its reports; no state is inferred in the display. The panel is a plain function of the job's latest report. Custody keeps the result in the host, and consumers read it through the same summary and page queries, or through the full-result gate where they read whole rows. Where the host and the display each implement a reading of a result, they are held to equality on a committed set of cases. The gate on the Solve command reads the model checks (DEL-04-06): the session's last run where it is current for the model value, or a run made on the Solve request where none is; while Solve is withheld, the checks run again after each change of the model value. Only the solve's own checks withhold it.
 
 **How each criterion is examined.**
 

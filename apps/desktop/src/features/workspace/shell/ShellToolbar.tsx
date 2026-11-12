@@ -25,6 +25,7 @@ import {
   useSessionResults
 } from "../WorkspaceSessionContext";
 import { DisabledReason } from "./DisabledReason";
+import { solveWithheldReason } from "../solveGates";
 import { AutosaveSettingsControl, AutosaveStatus } from "../../autosave";
 
 const VIEW_ICONS: Record<ShellView, typeof Table2> = { table: Table2, model: Box, both: Columns2 };
@@ -40,7 +41,9 @@ export function ShellToolbar({ issueCount, children }: { issueCount: number; chi
   const { model } = useSessionModel();
   const { projectSummary, modelEdited, autosave } = useSessionProject();
   const { undoStack, redoStack, operationBusy, historyFailure, handleUndoSessionModelEdit, handleRedoSessionModelEdit } = useSessionOperations();
-  const { running, handleRun, handleCancelRun } = useSessionResults();
+  const { running, solveGate, handleRun, handleCancelRun } = useSessionResults();
+  // A withheld Solve stays in the tab order with its reason; pressing it names the findings in Model checks.
+  const withheldReason = solveGate.kind === "withheld" ? solveWithheldReason(solveGate) : null;
   const {
     activeSection,
     stageSurface,
@@ -105,7 +108,18 @@ export function ShellToolbar({ issueCount, children }: { issueCount: number; chi
         {running ? (
           <button type="button" className="shell-run" data-testid="toolbar-stop" onClick={() => void handleCancelRun()} title="Stop"><Square size={14} aria-hidden="true" /><span>Stop</span></button>
         ) : (
-          <button type="button" className="shell-run" data-testid="toolbar-run" onClick={() => void handleRun()} title="Run"><Play size={15} aria-hidden="true" /><span>Run</span></button>
+          <span className="shell-reason-anchor">
+            <button
+              type="button"
+              className="shell-run"
+              data-testid="toolbar-run"
+              aria-disabled={withheldReason ? true : undefined}
+              aria-describedby={withheldReason ? "toolbar-run-reason" : undefined}
+              onClick={() => void handleRun()}
+              title={withheldReason ?? "Run"}
+            ><Play size={15} aria-hidden="true" /><span>{withheldReason ? "Run withheld" : "Run"}</span></button>
+            {withheldReason ? <DisabledReason id="toolbar-run-reason" text={withheldReason} /> : null}
+          </span>
         )}
         <button
           type="button"

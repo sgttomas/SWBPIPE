@@ -126,7 +126,9 @@ export function ModelChecksPanel({
   );
 }
 
-function FindingButton({ finding, onSelectEntity }: { finding: ModelCheckFinding; onSelectEntity: (entity: EntityRef) => void }) {
+/** One finding as the Model checks list shows it: choosing it selects the entity
+ * it names. The Solve panel's withheld notice shows its findings with it too. */
+export function FindingButton({ finding, onSelectEntity }: { finding: ModelCheckFinding; onSelectEntity: (entity: EntityRef) => void }) {
   const { diagnostic, entity } = finding;
   return (
     <button
