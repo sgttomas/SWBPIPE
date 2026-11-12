@@ -47,10 +47,10 @@ silence a failure. §9 names the results and their basis; it gives no values.
   solver has no fixed vertical axis. Gravity is entered on each weight case as
   `global_z`, value −9.80665 m/s² (standard gravity, a definitional constant). Wind and
   seismic directions are named global axes.
-- **Identities.** Stable ids, so criterion 6 can compare them: `node:RS-nnn`,
-  `pipe:RS-Pnnn`, `component:RS-<tag>`, `support:RS-<tag>`, `load:RS-<tag>`,
-  `combination:RS-<tag>`, `region:<case>-<region>`, `material:RS-M1`,
-  `section:RS-S270` and so on. Node numbers step by 10, leaving room to insert.
+- **Identities.** Stable ids, so criterion 6 can compare them, for example
+  `node:RS-010`, `pipe:RS-P010`, `component:RS-B1`, `support:RS-A`, `load:RS-SUS`,
+  `combination:RS-EXP`, `region:RS-SUS-RG-1`, `material:RS-M1` and `section:RS-S270`.
+  Node numbers step by 10, leaving room to insert.
 - **Route.** `pressure_contract` `{version: "3.0.0", mode: "exact_pressure_v3",
   shear_model: "euler_bernoulli"}`.
 - **Provenance.** Every authored record carries the provenance
