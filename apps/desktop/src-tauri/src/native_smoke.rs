@@ -35,9 +35,47 @@ pub struct SmokeState {
     driver_started: Mutex<bool>,
 }
 
+/// Strict chooser mode. With this variable set to this value, a chooser asked with no answer queued ends
+/// the app at once with this exit code, before any native dialog; unset, behaviour is unchanged (other kits
+/// rely on the fall-through). A launch that must never show a native dialog sets it; the launch helper
+/// (`tools/native_launch_guard.py`, when it reaches main) keeps its own copy of these constants.
+pub(crate) const STRICT_CHOOSER_ENV: &str = "SWBPIPE_NATIVE_SMOKE_STRICT_CHOOSER";
+pub(crate) const STRICT_CHOOSER_VALUE: &str = "1";
+pub(crate) const STRICT_CHOOSER_EXIT: i32 = 86;
+
+/// Whether a chooser that found no queued answer must end the app instead of opening a native dialog.
+fn strict_stop(answer_queued: bool, mode: Option<&str>) -> bool {
+    !answer_queued && mode == Some(STRICT_CHOOSER_VALUE)
+}
+
 /// The path the next chooser (model document open or save, handoff or report package) returns, if the driver named one.
+/// In strict chooser mode, a chooser that finds no answer ends the app here (exit STRICT_CHOOSER_EXIT).
 pub fn take_chosen_path<R: Runtime>(app: &AppHandle<R>) -> Option<PathBuf> {
-    app.try_state::<SmokeState>()?.chosen.lock().ok()?.pop_front()
+    let mut taken = None;
+    if let Some(state) = app.try_state::<SmokeState>() {
+        if let Ok(mut chosen) = state.chosen.lock() {
+            taken = chosen.pop_front();
+        }
+    }
+    if strict_stop(taken.is_some(), std::env::var(STRICT_CHOOSER_ENV).ok().as_deref()) {
+        eprintln!("[native-smoke] strict chooser: a chooser was asked with no answer queued; ending the app before any native dialog (exit {STRICT_CHOOSER_EXIT})");
+        std::process::exit(STRICT_CHOOSER_EXIT);
+    }
+    taken
+}
+
+#[cfg(test)]
+mod strict_chooser_tests {
+    #[test]
+    fn a_chooser_with_no_answer_stops_only_in_strict_mode() {
+        use super::{strict_stop, STRICT_CHOOSER_VALUE};
+        assert!(strict_stop(false, Some(STRICT_CHOOSER_VALUE)));
+        assert!(!strict_stop(true, Some(STRICT_CHOOSER_VALUE)));
+        assert!(!strict_stop(false, None));
+        assert!(!strict_stop(false, Some("0")));
+        assert!(!strict_stop(false, Some("")));
+        assert_eq!(super::STRICT_CHOOSER_EXIT, 86);
+    }
 }
 
 #[tauri::command]
