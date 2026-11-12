@@ -56,16 +56,6 @@ are the user's inputs here. The standard claim fence applies.
 
 Status: candidate references, derived and cross-checked by their author TASK.
 
-- **First refutation:** a fresh reviewer re-derived all 4,884 original rows
-  independently and proved the rounding of every published number. No
-  numerical row was wrong.
-- **Second revision:** it answered those four findings, closed the open
-  reading on gravity under the decision above, and added three boundary cases.
-- **Second refutation:** all 828 boundary rows were re-derived independently.
-  The third revision then added boundary 4.
-- **This revision** relabels boundary 4 under the zero-weight decision quoted
-  below. No row changes.
-
 ## Files
 
 | File | Role |
@@ -214,15 +204,21 @@ No warning code is assumed.
 
 Under a seismic case with gravity g and g-factors k = (k_x, k_y, k_z):
 
-- **AB and CD** (unmapped, or mapped by the not-consumed flange) carry
-  q = μ·g·k in N/m, uniform over the whole member.
-- **BC** carries no distributed load. It carries q = μ·g·k when the valve is
-  not consumed (boundary 2).
-- **Node C** carries F = W_v·k and M = r_v × F. When the valve is not
-  consumed, C carries nothing.
+- **AB and CD** (unmapped, or mapped by the flange, whose weight is not
+  applied) carry q = μ·g·k in N/m, uniform over the whole member.
+- **BC, when the valve's weight is applied:** no distributed load. **Node C**
+  then carries F = W_v·k and M = r_v × F.
+- **BC, when the valve's weight is not applied:** q = μ·g·k, and C carries
+  nothing. That happens when the valve is declared not consumed (boundary 2)
+  or its entered weight is exactly zero (CTRL-ZERO-AS-NOT-APPLIED, on both
+  routes).
 
-Under the weight case, AB and CD carry q = (0, 0, −μ·g_w), BC carries nothing,
-and C carries F = (0, 0, −W_v) with M = r_v × F. That is the self-weight plan
+Under the weight case the same condition holds:
+
+- **AB and CD** carry q = (0, 0, −μ·g_w).
+- **BC, when the valve's weight is applied:** nothing. C then carries
+  F = (0, 0, −W_v) with M = r_v × F.
+- **BC, when the valve's weight is not applied:** it keeps (0, 0, −μ·g_w). That is the self-weight plan
 of DEL-05-01, with W a force that the size of the acceleration does not scale.
 
 The valve wrench in the XYZ cases (both routes) is F = (705, 822.5, 940) N and
@@ -287,10 +283,9 @@ Each case records two gravities:
 | BND-ZERO-SEISMIC-XYZ-G10 | limit | boundary 4: the decided rule as the valve's applied weight tends to zero; seismic XYZ at 10 m/s² (CANT) |
 | CTRL-ZERO-AS-NOT-APPLIED | reference | boundary 4: an entered valve weight of exactly zero, not applied, so BC keeps its load; seismic XYZ at 10 m/s² (CANT) |
 
-CTRL-K-TIMES-WEIGHT-CASE was the alternative case "ALT-O2-WEIGHT-GRAVITY" of
-the first revision. Its rows are unchanged. It is now a labelled control: the
-reading that seismic is k times the existing weight case, at the weight
-case's gravity whatever gravity the seismic case states.
+CTRL-K-TIMES-WEIGHT-CASE is a labelled control: the reading that seismic is
+k times the existing weight case, at the weight case's gravity whatever
+gravity the seismic case states.
 
 Each case has these rows:
 
@@ -576,9 +571,8 @@ It differs from the limit by k·10·μ·L_BC in force:
 
   Each is more than 10¹⁴ binary64 units of the value it changes, far above
   rounding.
-A product gate written as "nonzero weight" that passes every other fixture is
-caught here. A product that applies an entered zero weight reproduces the
-limit rows, not the document's.
+A product that applies an entered zero weight, and so removes BC's
+distributed load, reproduces the limit rows, not the document's.
 
 ## Negative controls (item 5): size of each
 
@@ -652,16 +646,23 @@ discrete outcome changed (`binary64_input_check`):
 
 - **O-1, "the same gravity": closed.** SWBPIPE's Agent 0 decided the rule
   quoted at the top: the self-weight plan evaluated at the seismic case's
-  gravity, with W held fixed. The first revision computed this reading. The
-  other reading is now control CTRL-K-TIMES-WEIGHT-CASE.
-- **O-2. When a component's weight is not applied.** DEL-03-05 states one
-  condition explicitly: declared not consumed by the solve ("solves as its
-  pipe, with its pipe weight"). That condition is the one modelled here.
+  gravity, with W held fixed. The other reading is the control
+  CTRL-K-TIMES-WEIGHT-CASE.
+- **O-2. When a component's weight is not applied.** This package models two
+  conditions:
+  - declared not consumed by the solve, which DEL-03-05 states ("solves as its
+    pipe, with its pipe weight"): the flange in the TWO cases, and both
+    components in boundary 2;
+  - an entered weight of exactly zero, under the Agent 0's decision quoted
+    above, not yet scope text: CTRL-ZERO-AS-NOT-APPLIED on both mass bases.
+    Its body keeps its scale.
+
   DEL-03-05 AC-005 also has a component that declares mechanics geometry only,
   or nothing, "and whose scale or weight is not applied", and it "states the
-  first condition that was not met". Those other conditions are not listed in
-  the text, and no case here models them. The rule it follows is the same: its
-  body solves as its pipe, and its member keeps its distributed load.
+  first condition that was not met". Any further conditions are not listed in
+  the text, and no case here models them. The rule a member follows is the
+  same whatever the condition: its component's weight is not applied, and it
+  keeps its distributed load.
 - **O-3. Sense of the g-factor.** The text says "for each global axis" and
   gives no sign. Here a positive g-factor loads along +axis, as in
   `w16_exact_equivalent_static`. The opposite convention negates every seismic

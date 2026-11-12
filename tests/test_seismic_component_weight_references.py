@@ -14,6 +14,7 @@ import json
 import re
 import subprocess
 import sys
+from fractions import Fraction
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -80,6 +81,7 @@ def test_parity_warnings_and_cross_checks_are_frozen():
                 assert par["difference_force"] == par["pipes_share_force"], case["id"]
                 assert par["difference_moment"] == par["pipes_share_moment"], case["id"]
             else:
+                assert own["holds"] is False, case["id"]
                 assert own["holds_at_the_seismic_case_gravity"] is True, case["id"]
                 assert own["difference_force"] == own["pipes_share_force"], case["id"]
                 assert own["difference_moment"] == own["pipes_share_moment"], case["id"]
@@ -125,6 +127,44 @@ def test_boundary_4_zero_weight_limit_and_document():
             assert abs(diff) > 1e9 * abs(lim_rows[f"resultant/{axis}"]["value"]) * 2.0 ** -52
         assert lim["parity"]["holds"] is False and lim["parity"]["at_the_seismic_case_gravity"]["holds"] is True
         assert zdoc["parity"]["holds"] is False
-        assert zdoc["parity"]["own_weight_case"]["holds_at_the_seismic_case_gravity"] is True
         warn = zdoc["expected_model_check_warning"]
         assert warn["expected"] is False and warn["carries_applied_component_force"] is False and warn["reason"]
+
+
+def _pi_coefficient(exact):
+    """The rational c of an exact string 'c*pi' (c = n or n/d), or 0 for the exact string '0'."""
+    if exact == "0":
+        return Fraction(0)
+    assert exact.endswith("*pi") and "+" not in exact and " " not in exact, exact
+    return Fraction(exact[:-len("*pi")])
+
+
+# Hand values from the README's mass table and boundary 4 text, independent of the frozen own-weight block:
+# mu * g_w (N/m) and the parity gap k * (10 - g_w) * mu * 23/5 (N) per axis, to the digits the README gives.
+HAND_PIPE_WEIGHT_PER_LENGTH = {"PF": 1111.846, "EX": 1213.574}
+HAND_GAP = {"PF": (32.9125, 38.3979, 43.8833), "EX": (35.9238, 41.9111, 47.8984)}
+WHOLE_LENGTH = Fraction(23, 5)  # m, A to D: every member keeps its distributed weight in this document
+
+
+def test_boundary_4_document_parity_against_its_own_weight_case():
+    doc = json.loads((REFERENCE / "references.json").read_text())
+    cases = {c["id"]: c for c in doc["cases"]}
+    k = [Fraction(v) for v in doc["inputs"]["k"]["exact"]]
+    g_w, g_s = Fraction(doc["inputs"]["g_w"]["exact"]), Fraction(doc["inputs"]["g_s_other"]["exact"])
+    for route in ("PF", "EX"):
+        own = cases[f"SCW-CANT-{route}-CTRL-ZERO-AS-NOT-APPLIED"]["parity"]["own_weight_case"]
+        mu = _pi_coefficient(doc["derived"][route]["mu"]["exact"])  # mass per length / pi, kg/m
+        # parity fails at the weight case's gravity and holds at the seismic case's own gravity
+        assert own["holds"] is False, route
+        assert own["holds_at_the_seismic_case_gravity"] is True, route
+        # the total is the full-pipe weight mu * g_w * 23/5: exactly, and against the README's hand value
+        total = own["total_weight_at_weight_gravity"]
+        assert _pi_coefficient(total["exact"]) == mu * g_w * WHOLE_LENGTH, route
+        assert abs(total["value"] - HAND_PIPE_WEIGHT_PER_LENGTH[route] * 4.6) <= 1e-6 * total["value"], route
+        # the gap k_a * (g_s - g_w) * mu * 23/5, checked without the share array: exactly and against the hand value
+        for a in range(3):
+            gap = own["difference_force"][a]
+            assert _pi_coefficient(gap["exact"]) == k[a] * (g_s - g_w) * mu * WHOLE_LENGTH, (route, a)
+            assert abs(gap["value"] - HAND_GAP[route][a]) <= 1e-5 * HAND_GAP[route][a], (route, a)
+        assert own["difference_force"] == own["pipes_share_force"], route
+        assert own["difference_moment"] == own["pipes_share_moment"], route
