@@ -520,7 +520,6 @@ EXPORT_COMMANDS = {
     # name: (needs the runner, case, argv, whether a round trip runs first in the same command)
     "export_only": (False, WRITER, ["--export-only", "--case", WRITER], False),
     "export_only_selected": (False, SELECTED, ["--export-only", "--case", SELECTED], False),
-    "authored_default": (False, AUTHORED, ["--authored", "--case", AUTHORED], True),
     "authored_export_only": (False, AUTHORED, ["--authored", "--export-only", "--case", AUTHORED], False),
     "export_mbf_flag": (True, WRITER, ["--case", WRITER, "--export-mbf"], True),
 }
@@ -554,6 +553,22 @@ def test_the_export_is_refused_by_name_before_anything_is_started_from_every_com
     if round_trip_first:  # the round trip itself ran and was published; only the export is refused
         assert current_case(world.root, case_id).run_relative == "runs/000001"
     assert current_case(world.root, case_id).export_relative == exports_before  # no export is published
+
+
+def test_the_default_authored_command_asks_for_no_export_and_succeeds(tmp_path, monkeypatch):
+    # While the export is refused, the default asks for none (it asks again once the listed-window requirement enables
+    # the route): the round trip runs and is published, and no export command or export record is made.
+    world = World(tmp_path, monkeypatch)
+    before = snapshot(world.root)
+    code, out = world.main("--authored", "--case", AUTHORED)
+    assert code == 0, out
+    assert "export route=" not in out
+    assert_append_only(before, snapshot(world.root))
+    assert not {entry["kind"] for entry in assert_guest_clean(world)} & EXPORT_KINDS
+    assert sorted(path.name for path in (world.root / "cases" / AUTHORED / "runs").iterdir()) == ["000001"]
+    assert run_record(world.root, AUTHORED, "runs/000001")["step"] == "round_trip"
+    view = current_case(world.root, AUTHORED)
+    assert view.run_relative == "runs/000001" and view.export_relative is None
 
 
 def test_the_print_fallback_is_refused_by_name_before_anything_is_started(tmp_path, monkeypatch):

@@ -43,28 +43,26 @@ series/<hypothesis_id>/<NNNNNN>.json in the exchange folder; every case whose de
 whose stored record carries a different series status is then rebuilt offline
 from its stored CSV, so its causes use the series status (Design §6, §7).
 
---export-mbf adds the export step after each case's live round trip: the guest
-opens the case's solved model in a CAEPIPE instance it starts, writes it back to
-MBF with File > Export to MBF... and stops that instance; the harness collects
-exported.mbf into the export's own new run folder and binds it there by hash (Design
-§3, §5). --export-only runs only that step, from each case's current solve, which its
-run record must bind to the current MBF, and needs no runner. In the exchange folder it
-writes only the export's new run folder (the export, its guest logs and its run
-record, which names the solve it read), the content-named copy of the guest script in
-_harness/ when absent, and a new selection once the export is checked complete; it
-takes and removes only its own run lock.
+The export step operates the program's windows and is not in force: --export-mbf and --export-only (with or
+without --authored) are each refused by name (window_route_unavailable) before anything is started, with a complete
+run record in the step's new run folder and nothing else, and --authored asks for no export by default. This changes
+back when the listed-window requirement (DEL-17-05 REQ-023, a pointer, not yet placed) enables the route. Once
+enabled: --export-mbf adds the export step after each case's live round trip, in which the guest opens the case's
+solved model in a CAEPIPE instance it starts and writes it back to MBF with File > Export to MBF..., and the harness
+collects exported.mbf into the export's own new run folder and binds it there by hash (Design §3, §5); --export-only
+runs only that step, from each case's current solve, which its run record must bind to the current MBF, and needs no
+runner.
 
 --authored runs the authored cases of validation/caepipe_correlation/authored/
 instead: invented, hand-written MBF files listed in its manifest, each exercising
 one importer mapping or one named refusal (DEL-17-04 Design §18.3). Per case the
-live round trip imports (and solves) the authored MBF as written, and the export
-step then writes the model back to caepipe_out/exported.mbf; with --export-only
-only the export step runs. No SWBPIPE solve, CSV comparison or series step runs,
+live round trip imports (and solves) the authored MBF as written; no export step runs unless --export-only asks
+for it alone, which is refused while the route is not in force. No SWBPIPE solve, CSV comparison or series step runs,
 and no runner is needed. --authored-dir takes the cases from another directory
 with the same manifest layout instead; it must lie inside the exchange folder,
 with no symbolic link on the way, so private authored files stay private, and its
 case ids must not name a tracked writer or authored case, whose stored results the
-run would otherwise be mixed with. --no-export leaves out the export step; --authored-dir
+run would otherwise be mixed with. --no-export states the default (no export step); --authored-dir
 runs never export (only the solve and its printed results are wanted there), and
 need the configuration's settings_guard. Before the first case and before each round
 trip no instance of the tool may be running that the run did not start. Each round
@@ -1187,7 +1185,8 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
                         help="with --authored, take the cases from this directory's manifest.json (inside the exchange "
                              "folder) instead of the tracked ones; implies --no-export and needs settings_guard")
     parser.add_argument("--no-export", action="store_true",
-                        help="with --authored, run the round trip only (no export step)")
+                        help="with --authored, run the round trip only (no export step; the default while the "
+                             "export is not in force)")
     parser.add_argument("--runner", help=f"openpipestress-runner executable (default: ${RUNNER_ENV})")
     parser.add_argument("--benchmark", metavar="MANIFEST",
                         help="run the generated benchmark models of this manifest (two-way comparison, guarded "
@@ -1269,8 +1268,10 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
         results = []
         try:
             for case in cases:
+                # The default asks for no export while the route is refused (window_route_unavailable); it asks for
+                # the export again when DEL-17-05 REQ-023 enables it. Only --export-only asks for it now, and is refused.
                 results.append(run_authored_case(case, config, export_only=args.export_only, directory=directory,
-                                                 no_export=args.no_export or bool(args.authored_dir)))
+                                                 no_export=True))
         except RunStopped as stopped:
             print(f"stopped after {stopped}: the guarded round trip did not end cleanly; no further case ran")
             return 1

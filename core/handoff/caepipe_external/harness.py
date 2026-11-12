@@ -3744,8 +3744,9 @@ def run_caepipe_mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str,
 
 def _export_under_requirement_23(config: HarnessConfig, case_id: str, mbf_sha256: str, *, timeout_s: float = 600,
                                  runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> dict[str, Any]:
-    """The export step as it is to run once DEL-17-05 REQ-023 (the listed-window rule) enables it. No command calls
-    this; it exists so that the tests of `_mbf_export_body` keep checking the code that change will enable."""
+    """The export step as it is to run once DEL-17-05 REQ-023 (the listed-window rule) enables it. Reachable by tests
+    only: no command calls this. It exists so that the tests of `_mbf_export_body` keep checking, while the route is
+    refused, the code that change will enable, instead of letting that code go unexamined until then."""
     return _locked(config, case_id, "mbf_export", lambda tree, run, live: _mbf_export_body(
         config, case_id, mbf_sha256, tree, run, timeout_s, runner, live),
         lambda run, started: _export_base(config, case_id, run, started, mbf_sha256))
