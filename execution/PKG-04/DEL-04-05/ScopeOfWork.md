@@ -13,7 +13,7 @@ package_objective_refs: [OBJ-003,OBJ-008]
 
 This deliverable measures the solver. On invented piping models of practical size it records how long a solve takes, how much memory it uses, where the time and memory go, and whether repeated runs give the same result. It is how the project knows, without changing the solver, whether an engineer can solve a real rack model in reasonable time on an ordinary machine, and which stage to work on when it cannot.
 
-It serves SOW-035 under OBJ-003 and OBJ-008 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-04, row DEL-04-05), and PRD §12.2 (deterministic output), §12.8 (reproducible results), §20.1 and §20.2 (public data boundary and provenance) and §25.1 (time to solve representative models). In `docs/RELEASE_TARGET_v1.0.md` it is the owning deliverable of exit criterion 9: on a 2,000-node rack model, on the 16 GiB base machine, measured by this harness, linear static in at most 10 s and nonlinear operating in at most 60 s. Both values are provisional until the owner accepts them.
+It serves SOW-035 under OBJ-003 and OBJ-008 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-04, row DEL-04-05), and PRD §12.2 (deterministic output), §12.8 (reproducible results), §20.1 and §20.2 (public data boundary and provenance) and §25.1 (time to solve representative models). In `docs/RELEASE_TARGET_v1.0.md` it is the owning deliverable of exit criterion 9: on a 2,000-node rack model, on the 16 GiB base machine, measured by this harness, linear static in at most 10 s and nonlinear operating in at most 60 s. Both values are provisional: they are Agent 0's targets, set from intended use and representative examination under the grant in `AGENTS.md` ("Posture for this phase"), and a failure alone does not justify relaxing one.
 
 - **OUT-001** — The performance harness: the reference rack models, the timing and memory measurements of the product's solve from request to displayed result, the kernel-level sparse observations, and the records that state what was measured, on what, and under which limits.
 
@@ -31,7 +31,7 @@ It serves SOW-035 under OBJ-003 and OBJ-008 (`execution/_Decomposition/SOFTWARE_
 
 ## Completion and Reliance Basis — Epistemology
 
-A measurement on one host is evidence about that host. Whether exit criterion 9 is met is decided only from a run on a 16 GiB base machine, and accepting the values is the owner's act.
+A measurement on one host is evidence about that host. Whether exit criterion 9 is met is decided only from a run on a 16 GiB base machine, and setting the values is Agent 0's decision.
 
 ### Requirements
 
@@ -46,7 +46,7 @@ A measurement on one host is evidence about that host. Whether exit criterion 9 
 
 **Undecided.**
 
-- The reading of exit criterion 9's clock and its two values become final on the owner's acceptance. Whether a stated projection from another host's speed may stand in for a base-machine run is the owner's choice; none is applied.
+- The reading of exit criterion 9's clock and its two values become final when Agent 0 decides them. Whether a stated projection from another host's speed may stand in for a base-machine run is Agent 0's choice; none is applied.
 - Limits for conditioning, and for time and memory normalized across machines, are not set.
 - Whether hosted CI records sparse performance observations is not decided.
 
@@ -83,7 +83,7 @@ A measurement on one host is evidence about that host. Whether exit criterion 9 
 
 - **AX-001** — *Measure the product, not a stand-in.* Better is a measurement closer to what a user's desktop does, end to end. This is never bought by changing product behaviour to make it measurable, or by timing a path the product does not take.
 - **AX-002** — *A shortfall must point somewhere.* Better is a record that attributes more of the time and memory to a stage. Attribution never alters a timing: sampled runs are kept apart from timed runs.
-- **AX-003** — *No invented limit.* A value that neither exit criterion 9 nor the generated-grid screen sets is recorded as an observation. An unmet target is listed for the owner in the release limitations, not relaxed and not hidden.
+- **AX-003** — *No invented limit.* A value that neither exit criterion 9 nor the generated-grid screen sets is recorded as an observation. An unmet target is listed in the release limitations, not relaxed and not hidden.
 
 ## Output and Evaluation Matrix
 
