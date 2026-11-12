@@ -373,7 +373,7 @@ before merging or arming, Agent 0 updates the branch and waits for a fresh run
 when a PR merged since the branch's base touched the same files or the same
 deliverable. Open PRs that overlap this way merge in turn: the later one stays
 unarmed until the earlier has landed and the later has been updated. Agents working under that Agent 0's assignment report a PR ready to
-merge and wait for that Agent 0 to merge it. Explicit holds and reserved decisions
+merge and wait for that Agent 0 to merge it. A Type 1 the owner started directly reports its PR ready to this project's Agent 0; where the owner works with it alone and no Agent 0 holds the project, it holds that perspective and merges under this grant. Explicit holds and reserved decisions
 apply. This grant excludes protection bypasses, history rewrites, force pushes,
 permission changes and releases. Use [Git conventions](#git-conventions) below.
 
