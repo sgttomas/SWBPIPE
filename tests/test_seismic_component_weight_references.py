@@ -85,3 +85,24 @@ def test_parity_warnings_and_cross_checks_are_frozen():
         assert warnings[f"SCW-CANT-{route}-BND-NONE-SEISMIC-XYZ-G10"] is False
         assert warnings[f"SCW-CANT-{route}-BND-ULP-SEISMIC-XYZ"] is True
         assert warnings[f"SCW-CANT-{route}-SEISMIC-XYZ-G10"] is True
+        assert warnings[f"SCW-CANT-{route}-BND-ZERO-SEISMIC-XYZ-G10"] is True
+
+
+def test_boundary_4_zero_applied_weight():
+    doc = json.loads((REFERENCE / "references.json").read_text())
+    cases = {c["id"]: c for c in doc["cases"]}
+    for route in ("PF", "EX"):
+        ref = cases[f"SCW-CANT-{route}-BND-ZERO-SEISMIC-XYZ-G10"]
+        ctl = cases[f"SCW-CANT-{route}-CTRL-ZERO-AS-NOT-APPLIED"]
+        ref_rows = {r["row"]: r for r in ref["rows"]}
+        ctl_rows = {r["row"]: r for r in ctl["rows"]}
+        # the member loses its distributed load; the component force and its couple are exactly zero
+        assert not any(row.startswith("load/BC/") for row in ref_rows)
+        assert [ref_rows[f"load/C/{a}"]["exact"] for a in ("Fx", "Fy", "Fz", "Mx", "My", "Mz")] == ["0"] * 6
+        # the wrong gate keeps the member's load and differs far above rounding
+        assert all(f"load/BC/{q}" in ctl_rows for q in ("qx", "qy", "qz"))
+        for axis in ("Fx", "Fy", "Fz"):
+            diff = ctl["resultant_difference"][axis]["value"]
+            assert abs(diff) > 1e9 * abs(ref_rows[f"resultant/{axis}"]["value"]) * 2.0 ** -52
+        assert ref["parity"]["holds"] is False and ref["parity"]["at_the_seismic_case_gravity"]["holds"] is True
+        assert ctl["parity"]["holds"] is False
