@@ -9,33 +9,56 @@
 // (`tools/t3_slot.sh` is the shared development host's slot wrapper,
 // `/Users/ryan/dev/chirality-t3/tools/t3_slot.sh` there.) Journeys, each in its own throwaway HOME:
 //
-//   report-pressure-free  1 launch. The bundled demo: solve (sparse), render the local-private report,
-//                         File > Save Shareable Report Package… through the dialog's own tick box and
-//                         statement, the save chooser answered by script; the dialog opened again (it starts
-//                         unticked) and cancelled; File > Save Report Package… (local private); Save Model
-//                         Document… of the session.
+//   report-pressure-free  1 launch. The bundled demo: solve (sparse); an observation of selection by keyboard
+//                         (below); render the local-private report; File > Save Shareable Report Package…
+//                         through the dialog's own tick box and statement, the save chooser answered by
+//                         script; the dialog opened again (it starts unticked) and cancelled; File > Save
+//                         Report Package… (local private); Save Model Document… of the session; an
+//                         observation of "Save canonical HTML" (below).
 //   report-exact          1 launch. The same on the exact route, after File > Open Model Document… of
-//                         `fixtures/model_operations/exact_pressure_authoring_model.json`.
+//                         `fixtures/model_operations/exact_pressure_authoring_model.json`, without the
+//                         selection observation.
 //   autosave-recovery     2 launches. A fresh settings folder: the interval as first shown, turned off (the
 //                         notice) and on at DEL-02-05's shortest choice through the product's own control; the
-//                         demo saved as a local project; a checkpoint with a read-only copy of the store; node
-//                         N-100 edited and left unsaved; Save Model Document… (the session's document before the
-//                         end). The runner waits for the record of that model in the autosave folder and ends the
-//                         app with SIGKILL. The relaunch shows the recovery offer; the window is read before any
-//                         choice and again after a pause; Open autosave; Save Model Document… of the recovered
-//                         session. The store is compared, row by row, before and after the whole sequence.
+//                         demo saved as a local project; a checkpoint with a read-only copy of the store; a
+//                         first edit (node N-100), left unsaved; once the product reports a record written, a
+//                         second edit (node N-110) at once. The runner ends the app with SIGKILL as soon as the
+//                         second edit has landed, before the next interval, and reads the autosave folder at
+//                         that moment: no record of the second edit may exist. The bound: the first edit's
+//                         record is no more than one interval old at the end, and the work lost (the second
+//                         edit) spans less than one interval. The autosave timer is one setInterval per
+//                         interval setting and an edit does not restart it (apps/desktop/src/features/autosave/
+//                         useAutosave.ts:147-151), so the next write comes one interval after the first record's.
+//                         The relaunch shows the recovery offer; the window is read before any choice and again
+//                         after a pause; Open autosave; Save Model Document… of the recovered session: its model
+//                         hash is the record's, with the first edit and without the second. The store is
+//                         compared, row by row, before and after the whole sequence.
 //
-// What these journeys do not observe, and why: the print of the rendered report and the "Save canonical
+// Observations, printed as OBSERVED lines, pass or fail nothing:
+// - "Save canonical HTML", in each report journey: the control pressed once, the app watched for
+//   SAVE_HTML_WINDOW_MS; the app lists the throwaway home before and after (native_smoke_checkpoint), a
+//   chooser path is queued first so a chooser the press reached would take it and show nothing, and the
+//   page's location, dialogs and IPC response are read. Read from the sources (below), nothing is saved.
+// - Selection by keyboard, in report-pressure-free after the solve, for the model tree, the results table,
+//   the displacement extremes table and the support load summary: no surface offers a select-all or copy
+//   of its own; each is focused and WebKit's SelectAll editing command, the one Edit > Select All (⌘A)
+//   sends, is run in the page; the selection's text, which is what Copy takes, is compared with the text
+//   the surface shows. Copy is not pressed and the system pasteboard is neither written nor read. Not
+//   covered: the key press itself and the Copy menu item's enabled state; reading either needs
+//   Objective-C calls from native code, and native_smoke.rs may not hold `unsafe` code (the shell's
+//   unsafe-code list is pinned by the user-release reach scan).
+//
+// What these journeys do not check, and why: the print of the rendered report and the "Save canonical
 // HTML" link. Read from the sources of this build's webview stack (tauri 2.11.1, wry 0.55.1), the
 // product's print call (`contentWindow.print()` of a srcdoc iframe, RenderedReportPanel.tsx) reaches no
 // native print dialog: Tauri replaces `window.print` with its native print command only in the main frame
 // (tauri src/webview/plugin.rs init(), `js_init_script`, for_main_frame_only: true), and wry's WKUIDelegate
 // implements no print delegate method (wry src/wkwebview/class/wry_web_view_ui_delegate.rs), which WebKit
-// needs to show a print panel for a frame's `window.print()`. The data: link with `download` is a
-// download navigation; wry cancels it when no download handler is set (wry src/wkwebview/navigation.rs,
-// navigation_policy), and the app sets none (its window comes from tauri.conf.json, no `on_download`).
-// Both are product shortfalls, reported to the assigner with the change that would make each work; no
-// journey checks them, so none passes or fails on them.
+// needs to show a print panel for a frame's `window.print()`. Print is not pressed: were that reading
+// wrong, a system print panel would appear that nothing in the journey may dismiss. The data: link with
+// `download` is a download navigation; wry cancels it when no download handler is set (wry
+// src/wkwebview/navigation.rs, navigation_policy), and the app sets none (its window comes from
+// tauri.conf.json, no `on_download`). Both are product shortfalls, repaired as a separate unit.
 //
 // Terms every launch runs under, made true here by construction:
 // - a private copy of the app built from this worktree's head with the `native-smoke` cargo feature
@@ -53,7 +76,9 @@
 // - under the worktree build lock (`scripts/worktreeBuildLock.mjs`), from the build through the last launch;
 // - before every launch, the screen session is read (`ioreg -n Root -d1 -a`, CGSSessionScreenIsLocked): if
 //   it is locked the runner prints "session locked" and stops, without retrying;
-// - no page reaches a printer: no journey activates the print control;
+// - no page reaches a printer and no system dialog is meant to appear: no journey presses Print, and the
+//   only press of "Save canonical HTML" has a chooser path queued, so a chooser it reached would show nothing;
+// - the system pasteboard is neither written nor read;
 // - every cargo build the runner starts, directly or through `npm run build:wasm`, has at most 4 build
 //   jobs: CARGO_BUILD_JOBS=4 is set in the environment (lowered to 4 when larger) before any build. The
 //   engine stamps count CARGO_BUILD_* as build context, so an engine last stamped without it is rebuilt
@@ -96,10 +121,12 @@ const argv = process.argv.slice(2);
 const args = new Set(argv);
 const JOURNEYS = ["report-pressure-free", "report-exact", "autosave-recovery"];
 // The named timeouts (ms). ui: a control's response to a click; step: a dialog, the shell at start, the
-// settings read, an applied edit, the recovery offer; solve: one sparse solve; save: a render, a package
-// save, a model document save. record: the runner's wait for the autosave record of the edited model
-// (one interval of 1 minute, plus the write, on a loaded host). launch: one whole launch.
-const TIMEOUTS = { ui: 60_000, step: 300_000, solve: 900_000, save: 900_000 };
+// settings read, an applied edit, the recovery offer, the results table for the selection observation;
+// solve: one sparse solve; save: a render, a package save, a model document save; record: the driver's
+// wait for the product to report the first edit's record (one interval of 1 minute plus the write, on a
+// loaded host). The runner waits record + 2 × step for the second edit before it ends the app regardless,
+// and PHASE_TIMEOUT_MS for one whole launch.
+const TIMEOUTS = { ui: 60_000, step: 300_000, solve: 900_000, save: 900_000, record: 600_000 };
 const RECORD_WAIT_MS = 10 * 60 * 1000;
 const PHASE_TIMEOUT_MS = 45 * 60 * 1000;
 const TAURI_CONF = JSON.parse(readFileSync(path.join(tauriDir, "tauri.conf.json"), "utf8"));
@@ -149,9 +176,17 @@ const LOCAL_PROFILE = "desktop_local_private_report_package_1";
 const CONTRACT = (route) => `openpipestress.result_semantics/0.3.0/${route}`;
 const ROUTE_CONTRACTS = { "pressure-free": [CONTRACT("preview-physics-2")], exact: [CONTRACT("pressure-2"), CONTRACT("pressure-source-1")] };
 // The node the autosave journey edits, and the value it enters (any value the demo does not hold).
+// The two edits of the autosave journey: the first is recorded; the second, made after that record and
+// lost at the end, must not be in what is recovered.
 const EDIT = { node: "node:N-100", y: "0.25" };
+const SECOND_EDIT = { node: "node:N-110", y: "0.75" };
 const editedNode = demo.nodes.find((node) => node.id === EDIT.node);
-if (!editedNode || String(editedNode.position.y) === EDIT.y) refuse(`${DEMO_FIXTURE} no longer has ${EDIT.node} at a y other than ${EDIT.y}`);
+const secondNode = demo.nodes.find((node) => node.id === SECOND_EDIT.node);
+for (const [node, edit] of [[editedNode, EDIT], [secondNode, SECOND_EDIT]]) {
+  if (!node || String(node.position.y) === edit.y) refuse(`${DEMO_FIXTURE} no longer has ${edit.node} at a y other than ${edit.y}`);
+}
+// The report journeys' observation of "Save canonical HTML": how long the app is watched after the press.
+const SAVE_HTML_WINDOW_MS = 20_000;
 
 const commandFailed = (command, commandArgs, result) =>
   new Error(`Command failed: ${command} ${commandArgs.join(" ")}${result.error ? ` (${result.error.message})` : ""}`);
@@ -254,7 +289,7 @@ function journeyRoot(name) {
 
 // One launch of the private copy with `plan`. With `whileRunning`, that function is polled while the
 // app runs; when it returns a value the app is ended with SIGKILL and the value is returned with the outcome.
-async function launch(where, plan, whileRunning = null) {
+async function launch(where, plan, whileRunning = null, waitLimitMs = RECORD_WAIT_MS) {
   const report = path.join(where.root, `report-${plan.phase}.json`);
   console.log(`\n== ${journey}: phase ${plan.phase} (HOME=${where.home})`);
   if (guardSession()) await new Promise(() => {});
@@ -284,8 +319,8 @@ async function launch(where, plan, whileRunning = null) {
         ended = { value, pid, at };
         break;
       }
-      if (Date.now() - started > RECORD_WAIT_MS) {
-        console.error(`${journey}: TIMEOUT waiting for the autosave record of the edited model: ${Math.round((Date.now() - started) / 1000)} s elapsed of a ${RECORD_WAIT_MS / 1000} s limit; load average ${loadNow()} (1/5/15 min), on ${os.cpus().length} processors`);
+      if (Date.now() - started > waitLimitMs) {
+        console.error(`${journey}: TIMEOUT waiting for the condition to end the app (phase ${plan.phase}): ${Math.round((Date.now() - started) / 1000)} s elapsed of a ${Math.round(waitLimitMs / 1000)} s limit; load average ${loadNow()} (1/5/15 min), on ${os.cpus().length} processors`);
         ended = { value: null, pid: null, at: Date.now(), timed_out: true, load: os.loadavg() };
         break;
       }
@@ -336,7 +371,11 @@ async function reportJourney(route) {
     copyFileSync(path.join(project, EXACT_FIXTURE), open);
     projectId = exactDocument.project.id;
   }
-  const { report } = await launch(where, { phase: "report", route, open, project_id: projectId, bundled_project_id: demo.project.id, ...files });
+  const sentinel = path.join(where.saved, "chooser-sentinel.html");
+  const { report } = await launch(where, {
+    phase: "report", route, open, project_id: projectId, bundled_project_id: demo.project.id, ...files,
+    observe_selection: route === "pressure-free", sentinel_chooser_path: sentinel, save_html_window_ms: SAVE_HTML_WINDOW_MS
+  });
   check("the journey completed", report.ok, failure(report));
   check("solved: the job completed, its proof bound to the session's project", report.solve?.summary?.includes("state=completed") && report.solve?.proof?.includes(`project=${projectId}`), report.solve?.summary);
   check("local-private report rendered, export gates passed", /^Canonical HTML SHA-256: [0-9a-f]{64}$/.test(report.render?.hash ?? "") && report.render.gate === "export gates passed", report.render && { hash: report.render.hash, gate: report.render.gate, error: report.render.error });
@@ -364,7 +403,39 @@ async function reportJourney(route) {
   check("the next package is saved local private, with no user release recorded",
     localStatus.outcome === "saved" && localStatus.code === "REPORT-PACKAGE-SAVED" && local.user_release_status === null && existsSync(files.local_package), { status: local.status, user_release: local.user_release_status });
   judgePackage("next (local-private) package", files.local_package, local, { route, profile: LOCAL_PROFILE, userReleased: false, modelSha256: model.sha256 });
+  observeSelection(report.selection);
+  observeSaveHtml(where, report.save_html, sentinel);
   return where;
+}
+
+// Observations print OBSERVED lines and are not checks: they record what the app did and pass or fail nothing.
+const observe = (text, detail) => console.log(`OBSERVED  ${journey}: ${text}${detail === undefined ? "" : `  [${typeof detail === "string" ? detail : JSON.stringify(detail)}]`}`);
+
+function observeSelection(selection) {
+  if (!Array.isArray(selection)) return;
+  observe("selection by keyboard: no surface has a select-all or copy of its own; Select All (the editing command ⌘A sends) selects the whole page; Copy was not pressed and the system pasteboard was neither written nor read");
+  for (const item of selection) {
+    if (!item.present) { observe(`${item.surface}: not on screen`); continue; }
+    observe(`${item.surface}: Select All ${item.select_all_command ? "ran" : "did not run"}; the selection ${item.selection_includes_shown_text ? "includes" : "does not include"} the text the surface shows${item.selection_is_shown_text ? " and is exactly it" : ", and is not only it"}; a selection of the surface alone ${item.surface_range_is_shown_text ? "gives" : "does not give"} its shown text`,
+      { focused: item.focused, selection_chars: item.selection_chars, shown_chars: item.shown_chars, rows_rendered: item.rows_rendered, summary: item.summary, page: item.page, position: item.position });
+  }
+}
+
+function observeSaveHtml(where, saved, sentinel) {
+  if (!saved?.control) { observe("Save canonical HTML: no control on screen", saved); return; }
+  const listing = (name) => readJson(path.join(where.root, `report-report.json.${name}.json`))?.home_listing ?? null;
+  const before = listing("before-save-html");
+  const after = listing("after-save-html");
+  const key = (file) => `${file.path}\u0000${file.bytes}\u0000${file.modified_unix_millis}`;
+  const known = new Set((before?.files ?? []).map(key));
+  const appeared = (after?.files ?? []).filter((file) => !known.has(key(file))).map((file) => file.path);
+  const downloads = appeared.filter((name) => name.startsWith("Downloads/"));
+  const named = appeared.filter((name) => saved.download && name.endsWith(saved.download));
+  observe(`Save canonical HTML pressed once (${saved.tag} ${saved.href_scheme}: link, download="${saved.download}"); watched for ${Math.round(saved.window_ms / 1000)} s`);
+  observe(`Save canonical HTML: files new or changed under the throwaway home: ${appeared.length} (in Downloads: ${downloads.length}; named as the download: ${named.length})`, appeared.slice(0, 20));
+  observe(`Save canonical HTML: the queued chooser path was ${saved.chooser_paths_unused === 1 ? "never asked for (no save chooser reached)" : `taken or missing (unused paths: ${saved.chooser_paths_unused})`}; the sentinel file ${existsSync(sentinel) ? "exists" : "does not exist"}`);
+  observe(`Save canonical HTML: the page ${saved.location_changed ? "navigated away" : "stayed"}; dialogs in the page: ${saved.dialogs_in_page}; the app answered IPC in ${saved.ipc_round_trip_ms} ms; status line`, saved.status_line);
+  observe("Print: not pressed. The print frame's print() reaches no print delegate in this build's webview stack, and a native print panel, if one appeared against that reading, is a system dialog nothing in the journey may dismiss");
 }
 
 function judgePackage(label, file, record, { route, profile, userReleased, modelSha256 }) {
@@ -415,23 +486,27 @@ async function autosaveJourney() {
   const where = journeyRoot("autosave-recovery");
   const autosaveDir = path.join(where.data, "autosave");
   const storeFile = path.join(where.data, "openpipestress-projects.sqlite3");
-  const files = { before_end: path.join(where.saved, "before-end.json"), recovered: path.join(where.saved, "recovered.json") };
+  const files = { recovered: path.join(where.saved, "recovered.json") };
   const intervalMs = INTERVAL.shortest_minutes * 60_000;
   check("a fresh settings folder: the app's data folder does not exist before the first launch", !existsSync(where.data), where.data);
   const checkpoint = (name) => readJson(path.join(where.root, `report-autosave-end.json.${name}.json`));
-  // The record of the session's model before the end, once the driver has saved that model.
-  const recordOfEditedModel = () => {
-    const edited = checkpoint("edited");
-    if (!edited) return null;
-    const sha = savedDocument(files.before_end).sha256;
-    if (!sha || !existsSync(autosaveDir)) return null;
-    const name = readdirSync(autosaveDir).find((entry) => parseAutosaveName(entry)?.model_hash === sha);
-    return name ? { name, bytes: readFileSync(path.join(autosaveDir, name)), edited } : null;
+  const records = () => (existsSync(autosaveDir) ? readdirSync(autosaveDir).filter((entry) => parseAutosaveName(entry) !== null) : []);
+  // Once the second edit has landed: the end comes at once, before the interval after the first record
+  // elapses, and the folder is read at that moment. If a record of another model is already there, or the
+  // interval has passed, the case could not be arranged: the app is still ended, and that is reported.
+  const atSecondEdit = () => {
+    const second = checkpoint("second-edit");
+    if (!second) return null;
+    const names = records();
+    // The first edit's record: the newest written before the second edit began.
+    const firstName = names.filter((entry) => parseAutosaveName(entry).written_unix_millis < second.second_edit.started_at)
+      .sort((a, b) => parseAutosaveName(b).written_unix_millis - parseAutosaveName(a).written_unix_millis)[0] ?? null;
+    return { second, names, first_name: firstName, first_bytes: firstName ? readFileSync(path.join(autosaveDir, firstName)) : null };
   };
   const first = await launch(where, {
     phase: "autosave-end", bundled_project_id: demo.project.id, project_id: demo.project.id,
-    interval_minutes: INTERVAL.shortest_minutes, edit: EDIT, model_document: files.before_end
-  }, recordOfEditedModel);
+    interval_minutes: INTERVAL.shortest_minutes, edit: EDIT, second_edit: SECOND_EDIT
+  }, atSecondEdit, TIMEOUTS.record + 2 * TIMEOUTS.step);
   const end = first.report;
   const before = checkpoint("before-edit");
   const edited = checkpoint("edited");
@@ -446,31 +521,42 @@ async function autosaveJourney() {
   check("the product's settings file holds the shortest interval", settings?.autosave_minutes === INTERVAL.shortest_minutes, settings);
   const snapshot = path.join(where.root, "report-autosave-end.json.before-edit.store.sqlite3");
   const storeBefore = existsSync(snapshot) ? storeDump(snapshot, path.join(where.root, "dump-before")) : null;
-  check("the demo saved as a local project, and the store copied before the edit", before?.saved_project?.includes("Created local SQLite project snapshot") && storeBefore?.includes(demo.project.id), before?.saved_project);
-  check("node N-100 edited and the session marked edited, before and after Save Model Document…", edited?.edit?.summary && /Edited/.test(edited.edit.edited ?? "") && /Edited/.test(edited.edited_after_save ?? ""), edited?.edit);
-  const sessionEnd = savedDocument(files.before_end);
-  check("the session's document before the end saved as its own RFC 8785 text, the edit in it",
-    sessionEnd.canonical && sessionEnd.document?.nodes?.find((node) => node.id === EDIT.node)?.position?.y !== editedNode.position.y, sessionEnd.sha256);
+  check("the demo saved as a local project, and the store copied before the edits", before?.saved_project?.includes("Created local SQLite project snapshot") && storeBefore?.includes(demo.project.id), before?.saved_project);
+  check("first edit (node N-100) applied and the session marked edited", edited?.edit?.summary && /Edited/.test(edited.edit.edited ?? ""), edited?.edit);
+  const y = (document, id) => document?.nodes?.find((node) => node.id === id)?.position?.y;
   const ended = first.ended;
-  check("the app ended without warning: its process found and sent SIGKILL once the record was on disk, and it wrote no final report",
-    ended && !ended.timed_out && ended.pid !== null && ended.value && !first.report_written, ended && { pid: ended.pid, timed_out: ended.timed_out ?? false, load_at_timeout: ended.load?.map((value) => Number(value.toFixed(2))), report: first.report_written });
-  const record = ended?.value ?? null;
-  if (record) {
+  const at = ended?.value ?? null;
+  const second = at?.second?.second_edit ?? null;
+  check("the product reported a record written after the first edit, then the second edit (node N-110) applied",
+    /^Autosaved at /.test(at?.second?.first_record_status ?? "") && second?.summary && second.at >= second.started_at, at?.second && { status: at.second.first_record_status, second });
+  check("the app ended without warning: its process found and sent SIGKILL after the second edit, and it wrote no final report",
+    ended && !ended.timed_out && ended.pid !== null && at && !first.report_written, ended && { pid: ended.pid, timed_out: ended.timed_out ?? false, load_at_timeout: ended.load?.map((value) => Number(value.toFixed(2))), report: first.report_written });
+  const record = at?.first_name ? { name: at.first_name, bytes: at.first_bytes } : null;
+  let recordDocument = null;
+  try { recordDocument = record ? JSON.parse(record.bytes.toString("utf8")) : null; } catch { recordDocument = null; }
+  if (record && second) {
     const judged = judgeAutosaveRecord({ name: record.name, bytes: record.bytes, projectId: demo.project.id, endedAt: ended.at, intervalMs, notBefore: edited.edit.at - 1000 });
-    check("the record's name parses and its slot is the demo project's", judged.name_parses && judged.slot_is_project, record.name);
-    check("the record is RFC 8785 text whose SHA-256 is its name's model hash, the session's model before the end",
-      judged.canonical_text && judged.bytes_hash_is_name_hash && judged.document_hash_is_name_hash && judged.model_hash === sessionEnd.sha256, judged.model_hash);
-    check(`the record was written after the edit and no more than one interval (${intervalMs} ms) before the end`, judged.within_one_interval && judged.after_the_edit, { age_at_end_ms: judged.age_at_end_ms });
+    check("the first edit's record: its name parses and its slot is the demo project's", judged.name_parses && judged.slot_is_project, record.name);
+    check("the first edit's record is RFC 8785 text whose SHA-256 is its name's model hash",
+      judged.canonical_text && judged.bytes_hash_is_name_hash && judged.document_hash_is_name_hash, judged.model_hash);
+    check("the first edit's record holds the first edit (node N-100 moved) and not the second (node N-110 as in the demo)",
+      y(recordDocument, EDIT.node) !== undefined && y(recordDocument, EDIT.node) !== editedNode.position.y && y(recordDocument, SECOND_EDIT.node) === secondNode.position.y,
+      { [EDIT.node]: y(recordDocument, EDIT.node), [SECOND_EDIT.node]: y(recordDocument, SECOND_EDIT.node) });
+    check("the first edit's record was on disk before the second edit began", judged.written_unix_millis !== null && judged.written_unix_millis < second.started_at, { written: judged.written_unix_millis, second_started: second.started_at });
+    check("at the end no record of the second edit exists: every record on disk holds the first edit's model",
+      at.names.length > 0 && at.names.every((name) => parseAutosaveName(name).model_hash === judged.model_hash), at.names);
+    check(`the end came before the next interval: the first edit's record no more than one interval (${intervalMs} ms) old`, judged.within_one_interval && judged.after_the_edit, { age_at_end_ms: judged.age_at_end_ms });
+    check(`the work lost (the second edit) spans less than one interval: ${intervalMs} ms`, ended.at - second.at < intervalMs && ended.at >= second.at, { second_edit_at: second.at, ended_at: ended.at, lost_span_ms: ended.at - second.at });
     const after = existsSync(path.join(autosaveDir, record.name)) ? readFileSync(path.join(autosaveDir, record.name)) : null;
-    check("after the end the record is on disk unchanged", after && Buffer.compare(after, record.bytes) === 0, record.name);
+    check("after the end the first edit's record is on disk unchanged", after && Buffer.compare(after, record.bytes) === 0, record.name);
   } else {
-    check("a record of the session's model appeared in the autosave folder", false, existsSync(autosaveDir) ? readdirSync(autosaveDir) : "no autosave folder");
+    check("the first edit's record was on disk when the second edit had landed", false, at ? at.names : (existsSync(autosaveDir) ? readdirSync(autosaveDir) : "no autosave folder"));
   }
   const storeAfterEnd = storeDump(storeFile, path.join(where.root, "dump-after-end"));
   check("after the end the store's rows are the copy taken before the edit", storeBefore !== null && storeAfterEnd === storeBefore);
 
-  const second = await launch(where, { phase: "autosave-reopen", bundled_project_id: demo.project.id, project_id: demo.project.id, hold_ms: 3000, model_document: files.recovered });
-  const reopen = second.report;
+  const relaunch = await launch(where, { phase: "autosave-reopen", bundled_project_id: demo.project.id, project_id: demo.project.id, hold_ms: 3000, model_document: files.recovered });
+  const reopen = relaunch.report;
   check("relaunch: the journey completed", reopen.ok, failure(reopen));
   const hash = record ? parseAutosaveName(record.name).model_hash : null;
   check("relaunch: the offer is made for the demo's record, naming its model hash, with Open offered",
@@ -481,8 +567,11 @@ async function autosaveJourney() {
     { before: reopen.before_choice, later: reopen.before_choice_later });
   check("Open autosave opens the record, no stored project changed", /^Opened the autosave of .+\. No stored project was changed\.$/.test(reopen.opened ?? ""), reopen.opened);
   const recovered = savedDocument(files.recovered);
-  check("the recovered session's document has the model hash the record's name carries, the session's before the end",
-    recovered.canonical && hash !== null && recovered.sha256 === hash && recovered.sha256 === sessionEnd.sha256, recovered.sha256);
+  check("the recovered document has the model hash the record's name carries",
+    recovered.canonical && hash !== null && recovered.sha256 === hash, recovered.sha256);
+  check("the recovered model holds the first edit and not the second",
+    y(recovered.document, EDIT.node) === y(recordDocument, EDIT.node) && y(recovered.document, EDIT.node) !== editedNode.position.y && y(recovered.document, SECOND_EDIT.node) === secondNode.position.y,
+    { [EDIT.node]: y(recovered.document, EDIT.node), [SECOND_EDIT.node]: y(recovered.document, SECOND_EDIT.node) });
   const storeAfter = storeDump(storeFile, path.join(where.root, "dump-after"));
   check("the store's rows after the whole sequence are the copy taken before it", storeBefore !== null && storeAfter === storeBefore);
   return where;

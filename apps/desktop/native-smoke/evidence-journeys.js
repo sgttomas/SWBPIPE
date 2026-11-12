@@ -16,8 +16,9 @@
 //                     session's model document.
 //   autosave-end    - read the autosave setting on the fresh settings folder, turn it off and on at
 //                     the shortest interval, save the demo as a local project, checkpoint (with a copy
-//                     of the store), edit node N-100 and leave it unsaved, save the session's model
-//                     document, checkpoint again, and wait: the runner ends the app with SIGKILL.
+//                     of the store), edit node N-100 and leave it unsaved, wait for the product to report
+//                     a record written, edit node N-110 at once, checkpoint, and wait: the runner ends the
+//                     app with SIGKILL before the next interval.
 //   autosave-reopen - read the recovery offer and the window before any choice, choose Open
 //                     autosave, and save the session's model document.
 (() => {
@@ -36,7 +37,7 @@
   // states them; this host runs loaded). A timeout names itself, its elapsed time and the moment it
   // ended (`at <unix ms>`), so the runner can read the load average then and tell a slow host from a
   // product that never showed the condition.
-  let T = { ui: 60000, step: 300000, solve: 900000, save: 900000 };
+  let T = { ui: 60000, step: 300000, solve: 900000, save: 900000, record: 600000 };
   async function waitFor(label, probe, timeoutMs = T.step) {
     const started = Date.now();
     for (;;) {
@@ -248,12 +249,108 @@
       await waitFor("opened model in the model tree", () => treeRow(plan.project_id));
     }
     report.solve = await solve(plan.route, plan.project_id);
+    if (plan.observe_selection) report.selection = await observeSelection();
     report.render = await renderLocalPrivateReport(`${plan.route}/render`);
     report.user_released = await saveUserReleasedPackage(plan.user_released_package, `${plan.route}/user-released`);
     if (!report.user_released.status?.startsWith("outcome=saved")) throw new Error(`user-released package not saved: ${report.user_released.refusal ?? report.user_released.status}`);
     report.reopened_dialog = await reopenUserReleaseDialog();
     report.local = await saveLocalPackage(plan.local_package, `${plan.route}/local`);
     report.model_document = await saveModelDocument(plan.model_document, `${plan.route}/model-document`);
+    report.save_html = await observeSaveCanonicalHtml(plan, report);
+  }
+
+  // ------------------------------------------------------------ observations (recorded, not judged)
+
+  const flat = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
+  // Selection by keyboard. No surface offers a select-all or copy of its own (no handler in the
+  // desktop source); the keyboard's Select All (Edit > Select All, ⌘A, lib.rs's predefined item) sends
+  // `selectAll:` to the webview, which runs WebKit's SelectAll editing command, the command
+  // `document.execCommand("selectAll")` runs. The surface is focused first, as Tab would focus it, and
+  // the selection's text (what Copy would take) is read; Copy itself is not pressed and the system
+  // pasteboard is neither written nor read.
+  async function observeSelection() {
+    await showSection("results");
+    await waitFor("results table rows", () => document.querySelector('[data-testid^="result-row-dual-"]'), T.step);
+    const surfaces = [
+      ["model tree", () => document.querySelector('[aria-label="Model"]'), () => ({ rows_rendered: document.querySelectorAll('[data-testid^="tree-row-"]').length })],
+      ["results table", () => document.querySelector('[data-testid^="result-row-dual-"]')?.closest("table"), () => ({ rows_rendered: document.querySelectorAll('tr[data-testid^="result-row-"]').length, summary: text("result-filter-summary") })],
+      ["displacement extremes table", () => byTestId("displacement-extremes-table"), () => ({ rows_rendered: byTestId("displacement-extremes-table")?.querySelectorAll("tbody tr").length ?? 0, page: text("displacement-extremes-page") })],
+      ["support load summary", () => byTestId("support-load-summary"), () => ({ rows_rendered: byTestId("support-load-summary")?.querySelectorAll("tbody tr").length ?? 0, position: text("support-load-position") })]
+    ];
+    const observed = [];
+    for (const [name, find, extent] of surfaces) {
+      const surface = find();
+      if (!surface) { observed.push({ surface: name, present: false }); continue; }
+      const focusable = surface.matches("[tabindex], a[href], button, input, select, textarea") ? surface
+        : surface.querySelector('[tabindex]:not([tabindex="-1"]), a[href], button:not([disabled])');
+      if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+      if (focusable && !(focusable instanceof HTMLInputElement || focusable instanceof HTMLTextAreaElement || focusable instanceof HTMLSelectElement)) focusable.focus();
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      const command = document.execCommand("selectAll");
+      const selected = selection.toString();
+      const shown = surface.innerText;
+      // The surface's own text as a selection would give it (a range over just the surface; not a
+      // keyboard action, for comparison only).
+      const range = document.createRange();
+      range.selectNodeContents(surface);
+      const surfaceRange = range.toString();
+      observed.push({
+        surface: name, present: true,
+        focused: document.activeElement === focusable ? focusable.tagName.toLowerCase() + (focusable.getAttribute("role") ? `[role=${focusable.getAttribute("role")}]` : "") : null,
+        select_all_command: command,
+        selection_chars: selected.length,
+        selection_contains_surface: selection.containsNode(surface, true),
+        selection_includes_shown_text: flat(shown).length > 0 && flat(selected).includes(flat(shown)),
+        selection_is_shown_text: flat(selected) === flat(shown),
+        surface_range_is_shown_text: flat(surfaceRange) === flat(shown),
+        shown_chars: shown.length,
+        ...extent()
+      });
+      selection.removeAllRanges();
+    }
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    return observed;
+  }
+
+  // "Save canonical HTML" pressed once: what the app does, from inside it. A chooser path is queued
+  // first, so a chooser the press reached would take it (and show nothing); one still queued afterwards
+  // was never asked for. The throwaway home is listed by the app before and after the wait.
+  async function observeSaveCanonicalHtml(plan, report) {
+    await showSection("report");
+    const link = byTestId("rendered-report-save-local-private") ?? byTestId("rendered-report-save");
+    const observed = { control: link ? link.getAttribute("data-testid") : null };
+    if (!link) return observed;
+    Object.assign(observed, {
+      tag: link.tagName.toLowerCase(),
+      href_scheme: (link.getAttribute("href") ?? "").split(":")[0] || null,
+      download: link.getAttribute("download"),
+      print_control: Boolean(byTestId("rendered-report-print")),
+      location_before: String(window.location)
+    });
+    await call("native_smoke_checkpoint", { name: "before-save-html", report: { ...report, save_html: observed }, storeSnapshot: false, homeListing: true });
+    await call("native_smoke_choose", { path: plan.sentinel_chooser_path });
+    observed.pressed_at = Date.now();
+    link.click();
+    // An observation window for something not to happen, not a wait for a condition.
+    const deadline = Date.now() + plan.save_html_window_ms;
+    let locationChanged = false;
+    while (Date.now() < deadline) {
+      if (String(window.location) !== observed.location_before) locationChanged = true;
+      await sleep(250);
+    }
+    const started = Date.now();
+    await call("native_smoke_plan");
+    Object.assign(observed, {
+      window_ms: plan.save_html_window_ms,
+      location_changed: locationChanged || String(window.location) !== observed.location_before,
+      dialogs_in_page: document.querySelectorAll('[role="dialog"], [role="alertdialog"]').length,
+      ipc_round_trip_ms: Date.now() - started,
+      chooser_paths_unused: await call("native_smoke_clear_choices"),
+      status_line: message()
+    });
+    await call("native_smoke_checkpoint", { name: "after-save-html", report: { ...report, save_html: observed }, storeSnapshot: false, homeListing: true });
+    return observed;
   }
 
   // ------------------------------------------------------------ autosave
@@ -271,8 +368,10 @@
   }
   const offNotices = () => ({ off_notice: text("autosave-off-notice"), off_status: text("autosave-off-status") });
 
-  // Node N-100's y through the node grid's review cell, queued and applied: an unsaved edit.
-  async function editNode(nodeId, value) {
+  // A node's y through the node grid's review cell, queued and applied: an unsaved edit. `applied`
+  // is the session's applied-operation count once this edit lands.
+  async function editNode(nodeId, value, applied) {
+    const startedAt = Date.now();
     click("layout-mode-grid");
     const disclosure = await waitFor("node grid disclosure", () => byTestId("node-grid-review-disclosure"));
     if (disclosure.getAttribute("aria-expanded") !== "true") disclosure.click();
@@ -283,9 +382,9 @@
     click("queue-entity-grid-intents");
     const apply = await waitFor("apply control", () => [...document.querySelectorAll('[data-testid^="apply-intent-editor-intent-"]')].at(-1));
     apply.click();
-    const summary = await waitFor("operation applied", () => /1 applied/.test(text("operation-apply-summary") ?? "") && text("operation-apply-summary"), T.step);
+    const summary = await waitFor(`operation ${applied} applied`, () => new RegExp(`(^|\\D)${applied} applied`).test(text("operation-apply-summary") ?? "") && text("operation-apply-summary"), T.step);
     const edited = await waitFor("session edited", () => /Edited/.test(text("project-edited") ?? "") && text("project-edited"), T.step);
-    return { summary, edited, at: Date.now() };
+    return { node: nodeId, value, summary, edited, started_at: startedAt, at: Date.now() };
   }
 
   async function phaseAutosaveEnd(plan, report) {
@@ -305,12 +404,18 @@
     });
     report.before_edit_at = Date.now();
     await call("native_smoke_checkpoint", { name: "before-edit", report, storeSnapshot: true });
-    report.edit = await editNode(plan.edit.node, plan.edit.y);
-    report.model_document = await saveModelDocument(plan.model_document, "autosave/before-end");
-    report.edited_after_save = text("project-edited");
+    report.edit = await editNode(plan.edit.node, plan.edit.y, 1);
     await call("native_smoke_checkpoint", { name: "edited", report, storeSnapshot: false });
+    // The product's own report of a record written (its status line), then at once a second edit,
+    // within the interval that follows that record. The timer is not restarted by an edit
+    // (useAutosave.ts: one setInterval per interval setting), so the next write is one interval after
+    // the record's: the runner ends the app before it, and observes that no record of the second edit exists.
+    report.first_record_status = await waitFor("a recovery record written", () => /^Autosaved at /.test(text("autosave-status") ?? "") && text("autosave-status"), T.record);
+    report.first_record_seen_at = Date.now();
+    report.second_edit = await editNode(plan.second_edit.node, plan.second_edit.y, 2);
+    await call("native_smoke_checkpoint", { name: "second-edit", report, storeSnapshot: false });
     await log("autosave-end: waiting to be ended");
-    // The runner ends this process with SIGKILL once a record of the edited model is on disk.
+    // The runner ends this process with SIGKILL before the next interval elapses.
     await new Promise(() => {});
   }
 

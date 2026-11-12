@@ -99,3 +99,6 @@ checks:
 - tests/test_accessibility_usability_baseline.py
 - apps/desktop/src/features/workspace/contextMenu/ContextMenu.test.tsx
 - apps/desktop/src/App.deadControls.test.tsx
+# Records, without judging, what keyboard Select All selects in the model tree and the results,
+# displacement extremes and support load tables of the launched app (AC-006); it presses no Copy.
+- apps/desktop/native-smoke/evidence-journeys.mjs

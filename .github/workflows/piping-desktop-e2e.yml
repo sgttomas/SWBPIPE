@@ -220,6 +220,12 @@ jobs:
         if: steps.verified.outputs.cache-hit != 'true'
         run: npm test --workspace apps/desktop -- --shard=${{ matrix.shard }}/2
         working-directory: .
+      # The registered desktop-native-smoke-node-tests check (software-workflow.json): the native
+      # smoke tooling's own node tests, once, on the first shard. They build and launch nothing.
+      - name: Native-smoke tooling node tests
+        if: steps.verified.outputs.cache-hit != 'true' && matrix.shard == 1
+        run: node --test 'apps/desktop/native-smoke/*.test.mjs'
+        working-directory: .
       - name: Publish the verified key
         if: success()
         env:
