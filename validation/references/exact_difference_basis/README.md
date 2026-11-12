@@ -15,14 +15,17 @@ library only and imports, reads and runs no product code or output. All inputs
 are invented and deliberately non-standard. No value comes from a design code,
 catalogue or vendor. No code compliance is claimed.
 
-**Status.** Candidate references, derived and cross-checked by their author.
-They have not yet been independently refuted, and no product test binds them.
-The product refused a declared basis on the exact route when they were written.
+**Status.** Candidate references. An independent reviewer re-derived every
+operand, difference, magnitude and hand value with exact rational equality. Two
+findings were then repaired: the G-1 expectations now follow the decided rule,
+and each subtraction row carries the value formed from the published operands.
+No product test binds them yet. The product refused a declared basis on the exact
+route when they were written.
 
 | File | Role |
 |---|---|
 | `generators/exact_difference_basis_reference.py` | the generator: exact arithmetic, two solution methods, the G-1 and G-2 verdicts |
-| `references.json` | inputs, derived quantities, 17 numerical pairs, 17 G-1 rows, the M1 hand values and the cross-check counts |
+| `references.json` | inputs, derived quantities, 17 numerical pairs, 19 G-1 rows, the M1 hand values and the cross-check counts |
 | `SHA256SUMS` | hashes of this README, the generator and `references.json` |
 
 ```
@@ -161,29 +164,37 @@ weight primitives and pressure regions plus the thermal primitive ΔT on every
 member. The setting each case is solved with is labelled. For each pair the file
 gives:
 
-- the `difference` rows with exact forms;
-- the `magnitudes`;
-- the two cases' own rows as binary64 (`cases`);
-- `consists_of`, which says what the difference is the response to;
+- the rows, under the field the pair's `values_field` names: `difference` for a
+  published declared difference, `undeclared_subtraction` for a pair G-1 refuses
+  (the values of the plain subtraction, not a published declared difference),
+  `withheld_would_be_difference` for the pair G-2 refuses;
+- the magnitudes, under `magnitudes`, `undeclared_subtraction_magnitudes` or
+  `withheld_would_be_magnitudes`;
+- the two cases' own rows as binary64 (`cases`), which are the published operands;
+- `consists_of`, which says what the subtraction is the response to;
 - the reading-J values where they differ from reading W.
 
-| Pair | Outcome (reading A of G-1) | The difference is the closed-form response to | Setting dependence |
+| Pair | Outcome | The subtraction is the closed-form response to | Setting dependence |
 |---|---|---|---|
 | M0, M1, M2 / equal pressure / off–off | published | ε_T alone | identical to on–on on every row; identical under W and J |
 | M0, M1, M2 / equal pressure / on–on | published | ε_T alone | as above |
-| M0, M1, M2 / equal pressure / operating on, sustained off | published | ε_T + ε_p(p) | differs from on–on by the response to ε_p; identical under W and J |
-| M1, M2 / pressure change / on–on | published | ε_T + ε_p(p_o) − ε_p(p_s); N_wall, N_mech also carry their Δp·A_i terms | J differs (adds the response to the junction resultant of Δp) |
-| M1, M2 / pressure change / off–off | published | ε_T alone under W; N_wall, N_mech carry Δp·A_i | J differs (response to the junction resultant of Δp) |
-| M1, M2 / pressure change / operating on, sustained off | published | ε_T + ε_p(p_o) under W | J differs |
+| M0, M1, M2 / equal pressure / operating on, sustained off | published (elongation is a separate action the sustained case does not apply) | ε_T + ε_p(p) | differs from on–on by the response to ε_p; identical under W and J |
+| M1, M2 / pressure change / on–on | **refused (G-1)**: undeclared subtraction given | ε_T + ε_p(p_o) − ε_p(p_s); N_wall, N_mech also carry their Δp·A_i terms | J differs (adds the response to the junction resultant of Δp) |
+| M1, M2 / pressure change / off–off | **refused (G-1)**: undeclared subtraction given | ε_T alone under W; N_wall, N_mech carry Δp·A_i | J differs (response to the junction resultant of Δp) |
+| M1, M2 / pressure change / operating on, sustained off | **refused (G-1)**: undeclared subtraction given | ε_T + ε_p(p_o) under W | J differs |
 | M1 / g2 / mixed basis (S on `REF`, O on `HOT`, both on) | **refused (G-2)** | — (the would-be subtraction is given as `withheld_would_be_difference`) | — |
 | M1 / g2 / same-basis twin (both on `HOT`, both on) | published | ε_T on `HOT`'s moduli | — |
+
+Each pair also records `g1_contained` under the decided rule and, as a control,
+`control_primitives_only_g1_contained` (primitive loads only), which is true for
+every pair.
 
 Why the equal-pressure differences do not depend on the setting: the two cases
 of a pair share every pressure load, so the loads cancel in the subtraction under
 either setting and either reading. Why an on–off pair differs by exactly the
-response to ε_p: on is off plus ε_p under both readings. Under reading B of G-1
-(below) the pressure-change pairs are refused. Under reading A they are
-published, as the table shows.
+response to ε_p: on is off plus ε_p under both readings. The pressure-change
+pairs are refused because a region with another pressure is other content; their
+mechanics is kept as the undeclared subtraction.
 
 **Not trivially zero.** In M1 and M2 the thermal difference has non-zero
 reactions, displacements, member end forces, and (in M2) torsion. The generator
@@ -218,97 +229,118 @@ A product end row whose axial component is the wall force differs from
 
 **Row text.** Every published difference reads `operating minus sustained difference`.
 
-**Magnitude rule.** A magnitude row of a difference is the norm of the
-difference's own components: `from_combined_components`, with its exact square.
-It is never the difference of the operands' magnitudes. The file also gives that
-forbidden value as `forbidden_subtracted_magnitudes`, so that a check can tell the
-two apart. For M1's B translation, for example, the correct magnitude is
-0.016828… m and the forbidden one is 0.016229… m. Magnitudes are given for
-translation and rotation per node and for force and moment per anchor.
+### Which field is compared how
+
+DEL-05-02 forms a subtraction from the published operand rows: the exact
+difference of the two published binary64 values, rounded once (its method
+choices, AC-001, REQ-017). So each row of a subtraction carries two values:
+
+| Field | What it is | How a product row is compared with it |
+|---|---|---|
+| `from_published_operands` | the two operands' emitted binary64 values (`cases`), subtracted exactly, rounded once to binary64 | **bit for bit**: this is what a published difference must equal |
+| `value`, with `exact` | the analytical difference of the exact (unrounded) solutions, rounded once | the mechanics reference, compared at the analytic tolerance |
+
+The two differ in the last bit on **263 of the 1 722** rows of the 16 same-basis
+pairs (129 of 1 020 published `difference` rows, 134 of 702
+`undeclared_subtraction` rows), and on 18 of the 84 `withheld_would_be_difference`
+rows. The reviewer's example is M1, equal pressure, on–on, u/B/UX. The operands
+0.014617794698056548 and 0.0004835227236798495 give 0.0141342719743767 from the
+published operands, against the analytical 0.014134271974376698. The reading-J
+rows carry both fields too, the operands then being the reading-J cases.
+
+**Magnitude rule.** A magnitude row of a subtraction is the norm of the
+subtraction's own components. It is never the difference of the operands'
+magnitudes. Each magnitude record has these fields:
+
+| Field | Components it is formed from | Compared |
+|---|---|---|
+| `from_published_operand_components` | the row's `from_published_operands` values (binary64), squared and summed exactly, square root correctly rounded | bit for bit |
+| `from_combined_components`, with `exact_square` | the analytical components (`exact`), the norm correctly rounded | at the analytic tolerance |
+| `forbidden_subtracted_magnitudes` | the operands' analytical magnitudes, subtracted | a value a product must *not* give, so that a check can tell the two rules apart |
+
+For M1's B translation, for example, the correct magnitude is 0.016828… m and the
+forbidden one is 0.016229… m. Magnitudes are given for translation and rotation
+per node and for force and moment per anchor. The two correct fields differ in
+the last bit on 11 of 106 published magnitude records, on 10 of 72 undeclared
+ones, and on 1 of 10 withheld ones.
 
 ## G-1: what "contained by content and with multiplicity" means
 
-REQ-012: the subtrahend's *primitive loads* must be contained, "by content and
-with multiplicity", in the minuend's. DEL-05-01 defines a primitive load as an
-identity, a category, a target, a direction, a dimension, a magnitude with its
-unit, an optional span, and provenance. "By content" is read as everything except
-the identity: category, target, direction, dimension, the magnitude's binary64
-bits, and the unit. "With multiplicity" means that, for every content, the
-sustained case's count does not exceed the operating case's. Provenance is not
-counted, and no member load with a span is used here.
+The rule, as decided for DEL-05-02 REQ-012: a declared subtraction is published
+only when "everything the subtrahend case applies is contained, by content and
+with multiplicity, in what the minuend case applies". On the exact route what a
+case applies is:
 
-Rows marked "fixed" have the same verdict under both readings below. These are
-the expectations:
+- its primitive loads;
+- each pressure region with its pressure;
+- pressure elongation, where the case includes it;
+- each generated load;
+- each prescribed motion;
+- each member's authored state of non-zero free strain.
 
-| Row | Sustained | Operating | Outcome |
+The generator reads that as follows (function `applied`):
+
+- **A primitive load's content** is everything except its identity: category,
+  target, direction, dimension, the magnitude's binary64 bits, and the unit.
+  Provenance is not counted, and no member load with a span is used here.
+- **A pressure region's content** is its members and its pressure's bits. A region
+  with another pressure is other content.
+- **Pressure elongation** is a further action of its own, not part of a region's
+  content. A sustained case without it is contained in an operating case with it.
+- **A member state** is compared as authored: member, kind, expansion law
+  reference, and the temperature's bits and unit. It is not compared by the
+  resolved strain.
+- **A prescribed motion** is compared by target, degree of freedom, value bits and
+  unit, whether it is authored as an imposed-displacement primitive or on the
+  support record.
+- **A preload** present in every case is not among the listed actions.
+- **With multiplicity** means that, for every content, the sustained case's count
+  does not exceed the operating case's.
+
+Every row's `outcome` is the expectation under that rule. The earlier reading,
+primitive loads only, is kept as `control_primitives_only` and is not an
+expectation.
+
+| Row | Outcome (decided rule) | Reason | Control (primitives only) |
 |---|---|---|---|
-| contained | W | W, T(AB), T(BC) | published |
-| sustained_only_load | W, F_y(B) | W, T, T | refused (G-1) |
-| twice_in_sustained_once_in_operating | W, W′ (same content, other id) | W, T, T | refused (G-1) |
-| twice_in_both | W, W′ | W, W′, T, T | published |
-| same_target_different_magnitude | W = −1843.75 N | W = −1843.5 N, T, T | refused (G-1) |
-| same_target_magnitude_one_ulp_apart | W | W one binary64 further from zero, T, T | refused (G-1) |
-| operands_swapped | W, T, T | W | refused (G-1) |
-| no_primitives_in_sustained | (pressure only) | T, T | published |
-| fails_g1_and_g2 | W, F_y(B) on `REF` | W, T, T on `HOT` | refused by both gates; which name a product reports first is its choice (the theory note orders G-1 first) |
+| contained | published | every sustained load, and the equal regions and elongation, are in the operating case | published |
+| sustained_only_load | refused (G-1) | the sustained occasional force is absent from the operating case | refused |
+| twice_in_sustained_once_in_operating | refused (G-1) | the same content twice in the sustained case, once in the operating case | refused |
+| twice_in_both | published | the same content twice in both | published |
+| same_target_different_magnitude (−1843.75 N against −1843.5 N) | refused (G-1) | other magnitude bits: other content | refused |
+| same_target_magnitude_one_ulp_apart | refused (G-1) | magnitudes one binary64 apart: other content | refused |
+| operands_swapped | refused (G-1) | the thermal primitives of the case now the subtrahend are absent | refused |
+| no_primitives_in_sustained | published | the sustained case applies only its regions and elongation, both in the operating case | published |
+| fails_g1_and_g2 | refused (G-1 and G-2) | a sustained-only load, and two modulus bases | refused |
+| pressure_differs | refused (G-1) | a region with another pressure is other content | published |
+| pressure_absent_in_operating | refused (G-1) | the sustained regions are absent from the operating case | published |
+| elongation_off_sustained_on_operating | **published** | elongation is a separate action, not part of a region's content; the sustained case does not apply it, so nothing of the sustained case is missing. A reviewer who binds elongation to a region's content would derive the opposite | published |
+| elongation_on_sustained_off_operating | refused (G-1) | the sustained case applies elongation and the operating case does not | published |
+| support_motion_as_primitive_in_sustained_only | refused (G-1) | the imposed-displacement primitive is absent from the operating case | refused |
+| support_motion_as_support_record_in_sustained_only | refused (G-1) | a prescribed motion is an action; absent from the operating case | published |
+| member_state_in_sustained_only | refused (G-1) | the authored member state is absent from the operating case | published |
+| member_state_same_authored_temperature (600 K in both) | published | same kind, law reference and temperature bits: equal content | published |
+| member_state_temperature_one_ulp_apart (600 K against the next binary64 above) | refused (G-1) | other temperature bits: other content, as for two loads one bit apart | published |
+| constant_effort_preload_in_both | published | a preload in every case is not a listed action, and it is present in both in any event | published |
 
-### Open readings: what counts toward containment on the exact route
+When both gates fail, which name a product reports first is its choice. The
+theory note orders G-1 first.
 
-On the exact route a case's actions are more than its primitive loads. DEL-04-07
-defines *Action* as "a primitive load, an equivalent-static load, a non-empty
-pressure-region list, a boundary motion, a member state of non-zero free strain,
-or a preload present in every case". Pressure is authored in regions, which
-DEL-05-01 leaves to DEL-04-07. G-1 names primitive loads only, and
-`docs/theory/load_combinations.md` states for the pressure-free route that "its
-G-1 compares primitive loads only". The two readings:
+### Open readings as they now stand
 
-- **A (primitive loads only).** This is REQ-012's literal words, and the generator
-  computes outcomes under it.
-- **B (every action, by content and multiplicity).** A pressure region counts by
-  its members and its pressure's bits, the closed-end pressure strain counts when
-  the setting is on, and member states, support-record motions and preloads count
-  too.
+The containment question is settled by the decision above. These remain open:
 
-| Row | A | B |
-|---|---|---|
-| pressure_differs (p_s ≠ p_o) | published | refused |
-| pressure_absent_in_operating | published | refused |
-| elongation_off_sustained_on_operating | published | published |
-| elongation_on_sustained_off_operating | published | refused |
-| support motion authored as an imposed-displacement primitive, sustained only | refused | refused |
-| support motion authored on the support record, sustained only | published | refused |
-| member thermal state (load-state document), sustained only | published | refused |
-| constant-effort preload in both | published | published |
-
-Every numerical pair records both verdicts. The pressure-change pairs and the
-sustained-on/operating-off setting are published under A and refused under B.
-
-**The question exposed.** Reading A is what the text says. It also publishes
-differences whose operating case does *not* have every load of the sustained
-case: pressure dropped, or pressure elongation on only in the sustained case.
-AC-003 says the published difference is "the closed-form response to the loads
-the operating case has beyond the sustained case". Under reading A that phrase
-has to cover a negative "beyond", the response to a removed pressure. Reading B
-keeps G-1's purpose but goes beyond REQ-012's words. Not decided here:
-
-- whether pressure regions, the elongation setting, a support-record motion and a
-  member state count toward G-1;
-- if pressure counts, whether a pressure *increase* (p_o > p_s, same regions) is
-  "contained".
-
-Two more facts bear on this:
-
-- **Support motion.** The request for this package assumed a prescribed support
-  motion is not a primitive load. DEL-05-01 lists imposed displacement among the
-  eight primitive categories, with a support degree of freedom as its target, so
-  authored that way it counts under both readings. It falls outside G-1 under
-  reading A only if it is authored as a support-record value, which DEL-04-07's
-  "boundary motion" may mean.
-- **Temperature state.** As a thermal primitive, including one resolved from an
-  operating condition (DEL-05-01 REQ-013 turns conditions into ordinary loads
-  before anything reads the case), it counts. As a member free-strain state of a
-  load and reference-state document it does not under reading A. DEL-05-01 says
-  that which deliverable states such a document is not decided.
+- **The off setting**: reading W, computed, or reading J, given where it differs
+  (see "Pressure on these models"). The refused pressure-change pairs are where
+  they differ. Their undeclared subtraction values are given under both readings.
+- **N_mech under off.** Which recovered force a product calls N_m with the setting
+  off; DEL-05-03's identity is applied as written.
+- **Compensated terminals.** What off omits for a region not closed at one end, so
+  no genuinely unbalanced thrust under reading W is modelled.
+- **One basis.** Whether a basis reference and a solve temperature that resolve to
+  equal moduli are one basis (G-2).
+- **Generated loads.** Their content is not exercised here: no case generates a
+  load.
 
 ## G-2: one modulus basis
 
@@ -354,9 +386,10 @@ If any check fails, nothing is written. The counts are in `cross_checks`.
    the far anchor, virtual work by Simpson's rule, which is exact for these
    quadratic integrands, a 6 × 6 compatibility solve, statics) agree exactly on
    every row of every case (6 696 rows).
-2. **The difference is the closed form.** For every published pair, operating
-   minus sustained from method 1 equals method 2 applied to the operating loads
-   less the sustained loads, on every row (1 722 rows).
+2. **The difference is the closed form.** For every same-basis pair, published or
+   undeclared, the analytical operating minus sustained from method 1 equals
+   method 2 applied to the operating loads less the sustained loads, on every row
+   (1 722 rows).
 3. **Equilibrium.** Global force and moment balance holds exactly for every case
    (66) and every difference (16).
 4. **Wall form.** DEL-04-07's wall form equals the closed-end free strain on every
@@ -369,8 +402,12 @@ If any check fails, nothing is written. The counts are in `cross_checks`.
    have non-zero motions and reactions, and the withheld G-2 values differ from
    the closed form of the twin.
 8. **Binary64 substitution.** Every input is exactly its binary64 (63 inputs).
-   Every G-1 verdict, recomputed from the emitted bits, is unchanged. The two
-   bases' moduli are binary64 and differ.
+   Every G-1 verdict, under the decided rule and the control, is recomputed from
+   the emitted records (values by their bits) and is unchanged. The two bases'
+   moduli are binary64 and differ.
+9. **Published operands.** Every subtraction row's `from_published_operands` is
+   formed from the emitted operand values in `cases`. The rows where it differs
+   from the analytical `value` are counted in `cross_checks`.
 
 ## Limits
 
