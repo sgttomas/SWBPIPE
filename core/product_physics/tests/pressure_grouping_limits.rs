@@ -669,7 +669,7 @@ fn the_readers_recompute_the_exception_from_the_published_groups() {
 }
 
 const WARNING: &str = "PRESSURE_REGION_CAP_REMAINDER_RETAINED";
-const WARNING_MESSAGE: &str = "At interior nodes of this pressure region the cap loads of adjacent members do not cancel exactly in this model. The remainder comes from small differences in bore or alignment within the region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
+const WARNING_MESSAGE: &str = "At interior nodes of this case's pressure regions the cap loads of adjacent members do not cancel exactly in this model. The remainder comes from small differences in bore or alignment within each region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
 
 fn warnings(output: &Value) -> Vec<Value> {
     output["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == WARNING).cloned().collect()
@@ -1156,5 +1156,63 @@ fn a_region_listing_its_members_out_of_chain_order_is_read() {
         assert!(place(&record["member_pipe_ids"][0]) < place(&record["member_pipe_ids"][1]), "{mode:?}");
         open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence(&output).unwrap_or_else(|e| panic!("{mode:?}: {e}"));
         assert_eq!(verdict(&output, &input["model"])["ok"], true, "{mode:?}: {}", verdict(&output, &input["model"]));
+    }
+}
+
+/// DEL-04-07: one case with two closed straight regions, both of the
+/// exception's family. The case is admitted once and carries exactly one
+/// warning, whose references name the region and node of the largest
+/// remainder (the record's node). Each sentence of the message is true of both
+/// regions: at an interior node of each, the two members' cap loads leave a
+/// nonzero remainder (their bores differ within the equal-bore guard, which
+/// each region passed, so the case was not refused), and the remainder is
+/// retained as a pressure load: the published groups there carry it and sum
+/// to the assembled load.
+#[test]
+fn a_case_with_two_straight_regions_of_the_family_carries_one_warning_true_of_both() {
+    use open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence;
+    let x = [[0.0; 3], [3.0, 0.0, 0.0], [LENGTH, 0.0, 0.0]];
+    let mut input = chain(&x, &[0.12, next_up(0.12, 1)], &[0, 2]);
+    let model = &mut input["model"];
+    for (k, x) in [0.0, 3.0, LENGTH].iter().enumerate() {
+        model["nodes"].as_array_mut().unwrap().push(node(&format!("node:D{k}"), [*x, 5.0, 0.0]));
+    }
+    // The second region's members five ulps apart: its remainder is the larger.
+    for (k, outside) in [0.12, next_up(0.12, 5)].iter().enumerate() {
+        model["pipe_segments"].as_array_mut().unwrap().push(pipe(&format!("pipe:D{k}"), &format!("node:D{k}"), &format!("node:D{}", k + 1), *outside, 0.01, "material:one"));
+    }
+    model["supports"].as_array_mut().unwrap().extend([anchor("support:D0", "node:D0"), anchor("support:D2", "node:D2")]);
+    let mut second = model["load_cases"][0]["pressure_regions"][0].clone();
+    second["id"] = json!("region:second");
+    second["member_pipe_ids"] = json!(["pipe:D0", "pipe:D1"]);
+    second["terminals"] = json!([terminal("node:D0", true), terminal("node:D2", true)]);
+    model["load_cases"][0]["pressure_regions"].as_array_mut().unwrap().push(second);
+    for mode in MODES {
+        let output = serde_json::to_value(solve(input.clone(), mode)).unwrap();
+        assert_eq!(output["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {}", output["diagnostics"]);
+        let record = assert_screen(&output, true, "two regions");
+        assert_eq!(record["node_ref"], "node:D1", "{mode:?}: the largest remainder");
+        let found = warnings(&output);
+        assert_eq!(found.len(), 1, "{mode:?}: one warning for the case");
+        assert_eq!(found[0]["message"], WARNING_MESSAGE);
+        assert_eq!(found[0]["affected_refs"], json!([CASE, "region:second", "node:D1"]), "{mode:?}");
+        let rhs = assembly(&output);
+        let order = rhs["node_order"].as_array().unwrap();
+        for (region, interior) in [(REGION, "node:C1"), ("region:second", "node:D1")] {
+            let at = order.iter().position(|n| n == interior).unwrap();
+            let load = (0..3).map(|axis| rhs["assembled_pressure_rhs_global"][at * 6 + axis].as_f64().unwrap()).collect::<Vec<_>>();
+            assert!(load.iter().any(|value| *value != 0.0), "{mode:?} {region}: a nonzero remainder at {interior}");
+            for (axis, component) in ["Fx", "Fy", "Fz"].iter().enumerate() {
+                let groups = rhs["groups"].as_array().unwrap().iter().filter(|g| g["node_ref"] == interior && g["component"] == *component).collect::<Vec<_>>();
+                assert!(groups.iter().all(|g| g["terms"].as_array().unwrap().iter().all(|t| t["region_id"] == region)), "{mode:?} {region}");
+                let sum = groups.iter().map(|g| g["assembled_force_n"].as_f64().unwrap()).sum::<f64>();
+                if load[axis] != 0.0 {
+                    assert!(!groups.is_empty() && (sum - load[axis]).abs() <= f64::EPSILON * sum.abs().max(load[axis].abs()), "{mode:?} {region} {component}: retained, {sum} against {}", load[axis]);
+                }
+            }
+        }
+        validate_pressure_evidence(&output).unwrap_or_else(|e| panic!("{mode:?}: {e}"));
+        let verdict = open_pipe_stress_result_export::reader_verdict::validate("pressure", &output, Some(&input["model"]), None);
+        assert_eq!(verdict["ok"], true, "{mode:?}: {verdict}");
     }
 }

@@ -1791,7 +1791,7 @@ pub(crate) const CANCELLATION_EXCEPTION_BASIS: &str = "straight_region_interior_
 /// exception carries (product physics `CAP_REMAINDER_WARNING_CODE`).
 pub const CAP_REMAINDER_WARNING_CODE: &str = "PRESSURE_REGION_CAP_REMAINDER_RETAINED";
 /// Its whole, fixed message (product physics `CAP_REMAINDER_WARNING_MESSAGE`).
-pub const CAP_REMAINDER_WARNING_MESSAGE: &str = "At interior nodes of this pressure region the cap loads of adjacent members do not cancel exactly in this model. The remainder comes from small differences in bore or alignment within the region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
+pub const CAP_REMAINDER_WARNING_MESSAGE: &str = "At interior nodes of this case's pressure regions the cap loads of adjacent members do not cancel exactly in this model. The remainder comes from small differences in bore or alignment within each region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
 
 /// DEL-04-07: the warning stands on a case exactly when its exception record
 /// does (read after every record has been checked): one warning per record,
