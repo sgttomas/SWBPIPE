@@ -427,14 +427,18 @@
        "label": "axis UX at S, rigid"
       }
      ],
-     "expected static result": "identical to the base result of SL-1: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
-     "expected disclosure": [
-      {
-       "snubber": "SNB-1",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      }
-     ],
+     "expected static result": "numerically identical to the base result of SL-1: every displacement, rotation, reaction and member end action unchanged; the result documents are not byte-identical, because the disclosures differ",
+     "expected disclosure": {
+      "snubbers named": [
+       "SNB-1"
+      ],
+      "severity": "non-blocking",
+      "wording": "dynamic-only restraint, not active in static cases",
+      "open presentation choices (settled by the product's design)": [
+       "whether a snubber has no reaction row or a reaction row of zero in a static result",
+       "whether each snubber has its own finding or one finding names several snubbers"
+      ]
+     },
      "negative_controls": [
       {
        "label": "NEGATIVE CONTROL: a wrong static answer",
@@ -443,6 +447,28 @@
         "exact": "1",
         "value": 1.0,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "565/936",
+         "value": 0.6036324786324786,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "0",
+         "value": 0.0,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "1",
+         "value": 1.0,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "0",
+         "value": 0.0,
+         "unit": "1"
+        }
        },
        "displacements": {
         "M": {
@@ -661,14 +687,18 @@
        "label": "axis UZ at M, k = 2e8 N/m"
       }
      ],
-     "expected static result": "identical to the base result of SL-1: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
-     "expected disclosure": [
-      {
-       "snubber": "SNB-2",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      }
-     ],
+     "expected static result": "numerically identical to the base result of SL-1: every displacement, rotation, reaction and member end action unchanged; the result documents are not byte-identical, because the disclosures differ",
+     "expected disclosure": {
+      "snubbers named": [
+       "SNB-2"
+      ],
+      "severity": "non-blocking",
+      "wording": "dynamic-only restraint, not active in static cases",
+      "open presentation choices (settled by the product's design)": [
+       "whether a snubber has no reaction row or a reaction row of zero in a static result",
+       "whether each snubber has its own finding or one finding names several snubbers"
+      ]
+     },
      "negative_controls": [
       {
        "label": "NEGATIVE CONTROL: a wrong static answer",
@@ -677,6 +707,28 @@
         "exact": "43/54",
         "value": 0.7962962962962963,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "344/351",
+         "value": 0.98005698005698,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "43/63",
+         "value": 0.6825396825396826,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "473/2240",
+         "value": 0.21116071428571428,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "172/189",
+         "value": 0.91005291005291,
+         "unit": "1"
+        }
        },
        "displacements": {
         "M": {
@@ -889,9 +941,31 @@
        "label": "NEGATIVE CONTROL: a wrong static answer",
        "snubbers act": "as spring of its stiffness",
        "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
-        "exact": "199795696304/796983757575",
+        "exact": "(19726336/17161875)/(917504/635625 + pi)",
         "value": 0.2506897968810842,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "(315621376/223104375)/(917504/635625 + pi)",
+         "value": 0.30854128846902673,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "(5636096/5720625)/(917504/635625 + pi)",
+         "value": 0.21487696875521503,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "(968704/3178125)/(917504/635625 + pi)",
+         "value": 0.06647756220864465,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "(22544384/17161875)/(917504/635625 + pi)",
+         "value": 0.2865026250069534,
+         "unit": "1"
+        }
        },
        "displacements": {
         "M": {
@@ -1110,14 +1184,18 @@
        "label": "skew d = (1, 0, 2) at M, rigid"
       }
      ],
-     "expected static result": "identical to the base result of SL-1: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
-     "expected disclosure": [
-      {
-       "snubber": "SNB-3",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      }
-     ],
+     "expected static result": "numerically identical to the base result of SL-1: every displacement, rotation, reaction and member end action unchanged; the result documents are not byte-identical, because the disclosures differ",
+     "expected disclosure": {
+      "snubbers named": [
+       "SNB-3"
+      ],
+      "severity": "non-blocking",
+      "wording": "dynamic-only restraint, not active in static cases",
+      "open presentation choices (settled by the product's design)": [
+       "whether a snubber has no reaction row or a reaction row of zero in a static result",
+       "whether each snubber has its own finding or one finding names several snubbers"
+      ]
+     },
      "negative_controls": [
       {
        "label": "NEGATIVE CONTROL: a wrong static answer",
@@ -1126,6 +1204,28 @@
         "exact": "260764/396225",
         "value": 0.6581210170988706,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "4172224/5150925",
+         "value": 0.8099950979678407,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "74504/132075",
+         "value": 0.5641037289418891,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "102443/587000",
+         "value": 0.17451959114139692,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "298016/396225",
+         "value": 0.7521383052558521,
+         "unit": "1"
+        }
        },
        "displacements": {
         "M": {
@@ -1344,14 +1444,18 @@
        "label": "skew d = (2, 0, 1) at S, k = 1e9 N/m"
       }
      ],
-     "expected static result": "identical to the base result of SL-1: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
-     "expected disclosure": [
-      {
-       "snubber": "SNB-4",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      }
-     ],
+     "expected static result": "numerically identical to the base result of SL-1: every displacement, rotation, reaction and member end action unchanged; the result documents are not byte-identical, because the disclosures differ",
+     "expected disclosure": {
+      "snubbers named": [
+       "SNB-4"
+      ],
+      "severity": "non-blocking",
+      "wording": "dynamic-only restraint, not active in static cases",
+      "open presentation choices (settled by the product's design)": [
+       "whether a snubber has no reaction row or a reaction row of zero in a static result",
+       "whether each snubber has its own finding or one finding names several snubbers"
+      ]
+     },
      "negative_controls": [
       {
        "label": "NEGATIVE CONTROL: a wrong static answer",
@@ -1360,6 +1464,28 @@
         "exact": "1",
         "value": 1.0,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "565/936",
+         "value": 0.6036324786324786,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "0",
+         "value": 0.0,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "1",
+         "value": 1.0,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "0",
+         "value": 0.0,
+         "unit": "1"
+        }
        },
        "displacements": {
         "M": {
@@ -1572,9 +1698,31 @@
        "label": "NEGATIVE CONTROL: a wrong static answer",
        "snubbers act": "as spring of its stiffness",
        "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
-        "exact": "194832299529/755211682661",
+        "exact": "(2048/1875)/(2048/1875 + pi)",
         "value": 0.25798369384661185,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "(28928/43875)/(2048/1875 + pi)",
+         "value": 0.15572733656339283,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "0",
+         "value": 0.0,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "(2048/1875)/(2048/1875 + pi)",
+         "value": 0.25798369384661185,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "0",
+         "value": 0.0,
+         "unit": "1"
+        }
        },
        "displacements": {
         "M": {
@@ -1805,37 +1953,51 @@
        "label": "skew d = (2, 0, 1) at S, k = 1e9 N/m"
       }
      ],
-     "expected static result": "identical to the base result of SL-1: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
-     "expected disclosure": [
-      {
-       "snubber": "SNB-1",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      },
-      {
-       "snubber": "SNB-2",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      },
-      {
-       "snubber": "SNB-3",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      },
-      {
-       "snubber": "SNB-4",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      }
-     ],
+     "expected static result": "numerically identical to the base result of SL-1: every displacement, rotation, reaction and member end action unchanged; the result documents are not byte-identical, because the disclosures differ",
+     "expected disclosure": {
+      "snubbers named": [
+       "SNB-1",
+       "SNB-2",
+       "SNB-3",
+       "SNB-4"
+      ],
+      "severity": "non-blocking",
+      "wording": "dynamic-only restraint, not active in static cases",
+      "open presentation choices (settled by the product's design)": [
+       "whether a snubber has no reaction row or a reaction row of zero in a static result",
+       "whether each snubber has its own finding or one finding names several snubbers"
+      ]
+     },
      "negative_controls": [
       {
        "label": "NEGATIVE CONTROL: a wrong static answer",
        "snubbers act": "each as authored (rigid ones rigid, finite ones springs)",
        "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
-        "exact": "855712211481/795653732626",
+        "exact": "(917504/54395625 + 156063/145055*pi)/(917504/54395625 + pi)",
         "value": 1.0754831862056138,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "(315621376/19092864375 + 9863168/10182861*pi)/(917504/54395625 + pi)",
+         "value": 0.9686659543608872,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "(5636096/489560625 + 176128/261099*pi)/(917504/54395625 + pi)",
+         "value": 0.6746066467870464,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "(917504/54395625 + 156063/145055*pi)/(917504/54395625 + pi)",
+         "value": 1.0754831862056138,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "(22544384/1468681875 + 704512/783297*pi)/(917504/54395625 + pi)",
+         "value": 0.8994755290493952,
+         "unit": "1"
+        }
        },
        "displacements": {
         "M": {
@@ -2314,14 +2476,18 @@
        "label": "axis UX at S, rigid"
       }
      ],
-     "expected static result": "identical to the base result of SN-BEAR: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
-     "expected disclosure": [
-      {
-       "snubber": "SNB-1",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      }
-     ],
+     "expected static result": "numerically identical to the base result of SN-BEAR: every displacement, rotation, reaction and member end action unchanged; the result documents are not byte-identical, because the disclosures differ",
+     "expected disclosure": {
+      "snubbers named": [
+       "SNB-1"
+      ],
+      "severity": "non-blocking",
+      "wording": "dynamic-only restraint, not active in static cases",
+      "open presentation choices (settled by the product's design)": [
+       "whether a snubber has no reaction row or a reaction row of zero in a static result",
+       "whether each snubber has its own finding or one finding names several snubbers"
+      ]
+     },
      "negative_controls": [
       {
        "label": "NEGATIVE CONTROL: a wrong static answer",
@@ -2330,6 +2496,28 @@
         "exact": "1",
         "value": 1.0,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "565/936",
+         "value": 0.6036324786324786,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "0",
+         "value": 0.0,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "1",
+         "value": 1.0,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "0",
+         "value": 0.0,
+         "unit": "1"
+        }
        },
        "one-way support S state": "active",
        "displacements": {
@@ -2549,14 +2737,18 @@
        "label": "axis UZ at M, k = 2e8 N/m"
       }
      ],
-     "expected static result": "identical to the base result of SN-BEAR: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
-     "expected disclosure": [
-      {
-       "snubber": "SNB-2",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      }
-     ],
+     "expected static result": "numerically identical to the base result of SN-BEAR: every displacement, rotation, reaction and member end action unchanged; the result documents are not byte-identical, because the disclosures differ",
+     "expected disclosure": {
+      "snubbers named": [
+       "SNB-2"
+      ],
+      "severity": "non-blocking",
+      "wording": "dynamic-only restraint, not active in static cases",
+      "open presentation choices (settled by the product's design)": [
+       "whether a snubber has no reaction row or a reaction row of zero in a static result",
+       "whether each snubber has its own finding or one finding names several snubbers"
+      ]
+     },
      "negative_controls": [
       {
        "label": "NEGATIVE CONTROL: a wrong static answer",
@@ -2565,6 +2757,28 @@
         "exact": "43/54",
         "value": 0.7962962962962963,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "344/351",
+         "value": 0.98005698005698,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "43/63",
+         "value": 0.6825396825396826,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "473/2240",
+         "value": 0.21116071428571428,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "172/189",
+         "value": 0.91005291005291,
+         "unit": "1"
+        }
        },
        "one-way support S state": "active",
        "displacements": {
@@ -2778,9 +2992,31 @@
        "label": "NEGATIVE CONTROL: a wrong static answer",
        "snubbers act": "as spring of its stiffness",
        "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
-        "exact": "199795696304/796983757575",
+        "exact": "(19726336/17161875)/(917504/635625 + pi)",
         "value": 0.2506897968810842,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "(315621376/223104375)/(917504/635625 + pi)",
+         "value": 0.30854128846902673,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "(5636096/5720625)/(917504/635625 + pi)",
+         "value": 0.21487696875521503,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "(968704/3178125)/(917504/635625 + pi)",
+         "value": 0.06647756220864465,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "(22544384/17161875)/(917504/635625 + pi)",
+         "value": 0.2865026250069534,
+         "unit": "1"
+        }
        },
        "one-way support S state": "active",
        "displacements": {
@@ -3000,14 +3236,18 @@
        "label": "skew d = (1, 0, 2) at M, rigid"
       }
      ],
-     "expected static result": "identical to the base result of SN-BEAR: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
-     "expected disclosure": [
-      {
-       "snubber": "SNB-3",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      }
-     ],
+     "expected static result": "numerically identical to the base result of SN-BEAR: every displacement, rotation, reaction and member end action unchanged; the result documents are not byte-identical, because the disclosures differ",
+     "expected disclosure": {
+      "snubbers named": [
+       "SNB-3"
+      ],
+      "severity": "non-blocking",
+      "wording": "dynamic-only restraint, not active in static cases",
+      "open presentation choices (settled by the product's design)": [
+       "whether a snubber has no reaction row or a reaction row of zero in a static result",
+       "whether each snubber has its own finding or one finding names several snubbers"
+      ]
+     },
      "negative_controls": [
       {
        "label": "NEGATIVE CONTROL: a wrong static answer",
@@ -3016,6 +3256,28 @@
         "exact": "260764/396225",
         "value": 0.6581210170988706,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "4172224/5150925",
+         "value": 0.8099950979678407,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "74504/132075",
+         "value": 0.5641037289418891,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "102443/587000",
+         "value": 0.17451959114139692,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "298016/396225",
+         "value": 0.7521383052558521,
+         "unit": "1"
+        }
        },
        "one-way support S state": "active",
        "displacements": {
@@ -3235,14 +3497,18 @@
        "label": "skew d = (2, 0, 1) at S, k = 1e9 N/m"
       }
      ],
-     "expected static result": "identical to the base result of SN-BEAR: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
-     "expected disclosure": [
-      {
-       "snubber": "SNB-4",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      }
-     ],
+     "expected static result": "numerically identical to the base result of SN-BEAR: every displacement, rotation, reaction and member end action unchanged; the result documents are not byte-identical, because the disclosures differ",
+     "expected disclosure": {
+      "snubbers named": [
+       "SNB-4"
+      ],
+      "severity": "non-blocking",
+      "wording": "dynamic-only restraint, not active in static cases",
+      "open presentation choices (settled by the product's design)": [
+       "whether a snubber has no reaction row or a reaction row of zero in a static result",
+       "whether each snubber has its own finding or one finding names several snubbers"
+      ]
+     },
      "negative_controls": [
       {
        "label": "NEGATIVE CONTROL: a wrong static answer",
@@ -3251,6 +3517,28 @@
         "exact": "1",
         "value": 1.0,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "565/936",
+         "value": 0.6036324786324786,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "0",
+         "value": 0.0,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "1",
+         "value": 1.0,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "0",
+         "value": 0.0,
+         "unit": "1"
+        }
        },
        "one-way support S state": "active",
        "displacements": {
@@ -3464,9 +3752,31 @@
        "label": "NEGATIVE CONTROL: a wrong static answer",
        "snubbers act": "as spring of its stiffness",
        "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
-        "exact": "194832299529/755211682661",
+        "exact": "(2048/1875)/(2048/1875 + pi)",
         "value": 0.25798369384661185,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "(28928/43875)/(2048/1875 + pi)",
+         "value": 0.15572733656339283,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "0",
+         "value": 0.0,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "(2048/1875)/(2048/1875 + pi)",
+         "value": 0.25798369384661185,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "0",
+         "value": 0.0,
+         "unit": "1"
+        }
        },
        "one-way support S state": "active",
        "displacements": {
@@ -3698,37 +4008,51 @@
        "label": "skew d = (2, 0, 1) at S, k = 1e9 N/m"
       }
      ],
-     "expected static result": "identical to the base result of SN-BEAR: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
-     "expected disclosure": [
-      {
-       "snubber": "SNB-1",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      },
-      {
-       "snubber": "SNB-2",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      },
-      {
-       "snubber": "SNB-3",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      },
-      {
-       "snubber": "SNB-4",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      }
-     ],
+     "expected static result": "numerically identical to the base result of SN-BEAR: every displacement, rotation, reaction and member end action unchanged; the result documents are not byte-identical, because the disclosures differ",
+     "expected disclosure": {
+      "snubbers named": [
+       "SNB-1",
+       "SNB-2",
+       "SNB-3",
+       "SNB-4"
+      ],
+      "severity": "non-blocking",
+      "wording": "dynamic-only restraint, not active in static cases",
+      "open presentation choices (settled by the product's design)": [
+       "whether a snubber has no reaction row or a reaction row of zero in a static result",
+       "whether each snubber has its own finding or one finding names several snubbers"
+      ]
+     },
      "negative_controls": [
       {
        "label": "NEGATIVE CONTROL: a wrong static answer",
        "snubbers act": "each as authored (rigid ones rigid, finite ones springs)",
        "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
-        "exact": "855712211481/795653732626",
+        "exact": "(917504/54395625 + 156063/145055*pi)/(917504/54395625 + pi)",
         "value": 1.0754831862056138,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "(315621376/19092864375 + 9863168/10182861*pi)/(917504/54395625 + pi)",
+         "value": 0.9686659543608872,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "(5636096/489560625 + 176128/261099*pi)/(917504/54395625 + pi)",
+         "value": 0.6746066467870464,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "(917504/54395625 + 156063/145055*pi)/(917504/54395625 + pi)",
+         "value": 1.0754831862056138,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "(22544384/1468681875 + 704512/783297*pi)/(917504/54395625 + pi)",
+         "value": 0.8994755290493952,
+         "unit": "1"
+        }
        },
        "one-way support S state": "active",
        "displacements": {
@@ -4208,14 +4532,18 @@
        "label": "axis UX at S, rigid"
       }
      ],
-     "expected static result": "identical to the base result of SN-LIFT: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
-     "expected disclosure": [
-      {
-       "snubber": "SNB-1",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      }
-     ],
+     "expected static result": "numerically identical to the base result of SN-LIFT: every displacement, rotation, reaction and member end action unchanged; the result documents are not byte-identical, because the disclosures differ",
+     "expected disclosure": {
+      "snubbers named": [
+       "SNB-1"
+      ],
+      "severity": "non-blocking",
+      "wording": "dynamic-only restraint, not active in static cases",
+      "open presentation choices (settled by the product's design)": [
+       "whether a snubber has no reaction row or a reaction row of zero in a static result",
+       "whether each snubber has its own finding or one finding names several snubbers"
+      ]
+     },
      "negative_controls": [
       {
        "label": "NEGATIVE CONTROL: a wrong static answer",
@@ -4224,6 +4552,28 @@
         "exact": "5/6",
         "value": 0.8333333333333334,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "565/27648",
+         "value": 0.02043547453703704,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "0",
+         "value": 0.0,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "1",
+         "value": 1.0,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "0",
+         "value": 0.0,
+         "unit": "1"
+        }
        },
        "one-way support S state": "inactive",
        "displacements": {
@@ -4443,14 +4793,18 @@
        "label": "axis UZ at M, k = 2e8 N/m"
       }
      ],
-     "expected static result": "identical to the base result of SN-LIFT: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
-     "expected disclosure": [
-      {
-       "snubber": "SNB-2",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      }
-     ],
+     "expected static result": "numerically identical to the base result of SN-LIFT: every displacement, rotation, reaction and member end action unchanged; the result documents are not byte-identical, because the disclosures differ",
+     "expected disclosure": {
+      "snubbers named": [
+       "SNB-2"
+      ],
+      "severity": "non-blocking",
+      "wording": "dynamic-only restraint, not active in static cases",
+      "open presentation choices (settled by the product's design)": [
+       "whether a snubber has no reaction row or a reaction row of zero in a static result",
+       "whether each snubber has its own finding or one finding names several snubbers"
+      ]
+     },
      "negative_controls": [
       {
        "label": "NEGATIVE CONTROL: a wrong static answer",
@@ -4459,6 +4813,28 @@
         "exact": "7/6",
         "value": 1.1666666666666667,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "70/81",
+         "value": 0.8641975308641975,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "7/9",
+         "value": 0.7777777777777778,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "7/10",
+         "value": 0.7,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "7/6",
+         "value": 1.1666666666666667,
+         "unit": "1"
+        }
        },
        "one-way support S state": "inactive",
        "displacements": {
@@ -4672,9 +5048,31 @@
        "label": "NEGATIVE CONTROL: a wrong static answer",
        "snubbers act": "as spring of its stiffness",
        "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
-        "exact": "345079955170/436602670109",
+        "exact": "(14680064/1906875)/(4194304/635625 + pi)",
         "value": 0.7903752743515038,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "(58720256/10297125)/(4194304/635625 + pi)",
+         "value": 0.5854631661862991,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "(29360128/5720625)/(4194304/635625 + pi)",
+         "value": 0.5269168495676693,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "(14680064/3178125)/(4194304/635625 + pi)",
+         "value": 0.4742251646109023,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "(14680064/1906875)/(4194304/635625 + pi)",
+         "value": 0.7903752743515038,
+         "unit": "1"
+        }
        },
        "one-way support S state": "inactive",
        "displacements": {
@@ -4894,14 +5292,18 @@
        "label": "skew d = (1, 0, 2) at M, rigid"
       }
      ],
-     "expected static result": "identical to the base result of SN-LIFT: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
-     "expected disclosure": [
-      {
-       "snubber": "SNB-3",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      }
-     ],
+     "expected static result": "numerically identical to the base result of SN-LIFT: every displacement, rotation, reaction and member end action unchanged; the result documents are not byte-identical, because the disclosures differ",
+     "expected disclosure": {
+      "snubbers named": [
+       "SNB-3"
+      ],
+      "severity": "non-blocking",
+      "wording": "dynamic-only restraint, not active in static cases",
+      "open presentation choices (settled by the product's design)": [
+       "whether a snubber has no reaction row or a reaction row of zero in a static result",
+       "whether each snubber has its own finding or one finding names several snubbers"
+      ]
+     },
      "negative_controls": [
       {
        "label": "NEGATIVE CONTROL: a wrong static answer",
@@ -4910,6 +5312,28 @@
         "exact": "232766/197625",
         "value": 1.1778165717900064,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "931064/1067175",
+         "value": 0.8724567198444492,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "465532/592875",
+         "value": 0.7852110478600042,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "232766/329375",
+         "value": 0.7066899430740038,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "232766/197625",
+         "value": 1.1778165717900064,
+         "unit": "1"
+        }
        },
        "one-way support S state": "inactive",
        "displacements": {
@@ -5129,14 +5553,18 @@
        "label": "skew d = (2, 0, 1) at S, k = 1e9 N/m"
       }
      ],
-     "expected static result": "identical to the base result of SN-LIFT: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
-     "expected disclosure": [
-      {
-       "snubber": "SNB-4",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      }
-     ],
+     "expected static result": "numerically identical to the base result of SN-LIFT: every displacement, rotation, reaction and member end action unchanged; the result documents are not byte-identical, because the disclosures differ",
+     "expected disclosure": {
+      "snubbers named": [
+       "SNB-4"
+      ],
+      "severity": "non-blocking",
+      "wording": "dynamic-only restraint, not active in static cases",
+      "open presentation choices (settled by the product's design)": [
+       "whether a snubber has no reaction row or a reaction row of zero in a static result",
+       "whether each snubber has its own finding or one finding names several snubbers"
+      ]
+     },
      "negative_controls": [
       {
        "label": "NEGATIVE CONTROL: a wrong static answer",
@@ -5145,6 +5573,28 @@
         "exact": "1",
         "value": 1.0,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "1",
+         "value": 1.0,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "9/8",
+         "value": 1.125,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "1",
+         "value": 1.0,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "27/32",
+         "value": 0.84375,
+         "unit": "1"
+        }
        },
        "one-way support S state": "active",
        "displacements": {
@@ -5359,9 +5809,31 @@
        "label": "NEGATIVE CONTROL: a wrong static answer",
        "snubbers act": "as spring of its stiffness",
        "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
-        "exact": "771710742828/800871440285",
+        "exact": "(942997504/17161875)/(34248704/635625 + pi)",
         "value": 0.9635887909217704,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "(942997504/17161875)/(34248704/635625 + pi)",
+         "value": 0.9635887909217704,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "(117874688/1906875)/(34248704/635625 + pi)",
+         "value": 1.0840373897869917,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "(29468672/1059375)/(34248704/635625 + pi)",
+         "value": 0.4878168254041463,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "(29468672/635625)/(34248704/635625 + pi)",
+         "value": 0.8130280423402437,
+         "unit": "1"
+        }
        },
        "one-way support S state": "inactive",
        "displacements": {
@@ -5593,37 +6065,51 @@
        "label": "skew d = (2, 0, 1) at S, k = 1e9 N/m"
       }
      ],
-     "expected static result": "identical to the base result of SN-LIFT: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
-     "expected disclosure": [
-      {
-       "snubber": "SNB-1",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      },
-      {
-       "snubber": "SNB-2",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      },
-      {
-       "snubber": "SNB-3",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      },
-      {
-       "snubber": "SNB-4",
-       "finding": "non-blocking",
-       "text": "dynamic-only restraint, not active in static cases"
-      }
-     ],
+     "expected static result": "numerically identical to the base result of SN-LIFT: every displacement, rotation, reaction and member end action unchanged; the result documents are not byte-identical, because the disclosures differ",
+     "expected disclosure": {
+      "snubbers named": [
+       "SNB-1",
+       "SNB-2",
+       "SNB-3",
+       "SNB-4"
+      ],
+      "severity": "non-blocking",
+      "wording": "dynamic-only restraint, not active in static cases",
+      "open presentation choices (settled by the product's design)": [
+       "whether a snubber has no reaction row or a reaction row of zero in a static result",
+       "whether each snubber has its own finding or one finding names several snubbers"
+      ]
+     },
      "negative_controls": [
       {
        "label": "NEGATIVE CONTROL: a wrong static answer",
        "snubbers act": "each as authored (rigid ones rigid, finite ones springs)",
        "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
-        "exact": "413967319481/390120205158",
+        "exact": "(31885837205504/156615219140625 + 1007688876032/83528116875*pi + 65536/56319*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
         "value": 1.061127606331853,
         "unit": "1"
+       },
+       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {
+        "translations": {
+         "exact": "(4398046511104/22373602734375 + 26316262866944/2255259155625*pi + 1310720/1520613*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+         "value": 0.9706929611303172,
+         "unit": "1"
+        },
+        "rotations": {
+         "exact": "(288072046477312/1409536972265625 + 9127375929344/751753051875*pi + 131072/168957*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+         "value": 0.9844271722146523,
+         "unit": "1"
+        },
+        "forces": {
+         "exact": "(4398046511104/22373602734375 + 582634962944/46404509375*pi + 110249/93865*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+         "value": 1.0963189167222382,
+         "unit": "1"
+        },
+        "moments": {
+         "exact": "(31885837205504/156615219140625 + 1007688876032/83528116875*pi + 65536/56319*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+         "value": 1.061127606331853,
+         "unit": "1"
+        }
        },
        "one-way support S state": "inactive",
        "displacements": {
@@ -5874,6 +6360,35 @@
    ]
   }
  ],
+ "control separation summary": {
+  "smallest separation per kind over all controls": {
+   "translations": {
+    "exact": "565/27648",
+    "value": 0.02043547453703704,
+    "unit": "1"
+   },
+   "rotations": {
+    "exact": "0",
+    "value": 0.0,
+    "unit": "1"
+   },
+   "forces": {
+    "exact": "(968704/3178125)/(917504/635625 + pi)",
+    "value": 0.06647756220864465,
+    "unit": "1"
+   },
+   "moments": {
+    "exact": "0",
+    "value": 0.0,
+    "unit": "1"
+   }
+  },
+  "smallest over all controls of the largest separation of any kind": {
+   "exact": "(2048/1875)/(2048/1875 + pi)",
+   "value": 0.25798369384661185,
+   "unit": "1"
+  }
+ },
  "checks": {
   "count": 434,
   "all_pass": true,
@@ -5886,7 +6401,7 @@
    "free cantilever: u_z(S) = P a^2 (3L - a)/(6EI)": 1,
    "global equilibrium": 39,
    "member equilibrium": 117,
-   "negative control distinguishable (relative difference > 5e-2)": 21,
+   "negative control distinguishable (in some kind, relative difference > 5e-2)": 21,
    "propped cantilever: R_S = P a^2 (3L - a)/(2L^3)": 2,
    "propped cantilever: anchor MY = -P a b (L + b)/(2L^2)": 2,
    "static result with snubbers = base result": 15

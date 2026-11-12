@@ -172,6 +172,21 @@
     "one-way S": "active",
     "friction S": "stick"
    },
+   "classification": {
+    "returns": {
+     "one-way S": "active",
+     "friction S": "stick"
+    },
+    "law": "DEL-04-04 as written: one-way stays engaged while it bears, engages when it would penetrate (u_z < 0); friction sticks while |T| <= mu*N"
+   },
+   "strict confirmation": {
+    "establishes": true,
+    "predicate": "every deciding quantity strictly on its state's side (DEL-04-04 admissibility confirmation; DEL-04-01 REQ-016: an enclosure that touches its state's boundary does not establish that state)",
+    "established pair": {
+     "one-way S": "active",
+     "friction S": "stick"
+    }
+   },
    "deciding_quantities": {
     "normal N (one-way reaction)": {
      "exact": "207018674458000/20691869929",
@@ -360,8 +375,9 @@
       "one-way": "active",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction inactive needs a normal that does not bear"
      ]
     },
@@ -370,16 +386,18 @@
       "one-way": "active",
       "friction": "stick"
      },
-     "admissible": true,
-     "violations": []
+     "classification consistent": true,
+     "strictly confirmed": true,
+     "confirmation failures": []
     },
     {
      "state": {
       "one-way": "active",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "slide needs motion u_x in its own direction"
      ]
     },
@@ -388,8 +406,9 @@
       "one-way": "active",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "slide needs motion u_x in its own direction"
      ]
     },
@@ -398,8 +417,9 @@
       "one-way": "inactive",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)"
      ]
     },
@@ -408,8 +428,9 @@
       "one-way": "inactive",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -419,8 +440,9 @@
       "one-way": "inactive",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -430,8 +452,9 @@
       "one-way": "inactive",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -491,6 +514,21 @@
    "states": {
     "one-way S": "active",
     "friction S": "slide+"
+   },
+   "classification": {
+    "returns": {
+     "one-way S": "active",
+     "friction S": "slide+"
+    },
+    "law": "DEL-04-04 as written: one-way stays engaged while it bears, engages when it would penetrate (u_z < 0); friction sticks while |T| <= mu*N"
+   },
+   "strict confirmation": {
+    "establishes": true,
+    "predicate": "every deciding quantity strictly on its state's side (DEL-04-04 admissibility confirmation; DEL-04-01 REQ-016: an enclosure that touches its state's boundary does not establish that state)",
+    "established pair": {
+     "one-way S": "active",
+     "friction S": "slide+"
+    }
    },
    "deciding_quantities": {
     "normal N (one-way reaction)": {
@@ -680,8 +718,9 @@
       "one-way": "active",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction inactive needs a normal that does not bear"
      ]
     },
@@ -690,8 +729,9 @@
       "one-way": "active",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "stick needs |T| < mu*N"
      ]
     },
@@ -700,16 +740,18 @@
       "one-way": "active",
       "friction": "slide+"
      },
-     "admissible": true,
-     "violations": []
+     "classification consistent": true,
+     "strictly confirmed": true,
+     "confirmation failures": []
     },
     {
      "state": {
       "one-way": "active",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "slide needs motion u_x in its own direction"
      ]
     },
@@ -718,8 +760,9 @@
       "one-way": "inactive",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)"
      ]
     },
@@ -728,8 +771,9 @@
       "one-way": "inactive",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -739,8 +783,9 @@
       "one-way": "inactive",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -750,8 +795,9 @@
       "one-way": "inactive",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -942,6 +988,21 @@
     "one-way S": "active",
     "friction S": "slide-"
    },
+   "classification": {
+    "returns": {
+     "one-way S": "active",
+     "friction S": "slide-"
+    },
+    "law": "DEL-04-04 as written: one-way stays engaged while it bears, engages when it would penetrate (u_z < 0); friction sticks while |T| <= mu*N"
+   },
+   "strict confirmation": {
+    "establishes": true,
+    "predicate": "every deciding quantity strictly on its state's side (DEL-04-04 admissibility confirmation; DEL-04-01 REQ-016: an enclosure that touches its state's boundary does not establish that state)",
+    "established pair": {
+     "one-way S": "active",
+     "friction S": "slide-"
+    }
+   },
    "deciding_quantities": {
     "normal N (one-way reaction)": {
      "exact": "147207440/22241",
@@ -1130,8 +1191,9 @@
       "one-way": "active",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction inactive needs a normal that does not bear"
      ]
     },
@@ -1140,8 +1202,9 @@
       "one-way": "active",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "stick needs |T| < mu*N"
      ]
     },
@@ -1150,8 +1213,9 @@
       "one-way": "active",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "slide needs motion u_x in its own direction"
      ]
     },
@@ -1160,16 +1224,18 @@
       "one-way": "active",
       "friction": "slide-"
      },
-     "admissible": true,
-     "violations": []
+     "classification consistent": true,
+     "strictly confirmed": true,
+     "confirmation failures": []
     },
     {
      "state": {
       "one-way": "inactive",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)"
      ]
     },
@@ -1178,8 +1244,9 @@
       "one-way": "inactive",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -1189,8 +1256,9 @@
       "one-way": "inactive",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -1200,8 +1268,9 @@
       "one-way": "inactive",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -1392,6 +1461,21 @@
     "one-way S": "active",
     "friction S": "slide+"
    },
+   "classification": {
+    "returns": {
+     "one-way S": "active",
+     "friction S": "slide+"
+    },
+    "law": "DEL-04-04 as written: one-way stays engaged while it bears, engages when it would penetrate (u_z < 0); friction sticks while |T| <= mu*N"
+   },
+   "strict confirmation": {
+    "establishes": true,
+    "predicate": "every deciding quantity strictly on its state's side (DEL-04-04 admissibility confirmation; DEL-04-01 REQ-016: an enclosure that touches its state's boundary does not establish that state)",
+    "established pair": {
+     "one-way S": "active",
+     "friction S": "slide+"
+    }
+   },
    "deciding_quantities": {
     "normal N (one-way reaction)": {
      "exact": "9873338000/887801",
@@ -1580,8 +1664,9 @@
       "one-way": "active",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction inactive needs a normal that does not bear"
      ]
     },
@@ -1590,8 +1675,9 @@
       "one-way": "active",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "stick needs |T| < mu*N"
      ]
     },
@@ -1600,16 +1686,18 @@
       "one-way": "active",
       "friction": "slide+"
      },
-     "admissible": true,
-     "violations": []
+     "classification consistent": true,
+     "strictly confirmed": true,
+     "confirmation failures": []
     },
     {
      "state": {
       "one-way": "active",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "slide needs motion u_x in its own direction"
      ]
     },
@@ -1618,8 +1706,9 @@
       "one-way": "inactive",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)"
      ]
     },
@@ -1628,8 +1717,9 @@
       "one-way": "inactive",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -1639,8 +1729,9 @@
       "one-way": "inactive",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -1650,8 +1741,9 @@
       "one-way": "inactive",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -1851,6 +1943,21 @@
     "one-way S": "active",
     "friction S": "slide-"
    },
+   "classification": {
+    "returns": {
+     "one-way S": "active",
+     "friction S": "slide-"
+    },
+    "law": "DEL-04-04 as written: one-way stays engaged while it bears, engages when it would penetrate (u_z < 0); friction sticks while |T| <= mu*N"
+   },
+   "strict confirmation": {
+    "establishes": true,
+    "predicate": "every deciding quantity strictly on its state's side (DEL-04-04 admissibility confirmation; DEL-04-01 REQ-016: an enclosure that touches its state's boundary does not establish that state)",
+    "established pair": {
+     "one-way S": "active",
+     "friction S": "slide-"
+    }
+   },
    "deciding_quantities": {
     "normal N (one-way reaction)": {
      "exact": "62421920/22241",
@@ -2039,8 +2146,9 @@
       "one-way": "active",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction inactive needs a normal that does not bear"
      ]
     },
@@ -2049,8 +2157,9 @@
       "one-way": "active",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "stick needs |T| < mu*N"
      ]
     },
@@ -2059,8 +2168,9 @@
       "one-way": "active",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "slide needs motion u_x in its own direction"
      ]
     },
@@ -2069,16 +2179,18 @@
       "one-way": "active",
       "friction": "slide-"
      },
-     "admissible": true,
-     "violations": []
+     "classification consistent": true,
+     "strictly confirmed": true,
+     "confirmation failures": []
     },
     {
      "state": {
       "one-way": "inactive",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)"
      ]
     },
@@ -2087,8 +2199,9 @@
       "one-way": "inactive",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -2098,8 +2211,9 @@
       "one-way": "inactive",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -2109,8 +2223,9 @@
       "one-way": "inactive",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -2333,6 +2448,21 @@
     "one-way S": "inactive",
     "friction S": "inactive"
    },
+   "classification": {
+    "returns": {
+     "one-way S": "inactive",
+     "friction S": "inactive"
+    },
+    "law": "DEL-04-04 as written: one-way stays engaged while it bears, engages when it would penetrate (u_z < 0); friction sticks while |T| <= mu*N"
+   },
+   "strict confirmation": {
+    "establishes": true,
+    "predicate": "every deciding quantity strictly on its state's side (DEL-04-04 admissibility confirmation; DEL-04-01 REQ-016: an enclosure that touches its state's boundary does not establish that state)",
+    "established pair": {
+     "one-way S": "inactive",
+     "friction S": "inactive"
+    }
+   },
    "deciding_quantities": {
     "normal N (one-way reaction)": {
      "exact": "0",
@@ -2516,8 +2646,9 @@
       "one-way": "active",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way active needs reaction > 0 (bears)"
      ]
     },
@@ -2526,8 +2657,9 @@
       "one-way": "active",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way active needs reaction > 0 (bears)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -2537,8 +2669,9 @@
       "one-way": "active",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way active needs reaction > 0 (bears)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -2548,8 +2681,9 @@
       "one-way": "active",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way active needs reaction > 0 (bears)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -2559,16 +2693,18 @@
       "one-way": "inactive",
       "friction": "inactive"
      },
-     "admissible": true,
-     "violations": []
+     "classification consistent": true,
+     "strictly confirmed": true,
+     "confirmation failures": []
     },
     {
      "state": {
       "one-way": "inactive",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction stick or slide needs a normal that bears"
      ]
     },
@@ -2577,8 +2713,9 @@
       "one-way": "inactive",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction stick or slide needs a normal that bears"
      ]
     },
@@ -2587,8 +2724,9 @@
       "one-way": "inactive",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction stick or slide needs a normal that bears"
      ]
     }
@@ -2646,6 +2784,21 @@
    "states": {
     "one-way S": "inactive",
     "friction S": "inactive"
+   },
+   "classification": {
+    "returns": {
+     "one-way S": "inactive",
+     "friction S": "inactive"
+    },
+    "law": "DEL-04-04 as written: one-way stays engaged while it bears, engages when it would penetrate (u_z < 0); friction sticks while |T| <= mu*N"
+   },
+   "strict confirmation": {
+    "establishes": true,
+    "predicate": "every deciding quantity strictly on its state's side (DEL-04-04 admissibility confirmation; DEL-04-01 REQ-016: an enclosure that touches its state's boundary does not establish that state)",
+    "established pair": {
+     "one-way S": "inactive",
+     "friction S": "inactive"
+    }
    },
    "deciding_quantities": {
     "normal N (one-way reaction)": {
@@ -2830,8 +2983,9 @@
       "one-way": "active",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way active needs reaction > 0 (bears)"
      ]
     },
@@ -2840,8 +2994,9 @@
       "one-way": "active",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way active needs reaction > 0 (bears)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -2851,8 +3006,9 @@
       "one-way": "active",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way active needs reaction > 0 (bears)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -2862,8 +3018,9 @@
       "one-way": "active",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way active needs reaction > 0 (bears)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -2873,16 +3030,18 @@
       "one-way": "inactive",
       "friction": "inactive"
      },
-     "admissible": true,
-     "violations": []
+     "classification consistent": true,
+     "strictly confirmed": true,
+     "confirmation failures": []
     },
     {
      "state": {
       "one-way": "inactive",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction stick or slide needs a normal that bears"
      ]
     },
@@ -2891,8 +3050,9 @@
       "one-way": "inactive",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction stick or slide needs a normal that bears"
      ]
     },
@@ -2901,8 +3061,9 @@
       "one-way": "inactive",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction stick or slide needs a normal that bears"
      ]
     }
@@ -2960,6 +3121,21 @@
    "states": {
     "one-way S": "inactive",
     "friction S": "inactive"
+   },
+   "classification": {
+    "returns": {
+     "one-way S": "inactive",
+     "friction S": "inactive"
+    },
+    "law": "DEL-04-04 as written: one-way stays engaged while it bears, engages when it would penetrate (u_z < 0); friction sticks while |T| <= mu*N"
+   },
+   "strict confirmation": {
+    "establishes": true,
+    "predicate": "every deciding quantity strictly on its state's side (DEL-04-04 admissibility confirmation; DEL-04-01 REQ-016: an enclosure that touches its state's boundary does not establish that state)",
+    "established pair": {
+     "one-way S": "inactive",
+     "friction S": "inactive"
+    }
    },
    "deciding_quantities": {
     "normal N (one-way reaction)": {
@@ -3144,8 +3320,9 @@
       "one-way": "active",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way active needs reaction > 0 (bears)"
      ]
     },
@@ -3154,8 +3331,9 @@
       "one-way": "active",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way active needs reaction > 0 (bears)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -3165,8 +3343,9 @@
       "one-way": "active",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way active needs reaction > 0 (bears)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -3176,8 +3355,9 @@
       "one-way": "active",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way active needs reaction > 0 (bears)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -3187,16 +3367,18 @@
       "one-way": "inactive",
       "friction": "inactive"
      },
-     "admissible": true,
-     "violations": []
+     "classification consistent": true,
+     "strictly confirmed": true,
+     "confirmation failures": []
     },
     {
      "state": {
       "one-way": "inactive",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction stick or slide needs a normal that bears"
      ]
     },
@@ -3205,8 +3387,9 @@
       "one-way": "inactive",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction stick or slide needs a normal that bears"
      ]
     },
@@ -3215,8 +3398,9 @@
       "one-way": "inactive",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction stick or slide needs a normal that bears"
      ]
     }
@@ -3274,6 +3458,21 @@
    "states": {
     "one-way S": "active",
     "friction S": "stick"
+   },
+   "classification": {
+    "returns": {
+     "one-way S": "active",
+     "friction S": "stick"
+    },
+    "law": "DEL-04-04 as written: one-way stays engaged while it bears, engages when it would penetrate (u_z < 0); friction sticks while |T| <= mu*N"
+   },
+   "strict confirmation": {
+    "establishes": true,
+    "predicate": "every deciding quantity strictly on its state's side (DEL-04-04 admissibility confirmation; DEL-04-01 REQ-016: an enclosure that touches its state's boundary does not establish that state)",
+    "established pair": {
+     "one-way S": "active",
+     "friction S": "stick"
+    }
    },
    "deciding_quantities": {
     "normal N (one-way reaction)": {
@@ -3463,8 +3662,9 @@
       "one-way": "active",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction inactive needs a normal that does not bear"
      ]
     },
@@ -3473,16 +3673,18 @@
       "one-way": "active",
       "friction": "stick"
      },
-     "admissible": true,
-     "violations": []
+     "classification consistent": true,
+     "strictly confirmed": true,
+     "confirmation failures": []
     },
     {
      "state": {
       "one-way": "active",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "slide needs motion u_x in its own direction"
      ]
     },
@@ -3491,8 +3693,9 @@
       "one-way": "active",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "slide needs motion u_x in its own direction"
      ]
     },
@@ -3501,8 +3704,9 @@
       "one-way": "inactive",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)"
      ]
     },
@@ -3511,8 +3715,9 @@
       "one-way": "inactive",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -3522,8 +3727,9 @@
       "one-way": "inactive",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -3533,8 +3739,9 @@
       "one-way": "inactive",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -3594,6 +3801,21 @@
    "states": {
     "one-way S": "active",
     "friction S": "slide+"
+   },
+   "classification": {
+    "returns": {
+     "one-way S": "active",
+     "friction S": "slide+"
+    },
+    "law": "DEL-04-04 as written: one-way stays engaged while it bears, engages when it would penetrate (u_z < 0); friction sticks while |T| <= mu*N"
+   },
+   "strict confirmation": {
+    "establishes": true,
+    "predicate": "every deciding quantity strictly on its state's side (DEL-04-04 admissibility confirmation; DEL-04-01 REQ-016: an enclosure that touches its state's boundary does not establish that state)",
+    "established pair": {
+     "one-way S": "active",
+     "friction S": "slide+"
+    }
    },
    "deciding_quantities": {
     "normal N (one-way reaction)": {
@@ -3783,8 +4005,9 @@
       "one-way": "active",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction inactive needs a normal that does not bear"
      ]
     },
@@ -3793,8 +4016,9 @@
       "one-way": "active",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "stick needs |T| < mu*N"
      ]
     },
@@ -3803,16 +4027,18 @@
       "one-way": "active",
       "friction": "slide+"
      },
-     "admissible": true,
-     "violations": []
+     "classification consistent": true,
+     "strictly confirmed": true,
+     "confirmation failures": []
     },
     {
      "state": {
       "one-way": "active",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "slide needs motion u_x in its own direction"
      ]
     },
@@ -3821,8 +4047,9 @@
       "one-way": "inactive",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)"
      ]
     },
@@ -3831,8 +4058,9 @@
       "one-way": "inactive",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -3842,8 +4070,9 @@
       "one-way": "inactive",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -3853,8 +4082,9 @@
       "one-way": "inactive",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -4003,6 +4233,21 @@
    "states": {
     "one-way S": "active",
     "friction S": "slide-"
+   },
+   "classification": {
+    "returns": {
+     "one-way S": "active",
+     "friction S": "slide-"
+    },
+    "law": "DEL-04-04 as written: one-way stays engaged while it bears, engages when it would penetrate (u_z < 0); friction sticks while |T| <= mu*N"
+   },
+   "strict confirmation": {
+    "establishes": true,
+    "predicate": "every deciding quantity strictly on its state's side (DEL-04-04 admissibility confirmation; DEL-04-01 REQ-016: an enclosure that touches its state's boundary does not establish that state)",
+    "established pair": {
+     "one-way S": "active",
+     "friction S": "slide-"
+    }
    },
    "deciding_quantities": {
     "normal N (one-way reaction)": {
@@ -4192,8 +4437,9 @@
       "one-way": "active",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction inactive needs a normal that does not bear"
      ]
     },
@@ -4202,8 +4448,9 @@
       "one-way": "active",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "stick needs |T| < mu*N"
      ]
     },
@@ -4212,8 +4459,9 @@
       "one-way": "active",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "slide needs motion u_x in its own direction"
      ]
     },
@@ -4222,16 +4470,18 @@
       "one-way": "active",
       "friction": "slide-"
      },
-     "admissible": true,
-     "violations": []
+     "classification consistent": true,
+     "strictly confirmed": true,
+     "confirmation failures": []
     },
     {
      "state": {
       "one-way": "inactive",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)"
      ]
     },
@@ -4240,8 +4490,9 @@
       "one-way": "inactive",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -4251,8 +4502,9 @@
       "one-way": "inactive",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -4262,8 +4514,9 @@
       "one-way": "inactive",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -4412,6 +4665,21 @@
    "states": {
     "one-way S": "inactive",
     "friction S": "inactive"
+   },
+   "classification": {
+    "returns": {
+     "one-way S": "inactive",
+     "friction S": "inactive"
+    },
+    "law": "DEL-04-04 as written: one-way stays engaged while it bears, engages when it would penetrate (u_z < 0); friction sticks while |T| <= mu*N"
+   },
+   "strict confirmation": {
+    "establishes": true,
+    "predicate": "every deciding quantity strictly on its state's side (DEL-04-04 admissibility confirmation; DEL-04-01 REQ-016: an enclosure that touches its state's boundary does not establish that state)",
+    "established pair": {
+     "one-way S": "inactive",
+     "friction S": "inactive"
+    }
    },
    "deciding_quantities": {
     "normal N (one-way reaction)": {
@@ -4596,8 +4864,9 @@
       "one-way": "active",
       "friction": "inactive"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way active needs reaction > 0 (bears)"
      ]
     },
@@ -4606,8 +4875,9 @@
       "one-way": "active",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "stick needs |T| < mu*N"
      ]
     },
@@ -4616,8 +4886,9 @@
       "one-way": "active",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way active needs reaction > 0 (bears)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -4627,8 +4898,9 @@
       "one-way": "active",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way active needs reaction > 0 (bears)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -4638,16 +4910,18 @@
       "one-way": "inactive",
       "friction": "inactive"
      },
-     "admissible": true,
-     "violations": []
+     "classification consistent": true,
+     "strictly confirmed": true,
+     "confirmation failures": []
     },
     {
      "state": {
       "one-way": "inactive",
       "friction": "stick"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "one-way inactive needs separation u_z > 0 (released support would penetrate)",
       "friction stick or slide needs a normal that bears"
      ]
@@ -4657,8 +4931,9 @@
       "one-way": "inactive",
       "friction": "slide+"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction stick or slide needs a normal that bears"
      ]
     },
@@ -4667,8 +4942,9 @@
       "one-way": "inactive",
       "friction": "slide-"
      },
-     "admissible": false,
-     "violations": [
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
       "friction stick or slide needs a normal that bears"
      ]
     }
@@ -4683,34 +4959,746 @@
      "inactive/inactive"
     ]
    }
+  },
+  {
+   "id": "STICK-BOUNDARY",
+   "description": "Boundary witness on the stick/slide boundary: Px = 3000 N and Pz = -8000 N at the shoe, Gx = 0. The stick reaction is exactly -P, so |T| = mu*N exactly.",
+   "primitive_loads": [
+    {
+     "node": "S",
+     "component": "FX",
+     "value": {
+      "exact": "3000",
+      "value": 3000.0,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FZ",
+     "value": {
+      "exact": "-8000",
+      "value": -8000.0,
+      "unit": "N"
+     }
+    }
+   ],
+   "load sums": {
+    "Gx at B": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "Px at S": {
+     "exact": "3000",
+     "value": 3000.0,
+     "unit": "N"
+    },
+    "Pz at S": {
+     "exact": "-8000",
+     "value": -8000.0,
+     "unit": "N"
+    }
+   },
+   "states": {
+    "one-way S": "active",
+    "friction S": "stick"
+   },
+   "classification": {
+    "returns": {
+     "one-way S": "active",
+     "friction S": "stick"
+    },
+    "law": "DEL-04-04 as written: one-way stays engaged while it bears, engages when it would penetrate (u_z < 0); friction sticks while |T| <= mu*N"
+   },
+   "strict confirmation": {
+    "establishes": false,
+    "predicate": "every deciding quantity strictly on its state's side (DEL-04-04 admissibility confirmation; DEL-04-01 REQ-016: an enclosure that touches its state's boundary does not establish that state)",
+    "reason": "the stick margin mu*N - |T| is exactly 0: the state touches the stick/slide boundary, so stick is not established, and no other pair is"
+   },
+   "deciding_quantities": {
+    "normal N (one-way reaction)": {
+     "exact": "8000",
+     "value": 8000.0,
+     "unit": "N"
+    },
+    "tangential T (friction reaction)": {
+     "exact": "-3000",
+     "value": -3000.0,
+     "unit": "N"
+    },
+    "mu*N": {
+     "exact": "3000",
+     "value": 3000.0,
+     "unit": "N"
+    },
+    "one-way contact reaction (> 0)": {
+     "exact": "8000",
+     "value": 8000.0,
+     "unit": "N"
+    },
+    "stick margin mu*N - |T| (> 0)": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    }
+   },
+   "displacements": {
+    "B": {
+     "UX": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "rad"
+     }
+    },
+    "S": {
+     "UX": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "rad"
+     }
+    }
+   },
+   "reactions": {
+    "anchor A": {
+     "FX": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "N"
+     },
+     "FZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "N"
+     },
+     "MY": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "N*m"
+     }
+    },
+    "one-way S": {
+     "FZ": {
+      "exact": "8000",
+      "value": 8000.0,
+      "unit": "N"
+     }
+    },
+    "friction S": {
+     "FX": {
+      "exact": "-3000",
+      "value": -3000.0,
+      "unit": "N"
+     }
+    }
+   },
+   "member_end_actions": {
+    "riser": {
+     "A": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     },
+     "B": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     }
+    },
+    "run": {
+     "B": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     },
+     "S": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     }
+    }
+   },
+   "member_axial_force_tension_positive": {
+    "riser": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "run": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    }
+   },
+   "enumeration": [
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "inactive"
+     },
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
+      "friction inactive needs a normal that does not bear"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "stick"
+     },
+     "classification consistent": true,
+     "strictly confirmed": false,
+     "confirmation failures": [
+      "stick needs |T| < mu*N"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide+"
+     },
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
+      "slide needs motion u_x in its own direction"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide-"
+     },
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
+      "slide needs motion u_x in its own direction"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "inactive"
+     },
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "stick"
+     },
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide+"
+     },
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide-"
+     },
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    }
+   ],
+   "active_set_paths": {
+    "active/stick": [
+     "active/stick"
+    ],
+    "inactive/inactive": [
+     "inactive/inactive",
+     "active/inactive",
+     "active/stick"
+    ]
+   }
+  },
+  {
+   "id": "LIFT-BOUNDARY",
+   "description": "Boundary witness on the lift-off boundary: Gx = -721913/128 N, Pz = -3456 N. The free u_z(S) is exactly 0, so the one-way reaction and the separation are both exactly 0.",
+   "primitive_loads": [
+    {
+     "node": "B",
+     "component": "FX",
+     "value": {
+      "exact": "-721913/128",
+      "value": -5639.9453125,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FZ",
+     "value": {
+      "exact": "-3456",
+      "value": -3456.0,
+      "unit": "N"
+     }
+    }
+   ],
+   "load sums": {
+    "Gx at B": {
+     "exact": "-721913/128",
+     "value": -5639.9453125,
+     "unit": "N"
+    },
+    "Px at S": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "Pz at S": {
+     "exact": "-3456",
+     "value": -3456.0,
+     "unit": "N"
+    }
+   },
+   "states": "not settled by the scope's wording: see classification",
+   "classification": {
+    "returns": "not settled by the scope's wording (README, open readings)",
+    "pairs consistent if a zero reaction does not bear": [
+     {
+      "one-way S": "inactive",
+      "friction S": "inactive"
+     }
+    ],
+    "pairs consistent if a zero reaction bears": [
+     {
+      "one-way S": "active",
+      "friction S": "slide-"
+     },
+     {
+      "one-way S": "inactive",
+      "friction S": "inactive"
+     }
+    ],
+    "law": "DEL-04-04 as written: one-way stays engaged while it bears, engages when it would penetrate (u_z < 0); friction sticks while |T| <= mu*N"
+   },
+   "strict confirmation": {
+    "establishes": false,
+    "predicate": "every deciding quantity strictly on its state's side (DEL-04-04 admissibility confirmation; DEL-04-01 REQ-016: an enclosure that touches its state's boundary does not establish that state)",
+    "reason": "the one-way reaction of the active trial and the separation of the inactive trial are both exactly 0: each touches its boundary, so no pair is established"
+   },
+   "deciding_quantities": {
+    "normal N (one-way reaction)": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "tangential T (friction reaction)": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "mu*N": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "one-way contact reaction (> 0)": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "one-way separation u_z(S) (> 0)": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "m"
+    }
+   },
+   "displacements": {
+    "B": {
+     "UX": {
+      "exact": "(-21469056/5517578125)/pi",
+      "value": -0.0012385529696207842,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(-3456/244140625)/pi",
+      "value": -4.5059234474032355e-06,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(-25361088/27587890625)/pi",
+      "value": -0.00029261697258802655,
+      "unit": "rad"
+     }
+    },
+    "S": {
+     "UX": {
+      "exact": "(-21469056/5517578125)/pi",
+      "value": -0.0012385529696207842,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(12387648/27587890625)/pi",
+      "value": 0.00014292904370846084,
+      "unit": "rad"
+     }
+    }
+   },
+   "reactions": {
+    "anchor A": {
+     "FX": {
+      "exact": "721913/128",
+      "value": 5639.9453125,
+      "unit": "N"
+     },
+     "FZ": {
+      "exact": "3456",
+      "value": 3456.0,
+      "unit": "N"
+     },
+     "MY": {
+      "exact": "1281003/128",
+      "value": 10007.8359375,
+      "unit": "N*m"
+     }
+    },
+    "one-way S": {
+     "FZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "N"
+     }
+    },
+    "friction S": {
+     "FX": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "N"
+     }
+    }
+   },
+   "member_end_actions": {
+    "riser": {
+     "A": {
+      "FX": {
+       "exact": "721913/128",
+       "value": 5639.9453125,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "3456",
+       "value": 3456.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "1281003/128",
+       "value": 10007.8359375,
+       "unit": "N*m"
+      }
+     },
+     "B": {
+      "FX": {
+       "exact": "-721913/128",
+       "value": -5639.9453125,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-3456",
+       "value": -3456.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "6912",
+       "value": 6912.0,
+       "unit": "N*m"
+      }
+     }
+    },
+    "run": {
+     "B": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "3456",
+       "value": 3456.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-6912",
+       "value": -6912.0,
+       "unit": "N*m"
+      }
+     },
+     "S": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-3456",
+       "value": -3456.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     }
+    }
+   },
+   "member_axial_force_tension_positive": {
+    "riser": {
+     "exact": "-3456",
+     "value": -3456.0,
+     "unit": "N"
+    },
+    "run": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    }
+   },
+   "enumeration": [
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "inactive"
+     },
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
+      "one-way active needs reaction > 0 (bears)"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "stick"
+     },
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
+      "stick needs |T| < mu*N"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide+"
+     },
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
+      "one-way active needs reaction > 0 (bears)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide-"
+     },
+     "classification consistent": {
+      "zero reaction does not bear": false,
+      "zero reaction bears": true
+     },
+     "strictly confirmed": false,
+     "confirmation failures": [
+      "one-way active needs reaction > 0 (bears)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "inactive"
+     },
+     "classification consistent": true,
+     "strictly confirmed": false,
+     "confirmation failures": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "stick"
+     },
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide+"
+     },
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide-"
+     },
+     "classification consistent": false,
+     "strictly confirmed": false,
+     "confirmation failures": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    }
+   ],
+   "active_set_paths": {
+    "active/stick": [
+     "active/stick",
+     "active/slide-",
+     "inactive/inactive"
+    ],
+    "inactive/inactive": [
+     "inactive/inactive"
+    ]
+   },
+   "active_set_paths if a zero reaction bears": {
+    "active/stick": [
+     "active/stick",
+     "active/slide-"
+    ],
+    "inactive/inactive": [
+     "inactive/inactive"
+    ]
+   }
   }
  ],
  "checks": {
-  "count": 377,
+  "count": 490,
   "all_pass": true,
   "by_kind": {
-   "A = B: displacements (pi*u)": 12,
-   "A = B: member end actions": 12,
-   "A = B: reactions": 12,
-   "A: exactly one admissible state pair": 12,
-   "B: active-set iteration settles on A's state": 24,
-   "B: enumeration finds exactly A's state": 12,
+   "A = B: displacements (pi*u)": 14,
+   "A = B: member end actions": 14,
+   "A = B: reactions": 14,
+   "A: boundary witness classification and confirmation as stated": 2,
+   "A: exactly one pair consistent with the classification law, under either reading of a zero reaction": 12,
+   "A: strict confirmation establishes that same pair and no other": 12,
+   "B: active-set iteration settles on a pair the classification law admits": 56,
+   "B: enumeration gives A's classification and confirmation sets": 14,
+   "B: iteration under the first reading settles on the reference pair": 14,
    "brackets contain thresholds": 1,
-   "displacements scale as 1/pi": 24,
+   "classification and confirmation unchanged with each input replaced by its binary64 value": 98,
+   "displacements scale as 1/pi": 28,
    "fixed point N* = N_free/(1 - rho)": 6,
    "flexibility closed form = stiffness inverse": 2,
-   "global equilibrium": 12,
+   "global equilibrium": 14,
    "lagged iterate N_k - N* = rho^k (N_0 - N*)": 30,
    "lagged-normal iteration contracts (|rho| < 1)": 6,
    "lift-off pair straddles": 1,
-   "member equilibrium": 24,
+   "member equilibrium": 28,
    "negative control differs from the reference": 11,
-   "node B balance (member end actions = applied load)": 12,
-   "reactions do not depend on pi (stiffness scaled)": 24,
+   "node B balance (member end actions = applied load)": 14,
+   "reactions do not depend on pi (stiffness scaled)": 28,
    "sliding force = -d*mu*N": 6,
    "state unchanged with EA, EI each perturbed by 1e-9 relative": 48,
-   "state unchanged with each input replaced by its binary64 value": 84,
    "stick-slide pair straddles": 1,
+   "tied pairs give identical physical values": 15,
    "well-posed slide (f_zz - d*mu*f_xz > 0 both ways)": 1
   }
  }
