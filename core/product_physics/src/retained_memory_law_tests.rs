@@ -511,7 +511,12 @@ fn audited_reader_sources() -> [(&'static str, Option<AuditedTestRegion>); 5] {
             // Re-audited for operating-case slice 1b on the §8.50 candidate (§8.51), on the merged bytes:
             // the suffix still starts at line 400 and is §8.50's byte for byte. 1b changes only the three
             // preview table-hash constants (lines 129, 139 and 180), in the inspected prefix.
-            complete_suffix_sha256: "333ae77d6313e20d4b6b0445630a0efcda49a07f6d4547d402412d86df75014d",
+            // Re-audited for RT-L2 (pressure-3) against main 4d29420a0's 333ae77d…: the closed
+            // `b7b_current_table_tests` module's one test-only include names the pressure-3 table (the
+            // resident table's own file) for pressure-2's, and the inspected production after the resume
+            // gains current_header's retired pressure-2 arm; E14 is byte-identical, and no path module,
+            // static or production entered the excluded test region.
+            complete_suffix_sha256: "d542b68691a7a8b2128f344d9fecc3fd47c289ce7803ab4514473b92960178f1",
             production_resume: Some("/// Header dispatch only; canonical envelopes have no raw rows. This does not"),
             trailing_test: Some(SEMANTIC_E14_TEST_ITEM),
         })),
@@ -826,7 +831,7 @@ fn pressure_schema_is_the_only_nonresident_binding() {
     let schema_hash = format!("{:x}", Sha256::digest(schema_bytes));
     // B7b A5: the result schema takes v3 only. T4-U6 (462b777b22): it carries the D-5
     // geometry, per-basis records and limitations (reviewed input #10, re-bound at D3).
-    assert_eq!(schema_hash, "efefbdfd148d88e1f53ae1eef1b731ce366b138975755a8013f3483ebe43f081");
+    assert_eq!(schema_hash, "3781fec06000072e54f44c02bfcf0116213227d422b47fa387c6766ee5a14d23");
     let compiled = COMPILED_REVIEWED_INPUTS.expect("build.rs sets all current inputs");
     let tokens: Vec<_> = compiled.split(';').collect();
     assert_eq!(tokens.len(), build_identity::REVIEWED_INPUT_COUNT + 1);
@@ -906,7 +911,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
     // #105B, PF1b and I3a).
     const REVIEWED: [&str; build_identity::REVIEWED_INPUT_COUNT] = [
         "b7ebb02aafa8cfe214c18bc64941381b33ab3f9295e0fc774ee0819e1e4f5653",
-        "09a6dc0e14e2971dacad915f4783756e6eb74b1f48c9bca0bd3ac9ed45a86871",
+        "dfded4b08d1f2b8bf7bd3b1745b5d82647d25eaec08ffc84a14217564a74bcf2",
         "73bebc5fb562b7f519c7d59be8e7830f98b21ce29fa0b7c017e43426f50cfcaa",
         "a056c395e27f964c842a1347db689eb24377d0b5a79a3b954435105a2c422d08",
         "ef59ef338d4e2cafca7017e13b7a450d1094ede8068c47cf5e44416c1adc177a",
@@ -915,7 +920,7 @@ fn reviewed_inputs_bind_the_lock_and_the_reader_statics() {
         "ce61278a855e9337af18fdc7a1fd517bbe881290be7a5fba049add2491511326",
         "094e41545efdc9815af124e91ede505213a70e4425bf32c8e2138cd74ce22893",
         "84f37c63c6cc5ec7539d6ee2b39c338bd2c6ef16b25772005fe0c8f9300fddb9",
-        "efefbdfd148d88e1f53ae1eef1b731ce366b138975755a8013f3483ebe43f081",
+        "3781fec06000072e54f44c02bfcf0116213227d422b47fa387c6766ee5a14d23",
         "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9",
         "8a0abaeac93729b5d6ee6c922f2a60f0caf9332948622bb8b5896747ce41442d",
     ];
@@ -1690,7 +1695,9 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     // §8.36: the snubber token extends the unsupported-family text by 9 B at 32 supports (+288 B).
     // §8.44 on §8.45's lexer: -1,223,704 B, the static/report literal classes measured by the Rust lexer (§8.45);
     // main 6c3cb46d3's tree priced by its own tool gives the same 273,191,600 B, so RT-A3 increment 3 moves none of it.
-    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 273_191_600, "current text closure at C_eq = 3, maximum over routes");
+    // RT-L2 (RTL2-VL): +170,272,920 B = 16,385 · 10,392 B, the pressure-elongation setting's k + 1 refusal
+    // diagnostics in the env variant's validation call (k <= RawValues), each at NP-MS's 2,048 + 8,192 + 152 B.
+    assert_eq!(profile::TEXT_TEXT_DIAG_ENV, 443_464_520, "current text closure at C_eq = 3, maximum over routes");
     // W-7 (§8.20): 3 · 2,979 = 8,937 rows exceed the former 8,192 slots; their push capacity is 16,384.
     assert_eq!((caps.complete[0], caps.complete[1]), (3 * 2_979, 16_384), "C·P_final, PushCap(C·P_final)");
     assert_eq!(caps.complete[4], push_capacity(text_atoms::D_ENV), "PushCap(D_env)");
@@ -1699,8 +1706,9 @@ fn every_phase_fact_admits_its_cap_and_refuses_cap_plus_one() {
     assert_eq!((caps.complete[6], caps.complete[7]), (text_atoms::L_PUB, text_atoms::L_DIAGID), "L_PUB (RV84 C-N1) and L_DIAGID (RV87 N-3)");
     assert_eq!(caps.complete[17], c * (3 * 32 + 1) * text_atoms::ERR, "C·(3m + 1)·Text(err)");
     // Current generated TEXT atoms; their backing and visit counts stay positive.
+    // RT-L2 (RTL2-VL): D_env +16,385 (the setting's k + 1 refusal diagnostics), so its push capacity doubles.
     assert_eq!((text_atoms::L_PUB, text_atoms::L_DIAGID, text_atoms::ERR, text_atoms::D_ENV, push_capacity(text_atoms::D_ENV)),
-        (6_139_118, 2_330, 16_384, 28_775, 32_768), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
+        (6_139_118, 2_330, 16_384, 45_160, 65_536), "current L_PUB, L_DIAGID, Text(err), D_env and PushCap(D_env) at C_eq = 3");
     assert_eq!(caps.complete[17], 3 * (3 * 32 + 1) * 16_384, "C·(3m + 1)·Text(err) at C = 3");
     let complete_facts: Vec<PhaseFact> = complete_observations_of_milestone().iter().map(|o| o.fact).collect();
     let at: [PhaseObservation; COMPLETE_FACTS] = observed(&complete_facts, &caps.complete).try_into().unwrap();
@@ -1888,7 +1896,7 @@ pub(super) mod point_atoms {
     const fn max_usize(a: usize, b: usize) -> usize {
         if a > b { a } else { b }
     }
-    pub(crate) const ATOMS: usize = 31;
+    pub(crate) const ATOMS: usize = 30;
     pub(crate) const ATOM_NAMES: [&str; ATOMS] = [
         "Node(String,(String,CaseRows))",
         "Node(String,BTreeMap)",
@@ -1896,7 +1904,6 @@ pub(super) mod point_atoms {
         "s((&str,&str))",
         "s((&str,FixedLoadCount))",
         "s((&str,PublishedTails))",
-        "s((&str,String))",
         "s((String,&Value))",
         "s((String,&str,Operand))",
         "s((String,bool))",
@@ -1923,7 +1930,6 @@ pub(super) mod point_atoms {
         "s(TermView)",
     ];
     pub(crate) const ATOM_BINDINGS: [Binding; ATOMS] = [
-        Binding::InBuild,
         Binding::InBuild,
         Binding::InBuild,
         Binding::InBuild,
@@ -1962,7 +1968,6 @@ pub(super) mod point_atoms {
         (size_of::<(&'static str, &'static str)>()) as u64, // s((&str,&str))
         (size_of::<(&'static str, open_pipe_stress_load_case_algebra::FixedLoadCount)>()) as u64, // s((&str,FixedLoadCount))
         (size_of::<(&'static str, std::collections::HashMap<String, &'static Value>)>()) as u64, // s((&str,PublishedTails))
-        (size_of::<(&'static str, String)>()) as u64, // s((&str,String))
         (size_of::<(String, &'static Value)>()) as u64, // s((String,&Value))
         (size_of::<(String, &'static str, crate::document_members::Operand)>()) as u64, // s((String,&str,Operand))
         (size_of::<(String, bool)>()) as u64, // s((String,bool))
@@ -1996,7 +2001,6 @@ pub(super) mod point_atoms {
         32,
         56,
         64,
-        40,
         32,
         56,
         32,
@@ -2236,9 +2240,14 @@ pub(super) const PINNED_RECORD_IDENTITY: &str = "v1;rustc.release=1.97.1;rustc.c
 // STATICS[1] +779 B, +17 Node(String,Value) and +78 s(Value); the restated identity and load-state motion and
 // history limitations, TAV_W and TAV_X +2,718 B): +18,761 B in every phase and mode, from maintained eval at the
 // unchanged in-build atoms (they reproduce §8.58's record exactly), without R.
+// RT-L2 D3: the pressure-elongation setting's list priced at the raw census's bound (RTL2-K: the typed list,
+// validation's refusal working set and k + 1 diagnostics per validation call, D +32,770) and the pressure-3
+// table and schema (STATICS[1] +3,948 B): every phase rises, W1 +900,809,543 B to W3 +1,623,276,625 B, X1
+// +748,730,763 B, in both modes, from maintained eval at the in-build atoms (s((&str,String)) joins the
+// profile), without R. W3 stays the maximum.
 pub(super) const PINNED_RECORD: [[u64; 8]; 2] = [
-    [6_450_393_241, 6_792_387_802, 8_744_123_630, 8_537_839_902, 7_611_535_700, 8_526_373_345, 7_258_990_735, 6_932_280_611],
-    [6_509_524_585, 6_851_519_146, 8_803_254_974, 8_596_971_246, 7_670_667_044, 8_585_504_689, 7_318_122_079, 6_991_411_955],
+    [7_351_202_784, 7_693_197_345, 10_367_400_255, 10_074_794_529, 8_829_447_425, 9_275_104_108, 7_921_333_256, 7_478_519_022],
+    [7_410_334_128, 7_752_328_689, 10_426_531_599, 10_133_925_873, 8_888_578_769, 9_334_235_452, 7_980_464_600, 7_537_650_366],
 ];
 
 #[test]
@@ -2357,7 +2366,7 @@ fn profile_laws_hold_in_this_build() {
     assert_eq!((checked_or_zero(None), checked_or_zero(Some(5))), (0, 5));
     // The gate's D_env and text bounds are the profile's text closure.
     let caps = phase_caps();
-    assert_eq!(caps.complete[3], 28_775, "current canonical D_env at C_eq = 3 (model document 0.8.0's shear-model refusal, §8.26: +1; W-16 slice a, §8.23: -128, route E's deleted pre-parse imposed-displacement refusal; W-7, §8.20: +96, the global end diagnostic per member and case; the node-proximity tolerance's refusal, §8.18: +1; silent-zero guard on W-8, §8.15: +3, one warning per case; W-8's 34e96d6b17: the three topology warnings on 28,799 from T4-U4b/U5b's b4c9f35f8e)");
+    assert_eq!(caps.complete[3], 45_160, "current canonical D_env at C_eq = 3 (RT-L2: +16,385, the pressure-elongation setting's k + 1 refusal diagnostics, k <= RawValues, RTL2-VL; model document 0.8.0's shear-model refusal, §8.26: +1; W-16 slice a, §8.23: -128, route E's deleted pre-parse imposed-displacement refusal; W-7, §8.20: +96, the global end diagnostic per member and case; the node-proximity tolerance's refusal, §8.18: +1; silent-zero guard on W-8, §8.15: +3, one warning per case; W-8's 34e96d6b17: the three topology warnings on 28,799 from T4-U4b/U5b's b4c9f35f8e)");
     assert_eq!(text_atoms::ROW, 11_474);
     // Every atom is bound; the source-derived and estimate atoms are the recorded ones.
     let count = |b| profile::ATOM_BINDINGS.iter().filter(|x| **x == b).count();

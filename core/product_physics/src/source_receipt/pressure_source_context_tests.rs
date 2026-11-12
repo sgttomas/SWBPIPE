@@ -755,7 +755,11 @@ fn ra_work_for(family: &str, raw: &Value, mode: PreviewSolverMode, case_id: &str
 /// requests x two modes) against the pre-U4b counters, with R-A's change since then: for each
 /// selected case, `work.charged` changes by exactly 24ΔE + ΔF_k + ΔQ_k + ΔR_k, and
 /// `publication_charged` by 24ΔE + ΔP + ΔD_k.
-/// - ΔE: the encoded request delta (the committed requests are unchanged: 0).
+/// - ΔE: the encoded request delta. The committed requests are the counters' requests but for the
+///   RT-L2 pressure-elongation setting (DEL-04-07) the three mixed requests now name their operating
+///   case in: ΔE is that `model.model_settings` member's canonical bytes there and 0 elsewhere. Each
+///   selected case's finalization reserves 2·12E (`finalization_size`) and the composite publication
+///   reservation 24E (`finalize_composite`), so the case and the publication each move by 24ΔE.
 /// - ΔF_k: twice the new rows' identity and metadata bytes (`finalization_size`'s 2(12E + B_k)).
 /// - ΔQ_k: the composite wrapper's own 64 per new row; the new treatment reserves no recipe
 ///   work (no `derived_recipe_entry`, no 4096 per row), so its per-recipe charge is zero.
@@ -783,9 +787,18 @@ fn u4b_source_work_law_reconciles_every_control_with_its_pre_u4b_counters() {
         let label = format!("{family}/{name} {mode_name}");
         let snapshot = snapshot(family, name, mode);
         check_snapshot_inputs(&snapshot);
-        // ΔE = 0: the encoded request the counters were formed from is the committed one.
+        // The snapshot's request is the committed one. ΔE: the RT-L2 setting is the only member the
+        // committed requests gained since the counters were formed; without it the encoding is theirs.
         let e = encoded_request(&snapshot.raw);
         assert_eq!(e, encoded_request(&fixture_request(family, name)), "{label}");
+        let mut before = snapshot.raw.clone();
+        let setting = before["model"].as_object_mut().unwrap().remove("model_settings");
+        if let Some(setting) = &setting {
+            assert_eq!(setting.as_object().unwrap().keys().collect::<Vec<_>>(), ["pressure_elongation"], "{label}: only the RT-L2 setting");
+            assert!(name.starts_with("mixed"), "{label}: only the mixed requests carry the setting");
+        }
+        let delta_e = (e - encoded_request(&before)) as u64;
+        assert_eq!(delta_e == 0, setting.is_none(), "{label}: ΔE is the setting's member");
         let observed = snapshot.reservations.iter().find(|r| r.case_id == case_id).unwrap_or_else(|| panic!("{label}: selected case"));
         let new_rows: Vec<&ResultItem> = observed.actual_rows.iter().filter(|r| DERIVED_KINDS.contains(&r.kind.as_str())).collect();
         let members = snapshot.raw["model"]["pipe_segments"].as_array().unwrap().len();
@@ -831,15 +844,15 @@ fn u4b_source_work_law_reconciles_every_control_with_its_pre_u4b_counters() {
         assert_eq!(case["outcome"], "qualified", "{label}: still selects");
         assert_eq!(case["selected_method"], "retained_source_blocks_exact_v1", "{label}");
         let charged = case["work"]["charged"].as_u64().unwrap();
-        assert_eq!(charged as i64, (old_charged + delta_f + delta_q) as i64 + delta_r, "{label}: work.charged = old + 24ΔE + ΔF_k + ΔQ_k + ΔR_k");
+        assert_eq!(charged as i64, (old_charged + 24 * delta_e + delta_f + delta_q) as i64 + delta_r, "{label}: work.charged = old + 24ΔE + ΔF_k + ΔQ_k + ΔR_k");
         let publication = body["invocation_work"]["publication_charged"].as_u64().unwrap();
-        assert_eq!(publication as i64, (old_publication + delta_p) as i64 + delta_d, "{label}: publication_charged = old + 24ΔE + ΔP + ΔD_k");
+        assert_eq!(publication as i64, (old_publication + 24 * delta_e + delta_p) as i64 + delta_d, "{label}: publication_charged = old + 24ΔE + ΔP + ΔD_k");
         let cases: u64 = body["cases"].as_array().unwrap().iter()
             .map(|c| c["work"]["charged"].as_u64().unwrap() + c["work"]["reserved_unobserved_failure"].as_u64().unwrap()).sum();
         assert_eq!(body["invocation_work"]["charged"].as_u64().unwrap(), cases + publication, "{label}: invocation work");
         assert!(charged <= case["work"]["limit"].as_u64().unwrap() && case["work"]["limit"].as_u64().unwrap() <= 8_000_000, "{label}");
         maximum = maximum.max(charged);
-        println!("U4B_SOURCE_WORK {label} case={case_id} charged={charged} (pre-U4b {old_charged}; +{delta_f} finalization +{delta_q} wrapper; R-A {delta_r}: hints {} plan {} evaluation {} x2) publication={publication} (+{delta_p}; R-A digits {delta_d})", ra.hints, ra.plan, ra.evaluation);
+        println!("U4B_SOURCE_WORK {label} case={case_id} charged={charged} (pre-U4b {old_charged}; ΔE {delta_e}; +{delta_f} finalization +{delta_q} wrapper; R-A {delta_r}: hints {} plan {} evaluation {} x2) publication={publication} (+{delta_p}; R-A digits {delta_d})", ra.hints, ra.plan, ra.evaluation);
     }
     println!("U4B_SOURCE_WORK maximum per-case charge {maximum} of 8000000");
 }
