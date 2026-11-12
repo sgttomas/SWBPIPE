@@ -1,0 +1,74 @@
+{
+  "document_kind": "swbpipe.caepipe_sitting.plan",
+  "plan_version": "1",
+  "note": "The built-in default plan of tools/caepipe_correlation/sitting_pack.py. Parts run in the order listed: what cannot be redone later comes first, so a sitting cut short leaves the least behind. A case is placed in the first part that selects it. estimate is filled by whoever plans the sitting and is printed as an estimate, not a condition.",
+  "parts": [
+    {
+      "id": "part-0",
+      "title": "Dry run",
+      "buys": "Two or three small cases taken through the whole route and back through ingest and the parser on this host before anything else is run, so that a capture failure is found on the first day. The format samples make the program print result sections that no public page describes.",
+      "estimate": null,
+      "kind": "dry_run",
+      "select": {"model_ids": ["cpb-g1-05", "cpb-g8-01", "cpb-g6-02"]},
+      "format_samples": [
+        {
+          "id": "fs-limit-stop-gap",
+          "title": "Limit stop with gaps",
+          "purpose": "a nonlinear support's status in the printed results",
+          "authored": "cpa-14-limit-stop-gap"
+        },
+        {
+          "id": "fs-variable-spring-hanger",
+          "title": "Variable spring hanger",
+          "purpose": "the hanger report in the printed results",
+          "authored": "cpa-18-variable-spring-hanger"
+        },
+        {
+          "id": "fs-modal-straight-span",
+          "title": "Straight span with modal analysis",
+          "purpose": "frequencies and mode shapes in the printed results",
+          "model_id": "cpb-g1-06",
+          "variant": {
+            "label": "modal-3",
+            "kind": "instruction",
+            "instruction": "Before analysing, switch on the modal (frequency) analysis and ask for 3 modes. Change nothing else."
+          }
+        }
+      ]
+    },
+    {
+      "id": "part-1",
+      "title": "Pressurised default series",
+      "buys": "The cases that carry the exact pressure contract. Without them the pressure route is compared on no case.",
+      "estimate": null,
+      "kind": "benchmark",
+      "select": {"model_members": ["pressure_contract"]}
+    },
+    {
+      "id": "part-2",
+      "title": "Format observations",
+      "buys": "Records of how the program writes and reads files, kept to settle interoperation facts no public page states. They are stored as returned and not interpreted by ingest.",
+      "estimate": null,
+      "kind": "observations"
+    },
+    {
+      "id": "part-3",
+      "title": "Sealed captures",
+      "buys": "The program's output for cases whose SWBPIPE side is not ready yet, captured while a run is still possible. They stay sealed until a tolerance class with a value exists for them and SWBPIPE's own result is bound.",
+      "estimate": null,
+      "kind": "sealed_capture",
+      "sealed_reason": "SWBPIPE's side of these cases is not ready; no agent opens the capture before a tolerance class with a value is named for it and SWBPIPE's result for the case is bound.",
+      "select": {},
+      "empty_reason": "No family is named yet whose SWBPIPE side is not ready; the plan for the sitting names them."
+    },
+    {
+      "id": "part-4",
+      "title": "Tranche 1 remainder",
+      "buys": "Tranche 1 cases a plan names for a further run, by family, with the members of one series next to each other and smaller models first.",
+      "estimate": null,
+      "kind": "benchmark",
+      "select": {},
+      "empty_reason": "Tranche 1's cases already have complete stored results; this part selects nothing unless a plan names cases for it."
+    }
+  ]
+}

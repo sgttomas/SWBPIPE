@@ -682,6 +682,17 @@ def load_benchmark(manifest_path: Path, selected: list[str] | None = None) -> li
     return [models[model_id] for model_id in sorted(models)]
 
 
+def render_benchmark_mbf(entry: Mapping[str, Any]) -> Any:
+    """The writer's MBF of one benchmark model, with its explicit piping code and reference temperature.
+
+    The one render of a benchmark model: the live and offline benchmark runs and the sitting pack
+    (tools/caepipe_correlation/sitting_pack.py) all take it from here, so a person-run result binds to the MBF the
+    offline screening renders."""
+    return render_caepipe_mbf_si(entry["model"], title=entry["model_id"],
+                                 reference_temperature_c=entry.get("reference_temperature_c", 20.0),
+                                 piping_code=entry["piping_code"])
+
+
 def benchmark_batches(models: list[Mapping[str, Any]], size: int) -> list[list[Mapping[str, Any]]]:
     return [list(models[start:start + size]) for start in range(0, len(models), size)]
 
@@ -779,9 +790,7 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
         _write_json(root, paths["swbpipe"] / "result.json", output)
     if error:
         return outcome(NOT_RUN, "not_run", f"SWBPIPE not solved ({error})")
-    mbf = render_caepipe_mbf_si(entry["model"], title=entry["model_id"],
-                                reference_temperature_c=entry.get("reference_temperature_c", 20.0),
-                                piping_code=entry["piping_code"])
+    mbf = render_benchmark_mbf(entry)
     if mbf.status != "written":
         codes = sorted({item["code"] for item in mbf.diagnostics if item["severity"] == "error"})
         return outcome(NOT_RUN, "not_run", f"MBF refused ({', '.join(codes)})")
