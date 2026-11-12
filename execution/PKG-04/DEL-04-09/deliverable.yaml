@@ -142,8 +142,11 @@ code_paths:
 - tests/test_modal_*.py
 - validation/references/f1_modal/**
 - tests/modal_feasibility_oracle.py
+- tests/test_dynamics_references.py
+- tools/validation/reference_observation.py
 checks:
 - core/solver/modal_eigen/tests/*.rs
 - core/product_physics/src/modal/tests*.rs
 - core/reporting/modal_result/tests/*.rs
 - tests/test_modal_*.py
+- tests/test_dynamics_references.py

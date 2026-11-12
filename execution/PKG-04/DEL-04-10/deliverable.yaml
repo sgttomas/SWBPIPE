@@ -88,5 +88,11 @@ needs:
     A published response-spectrum piping problem can be compared as comparison evidence only under
     that report's own redistribution evidence (DEL-04-09/REQ-009). The comparison is not required.
   gating: false
-code_paths: []
-checks: []
+# The frozen references and their maintained regeneration and independence check. No product code
+# exists for this deliverable yet.
+code_paths:
+- validation/references/f2_spectrum/**
+- tests/test_dynamics_references.py
+- tools/validation/reference_observation.py
+checks:
+- tests/test_dynamics_references.py

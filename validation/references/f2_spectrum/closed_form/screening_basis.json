@@ -1,0 +1,347 @@
+{
+ "schema": "swbpipe.f2_spectrum.closed_form/v1",
+ "file": "screening_basis.json",
+ "status": "references with a refutation record (REFUTATION.md)",
+ "number_format": "Inputs are binary64: 'binary64' is the shortest round-trip decimal, 'hex' the exact hex form, 'exact' the exact rational. Derived reals are decimal strings ('value', 40 significant digits) with the nearest binary64; 'exact' on a derived quantity is an exact rational. Deviations and cross-check residuals are short diagnostics, not references. SI units.",
+ "item": "Screening basis: data from items 5 and 6 for the spectrum screening class. No class value is proposed.",
+ "definitions": {
+  "deviation": "|FE - continuum| / |continuum| against the Rayleigh continuum (the product's continuum limit), maximum over the cantilever, propped cantilever, pinned-pinned and fixed-fixed spans, both lengths unless split, both spectra and every quantity of the kind",
+  "kinds": {"displacement": "tip or midspan displacement", "force": "internal shear at L/4 and L/2", "moment": "internal bending moment at L/4 and L/2", "reaction": "end reaction forces and moments"},
+  "categories": {"frequency": "first five (or all finite) modes", "per_mode": "signed modal contributions whose continuum value exceeds 1e-30 times the largest absolute continuum contribution of that quantity over the five continuum modes (the rest, zero by symmetry or rounding residue, are excluded); dominated by small contributions near a zero of the quantity's modal distribution", "per_mode_significant": "the same, restricted to contributions at least 1 % of the quantity's continuum SRSS over nm = min(5, the FE model's finite mode count) continuum modes (not always five)", "combined": "SRSS, CQC and grouping over the first five (or all finite) modes, against the continuum combined over the same number of modes", "missing_mass_total": "periodic part (SRSS or CQC) with the rigid part (SRSS or absolute sum), truncation after 1, 2, 3 and 5 modes (includes cases where the FE mesh classifies a different number of modes as periodic, because an FE frequency lies on the other side of f_r = 1.01 f_n)", "missing_mass_total_same_classification": "the same, restricted to cases with the continuum's periodic count"},
+  "lengths": {"L2": "rotary inertia changes the first three frequencies by MORE than 1e-6 relative (it matters)", "L64": "rotary inertia changes the first three frequencies by LESS than 1e-6 relative (negligible)"},
+  "lumped": "NOT the product's formulation; measures the size of that modelling difference",
+  "for_the_screening_derivation": {"sensitivity": "largest_sensitivity is a conditional SRSS sensitivity: one mode's frequency varies alone, with its shape, its participation and its force-recovery coefficient q_n held fixed; it excludes changes of the CQC coefficient, of the rigid response, of the shape and recovery, and rotations", "coarse_mesh_classification": "on a coarse mesh the same rigid frequency f_r can classify a different number of modes as periodic; missing_mass_total includes such cases, missing_mass_total_same_classification excludes them", "left_out_of_the_maxima": "the quarter-point quantities (M_quarter_Nm, V_quarter_N) at N = 2, where L/4 is not a node; and quantities whose continuum value is zero by symmetry (per-mode values of zero-participation modes; V_mid_N and the moment reaction at a pin, which are not published for the symmetric spans and the pinned end)", "L64_negligible_applies_to_modes_1_to_3": "at L = 64 m rotary inertia shifts modes 4 and 5 by 6.6e-7 to 1.23e-6 (mode 5 above 1e-6 in every span); the five-mode categories include them"}
+ },
+ "largest_relative_deviation": {
+  "frequency": {
+   "frequency": {
+    "consistent": {
+     "2": {"all": "8.04e-1", "where": "C-L64 mode 4", "L2": "8.03e-1", "L64": "8.04e-1"},
+     "4": {"all": "2.94e-1", "where": "F-L64 mode 5", "L2": "2.94e-1", "L64": "2.94e-1"},
+     "8": {"all": "1.31e-2", "where": "F-L64 mode 5", "L2": "1.31e-2", "L64": "1.31e-2"},
+     "16": {"all": "9.17e-4", "where": "F-L64 mode 5", "L2": "9.17e-4", "L64": "9.17e-4"}
+    },
+    "lumped": {
+     "2": {"all": "2.62e-1", "where": "C-L64 mode 2", "L2": "2.62e-1", "L64": "2.62e-1"},
+     "4": {"all": "2.33e-1", "where": "C-L64 mode 4", "L2": "2.32e-1", "L64": "2.33e-1"},
+     "8": {"all": "7.24e-2", "where": "C-L64 mode 5", "L2": "7.14e-2", "L64": "7.24e-2"},
+     "16": {"all": "1.83e-2", "where": "C-L64 mode 5", "L2": "1.73e-2", "L64": "1.83e-2"}
+    }
+   }
+  },
+  "per_mode": {
+   "displacement": {
+    "consistent": {
+     "2": {"all": "7.38e-1", "where": "P-L2 FLAT w_mid_m mode 3", "L2": "7.38e-1", "L64": "7.38e-1"},
+     "4": {"all": "7.82e-1", "where": "P-L64 FLAT w_mid_m mode 4", "L2": "7.82e-1", "L64": "7.82e-1"},
+     "8": {"all": "4.15e-3", "where": "S-L64 TWO_SEGMENT_L64 w_mid_m mode 5", "L2": "4.15e-3", "L64": "4.15e-3"},
+     "16": {"all": "6.53e-5", "where": "S-L64 TWO_SEGMENT_L64 w_mid_m mode 5", "L2": "6.53e-5", "L64": "6.53e-5"}
+    },
+    "lumped": {
+     "2": {"all": "3.89e-1", "where": "C-L64 TWO_SEGMENT_L64 w_tip_m mode 2", "L2": "3.89e-1", "L64": "3.89e-1"},
+     "4": {"all": "6.65e-1", "where": "C-L2 FLAT w_tip_m mode 4", "L2": "6.65e-1", "L64": "6.65e-1"},
+     "8": {"all": "5.48e-1", "where": "P-L64 FLAT w_mid_m mode 4", "L2": "5.45e-1", "L64": "5.48e-1"},
+     "16": {"all": "1.40e-1", "where": "P-L64 FLAT w_mid_m mode 4", "L2": "1.38e-1", "L64": "1.40e-1"}
+    }
+   },
+   "force": {
+    "consistent": {
+     "2": {"all": "5.86e+1", "where": "C-L2 FLAT V_mid_N mode 4", "L2": "5.86e+1", "L64": "5.31e+1"},
+     "4": {"all": "3.09e+0", "where": "C-L2 FLAT V_mid_N mode 4", "L2": "3.09e+0", "L64": "2.81e+0"},
+     "8": {"all": "6.68e-2", "where": "C-L2 FLAT V_mid_N mode 4", "L2": "6.68e-2", "L64": "6.02e-2"},
+     "16": {"all": "1.08e-3", "where": "C-L2 FLAT V_mid_N mode 4", "L2": "1.08e-3", "L64": "9.50e-4"}
+    },
+    "lumped": {
+     "2": {"all": "1.68e+0", "where": "C-L64 FLAT V_mid_N mode 2", "L2": "1.68e+0", "L64": "1.68e+0"},
+     "4": {"all": "1.46e+1", "where": "C-L2 FLAT V_mid_N mode 4", "L2": "1.46e+1", "L64": "1.33e+1"},
+     "8": {"all": "2.21e+1", "where": "C-L2 FLAT V_mid_N mode 4", "L2": "2.21e+1", "L64": "2.01e+1"},
+     "16": {"all": "6.89e+0", "where": "C-L2 FLAT V_mid_N mode 4", "L2": "6.89e+0", "L64": "6.33e+0"}
+    }
+   },
+   "moment": {
+    "consistent": {
+     "2": {"all": "3.60e+0", "where": "C-L2 TWO_SEGMENT_L2 M_mid_Nm mode 3", "L2": "3.60e+0", "L64": "3.57e+0"},
+     "4": {"all": "4.51e+1", "where": "C-L64 FLAT M_mid_Nm mode 5", "L2": "2.50e+1", "L64": "4.51e+1"},
+     "8": {"all": "1.31e+0", "where": "C-L64 FLAT M_mid_Nm mode 5", "L2": "7.31e-1", "L64": "1.31e+0"},
+     "16": {"all": "2.09e-2", "where": "C-L64 FLAT M_mid_Nm mode 5", "L2": "1.20e-2", "L64": "2.09e-2"}
+    },
+    "lumped": {
+     "2": {"all": "6.13e-1", "where": "C-L64 FLAT M_mid_Nm mode 2", "L2": "6.13e-1", "L64": "6.13e-1"},
+     "4": {"all": "1.17e+1", "where": "C-L2 FLAT M_mid_Nm mode 3", "L2": "1.17e+1", "L64": "1.16e+1"},
+     "8": {"all": "2.25e+2", "where": "C-L64 FLAT M_mid_Nm mode 5", "L2": "1.25e+2", "L64": "2.25e+2"},
+     "16": {"all": "5.63e+1", "where": "C-L64 FLAT M_mid_Nm mode 5", "L2": "3.10e+1", "L64": "5.63e+1"}
+    }
+   },
+   "reaction": {
+    "consistent": {
+     "2": {"all": "7.07e-1", "where": "C-L2 TWO_SEGMENT_L2 F0_N mode 4", "L2": "7.07e-1", "L64": "7.07e-1"},
+     "4": {"all": "7.85e-1", "where": "P-L64 FLAT F0_N mode 4", "L2": "7.84e-1", "L64": "7.85e-1"},
+     "8": {"all": "1.06e-2", "where": "P-L64 TWO_SEGMENT_L64 FL_N mode 5", "L2": "1.06e-2", "L64": "1.06e-2"},
+     "16": {"all": "1.44e-4", "where": "P-L64 TWO_SEGMENT_L64 FL_N mode 5", "L2": "1.43e-4", "L64": "1.44e-4"}
+    },
+    "lumped": {
+     "2": {"all": "4.97e-1", "where": "P-L64 TWO_SEGMENT_L64 FL_N mode 1", "L2": "4.97e-1", "L64": "4.97e-1"},
+     "4": {"all": "7.62e-1", "where": "S-L64 TWO_SEGMENT_L64 FL_N mode 3", "L2": "7.62e-1", "L64": "7.62e-1"},
+     "8": {"all": "5.74e-1", "where": "P-L64 FLAT M0_Nm mode 4", "L2": "5.73e-1", "L64": "5.74e-1"},
+     "16": {"all": "1.57e-1", "where": "S-L64 FLAT F0_N mode 5", "L2": "1.55e-1", "L64": "1.57e-1"}
+    }
+   }
+  },
+  "per_mode_significant": {
+   "displacement": {
+    "consistent": {
+     "2": {"all": "7.38e-1", "where": "P-L2 TWO_SEGMENT_L2 w_mid_m mode 3", "L2": "7.38e-1", "L64": "7.38e-1"},
+     "4": {"all": "3.82e-2", "where": "F-L64 FLAT w_mid_m mode 3", "L2": "3.82e-2", "L64": "3.82e-2"},
+     "8": {"all": "2.12e-4", "where": "P-L64 TWO_SEGMENT_L64 w_mid_m mode 3", "L2": "2.10e-4", "L64": "2.12e-4"},
+     "16": {"all": "3.96e-6", "where": "F-L2 TWO_SEGMENT_L2 w_mid_m mode 1", "L2": "3.96e-6", "L64": "3.96e-6"}
+    },
+    "lumped": {
+     "2": {"all": "3.89e-1", "where": "C-L64 TWO_SEGMENT_L64 w_tip_m mode 2", "L2": "3.89e-1", "L64": "3.89e-1"},
+     "4": {"all": "1.94e-1", "where": "P-L2 TWO_SEGMENT_L2 w_mid_m mode 3", "L2": "1.94e-1", "L64": "1.94e-1"},
+     "8": {"all": "5.47e-2", "where": "P-L2 TWO_SEGMENT_L2 w_mid_m mode 3", "L2": "5.47e-2", "L64": "5.47e-2"},
+     "16": {"all": "1.40e-2", "where": "P-L2 TWO_SEGMENT_L2 w_mid_m mode 3", "L2": "1.40e-2", "L64": "1.40e-2"}
+    }
+   },
+   "force": {
+    "consistent": {
+     "2": {"all": "8.57e-1", "where": "P-L64 FLAT V_mid_N mode 3", "L2": "8.56e-1", "L64": "8.57e-1"},
+     "4": {"all": "7.61e-1", "where": "P-L64 TWO_SEGMENT_L64 V_quarter_N mode 4", "L2": "7.60e-1", "L64": "7.61e-1"},
+     "8": {"all": "1.32e-2", "where": "F-L64 FLAT V_quarter_N mode 5", "L2": "1.31e-2", "L64": "1.32e-2"},
+     "16": {"all": "1.59e-4", "where": "F-L64 FLAT V_quarter_N mode 5", "L2": "1.56e-4", "L64": "1.59e-4"}
+    },
+    "lumped": {
+     "2": {"all": "1.68e+0", "where": "C-L64 FLAT V_mid_N mode 2", "L2": "1.68e+0", "L64": "1.68e+0"},
+     "4": {"all": "8.80e-1", "where": "C-L64 FLAT V_mid_N mode 2", "L2": "8.78e-1", "L64": "8.80e-1"},
+     "8": {"all": "5.70e-1", "where": "S-L64 TWO_SEGMENT_L64 V_quarter_N mode 5", "L2": "5.69e-1", "L64": "5.70e-1"},
+     "16": {"all": "1.57e-1", "where": "S-L64 TWO_SEGMENT_L64 V_quarter_N mode 5", "L2": "1.55e-1", "L64": "1.57e-1"}
+    }
+   },
+   "moment": {
+    "consistent": {
+     "2": {"all": "6.28e-1", "where": "C-L2 FLAT M_mid_Nm mode 4", "L2": "6.28e-1", "L64": "6.28e-1"},
+     "4": {"all": "9.73e-1", "where": "P-L2 FLAT M_quarter_Nm mode 5", "L2": "9.73e-1", "L64": "9.72e-1"},
+     "8": {"all": "2.98e-3", "where": "P-L2 FLAT M_quarter_Nm mode 4", "L2": "2.98e-3", "L64": "2.93e-3"},
+     "16": {"all": "5.19e-5", "where": "P-L64 FLAT M_quarter_Nm mode 5", "L2": "4.58e-5", "L64": "5.19e-5"}
+    },
+    "lumped": {
+     "2": {"all": "6.13e-1", "where": "C-L64 FLAT M_mid_Nm mode 2", "L2": "6.13e-1", "L64": "6.13e-1"},
+     "4": {"all": "1.24e+0", "where": "P-L64 FLAT M_quarter_Nm mode 2", "L2": "1.24e+0", "L64": "1.24e+0"},
+     "8": {"all": "9.55e-1", "where": "P-L64 FLAT M_quarter_Nm mode 4", "L2": "9.52e-1", "L64": "9.55e-1"},
+     "16": {"all": "2.14e-1", "where": "P-L64 FLAT M_quarter_Nm mode 4", "L2": "2.12e-1", "L64": "2.14e-1"}
+    }
+   },
+   "reaction": {
+    "consistent": {
+     "2": {"all": "7.07e-1", "where": "C-L2 TWO_SEGMENT_L2 F0_N mode 4", "L2": "7.07e-1", "L64": "7.07e-1"},
+     "4": {"all": "7.85e-1", "where": "P-L64 FLAT F0_N mode 4", "L2": "7.84e-1", "L64": "7.85e-1"},
+     "8": {"all": "1.06e-2", "where": "P-L64 TWO_SEGMENT_L64 FL_N mode 5", "L2": "1.06e-2", "L64": "1.06e-2"},
+     "16": {"all": "1.44e-4", "where": "P-L64 TWO_SEGMENT_L64 FL_N mode 5", "L2": "1.43e-4", "L64": "1.44e-4"}
+    },
+    "lumped": {
+     "2": {"all": "4.97e-1", "where": "P-L64 TWO_SEGMENT_L64 FL_N mode 1", "L2": "4.97e-1", "L64": "4.97e-1"},
+     "4": {"all": "7.62e-1", "where": "S-L64 TWO_SEGMENT_L64 FL_N mode 3", "L2": "7.62e-1", "L64": "7.62e-1"},
+     "8": {"all": "5.70e-1", "where": "S-L64 FLAT FL_N mode 5", "L2": "5.69e-1", "L64": "5.70e-1"},
+     "16": {"all": "1.57e-1", "where": "S-L64 FLAT F0_N mode 5", "L2": "1.55e-1", "L64": "1.57e-1"}
+    }
+   }
+  },
+  "combined": {
+   "displacement": {
+    "consistent": {
+     "2": {"all": "1.21e-2", "where": "F-L2 FLAT w_mid_m SRSS over 2 modes", "L2": "1.21e-2", "L64": "1.21e-2"},
+     "4": {"all": "9.24e-4", "where": "F-L2 TWO_SEGMENT_L2 w_mid_m CQC over 5 modes", "L2": "9.24e-4", "L64": "9.24e-4"},
+     "8": {"all": "6.24e-5", "where": "F-L2 TWO_SEGMENT_L2 w_mid_m CQC over 5 modes", "L2": "6.24e-5", "L64": "6.24e-5"},
+     "16": {"all": "3.97e-6", "where": "F-L2 TWO_SEGMENT_L2 w_mid_m CQC over 5 modes", "L2": "3.97e-6", "L64": "3.96e-6"}
+    },
+    "lumped": {
+     "2": {"all": "2.07e-1", "where": "S-L64 TWO_SEGMENT_L64 w_mid_m SRSS over 1 modes", "L2": "2.07e-1", "L64": "2.07e-1"},
+     "4": {"all": "5.16e-2", "where": "S-L64 TWO_SEGMENT_L64 w_mid_m SRSS over 3 modes", "L2": "5.16e-2", "L64": "5.16e-2"},
+     "8": {"all": "1.29e-2", "where": "S-L64 TWO_SEGMENT_L64 w_mid_m SRSS over 5 modes", "L2": "1.29e-2", "L64": "1.29e-2"},
+     "16": {"all": "3.22e-3", "where": "S-L64 TWO_SEGMENT_L64 w_mid_m SRSS over 5 modes", "L2": "3.21e-3", "L64": "3.22e-3"}
+    }
+   },
+   "force": {
+    "consistent": {
+     "2": {"all": "2.64e-2", "where": "P-L64 TWO_SEGMENT_L64 V_mid_N CQC over 3 modes", "L2": "2.64e-2", "L64": "2.64e-2"},
+     "4": {"all": "2.05e-3", "where": "C-L64 TWO_SEGMENT_L64 V_mid_N SRSS over 5 modes", "L2": "2.05e-3", "L64": "2.05e-3"},
+     "8": {"all": "6.95e-5", "where": "S-L64 TWO_SEGMENT_L64 V_quarter_N CQC over 5 modes", "L2": "6.93e-5", "L64": "6.95e-5"},
+     "16": {"all": "3.10e-6", "where": "F-L2 TWO_SEGMENT_L2 V_quarter_N SRSS over 5 modes", "L2": "3.10e-6", "L64": "3.08e-6"}
+    },
+    "lumped": {
+     "2": {"all": "3.93e-1", "where": "P-L64 TWO_SEGMENT_L64 V_mid_N SRSS over 1 modes", "L2": "3.93e-1", "L64": "3.93e-1"},
+     "4": {"all": "1.22e-1", "where": "S-L64 TWO_SEGMENT_L64 V_quarter_N SRSS over 3 modes", "L2": "1.22e-1", "L64": "1.22e-1"},
+     "8": {"all": "3.69e-2", "where": "S-L64 TWO_SEGMENT_L64 V_quarter_N CQC over 5 modes", "L2": "3.67e-2", "L64": "3.69e-2"},
+     "16": {"all": "9.74e-3", "where": "S-L64 TWO_SEGMENT_L64 V_quarter_N CQC over 5 modes", "L2": "9.57e-3", "L64": "9.74e-3"}
+    }
+   },
+   "moment": {
+    "consistent": {
+     "2": {"all": "6.04e-3", "where": "F-L64 FLAT M_mid_Nm SRSS over 2 modes", "L2": "6.04e-3", "L64": "6.04e-3"},
+     "4": {"all": "7.85e-3", "where": "F-L64 TWO_SEGMENT_L64 M_quarter_Nm SRSS over 5 modes", "L2": "7.85e-3", "L64": "7.85e-3"},
+     "8": {"all": "9.32e-5", "where": "F-L2 TWO_SEGMENT_L2 M_quarter_Nm CQC over 5 modes", "L2": "9.32e-5", "L64": "9.06e-5"},
+     "16": {"all": "4.08e-6", "where": "F-L2 TWO_SEGMENT_L2 M_mid_Nm CQC over 5 modes", "L2": "4.08e-6", "L64": "4.06e-6"}
+    },
+    "lumped": {
+     "2": {"all": "3.84e-1", "where": "F-L64 FLAT M_mid_Nm SRSS over 1 modes", "L2": "3.84e-1", "L64": "3.84e-1"},
+     "4": {"all": "4.55e-1", "where": "F-L2 FLAT M_quarter_Nm CQC over 3 modes", "L2": "4.55e-1", "L64": "4.55e-1"},
+     "8": {"all": "1.41e-1", "where": "F-L2 TWO_SEGMENT_L2 M_quarter_Nm SRSS over 5 modes", "L2": "1.41e-1", "L64": "1.41e-1"},
+     "16": {"all": "3.49e-2", "where": "F-L2 TWO_SEGMENT_L2 M_quarter_Nm SRSS over 5 modes", "L2": "3.49e-2", "L64": "3.49e-2"}
+    }
+   },
+   "reaction": {
+    "consistent": {
+     "2": {"all": "4.21e-2", "where": "C-L64 TWO_SEGMENT_L64 F0_N CQC over 4 modes", "L2": "4.20e-2", "L64": "4.21e-2"},
+     "4": {"all": "4.43e-3", "where": "F-L64 FLAT FL_N CQC over 5 modes", "L2": "4.42e-3", "L64": "4.43e-3"},
+     "8": {"all": "7.20e-5", "where": "P-L64 TWO_SEGMENT_L64 FL_N SRSS over 5 modes", "L2": "7.15e-5", "L64": "7.20e-5"},
+     "16": {"all": "3.87e-6", "where": "F-L2 TWO_SEGMENT_L2 M0_Nm SRSS over 5 modes", "L2": "3.87e-6", "L64": "3.86e-6"}
+    },
+    "lumped": {
+     "2": {"all": "4.97e-1", "where": "P-L64 TWO_SEGMENT_L64 FL_N SRSS over 1 modes", "L2": "4.97e-1", "L64": "4.97e-1"},
+     "4": {"all": "1.38e-1", "where": "P-L64 TWO_SEGMENT_L64 FL_N CQC over 3 modes", "L2": "1.38e-1", "L64": "1.38e-1"},
+     "8": {"all": "3.88e-2", "where": "P-L64 TWO_SEGMENT_L64 FL_N CQC over 5 modes", "L2": "3.86e-2", "L64": "3.88e-2"},
+     "16": {"all": "9.96e-3", "where": "P-L64 TWO_SEGMENT_L64 FL_N CQC over 5 modes", "L2": "9.74e-3", "L64": "9.96e-3"}
+    }
+   }
+  },
+  "missing_mass_total": {
+   "displacement": {
+    "consistent": {
+     "2": {"all": "2.39e-2", "where": "F-L2 FLAT w_mid_m truncation 1 SRSS+ABSSUM", "L2": "2.39e-2", "L64": "2.39e-2"},
+     "4": {"all": "1.29e-2", "where": "F-L2 TWO_SEGMENT_L2 w_mid_m truncation 3 CQC+ABSSUM", "L2": "1.29e-2", "L64": "1.29e-2"},
+     "8": {"all": "1.10e-3", "where": "F-L2 TWO_SEGMENT_L2 w_mid_m truncation 5 SRSS+ABSSUM", "L2": "1.10e-3", "L64": "1.10e-3"},
+     "16": {"all": "3.97e-6", "where": "F-L2 TWO_SEGMENT_L2 w_mid_m truncation 3 CQC+SRSS", "L2": "3.97e-6", "L64": "3.96e-6"}
+    },
+    "lumped": {
+     "2": {"all": "2.14e-1", "where": "S-L64 TWO_SEGMENT_L64 w_mid_m truncation 2 SRSS+ABSSUM", "L2": "2.14e-1", "L64": "2.14e-1"},
+     "4": {"all": "5.43e-2", "where": "S-L64 TWO_SEGMENT_L64 w_mid_m truncation 2 SRSS+ABSSUM", "L2": "5.43e-2", "L64": "5.43e-2"},
+     "8": {"all": "1.36e-2", "where": "S-L64 TWO_SEGMENT_L64 w_mid_m truncation 2 SRSS+ABSSUM", "L2": "1.35e-2", "L64": "1.36e-2"},
+     "16": {"all": "3.39e-3", "where": "S-L64 TWO_SEGMENT_L64 w_mid_m truncation 2 SRSS+ABSSUM", "L2": "3.36e-3", "L64": "3.39e-3"}
+    }
+   },
+   "force": {
+    "consistent": {
+     "2": {"all": "1.34e-1", "where": "C-L2 TWO_SEGMENT_L2 V_mid_N truncation 3 CQC+ABSSUM", "L2": "1.34e-1", "L64": "1.34e-1"},
+     "4": {"all": "1.91e-1", "where": "S-L64 TWO_SEGMENT_L64 V_quarter_N truncation 3 CQC+ABSSUM", "L2": "1.91e-1", "L64": "1.91e-1"},
+     "8": {"all": "2.44e-2", "where": "P-L2 TWO_SEGMENT_L2 V_quarter_N truncation 5 SRSS+ABSSUM", "L2": "2.44e-2", "L64": "2.44e-2"},
+     "16": {"all": "1.18e-5", "where": "S-L64 TWO_SEGMENT_L64 V_quarter_N truncation 5 CQC+ABSSUM", "L2": "1.18e-5", "L64": "1.18e-5"}
+    },
+    "lumped": {
+     "2": {"all": "4.80e-1", "where": "P-L64 TWO_SEGMENT_L64 V_mid_N truncation 1 SRSS+ABSSUM", "L2": "4.80e-1", "L64": "4.80e-1"},
+     "4": {"all": "2.45e-1", "where": "S-L64 TWO_SEGMENT_L64 V_quarter_N truncation 2 SRSS+ABSSUM", "L2": "2.44e-1", "L64": "2.45e-1"},
+     "8": {"all": "7.69e-2", "where": "S-L64 TWO_SEGMENT_L64 V_quarter_N truncation 5 CQC+ABSSUM", "L2": "7.66e-2", "L64": "7.69e-2"},
+     "16": {"all": "2.11e-2", "where": "S-L64 TWO_SEGMENT_L64 V_quarter_N truncation 5 CQC+ABSSUM", "L2": "2.08e-2", "L64": "2.11e-2"}
+    }
+   },
+   "moment": {
+    "consistent": {
+     "2": {"all": "1.43e-1", "where": "F-L2 FLAT M_mid_Nm truncation 1 SRSS+ABSSUM", "L2": "1.43e-1", "L64": "1.43e-1"},
+     "4": {"all": "2.60e-1", "where": "P-L2 FLAT M_quarter_Nm truncation 3 SRSS+ABSSUM", "L2": "2.60e-1", "L64": "2.60e-1"},
+     "8": {"all": "5.33e-2", "where": "F-L64 TWO_SEGMENT_L64 M_quarter_Nm truncation 5 CQC+ABSSUM", "L2": "5.33e-2", "L64": "5.33e-2"},
+     "16": {"all": "4.55e-6", "where": "F-L2 TWO_SEGMENT_L2 M_mid_Nm truncation 5 CQC+ABSSUM", "L2": "4.55e-6", "L64": "4.52e-6"}
+    },
+    "lumped": {
+     "2": {"all": "3.80e-1", "where": "F-L64 FLAT M_mid_Nm truncation 1 SRSS+SRSS", "L2": "3.80e-1", "L64": "3.80e-1"},
+     "4": {"all": "5.07e-1", "where": "F-L2 FLAT M_quarter_Nm truncation 1 SRSS+SRSS", "L2": "5.07e-1", "L64": "5.07e-1"},
+     "8": {"all": "1.65e-1", "where": "F-L64 TWO_SEGMENT_L64 M_quarter_Nm truncation 3 CQC+ABSSUM", "L2": "1.65e-1", "L64": "1.65e-1"},
+     "16": {"all": "4.05e-2", "where": "F-L64 TWO_SEGMENT_L64 M_quarter_Nm truncation 3 CQC+ABSSUM", "L2": "4.05e-2", "L64": "4.05e-2"}
+    }
+   },
+   "reaction": {
+    "consistent": {
+     "2": {"all": "3.30e-1", "where": "F-L2 TWO_SEGMENT_L2 FL_N truncation 1 SRSS+SRSS", "L2": "3.30e-1", "L64": "3.30e-1"},
+     "4": {"all": "1.62e-1", "where": "P-L64 TWO_SEGMENT_L64 FL_N truncation 3 CQC+ABSSUM", "L2": "1.62e-1", "L64": "1.62e-1"},
+     "8": {"all": "7.00e-2", "where": "P-L64 TWO_SEGMENT_L64 FL_N truncation 5 SRSS+ABSSUM", "L2": "6.99e-2", "L64": "7.00e-2"},
+     "16": {"all": "1.25e-5", "where": "P-L64 TWO_SEGMENT_L64 FL_N truncation 5 CQC+ABSSUM", "L2": "1.24e-5", "L64": "1.25e-5"}
+    },
+    "lumped": {
+     "2": {"all": "5.66e-1", "where": "S-L64 TWO_SEGMENT_L64 F0_N truncation 5 SRSS+ABSSUM", "L2": "5.66e-1", "L64": "5.66e-1"},
+     "4": {"all": "2.79e-1", "where": "S-L64 TWO_SEGMENT_L64 F0_N truncation 5 SRSS+ABSSUM", "L2": "2.78e-1", "L64": "2.79e-1"},
+     "8": {"all": "9.34e-2", "where": "S-L64 TWO_SEGMENT_L64 F0_N truncation 5 SRSS+ABSSUM", "L2": "9.30e-2", "L64": "9.34e-2"},
+     "16": {"all": "2.42e-2", "where": "S-L64 TWO_SEGMENT_L64 F0_N truncation 5 SRSS+ABSSUM", "L2": "2.39e-2", "L64": "2.42e-2"}
+    }
+   }
+  },
+  "missing_mass_total_same_classification": {
+   "displacement": {
+    "consistent": {
+     "2": {"all": "5.99e-3", "where": "P-L64 FLAT w_mid_m truncation 1 SRSS+ABSSUM", "L2": "5.99e-3", "L64": "5.99e-3"},
+     "4": {"all": "9.30e-4", "where": "F-L2 TWO_SEGMENT_L2 w_mid_m truncation 1 SRSS+SRSS", "L2": "9.30e-4", "L64": "9.30e-4"},
+     "8": {"all": "6.25e-5", "where": "F-L2 TWO_SEGMENT_L2 w_mid_m truncation 3 CQC+SRSS", "L2": "6.25e-5", "L64": "6.24e-5"},
+     "16": {"all": "3.97e-6", "where": "F-L2 TWO_SEGMENT_L2 w_mid_m truncation 3 CQC+SRSS", "L2": "3.97e-6", "L64": "3.96e-6"}
+    },
+    "lumped": {
+     "2": {"all": "2.10e-1", "where": "S-L64 TWO_SEGMENT_L64 w_mid_m truncation 1 SRSS+ABSSUM", "L2": "2.10e-1", "L64": "2.10e-1"},
+     "4": {"all": "5.43e-2", "where": "S-L64 TWO_SEGMENT_L64 w_mid_m truncation 2 SRSS+ABSSUM", "L2": "5.43e-2", "L64": "5.43e-2"},
+     "8": {"all": "1.36e-2", "where": "S-L64 TWO_SEGMENT_L64 w_mid_m truncation 2 SRSS+ABSSUM", "L2": "1.35e-2", "L64": "1.36e-2"},
+     "16": {"all": "3.39e-3", "where": "S-L64 TWO_SEGMENT_L64 w_mid_m truncation 2 SRSS+ABSSUM", "L2": "3.36e-3", "L64": "3.39e-3"}
+    }
+   },
+   "force": {
+    "consistent": {
+     "2": {"all": "1.14e-2", "where": "P-L2 FLAT V_mid_N truncation 1 SRSS+ABSSUM", "L2": "1.14e-2", "L64": "1.14e-2"},
+     "4": {"all": "4.57e-3", "where": "C-L64 TWO_SEGMENT_L64 V_mid_N truncation 3 SRSS+ABSSUM", "L2": "4.57e-3", "L64": "4.57e-3"},
+     "8": {"all": "8.52e-4", "where": "S-L64 TWO_SEGMENT_L64 V_quarter_N truncation 5 CQC+ABSSUM", "L2": "8.51e-4", "L64": "8.52e-4"},
+     "16": {"all": "1.18e-5", "where": "S-L64 TWO_SEGMENT_L64 V_quarter_N truncation 5 CQC+ABSSUM", "L2": "1.18e-5", "L64": "1.18e-5"}
+    },
+    "lumped": {
+     "2": {"all": "4.80e-1", "where": "P-L64 TWO_SEGMENT_L64 V_mid_N truncation 1 SRSS+ABSSUM", "L2": "4.80e-1", "L64": "4.80e-1"},
+     "4": {"all": "2.45e-1", "where": "S-L64 TWO_SEGMENT_L64 V_quarter_N truncation 2 SRSS+ABSSUM", "L2": "2.44e-1", "L64": "2.45e-1"},
+     "8": {"all": "7.69e-2", "where": "S-L64 TWO_SEGMENT_L64 V_quarter_N truncation 5 CQC+ABSSUM", "L2": "7.66e-2", "L64": "7.69e-2"},
+     "16": {"all": "2.11e-2", "where": "S-L64 TWO_SEGMENT_L64 V_quarter_N truncation 5 CQC+ABSSUM", "L2": "2.08e-2", "L64": "2.11e-2"}
+    }
+   },
+   "moment": {
+    "consistent": {
+     "2": {"all": "1.08e-2", "where": "C-L64 TWO_SEGMENT_L64 M_mid_Nm truncation 2 SRSS+ABSSUM", "L2": "1.08e-2", "L64": "1.08e-2"},
+     "4": {"all": "1.07e-3", "where": "F-L2 TWO_SEGMENT_L2 M_mid_Nm truncation 1 SRSS+SRSS", "L2": "1.07e-3", "L64": "1.06e-3"},
+     "8": {"all": "1.35e-4", "where": "F-L2 TWO_SEGMENT_L2 M_quarter_Nm truncation 3 SRSS+ABSSUM", "L2": "1.35e-4", "L64": "1.29e-4"},
+     "16": {"all": "4.55e-6", "where": "F-L2 TWO_SEGMENT_L2 M_mid_Nm truncation 5 CQC+ABSSUM", "L2": "4.55e-6", "L64": "4.52e-6"}
+    },
+    "lumped": {
+     "2": {"all": "3.80e-1", "where": "F-L64 FLAT M_mid_Nm truncation 1 SRSS+SRSS", "L2": "3.80e-1", "L64": "3.80e-1"},
+     "4": {"all": "5.07e-1", "where": "F-L2 FLAT M_quarter_Nm truncation 1 SRSS+SRSS", "L2": "5.07e-1", "L64": "5.07e-1"},
+     "8": {"all": "1.65e-1", "where": "F-L64 TWO_SEGMENT_L64 M_quarter_Nm truncation 3 CQC+ABSSUM", "L2": "1.65e-1", "L64": "1.65e-1"},
+     "16": {"all": "4.05e-2", "where": "F-L64 TWO_SEGMENT_L64 M_quarter_Nm truncation 3 CQC+ABSSUM", "L2": "4.05e-2", "L64": "4.05e-2"}
+    }
+   },
+   "reaction": {
+    "consistent": {
+     "2": {"all": "6.18e-3", "where": "P-L64 TWO_SEGMENT_L64 M0_Nm truncation 1 SRSS+ABSSUM", "L2": "6.18e-3", "L64": "6.18e-3"},
+     "4": {"all": "1.26e-3", "where": "C-L64 TWO_SEGMENT_L64 F0_N truncation 3 SRSS+ABSSUM", "L2": "1.26e-3", "L64": "1.26e-3"},
+     "8": {"all": "6.51e-4", "where": "S-L64 TWO_SEGMENT_L64 FL_N truncation 5 SRSS+ABSSUM", "L2": "6.50e-4", "L64": "6.51e-4"},
+     "16": {"all": "1.25e-5", "where": "P-L64 TWO_SEGMENT_L64 FL_N truncation 5 CQC+ABSSUM", "L2": "1.24e-5", "L64": "1.25e-5"}
+    },
+    "lumped": {
+     "2": {"all": "3.22e-1", "where": "F-L64 TWO_SEGMENT_L64 M0_Nm truncation 1 SRSS+ABSSUM", "L2": "3.21e-1", "L64": "3.22e-1"},
+     "4": {"all": "2.03e-1", "where": "P-L64 TWO_SEGMENT_L64 FL_N truncation 3 SRSS+ABSSUM", "L2": "2.03e-1", "L64": "2.03e-1"},
+     "8": {"all": "9.34e-2", "where": "S-L64 TWO_SEGMENT_L64 F0_N truncation 5 SRSS+ABSSUM", "L2": "9.30e-2", "L64": "9.34e-2"},
+     "16": {"all": "2.42e-2", "where": "S-L64 TWO_SEGMENT_L64 F0_N truncation 5 SRSS+ABSSUM", "L2": "2.39e-2", "L64": "2.42e-2"}
+    }
+   }
+  }
+ },
+ "largest_sensitivity": {
+  "definition": "max |d ln R_SRSS / d ln f_n| over realizations, quantities and modes (sensitivity.json), a conditional SRSS sensitivity with shape, participation and force-recovery coefficient held fixed; under that premise a relative frequency disagreement e moves R by about e times this",
+  "by_kind_and_spectrum": {
+   "displacement": {
+    "FLAT": {"max_abs_dlnR_dlnf": "1.99997e+0", "where": "S-L2 w_mid_m mode 1"},
+    "TWO_SEGMENT": {"max_abs_dlnR_dlnf": "1.24991e+0", "where": "S-L64 w_mid_m mode 1"}
+   },
+   "force": {
+    "FLAT": {"max_abs_dlnR_dlnf": "0", "where": "C-L2 V_quarter_N mode 1"},
+    "TWO_SEGMENT": {"max_abs_dlnR_dlnf": "7.44902e-1", "where": "P-L2 V_quarter_N mode 1"}
+   },
+   "moment": {
+    "FLAT": {"max_abs_dlnR_dlnf": "0", "where": "C-L2 M_mid_Nm mode 1"},
+    "TWO_SEGMENT": {"max_abs_dlnR_dlnf": "7.45516e-1", "where": "S-L64 M_quarter_Nm mode 1"}
+   },
+   "reaction": {
+    "FLAT": {"max_abs_dlnR_dlnf": "0", "where": "C-L2 F0_N mode 1"},
+    "TWO_SEGMENT": {"max_abs_dlnR_dlnf": "7.43611e-1", "where": "F-L64 M0_Nm mode 1"}
+   }
+  }
+ },
+ "cross_checks": [
+  {"id": "SCREEN-complete", "what": "every response kind has a consistent N = 16 deviation", "agrees": true}
+ ]
+}
