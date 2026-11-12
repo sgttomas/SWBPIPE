@@ -54,6 +54,8 @@ It serves SOW-069 and SOW-070 under OBJ-015 (`execution/_Decomposition/SOFTWARE_
 - The reference system, its key results and its independent references are DEL-09-01's. Building the supplier into the application and signing it are DEL-10-04's.
 - What may be sent to a provider is set by `docs/IP_AND_DATA_BOUNDARY.md` §6.1. This deliverable adds no destination beyond the provider the person configured.
 
+The embedded agent host is switched on, and it is built to work on machines other than the one it was built on.
+
 **Not decided.** Whether the agent may ever apply a change itself, within autonomy the person granted, is undecided (DEL-16-03). Until it is decided the catalog has no tool that applies, accepts or grants. Whether an agent may propose person-entered values (k, the SIFs, the other component modifiers and their source, and bend realization) is undecided. Release limitation LIM-001 (`docs/RELEASE_LIMITATIONS_v1.0.md`), which refuses them and leaves the person to enter them during the journey of exit criterion 17, awaits the owner's acceptance.
 
 ## Completion and Reliance Basis — Epistemology

@@ -74,6 +74,29 @@ code-compliance, target-validation, or security-certification claims.
 | Rule evaluator | User rule logic may be private and evaluator execution must not become arbitrary code execution. | Use sandboxed, deterministic, unit-aware evaluation; carry checksums, private/public markings, and source notices. |
 | Build and release supply chain | Dependencies, plugins, build tools, or release packages may be compromised or provenance-weak. | Require dependency/license/provenance review, reproducible build evidence where available, artifact integrity checks, and release gates. |
 
+### Embedded agent sandbox: the libinfo later-binding residual
+
+The following is lines 3 to 20 of `execution/PKG-16/DEL-16-06/Work/agent-libinfo-elimination.md` at commit 0d2d37260, restored unchanged; the allow it concerns is the single `mach-lookup` of `com.apple.system.opendirectoryd.libinfo` in the embedded agent's sandbox profile, `apps/desktop/src-tauri/src/embedded_agent/sandbox.rs`.
+
+**Standing: source/manual characterization, one refused synthetic-identity
+diagnostic and accepted exact-libinfo config admission; no caller-capture run.**
+The single allow is fixture-qualified and now emitted by the unwired host
+profile source. The owner has authorized activation and accepted the specific
+later-binding residual below; that decision is not missing implementation
+evidence or proof of necessity. The focused hash/delta guard binds this source
+to the reviewed and executed profile bytes.
+
+**Subsequent owner activation basis, 2026-10-29:** Agent 0 relayed the owner's
+“Switch it on. The app should be built so it will work on other machines too.”
+as lifting the activation gate and accepting this libinfo later-binding
+residual. The earlier fixture-only status and pending-owner statements below
+describe their historical evidence. The condition that an AD, LDAP or NIS
+binding added later reopens the allow for review remains the accepted residual;
+it is not silently removed or converted to a no-brokered-network guarantee.
+The earlier host queries remain a snapshot, not portable isolation evidence.
+Cleanup, credential, relay and native-session qualification still precede
+launcher exposure; their missing proof is not supplied by the owner's decision.
+
 ## Threat Inventory
 
 | ID | Surface | Threat | Initial risk | Required controls or open decisions |
