@@ -60,6 +60,63 @@ export function carriesSizedHangerSelection(batch: OperationBatch): boolean {
     operation?.target?.object_type === "Support" && operation?.change?.field_label === SIZED_HANGER_SELECTION_FIELD_LABEL);
 }
 
+/** The engine's names for a variable spring hanger and a constant-effort support (core/product_physics/src/lib.rs,
+ * `is_variable_spring_hanger` and `is_constant_effort_support`); a test pins them to the engine's source. */
+export const ENGINE_VARIABLE_SPRING_HANGER_TYPES: readonly string[] = ["variable_spring_hanger", "spring_hanger"];
+export const ENGINE_CONSTANT_EFFORT_SUPPORT_TYPES: readonly string[] = ["constant_effort_support"];
+
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
+
+/** The engine's classification of a support value, mirroring `support_hanger_type`: the trimmed `hanger.hanger_type`
+ * when it is a text that is not blank, else the trimmed `family`; then the names above. */
+export function engineHangerKind(value: unknown): "variable_spring" | "constant_effort" | null {
+  if (!isRecord(value)) return null;
+  const hangerType = isRecord(value.hanger) && typeof value.hanger.hanger_type === "string" ? value.hanger.hanger_type.trim() : "";
+  const effective = hangerType !== "" ? hangerType : typeof value.family === "string" ? value.family.trim() : null;
+  if (effective === null) return null;
+  if (ENGINE_VARIABLE_SPRING_HANGER_TYPES.includes(effective)) return "variable_spring";
+  if (ENGINE_CONSTANT_EFFORT_SUPPORT_TYPES.includes(effective)) return "constant_effort";
+  return null;
+}
+
+/** The field paths through which an operation on a Support can write its hanger member or family, checked against the
+ * operation route (core/model_operations/operation_applier): `configuration` (update_support, which replaces the
+ * support's configuration) and `supports` (create_support, and delete_support, whose `before` is the support's label).
+ * The route's other Support paths (label, provenance, node, restraints, tags, notes, provenance_record) cannot. */
+export const SUPPORT_HANGER_FIELD_PATHS: readonly string[] = ["configuration", "supports"];
+
+/** A change's before or after as the predicate reads it: absent (`not_present`), a value, or unreadable. */
+function changeValue(text: unknown): { kind: "absent" } | { kind: "value"; value: unknown } | { kind: "unreadable" } {
+  if (text === "not_present") return { kind: "absent" };
+  if (typeof text !== "string") return { kind: "unreadable" };
+  try {
+    return { kind: "value", value: JSON.parse(text) };
+  } catch {
+    return { kind: "unreadable" };
+  }
+}
+
+/** Whether a value written or replaced on a support is a hanger: it has a `hanger` member at all (any value), or the
+ * engine classifies it as one. A value that is unreadable, or not a support object (a delete's `before` is the
+ * support's label), counts as a hanger: it fails closed. */
+function isHangerValue(read: ReturnType<typeof changeValue>): boolean {
+  if (read.kind === "absent") return false;
+  if (read.kind === "unreadable" || !isRecord(read.value)) return true;
+  return "hanger" in read.value || engineHangerKind(read.value) !== null;
+}
+
+/** Whether `batch` writes a support's hanger selection, by structure only: any operation on a Support, on one of
+ * `SUPPORT_HANGER_FIELD_PATHS`, whose after or before value is a hanger. No label, note or rationale is read. */
+export function writesSupportHangerSelection(batch: OperationBatch): boolean {
+  const operations: unknown = (batch as { operations?: unknown } | null | undefined)?.operations;
+  if (!Array.isArray(operations)) return false;
+  return operations.some((operation: unknown) => {
+    if (!isRecord(operation) || !isRecord(operation.target) || !isRecord(operation.change)) return false;
+    if (operation.target.object_type !== "Support" || !SUPPORT_HANGER_FIELD_PATHS.includes(String(operation.change.field_path))) return false;
+    return isHangerValue(changeValue(operation.change.after)) || isHangerValue(changeValue(operation.change.before));
+  });
+}
+
 const FAMILY_OF = { variable_spring: "variable_spring_hanger", constant_effort: "constant_effort_support" } as const;
 const SIZED_LOAD_UNIT = "N";
 const RECORD_LOAD_MEMBERS = ["installed_load", "cold_load", "hot_load", "constant_load"] as const;
