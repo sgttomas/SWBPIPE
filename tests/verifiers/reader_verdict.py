@@ -23,7 +23,8 @@ retires (`numericalResultQuality.ts`'s `sourceContract` and `numericalResultStan
   needs, no identity outside these routes).
 - pressure-2 (DEL-04-07 `pressure-contract.md`, "Reading pressure-2"): its own route, read here by the
   independent `pressure_3` verifier with G2's model checks and the ordinary standing; it has no transport
-  reader, so a transported pressure-2 statement is refused by name.
+  reader, so a transported pressure-2 statement is refused by name, and its standing finding is that
+  refusal's code and message.
 - B7b (A4/A5): five routes (`pressure_source`, `preview_physics`, `pressure`, `retained_preview_physics`,
   `retained_physics`) and four readers (`preview-physics`, `pressure-source`, `source-recovery`,
   `pressure`), as Rust's `ROUTES` and `READERS`. A stored `2.0.0/exact_straight_pressure_v2` result is
@@ -544,7 +545,9 @@ def standing(source: Any, model: Any = None, invocation: Any = None) -> dict[str
         name = route(source)
     except Refused as error:
         code = str(error)
-        findings.append(code if code in {c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN", c.MECHANICS_RESULT_VERSION_RETIRED} else SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED)
+        # A pressure-2 result is refused with its message (it must be re-solved, DEL-04-07).
+        passed = code in {c.RETAINED_PRECISION_DOWNGRADE_FORBIDDEN, "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN", c.MECHANICS_RESULT_VERSION_RETIRED} or code.startswith(f"{c.SOURCE_PRESSURE_2_RETIRED}: ")
+        findings.append(code if passed else SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED)
         name = UNSUPPORTED
     def done(findings: list[str]) -> dict[str, Any]:
         eligible = not findings

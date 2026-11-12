@@ -578,8 +578,17 @@ pub fn standing(source: &Value, model: Option<&Value>, invocation: Option<&Value
     let route = match routed {
         Ok((route, _)) => route,
         Err(code) => {
+            // A pressure-2 result is refused with its message: it predates the pressure elongation
+            // setting and must be re-solved (DEL-04-07). Every other route error is unsupported.
             findings.push(
-                if matches!(code.as_str(), sc::RETAINED_PRECISION_DOWNGRADE_FORBIDDEN | "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN") || code == sc::MECHANICS_RESULT_VERSION_RETIRED { code } else { SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into() },
+                if matches!(code.as_str(), sc::RETAINED_PRECISION_DOWNGRADE_FORBIDDEN | "SOURCE_BLOCKS_DOWNGRADE_FORBIDDEN")
+                    || code == sc::MECHANICS_RESULT_VERSION_RETIRED
+                    || code == sc::SOURCE_PRESSURE_2_RETIRED_TEXT
+                {
+                    code
+                } else {
+                    SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED.into()
+                },
             );
             UNSUPPORTED
         }

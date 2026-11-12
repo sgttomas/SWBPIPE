@@ -420,6 +420,10 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
   // The route the record is read on: the recorded dispatch's under a variant (a successor's
   // header reads only under its variant), else the current dispatch's.
   const route = recorded ? recorded.route : sourceContract(source);
+  // A pressure-2 source is refused by name with its message (DEL-04-07); every other route
+  // error is the version mismatch.
+  const retired = recorded ? null : readerDispatch(source).error;
+  if (retired?.code === "SOURCE_PRESSURE_2_RETIRED") throw new ResultReaderError(retired.code, retired.detail);
   if (!(recorded || hasCurrentSourceContract(source)) || record.schema_version !== ANALYSIS_RUN_V03 || record.run_contract_status.record_contract !== "strict_analysis_run_v0_3") throw new Error("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
   if (route === "preview_physics") {
     if (recorded) recordedReaderValidate(source, recorded.binding);

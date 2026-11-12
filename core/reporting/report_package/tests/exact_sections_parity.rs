@@ -478,7 +478,7 @@ fn the_runner_profile_refuses_an_exact_identity_whatever_the_report_carries() {
     let document = invented_document(&source);
     refuses(check_runner_profile(RUNNER_PROFILE, &document), EXACT_RUNNER_PROFILE, "runner, pressure-2");
     let error = check_runner_profile(RUNNER_PROFILE, &document).unwrap_err();
-    assert_eq!(error, format!("{EXACT_RUNNER_PROFILE}: the runner profile does not package pressure-2 or pressure-source-1 results; only the desktop builds their sections."));
+    assert_eq!(error, format!("{EXACT_RUNNER_PROFILE}: the runner profile does not package pressure-3 or pressure-source-1 results; only the desktop builds their sections."));
     let mut source_1 = document.clone();
     source_1["result_envelope"]["producer"]["semantic_contract_id"] = Value::from("openpipestress.result_semantics/0.3.0/pressure-source-1");
     refuses(check_runner_profile(RUNNER_PROFILE, &source_1), EXACT_RUNNER_PROFILE, "runner, pressure-source-1");
