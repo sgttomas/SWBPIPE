@@ -24,9 +24,9 @@
 use crate::admission::admit;
 use crate::derived::{self, derived_document, Role, SizingRequest};
 use crate::publish::{
-    self, checked_sha256, parse_sizing_request, record_object, roles_for, sized_document, solve_plan, BASIS_STATEMENT,
-    CANONICAL_PROFILE, DOCUMENT_KIND, LIMITATIONS, LOAD_CATEGORIES, REFUSAL_CODES, ROUTE, SCHEMA_VERSION,
-    SEMANTIC_CONTRACT_ID, STATE_CODES,
+    self, checked_sha256, parse_sizing_request, record_object, roles_for, route_of, sized_document, solve_plan,
+    BASIS_STATEMENT, CANONICAL_PROFILE, DOCUMENT_KIND, LIMITATIONS, LOAD_CATEGORIES, REFUSAL_CODES, ROUTES,
+    SCHEMA_VERSION, SEMANTIC_CONTRACT_ID, STATE_CODES,
 };
 use crate::{check_request, library, size_candidate, verify, Candidate, Dof, FamilyPolicy, Outcome, Positions, Selected};
 use serde_json::{json, Map, Value};
@@ -289,11 +289,15 @@ fn equal(a: f64, b: f64, path: &str, what: &str) -> R<()> {
     }
 }
 
-fn identity(top: &Map<String, Value>) -> R<()> {
+/// The fixed members. A sized document states the route its solves ran on; a
+/// refused one states its solve request's route, or null when no model was read.
+fn identity(top: &Map<String, Value>, sized: bool) -> R<()> {
     constant(&top["document_kind"], "$.document_kind", DOCUMENT_KIND)?;
     constant(&top["schema_version"], "$.schema_version", SCHEMA_VERSION)?;
     constant(&top["semantic_contract_id"], "$.semantic_contract_id", SEMANTIC_CONTRACT_ID)?;
-    constant(&top["route"], "$.route", ROUTE)?;
+    if sized || !top["route"].is_null() {
+        one_of(&top["route"], "$.route", &ROUTES)?;
+    }
     texts(&top["limitations"], "$.limitations", &LIMITATIONS)?;
     texts(&top["basis_statement"], "$.basis_statement", &BASIS_STATEMENT)
 }
@@ -313,7 +317,7 @@ pub fn closure(doc: &Value) -> R<()> {
 
 fn closure_refused(doc: &Value) -> R<()> {
     let top = obj(doc, "$", &REFUSED_KEYS)?;
-    identity(top)?;
+    identity(top, false)?;
     let inputs = obj(&top["inputs"], "$.inputs", &INPUT_KEYS)?;
     constant(&inputs["canonical_profile"], "$.inputs.canonical_profile", CANONICAL_PROFILE)?;
     let sizing = &inputs["sizing_request"];
@@ -351,7 +355,7 @@ fn closure_refused(doc: &Value) -> R<()> {
 
 fn closure_sized(doc: &Value) -> R<()> {
     let top = obj(doc, "$", &SIZED_KEYS)?;
-    identity(top)?;
+    identity(top, true)?;
     let inputs = obj(&top["inputs"], "$.inputs", &INPUT_KEYS)?;
     constant(&inputs["canonical_profile"], "$.inputs.canonical_profile", CANONICAL_PROFILE)?;
     let request = sizing_request(&inputs["sizing_request"], "$.inputs.sizing_request")?;
@@ -734,6 +738,9 @@ fn binding(doc: &Value, supplied: Supplied<'_>, sized: bool) -> (Standing, Vec<&
                 let result = hash_matches(solve, &inputs["solve_request"]["sha256"], "$.inputs.solve_request.sha256");
                 solve_bound = result.is_ok();
                 note(result, &mut first);
+                if solve_bound && doc["route"].as_str() != route_of(solve) {
+                    note(Err("$.route: not the supplied solve request's route".to_string()), &mut first);
+                }
             }
         }
         None => not_checked.push("solve_request"),

@@ -127,15 +127,11 @@ fn array<'a>(value: &'a Value, key: &str) -> &'a [Value] {
     value.get(key).and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[])
 }
 
-/// Case checks: every named case exists, carries no test condition and
-/// has one role; the exact route waits for increment 4.
+/// Case checks: every named case exists, carries no test condition and has
+/// one role. Both routes are sized; the route is the request's own.
 pub fn check_cases(request_doc: &Value, request: &SizingRequest) -> Vec<Refusal> {
     let model = model(request_doc);
     let mut refusals = Vec::new();
-    if is_present(model.get("pressure_contract")) {
-        refusals.push(refusal("HANGER_SIZING_EXACT_ROUTE_PENDING", Vec::new(),
-            "hanger sizing on the exact pressure route arrives with increment 4 (Design §13); this slice sizes on the pressure-free route"));
-    }
     let cases: BTreeMap<&str, &Value> = array(model, "load_cases")
         .iter()
         .filter_map(|c| Some((c.get("id")?.as_str()?, c)))
@@ -163,18 +159,37 @@ pub fn check_cases(request_doc: &Value, request: &SizingRequest) -> Vec<Refusal>
     refusals
 }
 
-/// A `support_ref` or `support_id` naming `id` anywhere in an analysis state, other
-/// than the support's own entry in `support_states` (its participation declaration,
-/// Design §3, handled with the exact route in increment 4).
-fn state_refers(value: &Value, id: &str, in_support_states: bool) -> bool {
+/// Whether the request is on the exact pressure route: its model carries a
+/// `pressure_contract`, the member whose presence selects the route
+/// (`product_physics` `model_format::is_pressure_free`).
+pub fn is_exact(request_doc: &Value) -> bool {
+    is_present(model(request_doc).get("pressure_contract"))
+}
+
+/// A `support_ref` or `support_id` naming `id` anywhere in a value.
+fn names_support(value: &Value, id: &str) -> bool {
     match value {
         Value::Object(map) => map.iter().any(|(key, v)| {
-            let names = matches!(key.as_str(), "support_ref" | "support_id") && v.as_str() == Some(id);
-            (names && !in_support_states) || state_refers(v, id, key == "support_states")
+            (matches!(key.as_str(), "support_ref" | "support_id") && v.as_str() == Some(id)) || names_support(v, id)
         }),
-        Value::Array(items) => items.iter().any(|v| state_refers(v, id, in_support_states)),
+        Value::Array(items) => items.iter().any(|v| names_support(v, id)),
         _ => false,
     }
+}
+
+/// Whether an analysis state refers to `id` other than through a support state's
+/// own `support_ref`, which is that support's declaration of its participation
+/// (REQ-002) and not a reference. A reference to `id` inside another member of a
+/// support state, or anywhere else in the state, is a reference.
+fn state_refers(state: &Value, id: &str) -> bool {
+    let Some(map) = state.as_object() else { return names_support(state, id) };
+    map.iter().any(|(key, value)| match (key.as_str(), value) {
+        ("support_states", Value::Array(entries)) => entries.iter().any(|entry| match entry.as_object() {
+            Some(entry) => entry.iter().any(|(k, v)| k != "support_ref" && names_support(v, id)),
+            None => names_support(entry, id),
+        }),
+        _ => names_support(value, id),
+    })
 }
 
 /// Whether a model object refers to the candidate through a member that references
@@ -186,7 +201,7 @@ fn referenced(model: &Value, id: &str) -> bool {
         array(case, "primitive_loads").iter().any(|load| {
             let target = &load["target"];
             target["type"] == "support" && target["support"].as_str() == Some(id)
-        }) || case.get("analysis_state").is_some_and(|state| state_refers(state, id, false))
+        }) || case.get("analysis_state").is_some_and(|state| state_refers(state, id))
     });
     let normal_source = array(model, "supports").iter().any(|support| {
         support["nonlinear"]["normal_reaction_source"]["support_ref"].as_str() == Some(id)
@@ -194,18 +209,94 @@ fn referenced(model: &Value, id: &str) -> bool {
     targeted || normal_source
 }
 
+/// The stiffness a support's spring takes, as the solver takes it: the top-level
+/// `stiffness`, or else the hanger's (`product_physics` `support_stiffness_input`).
+fn stiffness_of(support: &Value) -> &Value {
+    if is_present(support.get("stiffness")) {
+        &support["stiffness"]
+    } else {
+        &support["hanger"]["stiffness"]
+    }
+}
+
 /// The DOFs a support acts on: its rigid restraints, its nonlinear DOF and its
-/// stiffness DOF, taken as the solver takes it: the top-level `stiffness`, or else the
-/// hanger's (`product_physics` `support_stiffness_input`).
+/// stiffness DOF ([`stiffness_of`]).
 fn effective_dofs(support: &Value) -> Vec<Dof> {
     let mut dofs: Vec<Dof> = array(support, "restraints").iter().filter_map(Value::as_str).filter_map(parse_dof).collect();
-    let stiffness = if is_present(support.get("stiffness")) { &support["stiffness"] } else { &support["hanger"]["stiffness"] };
-    for dof in [&support["nonlinear"]["dof"], &stiffness["dof"]] {
+    for dof in [&support["nonlinear"]["dof"], &stiffness_of(support)["dof"]] {
         if let Some(dof) = dof.as_str().and_then(parse_dof) {
             dofs.push(dof);
         }
     }
     dofs
+}
+
+/// The one translational DOF a candidate acts on (REQ-002), or `None` when it acts
+/// on none, on a rotation or on more than one:
+/// - a single rigid restraint, when the support declares no stiffness DOF or one
+///   equal to it (a stiffness on another DOF makes two);
+/// - for a variable spring hanger with no rigid restraint, the DOF its stiffness
+///   declares, taken as the solver takes it ([`stiffness_of`]).
+///
+/// Apart from that DOF, the support's family and hanger data are not read.
+pub fn candidate_dof(support: &Value) -> Option<Dof> {
+    let stiffness_dof = &stiffness_of(support)["dof"];
+    match array(support, "restraints") {
+        [only] => {
+            let dof = only.as_str().and_then(parse_dof)?;
+            if stiffness_dof.is_null() || stiffness_dof.as_str().and_then(parse_dof) == Some(dof) {
+                Some(dof)
+            } else {
+                None
+            }
+        }
+        [] if support.get("family").and_then(Value::as_str) == Some("variable_spring_hanger") => {
+            stiffness_dof.as_str().and_then(parse_dof)
+        }
+        _ => None,
+    }
+}
+
+/// Whether a support state is ordinary (REQ-002): active as a model device, with
+/// no boundary motion, base motion or device reference. An empty motion list
+/// imposes nothing and is ordinary.
+fn ordinary_state(state: &Value) -> bool {
+    let moves = |key: &str| match state.get(key) {
+        None | Some(Value::Null) => false,
+        Some(Value::Array(items)) => !items.is_empty(),
+        Some(_) => true,
+    };
+    state["participation"]["kind"] == "active_model_device"
+        && !moves("boundary_motion")
+        && !moves("base_motion")
+        && !is_present(state.get("device_reference"))
+}
+
+/// The candidates that lack, in some named case with an analysis state, exactly
+/// one ordinary support state. A missing or repeated state is named here rather
+/// than left to the solve: a candidate replaced by a force has no state in that
+/// case's derived documents, so the operating cases' force solves would never
+/// observe it.
+fn moved_candidates(request_doc: &Value, request: &SizingRequest, sites: &[Site]) -> Vec<String> {
+    let named: Vec<&str> = std::iter::once(request.weight_case.as_str()).chain(request.operating_cases()).collect();
+    let states: Vec<&Value> = array(model(request_doc), "load_cases")
+        .iter()
+        .filter(|c| c.get("id").and_then(Value::as_str).is_some_and(|id| named.contains(&id)))
+        .filter_map(|c| c.get("analysis_state").filter(|s| !s.is_null()))
+        .collect();
+    sites
+        .iter()
+        .filter(|site| {
+            states.iter().any(|state| {
+                let own: Vec<&Value> = array(state, "support_states")
+                    .iter()
+                    .filter(|entry| entry.get("support_ref").and_then(Value::as_str) == Some(site.support.as_str()))
+                    .collect();
+                !matches!(own.as_slice(), [only] if ordinary_state(only))
+            })
+        })
+        .map(|site| site.support.clone())
+        .collect()
 }
 
 /// Candidate checks.
@@ -240,12 +331,7 @@ pub fn check_candidates(request_doc: &Value, request: &SizingRequest) -> Result<
         if is_present(support.get("boundary_association")) || referenced(model, id) {
             flag("HANGER_SIZING_CANDIDATE_REFERENCED", id);
         }
-        let restraints: Vec<&str> = array(support, "restraints").iter().filter_map(Value::as_str).collect();
-        let dof = match restraints.as_slice() {
-            [only] => parse_dof(only),
-            _ => None,
-        };
-        let Some(dof) = dof else {
+        let Some(dof) = candidate_dof(support) else {
             flag("HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED", id);
             continue;
         };
@@ -259,6 +345,9 @@ pub fn check_candidates(request_doc: &Value, request: &SizingRequest) -> Result<
             flag("HANGER_SIZING_CANDIDATE_DOF_SHARED", id);
         }
         sites.push(Site { support: id.to_string(), node, dof });
+    }
+    for id in moved_candidates(request_doc, request, &sites) {
+        flag("HANGER_SIZING_CANDIDATE_MOVED", &id);
     }
     if refusals.is_empty() {
         Ok(sites)
@@ -298,8 +387,15 @@ fn force_primitive(site: &Site, value: f64) -> Value {
     })
 }
 
-/// The derived document for one case: only that case, no
-/// combinations, and each candidate in its role.
+/// The derived document for one case: only that case, no combinations, and each
+/// candidate in its role (REQ-003).
+///
+/// In a case with an analysis state (a load/reference-state case), a candidate made
+/// rigid or a spring keeps its support state; a candidate replaced by a force loses
+/// its support state with the support; and each added force (the replacement force,
+/// and a spring's cold-load force) is entered in that case's `load_sources` at
+/// factor 1, in candidate order, so that the ledger applies it. In a case without an
+/// analysis state the stored primitives act and nothing of this applies.
 pub fn derived_document(request_doc: &Value, case: &str, sites: &[Site], roles: &[Role]) -> Value {
     let mut doc = request_doc.clone();
     let model = doc["model"].as_object_mut().expect("solve request has a model");
@@ -310,6 +406,7 @@ pub fn derived_document(request_doc: &Value, case: &str, sites: &[Site], roles: 
         model.insert("combinations".into(), json!([]));
     }
     let mut added = Vec::new();
+    let mut removed = Vec::new();
     if let Some(Value::Array(supports)) = model.get_mut("supports") {
         for (site, role) in sites.iter().zip(roles) {
             let index = supports.iter().position(|s| s.get("id").and_then(Value::as_str) == Some(site.support.as_str()));
@@ -317,6 +414,7 @@ pub fn derived_document(request_doc: &Value, case: &str, sites: &[Site], roles: 
             match role {
                 Role::Force(value) => {
                     supports.remove(index);
+                    removed.push(site.support.as_str());
                     added.push(force_primitive(site, *value));
                 }
                 Role::Rigid | Role::Spring { .. } => {
@@ -340,9 +438,16 @@ pub fn derived_document(request_doc: &Value, case: &str, sites: &[Site], roles: 
     }
     if let Some(Value::Array(cases)) = model.get_mut("load_cases") {
         for case in cases.iter_mut() {
-            let loads = case.as_object_mut().expect("case object").entry("primitive_loads").or_insert(json!([]));
-            if let Value::Array(loads) = loads {
+            let case = case.as_object_mut().expect("case object");
+            if let Value::Array(loads) = case.entry("primitive_loads").or_insert(json!([])) {
                 loads.extend(added.iter().cloned());
+            }
+            let Some(state) = case.get_mut("analysis_state").and_then(Value::as_object_mut) else { continue };
+            if let Some(Value::Array(states)) = state.get_mut("support_states") {
+                states.retain(|s| !s.get("support_ref").and_then(Value::as_str).is_some_and(|id| removed.contains(&id)));
+            }
+            if let Value::Array(sources) = state.entry("load_sources").or_insert(json!([])) {
+                sources.extend(added.iter().map(|load| json!({"source_ref": load["id"], "factor": 1.0})));
             }
         }
     }

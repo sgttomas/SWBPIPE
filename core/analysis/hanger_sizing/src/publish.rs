@@ -23,14 +23,20 @@ use sha2::{Digest, Sha256};
 pub const DOCUMENT_KIND: &str = "openpipestress.hanger_sizing.result";
 pub const SCHEMA_VERSION: &str = "1.0.0";
 pub const SEMANTIC_CONTRACT_ID: &str = "openpipestress.result_semantics/hanger-sizing-1";
-pub const ROUTE: &str = "pressure_free";
+/// The route tokens (REQ-007): the pressure-free route, a model with no
+/// `pressure_contract`, and the exact pressure route, `3.0.0/exact_pressure_v3`.
+/// They are the tokens the product's modal result document publishes as its
+/// route (`product_physics` `modal::document`).
+pub const ROUTE_PRESSURE_FREE: &str = "pressure_free";
+pub const ROUTE_EXACT_PRESSURE: &str = "exact_pressure";
+pub const ROUTES: [&str; 2] = [ROUTE_PRESSURE_FREE, ROUTE_EXACT_PRESSURE];
 pub const CANONICAL_PROFILE: &str = "openpipestress_jcs_ijson_v1";
 
 pub const LIMITATIONS: [&str; 4] = [
     "Hanger sizing selects records of the user's own library by the user's own tests on the stated cases; it judges no hanger's suitability for a service and determines no code compliance.",
     "Sized means the sizing algorithm completed. A candidate may have no fitting record, and the verification may be conditional; both are stated in the result.",
     "Loads and positions come from derived solves of the bound solve request and inherit every premise of those solves; nonlinear supports take each case's own converged state.",
-    "Hanger sizing is published on the pressure-free route only.",
+    "The stated route is the bound solve request's own, on which every derived solve runs; sizing changes only the candidates' roles and adds no mechanics of its own, so pressure enters a sized value only as those solves include it.",
 ];
 
 pub const BASIS_STATEMENT: [&str; 2] = [
@@ -52,7 +58,7 @@ pub const DERIVED_DOCUMENT_NOT_HASHABLE: &str = "HANGER_SIZING_DERIVED_DOCUMENT_
 /// The refusal codes the design names, which a refused
 /// document's `refusals[].code` takes. The design's two disclosure codes and its
 /// verification warning are not refusals and are not listed.
-pub const REFUSAL_CODES: [&str; 40] = [
+pub const REFUSAL_CODES: [&str; 39] = [
     "HANGER_SIZING_CANDIDATES_REQUIRED",
     "HANGER_SIZING_CANDIDATE_DOF_SHARED",
     "HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED",
@@ -68,7 +74,6 @@ pub const REFUSAL_CODES: [&str; 40] = [
     "HANGER_SIZING_DERIVED_DOCUMENT_NOT_HASHABLE",
     "HANGER_SIZING_DERIVED_SOLVE_FAILED",
     "HANGER_SIZING_DESIGN_OPERATING_CASE_REQUIRED",
-    "HANGER_SIZING_EXACT_ROUTE_PENDING",
     "HANGER_SIZING_FAMILY_POLICY_REQUIRED",
     "HANGER_SIZING_ID_COLLISION",
     "HANGER_SIZING_INPUT_NOT_ADMITTED",
@@ -125,6 +130,13 @@ fn refusal(code: &'static str, names: Vec<String>, message: impl Into<String>) -
     Refusal { code, names, message: message.into() }
 }
 
+/// The route a solve request's derived solves run on, or `None` when the request
+/// carries no model object to read it from.
+pub fn route_of(request_doc: &Value) -> Option<&'static str> {
+    request_doc.get("model").filter(|m| m.is_object())?;
+    Some(if derived::is_exact(request_doc) { ROUTE_EXACT_PRESSURE } else { ROUTE_PRESSURE_FREE })
+}
+
 /// The outcome of the headless pipeline: the document it formed.
 #[derive(Debug, Clone)]
 pub enum Published {
@@ -151,18 +163,20 @@ impl Published {
 /// What a refused document states of its inputs.
 #[derive(Debug, Clone, Default)]
 pub struct RefusedInputs {
+    /// The solve request's route, `None` when the input carried no readable model.
+    pub route: Option<&'static str>,
     pub sizing_request: Option<Value>,
     pub solve_request_sha256: Option<String>,
     pub library_id: Option<String>,
     pub library_sha256: Option<String>,
 }
 
-fn identity() -> Map<String, Value> {
+fn identity(route: Option<&str>) -> Map<String, Value> {
     let mut doc = Map::new();
     doc.insert("document_kind".into(), json!(DOCUMENT_KIND));
     doc.insert("schema_version".into(), json!(SCHEMA_VERSION));
     doc.insert("semantic_contract_id".into(), json!(SEMANTIC_CONTRACT_ID));
-    doc.insert("route".into(), json!(ROUTE));
+    doc.insert("route".into(), json!(route));
     doc.insert("limitations".into(), json!(LIMITATIONS));
     doc.insert("basis_statement".into(), json!(BASIS_STATEMENT));
     doc
@@ -181,7 +195,7 @@ fn inputs_member(sizing: Option<&Value>, solve_sha: Option<&str>, library_id: Op
 
 /// The refused document. Refusals keep the engine's order.
 pub fn refused_document(inputs: &RefusedInputs, refusals: &[Refusal]) -> Value {
-    let mut doc = identity();
+    let mut doc = identity(inputs.route);
     doc.insert("status".into(), json!("refused"));
     doc.insert(
         "inputs".into(),
@@ -712,7 +726,7 @@ pub fn sized_document(
         return Err(refusals);
     }
     let library_id = library_doc["hanger_library"]["library_id"].as_str();
-    let mut doc = identity();
+    let mut doc = identity(route_of(request_doc));
     doc.insert("status".into(), json!("sized"));
     doc.insert(
         "inputs".into(),
@@ -758,6 +772,7 @@ pub(crate) fn not_admitted(finding: AdmissionFinding) -> Published {
 /// the same way by both.
 pub(crate) fn size_admitted(input: &Value) -> Published {
     let mut inputs = RefusedInputs {
+        route: input.get("request").and_then(route_of),
         sizing_request: None,
         solve_request_sha256: input.get("request").and_then(checked_sha256),
         library_id: input.get("library").and_then(|l| l["hanger_library"]["library_id"].as_str()).map(str::to_string),

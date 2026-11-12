@@ -94,12 +94,12 @@ A sizing result is a numerical statement about the discrete model under the user
   - the case-role refusals;
   - no default supplied on any entry.
 - **REQ-002** — *Candidates.*
-  - A candidate restrains exactly one translational DOF, has no skew direction, is not nonlinear, a snubber or an anchor, shares its node and DOF with no other support, and is referenced by no other model object.
-  - Its present family and hanger data are not read.
+  - A candidate acts on exactly one translational DOF: its single rigid restraint, or, for a variable spring hanger with no rigid restraint, the DOF its stiffness declares. It has no skew direction, is not nonlinear, a snubber or an anchor, shares its node and DOF with no other support, and is referenced by no other model object.
+  - Apart from that DOF, its present family and hanger data are not read.
   - On an EX load/reference-state document, it has in every named case an ordinary support state: active, with no imposed motion or device reference. That entry is the support's own declaration, not a blocking reference.
   - Its force acts along the positive axis of its DOF.
   - Each failure is refused by name, and refuses the request. A hot-load basis that is not positive also refuses the request, naming every such candidate.
-- **AC-002** — Each candidate refusal, the moved-candidate refusal on EX and the non-positive hot-load refusal are exercised by maintained tests that assert the code and the named supports. A placeholder support of each admitted family is sized.
+- **AC-002** — Each candidate refusal, the moved-candidate refusal on EX and the non-positive hot-load refusal are exercised by maintained tests that assert the code and the named supports. A placeholder support of each admitted family is sized, and so is an authored variable spring hanger with no rigid restraint.
 
 ### Solution
 
