@@ -605,7 +605,10 @@ fn a_non_exact_input_renders_as_before() {
     assert_eq!(measured.allocations, 0, "{measured:?}");
 }
 
-const ROWS: [Row; 4] = [
+// The render from custody (`render_calculation_report_from_custody`) is a second root of the same
+// shape: its command reaches step 0 with the production set and the renderer only through
+// `render_calculation_report_from_custody_args_in`, after the host has filled the frame.
+const ROWS: [Row; 6] = [
     ("render_calculation_report_args", "lib.rs", &[("lib.rs", "render_calculation_report", Arg::None)]),
     (
         "render_calculation_report_args_in",
@@ -613,14 +616,30 @@ const ROWS: [Row; 4] = [
         &[("lib.rs", "render_calculation_report_args", Arg::Production)],
     ),
     (
+        "render_calculation_report_from_custody_args",
+        "lib.rs",
+        &[("lib.rs", "render_calculation_report_from_custody", Arg::None)],
+    ),
+    (
+        "render_calculation_report_from_custody_args_in",
+        "report_render_exact.rs",
+        &[("lib.rs", "render_calculation_report_from_custody_args", Arg::Production)],
+    ),
+    (
         "check_render_route_admitted",
         "report_render_exact.rs",
-        &[("report_render_exact.rs", "render_calculation_report_args_in", Arg::Admitted)],
+        &[
+            ("report_render_exact.rs", "render_calculation_report_args_in", Arg::Admitted),
+            ("report_render_exact.rs", "render_calculation_report_from_custody_args_in", Arg::Admitted),
+        ],
     ),
     (
         "render_calculation_report_value",
         "lib.rs",
-        &[("report_render_exact.rs", "render_calculation_report_args_in", Arg::None)],
+        &[
+            ("report_render_exact.rs", "render_calculation_report_args_in", Arg::None),
+            ("report_render_exact.rs", "render_calculation_report_from_custody_args_in", Arg::None),
+        ],
     ),
 ];
 
@@ -671,6 +690,15 @@ fn render_calculation_report(
 fn render_calculation_report_args(args: &mut Args) -> R {
     report_render_exact::render_calculation_report_args_in(args, report_render_exact::PRODUCTION)
 }
+#[tauri::command]
+fn render_calculation_report_from_custody(
+    invoke: Request,
+) -> R {
+    respond(render_calculation_report_from_custody_args(&mut a))
+}
+fn render_calculation_report_from_custody_args(a: &mut Args) -> R {
+    report_render_exact::render_calculation_report_from_custody_args_in(a, report_render_exact::PRODUCTION)
+}
 fn render_calculation_report_value(input: Value) -> R {
     Ok(input)
 }
@@ -692,6 +720,11 @@ pub(crate) fn render_calculation_report_args_in(args: &mut Args, admitted: Rende
 }
 pub(crate) fn check_render_route_admitted(input: &Value, admitted: RenderAdmittedSet) -> Result<(), String> {
     Ok(())
+}
+pub(crate) fn render_calculation_report_from_custody_args_in(a: &mut Args, admitted: RenderAdmittedSet) -> R {
+    let filled = fill(a)?;
+    check_render_route_admitted(&filled, admitted)?;
+    crate::render_calculation_report_value(filled)
 }
 "),
         ),
@@ -736,6 +769,16 @@ fn the_render_scanner_finds_each_break_of_the_graph() {
             "a root passing another argument",
             edit("lib.rs", "args, report_render_exact::PRODUCTION)", "args, admitted)"),
             "the root render_calculation_report_args passes admitted, not report_render_exact::PRODUCTION",
+        ),
+        (
+            "the custody root passing another argument",
+            edit("lib.rs", "a, report_render_exact::PRODUCTION)", "a, admitted)"),
+            "the root render_calculation_report_from_custody_args passes admitted, not report_render_exact::PRODUCTION",
+        ),
+        (
+            "a custody path that skips step 0",
+            edit("report_render_exact.rs", "    check_render_route_admitted(&filled, admitted)?;\n", ""),
+            "check_render_route_admitted: callers",
         ),
         (
             "a test-only widened set",
