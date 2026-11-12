@@ -5,8 +5,9 @@ from decimal import Decimal
 from fractions import Fraction as Fr
 
 import beams as B
+import continuum as C
 import rules
-from numerics import dec, inp, num, rel_diff, sci, val
+from numerics import dec, dsqrt, inp, num, pi, rel_diff, sci, val
 
 _CACHE = {}
 
@@ -178,8 +179,8 @@ def build_continuum(cross):
         "planar": "Each case is one bending plane (equivalently, the pipe is restrained out of that plane). A "
                   "circular pipe free in three dimensions has exactly repeated bending pairs whose basis is "
                   "arbitrary: applied mode by mode, per-mode contributions and SRSS are then basis dependent; under "
-                  "the adopted repeated-cluster rule (signed sum within the cluster first) every rule is basis "
-                  "invariant (beam_skew_and_pairs.json, repeated_pair).",
+                  "the scope's repeated-mode rule (DEL-04-10 CLM-001, Repeated modes: signed sum within the cluster "
+                  "first) every rule is basis invariant (beam_skew_and_pairs.json, repeated_pair).",
         "section": sec["doc"],
         "spectra": [rules.table_doc(t) for t in (B.FLAT, B.two_segment(2.0), B.two_segment(64.0))],
         "spectrum_use": "FLAT for every realization; TWO_SEGMENT_L2 for L = 2 m and TWO_SEGMENT_L64 for L = 64 m; "
@@ -194,7 +195,8 @@ def build_continuum(cross):
             "V_quarter_N, V_mid_N": "internal shear at x = L/4, L/2: force on the left part at the cut, "
                                     "-(EI w''' + w^2 ibar w')",
         },
-        "rules_not_in_scope": "ABSSUM_not_in_scope and PAIRWISE10_not_in_scope are not in the scope today",
+        "rules": "SRSS, CQC, GROUPING, ABSSUM (the absolute sum) and TEN_PERCENT (the ten percent method): the five "
+                 "modal rules of DEL-04-10 CLM-001; no mode set here contains a repeated-mode cluster",
         "realizations": reals,
     }
 
@@ -260,21 +262,53 @@ def build_fe(cross):
         reals.append(doc)
     # merged list of the benchmark model (C in Y, P in Z), per L
     merged = []
+    list_rule_ok = True
+
+    def cutoff_of(Y, Z):
+        return max(Y[min(B.N_MODES, len(Y)) - 1], Z[min(B.N_MODES, len(Z)) - 1])
+
     for L in B.LENGTHS:
         rc, rp = real[f"C-L{int(L)}"], real[f"P-L{int(L)}"]
         entry = {"length_m": inp(L), "continuum": {}, "fe": {}}
         for m in ("eb", "rayleigh"):
             ax = B.rod_freqs_continuum(L, sec["EA_m"], 3)
             to = B.rod_freqs_continuum(L, sec["GJ_jbar"], 3)
-            ymax = rc["cont"][m].freq
             entry["continuum"][m] = B.merged_doc(rc["cont"][m].freq, rp["cont"][m].freq, ax, to)
+            # list rule: the first unbuilt mode of every family lies above the cutoff
+            cut = cutoff_of(rc["cont"][m].freq, rp["cont"][m].freq)
+            r2 = rc["cont"][m].r2
+            hz = dsqrt(dec(sec["EI_m"])) / dec(L) ** 2 / (2 * pi())
+            for left, right in (("clamped", "free"), ("clamped", "pinned")):
+                om6 = C.roots(left, right, r2, 0, B.N_MODES + 1)[B.N_MODES]
+                list_rule_ok &= om6 * hz > cut
+            list_rule_ok &= B.rod_freqs_continuum(L, sec["EA_m"], 4)[3] > cut
+            list_rule_ok &= B.rod_freqs_continuum(L, sec["GJ_jbar"], 4)[3] > cut
         for form in B.FORMS:
             for N in B.NS:
                 ax = B.rod_freqs_fe(L, sec["EA_m"], N, form, 3, acc)
                 to = B.rod_freqs_fe(L, sec["GJ_jbar"], N, form, 3, acc) if form == "consistent" else []
                 entry["fe"][f"{form}_N{N}"] = B.merged_doc(rc["fe"][(form, N)]["freqs"], rp["fe"][(form, N)]["freqs"],
                                                            ax, to)
+                # bending lists hold every finite FE mode; the rods' first unbuilt mode lies above the cutoff
+                cut = cutoff_of(rc["fe"][(form, N)]["freqs"], rp["fe"][(form, N)]["freqs"])
+                if N > 3:
+                    list_rule_ok &= B.rod_freqs_fe(L, sec["EA_m"], N, form, 4, acc)[3] > cut
+                    if form == "consistent":
+                        list_rule_ok &= B.rod_freqs_fe(L, sec["GJ_jbar"], N, form, 4, acc)[3] > cut
         merged.append(entry)
+    counts_ok = True
+    expect = {"consistent": {"C": lambda N: 2 * N, "P": lambda N: 2 * N - 1, "S": lambda N: 2 * N,
+                             "F": lambda N: 2 * N - 2},
+              "lumped": {"C": lambda N: N, "P": lambda N: N - 1, "S": lambda N: N - 1, "F": lambda N: N - 1}}
+    for rid, r in real.items():
+        for form in B.FORMS:
+            for N in B.NS:
+                counts_ok &= len(r["fe"][(form, N)]["ms"]) == expect[form][r["span"]](N)
+    cross.append({"id": "FE-mode-counts", "what": "finite_modes of every planar FE model equals the formulation's "
+                  "count (consistent: free planar DOFs; lumped: free translations)", "agrees": counts_ok})
+    cross.append({"id": "MERGED-list-rule", "what": "benchmark-model merged lists: every family's first mode not "
+                  "built (continuum bending mode 6, rod mode 4) lies above the list's cutoff, so the list holds "
+                  "every mode the rule names; FE bending lists hold every finite mode", "agrees": list_rule_ok})
     lim = Decimal("1e-35")
     for k, what in (("sturm", "FE eigenvalues: Jacobi against bisection on banded LDL^T Sturm counts (40 digits)"),
                     ("residual", "FE eigenpairs: max |K phi - lam M phi| / max |K phi|"),

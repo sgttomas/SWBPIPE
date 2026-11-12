@@ -5,7 +5,7 @@
  "file": "predicted_formulation_difference.json",
  "status": "candidate references, not yet refuted",
  "number_format": "Inputs are binary64 ('binary64' shortest round trip, 'hex', 'exact' rational). Derived reals are decimal strings with 40 significant digits and the nearest binary64. rel_dev and cross-check residuals are short diagnostics. SI units.",
- "pinned_inputs_sha256": {"closed_form/generators/numerics.py": "06a466936f7320ef44ea532f81ef09e2703bac3a9293a4dc854e8dc90de53ec2", "closed_form/generators/rules.py": "067995d7d3f19a0e485a4c347fab3cc52da54acf8f04c98bb2b1f414d114520d", "closed_form/generators/continuum.py": "5c1acfe10bbd565c8db368ac3499d5839d2e1af7baa98213acdb7756a4ea0e7d", "closed_form/generators/fe.py": "23baf489faeeda083a4000319da79310ade1eefd5e8ab5e744f76c9ba107737b", "closed_form/generators/beams.py": "362f29b7fca32c9b1f8dafb100ab107b36fcef76856a485b43ef04e690ff39d8", "discrete/c8_pipe_x.json": "61a57007422d3419ca80444ca5d7a156d1211e057a968e321ca74eda37b77e79"},
+ "pinned_inputs_sha256": {"closed_form/generators/numerics.py": "06a466936f7320ef44ea532f81ef09e2703bac3a9293a4dc854e8dc90de53ec2", "closed_form/generators/rules.py": "1f35e4fa5178c81eaf4a346861ca901470c1c67541bac9ff9deb7a953604ad6f", "closed_form/generators/continuum.py": "5c1acfe10bbd565c8db368ac3499d5839d2e1af7baa98213acdb7756a4ea0e7d", "closed_form/generators/fe.py": "23baf489faeeda083a4000319da79310ade1eefd5e8ab5e744f76c9ba107737b", "closed_form/generators/beams.py": "362f29b7fca32c9b1f8dafb100ab107b36fcef76856a485b43ef04e690ff39d8", "discrete/c8_pipe_x.json": "35bad140d1898f2efe3412bc36edc681473aa8ec711ea23830173653066e06d6"},
  "definitions": {
   "relative_difference": "lumped / consistent - 1, from the published 40-digit decimals of pack_summary.json; [decimal with 6 significant digits, nearest binary64 of the quotient]",
   "consistent": "the generator's planar FE with the consistent mass SWBPIPE states (DEL-04-09 REQ-001)",
@@ -45,7 +45,7 @@
     },
     {
      "quantity": "tip_UY_m",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "displacement",
      "unit": "m",
      "consistent": ["1.565773780804698952613686368452759496414e+0", "1.565773780804699"],
@@ -72,7 +72,7 @@
     },
     {
      "quantity": "base_FY_N",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N",
      "consistent": ["1.268831425112714269483413416285564065063e+2", "126.88314251127143"],
@@ -99,7 +99,7 @@
     },
     {
      "quantity": "base_MZ_Nm",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N*m",
      "consistent": ["1.354705500287565797220346937991337310564e+3", "1354.7055002875659"],
@@ -170,7 +170,7 @@
     },
     {
      "quantity": "tip_UY_m",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "displacement",
      "unit": "m",
      "consistent": ["1.575577112925817346475443125162805322231e+0", "1.5755771129258174"],
@@ -197,7 +197,7 @@
     },
     {
      "quantity": "base_FY_N",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N",
      "consistent": ["1.307821563583009443797807015066902207074e+2", "130.78215635830094"],
@@ -224,7 +224,7 @@
     },
     {
      "quantity": "base_MZ_Nm",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N*m",
      "consistent": ["1.367308418012727156634021198442110650014e+3", "1367.308418012727"],
@@ -251,7 +251,7 @@
     },
     {
      "quantity": "mid_UZ_m",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "displacement",
      "unit": "m",
      "consistent": ["6.481813542794722380749515296495613602858e-2", "0.06481813542794722"],
@@ -278,7 +278,7 @@
     },
     {
      "quantity": "base_FZ_N",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N",
      "consistent": ["8.928710747270131088120992861855514695866e+1", "89.28710747270131"],
@@ -305,7 +305,7 @@
     },
     {
      "quantity": "base_MY_Nm",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N*m",
      "consistent": ["3.402650051584454316721044186040260270400e+2", "340.26500515844543"],
@@ -332,7 +332,7 @@
     },
     {
      "quantity": "tip_reaction_FZ_N",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N",
      "consistent": ["6.189387538204721765424024629160178763557e+1", "61.89387538204722"],
@@ -427,7 +427,7 @@
     },
     {
      "quantity": "tip_UY_m",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "displacement",
      "unit": "m",
      "consistent": ["1.575709575511345389082249058549849385604e+0", "1.5757095755113455"],
@@ -454,7 +454,7 @@
     },
     {
      "quantity": "base_FY_N",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N",
      "consistent": ["1.314231419609067869647298742451860417618e+2", "131.42314196090678"],
@@ -481,7 +481,7 @@
     },
     {
      "quantity": "base_MZ_Nm",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N*m",
      "consistent": ["1.367790631200056864157454794429170762067e+3", "1367.7906312000569"],
@@ -508,7 +508,7 @@
     },
     {
      "quantity": "mid_UZ_m",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "displacement",
      "unit": "m",
      "consistent": ["6.501312807654547320503745123077743742642e-2", "0.06501312807654547"],
@@ -535,7 +535,7 @@
     },
     {
      "quantity": "base_FZ_N",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N",
      "consistent": ["9.043067747249695153720173825574845786661e+1", "90.43067747249695"],
@@ -562,7 +562,7 @@
     },
     {
      "quantity": "base_MY_Nm",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N*m",
      "consistent": ["3.418736263032581083016216113561037844256e+2", "341.8736263032581"],
@@ -589,7 +589,7 @@
     },
     {
      "quantity": "tip_reaction_FZ_N",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N",
      "consistent": ["6.214826119981688223898145664955582603508e+1", "62.14826119981688"],
@@ -684,7 +684,7 @@
     },
     {
      "quantity": "tip_UY_m",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "displacement",
      "unit": "m",
      "consistent": ["1.575711582962725970137351851284387563670e+0", "1.575711582962726"],
@@ -711,7 +711,7 @@
     },
     {
      "quantity": "base_FY_N",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N",
      "consistent": ["1.314363056090704765098394225220080712076e+2", "131.43630560907047"],
@@ -738,7 +738,7 @@
     },
     {
      "quantity": "base_MZ_Nm",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N*m",
      "consistent": ["1.367797541131208874233471812622514274313e+3", "1367.7975411312088"],
@@ -765,7 +765,7 @@
     },
     {
      "quantity": "mid_UZ_m",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "displacement",
      "unit": "m",
      "consistent": ["6.501574983182070019286514503402010988929e-2", "0.0650157498318207"],
@@ -792,7 +792,7 @@
     },
     {
      "quantity": "base_FZ_N",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N",
      "consistent": ["9.050344250779932840262800211618958664182e+1", "90.50344250779933"],
@@ -819,7 +819,7 @@
     },
     {
      "quantity": "base_MY_Nm",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N*m",
      "consistent": ["3.419165923918701662667743996871116231591e+2", "341.91659239187015"],
@@ -846,7 +846,7 @@
     },
     {
      "quantity": "tip_reaction_FZ_N",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N",
      "consistent": ["6.223177913041417605108494004586388517267e+1", "62.231779130414175"],
@@ -941,7 +941,7 @@
     },
     {
      "quantity": "tip_UY_m",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "displacement",
      "unit": "m",
      "consistent": ["1.575711614273971193553777794083487140973e+0", "1.575711614273971"],
@@ -968,7 +968,7 @@
     },
     {
      "quantity": "base_FY_N",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N",
      "consistent": ["1.314364919789327144757762982933677779224e+2", "131.4364919789327"],
@@ -995,7 +995,7 @@
     },
     {
      "quantity": "base_MZ_Nm",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N*m",
      "consistent": ["1.367797646318417781562185898271352139136e+3", "1367.7976463184177"],
@@ -1022,7 +1022,7 @@
     },
     {
      "quantity": "mid_UZ_m",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "displacement",
      "unit": "m",
      "consistent": ["6.501579029489518755863745324045968669508e-2", "0.06501579029489518"],
@@ -1049,7 +1049,7 @@
     },
     {
      "quantity": "base_FZ_N",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N",
      "consistent": ["9.050415877231765927052411745366874326469e+1", "90.50415877231767"],
@@ -1076,7 +1076,7 @@
     },
     {
      "quantity": "base_MY_Nm",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N*m",
      "consistent": ["3.419170663928621399071851875327945311516e+2", "341.9170663928621"],
@@ -1103,7 +1103,7 @@
     },
     {
      "quantity": "tip_reaction_FZ_N",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N",
      "consistent": ["6.223261094806763375129288059618427222328e+1", "62.23261094806763"],
@@ -1198,7 +1198,7 @@
     },
     {
      "quantity": "tip_UY_m",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "displacement",
      "unit": "m",
      "consistent": ["1.072804406745357523629632222512507946305e+0", "1.0728044067453575"],
@@ -1225,7 +1225,7 @@
     },
     {
      "quantity": "base_FY_N",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N",
      "consistent": ["1.055634701882016719824960142381972751792e+2", "105.56347018820168"],
@@ -1252,7 +1252,7 @@
     },
     {
      "quantity": "base_MZ_Nm",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N*m",
      "consistent": ["9.460646942690219299874880286712245239301e+2", "946.064694269022"],
@@ -1279,7 +1279,7 @@
     },
     {
      "quantity": "mid_UZ_m",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "displacement",
      "unit": "m",
      "consistent": ["7.958812937196454486969421759108376959394e-2", "0.07958812937196455"],
@@ -1306,7 +1306,7 @@
     },
     {
      "quantity": "base_FZ_N",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N",
      "consistent": ["1.114121770111289485247393706322135253169e+2", "111.41217701112895"],
@@ -1333,7 +1333,7 @@
     },
     {
      "quantity": "base_MY_Nm",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N*m",
      "consistent": ["4.189917474276737980824883950516916412493e+2", "418.9917474276738"],
@@ -1360,7 +1360,7 @@
     },
     {
      "quantity": "tip_reaction_FZ_N",
-     "rule": "PAIRWISE10",
+     "rule": "TEN_PERCENT",
      "kind": "support_reaction",
      "unit": "N",
      "consistent": ["7.663369057809831313914975685807985694944e+1", "76.63369057809831"],

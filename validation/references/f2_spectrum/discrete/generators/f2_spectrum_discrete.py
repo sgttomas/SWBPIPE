@@ -687,7 +687,8 @@ def combine(rule, units, key, zeta):
                 for b in range(a + 1, len(grp)):
                     s += 2 * abs(R[grp[a]] * R[grp[b]])
         return s.sqrt()
-    if rule == "PAIRWISE_TEN_PERCENT":
+    if rule == "TEN_PERCENT":
+        # every pair i < j with (f_j - f_i)/f_i <= 0.1, whether or not the two fall in one group
         s = sum((r * r for r in R), Decimal(0))
         for i in range(len(units)):
             for j in range(i + 1, len(units)):
@@ -752,7 +753,9 @@ def analyse(S, rec, modes, clusters, spectra, req, mutations, grid=None):
     mm = req["missing_mass"]
     fr = D(exact(mm["rigid_frequency_Hz"])) if mm["applied"] else None
     if mm["applied"]:
-        assert ext[-1]["f"] >= fr or n_ext == len(modes), "extraction premise"
+        # REQ-001: the lowest frequency of the highest completed cluster is at or above f_r, or the whole spectrum
+        top = [s0 for s0, _ in sclusters if s0 < n_ext][-1]
+        assert modes[top]["f"] >= fr or n_ext == len(modes), "extraction premise"
         for f0 in lowest_f.values():
             assert rel(f0, fr) > Decimal("1e-9"), "rigid frequency on a cluster's lowest frequency"
     # a cluster is periodic as a whole when its lowest frequency is below f_r
@@ -835,7 +838,7 @@ def analyse(S, rec, modes, clusters, spectra, req, mutations, grid=None):
                                 "total_reaction_rel": rel(tot, expect) if expect else abs(tot)}
     # combinations
     rules_modal = ["SRSS", "CQC", "GROUPING"]
-    extra_modal = ["ABSOLUTE_SUM", "PAIRWISE_TEN_PERCENT"] if mutations or grid else []
+    extra_modal = ["ABSOLUTE_SUM", "TEN_PERCENT"] if mutations or grid else []
     per_rule = {}
     for rule in rules_modal + extra_modal:
         per_rule[rule] = {ax: {k: combine(rule, units_for(ax, periodic), k, zeta) for k in keys} for ax in dirs}
@@ -866,16 +869,16 @@ def analyse(S, rec, modes, clusters, spectra, req, mutations, grid=None):
                         _, comb = result(modal, None, dr, use_off=True)
                     else:
                         _, comb = result(modal, None if rr == "OFF" else rr, dr)
-                    muts.append(({"modal_combination": modal, "missing_mass": rr, "directional_combination": dr,
-                                  "in_scope": True}, comb))
+                    muts.append(({"modal_combination": modal, "missing_mass": rr, "directional_combination": dr},
+                                 comb))
         bm, bd = req["modal_combination"], req["directional_combination"]
         for modal in extra_modal:
             _, comb = result(modal, base_rr, bd)
             muts.append(({"modal_combination": modal, "missing_mass": base_rr or "OFF",
-                          "directional_combination": bd, "in_scope": False}, comb))
+                          "directional_combination": bd}, comb))
         _, comb = result(bm, base_rr, "ABSOLUTE_SUM")
         muts.append(({"modal_combination": bm, "missing_mass": base_rr or "OFF",
-                      "directional_combination": "ABSOLUTE_SUM", "in_scope": False}, comb))
+                      "directional_combination": "ABSOLUTE_SUM"}, comb))
     if grid:
         for modal in grid["modal"]:
             for rr in grid["rigid"]:
@@ -886,9 +889,8 @@ def analyse(S, rec, modes, clusters, spectra, req, mutations, grid=None):
                         _, comb = result(modal, None, dr, use_off=True)
                     else:
                         _, comb = result(modal, None if rr == "OFF" else rr, dr)
-                    ins = modal in rules_modal and dr in ("SRSS", "100-40-40")
-                    muts.append(({"modal_combination": modal, "missing_mass": rr, "directional_combination": dr,
-                                  "in_scope": ins}, comb))
+                    muts.append(({"modal_combination": modal, "missing_mass": rr, "directional_combination": dr},
+                                 comb))
     # reading B for repeated clusters: SRSS range as the basis of each cluster rotates
     reading_b = None
     if any(d > 1 for s, d in clusters if any(s < md["index"] <= s + d for md in periodic)):
@@ -1243,13 +1245,13 @@ def chain_summary(rec, req, an, modes, idx, prefixes):
     ax = req["directions"][0]["direction"]
     f = [modes[i - 1]["f"] for i in idx]
     diff = [k for k in rec.keys if any(k.startswith(p) for p in prefixes)
-            if rel(an["per_rule"]["GROUPING"][ax][k], an["per_rule"]["PAIRWISE_TEN_PERCENT"][ax][k]) > Decimal("1e-30")]
+            if rel(an["per_rule"]["GROUPING"][ax][k], an["per_rule"]["TEN_PERCENT"][ax][k]) > Decimal("1e-30")]
     assert f[1] <= f[0] * Decimal("1.1") < f[2] <= f[1] * Decimal("1.1") and diff
     return {"modes": idx, "frequency_Hz": [plain(x) for x in f],
             "ratios": {"f22/f21": plain(f[1] / f[0]), "f23/f21": plain(f[2] / f[0]), "f23/f22": plain(f[2] / f[1])},
-            "effect": "GROUPING puts the first two in one group and starts a new group at the third; the pairwise "
-                      "ten-percent rule also couples the second and third",
-            "quantities_where_GROUPING_differs_from_PAIRWISE_TEN_PERCENT": diff}
+            "effect": "GROUPING puts the first two in one group and starts a new group at the third; the ten "
+                      "percent method also couples the second and third",
+            "quantities_where_GROUPING_differs_from_TEN_PERCENT": diff}
 
 
 def cluster_witness(S, rec, req, an, wit):
@@ -1432,7 +1434,8 @@ def basis_witness(S, rec, req, an, modes, bw):
     out["comparability"] = {
         "comparable at the verification tolerance": [
             "cluster_sum_signed of basis_1, basis_2 and euclidean_rotation_of_basis_2 (equal to each other and to "
-            "the published cluster sum)", "frequency_Hz"],
+            "the published cluster sum)", "frequency_Hz",
+            "combined_every_modal_rule of basis_1 and basis_2 (formed on the cluster sums; equal to each other)"],
         "not comparable per mode: the basis of an exactly repeated cluster is arbitrary": [
             "vectors[*]: generalized_mass_kg, participation_factor, tip_translation_uy_uz, contributions_signed, and "
             "M_cross_product_v1_M_v2_kg, in every basis"]}
@@ -1447,6 +1450,56 @@ def basis_witness(S, rec, req, an, modes, bw):
     assert maxdiff(sums["basis_1"], sums["basis_2"]) < Decimal("1e-60")
     assert maxdiff(sums["basis_1"], pub) < Decimal("1e-60")
     assert maxdiff(sums["basis_1"], sums["sheared_basis_not_M_orthogonal"]) > Decimal("1e-3")
+    # every modal rule of the scope on the cluster sums, from each basis: the pair's unit takes the basis's
+    # cluster sum, every other periodic cluster its published sum; then the request's directional rule
+    rules = ["SRSS", "CQC", "GROUPING", "TEN_PERCENT", "ABSOLUTE_SUM"]
+    pair = set(bw["modes"])
+    comb_all = {}
+    for name in ("basis_1", "basis_2"):
+        per_rule = {}
+        for rule in rules:
+            perdir = {}
+            for ax in dirs:
+                units = []
+                for u in an["units_for"](ax, an["periodic"]):
+                    members = {m["index"] for m in u[3]}
+                    units.append((u[0], u[1], sums[name][ax] if members == pair else u[2], u[3]))
+                perdir[ax] = {k: combine(rule, units, k, an["zeta"]) for k in rec.keys}
+            if an["rig_mag"]:
+                rr = req["missing_mass"]["rigid_periodic_combination"]
+                perdir = {ax: {k: total(rr, perdir[ax][k], an["rig_mag"][ax][k]) for k in rec.keys} for ax in dirs}
+            comb = {k: directional(req["directional_combination"], [perdir[ax][k] for ax in dirs]) for k in rec.keys}
+            per_rule[rule] = (perdir, comb)
+        comb_all[name] = per_rule
+        out["bases"][name]["combined_every_modal_rule"] = {
+            rule: {"per_direction": {ax: {k: F(pd[ax][k], rec.unit[k]) for k in keys} for ax in dirs},
+                   "combined": {k: F(c[k], rec.unit[k]) for k in keys}}
+            for rule, (pd, c) in per_rule.items()}
+
+    def maxdiff_comb(x, y):
+        worst = Decimal(0)
+        for k in rec.keys:
+            s = scales.get(rec.unit[k])
+            if not s:
+                continue
+            worst = max([worst, abs(x[1][k] - y[1][k]) / s] + [abs(x[0][ax][k] - y[0][ax][k]) / s for ax in dirs])
+        return worst
+
+    d12 = max(maxdiff_comb(comb_all["basis_1"][r], comb_all["basis_2"][r]) for r in rules)
+    # against the published combinations of this analysis, for the rules it publishes
+    pubc = {r: ({ax: an["per_rule"][r][ax] for ax in dirs},
+                {k: directional(req["directional_combination"], [an["per_rule"][r][ax][k] for ax in dirs])
+                 for k in rec.keys}) for r in rules if r in an["per_rule"]}
+    dpub = max(maxdiff_comb(comb_all["basis_1"][r], pubc[r]) for r in pubc)
+    out["combined_every_modal_rule_cross_check"] = {
+        "statement": "for every modal rule of the scope (SRSS, CQC, GROUPING, TEN_PERCENT, ABSOLUTE_SUM) and every "
+                     "quantity, per direction and over directions, the combined values from basis_1 and basis_2 "
+                     "agree; both are formed on cluster sums (CLM-001 Repeated modes, REQ-003)",
+        "basis_1_vs_basis_2_max_difference_rel_to_unit_scale": show(d12),
+        "basis_1_vs_published_periodic_modal_combined_max_difference_rel_to_unit_scale": show(dpub),
+        "published_rules_compared": sorted(pubc),
+    }
+    assert d12 < Decimal("1e-60") and dpub < Decimal("1e-60")
     return out
 
 
@@ -1467,15 +1520,14 @@ def mesh_series(case):
         modes, clusters = modal_basis(S)
         mc = modal_checks(S, modes, clusters)
         assert mc["sturm_ok"] and mc["eigen_residual"] < Decimal("1e-60")
-        grid = {"modal": ["SRSS", "CQC", "GROUPING", "ABSOLUTE_SUM", "PAIRWISE_TEN_PERCENT"], "rigid": ["OFF"],
+        grid = {"modal": ["SRSS", "CQC", "GROUPING", "ABSOLUTE_SUM", "TEN_PERCENT"], "rigid": ["OFF"],
                 "directional": ["SRSS"]}
         an = analyse(S, rec, modes, clusters, spectra, req, False, grid)
         assert an["checks"]["nodal_balance"] < Decimal("1e-60") and an["checks"]["equilibrium"] < Decimal("1e-60")
         F = Fmt(unit_scales(an, rec.unit))
         comb = {}
         for lab, c in an["muts"]:
-            comb[lab["modal_combination"] + ("" if lab["in_scope"] else " (not in the scope today)")] = {
-                k: F(c[k], rec.unit[k]) for k in ms["quantities"]}
+            comb[lab["modal_combination"]] = {k: F(c[k], rec.unit[k]) for k in ms["quantities"]}
         out["series"].append({
             "members": n, "model": models[n] if n != 8 else "the model of this case",
             "frequencies": [{"mode": md["index"], "frequency_Hz": plain(md["f"]), "plane": plane_of(S, md)}
@@ -1575,8 +1627,7 @@ def publish_analysis(S, rec, req, an, clusters, prefixes=None):
     out["per_direction_combined"] = {ax: qmap(an["base_perdir"][ax]) for ax in dirs}
     out["combined"] = qmap(an["base_comb"])
     if an["muts"]:
-        out["mutations"] = [{**lab, **({} if lab["in_scope"] else {"label": "not in the scope today"}),
-                             "combined": qmap(comb)} for lab, comb in an["muts"]]
+        out["mutations"] = [{**lab, "combined": qmap(comb)} for lab, comb in an["muts"]]
     if an["reading_b"] is not None:
         rb = an["reading_b"]
         out["repeated_cluster_readings"] = {
@@ -1664,8 +1715,7 @@ def member_axes_block(S, rec, req, an, lkeys):
     out["per_direction_combined"] = {ax: qmap(an["base_perdir"][ax]) for ax in dirs}
     out["combined"] = qmap(an["base_comb"])
     if an["muts"]:
-        out["mutations"] = [{**lab, **({} if lab["in_scope"] else {"label": "not in the scope today"}),
-                             "combined": qmap(comb)} for lab, comb in an["muts"]]
+        out["mutations"] = [{**lab, "combined": qmap(comb)} for lab, comb in an["muts"]]
     return out
 
 
@@ -1682,8 +1732,7 @@ def build():
         cs = [allc[i] for i in ids]
         doc = {
             "document": f"openpipestress.f2_spectrum.discrete.{name[:-5]}",
-            "status": "candidate frozen references; derived and cross-checked by the author TASK, not yet "
-                      "independently refuted",
+            "status": "references with a refutation record: REFUTATION.md in this directory",
             "deliverable": "DEL-04-10 (response-spectrum analysis)",
             "units": {"length": "m", "mass": "kg", "force": "N", "moment": "N*m", "time": "s",
                       "frequency": "Hz", "acceleration": "m/s^2", "rotation": "rad"},
@@ -1691,7 +1740,7 @@ def build():
             "number_format": {"pair": f"[decimal with {DIG} significant digits, nearest binary64]",
                               "flush": "a value below 1e-50 of the largest magnitude of its unit in the "
                                        "analysis is printed as 0 (zero by symmetry or decoupling)"},
-            "conventions": "../README.md, section Conventions",
+            "conventions": "README.md in this directory, section \"Conventions a product must match or map\"",
             "inputs_binary64": inputs_table([c["model"] for c in cs], [c["spectra"] for c in cs],
                                             [c["requests"] for c in cs]),
             "cases": [case_result(c) for c in cs],

@@ -12,12 +12,7 @@ REQ-008 and AC-006, and supply the discrete cases of AC-002 and AC-003.
 - The sibling package `../closed_form/` holds the oscillator, lumped-chain and
   continuum cases.
 
-**Status: references with a refutation record.** Their author TASK derived
-and cross-checked them. A second TASK, reading no product code, rebuilt
-72,820 published reals by its own routes and refuted no value: the largest
-disagreement was 4.9e-40. Nine descriptive statements of this README were
-refuted (R1 to R9) and are corrected here ([REFUTATION.md](REFUTATION.md)). No
-product output has been compared with these references.
+**Status: references with a refutation record** ([REFUTATION.md](REFUTATION.md)).
 
 ## Independence
 
@@ -68,14 +63,9 @@ python3 -I -B generators/f2_spectrum_discrete.py --write   # rewrite the JSON fi
 The generator needs Python 3 and the standard library only, runs in one
 process and takes about 14 s. Its output is deterministic.
 
-- **Hashed, not generated.** `SHA256SUMS` also carries `README.md` and the two
-  generators, hashed from disk. The generator's `RECORDS` holds the
-  records it verifies by hash but does not generate, as
-  `../../f1_modal/mass_discrete` does with its `REFUTATION.md`.
-- **Re-freeze rules.** No value changes to match a product output. A
-  disagreement goes to the owner of these references and to an independent
-  refuter. A change of method, premise or convention is a re-freeze, with a
-  stated reason and a new refutation.
+**Hashed, not generated.** `SHA256SUMS` also carries `README.md` and the two
+generators, and `REFUTATION.md` through the generator's `RECORDS`. All four
+are hashed from disk; the check verifies them but does not regenerate them.
 
 ## Number format
 
@@ -99,8 +89,8 @@ process and takes about 14 s. Its output is deterministic.
 - **Flushing.** In an analysis, a value below 1e-50 of the largest magnitude
   of its unit is printed as `0`. Such values are zero by symmetry or
   decoupling. The generator refuses to write any value lying between 1e-50
-  and 1e-35 of that scale. For the member-axes block (R4), the scale is taken
-  over the member-axes values.
+  and 1e-35 of that scale. For `element_end_forces_member_axes`, the scale is
+  taken over that block's own values.
 - **Units.** SI throughout: m, rad, kg, N, N·m, s, Hz and m/s².
 
 ## Model formulation (the DEL-04-09 basis, PF route)
@@ -174,7 +164,7 @@ process and takes about 14 s. Its output is deterministic.
     λ_{i+1} − λ_i ≤ δ_c·λ_{i+1}, with δ_c = 2⁻²⁰. Each lists its modes and
     its standing (lowest) frequency.
 - **Every combination uses the scope's clusters**; see
-  [Repeated modes and clusters](#repeated-modes-and-clusters-the-adopted-rule).
+  [Repeated modes and clusters](#repeated-modes-and-clusters-the-scopes-rule).
 - **Where the two groupings coincide.** They coincide in every case except:
   - **C9:** its unextracted pairs (25, 26), (27, 28), (30, 31) and (32, 33)
     are distinct modes inside δ_c. Over the extracted modes the two
@@ -257,17 +247,23 @@ with their signs (a single mode is a cluster of one).
 - **Each mode keeps its own frequency** f_i and ω_i² for its spectral
   ordinate, its displacement and its recovery.
 - **The cluster's lowest frequency** stands for the cluster only in ρ, in the
-  closeness tests of GROUPING and PAIRWISE_TEN_PERCENT, and in the
-  periodic/rigid classification.
+  closeness tests of GROUPING and TEN_PERCENT, and in the periodic/rigid
+  classification.
+
+Every rule below is a selectable rule of the scope (DEL-04-10 CLM-001 and
+REQ-003). The names in the files are the left column.
 
 | Rule | Formula |
 |---|---|
-| SRSS | √(Σ R_i²) |
-| CQC | √(Σ_i Σ_j ρ_ij R_i R_j), ρ_ij = 8ζ²(1 + r)r^{3/2} / ((1 − r²)² + 4ζ²r(1 + r)²), r = ω_j/ω_i (symmetric in i, j) |
-| GROUPING | units ascending; a group starts at its lowest f_g and takes each next unit with (f − f_g)/f_g ≤ 0.1; √(Σ R_i² + 2 Σ_groups Σ_{i<j} \|R_i R_j\|) |
-| rigid with periodic | SRSS √(R_p² + R_r²), or absolute sum R_p + \|R_r\| |
-| directional | SRSS √(Σ R_d²), or 100-40-40: max_a (R_a + 0.4 Σ_{b≠a} R_b) with 0.4 = 2/5 exactly |
-| *not in the scope today* (C3, C4, C8, C9, C9-CHAIN, C10) | ABSOLUTE_SUM over units Σ\|R_i\|; PAIRWISE_TEN_PERCENT √(Σ R_i² + 2 Σ_{i<j, (f_j − f_i)/f_i ≤ 0.1} \|R_i R_j\|); ABSOLUTE_SUM over directions |
+| SRSS (modes) | √(Σ R_i²) |
+| CQC (modes) | √(Σ_i Σ_j ρ_ij R_i R_j), ρ_ij = 8ζ²(1 + r)r^{3/2} / ((1 − r²)² + 4ζ²r(1 + r)²), r = ω_j/ω_i (symmetric in i, j) |
+| GROUPING (modes) | units ascending; a group starts at its lowest f_g and takes each next unit with (f − f_g)/f_g ≤ 0.1; √(Σ R_i² + 2 Σ_groups Σ_{i<j in the group} \|R_i R_j\|) |
+| TEN_PERCENT (modes) | √(Σ R_i² + 2 Σ \|R_i R_j\|) over every pair i < j with (f_j − f_i)/f_i ≤ 0.1, whether or not the two fall in one group |
+| ABSOLUTE_SUM (modes) | Σ\|R_i\| |
+| rigid with periodic | SRSS √(R_p² + R_r²), or ABSOLUTE_SUM R_p + \|R_r\| |
+| SRSS (directions) | √(Σ R_d²) |
+| 100-40-40 (directions) | max_a (R_a + 0.4 Σ_{b≠a} R_b), with 0.4 = 2/5 exactly |
+| ABSOLUTE_SUM (directions) | Σ R_d |
 
 The generator checks that no frequency ratio lies within 1e-6 of the 10 %
 boundary.
@@ -300,18 +296,44 @@ applied in every file as stated.
    - Where a member's frame is a signed permutation of the global axes (every
      case except C9 and C9-CHAIN), the combined magnitudes map component to
      component.
-   - **C9 and C9-CHAIN** also publish `element_end_forces_member_axes`: the
-     signed contributions rotated into each member's own axes (frame stated),
-     and the magnitudes combined from them under every published rule. Keys
-     are `P1.i.Fx_m` and so on, units in `derived_model.member_axes_quantities`.
-     The two sets differ, because these frames are not signed permutations and
-     combination does not commute with the rotation.
+   - **C9 and C9-CHAIN** also publish `element_end_forces_member_axes`.
+     Keys are `P1.i.Fx_m` and so on; units are in
+     `derived_model.member_axes_quantities`.
+   - **The member frame.** For a member from node i to node j, with
+     coordinates x_i and x_j (the binary64 inputs, taken exactly):
+     - **x** = (x_j − x_i)/|x_j − x_i|;
+     - **y** = (y_ref − (y_ref·x) x)/|y_ref − (y_ref·x) x|, with y_ref the
+       member's `y_reference`, (0, 0, 1) for every member of C9 and C9-CHAIN;
+     - **z** = x × y.
+
+     Every node of C9 and C9-CHAIN is (t_k, t_k, t_k), so for every member
+     x = (1, 1, 1)/√3, y = (−1, −1, 2)/√6 and z = (1, −1, 0)/√2 exactly. The
+     rows, to 40 digits, are in the block's `frames` and in
+     `derived_model.member_frames`.
+   - **The rotation.** Let Λ be the 3×3 matrix with rows x, y and z. A
+     global-axis end-force 12-vector is
+     (F_i, M_i, F_j, M_j), each a 3-vector. Its member-axis counterpart is
+     (ΛF_i, ΛM_i, ΛF_j, ΛM_j), with components `.Fx_m .Fy_m .Fz_m` from ΛF and
+     `.Mx_m .My_m .Mz_m` from ΛM. Each is still the force or moment acting on
+     the element at that end.
+   - **Rotating and combining.** The rotation is applied to every signed
+     per-mode contribution (and to a rigid response, where one exists). Every
+     rule is then applied to the rotated signed contributions: the same
+     scope-cluster units, ρ, groups and directional rules as the global
+     blocks.
+   - **What the block holds:** `contributions_signed`,
+     `periodic_modal_combined` (every modal rule), `per_direction_combined`,
+     `combined` and `mutations`, mirroring the global blocks. Its flush scale is
+     taken over its own values.
+   - **The two sets differ.** These frames are not signed permutations of the
+     global axes, and a combination of rotated contributions is not the
+     rotation of a combination.
    - C9-CHAIN publishes no global-axis end forces: its global blocks are
      limited to B, SA and S1.
 3. **Grouping boundary.**
    - GROUPING's closeness test is inclusive, (f − f_g)/f_g ≤ 0.1, with f_g the
-     group's lowest frequency. PAIRWISE_TEN_PERCENT uses
-     (f_j − f_i)/f_i ≤ 0.1, also inclusive.
+     group's lowest frequency. TEN_PERCENT uses (f_j − f_i)/f_i ≤ 0.1, also
+     inclusive, over every pair whether or not the two fall in one group.
    - In both, a scope cluster is one unit represented by its lowest
      frequency.
    - No unit lies within 1e-6 of the boundary.
@@ -330,10 +352,15 @@ applied in every file as stated.
    - These contributions are the data for the correction-off variant
      (`periodic_modal_combined_correction_off`, and the OFF mutations). The
      base result never uses them.
-7. **The fraction moving with the supports** is 1 − p_kᵀM_ff⁻¹p_k/T_k: the
-   mass no finite mode reaches. That includes mass at restrained DOFs, its
-   consistent coupling, and mass held by a rigid skew restraint at a free
-   node.
+7. **The fraction moving with the supports** is 1 − p_rᵀM_r⁻¹p_r/T_k, with
+   p_r = Tᵀp_k and M_r = TᵀM_ffT on the reduced coordinates of the
+   constraint basis T (see Reduced eigenproblem).
+   - It is the mass no finite mode reaches: mass at restrained DOFs, its
+     consistent coupling, and, where a rigid skew snubber is present, the
+     mass its constraint holds at a free node.
+   - It equals 1 − Σ over every finite mode of m_eff/T_k.
+   - Without a skew constraint, T is the identity and it is
+     1 − p_kᵀM_ff⁻¹p_k/T_k.
 
 **Published components of supports and skew records** (as in
 `derived_model.quantities`):
@@ -382,13 +409,16 @@ extracted mode and enters nothing. So every published number equals what a
 - `rigid_magnitude`.
 - `per_direction_combined` and `combined`: the request's own rules.
 - `mutations`:
-  - **C3 and C4.** The 18 in-scope combinations: modal SRSS, CQC or GROUPING;
-    correction SRSS, ABSOLUTE_SUM or OFF; directional SRSS or 100-40-40.
-    Plus three labelled *not in the scope today*, each replacing one choice
-    of the base request.
+  - **C3 and C4.** 21 entries:
+    - 18 combinations: modal SRSS, CQC or GROUPING; correction SRSS,
+      ABSOLUTE_SUM or OFF; directional SRSS or 100-40-40;
+    - modal ABSOLUTE_SUM and modal TEN_PERCENT with the base request's other
+      choices;
+    - directional ABSOLUTE_SUM with the base request's other choices.
   - **C8, C9, C9-CHAIN, C10.** A grid of every modal rule × the stated
-    correction and directional rules. Each entry has `in_scope`; an entry out
-    of scope is labelled *not in the scope today*.
+    correction and directional rules.
+  - Every entry names its modal combination, its missing-mass rule (SRSS,
+    ABSOLUTE_SUM or OFF) and its directional combination.
 - `missing_mass_disclosure`, per direction:
   - T_k;
   - the periodic cumulative effective-mass fraction, and the fraction it
@@ -432,7 +462,7 @@ extracted mode and enters nothing. So every published number equals what a
 | C8-III-TRUNCATION | same | `S-C8-TRUNC`: (0.125, 1.25), (0.75, 3.5), (1000, 3.5), so flat from below mode 2; f_r = 1.25 Hz between modes 2 (1.100 Hz) and 3 (1.572 Hz); rigid SRSS, and ABSOLUTE_SUM in the grid | truncation with the correction: 2 periodic modes and the rigid response |
 | C8 `mesh_series` | the C8 pipe with N = 2, 4, 8 and 16 members | as C8-I-FLAT | the first six frequencies with their planes; combined B.uy, B.ry, B.rz, SA.Fy, SA.Fz, SA.My, SA.Mz and SB.Fz under every modal rule |
 | C9-Y | `s2` pipe 15 m from the origin along (1,1,1), 8 members, anchor SA at A, spring S1 of 8 N/m along global X at B | Y ×1, `S-C9-FLAT` (2.5 m/s²); 6 modes, correction off; base CQC; grid: every modal rule | close pair 0.2509 / 0.2637 Hz (5.1 %), ρ₁₂ = 0.8004 at ζ = 0.05. Same sign: B.uy, B.rz, SA.Fy, SA.Mz (CQC > SRSS). Opposite sign: B.uz, B.ry, SA.Fz, SA.My (CQC < SRSS). Mode 1 is zero in B.ux and SA.Fx; mode 2 is zero in B.rx and SA.Mx (`close_pair`) |
-| C9-CHAIN-Y | the C9 pipe with the tip spring at 1048576 N/m | as C9; 23 modes; global-axis quantities B, SA and S1 only | modes 21–23 (79.73, 85.64, 91.09 Hz) form a chain, so GROUPING and PAIRWISE_TEN_PERCENT differ (`chain`) |
+| C9-CHAIN-Y | the C9 pipe with the tip spring at 1048576 N/m | as C9; 23 modes; global-axis quantities B, SA and S1 only | modes 21–23 (79.73, 85.64, 91.09 Hz) form a chain, so GROUPING and TEN_PERCENT differ (`chain`) |
 | C10-W2 | the C7 model plus a skewed spring of 0.0625 N/m along (0,3,4) at N3 | Y ×1, Z ×0.5, `S-LL`; 4 modes, correction off; grid: every modal rule | W2: two scope clusters of two distinct modes, relative eigenvalue gaps 2.53e-7 and 6.45e-9 |
 | C10-W3 | same | the same with f_r = 9.5395413 Hz strictly between modes 1 and 2; rigid SRSS, and ABSOLUTE_SUM in the grid | W3: a cluster straddling f_r is periodic as a whole |
 
@@ -464,9 +494,9 @@ published Γ.
   (30, 31) and (32, 33) (`frequency_list.adjacent_pairs_within_delta_c`). No
   request extracts them.
 
-**Grouping against the ten-percent rule.** C3, C4, C8 and C9 have no three
-units in a chain, so GROUPING and PAIRWISE_TEN_PERCENT agree there. C9-CHAIN
-is the case where they differ.
+**Grouping against the ten percent method.** C3, C4, C8 and C9 have no three
+units in a chain, so GROUPING and TEN_PERCENT agree there. C9-CHAIN is the
+case where they differ.
 
 **What is not here.** AC-002 also lists the single-degree-of-freedom response
 under each interpolation rule, the pseudo-acceleration convention and a
@@ -474,9 +504,9 @@ damped force case. Those are in `../closed_form/`. Here every rule is
 exercised on frame models, and the forces are recovered at the displacement
 extremum, with the velocity terms neglected as REQ-002 states.
 
-## Repeated modes and clusters (the adopted rule)
+## Repeated modes and clusters (the scope's rule)
 
-**The rule.**
+**The rule** (DEL-04-10 CLM-001 and REQ-003), as applied here:
 
 - **Repeated eigenvalues.** For an exactly repeated eigenvalue, every
   M-orthogonal basis of its eigenspace gives the same signed sum of its
@@ -495,7 +525,7 @@ extremum, with the velocity terms neglected as REQ-002 states.
 - Every `*_combined` block and every mutation entry is formed this way, on
   `modal_basis.scope_clusters`.
 - ρ uses the cluster's lowest ω (`cqc_correlation`, by cluster).
-- GROUPING and PAIRWISE_TEN_PERCENT test the clusters' lowest frequencies
+- GROUPING and TEN_PERCENT test the clusters' lowest frequencies
   (`grouping_groups`).
 - The periodic set takes whole clusters (`mode_status`).
 - The ordinate, displacement and recovery of each mode use its own f_i and
@@ -511,7 +541,7 @@ response quantity with linear recovery L, let α = (aᵀp_k, bᵀp_k),
   SRSS² ranges over [C²(tr A)²/2, C²‖A‖_F²] as the basis rotates.
 - CQC is invariant (ρ = 1 inside the pair).
 - GROUPING is not.
-- `repeated_cluster_readings` keeps reading A (the adopted rule) and reading
+- `repeated_cluster_readings` keeps reading A (the scope's rule) and reading
   B's SRSS range. Under Y, reading A gives N3.uz = 0 and A1.Fz = 0, while
   reading B can report N3.uz up to 3.197e-3 m and A1.Fz up to 1251 N.
 
@@ -531,6 +561,16 @@ response quantity with linear recovery L, let α = (aᵀp_k, bᵀp_k),
   (basis_2's v1, and v2 + v1/2). It spans the eigenspace but is not
   M-orthogonal (v1ᵀMv2 = 39.0 kg), and its sums differ, by 0.33 of the unit
   scale.
+- **Every modal rule from both bases.** `bases.basis_1` and `bases.basis_2`
+  each carry `combined_every_modal_rule`: per direction and over directions,
+  under SRSS, CQC, GROUPING, TEN_PERCENT and ABSOLUTE_SUM.
+  - Each is formed on cluster sums. The pair's unit takes that basis's cluster
+    sum; the second pair (modes 3 and 4) takes its published sum.
+  - `combined_every_modal_rule_cross_check` records the largest difference
+    between the two bases over every rule and quantity. It also records the
+    difference from the analysis's published combinations, for the rules the
+    analysis publishes.
+  - These combined values are comparable at the verification tolerance.
 - `basis_witness.comparability` names what is comparable: the sums, but no
   per-vector value.
 

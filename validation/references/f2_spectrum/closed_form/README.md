@@ -16,19 +16,12 @@ REQ-001 to REQ-004, REQ-008; AC-002, AC-006). They give:
 - `screening_basis.json`, the data the spectrum screening class of the release target's benchmark
   method is to be set from. It proposes no class value.
 
-**Status: references with a refutation record.** A second TASK, reading no product code, ran
-68,041 independent value checks and 44,004 number-format checks without refuting any published value
-([REFUTATION.md](REFUTATION.md)). It refuted one descriptive statement, the list of normalization
-case (b) modes, which is corrected here. It asked for two statements to be added: the labelling of
-the repeated-pair rule values under the repeated-cluster rule, and the verification limit of skew
-case (b). Both are made here, and no value changed. No product output has been compared with these
-references.
+**Status: references with a refutation record** ([REFUTATION.md](REFUTATION.md)).
 
 **Independence.** The generators import, read and run no product code (nothing under `core/`,
 `apps/`, `api/`, `tests/`, `schemas/`, `fixtures/` or `tools/`). The references rest on the DEL-04-10
 and DEL-04-09 scopes and standard structural dynamics, derived below. No CAEPIPE material was used.
-All model data are invented. No formula or value is copied from a table. Standard claim fence
-applies.
+All model data are invented. No formula or value is copied from a table.
 
 ## Files
 
@@ -68,7 +61,7 @@ To check or regenerate (standard library only, Python ≥ 3.9, about 50 s):
   are not references.
 - **FE triplets.** In `beams_fe.json` each response is `[value, binary64, rel_dev]`.
 - **Exact ties.** In five places the exact rational lies exactly halfway between two binary64
-  numbers: `directional.json` D1–D3 `full_y`/`full_x` and D7 `ABSSUM_not_in_scope`, and
+  numbers: `directional.json` D1–D3 `full_y`/`full_x` and D7 `ABSSUM`, and
   `spectrum_tables.json` T2, linear/linear, row 5 `sS`. The published `binary64` is the exact
   rational rounded half to even. The 40-digit `value`, read back as binary64, falls on the other
   neighbour, so derive the binary64 from `exact` there, not from `value`.
@@ -83,8 +76,11 @@ To check or regenerate (standard library only, Python ≥ 3.9, about 50 s):
 - **Recovery at the displacement extremum.** Element end forces are (K_e − ω² M_e) u. Reactions are
   (K_cf − ω² M_cf) u at rigid supports and −K_s u at compliant ones. The velocity term is
   neglected (REQ-002).
-- **Reaction sign.** A reaction is K_cf u, the force the support applies to the structure, positive
-  along the global axis. Element end forces are the forces applied on the element at its nodes.
+- **Reaction sign.** A reaction at a rigid restraint is the full residual at the restrained DOF:
+  (K_cf − ω_n² M_cf) u for a modal contribution, and K_cf u − F_c for the rigid response (F_c the
+  restrained rows of the rigid load). At a compliant support it is −K_s u. Each is the force the
+  support applies to the structure, positive along the global axis. Element end forces are the forces
+  applied on the element at its nodes.
   Combined magnitudes do not depend on these signs. CQC and grouping need only one consistent sign
   per quantity.
 - **Mode normalization.** DEL-04-09 REQ-005: the largest translational component is +1. Rotation
@@ -97,17 +93,29 @@ To check or regenerate (standard library only, Python ≥ 3.9, about 50 s):
     modal response and every combination.
   - FE shapes are normalized at the nodes and continuum shapes at the true maximum, so FE Γ is not
     comparable with continuum Γ. Only invariant quantities carry deviations.
-- **Rigid response.** With f_r given, modes with f < f_r are periodic. The rigid part per unit rigid
+- **Rigid response.** With f_r given, modes with f < f_r are periodic (CLM-001 classifies a cluster by
+  its lowest frequency; no published case has a cluster, other than the repeated pair, which has no
+  missing-mass case). The rigid part per unit rigid
   acceleration is the static response to M R − Σ_periodic Γ_n M φ̂_n. Element forces are K_e u − F_e
   and reactions K_cf u − F_c (CLM-001). It equals a_r(Q_static − Σ_periodic Γ_n q_n/ω_n²), where
   q_n is the quantity of φ_n recovered with (K − ω_n² M). The continuum uses this identity, and the
   FE does the static solve literally.
 - **Grouping.** A mode joins the current group when f − f_low ≤ f_low/10 (inclusive). No published
   case lies on the boundary.
-- **Rules not in the scope today**, published for comparison only and labelled `_not_in_scope`:
-  - absolute sum over modes;
-  - the pairwise ten-percent rule, R² = Σ R_i² + 2 Σ_{i<j, (f_j − f_i)/f_i ≤ 0.1} |R_i R_j|;
-  - absolute sum over directions.
+- **The modal rules** are CLM-001's five, keyed `SRSS`, `CQC`, `GROUPING`, `TEN_PERCENT` and
+  `ABSSUM`:
+  - SRSS: √(Σ R_i²);
+  - CQC: √(Σ_i Σ_j ρ_ij R_i R_j), with CLM-001's ρ_ij at the spectra's damping ratio;
+  - grouping: groups in ascending order within 10 % of the group's lowest,
+    √(Σ R_i² + 2 Σ_groups Σ_{i<j in the group} |R_i R_j|);
+  - the ten percent method: √(Σ R_i² + 2 Σ |R_i R_j|), the second sum over every pair i < j with
+    (f_j − f_i)/f_i ≤ 0.1, whether or not the two fall in one group;
+  - the absolute sum: Σ |R_i|.
+- **Directional rules** (`directional.json`): SRSS, 100-40-40 and the absolute sum (`ABSSUM`).
+- **Repeated modes** (CLM-001, Repeated modes): the modes of one cluster (DEL-04-09's δ_c) are
+  summed with their signs first and every rule is applied to the cluster sums. The only cluster in
+  these files is the exactly repeated pair (`repeated_pair`); every other mode set has none, so its
+  rules apply mode by mode as the scope's text does.
 
 ## Conventions the scope leaves open, as these files apply them
 
@@ -140,17 +148,17 @@ To check or regenerate (standard library only, Python ≥ 3.9, about 50 s):
    range is refused (REQ-001), as in chain C.
 7. **The grouping boundary** is inclusive: a mode joins the current group when f − f_low ≤ f_low/10.
    No published case lies on the boundary.
-8. **Repeated-mode cluster tolerance.** The repeated-cluster rule (the modes of one numerically
-   repeated cluster are summed with their signs first, and every modal rule is applied to the
-   cluster sums) uses DEL-04-09's cluster tolerance δ_c = 2⁻²⁰ on eigenvalues:
-   λ_{i+1} − λ_i ≤ δ_c λ_{i+1}. The only cluster in these files is the exactly repeated pair
-   (`repeated_pair`). The tip-spring pairs are not clusters: their closest eigenvalues are
-   3·10⁻⁴ apart.
+8. **Repeated-mode cluster tolerance.** The scope's repeated-mode rule (CLM-001, Repeated modes)
+   uses DEL-04-09's cluster; these files take its tolerance as DEL-04-09 REQ-003 states it,
+   δ_c = 2⁻²⁰ on eigenvalues: λ_{i+1} − λ_i ≤ δ_c λ_{i+1}. The only cluster in these files is the
+   exactly repeated pair (`repeated_pair`). The tip-spring pairs are not clusters: their closest
+   eigenvalues are 3·10⁻⁴ apart.
 
 Readings these files add, which belong to the screening derivation:
 
-- **Sensitivity (item 6).** One mode's frequency varies alone, with its shape and participation held
-  fixed. It covers SRSS only.
+- **Sensitivity (item 6).** A conditional SRSS sensitivity: one mode's frequency varies alone, with
+  its shape, its participation and its force-recovery coefficient q_n held fixed. It excludes
+  changes of the CQC coefficient, of the rigid response, of the shape and recovery, and rotations.
 - **Missing mass on a coarse mesh.** The same f_r on an FE model can classify a different number of
   modes as periodic. Each case is flagged (`periodic_count_differs_from_continuum`), and
   `screening_basis.json` separates these cases.
@@ -235,7 +243,9 @@ The three parameter sets use the T1 log-log rule, s = 1.25 and ζ = 0.05:
   - with f_r = 50 Hz both modes are rigid, and the response equals the static response to a_r:
     u₁ = a_r(m₁+m₂)/k₁ and u₂ = u₁ + a_r m₂/k₂ (checked).
 
-## Item 4: directional combination (AC-002 "100-40-40 and SRSS")
+## Item 4: directional combination (AC-002 "100-40-40, SRSS and absolute-sum")
+
+The absolute sum is R_x + R_y + R_z (`ABSSUM`).
 
 R_a + ⅖(R_b + R_c) = ⅗R_a + ⅖ΣR, so the permutation whose full direction has the largest magnitude
 governs, and equal largest magnitudes tie exactly. The cases are:
@@ -253,8 +263,8 @@ Values are exact rationals, and SRSS is given in decimal with its exact square.
 **Planar.** Each case is one bending plane: the pipe is restrained out of that plane, or only that
 plane is considered. A circular pipe free in three dimensions has exactly repeated bending pairs
 with an arbitrary basis. Applied mode by mode, per-mode contributions and SRSS are then basis
-dependent. Under the adopted repeated-cluster rule (convention 8: signed sum within the cluster
-first), every rule is basis invariant. See the repeated pair below.
+dependent. Under the scope's repeated-mode rule (CLM-001, Repeated modes: signed sum within the
+cluster first), every rule is basis invariant. See the repeated pair below.
 
 **Section and lengths.** The section has OD 21.3 mm, wall 2.77 mm, steel 7850 kg/m³, water
 1000 kg/m³, E = 203 GPa and G = 78 GPa. Then:
@@ -359,6 +369,14 @@ absolute sum.
   - Consistent: Cholesky reduction, then cyclic Jacobi in decimal.
   - Lumped: the massless rotations are statically condensed first.
   - Every eigenvalue is re-found by bisection on banded LDLᵀ Sturm counts.
+- **Mode counts.** `finite_modes` per planar model is the count of the full eigen-solution, checked
+  against the formulation:
+
+  | Formulation | Cantilever | Propped | Pinned-pinned | Fixed-fixed |
+  |---|---|---|---|---|
+  | consistent (every free planar DOF) | 2N | 2N − 1 | 2N | 2N − 2 |
+  | lumped (the free translations) | N | N − 1 | N − 1 | N − 1 |
+
 - **Excitation.** p = (M R)_f, including the consistent coupling to restrained DOFs.
 - **Rigid response.** The literal static solve, checked two ways:
   - its displacement equals the sum over non-periodic FE modes of Γφ/λ (the FE basis is complete);
@@ -376,6 +394,15 @@ fully fixed at A, with only UZ restrained at the tip B:
 Its merged ascending frequency list is given per length, per N and per formulation, with each
 mode's family: Y bending, Z bending, X axial, RX torsion.
 
+- **List rule and cutoff.** The cutoff is the larger of the two planes' fifth bending frequency (the
+  last, where a plane has fewer). The list holds the first five bending modes of each plane, every
+  further bending mode at or below the cutoff, and every axial and torsional mode at or below it.
+- **Completeness.** For the FE models every finite bending mode is built. For the continuum, and
+  for the rods, the generator checks that each family's first mode not built (continuum bending
+  mode 6, rod mode 4) lies above the cutoff (`MERGED-list-rule`). The list therefore holds every
+  mode below the cutoff.
+- **No totals.** The list is not a mode inventory and publishes no mode total.
+
 - The axial and torsional modes are uncoupled and unexcited, but count as modes.
 - Their FE frequencies come from closed forms bracketed by Sturm counts. For a consistent
   fixed-free rod, λ̂ = 6N²(1 − cos θ)/(2 + cos θ); for a lumped one, 2N²(1 − cos θ); in both,
@@ -390,17 +417,21 @@ No Y–Z pair falls within 1 % at any N or length (the flag list is empty everyw
 
 ## Item 6: sensitivity
 
-The reading holds mode n's shape and participation fixed and varies only its frequency:
+These are conditional SRSS sensitivities. The reading holds mode n's shape, its participation and
+its force-recovery coefficient q_n (the force, moment or reaction of the mode per unit spectral
+acceleration, divided by Γ_n) fixed, and varies only its frequency:
 
 - displacement contributions scale as S(f_n)/f_n², so d ln Q_n/d ln f_n = σ_n − 2;
-- force, moment and reaction contributions scale as S(f_n), so it is σ_n;
+- force, moment and reaction contributions are Γ_n q_n s S(f_n) with q_n fixed, so they scale as
+  S(f_n) and the derivative is σ_n;
 - σ_n = d ln S/d ln f at f_n: 0 on a flat segment and 3/4 on the rising one.
 
 For SRSS, d ln R/d ln f_n = (Q_n/R)² · d ln Q_n/d ln f_n. A central difference with relative step
 10⁻²⁰ through the table rule checks it. This is given for every item 5 quantity and mode (Rayleigh
 continuum) under both spectra.
 
-The rigid part and CQC's frequency-dependent ρ are outside this reading. The largest magnitudes are
+They exclude changes of the CQC coefficient, of the rigid response, of the shape and recovery, and
+rotations. The largest magnitudes are
 2.0 (displacement, flat), 1.25 (displacement, sloped) and 0.75 (force, moment and reaction,
 sloped). On the flat spectrum, forces, moments and reactions are 0.
 
@@ -456,19 +487,39 @@ Both sets are published under Euler–Bernoulli and Rayleigh. The tip displaceme
 spring reactions are given in global X, Y and Z, per mode and under all five modal rules. In both
 sets the first pair contributes with the same sign to uY and with opposite signs to uZ.
 
-**Repeated pair.** The plain cantilever's mode 1 is an exactly repeated pair. With the basis
-rotated by θ, e₁ = (cos θ, sin θ) and e₂ = (−sin θ, cos θ) in (Y, Z), under Y excitation, mode e₁
-contributes cos²θ·A to uY and cos θ sin θ·A to uZ; mode e₂ contributes sin²θ·A and −sin θ cos θ·A.
+**Repeated pair.** A circular cantilever free in three dimensions has mode 1 as an exactly repeated
+pair, one shape in each bending plane.
 
-**Adopted reading (convention 8).** The pair's signed contributions are summed first, and every rule
-is applied to that sum. Every rule then returns uY = A and uZ = 0 at every θ. These are the values a
-product is compared with: `adopted_cluster_sum_first`, per rule, in each row (equal to
-`basis_invariant_sum_first`, checked).
+*A, the in-plane response.* Take the Euler–Bernoulli cantilever of the item 5 section at L = 2 m:
+
+- Ω₁ = β₁² with cos β cosh β = −1 (β₁ = 1.8751…);
+- ω₁ = Ω₁√(EI/m̄)/L² and f₁ = ω₁/(2π) (4.387 Hz);
+- W normalized so that W(1) = +1 (the tip is its maximum).
+
+A = (∫₀¹W / ∫₀¹W²) · W(1) · s S(f₁)/ω₁², with S from T1 under log-abscissa/log-ordinate and s = 1.
+It is the tip displacement of the mode under excitation in its own plane. The file gives A,
+`frequency_hz` and the derivation in `derivation_of_A`.
+
+*The rotated basis.* With e₁ = (cos θ, sin θ) and e₂ = (−sin θ, cos θ) in (Y, Z) and excitation
+along Y, each mode's participation along Y is proportional to its Y component. So mode e₁
+contributes c₁ = cos²θ·A to uY and cos θ sin θ·A to uZ, and mode e₂ contributes c₂ = sin²θ·A and
+−sin θ cos θ·A.
+
+**Adopted rule** (DEL-04-10 CLM-001, Repeated modes). The two modes form one cluster (equal
+eigenvalues, within δ_c), so their signed contributions are summed first, c₁ + c₂, and every modal
+rule is applied to that single cluster sum. A rule applied to one value v returns |v|, and the
+cluster's frequency stands for it in CQC, grouping and the ten percent method:
+
+- uY: |cos²θ + sin²θ|·A = A;
+- uZ: |cos θ sin θ − sin θ cos θ|·A = 0;
+- for every rule and every θ.
+
+These are the values a product is compared with. Each row gives them per rule as
+`adopted_cluster_sum_first`, equal to `basis_invariant_sum_first` (checked).
 
 **Mode by mode, NOT the adopted reading, published to show the basis dependence.** In each row, the
-fields `SRSS`, `CQC`, `GROUPING`, `ABSSUM_not_in_scope` and `PAIRWISE10_not_in_scope`, and the
-`closed_forms` and `extremes` entries named after them, apply each rule to the two modes
-separately:
+fields `SRSS`, `CQC`, `GROUPING`, `ABSSUM` and `TEN_PERCENT`, and the `closed_forms` and `extremes`
+entries named after them, apply each rule to the two modes separately:
 
 | Mode by mode (not the adopted reading) | Closed form in θ | Range |
 |---|---|---|
@@ -489,14 +540,22 @@ repeated eigenvalue and an M-orthogonal basis, as here.
 | one-element consistent-mass and restrained-mass witnesses | not here: left to the `discrete` package. Item 5's N = 2 FE and the consistent rigid reactions (mass coupled to restraints) are related but are not the one-element witness |
 | ground-spring reaction beside a rigid-end reaction, in equilibrium | tip-spring case (a): spring and clamp reactions with per-mode equilibrium (case (b) is comparison only) |
 | MDOF modal responses and each modal combination; CQC on a close pair with opposite-sign contributions | `two_mass_chain.json` A and B; the tip-spring pair |
-| 100-40-40 and SRSS directional | `directional.json` |
+| an exactly repeated pair in two bases giving one combined response under every rule | `repeated_pair` (rotated bases at eight angles; `adopted_cluster_sum_first`) |
+| 100-40-40, SRSS and absolute-sum directional | `directional.json` |
 | rigid response with an extracted rigid mode in the static solve; stiff model equal to the static response | `two_mass_chain.json` A (f_r = 7 Hz) and C |
 
-AC-003 (snubbers) and AC-009 (independent support motion) are not covered here.
+Not covered here:
+
+- the grouping and ten percent methods on a set of modes where the two differ: every published set
+  gives equal values;
+- a cluster of two modes with different frequencies within δ_c, including a quantity whose two
+  contributions nearly cancel;
+- a cluster that straddles f_r;
+- AC-003 (snubbers) and AC-009 (independent support motion).
 
 ## Cross-checks
 
-Each JSON file carries its own `cross_checks`: 40 are recorded, all agree. The principal ones are:
+Each JSON file carries its own `cross_checks`. The principal ones are:
 
 - the tables recomputed from the segment's other end, and g scaling commuting with interpolation;
 - SDOF and chain balance (k u = m sS; reaction = −m_eff sS);
@@ -510,6 +569,8 @@ Each JSON file carries its own `cross_checks`: 40 are recorded, all agree. The p
 - FE: element matrices exact; Jacobi against Sturm bisection (≈10⁻⁴¹); eigen-residuals (≈10⁻⁴⁹);
   reaction = −m_eff; rigid modal and balance checks;
 - rod closed forms against Sturm counts;
+- the benchmark-model merged lists against their list rule (every family's first unbuilt mode above
+  the cutoff);
 - the sensitivity finite difference;
 - the tip-spring equation, equilibrium in 3D, and, for the repeated pair, CQC invariance and every
   rule under the adopted reading equal to the invariant value.
@@ -531,11 +592,17 @@ Each JSON file carries its own `cross_checks`: 40 are recorded, all agree. The p
 
 `screening_basis.json` (`definitions.for_the_screening_derivation`) states:
 
-- The sensitivity holds shape and participation fixed and covers SRSS only.
+- The sensitivity is a conditional SRSS sensitivity: shape, participation and force-recovery
+  coefficient q_n held fixed. It excludes changes of the CQC coefficient, of the rigid response, of
+  the shape and recovery, and rotations.
 - On a coarse mesh the same rigid frequency can classify a different number of modes as periodic.
   `missing_mass_total` includes those cases and `missing_mass_total_same_classification` excludes
   them.
 - What the "largest" maxima leave out: the quarter-point quantities at N = 2, where L/4 is not a
   node, and quantities whose continuum value is zero by symmetry.
+- `per_mode` excludes contributions whose continuum value does not exceed 10⁻³⁰ times the largest
+  absolute continuum contribution of that quantity (over the five continuum modes).
+- The significance threshold of `per_mode_significant` is 1 % of the continuum SRSS over
+  nm = min(5, the FE model's finite mode count) continuum modes, not always five.
 - At L = 64 m, "rotary inertia negligible" applies to modes 1–3 only. Modes 4 and 5 shift by
   6.6·10⁻⁷ to 1.23·10⁻⁶ (mode 5 above 10⁻⁶ in every span), and the five-mode categories include them.

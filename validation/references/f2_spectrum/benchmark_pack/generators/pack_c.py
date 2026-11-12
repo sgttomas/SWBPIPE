@@ -34,7 +34,10 @@ Y_Q = ["tip_UY_m", "base_FY_N", "base_MZ_Nm"]
 Z_Q = ["mid_UZ_m", "base_FZ_N", "base_MY_Nm", "tip_reaction_FZ_N"]
 C8_MAP = {"tip_UY_m": "B.uy", "base_FY_N": "SA.Fy", "base_MZ_Nm": "SA.Mz", "mid_UZ_m": "M4.uz",
           "base_FZ_N": "SA.Fz", "base_MY_Nm": "SA.My", "tip_reaction_FZ_N": "SB.Fz"}
-RULES3 = ["SRSS", "ABSSUM", "PAIRWISE10"]
+RULES3 = ["SRSS", "ABSSUM", "TEN_PERCENT"]
+LIST_LIMIT = 12          # published length of each merged ascending list
+K_CONT_BENDING = 8       # continuum bending modes built per plane for the list
+K_CONT_ROD = 3           # continuum axial and torsional modes built for the list
 
 
 def section():
@@ -62,7 +65,7 @@ def S_of(table, f):
 
 
 def rules3(vals, freqs):
-    return {"SRSS": R_.srss(vals), "ABSSUM": R_.abssum(vals), "PAIRWISE10": R_.pairwise10(vals, freqs)}
+    return {"SRSS": R_.srss(vals), "ABSSUM": R_.abssum(vals), "TEN_PERCENT": R_.pairwise10(vals, freqs)}
 
 
 # --------------------------------------------------------------------------
@@ -103,12 +106,27 @@ def continuum(sec, model, acc):
     return out
 
 
-def merged_cont(cont, sec):
-    ent = [(m["f"], "Y", i + 1) for i, m in enumerate(cont["C"]["modes"])] + \
-          [(m["f"], "Z", i + 1) for i, m in enumerate(cont["P"]["modes"])] + \
-          [(f, "X axial", i + 1) for i, f in enumerate(B_.rod_freqs_continuum(L, sec["EA_m"], 3))] + \
-          [(f, "RX torsion", i + 1) for i, f in enumerate(B_.rod_freqs_continuum(L, sec["GJ_jbar"], 3))]
-    return sorted(ent, key=lambda e: e[0])
+def merged_cont(cont, sec, model, acc):
+    """The continuum's true first LIST_LIMIT modes: each family is built to K modes and the first mode not
+    built of every family is asserted to lie above the last listed frequency."""
+    r2 = sec["ibar_m"] / Fr(L) ** 2 if model == "rayleigh" else Fr(0)
+    sq = dsqrt(dec(sec["EI_m"]))
+    fam = {}
+    for span, name, (left, right) in (("C", "Y", ("clamped", "free")), ("P", "Z", ("clamped", "pinned"))):
+        oms = C_.roots(left, right, N_.dec(r2), N_.dec(0), K_CONT_BENDING + 1)
+        fs = [om * sq / dec(L) ** 2 / (2 * pi()) for om in oms]
+        # the first five are the modes the responses use: identical roots, identical frequencies
+        acc["list_consistent"] &= all(a == m["f"] for a, m in zip(fs, cont[span]["modes"]))
+        fam[name] = fs
+    fam["X axial"] = B_.rod_freqs_continuum(L, sec["EA_m"], K_CONT_ROD + 1)
+    fam["RX torsion"] = B_.rod_freqs_continuum(L, sec["GJ_jbar"], K_CONT_ROD + 1)
+    built = {"Y": K_CONT_BENDING, "Z": K_CONT_BENDING, "X axial": K_CONT_ROD, "RX torsion": K_CONT_ROD}
+    ent = sorted([(f, name, i + 1) for name, fs in fam.items() for i, f in enumerate(fs[:built[name]])],
+                 key=lambda e: e[0])
+    last = ent[LIST_LIMIT - 1][0]
+    for name, fs in fam.items():
+        acc["list_complete"] &= fs[built[name]] > last
+    return ent
 
 
 # --------------------------------------------------------------------------
@@ -204,11 +222,29 @@ def fe_rigid(plane, span, N, f_r, table, sec, acc):
     return a_r, per, q, check
 
 
+def mode_total(N, form):
+    """Finite modes of the 3D benchmark model, from the formulation.
+
+    6(N+1) DOFs, 7 restrained (6 at A, UZ at B), so 6N - 1 free DOFs.
+    consistent: the mass is positive definite on all of them (translational, Rayleigh rotary, axial and
+                torsional mass): 6N - 1 = Y bending 2N + Z bending (2N - 1) + axial N + torsion N.
+    lumped:     only translations carry mass; rotations are massless: free translations Y N, Z N - 1 (the tip
+                UZ restrained), X N, so 3N - 1 finite modes and no torsion mode.
+    """
+    if form == "consistent":
+        return {"Y": 2 * N, "Z": 2 * N - 1, "X axial": N, "RX torsion": N}
+    return {"Y": N, "Z": N - 1, "X axial": N, "RX torsion": 0}
+
+
 def merged_fe(planes, N, form, sec, acc):
+    """Every finite mode of the FE model, all families, ascending."""
     acc_r = {"rod_counts_ok": True}
-    ax = B_.rod_freqs_fe(L, sec["EA_m"], N, form, 3, acc_r)
-    to = B_.rod_freqs_fe(L, sec["GJ_jbar"], N, form, 3, acc_r) if form == "consistent" else []
+    ax = B_.rod_freqs_fe(L, sec["EA_m"], N, form, N, acc_r)
+    to = B_.rod_freqs_fe(L, sec["GJ_jbar"], N, form, N, acc_r) if form == "consistent" else []
     acc["rod_ok"] &= acc_r["rod_counts_ok"]
+    tot = mode_total(N, form)
+    got = {"Y": len(planes["C"]["modes"]), "Z": len(planes["P"]["modes"]), "X axial": len(ax), "RX torsion": len(to)}
+    acc["totals_ok"] &= got == tot
     ent = [(m["f"], "Y", i + 1) for i, m in enumerate(planes["C"]["modes"])] + \
           [(m["f"], "Z", i + 1) for i, m in enumerate(planes["P"]["modes"])] + \
           [(f, "X axial", i + 1) for i, f in enumerate(ax)] + [(f, "RX torsion", i + 1) for i, f in enumerate(to)]
@@ -269,8 +305,11 @@ def build(cross, store):
     acc = {k: Decimal(0) for k in ("cont_balance", "eb_eq", "static_textbook", "sturm", "fe_balance",
                                    "fe_rigid_modal", "rigid_total")}
     acc["rod_ok"] = True
+    acc["list_consistent"] = True
+    acc["list_complete"] = True
+    acc["totals_ok"] = True
     cont = {m: continuum(sec, m, acc) for m in ("eb", "rayleigh")}
-    cmerged = {m: merged_cont(cont[m], sec) for m in cont}
+    cmerged = {m: merged_cont(cont[m], sec, m, acc) for m in cont}
     fe = {}
     for form in FORMS:
         for N in NS:
@@ -309,7 +348,7 @@ def build(cross, store):
             out["quantities"][q] = cq
         return out, comb
 
-    def merged_doc(merged, ref_merged, limit=12):
+    def merged_doc(merged, ref_merged, total, derivation, limit=LIST_LIMIT):
         rows = []
         for i, e in enumerate(merged[:limit]):
             cf = next((r[0] for r in ref_merged if r[1] == e[1] and r[2] == e[2]), None)
@@ -320,7 +359,24 @@ def build(cross, store):
             for b in merged[:limit]:
                 if a[1] == "Y" and b[1] == "Z" and abs(a[0] - b[0]) <= Decimal("0.01") * min(a[0], b[0]):
                     close.append([a[2], b[2]])
-        return {"finite_modes_total": len(merged), "first_modes": rows, "Y_Z_pairs_within_1_percent": close}
+        return {"finite_modes_total": total, "finite_modes_derivation": derivation, "first_modes": rows,
+                "Y_Z_pairs_within_1_percent": close}
+
+    cont_total_doc = ("infinite: the continuum has infinitely many finite-frequency modes. first_modes is the true "
+                      f"first {LIST_LIMIT}: bending built to {K_CONT_BENDING} modes per plane, axial and torsional to "
+                      f"{K_CONT_ROD}, and the first mode not built of every family is asserted to lie above the "
+                      "last listed frequency")
+
+    def fe_total_doc(N, form):
+        t = mode_total(N, form)
+        if form == "consistent":
+            how = (f"6(N+1) DOFs minus 7 restrained (6 at A, UZ at B) = 6N - 1 = {6 * N - 1} free DOFs, all carrying "
+                   "mass (translational, Rayleigh rotary, axial, torsional): Y bending 2N, Z bending 2N - 1, axial "
+                   "N, torsion N")
+        else:
+            how = (f"only translations carry mass: free translations Y N, Z N - 1 (tip UZ restrained), X N, so "
+                   f"3N - 1 = {3 * N - 1}; rotations massless, so no torsion mode")
+        return sum(t.values()), how + f"; first_modes is the first {min(LIST_LIMIT, sum(t.values()))} of all of them"
 
     doc = {"case": "C", "model": "pipe along X, fully fixed at A, only UZ restrained at the tip B",
            "section": sec["doc"],
@@ -330,15 +386,17 @@ def build(cross, store):
                             "contribute zero",
            "quantities": {"from Y": Y_Q, "from Z": Z_Q},
            "sign_conventions": __doc__.split("Global signs: ")[1].strip(),
-           "rules": "SRSS; ABSSUM (absolute sum, not in the scope today); PAIRWISE10 (pairwise ten percent, not in "
-                    "the scope today)",
+           "rules": "SRSS; ABSSUM (the absolute sum); TEN_PERCENT (the ten percent method: every pair i < j with "
+                    "(f_j - f_i)/f_i <= 0.1): modal rules of DEL-04-10 CLM-001. No two modes of these models lie "
+                    "within DEL-04-09's cluster tolerance, so no cluster is summed first (CLM-001, Repeated modes)",
            "deviation_basis": "rel_dev against the Rayleigh continuum with its first six merged modes periodic "
                               "(the case as defined); per-mode values against the continuum mode of the same plane "
                               "and index",
            "continuum": {}, "fe": {}, "truncation": {}}
     sums = {}
     for m in ("eb", "rayleigh"):
-        d = {"merged_frequencies": merged_doc(cmerged[m], cmerged["rayleigh"]), "responses": {}}
+        d = {"merged_frequencies": merged_doc(cmerged[m], cmerged["rayleigh"], "infinite", cont_total_doc),
+             "responses": {}}
         for t in (FLAT, TWO):
             d["responses"][t["id"]], comb = resp_doc(cmerged[m], pm(cont[m]), t, N_PERIODIC, ref[t["id"]])
             sums[("cont", m, t["id"])] = comb
@@ -347,7 +405,9 @@ def build(cross, store):
         for N in NS:
             e = fe[(form, N)]
             pmo = {"C": e["planes"]["C"]["modes"], "P": e["planes"]["P"]["modes"]}
-            d = {"merged_frequencies": merged_doc(e["merged"], cmerged["rayleigh"]),
+            tot, how = fe_total_doc(N, form)
+            acc["totals_ok"] &= tot == len(e["merged"])
+            d = {"merged_frequencies": merged_doc(e["merged"], cmerged["rayleigh"], tot, how),
                  "normalization_cases": {s: [m["case"] for m in e["planes"][s]["modes"][:3]] for s in ("C", "P")},
                  "responses": {}}
             for t in (FLAT, TWO):
@@ -464,6 +524,21 @@ def build(cross, store):
         cross.append({"id": f"C-{k}", "what": what, "max": sci(acc[k]), "agrees": acc[k] <= tol})
     cross.append({"id": "C-rod-closed-forms", "what": "axial and torsional rod frequencies bracketed by Sturm counts",
                   "agrees": acc["rod_ok"]})
+    cross.append({"id": "C-mode-totals", "what": "FE: modes built per family equal the formulation's count (consistent "
+                  "6N - 1, lumped 3N - 1), and the merged list holds all of them", "agrees": acc["totals_ok"]})
+    cross.append({"id": "C-continuum-list-complete", "what": f"continuum: the first mode not built of every family lies "
+                  f"above the {LIST_LIMIT}th listed frequency, so first_modes is the true first {LIST_LIMIT}",
+                  "agrees": acc["list_complete"]})
+    cross.append({"id": "C-continuum-list-consistent", "what": "continuum: the list's first five bending frequencies "
+                  "per plane are identical to those of the modes the responses use", "agrees": acc["list_consistent"]})
+    gap_min = None
+    for ml in [cmerged["rayleigh"], cmerged["eb"]] + [v["merged"] for v in fe.values()]:
+        for a, b in zip(ml, ml[1:]):
+            g = (b[0] ** 2 - a[0] ** 2) / b[0] ** 2
+            gap_min = g if gap_min is None else min(gap_min, g)
+    cross.append({"id": "C-no-cluster", "what": "smallest relative eigenvalue gap between adjacent modes of every merged "
+                  "list exceeds DEL-04-09's cluster tolerance 2^-20, so no cluster is summed first",
+                  "min": sci(gap_min), "agrees": gap_min > Decimal(2) ** -20})
     store["c"] = sums
     store["c_merged"] = {"rayleigh": cmerged["rayleigh"], **{k: v["merged"] for k, v in fe.items()}}
     return doc

@@ -1,6 +1,6 @@
 {
  "document": "openpipestress.f2_spectrum.discrete.c10_cluster_witnesses",
- "status": "candidate frozen references; derived and cross-checked by the author TASK, not yet independently refuted",
+ "status": "references with a refutation record: REFUTATION.md in this directory",
  "deliverable": "DEL-04-10 (response-spectrum analysis)",
  "units": {
   "length": "m",
@@ -24,7 +24,7 @@
   "pair": "[decimal with 40 significant digits, nearest binary64]",
   "flush": "a value below 1e-50 of the largest magnitude of its unit in the analysis is printed as 0 (zero by symmetry or decoupling)"
  },
- "conventions": "../README.md, section Conventions",
+ "conventions": "README.md in this directory, section \"Conventions a product must match or map\"",
  "inputs_binary64": [
   {
    "shortest_decimal": "0.0",
@@ -165,7 +165,7 @@
  "cases": [
   {
    "id": "C10-W2-CLOSE-DISTINCT",
-   "serves": "the adopted repeated-mode rule (REQ-003): a cluster of two genuinely distinct modes inside delta_c, each with its own ordinate and contribution, summed before every modal rule",
+   "serves": "AC-002: a cluster of two modes with different frequencies within delta_c (CLM-001 Repeated modes, REQ-003), each with its own ordinate and contribution, summed before every modal rule",
    "purpose": "the C7 model with a skewed spring of 0.0625 N/m along (0,3,4) at the tip N3: each bending pair splits by a relative eigenvalue gap far below delta_c; the first pair lies on a sloped segment of S-LL",
    "model": {
     "units": {
@@ -5860,7 +5860,7 @@
         ]
        }
       },
-      "PAIRWISE_TEN_PERCENT": {
+      "TEN_PERCENT": {
        "Y": {
         "N1.ux": [
          "0",
@@ -6900,7 +6900,6 @@
        "modal_combination": "SRSS",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "N1.ux": [
          "0",
@@ -7112,7 +7111,6 @@
        "modal_combination": "CQC",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "N1.ux": [
          "0",
@@ -7324,7 +7322,6 @@
        "modal_combination": "GROUPING",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "N1.ux": [
          "0",
@@ -7536,8 +7533,6 @@
        "modal_combination": "ABSOLUTE_SUM",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "N1.ux": [
          "0",
@@ -7746,11 +7741,9 @@
        }
       },
       {
-       "modal_combination": "PAIRWISE_TEN_PERCENT",
+       "modal_combination": "TEN_PERCENT",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "N1.ux": [
          "0",
@@ -9463,7 +9456,7 @@
   },
   {
    "id": "C10-W3-STRADDLING-CLUSTER",
-   "serves": "the adopted rule's periodic/rigid classification: a cluster whose two frequencies straddle f_r is periodic as a whole (REQ-003, REQ-004)",
+   "serves": "AC-002: a cluster that straddles f_r, periodic as a whole (CLM-001 Rigid response, REQ-004)",
    "purpose": "the model of C10-W2 with f_r strictly between the two frequencies of its first cluster",
    "model": {
     "units": {
@@ -15593,7 +15586,7 @@
         ]
        }
       },
-      "PAIRWISE_TEN_PERCENT": {
+      "TEN_PERCENT": {
        "Y": {
         "N1.ux": [
          "0",
@@ -17665,7 +17658,7 @@
         ]
        }
       },
-      "PAIRWISE_TEN_PERCENT": {
+      "TEN_PERCENT": {
        "Y": {
         "N1.ux": [
          "0",
@@ -19119,7 +19112,6 @@
        "modal_combination": "SRSS",
        "missing_mass": "SRSS",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "N1.ux": [
          "0",
@@ -19331,7 +19323,6 @@
        "modal_combination": "SRSS",
        "missing_mass": "ABSOLUTE_SUM",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "N1.ux": [
          "0",
@@ -19543,7 +19534,6 @@
        "modal_combination": "CQC",
        "missing_mass": "SRSS",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "N1.ux": [
          "0",
@@ -19755,7 +19745,6 @@
        "modal_combination": "CQC",
        "missing_mass": "ABSOLUTE_SUM",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "N1.ux": [
          "0",
@@ -19967,7 +19956,6 @@
        "modal_combination": "GROUPING",
        "missing_mass": "SRSS",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "N1.ux": [
          "0",
@@ -20179,7 +20167,6 @@
        "modal_combination": "GROUPING",
        "missing_mass": "ABSOLUTE_SUM",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "N1.ux": [
          "0",
@@ -20391,8 +20378,6 @@
        "modal_combination": "ABSOLUTE_SUM",
        "missing_mass": "SRSS",
        "directional_combination": "SRSS",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "N1.ux": [
          "0",
@@ -20604,8 +20589,6 @@
        "modal_combination": "ABSOLUTE_SUM",
        "missing_mass": "ABSOLUTE_SUM",
        "directional_combination": "SRSS",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "N1.ux": [
          "0",
@@ -20814,11 +20797,9 @@
        }
       },
       {
-       "modal_combination": "PAIRWISE_TEN_PERCENT",
+       "modal_combination": "TEN_PERCENT",
        "missing_mass": "SRSS",
        "directional_combination": "SRSS",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "N1.ux": [
          "0",
@@ -21027,11 +21008,9 @@
        }
       },
       {
-       "modal_combination": "PAIRWISE_TEN_PERCENT",
+       "modal_combination": "TEN_PERCENT",
        "missing_mass": "ABSOLUTE_SUM",
        "directional_combination": "SRSS",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "N1.ux": [
          "0",

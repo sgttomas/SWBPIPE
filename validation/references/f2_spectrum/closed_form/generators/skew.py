@@ -163,7 +163,7 @@ def case_doc(cid, sec, model, acc):
            "c_p": val(cp), "c_q": val(cq), "c_axial": val(ca),
            "first_pair_relative_split": val(split),
            "modes": rows, "groups_10pct_of_lowest": [[i + 1 for i in g] for g in rules.groups(freqs)],
-           "pairs_within_10pct_not_in_scope": [[i + 1, j + 1] for i, j in rules.close_pairs(freqs)],
+           "ten_percent_pairs": [[i + 1, j + 1] for i, j in rules.close_pairs(freqs)],
            "spectral_ordinates_sS": [val(s) for s in S],
            "signed_contributions": {n: [val(v) for v in contrib[n]] for n in names},
            "combined": comb}
@@ -251,18 +251,26 @@ def repeated_pair(sec, acc):
             "basis invariant (signed contributions summed within the pair first)": "uY = A, uZ = 0",
             "adopted reading (cluster summed first, then any rule)": "uY = A, uZ = 0 for every t and every rule",
             "CQC": "rho = 1 for equal frequencies, so CQC = |c1 + c2| = the invariant value for every t",
-            "GROUPING, PAIRWISE10, ABSSUM": "|c1| + |c2|: uY = A (invariant), uZ = A |sin 2t| (0 to A)"},
+            "GROUPING, TEN_PERCENT, ABSSUM": "|c1| + |c2|: uY = A (invariant), uZ = A |sin 2t| (0 to A)"},
         "extremes": {"uY_SRSS_max": val(A), "uY_SRSS_min": val(A / r2), "uZ_SRSS_min": "0",
                      "uZ_SRSS_max": val(A / r2), "uZ_GROUPING_max": val(A)},
         "reading_of_the_rule_fields": (
-            "In rows, the fields SRSS, CQC, GROUPING, ABSSUM_not_in_scope and PAIRWISE10_not_in_scope (and the "
-            "closed_forms and extremes entries named after them) apply each rule mode by mode: NOT the adopted "
-            "reading, published to show the basis dependence. Under the adopted reading (the modes of one "
-            "numerically repeated cluster, DEL-04-09's delta_c = 2^-20 on eigenvalues, are summed with their signs "
-            "first and every modal rule is applied to the cluster sums) every rule returns the "
-            "basis_invariant_sum_first values, uY = A and uZ = 0, at every angle; adopted_cluster_sum_first gives "
+            "In rows, the fields SRSS, CQC, GROUPING, ABSSUM and TEN_PERCENT (and the closed_forms and extremes "
+            "entries named after them) apply each rule mode by mode: NOT the adopted reading, published to show the "
+            "basis dependence. The adopted rule is DEL-04-10 CLM-001, Repeated modes: the modes of one cluster of the "
+            "modal basis (DEL-04-09's cluster tolerance delta_c = 2^-20 on eigenvalues) are summed with their signs "
+            "first and every modal rule is applied to the cluster sums. Here the pair is one cluster with one "
+            "frequency, so each rule is applied to the single value c1 + c2 and returns |c1 + c2|: every rule gives "
+            "the basis_invariant_sum_first values, uY = A and uZ = 0, at every angle; adopted_cluster_sum_first gives "
             "that result per rule for comparison with a product. The invariance of the cluster sum is exact for an "
             "exactly repeated eigenvalue and an M-orthogonal basis, as here."),
+        "derivation_of_A": (
+            "Euler-Bernoulli cantilever of the item 5 section (beams_continuum.json) at L = 2 m, mode 1: "
+            "Omega_1 = beta_1^2 with cos beta cosh beta = -1, w_1 = Omega_1 sqrt(EI/mbar)/L^2, f_1 = w_1/(2 pi); "
+            "W normalized to W(1) = +1 (the tip is the maximum); A = (int_0^1 W / int_0^1 W^2) W(1) s S(f_1)/w_1^2 "
+            "with S from T1 under log-abscissa/log-ordinate and s = 1. A is the in-plane tip displacement of the mode "
+            "under excitation in its own plane; the pair's contributions are A times the products of the basis "
+            "vectors' components given in description."),
         "rows": rows,
     }
 
@@ -271,8 +279,8 @@ def build(cross):
     sec = B.section()
     acc = {"tip_eq": Decimal(0), "force_eq": Decimal(0), "moment_eq": Decimal(0), "pair_cqc": Decimal(0),
            "pair_adopted_ok": True}
-    out = {"item": "Closely spaced pair from a tip spring (general p, q form), and the repeated-pair basis "
-                   "ambiguity (assigner's additions to items 3 and 5)",
+    out = {"item": "Closely spaced pair from a tip spring (general p, q form), and the exactly repeated pair under a "
+                   "rotated basis (DEL-04-10 AC-002)",
            "common": {"section": "as beams_continuum.json", "length_m": inp(L),
                       "spectrum": "T1 under log-abscissa/log-ordinate", "scale_factor_s": inp(SCALE),
                       "damping_ratio_for_CQC": inp(ZETA), "modes": f"first {N_PER_PLANE} of each plane"},

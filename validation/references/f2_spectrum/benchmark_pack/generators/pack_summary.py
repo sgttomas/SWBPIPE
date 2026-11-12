@@ -50,7 +50,7 @@ def build(cross, store):
     c2, c6 = d["rayleigh"]
     for label, cm in (("modes_1_2", c2), ("modes_1_6_information", c6)):
         for q in cm:
-            for r in ("SRSS", "ABSSUM", "PAIRWISE10", "CQC"):
+            for r in ("SRSS", "ABSSUM", "TEN_PERCENT", "CQC"):
                 rows.append({"case": "cpb-dyn-d-n08-flat", "quantity": q, "rule": r, "modes": label,
                              "unit": unit_of(q), "continuum": pair(cm[q][r]), "consistent": None, "lumped": None})
     cross.append({"id": "SUMMARY-rows", "what": "every case id has rows", "agrees": len({r["case"] for r in rows}) == 8})
@@ -64,6 +64,7 @@ def build(cross, store):
             "null": "not available at that member count (mid-span is not a node at N = 1; the lumped N = 1 model "
                     "has no finite Z-plane mode, its only Z-plane DOF being a massless rotation), or not this "
                     "package's (case D at N = 8: the sibling discrete package's values)",
-            "rules": "SRSS; ABSSUM and PAIRWISE10 not in the scope today; CQC at damping 0.05 (case D)",
+            "rules": "SRSS; ABSSUM (the absolute sum); TEN_PERCENT (the ten percent method); CQC at damping 0.05 "
+                     "(case D): modal rules of DEL-04-10 CLM-001",
             "pair": "[decimal with 40 significant digits, nearest binary64]"},
         "rows": rows}

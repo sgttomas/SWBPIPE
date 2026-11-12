@@ -4,7 +4,7 @@
  "status": "references with a refutation record (REFUTATION.md)",
  "number_format": "Inputs are binary64: 'binary64' is the shortest round-trip decimal, 'hex' the exact hex form, 'exact' the exact rational. Derived reals are decimal strings ('value', 40 significant digits) with the nearest binary64; 'exact' on a derived quantity is an exact rational. Deviations and cross-check residuals are short diagnostics, not references. SI units.",
  "item": "6. Sensitivity of the item 5 SRSS responses to each mode's frequency (Rayleigh continuum)",
- "reading": "one mode's frequency varied alone, shape and participation fixed; SRSS over the first five modes; the missing-mass rigid part and CQC's frequency-dependent correlation are not included",
+ "reading": "a conditional SRSS sensitivity: one mode's frequency varied alone, with its shape, its participation and its force-recovery coefficient q_n held fixed; SRSS over the first five modes. It excludes changes of the CQC coefficient, of the missing-mass rigid response, of the shape and recovery, and rotations",
  "largest_magnitude": [
   {
    "kind": "displacement",

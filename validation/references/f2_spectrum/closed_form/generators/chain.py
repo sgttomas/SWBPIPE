@@ -135,7 +135,7 @@ def build(cross):
                "characteristic_coefficients": {"a=m1m2": num(a), "b=m1k2+m2(k1+k2)": num(b), "c=k1k2": num(c)},
                "modes": mode_docs,
                "groups_10pct_of_lowest": [[i + 1 for i in g] for g in rules.groups(freqs)],
-               "pairs_within_10pct_not_in_scope": [[i + 1, j + 1] for i, j in rules.close_pairs(freqs)]}
+               "ten_percent_pairs": [[i + 1, j + 1] for i, j in rules.close_pairs(freqs)]}
         S = [rules.evaluate(TABLE, f) for f in freqs]
         if all(s is not None for s in S):
             sS = [dec(SCALE) * D(s) for s in S]
@@ -245,7 +245,7 @@ def build(cross):
                      "scale_factor_s": inp(SCALE), "damping_ratio_for_CQC": inp(ZETA)},
         "sign_conventions": "u positive along the excitation axis away from the ground; spring forces tension "
                             "positive; ground reaction is K_cf u, the force the support applies to the chain",
-        "rules_not_in_scope": "ABSSUM_not_in_scope and PAIRWISE10_not_in_scope are not in the scope today; "
-                              "published for comparison only",
+        "rules": "SRSS, CQC, GROUPING, TEN_PERCENT (the ten percent method) and ABSSUM (the absolute sum): the five "
+                 "modal rules of DEL-04-10 CLM-001; no mode set here contains a repeated-mode cluster",
         "sets": sets_doc,
     }

@@ -29,9 +29,13 @@ Combination rules (each applied to one response quantity's signed values)
   GROUPING  modes in ascending order form groups in which each frequency is
             within 10 % of the group's lowest ((f - f_low) <= f_low/10);
             sqrt(sum R_i^2 + 2 sum_groups sum_{i<j in group} |R_i R_j|)
-  Not in the scope today, published for comparison only:
-  ABSSUM    sum |R_i|
-  PAIRWISE10  sqrt(sum R_i^2 + 2 sum_{i<j, (f_j - f_i)/f_i <= 1/10} |R_i R_j|)
+  TEN_PERCENT  the ten percent method: sqrt(sum R_i^2 + 2 sum |R_i R_j|), the
+            second sum over every pair i < j (ascending frequency) with
+            (f_j - f_i)/f_i <= 1/10, whether or not the two fall in one group
+  ABSSUM    the absolute sum, sum |R_i|
+  These are the five modal rules of DEL-04-10 CLM-001. The rules are applied to
+  the values given; where a cluster of repeated modes is summed first (CLM-001,
+  Repeated modes) the caller passes the cluster sums.
 """
 
 from decimal import Decimal
@@ -230,7 +234,9 @@ def pairwise10(vals, freqs):
     return dsqrt(s)
 
 
-MODAL_RULES = ["SRSS", "CQC", "GROUPING", "ABSSUM_not_in_scope", "PAIRWISE10_not_in_scope"]
+ten_percent = pairwise10
+
+MODAL_RULES = ["SRSS", "CQC", "GROUPING", "ABSSUM", "TEN_PERCENT"]
 
 
 def combine_all(vals, freqs, omegas, zeta):
@@ -238,8 +244,8 @@ def combine_all(vals, freqs, omegas, zeta):
         "SRSS": srss(vals),
         "CQC": cqc(vals, omegas, zeta),
         "GROUPING": grouping(vals, freqs),
-        "ABSSUM_not_in_scope": abssum(vals),
-        "PAIRWISE10_not_in_scope": pairwise10(vals, freqs),
+        "ABSSUM": abssum(vals),
+        "TEN_PERCENT": pairwise10(vals, freqs),
     }
 
 

@@ -3,7 +3,7 @@
  "file": "directional.json",
  "status": "references with a refutation record (REFUTATION.md)",
  "number_format": "Inputs are binary64: 'binary64' is the shortest round-trip decimal, 'hex' the exact hex form, 'exact' the exact rational. Derived reals are decimal strings ('value', 40 significant digits) with the nearest binary64; 'exact' on a derived quantity is an exact rational. Deviations and cross-check residuals are short diagnostics, not references. SI units.",
- "item": "4. Directional combination (SRSS and 100-40-40; absolute sum for comparison only)",
+ "item": "4. Directional combination (SRSS, 100-40-40 and the absolute sum, DEL-04-10 CLM-001)",
  "factor_40_percent": {"exact": "2/5", "value": "4.000000000000000000000000000000000000000e-1", "binary64": "0.4"},
  "cases": [
   {
@@ -23,7 +23,7 @@
    },
    "100_40_40": {"exact": "70706514149716787/45035996273704960", "value": "1.569999999999999995559107901499373838305e+0", "binary64": "1.57"},
    "governing_permutations": ["full_x"],
-   "ABSSUM_not_in_scope": {"exact": "36929516944438067/18014398509481984", "value": "2.049999999999999988897769753748434595764e+0", "binary64": "2.05"}
+   "ABSSUM": {"exact": "36929516944438067/18014398509481984", "value": "2.049999999999999988897769753748434595764e+0", "binary64": "2.05"}
   },
   {
    "id": "D2",
@@ -42,7 +42,7 @@
    },
    "100_40_40": {"exact": "70706514149716787/45035996273704960", "value": "1.569999999999999995559107901499373838305e+0", "binary64": "1.57"},
    "governing_permutations": ["full_y"],
-   "ABSSUM_not_in_scope": {"exact": "36929516944438067/18014398509481984", "value": "2.049999999999999988897769753748434595764e+0", "binary64": "2.05"}
+   "ABSSUM": {"exact": "36929516944438067/18014398509481984", "value": "2.049999999999999988897769753748434595764e+0", "binary64": "2.05"}
   },
   {
    "id": "D3",
@@ -61,7 +61,7 @@
    },
    "100_40_40": {"exact": "70706514149716787/45035996273704960", "value": "1.569999999999999995559107901499373838305e+0", "binary64": "1.57"},
    "governing_permutations": ["full_z"],
-   "ABSSUM_not_in_scope": {"exact": "36929516944438067/18014398509481984", "value": "2.049999999999999988897769753748434595764e+0", "binary64": "2.05"}
+   "ABSSUM": {"exact": "36929516944438067/18014398509481984", "value": "2.049999999999999988897769753748434595764e+0", "binary64": "2.05"}
   },
   {
    "id": "D4",
@@ -80,7 +80,7 @@
    },
    "100_40_40": {"exact": "3/2", "value": "1.500000000000000000000000000000000000000e+0", "binary64": "1.5"},
    "governing_permutations": ["full_x", "full_y"],
-   "ABSSUM_not_in_scope": {"exact": "9/4", "value": "2.250000000000000000000000000000000000000e+0", "binary64": "2.25"}
+   "ABSSUM": {"exact": "9/4", "value": "2.250000000000000000000000000000000000000e+0", "binary64": "2.25"}
   },
   {
    "id": "D5",
@@ -99,7 +99,7 @@
    },
    "100_40_40": {"exact": "27/20", "value": "1.350000000000000000000000000000000000000e+0", "binary64": "1.35"},
    "governing_permutations": ["full_x", "full_y", "full_z"],
-   "ABSSUM_not_in_scope": {"exact": "9/4", "value": "2.250000000000000000000000000000000000000e+0", "binary64": "2.25"}
+   "ABSSUM": {"exact": "9/4", "value": "2.250000000000000000000000000000000000000e+0", "binary64": "2.25"}
   },
   {
    "id": "D6",
@@ -118,7 +118,7 @@
    },
    "100_40_40": {"exact": "10268207150404731/9007199254740992", "value": "1.140000000000000013322676295501878485084e+0", "binary64": "1.1400000000000001"},
    "governing_permutations": ["full_y"],
-   "ABSSUM_not_in_scope": {"exact": "3/2", "value": "1.500000000000000000000000000000000000000e+0", "binary64": "1.5"}
+   "ABSSUM": {"exact": "3/2", "value": "1.500000000000000000000000000000000000000e+0", "binary64": "1.5"}
   },
   {
    "id": "D7",
@@ -136,7 +136,7 @@
    },
    "100_40_40": {"exact": "5291729562160333/5629499534213120", "value": "9.400000000000000355271367880050092935562e-1", "binary64": "0.9400000000000001"},
    "governing_permutations": ["full_x"],
-   "ABSSUM_not_in_scope": {"exact": "10358279142952141/9007199254740992", "value": "1.150000000000000022204460492503130808473e+0", "binary64": "1.15"}
+   "ABSSUM": {"exact": "10358279142952141/9007199254740992", "value": "1.150000000000000022204460492503130808473e+0", "binary64": "1.15"}
   }
  ],
  "cross_checks": [

@@ -1,6 +1,6 @@
 {
  "document": "openpipestress.f2_spectrum.discrete.c8_pipe_x",
- "status": "candidate frozen references; derived and cross-checked by the author TASK, not yet independently refuted",
+ "status": "references with a refutation record: REFUTATION.md in this directory",
  "deliverable": "DEL-04-10 (response-spectrum analysis)",
  "units": {
   "length": "m",
@@ -24,7 +24,7 @@
   "pair": "[decimal with 40 significant digits, nearest binary64]",
   "flush": "a value below 1e-50 of the largest magnitude of its unit in the analysis is printed as 0 (zero by symmetry or decoupling)"
  },
- "conventions": "../README.md, section Conventions",
+ "conventions": "README.md in this directory, section \"Conventions a product must match or map\"",
  "inputs_binary64": [
   {
    "shortest_decimal": "0.0",
@@ -21096,7 +21096,7 @@
         ]
        }
       },
-      "PAIRWISE_TEN_PERCENT": {
+      "TEN_PERCENT": {
        "Y": {
         "A.ux": [
          "0",
@@ -24256,7 +24256,6 @@
        "modal_combination": "SRSS",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "A.ux": [
          "0",
@@ -24892,8 +24891,6 @@
        "modal_combination": "SRSS",
        "missing_mass": "OFF",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -25529,7 +25526,6 @@
        "modal_combination": "CQC",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "A.ux": [
          "0",
@@ -26165,8 +26161,6 @@
        "modal_combination": "CQC",
        "missing_mass": "OFF",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -26802,7 +26796,6 @@
        "modal_combination": "GROUPING",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "A.ux": [
          "0",
@@ -27438,8 +27431,6 @@
        "modal_combination": "GROUPING",
        "missing_mass": "OFF",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -28075,8 +28066,6 @@
        "modal_combination": "ABSOLUTE_SUM",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -28712,8 +28701,6 @@
        "modal_combination": "ABSOLUTE_SUM",
        "missing_mass": "OFF",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -29346,11 +29333,9 @@
        }
       },
       {
-       "modal_combination": "PAIRWISE_TEN_PERCENT",
+       "modal_combination": "TEN_PERCENT",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -29983,11 +29968,9 @@
        }
       },
       {
-       "modal_combination": "PAIRWISE_TEN_PERCENT",
+       "modal_combination": "TEN_PERCENT",
        "missing_mass": "OFF",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -43804,7 +43787,7 @@
         ]
        }
       },
-      "PAIRWISE_TEN_PERCENT": {
+      "TEN_PERCENT": {
        "Y": {
         "A.ux": [
          "0",
@@ -46964,7 +46947,6 @@
        "modal_combination": "SRSS",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "A.ux": [
          "0",
@@ -47600,8 +47582,6 @@
        "modal_combination": "SRSS",
        "missing_mass": "OFF",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -48237,7 +48217,6 @@
        "modal_combination": "CQC",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "A.ux": [
          "0",
@@ -48873,8 +48852,6 @@
        "modal_combination": "CQC",
        "missing_mass": "OFF",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -49510,7 +49487,6 @@
        "modal_combination": "GROUPING",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "A.ux": [
          "0",
@@ -50146,8 +50122,6 @@
        "modal_combination": "GROUPING",
        "missing_mass": "OFF",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -50783,8 +50757,6 @@
        "modal_combination": "ABSOLUTE_SUM",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -51420,8 +51392,6 @@
        "modal_combination": "ABSOLUTE_SUM",
        "missing_mass": "OFF",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -52054,11 +52024,9 @@
        }
       },
       {
-       "modal_combination": "PAIRWISE_TEN_PERCENT",
+       "modal_combination": "TEN_PERCENT",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -52691,11 +52659,9 @@
        }
       },
       {
-       "modal_combination": "PAIRWISE_TEN_PERCENT",
+       "modal_combination": "TEN_PERCENT",
        "missing_mass": "OFF",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -66512,7 +66478,7 @@
         ]
        }
       },
-      "PAIRWISE_TEN_PERCENT": {
+      "TEN_PERCENT": {
        "Y": {
         "A.ux": [
          "0",
@@ -69672,7 +69638,6 @@
        "modal_combination": "SRSS",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "A.ux": [
          "0",
@@ -70308,8 +70273,6 @@
        "modal_combination": "SRSS",
        "missing_mass": "OFF",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -70945,7 +70908,6 @@
        "modal_combination": "CQC",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "A.ux": [
          "0",
@@ -71581,8 +71543,6 @@
        "modal_combination": "CQC",
        "missing_mass": "OFF",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -72218,7 +72178,6 @@
        "modal_combination": "GROUPING",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "A.ux": [
          "0",
@@ -72854,8 +72813,6 @@
        "modal_combination": "GROUPING",
        "missing_mass": "OFF",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -73491,8 +73448,6 @@
        "modal_combination": "ABSOLUTE_SUM",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -74128,8 +74083,6 @@
        "modal_combination": "ABSOLUTE_SUM",
        "missing_mass": "OFF",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -74762,11 +74715,9 @@
        }
       },
       {
-       "modal_combination": "PAIRWISE_TEN_PERCENT",
+       "modal_combination": "TEN_PERCENT",
        "missing_mass": "OFF",
        "directional_combination": "SRSS",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -75399,11 +75350,9 @@
        }
       },
       {
-       "modal_combination": "PAIRWISE_TEN_PERCENT",
+       "modal_combination": "TEN_PERCENT",
        "missing_mass": "OFF",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -86469,7 +86418,7 @@
         ]
        }
       },
-      "PAIRWISE_TEN_PERCENT": {
+      "TEN_PERCENT": {
        "Y": {
         "A.ux": [
          "0",
@@ -92781,7 +92730,7 @@
         ]
        }
       },
-      "PAIRWISE_TEN_PERCENT": {
+      "TEN_PERCENT": {
        "Y": {
         "A.ux": [
          "0",
@@ -97203,7 +97152,6 @@
        "modal_combination": "SRSS",
        "missing_mass": "SRSS",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "A.ux": [
          "0",
@@ -97839,8 +97787,6 @@
        "modal_combination": "SRSS",
        "missing_mass": "SRSS",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -98476,7 +98422,6 @@
        "modal_combination": "SRSS",
        "missing_mass": "ABSOLUTE_SUM",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "A.ux": [
          "0",
@@ -99112,8 +99057,6 @@
        "modal_combination": "SRSS",
        "missing_mass": "ABSOLUTE_SUM",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -99749,7 +99692,6 @@
        "modal_combination": "CQC",
        "missing_mass": "SRSS",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "A.ux": [
          "0",
@@ -100385,8 +100327,6 @@
        "modal_combination": "CQC",
        "missing_mass": "SRSS",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -101022,7 +100962,6 @@
        "modal_combination": "CQC",
        "missing_mass": "ABSOLUTE_SUM",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "A.ux": [
          "0",
@@ -101658,8 +101597,6 @@
        "modal_combination": "CQC",
        "missing_mass": "ABSOLUTE_SUM",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -102295,7 +102232,6 @@
        "modal_combination": "GROUPING",
        "missing_mass": "SRSS",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "A.ux": [
          "0",
@@ -102931,8 +102867,6 @@
        "modal_combination": "GROUPING",
        "missing_mass": "SRSS",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -103568,7 +103502,6 @@
        "modal_combination": "GROUPING",
        "missing_mass": "ABSOLUTE_SUM",
        "directional_combination": "SRSS",
-       "in_scope": true,
        "combined": {
         "A.ux": [
          "0",
@@ -104204,8 +104137,6 @@
        "modal_combination": "GROUPING",
        "missing_mass": "ABSOLUTE_SUM",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -104841,8 +104772,6 @@
        "modal_combination": "ABSOLUTE_SUM",
        "missing_mass": "SRSS",
        "directional_combination": "SRSS",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -105478,8 +105407,6 @@
        "modal_combination": "ABSOLUTE_SUM",
        "missing_mass": "SRSS",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -106115,8 +106042,6 @@
        "modal_combination": "ABSOLUTE_SUM",
        "missing_mass": "ABSOLUTE_SUM",
        "directional_combination": "SRSS",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -106752,8 +106677,6 @@
        "modal_combination": "ABSOLUTE_SUM",
        "missing_mass": "ABSOLUTE_SUM",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -107386,11 +107309,9 @@
        }
       },
       {
-       "modal_combination": "PAIRWISE_TEN_PERCENT",
+       "modal_combination": "TEN_PERCENT",
        "missing_mass": "SRSS",
        "directional_combination": "SRSS",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -108023,11 +107944,9 @@
        }
       },
       {
-       "modal_combination": "PAIRWISE_TEN_PERCENT",
+       "modal_combination": "TEN_PERCENT",
        "missing_mass": "SRSS",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -108660,11 +108579,9 @@
        }
       },
       {
-       "modal_combination": "PAIRWISE_TEN_PERCENT",
+       "modal_combination": "TEN_PERCENT",
        "missing_mass": "ABSOLUTE_SUM",
        "directional_combination": "SRSS",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -109297,11 +109214,9 @@
        }
       },
       {
-       "modal_combination": "PAIRWISE_TEN_PERCENT",
+       "modal_combination": "TEN_PERCENT",
        "missing_mass": "ABSOLUTE_SUM",
        "directional_combination": "ABSOLUTE_SUM",
-       "in_scope": false,
-       "label": "not in the scope today",
        "combined": {
         "A.ux": [
          "0",
@@ -110309,7 +110224,7 @@
          61.89387538204722
         ]
        },
-       "ABSOLUTE_SUM (not in the scope today)": {
+       "ABSOLUTE_SUM": {
         "B.uy": [
          "1.598239096758350359043948121110398976067e+0",
          1.5982390967583504
@@ -110343,7 +110258,7 @@
          73.53111122847294
         ]
        },
-       "PAIRWISE_TEN_PERCENT (not in the scope today)": {
+       "TEN_PERCENT": {
         "B.uy": [
          "1.575577112925817346475443125162805322231e+0",
          1.5755771129258174
@@ -110692,7 +110607,7 @@
          62.14826119981688
         ]
        },
-       "ABSOLUTE_SUM (not in the scope today)": {
+       "ABSOLUTE_SUM": {
         "B.uy": [
          "1.599433427343326419656580054437398144090e+0",
          1.5994334273433264
@@ -110726,7 +110641,7 @@
          73.70264989247822
         ]
        },
-       "PAIRWISE_TEN_PERCENT (not in the scope today)": {
+       "TEN_PERCENT": {
         "B.uy": [
          "1.575709575511345389082249058549849385604e+0",
          1.5757095755113455
@@ -110924,7 +110839,7 @@
          62.231779130414175
         ]
        },
-       "ABSOLUTE_SUM (not in the scope today)": {
+       "ABSOLUTE_SUM": {
         "B.uy": [
          "1.599449623533936244426700160046231213473e+0",
          1.5994496235339362
@@ -110958,7 +110873,7 @@
          74.23158758020658
         ]
        },
-       "PAIRWISE_TEN_PERCENT (not in the scope today)": {
+       "TEN_PERCENT": {
         "B.uy": [
          "1.575711582962725970137351851284387563670e+0",
          1.575711582962726
@@ -111559,7 +111474,7 @@
          62.23261094806763
         ]
        },
-       "ABSOLUTE_SUM (not in the scope today)": {
+       "ABSOLUTE_SUM": {
         "B.uy": [
          "1.599449858620080608169779079191851668787e+0",
          1.5994498586200807
@@ -111593,7 +111508,7 @@
          74.23652094138441
         ]
        },
-       "PAIRWISE_TEN_PERCENT (not in the scope today)": {
+       "TEN_PERCENT": {
         "B.uy": [
          "1.575711614273971193553777794083487140973e+0",
          1.575711614273971

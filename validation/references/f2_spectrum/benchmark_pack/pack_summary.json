@@ -3,8 +3,8 @@
  "file": "pack_summary.json",
  "status": "candidate references, not yet refuted",
  "number_format": "Inputs are binary64 ('binary64' shortest round trip, 'hex', 'exact' rational). Derived reals are decimal strings with 40 significant digits and the nearest binary64. rel_dev and cross-check residuals are short diagnostics. SI units.",
- "pinned_inputs_sha256": {"closed_form/generators/numerics.py": "06a466936f7320ef44ea532f81ef09e2703bac3a9293a4dc854e8dc90de53ec2", "closed_form/generators/rules.py": "067995d7d3f19a0e485a4c347fab3cc52da54acf8f04c98bb2b1f414d114520d", "closed_form/generators/continuum.py": "5c1acfe10bbd565c8db368ac3499d5839d2e1af7baa98213acdb7756a4ea0e7d", "closed_form/generators/fe.py": "23baf489faeeda083a4000319da79310ade1eefd5e8ab5e744f76c9ba107737b", "closed_form/generators/beams.py": "362f29b7fca32c9b1f8dafb100ab107b36fcef76856a485b43ef04e690ff39d8", "discrete/c8_pipe_x.json": "61a57007422d3419ca80444ca5d7a156d1211e057a968e321ca74eda37b77e79"},
- "definitions": {"continuum": "Rayleigh continuum (rotary inertia, contents none), the product's continuum limit; case C with its first six merged modes periodic (truncation case: Y1 and Z1 periodic, f_r = 1.25 Hz)", "consistent": "the generator's planar FE at that member count with the consistent mass the product states", "lumped": "NOT the product's formulation: half of each member's mass at each end translation", "null": "not available at that member count (mid-span is not a node at N = 1; the lumped N = 1 model has no finite Z-plane mode, its only Z-plane DOF being a massless rotation), or not this package's (case D at N = 8: the sibling discrete package's values)", "rules": "SRSS; ABSSUM and PAIRWISE10 not in the scope today; CQC at damping 0.05 (case D)", "pair": "[decimal with 40 significant digits, nearest binary64]"},
+ "pinned_inputs_sha256": {"closed_form/generators/numerics.py": "06a466936f7320ef44ea532f81ef09e2703bac3a9293a4dc854e8dc90de53ec2", "closed_form/generators/rules.py": "1f35e4fa5178c81eaf4a346861ca901470c1c67541bac9ff9deb7a953604ad6f", "closed_form/generators/continuum.py": "5c1acfe10bbd565c8db368ac3499d5839d2e1af7baa98213acdb7756a4ea0e7d", "closed_form/generators/fe.py": "23baf489faeeda083a4000319da79310ade1eefd5e8ab5e744f76c9ba107737b", "closed_form/generators/beams.py": "362f29b7fca32c9b1f8dafb100ab107b36fcef76856a485b43ef04e690ff39d8", "discrete/c8_pipe_x.json": "35bad140d1898f2efe3412bc36edc681473aa8ec711ea23830173653066e06d6"},
+ "definitions": {"continuum": "Rayleigh continuum (rotary inertia, contents none), the product's continuum limit; case C with its first six merged modes periodic (truncation case: Y1 and Z1 periodic, f_r = 1.25 Hz)", "consistent": "the generator's planar FE at that member count with the consistent mass the product states", "lumped": "NOT the product's formulation: half of each member's mass at each end translation", "null": "not available at that member count (mid-span is not a node at N = 1; the lumped N = 1 model has no finite Z-plane mode, its only Z-plane DOF being a massless rotation), or not this package's (case D at N = 8: the sibling discrete package's values)", "rules": "SRSS; ABSSUM (the absolute sum); TEN_PERCENT (the ten percent method); CQC at damping 0.05 (case D): modal rules of DEL-04-10 CLM-001", "pair": "[decimal with 40 significant digits, nearest binary64]"},
  "rows": [
   {
    "case": "cpb-dyn-c-n01-flat",
@@ -75,7 +75,7 @@
   {
    "case": "cpb-dyn-c-n01-flat",
    "quantity": "tip_UY_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "m",
    "continuum": ["1.575711614772243691788797000371505165141e+0", "1.5757116147722436"],
    "consistent": ["1.565773780804698952613686368452759496414e+0", "1.565773780804699"],
@@ -102,7 +102,7 @@
   {
    "case": "cpb-dyn-c-n01-flat",
    "quantity": "base_FY_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["1.314364949000588341683905052888689072581e+2", "131.43649490005885"],
    "consistent": ["1.268831425112714269483413416285564065063e+2", "126.88314251127143"],
@@ -129,7 +129,7 @@
   {
    "case": "cpb-dyn-c-n01-flat",
    "quantity": "base_MZ_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N*m",
    "continuum": ["1.367797648002612515040321204571193445444e+3", "1367.7976480026125"],
    "consistent": ["1.354705500287565797220346937991337310564e+3", "1354.7055002875659"],
@@ -156,7 +156,7 @@
   {
    "case": "cpb-dyn-c-n01-flat",
    "quantity": "mid_UZ_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "m",
    "continuum": ["6.501579093393816922820961075235028840604e-2", "0.06501579093393817"],
    "consistent": null,
@@ -183,7 +183,7 @@
   {
    "case": "cpb-dyn-c-n01-flat",
    "quantity": "base_FZ_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["9.050416975455785017987018372780216797177e+1", "90.50416975455785"],
    "consistent": ["8.071103645014044903433902701422053213295e+1", "80.71103645014045"],
@@ -210,7 +210,7 @@
   {
    "case": "cpb-dyn-c-n01-flat",
    "quantity": "base_MY_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N*m",
    "continuum": ["3.419170740649665489011684547808279655768e+2", "341.9170740649665"],
    "consistent": ["3.185996968300838272699610930925800758721e+2", "318.5996968300838"],
@@ -237,7 +237,7 @@
   {
    "case": "cpb-dyn-c-n01-flat",
    "quantity": "tip_reaction_FZ_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["6.223262378935714289971617188945873687627e+1", "62.23262378935714"],
    "consistent": ["6.796660520353003567318169167256745222073e+1", "67.96660520353004"],
@@ -312,7 +312,7 @@
   {
    "case": "cpb-dyn-c-n02-flat",
    "quantity": "tip_UY_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "m",
    "continuum": ["1.575711614772243691788797000371505165141e+0", "1.5757116147722436"],
    "consistent": ["1.575577112925817346475443125162805322231e+0", "1.5755771129258174"],
@@ -339,7 +339,7 @@
   {
    "case": "cpb-dyn-c-n02-flat",
    "quantity": "base_FY_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["1.314364949000588341683905052888689072581e+2", "131.43649490005885"],
    "consistent": ["1.307821563583009443797807015066902207074e+2", "130.78215635830094"],
@@ -366,7 +366,7 @@
   {
    "case": "cpb-dyn-c-n02-flat",
    "quantity": "base_MZ_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N*m",
    "continuum": ["1.367797648002612515040321204571193445444e+3", "1367.7976480026125"],
    "consistent": ["1.367308418012727156634021198442110650014e+3", "1367.308418012727"],
@@ -393,7 +393,7 @@
   {
    "case": "cpb-dyn-c-n02-flat",
    "quantity": "mid_UZ_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "m",
    "continuum": ["6.501579093393816922820961075235028840604e-2", "0.06501579093393817"],
    "consistent": ["6.481813542794722380749515296495613602858e-2", "0.06481813542794722"],
@@ -420,7 +420,7 @@
   {
    "case": "cpb-dyn-c-n02-flat",
    "quantity": "base_FZ_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["9.050416975455785017987018372780216797177e+1", "90.50416975455785"],
    "consistent": ["8.928710747270131088120992861855514695866e+1", "89.28710747270131"],
@@ -447,7 +447,7 @@
   {
    "case": "cpb-dyn-c-n02-flat",
    "quantity": "base_MY_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N*m",
    "continuum": ["3.419170740649665489011684547808279655768e+2", "341.9170740649665"],
    "consistent": ["3.402650051584454316721044186040260270400e+2", "340.26500515844543"],
@@ -474,7 +474,7 @@
   {
    "case": "cpb-dyn-c-n02-flat",
    "quantity": "tip_reaction_FZ_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["6.223262378935714289971617188945873687627e+1", "62.23262378935714"],
    "consistent": ["6.189387538204721765424024629160178763557e+1", "61.89387538204722"],
@@ -549,7 +549,7 @@
   {
    "case": "cpb-dyn-c-n04-flat",
    "quantity": "tip_UY_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "m",
    "continuum": ["1.575711614772243691788797000371505165141e+0", "1.5757116147722436"],
    "consistent": ["1.575709575511345389082249058549849385604e+0", "1.5757095755113455"],
@@ -576,7 +576,7 @@
   {
    "case": "cpb-dyn-c-n04-flat",
    "quantity": "base_FY_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["1.314364949000588341683905052888689072581e+2", "131.43649490005885"],
    "consistent": ["1.314231419609067869647298742451860417618e+2", "131.42314196090678"],
@@ -603,7 +603,7 @@
   {
    "case": "cpb-dyn-c-n04-flat",
    "quantity": "base_MZ_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N*m",
    "continuum": ["1.367797648002612515040321204571193445444e+3", "1367.7976480026125"],
    "consistent": ["1.367790631200056864157454794429170762067e+3", "1367.7906312000569"],
@@ -630,7 +630,7 @@
   {
    "case": "cpb-dyn-c-n04-flat",
    "quantity": "mid_UZ_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "m",
    "continuum": ["6.501579093393816922820961075235028840604e-2", "0.06501579093393817"],
    "consistent": ["6.501312807654547320503745123077743742642e-2", "0.06501312807654547"],
@@ -657,7 +657,7 @@
   {
    "case": "cpb-dyn-c-n04-flat",
    "quantity": "base_FZ_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["9.050416975455785017987018372780216797177e+1", "90.50416975455785"],
    "consistent": ["9.043067747249695153720173825574845786661e+1", "90.43067747249695"],
@@ -684,7 +684,7 @@
   {
    "case": "cpb-dyn-c-n04-flat",
    "quantity": "base_MY_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N*m",
    "continuum": ["3.419170740649665489011684547808279655768e+2", "341.9170740649665"],
    "consistent": ["3.418736263032581083016216113561037844256e+2", "341.8736263032581"],
@@ -711,7 +711,7 @@
   {
    "case": "cpb-dyn-c-n04-flat",
    "quantity": "tip_reaction_FZ_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["6.223262378935714289971617188945873687627e+1", "62.23262378935714"],
    "consistent": ["6.214826119981688223898145664955582603508e+1", "62.14826119981688"],
@@ -786,7 +786,7 @@
   {
    "case": "cpb-dyn-c-n08-flat",
    "quantity": "tip_UY_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "m",
    "continuum": ["1.575711614772243691788797000371505165141e+0", "1.5757116147722436"],
    "consistent": ["1.575711582962725970137351851284387563670e+0", "1.575711582962726"],
@@ -813,7 +813,7 @@
   {
    "case": "cpb-dyn-c-n08-flat",
    "quantity": "base_FY_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["1.314364949000588341683905052888689072581e+2", "131.43649490005885"],
    "consistent": ["1.314363056090704765098394225220080712076e+2", "131.43630560907047"],
@@ -840,7 +840,7 @@
   {
    "case": "cpb-dyn-c-n08-flat",
    "quantity": "base_MZ_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N*m",
    "continuum": ["1.367797648002612515040321204571193445444e+3", "1367.7976480026125"],
    "consistent": ["1.367797541131208874233471812622514274313e+3", "1367.7975411312088"],
@@ -867,7 +867,7 @@
   {
    "case": "cpb-dyn-c-n08-flat",
    "quantity": "mid_UZ_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "m",
    "continuum": ["6.501579093393816922820961075235028840604e-2", "0.06501579093393817"],
    "consistent": ["6.501574983182070019286514503402010988929e-2", "0.0650157498318207"],
@@ -894,7 +894,7 @@
   {
    "case": "cpb-dyn-c-n08-flat",
    "quantity": "base_FZ_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["9.050416975455785017987018372780216797177e+1", "90.50416975455785"],
    "consistent": ["9.050344250779932840262800211618958664182e+1", "90.50344250779933"],
@@ -921,7 +921,7 @@
   {
    "case": "cpb-dyn-c-n08-flat",
    "quantity": "base_MY_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N*m",
    "continuum": ["3.419170740649665489011684547808279655768e+2", "341.9170740649665"],
    "consistent": ["3.419165923918701662667743996871116231591e+2", "341.91659239187015"],
@@ -948,7 +948,7 @@
   {
    "case": "cpb-dyn-c-n08-flat",
    "quantity": "tip_reaction_FZ_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["6.223262378935714289971617188945873687627e+1", "62.23262378935714"],
    "consistent": ["6.223177913041417605108494004586388517267e+1", "62.231779130414175"],
@@ -1023,7 +1023,7 @@
   {
    "case": "cpb-dyn-c-n16-flat",
    "quantity": "tip_UY_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "m",
    "continuum": ["1.575711614772243691788797000371505165141e+0", "1.5757116147722436"],
    "consistent": ["1.575711614273971193553777794083487140973e+0", "1.575711614273971"],
@@ -1050,7 +1050,7 @@
   {
    "case": "cpb-dyn-c-n16-flat",
    "quantity": "base_FY_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["1.314364949000588341683905052888689072581e+2", "131.43649490005885"],
    "consistent": ["1.314364919789327144757762982933677779224e+2", "131.4364919789327"],
@@ -1077,7 +1077,7 @@
   {
    "case": "cpb-dyn-c-n16-flat",
    "quantity": "base_MZ_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N*m",
    "continuum": ["1.367797648002612515040321204571193445444e+3", "1367.7976480026125"],
    "consistent": ["1.367797646318417781562185898271352139136e+3", "1367.7976463184177"],
@@ -1104,7 +1104,7 @@
   {
    "case": "cpb-dyn-c-n16-flat",
    "quantity": "mid_UZ_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "m",
    "continuum": ["6.501579093393816922820961075235028840604e-2", "0.06501579093393817"],
    "consistent": ["6.501579029489518755863745324045968669508e-2", "0.06501579029489518"],
@@ -1131,7 +1131,7 @@
   {
    "case": "cpb-dyn-c-n16-flat",
    "quantity": "base_FZ_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["9.050416975455785017987018372780216797177e+1", "90.50416975455785"],
    "consistent": ["9.050415877231765927052411745366874326469e+1", "90.50415877231767"],
@@ -1158,7 +1158,7 @@
   {
    "case": "cpb-dyn-c-n16-flat",
    "quantity": "base_MY_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N*m",
    "continuum": ["3.419170740649665489011684547808279655768e+2", "341.9170740649665"],
    "consistent": ["3.419170663928621399071851875327945311516e+2", "341.9170663928621"],
@@ -1185,7 +1185,7 @@
   {
    "case": "cpb-dyn-c-n16-flat",
    "quantity": "tip_reaction_FZ_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["6.223262378935714289971617188945873687627e+1", "62.23262378935714"],
    "consistent": ["6.223261094806763375129288059618427222328e+1", "62.23261094806763"],
@@ -1260,7 +1260,7 @@
   {
    "case": "cpb-dyn-c-n08-two",
    "quantity": "tip_UY_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "m",
    "continuum": ["1.072803849484993240456471055949638492373e+0", "1.0728038494849932"],
    "consistent": ["1.072804406745357523629632222512507946305e+0", "1.0728044067453575"],
@@ -1287,7 +1287,7 @@
   {
    "case": "cpb-dyn-c-n08-two",
    "quantity": "base_FY_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["1.055627853005359503783643271004086715253e+2", "105.56278530053595"],
    "consistent": ["1.055634701882016719824960142381972751792e+2", "105.56347018820168"],
@@ -1314,7 +1314,7 @@
   {
    "case": "cpb-dyn-c-n08-two",
    "quantity": "base_MZ_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N*m",
    "continuum": ["9.460628298080362282349263430570114545514e+2", "946.0628298080362"],
    "consistent": ["9.460646942690219299874880286712245239301e+2", "946.064694269022"],
@@ -1341,7 +1341,7 @@
   {
    "case": "cpb-dyn-c-n08-two",
    "quantity": "mid_UZ_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "m",
    "continuum": ["7.958634856390583111034056429469226028831e-2", "0.07958634856390583"],
    "consistent": ["7.958812937196454486969421759108376959394e-2", "0.07958812937196455"],
@@ -1368,7 +1368,7 @@
   {
    "case": "cpb-dyn-c-n08-two",
    "quantity": "base_FZ_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["1.114128888296080214234320714079834924199e+2", "111.41288882960802"],
    "consistent": ["1.114121770111289485247393706322135253169e+2", "111.41217701112895"],
@@ -1395,7 +1395,7 @@
   {
    "case": "cpb-dyn-c-n08-two",
    "quantity": "base_MY_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N*m",
    "continuum": ["4.189840106557914721749117661873529879219e+2", "418.98401065579145"],
    "consistent": ["4.189917474276737980824883950516916412493e+2", "418.9917474276738"],
@@ -1422,7 +1422,7 @@
   {
    "case": "cpb-dyn-c-n08-two",
    "quantity": "tip_reaction_FZ_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "unit": "N",
    "continuum": ["7.663483133328341195603123700186224337261e+1", "76.63483133328342"],
    "consistent": ["7.663369057809831313914975685807985694944e+1", "76.63369057809831"],
@@ -1577,7 +1577,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "tip_uX_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_2",
    "unit": "m",
    "continuum": ["4.744440255279405918215087752671841401745e-1", "0.47444402552794057"],
@@ -1617,7 +1617,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "tip_uY_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_2",
    "unit": "m",
    "continuum": ["1.024998949704671218524149543080912859193e+0", "1.0249989497046712"],
@@ -1657,7 +1657,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "tip_uZ_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_2",
    "unit": "m",
    "continuum": ["1.024998949704671218524149543080912859193e+0", "1.0249989497046712"],
@@ -1697,7 +1697,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "base_FX_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_2",
    "unit": "N",
    "continuum": ["3.799284174967436631221185131575872957470e+1", "37.99284174967437"],
@@ -1737,7 +1737,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "base_FY_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_2",
    "unit": "N",
    "continuum": ["8.339855362756892842586370845633932193105e+1", "83.39855362756893"],
@@ -1777,7 +1777,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "base_FZ_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_2",
    "unit": "N",
    "continuum": ["8.339855362756892842586370845633932193105e+1", "83.39855362756893"],
@@ -1817,7 +1817,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "base_MX_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_2",
    "unit": "N*m",
    "continuum": ["7.864945868010133463633071776790261792198e+2", "786.4945868010134"],
@@ -1857,7 +1857,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "base_MY_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_2",
    "unit": "N*m",
    "continuum": ["7.543488188140190962922012300698778750236e+2", "754.3488188140191"],
@@ -1897,7 +1897,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "base_MZ_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_2",
    "unit": "N*m",
    "continuum": ["7.543488188140190962922012300698778750236e+2", "754.3488188140191"],
@@ -1937,7 +1937,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "spring_FX_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_2",
    "unit": "N",
    "continuum": ["3.795552204223524734572070202137473121396e+0", "3.7955522042235246"],
@@ -1977,7 +1977,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "tip_uX_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_6_information",
    "unit": "m",
    "continuum": ["4.745016222778807012841884314245469801442e-1", "0.4745016222778807"],
@@ -2017,7 +2017,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "tip_uY_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_6_information",
    "unit": "m",
    "continuum": ["1.025106431751585565334413758198395687451e+0", "1.0251064317515857"],
@@ -2057,7 +2057,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "tip_uZ_m",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_6_information",
    "unit": "m",
    "continuum": ["1.025106431751585565334413758198395687451e+0", "1.0251064317515857"],
@@ -2097,7 +2097,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "base_FX_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_6_information",
    "unit": "N",
    "continuum": ["4.031134750896781447058412050069080257858e+1", "40.31134750896781"],
@@ -2137,7 +2137,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "base_FY_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_6_information",
    "unit": "N",
    "continuum": ["8.766330240343523432848026625599876159533e+1", "87.66330240343524"],
@@ -2177,7 +2177,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "base_FZ_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_6_information",
    "unit": "N",
    "continuum": ["8.766330240343523432848026625599876159533e+1", "87.66330240343524"],
@@ -2217,7 +2217,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "base_MX_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_6_information",
    "unit": "N*m",
    "continuum": ["7.896983402712453229576069699200407906782e+2", "789.6983402712453"],
@@ -2257,7 +2257,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "base_MY_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_6_information",
    "unit": "N*m",
    "continuum": ["7.576659062326580573676182301192390944612e+2", "757.665906232658"],
@@ -2297,7 +2297,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "base_MZ_Nm",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_6_information",
    "unit": "N*m",
    "continuum": ["7.576659062326580573676182301192390944612e+2", "757.665906232658"],
@@ -2337,7 +2337,7 @@
   {
    "case": "cpb-dyn-d-n08-flat",
    "quantity": "spring_FX_N",
-   "rule": "PAIRWISE10",
+   "rule": "TEN_PERCENT",
    "modes": "modes_1_6_information",
    "unit": "N",
    "continuum": ["3.796012978223045610273507451396375841154e+0", "3.7960129782230454"],

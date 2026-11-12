@@ -7,7 +7,7 @@ Given the directional magnitudes (R_x, R_y, R_z) of one response quantity:
               R_a + (2/5)(R_b + R_c) = (3/5) R_a + (2/5)(R_x + R_y + R_z), the
               governing permutation is the one whose full direction has the
               largest magnitude; equal largest magnitudes tie exactly.
-  ABSSUM      R_x + R_y + R_z (not in the scope today; for comparison only)
+  ABSSUM      R_x + R_y + R_z, the absolute sum (DEL-04-10 CLM-001, Directional combination)
 The 40 % factor is taken as the exact rational 2/5. A product that uses the
 binary64 0.4 (= 3602879701896397/2^53, larger than 2/5 by 2.2e-17 relative)
 differs from these values by less than 1e-16 relative.
@@ -58,11 +58,11 @@ def build(cross):
             "SRSS": val(srss), "SRSS_squared_exact": num(sq),
             "100_40_40_permutations": {k: num(v) for k, v in perms.items()},
             "100_40_40": num(best), "governing_permutations": gov,
-            "ABSSUM_not_in_scope": num(sum(Rv[i] for i in present)),
+            "ABSSUM": num(sum(Rv[i] for i in present)),
         })
     cross.append({"id": "DIR-100-40-40-closed-form",
                   "what": "max over permutations equals (3/5) max + (2/5) sum, exactly", "agrees": tie_ok})
     cross.append({"id": "DIR-SRSS-square", "what": "SRSS squared against the exact rational sum of squares",
                   "max_rel_diff": sci(worst), "agrees": worst < Decimal("1e-85")})
-    return {"item": "4. Directional combination (SRSS and 100-40-40; absolute sum for comparison only)",
+    return {"item": "4. Directional combination (SRSS, 100-40-40 and the absolute sum, DEL-04-10 CLM-001)",
             "factor_40_percent": num(FORTY), "cases": out}

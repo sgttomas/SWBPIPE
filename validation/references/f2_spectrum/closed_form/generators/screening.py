@@ -94,10 +94,13 @@ def build(cross):
                       "moment": "internal bending moment at L/4 and L/2", "reaction": "end reaction forces and moments"},
             "categories": {
                 "frequency": "first five (or all finite) modes",
-                "per_mode": "signed modal contributions with a nonzero continuum value (dominated by small "
-                            "contributions near a zero of the quantity's modal distribution)",
+                "per_mode": "signed modal contributions whose continuum value exceeds 1e-30 times the largest "
+                            "absolute continuum contribution of that quantity over the five continuum modes (the rest, "
+                            "zero by symmetry or rounding residue, are excluded); dominated by small "
+                            "contributions near a zero of the quantity's modal distribution",
                 "per_mode_significant": "the same, restricted to contributions at least 1 % of the quantity's "
-                                        "continuum SRSS",
+                                        "continuum SRSS over nm = min(5, the FE model's finite mode count) continuum "
+                                        "modes (not always five)",
                 "combined": "SRSS, CQC and grouping over the first five (or all finite) modes, against the "
                             "continuum combined over the same number of modes",
                 "missing_mass_total": "periodic part (SRSS or CQC) with the rigid part (SRSS or absolute sum), "
@@ -109,8 +112,10 @@ def build(cross):
             "lengths": {"L2": B.LEN_NOTE[2.0], "L64": B.LEN_NOTE[64.0]},
             "lumped": "NOT the product's formulation; measures the size of that modelling difference",
             "for_the_screening_derivation": {
-                "sensitivity": "largest_sensitivity holds one mode's frequency varying alone, its shape and "
-                               "participation fixed, and covers SRSS only (no CQC correlation change, no rigid part)",
+                "sensitivity": "largest_sensitivity is a conditional SRSS sensitivity: one mode's frequency varies "
+                               "alone, with its shape, its participation and its force-recovery coefficient q_n held "
+                               "fixed; it excludes changes of the CQC coefficient, of the rigid response, of the shape "
+                               "and recovery, and rotations",
                 "coarse_mesh_classification": "on a coarse mesh the same rigid frequency f_r can classify a different "
                                               "number of modes as periodic; missing_mass_total includes such cases, "
                                               "missing_mass_total_same_classification excludes them",
@@ -125,6 +130,8 @@ def build(cross):
         },
         "largest_relative_deviation": table,
         "largest_sensitivity": {"definition": "max |d ln R_SRSS / d ln f_n| over realizations, quantities and modes "
-                                              "(sensitivity.json); a relative frequency disagreement e moves R by "
-                                              "about e times this", "by_kind_and_spectrum": out_sens},
+                                              "(sensitivity.json), a conditional SRSS sensitivity with shape, "
+                                              "participation and force-recovery coefficient held fixed; under that "
+                                              "premise a relative frequency disagreement e moves R by about e times "
+                                              "this", "by_kind_and_spectrum": out_sens},
     }

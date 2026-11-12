@@ -173,10 +173,10 @@ S_C8_TWO_GG = spectrum("S-C8-TWO-GG", "frequency_Hz", "logarithmic", "logarithmi
                        [(0.125, 1.5), (2, 4.5), (16, 2.25)])
 S_C8_TRUNC = spectrum("S-C8-TRUNC", "frequency_Hz", "linear", "linear", [(0.125, 1.25), (0.75, 3.5), (1000, 3.5)])
 S_C9_FLAT = spectrum("S-C9-FLAT", "frequency_Hz", "linear", "linear", [(0.125, 2.5), (1000, 2.5)])
-ALL_MODAL = ["SRSS", "CQC", "GROUPING", "ABSOLUTE_SUM", "PAIRWISE_TEN_PERCENT"]
+ALL_MODAL = ["SRSS", "CQC", "GROUPING", "ABSOLUTE_SUM", "TEN_PERCENT"]
 
 # W2 and W3: the C7 model with one weak skewed tip spring, which splits each repeated pair into two distinct
-# modes whose relative eigenvalue gap (about 2^-22) lies inside delta_c = 2^-20.
+# modes whose relative eigenvalue gap (2.53e-7 for the first pair) lies inside delta_c = 2^-20.
 K_W = 0.0625
 CLOSE = model([("N1", [0, 0, 0]), ("N2", [2, 0, 0]), ("N3", [4, 0, 0])],
               [("P1", "N1", "N2", [0, 0, 1]), ("P2", "N2", "N3", [0, 0, 1])],
@@ -288,7 +288,8 @@ def cases():
          "grids": {"C9-Y": {"modal": ALL_MODAL, "rigid": ["OFF"], "directional": ["SRSS", "ABSOLUTE_SUM"]}},
          "requests": [request("C9-Y", [("Y", "S-C9-FLAT", 1)], "CQC", "SRSS", MM_OFF, 6)]},
         {"id": "C9-CHAIN",
-         "serves": "mutation data separating GROUPING from the pairwise ten-percent rule (a three-mode chain)",
+         "serves": "AC-002: the grouping and ten percent methods on a set of modes where the two differ (a "
+                   "three-mode chain; CLM-001, REQ-003)",
          "purpose": "the pipe of C9 with a stiff tip spring of 1048576 N/m along global X instead of 8 N/m: modes "
                     "21, 22 and 23 form a chain (f22 within 10 percent of f21, f23 within 10 percent of f22, not "
                     "of f21)",
@@ -299,15 +300,16 @@ def cases():
          "publish_quantities": ["B.", "SA.", "S1."],
          "requests": [request("C9-CHAIN-Y", [("Y", "S-C9-FLAT", 1)], "CQC", "SRSS", MM_OFF, 23)]},
         {"id": "C7-REPEATED-PAIR",
-         "serves": "the scope's open question on exactly repeated modes (REQ-003): basis-invariant quantities only",
+         "serves": "AC-002: an exactly repeated pair, combined on cluster sums (CLM-001 Repeated modes, REQ-003): "
+                   "basis-invariant quantities, and the pair supplied in two bases",
          "purpose": "two members along X fixed at N1, tip free: the bending modes are exactly repeated pairs "
                     "(circular section), so any basis of a pair is a valid modal basis",
          "model": TWO_PLAIN, "spectra": [S_LL],
          "witness": {"basis": {"request": "C7-PAIRS", "modes": [1, 2], "tip": "N3", "quantities": ["N3.", "A1."]}},
          "requests": [request("C7-PAIRS", [("Y", "S-LL", 1), ("Z", "S-LL", 0.5)], "SRSS", "SRSS", MM_OFF, 4)]},
         {"id": "C10-W2-CLOSE-DISTINCT",
-         "serves": "the adopted repeated-mode rule (REQ-003): a cluster of two genuinely distinct modes inside "
-                   "delta_c, each with its own ordinate and contribution, summed before every modal rule",
+         "serves": "AC-002: a cluster of two modes with different frequencies within delta_c (CLM-001 Repeated "
+                   "modes, REQ-003), each with its own ordinate and contribution, summed before every modal rule",
          "purpose": "the C7 model with a skewed spring of 0.0625 N/m along (0,3,4) at the tip N3: each bending "
                     "pair splits by a relative eigenvalue gap far below delta_c; the first pair lies on a sloped "
                     "segment of S-LL",
@@ -317,8 +319,7 @@ def cases():
          "grids": {"C10-W2": {"modal": ALL_MODAL, "rigid": ["OFF"], "directional": ["SRSS"]}},
          "requests": [request("C10-W2", [("Y", "S-LL", 1), ("Z", "S-LL", 0.5)], "SRSS", "SRSS", MM_OFF, 4)]},
         {"id": "C10-W3-STRADDLING-CLUSTER",
-         "serves": "the adopted rule's periodic/rigid classification: a cluster whose two frequencies straddle "
-                   "f_r is periodic as a whole (REQ-003, REQ-004)",
+         "serves": "AC-002: a cluster that straddles f_r, periodic as a whole (CLM-001 Rigid response, REQ-004)",
          "purpose": "the model of C10-W2 with f_r strictly between the two frequencies of its first cluster",
          "model": CLOSE, "spectra": [S_LL], "scope_cluster_exception": "distinct modes inside clusters",
          "benchmark": {"planes": False},

@@ -1,7 +1,8 @@
 """Item 6: sensitivity of each item 5 response to one mode's frequency.
 
-Reading (stated in the README): mode n's frequency alone is varied, its shape
-and participation held fixed. A modal contribution is
+Reading (stated in the README): mode n's frequency alone is varied, its shape,
+its participation and its force-recovery coefficient q_n held fixed (a
+conditional SRSS sensitivity). A modal contribution is
   displacement  Q_n = Gamma_n W_n s S(f_n) / w_n^2   ->  d ln Q_n / d ln f_n = sigma_n - 2
   force, moment, reaction  Q_n = Gamma_n q_n s S(f_n) with q_n fixed  ->  d ln Q_n / d ln f_n = sigma_n
 where sigma_n = d ln S / d ln f at f_n (0 on a flat segment; on a log-log
@@ -67,8 +68,10 @@ def build(cross):
     c["sens_largest"] = largest
     return {
         "item": "6. Sensitivity of the item 5 SRSS responses to each mode's frequency (Rayleigh continuum)",
-        "reading": "one mode's frequency varied alone, shape and participation fixed; SRSS over the first five "
-                   "modes; the missing-mass rigid part and CQC's frequency-dependent correlation are not included",
+        "reading": "a conditional SRSS sensitivity: one mode's frequency varied alone, with its shape, its "
+                   "participation and its force-recovery coefficient q_n held fixed; SRSS over the first five modes. "
+                   "It excludes changes of the CQC coefficient, of the missing-mass rigid response, of the shape and "
+                   "recovery, and rotations",
         "largest_magnitude": [{"kind": k[0], "spectrum": k[1], "value": val(v[0]), "realization": v[1],
                                "quantity": v[2], "mode": v[3]} for k, v in sorted(largest.items())],
         "realizations": out,

@@ -104,7 +104,7 @@ def model(sec, mname, acc):
         out = {}
         for n in names:
             v = contrib[n][:count]
-            out[n] = {"SRSS": R_.srss(v), "ABSSUM": R_.abssum(v), "PAIRWISE10": R_.pairwise10(v, freqs[:count]),
+            out[n] = {"SRSS": R_.srss(v), "ABSSUM": R_.abssum(v), "TEN_PERCENT": R_.pairwise10(v, freqs[:count]),
                       "CQC": R_.cqc(v, omegas[:count], PC.ZETA)}
         return out
 
@@ -150,7 +150,9 @@ def build(cross, store):
                   "product model with finite axial stiffness at 1e-9.",
            "n08_values": "The N = 8 values for this case are the sibling discrete package's "
                          "(validation/references/f2_spectrum/discrete/), not this package's.",
-           "rules": "SRSS; CQC (damping 0.05); ABSSUM and PAIRWISE10 (not in the scope today)",
+           "rules": "SRSS; CQC (damping 0.05); ABSSUM (the absolute sum); TEN_PERCENT (the ten percent method): modal "
+                    "rules of DEL-04-10 CLM-001. The first pair is 5 % apart, far outside DEL-04-09's cluster "
+                    "tolerance, so no cluster is summed first",
            "models": {}}
     sums = {}
     for m in ("eb", "rayleigh"):

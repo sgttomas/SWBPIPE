@@ -1,6 +1,6 @@
 {
  "document": "openpipestress.f2_spectrum.discrete.c2_ground_spring",
- "status": "candidate frozen references; derived and cross-checked by the author TASK, not yet independently refuted",
+ "status": "references with a refutation record: REFUTATION.md in this directory",
  "deliverable": "DEL-04-10 (response-spectrum analysis)",
  "units": {
   "length": "m",
@@ -24,7 +24,7 @@
   "pair": "[decimal with 40 significant digits, nearest binary64]",
   "flush": "a value below 1e-50 of the largest magnitude of its unit in the analysis is printed as 0 (zero by symmetry or decoupling)"
  },
- "conventions": "../README.md, section Conventions",
+ "conventions": "README.md in this directory, section \"Conventions a product must match or map\"",
  "inputs_binary64": [
   {
    "shortest_decimal": "0.0",
