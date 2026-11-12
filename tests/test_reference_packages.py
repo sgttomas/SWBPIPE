@@ -6,11 +6,11 @@ For each package in PACKAGES it:
 1. verifies every line of every checksum list the package holds, each against the base directory its
    entry records (a line known to fail is a named exception with its reason, and the test fails once
    that line passes again, so the exception cannot outlive its cause);
-2. scans every .py file in the package with `ast`: each import is a standard-library module or one
-   the entry names (a sibling module of the package, a module of another reference package pinned by
-   that package's own checksum list, or a module the README says is supplied from outside the
-   repository); no call is named in FORBIDDEN_CALLS and no string constant names a product path
-   (`names_product_path`) unless the entry allows that call or literal in that file with its reason;
+2. applies the one independence rule (tools/validation/reference_independence.py, whose witnesses
+   are in tests/test_reference_independence.py) to every .py file of the package, with the entry's
+   allowances: sibling modules, modules of another reference package (pinned by that package's own
+   checksum list), external modules the README says come from outside the repository, and named
+   facilities and literals in named files;
 3. runs each check command the package's README gives (never a mode that writes into the package)
    and requires exit 0, or, for a check known to fail, exactly its recorded failure.
 
@@ -18,12 +18,12 @@ An allowance is an explanation, not a waiver: each one carries its reason. One w
 package's files do not give is recorded as UNEXPLAINED and named in that list. What this test does
 not regenerate is listed in `taken_on_trust()`, and its count is pinned by TAKEN_ON_TRUST_COUNT.
 
-Standard library only; the generators run as `python3 -I -B` from their package directory, one per
-check, each within CHECK_TIMEOUT_S seconds.
+The generators run as `python3 -I -B` from their package directory, one per check, each within
+CHECK_TIMEOUT_S seconds. No product binary is needed, so the test runs under
+OPENPIPESTRESS_NO_CARGO_BUILD=1 (tests/conftest.py), which is how it is run on the shared host.
 """
 from __future__ import annotations
 
-import ast
 import hashlib
 import re
 import subprocess
@@ -37,10 +37,9 @@ ROOT = Path(__file__).resolve().parents[1]
 REFS = ROOT / "validation" / "references"
 # The package walk below is a scan the CI selector cannot fully read.
 CI_READS = ("validation/references/**",)
+sys.path.insert(0, str(ROOT / "tools" / "validation"))
+import reference_independence as RI  # noqa: E402
 
-PRODUCT_ROOTS = frozenset({"core", "apps", "tests", "tools", "fixtures", "schemas"})
-FORBIDDEN_CALLS = frozenset({"__import__", "import_module", "exec", "eval", "spec_from_file_location"})
-STDLIB = frozenset(sys.stdlib_module_names)
 CHECK_TIMEOUT_S = 120
 SUMS_LINE = re.compile(r"^([0-9a-f]{64}) [ *](.+)$")
 CHECKSUM_LIST = re.compile(r"(^|_)SHA256SUMS(\..+)?$")
@@ -55,23 +54,6 @@ SCHEMA_CHANGE = ("schemas/load_reference_state.schema.json gained `allOf` in 0c4
 
 
 PROSE = "prose in a docstring or message, not a path"
-
-
-def literal_text(value: str | bytes) -> str:
-    return value.decode("latin-1") if isinstance(value, bytes) else value
-
-
-def names_product_path(value: str | bytes) -> bool:
-    """A str or bytes literal (bytes read as latin-1) names a product path when a segment between runs
-    of either separator is exactly a product root's name. There is no whitespace exemption."""
-    return bool(PRODUCT_ROOTS & set(re.split(r"[\\/]+", literal_text(value))))
-
-
-def literal_key(value: str | bytes) -> str:
-    """How an allowance names a literal: the text itself, or for text over 120 characters its full
-    SHA-256 (of the text as UTF-8), so the key stays exact without copying a docstring."""
-    text = literal_text(value)
-    return text if len(text) <= 120 else "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -103,11 +85,14 @@ class Package:
     siblings: dict = field(default_factory=dict)  # {module: reason}; the module is a .py in the package
     foreign: dict = field(default_factory=dict)  # {module: ("pkg/path/file.py", reason)}
     external: dict = field(default_factory=dict)  # {module: reason}; not in the repository
-    calls: dict = field(default_factory=dict)  # {(file, call name): reason}
-    literals: dict = field(default_factory=dict)  # {(file, literal_key): reason}
+    facilities: dict = field(default_factory=dict)  # {(file, forbidden module or name): reason}
+    literals: dict = field(default_factory=dict)  # {(file, RI.literal_key): reason}
+    directories: dict = field(default_factory=dict)  # {directory under generators/: reason}
+    outside: dict = field(default_factory=dict)  # {directory: reason}; a product check, outside the rule
     checks: tuple = ()
     not_regenerated: tuple = ()  # ((what, reason), ...)
     other_test: str | None = None  # a maintained test that regenerates this package, and its state
+    reproduction: str | None = None  # one line: what reproduces today and what fails, on what
 
 
 # Top-level directories that hold several packages rather than being one.
@@ -117,8 +102,32 @@ CONTAINERS = {
 }
 
 DYNAMICS_TEST = "tests/test_dynamics_references.py"
+
+# Reproduction status today of the three packages DEL-04-08's AC-001 and AC-002 rest on. Each failing
+# part is an entry below (a known failing checksum line or check) that fails again the moment its
+# explanation stops being true.
+O4_REPRODUCTION = (
+    "does not reproduce: its own check (run.sh; generators/o4_reference.py and o4_source_twins.py) refuses "
+    "../kd5_timoshenko/kd5t_engine.py, which it pins at SHA-256 c91f28c6... while cdf98fd8c (2026-10-28) changed it "
+    "to 05df1ba6...; its frozen files are unchanged and its SHA256SUMS verifies; declared_problem/ is a product "
+    "check outside the rule, and its oracle self-test passes")
+KD5T_REPRODUCTION = (
+    "reproduces: kd5t_engine.py --check passes, and the 964-model set, its controls and the 64-model frozen subset "
+    "regenerate to their pins (kd5t_generate.py check, m3_judge/m3_reproduce.py); kd5t_generate.py check then exits 1 "
+    "on the shared M3 judge's self-test (m3_judge's stale runner/Cargo.lock line, the schema reader's refusal of "
+    "allOf), and its own SHA256SUMS fails on runner/Cargo.lock (3c998e749); the runner is not built here")
+M3_REPRODUCTION = (
+    "its six pinned references reproduce (m3_reproduce.py); its self-test fails on two things: the stale "
+    "runner/Cargo.lock line of its SHA256SUMS (3c998e749), and its schema reader refusing the allOf that 0c480a9e5 "
+    "added to schemas/load_reference_state.schema.json; the runner-driven judging pass is not run here")
 M3_SUMS_FAIL = "FAIL SHA256SUMS verified (17 files; mismatched: ['runner/Cargo.lock'])"
 KD5T = "kd5_timoshenko/kd5t_engine.py"
+
+
+def _loads(file: str, reason: str) -> dict:
+    """A load of one module from its file: `import importlib.util`, then `spec_from_file_location`,
+    `module_from_spec` and `spec.loader.exec_module`, each a facility the rule names."""
+    return {(file, name): reason for name in ("importlib", "spec_from_file_location", "module_from_spec", "exec_module")}
 
 
 def _plain(gen: str, *args: str, deliverables: str, **kw) -> Package:
@@ -166,15 +175,14 @@ PACKAGES: dict[str, Package] = {
                                  ("generators/u8_reference.py", "fixtures"),
                                  ("generators/u8_reference.py",
                                   "core/product_physics/tests/fixtures/pressure_reference/SOURCE_ODWALL_EXPECTATIONS.json"))}
-        | {("generators/u8_reference.py", "sha256:750991cf70d266602d089e05b6e30b4ec410e1510c90a7fe1aa5866667c2c587"):
-               PROSE + " (the module docstring, 'T4-U8 independent references: the Timoshenko straight member')",
-           ("generators/u8_reference.py",
+        | {("generators/u8_reference.py",
             "core/product_physics/tests/fixtures/pressure_reference/SOURCE_ODWALL_EXPECTATIONS.json (sha256 "):
                PROSE + " (provenance text in the output, before the fixture's digest)"}),
     "pf_timoshenko": _plain(
         "pf_reference.py", deliverables="DEL-05-03",
-        calls={("generators/pf_reference.py", "spec_from_file_location"):
-               "loads ../t4_u4a/u4a_engine.py, reference code whose arc treatment it reuses and cross-checks (README)"}),
+        facilities=_loads("generators/pf_reference.py",
+                          "loads ../t4_u4a/u4a_engine.py, reference code whose arc treatment it reuses and cross-checks "
+                          "(README); t4_u4a's SHA256SUMS pins that file")),
     "t4_u4a": Package("DEL-04-07", sums=(Sums("SHA256SUMS"),), siblings={"u4a_engine": "the engine u4a_generate.py drives (README)"},
                       checks=(Check(("u4a_generate.py",)),)),
     "hanger_sizing": Package(
@@ -182,8 +190,9 @@ PACKAGES: dict[str, Package] = {
         checks=(Check(("generate_r3.py", "--check")), Check(("generate_r125.py", "--check")))),
     "kd5_member_bound": Package(
         "DEL-04-01", no_sums=True,
-        calls={("two_body_reference.py", "exec"):
-               "runs the sibling notice_reference.py's RN128 operations, read from its own file (README)"},
+        facilities={("two_body_reference.py", name):
+                    "compiles and runs the sibling notice_reference.py's RN128 operations, read from its own file (README)"
+                    for name in ("exec", "compile")},
         checks=(Check(("notice_reference.py",)), Check(("two_body_reference.py",)))),
     "kd5_nonlinear": Package(
         "DEL-04-01, DEL-09-03", no_sums=True,
@@ -199,8 +208,6 @@ PACKAGES: dict[str, Package] = {
                    "PP/tests/fixtures/pressure_reference/SOURCE_ODWALL_EXPECTATIONS.json"):
                   "provenance text in the output naming the twin fixture, which is read by path only to compare (README)",
                   **{("_run_records/derive_rebuilt_references.py", "sha256:" + h): PROSE + f" ({where})" for h, where in (
-                      ("ed963108f9141f9e54c5bc89a757a2c70bffd778f875dedbed7509efef06f202",
-                       "case_twin_separate's docstring, 'PP/tests/pressure_runtime.rs model(...), state 4 of'"),
                       ("db269f86abb6bef157d4ac47e05d16c58c764ad6f066ce0f155242d98e7f2acb",
                        "provenance text in the output, 'PP/tests/pressure_section_geometry.rs: fixture(...)'"),
                       ("1675b92658af244462d80da455f6d2a644445d59c52f80bcd1736ab7771e1fc0",
@@ -211,11 +218,11 @@ PACKAGES: dict[str, Package] = {
                           "and needs the product fixture path; check_reference_json.py re-evaluates the frozen file"),)),
     "t4_i9": Package(
         "DEL-04-01", sums=(Sums("SHA256SUMS"),),
-        calls={("t4_i17_arc_refs.py", "spec_from_file_location"): "loads the RV129 source named on its command line (README)",
-               ("t4_i17_bit_pins.py", "spec_from_file_location"): "loads the certificate specification named on its command line (README)",
-               ("check_series.py", "spec_from_file_location"): "loads the sibling load_series_gen.py it checks (README)",
-               ("_run_records/rv129_ref.py", "spec_from_file_location"):
-                   "RV129's source, copied with its bytes unchanged (README); loads the probe named on its command line"},
+        facilities={**_loads("t4_i17_arc_refs.py", "loads the RV129 source named on its command line (README)"),
+                    **_loads("t4_i17_bit_pins.py", "loads the certificate specification named on its command line (README)"),
+                    **_loads("check_series.py", "loads the sibling load_series_gen.py it checks (README)"),
+                    **_loads("_run_records/rv129_ref.py",
+                             "RV129's source, copied with its bytes unchanged (README); loads the probe named on its command line")},
         checks=(Check(("t4_i17_arc_refs.py", "_run_records/rv129_ref.py"), stdout_equals="arc_load_references.txt"),
                 Check(("t4_i17_bit_pins.py", "_run_records/arc_cert_probe_r01.py"), stdout_equals="arc_certificate_pins.txt"),
                 Check(("check_series.py",))),),  # load_series_gen.py's output is pasted into the product, not frozen here
@@ -266,11 +273,15 @@ PACKAGES: dict[str, Package] = {
                                     + LOCKFILE_COMMIT + "; " + SCHEMA_CHANGE,
                       must_show=("engine self-check: 58 checks pass", "frozen subset regenerated byte for byte (64 models)",
                                  "SchemaUnsupported: load_reference_state.schema.json: unsupported schema keywords ['allOf']"),
-                      fail_lines=(M3_SUMS_FAIL,)))),
+                      fail_lines=(M3_SUMS_FAIL,))),
+        reproduction=KD5T_REPRODUCTION),
     "pf_timoshenko_m3t": Package(
         "DEL-05-03", sums=(Sums("SHA256SUMS"),),
         siblings={"pft_engine": "the PF reference engine (README)", "pft_generate": "the PF set generator (README)",
                   "pft_intended": "the intended-system module (README)"},
+        facilities={("pft_census.py", "eval"):
+                    "the dict key \"eval\" of the dump's evaluation and groups records (an evaluation index: the groups "
+                    "line's eval names one evaluation line, pft_census.py:186), a word in a record, not the builtin"},
         foreign={"kd5t_engine": (KD5T, "the exact engine the PF engine extends (README, 'one of them runs kd5t_engine's 58')"),
                  "kd5t_generate": ("kd5_timoshenko/kd5t_generate.py", "the judged-set machinery the PF generator reuses (README)"),
                  "kd5t_census": ("kd5_timoshenko/kd5t_census.py", "the census the PF census extends (README)"),
@@ -299,14 +310,19 @@ PACKAGES: dict[str, Package] = {
                                              "run.sh/build.sh refusals; it copies the public contracts and schemas there"
                      for lit in ("fixtures", "schemas", "core", "apps")}},
         # The README's reproducibility check; it writes only into the new scratch directory it is given.
-        checks=(Check(("m3_reproduce.py", TMP)),)),
+        checks=(Check(("m3_reproduce.py", TMP)),
+                Check(("m3_selftest.py",),
+                      known_failure="the judge's self-test stops: " + LOCKFILE_COMMIT + "; " + SCHEMA_CHANGE,
+                      must_show=("SchemaUnsupported: load_reference_state.schema.json: unsupported schema keywords ['allOf']",),
+                      fail_lines=(M3_SUMS_FAIL,))),
+        reproduction=M3_REPRODUCTION),
     "o4_retained_source": Package(
         "DEL-04-08", sums=(Sums("SHA256SUMS"),),
         siblings={"o4_reference": "the unit's pipeline, reused by the source twins (README)"},
         foreign={"kd5t_engine": (KD5T, "the exact engine, imported unchanged and bound by SHA-256 (README)")},
-        calls={("generators/o4_source_twins.py", "spec_from_file_location"):
-               "loads tools/fixtures/retained_precision_corpus.py, pinned by SHA-256, for its DAG decoder `expand` "
-               "only (README, input-only sources)"},
+        facilities=_loads("generators/o4_source_twins.py",
+                          "loads tools/fixtures/retained_precision_corpus.py, pinned by SHA-256, for its DAG decoder "
+                          "`expand` only (README, input-only sources); product tooling run by a generator, reported"),
         literals={**{("generators/o4_source_twins.py", lit):
                      "an input-only source of the source twins, pinned by SHA-256 (README)"
                      for lit in ("fixtures/product_preview/pressure_source", "fixtures/results/j7_rf_census_inputs.json",
@@ -316,15 +332,11 @@ PACKAGES: dict[str, Package] = {
                          ("physics_source", "n05_units"), ("physics_source", "fields"), ("physics_source", "mixed"),
                          ("physics_source", "mixed_units"), ("load_reference_source", "n05"),
                          ("load_reference_source", "n06"), ("load_reference_source", "eigen_motion"),
-                         ("load_reference_source", "fields"), ("load_reference_source", "mixed")))},
-                  **{("declared_problem/twins.py", lit):
-                     "the declared-problem harness converts these product inputs into requests and runs the product "
-                     "on them (declared_problem/README.md, Files)"
-                     for lit in ("fixtures/product_preview/pressure_source/", "fixtures/results/j7_rf_census_inputs.json")},
-                  ("declared_problem/twins.py", "sha256:85266a950e23d06a82d6c40fb0dc84024df83b87a6415a7d6b0e5a5e4c5e422b"):
-                      PROSE + " (expand_dag's docstring, 'The corpus DAG decoder: the same rule as `expand` in tools/...')",
-                  ("generators/o4_source_twins.py", "sha256:b254cc83854a629ba22bf420bfaf8bc442d41c9b0f684d43905473e55660bd24"):
-                      PROSE + " (the module docstring, 'O4 source-control twins: Timoshenko and nonzero-allowance ...')"},
+                         ("load_reference_source", "fields"), ("load_reference_source", "mixed")))}},
+        outside={"declared_problem": "a product check that lives in the package's directory: run.sh builds the product, "
+                                     "runs its dump entry and the headless runner on twins and judges the product's "
+                                     "output (declared_problem/README.md); listed among DEL-04-08's code paths beside "
+                                     "its tests; not reference code"},
         checks=(Check(("generators/o4_reference.py", "--workers", "1"),
                       known_failure="the generator binds kd5t_engine.py by SHA-256 c91f28c6…, and kd5_timoshenko changed "
                                     "that file in cdf98fd8c (2026-10-28) after O4 was frozen; reported, not repaired",
@@ -333,8 +345,8 @@ PACKAGES: dict[str, Package] = {
                 Check(("generators/o4_source_twins.py", "--workers", "1"),
                       known_failure="imports o4_reference, which refuses the changed kd5t_engine.py as above",
                       must_show=("this unit binds c91f28c6bce4a6777c63357fc82b8a0d1cd5a3ca48d0b1a756ef29706be8314e",)),
-                Check(("oracle.py", "--selftest"), cwd="declared_problem")),
-        not_regenerated=(("declared_problem/", "run.sh builds and runs the product; only the oracle self-test runs here"),)),
+                Check(("oracle.py", "--selftest"), cwd="declared_problem")),  # the product check's own oracle, pure Python
+        reproduction=O4_REPRODUCTION),
     "f1_modal/continuum": Package(
         "DEL-04-09", sums=(Sums("SHA256SUMS"),),
         siblings={m: "a module of the continuum generator (README)"
@@ -394,36 +406,30 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _pinned_by_own_list(rel: str) -> str | None:
-    """The problem, if any, with `rel` (relative to validation/references) as a module of its package:
-    a line of that package's SHA256SUMS must name it with the file's current hash."""
+def _foreign(rel: str, reason: str) -> RI.Foreign:
+    """A module of another reference package (`rel` relative to validation/references), pinned by the
+    verified checksum list of its own package that lists it (or, when none lists it, the first, so the
+    rule reports it as not listed)."""
     owner = next((name for name in PACKAGES if rel.startswith(name + "/")), None)
-    if owner is None:
-        return f"{rel} is in no package of the table"
-    pkg_dir = REFS / owner
-    for sums in PACKAGES[owner].sums:
-        if sums.historical or sums.pins is not None:
-            continue
-        base = (pkg_dir / sums.base).resolve()
-        for digest, name in _sums_lines(pkg_dir / sums.path):
-            if (base / name).resolve() == (REFS / rel).resolve():
-                return None if _sha256(REFS / rel) == digest else f"{rel} differs from its line in {owner}/{sums.path}"
-    return f"{rel} is not listed in its own package's checksum list"
+    assert owner is not None, f"{rel} is in no package of the table"
+    pkg_dir, file = REFS / owner, REFS / rel
+    lists = [s for s in PACKAGES[owner].sums if not s.historical and s.pins is None]
+    assert lists, f"{rel}: its package {owner} has no checksum list to pin it"
+    for sums in lists:
+        base = pkg_dir / sums.base
+        if any((base / name).resolve() == file.resolve() for _, name in _sums_lines(pkg_dir / sums.path)):
+            return RI.Foreign(file, pkg_dir / sums.path, base, reason)
+    return RI.Foreign(file, pkg_dir / lists[0].path, pkg_dir / lists[0].base, reason)
+
+
+def allowances(name: str) -> RI.Allowances:
+    pkg = PACKAGES[name]
+    return RI.Allowances(siblings=pkg.siblings, external=pkg.external, facilities=pkg.facilities,
+                         literals=pkg.literals, directories=pkg.directories, outside=pkg.outside,
+                         foreign={m: _foreign(rel, why) for m, (rel, why) in pkg.foreign.items()})
 
 
 # ---------------------------------------------------------------------------------------------- tests
-
-@pytest.mark.parametrize("literal, flagged", [
-    ("core/x.py", True), ("../core/x.py", True), ("/Users/someone/repo/tools/a.py", True),
-    ("C:\\repo\\fixtures\\a.json", True), ("core", True), ("schemas//x.json", True),
-    ("core/my file.py", True), ("/Volumes/My Drive/repo/core/x.py", True), (b"core/x.py", True),
-    ("core/ is not read", True), (b"tools\\a.py", True),
-    ("the core of it", False), ("score/card", False), ("validation/references/t4_u6/oracle.json", False),
-    ("", False), ("coreutils", False), (b"score/card", False), ("prose that mentions core and tools", False),
-])
-def test_product_path_rule(literal, flagged):
-    assert names_product_path(literal) is flagged
-
 
 def test_every_package_is_classified():
     problems = []
@@ -449,8 +455,8 @@ def test_every_package_is_classified():
 def test_unexplained_allowances_are_named():
     found = set()
     for name, pkg in PACKAGES.items():
-        for kind, table in (("sibling", pkg.siblings), ("external", pkg.external), ("call", pkg.calls),
-                            ("literal", pkg.literals)):
+        for kind, table in (("sibling", pkg.siblings), ("external", pkg.external), ("facility", pkg.facilities),
+                            ("literal", pkg.literals), ("directory", pkg.directories), ("outside", pkg.outside)):
             for key, why in table.items():
                 reason = why[1] if isinstance(why, tuple) else why
                 assert reason and reason.strip(), f"{name}: {kind} {key!r} has no reason"
@@ -465,6 +471,13 @@ def test_unexplained_allowances_are_named():
             if reason == UNEXPLAINED_REASON:
                 found.add((name, "not_regenerated", what))
     assert found == set(UNEXPLAINED), f"unexplained allowances {sorted(found)} differ from UNEXPLAINED {sorted(UNEXPLAINED)}"
+
+
+def test_the_ac_001_and_ac_002_packages_state_their_reproduction():
+    """DEL-04-08's AC-001 and AC-002 rest on these three; each states what reproduces today."""
+    for name in ("o4_retained_source", "kd5_timoshenko", "m3_judge"):
+        assert PACKAGES[name].reproduction, name
+        print(f"\n{name}: {PACKAGES[name].reproduction}")
 
 
 def test_taken_on_trust_is_counted():
@@ -519,66 +532,7 @@ def test_checksums(name):
 
 @pytest.mark.parametrize("name", sorted(PACKAGES))
 def test_generators_are_independent(name):
-    pkg, pkg_dir = PACKAGES[name], REFS / name
-    py_files = _files(pkg_dir, "*.py")
-    own_modules = {p.stem for p in py_files}
-    used = {"siblings": set(), "foreign": set(), "external": set(), "calls": set(), "literals": set()}
-    problems = []
-
-    def admit(module: str, src: Path, line: int) -> None:
-        if module in STDLIB:
-            return
-        where = f"{src.relative_to(pkg_dir).as_posix()}:{line}"
-        if module in pkg.siblings:
-            used["siblings"].add(module)
-            if module not in own_modules:
-                problems.append(f"{where}: sibling {module} is not a module of the package")
-        elif module in pkg.foreign:
-            used["foreign"].add(module)
-            rel = pkg.foreign[module][0]
-            if Path(rel).stem != module:
-                problems.append(f"{where}: foreign {module} is recorded as {rel}")
-            elif (src.parent / f"{module}.py").exists():
-                problems.append(f"{where}: a file named {module}.py sits beside the importer, shadowing {rel}")
-            elif (problem := _pinned_by_own_list(rel)):
-                problems.append(f"{where}: {problem}")
-        elif module in pkg.external:
-            used["external"].add(module)
-        else:
-            problems.append(f"{where}: imports {module}, neither standard library nor allowed by the entry")
-
-    for src in py_files:
-        rel = src.relative_to(pkg_dir).as_posix()
-        tree = ast.parse(src.read_bytes(), filename=str(src))
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Import):
-                for alias in node.names:
-                    admit(alias.name.split(".")[0], src, node.lineno)
-            elif isinstance(node, ast.ImportFrom):
-                if node.level:
-                    if node.module is None or node.module.split(".")[0] not in pkg.siblings:
-                        problems.append(f"{rel}:{node.lineno}: relative import {'.' * node.level}{node.module or ''}")
-                    else:
-                        used["siblings"].add(node.module.split(".")[0])
-                else:
-                    admit(node.module.split(".")[0], src, node.lineno)
-            elif isinstance(node, ast.Call):
-                fn = node.func
-                called = fn.id if isinstance(fn, ast.Name) else fn.attr if isinstance(fn, ast.Attribute) else None
-                if called in FORBIDDEN_CALLS:
-                    if (rel, called) in pkg.calls:
-                        used["calls"].add((rel, called))
-                    else:
-                        problems.append(f"{rel}:{node.lineno}: calls {called}")
-            elif isinstance(node, ast.Constant) and isinstance(node.value, (str, bytes)) and names_product_path(node.value):
-                key = (rel, literal_key(node.value))
-                if key in pkg.literals:
-                    used["literals"].add(key)
-                else:
-                    problems.append(f"{rel}:{node.lineno}: names a product path {node.value!r:.200} (key {key[1]!r})")
-    for kind, table in (("siblings", pkg.siblings), ("foreign", pkg.foreign), ("external", pkg.external),
-                        ("calls", pkg.calls), ("literals", pkg.literals)):
-        problems += [f"allowance no longer used: {kind} {key!r}" for key in sorted(set(table) - used[kind], key=repr)]
+    problems = RI.scan_package(REFS / name, allowances(name))
     assert not problems, f"{name}:\n" + "\n".join(problems)
 
 
