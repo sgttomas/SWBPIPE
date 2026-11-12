@@ -101,6 +101,102 @@ needs:
     The application build includes the supplier binary, its pin manifest and its licence files
     exactly as pinned, and fails when the supplier it was given differs from the pin.
   gating: true
+- from: DEL-07-11
+  when: Taking the person to the control a request asks them to use
+  condition: >-
+    Each of the desktop's file operations, jobs and panel commands is dispatched to the service
+    that owns it, the identity of what was sent and of what came back is preserved, the shell
+    cannot perform a request its owning service would refuse, and the session can show a named
+    panel on a named report, table, state or run without performing anything.
+  gating: true
+- from: DEL-12-02
+  when: Offering a requested export, save or user release
+  condition: >-
+    Every export, save and release route decides under the export control for itself, whatever
+    started it, and a local private output and a user release each cost the user one explicit act
+    that is never inferred, remembered or read from content.
+  gating: true
+- from: DEL-08-01
+  when: Offering a requested report save, print or user release
+  condition: >-
+    A report is saved and printed from the desktop by the report's own controls, and a user release
+    is made only by the user's own explicit selection and statement for one report, recorded with
+    its bindings and time.
+  gating: true
+- from: DEL-08-01
+  when: >-
+    Settling a request for a report save, a print or a user release, once the catalog lists the act
+    as one whose request can be settled
+  condition: >-
+    The save, the publication of a released package and the hand-over to the system print dialog
+    each give the host a receipt of the one invocation the host identified, natively: its outcome
+    and stage, cancellation told apart from completion, the export context, and the content the
+    route took in and the hashes of what it published. (DEL-08-01's scope does not commit to that
+    receipt today.)
+  gating: true
+- from: DEL-07-08
+  when: Offering a requested save of a model state or recording of a run
+  condition: >-
+    A model state is saved, and a solved run is recorded, by the desktop's own controls from the
+    current model and result, with the name and notes the person enters, and each is listed with
+    an identifier.
+  gating: true
+- from: DEL-14-02
+  when: Offering a requested recording of a run
+  condition: >-
+    A recorded run is a checked record bound to the model state and result it was solved on, stored
+    with an identifier by which it is listed and read.
+  gating: true
+- from: DEL-14-02
+  when: >-
+    Settling a request to record a run, once the catalog lists the act as one whose request can be
+    settled
+  condition: >-
+    The native recording gives the host a receipt of the one invocation the host identified: its
+    outcome, the recording's identifier, and the hashes of the result and of the model state it
+    was recorded on. (DEL-14-02's scope does not commit to that receipt today.)
+  gating: true
+- from: DEL-14-01
+  when: >-
+    Settling a request to save a model state, once the catalog lists the act as one whose request
+    can be settled
+  condition: >-
+    The native save of a model state gives the host a receipt of the one invocation the host
+    identified: whether a state was written or one with the same model already existed, and the
+    state's identifier, model hash and record hash. (DEL-14-01's scope does not commit to that
+    receipt today.)
+  gating: true
+- from: DEL-08-04
+  when: Offering a requested export of a table
+  condition: >-
+    Each results table exports to CSV by its own control, from the table as the desktop shows it,
+    with the case, filter and units it shows.
+  gating: true
+- from: DEL-08-04
+  when: >-
+    Settling a request to export a table, once the catalog lists the act as one whose request can
+    be settled
+  condition: >-
+    The save gives the host a receipt of the one invocation the host identified, natively, with
+    the table's content members (the result's hash and the case, filter and units) and the hash of
+    the bytes it wrote. (DEL-08-04's scope does not commit to that receipt today.)
+  gating: true
+- from: DEL-02-05
+  when: Offering a requested save of the project
+  condition: >-
+    A save in place proceeds only over the revision the session last opened or wrote; any other
+    replacement of a stored revision needs the user's confirmation of that revision, and is
+    otherwise refused by name and writes nothing.
+  gating: true
+- from: DEL-02-05
+  when: >-
+    Settling a request to save the project, once the catalog lists the act as one whose request
+    can be settled
+  condition: >-
+    The native save gives the host a receipt of the one invocation the host identified: whether a
+    revision was written, kept or refused, and the hash of the revision and of the model it holds.
+    (DEL-02-05's scope does not commit to that receipt today.)
+  gating: true
 code_paths:
 # The operation engine. Within this crate the domain modules that other deliverables list by name
 # are theirs: document_validator.rs, model_data_authoring.rs, model_settings_authoring.rs and
