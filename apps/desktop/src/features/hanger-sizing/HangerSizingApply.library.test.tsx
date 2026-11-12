@@ -23,9 +23,11 @@ const revised = () => {
 };
 const SINGLE = "Prepare applying record VS-200-L to support:B";
 const RUN = "Prepare applying every selection of this run";
+// The per-candidate act is offered for a run of exactly one selection (support:B, with support:D unfitted); the
+// apply-all act for the run of two.
 const ACTS = [
-  { act: "the per-candidate act", prepare: SINGLE, review: "hanger-sizing-apply-review", queue: "Queue sized selection for review" },
-  { act: "the apply-all act", prepare: RUN, review: "hanger-sizing-apply-run-review", queue: "Queue every sized selection of this run for review" }
+  { act: "the per-candidate act", prepare: SINGLE, review: "hanger-sizing-apply-review", keep: ["support:B", "support:D"] },
+  { act: "the apply-all act", prepare: RUN, review: "hanger-sizing-apply-run-review", keep: ["support:B", "support:C", "support:D"] }
 ] as const;
 
 async function recordSha(lib: Record<string, unknown>, hangerId: string) {
@@ -37,7 +39,8 @@ const common = (support: string, node: string) => ({
   required_travel_m: 0.005, failure_counts: { variable: null, constant: null }
 });
 
-async function mixedRun(source: PreviewModel, lib: Record<string, unknown>): Promise<HangerSizingSizedDocument> {
+/** The mixed run, or the run of only the candidates `keep` names. */
+async function mixedRun(source: PreviewModel, lib: Record<string, unknown>, keep: readonly string[] = ["support:B", "support:C", "support:D"]): Promise<HangerSizingSizedDocument> {
   const candidates: HangerSizingCandidate[] = [
     { ...common("support:B", "node:B"), outcome: "selected",
       selected: { family: "variable_spring", hanger_id: "VS-200-L", record_sha256: await recordSha(lib, "VS-200-L"), k_n_per_m: 200000, f_cold_n: 5197.5,
@@ -60,7 +63,7 @@ async function mixedRun(source: PreviewModel, lib: Record<string, unknown>): Pro
       solve_request: { sha256: await canonicalSha256HexCheckedV1({ model: source, materials: [] }) },
       library: { library_id: "invented.hangers.sizing", sha256: await canonicalSha256HexCheckedV1(lib) }
     },
-    result: { candidates }
+    result: { candidates: candidates.filter((candidate) => keep.includes(candidate.support)) }
   } as unknown as HangerSizingSizedDocument;
 }
 
@@ -76,11 +79,11 @@ describe("the library a sized selection is bound to", () => {
     expect(screen.queryByRole("button")).toBeNull();
   });
 
-  for (const { act, prepare, review } of ACTS) {
+  for (const { act, prepare, review, keep } of ACTS) {
     it(`withdraws ${act} when the stored library, read again at the act, has been revised, is missing or cannot be read`, async () => {
       const source = model();
       const lib = library();
-      const document = await mixedRun(source, lib);
+      const document = await mixedRun(source, lib, keep);
       for (const [read, text] of [
         [stored(revised()), HANGER_SIZING_LIBRARY_CHANGED_TEXT],
         [vi.fn(async () => ({ kind: "unavailable" as const })), HANGER_SIZING_LIBRARY_UNAVAILABLE_TEXT]
@@ -101,7 +104,7 @@ describe("the library a sized selection is bound to", () => {
     it(`drops a batch prepared by ${act} when the library the form holds under that id is revised, so it cannot be queued`, async () => {
       const source = model();
       const lib = library();
-      const document = await mixedRun(source, lib);
+      const document = await mixedRun(source, lib, keep);
       const current = library();
       const queue = vi.fn();
       const { rerender } = render(<HangerSizingApply document={document} library={lib} currentLibrary={current} readStoredLibrary={stored(current)} model={source} busy={false} onQueueBatch={queue} />);

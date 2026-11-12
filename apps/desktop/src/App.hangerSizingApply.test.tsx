@@ -5,9 +5,11 @@
 //
 // What stands in for the native host, after the shell has mounted (as the other native-path App tests do):
 // - `list_local_libraries` and `open_local_library` serve one stored library, the invented four-span input's;
-// - `size_hangers` answers with the product's four-span result (`fixtures/results/hanger_sizing_result_four_span.json`:
-//   CE-2 on support:B by fallback, CE-1 on support:C, no fit on support:D), with its solve-request binding replaced by
-//   the checked hash of the request this App sent. The session's model is the four-span input's model with the
+// - `size_hangers` answers with a product result, with its solve-request binding replaced by the checked hash of the
+//   request this App sent: for the apply-all act (two or more selections), the four-span result
+//   (`fixtures/results/hanger_sizing_result_four_span.json`: CE-2 on support:B by fallback, CE-1 on support:C, no fit
+//   on support:D); for the per-candidate act (exactly one selection), the two-span reply's document
+//   (`hanger_sizing_reply_two_span.json`: VS-200-L on support:B). The session's model is that input's model with the
 //   session's `diagnostics: []`, which the headless input does not carry, so the product's own binding cannot match.
 //   The reply's reader evidence is not bound to this document, so its standings show as not checked;
 // - `validate_model_operation_batch` and `apply_model_operation_batch` are answered by the operation applier crate
@@ -18,6 +20,8 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import fourSpanInput from "../../../fixtures/results/hanger_sizing_input_four_span.json";
 import fourSpanResult from "../../../fixtures/results/hanger_sizing_result_four_span.json";
+import twoSpanInput from "../../../fixtures/results/hanger_sizing_input_two_span.json";
+import twoSpanReply from "../../../fixtures/results/hanger_sizing_reply_two_span.json";
 import * as previewService from "./services/previewService";
 import { canonicalJsonString, canonicalSha256HexCheckedV1 } from "./services/hashService";
 import { loadWasmEngine } from "./services/wasmEngine/loadWasmEngine";
@@ -36,7 +40,9 @@ import { useModelledVisibility } from "./test-support/modelledVisibility";
 
 useModelledVisibility();
 
-const sessionModel = () => ({ ...structuredClone(fourSpanInput.request.model), diagnostics: [] }) as unknown as PreviewModel;
+/** Which product input and result the session and the native stand-in use. */
+const fixture = { fourSpan: true };
+const sessionModel = () => ({ ...structuredClone((fixture.fourSpan ? fourSpanInput : twoSpanInput).request.model), diagnostics: [] }) as unknown as PreviewModel;
 const library = () => structuredClone(fourSpanInput.library) as Record<string, unknown>;
 const LIBRARY_ID = "invented.hangers.sizing";
 const initialInnerWidth = window.innerWidth;
@@ -44,7 +50,6 @@ const initialInnerWidth = window.innerWidth;
 beforeEach(() => {
   seen.models = [];
   seen.sized = [];
-  vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(sessionModel());
 });
 afterEach(() => {
   cleanup();
@@ -68,7 +73,7 @@ function host() {
     if (command === "size_hangers") {
       const sent = JSON.parse(String(args!.inputText)) as { request: { model: unknown } };
       seen.sized.push(sent.request.model);
-      const document = structuredClone(fourSpanResult) as Record<string, unknown> & { inputs: { solve_request: { sha256: string } } };
+      const document = structuredClone(fixture.fourSpan ? fourSpanResult : twoSpanReply.document) as Record<string, unknown> & { inputs: { solve_request: { sha256: string } } };
       document.inputs.solve_request.sha256 = await canonicalSha256HexCheckedV1(sent.request);
       return { document, evidence: { document_sha256: "0".repeat(64), verdict: {} } };
     }
@@ -88,6 +93,7 @@ const support = (model: PreviewModel, id: string) => model.supports.find((entry)
 const select = (form: HTMLElement, testId: string, value: string) => fireEvent.change(within(form).getByTestId(testId), { target: { value } });
 
 async function openSizing(): Promise<HTMLElement> {
+  vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(sessionModel());
   Object.defineProperty(window, "innerWidth", { configurable: true, value: 1440 });
   render(<App />);
   await screen.findByTestId("desktop-preview-shell");
@@ -95,6 +101,26 @@ async function openSizing(): Promise<HTMLElement> {
   fireEvent.click(screen.getByTestId("toolkit-entry"));
   fireEvent.click(screen.getByTestId("toolkit-properties.hanger-library"));
   return screen.getByTestId("hanger-sizing-form");
+}
+
+/** Fills the form with the two-span fixture's own request, as a person would, and sizes it. */
+async function sizeTwoSpan(form: HTMLElement) {
+  fireEvent.click(within(form).getByRole("button", { name: "Refresh hanger libraries" }));
+  await within(form).findByRole("option", { name: "Invented sizing hangers" });
+  select(form, "hanger-sizing-library", LIBRARY_ID);
+  await waitFor(() => expect(invokeMock.mock.calls.some(([command]) => command === "open_local_library")).toBe(true));
+  fireEvent.click(within(within(form).getByTestId("hanger-sizing-candidates")).getByRole("option", { name: /support:B/ }));
+  select(form, "hanger-sizing-policy-0", "variable");
+  select(form, "hanger-sizing-weight-case", "load:W");
+  select(form, "hanger-sizing-design-case", "load:O1");
+  fireEvent.click(within(form).getByRole("checkbox", { name: /load:O2/ }));
+  select(form, "hanger-sizing-load-design", "hot");
+  select(form, "hanger-sizing-variation-reference", "operating_load");
+  fireEvent.change(within(form).getByTestId("hanger-sizing-variation-limit"), { target: { value: "0.25" } });
+  fireEvent.change(within(form).getByTestId("hanger-sizing-travel-allowance"), { target: { value: "0.002" } });
+  select(form, "hanger-sizing-selection-rule", "smallest_capacity");
+  select(form, "hanger-sizing-solver-mode", "dense_scrutiny");
+  fireEvent.click(within(form).getByTestId("hanger-sizing-run"));
 }
 
 /** Fills the form with the four-span fixture's own request, as a person would, and sizes it. */
@@ -131,18 +157,19 @@ async function validateQueued(): Promise<HTMLElement> {
 }
 
 const ACTS = [
-  { act: "the apply-all act", prepare: "Prepare applying every selection of this run", queue: "Queue every sized selection of this run for review", changed: ["support:B", "support:C"] },
-  { act: "the per-candidate act", prepare: "Prepare applying record CE-1 to support:C", queue: "Queue sized selection for review", changed: ["support:C"] }
+  { act: "the apply-all act", fourSpan: true, prepare: "Prepare applying every selection of this run", queue: "Queue every sized selection of this run for review", changed: ["support:B", "support:C"] },
+  { act: "the per-candidate act", fourSpan: false, prepare: "Prepare applying record VS-200-L to support:B", queue: "Queue sized selection for review", changed: ["support:B"] }
 ] as const;
 
 describe("a sized selection through the connected desktop path", () => {
-  for (const { act: name, prepare, queue, changed } of ACTS) {
+  for (const { act: name, fourSpan, prepare, queue, changed } of ACTS) {
     it(`by ${name}: unchanged after sizing, preparing, queueing and validation; changed only by the person's application; one Undo restores it`, async () => {
+      fixture.fourSpan = fourSpan;
       host();
       const form = await openSizing();
       const commands = () => invokeMock.mock.calls.map(([command]) => command);
 
-      await size(form);
+      await (fourSpan ? size(form) : sizeTwoSpan(form));
       const button = await within(form).findByRole("button", { name: prepare });
       // The model sized is the session's model as loaded, and sizing left it so.
       expect(seen.sized).toHaveLength(1);
@@ -173,7 +200,7 @@ describe("a sized selection through the connected desktop path", () => {
         expect({ family: written.family, restraints: written.restraints, provenance: written.provenance, hanger: written.hanger }, id).toEqual(afters[id]);
       }
       const before = JSON.parse(original) as PreviewModel;
-      for (const id of ["support:B", "support:C", "support:D"].filter((other) => !(changed as readonly string[]).includes(other))) {
+      for (const id of before.supports.map((entry) => entry.id).filter((other) => !(changed as readonly string[]).includes(other))) {
         expect(await canonicalJsonString(support(applied, id)), id).toBe(await canonicalJsonString(support(before, id)));
       }
       // The run no longer binds the applied model, so nothing more of it is offered.

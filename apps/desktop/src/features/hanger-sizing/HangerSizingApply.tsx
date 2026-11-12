@@ -2,7 +2,9 @@
  * selected candidate, or for every selection of the run at once (`runApplication.ts`), the person may prepare the
  * batch, read its before and after and its source notes, and queue it;
  * the queued batch goes to the same review as an imported hanger selection, and the model changes only when the person
- * accepts it there. Nothing here writes the model. A selection is offered only while the shown result is bound to
+ * accepts it there. A run sizes its candidates together, so values no single run produced are never applied
+ * piecemeal: the per-candidate act is offered only when the run has exactly one selection, and a run with two or more
+ * is applied only whole. Nothing here writes the model. A selection is offered only while the shown result is bound to
  * the present model and to the library the person has stored now under the id it names (`sizedSelection.ts`): the
  * library the form presently holds for that id, where it holds one, and the stored library read again at each act. A
  * prepared batch is dropped when the model, the result, either library or the busy state changes. The values written
@@ -15,6 +17,7 @@ import { buildHangerSelectionBatch } from "../hanger-selection/hangerSelection";
 import type { HangerSizingSizedDocument } from "../results/hangerSizingResult";
 import {
   asHangerDocument,
+  HANGER_SIZING_APPLIED_WITH_RUN_TEXT,
   HANGER_SIZING_APPLY_TEXT,
   HANGER_SIZING_APPLY_TITLE,
   HANGER_SIZING_LIBRARY_CHANGED_TEXT,
@@ -24,6 +27,7 @@ import {
   HANGER_SIZING_PRELOAD_PENDING_TEXT,
   hangerSizingApplyOffers,
   hangerSizingLibraryBound,
+  hangerSizingSelectedCount,
   type ApplyOffer,
   type ApplyOffers,
   type StoredLibraryRead
@@ -95,6 +99,9 @@ export function HangerSizingApply({ document, library, currentLibrary, readStore
   const offers = shownBasis(checked) && libraryStanding === "current" ? checked!.offers : null;
   const currentReview = shownBasis(review) && !busy ? review : null;
   const currentRunReview = shownBasis(runReview) && !busy ? runReview : null;
+  // One selection: the per-candidate act alone (the whole-run batch would be the same batch). Two or more: the
+  // whole-run act alone. None: the whole-run section says there is nothing to apply.
+  const single = hangerSizingSelectedCount(document) === 1;
   const runOffer = offers?.model === "current" ? runApplicationRefusal(document, offers) : null;
 
   /** The act's check of the library stored now: true when it is the one the result binds. Otherwise the acts are
@@ -110,6 +117,7 @@ export function HangerSizingApply({ document, library, currentLibrary, readStore
   }
 
   async function prepare(offer: Extract<ApplyOffer, { kind: "offered" }>) {
+    if (!single) return;
     const token = ++generation.current;
     setReview(null);
     setRunReview(null);
@@ -134,6 +142,7 @@ export function HangerSizingApply({ document, library, currentLibrary, readStore
   }
 
   async function prepareRun() {
+    if (single) return;
     const token = ++generation.current;
     setReview(null);
     setRunReview(null);
@@ -167,10 +176,12 @@ export function HangerSizingApply({ document, library, currentLibrary, readStore
         <ul>
           {offers.offers.map((offer) => (
             <li key={offer.support} data-testid={`hanger-sizing-apply-${offer.support}`}>
-              {offer.kind === "offered" ? (
+              {offer.kind === "offered" && single ? (
                 <button type="button" disabled={busy || pending} onClick={() => void prepare(offer)}>
                   Prepare applying record {offer.hangerId} to {offer.support}
                 </button>
+              ) : offer.kind === "offered" ? (
+                <p>{offer.support}: record {offer.hangerId}. {HANGER_SIZING_APPLIED_WITH_RUN_TEXT}</p>
               ) : (
                 <p>{offer.support}: {offer.reason}</p>
               )}
@@ -196,7 +207,7 @@ export function HangerSizingApply({ document, library, currentLibrary, readStore
         </div>
       ) : null}
       {review && !currentReview && !busy ? <p role="status">This prepared application is stale. Prepare it again.</p> : null}
-      {offers?.model === "current" ? (
+      {offers?.model === "current" && !single ? (
         <div data-testid="hanger-sizing-apply-run">
           <h5>{HANGER_SIZING_APPLY_RUN_TITLE}</h5>
           <p>{HANGER_SIZING_APPLY_RUN_TEXT}</p>

@@ -29,6 +29,9 @@ export const HANGER_SIZING_LIBRARY_CHANGED_TEXT =
   "The hanger library has changed since this sizing run, so its selections are not offered for application. Size again to apply a selection.";
 export const HANGER_SIZING_LIBRARY_UNAVAILABLE_TEXT =
   "The hanger library this sizing run used is no longer stored or cannot be read, so its selections are not offered for application. Size again to apply a selection.";
+/** Beside a selection of a run with two or more selections (DEL-04-11 REQ-008): the run's values are applied whole. */
+export const HANGER_SIZING_APPLIED_WITH_RUN_TEXT =
+  "This run sized its supports together, so this selection is applied only with the run's other selections, by the act below.";
 export const HANGER_SIZING_NO_FIT_TEXT = "No record fits this support, so there is nothing to apply.";
 /** Shown beside an application that includes a variable spring, until the solve applies a variable spring's cold load
  * (DEL-04-11 REQ-014); kept consistent with the results standing line (`results/hangerPreload.ts`). Remove this
@@ -123,6 +126,10 @@ export type StoredLibraryRead = Readonly<{ kind: "read"; document: unknown }> | 
 export async function hangerSizingLibraryBound(document: HangerSizingSizedDocument, library: unknown): Promise<boolean> {
   return (await libraryReason(document, library)) === null;
 }
+
+/** The number of the run's candidates with a selection; a candidate with no fitting record is never counted. */
+export const hangerSizingSelectedCount = (document: HangerSizingSizedDocument) =>
+  document.result.candidates.filter((candidate) => candidate.outcome === "selected" || candidate.outcome === "selected_by_fallback").length;
 
 /** For each candidate of `document`, whether its selection is offered for application to `model`, and why not. */
 export async function hangerSizingApplyOffers(document: HangerSizingSizedDocument, model: PreviewModel, library: unknown): Promise<ApplyOffers> {
