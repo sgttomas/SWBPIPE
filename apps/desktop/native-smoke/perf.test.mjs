@@ -4,12 +4,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { execFile, execFileSync, spawn } from "node:child_process";
 import { once } from "node:events";
-import { admitWindow, appEnvironment, c1PhysicalPhases, checkLeftHomes, listProcesses, createReaderPhaseEvidence, checkpointRun, classify, commitRun, readStartupHost, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, listRunHome, loadPlan, planName, removeRunHome, removeWindowHomes, sampleStopReason, selectRuns, settleWindow, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
+import { appEnvironment, c1PhysicalPhases, createReaderPhaseEvidence, checkpointRun, classify, commitRun, readStartupHost, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, listRunHome, loadPlan, planName, removeRunHome, removeWindowHomes, sampleStopReason, selectRuns, settleWindow, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
 
 const plan = loadPlan(fileURLToPath(new URL("./perf-plan.json", import.meta.url)));
 
@@ -408,134 +408,6 @@ test("the supervisor withholds removal while owned processes are not verified go
   assert.equal(written.run_homes[0].home_removed, false);
   assert.match(written.run_homes[0].home_cleanup_error, /not verified gone/);
   assert.equal(written.run_homes[0].home_listing.total, 6);
-});
-
-// An --out holding one earlier window's scratch with a left home, its sampler lines
-// (`pids`: [pid, kind, first-seen epoch ms]) and, optionally, its window record.
-function leftHomeFixture(t, { pids = null, windowRecord = true } = {}) {
-  const out = mkdtempSync(path.join(os.tmpdir(), "perf-left-"));
-  t.after(() => rmSync(out, { recursive: true, force: true }));
-  const scratch = path.join(out, "perf-AbC123");
-  const run = path.join(scratch, "run-one-XyZ789");
-  const home = path.join(run, "home");
-  mkdirSync(path.join(home, "Downloads"), { recursive: true });
-  writeFileSync(path.join(home, "Downloads", "export.csv"), "a,b\n");
-  writeFileSync(path.join(run, "report.json"), "{}");
-  if (pids) writeFileSync(path.join(out, "perf-samples-perf-AbC123-one.jsonl"), pids.map(([pid, kind, at]) => JSON.stringify({ t: at, p: [[pid, kind, 1, 1, 1]] })).join("\n") + "\n");
-  if (windowRecord) writeFileSync(path.join(out, "perf-window-1000.json"), JSON.stringify({ schema: "swbpipe.desktop-perf-window/v1", scratch, kept: scratch, started_ms: 1000, ended_ms: 2000, runner_pid: null, owned_pids: [], events: [] }));
-  return { out, scratch, run, home };
-}
-const sleeper = (t) => {
-  const child = spawn(process.execPath, ["-e", "setInterval(()=>{},1000)"], { stdio: "ignore" });
-  t.after(() => { try { child.kill("SIGKILL"); } catch { /* gone */ } });
-  return child;
-};
-
-test("the process table parses ps's elapsed forms into start times", async () => {
-  const stdout = "    1 1-02:03:04 /sbin/launchd\n  222    03:04 /bin/zsh -l\n 3333 02:00:01 /x/perf-AbC123/openpipestress-desktop\n";
-  const rows = await listProcesses((command, args, options, callback) => callback(null, stdout), () => 100000000);
-  assert.deepEqual(rows.map(({ pid, start_ms }) => [pid, start_ms]), [[1, 100000000 - (93784 * 1000)], [222, 100000000 - 184000], [3333, 100000000 - 7201000]]);
-  assert.equal(rows[2].command, "/x/perf-AbC123/openpipestress-desktop");
-});
-
-test("a left home whose recorded processes are all gone is listed, removed and the window proceeds", async (t) => {
-  const exited = spawn(process.execPath, ["-e", ""], { stdio: "ignore" });
-  await once(exited, "exit");
-  const { out, run, home } = leftHomeFixture(t, { pids: [[exited.pid, "app", Date.now()]] });
-  const admission = await admitWindow(out);
-  assert.equal(admission.admitted, true);
-  assert.equal(existsSync(home), false);
-  assert.equal(existsSync(path.join(run, "report.json")), true);
-  const [entry] = admission.left_homes;
-  assert.equal(entry.outcome, "established_gone");
-  assert.equal(entry.home_removed, true);
-  assert.equal(entry.window, "perf-AbC123");
-  assert.deepEqual(entry.window_records, ["perf-window-1000.json"]);
-  assert.equal(entry.samples_file, "perf-samples-perf-AbC123-one.jsonl");
-  assert.ok(entry.pids_checked.every((row) => row.same_process === false));
-  assert.deepEqual(entry.home_listing.entries.map((row) => row.path), ["Downloads", "Downloads/export.csv"]);
-  assert.match(entry.rule, /start time/);
-  assert.deepEqual(readdirSync(out).filter((name) => name.startsWith("perf-window-")), ["perf-window-1000.json"]); // no refusal record
-});
-
-test("a left home with a recorded process alive and still that process refuses the start and removes nothing", async (t) => {
-  const exited = spawn(process.execPath, ["-e", ""], { stdio: "ignore" });
-  await once(exited, "exit");
-  const live = sleeper(t);
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  const { out, home } = leftHomeFixture(t, { pids: [[exited.pid, "app", Date.now()], [live.pid, "webcontent", Date.now()]] });
-  const admission = await admitWindow(out);
-  assert.equal(admission.admitted, false);
-  assert.equal(existsSync(path.join(home, "Downloads", "export.csv")), true);
-  assert.equal(admission.left_homes[0].outcome, "alive");
-  assert.match(admission.message, new RegExp(`${live.pid} \\(webcontent\\)`));
-  const record = JSON.parse(readFileSync(admission.file, "utf8"));
-  assert.equal(record.refused_before_launch, true);
-  assert.equal(record.stop_reason, `left_home_open: ${home}`);
-  assert.equal(record.runner_pid, null);
-});
-
-test("a live process whose command names the left home's window refuses the start, recorded or not", async (t) => {
-  const { out, scratch, home } = leftHomeFixture(t, { pids: [[2, "app", Date.now()]] });
-  const list = async () => [{ pid: 4242, start_ms: 0, command: `node perf.mjs --run-child --window-root ${scratch} --supervisor-pid 1` },
-    { pid: 4343, start_ms: 0, command: `${scratch}9/openpipestress-desktop` }]; // another window's name is not this one
-  const admission = await admitWindow(out, { list });
-  assert.equal(admission.admitted, false);
-  assert.deepEqual(admission.left_homes[0].command_matches.map((row) => row.pid), [4242]);
-  assert.equal(existsSync(path.join(home, "Downloads", "export.csv")), true);
-});
-
-test("a recycled PID (alive, but started after the window knew its process) counts as gone", async (t) => {
-  const recycled = sleeper(t);
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  const { out, home } = leftHomeFixture(t, { pids: [[recycled.pid, "app", Date.now() - 600000]] });
-  const admission = await admitWindow(out);
-  assert.equal(admission.admitted, true);
-  assert.equal(existsSync(home), false);
-  const [row] = admission.left_homes[0].pids_checked;
-  assert.equal(row.alive, true);
-  assert.equal(row.same_process, false);
-});
-
-test("a left home with no record of its processes refuses the start and removes nothing", async (t) => {
-  const { out, home } = leftHomeFixture(t, { pids: null, windowRecord: false });
-  const admission = await admitWindow(out, { list: async () => [] });
-  assert.equal(admission.admitted, false);
-  assert.equal(admission.left_homes[0].outcome, "unestablished");
-  assert.match(admission.message, /cannot establish.*no sampler record perf-samples-perf-AbC123-one\.jsonl/s);
-  assert.match(admission.message, /A person must check/);
-  assert.equal(existsSync(path.join(home, "Downloads", "export.csv")), true);
-  assert.equal(JSON.parse(readFileSync(admission.file, "utf8")).stop_reason, `left_home_open: ${home}`);
-  // A process table that cannot be read is unestablished too.
-  const failing = await checkLeftHomes(out, { list: async () => { throw new Error("fixture ps failure"); } });
-  assert.equal(failing.left_homes[0].outcome, "unestablished");
-  assert.equal(existsSync(home), true);
-});
-
-test("directories that merely look like a left home are not touched", async (t) => {
-  const out = mkdtempSync(path.join(os.tmpdir(), "perf-lookalike-"));
-  t.after(() => rmSync(out, { recursive: true, force: true }));
-  const homes = [
-    path.join(out, "perf-window-x", "run-one-XyZ789", "home"), // not a window scratch name
-    path.join(out, "other", "run-one-XyZ789", "home"),
-    path.join(out, "perf-AbC123", "notrun", "home"),
-    path.join(out, "perf-AbC123", "run-one", "home"), // no mkdtemp suffix
-  ];
-  for (const home of homes) { mkdirSync(home, { recursive: true }); writeFileSync(path.join(home, "keep"), "x"); }
-  const elsewhere = mkdtempSync(path.join(os.tmpdir(), "perf-elsewhere-"));
-  t.after(() => rmSync(elsewhere, { recursive: true, force: true }));
-  mkdirSync(path.join(elsewhere, "run-one-XyZ789", "home"), { recursive: true });
-  writeFileSync(path.join(elsewhere, "run-one-XyZ789", "home", "keep"), "x");
-  symlinkSync(elsewhere, path.join(out, "perf-LnK123")); // a linked window scratch
-  mkdirSync(path.join(out, "perf-AbC123", "run-lnk-QwE456"));
-  symlinkSync(elsewhere, path.join(out, "perf-AbC123", "run-lnk-QwE456", "home")); // a linked home
-  const admission = await admitWindow(out, { list: async () => [] });
-  assert.equal(admission.admitted, true);
-  assert.deepEqual(admission.left_homes, []);
-  assert.equal(admission.ignored.length, 1);
-  assert.match(admission.ignored[0].detail, /not touched/);
-  for (const home of homes) assert.equal(readFileSync(path.join(home, "keep"), "utf8"), "x");
-  assert.equal(readFileSync(path.join(elsewhere, "run-one-XyZ789", "home", "keep"), "utf8"), "x");
 });
 
 test("a clean window's sweep finds no home left and removes the scratch", async (t) => {

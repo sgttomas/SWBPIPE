@@ -41,14 +41,7 @@
 //   a failure needs for inspection stays outside the home: the records, reports,
 //   reader journals and sampler lines. The rest of a failed window's scratch
 //   (model copies, report.json) is retained; the supervisor removes it only after
-//   process verification. A home left behind (processes not verified gone, the
-//   supervisor killed, removal cut short) stays open until removed: the next --run
-//   window under the same --out, before any launch, checks each left home's recorded
-//   PIDs (window record and sampler lines) for a live process that is still the same
-//   one (started no later than the window last knew it alive), and removes the home,
-//   recorded in its window record, when it establishes none is alive. It refuses to
-//   start, removing nothing and writing a window record naming the home, only when a
-//   process from it is alive or that cannot be established.
+//   process verification.
 //
 // Threat model (accepted for PR #53's permissions review): the plan checks (bare names,
 // containedPath) and the injection root guard against mistakes in plan text and caller input:
@@ -323,15 +316,6 @@ async function supervisedRun(options) {
   const budgetS = options.budgetS ?? Math.min(plan.budget_s, 840);
   if (!Number.isFinite(budgetS) || budgetS <= 0 || budgetS > 840) throw new Error("perf window: work budget must be > 0 and <= 840 s (teardown stays within 15 min)");
   mkdirSync(options.out, { recursive: true });
-  // Before this window's scratch exists and before any launch: homes earlier
-  // windows left under --out are removed or refuse the start.
-  const admission = await admitWindow(options.out);
-  for (const entry of admission.left_homes) if (entry.outcome === "established_gone") console.error(`perf window: left home ${entry.home_path} (window ${entry.window}): no process from it alive; ${entry.home_removed ? "removed" : `NOT removed: ${entry.home_cleanup_error}`}`);
-  if (!admission.admitted) {
-    console.error(`perf window: refused to start; nothing was launched (record ${admission.file}):\n${admission.message}`);
-    process.exitCode = 1;
-    return;
-  }
   const scratch = mkdtempSync(path.join(options.out, "perf-"));
   const binary = path.join(scratch, BIN_NAME);
   const postRunReserveS = Math.min(30, budgetS / 4);
@@ -354,8 +338,6 @@ async function supervisedRun(options) {
   });
   const result = await watchWindow(child, { budgetMs: budgetS * 1000, listOwned });
   result.post_run_reserve_s = postRunReserveS;
-  result.left_homes = admission.left_homes;
-  result.left_homes_ignored = admission.ignored;
   const file = path.join(options.out, `perf-window-${result.started_ms}.json`);
   // The parent does not synchronously inspect SQLite, recursively remove the
   // store, or serialize the sampler's large report on its deadline event loop.
@@ -376,7 +358,6 @@ export async function settleWindow(result, { scratch, binary, file, keep }) {
   const verified = result.owned_group_gone === true && result.owned_executable_pids_gone === true;
   let failed = Boolean(result.stop_reason || result.exit.code !== 0 || !result.exit.reaped || !verified);
   const write = () => writeFile(file, `${JSON.stringify(result, null, 2)}\n`);
-  result.scratch = scratch; // ties this record's PIDs to its run homes for a later window's check
   result.kept = failed ? scratch : null;
   result.run_homes_cleanup = "pending";
   result.run_homes = [];
@@ -1201,153 +1182,6 @@ export async function removeWindowHomes(scratch, { verified }) {
     outcomes.push(outcome);
   }
   return outcomes;
-}
-
-// A window's scratch is `mkdtemp(<out>/perf-)` and a run's directory
-// `mkdtemp(<scratch>/run-<id>-)`: mkdtemp appends six characters [A-Za-z0-9].
-const WINDOW_SCRATCH = /^perf-[A-Za-z0-9]{6}$/;
-const RUN_DIRECTORY = /^run-([A-Za-z0-9._-]+)-[A-Za-z0-9]{6}$/;
-// A recorded PID is still that process only if the process now holding it started
-// no later than this after the earliest moment the window knew it alive.
-export const SAME_PROCESS_TOLERANCE_MS = 2000;
-export const SAME_PROCESS_RULE = `a recorded PID is still that process when a process holds it whose start time (now minus ps's elapsed time, 1 s resolution) is no later than ${SAME_PROCESS_TOLERANCE_MS} ms after the earliest time the window knew that PID alive (its first sample, or the window record's end); a process started later holds a recycled PID. Independently, any process whose command line names the window's scratch directory (its runner or its private executable) is alive from it.`;
-
-/** The process table: PID, start time (now minus elapsed, 1 s resolution) and the
- * full command line. Reads no process's memory or files. */
-export function listProcesses(execute = execFile, now = Date.now) {
-  return new Promise((resolve, reject) => {
-    execute("ps", ["-axww", "-o", "pid=,etime=,command="], { timeout: 5000, killSignal: "SIGKILL", maxBuffer: 32 * 1024 * 1024 }, (error, stdout) => {
-      if (error) return reject(new Error(`ps failed: ${error.message}`));
-      const at = now();
-      const rows = [];
-      for (const line of String(stdout).split("\n")) {
-        const match = /^\s*(\d+)\s+(?:(\d+)-)?(?:(\d+):)?(\d+):(\d+)\s(.*)$/.exec(line);
-        if (!match) continue;
-        const [, pid, days, hours, minutes, seconds, command] = match;
-        const elapsed = (((Number(days ?? 0) * 24 + Number(hours ?? 0)) * 60 + Number(minutes)) * 60 + Number(seconds)) * 1000;
-        rows.push({ pid: Number(pid), start_ms: at - elapsed, command });
-      }
-      if (!rows.length) return reject(new Error("ps listed no processes"));
-      resolve(rows);
-    });
-  });
-}
-
-/** The PIDs an earlier window recorded for one of its runs: its window record(s)
- * (runner, process group, owned executable PIDs, App events; known alive at the
- * record's end) and the run's sampler lines (every PID seen, with its kind and first
- * sample time). The sampler lines are required: they are the only record of the
- * WebKit processes, and without an App row nothing identifies the App. */
-function leftHomeEvidence(out, scratch, runId) {
-  const pids = [];
-  const windowRecords = [];
-  for (const name of readdirSync(out).filter((entry) => /^perf-window-\d+\.json$/.test(entry)).sort()) {
-    const file = path.join(out, name);
-    if (!lstatSync(file).isFile()) continue;
-    let record;
-    try { record = JSON.parse(readFileSync(file, "utf8")); } catch { continue; }
-    if (record?.scratch !== scratch && record?.kept !== scratch && !record?.events?.some?.((event) => event?.type === "scratch" && event.path === scratch)) continue;
-    windowRecords.push(name);
-    if (!Number.isFinite(record.ended_ms)) return { error: `window record ${name} has no end time to bound its PIDs`, windowRecords, pids };
-    const add = (pid, kind) => { if (Number.isSafeInteger(pid) && pid > 1) pids.push({ pid, kind, source: name, seen_alive_ms: record.ended_ms }); };
-    add(record.runner_pid, "runner");
-    add(record.process_group, "runner_group");
-    for (const row of Array.isArray(record.owned_pids) ? record.owned_pids : []) { add(row?.pid, "owned_executable"); if (row?.group !== row?.pid) add(row?.group, "owned_group"); }
-    for (const event of Array.isArray(record.events) ? record.events : []) if (event?.type === "app") add(event.pid, "app");
-  }
-  const samplesName = `perf-samples-${path.basename(scratch)}-${runId}.jsonl`;
-  const samplesFile = path.join(out, samplesName);
-  if (!lstatSync(samplesFile, { throwIfNoEntry: false })?.isFile()) return { error: `no sampler record ${samplesName} for this run, so the App and WebKit processes it started cannot be identified`, windowRecords, pids };
-  const firstSeen = new Map();
-  for (const line of readFileSync(samplesFile, "utf8").split("\n")) {
-    let sample;
-    try { sample = JSON.parse(line); } catch { continue; }
-    if (!Array.isArray(sample?.p) || !Number.isFinite(sample.t)) continue;
-    for (const [pid, kind] of sample.p) if (Number.isSafeInteger(pid) && pid > 1 && !firstSeen.has(pid)) firstSeen.set(pid, { kind, t: sample.t });
-  }
-  if (![...firstSeen.values()].some(({ kind }) => kind === "app")) return { error: `the sampler record ${samplesName} lists no App process`, windowRecords, pids, samplesFile: samplesName };
-  for (const [pid, { kind, t }] of firstSeen) pids.push({ pid, kind, source: samplesName, seen_alive_ms: t });
-  return { windowRecords, pids, samplesFile: samplesName };
-}
-
-/** At a window's start, before any App: every home an earlier window of this runner
- * left under `out` (`<out>/perf-XXXXXX/run-<id>-XXXXXX/home`) is open. Each is either
- * established free of live processes (listed, removed, recorded), or has a live
- * process from it, or cannot be established; either of the last two refuses the
- * start, and neither removes anything. Nothing outside that pattern is touched. */
-export async function checkLeftHomes(out, { list = listProcesses } = {}) {
-  const candidates = [];
-  const ignored = [];
-  for (const name of readdirSync(out).filter((entry) => WINDOW_SCRATCH.test(entry)).sort()) {
-    const scratch = path.join(out, name);
-    if (!lstatSync(scratch).isDirectory()) continue;
-    for (const runName of readdirSync(scratch).filter((entry) => RUN_DIRECTORY.test(entry)).sort()) {
-      const runDir = path.join(scratch, runName);
-      if (!lstatSync(runDir).isDirectory()) continue;
-      const home = path.join(runDir, "home");
-      if (!lstatSync(home, { throwIfNoEntry: false })) continue;
-      const refusal = runHomeRefusal(home, scratch);
-      if (refusal) { ignored.push({ home_path: home, detail: `${refusal}; not touched` }); continue; }
-      candidates.push({ home, scratch, runId: RUN_DIRECTORY.exec(runName)[1] });
-    }
-  }
-  if (!candidates.length) return { left_homes: [], ignored, refusal: null };
-  let table = null, tableError = null;
-  try { table = new Map((await list()).map((row) => [row.pid, row])); }
-  catch (error) { tableError = String(error?.message ?? error); }
-  const left = [];
-  const refusals = [];
-  for (const { home, scratch, runId } of candidates) {
-    const entry = { home_path: home, window: path.basename(scratch), run_id: runId, rule: SAME_PROCESS_RULE, home_removed: false };
-    const evidence = leftHomeEvidence(out, scratch, runId);
-    Object.assign(entry, { window_records: evidence.windowRecords, samples_file: evidence.samplesFile ?? null });
-    const unestablished = evidence.error ?? (tableError ? `the process table could not be read (${tableError})` : null);
-    if (unestablished) {
-      Object.assign(entry, { outcome: "unestablished", detail: unestablished, pids_checked: evidence.pids.map(({ pid, kind, source }) => ({ pid, kind, source })) });
-      refusals.push(`cannot establish that no process from left home ${home} (window ${entry.window}, run ${runId}) is alive: ${unestablished}. A person must check that no process of that run is alive (its runner and App, e.g. \`ps -axww -o pid,lstart,command | grep ${scratch}\`, and WebKit WebContent/GPU/Networking processes started during that window), then remove ${home}; nothing was removed.`);
-      left.push(entry);
-      continue;
-    }
-    const boundary = new RegExp(`${scratch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?=$|[/\\s])`);
-    entry.pids_checked = evidence.pids.map(({ pid, kind, source, seen_alive_ms }) => {
-      const now = table.get(pid);
-      const same = Boolean(now && now.start_ms <= seen_alive_ms + SAME_PROCESS_TOLERANCE_MS);
-      return { pid, kind, source, seen_alive_ms, alive: Boolean(now), start_ms: now?.start_ms ?? null, same_process: same };
-    });
-    entry.command_matches = [...table.values()].filter((row) => row.pid !== process.pid && boundary.test(row.command)).map(({ pid, command }) => ({ pid, command: command.slice(0, 500) }));
-    const live = [...entry.pids_checked.filter((row) => row.same_process).map((row) => `${row.pid} (${row.kind})`), ...entry.command_matches.map((row) => `${row.pid} (command names its window)`)];
-    if (live.length) {
-      Object.assign(entry, { outcome: "alive", detail: `live: ${live.join(", ")}` });
-      refusals.push(`left home ${home} (window ${entry.window}, run ${runId}) still has live process(es) from its run: ${live.join(", ")}. Stop them or wait for them to exit, then start the window again (the home is removed then); nothing was removed.`);
-      left.push(entry);
-      continue;
-    }
-    entry.outcome = "established_gone";
-    Object.assign(entry, listRunHome(home));
-    try {
-      await removeRunHome(home, scratch);
-      Object.assign(entry, { home_removed: true, home_cleanup: "removed" });
-    } catch (error) {
-      Object.assign(entry, { home_cleanup: error instanceof HomeRefusal ? "refused" : "failed", home_cleanup_error: error.message });
-    }
-    left.push(entry);
-  }
-  return { left_homes: left, ignored, refusal: refusals.length ? refusals.join("\n") : null };
-}
-
-/** The window's admission: checkLeftHomes, and on refusal a window record naming the
- * open home, written before any launch so the fact is not lost. */
-export async function admitWindow(out, { list = listProcesses, now = Date.now } = {}) {
-  const startedMs = now();
-  const checked = await checkLeftHomes(out, { list });
-  if (!checked.refusal) return { admitted: true, ...checked };
-  const open = checked.left_homes.find((entry) => entry.outcome !== "established_gone");
-  const file = path.join(out, `perf-window-${startedMs}.json`);
-  const record = { schema: "swbpipe.desktop-perf-window/v1", started_ms: startedMs, ended_ms: now(), refused_before_launch: true,
-    stop_reason: `left_home_open: ${open.home_path}`, message: checked.refusal, runner_pid: null, exit: null, evidence_complete: false,
-    left_homes: checked.left_homes, left_homes_ignored: checked.ignored };
-  writeFileSync(file, `${JSON.stringify(record, null, 2)}\n`, { flag: "wx" });
-  return { admitted: false, file, message: checked.refusal, ...checked };
 }
 
 /** Commit a finished run before another App can start. Samples, records and
