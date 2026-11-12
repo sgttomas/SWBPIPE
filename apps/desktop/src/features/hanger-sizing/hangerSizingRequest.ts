@@ -49,6 +49,12 @@ export type AssembledHangerSizing =
   | Readonly<{ ok: true; input: HangerSizingInput }>
   | Readonly<{ ok: false; missing: readonly string[] }>;
 
+/** The solve request a sizing request carries for `model`: the desktop solve's request, `materials: []`. The result
+ * binds its hash, so the same assembly tells whether a result is still bound to the present model. */
+export function hangerSizingSolveRequest(model: PreviewModel): HangerSizingInput["request"] {
+  return { model, materials: [] };
+}
+
 /** A decimal number as typed, or null: no blank, sign-only or trailing text is read as a number. */
 function enteredNumber(text: string): number | null {
   const trimmed = text.trim();
@@ -98,5 +104,5 @@ export function assembleHangerSizingInput(form: HangerSizingFormState, model: Pr
     },
     solver_mode: form.solverMode as "sparse_interactive" | "dense_scrutiny"
   };
-  return { ok: true, input: { request: { model, materials: [] }, sizing, library } };
+  return { ok: true, input: { request: hangerSizingSolveRequest(model), sizing, library } };
 }

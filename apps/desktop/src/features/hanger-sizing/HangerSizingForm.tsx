@@ -16,6 +16,8 @@ import { retireHangerSizing, retireHangerSizingOnMount, sizeHangers, type Hanger
 import { HangerSizingPanel } from "../results/HangerSizingPanel";
 import type { HangerSizingFamilyPolicy } from "../results/hangerSizingResult";
 import { VirtualMultiTargetPicker } from "../workspace/VirtualTargetPicker";
+import type { OperationBatch } from "../../services/operationBatchService";
+import { HangerSizingApply } from "./HangerSizingApply";
 import { assembleHangerSizingInput, EMPTY_HANGER_SIZING_FORM, WEIGHT_SUPPORT_STATE, type HangerSizingFormState } from "./hangerSizingRequest";
 
 export const HANGER_SIZING_FORM_TITLE = "Size hangers";
@@ -32,6 +34,9 @@ type Props = Readonly<{
   model: PreviewModel;
   /** Another operation is in progress: the form is read-only meanwhile. */
   busy?: boolean;
+  /** The operation review's queue (REQ-008): a sized selection the person prepares is queued there, and applied only on
+   * their acceptance. Without it, no selection is offered for application. */
+  onQueueBatch?: (batch: OperationBatch) => void;
 }>;
 
 type Shown = Readonly<{ completion: HangerSizingCompletion; library: Record<string, unknown> }>;
@@ -51,7 +56,7 @@ function Choice<T extends string>({ label, value, options, onChange, testId }: {
   );
 }
 
-export function HangerSizingForm({ model, busy = false }: Props) {
+export function HangerSizingForm({ model, busy = false, onQueueBatch }: Props) {
   const [form, setForm] = useState<HangerSizingFormState>(EMPTY_HANGER_SIZING_FORM);
   const [libraries, setLibraries] = useState<LocalLibraryIndexEntry[]>([]);
   const [library, setLibrary] = useState<OpenedLibrary | null>(null);
@@ -207,6 +212,9 @@ export function HangerSizingForm({ model, busy = false }: Props) {
       ) : null}
       {failure ? <p role="alert" data-testid="hanger-sizing-failure"><code>{failure.code}</code>: {failure.message}</p> : null}
       {reply && shown ? <HangerSizingPanel document={reply.document} evidence={reply.evidence} library={shown.library} /> : null}
+      {reply && shown && reply.document.status === "sized" && onQueueBatch
+        ? <HangerSizingApply document={reply.document} library={shown.library} model={model} busy={busy || running} onQueueBatch={onQueueBatch} />
+        : null}
     </section>
   );
 }
