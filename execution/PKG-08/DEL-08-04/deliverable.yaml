@@ -131,6 +131,8 @@ code_paths:
 - apps/desktop/src/features/results/hangerSizingCsv.ts
 - apps/desktop/src/features/comparison/runComparisonCsv.ts
 - apps/desktop/src/features/comparison/stateComparisonCsv.ts
+# The comparison record hash a comparison CSV's preamble states is formed by DEL-08-06's records.
+- apps/desktop/src/features/comparison/comparisonRecords.ts
 checks:
 - tests/test_results_schema.py
 - tests/test_results_dispatcher_v0_3.py
@@ -145,6 +147,7 @@ checks:
 - apps/desktop/src/features/result-export/csvTable.test.ts
 - apps/desktop/src/features/result-export/csvSave.test.ts
 - apps/desktop/src/features/result-export/csvTables.test.ts
+- apps/desktop/src/features/history/reportComparisons.session.test.tsx
 - apps/desktop/src/features/result-export/csvTableCoverage.test.ts
 - apps/desktop/src/features/result-export/CsvExportControl.test.tsx
 - apps/desktop/src/features/result-export/csvSaveStream.test.ts

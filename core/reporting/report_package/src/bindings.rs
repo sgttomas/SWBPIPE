@@ -46,6 +46,10 @@ pub const RULE_CHECK_BINDING_MISMATCH: &str = "REPORT-PACKAGE-RULE-CHECK-BINDING
 pub const RULE_PACK_CHECKSUM_BASIS_UNSUPPORTED: &str = "REPORT-PACKAGE-RULE-PACK-CHECKSUM-BASIS-UNSUPPORTED";
 pub const REPORT_CONTEXT_NOT_LOCAL_PRIVATE: &str = "REPORT-PACKAGE-REPORT-CONTEXT-NOT-LOCAL-PRIVATE";
 pub const SOLVER_IDENTITY_MISMATCH: &str = "REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH";
+/// DEL-08-06 REQ-009: a comparison section states the stored values of the fields and
+/// results that differ, which are the user's project data; a section set holding them is
+/// produced only under the local-private context.
+pub const COMPARISON_VALUES_NOT_LOCAL_PRIVATE: &str = "REPORT-PACKAGE-COMPARISON-VALUES-NOT-LOCAL-PRIVATE";
 
 /// The desktop's export profile; its result documents carry the received
 /// Current carrier origin.
@@ -96,8 +100,13 @@ fn array<'a>(value: &'a Value, pointer: &str) -> &'a [Value] {
 /// `hash_refs` member and restates a comparison of the package's own run, so an
 /// `analysis_run_comparison` without that member stays admitted; a member that
 /// is present must hold at least one hash.
-fn check_comparison_section(section: &Value) -> Result<(), String> {
+fn check_comparison_section(section: &Value, export_context: Option<&str>) -> Result<(), String> {
     let id = section["section_id"].as_str().unwrap_or("(no section_id)");
+    if export_context != Some("local_private") && holds_stored_values(section) {
+        return Err(format!(
+            "{COMPARISON_VALUES_NOT_LOCAL_PRIVATE}: comparison section {id} states stored values of the user's project, so it is packaged under local_private only"
+        ));
+    }
     let object_type = match section["section_kind"].as_str() {
         Some("model_state_comparison") => "ModelStateComparison",
         Some("analysis_run_comparison") => "AnalysisRunComparison",
@@ -125,6 +134,17 @@ fn check_comparison_section(section: &Value) -> Result<(), String> {
         )?;
     }
     Ok(())
+}
+
+/// Whether a comparison section states stored values: a changed field of a saved-state
+/// comparison with either side's value, or a listed difference of a run comparison.
+fn holds_stored_values(section: &Value) -> bool {
+    let changed_value = array(section, "/changed_entities").iter().any(|entity| {
+        array(entity, "/changes").iter().any(|change| change.get("left").is_some() || change.get("right").is_some())
+    });
+    let listed_difference = array(section, "/largest_differences").iter().any(|group| !array(group, "/differences").is_empty());
+    let within_run_delta = !array(section, "/unit_normalized_deltas").is_empty();
+    changed_value || listed_difference || within_run_delta
 }
 
 /// A SHA-256 hash record: algorithm, an accepted JCS basis label, the payload
@@ -676,7 +696,7 @@ pub(crate) fn check_request_in(
             "handoff load basis equals the document's",
         )?;
         for section in array(handoff, "/sections/comparison_sections") {
-            check_comparison_section(section)?;
+            check_comparison_section(section, report["report_context"]["export_context"].as_str())?;
         }
         Some(run_record)
     };

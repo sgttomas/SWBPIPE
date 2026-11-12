@@ -12,7 +12,7 @@ mod common;
 #[path = "common/package_basis.rs"]
 mod package_basis;
 
-use open_pipe_stress_report_package::bindings::BINDING_MISMATCH;
+use open_pipe_stress_report_package::bindings::{BINDING_MISMATCH, COMPARISON_VALUES_NOT_LOCAL_PRIVATE};
 use open_pipe_stress_report_package::wire::{assemble_wire_request, LinkedSolverIdentity, ReportPackageRequest};
 use open_pipe_stress_report_package::ReportPackageContainerOutcome;
 use package_basis::{build, Inputs, Profile};
@@ -145,5 +145,32 @@ fn a_comparison_section_lacking_its_kind_reference_or_hash_is_refused_by_name() 
         let mut section = of_kind(if kind == "state" { "model_state_comparison" } else { "analysis_run_comparison" });
         edit(&mut section);
         refused(&with_sections(vec![section]), field, &format!("{kind} {field}"));
+    }
+}
+
+#[test]
+fn comparison_values_are_packaged_under_local_private_only_and_refused_by_name_otherwise() {
+    // DEL-08-06 REQ-009, AC-006: a section set holding a comparison's stored values is
+    // produced only under the local-private context.
+    for kind in ["model_state_comparison", "analysis_run_comparison"] {
+        let section = of_kind(kind);
+        unblocked(&with_sections(vec![section.clone()]), &format!("{kind} under local_private"));
+        // A user-released context is refused earlier, by the general entry's user-release
+        // rule; the user-released path itself carries no section set at all.
+        let mut released = with_sections(vec![section.clone()]);
+        released["report"]["report_context"]["export_context"] = json!("user_released_report");
+        let error = assemble(&released).map(|_| ()).unwrap_err();
+        assert!(error.starts_with("REPORT-PACKAGE-USER-RELEASE-NOT-ADMITTED:"), "{kind}: {error}");
+        for context in ["public_report", "export_review", "shareable"] {
+            let mut request = with_sections(vec![section.clone()]);
+            request["report"]["report_context"]["export_context"] = json!(context);
+            match assemble(&request) {
+                Ok(outcome) => panic!("{kind} under {context}: assembled (blocked: {})", outcome.export_blocked),
+                Err(error) => assert!(
+                    error.starts_with(&format!("{COMPARISON_VALUES_NOT_LOCAL_PRIVATE}:")),
+                    "{kind} under {context}: {error}"
+                ),
+            }
+        }
     }
 }
