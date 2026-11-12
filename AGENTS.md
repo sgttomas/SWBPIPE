@@ -382,7 +382,24 @@ any further push to the branch. `main` does not require an up-to-date branch:
 before merging or arming, Agent 0 updates the branch and waits for a fresh run
 when a PR merged since the branch's base touched the same files or the same
 deliverable. Open PRs that overlap this way merge in turn: the later one stays
-unarmed until the earlier has landed and the later has been updated. Agents working under that Agent 0's assignment report a PR ready to
+unarmed until the earlier has landed and the later has been updated. Where a
+PR's head contains current `main` and the reviewed heads of earlier PRs, and
+the hosted `harness` result is green on that exact head, Agent 0 may instead
+merge it and so land the earlier ones without their own fresh runs. Each
+earlier one must have had the review and consultation its change requires at
+the commit contained; the containing head must reach it by merges Git made
+without conflict, any other difference in its files being itself reviewed; and
+the merge must leave `main` holding exactly the tree that ran, so the rule does
+not apply once `main` has moved. Agent 0 may compose up to four reviewed heads
+into one branch for this purpose, by merging only: a conflict is not resolved
+by hand, generated files are regenerated with their generators, and a combined
+run that fails lands none of them and shows nothing about any member. No member
+of a composed branch changes priced sources, frozen references or numerical
+meaning. A PR under a hold or a reserved choice is neither composed nor landed
+by a containing head while that stands, and nothing is composed with it or
+ahead of it. Pricing and independent numerical scrutiny still bind to the exact
+source they examined; a hosted run stands in for neither. Agent 0 says on each
+PR landed this way which head carried it. Agents working under that Agent 0's assignment report a PR ready to
 merge and wait for that Agent 0 to merge it. A Type 1 the owner started directly reports its PR ready to this project's Agent 0; where the owner works with it alone and no Agent 0 holds the project, it holds that perspective and merges under this grant. Explicit holds and reserved decisions
 apply. This grant excludes protection bypasses, history rewrites, force pushes,
 permission changes and releases. Use [Git conventions](#git-conventions) below.
