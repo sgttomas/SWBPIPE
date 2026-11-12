@@ -238,24 +238,93 @@ fn turn_status(v: &Value) -> Result<&str, Error> {
         .ok_or(Error("invalid turn status"))
 }
 
-// Tool activity tags from stock 0.160.0's ThreadItem schema. Only this host's
-// offered dynamic tools belong to the integration. This is an observation
-// tripwire, not proof that configuration/OS isolation prevented an action.
-fn unoffered_activity(item: &Value) -> bool {
-    matches!(
-        item.get("type").and_then(Value::as_str),
-        Some(
-            "commandExecution"
-                | "fileChange"
-                | "mcpToolCall"
-                | "collabAgentToolCall"
-                | "subAgentActivity"
-                | "webSearch"
-                | "imageView"
-                | "sleep"
-                | "imageGeneration"
-        )
-    )
+// Item kinds this host admits, from stock 0.160.0's ThreadItem schema. Every
+// other kind, and an item with no string kind, ends the session: the default is
+// refusal, so a kind a later supplier adds is refused until it is listed here.
+// - agentMessage: the reply, which the host reads as a message.
+// - dynamicToolCall: the report of this host's own offered tools; the call
+//   itself reaches the host only as an `item/tool/call` request it validates.
+// - userMessage: the record of the person's input that the host sent.
+// - reasoning: the model's reasoning text, conversation content only.
+// - contextCompaction: the runtime summarising the conversation through the
+//   relay when it nears the configured context window; it reaches nothing
+//   outside the conversation, and a long session cannot continue without it.
+// Refused although named by the schema: hookPrompt (a hook ran), plan (the
+// runtime's plan mode), enteredReviewMode and exitedReviewMode (a runtime
+// mode the host never requests), functionCallOutput (the output of a function
+// call other than the reported dynamicToolCall).
+// This is an observation tripwire, not proof that configuration/OS isolation
+// prevented an action.
+const ADMITTED_ITEM_KINDS: [&str; 5] = [
+    "agentMessage",
+    "dynamicToolCall",
+    "userMessage",
+    "reasoning",
+    "contextCompaction",
+];
+// The runtime's own tools. Kept apart from other refused kinds so the reason
+// says "the runtime used a tool of its own".
+const BUILTIN_TOOL_ITEM_KINDS: [&str; 9] = [
+    "commandExecution",
+    "fileChange",
+    "mcpToolCall",
+    "collabAgentToolCall",
+    "subAgentActivity",
+    "webSearch",
+    "imageView",
+    "sleep",
+    "imageGeneration",
+];
+const UNOFFERED_ACTIVITY: Error = Error("unoffered supplier tool activity");
+const UNLISTED_ITEM: Error = Error("unlisted supplier item kind");
+
+fn admit_kind(kind: Option<&str>) -> Result<(), Error> {
+    match kind {
+        Some(k) if ADMITTED_ITEM_KINDS.contains(&k) => Ok(()),
+        Some(k) if BUILTIN_TOOL_ITEM_KINDS.contains(&k) => Err(UNOFFERED_ACTIVITY),
+        _ => Err(UNLISTED_ITEM),
+    }
+}
+/// An item must be an object whose `type` is an admitted kind.
+fn admit_item(item: Option<&Value>) -> Result<(), Error> {
+    let item = item.and_then(Value::as_object).ok_or(UNLISTED_ITEM)?;
+    admit_kind(item.get("type").and_then(Value::as_str))
+}
+/// A turn's `items`, where present, must be an array of admitted items.
+fn admit_turn_items(turn: Option<&Value>) -> Result<(), Error> {
+    match turn.and_then(|t| t.get("items")) {
+        None => Ok(()),
+        Some(items) => items
+            .as_array()
+            .ok_or(UNLISTED_ITEM)?
+            .iter()
+            .try_for_each(|item| admit_item(Some(item))),
+    }
+}
+/// A thread's `turns`, where present, must be an array whose turns' items are admitted.
+fn admit_thread_items(thread: Option<&Value>) -> Result<(), Error> {
+    match thread.and_then(|t| t.get("turns")) {
+        None => Ok(()),
+        Some(turns) => turns
+            .as_array()
+            .ok_or(UNLISTED_ITEM)?
+            .iter()
+            .try_for_each(|turn| admit_turn_items(Some(turn))),
+    }
+}
+/// Every place a server message can carry an item, or name an item kind in
+/// its method (`item/<kind>/...`), is checked before the message is handled.
+fn admit_notification_items(method: &str, p: &Value) -> Result<(), Error> {
+    match method {
+        "item/started" | "item/completed" => admit_item(p.get("item")),
+        "turn/started" | "turn/completed" => admit_turn_items(p.get("turn")),
+        "thread/started" => admit_thread_items(p.get("thread")),
+        _ => match method.strip_prefix("item/") {
+            // Deltas and progress keyed by item name its kind in the method.
+            Some(rest) => admit_kind(rest.split('/').next()),
+            None => Ok(()),
+        },
+    }
 }
 
 impl Protocol {
@@ -421,6 +490,8 @@ impl Protocol {
         Ok(actions)
     }
     fn response(&mut self, kind: Rpc, result: &Value, actions: &mut Actions) -> Result<(), Error> {
+        admit_thread_items(result.get("thread"))?;
+        admit_turn_items(result.get("turn"))?;
         match kind {
             Rpc::Initialize if self.phase == Phase::Initializing => {
                 if !result.is_object()
@@ -500,6 +571,7 @@ impl Protocol {
         Ok(())
     }
     fn notification(&mut self, method: &str, p: Value, actions: &mut Actions) -> Result<(), Error> {
+        admit_notification_items(method, &p)?;
         match method {
             "turn/started" => {
                 self.check_thread(&p)?;
@@ -560,14 +632,8 @@ impl Protocol {
                     .to_owned();
                 actions.events.push(Event::MessageDelta { item_id, text });
             }
-            "item/started" if p.get("item").is_some_and(unoffered_activity) => {
-                return Err(Error("unoffered supplier tool activity"));
-            }
             "item/completed" => {
                 self.check_turn(&p)?;
-                if p.get("item").is_some_and(unoffered_activity) {
-                    return Err(Error("unoffered supplier tool activity"));
-                }
                 let item = p
                     .get("item")
                     .and_then(Value::as_object)
@@ -832,7 +898,7 @@ mod tests {
                         .unwrap(),
                 );
                 let result = p.handle_frame(notification(method, json!({"threadId":"thread-1","turnId":"turn-1","item":{"id":"unoffered","type":kind}})), &basis());
-                assert!(result.is_err(), "{method}: {kind}");
+                assert_eq!(result.err(), Some(UNOFFERED_ACTIVITY), "{method}: {kind}");
                 assert!(
                     matches!(p.disconnect().as_slice(), [Event::ToolLost { request_ref, .. }] if request_ref == &reference)
                 );
@@ -841,14 +907,96 @@ mod tests {
         }
     }
 
+    fn item_frame(method: &str, item: Value) -> Value {
+        notification(
+            method,
+            json!({"threadId":"thread-1","turnId":"turn-1","item":item}),
+        )
+    }
+
+    /// The pending call is reported lost once, as for any protocol failure,
+    /// and the poisoned protocol accepts nothing further.
+    fn assert_ends(mut p: Protocol, reference: RequestRef, frame: Value, reason: Error) {
+        let label = frame.to_string();
+        assert_eq!(p.handle_frame(frame, &basis()).err(), Some(reason), "{label}");
+        assert!(
+            p.handle_frame(call_summary(json!(99), "after"), &basis())
+                .is_err(),
+            "{label}"
+        );
+        assert!(
+            matches!(p.disconnect().as_slice(), [Event::ToolLost { request_ref, .. }] if request_ref == &reference),
+            "{label}"
+        );
+    }
+    fn active_with_pending() -> (Protocol, RequestRef) {
+        let mut p = active();
+        let reference = requested(
+            p.handle_frame(call_summary(json!(7), "pending"), &basis())
+                .unwrap(),
+        );
+        (p, reference)
+    }
+
     #[test]
-    fn offered_dynamic_activity_and_reasoning_do_not_close_the_protocol() {
+    fn admitted_item_kinds_pass_and_are_handled_as_before() {
         let mut p = active();
         for method in ["item/started", "item/completed"] {
-            for kind in ["dynamicToolCall", "reasoning", "plan", "functionCallOutput"] {
-                p.handle_frame(notification(method, json!({"threadId":"thread-1","turnId":"turn-1","item":{"id":"informational","type":kind}})), &basis()).unwrap();
+            for kind in [
+                "dynamicToolCall",
+                "userMessage",
+                "reasoning",
+                "contextCompaction",
+            ] {
+                let actions = p
+                    .handle_frame(item_frame(method, json!({"id":"item","type":kind})), &basis())
+                    .unwrap();
+                assert!(actions.events.is_empty() && actions.outbound.is_empty(), "{method}: {kind}");
+            }
+            let message = p
+                .handle_frame(
+                    item_frame(method, json!({"id":"message","type":"agentMessage","text":"hi"})),
+                    &basis(),
+                )
+                .unwrap();
+            match (method, message.events.as_slice()) {
+                ("item/started", []) => {}
+                ("item/completed", [Event::MessageFinal { item_id, text }]) => {
+                    assert_eq!((item_id.as_str(), text.as_str()), ("message", "hi"))
+                }
+                other => panic!("unexpected {other:?}"),
             }
         }
+        for method in [
+            "item/reasoning/textDelta",
+            "item/reasoning/summaryTextDelta",
+            "item/reasoning/summaryPartAdded",
+        ] {
+            p.handle_frame(
+                notification(method, json!({"threadId":"thread-1","turnId":"turn-1","itemId":"r"})),
+                &basis(),
+            )
+            .unwrap();
+        }
+        assert!(matches!(
+            p.handle_frame(
+                notification("item/agentMessage/delta", json!({"threadId":"thread-1","turnId":"turn-1","itemId":"m","delta":"x"})),
+                &basis()
+            )
+            .unwrap()
+            .events
+            .as_slice(),
+            [Event::MessageDelta { .. }]
+        ));
+        let admitted: Vec<Value> = ADMITTED_ITEM_KINDS
+            .iter()
+            .map(|k| json!({"id":"i","type":k,"text":"t"}))
+            .collect();
+        p.handle_frame(
+            notification("turn/started", json!({"threadId":"thread-1","turn":{"id":"turn-1","status":"inProgress","items":admitted}})),
+            &basis(),
+        )
+        .unwrap();
         assert!(matches!(
             p.handle_frame(call_summary(json!(7), "valid"), &basis())
                 .unwrap()
@@ -856,6 +1004,125 @@ mod tests {
                 .as_slice(),
             [Event::ToolRequested { .. }]
         ));
+        assert!(matches!(
+            p.handle_frame(
+                notification("turn/completed", json!({"threadId":"thread-1","turn":{"id":"turn-1","status":"completed","items":admitted}})),
+                &basis()
+            )
+            .unwrap()
+            .events
+            .as_slice(),
+            [Event::ToolDetached { .. }, Event::TurnCompleted { .. }]
+        ));
+    }
+
+    #[test]
+    fn unlisted_missing_or_malformed_item_kinds_end_the_session() {
+        let kinds = [
+            json!("hookPrompt"),
+            json!("plan"),
+            json!("enteredReviewMode"),
+            json!("exitedReviewMode"),
+            json!("functionCallOutput"),
+            json!("inventedKind"),
+            json!(""),
+            json!("AgentMessage"),
+            json!("agentmessage"),
+            json!("DYNAMICTOOLCALL"),
+            json!("CommandExecution"),
+            json!(" agentMessage"),
+            json!(1),
+            json!(true),
+            json!(null),
+            json!(["agentMessage"]),
+            json!({"type":"agentMessage"}),
+        ];
+        for method in ["item/started", "item/completed"] {
+            for kind in &kinds {
+                let (p, reference) = active_with_pending();
+                let frame = item_frame(method, json!({"id":"item","type":kind,"text":"t"}));
+                assert_ends(p, reference, frame, UNLISTED_ITEM);
+            }
+            for item in [json!({"id":"item","text":"t"}), json!("agentMessage"), json!(null)] {
+                let (p, reference) = active_with_pending();
+                assert_ends(p, reference, item_frame(method, item), UNLISTED_ITEM);
+            }
+            let (p, reference) = active_with_pending();
+            let frame = notification(method, json!({"threadId":"thread-1","turnId":"turn-1"}));
+            assert_ends(p, reference, frame, UNLISTED_ITEM);
+        }
+    }
+
+    #[test]
+    fn items_inside_turns_threads_and_item_keyed_methods_are_checked() {
+        let turn_with = |status: &str, item: Value| json!({"id":"turn-1","status":status,"items":[{"id":"ok","type":"userMessage"},item]});
+        for (item, reason) in [
+            (json!({"id":"x","type":"commandExecution"}), UNOFFERED_ACTIVITY),
+            (json!({"id":"x","type":"plan"}), UNLISTED_ITEM),
+            (json!({"id":"x"}), UNLISTED_ITEM),
+        ] {
+            for frame in [
+                notification("turn/completed", json!({"threadId":"thread-1","turn":turn_with("completed", item.clone())})),
+                notification("turn/started", json!({"threadId":"thread-1","turn":turn_with("inProgress", item.clone())})),
+                notification("thread/started", json!({"thread":{"id":"thread-1","turns":[turn_with("completed", item.clone())]}})),
+            ] {
+                let (p, reference) = active_with_pending();
+                assert_ends(p, reference, frame, reason);
+            }
+        }
+        // A turn's items or a thread's turns that are not arrays are refused.
+        for frame in [
+            notification("turn/completed", json!({"threadId":"thread-1","turn":{"id":"turn-1","status":"completed","items":{"type":"agentMessage"}}})),
+            notification("thread/started", json!({"thread":{"id":"thread-1","turns":{}}})),
+        ] {
+            let (p, reference) = active_with_pending();
+            assert_ends(p, reference, frame, UNLISTED_ITEM);
+        }
+        // Notifications keyed by item name its kind in the method.
+        for (method, reason) in [
+            ("item/commandExecution/outputDelta", UNOFFERED_ACTIVITY),
+            ("item/commandExecution/terminalInteraction", UNOFFERED_ACTIVITY),
+            ("item/fileChange/outputDelta", UNOFFERED_ACTIVITY),
+            ("item/fileChange/patchUpdated", UNOFFERED_ACTIVITY),
+            ("item/mcpToolCall/progress", UNOFFERED_ACTIVITY),
+            ("item/plan/delta", UNLISTED_ITEM),
+            ("item/autoApprovalReview/started", UNLISTED_ITEM),
+            ("item/inventedKind/delta", UNLISTED_ITEM),
+            ("item/tool/call", UNLISTED_ITEM),
+            ("item/", UNLISTED_ITEM),
+        ] {
+            let (p, reference) = active_with_pending();
+            let frame = notification(method, json!({"threadId":"thread-1","turnId":"turn-1","itemId":"x"}));
+            assert_ends(p, reference, frame, reason);
+        }
+    }
+
+    #[test]
+    fn items_in_thread_and_turn_responses_are_checked() {
+        let unlisted = json!([{"id":"x","type":"hookPrompt"}]);
+        let mut p = ready();
+        p.submit_text("hello".into()).unwrap();
+        assert_eq!(
+            p.handle_frame(frame(3, json!({"turn":{"id":"turn-1","status":"inProgress","items":unlisted}})), &basis())
+                .err(),
+            Some(UNLISTED_ITEM)
+        );
+        let mut q = Protocol::new(Catalog::load().unwrap(), "0123456789abcdef".into(), 16).unwrap();
+        q.initialize("test", "1").unwrap();
+        q.handle_frame(frame(1, json!({"codexHome":"/private","platformFamily":"test","platformOs":"test","userAgent":"test"})), &basis()).unwrap();
+        q.start_thread(ThreadOptions {
+            model: "test".into(),
+            provider: "test".into(),
+            cwd: "/test".into(),
+            base_instructions: "test".into(),
+        })
+        .unwrap();
+        let thread = json!({"id":"thread-1","turns":[{"id":"old","status":"completed","items":[{"id":"x","type":"webSearch"}]}]});
+        assert_eq!(
+            q.handle_frame(frame(2, json!({"thread":thread,"approvalPolicy":"never","sandbox":{"type":"readOnly","networkAccess":false}})), &basis())
+                .err(),
+            Some(UNOFFERED_ACTIVITY)
+        );
     }
 
     #[test]

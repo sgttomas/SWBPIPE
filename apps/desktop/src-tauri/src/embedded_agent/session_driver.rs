@@ -865,6 +865,23 @@ mod tests {
         assert_eq!(h.control(|d| d.submit_text("again")), Err(Refusal::Closed));
     }
     #[test]
+    fn builtin_or_unlisted_item_kind_ends_the_session_as_a_protocol_failure() {
+        for kind in [json!("commandExecution"), json!("invented"), json!(null)] {
+            let mut h = Harness::new();
+            h.active();
+            h.call("rpc");
+            let _requested = h.event();
+            h.input.frame(json!({"method":"item/started","params":{"threadId":"thread-1","turnId":"turn-1","item":{"id":"item","type":kind}}}));
+            let o = h.wait(|o| o.terminal.is_some());
+            assert_eq!(o.terminal, Some(Terminal::Protocol), "{kind}");
+            assert!(matches!(
+                o.events.unwrap().events(),
+                [Event::ToolLost { .. }]
+            ));
+            assert_eq!(h.control(|d| d.submit_text("again")), Err(Refusal::Closed));
+        }
+    }
+    #[test]
     fn observed_eof_or_read_fault_suppresses_already_queued_calls() {
         for fault in [false, true] {
             let mut h = Harness::new();
