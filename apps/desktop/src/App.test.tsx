@@ -13713,6 +13713,21 @@ describe("native straight-route Add and Apply", () => {
     expect(within(intentPanel).getByTestId("editor-intent-value")).toHaveValue("500");
   });
 
+  it("starts the Load Cases forms' sources empty in the next project: the user's text never crosses projects", async () => {
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    let manager = await loadCaseManager();
+    const fields = ["load-manager-create-load-provenance", "load-manager-create-primitive-provenance", "load-manager-create-combination-provenance"];
+    typeLoadSources(manager);
+    for (const field of fields) expect(within(manager).getByTestId(field)).toHaveValue("user_entered_local_preview");
+    const controls = screen.getByLabelText("Local project controls");
+    fireEvent.click(within(controls).getByRole("button", { name: /New blank/i }));
+    confirmProjectUnits();
+    await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Created blank local model"));
+    manager = await loadCaseManager();
+    for (const field of fields) expect(within(manager).getByTestId(field)).toHaveValue("");
+  });
+
   it("saves and reopens an incomplete node-only model without inventing prerequisites", async () => {
     render(<App />);
     await screen.findByTestId("desktop-preview-shell");
