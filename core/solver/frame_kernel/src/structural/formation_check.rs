@@ -421,7 +421,9 @@ impl FormationCheck {
 /// `None` (the dense representation) walks every free pair. Until one type
 /// owns a pattern and its accessor together, the debug-build check in
 /// `epsilon_e` (every unvisited pair reads +0.0 from both callbacks) is what
-/// holds this contract.
+/// holds this contract. That check protects an internal contract during
+/// development; it is not validation of an arbitrary caller's pattern, and it
+/// cannot see a wrong value inside the pattern.
 #[derive(Debug, Clone, Copy)]
 pub(super) struct StoredPattern<'a> {
     pub(super) assembled: &'a super::sparse::SparsePattern,

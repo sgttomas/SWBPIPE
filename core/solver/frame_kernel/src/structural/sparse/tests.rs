@@ -2162,3 +2162,14 @@ fn kd5_confirmation_handoff_with_a_pattern_missing_a_stored_position_panics() {
         }),
     );
 }
+
+/// The handoff's contract check (`epsilon_e`, under `cfg(debug_assertions)`)
+/// runs only where the test build has debug assertions on: this fails if a
+/// profile setting turns them off, so the check cannot vanish silently.
+#[test]
+fn the_test_build_has_debug_assertions_on_for_the_pattern_handoff_check() {
+    assert!(
+        cfg!(debug_assertions),
+        "this test build has debug assertions off: the epsilon_E pattern handoff check is compiled out"
+    );
+}
