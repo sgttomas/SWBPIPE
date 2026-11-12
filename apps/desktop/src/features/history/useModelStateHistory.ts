@@ -52,7 +52,7 @@ import { RULE_PACKS_NOT_RESOLVED, type UnreadableRow } from "../../services/hist
 import { compareRunInputs, RunComparisonRefusal, type RunComparison } from "../comparison/runComparison";
 import { CURRENT_RUN_ID, currentRunBytes, currentRunSide, currentRunUnavailableReason, recordedRunSide, type RunComparisonSide } from "../comparison/runComparisonSides";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
-import { includedRunComparison, includedStateComparison, type ReportComparisonKind, type ReportComparisons } from "../comparison/comparisonRecords";
+import { comparisonOrigins, includedRunComparison, includedStateComparison, type ComparisonOrigins, type ReportComparisonKind, type ReportComparisons } from "../comparison/comparisonRecords";
 import { nativeFailureText } from "../../services/nativeIngress";
 import { evaluateModelDocumentLocal } from "../../services/projectService";
 import { RETIRED_PROJECT_RUNS_NOTE } from "../../services/modelSchemaVersion";
@@ -139,6 +139,9 @@ export type StateComparisonResult = {
   left: ModelStateSummary;
   right: ModelStateSummary;
   comparison: StateComparison;
+  /** The `provenance` string of each entity that differs, on each side, read from the two
+   * snapshots (`comparisonOrigins`): the origin reference a report states beside its changes. */
+  origins?: ComparisonOrigins;
 };
 
 /** A comparison of two runs of the session's project (W-12 S3b): the earlier-recorded
@@ -762,7 +765,9 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       }
       const comparison = compareModelDocuments(leftRead.model, rightRead.model);
       if (!sameSession()) return false;
-      setStateComparison(lastComparisons.current.state = { projectId: left.project_id, left: leftRead.state, right: rightRead.state, comparison });
+      // The origin reference of each entity that differs, for a report's record of it.
+      const origins = comparisonOrigins(leftRead.model, rightRead.model, comparison);
+      setStateComparison(lastComparisons.current.state = { projectId: left.project_id, left: leftRead.state, right: rightRead.state, comparison, origins });
       setRunComparison(lastComparisons.current.run = null);
       const { added, removed, changed, unchanged } = comparison.summary;
       setHistoryMessage(`Compared ${modelStateDescription(left)} with ${modelStateDescription(right)}: ${added} added, ${removed} removed, ${changed} changed, ${unchanged} unchanged. Neither state changes.`);
@@ -908,9 +913,12 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
 
   /** Includes in the report the comparison of kind `kind` of the two identifiers (two
    * saved-state ids, or two run ids: a recording id or `CURRENT_RUN_ID`), in either
-   * order: the comparison of that kind shown, which must be of those two. It replaces a comparison of the same kind already included. False, with the
-   * reason in the history message, when no such comparison was made. */
-  function includeComparisonInReport(kind: ReportComparisonKind, firstId: string, secondId: string): boolean {
+   * order: the comparison of that kind shown, which must be of those two. It forms the
+   * comparison's complete record and its hash, and keeps only the bounded section the
+   * assembler forms from it (`comparisonRecords.ts`). It replaces a comparison of the same
+   * kind already included. False, with the reason in the history message, when no such
+   * comparison is shown, or when the session changed while the record was formed. */
+  async function includeComparisonInReport(kind: ReportComparisonKind, firstId: string, secondId: string): Promise<boolean> {
     const live = depsRef.current.currentModel.current?.project.id ?? null;
     const ids = (left: string, right: string) => (left === firstId && right === secondId) || (left === secondId && right === firstId);
     const last = lastComparisons.current;
@@ -922,8 +930,21 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       setHistoryOperation("report_comparison_refused");
       return false;
     }
+    const generation = depsRef.current.projectSessionGenerationRef.current;
+    const formed = state ? await includedStateComparison(state) : await includedRunComparison(run!);
+    // The comparison must still be the one shown, of the same session and project, when its
+    // record has been formed.
+    const unchanged = generation === depsRef.current.projectSessionGenerationRef.current
+      && (depsRef.current.currentModel.current?.project.id ?? null) === live
+      && (state ? lastComparisons.current.state === state : lastComparisons.current.run === run
+        && !(run!.currentRun && !sameCurrentRun(run!.currentRun, depsRef.current.runSlot)));
+    if (!unchanged) {
+      setHistoryMessage("Not included in the report: the comparison or the session changed while its record was formed; include it again.");
+      setHistoryOperation("report_comparison_superseded");
+      return false;
+    }
     const base = reportComparisonsRef.current.projectId === live ? reportComparisonsRef.current : { projectId: live, state: null, run: null };
-    setReportComparisons({ ...base, projectId: live, ...(state ? { state: includedStateComparison(state) } : { run: includedRunComparison(run!) }) });
+    setReportComparisons({ ...base, projectId: live, ...(state ? { state: formed } : { run: formed }) });
     setHistoryMessage(state
       ? `Included in the report: the comparison of ${modelStateDescription(state.left)} with ${modelStateDescription(state.right)}. The next local private report package saved holds it.`
       : `Included in the report: the comparison of ${run!.left.description} with ${run!.right.description}. The next local private report package saved holds it.`);

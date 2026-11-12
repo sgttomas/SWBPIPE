@@ -4,6 +4,7 @@ import { modelStateDescription } from "../../services/modelStateService";
 import type { StateComparisonResult } from "../history/useModelStateHistory";
 import { CsvExportControl } from "../result-export/CsvExportControl";
 import { ReportInclusionControl, type ReportInclusion } from "./ReportInclusionControl";
+import { comparisonCsvRecordHash } from "./comparisonRecords";
 import { CSV_SOFTWARE_VERSION, CSV_UNIT_BASIS_STORED } from "../result-export/csvProvenance";
 import { CHANGE_LABELS, CLASSIFICATION_LABELS, STATE_COMPARISON_CSV_KIND, stateComparisonCsv, storedValueFullText } from "./stateComparisonCsv";
 import {
@@ -138,9 +139,10 @@ export function StateComparisonView({ result, onClose, reportInclusion = null }:
       <CsvExportControl
         tableLabel="Saved state comparison"
         testId="state-comparison-export-csv"
-        build={() => stateComparisonCsv({
+        build={async () => stateComparisonCsv({
           left, right, rows: matching, filters: { classification, family, idFilter },
-          softwareVersion: CSV_SOFTWARE_VERSION, unitBasis: CSV_UNIT_BASIS_STORED
+          softwareVersion: CSV_SOFTWARE_VERSION, unitBasis: CSV_UNIT_BASIS_STORED,
+          comparisonRecordHash: await comparisonCsvRecordHash("state", result)
         })}
       />
       <table className="state-comparison-table" data-testid="state-comparison-table" data-csv-export={STATE_COMPARISON_CSV_KIND}>

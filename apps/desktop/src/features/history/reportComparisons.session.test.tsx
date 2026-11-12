@@ -20,10 +20,11 @@ import { buildCurrentSessionInputManifest } from "../../services/inputManifestSe
 import { buildAnalysisRunPreview } from "../../services/previewService";
 import { jsonTextKeepingNegativeZero } from "../../services/jsonText";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel } from "../../types";
-import { includedRunComparison, includedStateComparison, reportComparisonRecords, runComparisonRecord, stateComparisonRecord } from "../comparison/comparisonRecords";
+import { comparisonCsvRecordHash, completeComparisonRecord, includedStateComparison, runComparisonRecord, stateComparisonRecord } from "../comparison/comparisonRecords";
+import { stateComparisonCsv } from "../comparison/stateComparisonCsv";
+import { serializeCsvTable } from "../result-export/csvTable";
 import { CURRENT_RUN_ID } from "../comparison/runComparisonSides";
 import { StateComparisonView } from "../comparison/StateComparisonView";
-import { buildComparisonSectionSet } from "../report/comparisonSections";
 import { useModelStateHistory, type ModelStateHistoryDeps } from "./useModelStateHistory";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -144,36 +145,37 @@ function sessionHistory(projectId: string, overrides: Partial<ModelStateHistoryD
 }
 
 describe("including a saved-state comparison in the report", () => {
-  it("includes the comparison of two identifiers made in this session, keeps it when another is shown or it is closed, and removes it", async () => {
+  it("includes the comparison of two identifiers shown, holds only its bounded section, keeps it when closed, and removes it", async () => {
     await stateStore();
     const { result: hook } = sessionHistory(STATE_PROJECT);
     await act(async () => { await hook.current.refreshStates(STATE_PROJECT); });
     // Nothing compared yet: refused, with the reason.
     let included = true;
-    act(() => { included = hook.current.includeComparisonInReport("state", FIRST.state_id, SECOND.state_id); });
+    await act(async () => { included = await hook.current.includeComparisonInReport("state", FIRST.state_id, SECOND.state_id); });
     expect(included).toBe(false);
     expect(hook.current.historyOperation).toBe("report_comparison_refused");
     expect(hook.current.reportComparisons).toEqual({ state: null, run: null });
     await act(async () => { await hook.current.compareStates(FIRST.state_id, SECOND.state_id); });
     const shown = hook.current.stateComparison!;
     // Either order of the two identifiers; another pair is refused.
-    act(() => { included = hook.current.includeComparisonInReport("state", FIRST.state_id, `state:${"9".repeat(32)}`); });
+    await act(async () => { included = await hook.current.includeComparisonInReport("state", FIRST.state_id, `state:${"9".repeat(32)}`); });
     expect(included).toBe(false);
-    act(() => { included = hook.current.includeComparisonInReport("state", SECOND.state_id, FIRST.state_id); });
+    await act(async () => { included = await hook.current.includeComparisonInReport("state", SECOND.state_id, FIRST.state_id); });
     expect(included).toBe(true);
     expect(hook.current.historyOperation).toBe("report_comparison_included");
-    const held = { kind: "state", projectId: STATE_PROJECT, leftId: FIRST.state_id, rightId: SECOND.state_id, currentRun: null, record: stateComparisonRecord(shown) };
+    const held = await includedStateComparison(shown);
     expect(hook.current.reportComparisons.state).toEqual(held);
     expect(hook.current.reportComparisonsNow().state).toEqual(held);
-    // Only identifiers and the record are held: no side's snapshot or rows.
-    expect(Object.keys(hook.current.reportComparisons.state!).sort()).toEqual(["currentRun", "kind", "leftId", "projectId", "record", "rightId"]);
+    // Identifiers, the record's hash, the bounded section and its diagnostics: no snapshot, no rows, no record.
+    expect(Object.keys(held).sort()).toEqual(["currentRun", "diagnostics", "kind", "leftId", "projectId", "recordHash", "rightId", "section"]);
+    expect((held.section.hash_refs as Json[])[0].value).toBe(held.recordHash);
     // Closing the view keeps it in the report.
     act(() => hook.current.closeStateComparison());
     expect(hook.current.stateComparison).toBeNull();
     expect(hook.current.reportComparisons.state).toEqual(held);
     // Once closed, it cannot be included again without comparing again.
     let again = true;
-    act(() => { again = hook.current.includeComparisonInReport("state", FIRST.state_id, SECOND.state_id); });
+    await act(async () => { again = await hook.current.includeComparisonInReport("state", FIRST.state_id, SECOND.state_id); });
     expect(again).toBe(false);
     expect(hook.current.reportComparisons.state).toEqual(held);
     let removed = false;
@@ -189,7 +191,7 @@ describe("including a saved-state comparison in the report", () => {
     const { result: hook, deps, rerender } = sessionHistory(STATE_PROJECT);
     await act(async () => { await hook.current.refreshStates(STATE_PROJECT); });
     await act(async () => { await hook.current.compareStates(FIRST.state_id, SECOND.state_id); });
-    act(() => { hook.current.includeComparisonInReport("state", FIRST.state_id, SECOND.state_id); });
+    await act(async () => { await hook.current.includeComparisonInReport("state", FIRST.state_id, SECOND.state_id); });
     expect(hook.current.reportComparisons.state).not.toBeNull();
     const other = { project: { id: "project:invented-other" } };
     (deps as Json).model = other;
@@ -199,19 +201,19 @@ describe("including a saved-state comparison in the report", () => {
     expect(hook.current.reportComparisonsNow()).toEqual({ state: null, run: null });
     // An earlier comparison of the old project cannot be included afterwards.
     let included = true;
-    act(() => { included = hook.current.includeComparisonInReport("state", FIRST.state_id, SECOND.state_id); });
+    await act(async () => { included = await hook.current.includeComparisonInReport("state", FIRST.state_id, SECOND.state_id); });
     expect(included).toBe(false);
   });
 
-  it("restates the comparison as a record of identifiers, hashes, paths and units, with no label or value", async () => {
+  it("restates the comparison as a record of identifiers, hashes, paths, stored values and units, with no label", async () => {
     await stateStore();
     const { result: hook } = sessionHistory(STATE_PROJECT);
     await act(async () => { await hook.current.refreshStates(STATE_PROJECT); });
     await act(async () => { await hook.current.compareStates(FIRST.state_id, SECOND.state_id); });
     const shown = hook.current.stateComparison!;
-    const record = stateComparisonRecord(shown) as Json;
+    const record = await stateComparisonRecord(shown) as Json;
     const text = JSON.stringify(record);
-    for (const label of ["Invented label", "Invented private note", "Invented added node", "200000"]) expect(text).not.toContain(label);
+    for (const label of ["Invented label", "Invented private note"]) expect(text).not.toContain(label);
     expect(record.comparison_id).toBe(`model-state-comparison:${FIRST.state_id}:${SECOND.state_id}`);
     expect(record.left_state_ref).toEqual({ object_type: "ModelState", ref: FIRST.state_id, model_hash: shown.left.model_hash });
     expect(shown.left.model_hash).toMatch(/^sha256:[0-9a-f]{64}$/);
@@ -219,14 +221,60 @@ describe("including a saved-state comparison in the report", () => {
       shown.comparison.rows.filter((row) => row.classification !== "unchanged").map((row) => row.classification).sort()
     );
     expect(record.summary.unchanged).toBe(shown.comparison.summary.unchanged);
-    expect(record.entities.find((row: Json) => row.left_ref?.object_type === "material").changes).toEqual([
-      expect.objectContaining({ path: "elastic_modulus", change_kind: expect.any(String), left_unit: expect.any(String), right_unit: "MPa" })
-    ]);
+    // Both stored values and their units (DEL-08-06 REQ-009, REQ-011: local private only).
+    const material = record.entities.find((row: Json) => row.left_ref?.object_type === "material");
+    expect(material.changes).toEqual([expect.objectContaining({ path: "elastic_modulus", right: { value: 200000, unit: "MPa" }, right_unit: "MPa", left: expect.anything() })]);
     expect(record.settings.tolerance).toBe("not_tolerance_checked");
-    const { model_state_comparisons: [hashed] } = await reportComparisonRecords({ state: includedStateComparison(shown), run: null });
-    const { hashes, ...body } = hashed as Json;
+    expect(record.csv).toEqual({ table: "state-comparison", row_count: shown.comparison.rows.reduce((count, row) => count + Math.max(1, row.changes.length), 0) });
+    const hashed = await completeComparisonRecord("state", shown) as Json;
+    const { hashes, ...body } = hashed;
     expect(body).toEqual(record);
     expect(hashes).toEqual([{ algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_ref: { object_type: "ModelStateComparison", ref: record.comparison_id }, payload_scope: "comparison_record_without_hashes", value: await canonicalSha256Hex(record) }]);
+  });
+
+  it("states a provenance-record field by path and hashes only, and the origin reference beside the entity", async () => {
+    const withOrigin = (model: Json, source: string) => {
+      const copy = structuredClone(model);
+      copy.materials[0].provenance = "library:material:invented-lib#rec-1";
+      copy.materials[0].provenance_record = { source_name: source, redistribution_status: "private_only", review_status: "pending" };
+      return copy;
+    };
+    const left = withOrigin(LEFT_MODEL, "Invented source A");
+    const right = withOrigin(RIGHT_MODEL, "Invented source B");
+    const comparison = (await import("../comparison/stateComparison")).compareModelDocuments(left, right);
+    const { comparisonOrigins } = await import("../comparison/comparisonRecords");
+    const shown = { projectId: STATE_PROJECT, left: FIRST, right: SECOND, comparison, origins: comparisonOrigins(left, right, comparison) };
+    const record = await stateComparisonRecord(shown) as Json;
+    const material = record.entities.find((row: Json) => row.left_ref?.object_type === "material");
+    expect(material.left_origin_ref).toBe("library:material:invented-lib#rec-1");
+    expect(material.right_origin_ref).toBe("library:material:invented-lib#rec-1");
+    const source = material.changes.find((change: Json) => change.path === "provenance_record.source_name");
+    expect(source).toEqual({ path: "provenance_record.source_name", change_kind: "changed", left_sha256: await canonicalSha256Hex("Invented source A"), right_sha256: await canonicalSha256Hex("Invented source B") });
+    expect(JSON.stringify(record)).not.toContain("Invented source");
+  });
+
+  it("names the same record hash in the CSV's preamble and in the section's hash reference, whatever the filters", async () => {
+    await stateStore();
+    const { result: hook } = sessionHistory(STATE_PROJECT);
+    await act(async () => { await hook.current.refreshStates(STATE_PROJECT); });
+    await act(async () => { await hook.current.compareStates(FIRST.state_id, SECOND.state_id); });
+    const shown = hook.current.stateComparison!;
+    const csvLine = async (rows: typeof shown.comparison.rows, classification: string, result = shown) => {
+      const text = serializeCsvTable(stateComparisonCsv({
+        left: result.left, right: result.right, rows, filters: { classification, family: "all", idFilter: "" },
+        softwareVersion: "0.0.0", unitBasis: "stored", comparisonRecordHash: await comparisonCsvRecordHash("state", result)
+      }).table);
+      return text.split("\r\n").find((line) => line.startsWith("comparison_record_hash,"))!;
+    };
+    const held = await includedStateComparison(shown);
+    const expected = `comparison_record_hash,sha256:${held.recordHash}`;
+    expect(await csvLine(shown.comparison.rows, "all")).toBe(expected);
+    expect(await csvLine(shown.comparison.rows.filter((row) => row.classification === "changed"), "changed")).toBe(expected);
+    // Another comparison names another record.
+    const other = { ...shown, comparison: (await import("../comparison/stateComparison")).compareModelDocuments(LEFT_MODEL, LEFT_MODEL) };
+    const otherHeld = await includedStateComparison(other);
+    expect(otherHeld.recordHash).not.toBe(held.recordHash);
+    expect(await csvLine(other.comparison.rows, "all", other)).toBe(`comparison_record_hash,sha256:${otherHeld.recordHash}`);
   });
 
   it("offers Include in report on the view, by keyboard-operable button, with its state in words", async () => {
@@ -257,7 +305,7 @@ describe("including a saved-state comparison in the report", () => {
 });
 
 describe("including a run comparison in the report", () => {
-  it("holds its record, keeps it when the view closes, and its sections join a set without blocking diagnostics", async () => {
+  it("holds its bounded section, keeps it when the view closes, and the section has no blocking diagnostics", async () => {
     const earlier = await recordedRead(SPARSE, "sparse_interactive", "2026-10-25T10:00:00.000Z");
     const later = await recordedRead(DENSE, "dense_scrutiny", "2026-10-25T11:00:00.000Z");
     await runStore([earlier, later]);
@@ -266,26 +314,34 @@ describe("including a run comparison in the report", () => {
     await act(async () => { await hook.current.compareRuns(earlier.run.recording_id, later.run.recording_id); });
     const shown = hook.current.runComparison!;
     let included = false;
-    act(() => { included = hook.current.includeComparisonInReport("run", later.run.recording_id, earlier.run.recording_id); });
+    await act(async () => { included = await hook.current.includeComparisonInReport("run", later.run.recording_id, earlier.run.recording_id); });
     expect(included).toBe(true);
     const record = runComparisonRecord(shown) as Json;
-    expect(hook.current.reportComparisons.run).toEqual({ kind: "run", projectId: RUN_PROJECT, leftId: earlier.run.recording_id, rightId: later.run.recording_id, currentRun: null, record });
+    const held = hook.current.reportComparisons.run!;
+    expect(held).toMatchObject({ kind: "run", projectId: RUN_PROJECT, leftId: earlier.run.recording_id, rightId: later.run.recording_id, currentRun: null });
+    expect(held.diagnostics.filter((item) => item.severity === "blocking")).toEqual([]);
     act(() => hook.current.closeRunComparison());
-    expect(hook.current.reportComparisons.run?.record).toEqual(record);
-    expect(record.run_context.left).toEqual({ object_type: "AnalysisRun", ref: earlier.run.recording_id, side_kind: "recorded_run", run_record_hash: earlier.run.run_record_hash, result_hash: earlier.run.result_hash });
+    expect(hook.current.reportComparisons.run).toEqual(held);
+    expect(record.run_context.left).toEqual({
+      object_type: "AnalysisRun", ref: earlier.run.recording_id, side_kind: "recorded_run", run_record_hash: earlier.run.run_record_hash, result_hash: earlier.run.result_hash,
+      standing: { status: shown.left.standing.status, findings: [...shown.left.standing.findings] }
+    });
     expect(record.result_deltas.length).toBe(shown.comparison.summary.compared);
     expect(record.result_deltas.every((delta: Json) => delta.dimension && delta.normalized_unit && delta.classification === "not_tolerance_checked")).toBe(true);
     expect(record.run_context.not_compared.length).toBe(shown.comparison.summary.not_compared);
     expect(record.run_context.unmatched.length).toBe(shown.comparison.unmatched.length);
     expect(JSON.stringify(record)).not.toContain("Invented run label");
     for (const entry of [...record.run_context.not_compared, ...record.run_context.unmatched]) expect(entry).not.toHaveProperty("value");
-    const records = await reportComparisonRecords({ state: null, run: includedRunComparison(shown) });
-    const set = buildComparisonSectionSet({
-      section_set_id: "invented", model_states: [], analysis_runs: [], handoff_packages: [], export_workflows: [], external_prover_metadata: [],
-      source_notes: [], provenance: null, ...records
-    }) as Json;
-    expect(set.diagnostics.filter((item: Json) => item.severity === "blocking")).toEqual([]);
-    expect(set.sections.comparison_sections[0].hash_refs).toEqual((records.analysis_run_comparisons[0] as Json).hashes);
+    // The section restates the bounded form only: counts and at most ten per family and unit.
+    const section = held.section as Json;
+    expect(section).not.toHaveProperty("unit_normalized_deltas");
+    expect(section.run_context).not.toHaveProperty("not_compared");
+    expect(section.result_difference_counts.total.pairs_compared).toBe(shown.comparison.summary.compared);
+    expect(section.result_difference_counts.total.pairs_differing).toBe(shown.comparison.summary.compared_nonzero);
+    for (const group of section.largest_differences) expect(group.differences.length).toBeLessThanOrEqual(10);
+    expect(section.csv).toMatchObject({ table: "run-comparison", row_count: shown.comparison.pairs.length + shown.comparison.unmatched.length });
+    expect(held.recordHash).toBe(await canonicalSha256Hex(record));
+    expect(await comparisonCsvRecordHash("run", shown)).toBe(`sha256:${held.recordHash}`);
   });
 
   it("leaves the report when its current run changes, by the rule that closes it", async () => {
@@ -296,9 +352,9 @@ describe("including a run comparison in the report", () => {
     const { result: hook, deps, rerender } = sessionHistory(RUN_PROJECT, { runSlot: live });
     await act(async () => { await hook.current.refreshStates(RUN_PROJECT); });
     await act(async () => { await hook.current.compareRuns(CURRENT_RUN_ID, earlier.run.recording_id); });
-    act(() => { hook.current.includeComparisonInReport("run", CURRENT_RUN_ID, earlier.run.recording_id); });
-    const record = hook.current.reportComparisons.run!.record as Json;
-    expect(record.run_context.right).toMatchObject({ ref: CURRENT_RUN_ID, side_kind: "current_session_run", run_record_hash: "not_recorded" });
+    await act(async () => { await hook.current.includeComparisonInReport("run", CURRENT_RUN_ID, earlier.run.recording_id); });
+    const section = hook.current.reportComparisons.run!.section as Json;
+    expect(section.run_context.right).toMatchObject({ ref: CURRENT_RUN_ID, side_kind: "current_session_run", run_record_hash: "not_recorded" });
     (deps as Json).runSlot = { ...live, result: structuredClone(DENSE), analysisRun: structuredClone(current.record) };
     await act(async () => { rerender(); });
     expect(hook.current.reportComparisons.run).toBeNull();

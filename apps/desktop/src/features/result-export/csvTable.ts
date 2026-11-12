@@ -19,7 +19,8 @@ export const CSV_PREAMBLE_KEYS = [
   "analysis_route",
   "case_or_filter",
   "unit_basis",
-  "rule_pack"
+  "rule_pack",
+  "comparison_record_hash"
 ] as const;
 
 /** A two-sided table's keys in place of `model_hash`, `result_hash` and `analysis_route`, in
@@ -106,6 +107,9 @@ export type CsvPreamble = {
   readonly unitBasis: string;
   /** Only for tables with rule outcomes: one `rule_pack` row each, `<id> <version> <checksum>`. */
   readonly rulePacks?: readonly CsvRulePackRef[];
+  /** Only for comparison tables (DEL-08-06 REQ-011): `sha256:<hex>` of the complete comparison
+   * record, the value the report section's hash reference carries, whatever the filters. */
+  readonly comparisonRecordHash?: string;
 } & (
   | (CsvProvenance & { readonly sides?: undefined })
   | { readonly sides: { readonly a: CsvProvenance; readonly b: CsvProvenance } }
@@ -269,6 +273,11 @@ function preambleRows(preamble: CsvPreamble): [string, string][] {
   ];
   for (const pack of preamble.rulePacks ?? []) {
     rows.push(["rule_pack", spaceJoined([pack.id, pack.version, pack.checksum], "rule_pack")]);
+  }
+  if (preamble.comparisonRecordHash !== undefined) {
+    const hash = required(preamble.comparisonRecordHash, "comparison_record_hash");
+    if (!isCsvHashValue(hash)) throw new CsvSerializationError("CSV_PREAMBLE_VALUE_INVALID", "preamble comparison_record_hash is a sha256: hash");
+    rows.push(["comparison_record_hash", hash]);
   }
   return rows;
 }

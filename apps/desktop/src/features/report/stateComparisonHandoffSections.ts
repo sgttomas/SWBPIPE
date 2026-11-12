@@ -1,6 +1,6 @@
 import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewComparison, PreviewModel } from "../../types";
-import { comparisonSections as recordComparisonSections, holdsWarnings, pythonSorted, sectionTbds, setLevelDiagnostics, settleDiagnostics, type ComparisonRecords } from "./comparisonSections";
+import { holdsWarnings, pythonSorted, sectionTbds, setLevelDiagnostics, settleDiagnostics, type BoundComparisons } from "./comparisonSections";
 
 const PROFESSIONAL_BOUNDARY = {
   human_review_required: true,
@@ -214,26 +214,22 @@ export function buildStateComparisonHandoffSections({
    * does not hold), and only when present, so other records are unchanged. */
   comparisonUnavailable?: PreviewComparisonUnavailable | null;
   modelHash: string;
-  /** The records of the saved-state and run comparisons the session includes in the report
-   * (`comparisonRecords.ts`). Their sections are the reference assembler's
-   * (`comparisonSections.ts`), and with them the set carries the set-level rules those
-   * sections touch: the source and set-level diagnostics of the comparison sections, the
+  /** The saved-state and run comparisons the session includes in the report: the sections the
+   * reference assembler's rules (`comparisonSections.ts`) formed from their complete records
+   * (`comparisonRecords.ts`), with the source diagnostics that forming raised. With them the
+   * set carries the set-level rules those sections touch: their set-level diagnostics, the
    * coverage of their warnings, their unresolved values and the canonical order. Without
    * any, the set is as it was. */
-  sessionComparisons?: ComparisonRecords | null;
+  sessionComparisons?: BoundComparisons | null;
 }) {
   const stateRunSections = stableSort([
     modelStateSection(model, result, modelHash),
     analysisRunSection(model, result, analysisRun)
   ]);
   const withinRunSections = comparison ? [comparisonSection(model, comparison)] : [];
-  const included = sessionComparisons && (sessionComparisons.model_state_comparisons.length > 0 || sessionComparisons.analysis_run_comparisons.length > 0)
-    ? sessionComparisons
-    : null;
-  const sourceDiagnostics: JsonRecord[] = [];
-  const comparisonSections = included
-    ? pythonSorted([...withinRunSections, ...recordComparisonSections(included, sourceDiagnostics)])
-    : withinRunSections;
+  const included = sessionComparisons && sessionComparisons.sections.length > 0 ? sessionComparisons : null;
+  const sourceDiagnostics: JsonRecord[] = included ? included.diagnostics : [];
+  const comparisonSections = included ? pythonSorted([...withinRunSections, ...included.sections]) : withinRunSections;
   const handoffSections: JsonRecord[] = [];
   const layoutTbd = {
     tbd_id: "DEL-08-06-TBD-FINAL-LAYOUT",

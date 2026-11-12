@@ -288,7 +288,7 @@ describe("comparison CSV (run-comparison, state-comparison)", () => {
     const built = runComparisonCsv({
       leftId: "runrec:0001", rightId: "current-run", leftDescription: "left run", rightDescription: "the current run",
       sides: { a: { modelHash: HASH, resultHash: HASH, analysisRoutes: ["contract-a"] }, b: { modelHash: HASH, resultHash: CSV_NOT_RECORDED, analysisRoutes: [CSV_NOT_RECORDED] } },
-      entries, filters, softwareVersion: CSV_SOFTWARE_VERSION, unitBasis: "stored"
+      entries, filters, softwareVersion: CSV_SOFTWARE_VERSION, unitBasis: "stored", comparisonRecordHash: `sha256:${"c".repeat(64)}`
     });
     expect(built.fileName).toBe("swbpipe-run-comparison-runrec-0001-current-run.csv");
     const csv = expectBoundary(serializeCsvTable(built.table), "run-comparison");
@@ -296,6 +296,8 @@ describe("comparison CSV (run-comparison, state-comparison)", () => {
       ["model_hash_a", HASH], ["model_hash_b", HASH], ["result_hash_a", HASH], ["result_hash_b", "not_recorded"],
       ["analysis_route_a", "contract-a"], ["analysis_route_b", "not_recorded"]
     ]);
+    // DEL-08-06 REQ-011: the last preamble line states the complete comparison record's hash.
+    expect(csv.preamble.at(-1)).toEqual(["comparison_record_hash", `sha256:${"c".repeat(64)}`]);
     expect(csv.rows.length).toBe(entries.length);
     let compared = 0;
     entries.forEach((entry, index) => {
@@ -318,13 +320,14 @@ describe("comparison CSV (run-comparison, state-comparison)", () => {
     const state = (id: string, hash: string) => ({ state_id: id, state_name: id, model_hash: hash } as never);
     const built = stateComparisonCsv({
       left: state("state:1", HASH), right: state("state:2", `sha256:${"f".repeat(64)}`), rows: comparison.rows,
-      filters: { classification: "all", family: "all", idFilter: "" }, softwareVersion: CSV_SOFTWARE_VERSION, unitBasis: "stored"
+      filters: { classification: "all", family: "all", idFilter: "" }, softwareVersion: CSV_SOFTWARE_VERSION, unitBasis: "stored", comparisonRecordHash: `sha256:${"d".repeat(64)}`
     });
     const csv = expectBoundary(serializeCsvTable(built.table), "state-comparison");
     expect(csv.preamble.slice(5, 11)).toEqual([
       ["model_hash_a", HASH], ["model_hash_b", `sha256:${"f".repeat(64)}`], ["result_hash_a", "not_applicable"], ["result_hash_b", "not_applicable"],
       ["analysis_route_a", "not_applicable"], ["analysis_route_b", "not_applicable"]
     ]);
+    expect(csv.preamble.at(-1)).toEqual(["comparison_record_hash", `sha256:${"d".repeat(64)}`]);
     type Line = { item: (typeof comparison.rows)[number]; change: (typeof comparison.rows)[number]["changes"][number] | null };
     const changes = comparison.rows.flatMap((item): Line[] => (item.changes.length ? item.changes.map((change) => ({ item, change })) : [{ item, change: null }]));
     expect(csv.rows.length).toBe(changes.length);

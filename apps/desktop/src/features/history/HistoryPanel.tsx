@@ -504,7 +504,7 @@ export function HistoryPanel() {
   const { reportComparisons, includeComparisonInReport, removeComparisonFromReport } = useSessionHistory();
   const inclusion = (kind: "state" | "run", firstId: string, secondId: string) => (includeComparisonInReport ? {
     included: includesComparisonOf(reportComparisons?.[kind] ?? null, firstId, secondId),
-    include: () => { includeComparisonInReport(kind, firstId, secondId); },
+    include: () => { void includeComparisonInReport(kind, firstId, secondId); },
     remove: () => { removeComparisonFromReport(kind); }
   } : null);
   const { model } = useSessionModel();
@@ -542,7 +542,10 @@ export function HistoryPanel() {
         <History size={16} aria-hidden="true" />
         Model History
       </div>
-      <p className="muted">
+      {/* The two comparison views below carry the registered comparison statement and no review
+          sentence of their own; this sentence, which states that human review is required, holds
+          for them (historyPanelReviewNote.test.tsx). Keep it. */}
+      <p className="muted" data-testid="model-history-review-note">
         Saved model states of project {model.project.id}: immutable snapshots of the model, kept in the local store for
         reopening and comparison, each with the analysis runs recorded against it. A recorded run ties a solve's result,
         solver, settings, units and load basis to the exact saved model it solved. Human review is still required for any use of them.

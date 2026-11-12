@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
 import { buildAnalysisRunPreview, buildPreviewComparison } from "../../services/previewService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import type { MechanicsResult, PreviewModel } from "../../types";
-import { buildComparisonSectionSet } from "./comparisonSections";
+import { boundComparisons, buildComparisonSectionSet } from "./comparisonSections";
 import { buildStateComparisonHandoffSections } from "./stateComparisonHandoffSections";
 
 type Json = any; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -33,14 +33,14 @@ describe("the desktop section set with included comparisons", () => {
       const base = { model, result, analysisRun, comparison, modelHash };
       const today = JSON.stringify(buildStateComparisonHandoffSections(base));
       expect(JSON.stringify(buildStateComparisonHandoffSections({ ...base, sessionComparisons: null }))).toBe(today);
-      expect(JSON.stringify(buildStateComparisonHandoffSections({ ...base, sessionComparisons: { model_state_comparisons: [], analysis_run_comparisons: [] } }))).toBe(today);
+      expect(JSON.stringify(buildStateComparisonHandoffSections({ ...base, sessionComparisons: { sections: [], diagnostics: [] } }))).toBe(today);
     }
   });
 
   it("holds the reference's sections of the included records beside the within-run comparison", async () => {
     const { model, result, analysisRun, fixed, modelHash } = await inputs();
     const both = caseInputs("both_kinds");
-    const sessionComparisons = { model_state_comparisons: both.model_state_comparisons, analysis_run_comparisons: both.analysis_run_comparisons };
+    const sessionComparisons = boundComparisons({ model_state_comparisons: both.model_state_comparisons, analysis_run_comparisons: both.analysis_run_comparisons });
     const reference = buildComparisonSectionSet(both) as Json;
     for (const comparison of [null, fixed]) {
       const set = buildStateComparisonHandoffSections({ model, result, analysisRun, comparison, modelHash, sessionComparisons }) as Json;
@@ -56,7 +56,7 @@ describe("the desktop section set with included comparisons", () => {
       expect(set.section_set_id).toBe(without.section_set_id);
       expect(set.sow_024_coverage.warnings).toBe("represented_by_warning_and_diagnostic_lists");
       // Deterministic, whatever order the records come in.
-      const permuted = { model_state_comparisons: [...sessionComparisons.model_state_comparisons].reverse(), analysis_run_comparisons: [...sessionComparisons.analysis_run_comparisons].reverse() };
+      const permuted = boundComparisons({ model_state_comparisons: [...both.model_state_comparisons].reverse(), analysis_run_comparisons: [...both.analysis_run_comparisons].reverse() });
       expect(JSON.stringify(buildStateComparisonHandoffSections({ model, result, analysisRun, comparison, modelHash, sessionComparisons: permuted }))).toBe(JSON.stringify(set));
     }
   });
@@ -64,7 +64,7 @@ describe("the desktop section set with included comparisons", () => {
   it("carries a delta without unit metadata with its blocking diagnostics, never as a bare number", async () => {
     const { model, result, analysisRun, modelHash } = await inputs();
     const noDimension = caseInputs("delta_without_dimension");
-    const set = buildStateComparisonHandoffSections({ model, result, analysisRun, comparison: null, modelHash, sessionComparisons: { model_state_comparisons: [], analysis_run_comparisons: noDimension.analysis_run_comparisons } }) as Json;
+    const set = buildStateComparisonHandoffSections({ model, result, analysisRun, comparison: null, modelHash, sessionComparisons: boundComparisons({ model_state_comparisons: [], analysis_run_comparisons: noDimension.analysis_run_comparisons }) }) as Json;
     expect(set.diagnostics.map((item: Json) => [item.code, item.severity]).sort()).toEqual([
       ["SCH-COMPARISON-DELTA-UNIT-MISSING", "blocking"],
       ["SCH-NUMERIC-UNIT-METADATA-MISSING", "blocking"]

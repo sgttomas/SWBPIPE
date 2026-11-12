@@ -17,16 +17,19 @@ describe("DEL-08-06 comparison sections: the desktop assembler and the reference
   it("covers the cases the criterion and the brief name", () => {
     expect(VECTOR.cases.map((item: Json) => item.name)).toEqual([
       "state_classifications", "run_reasons_and_unmatched", "delta_without_dimension", "authority_term_in_identifier",
-      "both_kinds", "both_kinds_permuted", "number_forms", "sparse_state_record"
+      "both_kinds", "both_kinds_permuted", "number_forms", "result_difference_bound", "sparse_state_record"
     ]);
     const byName = (name: string) => VECTOR.cases.find((item: Json) => item.name === name).expected;
     const classifications = new Set(byName("state_classifications").sections.comparison_sections[0].changed_entities.map((row: Json) => row.classification));
     expect(classifications).toEqual(new Set(["added", "removed", "changed", "mapped_changed", "unresolved"]));
-    const notCompared = byName("run_reasons_and_unmatched").sections.comparison_sections[0].run_context.not_compared;
-    expect(notCompared.flatMap((pair: Json) => pair.reasons)).toEqual([
+    const notCompared = byName("run_reasons_and_unmatched").sections.comparison_sections[0].pairs_not_compared_listed.flatMap((group: Json) => group.rows);
+    expect(new Set(notCompared.flatMap((pair: Json) => pair.reasons))).toEqual(new Set([
       "semantic_identity_differs", "left_run_needs_recompute", "right_run_needs_recompute", "family_not_compared", "units_differ", "value_not_numeric", "dimension_missing"
-    ]);
+    ]));
     expect(notCompared.some((pair: Json) => "left_magnitude" in pair || "normalized_delta" in pair)).toBe(false);
+    const bound = byName("result_difference_bound").sections.comparison_sections[0];
+    expect(bound.largest_differences.every((group: Json) => group.differences.length <= 10 && group.differences.every((entry: Json) => entry.normalized_delta !== 0))).toBe(true);
+    expect(bound.summary_coverage.differences_not_listed).toBeGreaterThan(0);
     expect(byName("delta_without_dimension").diagnostics.map((item: Json) => item.code).sort()).toEqual(["SCH-COMPARISON-DELTA-UNIT-MISSING", "SCH-NUMERIC-UNIT-METADATA-MISSING"]);
     expect(byName("authority_term_in_identifier").diagnostics.every((item: Json) => item.code === "SCH-AUTHORITY-CLAIM-REJECTED" && item.severity === "blocking")).toBe(true);
     expect(byName("both_kinds_permuted")).toEqual(byName("both_kinds"));

@@ -92,9 +92,21 @@ def state_record(comparison_id: str = "model-state-comparison:state:inv-a:state:
          "left_ref": ref("support", "support:inv-9"), "right_ref": None, "changes": []},
         {"row_id": f"row:node:{entity_id}", "classification": "changed", "match_basis": "stable_id", "mapping_id": None,
          "left_ref": ref("node", entity_id), "right_ref": ref("node", entity_id), "changes": [
-             {"path": "position", "change_kind": "unit_changed", "left_unit": "m", "right_unit": "mm"},
-             {"path": "label", "change_kind": "changed"},
-             {"path": "restraints[0]", "change_kind": "added"},
+             {"path": "position", "change_kind": "unit_changed", "left": {"x": 1.5, "y": 0, "z": 0, "unit": "m"},
+              "right": {"x": 1500, "y": 0, "z": 0, "unit": "mm"}, "left_unit": "m", "right_unit": "mm"},
+             {"path": "label", "change_kind": "changed", "left": "Invented A", "right": "Invented B"},
+             {"path": "restraints[0]", "change_kind": "added", "right": "UX"},
+         ]},
+        {"row_id": "row:material:inv-4", "classification": "changed", "match_basis": "stable_id", "mapping_id": None,
+         "left_ref": ref("material", "material:inv-4"), "right_ref": ref("material", "material:inv-4"),
+         "left_origin_ref": "library:material:inv-lib#rec-1", "right_origin_ref": "library:material:inv-lib#rec-2",
+         "changes": [
+             {"path": "elastic_modulus", "change_kind": "changed", "left": {"value": 210.5, "unit": "GPa"},
+              "right": {"value": 200.25, "unit": "GPa"}, "left_unit": "GPa", "right_unit": "GPa"},
+             {"path": "provenance_record.source_name", "change_kind": "changed",
+              "left_sha256": "1" * 64, "right_sha256": "2" * 64},
+             {"path": "provenance_record.verification_note", "change_kind": "added", "right": "a value the section never restates",
+              "right_sha256": "3" * 64},
          ]},
         {"row_id": "row:material:inv-3", "classification": "unchanged", "match_basis": "stable_id", "mapping_id": None,
          "left_ref": ref("material", "material:inv-3"), "right_ref": ref("material", "material:inv-3"), "changes": []},
@@ -111,12 +123,13 @@ def state_record(comparison_id: str = "model-state-comparison:state:inv-a:state:
         "comparison_kind": "model_state_to_model_state",
         "left_state_ref": {"object_type": "ModelState", "ref": "state:inv-a", "model_hash": "sha256:" + "a" * 64},
         "right_state_ref": {"object_type": "ModelState", "ref": "state:inv-b", "model_hash": "sha256:" + "b" * 64},
-        "summary": {"added": 1, "removed": 1, "changed": 1, "unchanged": 1, "mapped_changed": 1,
-                    "mapped_unchanged": 1, "unresolved": 1, "total": 7, "unit_changed_fields": 1},
-        "entity_counts": {"left": 6, "right": 6},
+        "summary": {"added": 1, "removed": 1, "changed": 2, "unchanged": 1, "mapped_changed": 1,
+                    "mapped_unchanged": 1, "unresolved": 1, "total": 8, "unit_changed_fields": 1},
+        "entity_counts": {"left": 7, "right": 7},
         "entities": entities,
         "settings": {"mapping_basis": "stable_id_within_family", "manual_mappings": "none",
                      "unit_conversion": "none", "tolerance": "not_tolerance_checked"},
+        "csv": {"table": "state-comparison", "row_count": 13},
         "diagnostics": [],
         "privacy_classification": "invented_public_example",
         "review_status": "pending",
@@ -139,16 +152,17 @@ NOT_COMPARED_REASONS = [
 UNMATCHED_REASONS = ["no_row_with_this_result_id", "identity_differs", "duplicate_result_id", "result_id_missing"]
 
 
-def identity(result_id: str, family: str | None = "force", dimension: str | None = "force") -> dict:
-    return {"result_id": result_id, "family": family, "object_ref": "element:inv-1", "basis_ref": None,
+def identity(result_id: str, family: str | None = "force", dimension: str | None = "force", object_ref: str = "element:inv-1") -> dict:
+    return {"result_id": result_id, "family": family, "object_ref": object_ref, "basis_ref": {"ref_type": "load_case", "ref_id": "case:inv-1"},
             "dimension": dimension, "component": "fx", "location": "end_i", "basis": None,
             "coordinate_system": "local", "sign_convention": None}
 
 
-def delta(result_id: str, left, right, difference, unit: str = "N", dimension: str | None = "force", basis: str = "stable_result_identity") -> dict:
+def delta(result_id: str, left, right, difference, unit: str = "N", dimension: str | None = "force", basis: str = "stable_result_identity",
+          family: str = "force", object_ref: str = "element:inv-1") -> dict:
     row = {
         "mapping_id": f"auto:{result_id}", "match_basis": basis, "left_result_id": result_id, "right_result_id": result_id,
-        "result_family": "force", "identity": identity(result_id, dimension=dimension),
+        "result_family": family, "identity": identity(result_id, family=family, dimension=dimension, object_ref=object_ref),
         "normalized_unit": unit, "left_magnitude": left, "right_magnitude": right, "normalized_delta": difference,
         "tolerance_profile_ref": None, "classification": "not_tolerance_checked", "classification_basis": "no_tolerance_profile",
     }
@@ -166,9 +180,11 @@ def run_record(comparison_id: str = "analysis-run-comparison:runrec:inv-1:curren
         "comparison_kind": "analysis_run_to_analysis_run",
         "run_context": {
             "left": {"object_type": "AnalysisRun", "ref": "runrec:inv-1", "side_kind": "recorded_run",
-                     "run_record_hash": "sha256:" + "d" * 64, "result_hash": "sha256:" + "e" * 64},
+                     "run_record_hash": "sha256:" + "d" * 64, "result_hash": "sha256:" + "e" * 64,
+                     "standing": {"status": "needs_recompute", "findings": ["INVENTED_FINDING"]}},
             "right": {"object_type": "AnalysisRun", "ref": "current-run", "side_kind": "current_session_run",
-                      "run_record_hash": "not_recorded", "result_hash": "sha256:" + "f" * 64},
+                      "run_record_hash": "not_recorded", "result_hash": "sha256:" + "f" * 64,
+                      "standing": {"status": "integrity_checked", "findings": []}},
             "run_gate": [],
             "summary": {"mapped_pairs": 9, "compared": 2, "compared_nonzero": 1, "not_compared": 7,
                         "unmatched_left": 4, "unmatched_right": 3, "context_deltas": 2,
@@ -196,6 +212,7 @@ def run_record(comparison_id: str = "analysis-run-comparison:runrec:inv-1:curren
             {"setting_key": "settings.sparse_evidence_lane", "left_value": True, "right_value": False, "delta_kind": "changed"},
             {"setting_key": "load_case:case:inv-added", "left_value": None, "right_value": True, "delta_kind": "added"},
         ],
+        "csv": {"table": "run-comparison", "row_count": 16},
         "diagnostics": [
             {"code": "INV-DIAGNOSTIC-A", "severity": "warning", "affected_refs": ["node:inv-1"], "message": "Invented solve diagnostic.", "change": "removed"},
             {"code": "INV-DIAGNOSTIC-B", "severity": None, "affected_refs": [], "message": None, "change": "added"},
@@ -235,6 +252,35 @@ def cases() -> list[dict]:
         delta("result:inv-n-6", 0.0001, 1e-4, 0.0, basis="manual_mapping"),
     ])
     sparse_state = {"comparison_id": "model-state-comparison:state:inv-x:state:inv-y"}
+    # REQ-011's bound: more than ten objects in one family and unit, ties in absolute
+    # difference broken by result identifier, two rows of one object (only the larger kept),
+    # a family with fewer than ten, a family in two units, zero differences never listed,
+    # and more than ten pairs not compared and rows unmatched in one family.
+    bound_deltas = [
+        *[delta(f"result:stress:{index:02d}", 100.0, 100.0 + index, float(index), unit="MPa", dimension="stress",
+                family="stress", object_ref=f"pipe:inv-{index:02d}") for index in range(1, 13)],
+        delta("result:stress:tie-b", 50.0, 37.0, -13.0, unit="MPa", dimension="stress", family="stress", object_ref="pipe:inv-tie-b"),
+        delta("result:stress:tie-a", 10.0, 23.0, 13.0, unit="MPa", dimension="stress", family="stress", object_ref="pipe:inv-tie-a"),
+        delta("result:stress:twin-small", 1.0, 1.5, 0.5, unit="MPa", dimension="stress", family="stress", object_ref="pipe:inv-twin"),
+        delta("result:stress:twin-large", 1.0, 31.0, 30.0, unit="MPa", dimension="stress", family="stress", object_ref="pipe:inv-twin"),
+        delta("result:stress:zero", 5.0, 5.0, 0.0, unit="MPa", dimension="stress", family="stress", object_ref="pipe:inv-zero"),
+        delta("result:stress:in-pa", 1.0e6, 2.0e6, 1.0e6, unit="Pa", dimension="stress", family="stress", object_ref="pipe:inv-pa"),
+        delta("result:force:a", 1.0, 4.0, 3.0, family="force", object_ref="support:inv-a"),
+        delta("result:force:b", 2.0, 1.0, -1.0, family="force", object_ref="support:inv-b"),
+        delta("result:force:c", 2.0, 2.0, 0.0, family="force", object_ref="support:inv-c"),
+    ]
+    bounded = run_record("analysis-run-comparison:runrec:inv-5:runrec:inv-6", deltas=bound_deltas)
+    bounded["run_context"]["not_compared"] = [
+        {"result_id": f"result:moment:nc-{index:02d}", "identity": identity(f"result:moment:nc-{index:02d}", family="moment", dimension="moment"),
+         "left_unit": "N.m", "right_unit": "N.m", "reasons": ["value_not_numeric"]}
+        for index in range(12, 0, -1)
+    ]
+    bounded["run_context"]["unmatched"] = [
+        {"side": "left" if index % 2 else "right", "result_id": f"result:moment:um-{index:02d}",
+         "identity": identity(f"result:moment:um-{index:02d}", family="moment", dimension="moment"),
+         "unit": "N.m", "reason": "identity_differs", "differing_fields": ["family", "dimension"]}
+        for index in range(11, 0, -1)
+    ]
     return [
         {"name": "state_classifications",
          "description": "A saved-state comparison with every classification: added, removed, changed (with a unit change) and unchanged as the desktop writes them, and mapped_changed, mapped_unchanged (manual) and unresolved as the reference engine writes them.",
@@ -257,6 +303,9 @@ def cases() -> list[dict]:
         {"name": "number_forms",
          "description": "Values whose Python and JavaScript JSON texts differ (1e-05, 2.0, 1e+16, 1.5e-07, -0.0, 1e+21, 0.0001) and a manual mapping.",
          "inputs": inputs([], [number_forms], "comparison-parity:numbers")},
+        {"name": "result_difference_bound",
+         "description": "REQ-011's bound on restated result differences: counts per family and reason, the ten largest per family and unit (ties by result identifier, one per object, no zero), the first ten pairs not compared and rows unmatched per family, and what the summary omits.",
+         "inputs": inputs([], [bounded], "comparison-parity:bound")},
         {"name": "sparse_state_record",
          "description": "A saved-state record holding only its identifier: its unavailable values are stated as unresolved and its missing boundary as a warning.",
          "inputs": inputs([sparse_state], [], "comparison-parity:sparse")},

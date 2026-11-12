@@ -410,7 +410,9 @@ def test_sections_preserve_ids_hashes_warnings_assumptions_units_and_review_stat
     assert run_section["source_provenance"]["source_name"] == "Invented analysis run"
     assert run_section["analysis_status"] == ["HUMAN_REVIEW_REQUIRED", "MECHANICS_SOLVED"]
     assert run_section["rule_pack_refs"][0]["checksum"]["value"] == "sha256:invented-rule"
-    assert comparison_section["unit_normalized_deltas"][0]["normalized_unit"] == "Pa"
+    # REQ-011: the section bounds what it restates of the result differences.
+    assert comparison_section["largest_differences"][0]["differences"][0]["normalized_unit"] == "Pa"
+    assert "unit_normalized_deltas" not in comparison_section
     assert comparison_section["tolerance_profile_refs"] == ["tolerance:invented-review"]
     assert handoff_section["model_hash"]["value"] == "sha256:invented-model"
     assert handoff_section["unsupported_target_flags"][0]["human_review_required"] is True
@@ -602,8 +604,10 @@ def test_comparison_parity_vector_is_the_reference_engine_output():
     assert by_name["both_kinds"] == by_name["both_kinds_permuted"]
 
 
-def test_state_comparison_section_carries_changed_entities_without_values_and_its_hash():
-    """REQ-011: the comparison as computed, by stable identifier, with the record's hash."""
+def test_state_comparison_section_carries_changed_entities_with_values_and_its_hash():
+    """REQ-011: every difference in inputs, with both stored values and their units, the
+    origin reference beside a changed entity, and the record's hash. REQ-009: a field of a
+    provenance record keeps only its path and hashes."""
 
     writer = _comparison_parity_writer()
     record = writer.state_record()
@@ -622,24 +626,88 @@ def test_state_comparison_section_carries_changed_entities_without_values_and_it
     }
     assert section["left_ref"]["model_hash"] == record["left_state_ref"]["model_hash"]
     mapped = next(row for row in section["changed_entities"] if row["classification"] == "mapped_changed")
-    assert mapped["changes"] == [{"field": "length"}]
-    changed = next(row for row in section["changed_entities"] if row["classification"] == "changed")
-    assert changed["changes"][0] == {"path": "position", "change_kind": "unit_changed", "left_unit": "m", "right_unit": "mm"}
-    assert "left" not in canonical_json(section["changed_entities"]).replace('"left_ref"', "").replace('"left_unit"', "")
+    assert mapped["changes"] == [{"field": "length", "left": {"value": 2.0, "unit": "m"}, "right": {"value": 2.5, "unit": "m"}}]
+    node = next(row for row in section["changed_entities"] if (row["left_ref"] or {}).get("object_type") == "node")
+    assert node["changes"][0]["left"] == {"x": 1.5, "y": 0, "z": 0, "unit": "m"}
+    material = next(row for row in section["changed_entities"] if (row["left_ref"] or {}).get("object_type") == "material")
+    assert material["left_origin_ref"] == "library:material:inv-lib#rec-1"
+    content = [change for change in material["changes"] if change["path"].startswith("provenance_record")]
+    assert content == [
+        {"path": "provenance_record.source_name", "change_kind": "changed", "left_sha256": "1" * 64, "right_sha256": "2" * 64},
+        {"path": "provenance_record.verification_note", "change_kind": "added", "right_sha256": "3" * 64},
+    ]
+    assert "never restates" not in canonical_json(section)
+    assert section["csv"] == {"table": "state-comparison", "row_count": 13, "statement": section["csv"]["statement"]}
 
 
-def test_run_comparison_section_carries_its_hash_and_its_context():
+def test_run_comparison_section_bounds_result_differences():
+    """REQ-011: counts per family and reason, the ten largest per family and unit by
+    absolute difference (one per object, ties by result identifier, never zero), the first
+    ten pairs not compared and rows unmatched per family, and what is not listed."""
+
     writer = _comparison_parity_writer()
-    record = writer.run_record()
-    kwargs = section_kwargs()
-    kwargs["analysis_run_comparisons"] = [record]
-
-    result = build_state_comparison_handoff_report_sections(**kwargs)
+    fixture = json.loads(writer.FIXTURE.read_text(encoding="utf-8"))
+    case = next(item for item in fixture["cases"] if item["name"] == "result_difference_bound")
+    record = case["inputs"]["analysis_run_comparisons"][0]
+    result = build_state_comparison_handoff_report_sections(**case["inputs"])
     section = result["sections"]["comparison_sections"][0]
 
     assert section["hash_refs"] == record["hashes"]
-    assert section["run_context"] == record["run_context"]
+    assert "not_compared" not in section["run_context"] and "unmatched" not in section["run_context"]
+    assert section["run_context"]["left"]["standing"] == {"status": "needs_recompute", "findings": ["INVENTED_FINDING"]}
+    groups = {(group["result_family"], group["normalized_unit"]): group["differences"] for group in section["largest_differences"]}
+    # Formed by hand from the invented records.
+    assert [entry["result_id"] for entry in groups[("stress", "MPa")]] == [
+        "result:stress:twin-large", "result:stress:tie-a", "result:stress:tie-b",
+        "result:stress:12", "result:stress:11", "result:stress:10", "result:stress:09",
+        "result:stress:08", "result:stress:07", "result:stress:06",
+    ]
+    assert [entry["result_id"] for entry in groups[("stress", "Pa")]] == ["result:stress:in-pa"]
+    assert [entry["result_id"] for entry in groups[("force", "N")]] == ["result:force:a", "result:force:b"]
+    first = groups[("stress", "MPa")][0]
+    assert {key: first[key] for key in ("object_ref", "basis_ref", "component", "location", "left_magnitude", "right_magnitude", "normalized_delta", "normalized_unit")} == {
+        "object_ref": "pipe:inv-twin", "basis_ref": {"ref_type": "load_case", "ref_id": "case:inv-1"}, "component": "fx",
+        "location": "end_i", "left_magnitude": 1.0, "right_magnitude": 31.0, "normalized_delta": 30.0, "normalized_unit": "MPa",
+    }
+    counts = {item["result_family"]: item for item in section["result_difference_counts"]["by_family"]}
+    assert counts["stress"]["pairs_compared"] == 18 and counts["stress"]["pairs_differing"] == 17
+    assert counts["force"]["pairs_compared"] == 3 and counts["force"]["pairs_differing"] == 2
+    assert counts["moment"]["pairs_not_compared"] == {"value_not_numeric": 12}
+    assert counts["moment"]["rows_unmatched"] == {"left": {"identity_differs": 6}, "right": {"identity_differs": 5}}
+    listed = section["pairs_not_compared_listed"][0]
+    assert listed["result_family"] == "moment"
+    assert [row["result_id"] for row in listed["rows"]] == [f"result:moment:nc-{index:02d}" for index in range(1, 11)]
+    assert section["rows_unmatched_listed"][0]["rows"][0]["differing_fields"] == ["family", "dimension"]
+    assert section["summary_coverage"] == {
+        "result_families": ["force", "moment", "stress"],
+        "differences_not_listed": 19 - 13,
+        "pairs_not_compared_not_listed": 2,
+        "rows_unmatched_not_listed": 1,
+        "where": section["summary_coverage"]["where"],
+    }
     assert not [item for item in result["diagnostics"] if item["severity"] == "blocking"]
+
+
+def test_run_comparison_section_is_no_larger_for_ten_times_the_rows():
+    """AC-001: a record with ten times the result rows gives a section no larger, apart
+    from the width of its counts."""
+
+    writer = _comparison_parity_writer()
+
+    def section_bytes(scale: int) -> int:
+        deltas = [
+            writer.delta(f"result:stress:{index:05d}", 100.5, 100.5 + index % 97 + 0.25, index % 97 + 0.25, unit="MPa",
+                         dimension="stress", family="stress", object_ref=f"pipe:inv-{index:05d}")
+            for index in range(1, 101 * scale)
+        ]
+        record = writer.run_record("analysis-run-comparison:runrec:inv-s:runrec:inv-t", deltas=deltas)
+        result = build_state_comparison_handoff_report_sections(**writer.inputs([], [record], "comparison-scale"))
+        section = result["sections"]["comparison_sections"][0]
+        return len(canonical_json(section))
+
+    one, ten = section_bytes(1), section_bytes(10)
+    count_digits = 8 * 2
+    assert ten <= one + count_digits, (one, ten)
 
 
 def test_comparison_without_hashes_gives_an_empty_hash_inventory():

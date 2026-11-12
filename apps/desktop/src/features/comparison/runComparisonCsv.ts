@@ -132,6 +132,8 @@ export function runComparisonCsv(input: {
   filters: RunComparisonFilters;
   softwareVersion: string;
   unitBasis: string;
+  /** `sha256:<hex>` of the complete comparison record (`comparisonCsvRecordHash`), whatever the filters. */
+  comparisonRecordHash: string;
 }): CsvExport {
   const entries = input.entries;
   const stored = (value: number) => storedValueCell(value);
@@ -161,7 +163,8 @@ export function runComparisonCsv(input: {
         softwareVersion: input.softwareVersion,
         sides: input.sides,
         caseOrFilter: `a = left ${input.leftDescription}; b = right ${input.rightDescription}; status: ${filters.status}; family: ${filters.family}; result id contains: ${filters.idFilter.trim() || "any"}`,
-        unitBasis: input.unitBasis
+        unitBasis: input.unitBasis,
+        comparisonRecordHash: input.comparisonRecordHash
       },
       columns, rows
     },

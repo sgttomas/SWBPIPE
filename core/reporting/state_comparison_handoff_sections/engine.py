@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 import json
+import re
 from math import isfinite
 from typing import Any, Mapping
 
@@ -395,6 +396,7 @@ def _comparison_sections(
                 "tolerance_profile_refs": [],
                 "unit_normalized_deltas": [],
                 "settings": deepcopy(item.get("settings")),
+                "csv": _csv_statement(item.get("csv")),
                 "diagnostics": _safe_public_context(_list(item.get("diagnostics"))),
                 "source_provenance": deepcopy(item.get("provenance")),
                 "privacy_classification": _privacy_classification(item),
@@ -415,8 +417,14 @@ def _comparison_sections(
                 "section_id": f"comparison:{comparison_ref['ref']}",
                 "section_kind": "analysis_run_comparison",
                 "comparison_ref": comparison_ref,
-                "run_context": deepcopy(item.get("run_context")),
+                "run_context": _bounded_run_context(item.get("run_context")),
                 "hash_refs": _hash_refs(item.get("hashes")),
+                "result_difference_counts": _result_difference_counts(deltas, item.get("run_context")),
+                "largest_differences": _largest_differences(deltas),
+                "pairs_not_compared_listed": _listed_rows(item.get("run_context"), "not_compared"),
+                "rows_unmatched_listed": _listed_rows(item.get("run_context"), "unmatched"),
+                "summary_coverage": _summary_coverage(deltas, item.get("run_context")),
+                "csv": _csv_statement(item.get("csv")),
                 "manual_mappings": _manual_mappings(deltas),
                 "unmatched_classifications": _unmatched_classifications(_list(item.get("diagnostics"))),
                 "tolerance_profile_refs": sorted(
@@ -426,7 +434,6 @@ def _comparison_sections(
                         if delta.get("tolerance_profile_ref")
                     }
                 ),
-                "unit_normalized_deltas": deltas,
                 "settings_deltas": deepcopy(_list(item.get("settings_deltas"))),
                 "diagnostics": _safe_public_context(_list(item.get("diagnostics"))),
                 "source_provenance": deepcopy(item.get("provenance")),
@@ -887,13 +894,41 @@ UNCHANGED_CLASSIFICATIONS = {"unchanged", "mapped_unchanged"}
 
 CHANGE_VALUE_KEYS = {"left", "right", "left_value", "right_value", "value"}
 
+# REQ-009, AC-006: a member that holds a library record's own content (its
+# provenance record) is never stated by value; the record states it by path and
+# the SHA-256 of each side's canonical value, and the section keeps only those.
+RECORD_CONTENT_MEMBER = re.compile(r"^provenance_record(?:[.\[]|$)")
+
+ORIGIN_KEYS = ("left_origin_ref", "right_origin_ref")
+
+# REQ-011: the bound on restated result differences.
+LARGEST_DIFFERENCES_PER_FAMILY_AND_UNIT = 10
+RESULT_FAMILY_NONE = "none"
+RUN_CONTEXT_ROW_LISTS = {"not_compared", "unmatched"}
+
+CSV_STATEMENT = (
+    "The comparison table's CSV holds every row of the comparison; an export with a filter "
+    "holds fewer. The CSV's preamble states the hash of this comparison record."
+)
+
+
+def _change_path(change: Mapping[str, Any]) -> str:
+    return str(change.get("path") or change.get("field") or "")
+
+
+def _restated_change(change: Mapping[str, Any]) -> dict[str, Any]:
+    if RECORD_CONTENT_MEMBER.match(_change_path(change)):
+        return {str(key): deepcopy(value) for key, value in change.items() if str(key) not in CHANGE_VALUE_KEYS}
+    return {str(key): deepcopy(value) for key, value in change.items()}
+
 
 def _changed_entities(items: list[Any]) -> list[dict[str, Any]]:
-    """Every entity row that is not unchanged, by identity, with its changed paths.
+    """Every entity row that is not unchanged, by identity, with every changed field.
 
-    REQ-011: the section preserves the comparison as computed by stable identifier.
-    The changed fields keep their paths, change kinds and units; their values stay
-    in the source comparison record, which the section names by its hash.
+    REQ-011: the section states the comparison as computed by stable identifier:
+    each changed field's path, both stored values and their units, and beside them
+    the entity's origin reference where the record states one. A member holding a
+    library record's own content keeps only its path and hashes (REQ-009).
     """
 
     changed = []
@@ -902,23 +937,256 @@ def _changed_entities(items: list[Any]) -> list[dict[str, Any]]:
             continue
         if str(item.get("classification")) in UNCHANGED_CLASSIFICATIONS:
             continue
-        changed.append(
-            {
-                "classification": deepcopy(item.get("classification")),
-                "left_ref": deepcopy(item.get("left_ref")),
-                "right_ref": deepcopy(item.get("right_ref")),
-                "changes": [
-                    {
-                        str(key): deepcopy(value)
-                        for key, value in change.items()
-                        if str(key) not in CHANGE_VALUE_KEYS
-                    }
-                    for change in _list(item.get("changes"))
-                    if isinstance(change, Mapping)
-                ],
-            }
-        )
+        entry = {
+            "classification": deepcopy(item.get("classification")),
+            "left_ref": deepcopy(item.get("left_ref")),
+            "right_ref": deepcopy(item.get("right_ref")),
+            "changes": [
+                _restated_change(change)
+                for change in _list(item.get("changes"))
+                if isinstance(change, Mapping)
+            ],
+        }
+        for key in ORIGIN_KEYS:
+            if key in item:
+                entry[key] = deepcopy(item[key])
+        changed.append(entry)
     return sorted(changed, key=canonical_json)
+
+
+def _csv_statement(value: Any) -> Any:
+    """The comparison table's CSV: its kind and the row count of the unfiltered export."""
+
+    if not isinstance(value, Mapping):
+        return None
+    return {
+        "table": deepcopy(value.get("table")),
+        "row_count": deepcopy(value.get("row_count")),
+        "statement": CSV_STATEMENT,
+    }
+
+
+def _bounded_run_context(value: Any) -> Any:
+    """The run context without its row lists, which the counts state instead."""
+
+    if not isinstance(value, Mapping):
+        return deepcopy(value)
+    return {str(key): deepcopy(item) for key, item in value.items() if str(key) not in RUN_CONTEXT_ROW_LISTS}
+
+
+def _mapping(value: Any) -> Mapping[str, Any]:
+    return value if isinstance(value, Mapping) else {}
+
+
+def _delta_identity(delta: Mapping[str, Any]) -> Mapping[str, Any]:
+    return _mapping(delta.get("identity"))
+
+
+def _delta_family(delta: Mapping[str, Any]) -> str:
+    value = delta.get("result_family") or _delta_identity(delta).get("family")
+    return str(value) if value else RESULT_FAMILY_NONE
+
+
+def _delta_result_id(delta: Mapping[str, Any]) -> str:
+    return str(delta.get("left_result_id") or delta.get("result_id") or "")
+
+
+def _delta_object(delta: Mapping[str, Any]) -> Any:
+    identity = _delta_identity(delta)
+    if "object_ref" in identity:
+        return identity.get("object_ref")
+    return _mapping(delta.get("object_refs")).get("left")
+
+
+def _row_family(row: Mapping[str, Any]) -> str:
+    value = _delta_identity(row).get("family")
+    return str(value) if value else RESULT_FAMILY_NONE
+
+
+def _empty_counts() -> dict[str, Any]:
+    return {"pairs_compared": 0, "pairs_differing": 0, "pairs_not_compared": {}, "rows_unmatched": {"left": {}, "right": {}}}
+
+
+def _add(counter: dict[str, int], key: str) -> None:
+    counter[key] = counter.get(key, 0) + 1
+
+
+def _result_difference_counts(deltas: list[Any], run_context: Any) -> dict[str, Any]:
+    """REQ-011: pairs compared, pairs that differ, pairs not compared by reason and
+    rows unmatched by side and reason, for the comparison and for each result family."""
+
+    context = _mapping(run_context)
+    total = _empty_counts()
+    families: dict[str, dict[str, Any]] = {}
+
+    def buckets(family: str) -> tuple[dict[str, Any], dict[str, Any]]:
+        return total, families.setdefault(family, _empty_counts())
+
+    for delta in deltas:
+        if not isinstance(delta, Mapping):
+            continue
+        value = delta.get("normalized_delta")
+        for bucket in buckets(_delta_family(delta)):
+            bucket["pairs_compared"] += 1
+            if _finite_number(value) and value != 0:
+                bucket["pairs_differing"] += 1
+    for pair in _list(context.get("not_compared")):
+        if not isinstance(pair, Mapping):
+            continue
+        for bucket in buckets(_row_family(pair)):
+            for reason in _list(pair.get("reasons")):
+                _add(bucket["pairs_not_compared"], str(reason))
+    for row in _list(context.get("unmatched")):
+        if not isinstance(row, Mapping):
+            continue
+        for bucket in buckets(_row_family(row)):
+            side = bucket["rows_unmatched"].setdefault(str(row.get("side")), {})
+            _add(side, str(row.get("reason")))
+    return {
+        "total": total,
+        "by_family": [{"result_family": family, **families[family]} for family in sorted(families)],
+    }
+
+
+ROWS_LISTED_PER_FAMILY = 10
+
+SUMMARY_WHERE = (
+    "Every pair and row is in the complete comparison record this section names by its hash "
+    "and in the comparison table's CSV."
+)
+
+
+def _row_entry(row: Mapping[str, Any], kind: str) -> dict[str, Any]:
+    identity = _delta_identity(row)
+    entry = {
+        "result_id": str(row.get("result_id") or ""),
+        "object_ref": deepcopy(identity.get("object_ref")),
+        "basis_ref": deepcopy(identity.get("basis_ref")),
+        "component": deepcopy(identity.get("component")),
+        "location": deepcopy(identity.get("location")),
+    }
+    if kind == "not_compared":
+        entry.update(
+            left_unit=deepcopy(row.get("left_unit")),
+            right_unit=deepcopy(row.get("right_unit")),
+            reasons=deepcopy(_list(row.get("reasons"))),
+        )
+    else:
+        entry.update(
+            side=deepcopy(row.get("side")),
+            unit=deepcopy(row.get("unit")),
+            reason=deepcopy(row.get("reason")),
+            differing_fields=deepcopy(_list(row.get("differing_fields"))),
+        )
+    return entry
+
+
+def _row_order(row: Mapping[str, Any]) -> tuple[str, str]:
+    return (str(row.get("result_id") or ""), str(row.get("side") or ""))
+
+
+def _rows_by_family(run_context: Any, kind: str) -> dict[str, list[Mapping[str, Any]]]:
+    families: dict[str, list[Mapping[str, Any]]] = {}
+    for row in _list(_mapping(run_context).get(kind)):
+        if isinstance(row, Mapping):
+            families.setdefault(_row_family(row), []).append(row)
+    return families
+
+
+def _listed_rows(run_context: Any, kind: str) -> list[dict[str, Any]]:
+    """REQ-011: for each result family, the first ten pairs not compared (or rows
+    unmatched) in result identifier order, each with its reasons."""
+
+    families = _rows_by_family(run_context, kind)
+    return [
+        {
+            "result_family": family,
+            "rows": [_row_entry(row, kind) for row in sorted(families[family], key=_row_order)[:ROWS_LISTED_PER_FAMILY]],
+        }
+        for family in sorted(families)
+    ]
+
+
+def _summary_coverage(deltas: list[Any], run_context: Any) -> dict[str, Any]:
+    """What the summary covers and what it omits: the families summarised, the rows
+    not listed, and where they are."""
+
+    largest = _largest_differences(deltas)
+    differing = sum(
+        1
+        for delta in deltas
+        if isinstance(delta, Mapping) and _finite_number(delta.get("normalized_delta")) and delta.get("normalized_delta") != 0
+    )
+    listed = sum(len(group["differences"]) for group in largest)
+    not_listed = {}
+    for kind in ("not_compared", "unmatched"):
+        families = _rows_by_family(run_context, kind)
+        not_listed[kind] = sum(max(0, len(rows) - ROWS_LISTED_PER_FAMILY) for rows in families.values())
+    families = sorted(
+        {_delta_family(delta) for delta in deltas if isinstance(delta, Mapping)}
+        | set(_rows_by_family(run_context, "not_compared"))
+        | set(_rows_by_family(run_context, "unmatched"))
+    )
+    return {
+        "result_families": families,
+        "differences_not_listed": differing - listed,
+        "pairs_not_compared_not_listed": not_listed["not_compared"],
+        "rows_unmatched_not_listed": not_listed["unmatched"],
+        "where": SUMMARY_WHERE,
+    }
+
+
+def _difference_rank(delta: Mapping[str, Any]) -> tuple[float, str]:
+    return (-abs(delta["normalized_delta"]), _delta_result_id(delta))
+
+
+def _difference_entry(delta: Mapping[str, Any]) -> dict[str, Any]:
+    identity = _delta_identity(delta)
+    return {
+        "result_id": _delta_result_id(delta),
+        "object_ref": deepcopy(_delta_object(delta)),
+        "basis_ref": deepcopy(identity.get("basis_ref")),
+        "component": deepcopy(identity.get("component")),
+        "location": deepcopy(identity.get("location")),
+        "left_magnitude": deepcopy(delta.get("left_magnitude")),
+        "right_magnitude": deepcopy(delta.get("right_magnitude")),
+        "normalized_delta": deepcopy(delta.get("normalized_delta")),
+        "normalized_unit": deepcopy(delta.get("normalized_unit")),
+        "dimension": deepcopy(delta.get("dimension")),
+    }
+
+
+def _largest_differences(deltas: list[Any]) -> list[dict[str, Any]]:
+    """REQ-011: for each result family and unit, the ten largest differences by
+    absolute value, at most one for any one object (its largest, then its lowest
+    result identifier), ordered by absolute difference, largest first, then by
+    result identifier. A zero difference is never listed."""
+
+    groups: dict[tuple[str, str], dict[str, Mapping[str, Any]]] = {}
+    for delta in deltas:
+        if not isinstance(delta, Mapping):
+            continue
+        value = delta.get("normalized_delta")
+        if not _finite_number(value) or value == 0:
+            continue
+        unit = delta.get("normalized_unit")
+        key = (_delta_family(delta), str(unit) if unit else "")
+        by_object = groups.setdefault(key, {})
+        object_key = canonical_json(_delta_object(delta))
+        current = by_object.get(object_key)
+        if current is None or _difference_rank(delta) < _difference_rank(current):
+            by_object[object_key] = delta
+    return [
+        {
+            "result_family": family,
+            "normalized_unit": unit,
+            "differences": [
+                _difference_entry(delta)
+                for delta in sorted(groups[(family, unit)].values(), key=_difference_rank)[:LARGEST_DIFFERENCES_PER_FAMILY_AND_UNIT]
+            ],
+        }
+        for family, unit in sorted(groups)
+    ]
 
 
 def _hash_refs(value: Any) -> list[Any]:

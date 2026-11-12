@@ -136,9 +136,10 @@ export type ReportPackageRequestInput = {
   ruleCheckAggregate: string | null;
   /** The session's rule-check run, exposed only while its aggregate is current. */
   ruleCheckRun: SessionRuleCheckRun | null;
-  /** DEL-08-06 AC-009: the records of the saved-state and run comparisons the person
-   * included (`comparisonRecords.ts`); their sections join the section set. */
-  sessionComparisons?: import("./comparisonSections").ComparisonRecords | null;
+  /** DEL-08-06 AC-009: the sections of the saved-state and run comparisons the person
+   * included (`comparisonRecords.ts`), formed from their complete records; they join the
+   * section set. */
+  sessionComparisons?: import("./comparisonSections").BoundComparisons | null;
 };
 
 type JsonRecord = Record<string, any>;

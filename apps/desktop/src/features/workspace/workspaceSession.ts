@@ -206,7 +206,7 @@ import {
 } from "./projectPersistenceIntegrity";
 import { persistenceHashesMatch } from "./savedModelBasis";
 import { useModelStateHistory, type LandedProjectSave, type ProjectBinding } from "../history/useModelStateHistory";
-import { reportComparisonRecords, type ReportComparisons } from "../comparison/comparisonRecords";
+import { reportComparisonSections, type ReportComparisons } from "../comparison/comparisonRecords";
 
 /** Two inclusions are the same when they hold the same comparisons (a change of the
  * selection during preparation retires a report package save). */
@@ -3886,10 +3886,9 @@ export function useWorkspaceSession() {
       // The report package reads full rows (C2): a native result's bounded full copy and record.
       const reportRun = basis.result && isNativeResult(basis.result) ? await loadC2Full(basis.result) : { result: basis.result as MechanicsResult, analysisRun: basis.analysisRun as AnalysisRunEnvelope };
       if (!isCurrent()) return;
-      // The included comparisons as records (`comparisonRecords.ts`), from the rows each
-      // comparison already read when the person asked for it.
-      const sessionComparisons = await reportComparisonRecords(basis.reportComparisons);
-      if (!isCurrent()) return;
+      // The included comparisons' sections, formed from their complete records when each
+      // was included (`comparisonRecords.ts`).
+      const sessionComparisons = reportComparisonSections(basis.reportComparisons);
       const request = await buildReportPackageRequest({
         model: basis.model,
         result: reportRun.result,

@@ -22,6 +22,7 @@ import {
 } from "./runComparisonCsv";
 import { heldStatusQuotedNotice, suppliedDiagnosticMessage } from "../results/suppliedDiagnostics";
 import { ReportInclusionControl, type ReportInclusion } from "./ReportInclusionControl";
+import { comparisonCsvRecordHash } from "./comparisonRecords";
 
 /** RT-A5: a held-status notice (`HELD_STATUS_QUOTED_CODES`) is quoted whole as supplied text here too (`suppliedDiagnosticMessage`). */
 const NO_COMBINATIONS: ReadonlySet<string> = new Set();
@@ -205,7 +206,8 @@ export function RunComparisonView({ result, onClose, reportInclusion = null }: {
           leftId: left.id, rightId: right.id, leftDescription: left.description, rightDescription: right.description,
           sides: { a: await runSideProvenance(left.csv), b: await runSideProvenance(right.csv) },
           entries: matching, filters: { status, family, idFilter },
-          softwareVersion: CSV_SOFTWARE_VERSION, unitBasis: CSV_UNIT_BASIS_STORED
+          softwareVersion: CSV_SOFTWARE_VERSION, unitBasis: CSV_UNIT_BASIS_STORED,
+          comparisonRecordHash: await comparisonCsvRecordHash("run", result)
         })}
       />
       <table className="state-comparison-table" data-testid="run-comparison-table" data-csv-export={RUN_COMPARISON_CSV_KIND}>
