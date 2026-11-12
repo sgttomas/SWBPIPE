@@ -73,6 +73,8 @@ export function stateComparisonCsv(input: {
   filters: Readonly<{ classification: string; family: string; idFilter: string }>;
   softwareVersion: string;
   unitBasis: string;
+  /** `sha256:<hex>` of the complete comparison record (`comparisonCsvRecordHash`), whatever the filters. */
+  comparisonRecordHash: string;
 }): CsvExport {
   const lines: Line[] = input.rows.flatMap((row): Line[] => (row.changes.length > 0 ? row.changes.map((change) => ({ row, change })) : [{ row, change: null }]));
   const side = (name: "left" | "right") => [
@@ -101,7 +103,8 @@ export function stateComparisonCsv(input: {
           b: { modelHash: csvRecordedModelHash(right.model_hash), resultHash: CSV_NOT_APPLICABLE, analysisRoutes: [CSV_NOT_APPLICABLE] }
         },
         caseOrFilter: `a = left state ${left.state_id}; b = right state ${right.state_id}; classification: ${filters.classification}; family: ${filters.family}; id contains: ${filters.idFilter.trim() || "any"}`,
-        unitBasis: input.unitBasis
+        unitBasis: input.unitBasis,
+        comparisonRecordHash: input.comparisonRecordHash
       },
       columns, rows
     },

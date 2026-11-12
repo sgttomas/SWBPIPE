@@ -41,6 +41,8 @@ code_paths:
 - apps/desktop/src-tauri/src/model_states.rs
 # The committed invented pairs both implementations are run on.
 - fixtures/comparison/model_state_comparison_golden.json
+# The comparison restated as a record for a report's section set; DEL-08-06 lists it too.
+- apps/desktop/src/features/comparison/comparisonRecords.ts
 checks:
 - tests/test_model_state_comparison.py
 - tests/test_model_state_comparison_parity.py
@@ -48,3 +50,4 @@ checks:
 - apps/desktop/src/features/comparison/stateComparison.test.ts
 - apps/desktop/src/features/comparison/stateComparisonParity.test.ts
 - apps/desktop/src/features/history/compareStates.test.tsx
+- apps/desktop/src/features/history/reportComparisons.session.test.tsx

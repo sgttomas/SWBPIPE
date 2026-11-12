@@ -73,6 +73,16 @@ needs:
   condition: A persisted document has one current version; a reader accepts only that version and refuses
     every other by name, with no migration.
   gating: false
+- from: DEL-02-05
+  condition: The project store keeps a project's saved-package entries, returns them unchanged and in
+    order when the project is opened, and removes them with the project.
+  when: Keeping and reading the project's report list.
+  gating: true
+- from: DEL-14-02
+  condition: A recorded run states the hash of the result it received, and a project's recorded runs
+    can be found by that hash.
+  when: Showing a saved-package entry with its run.
+  gating: false
 - from: DEL-14-02
   condition: The run record of a solve names its run, the model state it solved, its input manifest and
     the hash of the result it received.
@@ -169,6 +179,7 @@ checks:
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
 - core/reporting/report_package/tests/current_result_package.rs
+- core/reporting/report_package/tests/comparison_sections.rs
 - core/reporting/report_package/tests/exact_sections_parity.rs
 - core/reporting/report_package/tests/report_rows_parity.rs
 - core/reporting/report_package/tests/report_diagnostics_parity.rs

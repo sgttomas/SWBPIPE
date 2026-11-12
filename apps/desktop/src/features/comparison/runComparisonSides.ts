@@ -52,6 +52,9 @@ export type RunComparisonSide = {
   input: RunComparisonInput;
   /** RT-R6: what the side states for a CSV preamble (absent sides state `not_recorded`). */
   csv?: RunSideCsvProvenance;
+  /** A recorded run's stored hashes, as its verified summary states them (the comparison
+   * record restates them); absent for the current run, which is not recorded. */
+  recorded?: { run_record_hash: string; result_hash: string };
 };
 
 export const CURRENT_RUN_DESCRIPTION = "the current run (this session's solve, not recorded)";
@@ -125,7 +128,8 @@ export async function recordedRunSide(read: AnalysisRunRead): Promise<RunCompari
     standing,
     recordedTableRead: context.recordedTableRead,
     input: sideInput(result, manifest, read.record, standing, context.recordedTableRead),
-    csv: { modelHash: csvRecordedModelHash(read.state.model_hash), model: null, resultHash: csvResultHash(result, read.record), analysisRoute: csvAnalysisRoute(result) }
+    csv: { modelHash: csvRecordedModelHash(read.state.model_hash), model: null, resultHash: csvResultHash(result, read.record), analysisRoute: csvAnalysisRoute(result) },
+    recorded: { run_record_hash: read.run.run_record_hash, result_hash: read.run.result_hash }
   };
 }
 

@@ -8,6 +8,8 @@ import json
 from pathlib import Path
 import sys
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -15,6 +17,7 @@ if str(ROOT) not in sys.path:
 
 from core.reporting.state_comparison_handoff_sections import (  # noqa: E402
     build_persisted_project_report_sections,
+    STATUS_MEMBERS,
     build_state_comparison_handoff_report_sections,
     canonical_json,
     diagnostics_for_report_sections,
@@ -213,7 +216,7 @@ def analysis_comparison() -> dict[str, object]:
                 "normalized_delta": 1.0,
                 "absolute_normalized_delta": 1.0,
                 "tolerance_profile_ref": "tolerance:invented-review",
-                "classification": "requires_human_review",
+                "classification": "within_tolerance_profile",
             }
         ],
         "settings_deltas": [],
@@ -410,7 +413,9 @@ def test_sections_preserve_ids_hashes_warnings_assumptions_units_and_review_stat
     assert run_section["source_provenance"]["source_name"] == "Invented analysis run"
     assert run_section["analysis_status"] == ["HUMAN_REVIEW_REQUIRED", "MECHANICS_SOLVED"]
     assert run_section["rule_pack_refs"][0]["checksum"]["value"] == "sha256:invented-rule"
-    assert comparison_section["unit_normalized_deltas"][0]["normalized_unit"] == "Pa"
+    # REQ-011: the section bounds what it restates of the result differences.
+    assert comparison_section["largest_differences"][0]["differences"][0]["normalized_unit"] == "Pa"
+    assert "unit_normalized_deltas" not in comparison_section
     assert comparison_section["tolerance_profile_refs"] == ["tolerance:invented-review"]
     assert handoff_section["model_hash"]["value"] == "sha256:invented-model"
     assert handoff_section["unsupported_target_flags"][0]["human_review_required"] is True
@@ -476,22 +481,147 @@ def test_persisted_run_history_binds_to_report_sections_without_state_inference(
     assert persistence_envelope["hash"]["payload_partition_status"] == "json_payloads_defined"
 
 
-def test_authority_claims_are_diagnosed_without_copying_claim_text():
+def test_out_of_vocabulary_status_is_diagnosed_and_not_carried_and_boundary_flags_are_checked():
+    """AC-005: a source record's status outside the software's vocabulary for that member
+    produces a diagnostic naming the record and the member, and the value is not carried;
+    a boundary flag set to claim one produces a diagnostic."""
+
     kwargs = section_kwargs()
     kwargs["model_states"] = [model_state()]
     kwargs["model_states"][0]["model_state"]["professional_boundary"]["software_makes_approval_claim"] = True
-    kwargs["model_states"][0]["model_state"]["warnings"][0]["message"] = (
-        "Software says code " + "compliant and cert" + "ified."
-    )
+    kwargs["model_states"][0]["model_state"]["warnings"][0]["severity"] = "approved"
 
     record = build_state_comparison_handoff_report_sections(**kwargs)
-    codes = {item["code"] for item in record["diagnostics"]}
-    text = canonical_json(record).lower()
+    by_code = {}
+    for item in record["diagnostics"]:
+        by_code.setdefault(item["code"], []).append(item)
+    state_section = next(item for item in record["sections"]["state_run_sections"] if item["section_kind"] == "model_state_record")
 
-    assert "SCH-SOFTWARE-AUTHORITY-FLAG-BLOCKED" in codes
-    assert "SCH-AUTHORITY-CLAIM-REJECTED" in codes
-    assert "software says code " + "compliant" not in text
-    assert "omitted_prohibited_authority_or_reliance_claim" in text
+    assert "SCH-SOFTWARE-AUTHORITY-FLAG-BLOCKED" in by_code
+    outside = by_code["SCH-STATUS-OUTSIDE-VOCABULARY"]
+    assert [item["severity"] for item in outside] == ["blocking"]
+    assert outside[0]["affected_refs"] == [
+        {"object_type": "ModelState", "ref": "state:invented-del-08-06"},
+        {"object_type": "FieldPath", "ref": "$.warnings[0].severity"},
+        {"object_type": "Vocabulary", "ref": "diagnostic_severities"},
+    ]
+    assert "severity" not in state_section["warnings"][0]
+    assert "approved" not in canonical_json(record)
+
+
+OUTSIDE_VALUE = "invented_outside_value"
+
+
+def _inner_record(kwargs: dict, kind: str) -> dict:
+    """The record of `kind` whose members the assembler checks, inside `section_kwargs()`."""
+
+    if kind == "model_state":
+        return kwargs["model_states"][0].get("model_state", kwargs["model_states"][0])
+    if kind == "analysis_run":
+        return kwargs["analysis_runs"][0].get("analysis_run", kwargs["analysis_runs"][0])
+    if kind == "analysis_run_comparison":
+        return kwargs["analysis_run_comparisons"][0]
+    if kind == "handoff_package_manifest":
+        return kwargs["handoff_packages"][0]["handoff_package_manifest"]
+    if kind == "export_workflow":
+        return kwargs["export_workflows"][0]
+    return kwargs["external_prover_metadata"][0]
+
+
+def _seed(container: dict, segments: list[str], value: str) -> str:
+    """Put `value` at the first position the member path names, creating what is missing;
+    returns the field path the assembler reports."""
+
+    segment, rest = segments[0], segments[1:]
+    many = segment.endswith("[]")
+    key = segment[:-2] if many else segment
+    if not many:
+        if not rest:
+            container[key] = value
+            return f".{key}"
+        if not isinstance(container.get(key), dict):
+            container[key] = {}
+        return f".{key}" + _seed(container[key], rest, value)
+    items = container.get(key)
+    if not isinstance(items, list):
+        items = container[key] = []
+    if not rest:
+        items[:] = [value]
+        return f".{key}[0]"
+    if not items or not isinstance(items[0], dict):
+        items[:] = [{"code": "INV-SEEDED", "message": "Invented seeded item."}]
+    return f".{key}[0]" + _seed(items[0], rest, value)
+
+
+@pytest.mark.parametrize(
+    ("kind", "member", "vocabulary"),
+    [
+        (kind, member, vocabulary)
+        for kind, members in STATUS_MEMBERS.items()
+        if kind != "model_state_comparison"
+        for member, vocabulary in members
+    ],
+)
+def test_each_status_member_outside_its_vocabulary_is_diagnosed_by_name_and_not_carried(kind, member, vocabulary):
+    """VER-004: each status-bearing member of each record kind, seeded with a value outside
+    its vocabulary. The saved-state comparison's members are seeded in the shared vector."""
+
+    kwargs = section_kwargs()
+    path = "$" + _seed(_inner_record(kwargs, kind), member.split("."), OUTSIDE_VALUE)
+    record = build_state_comparison_handoff_report_sections(**kwargs)
+    code = "SCH-ANALYSIS-STATUS-BLOCKED" if vocabulary == "software_analysis_statuses" else "SCH-STATUS-OUTSIDE-VOCABULARY"
+    named = [
+        item
+        for item in record["diagnostics"]
+        if item["code"] == code
+        and {"object_type": "FieldPath", "ref": path} in item["affected_refs"]
+        and {"object_type": "Vocabulary", "ref": vocabulary} in item["affected_refs"]
+    ]
+    assert [item["severity"] for item in named] == ["blocking"], (kind, member, record["diagnostics"])
+    assert OUTSIDE_VALUE not in canonical_json(record)
+
+
+def test_warning_message_is_carried_unchanged():
+    """REQ-005: a finding's text is carried as the source wrote it; no text is matched
+    against terms, replaced or omitted (the former scanner (c) removed a finding)."""
+
+    message = "Software says code " + "compliant and cert" + "ified; no certified inertia is claimed."
+    kwargs = section_kwargs()
+    kwargs["model_states"] = [model_state()]
+    kwargs["model_states"][0]["model_state"]["warnings"][0]["message"] = message
+
+    record = build_state_comparison_handoff_report_sections(**kwargs)
+    state_section = next(item for item in record["sections"]["state_run_sections"] if item["section_kind"] == "model_state_record")
+
+    assert state_section["warnings"][0]["message"] == message
+    assert state_section["text_origin"]["warnings"] == "software"
+    assert not [item for item in record["diagnostics"] if item["severity"] == "blocking"]
+    assert "omitted_prohibited" not in canonical_json(record)
+
+
+def test_external_prover_status_member_is_a_finding_whatever_its_value():
+    """AC-003 by structure: external-prover metadata has no status member in its contract."""
+
+    for value in ["validated", "pending", "anything"]:
+        kwargs = section_kwargs()
+        kwargs["external_prover_metadata"][0]["validation_status"] = value
+        codes = {item["code"] for item in build_state_comparison_handoff_report_sections(**kwargs)["diagnostics"]}
+        assert "SCH-EXTERNAL-PROVER-STATUS-NOT-ADMITTED" in codes, value
+
+
+def test_current_model_state_section_carries_authored_labels_beside_the_software_statuses():
+    from core.reporting.state_comparison_handoff_sections import build_current_model_state_section
+
+    labels = {"mechanics": "sealed and certified", "rule_check": "compliant", "professional_acceptance": "approved"}
+    section = build_current_model_state_section(
+        {"model_ref": "project:inv", "model_hash": "a" * 64, "authored_analysis_status": labels,
+         "document_diagnostics": [{"code": "DOC", "severity": "approved", "message": "certified"}], "provenance": {}}
+    )
+    assert section["authored_analysis_status"] == labels
+    assert section["analysis_status"] == ["HUMAN_REVIEW_REQUIRED"]
+    assert section["software_standing"]["derived"] is False
+    assert section["diagnostics"][0]["severity"] == "approved"
+    assert section["text_origin"]["authored_analysis_status"] == "document_author"
 
 
 def test_disallowed_analysis_status_is_diagnosed_and_not_emitted():
@@ -510,7 +640,8 @@ def test_disallowed_analysis_status_is_diagnosed_and_not_emitted():
 
     assert "SCH-ANALYSIS-STATUS-BLOCKED" in codes
     assert "HUMAN_APPROVED_FOR_PROJECT" not in run_section["analysis_status"]
-    assert "HUMAN_APPROVED_FOR_PROJECT" in text
+    # The diagnostic names the record, the member and the vocabulary; the value is carried nowhere.
+    assert "HUMAN_APPROVED_FOR_PROJECT" not in text
 
 
 def test_external_prover_execution_claim_is_out_of_scope():
@@ -576,3 +707,138 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def _comparison_parity_writer():
+    import importlib.util
+
+    path = ROOT / "tools/fixtures/state_comparison_handoff_comparison_parity.py"
+    spec = importlib.util.spec_from_file_location("state_comparison_handoff_comparison_parity", path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_comparison_parity_vector_is_the_reference_engine_output():
+    """DEL-08-06 AC-002: the shared comparison vector the desktop assembler is held to is
+    this engine's output for its invented records, written by its writer."""
+
+    writer = _comparison_parity_writer()
+    assert writer.FIXTURE.read_text(encoding="utf-8") == writer.text()
+    fixture = json.loads(writer.FIXTURE.read_text(encoding="utf-8"))
+    for case in fixture["cases"]:
+        assert build_state_comparison_handoff_report_sections(**case["inputs"]) == case["expected"], case["name"]
+    by_name = {case["name"]: case["expected"] for case in fixture["cases"]}
+    assert by_name["both_kinds"] == by_name["both_kinds_permuted"]
+
+
+def test_state_comparison_section_carries_changed_entities_with_values_and_its_hash():
+    """REQ-011: every difference in inputs, with both stored values and their units, the
+    origin reference beside a changed entity, and the record's hash. REQ-009: a field of a
+    provenance record keeps only its path and hashes."""
+
+    writer = _comparison_parity_writer()
+    record = writer.state_record()
+    kwargs = section_kwargs()
+    kwargs["model_state_comparisons"] = [record]
+
+    section = next(
+        item
+        for item in build_state_comparison_handoff_report_sections(**kwargs)["sections"]["comparison_sections"]
+        if item["section_kind"] == "model_state_comparison"
+    )
+
+    assert section["hash_refs"] == record["hashes"]
+    assert {row["classification"] for row in section["changed_entities"]} == {
+        "added", "removed", "changed", "mapped_changed", "unresolved"
+    }
+    assert section["left_ref"]["model_hash"] == record["left_state_ref"]["model_hash"]
+    mapped = next(row for row in section["changed_entities"] if row["classification"] == "mapped_changed")
+    assert mapped["changes"] == [{"field": "length", "left": {"value": 2.0, "unit": "m"}, "right": {"value": 2.5, "unit": "m"}}]
+    node = next(row for row in section["changed_entities"] if (row["left_ref"] or {}).get("object_type") == "node")
+    assert node["changes"][0]["left"] == {"x": 1.5, "y": 0, "z": 0, "unit": "m"}
+    material = next(row for row in section["changed_entities"] if (row["left_ref"] or {}).get("object_type") == "material")
+    assert material["left_origin_ref"] == "library:material:inv-lib#rec-1"
+    content = [change for change in material["changes"] if change["path"].startswith("provenance_record")]
+    assert content == [
+        {"path": "provenance_record.source_name", "change_kind": "changed", "left_sha256": "1" * 64, "right_sha256": "2" * 64},
+        {"path": "provenance_record.verification_note", "change_kind": "added", "right_sha256": "3" * 64},
+    ]
+    assert "never restates" not in canonical_json(section)
+    assert section["csv"] == {"table": "state-comparison", "row_count": 13, "statement": section["csv"]["statement"]}
+
+
+def test_run_comparison_section_bounds_result_differences():
+    """REQ-011: counts per family and reason, the ten largest per family and unit by
+    absolute difference (one per object, ties by result identifier, never zero), the first
+    ten pairs not compared and rows unmatched per family, and what is not listed."""
+
+    writer = _comparison_parity_writer()
+    fixture = json.loads(writer.FIXTURE.read_text(encoding="utf-8"))
+    case = next(item for item in fixture["cases"] if item["name"] == "result_difference_bound")
+    record = case["inputs"]["analysis_run_comparisons"][0]
+    result = build_state_comparison_handoff_report_sections(**case["inputs"])
+    section = result["sections"]["comparison_sections"][0]
+
+    assert section["hash_refs"] == record["hashes"]
+    assert "not_compared" not in section["run_context"] and "unmatched" not in section["run_context"]
+    assert section["run_context"]["left"]["standing"] == {"status": "needs_recompute", "findings": ["INVENTED_FINDING"]}
+    groups = {(group["result_family"], group["normalized_unit"]): group["differences"] for group in section["largest_differences"]}
+    # Formed by hand from the invented records.
+    assert [entry["result_id"] for entry in groups[("stress", "MPa")]] == [
+        "result:stress:twin-large", "result:stress:tie-a", "result:stress:tie-b",
+        "result:stress:12", "result:stress:11", "result:stress:10", "result:stress:09",
+        "result:stress:08", "result:stress:07", "result:stress:06",
+    ]
+    assert [entry["result_id"] for entry in groups[("stress", "Pa")]] == ["result:stress:in-pa"]
+    assert [entry["result_id"] for entry in groups[("force", "N")]] == ["result:force:a", "result:force:b"]
+    first = groups[("stress", "MPa")][0]
+    assert {key: first[key] for key in ("object_ref", "basis_ref", "component", "location", "left_magnitude", "right_magnitude", "normalized_delta", "normalized_unit")} == {
+        "object_ref": "pipe:inv-twin", "basis_ref": {"ref_type": "load_case", "ref_id": "case:inv-1"}, "component": "fx",
+        "location": "end_i", "left_magnitude": 1.0, "right_magnitude": 31.0, "normalized_delta": 30.0, "normalized_unit": "MPa",
+    }
+    counts = {item["result_family"]: item for item in section["result_difference_counts"]["by_family"]}
+    assert counts["stress"]["pairs_compared"] == 18 and counts["stress"]["pairs_differing"] == 17
+    assert counts["force"]["pairs_compared"] == 3 and counts["force"]["pairs_differing"] == 2
+    assert counts["moment"]["pairs_not_compared"] == {"value_not_numeric": 12}
+    assert counts["moment"]["rows_unmatched"] == {"left": {"identity_differs": 6}, "right": {"identity_differs": 5}}
+    listed = section["pairs_not_compared_listed"][0]
+    assert listed["result_family"] == "moment"
+    assert [row["result_id"] for row in listed["rows"]] == [f"result:moment:nc-{index:02d}" for index in range(1, 11)]
+    assert section["rows_unmatched_listed"][0]["rows"][0]["differing_fields"] == ["family", "dimension"]
+    assert section["summary_coverage"] == {
+        "result_families": ["force", "moment", "stress"],
+        "differences_not_listed": 19 - 13,
+        "pairs_not_compared_not_listed": 2,
+        "rows_unmatched_not_listed": 1,
+        "where": section["summary_coverage"]["where"],
+    }
+    assert not [item for item in result["diagnostics"] if item["severity"] == "blocking"]
+
+
+def test_run_comparison_section_is_no_larger_for_ten_times_the_rows():
+    """AC-001: a record with ten times the result rows gives a section no larger, apart
+    from the width of its counts."""
+
+    writer = _comparison_parity_writer()
+
+    def section_bytes(scale: int) -> int:
+        deltas = [
+            writer.delta(f"result:stress:{index:05d}", 100.5, 100.5 + index % 97 + 0.25, index % 97 + 0.25, unit="MPa",
+                         dimension="stress", family="stress", object_ref=f"pipe:inv-{index:05d}")
+            for index in range(1, 101 * scale)
+        ]
+        record = writer.run_record("analysis-run-comparison:runrec:inv-s:runrec:inv-t", deltas=deltas)
+        result = build_state_comparison_handoff_report_sections(**writer.inputs([], [record], "comparison-scale"))
+        section = result["sections"]["comparison_sections"][0]
+        return len(canonical_json(section))
+
+    one, ten = section_bytes(1), section_bytes(10)
+    count_digits = 8 * 2
+    assert ten <= one + count_digits, (one, ten)
+
+
+def test_comparison_without_hashes_gives_an_empty_hash_inventory():
+    record = build_state_comparison_handoff_report_sections(**section_kwargs())
+    assert record["sections"]["comparison_sections"][0]["hash_refs"] == []

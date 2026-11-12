@@ -136,6 +136,10 @@ export type ReportPackageRequestInput = {
   ruleCheckAggregate: string | null;
   /** The session's rule-check run, exposed only while its aggregate is current. */
   ruleCheckRun: SessionRuleCheckRun | null;
+  /** DEL-08-06 AC-009: the sections of the saved-state and run comparisons the person
+   * included (`comparisonRecords.ts`), formed from their complete records; they join the
+   * section set. */
+  sessionComparisons?: import("./comparisonSections").BoundComparisons | null;
 };
 
 type JsonRecord = Record<string, any>;
@@ -342,7 +346,7 @@ async function assembleReportPackageRequest(input: ReportPackageRequestInput, ad
     result_documents: [document],
     source_results: [result],
     state_comparison_handoff_records: [
-      buildStateComparisonHandoffSections({ model, result, analysisRun, comparison, comparisonUnavailable, modelHash })
+      buildStateComparisonHandoffSections({ model, result, analysisRun, comparison, comparisonUnavailable, modelHash, sessionComparisons: input.sessionComparisons ?? null })
     ],
     rule_check_aggregate: ruleCheckAggregate,
     solve_rule_check_status: result.status.rule_check

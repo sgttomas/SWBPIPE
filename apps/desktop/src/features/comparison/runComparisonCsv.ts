@@ -28,7 +28,8 @@ export const NOT_COMPARED_LABELS: Record<NotComparedReason, string> = {
   right_run_needs_recompute: "the right run reads needs_recompute",
   family_not_compared: `no delta for this result family (deltas are computed for ${SUPPORTED_RESULT_FAMILIES.join(", ")} results, as in the reference comparison)`,
   units_differ: "the units differ (nothing is converted)",
-  value_not_numeric: "a value is not a finite number"
+  value_not_numeric: "a value is not a finite number",
+  dimension_missing: "the rows state no dimension, so no difference is formed"
 };
 
 export const UNMATCHED_LABELS: Record<UnmatchedReason, string> = {
@@ -131,6 +132,8 @@ export function runComparisonCsv(input: {
   filters: RunComparisonFilters;
   softwareVersion: string;
   unitBasis: string;
+  /** `sha256:<hex>` of the complete comparison record (`comparisonCsvRecordHash`), whatever the filters. */
+  comparisonRecordHash: string;
 }): CsvExport {
   const entries = input.entries;
   const stored = (value: number) => storedValueCell(value);
@@ -160,7 +163,8 @@ export function runComparisonCsv(input: {
         softwareVersion: input.softwareVersion,
         sides: input.sides,
         caseOrFilter: `a = left ${input.leftDescription}; b = right ${input.rightDescription}; status: ${filters.status}; family: ${filters.family}; result id contains: ${filters.idFilter.trim() || "any"}`,
-        unitBasis: input.unitBasis
+        unitBasis: input.unitBasis,
+        comparisonRecordHash: input.comparisonRecordHash
       },
       columns, rows
     },

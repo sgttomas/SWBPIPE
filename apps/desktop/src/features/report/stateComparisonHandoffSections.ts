@@ -1,5 +1,16 @@
 import type { PreviewComparisonUnavailable } from "../comparison/withinRunComparison";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewComparison, PreviewModel } from "../../types";
+import {
+  buildCurrentModelStateSection,
+  checkedMembers,
+  holdsWarnings,
+  pythonSorted,
+  sectionTbds,
+  setLevelDiagnostics,
+  settleDiagnostics,
+  unmatchedClassifications,
+  type BoundComparisons
+} from "./comparisonSections";
 
 const PROFESSIONAL_BOUNDARY = {
   human_review_required: true,
@@ -105,52 +116,46 @@ function privateSessionProvenance(model: PreviewModel) {
   };
 }
 
+/** The current model state's section (DEL-08-06; the reference's `build_current_model_state_section`):
+ * the document's analysis-status labels and diagnostics are its author's, carried as written; the
+ * software's statuses beside them; no standing of the state is derived at assembly. */
 function modelStateSection(model: PreviewModel, result: MechanicsResult, modelHash: string): JsonRecord {
-  const stateRef = `state:${result.model_ref}:preview`;
-  return {
-    section_id: `state-run:${stateRef}`,
-    section_kind: "model_state_record",
-    state_ref: { object_type: "ModelState", ref: stateRef },
-    run_ref: null,
-    hash_refs: [
-      {
-        algorithm: "sha256",
-        canonicalization: "rfc8785_jcs",
-        payload_ref: { object_type: "ModelState", ref: stateRef },
-        payload_scope: "model_state",
-        value: modelHash
-      }
-    ],
-    diagnostics: model.diagnostics ?? [],
-    warnings: model.diagnostics ?? [],
-    assumptions: [],
-    analysis_status: stableSort(
-      [model.analysis_status.mechanics, model.analysis_status.rule_check, "HUMAN_REVIEW_REQUIRED"].filter(Boolean)
-    ),
-    unit_context: { ref_type: "unit_system", ref_id: "unit-system:dec-018-si-dual-display" },
-    solver_context: null,
-    settings_ref: null,
-    source_provenance: privateSessionProvenance(model),
-    privacy_classification: "private_project_data",
-    review_state: "pending",
-    limitations: [],
-    professional_boundary: PROFESSIONAL_BOUNDARY
-  };
+  return buildCurrentModelStateSection({
+    model_ref: result.model_ref,
+    model_hash: modelHash,
+    authored_analysis_status: model.analysis_status,
+    document_diagnostics: (model.diagnostics ?? []) as unknown[],
+    provenance: privateSessionProvenance(model)
+  });
 }
 
-function analysisRunSection(model: PreviewModel, result: MechanicsResult, analysisRun: AnalysisRunEnvelope): JsonRecord {
+/** The status-bearing members the desktop's run and within-run sections carry from the
+ * software (DEL-08-06 AC-005), with their vocabularies (`comparisonSections.ts`). */
+const RUN_SECTION_STATUS_MEMBERS: ReadonlyArray<readonly [string, string]> = [
+  ["analysis_status[]", "software_analysis_statuses"],
+  ["diagnostics[].severity", "diagnostic_severities"]
+];
+const WITHIN_RUN_STATUS_MEMBERS: ReadonlyArray<readonly [string, string]> = [
+  ["result_deltas[].classification", "delta_classifications"],
+  ["result_deltas[].classification_basis", "delta_classification_bases"],
+  ["diagnostics[].severity", "diagnostic_severities"]
+];
+
+function analysisRunSection(model: PreviewModel, result: MechanicsResult, analysisRun: AnalysisRunEnvelope, diagnosticsOut: JsonRecord[]): JsonRecord {
   const run = analysisRun.analysis_run;
   const provenance = privateSessionProvenance(model);
+  const checked = checkedMembers({ analysis_status: run.analysis_status, diagnostics: result.diagnostics }, RUN_SECTION_STATUS_MEMBERS, { object_type: "AnalysisRun", ref: run.run_id }, diagnosticsOut);
+  const diagnostics = checked.diagnostics as MechanicsResult["diagnostics"];
   return {
     section_id: `state-run:${run.run_id}`,
     section_kind: "analysis_run_record",
     state_ref: run.model_state_ref,
     run_ref: { object_type: "AnalysisRun", ref: run.run_id },
     hash_refs: run.hashes,
-    diagnostics: result.diagnostics,
-    warnings: result.diagnostics.filter((item) => item.severity !== "blocking" && item.severity !== "error"),
+    diagnostics,
+    warnings: diagnostics.filter((item) => item.severity !== "blocking" && item.severity !== "error"),
     assumptions: [],
-    analysis_status: stableSort(run.analysis_status),
+    analysis_status: stableSort(checked.analysis_status as string[]),
     unit_context: { ref_type: "unit_system", ref_id: "unit-system:dec-018-si-dual-display" },
     solver_context: null,
     settings_ref: null,
@@ -167,11 +172,19 @@ function analysisRunSection(model: PreviewModel, result: MechanicsResult, analys
     review_state: "pending",
     reproducibility: run.reproducibility,
     limitations: [],
-    professional_boundary: PROFESSIONAL_BOUNDARY
+    professional_boundary: PROFESSIONAL_BOUNDARY,
+    text_origin: { diagnostics: "solver", warnings: "solver", source_provenance: "software", privacy_classification: "software", review_state: "software" }
   };
 }
 
-function comparisonSection(model: PreviewModel, comparison: PreviewComparison): JsonRecord {
+function comparisonSection(model: PreviewModel, comparisonSource: PreviewComparison, diagnosticsOut: JsonRecord[]): JsonRecord {
+  const checked = checkedMembers(
+    { result_deltas: comparisonSource.result_deltas, diagnostics: comparisonSource.diagnostics },
+    WITHIN_RUN_STATUS_MEMBERS,
+    { object_type: "AnalysisRunComparison", ref: comparisonSource.comparison_id },
+    diagnosticsOut
+  );
+  const comparison = { ...comparisonSource, result_deltas: checked.result_deltas as PreviewComparison["result_deltas"], diagnostics: checked.diagnostics as PreviewComparison["diagnostics"] };
   return {
     section_id: `comparison:${comparison.comparison_id}`,
     section_kind: "analysis_run_comparison",
@@ -183,7 +196,8 @@ function comparisonSection(model: PreviewModel, comparison: PreviewComparison): 
       right_ref: item.right_result_id,
       classification: item.classification
     })),
-    unmatched_classifications: comparison.diagnostics,
+    // Tokens and references only; the messages stay in `diagnostics`.
+    unmatched_classifications: unmatchedClassifications(comparison.diagnostics as unknown[]),
     tolerance_profile_refs: comparison.summary.tolerance_profile_ref === "TBD" ? [] : [comparison.summary.tolerance_profile_ref],
     unit_normalized_deltas: comparison.result_deltas,
     settings_deltas: [],
@@ -191,8 +205,17 @@ function comparisonSection(model: PreviewModel, comparison: PreviewComparison): 
     source_provenance: privateSessionProvenance(model),
     privacy_classification: "private_project_data",
     review_state: "pending",
-    professional_boundary: PROFESSIONAL_BOUNDARY
+    professional_boundary: PROFESSIONAL_BOUNDARY,
+    text_origin: { unit_normalized_deltas: "solver_results", diagnostics: "comparison", run_context: "comparison", source_provenance: "software" }
   };
+}
+
+/** A within-run refusal as the section set carries it: its reason as its code only, never the
+ * refusal's text (`reason_code` is the code `buildWithinRunComparison` derived, or its fixed
+ * COMPARISON-BUILD-REFUSED when none could be). */
+function carriedUnavailable(unavailable: PreviewComparisonUnavailable): JsonRecord {
+  const { reason: _text, ...carried } = unavailable as PreviewComparisonUnavailable & { reason?: unknown };
+  return carried;
 }
 
 export function buildStateComparisonHandoffSections({
@@ -201,7 +224,8 @@ export function buildStateComparisonHandoffSections({
   analysisRun,
   comparison,
   comparisonUnavailable = null,
-  modelHash
+  modelHash,
+  sessionComparisons = null
 }: {
   model: PreviewModel;
   result: MechanicsResult;
@@ -212,13 +236,31 @@ export function buildStateComparisonHandoffSections({
    * does not hold), and only when present, so other records are unchanged. */
   comparisonUnavailable?: PreviewComparisonUnavailable | null;
   modelHash: string;
+  /** The saved-state and run comparisons the session includes in the report: the sections the
+   * reference assembler's rules (`comparisonSections.ts`) formed from their complete records
+   * (`comparisonRecords.ts`), with the source diagnostics that forming raised. With them the
+   * set carries the set-level rules those sections touch: their set-level diagnostics, the
+   * coverage of their warnings, their unresolved values and the canonical order. Without
+   * any, the set is as it was. */
+  sessionComparisons?: BoundComparisons | null;
 }) {
+  // Values outside a status-bearing member's vocabulary in the desktop's own sections
+  // (DEL-08-06 AC-005): reported here, and not carried.
+  const ownDiagnostics: JsonRecord[] = [];
   const stateRunSections = stableSort([
     modelStateSection(model, result, modelHash),
-    analysisRunSection(model, result, analysisRun)
+    analysisRunSection(model, result, analysisRun, ownDiagnostics)
   ]);
-  const comparisonSections = comparison ? [comparisonSection(model, comparison)] : [];
+  const withinRunSections = comparison ? [comparisonSection(model, comparison, ownDiagnostics)] : [];
+  const included = sessionComparisons && sessionComparisons.sections.length > 0 ? sessionComparisons : null;
+  const sourceDiagnostics: JsonRecord[] = included ? included.diagnostics : [];
+  const comparisonSections = included ? pythonSorted([...withinRunSections, ...included.sections]) : withinRunSections;
   const handoffSections: JsonRecord[] = [];
+  const layoutTbd = {
+    tbd_id: "DEL-08-06-TBD-FINAL-LAYOUT",
+    description: "Final report styling, layout, transport, and release thresholds remain outside this deliverable.",
+    review_needed: true
+  };
   return {
     schema_version: "0.1.0",
     deliverable_id: "DEL-08-06",
@@ -235,11 +277,11 @@ export function buildStateComparisonHandoffSections({
       comparison_sections: comparisonSections,
       handoff_sections: handoffSections
     },
-    ...(comparisonUnavailable ? { comparison_unavailable: comparisonUnavailable } : {}),
+    ...(comparisonUnavailable ? { comparison_unavailable: carriedUnavailable(comparisonUnavailable) } : {}),
     sow_024_coverage: {
       inputs: "represented_by_state_run_and_handoff_references",
       sources: "represented_by_source_provenance_and_source_notes",
-      warnings: stateRunSections.some((item) => (item.diagnostics as unknown[]).length > 0)
+      warnings: stateRunSections.some((item) => (item.diagnostics as unknown[]).length > 0) || (included !== null && comparisonSections.some(holdsWarnings))
         ? "represented_by_warning_and_diagnostic_lists"
         : "TBD",
       assumptions: "TBD",
@@ -255,14 +297,14 @@ export function buildStateComparisonHandoffSections({
         human_review_required: true
       }
     ],
-    unresolved_tbds: [
-      {
-        tbd_id: "DEL-08-06-TBD-FINAL-LAYOUT",
-        description: "Final report styling, layout, transport, and release thresholds remain outside this deliverable.",
-        review_needed: true
-      }
-    ],
-    diagnostics: [],
+    unresolved_tbds: included ? pythonSorted([layoutTbd, ...sectionTbds(comparisonSections)]) : [layoutTbd],
+    diagnostics: included || ownDiagnostics.length > 0
+      ? settleDiagnostics([
+        ...ownDiagnostics,
+        ...sourceDiagnostics,
+        ...(included ? comparisonSections.flatMap((section, index) => setLevelDiagnostics(section, `$.sections.comparison_sections[${index}]`)) : [])
+      ])
+      : [],
     professional_boundary: PROFESSIONAL_BOUNDARY,
     provenance: privateSessionProvenance(model)
   };

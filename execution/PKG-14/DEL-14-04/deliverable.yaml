@@ -39,6 +39,8 @@ code_paths:
 - core/comparison/analysis_run/engine.py
 # The committed invented runs both implementations are run on.
 - fixtures/comparison/analysis_run_comparison_golden.json
+# The comparison restated as a record for a report's section set; DEL-08-06 lists it too.
+- apps/desktop/src/features/comparison/comparisonRecords.ts
 # Only the command that admits a pair of recorded runs for a comparison is this deliverable's;
 # the file is DEL-14-02's.
 - apps/desktop/src-tauri/src/analysis_runs.rs
@@ -55,6 +57,8 @@ checks:
 - apps/desktop/src/features/comparison/runComparison.test.ts
 - apps/desktop/src/features/comparison/runComparisonParity.test.ts
 - apps/desktop/src/features/history/compareRuns.test.tsx
+- apps/desktop/src/features/comparison/runComparisonDimension.test.ts
+- apps/desktop/src/features/history/reportComparisons.session.test.tsx
 - apps/desktop/src-tauri/src/analysis_runs_tests.rs
 # Checks of the comparison within one run.
 - apps/desktop/src/App.test.tsx

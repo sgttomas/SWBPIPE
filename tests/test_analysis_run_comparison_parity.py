@@ -48,6 +48,7 @@ METADATA_FIELDS = {"component", "location", "basis", "coordinate_system", "sign_
 REFUSAL_OF_REASON = {
     "family_not_compared": "ARC-RESULT-FAMILY-UNSUPPORTED",
     "units_differ": "ARC-UNIT-CONVERSION-UNSUPPORTED",
+    "dimension_missing": "ARC-DIMENSION-INCOMPATIBLE",
 }
 
 

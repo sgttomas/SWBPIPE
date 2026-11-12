@@ -53,6 +53,26 @@ describe("without an unavailable record, every document is unchanged", () => {
   });
 });
 
+describe("the product's own within-run comparison is inside the section set's vocabularies (DEL-08-06 AC-005)", () => {
+  it("raises no status diagnostic and carries each delta's classification and basis as the comparison wrote them", async () => {
+    const { model, result: producer, analysisRun } = await inputs();
+    // The comparison writes the same classification and basis for every delta of every pair.
+    // This pair has rows to compare once the combination rows of kinds the builder declares
+    // no dimension for are set aside, as `withinRunComparison.test.tsx` does.
+    const result = { ...producer, results: producer.results.filter((row) => !(row.basis_ref?.ref_type === "combination" && /^(support_reaction_|combination_modulus_basis_record$)/.test(row.kind))) };
+    const fixed = buildPreviewComparison({ result, analysisRun, leftBasisRef: "load:L-200", rightBasisRef: RANGE });
+    expect(fixed.result_deltas.length).toBeGreaterThan(0);
+    const record = buildStateComparisonHandoffSections({ model, result, analysisRun, comparison: fixed, modelHash: "sha256:invented" }) as Record<string, unknown>;
+    const codes = (record.diagnostics as Array<{ code: string }>).map((item) => item.code);
+    expect(codes).not.toContain("SCH-STATUS-OUTSIDE-VOCABULARY");
+    expect(codes).not.toContain("SCH-ANALYSIS-STATUS-BLOCKED");
+    const [section] = (record.sections as { comparison_sections: Array<{ unit_normalized_deltas: Array<Record<string, unknown>> }> }).comparison_sections;
+    expect(section.unit_normalized_deltas.map((delta) => [delta.classification, delta.classification_basis])).toEqual(
+      fixed.result_deltas.map((delta) => [delta.classification, delta.classification_basis])
+    );
+  });
+});
+
 describe("with an unavailable record, the documents carry it with the chosen bases", () => {
   it("the preview handoff summary", async () => {
     const { model, result, analysisRun, unavailable } = await inputs();
@@ -66,7 +86,11 @@ describe("with an unavailable record, the documents carry it with the chosen bas
   it("the report package's comparison records", async () => {
     const { model, result, analysisRun, unavailable } = await inputs();
     const record = buildStateComparisonHandoffSections({ model, result, analysisRun, comparison: null, comparisonUnavailable: unavailable, modelHash: "sha256:invented" }) as Record<string, unknown>;
-    expect(record.comparison_unavailable).toEqual(unavailable);
+    // The section set carries the refusal by its code only (DEL-08-06 AC-005), never its text.
+    const { reason: _text, ...carried } = unavailable;
+    expect(record.comparison_unavailable).toEqual(carried);
+    expect(record.comparison_unavailable).not.toHaveProperty("reason");
+    expect(carried.reason_code).toBe("ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED");
     expect((record.sections as { comparison_sections: unknown[] }).comparison_sections).toEqual([]);
   });
 

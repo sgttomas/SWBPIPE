@@ -3,6 +3,8 @@ import { GitCompare } from "lucide-react";
 import { modelStateDescription } from "../../services/modelStateService";
 import type { StateComparisonResult } from "../history/useModelStateHistory";
 import { CsvExportControl } from "../result-export/CsvExportControl";
+import { ReportInclusionControl, type ReportInclusion } from "./ReportInclusionControl";
+import { comparisonCsvRecordHash } from "./comparisonRecords";
 import { CSV_SOFTWARE_VERSION, CSV_UNIT_BASIS_STORED } from "../result-export/csvProvenance";
 import { CHANGE_LABELS, CLASSIFICATION_LABELS, STATE_COMPARISON_CSV_KIND, stateComparisonCsv, storedValueFullText } from "./stateComparisonCsv";
 import {
@@ -23,9 +25,10 @@ import {
 // Values are shown as stored: a quantity whose unit differs is marked
 // `unit changed` and is never converted or subtracted. The table pages at
 // `COMPARISON_PAGE_ROWS` rows, so every matching row is reachable. The table exports to a
-// local-private CSV (RT-R6, `stateComparisonCsv.ts`); the comparison envelope export is v0.2
-// (FR-CMP-010). It reports differences and establishes nothing
-// about either state (F-PIP-2, F-PIP-3).
+// local-private CSV (RT-R6, `stateComparisonCsv.ts`), and "Include in report" puts the
+// comparison, as a record, in the next local-private report package saved (DEL-08-06
+// REQ-015, `comparisonRecords.ts`); the comparison envelope export is v0.2 (FR-CMP-010). It
+// reports differences and establishes nothing about either state (F-PIP-2, F-PIP-3).
 
 /** The table's page size: at most this many rows are rendered at once, and
  * every matching row is reachable by paging. */
@@ -59,7 +62,7 @@ function FieldChangeItem({ change }: { change: FieldChange }) {
   );
 }
 
-export function StateComparisonView({ result, onClose }: { result: StateComparisonResult; onClose: () => void }) {
+export function StateComparisonView({ result, onClose, reportInclusion = null }: { result: StateComparisonResult; onClose: () => void; reportInclusion?: ReportInclusion | null }) {
   const { comparison, left, right } = result;
   const [classification, setClassification] = useState<ClassificationFilter>("differences");
   const [family, setFamily] = useState<EntityFamily | "all">("all");
@@ -92,9 +95,9 @@ export function StateComparisonView({ result, onClose }: { result: StateComparis
       </p>
       <p className="muted" data-testid="state-comparison-basis">
         Entities are mapped automatically by stable id within each family; there is no manual mapping. Values are shown as
-        stored, with their own units: nothing is converted or subtracted. This lists differences between two saved
-        snapshots only and establishes nothing about either model; human review is still required.
+        stored, with their own units: nothing is converted or subtracted. A comparison shows differences between two selected model states, internal analysis runs, or load cases or combinations within a run. It is a review aid and does not establish that either side is correct.
       </p>
+      {reportInclusion ? <ReportInclusionControl inclusion={reportInclusion} kind="saved-state" testId="state-comparison-report" /> : null}
       <div className="comparison-summary" data-testid="state-comparison-summary">
         {ROW_CLASSIFICATIONS.map((name) => (
           <div className="comparison-fact" key={name} data-testid={`state-comparison-count-${name}`}>
@@ -136,9 +139,10 @@ export function StateComparisonView({ result, onClose }: { result: StateComparis
       <CsvExportControl
         tableLabel="Saved state comparison"
         testId="state-comparison-export-csv"
-        build={() => stateComparisonCsv({
+        build={async () => stateComparisonCsv({
           left, right, rows: matching, filters: { classification, family, idFilter },
-          softwareVersion: CSV_SOFTWARE_VERSION, unitBasis: CSV_UNIT_BASIS_STORED
+          softwareVersion: CSV_SOFTWARE_VERSION, unitBasis: CSV_UNIT_BASIS_STORED,
+          comparisonRecordHash: await comparisonCsvRecordHash("state", result)
         })}
       />
       <table className="state-comparison-table" data-testid="state-comparison-table" data-csv-export={STATE_COMPARISON_CSV_KIND}>

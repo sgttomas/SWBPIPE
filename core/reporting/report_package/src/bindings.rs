@@ -46,6 +46,10 @@ pub const RULE_CHECK_BINDING_MISMATCH: &str = "REPORT-PACKAGE-RULE-CHECK-BINDING
 pub const RULE_PACK_CHECKSUM_BASIS_UNSUPPORTED: &str = "REPORT-PACKAGE-RULE-PACK-CHECKSUM-BASIS-UNSUPPORTED";
 pub const REPORT_CONTEXT_NOT_LOCAL_PRIVATE: &str = "REPORT-PACKAGE-REPORT-CONTEXT-NOT-LOCAL-PRIVATE";
 pub const SOLVER_IDENTITY_MISMATCH: &str = "REPORT-PACKAGE-SOLVER-IDENTITY-MISMATCH";
+/// DEL-08-06 REQ-009: a comparison section states the stored values of the fields and
+/// results that differ, which are the user's project data; a section set holding them is
+/// produced only under the local-private context.
+pub const COMPARISON_VALUES_NOT_LOCAL_PRIVATE: &str = "REPORT-PACKAGE-COMPARISON-VALUES-NOT-LOCAL-PRIVATE";
 
 /// The desktop's export profile; its result documents carry the received
 /// Current carrier origin.
@@ -86,6 +90,61 @@ fn text<'a>(value: &'a Value, pointer: &str) -> Option<&'a str> {
 
 fn array<'a>(value: &'a Value, pointer: &str) -> &'a [Value] {
     value.pointer(pointer).and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[])
+}
+
+/// A comparison section of the handoff record (DEL-08-06 REQ-011, AC-009): its
+/// kind, the comparison it restates (`comparison_ref`, of the kind's object type)
+/// and the hash of that comparison's record (`hash_refs`: SHA-256 records over an
+/// accepted JCS basis, each naming the comparison), each refused by name. A
+/// within-run comparison section as the desktop has saved it before carries no
+/// `hash_refs` member and restates a comparison of the package's own run, so an
+/// `analysis_run_comparison` without that member stays admitted; a member that
+/// is present must hold at least one hash.
+fn check_comparison_section(section: &Value, export_context: Option<&str>) -> Result<(), String> {
+    let id = section["section_id"].as_str().unwrap_or("(no section_id)");
+    if export_context != Some("local_private") && holds_stored_values(section) {
+        return Err(format!(
+            "{COMPARISON_VALUES_NOT_LOCAL_PRIVATE}: comparison section {id} states stored values of the user's project, so it is packaged under local_private only"
+        ));
+    }
+    let object_type = match section["section_kind"].as_str() {
+        Some("model_state_comparison") => "ModelStateComparison",
+        Some("analysis_run_comparison") => "AnalysisRunComparison",
+        _ => return Err(mismatch(format!("comparison section {id}: section_kind"))),
+    };
+    let comparison = &section["comparison_ref"];
+    require(
+        comparison["object_type"] == object_type && comparison["ref"].as_str().is_some_and(|text| !text.trim().is_empty()),
+        format!("comparison section {id}: comparison_ref"),
+    )?;
+    let hashes = match section.get("hash_refs") {
+        None if object_type == "AnalysisRunComparison" => return Ok(()),
+        hashes => hashes.and_then(Value::as_array).map(Vec::as_slice).unwrap_or(&[]),
+    };
+    require(!hashes.is_empty(), format!("comparison section {id}: hash_refs"))?;
+    for hash in hashes {
+        let value = hash["value"].as_str().unwrap_or("");
+        require(
+            hash["algorithm"] == "sha256"
+                && hash["canonicalization"].as_str().is_some_and(|label| JCS_LABELS.contains(&label))
+                && hash["payload_ref"] == *comparison
+                && value.len() == 64
+                && value.bytes().all(|byte| matches!(byte, b'0'..=b'9' | b'a'..=b'f')),
+            format!("comparison section {id}: hash_refs"),
+        )?;
+    }
+    Ok(())
+}
+
+/// Whether a comparison section states stored values: a changed field of a saved-state
+/// comparison with either side's value, or a listed difference of a run comparison.
+fn holds_stored_values(section: &Value) -> bool {
+    let changed_value = array(section, "/changed_entities").iter().any(|entity| {
+        array(entity, "/changes").iter().any(|change| change.get("left").is_some() || change.get("right").is_some())
+    });
+    let listed_difference = array(section, "/largest_differences").iter().any(|group| !array(group, "/differences").is_empty());
+    let within_run_delta = !array(section, "/unit_normalized_deltas").is_empty();
+    changed_value || listed_difference || within_run_delta
 }
 
 /// A SHA-256 hash record: algorithm, an accepted JCS basis label, the payload
@@ -636,6 +695,9 @@ pub(crate) fn check_request_in(
             handoff_loads == load_set && handoff_loads.len() == array(run_record, "/load_basis_refs").len(),
             "handoff load basis equals the document's",
         )?;
+        for section in array(handoff, "/sections/comparison_sections") {
+            check_comparison_section(section, report["report_context"]["export_context"].as_str())?;
+        }
         Some(run_record)
     };
 

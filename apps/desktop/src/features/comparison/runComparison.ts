@@ -91,7 +91,8 @@ export const NOT_COMPARED_REASONS = [
   "right_run_needs_recompute",
   "family_not_compared",
   "units_differ",
-  "value_not_numeric"
+  "value_not_numeric",
+  "dimension_missing"
 ] as const;
 export type NotComparedReason = (typeof NOT_COMPARED_REASONS)[number];
 
@@ -344,7 +345,13 @@ export function compareRunInputs(left: RunComparisonInput, right: RunComparisonI
       continue;
     }
     const reasons: NotComparedReason[] = [...gate];
-    if (!l.identity.family || !(SUPPORTED_RESULT_FAMILIES as readonly string[]).includes(l.identity.family)) reasons.push("family_not_compared");
+    const supportedFamily = Boolean(l.identity.family) && (SUPPORTED_RESULT_FAMILIES as readonly string[]).includes(l.identity.family!);
+    if (!supportedFamily) reasons.push("family_not_compared");
+    // DEL-14-04 AC-002, as the reference's ARC-DIMENSION-INCOMPATIBLE: a pair of a supported
+    // family whose dimension is missing gets no number. The reader gives every row it can read
+    // a family and a dimension together (`runComparisonDimension.test.ts`), so only a row built
+    // by hand reaches this; mapped rows have equal identities, so their dimensions agree.
+    if (supportedFamily && !l.identity.dimension) reasons.push("dimension_missing");
     if (!l.unit || l.unit !== r.unit) reasons.push("units_differ");
     if (!isFiniteNumber(l.value) || !isFiniteNumber(r.value)) reasons.push("value_not_numeric");
     if (reasons.length === 0) {
