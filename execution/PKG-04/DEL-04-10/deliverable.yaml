@@ -93,5 +93,6 @@ needs:
 code_paths:
 - validation/references/f2_spectrum/**
 - tests/test_dynamics_references.py
+- tools/validation/reference_observation.py
 checks:
 - tests/test_dynamics_references.py
