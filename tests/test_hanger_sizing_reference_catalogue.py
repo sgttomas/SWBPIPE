@@ -50,15 +50,43 @@ def test_every_record_is_sizable_and_says_it_is_invented():
         assert hanger["source_reference"].startswith("invented-local:")
 
 
-def test_working_load_ranges_leave_no_gap_within_a_family():
-    # A hot-load basis anywhere between the smallest minimum and the largest maximum lies in some record's
-    # range, so the reference system's sizing request does not fail for want of a size.
-    for family in ("variable_spring_hanger", "constant_effort_support"):
-        ranges = sorted(
-            (record["hanger"]["working_load_range"]["minimum"]["magnitude"],
-             record["hanger"]["working_load_range"]["maximum"]["magnitude"])
-            for record in _catalogue()["hanger_records"] if record["hanger"]["hanger_type"] == family)
+def _series(record):
+    """The series a record belongs to: its family, and for a variable record its travel range."""
+    hanger = record["hanger"]
+    assert hanger["travel_range"]["unit"] == "mm"
+    return hanger["hanger_type"], hanger["travel_range"]["magnitude"]
+
+
+def test_each_series_covers_one_to_forty_five_kilonewtons_without_a_gap():
+    # Within each series (the two variable travel series and the constant records), a load anywhere from 1 kN to
+    # 45 kN lies in some record's working load range. That is coverage of the load test only: whether a record
+    # fits also depends on travel, the allowance, the DOF and the person's variation limit (REQ-004).
+    series = {}
+    for record in _catalogue()["hanger_records"]:
+        hanger = record["hanger"]
+        series.setdefault(_series(record), []).append(
+            (hanger["working_load_range"]["minimum"]["magnitude"], hanger["working_load_range"]["maximum"]["magnitude"]))
+    assert sorted(series) == [("constant_effort_support", 150), ("variable_spring_hanger", 50),
+                              ("variable_spring_hanger", 100)]
+    for name, ranges in series.items():
+        ranges.sort()
+        assert len(ranges) == 9, name
+        assert ranges[0][0] == 1000 and max(high for _, high in ranges) == 45000, name
         reach = ranges[0][1]
         for low, high in ranges[1:]:
-            assert low < reach, (family, low, reach)
+            # Working load ranges are closed, so a range that starts where the reach ends leaves no gap.
+            assert low <= reach, (name, low, reach)
             reach = max(reach, high)
+
+
+def test_a_variable_record_spans_its_working_load_range_over_its_travel_range():
+    # The catalogue's own construction: rate = (maximum - minimum) / travel, so a spring set at one end of its
+    # working load range reaches the other end over its travel range.
+    for record in _catalogue()["hanger_records"]:
+        hanger = record["hanger"]
+        if hanger["hanger_type"] != "variable_spring_hanger":
+            continue
+        assert hanger["stiffness"]["value"]["unit"] == "N/m"
+        low, high = hanger["working_load_range"]["minimum"]["magnitude"], hanger["working_load_range"]["maximum"]["magnitude"]
+        travel_mm = hanger["travel_range"]["magnitude"]
+        assert hanger["stiffness"]["value"]["magnitude"] * travel_mm == (high - low) * 1000, record["hanger_id"]
