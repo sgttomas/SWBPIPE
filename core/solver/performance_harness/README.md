@@ -218,10 +218,34 @@ memory bound.
   stricter observation, so the two do not class every run alike: an emergency RSS-cap kill whose
   sampled footprint was within the budget and whose reading at exit is above it is
   `exceeds_base_machine_budget` here and `killed_by_rss_cap` in the runner. Each record's
-  `classification_readings` names the readings its classification used. Each run's output files
-  are opened before its driver starts, without following a link and without blocking; a
-  destination that is not a regular file refuses the run before any process starts, and from the
-  start on, any failure kills and reaps the driver. Host facts come from `sysctl`, and the cargo
+  `classification_readings` names the readings its classification used.
+
+  Run ids are bare names (`[A-Za-z0-9][A-Za-z0-9._-]{0,127}`); both supervisors refuse any other
+  at plan load, before anything is written. The output folder is opened once, as a directory and
+  without following a link, and every record is created relative to it, so a later replacement
+  of its path cannot redirect a record. Each run's output files are created before its driver
+  starts, without following a link and without blocking on the open; a destination that is not a
+  regular file refuses the run before any process starts, and from the start on, any failure
+  kills and reaps the driver. A write to a regular file can still block on a stalled file system:
+  each group of record writes is bounded (120 s), and past that the supervisor stops with exit
+  status 4 and a message that the records are incomplete (no driver is running then: the run's
+  driver has already been reaped). A failed write of a run's stdout record makes the run `error`
+  (`stdout_record_write_failed`), with `stdout_sha256` null and `stdout_record_error` saying why:
+  no hash of bytes that were not written is recorded. SIGINT, SIGTERM, SIGHUP, SIGQUIT and the
+  other signals that end a process without a fault kill and reap the running driver before the
+  supervisor exits (128 + the signal). For a death no handler sees (SIGKILL, a fault), the driver
+  watches its supervisor and stops when it is gone (exit 125; a kernel event on the supervisor's
+  pid on macOS, the parent-death signal on Linux). `--packet` (the runner) and the supervisor's
+  packet refuse, by name, a record whose driver line is not `release-timing-v2`: "record ID: its
+  driver line has schema S, not release-timing-v2; an earlier driver's record is not
+  repackaged".
+
+  A difference from the Python runner: it has no such watch. A Python-supervised run whose runner
+  is killed (SIGKILL, or any death that skips its handlers) can leave a driver running, in its
+  own session. Find it by its process name and the model path in its arguments, for example
+  `pgrep -fl 'release_timing .*linear-ex-n2000.json'`, and stop it with `kill`.
+
+  Host facts come from `sysctl`, and the cargo
   and sweep checks from the process table. The source commit, tree, dirty flag and toolchain are
   embedded at build time (`--build-identity` above). It takes no stack snapshots, so a plan with
   `-attr` runs is refused. `tests/test_release_timing_supervise.py` runs both supervisors on the

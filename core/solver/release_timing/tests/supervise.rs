@@ -290,7 +290,10 @@ fn the_sweep_pattern_matches_as_pgrep_f_does() {
 
 #[cfg(target_os = "macos")]
 mod live {
-    use open_pipe_stress_release_timing::supervise::{launch, packet, read_records, PACKET_SCHEMA, PLAN_SCHEMA, RECORD_SCHEMA};
+    use open_pipe_stress_release_timing::supervise::{
+        check_run_id, launch, packet, read_records, record_error_class, stale_driver_message, Hooks, OutDir, WriteWatch,
+        PACKET_SCHEMA, PLAN_SCHEMA, RECORDS_INCOMPLETE_EXIT, RECORD_SCHEMA, TERMINATING_SIGNALS,
+    };
     use serde_json::{json, Value};
     use std::path::{Path, PathBuf};
     use std::process::Command;
@@ -419,7 +422,7 @@ mod live {
         assert!(skipped.get("launch").is_none());
 
         let written: Value = serde_json::from_str(&std::fs::read_to_string(out.join("packet.json")).unwrap()).unwrap();
-        assert_eq!(written, packet(&out));
+        assert_eq!(written, packet(&out).unwrap());
         assert_eq!(written["schema"], PACKET_SCHEMA);
         assert_eq!(written["observation_only"], true);
         assert_eq!(
@@ -559,7 +562,8 @@ mod live {
 
     /// `supervise::launch` of `/usr/bin/touch <marker>`, so that a spawn leaves a mark.
     fn launch_touch(record_dir: &Path, marker: &Path, after_spawn: &mut dyn FnMut(i32) -> std::io::Result<()>) -> std::io::Result<()> {
-        launch(Path::new("/usr/bin/touch"), &[marker.to_str().unwrap().to_string()], 16 << 30, BUDGET, 60, record_dir, "r", after_spawn)
+        let out = OutDir::open(record_dir)?;
+        launch(Path::new("/usr/bin/touch"), &[marker.to_str().unwrap().to_string()], 16 << 30, BUDGET, 60, &out, "r", Hooks::none(after_spawn))
             .map(|_| ())
     }
 
@@ -648,24 +652,182 @@ mod live {
         let dir = folder("injected");
         let sleeper = [String::from("30")];
         let mut seen = None;
-        let error = launch(Path::new("/bin/sleep"), &sleeper, 16 << 30, BUDGET, 60, &dir, "r", &mut |pid| {
+        let out = OutDir::open(&dir).unwrap();
+        let error = launch(Path::new("/bin/sleep"), &sleeper, 16 << 30, BUDGET, 60, &out, "r", Hooks::none(&mut |pid| {
             seen = Some(pid);
             Err(std::io::Error::other("injected after the spawn"))
-        })
+        }))
         .err()
         .expect("the injected error is returned");
         assert!(error.to_string().contains("injected"));
         let pid = seen.expect("the driver was spawned");
         assert!(!alive(pid), "pid {pid} is still running or unreaped after the error");
         let panicked = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-            let _ = launch(Path::new("/bin/sleep"), &sleeper, 16 << 30, BUDGET, 60, &dir, "r", &mut |pid| {
+            let _ = launch(Path::new("/bin/sleep"), &sleeper, 16 << 30, BUDGET, 60, &out, "r", Hooks::none(&mut |pid| {
                 seen = Some(pid);
                 panic!("injected panic after the spawn")
-            });
+            }));
         }));
         assert!(panicked.is_err());
         let pid = seen.unwrap();
         assert!(!alive(pid), "pid {pid} is still running or unreaped after the panic");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn a_run_id_that_is_not_a_bare_name_is_refused_at_plan_load() {
+        // The review's case: run_id "../escaped" would name record files outside --out.
+        for bad in ["../escaped", "a/b", ".hidden", "", "a b"] {
+            assert!(check_run_id(bad).is_err(), "{bad:?}");
+        }
+        assert!(check_run_id(&"x".repeat(129)).is_err());
+        for good in ["linear-ex-n2000-sparse", "model-checks-linear-ex-n1000", "a.b_c-1"] {
+            assert!(check_run_id(good).is_ok(), "{good}");
+        }
+        let dir = folder("escaped");
+        std::fs::write(dir.join("demo.json"), demo()).unwrap();
+        let (code, _, stderr) = supervise(&dir, vec![run(0, "../escaped", "demo.json", 60, 1, "solved", BUDGET)], 900);
+        assert_eq!(code, 2);
+        assert!(stderr.contains("run ids must be bare names"), "{stderr}");
+        assert!(!dir.join("out").exists(), "nothing written inside --out");
+        let written: Vec<_> = std::fs::read_dir(&dir).unwrap().map(|e| e.unwrap().file_name()).collect();
+        assert_eq!(written.len(), 2, "nothing written outside it either: {written:?}");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn a_swap_of_the_out_path_after_it_is_opened_does_not_redirect_the_records() {
+        let dir = folder("swap");
+        let (out_path, moved, elsewhere) = (dir.join("out"), dir.join("out-moved"), dir.join("elsewhere"));
+        std::fs::create_dir_all(&out_path).unwrap();
+        std::fs::create_dir_all(&elsewhere).unwrap();
+        let out = OutDir::open(&out_path).unwrap();
+        // The path now names another folder, through a symbolic link.
+        std::fs::rename(&out_path, &moved).unwrap();
+        symlink(&elsewhere, &out_path);
+        let marker = dir.join("spawned");
+        launch(Path::new("/usr/bin/touch"), &[marker.to_str().unwrap().to_string()], 16 << 30, BUDGET, 60, &out, "r", Hooks::none(&mut |_| Ok(())))
+            .expect("the launch");
+        for name in ["r.jsonl", "r.stderr.txt", "r.record.json"] {
+            assert!(moved.join(name).is_file(), "{name} is in the folder that was opened");
+        }
+        assert_eq!(std::fs::read_dir(&elsewhere).unwrap().count(), 0, "nothing was redirected");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    /// A stdout record that cannot be written (a full disk, injected).
+    struct Failing;
+    impl std::io::Write for Failing {
+        fn write(&mut self, _: &[u8]) -> std::io::Result<usize> {
+            Err(std::io::Error::other("injected: no space left on device"))
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+
+    #[test]
+    fn a_stdout_record_that_cannot_be_written_is_the_runs_error_with_no_hash() {
+        let dir = folder("full");
+        std::fs::write(dir.join("demo.json"), demo()).unwrap();
+        let out = OutDir::open(&dir).unwrap();
+        let tail = [dir.join("demo.json").to_str().unwrap().to_string()];
+        let hooks = Hooks { after_spawn: &mut |_| Ok(()), stdout_record: Some(Box::new(|_file| Box::new(Failing))) };
+        let launched = launch(Path::new(BIN), &tail, 16 << 30, BUDGET, 60, &out, "r", hooks).expect("the launch");
+        assert!(launched.stdout.contains("release-timing-v2"), "the driver's line was received from the pipe");
+        assert!(launched.record["stdout_sha256"].is_null(), "no hash of bytes that were never written");
+        assert!(launched.record["stdout_record_error"].as_str().unwrap().contains("injected"));
+        let written: Value = serde_json::from_str(&std::fs::read_to_string(dir.join("r.record.json")).unwrap()).unwrap();
+        assert!(written["stdout_sha256"].is_null() && written["stdout_record_error"].is_string());
+        let launched = Value::Object(launched.record);
+        let (class, detail) = record_error_class(&launched, "ok".into(), None);
+        assert_eq!(class, "error");
+        assert!(detail.unwrap().starts_with("stdout_record_write_failed: injected"));
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn record_writes_are_bounded_by_a_watchdog_with_its_own_exit_status() {
+        use std::sync::atomic::{AtomicBool, Ordering};
+        use std::sync::Arc;
+        let fired = Arc::new(AtomicBool::new(false));
+        let flag = fired.clone();
+        let stalled = WriteWatch::arm_with(Duration::from_millis(50), move || flag.store(true, Ordering::SeqCst));
+        std::thread::sleep(Duration::from_millis(400));
+        assert!(fired.load(Ordering::SeqCst), "a write still running after the limit ends it");
+        drop(stalled);
+        let quiet = Arc::new(AtomicBool::new(false));
+        let flag = quiet.clone();
+        drop(WriteWatch::arm_with(Duration::from_millis(50), move || flag.store(true, Ordering::SeqCst)));
+        std::thread::sleep(Duration::from_millis(400));
+        assert!(!quiet.load(Ordering::SeqCst), "a write that finished disarms it");
+        assert!(![0, 1, 2].contains(&RECORDS_INCOMPLETE_EXIT) && RECORDS_INCOMPLETE_EXIT < 128);
+    }
+
+    /// Starts a supervisor on a model large enough to be caught running, and waits for its driver.
+    fn supervised_big_run(name: &str) -> (PathBuf, std::process::Child, String, i32) {
+        let dir = folder(name);
+        let big = format!("{{\"nodes\": [{}]}}", vec!["{\"id\": \"N\", \"x\": 0.0}"; 1_000_000].join(","));
+        std::fs::write(dir.join("big.json"), big).unwrap();
+        let plan = json!({"schema": PLAN_SCHEMA, "window_budget_s": 900, "quiet_wait_s": 0,
+                          "runs": [run(0, "big", "big.json", 600, 1, "solved", BUDGET)]});
+        std::fs::write(dir.join("plan.json"), plan.to_string()).unwrap();
+        let supervisor = Command::new(BIN)
+            .args(["--supervise", "plan.json", "--out", "out"])
+            .current_dir(&dir)
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null())
+            .spawn()
+            .unwrap();
+        let needle = dir.join("big.json").to_str().unwrap().to_string();
+        let started = Instant::now();
+        while driver_pids(&needle).is_empty() && started.elapsed().as_secs() < 60 {
+            std::thread::sleep(Duration::from_millis(20));
+        }
+        let drivers = driver_pids(&needle);
+        assert_eq!(drivers.len(), 1, "the driver was seen running");
+        (dir, supervisor, needle, drivers[0])
+    }
+
+    fn gone_within(pid: i32, limit: Duration) -> bool {
+        let started = Instant::now();
+        while alive(pid) && started.elapsed() < limit {
+            std::thread::sleep(Duration::from_millis(20));
+        }
+        !alive(pid)
+    }
+
+    #[test]
+    fn a_driver_whose_supervisor_is_killed_with_sigkill_stops() {
+        // SIGKILL runs no handler and no drop: the driver, in its own session, watches its parent.
+        let (dir, mut supervisor, needle, driver) = supervised_big_run("sigkill");
+        unsafe { libc::kill(supervisor.id() as i32, libc::SIGKILL) };
+        supervisor.wait().unwrap();
+        assert!(gone_within(driver, Duration::from_secs(15)), "driver {driver} outlived a killed supervisor");
+        assert!(driver_pids(&needle).is_empty());
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn the_other_terminating_signals_are_handled_as_sigterm_is() {
+        assert!(TERMINATING_SIGNALS.contains(&libc::SIGQUIT) && TERMINATING_SIGNALS.contains(&libc::SIGUSR1));
+        let (dir, mut supervisor, _, driver) = supervised_big_run("sigquit");
+        unsafe { libc::kill(supervisor.id() as i32, libc::SIGQUIT) };
+        assert_eq!(supervisor.wait().unwrap().code(), Some(128 + libc::SIGQUIT));
+        assert!(!alive(driver), "the supervisor killed and reaped its driver before exiting");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn a_record_of_an_earlier_driver_is_refused_by_name() {
+        let dir = folder("stale");
+        let old = json!({"schema": RECORD_SCHEMA, "run_id": "old-run", "classification": "ok", "launch": {},
+                         "driver": {"schema": "release-timing-v1", "side_stages": ["model_checks"]}});
+        std::fs::write(dir.join("records.jsonl"), format!("{old}\n")).unwrap();
+        let expected = "record old-run: its driver line has schema release-timing-v1, not release-timing-v2; \
+                        an earlier driver's record is not repackaged";
+        assert_eq!(stale_driver_message(&old).as_deref(), Some(expected));
+        assert_eq!(packet(&dir), Err(expected.to_string()));
         std::fs::remove_dir_all(dir).unwrap();
     }
 }

@@ -14,11 +14,19 @@
 //! not exist here (`/usr/bin/time`, `ps`) the key is kept with null and a named sibling carries
 //! this supervisor's reading. Observation only: nothing here asserts a time or memory bound.
 //!
-//! A run's output files are opened before its driver is spawned, without following a symbolic
-//! link and without blocking ([`open_output`]): a destination that is not a regular file, or a new
-//! file in a real directory, refuses the run before any process starts. From the spawn on, one
-//! owner ([`Spawned`]) holds the driver: every return, error and unwind path kills its process
-//! group and reaps it. Nothing between the spawn and the watch loop touches the file system.
+//! Run ids are bare names ([`check_run_id`]), refused at plan load otherwise. The output folder is
+//! opened once as a directory without following a link ([`OutDir`]), and every record is created
+//! relative to it, so a later replacement of its path cannot redirect a record. A run's output
+//! files are created before its driver is spawned, without following a symbolic link and without
+//! blocking on the open: a destination that is not a regular file refuses the run before any
+//! process starts. From the spawn on, one owner ([`Spawned`]) holds the driver: every return,
+//! error and unwind path kills its process group and reaps it, and nothing between the spawn and
+//! the watch loop touches the file system. The driver watches the supervisor and exits if it dies
+//! (`src/main.rs` `watch_supervisor`), which covers SIGKILL and the faults no handler can catch;
+//! the other terminating signals are handled as SIGTERM is ([`TERMINATING_SIGNALS`]). A write to
+//! a regular file can still block on a stalled file system: record writes are bounded by a
+//! watchdog ([`WriteWatch`]) that ends the supervisor with [`RECORDS_INCOMPLETE_EXIT`]. A failed
+//! write of the stdout record is the run's error, and no hash of unwritten bytes is recorded.
 
 use crate::classify::{self, int, jsonl, py_str, sanitize, truthy};
 use crate::host;
@@ -74,12 +82,35 @@ extern "C" fn on_signal(signal: libc::c_int) {
     INTERRUPTED.store(signal, Ordering::SeqCst);
 }
 
-/// SIGINT, SIGTERM and SIGHUP set a flag that the watch loop reads every poll: it kills the
+/// The signals whose default action ends the supervisor without a fault: each is treated as
+/// SIGTERM is. Faults (SIGSEGV, SIGBUS, SIGILL, SIGFPE, SIGABRT, SIGTRAP, SIGSYS) and SIGKILL
+/// cannot be handled this way; for them, and for any death of the supervisor, the driver watches
+/// its parent and exits when it is gone (`src/main.rs` `watch_supervisor`).
+pub const TERMINATING_SIGNALS: [libc::c_int; 12] = [
+    libc::SIGHUP,
+    libc::SIGINT,
+    libc::SIGQUIT,
+    libc::SIGTERM,
+    libc::SIGPIPE,
+    libc::SIGALRM,
+    libc::SIGUSR1,
+    libc::SIGUSR2,
+    libc::SIGXCPU,
+    libc::SIGXFSZ,
+    libc::SIGVTALRM,
+    libc::SIGPROF,
+];
+
+/// The environment variable that tells a driver it was started by this supervisor: the
+/// supervisor's pid, which the driver watches (`src/main.rs` `watch_supervisor`).
+pub const SUPERVISOR_PID_ENV: &str = "RELEASE_TIMING_SUPERVISOR_PID";
+
+/// Each of [`TERMINATING_SIGNALS`] sets a flag that the watch loop reads every poll: it kills the
 /// running driver's group and the supervisor exits with 128 + the signal (the Python runner's
-/// RV18-3 for SIGINT and SIGTERM; SIGHUP is added because the driver runs in its own session and
-/// would outlive a closed terminal).
+/// RV18-3 for SIGINT and SIGTERM; the others because the driver runs in its own session and
+/// would otherwise outlive the supervisor).
 fn install_signal_handlers() {
-    for signal in [libc::SIGINT, libc::SIGTERM, libc::SIGHUP] {
+    for signal in TERMINATING_SIGNALS {
         // SAFETY: the handler only stores to an atomic, which is async-signal-safe.
         unsafe {
             let mut action: libc::sigaction = std::mem::zeroed();
@@ -176,6 +207,7 @@ pub fn read_plan(text: &str) -> Result<Plan, String> {
         let text = |key: &str| run.get(key).and_then(Value::as_str).map(str::to_string).ok_or_else(|| format!("plan: {key} must be a string"));
         let unsigned = |key: &str| run.get(key).and_then(Value::as_u64).ok_or_else(|| format!("plan: {key} must be a non-negative integer"));
         let run_id = text("run_id")?;
+        check_run_id(&run_id)?;
         if run.get("attribute").and_then(Value::as_bool) != Some(false) {
             return Err(format!("plan: {run_id} is an attribution run; this supervisor takes no stack snapshots"));
         }
@@ -253,39 +285,111 @@ fn tail_chars(text: &str, n: usize) -> &str {
     &text[skip..]
 }
 
-/// Opens `path` for writing, truncated or appended, created if absent, without following a
-/// symbolic link (`O_NOFOLLOW`) and without blocking (`O_NONBLOCK`: opening a FIFO that has no
-/// reader fails at once instead of waiting for one). Anything that is not a regular file once
-/// open (a FIFO with a reader, a device) is refused, so a record destination is a regular file or
-/// a new one; nothing it returns can block a write.
-pub fn open_output(path: &Path, append: bool) -> std::io::Result<std::fs::File> {
-    use std::os::unix::ffi::OsStrExt;
-    use std::os::unix::io::FromRawFd;
-    let name = std::ffi::CString::new(path.as_os_str().as_bytes())?;
-    let flags = libc::O_WRONLY
-        | libc::O_CREAT
-        | libc::O_NOFOLLOW
-        | libc::O_NONBLOCK
-        | libc::O_CLOEXEC
-        | if append { libc::O_APPEND } else { libc::O_TRUNC };
-    // SAFETY: a NUL-terminated path; the mode argument is the one `O_CREAT` reads.
-    let fd = unsafe { libc::open(name.as_ptr(), flags, 0o644 as libc::c_uint) };
-    if fd < 0 {
-        let error = std::io::Error::last_os_error();
-        let file = basename(&path.to_string_lossy());
-        return Err(std::io::Error::new(error.kind(), format!("cannot open the record {file}: {error}")));
-    }
-    // SAFETY: `fd` was just opened here and is owned by nothing else.
-    let file = unsafe { std::fs::File::from_raw_fd(fd) };
-    if !file.metadata()?.file_type().is_file() {
-        let file = basename(&path.to_string_lossy());
-        return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, format!("the record {file} is not a regular file")));
-    }
-    Ok(file)
+/// The output folder, opened once as a directory without following a symbolic link
+/// (`O_DIRECTORY | O_NOFOLLOW`). Every record file is created, and read back, relative to this
+/// descriptor (`openat`), so a later replacement of the folder's path (a rename, a symbolic link)
+/// cannot redirect a record.
+pub struct OutDir {
+    fd: std::os::fd::OwnedFd,
 }
 
-fn write_json(path: &Path, value: &Value) -> std::io::Result<()> {
-    write_json_to(open_output(path, false)?, value)
+/// A record file's name: a bare name, never a path (run ids are checked by [`check_run_id`]).
+fn bare(name: &str) -> std::io::Result<std::ffi::CString> {
+    if name.is_empty() || name.contains('/') || name == "." || name == ".." {
+        return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, format!("the record name {name:?} is not a bare name")));
+    }
+    Ok(std::ffi::CString::new(name)?)
+}
+
+impl OutDir {
+    /// Opens `path`, which must be a real directory (not a symbolic link to one).
+    pub fn open(path: &Path) -> std::io::Result<OutDir> {
+        use std::os::fd::FromRawFd;
+        use std::os::unix::ffi::OsStrExt;
+        let name = std::ffi::CString::new(path.as_os_str().as_bytes())?;
+        // SAFETY: a NUL-terminated path.
+        let fd = unsafe { libc::open(name.as_ptr(), libc::O_RDONLY | libc::O_DIRECTORY | libc::O_NOFOLLOW | libc::O_CLOEXEC) };
+        if fd < 0 {
+            let error = std::io::Error::last_os_error();
+            return Err(std::io::Error::new(error.kind(), format!("cannot open the output folder (a real directory, not a link): {error}")));
+        }
+        // SAFETY: `fd` was just opened here and is owned by nothing else.
+        Ok(OutDir { fd: unsafe { std::os::fd::OwnedFd::from_raw_fd(fd) } })
+    }
+
+    fn at(&self, name: &str, flags: libc::c_int) -> std::io::Result<std::fs::File> {
+        use std::os::fd::{AsRawFd, FromRawFd};
+        let cname = bare(name)?;
+        // SAFETY: a valid directory descriptor and a NUL-terminated bare name; the mode is the
+        // one `O_CREAT` reads.
+        let fd = unsafe { libc::openat(self.fd.as_raw_fd(), cname.as_ptr(), flags | libc::O_NOFOLLOW | libc::O_NONBLOCK | libc::O_CLOEXEC, 0o644 as libc::c_uint) };
+        if fd < 0 {
+            let error = std::io::Error::last_os_error();
+            return Err(std::io::Error::new(error.kind(), format!("cannot open the record {name}: {error}")));
+        }
+        // SAFETY: `fd` was just opened here and is owned by nothing else.
+        let file = unsafe { std::fs::File::from_raw_fd(fd) };
+        if !file.metadata()?.file_type().is_file() {
+            return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, format!("the record {name} is not a regular file")));
+        }
+        Ok(file)
+    }
+
+    /// Creates (or truncates, or appends to) the record `name` in this folder, without following a
+    /// symbolic link and without blocking on the open (`O_NONBLOCK`: opening a FIFO that has no
+    /// reader fails at once). Anything that is not a regular file once open (a FIFO with a reader,
+    /// a device) is refused. A write to the file it returns can still block on a stalled file
+    /// system; the supervisor bounds its record writes with [`WriteWatch`].
+    pub fn create(&self, name: &str, append: bool) -> std::io::Result<std::fs::File> {
+        self.at(name, libc::O_WRONLY | libc::O_CREAT | if append { libc::O_APPEND } else { libc::O_TRUNC })
+    }
+
+    /// The text of the record `name` in this folder, if it is a regular file.
+    pub fn read(&self, name: &str) -> Option<String> {
+        let mut text = String::new();
+        self.at(name, libc::O_RDONLY).ok()?.read_to_string(&mut text).ok()?;
+        Some(text)
+    }
+
+    /// Whether a record `name` exists in this folder (of any kind).
+    fn holds(&self, name: &str) -> bool {
+        use std::os::fd::AsRawFd;
+        let Ok(cname) = bare(name) else { return false };
+        let mut stat = std::mem::MaybeUninit::<libc::stat>::zeroed();
+        // SAFETY: a valid directory descriptor, a NUL-terminated bare name and a writable stat.
+        unsafe { libc::fstatat(self.fd.as_raw_fd(), cname.as_ptr(), stat.as_mut_ptr(), libc::AT_SYMLINK_NOFOLLOW) == 0 }
+    }
+
+    /// Creates the folder `name` in this folder (or keeps an existing real one).
+    fn subfolder(&self, name: &str) -> std::io::Result<()> {
+        use std::os::fd::AsRawFd;
+        let cname = bare(name)?;
+        // SAFETY: a valid directory descriptor and a NUL-terminated bare name.
+        if unsafe { libc::mkdirat(self.fd.as_raw_fd(), cname.as_ptr(), 0o755) } != 0 {
+            let error = std::io::Error::last_os_error();
+            if error.kind() != std::io::ErrorKind::AlreadyExists {
+                return Err(error);
+            }
+        }
+        Ok(())
+    }
+}
+
+/// `rr.RUN_ID_PATTERN`, `[A-Za-z0-9][A-Za-z0-9._-]{0,127}`: a run id names the run's record files
+/// inside the output folder, so only a bare name is accepted, at plan load.
+pub fn check_run_id(run_id: &str) -> Result<(), String> {
+    let mut chars = run_id.chars();
+    let first = chars.next().is_some_and(|c| c.is_ascii_alphanumeric());
+    let rest = chars.all(|c| c.is_ascii_alphanumeric() || matches!(c, '.' | '_' | '-'));
+    if first && rest && run_id.len() <= 128 {
+        Ok(())
+    } else {
+        Err(format!("plan: run ids must be bare names ([A-Za-z0-9][A-Za-z0-9._-]{{0,127}}): {run_id:?}"))
+    }
+}
+
+fn write_json(out: &OutDir, name: &str, value: &Value) -> std::io::Result<()> {
+    write_json_to(out.create(name, false)?, value)
 }
 
 fn write_json_to(mut file: std::fs::File, value: &Value) -> std::io::Result<()> {
@@ -295,24 +399,59 @@ fn write_json_to(mut file: std::fs::File, value: &Value) -> std::io::Result<()> 
 }
 
 /// `k6.append_record`.
-fn append_record(out_dir: &Path, record: &Value) -> std::io::Result<()> {
-    let mut file = open_output(&out_dir.join("records.jsonl"), true)?;
+fn append_record(out: &OutDir, record: &Value) -> std::io::Result<()> {
+    let mut file = out.create("records.jsonl", true)?;
     writeln!(file, "{record}")
 }
 
-/// The output folder is a real directory (not a symbolic link to one): a new record file is
-/// created in it.
-fn real_directory(dir: &Path) -> std::io::Result<()> {
-    if std::fs::symlink_metadata(dir)?.file_type().is_dir() {
-        Ok(())
-    } else {
-        Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "the output folder is not a directory (or is a symbolic link)"))
+/// The exit status of a supervisor whose record writes did not finish within
+/// [`RECORD_WRITE_LIMIT`]: distinct from 0, 1 (a run classed error), 2 (usage, plan or record
+/// error) and 128 + a signal.
+pub const RECORDS_INCOMPLETE_EXIT: i32 = 4;
+/// How long one group of record writes may take before the supervisor gives up on them.
+pub const RECORD_WRITE_LIMIT: Duration = Duration::from_secs(120);
+
+/// A watchdog over one group of record writes (a regular-file write can block on a stalled file
+/// system): if it is still armed after its limit, its expiry action runs. The supervisor's action
+/// ([`WriteWatch::arm`]) writes a message that the records are incomplete and exits with
+/// [`RECORDS_INCOMPLETE_EXIT`]; at every point it is armed, no driver is running (none started
+/// yet, or the run's driver already reaped). Dropping it disarms it.
+pub struct WriteWatch {
+    _armed: std::sync::mpsc::Sender<()>,
+}
+
+impl WriteWatch {
+    /// Arms the supervisor's watchdog over writing `what`; `after` says where the driver is.
+    pub fn arm(what: &str, after: &'static str) -> WriteWatch {
+        let what = what.to_string();
+        WriteWatch::arm_with(RECORD_WRITE_LIMIT, move || {
+            eprintln!(
+                "release_timing --supervise: writing {what} did not finish within {} s (a stalled file system?); the records are incomplete; {after}",
+                RECORD_WRITE_LIMIT.as_secs()
+            );
+            std::process::exit(RECORDS_INCOMPLETE_EXIT);
+        })
+    }
+
+    /// Arms a watchdog that runs `on_expiry` if it is still armed after `limit`.
+    pub fn arm_with(limit: Duration, on_expiry: impl FnOnce() + Send + 'static) -> WriteWatch {
+        let (armed, watch) = std::sync::mpsc::channel::<()>();
+        std::thread::spawn(move || {
+            if watch.recv_timeout(limit) == Err(std::sync::mpsc::RecvTimeoutError::Timeout) {
+                on_expiry();
+            }
+        });
+        WriteWatch { _armed: armed }
     }
 }
 
 /// `k6.read_records`.
 pub fn read_records(out_dir: &Path) -> Vec<Value> {
-    std::fs::read_to_string(out_dir.join("records.jsonl"))
+    OutDir::open(out_dir).ok().map(|out| records_in(&out)).unwrap_or_default()
+}
+
+fn records_in(out: &OutDir) -> Vec<Value> {
+    out.read("records.jsonl")
         .map(|text| text.lines().filter(|l| !l.trim().is_empty()).filter_map(|l| serde_json::from_str(l).ok()).collect())
         .unwrap_or_default()
 }
@@ -553,8 +692,22 @@ impl Drop for Spawned {
     }
 }
 
+/// What a test may inject into [`launch`]; the supervisor passes [`Hooks::none`].
+pub struct Hooks<'a> {
+    /// Called with the driver's pid right after the spawn (a test injects a failure there).
+    pub after_spawn: &'a mut dyn FnMut(i32) -> std::io::Result<()>,
+    /// Wraps the stdout record's file (a test injects a writer that fails).
+    pub stdout_record: Option<Box<dyn FnOnce(std::fs::File) -> Box<dyn Write + Send>>>,
+}
+
+impl Hooks<'_> {
+    pub fn none(after_spawn: &mut dyn FnMut(i32) -> std::io::Result<()>) -> Hooks<'_> {
+        Hooks { after_spawn, stdout_record: None }
+    }
+}
+
 /// A launch's record and the driver's output, as the pumps collected it (the files hold the same
-/// bytes; nothing is read back from them).
+/// bytes unless a write failed, which the record says; nothing is read back from them).
 pub struct Launched {
     pub record: Map<String, Value>,
     pub stdout: String,
@@ -565,11 +718,14 @@ pub struct Launched {
 /// files, spawn, watch, classify, record. Returns the launch record, also written to
 /// `<run_id>.record.json`, and the driver's output.
 ///
-/// The three output files (`<run_id>.jsonl`, `.stderr.txt`, `.record.json`) are opened by
-/// [`open_output`] before the spawn, so a destination that is not a regular file refuses the run
-/// before any process starts and no file operation can block the way to the watch loop. From the
-/// spawn on, [`Spawned`] owns the driver. `after_spawn` is called with the driver's pid right
-/// after the spawn (the supervisor passes a no-op; a test injects a failure there).
+/// The three output files (`<run_id>.jsonl`, `.stderr.txt`, `.record.json`) are created in the
+/// opened output folder ([`OutDir::create`]) before the spawn, so a destination that is not a
+/// regular file refuses the run before any process starts, no file is opened between the spawn
+/// and the watch loop, and a later replacement of the folder's path cannot redirect them. From
+/// the spawn on, [`Spawned`] owns the driver. The driver is told the supervisor's pid
+/// ([`SUPERVISOR_PID_ENV`]) and exits if the supervisor dies. A failed write or flush of the
+/// stdout record stops its hash: the launch record then has `stdout_sha256` null and
+/// `stdout_record_error` set, never a hash over bytes that were not written.
 #[allow(clippy::too_many_arguments)]
 pub fn launch(
     binary: &Path,
@@ -577,13 +733,13 @@ pub fn launch(
     rss_cap_bytes: u64,
     footprint_budget_bytes: u64,
     timeout_s: i64,
-    record_dir: &Path,
+    record_dir: &OutDir,
     run_id: &str,
-    after_spawn: &mut dyn FnMut(i32) -> std::io::Result<()>,
+    hooks: Hooks<'_>,
 ) -> std::io::Result<Launched> {
     use std::os::unix::process::CommandExt;
-    let base = record_dir.join(run_id);
-    let with_suffix = |suffix: &str| PathBuf::from(format!("{}{suffix}", base.display()));
+    let Hooks { after_spawn, stdout_record } = hooks;
+    let with_suffix = |suffix: &str| format!("{run_id}{suffix}");
     let mut argv = vec![basename(&binary.to_string_lossy())];
     argv.extend(argv_tail.iter().map(|a| if Path::new(a).is_absolute() { basename(a) } else { a.clone() }));
     let mut record = Map::new();
@@ -601,12 +757,19 @@ pub fn launch(
 
     // Every output, prepared before the spawn: a destination that is not a regular file (or a new
     // file in a real directory) is refused here, before any process starts.
-    real_directory(record_dir)?;
-    let mut out_file = open_output(&with_suffix(".jsonl"), false)?;
-    let mut err_file = open_output(&with_suffix(".stderr.txt"), false)?;
-    let record_file = open_output(&with_suffix(".record.json"), false)?;
+    let out_file = record_dir.create(&with_suffix(".jsonl"), false)?;
+    let mut out_file: Box<dyn Write + Send> = match stdout_record {
+        Some(wrap) => wrap(out_file),
+        None => Box::new(out_file),
+    };
+    let mut err_file = record_dir.create(&with_suffix(".stderr.txt"), false)?;
+    let record_file = record_dir.create(&with_suffix(".record.json"), false)?;
     let mut command = std::process::Command::new(binary);
-    command.args(argv_tail).stdout(std::process::Stdio::piped()).stderr(std::process::Stdio::piped());
+    command
+        .args(argv_tail)
+        .env(SUPERVISOR_PID_ENV, std::process::id().to_string())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped());
     // SAFETY: setsid is async-signal-safe; the child starts a new session and process group
     // (Python `subprocess.Popen(start_new_session=True)`), so its pgid is its pid.
     unsafe {
@@ -622,21 +785,31 @@ pub fn launch(
     let stdout = child.stdout.take().ok_or_else(|| std::io::Error::other("no stdout pipe"))?;
     let stderr = child.stderr.take().ok_or_else(|| std::io::Error::other("no stderr pipe"))?;
     // `pump_out` and `pump_err`: stdout lines go to `<run_id>.jsonl` (opened above) as they come,
-    // and are hashed as written; stderr is kept. The pumps touch no other file.
-    let (out_tx, out_rx) = std::sync::mpsc::channel::<(Vec<String>, String)>();
+    // and are hashed as they are written; stderr is kept. The pumps touch no other file. A failed
+    // write or flush ends the record's writing and its hash (the pipe is still drained): what the
+    // pump returns is then the error, and no hash.
+    type Pumped = (Vec<String>, Result<String, String>);
+    let (out_tx, out_rx) = std::sync::mpsc::channel::<Pumped>();
     let (err_tx, err_rx) = std::sync::mpsc::channel::<Vec<u8>>();
     std::thread::Builder::new().spawn(move || {
-        let (mut lines, mut digest) = (Vec::new(), Sha256::new());
+        let (mut lines, mut digest, mut failed) = (Vec::new(), Sha256::new(), None::<String>);
         let mut reader = BufReader::new(stdout);
         let mut line = Vec::new();
         while reader.read_until(b'\n', &mut line).map(|n| n > 0).unwrap_or(false) {
-            let _ = out_file.write_all(&line);
-            let _ = out_file.flush();
-            digest.update(&line);
+            if failed.is_none() {
+                match out_file.write_all(&line).and_then(|()| out_file.flush()) {
+                    Ok(()) => digest.update(&line),
+                    Err(error) => failed = Some(error.to_string()),
+                }
+            }
             lines.push(String::from_utf8_lossy(&line).to_string());
             line.clear();
         }
-        let _ = out_tx.send((lines, digest.finalize().iter().map(|b| format!("{b:02x}")).collect()));
+        let hashed = match failed {
+            None => Ok(digest.finalize().iter().map(|b| format!("{b:02x}")).collect()),
+            Some(error) => Err(error),
+        };
+        let _ = out_tx.send((lines, hashed));
     })?;
     std::thread::Builder::new().spawn(move || {
         let mut bytes = Vec::new();
@@ -689,12 +862,15 @@ pub fn launch(
     // `t.join(timeout=5)` for each pump (a pump still blocked after that gives nothing; the
     // Python keeps what its pump had collected so far).
     let deadline = Instant::now() + Duration::from_secs(5);
-    let (stdout_lines, stdout_sha256) =
-        out_rx.recv_timeout(deadline.saturating_duration_since(Instant::now())).unwrap_or_else(|_| (Vec::new(), sha256_hex(b"")));
+    let (stdout_lines, stdout_written) = out_rx
+        .recv_timeout(deadline.saturating_duration_since(Instant::now()))
+        .unwrap_or_else(|_| (Vec::new(), Err("the stdout pump did not finish within 5 s of the driver's exit".to_string())));
     let stderr_bytes = err_rx.recv_timeout(deadline.saturating_duration_since(Instant::now())).unwrap_or_default();
     drop(child);
     let exit_code = exit_code_of(status);
     let stderr_text = String::from_utf8_lossy(&stderr_bytes).to_string();
+    // The driver is reaped: from here every write is a record write, bounded by the watchdog.
+    let _watch = WriteWatch::arm(&format!("the records of {run_id}"), "the run's driver had already been reaped");
     err_file.write_all(sanitize(&stderr_text).as_bytes())?;
     let stdout_text = stdout_lines.concat();
     let objects = jsonl(&stdout_text);
@@ -746,9 +922,21 @@ pub fn launch(
     record.insert("stderr_tail".into(), json!(sanitize(tail_chars(&stderr_text, STDERR_TAIL_CHARS))));
     record.insert("killed_by_sampler".into(), json!(sampler_killed));
     record.insert("sampler".into(), sampler.summary());
-    record.insert("stdout_sha256".into(), json!(stdout_sha256));
+    // Only a hash of bytes that were all written stands as the file's; a failed write is the
+    // record's error instead.
+    record.insert("stdout_sha256".into(), json!(stdout_written.as_ref().ok()));
+    record.insert("stdout_record_error".into(), json!(stdout_written.as_ref().err()));
     write_json_to(record_file, &Value::Object(record.clone()))?;
     Ok(Launched { record, stdout: stdout_text, stderr: sanitize(&stderr_text) })
+}
+
+/// A stdout record that could not be written is an error of the run's record, whatever the run
+/// would otherwise have been: `error`, with the write's error and the classification it replaces.
+pub fn record_error_class(launched: &Value, classification: String, detail: Option<String>) -> (String, Option<String>) {
+    match launched.get("stdout_record_error").and_then(Value::as_str) {
+        Some(error) => ("error".to_string(), Some(format!("stdout_record_write_failed: {error} (the run was otherwise {classification})"))),
+        None => (classification, detail),
+    }
 }
 
 /// `rr.driver_argv` without the binary: a solve run's model and `--mode`, or a model-checks run's
@@ -784,7 +972,7 @@ pub struct Options {
 
 /// The launch keys a run record keeps (`rr.run_plan`'s `launch={...}`), and this supervisor's
 /// siblings.
-const LAUNCH_KEYS: [&str; 24] = [
+const LAUNCH_KEYS: [&str; 25] = [
     "classification",
     "classification_detail",
     "exit_code",
@@ -811,6 +999,8 @@ const LAUNCH_KEYS: [&str; 24] = [
     "watchdog_last_resident_bytes",
     // Sibling: the launch record's own schema, naming this supervisor.
     "schema",
+    // Sibling: why the stdout record could not be written (null when it was).
+    "stdout_record_error",
 ];
 
 /// `rr.run_plan`: the plan's runs in order, one at a time, within the window budget.
@@ -821,8 +1011,9 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Vec<Value>, Str
     let plan = &options.plan;
     let budget_s = plan.window_budget_s as f64;
     std::fs::create_dir_all(out_dir).map_err(|e| format!("cannot create the output folder: {e}"))?;
-    real_directory(out_dir).map_err(|e| format!("cannot use the output folder: {e}"))?;
-    if std::fs::symlink_metadata(out_dir.join("records.jsonl")).is_ok() {
+    // Opened once: every record below is created relative to this descriptor.
+    let out = OutDir::open(out_dir).map_err(|e| format!("cannot use the output folder: {e}"))?;
+    if out.holds("records.jsonl") {
         return Err("records already exist in the output folder; use a new one".into());
     }
     let mut md = metadata(&options.binary);
@@ -831,10 +1022,14 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Vec<Value>, Str
     md.insert("quiet_wait_s".into(), json!(plan.quiet_wait_s));
     md.insert("plan".into(), json!(plan.runs.iter().map(|r| r.run_id.clone()).collect::<Vec<_>>()));
     let io = |e: std::io::Error| format!("cannot write the records: {e}");
-    write_json(&out_dir.join("metadata.json"), &Value::Object(md)).map_err(io)?;
+    {
+        let _watch = WriteWatch::arm("metadata.json", "no driver had been started");
+        write_json(&out, "metadata.json", &Value::Object(md)).map_err(io)?;
+    }
+    // The driver writes a kept result by path (it is given the path, not a descriptor).
     let results_dir = options.write_results.then(|| out_dir.join("results"));
-    if let Some(dir) = &results_dir {
-        std::fs::create_dir_all(dir).map_err(io)?;
+    if results_dir.is_some() {
+        out.subfolder("results").map_err(io)?;
     }
     let mut records = Vec::new();
     let mut launched_any = false;
@@ -888,10 +1083,11 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Vec<Value>, Str
                     );
                     record.insert("window_elapsed_after_s".into(), json!(round_to(clock(), 3)));
                     let value = Value::Object(record);
-                    append_record(out_dir, &value).map_err(io)?;
+                    let _watch = WriteWatch::arm(&format!("the records of {}", run.run_id), "no driver had been started");
+                    append_record(&out, &value).map_err(io)?;
                     records.push(value);
                     log(&format!("{}: skipped_window_budget after the host check", run.run_id));
-                    write_packet(out_dir).map_err(io)?;
+                    write_packet(&out).map_err(|e| format!("cannot write the packet: {e}"))?;
                     continue;
                 }
                 let timeout = run.timeout_s.min(remaining.trunc() as i64);
@@ -904,9 +1100,9 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Vec<Value>, Str
                     run.rss_cap_bytes,
                     run.footprint_budget_bytes,
                     timeout,
-                    out_dir,
+                    &out,
                     &run.run_id,
-                    &mut |_| Ok(()),
+                    Hooks::none(&mut |_| Ok(())),
                 )
                 .map_err(|e| format!("cannot launch {}: {e}", run.run_id))?;
                 let launched = Value::Object(launched);
@@ -921,6 +1117,7 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Vec<Value>, Str
                     i128::from(run.footprint_budget_bytes),
                     memory,
                 );
+                let (classification, detail) = record_error_class(&launched, classification, detail);
                 let watchdog: Map<String, Value> = launched
                     .get("sampler")
                     .and_then(Value::as_object)
@@ -943,7 +1140,8 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Vec<Value>, Str
         }
         record.insert("window_elapsed_after_s".into(), json!(round_to(clock(), 3)));
         let value = Value::Object(record);
-        append_record(out_dir, &value).map_err(io)?;
+        let _watch = WriteWatch::arm(&format!("the records of {}", run.run_id), "the run's driver had already been reaped, or none was started");
+        append_record(&out, &value).map_err(io)?;
         let wall = value.get("launch").and_then(|l| l.get("wall_s")).and_then(Value::as_f64);
         let detail = value.get("classification_detail").filter(|d| truthy(d)).map(|d| format!(" [{}]", py_str(Some(d))));
         log(&format!(
@@ -955,7 +1153,7 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Vec<Value>, Str
             value["window_elapsed_after_s"].as_f64().unwrap_or(0.0),
         ));
         records.push(value);
-        write_packet(out_dir).map_err(io)?;
+        write_packet(&out).map_err(|e| format!("cannot write the packet: {e}"))?;
     }
     Ok(records)
 }
@@ -1045,14 +1243,33 @@ pub fn packet_row(r: &Value) -> Value {
     })
 }
 
-/// `rr.packet`.
-pub fn packet(out_dir: &Path) -> Value {
+/// `rr.stale_driver_message`: the refusal of a record whose driver line is not the current form
+/// (`DRIVER_SCHEMA`), or `None`.
+pub fn stale_driver_message(record: &Value) -> Option<String> {
+    let driver = record.get("driver").filter(|d| !d.is_null())?;
+    let schema = driver.get("schema").and_then(Value::as_str);
+    (schema != Some(DRIVER_SCHEMA)).then(|| {
+        format!(
+            "record {}: its driver line has schema {}, not {DRIVER_SCHEMA}; an earlier driver's record is not repackaged",
+            py_str(record.get("run_id")),
+            schema.unwrap_or("None")
+        )
+    })
+}
+
+/// `rr.packet` of the records in `out_dir`; a record whose driver line is not the current form
+/// is refused by name ([`stale_driver_message`]), never repackaged under the current conditions.
+pub fn packet(out_dir: &Path) -> Result<Value, String> {
+    packet_in(&OutDir::open(out_dir).map_err(|e| e.to_string())?)
+}
+
+fn packet_in(out: &OutDir) -> Result<Value, String> {
     let records: Vec<Value> =
-        read_records(out_dir).into_iter().filter(|r| r.get("schema").and_then(Value::as_str) == Some(RECORD_SCHEMA)).collect();
-    let md: Value = std::fs::read_to_string(out_dir.join("metadata.json"))
-        .ok()
-        .and_then(|t| serde_json::from_str(&t).ok())
-        .unwrap_or(Value::Null);
+        records_in(out).into_iter().filter(|r| r.get("schema").and_then(Value::as_str) == Some(RECORD_SCHEMA)).collect();
+    if let Some(message) = records.iter().find_map(stale_driver_message) {
+        return Err(message);
+    }
+    let md: Value = out.read("metadata.json").and_then(|t| serde_json::from_str(&t).ok()).unwrap_or(Value::Null);
     let runs: Vec<Value> = records.iter().filter(|r| r.get("launch").is_some()).map(packet_row).collect();
     let not_run: Vec<Value> = records
         .iter()
@@ -1088,19 +1305,19 @@ pub fn packet(out_dir: &Path) -> Value {
         .iter()
         .map(|r| r.get("window_elapsed_after_s").filter(|v| truthy(v)).and_then(Value::as_f64).unwrap_or(0.0))
         .fold(None::<f64>, |a, b| Some(a.map_or(b, |a| a.max(b))));
-    json!({
+    Ok(json!({
         "schema": PACKET_SCHEMA, "observation_only": true,
         "no_thresholds": "no time or memory bound is asserted anywhere; criterion 9 provisional bounds are not evaluated",
         "conditions": conditions,
         "metadata": md, "classification_counts": counts, "runs": runs, "not_run": not_run,
         "window_elapsed_s": window_elapsed.map_or(json!(0), |w| json!(w)),
         "driver_limits": driver_limits,
-    })
+    }))
 }
 
-pub fn write_packet(out_dir: &Path) -> std::io::Result<Value> {
-    let result = packet(out_dir);
-    write_json(&out_dir.join("packet.json"), &result)?;
+fn write_packet(out: &OutDir) -> Result<Value, String> {
+    let result = packet_in(out)?;
+    write_json(out, "packet.json", &result).map_err(|e| e.to_string())?;
     Ok(result)
 }
 
@@ -1116,7 +1333,8 @@ fn usage(message: &str) -> i32 {
 
 /// `release_timing --supervise ...`; `args` are the arguments after the program name. Returns
 /// the exit code: 0, 1 when a run's classification is error, model_missing or model_mismatch (as
-/// the Python `--run`), 2 on a usage, plan or record-folder error.
+/// the Python `--run`), 2 on a usage, plan or record-folder error, [`RECORDS_INCOMPLETE_EXIT`]
+/// when record writes stalled, 128 + a signal when stopped by one of [`TERMINATING_SIGNALS`].
 pub fn main(args: &[String]) -> i32 {
     let mut args = args.iter();
     let (mut plan_path, mut out_dir, mut models_dir, mut write_results) = (None, None, None, false);
@@ -1159,7 +1377,10 @@ pub fn main(args: &[String]) -> i32 {
     };
     match run_plan(&options, &log) {
         Ok(records) => {
-            let counts = packet(&options.out_dir)["classification_counts"].clone();
+            let counts = match packet(&options.out_dir) {
+                Ok(packet) => packet["classification_counts"].clone(),
+                Err(message) => return usage(&message),
+            };
             println!("{}", json!({"packet": "packet.json", "classification_counts": counts}));
             let bad = records.iter().any(|r| {
                 matches!(r.get("classification").and_then(Value::as_str), Some("error" | "model_missing" | "model_mismatch"))

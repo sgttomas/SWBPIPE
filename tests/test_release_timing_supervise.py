@@ -53,7 +53,7 @@ pytestmark = pytest.mark.skipif(
 )
 
 # Keys the self-supervisor adds beside the Python's, each where a Python source is absent.
-LAUNCH_SIBLINGS = {"watchdog_last_resident_bytes", "schema"}
+LAUNCH_SIBLINGS = {"watchdog_last_resident_bytes", "schema", "stdout_record_error"}
 RSS_SIBLINGS = {"resident_max_bytes", "resident_samples", "exit_lifetime_max_phys_footprint_bytes"}
 PEAK_MEMORY_SIBLINGS = {"wait4_maxrss", "sampled_resident_size", "exit_lifetime_max_phys_footprint"}
 METADATA_SIBLINGS = {"source_identity_from"}

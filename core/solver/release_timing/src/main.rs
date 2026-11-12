@@ -445,8 +445,78 @@ fn other_modes_if_asked() {
     }
 }
 
+/// The variable `release_timing --supervise` sets on the driver it starts: its own pid
+/// (`supervise::SUPERVISOR_PID_ENV`).
+const SUPERVISOR_PID_ENV: &str = "RELEASE_TIMING_SUPERVISOR_PID";
+/// The exit status of a driver that stops because its supervisor is gone.
+const ORPHANED_EXIT: i32 = 125;
+
+fn exit_orphaned(reason: &str) -> ! {
+    eprintln!("release_timing: {reason}; the driver stops");
+    std::process::exit(ORPHANED_EXIT)
+}
+
+/// A driver started by `release_timing --supervise` (which sets [`SUPERVISOR_PID_ENV`]) watches
+/// that supervisor and exits when it is gone, so that no death of the supervisor (SIGKILL, a fault,
+/// a signal it does not handle) leaves the driver running unwatched in its own session. At start
+/// the parent must be that supervisor (a supervisor that died before the watch was armed is
+/// caught here); on macOS a kernel event on the supervisor's pid (kqueue `EVFILT_PROC`,
+/// `NOTE_EXIT`) is then armed, the parent checked again, and a thread waits for the event; on Linux
+/// the kernel kills the driver when its parent exits (`prctl(PR_SET_PDEATHSIG, SIGKILL)`), set
+/// before the second check. A driver started otherwise (directly, or by the Python runner) is
+/// unaffected.
+fn watch_supervisor() {
+    let Some(text) = std::env::var_os(SUPERVISOR_PID_ENV) else { return };
+    let Some(supervisor) = text.to_str().and_then(|t| t.parse::<i32>().ok()) else {
+        exit_orphaned(&format!("{SUPERVISOR_PID_ENV} is not a process id"))
+    };
+    // SAFETY: getppid has no preconditions.
+    let parent = || unsafe { libc::getppid() };
+    if parent() != supervisor {
+        exit_orphaned("the supervisor that started this driver is gone");
+    }
+    #[cfg(target_os = "macos")]
+    {
+        // SAFETY: kqueue has no preconditions.
+        let queue = unsafe { libc::kqueue() };
+        if queue < 0 {
+            exit_orphaned("the supervisor cannot be watched (kqueue failed)");
+        }
+        // SAFETY: zeroed is a valid kevent; the fields set are the ones EVFILT_PROC reads.
+        let mut event: libc::kevent = unsafe { std::mem::zeroed() };
+        event.ident = supervisor as libc::uintptr_t;
+        event.filter = libc::EVFILT_PROC;
+        event.flags = libc::EV_ADD | libc::EV_ONESHOT;
+        event.fflags = libc::NOTE_EXIT;
+        // SAFETY: one change, no events requested; a failure (ESRCH: the pid is gone) is handled.
+        if unsafe { libc::kevent(queue, &event, 1, std::ptr::null_mut(), 0, std::ptr::null()) } != 0 {
+            exit_orphaned("the supervisor that started this driver is gone");
+        }
+        if parent() != supervisor {
+            exit_orphaned("the supervisor that started this driver is gone");
+        }
+        std::thread::spawn(move || loop {
+            // SAFETY: zeroed is a valid kevent to receive into.
+            let mut fired: libc::kevent = unsafe { std::mem::zeroed() };
+            // SAFETY: waits on the queue opened above for one event, without a timeout.
+            let n = unsafe { libc::kevent(queue, std::ptr::null(), 0, &mut fired, 1, std::ptr::null()) };
+            if n > 0 || std::io::Error::last_os_error().raw_os_error() != Some(libc::EINTR) {
+                exit_orphaned("the supervisor that started this driver exited");
+            }
+        });
+    }
+    #[cfg(target_os = "linux")]
+    {
+        // SAFETY: PR_SET_PDEATHSIG with a signal number has no other preconditions.
+        if unsafe { libc::prctl(libc::PR_SET_PDEATHSIG, libc::SIGKILL as libc::c_ulong) } != 0 || parent() != supervisor {
+            exit_orphaned("the supervisor that started this driver is gone");
+        }
+    }
+}
+
 fn main() {
     other_modes_if_asked();
+    watch_supervisor();
     let args = parse_args();
     let (invocation, stages, limits): (&str, &[&str], &[&str]) = if args.model_checks {
         ("model_checks", &MODEL_CHECK_STAGES, &MODEL_CHECK_LIMITS)

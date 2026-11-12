@@ -261,3 +261,20 @@ fn the_build_identity_is_printed_with_a_three_state_dirty_flag() {
         assert_eq!(dirty, "unknown", "no commit: the flag cannot be false");
     }
 }
+
+#[test]
+fn a_driver_whose_supervisor_is_not_its_parent_stops_at_once() {
+    // A supervisor that died before the driver armed its watch: the named pid is not the parent.
+    let model = fixture("invented_demo_model.json");
+    let output = Command::new(BIN)
+        .arg(&model)
+        .env("RELEASE_TIMING_SUPERVISOR_PID", "1")
+        .output()
+        .expect("run release_timing");
+    assert_eq!(output.status.code(), Some(125));
+    assert!(String::from_utf8_lossy(&output.stderr).contains("supervisor that started this driver is gone"));
+    assert!(output.stdout.is_empty(), "no stage ran");
+    // Without the variable (a direct run, or the Python runner's), nothing changes.
+    let (code, _) = run(&[model.to_str().unwrap()]);
+    assert_eq!(code, 0);
+}
