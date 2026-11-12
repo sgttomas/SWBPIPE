@@ -290,9 +290,11 @@ target remains adequate. A failure alone does not justify relaxing one.
     *Owning deliverables:* DEL-16-06.
 18. **Numerical claims.** A case governed by DEL-04-01/REQ-015 that is
     presented as having passed its integrity check, or as established, has
-    the bound and standing that requirement states. A modal document's checks
-    are governed by DEL-04-09's own requirements and are outside this
-    criterion. The error-bound argument is justified under its stated
+    the bound and standing that requirement states. Only the modal
+    eigenproblem's integrity checks governed by DEL-04-09/REQ-003 and REQ-004
+    are outside this criterion. A static state-case solve used by a modal
+    analysis, including its nonlinear support-state confirmation, remains
+    within this criterion. The error-bound argument is justified under its stated
     arithmetic model, and the product establishes its case-dependent
     conditions; an unproved multiple of a condition estimate does not
     establish an upper bound. Where the integrity bound's conditions cannot be
