@@ -93,6 +93,7 @@ class Package:
     not_regenerated: tuple = ()  # ((what, reason), ...)
     other_test: str | None = None  # a maintained test that regenerates this package, and its state
     reproduction: str | None = None  # one line: what reproduces today and what fails, on what
+    defects: tuple = ()  # ((file, text, reason), ...): a known defect, asserted present until repaired
 
 
 # Top-level directories that hold several packages rather than being one.
@@ -107,7 +108,8 @@ DYNAMICS_TEST = "tests/test_dynamics_references.py"
 # part is an entry below (a known failing checksum line or check) that fails again the moment its
 # explanation stops being true.
 O4_REPRODUCTION = (
-    "does not reproduce: its own check (run.sh; generators/o4_reference.py and o4_source_twins.py) refuses "
+    "does not reproduce on this branch (PR 276, not yet merged, admits one named successor of the engine and of "
+    "twelve inputs): its own check (run.sh; generators/o4_reference.py and o4_source_twins.py) refuses "
     "../kd5_timoshenko/kd5t_engine.py, which it pins at SHA-256 c91f28c6... while cdf98fd8c (2026-10-28) changed it "
     "to 05df1ba6...; its frozen files are unchanged and its SHA256SUMS verifies; declared_problem/ is a product "
     "check outside the rule, and its oracle self-test passes")
@@ -115,10 +117,11 @@ KD5T_REPRODUCTION = (
     "reproduces: kd5t_engine.py --check passes, and the 964-model set, its controls and the 64-model frozen subset "
     "regenerate to their pins (kd5t_generate.py check, m3_judge/m3_reproduce.py); kd5t_generate.py check then exits 1 "
     "on the shared M3 judge's self-test (m3_judge's stale runner/Cargo.lock line, the schema reader's refusal of "
-    "allOf), and its own SHA256SUMS fails on runner/Cargo.lock (3c998e749); the runner is not built here")
+    "allOf), and its own SHA256SUMS fails on runner/Cargo.lock (3c998e749; repaired by PR 273, not yet merged); the "
+    "runner is not built here, and its build script runner/build.sh still uses pre-split paths")
 M3_REPRODUCTION = (
-    "its six pinned references reproduce (m3_reproduce.py); its self-test fails on two things: the stale "
-    "runner/Cargo.lock line of its SHA256SUMS (3c998e749), and its schema reader refusing the allOf that 0c480a9e5 "
+    "its six pinned references reproduce (m3_reproduce.py); its self-test fails on two things, both waiting for PR "
+    "217: the stale runner/Cargo.lock line of its SHA256SUMS (3c998e749), and its schema reader refusing the allOf that 0c480a9e5 "
     "added to schemas/load_reference_state.schema.json; the runner-driven judging pass is not run here")
 M3_SUMS_FAIL = "FAIL SHA256SUMS verified (17 files; mismatched: ['runner/Cargo.lock'])"
 KD5T = "kd5_timoshenko/kd5t_engine.py"
@@ -128,6 +131,17 @@ def _loads(file: str, reason: str) -> dict:
     """A load of one module from its file: `import importlib.util`, then `spec_from_file_location`,
     `module_from_spec` and `spec.loader.exec_module`, each a facility the rule names."""
     return {(file, name): reason for name in ("importlib", "spec_from_file_location", "module_from_spec", "exec_module")}
+
+
+def _pool(file: str, start: str | None = "fork") -> dict:
+    """A worker pool over this file's own function: `import multiprocessing` and, for the fork start
+    method, the constant "fork" (a facility name the rule refuses as text)."""
+    reason = ("a worker pool (multiprocessing Pool, start method {}) mapping this file's own function over its "
+              "items; it starts no other program").format(start or "spawn")
+    out = {(file, "multiprocessing"): reason}
+    if start:
+        out[(file, start)] = reason
+    return out
 
 
 def _plain(gen: str, *args: str, deliverables: str, **kw) -> Package:
@@ -153,7 +167,12 @@ PACKAGES: dict[str, Package] = {
     "rt_a4_combinations": Package(
         "DEL-05-02", sums=(Sums("SHA256SUMS"), Sums("v5/SHA256SUMS", base="v5")),
         checks=(Check(("generators/rt_a4_reference.py",)), Check(("generators/rt_a4_v5_reference.py",), cwd="v5"))),
-    "rt_g5_s2_conditions": _plain("rt_g5_s2_reference.py", deliverables="DEL-05-01"),
+    "rt_g5_s2_conditions": _plain(
+        "rt_g5_s2_reference.py", deliverables="DEL-05-01",
+        facilities={("generators/rt_g5_s2_reference.py", "subprocess"):
+                    "node_check (line 438) runs `node -e` when node is on PATH, to compare JavaScript's Number#toString "
+                    "with repr on the decimal samples (README); node is not product code and the frozen values do not "
+                    "depend on it"}),
     "skew_restraints": _plain("skew_reference.py", deliverables="DEL-04-03"),
     "w9_benchmarks": _plain("w9_reference.py", deliverables="DEL-04-02, DEL-04-03, DEL-04-07, DEL-09-01"),
     "w15_component_weight": _plain("w15b_reference.py", deliverables="DEL-03-05"),
@@ -191,7 +210,8 @@ PACKAGES: dict[str, Package] = {
     "kd5_member_bound": Package(
         "DEL-04-01", no_sums=True,
         facilities={("two_body_reference.py", name):
-                    "compiles and runs the sibling notice_reference.py's RN128 operations, read from its own file (README)"
+                    "compiles (mode 'exec') and runs the sibling notice_reference.py's RN128 operations, read from its "
+                    "own file (README)"
                     for name in ("exec", "compile")},
         checks=(Check(("notice_reference.py",)), Check(("two_body_reference.py",)))),
     "kd5_nonlinear": Package(
@@ -232,6 +252,8 @@ PACKAGES: dict[str, Package] = {
                                 "imported it from rerun00/, the same bytes)",
                   "r01_lib": "round 01's shared library (README)",
                   "i1_curved122": "a round-01 script imported by i2_cskew.py (README)"},
+        facilities={("_run_records/freeze_u1.py", "platform"):
+                    "reads platform.python_version() only (lines 376, 382), to record the interpreter in the run record"},
         external={"curved_ef": "D1's curved_ef.py, imported unchanged from a directory given on the command line (README, kd5_models/)",
                   "probe_d5_check": "T3's V1 probe_d5_check.py, imported unchanged from a directory given on the command line (README, kd5_models/)",
                   "rv131_rv_element": UNEXPLAINED_REASON},
@@ -242,6 +264,9 @@ PACKAGES: dict[str, Package] = {
                          ("kd5_models/", "needs D1's and T3's V1 modules from outside the repository (README)"))),
     "t4_i12": Package(
         "DEL-03-06", sums=(Sums("SHA256SUMS"),),
+        facilities={("generators/u3_reference.py", "system"):
+                    "the key \"system\" of the criteria table in the output (system-level comparison criteria, line "
+                    "1892), a word in a table, not os.system"},
         literals={("generators/u3_reference.py", "sha256:1f41f3fc1223aabb5f3a3846acc9df1bd40692fd11621e947ccbd38fd5053b07"):
                       PROSE + " (a case description in the output, 'The invented demo (P/fixtures/product_preview/...')",
                   ("generators/u3_round02.py", "sha256:c82e855e308e0d325ae0c4c5167a17bff83c0201965c6d6b0e367bc7ec88cf1a"):
@@ -266,6 +291,12 @@ PACKAGES: dict[str, Package] = {
         "DEL-05-03",
         sums=(Sums("SHA256SUMS", failing={"runner/Cargo.lock": LOCKFILE_COMMIT}),),
         siblings={"kd5t_engine": "the exact reference engine (README)"},
+        facilities={**_pool("kd5t_census.py"), **_pool("kd5t_generate.py"),
+                    ("kd5t_compare.py", "subprocess"): "--selftest runs the shared judge's m3_judge/m3_selftest.py",
+                    ("kd5t_generate.py", "subprocess"): "`check` runs this package's kd5t_compare.py --selftest"},
+        defects=(("runner/build.sh", "REL=projects/chirality-piping/validation/references/kd5_timoshenko/runner",
+                  "lines 15-16 still use paths from before the repository split (projects/chirality-piping/), so the "
+                  "runner build script cannot work as written; to be repaired with the judge repair after PR 217"),),
         checks=(Check(("kd5t_engine.py", "--check")),
                 Check(("kd5t_generate.py", "check"),
                       known_failure="the frozen subset regenerates byte for byte; the compare self-test then stops on "
@@ -281,7 +312,14 @@ PACKAGES: dict[str, Package] = {
                   "pft_intended": "the intended-system module (README)"},
         facilities={("pft_census.py", "eval"):
                     "the dict key \"eval\" of the dump's evaluation and groups records (an evaluation index: the groups "
-                    "line's eval names one evaluation line, pft_census.py:186), a word in a record, not the builtin"},
+                    "line's eval names one evaluation line, pft_census.py:186), a word in a record, not the builtin",
+                    **_pool("pft_census.py"), **_pool("pft_generate.py"),
+                    ("pft_compare.py", "subprocess"): "--selftest runs the shared judge's m3_judge/m3_selftest.py",
+                    ("pft_generate.py", "subprocess"):
+                        "`check` runs this package's pft_compare.py --selftest; the `units` mode (units_check, line 731) "
+                        "runs the product's units authority ($OPENPIPESTRESS_UNITS_BIN) to confirm GPa moduli convert "
+                        "bit for bit to the Pa operands the references were computed from (README); a product run in a "
+                        "check mode, reported, and no frozen value comes from it"},
         foreign={"kd5t_engine": (KD5T, "the exact engine the PF engine extends (README, 'one of them runs kd5t_engine's 58')"),
                  "kd5t_generate": ("kd5_timoshenko/kd5t_generate.py", "the judged-set machinery the PF generator reuses (README)"),
                  "kd5t_census": ("kd5_timoshenko/kd5t_census.py", "the census the PF census extends (README)"),
@@ -303,6 +341,20 @@ PACKAGES: dict[str, Package] = {
               Sums("REFERENCE_SHA256SUMS", base="..", pins=3)),
         siblings={m: "a module of the one M3 judge (README, Files)"
                   for m in ("m3_json", "m3_types", "m3_view", "m3_compare", "m3_report", "m3_synth", "m3_regress")},
+        facilities={**_pool("m3_report.py"),
+                    ("m3_report.py", "subprocess"):
+                        "runs `git rev-parse --verify` to bind the judged records to a commit of --checkout (README)",
+                    ("m3_view.py", "subprocess"):
+                        "runs `git rev-parse` and `git cat-file blob HEAD:<path>` to read REFERENCE_SHA256SUMS from HEAD "
+                        "(README, round 7)",
+                    ("m3_reproduce.py", "subprocess"):
+                        "runs the reference generators (kd5t_generate.py, pft_generate.py) with python3 -I -B into its "
+                        "scratch directory (README, Reproducible)",
+                    ("m3_selftest.py", "subprocess"):
+                        "runs a fresh python3 -I -B that imports m3_compare, the isolation check (README, Self-test)",
+                    ("m3_regress.py", "subprocess"):
+                        "the self-test runs git in throwaway repositories, the judge's own m3_report.py there, and run.sh "
+                        "with cargo set to `false` to exercise its refusals (README, Self-test)"},
         literals={**{("m3_view.py", lit): why for lit, why in (
                       ("fixtures", "reads the public semantic contracts under fixtures/results (README, Independence)"),
                       ("schemas", "reads the public result schemas' contract_evidence definition at judge time (m3_view.py)"))},
@@ -320,9 +372,10 @@ PACKAGES: dict[str, Package] = {
         "DEL-04-08", sums=(Sums("SHA256SUMS"),),
         siblings={"o4_reference": "the unit's pipeline, reused by the source twins (README)"},
         foreign={"kd5t_engine": (KD5T, "the exact engine, imported unchanged and bound by SHA-256 (README)")},
-        facilities=_loads("generators/o4_source_twins.py",
-                          "loads tools/fixtures/retained_precision_corpus.py, pinned by SHA-256, for its DAG decoder "
-                          "`expand` only (README, input-only sources); product tooling run by a generator, reported"),
+        facilities={**_loads("generators/o4_source_twins.py",
+                             "loads tools/fixtures/retained_precision_corpus.py, pinned by SHA-256, for its DAG decoder "
+                             "`expand` only (README, input-only sources); product tooling run by a generator, reported"),
+                    **_pool("generators/o4_reference.py", start=None)},
         literals={**{("generators/o4_source_twins.py", lit):
                      "an input-only source of the source twins, pinned by SHA-256 (README)"
                      for lit in ("fixtures/product_preview/pressure_source", "fixtures/results/j7_rf_census_inputs.json",
@@ -478,6 +531,15 @@ def test_the_ac_001_and_ac_002_packages_state_their_reproduction():
     for name in ("o4_retained_source", "kd5_timoshenko", "m3_judge"):
         assert PACKAGES[name].reproduction, name
         print(f"\n{name}: {PACKAGES[name].reproduction}")
+
+
+@pytest.mark.parametrize("name", sorted(n for n, p in PACKAGES.items() if p.defects))
+def test_a_known_defect_is_still_there(name):
+    """A known defect is an entry that fails the moment it is repaired, so the entry goes with it."""
+    for file, text, reason in PACKAGES[name].defects:
+        assert reason.strip()
+        assert text in (REFS / name / file).read_text(encoding="utf-8"), (
+            f"{name}/{file} no longer holds {text!r}; the defect looks repaired, so remove its entry")
 
 
 def test_taken_on_trust_is_counted():
