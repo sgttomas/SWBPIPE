@@ -326,6 +326,48 @@ function formatPackageSaveError(error: unknown): string {
   return String(error);
 }
 
+/** DEL-08-01 REQ-019, AC-010; DEL-02-05 AX-005: what a failed shareable save says about
+ * the file before its diagnostic. Before the bytes of the native save leave, and for a coded
+ * refusal or a writer error of the save, nothing was written. A writer error whose cleanup
+ * also failed may leave the whole package, record included, in a temporary file beside the
+ * selected one, so it says only what is known of the selected file and that file. A worker
+ * failure, or an error that cannot be read, leaves the outcome unknown, and it is reported
+ * as unknown. */
+const SHAREABLE_SAVE_NOT_WRITTEN = "Not saved: no shareable report package was written and no user release was made.";
+const SHAREABLE_SAVE_OUTCOME_UNKNOWN = "It is not known whether the shareable report package was written.";
+const SHAREABLE_SAVE_TEMP_MAY_REMAIN = "The shareable report package was not saved to the selected file. A temporary file may remain beside it.";
+const LOCAL_PRIVATE_SAVE_TEMP_MAY_REMAIN = "The report package was not saved to the selected file. A temporary file may remain beside it.";
+const REPORT_PACKAGE_SAVE_WORKER_FAILED = "REPORT-PACKAGE-SAVE-WORKER-FAILED";
+
+/** The save's own error (`ReportPackageSaveCommandError`, a refusal or the atomic writer's)
+ * other than the worker's failure, and whether the writer's temporary-file cleanup failed
+ * with it (`cleanup_code`, `REPORT-PACKAGE-TEMP-CLEANUP-FAILED`). The error names no
+ * temporary file: the writer's temporary name is not one of its members, so none is named. */
+function readSaveCommandError(error: unknown): { cleanupFailed: boolean } | null {
+  if (!error || typeof error !== "object" || error instanceof Error) return null;
+  const { code, stage, message, cleanup_code } = error as { code?: unknown; stage?: unknown; message?: unknown; cleanup_code?: unknown };
+  if (typeof code !== "string" || typeof stage !== "string" || typeof message !== "string" || code === REPORT_PACKAGE_SAVE_WORKER_FAILED) return null;
+  return { cleanupFailed: typeof cleanup_code === "string" };
+}
+
+function shareableSaveFailureStatement(error: unknown, sent: boolean): string {
+  if (!sent) return SHAREABLE_SAVE_NOT_WRITTEN;
+  const command = readSaveCommandError(error);
+  if (command?.cleanupFailed) return SHAREABLE_SAVE_TEMP_MAY_REMAIN;
+  if (command) return SHAREABLE_SAVE_NOT_WRITTEN;
+  // The memory pool's refusal and the ingress's refusal of the arguments precede admission.
+  if (error instanceof ResourceUnavailableError) return SHAREABLE_SAVE_NOT_WRITTEN;
+  if (error instanceof Error && error.message.startsWith("INVALID_REQUEST: ")) return SHAREABLE_SAVE_NOT_WRITTEN;
+  return SHAREABLE_SAVE_OUTCOME_UNKNOWN;
+}
+
+/** A failed local-private package save's status: its diagnostic, led by the same statement
+ * when the writer's temporary-file cleanup also failed. */
+function localPrivateSaveFailureText(error: unknown): string {
+  const diagnostic = formatPackageSaveError(error);
+  return readSaveCommandError(error)?.cleanupFailed ? `${LOCAL_PRIVATE_SAVE_TEMP_MAY_REMAIN} ${diagnostic}` : diagnostic;
+}
+
 /**
  * The workspace session: the six state hooks, all thirteen effects and every
  * handler, in one closure and in the order `AppSession` declared them.
@@ -4053,7 +4095,7 @@ export function useWorkspaceSession() {
       setReportPackageRedaction(null);
       setReportPackageRoute({
         route: "redaction_blocked",
-        diagnostic: formatPackageSaveError(error)
+        diagnostic: localPrivateSaveFailureText(error)
       });
     } finally {
       if (isCurrent()) {
@@ -4107,6 +4149,11 @@ export function useWorkspaceSession() {
     const resultRefusal = userReleasedReportPackageUnavailableReason(basis.result);
     const close = () => { userReleaseDialogOpenRef.current = false; setUserReleaseRequest(null); };
     userReleaseDialogOpenRef.current = true;
+    // A new shareable attempt begins: an earlier save's status, which may carry that save's
+    // user release, must not read as this attempt's, whether it is confirmed or cancelled; and
+    // no screened request of an earlier save stays in session state.
+    setReportPackageRoute(null);
+    setReportPackageRedaction(null);
     setUserReleaseRequest({
       projectName: basis.model.project.name,
       modelDocumentSha256,
@@ -4140,6 +4187,8 @@ export function useWorkspaceSession() {
     reportPackageBusyGenerationRef.current = generation;
     setReportPackageBusy(true);
     setReportPackageRoute(null);
+    // Whether the native save was asked for: before it, nothing can have been written.
+    let sent = false;
     try {
       // The package reads full rows (C2): a native result's bounded full copy.
       const full = isNativeResult(basis.result) ? (await loadC2Full(basis.result)).result : (basis.result as MechanicsResult);
@@ -4152,22 +4201,30 @@ export function useWorkspaceSession() {
         confirmation
       });
       if (!isCurrent()) return;
-      setReportPackageRedaction(controlled);
+      // REQ-019 "Selection": the screened request carries the user release record, so it stays
+      // local to the preparation and the send; nothing of it is kept in session state.
+      setReportPackageRedaction(null);
       if (prepared.route !== "ready") {
-        setReportPackageRoute(prepared);
+        setReportPackageRoute({ route: "redaction_blocked", diagnostic: `${SHAREABLE_SAVE_NOT_WRITTEN} ${prepared.diagnostic}` });
         return;
       }
       const exactStillCurrent = () => {
         if (prepared.args.exactResultText === undefined) return true;
         try { reportPackageExactSubmission(request); return true; } catch { return false; }
       };
-      const saved = await invokeUserReleasedReportPackageSave(prepared, () => isCurrent() && exactStillCurrent());
+      // The guard runs after the arguments are encoded and immediately before each send
+      // (`invokeWithIngress`), so `sent` marks the bytes leaving, not the call.
+      const saved = await invokeUserReleasedReportPackageSave(prepared, () => {
+        const current = isCurrent() && exactStillCurrent();
+        if (current) sent = true;
+        return current;
+      });
       if (!isCurrent()) return;
       setReportPackageRoute(saved);
     } catch (error) {
       if (error instanceof IngressRequestRetiredError || !isCurrent()) return;
       setReportPackageRedaction(null);
-      setReportPackageRoute({ route: "redaction_blocked", diagnostic: formatPackageSaveError(error) });
+      setReportPackageRoute({ route: "redaction_blocked", diagnostic: `${shareableSaveFailureStatement(error, sent)} ${formatPackageSaveError(error)}` });
     } finally {
       // Released whenever this save still holds the busy mark, even when its basis moved on (a
       // rule-check record landing mid-save retires it without invalidating the package state).
