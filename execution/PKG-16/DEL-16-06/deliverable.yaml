@@ -242,9 +242,10 @@ code_paths:
 - tools/agent_journey_fixture.py
 - tools/agent_journey_memory_monitor.py
 # The launch helper the agent journey controller and the agent live-session fixture use for every
-# start of the application: one run that admits the launch, compares the real Library and the
-# system's per-user cache folder around it, and removes the throwaway home it made. The
-# native-smoke runner and the other Node runners do not use it yet; their runners are theirs.
+# start of the application: one run that admits the launch, records custody of what it starts,
+# compares the real Library and the system's per-user cache folder around it, and marks the run
+# finished in the kit's inventory. It removes nothing: removal is a separate command with its own
+# reading. The native-smoke runner and the other Node runners do not use it yet.
 - tools/native_launch_guard.py
 - tools/native_launch_guard.md
 # The agent journey's driver. The native-smoke harness it runs in (the rest of

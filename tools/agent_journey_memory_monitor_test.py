@@ -1,5 +1,6 @@
 """D4 monitor: injected telemetry/clock only; no native process, sleep or network."""
 import json
+import os
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -141,8 +142,9 @@ def test_live_admission_requires_health_before_reading_the_single_key(tmp_path, 
     monkeypatch.setattr(journey, "RETAINED", root / "retained")
     monkeypatch.setattr(journey, "read_key", lambda *args: pytest.fail("key must not be consumed"))
     monkeypatch.setattr(journey.fcntl, "flock", lambda *args: None)
-    monkeypatch.setattr(journey.sys, "argv", ["fixture", "--mode", "live", "--app", "unused",
-        "--process-probe", "unused", "--boundary-probe", "unused", "--endpoint", "unused", "--key-stdin",
+    (root / "unused").write_bytes(b"")  # the locations are checked first: they must be real files
+    monkeypatch.setattr(journey.sys, "argv", ["fixture", "--mode", "live", "--app", str(root / "unused"),
+        "--process-probe", str(root / "unused"), "--boundary-probe", str(root / "unused"), "--endpoint", "unused", "--key-stdin",
         "--output", str(root / "run"), "--memory-heartbeat", str(root / "heartbeat.json"),
         "--cancel-file", str(root / "cancel"), "--release-grace", "0"])
     # Only private temporary file I/O; don't use the real host lock path.
@@ -214,6 +216,9 @@ def test_run_monitor_checks_at_admission_ready_exit_and_success_use_owned_cleanu
     root = private(tmp_path)
     bundle = root / "Copy.app" / "Contents"
     (bundle / "MacOS").mkdir(parents=True)
+    (bundle / "MacOS" / "app").write_text("# SWBPIPE_NATIVE_SMOKE_STRICT_CHOOSER\n")  # an invented executable, never run
+    (bundle / "Info.plist").write_bytes(__import__("plistlib").dumps({"CFBundleIdentifier": "com.invented.app",
+                                                                     "CFBundleExecutable": "app"}))
     (bundle / "Resources" / "agent-supplier").mkdir(parents=True)
     (bundle / "Resources" / "agent-supplier" / "codex").touch()
     run_root = root / "run"
@@ -238,9 +243,10 @@ def test_run_monitor_checks_at_admission_ready_exit_and_success_use_owned_cleanu
     monkeypatch.setattr(journey.native_launch_guard, "_POPEN", launch)  # the helper's own start
     monkeypatch.setattr(journey.native_launch_guard, "check_launch", lambda *a: {})
     monkeypatch.setattr(journey.native_launch_guard, "temp_root", lambda: root)
-    monkeypatch.setattr(journey.native_launch_guard, "strict_chooser_lead", lambda path: True)
-    monkeypatch.setattr(journey.native_launch_guard, "possible_writers", lambda *a, **k: ([], {}))
-    monkeypatch.setattr(journey.native_launch_guard, "SECOND_LOOK_SECONDS", 0)
+    monkeypatch.setattr(journey.native_launch_guard, "PLATFORM", "darwin")
+    monkeypatch.setattr(journey.native_launch_guard, "_process_table",
+                        lambda: {os.getpid(): (1, 1, os.getuid(), "/invented", "2026-01-01T00:00:00")})
+    monkeypatch.setattr(journey.native_launch_guard, "_open_under", lambda path: set())
     monkeypatch.setattr(journey, "Lines", lambda *a: lines)
     monkeypatch.setattr(journey, "Scope", lambda *a: observer)
     monkeypatch.setattr(journey, "anchor_start", lambda *a, **k: anchor)

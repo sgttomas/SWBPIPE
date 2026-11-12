@@ -18,6 +18,7 @@ from pathlib import Path
 import queue
 import select
 import subprocess
+import sys
 import threading
 import time
 
@@ -210,8 +211,7 @@ def validate_terminal(records, mode, trigger):
 
 
 def run_case(args, name, mode, trigger, root, key=None):
-    case_root = root / name  # the case's evidence, outside the throwaway home
-    case_root.mkdir(mode=0o700)
+    case_root = native_launch_guard.make_evidence(root / name)  # the case's evidence, outside the home
     state = None
     app = None
     anchor = None
@@ -229,23 +229,23 @@ def run_case(args, name, mode, trigger, root, key=None):
         if records:
             records.drain()
 
-    run = native_launch_guard.Run(args.app, case_root, "home", names=native_launch_guard.product_names(args.app))
+    run = None
     try:
         try:
+            run = native_launch_guard.Run(args.app, case_root, "home")
             run.begin()
-            state = run.work / "state"  # the session's state, inside the throwaway home
-            state.mkdir(mode=0o700)
-            app = run.start("fixture", [str(args.app), "--native-agent-session-fixture"],
+            # The first frame is the helper's: the session's state inside the throwaway home, the
+            # probes checked; the case's later commands carry no path.
+            frame = run.fixture_frame(model=args.model, context_window=args.context_window, endpoint=args.endpoint,
+                                      key=key, mode=mode, process_probe=args.process_probe,
+                                      boundary_probe=args.boundary_probe)
+            state = run.work / "state"
+            app = run.start("fixture", [str(args.app), "--native-agent-session-fixture"], frame=frame,
                             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
         except native_launch_guard.LaunchRefused as refusal:
             raise Refusal(f"launch_refused_{refusal}") from None
         result["app"] = {"pid": app.pid}
         records = Records(app.stdout)
-        config = {"state": str(state), "model": args.model, "contextWindow": args.context_window, "endpoint": args.endpoint,
-                  "key": key, "mode": mode, "processProbe": str(args.process_probe),
-                  "boundaryProbe": str(args.boundary_probe)}
-        app.stdin.write(json.dumps(config).encode() + b"\n")
-        app.stdin.flush()
         bounded_wait(lambda: records.has("ready"), time.monotonic() + 40, check=safety)
         ready = records.last("ready")["data"]
         sdk = ready["sdkPid"]
@@ -328,82 +328,90 @@ def run_case(args, name, mode, trigger, root, key=None):
     except Exception as error:
         result["failure"] = str(error) if isinstance(error, Refusal) else type(error).__name__
     finally:
-        # Invalid observation permanently forbids scope certification/removal.
-        # Existing original-child/group rescue authority remains available.
-        if app and app.returncode is None:
-            if anchor is None:
-                # A failed setup is not permission to kill the sole SDK owner.
-                # Ask it to close; recover a held original identity if cleanup
-                # is unknown and the native fixture deliberately retains it.
-                try:
-                    send(app, "FINISH")
-                    app.stdin.close()
-                except (BrokenPipeError, ValueError):
-                    pass
-                until=time.monotonic()+40
-                while app.poll() is None and time.monotonic()<until:
-                    if records:
-                        try:
-                            records.drain()
-                        except Refusal:
-                            pass
-                        held=next((r["data"] for r in reversed(records.records)
-                                   if r["record"] in {"ready","custody_retained"}),None)
-                        if held and held["appPid"]==app.pid:
-                            try:
-                                anchor=anchor_start(args.process_probe,held["sdkPid"],app,cwd=case_root)
-                                result["anchor"]={"pid":anchor.pid,"group":held["sdkPid"]}
-                                break
-                            except Exception:
-                                # Never convert failed rescue setup to PID signals.
-                                pass
-                    time.sleep(.01)
-            if anchor is not None and app.poll() is None:
-                app.kill()
-                app.wait(timeout=5)
-            elif app.poll() is None:
-                result["rescue"]="retained_original_app_custody"
-                result["passed"]=False
-        if anchor:
-            try:
-                cleanup_anchor(anchor)
-            except Exception:
-                result["rescue"] = "unconfirmed"
-                result["passed"] = False
-        if app:
-            if app.stdin and not app.stdin.closed:
-                app.stdin.close()
-            result["app"]["status"] = app.returncode
-        if records:
-            try:
-                if records.reader.is_alive():
-                    records.finish(time.monotonic() + 3)
-            except Exception:
-                result["output"] = "incomplete"
-                result["passed"] = False
-            result["records"] = records.records
-        if observer:
-            result["supplier"].update(exitObserved=observer.exited, statusRaw=observer.status,
-                                      invalid=observer.invalid)
-            try:
-                safety()
-            except Exception:
-                result["passed"] = False
-                result["failure"] = "final_safety_unconfirmed"
-            observer.close()
-        # The run's end, whatever the outcome: the comparison made and persisted, then the
-        # throwaway home this case made removed, and nothing else, then the look that it has not
-        # reappeared. A termination signal is re-raised only after all of that.
-        gone = app is None or app.poll() is not None
+        # The whole cleanup sits inside this block, whose final action is the run's finish: whatever the
+        # rescue, the waits or the closing of streams raise, or a signal interrupting them, the
+        # comparison is made and persisted and the run is marked; uncertain custody marks it left.
+        # Nothing is removed here: the home stays for the lane's removal command.
         try:
-            run.finish(retain=not gone)
+            # Invalid observation permanently forbids scope certification/removal.
+            # Existing original-child/group rescue authority remains available.
+            if app and app.returncode is None:
+                if anchor is None:
+                    # A failed setup is not permission to kill the sole SDK owner.
+                    # Ask it to close; recover a held original identity if cleanup
+                    # is unknown and the native fixture deliberately retains it.
+                    try:
+                        send(app, "FINISH")
+                        app.stdin.close()
+                    except (BrokenPipeError, ValueError):
+                        pass
+                    until=time.monotonic()+40
+                    while app.poll() is None and time.monotonic()<until:
+                        if records:
+                            try:
+                                records.drain()
+                            except Refusal:
+                                pass
+                            held=next((r["data"] for r in reversed(records.records)
+                                       if r["record"] in {"ready","custody_retained"}),None)
+                            if held and held["appPid"]==app.pid:
+                                try:
+                                    anchor=anchor_start(args.process_probe,held["sdkPid"],app,cwd=case_root)
+                                    result["anchor"]={"pid":anchor.pid,"group":held["sdkPid"]}
+                                    break
+                                except Exception:
+                                    # Never convert failed rescue setup to PID signals.
+                                    pass
+                        time.sleep(.01)
+                if anchor is not None and app.poll() is None:
+                    app.kill()
+                    app.wait(timeout=5)
+                elif app.poll() is None:
+                    result["rescue"]="retained_original_app_custody"
+                    result["passed"]=False
+            if anchor:
+                try:
+                    cleanup_anchor(anchor)
+                except Exception:
+                    result["rescue"] = "unconfirmed"
+                    result["passed"] = False
+            if app:
+                if app.stdin and not app.stdin.closed:
+                    try:
+                        app.stdin.close()
+                    except BrokenPipeError:  # a command still buffered for an application that has ended
+                        pass
+                result["app"]["status"] = app.returncode
+            if records:
+                try:
+                    if records.reader.is_alive():
+                        records.finish(time.monotonic() + 3)
+                except Exception:
+                    result["output"] = "incomplete"
+                    result["passed"] = False
+                result["records"] = records.records
+            if observer:
+                result["supplier"].update(exitObserved=observer.exited, statusRaw=observer.status,
+                                          invalid=observer.invalid)
+                try:
+                    safety()
+                except Exception:
+                    result["passed"] = False
+                    result["failure"] = "final_safety_unconfirmed"
+                observer.close()
         finally:
-            outcome = run.outcome or {}
-            result["launchGuard"] = outcome.get("comparison") or {"compared": False, "verdict": "not compared"}
-            result["throwawayHome"] = outcome.get("throwawayHome") or {"cleanup": "failed", "removed": False}
-            if result["launchGuard"].get("verdict") != "clean" or \
-                    result["throwawayHome"].get("cleanup") not in ("removed", "not created"):
-                result["passed"] = False
+            uncertain = (app is not None and app.poll() is None) or result.get("rescue") in (
+                "retained_original_app_custody", "unconfirmed")
+            if run is not None:
+                try:
+                    run.finish(retain=uncertain)
+                finally:
+                    outcome = run.outcome or {}
+                    result["launchGuard"] = outcome.get("comparison") or {"compared": False, "verdict": "not compared"}
+                    result["throwawayHome"] = outcome.get("throwawayHome") or {"state": "left", "removed": False}
+                    if result["launchGuard"].get("verdict") != "clean" or \
+                            result["throwawayHome"].get("state") not in ("finished", "not created"):
+                        result["passed"] = False
     return result
 
 
@@ -419,10 +427,17 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--cancel-file", type=Path)
     args = parser.parse_args()
-    args.output.mkdir(mode=0o700, parents=False, exist_ok=False)
-    root = args.output.resolve()
-    for key in ("app", "process_probe", "boundary_probe"):
-        setattr(args, key, getattr(args, key).resolve(strict=True))
+    # Every location the caller supplies is checked before anything is created or read there; the
+    # output folder is made through a verified descriptor walk.
+    try:
+        output = Path(os.path.realpath(args.output.parent)) / args.output.name
+        native_launch_guard.check_location(output, "evidence")
+        for key in ("app", "process_probe", "boundary_probe"):
+            setattr(args, key, native_launch_guard.check_location(Path(os.path.realpath(getattr(args, key))), "resource"))
+        root = native_launch_guard.make_evidence(output)
+    except native_launch_guard.LaunchRefused as refusal:
+        print(f"refused: {refusal}", file=sys.stderr)
+        return 2
     cases = [("roundtrip", "idle", "roundtrip")]
     cases += [(f"{trigger}-{mode}", mode, trigger)
               for trigger in ("eof", "crash") for mode in ("idle", "active", "pending")]
