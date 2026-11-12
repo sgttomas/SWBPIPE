@@ -191,20 +191,18 @@ pub struct Protocol {
 fn bounded(s: &str, max: usize) -> bool {
     !s.is_empty() && s.len() <= max && !s.chars().any(char::is_control)
 }
-fn identity(v: Option<&Value>) -> Result<&str, Error> {
-    v.and_then(Value::as_str)
-        .filter(|s| bounded(s, MAX_ID_BYTES))
-        .ok_or(Error("invalid identity"))
-}
-fn rpc_id(v: Option<&Value>) -> Result<Value, Error> {
-    let v = v.ok_or(Error("missing request identity"))?;
-    if v.as_str().is_some_and(|s| bounded(s, MAX_ID_BYTES))
-        || v.as_i64().is_some()
-        || v.as_u64().is_some()
-    {
-        Ok(v.clone())
+fn bounded_identity(s: &str) -> Result<String, Error> {
+    if bounded(s, MAX_ID_BYTES) {
+        Ok(s.to_owned())
     } else {
-        Err(Error("invalid request identity"))
+        Err(Error("invalid identity"))
+    }
+}
+fn rpc_id(id: &wire::RequestId) -> Result<Value, Error> {
+    match id {
+        wire::RequestId::Int(n) => Ok(json!(n)),
+        wire::RequestId::Str(s) if bounded(s, MAX_ID_BYTES) => Ok(json!(s)),
+        wire::RequestId::Str(_) => Err(Error("invalid request identity")),
     }
 }
 // Count serialized bytes without allocating a second copy of model arguments.
@@ -231,75 +229,1070 @@ fn within(value: &Value, limit: u64) -> bool {
     let max = usize::try_from(limit).unwrap_or(usize::MAX);
     serde_json::to_writer(Counter { used: 0, max }, value).is_ok()
 }
-fn turn_id(v: &Value) -> Result<&str, Error> {
-    identity(v.pointer("/turn/id"))
-}
-fn turn_status(v: &Value) -> Result<&str, Error> {
-    v.pointer("/turn/status")
-        .and_then(Value::as_str)
-        .filter(|s| matches!(*s, "inProgress" | "completed" | "interrupted" | "failed"))
-        .ok_or(Error("invalid turn status"))
-}
 
-// Item kinds this host admits, from stock 0.160.0's ThreadItem schema. Every
-// other kind, and an item with no string kind, ends the session: the default is
-// refusal, so a kind a later supplier adds is refused until it is listed here.
-// - agentMessage: the reply, which the host reads as a message.
-// - dynamicToolCall: the report of this host's own offered tools; the call
-//   itself reaches the host only as an `item/tool/call` request it validates.
-// - userMessage: the record of the person's input that the host sent.
-// - reasoning: the model's reasoning text, conversation content only.
-// - contextCompaction: the runtime summarising the conversation through the
-//   relay when it nears the configured context window; it reaches nothing
-//   outside the conversation, and a long session cannot continue without it.
-// Refused although named by the schema: hookPrompt (a hook ran), plan (the
-// runtime's plan mode), enteredReviewMode and exitedReviewMode (a runtime
-// mode the host never requests), functionCallOutput (the output of a function
-// call other than the reported dynamicToolCall).
-// This is an observation tripwire, not proof that configuration/OS isolation
-// prevented an action.
-const ADMITTED_ITEM_KINDS: [&str; 5] = [
-    "agentMessage",
-    "dynamicToolCall",
-    "userMessage",
-    "reasoning",
-    "contextCompaction",
-];
-// The runtime's own tools. Kept apart from other refused kinds so the reason
-// says "the runtime used a tool of its own".
-const BUILTIN_TOOL_ITEM_KINDS: [&str; 9] = [
-    "commandExecution",
-    "fileChange",
-    "mcpToolCall",
-    "collabAgentToolCall",
-    "subAgentActivity",
-    "webSearch",
-    "imageView",
-    "sleep",
-    "imageGeneration",
-];
+/// Closed types for every frame the host reads from stock 0.160.0's app
+/// server, from its protocol schema (`codex_app_server_protocol.schemas.json`,
+/// SHA-256 7243ba241962af92ca60581f1a81808ebda4212a800f8b205f54703bcfd508c5).
+/// Each type names every member the schema gives it, with its type; required
+/// members are required, a required nullable member must be present, an
+/// optional member that is not nullable refuses null, and any member the
+/// schema does not give is refused. Members the schema types as any JSON
+/// (`arguments`, `params`, `result`, error `data`) are the only `Value`s.
+/// The refused item kinds end the session on their tag; their bodies are
+/// skipped unread, which bounds this module to the admitted kinds' types.
+#[allow(dead_code)]
+pub(super) mod wire {
+    use serde::de::{Deserializer, IgnoredAny};
+    use serde::Deserialize;
+    use serde_json::Value;
+
+    /// A required member whose schema type admits null: present, maybe null.
+    fn nullable<'de, D: Deserializer<'de>, T: Deserialize<'de>>(d: D) -> Result<Option<T>, D::Error> {
+        Option::<T>::deserialize(d)
+    }
+    /// An optional member whose schema type does not admit null.
+    fn some<'de, D: Deserializer<'de>, T: Deserialize<'de>>(d: D) -> Result<Option<T>, D::Error> {
+        T::deserialize(d).map(Some)
+    }
+
+    // JSON-RPC envelope (JSONRPCRequest, JSONRPCNotification,
+    // JSONRPCResponse, JSONRPCError): the union of their members; which
+    // combination arrived is checked by the caller.
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct Envelope {
+        #[serde(default, deserialize_with = "some")]
+        pub id: Option<RequestId>,
+        #[serde(default, deserialize_with = "some")]
+        pub method: Option<String>,
+        #[serde(default)]
+        pub params: Option<Value>,
+        #[serde(default)]
+        pub result: Option<Value>,
+        #[serde(default, deserialize_with = "some")]
+        pub error: Option<JsonRpcError>,
+        #[serde(default, deserialize_with = "some")]
+        pub trace: Option<W3cTraceContext>,
+    }
+    #[derive(Deserialize, Clone, Debug, PartialEq)]
+    #[serde(untagged)]
+    pub enum RequestId {
+        Int(i64),
+        Str(String),
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct JsonRpcError {
+        pub code: i64,
+        pub message: String,
+        #[serde(default)]
+        pub data: Option<Value>,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct W3cTraceContext {
+        #[serde(default)]
+        pub traceparent: Option<String>,
+        #[serde(default)]
+        pub tracestate: Option<String>,
+    }
+
+    // The tool call request (DynamicToolCallParams).
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct DynamicToolCallParams {
+        pub arguments: Value,
+        pub call_id: String,
+        #[serde(default)]
+        pub namespace: Option<String>,
+        pub thread_id: String,
+        pub tool: String,
+        pub turn_id: String,
+    }
+
+    // Responses to the four requests the host sends.
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct InitializeResponse {
+        pub codex_home: String,
+        pub platform_family: String,
+        pub platform_os: String,
+        pub user_agent: String,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct ThreadStartResponse {
+        #[serde(default)]
+        pub active_permission_profile: Option<ActivePermissionProfile>,
+        pub approval_policy: AskForApproval,
+        pub approvals_reviewer: ApprovalsReviewer,
+        pub cwd: String,
+        #[serde(default, deserialize_with = "some")]
+        pub disabled_plugin_ids: Option<Vec<String>>,
+        #[serde(default, deserialize_with = "some")]
+        pub instruction_sources: Option<Vec<String>>,
+        pub model: String,
+        pub model_provider: String,
+        #[serde(default, deserialize_with = "some")]
+        pub multi_agent_mode: Option<MultiAgentMode>,
+        #[serde(default)]
+        pub reasoning_effort: Option<String>,
+        #[serde(default, deserialize_with = "some")]
+        pub runtime_workspace_roots: Option<Vec<String>>,
+        pub sandbox: SandboxPolicy,
+        #[serde(default)]
+        pub service_tier: Option<String>,
+        pub thread: Thread,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct TurnStartResponse {
+        pub turn: Turn,
+    }
+    /// An object the schema gives no members: only `{}` is accepted, not
+    /// an array or any member.
+    pub struct EmptyObject;
+    impl<'de> Deserialize<'de> for EmptyObject {
+        fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+            struct Visitor;
+            impl<'de> serde::de::Visitor<'de> for Visitor {
+                type Value = EmptyObject;
+                fn expecting(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                    f.write_str("an empty object")
+                }
+                fn visit_map<A: serde::de::MapAccess<'de>>(self, mut map: A) -> Result<EmptyObject, A::Error> {
+                    match map.next_key::<IgnoredAny>()? {
+                        None => Ok(EmptyObject),
+                        Some(_) => Err(serde::de::Error::custom("member of an empty object")),
+                    }
+                }
+            }
+            d.deserialize_map(Visitor)
+        }
+    }
+    pub type TurnInterruptResponse = EmptyObject;
+
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct ActivePermissionProfile {
+        #[serde(default)]
+        pub extends: Option<String>,
+        pub id: String,
+    }
+    #[derive(Deserialize, PartialEq)]
+    pub enum ApprovalsReviewer {
+        #[serde(rename = "user")]
+        User,
+        #[serde(rename = "auto_review")]
+        AutoReview,
+        #[serde(rename = "guardian_subagent")]
+        GuardianSubagent,
+    }
+    #[derive(Deserialize, PartialEq)]
+    #[serde(untagged)]
+    pub enum AskForApproval {
+        Mode(ApprovalMode),
+        Granular(GranularApproval),
+    }
+    #[derive(Deserialize, PartialEq)]
+    pub enum ApprovalMode {
+        #[serde(rename = "untrusted")]
+        Untrusted,
+        #[serde(rename = "on-request")]
+        OnRequest,
+        #[serde(rename = "never")]
+        Never,
+    }
+    #[derive(Deserialize, PartialEq)]
+    #[serde(deny_unknown_fields)]
+    pub struct GranularApproval {
+        pub granular: Granular,
+    }
+    #[derive(Deserialize, PartialEq)]
+    #[serde(deny_unknown_fields)]
+    pub struct Granular {
+        pub mcp_elicitations: bool,
+        #[serde(default, deserialize_with = "some")]
+        pub request_permissions: Option<bool>,
+        pub rules: bool,
+        pub sandbox_approval: bool,
+        #[serde(default, deserialize_with = "some")]
+        pub skill_approval: Option<bool>,
+    }
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    pub enum MultiAgentMode {
+        Mode(MultiAgentModeName),
+        Custom(Custom),
+    }
+    #[derive(Deserialize)]
+    pub enum MultiAgentModeName {
+        #[serde(rename = "explicitRequestOnly")]
+        ExplicitRequestOnly,
+        #[serde(rename = "proactive")]
+        Proactive,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct Custom {
+        pub custom: String,
+    }
+    #[derive(Deserialize)]
+    #[serde(tag = "type", deny_unknown_fields)]
+    pub enum SandboxPolicy {
+        #[serde(rename = "dangerFullAccess")]
+        DangerFullAccess {},
+        #[serde(rename = "readOnly", rename_all = "camelCase")]
+        ReadOnly {
+            #[serde(default, deserialize_with = "some")]
+            network_access: Option<bool>,
+        },
+        #[serde(rename = "externalSandbox", rename_all = "camelCase")]
+        ExternalSandbox {
+            #[serde(default, deserialize_with = "some")]
+            network_access: Option<NetworkAccess>,
+        },
+        #[serde(rename = "workspaceWrite", rename_all = "camelCase")]
+        WorkspaceWrite {
+            #[serde(default, deserialize_with = "some")]
+            exclude_slash_tmp: Option<bool>,
+            #[serde(default, deserialize_with = "some")]
+            exclude_tmpdir_env_var: Option<bool>,
+            #[serde(default, deserialize_with = "some")]
+            network_access: Option<bool>,
+            #[serde(default, deserialize_with = "some")]
+            writable_roots: Option<Vec<String>>,
+        },
+    }
+    #[derive(Deserialize)]
+    pub enum NetworkAccess {
+        #[serde(rename = "restricted")]
+        Restricted,
+        #[serde(rename = "enabled")]
+        Enabled,
+    }
+
+    // Thread and turn.
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct Thread {
+        #[serde(default)]
+        pub agent_nickname: Option<String>,
+        #[serde(default)]
+        pub agent_role: Option<String>,
+        #[serde(default)]
+        pub can_accept_direct_input: Option<bool>,
+        pub cli_version: String,
+        pub created_at: i64,
+        pub cwd: String,
+        #[serde(default)]
+        pub daybreak_enabled: Option<bool>,
+        #[serde(default)]
+        pub environments: Option<Vec<ThreadEnvironment>>,
+        pub ephemeral: bool,
+        #[serde(default)]
+        pub extra: Option<ThreadExtra>,
+        #[serde(default)]
+        pub forked_from_id: Option<String>,
+        #[serde(default)]
+        pub git_info: Option<GitInfo>,
+        #[serde(default, deserialize_with = "some")]
+        pub history_mode: Option<ThreadHistoryMode>,
+        pub id: String,
+        #[serde(default)]
+        pub model: Option<String>,
+        pub model_provider: String,
+        #[serde(default)]
+        pub name: Option<String>,
+        #[serde(default)]
+        pub originator: Option<String>,
+        #[serde(default)]
+        pub parent_thread_id: Option<String>,
+        #[serde(default)]
+        pub path: Option<String>,
+        pub preview: String,
+        #[serde(deserialize_with = "nullable")]
+        pub project_id: Option<String>,
+        #[serde(default)]
+        pub reasoning_effort: Option<String>,
+        #[serde(default)]
+        pub recency_at: Option<i64>,
+        #[serde(default)]
+        pub section: Option<ThreadSection>,
+        #[serde(default)]
+        pub section_entered_at: Option<i64>,
+        pub session_id: String,
+        pub source: SessionSource,
+        pub status: ThreadStatus,
+        #[serde(default)]
+        pub thread_source: Option<String>,
+        pub turns: Vec<Turn>,
+        pub updated_at: i64,
+    }
+    /// The schema gives this object no members, so only `{}` is accepted.
+    pub type ThreadExtra = EmptyObject;
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct ThreadEnvironment {
+        pub cwd: String,
+        pub environment_id: String,
+        pub runtime_workspace_roots: Vec<String>,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct GitInfo {
+        #[serde(default)]
+        pub branch: Option<String>,
+        #[serde(default)]
+        pub origin_url: Option<String>,
+        #[serde(default)]
+        pub sha: Option<String>,
+    }
+    #[derive(Deserialize)]
+    pub enum ThreadHistoryMode {
+        #[serde(rename = "legacy")]
+        Legacy,
+        #[serde(rename = "paginated")]
+        Paginated,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct ThreadSection {
+        #[serde(default)]
+        pub appearance: Option<ThreadSectionAppearance>,
+        pub id: String,
+        pub name: String,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct ThreadSectionAppearance {
+        #[serde(default)]
+        pub color: Option<String>,
+        #[serde(default)]
+        pub icon: Option<String>,
+    }
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    pub enum SessionSource {
+        Name(SessionSourceName),
+        Custom(Custom),
+        SubAgent(SubAgentSessionSource),
+    }
+    #[derive(Deserialize)]
+    pub enum SessionSourceName {
+        #[serde(rename = "cli")]
+        Cli,
+        #[serde(rename = "vscode")]
+        Vscode,
+        #[serde(rename = "exec")]
+        Exec,
+        #[serde(rename = "appServer")]
+        AppServer,
+        #[serde(rename = "unknown")]
+        Unknown,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct SubAgentSessionSource {
+        pub sub_agent: SubAgentSource,
+    }
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    pub enum SubAgentSource {
+        Name(SubAgentSourceName),
+        ThreadSpawn(ThreadSpawnSource),
+        Other(OtherSubAgentSource),
+    }
+    #[derive(Deserialize)]
+    pub enum SubAgentSourceName {
+        #[serde(rename = "review")]
+        Review,
+        #[serde(rename = "compact")]
+        Compact,
+        #[serde(rename = "memory_consolidation")]
+        MemoryConsolidation,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct ThreadSpawnSource {
+        pub thread_spawn: ThreadSpawn,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct ThreadSpawn {
+        #[serde(default)]
+        pub agent_nickname: Option<String>,
+        #[serde(default)]
+        pub agent_path: Option<String>,
+        #[serde(default)]
+        pub agent_role: Option<String>,
+        pub depth: i32,
+        pub parent_thread_id: String,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct OtherSubAgentSource {
+        pub other: String,
+    }
+    #[derive(Deserialize)]
+    #[serde(tag = "type", deny_unknown_fields)]
+    pub enum ThreadStatus {
+        #[serde(rename = "notLoaded")]
+        NotLoaded {},
+        #[serde(rename = "idle")]
+        Idle {},
+        #[serde(rename = "systemError")]
+        SystemError {},
+        #[serde(rename = "active", rename_all = "camelCase")]
+        Active { active_flags: Vec<ThreadActiveFlag> },
+    }
+    impl ThreadStatus {
+        pub fn name(&self) -> &'static str {
+            match self {
+                Self::NotLoaded {} => "notLoaded",
+                Self::Idle {} => "idle",
+                Self::SystemError {} => "systemError",
+                Self::Active { .. } => "active",
+            }
+        }
+    }
+    #[derive(Deserialize)]
+    pub enum ThreadActiveFlag {
+        #[serde(rename = "waitingOnApproval")]
+        WaitingOnApproval,
+        #[serde(rename = "waitingOnUserInput")]
+        WaitingOnUserInput,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct Turn {
+        #[serde(default)]
+        pub completed_at: Option<i64>,
+        #[serde(default)]
+        pub duration_ms: Option<i64>,
+        #[serde(default)]
+        pub error: Option<TurnError>,
+        pub id: String,
+        pub items: Vec<Item>,
+        #[serde(default, deserialize_with = "some")]
+        pub items_view: Option<TurnItemsView>,
+        #[serde(default)]
+        pub started_at: Option<i64>,
+        pub status: TurnStatus,
+    }
+    #[derive(Deserialize, Clone, Copy, PartialEq)]
+    pub enum TurnStatus {
+        #[serde(rename = "completed")]
+        Completed,
+        #[serde(rename = "interrupted")]
+        Interrupted,
+        #[serde(rename = "failed")]
+        Failed,
+        #[serde(rename = "inProgress")]
+        InProgress,
+    }
+    impl TurnStatus {
+        pub fn name(self) -> &'static str {
+            match self {
+                Self::Completed => "completed",
+                Self::Interrupted => "interrupted",
+                Self::Failed => "failed",
+                Self::InProgress => "inProgress",
+            }
+        }
+    }
+    #[derive(Deserialize)]
+    pub enum TurnItemsView {
+        #[serde(rename = "notLoaded")]
+        NotLoaded,
+        #[serde(rename = "summary")]
+        Summary,
+        #[serde(rename = "full")]
+        Full,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct TurnError {
+        #[serde(default)]
+        pub additional_details: Option<String>,
+        #[serde(default)]
+        pub codex_error_info: Option<CodexErrorInfo>,
+        pub message: String,
+        #[serde(default)]
+        pub misalignment: Option<MisalignmentErrorDetails>,
+    }
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    pub enum CodexErrorInfo {
+        Code(CodexErrorCode),
+        HttpConnectionFailed(HttpConnectionFailed),
+        ResponseStreamConnectionFailed(ResponseStreamConnectionFailed),
+        ResponseStreamDisconnected(ResponseStreamDisconnected),
+        ResponseTooManyFailedAttempts(ResponseTooManyFailedAttempts),
+        ActiveTurnNotSteerable(ActiveTurnNotSteerable),
+    }
+    #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub enum CodexErrorCode {
+        ContextWindowExceeded,
+        SessionBudgetExceeded,
+        UsageLimitExceeded,
+        RateLimitExceeded,
+        FlexUnavailable,
+        ServerOverloaded,
+        CyberPolicy,
+        MisalignmentPolicyViolation,
+        TooManyDenials,
+        InternalServerError,
+        Unauthorized,
+        BadRequest,
+        ThreadRollbackFailed,
+        SandboxError,
+        Other,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct HttpStatus {
+        #[serde(default)]
+        pub http_status_code: Option<u16>,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct HttpConnectionFailed {
+        pub http_connection_failed: HttpStatus,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct ResponseStreamConnectionFailed {
+        pub response_stream_connection_failed: HttpStatus,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct ResponseStreamDisconnected {
+        pub response_stream_disconnected: HttpStatus,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct ResponseTooManyFailedAttempts {
+        pub response_too_many_failed_attempts: HttpStatus,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct ActiveTurnNotSteerable {
+        pub active_turn_not_steerable: NotSteerable,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct NotSteerable {
+        pub turn_kind: NonSteerableTurnKind,
+    }
+    #[derive(Deserialize)]
+    pub enum NonSteerableTurnKind {
+        #[serde(rename = "review")]
+        Review,
+        #[serde(rename = "compact")]
+        Compact,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct MisalignmentErrorDetails {
+        #[serde(default)]
+        pub detailed_explanation: Option<String>,
+        #[serde(default)]
+        pub error_type: Option<String>,
+        #[serde(default)]
+        pub steer: Option<MisalignmentSteer>,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct MisalignmentSteer {
+        pub message: String,
+    }
+
+    /// A thread item. The five admitted kinds are read in full; the other
+    /// schema kinds are recognised by their tag and their bodies skipped,
+    /// since the host ends the session on them; any other string kind is
+    /// `Unlisted`. A missing or non-string kind fails to deserialize.
+    #[derive(Deserialize)]
+    #[serde(tag = "type", deny_unknown_fields)]
+    pub enum Item {
+        #[serde(rename = "userMessage", rename_all = "camelCase")]
+        UserMessage {
+            #[serde(default)]
+            client_id: Option<String>,
+            content: Vec<UserInput>,
+            id: String,
+        },
+        #[serde(rename = "agentMessage", rename_all = "camelCase")]
+        AgentMessage {
+            #[serde(default)]
+            delivery: Option<AgentMessageDelivery>,
+            id: String,
+            #[serde(default)]
+            memory_citation: Option<MemoryCitation>,
+            #[serde(default)]
+            phase: Option<MessagePhase>,
+            #[serde(default)]
+            questions: Option<Vec<AsyncUserInputQuestion>>,
+            text: String,
+        },
+        #[serde(rename = "reasoning")]
+        Reasoning {
+            #[serde(default)]
+            content: Vec<String>,
+            id: String,
+            #[serde(default)]
+            summary: Vec<String>,
+        },
+        #[serde(rename = "contextCompaction")]
+        ContextCompaction { id: String },
+        #[serde(rename = "dynamicToolCall", rename_all = "camelCase")]
+        DynamicToolCall {
+            arguments: Value,
+            #[serde(default)]
+            content_items: Option<Vec<DynamicToolCallOutputContentItem>>,
+            #[serde(default)]
+            duration_ms: Option<i64>,
+            id: String,
+            #[serde(default)]
+            namespace: Option<String>,
+            status: DynamicToolCallStatus,
+            #[serde(default)]
+            success: Option<bool>,
+            tool: String,
+        },
+        #[serde(rename = "commandExecution")]
+        CommandExecution(IgnoredAny),
+        #[serde(rename = "fileChange")]
+        FileChange(IgnoredAny),
+        #[serde(rename = "mcpToolCall")]
+        McpToolCall(IgnoredAny),
+        #[serde(rename = "collabAgentToolCall")]
+        CollabAgentToolCall(IgnoredAny),
+        #[serde(rename = "subAgentActivity")]
+        SubAgentActivity(IgnoredAny),
+        #[serde(rename = "webSearch")]
+        WebSearch(IgnoredAny),
+        #[serde(rename = "imageView")]
+        ImageView(IgnoredAny),
+        #[serde(rename = "sleep")]
+        Sleep(IgnoredAny),
+        #[serde(rename = "imageGeneration")]
+        ImageGeneration(IgnoredAny),
+        #[serde(rename = "hookPrompt")]
+        HookPrompt(IgnoredAny),
+        #[serde(rename = "plan")]
+        Plan(IgnoredAny),
+        #[serde(rename = "enteredReviewMode")]
+        EnteredReviewMode(IgnoredAny),
+        #[serde(rename = "exitedReviewMode")]
+        ExitedReviewMode(IgnoredAny),
+        #[serde(rename = "functionCallOutput")]
+        FunctionCallOutput(IgnoredAny),
+        #[serde(other)]
+        Unlisted,
+    }
+    #[derive(Deserialize)]
+    #[serde(tag = "type", deny_unknown_fields)]
+    pub enum UserInput {
+        #[serde(rename = "text")]
+        Text {
+            text: String,
+            #[serde(default)]
+            text_elements: Vec<TextElement>,
+        },
+        #[serde(rename = "image", rename_all = "camelCase")]
+        Image {
+            #[serde(default)]
+            detail: Option<ImageDetail>,
+            #[serde(default, deserialize_with = "some")]
+            url: Option<String>,
+            #[serde(default, deserialize_with = "some")]
+            file_id: Option<String>,
+        },
+        #[serde(rename = "localImage")]
+        LocalImage {
+            #[serde(default)]
+            detail: Option<ImageDetail>,
+            path: String,
+        },
+        #[serde(rename = "audio")]
+        Audio { url: String },
+        #[serde(rename = "localAudio")]
+        LocalAudio { path: String },
+        #[serde(rename = "skill")]
+        Skill { name: String, path: String },
+        #[serde(rename = "mention")]
+        Mention { name: String, path: String },
+    }
+    #[derive(Deserialize)]
+    pub enum ImageDetail {
+        #[serde(rename = "auto")]
+        Auto,
+        #[serde(rename = "low")]
+        Low,
+        #[serde(rename = "high")]
+        High,
+        #[serde(rename = "original")]
+        Original,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct TextElement {
+        pub byte_range: ByteRange,
+        #[serde(default)]
+        pub placeholder: Option<String>,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct ByteRange {
+        pub end: u64,
+        pub start: u64,
+    }
+    #[derive(Deserialize)]
+    pub enum AgentMessageDelivery {
+        #[serde(rename = "async")]
+        Async,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct MemoryCitation {
+        pub entries: Vec<MemoryCitationEntry>,
+        pub thread_ids: Vec<String>,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct MemoryCitationEntry {
+        pub line_end: u32,
+        pub line_start: u32,
+        pub note: String,
+        pub path: String,
+    }
+    #[derive(Deserialize)]
+    pub enum MessagePhase {
+        #[serde(rename = "commentary")]
+        Commentary,
+        #[serde(rename = "final_answer")]
+        FinalAnswer,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct AsyncUserInputQuestion {
+        #[serde(default)]
+        pub options: Option<Vec<String>>,
+        pub title: String,
+    }
+    #[derive(Deserialize)]
+    #[serde(tag = "type", deny_unknown_fields)]
+    pub enum DynamicToolCallOutputContentItem {
+        #[serde(rename = "inputText")]
+        InputText { text: String },
+        #[serde(rename = "inputImage", rename_all = "camelCase")]
+        InputImage { image_url: String },
+        #[serde(rename = "inputAudio", rename_all = "camelCase")]
+        InputAudio { audio_url: String },
+    }
+    #[derive(Deserialize)]
+    pub enum DynamicToolCallStatus {
+        #[serde(rename = "inProgress")]
+        InProgress,
+        #[serde(rename = "completed")]
+        Completed,
+        #[serde(rename = "failed")]
+        Failed,
+    }
+
+    // Parameters of the notifications the host handles.
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct ThreadStartedParams {
+        pub thread: Thread,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct ThreadStatusChangedParams {
+        pub status: ThreadStatus,
+        pub thread_id: String,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct TurnParams {
+        pub thread_id: String,
+        pub turn: Turn,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct ItemStartedParams {
+        pub item: Item,
+        pub started_at_ms: i64,
+        pub thread_id: String,
+        pub turn_id: String,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct ItemCompletedParams {
+        pub completed_at_ms: i64,
+        pub item: Item,
+        pub thread_id: String,
+        pub turn_id: String,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct AgentMessageDeltaParams {
+        pub delta: String,
+        pub item_id: String,
+        pub thread_id: String,
+        pub turn_id: String,
+    }
+
+    // Parameters of the notifications the host ignores by name. Each is read
+    // in full, so no item, turn or thread can ride in one.
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct AccountRateLimitsUpdatedParams {
+        pub rate_limits: RateLimitSnapshot,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct RateLimitSnapshot {
+        #[serde(default)]
+        pub credits: Option<CreditsSnapshot>,
+        #[serde(default)]
+        pub individual_limit: Option<SpendControlLimitSnapshot>,
+        #[serde(default)]
+        pub limit_id: Option<String>,
+        #[serde(default)]
+        pub limit_name: Option<String>,
+        #[serde(default)]
+        pub normal_model_slug: Option<String>,
+        #[serde(default)]
+        pub plan_type: Option<PlanType>,
+        #[serde(default)]
+        pub primary: Option<RateLimitWindow>,
+        #[serde(default)]
+        pub rate_limit_reached_type: Option<RateLimitReachedType>,
+        #[serde(default)]
+        pub secondary: Option<RateLimitWindow>,
+        #[serde(default)]
+        pub spend_control_reached: Option<bool>,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct CreditsSnapshot {
+        #[serde(default)]
+        pub balance: Option<String>,
+        pub has_credits: bool,
+        pub unlimited: bool,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct SpendControlLimitSnapshot {
+        pub limit: String,
+        pub remaining_percent: i32,
+        pub resets_at: i64,
+        pub used: String,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct RateLimitWindow {
+        #[serde(default)]
+        pub resets_at: Option<i64>,
+        pub used_percent: i32,
+        #[serde(default)]
+        pub window_duration_mins: Option<i64>,
+    }
+    #[derive(Deserialize)]
+    #[serde(rename_all = "snake_case")]
+    pub enum PlanType {
+        Free,
+        Go,
+        Plus,
+        Pro,
+        Prolite,
+        Promax,
+        Team,
+        SelfServeBusinessProlite,
+        SelfServeBusinessUsageBased,
+        Business,
+        Ent26,
+        EnterpriseCbpAutomation,
+        EnterpriseCbpUsageBased,
+        Enterprise,
+        Edu,
+        EduPlus,
+        EduPro,
+        Unknown,
+    }
+    #[derive(Deserialize)]
+    #[serde(rename_all = "snake_case")]
+    pub enum RateLimitReachedType {
+        RateLimitReached,
+        WorkspaceOwnerCreditsDepleted,
+        WorkspaceMemberCreditsDepleted,
+        WorkspaceOwnerUsageLimitReached,
+        WorkspaceMemberUsageLimitReached,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct ThreadTokenUsageUpdatedParams {
+        pub thread_id: String,
+        pub token_usage: ThreadTokenUsage,
+        pub turn_id: String,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct ThreadTokenUsage {
+        pub last: TokenUsageBreakdown,
+        #[serde(default)]
+        pub model_context_window: Option<i64>,
+        pub total: TokenUsageBreakdown,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct TokenUsageBreakdown {
+        #[serde(default, deserialize_with = "some")]
+        pub cache_write_input_tokens: Option<i64>,
+        pub cached_input_tokens: i64,
+        pub input_tokens: i64,
+        pub output_tokens: i64,
+        pub reasoning_output_tokens: i64,
+        pub total_tokens: i64,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct WarningParams {
+        pub message: String,
+        #[serde(default)]
+        pub thread_id: Option<String>,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct RemoteControlStatusChangedParams {
+        #[serde(default)]
+        pub environment_id: Option<String>,
+        pub installation_id: String,
+        pub server_name: String,
+        pub status: RemoteControlConnectionStatus,
+    }
+    #[derive(Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub enum RemoteControlConnectionStatus {
+        Disabled,
+        Connecting,
+        Connected,
+        Errored,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct ReasoningSummaryTextDeltaParams {
+        pub delta: String,
+        pub item_id: String,
+        pub summary_index: i64,
+        pub thread_id: String,
+        pub turn_id: String,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct ReasoningSummaryPartAddedParams {
+        pub item_id: String,
+        pub summary_index: i64,
+        pub thread_id: String,
+        pub turn_id: String,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct ReasoningTextDeltaParams {
+        pub content_index: i64,
+        pub delta: String,
+        pub item_id: String,
+        pub thread_id: String,
+        pub turn_id: String,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct ContextCompactedParams {
+        pub thread_id: String,
+        pub turn_id: String,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields, rename_all = "camelCase")]
+    pub struct ErrorParams {
+        pub error: TurnError,
+        pub thread_id: String,
+        pub turn_id: String,
+        pub will_retry: bool,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct ConfigWarningParams {
+        #[serde(default)]
+        pub details: Option<String>,
+        #[serde(default)]
+        pub path: Option<String>,
+        #[serde(default)]
+        pub range: Option<TextRange>,
+        pub summary: String,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct TextRange {
+        pub end: TextPosition,
+        pub start: TextPosition,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct TextPosition {
+        pub column: u64,
+        pub line: u64,
+    }
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    pub struct DeprecationNoticeParams {
+        #[serde(default)]
+        pub details: Option<String>,
+        pub summary: String,
+    }
+}
+use wire::Item;
+
 const UNOFFERED_ACTIVITY: Error = Error("unoffered supplier tool activity");
 const UNLISTED_ITEM: Error = Error("unlisted supplier item kind");
-const UNLISTED_RESPONSE_MEMBER: Error = Error("unlisted supplier response member");
+const UNADMITTED_NOTIFICATION: Error = Error("unadmitted supplier notification");
+const UNADMITTED_REQUEST: Error = Error("unadmitted supplier request");
+const MALFORMED: Error = Error("malformed supplier report");
+
+/// Read any part of a frame into its closed type; any failure is a
+/// malformed report.
+fn typed<T: serde::de::DeserializeOwned>(value: Value) -> Result<T, Error> {
+    serde_json::from_value(value).map_err(|_| MALFORMED)
+}
+/// The same, reading from a borrowed value.
+fn typed_ref<'a, T: serde::Deserialize<'a>>(value: &'a Value) -> Result<T, Error> {
+    T::deserialize(value).map_err(|_| MALFORMED)
+}
 
 /// Why the protocol ended a session: a closed, payload-free class that the
 /// panel turns into plain words. Never supplier text.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Refusal {
-    /// The runtime reported activity of a tool it was not offered.
+    /// Tool activity this host does not admit: the runtime's own tools, a tool
+    /// the catalog does not offer, or a namespaced tool.
     ToolActivity,
-    /// The runtime reported an item of a kind this host does not list, or a
-    /// malformed report of an item.
-    UnadmittedItem,
-    /// Any other frame or report the host could not accept.
+    /// An item kind, notification or request this host does not admit.
+    Unadmitted,
+    /// A frame or report the host could not read into its closed type, or one
+    /// out of order.
     Malformed,
 }
 impl Refusal {
     pub fn of(error: Error) -> Self {
         if error == UNOFFERED_ACTIVITY {
             Self::ToolActivity
-        } else if error == UNLISTED_ITEM {
-            Self::UnadmittedItem
+        } else if error == UNLISTED_ITEM
+            || error == UNADMITTED_NOTIFICATION
+            || error == UNADMITTED_REQUEST
+        {
+            Self::Unadmitted
         } else {
             Self::Malformed
         }
@@ -307,153 +1300,264 @@ impl Refusal {
     pub fn class(self) -> &'static str {
         match self {
             Self::ToolActivity => "runtime_tool_activity",
-            Self::UnadmittedItem => "unadmitted_item",
+            Self::Unadmitted => "unadmitted_report",
             Self::Malformed => "malformed_report",
         }
     }
 }
 
-// Members that stock 0.160.0's schema defines for a Thread and a Turn, and for
-// the result of each request this host sends. Any other member is refused, so
-// no alternate list can carry items past the inspection below.
-const THREAD_MEMBERS: [&str; 32] = [
-    "agentNickname", "agentRole", "canAcceptDirectInput", "cliVersion", "createdAt", "cwd",
-    "daybreakEnabled", "environments", "ephemeral", "extra", "forkedFromId", "gitInfo",
-    "historyMode", "id", "model", "modelProvider", "name", "originator", "parentThreadId", "path",
-    "preview", "projectId", "reasoningEffort", "recencyAt", "section", "sectionEnteredAt",
-    "sessionId", "source", "status", "threadSource", "turns", "updatedAt",
+/// The 19 item kinds of stock 0.160.0's ThreadItem schema. Five are admitted;
+/// see `admit`. Kept here so an observation line names only these.
+#[cfg(any(test, feature = "native-smoke"))]
+pub(super) const SCHEMA_ITEM_KINDS: [&str; 19] = [
+    "userMessage", "hookPrompt", "agentMessage", "functionCallOutput", "plan", "reasoning",
+    "commandExecution", "fileChange", "mcpToolCall", "dynamicToolCall", "collabAgentToolCall",
+    "subAgentActivity", "webSearch", "imageView", "sleep", "imageGeneration",
+    "enteredReviewMode", "exitedReviewMode", "contextCompaction",
 ];
-const TURN_MEMBERS: [&str; 8] = [
-    "completedAt", "durationMs", "error", "id", "items", "itemsView", "startedAt", "status",
-];
-const INITIALIZE_RESULT_MEMBERS: [&str; 4] = ["codexHome", "platformFamily", "platformOs", "userAgent"];
-const THREAD_START_RESULT_MEMBERS: [&str; 14] = [
-    "activePermissionProfile", "approvalPolicy", "approvalsReviewer", "cwd", "disabledPluginIds",
-    "instructionSources", "model", "modelProvider", "multiAgentMode", "reasoningEffort",
-    "runtimeWorkspaceRoots", "sandbox", "serviceTier", "thread",
-];
-const TURN_START_RESULT_MEMBERS: [&str; 1] = ["turn"];
-const INTERRUPT_RESULT_MEMBERS: [&str; 0] = [];
 
-fn admit_kind(kind: Option<&str>) -> Result<(), Error> {
-    match kind {
-        Some(k) if ADMITTED_ITEM_KINDS.contains(&k) => Ok(()),
-        Some(k) if BUILTIN_TOOL_ITEM_KINDS.contains(&k) => Err(UNOFFERED_ACTIVITY),
-        _ => Err(UNLISTED_ITEM),
-    }
-}
-/// An item must be an object whose `type` is an admitted kind. A
-/// `dynamicToolCall` must name a tool the catalog offers (its `tool` is the
-/// bare declared name, as in an `item/tool/call` request) with no namespace;
-/// its arguments are never read or executed from an item.
-fn admit_item(item: Option<&Value>) -> Result<(), Error> {
-    let item = item.and_then(Value::as_object).ok_or(UNLISTED_ITEM)?;
-    let kind = item.get("type").and_then(Value::as_str);
-    admit_kind(kind)?;
-    if kind == Some("dynamicToolCall") {
-        let tool = item.get("tool").and_then(Value::as_str).ok_or(UNLISTED_ITEM)?;
-        if Tool::from_name(tool).is_none() || !item.get("namespace").map_or(true, Value::is_null) {
-            return Err(UNOFFERED_ACTIVITY);
+/// Admission of a typed item. Admitted: the agent's message, the user's
+/// message, reasoning, context compaction, and a call of a tool the catalog
+/// offers with no namespace. The runtime's own tool kinds are tool activity;
+/// every other kind (hookPrompt, plan, the review modes, functionCallOutput,
+/// and any kind the schema does not name) is unadmitted. This is an
+/// observation tripwire, not proof that the operating system's isolation
+/// prevented an action.
+fn admit(item: &Item) -> Result<(), Error> {
+    match item {
+        Item::UserMessage { content, .. } => {
+            // ImageUserInput requires `url` or `fileId` (anyOf).
+            if content.iter().any(|input| {
+                matches!(input, wire::UserInput::Image { url: None, file_id: None, .. })
+            }) {
+                return Err(MALFORMED);
+            }
+            Ok(())
         }
-    }
-    Ok(())
-}
-fn object_within<'a>(
-    value: &'a Value,
-    members: &[&str],
-    error: Error,
-) -> Result<&'a serde_json::Map<String, Value>, Error> {
-    let object = value.as_object().ok_or(error)?;
-    if object.keys().all(|k| members.contains(&k.as_str())) {
-        Ok(object)
-    } else {
-        Err(error)
-    }
-}
-/// A supplied turn must be an object with only schema members; its `items`,
-/// when present, an array of admitted items.
-fn admit_turn(turn: &Value) -> Result<(), Error> {
-    match object_within(turn, &TURN_MEMBERS, UNLISTED_ITEM)?.get("items") {
-        None => Ok(()),
-        Some(items) => items
-            .as_array()
-            .ok_or(UNLISTED_ITEM)?
-            .iter()
-            .try_for_each(|item| admit_item(Some(item))),
+        Item::AgentMessage { .. } | Item::Reasoning { .. } | Item::ContextCompaction { .. } => Ok(()),
+        Item::DynamicToolCall { tool, namespace, .. } => {
+            if Tool::from_name(tool).is_none() || namespace.is_some() {
+                Err(UNOFFERED_ACTIVITY)
+            } else {
+                Ok(())
+            }
+        }
+        Item::CommandExecution(_)
+        | Item::FileChange(_)
+        | Item::McpToolCall(_)
+        | Item::CollabAgentToolCall(_)
+        | Item::SubAgentActivity(_)
+        | Item::WebSearch(_)
+        | Item::ImageView(_)
+        | Item::Sleep(_)
+        | Item::ImageGeneration(_) => Err(UNOFFERED_ACTIVITY),
+        Item::HookPrompt(_)
+        | Item::Plan(_)
+        | Item::EnteredReviewMode(_)
+        | Item::ExitedReviewMode(_)
+        | Item::FunctionCallOutput(_)
+        | Item::Unlisted => Err(UNLISTED_ITEM),
     }
 }
-/// A supplied thread must be an object with only schema members; its `turns`,
-/// when present, an array of admitted turns.
-fn admit_thread(thread: &Value) -> Result<(), Error> {
-    match object_within(thread, &THREAD_MEMBERS, UNLISTED_ITEM)?.get("turns") {
-        None => Ok(()),
-        Some(turns) => turns.as_array().ok_or(UNLISTED_ITEM)?.iter().try_for_each(admit_turn),
-    }
+fn admit_turn(turn: &wire::Turn) -> Result<(), Error> {
+    turn.items.iter().try_for_each(admit)
 }
-fn admit_turn_items(turn: Option<&Value>) -> Result<(), Error> {
-    turn.map_or(Ok(()), admit_turn)
+fn admit_thread(thread: &wire::Thread) -> Result<(), Error> {
+    thread.turns.iter().try_for_each(admit_turn)
 }
-fn admit_thread_items(thread: Option<&Value>) -> Result<(), Error> {
-    thread.map_or(Ok(()), admit_thread)
+
+/// What the host does with a notification method.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum Notice {
+    /// Read into its closed type and acted on.
+    Handled,
+    /// Read into its closed type, which carries no item, turn or thread, and
+    /// otherwise ignored.
+    Ignored,
+    /// Ends the session with this reason.
+    Ends(Error),
 }
-/// A response's result may hold only the members the pinned schema defines
-/// for the request it answers; a thread or turn in it is inspected as above.
-fn admit_response(kind: Rpc, result: &Value) -> Result<(), Error> {
-    let members: &[&str] = match kind {
-        Rpc::Initialize => &INITIALIZE_RESULT_MEMBERS,
-        Rpc::ThreadStart => &THREAD_START_RESULT_MEMBERS,
-        Rpc::TurnStart => &TURN_START_RESULT_MEMBERS,
-        Rpc::Interrupt => &INTERRUPT_RESULT_MEMBERS,
-    };
-    let result = object_within(result, members, UNLISTED_RESPONSE_MEMBER)?;
-    admit_thread_items(result.get("thread"))?;
-    admit_turn_items(result.get("turn"))
+const TOOL: Notice = Notice::Ends(UNOFFERED_ACTIVITY);
+const ENDS: Notice = Notice::Ends(UNADMITTED_NOTIFICATION);
+
+/// Every ServerNotification method of stock 0.160.0's schema, and what the
+/// host does with it. This table is the single source; a method absent from
+/// it ends the session. Ignored methods are those an ordinary session sends
+/// (observed: account/rateLimits/updated, thread/tokenUsage/updated, warning,
+/// remoteControl/status/changed) or that belong to an admitted kind's
+/// conversation (reasoning deltas, the deprecated thread/compacted, a turn's
+/// error, configuration and deprecation notices); none carries an item, turn
+/// or thread. Every other method ends the session: the runtime's own tools and
+/// processes as tool activity, everything else as unadmitted. The SWBPIPE
+/// Agent 0 decided that the guardian review, hook and thread settings methods
+/// end it. remoteControl/status/changed is ignored here until pull request
+/// 264's rule for it lands.
+pub(super) const NOTIFICATIONS: [(&str, Notice); 83] = [
+    ("error", Notice::Ignored),
+    ("thread/started", Notice::Handled),
+    ("thread/status/changed", Notice::Handled),
+    ("thread/archived", ENDS),
+    ("thread/deleted", ENDS),
+    ("thread/unarchived", ENDS),
+    ("thread/closed", ENDS),
+    ("thread/reverted", ENDS),
+    ("skills/changed", ENDS),
+    ("thread/name/updated", ENDS),
+    ("thread/attachment/updated", ENDS),
+    ("thread/goal/updated", ENDS),
+    ("thread/goal/cleared", ENDS),
+    ("thread/queue/changed", ENDS),
+    ("project/changed", ENDS),
+    ("thread/project/updated", ENDS),
+    ("thread/environment/connected", ENDS),
+    ("thread/environment/disconnected", ENDS),
+    ("thread/settings/updated", ENDS),
+    ("thread/tokenUsage/updated", Notice::Ignored),
+    ("turn/started", Notice::Handled),
+    ("hook/started", ENDS),
+    ("turn/completed", Notice::Handled),
+    ("hook/completed", ENDS),
+    ("turn/diff/updated", TOOL),
+    ("turn/plan/updated", TOOL),
+    ("item/started", Notice::Handled),
+    ("item/autoApprovalReview/started", ENDS),
+    ("item/autoApprovalReview/completed", ENDS),
+    ("autoApprovalReview/strictReviewRequired", ENDS),
+    ("item/completed", Notice::Handled),
+    ("item/agentMessage/delta", Notice::Handled),
+    ("item/plan/delta", ENDS),
+    ("command/exec/outputDelta", TOOL),
+    ("process/outputDelta", TOOL),
+    ("process/exited", TOOL),
+    ("item/commandExecution/outputDelta", TOOL),
+    ("item/commandExecution/terminalInteraction", TOOL),
+    ("item/fileChange/outputDelta", TOOL),
+    ("item/fileChange/patchUpdated", TOOL),
+    ("serverRequest/resolved", ENDS),
+    ("item/mcpToolCall/progress", TOOL),
+    ("mcpServer/oauthLogin/completed", ENDS),
+    ("mcpServer/startupStatus/updated", ENDS),
+    ("mcpServer/event/stream/notification", ENDS),
+    ("account/updated", ENDS),
+    ("account/gatewayOAuth/changed", ENDS),
+    ("account/rateLimits/updated", Notice::Ignored),
+    ("app/list/updated", ENDS),
+    ("remoteControl/status/changed", Notice::Ignored),
+    ("externalAgentConfig/import/progress", ENDS),
+    ("externalAgentConfig/import/completed", ENDS),
+    ("fs/changed", ENDS),
+    ("item/reasoning/summaryTextDelta", Notice::Ignored),
+    ("item/reasoning/summaryPartAdded", Notice::Ignored),
+    ("item/reasoning/textDelta", Notice::Ignored),
+    ("thread/compacted", Notice::Ignored),
+    ("model/rerouted", ENDS),
+    ("model/verification", ENDS),
+    ("modelProvider/authRecoveryStarted", ENDS),
+    ("modelProvider/authRecoveryCompleted", ENDS),
+    ("turn/moderationMetadata", ENDS),
+    ("model/safetyBuffering/updated", ENDS),
+    ("warning", Notice::Ignored),
+    ("guardianWarning", ENDS),
+    ("deprecationNotice", Notice::Ignored),
+    ("configWarning", Notice::Ignored),
+    ("fuzzyFileSearch/sessionUpdated", ENDS),
+    ("fuzzyFileSearch/sessionCompleted", ENDS),
+    ("thread/realtime/started", ENDS),
+    ("thread/realtime/itemAdded", ENDS),
+    ("thread/realtime/item/started", ENDS),
+    ("thread/realtime/item/transcript/delta", ENDS),
+    ("thread/realtime/item/completed", ENDS),
+    ("thread/realtime/transcript/delta", ENDS),
+    ("thread/realtime/transcript/done", ENDS),
+    ("thread/realtime/outputAudio/delta", ENDS),
+    ("thread/realtime/sdp", ENDS),
+    ("thread/realtime/error", ENDS),
+    ("thread/realtime/closed", ENDS),
+    ("windows/worldWritableWarning", ENDS),
+    ("windowsSandbox/setupCompleted", ENDS),
+    ("account/login/completed", ENDS),
+];
+fn notice(method: &str) -> Notice {
+    NOTIFICATIONS
+        .iter()
+        .find(|(m, _)| *m == method)
+        .map_or(ENDS, |(_, class)| *class)
 }
-/// Every place a server message can carry an item, or name an item kind in
-/// its method (`item/<kind>/...`), is checked before the message is handled.
-fn admit_notification_items(method: &str, p: &Value) -> Result<(), Error> {
+/// Read an ignored notification's parameters into their closed type.
+fn ignored_params(method: &str, p: &Value) -> Result<(), Error> {
     match method {
-        "item/started" | "item/completed" => admit_item(p.get("item")),
-        "turn/started" | "turn/completed" => admit_turn_items(p.get("turn")),
-        "thread/started" => admit_thread_items(p.get("thread")),
-        _ => match method.strip_prefix("item/") {
-            // Deltas and progress keyed by item name its kind in the method.
-            Some(rest) => admit_kind(rest.split('/').next()),
-            None => Ok(()),
-        },
+        "error" => typed_ref::<wire::ErrorParams>(p).map(drop),
+        "thread/tokenUsage/updated" => typed_ref::<wire::ThreadTokenUsageUpdatedParams>(p).map(drop),
+        "account/rateLimits/updated" => typed_ref::<wire::AccountRateLimitsUpdatedParams>(p).map(drop),
+        "remoteControl/status/changed" => {
+            typed_ref::<wire::RemoteControlStatusChangedParams>(p).map(drop)
+        }
+        "item/reasoning/summaryTextDelta" => {
+            typed_ref::<wire::ReasoningSummaryTextDeltaParams>(p).map(drop)
+        }
+        "item/reasoning/summaryPartAdded" => {
+            typed_ref::<wire::ReasoningSummaryPartAddedParams>(p).map(drop)
+        }
+        "item/reasoning/textDelta" => typed_ref::<wire::ReasoningTextDeltaParams>(p).map(drop),
+        "thread/compacted" => typed_ref::<wire::ContextCompactedParams>(p).map(drop),
+        "warning" => typed_ref::<wire::WarningParams>(p).map(drop),
+        "deprecationNotice" => typed_ref::<wire::DeprecationNoticeParams>(p).map(drop),
+        "configWarning" => typed_ref::<wire::ConfigWarningParams>(p).map(drop),
+        _ => Err(UNADMITTED_NOTIFICATION),
     }
+}
+
+/// Every ServerRequest method of stock 0.160.0's schema. Only the tool call
+/// is answered; every other request ends the session, approval requests for
+/// the runtime's own tools as tool activity. The supplier runs with approval
+/// policy "never", so none of these is expected.
+pub(super) const REQUESTS: [(&str, Notice); 11] = [
+    ("item/commandExecution/requestApproval", TOOL),
+    ("item/fileChange/requestApproval", TOOL),
+    ("item/tool/requestUserInput", Notice::Ends(UNADMITTED_REQUEST)),
+    ("mcpServer/elicitation/request", Notice::Ends(UNADMITTED_REQUEST)),
+    ("item/permissions/requestApproval", TOOL),
+    ("item/tool/call", Notice::Handled),
+    ("account/chatgptAuthTokens/refresh", Notice::Ends(UNADMITTED_REQUEST)),
+    ("attestation/generate", Notice::Ends(UNADMITTED_REQUEST)),
+    ("currentTime/read", Notice::Ends(UNADMITTED_REQUEST)),
+    ("applyPatchApproval", TOOL),
+    ("execCommandApproval", TOOL),
+];
+fn request_class(method: &str) -> Notice {
+    REQUESTS
+        .iter()
+        .find(|(m, _)| *m == method)
+        .map_or(Notice::Ends(UNADMITTED_REQUEST), |(_, class)| *class)
 }
 
 /// Native smoke only: one payload-free line for each distinct item kind,
-/// unhandled notification method and unsupported server request method the
-/// runtime reports, so an observed session shows the ordinary set. Names are
-/// printed only when short and plain; nothing else from a frame is kept.
+/// notification method and server request method the runtime reports, so an
+/// observed session shows the ordinary set. A kind or method is printed only
+/// when it is a name the 0.160.0 schema defines; otherwise "unlisted".
 #[cfg(any(test, feature = "native-smoke"))]
 mod observed {
-    use super::{admit_item, admit_kind, Value};
+    use super::{admit, wire, Notice, Value, NOTIFICATIONS, REQUESTS, SCHEMA_ITEM_KINDS};
 
     const PREFIX: &str = "[native-smoke-agent-host]";
-    const MAX_NAME_BYTES: usize = 64;
     pub const MAX_LINES: usize = 64;
 
-    fn plain(name: &str) -> &str {
-        if !name.is_empty()
-            && name.len() <= MAX_NAME_BYTES
-            && name
-                .bytes()
-                .all(|b| b.is_ascii_alphanumeric() || b == b'/' || b == b'_' || b == b'-')
-        {
-            name
-        } else {
-            "(unprintable)"
+    fn schema_kind(kind: Option<&Value>) -> &str {
+        match kind {
+            Some(Value::String(k)) => SCHEMA_ITEM_KINDS
+                .iter()
+                .find(|known| **known == k.as_str())
+                .copied()
+                .unwrap_or("unlisted"),
+            _ => "unlisted",
         }
     }
-    fn kind_name(kind: Option<&Value>) -> &str {
-        match kind {
-            None => "(missing)",
-            Some(Value::String(k)) => plain(k),
-            Some(_) => "(non-string)",
-        }
+    fn schema_method(method: &str) -> &str {
+        NOTIFICATIONS
+            .iter()
+            .chain(REQUESTS.iter())
+            .find(|(m, _)| *m == method)
+            .map_or("unlisted", |(m, _)| m)
     }
 
     #[derive(Default)]
@@ -475,81 +1579,71 @@ mod observed {
             self.seen.push(line.clone());
             self.unread.push(line);
         }
-        fn kind(&mut self, kind: Option<&Value>, via: &str) {
-            let decision = match admit_kind(kind.and_then(Value::as_str)) {
+        /// `via` is always a schema method name or a fixed response name.
+        fn item(&mut self, item: &Value, via: &str) {
+            let decision = match <wire::Item as serde::Deserialize>::deserialize(item)
+                .map_err(|_| ())
+                .and_then(|typed| admit(&typed).map_err(|_| ()))
+            {
                 Ok(()) => "admitted",
-                Err(_) => "refused",
+                Err(()) => "refused",
             };
-            let line = format!("{PREFIX} item kind {} via {} {decision}", kind_name(kind), plain(via));
+            let line = format!(
+                "{PREFIX} item kind {} via {via} {decision}",
+                schema_kind(item.get("type"))
+            );
             self.line(line);
         }
-        fn malformed(&mut self, via: &str) {
-            let line = format!("{PREFIX} item kind (malformed) via {} refused", plain(via));
-            self.line(line);
-        }
-        fn item(&mut self, item: Option<&Value>, via: &str) {
-            match item {
-                Some(Value::Object(o)) => {
-                    let decision = match admit_item(item) {
-                        Ok(()) => "admitted",
-                        Err(_) => "refused",
-                    };
-                    let line = format!(
-                        "{PREFIX} item kind {} via {} {decision}",
-                        kind_name(o.get("type")),
-                        plain(via)
-                    );
-                    self.line(line);
-                }
-                Some(_) => self.malformed(via),
-                None => self.kind(None, via),
+        fn turn(&mut self, turn: &Value, via: &str) {
+            if let Some(items) = turn.get("items").and_then(Value::as_array) {
+                items.iter().for_each(|i| self.item(i, via));
             }
         }
-        fn turn(&mut self, turn: Option<&Value>, via: &str) {
-            match turn {
-                None => {}
-                Some(Value::Object(t)) => match t.get("items") {
-                    None => {}
-                    Some(Value::Array(items)) => items.iter().for_each(|i| self.item(Some(i), via)),
-                    Some(_) => self.malformed(via),
-                },
-                Some(_) => self.malformed(via),
+        fn thread(&mut self, thread: &Value, via: &str) {
+            if let Some(turns) = thread.get("turns").and_then(Value::as_array) {
+                turns.iter().for_each(|t| self.turn(t, via));
             }
         }
-        fn thread(&mut self, thread: Option<&Value>, via: &str) {
-            match thread {
-                None => {}
-                Some(Value::Object(t)) => match t.get("turns") {
-                    None => {}
-                    Some(Value::Array(turns)) => turns.iter().for_each(|t| self.turn(Some(t), via)),
-                    Some(_) => self.malformed(via),
-                },
-                Some(_) => self.malformed(via),
-            }
-        }
-        pub fn notification_items(&mut self, method: &str, p: &Value) {
+        pub fn notification(&mut self, method: &str, p: &Value, class: Notice) {
+            let via = schema_method(method);
             match method {
-                "item/started" | "item/completed" => self.item(p.get("item"), method),
-                "turn/started" | "turn/completed" => self.turn(p.get("turn"), method),
-                "thread/started" => self.thread(p.get("thread"), method),
-                _ => {
-                    if let Some(rest) = method.strip_prefix("item/") {
-                        let kind = rest.split('/').next().map(|k| Value::String(k.to_owned()));
-                        self.kind(kind.as_ref(), method);
+                "item/started" | "item/completed" => {
+                    if let Some(item) = p.get("item") {
+                        self.item(item, via);
                     }
                 }
+                "turn/started" | "turn/completed" => {
+                    if let Some(turn) = p.get("turn") {
+                        self.turn(turn, via);
+                    }
+                }
+                "thread/started" => {
+                    if let Some(thread) = p.get("thread") {
+                        self.thread(thread, via);
+                    }
+                }
+                _ => {}
+            }
+            let word = match class {
+                Notice::Handled => return,
+                Notice::Ignored => "ignored",
+                Notice::Ends(_) => "refused",
+            };
+            self.line(format!("{PREFIX} notification {via} {word}"));
+        }
+        pub fn response(&mut self, result: &Value, via: &'static str) {
+            if let Some(thread) = result.get("thread") {
+                self.thread(thread, via);
+            }
+            if let Some(turn) = result.get("turn") {
+                self.turn(turn, via);
             }
         }
-        pub fn response_items(&mut self, result: &Value, via: &str) {
-            self.thread(result.get("thread"), via);
-            self.turn(result.get("turn"), via);
-        }
-        pub fn ignored_notification(&mut self, method: &str) {
-            let line = format!("{PREFIX} notification {} ignored", plain(method));
-            self.line(line);
-        }
-        pub fn unsupported_request(&mut self, method: &str) {
-            let line = format!("{PREFIX} server request {} refused", plain(method));
+        pub fn request(&mut self, method: &str) {
+            if method == "item/tool/call" {
+                return;
+            }
+            let line = format!("{PREFIX} server request {} refused", schema_method(method));
             self.line(line);
         }
         pub fn take(&mut self) -> Vec<String> {
@@ -679,67 +1773,95 @@ impl Protocol {
         }
         result
     }
-    fn handle_inner(&mut self, mut frame: Value, basis: &Value) -> Result<Actions, Error> {
+    fn handle_inner(&mut self, frame: Value, basis: &Value) -> Result<Actions, Error> {
         let mut actions = Actions::default();
-        let object = frame.as_object_mut().ok_or(Error("invalid frame"))?;
-        if let Some(method) = object.get("method") {
-            let method = method
-                .as_str()
-                .filter(|s| bounded(s, MAX_ID_BYTES))
-                .ok_or(Error("invalid method"))?
-                .to_owned();
-            if object.contains_key("id") {
-                let id = rpc_id(object.get("id"))?;
-                if method == "item/tool/call" {
-                    let params = object.remove("params").ok_or(Error("missing parameters"))?;
-                    self.tool_call(id, params, basis, &mut actions)?;
-                } else {
-                    #[cfg(any(test, feature = "native-smoke"))]
-                    self.observed.unsupported_request(&method);
-                    // No native method conveys authority, including approval requests.
-                    if self.seen_rpc.contains(&id) {
-                        return Err(Error("duplicate server request"));
-                    }
-                    if self.seen_rpc.len() >= MAX_CALLS_PER_TURN {
-                        return Err(Error("server request limit"));
-                    }
-                    self.seen_rpc.push(id.clone());
-                    actions.outbound.push(
-                        json!({"id":id,"error":{"code":-32601,"message":"Unsupported request"}}),
-                    );
+        let frame: wire::Envelope = typed(frame)?;
+        match frame {
+            // A server request: JSONRPCRequest.
+            wire::Envelope {
+                id: Some(id),
+                method: Some(method),
+                params,
+                result: None,
+                error: None,
+                trace: _,
+            } => {
+                if !bounded(&method, MAX_ID_BYTES) {
+                    return Err(MALFORMED);
                 }
-            } else {
-                let params = object.remove("params").unwrap_or(Value::Null);
-                self.notification(&method, params, &mut actions)?;
+                let id = rpc_id(&id)?;
+                #[cfg(any(test, feature = "native-smoke"))]
+                self.observed.request(&method);
+                match request_class(&method) {
+                    Notice::Handled => {
+                        let params: wire::DynamicToolCallParams =
+                            typed(params.ok_or(MALFORMED)?)?;
+                        self.tool_call(id, params, basis, &mut actions)?;
+                    }
+                    // No server request but the tool call conveys anything the
+                    // host accepts; each one ends the session.
+                    Notice::Ignored => return Err(UNADMITTED_REQUEST),
+                    Notice::Ends(reason) => return Err(reason),
+                }
             }
-        } else {
-            let id = object
-                .get("id")
-                .and_then(Value::as_u64)
-                .ok_or(Error("invalid response identity"))?;
-            let pos = self
-                .outstanding
-                .iter()
-                .position(|(n, _)| *n == id)
-                .ok_or(Error("unexpected response identity"))?;
-            if object.contains_key("error") || !object.contains_key("result") {
-                self.last_rejection = Some(rejection(
-                    self.outstanding[pos].1,
-                    object.get("error").unwrap_or(&Value::Null),
-                ));
-                return Err(Error("client request failed"));
+            // A notification: JSONRPCNotification.
+            wire::Envelope {
+                id: None,
+                method: Some(method),
+                params,
+                result: None,
+                error: None,
+                trace: None,
+            } => {
+                if !bounded(&method, MAX_ID_BYTES) {
+                    return Err(MALFORMED);
+                }
+                self.notification(&method, params.unwrap_or(Value::Null), &mut actions)?;
             }
-            let result = object.remove("result").ok_or(Error("missing response"))?;
-            let kind = self.outstanding[pos].1;
-            self.response(kind, &result, &mut actions)?;
-            self.outstanding.remove(pos);
+            // A response: JSONRPCResponse or JSONRPCError.
+            wire::Envelope {
+                id: Some(id),
+                method: None,
+                params: None,
+                result,
+                error,
+                trace: None,
+            } => {
+                // Exactly one of result and error, as the schema's two forms.
+                if result.is_some() == error.is_some() {
+                    return Err(MALFORMED);
+                }
+                let id = match id {
+                    wire::RequestId::Int(n) => u64::try_from(n).map_err(|_| MALFORMED)?,
+                    wire::RequestId::Str(_) => return Err(Error("invalid response identity")),
+                };
+                let pos = self
+                    .outstanding
+                    .iter()
+                    .position(|(n, _)| *n == id)
+                    .ok_or(Error("unexpected response identity"))?;
+                let kind = self.outstanding[pos].1;
+                match (result, error) {
+                    (Some(result), None) => {
+                        self.response(kind, result, &mut actions)?;
+                        self.outstanding.remove(pos);
+                    }
+                    (None, Some(error)) => {
+                        let error = json!({"code":error.code,"message":error.message});
+                        self.last_rejection = Some(rejection(kind, &error));
+                        return Err(Error("client request failed"));
+                    }
+                    _ => return Err(MALFORMED),
+                }
+            }
+            _ => return Err(MALFORMED),
         }
         Ok(actions)
     }
-    fn response(&mut self, kind: Rpc, result: &Value, actions: &mut Actions) -> Result<(), Error> {
+    fn response(&mut self, kind: Rpc, result: Value, actions: &mut Actions) -> Result<(), Error> {
         #[cfg(any(test, feature = "native-smoke"))]
-        self.observed.response_items(
-            result,
+        self.observed.response(
+            &result,
             match kind {
                 Rpc::Initialize => "initialize-response",
                 Rpc::ThreadStart => "thread/start-response",
@@ -747,16 +1869,9 @@ impl Protocol {
                 Rpc::Interrupt => "turn/interrupt-response",
             },
         );
-        admit_response(kind, result)?;
         match kind {
             Rpc::Initialize if self.phase == Phase::Initializing => {
-                if !result.is_object()
-                    || ["codexHome", "platformFamily", "platformOs", "userAgent"]
-                        .iter()
-                        .any(|k| !result.get(k).is_some_and(Value::is_string))
-                {
-                    return Err(Error("invalid initialize response"));
-                }
+                typed::<wire::InitializeResponse>(result)?;
                 self.phase = Phase::Ready;
                 actions
                     .outbound
@@ -764,21 +1879,22 @@ impl Protocol {
                 actions.events.push(Event::Initialized);
             }
             Rpc::ThreadStart if self.phase == Phase::StartingThread => {
-                let id = identity(result.pointer("/thread/id"))?.to_owned();
+                let result: wire::ThreadStartResponse = typed(result)?;
+                admit_thread(&result.thread)?;
+                let id = bounded_identity(&result.thread.id)?;
                 if self.thread.as_ref().is_some_and(|v| v != &id) {
                     return Err(Error("thread response mismatch"));
                 }
-                if result.get("approvalPolicy").and_then(Value::as_str) != Some("never")
-                    || result.pointer("/sandbox/type").and_then(Value::as_str) != Some("readOnly")
-                    || result
-                        .pointer("/sandbox/networkAccess")
-                        .is_some_and(|v| v.as_bool() != Some(false))
-                    || result
-                        .pointer("/thread/ephemeral")
-                        .is_some_and(|v| v.as_bool() != Some(true))
-                    || result.pointer("/thread/environments").is_some_and(|v| {
-                        !v.is_null() && v.as_array().map_or(true, |a| !a.is_empty())
-                    })
+                let read_only = matches!(
+                    result.sandbox,
+                    wire::SandboxPolicy::ReadOnly {
+                        network_access: None | Some(false)
+                    }
+                );
+                if result.approval_policy != wire::AskForApproval::Mode(wire::ApprovalMode::Never)
+                    || !read_only
+                    || !result.thread.ephemeral
+                    || result.thread.environments.as_ref().is_some_and(|e| !e.is_empty())
                 {
                     return Err(Error("unexpected thread policy"));
                 }
@@ -787,8 +1903,10 @@ impl Protocol {
                 actions.events.push(Event::ThreadStarted { thread_id: id });
             }
             Rpc::TurnStart if matches!(self.phase, Phase::StartingTurn | Phase::InTurn) => {
-                let id = turn_id(result)?.to_owned();
-                if turn_status(result)? != "inProgress"
+                let result: wire::TurnStartResponse = typed(result)?;
+                admit_turn(&result.turn)?;
+                let id = bounded_identity(&result.turn.id)?;
+                if result.turn.status != wire::TurnStatus::InProgress
                     || self.turn.as_ref().is_some_and(|v| v != &id)
                 {
                     return Err(Error("turn response mismatch"));
@@ -800,45 +1918,52 @@ impl Protocol {
                     actions.events.push(Event::TurnStarted { turn_id: id });
                 }
             }
-            Rpc::Interrupt
-                if matches!(self.phase, Phase::InTurn | Phase::ThreadReady)
-                    && result.is_object() =>
-            {
+            Rpc::Interrupt if matches!(self.phase, Phase::InTurn | Phase::ThreadReady) => {
+                typed::<wire::TurnInterruptResponse>(result)?;
                 actions.events.push(Event::InterruptAcknowledged);
             }
             _ => return Err(Error("response in invalid state")),
         }
         Ok(())
     }
-    fn check_thread(&self, params: &Value) -> Result<(), Error> {
-        if Some(identity(params.get("threadId"))?) != self.thread.as_deref() {
+    fn check_thread(&self, thread_id: &str) -> Result<(), Error> {
+        if Some(bounded_identity(thread_id)?.as_str()) != self.thread.as_deref() {
             return Err(Error("thread mismatch"));
         }
         Ok(())
     }
-    fn check_turn(&self, params: &Value) -> Result<(), Error> {
-        self.check_thread(params)?;
+    fn check_turn(&self, thread_id: &str, turn_id: &str) -> Result<(), Error> {
+        self.check_thread(thread_id)?;
         if self.phase != Phase::InTurn
             || self.outstanding.iter().any(|(_, k)| *k == Rpc::TurnStart)
-            || Some(identity(params.get("turnId"))?) != self.turn.as_deref()
+            || Some(bounded_identity(turn_id)?.as_str()) != self.turn.as_deref()
         {
             return Err(Error("turn mismatch or unconfirmed turn"));
         }
         Ok(())
     }
     fn notification(&mut self, method: &str, p: Value, actions: &mut Actions) -> Result<(), Error> {
+        let class = notice(method);
         #[cfg(any(test, feature = "native-smoke"))]
-        self.observed.notification_items(method, &p);
-        admit_notification_items(method, &p)?;
+        self.observed.notification(method, &p, class);
+        match class {
+            Notice::Ends(reason) => return Err(reason),
+            Notice::Ignored => {
+                ignored_params(method, &p)?;
+            }
+            Notice::Handled => {}
+        }
         match method {
             "turn/started" => {
-                self.check_thread(&p)?;
+                let p: wire::TurnParams = typed(p)?;
+                admit_turn(&p.turn)?;
+                self.check_thread(&p.thread_id)?;
                 if !matches!(self.phase, Phase::StartingTurn | Phase::InTurn)
-                    || turn_status(&p)? != "inProgress"
+                    || p.turn.status != wire::TurnStatus::InProgress
                 {
                     return Err(Error("unexpected turn start"));
                 }
-                let id = turn_id(&p)?.to_owned();
+                let id = bounded_identity(&p.turn.id)?;
                 if self.turn.as_ref().is_some_and(|v| v != &id) {
                     return Err(Error("turn mismatch"));
                 }
@@ -850,15 +1975,16 @@ impl Protocol {
                 }
             }
             "turn/completed" => {
-                self.check_thread(&p)?;
+                let p: wire::TurnParams = typed(p)?;
+                admit_turn(&p.turn)?;
+                self.check_thread(&p.thread_id)?;
                 if self.phase != Phase::InTurn
-                    || Some(turn_id(&p)?) != self.turn.as_deref()
+                    || Some(bounded_identity(&p.turn.id)?.as_str()) != self.turn.as_deref()
                     || self.outstanding.iter().any(|(_, k)| *k == Rpc::TurnStart)
                 {
                     return Err(Error("unsupported turn completion ordering"));
                 }
-                let status = turn_status(&p)?;
-                if status == "inProgress" {
+                if p.turn.status == wire::TurnStatus::InProgress {
                     return Err(Error("invalid completion status"));
                 }
                 for pending in &mut self.pending {
@@ -875,101 +2001,90 @@ impl Protocol {
                 }
                 actions.events.push(Event::TurnCompleted {
                     turn_id: self.turn.take().ok_or(Error("missing turn"))?,
-                    status: status.to_owned(),
+                    status: p.turn.status.name().to_owned(),
                 });
                 self.phase = Phase::ThreadReady;
             }
             "item/agentMessage/delta" => {
-                self.check_turn(&p)?;
-                let item_id = identity(p.get("itemId"))?.to_owned();
-                let text = p
-                    .get("delta")
-                    .and_then(Value::as_str)
-                    .filter(|s| s.len() <= MAX_TEXT_BYTES)
-                    .ok_or(Error("message text limit"))?
-                    .to_owned();
-                actions.events.push(Event::MessageDelta { item_id, text });
+                let p: wire::AgentMessageDeltaParams = typed(p)?;
+                self.check_turn(&p.thread_id, &p.turn_id)?;
+                let item_id = bounded_identity(&p.item_id)?;
+                if p.delta.len() > MAX_TEXT_BYTES {
+                    return Err(Error("message text limit"));
+                }
+                actions.events.push(Event::MessageDelta { item_id, text: p.delta });
             }
-            // Its item's kind was admitted above; nothing else is handled.
-            "item/started" => {}
+            "item/started" => {
+                let p: wire::ItemStartedParams = typed(p)?;
+                admit(&p.item)?;
+            }
             "item/completed" => {
-                self.check_turn(&p)?;
-                let item = p
-                    .get("item")
-                    .and_then(Value::as_object)
-                    .ok_or(Error("invalid item"))?;
-                if item.get("type").and_then(Value::as_str) == Some("agentMessage") {
-                    let item_id = identity(item.get("id"))?.to_owned();
-                    let text = item
-                        .get("text")
-                        .and_then(Value::as_str)
-                        .filter(|s| s.len() <= MAX_TEXT_BYTES)
-                        .ok_or(Error("message text limit"))?
-                        .to_owned();
+                let p: wire::ItemCompletedParams = typed(p)?;
+                admit(&p.item)?;
+                self.check_turn(&p.thread_id, &p.turn_id)?;
+                if let Item::AgentMessage { id, text, .. } = p.item {
+                    let item_id = bounded_identity(&id)?;
+                    if text.len() > MAX_TEXT_BYTES {
+                        return Err(Error("message text limit"));
+                    }
                     actions.events.push(Event::MessageFinal { item_id, text });
                 }
             }
             "thread/status/changed" => {
+                let p: wire::ThreadStatusChangedParams = typed(p)?;
                 if self.phase == Phase::StartingThread && self.thread.is_none() {
-                    self.thread = Some(identity(p.get("threadId"))?.to_owned());
+                    self.thread = Some(bounded_identity(&p.thread_id)?);
                 }
-                self.check_thread(&p)?;
-                let status = p
-                    .pointer("/status/type")
-                    .and_then(Value::as_str)
-                    .filter(|s| matches!(*s, "notLoaded" | "idle" | "systemError" | "active"))
-                    .ok_or(Error("invalid thread status"))?;
+                self.check_thread(&p.thread_id)?;
                 actions.events.push(Event::ThreadStatus {
-                    status: status.to_owned(),
+                    status: p.status.name().to_owned(),
                 });
             }
             // The supplier may send thread/started before its response. It is
             // informational only; response supplies authoritative thread id.
-            "thread/started" if self.phase == Phase::StartingThread => {
-                let id = identity(p.pointer("/thread/id"))?;
-                if self.thread.as_deref().is_some_and(|old| old != id) {
-                    return Err(Error("thread mismatch"));
+            "thread/started" => {
+                let p: wire::ThreadStartedParams = typed(p)?;
+                admit_thread(&p.thread)?;
+                if self.phase == Phase::StartingThread {
+                    let id = bounded_identity(&p.thread.id)?;
+                    if self.thread.as_deref().is_some_and(|old| old != id) {
+                        return Err(Error("thread mismatch"));
+                    }
+                    self.thread = Some(id);
                 }
-                self.thread = Some(id.to_owned());
             }
-            // Other notifications are informational and carry no authority.
-            _ => {
-                #[cfg(any(test, feature = "native-smoke"))]
-                self.observed.ignored_notification(method);
-            }
+            // Ignored by name: its parameters were read into their closed
+            // type above and carry nothing the host acts on.
+            _ => {}
         }
         Ok(())
     }
     fn tool_call(
         &mut self,
         id: Value,
-        mut p: Value,
+        p: wire::DynamicToolCallParams,
         basis: &Value,
         actions: &mut Actions,
     ) -> Result<(), Error> {
-        self.check_turn(&p)?;
-        let call_id = identity(p.get("callId"))?.to_owned();
-        let name = identity(p.get("tool"))?;
+        self.check_turn(&p.thread_id, &p.turn_id)?;
+        let call_id = bounded_identity(&p.call_id)?;
+        bounded_identity(&p.tool)?;
         if self.seen_rpc.contains(&id) || self.seen_call.contains(&call_id) {
             return Err(Error("duplicate tool identity"));
         }
         if self.seen_rpc.len() >= MAX_CALLS_PER_TURN || self.seen_call.len() >= MAX_CALLS_PER_TURN {
             return Err(Error("turn identity limit"));
         }
+        // The supplier forwards a call only for a tool the host declared at
+        // thread start, none of them namespaced; anything else means it is
+        // not behaving as pinned, and the session ends.
+        let tool = match Tool::from_name(&p.tool) {
+            Some(tool) if p.namespace.is_none() => tool,
+            _ => return Err(UNOFFERED_ACTIVITY),
+        };
         self.seen_rpc.push(id.clone());
         self.seen_call.push(call_id.clone());
-        let tool = Tool::from_name(name);
-        if tool.is_none() || !p.get("namespace").map_or(true, Value::is_null) {
-            actions
-                .outbound
-                .push(json!({"id":id,"error":{"code":-32601,"message":"Unsupported request"}}));
-            return Ok(());
-        }
-        let tool = tool.ok_or(Error("unsupported tool"))?;
-        let args = p
-            .as_object_mut()
-            .and_then(|o| o.remove("arguments"))
-            .unwrap_or(Value::Null);
+        let args = p.arguments;
         let valid = within(&args, self.catalog.limits().argument_bytes)
             && self.catalog.validate_input(tool, &args).is_ok()
             && (tool != Tool::ProposeOperations
@@ -1058,6 +2173,59 @@ impl Protocol {
     }
 }
 
+/// Schema-complete frames for tests across the embedded agent: each holds
+/// every member stock 0.160.0's schema requires, and only members it gives.
+#[cfg(test)]
+pub(super) mod fixture {
+    use serde_json::{json, Value};
+
+    pub fn initialize_result() -> Value {
+        json!({"codexHome":"/invented","platformFamily":"unix","platformOs":"macos","userAgent":"fixture"})
+    }
+    pub fn thread(id: &str) -> Value {
+        json!({"cliVersion":"0.160.0","createdAt":1,"cwd":"/invented","ephemeral":true,"id":id,"modelProvider":"fixture","preview":"","projectId":null,"sessionId":"session-invented","source":"appServer","status":{"type":"idle"},"turns":[],"updatedAt":1})
+    }
+    pub fn thread_with_turns(id: &str, turns: Value) -> Value {
+        let mut thread = thread(id);
+        thread["turns"] = turns;
+        thread
+    }
+    pub fn thread_start_result(id: &str) -> Value {
+        json!({"approvalPolicy":"never","approvalsReviewer":"user","cwd":"/invented","model":"fixture","modelProvider":"fixture","sandbox":{"type":"readOnly","networkAccess":false},"thread":thread(id)})
+    }
+    pub fn turn(id: &str, status: &str) -> Value {
+        json!({"id":id,"items":[],"status":status})
+    }
+    pub fn turn_with_items(id: &str, status: &str, items: Value) -> Value {
+        json!({"id":id,"items":items,"status":status})
+    }
+    pub fn turn_start_result(id: &str) -> Value {
+        json!({"turn":turn(id, "inProgress")})
+    }
+    pub fn user_message(id: &str) -> Value {
+        json!({"type":"userMessage","id":id,"content":[{"type":"text","text":"invented"}]})
+    }
+    pub fn agent_message(id: &str, text: &str) -> Value {
+        json!({"type":"agentMessage","id":id,"text":text})
+    }
+    pub fn reasoning(id: &str) -> Value {
+        json!({"type":"reasoning","id":id,"summary":["invented"]})
+    }
+    pub fn context_compaction(id: &str) -> Value {
+        json!({"type":"contextCompaction","id":id})
+    }
+    pub fn dynamic_tool_call(id: &str, tool: &str) -> Value {
+        json!({"type":"dynamicToolCall","id":id,"tool":tool,"arguments":{},"status":"completed"})
+    }
+    /// The parameters of item/started or item/completed for an item.
+    pub fn item_params(method: &str, thread: &str, turn: &str, item: Value) -> Value {
+        let mut params = json!({"threadId":thread,"turnId":turn,"item":item});
+        let at = if method == "item/started" { "startedAtMs" } else { "completedAtMs" };
+        params[at] = json!(1);
+        params
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
@@ -1093,9 +2261,8 @@ mod tests {
         let mut p = Protocol::new(Catalog::load().unwrap(), "0123456789abcdef".into(), 16).unwrap();
         let init = p.initialize("test", "1").unwrap();
         assert_eq!(init["params"]["capabilities"]["experimentalApi"], true);
-        let init_reply = json!({"codexHome":"/private","platformFamily":"test","platformOs":"test","userAgent":"test"});
         assert_eq!(
-            p.handle_frame(frame(1, init_reply), &basis())
+            p.handle_frame(frame(1, fixture::initialize_result()), &basis())
                 .unwrap()
                 .outbound[0]["method"],
             "initialized"
@@ -1118,7 +2285,7 @@ mod tests {
             assert_eq!(declaration.as_object().unwrap().len(), 4);
             assert_eq!(declaration["type"], "function");
         }
-        p.handle_frame(frame(2, json!({"thread":{"id":"thread-1"},"approvalPolicy":"never","sandbox":{"type":"readOnly","networkAccess":false}})), &basis()).unwrap();
+        p.handle_frame(frame(2, fixture::thread_start_result("thread-1")), &basis()).unwrap();
         p
     }
     fn active() -> Protocol {
@@ -1141,6 +2308,10 @@ mod tests {
         call(rpc, id, Tool::Summary.name(), json!({}))
     }
 
+    fn item_frame(method: &str, item: Value) -> Value {
+        notification(method, fixture::item_params(method, "thread-1", "turn-1", item))
+    }
+
     #[test]
     fn unoffered_supplier_tool_activity_closes_with_pending_calls_preserved() {
         for method in ["item/started", "item/completed"] {
@@ -1155,33 +2326,19 @@ mod tests {
                 "sleep",
                 "imageGeneration",
             ] {
-                let mut p = active();
-                let reference = requested(
-                    p.handle_frame(call_summary(json!(7), "pending"), &basis())
-                        .unwrap(),
-                );
-                let result = p.handle_frame(notification(method, json!({"threadId":"thread-1","turnId":"turn-1","item":{"id":"unoffered","type":kind}})), &basis());
-                assert_eq!(result.err(), Some(UNOFFERED_ACTIVITY), "{method}: {kind}");
-                assert!(
-                    matches!(p.disconnect().as_slice(), [Event::ToolLost { request_ref, .. }] if request_ref == &reference)
-                );
-                assert!(p.disconnect().is_empty());
+                let (p, reference) = active_with_pending();
+                let frame = item_frame(method, json!({"id":"unoffered","type":kind}));
+                assert_ends(p, reference, frame, UNOFFERED_ACTIVITY);
             }
         }
     }
 
-    fn item_frame(method: &str, item: Value) -> Value {
-        notification(
-            method,
-            json!({"threadId":"thread-1","turnId":"turn-1","item":item}),
-        )
-    }
-
-    /// The pending call is reported lost once, as for any protocol failure,
-    /// and the poisoned protocol accepts nothing further.
+    /// The pending call is reported lost exactly once, as for any protocol
+    /// failure, and the poisoned protocol accepts nothing further.
     fn assert_ends(mut p: Protocol, reference: RequestRef, frame: Value, reason: Error) {
         let label = frame.to_string();
         assert_eq!(p.handle_frame(frame, &basis()).err(), Some(reason), "{label}");
+        assert_eq!(p.refusal(), Some(Refusal::of(reason)), "{label}");
         assert!(
             p.handle_frame(call_summary(json!(99), "after"), &basis())
                 .is_err(),
@@ -1191,6 +2348,7 @@ mod tests {
             matches!(p.disconnect().as_slice(), [Event::ToolLost { request_ref, .. }] if request_ref == &reference),
             "{label}"
         );
+        assert!(p.disconnect().is_empty(), "{label}");
     }
     fn active_with_pending() -> (Protocol, RequestRef) {
         let mut p = active();
@@ -1200,46 +2358,55 @@ mod tests {
         );
         (p, reference)
     }
+    fn admitted_items() -> Vec<Value> {
+        vec![
+            fixture::user_message("u"),
+            fixture::agent_message("m", "hi"),
+            fixture::reasoning("r"),
+            fixture::context_compaction("c"),
+            fixture::dynamic_tool_call("d", Tool::Summary.name()),
+        ]
+    }
 
     #[test]
     fn admitted_item_kinds_pass_and_are_handled_as_before() {
         let mut p = active();
         for method in ["item/started", "item/completed"] {
-            for kind in [
-                "dynamicToolCall",
-                "userMessage",
-                "reasoning",
-                "contextCompaction",
-            ] {
-                let actions = p
-                    .handle_frame(item_frame(method, json!({"id":"item","type":kind,"tool":Tool::Summary.name()})), &basis())
-                    .unwrap();
-                assert!(actions.events.is_empty() && actions.outbound.is_empty(), "{method}: {kind}");
-            }
-            let message = p
-                .handle_frame(
-                    item_frame(method, json!({"id":"message","type":"agentMessage","text":"hi"})),
-                    &basis(),
-                )
-                .unwrap();
-            match (method, message.events.as_slice()) {
-                ("item/started", []) => {}
-                ("item/completed", [Event::MessageFinal { item_id, text }]) => {
-                    assert_eq!((item_id.as_str(), text.as_str()), ("message", "hi"))
+            for item in admitted_items() {
+                let message = item["type"] == "agentMessage";
+                let actions = p.handle_frame(item_frame(method, item), &basis()).unwrap();
+                match (method, message, actions.events.as_slice()) {
+                    ("item/completed", true, [Event::MessageFinal { item_id, text }]) => {
+                        assert_eq!((item_id.as_str(), text.as_str()), ("m", "hi"))
+                    }
+                    (_, _, []) if !(method == "item/completed" && message) => {}
+                    other => panic!("unexpected {method}: {:?}", other.2),
                 }
-                other => panic!("unexpected {other:?}"),
+                assert!(actions.outbound.is_empty());
             }
         }
-        for method in [
-            "item/reasoning/textDelta",
-            "item/reasoning/summaryTextDelta",
-            "item/reasoning/summaryPartAdded",
+        // Every item member the schema gives, typed, is accepted.
+        let full = json!({"type":"agentMessage","id":"full","text":"t","delivery":"async","phase":"final_answer",
+            "memoryCitation":{"entries":[{"lineEnd":2,"lineStart":1,"note":"n","path":"p"}],"threadIds":["t"]},
+            "questions":[{"title":"q","options":["a"]}]});
+        p.handle_frame(item_frame("item/started", full), &basis()).unwrap();
+        let full = json!({"type":"userMessage","id":"u2","clientId":null,"content":[
+            {"type":"text","text":"t","text_elements":[{"byteRange":{"start":0,"end":1},"placeholder":null}]},
+            {"type":"image","url":"u","detail":"auto"},{"type":"image","fileId":"f"},
+            {"type":"localImage","path":"/p"},{"type":"audio","url":"u"},{"type":"localAudio","path":"/p"},
+            {"type":"skill","name":"n","path":"/p"},{"type":"mention","name":"n","path":"/p"}]});
+        p.handle_frame(item_frame("item/started", full), &basis()).unwrap();
+        let full = json!({"type":"dynamicToolCall","id":"d2","tool":Tool::Summary.name(),"namespace":null,"arguments":{"x":1},
+            "status":"failed","success":false,"durationMs":3,"contentItems":[{"type":"inputText","text":"t"},{"type":"inputImage","imageUrl":"u"},{"type":"inputAudio","audioUrl":"u"}]});
+        p.handle_frame(item_frame("item/completed", full), &basis()).unwrap();
+        for (method, params) in [
+            ("item/reasoning/textDelta", json!({"threadId":"thread-1","turnId":"turn-1","itemId":"r","delta":"x","contentIndex":0})),
+            ("item/reasoning/summaryTextDelta", json!({"threadId":"thread-1","turnId":"turn-1","itemId":"r","delta":"x","summaryIndex":0})),
+            ("item/reasoning/summaryPartAdded", json!({"threadId":"thread-1","turnId":"turn-1","itemId":"r","summaryIndex":0})),
+            ("thread/compacted", json!({"threadId":"thread-1","turnId":"turn-1"})),
         ] {
-            p.handle_frame(
-                notification(method, json!({"threadId":"thread-1","turnId":"turn-1","itemId":"r"})),
-                &basis(),
-            )
-            .unwrap();
+            let actions = p.handle_frame(notification(method, params), &basis()).unwrap();
+            assert!(actions.events.is_empty() && actions.outbound.is_empty(), "{method}");
         }
         assert!(matches!(
             p.handle_frame(
@@ -1251,12 +2418,9 @@ mod tests {
             .as_slice(),
             [Event::MessageDelta { .. }]
         ));
-        let admitted: Vec<Value> = ADMITTED_ITEM_KINDS
-            .iter()
-            .map(|k| json!({"id":"i","type":k,"text":"t","tool":Tool::Summary.name(),"namespace":null}))
-            .collect();
+        let items = Value::Array(admitted_items());
         p.handle_frame(
-            notification("turn/started", json!({"threadId":"thread-1","turn":{"id":"turn-1","status":"inProgress","items":admitted}})),
+            notification("turn/started", json!({"threadId":"thread-1","turn":fixture::turn_with_items("turn-1", "inProgress", items.clone())})),
             &basis(),
         )
         .unwrap();
@@ -1269,7 +2433,7 @@ mod tests {
         ));
         assert!(matches!(
             p.handle_frame(
-                notification("turn/completed", json!({"threadId":"thread-1","turn":{"id":"turn-1","status":"completed","items":admitted}})),
+                notification("turn/completed", json!({"threadId":"thread-1","turn":fixture::turn_with_items("turn-1", "completed", items)})),
                 &basis()
             )
             .unwrap()
@@ -1280,84 +2444,333 @@ mod tests {
     }
 
     #[test]
-    fn unlisted_missing_or_malformed_item_kinds_end_the_session() {
-        let kinds = [
-            json!("hookPrompt"),
-            json!("plan"),
-            json!("enteredReviewMode"),
-            json!("exitedReviewMode"),
-            json!("functionCallOutput"),
-            json!("inventedKind"),
-            json!(""),
-            json!("AgentMessage"),
-            json!("agentmessage"),
-            json!("DYNAMICTOOLCALL"),
-            json!("CommandExecution"),
-            json!(" agentMessage"),
-            json!(1),
-            json!(true),
-            json!(null),
-            json!(["agentMessage"]),
-            json!({"type":"agentMessage"}),
-        ];
+    fn unlisted_kinds_are_unadmitted_and_malformed_items_are_malformed() {
         for method in ["item/started", "item/completed"] {
-            for kind in &kinds {
+            for kind in [
+                "hookPrompt",
+                "plan",
+                "enteredReviewMode",
+                "exitedReviewMode",
+                "functionCallOutput",
+                "inventedKind",
+                "",
+                "AgentMessage",
+                "agentmessage",
+                "DYNAMICTOOLCALL",
+                "CommandExecution",
+                " agentMessage",
+            ] {
                 let (p, reference) = active_with_pending();
                 let frame = item_frame(method, json!({"id":"item","type":kind,"text":"t"}));
                 assert_ends(p, reference, frame, UNLISTED_ITEM);
             }
-            for item in [json!({"id":"item","text":"t"}), json!("agentMessage"), json!(null)] {
+            let malformed = [
+                json!({"id":"item","type":1,"text":"t"}),
+                json!({"id":"item","type":true}),
+                json!({"id":"item","type":null}),
+                json!({"id":"item","type":["agentMessage"]}),
+                json!({"id":"item","type":{"type":"agentMessage"}}),
+                json!({"id":"item","text":"t"}),
+                json!("agentMessage"),
+                json!(null),
+                // Admitted kinds with a wrong type, a missing required
+                // member or an unknown member.
+                json!({"id":"u","type":"userMessage","content":null}),
+                json!({"id":"u","type":"userMessage"}),
+                json!({"id":"u","type":"userMessage","content":[{"type":"image"}]}),
+                json!({"id":"u","type":"userMessage","content":[{"type":"text","text":"t","extra":1}]}),
+                json!({"type":"contextCompaction","id":null}),
+                json!({"type":"contextCompaction"}),
+                json!({"type":"contextCompaction","id":"c","items":[{"type":"commandExecution"}]}),
+                json!({"type":"agentMessage","id":"m"}),
+                json!({"type":"agentMessage","id":"m","text":"t","phase":"other"}),
+                json!({"type":"reasoning","id":"r","summary":null}),
+                json!({"type":"reasoning","id":"r","content":[1]}),
+                json!({"type":"dynamicToolCall","id":"d","tool":Tool::Summary.name(),"status":"completed"}),
+                json!({"type":"dynamicToolCall","id":"d","tool":Tool::Summary.name(),"arguments":{},"status":"running"}),
+            ];
+            for item in malformed {
                 let (p, reference) = active_with_pending();
-                assert_ends(p, reference, item_frame(method, item), UNLISTED_ITEM);
+                assert_ends(p, reference, item_frame(method, item), MALFORMED);
             }
             let (p, reference) = active_with_pending();
-            let frame = notification(method, json!({"threadId":"thread-1","turnId":"turn-1"}));
-            assert_ends(p, reference, frame, UNLISTED_ITEM);
+            let frame = notification(method, json!({"threadId":"thread-1","turnId":"turn-1","startedAtMs":1,"completedAtMs":1}));
+            assert_ends(p, reference, frame, MALFORMED);
+        }
+        // The notification's own required and unknown members.
+        for params in [
+            json!({"threadId":"thread-1","turnId":"turn-1","item":fixture::user_message("u")}),
+            json!({"threadId":"thread-1","turnId":"turn-1","startedAtMs":"1","item":fixture::user_message("u")}),
+            json!({"threadId":"thread-1","turnId":"turn-1","startedAtMs":1,"item":fixture::user_message("u"),"items":[{"type":"commandExecution"}]}),
+        ] {
+            let (p, reference) = active_with_pending();
+            assert_ends(p, reference, notification("item/started", params), MALFORMED);
         }
     }
 
     #[test]
-    fn items_inside_turns_threads_and_item_keyed_methods_are_checked() {
-        let turn_with = |status: &str, item: Value| json!({"id":"turn-1","status":status,"items":[{"id":"ok","type":"userMessage"},item]});
+    fn items_inside_turns_and_threads_are_checked() {
+        let turn_with = |status: &str, item: Value| {
+            fixture::turn_with_items("turn-1", status, json!([fixture::user_message("ok"), item]))
+        };
         for (item, reason) in [
             (json!({"id":"x","type":"commandExecution"}), UNOFFERED_ACTIVITY),
             (json!({"id":"x","type":"plan"}), UNLISTED_ITEM),
-            (json!({"id":"x"}), UNLISTED_ITEM),
+            (json!({"id":"x"}), MALFORMED),
         ] {
             for frame in [
                 notification("turn/completed", json!({"threadId":"thread-1","turn":turn_with("completed", item.clone())})),
                 notification("turn/started", json!({"threadId":"thread-1","turn":turn_with("inProgress", item.clone())})),
-                notification("thread/started", json!({"thread":{"id":"thread-1","turns":[turn_with("completed", item.clone())]}})),
+                notification("thread/started", json!({"thread":fixture::thread_with_turns("thread-1", json!([turn_with("completed", item.clone())]))})),
             ] {
                 let (p, reference) = active_with_pending();
                 assert_ends(p, reference, frame, reason);
             }
         }
-        // A turn's items or a thread's turns that are not arrays are refused.
-        for frame in [
-            notification("turn/completed", json!({"threadId":"thread-1","turn":{"id":"turn-1","status":"completed","items":{"type":"agentMessage"}}})),
-            notification("thread/started", json!({"thread":{"id":"thread-1","turns":{}}})),
-        ] {
+    }
+
+    #[test]
+    fn non_object_or_incomplete_turns_and_threads_are_malformed() {
+        let cmd = json!({"id":"x","type":"commandExecution"});
+        let mut thread_without_turns = fixture::thread("thread-1");
+        thread_without_turns.as_object_mut().unwrap().remove("turns");
+        let mut thread_with_extra = fixture::thread("thread-1");
+        thread_with_extra["extra"] = json!({"items":[cmd.clone()]});
+        let mut thread_with_data = fixture::thread("thread-1");
+        thread_with_data["data"] = json!([{"items":[cmd.clone()]}]);
+        let frames = [
+            notification("thread/started", json!({"thread":fixture::thread_with_turns("thread-1", json!([[{"items":[cmd.clone()]}]]))})),
+            notification("thread/started", json!({"thread":fixture::thread_with_turns("thread-1", json!([null]))})),
+            notification("thread/started", json!({"thread":fixture::thread_with_turns("thread-1", json!(["turn"]))})),
+            notification("thread/started", json!({"thread":fixture::thread_with_turns("thread-1", json!(null))})),
+            notification("thread/started", json!({"thread":thread_without_turns})),
+            notification("thread/started", json!({"thread":thread_with_extra})),
+            notification("thread/started", json!({"thread":thread_with_data})),
+            notification("thread/started", json!({"thread":[{"turns":[{"items":[cmd.clone()]}]}]})),
+            notification("thread/started", json!({"thread":null})),
+            notification("thread/started", json!({})),
+            notification("turn/completed", json!({"threadId":"thread-1","turn":fixture::turn_with_items("turn-1", "completed", json!([[cmd.clone()]]))})),
+            notification("turn/completed", json!({"threadId":"thread-1","turn":fixture::turn_with_items("turn-1", "completed", json!([null]))})),
+            notification("turn/completed", json!({"threadId":"thread-1","turn":fixture::turn_with_items("turn-1", "completed", json!(null))})),
+            // A turn with no items list completes nothing.
+            notification("turn/completed", json!({"threadId":"thread-1","turn":{"id":"turn-1","status":"completed"}})),
+            notification("turn/completed", json!({"threadId":"thread-1","turn":{"id":"turn-1","status":"completed","items":[],"data":[cmd.clone()]}})),
+            notification("turn/completed", json!({"threadId":"thread-1","turn":null})),
+            notification("turn/completed", json!({"threadId":"thread-1","turn":fixture::turn("turn-1", "completed"),"thread":{"id":"thread-1"}})),
+            notification("turn/started", json!({"threadId":"thread-1","turn":[{"items":[cmd.clone()]}]})),
+        ];
+        for frame in frames {
             let (p, reference) = active_with_pending();
-            assert_ends(p, reference, frame, UNLISTED_ITEM);
+            assert_ends(p, reference, frame, MALFORMED);
         }
-        // Notifications keyed by item name its kind in the method.
-        for (method, reason) in [
-            ("item/commandExecution/outputDelta", UNOFFERED_ACTIVITY),
-            ("item/commandExecution/terminalInteraction", UNOFFERED_ACTIVITY),
-            ("item/fileChange/outputDelta", UNOFFERED_ACTIVITY),
-            ("item/fileChange/patchUpdated", UNOFFERED_ACTIVITY),
-            ("item/mcpToolCall/progress", UNOFFERED_ACTIVITY),
-            ("item/plan/delta", UNLISTED_ITEM),
-            ("item/autoApprovalReview/started", UNLISTED_ITEM),
-            ("item/inventedKind/delta", UNLISTED_ITEM),
-            ("item/tool/call", UNLISTED_ITEM),
-            ("item/", UNLISTED_ITEM),
+    }
+
+    #[test]
+    fn dynamic_tool_call_items_must_name_an_offered_tool_without_namespace() {
+        let mut p = active();
+        for tool in Tool::ALL {
+            for item in [
+                json!({"id":"d","type":"dynamicToolCall","tool":tool.name(),"arguments":{"x":"ignored"},"status":"completed"}),
+                json!({"id":"d","type":"dynamicToolCall","tool":tool.name(),"namespace":null,"arguments":null,"status":"inProgress"}),
+            ] {
+                for method in ["item/started", "item/completed"] {
+                    p.handle_frame(item_frame(method, item.clone()), &basis()).unwrap();
+                }
+                p.handle_frame(notification("turn/started", json!({"threadId":"thread-1","turn":fixture::turn_with_items("turn-1", "inProgress", json!([item.clone()]))})), &basis()).unwrap();
+            }
+        }
+        assert!(matches!(
+            p.handle_frame(call_summary(json!(7), "valid"), &basis()).unwrap().events.as_slice(),
+            [Event::ToolRequested { .. }]
+        ));
+        let call = |extra: Value| {
+            let mut item = json!({"id":"d","type":"dynamicToolCall","arguments":{},"status":"completed"});
+            item.as_object_mut().unwrap().extend(extra.as_object().unwrap().clone());
+            item
+        };
+        let cases = [
+            (call(json!({})), MALFORMED),
+            (call(json!({"tool":null})), MALFORMED),
+            (call(json!({"tool":1})), MALFORMED),
+            (call(json!({"tool":["x"]})), MALFORMED),
+            (call(json!({"tool":"shell"})), UNOFFERED_ACTIVITY),
+            (call(json!({"tool":""})), UNOFFERED_ACTIVITY),
+            (call(json!({"tool":Tool::Summary.name().to_uppercase()})), UNOFFERED_ACTIVITY),
+            (call(json!({"tool":format!("{} ", Tool::Summary.name())})), UNOFFERED_ACTIVITY),
+            (call(json!({"tool":Tool::Summary.name(),"namespace":"swbpipe"})), UNOFFERED_ACTIVITY),
+            (call(json!({"tool":Tool::Summary.name(),"namespace":""})), UNOFFERED_ACTIVITY),
+            (call(json!({"tool":Tool::Summary.name(),"namespace":{}})), MALFORMED),
+            (call(json!({"tool":Tool::Summary.name(),"namespace":1})), MALFORMED),
+        ];
+        for (item, reason) in cases {
+            let frames = [
+                item_frame("item/started", item.clone()),
+                item_frame("item/completed", item.clone()),
+                notification("turn/completed", json!({"threadId":"thread-1","turn":fixture::turn_with_items("turn-1", "completed", json!([item.clone()]))})),
+                notification("thread/started", json!({"thread":fixture::thread_with_turns("thread-1", json!([fixture::turn_with_items("old", "completed", json!([item.clone()]))]))})),
+            ];
+            for frame in frames {
+                let (p, reference) = active_with_pending();
+                assert_ends(p, reference, frame, reason);
+            }
+        }
+    }
+
+    #[test]
+    fn a_tool_call_request_for_an_unoffered_or_namespaced_tool_ends_the_session() {
+        let request = |tool: Value, namespace: Option<Value>| {
+            let mut c = json!({"id":"r1","method":"item/tool/call","params":{"threadId":"thread-1","turnId":"turn-1","callId":"c1","tool":tool,"arguments":{}}});
+            if let Some(ns) = namespace {
+                c["params"]["namespace"] = ns;
+            }
+            c
+        };
+        for (frame, reason) in [
+            (request(json!("shell"), None), UNOFFERED_ACTIVITY),
+            (request(json!("unknown"), None), UNOFFERED_ACTIVITY),
+            (request(json!(Tool::Summary.name()), Some(json!("swbpipe"))), UNOFFERED_ACTIVITY),
+            (request(json!(Tool::Summary.name()), Some(json!({}))), MALFORMED),
+            (request(json!(1), None), MALFORMED),
+            (json!({"id":"r1","method":"item/tool/call","params":{"threadId":"thread-1","turnId":"turn-1","callId":"c1","tool":Tool::Summary.name()}}), MALFORMED),
+            (json!({"id":"r1","method":"item/tool/call","params":{"threadId":"thread-1","turnId":"turn-1","callId":"c1","tool":Tool::Summary.name(),"arguments":{},"extra":1}}), MALFORMED),
+            (json!({"id":"r1","method":"item/tool/call"}), MALFORMED),
         ] {
             let (p, reference) = active_with_pending();
-            let frame = notification(method, json!({"threadId":"thread-1","turnId":"turn-1","itemId":"x"}));
             assert_ends(p, reference, frame, reason);
         }
+        // A null namespace is the absent one.
+        let mut p = active();
+        let ok = p.handle_frame(request(json!(Tool::Summary.name()), Some(json!(null))), &basis()).unwrap();
+        assert!(matches!(ok.events.as_slice(), [Event::ToolRequested { .. }]));
+    }
+
+    #[test]
+    fn every_server_request_but_the_tool_call_ends_the_session() {
+        for (method, reason) in REQUESTS
+            .iter()
+            .filter(|(m, _)| *m != "item/tool/call")
+            .map(|(m, class)| match class {
+                Notice::Ends(reason) => (*m, *reason),
+                _ => panic!("{m} must end the session"),
+            })
+            .chain([("remoteControl/enable", UNADMITTED_REQUEST), ("invented/request", UNADMITTED_REQUEST)])
+        {
+            let (p, reference) = active_with_pending();
+            let frame = json!({"id":"server-1","method":method,"params":{}});
+            assert_ends(p, reference, frame, reason);
+        }
+        assert_eq!(request_class("execCommandApproval"), Notice::Ends(UNOFFERED_ACTIVITY));
+        assert_eq!(request_class("currentTime/read"), Notice::Ends(UNADMITTED_REQUEST));
+    }
+
+    #[test]
+    fn every_notification_method_is_classified_and_unlisted_ones_end_the_session() {
+        // Each method that ends the session does so with its reason, whatever
+        // its parameters.
+        for (method, class) in NOTIFICATIONS {
+            if let Notice::Ends(reason) = class {
+                let (p, reference) = active_with_pending();
+                assert_ends(p, reference, notification(method, json!({"threadId":"thread-1"})), reason);
+            }
+        }
+        // The guardian review, hook and settings methods end it (the SWBPIPE
+        // Agent 0's decision), as do realtime items and methods not in the
+        // schema, including item-keyed ones for an admitted kind.
+        for method in [
+            "item/autoApprovalReview/started",
+            "item/autoApprovalReview/completed",
+            "autoApprovalReview/strictReviewRequired",
+            "hook/started",
+            "hook/completed",
+            "thread/settings/updated",
+            "thread/realtime/item/started",
+            "item/dynamicToolCall/progress",
+            "item/agentMessage/started",
+            "item/tool/call",
+            "item/",
+            "",
+        ] {
+            assert!(matches!(notice(method), Notice::Ends(_)), "{method}");
+            let (p, reference) = active_with_pending();
+            let reason = match notice(method) {
+                Notice::Ends(reason) => reason,
+                _ => unreachable!(),
+            };
+            let frame = if method.is_empty() {
+                json!({"method":"","params":{}})
+            } else {
+                notification(method, json!({"threadId":"thread-1"}))
+            };
+            assert_ends(p, reference, frame, if method.is_empty() { MALFORMED } else { reason });
+        }
+    }
+
+    #[test]
+    fn ignored_notifications_are_read_whole_and_carry_no_item() {
+        let accepted = [
+            ("error", json!({"error":{"message":"m","codexErrorInfo":{"httpConnectionFailed":{"httpStatusCode":502}},"additionalDetails":null},"threadId":"thread-1","turnId":"turn-1","willRetry":true})),
+            ("error", json!({"error":{"message":"m","codexErrorInfo":"contextWindowExceeded","misalignment":{"steer":{"message":"s"}}},"threadId":"thread-1","turnId":"turn-1","willRetry":false})),
+            ("thread/tokenUsage/updated", json!({"threadId":"thread-1","turnId":"turn-1","tokenUsage":{"last":{"cachedInputTokens":0,"inputTokens":1,"outputTokens":1,"reasoningOutputTokens":0,"totalTokens":2},"total":{"cachedInputTokens":0,"inputTokens":1,"outputTokens":1,"reasoningOutputTokens":0,"totalTokens":2,"cacheWriteInputTokens":0},"modelContextWindow":32768}})),
+            ("account/rateLimits/updated", json!({"rateLimits":{"primary":{"usedPercent":1,"resetsAt":null},"planType":"unknown","credits":{"hasCredits":false,"unlimited":false,"balance":null}}})),
+            ("account/rateLimits/updated", json!({"rateLimits":{}})),
+            ("remoteControl/status/changed", json!({"installationId":"i","serverName":"s","status":"disabled","environmentId":null})),
+            ("warning", json!({"message":"m"})),
+            ("warning", json!({"message":"m","threadId":"thread-1"})),
+            ("configWarning", json!({"summary":"s","range":{"start":{"line":1,"column":1},"end":{"line":1,"column":2}}})),
+            ("deprecationNotice", json!({"summary":"s","details":null})),
+            ("thread/compacted", json!({"threadId":"thread-1","turnId":"turn-1"})),
+            ("item/reasoning/textDelta", json!({"threadId":"thread-1","turnId":"turn-1","itemId":"r","delta":"x","contentIndex":0})),
+            ("item/reasoning/summaryTextDelta", json!({"threadId":"thread-1","turnId":"turn-1","itemId":"r","delta":"x","summaryIndex":0})),
+            ("item/reasoning/summaryPartAdded", json!({"threadId":"thread-1","turnId":"turn-1","itemId":"r","summaryIndex":0})),
+        ];
+        let mut p = active();
+        for (method, params) in accepted {
+            assert_eq!(notice(method), Notice::Ignored, "{method}");
+            let actions = p.handle_frame(notification(method, params), &basis()).unwrap();
+            assert!(actions.events.is_empty() && actions.outbound.is_empty(), "{method}");
+        }
+        // An unknown member, a wrong type or a missing member in an ignored
+        // notification's parameters is malformed: nothing rides along.
+        let refused = [
+            ("warning", json!({"message":"m","item":{"type":"commandExecution"}})),
+            ("warning", json!({"message":1})),
+            ("warning", json!({})),
+            ("thread/compacted", json!({"threadId":"thread-1","turnId":"turn-1","items":[{"type":"commandExecution"}]})),
+            ("account/rateLimits/updated", json!({"rateLimits":{"turn":{"items":[]}}})),
+            ("account/rateLimits/updated", json!({"rateLimits":{"planType":"invented"}})),
+            ("error", json!({"error":{"message":"m","codexErrorInfo":{"invented":{}}},"threadId":"thread-1","turnId":"turn-1","willRetry":true})),
+            ("remoteControl/status/changed", json!({"installationId":"i","serverName":"s","status":"open"})),
+            ("item/reasoning/textDelta", json!({"threadId":"thread-1","turnId":"turn-1","itemId":"r","delta":"x"})),
+            ("configWarning", json!({"summary":"s","range":{"start":{"line":-1,"column":1},"end":{"line":1,"column":2}}})),
+        ];
+        for (method, params) in refused {
+            let (p, reference) = active_with_pending();
+            assert_ends(p, reference, notification(method, params), MALFORMED);
+        }
+    }
+
+    #[test]
+    fn frames_are_closed_envelopes() {
+        for frame in [
+            json!({"method":"warning","params":{"message":"m"},"jsonrpc":"2.0"}),
+            json!({"method":"warning","params":{"message":"m"},"trace":{}}),
+            json!({"method":"warning","params":{"message":"m"},"result":{}}),
+            json!({"id":7,"result":{},"error":{"code":1,"message":"m"}}),
+            json!({"id":"x","method":"item/tool/call","params":{},"result":{}}),
+            json!({"method":null,"params":{}}),
+            json!({"id":null,"result":{}}),
+            json!({"id":1.5,"result":{}}),
+            json!([]),
+            json!("frame"),
+        ] {
+            let (p, reference) = active_with_pending();
+            assert_ends(p, reference, frame, MALFORMED);
+        }
+        // A request may carry a trace context, as the schema allows.
+        let mut p = active();
+        let mut c = call_summary(json!(8), "traced");
+        c["trace"] = json!({"traceparent":null});
+        assert!(matches!(p.handle_frame(c, &basis()).unwrap().events.as_slice(), [Event::ToolRequested { .. }]));
     }
 
     #[test]
@@ -1365,38 +2778,41 @@ mod tests {
         let mut p = active();
         p.take_observations();
         for _ in 0..2 {
-            p.handle_frame(item_frame("item/completed", json!({"id":"u","type":"userMessage","content":[{"type":"text","text":"SECRET"}]})), &basis()).unwrap();
-            p.handle_frame(item_frame("item/started", json!({"id":"r","type":"reasoning"})), &basis()).unwrap();
-            p.handle_frame(notification("item/reasoning/textDelta", json!({"threadId":"thread-1","turnId":"turn-1","itemId":"r","delta":"SECRET"})), &basis()).unwrap();
-            p.handle_frame(notification("hook/started", json!({"threadId":"thread-1","run":"SECRET"})), &basis()).unwrap();
+            let mut user = fixture::user_message("u");
+            user["content"][0]["text"] = json!("SECRET");
+            p.handle_frame(item_frame("item/completed", user), &basis()).unwrap();
+            p.handle_frame(item_frame("item/started", fixture::reasoning("r")), &basis()).unwrap();
+            p.handle_frame(notification("item/reasoning/textDelta", json!({"threadId":"thread-1","turnId":"turn-1","itemId":"r","delta":"SECRET","contentIndex":0})), &basis()).unwrap();
+            p.handle_frame(notification("warning", json!({"message":"SECRET"})), &basis()).unwrap();
         }
-        p.handle_frame(json!({"id":"approval","method":"item/commandExecution/requestApproval","params":{"command":"SECRET"}}), &basis()).unwrap();
         assert_eq!(
             p.take_observations(),
             [
                 "[native-smoke-agent-host] item kind userMessage via item/completed admitted",
                 "[native-smoke-agent-host] item kind reasoning via item/started admitted",
-                "[native-smoke-agent-host] item kind reasoning via item/reasoning/textDelta admitted",
                 "[native-smoke-agent-host] notification item/reasoning/textDelta ignored",
-                "[native-smoke-agent-host] notification hook/started ignored",
-                "[native-smoke-agent-host] server request item/commandExecution/requestApproval refused",
+                "[native-smoke-agent-host] notification warning ignored",
             ]
         );
         assert!(p.take_observations().is_empty());
-        // A refused kind is observed before the session ends, so the caller
+        // A refused frame is observed before the session ends, so the caller
         // still prints it.
-        let mut q = active();
-        q.take_observations();
-        assert!(q.handle_frame(item_frame("item/started", json!({"id":"h","type":"hookPrompt"})), &basis()).is_err());
-        assert_eq!(
-            q.take_observations(),
-            ["[native-smoke-agent-host] item kind hookPrompt via item/started refused"]
-        );
+        for (frame, line) in [
+            (item_frame("item/started", json!({"id":"h","type":"hookPrompt"})), "[native-smoke-agent-host] item kind hookPrompt via item/started refused"),
+            (notification("hook/started", json!({"threadId":"thread-1"})), "[native-smoke-agent-host] notification hook/started refused"),
+            (json!({"id":"a","method":"item/commandExecution/requestApproval","params":{"command":"SECRET"}}), "[native-smoke-agent-host] server request item/commandExecution/requestApproval refused"),
+        ] {
+            let mut q = active();
+            q.take_observations();
+            assert!(q.handle_frame(frame, &basis()).is_err());
+            assert_eq!(q.take_observations(), [line]);
+        }
         let mut r = ready();
         r.submit_text("hello".into()).unwrap();
         r.take_observations();
+        let items = json!([fixture::agent_message("m", "t"), {"id":"p","type":"plan"}]);
         assert!(r
-            .handle_frame(frame(3, json!({"turn":{"id":"turn-1","status":"inProgress","items":[{"type":"agentMessage"},{"type":"plan"}]}})), &basis())
+            .handle_frame(frame(3, json!({"turn":fixture::turn_with_items("turn-1", "inProgress", items)})), &basis())
             .is_err());
         assert_eq!(
             r.take_observations(),
@@ -1408,7 +2824,7 @@ mod tests {
     }
 
     #[test]
-    fn hostile_kind_or_method_names_put_no_content_on_the_line() {
+    fn observation_lines_name_only_what_the_schema_defines() {
         let marker = "SECRET";
         let hostile = [
             format!("agentMessage {marker}"),
@@ -1417,155 +2833,67 @@ mod tests {
             format!("{marker}{}", "x".repeat(64)),
             format!("{marker}.kind"),
             format!("{marker}\\n"),
+            format!("/private/{marker}"),
+            format!("private/{marker}"),
         ];
         let allowed = |line: &str| {
             line.starts_with("[native-smoke-agent-host] ")
-                && line.len() <= 26 + 64 * 2 + 40
                 && line[26..]
                     .bytes()
-                    .all(|b| b.is_ascii_alphanumeric() || b" /_-()".contains(&b))
+                    .all(|b| b.is_ascii_alphanumeric() || b" /_-".contains(&b))
                 && !line.contains(marker)
         };
         for name in &hostile {
-            let mut p = active();
-            p.take_observations();
-            let _ = p.handle_frame(item_frame("item/completed", json!({"id":"i","type":name,"text":marker})), &basis());
-            assert_eq!(
-                p.take_observations(),
-                ["[native-smoke-agent-host] item kind (unprintable) via item/completed refused"],
-                "{name}"
-            );
-            let mut q = active();
-            q.take_observations();
-            q.handle_frame(notification(&format!("thread/{name}"), json!({"threadId":"thread-1","x":marker})), &basis()).unwrap();
-            q.handle_frame(json!({"id":"rq","method":format!("x/{name}"),"params":{"x":marker}}), &basis()).unwrap();
-            let _ = q.handle_frame(notification(&format!("item/{name}/delta"), json!({"threadId":"thread-1"})), &basis());
-            let lines = q.take_observations();
-            assert_eq!(
-                lines,
-                [
-                    "[native-smoke-agent-host] notification (unprintable) ignored",
-                    "[native-smoke-agent-host] server request (unprintable) refused",
-                    "[native-smoke-agent-host] item kind (unprintable) via (unprintable) refused",
-                ],
-                "{name}"
-            );
-            assert!(lines.iter().all(|l| allowed(l)), "{lines:?}");
+            let cases = [
+                (item_frame("item/completed", json!({"id":"i","type":name,"text":marker})), "[native-smoke-agent-host] item kind unlisted via item/completed refused"),
+                (notification(name, json!({"threadId":"thread-1","x":marker})), "[native-smoke-agent-host] notification unlisted refused"),
+                (notification(&format!("item/{name}/delta"), json!({"threadId":"thread-1"})), "[native-smoke-agent-host] notification unlisted refused"),
+                (json!({"id":"rq","method":format!("x/{name}"),"params":{"x":marker}}), "[native-smoke-agent-host] server request unlisted refused"),
+            ];
+            for (frame, line) in cases {
+                let mut p = active();
+                p.take_observations();
+                assert!(p.handle_frame(frame, &basis()).is_err(), "{name}");
+                let lines = p.take_observations();
+                assert_eq!(lines, [line], "{name}");
+                assert!(lines.iter().all(|l| allowed(l)), "{lines:?}");
+            }
         }
-        for (kind, label) in [
-            (json!({"type":marker}), "(non-string)"),
-            (json!([marker]), "(non-string)"),
-            (json!(1), "(non-string)"),
-        ] {
+        for kind in [json!({"type":marker}), json!([marker]), json!(1), json!(null)] {
             let mut p = active();
             p.take_observations();
-            let _ = p.handle_frame(item_frame("item/started", json!({"id":"i","type":kind})), &basis());
-            let lines = p.take_observations();
-            assert_eq!(lines, [format!("[native-smoke-agent-host] item kind {label} via item/started refused")]);
-            assert!(lines.iter().all(|l| allowed(l)));
+            assert!(p.handle_frame(item_frame("item/started", json!({"id":"i","type":kind})), &basis()).is_err());
+            assert_eq!(p.take_observations(), ["[native-smoke-agent-host] item kind unlisted via item/started refused"]);
         }
         let mut p = active();
         p.take_observations();
-        let _ = p.handle_frame(item_frame("item/started", json!(marker)), &basis());
-        assert_eq!(
-            p.take_observations(),
-            ["[native-smoke-agent-host] item kind (malformed) via item/started refused"]
-        );
+        assert!(p.handle_frame(item_frame("item/started", json!(marker)), &basis()).is_err());
+        assert_eq!(p.take_observations(), ["[native-smoke-agent-host] item kind unlisted via item/started refused"]);
     }
 
     #[test]
     fn observation_lines_are_bounded_per_session() {
-        let mut p = active();
-        p.take_observations();
-        for n in 0..(observed::MAX_LINES * 2) {
-            p.handle_frame(notification(&format!("invented/m{n}"), json!({})), &basis()).unwrap();
+        let mut o = observed::Observed::default();
+        for (method, _) in NOTIFICATIONS {
+            o.notification(method, &json!({}), Notice::Ignored);
         }
-        let lines = p.take_observations();
+        let lines = o.take();
         assert_eq!(lines.len(), observed::MAX_LINES + 1);
         assert_eq!(lines.last().unwrap(), "[native-smoke-agent-host] observation limit reached");
-        p.handle_frame(notification("invented/more", json!({})), &basis()).unwrap();
-        assert!(p.take_observations().is_empty());
+        for (method, _) in NOTIFICATIONS {
+            o.notification(method, &json!({}), Notice::Ends(MALFORMED));
+        }
+        assert!(o.take().is_empty());
     }
 
     #[test]
-    fn dynamic_tool_call_items_must_name_an_offered_tool_without_namespace() {
-        // Every tool the catalog offers, with no or a null namespace, passes
-        // in each place an item can arrive.
-        let mut p = active();
-        for tool in Tool::ALL {
-            for item in [
-                json!({"id":"d","type":"dynamicToolCall","tool":tool.name(),"arguments":{"x":"ignored"},"status":"completed"}),
-                json!({"id":"d","type":"dynamicToolCall","tool":tool.name(),"namespace":null}),
-            ] {
-                for method in ["item/started", "item/completed"] {
-                    p.handle_frame(item_frame(method, item.clone()), &basis()).unwrap();
-                }
-                p.handle_frame(notification("turn/started", json!({"threadId":"thread-1","turn":{"id":"turn-1","status":"inProgress","items":[item.clone()]}})), &basis()).unwrap();
-            }
-        }
-        assert!(matches!(
-            p.handle_frame(call_summary(json!(7), "valid"), &basis()).unwrap().events.as_slice(),
-            [Event::ToolRequested { .. }]
-        ));
-        let cases = [
-            (json!({"id":"d","type":"dynamicToolCall"}), UNLISTED_ITEM),
-            (json!({"id":"d","type":"dynamicToolCall","tool":null}), UNLISTED_ITEM),
-            (json!({"id":"d","type":"dynamicToolCall","tool":1}), UNLISTED_ITEM),
-            (json!({"id":"d","type":"dynamicToolCall","tool":["x"]}), UNLISTED_ITEM),
-            (json!({"id":"d","type":"dynamicToolCall","tool":"shell"}), UNOFFERED_ACTIVITY),
-            (json!({"id":"d","type":"dynamicToolCall","tool":""}), UNOFFERED_ACTIVITY),
-            (json!({"id":"d","type":"dynamicToolCall","tool":Tool::Summary.name().to_uppercase()}), UNOFFERED_ACTIVITY),
-            (json!({"id":"d","type":"dynamicToolCall","tool":format!("{} ", Tool::Summary.name())}), UNOFFERED_ACTIVITY),
-            (json!({"id":"d","type":"dynamicToolCall","tool":Tool::Summary.name(),"namespace":"swbpipe"}), UNOFFERED_ACTIVITY),
-            (json!({"id":"d","type":"dynamicToolCall","tool":Tool::Summary.name(),"namespace":""}), UNOFFERED_ACTIVITY),
-            (json!({"id":"d","type":"dynamicToolCall","tool":Tool::Summary.name(),"namespace":{}}), UNOFFERED_ACTIVITY),
-        ];
-        for (item, reason) in cases {
-            let frames = [
-                item_frame("item/started", item.clone()),
-                item_frame("item/completed", item.clone()),
-                notification("turn/completed", json!({"threadId":"thread-1","turn":{"id":"turn-1","status":"completed","items":[item.clone()]}})),
-                notification("thread/started", json!({"thread":{"id":"thread-1","turns":[{"id":"old","status":"completed","items":[item.clone()]}]}})),
-            ];
-            for frame in frames {
-                let (p, reference) = active_with_pending();
-                assert_ends(p, reference, frame, reason);
-            }
-        }
-    }
-
-    #[test]
-    fn non_object_turns_threads_and_lists_end_the_session() {
-        let cmd = json!({"id":"x","type":"commandExecution"});
-        let frames = [
-            notification("thread/started", json!({"thread":{"id":"t","turns":[[{"items":[cmd.clone()]}]]}})),
-            notification("thread/started", json!({"thread":{"id":"t","turns":[null]}})),
-            notification("thread/started", json!({"thread":{"id":"t","turns":["turn"]}})),
-            notification("thread/started", json!({"thread":{"id":"t","turns":null}})),
-            notification("thread/started", json!({"thread":[{"turns":[{"items":[cmd.clone()]}]}]})),
-            notification("thread/started", json!({"thread":null})),
-            notification("thread/started", json!({"thread":{"id":"t","data":[{"items":[cmd.clone()]}]}})),
-            notification("turn/completed", json!({"threadId":"thread-1","turn":{"id":"turn-1","status":"completed","items":[[cmd.clone()]]}})),
-            notification("turn/completed", json!({"threadId":"thread-1","turn":{"id":"turn-1","status":"completed","items":[null]}})),
-            notification("turn/completed", json!({"threadId":"thread-1","turn":{"id":"turn-1","status":"completed","items":null}})),
-            notification("turn/completed", json!({"threadId":"thread-1","turn":{"id":"turn-1","status":"completed","items":[],"data":[cmd.clone()]}})),
-            notification("turn/completed", json!({"threadId":"thread-1","turn":null})),
-            notification("turn/started", json!({"threadId":"thread-1","turn":[{"items":[cmd.clone()]}]})),
-        ];
-        for frame in frames {
-            let (p, reference) = active_with_pending();
-            assert_ends(p, reference, frame, UNLISTED_ITEM);
-        }
-    }
-
-    #[test]
-    fn responses_hold_only_the_members_the_schema_defines_for_their_request() {
+    fn responses_are_read_into_the_type_of_their_request() {
         let cmd = json!([{"items":[{"type":"commandExecution"}]}]);
         // An interrupt response with its correct identity and an alternate list.
-        for result in [json!({"data":cmd.clone()}), json!({"turn":{"id":"turn-1","items":[]}}), json!([]), json!(null)] {
+        for result in [json!({"data":cmd.clone()}), json!({"turn":fixture::turn("turn-1", "completed")}), json!([]), json!(null)] {
             let (mut p, reference) = active_with_pending();
             assert_eq!(p.interrupt().unwrap()["id"], 4);
-            assert_ends(p, reference, frame(4, result), UNLISTED_RESPONSE_MEMBER);
+            assert_ends(p, reference, frame(4, result), MALFORMED);
         }
         // The interrupt response the schema defines is still acknowledged.
         let (mut p, _reference) = active_with_pending();
@@ -1576,24 +2904,34 @@ mod tests {
         ));
         // Initialize, thread/start and turn/start responses precede any call,
         // so no call can be pending; each refusal still ends the session.
-        let init = |extra: Value| {
-            let mut v = json!({"codexHome":"/private","platformFamily":"test","platformOs":"test","userAgent":"test"});
-            v.as_object_mut().unwrap().extend(extra.as_object().unwrap().clone());
-            v
-        };
-        let mut p = Protocol::new(Catalog::load().unwrap(), "0123456789abcdef".into(), 16).unwrap();
-        p.initialize("test", "1").unwrap();
-        assert_eq!(
-            p.handle_frame(frame(1, init(json!({"data":cmd.clone()}))), &basis()).err(),
-            Some(UNLISTED_RESPONSE_MEMBER)
-        );
-        assert_eq!(p.refusal(), Some(Refusal::Malformed));
-        assert!(p.handle_frame(frame(1, init(json!({}))), &basis()).is_err());
-        assert!(p.disconnect().is_empty());
+        for result in [
+            {
+                let mut v = fixture::initialize_result();
+                v["data"] = cmd.clone();
+                v
+            },
+            {
+                let mut v = fixture::initialize_result();
+                v["codexHome"] = json!(1);
+                v
+            },
+            {
+                let mut v = fixture::initialize_result();
+                v.as_object_mut().unwrap().remove("userAgent");
+                v
+            },
+        ] {
+            let mut p = Protocol::new(Catalog::load().unwrap(), "0123456789abcdef".into(), 16).unwrap();
+            p.initialize("test", "1").unwrap();
+            assert_eq!(p.handle_frame(frame(1, result), &basis()).err(), Some(MALFORMED));
+            assert_eq!(p.refusal(), Some(Refusal::Malformed));
+            assert!(p.handle_frame(frame(1, fixture::initialize_result()), &basis()).is_err());
+            assert!(p.disconnect().is_empty());
+        }
         let thread_start = |result: Value| {
             let mut q = Protocol::new(Catalog::load().unwrap(), "0123456789abcdef".into(), 16).unwrap();
             q.initialize("test", "1").unwrap();
-            q.handle_frame(frame(1, init(json!({}))), &basis()).unwrap();
+            q.handle_frame(frame(1, fixture::initialize_result()), &basis()).unwrap();
             q.start_thread(ThreadOptions {
                 model: "test".into(),
                 provider: "test".into(),
@@ -1604,21 +2942,73 @@ mod tests {
             let outcome = q.handle_frame(frame(2, result), &basis()).err();
             (q, outcome)
         };
+        let with = |path: &[&str], value: Value| {
+            let mut v = fixture::thread_start_result("thread-1");
+            let mut at = &mut v;
+            for key in &path[..path.len() - 1] {
+                at = &mut at[*key];
+            }
+            at[path[path.len() - 1]] = value;
+            v
+        };
+        let without = |key: &str| {
+            let mut v = fixture::thread_start_result("thread-1");
+            v.as_object_mut().unwrap().remove(key);
+            v
+        };
         for (result, reason) in [
-            (json!({"thread":{"id":"thread-1"},"approvalPolicy":"never","sandbox":{"type":"readOnly","networkAccess":false},"turns":cmd.clone()}), UNLISTED_RESPONSE_MEMBER),
-            (json!({"thread":{"id":"thread-1","data":cmd.clone()},"approvalPolicy":"never","sandbox":{"type":"readOnly","networkAccess":false}}), UNLISTED_ITEM),
-            (json!({"thread":{"id":"thread-1","turns":[null]},"approvalPolicy":"never","sandbox":{"type":"readOnly","networkAccess":false}}), UNLISTED_ITEM),
+            (with(&["turns"], cmd.clone()), MALFORMED),
+            (with(&["model"], json!({"items":[{"id":"c","type":"commandExecution"}]})), MALFORMED),
+            (with(&["thread", "data"], cmd.clone()), MALFORMED),
+            (with(&["thread", "turns"], json!([null])), MALFORMED),
+            (with(&["thread", "extra"], json!({"note":"x"})), MALFORMED),
+            (with(&["sandbox", "networkAccess"], json!("no")), MALFORMED),
+            (with(&["approvalsReviewer"], json!("invented")), MALFORMED),
+            (without("approvalsReviewer"), MALFORMED),
+            (without("thread"), MALFORMED),
+            (with(&["thread", "turns"], json!([fixture::turn_with_items("old", "completed", json!([{"id":"w","type":"webSearch"}]))])), UNOFFERED_ACTIVITY),
+            (with(&["approvalPolicy"], json!("on-request")), Error("unexpected thread policy")),
+            (with(&["sandbox"], json!({"type":"workspaceWrite"})), Error("unexpected thread policy")),
+            (with(&["sandbox", "networkAccess"], json!(true)), Error("unexpected thread policy")),
+            (with(&["thread", "ephemeral"], json!(false)), Error("unexpected thread policy")),
         ] {
             let (mut q, outcome) = thread_start(result);
             assert_eq!(outcome, Some(reason));
             assert!(q.submit_text("next".into()).is_err());
             assert!(q.disconnect().is_empty());
         }
-        let (_, accepted) = thread_start(json!({"thread":{"id":"thread-1","turns":[]},"approvalPolicy":"never","sandbox":{"type":"readOnly","networkAccess":false},"model":"m","cwd":"/test"}));
-        assert_eq!(accepted, None);
+        for result in [
+            fixture::thread_start_result("thread-1"),
+            with(&["thread", "extra"], json!({})),
+            with(&["approvalPolicy"], json!("never")),
+            {
+                let mut v = with(&["thread", "turns"], json!([]));
+                for (k, value) in [
+                    ("activePermissionProfile", json!({"id":":read-only","extends":null})),
+                    ("disabledPluginIds", json!([])),
+                    ("instructionSources", json!([])),
+                    ("multiAgentMode", json!("explicitRequestOnly")),
+                    ("reasoningEffort", json!("low")),
+                    ("runtimeWorkspaceRoots", json!([])),
+                    ("serviceTier", json!(null)),
+                ] {
+                    v[k] = value;
+                }
+                v["thread"]["environments"] = json!([]);
+                v["thread"]["gitInfo"] = json!({"branch":null});
+                v["thread"]["status"] = json!({"type":"active","activeFlags":[]});
+                v["thread"]["source"] = json!({"subAgent":{"thread_spawn":{"depth":1,"parent_thread_id":"p"}}});
+                v
+            },
+        ] {
+            let (_, accepted) = thread_start(result);
+            assert_eq!(accepted, None);
+        }
         for (result, reason) in [
-            (json!({"turn":turn("turn-1", "inProgress"),"items":cmd.clone()}), UNLISTED_RESPONSE_MEMBER),
-            (json!({"turn":{"id":"turn-1","status":"inProgress","items":[],"data":cmd.clone()}}), UNLISTED_ITEM),
+            (json!({"turn":fixture::turn("turn-1", "inProgress"),"items":cmd.clone()}), MALFORMED),
+            (json!({"turn":{"id":"turn-1","status":"inProgress","items":[],"data":cmd.clone()}}), MALFORMED),
+            (json!({"turn":{"id":"turn-1","status":"inProgress"}}), MALFORMED),
+            (json!({"turn":fixture::turn_with_items("turn-1", "inProgress", json!([{"id":"h","type":"hookPrompt"}]))}), UNLISTED_ITEM),
         ] {
             let mut r = ready();
             r.submit_text("hello".into()).unwrap();
@@ -1632,8 +3022,13 @@ mod tests {
     fn refusals_carry_a_closed_payload_free_class() {
         for (frame, class) in [
             (item_frame("item/started", json!({"id":"x","type":"webSearch"})), "runtime_tool_activity"),
-            (item_frame("item/started", json!({"id":"x","type":"plan"})), "unadmitted_item"),
-            (item_frame("item/started", json!({"id":"x","type":"dynamicToolCall","tool":"shell"})), "runtime_tool_activity"),
+            (item_frame("item/started", json!({"id":"x","type":"plan"})), "unadmitted_report"),
+            (item_frame("item/started", fixture::dynamic_tool_call("x", "shell")), "runtime_tool_activity"),
+            (notification("hook/started", json!({})), "unadmitted_report"),
+            (notification("turn/plan/updated", json!({})), "runtime_tool_activity"),
+            (json!({"id":"s","method":"currentTime/read","params":{}}), "unadmitted_report"),
+            (json!({"id":"s","method":"execCommandApproval","params":{}}), "runtime_tool_activity"),
+            (item_frame("item/started", json!({"id":"x","type":"dynamicToolCall","tool":"shell","namespace":{},"arguments":{},"status":"completed"})), "malformed_report"),
             (json!({"id":999,"result":{}}), "malformed_report"),
         ] {
             let mut p = active();
@@ -1646,19 +3041,90 @@ mod tests {
         }
     }
 
+    // The schema's own lists, extracted from the 0.160.0 schema copy
+    // `codex_app_server_protocol.schemas.json` (SHA-256 below) and embedded
+    // here so that no file outside the repository is read at test time.
+    const SCHEMA_SHA256: &str = "7243ba241962af92ca60581f1a81808ebda4212a800f8b205f54703bcfd508c5";
+    const SCHEMA_NOTIFICATION_METHODS: [&str; 83] = [
+        "error", "thread/started", "thread/status/changed", "thread/archived", "thread/deleted",
+        "thread/unarchived", "thread/closed", "thread/reverted", "skills/changed",
+        "thread/name/updated", "thread/attachment/updated", "thread/goal/updated",
+        "thread/goal/cleared", "thread/queue/changed", "project/changed", "thread/project/updated",
+        "thread/environment/connected", "thread/environment/disconnected",
+        "thread/settings/updated", "thread/tokenUsage/updated", "turn/started", "hook/started",
+        "turn/completed", "hook/completed", "turn/diff/updated", "turn/plan/updated",
+        "item/started", "item/autoApprovalReview/started", "item/autoApprovalReview/completed",
+        "autoApprovalReview/strictReviewRequired", "item/completed", "item/agentMessage/delta",
+        "item/plan/delta", "command/exec/outputDelta", "process/outputDelta", "process/exited",
+        "item/commandExecution/outputDelta", "item/commandExecution/terminalInteraction",
+        "item/fileChange/outputDelta", "item/fileChange/patchUpdated", "serverRequest/resolved",
+        "item/mcpToolCall/progress", "mcpServer/oauthLogin/completed",
+        "mcpServer/startupStatus/updated", "mcpServer/event/stream/notification",
+        "account/updated", "account/gatewayOAuth/changed", "account/rateLimits/updated",
+        "app/list/updated", "remoteControl/status/changed", "externalAgentConfig/import/progress",
+        "externalAgentConfig/import/completed", "fs/changed", "item/reasoning/summaryTextDelta",
+        "item/reasoning/summaryPartAdded", "item/reasoning/textDelta", "thread/compacted",
+        "model/rerouted", "model/verification", "modelProvider/authRecoveryStarted",
+        "modelProvider/authRecoveryCompleted", "turn/moderationMetadata",
+        "model/safetyBuffering/updated", "warning", "guardianWarning", "deprecationNotice",
+        "configWarning", "fuzzyFileSearch/sessionUpdated", "fuzzyFileSearch/sessionCompleted",
+        "thread/realtime/started", "thread/realtime/itemAdded", "thread/realtime/item/started",
+        "thread/realtime/item/transcript/delta", "thread/realtime/item/completed",
+        "thread/realtime/transcript/delta", "thread/realtime/transcript/done",
+        "thread/realtime/outputAudio/delta", "thread/realtime/sdp", "thread/realtime/error",
+        "thread/realtime/closed", "windows/worldWritableWarning", "windowsSandbox/setupCompleted",
+        "account/login/completed",
+    ];
+    const SCHEMA_REQUEST_METHODS: [&str; 11] = [
+        "item/commandExecution/requestApproval", "item/fileChange/requestApproval",
+        "item/tool/requestUserInput", "mcpServer/elicitation/request",
+        "item/permissions/requestApproval", "item/tool/call", "account/chatgptAuthTokens/refresh",
+        "attestation/generate", "currentTime/read", "applyPatchApproval", "execCommandApproval",
+    ];
+    const SCHEMA_THREAD_ITEM_KINDS: [&str; 19] = [
+        "userMessage", "hookPrompt", "agentMessage", "functionCallOutput", "plan", "reasoning",
+        "commandExecution", "fileChange", "mcpToolCall", "dynamicToolCall", "collabAgentToolCall",
+        "subAgentActivity", "webSearch", "imageView", "sleep", "imageGeneration",
+        "enteredReviewMode", "exitedReviewMode", "contextCompaction",
+    ];
+
+    #[test]
+    fn the_tables_match_the_schema_method_and_kind_lists() {
+        assert_eq!(SCHEMA_SHA256.len(), 64);
+        let sorted = |mut v: Vec<&'static str>| {
+            v.sort_unstable();
+            v
+        };
+        assert_eq!(
+            sorted(NOTIFICATIONS.iter().map(|(m, _)| *m).collect()),
+            sorted(SCHEMA_NOTIFICATION_METHODS.to_vec())
+        );
+        assert_eq!(
+            sorted(REQUESTS.iter().map(|(m, _)| *m).collect()),
+            sorted(SCHEMA_REQUEST_METHODS.to_vec())
+        );
+        assert_eq!(sorted(SCHEMA_ITEM_KINDS.to_vec()), sorted(SCHEMA_THREAD_ITEM_KINDS.to_vec()));
+        // The confirmed classification: seven handled, eleven ignored.
+        let count = |class: fn(&Notice) -> bool| NOTIFICATIONS.iter().filter(|(_, c)| class(c)).count();
+        assert_eq!(count(|c| *c == Notice::Handled), 7);
+        assert_eq!(count(|c| *c == Notice::Ignored), 11);
+        assert_eq!(count(|c| matches!(c, Notice::Ends(_))), 65);
+        assert_eq!(REQUESTS.iter().filter(|(_, c)| *c == Notice::Handled).count(), 1);
+    }
+
     #[test]
     fn items_in_thread_and_turn_responses_are_checked() {
-        let unlisted = json!([{"id":"x","type":"hookPrompt"}]);
+        let unlisted = json!([{"id":"h","type":"hookPrompt"}]);
         let mut p = ready();
         p.submit_text("hello".into()).unwrap();
         assert_eq!(
-            p.handle_frame(frame(3, json!({"turn":{"id":"turn-1","status":"inProgress","items":unlisted}})), &basis())
+            p.handle_frame(frame(3, json!({"turn":fixture::turn_with_items("turn-1", "inProgress", unlisted)})), &basis())
                 .err(),
             Some(UNLISTED_ITEM)
         );
         let mut q = Protocol::new(Catalog::load().unwrap(), "0123456789abcdef".into(), 16).unwrap();
         q.initialize("test", "1").unwrap();
-        q.handle_frame(frame(1, json!({"codexHome":"/private","platformFamily":"test","platformOs":"test","userAgent":"test"})), &basis()).unwrap();
+        q.handle_frame(frame(1, fixture::initialize_result()), &basis()).unwrap();
         q.start_thread(ThreadOptions {
             model: "test".into(),
             provider: "test".into(),
@@ -1666,12 +3132,9 @@ mod tests {
             base_instructions: "test".into(),
         })
         .unwrap();
-        let thread = json!({"id":"thread-1","turns":[{"id":"old","status":"completed","items":[{"id":"x","type":"webSearch"}]}]});
-        assert_eq!(
-            q.handle_frame(frame(2, json!({"thread":thread,"approvalPolicy":"never","sandbox":{"type":"readOnly","networkAccess":false}})), &basis())
-                .err(),
-            Some(UNOFFERED_ACTIVITY)
-        );
+        let mut result = fixture::thread_start_result("thread-1");
+        result["thread"]["turns"] = json!([fixture::turn_with_items("old", "completed", json!([{"id":"x","type":"webSearch"}]))]);
+        assert_eq!(q.handle_frame(frame(2, result), &basis()).err(), Some(UNOFFERED_ACTIVITY));
     }
 
     #[test]
@@ -1782,11 +3245,12 @@ mod tests {
         )
         .unwrap();
         assert!(p.catalog.validate_output(Tool::Summary, &value).is_ok());
-        let unknown = p
-            .handle_frame(call(json!(10), "unknown", "unknown", json!({})), &basis())
-            .unwrap();
-        assert!(unknown.events.is_empty());
-        assert_eq!(unknown.outbound[0]["error"]["code"], -32601);
+        // A call of a tool the catalog does not offer now ends the session:
+        // the supplier forwards only declared tools, so it is not as pinned.
+        let unknown = p.handle_frame(call(json!(10), "unknown", "unknown", json!({})), &basis());
+        assert_eq!(unknown.err(), Some(UNOFFERED_ACTIVITY));
+        assert_eq!(p.refusal(), Some(Refusal::ToolActivity));
+        assert!(p.handle_frame(call_summary(json!(11), "after"), &basis()).is_err());
         let mut q = active();
         assert!(q
             .handle_frame(

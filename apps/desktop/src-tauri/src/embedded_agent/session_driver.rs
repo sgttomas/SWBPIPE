@@ -728,7 +728,7 @@ mod tests {
                 self.control(|d| d.submit_text("early")),
                 Err(Refusal::InvalidControl)
             );
-            self.input.frame(json!({"id":2,"result":{"thread":{"id":"thread-1"},"approvalPolicy":"never","sandbox":{"type":"readOnly","networkAccess":false}}}));
+            self.input.frame(json!({"id":2,"result":crate::embedded_agent::protocol::fixture::thread_start_result("thread-1")}));
             assert!(matches!(
                 self.event().events(),
                 [Event::ThreadStarted { .. }]
@@ -745,6 +745,21 @@ mod tests {
                 json!({"id":3,"result":{"turn":{"id":"turn-1","items":[],"status":"inProgress"}}}),
             );
             assert!(matches!(self.event().events(), [Event::TurnStarted { .. }]));
+        }
+        /// Up to the thread/start request, before its response.
+        fn starting(&mut self) {
+            assert_eq!(
+                self.control(|d| d.initialize("test", "1")),
+                Ok(Submission::Queued)
+            );
+            self.sent(1);
+            self.input.frame(json!({"id":1,"result":crate::embedded_agent::protocol::fixture::initialize_result()}));
+            assert!(matches!(self.event().events(), [Event::Initialized]));
+            assert_eq!(
+                self.control(|d| d.start_thread(&options())),
+                Ok(Submission::Queued)
+            );
+            self.sent(3);
         }
         fn call(&self, id: &str) {
             self.input.frame(json!({"id":id,"method":"item/tool/call","params":{"threadId":"thread-1","turnId":"turn-1","callId":id,"tool":Tool::Summary.name(),"arguments":{}}}));
@@ -902,15 +917,17 @@ mod tests {
             h.active();
             h.call("rpc");
             let _requested = h.event();
-            h.input.frame(json!({"method":"item/started","params":{"threadId":"thread-1","turnId":"turn-1","item":{"id":"item","type":kind}}}));
+            h.input.frame(json!({"method":"item/started","params":{"threadId":"thread-1","turnId":"turn-1","startedAtMs":1,"item":{"id":"item","type":kind}}}));
             let o = h.wait(|o| o.terminal.is_some());
             assert_eq!(o.terminal, Some(Terminal::Protocol), "{kind}");
             assert_eq!(
                 h.d().refusal(),
                 Some(if kind == json!("commandExecution") {
                     protocol::Refusal::ToolActivity
+                } else if kind.is_string() {
+                    protocol::Refusal::Unadmitted
                 } else {
-                    protocol::Refusal::UnadmittedItem
+                    protocol::Refusal::Malformed
                 }),
                 "{kind}"
             );
@@ -941,6 +958,119 @@ mod tests {
             ));
             assert!(h.wait(|_| true).events.is_none());
             assert_eq!(h.control(|d| d.submit_text("again")), Err(Refusal::Closed));
+        }
+    }
+    /// Drive raw bytes into an active session with one pending call and
+    /// observe the ending as a caller does: a protocol end with its refusal
+    /// class, the pending call lost exactly once, then nothing, then closed.
+    fn ends_with(raw: &[u8], before: impl FnOnce(&mut Harness), class: protocol::Refusal) {
+        let label = String::from_utf8_lossy(raw).into_owned();
+        let mut h = Harness::new();
+        h.active();
+        h.call("rpc");
+        let _requested = h.event();
+        before(&mut h);
+        h.input.raw(raw);
+        let o = h.wait(|o| o.terminal.is_some());
+        assert_eq!(o.terminal, Some(Terminal::Protocol), "{label}");
+        assert_eq!(h.d().refusal(), Some(class), "{label}");
+        assert!(
+            matches!(o.events.unwrap().events(), [Event::ToolLost { .. }]),
+            "{label}"
+        );
+        assert!(h.wait(|_| true).events.is_none(), "{label}");
+        assert_eq!(h.control(|d| d.submit_text("again")), Err(Refusal::Closed), "{label}");
+    }
+    #[test]
+    fn the_reviewers_surviving_frames_end_the_session() {
+        use protocol::Refusal::{Malformed, ToolActivity, Unadmitted};
+        let cases: [(&[u8], protocol::Refusal); 10] = [
+            (br#"{"method":"thread/realtime/item/started","params":{"threadId":"thread-1","item":{"id":"rt-1","realtimeSessionId":"rt","type":"realtimeSessionStarted"}}}"#, Unadmitted),
+            (br#"{"method":"item/dynamicToolCall/progress","params":{"item":{"id":"d","type":"dynamicToolCall","tool":"shell"}}}"#, Unadmitted),
+            (br#"{"method":"item/started","params":{"threadId":"thread-1","turnId":"turn-1","startedAtMs":1,"item":{"id":"u","type":"userMessage","content":null}}}"#, Malformed),
+            (br#"{"method":"item/started","params":{"threadId":"thread-1","turnId":"turn-1","startedAtMs":1,"item":{"type":"contextCompaction","id":null}}}"#, Malformed),
+            (br#"{"method":"turn/completed","params":{"threadId":"thread-1","turn":{"id":"turn-1","status":"completed"}}}"#, Malformed),
+            (br#"{"id":"r1","method":"item/tool/call","params":{"threadId":"thread-1","turnId":"turn-1","callId":"c1","tool":"shell","arguments":{}}}"#, ToolActivity),
+            (br#"{"id":"r1","method":"item/tool/call","params":{"threadId":"thread-1","turnId":"turn-1","callId":"c1","tool":"invented_summary","namespace":"x","arguments":{}}}"#, ToolActivity),
+            (br#"{"method":"item/started","params":{"threadId":"thread-1","turnId":"turn-1","startedAtMs":1,"item":{"id":"d","type":"dynamicToolCall","tool":"x","namespace":{},"arguments":{},"status":"completed"}}}"#, Malformed),
+            (br#"{"id":"s1","method":"item/commandExecution/requestApproval","params":{}}"#, ToolActivity),
+            (br#"{"method":"hook/started","params":{}}"#, Unadmitted),
+        ];
+        for (raw, class) in cases {
+            ends_with(raw, |_| {}, class);
+        }
+        // An unoffered tool's call request with the offered name and a namespace.
+        let namespaced = format!(
+            r#"{{"id":"r1","method":"item/tool/call","params":{{"threadId":"thread-1","turnId":"turn-1","callId":"c1","tool":"{}","namespace":"x","arguments":{{}}}}}}"#,
+            Tool::Summary.name()
+        );
+        ends_with(namespaced.as_bytes(), |_| {}, ToolActivity);
+        // An interrupt response with its correct identity and an alternate list.
+        ends_with(
+            br#"{"id":4,"result":{"data":[{"items":[{"type":"commandExecution"}]}]}}"#,
+            |h| {
+                assert_eq!(h.control(|d| d.interrupt()), Ok(Submission::Queued));
+                assert_eq!(h.sent(5)[4]["method"], "turn/interrupt");
+            },
+            Malformed,
+        );
+    }
+    #[test]
+    fn a_thread_start_response_hiding_items_in_a_listed_member_ends_the_session() {
+        let mut result = crate::embedded_agent::protocol::fixture::thread_start_result("thread-1");
+        result["model"] = json!({"items":[{"id":"c","type":"commandExecution"}]});
+        let raw = serde_json::to_vec(&json!({"id":2,"result":result})).unwrap();
+        let mut h = Harness::new();
+        h.starting();
+        h.input.raw(&raw);
+        let o = h.wait(|o| o.terminal.is_some());
+        assert_eq!(o.terminal, Some(Terminal::Protocol));
+        assert_eq!(h.d().refusal(), Some(protocol::Refusal::Malformed));
+        assert_eq!(h.control(|d| d.submit_text("again")), Err(Refusal::Closed));
+    }
+    /// A frame written with a placeholder member first, then that member
+    /// renamed to `key` on the raw bytes: two members with the same decoded
+    /// name, the second of which would be admitted if only it were kept.
+    fn duplicated(frame: Value, key: &str) -> Vec<u8> {
+        let raw = serde_json::to_string(&frame).unwrap();
+        assert_eq!(raw.matches("\"a_dup\"").count(), 1);
+        raw.replacen("\"a_dup\"", key, 1).into_bytes()
+    }
+    #[test]
+    fn ten_duplicate_member_cases_end_the_session_through_the_driver() {
+        use crate::embedded_agent::protocol::fixture;
+        let started = |item: Value| json!({"method":"item/started","params":fixture::item_params("item/started", "thread-1", "turn-1", item)});
+        let mut user = json!({"a_dup":"commandExecution"});
+        user.as_object_mut().unwrap().extend(fixture::user_message("i").as_object().unwrap().clone());
+        let mut item_params = json!({"a_dup":{"id":"x","type":"commandExecution"}});
+        item_params.as_object_mut().unwrap().extend(fixture::item_params("item/started", "thread-1", "turn-1", fixture::user_message("u")).as_object().unwrap().clone());
+        let web = json!([{"id":"w","type":"webSearch"}]);
+        let mut thread = json!({"a_dup":[fixture::turn_with_items("old", "completed", json!([{"id":"f","type":"fileChange"}]))]});
+        thread.as_object_mut().unwrap().extend(fixture::thread("thread-1").as_object().unwrap().clone());
+        let text = json!({"type":"userMessage","id":"u","content":[{"a_dup":"x","type":"text","text":"y"}]});
+        let cases: Vec<(Vec<u8>, bool)> = vec![
+            (duplicated(started(user.clone()), "\"type\""), false),
+            (duplicated(json!({"method":"item/started","params":item_params}), "\"item\""), false),
+            (duplicated(json!({"method":"turn/completed","params":{"threadId":"thread-1","turn":{"a_dup":web.clone(),"id":"turn-1","items":[],"status":"completed"}}}), "\"items\""), false),
+            (duplicated(json!({"method":"turn/completed","params":{"a_dup":fixture::turn_with_items("turn-1", "completed", web.clone()),"threadId":"thread-1","turn":fixture::turn("turn-1", "completed")}}), "\"turn\""), false),
+            (duplicated(json!({"method":"thread/started","params":{"thread":thread}}), "\"turns\""), false),
+            (duplicated(json!({"a_dup":fixture::item_params("item/started", "thread-1", "turn-1", json!({"id":"x","type":"fileChange"})),"method":"item/started","params":fixture::item_params("item/started", "thread-1", "turn-1", fixture::user_message("u"))}), "\"params\""), false),
+            (duplicated(json!({"a_dup":{"data":[{"items":[{"type":"commandExecution"}]}]},"id":4,"result":{}}), "\"result\""), true),
+            (duplicated(started(user), "\"t\\u0079pe\""), false),
+            (duplicated(started(text), "\"text\""), false),
+            (duplicated(json!({"method":"thread/status/changed","params":{"a_dup":{"type":"active","activeFlags":["waitingOnApproval"]},"status":{"type":"idle"},"threadId":"thread-1"}}), "\"status\""), false),
+        ];
+        for (raw, interrupt) in cases {
+            ends_with(
+                &raw,
+                |h| {
+                    if interrupt {
+                        assert_eq!(h.control(|d| d.interrupt()), Ok(Submission::Queued));
+                        h.sent(5);
+                    }
+                },
+                protocol::Refusal::Malformed,
+            );
         }
     }
     #[test]

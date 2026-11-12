@@ -1144,7 +1144,7 @@ mod tests {
             base_instructions: "invented".into(),
         })
         .unwrap();
-        for event in p.handle_frame(json!({"id":2,"result":{"thread":{"id":"thread-1"},"approvalPolicy":"never","sandbox":{"type":"readOnly","networkAccess":false}}}),&basis).unwrap().events{w.bridge.observe(&event).unwrap();}
+        for event in p.handle_frame(json!({"id":2,"result":crate::embedded_agent::protocol::fixture::thread_start_result("thread-1")}),&basis).unwrap().events{w.bridge.observe(&event).unwrap();}
         p.submit_text("invented".into()).unwrap();
         for event in p
             .handle_frame(

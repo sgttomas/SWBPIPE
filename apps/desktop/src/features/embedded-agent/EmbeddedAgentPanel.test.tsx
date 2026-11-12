@@ -20,9 +20,9 @@ function setup(configured=true){
 }
 describe('minimal embedded agent panel',()=>{
  it.each([
-  ['runtime_tool_activity','The agent runtime used a tool of its own, which this application does not admit. The session was ended.'],
-  ['unadmitted_item','The agent runtime reported an item this application does not admit. The session was ended.'],
-  ['malformed_report','The agent runtime sent a message this application could not read. The session was ended.'],
+  ['runtime_tool_activity','The agent runtime reported tool activity this application does not admit. The session was ended.'],
+  ['unadmitted_report','The agent runtime reported an item, a notice or a request this application does not admit. The session was ended.'],
+  ['malformed_report','The agent runtime sent a message this application could not accept. The session was ended.'],
  ])('says in plain words why the runtime session was ended (%s)',async(failure,words)=>{
   const {session,emit}=setup();render(<EmbeddedAgentPanel session={session} active onReview={()=>{}}/>);
   await screen.findByText('Start agent');act(()=>emit({failure}));
