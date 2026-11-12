@@ -483,17 +483,36 @@ fn a_record_whose_dependencies_are_not_si_or_incomplete_gives_no_mass() {
 /// same member, a weight ratio of about 1e-16. Statics alone gives the
 /// anchor's action on the pipe: Fy = -(w_a + w_g) L and Mz = -(w_a + w_g) L^2/2,
 /// with w_g = rho g pi t (D - t) on the nominal wall (D-5, the test's own
-/// binary64 in metres); the sums are taken exactly (`ExactAccumulator`), and a
-/// slack of 1e-12 |w_g| L^2, many orders above the test's own rounding of w_g
-/// and below every bound, covers that rounding. While the formation check read
-/// the record's millimetres as metres it re-formed w_g 10^6 times too large
-/// and still passed, publishing the anchor's moment 4.5e-6 N*m from the
-/// closed form with a stated bound near 4e-13. Each published row and group
-/// norm must contain the closed form within its group's stated bound, and the
-/// case is checks passed. The ground is the closed form; the formation check's
-/// inverse-norm premise is not used as an oracle here.
+/// binary64 in metres); the sums are taken exactly (`ExactAccumulator`).
+///
+/// The bounds compared against are the formation check's INTERNAL group bounds,
+/// read from the certified recovery record through the crate's test hook. An
+/// ordinary result document prints no bound for these rows.
+///
+/// The slack is a bound on rounding, not a tolerance. The test and the
+/// generator each evaluate the same real formula from the same decimal inputs
+/// in binary64, and may differ in the last places of w_g. With u = 2^-53, to
+/// first order: the test rounds D, t, pi, rho and g once each and makes one
+/// subtraction and three multiplications; the error of D - t carries those of
+/// D and t amplified by (D + t)/(D - t) = 1.078; in all at most 10.1 u. The
+/// generator converts D and t from millimetres (a rounded decimal, a rounded
+/// factor and one multiplication: 3 u each) and forms pi t (D - t) in scaled
+/// arithmetic, one binary64 rounding an operation (`pressure_exact::Scaled`),
+/// then multiplies by rho and by g; counted the same way, at most 15.3 u. So
+/// the two values of w_g differ by at most 25.4 u |w_g|; 32 u is taken. The
+/// weight enters Fy times L and Mz times L^2/2, both at most L^2 here, so the
+/// slack is 32 u |w_g| L^2, about 3.2e-26. (The generator's count is by reading
+/// `stable_mass_per_length` and `source_wall_area_scaled`.)
+///
+/// While the formation check read the record's millimetres as metres it
+/// re-formed w_g 10^6 times too large and still passed, leaving the anchor's
+/// moment 4.5e-6 N*m from the closed form with an internal bound near 4e-13.
+/// Each published row and group norm must lie within its group's internal
+/// bound of the closed form, and the case is checks passed. The ground is the
+/// closed form; the formation check's inverse-norm premise is not used as an
+/// oracle here.
 #[test]
-fn a_negligible_generated_weight_keeps_its_stated_support_bounds_honest() {
+fn a_negligible_generated_weight_keeps_the_checks_support_bounds_honest() {
     use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
     const L: f64 = 3.0;
     const AUTHORED: f64 = -1.0e4;
@@ -512,7 +531,8 @@ fn a_negligible_generated_weight_keeps_its_stated_support_bounds_honest() {
     let (od, wall) = (219.075e-3, 8.1788e-3);
     let w_g = DENSITY * ((PI * wall) * (od - wall)) * GRAVITY;
     assert!(w_g < 0.0 && (w_g / AUTHORED - 1e-16).abs() < 1e-17, "the intended weight ratio: {w_g:e}");
-    let slack = 1e-12 * w_g.abs() * L * L;
+    // 32 u |w_g| L^2 with u = EPSILON / 2: the derivation is in the comment above.
+    let slack = 16.0 * f64::EPSILON * w_g.abs() * L * L;
     // Fy = -(w_a + w_g) L and Mz = -(w_a + w_g) L^2 / 2, as exact two-term sums.
     let fy = |acc: &mut ExactAccumulator, sign: f64| {
         acc.add_product(-sign * AUTHORED, L).unwrap();
@@ -557,11 +577,11 @@ fn a_negligible_generated_weight_keeps_its_stated_support_bounds_honest() {
         {
             let (q, bound) = group(kind);
             let published = row(component);
-            eprintln!("{mode:?} anchor {component}: published {published:.17e}, group norm {q:.17e}, stated bound {bound:e}");
+            eprintln!("{mode:?} anchor {component}: published {published:.17e}, group norm {q:.17e}, internal group bound {bound:e}");
             assert!(contains(published, bound, closed),
-                "{mode:?} {component}: published {published:.17e} with stated bound {bound:e} excludes the closed form");
+                "{mode:?} {component}: published {published:.17e} with the check's internal group bound {bound:e} excludes the closed form");
             assert!(contains(q, bound, closed),
-                "{mode:?} {kind}: group norm {q:.17e} with stated bound {bound:e} excludes the closed form");
+                "{mode:?} {kind}: group norm {q:.17e} with the check's internal group bound {bound:e} excludes the closed form");
         }
     }
 }
