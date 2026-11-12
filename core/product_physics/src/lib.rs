@@ -13640,21 +13640,26 @@ fn append_signed_support_results(
 /// (`pipe_*_v2`) whose entity is a member (element identifier, region) of the
 /// entry's region (`""` when it names none), in row order.
 ///
-/// Each element identifier has one region here, which is what makes this the
-/// per-entry scan it replaced (that scan would list a row under every region
-/// naming its pipe): validation refuses a repeated pipe identifier
-/// (`DUPLICATE_ID`, `validate_ids` in `validation.rs`) and the pressure runtime
-/// refuses a pipe in two regions of one case (`PRESSURE_REGION_PIPE_OVERLAP`,
-/// `pressure_runtime.rs`), both before any solve. A debug build asserts it.
+/// The one pass over the rows assumes no element identifier appears twice
+/// among the members. In the product that always holds, because validation
+/// refuses a repeated pipe identifier (`DUPLICATE_ID`, `validate_ids` in
+/// `validation.rs`) and the pressure runtime refuses a pipe in two regions of
+/// one case (`PRESSURE_REGION_PIPE_OVERLAP`, `pressure_runtime.rs`), both
+/// before any solve; the fallback below is unreachable there. Where an
+/// identifier does repeat, the result is the per-entry scan this replaced
+/// ([`attach_pressure_result_ids_by_scan`]), which lists a row under every
+/// region naming its pipe: that fallback is what keeps the two equal on every
+/// input, not only on validated ones.
 fn attach_pressure_result_ids<'a>(
     evidence: &mut [serde_json::Value],
-    members: impl Iterator<Item = (&'a str, &'a str)>,
+    members: impl Iterator<Item = (&'a str, &'a str)> + Clone,
     results: &[ResultItem],
 ) {
     let mut regions: HashMap<&str, &str> = HashMap::with_capacity(members.size_hint().0);
-    for (id, region) in members {
-        let _previous = regions.insert(id, region);
-        debug_assert!(_previous.is_none(), "pipe {id} is a member of two pressure regions or repeats its identifier");
+    for (id, region) in members.clone() {
+        if regions.insert(id, region).is_some() {
+            return attach_pressure_result_ids_by_scan(evidence, members, results);
+        }
     }
     let mut ids: HashMap<&str, Vec<&String>> = HashMap::new();
     for r in results {
@@ -13670,6 +13675,33 @@ fn attach_pressure_result_ids<'a>(
             .and_then(|id| id.as_str())
             .unwrap_or("");
         evidence["result_ids"] = serde_json::json!(ids.get(region_id).map_or(&[][..], Vec::as_slice));
+    }
+}
+
+/// The per-entry scan [`attach_pressure_result_ids`] replaced, its result where
+/// an element identifier repeats among the members.
+fn attach_pressure_result_ids_by_scan<'a>(
+    evidence: &mut [serde_json::Value],
+    members: impl Iterator<Item = (&'a str, &'a str)> + Clone,
+    results: &[ResultItem],
+) {
+    for evidence in evidence {
+        let region_id = evidence
+            .get("region_id")
+            .and_then(|id| id.as_str())
+            .unwrap_or("");
+        let members = members
+            .clone()
+            .filter(|(_, region)| *region == region_id)
+            .map(|(id, _)| id)
+            .collect::<HashSet<_>>();
+        evidence["result_ids"] = serde_json::json!(results
+            .iter()
+            .filter(|r| members.contains(r.entity_ref.as_str())
+                && r.kind.starts_with("pipe_")
+                && r.kind.ends_with("_v2"))
+            .map(|r| &r.id)
+            .collect::<Vec<_>>());
     }
 }
 

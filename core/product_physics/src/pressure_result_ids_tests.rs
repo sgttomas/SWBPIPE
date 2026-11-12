@@ -58,15 +58,32 @@ fn result_ids_answer_as_the_per_entry_scan() {
     assert_eq!(none[0]["result_ids"], json!([]));
 }
 
-/// The stated dependence (one region per element identifier): a debug build
-/// refuses a pipe given two regions rather than listing its rows under one.
+/// Outside the product's validation (a pipe in two regions, or one identifier
+/// listed twice in a region), the helper still gives exactly what the replaced
+/// scan gives: a row is listed under every region naming its pipe.
 #[test]
-#[cfg(debug_assertions)]
-#[should_panic(expected = "pipe:a is a member of two pressure regions")]
-fn a_pipe_in_two_regions_fails_loudly_in_a_debug_build() {
-    let results = vec![row("a:1", "pipe_wall_axial_force_v2", "pipe:a")];
-    let mut evidence = vec![json!({"region_id": "region:A"}), json!({"region_id": "region:B"})];
-    attach_pressure_result_ids(&mut evidence, [("pipe:a", "region:A"), ("pipe:a", "region:B")].into_iter(), &results);
+fn a_repeated_element_identifier_gives_the_replaced_scans_lists() {
+    let results = vec![
+        row("a:1", "pipe_wall_axial_force_v2", "pipe:a"),
+        row("b:2", "pipe_wall_axial_force_v2", "pipe:b"),
+        row("a:3", "pipe_lame_hoop_stress_v2", "pipe:a"),
+        row("c:4", "pipe_wall_axial_force_v2", "pipe:c"),
+    ];
+    let entries = || vec![json!({"region_id": "region:A"}), json!({"region_id": "region:B"}), json!({})];
+    for members in [
+        vec![("pipe:a", "region:A"), ("pipe:b", "region:B"), ("pipe:a", "region:B")],
+        vec![("pipe:a", "region:B"), ("pipe:c", "region:A"), ("pipe:a", "region:A")],
+        vec![("pipe:a", "region:A"), ("pipe:a", "region:A"), ("pipe:b", "region:B")],
+    ] {
+        let (mut indexed, mut scanned) = (entries(), entries());
+        attach_pressure_result_ids(&mut indexed, members.iter().copied(), &results);
+        scan(&mut scanned, &members, &results);
+        assert_eq!(indexed, scanned, "{members:?}");
+    }
+    let mut both = entries();
+    attach_pressure_result_ids(&mut both, [("pipe:a", "region:A"), ("pipe:b", "region:B"), ("pipe:a", "region:B")].into_iter(), &results);
+    assert_eq!(both[0]["result_ids"], json!(["a:1", "a:3"]));
+    assert_eq!(both[1]["result_ids"], json!(["a:1", "b:2", "a:3"]), "listed under both regions");
 }
 
 const I7_DOCUMENTS: &str = include_str!("../../../validation/references/t4_i7/u2_document_sketches.json");
