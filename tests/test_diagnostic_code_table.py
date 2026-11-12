@@ -31,6 +31,10 @@ from tools.validation.diagnostic_codes import CLASSES, TABLE, Scan, tokenize  # 
 CI_READS = ('core/product_physics/src/**', 'core/solver/*/src/**', 'core/loads/*/src/**',
             'core/analysis/hanger_sizing/src/**', 'core/numerics/*/src/**',
             'core/model_operations/operation_applier/src/**', 'fixtures/diagnostics/exact_route_codes.json',
+            # each scanned crate's manifest: its path dependencies bound what a call or constant can reach
+            'core/product_physics/Cargo.toml', 'core/solver/*/Cargo.toml', 'core/loads/*/Cargo.toml',
+            'core/analysis/hanger_sizing/Cargo.toml', 'core/numerics/*/Cargo.toml',
+            'core/model_operations/operation_applier/Cargo.toml',
             'docs/RELEASE_LIMITATIONS_v1.0.md')
 
 # Pins: no count may grow unnoticed. When one falls, lower its pin to the new count. The last falls to zero

@@ -61,7 +61,11 @@ REUSE_SCOPE = ('core/model_operations/operation_applier',)
 # The paths the scan reads, for the Python CI selector (`tools/ci/python_test_reads.py`).
 CI_READS = ('core/product_physics/src/**', 'core/solver/*/src/**', 'core/loads/*/src/**',
             'core/analysis/hanger_sizing/src/**', 'core/numerics/*/src/**',
-            'core/model_operations/operation_applier/src/**')
+            'core/model_operations/operation_applier/src/**',
+            # each scanned crate's manifest: its path dependencies bound what a call or constant can reach
+            'core/product_physics/Cargo.toml', 'core/solver/*/Cargo.toml', 'core/loads/*/Cargo.toml',
+            'core/analysis/hanger_sizing/Cargo.toml', 'core/numerics/*/Cargo.toml',
+            'core/model_operations/operation_applier/Cargo.toml')
 
 # The fields a person fills in for each code; `--write` keeps them.
 HAND_FIELDS = ('classification', 'reason', 'unsure', 'candidates', 'named_by', 'named_by_coverage',
