@@ -519,8 +519,9 @@ the loss report, and import it back with the same identities. The temperature-de
 modulus table (§4.1) is one family the writer refuses today
 (`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`). It stays in the system; no family is
 dropped to make criterion 6 pass. Which other families the loss report lists is DEL-17-04's
-to state from an export of the fixture. Any family with no admitted public MBF source goes
-to the release limitations of criterion 3.
+to state from an export of the fixture. Any family with no admitted public MBF source is
+listed in the release limitations and declared acceptable by Agent 0, and the limitations are
+shown to the owner with the request for the verdict (exit criterion 3).
 
 ### 11.2 Criterion 7 (authoring time)
 
