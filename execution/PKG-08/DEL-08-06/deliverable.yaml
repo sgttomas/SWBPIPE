@@ -80,9 +80,9 @@ needs:
     a user's per-report release.
   gating: false
 - from: DEL-01-04
-  condition: The report notice template carries the notice for reports that include authoring, comparison,
-    handoff, export or external-prover material, and the registry presents those materials as review aids
-    and not as validation or acceptance.
+  condition: The report notice template supplies the PRD §19.3 notice and the supplementary notice for
+    authoring, handoff, export and external-prover material; comparison sections carry the registry's
+    BS-COMPARE statement on its registered surface.
   gating: true
 code_paths:
 - core/reporting/state_comparison_handoff_sections/**
