@@ -1,4 +1,4 @@
-"""RT-L2 (DEL-04-07 Design pressure-elongation.md §5): the independent pressure-3 verifier is
+"""RT-L2 (DEL-04-07): the independent pressure-3 verifier is
 switch-aware, keyed on each case's ``pressure_elongation`` evidence, as the Rust reader is
 (``core/reporting/result_export/tests/pressure_elongation_contract.rs``). Included: the straight
 Poisson coefficient is sign*2nu and a realized arc carries its signed nonzero free strain; not

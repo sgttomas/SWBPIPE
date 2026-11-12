@@ -246,8 +246,7 @@ fn the_vectors_state_the_table_statements_and_the_section_texts() {
             let statement = entry["statement"].as_str().unwrap();
             let text = text.as_str().unwrap();
             assert_eq!(Some(statement), exact_statement_for(&producer_sha256(text)));
-            // The report's WinAnsi form: '-' for U+2212 and 'nu' for ν (DEL-04-07 `pressure-elongation.md`,
-            // "Formulation limitations"); the producer text and its hash are unchanged.
+            // The report's WinAnsi form: '-' for U+2212 and 'nu' for ν (DEL-04-07); the producer text and its hash are unchanged.
             let text = text.replace('\u{2212}', "-").replace('\u{3bd}', "nu");
             assert!(statement == text || format!("{statement} {OMITTED_SENTENCE}") == text, "{name} {index}");
         }
@@ -478,7 +477,7 @@ fn the_runner_profile_refuses_an_exact_identity_whatever_the_report_carries() {
     let document = invented_document(&source);
     refuses(check_runner_profile(RUNNER_PROFILE, &document), EXACT_RUNNER_PROFILE, "runner, pressure-2");
     let error = check_runner_profile(RUNNER_PROFILE, &document).unwrap_err();
-    assert_eq!(error, format!("{EXACT_RUNNER_PROFILE}: the runner profile does not package pressure-2 or pressure-source-1 results; only the desktop builds their sections."));
+    assert_eq!(error, format!("{EXACT_RUNNER_PROFILE}: the runner profile does not package pressure-3 or pressure-source-1 results; only the desktop builds their sections."));
     let mut source_1 = document.clone();
     source_1["result_envelope"]["producer"]["semantic_contract_id"] = Value::from("openpipestress.result_semantics/0.3.0/pressure-source-1");
     refuses(check_runner_profile(RUNNER_PROFILE, &source_1), EXACT_RUNNER_PROFILE, "runner, pressure-source-1");

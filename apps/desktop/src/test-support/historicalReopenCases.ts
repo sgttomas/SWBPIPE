@@ -146,7 +146,7 @@ async function savedCases(base: Array<{ c: AnalysisRunV03Case; source: Json; rec
   const pick = (needle: string) => base
     .filter(({ record, source }) => routeOf(record).includes(needle) && source.results.length >= 2)
     .sort((a, b) => size(a.source) + size(a.record) - size(b.source) - size(b.record))[0];
-  const picks = [["preview", pick("preview-physics-2")], ["pressure", pick("pressure-2")], ["source", pick("pressure-source")], ["retained", pick("retained")]] as const;
+  const picks = [["preview", pick("preview-physics-2")], ["pressure", pick("pressure-3")], ["source", pick("pressure-source")], ["retained", pick("retained")]] as const;
   for (const [route, found] of picks) {
     if (!found) throw new Error(`no ${route} record in the builder corpus`);
     const { c, source, record } = found;
@@ -275,6 +275,17 @@ function recordPatches(before: Json, after: Json, path: Array<string | number> =
   return [{ on: "record", path, op: "set", value: clone(after) }];
 }
 
+/** The retired refusal's code and message, as the reader states it. */
+export const PRESSURE_2_RETIRED_TEXT = "SOURCE_PRESSURE_2_RETIRED: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model";
+/** A reopened pressure-2 run tells the user it predates the pressure elongation setting and must be
+ * re-solved: the retired code and message as its standing and its check, never the unsupported or
+ * version-mismatch collapse. */
+function toldRetired(fixture: string, expected: Json): void {
+  const collapsed = ["SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED", "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH"];
+  if (!expected.findings.includes(PRESSURE_2_RETIRED_TEXT) || !expected.check_findings.includes(PRESSURE_2_RETIRED_TEXT)) throw new Error(`${fixture}: the reopened run is not refused as retired (${JSON.stringify(expected.findings)})`);
+  if (expected.findings.some((finding: string) => collapsed.includes(finding))) throw new Error(`${fixture}: the retired refusal is collapsed (${JSON.stringify(expected.findings)})`);
+}
+
 /** Each recorded-basis fixture, verbatim, as a recorded revision and (current model documents) a saved project's run. */
 async function recordedBasisCases(): Promise<{ saved: SavedCase[]; recorded: RecordedCase[] }> {
   const saved: SavedCase[] = [], recorded: RecordedCase[] = [];
@@ -291,6 +302,7 @@ async function recordedBasisCases(): Promise<{ saved: SavedCase[]; recorded: Rec
       const p = await project(clone(model), source, record);
       const expected = await savedExpected(p, source, record);
       if (!("findings" in expected) || expected.findings.length === 0) throw new Error(`${fixture}: a saved pressure-2 run reopened clean`);
+      toldRetired(fixture, expected);
       saved.push({ id: `saved-recorded-basis:${name}`, kind: "saved", project: p, fixture, expected });
     }
     // As a recorded revision of an invented state, built as the webview tests build it.
@@ -315,6 +327,7 @@ async function recordedBasisCases(): Promise<{ saved: SavedCase[]; recorded: Rec
     const { record: _record, result_json: _result, ...rest } = read;
     const expected = await recordedExpected(read);
     if (!("findings" in expected) || expected.findings.length === 0) throw new Error(`${fixture}: a pressure-2 run reopened clean`);
+    toldRetired(fixture, expected);
     recorded.push({ id: `recorded-basis:${name}`, kind: "recorded", read: { ...rest, fixture, record_patches }, expected });
   }
   return { saved, recorded };

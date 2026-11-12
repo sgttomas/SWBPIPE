@@ -233,7 +233,7 @@ mod tests {
     use crate::pressure_runtime::ArcPressure;
     use std::collections::BTreeMap;
 
-    /// RT-L2 (`pressure-elongation.md` §4.1): an arc in a case that does not
+    /// RT-L2: an arc in a case that does not
     /// include pressure elongation recovers with u_free(ε_th) only, even if its
     /// state carried a strain; an included arc subtracts its ε_p.
     #[test]

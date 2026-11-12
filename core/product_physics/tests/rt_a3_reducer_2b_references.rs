@@ -907,7 +907,7 @@ fn a_folded_back_neighbour_is_refused_by_the_pass_through_sense() {
 #[path = "common/pressure_elongation.rs"]
 mod pressure_elongation;
 
-/// RT-L2 (DEL-04-07 `pressure-elongation.md` §4.3): with pressure elongation not
+/// RT-L2 (DEL-04-07): with pressure elongation not
 /// included, each pressurised eccentric (or slanted) step is the unbalanced-thrust
 /// model: closed terminals carry no pressure load, an omitted cap its member's
 /// p·A_i, and every member's N_w exceeds the p = 0 value by its own p·A_i.

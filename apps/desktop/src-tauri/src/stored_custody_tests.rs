@@ -687,6 +687,15 @@ fn recorded_basis_fixtures_reopen_natively_with_the_webviews_findings() {
             assert_eq!(native_findings(case, &builder), case["expected"], "{}", case["id"]);
             let findings = case["expected"]["findings"].as_array().unwrap();
             assert!(!findings.is_empty(), "{}: reopened clean", case["id"]);
+            // The user is told the result predates the pressure elongation setting and must be
+            // re-solved: the retired code and message, as its standing and its check, never the
+            // unsupported or version-mismatch collapse (DEL-04-07).
+            let retired = json!(open_pipe_stress_result_export::semantic_contract::SOURCE_PRESSURE_2_RETIRED_TEXT);
+            assert!(findings.contains(&retired), "{}: {findings:?}", case["id"]);
+            assert!(case["expected"]["check_findings"].as_array().unwrap().contains(&retired), "{}", case["id"]);
+            for collapsed in ["SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED", "ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH"] {
+                assert!(!findings.contains(&json!(collapsed)), "{}: {findings:?}", case["id"]);
+            }
         }
         // The run and its source are pressure-2, and the source's reader refuses it by name.
         assert_eq!(verbatim["analysis_run"]["reproducibility"]["semantic_contract"]["id"], PRESSURE_2_ID, "{fixture}");

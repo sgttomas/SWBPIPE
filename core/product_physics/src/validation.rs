@@ -52,7 +52,7 @@ fn validate_model_settings(model: &PreviewModel, diagnostics: &mut Vec<Diagnosti
             vec![crate::model_settings::SHEAR_MODEL_PATH.to_string()],
         ));
     }
-    // Model document 0.9.0 (DEL-04-07 `pressure-elongation.md` §3.1): `pressure_elongation`
+    // Model document 0.9.0 (DEL-04-07): `pressure_elongation`
     // is refused by name without a pressure contract, for an empty or duplicated list and for
     // an id that names no load case. Nothing is then solved.
     if let Some(setting) = model.model_settings.as_ref().and_then(|settings| settings.pressure_elongation.as_ref()) {

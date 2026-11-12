@@ -42,8 +42,7 @@
 //!   clear removes the member as for the tolerance. Nothing writes the default
 //!   unless the user sets it.
 //!
-//! - **Pressure elongation** (model document 0.9.0; DEL-04-07 Design
-//!   `pressure-elongation.md` §3.1, §3.3): set takes `after` the JSON text of the
+//! - **Pressure elongation** (model document 0.9.0; DEL-04-07): set takes `after` the JSON text of the
 //!   whole record `{"operating_load_cases": [id, ...]}`, unit `none` and dimension
 //!   `dimensionless`, and writes the record with the ids in the order given; a
 //!   text that is not that closed record of strings is `OP-MODEL-SETTING-SHAPE-INVALID`.

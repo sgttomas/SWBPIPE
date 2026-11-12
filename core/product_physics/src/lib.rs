@@ -12817,7 +12817,7 @@ fn add_curved_bend_pressure_equivalent_load(
         let (Some(arc), Some(bend)) = (state.arc, curved_bends_by_pipe.get(pipe_index)) else {
             continue;
         };
-        // RT-L2 (DEL-04-07 `pressure-elongation.md` §4.1): a case that does not
+        // RT-L2 (DEL-04-07): a case that does not
         // include pressure elongation pushes no free pressure strain; the arc
         // keeps its −c_b and every thrust source in the source groups.
         if !state.elongation_included {

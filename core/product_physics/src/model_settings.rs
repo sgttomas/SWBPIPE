@@ -20,8 +20,7 @@
 //! pressure-free route (DEL-05-03 Design `pf-timoshenko.md`; `crate::pf_timoshenko`),
 //! which removed 0.8.0's interim refusal at solve and at authoring.
 //!
-//! Model document 0.9.0 (DEL-04-07 Design `pressure-elongation.md` §3; DEL-02-01
-//! `model-document-0.9.0.md` §3.1, no version step) adds `pressure_elongation`, a closed
+//! Model document 0.9.0 (DEL-04-07; DEL-02-01, no version step) adds `pressure_elongation`, a closed
 //! record `{operating_load_cases: [id, ...]}`: the load cases of a pressure document in
 //! which pressure elongation (the closed-end free pressure strain) applies. Absent means
 //! off: no case includes it. The product never writes an empty record; switching off
@@ -253,7 +252,7 @@ pub struct ModelSettings {
     #[serde(default, deserialize_with = "deserialize_shear_model")]
     pub shear_model: Option<ShearModelSetting>,
     /// The operating load cases that include pressure elongation (model document 0.9.0,
-    /// DEL-04-07 `pressure-elongation.md` §3.1). Absent: off in every case. An authored
+    /// DEL-04-07). Absent: off in every case. An authored
     /// `null` is not absence: it is refused, as for the `model_settings` record itself.
     #[serde(default, deserialize_with = "crate::deserialize_present_object")]
     pub pressure_elongation: Option<PressureElongationSetting>,
@@ -353,8 +352,8 @@ impl PreviewModel {
         }
     }
 
-    /// Whether the load case `load_case_id` includes pressure elongation (DEL-04-07
-    /// `pressure-elongation.md` §3.2: `elongation_included(case) = setting lists case.id`).
+    /// Whether the load case `load_case_id` includes pressure elongation (DEL-04-07:
+    /// `elongation_included(case) = setting lists case.id`).
     /// False when `model_settings.pressure_elongation` is absent (the default, off) or does
     /// not list the case. It judges nothing: a setting refused by
     /// [`pressure_elongation_refusals`] never reaches a solve.

@@ -18,7 +18,7 @@ const PROVENANCE: &str = "invented T4-U4b arc stress reference input; not librar
 const STATIONS: [&str; 5] = ["end_i", "quarter_1", "midspan", "quarter_3", "end_j"];
 
 /// The SHA-256 of each authored request's compact JSON (serde_json order).
-// RT-L2 §7: the exact cases name their pressurised case in model_settings.pressure_elongation.
+// RT-L2: the exact cases name their pressurised case in model_settings.pressure_elongation.
 const REQUEST_SHA256: [(&str, &str); 8] = [
     ("U4B-L90-P", "864ed6f2d9a7a79fb78c1eb42687221d19eada453a817c669d22493154d02d16"),
     ("U4B-L90-P-COINCIDENT", "e23b4b50c23e663c7f0d64e900a49637d8530cf63fd8a22a00639c7d5eb0f437"),
@@ -152,7 +152,7 @@ pub(crate) fn build_request(case: &Value) -> Value {
             "pressure_basis": r["pressure_basis"], "pressure": quantity(n(&r["pressure"]), "Pa"),
             "terminals": r["terminals"].as_array().unwrap().iter().map(|t| json!({"node_ref": t["node"], "closure_transfer": t["closure_transfer"], "provenance": PROVENANCE})).collect::<Vec<_>>(),
             "provenance": PROVENANCE})).collect();
-        // The references are today's mechanics: a pressurised case includes pressure elongation (RT-L2 §7).
+        // The references are today's mechanics: a pressurised case includes pressure elongation (RT-L2).
         if !regions.is_empty() {
             model["model_settings"] = json!({"pressure_elongation": {"operating_load_cases": [lc["id"]]}});
         }

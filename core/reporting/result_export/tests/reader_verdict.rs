@@ -97,7 +97,9 @@ fn g1_retired_unassessed_unknown_and_sensitive_are_never_eligible() {
     let mut future = ordinary_source();
     future["producer"]["semantic_contract_id"] = json!(sc::PREVIEW_PHYSICS_ID.replace("preview-physics-2", "pressure-2"));
     assert_eq!(route(&future), rv::UNSUPPORTED);
-    assert_eq!(findings(&standing(&future, Some(&model))), [rv::SOURCE_NUMERICAL_CONTRACT_UNSUPPORTED]);
+    // RT-L2 (DEL-04-07): pressure-2 is retired, and its standing finding is the refusal's code and
+    // message (re-solve the model), not the unsupported collapse.
+    assert_eq!(findings(&standing(&future, Some(&model))), [sc::SOURCE_PRESSURE_2_RETIRED_TEXT]);
     future.as_object_mut().unwrap().remove("producer");
     assert_eq!(route(&future), rv::UNSUPPORTED);
     let mut sensitive = ordinary_source();

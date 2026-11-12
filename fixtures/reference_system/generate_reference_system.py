@@ -36,7 +36,7 @@ Usage:
 
 `--pressure-elongation {absent,all,none}` (default: $SWBPIPE_PRESSURE_ELONGATION, else absent) sets
 `model_settings.pressure_elongation` in the model document through the shared
-`tools/validation/pressure_elongation.py` (DEL-04-07 `Work/pressure-elongation.md` §7).
+`tools/validation/pressure_elongation.py` (DEL-04-07).
 """
 from __future__ import annotations
 

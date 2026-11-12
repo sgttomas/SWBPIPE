@@ -92,9 +92,8 @@ pub fn canonical_metadata_in(table: &Value, row: &Value) -> Option<Value> {
 /// Dispatch is source-bound; a reserved successor ID never selects a table.
 /// `3.0.0/exact_pressure_v3` publishes under the `pressure-3` semantics on the
 /// current model document, with one profile (T4-U2a H-1 introduced it as
-/// pressure-1; model 0.6.0 renamed it, DEL-04-07 Design `u4b-u5b-implementation.md` §1.2;
-/// RT-L2 moved it to pressure-3 with per-case pressure elongation, DEL-04-07 Design
-/// `pressure-elongation.md` §5).
+/// pressure-1; model 0.6.0 renamed it; RT-L2 moved it to pressure-3 with per-case
+/// pressure elongation, DEL-04-07).
 pub const PRESSURE_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 pub const PRESSURE_PROFILE: &str = "exact_pressure_v3";
 pub const PRESSURE_SOURCE_ID: &str = crate::physics_source::PRESSURE_CONTRACT_ID;
@@ -124,7 +123,7 @@ pub const SOURCE_PRECISION_1_RETIRED: &str = "SOURCE_PRECISION_1_RETIRED";
 /// tables deleted. A stored result under either is refused by name (re-run).
 pub const RETIRED_PRESSURE_1_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-1";
 pub const SOURCE_PRESSURE_1_RETIRED: &str = "SOURCE_PRESSURE_1_RETIRED";
-/// RT-L2 (DEL-04-07 Design `pressure-elongation.md` §5): pressure-2 included the free
+/// RT-L2 (DEL-04-07): pressure-2 included the free
 /// pressure strain in every pressurised case; pressure-3 includes it per case. A stored
 /// pressure-2 result is refused by name (re-run); no recorded-table alias carries it.
 pub const RETIRED_PRESSURE_2_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";

@@ -2,8 +2,7 @@
 
 ## Pressure elongation anchor
 
-The regression anchor of the pressure-elongation switch (DEL-04-07
-`Work/pressure-elongation.md` §7 item 1): with `model_settings.pressure_elongation`
+The regression anchor of the pressure-elongation switch (DEL-04-07): with `model_settings.pressure_elongation`
 naming every pressurised load case, each committed pressure input must solve to the
 same physical numbers as today, bit for bit.
 
@@ -37,7 +36,7 @@ same physical numbers as today, bit for bit.
   The comparison exempts only the bytes the design changes:
   - the key `pressure_elongation`, at any depth;
   - `pressure-3` read as `pressure-2` in strings;
-  - the two §5 limitation statements in `limitations` lists.
+  - the added pressure-elongation statements in `limitations` lists.
 
   Every other number is compared as binary64 bits, and every other string exactly. Pass
   `--examples-dir` to use prebuilt examples; otherwise they are built with `$CARGO`

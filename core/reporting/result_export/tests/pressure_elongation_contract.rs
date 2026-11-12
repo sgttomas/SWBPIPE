@@ -1,4 +1,4 @@
-//! RT-L2 (DEL-04-07 Design `pressure-elongation.md` §5): the pressure-3 readers are
+//! RT-L2 (DEL-04-07): the pressure-3 readers are
 //! switch-aware, keyed on each case's `pressure_elongation` evidence. Included: the
 //! straight Poisson group's coefficient is sign·2ν and a realized arc carries its signed
 //! nonzero free strain. Not included: sign·1 and exactly zero. A case whose evidence and

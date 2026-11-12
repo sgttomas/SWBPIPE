@@ -285,6 +285,51 @@ def test_baseline_only_exit_status_is_nonzero_on_a_missing_entry(tmp_path, monke
         A.main(argv)
 
 
+def test_baseline_only_compares_every_mode_the_baseline_holds(tmp_path, monkeypatch):
+    monkeypatch.setattr(A, "ROOT", Path("/"))
+    e = entry(tmp_path, BASE)  # the committed envelope holds sparse only
+    seen = []
+    solve = StubSolver(lambda r, m: seen.append(m) or ("envelope", switched(), ""))
+    baseline = write_baseline(write_baseline(tmp_path / "both", BASE), BASE, mode="dense")
+    both = A.run_entry(e, "all", ["sparse", "dense"], solve, baseline, "check", baseline_only=True)
+    assert both["status"] == "PASS" and both["detail"] == "2 envelopes identical" and seen == ["sparse", "dense"]
+    # by default the committed envelope's modes still decide
+    seen.clear()
+    assert A.run_entry(e, "all", ["sparse", "dense"], solve, baseline, "check")["detail"] == "1 envelopes identical"
+    assert seen == ["sparse"]
+    # a held mode the run did not compare is an ERROR, never a silently smaller comparison
+    dropped = A.run_entry(e, "all", ["sparse"], solve, baseline, "check", baseline_only=True)
+    assert dropped["status"] == "ERROR" and "not compared: /cases/0/model [dense]" in dropped["detail"]
+
+
+def test_entry_baseline_takes_one_entrys_references_from_another_directory(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(A, "ROOT", Path("/"))
+    e = entry(tmp_path, BASE)
+
+    class Built(StubSolver):
+        def __init__(self, examples_dir):
+            super().__init__(lambda r, m: ("envelope", switched(), ""))
+
+        def ensure(self):
+            pass
+
+    monkeypatch.setattr(A, "Solver", Built)
+    monkeypatch.setattr(A, "load_inventory", lambda: {"entries": [e]})
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    argv = ["check", "--switch", "all", "--modes", "sparse", "--baseline-only", "--baseline", str(empty),
+            "--json", str(tmp_path / "r.json")]
+    assert A.main(argv) == 1
+    own = write_baseline(tmp_path / "own", BASE)
+    assert A.main(argv + ["--entry-baseline", f"e={own}"]) == 0
+    report = json.loads((tmp_path / "r.json").read_text())
+    assert report["entry_baselines"] == {"e": str(own.resolve())} and report["totals"] == {"PASS": 1}
+    with pytest.raises(SystemExit, match="not run"):
+        A.main(argv + ["--entry-baseline", f"other={own}"])
+    with pytest.raises(SystemExit, match="ID=DIR"):
+        A.main(argv + ["--entry-baseline", str(own)])
+
+
 # ----------------------------------------------------------------------------- the inventory
 def test_the_inventory_is_current():
     assert INV.OUTPUT.read_text(encoding="utf-8") == INV.dumps(INV.build()), \

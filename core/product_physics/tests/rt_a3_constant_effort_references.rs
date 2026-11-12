@@ -206,7 +206,7 @@ fn plain_document(references: &Value, case: &Value, with_record: bool) -> Value 
             "elastic_modulus": quantity(ratio(&model["material"]["E_Pa"]), "Pa"), "poisson_ratio": quantity(0.3, "1"), "provenance": PROVENANCE}],
         "supports": supports, "components": [], "load_cases": cases, "combinations": []},
         "materials": []});
-    // The references are today's mechanics: every pressurised case includes pressure elongation (RT-L2 §7).
+    // The references are today's mechanics: every pressurised case includes pressure elongation (RT-L2).
     pressure_elongation::with_elongation_if_pressurised(&document)
 }
 
@@ -248,7 +248,7 @@ fn state_document(references: &Value, case: &Value, with_record: bool) -> Value 
                 "history": {"kind": "independent_equilibrium"}, "provenance": PROVENANCE},
             "provenance": PROVENANCE})
     }).collect());
-    // The states replace the plain cases: name the pressurised states instead (RT-L2 §7).
+    // The states replace the plain cases: name the pressurised states instead (RT-L2).
     pressure_elongation::with_elongation_if_pressurised(&pressure_elongation::without_elongation(&document))
 }
 

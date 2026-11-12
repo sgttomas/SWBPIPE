@@ -728,7 +728,14 @@ pub(crate) fn validate_v03(record: &Value, source: &mut Value, expected_basis: O
         }
         None => match dispatch(source) {
             Ok(route) => route,
-            Err(_) => return Err(contract_mismatch.into()),
+            // A pressure-2 source is refused by name with its message (DEL-04-07); every other
+            // route error is the version mismatch.
+            Err(_) => {
+                return Err(match rv::route(source) {
+                    Err(text) if text == open_pipe_stress_result_export::semantic_contract::SOURCE_PRESSURE_2_RETIRED_TEXT => text,
+                    _ => contract_mismatch.into(),
+                })
+            }
         },
     };
     if !strict_eq_str(record.get("schema_version"), ANALYSIS_RUN_V03_TEXT) || !strict_eq_str(at(at(Some(record), "run_contract_status")?, "record_contract")?, "strict_analysis_run_v0_3") {

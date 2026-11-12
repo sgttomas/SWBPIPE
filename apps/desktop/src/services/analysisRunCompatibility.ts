@@ -49,8 +49,7 @@ const RECORD_TABLES: Readonly<Record<string, RecordTable>> = Object.freeze({
 } as Record<string, RecordTable>);
 /** Recorded-run table bases: each is read by the record validator only as the recorded basis
  * of exactly its current table. The pressure-2 bases that model documents 0.8.0 and 0.9.0,
- * RT-A3 and RT-A4 added are not carried into pressure-3 (RT-L2, DEL-04-07 Design
- * `pressure-elongation.md` §5): a pressure-2 record follows the retired-identity rule and is
+ * RT-A3 and RT-A4 added are not carried into pressure-3 (RT-L2, DEL-04-07): a pressure-2 record follows the retired-identity rule and is
  * refused by name (SOURCE_PRESSURE_2_RETIRED). None is current. Python's twin is
  * `compatibility.py` `RECORDED_RUN_TABLE_BASES`. */
 const RECORDED_RUN_TABLE_BASES: ReadonlyArray<Readonly<{ id: string; recorded: string; current: string }>> = Object.freeze([]);
@@ -420,6 +419,10 @@ export async function validateAnalysisRunV03(record: AnalysisRunEnvelope, source
   // The route the record is read on: the recorded dispatch's under a variant (a successor's
   // header reads only under its variant), else the current dispatch's.
   const route = recorded ? recorded.route : sourceContract(source);
+  // A pressure-2 source is refused by name with its message (DEL-04-07); every other route
+  // error is the version mismatch.
+  const retired = recorded ? null : readerDispatch(source).error;
+  if (retired?.code === "SOURCE_PRESSURE_2_RETIRED") throw new ResultReaderError(retired.code, retired.detail);
   if (!(recorded || hasCurrentSourceContract(source)) || record.schema_version !== ANALYSIS_RUN_V03 || record.run_contract_status.record_contract !== "strict_analysis_run_v0_3") throw new Error("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
   if (route === "preview_physics") {
     if (recorded) recordedReaderValidate(source, recorded.binding);

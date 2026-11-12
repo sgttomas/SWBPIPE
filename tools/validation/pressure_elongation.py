@@ -1,12 +1,12 @@
 """The pressure-elongation switch shared by SWBPIPE's maintained producers.
 
-DEL-04-07 `Work/pressure-elongation.md` §3.1 adds the model setting
+DEL-04-07 adds the model setting
 `model_settings.pressure_elongation = {"operating_load_cases": [ids]}`; absent
 means off. A producer that writes model documents takes one explicit switch:
 
 - ``absent`` (default): today's output; the producer writes no member;
 - ``all``: every produced pressure document names all its pressurised load
-  cases, in document order (the §7 regression anchor: "included" in a case is
+  cases, in document order (the regression anchor: "included" in a case is
   today's mechanics, so the physical numbers must not move);
 - ``none``: the member is omitted explicitly (the same bytes as ``absent``).
 

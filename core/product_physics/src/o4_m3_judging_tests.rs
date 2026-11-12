@@ -73,7 +73,7 @@ fn j2_as_frozen(path: &str, text: &str) -> String {
     let current = format!("\"schema_version\": \"{}\"", crate::MODEL_SCHEMA_VERSION);
     assert_eq!(text.matches(&current).count(), 1, "{path}: one current model version token");
     let text = text.replace(&current, &format!("\"schema_version\": \"{J2_FROZEN_MODEL_VERSION}\""));
-    // RT-L2 (DEL-04-07 `pressure-elongation.md` §7): a pressurised J2 request now states
+    // RT-L2 (DEL-04-07): a pressurised J2 request now states
     // `model_settings.pressure_elongation` naming every pressurised case (today's mechanics); the
     // frozen bytes predate the member, so its block is removed before hashing.
     const SETTING: &str = "\n    \"model_settings\": {\n      \"pressure_elongation\": {\n        \"operating_load_cases\": [\n";

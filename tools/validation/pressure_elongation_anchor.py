@@ -1,4 +1,4 @@
-"""Regression anchor for the pressure-elongation switch (DEL-04-07 `Work/pressure-elongation.md` §7 item 1).
+"""Regression anchor for the pressure-elongation switch (DEL-04-07).
 
 "Included" must be today's mechanics exactly. For every entry of
 `pressure_elongation_inventory.json` this re-produces each pressure document with the
@@ -20,10 +20,14 @@ fixtures are re-produced, so after the fixture re-production a default check com
 those entries with the same engine's own output, not with the pre-change mechanics.
 `--baseline-only` (with `--baseline DIR`) takes every reference from the captured
 baseline and never from a committed envelope: every document and mode that is solved must
-have its `<key>.json` in DIR, and an entry missing one, or with nothing compared, is an
-ERROR (exit status 1). The
-documents and modes solved are the same as by default: the modes of the committed
-envelope where the inventory names one, else every requested mode.
+hold at least one mode's `<key>.json` in DIR. The modes compared are those of the requested
+modes for which DIR holds the document's envelope, never the committed envelope's modes, so
+a mode dropped from a committed envelope cannot shrink the comparison. A document with no
+baseline envelope, a baseline envelope of a mode the run did not compare, or an entry with
+nothing compared is an ERROR (exit status 1). By default the documents and modes solved are
+the modes of the committed envelope where the inventory names one, else every requested mode.
+`--entry-baseline ID=DIR` (repeatable) takes entry ID's references from DIR instead of
+`--baseline`.
 
 Re-production: each maintained Python producer applies the same helper to the
 documents it writes. The committed fixtures of those producers were re-produced with the
@@ -61,7 +65,8 @@ reference dumps beside the envelopes (`<key>.source-dump.json`).
 
 Options: `--examples-dir` (prebuilt `core/product_physics` examples; otherwise they are
 built with `$CARGO`, default `cargo`, release profile), `--entry ID` (repeatable),
-`--modes sparse,dense`, `--json OUT` (machine-readable report), `--baseline-only` (above).
+`--modes sparse,dense`, `--json OUT` (machine-readable report), `--baseline-only` and
+`--entry-baseline` (above).
 Exit status 0 when no
 entry FAILs or ERRORs; REFUSED (the engine does not accept the member yet) exits 3.
 """
@@ -93,15 +98,16 @@ WIRE_MODES = {wire: short for short, wire in MODES.items()}
 
 # ----------------------------------------------------------------------------- exclusions
 # The only bytes allowed to differ between a switched ("all") solve and today's envelope.
-# Design §3.1 and §5 name exactly these; extend only with a reason recorded here.
+# The setting, the per-case label, the identity and the added statements are exactly these;
+# extend only with a reason recorded here.
 EXCLUDED_KEYS = frozenset({
-    "pressure_elongation",  # §3.1 the setting member (echoed models); §5 the per-case label
+    "pressure_elongation",  # the setting member (echoed models); the per-case label
 })
 IDENTITY_SUBSTITUTIONS = (
-    ("pressure-3", "pressure-2"),  # §5 the semantic identity pressure-2 -> pressure-3, in any string
+    ("pressure-3", "pressure-2"),  # the semantic identity pressure-2 -> pressure-3, in any string
 )
 LIMITATIONS_KEY = "limitations"
-ADDED_LIMITATION_STATEMENTS = frozenset({  # §5 the three fixed statements, dropped from any `limitations` list
+ADDED_LIMITATION_STATEMENTS = frozenset({  # the three fixed statements, dropped from any `limitations` list
     "Pressure elongation is not included in any load case: the closed-end free pressure strain is omitted; "
     "pressure thrust at unbalanced locations is applied.",
     "Pressure elongation is included only in the operating load cases the model settings name, as the "
@@ -109,7 +115,7 @@ ADDED_LIMITATION_STATEMENTS = frozenset({  # §5 the three fixed statements, dro
     "section area; it is not a thin-wall mean-diameter form.",
     "Pressure elongation is set, but none of the cases it names carries pressure; it has no effect.",
 })
-# §5 the bend statement's pressure clause, revised to say the push applies only in a case that includes
+# The bend statement's pressure clause, revised to say the push applies only in a case that includes
 # pressure elongation; the solve's revised clause is mapped back to today's before comparing.
 BEND_CLAUSE_SUBSTITUTIONS = (
     ("each owns the term -c_b (c_b its own end caps along the end tangents) and, in a load case that includes "
@@ -383,6 +389,14 @@ def run(args) -> int:
     baseline_only = args.command == "check" and args.baseline_only
     if baseline_only and baseline is None:
         raise SystemExit("--baseline-only needs --baseline DIR")
+    entry_baselines: dict[str, Path] = {}
+    for item in getattr(args, "entry_baseline", None) or []:
+        entry_id, sep, directory = item.partition("=")
+        if not sep or not entry_id or not directory:
+            raise SystemExit(f"--entry-baseline takes ID=DIR: {item}")
+        if entry_id not in {e["id"] for e in entries}:
+            raise SystemExit(f"--entry-baseline names an entry not run: {entry_id}")
+        entry_baselines[entry_id] = Path(directory).resolve()
     if args.command == "capture":
         baseline.mkdir(parents=True, exist_ok=True)
     solver = Solver(Path(args.examples_dir).resolve() if args.examples_dir else None)
@@ -391,6 +405,7 @@ def run(args) -> int:
               "reference": ("baseline only" if baseline_only else
                             "committed envelope, else baseline") if args.command == "check" else None,
               "baseline": str(baseline) if baseline else None,
+              "entry_baselines": {k: str(v) for k, v in sorted(entry_baselines.items())},
               "exclusions": {"keys": sorted(EXCLUDED_KEYS),
                              "identity_substitutions": [list(p) for p in IDENTITY_SUBSTITUTIONS],
                              "limitations_dropped": sorted(ADDED_LIMITATION_STATEMENTS),
@@ -401,7 +416,8 @@ def run(args) -> int:
               "entries": []}
     totals: dict[str, int] = {}
     for entry in entries:
-        result = run_entry(entry, switch, modes, solver, baseline, args.command, baseline_only)
+        result = run_entry(entry, switch, modes, solver, entry_baselines.get(entry["id"], baseline), args.command,
+                           baseline_only)
         report["entries"].append(result)
         totals[result["status"]] = totals.get(result["status"], 0) + 1
         line = f"{result['status']:<10} {entry['id']}"
@@ -468,20 +484,32 @@ def receipt_chain(reference: Any, envelope: Any, reference_dump: dict | None, ac
 
 def run_entry(entry: dict, switch: str, modes: list[str], solver: Solver, baseline: Path | None, command: str,
               baseline_only: bool = False) -> dict:
-    """One entry's status. `baseline_only`: every reference from `baseline`, a missing one an ERROR."""
+    """One entry's status. `baseline_only`: every reference from `baseline`, the modes compared those
+    `baseline` holds for the document; a document with none, or a held mode not compared, an ERROR."""
     anchor = entry["anchor"]
     if anchor["kind"] == "excluded":
         return {"id": entry["id"], "status": "EXCLUDED", "detail": anchor["reason"]}
     container = loads((ROOT / entry["path"]).read_text(encoding="utf-8"))
     example = anchor.get("example", EXAMPLES[0])
     compared = solved = 0
-    uncompared, chained, work = [], [], []
+    uncompared, chained, work, held_uncompared = [], [], [], []
     for document in entry["documents"]:
         pointer = document["pointer"]
         request = request_for(container, pointer, switch)
         committed = committed_envelopes(entry, document, container)
+        held = []
+        if baseline_only:
+            held = [m for m in MODES if baseline is not None
+                    and (baseline / f"{baseline_key(entry['id'], pointer, m)}.json").exists()]
+            if not held:
+                return {"id": entry["id"], "status": "ERROR",
+                        "detail": f"{pointer or '/'}: --baseline-only and no baseline envelope for any mode"}
+            held_uncompared.extend(f"{pointer or '/'} [{m}]" for m in held if m not in modes)
         for mode in modes:
-            if committed is not None and mode not in committed:
+            if baseline_only:
+                if mode not in held:
+                    continue
+            elif committed is not None and mode not in committed:
                 continue
             state, envelope, stderr = solver.solve(request, mode, example)
             where = f"{pointer or '/'} [{mode}]"
@@ -532,6 +560,9 @@ def run_entry(entry: dict, switch: str, modes: list[str], solver: Solver, baseli
     if compared == 0 and baseline_only:
         return {"id": entry["id"], "status": "ERROR",
                 "detail": f"--baseline-only and nothing compared ({solved} solved; no requested mode to compare)"}
+    if held_uncompared:
+        return {"id": entry["id"], "status": "ERROR",
+                "detail": f"--baseline-only and the baseline holds envelopes not compared: {', '.join(held_uncompared)}"}
     if compared == 0:
         return {"id": entry["id"], "status": "UNCOMPARED",
                 "detail": f"{solved} solved; no committed envelope and no baseline (pass --baseline)"}
@@ -556,8 +587,10 @@ def main(argv: list[str] | None = None) -> int:
             p.add_argument("--switch", choices=PE.MODES, default="absent")
             p.add_argument("--baseline", help="directory of envelopes captured before the engine change")
             p.add_argument("--baseline-only", action="store_true",
-                           help="take every reference from --baseline, never a committed envelope; "
-                                "a missing baseline envelope is an ERROR")
+                           help="take every reference from --baseline, never a committed envelope, comparing "
+                                "every mode the baseline holds; a missing or uncompared baseline envelope is an ERROR")
+            p.add_argument("--entry-baseline", action="append", metavar="ID=DIR",
+                           help="take entry ID's references from DIR instead of --baseline (repeatable)")
         else:
             p.add_argument("--baseline", required=True, help="directory to write the captured envelopes into")
         p.add_argument("--examples-dir")

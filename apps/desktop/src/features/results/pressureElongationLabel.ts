@@ -1,4 +1,4 @@
-/** RT-L2 (DEL-04-07 Design `pressure-elongation.md` §3.3 and §5): each load case's result
+/** RT-L2 (DEL-04-07): each load case's result
  * header states whether the case includes pressure elongation, from the case's own pressure
  * evidence (`contract_evidence.pressure[]`, one record per pressure region of the case, each
  * with `pressure_elongation: "included" | "not_included"`). A combination states nothing of its

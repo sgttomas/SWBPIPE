@@ -12,7 +12,7 @@
 // `clear_model_setting`, `after` `not_present`, unit `none`, dimension
 // `dimensionless`.
 //
-// Pressure elongation (model document 0.9.0; DEL-04-07 Design pressure-elongation.md §3):
+// Pressure elongation (model document 0.9.0; DEL-04-07):
 // field_path `model_settings.pressure_elongation`. Set: `after` the canonical JSON of the
 // whole record `{"operating_load_cases": [...]}`, unit `none`, dimension `dimensionless`.
 // Clear (switching off): as for the other settings. The desktop never writes an empty record.
