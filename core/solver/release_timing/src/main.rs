@@ -40,6 +40,7 @@
 //! an envelope (solved or blocked), 3 on an entry error (still one JSON line),
 //! 2 on a usage or file error.
 
+use open_pipe_stress_operation_applier::model_checks_owned;
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, MechanicsEnvelope, PreviewSolverMode};
 use serde_json::{json, Map, Value};
 use sha2::{Digest, Sha256};
@@ -50,12 +51,15 @@ use std::time::Instant;
 const SCHEMA: &str = "release-timing-v1";
 const STATIONS: [&str; 5] = ["end_i", "quarter_1", "midspan", "quarter_3", "end_j"];
 const STAGES: [&str; 7] = ["read", "parse", "request", "entry", "serialize", "release_envelope", "parse_back"];
+/// Timed after the worker's stages and outside their total: the model checks the desktop runs in
+/// their own worker before a solve job starts (`check_preview_model`, DEL-07-07 REQ-008).
+const SIDE_STAGES: [&str; 1] = ["model_checks"];
 const ENTRY_ERROR_EXIT: i32 = 3;
 const USAGE_EXIT: i32 = 2;
 
-const LIMITS: [&str; 10] = [
+const LIMITS: [&str; 11] = [
     "Engine stages only: the desktop solve worker's ordinary solve (solve_worker.rs ordinary_solve and attested_solve, lib.rs solve_preview_mechanics_with_mode, ingress.rs native_request) run in one process. The app, its IPC and ingress prescan, the memory pool's leases and growth exchanges, the worker's process start and control frames, and the webview are not exercised.",
-    "The solve attestation's two streamed canonical digests (d_M of the model before the solve, d_S of the parsed-back result) live in the desktop crate and are not reproduced: the worker spends that time and this driver does not. parse_back times serde_json::from_str of the result text and the value's drop only.",
+    "The solve attestation's two streamed canonical digests (d_M of the model before the solve, d_S of the result text) live in the desktop crate and are not reproduced: the worker spends their hashing time and this driver does not. parse_back is a streamed serde_json parse of the result text that keeps nothing, the pass d_S makes over that text; like the worker, it builds no value from the result.",
     "The worker's counting, capped global allocator (worker_alloc.rs CappedAllocator over System) is not installed; this binary allocates through System directly.",
     "The document is read from a file (std::fs::read) instead of the worker's control pipe; in the worker the parent also holds the raw body and the result bytes, in its own process.",
     "ru_maxrss_bytes and lifetime_max_phys_footprint_bytes are process high-water marks: with more than one repeat, a later repeat's peaks include every earlier repeat's.",
@@ -63,6 +67,7 @@ const LIMITS: [&str; 10] = [
     "Publication statistics (rows, kinds, classes, bases, diagnostics) are computed from the envelope between entry and serialize, outside every timed stage; output_sha256 and --write happen after serialize, also untimed.",
     "Row bytes per kind and per class are each row's serde_json::to_writer length; they exclude the results array's separators and the envelope's other members, so they sum to less than output_bytes.",
     "Row classes: station = metadata.location in end_i/quarter_1/midspan/quarter_3/end_j; node = metadata.location node; governing = metadata.location governing_station; other = any other location or no metadata.",
+    "model_checks is not a worker stage: it is the desktop's check_preview_model work (operation_applier model_checks_owned) on the same document, read and parsed again untimed, run after parse_back and left out of total; the check worker's own start, admission and control frames are not exercised.",
     "Observation only: no time or memory bound is asserted.",
 ];
 
@@ -161,6 +166,16 @@ impl Timeline {
         eprintln!("{PROGRESS_PREFIX}{progress}");
         self.seconds.insert(name.to_string(), json!(elapsed));
         self.memory.insert(name.to_string(), reading);
+        out
+    }
+
+    /// Runs and times work that is not one of the worker's solve stages: recorded and reported
+    /// like a stage, but left out of `total`, and run after `parse_back` so that the worker
+    /// stages' times and memory readings are those of a driver without it.
+    fn side_stage<T>(&mut self, name: &str, work: impl FnOnce() -> T) -> T {
+        let total = self.total;
+        let out = self.stage(name, work);
+        self.total = total;
         out
     }
 
@@ -359,6 +374,7 @@ fn main() {
     out.insert("mode".into(), json!(args.mode.as_str()));
     out.insert("repeats_requested".into(), json!(args.repeats));
     out.insert("stages".into(), json!(STAGES));
+    out.insert("side_stages".into(), json!(SIDE_STAGES));
     out.insert("limits".into(), json!(LIMITS));
     out.insert("memory_at_start".into(), memory());
 
@@ -414,9 +430,28 @@ fn main() {
             Err(error) => return entry_error(out, &t, repeats, "serialize", error.to_string()),
         };
         t.stage("release_envelope", || drop(envelope));
-        let parse_back_ok = t.stage("parse_back", || serde_json::from_str::<Value>(&text).map(drop).is_ok());
+        // The worker reads its result text back once, streamed, for the attestation digest d_S
+        // (`result_text_digest::text_digest`), and builds no value from it. A streamed parse that
+        // keeps nothing is the same pass over the text without the digest's hashing.
+        let parse_back_ok = t.stage("parse_back", || serde_json::from_str::<serde::de::IgnoredAny>(&text).is_ok());
         let sha = sha256_hex(text.as_bytes());
         identical &= first_sha.as_ref().is_none_or(|first| *first == sha);
+        // The document again, read and parsed untimed (`read` and `parse` above time those), then
+        // the model checks on it as the check worker runs them.
+        let again = std::fs::read(&args.path).ok().and_then(|raw| serde_json::from_slice::<Value>(&raw).ok());
+        let checks = again.map(|parsed| t.side_stage(SIDE_STAGES[0], || model_checks_owned(take_model(parsed).0)));
+        if repeat == 0 {
+            let count = |key: &str| checks.as_ref().and_then(|c| c.get(key)).and_then(Value::as_array).map(Vec::len);
+            out.insert(
+                "model_checks".into(),
+                json!({
+                    "checked": checks.as_ref().and_then(|c| c.get("checked")).cloned(),
+                    "diagnostics_shown": count("diagnostics"),
+                    "slot_findings_shown": count("slot_findings"),
+                }),
+            );
+        }
+        drop(checks);
         if repeat == 0 {
             if let Some(path) = &args.write {
                 if let Err(error) = std::fs::write(path, text.as_bytes()) {

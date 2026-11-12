@@ -98,12 +98,14 @@ class Plan(unittest.TestCase):
             self.assertEqual(r['mode'], 'sparse')
             self.assertEqual(r['run_id'], rr.run_id_of(r['profile'], r['nodes'], r['mode'], r['attribute']))
             self.assertIsNotNone(rr.as_expected(r['expect'], 'ok', None), 'expectation %r unknown' % r['expect'])
-        for name in ('window', 'window2'):
+        for name in ('window', 'window2', 'scaling'):
             window = rr.select(plan, name)
             self.assertTrue(window)
             self.assertLessEqual(rr.plan_total_s(window) + rr.QUIET_WAIT_S, rr.WINDOW_BUDGET_S, name)
         self.assertFalse(any(r['attribute'] for r in rr.select(plan, 'window')), 'the timed window samples nothing')
         self.assertEqual(sorted(r['attribute'] for r in rr.select(plan, 'window2')), [False, True])
+        self.assertEqual([(r['profile'], r['nodes']) for r in rr.select(plan, 'scaling')],
+                         [(p, n) for p in ('linear-ex', 'nonlinear-ex') for n in (250, 500, 1000)])
         criterion = {r['run_id'] for r in rr.select(plan, 'criterion')}
         self.assertTrue(criterion)
         self.assertEqual({r['run_id'] for r in plan if r['nodes'] == 2000}, criterion)

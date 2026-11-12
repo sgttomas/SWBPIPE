@@ -66,34 +66,37 @@ SOLVED = 'MECHANICS_SOLVED'
 PROFILES = ('linear-ex', 'nonlinear-ex', 'nonlinear-pf')
 MODES = ('sparse', 'dense')
 
-# The default plan, in run order. Estimates are dry runs of these rack models with this driver
-# on one shared slot of the development host (main 7e061cf2e; not measurements); they order the
-# window and bound it, nothing else. Dry runs: linear-ex 250 nodes 27 s and 2.7 GB peak footprint,
-# 500 nodes 76 s and 5.6 GB; nonlinear-pf 500 nodes 97 s and 1,000 nodes 1,466 s (the dense
-# nonlinear loop's Cholesky per friction iteration; RT-A3 stage P).
+# The default plan, in run order. Estimates order the window and bound it, nothing else; none is
+# a measurement. The linear-ex estimates follow the records taken after the published-row index
+# (RT-A3 increment 1b): 142 s at 1,000 nodes in an exclusive window, and the desktop worker's 58 s
+# at 500 nodes. The nonlinear estimates are assumptions: no run of either nonlinear rack exists
+# since RT-A3 stage P moved the sparse-mode loop onto the sparse pattern, and the nonlinear-pf
+# figures before it (97 s at 500 nodes, 1,466 s at 1,000) no longer describe that loop. A timeout
+# is generous because a timed-out run records only the stage it reached.
 _DEFAULT = (
     # profile, nodes, timeout_s, estimate_s, expect
-    ('linear-ex', 250, 120, 30, 'solved'),
-    ('linear-ex', 500, 240, 80, 'solved'),
-    ('linear-ex', 1000, 480, 220, 'solved'),
+    ('linear-ex', 250, 120, 25, 'solved'),
+    ('linear-ex', 500, 240, 60, 'solved'),
+    ('linear-ex', 1000, 900, 150, 'solved'),
     # Its attribution twin: stack snapshots while it runs (timings perturbed, not measurements).
-    ('linear-ex', 1000, 480, 240, 'solved', True),
-    # Projected above the 12 GiB base-machine budget (about 22 GB) and beyond one window.
+    ('linear-ex', 1000, 900, 170, 'solved', True),
+    # Expected over the 12 GiB base-machine budget or beyond one window.
     ('linear-ex', 2000, 900, 650, 'exceeds_base_machine_budget'),
-    ('nonlinear-pf', 250, 60, 15, 'solved'),
-    ('nonlinear-pf', 500, 240, 100, 'solved'),
-    # Refused before any n^2 allocation by the nonlinear loop's dense-memory guard.
+    ('nonlinear-pf', 250, 120, 30, 'solved'),
+    ('nonlinear-pf', 500, 240, 90, 'solved'),
+    # Refused before any case by the nonlinear admission cap (nonlinear_integration
+    # `DENSE_LOOP_BYTES_PER_GLOBAL_ENTRY`), which sparse mode keeps although its loop no longer
+    # holds the dense buffers the estimate counts.
     ('nonlinear-pf', 2000, 60, 2, 'refused:NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED'),
-    # The dense loop's cubic cost puts these beyond one window until RT-A3 stage P.
-    ('nonlinear-pf', 1000, 2400, 1500, 'solved'),
-    ('nonlinear-pf', 1500, 7200, 5000, 'solved'),
-    # Since RT-A3 increment 4 the exact route carries the rack's nonlinear supports (rack_model.py),
-    # so nonlinear-ex runs the same dense active-set loop and shares nonlinear-pf's supports and
-    # restrained DOFs: the dense-memory guard refuses criterion 9's 2,000 nodes before any case,
-    # and 1,000 nodes takes the dense loop's cost. Their timeout and estimate are nonlinear-pf's at
-    # the same size, assumed, not dry runs or measurements of nonlinear-ex.
+    ('nonlinear-pf', 1000, 900, 300, 'solved'),
+    ('nonlinear-pf', 1500, 1800, 700, 'solved'),
+    # The exact route carries the rack's nonlinear supports since RT-A3 increment 4
+    # (rack_model.py), so nonlinear-ex runs the same active-set loop as nonlinear-pf on the same
+    # supports and restrained DOFs, and the cap refuses criterion 9's 2,000 nodes before any case.
     ('nonlinear-ex', 2000, 60, 2, 'refused:NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED'),
-    ('nonlinear-ex', 1000, 2400, 1500, 'solved'),
+    ('nonlinear-ex', 250, 120, 30, 'solved'),
+    ('nonlinear-ex', 500, 240, 90, 'solved'),
+    ('nonlinear-ex', 1000, 900, 300, 'solved'),
 )
 
 SUBSETS = {
@@ -104,6 +107,9 @@ SUBSETS = {
         ('nonlinear-pf', 2000), ('nonlinear-ex', 2000)},
     # A second window: linear-ex 1000 timed, then its attribution twin.
     'window2': lambda r: (r['profile'], r['nodes']) == ('linear-ex', 1000),
+    # One window for the growth law of both exact-route profiles below the nonlinear cap.
+    'scaling': lambda r: not r['attribute'] and r['profile'] in ('linear-ex', 'nonlinear-ex')
+    and r['nodes'] in (250, 500, 1000),
     'linear': lambda r: r['profile'] == 'linear-ex',
     'nonlinear-pf': lambda r: r['profile'] == 'nonlinear-pf',
     'nonlinear-ex': lambda r: r['profile'] == 'nonlinear-ex',
