@@ -1864,3 +1864,135 @@ fn p_a_shared_factor_with_skew_node_blocks_completes_other_right_hand_sides() {
         assert_eq!(format!("{separate:?}"), format!("{:?}", finish_sparse_structural_on(&shared, &prepared)), "scale {scale}");
     }
 }
+
+// ------------------------------------------------------ K-D5 on the pattern
+
+/// The settled chain (node 0 prescribed, a settlement at its UY; free rows of
+/// different extents) with one stored symmetric pair that no contribution
+/// forms, between nodes 3 and 9. In an assembled system the contributions
+/// cover every stored position, so a walk that dropped stored positions would
+/// still visit them through the contributions; this pair is visited only
+/// through the stored patterns.
+fn kd5_pair(extra: f64) -> (Model, Pair, (usize, usize)) {
+    let model = chain(12, 200e9, 0.003);
+    let mut pair = Pair::new(&model);
+    let n = model.node_count * 6;
+    let (i, j) = (6 * 3 + 1, 6 * 9 + 2);
+    assert!(pair.dense[i][j] == 0.0 && pair.sparse.pattern().find(i, j).is_none());
+    pair.dense[i][j] = extra;
+    pair.dense[j][i] = extra;
+    let old = pair.sparse.pattern().clone();
+    let positions = (0..n)
+        .flat_map(|r| old.row(r).iter().map(move |&c| (r, c)))
+        .chain([(i, j)]);
+    let pattern = SparsePattern::from_positions(n, positions).unwrap();
+    let per_entry: Vec<(usize, usize)> = (0..n)
+        .flat_map(|r| pattern.row(r).iter().map(move |&c| (r, c)))
+        .collect();
+    let values = per_entry.iter().map(|&(r, c)| pair.dense[r][c]).collect();
+    pair.sparse_roundoff = per_entry.iter().map(|&(r, c)| pair.roundoff[r][c]).collect();
+    pair.sparse_counts = per_entry.iter().map(|&(r, c)| pair.counts[r][c]).collect();
+    pair.sparse = SparseStiffness::from_pattern_values(pattern, values).unwrap();
+    (model, pair, (i, j))
+}
+
+/// K-D5 through both pattern handoffs, the first solve's
+/// (`Represented::formation_check`) and the confirmation attempt's
+/// (`SparseConfirmationAttempt::evaluate_at`), equals the dense
+/// representation's, which walks every free pair with the dense callbacks:
+/// the epsilon_E bits, the finding and the member-bound inputs (lambda sigma
+/// included). K1 requires it: the sparse report is byte-identical in `Debug`
+/// to the dense-derived one for the same equations (module documentation),
+/// and the stored position without a contribution makes epsilon_E depend on
+/// the pattern each handoff passes and on the prepared row each reads.
+#[test]
+fn kd5_through_both_pattern_handoffs_is_the_dense_full_walk_bit_for_bit() {
+    let (model, pair, (i, j)) = kd5_pair(KD5_EXTRA);
+    assert!(!pair
+        .contributions
+        .iter()
+        .any(|e| (e.row, e.col) == (i, j) || (e.row, e.col) == (j, i)));
+    assert!(pair.prescribed.iter().any(|&(_, g)| g != 0.0));
+    let source = FormationSource {
+        node_count: model.node_count,
+        frames: model.frames.clone(),
+        ..FormationSource::default()
+    };
+    let dense = || {
+        StructuralSystem::assembled(
+            &pair.dense,
+            &pair.ledger,
+            &pair.free,
+            &pair.prescribed,
+            Some(&pair.contributions),
+            Some(pair.dense_evidence()),
+        )
+    };
+    let sparse = || {
+        SparseStructuralSystem::assembled(
+            &pair.sparse,
+            &pair.ledger,
+            &pair.free,
+            &pair.prescribed,
+            Some(&pair.contributions),
+            Some(pair.sparse_evidence()),
+        )
+    };
+    let dense_checked = dense().with_formation_source(&source);
+    let sparse_checked = sparse().with_formation_source(&source);
+
+    // The first solve: the completion hands the prepared pattern over.
+    let dp = prepare_formation_checked_structural(&dense_checked).unwrap();
+    let sp = prepare_formation_checked_sparse_structural(&sparse_checked).unwrap();
+    assert_prepared_equal(&dp, &sp, "kd5 first solve");
+    let (starts, columns) = sp.gate_pattern().unwrap();
+    let row = |r: usize| &columns[starts[r]..starts[r + 1]];
+    assert!((1..sp.dimension()).any(|r| row(r) != row(0)), "free rows differ");
+    let (order, first) = natural_profile(&dp);
+    let d = finish_structural(&factor_structural_profile(&dp, &order, &first).unwrap()).unwrap();
+    let s = finish_sparse_structural(&factor_sparse_structural_profile(&sp, &order, &first).unwrap())
+        .unwrap();
+    assert!(d.formation_check.is_none(), "{:?}", d.formation_check);
+    let bound = d.member_bound.as_ref().expect("the dense case passes K-D5");
+    assert!(bound.lambda_sigma > 0.0 && bound.lambda_sigma.is_finite());
+    assert_eq!(format!("{:?}", s.formation_check), format!("{:?}", d.formation_check));
+    assert_eq!(format!("{:?}", s.member_bound), format!("{:?}", d.member_bound));
+    assert_eq!(
+        s.member_bound.as_ref().unwrap().lambda_sigma.to_bits(),
+        bound.lambda_sigma.to_bits()
+    );
+    assert_eq!(format!("{s:?}"), format!("{d:?}"));
+
+    // The confirmation attempt: a gate prepared without the source, then the
+    // checked system evaluated on the gate's factor.
+    let dense_gate = dense();
+    let sparse_gate = sparse();
+    let dg = prepare_assembled_structural(&dense_gate).unwrap();
+    let sg = prepare_assembled_sparse_structural(&sparse_gate).unwrap();
+    assert_prepared_equal(&dg, &sg, "kd5 confirmation gate");
+    let df = factor_structural_profile(&dg, &order, &first).unwrap();
+    let sf = factor_sparse_structural_profile(&sg, &order, &first).unwrap();
+    let (d_solution, d_attempt) = finish_confirmation(&df).unwrap();
+    let (s_solution, s_attempt) = finish_sparse_confirmation(&sf).unwrap();
+    assert_eq!(format!("{s_solution:?}"), format!("{d_solution:?}"));
+    let u = &d_solution.displacements;
+    assert!(d_attempt.epsilon.get().is_none() && s_attempt.epsilon.get().is_none());
+    let d_out = d_attempt.evaluate_at(&dense_checked, u, true).unwrap();
+    let s_out = s_attempt.evaluate_at(&sparse_checked, u, true).unwrap();
+    let d_epsilon = d_attempt.epsilon.get().expect("the dense attempt formed epsilon_E");
+    let s_epsilon = s_attempt.epsilon.get().expect("the sparse attempt formed epsilon_E");
+    assert!(d_epsilon > 0.0);
+    assert_eq!(s_epsilon.to_bits(), d_epsilon.to_bits(), "epsilon_E");
+    assert!(d_out.0.is_none(), "{:?}", d_out.0);
+    let d_bound = d_out.1.as_ref().expect("the dense confirmation passes K-D5");
+    assert_eq!(format!("{:?}", s_out.0), format!("{:?}", d_out.0));
+    assert_eq!(format!("{:?}", s_out.1), format!("{:?}", d_out.1));
+    assert_eq!(
+        s_out.1.as_ref().unwrap().lambda_sigma.to_bits(),
+        d_bound.lambda_sigma.to_bits()
+    );
+}
+
+/// The stored-only pair's value: it dominates epsilon_E (about 1.8e-14 against
+/// 5.7e-15 without it) while the case still passes K-D5 in both handoffs.
+const KD5_EXTRA: f64 = 1.0e-6;
