@@ -412,6 +412,11 @@ impl Protocol {
                 .ok_or(Error("invalid method"))?
                 .to_owned();
             if object.contains_key("id") {
+                // A status report is a notification: one bearing an id is
+                // never answered as a request; it ends the session.
+                if method == REMOTE_CONTROL_STATUS {
+                    return Err(REMOTE_CONTROL_REPORTED);
+                }
                 let id = rpc_id(object.get("id"))?;
                 if method == "item/tool/call" {
                     let params = object.remove("params").ok_or(Error("missing parameters"))?;
@@ -1009,6 +1014,9 @@ mod tests {
             written.push(v);
         }
         written.extend(p.handle_frame(json!({"id":8,"method":"remoteControl/enable","params":{}}), &basis()).unwrap().outbound);
+        // A status bearing an id ends the session before request dispatch.
+        let mut q = active();
+        assert_eq!(q.handle_frame(json!({"id":9,"method":REMOTE_CONTROL_STATUS,"params":{"status":"disabled"}}), &basis()).err(), Some(REMOTE_CONTROL_REPORTED));
         written.push(p.interrupt().unwrap());
         let mut methods: Vec<&str> = written.iter().filter_map(|v| v.get("method")?.as_str()).collect();
         methods.sort();

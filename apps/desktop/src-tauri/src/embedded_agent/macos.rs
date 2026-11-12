@@ -59,6 +59,21 @@ enabled = false
 
 /// JSON string escaping is a subset of TOML basic-string escaping for the
 /// accepted, control-free model identifier. No raw model text is interpolated.
+/// The supplier's fixed arguments. An explicit `--remote-control` would
+/// override the disabling variable, so nothing else is ever passed.
+const SUPPLIER_ARGS: [&str; 3] = ["app-server", "--listen", "stdio://"];
+/// The supplier's whole command line, working directory and environment.
+fn supplier_command(root: &Path, capability: &str) -> Command {
+    let mut command = Command::new("/usr/bin/sandbox-exec");
+    contain_environment(&mut command, root, capability);
+    command
+        .arg("-f")
+        .arg(root.join("sandbox.sb"))
+        .arg(root.join("codex"))
+        .args(SUPPLIER_ARGS)
+        .current_dir(root.join("work"));
+    command
+}
 /// Clears the child's environment and sets exactly the fixed set. Nothing from
 /// the application's environment, CODEX_ variables included, reaches it.
 fn contain_environment(command: &mut Command, root: &Path, capability: &str) {
@@ -298,14 +313,8 @@ impl Prepared {
         }
         let root = &runtime.root;
         let result = {
-            let mut command = Command::new("/usr/bin/sandbox-exec");
-            contain_environment(&mut command, root, runtime.relay.scope().capability());
+            let mut command = supplier_command(root, runtime.relay.scope().capability());
             command
-                .arg("-f")
-                .arg(root.join("sandbox.sb"))
-                .arg(root.join("codex"))
-                .args(["app-server", "--listen", "stdio://"])
-                .current_dir(root.join("work"))
                 .stdin(Stdio::piped())
                 .stdout(Stdio::piped())
                 .stderr(if diagnostic_stderr {
@@ -591,6 +600,36 @@ mod tests {
         }
         // The removed feature key is not written: it would be ignored.
         assert!(!CONFIG_BODY.contains("remote_control"));
+    }
+    #[test]
+    fn supplier_command_has_exactly_the_fixed_arguments_and_environment() {
+        let root = Path::new("/private/invented-root");
+        let command = supplier_command(root, "invented-capability");
+        assert_eq!(command.get_program(), "/usr/bin/sandbox-exec");
+        let args: Vec<&str> = command.get_args().map(|a| a.to_str().unwrap()).collect();
+        assert_eq!(
+            args,
+            [
+                "-f",
+                "/private/invented-root/sandbox.sb",
+                "/private/invented-root/codex",
+                "app-server",
+                "--listen",
+                "stdio://"
+            ]
+        );
+        assert_eq!(command.get_current_dir(), Some(Path::new("/private/invented-root/work")));
+        let mut envs: Vec<(String, String)> = command
+            .get_envs()
+            .map(|(k, v)| (k.to_str().unwrap().to_owned(), v.unwrap().to_str().unwrap().to_owned()))
+            .collect();
+        envs.sort();
+        let mut expected: Vec<(String, String)> = EXPECTED_ENVIRONMENT
+            .iter()
+            .map(|(k, v)| ((*k).to_owned(), (*v).to_owned()))
+            .collect();
+        expected.sort();
+        assert_eq!(envs, expected);
     }
     #[test]
     fn contained_child_inherits_nothing_from_the_application_environment() {

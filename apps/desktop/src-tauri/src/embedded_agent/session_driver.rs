@@ -32,6 +32,14 @@ pub const DERIVED_BYTES: u64 = 2 * 1024 * 1024;
 const BASIS_BYTES: usize = 16 * 1024;
 /// Catalog v2 permits 16 concurrent calls, plus one turn-completion event.
 pub const MAX_EVENTS_PER_POLL: usize = 17;
+/// The only methods this host writes to the supplier.
+const WRITABLE_METHODS: [&str; 5] = [
+    "initialize",
+    "initialized",
+    "thread/start",
+    "turn/start",
+    "turn/interrupt",
+];
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Refusal {
@@ -228,6 +236,16 @@ impl SessionDriver {
         Ok(())
     }
     fn send(&mut self, value: Value, backing: Arc<Lease>) -> Result<Submission, Refusal> {
+        // The one place frames are written to the supplier. Replies carry no
+        // method; a request or notification must be one of the five this host
+        // sends. Anything else (remoteControl/enable, pairing, any later
+        // addition) is never written and ends the session.
+        if let Some(method) = value.get("method") {
+            if !method.as_str().is_some_and(|m| WRITABLE_METHODS.contains(&m)) {
+                self.close(Terminal::Protocol);
+                return Err(Refusal::Closed);
+            }
+        }
         // Callers checked liveness before changing protocol state. Do not add a
         // fallible try-lock observation after that transition: ordinary queue
         // contention would otherwise turn a valid control into a disconnect.
@@ -400,6 +418,9 @@ impl SessionDriver {
                 .is_err()
             {
                 self.close(Terminal::Admission);
+            } else if frame.duplicate_member {
+                // A protocol violation: no Value was built for this frame.
+                self.close(Terminal::Protocol);
             } else {
                 let backing = Arc::new(frame.lease);
                 #[cfg(feature = "native-smoke")]
@@ -572,6 +593,13 @@ mod tests {
         fn frame(&self, v: Value) {
             let mut s = self.state.lock().unwrap();
             s.0.extend(serde_json::to_vec(&v).unwrap());
+            s.0.push_back(b'\n');
+            self.wake.notify_all();
+        }
+        /// One raw frame, for bytes a json macro cannot express.
+        fn raw(&self, bytes: &[u8]) {
+            let mut s = self.state.lock().unwrap();
+            s.0.extend(bytes);
             s.0.push_back(b'\n');
             self.wake.notify_all();
         }
@@ -942,6 +970,104 @@ mod tests {
             matches!(o.events.unwrap().events(), [Event::ToolLost { request_ref, .. }] if request_ref.as_str() == r)
         );
         assert!(h.wait(|_| true).events.is_none());
+    }
+    // From pull request 249, as it stands there, less its refusal-class line.
+    #[test]
+    fn duplicate_member_frame_ends_the_session_as_a_protocol_violation() {
+        for raw in [
+            &br#"{"method":"item/started","params":{"threadId":"thread-1","turnId":"turn-1","item":{"id":"i","type":"commandExecution","type":"userMessage"}}}"#[..],
+            &br#"{"method":"item/started","params":{"threadId":"thread-1","turnId":"turn-1","item":{"id":"i","t\u0079pe":"commandExecution","type":"userMessage"}}}"#[..],
+        ] {
+            let mut h = Harness::new();
+            h.active();
+            h.call("rpc");
+            let _requested = h.event();
+            h.input.raw(raw);
+            let o = h.wait(|o| o.terminal.is_some());
+            assert_eq!(o.terminal, Some(Terminal::Protocol));
+            assert!(matches!(
+                o.events.unwrap().events(),
+                [Event::ToolLost { .. }]
+            ));
+            assert!(h.wait(|_| true).events.is_none());
+            assert_eq!(h.control(|d| d.submit_text("again")), Err(Refusal::Closed));
+        }
+    }
+    const DUPLICATED_STATUS: [&[u8]; 4] = [
+        br#"{"method":"remoteControl/status/changed","params":{"status":"connected","status":"disabled"}}"#,
+        br#"{"method":"remoteControl/status/changed","params":{"status":"connected","st\u0061tus":"disabled"}}"#,
+        br#"{"method":"remoteControl/status/changed","params":{"st\u0061tus":"connected","status":"disabled"}}"#,
+        br#"{"method":"remoteControl/status/changed","params":{"status":"disabled","installationId":"i","serverName":"s"},"params":{"status":"disabled"}}"#,
+    ];
+    #[test]
+    fn duplicated_status_member_ends_the_session_at_start_and_mid_turn() {
+        for raw in DUPLICATED_STATUS {
+            // At start: before initialize is answered.
+            let mut h = Harness::new();
+            h.input.raw(raw);
+            assert_eq!(h.wait(|o| o.terminal.is_some()).terminal, Some(Terminal::Protocol));
+            assert_eq!(h.control(|d| d.initialize("test", "1")), Err(Refusal::Closed));
+            // Mid turn, with a call pending: it is lost once.
+            let mut h = Harness::new();
+            h.active();
+            h.call("rpc");
+            let r = reference(&h.event());
+            h.input.raw(raw);
+            let o = h.wait(|o| o.terminal.is_some());
+            assert_eq!(o.terminal, Some(Terminal::Protocol), "{}", String::from_utf8_lossy(raw));
+            assert!(
+                matches!(o.events.unwrap().events(), [Event::ToolLost { request_ref, .. }] if request_ref.as_str() == r)
+            );
+            assert_eq!(h.complete(&r, outcome()), Err(Refusal::Closed));
+        }
+    }
+    #[test]
+    fn status_frame_with_an_id_ends_the_session_at_start_and_mid_turn() {
+        for status in ["disabled", "connected"] {
+            let frame = json!({"id":77,"method":"remoteControl/status/changed","params":{"status":status}});
+            let mut h = Harness::new();
+            h.input.frame(frame.clone());
+            assert_eq!(h.wait(|o| o.terminal.is_some()).terminal, Some(Terminal::Protocol));
+            // Nothing, not even "Unsupported request", was written back.
+            assert_eq!(h.output.state.lock().unwrap().1, 0);
+            let mut h = Harness::new();
+            h.active();
+            h.call("rpc");
+            let r = reference(&h.event());
+            h.input.frame(frame);
+            let o = h.wait(|o| o.terminal.is_some());
+            assert_eq!(o.terminal, Some(Terminal::Protocol));
+            assert!(
+                matches!(o.events.unwrap().events(), [Event::ToolLost { request_ref, .. }] if request_ref.as_str() == r)
+            );
+            assert_eq!(h.output.state.lock().unwrap().1, 4);
+        }
+    }
+    #[test]
+    fn only_the_five_methods_are_ever_written_to_the_supplier() {
+        for refused in [
+            json!({"id":90,"method":"remoteControl/enable","params":{}}),
+            json!({"id":91,"method":"remoteControl/pairing/start","params":{}}),
+            json!({"method":"remoteControl/status/changed","params":{"status":"disabled"}}),
+            json!({"id":92,"method":7}),
+        ] {
+            let mut h = Harness::new();
+            h.ready();
+            let flushed = h.output.state.lock().unwrap().1;
+            let backing = h.d().backing().unwrap();
+            assert_eq!(h.d().send(refused.clone(), backing), Err(Refusal::Closed), "{refused}");
+            assert_eq!(h.wait(|o| o.terminal.is_some()).terminal, Some(Terminal::Protocol));
+            assert_eq!(h.output.state.lock().unwrap().1, flushed, "{refused}");
+        }
+        // A reply carries no method and passes.
+        let mut h = Harness::new();
+        h.ready();
+        let backing = h.d().backing().unwrap();
+        assert_eq!(
+            h.d().send(json!({"id":93,"error":{"code":-32601,"message":"Unsupported request"}}), backing),
+            Ok(Submission::Queued)
+        );
+        assert_eq!(h.sent(4)[3]["id"], 93);
     }
     #[test]
     fn status_seen_after_the_first_turn_does_not_rewrite_the_record() {
