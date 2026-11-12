@@ -278,6 +278,11 @@ pub fn physics_model_checks(source: &Value, model: &Value) -> Result<(), String>
     if model.get("pressure_contract").is_some_and(|v| !v.is_null()) {
         crate::section_basis::bind_shear_model(evidence, model)?;
     }
+    // DEL-04-07: an exception record's geometry is the model's, and every
+    // interior node of its family is within its bound.
+    if model.get("nodes").is_some_and(|v| !v.is_null()) && model.get("pipe_segments").is_some_and(|v| !v.is_null()) {
+        crate::physics_evidence::exception_model_checks(source, model)?;
+    }
     if model.get("supports").is_some_and(|v| !v.is_null()) {
         let supports = ids(&model["supports"], "id");
         for row in source["results"].as_array().map(Vec::as_slice).unwrap_or(&[]) {
