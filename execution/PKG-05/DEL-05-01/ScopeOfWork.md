@@ -55,12 +55,13 @@ Wind coefficients, exposure rules, seismic response parameters, code load cases 
 **Not decided.**
 
 - How a case's pressure is resolved from an operating condition. A case that asks for it is refused by name.
-- What a combination that includes a hydrostatic test case means. Until it is decided, such a combination is withheld by name.
 - Whether an authored temperature change in degF or degR is converted with correct rounding. It would move existing results.
 - Which deliverable states the load and reference state of a document: a case's reference configuration, its fit and thermal strains by member, its per-support participation and its ledger of load sources. This scope states none of it.
 - For a case that is not a hydrostatic test, whether and how its contents density from its operating condition replaces the section's contents density in its self-weight. A case that asks for it is refused by name.
 
-**Held by the owner.** The work that brings a test case's selected contents density into its self-weight is not undertaken until the owner selects it: until then no one composes, builds, prices or witnesses it, opens a pull request for it or starts an agent on it. Only the owner releases this hold. REQ-014 and AC-010 still state the objective.
+**Withheld in v1.0.** A combination that includes a hydrostatic test case is withheld by name. v1.0 does not define what such a combination means, and exit criterion 1 asks for the test case, not for a combination of it. The refusal is a release limitation (exit criterion 3).
+
+**Selected and sequenced.** The work that brings a test case's selected contents density into its self-weight is selected. SWBPIPE's Agent 0 released the hold that stood on it (2026-11-12). It follows the change that makes pressure elongation a user option on the exact route (DEL-04-07), because both change the same solve sources and every change to them is priced again (DEL-04-08/REQ-004). REQ-014 and AC-010 state the objective.
 
 ## Completion and Reliance Basis — Epistemology
 
