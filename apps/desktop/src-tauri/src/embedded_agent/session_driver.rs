@@ -388,6 +388,10 @@ impl SessionDriver {
                 self.close(Terminal::Admission);
             } else {
                 let backing = Arc::new(frame.lease);
+                #[cfg(feature = "native-smoke")]
+                if let Some(line) = remote_control_line(&frame.value) {
+                    eprintln!("{line}");
+                }
                 match self.protocol.handle_frame(frame.value, &self.basis) {
                     Err(_) => self.close(Terminal::Protocol),
                     Ok(actions) => {
@@ -432,6 +436,19 @@ impl SessionDriver {
             events: batch,
         })
     }
+}
+/// Native smoke only: one payload-free line for a remote control status
+/// notification. Only the closed status word or a fixed placeholder reaches it,
+/// never the notification's identities or any other supplier text.
+#[cfg(any(test, feature = "native-smoke"))]
+fn remote_control_line(frame: &Value) -> Option<String> {
+    if frame.get("id").is_some()
+        || frame.get("method").and_then(Value::as_str) != Some(protocol::REMOTE_CONTROL_STATUS)
+    {
+        return None;
+    }
+    let word = protocol::remote_control_status(frame.get("params")).unwrap_or("unrecognized");
+    Some(format!("[native-smoke-agent-host] remote control status {word}"))
 }
 fn ended(s: &stdio_pump::Status) -> bool {
     s.stop_requested
@@ -768,6 +785,46 @@ mod tests {
         }
     }
 
+    #[test]
+    fn remote_control_line_carries_only_the_closed_status_word() {
+        let line = |params: Value| {
+            remote_control_line(&json!({"method":"remoteControl/status/changed","params":params}))
+        };
+        for word in ["disabled", "connecting", "connected", "errored"] {
+            assert_eq!(
+                line(json!({"status":word,"installationId":"install-marker","serverName":"server-marker","environmentId":"env-marker"})),
+                Some(format!("[native-smoke-agent-host] remote control status {word}"))
+            );
+        }
+        let placeholder = Some("[native-smoke-agent-host] remote control status unrecognized".to_owned());
+        for hostile in [
+            json!({"status":"x".repeat(100_000),"installationId":"install-marker"}),
+            json!({"status":"disabled\n[native-smoke-agent-host] forged","serverName":"server-marker"}),
+            json!({"status":{"word":"disabled"},"environmentId":"env-marker"}),
+            json!({"status":["disabled"]}),
+            json!({"status":null}),
+            json!({"status":true}),
+            json!({"status":"Disabled"}),
+            json!({"installationId":"install-marker","serverName":"server-marker"}),
+            json!("disabled"),
+            Value::Null,
+        ] {
+            assert_eq!(line(hostile), placeholder);
+        }
+        assert_eq!(
+            remote_control_line(&json!({"method":"remoteControl/status/changed"})),
+            placeholder
+        );
+        // A request bearing the method, or any other method, prints nothing.
+        assert_eq!(
+            remote_control_line(&json!({"id":1,"method":"remoteControl/status/changed","params":{"status":"disabled"}})),
+            None
+        );
+        assert_eq!(
+            remote_control_line(&json!({"method":"thread/started","params":{"status":"disabled"}})),
+            None
+        );
+    }
     #[test]
     fn handshake_and_original_rpc_completion_are_streamed_and_leased() {
         let mut h = Harness::new();

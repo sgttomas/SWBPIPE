@@ -258,6 +258,23 @@ fn unoffered_activity(item: &Value) -> bool {
     )
 }
 
+// Stock 0.160.0's remote control: a transport by which enrolled remote clients
+// could drive the runtime. Its status notification's closed word set
+// (RemoteControlConnectionStatus); anything else is None. Only the word is
+// returned, never the notification's identities.
+#[cfg(any(test, feature = "native-smoke"))]
+pub(super) const REMOTE_CONTROL_STATUS: &str = "remoteControl/status/changed";
+#[cfg(any(test, feature = "native-smoke"))]
+pub(super) fn remote_control_status(params: Option<&Value>) -> Option<&'static str> {
+    match params?.get("status")?.as_str()? {
+        "disabled" => Some("disabled"),
+        "connecting" => Some("connecting"),
+        "connected" => Some("connected"),
+        "errored" => Some("errored"),
+        _ => None,
+    }
+}
+
 impl Protocol {
     pub fn last_rejection(&self) -> Option<RpcRejection> {
         self.last_rejection
