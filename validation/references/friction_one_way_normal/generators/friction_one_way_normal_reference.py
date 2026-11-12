@@ -18,15 +18,19 @@ state law (which defines the problem):
      hand-derived unit-load integrals written out as formulas; the support
      forces at S are the redundants, solved per state combination from the 2x2
      compatibility at S; everything else by statics. Every one of the eight
-     state combinations is tried and the state law checked on each.
+     state combinations is tried, and on each both the classification law
+     (DEL-04-04, |T| <= mu*N) and the strict confirmation predicate are tested.
   B. Direct stiffness. Independently assembled planar Euler-Bernoulli frame
      (6x6 element matrices, rotated to global), solved with the support states
      as extra equations, by exact Gauss-Jordan elimination. The state is found
      by an active-set iteration (solve, classify, update) from two different
      starting states, and separately by enumerating all eight combinations.
-A and B must agree exactly on every published value, exactly one combination
-must satisfy the state law, and every equilibrium, closed-form and robustness
-check must hold, or nothing is written and the exit status is 1.
+A and B must agree exactly on every published value; away from a boundary
+exactly one combination must be consistent with the classification law and the
+same one strictly confirmed; at the two boundary witnesses the classification
+and confirmation outcomes must be the ones stated; and every equilibrium,
+closed-form and robustness check must hold, or nothing is written and the exit
+status is 1.
 
 Usage:  python3 -I -B friction_one_way_normal_reference.py [--check]  # default: compare frozen bytes
         python3 -I -B friction_one_way_normal_reference.py --write    # rewrite references.json and SHA256SUMS
@@ -193,8 +197,36 @@ def a_state_forces(inp, sec, loads, ow, fs):
     return Rx, Rz
 
 
-def law_violations(mu, ow, fs, Rx, Rz, ux, uz):
-    """DEL-04-04 state law, each deciding quantity strictly on its state's side."""
+def classify(mu, ow, fs, Rx, Rz, ux, uz, zero_bears):
+    """The classifier's law (DEL-04-04), applied to one trial state's solution.
+    One-way: an engaged support stays engaged while it bears; a released one
+    engages when it would penetrate (u_z < 0). Whether a reaction of exactly 0
+    "bears" is not settled by the wording: zero_bears selects the reading.
+    Friction: inactive while its normal does not bear; otherwise sticking while
+    |T| <= mu*N (non-strict, as written) and sliding otherwise, with slide
+    direction -sign(T); a sliding trial carries mu*N opposing its motion, so it
+    stays sliding while it moves in its own direction and otherwise sticks."""
+    def bears_(r):
+        return r > 0 or (zero_bears and r == 0)
+    if ow == "active":
+        ow2 = "active" if bears_(Rz) else "inactive"
+    else:
+        ow2 = "active" if uz < 0 else "inactive"
+    bears = ow == "active" and ow2 == "active"
+    N = Rz if bears else Fr(0)
+    if not bears:
+        fs2 = "inactive"
+    elif fs in ("inactive", "stick"):
+        fs2 = "stick" if abs(Rx) <= mu * N else ("slide+" if Rx < 0 else "slide-")
+    else:
+        fs2 = fs if dirn(fs) * ux > 0 else "stick"
+    return ow2, fs2
+
+
+def confirmation_failures(mu, ow, fs, Rx, Rz, ux, uz):
+    """Strict confirmation (DEL-04-04 admissibility confirmation, REQ-013): each
+    deciding quantity strictly on its state's side; a value on the boundary does
+    not establish the state."""
     v = []
     if ow == "active" and not Rz > 0:
         v.append("one-way active needs reaction > 0 (bears)")
@@ -214,14 +246,19 @@ def law_violations(mu, ow, fs, Rx, Rz, ux, uz):
 
 
 def a_solve(inp, sec, loads):
-    """Try all eight state pairs in closed form; return the admissible one(s)."""
+    """Try all eight state pairs in closed form; for each, whether the classifier
+    returns the trial state itself (under each reading of a zero reaction) and
+    which strict-confirmation conditions fail."""
     out = []
+    mu = inp["mu"]
     for ow in STATES_ONEWAY:
         for fs in STATES_FRICTION:
             Rx, Rz = a_state_forces(inp, sec, loads, ow, fs)
             uS = a_displacements(inp, sec, loads["Px"] + Rx, loads["Pz"] + Rz, loads["Gx"], Fr(0))["S"]
+            ux, uz = uS["UX"], uS["UZ"]
             out.append({"state": (ow, fs), "Rx": Rx, "Rz": Rz,
-                        "violations": law_violations(inp["mu"], ow, fs, Rx, Rz, uS["UX"], uS["UZ"])})
+                        "consistent": {zb: classify(mu, ow, fs, Rx, Rz, ux, uz, zb) == (ow, fs) for zb in (False, True)},
+                        "failures": confirmation_failures(mu, ow, fs, Rx, Rz, ux, uz)})
     return out
 
 
@@ -366,31 +403,13 @@ def b_results(inp, mdl, u, Rx, Rz, f):
     return disp, reac, ends
 
 
-def b_classify(mu, ow, fs, u, Rx, Rz, dof):
-    """One classification step of the active-set iteration (state-switched test)."""
-    ux, uz = u[dof[("S", "UX")]], u[dof[("S", "UZ")]]
-    if ow == "active":
-        ow2 = "active" if Rz > 0 else "inactive"
-    else:
-        ow2 = "active" if uz < 0 else "inactive"
-    bears = ow == "active" and Rz > 0 and ow2 == "active"
-    if not bears:
-        fs2 = "inactive"
-    elif fs == "inactive":
-        fs2 = "stick"
-    elif fs == "stick":
-        fs2 = "stick" if abs(Rx) < mu * Rz else ("slide+" if Rx < 0 else "slide-")
-    else:
-        fs2 = fs if dirn(fs) * ux > 0 else "stick"
-    return ow2, fs2
-
-
-def b_iterate(inp, mdl, loads, start, cap=50):
+def b_iterate(inp, mdl, loads, start, zero_bears=False, cap=50):
     ow, fs = start
     path = [f"{ow}/{fs}"]
+    dof = mdl["dof"]
     for _ in range(cap):
         u, Rx, Rz, f = b_solve_state(inp, mdl, loads, ow, fs)
-        ow2, fs2 = b_classify(inp["mu"], ow, fs, u, Rx, Rz, mdl["dof"])
+        ow2, fs2 = classify(inp["mu"], ow, fs, Rx, Rz, u[dof[("S", "UX")]], u[dof[("S", "UZ")]], zero_bears)
         if (ow2, fs2) == (ow, fs):
             return (ow, fs), u, Rx, Rz, f, path
         ow, fs = ow2, fs2
@@ -423,6 +442,18 @@ BASE_CASES = [
     ("LIFT-NEG", "Net uplift and a large -X lateral load at B: lifted further; the friction support carries nothing.",
      [("B", "FX", -20000), ("S", "FZ", 2000)]),
 ]
+
+
+AS, AI, II, ASM = ("active", "stick"), ("active", "inactive"), ("inactive", "inactive"), ("active", "slide-")
+# (consistent if a zero reaction does not bear, consistent if it bears, strictly confirmed)
+BOUNDARY_EXPECT = {
+    "STICK-BOUNDARY": ([AS], [AS], []),
+    "LIFT-BOUNDARY": ([II], [ASM, II], []),
+}
+BOUNDARY_REASON = {
+    "STICK-BOUNDARY": "the stick margin mu*N - |T| is exactly 0: the state touches the stick/slide boundary, so stick is not established, and no other pair is",
+    "LIFT-BOUNDARY": "the one-way reaction of the active trial and the separation of the inactive trial are both exactly 0: each touches its boundary, so no pair is established",
+}
 
 
 def loads_of(prims):
@@ -480,6 +511,10 @@ def build():
          [("B", "FX", -8000), ("S", "FZ", P_lo)]),
         ("NEAR-LIFT", f"Lift-off pair, lifted side: Pz = {P_hi} N, Gx = -8000 N, under 1/256 N less downward than the threshold.",
          [("B", "FX", -8000), ("S", "FZ", P_hi)]),
+        ("STICK-BOUNDARY", "Boundary witness on the stick/slide boundary: Px = 3000 N and Pz = -8000 N at the shoe, Gx = 0. The stick reaction is exactly -P, so |T| = mu*N exactly.",
+         [("S", "FX", 3000), ("S", "FZ", -8000)]),
+        ("LIFT-BOUNDARY", "Boundary witness on the lift-off boundary: Gx = -721913/128 N, Pz = -3456 N. The free u_z(S) is exactly 0, so the one-way reaction and the separation are both exactly 0.",
+         [("B", "FX", Fr(-721913, 128)), ("S", "FZ", -3456)]),
     ]
 
     out_cases = []
@@ -487,25 +522,46 @@ def build():
         loads = loads_of(prims)
         # ---- A: closed form, all eight combinations
         tries = a_solve(inp, sec, loads)
-        admissible = [t for t in tries if not t["violations"]]
-        chk.eq("A: exactly one admissible state pair", cid, len(admissible), 1)
-        stA = admissible[0]["state"]
-        RxA, RzA = admissible[0]["Rx"], admissible[0]["Rz"]
+        consA = {zb: [t["state"] for t in tries if t["consistent"][zb]] for zb in (False, True)}
+        strictA = [t["state"] for t in tries if not t["failures"]]
+        boundary = cid in BOUNDARY_EXPECT
+        if not boundary:
+            chk.eq("A: exactly one pair consistent with the classification law, under either reading of a zero reaction",
+                   cid, (len(consA[False]), consA[True]), (1, consA[False]))
+            chk.eq("A: strict confirmation establishes that same pair and no other", cid, strictA, consA[False])
+        else:
+            chk.eq("A: boundary witness classification and confirmation as stated", cid,
+                   (consA[False], consA[True], strictA), BOUNDARY_EXPECT[cid])
+        stA = consA[False][0]
+        byst = {t["state"]: t for t in tries}
+        RxA, RzA = byst[stA]["Rx"], byst[stA]["Rz"]
         dispA, reacA, endsA, axialA = a_results(inp, sec, loads, RxA, RzA)
-        # ---- B: enumeration and active-set iteration from two starts
-        okB = []
+        for other in consA[True]:
+            chk.eq("tied pairs give identical physical values", f"{cid} {other}",
+                   a_results(inp, sec, loads, byst[other]["Rx"], byst[other]["Rz"]), (dispA, reacA, endsA, axialA))
+        # ---- B: enumeration and active-set iteration from two starts, under each reading
+        consB = {False: [], True: []}
+        strictB = []
+        d = mdl["dof"]
         for ow in STATES_ONEWAY:
             for fs in STATES_FRICTION:
                 u, Rx, Rz, f = b_solve_state(inp, mdl, loads, ow, fs)
-                d = mdl["dof"]
-                if not law_violations(mu, ow, fs, Rx, Rz, u[d[("S", "UX")]], u[d[("S", "UZ")]]):
-                    okB.append((ow, fs))
-        chk.eq("B: enumeration finds exactly A's state", cid, okB, [stA])
-        paths = {}
-        for start in (("active", "stick"), ("inactive", "inactive")):
-            stB, u, Rx, Rz, f, path = b_iterate(inp, mdl, loads, start)
-            chk.eq("B: active-set iteration settles on A's state", f"{cid} from {start}", stB, stA)
-            paths["/".join(start)] = path
+                ux, uz = u[d[("S", "UX")]], u[d[("S", "UZ")]]
+                for zb in (False, True):
+                    if classify(mu, ow, fs, Rx, Rz, ux, uz, zb) == (ow, fs):
+                        consB[zb].append((ow, fs))
+                if not confirmation_failures(mu, ow, fs, Rx, Rz, ux, uz):
+                    strictB.append((ow, fs))
+        chk.eq("B: enumeration gives A's classification and confirmation sets", cid, (consB, strictB), (consA, strictA))
+        paths = {False: {}, True: {}}
+        for zb in (False, True):
+            for start in (("active", "stick"), ("inactive", "inactive")):
+                stB, uB, RxB, RzB, fB, path = b_iterate(inp, mdl, loads, start, zb)
+                chk.true("B: active-set iteration settles on a pair the classification law admits", f"{cid} from {start} zero_bears={zb}", stB in consA[zb])
+                paths[zb]["/".join(start)] = path
+                if not zb and start == ("active", "stick"):
+                    chk.eq("B: iteration under the first reading settles on the reference pair", cid, stB, stA)
+                    u, Rx, Rz, f = uB, RxB, RzB, fB
         dispB, reacB, endsB = b_results(inp, mdl, u, Rx, Rz, f)
         chk.eq("A = B: displacements (pi*u)", cid, dispA, dispB)
         chk.eq("A = B: reactions", cid, reacA, reacB)
@@ -529,9 +585,9 @@ def build():
         dq = {"normal N (one-way reaction)": num(N, "N"),
               "tangential T (friction reaction)": num(RxA, "N"),
               "mu*N": num(mu * N, "N")}
-        if ow == "active":
+        if ow == "active" or cid == "LIFT-BOUNDARY":
             dq["one-way contact reaction (> 0)"] = num(RzA, "N")
-        else:
+        if ow == "inactive":
             dq["one-way separation u_z(S) (> 0)"] = num_over_pi(dispA["S"]["UZ"], "m")
         if fs == "stick":
             dq["stick margin mu*N - |T| (> 0)"] = num(mu * N - abs(RxA), "N")
@@ -543,13 +599,15 @@ def build():
             inp2 = dict(inp); inp2[key] = Fr(float(inp[key]))
             sec2 = section(inp2)
             loads2 = {k: Fr(float(v)) for k, v in loads.items()}
-            st2 = [t["state"] for t in a_solve(inp2, sec2, loads2) if not t["violations"]]
-            chk.eq("state unchanged with each input replaced by its binary64 value", f"{cid} {key}", st2, [stA])
-        for sa in (Fr(1) - Fr(1, 10 ** 9), Fr(1) + Fr(1, 10 ** 9)):
+            tr2 = a_solve(inp2, sec2, loads2)
+            st2 = ({zb: [t["state"] for t in tr2 if t["consistent"][zb]] for zb in (False, True)}, [t["state"] for t in tr2 if not t["failures"]])
+            chk.eq("classification and confirmation unchanged with each input replaced by its binary64 value", f"{cid} {key}", st2, (consA, strictA))
+        for sa in ((Fr(1) - Fr(1, 10 ** 9), Fr(1) + Fr(1, 10 ** 9)) if not boundary else ()):
             for sb in (Fr(1) - Fr(1, 10 ** 9), Fr(1) + Fr(1, 10 ** 9)):
                 sec2 = dict(sec); sec2["EAh"] = sec["EAh"] * sa; sec2["EIh"] = sec["EIh"] * sb
-                st2 = [t["state"] for t in a_solve(inp, sec2, loads) if not t["violations"]]
-                chk.eq("state unchanged with EA, EI each perturbed by 1e-9 relative", cid, st2, [stA])
+                tr2 = a_solve(inp, sec2, loads)
+                st2 = ([t["state"] for t in tr2 if t["consistent"][False]], [t["state"] for t in tr2 if t["consistent"][True]], [t["state"] for t in tr2 if not t["failures"]])
+                chk.eq("state unchanged with EA, EI each perturbed by 1e-9 relative", cid, st2, ([stA], [stA], [stA]))
         # ---- reactions independent of pi: B with pi-scaled stiffness 3 and 4 times
         for scale in (Fr(3), Fr(4)):
             sec3 = dict(sec); sec3["EAh"] = sec["EAh"] * scale; sec3["EIh"] = sec["EIh"] * scale
@@ -608,22 +666,44 @@ def build():
                                  "relative difference of friction force from the reference": num((Rxc - RxA) / RxA, "1"),
                                  "relative difference of u_x(S) from the reference": num((dc["S"]["UX"] - dispA["S"]["UX"]) / dispA["S"]["UX"], "1")})
 
+        def cons_entry(t):
+            a_, b_ = t["consistent"][False], t["consistent"][True]
+            return a_ if a_ == b_ else {"zero reaction does not bear": a_, "zero reaction bears": b_}
         enum = [{"state": {"one-way": t["state"][0], "friction": t["state"][1]},
-                 "admissible": not t["violations"], "violations": t["violations"]} for t in tries]
+                 "classification consistent": cons_entry(t),
+                 "strictly confirmed": not t["failures"], "confirmation failures": t["failures"]} for t in tries]
+        pair = lambda st: {"one-way S": st[0], "friction S": st[1]}
+        if consA[False] == consA[True]:
+            classification = {"returns": pair(consA[False][0])}
+        else:
+            classification = {"returns": "not settled by the scope's wording (README, open readings)",
+                              "pairs consistent if a zero reaction does not bear": [pair(x) for x in consA[False]],
+                              "pairs consistent if a zero reaction bears": [pair(x) for x in consA[True]]}
+        classification["law"] = "DEL-04-04 as written: one-way stays engaged while it bears, engages when it would penetrate (u_z < 0); friction sticks while |T| <= mu*N"
+        confirmation = {"establishes": bool(strictA),
+                        "predicate": "every deciding quantity strictly on its state's side (DEL-04-04 admissibility confirmation; DEL-04-01 REQ-016: an enclosure that touches its state's boundary does not establish that state)"}
+        if strictA:
+            confirmation["established pair"] = pair(strictA[0])
+        else:
+            confirmation["reason"] = BOUNDARY_REASON[cid]
         rec = {
             "id": cid,
             "description": desc,
             "primitive_loads": [{"node": n, "component": c, "value": num(Fr(v), "N")} for n, c, v in prims],
             "load sums": {"Gx at B": num(loads["Gx"], "N"), "Px at S": num(loads["Px"], "N"), "Pz at S": num(loads["Pz"], "N")},
-            "states": {"one-way S": ow, "friction S": fs},
+            "states": pair(stA) if consA[False] == consA[True] else "not settled by the scope's wording: see classification",
+            "classification": classification,
+            "strict confirmation": confirmation,
             "deciding_quantities": dq,
             "displacements": {n: {c: num_over_pi(dispA[n][c], "rad" if c == "RY" else "m") for c in ("UX", "UZ", "RY")} for n in ("B", "S")},
             "reactions": {s: {c: num(v, "N*m" if c == "MY" else "N") for c, v in r.items()} for s, r in reacA.items()},
             "member_end_actions": {m: {e: {c: num(v, "N*m" if c == "MY" else "N") for c, v in ev.items()} for e, ev in mv.items()} for m, mv in endsA.items()},
             "member_axial_force_tension_positive": {m: num(v, "N") for m, v in axialA.items()},
             "enumeration": enum,
-            "active_set_paths": paths,
+            "active_set_paths": paths[False],
         }
+        if paths[True] != paths[False]:
+            rec["active_set_paths if a zero reaction bears"] = paths[True]
         if lag:
             rec["lagged_normal"] = lag
         if controls:
@@ -631,7 +711,7 @@ def build():
         out_cases.append(rec)
 
     # near-threshold pairs: the pair members straddle their thresholds
-    st = {c["id"]: (c["states"]["one-way S"], c["states"]["friction S"]) for c in out_cases}
+    st = {c["id"]: (c["states"]["one-way S"], c["states"]["friction S"]) for c in out_cases if isinstance(c["states"], dict)}
     chk.eq("stick-slide pair straddles", "NEAR-STICK/NEAR-SLIDE", (st["NEAR-STICK"], st["NEAR-SLIDE"]), (("active", "stick"), ("active", "slide+")))
     chk.eq("lift-off pair straddles", "NEAR-BEAR/NEAR-LIFT", (st["NEAR-BEAR"][0], st["NEAR-LIFT"]), ("active", ("inactive", "inactive")))
     chk.true("brackets contain thresholds", "pairs", G_lo < G_star < G_hi and P_lo < Pz_star < P_hi)

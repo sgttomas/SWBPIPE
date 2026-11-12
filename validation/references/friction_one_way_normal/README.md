@@ -66,17 +66,48 @@ EI = π·82763671875/16384 N·m² and EA = π·732421875 N.
 - Friction support: `inactive` (the normal does not bear), `stick`, `slide+` or
   `slide-`. The sign is the sign of the slip u_x(S).
 
-## State law, as checked
+## Classification and strict confirmation
 
-Each deciding quantity must lie strictly on its state's side.
+The package keeps two questions apart, and each case record answers both. The
+answers are in `classification` and `strict confirmation`, and per state pair
+under `enumeration`.
 
-| State | Condition |
+**Classification** asks which state the classifier returns for a trial. A
+state pair is consistent when the classifier returns the trial pair itself.
+The rules are DEL-04-04's law as written:
+
+| Trial | The classifier returns |
+|---|---|
+| one-way active | Active while it bears (R_z > 0), otherwise inactive. Whether R_z = 0 "bears" is not settled by the wording; see open reading 1. |
+| one-way inactive | Active when it would penetrate (u_z(S) < 0), otherwise inactive. u_z(S) = 0 is touch, not penetration. |
+| friction, normal does not bear | Inactive |
+| friction stick (or inactive) trial, normal bears | Stick while \|T\| ≤ μN, **non-strict as written**. Otherwise slide in the direction −sign(T). |
+| friction slide d trial, normal bears | The trial carries μN opposing its motion. It stays slide d while d·u_x(S) > 0, and otherwise returns stick. |
+
+A slide trial has \|T\| = μN by construction, so the law's comparison can
+only be applied to it through its motion. The slide-trial row follows from "a
+sliding support carries a tangential force of magnitude μ·N opposing its
+motion".
+
+**Strict confirmation** asks whether a pair is established. This is DEL-04-04's
+admissibility confirmation (REQ-013). It also follows DEL-04-01 REQ-016, as
+quoted in the repair brief: "An enclosure that touches its state's boundary
+does not establish that state." This package checks the exact values, so the
+test is that every deciding quantity lies strictly on its state's side:
+
+| State | Strict condition |
 |---|---|
 | one-way active | N = R_z > 0 and u_z(S) = 0 |
 | one-way inactive | R_z = 0 and separation u_z(S) > 0 |
 | friction inactive | The normal does not bear, so the one-way support is inactive. T = 0. |
 | friction stick | The normal bears; u_x(S) = 0; \|T\| < μN |
 | friction slide d (d = ±1) | The normal bears; T = −d·μ·N, with N this state's own one-way reaction; d·u_x(S) > 0 |
+
+Away from a boundary the two answers coincide. In every case except the two
+boundary witnesses, exactly one pair is consistent with the classification law
+under either reading of a zero reaction, and strict confirmation establishes
+that same pair and no other. At the boundary witnesses they differ, as stated
+below.
 
 ## Closed form (formulation A), for re-derivation by hand
 
@@ -113,10 +144,10 @@ forces at S are (R_x, R_z):
 |---|---|
 | active / stick | [f_xx f_xz; f_xz f_zz]·(R_x, R_z) = −(u0x, u0z) |
 | active / slide d | R_z = −u0z / (f_zz − d·μ·f_xz), R_x = −d·μ·R_z |
-| active / inactive | R_x = 0, R_z = −u0z / f_zz. This always violates the friction law when R_z > 0. |
+| active / inactive | R_x = 0, R_z = −u0z / f_zz. When R_z > 0 this is never consistent, because the normal bears. |
 | inactive / inactive | R_x = R_z = 0, u = u0 |
-| inactive / stick | R_z = 0, R_x = −u0x/f_xx. This always violates the law, because the normal does not bear. |
-| inactive / slide d | R_x = R_z = 0. This always violates the law, because the normal does not bear. |
+| inactive / stick | R_z = 0, R_x = −u0x/f_xx. This is never consistent, because the normal does not bear. |
+| inactive / slide d | R_x = R_z = 0. This is never consistent, because the normal does not bear. |
 
 Every other quantity follows by statics:
 - anchor: FX = −X, FZ = −Fz, MY = −(h X − a Fz);
@@ -153,6 +184,8 @@ SLIDE-POS-S.
 | NEAR-SLIDE | Gx 964678/256; Pz −10000 | active / slide+ | 8886093584/887801 | −μN | u_x(S) = 6.30e-10 m |
 | NEAR-BEAR | Gx −8000; Pz −1254957/256 | active / slide- | 108741/142342400 (7.64e-4) | +μN | contact 7.64e-4 N |
 | NEAR-LIFT | Gx −8000; Pz −1254956/256 | inactive / inactive | 0 | 0 | separation 3.07e-9 m |
+| STICK-BOUNDARY | Px 3000; Pz −8000 | active / stick (classification; not confirmed) | 8000 | −3000 | μN − \|T\| = 0 exactly |
+| LIFT-BOUNDARY | Gx −721913/128; Pz −3456 | not settled (open reading 1) | 0 | 0 | contact 0 and separation 0 exactly |
 
 The exact value of every displacement, rotation, reaction (anchor, one-way,
 friction), end action and axial force is in `references.json`.
@@ -174,6 +207,58 @@ support carries no force and restrains nothing.
 - Neither lateral load meets any friction resistance, and u_x(S) is the free
   cantilever's.
 
+## Boundary witnesses
+
+Both witnesses use inputs that are exact in binary64.
+
+**STICK-BOUNDARY** (Px = 3000 N, Pz = −8000 N, Gx = 0). Every load acts at S.
+The stick trial holds S in both X and Z, so F_SS·R = −F_SS·P and R = −P:
+- T = −3000 N and N = 8000 N;
+- every displacement and rotation is 0, and the anchor reaction is 0;
+- μN = 3000 N = |T|, so the stick margin is exactly 0.
+
+The slide± trials satisfy T = ∓μN with u_z = 0. That system has the same
+solution, so u_x(S) = 0 and neither slide trial moves in its own direction. In
+the inactive trials, the free u_z(S) < 0 would penetrate.
+- **Classification** under DEL-04-04's law as written: **stick**, because
+  |T| ≤ μN holds with equality. (active, stick) is the only consistent pair,
+  under either reading of a zero reaction.
+- **Strict confirmation** does not establish stick, because its margin is
+  exactly 0 (DEL-04-01 REQ-016). It establishes no other pair either.
+
+**LIFT-BOUNDARY** (Gx = −721913/128 N, Pz = −3456 N, Px = 0). The free
+vertical displacement at S is:
+
+u0z·EI = −(a h²/2)·Gx + (a²h + a³/3 + h·EI/EA)·Pz = −9·Gx + (721913/49152)·Pz
+
+using EI/EA = 113/16384. That is 0 for Gx = (721913/442368)·Pz = −721913/128 N.
+The free u_x(S) = 9(Gx − Pz)/EI = −21469056/(5517578125 π) m. So:
+- u_z(S) = 0, N = T = 0, and every reaction at S is 0;
+- the anchor carries FX = 721913/128 N, FZ = 3456 N and MY = 1281003/128 N·m;
+- the active trials (active/stick, active/slide−) solve to R_z = 0, except the
+  stick trial, which needs \|T\| > μN and is not consistent;
+- the inactive/inactive trial has u_z(S) = 0;
+- every candidate pair gives the same physical values.
+
+What DEL-04-04's wording gives:
+- On an **inactive trial**, u_z(S) = 0 is touch, not penetration, so the
+  released support stays released. (inactive, inactive) is consistent.
+- On an **active trial** with a reaction of exactly 0, "it stays engaged while
+  it bears" does not say whether a zero reaction bears.
+  - If it does not bear, the support releases, and (inactive, inactive) is the
+    only consistent pair.
+  - If it does bear, (active, slide−) is also consistent: with a zero normal,
+    the slip is −X in its own direction.
+
+The wording does not settle this tie. It is open reading 1.
+- **Classification:** not settled by the scope. Both readings are published.
+- **Strict confirmation** establishes no pair. The active trial's reaction and
+  the inactive trial's separation are each exactly 0, so each touches its
+  boundary (DEL-04-01 REQ-016).
+
+The physical values of both witnesses are unique and published like any other
+case. Only the state labels and the standing are at issue.
+
 ## Near-threshold pairs
 
 - **Stick to slide, varying Gx.** Pz = −10000 N throughout. The exact threshold
@@ -187,15 +272,16 @@ support carries no force and restrains nothing.
   it. On the bearing side the normal is small and the lateral demand large,
   so the shoe slides.
 
-**Robustness of the discrete outcome.** For every case, not only the pairs, the
-generator checks that the state does not change when either of the following
-is done:
+**Robustness of the discrete outcome.** The generator checks that the
+classification and confirmation outcome does not change when either of the
+following is done:
 - each input (E, ν, D, t, h, a, μ and every load) is replaced by its binary64
-  value. All the inputs are dyadic, so this is an identity check that the
-  emitted inputs are the inputs.
+  value. This is checked for every case. All the inputs are dyadic, so it is
+  an identity check that the emitted inputs are the inputs.
 - EA and EI are each perturbed independently by ±1e-9 relative, in all four
   combinations. This far exceeds the rounding of a binary64 section
-  computation.
+  computation. It is checked for every case except the two boundary
+  witnesses, which sit on their boundary by design.
 
 The state decisions do not depend on π: every threshold is π-free. The
 generator also checks that reactions are unchanged, and displacements scale as
@@ -208,9 +294,19 @@ sliding state is held, that update is N_k = N_0 + ρ·N_(k−1), where:
 - ρ = d·μ·f_xz/f_zz = ∓165888/721913 (about ∓0.2298), so |ρ| < 1;
 - N_0 is the one-way reaction with the friction force set to zero.
 
-The iteration therefore converges to the fixed point N* = N_0/(1 − ρ). That
-fixed point is the reference N above: the "current iterate" normal of
-DEL-04-04's law. For each sliding case, `references.json` gives:
+The fixed point N* = N_0/(1 − ρ) is the exact reference target of this
+lagged-normal iteration. It is the reference N above, where the force uses the
+normal of the current state, as in DEL-04-04's law.
+
+Finite numerical convergence is what the scopes define: unchanged states with
+a residual within the governed tolerance of the support class (DEL-04-04
+"Convergence", DEL-04-07 CLM-002). Neither of these is the criterion:
+- state stability alone;
+- exact equality of successive normals, which a lagged iteration reaches only
+  in the limit.
+
+A product's converged normal is compared with N* at the class tolerance, like
+every other value. For each sliding case, `references.json` gives:
 - ρ;
 - N_0;
 - N_1 to N_5;
@@ -236,23 +332,30 @@ A product whose normal comes from a stale or wrong source matches a control,
 not the reference. The near-threshold controls differ from the reference by
 very little. They show only the direction of the error.
 
-## Cross-checks (all exact; 377 checks, all pass)
+## Cross-checks (all exact; 490 checks, all pass)
 
 - **A against B.** The direct stiffness formulation (B) uses planar
   Euler–Bernoulli 6×6 elements rotated to global axes. The support states are
   extra equations, and the system is solved by exact Gauss–Jordan elimination.
   B equals A exactly in every displacement, rotation, reaction and end action
   of every case.
-- **Uniqueness.** In both A and B, all eight state pairs are solved and the
-  state law is tested on each. Exactly one pair satisfies it in every case,
-  and it is the same pair in A and in B. `references.json` lists each pair's
-  violated conditions.
-- **Active-set iteration.** B classifies with the state-switched test: an
-  active support is judged on its reaction, an inactive one on penetration,
-  stick on |T| < μN, and slide on the direction of the slip. It is iterated
-  from (active, stick) and from (inactive, inactive), and both starts settle
-  on the unique state. The paths are published as illustration. They are not
-  an expected product path.
+- **Classification and confirmation.** In both A and B, all eight state pairs
+  are solved. On each pair the classification law is tested under both
+  readings of a zero reaction, and the strict confirmation predicate is tested
+  too. Except at the boundary witnesses, exactly one pair is consistent and
+  the same pair alone is strictly confirmed. At the witnesses the outcomes are
+  the stated ones. A and B give the same sets. `references.json` lists, for
+  each pair, whether it is classification-consistent, whether it is strictly
+  confirmed, and the confirmation conditions it fails.
+- **Active-set iteration.** B iterates the classifier above, with the
+  non-strict stick test, from (active, stick) and from (inactive, inactive),
+  under both readings of a zero reaction. Each run settles on a
+  classification-consistent pair. Under the first reading, every case settles
+  on the reference pair. At LIFT-BOUNDARY, the second reading settles on
+  (active, slide−) from (active, stick). The paths are published as
+  illustration, not as an expected product path.
+- **Tied pairs.** At LIFT-BOUNDARY, the pairs that tie give identical physical
+  values.
 - **Flexibility.** The closed-form f_xx, f_xz and f_zz equal B's response to
   unit loads.
 - **Equilibrium.** The checks cover global balance, member balance and the
@@ -270,9 +373,11 @@ DEL-04-07 refers to (DEL-09-03/REQ-007). This package sets no number. The 2e-2
 "Nonlinear" class in `docs/RELEASE_TARGET_v1.0.md` is the cross-engine
 screening profile, not this verification.
 
-**Expected standing** (DEL-04-04/REQ-013) is not asserted here. The deciding
-quantities and their margins are published. The smallest margins are in the
-near-threshold cases:
+**Expected standing** (DEL-04-04/REQ-013) is not asserted for strictly
+confirmed cases. At the two boundary witnesses the exact confirmation
+establishes no pair, so a standing that presents either as confirmed is wrong.
+The deciding quantities and their margins are published. Away from the
+witnesses, the smallest margins are in the near-threshold cases:
 - stick margin 3.74e-4 N;
 - slip 6.30e-10 m;
 - contact 7.64e-4 N;
@@ -283,18 +388,21 @@ is for the product to determine.
 
 ## Open readings
 
-1. **Which normal "converged" means.**
-   - DEL-04-04's law takes N from the current iterate.
-   - DEL-04-07 applies the force from the previous iterate's normal.
+1. **A zero reaction on an active trial (the lift-off tie).** DEL-04-04 says
+   an engaged support "stays engaged while it bears". The wording does not say
+   whether a reaction of exactly 0 bears. On a released trial, touch
+   (u_z = 0) is not penetration, so the support stays released.
 
-   *Reading (a):* the iteration has converged only when N has stopped changing,
-   that is, at the fixed point N*. The scope's convergence needs both no state
-   change and a residual within tolerance.
-   *Reading (b):* it has converged when the states stop changing, which can
-   leave the force formed from a lagged normal. CTRL-STICK-NORMAL shows what
-   that gives after a single slide iterate.
+   *Reading (a):* a zero reaction does not bear. At LIFT-BOUNDARY the
+   classifier then returns (inactive, inactive) only.
+   *Reading (b):* a zero reaction bears. Then (active, slide−) is also
+   consistent, and the classification is not unique.
 
-   The values here are computed under (a), which the text best supports.
+   The physical values are the same under both readings, and strict
+   confirmation establishes neither pair. The scope leaves this tie open, and
+   this package does not choose. Its convergence wording, unchanged states with
+   a residual within tolerance, is not affected: the converged normal is the
+   fixed point N* (see "Normal from the previous iterate").
 2. **Standing of a friction support whose source has lifted.** DEL-04-04's
    confirmation requires "a friction normal derived from a reaction, which must
    be established as nonzero".
