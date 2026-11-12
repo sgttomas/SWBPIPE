@@ -369,6 +369,231 @@ def test_every_pressurised_case_carries_an_unbalanced_thrust_or_one_straight_mem
                                               "shear_model": "timoshenko_annulus_energy_v1"}
 
 
+# -- tranche 1 on the exact route ------------------------------------------------------------------------------------
+def tranche_1() -> list[dict]:
+    return [document for document in tracked_models() if document.get("tranche") != "2"]
+
+
+# The twins the writer does not write, so that no stored result of the target program binds to them: each with the
+# writer's refusals. The exact route takes support motion only in a case's analysis_state, which the writer refuses
+# with the load/reference-state group (core/handoff/caepipe_mbf/si_writer.py, reference configurations and
+# analysis_state). These are not compared.
+MODEL_FILE_REFUSED = {f"cpb-g8-{index:02d}": ["MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED"] for index in range(1, 5)}
+# The twins the exact route refuses, per shear model, each with its refusal codes. Must match exactly.
+EXACT_ROUTE_REFUSED: dict[tuple[str, str], list[str]] = {}
+# Closed forms the shear term changes, per model: (model id, count).
+TIMOSHENKO_CHANGED = {**{f"cpb-g1-{index:02d}": 1 for index in range(1, 7)},
+                      "cpb-g8-01": 2, "cpb-g8-02": 2, "cpb-g8-03": 4}
+
+
+def untwinned(model: dict) -> dict:
+    """An exact-route twin with every restated input put back in its tracked form."""
+    out = json.loads(json.dumps(model))
+    out.pop("pressure_contract")
+    out.pop("reference_configurations", None)
+    for pipe in out["pipe_segments"]:
+        assert pipe["section"].pop("corrosion_allowance") == {"value": 0.0, "unit": "m"}
+    for material in out["materials"]:
+        assert material.pop("constitutive_basis") == "homogeneous_isotropic_E_nu_v1"
+        nu = material.pop("poisson_ratio")["value"]
+        material["shear_modulus"] = {"value": material["elastic_modulus"]["value"] / (2.0 * (1.0 + nu)), "unit": "Pa"}
+    for case in out["load_cases"]:
+        assert case.pop("pressure_regions") == []
+        state = case.pop("analysis_state", None)
+        if state is not None:
+            assert [source["source_ref"] for source in state["load_sources"]] == [
+                load["id"] for load in case["primitive_loads"]]
+            assert {source["factor"] for source in state["load_sources"]} <= {1.0}
+            for support in state["support_states"]:
+                for motion in support.get("boundary_motion", []):
+                    dof = motion["dof"]
+                    case["primitive_loads"].append({
+                        "id": f"load:b-{dof.lower()}", "category": "imposed_displacement",
+                        "target": {"type": "support", "support": support["support_ref"], "dof": dof},
+                        "direction": dof, "magnitude": motion["value"],
+                        "dimension": "displacement" if dof.startswith("U") else "rotation",
+                        "provenance": benchmark_models.PROVENANCE})
+    return out
+
+
+def test_the_exact_route_twin_is_deterministic_and_restates_only_what_the_route_requires():
+    for document in tranche_1():
+        before = json.dumps(document, sort_keys=True)
+        for shear in benchmark_models.EXACT_SHEAR_MEMBERS:
+            twin = benchmark_models.exact_route_document(document, shear)
+            assert twin == benchmark_models.exact_route_document(document, shear)
+            assert twin["model"]["pressure_contract"] == {"version": "3.0.0", "mode": "exact_pressure_v3",
+                                                          "shear_model": shear}
+            assert (twin["route"], twin["shear_model"], twin["series_run"]) == ("exact", shear, "exact-shear-model")
+            # Put back, the restated inputs give the tracked model: nothing else changed.
+            assert untwinned(twin["model"]) == document["model"], (document["model_id"], shear)
+            restated = ("model", "closed_form", "route", "shear_model", "series_run")
+            assert {key: value for key, value in twin.items() if key not in restated} == \
+                {key: value for key, value in document.items() if key not in restated}
+            if shear == benchmark_models.EULER_BERNOULLI:
+                assert twin["closed_form"] == document["closed_form"]
+        assert json.dumps(document, sort_keys=True) == before
+    with pytest.raises(ValueError):
+        benchmark_models.exact_route_document(pressurised_models()[0], benchmark_models.TIMOSHENKO)
+    with pytest.raises(ValueError):
+        benchmark_models.exact_route_model(tranche_1()[0]["model"], "cowper")
+
+
+def test_the_manifest_declares_both_sides_the_series_and_the_choices():
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    sides = manifest["swbpipe_sides"]
+    assert sides["exact-route-timoshenko"]["counts_for"] == "exit criterion 11 of docs/RELEASE_TARGET_v1.0.md"
+    assert sides["exact-route-timoshenko"]["pressure_contract"]["shear_model"] == "timoshenko_annulus_energy_v1"
+    assert sides["pressure-free"]["counts_for"] is None and sides["pressure-free"]["route"] == "pressure_free"
+    choices = manifest["exact_route_choices"]
+    assert choices["date"] == "2026-11-12"
+    assert choices["shear_model"]["side_used_for_the_screen"] == "timoshenko_annulus_energy_v1"
+    assert choices["shear_model"]["source"]["sha256_prefix"] == "c4ab34330fb7f8b6"
+    assert choices["shear_model"]["source"]["url"].startswith("https://docs.sstcae.com/")
+    assert "recorded before any exact-route result" in choices["recorded_before"].replace("\n", " ")
+    assert "had already been seen" in choices["recorded_before"]
+    shear_series = manifest["series"]["exact-shear-model"]
+    assert [value["value"] for value in shear_series["values"]] == ["timoshenko_annulus_energy_v1", "euler_bernoulli"]
+    names = [entry["model_id"] for entry in manifest["models"] if entry["tranche"] == "1"]
+    assert [member["model_id"] for member in shear_series["members"]] == [name for name in names for _ in range(2)]
+    assert [member["model_id"] for member in manifest["series"]["pressure-free-route"]["members"]] == names
+    # The twin's canonical model hash and closed forms, per model and member, are those the function gives.
+    for document, entry in zip(tranche_1(), [entry for entry in manifest["models"] if entry["tranche"] == "1"]):
+        members = entry["exact_route"]["members"]
+        assert [member["shear_model"] for member in members] == list(benchmark_models.EXACT_SHEAR_MEMBERS)
+        for member in members:
+            twin = benchmark_models.exact_route_document(document, member["shear_model"])
+            assert member["swbpipe_model_hash"] == run_pilot.canonical_model_hash(twin["model"]) != entry["model_hash"]
+            assert member["closed_forms"] == len(twin["closed_form"]) == len(document["closed_form"])
+            assert member["closed_form_sha256"] == hashlib.sha256(
+                benchmark_models._dump(twin["closed_form"]).encode("ascii")).hexdigest()
+        assert "exact_route" not in json.loads((BENCHMARK / entry["file"]).read_text(encoding="utf-8"))
+
+
+def test_the_model_file_condition():
+    """A twin is a second side of a stored result only if the writer writes its model file byte for byte as it writes
+    the tracked document's, with the piping code and reference temperature run_pilot passes; any differing line fails
+    here, mechanics or not."""
+    manifest = {entry["model_id"]: entry for entry in json.loads(MANIFEST.read_text(encoding="utf-8"))["models"]}
+    refused = {}
+    for document in tranche_1():
+        entry = manifest[document["model_id"]]["exact_route"]
+        tracked = render_caepipe_mbf_si(document["model"], title=document["model_id"],
+                                        reference_temperature_c=document["reference_temperature_c"],
+                                        piping_code=document["piping_code"])
+        for member in entry["members"]:
+            twin = render_caepipe_mbf_si(
+                benchmark_models.exact_route_model(document["model"], member["shear_model"]),
+                title=document["model_id"], reference_temperature_c=document["reference_temperature_c"],
+                piping_code=document["piping_code"])
+            condition = benchmark_models.model_file_condition(document, member["shear_model"])
+            assert {key: value for key, value in condition.items() if key != "differences" or value} == \
+                member["model_file"]
+            if twin.status != "written":
+                refused.setdefault(document["model_id"], set()).add(tuple(condition["writer_refusals"]))
+                assert member["model_file"]["equal_to_pressure_free"] is False
+                continue
+            assert twin.text.encode() == tracked.text.encode(), (document["model_id"], condition["differences"])
+            assert all(twin.to_dict()[name] == tracked.to_dict()[name] for name in benchmark_models.BINDING_MAPS)
+            assert member["model_file"]["equal_to_pressure_free"] is True
+        assert entry["comparable_with_stored_results"] is (document["model_id"] not in MODEL_FILE_REFUSED)
+    assert {model: [list(codes) for codes in sorted(found)] for model, found in refused.items()} == {
+        model: [codes] for model, codes in MODEL_FILE_REFUSED.items()}
+
+
+def test_a_differing_model_file_line_is_listed_with_its_record():
+    pressure_free = "\r\n".join(["OPTIONS", "HGRA,B311-80,SI", "COORDS", "10,0,0,0", "20,1,0,0", ""])
+    differences = benchmark_models.model_file_differences(pressure_free, pressure_free.replace("20,1,0,0", "20,2,0,0"))
+    assert differences == [{"line": 5, "record": "COORDS", "pressure_free": "20,1,0,0", "exact": "20,2,0,0"}]
+    assert benchmark_models.model_file_differences(pressure_free, pressure_free) == []
+
+
+def test_the_shear_factor_and_the_timoshenko_closed_forms_are_derived_without_product_code():
+    from fractions import Fraction
+
+    # kappa_E in DEL-05-03's order against exact rational arithmetic, for an invented annulus.
+    r_o, r_i, nu = 0.10955, 0.10955 - 0.010955, 0.3
+    m = Fraction(r_i) / Fraction(r_o)
+    n1 = 1 + Fraction(nu)
+    exact = 6 * n1 * n1 * (1 + m * m) ** 2 / (
+        ((8 * Fraction(nu) + 14) * Fraction(nu) + 7) * (1 - m * m) ** 2 + 48 * m * m * n1 * n1)
+    assert benchmark_models.annulus_shear_factor(r_o, r_i, nu) == pytest.approx(float(exact), rel=1e-15)
+    changed = {}
+    for document in tranche_1():
+        timoshenko = benchmark_models.timoshenko_closed_forms(document)
+        assert len(timoshenko) == len(document["closed_form"])
+        for before, after in zip(document["closed_form"], timoshenko):
+            assert {key: before[key] for key in ("quantity", "component", "load_case", "unit")} == \
+                {key: after[key] for key in ("quantity", "component", "load_case", "unit")}
+            if before != after:
+                changed[document["model_id"]] = changed.get(document["model_id"], 0) + 1
+                assert after["basis"] == benchmark_models.TIMOSHENKO_BASIS_TEXT
+                assert 1e-4 < abs(after["value"] - before["value"]) / abs(before["value"]) < 5e-2
+    assert changed == TIMOSHENKO_CHANGED
+
+
+def test_every_twin_is_admitted_on_the_exact_route_and_matches_its_members_closed_forms():
+    """Admission and SWBPIPE's own checks only: each twin under each shear model solves (or is refused by a listed
+    code), its closed forms agree with the solve at the record's closed-form tolerance, and each case's support forces
+    balance its applied forces. The mirror print binds through the tracked document's model file, whose binding maps
+    the twin shares."""
+    runner = os.environ.get("OPENPIPESTRESS_RUNNER_BIN")
+    if not runner:
+        pytest.skip("OPENPIPESTRESS_RUNNER_BIN is not set")
+    refused, compared = {}, 0
+    for document in tranche_1():
+        for shear in benchmark_models.EXACT_SHEAR_MEMBERS:
+            twin = benchmark_models.exact_route_document(document, shear)
+            body = {"request": run_pilot.runner_request("benchmark-test"),
+                    "solve": {"preview_model": {"model": twin["model"], "materials": []}}}
+            completed = subprocess.run([runner, "solve", "--explicit-local-private-intent", "--input", "-"],
+                                       input=json.dumps(body), capture_output=True, text=True, check=False,
+                                       timeout=600)
+            payload = json.loads(completed.stdout)["payload"]
+            envelope = payload["mechanics_envelope"]
+            if envelope["status"]["mechanics"] != "MECHANICS_SOLVED":
+                refused[(document["model_id"], shear)] = sorted(
+                    {item["code"] for item in envelope["diagnostics"] if item["severity"] in ("error", "blocking")})
+                continue
+            assert_forces_balance(twin["model"], envelope["results"])
+            mbf, text = mirror_csv(document, payload)
+            record = build_benchmark_record(twin, swbpipe_result_payload=payload, mbf_result=mbf, mbf_text=mbf.text,
+                                            parsed_caepipe=parse_caepipe_print_csv(text))
+            rows = [row for row in record["results"] if "closed_form" in row]
+            assert len(rows) == len(twin["closed_form"]), (document["model_id"], shear)
+            for row in rows:
+                assert row["closed_form"]["closed_form_vs_swbpipe"] == "agree", (document["model_id"], shear, row)
+            compared += len(rows)
+    assert refused == EXACT_ROUTE_REFUSED
+    assert compared == 2 * sum(len(document["closed_form"]) for document in tranche_1())
+
+
+def assert_forces_balance(model: dict, results: list[dict]) -> None:
+    """Per case, the support reactions (the supports' action on the pipe) and the applied forces sum to zero."""
+    position = {node["id"]: [node["position"][axis] for axis in "xyz"] for node in model["nodes"]}
+    arcs = {component["geometry"]["bend_pipe_ref"]: component["geometry"] for component in model["components"]
+            if component["kind"] == "bend"}
+    length = {pipe["id"]: (arcs[pipe["id"]]["bend_radius"]["value"] * arcs[pipe["id"]]["bend_angle"]["value"]
+                           if pipe["id"] in arcs else math.dist(position[pipe["from"]], position[pipe["to"]]))
+              for pipe in model["pipe_segments"]}
+    for case in model["load_cases"]:
+        total = [0.0, 0.0, 0.0]
+        scale = 1.0
+        for load in case["primitive_loads"]:
+            if load["category"] in ("weight", "concentrated_force"):
+                value = load["magnitude"]["value"] * (length[load["target"]["pipe"]] if load["category"] == "weight"
+                                                      else 1.0)
+                total["xyz".index(load["direction"][-1])] += value
+                scale = max(scale, abs(value))
+        for row in results:
+            if row["kind"] == "support_reaction_component_v2" and row["basis_ref"]["ref_id"] == case["id"] \
+                    and row["metadata"]["component"] in ("Fx", "Fy", "Fz"):
+                assert row["unit"] == "N"
+                total["xyz".index(row["metadata"]["component"][1].lower())] += row["value"]
+                scale = max(scale, abs(row["value"]))
+        assert max(abs(value) for value in total) <= 1e-9 * scale, (case["id"], total)
+
+
 # -- element-row binding ---------------------------------------------------------------------------------------------
 ELEMENT_MAP = {
     "pipe:A": {"from": "10", "to": "20", "reversed": False, "layout_order": 0},

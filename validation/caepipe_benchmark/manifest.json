@@ -1,5 +1,46 @@
 {
   "document_kind": "openpipestress.caepipe_benchmark.manifest",
+  "exact_route_choices": {
+    "date": "2026-11-12",
+    "decided_by": "the SWBPIPE Agent 0 decided the route (12 November 2026); the inputs below were recorded by the CAEPIPE interoperation Type 1",
+    "model_file_condition": "the stored results of the target program are bound by hash to the model file written from the tracked document; a twin is a second SWBPIPE side of a stored result only if the writer, given the twin with the same piping code and reference temperature, writes the same model file bytes, with every differing line listed otherwise; a twin that fails this is not compared",
+    "other_inputs": {
+      "anchor_movements": "the same values, stated as boundary motion (absolute reference displacement) of the moved support in the case's analysis_state, the only form the exact route takes them in; the document then carries the load/reference-state group: one reference configuration of the authored geometry with a direct-strain basis and no fit, every pipe on its base properties with an unchanged-reference thermal state, every support an active model device, every stored load a source of factor 1",
+      "anything_else": "set to the value that restates the tracked model; a requirement that cannot be met without a value that changes mechanics leaves the model refused, with the refusal's code, and that refusal is a finding",
+      "bend_modifiers": "none added: the exact route requires no stress intensification factor on a bend (it admits the bend with the same warning as the pressure-free route), so the rule 'stated as 1 where the route requires it' adds nothing",
+      "corrosion_allowance": "0 m on every pipe section (the exact contract requires it stated; the models are bare pipe)",
+      "material": "constitutive_basis homogeneous_isotropic_E_nu_v1 with Poisson's ratio the value the tracked G was formed from (G = E/(2(1 + nu)) in this generator); the tracked shear_modulus is not restated, since the exact route takes G only from E and nu",
+      "mechanics": "geometry, sections, E, G (as the Poisson's ratio it was formed from), expansion coefficient, loads, restraints, spring rates, imposed movements, bend radius, angle and flexibility factor are the tracked values unchanged",
+      "pressure_regions": "an explicit empty list on every load case (no tranche 1 model has pressure)",
+      "thermal_change": "the same temperature interval per pipe, as the tracked primitive thermal load, which the exact route takes as it is"
+    },
+    "recorded_before": "These choices were recorded before any exact-route result for these models existed, and so before any exact-route result was compared with, or looked at beside, a value of the target program. The pressure-free route's results for all 60 models had already been seen, screened against the target program's results, before they were recorded; so the shear model rests on the public source below, and the other value of that one input is run as a declared series member.",
+    "shear_model": {
+      "consequence": "SWBPIPE's coefficient is its own energy-matched annulus factor kappa_E (DEL-05-03); shear_deformation stays a named inexact input on every case that names it, in the 5e-3 class; nothing is fitted and the shear coefficient is not a free parameter",
+      "not_settled_by_the_source": [
+        "the value of the shape factor",
+        "whether the shear term applies to steel pipe as well as to fibre reinforced plastic pipe (DEL-17-01 question CQ-17-01-010, open)"
+      ],
+      "series": {
+        "members": [
+          "timoshenko_annulus_energy_v1",
+          "euler_bernoulli"
+        ],
+        "name": "exact-shear-model",
+        "note": "euler_bernoulli is the declared second member, declared before any run and run once; it shows the size of the input and is not the side used for the screen"
+      },
+      "side_used_for_the_screen": "timoshenko_annulus_energy_v1",
+      "source": {
+        "bytes": 30147,
+        "fetched": "2026-11-12",
+        "http_status": 200,
+        "sha256_prefix": "c4ab34330fb7f8b6",
+        "states": "the stiffness matrix of a pipe is calculated with an axial term L/EA, a shear term (shape factor x L/GA), a bending term L/EI and a torsion term, and for an isotropic material G = E/2(1 + Poisson's ratio): the public description of the pipe element includes a transverse shear flexibility term",
+        "title": "Fiber Reinforced Plastic Piping (FRP), section \"Stiffness matrix\" (the target program's public technical reference)",
+        "url": "https://docs.sstcae.com/tech_manual/fiber_reinforced_plastic_piping__frp_.htm"
+      }
+    }
+  },
   "generator": {
     "module": "tools/caepipe_correlation/benchmark_models.py",
     "rng": "random.Random(seed).random() only",
@@ -31,6 +72,56 @@
   ],
   "models": [
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "e102a5a5d80e6b276e1cf563e2ddbe67ed058a715041abfdc974ecbf1ed1beac",
+            "closed_forms": 6,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "cafa190ace700901ff5e9bf1ecf233d59bfa11ac0c4f5ea75dff7416f39dbf3c"
+          },
+          {
+            "closed_form_sha256": "42509dce9e124ebb2bbe6ef9794dd982141e36ae02e1ab08a00684e4087db205",
+            "closed_forms": 6,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "6384e48e23bbc69d7ad7f321593e63e752874cee3d4e097b5cc8b65849bc1315"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G1",
       "file": "models/cpb-g1-01.json",
       "file_sha256": "99d43693f3e0f1db88398c617a4db30c79a4854c47e56f8b2d11728fd5a7c421",
@@ -52,6 +143,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "8458419eecfb2a0259f9b3f7e0551f0af89e99fdebab6649610a403c310eca3b",
+            "closed_forms": 6,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "1683879d2a10f822223b47e52a7102053f4e2f0a586c2d42c27de85d2b812a1b"
+          },
+          {
+            "closed_form_sha256": "b150aabf1d22958e643cd0d4112c9ed2ef842409bd073fb6a2cb2d6e1a8469aa",
+            "closed_forms": 6,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "4ed75a19a8bab78851a5013589e95f4e8430cd5fcd872e434c09866a213e0e78"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G1",
       "file": "models/cpb-g1-02.json",
       "file_sha256": "2bd32af660a98a86aad545e0b512e4b439170ce3269fe5675a45c84ef01d1a81",
@@ -73,6 +214,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "7d072026ae864c950a5892ed32c5db4cfac76f88abe0d2c33e2bded3f310c451",
+            "closed_forms": 6,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "b6fbb5b37b279637bad76b2e0ccdfaecd242cb854b9d54f41423f72efeaaf24c"
+          },
+          {
+            "closed_form_sha256": "26b6f59162f9fbf4e07529058ea33fc3e465873d3ccaa2211803a0114c128216",
+            "closed_forms": 6,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "73589c5bcf358101e6041839302df63209cf75b3224484bb717a8c96c9c04577"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G1",
       "file": "models/cpb-g1-03.json",
       "file_sha256": "7a84ef1b9a934b4e887452da42c3fc70985f0b1ae05414b3aab75d47d445a1a3",
@@ -94,6 +285,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "e7956456720d7025f422be7c08abf6639115fb1f3202b30a41630c2fb2299283",
+            "closed_forms": 6,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "2a3da2aa70c7d59a9b811a3646437e015559fbb3ab914be957fe819c6d7528cd"
+          },
+          {
+            "closed_form_sha256": "c031226f01251a8a73ce5330464ff1816552505f1419575ccef57725b294d755",
+            "closed_forms": 6,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "8c79e06c327870aa9cdabfe0c27b5fc343a24c741c2b74ff5977b88d33d80295"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G1",
       "file": "models/cpb-g1-04.json",
       "file_sha256": "83140f491158504bb61087014ef37550eb4c1bcbea37e58241de962fd3bb13e9",
@@ -115,6 +356,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "7ac56d2e0b2752a622ced99ad5e3ca3fcc3a7dd077aa13af7f2ad1e7741c679e",
+            "closed_forms": 6,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "07d4b45be0e537ed02f748cb2b2e74357784c96b06af3ea6b03f5654a05c8e58"
+          },
+          {
+            "closed_form_sha256": "9ccb3db9a164fdec3f62fedb04bfad3e305e8f5ec2d2011ca5ea51dbc51ca007",
+            "closed_forms": 6,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "f250b027a0bed8e701638d89f6dfe453b9aa8ab6b3b8c8221fa73fa3254179f2"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G1",
       "file": "models/cpb-g1-05.json",
       "file_sha256": "b26da2b042bb4c22a174c87a31209fe3314ba3d9965150367007c3c1ad70cf31",
@@ -134,6 +425,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "fa0177154346739984a14c3433e321bd4ee1f2b7acfde9ce6701c1e2d9970489",
+            "closed_forms": 6,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "d57cc7eb14661169e6e37d440a9aef887ea92c4c3baff7053fe87da65303c661"
+          },
+          {
+            "closed_form_sha256": "fefd3c0daeec931173712cf6e74e57baae046b160c4b5383715e2784aea29eeb",
+            "closed_forms": 6,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "b0086e5a407aedba16c3a8985645ac8fce9822f7be81ec9ef4eab16adfd29955"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G1",
       "file": "models/cpb-g1-06.json",
       "file_sha256": "c14698e0f83f2e8de7f881d1fb692db1cf7cd1712cc040321a8f81712be6c691",
@@ -153,6 +494,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "b8832c1df8297c14ba40ab63f53060cc8f50431c09de6bd396e6be638b208c58"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "4e578cbc94f0236bd546b8c1ed47623e705a6ce4f4a06d00a651aeef7e25cabe"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G1",
       "file": "models/cpb-g1-07.json",
       "file_sha256": "559324fedfccffd459836ed8f5065346473d2630330248ad820a824e08328f47",
@@ -172,6 +563,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "d1c484436e60db0add8c95d586e64881d00a3184aa3f7ac8cf6c8421207d5e67"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "2eca6bb40251759b4042e0a330ac20ab43dcb0d4a8aba8b8058128d264607e52"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G1",
       "file": "models/cpb-g1-08.json",
       "file_sha256": "c0856404a6405e9dd74851b0bbf41351a7173d7ab222c7cee6fff9338db91694",
@@ -191,6 +632,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "327f87dd259e562b961b16507ee2bf293d3d31c2535ac1bce15ed79927cfa6b7"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "e798079ad25747f9310330bfd20ab2c01ab5e3281a47034a595b3787df50c225"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G1",
       "file": "models/cpb-g1-09.json",
       "file_sha256": "27400b6714ad99dcb3cee08dcfd2b08fb1a3b9910375b2b9ac33b87c031a9341",
@@ -210,6 +701,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "9c49039ca6175ecdff9e3268678053b2f0acec8ed7108436b0ad933c2179ca2d",
+            "closed_forms": 1,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "5c3408d202b3822dc97cb93296b84809462f5751051fbbfa4d04d6271c6e1773"
+          },
+          {
+            "closed_form_sha256": "9c49039ca6175ecdff9e3268678053b2f0acec8ed7108436b0ad933c2179ca2d",
+            "closed_forms": 1,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "ee1703138af47addaf7a204e07a758649b67839b2006ee907bf028430aea28c9"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G1",
       "file": "models/cpb-g1-10.json",
       "file_sha256": "45168a882fa7198dae97449797cbc824e64cb34edbcea9a16658f9f50cda7164",
@@ -229,6 +770,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "1c1e6e1190908e7cbbfaaeead6047b3d2488de1a057e1effd325576aa4dd7481"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "a5332a359fa444b2c54d85ce49756f0f4cc18b49f5ef3879f5ca1000b4b9c1ff"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G2",
       "file": "models/cpb-g2-01.json",
       "file_sha256": "96c1098d2627949468f563e0b59204a00dcec458bee3414a9e99b70f1c8edff6",
@@ -253,6 +844,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "788a4ad8342e173972392abd8faa4d0c6f001e460719b015b2d3dd9cd539c64b"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "c8f2b4dc78492c33672615498d63343bd40d21504fe8c8bea7f56ad6671822ef"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G2",
       "file": "models/cpb-g2-02.json",
       "file_sha256": "1aed293b9e025741fc57f7b85876f68a20d140c62ed9e6331881bfaf644c0db6",
@@ -277,6 +918,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "5b253fbe2083c4ecb13a30bce900d1aa4eb47f27ab5838375f29e8e1e0221ddc"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "bdce931930cd2d79ec03d9be002f8ca75ead68519a27747f153eec020807f102"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G2",
       "file": "models/cpb-g2-03.json",
       "file_sha256": "9cccfad3f42e9ad3991e046079a9b29b8e155e2350229040819af0fe655d524a",
@@ -301,6 +992,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "4486f5b67a95cd46fd916f8862efe75080f079cb79257fbc71e7de957256a023"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "abb7b37a4777e0c4e08fc1bb9f07f7b9d3a7d1216e85828eb591f2e878141435"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G2",
       "file": "models/cpb-g2-04.json",
       "file_sha256": "8f9746f79acb66207e2e04c06aedec9c961a330df4f2f300a6561f3cc0120f47",
@@ -325,6 +1066,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "732fc39b1864227770ba487a290999286e62f7773a0b9811acef0f6cea77994d"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "b7fced222d2c465b0d6bd3baf1ac7a568c79b1af2307089425fe7b3f1e1cba38"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G2",
       "file": "models/cpb-g2-05.json",
       "file_sha256": "15ef5fad9357e421e283f966642b4ea86e0d7d6d12f77017b23a7c3e31234ea0",
@@ -349,6 +1140,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "43a50def28e1754aa6b10e0ffa1c7dd5c898b6fc21395ce1d14def665e4a7cd8"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "1b334de7ff399e1dcb36ae4ba1c856ac24e7ff48b5848d5df107c544db03dab0"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G2",
       "file": "models/cpb-g2-06.json",
       "file_sha256": "c656457ebd57afc74793e622e7b896e639c234a60094b1cec149cf4cecd502c0",
@@ -373,6 +1214,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "4663f2552c551b94132d5b585f7202482ba158d1da7dbedc210b1318998e1cf9"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "3df6ffa38c4c8569ae9e53568510df332b4a0dbf7dfa29c41dc39a496e06866b"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G2",
       "file": "models/cpb-g2-07.json",
       "file_sha256": "589437479fca6db9dc6a599aa1cc8874264e7b2f9c0238f1d21726222cd32c9f",
@@ -397,6 +1288,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "c426c17255a15425742facc46e1357a5e9a4b75d3809adb5463d2e56d275452f"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "fcbc51f55041b0c20a671914c0e15218234da47884a4f981acda3028ff3b3c97"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G2",
       "file": "models/cpb-g2-08.json",
       "file_sha256": "8940ec36f028653afe9e923da78040e37e04a538fd5c3b2efbd2c50f2293aab0",
@@ -421,6 +1362,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "af6a49c5c9fe1d923fab038f84d3574b53347e398152544a0448a98b5124a274"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "f2585523e731104fbacad4b8c2ad42392e8b688469b6b759e69fca6128ab7969"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G2",
       "file": "models/cpb-g2-09.json",
       "file_sha256": "87ac078aee8b9123f9c73a15ed3991b81c9fe47ab43d0a0db38b553685936005",
@@ -445,6 +1436,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "5d54204033d3861b4233a30e8a77acf69b3d8a65ee0d00dcf154bfe3224e0598"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "c11ed835528ce06c6d99a77ef997cbc5e5b7df93f564e2984273b52095a47ad6"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G2",
       "file": "models/cpb-g2-10.json",
       "file_sha256": "72e6d1c7b03962a417d228792ff169c585afbaf1d57d32891bd720b9ed4fabbc",
@@ -469,6 +1510,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "ad3f357b0748d8fa680cc9567ed09010c9f4bba2ddeb58877ae9b1dda254caf1"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "29991d909cbc984dd1fa771356f89aa6224c0c45880a208568328bb1d824de65"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G2",
       "file": "models/cpb-g2-11.json",
       "file_sha256": "a5c1f8dbeeb5118ae6cf6266a2b44dc11c92f763f547f04a7fced93ebf3528a7",
@@ -493,6 +1584,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "f1f795dcd5f396519652b7e20676b69751a0ac1f8bc658e2c8a1ff56e5317b07"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "2e8489483f281c37a4199103b05e04f6e74d0056695a172607a7592107505820"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G2",
       "file": "models/cpb-g2-12.json",
       "file_sha256": "5c8d1551198e5d28a834f380f35538a3517b441af06c33dca4feda5838295c8a",
@@ -517,6 +1658,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "2c8c3f142e507689968974020202638a00c2d625c03ba23572dd2b6cbb05130d"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "c4267b6f3c813a13ebe53bb5d9ca93be3d4982d1cd5380f979c8cf77c4985aea"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G2",
       "file": "models/cpb-g2-13.json",
       "file_sha256": "0d1196ad1ec4c438b55d428cadfa6ef12cac0147d8b241f36d7e6f3a0048bcdf",
@@ -541,6 +1732,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "bcf459907c8847fb9327626d7c6161ffad5e645ac9f7a0f31b703eddc5a3d55b"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "f7311cada0f98f0baf997d2a12dd42c54420d429da4731d8d30fe5919378d7ae"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G2",
       "file": "models/cpb-g2-14.json",
       "file_sha256": "a3a265c1ddb8b04ea69475f690f7343db06efca4720a5e6a350fb1cc2ac59f66",
@@ -565,6 +1806,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "6370fbde05840daa2092fa3efe0c6ee552ed6a3dcdab04fda1f2a2f6dd5db899"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "5bea933ab427b0987862ab66cd751c0e2db2a331631141108d2e2940118b13e9"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G2",
       "file": "models/cpb-g2-15.json",
       "file_sha256": "030f93bcae5b533a4f2422777cd2a76ed3d8bfdd31667dc87f28a54a1534a3f9",
@@ -589,6 +1880,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "6953b8819a99e30b92c058439beac4c05a8381c4366b720dc68ba25b7225a808"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "e82954219c87c2e9ba2ba2e460b189e30d2f3d0f2f8133cc923b2ac6eb51db1e"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G2",
       "file": "models/cpb-g2-16.json",
       "file_sha256": "94065a3e49268bc1c8755d1393a05e66c6733ce2089a810f81890c87c3b43162",
@@ -613,6 +1954,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "a29d9dbf797d139aeccf5f45684477e4c1bde6438dfbc6bb77476cda394ceaec"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "a3ea08902cd688e492bad28da84aef1687c89330a90b87da80b609edc23e5b0a"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G3",
       "file": "models/cpb-g3-01.json",
       "file_sha256": "1a5daeaf4d44c63c7114643289d42e8b26c6b13d9d19e9bc7eb738ae44bfe2cd",
@@ -636,6 +2027,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "2376de4ef16c63d9866c923c7f79eda1893b8abd347286290328959a5852bb91"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "6c3a2c70d057dacd1e8093bc020963354e37ecb3d77f410f215ffd76dcf6a3c6"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G3",
       "file": "models/cpb-g3-02.json",
       "file_sha256": "24ead85f5344587105255b89c4083a6b645db728246ae551507d32cb38a63ccb",
@@ -659,6 +2100,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "644b84c7e4a4740bebb3f51c3b8aee8a91e22dec3ac99be87c2272de1b12ce6f"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "190d292157924015b4b3730b9552f15b2e6978439f7fbb1e2d4840501f951e88"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G3",
       "file": "models/cpb-g3-03.json",
       "file_sha256": "32e43f2f78f7a59629fa0a1961abd16be958d2bf4199ebde7b5a4c8d78cb6f88",
@@ -682,6 +2173,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "82ce91d6061df8066cebf0847d22d1a40f950a24ce5b584b3b279af25036e9ab"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "49f7771d69dc9ac30ce0ccf84e93617542d1a1cdae28fddce7e359ce2db4ba1d"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G3",
       "file": "models/cpb-g3-04.json",
       "file_sha256": "60eb392eb87db7721b25e04a0936a58c658e0162692ae980ec64bf7a5bf73ced",
@@ -705,6 +2246,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "987f2b4ab424056e47a2b1eed45187376d7346007d5270ee5d192e90ffca50a7"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "fde6cd24dd011c32545b14e9e6202ba7347118eb19f151cb4c333b9068fd6ad1"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G3",
       "file": "models/cpb-g3-05.json",
       "file_sha256": "2ed7a7816065932451df84e7859cb3c6f66b10a4f6e215dd16ffeb0847cb66b8",
@@ -728,6 +2319,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "a8ffeb2c944a4e8f48ba28f4c1f5130f89ec8dbfbe3d841202ea094d08df152d"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "bc5db44064ae677d45837ec7a83d97a5ea95b9515958a130eba78c07f7ce5e0f"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G3",
       "file": "models/cpb-g3-06.json",
       "file_sha256": "921d013e83a97710f97e53d501fd195116ca7b90c21afdc8521ab300e2ee86d2",
@@ -751,6 +2392,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "0aa37acc1a8c98ae9483408bb891574cb33ed6ae64f675f0cf03b4248ae4ea73"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "da11c0e219e167a8a62996d742ac470ec07a6e46c30a0394b21c9630f2041a74"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G3",
       "file": "models/cpb-g3-07.json",
       "file_sha256": "5ed778ceb7640aa5e38f65e4af735748ff63f16c291b4a4469ce5cd55a90981e",
@@ -774,6 +2465,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "e06a2d94a56850a0765ee2119c1b84eed4f689373ac929c9c74a6945f20b566f"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "5511e81786c93dcc4efb08a08611f4e2851e93507fbe997417c6a38b5f7798d2"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G3",
       "file": "models/cpb-g3-08.json",
       "file_sha256": "de70c9e652b972aa6609b1059a533b48a7288a5398121098acf11e61b85b41ad",
@@ -797,6 +2538,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "807964e41605d10d25f12b77671d54e8d50728a95ab18becbe9d0caa4486a985"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "38f6650cc84bde24912d97d0a56c3983356faa34019e22fb15eb70667233952b"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G3",
       "file": "models/cpb-g3-09.json",
       "file_sha256": "da034903da57376016b8ae75e1ca89d2a4088c4228b49fe36dfb80f5e8986454",
@@ -820,6 +2611,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "6d971b41b11a741bc92622fa0099bdaf27e3379fe77b452e66a2e7b891b0aa7b"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "d68d2f0f494e3b0ad3ecfccc71e4e3e8da2b81b8d7615a9eeeb8d7fb09e6ac04"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G3",
       "file": "models/cpb-g3-10.json",
       "file_sha256": "9a2c914aa62b8d6f14637f5992fa7d4d67995676d01b19b499213624361d8ffc",
@@ -843,6 +2684,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "a7a27c77811a9200598888789afffab1c703ebf374c15aa2c36a5795970bfe6e"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "b475b52b65223c0bb0010b348c0c0abd74d7c2c5f31f42b87df73d784221b610"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G3",
       "file": "models/cpb-g3-11.json",
       "file_sha256": "bcec61522d436a77888160c5bef1e7183dee6fd7b0ce5608acd5b54d77c6ca21",
@@ -866,6 +2757,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "1c74888fa17c62068ea4b74128ac61f7d76cdcf05a91def3e5f4edb0e64e364e"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "c9423c3a7fadd56ebbe27620b5d462ad6531ba1c045a11b161e3a3be8f986438"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G3",
       "file": "models/cpb-g3-12.json",
       "file_sha256": "7e5a09c7fc042e12d166041a82f239fca25f99f5e20d7664681ed1651b66ff67",
@@ -889,6 +2830,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "d54da2407b89361c9757cd4deb3b7a302693b94b7ebdccf7d4c29b158557f12e"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "46e34907d3674b88da7102b04741042e8b9c0503eb3fdcb39ae6494f46b89487"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G4",
       "file": "models/cpb-g4-01.json",
       "file_sha256": "f04ffeb125a208968bf8c59e758dc26f20d3675da39c6c55748ff08d219a5d90",
@@ -911,6 +2902,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "929a4d2c6b7ee9a638435103efd1fab73c354e83ccf1ede04ebf98b20f959017"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "19ef044c1dae69a514029e5c1ef84aa894b1ba30ab0f1315127d51561bdb6cbd"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G4",
       "file": "models/cpb-g4-02.json",
       "file_sha256": "86761b29d5bbf774e88433b1d14290e5def2973c51de907b38e90e5150dbb364",
@@ -933,6 +2974,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "01d5e1535bb2cbac9042699f425ff625d7f6e599385d00db5981aefa2858a070"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "2bb2f15d88606de87a004fd4143061c3a76d7f890274b18e3385ab1b9f4adb5a"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G4",
       "file": "models/cpb-g4-03.json",
       "file_sha256": "438093898b0bb7a6d81a6de94f92bbe14d1249d40aeffaf5d797a9208c0b3958",
@@ -955,6 +3046,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "70fe166132f8596b63baab2acca090c70f03bfcd51e80fc905ffd9cd350f2860"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "2be8fc30e8b4ea9469f10eae145ab2f07d528709589082619ce6a8fade84404c"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G4",
       "file": "models/cpb-g4-04.json",
       "file_sha256": "81925a316c435c60d73f7e3fcd43a8b60245e0c2a93b2ed19197db7b161a2c7d",
@@ -977,6 +3118,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "5bdd57f3cde3a7d381274d59909acd44903cf54c4a69abba402342c7d58f3f8e"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "342d403ba49395823393fda3860409ab20036cced8c83879fea4a16dcbbe5ab3"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G4",
       "file": "models/cpb-g4-05.json",
       "file_sha256": "bbe5b000c051e723f770be6e6da308fcd6aaf8f4e630fbc73f805786c05ab9db",
@@ -999,6 +3190,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "876a7ec1bd23e719b8973d15b43c87c7eaf899d625f31ab597d4689f7afd8a63"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "b3e465020a2bb8cd0f4a2f569a6efd8fc246235c140282d688a1f7966ae5cf0a"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G4",
       "file": "models/cpb-g4-06.json",
       "file_sha256": "39401af57dcac92c23dbacd1f2256133a01ccf12f72cc1ede7a5249e2401f1b7",
@@ -1021,6 +3262,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "a315e9628a7100ce0220d2cb7ab278fb671c8f4c163a1fa5aec6faffcc38a57e"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "a2c5c98ef19b00de8e384483ac206db951389bc6ace42db283271b08b355d54b"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G5",
       "file": "models/cpb-g5-01.json",
       "file_sha256": "7be91fa3ef0535fd46b5cbcf63841c967fdc08159c4f4ea4892880326ac1aef6",
@@ -1044,6 +3335,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "2fc2cf5e0d0011bdfe7dd5a1d37ad7b9dbf0e56cfeeebf73cefc72d399343599"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "605ab39e6f9925ba42030259898a05da0ab529cea8bd2851243927fed891868b"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G5",
       "file": "models/cpb-g5-02.json",
       "file_sha256": "8d2ccadd8cf3d70ae8f57a7273f9cf308904f83970a4bd606be677caafddf0fe",
@@ -1067,6 +3408,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "1a736f2996447bdab3d6ac24f77cc46636301649139aacac34711669740f9b02"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "d3786627188846b85c16d2a37e87f961d05d593214f44fa1807f8d21315e19e0"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G5",
       "file": "models/cpb-g5-03.json",
       "file_sha256": "10eecc0452d946da5b2e8c865abd92ec88dd9a0c7bc61dad05ac52f3de7baa01",
@@ -1090,6 +3481,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "71f99ec15c9d244e865ca13e7287dd0596d3b61c80fba99b1f2d69dbbf9db557"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "155b320f042476fde2f54f15243668f476927bc579b169d8cef2caac4381229b"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G5",
       "file": "models/cpb-g5-04.json",
       "file_sha256": "69cafdafac8d7210160071c49fc7a372232016c224f03523c9bc2c691dfb5b8f",
@@ -1113,6 +3554,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "58debc17a9ebaec11764795311c9de8644fe2f47d3bc722bad0a2caa23330d73"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "f83eff17d74d9b361299da2c7453effedf75c2af6dd797aa83e3918ea60265a8"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G5",
       "file": "models/cpb-g5-05.json",
       "file_sha256": "af1fa5deb691505b1e0b7b6bbeaba0e7ea035331fe373c42dad3b8567d61158e",
@@ -1134,6 +3625,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "b505ee73707e9d177cb16a94e4c6c12452a7f65b5549f1013ec22839dcdd5cbb"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "1e18e4c0ae83a9417de990c182dbe6cab2712c7357c944e817a0c83d8ae21575"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G5",
       "file": "models/cpb-g5-06.json",
       "file_sha256": "599c27eb6ac04bd1b60aabe15bf1e1a2f460df96bff1a750a885a9d3c8686f0f",
@@ -1155,6 +3696,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "67de99bc78e199b4413925d03c98ffe2986bc4360400b0f00b3a4f3323d8d507"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "58dfa5bda95c095cda56d7e138085435337664d7538928a90932223f9bd8e258"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G6",
       "file": "models/cpb-g6-01.json",
       "file_sha256": "9101516cba135a5023a13c3dec77b761834fa9fcadb791532ee05c737ca90af7",
@@ -1175,6 +3766,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "0ce1edf12ae873decfee9c8f55232d3e278f53378ba8f97b8d54a690cda1b145"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "a5e71eff4c7013dc9752711f35dccd8cbe7b392e64ee0c521de77fbbffda0590"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G6",
       "file": "models/cpb-g6-02.json",
       "file_sha256": "bc328c94012a7ea29555dc70d19266267e582359d15776b19787f5dffa40deab",
@@ -1195,6 +3836,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "ab1951d72f77e87cfd1673f3957f6a492ae90fba345973e0c3a7b86261ee39a5"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "9993283d6fe2aef0f2727a7f02ce6138368abec44b8cb42b6c8ef9353cb9f8d5"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G6",
       "file": "models/cpb-g6-03.json",
       "file_sha256": "4457c347f07871571172473e4dc0d1ff4b05b785dee56fe8bbaf1c714804fb04",
@@ -1215,6 +3906,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "df07f889b1228a3550cb3070223ba57e7e3c15fc842f9d6cf0dc76b58bf0d6c2"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "a19a0a7c196405d8b9aace92b25f81f88ddabb3ae8f91034b9fb230525dff49a"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G7",
       "file": "models/cpb-g7-01.json",
       "file_sha256": "16884db28f637a3d1987a35493795ead31361e1554ac821d63f7d129b412681c",
@@ -1235,6 +3976,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "478c984b190f5c28c76da37ba775afd04ebd1e76bb51597fed0aa0ecd1b2faca"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "b58cbfbef0a3f93d73e3ff0389766498679fc282008d460fb994baad2146f5de"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G7",
       "file": "models/cpb-g7-02.json",
       "file_sha256": "c6b829f3e2d35d7fceddf9493ce4d55640788678a9e90a466b77f1a8eb9581cc",
@@ -1255,6 +4046,56 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": true,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "1b6d9d056938091bcb9af8597ca0883cb5cfedf3760ebf5e7ac601b869a97f95"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "binding_maps_equal": true,
+              "equal_to_pressure_free": true,
+              "identity_file_records_differing": [
+                "assumptions",
+                "diagnostics",
+                "loss_report",
+                "material_map",
+                "pressure_map"
+              ],
+              "writer_status": "written"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "ad6e0a5fd24ce5c710ed3b69e22ec064d0f4792606609ee9c648ac9c6cfae64f"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G7",
       "file": "models/cpb-g7-03.json",
       "file_sha256": "e32914afb9144405282a7cde2ac9bb64ce05cfc42afca8cb57983b22338d1159",
@@ -1275,6 +4116,47 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": false,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu",
+          "boundary_motion_in_load_reference_state"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "afc9e86c316f6764e204f897bd7fb0a3f86e5d4686fb13fe7017c96f82aa1a42",
+            "closed_forms": 3,
+            "model_file": {
+              "equal_to_pressure_free": false,
+              "writer_refusals": [
+                "MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED"
+              ],
+              "writer_status": "refused"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "41c3faaf5c27404856c44dd3ca001081544f32c753d3f076d92beec6c6cc368b"
+          },
+          {
+            "closed_form_sha256": "8807baed6992944b78c22d9b4c3005d23ece96ea94b8cce771eac8b7fb8ce677",
+            "closed_forms": 3,
+            "model_file": {
+              "equal_to_pressure_free": false,
+              "writer_refusals": [
+                "MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED"
+              ],
+              "writer_status": "refused"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "98bbbe120264f9493acc15764adee27d8dddfc1834b1b19c26a94f13e2d99377"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G8",
       "file": "models/cpb-g8-01.json",
       "file_sha256": "6525273eec9a394f93cde17999c3f69aa54fde0c0d8caccb4528b69887ac11f5",
@@ -1295,6 +4177,47 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": false,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu",
+          "boundary_motion_in_load_reference_state"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "63e3f74cd893aeed1ee92c233781a8d32e00689a0771b8d21bedc01eb13a3e26",
+            "closed_forms": 3,
+            "model_file": {
+              "equal_to_pressure_free": false,
+              "writer_refusals": [
+                "MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED"
+              ],
+              "writer_status": "refused"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "43a00ef8324de68836149500c4b3014161048a3787e82c582c37918e87240d64"
+          },
+          {
+            "closed_form_sha256": "0eb1c7364e6b737d53e9eb1489ee67c9c5079da3eaf437fece23510f418750a4",
+            "closed_forms": 3,
+            "model_file": {
+              "equal_to_pressure_free": false,
+              "writer_refusals": [
+                "MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED"
+              ],
+              "writer_status": "refused"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "d6b8c724fdbbbf0497a1628f0e03d52d1c29df8870f2166d50f4a3049ce49e25"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G8",
       "file": "models/cpb-g8-02.json",
       "file_sha256": "8b5699b6a8221268e5ceba117c3eda69ff93339f2f539f3038cef38c2d9776cf",
@@ -1315,6 +4238,47 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": false,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu",
+          "boundary_motion_in_load_reference_state"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "4430b6f85b5e424d1bd4a913bebc1bcfe40ce439b12e1ec1eee452f9f31f695c",
+            "closed_forms": 4,
+            "model_file": {
+              "equal_to_pressure_free": false,
+              "writer_refusals": [
+                "MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED"
+              ],
+              "writer_status": "refused"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "608a47218ac3a249e15ab86d40e6f222cb467e560a7a4ce1a226059fd3331964"
+          },
+          {
+            "closed_form_sha256": "b2ddf3d77e9b15290e7aafb3b8f90686d86a980e31452141fc4307b1136b298a",
+            "closed_forms": 4,
+            "model_file": {
+              "equal_to_pressure_free": false,
+              "writer_refusals": [
+                "MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED"
+              ],
+              "writer_status": "refused"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "274aede019bd24fb0946f5a4e6fa209aa530273609d268ac0e6f93681ab226c5"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G8",
       "file": "models/cpb-g8-03.json",
       "file_sha256": "6f6eace87493c19f19d7b1f5a9dc36c77b8b4c37f956a766ce39ddb579e36db5",
@@ -1335,6 +4299,47 @@
       "tranche": "1"
     },
     {
+      "exact_route": {
+        "comparable_with_stored_results": false,
+        "forms": [
+          "pressure_contract",
+          "corrosion_allowance_zero",
+          "pressure_regions_empty",
+          "material_E_nu",
+          "boundary_motion_in_load_reference_state"
+        ],
+        "members": [
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "equal_to_pressure_free": false,
+              "writer_refusals": [
+                "MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED"
+              ],
+              "writer_status": "refused"
+            },
+            "shear_model": "timoshenko_annulus_energy_v1",
+            "side": "exact-route-timoshenko",
+            "swbpipe_model_hash": "1897d52709ea5a6b45a4bc9a4eb5ee212895552fc387bb4659bce77e079e2041"
+          },
+          {
+            "closed_form_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+            "closed_forms": 0,
+            "model_file": {
+              "equal_to_pressure_free": false,
+              "writer_refusals": [
+                "MBF-SI-REFERENCE-CONFIGURATION-UNSUPPORTED"
+              ],
+              "writer_status": "refused"
+            },
+            "shear_model": "euler_bernoulli",
+            "side": null,
+            "swbpipe_model_hash": "5204538264c6dcceffb1755efa65b9320637913660e1336f2d9ae103dc057c64"
+          }
+        ],
+        "series": "exact-shear-model"
+      },
       "family": "G8",
       "file": "models/cpb-g8-04.json",
       "file_sha256": "d803aeeca9d257db8792b4b43d6005ec5b2cc18ca22da4d07561bb52ced36a75",
@@ -2531,6 +5536,626 @@
       ],
       "swept": "k"
     },
+    "exact-shear-model": {
+      "caepipe": "the model file written from the tracked document, unchanged, where the twin's model file equals it",
+      "description": "every tranche 1 model on the exact route under each shear model; a model whose twin fails the model file condition is listed with comparable_with_stored_results false and is not compared",
+      "hypothesis": "shear_deformation",
+      "kind": "shear_model",
+      "members": [
+        {
+          "model_id": "cpb-g1-01",
+          "swbpipe_model_hash": "cafa190ace700901ff5e9bf1ecf233d59bfa11ac0c4f5ea75dff7416f39dbf3c",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g1-01",
+          "swbpipe_model_hash": "6384e48e23bbc69d7ad7f321593e63e752874cee3d4e097b5cc8b65849bc1315",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g1-02",
+          "swbpipe_model_hash": "1683879d2a10f822223b47e52a7102053f4e2f0a586c2d42c27de85d2b812a1b",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g1-02",
+          "swbpipe_model_hash": "4ed75a19a8bab78851a5013589e95f4e8430cd5fcd872e434c09866a213e0e78",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g1-03",
+          "swbpipe_model_hash": "b6fbb5b37b279637bad76b2e0ccdfaecd242cb854b9d54f41423f72efeaaf24c",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g1-03",
+          "swbpipe_model_hash": "73589c5bcf358101e6041839302df63209cf75b3224484bb717a8c96c9c04577",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g1-04",
+          "swbpipe_model_hash": "2a3da2aa70c7d59a9b811a3646437e015559fbb3ab914be957fe819c6d7528cd",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g1-04",
+          "swbpipe_model_hash": "8c79e06c327870aa9cdabfe0c27b5fc343a24c741c2b74ff5977b88d33d80295",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g1-05",
+          "swbpipe_model_hash": "07d4b45be0e537ed02f748cb2b2e74357784c96b06af3ea6b03f5654a05c8e58",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g1-05",
+          "swbpipe_model_hash": "f250b027a0bed8e701638d89f6dfe453b9aa8ab6b3b8c8221fa73fa3254179f2",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g1-06",
+          "swbpipe_model_hash": "d57cc7eb14661169e6e37d440a9aef887ea92c4c3baff7053fe87da65303c661",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g1-06",
+          "swbpipe_model_hash": "b0086e5a407aedba16c3a8985645ac8fce9822f7be81ec9ef4eab16adfd29955",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g1-07",
+          "swbpipe_model_hash": "b8832c1df8297c14ba40ab63f53060cc8f50431c09de6bd396e6be638b208c58",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g1-07",
+          "swbpipe_model_hash": "4e578cbc94f0236bd546b8c1ed47623e705a6ce4f4a06d00a651aeef7e25cabe",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g1-08",
+          "swbpipe_model_hash": "d1c484436e60db0add8c95d586e64881d00a3184aa3f7ac8cf6c8421207d5e67",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g1-08",
+          "swbpipe_model_hash": "2eca6bb40251759b4042e0a330ac20ab43dcb0d4a8aba8b8058128d264607e52",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g1-09",
+          "swbpipe_model_hash": "327f87dd259e562b961b16507ee2bf293d3d31c2535ac1bce15ed79927cfa6b7",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g1-09",
+          "swbpipe_model_hash": "e798079ad25747f9310330bfd20ab2c01ab5e3281a47034a595b3787df50c225",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g1-10",
+          "swbpipe_model_hash": "5c3408d202b3822dc97cb93296b84809462f5751051fbbfa4d04d6271c6e1773",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g1-10",
+          "swbpipe_model_hash": "ee1703138af47addaf7a204e07a758649b67839b2006ee907bf028430aea28c9",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g2-01",
+          "swbpipe_model_hash": "1c1e6e1190908e7cbbfaaeead6047b3d2488de1a057e1effd325576aa4dd7481",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g2-01",
+          "swbpipe_model_hash": "a5332a359fa444b2c54d85ce49756f0f4cc18b49f5ef3879f5ca1000b4b9c1ff",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g2-02",
+          "swbpipe_model_hash": "788a4ad8342e173972392abd8faa4d0c6f001e460719b015b2d3dd9cd539c64b",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g2-02",
+          "swbpipe_model_hash": "c8f2b4dc78492c33672615498d63343bd40d21504fe8c8bea7f56ad6671822ef",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g2-03",
+          "swbpipe_model_hash": "5b253fbe2083c4ecb13a30bce900d1aa4eb47f27ab5838375f29e8e1e0221ddc",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g2-03",
+          "swbpipe_model_hash": "bdce931930cd2d79ec03d9be002f8ca75ead68519a27747f153eec020807f102",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g2-04",
+          "swbpipe_model_hash": "4486f5b67a95cd46fd916f8862efe75080f079cb79257fbc71e7de957256a023",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g2-04",
+          "swbpipe_model_hash": "abb7b37a4777e0c4e08fc1bb9f07f7b9d3a7d1216e85828eb591f2e878141435",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g2-05",
+          "swbpipe_model_hash": "732fc39b1864227770ba487a290999286e62f7773a0b9811acef0f6cea77994d",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g2-05",
+          "swbpipe_model_hash": "b7fced222d2c465b0d6bd3baf1ac7a568c79b1af2307089425fe7b3f1e1cba38",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g2-06",
+          "swbpipe_model_hash": "43a50def28e1754aa6b10e0ffa1c7dd5c898b6fc21395ce1d14def665e4a7cd8",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g2-06",
+          "swbpipe_model_hash": "1b334de7ff399e1dcb36ae4ba1c856ac24e7ff48b5848d5df107c544db03dab0",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g2-07",
+          "swbpipe_model_hash": "4663f2552c551b94132d5b585f7202482ba158d1da7dbedc210b1318998e1cf9",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g2-07",
+          "swbpipe_model_hash": "3df6ffa38c4c8569ae9e53568510df332b4a0dbf7dfa29c41dc39a496e06866b",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g2-08",
+          "swbpipe_model_hash": "c426c17255a15425742facc46e1357a5e9a4b75d3809adb5463d2e56d275452f",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g2-08",
+          "swbpipe_model_hash": "fcbc51f55041b0c20a671914c0e15218234da47884a4f981acda3028ff3b3c97",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g2-09",
+          "swbpipe_model_hash": "af6a49c5c9fe1d923fab038f84d3574b53347e398152544a0448a98b5124a274",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g2-09",
+          "swbpipe_model_hash": "f2585523e731104fbacad4b8c2ad42392e8b688469b6b759e69fca6128ab7969",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g2-10",
+          "swbpipe_model_hash": "5d54204033d3861b4233a30e8a77acf69b3d8a65ee0d00dcf154bfe3224e0598",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g2-10",
+          "swbpipe_model_hash": "c11ed835528ce06c6d99a77ef997cbc5e5b7df93f564e2984273b52095a47ad6",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g2-11",
+          "swbpipe_model_hash": "ad3f357b0748d8fa680cc9567ed09010c9f4bba2ddeb58877ae9b1dda254caf1",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g2-11",
+          "swbpipe_model_hash": "29991d909cbc984dd1fa771356f89aa6224c0c45880a208568328bb1d824de65",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g2-12",
+          "swbpipe_model_hash": "f1f795dcd5f396519652b7e20676b69751a0ac1f8bc658e2c8a1ff56e5317b07",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g2-12",
+          "swbpipe_model_hash": "2e8489483f281c37a4199103b05e04f6e74d0056695a172607a7592107505820",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g2-13",
+          "swbpipe_model_hash": "2c8c3f142e507689968974020202638a00c2d625c03ba23572dd2b6cbb05130d",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g2-13",
+          "swbpipe_model_hash": "c4267b6f3c813a13ebe53bb5d9ca93be3d4982d1cd5380f979c8cf77c4985aea",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g2-14",
+          "swbpipe_model_hash": "bcf459907c8847fb9327626d7c6161ffad5e645ac9f7a0f31b703eddc5a3d55b",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g2-14",
+          "swbpipe_model_hash": "f7311cada0f98f0baf997d2a12dd42c54420d429da4731d8d30fe5919378d7ae",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g2-15",
+          "swbpipe_model_hash": "6370fbde05840daa2092fa3efe0c6ee552ed6a3dcdab04fda1f2a2f6dd5db899",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g2-15",
+          "swbpipe_model_hash": "5bea933ab427b0987862ab66cd751c0e2db2a331631141108d2e2940118b13e9",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g2-16",
+          "swbpipe_model_hash": "6953b8819a99e30b92c058439beac4c05a8381c4366b720dc68ba25b7225a808",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g2-16",
+          "swbpipe_model_hash": "e82954219c87c2e9ba2ba2e460b189e30d2f3d0f2f8133cc923b2ac6eb51db1e",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g3-01",
+          "swbpipe_model_hash": "a29d9dbf797d139aeccf5f45684477e4c1bde6438dfbc6bb77476cda394ceaec",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g3-01",
+          "swbpipe_model_hash": "a3ea08902cd688e492bad28da84aef1687c89330a90b87da80b609edc23e5b0a",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g3-02",
+          "swbpipe_model_hash": "2376de4ef16c63d9866c923c7f79eda1893b8abd347286290328959a5852bb91",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g3-02",
+          "swbpipe_model_hash": "6c3a2c70d057dacd1e8093bc020963354e37ecb3d77f410f215ffd76dcf6a3c6",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g3-03",
+          "swbpipe_model_hash": "644b84c7e4a4740bebb3f51c3b8aee8a91e22dec3ac99be87c2272de1b12ce6f",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g3-03",
+          "swbpipe_model_hash": "190d292157924015b4b3730b9552f15b2e6978439f7fbb1e2d4840501f951e88",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g3-04",
+          "swbpipe_model_hash": "82ce91d6061df8066cebf0847d22d1a40f950a24ce5b584b3b279af25036e9ab",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g3-04",
+          "swbpipe_model_hash": "49f7771d69dc9ac30ce0ccf84e93617542d1a1cdae28fddce7e359ce2db4ba1d",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g3-05",
+          "swbpipe_model_hash": "987f2b4ab424056e47a2b1eed45187376d7346007d5270ee5d192e90ffca50a7",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g3-05",
+          "swbpipe_model_hash": "fde6cd24dd011c32545b14e9e6202ba7347118eb19f151cb4c333b9068fd6ad1",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g3-06",
+          "swbpipe_model_hash": "a8ffeb2c944a4e8f48ba28f4c1f5130f89ec8dbfbe3d841202ea094d08df152d",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g3-06",
+          "swbpipe_model_hash": "bc5db44064ae677d45837ec7a83d97a5ea95b9515958a130eba78c07f7ce5e0f",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g3-07",
+          "swbpipe_model_hash": "0aa37acc1a8c98ae9483408bb891574cb33ed6ae64f675f0cf03b4248ae4ea73",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g3-07",
+          "swbpipe_model_hash": "da11c0e219e167a8a62996d742ac470ec07a6e46c30a0394b21c9630f2041a74",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g3-08",
+          "swbpipe_model_hash": "e06a2d94a56850a0765ee2119c1b84eed4f689373ac929c9c74a6945f20b566f",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g3-08",
+          "swbpipe_model_hash": "5511e81786c93dcc4efb08a08611f4e2851e93507fbe997417c6a38b5f7798d2",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g3-09",
+          "swbpipe_model_hash": "807964e41605d10d25f12b77671d54e8d50728a95ab18becbe9d0caa4486a985",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g3-09",
+          "swbpipe_model_hash": "38f6650cc84bde24912d97d0a56c3983356faa34019e22fb15eb70667233952b",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g3-10",
+          "swbpipe_model_hash": "6d971b41b11a741bc92622fa0099bdaf27e3379fe77b452e66a2e7b891b0aa7b",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g3-10",
+          "swbpipe_model_hash": "d68d2f0f494e3b0ad3ecfccc71e4e3e8da2b81b8d7615a9eeeb8d7fb09e6ac04",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g3-11",
+          "swbpipe_model_hash": "a7a27c77811a9200598888789afffab1c703ebf374c15aa2c36a5795970bfe6e",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g3-11",
+          "swbpipe_model_hash": "b475b52b65223c0bb0010b348c0c0abd74d7c2c5f31f42b87df73d784221b610",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g3-12",
+          "swbpipe_model_hash": "1c74888fa17c62068ea4b74128ac61f7d76cdcf05a91def3e5f4edb0e64e364e",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g3-12",
+          "swbpipe_model_hash": "c9423c3a7fadd56ebbe27620b5d462ad6531ba1c045a11b161e3a3be8f986438",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g4-01",
+          "swbpipe_model_hash": "d54da2407b89361c9757cd4deb3b7a302693b94b7ebdccf7d4c29b158557f12e",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g4-01",
+          "swbpipe_model_hash": "46e34907d3674b88da7102b04741042e8b9c0503eb3fdcb39ae6494f46b89487",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g4-02",
+          "swbpipe_model_hash": "929a4d2c6b7ee9a638435103efd1fab73c354e83ccf1ede04ebf98b20f959017",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g4-02",
+          "swbpipe_model_hash": "19ef044c1dae69a514029e5c1ef84aa894b1ba30ab0f1315127d51561bdb6cbd",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g4-03",
+          "swbpipe_model_hash": "01d5e1535bb2cbac9042699f425ff625d7f6e599385d00db5981aefa2858a070",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g4-03",
+          "swbpipe_model_hash": "2bb2f15d88606de87a004fd4143061c3a76d7f890274b18e3385ab1b9f4adb5a",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g4-04",
+          "swbpipe_model_hash": "70fe166132f8596b63baab2acca090c70f03bfcd51e80fc905ffd9cd350f2860",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g4-04",
+          "swbpipe_model_hash": "2be8fc30e8b4ea9469f10eae145ab2f07d528709589082619ce6a8fade84404c",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g4-05",
+          "swbpipe_model_hash": "5bdd57f3cde3a7d381274d59909acd44903cf54c4a69abba402342c7d58f3f8e",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g4-05",
+          "swbpipe_model_hash": "342d403ba49395823393fda3860409ab20036cced8c83879fea4a16dcbbe5ab3",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g4-06",
+          "swbpipe_model_hash": "876a7ec1bd23e719b8973d15b43c87c7eaf899d625f31ab597d4689f7afd8a63",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g4-06",
+          "swbpipe_model_hash": "b3e465020a2bb8cd0f4a2f569a6efd8fc246235c140282d688a1f7966ae5cf0a",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g5-01",
+          "swbpipe_model_hash": "a315e9628a7100ce0220d2cb7ab278fb671c8f4c163a1fa5aec6faffcc38a57e",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g5-01",
+          "swbpipe_model_hash": "a2c5c98ef19b00de8e384483ac206db951389bc6ace42db283271b08b355d54b",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g5-02",
+          "swbpipe_model_hash": "2fc2cf5e0d0011bdfe7dd5a1d37ad7b9dbf0e56cfeeebf73cefc72d399343599",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g5-02",
+          "swbpipe_model_hash": "605ab39e6f9925ba42030259898a05da0ab529cea8bd2851243927fed891868b",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g5-03",
+          "swbpipe_model_hash": "1a736f2996447bdab3d6ac24f77cc46636301649139aacac34711669740f9b02",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g5-03",
+          "swbpipe_model_hash": "d3786627188846b85c16d2a37e87f961d05d593214f44fa1807f8d21315e19e0",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g5-04",
+          "swbpipe_model_hash": "71f99ec15c9d244e865ca13e7287dd0596d3b61c80fba99b1f2d69dbbf9db557",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g5-04",
+          "swbpipe_model_hash": "155b320f042476fde2f54f15243668f476927bc579b169d8cef2caac4381229b",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g5-05",
+          "swbpipe_model_hash": "58debc17a9ebaec11764795311c9de8644fe2f47d3bc722bad0a2caa23330d73",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g5-05",
+          "swbpipe_model_hash": "f83eff17d74d9b361299da2c7453effedf75c2af6dd797aa83e3918ea60265a8",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g5-06",
+          "swbpipe_model_hash": "b505ee73707e9d177cb16a94e4c6c12452a7f65b5549f1013ec22839dcdd5cbb",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g5-06",
+          "swbpipe_model_hash": "1e18e4c0ae83a9417de990c182dbe6cab2712c7357c944e817a0c83d8ae21575",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g6-01",
+          "swbpipe_model_hash": "67de99bc78e199b4413925d03c98ffe2986bc4360400b0f00b3a4f3323d8d507",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g6-01",
+          "swbpipe_model_hash": "58dfa5bda95c095cda56d7e138085435337664d7538928a90932223f9bd8e258",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g6-02",
+          "swbpipe_model_hash": "0ce1edf12ae873decfee9c8f55232d3e278f53378ba8f97b8d54a690cda1b145",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g6-02",
+          "swbpipe_model_hash": "a5e71eff4c7013dc9752711f35dccd8cbe7b392e64ee0c521de77fbbffda0590",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g6-03",
+          "swbpipe_model_hash": "ab1951d72f77e87cfd1673f3957f6a492ae90fba345973e0c3a7b86261ee39a5",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g6-03",
+          "swbpipe_model_hash": "9993283d6fe2aef0f2727a7f02ce6138368abec44b8cb42b6c8ef9353cb9f8d5",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g7-01",
+          "swbpipe_model_hash": "df07f889b1228a3550cb3070223ba57e7e3c15fc842f9d6cf0dc76b58bf0d6c2",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g7-01",
+          "swbpipe_model_hash": "a19a0a7c196405d8b9aace92b25f81f88ddabb3ae8f91034b9fb230525dff49a",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g7-02",
+          "swbpipe_model_hash": "478c984b190f5c28c76da37ba775afd04ebd1e76bb51597fed0aa0ecd1b2faca",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g7-02",
+          "swbpipe_model_hash": "b58cbfbef0a3f93d73e3ff0389766498679fc282008d460fb994baad2146f5de",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g7-03",
+          "swbpipe_model_hash": "1b6d9d056938091bcb9af8597ca0883cb5cfedf3760ebf5e7ac601b869a97f95",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g7-03",
+          "swbpipe_model_hash": "ad6e0a5fd24ce5c710ed3b69e22ec064d0f4792606609ee9c648ac9c6cfae64f",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g8-01",
+          "swbpipe_model_hash": "41c3faaf5c27404856c44dd3ca001081544f32c753d3f076d92beec6c6cc368b",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g8-01",
+          "swbpipe_model_hash": "98bbbe120264f9493acc15764adee27d8dddfc1834b1b19c26a94f13e2d99377",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g8-02",
+          "swbpipe_model_hash": "43a00ef8324de68836149500c4b3014161048a3787e82c582c37918e87240d64",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g8-02",
+          "swbpipe_model_hash": "d6b8c724fdbbbf0497a1628f0e03d52d1c29df8870f2166d50f4a3049ce49e25",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g8-03",
+          "swbpipe_model_hash": "608a47218ac3a249e15ab86d40e6f222cb467e560a7a4ce1a226059fd3331964",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g8-03",
+          "swbpipe_model_hash": "274aede019bd24fb0946f5a4e6fa209aa530273609d268ac0e6f93681ab226c5",
+          "value": "euler_bernoulli"
+        },
+        {
+          "model_id": "cpb-g8-04",
+          "swbpipe_model_hash": "1897d52709ea5a6b45a4bc9a4eb5ee212895552fc387bb4659bce77e079e2041",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "model_id": "cpb-g8-04",
+          "swbpipe_model_hash": "5204538264c6dcceffb1755efa65b9320637913660e1336f2d9ae103dc057c64",
+          "value": "euler_bernoulli"
+        }
+      ],
+      "parameter": "pressure_contract.shear_model",
+      "swbpipe": "exact_route_document(document, value): the exact-route twin of the tracked tranche 1 model",
+      "values": [
+        {
+          "role": "the side used for the screen (exact-route-timoshenko)",
+          "value": "timoshenko_annulus_energy_v1"
+        },
+        {
+          "role": "declared second member; shows the size of the input",
+          "value": "euler_bernoulli"
+        }
+      ]
+    },
     "pressure-closure-01": {
       "description": "one pressurised cantilever with its anchor terminal transferring to the wall (closed) and separately supported or compensated (open): the same target-program input, since the MBF carries no terminal closure, with SWBPIPE's end thrust changed",
       "hypothesis": "pressure_thrust_convention",
@@ -2794,6 +6419,316 @@
       "value": "on",
       "variant_of": "pressure-default"
     },
+    "pressure-free-route": {
+      "caepipe": "the model file written from the tracked document",
+      "description": "the second, labelled series: SWBPIPE's pressure-free route (an Euler-Bernoulli frame); it does not count for exit criterion 11",
+      "kind": "route",
+      "members": [
+        {
+          "model_id": "cpb-g1-01",
+          "swbpipe_model_hash": "1b6a8a201f4075969e8ef23a521c00ddb6cba0068c93cdbfae35e05d2d3fc53a",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g1-02",
+          "swbpipe_model_hash": "2f3335a8aa1b1ca5125a00bf05d4c862dc28adb772e3cf279c03ad7dfde1f698",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g1-03",
+          "swbpipe_model_hash": "4498c9d0fd3eb717d12aeebc3c307975a437b57e570f256c6350d6ba3d279cc7",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g1-04",
+          "swbpipe_model_hash": "4b9d801d9f1da0860f8831fa27cfdb72807282349a8d281fc7529ea3aacdc230",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g1-05",
+          "swbpipe_model_hash": "d7810d43932adf9a280995d1a69d83be3b1d2378e3085bd0add8fa93a08aeb52",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g1-06",
+          "swbpipe_model_hash": "de5f55024afb0a860dbda85682ba6ee1ee63529024ecb8528ea89dd361b12410",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g1-07",
+          "swbpipe_model_hash": "e3e08e5ce606b1438cae921761c75516d326bcca78e5053392261271eb5bcdfa",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g1-08",
+          "swbpipe_model_hash": "3acea8ea869fcc0650d7f05e8f2b904e6c8949cf094ce10555f9ffe5da9d79ce",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g1-09",
+          "swbpipe_model_hash": "a8b20a3ebb04b4bfb857605c90dd5d2d23028918aa9baac8d044552540ad6f11",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g1-10",
+          "swbpipe_model_hash": "368f4150ce21cabb630ac31769ae8408fa9b28830982174f32cad231328efa2d",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g2-01",
+          "swbpipe_model_hash": "58a4a5b2ae5e2ad3b84337fdc1875c01f0c6258f9d1f7f36763652ff11cf961f",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g2-02",
+          "swbpipe_model_hash": "18c21239a3d02404b74fde726343fa29917a54e4e419f0c5891c5a159ef210a7",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g2-03",
+          "swbpipe_model_hash": "684b2e7c0dd11fdd64cc03c726dfab9c2ab8940c33b3e2ab69274317c9407472",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g2-04",
+          "swbpipe_model_hash": "d7fae6b6734c7daac84f0524b30c17942e5724ba55677ab64540eedb70c5f02a",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g2-05",
+          "swbpipe_model_hash": "f34debd3831ec2ca4d5a42fa536645271314a92a93ef1b4ee50806484cee01bf",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g2-06",
+          "swbpipe_model_hash": "616b69c21cb45e7e20a53057e49fd342998cebc3ca1f35953d3eb25a5dccdb54",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g2-07",
+          "swbpipe_model_hash": "abf9bc372fe234935abc6be6a66a20fdc5b5aa4e8026b59cffb3830ca7e15ef1",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g2-08",
+          "swbpipe_model_hash": "9c7c2a90c88cfd2d50a5958ea0abe6d141edd69f16682bb7721603542e9ecec3",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g2-09",
+          "swbpipe_model_hash": "03850e74eaee871cf01a8bfdf7ff0ada92309e52e071ccbd6e32c403cc15960b",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g2-10",
+          "swbpipe_model_hash": "77864c4a7f704927ff06fb52ca2e3b86634c104630cc58ab00345f1eadbf30bf",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g2-11",
+          "swbpipe_model_hash": "f886d2f244ec0539ea021996c06f9b0c60a83debefab0e789241a5f163568e74",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g2-12",
+          "swbpipe_model_hash": "42a78b58b5868fe3c5971b76f5e6f483a25c4827702b8cef10f241b3eff2e573",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g2-13",
+          "swbpipe_model_hash": "8940443b3e6b7dd52c30f72c4db630dc49c8ee0811a729d9a6a8de6368dc06d8",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g2-14",
+          "swbpipe_model_hash": "4abfe0ee48d4c9ebb996007ceac7e5b327baa32613a8b7a01516b01306927d3c",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g2-15",
+          "swbpipe_model_hash": "08febc57e095fe3c667561933ff6c45654d84c41648941e00a93a2bdc95ecea8",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g2-16",
+          "swbpipe_model_hash": "0ba088565cb7d86bca81ad4abc473dde5d71781866e3359911be0bbc17386835",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g3-01",
+          "swbpipe_model_hash": "4911403061a334452a8481cc46d71853a83b752951c47b93ddbd6e8c1f940909",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g3-02",
+          "swbpipe_model_hash": "95e536d12cb235d0c266720b4fad492fdff792abaf0bfa1cc8d81c0634f412b6",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g3-03",
+          "swbpipe_model_hash": "158ef82fb2b63f35d9be293c15ea065b84cd9d618c014e39bc954d89a752cdaa",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g3-04",
+          "swbpipe_model_hash": "5d818f4713158b3288a855ca09429417fa27d85aaa416b53c72b89e54f2d442a",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g3-05",
+          "swbpipe_model_hash": "14eaa88c838b03261e73a7e9e5abd0a3e406f86026967f7778d54c30372ead18",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g3-06",
+          "swbpipe_model_hash": "3565c85e01a157e8ae47cdf5f7ae72e8a42fab354abdd10deaebed9016991c62",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g3-07",
+          "swbpipe_model_hash": "3f1ce89ca4a9a4d7894cf7046b06f11e9f79ae53138b0bd091ce92e6b54c7992",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g3-08",
+          "swbpipe_model_hash": "517b4bf5918e9b4b3e301aae455949b499fab4030b6bab241208add51ce6d966",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g3-09",
+          "swbpipe_model_hash": "8a2b1516d2d80f354b494199291dbd53b295c71e3a2519a20d46c4c0c5dc3762",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g3-10",
+          "swbpipe_model_hash": "a5ea1e2efcfa85a977f05594c800f8978448dab870db489f19550d3be49049ec",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g3-11",
+          "swbpipe_model_hash": "2bc1a7fd1726beec7d27fbad1b97240572cea996d062d9819eaa806d12c3f13d",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g3-12",
+          "swbpipe_model_hash": "eafc4fd3b8c9d411c29f9bd38ed4f61dc453c699ea89e695f699ab9d1701279d",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g4-01",
+          "swbpipe_model_hash": "16b85f410ee438a4dfa28962d9b937789ce5c8954bf09a27d9edca642560852d",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g4-02",
+          "swbpipe_model_hash": "3fa6b849b8966834a391f24882504957ec8865d73f60364451b382a40790cd7c",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g4-03",
+          "swbpipe_model_hash": "a399cbdc8d9adebc034caf494e271312fb0aaa7d27506ea77a4d37ae22b1a9e9",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g4-04",
+          "swbpipe_model_hash": "a16e62c94055f41f331cb5604ad3a9a68cc34201fedd53d2504bd55dcf1b2135",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g4-05",
+          "swbpipe_model_hash": "dd0d853ce69606df89bcb952198322b8200b11f038c83c78f45904a1353b0180",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g4-06",
+          "swbpipe_model_hash": "9c83a27b2107830e88757bd10e72ef3714de788854a519ecdf1c4c467c4a3341",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g5-01",
+          "swbpipe_model_hash": "8547b4fc890abb1301ce982fd78328cb42167f635d06c2334a3bac44ff2a785e",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g5-02",
+          "swbpipe_model_hash": "a337aac625e418aa5535c1ee55c2bf05806b28995e9a17101ef81459ffb27990",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g5-03",
+          "swbpipe_model_hash": "4ac86b5534633b8e1cdac09fbfebfcb99a64eb0364ae017329909890b22b85cb",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g5-04",
+          "swbpipe_model_hash": "0b29b351ab4e9bd7720725c63faa24625d84e818a05d20fc2d085e0d6c6b5eb7",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g5-05",
+          "swbpipe_model_hash": "b6c01347fb3cbc37367d1cce77da2a17d068a38b2f6e8940a5e995a8564ca853",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g5-06",
+          "swbpipe_model_hash": "0692382c323ff225ae8ef9818c3632ab8a010b67b81fac4f1dfe830803ba82f3",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g6-01",
+          "swbpipe_model_hash": "e1addbd301eeebd2f34db225ff36e94a2a1c4572ed09f035ad57d5379c6e4390",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g6-02",
+          "swbpipe_model_hash": "eab1e2884b0612598ecad0e7b34d6b71527be928852261f8150f55e290ef4586",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g6-03",
+          "swbpipe_model_hash": "bed64e177cb40537cbd27a207c76d0157683c998b4fe402ba09470394e5035e9",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g7-01",
+          "swbpipe_model_hash": "17b24cc75f2e8708c668899decdd2720a092a44f279821b867b6bd29b2bfa534",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g7-02",
+          "swbpipe_model_hash": "743c377899c01f47063ea44fe9172adfa1fa3a8b5ebab5790d3113bf0e8fcf2c",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g7-03",
+          "swbpipe_model_hash": "581f7460367cc9646ec2099b85e37b18f391c64d5db9c517777b7566c6bc8d65",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g8-01",
+          "swbpipe_model_hash": "14132a43934b56c12c96c98f63d805251888c1e86d99488f6f50acb476928660",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g8-02",
+          "swbpipe_model_hash": "84bf58207d1052abe18cb03e7f832b2f65811220d48c4279becb1ecaf0c39b48",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g8-03",
+          "swbpipe_model_hash": "90d415869c4ce0e8c94d486e6f91899423437c81d6cd824246ef8cb5c4cf72bb",
+          "value": "pressure_free"
+        },
+        {
+          "model_id": "cpb-g8-04",
+          "swbpipe_model_hash": "d4c6ec93d4c87aedaee129d08086a4c2d3fc7c7002e9babeda6074ad2815ad6f",
+          "value": "pressure_free"
+        }
+      ],
+      "parameter": "route",
+      "swbpipe": "the tracked tranche 1 model document as it is, solved on the pressure-free route",
+      "value": "pressure_free"
+    },
     "pressure-k-rd1.5-a90": {
       "description": "one bend geometry with k = 1 and a higher k",
       "hypothesis": "bend_flexibility_application",
@@ -2884,6 +6819,28 @@
         }
       ],
       "swept": "ratio"
+    }
+  },
+  "swbpipe_sides": {
+    "exact-route-timoshenko": {
+      "applies_to": "tranche 1; tranche 2 is authored on the exact route with this shear model",
+      "counts_for": "exit criterion 11 of docs/RELEASE_TARGET_v1.0.md",
+      "document": "exact_route_document(document, 'timoshenko_annulus_energy_v1')",
+      "pressure_contract": {
+        "mode": "exact_pressure_v3",
+        "shear_model": "timoshenko_annulus_energy_v1",
+        "version": "3.0.0"
+      },
+      "route": "exact",
+      "series": "exact-shear-model"
+    },
+    "pressure-free": {
+      "applies_to": "tranche 1",
+      "counts_for": null,
+      "document": "the tracked model document as it is",
+      "label": "second series: the tracked document as it is, solved on the pressure-free route (an Euler-Bernoulli frame)",
+      "route": "pressure_free",
+      "series": "pressure-free-route"
     }
   },
   "tranches": {
