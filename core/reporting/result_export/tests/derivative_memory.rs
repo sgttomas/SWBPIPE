@@ -1,4 +1,4 @@
-//! The derivative binding's working memory (DEL-05-02): `derivative::derive_document`
+//! The derivative binding's working memory (DEL-08-04): `derivative::derive_document`
 //! holds one document. Its six per-row arrays are moved into the document, not copied;
 //! its derivative hash (and every other checksum it takes) is the SHA-256 of canonical
 //! text written straight into the hasher, never held as a string; and its closing
@@ -23,8 +23,8 @@ thread_local! {
     static PEAK: Cell<i64> = const { Cell::new(0) };
 }
 
-/// Adds `added` live bytes, records the peak, then removes `removed` (a moving
-/// reallocation holds its old and new blocks together at that instant).
+/// Adds the new requested size before removing the old size. Reallocations
+/// conservatively count both requests, including when System reallocates in place.
 fn record(added: usize, removed: usize) {
     let _ = ACTIVE.try_with(|active| {
         if active.get() {
@@ -68,8 +68,8 @@ unsafe impl GlobalAlloc for Counting {
 #[global_allocator]
 static ALLOCATOR: Counting = Counting;
 
-/// `f`'s result, the peak of its live requested bytes and its live bytes at the end
-/// (both counted from zero at the start, on this thread).
+/// `f`'s result, its conservative requested-byte peak and its ending live-byte
+/// delta, relative to the start of this thread's measurement.
 fn measure<R>(f: impl FnOnce() -> R) -> (R, i64, i64) {
     LIVE.with(|l| l.set(0));
     PEAK.with(|p| p.set(0));

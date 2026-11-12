@@ -1,4 +1,4 @@
-//! Form A of the derivative binding (DEL-05-02): `derive_document` moves its six
+//! Form A of the derivative binding (DEL-08-04): `derive_document` moves its six
 //! per-row arrays into the document instead of copying them, every checksum
 //! (the derivative hash among them) is the SHA-256 of canonical text streamed
 //! into the hasher instead of held as a string, and `validate_document` hashes
