@@ -38,5 +38,9 @@ needs:
   gating: false
 code_paths:
 - core/solver/nonlinear_supports/**
+# Frozen before the engine work it judges: a friction normal taken from a one-way support. No
+# product test reads it yet.
+- validation/references/friction_one_way_normal/**
+- tests/test_friction_one_way_normal_references.py
 checks:
 - core/solver/nonlinear_supports/src/lib.rs
