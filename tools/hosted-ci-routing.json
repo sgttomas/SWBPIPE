@@ -285,7 +285,7 @@
       "core/solver/nonlinear_integration/Cargo.toml": "7fe7a344af40736a980765d9c96edcf201210b20d610101a9988665115a5b2cf",
       "core/solver/nonlinear_supports/Cargo.toml": "c34c7d2a46294e3c2ab57b4b15028c48664670dfe25278b8b6d22147743a10a6",
       "core/solver/performance_harness/Cargo.toml": "af149ad58e5cb3bb646248e6196496e41d4749b4dc7cc67cdac341f04d2bae47",
-      "core/solver/release_timing/Cargo.toml": "5b5bf90275c239e5d876568a3ca2a80211db1a19b6154c6c7dc79979d16df1d6",
+      "core/solver/release_timing/Cargo.toml": "8159f8975e6e382a94ef4794e00abf7c0431c2578f3524c0c4e6c3f8e5f0c91d",
       "core/solver/sparse_direct/Cargo.toml": "0bbbf9fbe14e2bbf47574c1daf5e9ef42b8d0b1b3b60588e87d83b7da7cde181",
       "core/solver/straight_pipe/Cargo.toml": "e09dcd581ac02093f6c4501abcdabed8df5c9d8e77ac4595f3cccfb94c2a3e67",
       "core/units/Cargo.toml": "4b50bd105464cc05c99d661414581555a27806864bf3cb991d15bdc26fa77cb6",
@@ -6139,7 +6139,7 @@
         ]
       },
       "core/solver/release_timing/src/main.rs": {
-        "sha256": "1d0f240829158a60a24149aad32fa00b2071d8ea84d9ced958f1924a631a34b9",
+        "sha256": "20013ee2168f51642515916bb5200e85527db6058314069304b8275dfe11af7a",
         "source_trees": [
           "core/solver/release_timing/Cargo.toml"
         ],
@@ -6150,7 +6150,7 @@
         }
       },
       "core/solver/release_timing/tests/release_timing.rs": {
-        "sha256": "ac83a231b8e862647ac50b0e02315c3ca0cdd5d91b14ddd966d3936474b1b037",
+        "sha256": "2e94e3725164ecb32951ed98b635d51505e936c9a3270ff3c54f8f76a7b950e4",
         "source_trees": [
           "core/solver/release_timing/Cargo.toml"
         ],
@@ -6238,7 +6238,7 @@
         ]
       },
       "core/solver/release_timing/src/supervise.rs": {
-        "sha256": "08b8f21503e5b846ca2f18eab98084bfe46e744a8f73a84ab14d55b1c75aa4f7",
+        "sha256": "9d1cfb0fa1b9d3db955c16c3862f5688305d2a97bee19297c071183bd2a5203c",
         "source_trees": [
           "core/solver/release_timing/Cargo.toml"
         ],
@@ -6249,7 +6249,7 @@
         }
       },
       "core/solver/release_timing/tests/supervise.rs": {
-        "sha256": "fe6d00057b1c5d5b9e42c34340202ef001f35f206d9a4df8a22258a2a0348ea1",
+        "sha256": "efd519acba430b6c56e195b48b4f357e627103ae3a94d39d6b236ee6cd13ad1e",
         "source_trees": [
           "core/solver/release_timing/Cargo.toml"
         ],

@@ -940,21 +940,22 @@ mod live {
     }
 
     /// Opens the FIFO `gate` for writing once the supervisor has opened it for reading, writes
-    /// `{}` and closes it; never blocks past `limit`.
+    /// `{}` and closes it; never blocks past `limit` (a non-blocking open fails with ENXIO while no
+    /// reader has it open).
     fn open_gate(gate: &Path, limit: Duration) {
-        use std::os::unix::fs::OpenOptionsExt;
+        let name = std::ffi::CString::new(gate.to_str().unwrap()).unwrap();
         let started = Instant::now();
         loop {
-            match std::fs::OpenOptions::new().write(true).custom_flags(libc::O_NONBLOCK).open(gate) {
-                Ok(mut file) => {
-                    std::io::Write::write_all(&mut file, b"{}").unwrap();
-                    return;
-                }
-                Err(error) if error.raw_os_error() == Some(libc::ENXIO) && started.elapsed() < limit => {
-                    std::thread::sleep(Duration::from_millis(20));
-                }
-                Err(error) => panic!("the supervisor never opened the gate: {error}"),
+            let fd = unsafe { libc::open(name.as_ptr(), libc::O_WRONLY | libc::O_NONBLOCK) };
+            if fd >= 0 {
+                let written = unsafe { libc::write(fd, b"{}".as_ptr().cast(), 2) };
+                unsafe { libc::close(fd) };
+                assert_eq!(written, 2, "the gate was written");
+                return;
             }
+            let error = std::io::Error::last_os_error();
+            assert!(error.raw_os_error() == Some(libc::ENXIO) && started.elapsed() < limit, "the supervisor never opened the gate: {error}");
+            std::thread::sleep(Duration::from_millis(20));
         }
     }
 
@@ -998,7 +999,8 @@ mod live {
     }
 
     fn hard_link(target: &Path, link: &Path) {
-        std::fs::hard_link(target, link).unwrap();
+        let (target, link) = (std::ffi::CString::new(target.to_str().unwrap()).unwrap(), std::ffi::CString::new(link.to_str().unwrap()).unwrap());
+        assert_eq!(unsafe { libc::link(target.as_ptr(), link.as_ptr()) }, 0, "link");
     }
 
     #[test]
@@ -1006,13 +1008,13 @@ mod live {
         // The third review's case: a hard link to a file outside the folder, placed as packet.json
         // after the folder was opened, was truncated and overwritten. The packet is now written
         // under a new name and renamed into place: the entry is replaced, the outside file is not.
-        const KEPT: &[u8] = b"KEEP THIS OUTSIDE FILE\n";
+        const KEPT: &str = "KEEP THIS OUTSIDE FILE\n";
         let (dir, code, stdout, stderr) = gated("hardlink", vec![], |dir| {
             std::fs::write(dir.join("outside.txt"), KEPT).unwrap();
             hard_link(&dir.join("outside.txt"), &dir.join("out").join("packet.json"));
         });
         assert_eq!(code, 1, "model_mismatch: {stdout}{stderr}");
-        assert_eq!(std::fs::read(dir.join("outside.txt")).unwrap(), KEPT, "the outside file is byte-unchanged");
+        assert_eq!(std::fs::read_to_string(dir.join("outside.txt")).unwrap(), KEPT, "the outside file is byte-unchanged");
         let packet: Value = serde_json::from_str(&std::fs::read_to_string(dir.join("out").join("packet.json")).unwrap()).unwrap();
         assert_eq!(packet["classification_counts"], json!({"model_mismatch": 1}));
         assert!(!dir.join("out").join(".packet.json.partial").exists());
@@ -1025,7 +1027,7 @@ mod live {
         });
         assert_eq!(code, 2, "{stdout}{stderr}");
         assert!(stderr.contains("cannot launch second") && stderr.contains("second.jsonl") && stderr.contains("already exists"), "{stderr}");
-        assert_eq!(std::fs::read(dir2.join("outside.txt")).unwrap(), KEPT, "the outside file is byte-unchanged");
+        assert_eq!(std::fs::read_to_string(dir2.join("outside.txt")).unwrap(), KEPT, "the outside file is byte-unchanged");
         assert!(driver_pids(dir2.join("demo.json").to_str().unwrap()).is_empty());
         std::fs::remove_dir_all(dir).unwrap();
         std::fs::remove_dir_all(dir2).unwrap();
