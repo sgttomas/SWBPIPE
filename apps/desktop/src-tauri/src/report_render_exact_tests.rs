@@ -1859,6 +1859,25 @@ mod direct_native {
                 let args = render_args(&request["report"], Some(&w.result), Some(&w.intake), Some(&canonical_json(&w.manifest)));
                 assert_eq!(render_refusal_both(&live, &args), format!("{SECTIONS_MISMATCH}: diagnostics"), "{name}: {label}");
                 let (code, message) = save_refusal_both(&live, &w, &request);
+                if label == "a forged integrity entry appended" {
+                    // Since review round 2 of c2cc050ea (R8), the save's admission
+                    // refuses an appended entry the host does not derive from the
+                    // bound model before the package's item 9 reads it: still
+                    // refused, by the earlier check.
+                    // On pressure-source-1 the forged entry is the result's own
+                    // integrity entry again (its code and affected object).
+                    let detail = if integrity_code == SENSITIVE {
+                        "copies a result diagnostic's code and affected object"
+                    } else {
+                        "is not a session diagnostic the host derives from the bound model"
+                    };
+                    assert_eq!(
+                        (code.as_str(), message),
+                        (SECTIONS_MISMATCH, format!("{SECTIONS_MISMATCH} at /request/report/report_sections/diagnostics: diagnostics: report diagnostic {} {detail}", diagnostics.len())),
+                        "{name}: {label}"
+                    );
+                    continue;
+                }
                 assert_eq!((code.as_str(), message), ("REPORT-PACKAGE-BINDING-MISMATCH", format!("REPORT-PACKAGE-BINDING-MISMATCH: {save_detail}")), "{name}: {label}");
             }
             // The genuine witness renders, with its standing line, and saves.
@@ -2202,5 +2221,58 @@ mod direct_native {
                 assert!(!message.contains(FORGED_CELL), "{shape} {name} save: {message}");
             }
         }
+    }
+
+    /// R8 (review of c2cc050ea): the local-private save of an exact document
+    /// refuses an appended Diagnostics entry that copies a result diagnostic
+    /// under other prose, in the six forms the render commands refuse, and one
+    /// that copies none but is not a session entry the host derives; the
+    /// genuine request is admitted.
+    #[test]
+    fn the_save_refuses_a_forged_session_entry_on_an_exact_document() {
+        let w = witness(STRAIGHT);
+        let live = live(&w);
+        let genuine = bound(&w.request, &live.job);
+        let diagnostics = genuine["report"]["report_sections"]["diagnostics"].as_array().unwrap();
+        let count = diagnostics.len();
+        let base = diagnostics.iter().find(|entry| entry["code"] == "LOAD_CATEGORY_PREVIEW_MAPPED").unwrap().clone();
+        let session_form = vec![
+            ("class", json!("PROVENANCE_WARNING")),
+            ("source", json!({"ref_type": "component", "ref_id": "component:invented"})),
+            ("affected_object", json!({"ref_type": "component", "ref_id": base["affected_object"]["ref_id"].clone()})),
+        ];
+        let mut session_tag = session_form.clone();
+        session_tag.push(("diagnostic_origin", json!("session")));
+        let copies: Vec<(&str, Vec<(&str, Value)>)> = vec![
+            ("the reviewer's counterexample", vec![("remediation", json!("Review this load.")), ("message", json!("The load category is user selected."))]),
+            ("the message changed only", vec![("message", json!("The load category is user selected."))]),
+            ("the remediation and severity changed", vec![("remediation", json!("Review this load.")), ("severity", json!("info"))]),
+            ("a session entry's class and reference types", session_form),
+            ("a caller tag claiming session origin", session_tag),
+            ("a caller tag claiming result origin", vec![("diagnostic_origin", json!("result")), ("message", json!("The load category is user selected."))]),
+        ];
+        let refused = |entry: Value| {
+            let mut request = genuine.clone();
+            request["report"]["report_sections"]["diagnostics"].as_array_mut().unwrap().push(entry);
+            save_refusal_both(&live, &w, &request)
+        };
+        for (name, edits) in copies {
+            let mut entry = base.clone();
+            for (field, value) in edits {
+                entry[field] = value;
+            }
+            assert_eq!(
+                refused(entry),
+                (SECTIONS_MISMATCH.to_string(), format!("{SECTIONS_MISMATCH} at /request/report/report_sections/diagnostics: diagnostics: report diagnostic {count} copies a result diagnostic's code and affected object")),
+                "{name}"
+            );
+        }
+        let mut invented = base.clone();
+        invented["code"] = json!("SOLVER_RESULT_VERIFIED");
+        assert_eq!(
+            refused(invented),
+            (SECTIONS_MISMATCH.to_string(), format!("{SECTIONS_MISMATCH} at /request/report/report_sections/diagnostics: diagnostics: report diagnostic {count} is not a session diagnostic the host derives from the bound model"))
+        );
+        save_admitted(&live, save_args(&genuine, &w, &w.model, Some(&w.result), Some(&w.intake)), "straight");
     }
 }

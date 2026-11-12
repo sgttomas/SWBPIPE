@@ -1923,6 +1923,13 @@ fn render_calculation_report_args(args: &mut Args, registry: &SolveJobRegistry, 
 /// intakeText, inputManifestText, ruleCheckAggregate, rulePackExclusions}`, no
 /// result text. It returns what `render_calculation_report` returns, on a
 /// blocking worker under the held lease, as that command does.
+///
+/// Recorded limit (review round 2 of c2cc050ea, R2): the response is
+/// serialized under the lease, then the lease is dropped and the owned body is
+/// returned to Tauri for delivery, so a second invocation can take the
+/// released capacity while the first body is still allocated. The pool has no
+/// charge that rides with a response until it is delivered; the existing
+/// render command has the same interval.
 #[tauri::command]
 async fn render_calculation_report_from_custody(
     invoke: tauri::ipc::Request<'_>,

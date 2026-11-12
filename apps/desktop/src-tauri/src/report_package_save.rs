@@ -1484,6 +1484,21 @@ fn admit_both_routes(
     // pointer, never a value.
     open_pipe_stress_report_package::model_input::check_model_input_tables(&model_value, request_value.get("report").unwrap_or(&Value::Null))
         .map_err(|message| coded("/request/report/model_input_tables", &message))?;
+    // The package's item 9 refuses only integrity codes among the Diagnostics
+    // after the result's (review of c2cc050ea, R8): on an exact or pressure-free
+    // Timoshenko document, those entries are the session entries the host
+    // derives from this bound model, each as often as the model yields it, and
+    // none copies a result diagnostic (`report_session_diagnostics`, the render
+    // commands' check).
+    let save_source = request_value.pointer("/source_results/0").unwrap_or(&Value::Null);
+    let pf_timoshenko = save_source
+        .pointer("/producer/semantic_contract_id")
+        .and_then(Value::as_str)
+        .is_some_and(open_pipe_stress_report_package::pf_timoshenko::is_pf_timoshenko_identity);
+    if exact_custody.is_some() || pf_timoshenko {
+        crate::report_session_diagnostics::check_session_diagnostics(request_value.get("report").unwrap_or(&Value::Null), save_source, &model_value)
+            .map_err(|detail| exact_refused(exact_binding::sections_mismatch(&format!("diagnostics: {detail}")), "/request/report/report_sections/diagnostics"))?;
+    }
     // The run's input manifest: its SHA-256 is the audit input-manifest hash.
     let input_manifest_value = parse_canonical("input_manifest", &input_manifest_text)?;
     let input_manifest_hex = sha256_hex(&input_manifest_text);

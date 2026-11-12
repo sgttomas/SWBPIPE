@@ -22,14 +22,20 @@
 //!   material and section without provenance (`subjectProvenance`);
 //! - a library store finding (`libraryFindingDiagnostics`):
 //!   `MODEL-LIBRARY-REF-UNRESOLVED` or `MODEL-LIBRARY-REF-VERSION-CHANGED` on
-//!   an entity that carries a `library_ref` in the bound model, with one of
-//!   the store check's messages for that reference (`lib.rs`
-//!   `library_ref_findings`). Whether the store holds the library is the one
-//!   fact the render does not re-check: it has no store.
+//!   an entity that carries a `library_ref` in the bound model, at most one
+//!   per reference site, among the store check's findings that reference's
+//!   shape allows (`lib.rs` `library_ref_findings`; [`session_sites`]).
+//!   Whether the store holds the library is the one fact the host does not
+//!   re-check: it reads no store here.
+//!
+//! Each site yields at most one entry, so a repeated entry is admitted only
+//! as many times as the model's derivation yields it (counts, not
+//! deduplication: two reference sites can yield identical findings).
 //!
 //! Applied by both bound render commands, at their shared admission
-//! (`report_render_exact::bind_parsed_admission`). Standard claim fence
-//! applies (claims taxonomy per DEC-081).
+//! (`report_render_exact::bind_parsed_admission`), and by the local-private
+//! package save's admission (`report_package_save::admit_report_package_in`).
+//! Standard claim fence applies (claims taxonomy per DEC-081).
 
 use open_pipe_stress_report_package::bindings::expected_report_diagnostics;
 use serde_json::{json, Map, Value};
@@ -125,30 +131,47 @@ fn library_ref_sites<'a>(value: &'a Value, path: &str, owner: Option<&'a str>, o
     }
 }
 
-/// Every entry the session may append for `model`, by the kinds above.
-pub(crate) fn session_diagnostics(model: &Value) -> Vec<Value> {
-    let mut out = Vec::new();
+/// The library kinds the store holds (`lib.rs` `library_records_key`): a
+/// reference of any other kind can only be unresolved.
+const STORED_LIBRARY_KINDS: [&str; 4] = ["material", "section", "component", "hanger"];
+
+/// Every site at which the session may append a Diagnostics entry for
+/// `model`, each with the entries it may yield there: at most one of them, once
+/// (review of c2cc050ea, R3 and R4). A provenance kind's site yields exactly
+/// its one entry. A library reference's site yields at most one store finding,
+/// among those the store check (`lib.rs` `library_ref_findings`) can produce
+/// for that reference's shape:
+/// - the library not held (`MODEL-LIBRARY-REF-UNRESOLVED`), for any reference;
+/// - the record not held (`MODEL-LIBRARY-REF-UNRESOLVED`), only when the store
+///   can hold the library: a stored kind ([`STORED_LIBRARY_KINDS`], trimmed)
+///   and a library id not blank after trimming;
+/// - the stored record changed (`MODEL-LIBRARY-REF-VERSION-CHANGED`), only
+///   when, in addition, the reference records a `record_id` not blank after
+///   trimming (`library_identity`) and a `library_version`: the store check
+///   returns the record-not-held finding before it compares any version.
+pub(crate) fn session_sites(model: &Value) -> Vec<Vec<Value>> {
+    let mut out: Vec<Vec<Value>> = Vec::new();
     for component in items(model, "components").filter(|component| !has_provenance(component)) {
         let id = id(component);
-        out.push(entry(
+        out.push(vec![entry(
             "COMPONENT_PROVENANCE_MISSING",
             reference("component", id),
             reference("component", id),
             format!("Component {} has neither a provenance_record nor a component.provenance note; report provenance is incomplete for this component.", or_id(component.get("label"), id)),
             "Enter component source/provenance before relying on this report.",
-        ));
+        )]);
     }
     for support in items(model, "supports").filter(|support| is_spring_hanger(support)) {
         let blank = |value: Option<&Value>| value.and_then(Value::as_str).is_none_or(|text| js_trim(text).is_empty());
         if blank(support.get("provenance")) || blank(support.pointer("/hanger/source_reference")) {
             let id = id(support);
-            out.push(entry(
+            out.push(vec![entry(
                 "SPRING_HANGER_PROVENANCE_MISSING",
                 reference("support", id),
                 reference("support", id),
                 format!("Spring hanger {} is missing support provenance or hanger.source_reference.", or_id(support.get("label"), id)),
                 "Enter spring-hanger source/provenance before relying on this report.",
-            ));
+            )]);
         }
     }
     for (kind, member, label, code, title) in
@@ -156,13 +179,13 @@ pub(crate) fn session_diagnostics(model: &Value) -> Vec<Value> {
     {
         for subject in items(model, member).filter(|subject| !has_provenance(subject)) {
             let id = id(subject);
-            out.push(entry(
+            out.push(vec![entry(
                 code,
                 reference(kind, id),
                 reference(kind, id),
                 format!("{title} {} has neither a provenance_record nor a provenance note; report provenance is incomplete for this {kind}.", text(subject.get(label)).unwrap_or(id)),
                 &format!("Enter {kind} source/provenance before relying on this report."),
-            ));
+            )]);
         }
     }
     let mut sites = Vec::new();
@@ -180,21 +203,61 @@ pub(crate) fn session_diagnostics(model: &Value) -> Vec<Value> {
                 "Compare the library reference with the local library store before relying on this report.",
             )
         };
-        out.push(finding("MODEL-LIBRARY-REF-UNRESOLVED", format!(
+        let mut alternatives = vec![finding("MODEL-LIBRARY-REF-UNRESOLVED", format!(
             "{entity} names {kind} library `{library}`, which the local store does not hold for project `{project}`. The model's values stand. A project saved under a new id reads its references as unresolved until the library is imported into that project."
-        )));
-        out.push(finding("MODEL-LIBRARY-REF-UNRESOLVED", format!(
-            "{entity} names record `{}` of {kind} library `{library}`, which the stored library does not hold. The model's values stand.",
-            member("record_id").unwrap_or("(none recorded)")
-        )));
-        if member("library_version").is_some() {
-            out.push(finding("MODEL-LIBRARY-REF-VERSION-CHANGED", format!(
-                "The stored record `{}` of {kind} library `{library}` has changed since {entity} recorded it. The model's values and recorded version stand; re-apply from the library to adopt the stored record.",
-                member("record_id").unwrap_or("")
+        ))];
+        let storable = STORED_LIBRARY_KINDS.contains(&kind.trim()) && !library.trim().is_empty();
+        if storable {
+            alternatives.push(finding("MODEL-LIBRARY-REF-UNRESOLVED", format!(
+                "{entity} names record `{}` of {kind} library `{library}`, which the stored library does not hold. The model's values stand.",
+                member("record_id").unwrap_or("(none recorded)")
             )));
+            let record = member("record_id").filter(|record| !record.trim().is_empty());
+            if let (Some(record), Some(_)) = (record, member("library_version")) {
+                alternatives.push(finding("MODEL-LIBRARY-REF-VERSION-CHANGED", format!(
+                    "The stored record `{record}` of {kind} library `{library}` has changed since {entity} recorded it. The model's values and recorded version stand; re-apply from the library to adopt the stored record."
+                )));
+            }
         }
+        out.push(alternatives);
     }
     out
+}
+
+/// Every entry the session may append for `model`, each site's alternatives
+/// in turn (tests and the module docs' kinds).
+pub(crate) fn session_diagnostics(model: &Value) -> Vec<Value> {
+    session_sites(model).into_iter().flatten().collect()
+}
+
+/// An assignment of each appended entry to a distinct site that may yield it
+/// (a bipartite matching, by augmenting paths): `Err` is the first entry no
+/// assignment can place. A site yields at most one entry, so a repeated entry
+/// is admitted only as many times as the model has sites yielding it.
+fn assign(appended: &[Value], sites: &[Vec<Value>]) -> Result<(), usize> {
+    let yields = |entry: &Value, site: &[Value]| site.iter().any(|candidate| FIELDS.iter().all(|field| entry.get(*field) == candidate.get(*field)));
+    let options: Vec<Vec<usize>> = appended.iter().map(|entry| (0..sites.len()).filter(|&site| yields(entry, &sites[site])).collect()).collect();
+    let mut owner: Vec<Option<usize>> = vec![None; sites.len()];
+    fn place(entry: usize, options: &[Vec<usize>], owner: &mut [Option<usize>], seen: &mut [bool]) -> bool {
+        for &site in &options[entry] {
+            if seen[site] {
+                continue;
+            }
+            seen[site] = true;
+            if owner[site].is_none_or(|other| place(other, options, owner, seen)) {
+                owner[site] = Some(entry);
+                return true;
+            }
+        }
+        false
+    }
+    for entry in 0..appended.len() {
+        let mut seen = vec![false; sites.len()];
+        if !place(entry, &options, &mut owner, &mut seen) {
+            return Err(entry);
+        }
+    }
+    Ok(())
 }
 
 fn affected_id(entry: &Value) -> Option<&Value> {
@@ -208,7 +271,8 @@ pub(crate) fn first_copy_of_a_result_diagnostic(appended: &[Value], results: &[V
 }
 
 /// The binding (module docs): every entry of `report_sections.diagnostics`
-/// after the result's projected entries is one the host derives from `model`.
+/// after the result's projected entries is one the host derives from `model`,
+/// each site yielding at most one ([`session_sites`]).
 /// `Err` names the entry's index only.
 pub(crate) fn check_session_diagnostics(input: &Value, source: &Value, model: &Value) -> Result<(), String> {
     let results = expected_report_diagnostics(source)?;
@@ -220,11 +284,6 @@ pub(crate) fn check_session_diagnostics(input: &Value, source: &Value, model: &V
     if appended.is_empty() {
         return Ok(());
     }
-    let derived = session_diagnostics(model);
-    for (index, entry) in appended.iter().enumerate() {
-        if !derived.iter().any(|candidate| FIELDS.iter().all(|field| entry.get(*field) == candidate.get(*field))) {
-            return Err(format!("report diagnostic {} is not a session diagnostic the host derives from the bound model", results.len() + index));
-        }
-    }
-    Ok(())
+    assign(appended, &session_sites(model))
+        .map_err(|index| format!("report diagnostic {} is not a session diagnostic the host derives from the bound model", results.len() + index))
 }

@@ -436,8 +436,7 @@ fn refused_and_withheld_renders_behave_as_today() {
 }
 
 /// The pressure-free Timoshenko fill, on the transformed stand-in of
-/// `report_render_pf_timoshenko_tests.rs` (no webview-built Timoshenko input
-/// is committed), with a session input manifest: the frame is the desktop request's report with only its
+/// `report_render_pf_timoshenko_tests.rs`, with a session input manifest: the frame is the desktop request's report with only its
 /// technical-preview limitation and no result diagnostic; the new command
 /// renders what the existing command renders for the host's filled input with
 /// the texts resubmitted, and that render carries the identity's limitation 0
@@ -791,7 +790,10 @@ fn the_session_entries_the_host_derives_are_admitted_after_the_results() {
     let (reference, mut frame) = pf_stand_in(model);
     let live = live_job(&reference);
     let provenance = frame["calculation_report"]["provenance"].clone();
-    let session = desktop_session_entries(&provenance);
+    // The material's entry and one store finding for its one reference site
+    // (the store check yields one finding per reference).
+    let every = desktop_session_entries(&provenance);
+    let session = vec![every[0].clone(), every[3].clone()];
     frame["report_sections"]["diagnostics"] = Value::Array(session.clone());
     let args = custody_args(&live.job, &frame, &reference);
     let filled = fill_only(&live, &args).unwrap_or_else(|error| panic!("{}", message(error)));
@@ -824,6 +826,115 @@ fn the_session_entries_the_host_derives_are_admitted_after_the_results() {
         );
         assert_eq!((from_custody.as_str(), today.as_str()), (expected.as_str(), expected.as_str()), "{name}");
     }
+    // R3 and R4 (review of c2cc050ea), on both commands: the reviewer's case, the
+    // material's entry twice for one material; and two store findings for one
+    // reference site. Each is refused at its third appended entry.
+    for (name, entries) in [
+        ("the material's entry twice", vec![every[0].clone(), every[3].clone(), every[0].clone()]),
+        ("two findings for one reference site", vec![every[0].clone(), every[3].clone(), every[1].clone()]),
+    ] {
+        let mut forged = frame.clone();
+        forged["report_sections"]["diagnostics"] = Value::Array(entries.clone());
+        let from_custody = message(render_from_custody(&live, &custody_args(&live.job, &forged, &reference)).unwrap_err());
+        let mut forged_input = filled.clone();
+        let diagnostics = forged_input["report_sections"]["diagnostics"].as_array_mut().unwrap();
+        diagnostics.truncate(count);
+        diagnostics.extend(entries);
+        let today = message(render_today(&live, &forged_input, &reference).unwrap_err());
+        let expected = format!(
+            "{}: diagnostics: report diagnostic {} is not a session diagnostic the host derives from the bound model",
+            crate::exact_source_binding::SECTIONS_MISMATCH,
+            count + 2
+        );
+        assert_eq!((from_custody.as_str(), today.as_str()), (expected.as_str(), expected.as_str()), "{name}");
+    }
+}
+
+/// The session binding alone, on `model`, for `appended` entries after a
+/// result without diagnostics: `Ok`, or the refused entry's index.
+fn session_check(model: &Value, appended: &[Value]) -> Result<(), String> {
+    let input = json!({"report_sections": {"diagnostics": appended}});
+    crate::report_session_diagnostics::check_session_diagnostics(&input, &json!({"diagnostics": []}), model)
+}
+
+/// The desktop's library finding entry for `entity` (texts from
+/// `renderableReportInput.ts` `libraryFindingDiagnostics`).
+fn library_entry(code: &str, entity: &str, message: String) -> Value {
+    json!({
+        "code": code, "class": "PROVENANCE_WARNING", "severity": "warning",
+        "source": {"ref_type": "diagnostic_source", "ref_id": "apps/desktop/src-tauri/src/lib.rs check_model_library_refs"},
+        "affected_object": {"ref_type": "model_entity", "ref_id": entity},
+        "message": message,
+        "remediation": "Compare the library reference with the local library store before relying on this report.",
+    })
+}
+
+/// R3 (review of c2cc050ea): multiplicity by counts. One material without
+/// provenance admits its entry once, not twice; a component carrying the same
+/// library reference at two sites yields two identical findings, which are
+/// admitted twice and refused a third time.
+#[test]
+fn a_session_entry_is_admitted_only_as_often_as_the_model_yields_it() {
+    let material = json!({
+        "code": "MATERIAL_PROVENANCE_MISSING", "class": "PROVENANCE_WARNING", "severity": "warning",
+        "source": {"ref_type": "material", "ref_id": "material:bare"}, "affected_object": {"ref_type": "material", "ref_id": "material:bare"},
+        "message": "Material material:bare has neither a provenance_record nor a provenance note; report provenance is incomplete for this material.",
+        "remediation": "Enter material source/provenance before relying on this report.",
+    });
+    let one_material = json!({"project": {"id": "project:invented"}, "materials": [{"id": "material:bare"}]});
+    assert_eq!(session_check(&one_material, &[material.clone()]), Ok(()));
+    assert_eq!(session_check(&one_material, &[material.clone(), material.clone()]).unwrap_err(), "report diagnostic 1 is not a session diagnostic the host derives from the bound model");
+    let reference = json!({"library_kind": "component", "library_id": "library:invented", "record_id": "record:invented"});
+    let twice = json!({"project": {"id": "project:invented"}, "components": [
+        {"id": "component:twice", "provenance": "noted", "library_ref": reference, "geometry": {"library_ref": reference}}
+    ]});
+    let finding = library_entry("MODEL-LIBRARY-REF-UNRESOLVED", "component:twice", "component:twice names component library `library:invented`, which the local store does not hold for project `project:invented`. The model's values stand. A project saved under a new id reads its references as unresolved until the library is imported into that project.".into());
+    assert_eq!(session_check(&twice, &[finding.clone(), finding.clone()]), Ok(()));
+    assert_eq!(session_check(&twice, &[finding.clone(), finding.clone(), finding.clone()]).unwrap_err(), "report diagnostic 2 is not a session diagnostic the host derives from the bound model");
+}
+
+/// R4 (review of c2cc050ea): the store check's preconditions, per reference
+/// shape, and at most one finding per reference site.
+#[test]
+fn a_library_finding_is_admitted_only_where_the_store_check_can_make_it() {
+    let entity = "material:invented";
+    let not_held = |kind: &str, library: &str| library_entry("MODEL-LIBRARY-REF-UNRESOLVED", entity, format!("{entity} names {kind} library `{library}`, which the local store does not hold for project `project:invented`. The model's values stand. A project saved under a new id reads its references as unresolved until the library is imported into that project."));
+    let record_not_held = |record: &str| library_entry("MODEL-LIBRARY-REF-UNRESOLVED", entity, format!("{entity} names record `{record}` of material library `library:invented`, which the stored library does not hold. The model's values stand."));
+    let changed = |record: &str| library_entry("MODEL-LIBRARY-REF-VERSION-CHANGED", entity, format!("The stored record `{record}` of material library `library:invented` has changed since {entity} recorded it. The model's values and recorded version stand; re-apply from the library to adopt the stored record."));
+    let model = |reference: Value| json!({"project": {"id": "project:invented"}, "materials": [{"id": entity, "provenance": "noted", "library_ref": reference}]});
+    let version = "sha256:0000000000000000000000000000000000000000000000000000000000000000";
+    let refused = Err("report diagnostic 0 is not a session diagnostic the host derives from the bound model".to_string());
+    // A record and a version: any one of the three findings, never two.
+    let full = model(json!({"library_kind": "material", "library_id": "library:invented", "record_id": "record:invented", "library_version": version}));
+    for one in [not_held("material", "library:invented"), record_not_held("record:invented"), changed("record:invented")] {
+        assert_eq!(session_check(&full, &[one]), Ok(()));
+    }
+    assert_eq!(
+        session_check(&full, &[changed("record:invented"), not_held("material", "library:invented")]).unwrap_err(),
+        "report diagnostic 1 is not a session diagnostic the host derives from the bound model"
+    );
+    // The reviewer's shape: a version and no record id. The store check returns
+    // the record-not-held finding before any version comparison.
+    let no_record = model(json!({"library_kind": "material", "library_id": "library:invented", "library_version": version}));
+    assert_eq!(session_check(&no_record, &[record_not_held("(none recorded)")]), Ok(()));
+    assert_eq!(session_check(&no_record, &[not_held("material", "library:invented")]), Ok(()));
+    assert_eq!(session_check(&no_record, &[changed("")]), refused);
+    // A blank record id is no record (`library_identity`).
+    let blank_record = model(json!({"library_kind": "material", "library_id": "library:invented", "record_id": "  ", "library_version": version}));
+    assert_eq!(session_check(&blank_record, &[changed("  ")]), refused);
+    // A record and no version: no version comparison.
+    let no_version = model(json!({"library_kind": "material", "library_id": "library:invented", "record_id": "record:invented"}));
+    assert_eq!(session_check(&no_version, &[record_not_held("record:invented")]), Ok(()));
+    assert_eq!(session_check(&no_version, &[changed("record:invented")]), refused);
+    // A kind the store does not hold, and a blank library id: only "not held".
+    let other_kind = model(json!({"library_kind": "pump", "library_id": "library:invented", "record_id": "record:invented", "library_version": version}));
+    assert_eq!(session_check(&other_kind, &[not_held("pump", "library:invented")]), Ok(()));
+    let pump_record = library_entry("MODEL-LIBRARY-REF-UNRESOLVED", entity, format!("{entity} names record `record:invented` of pump library `library:invented`, which the stored library does not hold. The model's values stand."));
+    assert_eq!(session_check(&other_kind, &[pump_record]), refused);
+    let blank_library = model(json!({"library_kind": "material", "library_id": " ", "record_id": "record:invented", "library_version": version}));
+    assert_eq!(session_check(&blank_library, &[not_held("material", " ")]), Ok(()));
+    let blank_library_record = library_entry("MODEL-LIBRARY-REF-UNRESOLVED", entity, format!("{entity} names record `record:invented` of material library ` `, which the stored library does not hold. The model's values stand."));
+    assert_eq!(session_check(&blank_library, &[blank_library_record]), refused);
 }
 
 /// The host's derivation of each session kind on an invented model, against
@@ -1164,3 +1275,193 @@ fn the_derivation_s_parts_are_measured_on_the_committed_documents() {
         );
     }
 }
+
+/// R1 (review of c2cc050ea): the frame's provenance record with its
+/// `source_name` padded to `name_bytes` (the calculation report's and the
+/// technical-preview entry's, which the web view writes as the same record).
+fn with_source_name(frame: &Value, name_bytes: usize) -> Value {
+    let mut frame = frame.clone();
+    let name = "N".repeat(name_bytes);
+    frame["calculation_report"]["provenance"]["source_name"] = json!(name);
+    frame["report_sections"]["limitations"][0]["provenance"]["source_name"] = json!(name);
+    frame
+}
+
+/// R1: the reviewer's input, a 1 MiB `source_name` on the straight frame, is
+/// refused by the frame's bound before custody is read: nothing is replicated.
+#[test]
+fn a_frame_record_above_the_bound_is_refused_before_it_is_replicated() {
+    use crate::report_native_fill::{FRAME_MEMBER_TOO_LARGE, MAX_FRAME_RECORD_BYTES};
+    let reference = request_reference("pressure_2_straight");
+    let live = live_job(&reference);
+    let frame = with_source_name(&frame_of(&reference.report, source_diagnostic_count(&reference.result)), 1 << 20);
+    let args = custody_args(&live.job, &frame, &reference);
+    let (mut decoded, mut lease) = admit_json(&live.registry, "render_calculation_report_from_custody", ArgsDecoding::Moved, &args).unwrap();
+    let admitted = lease.bytes();
+    let (outcome, measured) = crate::ingress::counting::measure(|| crate::render_calculation_report_from_custody_args(&mut decoded, &live.registry, &mut lease));
+    let error = message(outcome.unwrap_err());
+    let record = serde_json::to_string(&frame["calculation_report"]["provenance"]).unwrap().len();
+    assert_eq!(
+        error,
+        format!("{FRAME_MEMBER_TOO_LARGE}: the frame's calculation_report.provenance is {record} bytes; the render from custody admits at most {MAX_FRAME_RECORD_BYTES}, as it copies that member into every result reference, diagnostic or limitation entry.")
+    );
+    assert_eq!(lease.bytes(), admitted, "the lease is not grown");
+    // Nothing replicated: less than four copies of the record (the frame's own
+    // decode for the object-form check is the largest allocation).
+    assert!(measured.peak_requested < 4 * record as u64, "{measured:?}");
+    // The technical-preview entry's record is bounded the same way.
+    let mut preview = frame_of(&reference.report, source_diagnostic_count(&reference.result));
+    preview["report_sections"]["limitations"][0]["effect"]["note"] = json!("E".repeat(MAX_FRAME_RECORD_BYTES as usize));
+    let error = message(render_from_custody(&live, &custody_args(&live.job, &preview, &reference)).unwrap_err());
+    assert!(error.starts_with(&format!("{FRAME_MEMBER_TOO_LARGE}: the frame's report_sections.limitations[0].effect is ")), "{error}");
+}
+
+/// R1: a record just inside the bound, on the committed reference with the
+/// most rows: the fill reserves its replication before it replicates, and the
+/// whole command's priced peak stays within its grown lease.
+#[test]
+fn a_frame_record_at_the_bound_stays_within_its_replication_reservation() {
+    use crate::report_native_fill::{largest_replicated_record, replication_reserve_bytes, MAX_FRAME_RECORD_BYTES};
+    let reference = every_reference()
+        .into_iter()
+        .filter(|reference| !reference.name.starts_with("user_release_exact/"))
+        .max_by_key(|reference| serde_json::from_str::<Value>(&reference.result).unwrap()["results"].as_array().unwrap().len())
+        .unwrap();
+    let name = reference.name.clone();
+    let live = live_job(&reference);
+    let frame = frame_of(&reference.report, source_diagnostic_count(&reference.result));
+    let base = largest_replicated_record(&frame);
+    let padding = (MAX_FRAME_RECORD_BYTES - base) as usize + frame["calculation_report"]["provenance"]["source_name"].as_str().unwrap().len();
+    let padded = with_source_name(&frame, padding);
+    let record = largest_replicated_record(&padded);
+    assert_eq!(record, MAX_FRAME_RECORD_BYTES, "{name}: the record is at the bound");
+    let source: Value = serde_json::from_str(&reference.result).unwrap();
+    let (plain_outcome, plain_peak, plain_lease, _) = command_peak(&live, &custody_args(&live.job, &frame, &reference));
+    let (outcome, peak, lease, _) = command_peak(&live, &custody_args(&live.job, &padded, &reference));
+    assert!(plain_outcome.is_ok() && outcome.is_ok(), "{name}: {plain_outcome:?} {outcome:?}");
+    let reserved = replication_reserve_bytes(&source, record) - replication_reserve_bytes(&source, base);
+    eprintln!(
+        "{name}: record {base} -> {record} bytes; priced peak {plain_peak} -> {peak} (+{}); lease {plain_lease} -> {lease} (+{}); the replication's added reservation {reserved}",
+        peak.saturating_sub(plain_peak),
+        lease - plain_lease,
+    );
+    assert!(peak <= lease, "{name}: the command's priced peak {peak} exceeds its lease {lease}");
+    // The whole-command peak is the derivation's, which ends before the fill
+    // replicates; so the replication is measured where it lives: the priced
+    // bytes the filled input keeps, then the render of that input.
+    let filled = |frame: &Value| {
+        let args = custody_args(&live.job, frame, &reference);
+        let (input, kept) = crate::ingress::counting::measure(|| fill_only(&live, &args).unwrap());
+        let (outcome, render) = crate::ingress::counting::measure(|| crate::render_calculation_report_value(input.clone()).map(|_| ()));
+        outcome.unwrap();
+        (kept.live_priced as u64, render.peak_priced)
+    };
+    let ((plain_kept, plain_render), (kept, render)) = (filled(&frame), filled(&padded));
+    let added = kept.saturating_sub(plain_kept) + render.saturating_sub(plain_render);
+    eprintln!(
+        "{name}: replicas kept in the filled input +{}, render peak +{}, together {added} against {reserved} reserved",
+        kept.saturating_sub(plain_kept),
+        render.saturating_sub(plain_render)
+    );
+    assert!(added <= reserved, "{name}: the record's replication added {added} priced bytes, more than the {reserved} reserved for it");
+}
+
+/// R5 (review of c2cc050ea): with a pool and invocation budget large enough
+/// that the reservation would pass, a held result of about 70 MiB is refused by
+/// the command's size limit, the bounded copy's 64 MiB, before the reservation.
+#[test]
+fn a_held_result_above_64_mib_is_refused_by_size_whatever_the_budget() {
+    use crate::memory_pool::test_host::GIB;
+    use crate::report_native_fill::{check_fill_size, check_size_limit, FILL_NOT_SERVED, MAX_CUSTODY_RENDER_RESULT_BYTES};
+    let straight = request_reference("pressure_2_straight");
+    let mut reference = request_reference("pressure_2_straight");
+    // The straight result padded with trailing spaces to 70 MiB: valid JSON of that length.
+    reference.result.push_str(&" ".repeat((70 << 20) - reference.result.len()));
+    let text = reference.result.len() as u64;
+    assert!(text > MAX_CUSTODY_RENDER_RESULT_BYTES);
+    let host = crate::memory_pool::test_host::ScriptedHost::with(Some(512 * GIB), Some(512 * GIB), crate::memory_pool::PressureLevel::Normal);
+    let (registry, gate) = gated(&host);
+    registry.configure_pool(256 * GIB, 128 * GIB, true).unwrap();
+    let job = held(&registry, &gate, &reference.result, &reference.intake, &reference.mode, ResultCustody::Native);
+    let live = Live { registry, _gate: gate, job };
+    let frame = frame_of(&straight.report, source_diagnostic_count(&straight.result));
+    let args = custody_args(&live.job, &frame, &reference);
+    let (mut decoded, mut lease) = admit_json(&live.registry, "render_calculation_report_from_custody", ArgsDecoding::Moved, &args).unwrap();
+    let admitted = lease.bytes();
+    // The reservation alone would pass under this budget.
+    let growth = crate::report_render_exact::exact_render_growth_bytes(&reference.result, &reference.intake, &canonical_json(&reference.manifest)).unwrap();
+    assert!(check_fill_size(text, admitted + growth, lease.budget_bytes()).is_ok(), "the budget would hold the reservation");
+    let (outcome, measured) = crate::ingress::counting::measure(|| crate::render_calculation_report_from_custody_args(&mut decoded, &live.registry, &mut lease));
+    let error = message(outcome.unwrap_err());
+    assert_eq!(error, check_size_limit(text).unwrap_err());
+    assert!(error.starts_with(&format!("{FILL_NOT_SERVED}: the result in custody is {text} bytes; the render from custody serves a result of at most {MAX_CUSTODY_RENDER_RESULT_BYTES} bytes")), "{error}");
+    assert!(error.ends_with("This is a size limit of this command, not a fault of the result."), "{error}");
+    assert_eq!(lease.bytes(), admitted, "nothing is reserved");
+    assert!(measured.peak_requested < text / 4, "nothing result-sized before the refusal: {measured:?}");
+    // At the limit it is not refused.
+    assert_eq!(check_size_limit(MAX_CUSTODY_RENDER_RESULT_BYTES), Ok(()));
+}
+
+/// R8 (review of c2cc050ea): a pressure-free Timoshenko save request over the
+/// stand-in, its model's material without provenance and with [`LIBRARY_REF`],
+/// its sections as the desktop writes them (the technical-preview entry, the
+/// identity's limitation 0, the result's Diagnostics, then `session`), the
+/// section checksum rebound.
+fn pf_save_request(session: &[Value]) -> (Value, Value, Value) {
+    use open_pipe_stress_result_export::semantic_contract::PREVIEW_PHYSICS_TIMOSHENKO_ID;
+    let mut model = crate::report_package_save::test_support::model();
+    model["materials"][0].as_object_mut().unwrap().remove("provenance");
+    model["materials"][0]["library_ref"] = serde_json::from_str(LIBRARY_REF).unwrap();
+    let (reference, _) = pf_stand_in(model.clone());
+    let mut model = model;
+    model["model_settings"] = json!({"shear_model": "timoshenko_annulus_energy_v1"});
+    let source: Value = serde_json::from_str(&reference.result).unwrap();
+    let mut request = crate::report_package_save::test_support::desktop_request_from(&model, &reference.manifest, &source);
+    let run = source["run_id"].as_str().unwrap().to_string();
+    let sections = &mut request["report"]["report_sections"];
+    let provenance = sections["provenance_notes"][0].clone();
+    let mut technical = sections["limitations"][0].clone();
+    technical["limitation_id"] = json!(format!("limitation:{run}:technical-preview"));
+    sections["limitations"] = json!([technical.clone(), {
+        "limitation_id": format!("limitation:{run}:pf-timoshenko:1"),
+        "source": {"ref_type": "semantic_contract", "ref_id": PREVIEW_PHYSICS_TIMOSHENKO_ID},
+        "affected_scope": {"ref_type": "analysis_run", "ref_id": run},
+        "statement": source["formulation_basis"]["limitations"][0],
+        "effect": technical["effect"], "provenance": technical["provenance"]}]);
+    let mut diagnostics: Vec<Value> = expected_report_diagnostics(&source).unwrap().into_iter().map(|mut entry| { entry["provenance"] = provenance.clone(); entry }).collect();
+    diagnostics.extend(session.iter().map(|entry| { let mut entry = entry.clone(); entry["provenance"] = provenance.clone(); entry }));
+    sections["diagnostics"] = Value::Array(diagnostics);
+    let checksum = open_pipe_stress_result_export::derivative::digest(&request["report"]["report_sections"]).unwrap();
+    request["report"]["calculation_report"]["report_section_refs"][0]["checksum"]["value"] = json!(checksum);
+    (request, model, reference.manifest)
+}
+
+/// R8: the local-private save of a pressure-free Timoshenko document admits the
+/// session entries the host derives from its bound model, and refuses a copy
+/// of a result diagnostic under other prose, a repeated entry and two findings
+/// for one library reference site.
+#[test]
+fn the_pf_timoshenko_save_admits_only_the_session_entries_the_host_derives() {
+    use crate::report_package_save::test_support::{no_store, save_request_with, software};
+    let save = |session: &[Value]| {
+        let (request, model, manifest) = pf_save_request(session);
+        crate::report_package_save::admit_report_package_in(save_request_with(&request, &model, &manifest), &software(), &mut no_store, &|_: &str| None)
+            .map(|admitted| admitted.package.export_blocked)
+            .map_err(|error| (error.code, error.message))
+    };
+    let every = desktop_session_entries(&json!(null));
+    let strip = |entry: &Value| { let mut entry = entry.clone(); entry.as_object_mut().unwrap().remove("provenance"); entry };
+    let (material, not_held, changed) = (strip(&every[0]), strip(&every[1]), strip(&every[3]));
+    assert_eq!(save(&[]), Ok(false), "the request without session entries is admitted unblocked");
+    assert_eq!(save(&[material.clone(), changed.clone()]), Ok(false), "the derived session entries are admitted");
+    let (request, _, _) = pf_save_request(&[]);
+    let results = request["report"]["report_sections"]["diagnostics"].as_array().unwrap().len();
+    let refusal = |index: usize, detail: &str| Err((SECTIONS.to_string(), format!("{SECTIONS} at /request/report/report_sections/diagnostics: diagnostics: report diagnostic {index} {detail}")));
+    let mut copied = request["report"]["report_sections"]["diagnostics"][0].clone();
+    copied.as_object_mut().unwrap().remove("provenance");
+    copied["message"] = json!("Invented other prose.");
+    assert_eq!(save(&[copied]), refusal(results, "copies a result diagnostic's code and affected object"));
+    assert_eq!(save(&[material.clone(), material.clone()]), refusal(results + 1, "is not a session diagnostic the host derives from the bound model"));
+    assert_eq!(save(&[changed.clone(), not_held.clone()]), refusal(results + 1, "is not a session diagnostic the host derives from the bound model"));
+}
+const SECTIONS: &str = crate::exact_source_binding::SECTIONS_MISMATCH;

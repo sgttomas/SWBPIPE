@@ -47,16 +47,22 @@
 //!
 //! **Size.** The derivation reserves [`DERIVATION_RESERVE_FACTOR`] times the
 //! held text before any parse; when the invocation's budget cannot hold it, the
-//! render is refused as a resource shortfall ([`check_fill_size`]). At present
-//! that admits about 49 MB of result text, an estimate of present sizing (the
-//! measured multiple with its margin, a 12 GiB budget with nothing else held),
-//! not a guaranteed size. It is below the 64 MiB the webview's bounded copy
-//! already admits: this command raises no size limit; it removes the
+//! render is refused as a resource shortfall ([`check_fill_size`]); the
+//! frame's replicated records are bounded ([`MAX_FRAME_RECORD_BYTES`]) and
+//! their copies reserved before they are made ([`replication_reserve_bytes`]).
+//! At present that admits about 48 MB of result text (about 45 MB with a
+//! provenance record at its bound), an estimate of present sizing (the
+//! measured multiples with their margins, a 12 GiB budget with nothing else
+//! held), not a guaranteed size. Above the webview's bounded copy's 64 MiB a
+//! held result is refused by size ([`MAX_CUSTODY_RENDER_RESULT_BYTES`]),
+//! whatever the budget: this command raises no size limit; it removes the
 //! resubmitted request text and the webview's copy only.
 //!
-//! Routes: an exact-route (pressure-2, pressure-source-1) or pressure-free
-//! Timoshenko result is filled; any other result in custody is refused
-//! ([`FILL_NOT_SERVED`]). Standard claim fence applies (claims taxonomy per
+//! Routes: an exact-route result (the identities the render admits,
+//! `report_render_exact::RENDER_ADMITTED_EXACT_CONTRACTS`; another exact
+//! identity is filled and then refused at the admission's step 0) or a
+//! pressure-free Timoshenko result is filled; any other result in custody is
+//! refused ([`FILL_NOT_SERVED`]). Standard claim fence applies (claims taxonomy per
 //! DEC-081).
 
 use crate::analysis_run_v03_build::{self as record_build, Exclusion, ManifestArg};
@@ -83,6 +89,81 @@ pub(crate) const FRAME_INCOMPLETE: &str = "REPORT-RENDER-FRAME-INCOMPLETE";
 /// A result in custody, or a session basis, that the render from custody does
 /// not serve yet.
 pub(crate) const FILL_NOT_SERVED: &str = "REPORT-RENDER-FILL-NOT-SERVED";
+/// A frame member the fill replicates that is larger than the command admits
+/// for it ([`MAX_FRAME_RECORD_BYTES`]).
+pub(crate) const FRAME_MEMBER_TOO_LARGE: &str = "REPORT-RENDER-FRAME-MEMBER-TOO-LARGE";
+
+/// The largest serialized size (compact JSON) the render from custody admits
+/// for each frame member the fill replicates (review of c2cc050ea, R1): the
+/// session's provenance record (`calculation_report.provenance`), copied into
+/// every result reference, every result diagnostic and the section reference,
+/// and the technical-preview entry's `effect` and `provenance`, copied into
+/// every limitation entry the fill appends. The web view writes the record as
+/// `sessionProvenance` (`renderableReportInput.ts`): seven fixed words and
+/// `source_name`, "OpenPipeStress desktop session (<project name>)", about
+/// 280 bytes with a short project name; the effect is four fixed members of
+/// about 110 bytes. 4 KiB admits a project name of more than 3,500 bytes, far
+/// beyond a name a person types, while bounding the replicated bytes by the
+/// result's own row count.
+pub(crate) const MAX_FRAME_RECORD_BYTES: u64 = 4096;
+
+/// The frame members [`MAX_FRAME_RECORD_BYTES`] bounds, by path.
+const REPLICATED_MEMBERS: [&[&str]; 3] = [
+    &["calculation_report", "provenance"],
+    &["report_sections", "limitations", "0", "provenance"],
+    &["report_sections", "limitations", "0", "effect"],
+];
+
+/// The pool's price of one replica of a bounded record of `bytes` serialized
+/// bytes, through the fill and the render (the fill's copy into the input, the
+/// renderer's decoded copy, the HTML that prints it): [`REPLICA_PRICE_FACTOR`]
+/// times the bytes plus [`REPLICA_PRICE_OVERHEAD`] for the copies' map nodes,
+/// keys and allocation envelopes. Measured with the counting allocator on the
+/// committed references at the bound (`report_native_fill_tests`
+/// `a_frame_record_at_the_bound_stays_within_its_replication_reservation`).
+pub(crate) const REPLICA_PRICE_FACTOR: u64 = 4;
+pub(crate) const REPLICA_PRICE_OVERHEAD: u64 = 2048;
+
+/// The serialized (compact JSON) length of `value`, counted without
+/// allocating the text.
+fn serialized_len(value: &Value) -> u64 {
+    struct Count(u64);
+    impl std::io::Write for Count {
+        fn write(&mut self, bytes: &[u8]) -> std::io::Result<usize> {
+            self.0 += bytes.len() as u64;
+            Ok(bytes.len())
+        }
+        fn flush(&mut self) -> std::io::Result<()> {
+            Ok(())
+        }
+    }
+    let mut count = Count(0);
+    serde_json::to_writer(&mut count, value).map_or(u64::MAX, |()| count.0)
+}
+
+/// The largest serialized size among the frame's replicated members.
+pub(crate) fn largest_replicated_record(frame: &Value) -> u64 {
+    REPLICATED_MEMBERS
+        .iter()
+        .filter_map(|path| path.iter().try_fold(frame, |value, key| match value {
+            Value::Array(items) => key.parse::<usize>().ok().and_then(|index| items.get(index)),
+            other => other.get(*key),
+        }))
+        .map(serialized_len)
+        .max()
+        .unwrap_or(0)
+}
+
+/// The replication's reservation (review of c2cc050ea, R1): every replica the
+/// fill writes of the frame's bounded records, priced per replica, counted
+/// from the parsed result: one per result row (its reference), one per result
+/// diagnostic, one per limitation the result publishes (with two for the
+/// route's fixed entries) and one for the section reference.
+pub(crate) fn replication_reserve_bytes(source: &Value, record_bytes: u64) -> u64 {
+    let count = |pointer: &str| source.pointer(pointer).and_then(Value::as_array).map_or(0, Vec::len) as u64;
+    let replicas = count("/results") + count("/diagnostics") + count("/formulation_basis/limitations") + 3;
+    replicas.saturating_mul(record_bytes.saturating_mul(REPLICA_PRICE_FACTOR).saturating_add(REPLICA_PRICE_OVERHEAD))
+}
 
 /// The members the host fills whole, by path, as the refusal names them.
 const FILLED_MEMBERS: [&[&str]; 8] = [
@@ -105,7 +186,8 @@ fn incomplete(path: &str) -> String {
 }
 
 /// The frame rule (module docs): no member the host fills, by key (a null
-/// counts), and exactly one limitation entry. Names the path only, never a
+/// counts), each replicated member within [`MAX_FRAME_RECORD_BYTES`], and
+/// exactly one limitation entry. Names the path only, never a
 /// value. The frame's Diagnostics are the session's: the fill refuses one
 /// that copies a result diagnostic, and the admission admits only those the
 /// host derives (`report_session_diagnostics`).
@@ -115,6 +197,20 @@ pub(crate) fn check_frame(frame: &Value) -> Result<(), String> {
         let parent = parents.iter().try_fold(frame, |value, key| value.get(*key));
         if parent.and_then(Value::as_object).is_some_and(|object| object.contains_key(*last)) {
             return Err(derived(&path.join(".")));
+        }
+    }
+    // R1 (review of c2cc050ea): each member the fill replicates is bounded.
+    for path in REPLICATED_MEMBERS {
+        let found = path.iter().try_fold(frame, |value, key| match value {
+            Value::Array(items) => key.parse::<usize>().ok().and_then(|index| items.get(index)),
+            other => other.get(*key),
+        });
+        if let Some(bytes) = found.map(serialized_len).filter(|bytes| *bytes > MAX_FRAME_RECORD_BYTES) {
+            let member = path.iter().map(|key| if key.parse::<usize>().is_ok() { format!("[{key}]") } else { format!(".{key}") }).collect::<String>();
+            return Err(format!(
+                "{FRAME_MEMBER_TOO_LARGE}: the frame's {} is {bytes} bytes; the render from custody admits at most {MAX_FRAME_RECORD_BYTES}, as it copies that member into every result reference, diagnostic or limitation entry.",
+                member.trim_start_matches('.').replace(".[", "[")
+            ));
         }
     }
     let sections = frame.get("report_sections");
@@ -184,7 +280,7 @@ pub(crate) fn section_of(source: &Value) -> Result<Section, String> {
         Some(id) if is_exact_identity(id) => Ok(Section::Exact),
         Some(id) if is_pf_timoshenko_identity(id) => Ok(Section::PfTimoshenko),
         _ => Err(format!(
-            "{FILL_NOT_SERVED}: the result in custody is not a pressure-2, pressure-source-1 or pressure-free Timoshenko result; the render from custody serves those only, and any other result renders through the existing render command."
+            "{FILL_NOT_SERVED}: the result in custody is not an exact-route or pressure-free Timoshenko result; the render from custody serves those only. A pressure-free result of another formulation renders through the existing render command; the retained exact identities are refused by both."
         )),
     }
 }
@@ -428,6 +524,29 @@ pub(crate) fn fill(mut frame: Value, basis: &FillBasis<'_>) -> Result<Value, Str
     Ok(frame)
 }
 
+/// The largest held result the render from custody serves: the bounded
+/// copy's limit, [`crate::solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES`] (64 MiB),
+/// the size a report could already be made from through the web view (review
+/// of c2cc050ea, R5). A fixed product limit, compared before the reservation,
+/// whatever pool or invocation budget a host is configured with: rendering
+/// from custody makes no larger report than the bounded copy did. Lifting it
+/// is a decision someone makes when a cheaper derivation exists, not a side
+/// effect of a host's configuration.
+pub(crate) const MAX_CUSTODY_RENDER_RESULT_BYTES: u64 = crate::solve_jobs::MAX_DISPLAYABLE_RESULT_BYTES;
+
+/// The size limit ([`MAX_CUSTODY_RENDER_RESULT_BYTES`]), refused as
+/// [`FILL_NOT_SERVED`]: a result this command does not serve, a limit of the
+/// command and not a fault of the result (neither a binding nor a resource
+/// refusal: no memory is short, and nothing about the result is wrong).
+pub(crate) fn check_size_limit(text_bytes: u64) -> Result<(), String> {
+    if text_bytes > MAX_CUSTODY_RENDER_RESULT_BYTES {
+        return Err(format!(
+            "{FILL_NOT_SERVED}: the result in custody is {text_bytes} bytes; the render from custody serves a result of at most {MAX_CUSTODY_RENDER_RESULT_BYTES} bytes (64 MiB), the limit of the web view's bounded copy. This is a size limit of this command, not a fault of the result."
+        ));
+    }
+    Ok(())
+}
+
 /// The derivation's reservation, as a multiple of the held result text's bytes
 /// (review of f3d02469c, finding 1). [`derive_binding`] holds at once the
 /// analysis-run record, the Current result document (`derive_document`, which
@@ -473,6 +592,7 @@ pub(crate) fn fill_from_custody(request: CustodyRenderRequest, registry: &SolveJ
     check_frame(&frame).map_err(CommandError::Command)?;
     let digests = binding::check_custody(&json!({"native_job_id": job_id}), &|job| registry.custody_binding(job)).map_err(refused)?;
     let held = registry.held_result(&job_id)?;
+    check_size_limit(held.text().len() as u64).map_err(CommandError::Command)?;
     check_text_sizes(Some(held.text()), Some(&intake), Some(&input_manifest)).map_err(CommandError::Command)?;
     if sha256_in_place(intake.as_bytes()) != digests.intake_sha256 {
         return Err(refused(binding::not_delivered("model")));
@@ -490,6 +610,13 @@ pub(crate) fn fill_from_custody(request: CustodyRenderRequest, registry: &SolveJ
     // copied): its one parse. Step 5 runs in the admission, on the filled binding.
     let mut bound = binding::read_eligible_source(&digests, held.text(), &intake).map_err(refused)?;
     let section = section_of(&bound.source).map_err(CommandError::Command)?;
+    // R1 (review of c2cc050ea): the replication of the frame's bounded records
+    // is reserved before the fill replicates them, refused as a resource
+    // shortfall when the budget cannot hold it.
+    let replication = replication_reserve_bytes(&bound.source, largest_replicated_record(&frame));
+    lease
+        .grow_to(lease.bytes().saturating_add(replication))
+        .map_err(|refusal| CommandError::Ingress(registry.refuse(refusal)))?;
     let manifest = crate::report_package_save::parse_canonical("input_manifest", &input_manifest)
         .map_err(|_| refused(sections_mismatch("admission.input_manifest_sha256")))?;
     // The record builder's row fingerprints are admitted under the command's lease.
