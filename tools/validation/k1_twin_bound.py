@@ -363,6 +363,8 @@ def si(q: dict, unit: str, name: str) -> float:
 def scales(req: dict, case_id: str) -> dict:
     """S_f from the case's inputs only (the note's definitions; the Rust test forms the same)."""
     m = req["model"]
+    # Node coordinates carry the project's length unit; they are read only in metres.
+    si({"value": 0.0, "unit": m.get("project", {}).get("units", {}).get("length")}, "m", "project.units.length (node coordinates)")
     pos = {n["id"]: [float(n["position"][a]) for a in "xyz"] for n in m["nodes"]}
     mats = {x["id"]: x for x in m["materials"]}
     lengths, areas, inertias, polars, e_mod, g_mod = [], [], [], [], 0.0, 0.0
