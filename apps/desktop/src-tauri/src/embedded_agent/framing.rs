@@ -37,6 +37,71 @@ impl std::error::Error for Error {}
 pub struct AdmittedFrame {
     pub value: Value,
     pub lease: Lease,
+    /// Some object in the frame had two members with the same decoded name.
+    /// No `Value` was built (`value` is null): the caller must end the
+    /// session as a protocol violation, never interpret the frame.
+    pub duplicate_member: bool,
+}
+
+/// Walks a whole frame without building a `Value` and fails at the first
+/// object holding two members with the same decoded name, escaped spellings
+/// included. Keys are kept per object only while it is open, within the frame
+/// byte cap and the parser's recursion limit; numbers, strings and the rest
+/// are skipped. The flag tells a duplicate from other invalid JSON.
+struct Unique<'a>(&'a std::cell::Cell<bool>);
+impl<'de> DeserializeSeed<'de> for Unique<'_> {
+    type Value = ();
+    fn deserialize<D: Deserializer<'de>>(self, deserializer: D) -> Result<(), D::Error> {
+        deserializer.deserialize_any(self)
+    }
+}
+impl<'de> Visitor<'de> for Unique<'_> {
+    type Value = ();
+    fn expecting(&self, out: &mut fmt::Formatter<'_>) -> fmt::Result {
+        out.write_str("JSON without duplicate object members")
+    }
+    fn visit_bool<E>(self, _: bool) -> Result<(), E> {
+        Ok(())
+    }
+    fn visit_i64<E>(self, _: i64) -> Result<(), E> {
+        Ok(())
+    }
+    fn visit_u64<E>(self, _: u64) -> Result<(), E> {
+        Ok(())
+    }
+    fn visit_i128<E>(self, _: i128) -> Result<(), E> {
+        Ok(())
+    }
+    fn visit_u128<E>(self, _: u128) -> Result<(), E> {
+        Ok(())
+    }
+    fn visit_f64<E>(self, _: f64) -> Result<(), E> {
+        Ok(())
+    }
+    fn visit_str<E>(self, _: &str) -> Result<(), E> {
+        Ok(())
+    }
+    fn visit_unit<E>(self) -> Result<(), E> {
+        Ok(())
+    }
+    fn visit_none<E>(self) -> Result<(), E> {
+        Ok(())
+    }
+    fn visit_seq<A: de::SeqAccess<'de>>(self, mut seq: A) -> Result<(), A::Error> {
+        while seq.next_element_seed(Unique(self.0))?.is_some() {}
+        Ok(())
+    }
+    fn visit_map<A: MapAccess<'de>>(self, mut map: A) -> Result<(), A::Error> {
+        let mut keys = std::collections::HashSet::new();
+        while let Some(key) = map.next_key::<String>()? {
+            if !keys.insert(key) {
+                self.0.set(true);
+                return Err(de::Error::custom("duplicate object member"));
+            }
+            map.next_value_seed(Unique(self.0))?;
+        }
+        Ok(())
+    }
 }
 
 /// B + M in the shared moved-value lease, plus 3B + M + allowance. The extra
@@ -151,6 +216,20 @@ pub fn decode(
     let lease = reserve(raw, registry)?;
     numeric::check_admitted_json(raw)
         .map_err(|_| Error::Invalid("agent JSON number loses decimal identity"))?;
+    // Before every other inspection, so a duplicate anywhere, top-level
+    // members included, takes one route.
+    let duplicate = std::cell::Cell::new(false);
+    let mut deserializer = serde_json::Deserializer::from_slice(raw);
+    if Unique(&duplicate).deserialize(&mut deserializer).is_err() {
+        if duplicate.get() {
+            return Ok(AdmittedFrame {
+                value: Value::Null,
+                lease,
+                duplicate_member: true,
+            });
+        }
+        return Err(Error::Invalid("invalid agent RPC value"));
+    }
     {
         let header: Header<'_> = serde_json::from_slice(raw)
             .map_err(|_| Error::Invalid("invalid agent RPC envelope"))?;
@@ -163,7 +242,11 @@ pub fn decode(
     }
     let value =
         serde_json::from_slice(raw).map_err(|_| Error::Invalid("invalid agent RPC value"))?;
-    Ok(AdmittedFrame { value, lease })
+    Ok(AdmittedFrame {
+        value,
+        lease,
+        duplicate_member: false,
+    })
 }
 
 /// A Tauri completion prepass. The caller first applies raw_args_body's header
@@ -266,6 +349,36 @@ mod tests {
     }
     fn limits() -> Limits {
         super::super::catalog::Catalog::load().unwrap().limits()
+    }
+
+    #[test]
+    fn a_duplicate_member_anywhere_is_flagged_before_any_value_is_built() {
+        let registry = registry();
+        let limits = limits();
+        let duplicates: [&[u8]; 10] = [
+            br#"{"method":"item/started","params":{"item":{"id":"i","type":"commandExecution","type":"userMessage"}}}"#,
+            br#"{"method":"item/started","params":{"item":{"type":"commandExecution"},"item":{"type":"userMessage"}}}"#,
+            br#"{"method":"turn/completed","params":{"turn":{"id":"t","status":"completed","items":[{"type":"webSearch"}],"items":[]}}}"#,
+            br#"{"method":"turn/completed","params":{"turn":{"items":[{"type":"webSearch"}]},"turn":{"id":"t","items":[]}}}"#,
+            br#"{"method":"thread/started","params":{"thread":{"id":"t","turns":[{"items":[{"type":"fileChange"}]}],"turns":[]}}}"#,
+            br#"{"method":"item/started","params":{"item":{"type":"fileChange"}},"params":{"item":{"type":"userMessage"}}}"#,
+            br#"{"id":4,"result":{"data":[{"items":[{"type":"commandExecution"}]}]},"result":{}}"#,
+            br#"{"method":"item/started","params":{"item":{"id":"i","t\u0079pe":"commandExecution","type":"userMessage"}}}"#,
+            br#"{"method":"item/completed","params":{"item":{"id":"i","type":"agentMessage","text":"x","deep":[{"a":{"b":1,"\u0062":2}}]}}}"#,
+            br#"{"id":1,"result":{"codexHome":"a","codexHome":"b"}}"#,
+        ];
+        for raw in duplicates {
+            let frame = decode(raw, &registry, limits).unwrap();
+            assert!(frame.duplicate_member, "{}", String::from_utf8_lossy(raw));
+            assert!(frame.value.is_null());
+        }
+        // The same name in sibling or nested objects is not a duplicate.
+        let distinct = br#"{"method":"turn/completed","params":{"turn":{"id":"t","status":"completed","items":[{"id":"a","type":"userMessage"},{"id":"b","type":"reasoning"}]},"threadId":"x"}}"#;
+        let frame = decode(distinct, &registry, limits).unwrap();
+        assert!(!frame.duplicate_member);
+        assert_eq!(frame.value["params"]["turn"]["items"][1]["type"], "reasoning");
+        // Other invalid JSON stays a framing error, not a duplicate.
+        assert!(decode(br#"{"id":1,"result":{"a":}}"#, &registry, limits).is_err());
     }
 
     #[test]

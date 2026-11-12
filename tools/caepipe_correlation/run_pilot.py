@@ -139,6 +139,7 @@ from core.handoff.caepipe_external.harness import (  # noqa: E402
     write_private,
 )
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
+from tools.caepipe_correlation import benchmark_models  # noqa: E402
 
 
 CASES_DIR = PROJECT / "validation" / "caepipe_correlation" / "cases"
@@ -649,13 +650,22 @@ def run_cases(cases: list[Mapping[str, Any]], config: HarnessConfig, *, runner: 
     return results
 
 
-def load_benchmark(manifest_path: Path, selected: list[str] | None = None) -> list[dict[str, Any]]:
-    """The benchmark models of a generator manifest, each checked against the manifest's hashes (Design §11.1)."""
+def load_benchmark(manifest_path: Path, selected: list[str] | None = None,
+                   series: str | None = None) -> list[dict[str, Any]]:
+    """The benchmark models of a generator manifest, each checked against the manifest's hashes (DEL-17-05 AC-007).
+
+    A model whose manifest entry declares `runs` is run only in a named series: without `series` it is refused by
+    name; with it, its document is that run's (benchmark_models.series_document: the state's model, its closed forms
+    and inexact inputs, its OPPRES line and a `run_id` distinct per run). With `series` and no selection, the models
+    declaring that run are taken; a selected model without it is refused. A model without runs, with no `series`, is
+    loaded as before."""
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest.get("document_kind") != BENCHMARK_MANIFEST_KIND:
         raise ValueError(f"{manifest_path.name}: document_kind must be {BENCHMARK_MANIFEST_KIND}")
     tracked = {case["case_id"] for case in load_cases()} | {case["case_id"] for case in load_authored_cases()}
     models: dict[str, dict[str, Any]] = {}
+    declared_runs: dict[str, list[str]] = {}
+    lacking: set[str] = set()
     for entry in manifest.get("models") or []:
         model_id = entry.get("model_id")
         if not isinstance(model_id, str) or not CASE_ID_PATTERN.match(model_id) or model_id in models:
@@ -673,13 +683,52 @@ def load_benchmark(manifest_path: Path, selected: list[str] | None = None) -> li
             raise ValueError(f"{manifest_path.name}: models/{model_id}.json is not the model the manifest names")
         if not isinstance(document.get("piping_code"), str):
             raise ValueError(f"{manifest_path.name}: {model_id} names no piping code; the benchmark writes one explicitly")
+        runs = entry.get("runs")
+        if runs is not None or series is not None:
+            declared = {run.get("series"): run for run in runs or [] if isinstance(run, dict)}
+            if series is None:
+                declared_runs[model_id] = sorted(declared)
+            elif series not in declared:
+                lacking.add(model_id)
+            else:
+                document = benchmark_models.series_document(document, series)
+                if document["run_id"] != declared[series].get("run_id"):
+                    raise ValueError(f"{manifest_path.name}: {model_id} names another run id for {series}")
         models[model_id] = document
     if selected:
         unknown = sorted(set(selected) - set(models))
         if unknown:
             raise KeyError(f"unknown benchmark model id(s): {', '.join(unknown)}")
-        return [models[model_id] for model_id in sorted(set(selected))]
-    return [models[model_id] for model_id in sorted(models)]
+    chosen = sorted(set(selected)) if selected else sorted(set(models) - (lacking if series else set()))
+    refused = [f"{model_id} (runs: {', '.join(declared_runs[model_id])})" for model_id in chosen
+               if model_id in declared_runs]
+    if refused:
+        raise ValueError(f"{manifest_path.name}: these models declare runs; name one with --series: "
+                         f"{'; '.join(refused)}")
+    if series and set(chosen) & lacking:
+        raise ValueError(f"{manifest_path.name}: no {series} run is declared for: "
+                         f"{', '.join(sorted(set(chosen) & lacking))}")
+    if series and not chosen:
+        raise ValueError(f"{manifest_path.name}: no model declares a {series} run")
+    return [models[model_id] for model_id in chosen]
+
+
+def benchmark_run_id(entry: Mapping[str, Any]) -> str:
+    """The case id a benchmark document is run and recorded under: its run's id, else its model id."""
+    return entry.get("run_id") or entry["model_id"]
+
+
+CAPTURE_PATH_UNAVAILABLE = "capture_path_unavailable"
+
+
+def capture_refusal(entry: Mapping[str, Any], emit: Callable[[str], None]) -> tuple[str, str, str]:
+    """A capture-only run is declared but not run on this build: the path that would collect its result is a
+    separate change, so the run is refused by name, live or offline, before anything is solved, written,
+    collected, hashed or read, and nothing is emitted but this status line."""
+    reason = ("a capture-only run needs the capture-only path, which collects its result without reading it; that "
+              "path is a separate change and is not on this build")
+    emit(f"{benchmark_run_id(entry)}: route={CAPTURE_PATH_UNAVAILABLE}; {reason}; not run")
+    return NOT_RUN, CAPTURE_PATH_UNAVAILABLE, reason
 
 
 def benchmark_batches(models: list[Mapping[str, Any]], size: int) -> list[list[Mapping[str, Any]]]:
@@ -725,7 +774,7 @@ def run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, runn
     stored bound CSV offline), or `retry` (the round trip raised, or left no bound CSV, with a clean settings check).
     Raises RunStopped when the round trip's saved-settings check is not clean, or when the batch run left no CSV and
     the GUI fallback is off."""
-    model_id = entry["model_id"]
+    model_id = benchmark_run_id(entry)
     try:
         return _run_benchmark_model(entry, config, runner=runner, offline=offline, emit=emit, round_trip=round_trip,
                                     gui_fallback=gui_fallback, attempt=attempt)
@@ -739,9 +788,10 @@ def _benchmark_manifest(root: Path, paths: Mapping[str, Path], entry: Mapping[st
     """The model's private run record (the case manifest), written for every live attempt and every record."""
     _write_json(root, paths["manifest"], {
         "document_kind": MANIFEST_KIND,
-        "case_id": entry["model_id"],
+        "case_id": benchmark_run_id(entry),
         "created": _now(),
         "mode": "benchmark_offline" if offline else "benchmark_live",
+        **({key: entry.get(key) for key in ("series_run", "oppres_line")} if "series_run" in entry else {}),
         "outcome": outcome,
         "route": route,
         "attempt": attempt,
@@ -759,7 +809,10 @@ def _benchmark_manifest(root: Path, paths: Mapping[str, Path], entry: Mapping[st
 def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, runner: str, offline: bool,
                          emit: Callable[[str], None], round_trip: Callable[..., dict[str, Any]], gui_fallback: bool,
                          attempt: int) -> tuple[str, str, str]:
-    model_id = entry["model_id"]
+    model_id = benchmark_run_id(entry)
+    if entry.get("capture_only"):
+        # Refused before anything is resolved or written (capture_refusal says why).
+        return capture_refusal(entry, emit)
     root = config.exchange_root.resolve()
     paths = case_paths(config, model_id)
 
@@ -773,7 +826,7 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
 
     body, output, error = solve_swbpipe(runner, {
         "case_id": model_id, "model": entry["model"],
-        "source_location": f"validation/caepipe_benchmark/models/{model_id}.json"})
+        "source_location": f"validation/caepipe_benchmark/models/{entry['model_id']}.json"})
     _write_json(root, paths["swbpipe"] / "request.json", body)
     if output is not None:
         _write_json(root, paths["swbpipe"] / "result.json", output)
@@ -785,7 +838,7 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
     if mbf.status != "written":
         codes = sorted({item["code"] for item in mbf.diagnostics if item["severity"] == "error"})
         return outcome(NOT_RUN, "not_run", f"MBF refused ({', '.join(codes)})")
-    mbf_text = mbf.text
+    mbf_text = benchmark_models.run_mbf_text(entry, mbf.text)  # a series run's OPPRES line substituted
     mbf_sha256 = _sha256(mbf_text)
     if offline:
         # Checked before caepipe_in/ is rewritten, so the MBF that produced a stale output is kept.
@@ -883,6 +936,11 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
     A model that still left no CSV is recorded as such and the run goes on; a round trip that raised twice, a gate
     that fails, or an unclean settings check stops the run. The GUI fallback is on only when the settings guard
     restores the whole key, whose restore covers the settings that route writes (Design §5)."""
+    captures = [entry for entry in models if entry.get("capture_only")]
+    if captures:
+        for entry in captures:
+            capture_refusal(entry, emit)
+        return 2
     batches = benchmark_batches(models, batch_size)
     if batch is not None:
         if not 1 <= batch <= len(batches):
@@ -899,9 +957,9 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
     gui_fallback = bool(config.settings_guard is not None and config.settings_guard.restores_whole_key)
     results, started = [], False
     for number, members in chosen:
-        emit(f"batch {number}/{len(batches)}: {', '.join(entry['model_id'] for entry in members)}")
+        emit(f"batch {number}/{len(batches)}: {', '.join(benchmark_run_id(entry) for entry in members)}")
         for entry in members:
-            model_id = entry["model_id"]
+            model_id = benchmark_run_id(entry)
             status, route, reason = NOT_RUN, "not_run", ""
             try:
                 for attempt in (1, 2):
@@ -954,6 +1012,9 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
     parser.add_argument("--benchmark", metavar="MANIFEST",
                         help="run the generated benchmark models of this manifest (two-way comparison, guarded "
                              "round trips, paced one at a time)")
+    parser.add_argument("--series", metavar="NAME",
+                        help="with --benchmark, run each model's declared run of this series (required for a model "
+                             "that declares runs)")
     parser.add_argument("--batch", type=int, metavar="N", help="with --benchmark, run only the N-th batch")
     parser.add_argument("--batch-size", type=int, default=BENCHMARK_BATCH_SIZE, metavar="N",
                         help=f"with --benchmark, models per serial batch (default {BENCHMARK_BATCH_SIZE})")
@@ -966,13 +1027,13 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
                         help=f"with a live --benchmark run, seconds between models (default {BENCHMARK_PACE_S:g})")
     args = parser.parse_args(argv)
     benchmark_only = (args.batch is not None or args.batch_size != BENCHMARK_BATCH_SIZE or args.freeze_file
-                      or args.exclusive_file or args.pace_s != BENCHMARK_PACE_S)
+                      or args.exclusive_file or args.pace_s != BENCHMARK_PACE_S or args.series is not None)
     if args.benchmark and (args.authored or args.authored_dir or args.no_export or args.export_mbf
                            or args.export_only):
-        parser.error("--benchmark takes only --case, --offline, --batch, --batch-size, --freeze-file, "
+        parser.error("--benchmark takes only --case, --series, --offline, --batch, --batch-size, --freeze-file, "
                      "--exclusive-file, --pace-s and --runner")
     if not args.benchmark and benchmark_only:
-        parser.error("--batch, --batch-size, --freeze-file, --exclusive-file and --pace-s need --benchmark")
+        parser.error("--series, --batch, --batch-size, --freeze-file, --exclusive-file and --pace-s need --benchmark")
     if args.batch_size < 1:
         parser.error("--batch-size must be at least 1")
     if not (args.pace_s >= 0.0):
@@ -1047,9 +1108,14 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
 
 def benchmark_main(args: argparse.Namespace, environ: Mapping[str, str]) -> int:
     try:
-        models = load_benchmark(Path(args.benchmark), args.cases)
+        models = load_benchmark(Path(args.benchmark), args.cases, args.series)
     except (KeyError, OSError, ValueError) as error:
         print(f"error: {error}", file=sys.stderr)
+        return 2
+    captures = [entry for entry in models if entry.get("capture_only")]
+    for entry in captures:
+        capture_refusal(entry, print)
+    if captures:
         return 2
     config = resolve_harness_config(environ, require_vm_tools=not args.offline)
     if isinstance(config, HarnessSkip):

@@ -121,3 +121,29 @@ the entry, and the entry names the PR.
 - **What the user does instead:** use a plain subtraction, with neither `difference_basis` nor `subtrahend_support_state`. Each operand is then solved to its own support states, and each case's own result publishes them. On the exact route today the subtraction's record gives each operand's load case, modulus selection and numerical standing; it does not yet set the operands' support states side by side or say where they differ, which DEL-05-02/REQ-014 and AC-005 require, so the user compares the two cases' published states. The same disclosure is missing from exact-route envelopes; comparing cases manually does not meet AC-005.
 - **Basis:** DEL-05-02 [scope](../execution/PKG-05/DEL-05-02/ScopeOfWork.md), "Withheld in v1.0", with DEL-04-07/REQ-012 for the held-status solve; made standing by PR #244.
 - **Status:** not yet declared.
+
+### LIM-005 — A shareable report for a model that uses the user's library records
+
+- **Id:** LIM-005
+- **Exit criteria:** 4
+- **Requirement affected:** exit criterion 4, that a user releases a report for results on either route (DEL-08-01/REQ-019, REQ-022).
+- **Code:** `REPORT-USER-RELEASE-LIBRARY-REFERENCED`
+- **What is refused:** a shareable (user-released) report package for a model in which a material, section, component or hanger was applied from one of the user's private libraries.
+- **What it means in practice for a user:** after applying a library record, for example after choosing a hanger from their own hanger catalogue for a support, the user cannot save the shareable package of that model's report. The shareable-package dialog says that the model uses a library record and that a shareable package cannot be saved for it. Saving, printing and packaging the local-private report are unaffected.
+- **Why:** applying a record writes its values, and some of its reference text, into the model, and they appear in the report: as model inputs and, for a hanger, as its loads, travel and stiffness among the results. The user's statement covers their own project data; v1.0 does not establish that it also covers values taken from a library, which may be a manufacturer's.
+- **What the user does instead:** save the local-private package of the same report, which carries the library references.
+- **Basis:** DEL-08-01 [scope](../execution/PKG-08/DEL-08-01/ScopeOfWork.md), REQ-019 (Content); DEL-12-02/REQ-016. The refusal was standing before this entry; the entry was added with PR #243, which corrected the scope text to state it. Whether a library reference is admitted under user release for v1.0 is not decided (DEL-08-01, "Not decided").
+- **Status:** not yet declared.
+
+### LIM-006 — A shareable report for a model that names the user's rule pack
+
+- **Id:** LIM-006
+- **Exit criteria:** 4
+- **Requirement affected:** exit criterion 4, that a user releases a report for results on either route (DEL-08-01/REQ-019, REQ-022).
+- **Code:** `REPORT-USER-RELEASE-RULE-PACK-REFERENCED`
+- **What is refused:** a shareable (user-released) report package for a model that names one of the user's rule packs, whether or not a rule check has been run.
+- **What it means in practice for a user:** after adding a rule-pack reference to the model and solving, the user cannot save the shareable package of that model's report; the dialog says that the model uses a rule pack and that a shareable package cannot be saved for it. A shareable report never shows rule-check outcomes. The local-private report is unaffected.
+- **Why:** The application derives the shareable report from the bound model and solve and refuses detectable library and rule-pack marks; it does not establish the origin or redistribution rights of unmarked values. In v1.0 that derivation does not include a rule pack's identity, so a model that names a pack is refused and not reported without it.
+- **What the user does instead:** First save a local-private report package if the rule check and its outcomes must be kept. Then remove all rule-pack references from the model, solve again and save the shareable report; with other mechanics inputs unchanged, the mechanics values are unchanged because the solver does not read rule-pack references or content.
+- **Basis:** DEL-08-01 [scope](../execution/PKG-08/DEL-08-01/ScopeOfWork.md), REQ-019 (Content), REQ-008; DEL-06-04/REQ-008. The refusal was standing before this entry; the entry was added with PR #243. Whether a rule-pack reference is admitted under user release for v1.0 is not decided (DEL-08-01, "Not decided").
+- **Status:** not yet declared.
