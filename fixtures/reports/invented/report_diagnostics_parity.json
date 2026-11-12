@@ -1201,7 +1201,7 @@
       ]
     },
     {
-      "reason": "DEL-04-07: on a result with combinations, the cancellation-screen exception's warning (PRESSURE_REGION_DEPARTURE_THRUST_RETAINED) names no combination and is still copied: the admitting reader binds its presence, whole message and references to the exception record. Another warning naming no combination beside it is quoted as supplied text.",
+      "reason": "DEL-04-07: on a result with combinations, the cancellation-screen exception's warning (PRESSURE_REGION_CAP_REMAINDER_RETAINED) names no combination and is still copied: the admitting reader binds its presence, whole message and references to the exception record. Another warning naming no combination beside it is quoted as supplied text.",
       "contract_evidence": {
         "combination_gates": [
           {
@@ -1213,10 +1213,10 @@
       },
       "diagnostics": [
         {
-          "id": "diagnostic:invented:departure",
-          "code": "PRESSURE_REGION_DEPARTURE_THRUST_RETAINED",
+          "id": "diagnostic:invented:cap-remainder",
+          "code": "PRESSURE_REGION_CAP_REMAINDER_RETAINED",
           "severity": "warning",
-          "message": "Small differences in bore or alignment between adjacent members of this pressure region, within the region's representation limits, produce pressure thrust at interior nodes in this model. The solver retains that thrust. The exception to the pressure cancellation screen that admitted this case does not establish that the thrust's effect is negligible; the case's numerical standing concerns the recorded geometry, not an idealised region of equal bores and exact collinearity.",
+          "message": "At interior nodes of this case's pressure regions the cap loads of adjacent members do not cancel exactly in this model. The remainder comes from small differences in bore or alignment within each region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.",
           "source": "core/product_physics/src/pressure_runtime.rs",
           "affected_refs": [
             "case:invented",
@@ -1239,7 +1239,7 @@
       ],
       "expected": [
         {
-          "code": "PRESSURE_REGION_DEPARTURE_THRUST_RETAINED",
+          "code": "PRESSURE_REGION_CAP_REMAINDER_RETAINED",
           "class": "ASSUMPTION_WARNING",
           "severity": "warning",
           "source": {
@@ -1250,7 +1250,7 @@
             "ref_type": "affected_refs",
             "ref_id": "case:invented, region:invented, node:invented"
           },
-          "message": "Small differences in bore or alignment between adjacent members of this pressure region, within the region's representation limits, produce pressure thrust at interior nodes in this model. The solver retains that thrust. The exception to the pressure cancellation screen that admitted this case does not establish that the thrust's effect is negligible; the case's numerical standing concerns the recorded geometry, not an idealised region of equal bores and exact collinearity.",
+          "message": "At interior nodes of this case's pressure regions the cap loads of adjacent members do not cancel exactly in this model. The remainder comes from small differences in bore or alignment within each region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.",
           "remediation": "Human review required: evaluate this diagnostic against its referenced results before any reliance."
         },
         {

@@ -1314,7 +1314,7 @@ pub(crate) fn validate_physics_evidence_in(
             &evidence["connector"],
         )?;
     }
-    departure_thrust_warnings(source)?;
+    cap_remainder_warnings(source)?;
     // W-7: one global end row per member, end and component; none on a composite.
     // Checked after the published rows' own coverage, so a missing local or wall
     // end row is refused by that coverage, not by the global row derived from it.
@@ -1726,7 +1726,7 @@ fn assembly(
     }
     if let Some(record) = exception {
         assembled_is_group_sum(v)?;
-        cancellation_exception(v, case, regions, elongation, &nodes, record)?;
+        exception_consistency(v, case, regions, elongation, &nodes, record)?;
     }
     Ok(())
 }
@@ -1786,13 +1786,12 @@ fn assembled_is_group_sum(v: &Value) -> Check {
 
 /// The fixed token of the cancellation-screen exception's family
 /// (DEL-04-07; product physics `CANCELLATION_EXCEPTION_BASIS`).
-pub(crate) const CANCELLATION_EXCEPTION_BASIS: &str = "straight_region_interior_cap_pairs_representation_guard_departure_thrust";
-/// The exception record's members.
+pub(crate) const CANCELLATION_EXCEPTION_BASIS: &str = "straight_region_interior_cap_pairs_cap_remainder_retained";
 /// DEL-04-07: the warning every case admitted under the cancellation-screen
-/// exception carries (product physics `DEPARTURE_THRUST_WARNING_CODE`).
-pub const DEPARTURE_THRUST_WARNING_CODE: &str = "PRESSURE_REGION_DEPARTURE_THRUST_RETAINED";
-/// Its whole, fixed message (product physics `DEPARTURE_THRUST_WARNING_MESSAGE`).
-pub const DEPARTURE_THRUST_WARNING_MESSAGE: &str = "Small differences in bore or alignment between adjacent members of this pressure region, within the region's representation limits, produce pressure thrust at interior nodes in this model. The solver retains that thrust. The exception to the pressure cancellation screen that admitted this case does not establish that the thrust's effect is negligible; the case's numerical standing concerns the recorded geometry, not an idealised region of equal bores and exact collinearity.";
+/// exception carries (product physics `CAP_REMAINDER_WARNING_CODE`).
+pub const CAP_REMAINDER_WARNING_CODE: &str = "PRESSURE_REGION_CAP_REMAINDER_RETAINED";
+/// Its whole, fixed message (product physics `CAP_REMAINDER_WARNING_MESSAGE`).
+pub const CAP_REMAINDER_WARNING_MESSAGE: &str = "At interior nodes of this case's pressure regions the cap loads of adjacent members do not cancel exactly in this model. The remainder comes from small differences in bore or alignment within each region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
 
 /// DEL-04-07: the warning stands on a case exactly when its exception record
 /// does (read after every record has been checked): one warning per record,
@@ -1800,7 +1799,7 @@ pub const DEPARTURE_THRUST_WARNING_MESSAGE: &str = "Small differences in bore or
 /// region, node], the region being the one whose terms meet at the record's
 /// node. A record without its warning, a warning on a case without a record,
 /// and a warning of another form are each refused by name.
-fn departure_thrust_warnings(source: &Value) -> Check {
+fn cap_remainder_warnings(source: &Value) -> Check {
     let mut expected = Vec::new();
     for case in array(&source["contract_evidence"]["exact_cases"])? {
         let rhs = &case["pressure_rhs_assembly"];
@@ -1812,13 +1811,13 @@ fn departure_thrust_warnings(source: &Value) -> Check {
             .ok_or("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY")?;
         expected.push(json!([case["load_case_id"], region, node]));
     }
-    let warnings = array(&source["diagnostics"])?.iter().filter(|d| d["code"] == DEPARTURE_THRUST_WARNING_CODE).collect::<Vec<_>>();
+    let warnings = array(&source["diagnostics"])?.iter().filter(|d| d["code"] == CAP_REMAINDER_WARNING_CODE).collect::<Vec<_>>();
     for warning in &warnings {
         let case = &warning["affected_refs"][0];
         require(expected.iter().any(|refs| refs[0] == *case), "RHS_SCREEN_EXCEPTION_WARNING_UNRECORDED")?;
         require(
             warning["severity"] == "warning"
-                && warning["message"] == DEPARTURE_THRUST_WARNING_MESSAGE
+                && warning["message"] == CAP_REMAINDER_WARNING_MESSAGE
                 && expected.contains(&warning["affected_refs"]),
             "RHS_SCREEN_EXCEPTION_WARNING",
         )?;
@@ -1831,7 +1830,8 @@ fn departure_thrust_warnings(source: &Value) -> Check {
     Ok(())
 }
 
-const EXCEPTION_RECORD_KEYS: [&str; 7] =["basis", "node_ref", "member_pipe_ids", "member_lengths_m", "region_span_m", "thrust_to_bore_force_ratio", "consistency_bound_ratio"];
+/// The exception record's members.
+const EXCEPTION_RECORD_KEYS: [&str; 7] =["basis", "node_ref", "member_pipe_ids", "member_lengths_m", "region_span_m", "remainder_to_bore_force_ratio", "consistency_bound_ratio"];
 /// The constants of the consistency bound (product physics
 /// `BORE_DEPARTURE_RATIO`, `ALIGNMENT_DEPARTURE_RATIO`,
 /// `FORMATION_ALLOWANCE_RATIO`, `SUBNORMAL_ALLOWANCE`).
@@ -1840,8 +1840,8 @@ const ALIGNMENT_DEPARTURE_RATIO: f64 = 152.0 * f64::EPSILON;
 const FORMATION_ALLOWANCE_RATIO: f64 = 32.0 * f64::EPSILON;
 const SUBNORMAL_ALLOWANCE: f64 = f64::from_bits(8);
 
-/// β, product physics `departure_bound_ratio`.
-fn departure_bound_ratio(span: f64, lengths: [f64; 2]) -> f64 {
+/// β, product physics `consistency_bound_ratio`.
+fn consistency_bound_ratio(span: f64, lengths: [f64; 2]) -> f64 {
     let member = |length: f64| {
         let omega = ALIGNMENT_DEPARTURE_RATIO * span / length;
         if omega <= 0.5 { omega * (1.0 + omega * omega) } else { 2.0 }
@@ -1849,20 +1849,67 @@ fn departure_bound_ratio(span: f64, lengths: [f64; 2]) -> f64 {
     BORE_DEPARTURE_RATIO + (member(lengths[0]) + member(lengths[1])).min(2.0) + FORMATION_ALLOWANCE_RATIO
 }
 
-/// DEL-04-07: an assembly that publishes the cancellation-screen exception is
-/// re-derived from its own groups and its case's regions. The case must not
-/// include pressure elongation, list a connector or carry a realized arc;
-/// every published group must be a bore group whose terms are either one
+/// DEL-04-07, the allowance on the correctly rounded norm of a straight
+/// member's published direction: |‖x‖ − 1| ≤ 4ε. The producer forms the
+/// direction ([`formed_direction`]) by normalizing a vector that is already
+/// unit to first order: its squared norm, a sum of three rounded squares,
+/// carries at most γ3 ≈ 3u (u = ε/2), the square root halves that and adds
+/// u, the reciprocal adds u and each scaled component u, so the formed
+/// vector's exact norm is within 4.5u of 1 to first order; the correctly
+/// rounded norm the reader takes adds u. 5.5u, with 2.5u left for the
+/// second-order terms and for squares that underflow, rounds up to 8u = 4ε.
+/// A scaled direction (one half, or 1 + 8ε and beyond) is outside it.
+const DIRECTION_UNIT_ALLOWANCE: f64 = 4.0 * f64::EPSILON;
+
+/// Consistency (no model): a straight member's published direction on a case
+/// that publishes the exception is a unit vector within
+/// [`DIRECTION_UNIT_ALLOWANCE`]. This says only that the published direction
+/// is of the form the producer publishes; it does not establish which
+/// direction the member has, which only the model binding can.
+fn consistent_direction(load: &Value) -> Result<[f64; 3], String> {
+    let x = array(&load["local_x_global"])?.iter().map(number).collect::<Result<Vec<_>, _>>()?;
+    let [a, b, c] = x[..] else { return Err("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_DIRECTION".into()) };
+    let norm = open_pipe_stress_correct_norm::norm3(a, b, c);
+    require((norm - 1.0).abs() <= DIRECTION_UNIT_ALLOWANCE, "RHS_SCREEN_EXCEPTION_DIRECTION_NOT_UNIT")?;
+    Ok([a, b, c])
+}
+
+/// A straight member's direction as the producer forms it from its end
+/// nodes' coordinates (`StraightPipe::frame_element`, then frame kernel
+/// `FrameElement::local_x_axis` and `FrameOrientation::from_x_axis_and_y_reference`,
+/// whose local x is the result): the chord to − from, componentwise, then
+/// normalized twice, each normalization v·fl(1/fl(√fl(fl(v0·v0 + v1·v1) + v2·v2))),
+/// each operation rounded in binary64 in that order. `None` where the
+/// producer's own axis tolerance (1e-12) refuses the chord.
+fn formed_direction(from: [f64; 3], to: [f64; 3]) -> Option<[f64; 3]> {
+    let normalize = |v: [f64; 3]| {
+        let magnitude = (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]).sqrt();
+        (magnitude > 1.0e-12).then(|| {
+            let reciprocal = 1.0 / magnitude;
+            [v[0] * reciprocal, v[1] * reciprocal, v[2] * reciprocal]
+        })
+    };
+    normalize(normalize([to[0] - from[0], to[1] - from[1], to[2] - from[2]])?)
+}
+
+/// DEL-04-07, consistency of an assembly that publishes the
+/// cancellation-screen exception (no model): the published evidence agrees
+/// with itself. The case must not include pressure elongation, list a
+/// connector or carry a realized arc; every published group must be a bore
+/// group; at a node that is a region's terminal, each axis's terms are one
 /// member's `poisson_eigen` and `terminal_cap` at a transferring terminal of
-/// exactly that region, or `poisson_eigen` terms of two distinct members of
-/// one region at a node that is no region's terminal (a group whose binary64
-/// direction folds to zero is not published and adds exactly zero). Each
-/// term is bound to its member's published direction (`applied_loads`
-/// `local_x_global`): its group's magnitude is that component's, and its
-/// coefficient carries the component's sign times one end sign per member and
-/// node, the same on every axis; the two members at an interior node act in
-/// opposition (their signed directions have a negative dot product). The load
-/// at a transferring terminal is exactly zero. At each interior node |F|, the
+/// exactly that region; at any other node exactly two members of one region
+/// carry `poisson_eigen` terms, and on each axis both do, or one does and
+/// the other's published direction component there is exactly zero, or
+/// neither does and both components are zero (a group whose binary64
+/// direction folds to zero is not published and adds exactly zero). Every
+/// published member direction is unit within its rounding allowance
+/// ([`consistent_direction`]). Each term agrees with its member's published
+/// direction: its group's magnitude is that component's, and its coefficient
+/// carries the component's sign times one end sign per member and node, the
+/// same on every axis; the two members at an interior node act in opposition
+/// (their signed directions have a negative dot product). The load at a
+/// transferring terminal is exactly zero. At each interior node |F|, the
 /// correctly rounded norm of its translational load, and |p|·A_hi, re-formed
 /// from the groups' pressure and bore bits, give the measured ratio; the
 /// record's node is the first in node order with the largest; its ratio and
@@ -1870,14 +1917,11 @@ fn departure_bound_ratio(span: f64, lengths: [f64; 2]) -> f64 {
 /// published values bit for bit, and |F| ≤ |p|·A_hi·β + 8·2^-1074 there. The
 /// original screen is recomputed and must be the published, failed value.
 ///
-/// From the envelope alone the reader therefore re-forms every group value,
-/// the assembled vector, every interior |F| and |p|·A_hi, the measured ratio
-/// and the bound at the recorded node; it takes the span and the two member
-/// lengths from the record. Given the model (`exception_model_checks`) it
-/// re-forms the span and lengths from the model's coordinates, checks the
-/// bound at every interior node and binds each term's end sign to the
-/// member's end at that node.
-fn cancellation_exception(
+/// None of this binds the evidence to the model's geometry: directions, the
+/// span, the lengths, the zero components and the member ends are the
+/// producer's, read as published. Binding them is
+/// [`exception_model_binding`]'s, given the model.
+fn exception_consistency(
     v: &Value,
     case: &str,
     regions: &HashMap<(&str, &str), &Value>,
@@ -1904,12 +1948,10 @@ fn cancellation_exception(
             terminals.push((*region_id, text(&terminal["node_ref"])?, terminal["closure_transfer"] == "transfers_to_wall"));
         }
         for load in array(&region["applied_loads"])? {
-            let x = array(&load["local_x_global"])?.iter().map(number).collect::<Result<Vec<_>, _>>()?;
-            let [a, b, c] = x[..] else { return Err("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_DIRECTION".into()) };
-            directions.insert((*region_id, text(&load["pipe_id"])?), [a, b, c]);
+            directions.insert((*region_id, text(&load["pipe_id"])?), consistent_direction(load)?);
         }
     }
-    let (interior, _) = family_interior(v, &order, &terminals, &directions)?;
+    let (interior, _) = family_consistency(v, &order, &terminals, &directions)?;
     // The record's node: the first, in node order, of the largest measured ratio.
     let mut largest: Option<&Interior> = None;
     for node in &interior {
@@ -1927,9 +1969,9 @@ fn cancellation_exception(
     let span = number(&record["region_span_m"])?;
     let [l1, l2] = lengths[..] else { return Err("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION".into()) };
     require(span > 0.0 && l1 > 0.0 && l2 > 0.0, "RHS_SCREEN_EXCEPTION")?;
-    let bound = departure_bound_ratio(span, [l1, l2]);
+    let bound = consistency_bound_ratio(span, [l1, l2]);
     require(number(&record["consistency_bound_ratio"])?.to_bits() == bound.to_bits(), "RHS_SCREEN_EXCEPTION_BOUND")?;
-    require(number(&record["thrust_to_bore_force_ratio"])?.to_bits() == node.ratio.to_bits(), "RHS_SCREEN_EXCEPTION_RATIO")?;
+    require(number(&record["remainder_to_bore_force_ratio"])?.to_bits() == node.ratio.to_bits(), "RHS_SCREEN_EXCEPTION_RATIO")?;
     require(node.force <= node.bore_force * bound + SUBNORMAL_ALLOWANCE, "RHS_SCREEN_EXCEPTION_BOUND")?;
     // The original screen, as the producer forms it: 32 epsilon times the
     // largest per-DOF sum of group magnitudes over the largest assembled
@@ -1982,6 +2024,8 @@ struct Interior<'a> {
     node: &'a str,
     region: &'a str,
     pipes: [&'a str; 2],
+    /// Whether each of `pipes` has a term on each axis at the node.
+    present: [[bool; 3]; 2],
     /// |F|, the correctly rounded norm of the node's translational load.
     force: f64,
     /// |p|·A_hi, the larger of the two members' re-formed p·(π·r·r).
@@ -1990,10 +2034,11 @@ struct Interior<'a> {
     ratio: f64,
 }
 
-/// The family's structure, each term's binding to its member's direction and
-/// end, the opposition at each node, the exact zero at each transferring
-/// terminal, and every interior node's |F| and |p|·A_hi.
-fn family_interior<'a>(
+/// Consistency (no model): the family's structure, each term's agreement with
+/// its member's published direction and end sign, each absent interior term's
+/// published zero component, the opposition at each node, the exact zero at
+/// each transferring terminal, and every interior node's |F| and |p|·A_hi.
+fn family_consistency<'a>(
     v: &'a Value,
     order: &[&'a str],
     terminals: &[(&str, &str, bool)],
@@ -2008,6 +2053,8 @@ fn family_interior<'a>(
     let kind = |t: &Value| t["kind"].as_str().unwrap_or_default().to_owned();
     // (node, pipe) -> (region, end sign, direction, |p|·A of its group).
     let mut faces: std::collections::BTreeMap<(usize, &str), (&str, f64, [f64; 3], f64)> = std::collections::BTreeMap::new();
+    // (degree of freedom, pipe) of every published term.
+    let mut present: HashSet<(usize, &str)> = HashSet::new();
     let mut closed = HashSet::new();
     for (dof, groups) in &by_dof {
         let node = order[dof / 6];
@@ -2024,6 +2071,8 @@ fn family_interior<'a>(
                     && a["pipe_id"] == b["pipe_id"]
                     && matches!(ending[..], [&(region, _, true)] if a["region_id"] == region)
             }
+            // One member's term alone: the absent partner's published
+            // component is checked to be exactly zero below.
             [a] if ending.is_empty() => kind(a) == "poisson_eigen",
             [a, b] if ending.is_empty() => {
                 kind(a) == "poisson_eigen" && kind(b) == "poisson_eigen" && a["region_id"] == b["region_id"] && a["pipe_id"] != b["pipe_id"]
@@ -2043,6 +2092,7 @@ fn family_interior<'a>(
             let bore_force = (p * (std::f64::consts::PI * r * r)).abs();
             for term in array(&group["terms"])? {
                 let (region, pipe) = (text(&term["region_id"])?, text(&term["pipe_id"])?);
+                present.insert((*dof, pipe));
                 let direction = *directions.get(&(region, pipe)).ok_or("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_DIRECTION")?;
                 let component = direction[axis];
                 require(component != 0.0 && component.abs().to_bits() == magnitude.to_bits(), "RHS_SCREEN_EXCEPTION_DIRECTION")?;
@@ -2068,6 +2118,13 @@ fn family_interior<'a>(
             return Err("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY".into());
         };
         require(region == region_b, "RHS_SCREEN_EXCEPTION_FAMILY")?;
+        // On each axis, a member without a term there publishes exactly zero there.
+        let present = [*a, *b].map(|pipe| [0, 1, 2].map(|axis| present.contains(&(node * 6 + axis, pipe))));
+        for (slot, x) in [x_a, x_b].into_iter().enumerate() {
+            for axis in 0..3 {
+                require(present[slot][axis] || x[axis] == 0.0, "RHS_SCREEN_EXCEPTION_FAMILY")?;
+            }
+        }
         let dot = x_a[0] * x_b[0] + x_a[1] * x_b[1] + x_a[2] * x_b[2];
         require(face_a * face_b * dot < 0.0, "RHS_SCREEN_EXCEPTION_OPPOSITION")?;
         let [x, y, z] = load(node);
@@ -2075,18 +2132,39 @@ fn family_interior<'a>(
         let bore_force = force_a.max(*force_b);
         let ratio = if force == 0.0 { 0.0 } else { force / bore_force };
         require(ratio.is_finite(), "RHS_SCREEN_EXCEPTION_RATIO")?;
-        interior.push(Interior { node: order[node], region, pipes: [a, b], force, bore_force, ratio });
+        interior.push(Interior { node: order[node], region, pipes: [a, b], present, force, bore_force, ratio });
     }
     let ends = faces.iter().map(|((node, pipe), (_, face, ..))| (order[*node], *pipe, *face)).collect();
     Ok((interior, ends))
 }
 
-/// DEL-04-07, given the model: each exception record's span and member
-/// lengths are the model's (its region's terminals and the members' end
-/// nodes, at the producer's length normalization, each a correctly rounded
-/// norm of the coordinate differences), bit for bit, and every interior node
-/// of the family is within the bound its own members and span give.
-pub(crate) fn exception_model_checks(source: &Value, model: &Value) -> Check {
+/// DEL-04-07, binding to the model (given the model, after the consistency
+/// stage admitted the evidence): what the exception rests on agrees with the
+/// model's geometry and settings. Positions are the model's node coordinates
+/// at the producer's length normalization.
+///
+/// - The case: the node order is the model's; the model does not include
+///   pressure elongation for the case; no model bend component names a member
+///   of its regions (`MODEL_EXCEPTION_FAMILY`).
+/// - Each region: the case's model regions are the published ones, each with the same
+///   members, terminals (node and closure transfer, in order), no connector,
+///   and its published pressure the model's, normalized to Pa, bit for bit
+///   (`MODEL_EXCEPTION_REGION`, `MODEL_EXCEPTION_PRESSURE`).
+/// - Each member's published direction is re-formed from its `from` and `to`
+///   coordinates by the producer's formation ([`formed_direction`]), bit for
+///   bit; a reversed member differs in sign (`MODEL_EXCEPTION_DIRECTION`).
+/// - Each term's end sign is +1 at its member's `from` node and −1 at its
+///   `to` node (`MODEL_EXCEPTION_DIRECTION`).
+/// - At each interior node, exactly two of the case's region members of the
+///   model meet; a member without a term on an axis there has a re-formed
+///   direction component that is exactly zero on that axis
+///   (`MODEL_EXCEPTION_ZERO_COMPONENT`, checked before the direction bits so
+///   that a published zero the model's coordinates contradict is named).
+/// - The record's span and lengths are re-formed (correctly rounded norms of
+///   the coordinate differences) bit for bit, and every interior node is within
+///   the bound its own members and span give (`MODEL_EXCEPTION_GEOMETRY`,
+///   `MODEL_EXCEPTION_BOUND`).
+pub(crate) fn exception_model_binding(source: &Value, model: &Value) -> Check {
     use open_pipe_stress_units::Dimension;
     let evidence = &source["contract_evidence"];
     let Some(cases) = evidence["exact_cases"].as_array() else { return Ok(()) };
@@ -2100,44 +2178,96 @@ pub(crate) fn exception_model_checks(source: &Value, model: &Value) -> Check {
         Ok(out)
     };
     let distance = |a: [f64; 3], b: [f64; 3]| open_pipe_stress_correct_norm::norm3(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+    let segment = |id: &str| -> Result<&Value, String> {
+        Ok(model["pipe_segments"].as_array().and_then(|p| p.iter().find(|p| p["id"] == id)).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_GEOMETRY")?)
+    };
     let pipe_length = |id: &str| -> Result<f64, String> {
-        let pipe = model["pipe_segments"].as_array().and_then(|p| p.iter().find(|p| p["id"] == id)).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_GEOMETRY")?;
+        let pipe = segment(id)?;
         Ok(distance(position(text(&pipe["from"])?)?, position(text(&pipe["to"])?)?))
     };
+    let pipe_direction = |id: &str| -> Result<[f64; 3], String> {
+        let pipe = segment(id)?;
+        Ok(formed_direction(position(text(&pipe["from"])?)?, position(text(&pipe["to"])?)?).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_DIRECTION")?)
+    };
+    let model_nodes = model["nodes"].as_array().map(|n| n.iter().map(|n| &n["id"]).collect::<Vec<_>>()).unwrap_or_default();
     for case in cases {
         let rhs = &case["pressure_rhs_assembly"];
         let Some(record) = rhs.get("cancellation_screen_exception") else { continue };
         let cid = text(&case["load_case_id"])?;
         let regions = array(&evidence["pressure"])?.iter().filter(|r| r["load_case_id"] == cid).collect::<Vec<_>>();
         let order = array(&rhs["node_order"])?.iter().map(text).collect::<Result<Vec<_>, _>>()?;
+        require(order.len() == model_nodes.len() && order.iter().zip(&model_nodes).all(|(a, b)| b.as_str() == Some(*a)), "MODEL_EXCEPTION_GEOMETRY")?;
+        let authored_case = model["load_cases"].as_array().and_then(|c| c.iter().find(|c| c["id"] == cid)).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_REGION")?;
+        require(authored_case["pressure_regions"].as_array().is_some_and(|r| r.len() == regions.len()), "MODEL_EXCEPTION_REGION")?;
+        let elongation = model["model_settings"]["pressure_elongation"]["operating_load_cases"].as_array();
+        require(!elongation.is_some_and(|cases| cases.iter().any(|c| c == cid)), "MODEL_EXCEPTION_FAMILY")?;
         let mut terminals = Vec::new();
         let mut directions: HashMap<(&str, &str), [f64; 3]> = HashMap::new();
         let mut spans: HashMap<&str, f64> = HashMap::new();
+        let mut members: Vec<&str> = Vec::new();
         for region in &regions {
             let id = text(&region["region_id"])?;
+            let authored = authored_case["pressure_regions"].as_array().and_then(|r| r.iter().find(|r| r["id"] == id)).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_REGION")?;
+            let listed = strings(&region["member_pipe_ids"])?;
+            let authored_members = strings(&authored["member_pipe_ids"])?;
+            require(listed == authored_members, "MODEL_EXCEPTION_REGION")?;
+            require(authored.get("member_connector_ids").is_none_or(|ids| ids.is_null() || ids.as_array().is_some_and(Vec::is_empty)), "MODEL_EXCEPTION_FAMILY")?;
             let ends = array(&region["terminals"])?;
+            let authored_ends = array(&authored["terminals"])?;
+            require(
+                ends.len() == authored_ends.len()
+                    && ends.iter().zip(authored_ends).all(|(e, a)| e["node_ref"] == a["node_ref"] && e["closure_transfer"] == a["closure_transfer"]),
+                "MODEL_EXCEPTION_REGION",
+            )?;
+            let pressure = crate::physics_source::normalized_quantity(&authored["pressure"], Dimension::Pressure).map_err(|_| "SOURCE_PHYSICS_MODEL_EXCEPTION_PRESSURE")?;
+            require(region["p_pa"].as_f64().map(f64::to_bits) == Some(pressure.to_bits()), "MODEL_EXCEPTION_PRESSURE")?;
             for terminal in ends {
                 terminals.push((id, text(&terminal["node_ref"])?, terminal["closure_transfer"] == "transfers_to_wall"));
             }
             let [o, e] = &ends[..] else { return Err("SOURCE_PHYSICS_MODEL_EXCEPTION_GEOMETRY".into()) };
             spans.insert(id, distance(position(text(&o["node_ref"])?)?, position(text(&e["node_ref"])?)?));
             for load in array(&region["applied_loads"])? {
-                let x = array(&load["local_x_global"])?.iter().map(number).collect::<Result<Vec<_>, _>>()?;
-                let [a, b, c] = x[..] else { return Err("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_DIRECTION".into()) };
-                directions.insert((id, text(&load["pipe_id"])?), [a, b, c]);
+                directions.insert((id, text(&load["pipe_id"])?), consistent_direction(load)?);
+            }
+            members.extend(listed);
+        }
+        let bend = model["components"].as_array().is_some_and(|components| components.iter().any(|component| {
+            component["kind"] == "bend" && component["geometry"]["bend_pipe_ref"].as_str().is_some_and(|pipe| members.contains(&pipe))
+        }));
+        require(!bend, "MODEL_EXCEPTION_FAMILY")?;
+        let (interior, ends) = family_consistency(rhs, &order, &terminals, &directions)?;
+        // At each interior node, the two members are the only ones of the
+        // case's regions that meet there, and a member without a term on an
+        // axis has, from the coordinates, an exactly zero component there.
+        for node in &interior {
+            let meeting = members.iter().map(|pipe| segment(pipe)).collect::<Result<Vec<_>, _>>()?
+                .into_iter().filter(|pipe| pipe["from"] == node.node || pipe["to"] == node.node).count();
+            require(meeting == 2, "MODEL_EXCEPTION_FAMILY")?;
+            for (slot, pipe) in node.pipes.iter().enumerate() {
+                // The zero is read from the direction re-formed from the
+                // model's node coordinates, never from the published zero or
+                // the absent group.
+                let formed = pipe_direction(pipe)?;
+                for axis in 0..3 {
+                    require(node.present[slot][axis] || formed[axis] == 0.0, "MODEL_EXCEPTION_ZERO_COMPONENT")?;
+                }
             }
         }
-        let (interior, ends) = family_interior(rhs, &order, &terminals, &directions)?;
+        // Each member's published direction is the one its coordinates form.
+        for ((_, pipe), published) in &directions {
+            let formed = pipe_direction(pipe)?;
+            require(formed.iter().zip(published).all(|(f, p)| f.to_bits() == p.to_bits()), "MODEL_EXCEPTION_DIRECTION")?;
+        }
         // Each term's end sign is +1 at its member's `from` node and -1 at its `to` node.
         for (node, pipe, face) in ends {
-            let segment = model["pipe_segments"].as_array().and_then(|p| p.iter().find(|p| p["id"] == pipe)).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_GEOMETRY")?;
+            let segment = segment(pipe)?;
             let expected = if segment["from"] == node { 1.0 } else if segment["to"] == node { -1.0 } else { 0.0 };
             require(face == expected, "MODEL_EXCEPTION_DIRECTION")?;
         }
         for node in &interior {
             let span = *spans.get(node.region).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_GEOMETRY")?;
             let lengths = [pipe_length(node.pipes[0])?, pipe_length(node.pipes[1])?];
-            let bound = departure_bound_ratio(span, lengths);
+            let bound = consistency_bound_ratio(span, lengths);
             require(node.force <= node.bore_force * bound + SUBNORMAL_ALLOWANCE, "MODEL_EXCEPTION_BOUND")?;
             if record["node_ref"] == node.node {
                 let recorded = array(&record["member_pipe_ids"])?.iter().map(text).collect::<Result<Vec<_>, _>>()?;

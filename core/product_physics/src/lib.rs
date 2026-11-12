@@ -60,6 +60,8 @@ mod b7b_admission_tests;
 #[cfg(test)]
 mod tie_rod_tests;
 #[cfg(test)]
+mod cap_remainder_publication_tests;
+#[cfg(test)]
 mod corrected_displacement_tests;
 #[cfg(test)]
 mod op1a_seed_tests;
@@ -15330,7 +15332,14 @@ fn result_tail(base_id: &str) -> &str {
     base_id.strip_prefix("result:").unwrap_or(base_id)
 }
 
-fn blocked_envelope(model: PreviewModel, diagnostics: Vec<Diagnostic>) -> MechanicsEnvelope {
+fn blocked_envelope(model: PreviewModel, mut diagnostics: Vec<Diagnostic>) -> MechanicsEnvelope {
+    // DEL-04-07: a case's cap remainder warning stands exactly where its
+    // published evidence carries the exception record. A case is published
+    // only in a document that is not blocked (every refusal of a case is
+    // blocking and returns here), and a blocked document publishes no case
+    // evidence, so the warning of a case admitted under the exception and
+    // then refused, or left unpublished by another case's refusal, goes too.
+    diagnostics.retain(|diagnostic| diagnostic.code != pressure_runtime::CAP_REMAINDER_WARNING_CODE);
     // T1 routes every blocked 0.4.0 envelope to load-reference-1 (0.4.0 is
     // exact-route only); it never publishes preview-physics-2.
     let exact_namespace = pressure_runtime::is_exact(&model) || case_state::is_load_state(&model);

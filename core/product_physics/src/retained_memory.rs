@@ -654,6 +654,9 @@ pub(super) enum FamilyFact {
     Combinations,
     /// B2-A (C-9): a combination id equal to a load-case id.
     CombinationIds,
+    /// DEL-04-07: a `model_settings.pressure_elongation.operating_load_cases` list longer
+    /// than the document's load cases (never valid), declined from the two lengths alone.
+    PressureElongationCases,
     Components,
     PressureRegions,
     EquivalentStatic,
@@ -970,6 +973,16 @@ fn family_clauses(request: &LinearStaticPreviewRequest) -> Result<(), AdmissionR
     // match rows and diagnostics by the bare id); no components.
     if m.load_cases.is_empty() || m.load_cases.len() > caps::LOAD_CASES {
         return refuse(C::Invocation, F::LoadCases);
+    }
+    // D1.4 (DEL-04-07): `model_settings.pressure_elongation.operating_load_cases` is no longer
+    // than the load cases. A valid list (unique ids of the document's own cases) never is; a
+    // longer one is declined here from the two lengths alone, before any per-entry work and
+    // before model validation, so the retained forms do not price validation's work over it.
+    // The ordinary route judges such a list, unchanged.
+    if m.model_settings.as_ref().and_then(|settings| settings.pressure_elongation.as_ref())
+        .is_some_and(|setting| setting.operating_load_cases.len() > m.load_cases.len())
+    {
+        return refuse(C::Invocation, F::PressureElongationCases);
     }
     // D1.4's exact clause (B3-D §4.2; RR "I95's B3-S: …", ruling 4): the retained exact route
     // refuses combinations; the ordinary exact route evaluates them (W-16 slice b), so the
