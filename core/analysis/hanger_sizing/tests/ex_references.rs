@@ -17,8 +17,21 @@
 //! never below 1e-12 N; a ratio gets 1e-12. A closed-form zero (u_C, the
 //! departure) is judged by its floor.
 //!
-//! A null verification in the reference (an unfitted candidate) supplies no
-//! expectation, so nothing is asserted about it.
+//! A null or absent member of an expected block supplies no expectation
+//! (`comparison_semantics` in the reference), so nothing is asserted from it:
+//! not that the product publishes nothing there, and not that the reference is
+//! null. The null members are a constant selection's cold-condition and
+//! operating loads, variation, envelope and verified loads, variation and
+//! departure; an unfitted candidate's loads and verification; and the failure
+//! counts and first failed tests of a family the request does not test. Each is
+//! skipped. The exceptions the reference lists, where a null or an empty list is
+//! the expectation, are asserted: `hanger_id` null with `no_record_fits`, an
+//! empty `failed_tests`, and an empty `unfitted_verified_as_force_w`.
+//!
+//! `governing_variation` is the value REQ-004's selection compares and binds no
+//! published member. For a variable selection it is compared with the largest of
+//! the product's per-case variations; a constant selection's 0 is not asserted
+//! against anything published.
 //!
 //! The ledger is observed, not assumed: a force document whose added forces are
 //! left out of the ledger solves to the reference's failure signature, and a force
@@ -291,7 +304,8 @@ fn every_run_reproduces_the_loads_fit_selection_and_verification() {
                     }
                     assert_eq!(first_failed(candidate, &records, &request.method, &e["first_failed_test"]), e["first_failed_test"], "{who}");
                     match &result.selected {
-                        None => assert!(e["hanger_id"].is_null(), "{who}"),
+                        // The listed exception: no record selected, nothing assumed in its place.
+                        None => assert!(e["hanger_id"].is_null(), "{who}: the reference selects {}", e["hanger_id"]),
                         Some(selection) => {
                             assert_eq!(records[selection.record_index()].hanger_id, e["hanger_id"].as_str().unwrap(), "{who}");
                             match selection {
@@ -304,10 +318,13 @@ fn every_run_reproduces_the_loads_fit_selection_and_verification() {
                                         near(loads.f_operating_n[i], num(&e["f_operating_n"][case]), force_floor, &format!("{who} F_{case}"));
                                         near(loads.variation[i], num(&e["variation"][case]), RATIO_FLOOR, &format!("{who} variation {case}"));
                                     }
+                                    // The governing variation, derived from the published per-case variations.
+                                    let governing = loads.variation.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+                                    near(governing, num(&e["governing_variation"]), RATIO_FLOOR, &format!("{who} governing variation"));
                                 }
                                 Selected::Constant { load_n, .. } => {
+                                    // Its loads, variation, envelope and governing 0 supply no published expectation.
                                     near(*load_n, num(&e["f_cold_n"]), force_floor, &format!("{who} constant load"));
-                                    assert!(e["envelope_n"].is_null() && e["variation"].is_null(), "{who}");
                                 }
                             }
                         }
@@ -340,10 +357,8 @@ fn every_run_reproduces_the_loads_fit_selection_and_verification() {
                                 near(ratio, num(&ev["variation"][case]), RATIO_FLOOR, &format!("{who} verified variation {case}"));
                             }
                         }
-                        None => {
-                            assert_eq!(ev["configuration"]["kind"], "force", "{who}");
-                            assert!(ev["f_operating_n"].is_null() && ev["departure_n"].is_null(), "{who}");
-                        }
+                        // A constant selection's verified loads, variation and departure supply no expectation.
+                        None => assert_eq!(ev["configuration"]["kind"], "force", "{who}"),
                     }
                 }
                 // An unfitted candidate is verified as a force W, and the other candidates' verified values include it.
