@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+from types import SimpleNamespace
 
 import pytest
 
@@ -21,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from core.handoff.caepipe_external import case_paths, parse_caepipe_print_csv  # noqa: E402
+from core.handoff.caepipe_external import parse_caepipe_print_csv  # noqa: E402
 from core.handoff.caepipe_external.benchmark import (  # noqa: E402
     BENCHMARK_RECORD_KIND,
     FINDING,
@@ -33,7 +34,8 @@ from core.handoff.caepipe_external.benchmark import (  # noqa: E402
     build_benchmark_record,
     screen,
 )
-from core.handoff.caepipe_external.harness import RUN_RECORD_KIND, check_guest_alive  # noqa: E402
+from core.handoff.caepipe_external.harness import (  # noqa: E402
+    RUN_RECORD_KIND, RUNS_DIR, check_guest_alive, current_case, exchange_tree, reserve_folder)
 from core.handoff.caepipe_external.print_csv import bind_element_rows  # noqa: E402
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
 from tools.caepipe_correlation import benchmark_models, run_pilot  # noqa: E402
@@ -503,6 +505,12 @@ def benchmark_manifest(tmp_path: Path, count: int = 5) -> Path:
     return path
 
 
+def sleeper(sleep):
+    """The pilot's own `time` with `sleep` replaced, so that only the pilot's waits are recorded (never another
+    thread's in the same process, as a patch of the global `time.sleep` would)."""
+    return SimpleNamespace(sleep=sleep)
+
+
 @pytest.fixture
 def fake_benchmark(tmp_path, monkeypatch):
     """A configured harness with a fake SWBPIPE solve, a fake guarded round trip that prints an invented CSV, a fake
@@ -514,22 +522,27 @@ def fake_benchmark(tmp_path, monkeypatch):
     state = {"calls": [], "outcomes": [], "session": [], "alive": [], "sleeps": [], "events": [],
              "clean": {"settings_guard": {"status": "unchanged"}}}
 
-    def round_trip(config_, case_id, mbf_text, *, attempt=None, replaces=(), **kwargs):
+    def round_trip(config_, case_id, mbf_text, *, files=None, **kwargs):
         state["calls"].append((case_id, kwargs))
         state["events"].append(("round_trip", case_id))
         outcome = state["outcomes"].pop(0) if state["outcomes"] else state["clean"]
-        if isinstance(outcome, BaseException):
-            raise outcome
-        # As the harness does once the exchange root is established and the stored files are kept: the staged files
-        # (with the MBF) go to their stored paths.
-        attempt.stage("caepipe_in/model.mbf", mbf_text.encode("utf-8"))
-        attempt.place()
-        sha = hashlib.sha256(mbf_text.encode("utf-8")).hexdigest()
-        out = case_paths(config_, case_id)["caepipe_out"]
-        (out / "model.csv").write_text(invented_print(), encoding="utf-8")
-        record = {"document_kind": RUN_RECORD_KIND, "route": "csv_from_batch", "mbf": {"sha256": sha},
-                  "guest_mbf_sha256": sha, "observed_csv_path": {"host": "caepipe_out/model.csv"}} | outcome
-        (out / "run_record.json").write_text(json.dumps(record), encoding="utf-8")
+        # As the harness does: a new run folder of the case's own, reserved first, holding the run's MBF, the files
+        # handed to it, the collected CSV and the run record; an exception names the run folder it left.
+        with exchange_tree(config_) as tree:
+            run = reserve_folder(tree, case_id, RUNS_DIR)
+            if isinstance(outcome, BaseException):
+                outcome.run_folder = run.relative
+                raise outcome
+            run.create("caepipe_in/model.mbf", mbf_text.encode("utf-8"))
+            for relative, data in sorted((files or {}).items()):
+                run.create(relative, data)
+            csv = run.create("caepipe_out/model.csv", invented_print())
+            sha = hashlib.sha256(mbf_text.encode("utf-8")).hexdigest()
+            record = {"document_kind": RUN_RECORD_KIND, "step": "round_trip", "route": "csv_from_batch",
+                      "mbf": {"sha256": sha}, "guest_mbf_sha256": sha,
+                      "observed_csv_path": {"host": "caepipe_out/model.csv"}, "outputs_collected": ["model.csv"],
+                      "outputs_sha256": {"model.csv": csv["sha256"]}, "run_folder": run.relative} | outcome
+            run.record("caepipe_out/run_record.json", record)
         return record
 
     def alive(config_):
@@ -546,8 +559,8 @@ def fake_benchmark(tmp_path, monkeypatch):
                         lambda entry, config_, **kw: real(entry, config_, **{**kw, "round_trip": round_trip}))
     monkeypatch.setattr(run_pilot, "check_no_foreign_instance", precondition)
     monkeypatch.setattr(run_pilot, "check_guest_alive", alive)
-    monkeypatch.setattr(run_pilot.time, "sleep", lambda seconds: (state["sleeps"].append(seconds),
-                                                                  state["events"].append(("sleep", seconds))))
+    monkeypatch.setattr(run_pilot, "time", sleeper(lambda seconds: (state["sleeps"].append(seconds),
+                                                                    state["events"].append(("sleep", seconds)))))
     runner = tmp_path / "runner"
     runner.write_text("invented", encoding="utf-8")
     stops = tmp_path / "stops"
@@ -573,12 +586,14 @@ def test_the_benchmark_option_writes_a_private_record_per_model_one_at_a_time(fa
     out = capsys.readouterr().out
     assert "batch 1/2: cpb-g1-01, cpb-g1-02, cpb-g1-03, cpb-g1-04" in out and "batch 2/2: cpb-g1-05" in out
     root = state["config"].exchange_root
-    record = json.loads((root / "cases" / "cpb-g1-01" / "comparison" / "benchmark_comparison.json").read_text())
+    run = root / "cases" / "cpb-g1-01" / "runs" / "000001"  # the model's new run folder, published with its record
+    assert current_case(root, "cpb-g1-01").run_relative == "runs/000001"
+    record = json.loads((run / "comparison" / "benchmark_comparison.json").read_text())
     assert record["document_kind"] == BENCHMARK_RECORD_KIND and record["piping_code"] == "B311-80"
-    manifest = json.loads((root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
+    manifest = json.loads((run / "case_manifest.json").read_text())
     assert (manifest["mode"], manifest["outcome"], manifest["route"], manifest["attempt"]) == (
         "benchmark_live", "recorded", "csv_from_batch", 1)
-    rendered = (root / "cases" / "cpb-g1-01" / "caepipe_in" / "model.mbf").read_text()
+    rendered = (run / "caepipe_in" / "model.mbf").read_text()
     assert "HGRA,B311-80,SI" in rendered
     # Operational status only on standard output: no classification or count.
     assert "within_profile" not in out and "finding" not in out
@@ -591,7 +606,9 @@ def test_the_benchmark_option_writes_a_private_record_per_model_one_at_a_time(fa
     offline = ["--benchmark", str(state["manifest"]), "--runner", state["runner"], "--offline"]
     assert run_pilot.main(offline + ["--case", "cpb-g1-02"], environ={}) == 0
     assert state["calls"] == [] and state["sleeps"] == []
-    assert "cpb-g1-02: route=csv_from_batch; benchmark record written" in capsys.readouterr().out
+    assert "cpb-g1-02: route=csv_from_batch; benchmark record written: cases/cpb-g1-02/screens/000001/comparison/" \
+        "benchmark_comparison.json" in capsys.readouterr().out
+    assert current_case(root, "cpb-g1-02").screen_relative == "screens/000001"
 
 
 def test_the_pace_is_the_callers(fake_benchmark):
@@ -635,7 +652,10 @@ def test_a_failed_model_is_retried_once_after_two_minutes(fake_benchmark, capsys
     assert state["sleeps"] == [120.0, 60.0]
     assert "cpb-g1-01: route=round_trip_raised; the round trip raised RuntimeError; retrying once in 120 s" in \
         capsys.readouterr().out
-    manifest = json.loads((state["config"].exchange_root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
+    runs = state["config"].exchange_root / "cases" / "cpb-g1-01" / "runs"
+    first = json.loads((runs / "000001" / "case_manifest.json").read_text())  # the raised attempt's own folder
+    assert (first["outcome"], first["route"], first["attempt"]) == ("no_record", "round_trip_raised", 1)
+    manifest = json.loads((runs / "000002" / "case_manifest.json").read_text())
     assert (manifest["outcome"], manifest["attempt"]) == ("recorded", 2)
 
 
@@ -648,9 +668,12 @@ def test_a_model_that_leaves_no_csv_twice_is_recorded_and_the_run_goes_on(fake_b
     assert "cpb-g1-01: route=csv_missing; the run record names no collected CAEPIPE CSV; no benchmark record after " \
            "one retry" in capsys.readouterr().out
     root = state["config"].exchange_root
-    manifest = json.loads((root / "cases" / "cpb-g1-01" / "case_manifest.json").read_text())
-    assert (manifest["outcome"], manifest["route"], manifest["attempt"]) == ("no_record", "csv_missing", 2)
-    assert not (root / "cases" / "cpb-g1-01" / "comparison" / "benchmark_comparison.json").exists()
+    runs = root / "cases" / "cpb-g1-01" / "runs"
+    for sequence, attempt in (("000001", 1), ("000002", 2)):
+        manifest = json.loads((runs / sequence / "case_manifest.json").read_text())
+        assert (manifest["outcome"], manifest["route"], manifest["attempt"]) == ("no_record", "csv_missing", attempt)
+    assert not list((root / "cases" / "cpb-g1-01").rglob("benchmark_comparison.json"))
+    assert not (root / "cases" / "cpb-g1-01" / "selections").exists()  # nothing incomplete is published
 
 
 def test_a_round_trip_that_raises_twice_stops_the_run(fake_benchmark):
@@ -702,7 +725,7 @@ def test_the_liveness_wait_is_settable_and_defaults_to_two_minutes(fake_benchmar
 def test_the_freeze_file_stops_the_run_before_the_next_model(fake_benchmark, monkeypatch, capsys):
     state = fake_benchmark
     # The freeze file appears during the pause after the first model.
-    monkeypatch.setattr(run_pilot.time, "sleep", lambda seconds: state["freeze"].write_text("", encoding="ascii"))
+    monkeypatch.setattr(run_pilot, "time", sleeper(lambda seconds: state["freeze"].write_text("", encoding="ascii")))
     assert run_pilot.main(state["argv"], environ={}) == 1
     assert [call[0] for call in state["calls"]] == ["cpb-g1-01"]
     assert "stopped before cpb-g1-02: the freeze file is present" in capsys.readouterr().out
@@ -717,13 +740,13 @@ def test_a_pending_exclusive_job_holds_the_run(fake_benchmark, monkeypatch, caps
         polls.append(seconds)
         if len(polls) == 2:
             state["exclusive"].write_text("not a process id\n", encoding="ascii")
-    monkeypatch.setattr(run_pilot.time, "sleep", poll)
+    monkeypatch.setattr(run_pilot, "time", sleeper(poll))
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 0
     assert polls == [30.0, 30.0] and [call[0] for call in state["calls"]] == ["cpb-g1-01"]
     assert "cpb-g1-01: an exclusive job is pending; waiting for it (up to 1800 s)" in capsys.readouterr().out
     state["calls"].clear()
     state["exclusive"].write_text(f"{os.getpid()}\n", encoding="ascii")
-    monkeypatch.setattr(run_pilot.time, "sleep", lambda seconds: None)
+    monkeypatch.setattr(run_pilot, "time", sleeper(lambda seconds: None))
     assert run_pilot.main(state["argv"] + ["--case", "cpb-g1-01"], environ={}) == 1
     assert state["calls"] == []
     assert "stopped before cpb-g1-01: an exclusive job was still pending after 1800 s" in capsys.readouterr().out
