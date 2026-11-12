@@ -61,8 +61,8 @@ describe("a blank project's incompleteness", () => {
     ]);
 
     renderSurfaces(blank);
-    // The Solve panel: the mechanics row reads the blank's recorded status; nothing stored to count.
-    expect(screen.getByTestId("readiness-mechanics")).toHaveTextContent("preview run not started; Solver · Model incomplete (MODEL_INCOMPLETE)");
+    // The Solve panel: the mechanics row shows the blank's authored label; nothing stored to count.
+    expect(screen.getByTestId("readiness-mechanics")).toHaveTextContent("preview run not started; ready for preview diagnostics");
     expect(screen.getByTestId("readiness-diagnostics")).toHaveTextContent("0 diagnostics; 0 warnings; 0 blocking/error");
     // The Diagnostics panel lists no stored record of the blank.
     expect(screen.queryByTestId("diagnostic-BLANK_PROJECT_AUTHORING_TARGET")).toBeNull();

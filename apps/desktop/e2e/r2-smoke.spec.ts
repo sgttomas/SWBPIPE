@@ -959,7 +959,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
     "Created blank local model document without fixture entities or external file copies."
   );
   await expect(page.getByTestId("app-menu-bar")).toBeVisible();
-  await expectStatusChip(page, "status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
+  await expectNoStatusChip(page, "status-pill-mechanics");
   await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("workspace-section-loads")).toBeVisible();
   await openWorkspaceSection(page, "solve");

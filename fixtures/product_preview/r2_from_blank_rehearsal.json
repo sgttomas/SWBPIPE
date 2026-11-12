@@ -36,9 +36,9 @@
       }
     },
     "analysis_status": {
-      "mechanics": "MODEL_INCOMPLETE",
-      "rule_check": "RULE_INPUTS_INCOMPLETE",
-      "professional_acceptance": "NOT_PROVIDED"
+      "mechanics": "ready_for_preview_diagnostics",
+      "rule_check": "not_performed_user_rule_inputs_missing",
+      "professional_acceptance": "not_provided"
     },
     "materials": [],
     "sections": [],

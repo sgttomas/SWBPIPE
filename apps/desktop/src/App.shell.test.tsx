@@ -317,7 +317,7 @@ describe("the status chip policy through the product (§5.4)", () => {
     invokeMock.mockReset();
     fireEvent.click(screen.getByTestId("menu-item-file.new-blank"));
     confirmProjectUnits();
-    await waitFor(() => expect(chipFaces()).toEqual(["Solver · Model incomplete"]));
+    await waitFor(() => expect(chipFaces()).toEqual([]));
     expect(railState("results")).toMatchObject({ disabled: true, reason: "No run yet", caption: null });
   });
 

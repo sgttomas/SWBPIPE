@@ -3,6 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 import {
   chooseVirtualTarget,
   closeWorkspacePanels,
+  expectNoStatusChip,
   expectStatusChip,
   expectTreeEntity,
   expectTreeEntityMissing,
@@ -67,7 +68,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await closeWorkspacePanels(page);
   await projectCommand(page, "new-blank");
   await confirmProjectUnits(page);
-  await expectStatusChip(page, "status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
+  await expectNoStatusChip(page, "status-pill-mechanics");
 
   await page.getByTestId("command-node").click();
   await page.getByTestId("viewport-create-node-id").fill("node:UI-A-100");
@@ -84,7 +85,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await projectCommand(page, "save-local");
   await projectCommand(page, "open-local");
   await expectTreeEntity(page, "node", "node:UI-A-100");
-  await expectStatusChip(page, "status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
+  await expectNoStatusChip(page, "status-pill-mechanics");
 
   if (await page.getByTestId("toggle-inspector").getAttribute("aria-expanded") !== "true") await page.getByTestId("toggle-inspector").click();
   await page.getByTestId("toolkit-entry").click();

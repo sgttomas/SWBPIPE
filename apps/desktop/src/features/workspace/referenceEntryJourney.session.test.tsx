@@ -85,7 +85,7 @@ const ALLOWED_DIFFERENCES = [
  * Document members the blank load/reference model carries and §3.14 does not list. They are not
  * records; the test asserts each is exactly the blank's, so the list cannot grow silently.
  */
-const DOCUMENT_DIFFERENCES_NOT_IN_3_14 = ["analysis_status", "data_boundary", "diagnostics"] as const;
+const DOCUMENT_DIFFERENCES_NOT_IN_3_14 = ["data_boundary", "diagnostics"] as const;
 
 /** Row labels the person types in the Label cell (§3.4: "for the fixture's text, type nodes[].label"). */
 const ROW_NODES: Record<number, string> = {
@@ -205,8 +205,6 @@ function compareWithFixture(model: PreviewModel, where: string): number {
   expect([id, name, description], `${where}: project (§3.14)`).toEqual([expect.stringMatching(/^project:blank-local-/), expect.stringMatching(/^Blank Local Load\/reference Model/), BLANK.project.description]);
   expect(project, `${where}: project.units`).toEqual({ units: reference.project.units });
   const blank = BLANK as unknown as AnyRecord;
-  expect(document.analysis_status, `${where}: analysis_status (the blank's)`).toEqual(blank.analysis_status);
-  expect(fixtureDocument.analysis_status).not.toEqual(blank.analysis_status);
   expect(document.data_boundary, `${where}: data_boundary (the blank's; absent in the fixture)`).toEqual(blank.data_boundary);
   expect(fixtureDocument.data_boundary).toBeUndefined();
   expect(document.diagnostics, `${where}: diagnostics (the blank's, empty; absent in the fixture)`).toEqual([]);
@@ -719,7 +717,7 @@ describe("the reference system entered from blank through the desktop's authorin
     // The comparison, by record keyed by id, with the §3.14 differences allowed by member path.
     expect(BLOCKED).toEqual([]);
     expect(ALLOWED_DIFFERENCES).toHaveLength(15);
-    expect(DOCUMENT_DIFFERENCES_NOT_IN_3_14).toEqual(["analysis_status", "data_boundary", "diagnostics"]);
+    expect(DOCUMENT_DIFFERENCES_NOT_IN_3_14).toEqual(["data_boundary", "diagnostics"]);
     // 27 queue/apply cycles: the run sheet's §5 count of 27 per-intent cycles.
     expect(cycles).toHaveLength(27);
     expect(undoRedone).toEqual([

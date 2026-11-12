@@ -29,9 +29,9 @@
           }
         },
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "rule_check": "RULE_INPUTS_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED"
+          "mechanics": "ready_for_preview_diagnostics",
+          "rule_check": "not_performed_user_rule_inputs_missing",
+          "professional_acceptance": "not_provided"
         },
         "materials": [],
         "sections": [],
@@ -76,9 +76,9 @@
           }
         },
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "rule_check": "RULE_INPUTS_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED"
+          "mechanics": "ready_for_preview_diagnostics",
+          "rule_check": "not_performed_user_rule_inputs_missing",
+          "professional_acceptance": "not_provided"
         },
         "materials": [],
         "sections": [],
@@ -95,9 +95,9 @@
       "path": "node_creation",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [],
         "components": [],
@@ -167,9 +167,9 @@
       "path": "material_creation",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [],
         "components": [],
@@ -257,9 +257,9 @@
       "path": "section_creation",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [],
         "components": [],
@@ -364,9 +364,9 @@
       "path": "pipe_creation",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [],
         "components": [],
@@ -518,9 +518,9 @@
       "path": "support_creation",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [],
         "components": [],
@@ -684,9 +684,9 @@
       "path": "load_creation",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [],
         "components": [],
@@ -875,9 +875,9 @@
       "path": "combination_creation",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -1079,9 +1079,9 @@
       "path": "project_tags_and_notes",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -1288,9 +1288,9 @@
       "path": "entity_tags_and_notes",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -1504,9 +1504,9 @@
       "path": "provenance_records",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -1738,9 +1738,9 @@
       "path": "line",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -1983,9 +1983,9 @@
       "path": "assumptions_and_open_issues",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -2246,9 +2246,9 @@
       "path": "constraints_and_equipment_interfaces",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -2530,9 +2530,9 @@
       "path": "rule_pack_ref",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -2832,9 +2832,9 @@
       "path": "library_material_insert",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -3168,9 +3168,9 @@
       "path": "reducer_eccentric_offset",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {

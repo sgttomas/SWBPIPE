@@ -459,10 +459,12 @@ export function buildBlankLocalModelDocument(
         return [key, symbol];
       }))
     },
+    // Authored labels, the reference system fixture's (DEL-02-01: the document's status members are
+    // labels, not software statuses); they state nothing about the model.
     analysis_status: {
-      mechanics: "MODEL_INCOMPLETE",
-      rule_check: "RULE_INPUTS_INCOMPLETE",
-      professional_acceptance: "NOT_PROVIDED"
+      mechanics: "ready_for_preview_diagnostics",
+      rule_check: "not_performed_user_rule_inputs_missing",
+      professional_acceptance: "not_provided"
     },
     materials: [],
     sections: [],

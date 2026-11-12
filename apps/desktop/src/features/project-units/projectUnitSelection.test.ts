@@ -50,11 +50,11 @@ describe("blank builders take a project unit map", () => {
     expect(buildBlankLocalModelDocument(AT, SI_PROJECT_UNITS)).toEqual(blank);
     const withoutAngle = structuredClone(blank);
     delete withoutAngle.project.units.angle;
-    expect(await canonicalSha256Hex(withoutAngle)).toBe("e7b9bd70ca2785bc23ff8cb9d3bdd9b16cbeea8da4d594f82e9597000027d9ed");
-    // The pins below were taken while the blank stored its authoring-target diagnostic; with that
-    // record restored, S1 changes only the current model token, and the frozen 0.8.0 control
-    // still reproduces the preceding pin.
-    const withFormerDiagnostic = { ...withoutAngle, diagnostics: [{
+    expect(await canonicalSha256Hex(withoutAngle)).toBe("26cb35d41dca631a80cee138ca243324331c9490ca193b154650b031dd3959fb");
+    // The pins below were taken while the blank stored its authoring-target diagnostic and its former
+    // status values; with both restored, S1 changes only the current model token, and the frozen
+    // 0.8.0 control still reproduces the preceding pin.
+    const withFormerDiagnostic = { ...withoutAngle, analysis_status: { mechanics: "MODEL_INCOMPLETE", rule_check: "RULE_INPUTS_INCOMPLETE", professional_acceptance: "NOT_PROVIDED" }, diagnostics: [{
       id: "diagnostic:blank-project:authoring-target", code: "BLANK_PROJECT_AUTHORING_TARGET", severity: "blocking" as const,
       source: "apps/desktop/src/services/projectService.ts", affected_refs: [blank.project.id],
       message: "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted."

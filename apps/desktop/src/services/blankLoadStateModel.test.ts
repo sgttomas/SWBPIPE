@@ -19,9 +19,10 @@ const AT = new Date("2026-06-12T00:00:00Z");
 // blank without angle still hashes to the previous pin). Model document 0.8.0 re-pinned
 // it by its version token only (the blank at 0.7.0 gives the former pin), and so did model
 // document 0.9.0 (the blank at 0.8.0 gives 76093a1c…). Re-pinned when the blank stopped storing
-// its authoring-target diagnostic (diagnostics is now empty and nothing else changes): the blank
-// with that record restored still gives the former pin.
-const BASE_BLANK_SHA256 = "9c331a1d3455c80c313cd4e203de4afd2f7a922bedaa6c5d97069c43791b8d33";
+// its authoring-target diagnostic and took the reference system fixture's status labels
+// (diagnostics is now empty, analysis_status holds the labels, and nothing else changes): the
+// blank with both former members restored still gives the former pin.
+const BASE_BLANK_SHA256 = "54149e9d06f0a67daa56c37e1e89652156892b402ed5cf3abb3c9b18435ebb56";
 const FORMER_DIAGNOSTIC_BLANK_SHA256 = "db1df563735f7efdada01a59c2efde767e30a8023ac99cf63b2d8079b7115c07";
 // T4-U8 (D-6/O3): the blank's contract carries the authoring default shear model.
 const CONTRACT = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" };
@@ -32,7 +33,7 @@ describe("blank load/reference-state model (T1 WP3 item 2; current model 0.9.0)"
   it("leaves the existing blank builder byte-identical", async () => {
     const blank = buildBlankLocalModelDocument(AT);
     expect(await canonicalSha256Hex(blank)).toBe(BASE_BLANK_SHA256);
-    const former = { ...blank, diagnostics: [{
+    const former = { ...blank, analysis_status: { mechanics: "MODEL_INCOMPLETE", rule_check: "RULE_INPUTS_INCOMPLETE", professional_acceptance: "NOT_PROVIDED" }, diagnostics: [{
       id: "diagnostic:blank-project:authoring-target", code: "BLANK_PROJECT_AUTHORING_TARGET", severity: "blocking" as const,
       source: "apps/desktop/src/services/projectService.ts", affected_refs: [blank.project.id],
       message: "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted."
