@@ -45,6 +45,13 @@ needs:
     its fixed code (DEL-07-07/REQ-013). A change to these stages changes what the harness must
     time.
   gating: false
+- from: DEL-04-06
+  when: Timing the model checks the desktop runs before a solve job starts
+  condition: >-
+    The model checks have one public entry outside the desktop that takes the model document and
+    returns their report, and the desktop's check worker calls that entry, so that a driver
+    calling it times the checks the desktop runs.
+  gating: false
 - from: DEL-02-01
   when: Generating the reference racks
   condition: >-

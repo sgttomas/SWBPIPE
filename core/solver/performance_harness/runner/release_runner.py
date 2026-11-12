@@ -124,7 +124,8 @@ SUBSETS = {
 
 CONDITIONS = (
     'Engine stages only: the release_timing driver runs, in one process, the stages the desktop solve worker runs for '
-    'an ordinary solve (read, parse, request, entry, serialize, release_envelope, parse_back). The desktop app, its IPC '
+    'an ordinary solve (read, parse, request, entry, serialize, release_envelope, parse_back), then, outside their '
+    'total, the model checks the desktop runs before a solve job starts (model_checks). The desktop app, its IPC '
     'and ingress, the worker process protocol and memory pool, the solve attestation digests and the webview are not '
     'included; the driver lists its own limits in each run.',
     'One driver process at a time, each under /usr/bin/time -l and a per-run timeout. Every 100 ms the runner reads '

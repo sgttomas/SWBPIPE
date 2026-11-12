@@ -142,8 +142,11 @@ memory bound.
   holds the scaling series' hashes; `--hashes` regenerates them. The model version is read from
   `model_format.rs`.
 - **The driver** (`core/solver/release_timing/`, bin `release_timing`, its own crate and lock) mirrors the
-  worker's ordinary solve: read, parse, request wrapper, entry, serialize, then the result
-  digest's parse-back. It uses serde_json features equal to the desktop's.
+  worker's ordinary solve: read, parse, request wrapper, entry, serialize, then one streamed
+  parse of the result text that keeps nothing, as the worker's result digest reads it. It builds
+  no value from the result, so its peak footprint is the worker's kind of peak. After those
+  stages, and outside their total, it times the model checks the desktop runs before a solve job
+  starts (`model_checks`). It uses serde_json features equal to the desktop's.
   - It prints one `release-timing-v1` JSON line with seconds, `ru_maxrss` and phys_footprint
     per stage, rows and bytes per kind, case and row class, and diagnostic counts. After each
     stage it also writes a `release-timing-stage {json}` progress line to stderr, so a killed
@@ -167,6 +170,7 @@ memory bound.
   - `--packet` writes the compact packet.
 
   `runner/release_window.sh` is the single exclusive-window entry, run under the host's
-  exclusive wrapper; its default `window` subset fits 15 minutes, as does `window2` (linear-ex
-  1000 timed, then its attribution twin). Result bytes are kept only
-  with `--write-results`.
+  exclusive wrapper; its default `window` subset fits 15 minutes, as do `window2` (linear-ex
+  1000 timed, then its attribution twin) and `scaling` (both exact-route profiles at 250, 500
+  and 1,000 nodes). `scaling-2000` adds the linear rack at 2,000 nodes and needs a longer
+  window (`RELEASE_WINDOW_BUDGET_S`). Result bytes are kept only with `--write-results`.
