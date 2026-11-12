@@ -64,12 +64,17 @@ CI_READS = ('core/product_physics/src/**', 'core/solver/*/src/**', 'core/loads/*
             'core/model_operations/operation_applier/src/**')
 
 # The fields a person fills in for each code; `--write` keeps them.
-HAND_FIELDS = ('classification', 'reason', 'unsure', 'candidates', 'named_by', 'named_by_statement')
+HAND_FIELDS = ('classification', 'reason', 'unsure', 'candidates', 'named_by', 'named_by_coverage',
+               'named_by_statement')
 CLASSES = ('absent_capability', 'input_error', 'numerical_standing', 'disclosure', 'internal')
 SEVERITIES = {'blocking', 'warning', 'info', 'failure'}
 
 CODE_SHAPE = re.compile(r'^[A-Z][A-Z0-9]*(?:[_-][A-Z0-9]+)+$')
 CONST_NAME = re.compile(r'^[A-Z][A-Z0-9_]*$')
+# A token that could be a code in any spelling: no whitespace, a letter first. Used where a code is known
+# only by its place (a pair's first element, a whole error value): a code-shaped token there counts, any
+# other is listed as unclaimed.
+TOKEN_SHAPE = re.compile(r'^[A-Za-z][A-Za-z0-9_.:-]{1,79}$')
 PREFIX_LITERAL = re.compile(r'^([A-Z][A-Z0-9]*(?:[_-][A-Z0-9]+)+): ')
 PREFIX_FORMAT = re.compile(r'^\{([A-Z][A-Z0-9_]*)\}: ')
 TEST_NAME = re.compile(r'(^tests?$|_tests?$|^tests_)')
@@ -439,6 +444,7 @@ class Fn:
         self.ret = ret                  # return type text
         self.body = body                # (index of `{`, index of `}`) or None
         self.code_params = set()
+        self.verified_params = set()
         self.severity_params = set()
         self.message_params = set()
         self.fixed_severity = None      # 'blocking' etc. when every diagnostic it builds states it
@@ -691,7 +697,9 @@ class Scan:
                         len(toks[k - 1].val) > 1:
                     self.aliases[toks[k + 1].val] = toks[k - 1].val
         self.codes = {}          # code -> {'sites': {(file, line): site}}
+        self.diag_types = {}     # diagnostic record type -> its declared code type
         self.unresolved = {}     # (file, line, expression) -> why
+        self.unclaimed_values = {}   # a non-code-shaped value at a position known only by shape or name
         self.claimed = set()     # (file, token index) of literals counted as raised or compared
         self.diag_callers = set()
 
@@ -813,10 +821,10 @@ class Scan:
             if seg[-1].val in ('code', 'reason_code'):
                 return [('relay',)]
             return [('unresolved', f'field .{seg[-1].val}')]
-        # x.code.as_str() / x.code.as_str() relay
-        if len(seg) >= 6 and [x.val for x in seg[-5:]] == ['code', '.', 'as_str', '(', ')'] or \
-                (len(seg) >= 4 and [x.val for x in seg[-4:]] == ['.', 'code', '(', ')'] and False):
-            return [('relay',)]
+        # x.code.as_str(), code.as_str(): an enum-to-string producer when `code` is enum-typed
+        if len(seg) >= 5 and [x.val for x in seg[-4:]] == ['.', 'as_str', '(', ')'] and \
+                all(x.kind == 'id' or _is(x, 'p', '.') for x in seg[:-4]) and seg[-5].val == 'code':
+            return self.resolve_enum_code(seg[:-4], fn, src, depth, base + a)
         first = seg[0]
         # match / if expressions
         if _is(first, 'id', 'match'):
@@ -850,6 +858,57 @@ class Scan:
                 return self.resolve_call(seg, open_k, fn, src, depth, base + a)
         # a closure or something else
         return [('unresolved', 'expression')]
+
+    def _param_type(self, fn, name):
+        """The type name a parameter of `fn` (or of the function around a closure) is declared with:
+        its last capitalized path segment that is not a wrapper, or None."""
+        while fn is not None:
+            for pname, ptype in fn.params:
+                if pname == name and ptype:
+                    names = [n for n in re.findall(r'[A-Za-z_][A-Za-z0-9_]*', ptype)
+                             if n[:1].isupper() and n not in ('Option', 'Vec', 'Box', 'Result', 'Self')]
+                    return names[-1] if names else None
+            fn = self.enclosing_fn(fn.src, fn.start) if fn.closure else None
+        return None
+
+    def _impl_of(self, fn):
+        while fn is not None and fn.closure:
+            fn = self.enclosing_fn(fn.src, fn.start)
+        return fn.impl_type if fn is not None else None
+
+    def resolve_enum_code(self, path, fn, src, depth, at):
+        """`<receiver>.code` or `code` read through `.as_str()`: the strings the `as_str` of its declared
+        type returns. The type comes from the receiver (`self`, a typed parameter, or a parameter `code`
+        of an enum type); when it is unknown, every diagnostic record's enum code type is taken and the
+        result is marked as resolved by name."""
+        ids = [x.val for x in path if x.kind == 'id']
+        code_type, known = None, False
+        if ids == ['code'] and fn is not None and self._param_type(fn, 'code'):
+            code_type, known = self._param_type(fn, 'code'), True
+        elif len(ids) == 2 and ids[0] == 'self':
+            record = self._impl_of(fn)
+            code_type, known = self.diag_types.get(record), record in self.diag_types
+        elif len(ids) == 2 and fn is not None:
+            record = self._param_type(fn, ids[0])
+            if record in self.diag_types:
+                code_type, known = self.diag_types[record], True
+        visible = self.deps.get(src.crate, {src.crate})
+        stringy = lambda t: t is None or bool(re.search(r'\b(str|String)\b', t))
+        if known:
+            types = [] if stringy(code_type) else [code_type.split('::')[-1].strip()]
+        else:
+            types = sorted({t.split('::')[-1].strip() for t in self.diag_types.values() if not stringy(t)})
+        candidates = [f for f in self.by_name.get('as_str', []) if f.has_self and f.impl_type in types
+                      and f.src.crate in visible]
+        if not candidates:
+            return [('relay',)]                  # a String code: the record's own construction is the site
+        out = []
+        for g in candidates:
+            note = f'returned by {g.impl_type}::as_str()' + ('' if known else ' [by name]')
+            for r in self.returned(g, depth + 1):
+                if r[0] == 'code':
+                    out.append(('code', r[1], r[2], r[3], r[4] + [note], r[5]))
+        return out or [('relay',)]
 
     def resolve_name(self, name, fn, src, depth, at):
         if fn is not None:
@@ -1072,7 +1131,9 @@ class Scan:
         method = open_k >= 2 and _is(seg[open_k - 2], 'p', '.')
         close = _match_forward(seg, open_k)
         args = _split_commas(seg, open_k + 1, close)
-        candidates = [f for f in self._callable(self.by_name.get(name, []), seg, open_k - 1, fn)
+        named = self.by_name.get(name, [])
+        local = self._local_closure(src, base + open_k - 1, name, named) if not method else None
+        candidates = [f for f in ([local] if local is not None else self._callable(named, seg, open_k - 1, fn))
                       if len(f.params) == len(args) and _returns_text(f.ret)]
         if not candidates:
             if method and name in ('as_str', 'code') and len(args) == 0:
@@ -1087,14 +1148,30 @@ class Scan:
             return [('unresolved', f'call {name}() returns no resolvable code')]
         same = [f for f in candidates if f.src.crate == src.crate]
         candidates = same or candidates
+        by_name = False
+        if method:
+            receiver = [x for x in seg[:open_k - 2] if not _is(x, 'p', '&') and not _is(x, 'p', '*')]
+            rtype = None
+            if len(receiver) == 1 and _is(receiver[0], 'id', 'self'):
+                rtype = self._impl_of(fn)
+            elif len(receiver) == 1 and receiver[0].kind == 'id':
+                rtype = self._param_type(fn, receiver[0].val)
+            narrowed = [g for g in candidates if rtype is not None and g.impl_type == rtype]
+            if narrowed:
+                candidates = narrowed
+            else:
+                by_name = True               # the receiver's type is not known: resolved by the method's name
         out = []
         for g in candidates:
-            for r in self.returned(g, depth + 1):
+            arms = self._arms_for_argument(g, seg, args)
+            note = f'returned by {g.impl_type + "::" if g.impl_type else ""}{g.name}()' + \
+                (' [by name]' if by_name else '') + (' [any arm]' if arms == 'any' else '')
+            for r in (arms if isinstance(arms, list) else self.returned(g, depth + 1)):
                 if r[0] == 'param':
                     s, e = args[r[1]]
                     out += self.resolve(seg[s:e], fn, src, depth + 1, base + s)
                 elif r[0] == 'code':
-                    out.append(('code', r[1], r[2], r[3], r[4] + [f'returned by {g.name}()'], r[5]))
+                    out.append(('code', r[1], r[2], r[3], r[4] + [note], r[5]))
                 else:
                     out.append(r)
         codes = [r for r in out if r[0] in ('code', 'param', 'relay')]
@@ -1102,6 +1179,43 @@ class Scan:
             return [('unresolved', f'call {name}() returns no resolvable code')]
         # a code-returning function's other return points (a computed text) are reported once, at it
         return [r for r in out if r[0] != 'unresolved']
+
+    def _arms_for_argument(self, g, seg, args):
+        """For a mapping function whose body is `match <parameter> { ... }` (as `skew_code`): the
+        resolved values of the arms an enum-variant argument selects; 'any' when the argument is not a
+        variant, so every arm is taken; None when `g` is no such mapping."""
+        if g.body is None or g.expr_body is not None or len(args) != len(g.params) or not g.params:
+            return None
+        toks = g.src.toks
+        a, b = g.body
+        body = toks[a + 1:b]
+        if len(body) < 3 or not _is(body[0], 'id', 'match') or body[1].kind != 'id':
+            return None
+        names = [p for p, _t in g.params]
+        if body[1].val not in names:
+            return None
+        idx = names.index(body[1].val)
+        s, e = args[idx]
+        arg = [x for x in seg[s:e] if not _is(x, 'p', '&')]
+        if not (len(arg) >= 3 and all(x.kind == 'id' or _is(x, 'p', '::') for x in arg) and arg[-1].val[:1].isupper()):
+            return 'any'
+        variant = arg[-1].val
+        out = []
+        brace = next((j for j in range(len(body)) if _is(body[j], 'p', '{')), None)
+        if brace is None:
+            return None
+        for vs, ve in self.arm_values(body):
+            # the arm's pattern: the tokens between the previous arm (or the brace) and `=>`
+            j = vs - 2
+            while j > brace and not (_is(body[j], 'p', ',') and _depth_of(body, brace + 1, j) == 0) and \
+                    not _is(body[j], 'p', '}'):
+                j -= 1
+            pattern = [x.val for x in body[j + 1:vs - 1]]
+            if variant in pattern or pattern == ['_']:
+                out += self.resolve(body[vs:ve], g, g.src, 1, a + 1 + vs)
+                if variant in pattern:
+                    break
+        return out
 
     def returned(self, g, depth):
         if g.body is None:
@@ -1139,9 +1253,125 @@ class Scan:
 
     # -- code positions
 
+    def collect_diagnostic_types(self):
+        """The diagnostic record types: each struct, or enum variant with named fields, that has a
+        `code` field and a `message` or `severity` field; with each one's declared `code` type."""
+        self.diag_types = {}
+        for src in self.all_sources:
+            toks = src.toks
+            enum_bodies = []
+            for k in range(len(toks) - 2):
+                if _is(toks[k], 'id', 'enum') and toks[k + 1].kind == 'id':
+                    j = k + 2
+                    while j < len(toks) and not _is(toks[j], 'p', '{') and not _is(toks[j], 'p', ';'):
+                        j += 1
+                    if j < len(toks) and _is(toks[j], 'p', '{'):
+                        enum_bodies.append((j, src.pairs.get(j, j)))
+            for k in range(len(toks) - 2):
+                t = toks[k]
+                named = None
+                if _is(t, 'id', 'struct') and toks[k + 1].kind == 'id':
+                    named, j = toks[k + 1].val, k + 2
+                    while j < len(toks) and not (toks[j].kind == 'p' and toks[j].val in ('{', ';', '(')):
+                        j += 1
+                elif t.kind == 'id' and t.val[:1].isupper() and _is(toks[k + 1], 'p', '{') and \
+                        any(a < k < b and src.brace_at[k] == a for a, b in enum_bodies):
+                    named, j = t.val, k + 1
+                if named is None or j >= len(toks) or not _is(toks[j], 'p', '{'):
+                    continue
+                end = src.pairs.get(j)
+                if end is None:
+                    continue
+                fields = {}
+                for m in range(j + 1, end - 1):
+                    if toks[m].kind == 'id' and _is(toks[m + 1], 'p', ':') and src.brace_at[m] == j:
+                        fields[toks[m].val] = _text(toks[m + 2:self._value_end(toks, m + 2)])
+                if 'code' in fields and ('message' in fields or 'severity' in fields):
+                    self.diag_types[named] = fields['code']
+
+    def _literal_type(self, src, brace, fn):
+        """The type a struct literal opening at `brace` builds (its last path segment; `Self` is the
+        enclosing impl's type), or None."""
+        if brace is None or brace == 0 or src.toks[brace - 1].kind != 'id':
+            return None
+        name = src.toks[brace - 1].val
+        if name == 'Self':
+            outer = fn
+            while outer is not None and outer.closure:
+                outer = self.enclosing_fn(src, outer.start)
+            return outer.impl_type if outer is not None else None
+        return name
+
+    def sinks(self, src):
+        """Each verified diagnostic code position in `src`: (index of the position, value token range,
+        enclosing fn, via). A `code` field (or shorthand) of a diagnostic record literal, the `"code"`
+        key of a `json!` object that also has `"message"` or `"severity"`, or an assignment `.code =`."""
+        toks, out = src.toks, []
+        for k, t in enumerate(toks):
+            if k == 0:
+                continue
+            prev, nxt = toks[k - 1], toks[k + 1] if k + 1 < len(toks) else None
+            if _is(t, 'id', 'code') and prev.kind == 'p' and prev.val in ('{', ',') and nxt is not None:
+                fn = self.enclosing_fn(src, k)
+                if self._literal_type(src, self._enclosing_brace(src, k), fn) not in self.diag_types:
+                    continue
+                if _is(nxt, 'p', ':') and not self._in_definition(src, k) and self._struct_literal(src, k):
+                    value = (k + 2, self._value_end(toks, k + 2))
+                    if not self._is_type(toks[value[0]:value[1]]):
+                        out.append((k, value, fn, 'field code'))
+                elif nxt.kind == 'p' and nxt.val in (',', '}') and self._struct_literal(src, k):
+                    out.append((k, (k, k + 1), fn, 'field code'))
+            elif _is(t, 'id', 'code') and _is(prev, 'p', '.') and _is(nxt, 'p', '='):
+                out.append((k, (k + 2, self._value_end(toks, k + 2, stop=';')), self.enclosing_fn(src, k),
+                            'assignment .code'))
+            elif t.kind == 'str' and t.val == 'code' and _is(nxt, 'p', ':') and prev.kind == 'p' and prev.val in ('{', ','):
+                brace = self._enclosing_brace(src, k)
+                if brace is not None and any(x.kind == 'str' and x.val in ('severity', 'message')
+                                             for x in toks[brace:src.pairs.get(brace, brace)]):
+                    out.append((k, (k + 2, self._value_end(toks, k + 2)), self.enclosing_fn(src, k), 'json code'))
+        return out
+
     def callables(self):
-        """Mark each function's code, severity and message parameters, to a fixed point."""
+        """Mark each function's code, severity and message parameters, to a fixed point. A code
+        parameter is *verified* when its value reaches a verified diagnostic position (`sinks`), directly
+        or through another verified code parameter, whatever the parameter is called; a stringish
+        parameter named `code` whose sink is not traced is a code parameter by name only."""
         for f in self.fns:
+            f.verified_params = set()
+        for src in self.all_sources:
+            for k, (a, b), fn, _via in self.sinks(src):
+                if fn is None:
+                    continue
+                seg = [x for x in src.toks[a:b] if not _is(x, 'p', '&') and not _is(x, 'p', '*')]
+                while len(seg) >= 4 and seg[-3].kind == 'id' and seg[-3].val in SAME_VALUE_METHODS:
+                    seg = seg[:-4]
+                if len(seg) == 1 and seg[0].kind == 'id':
+                    for idx, (pname, _t) in enumerate(fn.params):
+                        if pname == seg[0].val and self._binding_before(src, fn, pname, a) is None:
+                            fn.verified_params.add(idx)
+        changed = True
+        while changed:
+            changed = False
+            for src in self.all_sources:
+                for k, args, targets, caller in self.calls(src, verified=True):
+                    if caller is None:
+                        continue
+                    for g in targets:
+                        for idx in g.verified_params:
+                            if idx >= len(args):
+                                continue
+                            s, e = args[idx]
+                            seg = [x for x in src.toks[s:e] if not _is(x, 'p', '&')]
+                            while len(seg) >= 4 and seg[-3].kind == 'id' and seg[-3].val in SAME_VALUE_METHODS:
+                                seg = seg[:-4]
+                            if len(seg) == 1 and seg[0].kind == 'id':
+                                for pidx, (pname, _t) in enumerate(caller.params):
+                                    if pname == seg[0].val and pidx not in caller.verified_params and \
+                                            self._binding_before(src, caller, pname, s) is None:
+                                        caller.verified_params.add(pidx)
+                                        changed = True
+        for f in self.fns:
+            f.code_params |= f.verified_params
             for idx, (pname, ptype) in enumerate(f.params):
                 if pname == 'code' and (_stringish(ptype) or (f.closure and not ptype)):
                     f.code_params.add(idx)
@@ -1172,9 +1402,10 @@ class Scan:
                                             getattr(caller, kind).add(pidx)
                                             changed = True
 
-    def calls(self, src):
+    def calls(self, src, verified=False):
         """(index of the name, [argument ranges], [functions it may call], enclosing fn) of each call
-        in `src` to a function with a code, severity or message parameter."""
+        in `src` to a function with a code, severity or message parameter (with `verified`, to a
+        function with a verified code parameter)."""
         toks, out = src.toks, []
         for k in range(len(toks) - 1):
             t = toks[k]
@@ -1188,15 +1419,34 @@ class Scan:
                 continue
             args = _split_commas(toks, k + 2, close)
             caller = self.enclosing_fn(src, k)
+            local = self._local_closure(src, k, t.val, fns)
+            if local is not None:            # a closure in scope shadows any function of its name
+                fns = [local]
             visible = self.deps.get(src.crate, {src.crate})
             targets = [f for f in self._callable(fns, toks, k, caller) if len(f.params) == len(args)
                        and f.src.crate in visible
-                       and (f.code_params or f.severity_params or f.message_params)]
+                       and ((f.verified_params) if verified else
+                            (f.code_params or f.severity_params or f.message_params))]
             if not targets:
                 continue
             same = [f for f in targets if f.src.crate == src.crate] or targets
             out.append((k, args, same, caller))
         return out
+
+    def _local_closure(self, src, k, name, fns):
+        """The closure named `name` bound by a `let` before `k` in a function that encloses `k`, or None."""
+        if k >= 1 and (_is(src.toks[k - 1], 'p', '.') or _is(src.toks[k - 1], 'p', '::')):
+            return None
+        best = None
+        for f in fns:
+            if not f.closure or f.src is not src or f.start >= k:
+                continue
+            outer = self.enclosing_fn(src, f.start)
+            if outer is None or outer.body is None or not (outer.body[0] < k < outer.body[1]):
+                continue
+            if best is None or f.start > best.start:
+                best = f
+        return best
 
     @staticmethod
     def _callable(fns, toks, k, caller):
@@ -1222,6 +1472,7 @@ class Scan:
         return self.call_cache[src.rel]
 
     def run(self):
+        self.collect_diagnostic_types()
         self.callables()
         for f in self.fns:
             self.fix_severity(f)
@@ -1229,8 +1480,27 @@ class Scan:
             self.scan_source(src, reuse=False)
         for src in self.reuse:
             self.scan_source(src, reuse=True)
+        self.scan_typed_producers()
         self.scan_unclaimed()
         return self
+
+    def scan_typed_producers(self):
+        """Typed code producers, each a verified diagnostic position by its type: a method `code(&self)`
+        returning text (a typed error's code, read by callers in and outside the scan, the desktop
+        included), and the `as_str` of an enum that a diagnostic record declares as its `code` type."""
+        enum_code_types = {t.split('::')[-1].strip() for t in self.diag_types.values()
+                           if not re.search(r'\b(str|String)\b', t)}
+        for g in self.fns:
+            if g.src not in self.sources or not g.has_self or g.params or not g.body or not _returns_text(g.ret):
+                continue
+            if g.name == 'code' or g.name.endswith('_code'):
+                via = f'{g.impl_type}::{g.name}() (typed producer)'
+            elif g.name == 'as_str' and g.impl_type in enum_code_types:
+                via = f'{g.impl_type}::as_str() (enum code producer)'
+            else:
+                continue
+            results = [r for r in self.returned(g, 1) if r[0] in ('code', 'unresolved')]
+            self.record(results, g.src, g.start, via, None, None, False, verified=True)
 
     def fix_severity(self, f, seen=None):
         """The one severity every diagnostic `f` builds states, when `f` has no severity parameter."""
@@ -1264,13 +1534,20 @@ class Scan:
             f.fixed_severity = found.pop()
         return f.fixed_severity
 
-    def record(self, results, src, k, via, severity, message, reuse):
+    def record(self, results, src, k, via, severity, message, reuse, verified=False, prefix=False):
+        """Record each resolved code at its site. At a verified diagnostic position a value counts
+        whatever its spelling. At a position known only by a shape or a name (a parameter called
+        `code` whose sink is not traced, a struct not known as a diagnostic record, a pair) a
+        code-shaped value counts and any other value is listed as unclaimed, never dropped. A message
+        prefix is a shape by nature: there only a code-shaped value is a code."""
         toks = src.toks
         expr_line = toks[k].line
         for r in results:
-            if r[0] == 'code' and not CODE_SHAPE.match(r[1]):
-                # text at a code position that is not code-shaped: the lowercase reason tokens of the
-                # retained-precision records, or a message constant; no diagnostic code
+            if r[0] == 'code' and not verified and not CODE_SHAPE.match(r[1]):
+                if not prefix and not reuse and r[1].strip() and r[1] not in SEVERITIES:
+                    self.unclaimed_values.setdefault(r[1], set()).add(f'{src.rel}:{expr_line}')
+                continue
+            if r[0] == 'code' and not r[1].strip():
                 continue
             if r[0] == 'code':
                 value, csrc, line, chain, tok_index = r[1], r[2], r[3], r[4], r[5]
@@ -1281,8 +1558,13 @@ class Scan:
                 self.claimed.add((csrc.rel, tok_index))
                 entry = self.codes.setdefault(value, {'sites': {}})
                 site_key = (src.rel, expr_line)
+                by_name = any('[by name]' in c for c in chain)
+                any_arm = any('[any arm]' in c for c in chain)
                 site = entry['sites'].setdefault(site_key, {'file': src.rel, 'line': expr_line, 'via': via,
-                                                            'severity': severity, 'message': message})
+                                                            'severity': severity, 'message': message,
+                                                            'by_name': by_name, 'any_arm': any_arm})
+                site['by_name'] = site['by_name'] and by_name
+                site['any_arm'] = site['any_arm'] and any_arm
                 if chain:
                     site.setdefault('through', [])
                     note = f'{" <- ".join(chain)} ({csrc.rel}:{line})'
@@ -1303,6 +1585,9 @@ class Scan:
             for idx in sorted(set().union(*(h.code_params for h in coded))):
                 if idx >= len(args):
                     continue
+                types = [h.params[idx][1] for h in coded if idx < len(h.params)]
+                if types and all(t and not _stringish(t) and t[:1].isupper() for t in types):
+                    continue                # an enum-typed code: its text comes from a mapping resolved elsewhere
                 s, e = args[idx]
                 results = self.resolve(toks[s:e], caller, src, 0, s)
                 severity = None
@@ -1321,11 +1606,29 @@ class Scan:
                 results = [r for r in results if r[0] != 'param' or self._param_unmarked(caller, r[1])]
                 results = [('unresolved', f'parameter {caller.params[r[1]][0]} of {caller.name}()')
                            if r[0] == 'param' else r for r in results]
+                verified = any(idx in h.verified_params for h in coded)
+                if verified:
+                    results = [('unresolved', 'an enum value turned into text at a diagnostic code')
+                               if r[0] == 'enum' else r for r in results]
                 results = [r for r in results if r[0] not in ('relay', 'enum')]
-                self.record(results, src, k, f'{g.name}()', severity, message, reuse)
-        # struct fields `code: value`, shorthand `code`, and assignments `.code = value`
+                self.record(results, src, k, f'{g.name}()', severity, message, reuse, verified=verified)
+        # verified diagnostic positions: a diagnostic record's `code` field, a json diagnostic's
+        # "code", an assignment `.code =`
+        verified_at = set()
+        for k, (a, b), fn, via in self.sinks(src):
+            verified_at.add(k)
+            results = self.resolve(src.toks[a:b], fn, src, 0, a)
+            record_type = self._literal_type(src, self._enclosing_brace(src, k), fn) if via == 'field code' else None
+            text_code = record_type is None or bool(re.search(r'\b(str|String)\b', self.diag_types.get(record_type, 'str')))
+            if text_code:
+                # an enum value turned into text (Display, Into) at a text code: listed, never dropped
+                results = [('unresolved', 'an enum value turned into text at a diagnostic code')
+                           if r[0] == 'enum' else r for r in results]
+            self.record_field(results, src, k, fn, via, reuse, verified=True)
+        # other `code` fields, of a struct not known as a diagnostic record: code-shaped values count,
+        # any other value is listed as unclaimed
         for k, t in enumerate(toks):
-            if not _is(t, 'id', 'code') or k == 0:
+            if not _is(t, 'id', 'code') or k == 0 or k in verified_at:
                 continue
             prev, nxt = toks[k - 1], toks[k + 1] if k + 1 < len(toks) else None
             if _is(nxt, 'p', ':') and prev.kind == 'p' and prev.val in ('{', ','):
@@ -1337,17 +1640,23 @@ class Scan:
                     continue
                 fn = self.enclosing_fn(src, k)
                 results = self.resolve(value, fn, src, 0, k + 2)
-                self.record_field(results, src, k, fn, 'field code', reuse)
-            elif _is(nxt, 'p', '=') and _is(prev, 'p', '.'):
-                e = self._value_end(toks, k + 2, stop=';')
-                fn = self.enclosing_fn(src, k)
-                results = self.resolve(toks[k + 2:e], fn, src, 0, k + 2)
-                self.record_field(results, src, k, fn, 'assignment .code', reuse)
+                self.record_field(results, src, k, fn, 'field code', reuse, verified=False)
             elif nxt is not None and prev.kind == 'p' and prev.val in ('{', ',') and nxt.kind == 'p' and \
                     nxt.val in (',', '}') and self._struct_literal(src, k):
                 fn = self.enclosing_fn(src, k)
                 results = self.resolve([t], fn, src, 0, k)
-                self.record_field(results, src, k, fn, 'field code', reuse)
+                self.record_field(results, src, k, fn, 'field code', reuse, verified=False)
+        # an unverified json "code" (no "message" or "severity" beside it)
+        for k, t in enumerate(toks):
+            if k in verified_at or not (t.kind == 'str' and t.val == 'code' and k + 2 < len(toks)
+                                        and _is(toks[k + 1], 'p', ':') and toks[k - 1].kind == 'p'
+                                        and toks[k - 1].val in ('{', ',')):
+                continue
+            fn = self.enclosing_fn(src, k)
+            results = self.resolve(toks[k + 2:self._value_end(toks, k + 2)], fn, src, 0, k + 2)
+            results = [r for r in results if r[0] != 'param' or self._param_unmarked(fn, r[1])] if fn else results
+            results = [r for r in results if r[0] in ('code',)]
+            self.record(results, src, k, 'json code', None, None, reuse, verified=False)
         # message prefixes `CODE: ...` and `{CONST}: ...`
         if reuse:
             return
@@ -1364,7 +1673,7 @@ class Scan:
             m = PREFIX_FORMAT.match(t.val)
             if m and self._in_format_macro(src, k):
                 results = self.resolve_const([m.group(1)], src, 0)
-                self.record(results, src, k, 'message prefix', None, self.message_text([t]), reuse)
+                self.record(results, src, k, 'message prefix', None, self.message_text([t]), reuse, prefix=True)
 
     def _in_format_macro(self, src, k):
         """Whether the literal at k is the format string of `format!`, `write!` or `writeln!`."""
@@ -1405,7 +1714,7 @@ class Scan:
             fn = self.enclosing_fn(src, k)
             for at in range(len(parts) - 1):      # the code first, or second after an id
                 first = toks[parts[at][0]:parts[at][1]]
-                if not (len(first) == 1 and first[0].kind == 'str' and CODE_SHAPE.match(first[0].val)) and \
+                if not (len(first) == 1 and first[0].kind == 'str' and TOKEN_SHAPE.match(first[0].val)) and \
                         not (all(x.kind == 'id' or _is(x, 'p', '::') for x in first) and first and
                              CONST_NAME.match(first[-1].val) and len(first[-1].val) > 2):
                     continue
@@ -1413,7 +1722,7 @@ class Scan:
                 if not self._message_like(message):
                     continue
                 results = self.resolve(first, fn, src, 0, parts[at][0])
-                results = [r for r in results if r[0] == 'code' and CODE_SHAPE.match(r[1])]
+                results = [r for r in results if r[0] == 'code' and TOKEN_SHAPE.match(r[1])]
                 if not results:
                     continue
                 severity = None
@@ -1423,29 +1732,12 @@ class Scan:
                         severity = sev[0]
                 self.record(results, src, k, 'code-message pair', severity, self.message_text(message), False)
                 break
-        # `json!({"code": CODE, ...})` and `Err("CODE")`
+        # `Err("CODE")`: a code returned whole as an error value
         for k, t in enumerate(toks):
-            if t.kind == 'str' and t.val == 'code' and k + 2 < len(toks) and _is(toks[k + 1], 'p', ':') and \
-                    _is(toks[k - 1], 'p', '{') | _is(toks[k - 1], 'p', ','):
-                brace = self._enclosing_brace(src, k)
-                if brace is None or not any(x.kind == 'str' and x.val == 'severity'
-                                            for x in toks[brace:src.pairs.get(brace, brace)]):
-                    continue                # a reason record of the retained wire, not a diagnostic
-                e = self._value_end(toks, k + 2)
-                fn = self.enclosing_fn(src, k)
-                results = [r for r in self.resolve(toks[k + 2:e], fn, src, 0, k + 2) if r[0] in ('code', 'unresolved')]
-                severity = message = None
-                if brace is not None:
-                    end = src.pairs.get(brace, len(toks) - 1)
-                    for j in range(brace + 1, end - 1):
-                        if toks[j].kind == 'str' and toks[j].val == 'severity' and _is(toks[j + 1], 'p', ':') \
-                                and toks[j + 2].kind == 'str':
-                            severity = toks[j + 2].val
-                        if toks[j].kind == 'str' and toks[j].val == 'message' and _is(toks[j + 1], 'p', ':'):
-                            message = self.message_text(toks[j + 2:self._value_end(toks, j + 2)])
-                self.record(results, src, k, 'json code', severity, message, False)
+            if False:
+                pass
             elif _is(t, 'id', 'Err') and k + 2 < len(toks) and _is(toks[k + 1], 'p', '(') and \
-                    toks[k + 2].kind == 'str' and CODE_SHAPE.match(toks[k + 2].val):
+                    toks[k + 2].kind == 'str' and TOKEN_SHAPE.match(toks[k + 2].val):
                 close = src.pairs.get(k + 1)
                 inner = toks[k + 2:close]
                 if len(inner) == 1 or (len(inner) == 5 and inner[2].val in SAME_VALUE_METHODS):
@@ -1490,7 +1782,7 @@ class Scan:
         ptype = caller.params[idx][1]
         return _stringish(ptype) or (caller.closure and not ptype)
 
-    def record_field(self, results, src, k, fn, via, reuse):
+    def record_field(self, results, src, k, fn, via, reuse, verified=False):
         results = [r for r in results if r[0] not in ('relay', 'enum')]
         if fn is not None:
             results = [r for r in results if r[0] != 'param' or self._param_unmarked(fn, r[1])]
@@ -1516,7 +1808,14 @@ class Scan:
                         severity = vals.pop() if len(vals) == 1 else ('varies' if vals else None)
                 if _is(toks[j], 'id', 'message') and _is(toks[j + 1], 'p', ':'):
                     message = self.message_text(toks[j + 2:self._value_end(toks, j + 2)])
-        self.record(results, src, k, via, severity, message, reuse)
+                if toks[j].kind == 'str' and toks[j].val in ('severity', 'message') and _is(toks[j + 1], 'p', ':'):
+                    e = self._value_end(toks, j + 2)
+                    if toks[j].val == 'severity':
+                        lits = [x.val for x in toks[j + 2:e] if x.kind == 'str' and x.val in SEVERITIES]
+                        severity = lits[0] if len(lits) == 1 else severity
+                    else:
+                        message = self.message_text(toks[j + 2:e])
+        self.record(results, src, k, via, severity, message, reuse, verified=verified)
 
     def _enclosing_brace(self, src, k):
         return src.brace_at[k] if src.brace_at[k] >= 0 else None
@@ -1534,10 +1833,9 @@ class Scan:
         while m < len(src.toks) and _is(src.toks[m], 'p', ')'):
             m += 1
         after = src.toks[m] if m < len(src.toks) else None
-        if after is not None and after.kind == 'p' and after.val in ('=', '=>', '|'):
-            return False
-        inner = [x.val for x in src.toks[brace + 1:end]]
-        return '..' not in inner
+        if after is not None and ((after.kind == 'p' and after.val in ('=', '=>', '|', ':')) or _is(after, 'id', 'in')):
+            return False                        # a pattern (let, match arm, closure or fn parameter, for)
+        return True                             # a literal, a struct update `..base` included
 
     def _in_definition(self, src, k):
         """Whether `code:` at k is a field of a struct definition or a parameter of a fn."""
@@ -1619,7 +1917,7 @@ class Scan:
         return _text(toks)[:200]
 
     def scan_unclaimed(self):
-        self.unclaimed = {}
+        self.unclaimed = {value: set(sites) for value, sites in self.unclaimed_values.items() if value not in self.codes}
         for src in self.sources:
             toks = src.toks
             for k, t in enumerate(toks):
@@ -1638,17 +1936,26 @@ class Scan:
             stated = {s['severity'] for s in sites if s['severity']}
             severity = stated.pop() if len(stated) == 1 else ('varies' if stated else 'not_stated')
             crates = sorted({self._crate_of(s['file']) for s in sites})
+            # The first site: one resolved by type and arm; else one resolved by type; else, said so,
+            # one resolved only by a method's name.
+            first = next((s for s in sites if not s['by_name'] and not s['any_arm']), None) or \
+                next((s for s in sites if not s['by_name']), None) or sites[0]
             messages = []
-            for s in sites:
+            for s in [first] + sites:
                 if s['message'] and s['message'] not in messages:
                     messages.append(s['message'])
-            codes.append({
+            record = {
                 'code': code,
                 'crates': crates,
                 'severity': severity,
-                'sites': [{k: v for k, v in s.items() if k != 'message'} for s in sites],
+                'first_site': {'file': first['file'], 'line': first['line'], 'via': first['via']},
+                'sites': [{k: v for k, v in s.items() if k != 'message' and not (k in ('by_name', 'any_arm') and not v)}
+                          for s in sites],
                 'messages': [m[:400] for m in messages[:4]],
-            })
+            }
+            if all(s['by_name'] for s in sites):
+                record['sites_by_name_only'] = True
+            codes.append(record)
         unresolved = [{'file': f, 'line': line, 'at': via, 'why': why}
                       for (f, line, via), why in sorted(self.unresolved.items())]
         unclaimed = [{'literal': lit, 'sites': sorted(sites)} for lit, sites in sorted(self.unclaimed.items())]
@@ -1675,10 +1982,22 @@ def _depth_of(toks, a, j):
 
 HEADER = {
     'about': ('Every diagnostic code a production call site in the solve crates can raise, read by '
-              'tools/validation/diagnostic_codes.py, with a hand-made classification of each. The scanner '
-              'writes code, crates, severity, sites and messages; classification, reason, unsure, candidates, '
-              'named_by and named_by_statement are kept by --write. tests/test_diagnostic_code_table.py keeps the '
-              'codes equal to the sources.'),
+              'tools/validation/diagnostic_codes.py, with a hand-made classification of each. The scan covers the '
+              'production modules of core/product_physics, core/solver/*, core/loads/*, core/analysis/hanger_sizing '
+              'and core/numerics/*, and the codes core/model_operations/operation_applier raises by re-using a solve '
+              'refusal; refusals raised in core/reporting, the operation applier\'s own codes and the desktop are '
+              'outside it. The scanner writes code, crates, severity, first_site, sites and messages; '
+              'classification, reason, unsure, candidates, named_by, named_by_coverage and named_by_statement are '
+              'hand-made and kept by --write. tests/test_diagnostic_code_table.py keeps the codes equal to the '
+              'sources. The test cannot check that a text covers a refusal, only that it mentions a code: each '
+              'naming carries a hand-made coverage, whole or partial, and only a whole naming counts as naming '
+              'the refusal.'),
+    'first_site': ('the first raising site resolved by type (and, where a mapping is involved, by the arm its '
+                   'argument selects); a site resolved only by a method\'s name carries by_name, one that may '
+                   'raise any arm of a mapping carries any_arm, and neither is chosen as first while another '
+                   'exists; sites_by_name_only says that every site was resolved by name'),
+    'named_by_coverage': ('for a code named by a LIM entry: {"coverage": "whole" or "partial", "reason"}; a partial '
+                          'naming counts as unnamed'),
     'classes': {
         'absent_capability': 'the product refuses or withholds because it does not do something a user could '
                              'reasonably ask of it (a family, an analysis, a combination or an option not built, '
@@ -1693,8 +2012,9 @@ HEADER = {
     'named_by': ('for an absent_capability code, the LIM-nnn entry of docs/RELEASE_LIMITATIONS_v1.0.md that names '
                  'the code, or "unnamed"; null for the other classes'),
     'named_by_statement': ('the product texts that name the code, as a list, or null when none does: '
-                           '{"status": "in_product", "text", "where"} for text the product publishes today (a '
-                           'formulation_basis limitation); {"status": "planned", "statement", "subject", "lands_with"} '
+                           '{"status": "in_product", "text", "where", "coverage", "coverage_reason"} for text the '
+                           'product publishes today (a formulation_basis limitation), whole or partial as for '
+                           'named_by_coverage; {"status": "planned", "statement", "subject", "lands_with"} '
                            'for a per-document limitation statement not yet in the product, which names nothing '
                            'today. Planned statements may name codes of any class.'),
     'scope': list(SCOPE) + [f'{p} (re-used solve refusals only)' for p in REUSE_SCOPE],
