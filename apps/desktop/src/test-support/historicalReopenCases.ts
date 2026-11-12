@@ -12,9 +12,11 @@
  *   retained): altered rows, checksums, versions, references, shapes and numbers, and the
  *   pressure-2 record bound to its 0.8-era recorded table basis. Recorded runs are the preview
  *   cases' records as recorded revisions of an invented state, with their variants.
- * - **Recorded table bases, verbatim.** main's recorded pressure-2 runs, one per recorded basis of
- *   `RECORDED_RUN_TABLE_BASES` (`RECORDED_BASIS_FIXTURES`: each a record, its source and its
- *   request model, never rewritten), each as a recorded revision built as
+ * - **Recorded table bases, verbatim.** main's recorded pressure-2 runs, one per recorded basis
+ *   pressure-2 carried (`RECORDED_BASIS_FIXTURES`: each a record, its source and its request
+ *   model, never rewritten; none of those bases is carried into pressure-3 and
+ *   `RECORDED_RUN_TABLE_BASES` is empty, so each run is refused and its source is refused by
+ *   name as `SOURCE_PRESSURE_2_RETIRED`, RT-L2, DEL-04-07), each as a recorded revision built as
  *   `recordedRunModel080.test.ts` and `recordedRunModel090Disclosure.test.ts` build it, and, when
  *   its model document is current, as a saved project's run (a project of a retired model
  *   document is refused for editing before its run is read; recorded runs keep their own format).
@@ -28,6 +30,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope } from "../types";
 import { buildHistoricalRunContext, buildRecordedRunContext } from "../features/results/HistoricalRunContext";
+import { readerDispatch } from "../features/results/resultReader";
 import { analysisRecordProjection, manifestFixedMembers, recordedAnalysisRunRevision } from "../services/analysisRunCompatibility";
 import { buildCurrentSessionInputManifest } from "../services/inputManifestService";
 import { MODEL_SCHEMA_VERSION } from "../services/modelSchemaVersion";
@@ -40,8 +43,8 @@ const ROOT = resolve(__dirname, "../../../../");
 
 export const HISTORICAL_REOPEN_CASES = "apps/desktop/src/test-support/native-reopen/historical_reopen_cases.json";
 const BUILDER_CASES = "apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json";
-/** main's verbatim recorded pressure-2 runs, one per recorded table basis of
- * `RECORDED_RUN_TABLE_BASES`, in its order (the native leg names the same directories). */
+/** main's verbatim recorded pressure-2 runs, one per recorded table basis pressure-2 carried, in
+ * its order (the native leg names the same directories). None is carried into pressure-3. */
 export const RECORDED_BASIS_FIXTURES = [
   "fixtures/persistence/recorded_model_0_7_0",
   "fixtures/persistence/recorded_model_0_8_0",
@@ -280,10 +283,15 @@ async function recordedBasisCases(): Promise<{ saved: SavedCase[]; recorded: Rec
     const name = fixture.slice(fixture.lastIndexOf("/") + 1);
     const record = JSON.parse(text(FIXTURE_RECORD)), sourceText = text(FIXTURE_SOURCE), source = JSON.parse(sourceText);
     const model = JSON.parse(text(FIXTURE_REQUEST)).model;
+    // RT-L2: a pressure-2 source is refused by name, never read as a current result.
+    const refusal = readerDispatch(source).error?.code;
+    if (refusal !== "SOURCE_PRESSURE_2_RETIRED") throw new Error(`${fixture}: the pressure-2 source is not refused as retired (${refusal})`);
     // As a saved project (current model documents only): the request's model, the verbatim source and record.
     if (model.schema_version === MODEL_SCHEMA_VERSION) {
       const p = await project(clone(model), source, record);
-      saved.push({ id: `saved-recorded-basis:${name}`, kind: "saved", project: p, fixture, expected: await savedExpected(p, source, record) });
+      const expected = await savedExpected(p, source, record);
+      if (!("findings" in expected) || expected.findings.length === 0) throw new Error(`${fixture}: a saved pressure-2 run reopened clean`);
+      saved.push({ id: `saved-recorded-basis:${name}`, kind: "saved", project: p, fixture, expected });
     }
     // As a recorded revision of an invented state, built as the webview tests build it.
     const authored = clone(model);
@@ -305,7 +313,9 @@ async function recordedBasisCases(): Promise<{ saved: SavedCase[]; recorded: Rec
     const patched = applyPatches({ record: clone(record) } as Record<string, Json>, record_patches).record;
     if (await canonicalSha256Hex(patched) !== await canonicalSha256Hex(revision)) throw new Error(`${fixture}: the record patches do not give the recorded revision`);
     const { record: _record, result_json: _result, ...rest } = read;
-    recorded.push({ id: `recorded-basis:${name}`, kind: "recorded", read: { ...rest, fixture, record_patches }, expected: await recordedExpected(read) });
+    const expected = await recordedExpected(read);
+    if (!("findings" in expected) || expected.findings.length === 0) throw new Error(`${fixture}: a pressure-2 run reopened clean`);
+    recorded.push({ id: `recorded-basis:${name}`, kind: "recorded", read: { ...rest, fixture, record_patches }, expected });
   }
   return { saved, recorded };
 }

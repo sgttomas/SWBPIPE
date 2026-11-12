@@ -9,11 +9,12 @@
 //!   give the same findings, in order, the same run name, and the same
 //!   envelope payload hash or model hash, natively from the stored values.
 //! - **Recorded table bases, verbatim.** main's recorded pressure-2 runs, one
-//!   per row of `RECORDED_RUN_TABLE_BASES` (`RECORDED_BASIS_FIXTURES`), are
+//!   per recorded basis pressure-2 carried (`RECORDED_BASIS_FIXTURES`), are
 //!   cases of that file read from the fixture files themselves; the native
-//!   table must equal its TypeScript and Python twins, and each run of a
-//!   current model document saved into a store must reopen natively with the
-//!   webview's findings.
+//!   table (empty: no pressure-2 basis is carried into pressure-3) must equal
+//!   its TypeScript and Python twins, and each run, as a recorded revision and,
+//!   for a current model document, saved into a store, must be refused natively
+//!   with the webview's findings, its source refused by name as retired.
 use super::*;
 use crate::analysis_run_v03_validate::{projection_checked_sha256, recorded_run_findings, recorded_run_validation, saved_run_findings, saved_run_validation, RECORDED_RUN_TABLE_BASES};
 use serde_json::{json, Value};
@@ -22,8 +23,9 @@ pub(crate) use crate::native_verdict::tests::gate as command_gate;
 const REOPEN_CASES: &str = "apps/desktop/src/test-support/native-reopen/historical_reopen_cases.json";
 const BUILDER_CASES: &str = "apps/desktop/src/test-support/analysis-run-v03/analysis_run_v03_cases.json";
 /// `RECORDED_BASIS_FIXTURES` of `historicalReopenCases.ts`: main's verbatim recorded pressure-2
-/// runs (a record, its source and its request model), one per row of
-/// `RECORDED_RUN_TABLE_BASES` in its order. Read, never rewritten.
+/// runs (a record, its source and its request model), one per recorded table basis that
+/// pressure-2 carried; none is carried into pressure-3 (`RECORDED_RUN_TABLE_BASES` is empty).
+/// Read, never rewritten.
 const RECORDED_BASIS_FIXTURES: [&str; 8] = [
     "fixtures/persistence/recorded_model_0_7_0",
     "fixtures/persistence/recorded_model_0_8_0",
@@ -34,6 +36,7 @@ const RECORDED_BASIS_FIXTURES: [&str; 8] = [
     "fixtures/persistence/recorded_model_0_9_0_pre_nl",
     "fixtures/persistence/recorded_model_0_9_0_pre_cert",
 ];
+const PRESSURE_2_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
 const FIXTURE_RECORD: &str = "pressure_plain_connected_sparse.analysis_run.json";
 const FIXTURE_SOURCE: &str = "pressure_connected_mechanics_sparse.json";
 
@@ -484,11 +487,20 @@ fn the_recorded_table_bases_are_the_typescript_and_python_tables() {
         assert_eq!(values.len(), 3, "TypeScript: {fields:?}");
         [values["id"].clone(), values["recorded"].clone(), values["current"].clone()]
     }).collect();
-    // Python: `RECORDED_RUN_TABLE_BASES = ( (item, item, item), … )`; a name is a module-level string constant.
+    // Python: `RECORDED_RUN_TABLE_BASES = ( (item, item, item), … )`, optionally annotated
+    // (`RECORDED_RUN_TABLE_BASES: tuple[…] = ()`); a name is a module-level string constant.
     let py = read_text("core/analysis_runs/compatibility.py");
-    let head = "\nRECORDED_RUN_TABLE_BASES = ";
-    assert_eq!(py.matches(head).count(), 1);
-    let (tokens, _) = bracketed_tokens(&py[py.find(head).unwrap() + head.len()..], "Python");
+    let head = "\nRECORDED_RUN_TABLE_BASES";
+    let declared: Vec<usize> = py.match_indices(head).map(|(at, _)| at + head.len())
+        .filter(|at| py[*at..].starts_with(" = ") || py[*at..].starts_with(": ")).collect();
+    assert_eq!(declared.len(), 1, "Python: one module-level RECORDED_RUN_TABLE_BASES");
+    let line = &py[declared[0]..py[declared[0]..].find('\n').map_or(py.len(), |end| declared[0] + end)];
+    let assign = line.find(" = ").expect("Python: RECORDED_RUN_TABLE_BASES is assigned");
+    if let Some(annotation) = line.strip_prefix(": ") {
+        let annotation = &annotation[..assign - 2];
+        assert!(annotation.chars().all(|c| c.is_ascii_alphanumeric() || " [],.".contains(c)), "Python: annotation {annotation:?}");
+    }
+    let (tokens, _) = bracketed_tokens(&py[declared[0] + assign + 3..], "Python");
     let constant = |name: &str| -> String {
         let assigned: Vec<&str> = py.lines().filter_map(|line| line.strip_prefix(&format!("{name} = "))).collect();
         assert_eq!(assigned.len(), 1, "Python: {name} is not assigned once at module level");
@@ -508,7 +520,8 @@ fn the_recorded_table_bases_are_the_typescript_and_python_tables() {
         }).collect();
         <[String; 3]>::try_from(items).unwrap_or_else(|items| panic!("Python: a row of {} items: {items:?}", items.len()))
     }).collect();
-    assert_eq!(native.len(), 8, "{native:?}");
+    // RT-L2 (DEL-04-07): no pressure-2 basis is carried into pressure-3, so the tables are empty.
+    assert_eq!(native.len(), 0, "{native:?}");
     assert_eq!(typescript, native, "the TypeScript table");
     assert_eq!(python, native, "the Python table");
 }
@@ -592,13 +605,14 @@ fn the_recorded_pre_rt_a4_registry_is_the_typescript_and_python_registry() {
     }
 }
 
-/// RT-A3 #99: main's verbatim pressure-2 runs recorded under each recorded table basis
-/// (`RECORDED_BASIS_FIXTURES`: the 0.7.0- and 0.8.0-era tables, the 0.9.0 registration's
-/// `d46e1963…`, reducer 2a's `032e861f…`, … and RT-A3 increment 4's RT-A4-era `10455bf3…`,
-/// `recorded_model_0_9_0_pre_nl`, and RT-A3 §4's `2c20583d…`, `recorded_model_0_9_0_pre_cert`) reopen natively with the webview's findings and
-/// none of them is refused as `ANALYSIS_SEMANTIC_CONTRACT_MISMATCH`: each as a recorded revision
-/// read by the native reader's findings, and, when its model document is current, as a saved
-/// project's run, which the native open restores from a real store with those findings. A
+/// RT-A3 #99, RT-L2: main's verbatim pressure-2 runs recorded under each recorded table basis
+/// pressure-2 carried (`RECORDED_BASIS_FIXTURES`: the 0.7.0- and 0.8.0-era tables, the 0.9.0
+/// registration's `d46e1963…`, reducer 2a's `032e861f…`, … RT-A3 increment 4's RT-A4-era
+/// `10455bf3…` and RT-A3 §4's `2c20583d…`) reopen natively with the webview's findings, and none
+/// reopens clean: pressure-2 bases are not carried into pressure-3 (DEL-04-07), so each run is
+/// refused, its source refused by name as `SOURCE_PRESSURE_2_RETIRED`; each as a recorded
+/// revision read by the native reader's findings, and, when its model document is current, as a
+/// saved project's run, which the native open restores from a real store with those findings. A
 /// project of a retired model document (0.7.0, 0.8.0) is refused for editing by the native open
 /// exactly as by the legacy open (recorded runs keep their own format, saved projects do not).
 #[test]
@@ -608,8 +622,9 @@ fn recorded_basis_fixtures_reopen_natively_with_the_webviews_findings() {
     let dir = scratch("reopen-recorded-basis");
     let cases = reopen_cases();
     let builder = std::collections::HashMap::new();
-    assert_eq!(RECORDED_BASIS_FIXTURES.len(), RECORDED_RUN_TABLE_BASES.len(), "one verbatim fixture per recorded basis");
-    for (index, fixture) in RECORDED_BASIS_FIXTURES.iter().enumerate() {
+    // RT-L2 (DEL-04-07): no pressure-2 basis is carried into pressure-3.
+    assert!(RECORDED_RUN_TABLE_BASES.is_empty(), "{RECORDED_RUN_TABLE_BASES:?}");
+    for fixture in RECORDED_BASIS_FIXTURES {
         let name = fixture.rsplit('/').next().unwrap();
         let verbatim: Value = serde_json::from_str(&read_text(&format!("{fixture}/{FIXTURE_RECORD}"))).unwrap();
         let case = |id: String| cases.iter().find(|case| case["id"] == json!(id));
@@ -666,15 +681,19 @@ fn recorded_basis_fixtures_reopen_natively_with_the_webviews_findings() {
             (Ok(opened), None) => panic!("{fixture}: a project with no saved case opened: {}", opened["stored_run"]),
             (Err(native), Some(_)) => panic!("{fixture}: {native}"),
         }
-        // Both forms' findings, natively from the stored values, are the webview's, and none refuses the basis.
+        // Both forms' findings, natively from the stored values, are the webview's, and neither
+        // reopens clean: the run is refused, never read as a current result.
         for case in saved.into_iter().chain([recorded]) {
             assert_eq!(native_findings(case, &builder), case["expected"], "{}", case["id"]);
             let findings = case["expected"]["findings"].as_array().unwrap();
-            assert!(!findings.iter().any(|finding| finding.as_str().unwrap().contains("MISMATCH")), "{}: {findings:?}", case["id"]);
+            assert!(!findings.is_empty(), "{}: reopened clean", case["id"]);
         }
-        // Each fixture binds its own row's recorded basis, in the table's order.
-        let basis = RECORDED_RUN_TABLE_BASES.get(index).map(|(id, recorded, _)| json!({"id": id, "sha256": recorded}));
-        assert_eq!(Some(&verbatim["analysis_run"]["reproducibility"]["semantic_contract"]), basis.as_ref(), "{fixture} binds row {index}'s recorded basis");
+        // The run and its source are pressure-2, and the source's reader refuses it by name.
+        assert_eq!(verbatim["analysis_run"]["reproducibility"]["semantic_contract"]["id"], PRESSURE_2_ID, "{fixture}");
+        let source: Value = serde_json::from_str(&read_text(&format!("{fixture}/{FIXTURE_SOURCE}"))).unwrap();
+        assert_eq!(source["producer"]["semantic_contract_id"], PRESSURE_2_ID, "{fixture}");
+        let refusal = open_pipe_stress_result_export::reader_verdict::route(&source).unwrap_err();
+        assert!(refusal.starts_with("SOURCE_PRESSURE_2_RETIRED:"), "{fixture}: {refusal}");
     }
     std::fs::remove_dir_all(&dir).unwrap();
     assert_eq!(registry.pool().reserved_total(), 0);

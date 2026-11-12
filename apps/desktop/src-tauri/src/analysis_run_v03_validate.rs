@@ -941,42 +941,15 @@ pub(crate) fn validate_v03(record: &Value, source: &mut Value, expected_basis: O
     Ok(())
 }
 
-/// Model document 0.8.0 (DEL-02-01 Design `model-document-0.8.0.md` §3.2; owner ruling
-/// "0.8.0 a2": recorded runs keep their existing read and compare behaviour, with no
-/// model-document-version gate). pressure-2's table changed only the model version token of
-/// its admitted-families sentence (0.7.0 -> 0.8.0); every row, and so every row reading, is the
-/// same. A run recorded under the 0.7.0-era table binds that table's exact digest, which is
-/// read as the recorded basis of exactly this current table. Only the record validator reads
-/// it: the record builder and the export bind the current table, and any other digest, or a
-/// record binding the two tables at once, is refused as before. Model document 0.9.0 (Design
-/// `model-document-0.9.0.md` §3.2) edits the same sentence's token again (0.8.0 -> 0.9.0), so a
-/// run recorded under the 0.8.0-era table is read the same way. RT-A3 reducer 2a (#73) and 2b
-/// (#80) each restated only the table's admitted-families disclosure
-/// (`supported_profile_limitations[1]`; every row is the same), so runs recorded under the 0.9.0
-/// registration's table (d46e1963…) and under 2a's (032e861f…) are read the same way too. RT-A3
-/// increment 3 restates two limitations and appends a combination gate, rows unchanged, so a run
-/// recorded under the pre-increment table (a2db16a5…) is read the same way; RT-A4 (DEL-05-02
-/// `absolute-sum-srss-combinations.md` §10.2) restates the combination policy and adds three
-/// vocabulary tokens, rows unchanged, so a run recorded under the constant-effort table
-/// (be29fabc…) is read the same way. RT-A3 increment 4 (DEL-04-07 Design `pressure-contract.md`,
-/// "Nonlinear supports on EX") restates two limitations, rows and gates unchanged, so a run
-/// recorded under the RT-A4 table (10455bf3…) is read the same way. RT-A3 §4 (DEL-05-02 Work
-/// `combination-certificate.md`) restates the combination standing and the combinations
-/// limitation, rows and gates unchanged, so a run recorded under main's table at 252bef969
-/// (2c20583d…) is read the same way against the current table (21b7426e…).
-/// The native mirror of `analysisRunCompatibility.ts` `RECORDED_RUN_TABLE_BASES` (id,
-/// recorded, current), row for row and in order; Python's twin is `compatibility.py`
-/// `RECORDED_RUN_TABLE_BASES`. `stored_custody_tests.rs` requires all three to be equal.
-pub(crate) const RECORDED_RUN_TABLE_BASES: [(&str, &str, &str); 8] = [
-    ("openpipestress.result_semantics/0.3.0/pressure-3", "3e2aac3cbe1dd967292dc2524cc7e12a35b162f14795c13b741acaa2b964625d", "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9"),
-    ("openpipestress.result_semantics/0.3.0/pressure-3", "5451fbf3e10e085c90b523baa7daf5fc723659e0d874d988d23807be7d2fefe6", "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9"),
-    ("openpipestress.result_semantics/0.3.0/pressure-3", "d46e1963d7502b8e41898805128f2807b2670a1d4c738c71876002ed727e5faf", "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9"),
-    ("openpipestress.result_semantics/0.3.0/pressure-3", "032e861fc66bf5f34a081b104ec879a39831bfd6472b186954966ea57d65f025", "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9"),
-    ("openpipestress.result_semantics/0.3.0/pressure-3", "a2db16a515d8e4e1c1bcd6607861df0e7e58cbf1cf82a0b984e2f1c0f128382e", "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9"),
-    ("openpipestress.result_semantics/0.3.0/pressure-3", "be29fabcfacb1070a51bfb56dcfe61b4e4125638e249c3c0e96d092cc8aba43f", "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9"),
-    ("openpipestress.result_semantics/0.3.0/pressure-3", "10455bf348b46efac998b6635b537c9e3149a7d1c7a29ea96c0e3783a2de9ad6", "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9"),
-    ("openpipestress.result_semantics/0.3.0/pressure-3", "2c20583d3c06e226a13bb7f9649b04aeea0f0f6948b5fa1cbd944afd07413645", "757e5b18e97b5f5c5dcca235a682abfb25768d6af6c70bc81cb10813998200d9"),
-];
+/// Recorded-run table bases (id, recorded, current): each is read by the record validator
+/// only as the recorded basis of exactly its current table. The pressure-2 bases that model
+/// documents 0.8.0 and 0.9.0, RT-A3 and RT-A4 added are not carried into pressure-3 (RT-L2,
+/// DEL-04-07): a pressure-2 record follows the retired-identity rule and is refused by name
+/// (SOURCE_PRESSURE_2_RETIRED). None is current. The native mirror of
+/// `analysisRunCompatibility.ts` `RECORDED_RUN_TABLE_BASES`, row for row and in order; Python's
+/// twin is `compatibility.py` `RECORDED_RUN_TABLE_BASES`. `stored_custody_tests.rs` requires all
+/// three to be equal.
+pub(crate) const RECORDED_RUN_TABLE_BASES: [(&str, &str, &str); 0] = [];
 
 /// `recordedRunSemanticBinding(recorded, sourceSemanticBinding(source))`: the
 /// current table's binding, or the exact recorded basis the record names when
