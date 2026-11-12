@@ -477,7 +477,7 @@ def test_every_expectation_is_judged_under_the_scripted_provider_and_named_when_
     stub, live = {}, {}
     assert judged(judgement=stub) == [] and judged(live=True, judgement=live) == []
     ids = [e["id"] for e in fixture.W9A.expectations]
-    assert stub == {"judged": ids, "notJudged": [], "requestedActs": {"standing": "none", "acts": []}}
+    assert stub == {"judged": ids, "notJudged": [], "observedByPerson": [], "requestedActs": {"standing": "none", "acts": []}}
     assert live["notJudged"] == ["tool-outcomes-agree"] and live["judged"] == [i for i in ids if i != "tool-outcomes-agree"]
 
 
@@ -699,3 +699,91 @@ def test_the_summary_line_and_exit_status_carry_the_outcome(tmp_path, monkeypatc
     assert summary["outcome"] == "unfinished" and summary["passed"] is False and not summary["failures"]
     written = json.loads((tmp_path / "out" / "result.json").read_text())
     assert written["outcome"] == "unfinished" and written["passed"] is False
+
+
+# ---------------------------------------------------------------------------
+# Things a person observes: never passed or failed by the judge, listed, and never a pass.
+
+def with_person(thing="copy_pressed_on_selected_table", **override):
+    definition = w9a_definition()
+    expectation = {"id": "copy-by-person", "kind": "observed_by_person", "on": "person", "thing": thing,
+                   "machine_observed": "The node:c rows were shown and selectable, and are what Copy would take.",
+                   "machine_check": "node-c-motions"}
+    expectation.update(override)
+    definition["expectations"].append(expectation)
+    return definition
+
+
+def test_a_thing_a_person_observes_is_listed_never_judged_and_the_run_awaits_a_person():
+    case = case_from(with_person())
+    reference = fixture.w9a_reference()
+    operations = json.loads(fixture.FIXTURE.read_text())["routes"]["PF"]["operations"]
+    report, captured = observed_report(reference, operations)
+    judgement = {}
+    failures = fixture.judge(report, case, captured, judgement)
+    assert failures == [] and "copy-by-person" not in judgement["judged"] + judgement["notJudged"]
+    assert judgement["observedByPerson"] == [{"id": "copy-by-person", "thing": "copy_pressed_on_selected_table",
+                                               "machineObserved": case.expectations[-1]["machine_observed"],
+                                               "machineCheck": "node-c-motions", "machineCheckJudged": True}]
+    result = {"passed": True, "expectations": judgement}
+    assert fixture.settle(result) == "awaiting a person" and result["passed"] is False
+    assert fixture.OUTCOME_EXIT["awaiting a person"] not in (0, 1, fixture.OUTCOME_EXIT["unfinished"])
+    # A failure of the route still fails; a missing receipt still reads as unfinished first.
+    assert fixture.settle({"passed": False, "expectations": judgement}) == "failed"
+    both = dict(judgement, requestedActs={"standing": "unfinished", "acts": []})
+    assert fixture.settle({"passed": True, "expectations": both}) == "unfinished"
+
+
+def test_a_person_observed_thing_must_name_what_the_machine_observed_and_its_check():
+    assert fixture.validate_definition(with_person("print_dialog_outcome"), "w9a-journey") == []
+    def problems(**override):
+        return fixture.validate_definition(with_person(**override), "w9a-journey")
+    assert any("is not one a person observes" in p for p in problems(thing="window_looked_right"))
+    assert any("machine_observed must say" in p for p in problems(machine_observed=""))
+    assert any("machine_observed must say" in p for p in problems(machine_observed="nothing"))
+    assert any("names no earlier expectation" in p for p in problems(machine_check="no-such-check"))
+    assert any("names no earlier expectation" in p for p in problems(machine_check=None))
+    missing = with_person()
+    del missing["expectations"][-1]["machine_observed"]
+    assert any("parameters" in p for p in fixture.validate_definition(missing, "w9a-journey"))
+    selfref = with_person()
+    selfref["expectations"].append(dict(selfref["expectations"][-1], id="second", machine_check="copy-by-person"))
+    assert any("names no earlier expectation" in p for p in fixture.validate_definition(selfref, "w9a-journey"))
+    assert any("judges the person" in p for p in problems(on="window"))
+
+
+# ---------------------------------------------------------------------------
+# Judge and validator rules that had no test of their own.
+
+def test_the_judge_names_a_driver_error_and_a_missing_receipt():
+    def errored(report):
+        report["error"] = "timed out after 60000 ms waiting for agent ready"
+    assert judged(errored)[0] == "driver: timed out after 60000 ms waiting for agent ready"
+    def no_receipt(report):
+        report["batch"]["apply_message"] = None
+    assert "no batch receipt after Apply" in judged(no_receipt)
+
+
+def test_the_judge_refuses_a_window_value_in_the_wrong_unit():
+    def metres(report):
+        row = next(r for r in report["results"]["rows"] if r["id"].endswith(":ux"))
+        row["text"] = row["text"].replace(" mm", " m")
+    assert "node:c ux: unit m" in judged(metres)
+
+
+def test_the_judge_requires_the_solve_on_the_applied_model_and_the_window_naming_it():
+    def other_solve(captured):
+        captured[1]["outcome"]["data"]["evaluatedModelHash"] = {"value": "d" * 64}
+    found = judged(captured_mutate=other_solve)
+    assert "solve was not on the applied model's hash" in found
+    assert "the window's solve proof names another model hash" in found
+    def other_proof(report):
+        report["results"]["model_sha256"] = "sha256:" + "e" * 64
+    assert judged(other_proof) == ["the window's solve proof names another model hash"]
+
+
+def test_the_validator_refuses_an_id_other_than_the_directory_and_tree_types_off_the_observed_ones():
+    assert any("is not the directory name" in p for p in fixture.validate_definition(w9a_definition(), "another-case"))
+    off = w9a_definition()
+    off["observe"]["tree_types"] = ["node", "pipe"]
+    assert any("object_types" in p for p in fixture.validate_definition(off, "w9a-journey"))

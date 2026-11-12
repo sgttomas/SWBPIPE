@@ -145,12 +145,23 @@ PERFORMED = "performed"
 REQUEST_STANDINGS = ("pending", "declined", "refused", "stale", "withdrawn", "unknown", PERFORMED,
                      "sent to the print dialog")
 # Where a tool outcome observing a request carries the act and its standing. Provisional: the
-# catalog defines no request observation yet; follow it when it does.
+# catalog defines no request observation yet; follow it when it does. The catalog will list the
+# standings each act's request can reach; the judge reads the standing it is given and assumes
+# none reachable. The one fixed rule is print's: never performed (DEL-16-06 Request standing).
 REQUEST_OBSERVATION = {"act": "data.requestedAct", "standing": "data.requestStanding"}
-# The result's one word for the run (`outcome`) and the controller's exit status for each.
-# "unfinished": the route was examined and nothing failed, but a requested act was not shown to
-# the agent as performed, so the use case is not complete for the agent. It is not a pass.
-OUTCOME_EXIT = {"passed": 0, "failed": 1, "unfinished": 3}
+# Things a person's hands observe that the runner cannot. An `observed_by_person` expectation
+# names one, says what the machine observed short of it and names the expectation that judged
+# that; the judge never passes or fails it, and lists it for a person.
+PERSON_OBSERVED = {
+    "copy_pressed_on_selected_table": "pressing Copy on a selected table and what Copy took (DEL-07-06 AC-006)",
+    "print_dialog_outcome": "what the person did in the system print dialog after the report was handed to it",
+}
+# The result's one word for the run (`outcome`) and the controller's exit status for each. Only
+# "passed" is a pass. "unfinished": the route passed, but a requested act was not shown to the
+# agent as performed (closed by the route's receipt). "awaiting a person": the route passed and
+# every requested act was performed, but a thing only a person can observe is listed (closed by a
+# person's observation). Precedence: failed, unfinished, awaiting a person, passed.
+OUTCOME_EXIT = {"passed": 0, "failed": 1, "unfinished": 3, "awaiting a person": 4}
 # A definition states the person's side only; which provider answers is the run's choice.
 PROVIDER_KEYS = {"provider", "endpoint", "model", "apiKey", "key", "contextWindow", "stub", "scripted_provider"}
 STANDING = {
@@ -958,6 +969,21 @@ def judge_requested_act_standing(expectation, report, case, context, captured):
     return [], 1
 
 
+def validate_by_person(expectation, context, seen):
+    """A person-observed thing must say what the machine observed short of it, and name the
+    machine expectation that judged that, so it cannot stand in for a check the machine can make."""
+    problems = []
+    if expectation["thing"] not in PERSON_OBSERVED:
+        problems.append(f"thing {expectation['thing']!r} is not one a person observes ({', '.join(PERSON_OBSERVED)})")
+    said = expectation["machine_observed"]
+    if not isinstance(said, str) or len(said.split()) < 4:
+        problems.append("machine_observed must say, in a sentence, what the machine observed short of it")
+    check = seen.get(expectation["machine_check"])
+    if check is None or check["kind"] == "observed_by_person":
+        problems.append(f"machine_check {expectation['machine_check']!r} names no earlier expectation the machine judges")
+    return problems
+
+
 def validate_requested(expectation, context, seen):
     number = expectation["requested"]
     if not isinstance(number, int) or not 1 <= number <= len(context["requested"]):
@@ -966,6 +992,8 @@ def validate_requested(expectation, context, seen):
 
 
 CHECKS = {
+    # Never judged: listed for a person (see PERSON_OBSERVED).
+    "observed_by_person": Check("person", ("thing", "machine_observed", "machine_check"), None, validate_by_person),
     "requested_act_standing": Check("conversation", ("requested",), judge_requested_act_standing, validate_requested),
     "requests_answered": Check("conversation", (), judge_requests_answered),
     "agent_batch_shown": Check("window", ("apply", "operations"), judge_agent_batch_shown, validate_apply),
@@ -987,8 +1015,15 @@ def judge(report, case, captured=None, judgement=None):
         failures.append(f"driver: {report['error']}")
     if report.get("steps") != case.steps:
         failures.append(f"steps {report.get('steps')}")
+    by_person = []
     for expectation in case.expectations:
         check = CHECKS[expectation["kind"]]
+        if check.category == "person":
+            by_person.append({"id": expectation["id"], "thing": expectation["thing"],
+                              "machineObserved": expectation["machine_observed"],
+                              "machineCheck": expectation["machine_check"],
+                              "machineCheckJudged": expectation["machine_check"] in judged})
+            continue
         if check.needs_tool_outcomes and captured is None:
             unjudged.append(expectation["id"])
             continue
@@ -1000,11 +1035,11 @@ def judge(report, case, captured=None, judgement=None):
         if compared < 1:
             failures.append(f"expectation {expectation['id']} compared nothing")
         judged.append(expectation["id"])
+    acts = context.get("requested", [])
+    if len(acts) != len(case.requested_acts):
+        failures.append(f"{len(case.requested_acts)} requested acts, {len(acts)} judged")
     if judgement is not None:
-        acts = context.get("requested", [])
-        if len(acts) != len(case.requested_acts):
-            failures.append(f"{len(case.requested_acts)} requested acts, {len(acts)} judged")
-        judgement.update(judged=judged, notJudged=unjudged, requestedActs={
+        judgement.update(judged=judged, notJudged=unjudged, observedByPerson=by_person, requestedActs={
             "standing": "none" if not case.requested_acts
             else "all performed" if len(acts) == len(case.requested_acts) and all(a["standing"] == PERFORMED for a in acts)
             else "unfinished",
@@ -1013,13 +1048,15 @@ def judge(report, case, captured=None, judgement=None):
 
 
 def settle(result):
-    """The run's one word. "passed" needs the route examined with no failure and, for a use case
-    with requested acts, every one shown to the agent as performed; "unfinished" is a route that
-    passed with a requested act not so shown, and is no pass: `passed` is then false, with no
-    failure named."""
+    """The run's one word (OUTCOME_EXIT). "passed" needs the route examined with no failure, every
+    requested act shown to the agent as performed and nothing left for a person; "unfinished" and
+    "awaiting a person" are no pass: `passed` is then false, with no failure named."""
     route_passed = bool(result.get("passed"))
-    unfinished = ((result.get("expectations") or {}).get("requestedActs") or {}).get("standing") == "unfinished"
-    result["outcome"] = "failed" if not route_passed else "unfinished" if unfinished else "passed"
+    expectations = result.get("expectations") or {}
+    unfinished = (expectations.get("requestedActs") or {}).get("standing") == "unfinished"
+    awaiting = bool(expectations.get("observedByPerson"))
+    result["outcome"] = ("failed" if not route_passed else "unfinished" if unfinished
+                         else "awaiting a person" if awaiting else "passed")
     result["passed"] = result["outcome"] == "passed"
     return result["outcome"]
 

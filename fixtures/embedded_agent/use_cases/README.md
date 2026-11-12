@@ -49,28 +49,59 @@ Nothing in it may depend on which provider answers. A member named `provider`,
   `tool_outcomes_agree_with_window` needs the tool outcomes that only the
   scripted provider sees. A live run reports it under `notJudged`.
 
-## Requested acts and the result's outcome
+## Requested acts, things a person observes, and the result's outcome
 
 A request is settled as performed only on the owning route's receipt, and a
-route that gives no receipt (print never will) leaves its request short of
-performed. So a use case with a requested act is complete for the agent only
-if the conversation shows the agent was given the standing `performed` for
-each requested act. Each requested act must have exactly one
-`requested_act_standing` expectation, and any other standing leaves the use
-case unfinished for the agent. A live run cannot see the agent's tool
-outcomes, so it always reports such a use case as unfinished.
+route that gives no receipt leaves its request short of performed. So a use
+case with a requested act is complete for the agent only if the conversation
+shows the agent was given the standing `performed` for each requested act.
+Each requested act must have exactly one `requested_act_standing`
+expectation, and any other standing, or none seen, leaves the use case
+unfinished for the agent. A live run cannot see the agent's tool outcomes,
+so it always reports such a use case as unfinished.
 
-The result's `outcome` is one word:
-- `passed`: the route was examined with no failure, and every requested act
-  was shown to the agent as performed.
-- `failed`: something failed; `failures` and `failure` say what.
-- `unfinished`: the route passed, but a requested act was not shown as
-  performed.
+- **Print.** A print request reaches `sent to the print dialog` only on the
+  route's receipt of the hand-over of the captured report. That standing is
+  still short of performed and leaves the use case unfinished. A print
+  request reported as `performed` is a failure.
+- **Reachable standings.** The catalog lists the standings each act's
+  request can reach. The judge reads the standing it is given and assumes
+  none is reachable.
+- **Provisional location.** The judge reads the standing from tool outcomes
+  at `data.requestedAct` and `data.requestStanding`. That location is
+  provisional until the catalog defines the request observation.
 
-`unfinished` is no pass. `passed` is then false with no failure named, the
-exit status is 3 (0 for passed, 1 for failed), and the summary line carries
-the outcome. A scripted provider run examines the route only and shows
-nothing about what a model does.
+Some things only a person's hands observe; the runner cannot. An
+`observed_by_person` expectation names one, from a closed list:
+- `copy_pressed_on_selected_table`: pressing Copy on a selected table.
+- `print_dialog_outcome`: what the person did in the system print dialog.
+
+It must also give:
+- `machine_observed`: a sentence saying what the machine observed short of
+  that thing;
+- `machine_check`: an earlier expectation the machine judges.
+
+The validator refuses one without either, so it cannot replace a check the
+machine can make. The judge never passes or fails it. It lists it under
+`expectations.observedByPerson` so the list can be handed to a person.
+
+The result's `outcome` is one word. Precedence runs from first to last:
+
+| `outcome` | Meaning | Exit status |
+| --- | --- | --- |
+| `failed` | Something failed; `failures` and `failure` say what. | 1 |
+| `unfinished` | The route passed, but a requested act was not shown to the agent as performed. | 3 |
+| `awaiting a person` | The route passed and every requested act was performed, but something listed is for a person to observe. | 4 |
+| `passed` | None of the above. | 0 |
+
+The two kinds of shortfall close differently. `unfinished` closes only on a
+receipt from the owning route, given to the agent as `performed`.
+`awaiting a person` closes only when a person observes each listed thing. For
+both, `passed` is false with no failure named, and the summary line carries
+`outcome` and both lists.
+
+A scripted provider run examines the route only and shows nothing about what
+a model does.
 
 ## `scripted_provider.json`: model output for stub mode only
 
