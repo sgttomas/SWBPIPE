@@ -19,6 +19,13 @@ needs:
     The common export contract defines the manifest, the stable ID map, the loss report, and an
     export profile whose external-execution policy is optional, user-owned harness metadata only.
   gating: true
+- from: DEL-04-07
+  when: Solving a pressurised benchmark model in a declared series state
+  condition: >-
+    The model document may carry the pressure elongation setting naming load cases; a document without it solves
+    with elongation off in every case; with it, elongation applies in each named case that has pressure regions; and
+    a pressure region's terminals state whether they transfer to the wall.
+  gating: true
 - from: DEL-10-05
   when: Comparing SWBPIPE's results with the prover's
   condition: >-
