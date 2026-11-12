@@ -191,6 +191,23 @@ describe("a queued batch's precondition", () => {
     expect(result.current.operations.undoStack).toHaveLength(1);
   });
 
+  it("whose success arrives after the bound, before the bound's timer has run, applies nothing (round 2's regression)", async () => {
+    // The monotonic clock passes the bound while the precondition answers, and its null is delivered before the
+    // timer's callback can run. Before the repair, the first callback to run decided, and this batch was applied.
+    const result = await session();
+    const realNow = performance.now.bind(performance);
+    let skew = 0;
+    vi.spyOn(performance, "now").mockImplementation(() => realNow() + skew);
+    const entry = await queue(result, "batch:overdue", "15.5", 1, { precondition: async () => { skew += PRECONDITION_TIMEOUT_MS + 1; return null; } });
+    const before = history(result);
+    const applySpy = vi.spyOn(operationBatchService, "applyOperationBatch");
+    await apply(result, entry);
+    expect(applySpy).not.toHaveBeenCalled();
+    expect(history(result)).toEqual(before);
+    expect(result.current.operations.batchMessage).toBe(`Batch batch:overdue was not applied. ${PRECONDITION_UNCHECKED_REASON}`);
+    expect(entryOf(result, entry.key).lastApplyRefusal).toEqual({ kind: "precondition", reason: PRECONDITION_UNCHECKED_REASON });
+  });
+
   it("is not asked by validation or preview", async () => {
     const result = await session();
     const precondition = vi.fn<BatchPrecondition>(async () => REFUSAL);
@@ -283,7 +300,7 @@ describe("the gates after the precondition's wait (each with a held answer that 
 
   // No run is cancelled: the session has no cancel for a batch apply (cancellation exists for solves only).
 
-  it("the late answer: a precondition that answers null after the bound has refused applies nothing, then or afterwards", async () => {
+  it("an answer after the timer has already refused: a null that arrives once the bound has refused applies nothing, then or afterwards", async () => {
     const result = await session();
     const called = deferred<void>();
     const answer = deferred<string | null>();
