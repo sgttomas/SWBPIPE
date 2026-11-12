@@ -1,3 +1,6 @@
+import type { Diagnostic, PreviewModel } from "../../types";
+import type { ModelCheckFinding, ModelCheckRun } from "../diagnostics/modelChecks";
+
 // A run token is acquired synchronously before the first await. This closes the
 // native-menu double-dispatch window and also lets model/open invalidation make
 // every callback from an older solve inert, even when an adapter reuses a job
@@ -70,4 +73,94 @@ export function commitModelAfterSolveInvalidation(
   revision.current += 1;
   gate.invalidate();
   commit();
+}
+
+/** Whether the Solve command is offered for a model (DEL-07-07 REQ-008,
+ * DEL-07-04 AC-001), read from the model checks (DEL-04-06 REQ-013), whose
+ * findings equal the solver's leading diagnostics (DEL-04-06 AC-008):
+ * - `open`: the checks ran on this model value and no solve-blocking finding stands;
+ * - `unknown`: no check run is current for this model value, or the checks did
+ *   not run; the Solve command proceeds as it would without the gate;
+ * - `withheld`: a solve-blocking finding stands. Only the solve group (the
+ *   solve's own input, restraint and topology checks) withholds; a slot or
+ *   library-reference finding, and a rule-check-blocking finding, do not.
+ * `findings` are the checks' own findings, unaltered: each `diagnostic` is the
+ * record the checks returned, and `diagnostics` lists those same records in the
+ * same order. `notListedBlocking` counts the solve group's blocking or error
+ * findings the bounded report counted but did not list. `refusal` is the solve's
+ * own text where it cannot read the model. `model` is the model value the checks
+ * ran on (the run's own, which is the model the reading was asked for). */
+export type SolveGateReading =
+  | Readonly<{ kind: "open" }>
+  | Readonly<{ kind: "unknown"; reason: "not_checked" | "model_changed" | "checks_unavailable" }>
+  | Readonly<{
+      kind: "withheld";
+      model: PreviewModel;
+      findings: readonly ModelCheckFinding[];
+      diagnostics: readonly Diagnostic[];
+      notListedBlocking: number;
+      refusal: string | null;
+      /** Where a later run of the checks on this model value did not complete, why; the
+       * findings are those of the last run that completed, and they stand. */
+      laterCheckNotCompleted: string | null;
+    }>;
+
+/** Why a Solve request's model check ended before its reading was taken. */
+export type SolveGateStop = "cancelled" | "model_changed" | "check_retired" | "unmounted" | "check_failed";
+
+/** What the Solve command's gate decided for one request:
+ * - `proceed`: the solve starts; the reading is open, or unknown where no check
+ *   could run or complete (the solve then proceeds as it did before the gate);
+ * - `withheld`: a solve-blocking finding stands; the reading names it;
+ * - `cancelled`: the person cancelled while the request's check ran;
+ * - `superseded`: the check ended without a reading for this request:
+ *   `model_changed`: the model value changed or the request's run was invalidated
+ *   (an applied operation, an undo or redo, or another project or model opened,
+ *   which is how a new project session normally reads here);
+ *   `check_retired`: a later check superseded the request's check (the person's
+ *   Run model checks), or the project session changed while the model revision did
+ *   not; `unmounted`: the workspace unmounted; `check_failed`: the check or the
+ *   gate's own continuation failed.
+ * Only `proceed` starts a solve; in every other case nothing of the session is
+ * cleared and the model is untouched. */
+export type SolveGateOutcome =
+  | Readonly<{ kind: "proceed"; reading: Exclude<SolveGateReading, { kind: "withheld" }> }>
+  | Readonly<{ kind: "withheld"; reading: Extract<SolveGateReading, { kind: "withheld" }> }>
+  | Readonly<{ kind: "cancelled" }>
+  | Readonly<{ kind: "superseded"; reason: Exclude<SolveGateStop, "cancelled"> }>;
+
+/** A finding's severity that withholds Solve when the solve group reports it. */
+export function isSolveBlockingSeverity(severity: Diagnostic["severity"]): boolean {
+  return severity === "blocking" || severity === "error";
+}
+
+/** The Solve command's gate for `model`, read from the session's last model-check
+ * run. A run is current only for the model value it read (`run.model === model`,
+ * the Model checks list's own staleness rule). Pure: it reads, and changes nothing. */
+export function readSolveGate(model: PreviewModel | null, run: ModelCheckRun | null): SolveGateReading {
+  if (!model || !run) return { kind: "unknown", reason: "not_checked" };
+  if (run.model !== model) return { kind: "unknown", reason: "model_changed" };
+  if (run.solve.kind === "unavailable") return { kind: "unknown", reason: "checks_unavailable" };
+  const findings = run.findings.filter((finding) => finding.group === "solve" && isSolveBlockingSeverity(finding.diagnostic.severity));
+  const notListedBlocking = run.notShownBlockingByGroup.solve;
+  const refusal = run.solve.kind === "refused" ? run.solve.refusal : null;
+  if (findings.length === 0 && notListedBlocking === 0 && refusal === null) return { kind: "open" };
+  return {
+    kind: "withheld", model: run.model, findings, diagnostics: findings.map((finding) => finding.diagnostic), notListedBlocking, refusal,
+    laterCheckNotCompleted: run.laterCheckNotCompleted ?? null
+  };
+}
+
+/** The reason a withheld Solve command states wherever it is offered (the
+ * toolbar's Run, the Analyze menu, the Solve panel). It tells apart the findings
+ * listed in Model checks, the solve-blocking findings the bounded report counted
+ * but did not list, and the solve's refusal to read the model. */
+export function solveWithheldReason(reading: Extract<SolveGateReading, { kind: "withheld" }>): string {
+  const listed = reading.findings.length;
+  const counted = reading.notListedBlocking;
+  const parts: string[] = [];
+  if (listed > 0) parts.push(`${listed} solve-blocking ${listed === 1 ? "finding stands" : "findings stand"} for this model, listed in Model checks in the Issues drawer`);
+  if (counted > 0) parts.push(`${listed > 0 ? `${counted} more` : counted} solve-blocking ${counted === 1 ? "finding was" : "findings were"} counted by the bounded report but not listed`);
+  if (reading.refusal !== null) parts.push(`the solve cannot read this model (${reading.refusal})`);
+  return `Solve is withheld: ${parts.join("; ")}.`;
 }
