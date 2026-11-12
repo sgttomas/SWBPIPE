@@ -344,7 +344,8 @@ DESC = {
         "x <= a (symmetric); u_3 = (sum_j f(4, x_j) F_j + f(4, 4)(F_cold + k g)) / "
         "(1 + k f(4, 4)); spring force F_cold - k (u_3 - g); end reactions by "
         "statics. Held: two 4 m spans, three-moment M_B = -3 L (P1 + P2)/32, "
-        "R_S1 = R_S5 = P/2 + M_B/L, R_SH3 = (P1 + P2)/2 - 2 M_B/L, with P1 and P2 "
+        "R_S1 = P1/2 + M_B/L, R_S5 = P2/2 + M_B/L, R_SH3 = (P1 + P2)/2 - 2 M_B/L, "
+        "with P1 and P2 "
         "the downward loads at N2 and N4."),
     "P-B": (
         "Two spring hangers on one span. Nodes N1..N7 at x = 0, 2, ..., 12 m; S-1 "

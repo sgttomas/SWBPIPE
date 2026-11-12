@@ -223,7 +223,11 @@ O2 at −35 °C (ΔT = −50 K).
   selection rules compare: "the smallest largest variation", where "a constant
   record's variation counts as zero". It is the largest per-case variation of a
   variable selection, and 0 for a constant selection. It is null for an
-  unfitted candidate, which has no selection.
+  unfitted candidate, which has no selection. governing_variation records the
+  value used to compare fitting records under REQ-004. It does not require
+  publication of a product member with this name or value. Product comparisons
+  may derive it from the per-case variations; constants count as zero for
+  selection.
 
 ## What a null means (EXS-A, EXS-B)
 
@@ -353,8 +357,9 @@ routes; the test cases run on the exact route only.
   Held: SH-3 is a rigid UZ restraint at zero, and neither k nor F_cold acts.
   The model is then two 4 m spans with midspan loads P₁ = 9000 N at N2 (F-A
   plus F-H1) and P₂ = 11000 N at N4 (F-B plus F-H2):
-  M_B = −3L(P₁ + P₂)/32 = −7500 N·m. The reactions are P/2 + M_B/L at the ends
-  and (P₁ + P₂)/2 − 2M_B/L at SH-3: S-1 2625, SH-3 13750 and S-5 3625 N, exact.
+  M_B = −3L(P₁ + P₂)/32 = −7500 N·m. The reactions are R_S1 = P₁/2 + M_B/L,
+  R_S5 = P₂/2 + M_B/L and R_SH3 = (P₁ + P₂)/2 − 2M_B/L: S-1 2625, SH-3 13750
+  and S-5 3625 N, exact.
 - **P-B:** a 12 m span with SH-3 at x = 4 (k = 120000, F_cold = 5000 N) and
   SH-5 at x = 8 (k = 200000, F_cold = 7500 N), loads −6000, −9000 and −4000 N
   at x = 2, 6 and 10. Closed form: the two equations

@@ -731,6 +731,8 @@ def fd(d):
 
 NULL_RULE = ('In an expected block, a null or an absent member means that this reference supplies no expectation for that quantity; a product comparison must not assert that the product publishes nothing there. The exceptions, where a null or an empty list is itself the expectation, are listed in comparison_semantics.')
 
+GOVERNING_NOTE = ('governing_variation records the value used to compare fitting records under REQ-004. It does not require publication of a product member with this name or value. Product comparisons may derive it from the per-case variations; constants count as zero for selection.')
+
 SEMANTICS = {
     "general": NULL_RULE,
     "no_expectation": [
@@ -739,7 +741,7 @@ SEMANTICS = {
         "f_operating_n, variation and departure_n: the scope defines these "
         "for a variable selection only (REQ-004 Loads and Variation, REQ-005 "
         "Variable selections). Its governing variation, which REQ-004 does "
-        "define, is given in governing_variation.",
+        "define, is given in governing_variation. " + GOVERNING_NOTE,
         "An unfitted candidate's loads, variation, envelope and verification "
         "(see unfitted_verification_note).",
         "failure_counts and first_failed_test of a family the request does "
