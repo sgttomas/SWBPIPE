@@ -72,8 +72,9 @@ export function engineHangerKind(value: unknown): "variable_spring" | "constant_
 
 /** The field paths through which an operation on a Support can write its hanger member or family, checked against the
  * operation route (core/model_operations/operation_applier): `configuration` (update_support, which replaces the
- * support's configuration) and `supports` (create_support, and delete_support, whose `before` is the support's label).
- * The route's other Support paths (label, provenance, node, restraints, tags, notes, provenance_record) cannot. */
+ * support's configuration) and `supports` (create_support). A support deletion also travels on `supports`, but writes no
+ * hanger and is recognised by its kind (`isSupportDeletion`). The route's other Support paths (label, provenance, node,
+ * restraints, tags, notes, provenance_record) cannot write a hanger or family. */
 export const SUPPORT_HANGER_FIELD_PATHS: readonly string[] = ["configuration", "supports"];
 
 /** A change's before or after as the predicate reads it: absent (`not_present`), a value, or unreadable. */
@@ -88,22 +89,41 @@ function changeValue(text: unknown): { kind: "absent" } | { kind: "value"; value
 }
 
 /** Whether a value written or replaced on a support is a hanger: it has a `hanger` member at all (any value), or the
- * engine classifies it as one. A value that is unreadable, or not a support object (a delete's `before` is the
- * support's label), counts as a hanger: it fails closed. */
+ * engine classifies it as one. A value that is unreadable, or not a support object (such as a label text where a
+ * support was expected), counts as a hanger: it fails closed. */
 function isHangerValue(read: ReturnType<typeof changeValue>): boolean {
   if (read.kind === "absent") return false;
   if (read.kind === "unreadable" || !isRecord(read.value)) return true;
   return "hanger" in read.value || engineHangerKind(read.value) !== null;
 }
 
+/** Whether an operation is one the operation route carries out only as a support deletion. The applier
+ * (core/model_operations/operation_applier/src/lib.rs) dispatches on `change.change_kind`: in `run_with_context`, only
+ * change_kind `delete_support` reaches `resolve_delete_support`, whose result is applied by `apply_deleted_support`, which
+ * removes the support and writes nothing; `resolve_delete_support` blocks unless the target is a Support, the field path
+ * `supports` and the after `not_present`; and `check_kinds` blocks a `delete_support` whose `operation_kind` is not
+ * `delete`. The other support writers are keyed on other change kinds (`create_support` for `resolve_create_support`,
+ * `update_support` for the `configuration` path, which blocks any other change_kind). So an operation with all of these
+ * members is either a deletion or blocked with its batch, and cannot write a hanger; one that lacks any of them is read
+ * as a possible write. */
+function isSupportDeletion(operation: Record<string, unknown> & { target: Record<string, unknown>; change: Record<string, unknown> }): boolean {
+  return operation.change.change_kind === "delete_support"
+    && operation.operation_kind === "delete"
+    && operation.target.object_type === "Support"
+    && operation.change.field_path === "supports"
+    && operation.change.after === "not_present";
+}
+
 /** Whether `batch` writes a support's hanger selection, by structure only: any operation on a Support, on one of
- * `SUPPORT_HANGER_FIELD_PATHS`, whose after or before value is a hanger. No label, note or rationale is read. */
+ * `SUPPORT_HANGER_FIELD_PATHS`, other than a support deletion, whose after or before value is a hanger. A value that
+ * cannot be read as a support object counts as a hanger. No label, note or rationale is read. */
 export function writesSupportHangerSelection(batch: OperationBatch): boolean {
   const operations: unknown = (batch as { operations?: unknown } | null | undefined)?.operations;
   if (!Array.isArray(operations)) return false;
   return operations.some((operation: unknown) => {
     if (!isRecord(operation) || !isRecord(operation.target) || !isRecord(operation.change)) return false;
     if (operation.target.object_type !== "Support" || !SUPPORT_HANGER_FIELD_PATHS.includes(String(operation.change.field_path))) return false;
+    if (isSupportDeletion(operation as Record<string, unknown> & { target: Record<string, unknown>; change: Record<string, unknown> })) return false;
     return isHangerValue(changeValue(operation.change.after)) || isHangerValue(changeValue(operation.change.before));
   });
 }

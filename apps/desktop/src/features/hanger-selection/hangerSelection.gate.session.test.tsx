@@ -36,8 +36,8 @@ const AGENT: AgentContext = {
   basis: { workspaceHandle: "workspace:test", applicationGeneration: 0, modelRevision: 0, modelHash: null, stateId: null, runId: null }, assumptions: []
 };
 
-async function session() {
-  vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(model());
+async function session(loaded: PreviewModel = model()) {
+  vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(loaded);
   const hook = renderHook(() => useWorkspaceSession());
   await waitFor(() => expect(hook.result.current.model.model).not.toBeNull());
   return hook.result;
@@ -69,6 +69,22 @@ function supportIntent(changeKind: "update_support" | "create_support", ref: str
   });
 }
 const batchOf = (...operations: EditorOperationIntent[]): OperationBatch => ({ batch_id: "batch:gate", operations });
+
+/** A support deletion as the operation route takes it: change_kind delete_support with operation_kind delete, on the
+ * supports path, before the support's label and after not_present. `kinds` overrides either kind. */
+function deletion(ref: string, label: string, kinds: { operation_kind?: string; change_kind?: string } = {}): EditorOperationIntent {
+  const intent = draftIntent({
+    operation_kind: "delete",
+    target: { object_type: "Support", ref },
+    change: {
+      change_id: `change:delete:${ref}`, change_kind: "delete_support", field_label: "Support", field_path: "supports",
+      before: label, after: "not_present", unit: "none", dimension: "dimensionless", source_note: "invented test record"
+    },
+    rationale: "Invented test record."
+  });
+  return { ...intent, ...(kinds.operation_kind ? { operation_kind: kinds.operation_kind } : {}),
+    change: { ...intent.change, ...(kinds.change_kind ? { change_kind: kinds.change_kind } : {}) } } as EditorOperationIntent;
+}
 
 /** The record the gate reads, on both refused routes: requeue first, then offline intake. */
 async function refusedOnBoth(result: Session, intent: EditorOperationIntent) {
@@ -134,6 +150,38 @@ describe("requeue and offline intake of a batch that writes a support's hanger s
     expect(apply).not.toHaveBeenCalled();
     expect(validate).not.toHaveBeenCalled();
     expect(result.current.operations.editorIntents).toHaveLength(0);
+  });
+});
+
+describe("a support deletion, which writes no hanger selection (correction decided by SWBPIPE's Agent 0)", () => {
+  it("is admitted on requeue and on import, whether the support deleted is a hanger or a plain support", async () => {
+    // The session's model has support:B as a variable spring hanger, so the deletion removes a hanger support.
+    const withHanger = model();
+    const hangerSupport = withHanger.supports.find((support) => support.id === "support:B")!;
+    Object.assign(hangerSupport, { family: "variable_spring_hanger", hanger: { hanger_type: "variable_spring_hanger", source_reference: "invented-local:VS-200-L" } });
+    const result = await session(withHanger);
+    const applied = result.current.model.model!.supports.find((support) => support.id === "support:B")!;
+    expect(applied.family).toBe("variable_spring_hanger");
+    await admittedOnBoth(result, deletion("support:B", applied.label ?? ""));
+
+    const plain = await session();
+    const guide = plain.current.model.model!.supports.find((support) => support.id === "support:C")!;
+    expect(guide.family).toBe("guide");
+    await admittedOnBoth(plain, deletion("support:C", guide.label ?? ""));
+  });
+
+  it("is recognised only by the members the operation route dispatches on: a claimed deletion that is not one is still refused", async () => {
+    const result = await session();
+    // change_kind decides; an operation_kind of delete does not make a create a deletion.
+    await refusedOnBoth(result, deletion("support:B", "B", { change_kind: "create_support" }));
+    // A delete_support whose operation_kind is not delete is blocked by the route; it is not read as a deletion.
+    await refusedOnBoth(result, deletion("support:B", "B", { operation_kind: "create" }));
+  });
+
+  it("does not loosen the reading of creates and replaces: an unparseable create and an unparseable replace are still refused", async () => {
+    const result = await session();
+    await refusedOnBoth(result, supportIntent("create_support", "support:H", "not_present", "{ not json"));
+    await refusedOnBoth(result, supportIntent("update_support", "support:C", JSON.stringify({ family: "guide", restraints: ["UY"] }), "{ not json"));
   });
 });
 

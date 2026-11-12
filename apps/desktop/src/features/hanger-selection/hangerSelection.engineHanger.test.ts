@@ -98,6 +98,20 @@ describe("the classification and the predicate on invented support values", () =
     expect(writesSupportHangerSelection(configuration({ family: "line_stop" }, { family: "guide" }))).toBe(false);
   });
 
+  it("reads a support deletion by the members the operation route dispatches on, and admits it: it writes no hanger", () => {
+    const deletion = (changeKind: string, operationKind: string, after = "not_present"): OperationBatch => ({
+      batch_id: "batch:delete",
+      operations: [{ operation_kind: operationKind, target: { object_type: "Support", ref: "support:B" },
+        change: { change_kind: changeKind, field_path: "supports", before: "Hanger B", after } }] as unknown as OperationBatch["operations"]
+    });
+    // The before is the support's label, not JSON; a deletion is still no hanger write.
+    expect(writesSupportHangerSelection(deletion("delete_support", "delete"))).toBe(false);
+    // Not a deletion by the route's own members: read as a possible write, and the label fails closed.
+    expect(writesSupportHangerSelection(deletion("create_support", "delete"))).toBe(true);
+    expect(writesSupportHangerSelection(deletion("delete_support", "create"))).toBe(true);
+    expect(writesSupportHangerSelection(deletion("delete_support", "delete", JSON.stringify({ family: "spring_hanger" })))).toBe(true);
+  });
+
   it("reads only Support operations on the listed field paths", () => {
     expect(SUPPORT_HANGER_FIELD_PATHS).toEqual(["configuration", "supports"]);
     const on = (objectType: string, fieldPath: string, after: unknown): OperationBatch => ({
