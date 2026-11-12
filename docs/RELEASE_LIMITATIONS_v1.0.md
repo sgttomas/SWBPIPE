@@ -95,3 +95,16 @@ the entry, and the entry names the PR.
 - **What the user does instead:** declare `transfers_to_wall` at every terminal of the node. Where a branch's thrust really is carried by a separate device, model that device as a connector or support. A compensated terminal at a region's own closure, away from any junction, is admitted.
 - **Basis:** DEL-04-07 [scope](../execution/PKG-04/DEL-04-07/ScopeOfWork.md), tees and pressure junctions (RT-A3 increment 1); made standing by RT-A3 increment 1 (PR #45).
 - **Status:** not yet declared.
+
+### LIM-010 — A report from a held result is refused when its binding cannot be afforded in memory
+
+- **Id:** LIM-010
+- **Exit criteria:** 4.
+- **Requirement affected:** exit criterion 4, that a user releases, saves and prints a report for results on either route; DEL-08-01's production method (a report rendered from the result the native host holds) and DEL-08-01/AC-009.
+- **Code:** `RESOURCE_UNAVAILABLE` (the memory pool's refusal that an invocation exceeds its budget), from the render-from-custody command.
+- **What is refused:** rendering a calculation report from a held result when the memory needed to derive the report's binding cannot be reserved.
+- **What it means in practice for a user:** for a large result, at present above about 49 MB of result text and less when other results are held, no report is rendered by this path although the result is admissible, bound and eligible. The message says the report needs more memory than is available; nothing is wrong with the result. Today's reference-system fixture (19.7 MB, the first tranche) is inside the estimate; the fully specified reference system has not been measured, so whether the release's own example can be reported is not established. The figure is an estimate of present sizing, not a guaranteed size.
+- **Why:** the report is bound to a hash of the result's derivative document, and forming that hash today builds the whole derivative document, a copy of it for validation and its canonical text in memory at once: 108 to 192 times the result text as the memory pool prices it, measured on ten documents.
+- **What the user does instead:** nothing equivalent for a result above the estimate. A report made from the bounded copy in the web view has its own limit of 64 MiB and pays the same law there, unmeasured. A smaller result (fewer cases in one run) can be reported.
+- **Basis:** DEL-08-01 [scope](../execution/PKG-08/DEL-08-01/ScopeOfWork.md), production method; made standing by PR #275.
+- **Status:** not yet declared.
