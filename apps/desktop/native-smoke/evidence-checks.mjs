@@ -80,29 +80,49 @@ export const ALL_JOURNEYS = ["autosave-recovery", "report-exact", "report-pressu
 /** Named alone, never part of --all. */
 export const SEPARATE_JOURNEYS = ["reference-system"];
 
-/** The runner's command line: `--all` or `--journey a,b`, `--skip-build`, `--keep`, and `--build-only`
- * (check, build and bind the app and its identity, then exit before any launch; it takes no journey).
- * Returns { journeys, buildOnly, skipBuild, keep } or { error }. */
-export function parseRunnerArgs(argv) {
+/** The runner's command line: `--all` or `--journey a,b`, `--skip-build`, `--library-listing <path>`
+ * (the real-Library lister; `env.SWBPIPE_LIBRARY_LISTING` stands in for it), and `--build-only` (check,
+ * build and bind the app and its identity, then exit before any launch; it takes no journey and needs no
+ * lister). A journey run without a lister is refused. Returns { journeys, buildOnly, skipBuild,
+ * libraryListing } or { error }. */
+export function parseRunnerArgs(argv, env = {}) {
   const args = new Set(argv);
-  const known = new Set(["--all", "--journey", "--skip-build", "--keep", "--build-only"]);
-  const at = argv.indexOf("--journey");
-  const value = at >= 0 ? argv[at + 1] : undefined;
-  const unknown = argv.filter((item, index) => !known.has(item) && !(at >= 0 && index === at + 1));
+  const known = new Set(["--all", "--journey", "--skip-build", "--build-only", "--library-listing"]);
+  const valueOf = (flag) => { const at = argv.indexOf(flag); return at >= 0 ? argv[at + 1] : undefined; };
+  const valued = new Set(["--journey", "--library-listing"].map((flag) => argv.indexOf(flag)).filter((at) => at >= 0).map((at) => at + 1));
+  const unknown = argv.filter((item, index) => !known.has(item) && !valued.has(index));
   if (unknown.length > 0) return { error: `unknown arguments: ${unknown.join(" ")}` };
   const buildOnly = args.has("--build-only");
   if (buildOnly) {
-    if (args.has("--all") || at >= 0 || args.has("--skip-build")) return { error: "--build-only builds and binds the app and takes no journey and no --skip-build" };
-    return { journeys: [], buildOnly: true, skipBuild: false, keep: false };
+    if (args.has("--all") || args.has("--journey") || args.has("--skip-build")) return { error: "--build-only builds and binds the app and takes no journey and no --skip-build" };
+    return { journeys: [], buildOnly: true, skipBuild: false, libraryListing: null };
   }
-  if (at >= 0 && (!value || value.startsWith("--"))) return { error: "--journey needs one or more journey names" };
-  if (args.has("--all") && at >= 0) return { error: "choose --all or --journey, not both" };
+  const value = valueOf("--journey");
+  if (args.has("--journey") && (!value || value.startsWith("--"))) return { error: "--journey needs one or more journey names" };
+  if (args.has("--all") && args.has("--journey")) return { error: "choose --all or --journey, not both" };
   const journeys = args.has("--all") ? [...ALL_JOURNEYS] : (value ?? "").split(",").filter(Boolean);
   if (journeys.length === 0 || journeys.some((name) => !ALL_JOURNEYS.includes(name) && !SEPARATE_JOURNEYS.includes(name))) {
     return { error: `choose --all, --build-only or --journey with one or more of ${ALL_JOURNEYS.join(", ")} (or ${SEPARATE_JOURNEYS.join(", ")} alone)` };
   }
   if (journeys.some((name) => SEPARATE_JOURNEYS.includes(name)) && journeys.length > 1) return { error: `${SEPARATE_JOURNEYS.join(", ")} runs alone: name it as the only journey` };
-  return { journeys, buildOnly: false, skipBuild: args.has("--skip-build"), keep: args.has("--keep") };
+  const listing = valueOf("--library-listing");
+  if (args.has("--library-listing") && (!listing || listing.startsWith("--"))) return { error: "--library-listing needs the lister's path" };
+  const libraryListing = listing ?? env.SWBPIPE_LIBRARY_LISTING ?? null;
+  if (!libraryListing) return { error: "not launched: no real-Library lister given (--library-listing <path> or SWBPIPE_LIBRARY_LISTING)" };
+  if (!libraryListing.startsWith("/")) return { error: `the real-Library lister's path must be absolute: ${libraryListing}` };
+  return { journeys, buildOnly: false, skipBuild: args.has("--skip-build"), libraryListing };
+}
+
+/** Why `target` must not be removed, or null: only a throwaway home this run created, named `home`,
+ * directly inside a `swbpipe-evidence-<journey>-` folder strictly under the system temporary folder. */
+export function homeRemovalRefusal(target, created, tmp) {
+  const base = String(tmp).replace(/\/+$/, "");
+  if (typeof target !== "string" || !target.startsWith("/") || target.split("/").includes("..")) return `not an absolute path without ..: ${target}`;
+  if (!created.has(target)) return `not a home this run created: ${target}`;
+  if (!target.startsWith(`${base}/`)) return `not under the system temporary folder (${base}): ${target}`;
+  const parts = target.slice(base.length + 1).split("/");
+  if (parts.at(-1) !== "home" || !/^swbpipe-evidence-[a-z-]+-[A-Za-z0-9]+$/.test(parts.at(-2) ?? "")) return `not a throwaway home folder: ${target}`;
+  return null;
 }
 
 // ---------------------------------------------------------------- the home redirection

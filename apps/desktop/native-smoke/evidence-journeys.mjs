@@ -4,8 +4,10 @@
 // without warning (DEL-02-05 AC-011 / VER-008, without its fault injection, AC-012).
 //
 //   tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs --build-only
-//   tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs --journey <names> [--skip-build] [--keep]
-//   tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs --all [--skip-build] [--keep]
+//   tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs --journey <names> [--skip-build] --library-listing <lister>
+//   tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs --all [--skip-build] --library-listing <lister>
+//
+// (<lister>: the real-Library lister, by absolute path, or SWBPIPE_LIBRARY_LISTING; no journey runs without it.)
 //
 // (`tools/t3_slot.sh` is the shared development host's slot wrapper,
 // `/Users/ryan/dev/chirality-t3/tools/t3_slot.sh` there.) --build-only checks the engines, builds and binds
@@ -83,8 +85,18 @@
 // - a private copy of the app built from this worktree's head with the `native-smoke` cargo feature
 //   (`scripts/appBinaryBinding.mjs`, as run.mjs), never the installed product and never a signed or
 //   notarized build; its identity is checked before each launch;
-// - a throwaway home under the system temporary folder (`os.tmpdir()`), removed when the journey ends
-//   (kept only with --keep). Two variables redirect to it, both set to the same folder for every launch:
+// - the real Library listed, by names, sizes and times only, before the first launch and after the last,
+//   with the embedded agent lane's lister called unchanged (see finishRun): its listings and comparison are
+//   kept in the run's folder, and any created, modified or removed entry in a folder named for the bundle
+//   identifier or the executable stops the run with a named refusal and exit 5, printing the entries. The
+//   operating system's own records about an application that opens a window (six files under
+//   Library/Preferences) are stated in the run's record as existing and not opened, edited or removed;
+//   nothing under the real Library is opened, edited, removed or cleaned by this kit;
+// - a throwaway home under the system temporary folder (`os.tmpdir()`), one per journey inside the run's
+//   folder, removed at the end of the journey (and of the run, whatever stopped it) by this kit, and only
+//   that folder (homeRemovalRefusal: a home this run created, under the temporary folder, named `home`
+//   inside a swbpipe-evidence-<journey>- folder). The run's folder keeps the evidence. Two variables
+//   redirect to the home, both set to the same folder for every launch:
 //   HOME, which the app's own paths follow (its store, settings, autosave folder, Downloads), and
 //   CFFIXED_USER_HOME, which Foundation's home directory follows and through which the system web view
 //   keeps its website data and caches (Library/WebKit/<executable>, Library/Caches/<executable>). A launch
@@ -127,7 +139,7 @@
 // notice compared with the text of PRD §19.3 read from docs/PRD.md, the autosave default and choices as
 // DEL-02-05's ScopeOfWork.md states them (written here; nothing under execution/ is read), the store compared with a copy taken before. Nothing here reads or
 // writes `expected.json`. This is evidence for the owner's review, not the owner's witness.
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -139,7 +151,7 @@ import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mj
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 import {
   autosaveSlot, documentSha256, dumpStore, inspectReportPackage, isCanonicalText, judgeAutosaveRecord,
-  driverTimeout, homeRedirection, homeRedirectionRefusal, launchedPid, packageStatusFields, parseRunnerArgs, webviewDataEntries, parseAutosaveName, parseCsvFile, prdRequiredNotice, readStoredZip, screenLockedFromIoreg, sha256Hex, timeoutText, underHostSlot
+  driverTimeout, homeRedirection, homeRedirectionRefusal, homeRemovalRefusal, launchedPid, packageStatusFields, parseRunnerArgs, webviewDataEntries, parseAutosaveName, parseCsvFile, prdRequiredNotice, readStoredZip, screenLockedFromIoreg, sha256Hex, timeoutText, underHostSlot
 } from "./evidence-checks.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -150,7 +162,7 @@ const argv = process.argv.slice(2);
 const args = new Set(argv);
 // --all runs ALL_JOURNEYS (evidence-checks.mjs) in its order: autosave-recovery first, whose first launch
 // is the run's shortest. reference-system is kept apart (SEPARATE_JOURNEYS): named alone, never in --all.
-const parsed = parseRunnerArgs(argv);
+const parsed = parseRunnerArgs(argv, process.env);
 // The named timeouts (ms). ui: a control's response to a click; step: a dialog, the shell at start, the
 // settings read, an applied edit, the recovery offer, the results table for the selection observation;
 // solve: one sparse solve; save: a render, a package save, a model document save; record: the driver's
@@ -173,6 +185,7 @@ const loadNow = () => os.loadavg().map((value) => value.toFixed(2)).join(" / ");
 if (process.platform !== "darwin") refuse("macOS only");
 if (parsed.error) refuse(parsed.error);
 const selected = parsed.journeys;
+if (!parsed.buildOnly && !existsSync(parsed.libraryListing)) refuse(`not launched: the real-Library lister is not at ${parsed.libraryListing}`);
 const psRows = () => execFileSync("/bin/ps", ["-axo", "pid=,ppid=,command="], { encoding: "utf8" });
 if (!underHostSlot(psRows(), process.pid)) refuse("not under the host's slot wrapper; start it as tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs …");
 
@@ -325,11 +338,100 @@ function check(name, ok, detail) {
   console.log(`${ok ? "PASS" : "FAIL"}  ${journey}: ${name}${detail === undefined ? "" : `  [${typeof detail === "string" ? detail : JSON.stringify(detail)}]`}`);
 }
 
+// The run's folder under the system temporary folder: the real-Library listings and their comparison,
+// the run's record and each journey's folder (its reports, saved files and throwaway home). It is kept
+// as the run's evidence; only the throwaway homes in it are removed, each by removeHome.
+const RUN_ROOT = parsed.buildOnly ? null : mkdtempSync(path.join(os.tmpdir(), "swbpipe-evidence-run-"));
+const createdHomes = new Set();
+const removedHomes = [];
+
 function journeyRoot(name) {
-  const root = mkdtempSync(path.join(os.tmpdir(), `swbpipe-evidence-${name}-`));
+  const root = mkdtempSync(path.join(RUN_ROOT, `swbpipe-evidence-${name}-`));
   const home = path.join(root, "home");
   for (const dir of [home, path.join(home, "Downloads"), path.join(root, "models"), path.join(root, "saved")]) mkdirSync(dir, { recursive: true });
+  createdHomes.add(home);
   return { root, home, data: path.join(home, "Library", "Application Support", IDENTIFIER), saved: path.join(root, "saved"), models: path.join(root, "models") };
+}
+
+// Removes one throwaway home this run created, and only that folder (homeRemovalRefusal guards it).
+function removeHome(home) {
+  if (!existsSync(home)) return;
+  const refusal = homeRemovalRefusal(home, createdHomes, os.tmpdir());
+  if (refusal) {
+    console.error(`evidence journeys: not removed: ${refusal}`);
+    return;
+  }
+  rmSync(home, { recursive: true, force: true });
+  removedHomes.push(home);
+}
+
+// ---------------------------------------------------------------- the real Library, by names, sizes and times
+
+// The embedded agent lane's lister, called unchanged (`--library-listing` or SWBPIPE_LIBRARY_LISTING). It
+// reads by lstat only, finds the real home from the password database (not from HOME or
+// CFFIXED_USER_HOME), and watches folders named for the bundle identifier (com.chirality.swbpipe) and the
+// executable (openpipestress-desktop): `snapshot` lists Library/WebKit and Library/Caches for both names;
+// `diff` compares two snapshots; `changed SINCE UNTIL` lists entries created or modified in the window under
+// Library/WebKit, Caches, HTTPStorages, Application Support, Preferences and Saved Application State, and
+// exits 1 when one is in a folder named for the product. Its outputs are kept in the run's folder.
+const LIBRARY_NAMES = { identifier: IDENTIFIER, executable: "openpipestress-desktop" };
+let libraryBefore = null;
+function lister(args, outName) {
+  const result = spawnSync("python3", ["-I", parsed.libraryListing, ...args], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  const text = `${result.stdout ?? ""}${result.stderr ?? ""}`;
+  if (outName) writeFileSync(path.join(RUN_ROOT, outName), text);
+  return { status: result.status, text, error: result.error ? result.error.message : null };
+}
+function listLibraryBefore() {
+  const out = path.join(RUN_ROOT, "library-before.json");
+  const result = lister(["snapshot", out], "library-before.txt");
+  if (result.status !== 0 || !existsSync(out)) {
+    console.error(`evidence journeys: not launched: the real-Library lister failed before the run: ${result.error ?? result.text.trim()}`);
+    return false;
+  }
+  libraryBefore = { file: out, since: Date.now() / 1000 };
+  console.log(`evidence journeys: real Library listed before the run (${result.text.trim()})`);
+  return true;
+}
+
+// The end of every run that launched: each throwaway home removed (guarded), the real Library listed again
+// and compared, the run's record written. Any created, modified or removed entry in a product-named folder
+// stops the run with a named refusal and exit 5, whatever the journeys' checks said.
+let finishing = false;
+async function finishRun(code, reason = null) {
+  if (finishing) return new Promise(() => {});
+  finishing = true;
+  for (const home of createdHomes) removeHome(home);
+  const record = {
+    run_folder: RUN_ROOT, source_revision: revision, app: app && { binary: app.binary, identity: app.identity },
+    journeys: selected, stopped_by: reason, homes_created: [...createdHomes], homes_removed: removedHomes,
+    redirection: "HOME and CFFIXED_USER_HOME, both set to each journey's throwaway home",
+    library_names_watched: LIBRARY_NAMES,
+    os_records_statement: "The operating system's own records about an application that opens a window (six files under the real Library/Preferences, as the owner's proxy states) exist; this kit did not open, edit or remove them, nor anything else under the real Library; the lister reads names, sizes and times only, by lstat.",
+    checks
+  };
+  let refused = null;
+  if (libraryBefore) {
+    const until = Date.now() / 1000;
+    const after = path.join(RUN_ROOT, "library-after.json");
+    const snap = lister(["snapshot", after], "library-after.txt");
+    const diff = snap.status === 0 ? lister(["diff", libraryBefore.file, after], "library-diff.txt") : { status: null, text: "not compared: the after snapshot failed" };
+    const changed = lister(["changed", String(libraryBefore.since), String(until)], "library-changed.txt");
+    record.library = { since: libraryBefore.since, until, snapshot_after: snap.status, diff_status: diff.status, changed_status: changed.status };
+    if (snap.status !== 0 || diff.status !== 0 || changed.status !== 0) {
+      refused = "the real Library changed in a folder named for the product, or could not be compared";
+      console.error(`\nevidence journeys: REFUSED: ${refused}`);
+      console.error(diff.text.trim());
+      console.error(changed.text.split("\n").filter((line) => /PRODUCT|^\s+(created|modified)|^window|unreadable/.test(line)).join("\n"));
+    } else {
+      console.log(`evidence journeys: real Library compared: no product-named entry created, modified or removed (${diff.text.split("\n")[0]})`);
+    }
+  }
+  record.refused = refused;
+  writeFileSync(path.join(RUN_ROOT, "run-record.json"), JSON.stringify(record, null, 2));
+  console.log(`evidence journeys: run record and listings in ${RUN_ROOT}; throwaway homes removed: ${removedHomes.length} of ${createdHomes.size}`);
+  buildLock.release();
+  return exitAfterSignals(refused ? 5 : code);
 }
 
 // Every file under `root`, by path relative to it; links listed, not followed. Used on throwaway homes only.
@@ -407,8 +509,7 @@ async function launch(where, plan, whileRunning = null, waitLimitMs = RECORD_WAI
             clearInterval(sampler);
             console.error("evidence journeys: web view data did not appear under the throwaway home");
             console.error(`  (the shell had loaded ${Math.round(WEBVIEW_DATA_GRACE_MS / 1000)} s earlier; the home redirection did not take, so the run stops here: ${where.home})`);
-            buildLock.release();
-            await exitAfterSignals(4);
+            await finishRun(4, "web view data did not appear under the throwaway home");
           }
         }
       }
@@ -834,18 +935,20 @@ async function referenceJourney() {
 
 let revision = null;
 try { revision = execFileSync("git", ["-C", project, "rev-parse", "HEAD"], { encoding: "utf8" }).trim(); } catch { /* recorded as unknown */ }
-const roots = [];
+// The real Library is listed before the first launch; finishRun lists it again after the last, compares,
+// removes the throwaway homes and writes the run's record.
+if (!listLibraryBefore()) {
+  buildLock.release();
+  await exitAfterSignals(2);
+}
 for (const name of selected) {
   journey = name;
   const where = name === "autosave-recovery" ? await autosaveJourney()
     : name === "reference-system" ? await referenceJourney()
       : await reportJourney(name === "report-exact" ? "exact" : "pressure-free");
-  roots.push(where.root);
   writeFileSync(path.join(where.root, "summary.json"), JSON.stringify({ journey: name, source_revision: revision, app: { binary: app.binary, identity: app.identity }, checks: checks.filter((item) => item.journey === name) }, null, 2));
-  if (parsed.keep) console.log(`evidence kept in ${where.root}`);
-  else rmSync(where.root, { recursive: true, force: true });
+  removeHome(where.home);
 }
 const failed = checks.filter((item) => !item.ok);
 console.log(`\nevidence journeys: ${checks.length - failed.length}/${checks.length} checks passed (${selected.join(", ")})`);
-buildLock.release();
-await exitAfterSignals(failed.length === 0 ? 0 : 1);
+await finishRun(failed.length === 0 ? 0 : 1);

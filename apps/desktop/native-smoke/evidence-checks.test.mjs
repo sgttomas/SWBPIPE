@@ -11,23 +11,43 @@ import {
   autosaveSlot, canonical, crc32, documentSha256, driverTimeout, dumpStore, inspectReportPackage, isCanonicalText,
   judgeAutosaveRecord, launchedPid, packageStatusFields, parseAutosaveName, parseCsvFile, prdRequiredNotice, readStoredZip,
   screenLockedFromIoreg, sha256Hex, timeoutText, underHostSlot, homeRedirection, homeRedirectionRefusal, webviewDataEntries,
-  ALL_JOURNEYS, parseRunnerArgs
+  ALL_JOURNEYS, parseRunnerArgs, homeRemovalRefusal
 } from "./evidence-checks.mjs";
 
-test("the runner's command line: --all in its order, named journeys, the separate journey alone, and --build-only", () => {
+test("the runner's command line: --all in its order, named journeys, the separate journey alone, the lister, and --build-only", () => {
+  const L = "/x/library_listing.py";
   assert.deepEqual(ALL_JOURNEYS[0], "autosave-recovery");
-  assert.deepEqual(parseRunnerArgs(["--all"]), { journeys: ALL_JOURNEYS, buildOnly: false, skipBuild: false, keep: false });
-  assert.deepEqual(parseRunnerArgs(["--journey", "report-exact,report-pressure-free", "--skip-build", "--keep"]), { journeys: ["report-exact", "report-pressure-free"], buildOnly: false, skipBuild: true, keep: true });
-  assert.deepEqual(parseRunnerArgs(["--journey", "reference-system", "--skip-build"]).journeys, ["reference-system"]);
-  assert.match(parseRunnerArgs(["--journey", "reference-system,report-exact"]).error, /runs alone/);
+  assert.deepEqual(parseRunnerArgs(["--all", "--library-listing", L]), { journeys: ALL_JOURNEYS, buildOnly: false, skipBuild: false, libraryListing: L });
+  assert.deepEqual(parseRunnerArgs(["--journey", "report-exact,report-pressure-free", "--skip-build"], { SWBPIPE_LIBRARY_LISTING: L }),
+    { journeys: ["report-exact", "report-pressure-free"], buildOnly: false, skipBuild: true, libraryListing: L });
+  assert.equal(parseRunnerArgs(["--all", "--library-listing", L], { SWBPIPE_LIBRARY_LISTING: "/other" }).libraryListing, L);
+  assert.match(parseRunnerArgs(["--all"]).error, /no real-Library lister given/);
+  assert.match(parseRunnerArgs(["--all", "--library-listing"]).error, /needs the lister's path/);
+  assert.match(parseRunnerArgs(["--all", "--library-listing", "relative.py"]).error, /must be absolute/);
+  assert.deepEqual(parseRunnerArgs(["--journey", "reference-system", "--skip-build", "--library-listing", L]).journeys, ["reference-system"]);
+  assert.match(parseRunnerArgs(["--journey", "reference-system,report-exact", "--library-listing", L]).error, /runs alone/);
   assert.match(parseRunnerArgs(["--all", "--journey", "report-exact"]).error, /not both/);
   assert.match(parseRunnerArgs([]).error, /choose --all/);
   assert.match(parseRunnerArgs(["--journey"]).error, /needs one or more/);
   assert.match(parseRunnerArgs(["--journey", "nope"]).error, /choose --all/);
   assert.match(parseRunnerArgs(["--al"]).error, /unknown arguments: --al/);
-  assert.deepEqual(parseRunnerArgs(["--build-only"]), { journeys: [], buildOnly: true, skipBuild: false, keep: false });
+  assert.match(parseRunnerArgs(["--all", "--keep", "--library-listing", L]).error, /unknown arguments: --keep/);
+  assert.deepEqual(parseRunnerArgs(["--build-only"]), { journeys: [], buildOnly: true, skipBuild: false, libraryListing: null });
   assert.match(parseRunnerArgs(["--build-only", "--all"]).error, /takes no journey/);
   assert.match(parseRunnerArgs(["--build-only", "--skip-build"]).error, /takes no journey/);
+});
+
+test("only a throwaway home this run created is removed", () => {
+  const tmp = "/var/folders/ab/T";
+  const home = `${tmp}/swbpipe-evidence-run-Ab12/swbpipe-evidence-report-exact-Xy34/home`;
+  const created = new Set([home]);
+  assert.equal(homeRemovalRefusal(home, created, tmp), null);
+  assert.equal(homeRemovalRefusal(home, created, `${tmp}/`), null);
+  assert.match(homeRemovalRefusal(`${tmp}/swbpipe-evidence-run-Ab12/swbpipe-evidence-report-exact-Xy34`, created, tmp), /not a home this run created/);
+  assert.match(homeRemovalRefusal("/Users/someone", new Set(["/Users/someone"]), tmp), /not under the system temporary folder/);
+  assert.match(homeRemovalRefusal(`${tmp}/other/home`, new Set([`${tmp}/other/home`]), tmp), /not a throwaway home folder/);
+  assert.match(homeRemovalRefusal(`${tmp}/swbpipe-evidence-x-1/../home`, new Set([`${tmp}/swbpipe-evidence-x-1/../home`]), tmp), /without \.\./);
+  assert.match(homeRemovalRefusal(`${tmp}/swbpipe-evidence-x-1/home`, new Set(), tmp), /not a home this run created/);
 });
 
 const project = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..", "..", "..");
