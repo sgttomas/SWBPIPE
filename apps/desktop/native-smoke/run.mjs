@@ -304,6 +304,7 @@ function launch(phase, extra = {}) {
     env: {
       ...process.env,
       HOME: home,
+      CFFIXED_USER_HOME: home,
       SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "driver.js"),
       SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan),
       SWBPIPE_NATIVE_SMOKE_REPORT: report
