@@ -480,6 +480,16 @@ describe("the one rule on the viewport", () => {
     expect(screen.queryByTestId("viewport-create-component-unit-cleared")).toBeNull();
   });
 
+  it("a new project session arriving in the same update as a change of its units: no notice on the new project's node form", async () => {
+    route.current = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
+    const view = render(tree(withUnits({ length: "m" })));
+    await waitFor(() => expect(byId("viewport-create-node-unit-basis")).not.toHaveTextContent(/unavailable|pending/i));
+    type("viewport-create-node-x", "1.5");
+    view.rerender(tree(withUnits({ length: "mm" }), 2));
+    await waitFor(() => expect(byId("viewport-create-node-x")).toHaveValue(""));
+    expect(screen.queryByTestId("viewport-create-node-unit-cleared")).toBeNull();
+  });
+
   it("the reviewer's case: route end coordinates in a unit the person chose, then an unrelated edit", async () => {
     route.current = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
     const view = render(tree(withUnits({ length: "m" })));

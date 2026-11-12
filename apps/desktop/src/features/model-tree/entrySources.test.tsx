@@ -531,6 +531,15 @@ describe("the one rule on the inspector's creation forms", () => {
     }
   });
 
+  it("a new project session arriving in the same update as a change of its units: no notice on the new project's section form", async () => {
+    const { rerender } = await mount({ type: "project", id: "project:invented-demo" });
+    type("create-section-od", "100");
+    rerender(withUnits({ length: "mm" }), 2);
+    expect(byId("create-section-od")).toHaveValue("");
+    expectFormControlValue(byId("create-section-length-unit"), "mm");
+    expect(screen.queryByTestId("create-section-unit-cleared")).toBeNull();
+  });
+
   it("a fresh draft after Queue raises no notice: the unit it starts in is the one shown", async () => {
     const { rerender } = await mount({ type: "project", id: "project:invented-demo" });
     type("create-section-od", "100");

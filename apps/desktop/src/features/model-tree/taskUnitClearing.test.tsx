@@ -65,6 +65,7 @@ async function startTask(selection: EntityRef, fieldPath: string, units: Record<
   const starting = (byId("editor-intent-value") as HTMLInputElement).value;
   return {
     starting,
+    queue,
     rerender: (next: Record<string, string>, session = 1, edit?: (model: PreviewModel) => void) => view.rerender(tree(demo(next, edit), session))
   };
 }
@@ -216,23 +217,114 @@ describe("the property task clears a value typed beside a unit taken from the pr
     expect(notice()).toBeNull();
   });
 
-  it("finding 2: the task's target deleted and re-created with the same identifier discards the entry", async () => {
-    const addSpare = (unit: string, value: number) => (model: PreviewModel) => {
-      model.materials!.push({ ...structuredClone(model.materials![0]), id: "material:T-SPARE", label: "Spare", elastic_modulus: { value, unit } } as never);
-    };
-    const { rerender } = await startTask({ type: "material", id: "material:T-SPARE" }, "elastic_modulus.value", {}, addSpare("MPa", 210000));
+  // The task's draft is keyed to the stored entry it was made against (DEL-02-02 REQ-022).
+  const spare = { type: "material", id: "material:T-SPARE" } as const;
+  const withSpare = (value: number, unit: string, label = "Spare") => (model: PreviewModel) => {
+    model.materials!.push({ ...structuredClone(model.materials![0]), id: "material:T-SPARE", label, elastic_modulus: { value, unit } } as never);
+  };
+  const add = () => byId("queue-editor-intent") as HTMLButtonElement;
+  const stale = () => screen.queryByTestId("editor-intent-stale");
+
+  it("finding 2: the target deleted, then re-created in another unit: nothing typed for the old record stands beside the new unit", async () => {
+    const { rerender } = await startTask(spare, "elastic_modulus.value", {}, withSpare(210000, "MPa"));
     fireEvent.change(byId("editor-intent-value"), { target: { value: "150000" } });
     rerender({});
-    rerender({}, 1, addSpare("Pa", 210000000000));
-    // 150000 typed beside MPa must never stand beside Pa.
+    // While it is absent the person is told, and nothing can be added.
+    expect(byId("editor-intent-target-absent")).toHaveTextContent("The task's target, material: material:T-SPARE, is not in the model, so nothing can be added.");
+    expect(screen.queryByTestId("queue-editor-intent")).toBeNull();
+    rerender({}, 1, withSpare(210000000000, "Pa"));
     expect(screen.queryByDisplayValue("150000")).toBeNull();
-    expect(byId("inspector-task-discarded")).toHaveTextContent(
-      "The task's target, material: material:T-SPARE, no longer exists in the model, so its entry was discarded. Start a new task to edit it."
-    );
+    expect(byId("editor-intent-value")).toHaveValue("210000000000");
+    expect(screen.getByText("New elastic modulus (Pa)")).toBeInTheDocument();
+    expect(notice()).toHaveTextContent(cleared("MPa", "Pa"));
+    expect(add()).toBeDisabled();
+  });
+
+  it("stale: an edited entry whose stored value changes under the same unit is shown against the changed value and cannot be added", async () => {
+    const { rerender, queue } = await startTask(steel, "elastic_modulus.value");
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "210000000000" } });
+    rerender({}, 1, storeModulus(195000000000, "Pa"));
+    expect(byId("editor-intent-value")).toHaveValue("210000000000");
+    expect(stale()).toHaveTextContent("The stored elastic modulus is now 195000000000 Pa; this entry was made against 200000000000 Pa.");
+    expect(add()).toBeDisabled();
+    expect(add().getAttribute("aria-describedby")).toBe("editor-intent-stale-reason");
+    expect(document.getElementById("editor-intent-stale-reason")).toHaveTextContent("Not added: the stored value changed after this entry was made.");
+    expect(byId("apply-editor-intent-inline")).toBeDisabled();
+    // A keystroke elsewhere does not end it.
+    fireEvent.change(byId("editor-intent-rationale"), { target: { value: "checked against the mill certificate" } });
+    expect(stale()).not.toBeNull();
+    expect(add()).toBeDisabled();
+    // The deliberate act beside the stale entry does.
+    fireEvent.click(byId("editor-intent-stale-confirm"));
+    expect(stale()).toBeNull();
+    expect(add()).toBeEnabled();
+    fireEvent.click(add());
+    expect(queue).toHaveBeenCalledTimes(1);
+    expect(queue.mock.calls[0][0].change.after).toBe(JSON.stringify({ value: 210000000000, unit: "Pa" }));
+    expect(queue.mock.calls[0][0].change.before).toBe("195000000000");
+  });
+
+  it("stale: editing the value again ends it", async () => {
+    const { rerender } = await startTask(steel, "elastic_modulus.value");
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "210000000000" } });
+    rerender({}, 1, storeModulus(195000000000, "Pa"));
+    expect(stale()).not.toBeNull();
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "211000000000" } });
+    expect(stale()).toBeNull();
+    expect(add()).toBeEnabled();
+  });
+
+  it("identifier reuse in one update, no absent render, the field differing under the same unit: the typed draft is stale", async () => {
+    const { rerender } = await startTask(spare, "elastic_modulus.value", {}, withSpare(210000, "MPa"));
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "150000" } });
+    rerender({}, 1, withSpare(190000, "MPa", "Spare re-created"));
+    expect(byId("editor-intent-value")).toHaveValue("150000");
+    expect(stale()).toHaveTextContent("The stored elastic modulus is now 190000 MPa; this entry was made against 210000 MPa.");
+    expect(add()).toBeDisabled();
+  });
+
+  it("identifier reuse in one update, the unit differing: the typed draft is cleared and the new stored entry shown", async () => {
+    const { rerender } = await startTask(spare, "elastic_modulus.value", {}, withSpare(210000, "MPa"));
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "150000" } });
+    rerender({}, 1, withSpare(210000000000, "Pa", "Spare re-created"));
+    expect(byId("editor-intent-value")).toHaveValue("210000000000");
+    expect(notice()).toHaveTextContent(cleared("MPa", "Pa"));
+    expect(stale()).toBeNull();
+    expect(add()).toBeDisabled();
+  });
+
+  it("identifier reuse in one update, nothing typed: the entry follows the new stored value and unit", async () => {
+    const { rerender } = await startTask(spare, "elastic_modulus.value", {}, withSpare(210000, "MPa"));
+    rerender({}, 1, withSpare(210000000000, "Pa", "Spare re-created"));
+    expect(byId("editor-intent-value")).toHaveValue("210000000000");
+    expect(screen.getByText("New elastic modulus (Pa)")).toBeInTheDocument();
+    expect(notice()).toBeNull();
+    expect(add()).toBeDisabled();
+  });
+
+  it("the stated limit: identifier reuse in one update, identical in the field, is indistinguishable from no change", async () => {
+    const { rerender, queue } = await startTask(spare, "elastic_modulus.value", {}, withSpare(210000, "MPa"));
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "150000" } });
+    rerender({}, 1, withSpare(210000, "MPa", "Spare re-created"));
+    // The person's proposal means what it meant: 150000 MPa against a stored 210000 MPa.
+    expect(byId("editor-intent-value")).toHaveValue("150000");
+    expect(stale()).toBeNull();
+    expect(notice()).toBeNull();
+    fireEvent.click(add());
+    expect(queue.mock.calls[0][0].change.after).toBe(JSON.stringify({ value: 150000, unit: "MPa" }));
+  });
+
+  it("a new project session arriving in the same update as an outside edit ends the task with nothing carried", async () => {
+    const { rerender } = await startTask(steel, "elastic_modulus.value");
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "210000000000" } });
+    rerender({}, 2, storeModulus(200000, "MPa"));
+    expect(byId("inspector-task-empty")).toBeInTheDocument();
+    expect(screen.queryByTestId("editor-intent-value")).toBeNull();
     fireEvent.click(byId("inspector-start-task"));
     changeFormControl(byId("editor-intent-field"), { target: { value: "elastic_modulus.value" } });
-    expect(byId("editor-intent-value")).toHaveValue("210000000000");
-    expect(screen.queryByTestId("inspector-task-discarded")).toBeNull();
+    expect(byId("editor-intent-value")).toHaveValue("200000");
+    expect(notice()).toBeNull();
+    expect(stale()).toBeNull();
   });
 
   it("baseline: another project session raises no notice", async () => {

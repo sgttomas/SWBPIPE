@@ -48,7 +48,7 @@ import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selec
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
 import { RigidDraftFields } from "../component-creation/RigidDraftFields";
-import { missingSourceReason, supersedeMoves, unitMoveNotice, useClearOnUnitMove, type UnitMove } from "../workspace/entryRules";
+import { missingSourceReason, supersedeMoves, unitMoveNotice, useClearOnUnitMove, useIdentifiedDraft, type UnitMove } from "../workspace/entryRules";
 import { DisabledReason } from "../workspace/shell/DisabledReason";
 import { ECCENTRIC_OFFSET_CONVENTION } from "../component-creation/eccentricOffsetConvention";
 import {
@@ -115,41 +115,32 @@ export function PropertyInspector({
   const [taskActive, setTaskActive] = useState(false);
   const taskGenerationRef = useRef(0);
   const [propertiesTarget, setPropertiesTarget] = useState<EntityRef>(() => ({ ...selection }));
-  const [draftTarget, setDraftTarget] = useState<EntityRef>(() => ({ ...selection }));
   const properties = selectedProperties(model, propertiesTarget);
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
+  // The property task's draft: one object with its own identity (DEL-02-02 REQ-022). It holds
+  // the target and field, the person's entry (null until they edit it: editing is an event),
+  // their own choice of unit, and the stored basis their entry was made against. Every
+  // replacement passes a whole new draft and so takes a new identity in the same update; the
+  // clearing below reads its baseline from that identity.
+  const [taskDraft, taskDraftIdentity, setTaskDraft] = useIdentifiedDraft<TaskDraft>(() => newTaskDraft(selection, editorFieldOptions(model, selection, null)[0]));
+  const draftTarget = taskDraft.target;
+  const selectedFieldPath = taskDraft.fieldPath;
+  const chosenUnit = taskDraft.chosenUnit;
   const editableFields = useMemo(() => editorFieldOptions(model, draftTarget, unitCatalogRoute), [draftTarget, model, unitCatalogRoute]);
-  const [selectedFieldPath, setSelectedFieldPath] = useState(editableFields[0]?.fieldPath ?? "");
-  const [proposedValue, setProposedValue] = useState(fieldEntryValue(editableFields[0]));
-  // Whether the person has edited the task's value themselves. Until they have, the value
-  // shown is the field's stored entry and follows it when the model changes, so no digits the
-  // person did not type stand beside a unit they were not stored in (DEL-02-02 REQ-022).
-  // Reset wherever the entry is replaced or cleared.
-  const [proposalEdited, setProposalEdited] = useState(false);
-  // a unit the user picks is kept; until then the field's own
-  // (inherited) default is used, recomputed whenever the field is, so a catalog that
-  // arrives late, or a project-unit change, replaces an inherited default but never a
-  // chosen unit. A stored unit is the field's default and is kept.
-  const [chosenUnit, setChosenUnit] = useState<string | null>(null);
-  // Advanced wherever the task's entry is replaced: a new project session, a task request,
-  // the field select, starting a task, Cancel, and the discard when its target or field no
-  // longer exists. Those are the only places the target or field changes, so this one epoch
-  // is the task's baseline: nothing is compared across a replaced entry (DEL-02-02 REQ-022).
-  const [taskEntryEpoch, setTaskEntryEpoch] = useState(0);
-  // The sentence shown when the task's entry was discarded because its target or field no
-  // longer exists; cleared when a task starts or the project changes.
-  const [taskDiscarded, setTaskDiscarded] = useState<string | null>(null);
-  // Advanced when the project session replaces the creation drafts, so the drafts the old
-  // project rendered are never compared with the new project's (DEL-02-02 REQ-022).
-  const [creationDraftEpoch, setCreationDraftEpoch] = useState(0);
   const [taskUnitNotice, setTaskUnitNotice] = useState<UnitMove[] | null>(null);
   // Called only by the task's two unit controls: the person's own choice of the unit.
-  const chooseProposedUnit = (unit: string) => { taskGuard.chose("value"); setTaskUnitNotice(null); setChosenUnit(unit); };
+  // Choosing a unit is an edit: the digits then shown become the person's entry beside the
+  // unit they chose, made against the stored basis shown now.
+  const chooseProposedUnit = (unit: string) => {
+    taskGuard.chose("value");
+    setTaskUnitNotice(null);
+    setTaskDraft((current) => ({ ...current, chosenUnit: unit, ...(current.entered === null ? { entered: proposedValue, basis: currentBasis } : {}) }));
+  };
   const [rationale, setRationale] = useState("user_entered_preview_change");
-  const [sectionDraftState, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
-  const [materialDraftState, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
-  const [supportDraftState, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
-  const [componentDraftState, setComponentDraft] = useState(() =>
+  const [sectionDraftState, sectionDraftIdentity, setSectionDraft] = useIdentifiedDraft(() => defaultSectionDraft(model, queuedIntents));
+  const [materialDraftState, materialDraftIdentity, setMaterialDraft] = useIdentifiedDraft(() => defaultMaterialDraft(model, queuedIntents));
+  const [supportDraftState, supportDraftIdentity, setSupportDraft] = useIdentifiedDraft(() => defaultSupportDraft(model, selection, queuedIntents));
+  const [componentDraftState, componentDraftIdentity, setComponentDraft] = useIdentifiedDraft(() =>
     defaultComponentDraft(model, selection, queuedIntents)
   );
   const componentDraft = componentDraftWithProjectUnits(model, componentDraftState);
@@ -225,10 +216,18 @@ export function PropertyInspector({
     .filter((pipe) => pipe.from === componentDraft.node || pipe.to === componentDraft.node)
     .map((pipe) => ({ value: pipe.id, label: pipe.label || pipe.id, keywords: [pipe.from, pipe.to] })),
   [componentDraft.node, model.pipe_segments]);
-  const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
+  // The draft's own field; none while its target or field is not in the model (nothing is
+  // substituted for it).
+  const selectedField = selectedFieldPath === "" ? editableFields[0] : editableFields.find((field) => field.fieldPath === selectedFieldPath);
   const proposedUnit = chosenUnit ?? selectedField?.unit ?? "";
-  const taskStartingValue = fieldEntryValue(selectedField);
-  const taskValue = proposalEdited ? proposedValue : taskStartingValue;
+  // The field's stored entry and unit now. An entry the person has not edited IS this entry,
+  // read on every render, so it follows the stored value and unit together.
+  const currentBasis = taskBasisOf(selectedField);
+  const proposedValue = taskDraft.entered ?? fieldEntryValue(selectedField);
+  // An entry the person edited is stale when the stored entry it was made against has changed
+  // (a change that also moved the unit shown clears it instead): it cannot be queued until the
+  // person edits it again or keeps it against the changed stored value.
+  const taskStale = taskDraft.entered !== null && taskDraft.entered.trim() !== "" && !sameTaskBasis(taskDraft.basis, currentBasis);
   const selectedFieldLabel = selectedField ? propertyLabel(selectedField) : "Property";
   const requiredFlags = requiredFlagsForSelection(model, propertiesTarget, properties);
   const selectedFieldUnitOptions = selectedField
@@ -241,7 +240,7 @@ export function PropertyInspector({
     ? buildOperationIntent({
         field: selectedField,
         model,
-        proposedValue: taskValue,
+        proposedValue,
         proposedUnit,
         rationale,
         selection: draftTarget,
@@ -262,23 +261,41 @@ export function PropertyInspector({
   const [queueHolds, setQueueHolds] = useState<{ support: boolean; material: boolean }>({ support: false, material: false });
   const releaseHold = (form: "support" | "material") => setQueueHolds((current) => (current[form] ? { ...current, [form]: false } : current));
   const clearNotice = (form: CreationForm) => setUnitClearNotices((current) => (current[form] === null ? current : { ...current, [form]: null }));
-  const sessionBaseline = String(projectSessionGeneration);
-  // The creation forms' baseline: the session, and the drafts that session's reset rendered.
-  const creationBaseline = `${sessionBaseline}:${creationDraftEpoch}`;
+  // A new project session replaces every draft in the render that first sees it, not in an
+  // effect after it: React discards this render and renders again with the replaced drafts
+  // before anything is committed, so no committed render, and no clearing, ever pairs the new
+  // session with an old draft or an old baseline (DEL-02-02 REQ-022).
+  const [draftsSession, setDraftsSession] = useState(projectSessionGeneration);
+  if (draftsSession !== projectSessionGeneration) {
+    setDraftsSession(projectSessionGeneration);
+    taskGenerationRef.current += 1;
+    setTaskDraft(newTaskDraft(selection, editorFieldOptions(model, selection, unitCatalogRoute)[0]));
+    setTaskUnitNotice(null);
+    setRationale("user_entered_preview_change");
+    setSupportDraft(defaultSupportDraft(model, selection, queuedIntents, unitCatalogRoute));
+    setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
+    setMaterialDraft(defaultMaterialDraft(model, queuedIntents, unitCatalogRoute));
+    setSectionDraft(defaultSectionDraft(model, queuedIntents));
+    setUnitClearNotices(NO_UNIT_CLEAR_NOTICES);
+    setQueueHolds({ support: false, material: false });
+    setInspectorView("properties");
+    setTaskActive(false);
+  }
   // One rule (DEL-02-02 REQ-022): a unit shown beside typed digits that moves by anything other
   // than the person's own choice of it (`…Guard.chose`, called only from its unit control)
-  // clears the digits and says so. The only baseline is the project session's replacement of
-  // the drafts (the session and the epoch its reset advances).
+  // clears the digits and says so. Each guard's baseline is its draft's own identity, so a
+  // replaced draft (a new project session, the next record after Queue) is never compared
+  // with the one it replaced.
   const sectionGuard = useClearOnUnitMove({
     length: { label: "length", unit: sectionDraft.lengthUnit, values: [sectionDraft.outsideDiameter, sectionDraft.wallThickness] }
-  }, creationBaseline, (moves) => {
+  }, sectionDraftIdentity, (moves) => {
     setSectionDraft((current) => ({ ...current, outsideDiameter: "", wallThickness: "" }));
     setUnitClearNotices((current) => ({ ...current, section: moves }));
   }, supersede("section"));
   const materialGuard = useClearOnUnitMove({
     modulus: { label: "modulus", unit: materialDraft.stressUnit, values: [materialDraft.elasticModulus, materialDraft.shearModulus] },
     expansion: { label: "thermal expansion", unit: materialDraft.thermalExpansionUnit, values: [materialDraft.thermalExpansion] }
-  }, creationBaseline, (moves) => {
+  }, materialDraftIdentity, (moves) => {
     const moved = new Set(moves.map((move) => move.key));
     setMaterialDraft((current) => ({
       ...current,
@@ -290,52 +307,29 @@ export function PropertyInspector({
   }, supersede("material"));
   const supportGuard = useClearOnUnitMove({
     stiffness: { label: "stiffness", unit: supportDraft.linearStiffnessUnit, values: [supportDraft.linearStiffness] }
-  }, creationBaseline, (moves) => {
+  }, supportDraftIdentity, (moves) => {
     setSupportDraft((current) => ({ ...current, linearStiffness: "" }));
     setUnitClearNotices((current) => ({ ...current, support: moves }));
     setQueueHolds((current) => ({ ...current, support: true }));
   }, supersede("support"));
-  const componentGuard = useClearOnUnitMove(componentGuardedEntries(componentDraft), creationBaseline, (moves) => {
+  const componentGuard = useClearOnUnitMove(componentGuardedEntries(componentDraft), componentDraftIdentity, (moves) => {
     setComponentDraft((current) => componentDraftClearingBeside(current, moves.map((move) => move.key)));
     setUnitClearNotices((current) => ({ ...current, component: moves }));
   }, supersede("component"));
-  // The property task: whatever moves the unit shown beside a typed value (the project units,
-  // a stored value replaced, an absent member becoming stored), other than the person's own
-  // choice in the task's unit control, clears the value. Baseline: the session, the target,
-  // the field and the task's entry epoch, since a replaced entry is another entry.
+  // The property task: whatever moves the unit shown beside the person's entry (the project
+  // units, the stored value replaced, an absent member becoming stored, the target leaving the
+  // model), other than their own choice in the task's unit control, clears the entry. The
+  // baseline is the task draft's identity.
   const taskGuard = useClearOnUnitMove({
     value: {
       label: selectedField ? selectedFieldLabel.toLowerCase() : "property",
       unit: proposedUnit,
-      values: [proposalEdited ? proposedValue : ""]
+      values: [taskDraft.entered ?? ""]
     }
-  }, `${sessionBaseline}:${taskEntryEpoch}`, (moves) => {
-    setProposalEdited(false);
-    setProposedValue(taskStartingValue);
+  }, taskDraftIdentity, (moves) => {
+    setTaskDraft((current) => ({ ...current, entered: null, basis: null }));
     setTaskUnitNotice(moves);
   }, (moves) => setTaskUnitNotice((current) => supersedeMoves(current, moves)));
-  // The task's pinned target or field no longer exists (deleted, or replaced by a record of
-  // the same identifier): its entry is discarded and the task ends, so nothing typed for the
-  // old record can stand beside the new record's unit. Declared after the task's guard so
-  // its reset is the last word in the same commit.
-  const taskEntryGone = taskActive && selectedFieldPath !== "" && !editableFields.some((field) => field.fieldPath === selectedFieldPath);
-  useLayoutEffect(() => {
-    if (!taskEntryGone) return;
-    taskGenerationRef.current += 1;
-    const lostField = editableFields.length > 0;
-    setTaskDiscarded(lostField
-      ? `The task's field, ${selectedFieldPath}, no longer exists on ${draftTarget.type}: ${draftTarget.id}, so its entry was discarded. Start a new task to edit it.`
-      : `The task's target, ${draftTarget.type}: ${draftTarget.id}, no longer exists in the model, so its entry was discarded. Start a new task to edit it.`);
-    setSelectedFieldPath("");
-    setProposedValue("");
-    setProposalEdited(false);
-    setChosenUnit(null);
-    setProposalEdited(false);
-    setTaskEntryEpoch((epoch) => epoch + 1);
-    setTaskUnitNotice(null);
-    setRationale("user_entered_preview_change");
-    setTaskActive(false);
-  }, [taskEntryGone]);
   const sectionSourceReason = missingSourceReason("section", [{ name: "provenance", value: sectionDraft.provenance }]);
   const materialSourceReason = missingSourceReason("material", [{ name: "provenance", value: materialDraft.provenance }]);
   const supportSourceReason = missingSourceReason("support", [{ name: "provenance", value: supportDraft.provenance }]);
@@ -367,35 +361,12 @@ export function PropertyInspector({
   const fieldChanged = Boolean(
     operationIntent &&
     selectedField &&
-    ((taskValue.trim() || "TBD") !== (selectedField.initialValue || selectedField.before) ||
+    ((proposedValue.trim() || "TBD") !== (selectedField.initialValue || selectedField.before) ||
       (selectedField.unitEditable && (proposedUnit.trim() || selectedField.unit) !== selectedField.unit))
   );
   const unitRefusal = missingProjectUnitRefusal(model, selectedField, proposedUnit);
   const currentIntentComplete = Boolean(operationIntent && fieldChanged && !unitRefusal && operationIntentIsComplete(operationIntent));
 
-  useLayoutEffect(() => {
-    taskGenerationRef.current += 1;
-    const nextTarget = { ...selection };
-    const firstField = editorFieldOptions(model, nextTarget, unitCatalogRoute)[0];
-    setDraftTarget(nextTarget);
-    setSelectedFieldPath(firstField?.fieldPath ?? "");
-    setProposedValue(fieldEntryValue(firstField));
-    setChosenUnit(null);
-    setProposalEdited(false);
-    setTaskEntryEpoch((epoch) => epoch + 1);
-    setTaskUnitNotice(null);
-    setRationale("user_entered_preview_change");
-    setSupportDraft(defaultSupportDraft(model, selection, queuedIntents, unitCatalogRoute));
-    setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
-    setMaterialDraft(defaultMaterialDraft(model, queuedIntents, unitCatalogRoute));
-    setSectionDraft(defaultSectionDraft(model, queuedIntents));
-    setUnitClearNotices(NO_UNIT_CLEAR_NOTICES);
-    setQueueHolds({ support: false, material: false });
-    setCreationDraftEpoch((epoch) => epoch + 1);
-    setTaskDiscarded(null);
-    setInspectorView("properties");
-    setTaskActive(false);
-  }, [projectSessionGeneration]);
 
   useLayoutEffect(() => {
     if (!multiSelection) setPropertiesTarget({ ...selection });
@@ -406,16 +377,9 @@ export function PropertyInspector({
     if (taskRequest.view === "task") {
       taskGenerationRef.current += 1;
       const nextTarget = { ...taskRequest.target };
-      const firstField = editorFieldOptions(model, nextTarget, unitCatalogRoute)[0];
-      setDraftTarget(nextTarget);
-      setSelectedFieldPath(firstField?.fieldPath ?? "");
-      setProposedValue(fieldEntryValue(firstField));
-      setChosenUnit(null);
-      setProposalEdited(false);
-      setTaskEntryEpoch((epoch) => epoch + 1);
-    setTaskUnitNotice(null);
+      setTaskDraft(newTaskDraft(nextTarget, editorFieldOptions(model, nextTarget, unitCatalogRoute)[0]));
+      setTaskUnitNotice(null);
       setRationale("user_entered_preview_change");
-      setTaskDiscarded(null);
       setTaskActive(true);
     } else if (!multiSelection) {
       setPropertiesTarget({ ...taskRequest.target });
@@ -463,46 +427,30 @@ export function PropertyInspector({
   function handleFieldChange(fieldPath: string) {
     taskGenerationRef.current += 1;
     const nextField = editableFields.find((field) => field.fieldPath === fieldPath);
-    setSelectedFieldPath(fieldPath);
-    setProposedValue(fieldEntryValue(nextField));
-    setChosenUnit(null);
-    setProposalEdited(false);
-    setTaskEntryEpoch((epoch) => epoch + 1);
+    setTaskDraft(newTaskDraft(draftTarget, nextField));
     setTaskUnitNotice(null);
   }
 
   function beginPropertyTaskFromSelection() {
     taskGenerationRef.current += 1;
     const nextTarget = { ...selection };
-    const firstField = editorFieldOptions(model, nextTarget, unitCatalogRoute)[0];
-    setDraftTarget(nextTarget);
-    setSelectedFieldPath(firstField?.fieldPath ?? "");
-    setProposedValue(fieldEntryValue(firstField));
-    setChosenUnit(null);
-    setProposalEdited(false);
-    setTaskEntryEpoch((epoch) => epoch + 1);
+    setTaskDraft(newTaskDraft(nextTarget, editorFieldOptions(model, nextTarget, unitCatalogRoute)[0]));
     setTaskUnitNotice(null);
     setRationale("user_entered_preview_change");
-    setTaskDiscarded(null);
     setInspectorView("task");
     setTaskActive(true);
   }
 
   function cancelPropertyTask() {
     taskGenerationRef.current += 1;
-    const firstField = editorFieldOptions(model, draftTarget, unitCatalogRoute)[0];
-    setSelectedFieldPath(firstField?.fieldPath ?? "");
-    setProposedValue(fieldEntryValue(firstField));
-    setChosenUnit(null);
-    setProposalEdited(false);
-    setTaskEntryEpoch((epoch) => epoch + 1);
+    setTaskDraft(newTaskDraft(draftTarget, editorFieldOptions(model, draftTarget, unitCatalogRoute)[0]));
     setTaskUnitNotice(null);
     setRationale("user_entered_preview_change");
     setTaskActive(false);
   }
 
   function handleQueueIntent() {
-    if (multiSelection || !operationIntent || !fieldChanged || unitRefusal) return;
+    if (multiSelection || !operationIntent || !fieldChanged || unitRefusal || taskStale) return;
     onQueueIntent(deepFreezeIntent(structuredClone(operationIntent)));
   }
 
@@ -686,7 +634,6 @@ export function PropertyInspector({
       </div>
       <section className="editor-intent" aria-label="Editor operation intent" data-testid="editor-intent-panel" hidden={inspectorView !== "task"} id="inspector-task-view" role="tabpanel" tabIndex={0}>
         {!taskActive ? <div className="inspector-task-empty" data-testid="inspector-task-empty">
-          {taskDiscarded ? <p role="status" data-testid="inspector-task-discarded">{taskDiscarded}</p> : null}
           <p>Current selection: <strong>{selection.type}: {selection.id}</strong></p>
           <button type="button" data-testid="inspector-start-task" disabled={multiSelection} aria-describedby={multiSelection ? "multi-selection-task-reason" : undefined} onClick={beginPropertyTaskFromSelection}>Start task from current selection</button>
           {multiSelection ? <p id="multi-selection-task-reason" role="status">Property mutation is unavailable for multi-selection. Reduce the selection to one typed entity before starting a task.</p> : null}
@@ -722,10 +669,11 @@ export function PropertyInspector({
                   onChange={(event) => {
                     taskGenerationRef.current += 1;
                     setTaskUnitNotice(null);
-                    setProposalEdited(true);
-                    setProposedValue(event.target.value);
+                    // Editing is an event: the entry is the person's, made against the stored
+                    // entry shown now, whatever its digits.
+                    setTaskDraft((current) => ({ ...current, entered: event.target.value, basis: currentBasis }));
                   }}
-                  value={taskValue}
+                  value={proposedValue}
                 />
               </label>
               {selectedField?.unitEditable ? (
@@ -751,11 +699,21 @@ export function PropertyInspector({
                 </label>
               ) : null}
               {taskUnitNotice ? <p role="status" data-testid="editor-intent-unit-cleared">{unitMoveNotice(taskUnitNotice)}</p> : null}
+              {taskStale && currentBasis ? (
+                <p role="status" data-testid="editor-intent-stale">
+                  {staleTaskEntryText(selectedFieldLabel, taskDraft.basis, currentBasis)}{" "}
+                  <button type="button" data-testid="editor-intent-stale-confirm" onClick={() => setTaskDraft((current) => ({ ...current, basis: currentBasis }))}>
+                    Keep my entry against {currentBasis.value} {currentBasis.unit}
+                  </button>
+                </p>
+              ) : null}
               {unitRefusal ? <p role={unitRefusal.hardLock ? "alert" : "status"} data-testid="editor-intent-missing-project-unit" data-key={selectedField?.missingProjectUnit?.key}>{unitRefusal.text}</p> : null}
               <footer className="task-action-footer" aria-label="Task actions" data-testid="task-action-footer">
+                <span className="queue-with-reason">
                 <button
+                  aria-describedby={taskStale ? "editor-intent-stale-reason" : undefined}
                   data-testid="queue-editor-intent"
-                  disabled={multiSelection || !fieldChanged || Boolean(unitRefusal)}
+                  disabled={multiSelection || !fieldChanged || Boolean(unitRefusal) || taskStale}
                   onClick={handleQueueIntent}
                   title="Add this change to the review queue"
                   type="button"
@@ -763,10 +721,12 @@ export function PropertyInspector({
                   <ListPlus size={14} aria-hidden="true" />
                   Add
                 </button>
+                {taskStale ? <DisabledReason id="editor-intent-stale-reason" text={STALE_TASK_ENTRY_REASON} /> : null}
+                </span>
                 <button data-testid="cancel-editor-intent" onClick={cancelPropertyTask} type="button">Cancel</button>
                 <button
                   data-testid="validate-editor-intent-inline"
-                  disabled={multiSelection || !fieldChanged || Boolean(unitRefusal) || operationBusy || !onValidateIntent}
+                  disabled={multiSelection || !fieldChanged || Boolean(unitRefusal) || taskStale || operationBusy || !onValidateIntent}
                   onClick={() => operationIntent && !unitRefusal && onValidateIntent?.(operationIntent)}
                   title="Validate without applying"
                   type="button"
@@ -776,7 +736,7 @@ export function PropertyInspector({
                 </button>
                 <button
                   data-testid="apply-editor-intent-inline"
-                  disabled={multiSelection || !currentIntentComplete || operationBusy || !onApplyIntent}
+                  disabled={multiSelection || !currentIntentComplete || taskStale || operationBusy || !onApplyIntent}
                   onClick={() => { void handleApplyCurrentIntent(); }}
                   title="Apply this exact displayed intent through the operation service"
                   type="button"
@@ -805,6 +765,13 @@ export function PropertyInspector({
             </details>
             <InlineValidationPreview intent={operationIntent} outcome={inlineValidationOutcome} />
           </>
+        ) : selectedFieldPath !== "" ? (
+          <div data-testid="editor-intent-target-absent">
+            <p role="status">{editableFields.length === 0
+              ? `The task's target, ${draftTarget.type}: ${draftTarget.id}, is not in the model, so nothing can be added.`
+              : `The task's field, ${selectedFieldPath}, is not on ${draftTarget.type}: ${draftTarget.id}, so nothing can be added.`}</p>
+            <button data-testid="cancel-editor-intent" onClick={cancelPropertyTask} type="button">Cancel</button>
+          </div>
         ) : (
           <p className="muted" data-testid="editor-intent-empty">
             Select a model entity to edit its properties.
@@ -1484,6 +1451,42 @@ type EditableField = {
 /** The value a field's entry starts from. */
 function fieldEntryValue(field: EditableField | undefined): string {
   return field ? (field.initialValue ?? field.before ?? "") : "";
+}
+
+/** The stored entry and unit an entry of the property task is measured against. */
+type TaskBasis = { value: string; unit: string };
+
+/** The property task's draft (its identity is held beside it by `useIdentifiedDraft`). */
+type TaskDraft = {
+  target: EntityRef;
+  fieldPath: string;
+  /** The person's entry, or null until they edit it. */
+  entered: string | null;
+  /** The person's own choice of unit, or null for the field's unit. */
+  chosenUnit: string | null;
+  /** The stored entry the person's entry was made against (or last kept against). */
+  basis: TaskBasis | null;
+};
+
+function newTaskDraft(target: EntityRef, field: EditableField | undefined): TaskDraft {
+  return { target: { ...target }, fieldPath: field?.fieldPath ?? "", entered: null, chosenUnit: null, basis: taskBasisOf(field) };
+}
+
+function taskBasisOf(field: EditableField | undefined): TaskBasis | null {
+  return field ? { value: fieldEntryValue(field), unit: field.unit } : null;
+}
+
+function sameTaskBasis(a: TaskBasis | null, b: TaskBasis | null): boolean {
+  return a === b || (a !== null && b !== null && a.value === b.value && a.unit === b.unit);
+}
+
+const STALE_TASK_ENTRY_REASON = "Not added: the stored value changed after this entry was made. Edit the entry, or keep it against the changed stored value.";
+
+function staleTaskEntryText(fieldLabel: string, was: TaskBasis | null, now: TaskBasis): string {
+  const label = fieldLabel.toLowerCase();
+  return was
+    ? `The stored ${label} is now ${now.value} ${now.unit}; this entry was made against ${was.value} ${was.unit}.`
+    : `The stored ${label} is now ${now.value} ${now.unit}; this entry was made while the ${label} was not in the model.`;
 }
 
 type SupportDraft = {

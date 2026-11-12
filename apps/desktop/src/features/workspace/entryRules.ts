@@ -6,7 +6,7 @@
 // the form says which unit changed, from and to; no number is converted. The only
 // exemption is `chose(key)`, called solely from that entry's own unit control.
 // A record without its source is refused by name, in place.
-import { useCallback, useLayoutEffect, useMemo, useRef } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 /** One entry of a form: the unit shown beside it and the digits typed beside that unit. */
 export type GuardedEntry = {
@@ -58,6 +58,25 @@ export function useClearOnUnitMove(
   });
   const chose = useCallback((key: string) => { chosen.current.add(key); }, []);
   return useMemo(() => ({ chose }), [chose]);
+}
+
+let draftIdentitySequence = 0;
+
+/**
+ * A form's draft with its own identity. Replacing the draft (passing a whole new draft)
+ * gives it a new identity in the same state update; editing it (passing a function of the
+ * current draft) keeps the identity. The identity is the draft's baseline for
+ * `useClearOnUnitMove`, so a replaced draft is never compared with the one it replaced, and
+ * the draft and its baseline cannot change one render apart (DEL-02-02 REQ-022).
+ */
+export function useIdentifiedDraft<T>(initial: () => T) {
+  const [state, setState] = useState(() => ({ identity: ++draftIdentitySequence, draft: initial() }));
+  const set = useCallback((next: T | ((current: T) => T)) => {
+    setState((current) => typeof next === "function"
+      ? { identity: current.identity, draft: (next as (current: T) => T)(current.draft) }
+      : { identity: ++draftIdentitySequence, draft: next });
+  }, []);
+  return [state.draft, String(state.identity), set] as const;
 }
 
 /**

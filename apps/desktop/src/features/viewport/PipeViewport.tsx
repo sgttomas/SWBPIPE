@@ -43,7 +43,7 @@ import {
   type ComponentDraft,
   type CreatableComponentKind
 } from "../component-creation/componentIntent";
-import { missingSourceReason, supersedeMoves, unitMoveNotice, useClearOnUnitMove, type UnitMove } from "../workspace/entryRules";
+import { missingSourceReason, supersedeMoves, unitMoveNotice, useClearOnUnitMove, useIdentifiedDraft, type UnitMove } from "../workspace/entryRules";
 import {
   buildNodeCreationSubmission,
   buildRouteSubmission,
@@ -529,7 +529,9 @@ export function PipeViewport({
   const defaultLengthUnit = model.project.units.length ?? "TBD";
   const [localIntents, setLocalIntents] = useState<EditorOperationIntent[]>([]);
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
-  const [nodeDraftState, setNodeDraft] = useState<NodeDraft>(() => emptyNodeDraft(defaultLengthUnit));
+  // Each hook-registered draft carries its own identity: replacing it takes a new one in the
+  // same update, and its clearing baseline is that identity (DEL-02-02 REQ-022).
+  const [nodeDraftState, nodeDraftIdentity, setNodeDraft] = useIdentifiedDraft<NodeDraft>(() => emptyNodeDraft(defaultLengthUnit));
   // A node unit the user did not change follows the project's length unit (DEL-02-02 REQ-022).
   const nodeDraft: NodeDraft = nodeDraftState.coordinateUnitSource === "user"
     ? nodeDraftState
@@ -543,7 +545,7 @@ export function PipeViewport({
   const [draftReviewMessage, setDraftReviewMessage] = useState<string | null>(null);
   const draftReviewGate = useRef(new DraftReviewGate());
   const pendingAppliedRoute = useRef<AppliedRouteContinuation | null>(null);
-  const [componentDraftState, setComponentDraft] = useState<ComponentDraft>(() =>
+  const [componentDraftState, componentDraftIdentity, setComponentDraft] = useIdentifiedDraft<ComponentDraft>(() =>
     defaultComponentDraft(model, selection, queuedIntents)
   );
   const componentDraft = componentDraftWithProjectUnits(model, componentDraftState);
@@ -914,23 +916,36 @@ export function PipeViewport({
   const pipeDraftValid = routeBuild.ok;
   // A number typed beside a unit is cleared when the unit shown moves by anything other than
   // the person's own choice of it; the form says which unit changed (DEL-02-02 REQ-022, AC-011).
-  // Advanced when a new project session replaces the creation drafts (below), so the drafts
-  // the old project rendered are never compared with the new project's.
-  const [creationDraftEpoch, setCreationDraftEpoch] = useState(0);
-  const viewportSessionBaseline = `${activeModelIndex.sessionGeneration}:${creationDraftEpoch}`;
   // One rule (DEL-02-02 REQ-022): a unit shown beside typed digits that moves by anything other
   // than the person's own choice of it (`…Guard.chose`, called only from its unit control)
-  // clears the digits and says so. The only baseline is the project session.
+  // clears the digits and says so. Each guard's baseline is its draft's own identity.
   const nodeGuard = useClearOnUnitMove({
     coordinates: { label: "coordinate", unit: nodeDraft.coordinateUnit, values: [nodeDraft.x, nodeDraft.y, nodeDraft.z] }
-  }, viewportSessionBaseline, (moves) => {
+  }, nodeDraftIdentity, (moves) => {
     setNodeDraft((current) => ({ ...current, x: "", y: "", z: "" }));
     setNodeUnitClearNotice(moves);
   }, (moves) => setNodeUnitClearNotice((current) => supersedeMoves(current, moves)));
-  const componentGuard = useClearOnUnitMove(componentGuardedEntries(componentDraft), viewportSessionBaseline, (moves) => {
+  const componentGuard = useClearOnUnitMove(componentGuardedEntries(componentDraft), componentDraftIdentity, (moves) => {
     setComponentDraft((current) => componentDraftClearingBeside(current, moves.map((move) => move.key)));
     setComponentUnitClearNotice(moves);
   }, (moves) => setComponentUnitClearNotice((current) => supersedeMoves(current, moves)));
+  // A new project session replaces the node, route and component drafts in the render that
+  // first sees it, not in an effect after it: React discards this render and renders again
+  // with the replaced drafts before anything is committed, so no committed render, and no
+  // clearing, pairs the new session with an old draft or baseline (DEL-02-02 REQ-022).
+  const [draftsSession, setDraftsSession] = useState(activeModelIndex.sessionGeneration);
+  if (draftsSession !== activeModelIndex.sessionGeneration) {
+    setDraftsSession(activeModelIndex.sessionGeneration);
+    setNodeDraft(emptyNodeDraft(defaultLengthUnit));
+    setContinuePipe(false);
+    setPipeDraft(emptyPipeDraft(defaultLengthUnit));
+    setRouteEndMode("existing");
+    setNewEndDraft(emptyNodeDraft(defaultLengthUnit));
+    setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
+    setNodeUnitClearNotice(null);
+    setComponentUnitClearNotice(null);
+    setRouteUnitClearNotice(null);
+  }
   const componentSourceReason = missingSourceReason("component", componentSourceFields(componentDraft));
   const componentDraftValid = isComponentDraftValid(model, componentDraft, [
     ...queuedIntents,
@@ -1737,21 +1752,13 @@ export function PipeViewport({
   // The user's text never crosses projects: a new project session starts the node, route
   // and component forms afresh, their sources empty (PRD §5.5; DEL-07-03 AC-001). A model
   // change already clears the route drafts; within one session the node draft is kept.
+  // The drafts are replaced in the render that first sees the new session (above); the
+  // pointer placement in flight is released here.
   const creationSessionRef = useRef(activeModelIndex.sessionGeneration);
   useLayoutEffect(() => {
     if (creationSessionRef.current === activeModelIndex.sessionGeneration) return;
     creationSessionRef.current = activeModelIndex.sessionGeneration;
     clearPointerPlacement();
-    setNodeDraft(emptyNodeDraft(defaultLengthUnit));
-    setContinuePipe(false);
-    setPipeDraft(emptyPipeDraft(defaultLengthUnit));
-    setRouteEndMode("existing");
-    setNewEndDraft(emptyNodeDraft(defaultLengthUnit));
-    setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
-    setCreationDraftEpoch((epoch) => epoch + 1);
-    setNodeUnitClearNotice(null);
-    setComponentUnitClearNotice(null);
-    setRouteUnitClearNotice(null);
   }, [activeModelIndex.sessionGeneration]);
 
   useEffect(() => {
