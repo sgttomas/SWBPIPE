@@ -180,6 +180,7 @@ import {
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
 import type { RuleCheckRunBasis } from "../rule-check/RuleCheckRunPanel";
 import { batchRequiresPreview, operationRequiresPreview, previewSatisfied, PREVIEW_REQUIRED_REASON, type QueuedBatch } from "../toolkit/BatchReviewPanel";
+import { carriesSizedHangerSelection, SIZED_HANGER_SELECTION_UNREGISTERED_TEXT } from "../hanger-selection/hangerSelection";
 import { capabilityAvailability, capabilityRoute } from "../toolkit/capabilityCatalog";
 import type { ToolkitCapability } from "../toolkit/capabilityCatalog";
 import type { CreationTool, ViewportExposureInteraction } from "../viewport/PipeViewport";
@@ -1732,6 +1733,11 @@ export function useWorkspaceSession() {
   async function handleRequeueRetainedRecord(intent: unknown, index: number): Promise<string | null> {
     const result = requeueRetainedRecord(intent, index);
     if ("refused" in result) { setBatchMessage(`Record could not be requeued: ${result.refused}`); return result.refused; }
+    // A sized hanger selection is applied only from its sizing result, which supplies its precondition.
+    if (carriesSizedHangerSelection(result.batch)) {
+      setBatchMessage(`Record could not be requeued: ${SIZED_HANGER_SELECTION_UNREGISTERED_TEXT}`);
+      return SIZED_HANGER_SELECTION_UNREGISTERED_TEXT;
+    }
     await registerOperationBatch(result.batch);
     return null;
   }
@@ -1742,6 +1748,11 @@ export function useWorkspaceSession() {
    * the final Apply (`handleRunOperationBatch`); it is in no batch document, receipt, history or stored record. */
   async function registerOperationBatch(batch: OperationBatch, options: { reveal?: boolean; agentContext?: AgentContext; importContext?: ImportContext; precondition?: BatchPrecondition } = {}): Promise<string | null> {
     if (!model) return null;
+    // Every producer: a sized hanger selection is registered only with the precondition its sizing result supplies.
+    if (carriesSizedHangerSelection(batch) && !options.precondition) {
+      setBatchMessage(SIZED_HANGER_SELECTION_UNREGISTERED_TEXT);
+      return null;
+    }
     const revision = modelRevision.current;
     const epoch = requestEpochRef.current;
     const queueEpoch = batchQueueEpoch.current;

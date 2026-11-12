@@ -43,6 +43,23 @@ export type SizedHangerLoads =
  * other record load enters the support. */
 export type HangerSizingApplication = Readonly<{ run: HangerSizingRunIdentity; loads: SizedHangerLoads }>;
 
+/** The closed field label of a sized selection's configuration change: the builder writes it, and
+ * `carriesSizedHangerSelection` reads it, so the two cannot drift. */
+export const SIZED_HANGER_SELECTION_FIELD_LABEL = "Sized hanger selection";
+/** The session's refusal to register a sized hanger selection that comes without its host precondition. */
+export const SIZED_HANGER_SELECTION_UNREGISTERED_TEXT =
+  "This batch applies a sized hanger selection and can only be applied from its sizing result; size and apply again.";
+
+/** Whether `batch` carries a sized hanger selection: any operation on a Support with the sized selection's field label.
+ * It reads the label, and only the label: a batch whose label was altered is not caught, until a structured member
+ * says the same. */
+export function carriesSizedHangerSelection(batch: OperationBatch): boolean {
+  const operations: unknown = (batch as { operations?: unknown } | null | undefined)?.operations;
+  if (!Array.isArray(operations)) return false;
+  return operations.some((operation: { target?: { object_type?: unknown }; change?: { field_label?: unknown } } | null) =>
+    operation?.target?.object_type === "Support" && operation?.change?.field_label === SIZED_HANGER_SELECTION_FIELD_LABEL);
+}
+
 const FAMILY_OF = { variable_spring: "variable_spring_hanger", constant_effort: "constant_effort_support" } as const;
 const SIZED_LOAD_UNIT = "N";
 const RECORD_LOAD_MEMBERS = ["installed_load", "cold_load", "hot_load", "constant_load"] as const;
@@ -133,7 +150,7 @@ export async function buildHangerSelectionBatch(model: PreviewModel, document: H
     target: { object_type: "Support", ref: target.supportId },
     change: {
       change_id: `change:${crypto.randomUUID()}`, change_kind: target.newSupport ? "create_support" : "update_support",
-      field_label: sizing ? "Sized hanger selection" : "Imported hanger selection", field_path: target.newSupport ? "supports" : "configuration",
+      field_label: sizing ? SIZED_HANGER_SELECTION_FIELD_LABEL : "Imported hanger selection", field_path: target.newSupport ? "supports" : "configuration",
       before: target.newSupport ? "not_present" : await canonicalJsonString(before),
       after: await canonicalJsonString(after), unit: "none", dimension: "dimensionless",
       source_note: sizing ? hangerSizingSourceNote(sizing, source) : source
