@@ -504,6 +504,33 @@ describe("the one rule on the inspector's creation forms", () => {
     expect(byId("create-section-unit-cleared")).toHaveTextContent(cleared("length", "mm", "in"));
   });
 
+  // The fourth reading, finding 3: the old draft's chosen unit and digits must not be compared
+  // with the new project's reset draft, so its empty forms carry no notice and no hold.
+  it("a new project session after a chosen unit and typed digits: no notice on the new project's section form", async () => {
+    const { rerender } = await mount({ type: "project", id: "project:invented-demo" });
+    chooseCompactOption(byId("create-section-length-unit"), "mm");
+    type("create-section-od", "100");
+    rerender(withUnits({ length: "m" }), 2);
+    expect(byId("create-section-od")).toHaveValue("");
+    expect(screen.queryByTestId("create-section-unit-cleared")).toBeNull();
+  });
+
+  it("a new project session after chosen units and typed digits: no notice and no hold on the new project's material and support forms", async () => {
+    const { rerender } = await mount({ type: "node", id: "node:N-110" });
+    type("create-material-thermal", "0.000012");
+    chooseCompactOption(byId("create-material-thermal-unit"), "1/K");
+    rerender(withUnits({ linear_stiffness: "kN/m" }));
+    type("create-support-stiffness", "1500");
+    chooseCompactOption(byId("create-support-stiffness-unit"), "N/m");
+    rerender(withUnits({}), 2);
+    expect(byId("create-material-thermal")).toHaveValue("");
+    expect(byId("create-support-stiffness")).toHaveValue("");
+    for (const id of ["create-material-unit-cleared", "create-support-unit-cleared"]) expect(screen.queryByTestId(id)).toBeNull();
+    for (const form of ["material", "support"]) {
+      expect(byId(`queue-create-${form}-intent`).getAttribute("aria-describedby") ?? "").not.toContain(`create-${form}-queue-hold-reason`);
+    }
+  });
+
   it("a fresh draft after Queue raises no notice: the unit it starts in is the one shown", async () => {
     const { rerender } = await mount({ type: "project", id: "project:invented-demo" });
     type("create-section-od", "100");

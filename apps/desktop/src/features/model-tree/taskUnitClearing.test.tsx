@@ -49,7 +49,7 @@ function demo(units: Record<string, string> = {}, edit: (model: PreviewModel) =>
 const byId = (testId: string) => screen.getByTestId(testId);
 const notice = () => screen.queryByTestId("editor-intent-unit-cleared");
 
-async function startTask(selection: EntityRef, fieldPath: string, units: Record<string, string> = {}) {
+async function startTask(selection: EntityRef, fieldPath: string, units: Record<string, string> = {}, edit?: (model: PreviewModel) => void) {
   route.current = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
   const queue = vi.fn<(intent: EditorOperationIntent) => void>();
   const tree = (model: PreviewModel, session = 1) => (
@@ -57,7 +57,7 @@ async function startTask(selection: EntityRef, fieldPath: string, units: Record<
       <PropertyInspector model={model} selection={selection} onQueueIntent={queue} projectSessionGeneration={session} />
     </DisplayUnitsProvider>
   );
-  const view = render(tree(demo(units)));
+  const view = render(tree(demo(units, edit)));
   await waitFor(() => expect(byId("property-unit-catalog-status")).not.toHaveTextContent("loading"));
   fireEvent.click(screen.getByRole("tab", { name: "Task" }));
   fireEvent.click(byId("inspector-start-task"));
@@ -174,6 +174,65 @@ describe("the property task clears a value typed beside a unit taken from the pr
     fireEvent.change(byId("editor-intent-value"), { target: { value: "410" } });
     rerender({ temperature: "K" });
     expect(notice()).toHaveTextContent(cleared("degC", "K"));
+  });
+
+  // The fourth reading. Each sequence is driven as a person would; "outside" is a change of
+  // the model made elsewhere while the task is open.
+  const steel = { type: "material", id: "material:invented-carbon-steel" } as const;
+  const storeModulus = (value: number, unit: string) => (model: PreviewModel) => {
+    model.materials![0].elastic_modulus = { value, unit } as never;
+  };
+
+  it("finding 1: the stored number retyped, then an outside edit re-stores it in another unit", async () => {
+    const { starting, rerender } = await startTask(steel, "elastic_modulus.value");
+    expect(starting).toBe("200000000000");
+    // Select all and type: the input passes through "2" before the same digits stand again.
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "2" } });
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "200000000000" } });
+    expect(byId("editor-intent-value")).toHaveValue("200000000000");
+    rerender({}, 1, storeModulus(200000, "MPa"));
+    expect(byId("editor-intent-value")).toHaveValue("200000");
+    expect(notice()).toHaveTextContent(cleared("Pa", "MPa"));
+  });
+
+  it("finding 1: an outside edit first stores the typed number, then re-stores it in another unit", async () => {
+    const { rerender } = await startTask(steel, "elastic_modulus.value");
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "150000000000" } });
+    rerender({}, 1, storeModulus(150000000000, "Pa"));
+    rerender({}, 1, storeModulus(150000, "MPa"));
+    expect(byId("editor-intent-value")).toHaveValue("150000");
+    expect(notice()).toHaveTextContent(cleared("Pa", "MPa"));
+  });
+
+  it("finding 1, untouched: nothing typed, an outside edit re-stores the value in another unit", async () => {
+    const { rerender } = await startTask(steel, "elastic_modulus.value");
+    expect(screen.getByText("New elastic modulus (Pa)")).toBeInTheDocument();
+    rerender({}, 1, storeModulus(200000, "MPa"));
+    expect(screen.getByText("New elastic modulus (MPa)")).toBeInTheDocument();
+    // The untouched entry follows the stored entry: no digits stand beside a unit they were
+    // not stored in, nothing is queueable, and nothing was cleared.
+    expect(byId("editor-intent-value")).toHaveValue("200000");
+    expect(byId("queue-editor-intent")).toBeDisabled();
+    expect(notice()).toBeNull();
+  });
+
+  it("finding 2: the task's target deleted and re-created with the same identifier discards the entry", async () => {
+    const addSpare = (unit: string, value: number) => (model: PreviewModel) => {
+      model.materials!.push({ ...structuredClone(model.materials![0]), id: "material:T-SPARE", label: "Spare", elastic_modulus: { value, unit } } as never);
+    };
+    const { rerender } = await startTask({ type: "material", id: "material:T-SPARE" }, "elastic_modulus.value", {}, addSpare("MPa", 210000));
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "150000" } });
+    rerender({});
+    rerender({}, 1, addSpare("Pa", 210000000000));
+    // 150000 typed beside MPa must never stand beside Pa.
+    expect(screen.queryByDisplayValue("150000")).toBeNull();
+    expect(byId("inspector-task-discarded")).toHaveTextContent(
+      "The task's target, material: material:T-SPARE, no longer exists in the model, so its entry was discarded. Start a new task to edit it."
+    );
+    fireEvent.click(byId("inspector-start-task"));
+    changeFormControl(byId("editor-intent-field"), { target: { value: "elastic_modulus.value" } });
+    expect(byId("editor-intent-value")).toHaveValue("210000000000");
+    expect(screen.queryByTestId("inspector-task-discarded")).toBeNull();
   });
 
   it("baseline: another project session raises no notice", async () => {

@@ -463,6 +463,23 @@ describe("the one rule on the viewport", () => {
     ));
   });
 
+  // The fourth reading, finding 3: the old draft's chosen unit and digits must not be compared
+  // with the new project's reset draft.
+  it("a new project session after chosen units and typed digits: no notice on the new project's node and component forms", async () => {
+    route.current = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
+    const view = render(tree(withUnits({ length: "m" })));
+    await waitFor(() => expect(byId("viewport-create-node-unit-basis")).not.toHaveTextContent(/unavailable|pending/i));
+    type("viewport-create-node-x", "1.5");
+    chooseCompactOption(byId("viewport-create-node-unit"), "mm");
+    type("viewport-create-component-radius", "450");
+    chooseCompactOption(byId("viewport-create-component-radius-unit"), "mm");
+    view.rerender(tree(withUnits({ length: "m" }), 2));
+    await waitFor(() => expect(byId("viewport-create-node-x")).toHaveValue(""));
+    expect(byId("viewport-create-component-radius")).toHaveValue("");
+    expect(screen.queryByTestId("viewport-create-node-unit-cleared")).toBeNull();
+    expect(screen.queryByTestId("viewport-create-component-unit-cleared")).toBeNull();
+  });
+
   it("the reviewer's case: route end coordinates in a unit the person chose, then an unrelated edit", async () => {
     route.current = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
     const view = render(tree(withUnits({ length: "m" })));

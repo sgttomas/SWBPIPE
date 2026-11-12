@@ -914,7 +914,10 @@ export function PipeViewport({
   const pipeDraftValid = routeBuild.ok;
   // A number typed beside a unit is cleared when the unit shown moves by anything other than
   // the person's own choice of it; the form says which unit changed (DEL-02-02 REQ-022, AC-011).
-  const viewportSessionBaseline = String(activeModelIndex.sessionGeneration);
+  // Advanced when a new project session replaces the creation drafts (below), so the drafts
+  // the old project rendered are never compared with the new project's.
+  const [creationDraftEpoch, setCreationDraftEpoch] = useState(0);
+  const viewportSessionBaseline = `${activeModelIndex.sessionGeneration}:${creationDraftEpoch}`;
   // One rule (DEL-02-02 REQ-022): a unit shown beside typed digits that moves by anything other
   // than the person's own choice of it (`…Guard.chose`, called only from its unit control)
   // clears the digits and says so. The only baseline is the project session.
@@ -1745,6 +1748,7 @@ export function PipeViewport({
     setRouteEndMode("existing");
     setNewEndDraft(emptyNodeDraft(defaultLengthUnit));
     setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
+    setCreationDraftEpoch((epoch) => epoch + 1);
     setNodeUnitClearNotice(null);
     setComponentUnitClearNotice(null);
     setRouteUnitClearNotice(null);

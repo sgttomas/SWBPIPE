@@ -121,15 +121,27 @@ export function PropertyInspector({
   const editableFields = useMemo(() => editorFieldOptions(model, draftTarget, unitCatalogRoute), [draftTarget, model, unitCatalogRoute]);
   const [selectedFieldPath, setSelectedFieldPath] = useState(editableFields[0]?.fieldPath ?? "");
   const [proposedValue, setProposedValue] = useState(fieldEntryValue(editableFields[0]));
+  // Whether the person has edited the task's value themselves. Until they have, the value
+  // shown is the field's stored entry and follows it when the model changes, so no digits the
+  // person did not type stand beside a unit they were not stored in (DEL-02-02 REQ-022).
+  // Reset wherever the entry is replaced or cleared.
+  const [proposalEdited, setProposalEdited] = useState(false);
   // a unit the user picks is kept; until then the field's own
   // (inherited) default is used, recomputed whenever the field is, so a catalog that
   // arrives late, or a project-unit change, replaces an inherited default but never a
   // chosen unit. A stored unit is the field's default and is kept.
   const [chosenUnit, setChosenUnit] = useState<string | null>(null);
-  // Advanced wherever the task's entry is replaced (another target or field, a task started
-  // again, Cancel): the typed value goes back to the field's starting entry and the chosen
-  // unit is dropped, so nothing is compared across it (DEL-02-02 REQ-022).
+  // Advanced wherever the task's entry is replaced: a new project session, a task request,
+  // the field select, starting a task, Cancel, and the discard when its target or field no
+  // longer exists. Those are the only places the target or field changes, so this one epoch
+  // is the task's baseline: nothing is compared across a replaced entry (DEL-02-02 REQ-022).
   const [taskEntryEpoch, setTaskEntryEpoch] = useState(0);
+  // The sentence shown when the task's entry was discarded because its target or field no
+  // longer exists; cleared when a task starts or the project changes.
+  const [taskDiscarded, setTaskDiscarded] = useState<string | null>(null);
+  // Advanced when the project session replaces the creation drafts, so the drafts the old
+  // project rendered are never compared with the new project's (DEL-02-02 REQ-022).
+  const [creationDraftEpoch, setCreationDraftEpoch] = useState(0);
   const [taskUnitNotice, setTaskUnitNotice] = useState<UnitMove[] | null>(null);
   // Called only by the task's two unit controls: the person's own choice of the unit.
   const chooseProposedUnit = (unit: string) => { taskGuard.chose("value"); setTaskUnitNotice(null); setChosenUnit(unit); };
@@ -215,6 +227,8 @@ export function PropertyInspector({
   [componentDraft.node, model.pipe_segments]);
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
   const proposedUnit = chosenUnit ?? selectedField?.unit ?? "";
+  const taskStartingValue = fieldEntryValue(selectedField);
+  const taskValue = proposalEdited ? proposedValue : taskStartingValue;
   const selectedFieldLabel = selectedField ? propertyLabel(selectedField) : "Property";
   const requiredFlags = requiredFlagsForSelection(model, propertiesTarget, properties);
   const selectedFieldUnitOptions = selectedField
@@ -227,7 +241,7 @@ export function PropertyInspector({
     ? buildOperationIntent({
         field: selectedField,
         model,
-        proposedValue,
+        proposedValue: taskValue,
         proposedUnit,
         rationale,
         selection: draftTarget,
@@ -249,19 +263,22 @@ export function PropertyInspector({
   const releaseHold = (form: "support" | "material") => setQueueHolds((current) => (current[form] ? { ...current, [form]: false } : current));
   const clearNotice = (form: CreationForm) => setUnitClearNotices((current) => (current[form] === null ? current : { ...current, [form]: null }));
   const sessionBaseline = String(projectSessionGeneration);
+  // The creation forms' baseline: the session, and the drafts that session's reset rendered.
+  const creationBaseline = `${sessionBaseline}:${creationDraftEpoch}`;
   // One rule (DEL-02-02 REQ-022): a unit shown beside typed digits that moves by anything other
   // than the person's own choice of it (`…Guard.chose`, called only from its unit control)
-  // clears the digits and says so. The only baseline is the project session.
+  // clears the digits and says so. The only baseline is the project session's replacement of
+  // the drafts (the session and the epoch its reset advances).
   const sectionGuard = useClearOnUnitMove({
     length: { label: "length", unit: sectionDraft.lengthUnit, values: [sectionDraft.outsideDiameter, sectionDraft.wallThickness] }
-  }, sessionBaseline, (moves) => {
+  }, creationBaseline, (moves) => {
     setSectionDraft((current) => ({ ...current, outsideDiameter: "", wallThickness: "" }));
     setUnitClearNotices((current) => ({ ...current, section: moves }));
   }, supersede("section"));
   const materialGuard = useClearOnUnitMove({
     modulus: { label: "modulus", unit: materialDraft.stressUnit, values: [materialDraft.elasticModulus, materialDraft.shearModulus] },
     expansion: { label: "thermal expansion", unit: materialDraft.thermalExpansionUnit, values: [materialDraft.thermalExpansion] }
-  }, sessionBaseline, (moves) => {
+  }, creationBaseline, (moves) => {
     const moved = new Set(moves.map((move) => move.key));
     setMaterialDraft((current) => ({
       ...current,
@@ -273,12 +290,12 @@ export function PropertyInspector({
   }, supersede("material"));
   const supportGuard = useClearOnUnitMove({
     stiffness: { label: "stiffness", unit: supportDraft.linearStiffnessUnit, values: [supportDraft.linearStiffness] }
-  }, sessionBaseline, (moves) => {
+  }, creationBaseline, (moves) => {
     setSupportDraft((current) => ({ ...current, linearStiffness: "" }));
     setUnitClearNotices((current) => ({ ...current, support: moves }));
     setQueueHolds((current) => ({ ...current, support: true }));
   }, supersede("support"));
-  const componentGuard = useClearOnUnitMove(componentGuardedEntries(componentDraft), sessionBaseline, (moves) => {
+  const componentGuard = useClearOnUnitMove(componentGuardedEntries(componentDraft), creationBaseline, (moves) => {
     setComponentDraft((current) => componentDraftClearingBeside(current, moves.map((move) => move.key)));
     setUnitClearNotices((current) => ({ ...current, component: moves }));
   }, supersede("component"));
@@ -286,17 +303,39 @@ export function PropertyInspector({
   // a stored value replaced, an absent member becoming stored), other than the person's own
   // choice in the task's unit control, clears the value. Baseline: the session, the target,
   // the field and the task's entry epoch, since a replaced entry is another entry.
-  const taskStartingValue = fieldEntryValue(selectedField);
   const taskGuard = useClearOnUnitMove({
     value: {
       label: selectedField ? selectedFieldLabel.toLowerCase() : "property",
       unit: proposedUnit,
-      values: [proposedValue !== taskStartingValue ? proposedValue : ""]
+      values: [proposalEdited ? proposedValue : ""]
     }
-  }, `${sessionBaseline}:${draftTarget.type}:${draftTarget.id}:${selectedField?.fieldPath ?? ""}:${taskEntryEpoch}`, (moves) => {
+  }, `${sessionBaseline}:${taskEntryEpoch}`, (moves) => {
+    setProposalEdited(false);
     setProposedValue(taskStartingValue);
     setTaskUnitNotice(moves);
   }, (moves) => setTaskUnitNotice((current) => supersedeMoves(current, moves)));
+  // The task's pinned target or field no longer exists (deleted, or replaced by a record of
+  // the same identifier): its entry is discarded and the task ends, so nothing typed for the
+  // old record can stand beside the new record's unit. Declared after the task's guard so
+  // its reset is the last word in the same commit.
+  const taskEntryGone = taskActive && selectedFieldPath !== "" && !editableFields.some((field) => field.fieldPath === selectedFieldPath);
+  useLayoutEffect(() => {
+    if (!taskEntryGone) return;
+    taskGenerationRef.current += 1;
+    const lostField = editableFields.length > 0;
+    setTaskDiscarded(lostField
+      ? `The task's field, ${selectedFieldPath}, no longer exists on ${draftTarget.type}: ${draftTarget.id}, so its entry was discarded. Start a new task to edit it.`
+      : `The task's target, ${draftTarget.type}: ${draftTarget.id}, no longer exists in the model, so its entry was discarded. Start a new task to edit it.`);
+    setSelectedFieldPath("");
+    setProposedValue("");
+    setProposalEdited(false);
+    setChosenUnit(null);
+    setProposalEdited(false);
+    setTaskEntryEpoch((epoch) => epoch + 1);
+    setTaskUnitNotice(null);
+    setRationale("user_entered_preview_change");
+    setTaskActive(false);
+  }, [taskEntryGone]);
   const sectionSourceReason = missingSourceReason("section", [{ name: "provenance", value: sectionDraft.provenance }]);
   const materialSourceReason = missingSourceReason("material", [{ name: "provenance", value: materialDraft.provenance }]);
   const supportSourceReason = missingSourceReason("support", [{ name: "provenance", value: supportDraft.provenance }]);
@@ -328,7 +367,7 @@ export function PropertyInspector({
   const fieldChanged = Boolean(
     operationIntent &&
     selectedField &&
-    ((proposedValue.trim() || "TBD") !== (selectedField.initialValue || selectedField.before) ||
+    ((taskValue.trim() || "TBD") !== (selectedField.initialValue || selectedField.before) ||
       (selectedField.unitEditable && (proposedUnit.trim() || selectedField.unit) !== selectedField.unit))
   );
   const unitRefusal = missingProjectUnitRefusal(model, selectedField, proposedUnit);
@@ -342,6 +381,7 @@ export function PropertyInspector({
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(fieldEntryValue(firstField));
     setChosenUnit(null);
+    setProposalEdited(false);
     setTaskEntryEpoch((epoch) => epoch + 1);
     setTaskUnitNotice(null);
     setRationale("user_entered_preview_change");
@@ -351,6 +391,8 @@ export function PropertyInspector({
     setSectionDraft(defaultSectionDraft(model, queuedIntents));
     setUnitClearNotices(NO_UNIT_CLEAR_NOTICES);
     setQueueHolds({ support: false, material: false });
+    setCreationDraftEpoch((epoch) => epoch + 1);
+    setTaskDiscarded(null);
     setInspectorView("properties");
     setTaskActive(false);
   }, [projectSessionGeneration]);
@@ -369,9 +411,11 @@ export function PropertyInspector({
       setSelectedFieldPath(firstField?.fieldPath ?? "");
       setProposedValue(fieldEntryValue(firstField));
       setChosenUnit(null);
+      setProposalEdited(false);
       setTaskEntryEpoch((epoch) => epoch + 1);
     setTaskUnitNotice(null);
       setRationale("user_entered_preview_change");
+      setTaskDiscarded(null);
       setTaskActive(true);
     } else if (!multiSelection) {
       setPropertiesTarget({ ...taskRequest.target });
@@ -422,6 +466,7 @@ export function PropertyInspector({
     setSelectedFieldPath(fieldPath);
     setProposedValue(fieldEntryValue(nextField));
     setChosenUnit(null);
+    setProposalEdited(false);
     setTaskEntryEpoch((epoch) => epoch + 1);
     setTaskUnitNotice(null);
   }
@@ -434,9 +479,11 @@ export function PropertyInspector({
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(fieldEntryValue(firstField));
     setChosenUnit(null);
+    setProposalEdited(false);
     setTaskEntryEpoch((epoch) => epoch + 1);
     setTaskUnitNotice(null);
     setRationale("user_entered_preview_change");
+    setTaskDiscarded(null);
     setInspectorView("task");
     setTaskActive(true);
   }
@@ -447,6 +494,7 @@ export function PropertyInspector({
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(fieldEntryValue(firstField));
     setChosenUnit(null);
+    setProposalEdited(false);
     setTaskEntryEpoch((epoch) => epoch + 1);
     setTaskUnitNotice(null);
     setRationale("user_entered_preview_change");
@@ -638,6 +686,7 @@ export function PropertyInspector({
       </div>
       <section className="editor-intent" aria-label="Editor operation intent" data-testid="editor-intent-panel" hidden={inspectorView !== "task"} id="inspector-task-view" role="tabpanel" tabIndex={0}>
         {!taskActive ? <div className="inspector-task-empty" data-testid="inspector-task-empty">
+          {taskDiscarded ? <p role="status" data-testid="inspector-task-discarded">{taskDiscarded}</p> : null}
           <p>Current selection: <strong>{selection.type}: {selection.id}</strong></p>
           <button type="button" data-testid="inspector-start-task" disabled={multiSelection} aria-describedby={multiSelection ? "multi-selection-task-reason" : undefined} onClick={beginPropertyTaskFromSelection}>Start task from current selection</button>
           {multiSelection ? <p id="multi-selection-task-reason" role="status">Property mutation is unavailable for multi-selection. Reduce the selection to one typed entity before starting a task.</p> : null}
@@ -673,9 +722,10 @@ export function PropertyInspector({
                   onChange={(event) => {
                     taskGenerationRef.current += 1;
                     setTaskUnitNotice(null);
+                    setProposalEdited(true);
                     setProposedValue(event.target.value);
                   }}
-                  value={proposedValue}
+                  value={taskValue}
                 />
               </label>
               {selectedField?.unitEditable ? (
