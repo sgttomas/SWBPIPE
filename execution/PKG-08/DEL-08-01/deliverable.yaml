@@ -147,6 +147,7 @@ code_paths:
 - apps/desktop/src/services/reportPackageSaveService.ts
 # The native side: the render and save commands, the exact source binding and the user-release admission.
 - apps/desktop/src-tauri/src/report_render_exact.rs
+- apps/desktop/src-tauri/src/report_session_diagnostics.rs
 - apps/desktop/src-tauri/src/report_package_bridge.rs
 - apps/desktop/src-tauri/src/report_package_save.rs
 - apps/desktop/src-tauri/src/atomic_report_package_save.rs
@@ -195,6 +196,7 @@ checks:
 - tests/test_headless_runner_contract.py
 - tests/test_report_sections_provenance_records.py
 - apps/desktop/src-tauri/src/report_render_exact_tests.rs
+- apps/desktop/src-tauri/src/report_session_diagnostics_tests.rs
 - apps/desktop/src-tauri/src/object_form_tests.rs
 - apps/desktop/src-tauri/src/user_release_admission_tests.rs
 - apps/desktop/src-tauri/src/user_release_save_tests.rs
