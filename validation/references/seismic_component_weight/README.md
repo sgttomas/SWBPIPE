@@ -22,12 +22,14 @@ one fixed mass. Equal gravities are a sufficient condition for it to coincide
 with acceleration of the model's self-weight mass: when the seismic case's
 gravity equals the gravity of an applied self-weight, the two agree. When they
 differ, the pipes' loads scale with the seismic case's gravity and the
-component force does not. The two then still agree on a component whose
-applied weight is zero: it contributes no difference at any gravity
-(boundary 4). Where the applied
-self-weight's gravity is absent or ambiguous, the equivalence of the two mass
-models is not established, and this package gives the value the convention
-yields without calling it equivalent.
+component force does not. The difference the component makes is
+k·W·(1 − g_s/g_w), which tends to zero with W. So in the limit of an applied
+weight tending to zero the two agree at any gravity (boundary 4, a continuity
+witness). No entered document reaches that limit, because a weight of zero is
+not applied (the decision is quoted below). Where the applied self-weight's
+gravity is absent or ambiguous, the equivalence of the two mass models is not
+established, and this package gives the value the convention yields without
+calling it equivalent.
 
 The convention rests on its own merits. It needs no division by a gravity, no
 knowledge of where the user's W came from (a weighed force, a catalogue
@@ -37,7 +39,8 @@ A model-check warning is to be built with the engine change. It names an
 exception: a seismic case that carries an applied component weight and states
 a gravity different from the applied self-weight's, with both values. The
 absence of the warning does not establish that one mass model holds. Each
-seismic reference case here records whether the warning is expected.
+seismic reference case here records whether the warning is expected. A limit
+case records no expectation, because no document can carry it.
 
 The references were written before the engine change they will judge. No
 product comparison binds them yet.
@@ -56,9 +59,12 @@ Status: candidate references, derived and cross-checked by their author TASK.
 - **First refutation:** a fresh reviewer re-derived all 4,884 original rows
   independently and proved the rounding of every published number. No
   numerical row was wrong.
-- **This revision** answers its four findings. It closes the open reading on
-  gravity under the decision above and adds three boundary cases. Their rows
-  have not yet been independently refuted.
+- **Second revision:** it answered those four findings, closed the open
+  reading on gravity under the decision above, and added three boundary cases.
+- **Second refutation:** all 828 boundary rows were re-derived independently.
+  The third revision then added boundary 4.
+- **This revision** relabels boundary 4 under the zero-weight decision quoted
+  below. No row changes.
 
 ## Files
 
@@ -186,6 +192,21 @@ What this package freezes of it:
   seismic reference case. It records whether the case carries an applied
   component weight, its authored seismic gravity, the applied self-weight's
   gravity, and whether the warning is expected.
+- **The limit cases of boundary 4:** `expected` is null, `applicable` is false,
+  and a `reason` says no document can carry the case.
+
+**The decision on a zero component weight.** SWBPIPE's Agent 0 decided the
+following. It is not yet scope text. It is to become text in DEL-05-01's
+self-weight plan with the engine pull request that changes the seismic text.
+
+> A component's weight is applied only when it is a finite positive force; a
+> weight of zero is not applied.
+
+This is DEL-05-01 REQ-015's consequence for zero: "A component whose weight
+cannot be applied is named in a warning and its pipe keeps its distributed
+weight". The scopes do not yet say that zero is such a weight. So an entered
+weight of exactly zero is not applied, and an applied weight of exactly zero
+is reachable by no entered document.
 
 No warning code is assumed.
 
@@ -221,8 +242,19 @@ The routes are PF and EX and the models are CANT and FIXED. The case id is
 `SCW-<model>-<route>-<name>`.
 
 - The first 14 names exist for all four combinations: 56 cases.
-- The seven boundary names and the boundary 4 control exist on CANT only, on
+- The seven boundary names and CTRL-ZERO-AS-NOT-APPLIED exist on CANT only, on
   both routes: 16 cases.
+
+`role` is one of three kinds:
+
+- **reference:** a document a person can make.
+- **control:** a wrong rule, kept for comparison.
+- **limit:** the rule evaluated where no entered document reaches, as a
+  continuity witness. Only the two BND-ZERO names have this kind.
+
+The case identifiers are kept as first frozen. The BND-ZERO names now denote
+the limit, and CTRL-ZERO-AS-NOT-APPLIED now denotes the document with an
+entered zero weight. The `role`, `description` and `rule` members say so.
 
 Each case records two gravities:
 
@@ -251,9 +283,9 @@ Each case records two gravities:
 | BND-NONE-WEIGHT-NZ | reference | boundary 2: valve and flange not consumed; weight at g_w (CANT) |
 | BND-NONE-SEISMIC-XYZ-G10 | reference | boundary 2: valve and flange not consumed; seismic XYZ at 10 m/s² (CANT) |
 | BND-ULP-SEISMIC-XYZ | reference | boundary 3: seismic XYZ at g_s_ulp, against the weight at g_w_bits (CANT) |
-| BND-ZERO-WEIGHT-NZ | reference | boundary 4: the valve applied with entered weight exactly 0; weight at g_w (CANT) |
-| BND-ZERO-SEISMIC-XYZ-G10 | reference | boundary 4: the zero-weight valve applied; seismic XYZ at 10 m/s² (CANT) |
-| CTRL-ZERO-AS-NOT-APPLIED | control | boundary 4 under a gate that treats zero weight as not applied: BC keeps its load (CANT) |
+| BND-ZERO-WEIGHT-NZ | limit | boundary 4: the self-weight plan as the valve's applied weight tends to zero; weight at g_w (CANT) |
+| BND-ZERO-SEISMIC-XYZ-G10 | limit | boundary 4: the decided rule as the valve's applied weight tends to zero; seismic XYZ at 10 m/s² (CANT) |
+| CTRL-ZERO-AS-NOT-APPLIED | reference | boundary 4: an entered valve weight of exactly zero, not applied, so BC keeps its load; seismic XYZ at 10 m/s² (CANT) |
 
 CTRL-K-TIMES-WEIGHT-CASE was the alternative case "ALT-O2-WEIGHT-GRAVITY" of
 the first revision. Its rows are unchanged. It is now a labelled control: the
@@ -362,8 +394,15 @@ section-action statics with virtual-work integrals in the other.
 For each seismic case, take the weight of the model under gravity g_wt along
 +e_a: the total weight 𝒲 and its moment about the origin M_w,a. Here g_wt is
 the applied self-weight's gravity: g_w, or g_w_bits in boundaries 1 and 3. The
-weight is always the self-weight plan's, even beside a control. Then the
-identities are:
+weight is always the self-weight plan's, even beside a control.
+
+One exception is the zero-weight document CTRL-ZERO-AS-NOT-APPLIED. Its
+`parity` block was first frozen against the limit's weight (zero weight
+applied), and it is kept so, labelled by `weight_compared`. Its own weight
+case, in which the zero weight is not applied and BC keeps its weight, is in
+`own_weight_case`.
+
+Then the identities are:
 
 - resultant force = Σ_a k_a·𝒲·e_a;
 - resultant moment = Σ_a k_a·M_w,a.
@@ -476,19 +515,26 @@ routes.
   3.52317e-13) N and (0, −7.97118e-13, 6.97478e-13) N·m. The
   component force is exactly k·W_v, the same as in boundary 1.
 
-**Boundary 4: an applied component weight that is exactly zero.**
+**Boundary 4: a component weight of zero, as a limit and as a document.**
 
-A product gate written as "nonzero weight" would pass every other fixture.
-This case closes that hole.
+Boundary 4 has two parts. The first is the rule's limit as the applied weight
+tends to zero, a continuity witness that no entered document reaches. The
+second is what an entered weight of exactly zero does under the decision
+quoted above: the weight is not applied.
 
-- **Inputs:** the valve is declared `mechanics_geometry_only` with entered
-  weight W = 0 N (input `W_v_zero`), centre of gravity and scale unchanged.
-  The weight case (BND-ZERO-WEIGHT-NZ) applies that weight at g_w. The seismic
-  case (BND-ZERO-SEISMIC-XYZ-G10) states 10 m/s².
-- **Under the convention:** BC still loses its distributed seismic load,
-  because its component weight is applied, at zero. The component force and
-  its couple at C are exactly zero; the rows `load/C/*` are frozen as 0. AB and
-  CD carry μ·10·k.
+**The limit: BND-ZERO-WEIGHT-NZ and BND-ZERO-SEISMIC-XYZ-G10** (role `limit`).
+
+- **Inputs:** the valve is declared `mechanics_geometry_only`, and its weight
+  is applied and taken to zero, W → 0 (input `W_v_zero`). Its centre of
+  gravity and scale are unchanged. The weight case applies the weight at g_w;
+  the seismic case states 10 m/s².
+- **Under the convention, in the limit:** BC loses its distributed seismic
+  load, because its component weight is applied. The component force and its
+  couple at C tend to zero, and the rows `load/C/*` are frozen as 0. AB and CD
+  carry μ·10·k. The rule is continuous there: the k·W force and its couple
+  vanish with W.
+- **Why no document reaches it:** a weight of zero is not applied (decided),
+  so no entered document gives an applied weight of exactly zero.
 - **Values:** resultant PF (1362.83, 1589.97, 1817.11) N and (0, −4111.22,
   3597.32) N·m; EX (1487.53, 1735.45, 1983.37) N and (0, −4487.37,
   3926.45) N·m. Tip D on PF: (1.75466e-6, 1.47591e-3, 1.68676e-3) m and
@@ -497,12 +543,31 @@ This case closes that hole.
 - **Parity:** it holds exactly at the seismic case's own gravity. Against the
   weight at g_w it fails by the pipes' share alone, the same as in G10:
   PF (28.6195, 33.3895, 38.1594) N, EX (31.2381, 36.4444, 41.6508) N. The
-  zero-weight component adds nothing. The generator also checks that the
-  fixed-mass-inertia force k·W·g_s/g_w gives exactly the same loads here: at
-  zero weight the two definitions coincide although the gravities differ.
-- **Control CTRL-ZERO-AS-NOT-APPLIED** treats the zero-weight component as not
-  applied, so BC keeps μ·10·k (BC's scale is still applied). It differs from
-  the reference by k·10·μ·L_BC in force:
+  component adds nothing in the limit. The generator also checks that the
+  fixed-mass-inertia force k·W·g_s/g_w gives exactly the same loads here: in
+  the limit the two definitions coincide although the gravities differ.
+- **Warning: no expectation.** `expected` is null, `applicable` is false, and
+  the `reason` says no entered document can carry the case.
+
+**The document: CTRL-ZERO-AS-NOT-APPLIED** (role `reference`; the identifier
+is kept as first frozen).
+
+- **What it is:** an entered valve weight of exactly zero. Under the decision
+  the weight is not applied, so BC keeps its distributed seismic load μ·10·k,
+  and there is no component force or couple. BC's scale is still applied,
+  because the valve still declares `mechanics_geometry_only`.
+- **Why its kind is reference:** it is the reference for the document a
+  person can make. It also stays usable as the negative control against the
+  limit rows, through `compared_with` and `resultant_difference`.
+- **Warning: frozen false.** No component weight is applied on it, so the
+  decided condition is not met even though the gravities differ.
+- **Parity against its own weight case** (`own_weight_case`): it holds
+  exactly at the seismic case's own gravity. Against the weight at g_w it
+  fails by the pipes' share over the whole length 23/5 m: PF (32.9125,
+  38.3979, 43.8833) N and (0, −100.932, 88.3151) N·m; EX (35.9238, 41.9111,
+  47.8984) N and (0, −110.166, 96.3955) N·m.
+
+It differs from the limit by k·10·μ·L_BC in force:
   - PF: (65070567/1000000, 151831323/2000000, 21690189/250000)·π ≈ (204.425,
     238.496, 272.567) N and (0, −695.046, 608.165) N·m, largest translation
     2.617e-4 m (D uz);
@@ -511,22 +576,9 @@ This case closes that hole.
 
   Each is more than 10¹⁴ binary64 units of the value it changes, far above
   rounding.
-- **Warning: expected (frozen as true).** The decided condition is "a seismic
-  gravity that differs from the applied self-weight's when a component weight
-  is applied". Here a component weight is applied, at zero, and the gravities
-  differ.
-
-  The words settle this, because "applied" has to mean the same thing in the
-  rule and in the warning condition. The rule's "a member whose component
-  weight the self-weight plan applies" is what makes BC lose its load here,
-  and that same reading makes the condition true. The consequence is that the
-  warning names a case on which the two mass models coincide, so it reports
-  no difference. If the Agent 0 wants the warning to pass over a zero applied
-  weight, the condition's words change, and this one member is re-frozen.
-- **Not settled by the scopes read:** whether validation admits an entered
-  weight of exactly zero. DEL-03-05 requires the stiffness scale to be finite
-  and above zero but states no sign condition for the weight. This case
-  assumes the weight is admitted, as its assignment states.
+A product gate written as "nonzero weight" that passes every other fixture is
+caught here. A product that applies an entered zero weight reproduces the
+limit rows, not the document's.
 
 ## Negative controls (item 5): size of each
 
@@ -536,8 +588,9 @@ Each control is compared with its reference:
 - SEISMIC-XYZ-G10 for the fixed-mass-inertia control and the k-times-weight
   control;
 - TWO-SEISMIC-XYZ for keyed;
-- BND-ZERO-SEISMIC-XYZ-G10 for CTRL-ZERO-AS-NOT-APPLIED (given under
-  boundary 4).
+- the limit BND-ZERO-SEISMIC-XYZ-G10 for the zero-weight document
+  CTRL-ZERO-AS-NOT-APPLIED (given under boundary 4; there the document is the
+  reference and the limit the comparison).
 
 The difference is control minus reference. `resultant_difference` holds it
 exactly, and `largest_response_difference` holds the largest |Δ| per row
@@ -561,7 +614,7 @@ translational forces unchanged. On FIXED, reaction A Fz changes by 79.35 N.
 
 ## Cross-checks (item 7)
 
-All 756 cross-checks in `crosscheck` agree.
+All 760 cross-checks in `crosscheck` agree.
 
 **Between the two solution methods:**
 
@@ -579,13 +632,21 @@ All 756 cross-checks in `crosscheck` agree.
 - the four row identities;
 - the eight two-mapped equalities;
 - each parity gap against the pipes' share;
-- the outcomes of the four boundaries, and at zero weight the identity of the
-  fixed-mass-inertia loads with the convention's.
+- the outcomes of the four boundaries: for boundary 4, the limit's zero
+  component force, the document's kept BC load and its difference from the
+  limit, the limit's absent warning expectation and the document's false
+  one, and in the limit the identity of the fixed-mass-inertia loads with the
+  convention's.
 
 The whole build was repeated with every input replaced by its nearest binary64
 value. Over 6210 rows, no row changed its sign (zeros included), and no
-discrete outcome changed: the sign of each control's resultant difference,
-which parity holds, and which warning is expected (`binary64_input_check`).
+discrete outcome changed (`binary64_input_check`):
+
+- the sign of each comparison case's resultant difference, including the
+  zero-weight document against the limit;
+- which parity holds;
+- which warning is expected, on the reference cases. The boundary 4 limit
+  cases carry no expectation.
 
 ## Open readings
 

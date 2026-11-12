@@ -22,8 +22,14 @@ fixed mass. Equal gravities are a sufficient condition for it to coincide with
 acceleration of the model's self-weight mass: when the seismic case's gravity
 equals the gravity of an applied self-weight, the two agree. When they differ,
 the pipes' loads scale with the seismic case's gravity and the component force
-does not; the two then still agree on a component whose applied weight is zero,
-which contributes no difference at any gravity (boundary 4). Where the applied self-weight's gravity is absent
+does not; the difference the component makes is k W (1 - g_s/g_w), which tends
+to zero with W, so in the limit of an applied weight tending to zero the two
+agree at any gravity (boundary 4, a continuity witness). No entered document
+reaches that limit: SWBPIPE's Agent 0 decided, not yet scope text, that "a
+component's weight is applied only when it is a finite positive force; a weight
+of zero is not applied". An entered weight of exactly zero is therefore not
+applied, and its member keeps its distributed load (CTRL-ZERO-AS-NOT-APPLIED,
+the reference for that document). Where the applied self-weight's gravity is absent
 or ambiguous, the equivalence of the two mass models is not established; the
 values here are what the convention yields. A product is expected to carry a
 model-check warning, an exception the convention names, on a seismic case that
@@ -262,7 +268,7 @@ _ULP = F(1, 2 ** 49)
 assert 8 <= _G_W_BITS < 16 and F(float(_G_W_BITS + _ULP)) == _G_W_BITS + _ULP
 assert float(_G_W_BITS + _ULP) > float(_G_W_BITS) and F(float(_G_W_BITS + _ULP / 2)) in (_G_W_BITS, _G_W_BITS + _ULP)
 INPUTS["g_w_bits"] = _G_W_BITS
-INPUTS["W_v_zero"] = F(0)  # N, boundary 4: the valve's entered weight, exactly zero, applied by the weight case
+INPUTS["W_v_zero"] = F(0)  # N, boundary 4: a valve weight of exactly zero (applied only in the limit cases)
 INPUTS["g_s_ulp"] = _G_W_BITS + _ULP
 INPUT_UNITS = {"L_ab": "m", "L_bc": "m", "L_cd": "m", "D": "m", "t": "m", "c_m": "m", "c_a": "m", "t_i": "m",
                "rho_m": "kg/m^3", "rho_c": "kg/m^3", "rho_i": "kg/m^3", "E": "Pa", "nu": "1",
@@ -694,16 +700,24 @@ def case_specs(inp):
         ("BND-ULP-SEISMIC-XYZ", "reference", "boundary 3: valve applied, centre of gravity offset on all three "
          "axes; seismic XYZ at g_s_ulp, one binary64 unit above the weight case's g_w_bits",
          {"kind": "seismic", "g": inp["g_s_ulp"], "vec": k, "weight_g": inp["g_w_bits"], "models": ("CANT",)}),
-        ("BND-ZERO-WEIGHT-NZ", "reference", "boundary 4: the valve declared mechanics_geometry_only with entered "
-         "weight exactly 0, applied by the weight case; weight at g_w along -Z",
-         {"kind": "weight", "g": inp["g_w"], "vec": down, "W_v": inp["W_v_zero"], "models": ("CANT",)}),
-        ("BND-ZERO-SEISMIC-XYZ-G10", "reference", "boundary 4: the zero-weight valve's weight applied; seismic XYZ "
-         "at g_s_other != g_w; B-C loses its distributed load and the component force and couple are exactly 0",
-         {"kind": "seismic", "g": inp["g_s_other"], "vec": k, "W_v": inp["W_v_zero"], "models": ("CANT",)}),
-        ("CTRL-ZERO-AS-NOT-APPLIED", "control", "control: boundary 4 with a gate that treats a zero-weight "
-         "component as not applied, so B-C keeps its distributed seismic load (scale still applied)",
+        ("BND-ZERO-WEIGHT-NZ", "limit", "boundary 4, limit (continuity witness): the self-weight plan in the "
+         "limit of the valve's applied weight tending to zero; weight at g_w along -Z. No entered document "
+         "reaches it: a weight of zero is not applied (decided)",
+         {"kind": "weight", "g": inp["g_w"], "vec": down, "W_v": inp["W_v_zero"], "models": ("CANT",),
+          "rule": "self-weight plan, in the limit of an applied weight tending to zero"}),
+        ("BND-ZERO-SEISMIC-XYZ-G10", "limit", "boundary 4, limit (continuity witness): the decided rule in the "
+         "limit of the valve's applied weight tending to zero; seismic XYZ at g_s_other != g_w; B-C loses its "
+         "distributed load and the component force and couple are exactly 0. No entered document reaches it: "
+         "a weight of zero is not applied (decided)",
+         {"kind": "seismic", "g": inp["g_s_other"], "vec": k, "W_v": inp["W_v_zero"], "models": ("CANT",),
+          "rule": "decided, in the limit of an applied weight tending to zero"}),
+        ("CTRL-ZERO-AS-NOT-APPLIED", "reference", "boundary 4, an entered valve weight of exactly zero: the "
+         "weight is not applied (decided), so B-C keeps its distributed seismic load and there is no component "
+         "force or couple (the scale is still applied). The reference for that document, and the negative "
+         "control against the limit rows",
          {"kind": "seismic", "g": inp["g_s_other"], "vec": k, "W_v": inp["W_v_zero"], "valve": "today",
-          "rule": "control: zero weight treated as not applied", "models": ("CANT",)}),
+          "own_weight_valve": "today", "models": ("CANT",),
+          "rule": "decided: a weight of zero is not applied"}),
     ]
     return specs
 
@@ -809,6 +823,7 @@ def parity(inp, route, cid, val, spec, g_ref):
     if flange == "keyed_on_mapped":
         flange = "not_consumed"  # the weight case follows self-weight: the not-consumed flange's pipe keeps its weight
     valve = "not_consumed" if spec.get("valve") == "not_consumed" else "reference"
+    valve = spec.get("weight_valve", valve)  # an explicit weight-case rule (the zero-weight document's own)
     exp_f, exp_m = ZERO3, ZERO3
     total = None
     for a, axis in enumerate(("x", "y", "z")):
@@ -885,7 +900,7 @@ def build_document(values):
             entry["g_factors"] = [rec(v) for v in spec["vec"]]
         else:
             entry["gravity_direction"] = [str(v) for v in spec["vec"]]
-        if spec["kind"] == "seismic" and role == "reference":
+        if spec["kind"] == "seismic" and role in ("reference", "limit"):
             g_auth, g_wt = spec.get("authored_g", spec["g"]), weight_gravity(INPUTS, spec)
             carries = carries_component_force(spec)
             entry["expected_model_check_warning"] = {
@@ -893,6 +908,18 @@ def build_document(values):
                 "carries_applied_component_force": carries,
                 "seismic_gravity_authored": rec(g_auth),
                 "applied_self_weight_gravity": rec(g_wt)}
+            if role == "limit":
+                # no expectation: no entered document can carry this case
+                entry["expected_model_check_warning"]["expected"] = None
+                entry["expected_model_check_warning"]["applicable"] = False
+                entry["expected_model_check_warning"]["reason"] = (
+                    "not applicable: no entered document can carry this case, because a component weight of "
+                    "zero is not applied (decided by SWBPIPE's Agent 0); carries_applied_component_force "
+                    "describes the limit model only")
+            elif "own_weight_valve" in spec:
+                entry["expected_model_check_warning"]["reason"] = (
+                    "no component weight is applied on this document (a weight of zero is not applied), so the "
+                    "decided condition is not met even though the gravities differ")
         if cid in CONTROL_OF:
             ref_id = CONTROL_OF[cid]
             ref_val = vmap[(model, route, ref_id)][3]
@@ -922,7 +949,7 @@ def build_document(values):
                     "expected_force_from_weight": [rec(v) for v in ef2],
                     "expected_moment_from_weight": [rec(v) for v in em2],
                     "holds": holds2}
-                if role == "reference":
+                if role in ("reference", "limit") and "own_weight_valve" not in spec:
                     # the gap from the weight at g_wt is the pipes' share alone: the distributed loads
                     # scaled by (g_ref - g_wt) / g_ref; the component force carries no gravity
                     share = {m: tuple(q * ((g_ref - g_wt) / g_ref) for q in qs) for m, qs in val["loads"].items()}
@@ -931,6 +958,28 @@ def build_document(values):
                     par["pipes_share_moment"] = [rec(v) for v in sm]
                     record_check("parity gap equals the pipes' share",
                                  all((a - b).is_zero() for a, b in zip(df + dm, sf + sm)))
+            if "own_weight_valve" in spec:
+                # the block above compares with the limit's weight (zero weight applied), as first frozen; this
+                # document's own weight case does not apply the zero weight, so its pipe keeps its weight
+                par["weight_compared"] = ("the limit's weight case (zero weight applied, BND-ZERO-WEIGHT-NZ), "
+                                          "kept as first frozen; this document's own weight case is own_weight_case")
+                own = dict(spec, weight_valve=spec["own_weight_valve"])
+                o_tot, o_ef, o_em, o_df, o_dm, o_holds = parity(INPUTS, route, cid, val, own, g_wt)
+                s_tot, s_ef, s_em, s_df, s_dm, s_holds = parity(INPUTS, route, cid, val, own, g_ref)
+                share = {m: tuple(q * ((g_ref - g_wt) / g_ref) for q in qs) for m, qs in val["loads"].items()}
+                sf, sm = resultant(INPUTS, share, [])
+                par["own_weight_case"] = {
+                    "description": "the weight this document's self-weight plan gives: the zero weight not "
+                                   "applied, B-C keeping its distributed weight",
+                    "total_weight_at_weight_gravity": rec(o_tot),
+                    "difference_force": [rec(v) for v in o_df],
+                    "difference_moment": [rec(v) for v in o_dm],
+                    "holds": o_holds,
+                    "holds_at_the_seismic_case_gravity": s_holds,
+                    "pipes_share_force": [rec(v) for v in sf],
+                    "pipes_share_moment": [rec(v) for v in sm]}
+                record_check("parity gap equals the pipes' share",
+                             all((a - b).is_zero() for a, b in zip(o_df + o_dm, sf + sm)))
             entry["parity"] = par
         entry["rows"] = [dict(row=r, **rec(v)) for r, v in val["rows"]]
         cases.append(entry)
@@ -970,15 +1019,21 @@ def build_document(values):
         zero = vmap[zkey][3]
         ctrl = vmap[("CANT", route, "CTRL-ZERO-AS-NOT-APPLIED")][3]
         wrench = [v for _, f, m in zero["wrenches"] for v in f + m]
-        record_check("boundary 4: B-C loses its load; the component force and couple are exactly zero",
+        record_check("boundary 4, limit: B-C loses its load; the component force and couple are exactly zero",
                      "BC" not in zero["loads"] and len(wrench) == 6 and all(v.is_zero() for v in wrench))
-        record_check("boundary 4: the not-applied control keeps the B-C load and differs from the reference",
+        record_check("boundary 4: the zero-weight document keeps the B-C load and differs from the limit",
                      "BC" in ctrl["loads"] and any(not (a - b).is_zero() for a, b in
                                                    zip(ctrl["force"] + ctrl["moment"], zero["force"] + zero["moment"])))
-        # finding-1 counterexample: at zero weight the fixed-mass-inertia force equals the convention's force
+        zdoc = by_id[f"SCW-CANT-{route}-CTRL-ZERO-AS-NOT-APPLIED"]
+        zlim = by_id[f"SCW-CANT-{route}-BND-ZERO-SEISMIC-XYZ-G10"]
+        record_check("boundary 4: the limit has no warning expectation; the zero-weight document expects none",
+                     zlim["expected_model_check_warning"]["expected"] is None
+                     and zdoc["expected_model_check_warning"]["expected"] is False
+                     and zdoc["parity"]["own_weight_case"]["holds_at_the_seismic_case_gravity"])
+        # finding-1 limit: as the applied weight tends to zero the fixed-mass-inertia force equals the convention's
         fm_spec = dict(vmap[zkey][2], valve="rescaled", mapped_g=INPUTS["g_w"])
         fm_loads, fm_wrenches = generate(INPUTS, route, fm_spec)
-        record_check("boundary 4: fixed-mass inertia coincides with the convention at zero weight",
+        record_check("boundary 4, limit: fixed-mass inertia coincides with the convention at zero weight",
                      fm_loads.keys() == zero["loads"].keys()
                      and all(a == b for m in fm_loads for a, b in zip(fm_loads[m], zero["loads"][m]))
                      and all(a == b for (_, f1, m1), (_, f2, m2) in zip(fm_wrenches, zero["wrenches"])
@@ -1093,8 +1148,10 @@ def build():
                      "evaluated at the seismic case's gravity, with each entered component force W held fixed "
                      "(DEL-05-01, decided by SWBPIPE's Agent 0). A force convention, not one fixed mass: it "
                      "coincides with acceleration of the self-weight mass when the seismic case's gravity equals an "
-                     "applied self-weight's (a sufficient condition; a component whose applied weight is zero adds "
-                     "no difference at any gravity); where that gravity is absent or ambiguous the equivalence "
+                     "applied self-weight's (a sufficient condition; in the limit of an applied weight tending to "
+                     "zero the component adds no difference at any gravity, a limit no entered document reaches, "
+                     "since a weight of zero is not applied); where that gravity is absent or ambiguous the "
+                     "equivalence "
                      "is not established and the values are what the convention yields. "
                      "Invented inputs; no internal pressure; generated by exact rational arithmetic without "
                      "product code.",
@@ -1104,7 +1161,10 @@ def build():
             "rule": "the generation rule the case follows: decided, self-weight plan, or a named control",
             "expected_model_check_warning": "on seismic reference cases: a warning is expected when the case "
                                             "carries an applied component force and its authored gravity differs "
-                                            "from the applied self-weight's; no warning code is assumed",
+                                            "from the applied self-weight's; no warning code is assumed. On a "
+                                            "limit case expected is null, applicable is false, with the reason",
+            "role": "reference: a document a person can make; control: a wrong rule for comparison; limit: the "
+                    "rule evaluated where no entered document reaches (a continuity witness)",
             "axes": "members along global +X; local y = global Y, local z = global Z",
             "disp": "nodal translations ux, uy, uz (m) and right-handed rotations rx, ry, rz (rad), global",
             "reaction": "force and moment the support exerts on the structure at its node, global",
