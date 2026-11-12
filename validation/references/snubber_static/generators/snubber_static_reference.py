@@ -676,7 +676,7 @@ def build():
             "exact form": "elements of Q(pi): rational functions of pi with rational coefficients",
             "value": "nearest binary64 of the exact value",
         },
-        "tolerance_class": "Identity (AC-003 'unchanged'): see README open reading 1. Base values: linear model at the analytic tolerance (DEL-04-03/AC-001: 1e-9 relative with its governed floor); nonlinear model, one-way state exactly and values within the nonlinear class tolerance (DEL-04-07/AC-002). This package chooses no number.",
+        "tolerance_class": "Identity (AC-003 'unchanged'): numerically identical static results; see the README sections 'What a product must give' and 'Tolerance class'. Base values: linear model at the analytic tolerance (DEL-04-03/AC-001: 1e-9 relative with its governed floor); nonlinear model, one-way state exactly and values within the nonlinear class tolerance (DEL-04-07/AC-002). This package chooses no number.",
         "cases": cases,
         "control separation summary": {
             "smallest separation per kind over all controls": {k: num(smallest[k], "1") for k in KINDS},

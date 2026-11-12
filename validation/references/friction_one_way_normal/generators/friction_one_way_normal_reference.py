@@ -245,6 +245,52 @@ def confirmation_failures(mu, ow, fs, Rx, Rz, ux, uz):
     return v
 
 
+DECIDED_TEXT = ("(contact reaction, separation, stick margin \u03bc\u00b7N \u2212 |T|, slip direction, and, for a friction "
+                "support that sticks or slides on a normal derived from a reaction, that normal established as "
+                "nonzero; a friction support whose normal's source is established as released is inactive)")
+DECIDED_STATUS = ("decided by the SWBPIPE Agent 0; not yet in execution/PKG-04/DEL-04-04/ScopeOfWork.md, "
+                  "where it lands with the engine unit this package judges")
+LITERAL_TEXT = ("today's DEL-04-04 text: '... and a friction normal derived from a reaction, which must be "
+                "established as nonzero'")
+LITERAL_FAILURE = "literal reading: the friction normal derived from the one-way reaction is 0 and cannot be established as nonzero"
+
+
+def literal_failures(mu, ow, fs, Rx, Rz, ux, uz):
+    """A, under the literal reading of today's text: the decided failures, plus the
+    derived normal (whatever the friction state) must be established as nonzero."""
+    v = confirmation_failures(mu, ow, fs, Rx, Rz, ux, uz)
+    N = Rz if ow == "active" else Fr(0)
+    if not N != 0:
+        v = v + [LITERAL_FAILURE]
+    return v
+
+
+def b_establishes(mu, ow, fs, Rx, Rz, ux, uz, literal=False):
+    """B's confirmation, written separately from A's, in the decided text's order:
+    first the normal's source is established (engaged by a strictly positive
+    reaction, or released by a strictly positive separation); only then is the
+    friction support read. A released source makes the friction support inactive
+    (decided text); the literal reading instead demands a nonzero normal for every
+    friction state, which a released source cannot give."""
+    if ow == "active":
+        source = "engaged" if Rz > 0 else None
+    else:
+        source = "released" if uz > 0 else None
+    if source is None:
+        return False
+    normal = Rz if source == "engaged" else Fr(0)
+    if literal and normal == 0:
+        return False
+    if source == "released":
+        return fs == "inactive" and Rx == 0
+    if fs == "inactive":
+        return False
+    if fs == "stick":
+        return ux == 0 and mu * normal - abs(Rx) > 0
+    d = dirn(fs)
+    return Rx == -d * mu * normal and d * ux > 0
+
+
 def a_solve(inp, sec, loads):
     """Try all eight state pairs in closed form; for each, whether the classifier
     returns the trial state itself (under each reading of a zero reaction) and
@@ -258,7 +304,8 @@ def a_solve(inp, sec, loads):
             ux, uz = uS["UX"], uS["UZ"]
             out.append({"state": (ow, fs), "Rx": Rx, "Rz": Rz,
                         "consistent": {zb: classify(mu, ow, fs, Rx, Rz, ux, uz, zb) == (ow, fs) for zb in (False, True)},
-                        "failures": confirmation_failures(mu, ow, fs, Rx, Rz, ux, uz)})
+                        "failures": confirmation_failures(mu, ow, fs, Rx, Rz, ux, uz),
+                        "literal_failures": literal_failures(mu, ow, fs, Rx, Rz, ux, uz)})
     return out
 
 
@@ -456,6 +503,9 @@ BOUNDARY_REASON = {
 }
 
 
+LIFTED_CASES = ("LIFT-0", "LIFT-POS", "LIFT-NEG", "NEAR-LIFT")
+
+
 def loads_of(prims):
     s = {"Gx": Fr(0), "Px": Fr(0), "Pz": Fr(0)}
     for node, comp, val in prims:
@@ -524,6 +574,12 @@ def build():
         tries = a_solve(inp, sec, loads)
         consA = {zb: [t["state"] for t in tries if t["consistent"][zb]] for zb in (False, True)}
         strictA = [t["state"] for t in tries if not t["failures"]]
+        literalA = [t["state"] for t in tries if not t["literal_failures"]]
+        lifted = cid in LIFTED_CASES
+        chk.eq("literal reading differs from the decided text exactly in the four lifted cases' released/inactive pair",
+               cid, (strictA, literalA), (strictA, [x for x in strictA if not (lifted and x == ("inactive", "inactive"))]))
+        if lifted:
+            chk.eq("lifted case: decided text confirms released/inactive", cid, strictA, [("inactive", "inactive")])
         boundary = cid in BOUNDARY_EXPECT
         if not boundary:
             chk.eq("A: exactly one pair consistent with the classification law, under either reading of a zero reaction",
@@ -541,7 +597,7 @@ def build():
                    a_results(inp, sec, loads, byst[other]["Rx"], byst[other]["Rz"]), (dispA, reacA, endsA, axialA))
         # ---- B: enumeration and active-set iteration from two starts, under each reading
         consB = {False: [], True: []}
-        strictB = []
+        strictB, literalB = [], []
         d = mdl["dof"]
         for ow in STATES_ONEWAY:
             for fs in STATES_FRICTION:
@@ -550,9 +606,13 @@ def build():
                 for zb in (False, True):
                     if classify(mu, ow, fs, Rx, Rz, ux, uz, zb) == (ow, fs):
                         consB[zb].append((ow, fs))
-                if not confirmation_failures(mu, ow, fs, Rx, Rz, ux, uz):
+                if b_establishes(mu, ow, fs, Rx, Rz, ux, uz):
                     strictB.append((ow, fs))
-        chk.eq("B: enumeration gives A's classification and confirmation sets", cid, (consB, strictB), (consA, strictA))
+                if b_establishes(mu, ow, fs, Rx, Rz, ux, uz, literal=True):
+                    literalB.append((ow, fs))
+        chk.eq("B: enumeration gives A's classification set", cid, consB, consA)
+        chk.eq("B's separately written confirmation (decided text) gives A's set", cid, strictB, strictA)
+        chk.eq("B's separately written confirmation (literal reading) gives A's set", cid, literalB, literalA)
         paths = {False: {}, True: {}}
         for zb in (False, True):
             for start in (("active", "stick"), ("inactive", "inactive")):
@@ -669,9 +729,15 @@ def build():
         def cons_entry(t):
             a_, b_ = t["consistent"][False], t["consistent"][True]
             return a_ if a_ == b_ else {"zero reaction does not bear": a_, "zero reaction bears": b_}
-        enum = [{"state": {"one-way": t["state"][0], "friction": t["state"][1]},
+        def enum_entry(t):
+            e = {"state": {"one-way": t["state"][0], "friction": t["state"][1]},
                  "classification consistent": cons_entry(t),
-                 "strictly confirmed": not t["failures"], "confirmation failures": t["failures"]} for t in tries]
+                 "strictly confirmed": not t["failures"], "confirmation failures": t["failures"]}
+            if (not t["failures"]) != (not t["literal_failures"]):
+                e["alternative: strictly confirmed under the literal reading of today's text"] = not t["literal_failures"]
+                e["alternative: confirmation failures under the literal reading"] = t["literal_failures"]
+            return e
+        enum = [enum_entry(t) for t in tries]
         pair = lambda st: {"one-way S": st[0], "friction S": st[1]}
         if consA[False] == consA[True]:
             classification = {"returns": pair(consA[False][0])}
@@ -686,6 +752,18 @@ def build():
             confirmation["established pair"] = pair(strictA[0])
         else:
             confirmation["reason"] = BOUNDARY_REASON[cid]
+        if lifted:
+            confirmation["primary"] = "the establishes and established pair members above, under the decided text"
+            confirmation["rests on"] = {"decided text of the state law's parenthesis": DECIDED_TEXT, "status": DECIDED_STATUS}
+            confirmation["establishment order"] = [
+                {"step": 1, "one-way S": "released", "established by": "strict separation, u_z(S) > 0",
+                 "separation u_z(S)": num_over_pi(dispA["S"]["UZ"], "m"), "sign": "+"},
+                {"step": 2, "friction S": "inactive", "because": "its normal's source is established as released",
+                 "N": num(Fr(0), "N"), "T": num(RxA, "N")},
+            ]
+            confirmation["alternative (named; not primary): literal reading of today's text"] = {
+                "text": LITERAL_TEXT, "establishes": bool(literalA),
+                "reason": "unconfirmed: the derived normal is zero and cannot be established as nonzero"}
         rec = {
             "id": cid,
             "description": desc,
@@ -759,6 +837,12 @@ def build():
             "value": "nearest binary64 of the exact value",
         },
         "tolerance_class": "DEL-04-07/AC-002 and DEL-04-04/AC-001: support states must equal these exactly; displacements and reactions agree within the nonlinear tolerance of their class (the governed per-class record, DEL-09-03/REQ-007). This package chooses no number.",
+        "confirmation_text": {
+            "primary": "the decided text of DEL-04-04's state-law parenthesis",
+            "decided text": DECIDED_TEXT, "status": DECIDED_STATUS,
+            "named alternative": LITERAL_TEXT,
+            "where the two differ": "only the released/inactive pair of LIFT-0, LIFT-POS, LIFT-NEG and NEAR-LIFT: confirmed under the decided text, unconfirmed under the literal reading",
+        },
         "cases": out_cases,
         "checks": {"count": len(chk.items), "all_pass": True, "by_kind": dict(sorted(by_kind.items()))},
     }

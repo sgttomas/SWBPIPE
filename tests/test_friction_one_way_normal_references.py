@@ -85,3 +85,26 @@ def test_the_states_and_the_normal_source_controls():
     assert lift["displacements"]["S"]["UZ"]["exact"] == "0"
     assert lift["displacements"]["S"]["UX"]["exact"] == "(-21469056/5517578125)/pi"
     assert lift["classification"]["pairs consistent if a zero reaction does not bear"] == [{"one-way S": "inactive", "friction S": "inactive"}]
+
+
+def test_the_lifted_cases_rest_on_the_decided_text_with_the_literal_alternative():
+    data = json.loads((REFERENCE / "references.json").read_text())
+    assert data["confirmation_text"]["decided text"].startswith("(contact reaction, separation")
+    cases = {c["id"]: c for c in data["cases"]}
+    alternative = "alternative (named; not primary): literal reading of today's text"
+    for cid in ("LIFT-0", "LIFT-POS", "LIFT-NEG", "NEAR-LIFT"):
+        confirmation = cases[cid]["strict confirmation"]
+        assert confirmation["establishes"] is True
+        assert confirmation["established pair"] == {"one-way S": "inactive", "friction S": "inactive"}
+        assert "not yet in" in confirmation["rests on"]["status"]
+        assert confirmation[alternative]["establishes"] is False
+        first, second = confirmation["establishment order"]
+        assert first["one-way S"] == "released" and first["sign"] == "+" and first["separation u_z(S)"]["value"] > 0
+        assert second["friction S"] == "inactive" and second["N"]["exact"] == "0" and second["T"]["exact"] == "0"
+        released = next(e for e in cases[cid]["enumeration"] if e["state"] == {"one-way": "inactive", "friction": "inactive"})
+        assert released["strictly confirmed"] is True
+        assert released["alternative: strictly confirmed under the literal reading of today's text"] is False
+    for cid, case in cases.items():
+        if cid not in ("LIFT-0", "LIFT-POS", "LIFT-NEG", "NEAR-LIFT"):
+            assert alternative not in case["strict confirmation"], cid
+            assert not any(k.startswith("alternative") for e in case["enumeration"] for k in e), cid
