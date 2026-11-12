@@ -113,7 +113,7 @@ Read:
 | `source_twins_cases.json` | The source scope table (each source load case, frozen or out of scope with its reasons), the input pins and 104 twin documents, one per line |
 | `source_twins_oracle.json` | As `oracle.json`, for the twins. `cases_sha256` binds `source_twins_cases.json` |
 | `run.sh` | Regenerates every frozen file of both generators in memory, compares byte for byte, then runs `shasum -a 256 -c SHA256SUMS` |
-| `SHA256SUMS` | Hashes of the eight files above |
+| `SHA256SUMS` | Hashes of this README and the seven files above |
 
 ## The two readouts
 
