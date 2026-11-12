@@ -894,7 +894,7 @@ class Checks(list):
 
 def build_all(inp, checks):
     mods = models(inp)
-    out = {"components": {}, "cases": [], "alternative": {}, "sections": {}}
+    out = {"components": {}, "cases": [], "control": {}, "sections": {}}
     for s in ("S1", "S2"):
         sec = section(inp, s)
         out["sections"][s] = sec
@@ -947,10 +947,10 @@ def build_all(inp, checks):
             checks.add(f"{name} pressure ({mo} modulus): wall force exceeds effective force by p*A_i at every member end", ok)
             eqw = equilibrium(model, rw, [], pts)
             checks.add(f"{name} pressure ({mo} modulus): wall-force formulation in global equilibrium", all(x.zero() for x in eqw))
-        # alternative reading of "off": terminal end loads and junction loads applied, no free strain
+        # wrong-implementation control: terminal end loads and junction loads applied with no wall free strain
         alt = force["hot"].solve([], {}, pts)
-        out["alternative"][name] = {"result": alt, "thrusts": thr}
-        checks.add(f"{name}: alternative-reading thrust response in global equilibrium",
+        out["control"][name] = {"result": alt, "thrusts": thr}
+        checks.add(f"{name}: wrong-implementation control response in global equilibrium",
                    all(x.zero() for x in equilibrium(model, alt, [], pts)))
         # cases
         for cid, mo, comps, pressurized in CASES[name]:
@@ -1154,11 +1154,11 @@ def build():
                        for k, c in out["components"].items()],
         "cases": [],
         "refusals": REFUSALS,
-        "alternative_reading_not_expected": {
-            n: {"reading": "pressure elongation off, read as: each region terminal's end load p*A_i and each junction's fluid force applied, no free strain (README, Open readings 1)",
+        "wrong_implementation_control": {
+            n: {"control": "not an expected value: each region terminal's end load p*A_i and each junction's fluid force applied as loads with no wall free strain (README, Wrong-implementation control)",
                 "thrusts_N": {node: vec_record(f) for node, f in a["thrusts"].items()},
                 "rows": [{"id": r, "value": record(v)} for r, v in flat(a["result"]).items() if not v.zero()]}
-            for n, a in out["alternative"].items()},
+            for n, a in out["control"].items()},
         "crosscheck": list(checks),
     }
     for c in out["cases"]:

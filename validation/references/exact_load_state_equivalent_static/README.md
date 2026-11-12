@@ -27,7 +27,7 @@ set here.
 | File | Role |
 |---|---|
 | `generators/exact_load_state_reference.py` | the generator. It uses exact rational arithmetic, two solution methods, the cross-checks, `references.json` and `SHA256SUMS` |
-| `references.json` | inputs, derived sections and masses, generated loads, 16 cases (864 rows), 16 load components (864 rows), refusals, the alternative-reading values and 146 cross-check results |
+| `references.json` | inputs, derived sections and masses, generated loads, 16 cases (864 rows), 16 load components (864 rows), refusals, the wrong-implementation control and 146 cross-check results |
 | `SHA256SUMS` | hashes of the files above (`shasum -a 256 -c SHA256SUMS` in this directory) |
 
 `python3 -I generators/exact_load_state_reference.py` rebuilds every output in
@@ -202,6 +202,10 @@ For example STRAIGHT node M uy is 3.05686·10⁻⁵ m cold and 3.42322·10⁻⁵
   pressure thrust at unbalanced locations is applied". With it **on**, "the
   closed-end free strain (1 − 2ν)·p·A_i/(E·A_s), with A_i on the pressure bore
   and A_s the nominal section area".
+- The same change, also supplied by the assigner: "Leaving it out removes the
+  free pressure strain only; pressure thrust at unbalanced locations is applied
+  in both settings, and the wall force N_w = N_el + p·A_i and the effective
+  force S = N_el hold in both."
 
 **Regions.**
 
@@ -210,13 +214,18 @@ For example STRAIGHT node M uy is 3.05686·10⁻⁵ m cold and 3.42322·10⁻⁵
 | STRAIGHT | one region `region:a-b` over `pipe:a-m` and `pipe:m-b`, terminals A and B, both `transfers_to_wall` | one straight run in two members, joined at interior node M where OD, wall and direction are identical |
 | FRAME | `region:a-c` over `pipe:a-c` (terminals A, C) and `region:c-b` over `pipe:c-b` (terminals C, B), all `transfers_to_wall`; C is a pressure junction | each straight run is one member; two regions meet at the corner C |
 
-**What is computed (Open reading 1).**
+**What is computed.**
 - **On**: on every pressurised member, the free strain
   ε_p = (1 − 2ν)p·A_i/(E·A_n), with E the member's selected modulus in the
   case. No thrust is applied, because these models contain no location where
   the closed-end condition fails: every terminal transfers its end load to
   the wall.
-- **Off**: no pressure contribution.
+- **Off**: the free pressure strain only is removed. These models have no
+  unbalanced location, so pressure contributes nothing more. The "off" rows
+  are the expected values, not one reading among two.
+- **Forces in both settings.** The member-end rows give the element force
+  N_el. The effective force is S = N_el and the wall force is
+  N_w = N_el + p·A_i, under either setting.
 - ε_p values: S1 3.35881·10⁻⁵ (installation) and 3.76135·10⁻⁵ (operating);
   S2 3.77323·10⁻⁵ and 4.22544·10⁻⁵.
 
@@ -255,13 +264,22 @@ axial force exceeds the effective one by p·A_i (cross-checked).
   at both modulus selections, and its motions scale by 1/E, because
   ε_p ∝ 1/E (cross-checked).
 
-**Is the corner thrust unbalanced?** The assigner's example of a genuinely
-unbalanced thrust was a corner where two regions meet, each terminal
-transferring to the wall. Under the reading above that thrust is balanced: it
-is absent with elongation on and with it off. A thrust that stays unbalanced
-under every reading needs a terminal that is `separately_supported_or_compensated`.
-The scope text does not say what such a terminal contributes, or where its end
-load is reacted, so no case uses one.
+**The corner C is balanced.** Every terminal at C transfers to the wall, so
+the fitting's fluid force balances the incident wall forces p·A_i. It is not a
+further load in the effective-force equations, in either setting. Neither
+model exercises a genuinely unbalanced pressure thrust.
+
+**Wrong-implementation control.** `wrong_implementation_control` gives, for
+each model, the response to each terminal's end load p·A_i and each
+junction's fluid force applied as loads with no wall free strain. It is not
+an expected value. It is the response a product would publish if it applied
+those forces in the effective-force equations. In FRAME this is a corner load
+of 82 409.2 N along (X − Y) at C, against the zero expected with elongation
+off.
+
+**No rigid-family component.** Neither model has a rigid-family component, so
+the later decision that static seismic carries a component's weight where the
+weight case applies it changes nothing here.
 
 ## Methods
 
@@ -368,33 +386,20 @@ Selected reactions:
 
 ## Open readings
 
-1. **What "pressure thrust at unbalanced locations" covers.** Computed: the
-   effective-force reading.
-   - **Reading taken.** The closed-end free strain represents every terminal
-     that transfers to the wall. A thrust is applied only where that condition
-     fails. In these models there is no such location, so with elongation off
-     pressure contributes nothing.
-   - **Other reading.** Off applies each terminal's end load p·A_i and each
-     junction's −Σ p·A·s, with no free strain.
-     `alternative_reading_not_expected` gives the response under it: in FRAME,
-     a corner load of 82 409.2 N along (X − Y) at C, against the zero computed
-     here.
-   - **Hazard.** If the "on" setting were to keep those end loads and add the
-     closed-end strain, the cap tension would be counted twice. The "on" rows
-     here, which reproduce Lamé statics, would show it.
+1. **Closed: what "pressure thrust at unbalanced locations" covers.** The
+   governing text settles it (Pressure): the "off" rows are the expected
+   values, and the former alternative is now the wrong-implementation control.
 2. **E in ε_p.** Computed with the member's modulus as selected in the case.
    With a fixed reference modulus instead, pressure-on motions in operating
    cases would scale by 2037/1819. Forces are unaffected.
 3. **Which axial force a member end publishes on a pressurised member.**
-   - The rows give the element's effective axial force S, the force of the
-     closed-end-strain model.
-   - DEL-05-03 defines N_w = N_m + 2ν·p·A_i and S = N_m + (2ν − 1)p·A_i. With
-     elongation on, the wall force is therefore N_w = S + p·A_i and the
-     mechanical force N_m = S + (1 − 2ν)p·A_i.
-   - If the product publishes N_m or N_w as the member-end axial force, the
-     axial member-end rows differ from those here by that constant.
-   - With elongation off, DEL-05-03's relations no longer describe a physical
-     wall, and the text does not say what is published.
+   Partly closed: in both settings the governing text gives S = N_el and
+   N_w = N_el + p·A_i, and the member-end rows are N_el.
+   - Still open: whether the product's published member-end axial force is
+     N_el, as here, or DEL-05-03's mechanical force N_m. DEL-05-03's relations
+     make N_m = N_el + (1 − 2ν)p·A_i.
+   - If it is N_m, the axial member-end rows of pressurised cases differ from
+     those here by that constant.
 4. **Meaning of a load and reference-state document.** No scope states it
    (DEL-05-01 "Not decided"; DEL-02-01). The schema's member names are used
    only to name inputs. Computed reading:
