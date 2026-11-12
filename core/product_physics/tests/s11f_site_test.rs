@@ -617,6 +617,35 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
         "K-D5 §3.1: the member's intended end loads, each primitive re-formed at p and added to its row's exact sum",
     ),
     ("FK/structural/certified_recovery.rs", "member_pair", "K-D5 §3.1: a primitive's member nodes; read-only"),
+    // The member index (a1): an AssembledForce holds its member-bound
+    // primitives' node pairs and ledger positions, built by LoadLedger::finish
+    // from its own primitives, so that one member's loads test only their node
+    // pair's run. Each takes the force and its primitives by shared reference.
+    (
+        "FK/structural/certified_recovery.rs",
+        "member_load_order",
+        "a1, read only: the member index LoadLedger::finish stores in its AssembledForce, each member-bound primitive's node pair (member_pair) and ledger position, sorted; reads formulas' node indices only and forms no value",
+    ),
+    (
+        "FK/structural/certified_recovery.rs",
+        "member_candidates",
+        "a1, read only: the primitives a member selection tests, in ledger order: the whole list, or the node pair's run of positions into that same list; forms no value",
+    ),
+    (
+        "FK/structural/certified_recovery.rs",
+        "candidates",
+        "a1, read only: CertifiedMemberLoads::candidates, member_candidates on its own primitives and index run; forms no value",
+    ),
+    (
+        "FK/structural/certified_recovery.rs",
+        "from_member_force",
+        "a1, constructs CertifiedMemberLoads: the primitives and this node pair's member index run, both read from the one AssembledForce it is given, through from_member_selection",
+    ),
+    (
+        "FK/structural/certified_recovery.rs",
+        "from_member_selection",
+        "a1 and K-D5 §3.1, constructs CertifiedMemberLoads (the body of from_member_primitives and from_member_force): the member's intended end loads, each primitive member_candidates yields re-formed at p and added to its row's exact sum; reads the primitives only",
+    ),
     (
         "FK/structural/certified_recovery.rs",
         "default",
@@ -731,11 +760,6 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
     ),
     (
         "PP/certified_publication.rs",
-        "member",
-        "K-D5 §3.1: one member's certified rows from its re-formed primitives; read-only",
-    ),
-    (
-        "PP/certified_publication.rs",
         "fallback_section_errors",
         "K-D5 §3.2: whole-member error replay of the binary64 E4/E6 section recipe from the held end actions and the member's local uniform intensities (SpannedUniformLocalLoad); no ledger value",
     ),
@@ -743,11 +767,6 @@ const FORCE_FUNCTIONS: &[(&str, &str, &str)] = &[
         "PP/certified_publication.rs",
         "fallback_circular_maximum",
         "K-D5 §3.2: the fallback circular stress maximum over the member's local uniform intensities (through fallback_section_errors); no ledger value",
-    ),
-    (
-        "PP/certified_publication.rs",
-        "straight_stress_spans",
-        "K-D5 §3.2: certified stress controls from the member's re-formed primitives; read-only",
     ),
 ];
 const FORCE_TOKENS: &[&str] = &[
