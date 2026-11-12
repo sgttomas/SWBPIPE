@@ -288,9 +288,11 @@ target remains adequate. A failure alone does not justify relaxing one.
     acceptance, approval or reliance (F-PIP-3).
 
     *Owning deliverables:* DEL-16-06.
-18. **Numerical claims.** A case presented as having passed its integrity
-    check, or as established, has the bound and standing required by
-    DEL-04-01/REQ-015. The error-bound argument is justified under its stated
+18. **Numerical claims.** A case governed by DEL-04-01/REQ-015 that is
+    presented as having passed its integrity check, or as established, has
+    the bound and standing that requirement states. A modal document's checks
+    are governed by DEL-04-09's own requirements and are outside this
+    criterion. The error-bound argument is justified under its stated
     arithmetic model, and the product establishes its case-dependent
     conditions; an unproved multiple of a condition estimate does not
     establish an upper bound. Where the integrity bound's conditions cannot be
