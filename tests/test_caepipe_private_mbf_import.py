@@ -164,22 +164,36 @@ def classify_authored(case: Mapping[str, Any], authored: bytes, exported: bytes)
     return {**outcome, "classification": "differs" if outcome["fields"] else "equal_within_writer_tolerance"}
 
 
-def bound_export(root: Path, export_dir: Path, exported: bytes, *, solved: str | None = None) -> bool:
-    """True when the run record in `export_dir`/caepipe_out names a successful export with these exact bytes and, with
-    `solved`, the export is of the model imported from the MBF with that SHA-256 (an authored case's file). A record
-    that marks its outputs sealed binds nothing that is read."""
-
+def export_record(root: Path, export_dir: Path) -> dict | None:
+    """The run record in `export_dir`/caepipe_out, read before anything it describes, or None."""
     try:
         record = json.loads(contained(root, export_dir / "caepipe_out" / "run_record.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
-        return False
-    entry = record.get("mbf_export") if isinstance(record, dict) else None
+        return None
+    return record if isinstance(record, dict) else None
+
+
+def bound_export(record: Mapping[str, Any] | None, exported_sha256: str, *, solved: str | None = None) -> bool:
+    """True when the export's run record names a successful export with this exact SHA-256 and, with `solved`, the
+    export is of the model imported from the MBF with that SHA-256 (an authored case's file). A record that marks
+    its outputs sealed binds nothing that is read."""
+
+    entry = record.get("mbf_export") if isinstance(record, Mapping) else None
     if not isinstance(entry, dict) or entry.get("route") != EXPORT_ROUTE or outputs_sealed(record):
         return False
     exported_mbf = entry.get("exported_mbf")
     if solved is not None and (entry.get("solved_mbf_sha256") != solved or (record.get("mbf") or {}).get("sha256") != solved):
         return False
-    return isinstance(exported_mbf, dict) and exported_mbf.get("sha256") == hashlib.sha256(exported).hexdigest()
+    return isinstance(exported_mbf, dict) and exported_mbf.get("sha256") == exported_sha256
+
+
+def file_sha256(path: Path) -> str:
+    """The SHA-256 of a file, read in blocks for the hash alone."""
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(block)
+    return digest.hexdigest()
 
 
 def check_exchange(root: Path, *, record: bool, emit: Callable[[str], None] = print,
@@ -203,9 +217,15 @@ def check_exchange(root: Path, *, record: bool, emit: Callable[[str], None] = pr
         recorded_path = latest_outcome(root, case_id)
         relative = recorded_path.relative_to(root).as_posix() if recorded_path else None
         authored_bytes = authored_mbf_bytes(case) if kind == "authored" else b""
-        if not exported_path.is_file():
+        # The sealed flag is read first: the export (and the identity map beside its solve) is opened only when
+        # neither run record marks its outputs sealed, and then hashed before its content is read.
+        record_ = export_record(root, view.export)
+        if outputs_sealed(record_) or outputs_sealed(export_record(root, view.run)):
+            statuses.append(CaseStatus(case_id, "refused", "sealed: a run record marks its outputs sealed; they are "
+                                                           "not read"))
+        elif not exported_path.is_file():
             statuses.append(CaseStatus(case_id, "skipped", "no caepipe_out/exported.mbf"))
-        elif not bound_export(root, view.export, exported_path.read_bytes(),
+        elif not bound_export(record_, file_sha256(exported_path),
                               solved=hashlib.sha256(authored_bytes).hexdigest() if kind == "authored" else None):
             statuses.append(CaseStatus(case_id, "skipped", "caepipe_out/exported.mbf is not bound to a successful "
                                                            "export by caepipe_out/run_record.json"))
@@ -214,7 +234,7 @@ def check_exchange(root: Path, *, record: bool, emit: Callable[[str], None] = pr
         else:
             outcome = (classify_authored(case, authored_bytes, exported_path.read_bytes()) if kind == "authored"
                        else classify(case, exported_path.read_bytes(), load_sidecar(sidecar_path)))
-            outcome["read"] = {"export": view.export_relative, "run": view.run_relative, "selection": view.selection}
+            outcome["read"] = {"export": view.export_relative, "run": view.source, "selection": view.selection}
             if record:
                 statuses.append(CaseStatus(case_id, "recorded", new_outcome(root, case_id, outcome)))
             elif recorded_path is None:

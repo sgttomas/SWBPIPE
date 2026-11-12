@@ -2,16 +2,16 @@
 
 Taken from the sitting pack's `Tree` (branch claude/caepipe-sitting-pack, tools/caepipe_correlation/sitting_pack.py)
 into a module of its own, so that the harness and the sitting pack share one layer. Additions here: a name may start
-with `_` (the exchange folder's `_harness`), a file this process created can be removed only after re-reading it and
-finding exactly the content it wrote (`remove_own`), and files are read without following a link.
+with `_` (the exchange folder's `_harness`), files are read without following a link, a complete file can be given a
+second, new name (`link_new`), and a file can be opened read-only to hold an advisory lock on it (`open_for_lock`).
 
 Nothing that exists is ever opened for writing: every directory on the way is entered with O_NOFOLLOW | O_DIRECTORY
 relative to its parent's handle, a new directory is reserved with `mkdir` (which fails when anything is there), and a
 file is created with O_CREAT | O_EXCL | O_NOFOLLOW (which fails when anything is there, a link included). So a hard
 link from a stored file to a path written here cannot be written through, and a symbolic link is refused rather than
 followed. A file that must appear whole or not at all (a selection) is written complete under a new name of its own and
-then given its public name with `link`, which also fails when anything is there. There is no truncating, replacing or
-renaming write in this module.
+then given its public name with `link`, which also fails when anything is there. There is no truncating, replacing,
+renaming or removing operation in this module.
 """
 
 from __future__ import annotations
@@ -275,40 +275,38 @@ class Tree:
         finally:
             os.close(source_dir)
 
-    def remove_own(self, parts: tuple[str, ...], content: bytes) -> str:
-        """Remove a file this process created, only when it is still a regular file holding exactly `content` (and
-        the file read is the one unlinked); otherwise leave it. The outcome: `removed` or `left: <why>`."""
+    def open_for_lock(self, parts: tuple[str, ...]) -> int:
+        """A read-only descriptor of the regular file at `parts`, opened without following a link and closed on exec
+        (no child process inherits it), to hold an advisory lock on. Nothing is written through it. ContainmentError
+        when it is absent, a link or not a regular file."""
+        parent = self._open_dir(parts[:-1], create=False)
+        try:
+            check_name(parts[-1], f"{self.what} file")
+            try:
+                fd = os.open(parts[-1], _READ_FLAGS | os.O_CLOEXEC, dir_fd=parent)
+            except OSError as error:
+                raise ContainmentError(f"{self.what}: {'/'.join(parts)} cannot be opened as a regular file without "
+                                       f"following a link ({error.strerror})") from None
+        finally:
+            os.close(parent)
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            os.close(fd)
+            raise ContainmentError(f"{self.what}: {'/'.join(parts)} is not a regular file")
+        return fd
+
+    def identity(self, parts: tuple[str, ...]) -> tuple[int, int] | None:
+        """(device, inode) of the name at `parts`, not following a link; None when absent."""
         try:
             parent = self._open_dir(parts[:-1], create=False)
         except (FileNotFoundError, NotADirectoryError):
-            return "left: its folder is no longer there"
-        except ContainmentError as error:
-            return f"left: {error}"
+            return None
         try:
-            try:
-                fd = os.open(parts[-1], _READ_FLAGS, dir_fd=parent)
-            except FileNotFoundError:
-                return "left: it is no longer there"
-            except OSError as error:
-                return f"left: it cannot be opened as a regular file ({error.strerror})"
-            try:
-                opened = os.fstat(fd)
-                if not stat.S_ISREG(opened.st_mode):
-                    return "left: it is not a regular file"
-                data = bytearray()
-                while chunk := os.read(fd, _CHUNK):
-                    data += chunk
-            finally:
-                os.close(fd)
-            if bytes(data) != content:
-                return "left: its content is not the content this step wrote"
-            named = os.stat(parts[-1], dir_fd=parent, follow_symlinks=False)
-            if (named.st_dev, named.st_ino) != (opened.st_dev, opened.st_ino):
-                return "left: the file at its name is not the one this step read"
-            os.unlink(parts[-1], dir_fd=parent)
-            return "removed"
+            found = os.stat(parts[-1], dir_fd=parent, follow_symlinks=False)
+        except FileNotFoundError:
+            return None
         finally:
             os.close(parent)
+        return found.st_dev, found.st_ino
 
     def path(self, parts: Iterable[str]) -> Path:
         return self.base.joinpath(*parts)

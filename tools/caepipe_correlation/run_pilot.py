@@ -24,9 +24,17 @@ Nothing stored is changed (the harness module states the rule): a live step writ
 a new run folder `cases/<id>/runs/<NNNNNN>/` and a screen a new folder
 `cases/<id>/screens/<NNNNNN>/`, every file created exclusively; each becomes the
 case's current one only once it is complete, through a new selection
-`cases/<id>/selections/<NNNNNN>.json`. A case with no selection is read where its
-results already are; a case whose selections cannot be trusted is refused by name
-(route=selection_untrusted) and never read elsewhere.
+`cases/<id>/selections/<NNNNNN>.json`, which states its source (a run folder, or
+`already_stored`: the results already in the case's own folders). A case with no
+selection is read where its results already are; a case whose selections cannot be
+trusted, or whose source is sealed, is refused by name (route=selection_untrusted)
+and never read elsewhere. A live step is refused under its own name while another
+step holds the run lock, while a guest script of an ended run or an instance of the
+program it did not start runs in the guest, and while the newest holder's run
+recorded the saved settings' before-state without their comparison, until
+`python3 -m tools.caepipe_correlation.clear_settings_stop` records a clearance.
+The screen modes (--offline, the benchmark's --offline and the series step) need no
+guest, no prlctl and no guest configuration.
 
 After the selected cases, every hypothesis series in
 validation/caepipe_correlation/series/ is evaluated from its members' stored
@@ -156,6 +164,7 @@ from core.handoff.caepipe_external.harness import (  # noqa: E402
     outputs_sealed,
     publish,
     reserve_folder,
+    solve_ineligible,
     stored_run_record,
 )
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
@@ -433,7 +442,7 @@ def run_case(case: Mapping[str, Any], config: HarnessConfig, *, runner: str, off
 def _screen_read(root: Path, view: Any, csv_path: Path) -> dict[str, Any]:
     """What a screen read, by path and SHA-256: the run's record and the CSV it binds (the run is left as it is)."""
     record_path = contained(root, view.run / "caepipe_out" / "run_record.json")
-    return {"run": view.run_relative, "selection": view.selection,
+    return {"run": view.source, "selection": view.selection,
             "files": {"caepipe_out/run_record.json": _file_sha256(record_path),
                       str(csv_path.relative_to(view.run)): _file_sha256(csv_path)}}
 
@@ -529,7 +538,7 @@ def _run_case(case: Mapping[str, Any], config: HarnessConfig, *, runner: str, of
             screen.create("caepipe_in/model.mbf", mbf_text.encode("utf-8"))
             written, shown = comparison(screen, csv_path, route, "offline")
             _write_screen_record(screen, case_id, read, "offline")
-            publish(tree, case_id, screen=screen.relative, also=written, expect_run=view.run_relative,
+            publish(tree, case_id, screen=screen.relative, also=written, expect_run=view.source,
                     reason="an offline screen of the current run")
         emit(f"{case_id}: route={route}; comparison record written: {shown}")
         return True
@@ -662,7 +671,7 @@ def _export_and_publish(config: HarnessConfig, case_id: str, mbf_sha256: str, *,
         route = entry["route"]
         if route == EXPORT_ROUTE:
             with exchange_tree(config) as tree:
-                publish(tree, case_id, export=entry["run_folder"], expect_run=(entry.get("solve_run") or {}).get("folder"),
+                publish(tree, case_id, export=entry["run_folder"], expect_run=(entry.get("solve_run") or {}).get("source"),
                         reason="an export of the current run")
     except ContainmentError as error:
         emit(f"{case_id}: export route=containment_violation; {error}; no exported MBF")
@@ -732,6 +741,10 @@ def run_authored_case(case: Mapping[str, Any], config: HarnessConfig, *, export_
             if record.get("mbf", {}).get("sha256") != mbf_sha256 or record.get("guest_mbf_sha256") != mbf_sha256:
                 emit(f"{case_id}: route={record.get('route')}; the guest did not report importing this MBF; "
                      "no exported MBF")
+                return False
+            ineligible = solve_ineligible(record)
+            if ineligible:  # recorded in its run folder, never published, and no export reads it
+                emit(f"{case_id}: route={record.get('route')}; {ineligible}; not published; no exported MBF")
                 return False
             # The run becomes current only once it is checked complete (`publish`); the export then reads it.
             with exchange_tree(config) as tree:
@@ -958,7 +971,7 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
             screen.create("caepipe_in/model.mbf", mbf_text.encode("utf-8"))
             written, shown = record_benchmark(screen, csv_path, route)
             _write_screen_record(screen, model_id, read, "benchmark_offline")
-            publish(tree, model_id, screen=screen.relative, also=written, expect_run=view.run_relative,
+            publish(tree, model_id, screen=screen.relative, also=written, expect_run=view.source,
                     reason="an offline benchmark screen of the current run")
         emit(f"{model_id}: route={route}; benchmark record written: {shown}")
         return RECORDED, route, ""

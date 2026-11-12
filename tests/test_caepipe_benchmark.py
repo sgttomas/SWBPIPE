@@ -539,7 +539,7 @@ def fake_benchmark(tmp_path, monkeypatch):
             csv = run.create("caepipe_out/model.csv", invented_print())
             sha = hashlib.sha256(mbf_text.encode("utf-8")).hexdigest()
             record = {"document_kind": RUN_RECORD_KIND, "step": "round_trip", "route": "csv_from_batch",
-                      "mbf": {"sha256": sha}, "guest_mbf_sha256": sha,
+                      "case_id": case_id, "input_hash_verified": True, "mbf": {"sha256": sha}, "guest_mbf_sha256": sha,
                       "observed_csv_path": {"host": "caepipe_out/model.csv"}, "outputs_collected": ["model.csv"],
                       "outputs_sha256": {"model.csv": csv["sha256"]}, "run_folder": run.relative} | outcome
             run.record("caepipe_out/run_record.json", record)

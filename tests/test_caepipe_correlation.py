@@ -440,6 +440,14 @@ def test_record_carries_prd_22_5_fields():
 # --------------------------------------------------------------------------
 # harness configuration
 # --------------------------------------------------------------------------
+def vm_path(tmp_path: Path) -> str:
+    """A PATH holding `git` and a stub `prlctl` (resolved as a live step resolves it; never run here)."""
+    directory = Path(git_only_path(tmp_path))
+    (directory / "prlctl").write_text("#!/bin/sh\nexit 97\n", encoding="ascii")
+    (directory / "prlctl").chmod(0o755)
+    return str(directory)
+
+
 def git_only_path(tmp_path: Path) -> str:
     """A PATH holding only `git` (so prlctl is absent while the Git work-tree check still runs)."""
     directory = tmp_path / "bin-git-only"
@@ -525,11 +533,14 @@ def test_harness_refuses_guest_paths_outside_the_allow_list(tmp_path, key, value
               "guest_exchange_root": "Z:\\invented", "guest_work_root": "C:\\invented-work\\",
               "license_and_environment_responsibility_acknowledged": True}
     root = exchange(tmp_path, config=config)
-    environ = {ENV_VAR: str(root), "PATH": git_only_path(tmp_path)}
-    assert isinstance(resolve_harness_config(environ, require_vm_tools=False), HarnessConfig)
+    environ = {ENV_VAR: str(root), "PATH": vm_path(tmp_path)}
+    assert isinstance(resolve_harness_config(environ), HarnessConfig)
     (root / "harness_config.json").write_text(json.dumps({**config, key: value}), encoding="utf-8")
-    result = resolve_harness_config(environ, require_vm_tools=False)
+    result = resolve_harness_config(environ)
     assert isinstance(result, HarnessSkip) and key in result.reason
+    # A screen needs no guest configuration: the same folder still resolves for reading, with no guest field.
+    offline = resolve_harness_config(environ, require_vm_tools=False)
+    assert isinstance(offline, HarnessConfig) and offline.guest_work_root == "" and offline.prlctl is None
 
 
 def test_guest_command_quoting_refuses_shell_metacharacters():
@@ -599,15 +610,61 @@ def guest_file(path: str, view: dict[str, Path]) -> Path | None:
     return None
 
 
+def encoded(command: str) -> tuple[str, object] | None:
+    """(script, payload) of one of the harness's encoded PowerShell commands, else None."""
+    if not command.startswith("powershell ") or " -EncodedCommand " not in command:
+        return None
+    script = base64.b64decode(command.rsplit(" ", 1)[1]).decode("utf-16-le")
+    found = re.search(r"FromBase64String\('([A-Za-z0-9+/=]*)'\)", script)
+    return script, (json.loads(base64.b64decode(found[1])) if found else None)
+
+
+def copy_purpose(argv) -> str | None:
+    """The purpose of a create-new copy command of the harness (`prepare`, `stage_script`, `collect`,
+    `export_prepare`, `export_stage_script`, `export_collect`), else None."""
+    found = encoded(argv[6])
+    if found is None or "collect done" not in found[0]:
+        return None
+    return found[1]["purpose"]
+
+
+def is_process_listing(argv) -> bool:
+    found = encoded(argv[6])
+    return found is not None and "Win32_Process" in found[0]
+
+
+# The start time the invented guest reports for the processes it lists and records.
+GUEST_START = "2026-11-12T10:00:00.0000000Z"
+
+
+def is_collect(argv) -> bool:
+    return copy_purpose(argv) in ("collect", "export_collect")
+
+
 def guest_out_dir(argv) -> Path:
     """The host folder a collect command of the harness copies into: the run folder's caepipe_out/ named in the
     command itself, seen through GUEST_VIEW (so a fake guest collects only where the harness tells it to)."""
-    for path in re.findall(r'"([^"]*\\runs\\[0-9]{6}\\caepipe_out(?:\\[^"\\]*)?)"', argv[6]):
-        folder = path if path.endswith("\\caepipe_out") else path.rsplit("\\", 1)[0]
-        found = guest_file(folder, GUEST_VIEW)
-        assert found is not None, folder
-        return found
-    raise AssertionError(f"not a collect command: {argv[6]}")
+    assert is_collect(argv), argv[6]
+    destination = encoded(argv[6])[1]["to"]
+    assert re.search(r"\\runs\\[0-9]{6}\\caepipe_out$", destination), destination
+    found = guest_file(destination, GUEST_VIEW)
+    assert found is not None, destination
+    return found
+
+
+def collect_answer(argv, files: dict[str, bytes]) -> subprocess.CompletedProcess:
+    """A collect command answered as the guest's create-new copy does: each of `files` created exclusively in the
+    run folder's caepipe_out/ (never over an existing name), the outcome per file, then `collect done`."""
+    folder = guest_out_dir(argv)
+    lines = []
+    for name, data in files.items():
+        try:
+            with open(folder / name, "xb") as handle:
+                handle.write(data)
+            lines.append(f"copied {name}")
+        except FileExistsError:
+            lines.append(f"present_differs {name}")
+    return subprocess.CompletedProcess(argv, 0, "\r\n".join([*lines, "collect done"]) + "\r\n", "")
 
 
 def run_out(tmp_path: Path, case_id: str = "cx-g", sequence: str = "000001") -> Path:
@@ -620,7 +677,7 @@ def exchange_items(command: str) -> list[dict] | None:
     if not command.startswith("powershell ") or " -EncodedCommand " not in command:
         return None
     script = base64.b64decode(command.rsplit(" ", 1)[1]).decode("utf-16-le")
-    if "Get-FileHash" not in script:
+    if "Get-FileHash" not in script or "collect done" in script:
         return None
     items = json.loads(base64.b64decode(re.search(r"FromBase64String\('([A-Za-z0-9+/=]*)'\)", script)[1]))
     return items if isinstance(items, list) else None
@@ -637,11 +694,31 @@ def net_use_listing(view: dict[str, Path]) -> str:
 def exchange_answer(argv, view: dict[str, Path] | None = None,
                     listing: str | None = None) -> subprocess.CompletedProcess | None:
     """The invented guest's answer to the harness's exchange check (the SHA-256 of each file it sees through `view`,
-    default GUEST_VIEW) and to its drive listing, or None when `argv` is another command."""
+    default GUEST_VIEW), to its drive listing, to its process listing (nothing running), to its fresh work directory
+    (made, outside the exchange folder, holding only the probe) and to its copies into that work directory, or None
+    when `argv` is another command (the solve, the export and the collection are the test's own)."""
     view = GUEST_VIEW if view is None else view
     command = argv[6]
     if command == "net use":
         return subprocess.CompletedProcess(argv, 0, net_use_listing(view) if listing is None else listing, "")
+    found = encoded(command)
+    if found is not None and "Win32_Process" in found[0]:
+        return subprocess.CompletedProcess(argv, 0, "listed\r\n", "")
+    if found is not None and "root resolved" in found[0]:
+        payload = found[1]
+        lines = [f"root \\\\?\\UNC\\Mac\\invented-share\\{payload['root'][3:]}", f"ancestor {payload['path']}",
+                 f"final \\\\?\\{payload['path']}", "root resolved"]
+        return subprocess.CompletedProcess(argv, 0, "\r\n".join(lines) + "\r\n", "")
+    if found is not None and "work ready" in found[0]:
+        payload = found[1]
+        lines = [f"root \\\\?\\UNC\\Mac\\invented-share\\{payload['root'][3:]}", f"dir \\\\?\\{payload['dir']}",
+                 f"entry {payload['probe']}", *(f"destination_absent {name}" for name in payload["destinations"]),
+                 "work ready"]
+        return subprocess.CompletedProcess(argv, 0, "\r\n".join(lines) + "\r\n", "")
+    purpose = copy_purpose(argv)
+    if purpose in ("prepare", "stage_script", "export_prepare", "export_stage_script"):
+        return subprocess.CompletedProcess(argv, 0, "".join(f"copied {name}\r\n" for name in found[1]["names"])
+                                           + "collect done\r\n", "")
     items = exchange_items(command)
     if items is None:
         return None
@@ -672,16 +749,17 @@ def test_round_trip_records_route_and_never_runs_a_real_prlctl(tmp_path):
             stdout = 'WARNING: banner\n' + json.dumps({"status": "csv_from_gui_print", "gui": {"used": True},
                                                         "mbf_sha256": MBF_SHA.upper(),
                                                         "csv_path": "C:\\invented-work\\cpc-x\\model_results.csv"})
-        if "copy /Y" in command and "caepipe_out" in command:
-            (guest_out_dir(argv) / "model_results.csv").write_text("Invented\n")
+        if is_collect(argv):
+            return collect_answer(argv, {"model_results.csv": b"Invented\n"})
         return subprocess.CompletedProcess(argv, 0, stdout, "")
 
     record_ = run_caepipe_round_trip(config, "cpc-x", MBF_TEXT, runner=sees_exchange(runner))
-    assert [call[6].split(" ")[0] for call in calls] == ["(if", "powershell", "copy"]
-    assert '"C:\\invented-work\\cpc-x\\model.mbf"' in calls[0][6].split(" & copy ")[0]  # old guest MBF deleted
+    # The solve and the collection reach the test's guest; nothing the harness sends deletes or overwrites.
+    assert [copy_purpose(call) or call[6].split(" ")[0] for call in calls] == ["powershell", "collect"]
+    assert not any(" del " in step["guest_command"] or "copy /Y" in step["guest_command"] for step in record_["steps"])
     assert record_["guest_mbf_sha256"] == MBF_SHA and record_["input_hash_verified"] is True
     script = harness.GUEST_SCRIPT_NAME.format(sha256=hashlib.sha256(harness.GUEST_SCRIPT.read_bytes()).hexdigest())
-    assert f"-File \"Z:\\invented\\_harness\\{script}\"" in calls[1][6]
+    assert f"-File \"Z:\\invented\\_harness\\{script}\"" in calls[0][6]
     assert record_["route"] == "csv_from_gui_print"
     assert record_["command_shape"]["gui_print_fallback"] == {
         **record_["command_shape"]["gui_print_fallback"], "used": True, "label": "print_to_file_fallback"}
@@ -691,13 +769,17 @@ def test_round_trip_records_route_and_never_runs_a_real_prlctl(tmp_path):
     assert (run_dir / "caepipe_in" / "model.mbf").read_bytes() == b"INVENTED\r\nMBF\r\n"
     assert (config.exchange_root / "_harness" / script).read_bytes() == harness.GUEST_SCRIPT.read_bytes()
     assert record_["observed_csv_path"]["host"] == "caepipe_out/model_results.csv"
-    assert record_["expected_batch_csv_path"] == "C:\\invented-work\\cpc-x\\model.csv"
+    # The work directory is fresh, of this step's own.
+    assert re.fullmatch(r"C:\\invented-work\\cpc-x\\run-000001-[0-9a-f]{16}\\model\.csv", record_["expected_batch_csv_path"])
     assert record_["boundary_note"].startswith("regression/handoff evidence only")
     assert "invented-vm" not in json.dumps(record_)
     stored = json.loads((run_dir / "caepipe_out" / "run_record.json").read_text(encoding="utf-8"))
     assert stored["route"] == "csv_from_gui_print"
-    assert not (config.exchange_root / "_harness" / "round_trip.lock").exists()
-    assert record_["run_lock"] == {"outcome": "removed"}
+    # The lock file stays, empty; this step's holder record names it; nothing was removed.
+    assert (config.exchange_root / "_harness" / "round_trip.lock").read_bytes() == b""
+    assert record_["run_lock"]["holder_record"] == "_harness/holders/000001.json"
+    assert (run_dir / "exchange_marker.txt").is_file() and record_["exchange_marker"] == "kept in the run folder"
+    assert (run_dir / "run_lock_end.json").is_file()
 
 
 PRINT_FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "caepipe_external" / "invented" / \
@@ -716,9 +798,8 @@ def _batch_print_round_trip(tmp_path, files: dict[str, bytes], status: str = "cs
         if command.startswith("powershell"):
             stdout = json.dumps({"status": status, "gui": {"used": False}, "mbf_sha256": MBF_SHA}
                                 | ({"csv_path": f"C:\\invented-work\\cpc-p\\{reported}"} if reported else {}))
-        if command.startswith("copy /Y") and "caepipe_out" in command:
-            for name, data in files.items():
-                (guest_out_dir(argv) / name).write_bytes(data)
+        if is_collect(argv):
+            return collect_answer(argv, files)
         return subprocess.CompletedProcess(argv, 0, stdout, "")
 
     return run_caepipe_round_trip(config, "cpc-p", MBF_TEXT, runner=sees_exchange(runner))
@@ -760,7 +841,9 @@ def test_round_trip_falls_back_to_a_guest_local_script_copy(tmp_path):
     commands = []
 
     def runner(argv, **kwargs):
-        commands.append(argv[6])
+        commands.append(copy_purpose(argv) or argv[6])
+        if is_collect(argv):
+            return collect_answer(argv, {})
         stdout = ""
         if argv[6].startswith("powershell") and "invented-work" in argv[6].split(" -Exe ")[0]:
             stdout = json.dumps({"status": "no_results_after_batch", "gui": {"used": False},
@@ -768,7 +851,7 @@ def test_round_trip_falls_back_to_a_guest_local_script_copy(tmp_path):
         return subprocess.CompletedProcess(argv, 0, stdout, "cannot run script" if not stdout else "")
 
     record_ = run_caepipe_round_trip(config, "cpc-y", "X\r\n", runner=sees_exchange(runner))
-    assert len(commands) == 5
+    assert len(commands) == 3 and commands[2] == "collect"  # the solve from the share, from the work copy, collect
     assert record_["guest_script"]["run_from"] == "guest_work_dir"
     assert record_["route"] == "no_results_after_batch"
     assert record_["observed_csv_path"]["host"] is None
@@ -780,32 +863,38 @@ def test_round_trip_stops_before_solving_when_preparation_fails(tmp_path):
 
     def runner(argv, **kwargs):
         commands.append(argv[6])
-        if argv[6].startswith("powershell"):
+        if argv[6].startswith("powershell") and " -File " in argv[6]:
             raise AssertionError("solve must not run after a failed prepare step")
         return subprocess.CompletedProcess(argv, 1, "", "The system cannot find the file specified.")
 
-    record_ = run_caepipe_round_trip(config, "cpc-p", MBF_TEXT, runner=sees_exchange(runner))
-    assert len(commands) == 1 and commands[0].startswith("(if not exist")
+    record_ = run_caepipe_round_trip(config, "cpc-p", MBF_TEXT, runner=lambda argv, **k: (
+        runner(argv) if copy_purpose(argv) == "prepare" else exchange_answer(argv) or runner(argv)))
+    assert len(commands) == 1 and "collect done" in encoded(commands[0])[0]  # the prepare copy, refused
     assert record_["route"] == "prepare_failed"
     assert record_["observed_csv_path"]["host"] is None and record_["guest_mbf_sha256"] is None
 
 
-def test_prepare_steps_bracket_the_folder_check_so_a_rerun_still_replaces_the_guest_copy(tmp_path):
-    # In cmd, an unbracketed `if` takes the rest of the line as its body: `if not exist W mkdir W & del ... & copy ...`
-    # deletes and copies nothing once W exists, so a re-run would leave the previous guest copy in place.
+def test_each_step_copies_into_a_fresh_work_directory_of_its_own_and_nothing_deletes(tmp_path):
+    # The round trip and the export each make a new, uniquely named work directory; nothing is deleted or reused, and
+    # every copy is a create-new copy into it.
     (tmp_path / "r").mkdir()
     (tmp_path / "s").mkdir()
     config, out = solved_case(tmp_path / "r", "cpc-r")
     commands: list[str] = []
-    run_caepipe_round_trip(config, "cpc-r", MBF_TEXT, runner=sees_exchange(lambda argv, **k: commands.append(argv[6]) or
-                           subprocess.CompletedProcess(argv, 1, "", "")))
+    record_ = lambda argv, **k: commands.append(argv[6]) or exchange_answer(argv) or subprocess.CompletedProcess(  # noqa: E731
+        argv, 1, "", "")
+    run_caepipe_round_trip(config, "cpc-r", MBF_TEXT, runner=record_)
+    run_caepipe_round_trip(config, "cpc-r", MBF_TEXT, runner=record_)
     config, out = solved_case(tmp_path / "s", "cpc-s")
-    run_caepipe_mbf_export(config, "cpc-s", MBF_SHA, runner=sees_exchange(lambda argv, **k: commands.append(argv[6]) or
-                           subprocess.CompletedProcess(argv, 1, "", "")))
-    work = {"cpc-r": "C:\\invented-work\\cpc-r", "cpc-s": "C:\\invented-work\\cpc-s\\export"}
-    assert commands[0].startswith(f'(if not exist "{work["cpc-r"]}" mkdir "{work["cpc-r"]}") & del /Q ')
-    assert commands[1].startswith(f'(if not exist "{work["cpc-s"]}" mkdir "{work["cpc-s"]}") & del /Q ')
-    assert all(command.count("(if ") == 1 and " & copy /Y " in command for command in commands)
+    run_caepipe_mbf_export(config, "cpc-s", MBF_SHA, runner=record_)
+    work = [encoded(command)[1]["dir"] for command in commands if encoded(command) and "work ready" in encoded(command)[0]]
+    assert re.fullmatch(r"C:\\invented-work\\cpc-r\\run-000001-[0-9a-f]{16}", work[0])
+    assert re.fullmatch(r"C:\\invented-work\\cpc-r\\run-000002-[0-9a-f]{16}", work[1])
+    assert re.fullmatch(r"C:\\invented-work\\cpc-s\\export-000001-[0-9a-f]{16}", work[2])
+    copies = [encoded(command)[1] for command in commands if copy_purpose([0] * 6 + [command]) in ("prepare",
+                                                                                                    "export_prepare")]
+    assert [copy["to"] for copy in copies] == work
+    assert not any(" del " in command or "copy /Y" in command or command.startswith("(if") for command in commands)
 
 
 def test_round_trip_accepts_a_drive_root_exchange_share(tmp_path):
@@ -814,7 +903,10 @@ def test_round_trip_accepts_a_drive_root_exchange_share(tmp_path):
               "guest_exchange_root": "Z:\\", "guest_work_root": "C:\\invented-work",
               "license_and_environment_responsibility_acknowledged": True}
     root = exchange(tmp_path, config=config)
-    resolved = resolve_harness_config({ENV_VAR: str(root), "PATH": git_only_path(tmp_path)}, require_vm_tools=False)
+    path = git_only_path(tmp_path)
+    (Path(path) / "prlctl").write_text("#!/bin/sh\nexit 1\n", encoding="ascii")  # resolved, never run
+    (Path(path) / "prlctl").chmod(0o755)
+    resolved = resolve_harness_config({ENV_VAR: str(root), "PATH": path}, require_vm_tools=True)
     assert isinstance(resolved, HarnessConfig) and resolved.guest_exchange_root == "Z:"
     GUEST_VIEW.clear()
     GUEST_VIEW["Z:"] = root.resolve()
@@ -822,12 +914,13 @@ def test_round_trip_accepts_a_drive_root_exchange_share(tmp_path):
 
     def runner(argv, **kwargs):
         commands.append(argv[6])
-        return subprocess.CompletedProcess(argv, 1, "", "invented failure")
+        return exchange_answer(argv) or subprocess.CompletedProcess(argv, 1, "", "invented failure")
 
     record_ = run_caepipe_round_trip(dataclasses.replace(resolved, prlctl="/invented/prlctl"), "cpc-z", MBF_TEXT,
-                                     runner=sees_exchange(runner))
-    assert record_["route"] == "prepare_failed"
-    assert "Z:\\cases\\cpc-z\\runs\\000001\\caepipe_in\\model.mbf" in commands[0]
+                                     runner=runner)
+    assert record_["route"] == "no_guest_json"
+    prepare = next(encoded(command)[1] for command in commands if copy_purpose([0] * 6 + [command]) == "prepare")
+    assert prepare["from"] == "Z:\\cases\\cpc-z\\runs\\000001\\caepipe_in" and prepare["names"] == ["model.mbf"]
 
 
 def test_round_trip_refuses_outputs_of_a_different_guest_mbf(tmp_path):
@@ -893,7 +986,7 @@ def test_links_in_the_case_folders_are_never_followed_or_written(tmp_path):
     (paths["caepipe_in"] / "model.mbf").symlink_to(repo / "tracked.txt")
     record_ = run_caepipe_round_trip(config, "cpc-l", MBF_TEXT, runner=sees_exchange(
         lambda argv, **k: subprocess.CompletedProcess(argv, 1, "", "invented failure")))
-    assert record_["route"] == "prepare_failed" and record_["run_folder"] == "runs/000001"
+    assert record_["route"] == "no_guest_json" and record_["run_folder"] == "runs/000001"
     # A link where the run folders go is refused, nothing written through it.
     (paths["root"] / "runs").rename(paths["root"] / "runs-earlier")
     (paths["root"] / "runs").symlink_to(repo, target_is_directory=True)
@@ -901,7 +994,7 @@ def test_links_in_the_case_folders_are_never_followed_or_written(tmp_path):
         run_caepipe_round_trip(config, "cpc-l", MBF_TEXT, runner=lambda *a, **k: pytest.fail("prlctl called"))
     assert repo_entries(repo) == ["tracked.txt"]
     assert (repo / "tracked.txt").read_text(encoding="utf-8") == "keep\n"
-    assert not (config.exchange_root / "_harness" / "round_trip.lock").exists()
+    assert (config.exchange_root / "_harness" / "round_trip.lock").read_bytes() == b""  # permanent, empty, never removed
 
 
 def test_case_variant_output_links_are_refused_before_collection(tmp_path):
@@ -990,15 +1083,16 @@ def export_runner(out: Path, commands: list[str], *, guest: dict | None = None, 
         command = argv[6]
         commands.append(command)
         stdout = ""
+        if is_collect(argv):
+            return collect_answer(argv, {"exported.mbf": collected})  # a create-new copy, never over a name
         if command.startswith("powershell"):
             if on_export:
                 on_export()
             stdout = "banner\n" + json.dumps(guest if guest is not None else {
                 "status": "mbf_exported", "mod_sha256": MOD_SHA.upper(), "exported_mbf_sha256": EXPORTED_SHA,
                 "exported_mbf_path": "C:\\invented-work\\cpc-e\\export\\exported.mbf"})
-        elif command.startswith("copy") and "caepipe_out" in command and "\\runs\\" in command.split('" "')[-1]:
-            with open(guest_out_dir(argv) / "exported.mbf", "xb") as handle:  # never over an existing file
-                handle.write(collected)
+        elif is_collect(argv):
+            return collect_answer(argv, {"exported.mbf": collected})  # a create-new copy, never over a name
         return subprocess.CompletedProcess(argv, 0, stdout, "")
 
     return runner
@@ -1009,16 +1103,21 @@ def test_mbf_export_collects_the_export_and_binds_it_to_the_run_record_by_hash(t
     stored_before = (out / "run_record.json").read_bytes()
     commands: list[str] = []
     entry = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=export_runner(out, commands))
-    assert [command.split(" ")[0] for command in commands] == ["(if", "powershell", "copy"]
-    assert ('del /Q "C:\\invented-work\\cpc-e\\export\\model.mod" "C:\\invented-work\\cpc-e\\export\\exported.mbf"'
-            in commands[0])
-    # The solve is read where it is stored (the case has no selection), and never written.
-    assert 'copy /Y "Z:\\invented\\cases\\cpc-e\\caepipe_out\\model.mod" "C:\\invented-work\\cpc-e\\export\\model.mod"' \
-        in commands[0]
-    assert '-ExportMod "C:\\invented-work\\cpc-e\\export\\model.mod" -ExportName exported.mbf' in commands[1]
-    assert "-Mbf" not in commands[1]
-    assert commands[2] == ('copy /Y "C:\\invented-work\\cpc-e\\export\\exported.mbf" '
-                           '"Z:\\invented\\cases\\cpc-e\\runs\\000001\\caepipe_out\\exported.mbf"')
+    assert [copy_purpose([0] * 6 + [command]) or command.split(" ")[0] for command in commands] == [
+        "powershell", "export_collect"]
+    steps = run_record_steps = json.loads((run_out(tmp_path, "cpc-e") / "run_record.json").read_text())["steps"]
+    prepare = encoded(next(step["guest_command"] for step in steps if step["name"] == "export_prepare"))[1]
+    # The solve is read where it is stored (the case has no selection), and never written; the model is copied
+    # into a fresh work directory of this step's own.
+    assert prepare["from"] == "Z:\\invented\\cases\\cpc-e\\caepipe_out" and prepare["names"] == ["model.mod"]
+    work = prepare["to"]
+    assert re.fullmatch(r"C:\\invented-work\\cpc-e\\export-000001-[0-9a-f]{16}", work)
+    assert f'-ExportMod "{work}\\model.mod" -ExportName exported.mbf' in commands[0]
+    assert "-Mbf" not in commands[0]
+    collect = encoded(commands[1])[1]
+    assert (collect["from"], collect["to"], collect["names"]) == (
+        work, "Z:\\invented\\cases\\cpc-e\\runs\\000001\\caepipe_out", ["exported.mbf"])
+    assert not any(" del " in step["guest_command"] or "copy /Y" in step["guest_command"] for step in run_record_steps)
     assert entry["route"] == "mbf_exported" and entry["run_folder"] == "runs/000001"
     assert entry["mod"]["sha256"] == MOD_SHA and entry["mod_hash_verified"] is True
     assert entry["solved_mbf_sha256"] == MBF_SHA
@@ -1034,7 +1133,7 @@ def test_mbf_export_collects_the_export_and_binds_it_to_the_run_record_by_hash(t
     assert (export_out / "exported.mbf").read_bytes() == EXPORTED_BYTES
     assert json.loads((export_out / "export_guest_log.json").read_text(encoding="utf-8"))["status"] == "mbf_exported"
     assert "invented-vm" not in json.dumps(stored)
-    assert not (config.exchange_root / "_harness" / "round_trip.lock").exists()
+    assert (config.exchange_root / "_harness" / "round_trip.lock").read_bytes() == b""  # permanent, empty
     assert harness.run_problem(export_out.parent, "export") is None  # complete: it can be published
 
     # A second export writes a new run folder of its own; the first is left as it is.
@@ -1072,7 +1171,7 @@ def test_mbf_export_collects_nothing_when_the_guest_opened_a_different_model(tmp
     guest = {"status": "mbf_exported", "mod_sha256": "0" * 64, "exported_mbf_sha256": EXPORTED_SHA}
     entry = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=export_runner(out, commands, guest=guest))
     assert entry["route"] == "input_hash_mismatch" and entry["mod_hash_verified"] is False
-    assert len(commands) == 2 and not (run_out(tmp_path, "cpc-e") / "exported.mbf").exists()
+    assert len(commands) == 1 and not (run_out(tmp_path, "cpc-e") / "exported.mbf").exists()  # the export, no collect
     assert entry["exported_mbf"]["path"] is None
 
 
@@ -1102,9 +1201,10 @@ def test_mbf_export_records_a_guest_failure_and_retries_the_prlctl_client(tmp_pa
     entry = run_caepipe_mbf_export(config, "cpc-e", MBF_SHA, runner=sees_exchange(runner))
     assert entry["route"] == "export_failed"
     stored = json.loads((run_out(tmp_path, "cpc-e") / "run_record.json").read_text(encoding="utf-8"))
-    assert [step["name"] for step in stored["steps"]][:4] == [
-        "drive_listing", "exchange_check_drives", "exchange_check_inputs", "export_prepare"]
-    assert stored["steps"][3]["attempts"] == 2
+    assert [step["name"] for step in stored["steps"]][:7] == [
+        "drive_listing", "exchange_check_drives", "guest_processes", "work_root", "work_directory", "exchange_check_inputs",
+        "export_prepare", "export"]
+    assert stored["steps"][6]["attempts"] == 2  # the first command that reached this guest failed in transport
     assert not any(command.startswith("copy") for command in calls)
     assert stored["mbf_export"]["route"] == "export_failed"
 
@@ -1122,7 +1222,7 @@ def test_mbf_export_refuses_links_planted_in_the_output_layer(tmp_path):
             out, commands, on_export=lambda: (export_out / "Exported.mbf").symlink_to(victim)))
     assert not any(command.startswith("copy") for command in commands)
     assert victim.read_text(encoding="utf-8") == "keep\n"
-    assert not (config.exchange_root / "_harness" / "round_trip.lock").exists()
+    assert (config.exchange_root / "_harness" / "round_trip.lock").read_bytes() == b""  # permanent, empty, never removed
 
 
 def test_a_new_solve_is_published_without_the_earlier_export_and_hashes_its_outputs(tmp_path):
@@ -1137,12 +1237,14 @@ def test_a_new_solve_is_published_without_the_earlier_export_and_hashes_its_outp
         if argv[6].startswith("powershell"):
             stdout = json.dumps({"status": "csv_from_batch", "mbf_sha256": MBF_SHA,
                                  "csv_path": "C:\\invented-work\\cpc-x\\model.csv"})
-        elif argv[6].startswith("copy") and "caepipe_out" in argv[6]:
-            (guest_out_dir(argv) / "model.csv").write_text("Invented\n", encoding="utf-8")
-            (guest_out_dir(argv) / "model.mod").write_bytes(MOD_BYTES)
         return subprocess.CompletedProcess(argv, 0, stdout, "")
 
-    record_ = run_caepipe_round_trip(config, "cpc-x", MBF_TEXT, runner=sees_exchange(runner))
+    def guest(argv, **kwargs):
+        if is_collect(argv):
+            return collect_answer(argv, {"model.csv": b"Invented\n", "model.mod": MOD_BYTES})
+        return runner(argv, **kwargs)
+
+    record_ = run_caepipe_round_trip(config, "cpc-x", MBF_TEXT, runner=sees_exchange(guest))
     assert "mbf_export" not in record_ and record_["run_folder"] == "runs/000002"
     assert record_["outputs_sha256"]["model.mod"] == MOD_SHA
     with harness.exchange_tree(config) as tree:
@@ -1241,11 +1343,13 @@ def test_pilot_authored_mode_round_trips_the_authored_file_then_exports_it(tmp_p
 
     def round_trip(config_, case_id, mbf_text):
         order.append(("round_trip", case_id, mbf_text.encode("utf-8") == data))
-        return {"route": "csv_from_batch", "mbf": {"sha256": sha}, "guest_mbf_sha256": sha, "run_folder": "runs/000001"}
+        return {"route": "csv_from_batch", "mbf": {"sha256": sha}, "guest_mbf_sha256": sha, "run_folder": "runs/000001",
+                "input_hash_verified": True}
 
     def export(config_, case_id, mbf_sha256):
         order.append(("export", case_id, mbf_sha256 == sha))
-        return {"route": "mbf_exported", "run_folder": "runs/000002", "solve_run": {"folder": "runs/000001"}}
+        return {"route": "mbf_exported", "run_folder": "runs/000002",
+                "solve_run": {"folder": "runs/000001", "source": "runs/000001"}}
 
     lines: list[str] = []
     assert run_pilot.run_authored_case(case, config, emit=lines.append, round_trip=round_trip, export=export)
@@ -1306,8 +1410,9 @@ def _literal_payload(command: str) -> dict | None:
     if not command.startswith("powershell ") or " -EncodedCommand " not in command:
         return None
     script = base64.b64decode(command.rsplit(" ", 1)[1]).decode("utf-16-le")
-    encoded = re.search(r"FromBase64String\('([A-Za-z0-9+/=]*)'\)", script)[1]
-    return json.loads(base64.b64decode(encoded).decode("utf-8"))
+    encoded = re.search(r"FromBase64String\('([A-Za-z0-9+/=]*)'\)", script)
+    payload = json.loads(base64.b64decode(encoded[1]).decode("utf-8")) if encoded else None
+    return payload if isinstance(payload, dict) and "action" in payload else None  # the process listing is not one
 
 
 class FakeGuest:
@@ -1331,6 +1436,7 @@ class FakeGuest:
         self.empty_keys: set[str] = {INVENTED_KEY + "\\Empty sub"}  # a subkey with no values
         self.pid_text: str | None = None       # replaces the owned-process record when set
         self.tasklist_text: str | None = None  # replaces the process list after the solve when set
+        self.starts: dict[int, str] = {}       # a listed process's start time when not GUEST_START (a reused id)
         self.tasklist_error: Exception | None = None  # raised by the process list after the solve when set
         self.foreign: list[int] = []           # another instance of the tool, listed throughout
         self.foreign_after: list[int] = []     # another instance that appears during the solve
@@ -1372,15 +1478,18 @@ class FakeGuest:
 
     def runner(self, on_solve, config: HarnessConfig):
         def run(argv, **kwargs):
-            if exchange_answer(argv):  # the guest sees the exchange share; the check is not one of its commands
+            listing = is_process_listing(argv)
+            if not listing and exchange_answer(argv):  # the guest sees the exchange share; not one of its commands
                 return exchange_answer(argv)
+            if is_collect(argv):  # nothing to collect from this invented guest
+                return collect_answer(argv, {})
             command = argv[6]
-            self.commands.append(command)
+            self.commands.append("process listing" if listing else command)
             literal = _literal_payload(command)
             kind = ("readback" if literal and literal["action"] == "read" else "write" if literal else "readback" if command.startswith("reg query ") and (" /v " in command
                                                                        or command.startswith('reg query "HKEY_'))
                     else "query" if command.startswith("reg query ") else "write" if command.startswith(("reg add", "reg delete"))
-                    else "tasklist" if command == "tasklist /FO CSV /NH" else None)
+                    else "tasklist" if listing else None)
             self.timeouts.append((command, kwargs.get("timeout")))
             if self.tick is not None:
                 self.tick()
@@ -1474,17 +1583,16 @@ class FakeGuest:
                     return subprocess.CompletedProcess(argv, 0, self.pid_text, "")
                 if not self.owned:
                     return subprocess.CompletedProcess(argv, 1, "", "The system cannot find the file specified.")
-                return subprocess.CompletedProcess(argv, 0, "".join(f"{pid}\r\n" for pid in self.owned), "")
-            if command == "tasklist /FO CSV /NH":
+                return subprocess.CompletedProcess(argv, 0, "".join(f"{pid} {GUEST_START}\r\n" for pid in self.owned), "")
+            if listing:
                 if self.solved and self.tasklist_error is not None:
                     raise self.tasklist_error
                 if self.solved and self.tasklist_text is not None:
                     return subprocess.CompletedProcess(argv, 0, self.tasklist_text, "")
-                rows = ['"other.exe","9999","Console","2","61,744 K"']  # another program: never ours, never foreign
                 tool = self.foreign + (self.foreign_after + self.running if self.solved else [])
-                rows += [f'"tool.exe","{pid}","Console","2","12,000 K"' for pid in tool]
+                rows = [f"tool {pid} {self.starts.get(pid, GUEST_START)}" for pid in tool] + ["listed"]
                 return subprocess.CompletedProcess(argv, 0, "\r\n".join(rows) + "\r\n", "")
-            if command.startswith("powershell"):
+            if command.startswith("powershell") and " -File " in command:
                 self.solved = True
                 self.owned.append(4242)
                 return on_solve(self, argv, config)
@@ -1492,10 +1600,15 @@ class FakeGuest:
         return run
 
 
+def owned(*pids: int) -> list[dict]:
+    """The guest's report of the processes it started: each id with its start time."""
+    return [{"pid": pid, "start": GUEST_START} for pid in pids]
+
+
 def solved(guest, argv, config):
     """A solve step that ends normally, its own process exited, with a batch CSV."""
     return subprocess.CompletedProcess(argv, 0, json.dumps({"status": "csv_from_batch", "mbf_sha256": MBF_SHA,
-                                                            "owned_pids": list(guest.owned),
+                                                            "owned_pids": owned(*guest.owned),
                                                             "csv_path": "C:\\invented-work\\cx-g\\model.csv"}), "")
 
 
@@ -1510,12 +1623,13 @@ def test_settings_guard_reads_the_whole_key_confirms_exit_and_never_writes(tmp_p
     assert record_["settings_guard"]["status"] == "unchanged"
     assert record_["settings_guard"]["owned_processes"] == {"status": "exited", "owned_pids": [4242]}
     assert [step["name"] for step in record_["steps"]] == [
-        "drive_listing", "exchange_check_drives", "exchange_check_inputs", "precondition_process_list",
+        "drive_listing", "exchange_check_drives", "guest_processes", "work_root", "work_directory", "exchange_check_inputs",
         "settings_before", "prepare", "solve", "collect", "owned_pids", "process_list", "settings_after"]
     # The whole version key with every subkey, not the recent-files subkey alone.
     assert guest.commands[1] == 'reg query "HKCU\\Software\\Invented Vendor\\Tool\\1.0" /s'
     solve = next(command for command in guest.commands if command.startswith("powershell"))
-    assert '-PidFile "C:\\invented-work\\cx-g\\owned_pids.txt"' in solve and solve.endswith(" -NoGuiFallback")
+    assert re.search(r'-PidFile "C:\\invented-work\\cx-g\\run-000001-[0-9a-f]{16}\\owned_pids\.txt"', solve)
+    assert solve.endswith(" -NoGuiFallback")
     assert record_["command_shape"]["gui_print_fallback"]["allowed"] is False
     assert guest.writes == []
 
@@ -1546,9 +1660,10 @@ def test_settings_guard_stops_on_a_concurrent_change_with_no_write(tmp_path):
 
     record_ = guarded(tmp_path, guest, solve)
     assert record_["settings_guard"]["status"] == "settings_changed"
+    # Outside the restore scope (this guard writes nothing back): the member's name only, never its values.
     assert record_["settings_guard"]["changed_values"] == [{
-        "value": INVENTED_KEY + "\\Options\\Use something", "before": {"type": "REG_BINARY", "data": "01"},
-        "after": {"type": "REG_BINARY", "data": "00"}}]
+        "value": INVENTED_KEY + "\\Options\\Use something", "outside_restore_scope": True, "before": "present",
+        "after": "present"}]
     assert guest.writes == []
     assert guest.values[(INVENTED_KEY + "\\Options", "Use something")] == ("REG_BINARY", "00")
 
@@ -1564,7 +1679,7 @@ def test_settings_guard_still_checks_after_a_collection_exception(tmp_path):
     with pytest.raises(ContainmentError) as raised:
         guarded(tmp_path, guest, solve)
     after_solve = guest.commands[guest.commands.index(next(c for c in guest.commands if c.startswith("powershell"))):]
-    assert [c.split(" ")[0] for c in after_solve] == ["powershell", "type", "tasklist", "reg"]
+    assert [c.split(" ")[0] for c in after_solve] == ["powershell", "type", "process", "reg"]
     assert raised.value.settings_guard["status"] == "unchanged"
     assert guest.writes == []
 
@@ -1625,8 +1740,8 @@ def test_settings_guard_needs_a_complete_valid_ownership_record_and_process_list
         "malformed_record": dict(pid_text="4242\r\n42x\r\n", running=[4242], solve=timed_out),
         # The guest's own report names a process the record lacks.
         "record_short_of_report": dict(
-            pid_text="4242\r\n", solve=lambda g, a, c: subprocess.CompletedProcess(a, 0, json.dumps(
-                {"status": "csv_from_batch", "mbf_sha256": MBF_SHA, "owned_pids": [4242, 4300],
+            pid_text=f"4242 {GUEST_START}\r\n", solve=lambda g, a, c: subprocess.CompletedProcess(a, 0, json.dumps(
+                {"status": "csv_from_batch", "mbf_sha256": MBF_SHA, "owned_pids": owned(4242, 4300),
                  "csv_path": "C:\\invented-work\\cx-g\\model.csv"}), "")),
         "empty_process_list": dict(tasklist_text="\r\n", solve=solved),
         "malformed_process_list": dict(tasklist_text="INFO: No tasks are running which match the specified criteria.\r\n",
@@ -1662,24 +1777,22 @@ def test_settings_guard_runs_nothing_when_the_settings_cannot_be_read(tmp_path):
 
     def runner(argv, **kwargs):
         commands.append(argv[6])
-        if argv[6] == "tasklist /FO CSV /NH":
-            return subprocess.CompletedProcess(argv, 0, '"other.exe","9999","Console","2","1 K"\r\n', "")
         return subprocess.CompletedProcess(argv, 1, "", "ERROR: invented")
 
     record_ = run_caepipe_round_trip(config, "cx-h", MBF_TEXT, runner=sees_exchange(runner))
     assert record_["route"] == "settings_check_failed"
     assert record_["settings_guard"]["status"] == "settings_check_failed"
-    assert commands == ["tasklist /FO CSV /NH", 'reg query "HKCU\\Software\\Invented Vendor\\Tool\\1.0" /s']
+    assert commands == ['reg query "HKCU\\Software\\Invented Vendor\\Tool\\1.0" /s']  # the process listing is clear
 
 
 def test_settings_guard_starts_nothing_while_another_instance_runs(tmp_path):
     guest = FakeGuest()
     guest.foreign = [16000]
     record_ = guarded(tmp_path, guest, solved, guard=RESTORING_GUARD)
-    assert record_["route"] == "foreign_instance_running"
-    assert record_["settings_guard"]["status"] == "foreign_instance_running"
-    assert record_["settings_guard"]["foreign_pids"] == [16000]
-    assert guest.commands == ["tasklist /FO CSV /NH"] and guest.writes == []
+    # Refused under its own name before any guest write, and before the settings are read.
+    assert record_["route"] == "program_instance_running"
+    assert record_["guest_processes"]["tool_pids"] == [16000]
+    assert guest.commands == ["process listing"] and guest.writes == []
 
     # An unreadable process list is no precondition either.
     second = tmp_path / "second"
@@ -1687,7 +1800,7 @@ def test_settings_guard_starts_nothing_while_another_instance_runs(tmp_path):
     guest = FakeGuest()
     guest.tasklist_text, guest.solved = "garbage\r\n", True
     record_ = guarded(second, guest, solved, guard=RESTORING_GUARD)
-    assert record_["route"] == "precondition_unknown" and guest.commands == ["tasklist /FO CSV /NH"]
+    assert record_["route"] == "guest_processes_unknown" and guest.commands == ["process listing"]
 
     # The session precondition reads the same list and starts nothing.
     third = tmp_path / "third"
@@ -1699,7 +1812,7 @@ def test_settings_guard_starts_nothing_while_another_instance_runs(tmp_path):
         "foreign_instance_running"
     guest.foreign = []
     assert check_no_foreign_instance(session_config, runner=guest.runner(solved, session_config)) == {"status": "clear"}
-    assert set(guest.commands) == {"tasklist /FO CSV /NH"}
+    assert set(guest.commands) == {"process listing"}
     assert guest.timeouts and all(0 < timeout <= 20.0 for _, timeout in guest.timeouts)  # the guard's call timeout
 
 
@@ -1803,11 +1916,11 @@ def test_settings_restore_records_an_exception_at_any_step_then_raises_it(tmp_pa
     if injection[0] == "compare":
         real, calls = harness.settings_difference, []
 
-        def failing(before, after):
+        def failing(before, after, **scope):
             calls.append(1)
             if len(calls) == injection[1]:
                 raise error
-            return real(before, after)
+            return real(before, after, **scope)
 
         monkeypatch.setattr(harness, "settings_difference", failing)
     else:
@@ -2080,11 +2193,11 @@ def test_settings_restore_recovery_keeps_the_primary_error_through_a_later_cance
     elif where == "final comparison":
         real, calls = harness.settings_difference, []
 
-        def failing(before, after):
+        def failing(before, after, **scope):
             calls.append(1)
             if len(calls) == 2:  # 1: the guard's comparison; 2: the failure path's
                 raise late
-            return real(before, after)
+            return real(before, after, **scope)
 
         monkeypatch.setattr(harness, "settings_difference", failing)
     elif where == "reason":
@@ -2250,9 +2363,12 @@ def test_settings_guard_result_survives_the_first_record_write_failure(tmp_path,
     assert [entry["completed"] for entry in guard["write_log"]] == [True] * 4
     assert guard["run_record_error"].startswith("OSError")
     record_path = run_out(tmp_path) / "run_record.json"
-    if first_failing == "run_record.json":  # the record of the exceptional end cannot be written either; it says so
+    if first_failing == "run_record.json":  # the first name cannot be written: the record goes under another new name
         assert not record_path.exists()
-        assert any("was not written" in note for note in getattr(raised.value, "__notes__", []))
+        stored = json.loads((run_out(tmp_path) / "run_record_2.json").read_text(encoding="utf-8"))
+        assert stored["route"] == "harness_error" and "run_record.json was occupied or could not be written whole" \
+            in stored["record_name"]
+        assert any("run_record_2.json" in note for note in getattr(raised.value, "__notes__", []))
     else:  # every exceptional end leaves a run record of it, the original error preserved
         stored = json.loads(record_path.read_text(encoding="utf-8"))
         assert stored["route"] == "harness_error" and stored["harness_error"].startswith("OSError")
@@ -2410,7 +2526,7 @@ def test_settings_guard_reads_retry_transport_failures_with_a_backoff(tmp_path, 
     guest.flaky = {"tasklist": 5, "query": 3}  # the precondition's list succeeds at attempt 6, the reading at 4
     record_ = guarded(tmp_path, guest, _open_model, guard=RESTORING_GUARD)
     attempts = {step["name"]: step["attempts"] for step in record_["steps"]}
-    assert attempts["precondition_process_list"] == 6 and attempts["settings_before"] == 4
+    assert attempts["guest_processes"] == 6 and attempts["settings_before"] == 4
     assert waits == [2.0] * 8 and record_["settings_guard"]["status"] == "recent_files_restored"
     # Within the restore the read-back and the checks take the same patience; a write never does.
     second = tmp_path / "second"
@@ -2434,10 +2550,9 @@ def test_settings_guard_read_that_keeps_failing_stops_the_run(tmp_path, monkeypa
     guest = FakeGuest()
     guest.flaky = {"tasklist": 6}
     record_ = guarded(tmp_path, guest, _open_model, guard=RESTORING_GUARD)
-    assert record_["route"] == "precondition_unknown" and guest.writes == [] and not guest.solved
+    assert record_["route"] == "guest_processes_unknown" and guest.writes == [] and not guest.solved
     assert [(step["name"], step["attempts"]) for step in record_["steps"]] == [
-        ("drive_listing", 1), ("exchange_check_drives", 1), ("exchange_check_inputs", 1),
-        ("precondition_process_list", 6)]
+        ("drive_listing", 1), ("exchange_check_drives", 1), ("guest_processes", 6)]
     # The attempts stay within the call's timeout: with 2 s between attempts and a 7 s call, four attempts at most.
     clock = {"t": 1000.0}
     monkeypatch.setattr(harness, "time", SimpleNamespace(monotonic=lambda: clock["t"]))
@@ -2447,25 +2562,25 @@ def test_settings_guard_read_that_keeps_failing_stops_the_run(tmp_path, monkeypa
     guest = FakeGuest()
     guest.flaky = {"tasklist": 6}
     record_ = guarded(second, guest, _open_model, guard=dataclasses.replace(RESTORING_GUARD, call_timeout_s=7.0))
-    step = record_["steps"][3]
-    assert record_["route"] == "precondition_unknown" and step["attempts"] == 4
+    step = record_["steps"][2]
+    assert record_["route"] == "guest_processes_unknown" and step["attempts"] == 4
     assert step["attempts_stopped_by"] == "deadline" and all(timeout <= 7.0 for _, timeout in guest.timeouts)
 
 
 def test_settings_guard_calls_use_the_guard_timeout_not_the_solve_timeout(tmp_path):
     guest = FakeGuest()
     guarded(tmp_path, guest, _open_model, guard=RESTORING_GUARD)
-    solve = [timeout for command, timeout in guest.timeouts if command.startswith("powershell")]
-    guard = [timeout for command, timeout in guest.timeouts if not command.startswith(("powershell", "(if", "copy"))]
+    solve = [timeout for command, timeout in guest.timeouts if " -File " in command]
+    guard = [timeout for command, timeout in guest.timeouts if " -File " not in command]
     assert solve == [600] and guard and all(0 < timeout <= 20.0 for timeout in guard)
-    assert {command.split(" ")[0] for command, _ in guest.timeouts} >= {"reg", "tasklist", "type"}
+    assert {command.split(" ")[0] for command, _ in guest.timeouts} >= {"reg", "powershell", "type"}
 
     # Configured: every guard call takes the configured timeout.
     second = tmp_path / "second"
     second.mkdir()
     guest = FakeGuest()
     guarded(second, guest, _open_model, guard=dataclasses.replace(RESTORING_GUARD, call_timeout_s=7.0))
-    guard = [timeout for command, timeout in guest.timeouts if not command.startswith(("powershell", "(if", "copy"))]
+    guard = [timeout for command, timeout in guest.timeouts if " -File " not in command]
     assert all(0 < timeout <= 7.0 for timeout in guard)
 
 
@@ -2678,7 +2793,12 @@ def test_restore_recorded_settings_goes_through_the_restore_routine(tmp_path):
         guest_.values[(INVENTED_KEY + "\\Options", "Use something")] = ("REG_BINARY", "00")
         return solved(guest_, argv, config)
 
-    record_ = guarded(tmp_path, guest, value_changes, guard=INVENTED_GUARD)  # detect only: nothing restored
+    # Recorded with the whole-key scope, so the record carries the values (values are recorded only for members the
+    # guard may write back), with writes that take no effect, so the differences remain for the recorded restore.
+    guest.apply_writes = False
+    record_ = guarded(tmp_path, guest, value_changes, guard=KEY_GUARD)
+    guest.apply_writes = True
+    guest.writes.clear(), guest.literal_writes.clear(), guest.counts.update(write=0, readback=0)  # the recording run's
     recorded = [entry for entry in record_["settings_guard"]["changed_values"] if "value" in entry]
     second = tmp_path / "second"
     second.mkdir()
@@ -2899,7 +3019,12 @@ def test_restore_recorded_settings_restores_a_surrogate_19_value_record_with_the
         guest_.values[(RECENT, "2")] = baseline[(RECENT, "2")]
         _created(guest_)
 
-    record_ = guarded(tmp_path, guest, _literal_solve(change), guard=INVENTED_GUARD)  # detect only
+    # Recorded with the whole-key scope, so the record carries the values (values are recorded only for members the
+    # guard may write back), with writes that take no effect, so the differences remain for the recorded restore.
+    guest.apply_writes = False
+    record_ = guarded(tmp_path, guest, _literal_solve(change), guard=KEY_GUARD)
+    guest.apply_writes = True
+    guest.writes.clear(), guest.literal_writes.clear(), guest.counts.update(write=0, readback=0)  # the recording run's
     recorded = [entry for entry in record_["settings_guard"]["changed_values"] if "value" in entry]
     assert len(recorded) == 19 and sum(entry["before"] is None for entry in recorded) == 2
     second = tmp_path / "second"
@@ -2938,7 +3063,7 @@ def test_harness_config_reads_and_checks_the_settings_guard(tmp_path):
     base = {"vm_name": "invented-vm", "guest_executable": "C:\\Invented\\tool.exe",
             "guest_exchange_root": "Z:\\invented", "guest_work_root": "C:\\invented-work",
             "license_and_environment_responsibility_acknowledged": True}
-    path = git_only_path(tmp_path)
+    path = vm_path(tmp_path)
 
     def place(name: str) -> Path:
         (tmp_path / name).mkdir()
@@ -2946,24 +3071,22 @@ def test_harness_config_reads_and_checks_the_settings_guard(tmp_path):
 
     good = exchange(place("a"), config=base | {"settings_guard": {
         "key": "HKCU\\Software\\Invented Vendor\\Tool\\1.0", "recent_files_subkey": "Recent list"}})
-    resolved = resolve_harness_config({ENV_VAR: str(good), "PATH": path}, require_vm_tools=False)
+    resolved = resolve_harness_config({ENV_VAR: str(good), "PATH": path})
     assert resolved.settings_guard == INVENTED_GUARD
     restoring = exchange(place("r"), config=base | {"settings_guard": {
         "key": "HKCU\\Software\\Invented Vendor\\Tool\\1.0", "recent_files_subkey": "Recent list",
         "restore_recent_files": True}})
-    assert resolve_harness_config({ENV_VAR: str(restoring), "PATH": path},
-                                  require_vm_tools=False).settings_guard == RESTORING_GUARD
+    assert resolve_harness_config({ENV_VAR: str(restoring), "PATH": path}).settings_guard == RESTORING_GUARD
     assert (RESTORING_GUARD.call_timeout_s, RESTORING_GUARD.section_budget_s) == (20.0, 120.0)  # the defaults
     limited = exchange(place("l"), config=base | {"settings_guard": {
         "key": "HKCU\\Software\\Invented Vendor\\Tool\\1.0", "call_timeout_s": 7, "section_budget_s": 45.5}})
-    resolved = resolve_harness_config({ENV_VAR: str(limited), "PATH": path}, require_vm_tools=False).settings_guard
+    resolved = resolve_harness_config({ENV_VAR: str(limited), "PATH": path}).settings_guard
     assert (resolved.call_timeout_s, resolved.section_budget_s) == (7.0, 45.5)
     assert resolved.restore_scope == "recent_files" and not resolved.restores_whole_key  # the default
     whole = exchange(place("k"), config=base | {"settings_guard": {
         "key": "HKCU\\Software\\Invented Vendor\\Tool\\1.0", "recent_files_subkey": "Recent list",
         "restore_scope": "key"}})
-    assert resolve_harness_config({ENV_VAR: str(whole), "PATH": path},
-                                  require_vm_tools=False).settings_guard == KEY_GUARD
+    assert resolve_harness_config({ENV_VAR: str(whole), "PATH": path}).settings_guard == KEY_GUARD
     for number, bad in enumerate(({"key": "HKLM\\Software\\X", "recent_files_subkey": "R"},
                                   {"key": "HKCU\\Software\\X\" & del", "recent_files_subkey": "R"},
                                   {"key": "HKCU\\Software\\X", "recent_files_subkey": "R\\S"}, "HKCU\\Software\\X",
@@ -2978,7 +3101,7 @@ def test_harness_config_reads_and_checks_the_settings_guard(tmp_path):
                                   {"key": "HKCU\\Software\\X", "restore_scope": None})):
         root = exchange(place(f"b{number}"), config=base | {"settings_guard": bad})
         assert "settings_guard must give key" in skip_reason({ENV_VAR: str(root), "PATH": path})
-    plain = resolve_harness_config({ENV_VAR: str(exchange(place("c"))), "PATH": path}, require_vm_tools=False)
+    plain = resolve_harness_config({ENV_VAR: str(exchange(place("c"))), "PATH": path})
     assert plain.settings_guard is None
 
 
@@ -3008,7 +3131,7 @@ def test_pilot_authored_dir_runs_the_cases_of_a_directory_inside_the_exchange_fo
         outcome = outcomes.pop(0)
         if isinstance(outcome, BaseException):
             raise outcome
-        return {"route": "csv_from_batch", "mbf": {"sha256": sha}, "guest_mbf_sha256": sha,
+        return {"route": "csv_from_batch", "mbf": {"sha256": sha}, "guest_mbf_sha256": sha, "input_hash_verified": True,
                 "run_folder": "runs/000001"} | outcome
 
     def export(config_, case_id, mbf_sha256):
@@ -3491,7 +3614,12 @@ def _recorded_for_restore(tmp_path) -> tuple[FakeGuest, HarnessConfig, list]:
         guest_.values[(INVENTED_KEY + "\\Options", "Use something")] = ("REG_BINARY", "00")
         return solved(guest_, argv, config)
 
-    record_ = guarded(tmp_path, guest, value_changes, guard=INVENTED_GUARD)
+    # Recorded with the whole-key scope, so the record carries the values (values are recorded only for members the
+    # guard may write back), with writes that take no effect, so the differences remain for the recorded restore.
+    guest.apply_writes = False
+    record_ = guarded(tmp_path, guest, value_changes, guard=KEY_GUARD)
+    guest.apply_writes = True
+    guest.writes.clear(), guest.literal_writes.clear(), guest.counts.update(write=0, readback=0)  # the recording run's
     recorded = [entry for entry in record_["settings_guard"]["changed_values"] if "value" in entry]
     second = tmp_path / "second"
     second.mkdir()

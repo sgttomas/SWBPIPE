@@ -11,9 +11,17 @@ With -ExportMod it instead opens that solved model in a fresh instance (File >
 Open...), writes it as MBF through File > Export to MBF... into -ExportName
 beside the model, and stops the instance (DEL-17-05 Design §3).
 
-With -PidFile the script appends the id of every process it starts to that file at
-once, so the host can confirm from the process list that each has ended even when
-it never receives this script's report. With -NoGuiFallback a batch run that leaves
+With -PidFile the script appends the id and start time of every process it starts to
+that file at once, so the host can confirm from the process list that each has ended
+even when it never receives this script's report; a process is the one started only
+when both match.
+
+The script never stops a process that shows a window. Every place it would stop a
+process it started (the batch timeout, an error, the finally of the GUI print and of
+the export) goes through Stop-Own, which first reads that process's visible top-level
+windows; when there is one, the process is left running, nothing is sent to it, and
+the step ends as window_shown with each window's title and class recorded. A prompt is
+reported, never dismissed. With -NoGuiFallback a batch run that leaves
 no CSV ends as batch_no_csv instead of falling back to the GUI.
 
 Output: one JSON object on stdout describing what happened, including the
@@ -37,7 +45,6 @@ $ErrorActionPreference = "Stop"
 
 # The target tool's user interface as the round trip addresses it.
 $Ui = @{
-    BlockingTitle = '^Caepipe: Error|^Caepipe Trial \|'
     LayoutClass   = 'CaepipeLayout'
     FrameClass    = '^Caepipe'
     ResultsClass  = 'CaepipeResults'
@@ -126,14 +133,40 @@ $log = [ordered]@{
     gui = [ordered]@{ used = $false }
     csv_path = $null
     owned_pids = @()
+    window_shown = $null
     status = "started"
     diagnostics = @()
 }
 function Note([string]$m) { $script:log.diagnostics += $m }
-function Record-Owned($p) {
-    $script:log.owned_pids += [int]$p.Id
-    if ($PidFile) { Add-Content -LiteralPath $PidFile -Value $p.Id -Encoding Ascii }
+function Start-Time($p) {
+    # The start time as the guest's process listing reports it (WMI CreationDate, UTC), so the host can tell this
+    # process from a later one that reuses its id.
+    $c = Get-CimInstance Win32_Process -Filter ("ProcessId=" + [int]$p.Id)
+    if ($c -and $c.CreationDate) { return $c.CreationDate.ToUniversalTime().ToString('o') }
+    return 'unknown'
 }
+function Record-Owned($p) {
+    $start = Start-Time $p
+    $script:log.owned_pids += [ordered]@{ pid = [int]$p.Id; start = $start }
+    if ($PidFile) { Add-Content -LiteralPath $PidFile -Value ("{0} {1}" -f [int]$p.Id, $start) -Encoding Ascii }
+}
+function Visible-Windows([uint32]$ProcId) {
+    @([CaepipeUi]::Windows($ProcId) | ForEach-Object { [ordered]@{ title = [CaepipeUi]::Text($_); class = [CaepipeUi]::Cls($_) } })
+}
+# The only way this script stops a process: through the process object it started (never by id), and never while
+# that process shows a visible top-level window. Returns $true when the process has ended or was stopped, $false
+# when a window was showing (the process is left running, nothing is sent to it, and the windows are recorded).
+function Stop-Own($p, [string]$Where) {
+    if ($p.HasExited) { return $true }
+    $windows = @(Visible-Windows ([uint32]$p.Id))
+    if ($windows.Count -gt 0) {
+        $script:windowShown = [ordered]@{ where = $Where; pid = [int]$p.Id; windows = $windows }
+        return $false
+    }
+    $p.Kill()
+    return $true
+}
+$script:windowShown = $null
 function Caption([string]$t) { ($t -replace '&', '') -replace "`t.*$", '' }
 
 function Wait-Window([uint32]$ProcId, [scriptblock]$Match, [int]$Sec) {
@@ -214,7 +247,8 @@ function Export-SolvedModel {
     # The host compares this hash with the solved model it holds before it attributes the export to that solve.
     $log.mod_sha256 = (Get-FileHash -LiteralPath $ExportMod -Algorithm SHA256).Hash.ToLowerInvariant()
     $target = Join-Path $modItem.DirectoryName $ExportName
-    if (Test-Path $target) { Remove-Item $target -Force }
+    # The step works in a fresh directory of its own: nothing is deleted; a name already there stops the export.
+    if (Test-Path $target) { throw "the export destination already exists in the fresh work directory" }
     $gui = Start-Process -FilePath $Exe -WorkingDirectory (Split-Path $Exe) -PassThru
     $gp = [uint32]$gui.Id
     try {
@@ -281,9 +315,11 @@ function Export-SolvedModel {
         $log.diagnostics += $_.Exception.Message
         $log.gui.windows = Window-Controls $gp
     } finally {
-        if (-not $gui.HasExited) { Stop-Process -Id $gui.Id -Force; $log.gui.stopped_own_process = $true }
+        if (Stop-Own $gui 'export') { $log.gui.stopped_own_process = $true }
+        else { $log.status = "window_shown"; $log.window_shown = $script:windowShown }
     }
     $log | ConvertTo-Json -Depth 6
+    if ($log.status -eq "window_shown") { exit 6 }
     if ($log.exported_mbf_sha256) { exit 0 } else { exit 4 }
 }
 if ($ExportMod) { Export-SolvedModel }
@@ -300,7 +336,8 @@ $batchCsv = Join-Path $workDir ($stem + ".csv")
 $batchTxt = Join-Path $workDir ($stem + ".txt")
 if (-not $CsvName) { $CsvName = $stem + "_results.csv" }
 $guiCsv = Join-Path $workDir $CsvName
-foreach ($p in @($resPath, $batchCsv, $batchTxt, $guiCsv)) { if (Test-Path $p) { Remove-Item $p -Force } }
+# The step works in a fresh directory of its own: nothing is deleted; an output name already there stops the run.
+foreach ($p in @($resPath, $batchCsv, $batchTxt, $guiCsv)) { if (Test-Path $p) { throw "an output destination already exists in the fresh work directory: $p" } }
 
 # 1. Batch import and solve.
 $started = Get-Date
@@ -308,10 +345,9 @@ $proc = Start-Process -FilePath $Exe -ArgumentList ('"' + $Mbf + '";batchmode=ye
 Record-Owned $proc
 $log.batch.command_shape = '<exe> "<mbf>";batchmode=yes'
 $deadline = $started.AddSeconds($BatchTimeoutSec)
+# The batch route expects no window at all: any window it shows ends the wait, and the process is then left running.
 while ((Get-Date) -lt $deadline -and -not $proc.HasExited) {
-    $blocking = Window-Report ([uint32]$proc.Id) | Where-Object { $_ -match $Ui.BlockingTitle }
-    if ($blocking -and (Wait-StableFile $resPath 3)) { break }
-    if ($blocking -and -not (Test-Path $resPath)) { break }
+    if (@(Visible-Windows ([uint32]$proc.Id)).Count -gt 0) { break }
     Start-Sleep -Milliseconds 500
 }
 $log.batch.elapsed_s = [math]::Round(((Get-Date) - $started).TotalSeconds, 1)
@@ -319,9 +355,13 @@ if ($proc.HasExited) {
     $log.batch.exited = $true; $log.batch.exit_code = $proc.ExitCode
 } else {
     $log.batch.exited = $false
-    $log.batch.windows_at_stop = @(Window-Report ([uint32]$proc.Id))
-    Stop-Process -Id $proc.Id -Force
-    $log.batch.stopped_own_process = $true
+    if (Stop-Own $proc 'batch') { $log.batch.stopped_own_process = $true }
+    else {
+        $log.batch.stopped_own_process = $false
+        $log.status = "window_shown"; $log.window_shown = $script:windowShown
+        $log | ConvertTo-Json -Depth 6
+        exit 6
+    }
 }
 $log.batch.res_present = Test-Path $resPath
 $log.batch.csv_present = Test-Path $batchCsv
@@ -394,7 +434,9 @@ try {
     Note $_.Exception.Message
     $log.gui.windows = @(Window-Report $gp)
 } finally {
-    if (-not $gui.HasExited) { Stop-Process -Id $gui.Id -Force; $log.gui.stopped_own_process = $true }
+    if (Stop-Own $gui 'gui') { $log.gui.stopped_own_process = $true }
+    else { $log.status = "window_shown"; $log.window_shown = $script:windowShown }
 }
 $log | ConvertTo-Json -Depth 6
+if ($log.status -eq "window_shown") { exit 6 }
 if ($log.csv_path) { exit 0 } else { exit 3 }
