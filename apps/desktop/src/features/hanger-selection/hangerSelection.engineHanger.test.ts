@@ -1,17 +1,23 @@
 // DEL-04-11 REQ-008: the structural predicate for a batch that writes a support's hanger selection, and its
-// classification pinned to the engine's own. The engine's reading of a support as a hanger
-// (core/product_physics/src/lib.rs: `support_hanger_type`, `is_variable_spring_hanger`, `is_constant_effort_support`)
-// is read here as source text and compared with the desktop's mirror, so that the two cannot drift silently. The table
-// below runs invented support values through both the mirror and the predicate.
+// classification checked against the engine's own.
+// - The behavioural check is the shared case table, fixtures/results/hanger_sizing_engine_kind_corpus.json: each case's
+//   "engine" (how the engine classifies the value) and "gate" (whether a write of it is a hanger write). Only its
+//   desktop half is exercised here until a test on the engine's side reads the same table.
+// - The source pin reads core/product_physics/src/lib.rs as text. As review round 2 found, it catches a changed name or a
+//   removed step in `support_hanger_type`, `is_variable_spring_hanger` and `is_constant_effort_support`, but not a
+//   filter added after the fall back; the table is what checks behaviour.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import type { OperationBatch } from "../../services/operationBatchService";
+import corpus from "../../../../../fixtures/results/hanger_sizing_engine_kind_corpus.json";
 import {
   ENGINE_CONSTANT_EFFORT_SUPPORT_TYPES,
   ENGINE_VARIABLE_SPRING_HANGER_TYPES,
   engineHangerKind,
+  RUST_WHITE_SPACE_CODE_POINTS,
+  rustTrim,
   SUPPORT_HANGER_FIELD_PATHS,
   writesSupportHangerSelection
 } from "./hangerSelection";
@@ -61,6 +67,45 @@ describe("the desktop's hanger classification against the engine's", () => {
       expect(at, `support_hanger_type no longer has, in order, ${step}`).toBeGreaterThanOrEqual(0);
       from = at + step.length;
     }
+  });
+});
+
+type CorpusCase = { name: string; support: Record<string, unknown>; engine: "variable_spring" | "constant_effort" | "none" | "document_refused"; gate: boolean };
+const CASES = (corpus as { cases: CorpusCase[] }).cases;
+
+/** A created support of `value`, as the operation route takes it. */
+const created = (value: Record<string, unknown>): OperationBatch => ({
+  batch_id: "batch:create",
+  operations: [{ operation_kind: "create", target: { object_type: "Support", ref: String(value.id) },
+    change: { change_kind: "create_support", field_path: "supports", before: "not_present", after: JSON.stringify(value) } }] as unknown as OperationBatch["operations"]
+});
+
+describe("the shared engine-kind case table", () => {
+  it("covers every outcome and holds the invariant: the gate never admits what the engine would treat as a hanger", () => {
+    expect(new Set(CASES.map((entry) => entry.engine))).toEqual(new Set(["variable_spring", "constant_effort", "none", "document_refused"]));
+    for (const entry of CASES) {
+      if (entry.engine !== "none") expect(entry.gate, entry.name).toBe(true);
+    }
+  });
+
+  for (const entry of CASES) {
+    it(`${entry.name}: engine ${entry.engine}, gate ${entry.gate}`, () => {
+      expect(engineHangerKind(entry.support) ?? "none").toBe(entry.engine);
+      const before = { id: entry.support.id, node: "node:B", restraints: ["UZ"], family: "guide" };
+      expect(writesSupportHangerSelection(configuration(entry.support, before)), "configuration").toBe(entry.gate);
+      expect(writesSupportHangerSelection(created(entry.support)), "create").toBe(entry.gate);
+    });
+  }
+});
+
+describe("Rust's trim", () => {
+  it("removes exactly the White_Space code points, unlike JavaScript's trim", () => {
+    for (const point of RUST_WHITE_SPACE_CODE_POINTS) expect(rustTrim(`${String.fromCodePoint(point)}x${String.fromCodePoint(point)}`)).toBe("x");
+    expect(rustTrim("\u0085x")).toBe("x");
+    expect("\u0085x".trim()).toBe("\u0085x");
+    expect(rustTrim("\ufeffx")).toBe("\ufeffx");
+    expect("\ufeffx".trim()).toBe("x");
+    expect(rustTrim(" \t\n ")).toBe("");
   });
 });
 

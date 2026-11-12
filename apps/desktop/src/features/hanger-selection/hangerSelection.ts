@@ -58,12 +58,43 @@ export const ENGINE_CONSTANT_EFFORT_SUPPORT_TYPES: readonly string[] = ["constan
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
 
-/** The engine's classification of a support value, mirroring `support_hanger_type`: the trimmed `hanger.hanger_type`
- * when it is a text that is not blank, else the trimmed `family`; then the names above. */
-export function engineHangerKind(value: unknown): "variable_spring" | "constant_effort" | null {
+/** The code points Rust's `str::trim` removes: those with the Unicode White_Space property, as `char::is_whitespace`
+ * reads it (U+0020 and U+0009 to U+000D directly, the rest from core's White_Space table, Unicode PropList.txt).
+ * JavaScript's `String.prototype.trim` removes a different set: it keeps U+0085 and removes U+FEFF. */
+export const RUST_WHITE_SPACE_CODE_POINTS: readonly number[] = [
+  0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x0020, 0x0085, 0x00a0, 0x1680,
+  0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005, 0x2006, 0x2007, 0x2008, 0x2009, 0x200a,
+  0x2028, 0x2029, 0x202f, 0x205f, 0x3000
+];
+
+/** `text` with leading and trailing White_Space removed, as Rust's `str::trim` removes it. */
+export function rustTrim(text: string): string {
+  const points = Array.from(text);
+  const white = (point: string) => RUST_WHITE_SPACE_CODE_POINTS.includes(point.codePointAt(0)!);
+  let start = 0;
+  let end = points.length;
+  while (start < end && white(points[start])) start += 1;
+  while (end > start && white(points[end - 1])) end -= 1;
+  return points.slice(start, end).join("");
+}
+
+/** How the engine classifies a support value: one of its two hanger kinds, `document_refused` where its typed decode
+ * (core/product_physics/src/lib.rs, `PreviewSupport` and `SpringHangerInput`) refuses the members it reads (a `hanger`
+ * that is not an object or null, or a `hanger_type` or `family` that is not a text or null), or null for none. */
+export type EngineHangerKind = "variable_spring" | "constant_effort" | "document_refused" | null;
+
+/** The engine's classification of a support value, mirroring `support_hanger_type`: the Rust-trimmed
+ * `hanger.hanger_type` when it is a text that is not blank, else the Rust-trimmed `family`; then the names above. A
+ * member the engine's decode refuses is `document_refused`, never a fall back to another member. */
+export function engineHangerKind(value: unknown): EngineHangerKind {
   if (!isRecord(value)) return null;
-  const hangerType = isRecord(value.hanger) && typeof value.hanger.hanger_type === "string" ? value.hanger.hanger_type.trim() : "";
-  const effective = hangerType !== "" ? hangerType : typeof value.family === "string" ? value.family.trim() : null;
+  const hanger = value.hanger;
+  if (hanger !== undefined && hanger !== null && !isRecord(hanger)) return "document_refused";
+  const hangerType = isRecord(hanger) ? hanger.hanger_type : undefined;
+  if (hangerType !== undefined && hangerType !== null && typeof hangerType !== "string") return "document_refused";
+  if (value.family !== undefined && value.family !== null && typeof value.family !== "string") return "document_refused";
+  const trimmedType = typeof hangerType === "string" ? rustTrim(hangerType) : "";
+  const effective = trimmedType !== "" ? trimmedType : typeof value.family === "string" ? rustTrim(value.family) : null;
   if (effective === null) return null;
   if (ENGINE_VARIABLE_SPRING_HANGER_TYPES.includes(effective)) return "variable_spring";
   if (ENGINE_CONSTANT_EFFORT_SUPPORT_TYPES.includes(effective)) return "constant_effort";
@@ -89,7 +120,7 @@ function changeValue(text: unknown): { kind: "absent" } | { kind: "value"; value
 }
 
 /** Whether a value written or replaced on a support is a hanger: it has a `hanger` member at all (any value), or the
- * engine classifies it as one. A value that is unreadable, or not a support object (such as a label text where a
+ * engine classifies it as one, or the engine's decode refuses a member it reads (`document_refused`). A value that is unreadable, or not a support object (such as a label text where a
  * support was expected), counts as a hanger: it fails closed. */
 function isHangerValue(read: ReturnType<typeof changeValue>): boolean {
   if (read.kind === "absent") return false;
