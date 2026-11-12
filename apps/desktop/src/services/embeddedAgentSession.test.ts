@@ -73,13 +73,25 @@ describe('workspace-owned live embedded agent adapter',()=>{
   }
   expect(n).toBe(8);
  });
- it('does not refuse those names nested below the top level, a non-curved interface, or a payload that is not an object',async()=>{
-  for(const after of [JSON.stringify({id:'component:c',geometry:{modifiers:{value:1}}}),JSON.stringify({configuration:{bend_realization:true}}),
-   JSON.stringify({id:'component:v',mechanics_interface:{solver_consumption:'not_solver_consumed'}}),JSON.stringify([{modifiers:{}}]),'not_present','{"modifiers"']){
+ it('refuses a person-entered member at any depth, naming its path, and an after value past the walk bound, before validation',async()=>{
+  const review='{"id":"combination:review-nested","label":"Review example","basis":"mechanics","terms":[{"load_case":"load:RS-SUS","factor":1,"modifiers":{"sif_user_value":{"value":2.4,"unit":"1"}}}],"provenance":"invented review example"}';
+  let deep:unknown={leaf:1};for(let i=0;i<40;i++)deep=[deep];
+  for(const [after,expected] of [[review,/carries modifiers \(k, SIFs, stiffness and their source\) at terms\[0\]\.modifiers, a person-entered value an agent cannot write; nothing was queued\./],
+   [JSON.stringify({id:'node:n',position:{x:0,y:0,z:0,bend_realization:{}}}),/carries bend_realization \(a bend realization\) at position\.bend_realization,/],
+   [JSON.stringify(deep),/carries an after value nested deeper than 32 levels or with more than 50000 members, which is not checked for values only the person enters, so nothing was queued\. Propose it in smaller operations\./]] as [string,RegExp][]){
+   vi.useFakeTimers();const {session,owner,call}=setup();
+   call('swbpipe_propose_operations',{operations:[{operation_id:'operation-1',change:{change_kind:'create_combination',after}}],assumptions:[]});await session.start('revision');await session.poll();await drain();
+   const outcome=JSON.parse(session.actual('invented-session:1')!.outcome);
+   expect(outcome.status).toBe('unavailable');expect(outcome.message).toMatch(expected);expect(outcome.message).not.toContain('2.4');
+   expect(mocks.validate).not.toHaveBeenCalled();expect(owner.register).not.toHaveBeenCalled();
+   await session.close();vi.clearAllMocks();vi.useRealTimers();
+  }
+ });
+ it('still registers a non-curved interface, a payload that is not JSON and one with no such member',async()=>{
+  for(const after of [JSON.stringify({id:'component:v',mechanics_interface:{solver_consumption:'not_solver_consumed'}}),'not_present','{"modifiers"',JSON.stringify([1,{id:'x'}])]){
    vi.useFakeTimers();const {session,owner,call}=setup();mocks.validate.mockResolvedValueOnce({validation:{batch_validation_status:'passed'}});
    call('swbpipe_propose_operations',{operations:[{operation_id:'operation-1',change:{after}}],assumptions:[]});await session.start('revision');await session.poll();await drain();
-   const outcome=JSON.parse(session.actual('invented-session:1')!.outcome);
-   expect(outcome.status,after).toBe('pending_review');expect(owner.register).toHaveBeenCalledTimes(1);
+   expect(JSON.parse(session.actual('invented-session:1')!.outcome).status,after).toBe('pending_review');expect(owner.register).toHaveBeenCalledTimes(1);
    await session.close();vi.clearAllMocks();vi.useRealTimers();
   }
  });

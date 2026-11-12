@@ -68,7 +68,9 @@ describe("routes to the review queue", () => {
     expect(count(/\bregisterOperationBatch\b/g)).toEqual({ "App.tsx": 2, "features/workspace/workspaceSession.ts": 6 });
     expect(count(/\bhandleQueueOperationBatch\b/g)).toEqual({ "App.tsx": 9, "features/workspace/workspaceSession.ts": 3 });
     expect(count(/\bregisterBatch\b/g)).toEqual({ "App.tsx": 1, "features/model-tree/runSheet/RunSheet.tsx": 2 });
-    expect(count(/\bsetQueuedBatches\b/g)).toEqual({ "features/workspace/operationsSessionState.ts": 2, "features/workspace/workspaceSession.ts": 11 });
+    // The queue's own state is set only inside the workspace session folder.
+    expect(Object.keys(count(/\bsetQueuedBatches\b/g)).filter((file) => !file.startsWith("features/workspace/"))).toEqual([]);
+    expect(count(/\bsetQueuedBatches\b/g)["features/workspace/workspaceSession.ts"]).toBe(11);
     expect(count(/\bonQueueBatch\b/g)).toEqual({
       "App.tsx": 8, "features/bulk-change/BulkChangePanel.tsx": 3, "features/geometry-tools/SplitIntoPartsPanel.tsx": 3,
       "features/geometry-tools/batchFormSupport.tsx": 2, "features/hanger-selection/HangerSelectionPanel.tsx": 1,

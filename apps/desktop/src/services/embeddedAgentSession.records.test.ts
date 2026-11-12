@@ -10,6 +10,7 @@
 import { describe, expect, it } from "vitest";
 import referenceJson from "../../../../fixtures/reference_system/reference_system.json";
 import demoJson from "../../../../fixtures/product_preview/invented_demo_model.json";
+import m2 from "../../../../fixtures/model_operations/agent_m2_component_journey.json";
 import catalog from "../../src-tauri/resources/agent-capability-catalog.json";
 import type { PreviewModel } from "../types";
 import { readFileSync } from "node:fs";
@@ -214,12 +215,63 @@ describe("the person-entered members the agent's proposals are refused for", () 
     expect(writesUserEnteredModifier(op("apply_library_record", "Component", "components", { "modifiers.sif_user_value": {} }))?.route).toBe("refused");
   });
 
-  it("names the members the engine drops, at the top level of an after object only", () => {
-    expect(writesUserEnteredModifier(op("create_material", "Material", "materials", { modifiers: {} }))).toMatchObject({ member: "modifiers", route: "dropped" });
+  it("names a member the engine drops at any depth, with its path, and refuses past the walk's bound", () => {
+    expect(writesUserEnteredModifier(op("create_material", "Material", "materials", { modifiers: {} }))).toMatchObject({ member: "modifiers", route: "dropped", path: "modifiers" });
     expect(writesUserEnteredModifier(op("create_node", "Node", "nodes", { bend_realization: null }))).toMatchObject({ member: "bend_realization", route: "dropped" });
     expect(writesUserEnteredModifier(op("insert_component_symbol", "Component", "components", { mechanics_interface: { solver_consumption: "curved_bend_macro_element" } }))).toMatchObject({ member: "mechanics_interface", route: "dropped" });
-    for (const after of [{ geometry: { modifiers: {} } }, { mechanics_interface: { solver_consumption: "mechanics_geometry_only" } }, [{ modifiers: {} }], "TBD"])
+    expect(writesUserEnteredModifier(op("create_material", "Material", "materials", { geometry: { modifiers: {} } }))).toMatchObject({ member: "modifiers", route: "dropped", path: "geometry.modifiers" });
+    expect(writesUserEnteredModifier(op("create_material", "Material", "materials", [{ modifiers: {} }]))).toMatchObject({ member: "modifiers", path: "[0].modifiers" });
+    expect(writesUserEnteredModifier(op("insert_component_symbol", "Component", "components", { geometry: { modifiers: {} } }))).toMatchObject({ route: "dropped", path: "geometry.modifiers" });
+    expect(writesUserEnteredModifier(op("create_material", "Material", "materials", { "odd key": { modifiers: 1 } }))?.path).toBe('["odd key"].modifiers');
+    for (const after of [{ mechanics_interface: { solver_consumption: "mechanics_geometry_only" } }, [1, { id: "x" }], "TBD"])
       expect(writesUserEnteredModifier(op("create_material", "Material", "materials", after)), JSON.stringify(after)).toBeNull();
     expect(writesUserEnteredModifier({ change: { change_kind: "create_material", after: "{" } })).toBeNull();
+    let deep: unknown = { leaf: 1 };
+    for (let i = 0; i < 33; i++) deep = [deep];
+    expect(writesUserEnteredModifier(op("create_material", "Material", "materials", deep))).toMatchObject({ route: "unchecked" });
+    let fits: unknown = { leaf: 1 };
+    for (let i = 0; i < 31; i++) fits = [fits];
+    expect(writesUserEnteredModifier(op("create_material", "Material", "materials", fits))).toBeNull();
+    expect(writesUserEnteredModifier(op("create_material", "Material", "materials", Array.from({ length: 50_001 }, () => 0)))).toMatchObject({ route: "unchecked" });
   });
+});
+
+describe("a person-entered member nested in a record the engine rebuilds is dropped by the engine, so the shared refusal is needed", () => {
+  // Engine-backed: each operation is stamped as the agent's and applied on the wasm engine with
+  // no gate in front. Each creator rebuilds the nested record from its named members, so the
+  // member is written nowhere, while the review row repeats the proposed text. The shared
+  // function names each with its path; the three entries refuse on it (their own tests).
+  const sentinel = { sif_user_value: { value: 2.4, unit: "1" } };
+  const count = (model: unknown) => (JSON.stringify(model).match(/"sif_user_value"/g) ?? []).length;
+  async function engineDrops(model: PreviewModel, operation: AnyRecord, path: string) {
+    expect(writesUserEnteredModifier(operation)).toMatchObject({ member: "modifiers", route: "dropped", path });
+    const outcome = await run(model, operation);
+    expect(outcome.validation.batch_validation_status, `${path}: ${codes(outcome).join(" | ")}`).toBe("passed");
+    expect(count(outcome.applied_model), path).toBe(count(model));
+    return outcome.applied_model!;
+  }
+  it("the reviewer's combination term, a node's position and a quantity edit", async () => {
+    const model = structuredClone(referenceJson) as unknown as PreviewModel;
+    const review = '{"id":"combination:review-nested","label":"Review example","basis":"mechanics","terms":[{"load_case":"load:RS-SUS","factor":1,"modifiers":{"sif_user_value":{"value":2.4,"unit":"1"}}}],"provenance":"invented review example"}';
+    const combined = await engineDrops(model, op("create", "Combination", "combination:review-nested", "create_combination", "combinations", "not_present", review), "terms[0].modifiers");
+    expect(find(combined, "combinations", "combination:review-nested").terms).toEqual([{ load_case: "load:RS-SUS", factor: 1 }]);
+    const node = await engineDrops(model, op("create", "Node", "node:review-n", "create_node", "nodes", "not_present",
+      json({ id: "node:review-n", label: "review", position: { x: 0, y: 0, z: 9, modifiers: sentinel }, provenance: P }), "m", "length"), "position.modifiers");
+    expect(find(node, "nodes", "node:review-n").position).toEqual({ x: 0, y: 0, z: 9 });
+    const modulus = find(model, "materials", "material:RS-M1").elastic_modulus as { value: number; unit: string };
+    const edited = await engineDrops(model, op("modify", "Material", "material:RS-M1", "set_field", "elastic_modulus.value", String(modulus.value),
+      json({ value: 201, unit: modulus.unit, modifiers: sentinel }), modulus.unit, "stress"), "modifiers");
+    expect(find(edited, "materials", "material:RS-M1").elastic_modulus).toEqual({ value: 201, unit: modulus.unit });
+  }, 60_000);
+  it("a component's geometry", async () => {
+    let model = structuredClone(m2.blank.model) as unknown as PreviewModel;
+    const [geometry, components] = m2.proposals as { operations: AnyRecord[] }[];
+    for (const operation of geometry.operations) model = (await run(model, operation)).applied_model!;
+    const bend = structuredClone(components.operations[0]);
+    const change = bend.change as AnyRecord;
+    const after = JSON.parse(String(change.after)) as AnyRecord;
+    change.after = json({ ...after, geometry: { ...(after.geometry as AnyRecord), modifiers: sentinel } });
+    const applied = await engineDrops(model, bend, "geometry.modifiers");
+    expect((find(applied, "components", String(after.id)).geometry as AnyRecord).modifiers).toBeUndefined();
+  }, 60_000);
 });

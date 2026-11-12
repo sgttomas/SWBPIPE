@@ -28,7 +28,11 @@ export function stampImportedBatch(batch: OperationBatch): { batch: OperationBat
   // An imported operation carrying a value only the person enters is refused before it is
   // stamped, so no batch that carries one leaves intake; no value from the file is repeated.
   const entered = personEnteredWriteIn(batch.operations);
-  if (entered) throw new Error(`Operation ${entered.index + 1}${entered.operationId && entered.operationId.length <= 160 ? ` (${entered.operationId})` : ""} of this file carries ${entered.label}, a value only you enter; an imported operation cannot write it, so nothing was queued. Remove it from the file, then enter the value yourself in the component inspector.`);
+  if (entered) {
+    const which = `Operation ${entered.index + 1}${entered.operationId && entered.operationId.length <= 160 ? ` (${entered.operationId})` : ""} of this file`;
+    if (entered.route === "unchecked") throw new Error(`${which} carries ${entered.label}, so nothing was queued. Split it into smaller operations.`);
+    throw new Error(`${which} carries ${entered.label}, a value only you enter; an imported operation cannot write it, so nothing was queued. Remove it from the file, then enter the value yourself in the component inspector.`);
+  }
   const claimed = batch.operations.map((operation, index) => {
     const record = plain(operation) ? operation as Record<string, unknown> : {};
     return Object.freeze({
@@ -53,10 +57,41 @@ export function stampImportedBatch(batch: OperationBatch): { batch: OperationBat
  * - `dropped`: the applier writes the record without it, for any author: a `modifiers` or
  *   `bend_realization` member at the top level of another operation's after object, and a
  *   curved-bend `mechanics_interface` (a bend realization; refused on rigid components and the
- *   expansion joint, left out of a bend or tee). Only the top level is read: that is where a
- *   created or replaced record carries its own members. */
-export type PersonEnteredWrite = Readonly<{ member: string; route: "refused" | "dropped"; label: string }>;
+ *   expansion joint, left out of a bend or tee).
+ * - `unchecked`: the after value is deeper or larger than the walk reads, so it is refused
+ *   for that reason, not passed unread.
+ * The after value is walked whole, through objects and arrays and a quantity edit's value,
+ * because a creator that rebuilds a nested record (a combination's terms, a node's position, a
+ * component's geometry) drops a nested member silently while the review row repeats the
+ * proposed text. The walk is breadth-first, so the shallowest member is named, with its path
+ * (`terms[0].modifiers`); no value is ever part of the result. */
+export type PersonEnteredWrite = Readonly<{ member: string; route: "refused" | "dropped" | "unchecked"; label: string; path: string }>;
 const named = (path: string) => path.length <= 80 ? `${path} (a component modifier)` : "a component modifier (k, a SIF, a stiffness or their source)";
+/** The walk's bounds: an admitted agent operation is at most 16,384 characters, far inside both. */
+export const PERSON_ENTERED_WALK = Object.freeze({ maxDepth: 32, maxNodes: 50_000 });
+const LABELS = { modifiers: "modifiers (k, SIFs, stiffness and their source)", bend_realization: "bend_realization (a bend realization)",
+  mechanics_interface: "a curved-bend mechanics_interface (a bend realization)" } as const;
+const step = (key: string) => /^[A-Za-z_][A-Za-z0-9_]*$/.test(key) ? `.${key}` : `[${JSON.stringify(key)}]`;
+const shown = (path: string) => path.length <= 120 ? path : `${path.slice(0, 119)}…`;
+
+/** The shallowest person-entered member anywhere in a parsed after value, `unchecked` past a bound. */
+function findPersonEntered(root: unknown): { member: keyof typeof LABELS; path: string } | "unchecked" | null {
+  const queue: [unknown, string, number][] = [[root, "", 0]];
+  for (let index = 0; index < queue.length; index++) {
+    if (index >= PERSON_ENTERED_WALK.maxNodes) return "unchecked";
+    const [value, at, depth] = queue[index];
+    if (depth > PERSON_ENTERED_WALK.maxDepth) return "unchecked";
+    if (Array.isArray(value)) { value.forEach((item, position) => queue.push([item, `${at}[${position}]`, depth + 1])); continue; }
+    if (!plain(value)) continue;
+    for (const [key, member] of Object.entries(value)) {
+      const here = at ? `${at}${step(key)}` : (step(key).startsWith(".") ? key : step(key));
+      if (key === "modifiers" || key === "bend_realization") return { member: key, path: here };
+      if (key === "mechanics_interface" && plain(member) && member.solver_consumption === "curved_bend_macro_element") return { member: key, path: here };
+      queue.push([member, here, depth + 1]);
+    }
+  }
+  return null;
+}
 
 /** The one list of person-entered members, used by every entry that queues an operation not
  * authored by the person: the agent's executor (embeddedAgentSession.ts), offline intake
@@ -70,20 +105,21 @@ export function writesUserEnteredModifier(intent: unknown): PersonEnteredWrite |
   const change = plain(intent.change) ? intent.change : {};
   const target = plain(intent.target) ? intent.target : {};
   const kind = String(change.change_kind ?? ""), path = String(change.field_path ?? ""), object = String(target.object_type ?? "");
-  if (kind === "insert_bend_at_corner") return { member: kind, route: "refused", label: "a bend insertion (insert_bend_at_corner)" };
-  if (object === "Component" && path === "bend_realization") return { member: path, route: "refused", label: "bend_realization (a bend realization)" };
-  if (object === "Component" && path.startsWith("modifiers.")) return { member: path, route: "refused", label: named(path) };
+  if (kind === "insert_bend_at_corner") return { member: kind, route: "refused", label: "a bend insertion (insert_bend_at_corner)", path: "" };
+  if (object === "Component" && path === "bend_realization") return { member: path, route: "refused", label: LABELS.bend_realization, path: "" };
+  if (object === "Component" && path.startsWith("modifiers.")) return { member: path, route: "refused", label: named(path), path: "" };
   const after = parsed(change.after);
-  if (!plain(after)) return null;
-  if (kind === "apply_library_record") {
+  if (kind === "apply_library_record" && plain(after)) {
     const key = Object.keys(after).find(key => key.startsWith("modifiers."));
-    return key === undefined ? null : { member: key, route: "refused", label: named(key) };
+    if (key !== undefined) return { member: key, route: "refused", label: named(key), path: "" };
   }
-  if (Object.hasOwn(after, "modifiers")) return { member: "modifiers", route: kind === "insert_component_symbol" ? "refused" : "dropped", label: "modifiers (k, SIFs, stiffness and their source)" };
-  if (Object.hasOwn(after, "bend_realization")) return { member: "bend_realization", route: "dropped", label: "bend_realization (a bend realization)" };
-  const iface = after.mechanics_interface;
-  if (plain(iface) && iface.solver_consumption === "curved_bend_macro_element") return { member: "mechanics_interface", route: "dropped", label: "a curved-bend mechanics_interface (a bend realization)" };
-  return null;
+  const found = findPersonEntered(after);
+  if (found === null) return null;
+  if (found === "unchecked") return { member: "", route: "unchecked", path: "",
+    label: `an after value nested deeper than ${PERSON_ENTERED_WALK.maxDepth} levels or with more than ${PERSON_ENTERED_WALK.maxNodes} members, which is not checked for values only the person enters` };
+  const top = found.path === found.member;
+  return { member: found.member, path: found.path, route: kind === "insert_component_symbol" && top && found.member === "modifiers" ? "refused" : "dropped",
+    label: top ? LABELS[found.member] : `${LABELS[found.member]} at ${shown(found.path)}` };
 }
 
 /** The first operation of a batch that carries a person-entered member, with its position. */
@@ -111,6 +147,9 @@ export function requeueRetainedRecord(intent: unknown, index: number): RequeueRe
     || (typeof source?.source_role === "string" && ["agent", "imported"].includes(source.source_role));
   const batch_id = `requeue-${index}`;
   const entered = writesUserEnteredModifier(intent);
+  if (entered?.route === "unchecked") {
+    return { refused: `This stored record carries ${entered.label}. It was not queued for review; the record stays stored and nothing of yours is lost. Prepare the change again in smaller operations.` };
+  }
   if (entered && (agentOrImported || entered.route === "dropped")) {
     return { refused: `This stored record carries ${entered.label}, a value only you enter, which the operation engine would not write for it. It was not queued for review; the record stays stored and nothing of yours is lost. Enter the value yourself in the component inspector, or prepare the change again without it.` };
   }

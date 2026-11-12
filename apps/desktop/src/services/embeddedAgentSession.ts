@@ -372,7 +372,7 @@ export class EmbeddedAgentSession {
    // no handle is issued, and no value from the after text is returned.
    // The member list is operationAuthorship.ts personEnteredWrite, shared with the other agent-stamped routes.
    const entered=personEnteredWriteIn(call.arguments.operations as unknown[]);
-   if(entered)return this.failure(call,`Operation ${entered.index+1}${entered.operationId?` (${entered.operationId})`:''} carries ${entered.label}, a person-entered value an agent cannot write; nothing was queued. Propose it without that member and ask the person to enter the value.`);
+   if(entered)return this.failure(call,entered.route==='unchecked'?`Operation ${entered.index+1}${entered.operationId?` (${entered.operationId})`:''} carries ${entered.label}, so nothing was queued. Propose it in smaller operations.`:`Operation ${entered.index+1}${entered.operationId?` (${entered.operationId})`:''} carries ${entered.label}, a person-entered value an agent cannot write; nothing was queued. Propose it without that member and ask the person to enter the value.`);
    const handle=opaque();const context:AgentContext=Object.freeze({requestRef:call.requestRef,threadId:call.threadId,turnId:call.turnId,callId:call.callId,basis:structuredClone(call.basis),assumptions:structuredClone(call.arguments.assumptions as AgentAssumption[])});
    const operations=stampAgentOperations(call.arguments.operations as Record<string,unknown>[],handle,call.requestRef);
    const batch:OperationBatch={batch_id:`agent-${handle}`,operations,source_model_hash:snap.hash!.value};

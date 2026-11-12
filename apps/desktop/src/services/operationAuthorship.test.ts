@@ -95,10 +95,28 @@ describe("operation authorship on agent and imported routes", () => {
 
   it("intake leaves a non-operation entry and a non-object after text for the engine, without a refusal of its own", () => {
     const batch = { batch_id: "file", operations: ["not an operation", op({ operation_id: "op:text", change: { change_kind: "create_material", field_path: "materials", after: "not json" } }),
-      op({ operation_id: "op:array", change: { change_kind: "create_material", field_path: "materials", after: "[{\"modifiers\":{}}]" } })] } as unknown as OperationBatch;
+      op({ operation_id: "op:array", change: { change_kind: "create_material", field_path: "materials", after: "[1,2]" } })] } as unknown as OperationBatch;
     const { batch: stamped } = stampImportedBatch(batch);
     expect(stamped.operations[0]).toBe("not an operation");
     expect(stamped.operations.slice(1).map(operation => operation.author_type)).toEqual(["agent", "agent"]);
+  });
+
+  it("the reviewer's nested combination is refused at intake and at requeue, naming its path", () => {
+    const review = '{"id":"combination:review-nested","label":"Review example","basis":"mechanics","terms":[{"load_case":"load:RS-SUS","factor":1,"modifiers":{"sif_user_value":{"value":2.4,"unit":"1"}}}],"provenance":"invented review example"}';
+    const operation = op({ operation_id: "op:review", operation_kind: "create", target: { object_type: "Combination", ref: "combination:review-nested" },
+      change: { change_kind: "create_combination", field_path: "combinations", before: "not_present", after: review } });
+    expect(() => stampImportedBatch({ batch_id: "file", operations: [operation] } as unknown as OperationBatch))
+      .toThrow("Operation 1 (op:review) of this file carries modifiers (k, SIFs, stiffness and their source) at terms[0].modifiers, a value only you enter; an imported operation cannot write it, so nothing was queued.");
+    for (const author of [{ author_type: "agent", source: { source_ref: "s", source_channel: "embedded_agent", source_role: "agent" } }, { author_type: "user" }]) {
+      const result = requeueRetainedRecord({ ...operation, ...author }, 3);
+      expect(result).toEqual({ refused: expect.stringMatching(/^This stored record carries modifiers \(k, SIFs, stiffness and their source\) at terms\[0\]\.modifiers, a value only you enter/) });
+      expect((result as { refused: string }).refused).not.toContain("2.4");
+    }
+    let deep: unknown = { leaf: 1 };
+    for (let i = 0; i < 40; i++) deep = [deep];
+    const bounded = op({ operation_id: "op:deep", change: { change_kind: "create_material", field_path: "materials", after: JSON.stringify(deep) } });
+    expect(() => stampImportedBatch({ batch_id: "file", operations: [bounded] } as unknown as OperationBatch)).toThrow(/^Operation 1 \(op:deep\) of this file carries an after value nested deeper than 32 levels or with more than 50000 members, which is not checked for values only the person enters, so nothing was queued\./);
+    expect(requeueRetainedRecord({ ...bounded, author_type: "user" }, 4)).toEqual({ refused: expect.stringMatching(/^This stored record carries an after value nested deeper than 32 levels.*It was not queued for review; the record stays stored and nothing of yours is lost\./) });
   });
 
   it("requeue refuses a stored agent, imported or user record carrying such a member, and leaves it stored", () => {
