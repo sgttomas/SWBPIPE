@@ -1,0 +1,5876 @@
+{
+ "document": "swbpipe.hydrostatic_test_references",
+ "status": "candidate frozen references; derived and cross-checked by the author, not yet independently refuted",
+ "generator": "generators/hydrostatic_test_reference.py",
+ "units": {
+  "force": "N",
+  "moment": "N*m",
+  "translation": "m",
+  "stress": "Pa",
+  "load_per_length": "N/m"
+ },
+ "theory": "small-displacement linear elasticity; straight runs along global X; Euler-Bernoulli flexure, or Timoshenko with A_s = kappa_E A_nominal where the document selects it; thick-wall (Lame) annulus under internal pressure",
+ "conventions": {
+  "global_axes": "X along the run, Z up; gravity along -Z",
+  "support_reaction": "global force (moment) of the support on the pipe at its node; + along the positive global axis; a held support's row is its replacement restraint's reaction, under the support's own identity (open reading 1)",
+  "nodal_translation": "global translation from the authored geometry",
+  "pressure_stress": "Lame hoop and radial stress on the named section basis, tension positive",
+  "pressure_elongation": "'independent': the row is the same with the case's pressure elongation off or on (README, 'Pressure elongation')",
+  "exact": "an element of Q(pi): a rational, q*pi, q/pi or a ratio of polynomials in pi"
+ },
+ "counts": {
+  "cases": 14,
+  "case_rows": 232,
+  "negative_control_rows": 58,
+  "refusal_scenarios": 3,
+  "cross_checks": 379
+ },
+ "inputs": {
+  "D": {
+   "unit": "m",
+   "meaning": "outside diameter",
+   "exact": "29/100",
+   "decimal": "2.900000000000000000000000000000000000000e-1",
+   "value": 0.29
+  },
+  "t": {
+   "unit": "m",
+   "meaning": "nominal wall",
+   "exact": "27/2000",
+   "decimal": "1.350000000000000000000000000000000000000e-2",
+   "value": 0.0135
+  },
+  "c_m": {
+   "unit": "m",
+   "meaning": "mill tolerance (absolute thickness)",
+   "exact": "17/10000",
+   "decimal": "1.700000000000000000000000000000000000000e-3",
+   "value": 0.0017
+  },
+  "c_a": {
+   "unit": "m",
+   "meaning": "corrosion allowance (absolute thickness)",
+   "exact": "21/10000",
+   "decimal": "2.100000000000000000000000000000000000000e-3",
+   "value": 0.0021
+  },
+  "t_i": {
+   "unit": "m",
+   "meaning": "insulation thickness",
+   "exact": "13/200",
+   "decimal": "6.500000000000000000000000000000000000000e-2",
+   "value": 0.065
+  },
+  "rho_m": {
+   "unit": "kg/m^3",
+   "meaning": "metal density",
+   "exact": "7830",
+   "decimal": "7.830000000000000000000000000000000000000e+3",
+   "value": 7830.0
+  },
+  "rho_c_section": {
+   "unit": "kg/m^3",
+   "meaning": "the section's own contents density (ordinary cases)",
+   "exact": "865",
+   "decimal": "8.650000000000000000000000000000000000000e+2",
+   "value": 865.0
+  },
+  "rho_c_test": {
+   "unit": "kg/m^3",
+   "meaning": "contents density of the condition the test case selects",
+   "exact": "1015",
+   "decimal": "1.015000000000000000000000000000000000000e+3",
+   "value": 1015.0
+  },
+  "rho_i": {
+   "unit": "kg/m^3",
+   "meaning": "insulation density",
+   "exact": "135",
+   "decimal": "1.350000000000000000000000000000000000000e+2",
+   "value": 135.0
+  },
+  "E": {
+   "unit": "Pa",
+   "meaning": "elastic modulus",
+   "exact": "203000000000",
+   "decimal": "2.030000000000000000000000000000000000000e+11",
+   "value": 203000000000.0
+  },
+  "nu": {
+   "unit": "1",
+   "meaning": "Poisson's ratio (exact route); G = E/(2(1 + nu))",
+   "exact": "29/100",
+   "decimal": "2.900000000000000000000000000000000000000e-1",
+   "value": 0.29
+  },
+  "g": {
+   "unit": "m/s^2",
+   "meaning": "gravity magnitude, along global -Z",
+   "exact": "979/100",
+   "decimal": "9.790000000000000000000000000000000000000e+0",
+   "value": 9.79
+  },
+  "p_ordinary": {
+   "unit": "Pa",
+   "meaning": "authored pressure of the ordinary cases",
+   "exact": "4700000",
+   "decimal": "4.700000000000000000000000000000000000000e+6",
+   "value": 4700000.0
+  },
+  "p_test": {
+   "unit": "Pa",
+   "meaning": "authored pressure of the hydrostatic test cases",
+   "exact": "7300000",
+   "decimal": "7.300000000000000000000000000000000000000e+6",
+   "value": 7300000.0
+  },
+  "a": {
+   "unit": "m",
+   "meaning": "span length of the two- and four-span models",
+   "exact": "43/10",
+   "decimal": "4.300000000000000000000000000000000000000e+0",
+   "value": 4.3
+  },
+  "L1": {
+   "unit": "m",
+   "meaning": "span length of the single-span model",
+   "exact": "57/10",
+   "decimal": "5.700000000000000000000000000000000000000e+0",
+   "value": 5.7
+  },
+  "k_2s": {
+   "unit": "N/m",
+   "meaning": "two-span model: middle spring rate",
+   "exact": "1350000",
+   "decimal": "1.350000000000000000000000000000000000000e+6",
+   "value": 1350000.0
+  },
+  "kv_2s": {
+   "unit": "N/m",
+   "meaning": "two-span model: middle variable spring rate",
+   "exact": "960000",
+   "decimal": "9.600000000000000000000000000000000000000e+5",
+   "value": 960000.0
+  },
+  "Fc_2s": {
+   "unit": "N",
+   "meaning": "two-span model: middle variable spring cold load",
+   "exact": "4800",
+   "decimal": "4.800000000000000000000000000000000000000e+3",
+   "value": 4800.0
+  },
+  "Fce_2s": {
+   "unit": "N",
+   "meaning": "two-span model: middle constant-effort force",
+   "exact": "5600",
+   "decimal": "5.600000000000000000000000000000000000000e+3",
+   "value": 5600.0
+  },
+  "k_4s_b": {
+   "unit": "N/m",
+   "meaning": "four-span model: spring rate at B",
+   "exact": "1180000",
+   "decimal": "1.180000000000000000000000000000000000000e+6",
+   "value": 1180000.0
+  },
+  "Fce_4s_c": {
+   "unit": "N",
+   "meaning": "four-span model: constant-effort force at C",
+   "exact": "6900",
+   "decimal": "6.900000000000000000000000000000000000000e+3",
+   "value": 6900.0
+  },
+  "kv_4s_d": {
+   "unit": "N/m",
+   "meaning": "four-span model: variable spring rate at D",
+   "exact": "870000",
+   "decimal": "8.700000000000000000000000000000000000000e+5",
+   "value": 870000.0
+  },
+  "Fc_4s_d": {
+   "unit": "N",
+   "meaning": "four-span model: variable spring cold load at D",
+   "exact": "5300",
+   "decimal": "5.300000000000000000000000000000000000000e+3",
+   "value": 5300.0
+  }
+ },
+ "models": {
+  "M1": {
+   "spans": 1,
+   "span_length_input": "L1",
+   "items": "3, 4",
+   "interior_supports": {}
+  },
+  "M2-SPRING": {
+   "spans": 2,
+   "span_length_input": "a",
+   "items": "1, 2, 4",
+   "interior_supports": {
+    "node:b": {
+     "support": "support:b",
+     "family": "spring",
+     "dof": "uz"
+    }
+   }
+  },
+  "M2-VSPRING": {
+   "spans": 2,
+   "span_length_input": "a",
+   "items": "1, 2, 4",
+   "interior_supports": {
+    "node:b": {
+     "support": "support:b",
+     "family": "variable_spring",
+     "dof": "uz"
+    }
+   }
+  },
+  "M2-CE": {
+   "spans": 2,
+   "span_length_input": "a",
+   "items": "1, 2, 4",
+   "interior_supports": {
+    "node:b": {
+     "support": "support:b",
+     "family": "constant_effort",
+     "dof": "uz"
+    }
+   }
+  },
+  "M4": {
+   "spans": 4,
+   "span_length_input": "a",
+   "items": "5",
+   "interior_supports": {
+    "node:b": {
+     "support": "support:b",
+     "family": "spring",
+     "dof": "uz"
+    },
+    "node:c": {
+     "support": "support:c",
+     "family": "constant_effort",
+     "dof": "uz"
+    },
+    "node:d": {
+     "support": "support:d",
+     "family": "variable_spring",
+     "dof": "uz"
+    }
+   }
+  }
+ },
+ "derived": {
+  "R": {
+   "unit": "m",
+   "exact": "29/200",
+   "decimal": "1.450000000000000000000000000000000000000e-1",
+   "value": 0.145
+  },
+  "t_r": {
+   "unit": "m",
+   "exact": "97/10000",
+   "decimal": "9.700000000000000000000000000000000000000e-3",
+   "value": 0.0097
+  },
+  "r_n": {
+   "unit": "m",
+   "exact": "263/2000",
+   "decimal": "1.315000000000000000000000000000000000000e-1",
+   "value": 0.1315
+  },
+  "r_p": {
+   "unit": "m",
+   "exact": "1353/10000",
+   "decimal": "1.353000000000000000000000000000000000000e-1",
+   "value": 0.1353
+  },
+  "A_nominal": {
+   "unit": "m^2",
+   "exact": "14931/4000000*pi",
+   "decimal": "1.172677997768730071087143208893656439099e-2",
+   "value": 0.0117267799776873
+  },
+  "A_reduced": {
+   "unit": "m^2",
+   "exact": "271891/100000000*pi",
+   "decimal": "8.541707681771824733988465721232473186873e-3",
+   "value": 0.008541707681771826
+  },
+  "A_bore": {
+   "unit": "m^2",
+   "exact": "1830609/100000000*pi",
+   "decimal": "5.751027785995357810468861141221907495337e-2",
+   "value": 0.05751027785995358
+  },
+  "A_insulation": {
+   "unit": "m^2",
+   "exact": "923/40000*pi",
+   "decimal": "7.249225048158447897752549606917452905285e-2",
+   "value": 0.07249225048158447
+  },
+  "I_nominal": {
+   "unit": "m^4",
+   "exact": "2288459439/64000000000000*pi",
+   "decimal": "1.123344900250096807909095953024511429776e-4",
+   "value": 0.00011233449002500968
+  },
+  "EI": {
+   "unit": "N*m^2",
+   "exact": "464557266117/64000*pi",
+   "decimal": "2.280390147507696520055464784639758202446e+7",
+   "value": 22803901.475076966
+  },
+  "G": {
+   "unit": "Pa",
+   "exact": "10150000000000/129",
+   "decimal": "7.868217054263565891472868217054263565891e+10",
+   "value": 78682170542.63567
+  },
+  "kappa_E": {
+   "unit": "1",
+   "exact": "43435573381489/86531113454552",
+   "decimal": "5.019648037269541943405433494668829628151e-1",
+   "value": 0.5019648037269542
+  },
+  "GA_s": {
+   "unit": "N",
+   "exact": "3189266445500956603125/21632778363638*pi",
+   "decimal": "4.631571528679625519876098717666058876896e+8",
+   "value": 463157152.86796254
+  },
+  "mu_metal": {
+   "unit": "kg/m",
+   "exact": "11690973/400000*pi",
+   "decimal": "9.182068722529156456612331325637329918143e+1",
+   "value": 91.82068722529156
+  },
+  "mu_insulation": {
+   "unit": "kg/m",
+   "exact": "24921/8000*pi",
+   "decimal": "9.786453815013904661965941969338561422135e+0",
+   "value": 9.786453815013905
+  },
+  "mu_contents_section": {
+   "unit": "kg/m",
+   "exact": "316695357/20000000*pi",
+   "decimal": "4.974639034885984506055564887156949983467e+1",
+   "value": 49.74639034885985
+  },
+  "mu_contents_test": {
+   "unit": "kg/m",
+   "exact": "371613627/20000000*pi",
+   "decimal": "5.837293202785288177625894058340236107767e+1",
+   "value": 58.37293202785288
+  },
+  "w_ordinary": {
+   "unit": "N/m",
+   "exact": "943312030353/2000000000*pi",
+   "decimal": "1.481751072299928426885833611112384518690e+3",
+   "value": 1481.7510722999284
+  },
+  "w_test": {
+   "unit": "N/m",
+   "exact": "997077016683/2000000000*pi",
+   "decimal": "1.566204915337270256332568836971228230259e+3",
+   "value": 1566.2049153372702
+  },
+  "two_span_delta0_test_euler_bernoulli": {
+   "unit": "m",
+   "exact": "378756433523650787/77426211019500000000",
+   "decimal": "4.891837383444476677579285195645231027577e-3",
+   "value": 0.004891837383444476
+  },
+  "two_span_f_euler_bernoulli": {
+   "unit": "m/N",
+   "exact": "2544224/1393671798351/pi",
+   "decimal": "5.810920855428727814989886892001232348653e-7",
+   "value": 5.810920855428728e-07
+  },
+  "two_span_delta0_test_timoshenko_annulus_energy_v1": {
+   "unit": "m",
+   "exact": "73028270003608226233560064211/14833797420934681875000000000000",
+   "decimal": "4.923100129474917271300426439987814915621e-3",
+   "value": 0.0049231001294749175
+  },
+  "two_span_f_timoshenko_annulus_energy_v1": {
+   "unit": "m/N",
+   "exact": "12283305885636371/6675208839420606843750/pi",
+   "decimal": "5.857341384328837985956750811296121759192e-7",
+   "value": 5.857341384328838e-07
+  }
+ },
+ "weights_negative_controls": {
+  "w_double_counted": {
+   "unit": "N/m",
+   "label": "negative control: g (metal + section contents + test contents + insulation)",
+   "exact": "653560885593/1000000000*pi",
+   "decimal": "2.053222076852608139475408639423893633641e+3",
+   "value": 2053.222076852608
+  },
+  "w_contents_omitted": {
+   "unit": "N/m",
+   "label": "negative control: g (metal + insulation)",
+   "exact": "12665345517/40000000*pi",
+   "decimal": "9.947339107845905437429938086597191153089e+2",
+   "value": 994.7339107845905
+  }
+ },
+ "pressure_stresses": {
+  "p_ordinary": {
+   "nominal_section": {
+    "hoop_bore": {
+     "unit": "Pa",
+     "pressure_elongation": "independent",
+     "exact": "720364300000/14931",
+     "decimal": "4.824621927533319938383229522470028799143e+7",
+     "value": 48246219.275333196
+    },
+    "hoop_outside": {
+     "unit": "Pa",
+     "pressure_elongation": "independent",
+     "exact": "650188600000/14931",
+     "decimal": "4.354621927533319938383229522470028799143e+7",
+     "value": 43546219.275333196
+    },
+    "radial_bore": {
+     "unit": "Pa",
+     "pressure_elongation": "independent",
+     "exact": "-4700000",
+     "decimal": "-4.700000000000000000000000000000000000000e+6",
+     "value": -4700000.0
+    },
+    "radial_outside": {
+     "unit": "Pa",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   },
+   "reduced_section": {
+    "hoop_bore": {
+     "unit": "Pa",
+     "pressure_elongation": "independent",
+     "exact": "18485612300000/271891",
+     "decimal": "6.798905554063944742562276794744952940701e+7",
+     "value": 67989055.54063945
+    },
+    "hoop_outside": {
+     "unit": "Pa",
+     "pressure_elongation": "independent",
+     "exact": "17207724600000/271891",
+     "decimal": "6.328905554063944742562276794744952940701e+7",
+     "value": 63289055.540639445
+    },
+    "radial_bore": {
+     "unit": "Pa",
+     "pressure_elongation": "independent",
+     "exact": "-4700000",
+     "decimal": "-4.700000000000000000000000000000000000000e+6",
+     "value": -4700000.0
+    },
+    "radial_outside": {
+     "unit": "Pa",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   }
+  },
+  "p_test": {
+   "nominal_section": {
+    "hoop_bore": {
+     "unit": "Pa",
+     "pressure_elongation": "independent",
+     "exact": "1118863700000/14931",
+     "decimal": "7.493561717232603308552675641283236219945e+7",
+     "value": 74935617.17232603
+    },
+    "hoop_outside": {
+     "unit": "Pa",
+     "pressure_elongation": "independent",
+     "exact": "1009867400000/14931",
+     "decimal": "6.763561717232603308552675641283236219945e+7",
+     "value": 67635617.17232603
+    },
+    "radial_bore": {
+     "unit": "Pa",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    "radial_outside": {
+     "unit": "Pa",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   },
+   "reduced_section": {
+    "hoop_bore": {
+     "unit": "Pa",
+     "pressure_elongation": "independent",
+     "exact": "28711695700000/271891",
+     "decimal": "1.056000224354612694057545119183790563130e+8",
+     "value": 105600022.43546127
+    },
+    "hoop_outside": {
+     "unit": "Pa",
+     "pressure_elongation": "independent",
+     "exact": "26726891400000/271891",
+     "decimal": "9.830002243546126940575451191837905631301e+7",
+     "value": 98300022.43546127
+    },
+    "radial_bore": {
+     "unit": "Pa",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    "radial_outside": {
+     "unit": "Pa",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   }
+  }
+ },
+ "alternative_readings": {
+  "open_reading_4_contents_on_nominal_bore": {
+   "w_ordinary": {
+    "unit": "N/m",
+    "exact": "37045637057/80000000*pi",
+    "decimal": "1.454778765322812605896996742872437577942e+3",
+    "value": 1454.7787653228127
+   },
+   "w_test": {
+    "unit": "N/m",
+    "exact": "39077130587/80000000*pi",
+    "decimal": "1.534555329693602558871679332620307831578e+3",
+    "value": 1534.5553296936025
+   }
+  }
+ },
+ "binary64_input_check": {
+  "method": "each input replaced by Fraction(float(input)), one at a time and then all together; every case re-solved exactly by the flexibility and stiffness methods; the sign (+, 0, -) of every reaction, displacement, stress and weight compared with the nominal solve",
+  "variants": 25,
+  "inputs_exactly_binary64": [
+   "E",
+   "Fc_2s",
+   "Fc_4s_d",
+   "Fce_2s",
+   "Fce_4s_c",
+   "k_2s",
+   "k_4s_b",
+   "kv_2s",
+   "kv_4s_d",
+   "p_ordinary",
+   "p_test",
+   "rho_c_section",
+   "rho_c_test",
+   "rho_i",
+   "rho_m"
+  ],
+  "discrete_outcomes_unchanged": true,
+  "variants_with_changed_outcomes": [],
+  "method_disagreements": 0,
+  "max_relative_value_change": "9.677e-16"
+ },
+ "refusals": [
+  {
+   "id": "REFUSE-TEST-ON-PRESSURE-FREE-ROUTE",
+   "scenario": "DOC-2S-SPRING authored without the pressure contract (pressure-free route), its case HT-2S-SPRING-HELD keeping its test condition",
+   "expected": "the test case is refused by name; it is not solved as an ordinary case and publishes no result"
+  },
+  {
+   "id": "REFUSE-HELD-DUPLICATE-ON-ONE-DOF",
+   "scenario": "DOC-2S-SPRING with a second support at node:b, a constant-effort support on uz, beside the spring on uz; case HT-2S-SPRING-HELD",
+   "expected": "both are held, giving two rigid restraints on one degree of freedom whose split of the reaction is not determined by mechanics; the case is refused by name with no partial result"
+  },
+  {
+   "id": "REFUSE-HELD-ON-RESTRAINED-DOF",
+   "scenario": "DOC-2S-SPRING with a rigid vertical support (uz) at node:b beside the spring on uz; case HT-2S-SPRING-HELD",
+   "expected": "the replacement duplicates an existing rigid restraint, so its reaction under the spring's identity is not determined; the case is refused by name with no partial result"
+  }
+ ],
+ "crosscheck": [
+  {
+   "check": "areas: insulation + nominal metal + nominal bore = outer disc",
+   "agrees": true
+  },
+  {
+   "check": "areas: nominal metal + (bore growth by c_m + c_a) + pressure bore = nominal metal + pi r_p^2",
+   "agrees": true
+  },
+  {
+   "check": "weights: test - ordinary = g (rho_test - rho_section) A_bore",
+   "agrees": true
+  },
+  {
+   "check": "weights: double counted - test = section contents weight",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_ordinary nominal: outer hoop = 2 p pi r_i^2 / A_b",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_ordinary nominal: bore hoop = outer hoop + p",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_ordinary nominal: radial(r_i) = A - B/r_i^2 = -p",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_ordinary nominal: radial(R) = A - B/R^2 = 0",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_ordinary nominal: hoop(r_i) = A + B/r_i^2",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_ordinary nominal: int sigma_h dr over the wall = p r_i",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_ordinary nominal: hoop + radial equal at bore and outside",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_ordinary reduced: outer hoop = 2 p pi r_i^2 / A_b",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_ordinary reduced: bore hoop = outer hoop + p",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_ordinary reduced: radial(r_i) = A - B/r_i^2 = -p",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_ordinary reduced: radial(R) = A - B/R^2 = 0",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_ordinary reduced: hoop(r_i) = A + B/r_i^2",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_ordinary reduced: int sigma_h dr over the wall = p r_i",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_ordinary reduced: hoop + radial equal at bore and outside",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_test nominal: outer hoop = 2 p pi r_i^2 / A_b",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_test nominal: bore hoop = outer hoop + p",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_test nominal: radial(r_i) = A - B/r_i^2 = -p",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_test nominal: radial(R) = A - B/R^2 = 0",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_test nominal: hoop(r_i) = A + B/r_i^2",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_test nominal: int sigma_h dr over the wall = p r_i",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_test nominal: hoop + radial equal at bore and outside",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_test reduced: outer hoop = 2 p pi r_i^2 / A_b",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_test reduced: bore hoop = outer hoop + p",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_test reduced: radial(r_i) = A - B/r_i^2 = -p",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_test reduced: radial(R) = A - B/R^2 = 0",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_test reduced: hoop(r_i) = A + B/r_i^2",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_test reduced: int sigma_h dr over the wall = p r_i",
+   "agrees": true
+  },
+  {
+   "check": "Lame p_test reduced: hoop + radial equal at bore and outside",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-ORDINARY: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-ORDINARY: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-ORDINARY: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-ORDINARY: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-ORDINARY: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-ORDINARY: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-ORDINARY: reaction a three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-ORDINARY: reaction b three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-ORDINARY: reaction a = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-ORDINARY: reaction b = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST: reaction a three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST: reaction b three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST: reaction a = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST: reaction b = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_double_counted: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_double_counted: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_double_counted: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_double_counted: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_double_counted: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_double_counted: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_double_counted: reaction a three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_double_counted: reaction b three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_double_counted: reaction a = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_double_counted: reaction b = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_omitted: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_omitted: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_omitted: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_omitted: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_omitted: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_omitted: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_omitted: reaction a three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_omitted: reaction b three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_omitted: reaction a = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-1S-TEST control contents_omitted: reaction b = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-ORDINARY: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-ORDINARY: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-ORDINARY: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-ORDINARY: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-ORDINARY: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-ORDINARY: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-ORDINARY: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-ORDINARY: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-ORDINARY: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-ORDINARY: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-ORDINARY: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-ORDINARY: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: reaction a three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: reaction b three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: reaction c three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: reaction a = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: reaction b = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: reaction c = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD unheld twin: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD unheld twin: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD unheld twin: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD unheld twin: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD unheld twin: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD unheld twin: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD unheld twin: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD unheld twin: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD unheld twin: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD unheld twin: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD unheld twin: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD unheld twin: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the unheld position: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the unheld position: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the unheld position: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the unheld position: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the unheld position: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the unheld position: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the unheld position: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the unheld position: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the unheld position: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the unheld position: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the unheld position: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the unheld position: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: replacement at the unheld position reproduces the unheld reaction a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: replacement at the unheld position reproduces the unheld reaction b",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD: replacement at the unheld position reproduces the unheld reaction c",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD ordinary twin: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD ordinary twin: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD ordinary twin: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD ordinary twin: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD ordinary twin: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD ordinary twin: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD ordinary twin: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD ordinary twin: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD ordinary twin: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD ordinary twin: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD ordinary twin: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD ordinary twin: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the ordinary case's position: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the ordinary case's position: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the ordinary case's position: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the ordinary case's position: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the ordinary case's position: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the ordinary case's position: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the ordinary case's position: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the ordinary case's position: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the ordinary case's position: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the ordinary case's position: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the ordinary case's position: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD control: replacement at the ordinary case's position: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO unheld twin: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO unheld twin: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO unheld twin: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO unheld twin: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO unheld twin: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO unheld twin: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO unheld twin: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO unheld twin: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO unheld twin: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO unheld twin: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO unheld twin: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO unheld twin: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO control: replacement at the unheld position: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO control: replacement at the unheld position: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO control: replacement at the unheld position: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO control: replacement at the unheld position: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO control: replacement at the unheld position: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO control: replacement at the unheld position: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO control: replacement at the unheld position: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO control: replacement at the unheld position: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO control: replacement at the unheld position: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO control: replacement at the unheld position: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO control: replacement at the unheld position: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO control: replacement at the unheld position: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO: replacement at the unheld position reproduces the unheld reaction a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO: replacement at the unheld position reproduces the unheld reaction b",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-HELD-TIMOSHENKO: replacement at the unheld position reproduces the unheld reaction c",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE-TIMOSHENKO: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE-TIMOSHENKO: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE-TIMOSHENKO: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE-TIMOSHENKO: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE-TIMOSHENKO: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE-TIMOSHENKO: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE-TIMOSHENKO: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE-TIMOSHENKO: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE-TIMOSHENKO: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE-TIMOSHENKO: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE-TIMOSHENKO: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-SPRING-NONE-TIMOSHENKO: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: reaction a three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: reaction b three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: reaction c three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: reaction a = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: reaction b = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: reaction c = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD unheld twin: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD unheld twin: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD unheld twin: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD unheld twin: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD unheld twin: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD unheld twin: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD unheld twin: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD unheld twin: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD unheld twin: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD unheld twin: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD unheld twin: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD unheld twin: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD control: replacement at the unheld position: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD control: replacement at the unheld position: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD control: replacement at the unheld position: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD control: replacement at the unheld position: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD control: replacement at the unheld position: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD control: replacement at the unheld position: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD control: replacement at the unheld position: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD control: replacement at the unheld position: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD control: replacement at the unheld position: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD control: replacement at the unheld position: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD control: replacement at the unheld position: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD control: replacement at the unheld position: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: replacement at the unheld position reproduces the unheld reaction a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: replacement at the unheld position reproduces the unheld reaction b",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: replacement at the unheld position reproduces the unheld reaction c",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: control replacement reaction = rigid reaction - support force",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-NONE: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-NONE: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-NONE: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-NONE: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-NONE: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-NONE: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-NONE: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-NONE: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-NONE: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-NONE: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-NONE: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-NONE: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: reaction a three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: reaction b three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: reaction c three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: reaction a = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: reaction b = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: reaction c = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD unheld twin: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD unheld twin: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD unheld twin: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD unheld twin: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD unheld twin: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD unheld twin: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD unheld twin: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD unheld twin: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD unheld twin: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD unheld twin: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD unheld twin: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD unheld twin: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD control: replacement at the unheld position: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD control: replacement at the unheld position: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD control: replacement at the unheld position: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD control: replacement at the unheld position: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD control: replacement at the unheld position: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD control: replacement at the unheld position: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD control: replacement at the unheld position: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD control: replacement at the unheld position: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD control: replacement at the unheld position: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD control: replacement at the unheld position: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD control: replacement at the unheld position: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD control: replacement at the unheld position: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: replacement at the unheld position reproduces the unheld reaction a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: replacement at the unheld position reproduces the unheld reaction b",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: replacement at the unheld position reproduces the unheld reaction c",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: control replacement reaction = rigid reaction - support force",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-NONE: reaction a closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-NONE: reaction b closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-NONE: reaction c closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-NONE: u_z(b) closed form = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-NONE: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-NONE: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-NONE: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-NONE: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-NONE: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-NONE: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-NONE: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-NONE: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-ORDINARY: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-ORDINARY: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-ORDINARY: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-ORDINARY: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-ORDINARY: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-ORDINARY: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-ORDINARY: reaction d flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-ORDINARY: u_z(d) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-ORDINARY: reaction e flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-ORDINARY: u_z(e) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-ORDINARY: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-ORDINARY: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: reaction d flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: u_z(d) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: reaction e flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: u_z(e) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: reaction a three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: reaction b three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: reaction c three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: reaction d three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: reaction e three-moment = flexibility",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: reaction a = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: reaction b = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: reaction c = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: reaction d = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-HELD: reaction e = tabulated coefficient x w a",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-NONE: reaction a flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-NONE: u_z(a) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-NONE: reaction b flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-NONE: u_z(b) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-NONE: reaction c flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-NONE: u_z(c) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-NONE: reaction d flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-NONE: u_z(d) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-NONE: reaction e flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-NONE: u_z(e) flexibility = stiffness solve",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-NONE: vertical equilibrium, sum of reactions = w n a",
+   "agrees": true
+  },
+  {
+   "check": "HT-4S-TEST-NONE: moment equilibrium about node a",
+   "agrees": true
+  },
+  {
+   "check": "binary64 inputs: discrete outcomes unchanged and both methods agree",
+   "agrees": true
+  }
+ ],
+ "cases": [
+  {
+   "id": "HT-1S-ORDINARY",
+   "document": "DOC-1S",
+   "model": "M1",
+   "shear_model": "euler_bernoulli",
+   "route": "exact",
+   "test_condition": null,
+   "pressure": {
+    "input": "p_ordinary",
+    "unit": "Pa",
+    "exact": "4700000",
+    "decimal": "4.700000000000000000000000000000000000000e+6",
+    "value": 4700000.0
+   },
+   "contents_density": {
+    "input": "rho_c_section",
+    "unit": "kg/m^3",
+    "exact": "865",
+    "decimal": "8.650000000000000000000000000000000000000e+2",
+    "value": 865.0
+   },
+   "weight_per_length": {
+    "unit": "N/m",
+    "direction": "global -Z",
+    "exact": "943312030353/2000000000*pi",
+    "decimal": "1.481751072299928426885833611112384518690e+3",
+    "value": 1481.7510722999284
+   },
+   "expected_outcome": {
+    "solved": true,
+    "marked_hydrostatic_test": false,
+    "held_supports_choice": null,
+    "held_support_ids": [],
+    "constant_effort_applied_force": []
+   },
+   "rows": [
+    {
+     "id": "support:a.fx",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "53768785730121/40000000000*pi",
+     "decimal": "4.222990556054796016624625791670295878267e+3",
+     "value": 4222.990556054796
+    },
+    {
+     "id": "support:a.mx",
+     "quantity": "support_reaction",
+     "unit": "N*m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:b.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:b.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "53768785730121/40000000000*pi",
+     "decimal": "4.222990556054796016624625791670295878267e+3",
+     "value": 4222.990556054796
+    },
+    {
+     "id": "nominal_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "720364300000/14931",
+     "decimal": "4.824621927533319938383229522470028799143e+7",
+     "value": 48246219.275333196
+    },
+    {
+     "id": "nominal_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "650188600000/14931",
+     "decimal": "4.354621927533319938383229522470028799143e+7",
+     "value": 43546219.275333196
+    },
+    {
+     "id": "nominal_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-4700000",
+     "decimal": "-4.700000000000000000000000000000000000000e+6",
+     "value": -4700000.0
+    },
+    {
+     "id": "nominal_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "reduced_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "18485612300000/271891",
+     "decimal": "6.798905554063944742562276794744952940701e+7",
+     "value": 67989055.54063945
+    },
+    {
+     "id": "reduced_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "17207724600000/271891",
+     "decimal": "6.328905554063944742562276794744952940701e+7",
+     "value": 63289055.540639445
+    },
+    {
+     "id": "reduced_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-4700000",
+     "decimal": "-4.700000000000000000000000000000000000000e+6",
+     "value": -4700000.0
+    },
+    {
+     "id": "reduced_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   ],
+   "negative_controls": []
+  },
+  {
+   "id": "HT-1S-TEST",
+   "document": "DOC-1S",
+   "model": "M1",
+   "shear_model": "euler_bernoulli",
+   "route": "exact",
+   "test_condition": {
+    "kind": "hydrostatic",
+    "held_supports": "springs_and_constant_effort"
+   },
+   "pressure": {
+    "input": "p_test",
+    "unit": "Pa",
+    "exact": "7300000",
+    "decimal": "7.300000000000000000000000000000000000000e+6",
+    "value": 7300000.0
+   },
+   "contents_density": {
+    "input": "rho_c_test",
+    "unit": "kg/m^3",
+    "exact": "1015",
+    "decimal": "1.015000000000000000000000000000000000000e+3",
+    "value": 1015.0
+   },
+   "weight_per_length": {
+    "unit": "N/m",
+    "direction": "global -Z",
+    "exact": "997077016683/2000000000*pi",
+    "decimal": "1.566204915337270256332568836971228230259e+3",
+    "value": 1566.2049153372702
+   },
+   "expected_outcome": {
+    "solved": true,
+    "marked_hydrostatic_test": true,
+    "held_supports_choice": "springs_and_constant_effort",
+    "held_support_ids": [],
+    "constant_effort_applied_force": []
+   },
+   "rows": [
+    {
+     "id": "support:a.fx",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "56833389950931/40000000000*pi",
+     "decimal": "4.463684008711220230547821185368000456239e+3",
+     "value": 4463.6840087112205
+    },
+    {
+     "id": "support:a.mx",
+     "quantity": "support_reaction",
+     "unit": "N*m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:b.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:b.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "56833389950931/40000000000*pi",
+     "decimal": "4.463684008711220230547821185368000456239e+3",
+     "value": 4463.6840087112205
+    },
+    {
+     "id": "nominal_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1118863700000/14931",
+     "decimal": "7.493561717232603308552675641283236219945e+7",
+     "value": 74935617.17232603
+    },
+    {
+     "id": "nominal_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1009867400000/14931",
+     "decimal": "6.763561717232603308552675641283236219945e+7",
+     "value": 67635617.17232603
+    },
+    {
+     "id": "nominal_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "nominal_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "reduced_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "28711695700000/271891",
+     "decimal": "1.056000224354612694057545119183790563130e+8",
+     "value": 105600022.43546127
+    },
+    {
+     "id": "reduced_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "26726891400000/271891",
+     "decimal": "9.830002243546126940575451191837905631301e+7",
+     "value": 98300022.43546127
+    },
+    {
+     "id": "reduced_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "reduced_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   ],
+   "negative_controls": [
+    {
+     "id": "contents_double_counted",
+     "label": "negative control: section contents and test contents both counted",
+     "rows": [
+      {
+       "id": "weight_per_length",
+       "quantity": "load_per_length",
+       "unit": "N/m",
+       "exact": "653560885593/1000000000*pi",
+       "decimal": "2.053222076852608139475408639423893633641e+3",
+       "value": 2053.222076852608
+      },
+      {
+       "id": "support:a.fx",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:a.fy",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:a.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "37252970478801/20000000000*pi",
+       "decimal": "5.851682919029933197504914622358096855876e+3",
+       "value": 5851.682919029933
+      },
+      {
+       "id": "support:a.mx",
+       "quantity": "support_reaction",
+       "unit": "N*m",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:b.fy",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:b.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "37252970478801/20000000000*pi",
+       "decimal": "5.851682919029933197504914622358096855876e+3",
+       "value": 5851.682919029933
+      }
+     ]
+    },
+    {
+     "id": "contents_omitted",
+     "label": "negative control: no contents counted",
+     "rows": [
+      {
+       "id": "weight_per_length",
+       "quantity": "load_per_length",
+       "unit": "N/m",
+       "exact": "12665345517/40000000*pi",
+       "decimal": "9.947339107845905437429938086597191153089e+2",
+       "value": 994.7339107845905
+      },
+      {
+       "id": "support:a.fx",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:a.fy",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:a.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "721924694469/800000000*pi",
+       "decimal": "2.834991645736083049667532354680199478630e+3",
+       "value": 2834.9916457360832
+      },
+      {
+       "id": "support:a.mx",
+       "quantity": "support_reaction",
+       "unit": "N*m",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:b.fy",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:b.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "721924694469/800000000*pi",
+       "decimal": "2.834991645736083049667532354680199478630e+3",
+       "value": 2834.9916457360832
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "HT-2S-SPRING-ORDINARY",
+   "document": "DOC-2S-SPRING",
+   "model": "M2-SPRING",
+   "shear_model": "euler_bernoulli",
+   "route": "exact",
+   "test_condition": null,
+   "pressure": {
+    "input": "p_ordinary",
+    "unit": "Pa",
+    "exact": "4700000",
+    "decimal": "4.700000000000000000000000000000000000000e+6",
+    "value": 4700000.0
+   },
+   "contents_density": {
+    "input": "rho_c_section",
+    "unit": "kg/m^3",
+    "exact": "865",
+    "decimal": "8.650000000000000000000000000000000000000e+2",
+    "value": 865.0
+   },
+   "weight_per_length": {
+    "unit": "N/m",
+    "direction": "global -Z",
+    "exact": "943312030353/2000000000*pi",
+    "decimal": "1.481751072299928426885833611112384518690e+3",
+    "value": 1481.7510722999284
+   },
+   "expected_outcome": {
+    "solved": true,
+    "marked_hydrostatic_test": false,
+    "held_supports_choice": null,
+    "held_support_ids": [],
+    "constant_effort_applied_force": []
+   },
+   "rows": [
+    {
+     "id": "support:a.fx",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(460713730383266679/245797495300000*pi + 40562417305179/20000000000*pi^2)/(127211200000/51617474013 + 1*pi)",
+     "decimal": "4.620908543275361652175982730010341610615e+3",
+     "value": 4620.908543275362
+    },
+    {
+     "id": "support:a.mx",
+     "quantity": "support_reaction",
+     "unit": "N*m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:b.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(153571243461088893/24579749530000*pi)/(127211200000/51617474013 + 1*pi)",
+     "decimal": "3.501242135228661166866203595545823639507e+3",
+     "value": 3501.242135228661
+    },
+    {
+     "id": "support:c.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:c.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(460713730383266679/245797495300000*pi + 40562417305179/20000000000*pi^2)/(127211200000/51617474013 + 1*pi)",
+     "decimal": "4.620908543275361652175982730010341610615e+3",
+     "value": 4620.908543275362
+    },
+    {
+     "id": "node:b.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "(-51190414487029631/11060887288500000000*pi)/(127211200000/51617474013 + 1*pi)",
+     "decimal": "-2.593512692761971234715706367070980473709e-3",
+     "value": -0.002593512692761971
+    },
+    {
+     "id": "nominal_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "720364300000/14931",
+     "decimal": "4.824621927533319938383229522470028799143e+7",
+     "value": 48246219.275333196
+    },
+    {
+     "id": "nominal_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "650188600000/14931",
+     "decimal": "4.354621927533319938383229522470028799143e+7",
+     "value": 43546219.275333196
+    },
+    {
+     "id": "nominal_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-4700000",
+     "decimal": "-4.700000000000000000000000000000000000000e+6",
+     "value": -4700000.0
+    },
+    {
+     "id": "nominal_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "reduced_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "18485612300000/271891",
+     "decimal": "6.798905554063944742562276794744952940701e+7",
+     "value": 67989055.54063945
+    },
+    {
+     "id": "reduced_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "17207724600000/271891",
+     "decimal": "6.328905554063944742562276794744952940701e+7",
+     "value": 63289055.540639445
+    },
+    {
+     "id": "reduced_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-4700000",
+     "decimal": "-4.700000000000000000000000000000000000000e+6",
+     "value": -4700000.0
+    },
+    {
+     "id": "reduced_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   ],
+   "negative_controls": []
+  },
+  {
+   "id": "HT-2S-SPRING-HELD",
+   "document": "DOC-2S-SPRING",
+   "model": "M2-SPRING",
+   "shear_model": "euler_bernoulli",
+   "route": "exact",
+   "test_condition": {
+    "kind": "hydrostatic",
+    "held_supports": "springs_and_constant_effort"
+   },
+   "pressure": {
+    "input": "p_test",
+    "unit": "Pa",
+    "exact": "7300000",
+    "decimal": "7.300000000000000000000000000000000000000e+6",
+    "value": 7300000.0
+   },
+   "contents_density": {
+    "input": "rho_c_test",
+    "unit": "kg/m^3",
+    "exact": "1015",
+    "decimal": "1.015000000000000000000000000000000000000e+3",
+    "value": 1015.0
+   },
+   "weight_per_length": {
+    "unit": "N/m",
+    "direction": "global -Z",
+    "exact": "997077016683/2000000000*pi",
+    "decimal": "1.566204915337270256332568836971228230259e+3",
+    "value": 1566.2049153372702
+   },
+   "expected_outcome": {
+    "solved": true,
+    "marked_hydrostatic_test": true,
+    "held_supports_choice": "springs_and_constant_effort",
+    "held_support_ids": [
+     "support:b"
+    ],
+    "constant_effort_applied_force": []
+   },
+   "rows": [
+    {
+     "id": "support:a.fx",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "128622935152107/160000000000*pi",
+     "decimal": "2.525505425981348288336267249616105521293e+3",
+     "value": 2525.5054259813483
+    },
+    {
+     "id": "support:a.mx",
+     "quantity": "support_reaction",
+     "unit": "N*m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:b.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "42874311717369/16000000000*pi",
+     "decimal": "8.418351419937827627787557498720351737644e+3",
+     "value": 8418.351419937828
+    },
+    {
+     "id": "support:c.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:c.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "128622935152107/160000000000*pi",
+     "decimal": "2.525505425981348288336267249616105521293e+3",
+     "value": 2525.5054259813483
+    },
+    {
+     "id": "node:b.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "nominal_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1118863700000/14931",
+     "decimal": "7.493561717232603308552675641283236219945e+7",
+     "value": 74935617.17232603
+    },
+    {
+     "id": "nominal_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1009867400000/14931",
+     "decimal": "6.763561717232603308552675641283236219945e+7",
+     "value": 67635617.17232603
+    },
+    {
+     "id": "nominal_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "nominal_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "reduced_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "28711695700000/271891",
+     "decimal": "1.056000224354612694057545119183790563130e+8",
+     "value": 105600022.43546127
+    },
+    {
+     "id": "reduced_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "26726891400000/271891",
+     "decimal": "9.830002243546126940575451191837905631301e+7",
+     "value": 98300022.43546127
+    },
+    {
+     "id": "reduced_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "reduced_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   ],
+   "negative_controls": [
+    {
+     "id": "held_at_unheld_position",
+     "label": "negative control: replacement held at the unheld support's solved position instead of zero displacement from the authored geometry",
+     "rows": [
+      {
+       "id": "support:a.fx",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:a.fy",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:a.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "(3408807901712857083/1720582467100000*pi + 42874311717369/20000000000*pi^2)/(127211200000/51617474013 + 1*pi)",
+       "decimal": "4.884281718499692568215354254691760068981e+3",
+       "value": 4884.281718499693
+      },
+      {
+       "id": "support:a.mx",
+       "quantity": "support_reaction",
+       "unit": "N*m",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:b.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "(1136269300570952361/172058246710000*pi)/(127211200000/51617474013 + 1*pi)",
+       "decimal": "3.700798834901139068029383488569042642268e+3",
+       "value": 3700.798834901139
+      },
+      {
+       "id": "support:c.fy",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:c.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "(3408807901712857083/1720582467100000*pi + 42874311717369/20000000000*pi^2)/(127211200000/51617474013 + 1*pi)",
+       "decimal": "4.884281718499692568215354254691760068981e+3",
+       "value": 4884.281718499693
+      },
+      {
+       "id": "node:b.uz",
+       "quantity": "nodal_translation",
+       "unit": "m",
+       "pressure_elongation": "independent",
+       "exact": "(-378756433523650787/77426211019500000000*pi)/(127211200000/51617474013 + 1*pi)",
+       "decimal": "-2.741332470297140050392135917458550105384e-3",
+       "value": -0.00274133247029714
+      }
+     ]
+    },
+    {
+     "id": "held_at_ordinary_case_position",
+     "label": "negative control: replacement held at the spring's solved position in the ordinary case of the same document (a previously solved state)",
+     "rows": [
+      {
+       "id": "support:a.fx",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:a.fy",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:a.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "(3408807901712857083/1720582467100000*pi + 165717510839001/80000000000*pi^2)/(127211200000/51617474013 + 1*pi)",
+       "decimal": "4.757090365173075352158843281707727095520e+3",
+       "value": 4757.090365173075
+      },
+      {
+       "id": "support:a.mx",
+       "quantity": "support_reaction",
+       "unit": "N*m",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:b.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "(1136269300570952361/172058246710000*pi + 231189441219/1600000000*pi^2)/(127211200000/51617474013 + 1*pi)",
+       "decimal": "3.955181541554373500142405434537108589190e+3",
+       "value": 3955.1815415543733
+      },
+      {
+       "id": "support:c.fy",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:c.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "(3408807901712857083/1720582467100000*pi + 165717510839001/80000000000*pi^2)/(127211200000/51617474013 + 1*pi)",
+       "decimal": "4.757090365173075352158843281707727095520e+3",
+       "value": 4757.090365173075
+      },
+      {
+       "id": "node:b.uz",
+       "quantity": "nodal_translation",
+       "unit": "m",
+       "pressure_elongation": "independent",
+       "exact": "(-51190414487029631/11060887288500000000*pi)/(127211200000/51617474013 + 1*pi)",
+       "decimal": "-2.593512692761971234715706367070980473709e-3",
+       "value": -0.002593512692761971
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "HT-2S-SPRING-NONE",
+   "document": "DOC-2S-SPRING",
+   "model": "M2-SPRING",
+   "shear_model": "euler_bernoulli",
+   "route": "exact",
+   "test_condition": {
+    "kind": "hydrostatic",
+    "held_supports": "none"
+   },
+   "pressure": {
+    "input": "p_test",
+    "unit": "Pa",
+    "exact": "7300000",
+    "decimal": "7.300000000000000000000000000000000000000e+6",
+    "value": 7300000.0
+   },
+   "contents_density": {
+    "input": "rho_c_test",
+    "unit": "kg/m^3",
+    "exact": "1015",
+    "decimal": "1.015000000000000000000000000000000000000e+3",
+    "value": 1015.0
+   },
+   "weight_per_length": {
+    "unit": "N/m",
+    "direction": "global -Z",
+    "exact": "997077016683/2000000000*pi",
+    "decimal": "1.566204915337270256332568836971228230259e+3",
+    "value": 1566.2049153372702
+   },
+   "expected_outcome": {
+    "solved": true,
+    "marked_hydrostatic_test": true,
+    "held_supports_choice": "none",
+    "held_support_ids": [],
+    "constant_effort_applied_force": []
+   },
+   "rows": [
+    {
+     "id": "support:a.fx",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(3408807901712857083/1720582467100000*pi + 42874311717369/20000000000*pi^2)/(127211200000/51617474013 + 1*pi)",
+     "decimal": "4.884281718499692568215354254691760068981e+3",
+     "value": 4884.281718499693
+    },
+    {
+     "id": "support:a.mx",
+     "quantity": "support_reaction",
+     "unit": "N*m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:b.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(1136269300570952361/172058246710000*pi)/(127211200000/51617474013 + 1*pi)",
+     "decimal": "3.700798834901139068029383488569042642268e+3",
+     "value": 3700.798834901139
+    },
+    {
+     "id": "support:c.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:c.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(3408807901712857083/1720582467100000*pi + 42874311717369/20000000000*pi^2)/(127211200000/51617474013 + 1*pi)",
+     "decimal": "4.884281718499692568215354254691760068981e+3",
+     "value": 4884.281718499693
+    },
+    {
+     "id": "node:b.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "(-378756433523650787/77426211019500000000*pi)/(127211200000/51617474013 + 1*pi)",
+     "decimal": "-2.741332470297140050392135917458550105384e-3",
+     "value": -0.00274133247029714
+    },
+    {
+     "id": "nominal_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1118863700000/14931",
+     "decimal": "7.493561717232603308552675641283236219945e+7",
+     "value": 74935617.17232603
+    },
+    {
+     "id": "nominal_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1009867400000/14931",
+     "decimal": "6.763561717232603308552675641283236219945e+7",
+     "value": 67635617.17232603
+    },
+    {
+     "id": "nominal_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "nominal_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "reduced_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "28711695700000/271891",
+     "decimal": "1.056000224354612694057545119183790563130e+8",
+     "value": 105600022.43546127
+    },
+    {
+     "id": "reduced_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "26726891400000/271891",
+     "decimal": "9.830002243546126940575451191837905631301e+7",
+     "value": 98300022.43546127
+    },
+    {
+     "id": "reduced_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "reduced_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   ],
+   "negative_controls": []
+  },
+  {
+   "id": "HT-2S-SPRING-HELD-TIMOSHENKO",
+   "document": "DOC-2S-SPRING-TIMOSHENKO",
+   "model": "M2-SPRING",
+   "shear_model": "timoshenko_annulus_energy_v1",
+   "route": "exact",
+   "test_condition": {
+    "kind": "hydrostatic",
+    "held_supports": "springs_and_constant_effort"
+   },
+   "pressure": {
+    "input": "p_test",
+    "unit": "Pa",
+    "exact": "7300000",
+    "decimal": "7.300000000000000000000000000000000000000e+6",
+    "value": 7300000.0
+   },
+   "contents_density": {
+    "input": "rho_c_test",
+    "unit": "kg/m^3",
+    "exact": "1015",
+    "decimal": "1.015000000000000000000000000000000000000e+3",
+    "value": 1015.0
+   },
+   "weight_per_length": {
+    "unit": "N/m",
+    "direction": "global -Z",
+    "exact": "997077016683/2000000000*pi",
+    "decimal": "1.566204915337270256332568836971228230259e+3",
+    "value": 1566.2049153372702
+   },
+   "expected_outcome": {
+    "solved": true,
+    "marked_hydrostatic_test": true,
+    "held_supports_choice": "springs_and_constant_effort",
+    "held_support_ids": [
+     "support:b"
+    ],
+    "constant_effort_applied_force": []
+   },
+   "rows": [
+    {
+     "id": "support:a.fx",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "396022140888660089974877077899/491332235425454840000000000*pi",
+     "decimal": "2.532177127351291323452697060990975590616e+3",
+     "value": 2532.1771273512913
+    },
+    {
+     "id": "support:a.mx",
+     "quantity": "support_reaction",
+     "unit": "N*m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:b.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "657254430032474036102040577899/245666117712727420000000000*pi",
+     "decimal": "8.405008017197941557554697875970611598997e+3",
+     "value": 8405.00801719794
+    },
+    {
+     "id": "support:c.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:c.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "396022140888660089974877077899/491332235425454840000000000*pi",
+     "decimal": "2.532177127351291323452697060990975590616e+3",
+     "value": 2532.1771273512913
+    },
+    {
+     "id": "node:b.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "nominal_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1118863700000/14931",
+     "decimal": "7.493561717232603308552675641283236219945e+7",
+     "value": 74935617.17232603
+    },
+    {
+     "id": "nominal_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1009867400000/14931",
+     "decimal": "6.763561717232603308552675641283236219945e+7",
+     "value": 67635617.17232603
+    },
+    {
+     "id": "nominal_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "nominal_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "reduced_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "28711695700000/271891",
+     "decimal": "1.056000224354612694057545119183790563130e+8",
+     "value": 105600022.43546127
+    },
+    {
+     "id": "reduced_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "26726891400000/271891",
+     "decimal": "9.830002243546126940575451191837905631301e+7",
+     "value": 98300022.43546127
+    },
+    {
+     "id": "reduced_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "reduced_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   ],
+   "negative_controls": [
+    {
+     "id": "held_at_unheld_position",
+     "label": "negative control: replacement held at the unheld support's solved position instead of zero displacement from the authored geometry",
+     "rows": [
+      {
+       "id": "support:a.fx",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:a.fy",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:a.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "(132007380296220029991625692633/65927988537487475000000000*pi + 42874311717369/20000000000*pi^2)/(98266447085090968/39556793122492485 + 1*pi)",
+       "decimal": "4.878973121132092155994287879279079436835e+3",
+       "value": 4878.973121132092
+      },
+      {
+       "id": "support:a.mx",
+       "quantity": "support_reaction",
+       "unit": "N*m",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:b.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "(219084810010824678700680192633/32963994268743737500000000*pi)/(98266447085090968/39556793122492485 + 1*pi)",
+       "decimal": "3.711416029636339892471516239394403906560e+3",
+       "value": 3711.4160296363398
+      },
+      {
+       "id": "support:c.fy",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:c.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "(132007380296220029991625692633/65927988537487475000000000*pi + 42874311717369/20000000000*pi^2)/(98266447085090968/39556793122492485 + 1*pi)",
+       "decimal": "4.878973121132092155994287879279079436835e+3",
+       "value": 4878.973121132092
+      },
+      {
+       "id": "node:b.uz",
+       "quantity": "nodal_translation",
+       "unit": "m",
+       "pressure_elongation": "independent",
+       "exact": "(-73028270003608226233560064211/14833797420934681875000000000000*pi)/(98266447085090968/39556793122492485 + 1*pi)",
+       "decimal": "-2.749197058989881401830752769921780671526e-3",
+       "value": -0.0027491970589898812
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "HT-2S-SPRING-NONE-TIMOSHENKO",
+   "document": "DOC-2S-SPRING-TIMOSHENKO",
+   "model": "M2-SPRING",
+   "shear_model": "timoshenko_annulus_energy_v1",
+   "route": "exact",
+   "test_condition": {
+    "kind": "hydrostatic",
+    "held_supports": "none"
+   },
+   "pressure": {
+    "input": "p_test",
+    "unit": "Pa",
+    "exact": "7300000",
+    "decimal": "7.300000000000000000000000000000000000000e+6",
+    "value": 7300000.0
+   },
+   "contents_density": {
+    "input": "rho_c_test",
+    "unit": "kg/m^3",
+    "exact": "1015",
+    "decimal": "1.015000000000000000000000000000000000000e+3",
+    "value": 1015.0
+   },
+   "weight_per_length": {
+    "unit": "N/m",
+    "direction": "global -Z",
+    "exact": "997077016683/2000000000*pi",
+    "decimal": "1.566204915337270256332568836971228230259e+3",
+    "value": 1566.2049153372702
+   },
+   "expected_outcome": {
+    "solved": true,
+    "marked_hydrostatic_test": true,
+    "held_supports_choice": "none",
+    "held_support_ids": [],
+    "constant_effort_applied_force": []
+   },
+   "rows": [
+    {
+     "id": "support:a.fx",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(132007380296220029991625692633/65927988537487475000000000*pi + 42874311717369/20000000000*pi^2)/(98266447085090968/39556793122492485 + 1*pi)",
+     "decimal": "4.878973121132092155994287879279079436835e+3",
+     "value": 4878.973121132092
+    },
+    {
+     "id": "support:a.mx",
+     "quantity": "support_reaction",
+     "unit": "N*m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:b.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(219084810010824678700680192633/32963994268743737500000000*pi)/(98266447085090968/39556793122492485 + 1*pi)",
+     "decimal": "3.711416029636339892471516239394403906560e+3",
+     "value": 3711.4160296363398
+    },
+    {
+     "id": "support:c.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:c.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(132007380296220029991625692633/65927988537487475000000000*pi + 42874311717369/20000000000*pi^2)/(98266447085090968/39556793122492485 + 1*pi)",
+     "decimal": "4.878973121132092155994287879279079436835e+3",
+     "value": 4878.973121132092
+    },
+    {
+     "id": "node:b.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "(-73028270003608226233560064211/14833797420934681875000000000000*pi)/(98266447085090968/39556793122492485 + 1*pi)",
+     "decimal": "-2.749197058989881401830752769921780671526e-3",
+     "value": -0.0027491970589898812
+    },
+    {
+     "id": "nominal_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1118863700000/14931",
+     "decimal": "7.493561717232603308552675641283236219945e+7",
+     "value": 74935617.17232603
+    },
+    {
+     "id": "nominal_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1009867400000/14931",
+     "decimal": "6.763561717232603308552675641283236219945e+7",
+     "value": 67635617.17232603
+    },
+    {
+     "id": "nominal_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "nominal_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "reduced_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "28711695700000/271891",
+     "decimal": "1.056000224354612694057545119183790563130e+8",
+     "value": 105600022.43546127
+    },
+    {
+     "id": "reduced_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "26726891400000/271891",
+     "decimal": "9.830002243546126940575451191837905631301e+7",
+     "value": 98300022.43546127
+    },
+    {
+     "id": "reduced_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "reduced_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   ],
+   "negative_controls": []
+  },
+  {
+   "id": "HT-2S-VSPRING-HELD",
+   "document": "DOC-2S-VSPRING",
+   "model": "M2-VSPRING",
+   "shear_model": "euler_bernoulli",
+   "route": "exact",
+   "test_condition": {
+    "kind": "hydrostatic",
+    "held_supports": "springs_and_constant_effort"
+   },
+   "pressure": {
+    "input": "p_test",
+    "unit": "Pa",
+    "exact": "7300000",
+    "decimal": "7.300000000000000000000000000000000000000e+6",
+    "value": 7300000.0
+   },
+   "contents_density": {
+    "input": "rho_c_test",
+    "unit": "kg/m^3",
+    "exact": "1015",
+    "decimal": "1.015000000000000000000000000000000000000e+3",
+    "value": 1015.0
+   },
+   "weight_per_length": {
+    "unit": "N/m",
+    "direction": "global -Z",
+    "exact": "997077016683/2000000000*pi",
+    "decimal": "1.566204915337270256332568836971228230259e+3",
+    "value": 1566.2049153372702
+   },
+   "expected_outcome": {
+    "solved": true,
+    "marked_hydrostatic_test": true,
+    "held_supports_choice": "springs_and_constant_effort",
+    "held_support_ids": [
+     "support:b"
+    ],
+    "constant_effort_applied_force": []
+   },
+   "rows": [
+    {
+     "id": "support:a.fx",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "128622935152107/160000000000*pi",
+     "decimal": "2.525505425981348288336267249616105521293e+3",
+     "value": 2525.5054259813483
+    },
+    {
+     "id": "support:a.mx",
+     "quantity": "support_reaction",
+     "unit": "N*m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:b.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "42874311717369/16000000000*pi",
+     "decimal": "8.418351419937827627787557498720351737644e+3",
+     "value": 8418.351419937828
+    },
+    {
+     "id": "support:c.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:c.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "128622935152107/160000000000*pi",
+     "decimal": "2.525505425981348288336267249616105521293e+3",
+     "value": 2525.5054259813483
+    },
+    {
+     "id": "node:b.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "nominal_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1118863700000/14931",
+     "decimal": "7.493561717232603308552675641283236219945e+7",
+     "value": 74935617.17232603
+    },
+    {
+     "id": "nominal_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1009867400000/14931",
+     "decimal": "6.763561717232603308552675641283236219945e+7",
+     "value": 67635617.17232603
+    },
+    {
+     "id": "nominal_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "nominal_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "reduced_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "28711695700000/271891",
+     "decimal": "1.056000224354612694057545119183790563130e+8",
+     "value": 105600022.43546127
+    },
+    {
+     "id": "reduced_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "26726891400000/271891",
+     "decimal": "9.830002243546126940575451191837905631301e+7",
+     "value": 98300022.43546127
+    },
+    {
+     "id": "reduced_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "reduced_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   ],
+   "negative_controls": [
+    {
+     "id": "held_at_unheld_position",
+     "label": "negative control: replacement held at the unheld support's solved position instead of zero displacement from the authored geometry",
+     "rows": [
+      {
+       "id": "support:a.fx",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:a.fy",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:a.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "(-266461991638849213/268841010484375*pi + 42874311717369/20000000000*pi^2)/(814151680000/464557266117 + 1*pi)",
+       "decimal": "3.686835185350456383106719383291816888717e+3",
+       "value": 3686.8351853504564
+      },
+      {
+       "id": "support:a.mx",
+       "quantity": "support_reaction",
+       "unit": "N*m",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:b.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "(1531774977242301574/161304606290625*pi)/(814151680000/464557266117 + 1*pi)",
+       "decimal": "6.095691901199611438246653231368929002796e+3",
+       "value": 6095.6919011996115
+      },
+      {
+       "id": "support:c.fy",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:c.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "(-266461991638849213/268841010484375*pi + 42874311717369/20000000000*pi^2)/(814151680000/464557266117 + 1*pi)",
+       "decimal": "3.686835185350456383106719383291816888717e+3",
+       "value": 3686.8351853504564
+      },
+      {
+       "id": "node:b.uz",
+       "quantity": "nodal_translation",
+       "unit": "m",
+       "pressure_elongation": "independent",
+       "exact": "(4070758400/464557266117 - 378756433523650787/77426211019500000000*pi)/(814151680000/464557266117 + 1*pi)",
+       "decimal": "-1.349679063749595248173597116009301044579e-3",
+       "value": -0.0013496790637495953
+      }
+     ]
+    },
+    {
+     "id": "support_force_still_acting",
+     "label": "negative control: the support's own force still applied beside the rigid replacement; the replacement then reports less by that force",
+     "rows": [
+      {
+       "id": "support:b.fz.replacement_only",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "exact": "-4800 + 42874311717369/16000000000*pi",
+       "decimal": "3.618351419937827627787557498720351737644e+3",
+       "value": 3618.351419937828
+      },
+      {
+       "id": "support:b.applied_force",
+       "quantity": "support_applied_force",
+       "unit": "N",
+       "exact": "4800",
+       "decimal": "4.800000000000000000000000000000000000000e+3",
+       "value": 4800.0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "HT-2S-VSPRING-NONE",
+   "document": "DOC-2S-VSPRING",
+   "model": "M2-VSPRING",
+   "shear_model": "euler_bernoulli",
+   "route": "exact",
+   "test_condition": {
+    "kind": "hydrostatic",
+    "held_supports": "none"
+   },
+   "pressure": {
+    "input": "p_test",
+    "unit": "Pa",
+    "exact": "7300000",
+    "decimal": "7.300000000000000000000000000000000000000e+6",
+    "value": 7300000.0
+   },
+   "contents_density": {
+    "input": "rho_c_test",
+    "unit": "kg/m^3",
+    "exact": "1015",
+    "decimal": "1.015000000000000000000000000000000000000e+3",
+    "value": 1015.0
+   },
+   "weight_per_length": {
+    "unit": "N/m",
+    "direction": "global -Z",
+    "exact": "997077016683/2000000000*pi",
+    "decimal": "1.566204915337270256332568836971228230259e+3",
+    "value": 1566.2049153372702
+   },
+   "expected_outcome": {
+    "solved": true,
+    "marked_hydrostatic_test": true,
+    "held_supports_choice": "none",
+    "held_support_ids": [],
+    "constant_effort_applied_force": []
+   },
+   "rows": [
+    {
+     "id": "support:a.fx",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(-266461991638849213/268841010484375*pi + 42874311717369/20000000000*pi^2)/(814151680000/464557266117 + 1*pi)",
+     "decimal": "3.686835185350456383106719383291816888717e+3",
+     "value": 3686.8351853504564
+    },
+    {
+     "id": "support:a.mx",
+     "quantity": "support_reaction",
+     "unit": "N*m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:b.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(1531774977242301574/161304606290625*pi)/(814151680000/464557266117 + 1*pi)",
+     "decimal": "6.095691901199611438246653231368929002796e+3",
+     "value": 6095.6919011996115
+    },
+    {
+     "id": "support:c.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:c.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(-266461991638849213/268841010484375*pi + 42874311717369/20000000000*pi^2)/(814151680000/464557266117 + 1*pi)",
+     "decimal": "3.686835185350456383106719383291816888717e+3",
+     "value": 3686.8351853504564
+    },
+    {
+     "id": "node:b.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "(4070758400/464557266117 - 378756433523650787/77426211019500000000*pi)/(814151680000/464557266117 + 1*pi)",
+     "decimal": "-1.349679063749595248173597116009301044579e-3",
+     "value": -0.0013496790637495953
+    },
+    {
+     "id": "nominal_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1118863700000/14931",
+     "decimal": "7.493561717232603308552675641283236219945e+7",
+     "value": 74935617.17232603
+    },
+    {
+     "id": "nominal_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1009867400000/14931",
+     "decimal": "6.763561717232603308552675641283236219945e+7",
+     "value": 67635617.17232603
+    },
+    {
+     "id": "nominal_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "nominal_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "reduced_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "28711695700000/271891",
+     "decimal": "1.056000224354612694057545119183790563130e+8",
+     "value": 105600022.43546127
+    },
+    {
+     "id": "reduced_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "26726891400000/271891",
+     "decimal": "9.830002243546126940575451191837905631301e+7",
+     "value": 98300022.43546127
+    },
+    {
+     "id": "reduced_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "reduced_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   ],
+   "negative_controls": []
+  },
+  {
+   "id": "HT-2S-CE-HELD",
+   "document": "DOC-2S-CE",
+   "model": "M2-CE",
+   "shear_model": "euler_bernoulli",
+   "route": "exact",
+   "test_condition": {
+    "kind": "hydrostatic",
+    "held_supports": "springs_and_constant_effort"
+   },
+   "pressure": {
+    "input": "p_test",
+    "unit": "Pa",
+    "exact": "7300000",
+    "decimal": "7.300000000000000000000000000000000000000e+6",
+    "value": 7300000.0
+   },
+   "contents_density": {
+    "input": "rho_c_test",
+    "unit": "kg/m^3",
+    "exact": "1015",
+    "decimal": "1.015000000000000000000000000000000000000e+3",
+    "value": 1015.0
+   },
+   "weight_per_length": {
+    "unit": "N/m",
+    "direction": "global -Z",
+    "exact": "997077016683/2000000000*pi",
+    "decimal": "1.566204915337270256332568836971228230259e+3",
+    "value": 1566.2049153372702
+   },
+   "expected_outcome": {
+    "solved": true,
+    "marked_hydrostatic_test": true,
+    "held_supports_choice": "springs_and_constant_effort",
+    "held_support_ids": [
+     "support:b"
+    ],
+    "constant_effort_applied_force": [
+     {
+      "support": "support:b",
+      "applied_force": {
+       "unit": "N",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      }
+     }
+    ]
+   },
+   "rows": [
+    {
+     "id": "support:a.fx",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "128622935152107/160000000000*pi",
+     "decimal": "2.525505425981348288336267249616105521293e+3",
+     "value": 2525.5054259813483
+    },
+    {
+     "id": "support:a.mx",
+     "quantity": "support_reaction",
+     "unit": "N*m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:b.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "42874311717369/16000000000*pi",
+     "decimal": "8.418351419937827627787557498720351737644e+3",
+     "value": 8418.351419937828
+    },
+    {
+     "id": "support:c.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:c.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "128622935152107/160000000000*pi",
+     "decimal": "2.525505425981348288336267249616105521293e+3",
+     "value": 2525.5054259813483
+    },
+    {
+     "id": "node:b.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "nominal_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1118863700000/14931",
+     "decimal": "7.493561717232603308552675641283236219945e+7",
+     "value": 74935617.17232603
+    },
+    {
+     "id": "nominal_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1009867400000/14931",
+     "decimal": "6.763561717232603308552675641283236219945e+7",
+     "value": 67635617.17232603
+    },
+    {
+     "id": "nominal_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "nominal_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "reduced_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "28711695700000/271891",
+     "decimal": "1.056000224354612694057545119183790563130e+8",
+     "value": 105600022.43546127
+    },
+    {
+     "id": "reduced_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "26726891400000/271891",
+     "decimal": "9.830002243546126940575451191837905631301e+7",
+     "value": 98300022.43546127
+    },
+    {
+     "id": "reduced_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "reduced_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   ],
+   "negative_controls": [
+    {
+     "id": "held_at_unheld_position",
+     "label": "negative control: replacement held at the unheld support's solved position instead of zero displacement from the authored geometry",
+     "rows": [
+      {
+       "id": "support:a.fx",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:a.fy",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:a.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "-2800 + 42874311717369/20000000000*pi",
+       "decimal": "3.934681135950262102230045998976281390115e+3",
+       "value": 3934.681135950262
+      },
+      {
+       "id": "support:a.mx",
+       "quantity": "support_reaction",
+       "unit": "N*m",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:b.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "5600",
+       "decimal": "5.600000000000000000000000000000000000000e+3",
+       "value": 5600.0
+      },
+      {
+       "id": "support:c.fy",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      },
+      {
+       "id": "support:c.fz",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "pressure_elongation": "independent",
+       "exact": "-2800 + 42874311717369/20000000000*pi",
+       "decimal": "3.934681135950262102230045998976281390115e+3",
+       "value": 3934.681135950262
+      },
+      {
+       "id": "node:b.uz",
+       "quantity": "nodal_translation",
+       "unit": "m",
+       "pressure_elongation": "independent",
+       "exact": "(2035379200/199095971193 - 378756433523650787/77426211019500000000*pi)/(1*pi)",
+       "decimal": "-1.637721704404389101184948536124540912331e-3",
+       "value": -0.0016377217044043892
+      }
+     ]
+    },
+    {
+     "id": "support_force_still_acting",
+     "label": "negative control: the support's own force still applied beside the rigid replacement; the replacement then reports less by that force",
+     "rows": [
+      {
+       "id": "support:b.fz.replacement_only",
+       "quantity": "support_reaction",
+       "unit": "N",
+       "exact": "-5600 + 42874311717369/16000000000*pi",
+       "decimal": "2.818351419937827627787557498720351737644e+3",
+       "value": 2818.351419937828
+      },
+      {
+       "id": "support:b.applied_force",
+       "quantity": "support_applied_force",
+       "unit": "N",
+       "exact": "5600",
+       "decimal": "5.600000000000000000000000000000000000000e+3",
+       "value": 5600.0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "HT-2S-CE-NONE",
+   "document": "DOC-2S-CE",
+   "model": "M2-CE",
+   "shear_model": "euler_bernoulli",
+   "route": "exact",
+   "test_condition": {
+    "kind": "hydrostatic",
+    "held_supports": "none"
+   },
+   "pressure": {
+    "input": "p_test",
+    "unit": "Pa",
+    "exact": "7300000",
+    "decimal": "7.300000000000000000000000000000000000000e+6",
+    "value": 7300000.0
+   },
+   "contents_density": {
+    "input": "rho_c_test",
+    "unit": "kg/m^3",
+    "exact": "1015",
+    "decimal": "1.015000000000000000000000000000000000000e+3",
+    "value": 1015.0
+   },
+   "weight_per_length": {
+    "unit": "N/m",
+    "direction": "global -Z",
+    "exact": "997077016683/2000000000*pi",
+    "decimal": "1.566204915337270256332568836971228230259e+3",
+    "value": 1566.2049153372702
+   },
+   "expected_outcome": {
+    "solved": true,
+    "marked_hydrostatic_test": true,
+    "held_supports_choice": "none",
+    "held_support_ids": [],
+    "constant_effort_applied_force": [
+     {
+      "support": "support:b",
+      "applied_force": {
+       "unit": "N",
+       "exact": "5600",
+       "decimal": "5.600000000000000000000000000000000000000e+3",
+       "value": 5600.0
+      }
+     }
+    ]
+   },
+   "rows": [
+    {
+     "id": "support:a.fx",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "-2800 + 42874311717369/20000000000*pi",
+     "decimal": "3.934681135950262102230045998976281390115e+3",
+     "value": 3934.681135950262
+    },
+    {
+     "id": "support:a.mx",
+     "quantity": "support_reaction",
+     "unit": "N*m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:b.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "5600",
+     "decimal": "5.600000000000000000000000000000000000000e+3",
+     "value": 5600.0
+    },
+    {
+     "id": "support:c.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:c.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "-2800 + 42874311717369/20000000000*pi",
+     "decimal": "3.934681135950262102230045998976281390115e+3",
+     "value": 3934.681135950262
+    },
+    {
+     "id": "node:b.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "(2035379200/199095971193 - 378756433523650787/77426211019500000000*pi)/(1*pi)",
+     "decimal": "-1.637721704404389101184948536124540912331e-3",
+     "value": -0.0016377217044043892
+    },
+    {
+     "id": "nominal_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1118863700000/14931",
+     "decimal": "7.493561717232603308552675641283236219945e+7",
+     "value": 74935617.17232603
+    },
+    {
+     "id": "nominal_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1009867400000/14931",
+     "decimal": "6.763561717232603308552675641283236219945e+7",
+     "value": 67635617.17232603
+    },
+    {
+     "id": "nominal_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "nominal_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "reduced_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "28711695700000/271891",
+     "decimal": "1.056000224354612694057545119183790563130e+8",
+     "value": 105600022.43546127
+    },
+    {
+     "id": "reduced_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "26726891400000/271891",
+     "decimal": "9.830002243546126940575451191837905631301e+7",
+     "value": 98300022.43546127
+    },
+    {
+     "id": "reduced_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "reduced_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   ],
+   "negative_controls": []
+  },
+  {
+   "id": "HT-4S-ORDINARY",
+   "document": "DOC-4S",
+   "model": "M4",
+   "shear_model": "euler_bernoulli",
+   "route": "exact",
+   "test_condition": null,
+   "pressure": {
+    "input": "p_ordinary",
+    "unit": "Pa",
+    "exact": "4700000",
+    "decimal": "4.700000000000000000000000000000000000000e+6",
+    "value": 4700000.0
+   },
+   "contents_density": {
+    "input": "rho_c_section",
+    "unit": "kg/m^3",
+    "exact": "865",
+    "decimal": "8.650000000000000000000000000000000000000e+2",
+    "value": 865.0
+   },
+   "weight_per_length": {
+    "unit": "N/m",
+    "direction": "global -Z",
+    "exact": "943312030353/2000000000*pi",
+    "decimal": "1.481751072299928426885833611112384518690e+3",
+    "value": 1481.7510722999284
+   },
+   "expected_outcome": {
+    "solved": true,
+    "marked_hydrostatic_test": false,
+    "held_supports_choice": null,
+    "held_support_ids": [],
+    "constant_effort_applied_force": [
+     {
+      "support": "support:c",
+      "applied_force": {
+       "unit": "N",
+       "exact": "6900",
+       "decimal": "6.900000000000000000000000000000000000000e+3",
+       "value": 6900.0
+      }
+     }
+    ]
+   },
+   "rows": [
+    {
+     "id": "support:a.fx",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(87839638092728320000000000/2480614408070128232847 + 60178766823223924856358592/1265619595954147057575*pi + 13192901454608430297/2457974953000000*pi^2 + 40562417305179/10000000000*pi^3)/(611058351949414400000000/22325529672631154095623 + 2607829600000/154852422039*pi + 1*pi^2)",
+     "decimal": "4.032675133698305749879692753057798751058e+3",
+     "value": 4032.6751336983057
+    },
+    {
+     "id": "support:a.mx",
+     "quantity": "support_reaction",
+     "unit": "N*m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:b.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(-966236019020011520000000000/7441843224210384698541 - 7491632150975464558798528/328123598951075163075*pi + 57384454639960216351/921740607375000*pi^2)/(611058351949414400000000/22325529672631154095623 + 2607829600000/154852422039*pi + 1*pi^2)",
+     "decimal": "4.580109333601268816857901694683406555826e+3",
+     "value": 4580.109333601269
+    },
+    {
+     "id": "support:c.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "6900",
+     "decimal": "6.900000000000000000000000000000000000000e+3",
+     "value": 6900.0
+    },
+    {
+     "id": "support:d.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(-966236019020011520000000000/7441843224210384698541 + 9162911848315970405890112/101831461743437119575*pi + 1084921903278562989/21189439250000*pi^2)/(611058351949414400000000/22325529672631154095623 + 2607829600000/154852422039*pi + 1*pi^2)",
+     "decimal": "7.301208351520508434780200125984612771235e+3",
+     "value": 7301.208351520509
+    },
+    {
+     "id": "support:e.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:e.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(87839638092728320000000000/2480614408070128232847 - 11210333096763715743641408/1265619595954147057575*pi + 395764097306385203/36324753000000*pi^2 + 40562417305179/10000000000*pi^3)/(611058351949414400000000/22325529672631154095623 + 2607829600000/154852422039*pi + 1*pi^2)",
+     "decimal": "2.672125624738685940918543537407195643354e+3",
+     "value": 2672.125624738686
+    },
+    {
+     "id": "node:b.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "(818844083915264000000/7441843224210384698541 + 3968025503694631651906/205077249344421976921875*pi - 972617875253562989/18434812147500000000*pi^2)/(611058351949414400000000/22325529672631154095623 + 2607829600000/154852422039*pi + 1*pi^2)",
+     "decimal": "-3.881448587797685438015170927697802165954e-3",
+     "value": -0.0038814485877976855
+    },
+    {
+     "id": "node:c.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "(223483715386833617223680000000000/1481641004190212992112166925129413 + 4253812892813936730315922129156096/12347008368251774934268057709411775*pi - 227704917598689497206507/32115097247336481585965625*pi^2 - 51190414487029631/691305455531250000*pi^3)/(611058351949414400000000/22325529672631154095623*pi + 2607829600000/154852422039*pi^2 + 1*pi^3)",
+     "decimal": "-3.999857272288051321457570041420907897461e-3",
+     "value": -0.003999857272288051
+    },
+    {
+     "id": "node:d.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "(613731732239193088000000/1942321081518910406319201 - 133853247913815985675828/160575486236682407929828125*pi - 972617875253562989/18434812147500000000*pi^2)/(611058351949414400000000/22325529672631154095623 + 2607829600000/154852422039*pi + 1*pi^2)",
+     "decimal": "-2.300239484506331534230115087338635369236e-3",
+     "value": -0.0023002394845063317
+    },
+    {
+     "id": "nominal_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "720364300000/14931",
+     "decimal": "4.824621927533319938383229522470028799143e+7",
+     "value": 48246219.275333196
+    },
+    {
+     "id": "nominal_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "650188600000/14931",
+     "decimal": "4.354621927533319938383229522470028799143e+7",
+     "value": 43546219.275333196
+    },
+    {
+     "id": "nominal_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-4700000",
+     "decimal": "-4.700000000000000000000000000000000000000e+6",
+     "value": -4700000.0
+    },
+    {
+     "id": "nominal_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "reduced_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "18485612300000/271891",
+     "decimal": "6.798905554063944742562276794744952940701e+7",
+     "value": 67989055.54063945
+    },
+    {
+     "id": "reduced_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "17207724600000/271891",
+     "decimal": "6.328905554063944742562276794744952940701e+7",
+     "value": 63289055.540639445
+    },
+    {
+     "id": "reduced_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-4700000",
+     "decimal": "-4.700000000000000000000000000000000000000e+6",
+     "value": -4700000.0
+    },
+    {
+     "id": "reduced_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   ],
+   "negative_controls": []
+  },
+  {
+   "id": "HT-4S-TEST-HELD",
+   "document": "DOC-4S",
+   "model": "M4",
+   "shear_model": "euler_bernoulli",
+   "route": "exact",
+   "test_condition": {
+    "kind": "hydrostatic",
+    "held_supports": "springs_and_constant_effort"
+   },
+   "pressure": {
+    "input": "p_test",
+    "unit": "Pa",
+    "exact": "7300000",
+    "decimal": "7.300000000000000000000000000000000000000e+6",
+    "value": 7300000.0
+   },
+   "contents_density": {
+    "input": "rho_c_test",
+    "unit": "kg/m^3",
+    "exact": "1015",
+    "decimal": "1.015000000000000000000000000000000000000e+3",
+    "value": 1015.0
+   },
+   "weight_per_length": {
+    "unit": "N/m",
+    "direction": "global -Z",
+    "exact": "997077016683/2000000000*pi",
+    "decimal": "1.566204915337270256332568836971228230259e+3",
+    "value": 1566.2049153372702
+   },
+   "expected_outcome": {
+    "solved": true,
+    "marked_hydrostatic_test": true,
+    "held_supports_choice": "springs_and_constant_effort",
+    "held_support_ids": [
+     "support:b",
+     "support:c",
+     "support:d"
+    ],
+    "constant_effort_applied_force": [
+     {
+      "support": "support:c",
+      "applied_force": {
+       "unit": "N",
+       "exact": "0",
+       "decimal": "0",
+       "value": 0.0
+      }
+     }
+    ]
+   },
+   "rows": [
+    {
+     "id": "support:a.fx",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "471617428891059/560000000000*pi",
+     "decimal": "2.645767589123317254447518071026396260402e+3",
+     "value": 2645.767589123317
+    },
+    {
+     "id": "support:a.mx",
+     "quantity": "support_reaction",
+     "unit": "N*m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:b.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "42874311717369/17500000000*pi",
+     "decimal": "7.696778441086013831120052570258607302989e+3",
+     "value": 7696.778441086014
+    },
+    {
+     "id": "support:c.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "557366052325797/280000000000*pi",
+     "decimal": "6.253632483382386237785042713335118433678e+3",
+     "value": 6253.632483382386
+    },
+    {
+     "id": "support:d.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "42874311717369/17500000000*pi",
+     "decimal": "7.696778441086013831120052570258607302989e+3",
+     "value": 7696.778441086014
+    },
+    {
+     "id": "support:e.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:e.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "471617428891059/560000000000*pi",
+     "decimal": "2.645767589123317254447518071026396260402e+3",
+     "value": 2645.767589123317
+    },
+    {
+     "id": "node:b.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "node:c.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "node:d.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "nominal_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1118863700000/14931",
+     "decimal": "7.493561717232603308552675641283236219945e+7",
+     "value": 74935617.17232603
+    },
+    {
+     "id": "nominal_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1009867400000/14931",
+     "decimal": "6.763561717232603308552675641283236219945e+7",
+     "value": 67635617.17232603
+    },
+    {
+     "id": "nominal_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "nominal_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "reduced_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "28711695700000/271891",
+     "decimal": "1.056000224354612694057545119183790563130e+8",
+     "value": 105600022.43546127
+    },
+    {
+     "id": "reduced_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "26726891400000/271891",
+     "decimal": "9.830002243546126940575451191837905631301e+7",
+     "value": 98300022.43546127
+    },
+    {
+     "id": "reduced_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "reduced_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   ],
+   "negative_controls": []
+  },
+  {
+   "id": "HT-4S-TEST-NONE",
+   "document": "DOC-4S",
+   "model": "M4",
+   "shear_model": "euler_bernoulli",
+   "route": "exact",
+   "test_condition": {
+    "kind": "hydrostatic",
+    "held_supports": "none"
+   },
+   "pressure": {
+    "input": "p_test",
+    "unit": "Pa",
+    "exact": "7300000",
+    "decimal": "7.300000000000000000000000000000000000000e+6",
+    "value": 7300000.0
+   },
+   "contents_density": {
+    "input": "rho_c_test",
+    "unit": "kg/m^3",
+    "exact": "1015",
+    "decimal": "1.015000000000000000000000000000000000000e+3",
+    "value": 1015.0
+   },
+   "weight_per_length": {
+    "unit": "N/m",
+    "direction": "global -Z",
+    "exact": "997077016683/2000000000*pi",
+    "decimal": "1.566204915337270256332568836971228230259e+3",
+    "value": 1566.2049153372702
+   },
+   "expected_outcome": {
+    "solved": true,
+    "marked_hydrostatic_test": true,
+    "held_supports_choice": "none",
+    "held_support_ids": [],
+    "constant_effort_applied_force": [
+     {
+      "support": "support:c",
+      "applied_force": {
+       "unit": "N",
+       "exact": "6900",
+       "decimal": "6.900000000000000000000000000000000000000e+3",
+       "value": 6900.0
+      }
+     }
+    ]
+   },
+   "rows": [
+    {
+     "id": "support:a.fx",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:a.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(87839638092728320000000000/2480614408070128232847 + 427382888549867307088705984/8859337171679029403025*pi + 102296570321992933269/17205824671000000*pi^2 + 42874311717369/10000000000*pi^3)/(611058351949414400000000/22325529672631154095623 + 2607829600000/154852422039*pi + 1*pi^2)",
+     "decimal": "4.199602790537331043185693424182087850356e+3",
+     "value": 4199.602790537331
+    },
+    {
+     "id": "support:a.mx",
+     "quantity": "support_reaction",
+     "unit": "N*m",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:b.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(-966236019020011520000000000/7441843224210384698541 - 118491310184252479471528768/6890595577972578424575*pi + 424585961980012532227/6452184251625000*pi^2)/(611058351949414400000000/22325529672631154095623 + 2607829600000/154852422039*pi + 1*pi^2)",
+     "decimal": "5.164999935411414792528275621125249404797e+3",
+     "value": 5164.999935411415
+    },
+    {
+     "id": "support:c.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "6900",
+     "decimal": "6.900000000000000000000000000000000000000e+3",
+     "value": 6900.0
+    },
+    {
+     "id": "support:d.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(-966236019020011520000000000/7441843224210384698541 + 1976570000166838821185413696/20671786733917735273725*pi + 7982500433124364953/148326074750000*pi^2)/(611058351949414400000000/22325529672631154095623 + 2607829600000/154852422039*pi + 1*pi^2)",
+     "decimal": "7.784038119218528267512767431706151505107e+3",
+     "value": 7784.038119218529
+    },
+    {
+     "id": "support:e.fy",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "support:e.fz",
+     "quantity": "support_reaction",
+     "unit": "N",
+     "pressure_elongation": "independent",
+     "exact": "(87839638092728320000000000/2480614408070128232847 - 72340810890046177111294016/8859337171679029403025*pi + 3035854598632460231/254273271000000*pi^2 + 42874311717369/10000000000*pi^3)/(611058351949414400000000/22325529672631154095623 + 2607829600000/154852422039*pi + 1*pi^2)",
+     "decimal": "2.890083698633774305693447518891636800201e+3",
+     "value": 2890.0836986337745
+    },
+    {
+     "id": "node:b.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "(818844083915264000000/7441843224210384698541 + 62760227851828643787886/4306622236232861515359375*pi - 7196372236949364953/129043685032500000000*pi^2)/(611058351949414400000000/22325529672631154095623 + 2607829600000/154852422039*pi + 1*pi^2)",
+     "decimal": "-4.377118589331707451295148831462075766777e-3",
+     "value": -0.004377118589331708
+    },
+    {
+     "id": "node:c.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "(223483715386833617223680000000000/1481641004190212992112166925129413 + 29573890739231444415006239785326592/86429058577762424539876403965882425*pi - 3657801722093921783073439/224805680731355371101759375*pi^2 - 378756433523650787/4839138188718750000*pi^3)/(611058351949414400000000/22325529672631154095623*pi + 2607829600000/154852422039*pi^2 + 1*pi^3)",
+     "decimal": "-4.807905603980891277983814553310372008672e-3",
+     "value": -0.004807905603980892
+    },
+    {
+     "id": "node:d.uz",
+     "quantity": "nodal_translation",
+     "unit": "m",
+     "pressure_elongation": "independent",
+     "exact": "(613731732239193088000000/1942321081518910406319201 - 8218153670315263699088356/1124028403656776855508796875*pi - 7196372236949364953/129043685032500000000*pi^2)/(611058351949414400000000/22325529672631154095623 + 2607829600000/154852422039*pi + 1*pi^2)",
+     "decimal": "-2.855216228986814100589387852535806327709e-3",
+     "value": -0.002855216228986814
+    },
+    {
+     "id": "nominal_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1118863700000/14931",
+     "decimal": "7.493561717232603308552675641283236219945e+7",
+     "value": 74935617.17232603
+    },
+    {
+     "id": "nominal_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "1009867400000/14931",
+     "decimal": "6.763561717232603308552675641283236219945e+7",
+     "value": 67635617.17232603
+    },
+    {
+     "id": "nominal_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "nominal_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "nominal_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    },
+    {
+     "id": "reduced_section.hoop.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "28711695700000/271891",
+     "decimal": "1.056000224354612694057545119183790563130e+8",
+     "value": 105600022.43546127
+    },
+    {
+     "id": "reduced_section.hoop.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "hoop",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "26726891400000/271891",
+     "decimal": "9.830002243546126940575451191837905631301e+7",
+     "value": 98300022.43546127
+    },
+    {
+     "id": "reduced_section.radial.bore",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "inner",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "-7300000",
+     "decimal": "-7.300000000000000000000000000000000000000e+6",
+     "value": -7300000.0
+    },
+    {
+     "id": "reduced_section.radial.outside",
+     "quantity": "pressure_stress",
+     "basis": "reduced_section",
+     "component": "radial",
+     "surface": "outer",
+     "unit": "Pa",
+     "applies_to": "every station of every pipe of the case",
+     "pressure_elongation": "independent",
+     "exact": "0",
+     "decimal": "0",
+     "value": 0.0
+    }
+   ],
+   "negative_controls": []
+  }
+ ]
+}
