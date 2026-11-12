@@ -67,6 +67,7 @@ mod native_ledger_tests;
 mod report_package_bridge;
 mod report_package_save;
 mod report_native_fill;
+mod report_session_diagnostics;
 #[cfg(test)]
 mod report_native_fill_tests;
 mod report_render_exact;

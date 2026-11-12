@@ -24,8 +24,10 @@
 //!   `report_context.result_coordinate_systems` and
 //!   `calculation_report.report_section_refs`;
 //! - the result's Diagnostics, before the frame's own entries in
-//!   `report_sections.diagnostics` (a frame entry with the result diagnostics'
-//!   remediation text is refused);
+//!   `report_sections.diagnostics` (a frame entry with a result diagnostic's
+//!   code and affected object is refused, whatever else it carries; the
+//!   admission admits only the session entries the host derives from the
+//!   bound model, `report_session_diagnostics`);
 //! - the exact or pressure-free Timoshenko limitation entries, after the
 //!   frame's one technical-preview entry in `report_sections.limitations` (a
 //!   frame with any other entry is refused);
@@ -56,7 +58,6 @@ use crate::report_render_exact::{check_text_sizes, exact_render_growth_bytes, PF
 use crate::solve_jobs::{sha256_in_place, HeldResult, SolveJobRegistry};
 use open_pipe_stress_report_package::bindings::{
     expected_report_diagnostics, expected_report_result_refs, expected_report_result_rows, expected_unit_display_summary,
-    RESULT_DIAGNOSTIC_REMEDIATION,
 };
 use open_pipe_stress_report_package::exact_sections::{expected_exact_limitations, expected_exact_route_core, is_exact_identity};
 use open_pipe_stress_report_package::model_input::model_input_tables;
@@ -95,8 +96,10 @@ fn incomplete(path: &str) -> String {
 }
 
 /// The frame rule (module docs): no member the host fills, by key (a null
-/// counts), no result diagnostic among its Diagnostics, and exactly one
-/// limitation entry. Names the path only, never a value.
+/// counts), and exactly one limitation entry. Names the path only, never a
+/// value. The frame's Diagnostics are the session's: the fill refuses one
+/// that copies a result diagnostic, and the admission admits only those the
+/// host derives (`report_session_diagnostics`).
 pub(crate) fn check_frame(frame: &Value) -> Result<(), String> {
     for path in FILLED_MEMBERS {
         let (last, parents) = path.split_last().expect("a path");
@@ -106,11 +109,6 @@ pub(crate) fn check_frame(frame: &Value) -> Result<(), String> {
         }
     }
     let sections = frame.get("report_sections");
-    if let Some(diagnostics) = sections.and_then(|sections| sections.get("diagnostics")).and_then(Value::as_array) {
-        if let Some(index) = diagnostics.iter().position(|entry| entry.get("remediation").and_then(Value::as_str) == Some(RESULT_DIAGNOSTIC_REMEDIATION)) {
-            return Err(derived(&format!("report_sections.diagnostics[{index}]")));
-        }
-    }
     match sections.and_then(|sections| sections.get("limitations")).and_then(Value::as_array).map(Vec::len) {
         Some(1) => Ok(()),
         Some(count) if count > 1 => Err(derived("report_sections.limitations[1]")),
@@ -345,6 +343,12 @@ pub(crate) fn fill(mut frame: Value, basis: &FillBasis<'_>) -> Result<Value, Str
         Some(Value::Array(items)) => items,
         Some(_) => return Err(incomplete("report_sections.diagnostics")),
     };
+    // A frame entry with a result diagnostic's code and affected object is
+    // refused whatever else it carries (review of f3d02469c, finding 2); the
+    // admission then admits only the session entries the host derives.
+    if let Some(index) = crate::report_session_diagnostics::first_copy_of_a_result_diagnostic(&own, &diagnostics) {
+        return Err(derived(&format!("report_sections.diagnostics[{index}]")));
+    }
     let mut entries: Vec<Value> = diagnostics
         .into_iter()
         .map(|mut entry| {
