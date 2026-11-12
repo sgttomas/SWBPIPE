@@ -33,11 +33,16 @@ import { buildUserReleasedReportPackageRequest, reportPackageExactSubmission } f
  * confirmed, `YYYY-MM-DDTHH:MM:SSZ`. It lives only in the argument of the one save. */
 export type UserReleaseConfirmation = { userReleasedAt: string };
 
-/** Route 010's receipt: the package receipt plus the record's two receipt members. */
+/** Route 010's native receipt: the package receipt plus the record's two receipt members. */
 export type UserReleasedReportPackageSaveReceipt = ReportPackageSaveReceipt & {
   user_release_recorded: boolean;
   user_release_model_document_sha256: string;
 };
+
+/** The status the session keeps of a route-010 save: the native receipt without the record's
+ * bound model document SHA-256, which stays in the report and its package (DEL-08-01 REQ-019,
+ * AC-010). */
+export type UserReleasedReportPackageSaveStatus = Omit<UserReleasedReportPackageSaveReceipt, "user_release_model_document_sha256">;
 
 /** Route 010's screening evidence (`ReportPackageSaveScreening`, `deny_unknown_fields`). */
 type UserReleasedSaveScreening = {
@@ -201,11 +206,15 @@ export async function prepareShareableReportPackageSave(input: {
 }
 
 /** The native save of a prepared route-010 request. `isCurrent` is the session's basis guard
- * (with the exact re-check), evaluated immediately before each send. */
+ * (with the exact re-check), evaluated immediately before each send. The status returned keeps
+ * whether the package records the user release, not the binding (the native receipt's
+ * contract is unchanged). */
 export async function invokeUserReleasedReportPackageSave(
   prepared: Extract<PreparedUserReleasedReportPackageSave, { route: "ready" }>,
   isCurrent: () => boolean
 ): Promise<ReportPackageSaveRoute> {
-  const receipt = await invokeWithIngress<UserReleasedReportPackageSaveReceipt>("save_report_package", prepared.args, { stillCurrent: isCurrent });
-  return { route: "tauri_report_package_save", receipt };
+  const { user_release_model_document_sha256: _binding, ...receipt } =
+    await invokeWithIngress<UserReleasedReportPackageSaveReceipt>("save_report_package", prepared.args, { stillCurrent: isCurrent });
+  const status: UserReleasedReportPackageSaveStatus = receipt;
+  return { route: "tauri_report_package_save", receipt: status };
 }

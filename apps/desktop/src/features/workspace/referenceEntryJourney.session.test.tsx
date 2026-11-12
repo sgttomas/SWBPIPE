@@ -1,15 +1,15 @@
 // The reference-entry journey (RT-G2/RT-G3; exit criterion 7 as context): the reference system
 // entered from a blank load/reference model, following the
-// DEL-09-01 run sheet §2–§3.12 in order, through the desktop's own surfaces
+// DEL-09-01 run sheet's steps in order, units to combinations, through the desktop's own surfaces
 // (the units dialog, the pressure, material, section, component and support forms, the run
 // sheet's grid, the load manager with its fills and copies, the self-weight plan, batch review
 // and Review/Apply) and one workspace session running the real wasm operation engine. At the end
 // the document is compared with `fixtures/reference_system/reference_system.json` record by
-// record, keyed by id, with only the run sheet's §3.14 differences allowed, each by member path;
+// record, keyed by id, with only the run sheet's §4 differences allowed, each by member path;
 // then it is saved in the browser store, reopened, and compared again.
 //
 // Functional authoring-path evidence only: not a human timing, native usability, physics or
-// acceptance result. No solve runs here (§3.13 is a native job, out of this test's scope); every duration in
+// acceptance result. No solve runs here (step solve is a native job, out of this test's scope); every duration in
 // the run sheet stays an estimate.
 //
 // Routes, per step: "typed UI" is a person's entry in a rendered control; "UI function" is the
@@ -64,7 +64,7 @@ const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
  */
 const BLOCKED: ReadonlyArray<{ step: string; missing: string; evidence: string; records: readonly string[] }> = [];
 
-/** The run sheet's §3.14 differences, each allowed by member path (and checked to be the stated value). */
+/** The run sheet's §4 differences, each allowed by member path (and checked to be the stated value). */
 const ALLOWED_DIFFERENCES = [
   "project.id", "project.name", "project.description",
   "pipe_segments[].label (derived: the pipe id's token)",
@@ -82,12 +82,12 @@ const ALLOWED_DIFFERENCES = [
 ] as const;
 
 /**
- * Document members the blank load/reference model carries and §3.14 does not list. They are not
+ * Document members the blank load/reference model carries. The run sheet's §4 now lists them too; the constant keeps its earlier name. They are not
  * records; the test asserts each is exactly the blank's, so the list cannot grow silently.
  */
 const DOCUMENT_DIFFERENCES_NOT_IN_3_14 = ["analysis_status", "data_boundary", "diagnostics"] as const;
 
-/** Row labels the person types in the Label cell (§3.4: "for the fixture's text, type nodes[].label"). */
+/** Row labels the person types in the Label cell (step rows, its Labels table). */
 const ROW_NODES: Record<number, string> = {
   0: "RS-010", 1: "RS-020", 2: "RS-030", 3: "RS-040", 4: "RS-050", 5: "RS-060", 8: "RS-080", 10: "RS-100", 11: "RS-110",
   12: "RS-120", 13: "RS-130", 14: "RS-140", 15: "RS-150", 16: "RS-160", 17: "RS-170", 18: "RS-180", 19: "RS-190",
@@ -127,7 +127,7 @@ function keyed(model: PreviewModel): Record<string, Record<string, AnyRecord>> {
   return out;
 }
 
-/** Applies the §3.14 allowances to the entered side: each is checked to be the stated derived value, then set to the fixture's. */
+/** Applies the run sheet's §4 allowances to the entered side: each is checked to be the stated derived value, then set to the fixture's. */
 function allowDifferences(entered: Record<string, Record<string, AnyRecord>>, fixture: Record<string, Record<string, AnyRecord>>): void {
   for (const [id, pipe] of Object.entries(entered.pipe_segments)) {
     const expected = BEND_ARCS.includes(id) ? BEND_LABELS.arc : token(id);
@@ -196,13 +196,13 @@ function compareWithFixture(model: PreviewModel, where: string): number {
     compared += expectedIds.length;
   }
   // Document members outside the collections: each equals the fixture's, but for project.id, name and
-  // description (§3.14) and the blank's own members §3.14 does not list, asserted to be the blank's.
+  // description and the blank's own members (run sheet §4), asserted to be the blank's.
   const document = model as unknown as AnyRecord, fixtureDocument = reference as unknown as AnyRecord;
   const members = [...new Set([...Object.keys(document), ...Object.keys(fixtureDocument)])].filter((key) => !(COLLECTIONS as readonly string[]).includes(key)).sort();
   expect(members, `${where}: document members`).toEqual(["analysis_status", "data_boundary", "diagnostics", "document_kind", "pressure_contract", "project", "schema_version"]);
   for (const key of members.filter((key) => key !== "project" && !(DOCUMENT_DIFFERENCES_NOT_IN_3_14 as readonly string[]).includes(key))) expect(document[key], `${where}: ${key}`).toEqual(fixtureDocument[key]);
   const { id, name, description, ...project } = model.project;
-  expect([id, name, description], `${where}: project (§3.14)`).toEqual([expect.stringMatching(/^project:blank-local-/), expect.stringMatching(/^Blank Local Load\/reference Model/), BLANK.project.description]);
+  expect([id, name, description], `${where}: project (run sheet §4)`).toEqual([expect.stringMatching(/^project:blank-local-/), expect.stringMatching(/^Blank Local Load\/reference Model/), BLANK.project.description]);
   expect(project, `${where}: project.units`).toEqual({ units: reference.project.units });
   const blank = BLANK as unknown as AnyRecord;
   expect(document.analysis_status, `${where}: analysis_status (the blank's)`).toEqual(blank.analysis_status);
@@ -219,8 +219,8 @@ function compareWithFixture(model: PreviewModel, where: string): number {
 // ---------------------------------------------------------------------------------------------
 
 describe("the reference system entered from blank through the desktop's authoring surfaces", () => {
-  it("follows the run sheet §2–§3.12 through one session and the wasm engine, and equals the fixture by record; Undo/Redo per family; browser save and reopen", async () => {
-    // The session opens on an unrelated blank; §2 then creates the load/reference blank through the units dialog.
+  it("follows the run sheet's steps units to combinations through one session and the wasm engine, and equals the fixture by record; Undo/Redo per family; browser save and reopen", async () => {
+    // The session opens on an unrelated blank; step units then creates the load/reference blank through the units dialog.
     vi.spyOn(previewService, "loadPreviewModel").mockResolvedValue(buildBlankLocalModelDocument(new Date("2026-11-04T00:00:00Z")));
     RUN_SHEET_TIMING.engineCheckDelayMs = 60_000;
     const current = { sheet: false } as { session: Session; store: ReturnType<typeof useRunSheetStore>; sheet: boolean; rerender: () => void };
@@ -345,7 +345,7 @@ describe("the reference system entered from blank through the desktop's authorin
       fireEvent.click(inspector().getByRole("tab", { name: /^Properties$/ }));
     }
 
-    // §2.1 Project page, Blank load/reference model: the units dialog, Preset SI, Create.
+    // Step units: Project page, Blank load/reference model: the units dialog, Preset SI, Create.
     // UI function: `requestBlankProject("load_state")`, the function the Project page's button calls; then the dialog typed.
     act(() => current.session.project.requestBlankProject("load_state"));
     const dialog = await screen.findByTestId("project-units-dialog");
@@ -355,14 +355,14 @@ describe("the reference system entered from blank through the desktop's authorin
     expect(model().pressure_contract).toEqual({ version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" });
     expect(model().project.units).toEqual(reference.project.units);
 
-    // §3.1 Pressure profile (typed UI): exact_pressure_v3, Euler–Bernoulli.
+    // Step profile: Pressure profile (typed UI): exact_pressure_v3, Euler–Bernoulli.
     change(loads(), "Pressure profile", "exact_pressure_v3");
     change(loads(), "Shear model", "euler_bernoulli");
     click(loads(), "Queue pressure profile");
-    await applyQueuedIntent("§3.1 pressure profile");
+    await applyQueuedIntent("step profile");
     expect(model().pressure_contract).toEqual(reference.pressure_contract);
 
-    // §3.2.1 Material RS-M1 (typed UI): Create explicit E/nu material.
+    // Step material, item 1: Material RS-M1 (typed UI): Create explicit E/nu material.
     change(loads(), "Exact material ID", "material:RS-M1");
     change(loads(), "Exact material label", "RS-M1 invented carbon-steel-like material");
     change(loads(), "Constitutive basis", "homogeneous_isotropic_E_nu_v1");
@@ -371,8 +371,8 @@ describe("the reference system entered from blank through the desktop's authorin
     change(loads(), "Thermal expansion coefficient value", "1.2e-5"); change(loads(), "Thermal expansion coefficient unit", "1/K");
     change(loads(), "Constitutive provenance", P);
     click(loads(), "Queue exact material");
-    await applyQueuedIntent("§3.2 material");
-    // §3.2.2 Temperature points (typed UI, after selecting the material: UI function `handleSelectEntity`, the Model tree's selection).
+    await applyQueuedIntent("step material");
+    // Step material, item 2: Temperature points (typed UI, after selecting the material: UI function `handleSelectEntity`, the Model tree's selection).
     select({ type: "material", id: "material:RS-M1" });
     const points = [["point:RS-M1-T020", "20", "200"], ["point:RS-M1-T100", "100", "195"], ["point:RS-M1-T200", "200", "189"], ["point:RS-M1-T300", "300", "182"]];
     for (const [index, [id, temperature, modulus]] of points.entries()) {
@@ -386,8 +386,8 @@ describe("the reference system entered from blank through the desktop's authorin
       change(inspector(), `${n} provenance`, P);
     }
     click(inspector(), "Queue temperature points");
-    await applyQueuedIntent("§3.2 temperature points");
-    // §3.2.3 Expansion law (typed UI).
+    await applyQueuedIntent("step material: temperature points");
+    // Step material, item 3: Expansion law (typed UI).
     click(inspector(), "Add expansion law");
     change(inspector(), "Expansion law 1 definition", "engineering_secant");
     change(inspector(), "Expansion law 1 ID", "law:RS-M1-SECANT");
@@ -396,10 +396,10 @@ describe("the reference system entered from blank through the desktop's authorin
     change(inspector(), "Expansion law 1 constant coefficient value", "1.2e-5"); change(inspector(), "Expansion law 1 constant coefficient unit", "1/K");
     change(inspector(), "Expansion law 1 provenance", P);
     click(inspector(), "Queue expansion laws");
-    await applyQueuedIntent("§3.2 expansion laws");
+    await applyQueuedIntent("step material: expansion laws");
     expect(model().materials).toEqual(reference.materials);
 
-    // §3.3 Sections (typed UI): Inspector, New section.
+    // Step sections (typed UI): Inspector, New section.
     select({ type: "project", id: model().project.id });
     for (const [id, od, wall] of [["section:RS-S270", "270", "9.0"], ["section:RS-S220", "220", "8.0"], ["section:RS-S170", "170", "7.0"]]) {
       change(inspector(), "New section ID", id);
@@ -410,11 +410,11 @@ describe("the reference system entered from blank through the desktop's authorin
       change(inspector(), "New section wall thickness", wall);
       change(inspector(), "New section provenance", P);
       fireEvent.click(screen.getByTestId("queue-create-section-intent"));
-      await applyQueuedIntent(`§3.3 ${id}`);
+      await applyQueuedIntent(`step sections ${id}`);
     }
     expect(model().sections).toEqual(reference.sections);
 
-    // §3.4/§3.5 The run sheet (Model tree Grid › Run sheet): header, 26 rows with their labels,
+    // Step rows: the run sheet (Model tree Grid › Run sheet): header, 26 rows with their labels,
     // bends with SIFs, valve and flanges; Queue rows, Validate batch, Apply entire batch.
     // Typed UI: the bend rows and the valve/flange rows (with Component details) and their labels.
     // Draft setup: the header and column units are set in the sheet's draft state directly
@@ -429,7 +429,7 @@ describe("the reference system entered from blank through the desktop's authorin
     const queue = screen.getByTestId("run-sheet-queue");
     await waitFor(() => expect(queue, screen.getByTestId("run-sheet-queue-reason").textContent ?? "").toBeEnabled(), { timeout: 20_000 });
     await act(async () => { fireEvent.click(queue); });
-    await applyQueuedBatch("§3.4 run sheet");
+    await applyQueuedBatch("step rows");
     current.sheet = false; current.rerender();
     expect(model().nodes).toHaveLength(27);
     expect(model().pipe_segments).toHaveLength(26);
@@ -438,12 +438,12 @@ describe("the reference system entered from blank through the desktop's authorin
     // pipes and bends and ten of the eleven supports (the eleventh, RS-VS1, is the form's).
     expect(beforeSheet.supports).toEqual([]);
     await undoRedo("geometry and supports: the run sheet's batch (§3.4)", beforeSheet);
-    // §3.4 RS-050 correction (typed UI): Start task from current selection, X position 1.3, Add, Apply.
+    // Step rs050: RS-050 correction (typed UI): Start task from current selection, X position 1.3, Add, Apply.
     expect(model().nodes.find((node) => node.id === "node:RS-050")!.position.x).toBe(1.2999999999999998);
-    await propertyEdit({ type: "node", id: "node:RS-050" }, /^X position/, "1.3", "§3.4 RS-050 X");
+    await propertyEdit({ type: "node", id: "node:RS-050" }, /^X position/, "1.3", "step rs050");
     expect(model().nodes.find((node) => node.id === "node:RS-050")!.position.x).toBe(1.3);
 
-    // §3.6.1 Expansion joint RS-EJ1 (typed UI): Inspector, New component, kind expansion_joint.
+    // Step joint: Expansion joint RS-EJ1 (typed UI): Inspector, New component, kind expansion_joint.
     select({ type: "project", id: model().project.id });
     const component = (label: string, value: string) => change(inspector(), `New component ${label.toLowerCase()}`, value);
     const componentField = (label: string, value: string) => change(inspector(), `New component ${label}`, value);
@@ -485,9 +485,9 @@ describe("the reference system entered from blank through the desktop's authorin
     component("Validity statement", "invented test object; no applicability claim");
     componentField("provenance", P);
     fireEvent.click(screen.getByTestId("queue-create-component-intent"));
-    await applyQueuedIntent("§3.6 RS-EJ1");
+    await applyQueuedIntent("step joint");
 
-    // §3.6.2 Tee RS-T1 (typed UI): New component, kind tee; then the two SIFs and the modifier source by Task edits.
+    // Step tee: Tee RS-T1 (typed UI): New component, kind tee; then the two SIFs and the modifier source by Task edits.
     const beforeTee = model();
     chooseCompactOption(screen.getByTestId("create-component-kind"), "tee");
     chooseVirtualTarget("create-component-node", "node:RS-130");
@@ -504,14 +504,14 @@ describe("the reference system entered from blank through the desktop's authorin
     componentField("geometry source", S5);
     componentField("provenance", P);
     fireEvent.click(screen.getByTestId("queue-create-component-intent"));
-    await applyQueuedIntent("§3.6 RS-T1");
+    await applyQueuedIntent("step tee");
     // Undo/Redo, component family: the tee's creation.
     await undoRedo("component: the tee RS-T1 (§3.6)", beforeTee);
-    await propertyEdit({ type: "component", id: "component:RS-T1" }, /^Header SIF user value/, "2.4", "§3.6 RS-T1 header SIF");
-    await propertyEdit({ type: "component", id: "component:RS-T1" }, /^Branch SIF user value/, "2.0", "§3.6 RS-T1 branch SIF");
-    await propertyEdit({ type: "component", id: "component:RS-T1" }, /^Modifier source/, S5, "§3.6 RS-T1 modifier source");
+    await propertyEdit({ type: "component", id: "component:RS-T1" }, /^Header SIF user value/, "2.4", "step tee: header SIF");
+    await propertyEdit({ type: "component", id: "component:RS-T1" }, /^Branch SIF user value/, "2.0", "step tee: branch SIF");
+    await propertyEdit({ type: "component", id: "component:RS-T1" }, /^Modifier source/, S5, "step tee: modifier source");
 
-    // §3.7 Variable spring RS-VS1 (typed UI): select RS-080, New support configuration, with hanger data.
+    // Step spring: Variable spring RS-VS1 (typed UI): select RS-080, New support configuration, with hanger data.
     select({ type: "node", id: "node:RS-080" });
     const beforeSpring = model();
     const form = within(screen.getByRole("region", { name: "Support configuration" }));
@@ -533,19 +533,19 @@ describe("the reference system entered from blank through the desktop's authorin
     click(form, "Queue support creation");
     // The form sends the record as typed: exactly the fixture's RS-VS1, `restraints: []` (no
     // Restrain box) and hanger stiffness DOF "UZ", nothing added, normalized or defaulted.
-    await waitFor(() => expect(ops().editorIntents, `§3.7 RS-VS1: queued (${alerts()})`).toHaveLength(1), { timeout: 20_000 });
+    await waitFor(() => expect(ops().editorIntents, `step spring: queued (${alerts()})`).toHaveLength(1), { timeout: 20_000 });
     const springIntent = ops().editorIntents[0];
     expect([springIntent.operation_kind, springIntent.change.change_kind, springIntent.target]).toEqual(["create", "create_support", { object_type: "Support", ref: "support:RS-VS1" }]);
     const springPayload = JSON.parse(springIntent.change.after) as AnyRecord;
     expect(springPayload).toEqual(reference.supports.find((item) => item.id === "support:RS-VS1"));
     expect(springPayload.restraints).toEqual([]);
     expect((springPayload.hanger as AnyRecord).stiffness).toEqual({ dof: "UZ", value: { value: 180000, unit: "N/m" } });
-    await applyQueuedIntent("§3.7 RS-VS1");
+    await applyQueuedIntent("step spring");
     expect(model().supports.find((item) => item.id === "support:RS-VS1")).toEqual(springPayload);
     // Undo/Redo, support family: the variable spring's creation.
     await undoRedo("support: the variable spring RS-VS1 (§3.7)", beforeSpring);
 
-    // §3.8 Reference configuration (typed UI, with the member fill).
+    // Step reference: Reference configuration (typed UI, with the member fill).
     select({ type: "project", id: model().project.id });
     const beforeReference = model();
     click(loads(), "Add reference configuration");
@@ -564,11 +564,11 @@ describe("the reference system entered from blank through the desktop's authorin
     click(loads(), "Fill reference configuration 1 members");
     change(loads(), "Reference configuration 1 provenance", P);
     click(loads(), "Queue reference configurations");
-    await applyQueuedIntent("§3.8 reference configuration");
+    await applyQueuedIntent("step reference");
     // Undo/Redo, load/reference state family: the reference configuration.
     await undoRedo("load/reference state: RS-INSTALLED (§3.8)", beforeReference);
 
-    // §3.9 Self-weight, which creates the three cases (typed UI): every pipe except RS-P180.
+    // Step weight: Self-weight, which creates the three cases (typed UI): every pipe except RS-P180.
     const selfWeight = within(screen.getByTestId("journey-self-weight"));
     const weighted = model().pipe_segments.map((pipe) => pipe.id).filter((id) => id !== "pipe:RS-P180");
     expect(weighted).toHaveLength(25);
@@ -589,10 +589,10 @@ describe("the reference system entered from blank through the desktop's authorin
       click(selfWeight, "Generate self-weight plan");
       const queuePlan = await selfWeight.findByRole("button", { name: "Queue complete self-weight plan" }, { timeout: 20_000 });
       await act(async () => { fireEvent.click(queuePlan); });
-      await applyQueuedBatch(`§3.9 ${id}`);
+      await applyQueuedBatch(`step weight ${id}`);
     }
 
-    // §3.10 Pressure regions (typed UI for RS-SUS; "Copy pressure regions from another case" for RS-OPE and RS-SAM).
+    // Step regions: Pressure regions (typed UI for RS-SUS; "Copy pressure regions from another case" for RS-OPE and RS-SAM).
     const terminals = { "RG-1": ["node:RS-010", "node:RS-130"], "RG-2": ["node:RS-130", "node:RS-230"], "RG-3": ["node:RS-130", "node:RS-150"], "RG-R": ["node:RS-150", "node:RS-160"], "RG-4": ["node:RS-160", "node:RS-210"] } as const;
     const fixtureRegions = reference.load_cases.find((item) => item.id === "load:RS-SUS")!.pressure_regions!;
     select({ type: "load", id: "load:RS-SUS" });
@@ -614,16 +614,16 @@ describe("the reference system entered from blank through the desktop's authorin
       change(regions(), `${n} provenance`, P);
     }
     click(regions(), "Queue pressure regions");
-    await applyQueuedIntent("§3.10 RS-SUS regions");
+    await applyQueuedIntent("step regions: RS-SUS");
     for (const caseId of ["load:RS-OPE", "load:RS-SAM"]) {
       select({ type: "load", id: caseId });
       change(regions(), "Copy pressure regions from case", "load:RS-SUS");
       click(regions(), "Replace this draft's pressure regions with the copy");
       click(regions(), "Queue pressure regions");
-      await applyQueuedIntent(`§3.10 ${caseId} regions`);
+      await applyQueuedIntent(`step regions: ${caseId}`);
     }
 
-    // §3.11 Analysis states (typed UI, with the fills; RS-SAM from "Copy analysis state from another case").
+    // Step states: Analysis states (typed UI, with the fills; RS-SAM from "Copy analysis state from another case").
     // Queries are scoped to the case's analysis-state editor (`LoadReferenceStateInputs`), which the load manager shows for the selected case.
     const state = () => within(screen.getByTestId("load-state-analysis-state"));
     const p180 = model().pipe_segments.findIndex((pipe) => pipe.id === "pipe:RS-P180") + 1;
@@ -660,7 +660,7 @@ describe("the reference system entered from blank through the desktop's authorin
     change(state(), `Element state ${p180} thermal provenance`, replacedSpan);
     enterCommon();
     click(state(), "Queue analysis state");
-    await applyQueuedIntent("§3.11 RS-SUS state");
+    await applyQueuedIntent("step states: RS-SUS");
     // RS-OPE.
     select({ type: "load", id: "load:RS-OPE" });
     click(state(), "Add element state");
@@ -679,7 +679,7 @@ describe("the reference system entered from blank through the desktop's authorin
     change(state(), `Element state ${p180} thermal provenance`, replacedSpan);
     enterCommon();
     click(state(), "Queue analysis state");
-    await applyQueuedIntent("§3.11 RS-OPE state");
+    await applyQueuedIntent("step states: RS-OPE");
     // RS-SAM: copied from RS-SUS; its own primitives and RS-C's two motions.
     select({ type: "load", id: "load:RS-SAM" });
     change(state(), "Copy analysis state from case", "load:RS-SUS");
@@ -696,9 +696,9 @@ describe("the reference system entered from blank through the desktop's authorin
       change(state(), `Support state ${rsC} motion ${m} meaning`, "absolute_reference_displacement");
     }
     click(state(), "Queue analysis state");
-    await applyQueuedIntent("§3.11 RS-SAM state");
+    await applyQueuedIntent("step states: RS-SAM");
 
-    // §3.12 Combinations (typed UI): Create combination, result_state_subtraction.
+    // Step combinations: Combinations (typed UI): Create combination, result_state_subtraction.
     select({ type: "project", id: model().project.id });
     let beforeCombination = model();
     for (const [id, label, minuend] of [["combination:RS-EXP", "RS-EXP expansion: RS-OPE - RS-SUS", "load:RS-OPE"], ["combination:RS-dSAM", "RS-dSAM anchor movement term: RS-SAM - RS-SUS", "load:RS-SAM"]]) {
@@ -711,16 +711,16 @@ describe("the reference system entered from blank through the desktop's authorin
       fireEvent.change(screen.getByTestId("load-manager-create-combination-provenance"), { target: { value: P } });
       fireEvent.change(screen.getByLabelText("New combination rationale"), { target: { value: "reference system run sheet §3.12" } });
       fireEvent.click(screen.getByTestId("queue-create-combination-intent"));
-      await applyQueuedIntent(`§3.12 ${id}`);
+      await applyQueuedIntent(`step combinations ${id}`);
     }
     // Undo/Redo, combination family: RS-dSAM.
     await undoRedo("combination: RS-dSAM (§3.12)", beforeCombination);
 
-    // The comparison, by record keyed by id, with the §3.14 differences allowed by member path.
+    // The comparison, by record keyed by id, with the run sheet's §4 differences allowed by member path.
     expect(BLOCKED).toEqual([]);
     expect(ALLOWED_DIFFERENCES).toHaveLength(15);
     expect(DOCUMENT_DIFFERENCES_NOT_IN_3_14).toEqual(["analysis_status", "data_boundary", "diagnostics"]);
-    // 27 queue/apply cycles: the run sheet's §5 count of 27 per-intent cycles.
+    // 27 queue/apply cycles: the run sheet's §6 count of 27 cycles. The Undo/Redo labels below keep their earlier section numbers, which the expected list asserts.
     expect(cycles).toHaveLength(27);
     expect(undoRedone).toEqual([
       "geometry and supports: the run sheet's batch (§3.4)", "component: the tee RS-T1 (§3.6)",
