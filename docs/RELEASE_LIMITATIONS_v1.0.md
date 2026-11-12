@@ -39,7 +39,9 @@ Each entry is one subsection:
 - **What the user does instead:** the supported alternative, if any.
 - **Basis:** the deliverable that governs it.
 - **Status:** `not yet declared` until Agent 0 declares; then `declared
-  acceptable by Agent 0` with the PR that records it. A refusal later removed
+  acceptable by Agent 0` or `declared not acceptable by Agent 0`, with the PR
+  that records it. A refusal declared not acceptable is removed before
+  release, or the criterion it affects stays unmet. A refusal later removed
   by a landed change is marked `withdrawn` with the PR; the entry is kept,
   not deleted.
 
