@@ -278,7 +278,7 @@ def _source_contract(source: Mapping[str, Any], *, check_receipt: bool = True, r
     if producer == {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": RETIRED_PRESSURE_1_CONTRACT_ID}:
         raise ValueError(f"{SOURCE_PRESSURE_1_RETIRED}: pressure-1 results are no longer read; re-run the analysis")
     if producer == {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": RETIRED_PRESSURE_2_CONTRACT_ID}:
-        raise ValueError(f"{SOURCE_PRESSURE_2_RETIRED}: pressure-2 results are no longer read; re-run the analysis")
+        raise ValueError(f"{SOURCE_PRESSURE_2_RETIRED}: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model")
     if producer == {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": RETIRED_PREVIEW_PHYSICS_1_CONTRACT_ID}:
         raise ValueError(f"{SOURCE_PREVIEW_PHYSICS_1_RETIRED}: preview-physics-1 results are no longer read; re-run the analysis")
     if producer == {"component_name": "open_pipe_stress_product_physics", "component_version": "0.2.0", "semantic_contract_id": RETIRED_SOURCE_BLOCKS_CONTRACT_ID}:

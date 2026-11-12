@@ -233,7 +233,7 @@ fn a_pressure_2_statement_is_refused_by_name() {
         let mut e = stamped(&envelope, true);
         e["producer"]["semantic_contract_id"] = json!(s::RETIRED_PRESSURE_2_ID);
         for refusal in [s::for_source(&e).unwrap_err(), s::for_source_metadata(&e).unwrap_err()] {
-            assert_eq!(refusal, format!("{}: pressure-2 results are no longer read; re-run the analysis", s::SOURCE_PRESSURE_2_RETIRED), "{label}");
+            assert_eq!(refusal, format!("{}: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model", s::SOURCE_PRESSURE_2_RETIRED), "{label}");
         }
     }
 }

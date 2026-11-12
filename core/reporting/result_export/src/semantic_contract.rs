@@ -129,6 +129,10 @@ pub const SOURCE_PRESSURE_1_RETIRED: &str = "SOURCE_PRESSURE_1_RETIRED";
 /// pressure-2 result is refused by name (re-run); no recorded-table alias carries it.
 pub const RETIRED_PRESSURE_2_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
 pub const SOURCE_PRESSURE_2_RETIRED: &str = "SOURCE_PRESSURE_2_RETIRED";
+/// The refusal of a pressure-2 result, and of a successor whose base is one (RT-L2): the
+/// result predates the pressure-elongation setting and must be re-solved.
+pub const SOURCE_PRESSURE_2_RETIRED_TEXT: &str =
+    "SOURCE_PRESSURE_2_RETIRED: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model";
 pub const RETIRED_PREVIEW_PHYSICS_1_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-1";
 pub const SOURCE_PREVIEW_PHYSICS_1_RETIRED: &str = "SOURCE_PREVIEW_PHYSICS_1_RETIRED";
 pub const PREVIEW_PHYSICS_ID: &str = "openpipestress.result_semantics/0.3.0/preview-physics-2";
@@ -583,7 +587,7 @@ fn current_header(source: &Value) -> Result<(&'static Value, &'static str), Stri
                 return Err(format!("{SOURCE_PRESSURE_1_RETIRED}: pressure-1 results are no longer read; re-run the analysis"));
             }
             if p["semantic_contract_id"] == RETIRED_PRESSURE_2_ID {
-                return Err(format!("{SOURCE_PRESSURE_2_RETIRED}: pressure-2 results are no longer read; re-run the analysis"));
+                return Err(SOURCE_PRESSURE_2_RETIRED_TEXT.into());
             }
             if p["semantic_contract_id"] == RETIRED_PREVIEW_PHYSICS_1_ID {
                 return Err(format!("{SOURCE_PREVIEW_PHYSICS_1_RETIRED}: preview-physics-1 results are no longer read; re-run the analysis"));

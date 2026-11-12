@@ -68,6 +68,12 @@ MAX_BITS = 0x7FEFFFFFFFFFFFFF
 _IMPLEMENTATION_COMPLETE = True
 
 
+# RT-L2 (DEL-04-07): the opening of a pressure-2 base's identity statement, and its refusal (Rust `g0_exact`).
+PRESSURE_2_BASE_IDENTITY = "3.0.0/exact_pressure_v3 under pressure-2 semantics."
+SOURCE_PRESSURE_2_RETIRED = "SOURCE_PRESSURE_2_RETIRED"
+PRESSURE_2_RETIRED_TEXT = f"{SOURCE_PRESSURE_2_RETIRED}: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model"
+
+
 class RetainedPrecisionError(ValueError):
     def __init__(self, gate: str, code: str, detail: str | None = None):
         self.gate, self.code, self.detail = gate, code, detail
@@ -3134,6 +3140,11 @@ def _validate_draft(source: Any, invocation: Any = None, *, raw: bool = True) ->
         route=ROUTES.get(contract) if type(contract) is str else None
         _need(type(producer) is dict and type(basis) is dict and route is not None and basis.get("profile_id")==route.profile,"G0","SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
         snapshot=deepcopy(source);invocation=deepcopy(invocation);receipt=snapshot.get("retained_precision");schema=_schema()
+        # RT-L2 (DEL-04-07; Rust `g0_exact`, after step 1): a successor whose base identity statement names pressure-2
+        # predates the pressure-elongation setting and is refused by name, as a pressure-2 result is.
+        limitations=basis.get("limitations")
+        if route.exact and type(limitations) is list and limitations and type(limitations[0]) is str and limitations[0].startswith(PRESSURE_2_BASE_IDENTITY):
+            raise RetainedPrecisionError("G0",SOURCE_PRESSURE_2_RETIRED,PRESSURE_2_RETIRED_TEXT)
         _need(snapshot.get("schema_version")=="0.2.0" and snapshot["producer"].get("component_name")=="open_pipe_stress_product_physics" and snapshot["producer"].get("component_version")=="0.2.0",state["gate"],"SOURCE_PRODUCER_CONTRACT_UNSUPPORTED")
         if route.exact:_g0_exact(receipt)
         else:_g0_preview(receipt)

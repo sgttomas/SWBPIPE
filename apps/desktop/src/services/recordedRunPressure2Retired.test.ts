@@ -1,4 +1,4 @@
-// RT-L2 (DEL-04-07 Design `pressure-elongation.md` §5): the ordinary identity moved to pressure-3,
+// RT-L2 (DEL-04-07): the ordinary identity moved to pressure-3,
 // and the pressure-2 recorded-table bases (model documents 0.8.0 and 0.9.0, RT-A3 reducers 2a and
 // 2b, increments 3 and 4, RT-A4 and the combination certificate) are not carried into it
 // (`analysisRunCompatibility.ts` RECORDED_RUN_TABLE_BASES; Python's twin is `compatibility.py`).
@@ -45,6 +45,9 @@ describe.each(RECORDED)("a pressure-2 run recorded under an earlier table (%s)",
     const dispatch = readerDispatch(source());
     expect(dispatch.ok).toBe(false);
     expect(dispatch.error?.code).toBe("SOURCE_PRESSURE_2_RETIRED");
+    // The message tells the user the result predates the pressure-elongation setting and must be re-solved.
+    expect(dispatch.error?.detail).toBe(
+      "SOURCE_PRESSURE_2_RETIRED: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model");
     const run = record();
     await expect(validateAnalysisRunV03(run, source(), run.analysis_run.load_basis_refs)).rejects.toThrow("ANALYSIS_SOURCE_CONTRACT_VERSION_MISMATCH");
   });

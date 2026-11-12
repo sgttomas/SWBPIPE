@@ -256,5 +256,5 @@ def test_a_pressure_2_run_recorded_under_an_earlier_table_is_refused_by_name(nam
     assert c.recorded_run_semantic_binding(envelope["analysis_run"]["reproducibility"]["semantic_contract"],
                                            c.PRESSURE_CONTRACT_ID, c.PRESSURE_CONTRACT_SHA256) == {
         "id": c.PRESSURE_CONTRACT_ID, "sha256": c.PRESSURE_CONTRACT_SHA256}
-    with pytest.raises(ValueError, match="^SOURCE_PRESSURE_2_RETIRED: pressure-2 results are no longer read; re-run the analysis$"):
+    with pytest.raises(ValueError, match="^SOURCE_PRESSURE_2_RETIRED: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model$"):
         c.validate_analysis_run_v0_3(envelope, source, expected_basis_refs=envelope["analysis_run"]["load_basis_refs"])

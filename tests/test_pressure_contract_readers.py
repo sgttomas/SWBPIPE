@@ -127,7 +127,7 @@ def test_unknown_identities_are_refused(label, envelope):
     # RT-L2: the retired pressure-2 identity is refused by name the same way (re-run).
     retired_2 = deepcopy(envelope)
     retired_2["producer"]["semantic_contract_id"] = "openpipestress.result_semantics/0.3.0/pressure-2"
-    message = "^SOURCE_PRESSURE_2_RETIRED: pressure-2 results are no longer read; re-run the analysis$"
+    message = "^SOURCE_PRESSURE_2_RETIRED: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model$"
     with pytest.raises(ValueError, match=message):
         validate_exact_pressure_evidence(retired_2)
     with pytest.raises(ValueError, match=message):

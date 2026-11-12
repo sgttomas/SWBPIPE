@@ -98,7 +98,7 @@ fn unknown_identities_and_profiles_are_refused() {
         let mut retired_2 = envelope.clone();
         retired_2["producer"]["semantic_contract_id"] = json!(s::RETIRED_PRESSURE_2_ID);
         for refusal in [s::for_source(&retired_2).unwrap_err(), s::for_source_metadata(&retired_2).unwrap_err()] {
-            assert_eq!(refusal, format!("{}: pressure-2 results are no longer read; re-run the analysis", s::SOURCE_PRESSURE_2_RETIRED), "{label}");
+            assert_eq!(refusal, format!("{}: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model", s::SOURCE_PRESSURE_2_RETIRED), "{label}");
         }
         // The retired preview-physics-1 identity is refused by name the same way, for the
         // whole statement and for its transport metadata.

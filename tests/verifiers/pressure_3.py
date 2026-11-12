@@ -95,7 +95,7 @@ PRESSURE_1_RETIRED_TEXT = f"{SOURCE_PRESSURE_1_RETIRED}: pressure-1 results are 
 # RT-L2 (DEL-04-07 Design pressure-elongation.md §5): the retired pressure-2 identity, refused by name.
 RETIRED_PRESSURE_2_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
 SOURCE_PRESSURE_2_RETIRED = "SOURCE_PRESSURE_2_RETIRED"
-PRESSURE_2_RETIRED_TEXT = f"{SOURCE_PRESSURE_2_RETIRED}: pressure-2 results are no longer read; re-run the analysis"
+PRESSURE_2_RETIRED_TEXT = f"{SOURCE_PRESSURE_2_RETIRED}: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model"
 RETAINED_METHOD = "contribution_preserving_multiprecision_v1"
 RETAINED_PRECISION_DOWNGRADE_FORBIDDEN = "RETAINED_PRECISION_DOWNGRADE_FORBIDDEN"
 

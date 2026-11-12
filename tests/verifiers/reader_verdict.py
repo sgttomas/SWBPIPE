@@ -145,7 +145,7 @@ def _metadata_header(source: Any) -> str:
     if identity == c.RETIRED_PRESSURE_1_CONTRACT_ID:
         raise Refused(f"{c.SOURCE_PRESSURE_1_RETIRED}: pressure-1 results are no longer read; re-run the analysis")
     if identity == c.RETIRED_PRESSURE_2_CONTRACT_ID:
-        raise Refused(f"{c.SOURCE_PRESSURE_2_RETIRED}: pressure-2 results are no longer read; re-run the analysis")
+        raise Refused(f"{c.SOURCE_PRESSURE_2_RETIRED}: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model")
     if identity == c.RETIRED_PREVIEW_PHYSICS_1_CONTRACT_ID:
         raise Refused(f"{c.SOURCE_PREVIEW_PHYSICS_1_RETIRED}: preview-physics-1 results are no longer read; re-run the analysis")
     if identity == c.RETIRED_SOURCE_BLOCKS_CONTRACT_ID:

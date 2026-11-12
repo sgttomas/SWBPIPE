@@ -717,6 +717,9 @@ fn g0_with(source: &Value, t: &Value) -> VResult {
     }
     Ok(())
 }
+/// The opening of a pressure-2 base's identity statement (the retired pressure-2
+/// formulation basis's first limitation).
+const PRESSURE_2_BASE_IDENTITY: &str = "3.0.0/exact_pressure_v3 under pressure-2 semantics.";
 /// G0 on the exact route (B3-D §2.4, steps 1-9, in order; REVISION_01 §4.3
 /// entries 1-10): every step is SOURCE_PRODUCER_CONTRACT_UNSUPPORTED except
 /// step 4, RETAINED_PRECISION_FORMATION_MISMATCH.
@@ -729,6 +732,19 @@ fn g0_exact(source: &Value) -> VResult {
             && source["producer"]["semantic_contract_id"] == EXACT_CONTRACT_ID
             && source["formulation_basis"]["profile_id"] == EXACT_PROFILE,
     )?;
+    // RT-L2 (DEL-04-07): a successor whose base is a pressure-2 result, as its base identity
+    // statement (its first limitation) names it, predates the pressure-elongation setting
+    // and is refused by name, as a pressure-2 result is.
+    if source["formulation_basis"]["limitations"][0]
+        .as_str()
+        .is_some_and(|identity| identity.starts_with(PRESSURE_2_BASE_IDENTITY))
+    {
+        return Err(ValidationError {
+            gate: "G0",
+            code: crate::semantic_contract::SOURCE_PRESSURE_2_RETIRED.into(),
+            detail: Some(crate::semantic_contract::SOURCE_PRESSURE_2_RETIRED_TEXT.into()),
+        });
+    }
     // 2. Producer component and version; envelope schema 0.2.0.
     unsupported(
         source["schema_version"] == "0.2.0"
