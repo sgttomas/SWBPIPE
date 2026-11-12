@@ -353,6 +353,13 @@ def section(od: float, t: float):
     return area, inertia, 2.0 * inertia
 
 
+def si(q: dict, unit: str, name: str) -> float:
+    """A quantity's value in the SI unit this tool assumes; any other recorded unit is refused by name, not read."""
+    if q.get("unit") != unit:
+        raise ValueError(f"{name}: recorded unit {q.get('unit')!r} is not {unit!r}; this tool reads SI quantities only")
+    return float(q["value"])
+
+
 def scales(req: dict, case_id: str) -> dict:
     """S_f from the case's inputs only (the note's definitions; the Rust test forms the same)."""
     m = req["model"]
@@ -363,22 +370,23 @@ def scales(req: dict, case_id: str) -> dict:
         a, b = pos[pipe["from"]], pos[pipe["to"]]
         dx, dy, dz = b[0] - a[0], b[1] - a[1], b[2] - a[2]
         lengths.append(math.sqrt(dx * dx + dy * dy + dz * dz))
-        area, inertia, polar = section(pipe["section"]["outside_diameter"]["value"], pipe["section"]["wall_thickness"]["value"])
+        area, inertia, polar = section(si(pipe["section"]["outside_diameter"], "m", f"{pipe['id']} outside_diameter"),
+                                       si(pipe["section"]["wall_thickness"], "m", f"{pipe['id']} wall_thickness"))
         areas.append(area); inertias.append(inertia); polars.append(polar)
         mat = mats[pipe["material"]]
-        e_mod, g_mod = float(mat["elastic_modulus"]["value"]), float(mat["shear_modulus"]["value"])
+        e_mod, g_mod = si(mat["elastic_modulus"], "Pa", f"{mat['id']} elastic_modulus"), si(mat["shear_modulus"], "Pa", f"{mat['id']} shear_modulus")
     total, shortest = sum(lengths), min(lengths)
     case = next(c for c in m["load_cases"] if c["id"] == case_id)
-    force = sum(abs(float(load["magnitude"]["value"])) for load in case["primitive_loads"])
+    force = sum(abs(si(load["magnitude"], "N", load["id"])) for load in case["primitive_loads"])
     clearance, springs = 0.0, 0.0
     for s in m["supports"]:
         nl = s.get("nonlinear") or {}
         if nl.get("behavior") == "friction" and "normal_reaction" in nl:
-            force += abs(float(nl["friction_coefficient"]["value"])) * abs(float(nl["normal_reaction"]["value"]))
+            force += abs(float(nl["friction_coefficient"]["value"])) * abs(si(nl["normal_reaction"], "N", f"{s['id']} normal_reaction"))
         if nl.get("behavior") == "gap":
-            clearance += abs(float(nl["gap"]["value"]))
+            clearance += abs(si(nl["gap"], "m", f"{s['id']} gap"))
         if (s.get("hanger") or {}).get("stiffness"):
-            springs += abs(float(s["hanger"]["stiffness"]["value"]["value"]))
+            springs += abs(si(s["hanger"]["stiffness"]["value"], "N/m", f"{s['id']} stiffness"))
     cube, square = total * total * total, total * total
     compliance_t = total / (e_mod * min(areas)) + cube / (e_mod * min(inertias)) + cube / (g_mod * min(polars))
     compliance_r = square / (e_mod * min(inertias)) + square / (g_mod * min(polars))

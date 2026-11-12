@@ -1117,7 +1117,7 @@ fn a_rigid_surrogate_of_rs_r1_publishes_bit_identical_rows() {
 /// Keep the actual reference topology/materials/cases, overlay only the already
 /// specified R1 and CE1, and regenerate W on the complete overlaid source.
 #[test]
-fn rt_s3_consumed_constant_effort_is_published_on_sensitive_no_nonlinear_reference_system() {
+fn rt_s3_consumed_constant_effort_is_published_on_the_no_nonlinear_reference_system() {
     const CE: &str = "support:RS-CE1";
     let mut model = overlay(EB, Some(r1(false)), true).model;
     assert!(model["supports"].as_array().unwrap().iter().all(|s| s.get("nonlinear").is_none()));
@@ -1167,7 +1167,8 @@ fn rt_s3_consumed_constant_effort_is_published_on_sensitive_no_nonlinear_referen
             let id = format!("diagnostic:numerical-integrity:{case}");
             let integrity: Vec<_> = diagnostics(&envelope).iter().filter(|d| d["id"] == id).collect();
             assert_eq!(integrity.len(), 1);
-            assert_eq!(integrity[0]["code"], "NUMERICAL_INTEGRITY_SENSITIVE", "{label} {case}: no standing promotion");
+            // Formerly pinned SENSITIVE: the check was given a mass a million times the one the load was formed from.
+            assert_eq!(integrity[0]["code"], "NUMERICAL_INTEGRITY_CHECKS_PASSED", "{label} {case}: {}", integrity[0]["message"]);
         }
         assert_eq!(reader_verdict::validate("pressure", &envelope, Some(&model), None)["ok"], true, "{label}: model-bound reader");
         assert_eq!(reader_verdict::validate("pressure", &envelope, None, None)["ok"], true, "{label}: standalone reader");

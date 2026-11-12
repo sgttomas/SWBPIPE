@@ -111,6 +111,8 @@ code_paths:
 - core/product_physics/src/lib.rs
 - core/product_physics/tests/w16_exact_equivalent_static.rs
 - core/product_physics/tests/w16_timoshenko_partial_wind.rs
+# The generated self-weight's standing on the maintained reference system, whose sections are in mm.
+- core/product_physics/tests/reference_system_generated_weight_standing.rs
 # Independent references for generation and resolution.
 - validation/references/w16_exact_equivalent_static/**
 - validation/references/w16_timoshenko_partial_wind/**
@@ -126,6 +128,7 @@ checks:
 - core/product_physics/src/operating_conditions/resolution_tests.rs
 - core/model_operations/operation_applier/tests/generated_self_weight.rs
 - core/loads/self_weight_wasm/tests/applied_self_weight.rs
+- core/product_physics/tests/reference_system_generated_weight_standing.rs
 - apps/desktop/src/features/self-weight-authoring/SelfWeightRefresh.test.tsx
 - apps/desktop/src/features/load-cases/primitiveLoadVocabulary.test.ts
 - apps/desktop/src/features/load-cases/LoadCaseManagerPanel.test.tsx

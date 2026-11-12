@@ -92,6 +92,7 @@ code_paths:
 - fixtures/reference_system/**
 - validation/references/reference_system/**
 - tests/test_reference_system_fixture.py
+- core/product_physics/tests/reference_system_generated_weight_standing.rs
 # Not decided: which deliverable's criteria govern the required-output qualification gate below.
 # No criterion of this scope governs it. Its exact-pressure fixtures, tool and test
 # (validation/qualification/fixtures/exact_pressure/**, tools/validation/qualification_exact_pressure.py,
@@ -111,6 +112,7 @@ checks:
 - core/product_physics/tests/w9_solver_benchmarks.rs
 - core/product_physics/tests/w16_imposed_motion.rs
 - tests/test_reference_system_fixture.py
+- core/product_physics/tests/reference_system_generated_weight_standing.rs
 - tests/test_qualification_gate.py
 - tests/test_qualification_physics.py
 - tests/test_qualification_physics_structure.py

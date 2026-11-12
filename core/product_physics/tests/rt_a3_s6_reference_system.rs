@@ -42,8 +42,9 @@
 //! RS-CE1 is consumed and its `constant_effort_support_applied_load` row states
 //! 9,000 N, but its `support_reaction_component_v2` rows are all 0.0 in every
 //! case and mode of the S6 model (`unresolved` gap cases). A separate ordinary
-//! no-nonlinear probe also shows zero in all three `sensitive` cases; its log
-//! does not identify the mode. The published reactions sum to the weight
+//! no-nonlinear probe also shows zero in all three cases (then demoted to
+//! `sensitive` only because the formation check read the self-weight record's
+//! millimetre sections as metres); its log does not identify the mode. The published reactions sum to the weight
 //! less 9,000 N, whereas the S7 limitation attributes a consumed constant-effort
 //! support's constant force as its signed support action, and the increment-3
 //! references expect that restatement. EQ-1 here uses the applied-load row.

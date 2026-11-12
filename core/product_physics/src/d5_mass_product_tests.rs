@@ -11,6 +11,7 @@ use crate::self_weight::{
 };
 use open_pipe_stress_frame_kernel::structural::{IntensityPrimitive, LoadFormula, LoadPrimitive};
 use serde_json::{json, Value};
+use std::collections::BTreeMap;
 use std::f64::consts::PI;
 
 const MODES: [PreviewSolverMode; 2] = [PreviewSolverMode::SparseInteractive, PreviewSolverMode::DenseScrutiny];
@@ -222,5 +223,188 @@ fn d5_exact_self_weight_solves_with_its_certified_mass() {
             serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap();
         assert!(supplied_mutant::disarm().is_some(), "{mode:?}: the mutant reached a self-weight primitive");
         assert_ne!(mutated["numerical_quality"]["status"], json!("checks_passed"), "{mode:?}");
+    }
+}
+
+// ---------------------------------------------------------------- authored units
+//
+// The K-D5 check re-forms a generated self-weight load from the record's SI
+// operands whatever units the section was authored in. One physical section,
+// chosen in inches (OD 8.625 in, wall 0.322 in, mill 0.040 in, allowance
+// 0.0625 in, insulation 2 in), is authored in m, mm and in; its densities in
+// kg/m^3 or lb/in^3. Gravity has one unit (m/s^2) and is read from the
+// record's validated `normalized_acceleration_m_per_s2`.
+
+/// Each length the mass path reads, its value in m, mm and in (decimal
+/// equivalents of the same length).
+const LENGTHS: [(&str, [f64; 3]); 5] = [
+    ("outside_diameter", [0.219075, 219.075, 8.625]),
+    ("wall_thickness", [0.0081788, 8.1788, 0.322]),
+    ("mill_tolerance", [0.001016, 1.016, 0.040]),
+    ("corrosion_allowance", [0.0015875, 1.5875, 0.0625]),
+    ("insulation_thickness", [0.0508, 50.8, 2.0]),
+];
+const LENGTH_UNITS: [&str; 3] = ["m", "mm", "in"];
+/// Each density the mass path reads, in kg/m^3 and (another physical set) in lb/in^3.
+const DENSITIES: [(&str, [f64; 2]); 3] = [
+    ("material_density", [7850.0, 0.2836]),
+    ("contents_density", [1000.0, 0.0361]),
+    ("insulation_density", [128.0, 0.00462]),
+];
+const DENSITY_UNITS: [&str; 2] = ["kg/m^3", "lb/in^3"];
+const INTEGRITY: &str = "diagnostic:numerical-integrity:case:weight";
+
+/// The member of `document` with the section authored as given (no
+/// allowance on the preview route), its self-weight generated and applied.
+fn authored(exact: bool, section: Value) -> Value {
+    let mut request = if exact { document(0.0, 0.0) } else { preview(0.0) };
+    request["model"]["pipe_segments"][0]["section"] = section;
+    generated(request).1
+}
+/// The section authored with lengths in `LENGTH_UNITS[l]` and densities in `DENSITY_UNITS[d]`.
+fn section_in(exact: bool, l: usize, d: usize) -> Value {
+    let mut section = json!({});
+    for (name, values) in LENGTHS {
+        if exact || name != "corrosion_allowance" {
+            section[name] = json!({"value": values[l], "unit": LENGTH_UNITS[l]});
+        }
+    }
+    for (name, values) in DENSITIES {
+        section[name] = json!({"value": values[d], "unit": DENSITY_UNITS[d]});
+    }
+    section
+}
+/// The same section authored in m and kg/m^3 at its exact normalized binary64 values.
+fn normalized_twin(section: &Value) -> Value {
+    let mut twin = json!({});
+    for (name, quantity) in section.as_object().unwrap() {
+        let dimension = if name.ends_with("density") { Dimension::Density } else { Dimension::Length };
+        let from = unit_by_symbol(quantity["unit"].as_str().unwrap(), dimension).unwrap();
+        let to = canonical_unit(dimension).unwrap();
+        let value = convert_for_dimension(quantity["value"].as_f64().unwrap(), dimension, from, to).unwrap();
+        twin[name] = json!({"value": value, "unit": to.definition().symbol});
+    }
+    twin
+}
+/// The case's K-D5 outcome (its integrity diagnostic and numerical quality)
+/// and every published value by row id, bit for bit.
+fn solved(request: &Value, mode: PreviewSolverMode) -> (Value, BTreeMap<String, String>) {
+    let envelope =
+        serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap();
+    assert_eq!(envelope["status"]["mechanics"], json!("MECHANICS_SOLVED"), "{mode:?}: {}", envelope["diagnostics"]);
+    let integrity: Vec<&Value> =
+        envelope["diagnostics"].as_array().unwrap().iter().filter(|d| d["id"] == INTEGRITY).collect();
+    assert_eq!(integrity.len(), 1, "{mode:?}");
+    let outcome = json!({"integrity": {"code": integrity[0]["code"], "message": integrity[0]["message"]},
+        "numerical_quality": envelope["numerical_quality"]});
+    let values = envelope["results"].as_array().unwrap().iter()
+        .map(|row| (row["id"].as_str().unwrap().to_string(),
+            row["value"].as_f64().map_or_else(|| row["value"].to_string(), |v| format!("{:016x}", v.to_bits()))))
+        .collect();
+    (outcome, values)
+}
+fn checks_passed(outcome: &Value, label: &str) {
+    assert_eq!(outcome["integrity"]["code"], json!("NUMERICAL_INTEGRITY_CHECKS_PASSED"), "{label}: {outcome}");
+    assert_eq!(outcome["numerical_quality"]["status"], json!("checks_passed"), "{label}: {outcome}");
+}
+
+/// A generated self-weight load on a section in millimetres or inches is not
+/// demoted by the formation check, and its metre twin (the same SI operands)
+/// gives the identical check outcome and identical published values. On the
+/// former raw read the check was given a mass 10^6 (mm) or 1/0.0254^2 (in)
+/// times the one the load was formed from.
+#[test]
+fn generated_self_weight_on_millimetre_and_inch_sections_is_not_demoted() {
+    for l in [1, 2] {
+        let section = section_in(true, l, 0);
+        let (request, twin) = (authored(true, section.clone()), authored(true, normalized_twin(&section)));
+        for mode in MODES {
+            let label = format!("{} {mode:?}", LENGTH_UNITS[l]);
+            let (outcome, values) = solved(&request, mode);
+            checks_passed(&outcome, &label);
+            let (twin_outcome, twin_values) = solved(&twin, mode);
+            assert_eq!(outcome, twin_outcome, "{label}: the metre twin's check outcome");
+            assert_eq!(values, twin_values, "{label}: the metre twin's published values");
+        }
+    }
+}
+
+/// Property: the K-D5 outcome of a generated self-weight load does not depend
+/// on the units its section was authored in. Every length the mass path reads
+/// (outside diameter, wall, mill tolerance, allowance, insulation) and every
+/// density (pipe, contents, insulation), on both mass routes and in both
+/// modes: the decimal-equivalent authorings in m, mm and in give the
+/// identical outcome, and each authoring not already in m and kg/m^3 gives,
+/// against its twin at its exact normalized binary64 values, the identical
+/// outcome and bit-identical published values. A raw read of any of these
+/// from the record differs by a factor of at least 1/0.0254 and is caught.
+#[test]
+fn generated_self_weight_check_is_invariant_under_the_authored_units() {
+    for exact in [true, false] {
+        for mode in MODES {
+            for d in 0..DENSITY_UNITS.len() {
+                let mut first: Option<Value> = None;
+                for l in 0..LENGTH_UNITS.len() {
+                    let label = format!("exact {exact} {mode:?} {} {}", LENGTH_UNITS[l], DENSITY_UNITS[d]);
+                    let section = section_in(exact, l, d);
+                    let (outcome, values) = solved(&authored(exact, section.clone()), mode);
+                    checks_passed(&outcome, &label);
+                    let outcome_kind = json!([outcome["integrity"]["code"], outcome["numerical_quality"]["status"],
+                        outcome["numerical_quality"]["cases"].as_array().unwrap().iter().map(|c| &c["solve_quality"]).collect::<Vec<_>>()]);
+                    assert_eq!(first.get_or_insert_with(|| outcome_kind.clone()), &outcome_kind, "{label}: the same outcome in every unit");
+                    if l != 0 || d != 0 {
+                        let (twin_outcome, twin_values) = solved(&authored(exact, normalized_twin(&section)), mode);
+                        assert_eq!(outcome, twin_outcome, "{label}: the normalized twin's check outcome");
+                        assert_eq!(values, twin_values, "{label}: the normalized twin's published values");
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Negative witness: a generated self-weight load whose formation really is
+/// wrong is still found, in every unit. The s11f RF-CANCEL-UDL geometry (two
+/// 2 m members, anchored ends, S1 pinned) carries the generated self-weight
+/// of A and B, about 1e8 N/m each and about 1 N/m apart (pipe densities
+/// 1.88e9 and 1.88e9 + 18 kg/m^3 on the inch-chosen section): their
+/// fixed-end moments, about 3.3e7 N*m, cancel at S1 to about 0.3 N*m, so the
+/// binary64 formation's rounding (an ulp of 3.3e7 is 3.7e-9) exceeds 1e-9 of
+/// the net. The check re-forms from the SI operands and finds it at S1:RZ,
+/// as it finds the authored UDL twin (`f1a_tests`), by a ratio of order one
+/// to a thousand, never the 10^10 or more a unit factor gives.
+#[test]
+fn a_generated_self_weight_formed_wrong_is_still_flagged_in_every_unit() {
+    let data: Value = serde_json::from_str(include_str!("../tests/fixtures/s11f/rf_cancel_cases.json")).unwrap();
+    let base = data["cases"].as_array().unwrap().iter().find(|c| c["id"] == json!("RF-CANCEL-UDL-W1e8")).unwrap()["request"].clone();
+    for l in 0..LENGTH_UNITS.len() {
+        let mut request = base.clone();
+        request["model"]["load_cases"] = json!([]);
+        for (pipe, density) in [(0, 1.88e9), (1, 1.88e9 + 18.0)] {
+            let mut section = json!({});
+            for (name, values) in &LENGTHS[..3] {
+                section[*name] = json!({"value": values[l], "unit": LENGTH_UNITS[l]});
+            }
+            section["material_density"] = json!({"value": density, "unit": "kg/m^3"});
+            request["model"]["pipe_segments"][pipe]["section"] = section;
+        }
+        let generation = SelfWeightRequest { pipe_refs: vec!["A".into(), "B".into()], ..generation() };
+        let plan = generate_self_weight_operations(&typed(&request), &generation).unwrap();
+        let mut case: Value = serde_json::from_str(&plan.changes[0].after).unwrap();
+        case["primitive_loads"] =
+            json!(plan.changes[1..].iter().map(|c| serde_json::from_str::<Value>(&c.after).unwrap()).collect::<Vec<_>>());
+        request["model"]["load_cases"] = json!([case]);
+        assert_eq!(state(&request), AppliedSelfWeightState::Fresh);
+        for mode in MODES {
+            let label = format!("{} {mode:?}", LENGTH_UNITS[l]);
+            let envelope =
+                serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap();
+            let integrity = envelope["diagnostics"].as_array().unwrap().iter().find(|d| d["id"] == INTEGRITY).unwrap();
+            assert_eq!(integrity["code"], json!("NUMERICAL_INTEGRITY_SENSITIVE"), "{label}: {integrity}");
+            let message = integrity["message"].as_str().unwrap();
+            let at = message.find("formation_check: reason=estimate; row=S1:RZ;").unwrap_or_else(|| panic!("{label}: {message}"));
+            let ratio: f64 = message[at..].split("trigger_ratio=").nth(1).unwrap().split(|c: char| c != '.' && c != 'e' && c != '-' && c != '+' && !c.is_ascii_digit()).next().unwrap().parse().unwrap();
+            assert!(ratio > 1.0 && ratio < 1e6, "{label}: the formation's own rounding, not a unit factor: {ratio:e}");
+        }
     }
 }
