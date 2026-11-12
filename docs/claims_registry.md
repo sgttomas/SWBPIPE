@@ -133,7 +133,8 @@ correctness"
 
 **Belongs on:** the comparison subsection of a generated report for saved
 model states, internal analysis runs, or load cases or combinations within a
-run. **Not on:** ordinary results views or external-prover correlation and
+run; the desktop's state comparison view and run comparison view, where they
+carry boundary language. **Not on:** ordinary results views or external-prover correlation and
 harness evidence surfaces; `BS-VALID` governs boundary language on the latter.
 
 ### BS-MATURITY — release maturity (RETIRED 2026-09-18)
