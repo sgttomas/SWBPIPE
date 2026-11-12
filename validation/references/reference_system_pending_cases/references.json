@@ -1,6 +1,6 @@
 {
  "document": "swbpipe.reference_system_pending_case_references",
- "status": "candidate frozen references; derived and cross-checked by the author TASK, not yet independently refuted; repaired after one independent refutation (the decided seismic rule made the expected path); four open readings (README) await the integrator's resolution; the seismic values are conditional on the stated assumption g = 9.80665 m/s^2",
+ "status": "candidate frozen references; derived and cross-checked by the author TASK, not yet independently refuted; repaired after one independent refutation (the decided seismic rule made the expected path); after a second refutation the former open readings OR-2 to OR-5 are relabelled as controls for departures from the specification (README); the one open reading is the seismic gravity, and the seismic values are conditional on the stated assumption g = 9.80665 m/s^2",
  "specification": "DEL-09-01 reference-system specification §9.2: EQ-6 for RS-WIN, RS-EQX, RS-EQY, RS-EQZ; EQ-1 and EQ-2 for RS-HYD; EQ-4 is an identity stated in the README",
  "inputs": "fixtures/reference_system/SPECIFICATION.md, transcribed in the generator and checked against the file on every run; no product file and no fixture model file is read; validation/references/reference_system/references.json is read only for the consistency check",
  "units": {
@@ -20,14 +20,14 @@
   "full": "the full specified system (§3-§5): rigid-family components RS-F1, RS-V1, RS-F2 and the eccentric reducer RS-R1 on RS-P150 (300 N at the body midpoint)",
   "fixture_today": "the system as the fixture carries it today (§10): RS-R1 pending, RS-P150 a plain S270 member carrying its own distributed weight; RS-F1, RS-V1, RS-F2 as specified"
  },
- "primary_readings": {
-  "seismic": "the decided rule (seismic_rule): a times the weight the weight case gives the model, along the positive global axis of the g-factor: a * g * mu on every member except RS-P180 and the members whose component weight the weight case applies, and a * W at each such component's centre of gravity; mu on the exact route's bases (README). Conditional on the stated assumption g = 9.80665 m/s^2 for the seismic case's gravity_acceleration (§2 says the seismic case enters it explicitly but gives no value; the lane holding the specification is writing it into §8.1)",
+ "bases": {
+  "seismic": "the decided rule (seismic_rule), along the positive global axis of the g-factor: a * g * mu on every member except RS-P180 and the members whose component weight the weight case applies, and a * W at each such component's centre of gravity; mu on the exact route's bases (README). Conditional on the stated assumption g = 9.80665 m/s^2 for the seismic case's gravity_acceleration (open reading OR-G)",
   "wind": "900 Pa * 0.7 * (OD + 2 t_i) per length along +X ('global_x') on RS-P070, RS-P080, RS-P085, RS-P090, RS-P100, RS-P110, RS-P120, RS-P130, RS-P140, RS-P150, RS-P160, RS-P170, RS-P190, RS-P200; every exposed member lies in the plane X = 6 m, so its full length is normal to the wind; RS-P150 takes its S270 section's diameter in both systems",
-  "hydrotest": "W of every member except RS-P180 with each section's contents density replaced by 1000 kg/m^3, once; rigid-family component weights unchanged at their centres of gravity in place of their members' distributed weight (OR-5)",
-  "arcs": "quarter-circle arcs of length R pi/2 carry mass and wind per length like any member (OR-3)"
+  "hydrotest": "W of every member except RS-P180 with each section's contents density replaced by 1000 kg/m^3, once; rigid-family component weights unchanged at their centres of gravity in place of their members' distributed weight (§8.1, §8.3)",
+  "arcs": "quarter-circle arcs of length R pi/2 carry mass and wind per length like any member (§3, §5)"
  },
- "seismic_rule": "decided by SWBPIPE Agent 0 on 2026-11-12, in DEL-05-01's wording: for each global axis, the g-factor times the weight the weight case gives the model: on every member a load per length a * g * mu; for a member whose component weight the weight case applies, in place of that load, the force a * W at the component's node with its moments about the node from the centre-of-gravity vector; a member whose component weight the weight case does not apply keeps its distributed load. Which component weights the weight case applies is the specification's (§5, §8.1: component weights at their centres of gravity in place of their members' distributed weight): RS-F1, RS-V1, RS-F2 in both systems and RS-R1 in the full system; RS-R1 is pending in the fixture today (§10), where RS-P150 keeps its distributed weight and so its distributed seismic load. This closes the former open reading OR-1.",
- "specification_observations": ["seismic gravity: §2 says the seismic case enters gravity_acceleration explicitly but gives no value; 9.80665 m/s^2 is a stated assumption, and every seismic value is conditional on it until the value is in §8.1 on main (the distributed part of the seismic weight scales with g, the component weights do not)", "sense of a positive g-factor: taken along the positive global axis; the opposite sense (for Z, along gravity) reverses every seismic force and moment", "RS-P150 carries section S270 (§3.2) under the reducer RS-R1 (270 to 220 mm): its wind diameter, and its distributed seismic load in the fixture today, use S270"],
+ "seismic_rule": "decided by SWBPIPE Agent 0 on 2026-11-12, in DEL-05-01's wording: for each global axis, the g-factor times the weight the weight case gives the model: on every member a load per length a * g * mu; for a member whose component weight the weight case applies, in place of that load, the force a * W at the component's node with its moments about the node from the centre-of-gravity vector; a member whose component weight the weight case does not apply keeps its distributed load. Which component weights the weight case applies is the specification's (§5, §8.1: component weights at their centres of gravity in place of their members' distributed weight): RS-F1, RS-V1, RS-F2 in both systems and RS-R1 in the full system; RS-R1 is pending in the fixture today (§10), where RS-P150 keeps its distributed weight and so its distributed seismic load. Convention (SWBPIPE Agent 0): the self-weight plan evaluated at the seismic case's gravity, with each entered component force W held fixed; it names an exception and does not make the two mass models equivalent in general. This closes the former open reading OR-1.",
+ "specification_observations": ["sense of a positive g-factor: taken along the positive global axis; the opposite sense (for Z, along gravity) reverses every seismic force and moment", "RS-P150 carries section S270 (§3.2) under the reducer RS-R1 (270 to 220 mm): its wind diameter, and its distributed seismic load in the fixture today, use S270"],
  "checks": {
   "EQ-6": "the reaction force resultant of RS-dWIN and its moment about the origin (sum over supports of r_node x F + M) equal minus the generated wind force and moment; for each of RS-dEQX, RS-dEQY, RS-dEQZ, the reaction resultant and its moment about the origin equal minus the g-factor times the weight the same gravity gives the model, component weights included (key_values: the expected_RS-d* entries)",
   "EQ-1 (RS-HYD)": "the sum of the vertical (Z) reaction components over every support, held supports included, equals W_total",
@@ -460,12 +460,20 @@
  ],
  "open_readings": [
   {
-   "id": "OR-2",
-   "question": "Seismic mass of the replaced span RS-P180",
-   "primary_reading": "none (spec §5.1: the replaced span is 'excluded from weight generation and from every primitive load'; a load on it is refused)",
-   "alternatives": [
+   "id": "OR-G",
+   "subject": "the seismic case's gravity magnitude",
+   "status": "open: §2 says the seismic case enters gravity_acceleration explicitly but gives no value, and the lane that holds the specification is adding it to §8.1. Every seismic value here is conditional on the stated assumption 9.80665 m/s^2 (the weight case's gravity). The distributed part of the seismic weight scales with g and the component forces W do not, so another value would move each seismic value, but not in simple proportion. No alternative values are frozen. Nothing else in the specification is left open for these references."
+  }
+ ],
+ "specification_departure_controls": [
+  {
+   "id": "SD-2",
+   "subject": "seismic mass given to the replaced span RS-P180",
+   "kind": "departure from the specification",
+   "specified": "§5.1: 'The replaced span RS-P180 carries no load, member result or self-weight. It is excluded from weight generation and from every primitive load'; the references give it no seismic mass and no wind",
+   "controls": [
     {
-     "reading": "RS-P180's S220 mass per length over its 0.600 m",
+     "control": "control, departing from §5.1: RS-P180's S220 mass per length over its 0.600 m added to the seismic weight",
      "values": {
       "full": {
        "RS-EQX": {
@@ -550,12 +558,13 @@
    ]
   },
   {
-   "id": "OR-3",
-   "question": "Length, projected area and mass of a realized bend",
-   "primary_reading": "the quarter-circle arc, length R pi/2; its projected area normal to X is exactly arc length times projected diameter (Pappus), and it is in the marked range RS-P070 ... RS-P200 by id and table order",
-   "alternatives": [
+   "id": "SD-3",
+   "subject": "realized bends replaced, or a bend's wind exposure omitted",
+   "kind": "departure from the specification",
+   "specified": "§3: 'It has 27 nodes (corner points are not nodes; each realized bend has two tangent nodes) and 26 members: 22 straight, three arcs and the span the expansion joint replaces.'; §3.2 lists RS-P085 between RS-P080 and RS-P090; §8.1: 'exposed members RS-P070 … RS-P200 except the replaced span RS-P180'. The references take each arc as its quarter circle, length R pi/2 (its projected area normal to X is exactly arc length times projected diameter), and RS-P085 as exposed",
+   "controls": [
     {
-     "reading": "the two tangent legs to the corner, length 2R, as straight members",
+     "control": "control, departing from §3 (three arcs): the two tangent legs to the corner, length 2R, as straight members",
      "values": {
       "full": {
        "RS-WIN": {
@@ -678,7 +687,7 @@
      }
     },
     {
-     "reading": "wind: the arc RS-P085 not exposed (straight members only); mass unchanged",
+     "control": "control, departing from §8.1's exposed range: the arc RS-P085 not exposed to wind; mass unchanged",
      "values": {
       "full": {
        "RS-WIN": {
@@ -713,12 +722,13 @@
    ]
   },
   {
-   "id": "OR-4",
-   "question": "Insulation",
-   "primary_reading": "every section carries the insulation of §4.2 on every member it is on, mapped members included: it adds rho_i over OD to OD + 2 t_i to the mass per length, and the projected diameter is OD + 2 t_i",
-   "alternatives": [
+   "id": "SD-4",
+   "subject": "insulation removed",
+   "kind": "departure from the specification",
+   "specified": "§4.2's section table gives every section its insulation (60 @ 140, 60 @ 140, 50 @ 140 mm @ kg/m^3), and DEL-05-01 takes the wind's projected diameter as 'outside diameter plus twice the insulation thickness'; the references carry that insulation on every member, mapped members included",
+   "controls": [
     {
-     "reading": "no insulation (bare pipe): projected diameter OD, no insulation mass",
+     "control": "control, departing from §4.2's insulation: bare pipe, projected diameter OD, no insulation mass",
      "values": {
       "full": {
        "RS-WIN": {
@@ -843,12 +853,13 @@
    ]
   },
   {
-   "id": "OR-5",
-   "question": "Which contents the test density replaces in RS-HYD",
-   "primary_reading": "the contents of every member that carries distributed weight; a component-mapped member carries none (its component's weight replaces it), and component weights do not change with the test contents (§8.1: 'component weights are rigid-component weight at a centre of gravity'; §8.3 changes only the contents density)",
-   "alternatives": [
+   "id": "SD-5",
+   "subject": "contents added inside the rigid-family components' bodies in RS-HYD",
+   "kind": "hypothetical additions the specification does not require",
+   "specified": "§8.1: 'Component weights are rigid-component `weight` at a centre of gravity, not added weight.' and W is generated 'with component weights at their centres of gravity in place of their members' distributed weight'; §8.3 changes only the contents density. The references replace the contents of every member that carries distributed weight, once, and leave each component's weight unchanged",
+   "controls": [
     {
-     "reading": "add 1000 kg/m^3 over each mapped member's reduced bore, along the member",
+     "control": "hypothetical addition, not required by §8.1 or §8.3: 1000 kg/m^3 over each mapped member's reduced bore, along the member",
      "values": {
       "full": {
        "RS-HYD": {
@@ -873,7 +884,7 @@
      }
     },
     {
-     "reading": "add only the increment (1000 - 820) kg/m^3 over each mapped member's reduced bore",
+     "control": "hypothetical addition, not required by §8.1 or §8.3: only the increment (1000 - 820) kg/m^3 over each mapped member's reduced bore",
      "values": {
       "full": {
        "RS-HYD": {
