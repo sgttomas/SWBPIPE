@@ -172,13 +172,25 @@ gives:
   `withheld_would_be_magnitudes`;
 - the two cases' own rows as binary64 (`cases`), which are the published operands;
 - `consists_of`, which says what the subtraction is the response to;
-- the reading-J values where they differ from reading W.
+- the reading-J values where they differ analytically from reading W
+  (`reading_J_alternative`);
+- for every same-basis pair, the reading-J operands (`reading_J_cases`) and, for
+  every row, the reading-J publication value formed from them
+  (`reading_J_publication`, with `reading_J_publication_summary`).
+
+Statements in this section that two subtractions are identical, or that one does
+not depend on the setting or on the reading, are **analytical**: they compare
+the exact differences. The publication values (`from_published_operands`) are
+each formed from rounded operands. Different operands with the same exact
+difference can therefore give publication values that differ in the last place.
+Where a reader compares publication values bit for bit, the file says row by row
+which are bit-identical (below).
 
 | Pair | Outcome | The subtraction is the closed-form response to | Setting dependence |
 |---|---|---|---|
-| M0, M1, M2 / equal pressure / off–off | published | ε_T alone | identical to on–on on every row; identical under W and J |
+| M0, M1, M2 / equal pressure / off–off | published | ε_T alone | analytically identical to on–on, and under W and J, on every row; publication values: see "Publication values across settings and readings" |
 | M0, M1, M2 / equal pressure / on–on | published | ε_T alone | as above |
-| M0, M1, M2 / equal pressure / operating on, sustained off | published (elongation is a separate action the sustained case does not apply) | ε_T + ε_p(p) | differs from on–on by the response to ε_p; identical under W and J |
+| M0, M1, M2 / equal pressure / operating on, sustained off | published (elongation is a separate action the sustained case does not apply) | ε_T + ε_p(p) | differs analytically from on–on by the response to ε_p; analytically identical under W and J |
 | M1, M2 / pressure change / on–on | **refused (G-1)**: undeclared subtraction given | ε_T + ε_p(p_o) − ε_p(p_s); N_wall, N_mech also carry their Δp·A_i terms | J differs (adds the response to the junction resultant of Δp) |
 | M1, M2 / pressure change / off–off | **refused (G-1)**: undeclared subtraction given | ε_T alone under W; N_wall, N_mech carry Δp·A_i | J differs (response to the junction resultant of Δp) |
 | M1, M2 / pressure change / operating on, sustained off | **refused (G-1)**: undeclared subtraction given | ε_T + ε_p(p_o) under W | J differs |
@@ -189,12 +201,42 @@ Each pair also records `g1_contained` under the decided rule and, as a control,
 `control_primitives_only_g1_contained` (primitive loads only), which is true for
 every pair.
 
-Why the equal-pressure differences do not depend on the setting: the two cases
-of a pair share every pressure load, so the loads cancel in the subtraction under
-either setting and either reading. Why an on–off pair differs by exactly the
-response to ε_p: on is off plus ε_p under both readings. The pressure-change
+Why the equal-pressure differences do not depend analytically on the setting:
+the two cases of a pair share every pressure load, so the loads cancel in the
+exact subtraction under either setting and either reading. Why an on–off pair
+differs analytically by exactly the response to ε_p: on is off plus ε_p under
+both readings. The pressure-change
 pairs are refused because a region with another pressure is other content; their
 mechanics is kept as the undeclared subtraction.
+
+### Publication values across settings and readings
+
+These counts come from the generator's own computation; the file gives the rows.
+
+- **Off–off against on–on, equal pressure** (`setting_independence_publication`):
+  analytically identical on all 312 rows. The publication values differ in
+  the last place on 50 rows (M0 0 of 78, M1 2 of 84, M2 48 of 150). Those rows are listed by name.
+- **Reading J against reading W, all 16 same-basis pairs**
+  (`reading_J_publication`): 1722 rows. 934 are bit-identical in
+  publication, and 788 are not. Every row carries both
+  `analytically_identical_to_reading_W` and
+  `bit_identical_to_reading_W_publication`.
+  - The nine equal-pressure pairs: all 936 rows are analytically identical,
+    and 702 are bit-identical in publication. The other 234
+    differ only in the last place, from rounded operands.
+  - The six pressure-change pairs: 702 rows, of which 531
+    differ analytically (the 531 rows of `reading_J_alternative`). Of the
+    171 analytically identical rows, 171 are bit-identical in
+    publication and 0 are not. 171 rows are bit-identical in
+    publication in all.
+  - The same-basis G-2 twin: all 84 rows are analytically identical,
+    and 61 are bit-identical in publication.
+- Over the 16 pairs, 257 rows are analytically identical but not
+  bit-identical in publication.
+
+Each reading-J publication value is reproducible from `reading_J_cases` by the
+package's rule. That includes the `from_published_operands` of every
+`reading_J_alternative` row.
 
 **Not trivially zero.** In M1 and M2 the thermal difference has non-zero
 reactions, displacements, member end forces, and (in M2) torsion. The generator
@@ -246,7 +288,8 @@ pairs (129 of 1 020 published `difference` rows, 134 of 702
 rows. The reviewer's example is M1, equal pressure, on–on, u/B/UX. The operands
 0.014617794698056548 and 0.0004835227236798495 give 0.0141342719743767 from the
 published operands, against the analytical 0.014134271974376698. The reading-J
-rows carry both fields too, the operands then being the reading-J cases.
+publication values are formed the same way from the reading-J operands, which
+the file gives as `reading_J_cases`.
 
 **Magnitude rule.** A magnitude row of a subtraction is the norm of the
 subtraction's own components. It is never the difference of the operands'
@@ -256,11 +299,21 @@ magnitudes. Each magnitude record has these fields:
 |---|---|---|
 | `from_published_operand_components` | the row's `from_published_operands` values (binary64), squared and summed exactly, square root correctly rounded | bit for bit |
 | `from_combined_components`, with `exact_square` | the analytical components (`exact`), the norm correctly rounded | at the analytic tolerance |
-| `forbidden_subtracted_magnitudes` | the operands' analytical magnitudes, subtracted | a value a product must *not* give, so that a check can tell the two rules apart |
+| `forbidden_subtracted_magnitudes` | the result of the wrong algorithm: the difference of the operands' analytical magnitudes, instead of the magnitude of the difference | a distinguishing negative control, usable only where `forbidden_value_distinguishes` is true |
+| `forbidden_value_distinguishes` | computed: true when the wrong algorithm's value differs in its bits from both `from_combined_components` and `from_published_operand_components` | — |
 
 For M1's B translation, for example, the correct magnitude is 0.016828… m and the
 forbidden one is 0.016229… m. Magnitudes are given for translation and rotation
-per node and for force and moment per anchor. The two correct fields differ in
+per node and for force and moment per anchor.
+
+The wrong algorithm often gives the right answer: for example, when the vector
+is zero in both operands, as for a fixed anchor's translation. A record is a negative control only
+where its flag is true. Of the 106 published magnitude records,
+60 distinguish and 46 do not. Of the
+72 undeclared ones 48 distinguish, and of the 10
+withheld ones 6.
+
+The two correct fields differ in
 the last bit on 11 of 106 published magnitude records, on 10 of 72 undeclared
 ones, and on 1 of 10 withheld ones.
 
@@ -394,9 +447,11 @@ If any check fails, nothing is written. The counts are in `cross_checks`.
    (66) and every difference (16).
 4. **Wall form.** DEL-04-07's wall form equals the closed-end free strain on every
    pressurised case with the setting on (19).
-5. **Setting independence.** Equal-pressure differences are identical under
-   readings W and J. Pressure-change differences differ, and the J values are
-   given.
+5. **Setting independence, analytically.** Equal-pressure exact differences are
+   identical under readings W and J, and between off–off and on–on.
+   Pressure-change exact differences differ, and the J values are given. For
+   publication values, the generator computes and emits which rows are
+   bit-identical (see "Publication values across settings and readings").
 6. **Hand formula.** The M1 hand formula reproduces the redundants on both bases.
 7. **Not trivially zero; G-2 distinguishable.** The M1 and M2 thermal differences
    have non-zero motions and reactions, and the withheld G-2 values differ from
@@ -420,3 +475,7 @@ If any check fails, nothing is written. The counts are in `cross_checks`.
   differences do not depend on how weight is formed.
 - No case uses a hydrostatic test, an operating-condition use, the Bourdon option
   or the held-status subtrahend.
+- No pair carries a generated load. The decided G-1 rule counts generated loads,
+  but this package does not exercise them.
+- Prescribed motions have gate coverage only. Two G-1 rows exercise them, but no
+  numerical pair has a prescribed motion.

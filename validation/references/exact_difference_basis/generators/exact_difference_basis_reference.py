@@ -975,8 +975,10 @@ def pair_record(pid, model_id, s, o):
         dj = {k: oj[k] - sj[k] for k in oj}
         differs = {k: v for k, v in dj.items() if v != diff[k]}
         if s["p"] == o["p"]:
-            assert not differs, "equal pressure: the difference does not depend on the reading of 'off'"
-            rec["reading_J_alternative"] = "identical to reading W on every row"
+            assert not differs, "equal pressure: the analytical difference does not depend on the reading of 'off'"
+            rec["reading_J_alternative"] = (
+                "analytically identical to reading W on every row (exact differences); publication values are "
+                "formed from rounded operands and can differ in the last place: see reading_J_publication")
         else:
             assert differs
             rec["reading_J_alternative"] = {
@@ -1011,6 +1013,30 @@ def pair_record(pid, model_id, s, o):
             CHECKS[f"rows_published_operand_value_differs_{field}"] += 1
         CHECKS[f"rows_{field}"] += 1
     rec[field] = rows_out
+    if same_basis:
+        rec["reading_J_cases"] = {"sustained": {k: f64(sj[k]) for k in sorted(sj)},
+                                  "operating": {k: f64(oj[k]) for k in sorted(oj)}}
+        jpub = {}
+        tally = Counter()
+        for k in sorted(dj):
+            value = float(Q(rec["reading_J_cases"]["operating"][k]) - Q(rec["reading_J_cases"]["sustained"][k]))
+            assert value == operand_difference(oj[k], sj[k])
+            same_exact = dj[k] == diff[k]
+            same_bits = value.hex() == pub[k].hex()
+            jpub[k] = {"from_published_operands": value, "analytically_identical_to_reading_W": same_exact,
+                       "bit_identical_to_reading_W_publication": same_bits}
+            if isinstance(rec["reading_J_alternative"], dict) and k in rec["reading_J_alternative"]:
+                assert rec["reading_J_alternative"][k]["from_published_operands"] == value
+            tally["rows"] += 1
+            tally["analytically_identical"] += same_exact
+            tally["publication_bit_identical"] += same_bits
+            tally["analytically_identical_but_publication_differs"] += same_exact and not same_bits
+        rec["reading_J_publication"] = jpub
+        rec["reading_J_publication_summary"] = dict(sorted(tally.items()))
+        CHECKS["reading_J_publication_rows"] += tally["rows"]
+        CHECKS["reading_J_publication_bit_identical_to_W"] += tally["publication_bit_identical"]
+        CHECKS["reading_J_analytically_identical_publication_differs"] += \
+            tally["analytically_identical_but_publication_differs"]
     mo, ms, md = magnitudes(model_id, ow), magnitudes(model_id, sw), magnitudes(model_id, diff)
     mp = magnitudes(model_id, {k: lift(Q(v)) for k, v in pub.items()})
     mags = {}
@@ -1018,6 +1044,10 @@ def pair_record(pid, model_id, s, o):
         mags[k] = {"from_combined_components": md[k][1], "exact_square": md[k][0].text(),
                    "from_published_operand_components": mp[k][1],
                    "forbidden_subtracted_magnitudes": sqrt_difference(mo[k][0], ms[k][0])}
+        wrong = mags[k]["forbidden_subtracted_magnitudes"]
+        mags[k]["forbidden_value_distinguishes"] = (wrong.hex() != md[k][1].hex()
+                                                    and wrong.hex() != mp[k][1].hex())
+        CHECKS[f"magnitudes_forbidden_value_distinguishes_{field}"] += mags[k]["forbidden_value_distinguishes"]
         if mp[k][1] != md[k][1]:
             CHECKS[f"magnitudes_published_operand_value_differs_{field}"] += 1
         CHECKS[f"magnitudes_{field}"] += 1
@@ -1105,6 +1135,16 @@ def build() -> dict[str, bytes]:
     g1 = g1_rows()
     substitution_check(g1)
     records = [pair_record(*p) for p in pairs()]
+    setting = {}
+    by_id = {r["id"]: r for r in records}
+    for m in ("M0", "M1", "M2"):
+        off = by_id[f"{m}/equal_pressure/operating_off_sustained_off"]["difference"]
+        on = by_id[f"{m}/equal_pressure/operating_on_sustained_on"]["difference"]
+        assert all(off[k]["exact"] == on[k]["exact"] for k in off), "analytically identical"
+        differ = sorted(k for k in off if off[k]["from_published_operands"].hex() != on[k]["from_published_operands"].hex())
+        setting[m] = {"compared": "off-off against on-on, equal pressure", "rows": len(off),
+                      "analytically_identical": len(off), "publication_bit_identical": len(off) - len(differ),
+                      "publication_differs": differ}
     hand = [m1_by_hand(REF), m1_by_hand(HOT)]
     references = {
         "schema": "exact_difference_basis/v1",
@@ -1122,6 +1162,7 @@ def build() -> dict[str, bytes]:
         "g1": g1,
         "pairs": records,
         "m1_by_hand": hand,
+        "setting_independence_publication": setting,
         "cross_checks": dict(sorted(CHECKS.items())),
     }
     text = (json.dumps(references, indent=1, sort_keys=True) + "\n").encode()
