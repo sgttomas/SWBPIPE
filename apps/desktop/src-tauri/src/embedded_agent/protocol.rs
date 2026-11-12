@@ -932,9 +932,9 @@ const ENDS: Notice = Notice::Ends(UNADMITTED_NOTIFICATION);
 /// it ends the session. Ignored methods are those an ordinary session sends
 /// (observed: account/rateLimits/updated, thread/tokenUsage/updated, warning,
 /// remoteControl/status/changed) or that belong to an admitted kind's
-/// conversation (reasoning deltas, the deprecated thread/compacted, a turn's
-/// error, configuration and deprecation notices); none carries an item, turn
-/// or thread. Every other method ends the session: the runtime's own tools and
+/// conversation (reasoning deltas, the deprecated thread/compacted,
+/// configuration and deprecation notices); none carries an item, turn or
+/// thread. `error` is handled: see `notification`. Every other method ends the session: the runtime's own tools and
 /// processes as tool activity, everything else as unadmitted. The SWBPIPE
 /// Agent 0 decided that the guardian review, hook and thread settings methods
 /// end it. remoteControl/status/changed is ignored here until pull request
@@ -2752,6 +2752,33 @@ mod tests {
                 .collect();
             assert!(outcomes.windows(2).all(|w| w[0] == w[1]), "{outcomes:?}");
         }
+    }
+
+    #[test]
+    fn the_reconnecting_indication_clears_on_anything_else_in_the_turn() {
+        let others = [
+            call_summary(json!(8), "after-retry"),
+            notification("item/reasoning/textDelta", json!({"threadId":"thread-1","turnId":"turn-1","itemId":"r","delta":"x","contentIndex":0})),
+            error_frame("turn-1", false),
+            item_frame("item/started", fixture::user_message("u")),
+        ];
+        for other in others {
+            let mut p = active();
+            assert!(matches!(
+                p.handle_frame(error_frame("turn-1", true), &basis()).unwrap().events.as_slice(),
+                [Event::Reconnecting(true)]
+            ));
+            let label = other.to_string();
+            let events = p.handle_frame(other, &basis()).unwrap().events;
+            assert!(matches!(events.first(), Some(Event::Reconnecting(false))), "{label}");
+            assert!(!p.reconnecting, "{label}");
+        }
+        // Nothing sets it but a retrying error inside the active turn.
+        let mut p = active();
+        assert!(p.handle_frame(error_frame("turn-1", false), &basis()).unwrap().events.is_empty());
+        let mut q = ready();
+        assert!(q.handle_frame(error_frame("turn-1", true), &basis()).unwrap().events.is_empty());
+        assert!(!p.reconnecting && !q.reconnecting);
     }
 
     #[test]

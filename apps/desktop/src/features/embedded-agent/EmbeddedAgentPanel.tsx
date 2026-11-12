@@ -42,6 +42,7 @@ function failureText(failure:string|null):string|null {
   case 'runtime_tool_activity':return 'The agent runtime reported tool activity this application does not admit. The session was ended.';
   case 'unadmitted_report':return 'The agent runtime reported an item, a notice or a request this application does not admit. The session was ended.';
   case 'malformed_report':return 'The agent runtime sent a message this application could not accept. The session was ended.';
+  case 'supplier_error':return 'The agent runtime reported a failure with no turn active. The session was ended.';
   default:return 'The agent session stopped. Check its configuration before starting again.';
  }
 }
@@ -114,11 +115,11 @@ export function EmbeddedAgentPanel({session,active,onReview}:{session:EmbeddedAg
    {saved?.provider?<p>{saved.provider.model} · {saved.provider.contextWindow===null?'context window not entered':`${saved.provider.contextWindow.toLocaleString('en-US')}-token context window`} · {saved.provider.endpoint}</p>:<p>Save a provider and model to begin.</p>}
    <div>
     <button type="button" disabled={busy||running||!saved?.provider} onClick={()=>void perform(start)}>Start agent</button>
-    <button type="button" disabled={busy||!running||!view.turnActive||view.turnStatus!=='in_progress'} onClick={()=>void perform(()=>session.interrupt())}>Interrupt turn</button>
+    <button type="button" disabled={busy||!running||!view.turnActive||(view.turnStatus!=='in_progress'&&view.turnStatus!=='reconnecting')} onClick={()=>void perform(()=>session.interrupt())}>Interrupt turn</button>
     <button type="button" disabled={busy||!running} onClick={()=>void perform(()=>session.close())}>Stop agent</button>
     <button type="button" onClick={onReview}>Open Batch review</button>
    </div>
-   <p role="status" data-testid="embedded-agent-standing">{view.closed?'Closed':view.status==='starting'?'Starting':view.turnActive?'Working':view.status==='ready'?'Ready':view.status}. {view.turnStatus==='failed'?'The last turn failed.':view.turnStatus==='interrupted'?'Turn interrupted. Applied changes remain applied.':''}</p>
+   <p role="status" data-testid="embedded-agent-standing">{view.closed?'Closed':view.status==='starting'?'Starting':view.turnActive?'Working':view.status==='ready'?'Ready':view.status}. {view.turnStatus==='reconnecting'?'The agent runtime is reconnecting to the model provider. Interrupt ends the turn.':view.turnStatus==='failed'?'The last turn failed.':view.turnStatus==='interrupted'?'Turn interrupted. Applied changes remain applied.':''}</p>
    {failureText(view.failure)?<p role="alert">{failureText(view.failure)}</p>:null}
    {message?<p role="status">{message}</p>:null}
    <p>{CSV_PREAMBLE_NOTICE}</p>

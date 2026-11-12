@@ -895,6 +895,41 @@ mod tests {
         assert_eq!(h.output.state.lock().unwrap().1, 5);
     }
     #[test]
+    fn interruption_while_reconnecting_does_exactly_what_it_does_in_progress() {
+        // The same sequence as interruption_detaches_without_cancellation_or_response,
+        // with a retrying error first: the same request written, the same end
+        // state, and the indication cleared by the turn's end.
+        let mut written = Vec::new();
+        for reconnecting in [false, true] {
+            let mut h = Harness::new();
+            h.active();
+            h.call("rpc");
+            let r = reference(&h.event());
+            if reconnecting {
+                h.input.frame(json!({"method":"error","params":{"error":{"message":"supplier text"},"threadId":"thread-1","turnId":"turn-1","willRetry":true}}));
+                assert!(matches!(h.event().events(), [Event::Reconnecting(true)]));
+            }
+            assert_eq!(h.control(|d| d.interrupt()), Ok(Submission::Queued));
+            written.push(h.sent(5)[4].clone());
+            h.input.frame(json!({"method":"turn/completed","params":{"threadId":"thread-1","turn":{"id":"turn-1","items":[],"status":"interrupted"}}}));
+            let ended = h.event();
+            if reconnecting {
+                assert!(matches!(
+                    ended.events(),
+                    [Event::Reconnecting(false), Event::ToolDetached { .. }, Event::TurnCompleted { .. }]
+                ));
+            } else {
+                assert!(matches!(ended.events(), [Event::ToolDetached { .. }, Event::TurnCompleted { .. }]));
+            }
+            assert_eq!(h.complete(&r, outcome()), Ok(Submission::Detached));
+            h.input.frame(json!({"id":4,"result":{}}));
+            assert!(matches!(h.event().events(), [Event::InterruptAcknowledged]));
+            assert_eq!(h.output.state.lock().unwrap().1, 5);
+        }
+        assert_eq!(written[0], written[1]);
+        assert_eq!(written[1]["method"], "turn/interrupt");
+    }
+    #[test]
     fn protocol_failure_reports_loss_once_and_stops_dispatch() {
         let mut h = Harness::new();
         h.active();
@@ -1014,6 +1049,47 @@ mod tests {
             },
             Malformed,
         );
+    }
+    #[test]
+    fn round_three_frames_end_the_session_through_the_driver() {
+        use crate::embedded_agent::protocol::fixture;
+        let mut phase = fixture::agent_message("m", "hello");
+        phase["phase"] = json!({"final_answer":null});
+        let mut status = fixture::dynamic_tool_call("d", Tool::Summary.name());
+        status["status"] = json!({"completed":null});
+        let mut effort = fixture::thread("thread-1");
+        effort["reasoningEffort"] = json!("");
+        let mut traced = json!({"id":"r1","method":"item/tool/call","params":{"threadId":"thread-1","turnId":"turn-1","callId":"c1","tool":Tool::Summary.name(),"arguments":{}}});
+        traced["trace"] = json!(null);
+        let frames = [
+            json!({"method":"item/completed","params":fixture::item_params("item/completed", "thread-1", "turn-1", phase)}),
+            json!({"method":"item/completed","params":fixture::item_params("item/completed", "thread-1", "turn-1", status)}),
+            json!({"method":"item/completed","params":[1,fixture::agent_message("m", "hello"),"thread-1","turn-1"]}),
+            json!({"method":"item/completed","params":fixture::item_params("item/completed", "thread-1", "turn-1", fixture::agent_message("m", "hello")),"result":null}),
+            json!({"method":"turn/completed","params":{"threadId":"thread-1","turn":{"id":"turn-1","items":[],"status":{"completed":null}}}}),
+            json!({"method":"thread/started","params":{"thread":effort}}),
+            traced,
+        ];
+        for frame in frames {
+            ends_with(&serde_json::to_vec(&frame).unwrap(), |_| {}, protocol::Refusal::Malformed);
+        }
+        ends_with(
+            br#"{"id":4,"params":null,"result":{}}"#,
+            |h| {
+                assert_eq!(h.control(|d| d.interrupt()), Ok(Submission::Queued));
+                h.sent(5);
+            },
+            protocol::Refusal::Malformed,
+        );
+        let mut result = fixture::thread_start_result("thread-1");
+        result["reasoningEffort"] = json!("");
+        let raw = serde_json::to_vec(&json!({"id":2,"result":result})).unwrap();
+        let mut h = Harness::new();
+        h.starting();
+        h.input.raw(&raw);
+        let o = h.wait(|o| o.terminal.is_some());
+        assert_eq!(o.terminal, Some(Terminal::Protocol));
+        assert_eq!(h.d().refusal(), Some(protocol::Refusal::Malformed));
     }
     #[test]
     fn a_thread_start_response_hiding_items_in_a_listed_member_ends_the_session() {

@@ -559,6 +559,9 @@ impl Owner {
                             owner.turn_id = Some(turn_id.clone());
                             owner.turn_status = "in_progress";
                         }
+                        Event::Reconnecting(on) => {
+                            owner.turn_status = reconnecting_status(owner.turn_status, *on);
+                        }
                         Event::TurnCompleted { status, .. } => {
                             owner.turn_active = false;
                             owner.turn_status = match status.as_str() {
@@ -1081,8 +1084,30 @@ fn validate_actual(
     Ok(())
 }
 
+/// The turn standing while the runtime retries inside the active turn: set
+/// only from in progress, and returned to in progress when it clears. Every
+/// other standing is left as it is; the turn's end sets its own.
+fn reconnecting_status(current: &'static str, on: bool) -> &'static str {
+    match (current, on) {
+        ("in_progress", true) => "reconnecting",
+        ("reconnecting", false) => "in_progress",
+        (other, _) => other,
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn reconnecting_is_a_turn_standing_set_and_cleared_only_from_in_progress() {
+        assert_eq!(super::reconnecting_status("in_progress", true), "reconnecting");
+        assert_eq!(super::reconnecting_status("reconnecting", true), "reconnecting");
+        assert_eq!(super::reconnecting_status("reconnecting", false), "in_progress");
+        for other in ["none", "starting", "completed", "interrupted", "failed"] {
+            assert_eq!(super::reconnecting_status(other, true), other);
+            assert_eq!(super::reconnecting_status(other, false), other);
+        }
+    }
+
     use super::super::protocol::{Protocol, ThreadOptions};
     use super::*;
     use crate::memory_pool::{test_host::ScriptedHost, MemoryPool};

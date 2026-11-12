@@ -19,10 +19,26 @@ function setup(configured=true){
  return {session,port,emit};
 }
 describe('minimal embedded agent panel',()=>{
+ it('says the runtime is reconnecting, keeps Interrupt available, and clears at the turn end',async()=>{
+  const {session,port,emit}=setup();render(<EmbeddedAgentPanel session={session} active onReview={()=>{}}/>);
+  await screen.findByText('Start agent');
+  act(()=>emit({status:'ready',closed:false,turnActive:true,turnStatus:'reconnecting'}));
+  const standing=await screen.findByTestId('embedded-agent-standing');
+  expect(standing.textContent).toBe('Working. The agent runtime is reconnecting to the model provider. Interrupt ends the turn.');
+  const interrupt=screen.getByText('Interrupt turn') as HTMLButtonElement;
+  expect(interrupt.disabled).toBe(false);
+  fireEvent.click(interrupt);
+  await waitFor(()=>expect(port.interrupt).toHaveBeenCalledTimes(1));
+  act(()=>emit({status:'ready',closed:false,turnActive:false,turnStatus:'interrupted'}));
+  await waitFor(()=>expect(screen.getByTestId('embedded-agent-standing').textContent).not.toContain('reconnecting'));
+  act(()=>emit({status:'ready',closed:false,turnActive:true,turnStatus:'in_progress'}));
+  await waitFor(()=>expect(screen.getByTestId('embedded-agent-standing').textContent).toBe('Working. '));
+ });
  it.each([
   ['runtime_tool_activity','The agent runtime reported tool activity this application does not admit. The session was ended.'],
   ['unadmitted_report','The agent runtime reported an item, a notice or a request this application does not admit. The session was ended.'],
   ['malformed_report','The agent runtime sent a message this application could not accept. The session was ended.'],
+  ['supplier_error','The agent runtime reported a failure with no turn active. The session was ended.'],
  ])('says in plain words why the runtime session was ended (%s)',async(failure,words)=>{
   const {session,emit}=setup();render(<EmbeddedAgentPanel session={session} active onReview={()=>{}}/>);
   await screen.findByText('Start agent');act(()=>emit({failure}));
