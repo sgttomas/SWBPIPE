@@ -978,7 +978,7 @@ def pair_record(pid, model_id, s, o):
             assert not differs, "equal pressure: the analytical difference does not depend on the reading of 'off'"
             rec["reading_J_alternative"] = (
                 "analytically identical to reading W on every row (exact differences); publication values are "
-                "formed from rounded operands and can differ in the last place: see reading_J_publication")
+                "formed from rounded operands and can differ because of that rounding: see reading_J_publication")
         else:
             assert differs
             rec["reading_J_alternative"] = {

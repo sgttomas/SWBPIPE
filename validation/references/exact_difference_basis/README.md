@@ -182,7 +182,8 @@ Statements in this section that two subtractions are identical, or that one does
 not depend on the setting or on the reading, are **analytical**: they compare
 the exact differences. The publication values (`from_published_operands`) are
 each formed from rounded operands. Different operands with the same exact
-difference can therefore give publication values that differ in the last place.
+difference can therefore give publication values that differ because their
+operands were rounded, in some rows by many units in the last place.
 Where a reader compares publication values bit for bit, the file says row by row
 which are bit-identical (below).
 
@@ -214,8 +215,8 @@ mechanics is kept as the undeclared subtraction.
 These counts come from the generator's own computation; the file gives the rows.
 
 - **Off–off against on–on, equal pressure** (`setting_independence_publication`):
-  analytically identical on all 312 rows. The publication values differ in
-  the last place on 50 rows (M0 0 of 78, M1 2 of 84, M2 48 of 150). Those rows are listed by name.
+  analytically identical on all 312 rows. The publication values differ,
+  because their operands were rounded, on 50 rows (M0 0 of 78, M1 2 of 84, M2 48 of 150). Those rows are listed by name.
 - **Reading J against reading W, all 16 same-basis pairs**
   (`reading_J_publication`): 1722 rows. 934 are bit-identical in
   publication, and 788 are not. Every row carries both
@@ -223,7 +224,8 @@ These counts come from the generator's own computation; the file gives the rows.
   `bit_identical_to_reading_W_publication`.
   - The nine equal-pressure pairs: all 936 rows are analytically identical,
     and 702 are bit-identical in publication. The other 234
-    differ only in the last place, from rounded operands.
+    differ because their operands were rounded (not always by one unit in
+    the last place).
   - The six pressure-change pairs: 702 rows, of which 531
     differ analytically (the 531 rows of `reading_J_alternative`). Of the
     171 analytically identical rows, 171 are bit-identical in

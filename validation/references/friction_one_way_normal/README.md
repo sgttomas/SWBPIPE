@@ -316,27 +316,32 @@ generator also checks that reactions are unchanged, and displacements scale as
 
 ## Normal from the previous iterate: the fixed point
 
-DEL-04-07 applies a sliding force from the previous iterate's normal. While a
-sliding state is held, that update is N_k = N_0 + ρ·N_(k−1), where:
+DEL-04-07's text describes a sliding force applied from the previous iterate's
+normal. This section illustrates that scheme and commits a product to nothing
+about its iteration: a scheme that solves the sliding force and its normal
+together reaches N* without passing through this sequence. What the package
+commits to is the fixed point N*. While a sliding state is held, the
+previous-iterate update is N_k = N_0 + ρ·N_(k−1), where:
 - ρ = d·μ·f_xz/f_zz = ∓165888/721913 (about ∓0.2298), so |ρ| < 1;
 - N_0 is the one-way reaction with the friction force set to zero.
 
-The fixed point N* = N_0/(1 − ρ) is the exact reference target of this
-lagged-normal iteration. It is the reference N above, where the force uses the
+The fixed point N* = N_0/(1 − ρ) is the exact reference target, whichever
+scheme reaches it. It is the reference N above, where the force uses the
 normal of the current state, as in DEL-04-04's law.
 
 Finite numerical convergence is what the scopes define: unchanged states with
 a residual within the governed tolerance of the support class (DEL-04-04
 "Convergence", DEL-04-07 CLM-002). Neither of these is the criterion:
 - state stability alone;
-- exact equality of successive normals, which a lagged iteration reaches only
-  in the limit.
+- exact equality of successive normals, which a previous-iterate scheme
+  reaches only in the limit.
 
 A product's converged normal is compared with N* at the class tolerance, like
 every other value. For each sliding case, `references.json` gives:
 - ρ;
 - N_0;
-- N_1 to N_5;
+- N_1 to N_5, the previous-iterate sequence, as illustration and not as an
+  expected product path;
 - N*.
 
 The generator checks N_k − N* = ρ^k·(N_0 − N*) exactly.
@@ -422,8 +427,12 @@ side.
   - Presenting a pair as confirmed where this package establishes none is
     wrong. That includes the boundary witnesses and, under the literal
     alternative, the lifted cases.
-  - Presenting an established pair as unconfirmed agrees with the scope only
-    where the product's error bound reaches the margin.
+  - Where the product's confirmation runs and encloses the deciding
+    quantities, presenting an established pair as unconfirmed agrees with the
+    scope only where the product's error bound reaches the margin. Where
+    confirmation does not run or cannot enclose them, the scopes require
+    unconfirmed standing with their named reason (DEL-04-04 REQ-013,
+    DEL-04-01 REQ-016), and that agrees with this package.
 
   Away from the witnesses, the smallest margins are in the near-threshold
   cases:

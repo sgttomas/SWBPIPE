@@ -2965,7 +2965,7 @@
     "primitives": "weights + thermal on every member"
    },
    "outcome": "published",
-   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ in the last place: see reading_J_publication",
+   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ because of that rounding: see reading_J_publication",
    "reading_J_cases": {
     "operating": {
      "axial/AB/N_mech": 434767.84239718155,
@@ -4239,7 +4239,7 @@
     "primitives": "weights + thermal on every member"
    },
    "outcome": "published",
-   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ in the last place: see reading_J_publication",
+   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ because of that rounding: see reading_J_publication",
    "reading_J_cases": {
     "operating": {
      "axial/AB/N_mech": 434767.84239718155,
@@ -5513,7 +5513,7 @@
     "primitives": "weights + thermal on every member"
    },
    "outcome": "published",
-   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ in the last place: see reading_J_publication",
+   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ because of that rounding: see reading_J_publication",
    "reading_J_cases": {
     "operating": {
      "axial/AB/N_mech": 434767.84239718155,
@@ -6849,7 +6849,7 @@
     "primitives": "weights + thermal on every member"
    },
    "outcome": "published",
-   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ in the last place: see reading_J_publication",
+   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ because of that rounding: see reading_J_publication",
    "reading_J_cases": {
     "operating": {
      "axial/AB/N_mech": 395288.74150177767,
@@ -8227,7 +8227,7 @@
     "primitives": "weights + thermal on every member"
    },
    "outcome": "published",
-   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ in the last place: see reading_J_publication",
+   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ because of that rounding: see reading_J_publication",
    "reading_J_cases": {
     "operating": {
      "axial/AB/N_mech": 394036.135837828,
@@ -9605,7 +9605,7 @@
     "primitives": "weights + thermal on every member"
    },
    "outcome": "published",
-   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ in the last place: see reading_J_publication",
+   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ because of that rounding: see reading_J_publication",
    "reading_J_cases": {
     "operating": {
      "axial/AB/N_mech": 394036.135837828,
@@ -11539,7 +11539,7 @@
     "primitives": "weights + thermal on every member"
    },
    "outcome": "published",
-   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ in the last place: see reading_J_publication",
+   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ because of that rounding: see reading_J_publication",
    "reading_J_cases": {
     "operating": {
      "axial/AE/N_mech": 420352.3106810349,
@@ -13935,7 +13935,7 @@
     "primitives": "weights + thermal on every member"
    },
    "outcome": "published",
-   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ in the last place: see reading_J_publication",
+   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ because of that rounding: see reading_J_publication",
    "reading_J_cases": {
     "operating": {
      "axial/AE/N_mech": 419896.3207427101,
@@ -16331,7 +16331,7 @@
     "primitives": "weights + thermal on every member"
    },
    "outcome": "published",
-   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ in the last place: see reading_J_publication",
+   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ because of that rounding: see reading_J_publication",
    "reading_J_cases": {
     "operating": {
      "axial/AE/N_mech": 419896.3207427101,
@@ -32929,7 +32929,7 @@
     "primitives": "weights + thermal on every member"
    },
    "outcome": "published",
-   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ in the last place: see reading_J_publication",
+   "reading_J_alternative": "analytically identical to reading W on every row (exact differences); publication values are formed from rounded operands and can differ because of that rounding: see reading_J_publication",
    "reading_J_cases": {
     "operating": {
      "axial/AB/N_mech": 395481.50434710225,
