@@ -37,7 +37,7 @@ from core.handoff.caepipe_external.benchmark import (  # noqa: E402
     screening_class,
 )
 from core.handoff.caepipe_external.harness import (  # noqa: E402
-    RUN_RECORD_KIND, RUNS_DIR, check_guest_alive, current_case, exchange_tree, reserve_folder)
+    RUN_RECORD_KIND, RUNS_DIR, case_paths, check_guest_alive, current_case, exchange_tree, reserve_folder)
 from core.handoff.caepipe_external.print_csv import bind_element_rows  # noqa: E402
 from core.handoff.caepipe_mbf import render_caepipe_mbf_si  # noqa: E402
 from tools.caepipe_correlation import benchmark_models, run_pilot  # noqa: E402
@@ -955,15 +955,29 @@ def test_two_states_of_one_model_leave_two_distinct_records(fake_benchmark, monk
         "0,0,0,1,0", "0,1,0,1,1"]
     assert sorted(solved) == run_ids and "model_settings" not in solved[run_ids[0]]
     assert solved[run_ids[1]]["model_settings"]["pressure_elongation"] == {"operating_load_cases": ["case:sustained"]}
-    records = [root / "cases" / run_id / "comparison" / "benchmark_comparison.json" for run_id in run_ids]
+    # Each run has its own case folder, its own run folder and its own selection; the record is in the run folder
+    # its selection names.
+    views = [current_case(root, run_id) for run_id in run_ids]
+    assert [view.run_relative for view in views] == ["runs/000001", "runs/000001"]
+    assert views[0].case_root != views[1].case_root and views[0].run != views[1].run
+    assert all((view.case_root / view.selection).is_file() for view in views)  # a selection in each case's own folder
+    records = [view.comparison_root / "comparison" / "benchmark_comparison.json" for view in views]
     assert records[0].is_file() and records[1].is_file()
     first, second = (json.loads(record.read_text()) for record in records)
     assert first["model_id"] == second["model_id"] == "cpb-p2-01"
     assert "pressure_elongation_convention" not in first["load_cases"][1]["inexact_inputs"]
     assert "pressure_elongation_convention" in second["load_cases"][1]["inexact_inputs"]
-    manifests = [json.loads((root / "cases" / run_id / "case_manifest.json").read_text()) for run_id in run_ids]
+    manifests = [json.loads((view.run / "case_manifest.json").read_text()) for view in views]
     assert [(item["case_id"], item["series_run"], item["oppres_line"], item["outcome"]) for item in manifests] == [
         (run_ids[0], RUNS[0], "0,0,0,1,0", "recorded"), (run_ids[1], RUNS[1], "0,1,0,1,1", "recorded")]
+    # The substitution comes before the hash: the model file in each run folder is the text sent to the guest, and
+    # its hash is the one the manifest and the identity file bind.
+    for run_id, view, manifest in zip(run_ids, views, manifests):
+        placed = (view.run / "caepipe_in" / "model.mbf").read_bytes()
+        assert placed == state["mbf"][run_id].encode("utf-8")
+        digest = hashlib.sha256(placed).hexdigest()
+        assert manifest["exported_model_hash"] == digest
+        assert json.loads((view.run / "caepipe_in" / "mbf_render.json").read_text())["mbf_sha256"] == digest
 
 
 CAPTURE_REFUSAL = ("cpb-p2-01--pressure-bourdon-expansion-capture: route=capture_path_unavailable; a capture-only run "
@@ -1011,11 +1025,14 @@ def test_a_capture_run_is_refused_by_name_and_nothing_is_read_or_written(fake_be
         return call
     for module in (run_pilot, external, print_csv, harness):
         for name in ("read_caepipe_print_csv", "parse_caepipe_print_csv", "_print_layout_problem",
-                     "stored_run_record", "_sha256", "bound_csv", "case_paths"):
+                     "stored_run_record", "_sha256", "bound_csv", "case_paths", "current_case", "reserve_folder",
+                     "exchange_tree", "open_folder", "publish", "run_caepipe_round_trip"):
             if hasattr(module, name):
                 monkeypatch.setattr(module, name, spy(f"{module.__name__}.{name}"))
-    for name in ("solve_swbpipe", "render_caepipe_mbf_si", "write_private", "_write_json", "check_guest_alive",
-                 "check_no_foreign_instance", "resolve_harness_config"):
+    # (`write_private` and `_write_json` no longer exist in the pilot: every write goes through the exchange tree,
+    # whose entries are spied above.)
+    for name in ("solve_swbpipe", "render_caepipe_mbf_si", "check_guest_alive", "check_no_foreign_instance",
+                 "resolve_harness_config"):
         monkeypatch.setattr(run_pilot, name, spy(f"run_pilot.{name}"))
     real_open, real_os_open = builtins.open, os.open
 
