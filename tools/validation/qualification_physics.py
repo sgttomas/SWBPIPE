@@ -67,8 +67,9 @@ DEPENDENCIES = {
     # then the certificate on the whole document, merged with RT-U4 order (was 0baf783f... on RT-U4 order and
     # fd69f9be... on RT-A3 §4); then RT-L2 (DEL-04-07): pressure-3, the reader keyed on each case's
     # `pressure_elongation` evidence, and the readers' recomputation of the cancellation-screen exception (was
-    # e8543242...).
-    MODULE: 'dfc556bb23c64801d80fa3bff92f7e8d9d3ce7160f15076420eecc50f9188e18',
+    # e8543242...); then the consistency bound of the cancellation-screen exception, the re-formed pressure load,
+    # and the warning bound to each exception record (was dfc556bb...).
+    MODULE: '46c1290cbe368fb80cdd5be0235dc06dd07cbe40e27582e9b0fc176fdd40c91a',
     TABLE: TABLE_SHA256,
     # The units authority: then DEL-04-09 I3a's mass_length_per_rotation family (kg*m/rad, lb*in/rad, lb*ft/rad),
     # an addition only; every existing unit, dimension and conversion is unchanged (was 5a412c57...); then the
