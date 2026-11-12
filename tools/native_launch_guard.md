@@ -10,9 +10,11 @@ Protection comes first by confinement, built in, and then by observation:
 1. **Confinement.** The helper builds the whole launch: the environment from an allowlist, never
    from the caller's own; both home variables set to the throwaway home; `TMPDIR` and the working
    directory inside it; the strict chooser variable on every launch.
-2. **Observation.** The real `Library` is compared before and after, the throwaway home is listed,
-   and four home folders' times are read. Nothing else on the disk is watched, and the record
-   says so.
+2. **Observation.** The real `Library` and the system's per-user cache folder are compared before
+   and after, the throwaway home is listed, and four home folders' times are read. Nothing else on
+   the disk is watched, and the record says so.
+
+The helper launches on macOS only; on any other system it refuses to launch.
 
 ## Why both home variables
 
@@ -50,7 +52,11 @@ and removing the home removes it. The kit refuses to launch without both.
   specification, checks it again, and returns the handle. Because the preflight starts the same
   executable with the same environment, the frameworks it loads resolve their per-user locations
   to the throwaway home too.
+- **The solve worker.** The journey's solve starts a solve worker: the application's own
+  executable, with its environment cleared and not sandboxed, which inherits the application's
+  working directory and so is inside the throwaway home too.
 - **Before any start** the kit refuses unless:
+  - **System.** It is macOS.
   - **Screen.** The system registry's console-user entry for this account is found, is on the
     console, and carries no locked key. Anything it cannot read or parse refuses. Two further
     signs are not used:
@@ -94,6 +100,24 @@ that no queued answer intercepts, so no journey presses one.
 
   The others are counted per folder and named, with size and time, only directly under
   `Preferences` and `Preferences/ByHost`. They are never opened, edited or removed.
+- **The system's per-user cache folder** (the folder the system gives for its per-user caches, a
+  sibling of the temporary folder; records name it by what it is, never by its path) is listed
+  and compared the same way: product-named entries, `lstat` only, failing closed, the window's
+  others counted and never named. Nobody removes anything there, the kit included.
+  - The web view's helper processes, which the system starts, keep folders there named
+    `com.apple.WebKit.Networking+<executable>-<suffix>`, and likewise for `WebContent` and `GPU`,
+    with the executable's name in its underscore form. So a watched name also matches after a
+    plus sign, followed by a hyphen, and in the underscore form.
+  - The system gives this folder independently of the home: its answer is the same with both
+    home variables set elsewhere. Whether both variables redirect the helpers' folders is not
+    established. Where they do not, it is a write outside the throwaway home that confinement does
+    not reach: observed by the comparison, not prevented.
+  - Changes inside such a helper folder directly under the cache folder are their own class,
+    **web view helper cache**, reported apart from the product changes. Any other product-named
+    entry there, of any other shape, is a product change like one under the `Library`.
+  - One switch, `HELPER_CACHE_COUNTS_AS_CLEAN`, decides whether a run whose only product-named
+    changes are that class counts as clean. Its default is the strict one: the run stops
+    (exit 6).
 - **Failing closed.** If one of the six folders cannot be listed, or a folder becomes unreadable
   during the run, the comparison fails (exit 5). A folder unreadable both before and after is
   counted in the report as a stated limit: a product-named entry inside it would not be seen.
@@ -106,7 +130,7 @@ that no queued answer intercepts, so no journey presses one.
 - **Window.** The report names the window it compared. Two launches whose windows overlap cannot
   be told apart, so launches through this kit are serialised.
 - **What was watched.** The report states, in one sentence, that nothing outside the real
-  `Library`'s six folders and the throwaway home was watched. A clean comparison establishes
+  `Library`'s six folders, the system's per-user cache folder and the throwaway home was watched. A clean comparison establishes
   neither that nothing was read nor that nothing was written elsewhere on the disk.
 
 ## End of every run
@@ -142,8 +166,11 @@ A process of this account counts as a possible writer if any of these holds:
 - it has a file or its working directory open under the home, from the system's open-files
   lister, read-only. This test is what finds the web view's helpers.
 
-On Linux a fifth test also looks for either home variable set to the home in a process's
-environment. On macOS another process's environment cannot be read without privilege.
+The check exists for macOS only. There it uses the run's started processes and their
+descendants, the started groups, the private copy's executables, and the system's read-only
+listing of this account's processes' open files and working directories under the home. A test
+based on another process's environment is not available on macOS and is not claimed. On any other
+system the check cannot run, so a home is withheld, and the helper refuses to launch at all.
 
 **What the check cannot see:** a process that has outlived the application, been re-parented away
 from it, runs an executable outside the private copy, and holds nothing open under the home at
@@ -176,6 +203,7 @@ checks the screen and the slot only through `check-launch`, which such a runner 
 | 3 | No web view data in the throwaway home. |
 | 4 | The home was not removed (withheld or failed); the output names the path. |
 | 5 | The comparison failed: a folder could not be listed. |
+| 6 | The web view's helpers' cache folders changed under the system's per-user cache folder (while the switch is strict). |
 
 The application itself ends with 86 when a chooser is asked with no answer queued.
 

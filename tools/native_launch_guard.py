@@ -6,8 +6,9 @@ system's own per-user temporary folder and starts the application itself, with a
 builds from an allowlist (both home variables, TMPDIR inside the home, the strict chooser variable,
 locale, a fixed PATH and the kit's own named variables) and a working directory inside the home.
 It never copies the caller's environment. Observation of the consequences comes second: the real
-Library is compared before and after, the throwaway home is listed, four home folders' times are
-read by a single stat each, and nothing else on the disk is watched.
+Library and the system's per-user cache folder are compared before and after, the throwaway home
+is listed, four home folders' times are read by a single stat each, and nothing else on the disk
+is watched. It launches on macOS only and refuses on any other system.
 
 Why both home variables: the system web view does not honour HOME alone. With only HOME set it
 keeps its website data under the account's real Library, in folders named for the product's bundle
@@ -25,13 +26,14 @@ Command line (a Node runner calls it with `/usr/bin/python3 -I`):
       [--started PID]... [--group PGID]... [--private PATH]... [--processes-not-gone]
 
 Exit status, stable: 0 clean; 1 a product entry changed; 2 refused or unusable input; 3 no web view
-data in the throwaway home; 4 the home was not removed; 5 the comparison failed. The application
+data in the throwaway home; 4 the home was not removed; 5 the comparison failed; 6 the web view's
+helpers wrote their cache folders under the system's per-user cache folder. The application
 itself ends with 86 when a chooser is asked with no answer queued (the strict chooser mode).
 """
 from __future__ import annotations
 
-# Its directory scans read the account's Library, a throwaway home and the system's temporary
-# folder, never repository files (tools/ci/python_test_reads.py).
+# Its directory scans read the account's Library, the system's per-user cache and temporary
+# folders and a throwaway home, never repository files (tools/ci/python_test_reads.py).
 CI_READS = ()
 
 import argparse
@@ -52,6 +54,15 @@ WATCHED_TOPS = ("WebKit", "Caches", "HTTPStorages", "Application Support", "Pref
 WEB_VIEW_TOPS = ("WebKit", "Caches")
 HOME_FOLDERS = ("", "Desktop", "Documents", "Downloads")  # times by a single stat each; never listed
 NAMED_OTHERS = (("Preferences",), ("Preferences", "ByHost"))
+# The system's per-user cache folder, named by what it is and never by its path on a machine. The
+# system gives it independently of the home, so neither home variable moves it, and the web view's
+# helper processes, which the system starts, keep folders there named for the application.
+CACHE_TOP = "<system per-user cache folder>"
+HELPER_CACHE = re.compile(r"^com\.apple\.WebKit\.(?:Networking|WebContent(?:\.EnhancedSecurity)?|GPU)\+(.+)$")
+# Whether a run whose only product-named changes are the web view helpers' cache folders counts as
+# clean. The SWBPIPE Agent 0 decides; until then the strict default stands and such a run stops.
+HELPER_CACHE_COUNTS_AS_CLEAN = False
+PLATFORM = sys.platform  # launches are made on macOS only
 HOME_LISTING_KEPT, HOME_WALK_LIMIT = 2000, 100000
 PATH = "/usr/bin:/bin"
 LOCALE = {"LANG": "en_US.UTF-8"}
@@ -70,12 +81,18 @@ CREDENTIAL = re.compile(r"(?i)(KEY|TOKEN|SECRET|PASSWORD|PASSWD|CREDENTIAL|AUTH)
 SLOT_LOCK = re.compile(r"^cargo_job(\.slot\d+)?\.lock$")
 LOCK_PROGRAM = "/usr/bin/lockf"
 PS, LSOF, IOREG, GETCONF = "/bin/ps", "/usr/sbin/lsof", "/usr/sbin/ioreg", "/usr/bin/getconf"
-PROC = Path("/proc")  # Linux only: the process table, outside any project
 CHECK_TIMEOUT = 60
-EXIT = {"clean": 0, "product": 1, "refused": 2, "no web view data": 3, "not removed": 4, "comparison failed": 5}
-WATCH_STATEMENT = ("Nothing outside the real Library's six folders and the throwaway home was watched; the times "
-                   "of the home, Desktop, Documents and Downloads folders were read by a single stat each, and "
-                   "nothing inside them was listed or opened.")
+EXIT = {"clean": 0, "product": 1, "refused": 2, "no web view data": 3, "not removed": 4, "comparison failed": 5,
+        "web view helper cache": 6}
+WATCH_STATEMENT = ("Nothing outside the real Library's six folders, the system's per-user cache folder and the "
+                   "throwaway home was watched; the times of the home, Desktop, Documents and Downloads folders "
+                   "were read by a single stat each, and nothing inside them was listed or opened.")
+HELPER_CACHE_STATEMENT = ("The web view's helper processes, which the system starts, keep cache folders named for the "
+                          "executable under the system's per-user cache folder. The system gives that folder "
+                          "independently of the home, and whether both home variables redirect the helpers' folders "
+                          "is not established; where they do not, it is a write outside the throwaway home that "
+                          "confinement does not reach, observed by the comparison, not prevented. Nothing there is "
+                          "opened, edited or removed.")
 OTHERS_STATEMENT = ("Records written during the window by the operating system's own services or by other "
                     "software exist under the account's real Library. They are counted per folder, named only "
                     "directly under Preferences, never opened, edited or removed, and they do not fail the run.")
@@ -212,7 +229,10 @@ def slot_refusal(guard_dir=None, table=None, open_names=None, start=None):
 
 
 def check_launch(guard_dir=None):
-    """Refuse a launch outside the slot wrapper or without an unlocked console session."""
+    """Refuse a launch on any system but macOS, outside the slot wrapper, or without an unlocked
+    console session."""
+    if PLATFORM != "darwin":
+        raise LaunchRefused("platform_not_macos")
     for reason in (screen_refusal(), slot_refusal(guard_dir)):
         if reason:
             raise LaunchRefused(reason)
@@ -232,6 +252,15 @@ def temp_root():
             raise LaunchRefused("temporary_folder_unknown")
         return Path(text).resolve()
     return Path(tempfile.gettempdir()).resolve()
+
+
+def user_cache_dir():
+    """The system's own per-user cache folder (macOS), or None where the system gives none."""
+    if PLATFORM != "darwin":
+        return None
+    status, out, _ = _read([GETCONF, "DARWIN_USER_CACHE_DIR"])
+    text = out.decode().strip()
+    return Path(text).resolve() if status == 0 and text.startswith("/") else None
 
 
 def _identity(path):
@@ -380,8 +409,37 @@ def walk(root, unreadable, limit=None):
                 stack.append(path)
 
 
+def _named(text, name):
+    return text == name or text.startswith(name + ".")
+
+
+def _forms(names):
+    """The watched names and each in its underscore form, the form the web view's helpers use for the
+    executable's name."""
+    return sorted(set(names) | {name.replace("-", "_") for name in names})
+
+
+def _after_plus(segment, name):
+    return _named(segment, name) or segment.startswith(name + "-")
+
+
 def watched(relative, names):
-    return any(part == name or part.startswith(name + ".") for part in Path(relative).parts for name in names)
+    """A path component equal to a watched name (or its underscore form) or beginning with one
+    followed by a dot, or, after a plus sign (the web view helpers' folder names), such a name or one
+    followed by a hyphen."""
+    forms = _forms(names)
+    return any(_named(part, name) or any(_after_plus(seg, name) for seg in part.split("+")[1:])
+               for part in Path(relative).parts for name in forms)
+
+
+def helper_cache_entry(relative, names):
+    """Whether a product-named path lies inside a web view helper's cache folder directly under the
+    system's per-user cache folder: com.apple.WebKit.<Networking|WebContent|GPU>+<a watched name>."""
+    parts = Path(relative).parts
+    if len(parts) < 2 or parts[0] != CACHE_TOP:
+        return False
+    match = HELPER_CACHE.match(parts[1])
+    return bool(match) and any(_after_plus(match.group(1), name) for name in _forms(names))
 
 
 def folder_times(home=None):
@@ -398,14 +456,19 @@ def folder_times(home=None):
     return times
 
 
-def list_library(names, library, since=None, until=None):
-    """One walk of the six folders: every watched entry; given a window, other entries created or
-    modified in it (counted, named only under Preferences); and what could not be listed."""
-    entries, unreadable, failed = {}, [], []
+def list_library(names, library, since=None, until=None, cache=None):
+    """One walk of the six Library folders and the system's per-user cache folder: every watched
+    entry; given a window, other entries created or modified in it (counted, named only under
+    Preferences); and what could not be listed. A cache folder the system does not give fails closed."""
+    entries, failed, relatives = {}, [], []
     others = {"total": 0, "byFolder": {}, "named": []}
-    for top in WATCHED_TOPS:
-        base = library / top
-        if not os.path.lexists(base):
+    roots = [(top, library / top, lambda p: os.path.relpath(p, library)) for top in WATCHED_TOPS]
+    if cache is None:
+        failed.append(CACHE_TOP)
+    else:
+        roots.append((CACHE_TOP, Path(cache), lambda p, c=Path(cache): str(Path(CACHE_TOP, os.path.relpath(p, c)))))
+    for top, base, relative_to in roots:
+        if top != CACHE_TOP and not os.path.lexists(base):
             continue
         try:
             with os.scandir(base):
@@ -413,8 +476,9 @@ def list_library(names, library, since=None, until=None):
         except OSError:
             failed.append(top)
             continue
+        unreadable = []
         for path, found in walk(base, unreadable):
-            relative = os.path.relpath(path, library)
+            relative = relative_to(path)
             if watched(relative, names):
                 entries[relative] = found
             elif since is not None and (since <= found["mtime"] <= until or since <= found["birth"] <= until):
@@ -422,20 +486,21 @@ def list_library(names, library, since=None, until=None):
                 others["byFolder"][top] = others["byFolder"].get(top, 0) + 1
                 if Path(relative).parts[:-1] in NAMED_OTHERS:
                     others["named"].append({"path": relative, "size": found["size"], "mtime": stamp(found["mtime"])})
-    relatives = [os.path.relpath(p, library) for p in unreadable]
+        relatives += [relative_to(p) for p in unreadable]
     return {"entries": entries, "others": others, "failedTops": failed,
             "unreadableWatched": sorted(r for r in relatives if watched(r, names)),
             "unreadableOther": sorted(r for r in relatives if not watched(r, names))}
 
 
-def snapshot(names, library=None, home=None):
+def snapshot(names, library=None, home=None, cache=None):
     """Before the first launch: watched entries only, what could not be listed, and the four times."""
     names = sorted(set(names))
     if not names or any(not isinstance(n, str) or not n or "/" in n for n in names):
         raise ValueError("names to watch are required")
     library = Path(library) if library is not None else real_library()
+    cache = Path(cache) if cache is not None else user_cache_dir()
     taken = time.time()
-    listing = list_library(names, library)
+    listing = list_library(names, library, cache=cache)
     return {"taken": taken, "names": names, "entries": listing["entries"], "failedTops": listing["failedTops"],
             "unreadableWatched": listing["unreadableWatched"], "unreadableOther": listing["unreadableOther"],
             "folderTimes": folder_times(home)}
@@ -461,13 +526,17 @@ def home_listing(home):
         return {"by": "lstat", "error": f"{type(error).__name__}: {error}"[:1000], "webViewData": False}
 
 
-def compare(before, record, until=None, library=None, home=None):
-    """After the run. `verdict`: "product", "comparison failed", "no web view data" or "clean";
-    `class`: "product", "others" or "nothing"."""
+def compare(before, record, until=None, library=None, home=None, cache=None, helper_cache_clean=None):
+    """After the run. `verdict`: "product", "comparison failed", "web view helper cache", "no web view
+    data" or "clean"; `class`: "product", "web view helper cache", "others" or "nothing". A change
+    inside a web view helper's cache folder under the system's per-user cache folder is its own
+    class; any other product-named change there is a product change like one under the Library."""
     library = Path(library) if library is not None else real_library()
+    cache = Path(cache) if cache is not None else user_cache_dir()
+    clean_helpers = HELPER_CACHE_COUNTS_AS_CLEAN if helper_cache_clean is None else helper_cache_clean
     names, since = before["names"], before["taken"]
     until = until if until is not None else time.time()
-    after = list_library(names, library, since, until)
+    after = list_library(names, library, since, until, cache)
     changes = []
     for relative in sorted(set(before["entries"]) | set(after["entries"])):
         old, new = before["entries"].get(relative), after["entries"].get(relative)
@@ -475,18 +544,24 @@ def compare(before, record, until=None, library=None, home=None):
             continue
         kind = "created" if old is None else "removed" if new is None else "modified"
         changes.append({"change": kind, "path": relative, "before": old, "after": new})
+    helpers = [c for c in changes if helper_cache_entry(c["path"], names)]
+    changes = [c for c in changes if not helper_cache_entry(c["path"], names)]
     blind = sorted(set(after["unreadableWatched"]) - set(before["unreadableWatched"]))
     failed = sorted(set(before["failedTops"]) | set(after["failedTops"]))
     newly_unreadable = sorted(set(after["unreadableOther"]) - set(before["unreadableOther"]))
     times_after = folder_times(home)
     positive = home_listing(record["home"])
     product = bool(changes or blind)
+    stop_helpers = bool(helpers) and not clean_helpers
     verdict = ("product" if product else "comparison failed" if failed or newly_unreadable
+               else "web view helper cache" if stop_helpers
                else "clean" if positive["webViewData"] else "no web view data")
     return {"compared": True, "verdict": verdict,
-            "class": "product" if product else "others" if after["others"]["total"] else "nothing",
+            "class": ("product" if product else "web view helper cache" if helpers
+                      else "others" if after["others"]["total"] else "nothing"),
             "names": names, "window": {"since": stamp(since), "until": stamp(until), "statement": WINDOW_STATEMENT},
             "product": {"changes": changes, "unreadableWatched": blind},
+            "helperCache": {"statement": HELPER_CACHE_STATEMENT, "changes": helpers, "countsAsClean": clean_helpers},
             "failure": {"foldersNotListed": failed, "newlyUnreadableCount": len(newly_unreadable)},
             "limit": {"unreadableBeforeAndAfterCount": len(set(before["unreadableOther"]) & set(after["unreadableOther"])),
                       "statement": "a product-named entry inside a folder that could not be listed before and after would not be seen"},
@@ -512,57 +587,22 @@ def _open_under(home):
     return {int(line[1:]) for line in out.decode("utf-8", "replace").splitlines() if line.startswith("p")}
 
 
-def _proc_table():
-    """Linux: the process table, plus each own process's home variables and open paths."""
-    table, extra = {}, {}
-    for entry in os.scandir(PROC):
-        if not entry.name.isdigit():
-            continue
-        pid = int(entry.name)
-        try:
-            fields = (PROC / str(pid) / "stat").read_text().rsplit(")", 1)[1].split()
-            uid = os.stat(PROC / str(pid)).st_uid
-            try:
-                exe = os.readlink(PROC / str(pid) / "exe")
-            except OSError:
-                exe = ""
-            table[pid] = (int(fields[1]), int(fields[2]), uid, exe)
-            if uid == os.getuid():
-                environ = (PROC / str(pid) / "environ").read_bytes().split(b"\0")
-                paths = [os.readlink(PROC / str(pid) / "cwd")]
-                for fd in os.scandir(PROC / str(pid) / "fd"):
-                    try:
-                        paths.append(os.readlink(fd.path))
-                    except OSError:
-                        pass
-                extra[pid] = (environ, paths)
-        except (OSError, IndexError, ValueError):
-            continue
-    return table, extra
-
-
 def possible_writers(home, started=(), groups=(), private=()):
     """Every process of this account that could still write to `home`, with why: its executable is
     under the home or a private copy; it descends from a process the run started; it is in a group
     the run started; it has a file or its working directory open under the home (the web view's
-    helpers, which the system starts outside the application's group and environment). On Linux
-    also: its environment carries either home variable equal to the home. Raises when it cannot run."""
+    helpers, which the system starts outside the application's group and environment). macOS only:
+    another process's environment cannot be read there, so no test rests on it. Raises when it
+    cannot run, on any other system included."""
     home = str(Path(home).resolve())
     roots = [home, *(str(Path(p).resolve()) for p in private)]
     me, mine = os.getpid(), os.getuid()
+    if PLATFORM != "darwin":
+        raise OSError("the check for possible writers is made on macOS only")
     found = {}
-    if (PROC / "self").is_dir():
-        table, extra = _proc_table()
-        markers = {f"HOME={home}".encode(), f"CFFIXED_USER_HOME={home}".encode()}
-        for pid, (environ, paths) in extra.items():
-            if any(item in markers for item in environ):
-                found.setdefault(pid, []).append("home variable")
-            if any(_under(p, [home]) for p in paths):
-                found.setdefault(pid, []).append("open under the home")
-    else:
-        table = _process_table()
-        for pid in _open_under(home):
-            found.setdefault(pid, []).append("open under the home")
+    table = _process_table()
+    for pid in _open_under(home):
+        found.setdefault(pid, []).append("open under the home")
     children = {}
     for pid, (ppid, _, _, _) in table.items():
         children.setdefault(ppid, []).append(pid)

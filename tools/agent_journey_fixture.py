@@ -530,6 +530,7 @@ class LaunchGuard:
     run fails and the path is named."""
 
     library = None  # the real Library; offline tests alone set another
+    cache = None  # the system's per-user cache folder; offline tests alone set another
 
     def __init__(self, app, root):
         self.root = Path(root).resolve()
@@ -544,7 +545,7 @@ class LaunchGuard:
 
     def start(self):
         native_launch_guard.check_launch()
-        self.before = native_launch_guard.snapshot(self.names, self.library)
+        self.before = native_launch_guard.snapshot(self.names, self.library, cache=self.cache)
         self.record = native_launch_guard.make_home(self.root, "home")
 
     def launch(self, role, argv, extra, **popen):
@@ -564,7 +565,7 @@ class LaunchGuard:
         try:
             if self.launches:
                 time.sleep(GUARD_SETTLE_SECONDS)
-                report = {**native_launch_guard.compare(self.before, self.record, library=self.library),
+                report = {**native_launch_guard.compare(self.before, self.record, library=self.library, cache=self.cache),
                           "launches": list(self.launches)}
                 # Only a launch of the window can leave web view data; a preflight alone cannot.
                 if "app" not in self.launches and report["verdict"] == "no web view data":

@@ -244,6 +244,8 @@ def test_run_monitor_checks_at_admission_ready_exit_and_success_use_owned_cleanu
     monkeypatch.setattr(journey, "pid_live", lambda *a: False)
     monkeypatch.setattr(journey, "judge", lambda *a: [])
     monkeypatch.setattr(journey.LaunchGuard, "library", root / "no-library")  # never the real Library in a test
+    (root / "invented-cache").mkdir(exist_ok=True)
+    monkeypatch.setattr(journey.LaunchGuard, "cache", root / "invented-cache")  # nor the system's per-user cache folder
     (run_root / "report.json").write_text("{}")
     monkeypatch.setattr(journey, "RETAINED", root / "retained")
     monkeypatch.setattr(journey.time, "sleep", lambda *a: None)

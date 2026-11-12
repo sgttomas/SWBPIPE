@@ -29,7 +29,7 @@ NATIVE_SMOKE = Path(guard.__file__).resolve().parents[1] / "apps" / "desktop" / 
 
 @pytest.fixture
 def library(tmp_path, monkeypatch):
-    """An invented account: its home and Library, and the system's temporary folder."""
+    """An invented account: its home and Library, and the system's temporary and cache folders."""
     real = tmp_path / "real-home"
     for top in guard.WATCHED_TOPS:
         (real / "Library" / top).mkdir(parents=True)
@@ -37,7 +37,10 @@ def library(tmp_path, monkeypatch):
         (real / folder).mkdir()
     system_temp = tmp_path / "system-temp"
     system_temp.mkdir()
+    system_cache = tmp_path / "system-cache"
+    system_cache.mkdir()
     monkeypatch.setattr(guard, "real_home", lambda: real)
+    monkeypatch.setattr(guard, "user_cache_dir", lambda: system_cache.resolve())
     monkeypatch.setattr(guard, "temp_root", lambda: system_temp.resolve())
     return real / "Library"
 
@@ -60,6 +63,17 @@ def place(lib, top, name, leaf="data.bin"):
     path = lib / top / name / leaf
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(b"x")
+    return path
+
+
+MACOS = pytest.mark.skipif(sys.platform != "darwin", reason="the check for possible writers is made on macOS only")
+HELPER = "com.apple.WebKit.Networking+" + EXE.replace("-", "_") + "-1a2b3c4d5e"
+
+
+def in_cache(*parts, data=b"x"):
+    path = guard.user_cache_dir().joinpath(*parts)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
     return path
 
 
@@ -249,7 +263,15 @@ def test_a_wrapper_named_only_in_arguments_is_not_the_slot():
     assert guard.slot_refusal(None, table=given, open_names=opens(), start=SHELL) == "not_inside_the_slot_wrapper"
 
 
+def test_a_launch_on_any_other_system_is_refused_before_anything_is_read(monkeypatch):
+    monkeypatch.setattr(guard, "PLATFORM", "linux")
+    monkeypatch.setattr(guard, "screen_refusal", lambda: pytest.fail("read"))
+    with pytest.raises(guard.LaunchRefused, match="platform_not_macos"):
+        guard.check_launch()
+
+
 def test_a_launch_is_refused_on_either_check_and_records_whether_a_guard_folder_was_given(monkeypatch):
+    monkeypatch.setattr(guard, "PLATFORM", "darwin")
     monkeypatch.setattr(guard, "screen_refusal", lambda: None)
     monkeypatch.setattr(guard, "slot_refusal", lambda guard_dir: "not_inside_the_slot_wrapper")
     with pytest.raises(guard.LaunchRefused, match="not_inside_the_slot_wrapper"):
@@ -384,7 +406,7 @@ def test_others_are_counted_named_only_under_preferences_and_never_fail(tmp_path
     assert [n["path"] for n in report["others"]["named"]] == ["Preferences/com.invented.service.plist"]
     assert "private-name" not in json.dumps(report)
     assert "serialised" in report["window"]["statement"] and "nothing was read" in report["limits"]
-    assert "Nothing outside the real Library's six folders and the throwaway home was watched" in report["watched"]
+    assert "Nothing outside the real Library's six folders, the system's per-user cache folder and the throwaway home was watched" in report["watched"]
 
 
 def test_nothing_changed_is_its_own_class(tmp_path, library):
@@ -398,6 +420,75 @@ def test_no_web_view_data_in_the_home_has_its_own_verdict(tmp_path, library):
     record = guard.make_home(evidence(tmp_path))
     report = guard.compare(guard.snapshot(NAMES, library), record, library=library)
     assert report["verdict"] == "no web view data" and report["throwawayHome"]["webViewData"] is False
+
+
+# The system's per-user cache folder: the web view helpers' folders are their own class.
+
+@pytest.mark.parametrize("component, expected", [
+    ("com.apple.WebKit.Networking+" + EXE, True),
+    ("com.apple.WebKit.GPU+" + EXE + "-1a2b3c", True),
+    ("com.apple.WebKit.WebContent+" + BUNDLE, True),
+    ("com.apple.WebKit.WebContent.EnhancedSecurity+" + BUNDLE + ".helper", True),
+    ("com.apple.WebKit.Networking+" + EXE.replace("-", "_") + "-1a2b3c4d5e", True),
+    ("com.apple.WebKit.Networking+" + EXE + "x", False),
+    ("com.apple.WebKit.Networking+" + EXE.replace("-", "_") + "x", False),
+    ("com.apple.WebKit.Networking+com.invented.other", False),
+    (EXE + "-1a2b3c", False),
+])
+def test_a_watched_name_after_a_plus_sign_is_watched(component, expected):
+    assert guard.watched(f"{guard.CACHE_TOP}/{component}/data", NAMES) is expected
+
+
+def test_the_web_view_helpers_cache_folders_are_their_own_class_and_stop_the_run_by_default(tmp_path, library):
+    record = web_view_record(tmp_path)
+    before = guard.snapshot(NAMES, library)
+    in_cache(HELPER, "data")
+    in_cache("com.apple.WebKit.GPU+" + BUNDLE, "data")
+    assert guard.HELPER_CACHE_COUNTS_AS_CLEAN is False
+    report = guard.compare(before, record, library=library)
+    assert report["verdict"] == "web view helper cache" and report["class"] == "web view helper cache"
+    assert report["product"]["changes"] == [] and len(report["helperCache"]["changes"]) == 4
+    assert all(c["path"].startswith(guard.CACHE_TOP + "/com.apple.WebKit.") for c in report["helperCache"]["changes"])
+    lenient = guard.compare(before, record, library=library, helper_cache_clean=True)
+    assert lenient["verdict"] == "clean" and lenient["class"] == "web view helper cache"
+
+
+@pytest.mark.parametrize("parts", [(BUNDLE, "data"), (EXE, "data"), ("invented", "com.apple.WebKit.Networking+" + EXE, "data"),
+                                   ("com.apple.WebKit.Invented+" + EXE, "data")])
+def test_a_product_named_entry_of_any_other_shape_in_the_cache_folder_trips_the_wire(tmp_path, library, parts):
+    record = web_view_record(tmp_path)
+    before = guard.snapshot(NAMES, library)
+    in_cache(*parts)
+    report = guard.compare(before, record, library=library, helper_cache_clean=True)
+    assert report["verdict"] == "product" and report["product"]["changes"] and report["helperCache"]["changes"] == []
+
+
+def test_the_cache_folder_fails_closed_and_is_never_named_by_its_path(tmp_path, library, monkeypatch):
+    record = web_view_record(tmp_path)
+    cache = guard.user_cache_dir()
+    placed = in_cache(BUNDLE, "data")
+    named = guard.snapshot(NAMES, library)
+    assert str(cache) not in json.dumps(named) and f"{guard.CACHE_TOP}/{BUNDLE}/data" in named["entries"]
+    guard.shutil.rmtree(placed.parent)
+    before = guard.snapshot(NAMES, library)
+    cache.chmod(0)
+    try:
+        report = guard.compare(before, record, library=library)
+    finally:
+        cache.chmod(0o700)
+    assert report["verdict"] == "comparison failed" and report["failure"]["foldersNotListed"] == [guard.CACHE_TOP]
+    monkeypatch.setattr(guard, "user_cache_dir", lambda: None)
+    report = guard.compare(before, record, library=library)
+    assert report["verdict"] == "comparison failed" and report["failure"]["foldersNotListed"] == [guard.CACHE_TOP]
+
+
+def test_other_entries_in_the_cache_folder_are_counted_in_the_window_never_named(tmp_path, library):
+    record = web_view_record(tmp_path)
+    before = guard.snapshot(NAMES, library)
+    in_cache("com.invented.other", "private-name.db")
+    report = guard.compare(before, record, until=time.time() + 1, library=library)
+    assert report["verdict"] == "clean" and report["others"]["byFolder"] == {guard.CACHE_TOP: 2}
+    assert "private-name" not in json.dumps(report)
 
 
 # ---------------------------------------------------------------------------
@@ -533,37 +624,43 @@ def withheld_by(tmp_path, start, why, **check):
     assert after["cleanup"] == "removed" and not home.exists(), after
 
 
+@MACOS
 def test_a_process_the_run_started_or_its_descendant_withholds_removal(tmp_path, library):
     withheld_by(tmp_path, lambda home: subprocess.Popen(["/bin/sh", "-c", "/bin/sleep 30"],
                 env={"HOME": str(home), "CFFIXED_USER_HOME": str(home)}, start_new_session=True),
                 "started by the run, or a descendant", started=lambda p: [p.pid])
 
 
-@pytest.mark.skipif(sys.platform == "darwin", reason="macOS does not let a process read another's environment")
-def test_a_process_carrying_the_home_variable_withholds_removal(tmp_path, library):
-    withheld_by(tmp_path, lambda home: subprocess.Popen(["/bin/sleep", "30"],
-                env={"HOME": str(home), "CFFIXED_USER_HOME": str(home)}, start_new_session=True), "home variable")
-
-
+@MACOS
 def test_a_process_with_a_file_open_under_the_home_withholds_removal(tmp_path, library):
     withheld_by(tmp_path, lambda home: subprocess.Popen(["/bin/sh", "-c", f"exec 3>'{home}/open.txt'; /bin/sleep 30"],
                 start_new_session=True), "open under the home")
 
 
+@MACOS
 def test_a_process_working_under_the_home_withholds_removal(tmp_path, library):
     withheld_by(tmp_path, lambda home: subprocess.Popen(["/bin/sleep", "30"], cwd=home, start_new_session=True),
                 "open under the home")
 
 
+@MACOS
 def test_a_process_in_a_group_the_run_started_withholds_removal(tmp_path, library):
     withheld_by(tmp_path, lambda home: subprocess.Popen(["/bin/sh", "-c", "/bin/sleep 30 & wait"], start_new_session=True),
                 "in a group the run started", groups=lambda p: [p.pid])
 
 
+@MACOS
 def test_a_process_of_the_private_copy_withholds_removal(tmp_path, library):
     # The executable itself stands for the private copy: the system will not run a copied system binary.
     withheld_by(tmp_path, lambda home: subprocess.Popen(["/bin/sleep", "30"], start_new_session=True),
                 "executable under the home or the private copy", private=[Path("/bin/sleep")])
+
+
+def test_on_any_other_system_the_check_cannot_run_and_the_home_is_withheld(tmp_path, library, monkeypatch):
+    monkeypatch.setattr(guard, "PLATFORM", "linux")
+    record = guard.make_home(evidence(tmp_path))
+    outcome = guard.remove_home(record, evidence(tmp_path))
+    assert outcome["cleanup"] == "withheld" and "could not run" in outcome["reason"] and Path(record["home"]).is_dir()
 
 
 def test_a_check_that_cannot_run_withholds_removal(tmp_path, library, monkeypatch):
@@ -588,6 +685,8 @@ def test_the_command_line_takes_no_library_and_reports_by_stable_exit_status(tmp
     before = tmp_path / "before.json"
     assert guard.main(["snapshot", "--name", BUNDLE, "--name", EXE, "--out", str(before)]) == 0
     assert guard.main(["compare", "--before", str(before), "--record", str(record_file)]) == 0
+    in_cache(HELPER, "data")
+    assert guard.main(["compare", "--before", str(before), "--record", str(record_file)]) == 6
     place(library, "HTTPStorages", BUNDLE)
     assert guard.main(["compare", "--before", str(before), "--record", str(record_file)]) == 1
     assert guard.main(["remove-home", "--record", str(record_file), "--evidence", str(evidence(tmp_path)), "--processes-not-gone"]) == 4
@@ -597,7 +696,8 @@ def test_the_command_line_takes_no_library_and_reports_by_stable_exit_status(tmp
         with pytest.raises(SystemExit):
             guard.main(wrong)
     capsys.readouterr()
-    assert guard.EXIT == {"clean": 0, "product": 1, "refused": 2, "no web view data": 3, "not removed": 4, "comparison failed": 5}
+    assert guard.EXIT == {"clean": 0, "product": 1, "refused": 2, "no web view data": 3, "not removed": 4,
+                          "comparison failed": 5, "web view helper cache": 6}
 
 
 # ---------------------------------------------------------------------------
