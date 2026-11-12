@@ -1651,6 +1651,8 @@ fn finish_source_groups(
         "cancellation_screen":if screen.is_finite(){Some(screen)}else{None},"screen_limit":1e-9,"screen_roundoff_multiplier":32,
         "screen_is_not_numerical_qualification":true});
     if let Some(record) = exception {
+        #[cfg(test)]
+        exception_probe::admitted();
         if let Some(Some((_, interior))) = &family {
             cap_remainder_warning(model, case, interior, &record, diagnostics);
         }
@@ -1676,6 +1678,24 @@ pub(crate) const CANCELLATION_EXCEPTION_BASIS: &str = "straight_region_interior_
 pub(crate) const CAP_REMAINDER_WARNING_CODE: &str = "PRESSURE_REGION_CAP_REMAINDER_RETAINED";
 /// The warning's whole, fixed message.
 pub(crate) const CAP_REMAINDER_WARNING_MESSAGE: &str = "At interior nodes of this pressure region the cap loads of adjacent members do not cancel exactly in this model. The remainder comes from small differences in bore or alignment within the region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
+
+/// Test-only observation, per thread, of the cancellation-screen exception:
+/// how many cases it admitted (an exception record set on the case's
+/// assembly evidence), whether or not the case is published afterwards.
+#[cfg(test)]
+pub(crate) mod exception_probe {
+    use std::cell::Cell;
+    thread_local! {
+        static ADMITTED: Cell<usize> = const { Cell::new(0) };
+    }
+    pub(crate) fn admitted() {
+        ADMITTED.with(|count| count.set(count.get() + 1));
+    }
+    /// Resets the count and returns what it was.
+    pub(crate) fn take_admitted() -> usize {
+        ADMITTED.with(|count| count.replace(0))
+    }
+}
 
 /// Pushes [`CAP_REMAINDER_WARNING_CODE`] for a case whose exception record
 /// is being set: the region is the one whose two members meet at the record's node.
