@@ -442,6 +442,119 @@
         "derivation": "not_checked",
         "reproduction": "not_checked"
       }
+    },
+    {
+      "id": "sized-exact-pressurised",
+      "note": "The exact route: a pressurised load/reference-state document with a ledger and moved supports (EXS-A, run A-HOT); a variable and a constant selection, the constant one failing its verified travel.",
+      "document": "hanger_sizing_result_ex_pressurised.json",
+      "input": "hanger_sizing_input_ex_pressurised.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [],
+      "expected": {
+        "closure": "passed",
+        "binding": "passed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "passed",
+        "derivation": "passed",
+        "reproduction": "same_build"
+      }
+    },
+    {
+      "id": "sized-exact-riser",
+      "note": "The exact route with no pressurised region (EXS-B, run B-COLD): a riser sized by least variation.",
+      "document": "hanger_sizing_result_ex_riser.json",
+      "input": "hanger_sizing_input_ex_riser.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [],
+      "expected": {
+        "closure": "passed",
+        "binding": "passed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "passed",
+        "derivation": "passed",
+        "reproduction": "same_build"
+      }
+    },
+    {
+      "id": "mutation-route-other",
+      "note": "The other route token: closed, but not the bound solve request's route, so binding fails; the derived documents do not carry the route, and reproduction fails.",
+      "document": "hanger_sizing_result_ex_pressurised.json",
+      "input": "hanger_sizing_input_ex_pressurised.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/route",
+          "value": "pressure_free"
+        }
+      ],
+      "expected": {
+        "closure": "passed",
+        "binding": "failed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "passed",
+        "derivation": "passed",
+        "reproduction": "failed"
+      }
+    },
+    {
+      "id": "mutation-route-unknown",
+      "note": "",
+      "document": "hanger_sizing_result_ex_pressurised.json",
+      "input": "hanger_sizing_input_ex_pressurised.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/route",
+          "value": "exact_pressure_v3"
+        }
+      ],
+      "expected": {
+        "closure": "failed",
+        "binding": "not_checked",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "mutation-sized-route-null",
+      "note": "Only a refused document whose request carried no model states no route.",
+      "document": "hanger_sizing_result_ex_pressurised.json",
+      "input": "hanger_sizing_input_ex_pressurised.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/route",
+          "value": null
+        }
+      ],
+      "expected": {
+        "closure": "failed",
+        "binding": "not_checked",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
     }
   ]
 }

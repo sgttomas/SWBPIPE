@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 RESULTS = ROOT / "fixtures/results"
 SCHEMA = json.loads((ROOT / "schemas/hanger_sizing_result.schema.json").read_text(encoding="utf-8"))
 CORPUS = json.loads((RESULTS / "hanger_sizing_corpus.json").read_text(encoding="utf-8"))["entries"]
-DOCUMENTS = ("two_span", "four_span", "refused", "forgery")
+DOCUMENTS = ("two_span", "four_span", "refused", "forgery", "ex_pressurised", "ex_riser")
 PYTHON_STANDINGS = ("closure", "binding", "arithmetic_consistent_with_published_positions")
 
 
@@ -81,8 +81,10 @@ def test_the_corpus_holds_the_documents_and_mutations_the_design_requires():
     assert families == {"variable_spring", "constant_effort"}
     assert standings == {"unconditional", "conditional"}
     assert load("hanger_sizing_result_refused.json")["status"] == "refused"
+    routes = {load(f"hanger_sizing_result_{name}.json")["route"] for name in DOCUMENTS}
+    assert routes == {"pressure_free", "exact_pressure"}
     for required in ("mutation-outcome", "mutation-record-id", "mutation-count", "mutation-closed-member",
-                     "mutation-fixed-text", "mutation-request-hash"):
+                     "mutation-fixed-text", "mutation-request-hash", "mutation-route-other"):
         assert required in expected, required
     forgery = expected["self-consistent-forgery"]
     assert forgery["arithmetic_consistent_with_published_positions"] == "passed" and forgery["reproduction"] == "failed"
@@ -126,6 +128,7 @@ def test_admission_refuses_duplicate_keys_and_numbers_outside_the_profile():
 
 def test_the_verifiers_fixed_lists_are_the_schemas():
     defs = SCHEMA["$defs"]
+    assert tuple(defs["Route"]["enum"]) == hs.ROUTES
     assert tuple(item["const"] for item in defs["Limitations"]["prefixItems"]) == hs.LIMITATIONS
     assert tuple(item["const"] for item in defs["BasisStatement"]["prefixItems"]) == hs.BASIS_STATEMENT
     assert set(defs["RefusalCode"]["enum"]) == hs.REFUSAL_CODES
@@ -140,7 +143,8 @@ def runner():
     return path
 
 
-@pytest.mark.parametrize("name, code", [("two_span", 0), ("four_span", 0), ("refused", 1)])
+@pytest.mark.parametrize("name, code", [("two_span", 0), ("four_span", 0), ("refused", 1), ("ex_pressurised", 0),
+                                        ("ex_riser", 0)])
 def test_the_runners_documents_read_with_the_python_standings(name, code):
     bound_text = (RESULTS / f"hanger_sizing_input_{name}.json").read_text(encoding="utf-8")
     completed = subprocess.run([runner(), "size-hangers", "--explicit-local-private-intent"], input=bound_text,

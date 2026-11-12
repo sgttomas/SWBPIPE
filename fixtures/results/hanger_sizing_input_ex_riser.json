@@ -1,0 +1,926 @@
+{
+  "library": {
+    "hanger_library": {
+      "library_id": "invented.hangers.exs-b",
+      "library_scope": "private_user_library",
+      "name": "Invented exact-route hanger sizing fixture only",
+      "privacy_class": "private_user_supplied",
+      "provenance": {
+        "contributor": "Test author",
+        "contributor_certification": "Invented values, no engineering authority",
+        "redistribution_status": "private_only",
+        "review_status": "pending",
+        "source_license": "unknown",
+        "source_location": "invented-local:test-only",
+        "source_name": "Invented non-engineering fixture"
+      }
+    },
+    "hanger_records": [
+      {
+        "hanger": {
+          "hanger_type": "variable_spring_hanger",
+          "installed_load": {
+            "dimension": "force",
+            "magnitude": 1000.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "N"
+          },
+          "source_reference": "invented-local:VS-R1",
+          "stiffness": {
+            "dof": "UZ",
+            "value": {
+              "dimension": "force_per_length",
+              "magnitude": 50000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N/m"
+            }
+          },
+          "travel_range": {
+            "dimension": "length",
+            "magnitude": 0.05,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "m"
+          },
+          "working_load_range": {
+            "maximum": {
+              "dimension": "force",
+              "magnitude": 13000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            },
+            "minimum": {
+              "dimension": "force",
+              "magnitude": 9000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            }
+          }
+        },
+        "hanger_id": "VS-R1",
+        "name": "Invented VS-R1",
+        "provenance": {
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "unknown",
+          "source_location": "invented-local:test-only",
+          "source_name": "Invented non-engineering fixture"
+        }
+      },
+      {
+        "hanger": {
+          "hanger_type": "variable_spring_hanger",
+          "installed_load": {
+            "dimension": "force",
+            "magnitude": 1000.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "N"
+          },
+          "source_reference": "invented-local:VS-R2",
+          "stiffness": {
+            "dof": "UZ",
+            "value": {
+              "dimension": "force_per_length",
+              "magnitude": 80000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N/m"
+            }
+          },
+          "travel_range": {
+            "dimension": "length",
+            "magnitude": 0.05,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "m"
+          },
+          "working_load_range": {
+            "maximum": {
+              "dimension": "force",
+              "magnitude": 12000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            },
+            "minimum": {
+              "dimension": "force",
+              "magnitude": 8000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            }
+          }
+        },
+        "hanger_id": "VS-R2",
+        "name": "Invented VS-R2",
+        "provenance": {
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "unknown",
+          "source_location": "invented-local:test-only",
+          "source_name": "Invented non-engineering fixture"
+        }
+      },
+      {
+        "hanger": {
+          "hanger_type": "variable_spring_hanger",
+          "installed_load": {
+            "dimension": "force",
+            "magnitude": 1000.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "N"
+          },
+          "source_reference": "invented-local:VS-R3",
+          "stiffness": {
+            "dof": "UZ",
+            "value": {
+              "dimension": "force_per_length",
+              "magnitude": 150000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N/m"
+            }
+          },
+          "travel_range": {
+            "dimension": "length",
+            "magnitude": 0.05,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "m"
+          },
+          "working_load_range": {
+            "maximum": {
+              "dimension": "force",
+              "magnitude": 16000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            },
+            "minimum": {
+              "dimension": "force",
+              "magnitude": 6000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            }
+          }
+        },
+        "hanger_id": "VS-R3",
+        "name": "Invented VS-R3",
+        "provenance": {
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "unknown",
+          "source_location": "invented-local:test-only",
+          "source_name": "Invented non-engineering fixture"
+        }
+      },
+      {
+        "hanger": {
+          "constant_load": {
+            "dimension": "force",
+            "magnitude": 4000.0,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "N"
+          },
+          "hanger_type": "constant_effort_support",
+          "source_reference": "invented-local:CE-R1",
+          "travel_range": {
+            "dimension": "length",
+            "magnitude": 0.05,
+            "provenance": {
+              "contributor": "Test author",
+              "contributor_certification": "Invented values, no engineering authority",
+              "redistribution_status": "private_only",
+              "review_status": "pending",
+              "source_license": "unknown",
+              "source_location": "invented-local:test-only",
+              "source_name": "Invented non-engineering fixture"
+            },
+            "unit": "m"
+          },
+          "working_load_range": {
+            "maximum": {
+              "dimension": "force",
+              "magnitude": 12000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            },
+            "minimum": {
+              "dimension": "force",
+              "magnitude": 10000.0,
+              "provenance": {
+                "contributor": "Test author",
+                "contributor_certification": "Invented values, no engineering authority",
+                "redistribution_status": "private_only",
+                "review_status": "pending",
+                "source_license": "unknown",
+                "source_location": "invented-local:test-only",
+                "source_name": "Invented non-engineering fixture"
+              },
+              "unit": "N"
+            }
+          }
+        },
+        "hanger_id": "CE-R1",
+        "name": "Invented CE-R1",
+        "provenance": {
+          "contributor": "Test author",
+          "contributor_certification": "Invented values, no engineering authority",
+          "redistribution_status": "private_only",
+          "review_status": "pending",
+          "source_license": "unknown",
+          "source_location": "invented-local:test-only",
+          "source_name": "Invented non-engineering fixture"
+        }
+      }
+    ],
+    "schema_version": "1.1.0"
+  },
+  "request": {
+    "materials": [],
+    "model": {
+      "analysis_status": {
+        "mechanics": "ready_for_preview_diagnostics",
+        "professional_acceptance": "not_provided",
+        "rule_check": "not_performed_user_rule_inputs_missing"
+      },
+      "combinations": [],
+      "components": [],
+      "data_boundary": {
+        "private_data_policy": "no_private_project_data",
+        "professional_boundary": "technical_preview_requires_human_engineering_review",
+        "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+        "public_examples_policy": "invented_or_cleared_data_only"
+      },
+      "document_kind": "openpipestress.product_preview.model",
+      "load_cases": [
+        {
+          "analysis_state": {
+            "contract": "openpipestress.load_reference_state/1.0.0",
+            "element_states": [
+              {
+                "material_selection": {
+                  "applicability_reference": "invented_test_value",
+                  "kind": "explicit_base_properties",
+                  "material_ref": "material:EXS"
+                },
+                "operating_temperature": {
+                  "unit": "degC",
+                  "value": 15.0
+                },
+                "pipe_ref": "M1",
+                "thermal_state": {
+                  "expansion_law_ref": "law:EXS",
+                  "kind": "free_length_state"
+                }
+              },
+              {
+                "material_selection": {
+                  "applicability_reference": "invented_test_value",
+                  "kind": "explicit_base_properties",
+                  "material_ref": "material:EXS"
+                },
+                "operating_temperature": {
+                  "unit": "degC",
+                  "value": 15.0
+                },
+                "pipe_ref": "M2",
+                "thermal_state": {
+                  "expansion_law_ref": "law:EXS",
+                  "kind": "free_length_state"
+                }
+              }
+            ],
+            "history": {
+              "kind": "independent_equilibrium"
+            },
+            "load_sources": [
+              {
+                "factor": 1.0,
+                "source_ref": "F-T"
+              },
+              {
+                "factor": 1.0,
+                "source_ref": "F-M"
+              }
+            ],
+            "provenance": "invented_test_value",
+            "reference_configuration_ref": "reference:installed",
+            "support_states": [
+              {
+                "participation": {
+                  "kind": "active_model_device"
+                },
+                "support_ref": "A-1"
+              },
+              {
+                "participation": {
+                  "kind": "active_model_device"
+                },
+                "support_ref": "H-3"
+              }
+            ]
+          },
+          "id": "W",
+          "kind": "primitive_user_load",
+          "pressure_regions": [],
+          "primitive_loads": [
+            {
+              "category": "concentrated_force",
+              "dimension": "force",
+              "direction": "global_z",
+              "id": "F-T",
+              "magnitude": {
+                "unit": "N",
+                "value": -9000.0
+              },
+              "provenance": "invented_test_value",
+              "target": {
+                "node": "N3",
+                "type": "node"
+              }
+            },
+            {
+              "category": "concentrated_force",
+              "dimension": "force",
+              "direction": "global_z",
+              "id": "F-M",
+              "magnitude": {
+                "unit": "N",
+                "value": -4000.0
+              },
+              "provenance": "invented_test_value",
+              "target": {
+                "node": "N2",
+                "type": "node"
+              }
+            }
+          ],
+          "provenance": "invented_test_value"
+        },
+        {
+          "analysis_state": {
+            "contract": "openpipestress.load_reference_state/1.0.0",
+            "element_states": [
+              {
+                "material_selection": {
+                  "applicability_reference": "invented_test_value",
+                  "kind": "explicit_base_properties",
+                  "material_ref": "material:EXS"
+                },
+                "operating_temperature": {
+                  "unit": "degC",
+                  "value": 315.0
+                },
+                "pipe_ref": "M1",
+                "thermal_state": {
+                  "expansion_law_ref": "law:EXS",
+                  "kind": "free_length_state"
+                }
+              },
+              {
+                "material_selection": {
+                  "applicability_reference": "invented_test_value",
+                  "kind": "explicit_base_properties",
+                  "material_ref": "material:EXS"
+                },
+                "operating_temperature": {
+                  "unit": "degC",
+                  "value": 315.0
+                },
+                "pipe_ref": "M2",
+                "thermal_state": {
+                  "expansion_law_ref": "law:EXS",
+                  "kind": "free_length_state"
+                }
+              }
+            ],
+            "history": {
+              "kind": "independent_equilibrium"
+            },
+            "load_sources": [
+              {
+                "factor": 1.0,
+                "source_ref": "F-T"
+              },
+              {
+                "factor": 1.0,
+                "source_ref": "F-M"
+              }
+            ],
+            "provenance": "invented_test_value",
+            "reference_configuration_ref": "reference:installed",
+            "support_states": [
+              {
+                "participation": {
+                  "kind": "active_model_device"
+                },
+                "support_ref": "A-1"
+              },
+              {
+                "participation": {
+                  "kind": "active_model_device"
+                },
+                "support_ref": "H-3"
+              }
+            ]
+          },
+          "id": "O1",
+          "kind": "primitive_user_load",
+          "pressure_regions": [],
+          "primitive_loads": [
+            {
+              "category": "concentrated_force",
+              "dimension": "force",
+              "direction": "global_z",
+              "id": "F-T",
+              "magnitude": {
+                "unit": "N",
+                "value": -9000.0
+              },
+              "provenance": "invented_test_value",
+              "target": {
+                "node": "N3",
+                "type": "node"
+              }
+            },
+            {
+              "category": "concentrated_force",
+              "dimension": "force",
+              "direction": "global_z",
+              "id": "F-M",
+              "magnitude": {
+                "unit": "N",
+                "value": -4000.0
+              },
+              "provenance": "invented_test_value",
+              "target": {
+                "node": "N2",
+                "type": "node"
+              }
+            }
+          ],
+          "provenance": "invented_test_value"
+        },
+        {
+          "analysis_state": {
+            "contract": "openpipestress.load_reference_state/1.0.0",
+            "element_states": [
+              {
+                "material_selection": {
+                  "applicability_reference": "invented_test_value",
+                  "kind": "explicit_base_properties",
+                  "material_ref": "material:EXS"
+                },
+                "operating_temperature": {
+                  "unit": "degC",
+                  "value": -35.0
+                },
+                "pipe_ref": "M1",
+                "thermal_state": {
+                  "expansion_law_ref": "law:EXS",
+                  "kind": "free_length_state"
+                }
+              },
+              {
+                "material_selection": {
+                  "applicability_reference": "invented_test_value",
+                  "kind": "explicit_base_properties",
+                  "material_ref": "material:EXS"
+                },
+                "operating_temperature": {
+                  "unit": "degC",
+                  "value": -35.0
+                },
+                "pipe_ref": "M2",
+                "thermal_state": {
+                  "expansion_law_ref": "law:EXS",
+                  "kind": "free_length_state"
+                }
+              }
+            ],
+            "history": {
+              "kind": "independent_equilibrium"
+            },
+            "load_sources": [
+              {
+                "factor": 1.0,
+                "source_ref": "F-T"
+              },
+              {
+                "factor": 1.0,
+                "source_ref": "F-M"
+              }
+            ],
+            "provenance": "invented_test_value",
+            "reference_configuration_ref": "reference:installed",
+            "support_states": [
+              {
+                "participation": {
+                  "kind": "active_model_device"
+                },
+                "support_ref": "A-1"
+              },
+              {
+                "participation": {
+                  "kind": "active_model_device"
+                },
+                "support_ref": "H-3"
+              }
+            ]
+          },
+          "id": "O2",
+          "kind": "primitive_user_load",
+          "pressure_regions": [],
+          "primitive_loads": [
+            {
+              "category": "concentrated_force",
+              "dimension": "force",
+              "direction": "global_z",
+              "id": "F-T",
+              "magnitude": {
+                "unit": "N",
+                "value": -9000.0
+              },
+              "provenance": "invented_test_value",
+              "target": {
+                "node": "N3",
+                "type": "node"
+              }
+            },
+            {
+              "category": "concentrated_force",
+              "dimension": "force",
+              "direction": "global_z",
+              "id": "F-M",
+              "magnitude": {
+                "unit": "N",
+                "value": -4000.0
+              },
+              "provenance": "invented_test_value",
+              "target": {
+                "node": "N2",
+                "type": "node"
+              }
+            }
+          ],
+          "provenance": "invented_test_value"
+        }
+      ],
+      "materials": [
+        {
+          "constitutive_basis": "homogeneous_isotropic_E_nu_v1",
+          "elastic_modulus": {
+            "unit": "Pa",
+            "value": 200000000000.0
+          },
+          "expansion_laws": [
+            {
+              "data": {
+                "coefficient": {
+                  "unit": "1/K",
+                  "value": 0.000012
+                },
+                "kind": "constant"
+              },
+              "datum_temperature": {
+                "unit": "degC",
+                "value": 15.0
+              },
+              "definition": "engineering_secant",
+              "id": "law:EXS",
+              "provenance": "invented_test_value"
+            }
+          ],
+          "id": "material:EXS",
+          "label": "Invented EXS material",
+          "poisson_ratio": {
+            "unit": "1",
+            "value": 0.3
+          },
+          "provenance": "invented_test_value"
+        }
+      ],
+      "nodes": [
+        {
+          "id": "N1",
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "provenance": "invented_test_value"
+        },
+        {
+          "id": "N2",
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 4.0
+          },
+          "provenance": "invented_test_value"
+        },
+        {
+          "id": "N3",
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 8.0
+          },
+          "provenance": "invented_test_value"
+        }
+      ],
+      "pipe_segments": [
+        {
+          "from": "N1",
+          "id": "M1",
+          "material": "material:EXS",
+          "provenance": "invented_test_value",
+          "section": {
+            "corrosion_allowance": {
+              "unit": "m",
+              "value": 0.0
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 0.25
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.01
+            }
+          },
+          "to": "N2",
+          "y_reference": {
+            "x": 1,
+            "y": 0,
+            "z": 0
+          }
+        },
+        {
+          "from": "N2",
+          "id": "M2",
+          "material": "material:EXS",
+          "provenance": "invented_test_value",
+          "section": {
+            "corrosion_allowance": {
+              "unit": "m",
+              "value": 0.0
+            },
+            "outside_diameter": {
+              "unit": "m",
+              "value": 0.25
+            },
+            "wall_thickness": {
+              "unit": "m",
+              "value": 0.01
+            }
+          },
+          "to": "N3",
+          "y_reference": {
+            "x": 1,
+            "y": 0,
+            "z": 0
+          }
+        }
+      ],
+      "pressure_contract": {
+        "mode": "exact_pressure_v3",
+        "shear_model": "euler_bernoulli",
+        "version": "3.0.0"
+      },
+      "project": {
+        "id": "project:hanger-sizing-exs-b",
+        "name": "Invented exact-route hanger sizing reference",
+        "units": {
+          "angle": "rad",
+          "force": "N",
+          "length": "m",
+          "pressure": "Pa",
+          "temperature": "degC"
+        }
+      },
+      "reference_configurations": [
+        {
+          "geometry_ref": {
+            "kind": "authored_model_geometry"
+          },
+          "id": "reference:installed",
+          "member_references": [
+            {
+              "basis": {
+                "installation_temperature": {
+                  "unit": "degC",
+                  "value": 15.0
+                },
+                "kind": "temperature_reference"
+              },
+              "fit": {
+                "kind": "none"
+              },
+              "pipe_ref": "M1",
+              "provenance": "invented_test_value"
+            },
+            {
+              "basis": {
+                "installation_temperature": {
+                  "unit": "degC",
+                  "value": 15.0
+                },
+                "kind": "temperature_reference"
+              },
+              "fit": {
+                "kind": "none"
+              },
+              "pipe_ref": "M2",
+              "provenance": "invented_test_value"
+            }
+          ],
+          "provenance": "invented_test_value"
+        }
+      ],
+      "schema_version": "0.9.0",
+      "supports": [
+        {
+          "family": "anchor",
+          "id": "A-1",
+          "node": "N1",
+          "provenance": "invented_test_value",
+          "restraints": [
+            "UX",
+            "UY",
+            "UZ",
+            "RX",
+            "RY",
+            "RZ"
+          ]
+        },
+        {
+          "family": "vertical_support",
+          "id": "H-3",
+          "node": "N3",
+          "provenance": "invented_test_value",
+          "restraints": [
+            "UZ"
+          ]
+        }
+      ]
+    }
+  },
+  "sizing": {
+    "candidates": [
+      {
+        "family_policy": "variable",
+        "support": "H-3"
+      }
+    ],
+    "check_operating_cases": [
+      "O2"
+    ],
+    "design_operating_case": "O1",
+    "method": {
+      "load_design": "cold",
+      "selection_rule": "least_variation",
+      "travel_allowance_m": 0.002,
+      "variation_limit": 0.3,
+      "variation_reference": "design_load"
+    },
+    "solver_mode": "sparse_interactive",
+    "weight_case": "W",
+    "weight_support_state": "own_solve"
+  }
+}
