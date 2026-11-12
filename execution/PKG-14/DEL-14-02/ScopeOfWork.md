@@ -37,7 +37,7 @@ It serves SOW-072 under OBJ-016 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, 
 
 **Undecided.**
 
-- Whether a modal result and a hanger-sizing result are recorded as analysis runs. DEL-04-09 and DEL-04-11 leave the same question open for their results.
+- Whether a hanger-sizing result is recorded as an analysis run. DEL-04-11 leaves the same question open for its result.
 - How result payloads that are not JSON are partitioned for hashing.
 - Which members a project's recorded runs occupy in the portable package, and which deliverable's package writer and reader carry them there (REQ-018). DEL-14-01 states the same for saved states.
 - Where a record takes the solver's version and build reference from (REQ-003). DEL-04-07's published result does not state them, and DEL-08-02/REQ-012 does not list them in the input manifest.
@@ -66,7 +66,7 @@ A run record establishes which inputs and which build produced a result, and tha
 - **REQ-009** — Rule-pack and library references give identity, version, checksum and provenance. No record, public fixture or example embeds protected standards text or tables, proprietary values, private formulas or a private pack's payload (also cited as DEL-14-02-R009). Source: SOW-072; PRD §20.1.
 - **REQ-010** — A run is reproducible as a record: the same solved result and inputs give the same record and the same hashes in every implementation that builds one (also cited as DEL-14-02-R010). Source: SOW-072; PRD §22.4.
 - **REQ-011** — Building, recording, listing and reading runs are commands and queries that return result envelopes with their diagnostics (also cited as DEL-14-02-R011). Source: decomposition AB-00-03.
-- **REQ-012** — The desktop builds a record for every completed solve and records runs against saved model states with the checked binding. A recorded run's rule-pack references are the model's references resolved against the local rule-pack store at solve time. A reference that is unresolved, or whose stored pack has a different checksum, is named as a diagnostic of the record and is not among its rule-pack references (also cited as DEL-14-02:1). Source: PRD FR-CMP-002, §15.2.
+- **REQ-012** — The desktop builds a record for every completed solve of an analysis whose results are recorded as runs (AC-001); a modal result is not one (DEL-04-09/REQ-002). It records runs against saved model states with the checked binding. A recorded run's rule-pack references are the model's references resolved against the local rule-pack store at solve time. A reference that is unresolved, or whose stored pack has a different checksum, is named as a diagnostic of the record and is not among its rule-pack references (also cited as DEL-14-02:1). Source: PRD FR-CMP-002, §15.2.
 - **REQ-013** — A record is built only from a result the product reader accepts. A refused result, and a result of a retired identity, is never recorded. The record carries the standing and row classification the reader gave, and recording changes neither. Source: DEL-05-02/REQ-019 and DEL-04-08/REQ-005 (one product reader of result statements).
 - **REQ-014** — The one-version rule holds for every reader of a run record.
 - **REQ-015** — A stored run whose record, received result, input manifest or state binding no longer agrees with its recorded hashes is refused by name on every read. Source: SOW-072 (result hashes).
