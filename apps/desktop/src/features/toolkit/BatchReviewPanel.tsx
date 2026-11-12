@@ -19,6 +19,9 @@ export type QueuedBatch = {
   /** Set when the session retired this registration because the model changed
    * after it was prepared (run sheet S2): a notice whose only action is Dismiss. */
   retired?: string;
+  /** Set when the host's own precondition refused the last Apply (the batch stays queued and Apply stays offered);
+   * cleared when the entry is next run to an outcome. */
+  lastApplyRefusal?: { kind: "precondition"; reason: string };
 };
 /** The operation kinds applied only after a clean preview of their exact batch on
  * the current model: a reconnect (W-10, DEL-16-06 Design `pipe-reconnect.md` §3),
@@ -122,6 +125,7 @@ export function BatchReviewPanel({ batches, outcomes, receipts, revision, busy, 
             <button type="button" data-testid={`validate-batch-${entry.key}`} disabled={stale || busy} title={reason} onClick={() => onValidate(entry)}>Validate batch</button>
             <button type="button" data-testid={`apply-batch-${entry.key}`} disabled={stale || busy || gated} title={applyReason} onClick={() => onApply(entry)}>Apply entire batch</button>
             {gated && !stale ? <p data-testid={`preview-required-${entry.key}`}>{previewReason}</p> : null}
+            {entry.lastApplyRefusal ? <p data-testid={`apply-refused-${entry.key}`}>Last apply refused: {entry.lastApplyRefusal.reason}</p> : null}
             <details><summary>Submitted changes and source metadata</summary><pre>{JSON.stringify(entry.batch, null, 2)}</pre></details>
             {outcome ? <BatchOutcome outcome={outcome} onSelectRef={onSelectRef} /> : null}
           </article>
