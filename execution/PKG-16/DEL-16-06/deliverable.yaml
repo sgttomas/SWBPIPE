@@ -98,11 +98,12 @@ needs:
     exactly as pinned, and fails when the supplier it was given differs from the pin.
   gating: true
 - from: DEL-07-11
-  when: Offering a requested act to the person
+  when: Taking the person to the control a request asks them to use
   condition: >-
     Each of the desktop's file operations, jobs and panel commands is dispatched to the service
-    that owns it, the identity of what was sent and of what came back is preserved, and the shell
-    cannot perform a request its owning service would refuse.
+    that owns it, the identity of what was sent and of what came back is preserved, the shell
+    cannot perform a request its owning service would refuse, and the session can show a named
+    panel on a named report, table, state or run without performing anything.
   gating: true
 - from: DEL-12-02
   when: A requested export, save or user release
@@ -114,9 +115,11 @@ needs:
 - from: DEL-08-01
   when: A requested report save, print or user release
   condition: >-
-    A report is saved and printed from the desktop by the report's own controls, and a user release
+    A report is saved and printed from the desktop by the report's own controls, a user release
     is made only by the user's own explicit selection and statement for one report, recorded with
-    its bindings and time.
+    its bindings and time, and a save reports to the host its outcome, its stage and the content
+    hashes of what it published, for that one invocation. (DEL-08-01's scope does not commit to
+    that report reaching the native host today.)
   gating: true
 - from: DEL-07-08
   when: A requested save of a model state or recording of a run
@@ -135,7 +138,8 @@ needs:
   when: A requested export of a table
   condition: >-
     Each results table exports to CSV by its own control, from the table as the desktop shows it,
-    with the case, filter and units it shows.
+    with the case, filter and units it shows, and the save reports to the host the hash of the
+    bytes it wrote. (DEL-08-04's scope does not commit to that report today.)
   gating: true
 - from: DEL-02-05
   when: A requested save of the project
