@@ -28,7 +28,10 @@
 //! These suffice even where validation stops early (no hanger member, or a blank
 //! hanger type), where the shared validation codes alone could not tell the two
 //! hanger kinds apart. `document_refused` is observed as the entry's refusal of
-//! the document at decode ("invalid type").
+//! the document at decode ("invalid type", or "invalid length" for a hanger given
+//! as an array longer than its members). A hanger given as a shorter array is
+//! decoded by position, its first element the hanger type, and is classified like
+//! any other value.
 
 #[path = "common/model_builder.rs"]
 mod model_builder;
@@ -69,7 +72,7 @@ fn observed(support_value: &Value, name: &str) -> &'static str {
     let id = support_value["id"].as_str().unwrap();
     let plain = match solve(model_with(support_value, false)) {
         Err(message) => {
-            assert!(message.contains("invalid type"), "{name}: refused, but not at decode: {message}");
+            assert!(message.contains("invalid type") || message.contains("invalid length"), "{name}: refused, but not at decode: {message}");
             return "document_refused";
         }
         Ok(envelope) => envelope,
@@ -102,7 +105,8 @@ fn observed(support_value: &Value, name: &str) -> &'static str {
 fn the_engine_classifies_every_support_value_of_the_case_table_as_the_table_states() {
     let corpus: Value = serde_json::from_str(CORPUS).unwrap();
     let cases = corpus["cases"].as_array().unwrap();
-    assert_eq!(cases.len(), 26);
+    // The 26 cases of the table's first form, and five with the hanger given as an array.
+    assert_eq!(cases.len(), 31);
     let mut disagreements = Vec::new();
     for case in cases {
         let name = case["name"].as_str().unwrap();
