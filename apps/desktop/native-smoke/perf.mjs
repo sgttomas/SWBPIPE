@@ -30,9 +30,18 @@
 //   SQLite store and classifies the run. An independent --run supervisor bounds
 //   its internal --run-child, including synchronous inspection. Raw sampler lines
 //   and completed-run records are persisted before advancing; forced-stop receipts
-//   explicitly describe partial evidence. Without --keep, an ok run's private
-//   HOME is removed after its record is committed; failed stores are retained.
-//   The supervisor removes remaining scratch only after process verification.
+//   explicitly describe partial evidence. Every run's throwaway HOME is removed at
+//   the end of the run, whatever its class and with or without --keep: once the
+//   inspection under it is complete, the run's record takes a listing of the home
+//   (relative path, type, size and modification time of each entry, by lstat,
+//   bounded) and is committed, then the home alone is removed and the record says
+//   so (or why not; a failed removal is a finding). A run the supervisor stops
+//   (timeout, resource stop, runner error) has its home listed and removed by the
+//   supervisor after process verification, recorded in the window's record. What
+//   a failure needs for inspection stays outside the home: the records, reports,
+//   reader journals and sampler lines. The rest of a failed window's scratch
+//   (model copies, report.json) is retained; the supervisor removes it only after
+//   process verification.
 //
 // Threat model (accepted for PR #53's permissions review): the plan checks (bare names,
 // containedPath) and the injection root guard against mistakes in plan text and caller input:
@@ -333,19 +342,40 @@ async function supervisedRun(options) {
   // The parent does not synchronously inspect SQLite, recursively remove the
   // store, or serialize the sampler's large report on its deadline event loop.
   const emergency = setTimeout(() => { console.error("perf window: report write stalled; owned runner already stopped"); process.exit(124); }, 10000);
-  const failed = result.stop_reason || result.exit.code !== 0 || !result.exit.reaped || result.owned_group_gone !== true || !result.owned_executable_pids_gone;
-  try {
-    result.kept = failed ? scratch : null;
-    await writeFile(file, `${JSON.stringify(result, null, 2)}\n`);
-    if (!failed) {
-      await finishScratch({ scratch, binary, keep: options.keep });
-      result.cleanup = options.keep ? "private_app_removed_store_kept" : "private_scratch_removed";
-      result.kept = options.keep ? scratch : null;
-      await writeFile(file, `${JSON.stringify(result, null, 2)}\n`);
-    }
-  }
+  let failed;
+  try { failed = await settleWindow(result, { scratch, binary, file, keep: options.keep }); }
   finally { clearTimeout(emergency); }
   if (failed) process.exitCode = 1;
+}
+
+/** The supervisor's end of a window, after watchWindow has stopped it: the window's
+ * record is written, then every run home still in the scratch (a run the runner did
+ * not finish: a forced stop, a timeout, a runner error) is listed and removed, only
+ * once the owned processes are verified gone, and the record rewritten with the
+ * outcome. A clean window's scratch then goes by finishScratch; a failed window's
+ * other scratch is kept. Returns whether the window failed. */
+export async function settleWindow(result, { scratch, binary, file, keep }) {
+  const verified = result.owned_group_gone === true && result.owned_executable_pids_gone === true;
+  let failed = Boolean(result.stop_reason || result.exit.code !== 0 || !result.exit.reaped || !verified);
+  const write = () => writeFile(file, `${JSON.stringify(result, null, 2)}\n`);
+  result.kept = failed ? scratch : null;
+  result.run_homes_cleanup = "pending";
+  result.run_homes = [];
+  await write();
+  result.run_homes = await removeWindowHomes(scratch, { verified });
+  result.run_homes_cleanup = verified ? "done" : "withheld_owned_processes_not_verified_gone";
+  if (result.run_homes.some((home) => !home.home_removed)) {
+    failed = true;
+    result.kept = scratch;
+  }
+  await write();
+  if (!failed) {
+    await finishScratch({ scratch, binary, keep });
+    result.cleanup = keep ? "private_app_removed_run_directories_kept" : "private_scratch_removed";
+    result.kept = keep ? scratch : null;
+    await write();
+  }
+  return failed;
 }
 
 const sha256File = (file) => {
@@ -1032,13 +1062,16 @@ async function runOne(run, ctx) {
   }
   if (run.c1_probes) record.c1_physical = c1PhysicalPhases(samples, report?.c1?.reader_allocations, jobDone);
   Object.assign(record, { report, progress, memory, store, stderr_tail: stderrTail.slice(-40) });
-  record.kept = root; // Supervisor removes only after all owned processes exit.
+  // Nothing reads under the home after this point: commitRun lists and removes it;
+  // the rest of the root is removed by the supervisor only after all owned processes exit.
+  record.kept = root;
   console.log(`${run.id}: ${record.class} in ${record.elapsed_s.toFixed(1)} s${record.findings.filter((f) => f.class !== "ok").map((f) => `; ${f.class}: ${f.message ?? f.detail ?? ""}`).join("")}`);
   return record;
 }
 
 /** The run's scratch at the end: removed whole, or with --keep only the app copy is
- * removed and every run's directory (`kept` in its record) stays. */
+ * removed and every run's directory (`kept` in its record) stays, without its home
+ * (removed by commitRun or settleWindow). */
 export async function finishScratch({ scratch, binary, keep }) {
   if (keep) await rm(binary, { force: true });
   else await rm(scratch, { recursive: true, force: true });
@@ -1057,9 +1090,105 @@ export function checkpointRun(record, { out, scratch }) {
   return file;
 }
 
-/** Commit a finished run before another App can start. Samples live outside
- * scratch; only an ok run's App-written HOME is removed, after that commit. */
-export async function commitRun(record, { out, scratch, keep }) {
+// The home listing keeps at most this many entries (sorted by path), and walks at
+// most HOME_WALK_LIMIT; beyond either the listing says it was cut.
+export const HOME_LISTING_LIMIT = 2000;
+const HOME_WALK_LIMIT = 100000;
+
+class HomeRefusal extends Error {}
+
+/** The reason `home` may not be listed or removed, or null: it must resolve to
+ * `<scratch>/run-*` + `/home`, the run directory a real directory (not a link) and
+ * the home, when present, a real directory whose real path is that same place. */
+export function runHomeRefusal(home, scratch) {
+  const resolved = path.resolve(home);
+  const root = path.resolve(scratch);
+  const runDir = path.dirname(resolved);
+  if (path.basename(resolved) !== "home" || path.dirname(runDir) !== root || !path.basename(runDir).startsWith("run-")) {
+    return `perf cleanup: ${resolved} is not this window's run home (${root}/run-*/home)`;
+  }
+  const runStat = lstatSync(runDir, { throwIfNoEntry: false });
+  if (!runStat?.isDirectory()) return `perf cleanup: ${runDir} is not a run directory (missing or a link); not this window's run home`;
+  const homeStat = lstatSync(resolved, { throwIfNoEntry: false });
+  if (!homeStat) return null;
+  if (!homeStat.isDirectory()) return `perf cleanup: ${resolved} is not a directory (a link or file); not this window's run home`;
+  if (realpathSync(resolved) !== path.join(realpathSync(root), path.basename(runDir), "home")) return `perf cleanup: ${resolved} resolves outside ${root}; not this window's run home`;
+  return null;
+}
+
+/** A listing of the run's home by lstat only: no file is opened and no link is
+ * followed (a link is listed as a link; only real directories are descended).
+ * Entries are sorted by relative path; at most `limit` are kept. */
+export function listRunHome(home, { limit = HOME_LISTING_LIMIT, walkLimit = HOME_WALK_LIMIT } = {}) {
+  try {
+    const top = lstatSync(home, { throwIfNoEntry: false });
+    if (!top) return { home_listing: null, home_listing_error: "home absent" };
+    if (!top.isDirectory()) throw new Error("home is not a directory");
+    const entries = [];
+    let complete = true;
+    const walk = (relative) => {
+      for (const name of readdirSync(relative ? path.join(home, relative) : home)) {
+        if (entries.length >= walkLimit) { complete = false; return; }
+        const rel = relative ? `${relative}/${name}` : name;
+        const stat = lstatSync(path.join(home, rel));
+        const type = stat.isSymbolicLink() ? "link" : stat.isDirectory() ? "directory" : stat.isFile() ? "file" : "other";
+        entries.push({ path: rel, type, bytes: stat.size, mtime_ms: stat.mtimeMs });
+        if (type === "directory") walk(rel);
+      }
+    };
+    walk("");
+    entries.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+    return { home_listing: { by: "lstat", limit, total: entries.length, total_complete: complete,
+      truncated: !complete || entries.length > limit, entries: entries.slice(0, limit) } };
+  } catch (error) {
+    return { home_listing: null, home_listing_error: String(error?.message ?? error).slice(0, 1000) };
+  }
+}
+
+/** Remove the run's home and nothing else, after runHomeRefusal; a refusal throws
+ * a HomeRefusal, a removal that leaves the path throws. fs.rm unlinks links inside
+ * the tree; it does not follow them. */
+export async function removeRunHome(home, scratch) {
+  const refusal = runHomeRefusal(home, scratch);
+  if (refusal) throw new HomeRefusal(refusal);
+  const resolved = path.resolve(home);
+  await rm(resolved, { recursive: true, force: true });
+  if (lstatSync(resolved, { throwIfNoEntry: false })) throw new Error(`perf cleanup: ${resolved} is still present after removal`);
+}
+
+/** The supervisor's sweep: every `run-*` + `/home` still in the window's scratch is
+ * listed, then removed only when the owned processes were verified gone. */
+export async function removeWindowHomes(scratch, { verified }) {
+  let names;
+  try { names = readdirSync(scratch); }
+  catch (error) {
+    if (error.code === "ENOENT") return [];
+    return [{ home_path: scratch, home_removed: false, home_cleanup: "failed", home_cleanup_error: `scratch not readable: ${error.message}` }];
+  }
+  const outcomes = [];
+  for (const name of names.filter((entry) => entry.startsWith("run-")).sort()) {
+    const runDir = path.join(scratch, name);
+    if (!lstatSync(runDir, { throwIfNoEntry: false })?.isDirectory()) continue;
+    const home = path.join(runDir, "home");
+    if (!lstatSync(home, { throwIfNoEntry: false })) continue;
+    const refusal = runHomeRefusal(home, scratch);
+    const outcome = { home_path: home, home_removed: false, ...(refusal ? {} : listRunHome(home)) };
+    if (refusal) Object.assign(outcome, { home_cleanup: "refused", home_cleanup_error: refusal });
+    else if (!verified) Object.assign(outcome, { home_cleanup: "withheld", home_cleanup_error: "owned processes not verified gone; the home was not removed" });
+    else {
+      try { await removeRunHome(home, scratch); Object.assign(outcome, { home_cleanup: "removed", home_removed: true }); }
+      catch (error) { Object.assign(outcome, { home_cleanup: error instanceof HomeRefusal ? "refused" : "failed", home_cleanup_error: error.message }); }
+    }
+    outcomes.push(outcome);
+  }
+  return outcomes;
+}
+
+/** Commit a finished run before another App can start. Samples, records and
+ * reader journals live outside scratch. Every run's App-written HOME (whatever its
+ * class, with or without --keep) is listed into the record before that commit and
+ * removed after it; the record is then committed again with the outcome. */
+export async function commitRun(record, { out, scratch }) {
   const file = path.join(out, `perf-run-${planName(path.basename(scratch), "window")}-${planName(record.id, "run")}.json`);
   record.record_file = file;
   const persist = () => {
@@ -1067,26 +1196,31 @@ export async function commitRun(record, { out, scratch, keep }) {
     writeFileSync(temporary, `${JSON.stringify(record, null, 1)}\n`, { flag: "wx", mode: 0o600 });
     renameSync(temporary, file);
   };
+  const home = record.kept ? path.join(record.kept, "home") : null;
+  const refusal = home ? runHomeRefusal(home, scratch) : null;
+  if (!home) Object.assign(record, { home_removed: false, home_cleanup: "not_created" });
+  else if (refusal) Object.assign(record, { home_path: home, home_removed: false, home_cleanup: "refused", home_cleanup_error: refusal });
+  else Object.assign(record, { home_path: home, home_removed: false, home_cleanup: "pending" }, listRunHome(home));
+  const finding = (message) => {
+    if (record.class === "ok") record.class = "refused_with_message";
+    (record.findings ??= []).push({ class: "refused_with_message", step: "home_cleanup", message, needs_review: true });
+  };
+  if (refusal) finding(refusal);
   persist();
   // The final record is now durable; the deliberately incomplete checkpoint
   // has no remaining consumer. Its name is derived from this window/run only.
   await rm(path.join(out, `perf-partial-${planName(path.basename(scratch), "window")}-${planName(record.id, "run")}.json`), { force: true });
   audit({ type: "completed_run", path: file });
-  if (record.class === "ok" && !keep && record.kept) {
-    if (path.dirname(record.kept) !== scratch || !path.basename(record.kept).startsWith("run-")) throw new Error("perf cleanup: not this window's run root");
-    record.home_cleanup = "pending";
-    persist();
-    try {
-      await rm(path.join(record.kept, "home"), { recursive: true, force: true });
-      record.home_cleanup = "removed";
-    } catch (error) {
-      record.home_cleanup = "failed";
-      record.home_cleanup_error = error.message;
-      record.class = "refused_with_message";
-      (record.findings ??= []).push({ class: "refused_with_message", step: "home_cleanup", message: error.message, needs_review: true });
-    }
-    persist();
+  if (refusal) throw new Error(refusal);
+  if (!home) return;
+  try {
+    await removeRunHome(home, scratch);
+    Object.assign(record, { home_cleanup: "removed", home_removed: true });
+  } catch (error) {
+    Object.assign(record, { home_cleanup: error instanceof HomeRefusal ? "refused" : "failed", home_cleanup_error: error.message });
+    finding(error.message);
   }
+  persist();
 }
 
 async function runPlan(options) {

@@ -9,7 +9,7 @@ import os from "node:os";
 import path from "node:path";
 import { execFile, execFileSync, spawn } from "node:child_process";
 import { once } from "node:events";
-import { appEnvironment, c1PhysicalPhases, createReaderPhaseEvidence, checkpointRun, classify, commitRun, readStartupHost, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
+import { appEnvironment, c1PhysicalPhases, createReaderPhaseEvidence, checkpointRun, classify, commitRun, readStartupHost, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, listRunHome, loadPlan, planName, removeRunHome, removeWindowHomes, sampleStopReason, selectRuns, settleWindow, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
 
 const plan = loadPlan(fileURLToPath(new URL("./perf-plan.json", import.meta.url)));
 
@@ -261,6 +261,166 @@ test("a bad completed-run root cannot remove another directory's store", async (
   writeFileSync(marker,"fixture outside window");
   await assert.rejects(commitRun({id:"bad",class:"ok",kept:foreign},{out,scratch,keep:false}),/not this window/);
   assert.equal(readFileSync(marker,"utf8"),"fixture outside window");
+});
+
+// A window's scratch with one run directory whose home holds a store, Downloads,
+// and links to a sentinel file and a sentinel directory outside the window.
+function homeFixture(t, prefix) {
+  const out = mkdtempSync(path.join(os.tmpdir(), prefix));
+  t.after(() => rmSync(out, { recursive: true, force: true }));
+  const scratch = path.join(out, "perf-window");
+  const run = path.join(scratch, "run-one-abc");
+  const home = path.join(run, "home");
+  mkdirSync(path.join(home, "Library", "Application Support"), { recursive: true });
+  mkdirSync(path.join(home, "Downloads"));
+  writeFileSync(path.join(home, "Library", "Application Support", "store.sqlite3"), "fixture store");
+  writeFileSync(path.join(run, "report.json"), "{}");
+  const outside = path.join(out, "outside");
+  mkdirSync(outside);
+  const sentinel = path.join(outside, "sentinel.txt");
+  writeFileSync(sentinel, "must survive");
+  symlinkSync(sentinel, path.join(home, "Downloads", "link-to-sentinel"));
+  symlinkSync(outside, path.join(home, "link-to-outside"));
+  return { out, scratch, run, home, outside, sentinel };
+}
+
+test("an ok run leaves no home; the rest of its run directory follows today's rule", async (t) => {
+  const { out, scratch, run, home, sentinel } = homeFixture(t, "perf-home-ok-");
+  const record = { id: "one", class: "ok", kept: run };
+  await commitRun(record, { out, scratch, keep: true });
+  assert.equal(existsSync(home), false);
+  assert.equal(existsSync(path.join(run, "report.json")), true);
+  assert.equal(readFileSync(sentinel, "utf8"), "must survive");
+  const persisted = JSON.parse(readFileSync(record.record_file, "utf8"));
+  assert.equal(persisted.class, "ok");
+  assert.equal(persisted.home_removed, true);
+  assert.equal(persisted.home_cleanup, "removed");
+  assert.equal(persisted.home_path, home);
+});
+
+test("a failed run leaves no home and its record carries the home's lstat listing", async (t) => {
+  const { out, scratch, run, home } = homeFixture(t, "perf-home-failed-");
+  const record = { id: "one", class: "hang", findings: [{ class: "hang", detail: "fixture" }], kept: run };
+  await commitRun(record, { out, scratch, keep: false });
+  assert.equal(existsSync(home), false);
+  assert.equal(existsSync(path.join(run, "report.json")), true);
+  const persisted = JSON.parse(readFileSync(record.record_file, "utf8"));
+  assert.equal(persisted.class, "hang");
+  assert.equal(persisted.home_removed, true);
+  assert.equal(persisted.home_cleanup, "removed");
+  const listing = persisted.home_listing;
+  assert.equal(listing.by, "lstat");
+  assert.equal(listing.truncated, false);
+  assert.deepEqual(listing.entries.map(({ path: rel, type }) => [rel, type]), [
+    ["Downloads", "directory"], ["Downloads/link-to-sentinel", "link"], ["Library", "directory"],
+    ["Library/Application Support", "directory"], ["Library/Application Support/store.sqlite3", "file"], ["link-to-outside", "link"]]);
+  assert.equal(listing.total, 6);
+  const store = listing.entries.find((entry) => entry.type === "file");
+  assert.equal(store.bytes, "fixture store".length);
+  assert.ok(Number.isFinite(store.mtime_ms));
+});
+
+test("the home listing is by lstat: a link out is listed as a link, neither read nor followed nor removed through", async (t) => {
+  const { out, scratch, run, home, outside, sentinel } = homeFixture(t, "perf-home-link-");
+  writeFileSync(path.join(outside, "inner.txt"), "outside directory content");
+  const { home_listing: listing } = listRunHome(home);
+  const link = listing.entries.find((entry) => entry.path === "Downloads/link-to-sentinel");
+  assert.equal(link.type, "link");
+  assert.notEqual(link.bytes, "must survive".length); // the link's own size, not its target's
+  assert.equal(listing.entries.some((entry) => entry.path.startsWith("link-to-outside/")), false);
+  await commitRun({ id: "one", class: "refused_with_message", kept: run }, { out, scratch });
+  assert.equal(existsSync(home), false);
+  assert.equal(readFileSync(sentinel, "utf8"), "must survive");
+  assert.equal(readFileSync(path.join(outside, "inner.txt"), "utf8"), "outside directory content");
+});
+
+test("a bounded listing keeps its first entries by path and says it was cut", (t) => {
+  const { home } = homeFixture(t, "perf-home-bound-");
+  const { home_listing: listing } = listRunHome(home, { limit: 2 });
+  assert.deepEqual(listing.entries.map((entry) => entry.path), ["Downloads", "Downloads/link-to-sentinel"]);
+  assert.equal(listing.total, 6);
+  assert.equal(listing.truncated, true);
+  assert.equal(listing.limit, 2);
+});
+
+test("a home outside the window's scratch root, or one that is a link, is refused and not removed", async (t) => {
+  const { out, scratch, outside, sentinel } = homeFixture(t, "perf-home-refuse-");
+  const foreign = path.join(out, "run-foreign", "home");
+  mkdirSync(foreign, { recursive: true });
+  writeFileSync(path.join(foreign, "keep.sqlite"), "foreign");
+  await assert.rejects(removeRunHome(foreign, scratch), /not this window/);
+  assert.equal(readFileSync(path.join(foreign, "keep.sqlite"), "utf8"), "foreign");
+  // Traversal that resolves outside the root is refused as well.
+  await assert.rejects(removeRunHome(path.join(scratch, "..", "run-foreign", "home"), scratch), /not this window/);
+  // A run directory whose `home` is a link out of the window.
+  const linked = path.join(scratch, "run-linked-xyz");
+  mkdirSync(linked);
+  symlinkSync(outside, path.join(linked, "home"));
+  await assert.rejects(removeRunHome(path.join(linked, "home"), scratch), /not this window/);
+  // Not a run directory the kit created.
+  mkdirSync(path.join(scratch, "other", "home"), { recursive: true });
+  await assert.rejects(removeRunHome(path.join(scratch, "other", "home"), scratch), /not this window/);
+  assert.equal(existsSync(path.join(scratch, "other", "home")), true);
+  assert.equal(readFileSync(sentinel, "utf8"), "must survive");
+  // The supervisor's sweep records the linked home as refused and leaves the target.
+  const swept = await removeWindowHomes(scratch, { verified: true });
+  const refused = swept.find((entry) => entry.home_path === path.join(linked, "home"));
+  assert.equal(refused.home_removed, false);
+  assert.equal(refused.home_cleanup, "refused");
+  assert.equal(readFileSync(sentinel, "utf8"), "must survive");
+});
+
+test("a run ended by the supervisor's forced stop leaves no home; the window record carries its listing", async (t) => {
+  const { out, scratch, run, home, sentinel } = homeFixture(t, "perf-home-forced-");
+  const binary = path.join(scratch, "openpipestress-desktop");
+  writeFileSync(binary, "app");
+  const child = fixture();
+  t.after(() => { try { process.kill(-child.pid, "SIGKILL"); } catch { /* gone */ } });
+  const [ready] = await once(child, "message");
+  t.after(() => { try { process.kill(-ready.worker, "SIGKILL"); } catch { /* gone */ } });
+  const result = watchWindow(child, { budgetMs: 5000, killGraceMs: 20, listOwned: async () => [{ pid: ready.worker, group: ready.worker }] });
+  child.send("stop");
+  const stopped = await result;
+  assert.equal(stopped.stop_reason, "fixture_resource_stop");
+  const file = path.join(out, "perf-window-fixture.json");
+  const failed = await settleWindow(stopped, { scratch, binary, file, keep: false });
+  assert.equal(failed, true);
+  assert.equal(existsSync(home), false);
+  assert.equal(existsSync(path.join(run, "report.json")), true); // a failed window's other scratch is kept
+  assert.equal(readFileSync(sentinel, "utf8"), "must survive");
+  const written = JSON.parse(readFileSync(file, "utf8"));
+  assert.equal(written.kept, scratch);
+  assert.equal(written.run_homes_cleanup, "done");
+  assert.equal(written.run_homes.length, 1);
+  assert.equal(written.run_homes[0].home_path, home);
+  assert.equal(written.run_homes[0].home_removed, true);
+  assert.equal(written.run_homes[0].home_listing.total, 6);
+});
+
+test("the supervisor withholds removal while owned processes are not verified gone, and records why", async (t) => {
+  const { out, scratch, home } = homeFixture(t, "perf-home-unverified-");
+  const result = { stop_reason: "window_deadline", exit: { code: null, signal: null, reaped: false }, owned_group_gone: null, owned_executable_pids_gone: false };
+  const file = path.join(out, "perf-window-fixture.json");
+  assert.equal(await settleWindow(result, { scratch, binary: path.join(scratch, "openpipestress-desktop"), file, keep: false }), true);
+  assert.equal(existsSync(home), true);
+  const written = JSON.parse(readFileSync(file, "utf8"));
+  assert.equal(written.run_homes_cleanup, "withheld_owned_processes_not_verified_gone");
+  assert.equal(written.run_homes[0].home_removed, false);
+  assert.match(written.run_homes[0].home_cleanup_error, /not verified gone/);
+  assert.equal(written.run_homes[0].home_listing.total, 6);
+});
+
+test("a clean window's sweep finds no home left and removes the scratch", async (t) => {
+  const { out, scratch, run, home } = homeFixture(t, "perf-home-clean-");
+  await commitRun({ id: "one", class: "ok", kept: run }, { out, scratch });
+  assert.equal(existsSync(home), false);
+  const result = { stop_reason: null, exit: { code: 0, signal: null, reaped: true }, owned_group_gone: true, owned_executable_pids_gone: true };
+  const file = path.join(out, "perf-window-fixture.json");
+  assert.equal(await settleWindow(result, { scratch, binary: path.join(scratch, "openpipestress-desktop"), file, keep: false }), false);
+  assert.equal(existsSync(scratch), false);
+  const written = JSON.parse(readFileSync(file, "utf8"));
+  assert.deepEqual(written.run_homes, []);
+  assert.equal(written.cleanup, "private_scratch_removed");
 });
 
 test("the sampler writer flushes raw evidence before a consumer can abort it", (t) => {
