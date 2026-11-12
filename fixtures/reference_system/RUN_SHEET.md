@@ -158,9 +158,9 @@ member in step rows.
   Material density kg/m^3; Mill tolerance mm; Corrosion allowance mm. Bend R keeps the
   project unit, m.
 
-**Rows.** The sheet starts with one row. Type the 26 rows in table order. After completing a
-row, press **Enter** in its **Support** cell, empty or not: in the last row this adds the next
-row and moves to its dX cell. Then **Queue rows**, **Validate batch** and **Apply entire
+**Rows.** The sheet starts with one row. Type the 26 rows in table order. After completing
+each of rows 1 to 25, press **Enter** in its **Support** cell, empty or not: the row is then the
+last, so this adds the next row and moves to its dX cell. Do not press it after row 26. Then **Queue rows**, **Validate batch** and **Apply entire
 batch**. Blank increments are zero. Section, material and the section
 quantities are entered once and inherit down the chain; the `F` row continues from RS-130
 with row 14's values. The Condition set column stays blank: the fixture has no condition
@@ -477,10 +477,11 @@ differences remain; none is in criterion 6's identity set or a numerical value:
   `Bend end`, each arc `Bend arc` and each bend component `Bend`; the fixture's are, for
   example, `RS-070 Bend B1 near tangent`, `RS-P065 (Bend B1 (arc))` and `Bend B1`. No cell
   sets them.
-- **Joint stiffness provenance.** The form writes RS-EJ1's stiffness provenance from the
-  connector's own references (`invented; no measurement`, `none`); the fixture's reads
-  `invented diagonal work matrix; no measurement` and `none (authored directly in the
-  connector basis)`.
+- **Joint stiffness measurement restraints.** The form writes RS-EJ1's stiffness provenance
+  from the connector's own references, so its measurement restraints read
+  `invented; no measurement`; the fixture's read `invented diagonal work matrix; no measurement`.
+- **Joint stiffness basis transform reference.** For the same reason its basis transform
+  reference reads `none`; the fixture's reads `none (authored directly in the connector basis)`.
 - **Combination terms.** Each subtraction combination carries `terms: []`, which the fixture
   omits; an empty list means no terms.
 - **Self-weight hash.** Each self-weight primitive's provenance records the hash of the model
@@ -552,9 +553,9 @@ Two subtotals, both estimates: **entry** about 61.25 minutes (the grid cells, fo
 presses, each step rounded), and **solve waiting** 2 minutes (an allowance, not entry). Their
 sum is about 63.25 minutes.
 
-Unrounded, the entry is 18.29 min for the grid cells and (373 form entries + 94 presses) ×
-5.5 s = 2568.5 s = 42.81 min for the rest, 61.10 minutes, and with the 2 minutes of solve
-waiting the sum is 63.10 minutes.
+Unrounded, by direct arithmetic, the entry is 224 × 8/98 min + (373 form entries + 94
+presses) × 5.5/60 min = 18.286 + 42.808 = 61.09 minutes, and with the 2 minutes of solve
+waiting the sum is 63.09 minutes.
 
 How the larger counts arise:
 

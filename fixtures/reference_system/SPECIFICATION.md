@@ -530,13 +530,25 @@ exported members is DEL-17-04's to establish. The fixture keeps RS-P180 as it is
 The identity set is DEL-17-04's: nodes, pipes, components, supports, load cases, primitive
 loads, materials, pressure regions and sections. Exit criterion 6 requires that the desktop
 save this system as MBF with no family of criterion 1's system omitted or unsupported in
-the loss report, and import it back with the same identities. The temperature-dependent
-modulus table (§4.1) is one family the writer refuses today
-(`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`). It stays in the system; no family is
-dropped to make criterion 6 pass. Which other families the loss report lists is DEL-17-04's
-to state from an export of the fixture. Each moves to "covered" as a coverage tranche lands.
-Any family with no admitted public MBF source is listed in the release limitations and declared acceptable by Agent 0, and the limitations are
-shown to the owner with the request for the verdict (exit criterion 3).
+the loss report, and import it back with the same identities; DEL-17-04 AC-003 judges it,
+with every Must family marked covered or carrying its named refusal.
+
+What an export of the 0.9.0 fixture can show follows the ledger (§10). The fixture holds the
+temperature-dependent modulus table (§4.1), the realized bends, the tee, the valve and
+flanges, the expansion joint and its rods, the variable spring, the linear supports, the
+cases RS-SUS, RS-OPE and RS-SAM and the combinations RS-EXP and RS-dSAM. The writer refuses
+the temperature table today (`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`); it stays
+in the system, and no family is dropped to make criterion 6 pass. Which of the other families
+the fixture holds the loss report lists is DEL-17-04's to state from an export of the
+fixture. The eccentric reducer, the constant-effort, lift-off, friction and gap supports, the
+snubber, the other cases and combinations, the spectrum and the modal and hanger-sizing
+requests are pending (§10): the fixture does not hold them, so no export of it reports them.
+
+Each family moves to "covered" as a coverage tranche lands. Any family with no admitted
+public MBF source is listed in the release limitations and declared acceptable by Agent 0,
+and the limitations are shown to the owner with the request for the verdict (exit criterion
+3). Declaring it acceptable does not demonstrate the refused capability and does not make
+criterion 6 met.
 
 ### 11.2 Criterion 7 (authoring time)
 
