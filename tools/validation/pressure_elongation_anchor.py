@@ -527,10 +527,51 @@ PUBLICATION_DOMAIN = "source_blocks_publication_v1"
 RECEIPT_DOMAIN = "source_blocks_receipt_v1"
 
 
+def _number(value: float) -> str:
+    """ECMAScript Number::toString of a finite double (RFC 8785's number form)."""
+    if not (value == value and abs(value) != float("inf")):
+        raise ValueError("non-finite number in a hashed preimage")
+    if value == 0:
+        return "0"
+    mantissa, _, exponent = repr(abs(value)).partition("e")
+    whole, _, fraction = mantissa.partition(".")
+    raw = (whole + fraction).lstrip("0")
+    digits = raw.rstrip("0")
+    k = len(digits)
+    n = k + (int(exponent) if exponent else 0) - len(fraction) + (len(raw) - k)
+    sign = "-" if value < 0 else ""
+    if k <= n <= 21:
+        return sign + digits + "0" * (n - k)
+    if 0 < n <= 21:
+        return sign + digits[:n] + "." + digits[n:]
+    if -6 < n <= 0:
+        return sign + "0." + "0" * -n + digits
+    return sign + digits[0] + ("." + digits[1:] if k > 1 else "") + "e" + ("+" if n - 1 >= 0 else "-") + str(abs(n - 1))
+
+
+def canonical_json(value: Any) -> str:
+    """RFC 8785 (JCS) text of a JSON value as `loads` reads it: keys sorted by UTF-16 code units,
+    strings escaped as JSON.stringify escapes them, numbers in ECMAScript form. The harness's own
+    canonicalization (the product's `openpipestress_jcs_ijson_v1` text on the values a receipt hashes)."""
+    if value is None or isinstance(value, bool):
+        return {None: "null", True: "true", False: "false"}[value]
+    if isinstance(value, str):
+        return json.dumps(value, ensure_ascii=False)
+    if type(value) is int:
+        return str(value)
+    if type(value) is float:
+        return _number(value)
+    if isinstance(value, list):
+        return "[" + ",".join(canonical_json(item) for item in value) + "]"
+    if isinstance(value, dict):
+        keys = sorted(value, key=lambda key: key.encode("utf-16-be", "surrogatepass"))
+        return "{" + ",".join(json.dumps(key, ensure_ascii=False) + ":" + canonical_json(value[key]) for key in keys) + "}"
+    raise ValueError(f"unsupported value in a hashed preimage: {type(value).__name__}")
+
+
 def _domain_hash(domain: str, payload: Any) -> str:
-    """sha256 of the checked canonical {"domain", "payload"} text (the receipt's `hash`)."""
-    from tests.verifiers.canonical_json import canonical_sha256
-    return canonical_sha256({"domain": domain, "payload": payload})
+    """sha256 of the canonical {"domain", "payload"} text (the receipt's `hash`)."""
+    return hashlib.sha256(canonical_json({"domain": domain, "payload": payload}).encode("utf-8")).hexdigest()
 
 
 def _commitments_bound(envelope: Any) -> str | None:

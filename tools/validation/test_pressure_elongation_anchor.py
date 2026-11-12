@@ -231,6 +231,17 @@ def chained_envelope(invocation: str):
     return envelope, dump
 
 
+def test_the_canonical_text_is_the_committed_vectors():
+    cases = json.loads((A.ROOT / "fixtures/canonical_hash/cases.json").read_text(encoding="utf-8"))["cases"]
+    for case in cases:
+        try:
+            value = A.loads(case["input_json"])
+        except ValueError:
+            continue
+        if case.get("expected_canonical") is not None:
+            assert A.canonical_json(value) == case["expected_canonical"], case["case_id"]
+
+
 def test_a_zeroed_physical_evidence_commitment_fails_the_chain():
     reference, reference_dump = chained_envelope("1" * 64)
     actual, actual_dump = chained_envelope("2" * 64)
