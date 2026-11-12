@@ -99,3 +99,14 @@ checks:
 - tests/test_accessibility_usability_baseline.py
 - apps/desktop/src/features/workspace/contextMenu/ContextMenu.test.tsx
 - apps/desktop/src/App.deadControls.test.tsx
+# AC-006's observation in the launched app, recorded without judging, for the model tree and the
+# results, displacement extremes and support load tables. Observed: each is selectable, and the
+# selection is what Copy would take (WebKit's Select All, the command Edit > Select All sends, and the
+# selection's text against the text the surface shows), with the rows each surface states it shows of
+# how many and whether a CSV control sits beside it. Unobserved: that Copy is enabled for the
+# selection, and the key press itself; reading either needs Objective-C calls from native code, and
+# the shell's pinned list of modules allowed unsafe code is not widened for it, nor an accessibility
+# permission asked for. Copy is not pressed and the system pasteboard is not touched: pressing Copy is
+# an act a person's hands observe. Save canonical HTML and Print are not pressed either: with Copy,
+# they are unfinished by machine and observed by a person.
+- apps/desktop/native-smoke/evidence-journeys.mjs

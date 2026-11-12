@@ -133,3 +133,4 @@ checks:
 - apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
 - apps/desktop/src/features/model-file/storedDocumentExport.test.tsx
 - apps/desktop/e2e/b3b-project-persistence.spec.ts
+- apps/desktop/native-smoke/evidence-journeys.mjs

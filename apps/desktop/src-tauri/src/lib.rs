@@ -6379,6 +6379,7 @@ pub fn run() {
         native_smoke::native_smoke_external_save,
         native_smoke::native_smoke_verify_handoff_package,
         native_smoke::native_smoke_read_report_package,
+        native_smoke::native_smoke_checkpoint,
         native_smoke::native_smoke_finish,
     ));
     builder

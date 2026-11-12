@@ -23,6 +23,9 @@
 //! Package…, Export MBF's save and Import MBF's open choosers) instead of showing the chooser, and it delivers native menu commands through the same
 //! dispatch a menu click uses (`native_smoke_menu`). Everything else, from the
 //! open checks to solve, persistence and export, runs on the product's code.
+//! The evidence journeys (`native-smoke/evidence-journeys.mjs`) also write
+//! checkpoints of their report, and a read-only copy of the store, while the app
+//! runs (`native_smoke_checkpoint`); they change nothing the app does.
 
 use serde::Serialize;
 use serde_json::Value;
@@ -35,9 +38,48 @@ pub struct SmokeState {
     driver_started: Mutex<bool>,
 }
 
+/// Strict chooser mode. With this variable set to this value, a chooser asked with no answer queued ends
+/// the app at once with this exit code, before any native dialog; unset, behaviour is unchanged (other kits
+/// rely on the fall-through). The evidence journeys set it on every launch. The JavaScript copy is
+/// `native-smoke/evidence-checks.mjs` STRICT_CHOOSER (a node test checks they agree); both move to
+/// `tools/native_launch_guard.py` when it reaches main.
+pub(crate) const STRICT_CHOOSER_ENV: &str = "SWBPIPE_NATIVE_SMOKE_STRICT_CHOOSER";
+pub(crate) const STRICT_CHOOSER_VALUE: &str = "1";
+pub(crate) const STRICT_CHOOSER_EXIT: i32 = 86;
+
+/// Whether a chooser that found no queued answer must end the app instead of opening a native dialog.
+fn strict_stop(answer_queued: bool, mode: Option<&str>) -> bool {
+    !answer_queued && mode == Some(STRICT_CHOOSER_VALUE)
+}
+
 /// The path the next chooser (model document open or save, handoff or report package) returns, if the driver named one.
+/// In strict chooser mode, a chooser that finds no answer ends the app here (exit STRICT_CHOOSER_EXIT).
 pub fn take_chosen_path<R: Runtime>(app: &AppHandle<R>) -> Option<PathBuf> {
-    app.try_state::<SmokeState>()?.chosen.lock().ok()?.pop_front()
+    let mut taken = None;
+    if let Some(state) = app.try_state::<SmokeState>() {
+        if let Ok(mut chosen) = state.chosen.lock() {
+            taken = chosen.pop_front();
+        }
+    }
+    if strict_stop(taken.is_some(), std::env::var(STRICT_CHOOSER_ENV).ok().as_deref()) {
+        eprintln!("[native-smoke] strict chooser: a chooser was asked with no answer queued; ending the app before any native dialog (exit {STRICT_CHOOSER_EXIT})");
+        std::process::exit(STRICT_CHOOSER_EXIT);
+    }
+    taken
+}
+
+#[cfg(test)]
+mod strict_chooser_tests {
+    #[test]
+    fn a_chooser_with_no_answer_stops_only_in_strict_mode() {
+        use super::{strict_stop, STRICT_CHOOSER_VALUE};
+        assert!(strict_stop(false, Some(STRICT_CHOOSER_VALUE)));
+        assert!(!strict_stop(true, Some(STRICT_CHOOSER_VALUE)));
+        assert!(!strict_stop(false, None));
+        assert!(!strict_stop(false, Some("0")));
+        assert!(!strict_stop(false, Some("")));
+        assert_eq!(super::STRICT_CHOOSER_EXIT, 86);
+    }
 }
 
 #[tauri::command]
@@ -51,15 +93,15 @@ pub fn native_smoke_choose(app: AppHandle, path: String) -> Result<(), String> {
 }
 
 /// Drops every chooser path not yet taken, so a save refused before its chooser
-/// cannot answer a later one.
+/// cannot answer a later one. Returns how many were dropped: a path queued before
+/// an action and still dropped here was never asked for by a chooser.
 #[tauri::command]
-pub fn native_smoke_clear_choices(app: AppHandle) -> Result<(), String> {
-    app.state::<SmokeState>()
-        .chosen
-        .lock()
-        .map_err(|_| "native smoke state poisoned".to_string())?
-        .clear();
-    Ok(())
+pub fn native_smoke_clear_choices(app: AppHandle) -> Result<usize, String> {
+    let state = app.state::<SmokeState>();
+    let mut chosen = state.chosen.lock().map_err(|_| "native smoke state poisoned".to_string())?;
+    let dropped = chosen.len();
+    chosen.clear();
+    Ok(dropped)
 }
 
 #[tauri::command]
@@ -297,7 +339,115 @@ pub fn native_smoke_read_report_package(path: String) -> Result<Value, String> {
         "inventory": read.manifest["members"],
         "members": members,
         "result_member_text": result_member,
+        // The reader's user-release record, null for a package without one (W-18b).
+        "user_release": read.user_release,
     }))
+}
+
+/// A checkpoint name: 1 to 32 of `a-z`, `0-9` and `-`, so it can only name a file
+/// beside the report.
+fn checkpoint_name_ok(name: &str) -> bool {
+    (1..=32).contains(&name.len()) && name.bytes().all(|byte| matches!(byte, b'a'..=b'z' | b'0'..=b'9' | b'-'))
+}
+
+/// A journey's checkpoint, with the app left running (`evidence-journeys.mjs`, whose
+/// autosave journey ends the app itself with SIGKILL, so it never reaches
+/// `native_smoke_finish`). Writes `report` beside the final report as
+/// `<report>.<name>.json`, through a temporary file and a rename so the runner never
+/// reads it partial; with `store_snapshot`, first writes a consistent copy of the project
+/// store as `<report>.<name>.store.sqlite3` through a read-only connection
+/// (`VACUUM INTO`), so nothing in the store is written.
+///
+/// With `home_listing`, the report gains `home_listing`: every regular file under `$HOME` (the
+/// journey's throwaway home), by path relative to it, with its size and modification time in
+/// unix milliseconds; links are listed, not followed; at most [`HOME_LISTING_LIMIT`] entries.
+#[tauri::command]
+pub fn native_smoke_checkpoint(app: AppHandle, name: String, mut report: Value, store_snapshot: bool, home_listing: Option<bool>) -> Result<(), String> {
+    if !checkpoint_name_ok(&name) {
+        return Err(format!("checkpoint name {name:?} refused"));
+    }
+    if home_listing == Some(true) {
+        let home = std::env::var_os("HOME").map(PathBuf::from).ok_or_else(|| "HOME unset".to_string())?;
+        let listing = list_files(&home);
+        if let Some(object) = report.as_object_mut() {
+            object.insert("home_listing".into(), listing);
+        }
+    }
+    let base = std::env::var("SWBPIPE_NATIVE_SMOKE_REPORT").map_err(|_| "SWBPIPE_NATIVE_SMOKE_REPORT unset".to_string())?;
+    if store_snapshot {
+        let store = crate::app_store_path(&app)?;
+        let target = format!("{base}.{name}.store.sqlite3");
+        if std::path::Path::new(&target).exists() {
+            return Err(format!("{target} exists"));
+        }
+        let connection = rusqlite::Connection::open_with_flags(&store, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY | rusqlite::OpenFlags::SQLITE_OPEN_NO_MUTEX)
+            .map_err(|error| format!("{}: {error}", store.display()))?;
+        connection.execute("VACUUM INTO ?1", [&target]).map_err(|error| format!("store snapshot: {error}"))?;
+    }
+    let path = format!("{base}.{name}.json");
+    let pending = format!("{path}.tmp");
+    let text = serde_json::to_string_pretty(&report).map_err(|error| error.to_string())?;
+    fs::write(&pending, text).map_err(|error| format!("{pending}: {error}"))?;
+    fs::rename(&pending, &path).map_err(|error| format!("{path}: {error}"))
+}
+
+/// The most entries a home listing names; the rest are counted.
+const HOME_LISTING_LIMIT: usize = 100_000;
+
+fn list_files(root: &std::path::Path) -> Value {
+    let mut files = Vec::new();
+    let mut not_listed = 0usize;
+    let mut pending = vec![root.to_path_buf()];
+    while let Some(dir) = pending.pop() {
+        let Ok(entries) = fs::read_dir(&dir) else { continue };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            let Ok(meta) = fs::symlink_metadata(&path) else { continue };
+            if meta.is_dir() {
+                pending.push(path);
+                continue;
+            }
+            if files.len() >= HOME_LISTING_LIMIT {
+                not_listed += 1;
+                continue;
+            }
+            let modified = meta.modified().ok().and_then(|time| time.duration_since(std::time::UNIX_EPOCH).ok()).map(|elapsed| elapsed.as_millis() as u64);
+            let relative = path.strip_prefix(root).unwrap_or(&path).to_string_lossy().into_owned();
+            files.push(serde_json::json!({ "path": relative, "bytes": meta.len(), "modified_unix_millis": modified, "link": meta.file_type().is_symlink() }));
+        }
+    }
+    serde_json::json!({ "files": files, "not_listed": not_listed })
+}
+
+#[cfg(test)]
+mod checkpoint_tests {
+    #[test]
+    fn a_checkpoint_name_names_only_a_file_beside_the_report() {
+        for name in ["before-edit", "edited", "a", "0123456789abcdef0123456789abcdef"] {
+            assert!(super::checkpoint_name_ok(name), "{name}");
+        }
+        for name in ["", "../store", "a/b", "Edited", "a.b", "0123456789abcdef0123456789abcdef0", "a b"] {
+            assert!(!super::checkpoint_name_ok(name), "{name}");
+        }
+    }
+
+    #[test]
+    fn a_home_listing_names_files_relative_to_the_home_and_does_not_follow_links() {
+        let root = std::env::temp_dir().join(format!("native-smoke-listing-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        std::fs::create_dir_all(root.join("Downloads")).unwrap();
+        std::fs::write(root.join("Downloads/a.html"), b"<p>").unwrap();
+        std::fs::write(root.join("top.txt"), b"x").unwrap();
+        #[cfg(unix)]
+        std::os::unix::fs::symlink(std::env::temp_dir(), root.join("link")).unwrap();
+        let listing = super::list_files(&root);
+        let mut paths: Vec<String> = listing["files"].as_array().unwrap().iter().map(|file| file["path"].as_str().unwrap().to_string()).collect();
+        paths.sort();
+        #[cfg(unix)]
+        assert_eq!(paths, ["Downloads/a.html", "link", "top.txt"]);
+        assert_eq!(listing["not_listed"], 0);
+        std::fs::remove_dir_all(&root).unwrap();
+    }
 }
 
 /// C1 P3, smoke builds only. Reads the current run's held bytes and the model

@@ -117,3 +117,6 @@ checks:
 - tests/test_qualification_physics_integration.py
 - tests/test_qualification_load_reference.py
 - tests/test_first_static_selection.py
+# Prepared, not run under the present leave: the reference system opened, solved, rendered and
+# packaged in the launched app (evidence-journeys.mjs --journey reference-system).
+- apps/desktop/native-smoke/evidence-journeys.mjs

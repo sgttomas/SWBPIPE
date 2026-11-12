@@ -143,6 +143,14 @@
         "validation/benchmarks/numerical_integrity/test_reference.py",
         "validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py"
       ]
+    },
+    "desktop-native-smoke-node-tests": {
+      "cwd": ".",
+      "command": [
+        "node",
+        "--test",
+        "apps/desktop/native-smoke/*.test.mjs"
+      ]
     }
   },
   "always_checks": [],
@@ -351,6 +359,22 @@
       ],
       "checks": [
         "benchmark-reference-tests"
+      ]
+    },
+    {
+      "paths": [
+        "apps/desktop/native-smoke/**",
+        "apps/desktop/scripts/**",
+        "apps/desktop/src-tauri/src/native_smoke.rs",
+        "apps/desktop/package.json",
+        "package-lock.json",
+        "core/solver/performance_harness/observations/rack/**",
+        "core/solver/performance_harness/rack/**",
+        "docs/PRD.md",
+        "software-workflow.json"
+      ],
+      "checks": [
+        "desktop-native-smoke-node-tests"
       ]
     }
   ]
