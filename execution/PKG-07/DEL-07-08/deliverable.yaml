@@ -118,7 +118,7 @@ needs:
     The viewport pane can hold a read-only mode over the authoring viewport: while the mode shows,
     the viewport stays mounted with its model, selection, camera and drafts unchanged, hidden and
     inert, so the mode opens no second WebGL context; and the viewport's camera presets (Isometric,
-    Front and Top, with Y up) are the views the mode draws in.
+    Front and Top, with Y up) are the basis of the mode's fixed views.
   gating: true
 - from: DEL-07-05
   when: Opening a recorded run for review

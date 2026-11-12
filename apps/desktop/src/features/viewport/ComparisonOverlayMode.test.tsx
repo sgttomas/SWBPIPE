@@ -6,7 +6,7 @@ import { cleanup, fireEvent, render, screen, within } from "@testing-library/rea
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { compareModelDocuments } from "../comparison/stateComparison";
 import { comparisonOverlayScene, STATE_OVERLAY_CLASSES, RUN_OVERLAY_CLASSES, stateOverlayMarks } from "../comparison/comparisonOverlay";
-import { ComparisonOverlayMode, projectOverlayPoint } from "./ComparisonOverlayMode";
+import { ComparisonOverlayMode, projectOverlayPoint, upright } from "./ComparisonOverlayMode";
 import { DisplayUnitsProvider } from "../display-units";
 import { loadPreviewModel } from "../../services/previewService";
 import { PipeViewport } from "./PipeViewport";
@@ -60,9 +60,10 @@ describe("the comparison overlay mode", () => {
       "Removed (glyph −, dashed line): 1 entity",
       // The support, the material and the model entity (its ordered id lists) are changed.
       "Changed (glyph Δ, dash-dot line): 3 entities, 2 not drawn",
-      "Unchanged (glyph =, thin line): 3 entities",
-      "Ghost (faint, its class's line): an entity only in the earlier saved state, in its own position there."
+      "Unchanged (glyph =, thin line): 3 entities; drawn as context, not marked",
+      "Ghost (faint, labelled “earlier saved state only”): an entity only in the earlier saved state, in its own position there."
     ]);
+    expect(within(legend).getByTestId("comparison-overlay-drawn")).toHaveTextContent("3 marked entities are drawn above 3 context entities.");
     expect(within(legend).getByTestId("comparison-overlay-not-drawn")).toHaveTextContent(
       "2 classified entities are not drawn (Changed: 2): an entity the model drawing does not show (the model, a material, a section, a load case, a setting or a record). They are listed in the comparison table."
     );
@@ -92,6 +93,73 @@ describe("the comparison overlay mode", () => {
     expect(screen.getByRole("button", { name: "Support support:S-1: Changed" })).toBe(drawn("support:S-1"));
   });
 
+  it("makes only marked entities keyboard stops; unchanged ones are context, drawn beneath every mark", () => {
+    mount();
+    const drawn = (ref: string) => screen.getByTestId(`comparison-overlay-entity-${ref}`);
+    for (const ref of ["node:N-1", "node:N-2", "pipe:P-1"]) {
+      expect(drawn(ref)).toHaveAttribute("data-marked", "false");
+      expect(drawn(ref)).not.toHaveAttribute("tabindex");
+      expect(drawn(ref)).not.toHaveAttribute("role");
+    }
+    expect(screen.getAllByRole("button", { name: /^(Node|Support|Pipe segment) /u }).map((element) => element.dataset.testid)).toEqual([
+      "comparison-overlay-entity-node:N-3",
+      "comparison-overlay-entity-node:N-4",
+      "comparison-overlay-entity-support:S-1"
+    ]);
+    for (const ref of ["node:N-3", "node:N-4", "support:S-1"]) expect(drawn(ref)).toHaveAttribute("tabindex", "0");
+    // Painting order is document order: every mark after every context entity, ghosts before live marks.
+    const order = Array.from(screen.getByTestId("comparison-overlay-drawing").querySelectorAll<SVGGElement>(".comparison-overlay-entity")).map((element) => element.dataset.marked);
+    expect(order.lastIndexOf("false")).toBeLessThan(order.indexOf("true"));
+    // Each mark sits on a halo, so no line drawn earlier shows through it.
+    expect(drawn("support:S-1").querySelector(".comparison-overlay-halo")).not.toBeNull();
+    expect(drawn("pipe:P-1").querySelector(".comparison-overlay-halo")).toBeNull();
+  });
+
+  it("labels each marked entity with its identifier, a ghost as earlier only, and gives every entity a title", () => {
+    mount();
+    const label = (ref: string) => screen.getByTestId(`comparison-overlay-entity-${ref}`).querySelector(".comparison-overlay-label")?.textContent;
+    expect(label("node:N-4")).toBe("node:N-4");
+    expect(label("node:N-3")).toBe("node:N-3 (earlier saved state only)");
+    expect(label("pipe:P-1")).toBeUndefined();
+    expect(screen.getByTestId("comparison-overlay-entity-pipe:P-1").querySelector("title")).toHaveTextContent("Pipe segment pipe:P-1: Unchanged");
+    fireEvent.click(screen.getByTestId("comparison-overlay-labels"));
+    expect(label("node:N-4")).toBeUndefined();
+  });
+
+  it("draws a member seen end on as a point, and stacks the glyphs of marks that coincide in a view", () => {
+    const left = document();
+    const right = document();
+    // A riser along Y, added; two changed supports on one node.
+    right.nodes.push({ id: "node:N-UP", label: "Up", position: { x: 2, y: 3, z: 0 }, provenance: "invented" });
+    right.pipe_segments.push({ id: "pipe:P-UP", label: "Riser", from: "node:N-2", to: "node:N-UP", section: {}, material: "material:M-1", provenance: "invented" });
+    left.supports.push({ id: "support:S-2", label: "Guide", node: "node:N-1", provenance: "invented" });
+    right.supports = [{ ...right.supports[0], label: "Anchor, moved" }, { id: "support:S-2", label: "Guide, changed", node: "node:N-1", provenance: "invented" }];
+    mount({ scene: comparisonOverlayScene("states", stateOverlayMarks(compareModelDocuments(left, right)), left, right) });
+    const riser = () => screen.getByTestId("comparison-overlay-entity-pipe:P-UP");
+    expect(riser()).not.toHaveAttribute("data-collapsed");
+    expect(riser().querySelector("line.comparison-overlay-line")).not.toBeNull();
+    fireEvent.change(screen.getByTestId("comparison-overlay-view"), { target: { value: "top" } });
+    expect(riser()).toHaveAttribute("data-collapsed", "true");
+    expect(riser().querySelector("circle.comparison-overlay-point")).not.toBeNull();
+    const glyphY = (ref: string) => Number(screen.getByTestId(`comparison-overlay-entity-${ref}`).querySelector(".comparison-overlay-glyph")!.getAttribute("y"));
+    expect(glyphY("support:S-1")).not.toBe(glyphY("support:S-2"));
+  });
+
+  it("zooms and pans by its buttons and returns to the whole schematic", () => {
+    mount();
+    const drawing = screen.getByTestId("comparison-overlay-drawing");
+    const whole = drawing.getAttribute("viewBox")!;
+    const width = (box: string) => Number(box.split(" ")[2]);
+    expect(screen.getByRole("button", { name: "Zoom out" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Zoom in" }));
+    expect(width(drawing.getAttribute("viewBox")!)).toBeCloseTo(width(whole) / 1.5);
+    const zoomed = drawing.getAttribute("viewBox")!;
+    fireEvent.click(screen.getByRole("button", { name: "Pan right" }));
+    expect(Number(drawing.getAttribute("viewBox")!.split(" ")[0])).toBeGreaterThan(Number(zoomed.split(" ")[0]));
+    fireEvent.click(screen.getByRole("button", { name: "Fit" }));
+    expect(drawing.getAttribute("viewBox")).toBe(whole);
+  });
+
   it("asks for a marked entity's row when it is activated by Enter, Space or pointer", () => {
     const { props } = mount();
     const removed = screen.getByRole("button", { name: /Node node:N-3/u });
@@ -99,8 +167,10 @@ describe("the comparison overlay mode", () => {
     expect(props.onActivate).toHaveBeenLastCalledWith("node:N-3", "node");
     fireEvent.keyDown(screen.getByRole("button", { name: /Support support:S-1/u }), { key: " " });
     expect(props.onActivate).toHaveBeenLastCalledWith("support:S-1", "support");
-    fireEvent.click(screen.getByRole("button", { name: /Pipe segment pipe:P-1/u }));
-    expect(props.onActivate).toHaveBeenLastCalledWith("pipe:P-1", "pipe_segment");
+    fireEvent.click(screen.getByRole("button", { name: /Node node:N-4/u }));
+    expect(props.onActivate).toHaveBeenLastCalledWith("node:N-4", "node");
+    // A context entity is not activated.
+    fireEvent.click(screen.getByTestId("comparison-overlay-entity-pipe:P-1"));
     expect(props.onActivate).toHaveBeenCalledTimes(3);
   });
 
@@ -108,6 +178,7 @@ describe("the comparison overlay mode", () => {
     const { props } = mount();
     const banner = screen.getByTestId("comparison-overlay-banner");
     expect(banner).toHaveTextContent("Comparison overlay. This is not the working model.");
+    expect(banner).toHaveTextContent("It is a schematic of the compared models in fixed views, not the three-dimensional viewport.");
     expect(banner).toHaveTextContent("It draws the later saved state, \"Revision\" (state:2), compared with the earlier saved state, \"Basis\" (state:1).");
     fireEvent.click(screen.getByRole("button", { name: "Leave the comparison overlay" }));
     expect(props.onLeave).toHaveBeenCalledTimes(1);
@@ -126,9 +197,17 @@ describe("the comparison overlay mode", () => {
   it("projects with the authoring viewport's presets, Y up", () => {
     expect(projectOverlayPoint({ x: 1, y: 2, z: 3 }, "front")).toEqual({ x: 1, y: -2 });
     expect(projectOverlayPoint({ x: 1, y: 2, z: 3 }, "top")).toEqual({ x: 1, y: 3 });
-    const iso = projectOverlayPoint({ x: 0, y: 1, z: 0 }, "iso");
-    expect(iso.x).toBeCloseTo(0);
-    expect(iso.y).toBeLessThan(0);
+    for (const view of ["iso", "iso-opposite"] as const) {
+      const up = projectOverlayPoint({ x: 0, y: 1, z: 0 }, view);
+      expect(up.x).toBeCloseTo(0);
+      expect(up.y).toBeLessThan(0);
+    }
+    // With Z up, a point above the origin along Z is drawn upward in Front view.
+    expect(projectOverlayPoint(upright({ x: 0, y: 0, z: 1 }, "z"), "front")).toEqual({ x: 0, y: -1 });
+    expect(upright({ x: 1, y: 2, z: 3 }, "y")).toEqual({ x: 1, y: 2, z: 3 });
+    // The opposite corner sees the model from behind: X runs the other way.
+    expect(Math.sign(projectOverlayPoint({ x: 1, y: 0, z: 0 }, "iso").x)).toBe(1);
+    expect(Math.sign(projectOverlayPoint({ x: 1, y: 0, z: 0 }, "iso-opposite").x)).toBe(-1);
   });
 });
 

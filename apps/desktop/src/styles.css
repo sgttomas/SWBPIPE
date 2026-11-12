@@ -4859,7 +4859,7 @@ body { min-width: 760px; min-height: 540px; }
 .workspace-pane-viewport:has(> .comparison-overlay) { position: relative; }
 .viewport-shell[data-comparison-overlay="true"] { visibility: hidden; }
 .comparison-overlay {
-  position: absolute; inset: 0; z-index: 1; display: grid; grid-template-rows: auto minmax(0, 1fr);
+  position: absolute; inset: 0; z-index: 1; display: grid; grid-template-rows: auto auto minmax(0, 1fr);
   background: var(--canvas-bg); color: var(--text-primary);
 }
 .comparison-overlay-banner {
@@ -4867,7 +4867,12 @@ body { min-width: 760px; min-height: 540px; }
   padding: var(--space-2) var(--space-4); background: var(--surface-raised); border-bottom: var(--border-width-hairline) solid var(--border-strong);
 }
 .comparison-overlay-banner > p { flex: 1 1 20rem; margin: 0; }
-.comparison-overlay-view { display: inline-flex; align-items: center; gap: var(--space-2); }
+.comparison-overlay-tools {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3);
+  padding: var(--space-1) var(--space-4); background: var(--surface-raised); border-bottom: var(--border-width-hairline) solid var(--border-hairline);
+}
+.comparison-overlay-view, .comparison-overlay-labels, .comparison-overlay-pan { display: inline-flex; align-items: center; gap: var(--space-1); }
+.comparison-overlay-drawing { touch-action: none; }
 .comparison-overlay-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(12rem, 18rem); min-height: 0; }
 .comparison-overlay-drawing { width: 100%; height: 100%; min-height: 0; }
 .comparison-overlay-legend { overflow: auto; padding: var(--space-2) var(--space-4); background: var(--surface-raised); border-left: var(--border-width-hairline) solid var(--border-hairline); }
@@ -4889,12 +4894,15 @@ body { min-width: 760px; min-height: 540px; }
 .comparison-overlay [data-swatch="changed"] { stroke: var(--cat-1); }
 .comparison-overlay [data-swatch="not-compared"] { stroke: var(--cat-7); }
 .comparison-overlay [data-swatch="unchanged"] { stroke: var(--canvas-pipe); }
-.comparison-overlay .comparison-overlay-glyph { stroke: none; fill: var(--canvas-label); font-family: var(--font-ui); font-weight: 600; }
+.comparison-overlay .comparison-overlay-glyph { stroke: var(--canvas-bg); stroke-width: 0; paint-order: stroke; fill: var(--canvas-label); font-family: var(--font-ui); font-weight: 600; }
 .comparison-overlay .comparison-overlay-glyph[data-swatch="added"] { fill: var(--cat-3); }
 .comparison-overlay .comparison-overlay-glyph[data-swatch="removed"] { fill: var(--cat-5); }
 .comparison-overlay .comparison-overlay-glyph[data-swatch="changed"] { fill: var(--cat-1); }
 .comparison-overlay .comparison-overlay-glyph[data-swatch="not-compared"] { fill: var(--cat-7); }
 .comparison-overlay-entity[data-ghost="true"] { opacity: 0.55; }
+.comparison-overlay .comparison-overlay-point[data-ghost="true"] { fill: none; }
+.comparison-overlay .comparison-overlay-halo { fill: var(--canvas-bg); stroke: var(--canvas-bg); stroke-width: 9px; stroke-linecap: round; }
+.comparison-overlay .comparison-overlay-label { stroke: var(--canvas-bg); stroke-width: 0; paint-order: stroke; fill: var(--canvas-label); font-family: var(--font-mono); }
 .comparison-overlay-entity[role="button"] { cursor: pointer; }
 .comparison-overlay-entity:focus-visible { outline: none; }
 .comparison-overlay-entity:focus-visible > :is(line, circle) { stroke: var(--canvas-selection); }
