@@ -20,10 +20,22 @@ needs:
     export profile whose external-execution policy is optional, user-owned harness metadata only.
   gating: true
 - from: DEL-10-05
-  when: Comparing SWBPIPE's results with the prover's
+  when: Comparing SWBPIPE's results with the prover's, or unsealing a capture
   condition: >-
     The headless runner solves a model document and returns the product's published result for it,
-    the same as the desktop's for the same request, with a unit on every quantity.
+    the same as the desktop's for the same request, with a unit on every quantity. For unsealing a
+    capture, each named result is accompanied by evidence produced as the maintained execution path
+    runs SWBPIPE and receives that result, binding the benchmark case's model, the complete request
+    actually solved and the result; both its origin and its binding can be verified against their
+    kept bytes.
+  gating: true
+- from: DEL-04-10
+  when: Unsealing a response-spectrum capture
+  condition: >-
+    The tolerance of the response-spectrum class stands in the release target's benchmark method,
+    which states that it was reported to the owner; it was set from frozen closed-form references
+    by agents with no access to the exchange folder, to any output of the prover or to anything
+    derived from one.
   gating: true
 - from: DEL-08-04
   when: Comparing SWBPIPE's results with the prover's
