@@ -2,6 +2,7 @@
 name = "open_pipe_stress_rule_pack_document"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 description = "Rule-pack document seam: production codec between the rule-pack JSON document encoding and the frozen DEC-022 expression AST, JCS checksum computation over pack documents, and document-level lifecycle validation. No text parsing of expressions, no protected content, no compliance claims."
 
 [dependencies]

@@ -2,6 +2,7 @@
 name = "open_pipe_stress_stress_benchmarks"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 description = "Original stress recovery verification benchmarks for OpenPipeStress"
 publish = false
 

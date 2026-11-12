@@ -241,7 +241,6 @@
     {
       "paths": [
         "LICENSE",
-        "LICENSE.md",
         "provenance/**"
       ],
       "checks": [
