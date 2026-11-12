@@ -5014,25 +5014,27 @@ export const PRECONDITION_TIMEOUT_MS = 10000;
 /** The refusal when a precondition throws, answers with anything but null or a text, or does not answer in time. */
 export const PRECONDITION_UNCHECKED_REASON = "Its precondition could not be checked.";
 
-/** The precondition's answer within `timeoutMs`: null, its refusal text, or the unchecked reason. A precondition that
- * never settles cannot hold the caller past the bound. */
-export async function checkBatchPrecondition(precondition: BatchPrecondition, timeoutMs: number = PRECONDITION_TIMEOUT_MS): Promise<string | null> {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  const bound = new Promise<string>((resolve) => { timer = setTimeout(() => resolve(PRECONDITION_UNCHECKED_REASON), timeoutMs); });
-  const answer = (async (): Promise<string | null> => {
-    try {
-      const result: unknown = await precondition();
-      if (result === null) return null;
-      return typeof result === "string" && result.trim() !== "" ? result : PRECONDITION_UNCHECKED_REASON;
-    } catch {
-      return PRECONDITION_UNCHECKED_REASON;
-    }
-  })();
-  try {
-    return await Promise.race([answer, bound]);
-  } finally {
-    clearTimeout(timer);
-  }
+/** The precondition's answer within `timeoutMs`: null, its refusal text, or the unchecked reason. The bound and the
+ * answer share one decision, made once: whichever comes first decides, and the other is dropped by `decide`. A
+ * precondition that never settles cannot hold the caller past the bound, and an answer that comes after the bound
+ * reaches nothing: the caller has already been given the refusal, and nothing else holds the answer. */
+export function checkBatchPrecondition(precondition: BatchPrecondition, timeoutMs: number = PRECONDITION_TIMEOUT_MS): Promise<string | null> {
+  return new Promise<string | null>((resolve) => {
+    let decided = false;
+    const decide = (value: string | null) => {
+      if (decided) return;
+      decided = true;
+      clearTimeout(timer);
+      resolve(value);
+    };
+    const timer = setTimeout(() => decide(PRECONDITION_UNCHECKED_REASON), timeoutMs);
+    Promise.resolve()
+      .then(() => precondition())
+      .then(
+        (result: unknown) => decide(result === null ? null : typeof result === "string" && result.trim() !== "" ? result : PRECONDITION_UNCHECKED_REASON),
+        () => decide(PRECONDITION_UNCHECKED_REASON)
+      );
+  });
 }
 
 /** The queue with entry `key`'s last-apply refusal set, or cleared when `refusal` is null. */

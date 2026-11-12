@@ -201,44 +201,119 @@ describe("a queued batch's precondition", () => {
   });
 });
 
-describe("a change of standing while the precondition is answering", () => {
-  it("a model revision change applies nothing and ends as a superseded run does", async () => {
+/** A batch queued with a precondition held open by the test, and an Apply started and waiting on it. */
+async function waitingApply(result: Session, batchId: string, value: string, options: Options = {}) {
+  const called = deferred<void>();
+  const answer = deferred<string | null>();
+  const entry = await queue(result, batchId, value, 1, { ...options, precondition: () => { called.resolve(); return answer.promise; } });
+  const before = history(result);
+  const applySpy = vi.spyOn(operationBatchService, "applyOperationBatch");
+  let running!: Promise<void>;
+  await act(async () => {
+    running = result.current.operations.handleRunOperationBatch(entry, true);
+    await called.promise;
+  });
+  expect(result.current.operations.operationRequest.current.busy).toBe(true);
+  /** Answers null, as a precondition that holds does, and waits for the run to end. */
+  const holds = async () => { await act(async () => { answer.resolve(null); await running; }); };
+  return { entry, before, applySpy, holds };
+}
+
+describe("the gates after the precondition's wait (each with a held answer that then holds)", () => {
+  it("the model's revision changed during the wait: nothing applied, ending as a superseded run does", async () => {
     const result = await session();
-    const called = deferred<void>();
-    const answer = deferred<string | null>();
-    const entry = await queue(result, "batch:revised", "9.5", 1, { precondition: () => { called.resolve(); return answer.promise; } });
-    const applySpy = vi.spyOn(operationBatchService, "applyOperationBatch");
-    let running!: Promise<void>;
-    await act(async () => {
-      running = result.current.operations.handleRunOperationBatch(entry, true);
-      await called.promise;
-    });
-    // A new blank project publishes another model (the revision moves) while the precondition is answering.
+    const { applySpy, holds } = await waitingApply(result, "batch:revised", "9.5");
+    const revision = result.current.model.modelRevision.current;
+    // A model publication moves the revision (and, like every publication, supersedes the running request). With the
+    // operation route busy, the only publications the session admits during the wait are project operations.
     await act(async () => { await result.current.project.handleCreateBlankProject(); });
-    await waitFor(() => expect(result.current.model.model!.project.id).not.toBe(reconnectModel().project.id));
-    await act(async () => { answer.resolve(null); await running; });
+    await waitFor(() => expect(result.current.model.modelRevision.current).not.toBe(revision));
+    await holds();
     expect(applySpy).not.toHaveBeenCalled();
     expect(result.current.operations.batchReceipts).toHaveLength(0);
     expect(result.current.operations.batchMessage ?? "").not.toMatch(/^Batch applied once/);
   });
 
-  it("a registration withdrawn during the wait applies nothing when the precondition then answers null", async () => {
+  it("the request superseded during the wait: nothing applied, the batch still queued", async () => {
+    const result = await session();
+    const { entry, before, applySpy, holds } = await waitingApply(result, "batch:superseded", "10.5");
+    // A superseding request takes the next request sequence number, as every model publication and the queue's clear do.
+    result.current.operations.operationRequest.current.sequence += 1;
+    await holds();
+    expect(applySpy).not.toHaveBeenCalled();
+    expect(history(result)).toEqual(before);
+    expect(result.current.operations.queuedBatches.map((queued) => queued.key)).toEqual([entry.key]);
+  });
+
+  it("the registration withdrawn during the wait: nothing applied (an agent owner's withdraw is refused while its batch applies)", async () => {
+    // The agent owner's withdraw (workspaceSession's agent owner, `withdraw`) refuses a key whose batch is applying, so
+    // it cannot withdraw during the wait; the withdrawal the session makes during a wait is the queue's clear, which
+    // revokes every registration.
+    const result = await session();
+    const { before, applySpy, holds } = await waitingApply(result, "batch:withdrawn", "11.5");
+    act(() => result.current.operations.handleClearReviewQueue());
+    await holds();
+    expect(applySpy).not.toHaveBeenCalled();
+    expect(history(result)).toEqual(before);
+    expect(result.current.operations.queuedBatches).toHaveLength(0);
+  });
+
+  it("the queue cleared or the entry retired during the wait: nothing applied", async () => {
+    const result = await session();
+    const { entry, applySpy, holds } = await waitingApply(result, "batch:retired", "12.5");
+    // A new project retires every registration prepared on the earlier model and clears the queue.
+    await act(async () => { await result.current.project.handleCreateBlankLoadStateProject(); });
+    await waitFor(() => expect(result.current.model.model!.project.id).not.toBe(reconnectModel().project.id));
+    await holds();
+    expect(applySpy).not.toHaveBeenCalled();
+    expect(result.current.operations.queuedBatches.some((queued) => queued.key === entry.key && !queued.retired)).toBe(false);
+  });
+
+  it("the project session replaced during the wait: nothing applied to either project", async () => {
+    const result = await session();
+    const { applySpy, holds } = await waitingApply(result, "batch:replaced", "13.5");
+    await act(async () => { await result.current.project.handleCreateBlankProject(); });
+    await waitFor(() => expect(result.current.model.model!.project.id).not.toBe(reconnectModel().project.id));
+    const blank = structuredClone(result.current.model.model);
+    await holds();
+    expect(applySpy).not.toHaveBeenCalled();
+    expect(result.current.model.model).toEqual(blank);
+    expect(result.current.operations.undoStack).toHaveLength(0);
+  });
+
+  // No run is cancelled: the session has no cancel for a batch apply (cancellation exists for solves only).
+
+  it("the late answer: a precondition that answers null after the bound has refused applies nothing, then or afterwards", async () => {
     const result = await session();
     const called = deferred<void>();
     const answer = deferred<string | null>();
-    const entry = await queue(result, "batch:withdrawn", "10.5", 1, { precondition: () => { called.resolve(); return answer.promise; } });
+    const entry = await queue(result, "batch:late", "14.5", 1, { precondition: () => { called.resolve(); return answer.promise; } });
     const before = history(result);
     const applySpy = vi.spyOn(operationBatchService, "applyOperationBatch");
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
     let running!: Promise<void>;
     await act(async () => {
       running = result.current.operations.handleRunOperationBatch(entry, true);
       await called.promise;
     });
-    act(() => result.current.operations.handleClearReviewQueue());
-    await act(async () => { answer.resolve(null); await running; });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(PRECONDITION_TIMEOUT_MS + 1);
+      await running;
+    });
+    vi.useRealTimers();
+    expect(result.current.operations.batchMessage).toBe(`Batch batch:late was not applied. ${PRECONDITION_UNCHECKED_REASON}`);
+    expect(entryOf(result, entry.key).lastApplyRefusal).toEqual({ kind: "precondition", reason: PRECONDITION_UNCHECKED_REASON });
+
+    // The answer arrives late, saying the condition holds.
+    await act(async () => {
+      answer.resolve(null);
+      for (let flush = 0; flush < 20; flush += 1) await Promise.resolve();
+    });
+    await new Promise((settle) => setTimeout(settle, 50));
     expect(applySpy).not.toHaveBeenCalled();
     expect(history(result)).toEqual(before);
-    expect(result.current.operations.queuedBatches).toHaveLength(0);
+    expect(result.current.operations.operationRequest.current.busy).toBe(false);
+    expect(entryOf(result, entry.key).lastApplyRefusal?.reason).toBe(PRECONDITION_UNCHECKED_REASON);
   });
 });
 
