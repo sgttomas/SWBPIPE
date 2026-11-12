@@ -1,16 +1,16 @@
-"""Two-way benchmark comparison: SWBPIPE's own results against CAEPIPE's printed results (RT-V2).
+"""Two-way benchmark comparison: SWBPIPE's own results against CAEPIPE's printed results (DEL-17-05).
 
 `build_benchmark_record` compares, for every load case the MBF writer mapped and for the operating case, every
 displacement, rotation, element end force and moment, and support load SWBPIPE solved with the value CAEPIPE
 printed, bound through the writer's id maps (nodes, members by `bind_element_rows`, supports by node). No analytic
-value is needed. Each scalar is screened against the RT-V2 §3 screening profile and classified as
-`within_profile`, `finding`, `unmatched` or `status_mismatch`. A closed-form value the benchmark model carries is
-kept as the third value with its own checks.
+value is needed. Each scalar is screened against the screening profile of the "Benchmark method" section of
+docs/RELEASE_TARGET_v1.0.md and classified as `within_profile`, `finding`, `unmatched` or `status_mismatch`. A
+closed-form value the benchmark model carries is kept as the third value with its own checks.
 
-The record is built from CAEPIPE output and is private (Design §8): it stays in the exchange folder. It is
-screening evidence for Agent 0 and the owner's review of the full record, not validation, compatibility proof,
-code compliance or professional acceptance. The screening profile is a proposal under RT-V2 §3; the owner's review
-of the full record decides, not the profile.
+The record is built from CAEPIPE output and is private (docs/IP_AND_DATA_BOUNDARY.md §6.2): it stays in the exchange
+folder. It is screening evidence for Agent 0 and the owner's review of the full record, not validation,
+compatibility proof, code compliance or professional acceptance. The screening profile is a proposal under that
+Benchmark method; the owner's review of the full record decides, not the profile.
 """
 
 from __future__ import annotations
@@ -36,14 +36,17 @@ CLASSIFICATIONS = (WITHIN, FINDING, UNMATCHED, STATUS_MISMATCH)
 
 EXACT = "exact"
 NAMED_INEXACT = "named_inexact"
-# RT-V2 §3 screening profile (docs/RELEASE_TARGET_v1.0.md): relative tolerance by class, plus one printed unit of
-# each result kind as the floor, with scalars below eta of their kind's case maximum judged against that scale.
+# The screening profile of the "Benchmark method" section of docs/RELEASE_TARGET_v1.0.md: relative tolerance by
+# class, plus one printed unit of each result kind as the floor, with scalars below eta of their kind's case maximum
+# judged against that scale.
 SCREENING_PROFILE = {
-    "basis": ("RT-V2 section 3 screening profile, proposed by the validation lane; the owner's review of the full "
-              "record decides, not the profile; values are only tightened"),
+    "basis": ("screening profile of the Benchmark method section of docs/RELEASE_TARGET_v1.0.md, proposed by the "
+              "validation lane; the owner's review of the full record decides, not the profile; values are only "
+              "tightened"),
     "relative": {EXACT: 1.0e-4, NAMED_INEXACT: 5.0e-3},
     "floor": {"m": 1.0e-6, "rad": math.radians(1.0e-4), "N": 1.0, "N*m": 1.0},
-    "floor_basis": "one printed unit of the CSV per kind: 0.001 mm, 0.0001 deg, 1 N, 1 N*m (Design section 7)",
+    "floor_basis": ("one printed unit of the CSV per kind: 0.001 mm, 0.0001 deg, 1 N, 1 N*m; the printed resolution "
+                    "of the result file, observed format behaviour"),
     "near_zero_fraction": 1.0e-3,
     "rule": "|S - C| <= floor_k + r * max(|S|, |C|, near_zero_fraction * Q_k); Q_k the case maximum of kind k",
 }
