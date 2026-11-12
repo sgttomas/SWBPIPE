@@ -34,14 +34,23 @@ const after = (intent: EditorOperationIntent) => JSON.parse(intent.change.after)
 async function mount(selection: EntityRef) {
   route.current = { route: "tauri_unit_catalog", catalog: unitCatalogFixture() };
   const queue = vi.fn<(intent: EditorOperationIntent) => void>();
-  render(
+  const tree = (model: PreviewModel, projectSessionGeneration: number) => (
     <DisplayUnitsProvider initialPreference="SI">
-      <PropertyInspector model={demo()} selection={selection} onQueueIntent={queue} />
+      <PropertyInspector model={model} selection={selection} onQueueIntent={queue} projectSessionGeneration={projectSessionGeneration} />
     </DisplayUnitsProvider>
   );
+  const view = render(tree(demo(), 1));
   await waitFor(() => expect(byId("property-unit-catalog-status")).not.toHaveTextContent("loading"));
   const intents = () => queue.mock.calls.map(([intent]) => intent);
-  return { intents };
+  /** The same project session with a changed model, or a new session (another project). */
+  const rerender = (model: PreviewModel, projectSessionGeneration = 1) => view.rerender(tree(model, projectSessionGeneration));
+  return { intents, rerender };
+}
+
+function withLength(length: string): PreviewModel {
+  const model = demo();
+  model.project.units = { ...model.project.units, length } as PreviewModel["project"]["units"];
+  return model;
 }
 
 describe("New section: the source and the length unit are the user's own", () => {
@@ -120,3 +129,54 @@ describe("New material and New support: the source is the user's own", () => {
     expect(byId("create-component-provenance")).toHaveValue("");
   });
 });
+
+describe("New section: a unit the user did not change follows the project units (DEL-02-02 REQ-022)", () => {
+  it("an untouched unit follows a mid-session change of the project length unit, before and after a queue", async () => {
+    const { intents, rerender } = await mount({ type: "project", id: "project:invented-demo" });
+    expectFormControlValue(byId("create-section-length-unit"), "m");
+    rerender(withLength("mm"));
+    expectFormControlValue(byId("create-section-length-unit"), "mm");
+    type("create-section-od", "270");
+    type("create-section-wall", "9");
+    type("create-section-provenance", "source A");
+    fireEvent.click(byId("queue-create-section-intent"));
+    expect(intents()[0].change.unit).toBe("mm");
+    rerender(withLength("in"));
+    expectFormControlValue(byId("create-section-length-unit"), "in");
+  });
+
+  it("a unit the user changed is kept for the next section, also across a project-unit change", async () => {
+    const { intents, rerender } = await mount({ type: "project", id: "project:invented-demo" });
+    chooseCompactOption(byId("create-section-length-unit"), "mm");
+    type("create-section-od", "270");
+    type("create-section-wall", "9");
+    type("create-section-provenance", "source A");
+    fireEvent.click(byId("queue-create-section-intent"));
+    expect(intents()[0].change.unit).toBe("mm");
+    rerender(withLength("in"));
+    expectFormControlValue(byId("create-section-length-unit"), "mm");
+  });
+});
+
+describe("the user's text never crosses projects", () => {
+  it("a new project session starts every inspector creation form empty and the section unit in the new project's unit", async () => {
+    const { rerender } = await mount({ type: "node", id: "node:N-110" });
+    chooseCompactOption(byId("create-section-length-unit"), "mm");
+    type("create-section-od", "270");
+    type("create-section-wall", "9");
+    type("create-section-provenance", "section source");
+    fireEvent.click(byId("queue-create-section-intent"));
+    type("create-material-provenance", "material source");
+    type("create-support-provenance", "support source");
+    type("create-component-source", "geometry source");
+    type("create-component-provenance", "component source");
+    expect(byId("create-section-provenance")).toHaveValue("section source");
+
+    rerender(withLength("m"), 2);
+    for (const field of ["create-section-provenance", "create-material-provenance", "create-support-provenance", "create-component-source", "create-component-provenance"]) {
+      expect(byId(field)).toHaveValue("");
+    }
+    expectFormControlValue(byId("create-section-length-unit"), "m");
+  });
+});
+

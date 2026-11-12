@@ -1677,6 +1677,15 @@ export function PipeViewport({
     cancelBoxSelection();
   }, [activeModelIndex.sessionGeneration]);
 
+  // The user's text never crosses projects: a new project session starts the component
+  // form afresh, its sources empty (PRD §5.5; DEL-07-03 AC-001).
+  const componentSessionRef = useRef(activeModelIndex.sessionGeneration);
+  useLayoutEffect(() => {
+    if (componentSessionRef.current === activeModelIndex.sessionGeneration) return;
+    componentSessionRef.current = activeModelIndex.sessionGeneration;
+    setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
+  }, [activeModelIndex.sessionGeneration]);
+
   useEffect(() => {
     setMeasurementSource(null);
     setMeasurementActive(false);

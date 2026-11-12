@@ -66,4 +66,5 @@ checks:
 - apps/desktop/src/features/project-units/projectUnitsCheckpoint.test.tsx
 - apps/desktop/src/features/model-tree/missingProjectUnitEditors.test.tsx
 - apps/desktop/src/features/model-tree/sliceCUnitDefaults.test.tsx
+- apps/desktop/src/features/model-tree/entrySources.test.tsx
 - apps/desktop/src/features/exportProjectUnitRefusal.test.tsx

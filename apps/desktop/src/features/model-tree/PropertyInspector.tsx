@@ -121,7 +121,7 @@ export function PropertyInspector({
   const [chosenUnit, setChosenUnit] = useState<string | null>(null);
   const chooseProposedUnit = (unit: string) => setChosenUnit(unit);
   const [rationale, setRationale] = useState("user_entered_preview_change");
-  const [sectionDraft, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
+  const [sectionDraftState, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
   const [materialDraftState, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
   const [supportDraftState, setSupportDraft] = useState(() => defaultSupportDraft(model, selection, queuedIntents));
   const [componentDraft, setComponentDraft] = useState(() =>
@@ -135,6 +135,10 @@ export function PropertyInspector({
   // Default-sourced composed units follow the current project's rule on every render
   // (W-17 §2.4), so a replaced project, a project-unit change or a catalog that arrives
   // later never leaves an inherited unit in place. Explicit choices are kept.
+  // A section unit the user did not change follows the project's length unit (DEL-02-02 REQ-022).
+  const sectionDraft: SectionDraft = sectionDraftState.lengthUnitSource === "default"
+    ? { ...sectionDraftState, lengthUnit: lengthUnit(model) }
+    : sectionDraftState;
   const materialDraft: MaterialDraft = materialDraftState.thermalExpansionUnitSource === "default"
     ? { ...materialDraftState, thermalExpansionUnit: thermalExpansionUnit(model, unitCatalogRoute) }
     : materialDraftState;
@@ -418,16 +422,17 @@ export function PropertyInspector({
   function handleQueueSectionIntent() {
     if (multiSelection || !sectionCreateIntent) return;
     onQueueIntent(sectionCreateIntent);
-    // The user's own last length unit and source stay, shown and editable, in place of the project unit.
+    // The user's own last source stays, shown and editable; so does a length unit the
+    // user changed. An unchanged unit keeps following the project units (DEL-02-02 REQ-022).
     setSectionDraft({
       ...defaultSectionDraftWithReserved(model, [...queuedIntents, sectionCreateIntent]),
-      lengthUnit: sectionDraft.lengthUnit,
+      ...(sectionDraft.lengthUnitSource === "user" ? { lengthUnit: sectionDraft.lengthUnit, lengthUnitSource: "user" as const } : {}),
       provenance: sectionDraft.provenance
     });
   }
 
   function updateSectionDraft<K extends keyof SectionDraft>(key: K, value: SectionDraft[K]) {
-    setSectionDraft((current) => ({ ...current, [key]: value }));
+    setSectionDraft((current) => ({ ...current, [key]: value, ...(key === "lengthUnit" ? { lengthUnitSource: "user" as const } : {}) }));
   }
 
   function updateMaterialDraft<K extends keyof MaterialDraft>(key: K, value: MaterialDraft[K]) {
@@ -1307,6 +1312,8 @@ type SectionDraft = {
   name: string;
   sectionType: string;
   lengthUnit: string;
+  /** "user" once the user changes the unit; a "default" unit follows the project units. */
+  lengthUnitSource: "default" | "user";
   outsideDiameter: string;
   wallThickness: string;
   provenance: string;
@@ -3103,6 +3110,7 @@ function defaultSectionDraftWithReserved(model: PreviewModel, queuedIntents: Edi
     name: `Section ${shortEntityToken(id)}`,
     sectionType: "pipe",
     lengthUnit: lengthUnit(model),
+    lengthUnitSource: "default",
     outsideDiameter: "",
     wallThickness: "",
     // The source is the user's own statement: it starts empty (PRD §5.5; DEL-07-03 AC-001).
