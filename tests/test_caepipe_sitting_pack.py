@@ -11,6 +11,7 @@ import builtins
 import contextlib
 import hashlib
 import io
+import itertools
 import json
 import os
 from pathlib import Path
@@ -253,7 +254,7 @@ def test_prepare_ingest_offline_screen_for_a_guest_script_result(sitting, capsys
     assert record["mbf"]["sha256"] == record["guest_mbf_sha256"] == item["mbf"]["sha256"]
     intake = json.loads((out / sitting_pack.INTAKE_RECORD).read_text(encoding="utf-8"))
     assert intake["bound"] is True and intake["document_kind"] == sitting_pack.INTAKE_KIND
-    assert (out / "model.csv").read_text(encoding="utf-8") == invented_print()
+    assert (out / "model.csv").read_bytes() == invented_print().encode("utf-8")
     # Ingesting the same pack again changes nothing.
     assert sitting_pack.ingest_pack(sitting["pack"], sitting["root"], selected=["cpb-g1-01"])
     assert "already_placed" in capsys.readouterr().out
@@ -430,8 +431,11 @@ def test_the_offline_screen_and_the_regression_check_pass_over_a_sealed_capture(
     assert reads.log == [] and reads.parser_calls == []
 
 
+_RESULTS = itertools.count()
+
+
 def swbpipe_result(tmp_path: Path, model_id: str, model: dict, solved: bool = True, tag: str = "") -> Path:
-    directory = tmp_path / f"swbpipe-{model_id}-{solved}{tag}"
+    directory = tmp_path / f"swbpipe-{model_id}-{solved}-{tag}-{next(_RESULTS)}"
     directory.mkdir()
     (directory / "request.json").write_text(json.dumps({"request": run_pilot.runner_request(model_id),
                                                         "solve": {"preview_model": {"model": model}}, "tag": tag}),
