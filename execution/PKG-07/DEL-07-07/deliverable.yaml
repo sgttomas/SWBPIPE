@@ -191,6 +191,8 @@ checks:
 - apps/desktop/src/services/solveTimelineCodes.test.ts
 - apps/desktop/src/services/solveTimelineGlobal.gate.test.ts
 - apps/desktop/src/services/solveTimelineGlobal.install.test.ts
+- apps/desktop/src/features/workspace/solveTimelineGate.session.test.tsx
+- apps/desktop/src/features/workspace/nativeSolveFirstPaint.session.test.tsx
 - apps/desktop/src-tauri/src/diagnostics_presentation_tests.rs
 - apps/desktop/src/features/diagnostics/DiagnosticsPanel.supplied.test.tsx
 - apps/desktop/src/features/diagnostics/DiagnosticsPanel.native.supplied.test.tsx

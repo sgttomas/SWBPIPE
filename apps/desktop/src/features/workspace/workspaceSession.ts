@@ -72,7 +72,7 @@ import {
 } from "../../services/nativePersistence";
 import type { AnalysisRunPreview } from "../../services/analysisRunPreview";
 import type { C2FullResult } from "../results/C2ResultGate";
-import { beginSolveTimeline, markSolveCommittedAndPaint, traceNativeReaderAwait } from "../../services/solveTimeline";
+import { beginSolveTimeline, markSolveCommittedAndPaint, traceNativeReaderAwait, type SolveTimelineHandle } from "../../services/solveTimeline";
 import { IngressRequestRetiredError, nativeFailureText } from "../../services/nativeIngress";
 import {
   buildBlankLocalModelDocument,
@@ -1224,19 +1224,24 @@ export function useWorkspaceSession() {
    * run is reused, so an open gate adds no await before the solve starts. While
    * the checks run the session reads as running, from the Solve request on as
    * before the gate (the progress panel's run starts there, and Cancel reaches
-   * the check); a solve that does not start leaves it as it was. */
-  function solveGateAllows(runGeneration: number): boolean | Promise<boolean> {
+   * the check); a solve that does not start leaves it as it was. RT-U4, observation
+   * only: `timeline` (begun at the run request) marks `checks_done` when the check
+   * ends, and a request that does not proceed ends it as refused (withheld),
+   * cancelled or superseded. */
+  function solveGateAllows(runGeneration: number, timeline: SolveTimelineHandle): boolean | Promise<boolean> {
     if (!model) return true; // The solve's own refusal of no model stands.
-    const settle = (reading: SolveGateReading) => {
+    const settle = (reading: SolveGateReading, ran: boolean) => {
+      timeline.mark("checks_done", { ran, blocking_findings: reading.kind === "withheld" ? reading.findings.length + reading.notListedBlocking : 0 });
       if (reading.kind !== "withheld") {
         solveLastWithheld.current = false;
         return true;
       }
+      timeline.refuse("SOLVE-WITHHELD-MODEL-CHECKS");
       solveRunGate.current.finish(runGeneration);
       setIssuesDrawerOpen(true);
       return false;
     };
-    if (modelCheckRun?.model === model) return settle(readSolveGate(model, modelCheckRun));
+    if (modelCheckRun?.model === model) return settle(readSolveGate(model, modelCheckRun), false);
     const checked = model;
     const revision = modelRevision.current;
     const shownJob = solveJob;
@@ -1245,9 +1250,12 @@ export function useWorkspaceSession() {
       && modelRevision.current === revision;
     setRunning(true);
     return runModelChecksRequest(checked, stillWanted).then((run) => {
-      if (run && stillWanted() && settle(readSolveGate(checked, run))) return true;
+      if (run && stillWanted() && settle(readSolveGate(checked, run), true)) return true;
       // A cancel request during the check leaves the job shown before it.
-      if (solveRunGate.current.isCancellationRequested(runGeneration)) setSolveJob(shownJob);
+      const cancelled = solveRunGate.current.isCancellationRequested(runGeneration);
+      if (cancelled) setSolveJob(shownJob);
+      // A no-op once a withheld solve's refusal ended the timeline.
+      timeline.end(cancelled ? "cancelled" : "superseded");
       // Running is released unless a later solve holds it now.
       const holder = solveRunGate.current.current();
       if (holder === null || holder === runGeneration) setRunning(false);
@@ -1259,10 +1267,11 @@ export function useWorkspaceSession() {
   async function handleRunWithAgentReceipt(): Promise<AgentRunReceipt | undefined> {
     const runGeneration = solveRunGate.current.tryStart();
     if (runGeneration === null) return;
-    const gate = solveGateAllows(runGeneration);
-    if (gate !== true && !(await gate)) return;
-    // RT-U4: observation only (solveTimeline.ts); the run's path is unchanged.
+    // RT-U4: observation only (solveTimeline.ts); the run's path is unchanged. The timeline
+    // begins at the run request, before the gate, whose check it marks (DEL-04-05, "The clock").
     const timeline = beginSolveTimeline({ solver_mode: solverMode });
+    const gate = solveGateAllows(runGeneration, timeline);
+    if (gate !== true && !(await gate)) return;
     invalidateReportPackageComputedState();
     ruleRevisionGate.current.invalidate();
     solveCancellationTombstones.current.set(runGeneration, {

@@ -11,7 +11,8 @@
 //
 // Sources:
 // - solve path: code-led string literals of the webview's solve, take, decode, parse and
-//   registration modules, of `handleRunWithAgentReceipt` (workspaceSession.ts), and of the native
+//   registration modules, of `handleRunWithAgentReceipt` and the Solve command's gate before it
+//   (`solveGateAllows`, workspaceSession.ts), and of the native
 //   solve job (`solve_jobs.rs`, `solve_worker.rs`, outside their tests, and the
 //   `start_preview_mechanics_job` command in lib.rs);
 // - reader verdicts: the code literals of `reader_verdict.rs` and `physics_evidence.rs` (the latter's
@@ -70,6 +71,7 @@ export function extractSolveTimelineCodes() {
   const solvePath = [
     ...SOLVE_PATH_TS.flatMap((file) => codesIn(read(file))),
     ...codesIn(between(read("apps/desktop/src/features/workspace/workspaceSession.ts"), "async function handleRunWithAgentReceipt", "\n  async function ", "handleRun")),
+    ...codesIn(between(read("apps/desktop/src/features/workspace/workspaceSession.ts"), "function solveGateAllows", "async function handleRunWithAgentReceipt", "solve gate")),
     ...SOLVE_PATH_RUST.flatMap((file) => codesIn(outsideTests(read(file)))),
     ...codesIn(between(read("apps/desktop/src-tauri/src/lib.rs"), "async fn start_preview_mechanics_job", "fn get_memory_pool_status", "start command"))
   ];

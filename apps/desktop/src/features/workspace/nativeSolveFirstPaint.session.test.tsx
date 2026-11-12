@@ -99,7 +99,7 @@ const menu = (detail: string) => act(() => { window.dispatchEvent(new CustomEven
 const results = () => screen.getByTestId("workspace-section-results");
 const stages = () => readSolveTimeline()?.marks.map((mark) => mark.stage) ?? [];
 const rowShown = () => results().querySelector("[data-testid^='result-row-']") !== null;
-const ORDER: readonly SolveStage[] = ["solve_requested", "job_started", "job_done", "reader_verdict_start", "reader_verdict_end", "analysis_run_built", "result_set", "result_committed", "first_paint"];
+const ORDER: readonly SolveStage[] = ["solve_requested", "checks_done", "job_started", "job_done", "reader_verdict_start", "reader_verdict_end", "analysis_run_built", "result_set", "result_committed", "first_paint"];
 
 /** Analyze → Run (which shows Solve), then Results once the solve has begun: the driver's order. */
 async function runThenOpenResults() {

@@ -140,6 +140,32 @@ describe("the latest solve's timeline (RT-U4)", () => {
     expect(timeline.marks.map((mark) => mark.stage)).toEqual(["solve_requested", "job_started"]);
   });
 
+  it("keeps the gate's check detail and records a withheld request's refusal code at checks_done", () => {
+    const run = beginSolveTimeline({ solver_mode: "sparse_interactive" });
+    run.mark("checks_done", { ran: true, blocking_findings: 2, code: "MATERIAL_INPUT_MISSING", entity: "pipe:P-100" });
+    run.refuse("SOLVE-WITHHELD-MODEL-CHECKS");
+    run.end("superseded");
+    const timeline = readSolveTimeline()!;
+    expect(timeline.outcome).toBe("refused");
+    expect(timeline.marks.map((mark) => [mark.stage, mark.detail])).toEqual([
+      ["solve_requested", { solver_mode: "sparse_interactive" }],
+      ["checks_done", { ran: true, blocking_findings: 2 }]
+    ]);
+    expect(timeline.failure).toMatchObject({ stage: "checks_done", code: "SOLVE-WITHHELD-MODEL-CHECKS", error_name: null });
+    // A code off the table is dropped; a refusal after another end, or from a superseded run, changes nothing.
+    const other = beginSolveTimeline();
+    other.refuse("SOLVE_WITHHELD_FOR_EXAMPLE_CUSTOMER");
+    expect(readSolveTimeline()!.failure).toMatchObject({ stage: "solve_requested", code: null });
+    const ended = beginSolveTimeline();
+    ended.end("cancelled");
+    ended.refuse("SOLVE-WITHHELD-MODEL-CHECKS");
+    expect(readSolveTimeline()).toMatchObject({ outcome: "cancelled", failure: null });
+    const older = beginSolveTimeline();
+    beginSolveTimeline();
+    older.refuse("SOLVE-WITHHELD-MODEL-CHECKS");
+    expect(readSolveTimeline()).toMatchObject({ outcome: "running", failure: null });
+  });
+
   it("marks the commit of the solve's result, then its first paint after two frames", () => {
     const frames: FrameRequestCallback[] = [];
     vi.stubGlobal("requestAnimationFrame", (callback: FrameRequestCallback) => { frames.push(callback); return frames.length; });
