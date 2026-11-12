@@ -171,23 +171,25 @@ def test_the_independence_rule_catches_ordinary_access_in_other_forms(source, ex
     assert sorted(f.kind for f in RI.independence_findings(source, "probe.py")) == expected
 
 
-@pytest.mark.parametrize("module", ["subprocess", "multiprocessing", "ctypes", "platform", "builtins", "code", "pickle", "socket"])
+@pytest.mark.parametrize("module", ["subprocess", "multiprocessing", "ctypes", "platform", "shutil", "builtins", "code",
+                                    "pickle", "socket"])
 def test_a_standard_library_module_off_the_allowed_list_is_refused(module):
     assert ("stdlib", module) in kinds(f"import {module}")
 
 
-def test_the_rules_import_list_is_the_twelve_and_the_rest_is_marked_provisional():
-    assert set(RI.ALLOWED_STDLIB_REASONS) == {"argparse", "concurrent", "decimal", "fractions", "hashlib", "json", "math",
-                                              "os", "pathlib", "struct", "sys", "time"}
-    assert RI.ALLOWED_STDLIB == frozenset(RI.ALLOWED_STDLIB_REASONS) | frozenset(RI.PROVISIONAL_STDLIB_REASONS)
-    assert not set(RI.ALLOWED_STDLIB_REASONS) & set(RI.PROVISIONAL_STDLIB_REASONS)
+def test_the_import_list_is_the_decided_twenty_two():
+    assert RI.ALLOWED_STDLIB == frozenset(RI.ALLOWED_STDLIB_REASONS) == {
+        "argparse", "concurrent", "decimal", "fractions", "hashlib", "json", "math", "os", "pathlib", "struct", "sys", "time",
+        "__future__", "ast", "collections", "copy", "dataclasses", "itertools", "random", "re", "tempfile", "traceback"}
+    assert RI.BY_SITE_STDLIB == {"subprocess", "multiprocessing", "platform", "importlib", "shutil"}
+    assert not RI.ALLOWED_STDLIB & RI.BY_SITE_STDLIB
 
 
 def test_every_allowed_standard_library_module_carries_its_reason_and_none_loads_code():
-    reasons = {**RI.ALLOWED_STDLIB_REASONS, **RI.PROVISIONAL_STDLIB_REASONS}
+    reasons = RI.ALLOWED_STDLIB_REASONS
     assert all(reason.strip() for reason in reasons.values())
-    assert not RI.ALLOWED_STDLIB & (RI.FORBIDDEN_MODULES | {"subprocess", "multiprocessing", "ctypes", "platform",
-                                                          "builtins", "code", "codeop", "pickle", "marshal", "socket"})
+    assert not RI.ALLOWED_STDLIB & (RI.FORBIDDEN_MODULES | RI.BY_SITE_STDLIB | {"ctypes", "builtins", "code", "codeop",
+                                                                             "pickle", "marshal", "socket"})
     assert RI.ALLOWED_STDLIB <= frozenset(sys.stdlib_module_names)
 
 
@@ -361,3 +363,49 @@ def test_a_sibling_module_is_scanned_by_scan_package_but_not_by_a_single_file_ju
     assert {f.key for f in RI.independence_findings((root / "script.py").read_text(), "script.py")} == {"helper"}
     problems = RI.scan_package(root, RI.Allowances(siblings={"helper": "the script's helper"}))
     assert problems == ["helper.py:1: imports core, neither standard library nor allowed"], problems
+
+
+# ---------------------------------------------------------------------------------- conditions
+
+@pytest.mark.parametrize("source", [
+    "import ast\ntree = ast.parse('x = 1')\nnames = [n for n in ast.walk(tree) if isinstance(n, (ast.Import, ast.ImportFrom))]\n",
+    "from ast import parse, walk, Name\n",
+    "import ast as a\na.iter_child_nodes(a.parse('x'))\n",
+])
+def test_ast_is_allowed_for_reading_source(source):
+    assert kinds(source) == set()
+
+
+@pytest.mark.parametrize("source, key", [
+    ("import ast\nast.literal_eval('1')\n", ("condition", "ast.literal_eval")),
+    ("from ast import literal_eval\n", ("condition", "ast.literal_eval")),
+    ("import ast\ncode = compile(ast.parse('x = 1'), 'f', 'exec')\n", ("facility", "compile")),
+    ("import ast\nexec(compile(ast.parse('x = 1'), 'f', 'exec'))\n", ("facility", "exec")),
+])
+def test_ast_beyond_reading_is_a_finding(source, key):
+    """The ast allowance is of reading: compile and exec stay refused, and so does anything else of ast."""
+    assert key in kinds(source)
+
+
+@pytest.mark.parametrize("source", [
+    "import random\nrng = random.Random(20261101)\nx = rng.random()\n",
+    "from random import Random\nrng = Random(seed=3)\n",
+    "import random as r\nrng = r.Random(7)\n",
+])
+def test_a_seeded_random_generator_is_allowed(source):
+    assert kinds(source) == set()
+
+
+@pytest.mark.parametrize("source, key", [
+    ("import random\nx = random.random()\n", "random.random"),
+    ("import random\nrandom.seed(1)\n", "random.seed"),
+    ("import random\nx = random.choice([1, 2])\n", "random.choice"),
+    ("import random\nrng = random.SystemRandom()\n", "random.SystemRandom"),
+    ("import random\nrng = random.Random()\n", "random.Random()"),
+    ("from random import Random\nrng = Random()\n", "random.Random()"),
+    ("from random import shuffle\n", "random.shuffle"),
+    ("from random import SystemRandom\n", "random.SystemRandom"),
+])
+def test_an_unseeded_random_use_is_a_finding(source, key):
+    """A reference is reproducible or it is not a reference."""
+    assert ("condition", key) in kinds(source)

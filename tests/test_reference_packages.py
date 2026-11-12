@@ -117,8 +117,8 @@ KD5T_REPRODUCTION = (
     "reproduces: kd5t_engine.py --check passes, and the 964-model set, its controls and the 64-model frozen subset "
     "regenerate to their pins (kd5t_generate.py check, m3_judge/m3_reproduce.py); kd5t_generate.py check then exits 1 "
     "on the shared M3 judge's self-test (m3_judge's stale runner/Cargo.lock line, the schema reader's refusal of "
-    "allOf), and its own SHA256SUMS fails on runner/Cargo.lock (3c998e749; repaired by PR 273, not yet merged); the "
-    "runner is not built here, and its build script runner/build.sh still uses pre-split paths")
+    "allOf); its own SHA256SUMS verifies; the runner is not built here, and its build script runner/build.sh still "
+    "uses pre-split paths")
 M3_REPRODUCTION = (
     "its six pinned references reproduce (m3_reproduce.py); its self-test fails on two things, both waiting for PR "
     "217: the stale runner/Cargo.lock line of its SHA256SUMS (3c998e749), and its schema reader refusing the allOf that 0c480a9e5 "
@@ -172,7 +172,9 @@ PACKAGES: dict[str, Package] = {
         facilities={("generators/rt_g5_s2_reference.py", "subprocess"):
                     "node_check (line 438) runs `node -e` when node is on PATH, to compare JavaScript's Number#toString "
                     "with repr on the decimal samples (README); node is not product code and the frozen values do not "
-                    "depend on it"}),
+                    "depend on it",
+                    ("generators/rt_g5_s2_reference.py", "shutil"):
+                    "shutil.which('node') (line 439) finds node for node_check without running it; nothing is copied"}),
     "skew_restraints": _plain("skew_reference.py", deliverables="DEL-04-03"),
     "w9_benchmarks": _plain("w9_reference.py", deliverables="DEL-04-02, DEL-04-03, DEL-04-07, DEL-09-01"),
     "w15_component_weight": _plain("w15b_reference.py", deliverables="DEL-03-05"),
@@ -289,7 +291,7 @@ PACKAGES: dict[str, Package] = {
                           "references.json; the author self-check runs instead"),)),
     "kd5_timoshenko": Package(
         "DEL-05-03",
-        sums=(Sums("SHA256SUMS", failing={"runner/Cargo.lock": LOCKFILE_COMMIT}),),
+        sums=(Sums("SHA256SUMS"),),
         siblings={"kd5t_engine": "the exact reference engine (README)"},
         facilities={**_pool("kd5t_census.py"), **_pool("kd5t_generate.py"),
                     ("kd5t_compare.py", "subprocess"): "--selftest runs the shared judge's m3_judge/m3_selftest.py",
@@ -318,8 +320,9 @@ PACKAGES: dict[str, Package] = {
                     ("pft_generate.py", "subprocess"):
                         "`check` runs this package's pft_compare.py --selftest; the `units` mode (units_check, line 731) "
                         "runs the product's units authority ($OPENPIPESTRESS_UNITS_BIN) to confirm GPa moduli convert "
-                        "bit for bit to the Pa operands the references were computed from (README); a product run in a "
-                        "check mode, reported, and no frozen value comes from it"},
+                        "bit for bit to the Pa operands the references were computed from (README). No frozen value "
+                        "comes from it, but a generator file runs no product code: decided to be repaired by moving "
+                        "units_check into a test, in this unit's pull request with the observation"},
         foreign={"kd5t_engine": (KD5T, "the exact engine the PF engine extends (README, 'one of them runs kd5t_engine's 58')"),
                  "kd5t_generate": ("kd5_timoshenko/kd5t_generate.py", "the judged-set machinery the PF generator reuses (README)"),
                  "kd5t_census": ("kd5_timoshenko/kd5t_census.py", "the census the PF census extends (README)"),
@@ -354,7 +357,12 @@ PACKAGES: dict[str, Package] = {
                         "runs a fresh python3 -I -B that imports m3_compare, the isolation check (README, Self-test)",
                     ("m3_regress.py", "subprocess"):
                         "the self-test runs git in throwaway repositories, the judge's own m3_report.py there, and run.sh "
-                        "with cargo set to `false` to exercise its refusals (README, Self-test)"},
+                        "with cargo set to `false` to exercise its refusals (README, Self-test)",
+                    ("m3_regress.py", "shutil"):
+                        "the self-test copies the judge's own directory, the public contracts and schemas and the two "
+                        "reference sets into throwaway repositories it builds (lines 909-999); the only modules imported "
+                        "from a copy are the judge's own, by its own m3_report.py run there",
+                    ("m3_selftest.py", "shutil"): "imported (line 21) and not used in this file"},
         literals={**{("m3_view.py", lit): why for lit, why in (
                       ("fixtures", "reads the public semantic contracts under fixtures/results (README, Independence)"),
                       ("schemas", "reads the public result schemas' contract_evidence definition at judge time (m3_view.py)"))},

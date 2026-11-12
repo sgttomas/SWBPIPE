@@ -11,14 +11,15 @@ and the rule below refuses such an import like any other.
 
 The rule is a list of what is allowed, for every .py file of a package at any depth:
 - Imports. Each imported module is on ALLOWED_STDLIB (standard-library modules that compute or do
-  ordinary file I/O and cannot load code or start a program; each addition carries its reason
-  there), or one the package's allowances name: a sibling module of the package, a module of another
+  ordinary file I/O and cannot load code or start a program, each with its reason there; two on a
+  condition the rule checks: ast for reading source only, random for seeded generators only), or one the package's allowances name: a sibling module of the package, a module of another
   reference package (admitted only when that file is listed with its current hash in a checksum list
   of its own package, and no file or directory of the same name sits beside the importer to shadow
   it), or an external module the package's README says is supplied from outside the repository. A
   relative import is admitted only for a named sibling. Any other standard-library module is refused
-  (kind "stdlib") and the import machinery (FORBIDDEN_MODULES) is refused as a facility; either
-  needs an allowance in the file that uses it, with its reason.
+  (kind "stdlib"; BY_SITE_STDLIB names those a generator may use only at an allowed site) and the
+  import machinery (FORBIDDEN_MODULES) is refused as a facility; either needs an allowance in the
+  file that uses it, with its reason.
 - Dynamic facilities. A name in FORBIDDEN_NAMES (code loading and evaluation, the built-ins
   namespace, and the calls in os that start a program) is refused wherever it is named: called,
   referenced bare, as an attribute, as an import name or alias, or as a text or bytes constant (which
@@ -81,7 +82,7 @@ PRODUCT_ROOTS = frozenset({"core", "apps", "api", "tests", "tools", "fixtures", 
 # The standard-library modules a generator may import, each with why it can neither load code nor
 # start a program. A module is added here in the change that needs it, with its reason.
 ALLOWED_STDLIB_REASONS = {
-    # The rule's list (the dynamics lane's, 64da5e92e).
+    # The dynamics lane's twelve (64da5e92e).
     "argparse": "parses the command line",
     "concurrent": "runs this file's own functions in worker processes (concurrent.futures)",
     "decimal": "decimal arithmetic",
@@ -94,24 +95,28 @@ ALLOWED_STDLIB_REASONS = {
     "struct": "packs and unpacks binary64 bits",
     "sys": "argv, exit, the interpreter's path list and limits",
     "time": "clock readings",
-}
-# PROVISIONAL, not yet the rule: the further modules the 45 packages' generators import, proposed after
-# reading each use, for the project's Agent 0 to accept or refuse together. Until then they let the
-# inventory run; none may be treated as accepted.
-PROVISIONAL_STDLIB_REASONS = {
+    # Ten more, decided by the project's Agent 0 from the reference-package inventory.
     "__future__": "compiler directives (annotations) only",
-    "ast": "parses source text into a tree; running it would need compile or exec, which are forbidden names",
+    "ast": "reading source only: parse, walk and the node classes (AST_READING); compile and exec stay refused",
     "collections": "container types",
     "copy": "copies objects already in memory",
     "dataclasses": "declares record classes; the methods it generates come from the class definition, not from outside",
     "itertools": "iteration helpers",
-    "random": "seeded pseudo-random numbers",
+    "random": "seeded generators only: random.Random(seed); an unseeded use is a finding (RANDOM_SEEDED)",
     "re": "regular expressions",
-    "shutil": "copies and removes files; `which` finds a program without running it",
     "tempfile": "temporary files and directories",
     "traceback": "formats exceptions",
 }
-ALLOWED_STDLIB = frozenset(ALLOWED_STDLIB_REASONS) | frozenset(PROVISIONAL_STDLIB_REASONS)
+ALLOWED_STDLIB = frozenset(ALLOWED_STDLIB_REASONS)
+# Standard-library modules a generator may use only at a named site, with the reason read there:
+# they start programs, load code or (shutil) copy a foreign file where a later import would read it.
+BY_SITE_STDLIB = frozenset({"subprocess", "multiprocessing", "platform", "importlib", "shutil"})
+# The ast allowance is of reading: these functions, and the node classes (subclasses of ast.AST).
+AST_READING = frozenset({"parse", "walk", "iter_child_nodes", "iter_fields", "get_docstring", "dump", "NodeVisitor"})
+# A reference is reproducible or it is not a reference: of the random module only a generator constructed
+# with a seed, random.Random(seed), is allowed. A module-level function (including seed), SystemRandom,
+# and Random() with no argument are findings.
+RANDOM_SEEDED = "Random"
 # Import machinery: refused as imports although standard library.
 FORBIDDEN_MODULES = frozenset({"importlib", "runpy", "imp", "pkgutil", "zipimport"})
 # Facilities that load or evaluate code named at run time, reach the built-ins namespace, or start
@@ -176,7 +181,7 @@ class Finding:
     """One site the rule does not admit by itself. `key` is what an allowance names."""
     file: str
     line: int
-    kind: str  # "import", "stdlib", "relative-import", "facility", "literal"
+    kind: str  # "import", "stdlib", "relative-import", "facility", "condition", "literal"
     key: str
     detail: str
 
@@ -198,10 +203,24 @@ def _top(module: str) -> str:
 def independence_findings(source: str | bytes, file: str) -> list[Finding]:
     """Every site in one generator file that the rule does not admit by itself: a non-stdlib import
     (kind "import"), a standard-library module not on ALLOWED_STDLIB ("stdlib"), a relative import,
-    a forbidden module or name ("facility") and a product-path literal ("literal")."""
+    a forbidden module or name ("facility"), a use of ast beyond reading or an unseeded use of random
+    ("condition") and a product-path literal ("literal")."""
     tree = ast.parse(source, filename=file)
     inert = _inert_strings(tree)
     out: list[Finding] = []
+    # Names bound to the two modules allowed on a condition, and to random.Random.
+    ast_names = {a.asname or a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names if a.name == "ast"}
+    random_names = {a.asname or a.name for n in ast.walk(tree) if isinstance(n, ast.Import) for a in n.names
+                    if a.name == "random"}
+    random_class = {a.asname or a.name for n in ast.walk(tree) if isinstance(n, ast.ImportFrom) and n.module == "random"
+                    and not n.level for a in n.names if a.name == RANDOM_SEEDED}
+
+    def condition(node: ast.AST, key: str, detail: str) -> None:
+        out.append(Finding(file, getattr(node, "lineno", 0), "condition", key, detail))
+
+    def ast_reading(name: str) -> bool:
+        member = getattr(ast, name, None)
+        return name in AST_READING or (isinstance(member, type) and issubclass(member, ast.AST))
 
     def facility(node: ast.AST, name: str, how: str) -> None:
         out.append(Finding(file, getattr(node, "lineno", 0), "facility", name, f"{how} {name}"))
@@ -228,10 +247,27 @@ def independence_findings(source: str | bytes, file: str) -> list[Finding]:
                                    f"relative import {'.' * node.level}{node.module or ''}"))
             else:
                 imported(node, node.module)
+                for alias in node.names:
+                    if node.module == "ast" and not ast_reading(alias.name):
+                        condition(node, f"ast.{alias.name}", f"imports ast.{alias.name}, not a reading of source")
+                    if node.module == "random" and alias.name != RANDOM_SEEDED:
+                        condition(node, f"random.{alias.name}", f"imports random.{alias.name}, an unseeded use")
             for alias in node.names:
                 for name in {alias.name, alias.asname} & FORBIDDEN_NAMES:
                     facility(node, name, "imports the name")
-        elif isinstance(node, ast.Name) and node.id in FORBIDDEN_NAMES:
+        elif isinstance(node, ast.Call) and not node.args and not node.keywords and (
+                (isinstance(node.func, ast.Attribute) and node.func.attr == RANDOM_SEEDED
+                 and isinstance(node.func.value, ast.Name) and node.func.value.id in random_names)
+                or (isinstance(node.func, ast.Name) and node.func.id in random_class)):
+            condition(node, "random.Random()", "constructs random.Random with no seed")
+        if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
+            if node.value.id in ast_names and not ast_reading(node.attr):
+                condition(node, f"ast.{node.attr}", f"uses ast.{node.attr}, not a reading of source")
+            if node.value.id in random_names and node.attr != RANDOM_SEEDED:
+                condition(node, f"random.{node.attr}", f"uses random.{node.attr}, an unseeded use")
+        if isinstance(node, (ast.Import, ast.ImportFrom, ast.Call)):
+            continue
+        if isinstance(node, ast.Name) and node.id in FORBIDDEN_NAMES:
             facility(node, node.id, "names")
         elif isinstance(node, ast.Attribute) and node.attr in FORBIDDEN_NAMES:
             if node.attr not in BUILTIN_ONLY or (isinstance(node.value, ast.Name) and node.value.id in BUILTIN_MODULES):
@@ -337,7 +373,7 @@ def scan_package(package: Path, allow: Allowances = Allowances()) -> list[str]:
                     used.add(("external", f.key))
                 else:
                     problems.append(f"{f}, neither standard library nor allowed")
-            elif f.kind in ("facility", "stdlib"):
+            elif f.kind in ("facility", "stdlib", "condition"):
                 if (rel, f.key) in allow.facilities:
                     used.add(("facilities", (rel, f.key)))
                 else:
