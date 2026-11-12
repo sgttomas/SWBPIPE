@@ -19,7 +19,8 @@ holds the MBF exactly as the writer produces it for the offline screening (`run_
 identity file `<stem>.swbpipe-ids.json`, the writer's report (loss report, diagnostics, assumptions), `case.json`
 (the case's index entry) and a run line to fill in. A variant is either an instruction (the same MBF, one stated
 option changed by hand, the result saved under its own name) or a substitution: the one data line of an options
-record named on an allow-list (`OPPRES`, `OPMISC`) replaced, giving a distinct MBF with its own SHA-256. The code
+record named on an allow-list (`SUBSTITUTABLE_HEADINGS`: `OPPRES`) replaced, giving a distinct MBF with its own
+SHA-256. The code
 admits no other line, so a substitution changes no node, element, support, material, section or load line, and the
 base case's identity file binds its rows; it has no identity file of its own. A format sample is a small invented,
 hand-authored model file declared in the maintained format-sample declaration
@@ -77,6 +78,18 @@ route is an acceptable fallback for the sitting only because it keeps the same c
 the harness would: the case id and designation come from the authoritative index, and the result is bound to the
 model file's hash the index records; a hand-route intake lands under that case id, bound to that hash, with that
 designation, for an ordinary case and a sealed one alike.
+
+Protection follows the returned file as well as the item. Before any returned file of an ordinary case, a format
+sample or an observation is decoded, recognised, parsed or stored, every returned file is hashed once and the item is
+refused if one has the bytes of another item's stored protected output (a sealed capture's returned file, a sample's
+or an observation's stored output), taken from the records this module keeps. A sealed item is never taken as a
+format sample. Prepare and every caller-selected input (the plan, the observations file and its inputs, the
+format-sample declaration and its files, the manifest and its model files, the authority index) refuse a source
+inside the configured exchange folder by its path before opening it, and one elsewhere with the bytes of a stored
+protected output after hashing it. This recognises identical bytes only, not a copy that was saved again or edited.
+The readers of stored results outside this module (run_pilot's offline screens, the series step, the export step
+and the private import check) get the same file-level protection in the harness change that builds them a resolver;
+until then they rely on their case-level guard and on reading only a case's own `caepipe_out/`.
 """
 
 from __future__ import annotations
@@ -154,16 +167,18 @@ FOLDER_PREFIX = {"benchmark_case": "cases", "format_sample": "samples", "format_
 PART_KINDS = ("dry_run", "benchmark", "sealed_capture", "observations")
 SELECT_KEYS = ("model_ids", "families", "series", "model_members", "all")
 VARIANT_KINDS = ("instruction", "substitution")
-# The options records whose one data line a substitution variant may replace (Format of .MBF): the pressure options
-# and the miscellaneous (dynamics) options. Nothing else is substitutable.
-SUBSTITUTABLE_HEADINGS = ("OPPRES", "OPMISC")
+# The options records whose one data line a substitution variant may replace (Format of .MBF): the pressure options.
+# Nothing else is substitutable. Per DEL-17-05 REQ-005 another options record, such as the dynamics options, is added
+# to this list in the same change that first declares a run requiring its substitution.
+SUBSTITUTABLE_HEADINGS = ("OPPRES",)
 ROUTES = ("guest_script", "manual_batch", "manual_print")
 SITTING_ROUTES = {"manual_batch": "sitting_manual_batch", "manual_print": "sitting_manual_print"}
 GUEST_BINDING = "guest_reported_hash"
 ATTESTED_BINDING = "person_attested"
 # The open questions the writer profile carries, as DEL-17-04's scope lists them ("Not decided"), and the one this
 # run itself carries (DEL-17-05 REQ-003: the invocation profile; the pilot's documented batch pattern is used). The
-# writer keeps no list of its own; this one is kept in step with those scopes by hand.
+# writer keeps no list of its own; this one is kept in step with DEL-17-04's scope by hand, and a test fails when the
+# open questions that scope names and this list differ.
 WRITER_PROFILE_OPEN_QUESTIONS = ("TBD-17-01-001", "TBD-17-01-002", "TBD-17-01-003", "TBD-17-04-005", "TBD-17-04-006",
                                  "TBD-17-04-007", "TBD-17-04-008", "TBD-17-04-009", "TBD-17-04-010")
 RUN_OPEN_QUESTIONS = ("TBD-17-01-004",)
@@ -510,9 +525,9 @@ def _variants(value: Any, where: str) -> list[dict[str, Any]]:
     return variants
 
 
-def load_plan(path: Path | None = None) -> dict[str, Any]:
-    """The plan, checked; `path` None gives the built-in default."""
-    source = Path(path) if path is not None else DEFAULT_PLAN
+def load_plan(path: Path | None = None, guard: Guard | None = None) -> dict[str, Any]:
+    """The plan, checked; `path` None gives the built-in default. `guard` refuses a protected source unopened."""
+    source = (guard or NO_GUARD).admit(Path(path) if path is not None else DEFAULT_PLAN, "plan")
     try:
         data = source.read_bytes()
         plan = json.loads(data.decode("utf-8"))
@@ -593,11 +608,12 @@ def load_plan(path: Path | None = None) -> dict[str, Any]:
             "source": "built-in default" if path is None else source.name}
 
 
-def load_observations(path: Path | None) -> dict[str, Any] | None:
+def load_observations(path: Path | None, guard: Guard | None = None) -> dict[str, Any] | None:
     """The observation items, checked and sorted by rank; each input file is read here (relative to the file)."""
     if path is None:
         return None
-    source = Path(path)
+    guard = guard or NO_GUARD
+    source = guard.admit(Path(path), "observations")
     try:
         data = source.read_bytes()
         document = json.loads(data.decode("utf-8"))
@@ -636,7 +652,8 @@ def load_observations(path: Path | None) -> dict[str, Any] | None:
             name = Path(relative).name
             if name in bring_back:
                 raise PackError(f"{where}: the input's name {name} is also a record to bring back")
-            checked["input"] = {"file": name, "bytes_data": input_path.read_bytes()}
+            checked["input"] = {"file": name,
+                                "bytes_data": guard.admit(input_path, f"{where} input").read_bytes()}
         items.append(checked)
     return {"items": sorted(items, key=lambda entry: entry["rank"]), "sha256": _sha256(data), "source": source.name}
 
@@ -884,11 +901,12 @@ def benchmark_item(model: Mapping[str, Any], manifest_entry: Mapping[str, Any], 
     return item
 
 
-def load_samples(path: Path | None = None) -> dict[str, Any]:
+def load_samples(path: Path | None = None, guard: Guard | None = None) -> dict[str, Any]:
     """The maintained format-sample declaration: each sample's id, its hand-authored invented model file (beside the
     declaration, with a `<stem>.provenance.json` declaring it invented and not produced by CAEPIPE), the file's
     SHA-256, a title, the sections it is meant to make the program print, and an optional instruction."""
-    source = Path(path) if path is not None else DEFAULT_SAMPLES
+    guard = guard or NO_GUARD
+    source = guard.admit(Path(path) if path is not None else DEFAULT_SAMPLES, "format-sample declaration")
     try:
         data = source.read_bytes()
         document = json.loads(data.decode("utf-8"))
@@ -914,7 +932,8 @@ def load_samples(path: Path | None = None) -> dict[str, Any]:
                               "title": _text(entry.get("title"), f"{where} title"),
                               "prints": _text(entry.get("prints"), f"{where} prints"),
                               "instruction": _text(entry.get("instruction"), f"{where} instruction", optional=True)}
-    return {"samples": samples, "dir": source.resolve().parent, "sha256": _sha256(data), "source": source.name}
+    return {"samples": samples, "dir": source.resolve().parent, "sha256": _sha256(data), "source": source.name,
+            "guard": guard}
 
 
 def format_sample_item(sample: Mapping[str, Any], part: Mapping[str, Any], declaration: Mapping[str, Any],
@@ -931,7 +950,8 @@ def format_sample_item(sample: Mapping[str, Any], part: Mapping[str, Any], decla
     entry = declaration["samples"].get(sample_id)
     if entry is None:
         raise PackError(f"format sample {sample_id}: not in the format-sample declaration {declaration['source']}")
-    path = declaration["dir"] / entry["file"]
+    guard = declaration.get("guard") or NO_GUARD
+    path = guard.admit(declaration["dir"] / entry["file"], f"format sample {sample_id}")
     if path.is_symlink() or not path.is_file():
         raise PackError(f"format sample {sample_id}: {entry['file']} is not a regular file beside the declaration")
     data = path.read_bytes()
@@ -941,7 +961,8 @@ def format_sample_item(sample: Mapping[str, Any], part: Mapping[str, Any], decla
     if sha in benchmark_hashes:
         raise PackError(f"format sample {sample_id}: {entry['file']} is the {benchmark_hashes[sha]}; a benchmark model "
                         "is never a format sample")
-    provenance = path.with_name(Path(entry["file"]).stem + ".provenance.json")
+    provenance = guard.admit(path.with_name(Path(entry["file"]).stem + ".provenance.json"),
+                             f"format sample {sample_id}")
     try:
         declared = json.loads(provenance.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError):
@@ -978,11 +999,17 @@ def observation_item(observation: Mapping[str, Any], part: Mapping[str, Any], fi
 
 
 def build_pack(manifest_path: Path, plan: Mapping[str, Any], observations: Mapping[str, Any] | None = None,
-               selected: Iterable[str] | None = None, *, samples: Mapping[str, Any] | None = None) -> dict[str, bytes]:
-    """Every file of the pack by its relative path: same inputs, same bytes."""
-    manifest_path = Path(manifest_path)
+               selected: Iterable[str] | None = None, *, samples: Mapping[str, Any] | None = None,
+               guard: Guard | None = None) -> dict[str, bytes]:
+    """Every file of the pack by its relative path: same inputs, same bytes. `guard` refuses a protected manifest or
+    model file before it is decoded."""
+    guard = guard or NO_GUARD
+    manifest_path = guard.admit(Path(manifest_path), "manifest")
     manifest_bytes = manifest_path.read_bytes()
     manifest = json.loads(manifest_bytes.decode("utf-8"))
+    for entry in manifest.get("models") or []:
+        if isinstance(entry, dict) and isinstance(entry.get("file"), str):
+            guard.admit(manifest_path.parent / entry["file"], "benchmark model file")
     selected = sorted(set(selected)) if selected else None
     models = run_pilot.load_benchmark(manifest_path)
     by_id = {model["model_id"]: model for model in models}
@@ -1310,6 +1337,13 @@ exchange folder by adding new files only: every returned result is stored in a n
 whatever the case already holds, which stays unchanged. Ingest never clears, replaces, renames or deletes anything
 already stored there.
 
+### 2.5a Keep each file in its own folder
+
+Ingest refuses a case, sample or observation folder holding a file whose bytes are those of another item's stored
+sealed capture, sample output or observation record, and reads nothing further in that folder. It recognises
+identical bytes only, not a copy that was saved again or edited, so never move or copy a result from one folder to
+another.
+
 ### 2.6 Fill in the run line
 
 Each case folder holds `run_line.txt`. Fill it in for every case you run: the date, the route you used
@@ -1389,10 +1423,89 @@ def _ref(source_id: str) -> str:
     return f"{source_id}, {SOURCES[source_id]}"
 
 
+# -- protected outputs -----------------------------------------------------------------------------------------------
+def protected_outputs(tree: Tree) -> dict[str, list[tuple[str, str, str]]]:
+    """{SHA-256: [(kind, item id, stored location)]} of every stored protected output, taken from the records this
+    module keeps (never by reading a payload): each returned file of a sealed capture, of a format sample's stored
+    output and of an observation's stored output. A partial attempt, which has no record, is not listed."""
+    found: dict[str, list[tuple[str, str, str]]] = {}
+
+    def add(record: Any, kind: str, base: str) -> None:
+        if not isinstance(record, dict):
+            return
+        for name, entry in (record.get("files") or {}).items():
+            if isinstance(entry, dict) and entry.get("role") == "returned" and isinstance(entry.get("sha256"), str):
+                found.setdefault(entry["sha256"], []).append((kind, str(record.get("item_id")),
+                                                              f"{base}/{PAYLOAD}/{name}"))
+    for case_id in tree.listdir(("cases",)):
+        if CASE_ID_PATTERN.match(case_id):
+            for attempt in tree.listdir(("cases", case_id, SEALED)):
+                if NAME_PATTERN.match(attempt):
+                    add(tree.read_json(("cases", case_id, SEALED, attempt, CAPTURE_RECORD)), "sealed capture",
+                        f"cases/{case_id}/{SEALED}/{attempt}")
+    for top, kind in (("format_samples", "format sample output"), ("observations", "observation record")):
+        for item_id in tree.listdir((top,)):
+            if CASE_ID_PATTERN.match(item_id):
+                for attempt in tree.listdir((top, item_id)):
+                    if NAME_PATTERN.match(attempt):
+                        add(tree.read_json((top, item_id, attempt, STORED_RECORD)), kind, f"{top}/{item_id}/{attempt}")
+    return found
+
+
+class Guard:
+    """What a caller-selected input must not be: a file inside the configured exchange folder (refused by its path,
+    before it is opened), or a file elsewhere with the bytes of a stored protected output (refused after the one
+    hashing read the rule permits). It recognises identical bytes only, not a copy that was saved again or edited."""
+
+    def __init__(self, root: Path | None = None, protected: Mapping[str, list] | None = None):
+        self.root = Path(root).resolve() if root is not None else None
+        self.protected = dict(protected or {})
+
+    @classmethod
+    def from_exchange(cls, root: Path) -> "Guard":
+        with Tree(root, "the exchange folder") as tree:
+            return cls(root, protected_outputs(tree))
+
+    def admit(self, path: Path, what: str) -> Path:
+        path = Path(path)
+        if self.root is None:
+            return path
+        resolved = Path(os.path.realpath(path))
+        if resolved == self.root or resolved.is_relative_to(self.root):
+            raise PackError(f"{what}: {path} lies inside the exchange folder; nothing there is read as an input")
+        if self.protected and resolved.is_file():
+            sha = stream_sha256(resolved)[1]
+            if sha in self.protected:
+                kind, item_id, where = self.protected[sha][0]
+                raise PackError(f"{what}: {path} has the bytes of a stored {kind} of {item_id} ({where}); refused, "
+                                "not read further")
+        return path
+
+
+NO_GUARD = Guard()
+
+
+def protected_hit(files: Mapping[str, Path], item: Mapping[str, Any], protected: Mapping[str, list]) -> str | None:
+    """Hash every returned file of an item once (the one read the rule permits) and say why one of them is refused:
+    its bytes are those of a stored protected output of another item. None when none is. Identical bytes only."""
+    if not protected:
+        return None
+    for name in sorted(set(files) - pack_inputs(item)):
+        sha = stream_sha256(files[name])[1]
+        others = [owner for owner in protected.get(sha, ()) if owner[1] != item["item_id"]]
+        if others:
+            kind, item_id, where = others[0]
+            return (f"{name} has the bytes of a stored {kind} of {item_id} ({where}); refused, and nothing in this "
+                    "folder is read further")
+    return None
+
+
 # -- intake -----------------------------------------------------------------------------------------------------------
-def load_authority(authority: Path) -> tuple[dict[str, Any], str]:
+def load_authority(authority: Path, guard: Guard = NO_GUARD) -> tuple[dict[str, Any], str]:
     """The host's own copy of a prepared pack's index and its SHA-256, checked against each other and validated."""
     directory = Path(authority)
+    for name in (AUTHORITY_INDEX, AUTHORITY_DIGEST):
+        guard.admit(directory / name, "the authority folder")
     try:
         data = (directory / AUTHORITY_INDEX).read_bytes()
         recorded = (directory / AUTHORITY_DIGEST).read_text(encoding="ascii").split()[0]
@@ -1468,11 +1581,13 @@ def returned(item: Mapping[str, Any], files: Mapping[str, Path]) -> bool:
 
 
 def _verify_inputs(item: Mapping[str, Any], files: Mapping[str, Path]) -> str | None:
-    """Why a file the pack provided (the MBF, the identity file, a substituted MBF) is not the one the index records,
-    or None. These are SWBPIPE's own files; nothing that came back from the program is read here."""
+    """Why a file the pack provided (the MBF, the identity file, the writer's report, a substituted MBF) is missing or
+    not the one the index records, or None. These are SWBPIPE's own files; nothing that came back from the program is
+    read here."""
     checks = [("mbf", item.get("mbf"))]
-    if item.get("identity_file"):
-        checks.append(("identity file", item["identity_file"]))
+    for key, what in (("identity_file", "identity file"), ("writer_report", "writer report")):
+        if item.get(key):
+            checks.append((what, item[key]))
     for variant in item.get("variants") or []:
         if not variant["mbf"].get("same_as_base"):
             checks.append((f"variant {variant['label']} MBF", variant["mbf"]))
@@ -1867,14 +1982,21 @@ def ingest_pack(pack_dir: Path, root: Path | None, authority: Path, *, selected:
         raise PackError("ingest needs the exchange folder, for --check too: without it a case sealed there could not "
                         "be recognised, and nothing is read")
     pack = outside_work_trees(pack_dir, "ingest")
-    index, index_sha = load_authority(authority)
+    tree = Tree(root, "the exchange folder")
+    try:
+        protected = protected_outputs(tree)
+        index, index_sha = load_authority(authority, Guard(root, protected))
+    except BaseException:
+        tree.close()
+        raise
     try:
         returned_sha = stream_sha256(pack / "pack_index.json")[1]
     except OSError as error:
+        tree.close()
         raise PackError(f"the returned pack has no readable pack_index.json ({error.strerror})") from None
     if returned_sha != index_sha:
+        tree.close()
         raise PackError("the returned pack_index.json differs from the authoritative index; nothing is taken in")
-    tree = Tree(root, "the exchange folder")
     chosen = set(selected) if selected else None
     ok = True
     try:
@@ -1890,45 +2012,61 @@ def ingest_pack(pack_dir: Path, root: Path | None, authority: Path, *, selected:
                 if not folder.is_dir() or folder.is_symlink():
                     raise PackError(f"folder {item['folder']} is missing or a link")
                 files = _regular_files(folder)
-                outcome = _take_in(folder, item, files, tree, index_sha, check=check)
+                outcome = _take_in(folder, item, files, tree, index_sha, check=check, protected=protected)
             except (ContainmentError, PackError) as error:
                 outcome = {"status": "refused", "reason": str(error)}
             if outcome["status"] == "refused":
                 ok = False
             emit(_status_line(item, outcome))
     finally:
-        if tree is not None:
-            tree.close()
+        tree.close()
     return ok
 
 
-def _take_in(folder: Path, item: Mapping[str, Any], files: Mapping[str, Path], tree: Tree | None, index_sha: str, *,
-             check: bool) -> dict[str, Any]:
-    """Dispatch one item by the authoritative designation; a sealed state in the exchange folder overrides any
-    screened designation and keeps the item from every reader."""
+def _take_in(folder: Path, item: Mapping[str, Any], files: Mapping[str, Path], tree: Tree, index_sha: str, *,
+             check: bool, protected: Mapping[str, list] | None = None) -> dict[str, Any]:
+    """Dispatch one item by the authoritative designation. A sealed state in the exchange folder overrides any
+    screened or sample designation. Before any returned file of an ordinary case, a sample or an observation is
+    decoded, recognised, parsed or stored, every returned file is hashed once and the item is refused if one has the
+    bytes of another item's stored protected output (identical bytes only). A sealed capture is copied in its one
+    hashing pass and not hashed beforehand."""
     kind, capture, item_id = item["item_kind"], item["capture"], item["item_id"]
+    protected = protected or {}
     if kind == "format_observation":
         if not set(item["bring_back"]) & set(files):
             return {"status": "not_returned"}
+        if hit := protected_hit({n: p for n, p in files.items() if n in item["bring_back"]}, item, protected):
+            return {"status": "refused", "reason": hit}
         if check:
             return {"status": "present; not opened",
                     "missing": [name for name in item["bring_back"] if name not in files]}
         return store_outputs(folder, item, tree, ("observations", item_id), names=item["bring_back"])
     if not returned(item, files):
         return {"status": "not_returned"}
-    sealed = sealed_in_exchange(tree, item) if tree is not None else None
-    if kind == "format_sample" or capture == "sealed" or sealed:
+    sealed = sealed_in_exchange(tree, item)
+    if kind == "format_sample":
+        if sealed:
+            return {"status": "refused", "reason": f"a sealed item is never designated a format sample ({sealed})"}
+        if hit := protected_hit(files, item, protected):
+            return {"status": "refused", "reason": hit}
+        problem = _verify_inputs(item, files)
+        if problem:
+            return {"status": "refused", "reason": problem}
+        if check:
+            return {"status": "present; not opened"}
+        return store_outputs(folder, item, tree, ("format_samples", item_id),
+                             designation={**(item.get("designation") or {}), "mbf": item["mbf"]})
+    if capture == "sealed" or sealed:
         problem = _verify_inputs(item, files)
         if problem:
             return {"status": "refused", "reason": problem}
         if check:
             return {"status": "present; not opened" + (f" (sealed: {sealed})" if sealed else "")}
-        if kind == "format_sample":
-            return store_outputs(folder, item, tree, ("format_samples", item_id),
-                                 designation={**(item.get("designation") or {}), "mbf": item["mbf"]})
         if capture == "sealed":
             return seal_capture(folder, item, tree, pack_index_sha256=index_sha)
         return {"status": "refused", "reason": f"sealed in the exchange folder ({sealed}); it is not opened"}
+    if hit := protected_hit(files, item, protected):
+        return {"status": "refused", "reason": hit}
     if check:
         return check_case(folder, item, tree)
     return intake_case(folder, item, tree, pack_index_sha256=index_sha)
@@ -1981,9 +2119,12 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
             out = Path(os.path.abspath(args.out_dir))
             authority = Path(os.path.abspath(args.authority)) if args.authority else out.with_name(
                 out.name + ".authority")
-            files = build_pack(Path(args.manifest), load_plan(Path(args.plan) if args.plan else None),
-                               load_observations(Path(args.observations) if args.observations else None), args.cases,
-                               samples=load_samples(Path(args.samples) if args.samples else None))
+            config = resolve_harness_config(environ, require_vm_tools=False)
+            guard = NO_GUARD if isinstance(config, HarnessSkip) else Guard.from_exchange(config.exchange_root)
+            files = build_pack(Path(args.manifest), load_plan(Path(args.plan) if args.plan else None, guard),
+                               load_observations(Path(args.observations) if args.observations else None, guard),
+                               args.cases, samples=load_samples(Path(args.samples) if args.samples else None, guard),
+                               guard=guard)
             write_pack(out, files, authority)
             index = json.loads(files["pack_index.json"])
             print(f"pack written: {len(files)} files, {len(index['items'])} items; authority: {authority}")

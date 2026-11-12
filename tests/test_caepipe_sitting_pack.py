@@ -124,8 +124,8 @@ def test_the_default_plan_gives_the_dry_run_and_the_declared_samples_and_lists_e
     parts = {part["id"]: part for part in index["parts"]}
     assert [part["id"] for part in index["parts"]] == ["part-0", "part-1", "part-2", "part-3", "part-4"]
     assert parts["part-0"]["items"] == ["cpb-g1-05", "cpb-g6-02", "cpb-g8-01", "fs-dyn-batch"]
-    assert parts["part-3"]["items"] == ["fs-dyn-window"]
-    for part_id in ("part-1", "part-2", "part-4"):
+    assert parts["part-2"]["items"] == ["fs-dyn-window"]  # with the observations, not with the sealed captures
+    for part_id in ("part-1", "part-3", "part-4"):
         assert parts[part_id]["items"] == [] and parts[part_id]["empty_because"], part_id
     sitting_pack.validate_index(index)
 
@@ -182,15 +182,15 @@ def test_the_pack_is_deterministic_holds_the_writer_mbf_and_its_authority(tmp_pa
 def test_prepare_reserves_new_folders_only_and_refuses_a_work_tree(tmp_path, capsys):
     repo = tmp_path / "repo"
     subprocess.run(["git", "init", "-q", str(repo)], check=True)
-    assert sitting_pack.main(["prepare", str(repo / "pack")]) == 2
+    assert sitting_pack.main(["prepare", str(repo / "pack")], environ={}) == 2
     assert "inside a Git work tree" in capsys.readouterr().err and not (repo / "pack").exists()
     existing = tmp_path / "existing"
     existing.mkdir()  # even an empty folder is refused: the folder is reserved by creating it
-    assert sitting_pack.main(["prepare", str(existing)]) == 2
+    assert sitting_pack.main(["prepare", str(existing)], environ={}) == 2
     assert "already exists" in capsys.readouterr().err and list(existing.iterdir()) == []
     (tmp_path / "fresh.authority").mkdir()
     (tmp_path / "fresh.authority" / "kept").write_bytes(b"kept")
-    assert sitting_pack.main(["prepare", str(tmp_path / "fresh")]) == 2
+    assert sitting_pack.main(["prepare", str(tmp_path / "fresh")], environ={}) == 2
     assert "already exists" in capsys.readouterr().err
     assert (tmp_path / "fresh.authority" / "kept").read_bytes() == b"kept"
     assert list((tmp_path / "fresh").iterdir()) == []  # reserved, left empty, never deleted
@@ -244,8 +244,10 @@ SETTINGS_TEXT = "TITLE\r\nVERSION\r\n15.10\r\nOPPRES\r\n0,0,0,1,0\r\nOPMISC\r\n9
 def test_a_substitution_changes_only_the_data_line_of_an_allowed_options_record(tmp_path):
     text, old = sitting_pack.substitute_setting(SETTINGS_TEXT, "OPPRES", "0,1,0,1,0")
     assert old == "0,0,0,1,0" and text == SETTINGS_TEXT.replace("OPPRES\r\n0,0,0,1,0", "OPPRES\r\n0,1,0,1,0")
-    assert sitting_pack.substitute_setting(SETTINGS_TEXT, "OPMISC", "9,8,6")[1] == "9,8,7"
-    for heading in ("LAYOUT", "MATERIAL", "PIPE", "LOADS", "OPTIONS"):  # topology and data records: never
+    assert sitting_pack.SUBSTITUTABLE_HEADINGS == ("OPPRES",)
+    # OPMISC (the dynamics options) joins only in the change that first declares a run needing it (REQ-005); topology
+    # and data records never do.
+    for heading in ("OPMISC", "LAYOUT", "MATERIAL", "PIPE", "LOADS", "OPTIONS"):
         with pytest.raises(sitting_pack.PackError):
             sitting_pack.substitute_setting(SETTINGS_TEXT, heading, "T20,X1")
         with pytest.raises(sitting_pack.PackError, match="heading must be one of"):
@@ -526,6 +528,7 @@ def test_intake_takes_every_designation_from_the_authority_and_refuses_a_changed
 
 # -- sealed captures: instrumented reads ----------------------------------------------------------------------------
 LOUD = b"\x00\xff\xfeNOT A PRINT \x80\x81 Caepipe? Displacements\x00"
+SAMPLE_OUT = b"\x00\xfeINVENTED SAMPLE OUTPUT \x82 Frequencies\x00"
 RESERVED_NAMES = ("capture_record.json", "sitting_intake.json", "stored_output.json", "run_record.json",
                   "pack_index.json", "guest_log.json")
 
@@ -551,6 +554,26 @@ class Reads:
         return counts
 
 
+def directory_of(fd: int) -> str:
+    """The path of an open directory descriptor, by the means each supported platform has: F_GETPATH on macOS, the
+    /proc/self/fd link on Linux. Any other platform fails the test rather than leave an open unobserved."""
+    if hasattr(fcntl, "F_GETPATH"):
+        return fcntl.fcntl(fd, fcntl.F_GETPATH, bytes(1024)).split(b"\0", 1)[0].decode()
+    link = f"/proc/self/fd/{fd}"
+    if os.path.islink(link):
+        return os.readlink(link)
+    raise AssertionError("no way to resolve a directory descriptor's path on this platform; the open observer "
+                         "cannot observe dir_fd-relative opens")
+
+
+def test_the_open_observer_resolves_a_directory_descriptor_on_this_platform(tmp_path):
+    fd = os.open(tmp_path, os.O_RDONLY | os.O_DIRECTORY)
+    try:
+        assert os.path.realpath(directory_of(fd)) == os.path.realpath(tmp_path)
+    finally:
+        os.close(fd)
+
+
 @pytest.fixture
 def reads(monkeypatch):
     state = Reads()
@@ -569,8 +592,7 @@ def reads(monkeypatch):
         if (flags & os.O_ACCMODE) == os.O_RDONLY and not flags & os.O_DIRECTORY:
             name = os.fspath(path)
             if dir_fd is not None and not os.path.isabs(name):
-                base = fcntl.fcntl(dir_fd, fcntl.F_GETPATH, bytes(1024)).split(b"\0", 1)[0].decode()
-                name = os.path.join(base, name)
+                name = os.path.join(directory_of(dir_fd), name)
             note(Path(os.path.abspath(name)))
         return real_os_open(path, flags, mode, dir_fd=dir_fd)
 
@@ -603,17 +625,20 @@ def reads(monkeypatch):
     return state
 
 
-def watch_returned(reads: Reads, folder: Path, root: Path) -> None:
-    """Watch every file that came back in `folder` (not the pack's own inputs) and everything in a payload."""
-    folder = folder.resolve()
-    inputs = {"case.json"} | {p.name for p in folder.iterdir() if p.suffix == ".mbf" or p.name.endswith(
-        (".swbpipe-ids.json", ".writer-report.json"))}
-    returned_names = {p.name for p in folder.iterdir() if p.name not in inputs}
+def watch_returned(reads: Reads, folder: Path, root: Path, *more: Path) -> None:
+    """Watch every file that came back in `folder` and in each of `more` (not the pack's own inputs) and everything
+    in a payload."""
+    returned_files = set()
+    for each in (folder, *more):
+        each = each.resolve()
+        inputs = {"case.json"} | {p.name for p in each.iterdir() if p.suffix == ".mbf" or p.name.endswith(
+            (".swbpipe-ids.json", ".writer-report.json"))}
+        returned_files |= {p.resolve() for p in each.iterdir() if p.name not in inputs}
     root = root.resolve()
 
     def watched(path: Path) -> bool:
         path = path.resolve() if path.exists() else path
-        if path.parent == folder and path.name in returned_names:
+        if path in returned_files:
             return True
         return path.is_relative_to(root) and sitting_pack.PAYLOAD in path.parts
     reads.watched = watched
@@ -667,8 +692,8 @@ def test_nothing_opens_a_sealed_item_on_any_other_route(sitting, reads, tmp_path
     capsys.readouterr()
     # --check on the sealed item (and the sample) opens nothing.
     sample = sitting["pack"] / "samples" / "fs-a"
-    (sample / "fs-a.csv").write_bytes(LOUD)
-    watch_returned(reads, folder, root)
+    (sample / "fs-a.csv").write_bytes(SAMPLE_OUT)
+    watch_returned(reads, folder, root, sample)
     reads.log.clear()
     assert ingest(sitting, check=True, selected=["cpb-g1-03", "fs-a"])
     out = capsys.readouterr().out
@@ -759,7 +784,7 @@ def test_format_samples_and_observations_are_stored_with_their_designation_and_n
     (pack / "samples" / "fs-a" / "stored_output.json").write_bytes(b'{"invented": "a returned file"}')
     (pack / "observations" / "obs-a" / "a.txt").write_bytes(LOUD + b"a")
     root = state["config"].exchange_root.resolve()
-    watch_returned(reads, pack / "samples" / "fs-a", root)
+    watch_returned(reads, pack / "samples" / "fs-a", root, pack / "observations" / "obs-a")
     assert sitting_pack.ingest_pack(pack, root, tmp_path / "pack.authority")
     assert reads.parser_calls == [] and reads.content_reads() == []
     out = capsys.readouterr().out
@@ -775,6 +800,173 @@ def test_format_samples_and_observations_are_stored_with_their_designation_and_n
     observed = json.loads(next((root / "observations" / "obs-a").iterdir()).joinpath("stored_output.json").read_text())
     assert list(observed["files"]) == ["a.txt"] and observed["missing"] == ["a2.txt"]
     assert not (root / "observations" / "obs-b").exists()
+
+
+# -- protected outputs: a returned file with the bytes of one, and a caller-selected input inside the exchange folder
+def seal(state, case_id: str = "cpb-g1-03", data: bytes = LOUD) -> None:
+    return_guest(state, case_id, data)
+    assert ingest(state, selected=[case_id])
+
+
+def store_sample(state, data: bytes = SAMPLE_OUT) -> None:
+    (state["pack"] / "samples" / "fs-a" / "fs-a.csv").write_bytes(data)
+    assert ingest(state, selected=["fs-a"])
+
+
+def place_in_case(state, data: bytes) -> tuple[Path, str]:
+    return return_guest(state, "cpb-g1-01", data), "cpb-g1-01"
+
+
+def place_in_sample(state, data: bytes) -> tuple[Path, str]:
+    folder = state["pack"] / "samples" / "fs-a"
+    (folder / "fs-a.csv").write_bytes(data)
+    return folder, "fs-a"
+
+
+@pytest.mark.parametrize("check", [True, False], ids=["check", "intake"])
+@pytest.mark.parametrize("stored, place, message", [
+    ("sealed", place_in_case, "cpb-g1-01.csv has the bytes of a stored sealed capture of cpb-g1-03"),
+    ("sample", place_in_case, "cpb-g1-01.csv has the bytes of a stored format sample output of fs-a"),
+    ("sealed", place_in_sample, "fs-a.csv has the bytes of a stored sealed capture of cpb-g1-03"),
+], ids=["sealed-print-renamed-into-a-case", "sample-print-in-a-case", "sealed-print-in-a-sample"])
+def test_a_returned_file_with_the_bytes_of_a_stored_protected_output_is_refused_after_one_hashing_read(
+        sitting, reads, capsys, check, stored, place, message):
+    root = sitting["root"]
+    data = LOUD if stored == "sealed" else SAMPLE_OUT
+    seal(sitting) if stored == "sealed" else store_sample(sitting)
+    folder, item_id = place(sitting, data)
+    capsys.readouterr()
+    watch_returned(reads, folder, root)
+    reads.log.clear()
+    before = tree_digest(root)
+    assert not ingest(sitting, check=check, selected=[item_id])
+    out = capsys.readouterr().out
+    assert f"{item_id}: " in out and "refused" in out and message in out, out
+    assert "nothing in this folder is read further" in out
+    assert tree_digest(root) == before
+    assert reads.parser_calls == [] and reads.content_reads() == []  # no decoding, recognising or parsing
+    counts = reads.per_file()
+    assert counts and set(counts.values()) == {1}  # the single hashing pass, and nothing after it
+    assert counts[str((folder / message.split(" ", 1)[0]).resolve())] == 1
+
+
+def test_an_item_sealed_in_the_exchange_folder_is_never_taken_in_as_a_format_sample(sitting, reads, capsys):
+    root = sitting["root"]
+    (root / "cases" / "fs-a" / "sealed" / "invented-attempt").mkdir(parents=True)
+    folder, _ = place_in_sample(sitting, SAMPLE_OUT)
+    watch_returned(reads, folder, root)
+    before = tree_digest(root)
+    for check in (True, False):
+        assert not ingest(sitting, check=check, selected=["fs-a"])
+        assert "a sealed item is never designated a format sample" in capsys.readouterr().out
+    assert tree_digest(root) == before and reads.log == [] and reads.parser_calls == []
+
+
+def test_the_writer_report_is_required_verified_against_the_authority_and_kept(sitting, capsys):
+    root = sitting["root"]
+    for case_id in ("cpb-g1-01", "cpb-g1-03"):  # an ordinary case and a sealed one
+        folder = return_guest(sitting, case_id, None if case_id == "cpb-g1-01" else LOUD)
+        entry = by_id(sitting["index"])[case_id]["writer_report"]
+        report = folder / entry["file"]
+        original = report.read_bytes()
+        assert hashlib.sha256(original).hexdigest() == entry["sha256"]
+        before = tree_digest(root)
+        report.unlink()
+        for check in (True, False):
+            assert not ingest(sitting, check=check, selected=[case_id])
+            assert f"writer_report_missing: {entry['file']}" in capsys.readouterr().out
+        report.write_bytes(original + b" ")
+        for check in (True, False):
+            assert not ingest(sitting, check=check, selected=[case_id])
+            assert f"writer_report_changed: {entry['file']}" in capsys.readouterr().out
+        assert tree_digest(root) == before
+        report.write_bytes(original)
+        assert ingest(sitting, selected=[case_id])
+    run = only_run(sitting, "cpb-g1-01")
+    record = json.loads((run / "caepipe_out" / "run_record.json").read_text(encoding="utf-8"))
+    kept = run / record["retained_inputs"]["writer_report"]["path"]
+    assert hashlib.sha256(kept.read_bytes()).hexdigest() == by_id(sitting["index"])["cpb-g1-01"]["writer_report"][
+        "sha256"]
+    attempt = next((root / "cases" / "cpb-g1-03" / "sealed").iterdir())
+    capture = json.loads((attempt / sitting_pack.CAPTURE_RECORD).read_text(encoding="utf-8"))
+    entry = by_id(sitting["index"])["cpb-g1-03"]["writer_report"]
+    assert capture["files"][entry["file"]]["sha256"] == entry["sha256"]
+
+
+def test_a_caller_selected_input_inside_the_exchange_folder_is_refused_unopened(sitting, reads, tmp_path,
+                                                                               monkeypatch, capsys):
+    root = sitting["root"]
+    guard = sitting_pack.Guard(root)
+    inside = root / "invented-input.json"
+    inside.write_bytes(sitting["plan"].read_bytes())
+    reads.watched = lambda path: path.resolve() == inside.resolve()
+    for call in (lambda: sitting_pack.load_plan(inside, guard), lambda: sitting_pack.load_observations(inside, guard),
+                 lambda: sitting_pack.load_samples(inside, guard),
+                 lambda: sitting_pack.build_pack(inside, sitting_pack.load_plan(sitting["plan"]), guard=guard)):
+        with pytest.raises(sitting_pack.PackError, match="lies inside the exchange folder"):
+            call()
+    # A sample's model file that resolves into the exchange folder, and an authority folder kept there.
+    (root / "fs-a.mbf").write_bytes(INVENTED_SAMPLE)
+    linked = sample_declaration(tmp_path / "linked", [("fs-a", "fs-a.mbf", INVENTED_SAMPLE)])
+    (linked.parent / "fs-a.mbf").unlink()
+    (linked.parent / "fs-a.mbf").symlink_to(root / "fs-a.mbf")
+    with pytest.raises(sitting_pack.PackError, match="lies inside the exchange folder"):
+        sitting_pack.build_pack(sitting["manifest"], sitting_pack.load_plan(sitting["plan"]),
+                                samples=sitting_pack.load_samples(linked, guard), guard=guard)
+    shutil.copytree(sitting["authority"], root / "authority")
+    with pytest.raises(sitting_pack.PackError, match="lies inside the exchange folder"):
+        sitting_pack.ingest_pack(sitting["pack"], root, root / "authority")
+    reads.watched = lambda path: path.resolve().is_relative_to(root.resolve())
+    reads.log.clear()
+    with pytest.raises(sitting_pack.PackError, match="lies inside the exchange folder"):
+        sitting_pack.ingest_pack(sitting["pack"], root, root / "authority", check=True)
+    assert [entry for entry in reads.log if "authority" in entry["path"].parts] == []
+    # The command: prepare refuses a plan in the exchange folder and reserves nothing.
+    monkeypatch.setattr(sitting_pack, "resolve_harness_config", lambda environ, require_vm_tools: sitting["config"])
+    assert sitting_pack.main(["prepare", str(tmp_path / "new-pack"), "--manifest", str(sitting["manifest"]),
+                              "--plan", str(inside), "--samples", str(sitting["declaration"])]) == 2
+    assert "lies inside the exchange folder" in capsys.readouterr().err
+    assert not (tmp_path / "new-pack").exists() and not (tmp_path / "new-pack.authority").exists()
+
+
+def test_a_caller_selected_input_with_the_bytes_of_a_protected_output_is_refused_after_one_hashing_read(
+        sitting, reads, tmp_path):
+    seal(sitting)
+    root = sitting["root"]
+    guard = sitting_pack.Guard.from_exchange(root)
+    copy = tmp_path / "saved-elsewhere.json"
+    copy.write_bytes(LOUD)
+    reads.watched = lambda path: path.resolve() == copy.resolve()
+    reads.log.clear()
+    calls = (lambda: sitting_pack.load_plan(copy, guard), lambda: sitting_pack.load_observations(copy, guard),
+             lambda: sitting_pack.load_samples(copy, guard),
+             lambda: sitting_pack.build_pack(copy, sitting_pack.load_plan(sitting["plan"]), guard=guard))
+    for call in calls:
+        with pytest.raises(sitting_pack.PackError, match="has the bytes of a stored sealed capture of cpb-g1-03"):
+            call()
+    assert len(reads.log) == len(calls) and reads.content_reads() == [] and reads.parser_calls == []
+    # An authority whose index has those bytes: refused the same way before it is decoded.
+    authority = tmp_path / "copied.authority"
+    authority.mkdir()
+    (authority / "pack_index.json").write_bytes(LOUD)
+    (authority / "pack_index.sha256").write_text(hashlib.sha256(LOUD).hexdigest() + "  pack_index.json\n")
+    reads.watched = lambda path: path.resolve() == (authority / "pack_index.json").resolve()
+    reads.log.clear()
+    with pytest.raises(sitting_pack.PackError, match="has the bytes of a stored sealed capture of cpb-g1-03"):
+        sitting_pack.ingest_pack(sitting["pack"], root, authority, check=True)
+    assert len(reads.log) == 1 and reads.content_reads() == []
+    # Identical bytes only: a copy saved again with one byte changed is not recognised (the stated limit).
+    copy.write_bytes(LOUD + b"\n")
+    with pytest.raises(sitting_pack.PackError, match="not readable JSON"):
+        sitting_pack.load_plan(copy, guard)
+
+
+def test_the_writer_profile_open_questions_are_those_del_17_04_names():
+    scope = (ROOT / "execution" / "PKG-17" / "DEL-17-04" / "ScopeOfWork.md").read_text(encoding="utf-8")
+    named = set(re.findall(r"TBD-17-\d{2}-\d{3}", scope))
+    assert set(sitting_pack.WRITER_PROFILE_OPEN_QUESTIONS) == named
+    assert len(sitting_pack.WRITER_PROFILE_OPEN_QUESTIONS) == len(named)
+    assert not set(sitting_pack.RUN_OPEN_QUESTIONS) & named
 
 
 # -- create-only and contained writes -------------------------------------------------------------------------------
@@ -823,16 +1015,25 @@ def test_a_static_link_or_a_nested_repository_in_the_exchange_folder_refuses_the
     outside = tmp_path / "outside"
     outside.mkdir()
     (root / "cases").symlink_to(outside)
-    assert not ingest(sitting, selected=["cpb-g1-01"])
-    assert "symbolic link" in capsys.readouterr().out and list(outside.iterdir()) == []
+    # Refused before any item: the walk for stored protected outputs meets the link first.
+    with pytest.raises(sitting_pack.ContainmentError, match="cases is a symbolic link"):
+        ingest(sitting, selected=["cpb-g1-01"])
+    assert list(outside.iterdir()) == []
     (root / "cases").unlink()
     (root / "cases").mkdir()
     subprocess.run(["git", "init", "-q", str(root / "cases")], check=True)
     before = tree_digest(root)
     return_guest(sitting, "cpb-g1-03", LOUD)
-    assert not ingest(sitting, selected=["cpb-g1-01", "cpb-g1-03"])
-    out = capsys.readouterr().out
-    assert out.count("holds .git") == 2 and tree_digest(root) == before
+    with pytest.raises(sitting_pack.ContainmentError, match="cases holds .git"):
+        ingest(sitting, selected=["cpb-g1-01", "cpb-g1-03"])
+    assert tree_digest(root) == before
+    # A repository inside one case's folder: the same walk refuses it before any item.
+    shutil.rmtree(root / "cases" / ".git")
+    subprocess.run(["git", "init", "-q", str(root / "cases" / "cpb-g1-01")], check=True)
+    before = tree_digest(root)
+    with pytest.raises(sitting_pack.ContainmentError, match="cases/cpb-g1-01 holds .git"):
+        ingest(sitting, selected=["cpb-g1-01"])
+    assert tree_digest(root) == before
 
 
 def count_writes(monkeypatch, fail_after: int | None) -> list[int]:

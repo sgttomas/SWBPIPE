@@ -25,7 +25,8 @@
       "title": "Format observations",
       "buys": "Records of how the program writes and reads files, kept to settle interoperation facts the cited public pages do not state. They are stored as returned and not interpreted by ingest.",
       "estimate": null,
-      "kind": "observations"
+      "kind": "observations",
+      "format_samples": [{"id": "fs-dyn-window"}]
     },
     {
       "id": "part-3",
@@ -35,8 +36,7 @@
       "kind": "sealed_capture",
       "sealed_reason": "SWBPIPE's side of these cases is not ready; the capture stays sealed; there is no unsealing command.",
       "select": {},
-      "empty_reason": "No family is named yet whose SWBPIPE side is not ready; the plan for the sitting names them.",
-      "format_samples": [{"id": "fs-dyn-window"}]
+      "empty_reason": "No family is named yet whose SWBPIPE side is not ready; the plan for the sitting names them."
     },
     {
       "id": "part-4",
