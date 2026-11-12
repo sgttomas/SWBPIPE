@@ -397,6 +397,18 @@ describe('result pages know their load case or combination',()=>{
   expect(seen).toBe(50);
   await h.session.close();
  });
+ it('cuts a page by its rows\' text as the host does: no more than 32 KiB of row text, at least one row',async()=>{
+  // Four rows of about 12 KiB of text each, limit 4: the page holds two (a third would pass 32 KiB).
+  const h=await solved(Array.from({length:4},(_,i)=>row(i,sustained,{note:'p'.repeat(12*1024)})));
+  const first=await read(h,'invented-session:2',{page:{cursor:null,limit:4}});
+  expect(first.data.values.map((v:{id:string})=>v.id)).toEqual(['r0','r1']);expect(first.data.nextCursor).toEqual(expect.any(String));
+  // One row larger than the bound still makes a page of one.
+  await h.session.close();
+  const g=await solved([row(0,sustained,{note:'p'.repeat(40*1024)}),row(1,sustained)]);
+  const single=await read(g,'invented-session:2',{page:{cursor:null,limit:4}});
+  expect(single.data.values.map((v:{id:string})=>v.id)).toEqual(['r0']);
+  await g.session.close();
+ });
  it('states the selected case to the native query as the results panel keys it',()=>{
   expect(agentDetailFilter({kinds:['k'],entityRefs:[]})).toEqual({kinds:['k'],entities:[]});
   expect(agentDetailFilter({kinds:[],entityRefs:['node:c'],case:{refType:'combination',refId:'c-1'}})).toEqual({kinds:[],entities:['node:c'],case:'combination:c-1'});
