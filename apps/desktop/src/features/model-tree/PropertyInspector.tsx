@@ -115,14 +115,14 @@ export function PropertyInspector({
   // The task's value as the person entered it, or null while they have not edited it. An
   // unedited entry is the field's own stored entry, read on every render, so it follows the
   // stored value and its unit together when the model changes under an open task. Editing
-  // is an event: retyping the stored digits is still an edit.
+  // is an event: retyping the stored digits is still an edit, and so is choosing a unit,
+  // which makes the entry as shown the person's own (chooseProposedUnit).
   const [enteredValue, setEnteredValue] = useState<string | null>(null);
   // a unit the user picks is kept; until then the field's own
   // (inherited) default is used, recomputed whenever the field is, so a catalog that
   // arrives late, or a project-unit change, replaces an inherited default but never a
   // chosen unit. A stored unit is the field's default and is kept.
   const [chosenUnit, setChosenUnit] = useState<string | null>(null);
-  const chooseProposedUnit = (unit: string) => setChosenUnit(unit);
   const [rationale, setRationale] = useState("user_entered_preview_change");
   const [sectionDraft, setSectionDraft] = useState(() => defaultSectionDraft(model, queuedIntents));
   const [materialDraftState, setMaterialDraft] = useState(() => defaultMaterialDraft(model, queuedIntents));
@@ -199,6 +199,12 @@ export function PropertyInspector({
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
   const proposedValue = enteredValue ?? fieldEntryValue(selectedField);
   const proposedUnit = chosenUnit ?? selectedField?.unit ?? "";
+  // Choosing a unit is an edit of the entry: the digits shown beside it at that moment are
+  // recorded as entered, so nothing the person did not see can later stand beside their unit.
+  const chooseProposedUnit = (unit: string) => {
+    setChosenUnit(unit);
+    setEnteredValue((current) => current ?? proposedValue);
+  };
   const selectedFieldLabel = selectedField ? propertyLabel(selectedField) : "Property";
   const requiredFlags = requiredFlagsForSelection(model, propertiesTarget, properties);
   const selectedFieldUnitOptions = selectedField
@@ -245,7 +251,9 @@ export function PropertyInspector({
   const fieldChanged = Boolean(
     operationIntent &&
     selectedField &&
-    ((proposedValue.trim() || "TBD") !== (selectedField.initialValue || selectedField.before) ||
+    // A value is a change only once the person has entered one: an unedited entry is the
+    // stored entry, whatever its text normalizes to.
+    ((enteredValue !== null && (proposedValue.trim() || "TBD") !== (selectedField.initialValue || selectedField.before)) ||
       (selectedField.unitEditable && (proposedUnit.trim() || selectedField.unit) !== selectedField.unit))
   );
   const unitRefusal = missingProjectUnitRefusal(model, selectedField, proposedUnit);
