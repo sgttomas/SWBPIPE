@@ -200,8 +200,9 @@ PRESSURE_RANGE_BAR = (1.0, 50.0)
 # - pressure_elongation_convention: on the pressure-elongation-on run only, on each case the substituted Bourdon
 #   options can touch. The correspondence it rests on is the hypothesis below, which that run tests.
 # - bend_bourdon_opening: on the pressure-elongation-on run only, on bend models: the target program's Bourdon switch
-#   may act on bends, and SWBPIPE's elongation setting does not open bends (DEL-04-07 REQ-009 is off). Isolated by
-#   the pressure-bend-opening series. On the default run both options are off on both sides, so it is not named.
+#   may act on bends, and SWBPIPE's elongation setting does not open bends (DEL-04-07 REQ-009 is off). Measured,
+#   within the limits stated there, by the pressure-bend-opening series. On the default run both options are off on
+#   both sides, so it is not named.
 ELONGATION = "pressure_elongation_convention"
 THRUST = "pressure_thrust_convention"
 BEND_BOURDON = "bend_bourdon_opening"
@@ -249,9 +250,11 @@ PRESSURE_RUN_SERIES = {
                 "own hash (substituted_mbf_text)"),
         "swbpipe": None,
         "screened": False,
-        "description": ("the target program's alternative placement of Bourdon, captured only. No SWBPIPE state of "
-                        "these models equals it, since their expansion cases carry no pressure; its printed results "
-                        "are screened against nothing")},
+        "description": ("the target program's alternative placement of Bourdon, in the expansion load cases. For this "
+                        "run: no SWBPIPE state on these models equals it, because the models' expansion cases carry no "
+                        "pressure; so the run has nothing to be screened against today. It is declared here, and "
+                        "run_pilot refuses it by name (capture_path_unavailable) and collects nothing for it: the path "
+                        "that would collect its result is a separate change")},
 }
 # The correspondence the pressure-elongation-on run tests; stated so that it is never assumed.
 PRESSURE_HYPOTHESIS = {
@@ -270,16 +273,36 @@ PRESSURE_HYPOTHESIS = {
 }
 
 
-def substituted_mbf_text(writer_text: str, line: str) -> str:
-    """The MBF of a run whose OPPRES line is `line`: the writer's text with its one OPPRES record line replaced.
-    Refused unless the writer's line occurs exactly once as the OPPRES record's line. The result is not writer
-    output and has its own hash."""
-    base = f"\r\nOPPRES\r\n{OPPRES_WRITER_LINE}\r\n"
-    if writer_text.count(base) != 1 or writer_text.count("\r\nOPPRES\r\n") != 1:
-        raise ValueError(f"the MBF must carry the OPPRES line {OPPRES_WRITER_LINE} exactly once")
-    if line == OPPRES_WRITER_LINE:
+# The options headings whose single data line a declared run may substitute as a whole line (DEL-17-05 REQ-005: the
+# maintained short list of options records; a substitution changes no node, element or support). The scope's list
+# also names the dynamics options record; its heading joins this constant with the first run that substitutes it.
+# For each heading: the data line the writer writes, and the replacement lines the declared runs use.
+SUBSTITUTABLE_OPTION_HEADINGS = ("OPPRES",)
+_SUBSTITUTION_LINES = {
+    "OPPRES": (OPPRES_WRITER_LINE, frozenset(declared["oppres_line"] for declared in PRESSURE_RUN_SERIES.values())),
+}
+
+
+def substituted_mbf_text(writer_text: str, line: str, *, heading: str = "OPPRES") -> str:
+    """The MBF of a run whose `heading` record carries `line`: the writer's text with the single data line that
+    follows that heading replaced as a whole line. Refused unless the heading is in SUBSTITUTABLE_OPTION_HEADINGS,
+    `line` is one a declared run uses for it (so it carries no carriage return or line feed), and the heading
+    occurs exactly once, followed by the line the writer writes. The result is not writer output and has its own
+    hash."""
+    if heading not in SUBSTITUTABLE_OPTION_HEADINGS:
+        raise ValueError(f"{heading!r} is not an options heading whose data line a run may substitute")
+    if not isinstance(line, str) or "\r" in line or "\n" in line:
+        raise ValueError("a replacement line must not contain a carriage return or line feed")
+    written, declared = _SUBSTITUTION_LINES[heading]
+    if line not in declared:
+        raise ValueError(f"the {heading} line {line!r} is not one a declared run substitutes")
+    marker = f"\r\n{heading}\r\n"
+    base = f"{marker}{written}\r\n"
+    if writer_text.count(marker) != 1 or writer_text.count(base) != 1:
+        raise ValueError(f"the MBF must carry the {heading} heading exactly once, followed by the line {written}")
+    if line == written:
         return writer_text
-    return writer_text.replace(base, f"\r\nOPPRES\r\n{line}\r\n")
+    return writer_text.replace(base, f"{marker}{line}\r\n")
 
 
 # -- sampling ------------------------------------------------------------------------------------------------------
@@ -1246,13 +1269,21 @@ def build_p7(model_id: str, spec: Spec) -> tuple[dict, list[dict], dict, dict]:
     """A closed cantilever L in the X-Z plane: anchor A, a straight along +X, a realized 90-degree bend with k = 1, a
     straight along +Z to the capped free end B; one region, both terminals transferring.
 
-    Why it isolates bend opening (the pressure-bend-opening series, declared before any run): the cantilever is
-    statically determinate, so a free axial strain makes no internal force. Elongation of a straight leg translates
-    what lies beyond it without turning it, and a uniform axial strain of the arc scales it without changing the
-    angle between its ends; so pressure elongation leaves the free end's rotation about Y unchanged. Weight and the
-    end and kink thrusts are the same in both runs. SWBPIPE's change of that rotation between the pressure-default
-    and pressure-elongation-on runs is therefore 0, and the target program's change, if any, is the bend opening of
-    its Bourdon switch."""
+    What it measures (the pressure-bend-opening series, declared before any run): any additional in-plane angular
+    response of the free end associated with the target program's Bourdon switch, with its bend pressure correction
+    field held off. The cantilever is statically determinate, so a free axial strain makes no internal force.
+    Elongation of a straight leg translates what lies beyond it without turning it, and a uniform axial strain of the
+    arc scales it without changing the angle between its ends; so, under this linear model, uniform free axial strain
+    is excluded as an explanation of a change of the free end's rotation. Weight and the end and kink thrusts are the
+    same in both runs, so SWBPIPE's change of that rotation between the pressure-default and pressure-elongation-on
+    runs is 0 (tests/test_caepipe_benchmark.py checks it on a build with the setting). That the target program's
+    change, if any, is the bend opening of its switch is a hypothesis: the series cannot by itself identify that
+    program's internal formula, establish a general law of bend opening, or exclude every undocumented effect of the
+    switch.
+
+    Its expansion case is a uniform temperature change of a homogeneous cantilever anchored at one end, with no
+    pressure and no mechanical load: free growth with no elastic force, shear or moment, so no shear or bend input
+    can change it, and none is named there."""
     b = Builder(model_id, spec["material"], pressure=True)
     od, wall = spec["od"], float(f"{spec['od'] / spec['dt']:.4g}")
     radius = spec["rd"] * od / 1000.0
@@ -1267,10 +1298,10 @@ def build_p7(model_id: str, spec: Spec) -> tuple[dict, list[dict], dict, dict]:
     b.region("R1", [first, bend, last], pressure_pa(spec["pressure_bar"]), (a, TRANSFERS), (tip, TRANSFERS))
     b.add_weight()
     b.add_thermal(spec["delta_t"])
-    return b.model(), [], _pressure_inexact(bends=True), _no_state_forms()
+    return b.model(), [], _pressure_inexact(bends=True, expansion=[]), _no_state_forms()
 
 
-TRANCHE_2 = ("P1", "P2-P3", "P4", "P5", "P6", "P7")
+TRANCHE_2 =("P1", "P2-P3", "P4", "P5", "P6", "P7")
 
 
 def elongation_on_model(model: dict[str, Any], load_case: str) -> dict[str, Any]:
@@ -1286,7 +1317,8 @@ def series_document(document: dict[str, Any], series: str) -> dict[str, Any]:
     set. `pressure-default`: the tracked model as it is. `pressure-elongation-on`: the tracked model with the setting
     naming its elongation_load_case. Either carries the closed forms valid in every state plus that state's, and that
     run's inexact inputs. `pressure-bourdon-expansion-capture`: the tracked model, marked `capture_only`, with no
-    closed form and no inexact input: its printed results are captured and screened against nothing. Every run
+    closed form and no inexact input, since no SWBPIPE state of these models equals that run (its declaration says
+    why); it is declared, and run_pilot refuses it by name and collects nothing for it. Every run
     document names its `oppres_line` (the MBF's OPPRES line, substituted by `substituted_mbf_text`) and its
     `run_id`, distinct per run."""
     if series not in PRESSURE_RUN_SERIES or series not in document.get("series", []):
@@ -1704,7 +1736,8 @@ FAMILIES: tuple[tuple[str, str, Callable[[random.Random], list[Spec]], Callable[
     ("P5", "pressurised anchored Z, one closed region, user k 1 and a higher k", p5_z, build_p5),
     ("P6", "pressurised tee: three anchored legs, one closed region per leg meeting at a pressure junction", p6_tee,
      build_p6),
-    ("P7", "pressurised closed cantilever L, one realized bend with k = 1: isolates bend opening", p7_bend_opening,
+    ("P7", "pressurised closed cantilever L, one realized bend with k = 1: in-plane angular response of the free end",
+     p7_bend_opening,
      build_p7),
 )
 
@@ -1722,11 +1755,15 @@ SERIES = {
         "swept": "run", "hypothesis": BEND_BOURDON, "runs": [SERIES_DEFAULT, SERIES_ELONGATION_ON],
         "observed": "case:sustained rotation about Y of the free end node:B",
         "swbpipe_change": 0.0,
-        "description": ("the closed cantilever L of P7 in its pressure-default and pressure-elongation-on runs. "
-                        "Pressure elongation does not turn the free end of a closed cantilever (build_p7), so "
-                        "SWBPIPE's change of that rotation between the runs is 0 and the target program's change "
-                        "isolates the bend opening of its Bourdon switch. The same pair of an anchored L (P4) does "
-                        "not isolate it: between anchors the legs' elongation bends the L and turns its ends too")},
+        "description": ("the closed cantilever L of P7 in its pressure-default and pressure-elongation-on runs. It "
+                        "measures any additional in-plane angular response of the free end associated with the "
+                        "target program's Bourdon switch, with its bend pressure correction field held off. Under the "
+                        "stated linear model, uniform free axial strain is excluded as an explanation of a rotation "
+                        "change (build_p7), so SWBPIPE's change of that rotation between the runs is 0. HYPOTHESIS: "
+                        "the target program's change, if any, is bend opening by its switch. The series cannot by "
+                        "itself identify that program's internal formula, establish a general law of bend opening, or "
+                        "exclude every undocumented effect of the switch. The same pair of an anchored L (P4) does "
+                        "not serve: between anchors the legs' elongation bends the L and turns its ends too")},
 }
 TRANCHES = {
     "1": {"families": ["G1", "G2", "G3", "G4", "G5", "G6", "G7", "G8"], "description": "linear static models"},

@@ -718,6 +718,19 @@ def benchmark_run_id(entry: Mapping[str, Any]) -> str:
     return entry.get("run_id") or entry["model_id"]
 
 
+CAPTURE_PATH_UNAVAILABLE = "capture_path_unavailable"
+
+
+def capture_refusal(entry: Mapping[str, Any], emit: Callable[[str], None]) -> tuple[str, str, str]:
+    """A capture-only run is declared but not run on this build: the path that would collect its result is a
+    separate change, so the run is refused by name, live or offline, before anything is solved, written,
+    collected, hashed or read, and nothing is emitted but this status line."""
+    reason = ("a capture-only run needs the capture-only path, which collects its result without reading it; that "
+              "path is a separate change and is not on this build")
+    emit(f"{benchmark_run_id(entry)}: route={CAPTURE_PATH_UNAVAILABLE}; {reason}; not run")
+    return NOT_RUN, CAPTURE_PATH_UNAVAILABLE, reason
+
+
 def benchmark_batches(models: list[Mapping[str, Any]], size: int) -> list[list[Mapping[str, Any]]]:
     return [list(models[start:start + size]) for start in range(0, len(models), size)]
 
@@ -797,6 +810,9 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
                          emit: Callable[[str], None], round_trip: Callable[..., dict[str, Any]], gui_fallback: bool,
                          attempt: int) -> tuple[str, str, str]:
     model_id = benchmark_run_id(entry)
+    if entry.get("capture_only"):
+        # Refused before anything is resolved or written (capture_refusal says why).
+        return capture_refusal(entry, emit)
     root = config.exchange_root.resolve()
     paths = case_paths(config, model_id)
 
@@ -808,17 +824,14 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
             emit(f"{model_id}: route={route}; {reason}; no benchmark record")
         return status, route, reason
 
-    # A capture-only run (benchmark_models.series_document) has no SWBPIPE state to solve or screen against.
-    capture_only = bool(entry.get("capture_only"))
-    if not capture_only:
-        body, output, error = solve_swbpipe(runner, {
-            "case_id": model_id, "model": entry["model"],
-            "source_location": f"validation/caepipe_benchmark/models/{entry['model_id']}.json"})
-        _write_json(root, paths["swbpipe"] / "request.json", body)
-        if output is not None:
-            _write_json(root, paths["swbpipe"] / "result.json", output)
-        if error:
-            return outcome(NOT_RUN, "not_run", f"SWBPIPE not solved ({error})")
+    body, output, error = solve_swbpipe(runner, {
+        "case_id": model_id, "model": entry["model"],
+        "source_location": f"validation/caepipe_benchmark/models/{entry['model_id']}.json"})
+    _write_json(root, paths["swbpipe"] / "request.json", body)
+    if output is not None:
+        _write_json(root, paths["swbpipe"] / "result.json", output)
+    if error:
+        return outcome(NOT_RUN, "not_run", f"SWBPIPE not solved ({error})")
     mbf = render_caepipe_mbf_si(entry["model"], title=entry["model_id"],
                                 reference_temperature_c=entry.get("reference_temperature_c", 20.0),
                                 piping_code=entry["piping_code"])
@@ -860,12 +873,6 @@ def _run_benchmark_model(entry: Mapping[str, Any], config: HarnessConfig, *, run
     _write_json(root, paths["parsed"] / "parser_diagnostics.json", {
         "document_kind": PARSER_DIAGNOSTICS_KIND,
         **{key: parsed[key] for key in ("parser_version", "diagnostics", "sections_parsed", "sections_skipped")}})
-    if capture_only:
-        _benchmark_manifest(root, paths, entry, offline=offline, outcome="captured", route=route, attempt=attempt,
-                            exported_model_hash=mbf_sha256, trial_first_launch_date=config.trial_first_launch_date,
-                            csv=str(csv_path.relative_to(paths["root"])))
-        emit(f"{model_id}: route={route}; captured, screened against nothing")
-        return RECORDED, route, ""
     comparison = build_benchmark_record(entry, swbpipe_result_payload=output["payload"], mbf_result=mbf,
                                         mbf_text=mbf_text, parsed_caepipe=parsed)
     comparison_path = paths["comparison"] / BENCHMARK_RECORD
@@ -929,6 +936,11 @@ def run_benchmark(models: list[Mapping[str, Any]], config: HarnessConfig, *, run
     A model that still left no CSV is recorded as such and the run goes on; a round trip that raised twice, a gate
     that fails, or an unclean settings check stops the run. The GUI fallback is on only when the settings guard
     restores the whole key, whose restore covers the settings that route writes (Design §5)."""
+    captures = [entry for entry in models if entry.get("capture_only")]
+    if captures:
+        for entry in captures:
+            capture_refusal(entry, emit)
+        return 2
     batches = benchmark_batches(models, batch_size)
     if batch is not None:
         if not 1 <= batch <= len(batches):
@@ -1099,6 +1111,11 @@ def benchmark_main(args: argparse.Namespace, environ: Mapping[str, str]) -> int:
         models = load_benchmark(Path(args.benchmark), args.cases, args.series)
     except (KeyError, OSError, ValueError) as error:
         print(f"error: {error}", file=sys.stderr)
+        return 2
+    captures = [entry for entry in models if entry.get("capture_only")]
+    for entry in captures:
+        capture_refusal(entry, print)
+    if captures:
         return 2
     config = resolve_harness_config(environ, require_vm_tools=not args.offline)
     if isinstance(config, HarnessSkip):

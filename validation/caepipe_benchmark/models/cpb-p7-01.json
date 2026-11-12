@@ -7,17 +7,13 @@
   "document_kind": "openpipestress.caepipe_benchmark.model",
   "elongation_load_case": "case:sustained",
   "family": "P7",
-  "family_description": "pressurised closed cantilever L, one realized bend with k = 1: isolates bend opening",
+  "family_description": "pressurised closed cantilever L, one realized bend with k = 1: in-plane angular response of the free end",
   "generator": {
     "seed": 20261028,
     "version": "caepipe-benchmark-generator-1"
   },
   "inexact_inputs": {
-    "case:expansion": [
-      "shear_deformation",
-      "bend_flexibility_application",
-      "bend_transverse_shear"
-    ],
+    "case:expansion": [],
     "case:sustained": [
       "shear_deformation",
       "bend_flexibility_application",
@@ -33,11 +29,7 @@
   },
   "inexact_inputs_by_series": {
     "pressure-default": {
-      "case:expansion": [
-        "shear_deformation",
-        "bend_flexibility_application",
-        "bend_transverse_shear"
-      ],
+      "case:expansion": [],
       "case:sustained": [
         "shear_deformation",
         "bend_flexibility_application",
@@ -52,11 +44,7 @@
       ]
     },
     "pressure-elongation-on": {
-      "case:expansion": [
-        "shear_deformation",
-        "bend_flexibility_application",
-        "bend_transverse_shear"
-      ],
+      "case:expansion": [],
       "case:sustained": [
         "shear_deformation",
         "bend_flexibility_application",
