@@ -964,6 +964,19 @@ mod tests {
         }
     }
 
+    #[test]
+    fn missing_status_has_its_own_reason_and_poisons_the_connection() {
+        assert_ne!(REMOTE_CONTROL_STATUS_MISSING, REMOTE_CONTROL_REPORTED);
+        assert_ne!(REMOTE_CONTROL_STATUS_MISSING, Error("unoffered supplier tool activity"));
+        let mut p = ready();
+        p.submit_text("hello".into()).unwrap();
+        assert_eq!(p.require_remote_control_status().err(), Some(REMOTE_CONTROL_STATUS_MISSING));
+        assert!(p.handle_frame(remote_control(json!("disabled")), &basis()).is_err());
+        let mut q = ready();
+        q.handle_frame(remote_control(json!("disabled")), &basis()).unwrap();
+        q.submit_text("hello".into()).unwrap();
+        assert_eq!(q.require_remote_control_status(), Ok(()));
+    }
     // The host's controls and replies write only these client requests and
     // the initialized notification; every other frame is a reply to a server
     // request. The guarantee is SessionDriver::send's allow list; this drives
