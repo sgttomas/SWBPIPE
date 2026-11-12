@@ -3,11 +3,17 @@
 // the exact route (DEL-08-01 AC-011, DEL-12-02 AC-007), and autosave recovery after the app is ended
 // without warning (DEL-02-05 AC-011 / VER-008, without its fault injection, AC-012).
 //
+//   tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs --build-only
 //   tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs --journey <names> [--skip-build] [--keep]
 //   tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs --all [--skip-build] [--keep]
 //
 // (`tools/t3_slot.sh` is the shared development host's slot wrapper,
-// `/Users/ryan/dev/chirality-t3/tools/t3_slot.sh` there.) Journeys, each in its own throwaway HOME:
+// `/Users/ryan/dev/chirality-t3/tools/t3_slot.sh` there.) --build-only checks the engines, builds and binds
+// the app exactly as a run does, checks the executable's identity against the binding, and exits: no copy,
+// no window, no launch, and the executable is never run. --all runs autosave-recovery, report-exact and
+// report-pressure-free in that order, so the run's first launch is its shortest (autosave-recovery's first:
+// settings, one save, two edits and at most one autosave interval), where the web view's data location is
+// decided. Journeys, each in its own throwaway HOME:
 //
 //   report-pressure-free  1 launch. The bundled demo: solve (sparse); an observation of selection by keyboard
 //                         (below); render the local-private report; File > Save Shareable Report Package…
@@ -77,9 +83,19 @@
 // - a private copy of the app built from this worktree's head with the `native-smoke` cargo feature
 //   (`scripts/appBinaryBinding.mjs`, as run.mjs), never the installed product and never a signed or
 //   notarized build; its identity is checked before each launch;
-// - a throwaway HOME under the system temporary folder (`os.tmpdir()`), removed when the journey ends
-//   (kept only with --keep); the app's store, settings, autosave folder and Downloads are under it, so the
-//   owner's project store, settings, Downloads and keychain are neither read nor written;
+// - a throwaway home under the system temporary folder (`os.tmpdir()`), removed when the journey ends
+//   (kept only with --keep). Two variables redirect to it, both set to the same folder for every launch:
+//   HOME, which the app's own paths follow (its store, settings, autosave folder, Downloads), and
+//   CFFIXED_USER_HOME, which Foundation's home directory follows and through which the system web view
+//   keeps its website data and caches (Library/WebKit/<executable>, Library/Caches/<executable>). A launch
+//   is refused by name unless both are set, equal and under the temporary folder
+//   (homeRedirectionRefusal). No other variable was found documented as moving the web view's data, and
+//   none is set on a guess. THIS REDIRECTION IS UNTESTED UNTIL THE FIRST LAUNCH: every launch records
+//   the web view's data found under the throwaway home and checks that some is there; on a run's first
+//   launch, if none has appeared WEBVIEW_DATA_GRACE_MS after the shell loads, the app is ended at once and
+//   the run stops with "web view data did not appear under the throwaway home". The runner reads nothing
+//   under the owner's home. With it, the owner's project store, settings, Downloads and keychain are
+//   neither read nor written;
 // - no model, network, key, embedded agent or sign-in: the plan names none, the driver starts none, no
 //   provider key is passed (`SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY` is removed from the app's environment), and
 //   builds run offline (CARGO_NET_OFFLINE);
@@ -108,8 +124,8 @@
 // Every check prints one line; the runner exits 1 if any check fails (2 on a refusal before any launch,
 // 3 on "session locked"). Expectations are computed here on independent grounds
 // (`evidence-checks.mjs`): SHA-256 and RFC 8785 by the runner, the package read from its own bytes, the
-// notice compared with the text of PRD §19.3 read from docs/PRD.md, the autosave default and choices read
-// from DEL-02-05's ScopeOfWork.md, the store compared with a copy taken before. Nothing here reads or
+// notice compared with the text of PRD §19.3 read from docs/PRD.md, the autosave default and choices as
+// DEL-02-05's ScopeOfWork.md states them (written here; nothing under execution/ is read), the store compared with a copy taken before. Nothing here reads or
 // writes `expected.json`. This is evidence for the owner's review, not the owner's witness.
 import { execFileSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
@@ -122,8 +138,8 @@ import { fileIdentity, prepareSmokeApp, privateLaunchCopy } from "../scripts/app
 import { checkEngine, engineStampContext } from "../scripts/engineSourceStamp.mjs";
 import { BUILD_LOCK_TOKEN_ENV, acquireBuildLock, exitAfterSignals, refuseCompilerWrapperEnv, refuseHostSlotCommand, runUnderLock } from "../scripts/worktreeBuildLock.mjs";
 import {
-  autosaveIntervalTerms, autosaveSlot, documentSha256, dumpStore, inspectReportPackage, isCanonicalText, judgeAutosaveRecord,
-  driverTimeout, launchedPid, packageStatusFields, parseAutosaveName, parseCsvFile, prdRequiredNotice, readStoredZip, screenLockedFromIoreg, sha256Hex, timeoutText, underHostSlot
+  autosaveSlot, documentSha256, dumpStore, inspectReportPackage, isCanonicalText, judgeAutosaveRecord,
+  driverTimeout, homeRedirection, homeRedirectionRefusal, launchedPid, packageStatusFields, parseRunnerArgs, webviewDataEntries, parseAutosaveName, parseCsvFile, prdRequiredNotice, readStoredZip, screenLockedFromIoreg, sha256Hex, timeoutText, underHostSlot
 } from "./evidence-checks.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -132,9 +148,9 @@ const project = path.resolve(desktop, "..", "..");
 const tauriDir = path.join(desktop, "src-tauri");
 const argv = process.argv.slice(2);
 const args = new Set(argv);
-const JOURNEYS = ["report-pressure-free", "report-exact", "autosave-recovery"];
-// Kept apart: named alone, never part of --all.
-const SEPARATE_JOURNEYS = ["reference-system"];
+// --all runs ALL_JOURNEYS (evidence-checks.mjs) in its order: autosave-recovery first, whose first launch
+// is the run's shortest. reference-system is kept apart (SEPARATE_JOURNEYS): named alone, never in --all.
+const parsed = parseRunnerArgs(argv);
 // The named timeouts (ms). ui: a control's response to a click; step: a dialog, the shell at start, the
 // settings read, an applied edit, the recovery offer, the results table for the selection observation;
 // solve: one sparse solve; save: a render, a package save, a model document save; record: the driver's
@@ -155,10 +171,8 @@ if (!(Number(process.env.CARGO_BUILD_JOBS) >= 1 && Number(process.env.CARGO_BUIL
 console.log(`evidence journeys: CARGO_BUILD_JOBS=${process.env.CARGO_BUILD_JOBS}`);
 const loadNow = () => os.loadavg().map((value) => value.toFixed(2)).join(" / ");
 if (process.platform !== "darwin") refuse("macOS only");
-const named = argv.includes("--journey") ? (argv[argv.indexOf("--journey") + 1] ?? "").split(",").filter(Boolean) : [];
-const selected = args.has("--all") ? JOURNEYS : named;
-if (selected.length === 0 || selected.some((name) => !JOURNEYS.includes(name) && !SEPARATE_JOURNEYS.includes(name))) refuse(`choose --all or --journey with one or more of ${JOURNEYS.join(", ")} (or ${SEPARATE_JOURNEYS.join(", ")} alone)`);
-if (selected.some((name) => SEPARATE_JOURNEYS.includes(name)) && (selected.length > 1 || args.has("--all"))) refuse(`${SEPARATE_JOURNEYS.join(", ")} runs alone: name it as the only journey`);
+if (parsed.error) refuse(parsed.error);
+const selected = parsed.journeys;
 const psRows = () => execFileSync("/bin/ps", ["-axo", "pid=,ppid=,command="], { encoding: "utf8" });
 if (!underHostSlot(psRows(), process.pid)) refuse("not under the host's slot wrapper; start it as tools/t3_slot.sh node apps/desktop/native-smoke/evidence-journeys.mjs …");
 
@@ -180,7 +194,11 @@ function guardSession() {
 
 // Governing text and fixtures, read before anything is built.
 const NOTICE = prdRequiredNotice(readFileSync(path.join(project, "docs/PRD.md"), "utf8"));
-const INTERVAL = autosaveIntervalTerms(readFileSync(path.join(project, "execution/PKG-02/DEL-02-05/ScopeOfWork.md"), "utf8"));
+// DEL-02-05's definition of the autosave interval (ScopeOfWork.md, "*Autosave interval.*": "5 minutes by
+// default, with choices of 1, 2, 5, 10, 15 and 30 minutes, and off"), stated here from that text and not
+// from the product's code. It is not read at run time: maintained code reads nothing under execution/
+// (tools/validation/execution_boundary.py).
+const INTERVAL = { default_minutes: 5, choices: [1, 2, 5, 10, 15, 30], shortest_minutes: 1 };
 const DEMO_FIXTURE = "fixtures/product_preview/invented_demo_model.json";
 const EXACT_FIXTURE = "fixtures/model_operations/exact_pressure_authoring_model.json";
 const demo = JSON.parse(readFileSync(path.join(project, DEMO_FIXTURE), "utf8"));
@@ -215,7 +233,8 @@ async function run(command, commandArgs, cwd, env = {}) {
 
 // ---------------------------------------------------------------- build and bind (as run.mjs)
 
-if (guardSession()) await new Promise(() => {});
+// A build opens no window, so --build-only does not read the session's lock state.
+if (!parsed.buildOnly && guardSession()) await new Promise(() => {});
 let buildLock;
 try {
   buildLock = acquireBuildLock({ purpose: "evidence journeys" });
@@ -252,7 +271,7 @@ try {
     desktopRoot: desktop,
     tauriDir,
     binName: "openpipestress-desktop",
-    skipBuild: args.has("--skip-build"),
+    skipBuild: parsed.skipBuild,
     staleEngines: staleEngines.map((engine) => engine.name),
     engineFolders: ENGINE_BUILDS.map(({ destination }) => path.basename(destination)),
     engineHashes: () => Object.fromEntries(engineStates().map((engine) => [engine.name, engine.hash])),
@@ -274,6 +293,16 @@ try {
 } catch (error) {
   console.error(error.message.startsWith("native smoke:") ? error.message : `evidence journeys: app build failed: ${error.message}`);
   await exitAfterSignals(2);
+}
+// --build-only: built and bound; the executable's identity is checked against the binding as each launch
+// checks it, and the runner exits before any copy or launch. The executable is never run.
+if (parsed.buildOnly) {
+  const now = fileIdentity(app.binary);
+  const same = JSON.stringify(now) === JSON.stringify(app.identity);
+  console.log(`evidence journeys: built and bound, not launched: ${app.binary}`);
+  console.log(`evidence journeys: identity ${JSON.stringify(app.identity)}${same ? " (the file on disk matches the binding)" : " (THE FILE ON DISK DIFFERS FROM THE BINDING)"}`);
+  buildLock.release();
+  await exitAfterSignals(same ? 0 : 1);
 }
 let launchCopy;
 try {
@@ -303,6 +332,26 @@ function journeyRoot(name) {
   return { root, home, data: path.join(home, "Library", "Application Support", IDENTIFIER), saved: path.join(root, "saved"), models: path.join(root, "models") };
 }
 
+// Every file under `root`, by path relative to it; links listed, not followed. Used on throwaway homes only.
+function listRelative(root) {
+  const found = [];
+  const pending = [root];
+  while (pending.length > 0) {
+    const dir = pending.pop();
+    let entries = [];
+    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { continue; }
+    for (const entry of entries) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) pending.push(full);
+      else found.push(path.relative(root, full));
+    }
+  }
+  return found;
+}
+// How long after the shell loads the web view may take to write its data under the throwaway home.
+const WEBVIEW_DATA_GRACE_MS = 15_000;
+let firstLaunchDone = false;
+
 // One launch of the private copy with `plan`. With `whileRunning`, that function is polled while the
 // app runs; when it returns a value the app is ended with SIGKILL and the value is returned with the outcome.
 async function launch(where, plan, whileRunning = null, waitLimitMs = RECORD_WAIT_MS, launchTimeoutMs = PHASE_TIMEOUT_MS) {
@@ -313,41 +362,74 @@ async function launch(where, plan, whileRunning = null, waitLimitMs = RECORD_WAI
     console.error(`evidence journeys: ${binary} changed since it was checked; not launched`);
     await exitAfterSignals(2);
   }
-  const env = { ...process.env, HOME: where.home, SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "evidence-journeys.js"), SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify({ ...plan, timeouts: { ...TIMEOUTS, ...(plan.timeouts ?? {}) } }), SWBPIPE_NATIVE_SMOKE_REPORT: report };
+  // Both homes redirected to the throwaway home: HOME for the app's own paths, CFFIXED_USER_HOME for
+  // Foundation's home directory, through which the system web view places its data. Refused by name
+  // otherwise, before anything starts.
+  const env = { ...process.env, ...homeRedirection(where.home), SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "evidence-journeys.js"), SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify({ ...plan, timeouts: { ...TIMEOUTS, ...(plan.timeouts ?? {}) } }), SWBPIPE_NATIVE_SMOKE_REPORT: report };
+  delete env.SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY;
+  const refusal = homeRedirectionRefusal(env, os.tmpdir());
+  if (refusal) {
+    console.error(`evidence journeys: not launched: the home redirection is refused: ${refusal}`);
+    await exitAfterSignals(2);
+  }
   const samples = [];
   const sample = () => { samples.push({ at: Date.now(), load: os.loadavg() }); if (samples.length > 2000) samples.shift(); };
   sample();
   const sampler = setInterval(sample, 2000);
   const launchedAt = Date.now();
-  delete env.SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY;
   let exited = null;
   const running = runUnderLock("/usr/bin/caffeinate", ["-di", binary], { cwd: where.root, env, stdio: ["ignore", "inherit", "inherit"], timeoutMs: launchTimeoutMs })
     .then((outcome) => { exited = outcome; return outcome; });
-  let ended = null;
-  if (whileRunning) {
-    const started = Date.now();
-    while (exited === null && ended === null) {
-      const value = whileRunning();
-      if (value) {
-        const pid = launchedPid(execFileSync("/bin/ps", ["-axo", "pid=,command="], { encoding: "utf8" }), binary);
-        const at = Date.now();
-        if (pid !== null) process.kill(pid, "SIGKILL");
-        ended = { value, pid, at, load: os.loadavg() };
-        break;
-      }
-      if (Date.now() - started > waitLimitMs) {
-        console.error(`${journey}: TIMEOUT waiting for the condition to end the app (phase ${plan.phase}): ${Math.round((Date.now() - started) / 1000)} s elapsed of a ${Math.round(waitLimitMs / 1000)} s limit; load average ${loadNow()} (1/5/15 min), on ${os.cpus().length} processors`);
-        ended = { value: null, pid: null, at: Date.now(), timed_out: true, load: os.loadavg() };
-        break;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 200));
-    }
-  }
-  if (ended?.timed_out) {
+  const killNow = () => {
     const pid = launchedPid(execFileSync("/bin/ps", ["-axo", "pid=,command="], { encoding: "utf8" }), binary);
     if (pid !== null) process.kill(pid, "SIGKILL");
+    return pid;
+  };
+  // The web view's data under the throwaway home, watched from the start of the launch. It is decided
+  // once the driver reports the shell loaded (its `shell-loaded` checkpoint), with WEBVIEW_DATA_GRACE_MS
+  // more for the web view to write lazily. On the run's first launch, none there ends the app at once
+  // and stops the whole run.
+  const shellLoaded = `${report}.shell-loaded.json`;
+  const webview = { entries: [], decided: false, shell_loaded_at: null };
+  let ended = null;
+  const started = Date.now();
+  while (exited === null) {
+    if (!webview.decided) {
+      webview.entries = webviewDataEntries(listRelative(where.home), path.basename(binary));
+      if (webview.entries.length > 0) webview.decided = true;
+      else if (existsSync(shellLoaded)) {
+        webview.shell_loaded_at ??= Date.now();
+        if (Date.now() - webview.shell_loaded_at > WEBVIEW_DATA_GRACE_MS) {
+          webview.decided = true;
+          if (!firstLaunchDone) {
+            killNow();
+            await running;
+            clearInterval(sampler);
+            console.error("evidence journeys: web view data did not appear under the throwaway home");
+            console.error(`  (the shell had loaded ${Math.round(WEBVIEW_DATA_GRACE_MS / 1000)} s earlier; the home redirection did not take, so the run stops here: ${where.home})`);
+            buildLock.release();
+            await exitAfterSignals(4);
+          }
+        }
+      }
+    }
+    if (whileRunning && ended === null) {
+      const value = whileRunning();
+      if (value) {
+        const at = Date.now();
+        ended = { value, pid: killNow(), at, load: os.loadavg() };
+      } else if (Date.now() - started > waitLimitMs) {
+        console.error(`${journey}: TIMEOUT waiting for the condition to end the app (phase ${plan.phase}): ${Math.round((Date.now() - started) / 1000)} s elapsed of a ${Math.round(waitLimitMs / 1000)} s limit; load average ${loadNow()} (1/5/15 min), on ${os.cpus().length} processors`);
+        ended = { value: null, pid: killNow(), at: Date.now(), timed_out: true, load: os.loadavg() };
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, 200));
   }
+  firstLaunchDone = true;
   const outcome = await running;
+  if (!webview.decided) webview.entries = webviewDataEntries(listRelative(where.home), path.basename(binary));
+  check(`phase ${plan.phase}: web view data appeared under the throwaway home`, webview.entries.length > 0, webview.entries.slice(0, 10));
+  observe(`phase ${plan.phase}: web view data under the throwaway home`, webview.entries.length > 0 ? webview.entries.slice(0, 20) : "none");
   clearInterval(sampler);
   if (outcome.timedOut) console.error(`${journey}: TIMEOUT of the whole launch (phase ${plan.phase}): ${Math.round((Date.now() - launchedAt) / 1000)} s elapsed of a ${launchTimeoutMs / 1000} s limit; load average ${loadNow()} (1/5/15 min), on ${os.cpus().length} processors`);
   const result = existsSync(report) ? JSON.parse(readFileSync(report, "utf8")) : { ok: false, error: `no report (exit ${outcome.status ?? outcome.signal}${outcome.timedOut ? "; the launch timed out" : ""})` };
@@ -675,10 +757,15 @@ async function autosaveJourney() {
 // Not part of --all and not run under the present leave. One launch: File > Open Model Document… of the
 // reference system fixture, a solve by the desktop's own controls (its route is the document's: its
 // pressure_contract names exact_pressure_v3), the solve's summary, proof and standing as the window shows
-// them, the time from Run to the results table's first rows, the local-private report and its package, and
-// the session's model document. Bytes: the package file and its result member, read by the runner; the
-// request the webview built is not exposed by the product (the job record states only the bound reserved
-// for the model intake), which is recorded as such.
+// them, the time from Run to the results table's first rows, and the session's model document. Then what a
+// person meets, as OBSERVED lines, in the window's own words: on main every solve of this fixture is
+// "sensitive" (M03-INTEGRITY-v1) and the desktop reads "needs recompute", so the result export and the
+// report package are refused (CURRENT_NUMERICAL_INTEGRITY_NEEDS_RECOMPUTE, resultExportAdapter.ts:265).
+// Recorded: the standing; whether Render is offered and what it shows or refuses; the package save
+// control and its refusal; the Exports section; every sentence that mentions recompute. No package is
+// expected and nothing is worked around; the journey ends cleanly. Bytes: a package only if one was
+// saved; the request the webview built is not exposed by the product (the job record states only the
+// bound reserved for the model intake), which is recorded as such.
 const REFERENCE_FIXTURE = "fixtures/reference_system/reference_system.json";
 const REFERENCE_SOLVE_MS = 45 * 60 * 1000;
 const REFERENCE_LAUNCH_MS = 75 * 60 * 1000;
@@ -700,10 +787,17 @@ async function referenceJourney() {
   check(`the standing names the document's route (${contract})`, contract !== "none" && report.solve?.standing?.includes(contract), report.solve?.standing?.slice(0, 120));
   observe("solve as the window shows it", { summary: report.solve?.summary, proof: report.solve?.proof, standing: report.solve?.standing?.slice(0, 300), document_pressure_contract: contract });
   observe("time from Run to the job completed and to the results table's first rows (ms)", { completed: report.solve?.run_to_completed_ms, first_rows: report.solve?.run_to_first_rows_ms, rows: report.solve?.filter_summary });
-  judgeRender("local-private render", report.render);
-  const local = report.local ?? {};
-  const status = packageStatusFields(local.status);
-  check("local-private package saved (REPORT-PACKAGE-SAVED)", status.outcome === "saved" && status.code === "REPORT-PACKAGE-SAVED" && existsSync(files.local_package), local.status);
+  // What a person meets after the solve, in the window's own words; no package is expected (on main the
+  // reference system solves "sensitive" and the desktop reads "needs recompute").
+  const met = report.met ?? {};
+  observe("the standing after the solve, as the window shows it", met.standing ?? "none shown");
+  observe("the numerical health line", met.health ?? "none shown");
+  observe(`Render: ${met.render?.offered ? (met.render.enabled ? "offered and pressed" : "shown but disabled") : "not offered"}`,
+    { refusal: met.render?.refusal, precondition: met.render?.precondition, title: met.render?.title, hash: met.render?.hash, gate: met.render?.gate, error: met.render?.error, route: met.render?.route, redaction: met.render?.redaction, blocking_reasons: met.render?.blocking_reasons });
+  observe("the report package's save control", { refusal: met.package?.refusal ?? "none shown", save_enabled: met.package?.save_enabled, title: met.package?.save_title, status_after_press: met.package?.status ?? "not pressed" });
+  observe("the result export as the Exports section shows it", met.result_export ?? "not read");
+  const said = [...new Set([...(met.recompute_sentences_results ?? []), ...(met.recompute_sentences_report ?? []), ...(met.recompute_sentences_exports ?? [])])];
+  observe(`what tells the person what "needs recompute" asks of them: ${said.length} sentence(s) mentioning recompute`, said.length > 0 ? said : "none");
   const model = savedDocument(files.model_document);
   check("the session's model document is the opened fixture's model by RFC 8785 SHA-256", model.canonical && model.sha256 === documentSha256(document), model.sha256);
   let seen = null;
@@ -711,7 +805,7 @@ async function referenceJourney() {
   const members = seen && !seen.error ? readStoredZip(readFileSync(files.local_package)) : [];
   const resultMember = members.find((member) => /result/i.test(member.name) && member.name.endsWith(".json") && member.name !== "package_manifest.json");
   observe("bytes", {
-    package_file: seen?.file_byte_length ?? null,
+    package_file: seen?.file_byte_length ?? "no package saved",
     result_member: resultMember ? { name: resultMember.name, bytes: resultMember.bytes.length } : null,
     model_document: model.bytes?.length ?? null,
     request_built_by_the_webview: "not exposed by the product without new product code",
@@ -748,7 +842,7 @@ for (const name of selected) {
       : await reportJourney(name === "report-exact" ? "exact" : "pressure-free");
   roots.push(where.root);
   writeFileSync(path.join(where.root, "summary.json"), JSON.stringify({ journey: name, source_revision: revision, app: { binary: app.binary, identity: app.identity }, checks: checks.filter((item) => item.journey === name) }, null, 2));
-  if (args.has("--keep")) console.log(`evidence kept in ${where.root}`);
+  if (parsed.keep) console.log(`evidence kept in ${where.root}`);
   else rmSync(where.root, { recursive: true, force: true });
 }
 const failed = checks.filter((item) => !item.ok);

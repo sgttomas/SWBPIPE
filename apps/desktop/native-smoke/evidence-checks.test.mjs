@@ -3,17 +3,65 @@
 //   node --test apps/desktop/native-smoke/evidence-checks.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import {
-  autosaveIntervalTerms, autosaveSlot, canonical, crc32, documentSha256, driverTimeout, dumpStore, inspectReportPackage, isCanonicalText,
+  autosaveSlot, canonical, crc32, documentSha256, driverTimeout, dumpStore, inspectReportPackage, isCanonicalText,
   judgeAutosaveRecord, launchedPid, packageStatusFields, parseAutosaveName, parseCsvFile, prdRequiredNotice, readStoredZip,
-  screenLockedFromIoreg, sha256Hex, timeoutText, underHostSlot
+  screenLockedFromIoreg, sha256Hex, timeoutText, underHostSlot, homeRedirection, homeRedirectionRefusal, webviewDataEntries,
+  ALL_JOURNEYS, parseRunnerArgs
 } from "./evidence-checks.mjs";
 
+test("the runner's command line: --all in its order, named journeys, the separate journey alone, and --build-only", () => {
+  assert.deepEqual(ALL_JOURNEYS[0], "autosave-recovery");
+  assert.deepEqual(parseRunnerArgs(["--all"]), { journeys: ALL_JOURNEYS, buildOnly: false, skipBuild: false, keep: false });
+  assert.deepEqual(parseRunnerArgs(["--journey", "report-exact,report-pressure-free", "--skip-build", "--keep"]), { journeys: ["report-exact", "report-pressure-free"], buildOnly: false, skipBuild: true, keep: true });
+  assert.deepEqual(parseRunnerArgs(["--journey", "reference-system", "--skip-build"]).journeys, ["reference-system"]);
+  assert.match(parseRunnerArgs(["--journey", "reference-system,report-exact"]).error, /runs alone/);
+  assert.match(parseRunnerArgs(["--all", "--journey", "report-exact"]).error, /not both/);
+  assert.match(parseRunnerArgs([]).error, /choose --all/);
+  assert.match(parseRunnerArgs(["--journey"]).error, /needs one or more/);
+  assert.match(parseRunnerArgs(["--journey", "nope"]).error, /choose --all/);
+  assert.match(parseRunnerArgs(["--al"]).error, /unknown arguments: --al/);
+  assert.deepEqual(parseRunnerArgs(["--build-only"]), { journeys: [], buildOnly: true, skipBuild: false, keep: false });
+  assert.match(parseRunnerArgs(["--build-only", "--all"]).error, /takes no journey/);
+  assert.match(parseRunnerArgs(["--build-only", "--skip-build"]).error, /takes no journey/);
+});
+
 const project = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..", "..", "..");
+
+test("the launch redirects both homes to one throwaway folder under the temporary folder, or is refused by name", () => {
+  const tmp = "/var/folders/ab/T";
+  const home = `${tmp}/swbpipe-evidence-x/home`;
+  assert.deepEqual(homeRedirection(home), { HOME: home, CFFIXED_USER_HOME: home });
+  assert.equal(homeRedirectionRefusal(homeRedirection(home), tmp), null);
+  assert.equal(homeRedirectionRefusal(homeRedirection(home), `${tmp}/`), null);
+  assert.match(homeRedirectionRefusal({ HOME: home }, tmp), /CFFIXED_USER_HOME is not set/);
+  assert.match(homeRedirectionRefusal({ CFFIXED_USER_HOME: home }, tmp), /HOME is not set/);
+  assert.match(homeRedirectionRefusal({ HOME: home, CFFIXED_USER_HOME: `${home}2` }, tmp), /differ/);
+  assert.match(homeRedirectionRefusal(homeRedirection("/Users/someone"), tmp), /not under the system temporary folder/);
+  assert.match(homeRedirectionRefusal(homeRedirection(tmp), tmp), /not under the system temporary folder/);
+  assert.match(homeRedirectionRefusal(homeRedirection(`${tmp}/../../Users/someone`), tmp), /without \.\./);
+  assert.match(homeRedirectionRefusal(homeRedirection("relative/home"), tmp), /absolute/);
+});
+
+test("the web view's data is found in a listing of the throwaway home", () => {
+  const name = "openpipestress-desktop";
+  const listing = [
+    "Library/Application Support/com.example.app/openpipestress-projects.sqlite3",
+    "Library/WebKit/openpipestress-desktop/WebsiteData/LocalStorage/x.sqlite3",
+    "Library/Caches/openpipestress-desktop/WebKit/NetworkCache/a",
+    "Library/HTTPStorages/openpipestress-desktop.binarycookies",
+    "Library/Caches/other-app/x",
+    "Downloads/a.csv"
+  ];
+  assert.deepEqual(webviewDataEntries(listing, name), listing.slice(1, 4));
+  assert.deepEqual(webviewDataEntries(["Library/HTTPStorages/openpipestress-desktop/x"], name), ["Library/HTTPStorages/openpipestress-desktop/x"]);
+  assert.deepEqual(webviewDataEntries(["Library/Application Support/openpipestress-desktop/x"], name), []);
+  assert.deepEqual(webviewDataEntries(["Downloads/a.csv"], name), []);
+});
 
 // A stored ZIP written by the test's own writer, in the layout the report package uses.
 function storedZip(entries, { tamper } = {}) {
@@ -109,16 +157,11 @@ test("a driver timeout is told apart, with the load average nearest its moment",
   assert.equal(driverTimeout("TIMEOUT waiting for a: 1 ms elapsed, limit 0 ms, at 1700000000000", []).load, null);
 });
 
-test("PRD §19.3's notice and DEL-02-05's interval terms are read from the repository's text", () => {
+test("PRD §19.3's notice is read from the repository's text", () => {
   const notice = prdRequiredNotice(readFileSync(path.join(project, "docs/PRD.md"), "utf8"));
   assert.match(notice, /^SWBPIPE is decision-support software for piping design, flexibility, and stress-analysis workflows\./);
   assert.match(notice, /remain the responsibility of the user and project authority\.$/);
   assert.throws(() => prdRequiredNotice("# PRD\n"), /no §19\.3/);
-  // The hosted desktop job's sparse checkout omits execution/; the runner itself always reads the file.
-  const scope = path.join(project, "execution/PKG-02/DEL-02-05/ScopeOfWork.md");
-  if (existsSync(scope)) assert.deepEqual(autosaveIntervalTerms(readFileSync(scope, "utf8")), { default_minutes: 5, choices: [1, 2, 5, 10, 15, 30], shortest_minutes: 1 });
-  assert.deepEqual(autosaveIntervalTerms("- *Autosave interval.* x: 10 minutes by default, with choices of 3, 10 and 20, and off."), { default_minutes: 10, choices: [3, 10, 20], shortest_minutes: 3 });
-  assert.throws(() => autosaveIntervalTerms("nothing"), /defines no autosave interval/);
 });
 
 test("CRC-32 and the stored ZIP reader", () => {

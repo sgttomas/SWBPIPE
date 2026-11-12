@@ -41,7 +41,6 @@ def test_the_path_rule_selects_the_check_for_the_tests_and_what_they_read():
         "core/solver/performance_harness/observations/rack/models_sha256.txt",
         "core/solver/performance_harness/rack/rack_model.py",
         "docs/PRD.md",
-        "execution/PKG-02/DEL-02-05/ScopeOfWork.md",
     ]
     for path in inputs:
         assert CHECK in select_checks(profile(), [path])["checks"], path

@@ -567,9 +567,69 @@
       job_resource: solveJobResource()
     };
     report.up = { controls: viewportUpControls() };
-    report.render = await renderLocalPrivateReport("reference/render");
-    report.local = await saveLocalPackage(plan.local_package, "reference/local");
+    // What a person meets after the solve, recorded in the window's own words. On main the reference
+    // system solves "sensitive" (M03-INTEGRITY-v1) and the desktop reads "needs recompute", so the
+    // report outputs may be refused: nothing here expects a package, and nothing is worked around.
+    report.met = await observeReportOutputs(plan);
     report.model_document = await saveModelDocument(plan.model_document, "reference/model-document");
+  }
+
+  // Sentences in the window that mention recompute or recomputing, bounded.
+  function recomputeSentences() {
+    const text = document.body.innerText ?? "";
+    return [...new Set(text.split(/(?<=[.!?])\s+|\n+/).map((line) => line.trim()).filter((line) => /recompute|recomputing|re-run|run (the )?(solve|mechanics) again/i.test(line)))].slice(0, 20);
+  }
+
+  async function observeReportOutputs(plan) {
+    const met = { standing: text("numerical-result-standing"), health: text("numerical-health-header-line"), recompute_sentences_results: recomputeSentences() };
+    await showSection("report");
+    met.recompute_sentences_report = recomputeSentences();
+    const panel = await waitFor("rendered report panel", () => byTestId("rendered-report-panel"), T.step);
+    const render = byTestId("rendered-report-render", panel);
+    met.render = {
+      offered: Boolean(render),
+      refusal: text("rendered-report-load-reference-output-unavailable"),
+      precondition: text("rendered-report-precondition")
+    };
+    if (render) {
+      const intent = byTestId("rendered-report-local-private-intent");
+      if (intent && !intent.checked) { intent.click(); await waitFor("report intent", () => byTestId("rendered-report-local-private-intent")?.checked, T.ui); }
+      met.render.enabled = !render.disabled;
+      met.render.title = render.getAttribute("title");
+      if (!render.disabled) {
+        render.click();
+        await waitFor("render outcome", () => byTestId("rendered-report-hash") || byTestId("rendered-report-error") || byTestId("rendered-report-route") || byTestId("rendered-report-redaction-summary"), T.save);
+        await waitFor("render settled", () => !/Rendering/.test(byTestId("rendered-report-render")?.textContent ?? ""), T.save);
+        Object.assign(met.render, {
+          hash: text("rendered-report-hash"), gate: text("rendered-report-gate"), error: text("rendered-report-error"),
+          route: text("rendered-report-route"), redaction: text("rendered-report-redaction-summary"),
+          blocking_reasons: text("rendered-report-blocking-reasons")
+        });
+      }
+    }
+    met.package = {
+      refusal: text("report-package-source-unavailable"),
+      controls: Boolean(byTestId("report-package-controls")),
+      save_enabled: byTestId("report-package-save") ? !byTestId("report-package-save").disabled : null,
+      save_title: byTestId("report-package-save")?.getAttribute("title") ?? null
+    };
+    // Pressed only when the window offers it, with the chooser path queued; a refusal it then shows is recorded.
+    if (met.package.save_enabled && !met.package.refusal) {
+      const intent = byTestId("report-package-private-intent");
+      if (intent && !intent.checked) { intent.click(); await waitFor("package intent", () => byTestId("report-package-private-intent")?.checked, T.ui); }
+      await call("native_smoke_choose", { path: plan.local_package });
+      const prior = text("report-package-save-status");
+      await menu("file.save-report-package");
+      met.package.status = await packageOutcome("reference/package", prior).catch((error) => `not settled: ${error?.message ?? error}`);
+      met.package.chooser_paths_unused = await call("native_smoke_clear_choices");
+    }
+    await showSection("exports");
+    met.result_export = {
+      link: Boolean(byTestId("result-export-link")),
+      panel_text: (byTestId("workspace-section-exports")?.innerText ?? "").split("\n").map((line) => line.trim()).filter((line) => /recompute|not offered|Run mechanics preview|Current|refus/i.test(line)).slice(0, 10)
+    };
+    met.recompute_sentences_exports = recomputeSentences();
+    return met;
   }
 
   (async () => {
@@ -579,6 +639,9 @@
       report.phase = plan.phase;
       if (plan.timeouts) T = { ...T, ...plan.timeouts };
       await waitFor("desktop shell", () => byTestId("desktop-preview-shell") && treeRow(plan.bundled_project_id), T.step);
+      // The shell has loaded: the runner now decides whether the web view's data is under the throwaway
+      // home (on the run's first launch it ends the app if not). The app's own listing is recorded too.
+      await call("native_smoke_checkpoint", { name: "shell-loaded", report: { phase: plan.phase, at: Date.now() }, storeSnapshot: false, homeListing: true });
       await log(`evidence journey phase ${plan.phase} started`);
       if (plan.phase === "report") await phaseReport(plan, report);
       else if (plan.phase === "autosave-end") await phaseAutosaveEnd(plan, report);

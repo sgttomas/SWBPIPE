@@ -71,6 +71,72 @@ export function timeoutText({ label, elapsed_ms, limit_ms, load, load_sampled_at
   return `TIMEOUT waiting for ${label}: ${Math.round(elapsed_ms / 1000)} s elapsed of a ${Math.round(limit_ms / 1000)} s limit; load average ${shown}, on ${os.cpus().length} processors`;
 }
 
+// ---------------------------------------------------------------- the command line
+
+/** The journeys --all runs, in order: the first launch of the run is the shortest one (autosave-recovery's
+ * first launch: settings, one save, two edits and at most one autosave interval before it is ended), so
+ * the web view's data location is decided as early in a run as it can be. */
+export const ALL_JOURNEYS = ["autosave-recovery", "report-exact", "report-pressure-free"];
+/** Named alone, never part of --all. */
+export const SEPARATE_JOURNEYS = ["reference-system"];
+
+/** The runner's command line: `--all` or `--journey a,b`, `--skip-build`, `--keep`, and `--build-only`
+ * (check, build and bind the app and its identity, then exit before any launch; it takes no journey).
+ * Returns { journeys, buildOnly, skipBuild, keep } or { error }. */
+export function parseRunnerArgs(argv) {
+  const args = new Set(argv);
+  const known = new Set(["--all", "--journey", "--skip-build", "--keep", "--build-only"]);
+  const at = argv.indexOf("--journey");
+  const value = at >= 0 ? argv[at + 1] : undefined;
+  const unknown = argv.filter((item, index) => !known.has(item) && !(at >= 0 && index === at + 1));
+  if (unknown.length > 0) return { error: `unknown arguments: ${unknown.join(" ")}` };
+  const buildOnly = args.has("--build-only");
+  if (buildOnly) {
+    if (args.has("--all") || at >= 0 || args.has("--skip-build")) return { error: "--build-only builds and binds the app and takes no journey and no --skip-build" };
+    return { journeys: [], buildOnly: true, skipBuild: false, keep: false };
+  }
+  if (at >= 0 && (!value || value.startsWith("--"))) return { error: "--journey needs one or more journey names" };
+  if (args.has("--all") && at >= 0) return { error: "choose --all or --journey, not both" };
+  const journeys = args.has("--all") ? [...ALL_JOURNEYS] : (value ?? "").split(",").filter(Boolean);
+  if (journeys.length === 0 || journeys.some((name) => !ALL_JOURNEYS.includes(name) && !SEPARATE_JOURNEYS.includes(name))) {
+    return { error: `choose --all, --build-only or --journey with one or more of ${ALL_JOURNEYS.join(", ")} (or ${SEPARATE_JOURNEYS.join(", ")} alone)` };
+  }
+  if (journeys.some((name) => SEPARATE_JOURNEYS.includes(name)) && journeys.length > 1) return { error: `${SEPARATE_JOURNEYS.join(", ")} runs alone: name it as the only journey` };
+  return { journeys, buildOnly: false, skipBuild: args.has("--skip-build"), keep: args.has("--keep") };
+}
+
+// ---------------------------------------------------------------- the home redirection
+
+/** The launch environment's home: HOME for the app's own paths, CFFIXED_USER_HOME for Foundation's home
+ * directory, through which the system web view places its website data and caches. */
+export const homeRedirection = (home) => ({ HOME: home, CFFIXED_USER_HOME: home });
+
+/** Why a launch environment must not be used, or null: HOME and CFFIXED_USER_HOME must both be set,
+ * equal, absolute, and strictly under the system temporary folder `tmp`. */
+export function homeRedirectionRefusal(env, tmp) {
+  const home = env.HOME;
+  const fixed = env.CFFIXED_USER_HOME;
+  if (!home) return "HOME is not set";
+  if (!fixed) return "CFFIXED_USER_HOME is not set";
+  if (home !== fixed) return `HOME (${home}) and CFFIXED_USER_HOME (${fixed}) differ`;
+  if (!home.startsWith("/") || home.split("/").includes("..")) return `HOME (${home}) is not an absolute path without ..`;
+  const base = String(tmp).replace(/\/+$/, "");
+  if (!base.startsWith("/") || !home.startsWith(`${base}/`)) return `HOME (${home}) is not under the system temporary folder (${base})`;
+  return null;
+}
+
+/** The web view's data under a home, from a listing of paths relative to it: anything the system web view
+ * keeps for an app named `name` (Library/WebKit/<name>, Library/Caches/<name>, Library/HTTPStorages/<name>,
+ * Library/Cookies), and any other Library entry naming it. The app's own Application Support folder is
+ * not web view data and is left out. */
+export function webviewDataEntries(paths, name) {
+  const own = /^Library\/Application Support\//;
+  return paths.filter((entry) => !own.test(entry) && (
+    new RegExp(`^Library/(WebKit|Caches|HTTPStorages)/${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(/|$|\\.)`).test(entry)
+    || /^Library\/Cookies(\/|$)/.test(entry)
+    || (entry.startsWith("Library/") && entry.split("/").includes(name))));
+}
+
 // ---------------------------------------------------------------- governing text
 
 /** The text of PRD §19.3's required notice: the first `text` fence after the heading. */
@@ -87,17 +153,6 @@ export function prdRequiredNotice(prd) {
 }
 export const normalizeSpace = (text) => String(text).replace(/\s+/g, " ").trim();
 
-/** DEL-02-05's definition of the autosave interval: its default and its choices, in
- * minutes (`*Autosave interval.* … N minutes by default, with choices of a, b … and off.`). */
-export function autosaveIntervalTerms(scope) {
-  const line = scope.split("\n").find((entry) => entry.includes("*Autosave interval.*"));
-  if (!line) throw new Error("DEL-02-05 ScopeOfWork.md defines no autosave interval");
-  const match = line.match(/(\d+) minutes by default, with choices of ([\d, and]+?)(?: minutes)?,? and off/);
-  if (!match) throw new Error(`DEL-02-05's autosave interval is not in the form the runner reads: ${line}`);
-  const choices = match[2].split(/,\s*|\s+and\s+/).map((item) => item.trim()).filter(Boolean).map(Number);
-  if (choices.some((value) => !Number.isInteger(value) || value <= 0)) throw new Error(`DEL-02-05's autosave choices do not read as minutes: ${match[2]}`);
-  return { default_minutes: Number(match[1]), choices, shortest_minutes: Math.min(...choices) };
-}
 
 // ---------------------------------------------------------------- the package container
 

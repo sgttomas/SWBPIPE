@@ -370,7 +370,6 @@
         "core/solver/performance_harness/observations/rack/**",
         "core/solver/performance_harness/rack/**",
         "docs/PRD.md",
-        "execution/PKG-02/DEL-02-05/ScopeOfWork.md",
         "software-workflow.json"
       ],
       "checks": [
