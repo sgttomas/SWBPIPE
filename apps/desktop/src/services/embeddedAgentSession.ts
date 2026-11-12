@@ -5,7 +5,7 @@ import { jsonTextKeepingNegativeZero } from './jsonText';
 import { invokeWithIngress } from './nativeIngress';
 import { EmbeddedAgentBridge, type AgentActual, type AgentBasis, type AgentCall, type AgentDelivery, type AgentScope } from './embeddedAgentBridge';
 import type { PreviewModel, ModelHashEvidence, EditorOperationIntent, MechanicsResult, Diagnostic } from '../types';
-import { isNativeResult, nativeCustody, NativeQueryRefused, queryNativeRows, type SessionResult } from './nativeResult';
+import { isNativeJobLive, isNativeResult, nativeCustody, NativeQueryRefused, queryNativeRows, type SessionResult } from './nativeResult';
 import { agentDetailFilter } from './resultDetail';
 import type { OperationBatch } from './operationBatchService';
 import { validateOperationBatch } from './operationBatchService';
@@ -23,6 +23,8 @@ export type AgentSolveFailure='resource_refused'|'result_too_large'|'job_failed'
 /** What the workspace's solve route says happened, in one of four forms. `modelHash` is the
  * hash of the model the solve was for, in the workspace's form; null where none was computed.
  * - completed: a native job ran and its published result is solved; the run is retained.
+ *   `result` is the published result itself: with `jobId` it is the run's identity. The run id
+ *   is not one (every solve publishes the same run id), so nothing here compares it.
  * - rejected: the model was refused. From a published blocked result (`jobId` its job), or
  *   from a solve gate before any job started (`jobId` null); either way no run and no
  *   result is relied on. `diagnostics` are the findings as the Diagnostics panel shows them;
@@ -31,7 +33,7 @@ export type AgentSolveFailure='resource_refused'|'result_too_large'|'job_failed'
  * - failed: the solve did not produce a result; `message` is the job's or the session's.
  * - not_started: nothing was started (another solve holds the run). */
 export type AgentSolveOutcome=
- | Readonly<{kind:'completed';jobId:string;runId:string;modelHash:ModelHashEvidence;solverMode:AgentSolverMode;health:string}>
+ | Readonly<{kind:'completed';jobId:string;runId:string;modelHash:ModelHashEvidence;solverMode:AgentSolverMode;health:string;result:SessionResult}>
  | Readonly<{kind:'rejected';jobId:string|null;modelHash:ModelHashEvidence|null;solverMode:AgentSolverMode;health:string;diagnostics:readonly Diagnostic[];notListed:number;message?:string}>
  | Readonly<{kind:'failed';failure:AgentSolveFailure;message:string;modelHash:ModelHashEvidence|null;solverMode:AgentSolverMode}>
  | Readonly<{kind:'not_started';message:string}>;
@@ -48,7 +50,17 @@ export type AgentSessionView=Readonly<{status:string;closed:boolean;turnActive:b
 type Authority=AgentScope&{ownerCapability:string};
 type Invoke=(request:Record<string,unknown>)=>Promise<unknown>;
 type Proposal={basis:AgentBasis;key:string;context:AgentContext};
+/** A retained run: the call's basis and the solve's outcome, whose published result and native
+ * job are the run's identity. */
 type Run={basis:AgentBasis;receipt:AgentRunReceipt};
+/** Whether the result the session holds now is the run's own: the same published result, from
+ * the same native job, still in custody. Never decided by run id. */
+function holdsRun(result:SessionResult|null,run:Run):result is SessionResult{
+ if(!result||result!==run.receipt.result)return false;
+ if(!isNativeResult(result))return true;
+ const jobId=nativeCustody(result).jobId;
+ return jobId===run.receipt.jobId&&isNativeJobLive(jobId);
+}
 type Proof=Record<string,unknown>;
 const LIMITS={argumentBytes:16384,resultBytes:65536,pageRows:50,pendingCalls:16,proposalOperations:16};
 const plain=(x:unknown):x is Record<string,unknown>=>!!x&&typeof x==='object'&&!Array.isArray(x);
@@ -126,12 +138,15 @@ function shortId(value:unknown):string|null|undefined{
  return typeof value==='string'&&fitsChars(value,ID_CHARS)&&wellFormed(value)?value:undefined;
 }
 const isShortId=(value:unknown):value is string=>typeof value==='string'&&!!value&&fitsChars(value,ID_CHARS)&&wellFormed(value);
-/** The first identifiers that fit the catalog's list (32, and its byte budget), with their total. */
+/** The encoded bytes a JSON array of `count` entries takes beyond its entries: brackets and commas. */
+const arrayFrame=(count:number)=>2+Math.max(0,count-1);
+/** The first identifiers that fit the catalog's list (32, and its byte budget counted as the
+ * encoded array: entries, commas and brackets), with their total. */
 function boundedIds(ids:readonly unknown[]):{count:number;ids:string[]}{
- const listed:string[]=[];let bytes=0;
+ const listed:string[]=[];let entries=0;
  for(const id of ids){
   if(listed.length>=32)break;if(!isShortId(id))continue;
-  const size=byteLength(JSON.stringify(id))+1;if(bytes+size>ID_LIST_BYTES)break;bytes+=size;listed.push(id);
+  const size=byteLength(JSON.stringify(id));if(entries+size+arrayFrame(listed.length+1)>ID_LIST_BYTES)break;entries+=size;listed.push(id);
  }
  return {count:ids.length,ids:listed};
 }
@@ -141,7 +156,7 @@ function boundedIds(ids:readonly unknown[]):{count:number;ids:string[]}{
  * exactly (a code or severity outside the catalog) is counted among those not listed, never
  * altered. Messages are cut at 500 characters, references at eight. */
 export function boundedFindings(diagnostics:readonly Diagnostic[],notListed:number):{diagnostics:{code:string;severity:string;message:string;affectedRefs:string[]}[];notListed:number}{
- const listed:{code:string;severity:string;message:string;affectedRefs:string[]}[]=[];let bytes=0;
+ const listed:{code:string;severity:string;message:string;affectedRefs:string[]}[]=[];let entries=0;
  for(const diagnostic of diagnostics){
   if(listed.length>=FINDINGS)break;
   if(!isShortId(diagnostic?.code)||!SEVERITIES.includes(diagnostic.severity))continue;
@@ -149,7 +164,8 @@ export function boundedFindings(diagnostics:readonly Diagnostic[],notListed:numb
   const affectedRefs:string[]=[];
   for(const ref of Array.isArray(diagnostic.affected_refs)?diagnostic.affected_refs:[]){if(affectedRefs.length>=FINDING_REFS)break;if(isShortId(ref))affectedRefs.push(ref);}
   const finding={code:diagnostic.code,severity:diagnostic.severity,message,affectedRefs};
-  const size=byteLength(JSON.stringify(finding));if(bytes+size>FINDINGS_BYTES)break;bytes+=size;
+  // The budget is the encoded array's: the entries, their commas and the brackets.
+  const size=byteLength(JSON.stringify(finding));if(entries+size+arrayFrame(listed.length+1)>FINDINGS_BYTES)break;entries+=size;
   listed.push(finding);
  }
  const whole=Number.isSafeInteger(notListed)&&notListed>0?notListed:0;
@@ -449,7 +465,7 @@ export class EmbeddedAgentSession {
  }
  private async readResults(call:AgentCall):Promise<AgentActual>{
   const handle=String(call.arguments.runHandle),run=this.#runs.get(handle);if(!run||!same(run.basis,call.basis))return this.failure(call,'Run is unavailable.');
-  const snap=this.owner.snapshot(),result=snap.result;if(!result||result.run_id!==run.receipt.runId)return this.failure(call,'The retained run is no longer held by the result owner.');
+  const snap=this.owner.snapshot(),result=snap.result;if(!holdsRun(result,run))return this.failure(call,'The retained run is no longer held by the result owner.');
   const filter=call.arguments.filter as AgentResultFilter|undefined;
   const offset=this.offset(call,handle),page=call.arguments.page as {limit:number};
   // C1 (DEL-04-05 slice 4): a native result's page is the native query's (the same filter, in

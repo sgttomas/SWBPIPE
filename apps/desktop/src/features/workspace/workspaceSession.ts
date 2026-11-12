@@ -1503,7 +1503,7 @@ export function useWorkspaceSession() {
           diagnostics: presentedResultDiagnostics(output), notListed: 0 };
       }
       return { kind: "completed", jobId: startedJob.job_id, runId: output.run_id, modelHash: solveModelHash,
-        solverMode, health };
+        solverMode, health, result: output };
     } catch (error) {
       timeline.end("failed", error);
       if (solveRunGate.current.isCurrent(runGeneration)) {

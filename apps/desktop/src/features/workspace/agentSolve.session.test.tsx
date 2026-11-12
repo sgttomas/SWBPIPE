@@ -154,6 +154,26 @@ describe("the agent's solve through the workspace's solve route", () => {
     await agent.close();
   }, 60000);
 
+  it("never reads a later solve's rows through an earlier solve's handle, though both carry the producer's one run id", async () => {
+    const { call, close, startAgent } = await session({ mode: "solved" });
+    await startAgent();
+    const first = await call("swbpipe_solve");
+    const second = await call("swbpipe_solve");
+    expect(first.outcome.status).toBe("completed");
+    expect(second.outcome.status).toBe("completed");
+    // The producer gives every solve the same run id: it identifies neither.
+    expect(second.outcome.data.runId).toBe(first.outcome.data.runId);
+    expect(second.proof.nativeJobId).not.toBe(first.proof.nativeJobId);
+    const queries = () => invokeMock.mock.calls.filter(([command]) => command === "query_preview_mechanics_job_rows").length;
+    const before = queries();
+    const read = await call("swbpipe_read_results", { runHandle: first.outcome.data.runHandle, page: { cursor: null, limit: 5 } });
+    expect(read.outcome.status).toBe("unavailable");
+    expect(read.outcome.data).toBeNull();
+    // Refused before any native read: the later job's rows were never queried for it.
+    expect(queries()).toBe(before);
+    await close();
+  }, 60000);
+
   it("reports a job refused for its result's size as failed, with the job's message, and never retries it", async () => {
     const { state, call, modes, close, startAgent } = await session({ mode: "too_large" });
     await startAgent();
