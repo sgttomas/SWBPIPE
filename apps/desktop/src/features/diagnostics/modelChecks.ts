@@ -15,7 +15,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { Diagnostic, EntityRef, PreviewModel } from "../../types";
 import { loadedWasmEngine, WASM_ENGINE_BUILD_COMMAND } from "../../services/wasmEngine/loadWasmEngine";
-import { invokeWithIngress, nativeFailureText } from "../../services/nativeIngress";
+import { IngressRequestRetiredError, invokeWithIngress, nativeFailureText } from "../../services/nativeIngress";
 import { ResourceUnavailableError } from "../../services/memoryPool";
 import { isTauriRuntime } from "../../services/nativeMenu";
 import { DOCUMENT_VALIDATOR_SOURCE } from "../model-data/documentDiagnostics";
@@ -43,7 +43,9 @@ export type ModelCheckFinding = Readonly<{
 export type SolveChecksOutcome =
   | Readonly<{ kind: "checked" }>
   | Readonly<{ kind: "refused"; refusal: string }>
-  | Readonly<{ kind: "unavailable"; reason: string }>;
+  /** `started` where the checks started and failed before they finished; otherwise
+   * they did not run. */
+  | Readonly<{ kind: "unavailable"; reason: string; started?: boolean }>;
 
 export type ModelCheckRun = Readonly<{
   /** The model value the checks read; a later model is a different value. */
@@ -54,6 +56,14 @@ export type ModelCheckRun = Readonly<{
   notShown: Readonly<Record<ModelCheckGroupId, number>>;
   /** How many of the findings not listed, in all groups, are blocking or errors. */
   notShownBlocking: number;
+  /** The same count for each group. */
+  notShownBlockingByGroup: Readonly<Record<ModelCheckGroupId, number>>;
+  /** Where the library-reference findings could not be collected, why; the library
+   * group then lists nothing and its findings are unknown. */
+  libraryNotCompleted?: string;
+  /** Where a later run of the checks on this same model value did not complete, why.
+   * The findings are this run's, the last that completed for the model value. */
+  laterCheckNotCompleted?: string;
 }>;
 
 /** The browser engine's input bound, as the engine itself refuses above it
@@ -87,12 +97,33 @@ type EngineChecks = {
   slots: Diagnostic[];
   notShown: { solve: number; slots: number };
   notShownBlocking: number;
+  notShownBlockingByGroup: { solve: number; slots: number };
   /** The report's serialized findings, counted against the bound. */
   bytes: number;
 };
 
+/** The checks did not run: a refusal established before any start (the engine not
+ * loaded, the input over the browser's bound, the engine's own refusal to check, a
+ * retired request never sent, the native pool's refusal to admit). */
 function unavailable(reason: string): EngineChecks {
-  return { outcome: { kind: "unavailable", reason }, solve: [], slots: [], notShown: { solve: 0, slots: 0 }, notShownBlocking: 0, bytes: 0 };
+  return { outcome: { kind: "unavailable", reason }, solve: [], slots: [], notShown: { solve: 0, slots: 0 }, notShownBlocking: 0, notShownBlockingByGroup: { solve: 0, slots: 0 }, bytes: 0 };
+}
+
+/** The checks did not complete: their execution failed, or whether they started is not known. */
+function notCompleted(reason: string): EngineChecks {
+  return { ...unavailable(reason), outcome: { kind: "unavailable", reason, started: true } };
+}
+
+/** The native pool's refusals to a worker already running; every other refusal is to admit. */
+const RUNNING_WORKER_REFUSALS: ReadonlySet<string> = new Set(["worker_cap_exceeded", "worker_growth_refused", "worker_footprint_exceeded"]);
+
+/** Whether a native failure of the checks is established as a refusal before their start:
+ * a retired request was never sent, and an admission refusal stops the request before a
+ * worker starts. Any other failure, a refusal to a running worker included, is one whose
+ * start is not established. */
+function refusedBeforeStart(error: unknown): boolean {
+  if (error instanceof IngressRequestRetiredError) return true;
+  return error instanceof ResourceUnavailableError && !RUNNING_WORKER_REFUSALS.has(error.refusal.kind);
 }
 
 /** The UTF-8 length of `text`, counted without encoding it; it stops counting
@@ -147,13 +178,14 @@ function checkFailureText(error: unknown): string {
  * wasm engine, for a model text of at most `MODEL_CHECKS_MAX_BROWSER_INPUT_BYTES`
  * UTF-8 bytes, counted before the text is passed to the engine. A refusal leaves
  * both groups not run. */
-export async function engineModelChecks(model: PreviewModel): Promise<EngineChecks> {
+export async function engineModelChecks(model: PreviewModel, options: { stillCurrent?: () => boolean } = {}): Promise<EngineChecks> {
   let report: ModelChecksReport;
   if (isTauriRuntime()) {
     try {
-      report = await invokeWithIngress<ModelChecksReport>("check_preview_model", { model });
+      // A request its caller has retired is never sent, nor resent after a headroom refusal.
+      report = await invokeWithIngress<ModelChecksReport>("check_preview_model", { model }, { stillCurrent: options.stillCurrent });
     } catch (error) {
-      return unavailable(checkFailureText(error));
+      return refusedBeforeStart(error) ? unavailable(checkFailureText(error)) : notCompleted(checkFailureText(error));
     }
   } else {
     const engine = loadedWasmEngine();
@@ -166,13 +198,13 @@ export async function engineModelChecks(model: PreviewModel): Promise<EngineChec
     try {
       report = JSON.parse(engine.modelChecksJson(text)) as ModelChecksReport;
     } catch (error) {
-      return unavailable(`The model checks did not return a report: ${String(error)}`);
+      return notCompleted(`The model checks did not return a report: ${String(error)}`);
     }
   }
-  if (report.error) return unavailable(`${report.error.code}: ${report.error.message}`);
+  if (report.error) return notCompleted(`${report.error.code}: ${report.error.message}`);
   if (report.checked === false && report.refusal_code) return unavailable(report.refusal ?? report.refusal_code);
   if (typeof report.checked !== "boolean" || !Array.isArray(report.diagnostics) || !Array.isArray(report.slot_findings)) {
-    return unavailable("The model checks returned a report the desktop cannot read.");
+    return notCompleted("The model checks returned a report the desktop cannot read.");
   }
   const slots = report.slot_findings.map((item) => ({ ...item, source: item.source ?? DOCUMENT_VALIDATOR_SOURCE }));
   const solve = report.diagnostics.map((item) => ({ ...item, source: item.source ?? SOLVE_CHECKS_SOURCE }));
@@ -182,16 +214,41 @@ export async function engineModelChecks(model: PreviewModel): Promise<EngineChec
     slots: typeof report.slot_findings_not_shown === "number" ? report.slot_findings_not_shown : 0
   };
   const count = (value: unknown) => (typeof value === "number" ? value : 0);
-  const notShownBlocking = count(report.diagnostics_not_shown_blocking) + count(report.slot_findings_not_shown_blocking);
+  const notShownBlockingByGroup = { solve: count(report.diagnostics_not_shown_blocking), slots: count(report.slot_findings_not_shown_blocking) };
+  const notShownBlocking = notShownBlockingByGroup.solve + notShownBlockingByGroup.slots;
   const outcome: SolveChecksOutcome = report.checked
     ? { kind: "checked" }
     : { kind: "refused", refusal: report.refusal ?? "the solve could not read the model" };
-  return { outcome, solve, slots, notShown, notShownBlocking, bytes };
+  return { outcome, solve, slots, notShown, notShownBlocking, notShownBlockingByGroup, bytes };
+}
+
+/** A run whose checks started and could not complete (the check itself failed):
+ * read as the checks unavailable, with the failure's text. */
+export function modelChecksNotCompleted(model: PreviewModel, error: unknown): ModelCheckRun {
+  return {
+    model,
+    solve: { kind: "unavailable", reason: error instanceof Error ? error.message : String(error), started: true },
+    findings: [],
+    notShown: { solve: 0, slots: 0, library: 0 },
+    notShownBlocking: 0,
+    notShownBlockingByGroup: { solve: 0, slots: 0, library: 0 }
+  };
+}
+
+/** The model entity a finding's affected reference names, as the session selects
+ * it: an element, a support, a component or a load case, and also a material or
+ * a section record, which the model tree lists and selects (DEL-07-04 REQ-014). */
+export function resolveModelCheckEntity(model: PreviewModel, ref: string): EntityRef | null {
+  const entity = resolveEntitySelection(model, ref);
+  if (entity) return entity;
+  if ((model.materials ?? []).some((item) => item.id === ref)) return { type: "material", id: ref };
+  if ((model.sections ?? []).some((item) => item.id === ref)) return { type: "section", id: ref };
+  return null;
 }
 
 function entityFor(model: PreviewModel, diagnostic: Diagnostic): EntityRef | null {
   for (const ref of diagnostic.affected_refs ?? []) {
-    const entity = resolveEntitySelection(model, ref);
+    const entity = resolveModelCheckEntity(model, ref);
     if (entity) return entity;
   }
   return null;
@@ -201,14 +258,23 @@ function entityFor(model: PreviewModel, diagnostic: Diagnostic): EntityRef | nul
  * own order, within the report's bound: the library-reference findings take
  * what the engine's report leaves of it, and are read only when the engine's
  * checks were admitted. */
-export async function runModelChecks(model: PreviewModel, libraryReferenceDiagnostics: () => readonly Diagnostic[] = () => []): Promise<ModelCheckRun> {
-  const engine = await engineModelChecks(model);
+export async function runModelChecks(
+  model: PreviewModel,
+  libraryReferenceDiagnostics: () => readonly Diagnostic[] = () => [],
+  options: { stillCurrent?: () => boolean } = {}
+): Promise<ModelCheckRun> {
+  const engine = await engineModelChecks(model, options);
+  let libraryNotCompleted: string | undefined;
   let library: Diagnostic[] = [];
   let libraryNotShown = 0;
   let libraryNotShownBlocking = 0;
   if (engine.outcome.kind !== "unavailable") {
     let remaining = MODEL_CHECKS_MAX_RESPONSE_BYTES - engine.bytes;
-    for (const diagnostic of libraryReferenceDiagnostics()) {
+    // A collection that fails leaves the engine's findings standing and the library group unknown.
+    let collected: readonly Diagnostic[] = [];
+    try { collected = libraryReferenceDiagnostics(); }
+    catch (error) { libraryNotCompleted = error instanceof Error ? error.message : String(error); }
+    for (const diagnostic of collected) {
       const length = utf8ByteLength(JSON.stringify(diagnostic)) + 1;
       if (libraryNotShown > 0 || length > remaining) {
         libraryNotShown += 1;
@@ -237,6 +303,8 @@ export async function runModelChecks(model: PreviewModel, libraryReferenceDiagno
     solve: engine.outcome,
     findings,
     notShown: { solve: engine.notShown.solve, slots: engine.notShown.slots, library: libraryNotShown },
-    notShownBlocking: engine.notShownBlocking + libraryNotShownBlocking
+    notShownBlocking: engine.notShownBlocking + libraryNotShownBlocking,
+    notShownBlockingByGroup: { solve: engine.notShownBlockingByGroup.solve, slots: engine.notShownBlockingByGroup.slots, library: libraryNotShownBlocking },
+    ...(libraryNotCompleted === undefined ? {} : { libraryNotCompleted })
   };
 }
