@@ -51,6 +51,7 @@ pub(crate) const CSP: &str = "default-src 'none'; style-src 'unsafe-inline'; bas
 /// A print window is open.
 pub(crate) const PRINT_ALREADY_OPEN: &str = "REPORT-PRINT-ALREADY-OPEN";
 /// This platform presents no native print of a separate webview.
+#[cfg_attr(target_os = "macos", allow(dead_code))]
 pub(crate) const PRINT_PLATFORM_UNSUPPORTED: &str = "REPORT-PRINT-PLATFORM-UNSUPPORTED";
 /// The print window could not be created.
 pub(crate) const PRINT_WINDOW_FAILED: &str = "REPORT-PRINT-WINDOW-FAILED";

@@ -83,11 +83,16 @@ export function renderedReportRouteOpen(controlled: ControlledRouteExport, html:
   return !controlled.blocked && controlled.payload === html && controlled.summary.blocking_count === 0;
 }
 
+/** `controlled` is the HTML route's controlled export where the panel applies
+ * it to the sink: the save always, the print of a local-private render. It is
+ * `null` for the print of a public render, whose sink the panel has always
+ * gated by the render's own public gate alone (the render input controlled
+ * under DREP-IPC-003 and the renderer's export gates), as before. */
 type RouteRequest = {
   html: string;
   context: RenderedReportRouteContext;
   explicitLocalPrivateIntent: boolean;
-  controlled: ControlledRouteExport;
+  controlled: ControlledRouteExport | null;
 };
 
 function routeArgs(request: RouteRequest): Record<string, unknown> {
@@ -96,11 +101,11 @@ function routeArgs(request: RouteRequest): Record<string, unknown> {
     exportContext: request.context,
     explicitLocalPrivateIntent: request.explicitLocalPrivateIntent,
     evidence: {
-      route_id: request.controlled.summary.route_id,
+      route_id: request.controlled?.summary.route_id ?? RENDERED_REPORT_ROUTE_ID,
       export_context: request.context,
       explicit_local_private_intent: request.explicitLocalPrivateIntent,
-      blocked: request.controlled.blocked,
-      blocking_count: request.controlled.summary.blocking_count
+      blocked: request.controlled?.blocked ?? false,
+      blocking_count: request.controlled?.summary.blocking_count ?? 0
     }
   };
 }
@@ -118,7 +123,7 @@ async function send<T>(
   request: RouteRequest,
   stillCurrent: () => boolean
 ): Promise<RenderedReportRouteOutcome<T>> {
-  if (!renderedReportRouteOpen(request.controlled, request.html)) {
+  if (request.controlled !== null && !renderedReportRouteOpen(request.controlled, request.html)) {
     return {
       kind: "refused",
       error: {
@@ -141,7 +146,7 @@ async function send<T>(
   }
 }
 
-export function saveRenderedReportHtml(request: RouteRequest, stillCurrent: () => boolean) {
+export function saveRenderedReportHtml(request: RouteRequest & { controlled: ControlledRouteExport }, stillCurrent: () => boolean) {
   return send<RenderedReportHtmlSaveReceipt>("save_rendered_report_html", request, stillCurrent);
 }
 
@@ -153,9 +158,12 @@ export function printRenderedReport(request: RouteRequest, stillCurrent: () => b
  * and closes an open print window. A failure only leaves the record to the
  * next render, which replaces it. */
 export function retireRenderedReport(): void {
-  void Promise.resolve()
-    .then(() => invoke("retire_rendered_report"))
-    .catch(() => undefined);
+  // Sent at once, so that it precedes any later render request on the wire.
+  try {
+    void Promise.resolve(invoke("retire_rendered_report")).catch(() => undefined);
+  } catch {
+    // No native runtime to reach: nothing is held.
+  }
 }
 
 /** The outcome in words, for the panel's status line. */
