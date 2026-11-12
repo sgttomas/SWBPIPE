@@ -115,7 +115,7 @@ fn id(entity: &Value) -> &str {
 /// An entry's seven bound fields, borrowed: code, class, severity, source and
 /// affected object (`{ref_type, ref_id}`, exactly those two members), message
 /// and remediation.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 struct Fields<'a> {
     code: &'a str,
     class: &'a str,
@@ -124,6 +124,14 @@ struct Fields<'a> {
     affected: (&'a str, &'a str),
     message: &'a str,
     remediation: &'a str,
+}
+
+/// Every field, as the derived equality compares them (written out: the
+/// user-release reach scan admits no `Hash` derive).
+impl std::hash::Hash for Fields<'_> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        (self.code, self.class, self.severity, self.source, self.affected, self.message, self.remediation).hash(state);
+    }
 }
 
 /// A `{ref_type, ref_id}` object with string members and no other member.
