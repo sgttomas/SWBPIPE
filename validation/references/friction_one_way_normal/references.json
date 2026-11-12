@@ -127,6 +127,13 @@
   "value": "nearest binary64 of the exact value"
  },
  "tolerance_class": "DEL-04-07/AC-002 and DEL-04-04/AC-001: support states must equal these exactly; displacements and reactions agree within the nonlinear tolerance of their class (the governed per-class record, DEL-09-03/REQ-007). This package chooses no number.",
+ "confirmation_text": {
+  "primary": "the decided text of DEL-04-04's state-law parenthesis",
+  "decided text": "(contact reaction, separation, stick margin μ·N − |T|, slip direction, and, for a friction support that sticks or slides on a normal derived from a reaction, that normal established as nonzero; a friction support whose normal's source is established as released is inactive)",
+  "status": "decided by the SWBPIPE Agent 0; not yet in execution/PKG-04/DEL-04-04/ScopeOfWork.md, where it lands with the engine unit this package judges",
+  "named alternative": "today's DEL-04-04 text: '... and a friction normal derived from a reaction, which must be established as nonzero'",
+  "where the two differ": "only the released/inactive pair of LIFT-0, LIFT-POS, LIFT-NEG and NEAR-LIFT: confirmed under the decided text, unconfirmed under the literal reading"
+ },
  "cases": [
   {
    "id": "STICK",
@@ -2461,6 +2468,44 @@
     "established pair": {
      "one-way S": "inactive",
      "friction S": "inactive"
+    },
+    "primary": "the establishes and established pair members above, under the decided text",
+    "rests on": {
+     "decided text of the state law's parenthesis": "(contact reaction, separation, stick margin μ·N − |T|, slip direction, and, for a friction support that sticks or slides on a normal derived from a reaction, that normal established as nonzero; a friction support whose normal's source is established as released is inactive)",
+     "status": "decided by the SWBPIPE Agent 0; not yet in execution/PKG-04/DEL-04-04/ScopeOfWork.md, where it lands with the engine unit this package judges"
+    },
+    "establishment order": [
+     {
+      "step": 1,
+      "one-way S": "released",
+      "established by": "strict separation, u_z(S) > 0",
+      "separation u_z(S)": {
+       "exact": "(11550608/1986328125)/pi",
+       "value": 0.0018509896081915379,
+       "unit": "m"
+      },
+      "sign": "+"
+     },
+     {
+      "step": 2,
+      "friction S": "inactive",
+      "because": "its normal's source is established as released",
+      "N": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "T": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      }
+     }
+    ],
+    "alternative (named; not primary): literal reading of today's text": {
+     "text": "today's DEL-04-04 text: '... and a friction normal derived from a reaction, which must be established as nonzero'",
+     "establishes": false,
+     "reason": "unconfirmed: the derived normal is zero and cannot be established as nonzero"
     }
    },
    "deciding_quantities": {
@@ -2695,7 +2740,11 @@
      },
      "classification consistent": true,
      "strictly confirmed": true,
-     "confirmation failures": []
+     "confirmation failures": [],
+     "alternative: strictly confirmed under the literal reading of today's text": false,
+     "alternative: confirmation failures under the literal reading": [
+      "literal reading: the friction normal derived from the one-way reaction is 0 and cannot be established as nonzero"
+     ]
     },
     {
      "state": {
@@ -2798,6 +2847,44 @@
     "established pair": {
      "one-way S": "inactive",
      "friction S": "inactive"
+    },
+    "primary": "the establishes and established pair members above, under the decided text",
+    "rests on": {
+     "decided text of the state law's parenthesis": "(contact reaction, separation, stick margin μ·N − |T|, slip direction, and, for a friction support that sticks or slides on a normal derived from a reaction, that normal established as nonzero; a friction support whose normal's source is established as released is inactive)",
+     "status": "decided by the SWBPIPE Agent 0; not yet in execution/PKG-04/DEL-04-04/ScopeOfWork.md, where it lands with the engine unit this package judges"
+    },
+    "establishment order": [
+     {
+      "step": 1,
+      "one-way S": "released",
+      "established by": "strict separation, u_z(S) > 0",
+      "separation u_z(S)": {
+       "exact": "(933776/1986328125)/pi",
+       "value": 0.000149637982033384,
+       "unit": "m"
+      },
+      "sign": "+"
+     },
+     {
+      "step": 2,
+      "friction S": "inactive",
+      "because": "its normal's source is established as released",
+      "N": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "T": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      }
+     }
+    ],
+    "alternative (named; not primary): literal reading of today's text": {
+     "text": "today's DEL-04-04 text: '... and a friction normal derived from a reaction, which must be established as nonzero'",
+     "establishes": false,
+     "reason": "unconfirmed: the derived normal is zero and cannot be established as nonzero"
     }
    },
    "deciding_quantities": {
@@ -3032,7 +3119,11 @@
      },
      "classification consistent": true,
      "strictly confirmed": true,
-     "confirmation failures": []
+     "confirmation failures": [],
+     "alternative: strictly confirmed under the literal reading of today's text": false,
+     "alternative: confirmation failures under the literal reading": [
+      "literal reading: the friction normal derived from the one-way reaction is 0 and cannot be established as nonzero"
+     ]
     },
     {
      "state": {
@@ -3135,6 +3226,44 @@
     "established pair": {
      "one-way S": "inactive",
      "friction S": "inactive"
+    },
+    "primary": "the establishes and established pair members above, under the decided text",
+    "rests on": {
+     "decided text of the state law's parenthesis": "(contact reaction, separation, stick margin μ·N − |T|, slip direction, and, for a friction support that sticks or slides on a normal derived from a reaction, that normal established as nonzero; a friction support whose normal's source is established as released is inactive)",
+     "status": "decided by the SWBPIPE Agent 0; not yet in execution/PKG-04/DEL-04-04/ScopeOfWork.md, where it lands with the engine unit this package judges"
+    },
+    "establishment order": [
+     {
+      "step": 1,
+      "one-way S": "released",
+      "established by": "strict separation, u_z(S) > 0",
+      "separation u_z(S)": {
+       "exact": "(82329488/1986328125)/pi",
+       "value": 0.01319333378257923,
+       "unit": "m"
+      },
+      "sign": "+"
+     },
+     {
+      "step": 2,
+      "friction S": "inactive",
+      "because": "its normal's source is established as released",
+      "N": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "T": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      }
+     }
+    ],
+    "alternative (named; not primary): literal reading of today's text": {
+     "text": "today's DEL-04-04 text: '... and a friction normal derived from a reaction, which must be established as nonzero'",
+     "establishes": false,
+     "reason": "unconfirmed: the derived normal is zero and cannot be established as nonzero"
     }
    },
    "deciding_quantities": {
@@ -3369,7 +3498,11 @@
      },
      "classification consistent": true,
      "strictly confirmed": true,
-     "confirmation failures": []
+     "confirmation failures": [],
+     "alternative: strictly confirmed under the literal reading of today's text": false,
+     "alternative: confirmation failures under the literal reading": [
+      "literal reading: the friction normal derived from the one-way reaction is 0 and cannot be established as nonzero"
+     ]
     },
     {
      "state": {
@@ -4679,6 +4812,44 @@
     "established pair": {
      "one-way S": "inactive",
      "friction S": "inactive"
+    },
+    "primary": "the establishes and established pair members above, under the decided text",
+    "rests on": {
+     "decided text of the state law's parenthesis": "(contact reaction, separation, stick margin μ·N − |T|, slip direction, and, for a friction support that sticks or slides on a normal derived from a reaction, that normal established as nonzero; a friction support whose normal's source is established as released is inactive)",
+     "status": "decided by the SWBPIPE Agent 0; not yet in execution/PKG-04/DEL-04-04/ScopeOfWork.md, where it lands with the engine unit this package judges"
+    },
+    "establishment order": [
+     {
+      "step": 1,
+      "one-way S": "released",
+      "established by": "strict separation, u_z(S) > 0",
+      "separation u_z(S)": {
+       "exact": "(153293/15890625000000)/pi",
+       "value": 3.0706581637142543e-09,
+       "unit": "m"
+      },
+      "sign": "+"
+     },
+     {
+      "step": 2,
+      "friction S": "inactive",
+      "because": "its normal's source is established as released",
+      "N": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "T": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      }
+     }
+    ],
+    "alternative (named; not primary): literal reading of today's text": {
+     "text": "today's DEL-04-04 text: '... and a friction normal derived from a reaction, which must be established as nonzero'",
+     "establishes": false,
+     "reason": "unconfirmed: the derived normal is zero and cannot be established as nonzero"
     }
    },
    "deciding_quantities": {
@@ -4912,7 +5083,11 @@
      },
      "classification consistent": true,
      "strictly confirmed": true,
-     "confirmation failures": []
+     "confirmation failures": [],
+     "alternative: strictly confirmed under the literal reading of today's text": false,
+     "alternative: confirmation failures under the literal reading": [
+      "literal reading: the friction normal derived from the one-way reaction is 0 and cannot be established as nonzero"
+     ]
     },
     {
      "state": {
@@ -5670,7 +5845,7 @@
   }
  ],
  "checks": {
-  "count": 490,
+  "count": 536,
   "all_pass": true,
   "by_kind": {
    "A = B: displacements (pi*u)": 14,
@@ -5679,8 +5854,10 @@
    "A: boundary witness classification and confirmation as stated": 2,
    "A: exactly one pair consistent with the classification law, under either reading of a zero reaction": 12,
    "A: strict confirmation establishes that same pair and no other": 12,
+   "B's separately written confirmation (decided text) gives A's set": 14,
+   "B's separately written confirmation (literal reading) gives A's set": 14,
    "B: active-set iteration settles on a pair the classification law admits": 56,
-   "B: enumeration gives A's classification and confirmation sets": 14,
+   "B: enumeration gives A's classification set": 14,
    "B: iteration under the first reading settles on the reference pair": 14,
    "brackets contain thresholds": 1,
    "classification and confirmation unchanged with each input replaced by its binary64 value": 98,
@@ -5691,6 +5868,8 @@
    "lagged iterate N_k - N* = rho^k (N_0 - N*)": 30,
    "lagged-normal iteration contracts (|rho| < 1)": 6,
    "lift-off pair straddles": 1,
+   "lifted case: decided text confirms released/inactive": 4,
+   "literal reading differs from the decided text exactly in the four lifted cases' released/inactive pair": 14,
    "member equilibrium": 28,
    "negative control differs from the reference": 11,
    "node B balance (member end actions = applied load)": 14,

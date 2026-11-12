@@ -99,9 +99,26 @@ test is that every deciding quantity lies strictly on its state's side:
 |---|---|
 | one-way active | N = R_z > 0 and u_z(S) = 0 |
 | one-way inactive | R_z = 0 and separation u_z(S) > 0 |
-| friction inactive | The normal does not bear, so the one-way support is inactive. T = 0. |
+| friction inactive | The normal's source is established as released, which is the one-way inactive row above. T = 0. |
 | friction stick | The normal bears; u_x(S) = 0; \|T\| < μN |
 | friction slide d (d = ±1) | The normal bears; T = −d·μ·N, with N this state's own one-way reaction; d·u_x(S) > 0 |
+
+The friction rows follow the decided text of DEL-04-04's state-law parenthesis
+(see "Decided reading" below). For a friction support that sticks or slides,
+the normal derived from the reaction must be established as nonzero. A
+friction support whose normal's source is established as released is
+inactive. The order matters: the source is established first, released by
+strict separation or engaged by a strictly positive reaction, and only then is
+the friction support read.
+
+**Two confirmation predicates.** Formulation A decides confirmation with
+`confirmation_failures`, which lists every condition a pair fails.
+Formulation B decides it with `b_establishes`, which is written separately and
+follows the establishment order above. The two must give the same set of
+confirmed pairs in every case, both under the decided text and under the
+literal alternative. Both were written by the same author from the same text,
+so their agreement catches a coding slip but not a misreading of the text. The
+reading itself rests on the quoted decision.
 
 Away from a boundary the two answers coincide. In every case except the two
 boundary witnesses, exactly one pair is consistent with the classification law
@@ -217,9 +234,16 @@ The stick trial holds S in both X and Z, so F_SS·R = −F_SS·P and R = −P:
 - every displacement and rotation is 0, and the anchor reaction is 0;
 - μN = 3000 N = |T|, so the stick margin is exactly 0.
 
-The slide± trials satisfy T = ∓μN with u_z = 0. That system has the same
-solution, so u_x(S) = 0 and neither slide trial moves in its own direction. In
-the inactive trials, the free u_z(S) < 0 would penetrate.
+The slide trials differ:
+- **slide+** (T = −μN, u_z = 0). The stick solution R = −P satisfies
+  T = −μN, so it is this trial's solution too. u_x(S) = 0, so the trial does
+  not move in its own direction.
+- **slide−** (T = +μN). Solving T − μN = 0 with u0z + f_xz·T + f_zz·N = 0
+  gives N = 284096320/22241 N, T = 106536120/22241 N, and
+  u_x(S) = 662139837728/(122716455078125 π) m > 0. The motion opposes the
+  assumed negative slide direction, so the classifier returns stick and the
+  pair is neither consistent nor confirmed.
+- **inactive trials.** The free u_z(S) < 0 would penetrate.
 - **Classification** under DEL-04-04's law as written: **stick**, because
   |T| ≤ μN holds with equality. (active, stick) is the only consistent pair,
   under either reading of a zero reaction.
@@ -235,10 +259,13 @@ using EI/EA = 113/16384. That is 0 for Gx = (721913/442368)·Pz = −721913/128 
 The free u_x(S) = 9(Gx − Pz)/EI = −21469056/(5517578125 π) m. So:
 - u_z(S) = 0, N = T = 0, and every reaction at S is 0;
 - the anchor carries FX = 721913/128 N, FZ = 3456 N and MY = 1281003/128 N·m;
-- the active trials (active/stick, active/slide−) solve to R_z = 0, except the
-  stick trial, which needs \|T\| > μN and is not consistent;
+- the active/stick compatibility solve gives T = 116240929680960/20691869929 N
+  and N = 71229175234560/20691869929 N. Then |T| > μN, so that pair violates
+  the friction bound and is not consistent;
+- the active/slide− trial solves to R_z = 0;
 - the inactive/inactive trial has u_z(S) = 0;
-- every candidate pair gives the same physical values.
+- the classification-consistent pairs under the two readings,
+  (inactive, inactive) and (active, slide−), give identical physical values.
 
 What DEL-04-04's wording gives:
 - On an **inactive trial**, u_z(S) = 0 is touch, not penetration, so the
@@ -332,7 +359,7 @@ A product whose normal comes from a stale or wrong source matches a control,
 not the reference. The near-threshold controls differ from the reference by
 very little. They show only the direction of the error.
 
-## Cross-checks (all exact; 490 checks, all pass)
+## Cross-checks (all exact; 536 checks, all pass)
 
 - **A against B.** The direct stiffness formulation (B) uses planar
   Euler–Bernoulli 6×6 elements rotated to global axes. The support states are
@@ -354,8 +381,13 @@ very little. They show only the direction of the error.
   on the reference pair. At LIFT-BOUNDARY, the second reading settles on
   (active, slide−) from (active, stick). The paths are published as
   illustration, not as an expected product path.
-- **Tied pairs.** At LIFT-BOUNDARY, the pairs that tie give identical physical
-  values.
+- **Tied pairs.** At LIFT-BOUNDARY, the classification-consistent pairs under
+  the two readings give identical physical values.
+- **Confirmation by two predicates.** A's `confirmation_failures` and B's
+  separately written `b_establishes` give the same confirmed set in every
+  case, under both the decided text and the literal alternative. The literal
+  alternative differs from the decided text only in the released/inactive
+  pair of the four lifted cases.
 - **Flexibility.** The closed-form f_xx, f_xz and f_zz equal B's response to
   unit loads.
 - **Equilibrium.** The checks cover global balance, member balance and the
@@ -373,18 +405,32 @@ DEL-04-07 refers to (DEL-09-03/REQ-007). This package sets no number. The 2e-2
 "Nonlinear" class in `docs/RELEASE_TARGET_v1.0.md` is the cross-engine
 screening profile, not this verification.
 
-**Expected standing** (DEL-04-04/REQ-013) is not asserted for strictly
-confirmed cases. At the two boundary witnesses the exact confirmation
-establishes no pair, so a standing that presents either as confirmed is wrong.
-The deciding quantities and their margins are published. Away from the
-witnesses, the smallest margins are in the near-threshold cases:
-- stick margin 3.74e-4 N;
-- slip 6.30e-10 m;
-- contact 7.64e-4 N;
-- separation 3.07e-9 m.
+**What is asserted about standing** (DEL-04-04/REQ-013). For every case, the
+package asserts the exact confirmation outcome: whether the exact deciding
+quantities establish the classified pair, with each strictly on its state's
+side.
+- **Ground:** the exact values above, the decided text of the state-law
+  parenthesis (quoted under "Decided reading"), and DEL-04-01 REQ-016: "An
+  enclosure that touches its state's boundary does not establish that state."
+- **The outcome:**
+  - every case except the two boundary witnesses is established;
+  - the two witnesses establish no pair;
+  - the four lifted cases are established under the decided text, and
+    unconfirmed under the named literal alternative.
+- **Reading a product's standing against it.** A product's standing takes its
+  own numerical error into account.
+  - Presenting a pair as confirmed where this package establishes none is
+    wrong. That includes the boundary witnesses and, under the literal
+    alternative, the lifted cases.
+  - Presenting an established pair as unconfirmed agrees with the scope only
+    where the product's error bound reaches the margin.
 
-Whether the confirmation establishes each of these, given its numerical error,
-is for the product to determine.
+  Away from the witnesses, the smallest margins are in the near-threshold
+  cases:
+  - stick margin 3.74e-4 N;
+  - slip 6.30e-10 m;
+  - contact 7.64e-4 N;
+  - separation 3.07e-9 m.
 
 ## Open readings
 
@@ -400,21 +446,54 @@ is for the product to determine.
 
    The physical values are the same under both readings, and strict
    confirmation establishes neither pair. The scope leaves this tie open, and
-   this package does not choose. Its convergence wording, unchanged states with
-   a residual within tolerance, is not affected: the converged normal is the
-   fixed point N* (see "Normal from the previous iterate").
-2. **Standing of a friction support whose source has lifted.** DEL-04-04's
-   confirmation requires "a friction normal derived from a reaction, which must
-   be established as nonzero".
+   this package does not choose. The convergence criterion is not affected.
+   The exact analytical reference target is N*. Finite convergence permits a
+   residual within the governed tolerance (see "Normal from the previous
+   iterate").
 
-   *Reading (a):* friction `inactive` is decided by its source's state, and the
-   separation is established as greater than 0, so the state can be confirmed.
-   *Reading (b):* a derived normal that is exactly 0 cannot be established as
-   nonzero, so the LIFT and NEAR-LIFT cases are unconfirmed with a named
-   reason.
+## Decided reading
 
-   Their values are the same under both readings. Only the standing differs,
-   and it is not asserted here.
+**Standing of a friction support whose source has lifted.** Today's DEL-04-04
+text says the confirmation's deciding quantities include "a friction normal
+derived from a reaction, which must be established as nonzero". The SWBPIPE
+Agent 0 has decided that the state law's parenthesis will read:
+
+> "(contact reaction, separation, stick margin μ·N − |T|, slip direction, and,
+> for a friction support that sticks or slides on a normal derived from a
+> reaction, that normal established as nonzero; a friction support whose
+> normal's source is established as released is inactive)"
+
+**Status:** decided, and not yet in `execution/PKG-04/DEL-04-04/ScopeOfWork.md`.
+It lands there with the engine unit this package judges.
+
+The nonzero requirement was written for a normal that can only vanish at a
+tie. With a one-way source, the normal is zero because of the source's
+established state. Establishment order is part of the decision: the source's
+release is established first, by strict separation, and only then is the
+friction support read as inactive.
+
+**Primary flags.** In LIFT-0, LIFT-POS, LIFT-NEG and NEAR-LIFT, the flags rest
+on the decided text: `strict confirmation` → `establishes: true` with the
+established pair (inactive, inactive), and "strictly confirmed: true" on that
+pair in `enumeration`. Each of these cases also publishes:
+- the decision and its status, under `rests on`;
+- the establishment order:
+  1. the one-way support is released, established by a strictly positive
+     separation, with the separation and its sign;
+  2. the friction support is then inactive, with N = T = 0.
+
+**Named alternative (not primary).** Under the literal reading of today's text,
+the derived normal is zero and cannot be established as nonzero, so these four
+cases are unconfirmed. Each publishes that alternative beside the primary
+flags:
+- in `strict confirmation`, under
+  `alternative (named; not primary): literal reading of today's text`;
+- on the affected pair in `enumeration`, under the members prefixed
+  "alternative:".
+
+The physical values are the same under both. No other case's flags differ
+between the two: in every sticking and sliding case the normal is nonzero, and
+the two boundary witnesses are unconfirmed under both.
 
 ## Reproduce
 
