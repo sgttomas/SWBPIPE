@@ -224,6 +224,7 @@
         "apps/desktop/src-tauri/resources/agent-capability-catalog.json",
         "tools/agent_catalog_resource.py",
         "tools/agent_host_witness.py",
+        "fixtures/embedded_agent/agent-witness-pin.json",
         "software-workflow.json"
       ],
       "checks": [
