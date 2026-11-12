@@ -576,9 +576,12 @@ fn shape_library_and_request_refusals_name_their_paths_and_keep_the_hashes_forme
     input["sizing"].as_object_mut().unwrap().remove("solver_mode");
     let doc = refused(size_hangers(&input.to_string()));
     let codes: Vec<&str> = doc["refusals"].as_array().unwrap().iter().map(|r| r["code"].as_str().unwrap()).collect();
-    assert_eq!(codes, ["HANGER_SIZING_LIBRARY_NOT_ADMITTED", "HANGER_SIZING_REQUEST_INVALID"]);
+    // The absent solver mode is refused by its own code; the present and malformed
+    // members stay HANGER_SIZING_REQUEST_INVALID.
+    assert_eq!(codes, ["HANGER_SIZING_LIBRARY_NOT_ADMITTED", "HANGER_SIZING_REQUEST_INVALID", "HANGER_SIZING_SOLVER_MODE_REQUIRED"]);
     assert!(doc["refusals"][0]["message"].as_str().unwrap().contains("hanger_records[0]"));
-    assert_eq!(doc["refusals"][1]["names"], json!(["$.sizing.solver_mode", "$.sizing.candidates[0].note", "$.sizing.method.variation_limit"]));
+    assert_eq!(doc["refusals"][1]["names"], json!(["$.sizing.candidates[0].note", "$.sizing.method.variation_limit"]));
+    assert_eq!(doc["refusals"][2]["names"], json!(["$.sizing.solver_mode"]));
     assert!(doc["inputs"]["sizing_request"].is_null() && doc["inputs"]["sizing_request_sha256"].is_null());
     assert_eq!(doc["inputs"]["library"]["sha256"].as_str(), publish::checked_sha256(&input["library"]).as_deref());
 
@@ -593,6 +596,85 @@ fn shape_library_and_request_refusals_name_their_paths_and_keep_the_hashes_forme
     assert_eq!(doc["route"], "exact_pressure");
     assert_eq!(doc["inputs"]["sizing_request"], input["sizing"]);
     assert_eq!(doc["inputs"]["sizing_request_sha256"].as_str(), publish::checked_sha256(&input["sizing"]).as_deref());
+}
+
+/// Every required member of the input, with the code its absence is refused by and
+/// the path that refusal names (REQ-001): the library, each member of the sizing
+/// request and of its method, and a candidate's family policy.
+const ABSENT: [(&str, &str, &str); 13] = [
+    ("/library", "HANGER_SIZING_LIBRARY_REQUIRED", "$.library"),
+    ("/sizing/weight_case", "HANGER_SIZING_WEIGHT_CASE_REQUIRED", "$.sizing.weight_case"),
+    ("/sizing/weight_support_state", "HANGER_SIZING_WEIGHT_SUPPORT_STATE_REQUIRED", "$.sizing.weight_support_state"),
+    ("/sizing/design_operating_case", "HANGER_SIZING_DESIGN_OPERATING_CASE_REQUIRED", "$.sizing.design_operating_case"),
+    ("/sizing/check_operating_cases", "HANGER_SIZING_CHECK_OPERATING_CASES_REQUIRED", "$.sizing.check_operating_cases"),
+    ("/sizing/candidates", "HANGER_SIZING_CANDIDATES_REQUIRED", "$.sizing.candidates"),
+    ("/sizing/candidates/0/family_policy", "HANGER_SIZING_FAMILY_POLICY_REQUIRED", "$.sizing.candidates[0].family_policy"),
+    ("/sizing/method/load_design", "HANGER_SIZING_LOAD_DESIGN_REQUIRED", "$.sizing.method.load_design"),
+    ("/sizing/method/variation_reference", "HANGER_SIZING_VARIATION_REFERENCE_REQUIRED", "$.sizing.method.variation_reference"),
+    ("/sizing/method/variation_limit", "HANGER_SIZING_VARIATION_LIMIT_REQUIRED", "$.sizing.method.variation_limit"),
+    ("/sizing/method/travel_allowance_m", "HANGER_SIZING_TRAVEL_ALLOWANCE_REQUIRED", "$.sizing.method.travel_allowance_m"),
+    ("/sizing/method/selection_rule", "HANGER_SIZING_SELECTION_RULE_REQUIRED", "$.sizing.method.selection_rule"),
+    ("/sizing/solver_mode", "HANGER_SIZING_SOLVER_MODE_REQUIRED", "$.sizing.solver_mode"),
+];
+
+fn without(mut input: Value, pointer: &str) -> Value {
+    let (parent, key) = pointer_parent(&mut input, pointer);
+    parent.as_object_mut().unwrap().remove(&key).unwrap();
+    input
+}
+
+fn listed(doc: &Value) -> Vec<(String, Value)> {
+    doc["refusals"].as_array().unwrap().iter().map(|r| (r["code"].as_str().unwrap().to_string(), r["names"].clone())).collect()
+}
+
+/// REQ-001: each absent required member is refused by its own code, naming its
+/// path, and by nothing else, on both routes. An empty list of further operating
+/// cases is a stated value; an empty candidate list is refused as required.
+#[test]
+fn each_absent_required_input_is_refused_by_its_own_code_on_both_routes() {
+    for (route, build) in [("pressure_free", two_span_input as fn() -> Value), ("exact_pressure", ex_pressurised_input)] {
+        for (pointer, code, path) in ABSENT {
+            let doc = refused(size_hangers(&without(build(), pointer).to_string()));
+            assert_eq!(listed(&doc), [(code.to_string(), json!([path]))], "{route}: {pointer}");
+            assert_eq!(doc["route"], route, "{route}: {pointer}");
+        }
+        let mut empty = build();
+        empty["sizing"]["candidates"] = json!([]);
+        assert_eq!(listed(&refused(size_hangers(&empty.to_string()))),
+            [("HANGER_SIZING_CANDIDATES_REQUIRED".to_string(), json!(["$.sizing.candidates"]))], "{route}");
+        let mut none_checked = build();
+        none_checked["sizing"]["check_operating_cases"] = json!([]);
+        assert!(size_hangers(&none_checked.to_string()).is_sized(), "{route}: an empty list of further cases is admitted");
+        // Without the method, each of its members is named.
+        let doc = refused(size_hangers(&without(build(), "/sizing/method").to_string()));
+        let codes: Vec<String> = listed(&doc).into_iter().map(|(code, _)| code).collect();
+        assert_eq!(codes, ["HANGER_SIZING_LOAD_DESIGN_REQUIRED", "HANGER_SIZING_VARIATION_REFERENCE_REQUIRED",
+            "HANGER_SIZING_VARIATION_LIMIT_REQUIRED", "HANGER_SIZING_TRAVEL_ALLOWANCE_REQUIRED", "HANGER_SIZING_SELECTION_RULE_REQUIRED"], "{route}");
+    }
+}
+
+/// Several absent members of one request, beside a present and malformed one, are
+/// listed together, each under its own code, the malformed one as REQUEST_INVALID.
+#[test]
+fn several_absent_inputs_are_listed_together() {
+    let mut input = without(without(without(two_span_input(), "/library"), "/sizing/weight_case"), "/sizing/method/selection_rule");
+    input = without(input, "/sizing/candidates/0/family_policy");
+    input["sizing"]["solver_mode"] = json!("fast");
+    let doc = refused(size_hangers(&input.to_string()));
+    assert_eq!(listed(&doc), [
+        ("HANGER_SIZING_LIBRARY_REQUIRED".to_string(), json!(["$.library"])),
+        ("HANGER_SIZING_REQUEST_INVALID".to_string(), json!(["$.sizing.solver_mode"])),
+        ("HANGER_SIZING_WEIGHT_CASE_REQUIRED".to_string(), json!(["$.sizing.weight_case"])),
+        ("HANGER_SIZING_FAMILY_POLICY_REQUIRED".to_string(), json!(["$.sizing.candidates[0].family_policy"])),
+        ("HANGER_SIZING_SELECTION_RULE_REQUIRED".to_string(), json!(["$.sizing.method.selection_rule"])),
+    ]);
+    // A shape finding beside an absent library: both are listed.
+    let mut shaped = without(two_span_input(), "/library");
+    shaped["extra"] = json!(1);
+    assert_eq!(listed(&refused(size_hangers(&shaped.to_string()))), [
+        ("HANGER_SIZING_INPUT_SHAPE_INVALID".to_string(), json!(["$.extra"])),
+        ("HANGER_SIZING_LIBRARY_REQUIRED".to_string(), json!(["$.library"])),
+    ]);
 }
 
 /// The support state W is formed in: absent is refused as required, any value

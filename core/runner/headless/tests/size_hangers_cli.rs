@@ -226,3 +226,28 @@ fn the_weight_support_state_is_refused_by_its_own_codes_on_both_routes() {
         }
     }
 }
+
+/// Absent required inputs, on both routes, through the runner: each is refused by
+/// its own code naming its path. Exit 1.
+#[test]
+fn absent_required_inputs_are_refused_by_their_own_codes_through_the_runner() {
+    for stem in ["two_span", "ex_pressurised"] {
+        for (pointer, code, path) in [
+            ("/library", "HANGER_SIZING_LIBRARY_REQUIRED", "$.library"),
+            ("/sizing/weight_case", "HANGER_SIZING_WEIGHT_CASE_REQUIRED", "$.sizing.weight_case"),
+            ("/sizing/method/variation_limit", "HANGER_SIZING_VARIATION_LIMIT_REQUIRED", "$.sizing.method.variation_limit"),
+            ("/sizing/solver_mode", "HANGER_SIZING_SOLVER_MODE_REQUIRED", "$.sizing.solver_mode"),
+        ] {
+            let mut input: Value = serde_json::from_str(&fixture(&format!("hanger_sizing_input_{stem}.json"))).unwrap();
+            let (parent, key) = pointer.rsplit_once('/').unwrap();
+            let parent = if parent.is_empty() { &mut input } else { input.pointer_mut(parent).unwrap() };
+            parent.as_object_mut().unwrap().remove(key).unwrap();
+            let out = run(&["size-hangers", "--explicit-local-private-intent"], input.to_string().as_bytes());
+            assert_eq!(out.code, 1, "{stem} {pointer}: {}", out.stderr);
+            let document = &controlled(&out)["payload"];
+            assert_eq!(document["refusals"].as_array().unwrap().len(), 1, "{stem} {pointer}: {}", document["refusals"]);
+            assert_eq!((&document["refusals"][0]["code"], &document["refusals"][0]["names"]), (&json!(code), &json!([path])), "{stem} {pointer}");
+            assert_eq!(reader::closure(document), Ok(()), "{stem} {pointer}");
+        }
+    }
+}

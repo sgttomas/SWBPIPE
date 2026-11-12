@@ -54,6 +54,7 @@ pub const LIBRARY_NOT_ADMITTED: &str = "HANGER_SIZING_LIBRARY_NOT_ADMITTED";
 pub const REQUEST_INVALID: &str = "HANGER_SIZING_REQUEST_INVALID";
 pub const WEIGHT_SUPPORT_STATE_REQUIRED: &str = "HANGER_SIZING_WEIGHT_SUPPORT_STATE_REQUIRED";
 pub const WEIGHT_SUPPORT_STATE_UNSUPPORTED: &str = "HANGER_SIZING_WEIGHT_SUPPORT_STATE_UNSUPPORTED";
+pub const LIBRARY_REQUIRED: &str = "HANGER_SIZING_LIBRARY_REQUIRED";
 pub const RESULT_NOT_PUBLISHABLE: &str = "HANGER_SIZING_RESULT_NOT_PUBLISHABLE";
 pub const DERIVED_DOCUMENT_NOT_HASHABLE: &str = "HANGER_SIZING_DERIVED_DOCUMENT_NOT_HASHABLE";
 
@@ -768,6 +769,82 @@ pub(crate) fn not_admitted(finding: AdmissionFinding) -> Published {
     ))
 }
 
+fn library_required() -> Refusal {
+    refusal(LIBRARY_REQUIRED, vec!["$.library".to_string()], "a hanger library is required; none is supplied or assumed")
+}
+
+/// The sizing request's required members, each with the code an absent member is
+/// refused by. `method` members are listed under `method`.
+const REQUIRED_MEMBERS: [(&str, &str, &str); 6] = [
+    ("weight_case", "HANGER_SIZING_WEIGHT_CASE_REQUIRED", "the weight case is required"),
+    ("weight_support_state", WEIGHT_SUPPORT_STATE_REQUIRED,
+        "the support state the hot-load basis is formed in is required; the only admitted value is own_solve, the weight case's own converged state"),
+    ("design_operating_case", "HANGER_SIZING_DESIGN_OPERATING_CASE_REQUIRED", "the design operating case is required"),
+    ("check_operating_cases", "HANGER_SIZING_CHECK_OPERATING_CASES_REQUIRED",
+        "the further operating cases to check are required, stated as a list even when it is empty"),
+    ("candidates", "HANGER_SIZING_CANDIDATES_REQUIRED", "at least one candidate support is required"),
+    ("solver_mode", "HANGER_SIZING_SOLVER_MODE_REQUIRED", "the solver mode of the caller's own solve is required"),
+];
+const REQUIRED_METHOD_MEMBERS: [(&str, &str, &str); 5] = [
+    ("load_design", "HANGER_SIZING_LOAD_DESIGN_REQUIRED", "the load design (hot or cold) is required"),
+    ("variation_reference", "HANGER_SIZING_VARIATION_REFERENCE_REQUIRED", "the variation reference load is required"),
+    ("variation_limit", "HANGER_SIZING_VARIATION_LIMIT_REQUIRED", "the variation limit is required"),
+    ("travel_allowance_m", "HANGER_SIZING_TRAVEL_ALLOWANCE_REQUIRED", "the travel allowance is required, stated even when it is zero"),
+    ("selection_rule", "HANGER_SIZING_SELECTION_RULE_REQUIRED", "the selection rule is required"),
+];
+
+/// The named refusals of a sizing request's members, and the paths they cover,
+/// which are not also listed as invalid members. One refusal per code, naming every
+/// path it covers, in member order. A request that is not an object has none.
+fn required_findings(sizing: &Value) -> (Vec<Refusal>, Vec<String>) {
+    let Some(map) = sizing.as_object() else { return (Vec::new(), Vec::new()) };
+    let mut found: Vec<(&'static str, Vec<String>, &'static str)> = Vec::new();
+    let mut covered = Vec::new();
+    let mut add = |code: &'static str, path: String, message: &'static str, covers: Option<String>| {
+        covered.push(covers.unwrap_or_else(|| path.clone()));
+        match found.iter_mut().find(|(c, _, _)| *c == code) {
+            Some((_, paths, _)) => paths.push(path),
+            None => found.push((code, vec![path], message)),
+        }
+    };
+    let root = "$.sizing";
+    for (key, code, message) in REQUIRED_MEMBERS {
+        let path = member_path(root, key);
+        match (key, map.get(key)) {
+            (_, None) => add(code, path, message, None),
+            ("weight_support_state", Some(value)) if value.as_str() != Some("own_solve") => add(WEIGHT_SUPPORT_STATE_UNSUPPORTED, path,
+                "the hot-load basis is formed only in the weight case's own converged support state (own_solve); another case's state cannot be held by the solve", None),
+            ("candidates", Some(Value::Array(items))) if items.is_empty() => add(code, path, message, None),
+            _ => {}
+        }
+    }
+    if let Some(Value::Array(items)) = map.get("candidates") {
+        for (i, item) in items.iter().enumerate() {
+            if item.as_object().is_some_and(|candidate| !candidate.contains_key("family_policy")) {
+                let path = member_path(&format!("{}[{i}]", member_path(root, "candidates")), "family_policy");
+                add("HANGER_SIZING_FAMILY_POLICY_REQUIRED", path, "each candidate's family policy is required", None);
+            }
+        }
+    }
+    let method_path = member_path(root, "method");
+    match map.get("method") {
+        None => {
+            for (key, code, message) in REQUIRED_METHOD_MEMBERS {
+                add(code, member_path(&method_path, key), message, Some(method_path.clone()));
+            }
+        }
+        Some(Value::Object(method)) => {
+            for (key, code, message) in REQUIRED_METHOD_MEMBERS {
+                if !method.contains_key(key) {
+                    add(code, member_path(&method_path, key), message, None);
+                }
+            }
+        }
+        Some(_) => {}
+    }
+    (found.into_iter().map(|(code, paths, message)| refusal(code, paths, message)).collect(), covered)
+}
+
 /// The pipeline after admission: shape, library import boundary, request, the
 /// engine's run, then publication. [`size_hangers`] and the desktop entry
 /// (`crate::desktop`) share it, so that an input is admitted once and published
@@ -780,49 +857,54 @@ pub(crate) fn size_admitted(input: &Value) -> Published {
         library_id: input.get("library").and_then(|l| l["hanger_library"]["library_id"].as_str()).map(str::to_string),
         library_sha256: input.get("library").and_then(checked_sha256),
     };
-    let shape = shape_findings(input);
+    // An absent library is a missing required input (LIBRARY_REQUIRED), not a shape
+    // finding; every other shape finding refuses the input before anything is read.
+    let library_absent = input.as_object().is_some_and(|map| !map.contains_key("library"));
+    let mut shape = shape_findings(input);
+    if library_absent {
+        shape.retain(|path| path != "$.library");
+    }
     if !shape.is_empty() {
-        return Published::Refused(refused_document(&inputs, &[refusal(INPUT_SHAPE_INVALID, shape,
-            "the input must be exactly {\"request\": {\"model\", \"materials\"}, \"sizing\", \"library\"}")]));
+        let mut found = vec![refusal(INPUT_SHAPE_INVALID, shape,
+            "the input must be exactly {\"request\": {\"model\", \"materials\"}, \"sizing\", \"library\"}")];
+        if library_absent {
+            found.push(library_required());
+        }
+        return Published::Refused(refused_document(&inputs, &found));
     }
     let (request_doc, sizing, library_doc) = (&input["request"], &input["sizing"], &input["library"]);
     let mut refusals = Vec::new();
-    let import = validate_library_import(library_doc, LibraryKind::Hanger, IntendedVisibility::Private);
-    if !import.accepted {
-        let findings: Vec<String> = import.findings.iter().map(|f| format!("{} at {}", f.code, f.path)).collect();
-        refusals.push(refusal(LIBRARY_NOT_ADMITTED, Vec::new(),
-            format!("the library is not accepted at the import boundary ({}): {}", import.outcome, findings.join("; "))));
-    } else if inputs.library_id.is_none() {
-        refusals.push(refusal(LIBRARY_NOT_ADMITTED, Vec::new(), "the library carries no hanger_library.library_id string"));
+    if library_absent {
+        refusals.push(library_required());
+    } else {
+        let import = validate_library_import(library_doc, LibraryKind::Hanger, IntendedVisibility::Private);
+        if !import.accepted {
+            let findings: Vec<String> = import.findings.iter().map(|f| format!("{} at {}", f.code, f.path)).collect();
+            refusals.push(refusal(LIBRARY_NOT_ADMITTED, Vec::new(),
+                format!("the library is not accepted at the import boundary ({}): {}", import.outcome, findings.join("; "))));
+        } else if inputs.library_id.is_none() {
+            refusals.push(refusal(LIBRARY_NOT_ADMITTED, Vec::new(), "the library carries no hanger_library.library_id string"));
+        }
     }
-    // The support state W is formed in is a required input with one admitted value
-    // (REQ-001, REQ-003): absent, it is refused as required; present and not
-    // `own_solve`, as unsupported. Either names the member's path, as the request's
-    // other refusals do, and is not also listed as an invalid member.
-    let weight_state_path = "$.sizing.weight_support_state";
-    let weight_state = sizing.as_object().and_then(|map| match map.get("weight_support_state") {
-        None => Some(refusal(WEIGHT_SUPPORT_STATE_REQUIRED, vec![weight_state_path.to_string()],
-            "the support state the hot-load basis is formed in is required; the only admitted value is own_solve, the weight case's own converged state")),
-        Some(value) if value.as_str() != Some("own_solve") => Some(refusal(WEIGHT_SUPPORT_STATE_UNSUPPORTED, vec![weight_state_path.to_string()],
-            "the hot-load basis is formed only in the weight case's own converged support state (own_solve); another case's state cannot be held by the solve")),
-        Some(_) => None,
-    });
+    // Each absent required member is refused by its own code, and a present member
+    // with its own specific code (an empty candidate list, a weight support state
+    // other than own_solve) by that code; each names the member's path. Every other
+    // finding is HANGER_SIZING_REQUEST_INVALID, naming its path (REQ-001).
+    let (named, covered) = required_findings(sizing);
     let request = match parse_sizing_request(sizing, "$.sizing") {
         Ok(request) => {
             inputs.sizing_request = Some(sizing.clone());
             Some(request)
         }
         Err(mut paths) => {
-            if weight_state.is_some() {
-                paths.retain(|path| path != weight_state_path);
-            }
+            paths.retain(|path| !covered.contains(path));
             if !paths.is_empty() {
                 refusals.push(refusal(REQUEST_INVALID, paths, "the sizing request does not match $defs.SizingRequest exactly"));
             }
             None
         }
     };
-    refusals.extend(weight_state);
+    refusals.extend(named);
     if !refusals.is_empty() {
         return Published::Refused(refused_document(&inputs, &refusals));
     }
