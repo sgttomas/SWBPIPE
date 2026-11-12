@@ -364,7 +364,9 @@ def test_partial_reader_construction_failure_still_owns_cleanup_with_minimal_env
     with pytest.raises(RuntimeError):
         native.__init__(Path('/invented/pinned-codex'), tmp_path, 'http://127.0.0.1:4321/v1', adapter.MODEL)
     env = popen.call_args.kwargs['env']
-    assert set(env) == {'PATH', 'LANG', 'HOME', 'CODEX_HOME', 'TMPDIR'}
+    assert set(env) == {'PATH', 'LANG', 'HOME', 'CODEX_HOME', 'TMPDIR',
+                        'CODEX_INTERNAL_APP_SERVER_REMOTE_CONTROL_DISABLED'}
+    assert env['CODEX_INTERNAL_APP_SERVER_REMOTE_CONTROL_DISABLED'] == '1'
     assert popen.call_args.kwargs['start_new_session'] is True
     native.close()
     assert [call.args[0] for call in native.signal_group.call_args_list] == [witness.signal.SIGTERM, witness.signal.SIGKILL]

@@ -91,7 +91,7 @@ import type { BlankProjectKind, BlankProjectUnitsRequest } from "../project-unit
 import { MODEL_DOCUMENT_FILE_SOURCE, checkNativeOutcome, modelFileRefusalMessage, modelFileWarningSuffix, type ModelDocumentSource } from "../../services/modelDocumentFile";
 import { checkModelLibraryRefs, modelLibraryRefs } from "../../services/libraryImportService";
 import { currentLibraryRefFindings, libraryRefDiagnostics, publishLibraryRefFindings } from "../library/libraryRefFindings";
-import { cancelNativeModelChecks, runModelChecks, type ModelCheckRun } from "../diagnostics/modelChecks";
+import { cancelNativeModelChecks, modelChecksNotCompleted, runModelChecks, type ModelCheckRun } from "../diagnostics/modelChecks";
 import { retireMbfExportSession, reviewMbfExport, saveMbfExport } from "../caepipe-mbf/mbfExportCancel";
 import type { MbfExportDialogRequest } from "../caepipe-mbf/MbfExportDialog";
 import { closedSaveStatusLine } from "../caepipe-mbf/mbfExport";
@@ -231,7 +231,7 @@ import {
   uiModelIdentityHash,
   type SessionModelCheckpoint
 } from "./sessionModel";
-import { commitModelAfterSolveInvalidation } from "./solveGates";
+import { commitModelAfterSolveInvalidation, readSolveGate, type SolveGateOutcome, type SolveGateReading, type SolveGateStop } from "./solveGates";
 import {
   awaitBackendSolveJob,
   blankProjectCreatedSolveJob,
@@ -1211,11 +1211,136 @@ export function useWorkspaceSession() {
     }
   }
 
-  async function handleRun(): Promise<void> { await handleRunWithAgentReceipt(); }
+  async function handleRun(): Promise<void> { await handleSolveRequest(); }
+
+  /** One Solve request: the gate's outcome (null where a solve already held the run,
+   * so this request did nothing) and the solve's receipt where one started. The
+   * gate's listener is set and taken synchronously, so it belongs to this call. */
+  async function handleSolveRequest(): Promise<SolveRequestOutcome> {
+    let gate = null as SolveGateOutcome | null;
+    solveGateListener.current = (outcome) => { gate = outcome; };
+    const receipt = await handleRunWithAgentReceipt();
+    return { gate, receipt };
+  }
+  /** Receives the gate's outcome for the Solve request that takes it; taken (and cleared)
+   * synchronously at the head of `handleRunWithAgentReceipt`. */
+  const solveGateListener = useRef<((outcome: SolveGateOutcome) => void) | null>(null);
+
+  /** The check a Solve request runs where no model-check run is current: the run
+   * token it holds, the model-check request it started (it owns that check only
+   * while no later request has superseded it), the model value it reads, and why
+   * it ended, once it has. */
+  type ModelCheckOwner = Readonly<{ kind: "person" } | { kind: "recheck" } | { kind: "solve"; token: number }>;
+  type SolveGateCheck = { token: number; request: number; model: PreviewModel; ended: SolveGateStop | "completed" | null };
+  const solveGateCheck = useRef<SolveGateCheck | null>(null);
+  const sessionMounted = useRef(true);
+  useEffect(() => {
+    sessionMounted.current = true;
+    return () => {
+      sessionMounted.current = false;
+      const check = solveGateCheck.current;
+      if (check) endSolveGateCheck(check, "unmounted");
+      // Every outstanding check ends with the workspace, whoever started it: retired (no
+      // later publication) and cancelled natively.
+      modelCheckRequest.current += 1;
+      if (nativeModelCheckInFlight.current) void cancelNativeModelChecks();
+      nativeModelCheckInFlight.current = false;
+    };
+  }, []);
+
+  /** Ends a Solve request's check, once, releasing what it owns: the check itself
+   * (retired, and cancelled natively) only while it is still the newest request, so
+   * a newer check (Run model checks, or the re-check after an edit) is never
+   * cancelled by an older request's end; running, unless a later solve holds it;
+   * and the run token. Every later continuation of the request is inert. */
+  function endSolveGateCheck(check: SolveGateCheck, reason: SolveGateStop) {
+    if (check.ended) return;
+    check.ended = reason;
+    if (solveGateCheck.current === check) solveGateCheck.current = null;
+    const latest = latestModelCheck.current;
+    const ownsNewestCheck = latest !== null && latest.request === check.request && modelCheckRequest.current === check.request
+      && latest.owner.kind === "solve" && latest.owner.token === check.token;
+    if (ownsNewestCheck) {
+      modelCheckRequest.current += 1;
+      if (nativeModelCheckInFlight.current) void cancelNativeModelChecks();
+      nativeModelCheckInFlight.current = false;
+      setModelCheckBusy(false);
+    }
+    const holder = solveRunGate.current.current();
+    if (holder === null || holder === check.token) setRunning(false);
+    solveRunGate.current.finish(check.token);
+  }
+
+  /** The Solve command's gate (DEL-07-07 REQ-008, DEL-07-04 AC-001), for the run
+   * holding `runGeneration`: it reads the model checks for the model as it stands
+   * (`readSolveGate`), running them first when no run is current for this model
+   * value. `proceed` lets the solve start (the reading is open, or unknown where the
+   * checks could not run or complete). Otherwise nothing starts, the run token is
+   * released, nothing of the session is cleared and the model is untouched:
+   * `withheld` (a solve-blocking finding stands; the Issues drawer opens on the Model
+   * checks list, whose findings it names), `cancelled` (a cancel request during the
+   * check) or `superseded` (a model change, a later check or project session, or the
+   * workspace's unmount ended the check). Synchronous when a current run is reused,
+   * so an open gate adds no await before the solve starts. While the checks run the
+   * session reads as running, from the Solve request on as before the gate (the
+   * progress panel's run starts there, and Cancel reaches the check). */
+  function solveGateAllows(runGeneration: number): SolveGateOutcome | Promise<SolveGateOutcome> {
+    if (!model) return { kind: "proceed", reading: { kind: "unknown", reason: "not_checked" } }; // The solve's own refusal of no model stands.
+    const settle = (reading: SolveGateReading): SolveGateOutcome => {
+      if (reading.kind !== "withheld") {
+        solveLastWithheld.current = false;
+        return { kind: "proceed", reading };
+      }
+      solveRunGate.current.finish(runGeneration);
+      setIssuesDrawerOpen(true);
+      return { kind: "withheld", reading };
+    };
+    const published = modelCheckRunRef.current;
+    if (published?.model === model) return settle(readSolveGate(model, published));
+    const checked = model;
+    const revision = modelRevision.current;
+    const stillWanted = () => sessionMounted.current
+      && solveRunGate.current.isCurrent(runGeneration)
+      && !solveRunGate.current.isCancellationRequested(runGeneration)
+      && modelRevision.current === revision;
+    setRunning(true);
+    const pending = runModelChecksRequest(checked, { kind: "solve", token: runGeneration }, stillWanted);
+    // The request number is taken before the check's first await.
+    const check: SolveGateCheck = { token: runGeneration, request: modelCheckRequest.current, model: checked, ended: null };
+    solveGateCheck.current = check;
+    const stopped = (reason: SolveGateStop): SolveGateOutcome => {
+      endSolveGateCheck(check, reason);
+      const ended = check.ended && check.ended !== "completed" ? check.ended : reason;
+      return ended === "cancelled" ? { kind: "cancelled" } : { kind: "superseded", reason: ended };
+    };
+    return pending.then((run) => {
+      if (check.ended && check.ended !== "completed") return stopped(check.ended);
+      if (!sessionMounted.current) return stopped("unmounted");
+      if (solveRunGate.current.isCancellationRequested(runGeneration)) return stopped("cancelled");
+      if (!solveRunGate.current.isCurrent(runGeneration) || modelRevision.current !== revision) return stopped("model_changed");
+      if (!run) return stopped("check_retired");
+      check.ended = "completed";
+      if (solveGateCheck.current === check) solveGateCheck.current = null;
+      const outcome = settle(readSolveGate(checked, run));
+      if (outcome.kind === "withheld") setRunning(false);
+      return outcome;
+    }).catch((): SolveGateOutcome => {
+      // A failure anywhere in the check or its continuation starts nothing and holds nothing.
+      if (check.ended === "completed") check.ended = null;
+      endSolveGateCheck(check, "check_failed");
+      return { kind: "superseded", reason: "check_failed" };
+    });
+  }
 
   async function handleRunWithAgentReceipt(): Promise<AgentRunReceipt | undefined> {
+    const reportGate = solveGateListener.current;
+    solveGateListener.current = null;
     const runGeneration = solveRunGate.current.tryStart();
     if (runGeneration === null) return;
+    const gate = solveGateAllows(runGeneration);
+    const gateOutcome = gate instanceof Promise ? await gate : gate;
+    reportGate?.(gateOutcome);
+    if (gateOutcome.kind !== "proceed") return;
     // RT-U4: observation only (solveTimeline.ts); the run's path is unchanged.
     const timeline = beginSolveTimeline({ solver_mode: solverMode });
     invalidateReportPackageComputedState();
@@ -1593,6 +1718,12 @@ export function useWorkspaceSession() {
     const runGeneration = solveRunGate.current.current();
     if (runGeneration === null) return;
     if (!solveRunGate.current.requestCancellation(runGeneration)) return;
+    // A Solve request still running its model checks has no job: its check ends here.
+    const gateCheck = solveGateCheck.current;
+    if (gateCheck && gateCheck.token === runGeneration) {
+      endSolveGateCheck(gateCheck, "cancelled");
+      return;
+    }
     const tombstone = solveCancellationTombstones.current.get(runGeneration);
     if (tombstone) tombstone.requested = true;
     const active = activeSolveJob.current;
@@ -4052,9 +4183,20 @@ export function useWorkspaceSession() {
   // model as it stands and never change it.
   // In the app the solve's checks run natively under the memory pool, so a run
   // is asynchronous: a later request (or a new project session) supersedes it.
-  const [modelCheckRun, setModelCheckRun] = useState<ModelCheckRun | null>(null);
+  const [modelCheckRun, setModelCheckRunState] = useState<ModelCheckRun | null>(null);
+  // The last published run, read by handlers that may hold an earlier render's value.
+  const modelCheckRunRef = useRef<ModelCheckRun | null>(null);
+  function setModelCheckRun(run: ModelCheckRun | null) {
+    modelCheckRunRef.current = run;
+    setModelCheckRunState(run);
+  }
   const [modelCheckBusy, setModelCheckBusy] = useState(false);
   const modelCheckRequest = useRef(0);
+  // Who started the newest model-check request: the person (Run model checks),
+  // the re-check after an edit while Solve is withheld, or a Solve request (by its
+  // run token). Only a Solve request's own end cancels a check, and only the
+  // check that request started while it is still the newest.
+  const latestModelCheck = useRef<{ request: number; owner: ModelCheckOwner } | null>(null);
   // Whether the latest request is a native check still in progress.
   const nativeModelCheckInFlight = useRef(false);
   // A new project session retires a run in progress and the last run's list
@@ -4087,19 +4229,70 @@ export function useWorkspaceSession() {
       setMbfImportRequest(null);
     }
   }, [projectSessionGeneration]);
-  async function handleRunModelChecks() {
-    if (!model) return;
+  /** One run of the model checks on `checked`: a later request or a new project
+   * session retires it (null). A run `publish` declines is returned to no one and
+   * not shown (the Solve command's check, once its solve is cancelled or its model
+   * changed). */
+  async function runModelChecksRequest(checked: PreviewModel, owner: ModelCheckOwner, publish: () => boolean = () => true): Promise<ModelCheckRun | null> {
     const request = ++modelCheckRequest.current;
+    latestModelCheck.current = { request, owner };
     const generation = projectSessionGenerationRef.current;
-    setIssuesDrawerOpen(true);
+    // Retired by a later request, a new project session or the workspace's unmount; the
+    // native ingress sends nothing, and resends nothing, for a retired request.
+    const current = () => sessionMounted.current && request === modelCheckRequest.current && generation === projectSessionGenerationRef.current;
     setModelCheckBusy(true);
     nativeModelCheckInFlight.current = isTauriRuntime();
-    const run = await runModelChecks(model, () => libraryRefDiagnostics(currentLibraryRefFindings(model)));
-    if (request !== modelCheckRequest.current || generation !== projectSessionGenerationRef.current) return;
+    let run: ModelCheckRun;
+    try {
+      run = await runModelChecks(checked, () => libraryRefDiagnostics(currentLibraryRefFindings(checked)), { stillCurrent: current });
+    } catch (error) {
+      // A check that could not complete is read as the checks unavailable.
+      run = modelChecksNotCompleted(checked, error);
+    }
+    if (!current()) return null;
     nativeModelCheckInFlight.current = false;
     setModelCheckBusy(false);
-    setModelCheckRun(run);
+    if (!publish()) return null;
+    const published = withStandingEvidence(run);
+    setModelCheckRun(published);
+    return published;
   }
+
+  /** Unavailable never overturns evidence already held for that model: for the same
+   * unchanged model value, an established blocking finding or model-read refusal stands
+   * until a completed check replaces it, and a refresh that cannot complete is shown as
+   * not completed beside the standing findings. A check of another model value, or a
+   * completed check, replaces the run. */
+  function withStandingEvidence(run: ModelCheckRun): ModelCheckRun {
+    const standing = modelCheckRunRef.current;
+    if (run.solve.kind !== "unavailable" || !standing || standing.model !== run.model) return run;
+    if (readSolveGate(standing.model, standing).kind !== "withheld") return run;
+    return { ...standing, laterCheckNotCompleted: run.solve.reason };
+  }
+
+  async function handleRunModelChecks() {
+    if (!model) return;
+    setIssuesDrawerOpen(true);
+    await runModelChecksRequest(model, { kind: "person" });
+  }
+
+  // The Solve command's gate as it reads now, for the controls that offer Solve.
+  const solveGate = readSolveGate(model, modelCheckRun);
+  // Once Solve has read withheld, and until a solve passes the gate or the project
+  // session changes, a change of the model value (an applied operation, an undo,
+  // a redo) runs the checks again for the new value without being asked, so the
+  // withheld notice updates, clears, or comes back by itself (an undo of the
+  // operation that supplied a value). A later change supersedes a check in
+  // progress, as a later request does.
+  const solveLastWithheld = useRef(false);
+  useEffect(() => { solveLastWithheld.current = false; }, [projectSessionGeneration]);
+  useEffect(() => {
+    // A model change ends a Solve request's check of the earlier value (before any re-check starts).
+    const gateCheck = solveGateCheck.current;
+    if (gateCheck && gateCheck.model !== model) endSolveGateCheck(gateCheck, "model_changed");
+    if (solveGate.kind === "withheld") solveLastWithheld.current = true;
+    else if (solveGate.kind === "unknown" && solveGate.reason === "model_changed" && solveLastWithheld.current && model) void runModelChecksRequest(model, { kind: "recheck" });
+  }, [model, modelCheckRun]);
 
   // Single command sink for both the in-DOM menu bar (tested) and the native
   // macOS menu bar (Tauri shell only). View commands summon/dismiss workspace
@@ -4817,6 +5010,8 @@ export function useWorkspaceSession() {
       solveJob,
       solveProof,
       running,
+      /** The Solve command's gate as it reads now (`readSolveGate`). */
+      solveGate,
       solverMode, setSolverMode,
       reportComposition, setReportComposition: handleReportCompositionChange,
       reportPackagePrivateIntent, setReportPackagePrivateIntent,
@@ -4824,6 +5019,8 @@ export function useWorkspaceSession() {
       reportPackageRedaction,
       reportPackageRoute,
       handleRun,
+      /** A Solve request with the gate's outcome and the solve's receipt (`SolveRequestOutcome`). */
+      handleSolveRequest,
       handleInspectBundledReference,
       handleCancelRun,
       handleRuleCheckAggregate,
@@ -4954,6 +5151,11 @@ export function useWorkspaceSession() {
 
 /** What the view receives: the six slices `useWorkspaceSession` returns. */
 export type WorkspaceSession = ReturnType<typeof useWorkspaceSession>;
+
+/** What one Solve request through `results.handleSolveRequest` reports: the gate's outcome
+ * (`SolveGateOutcome`; null where a solve already held the run, so the request did
+ * nothing) and the solve's receipt where a solve started. */
+export type SolveRequestOutcome = Readonly<{ gate: SolveGateOutcome | null; receipt: AgentRunReceipt | undefined }>;
 
 /** Freeze a queued submission recursively (W-10): no caller can alter it after registration. */
 function deepFreeze<T>(value: T): T {

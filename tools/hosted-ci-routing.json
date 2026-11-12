@@ -241,7 +241,6 @@
     {
       "paths": [
         "LICENSE",
-        "LICENSE.md",
         "provenance/**"
       ],
       "checks": [
@@ -5319,6 +5318,7 @@
               "fixtures/redaction_export_controls/value_record_sweep.json",
               "fixtures/redaction_export_controls/value_record_sweep_decisions.json",
               "fixtures/reference_system/authoring.json",
+              "fixtures/reference_system/invented_hanger_catalogue.json",
               "fixtures/reference_system/key_results.json",
               "fixtures/reference_system/reference_system.json",
               "fixtures/reference_system/self_weight_capture.json",
