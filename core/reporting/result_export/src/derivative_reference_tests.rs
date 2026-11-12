@@ -9,7 +9,7 @@
 //! `canonical_json` on every committed JSON document and on generated
 //! adversarial values.
 use super::{
-    checksum_without, class_disclosure, digest_without, guard_json, is_successor, reference,
+    checksum_without, digest_without, guard_json, is_successor, reference,
     refuse_declared_dimensions, write_canonical_without, CANONICALIZATION, OWN_HASH,
     RETAINED_ABSOLUTE_VERIFIED, RETAINED_NOT_COVERED, RETAINED_PRECISION_RECEIPT_BINDING_MISMATCH,
 };
@@ -41,6 +41,15 @@ pub fn checksum(v: &Value, scope: &str, payload_ref: Value) -> Result<Value, Str
         json!({"algorithm":"sha256","canonicalization":CANONICALIZATION,"payload_scope":scope,"payload_ref":payload_ref,"value":digest(v)?}),
     )
 }
+
+// This module is test-only (declared under `#[cfg(test)]` in derivative.rs).
+// The two functions that call the U6 class-disclosure seam also sit in a module
+// carrying the gate itself, so that the seam guard (retained_precision_carriers.rs),
+// which reads each file's text, sees them as test code. Their text is unchanged.
+#[cfg(test)]
+mod former {
+use super::*;
+use crate::derivative::class_disclosure;
 
 /// `base` carries qualified run/provenance/boundary facts, not numeric mappings.
 /// `origin` is supplied only after the caller's source binding has succeeded.
@@ -721,6 +730,8 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
     }
     Ok(())
 }
+}
+use former::{derive_document, validate_document};
 
 // ------------------------------------------------------------------ the corpus
 
