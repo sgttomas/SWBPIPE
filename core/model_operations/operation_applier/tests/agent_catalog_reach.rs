@@ -372,9 +372,35 @@ fn applies(model: &Value, op: &Value) -> Option<Value> {
     let outcome = apply_operation(model, &stamped(op), Some(&hash(model)));
     outcome.applied_model
 }
-fn modifier_members(model: &Value) -> usize {
-    let text = canonical_json(model);
-    ["\"modifiers\"", "flexibility_factor_user_value", "sif_user_value", "bend_realization", "curved_bend_macro_element"].iter().map(|m| text.matches(m).count()).sum()
+
+/// What the engine does, for an operation the person did not author, with a person-entered
+/// member in the record each create kind writes (DEL-16-06 AC-006): refuses the operation by the
+/// person-entry code, refuses it as an invalid payload, refuses it as a slot-shape error, or
+/// writes the record without the member. Stated per kind and member; an unlisted kind fails.
+#[derive(Debug, PartialEq)]
+enum Behaviour {
+    RefusedByName(&'static str),
+    RefusedPayload(&'static str),
+    RefusedSlotShape(&'static str),
+    WrittenWithout,
+}
+fn expected(change_kind: &str, component_kind: &str, member: &str) -> Behaviour {
+    use Behaviour::*;
+    match (change_kind, member) {
+        ("insert_component_symbol", "modifiers") => RefusedByName(MODIFIER),
+        ("insert_component_symbol", "curved interface") => match component_kind {
+            "reducer" | "valve" | "flange" => RefusedPayload("OP-CREATE-RIGID-COMPONENT-CONSUMPTION-INVALID"),
+            "expansion_joint" => RefusedPayload("OP-CREATE-EXPANSION-JOINT-ANNOTATION-ONLY"),
+            "bend" | "tee" => WrittenWithout,
+            other => panic!("no stated behaviour for a {other} with a curved interface"),
+        },
+        ("insert_component_symbol", "bend_realization") => WrittenWithout,
+        ("create_support", _) => RefusedPayload("OP-CREATE-SUPPORT-PAYLOAD-INVALID"),
+        ("create_condition_set" | "add_rule_pack_ref", _) => RefusedSlotShape("MODEL-SLOT-SHAPE"),
+        ("create_material" | "create_node" | "connect_pipe_run" | "create_load_case" | "create_primitive_load" | "create_section"
+            | "create_combination" | "create_combination_term", "modifiers") => WrittenWithout,
+        (other, member) => panic!("no stated behaviour for {other} with {member}; state it here"),
+    }
 }
 
 #[test]
@@ -383,7 +409,7 @@ fn every_admitted_create_kind_refuses_or_drops_a_person_entered_member() {
     let creates: Vec<String> = catalog()["admittedOperations"].as_array().unwrap().iter()
         .filter(|row| matches!(row["operationKind"].as_str().unwrap(), "create" | "insert" | "connect"))
         .map(|row| row["changeKind"].as_str().unwrap().to_string()).collect();
-    assert!(creates.len() >= 12, "{creates:?}");
+    assert_eq!(creates.len(), 12, "{creates:?}");
     let authoring: Value = serde_json::from_str(AUTHORING).unwrap();
     let person = &authoring["bends"][0]["person_inputs"];
     let modifiers = json!({"flexibility_factor_user_value": person["flexibility_factor"], "sif_user_value": person["sif_in_plane_user_value"],
@@ -393,25 +419,28 @@ fn every_admitted_create_kind_refuses_or_drops_a_person_entered_member() {
         for (model, op) in valid_creates(change_kind) {
             let clean = applies(&model, &op).unwrap_or_else(|| panic!("{change_kind}: the clean create must apply"));
             let after: Value = serde_json::from_str(op["change"]["after"].as_str().unwrap()).unwrap();
+            let component_kind = after["kind"].as_str().unwrap_or("").to_string();
             let mut attempts = vec![("modifiers", { let mut a = after.clone(); a["modifiers"] = modifiers.clone(); a })];
             if change_kind == "insert_component_symbol" {
-                // A component may also carry its realization: a curved macro-element interface.
-                attempts.push(("bend realization", { let mut a = after.clone(); a["mechanics_interface"] = json!({"solver_consumption":"curved_bend_macro_element"}); a }));
+                // A component may also carry its realization: a curved macro-element interface, or a bend_realization member.
+                attempts.push(("curved interface", { let mut a = after.clone(); a["mechanics_interface"] = json!({"solver_consumption":"curved_bend_macro_element"}); a }));
                 attempts.push(("bend_realization", { let mut a = after.clone(); a["bend_realization"] = json!({"radius": person["flexibility_factor"]}); a }));
             }
-            for (what, carried) in attempts {
+            for (member, carried) in attempts {
                 let mut attempt = op.clone();
                 attempt["change"]["after"] = json!(canonical_json(&carried));
                 let outcome = apply_operation(&model, &stamped(&attempt), Some(&hash(&model)));
                 let codes: Vec<String> = outcome.diagnostics.iter().map(|d| d.code.clone()).collect();
-                if change_kind == "insert_component_symbol" && what == "modifiers" {
-                    assert!(codes.contains(&MODIFIER.to_string()), "{change_kind} {}: {codes:?}", op["target"]["ref"]);
-                }
-                match outcome.applied_model {
-                    // Refused: nothing is written.
-                    None => {}
-                    // Ignored: the record is created without the member.
-                    Some(applied) => assert_eq!(modifier_members(&applied), modifier_members(&clean), "{change_kind} {what}: {codes:?}"),
+                let label = format!("{change_kind} {} ({component_kind}) with {member}: {codes:?}", op["target"]["ref"]);
+                match expected(change_kind, &component_kind, member) {
+                    Behaviour::RefusedByName(code) | Behaviour::RefusedPayload(code) | Behaviour::RefusedSlotShape(code) => {
+                        assert!(outcome.applied_model.is_none(), "{label}: expected a refusal");
+                        assert!(codes.iter().any(|c| c == code), "{label}: expected {code}");
+                    }
+                    Behaviour::WrittenWithout => {
+                        let applied = outcome.applied_model.unwrap_or_else(|| panic!("{label}: expected the record written without the member"));
+                        assert_eq!(canonical_json(&applied), canonical_json(&clean), "{label}: the record must be exactly the clean create's");
+                    }
                 }
             }
             covered.push(change_kind.clone());
