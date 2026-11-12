@@ -121,3 +121,29 @@ the entry, and the entry names the PR.
 - **What the user does instead:** use a plain subtraction, with neither `difference_basis` nor `subtrahend_support_state`. Each operand is then solved to its own support states, and each case's own result publishes them. On the exact route today the subtraction's record gives each operand's load case, modulus selection and numerical standing; it does not yet set the operands' support states side by side or say where they differ, which DEL-05-02/REQ-014 and AC-005 require, so the user compares the two cases' published states. The same disclosure is missing from exact-route envelopes; comparing cases manually does not meet AC-005.
 - **Basis:** DEL-05-02 [scope](../execution/PKG-05/DEL-05-02/ScopeOfWork.md), "Withheld in v1.0", with DEL-04-07/REQ-012 for the held-status solve; made standing by PR #244.
 - **Status:** not yet declared.
+
+### LIM-008 — A moved, inactive or device-referenced hanger location is not sized
+
+- **Id:** LIM-008
+- **Exit criteria:** 1.
+- **Requirement affected:** hanger sizing on the exact route (DEL-04-11/REQ-002).
+- **Code:** `HANGER_SIZING_CANDIDATE_MOVED`.
+- **What is refused:** on a model with load and reference states, sizing a support whose state in any named case carries a boundary motion or a base motion, is inactive or locked, or carries a device reference.
+- **What it means in practice for a user:** a hanger whose attachment moves in a case cannot be sized in a request that names that case; the request is refused and names the support.
+- **Why:** sizing measures every position from the drawn geometry and replaces the candidate by a force; a moved base changes what the travel is measured against, and the method states no rule for it.
+- **What the user does instead:** size with cases in which the attachment does not move, and check the moved case by a solve after applying the selection.
+- **Basis:** DEL-04-11 [scope](../execution/PKG-04/DEL-04-11/ScopeOfWork.md), REQ-002; made standing on the exact route by PR #272.
+- **Status:** not yet declared.
+
+### LIM-009 — The hot-load basis is formed only in the weight case's own support state
+
+- **Id:** LIM-009
+- **Exit criteria:** 1.
+- **Requirement affected:** hanger sizing (DEL-04-11/REQ-003).
+- **Code:** `HANGER_SIZING_WEIGHT_SUPPORT_STATE_UNSUPPORTED`.
+- **What is refused:** forming the hot-load basis with the nonlinear supports held in the state they take in the design operating case.
+- **What it means in practice for a user:** where a gap, lift-off or friction support changes state between the weight case and the operating case, the hot-load basis is the weight case's; the result names each support whose state differs and warns, and the user cannot ask for the other basis.
+- **Why:** the solve cannot be made to hold another case's nonlinear states; forming the basis that way would need a second assembly, which the deliverable's one solve path excludes.
+- **What the user does instead:** read the published states and the warning; where the difference matters, model the support in its operating state for the sizing run.
+- **Basis:** DEL-04-11 [scope](../execution/PKG-04/DEL-04-11/ScopeOfWork.md), REQ-003; made standing on the exact route by PR #272.
+- **Status:** not yet declared.
