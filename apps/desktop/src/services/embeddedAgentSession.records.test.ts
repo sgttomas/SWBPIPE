@@ -232,7 +232,14 @@ describe("the person-entered members the agent's proposals are refused for", () 
     let fits: unknown = { leaf: 1 };
     for (let i = 0; i < 31; i++) fits = [fits];
     expect(writesUserEnteredModifier(op("create_material", "Material", "materials", fits))).toBeNull();
-    expect(writesUserEnteredModifier(op("create_material", "Material", "materials", Array.from({ length: 50_001 }, () => 0)))).toMatchObject({ route: "unchecked" });
+  });
+});
+
+describe("the member-count bound", () => {
+  it("refuses past the count and reads up to it", () => {
+    const op = (after: unknown) => ({ operation_id: "op", target: { object_type: "Material", ref: "m" }, change: { change_kind: "create_material", field_path: "materials", after: JSON.stringify(after) } });
+    expect(writesUserEnteredModifier(op(Array.from({ length: 50_001 }, () => 0)))).toMatchObject({ route: "unchecked" });
+    expect(writesUserEnteredModifier(op(Array.from({ length: 49_000 }, () => 0)))).toBeNull();
   });
 });
 

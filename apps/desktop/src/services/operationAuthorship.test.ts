@@ -117,9 +117,15 @@ describe("operation authorship on agent and imported routes", () => {
     const bounded = op({ operation_id: "op:deep", change: { change_kind: "create_material", field_path: "materials", after: JSON.stringify(deep) } });
     expect(() => stampImportedBatch({ batch_id: "file", operations: [bounded] } as unknown as OperationBatch)).toThrow(/^Operation 1 \(op:deep\) of this file carries an after value nested deeper than 32 levels or with more than 50000 members, which is not checked for values only the person enters, so nothing was queued\./);
     expect(requeueRetainedRecord({ ...bounded, author_type: "user" }, 4)).toEqual({ refused: expect.stringMatching(/^This stored record carries an after value nested deeper than 32 levels.*It was not queued for review; the record stays stored and nothing of yours is lost\./) });
-    // The member-count bound, at both entries.
+  });
+
+  it("an operation past the member-count bound is refused for that reason at intake", () => {
     const wide = op({ operation_id: "op:wide", change: { change_kind: "create_material", field_path: "materials", after: JSON.stringify(Array.from({ length: 50_001 }, () => 0)) } });
     expect(() => stampImportedBatch({ batch_id: "file", operations: [wide] } as unknown as OperationBatch)).toThrow(/^Operation 1 \(op:wide\) of this file carries an after value nested deeper than 32 levels or with more than 50000 members, which is not checked for values only the person enters, so nothing was queued\./);
+  });
+
+  it("an operation past the member-count bound is refused for that reason at requeue", () => {
+    const wide = op({ operation_id: "op:wide", change: { change_kind: "create_material", field_path: "materials", after: JSON.stringify(Array.from({ length: 50_001 }, () => 0)) } });
     expect(requeueRetainedRecord({ ...wide, author_type: "agent", source: { source_ref: "s", source_channel: "embedded_agent", source_role: "agent" } }, 5)).toEqual({ refused: expect.stringMatching(/^This stored record carries an after value nested deeper than 32 levels or with more than 50000 members.*the record stays stored and nothing of yours is lost\./) });
   });
 
