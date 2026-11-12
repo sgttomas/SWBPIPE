@@ -76,6 +76,11 @@ jobs:
           deselect=()
           while IFS= read -r test; do deselect+=("--deselect=$test"); done < <(python3 -c 'import json; [print(t) for t in json.load(open("repository-ci-plan.json"))["deselect"]]')
           python3 -m pytest -q -n auto "${deselect[@]}" tools/software_workflow tools/deliverables tools/validation tests/test_ci_numerical.py tests/test_ci_apt_sources.py tests/test_release_members.py tests/test_release_candidate_scan.py tests/test_repository_history.py
+      - name: Every maintained Python test follows the paths it reads
+        # The routing invariant over all maintained tests. An added or changed test does not otherwise
+        # select tests/test_ci_python.py, so without this step a test whose routing cannot be shown is
+        # green on its own pull request and red on main after it.
+        run: python3 -m pytest -q "tests/test_ci_python.py::test_every_maintained_test_runs_when_a_path_it_reads_changes" "tests/test_ci_python.py::test_a_specification_a_test_only_names_is_never_its_probe"
       - name: Deliverable dependency structure
         run: python3 -m tools.deliverables --project . check > deliverable-check.json
       - name: Execution boundary and changed specification structure

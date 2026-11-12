@@ -38,7 +38,13 @@ export function useKeyResultsSession(input: {
   const { result, historical } = input;
   const [open, setOpen] = useState(false);
   const [everySolve, setEverySolve] = useState(false);
-  const [resultsRequest, setResultsRequest] = useState<ResultsViewRequest | null>(null);
+  /** "Show contact and lift-off state", held with the result object it was made for. Every solve
+   * publishes the same run id, so the request is bound to that object, not to its run id: a later
+   * result (a new object, even with the same run id and bytes) or a cleared result drops it, and the
+   * Results section remounted for that result never applies the earlier solve's withheld marks. The
+   * reference is dropped, not only hidden, as the session's full copy is (`resultsSessionState.ts`). */
+  const [heldRequest, setHeldRequest] = useState<{ of: SessionResult; request: ResultsViewRequest } | null>(null);
+  if (heldRequest !== null && heldRequest.of !== result) setHeldRequest(null);
   /** Counts "Show support load summary" requests, so A2 shows the support each time, even when
    * the session's selection is unchanged and the user stepped A2 to another support meanwhile. */
   const [supportRequest, setSupportRequest] = useState(0);
@@ -97,8 +103,8 @@ export function useKeyResultsSession(input: {
     setEverySolve,
     panelRef,
     supportRequest,
-    /** For the results table: a request for the current run only. */
-    resultsRequest: resultsRequest && result && resultsRequest.runId === result.run_id ? resultsRequest : null,
+    /** For the results table: a request made for the session's current result object only. */
+    resultsRequest: heldRequest !== null && heldRequest.of === result ? heldRequest.request : null,
     actions: {
       onShowRatioContour: (quantityId: string, caseKey: string) => input.viewCommandRef.current?.({ type: "show-result-colour", quantityId, caseKey }),
       onShowDeflectedShape: (caseKey: string) => input.viewCommandRef.current?.({ type: "show-deflected-shape", caseKey }),
@@ -112,7 +118,7 @@ export function useKeyResultsSession(input: {
         serial.current += 1;
         // A native result's withheld support-state rows are S's table (built with the same standing).
         const withheld = isNativeResult(result) ? nativeCustody(result).summary.header.tables.withheld_support_state_rows as ReturnType<typeof withheldSupportStateRows> : withheldSupportStateRows(result, input.standing);
-        setResultsRequest({ serial: serial.current, runId: result.run_id, kind: SUPPORT_STATE_ROW_KIND, withheld });
+        setHeldRequest({ of: result, request: { serial: serial.current, runId: result.run_id, kind: SUPPORT_STATE_ROW_KIND, withheld } });
         revealInResults(KEY_RESULTS_REVEAL_TARGETS.results);
       },
       onOpenTable: (table: KeyResultsTable) => revealInResults(KEY_RESULTS_REVEAL_TARGETS[table]),

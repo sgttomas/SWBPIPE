@@ -1,0 +1,1452 @@
+{
+  "schema": "swbpipe.hanger_sizing_reference.ex_sizing/1",
+  "basis": "Independent reference for DEL-04-11 hanger sizing on documents that carry internal pressure, a per-case ledger of stored loads and per-support, per-case states (CLM-001, REQ-002 to REQ-005, REQ-010), plus one free riser on a document with no pressurised region. Classical Euler-Bernoulli beam theory with axial deformation, shear deformation neglected, small displacements, straight circular tubes of one uniform section: d = D - 2t, A = pi (D^2 - d^2)/4, I = pi (D^4 - d^4)/64. Global Z is vertical, positive up. SI units (m, N, Pa, N/m, 1/K); temperatures in degC, temperature changes in K. Every load is a stored nodal force along Z (no self-weight, no contents weight and no line load is generated); a case includes stored loads by id at a stated factor and excludes every other. A candidate acts on UZ only and its force acts along +Z. Every position is the UZ displacement from the drawn geometry, the installed position. A variable spring set to F_cold carries F_cold - k u. Solves: weight_rigid is the weight case with every candidate a rigid UZ restraint (W is its reaction); each force solve is a case with every candidate removed and replaced by a force W along +Z, entered in that case's ledger at factor 1; each verification solve replaces each selected variable record by a spring of its rate plus a force F_cold, and each constant selection and each unfitted candidate by a force W. Exact quantities (fractions.Fraction) are emitted rounded to the nearest binary64. Quantities that involve E I or E A contain pi; they are evaluated exactly at rational lower and upper bounds of pi (Machin's formula, 120 digits) and every emitted binary64 and every discrete outcome agrees at both bounds. Every discrete outcome is also unchanged when each input is replaced by the exact value of its binary64. Every value is invented; no supplier catalogue or standards data is used. See README.md for the derivations, the pressure-independence argument and the readings taken. In an expected block, a null or an absent member means that this reference supplies no expectation for that quantity; a product comparison must not assert that the product publishes nothing there. The exceptions, where a null or an empty list is itself the expectation, are listed in comparison_semantics.",
+  "comparison_semantics": {
+    "general": "In an expected block, a null or an absent member means that this reference supplies no expectation for that quantity; a product comparison must not assert that the product publishes nothing there. The exceptions, where a null or an empty list is itself the expectation, are listed in comparison_semantics.",
+    "no_expectation": [
+      "A constant selection's f_cold_condition_n, f_operating_n, variation and envelope_n, and in its verification f_cold_condition_n, f_operating_n, variation and departure_n: the scope defines these for a variable selection only (REQ-004 Loads and Variation, REQ-005 Variable selections). Its governing variation, which REQ-004 does define, is given in governing_variation. governing_variation records the value used to compare fitting records under REQ-004. It does not require publication of a product member with this name or value. Product comparisons may derive it from the per-case variations; constants count as zero for selection.",
+      "An unfitted candidate's loads, variation, envelope and verification (see unfitted_verification_note).",
+      "failure_counts and first_failed_test of a family the request does not test (absent members)."
+    ],
+    "expected_null_or_empty": [
+      "hanger_id null with outcome no_record_fits: no record is selected and nothing is assumed in its place (REQ-004).",
+      "verification.failed_tests []: the verified values fail no fit test, so nothing is warned (REQ-005).",
+      "unfitted_verified_as_force_w []: no candidate is unfitted; the standing is unconditional (REQ-005)."
+    ],
+    "inputs_not_expectations": [
+      "Nulls and empty lists outside expected blocks describe the document and catalogue: a record member that is absent (stiffness and its DOF of a constant record, VS-NR's working load range), no imposed displacement, no excluded stored load, and no internal pressure on the riser."
+    ]
+  },
+  "models": [
+    {
+      "id": "EXS-A",
+      "description": "Pressurised straight run along +X, Z up. Nodes N1..N7 at x = 0, 2, ..., 12 m (y = z = 0), members M1..M6 between consecutive nodes, one section, closed at N1 and N7. S-1 (N1) and S-7 (N7) are rigid UZ restraints that are never candidates; G-1 (N1: UX, UY, RX) is the only axial restraint, so the run is free to grow; G-7 (N7: UY) completes the out-of-plane restraint. Candidates H-3 (N3, x = 4) and H-5 (N5, x = 8). Stored loads: F-1 -8000 N at N2, F-2 -6000 N at N4, F-3 -5000 N at N6, F-4 -10000 N at N4 (stored, included by no named case), F-5 +2000 N at N4, and PR-1 internal pressure 3.5 MPa on M1..M6. W includes F-1 x1, F-2 x1.5, F-3 x1, PR-1 x1 at 20 degC (the installation temperature). O1 (design) adds F-5 x0.25 at 260 degC with S-1 moved -0.012 m and S-7 moved +0.012 m. O2 has W's loads at 180 degC with S-1 moved +0.009 m and S-7 moved -0.009 m. weight_rigid: three equal 4 m spans with midspan loads 8000, 9000, 5000 N; three-moment equation 4 M2 + M3 = -(3L/8)(P1 + P2), M2 + 4 M3 = -(3L/8)(P2 + P3) gives M2 = -5400, M3 = -3900 N m and reactions S-1 2650, H-3 10225, H-5 7600, S-7 1525 N, independent of E, A and I. Force solves: the run with both candidates replaced by forces is a simply supported 12 m span (determinate), so each position is the settlement line plus the deflection of the case's net forces (zero for W's loads with the forces W); u_O2 is exact rational, u_O1 contains F-5's deflection 500 f(x, 6) with f(x, a) = b x (L^2 - b^2 - x^2)/(6 E I L), b = L - a, x <= a. Thermal growth and pressure act only along X and change no vertical quantity.",
+      "pressurised": true,
+      "section": {
+        "outside_diameter_m": 0.25,
+        "wall_thickness_m": 0.01,
+        "elastic_modulus_pa": 200000000000.0,
+        "poisson_ratio": 0.3,
+        "thermal_expansion_per_k": 1.2e-05
+      },
+      "installation_temperature_c": 20.0,
+      "nodes": {
+        "N1": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N2": [
+          2.0,
+          0.0,
+          0.0
+        ],
+        "N3": [
+          4.0,
+          0.0,
+          0.0
+        ],
+        "N4": [
+          6.0,
+          0.0,
+          0.0
+        ],
+        "N5": [
+          8.0,
+          0.0,
+          0.0
+        ],
+        "N6": [
+          10.0,
+          0.0,
+          0.0
+        ],
+        "N7": [
+          12.0,
+          0.0,
+          0.0
+        ]
+      },
+      "members": [
+        {
+          "id": "M1",
+          "end_nodes": [
+            "N1",
+            "N2"
+          ]
+        },
+        {
+          "id": "M2",
+          "end_nodes": [
+            "N2",
+            "N3"
+          ]
+        },
+        {
+          "id": "M3",
+          "end_nodes": [
+            "N3",
+            "N4"
+          ]
+        },
+        {
+          "id": "M4",
+          "end_nodes": [
+            "N4",
+            "N5"
+          ]
+        },
+        {
+          "id": "M5",
+          "end_nodes": [
+            "N5",
+            "N6"
+          ]
+        },
+        {
+          "id": "M6",
+          "end_nodes": [
+            "N6",
+            "N7"
+          ]
+        }
+      ],
+      "supports": [
+        {
+          "id": "S-1",
+          "node": "N1",
+          "kind": "rigid",
+          "dofs": [
+            "UZ"
+          ],
+          "candidate": false
+        },
+        {
+          "id": "G-1",
+          "node": "N1",
+          "kind": "rigid",
+          "dofs": [
+            "UX",
+            "UY",
+            "RX"
+          ],
+          "candidate": false
+        },
+        {
+          "id": "H-3",
+          "node": "N3",
+          "kind": "candidate",
+          "dofs": [
+            "UZ"
+          ],
+          "candidate": true
+        },
+        {
+          "id": "H-5",
+          "node": "N5",
+          "kind": "candidate",
+          "dofs": [
+            "UZ"
+          ],
+          "candidate": true
+        },
+        {
+          "id": "S-7",
+          "node": "N7",
+          "kind": "rigid",
+          "dofs": [
+            "UZ"
+          ],
+          "candidate": false
+        },
+        {
+          "id": "G-7",
+          "node": "N7",
+          "kind": "rigid",
+          "dofs": [
+            "UY"
+          ],
+          "candidate": false
+        }
+      ],
+      "stored_loads": [
+        {
+          "id": "F-1",
+          "kind": "nodal_force",
+          "node": "N2",
+          "direction": "+Z",
+          "value_n": -8000.0
+        },
+        {
+          "id": "F-2",
+          "kind": "nodal_force",
+          "node": "N4",
+          "direction": "+Z",
+          "value_n": -6000.0
+        },
+        {
+          "id": "F-3",
+          "kind": "nodal_force",
+          "node": "N6",
+          "direction": "+Z",
+          "value_n": -5000.0
+        },
+        {
+          "id": "F-4",
+          "kind": "nodal_force",
+          "node": "N4",
+          "direction": "+Z",
+          "value_n": -10000.0
+        },
+        {
+          "id": "F-5",
+          "kind": "nodal_force",
+          "node": "N4",
+          "direction": "+Z",
+          "value_n": 2000.0
+        },
+        {
+          "id": "PR-1",
+          "kind": "internal_pressure",
+          "members": [
+            "M1",
+            "M2",
+            "M3",
+            "M4",
+            "M5",
+            "M6"
+          ],
+          "closed_ends": [
+            "N1",
+            "N7"
+          ],
+          "value_pa": 3500000.0
+        }
+      ],
+      "load_cases": [
+        {
+          "id": "W",
+          "role": "weight",
+          "temperature_c": 20.0,
+          "delta_t_k": 0.0,
+          "includes": [
+            {
+              "load": "F-1",
+              "factor": 1.0
+            },
+            {
+              "load": "F-2",
+              "factor": 1.5
+            },
+            {
+              "load": "F-3",
+              "factor": 1.0
+            },
+            {
+              "load": "PR-1",
+              "factor": 1.0
+            }
+          ],
+          "excluded_stored_loads": [
+            "F-4",
+            "F-5"
+          ],
+          "imposed_displacements": [],
+          "candidate_support_state": "active, no imposed motion",
+          "internal_pressure_pa": 3500000.0
+        },
+        {
+          "id": "O1",
+          "role": "operating",
+          "temperature_c": 260.0,
+          "delta_t_k": 240.0,
+          "includes": [
+            {
+              "load": "F-1",
+              "factor": 1.0
+            },
+            {
+              "load": "F-2",
+              "factor": 1.5
+            },
+            {
+              "load": "F-3",
+              "factor": 1.0
+            },
+            {
+              "load": "F-5",
+              "factor": 0.25
+            },
+            {
+              "load": "PR-1",
+              "factor": 1.0
+            }
+          ],
+          "excluded_stored_loads": [
+            "F-4"
+          ],
+          "imposed_displacements": [
+            {
+              "support": "S-1",
+              "dof": "UZ",
+              "value_m": -0.012
+            },
+            {
+              "support": "S-7",
+              "dof": "UZ",
+              "value_m": 0.012
+            }
+          ],
+          "candidate_support_state": "active, no imposed motion",
+          "internal_pressure_pa": 3500000.0
+        },
+        {
+          "id": "O2",
+          "role": "operating",
+          "temperature_c": 180.0,
+          "delta_t_k": 160.0,
+          "includes": [
+            {
+              "load": "F-1",
+              "factor": 1.0
+            },
+            {
+              "load": "F-2",
+              "factor": 1.5
+            },
+            {
+              "load": "F-3",
+              "factor": 1.0
+            },
+            {
+              "load": "PR-1",
+              "factor": 1.0
+            }
+          ],
+          "excluded_stored_loads": [
+            "F-4",
+            "F-5"
+          ],
+          "imposed_displacements": [
+            {
+              "support": "S-1",
+              "dof": "UZ",
+              "value_m": 0.009
+            },
+            {
+              "support": "S-7",
+              "dof": "UZ",
+              "value_m": -0.009
+            }
+          ],
+          "candidate_support_state": "active, no imposed motion",
+          "internal_pressure_pa": 3500000.0
+        }
+      ],
+      "catalogue": [
+        {
+          "hanger_id": "VS-NR",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 100000.0,
+          "stiffness_dof": "UZ",
+          "working_load_range_n": null,
+          "travel_range_m": 0.05
+        },
+        {
+          "hanger_id": "VS-UX",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 100000.0,
+          "stiffness_dof": "UX",
+          "working_load_range_n": [
+            9000.0,
+            14000.0
+          ],
+          "travel_range_m": 0.05
+        },
+        {
+          "hanger_id": "VS-A",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 100000.0,
+          "stiffness_dof": "UZ",
+          "working_load_range_n": [
+            4000.0,
+            8000.0
+          ],
+          "travel_range_m": 0.05
+        },
+        {
+          "hanger_id": "VS-B",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 100000.0,
+          "stiffness_dof": "UZ",
+          "working_load_range_n": [
+            9000.0,
+            10500.0
+          ],
+          "travel_range_m": 0.05
+        },
+        {
+          "hanger_id": "VS-C",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 100000.0,
+          "stiffness_dof": "UZ",
+          "working_load_range_n": [
+            9700.0,
+            13000.0
+          ],
+          "travel_range_m": 0.05
+        },
+        {
+          "hanger_id": "VS-T",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 100000.0,
+          "stiffness_dof": "UZ",
+          "working_load_range_n": [
+            9000.0,
+            12000.0
+          ],
+          "travel_range_m": 0.007
+        },
+        {
+          "hanger_id": "VS-V",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 800000.0,
+          "stiffness_dof": "UZ",
+          "working_load_range_n": [
+            4000.0,
+            18000.0
+          ],
+          "travel_range_m": 0.05
+        },
+        {
+          "hanger_id": "CE-1",
+          "hanger_type": "constant_effort_support",
+          "stiffness_n_per_m": null,
+          "stiffness_dof": null,
+          "working_load_range_n": [
+            5000.0,
+            9000.0
+          ],
+          "travel_range_m": 0.011
+        },
+        {
+          "hanger_id": "CE-2",
+          "hanger_type": "constant_effort_support",
+          "stiffness_n_per_m": null,
+          "stiffness_dof": null,
+          "working_load_range_n": [
+            8000.0,
+            12000.0
+          ],
+          "travel_range_m": 0.05
+        },
+        {
+          "hanger_id": "CE-3",
+          "hanger_type": "constant_effort_support",
+          "stiffness_n_per_m": null,
+          "stiffness_dof": null,
+          "working_load_range_n": [
+            6000.0,
+            8000.0
+          ],
+          "travel_range_m": 0.01
+        },
+        {
+          "hanger_id": "CE-4",
+          "hanger_type": "constant_effort_support",
+          "stiffness_n_per_m": null,
+          "stiffness_dof": null,
+          "working_load_range_n": [
+            7000.0,
+            9500.0
+          ],
+          "travel_range_m": 0.05
+        }
+      ],
+      "expected": {
+        "weight_rigid_reactions_n": {
+          "S-1": 2650.0,
+          "H-3": 10225.0,
+          "H-5": 7600.0,
+          "S-7": 1525.0
+        },
+        "hot_load_basis_n": {
+          "H-3": 10225.0,
+          "H-5": 7600.0
+        },
+        "force_solve_positions_m": {
+          "W": {
+            "H-3": 0.0,
+            "H-5": 0.0
+          },
+          "O1": {
+            "H-3": -0.002590193071013444,
+            "H-5": 0.005409806928986556
+          },
+          "O2": {
+            "H-3": 0.003,
+            "H-5": -0.003
+          }
+        },
+        "force_solve_reactions_n": {
+          "W": {
+            "S-1": 2650.0,
+            "S-7": 1525.0
+          },
+          "O1": {
+            "S-1": 2400.0,
+            "S-7": 1275.0
+          },
+          "O2": {
+            "S-1": 2650.0,
+            "S-7": 1525.0
+          }
+        },
+        "added_force_sources": {
+          "W": [
+            {
+              "support": "H-3",
+              "node": "N3",
+              "dof": "UZ",
+              "value_n": 10225.0,
+              "factor": 1.0
+            },
+            {
+              "support": "H-5",
+              "node": "N5",
+              "dof": "UZ",
+              "value_n": 7600.0,
+              "factor": 1.0
+            }
+          ],
+          "O1": [
+            {
+              "support": "H-3",
+              "node": "N3",
+              "dof": "UZ",
+              "value_n": 10225.0,
+              "factor": 1.0
+            },
+            {
+              "support": "H-5",
+              "node": "N5",
+              "dof": "UZ",
+              "value_n": 7600.0,
+              "factor": 1.0
+            }
+          ],
+          "O2": [
+            {
+              "support": "H-3",
+              "node": "N3",
+              "dof": "UZ",
+              "value_n": 10225.0,
+              "factor": 1.0
+            },
+            {
+              "support": "H-5",
+              "node": "N5",
+              "dof": "UZ",
+              "value_n": 7600.0,
+              "factor": 1.0
+            }
+          ]
+        },
+        "failure_signature_positions_m": {
+          "W": {
+            "H-3": -0.044133086472622624,
+            "H-5": -0.04327494312454385
+          },
+          "O1": {
+            "H-3": -0.046723279543636066,
+            "H-5": -0.03786513619555729
+          },
+          "O2": {
+            "H-3": -0.04113308647262262,
+            "H-5": -0.04627494312454385
+          }
+        }
+      },
+      "runs": [
+        {
+          "id": "A-HOT",
+          "description": "Hot design, operating-load variation, limit 0.25, allowance 1 mm, smallest capacity. H-3 variable: F_cold = W + k u_O1. VS-B fits; VS-C fails L at the low end; VS-V (k = 800000) passes L and T and fails V in O2. H-5 constant: CE-1 (travel 11 mm) fits the sized travel and is selected over CE-4 by capacity; in the verification the spring at H-3 pulls H-5 further out and CE-1 fails T, which is warned and changes no selection. In a linear model the departure is exactly zero (the spring set by hot design carries W at u_O1, which is the force solve's equilibrium).",
+          "request": {
+            "weight_case": "W",
+            "weight_support_state": "weight_case_own",
+            "design_operating_case": "O1",
+            "further_operating_cases": [
+              "O2"
+            ],
+            "load_design": "hot",
+            "variation_reference": "operating_load",
+            "variation_limit": 0.25,
+            "travel_allowance_m": 0.001,
+            "selection_rule": "smallest_capacity",
+            "candidates": [
+              {
+                "support": "H-3",
+                "family_policy": "variable"
+              },
+              {
+                "support": "H-5",
+                "family_policy": "constant"
+              }
+            ]
+          },
+          "expected": {
+            "candidates": [
+              {
+                "support": "H-3",
+                "family_policy": "variable",
+                "outcome": "selected",
+                "hanger_id": "VS-B",
+                "w_n": 10225.0,
+                "u_cold_m": 0.0,
+                "u_operating_m": {
+                  "O1": -0.002590193071013444,
+                  "O2": 0.003
+                },
+                "f_cold_n": 9965.980692898656,
+                "f_cold_condition_n": 9965.980692898656,
+                "f_operating_n": {
+                  "O1": 10225.0,
+                  "O2": 9665.980692898656
+                },
+                "variation": {
+                  "O1": 0.025331961574703608,
+                  "O2": 0.031036685208817166
+                },
+                "span_m": [
+                  -0.002590193071013444,
+                  0.003
+                ],
+                "required_travel_m": 0.007590193071013444,
+                "envelope_n": [
+                  9565.980692898656,
+                  10325.0
+                ],
+                "governing_variation": 0.031036685208817166,
+                "failure_counts": {
+                  "variable": {
+                    "E1": 1,
+                    "E2": 1,
+                    "V0": 0,
+                    "L": 2,
+                    "T": 1,
+                    "V": 1
+                  }
+                },
+                "first_failed_test": {
+                  "VS-NR": "E1",
+                  "VS-UX": "E2",
+                  "VS-A": "L",
+                  "VS-B": "fits",
+                  "VS-C": "L",
+                  "VS-T": "T",
+                  "VS-V": "V"
+                },
+                "verification": {
+                  "configuration": {
+                    "kind": "spring_plus_force",
+                    "stiffness_n_per_m": 100000.0,
+                    "force_n": 9965.980692898656
+                  },
+                  "u_cold_m": -0.0005369765004723628,
+                  "u_operating_m": {
+                    "O1": -0.002590193071013444,
+                    "O2": 0.00184108935900166
+                  },
+                  "span_m": [
+                    -0.002590193071013444,
+                    0.00184108935900166
+                  ],
+                  "required_travel_m": 0.006431282430015104,
+                  "t_pass": true,
+                  "f_cold_condition_n": 10019.678342945892,
+                  "f_operating_n": {
+                    "O1": 10225.0,
+                    "O2": 9781.87175699849
+                  },
+                  "variation": {
+                    "O1": 0.020080357658103485,
+                    "O2": 0.02431094905504791
+                  },
+                  "departure_n": 0.0,
+                  "failed_tests": []
+                }
+              },
+              {
+                "support": "H-5",
+                "family_policy": "constant",
+                "outcome": "selected",
+                "hanger_id": "CE-1",
+                "w_n": 7600.0,
+                "u_cold_m": 0.0,
+                "u_operating_m": {
+                  "O1": 0.005409806928986556,
+                  "O2": -0.003
+                },
+                "f_cold_n": 7600.0,
+                "f_cold_condition_n": null,
+                "f_operating_n": null,
+                "variation": null,
+                "span_m": [
+                  -0.003,
+                  0.005409806928986556
+                ],
+                "required_travel_m": 0.010409806928986557,
+                "envelope_n": null,
+                "governing_variation": 0.0,
+                "failure_counts": {
+                  "constant": {
+                    "E1": 0,
+                    "L": 1,
+                    "T": 1
+                  }
+                },
+                "first_failed_test": {
+                  "CE-1": "fits",
+                  "CE-2": "L",
+                  "CE-3": "T",
+                  "CE-4": "fits"
+                },
+                "verification": {
+                  "configuration": {
+                    "kind": "force",
+                    "force_n": 7600.0
+                  },
+                  "u_cold_m": -0.0004698544379133174,
+                  "u_operating_m": {
+                    "O1": 0.005409806928986556,
+                    "O2": -0.004014046810873547
+                  },
+                  "span_m": [
+                    -0.004014046810873547,
+                    0.005409806928986556
+                  ],
+                  "required_travel_m": 0.011423853739860103,
+                  "t_pass": false,
+                  "f_cold_condition_n": null,
+                  "f_operating_n": null,
+                  "variation": null,
+                  "departure_n": null,
+                  "failed_tests": [
+                    "T"
+                  ]
+                }
+              }
+            ],
+            "verification_standing": "unconditional",
+            "unfitted_verified_as_force_w": []
+          }
+        },
+        {
+          "id": "A-COLD",
+          "description": "As A-HOT with cold design only: F_cold = W, so H-3's envelope moves up by k u_O1 and the selection changes: VS-B fails L at the high end and VS-C is selected. The verified cold position is exactly zero. CE-1 again fails T in the verification.",
+          "request": {
+            "weight_case": "W",
+            "weight_support_state": "weight_case_own",
+            "design_operating_case": "O1",
+            "further_operating_cases": [
+              "O2"
+            ],
+            "load_design": "cold",
+            "variation_reference": "operating_load",
+            "variation_limit": 0.25,
+            "travel_allowance_m": 0.001,
+            "selection_rule": "smallest_capacity",
+            "candidates": [
+              {
+                "support": "H-3",
+                "family_policy": "variable"
+              },
+              {
+                "support": "H-5",
+                "family_policy": "constant"
+              }
+            ]
+          },
+          "expected": {
+            "candidates": [
+              {
+                "support": "H-3",
+                "family_policy": "variable",
+                "outcome": "selected",
+                "hanger_id": "VS-C",
+                "w_n": 10225.0,
+                "u_cold_m": 0.0,
+                "u_operating_m": {
+                  "O1": -0.002590193071013444,
+                  "O2": 0.003
+                },
+                "f_cold_n": 10225.0,
+                "f_cold_condition_n": 10225.0,
+                "f_operating_n": {
+                  "O1": 10484.019307101344,
+                  "O2": 9925.0
+                },
+                "variation": {
+                  "O1": 0.024706107411104995,
+                  "O2": 0.030226700251889168
+                },
+                "span_m": [
+                  -0.002590193071013444,
+                  0.003
+                ],
+                "required_travel_m": 0.007590193071013444,
+                "envelope_n": [
+                  9825.0,
+                  10584.019307101344
+                ],
+                "governing_variation": 0.030226700251889168,
+                "failure_counts": {
+                  "variable": {
+                    "E1": 1,
+                    "E2": 1,
+                    "V0": 0,
+                    "L": 2,
+                    "T": 1,
+                    "V": 1
+                  }
+                },
+                "first_failed_test": {
+                  "VS-NR": "E1",
+                  "VS-UX": "E2",
+                  "VS-A": "L",
+                  "VS-B": "L",
+                  "VS-C": "fits",
+                  "VS-T": "T",
+                  "VS-V": "V"
+                },
+                "verification": {
+                  "configuration": {
+                    "kind": "spring_plus_force",
+                    "stiffness_n_per_m": 100000.0,
+                    "force_n": 10225.0
+                  },
+                  "u_cold_m": 0.0,
+                  "u_operating_m": {
+                    "O1": -0.0020532165705410815,
+                    "O2": 0.0023780658594740227
+                  },
+                  "span_m": [
+                    -0.0020532165705410815,
+                    0.0023780658594740227
+                  ],
+                  "required_travel_m": 0.006431282430015104,
+                  "t_pass": true,
+                  "f_cold_condition_n": 10225.0,
+                  "f_operating_n": {
+                    "O1": 10430.321657054108,
+                    "O2": 9987.193414052597
+                  },
+                  "variation": {
+                    "O1": 0.019685074325128553,
+                    "O2": 0.023811152551906495
+                  },
+                  "departure_n": 0.0,
+                  "failed_tests": []
+                }
+              },
+              {
+                "support": "H-5",
+                "family_policy": "constant",
+                "outcome": "selected",
+                "hanger_id": "CE-1",
+                "w_n": 7600.0,
+                "u_cold_m": 0.0,
+                "u_operating_m": {
+                  "O1": 0.005409806928986556,
+                  "O2": -0.003
+                },
+                "f_cold_n": 7600.0,
+                "f_cold_condition_n": null,
+                "f_operating_n": null,
+                "variation": null,
+                "span_m": [
+                  -0.003,
+                  0.005409806928986556
+                ],
+                "required_travel_m": 0.010409806928986557,
+                "envelope_n": null,
+                "governing_variation": 0.0,
+                "failure_counts": {
+                  "constant": {
+                    "E1": 0,
+                    "L": 1,
+                    "T": 1
+                  }
+                },
+                "first_failed_test": {
+                  "CE-1": "fits",
+                  "CE-2": "L",
+                  "CE-3": "T",
+                  "CE-4": "fits"
+                },
+                "verification": {
+                  "configuration": {
+                    "kind": "force",
+                    "force_n": 7600.0
+                  },
+                  "u_cold_m": 0.0,
+                  "u_operating_m": {
+                    "O1": 0.005879661366899874,
+                    "O2": -0.0035441923729602302
+                  },
+                  "span_m": [
+                    -0.0035441923729602302,
+                    0.005879661366899874
+                  ],
+                  "required_travel_m": 0.011423853739860103,
+                  "t_pass": false,
+                  "f_cold_condition_n": null,
+                  "f_operating_n": null,
+                  "variation": null,
+                  "departure_n": null,
+                  "failed_tests": [
+                    "T"
+                  ]
+                }
+              }
+            ],
+            "verification_standing": "unconditional",
+            "unfitted_verified_as_force_w": []
+          }
+        },
+        {
+          "id": "A-NOFIT",
+          "description": "As A-HOT with H-5 under the variable policy: no variable record fits H-5 (L, and V for VS-V), so H-5 is 'no record fits'. This reference supplies no verification expectation for H-5 (see unfitted_verification_note); the verification pass takes it as a force W, and the standing is conditional. H-3's verified values equal A-HOT's, because both runs verify H-5 as a force W.",
+          "request": {
+            "weight_case": "W",
+            "weight_support_state": "weight_case_own",
+            "design_operating_case": "O1",
+            "further_operating_cases": [
+              "O2"
+            ],
+            "load_design": "hot",
+            "variation_reference": "operating_load",
+            "variation_limit": 0.25,
+            "travel_allowance_m": 0.001,
+            "selection_rule": "smallest_capacity",
+            "candidates": [
+              {
+                "support": "H-3",
+                "family_policy": "variable"
+              },
+              {
+                "support": "H-5",
+                "family_policy": "variable"
+              }
+            ]
+          },
+          "expected": {
+            "candidates": [
+              {
+                "support": "H-3",
+                "family_policy": "variable",
+                "outcome": "selected",
+                "hanger_id": "VS-B",
+                "w_n": 10225.0,
+                "u_cold_m": 0.0,
+                "u_operating_m": {
+                  "O1": -0.002590193071013444,
+                  "O2": 0.003
+                },
+                "f_cold_n": 9965.980692898656,
+                "f_cold_condition_n": 9965.980692898656,
+                "f_operating_n": {
+                  "O1": 10225.0,
+                  "O2": 9665.980692898656
+                },
+                "variation": {
+                  "O1": 0.025331961574703608,
+                  "O2": 0.031036685208817166
+                },
+                "span_m": [
+                  -0.002590193071013444,
+                  0.003
+                ],
+                "required_travel_m": 0.007590193071013444,
+                "envelope_n": [
+                  9565.980692898656,
+                  10325.0
+                ],
+                "governing_variation": 0.031036685208817166,
+                "failure_counts": {
+                  "variable": {
+                    "E1": 1,
+                    "E2": 1,
+                    "V0": 0,
+                    "L": 2,
+                    "T": 1,
+                    "V": 1
+                  }
+                },
+                "first_failed_test": {
+                  "VS-NR": "E1",
+                  "VS-UX": "E2",
+                  "VS-A": "L",
+                  "VS-B": "fits",
+                  "VS-C": "L",
+                  "VS-T": "T",
+                  "VS-V": "V"
+                },
+                "verification": {
+                  "configuration": {
+                    "kind": "spring_plus_force",
+                    "stiffness_n_per_m": 100000.0,
+                    "force_n": 9965.980692898656
+                  },
+                  "u_cold_m": -0.0005369765004723628,
+                  "u_operating_m": {
+                    "O1": -0.002590193071013444,
+                    "O2": 0.00184108935900166
+                  },
+                  "span_m": [
+                    -0.002590193071013444,
+                    0.00184108935900166
+                  ],
+                  "required_travel_m": 0.006431282430015104,
+                  "t_pass": true,
+                  "f_cold_condition_n": 10019.678342945892,
+                  "f_operating_n": {
+                    "O1": 10225.0,
+                    "O2": 9781.87175699849
+                  },
+                  "variation": {
+                    "O1": 0.020080357658103485,
+                    "O2": 0.02431094905504791
+                  },
+                  "departure_n": 0.0,
+                  "failed_tests": []
+                }
+              },
+              {
+                "support": "H-5",
+                "family_policy": "variable",
+                "outcome": "no_record_fits",
+                "hanger_id": null,
+                "w_n": 7600.0,
+                "u_cold_m": 0.0,
+                "u_operating_m": {
+                  "O1": 0.005409806928986556,
+                  "O2": -0.003
+                },
+                "f_cold_n": null,
+                "f_cold_condition_n": null,
+                "f_operating_n": null,
+                "variation": null,
+                "span_m": [
+                  -0.003,
+                  0.005409806928986556
+                ],
+                "required_travel_m": 0.010409806928986557,
+                "envelope_n": null,
+                "governing_variation": null,
+                "failure_counts": {
+                  "variable": {
+                    "E1": 1,
+                    "E2": 1,
+                    "V0": 0,
+                    "L": 4,
+                    "T": 0,
+                    "V": 1
+                  }
+                },
+                "first_failed_test": {
+                  "VS-NR": "E1",
+                  "VS-UX": "E2",
+                  "VS-A": "L",
+                  "VS-B": "L",
+                  "VS-C": "L",
+                  "VS-T": "L",
+                  "VS-V": "V"
+                },
+                "verification": null
+              }
+            ],
+            "verification_standing": "conditional",
+            "unfitted_verified_as_force_w": [
+              "H-5"
+            ],
+            "unfitted_verification_note": "The verification of an unfitted candidate is null because this reference supplies no expectation for it. The scope requires verified values for every selected family and says nothing of an unfitted candidate, so a product comparison must not assert that the product publishes nothing there."
+          }
+        }
+      ]
+    },
+    {
+      "id": "EXS-B",
+      "description": "Free vertical riser with no pressurised region. N1 (0, 0, 0), N2 (0, 0, 4), N3 (0, 0, 8); M1 N1-N2 and M2 N2-N3, one section; anchor A-1 at N1 (all six DOFs); candidate H-3 at the top, N3 (UZ). Stored loads F-T -9000 N at N3 and F-M -4000 N at N2, included at factor 1 in every case. Installation temperature 15 degC; W at 15 degC, O1 (design) at 315 degC (dT = +300 K), O2 at -35 degC (dT = -50 K). weight_rigid: a fixed-fixed axial bar; F-T passes into the rigid candidate and F-M splits equally, so W = 9000 + 2000 = 11000 N and A-1's UZ reaction is 2000 N, independent of E A. Force solves: with H-3 a force W the riser is a cantilever; the upper half carries +2000 N and the lower half -2000 N, so the mechanical shortening is zero and u = alpha dT H from the installation temperature: u_C = 0, u_O1 = 1.2e-5 * 300 * 8 = 0.0288 m, u_O2 = -0.0048 m.",
+      "pressurised": false,
+      "section": {
+        "outside_diameter_m": 0.25,
+        "wall_thickness_m": 0.01,
+        "elastic_modulus_pa": 200000000000.0,
+        "poisson_ratio": 0.3,
+        "thermal_expansion_per_k": 1.2e-05
+      },
+      "installation_temperature_c": 15.0,
+      "nodes": {
+        "N1": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N2": [
+          0.0,
+          0.0,
+          4.0
+        ],
+        "N3": [
+          0.0,
+          0.0,
+          8.0
+        ]
+      },
+      "members": [
+        {
+          "id": "M1",
+          "end_nodes": [
+            "N1",
+            "N2"
+          ]
+        },
+        {
+          "id": "M2",
+          "end_nodes": [
+            "N2",
+            "N3"
+          ]
+        }
+      ],
+      "supports": [
+        {
+          "id": "A-1",
+          "node": "N1",
+          "kind": "anchor",
+          "dofs": [
+            "UX",
+            "UY",
+            "UZ",
+            "RX",
+            "RY",
+            "RZ"
+          ],
+          "candidate": false
+        },
+        {
+          "id": "H-3",
+          "node": "N3",
+          "kind": "candidate",
+          "dofs": [
+            "UZ"
+          ],
+          "candidate": true
+        }
+      ],
+      "stored_loads": [
+        {
+          "id": "F-T",
+          "kind": "nodal_force",
+          "node": "N3",
+          "direction": "+Z",
+          "value_n": -9000.0
+        },
+        {
+          "id": "F-M",
+          "kind": "nodal_force",
+          "node": "N2",
+          "direction": "+Z",
+          "value_n": -4000.0
+        }
+      ],
+      "load_cases": [
+        {
+          "id": "W",
+          "role": "weight",
+          "temperature_c": 15.0,
+          "delta_t_k": 0.0,
+          "includes": [
+            {
+              "load": "F-T",
+              "factor": 1.0
+            },
+            {
+              "load": "F-M",
+              "factor": 1.0
+            }
+          ],
+          "excluded_stored_loads": [],
+          "imposed_displacements": [],
+          "candidate_support_state": "active, no imposed motion",
+          "internal_pressure_pa": null
+        },
+        {
+          "id": "O1",
+          "role": "operating",
+          "temperature_c": 315.0,
+          "delta_t_k": 300.0,
+          "includes": [
+            {
+              "load": "F-T",
+              "factor": 1.0
+            },
+            {
+              "load": "F-M",
+              "factor": 1.0
+            }
+          ],
+          "excluded_stored_loads": [],
+          "imposed_displacements": [],
+          "candidate_support_state": "active, no imposed motion",
+          "internal_pressure_pa": null
+        },
+        {
+          "id": "O2",
+          "role": "operating",
+          "temperature_c": -35.0,
+          "delta_t_k": -50.0,
+          "includes": [
+            {
+              "load": "F-T",
+              "factor": 1.0
+            },
+            {
+              "load": "F-M",
+              "factor": 1.0
+            }
+          ],
+          "excluded_stored_loads": [],
+          "imposed_displacements": [],
+          "candidate_support_state": "active, no imposed motion",
+          "internal_pressure_pa": null
+        }
+      ],
+      "catalogue": [
+        {
+          "hanger_id": "VS-R1",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 50000.0,
+          "stiffness_dof": "UZ",
+          "working_load_range_n": [
+            9000.0,
+            13000.0
+          ],
+          "travel_range_m": 0.05
+        },
+        {
+          "hanger_id": "VS-R2",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 80000.0,
+          "stiffness_dof": "UZ",
+          "working_load_range_n": [
+            8000.0,
+            12000.0
+          ],
+          "travel_range_m": 0.05
+        },
+        {
+          "hanger_id": "VS-R3",
+          "hanger_type": "variable_spring_hanger",
+          "stiffness_n_per_m": 150000.0,
+          "stiffness_dof": "UZ",
+          "working_load_range_n": [
+            6000.0,
+            16000.0
+          ],
+          "travel_range_m": 0.05
+        },
+        {
+          "hanger_id": "CE-R1",
+          "hanger_type": "constant_effort_support",
+          "stiffness_n_per_m": null,
+          "stiffness_dof": null,
+          "working_load_range_n": [
+            10000.0,
+            12000.0
+          ],
+          "travel_range_m": 0.05
+        }
+      ],
+      "expected": {
+        "weight_rigid_reactions_n": {
+          "A-1": 2000.0,
+          "H-3": 11000.0
+        },
+        "hot_load_basis_n": {
+          "H-3": 11000.0
+        },
+        "force_solve_positions_m": {
+          "W": {
+            "H-3": 0.0
+          },
+          "O1": {
+            "H-3": 0.0288
+          },
+          "O2": {
+            "H-3": -0.0048
+          }
+        },
+        "force_solve_reactions_n": {
+          "W": {
+            "A-1": 2000.0
+          },
+          "O1": {
+            "A-1": 2000.0
+          },
+          "O2": {
+            "A-1": 2000.0
+          }
+        },
+        "added_force_sources": {
+          "W": [
+            {
+              "support": "H-3",
+              "node": "N3",
+              "dof": "UZ",
+              "value_n": 11000.0,
+              "factor": 1.0
+            }
+          ],
+          "O1": [
+            {
+              "support": "H-3",
+              "node": "N3",
+              "dof": "UZ",
+              "value_n": 11000.0,
+              "factor": 1.0
+            }
+          ],
+          "O2": [
+            {
+              "support": "H-3",
+              "node": "N3",
+              "dof": "UZ",
+              "value_n": 11000.0,
+              "factor": 1.0
+            }
+          ]
+        },
+        "failure_signature_positions_m": {
+          "W": {
+            "H-3": -5.835681246702829e-05
+          },
+          "O1": {
+            "H-3": 0.028741643187532973
+          },
+          "O2": {
+            "H-3": -0.004858356812467028
+          }
+        }
+      },
+      "runs": [
+        {
+          "id": "B-COLD",
+          "description": "Riser, cold design, design-load variation (reference W), limit 0.3, allowance 2 mm, least variation. VS-R1 (k = 50000) and VS-R2 (k = 80000) fit; least variation takes VS-R1 although VS-R2 has the smaller capacity; VS-R3 fails V. Verification: one spring on an axial bar, u^v = alpha dT H / (1 + k H/(E A)), u_C^v = 0, departure 0.",
+          "request": {
+            "weight_case": "W",
+            "weight_support_state": "weight_case_own",
+            "design_operating_case": "O1",
+            "further_operating_cases": [
+              "O2"
+            ],
+            "load_design": "cold",
+            "variation_reference": "design_load",
+            "variation_limit": 0.3,
+            "travel_allowance_m": 0.002,
+            "selection_rule": "least_variation",
+            "candidates": [
+              {
+                "support": "H-3",
+                "family_policy": "variable"
+              }
+            ]
+          },
+          "expected": {
+            "candidates": [
+              {
+                "support": "H-3",
+                "family_policy": "variable",
+                "outcome": "selected",
+                "hanger_id": "VS-R1",
+                "w_n": 11000.0,
+                "u_cold_m": 0.0,
+                "u_operating_m": {
+                  "O1": 0.0288,
+                  "O2": -0.0048
+                },
+                "f_cold_n": 11000.0,
+                "f_cold_condition_n": 11000.0,
+                "f_operating_n": {
+                  "O1": 9560.0,
+                  "O2": 11240.0
+                },
+                "variation": {
+                  "O1": 0.13090909090909092,
+                  "O2": 0.02181818181818182
+                },
+                "span_m": [
+                  -0.0048,
+                  0.0288
+                ],
+                "required_travel_m": 0.0376,
+                "envelope_n": [
+                  9460.0,
+                  11340.0
+                ],
+                "governing_variation": 0.13090909090909092,
+                "failure_counts": {
+                  "variable": {
+                    "E1": 0,
+                    "E2": 0,
+                    "V0": 0,
+                    "L": 0,
+                    "T": 0,
+                    "V": 1
+                  }
+                },
+                "first_failed_test": {
+                  "VS-R1": "fits",
+                  "VS-R2": "fits",
+                  "VS-R3": "V"
+                },
+                "verification": {
+                  "configuration": {
+                    "kind": "spring_plus_force",
+                    "stiffness_n_per_m": 50000.0,
+                    "force_n": 11000.0
+                  },
+                  "u_cold_m": 0.0,
+                  "u_operating_m": {
+                    "O1": 0.02879236258861788,
+                    "O2": -0.00479872709810298
+                  },
+                  "span_m": [
+                    -0.00479872709810298,
+                    0.02879236258861788
+                  ],
+                  "required_travel_m": 0.03759108968672086,
+                  "t_pass": true,
+                  "f_cold_condition_n": 11000.0,
+                  "f_operating_n": {
+                    "O1": 9560.381870569106,
+                    "O2": 11239.936354905149
+                  },
+                  "variation": {
+                    "O1": 0.13087437540280855,
+                    "O2": 0.02181239590046809
+                  },
+                  "departure_n": 0.0,
+                  "failed_tests": []
+                }
+              }
+            ],
+            "verification_standing": "unconditional",
+            "unfitted_verified_as_force_w": []
+          }
+        }
+      ]
+    }
+  ]
+}
