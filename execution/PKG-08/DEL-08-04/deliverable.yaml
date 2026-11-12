@@ -114,6 +114,8 @@ code_paths:
 - core/reporting/result_export/Cargo.toml
 - core/reporting/result_export/src/lib.rs
 - core/reporting/result_export/src/derivative.rs
+- core/reporting/result_export/src/derivative_reference_tests.rs
+- core/reporting/result_export/tests/derivative_memory.rs
 # The form check of a result document inside the report-package crate, and the schema evaluator it uses.
 - core/reporting/report_package/src/document_form.rs
 - core/reporting/report_package/src/schema_eval.rs
@@ -135,6 +137,8 @@ checks:
 - tests/test_results_schema.py
 - tests/test_results_dispatcher_v0_3.py
 - core/reporting/result_export/tests/derivative_contract.rs
+- core/reporting/result_export/src/derivative_reference_tests.rs
+- core/reporting/result_export/tests/derivative_memory.rs
 - core/reporting/report_package/tests/schema_eval.rs
 - tests/test_schema_eval_parity.py
 - apps/desktop/src/features/result-export/resultExportAdapter.test.ts

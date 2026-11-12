@@ -6,7 +6,7 @@ use crate::semantic_contract::{
     canonical_metadata_for, complete_metadata, for_source, retained_row_classes, signature_for,
     PHYSICS_RETAINED_ID, PREVIEW_PHYSICS_RETAINED_ID, RETAINED_PRECISION_DOWNGRADE_FORBIDDEN,
 };
-use open_pipe_stress_canonical_json::canonical_json;
+use open_pipe_stress_canonical_json::{canonical_number, ByteSink, CanonicalSink};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use std::collections::HashSet;
@@ -90,18 +90,18 @@ pub fn guard_json(v: &Value) -> Result<(), String> {
     Ok(())
 }
 pub fn digest(v: &Value) -> Result<String, String> {
-    guard_json(v)?;
-    Ok(format!(
-        "{:x}",
-        Sha256::digest(canonical_json(v).as_bytes())
-    ))
+    digest_without(v, &[])
 }
 pub fn reference(kind: &str, id: &str) -> Value {
     json!({"ref_type":kind,"ref_id":id})
 }
 pub fn checksum(v: &Value, scope: &str, payload_ref: Value) -> Result<Value, String> {
+    checksum_without(v, &[], scope, payload_ref)
+}
+/// `checksum` of `v` less the member at the path `omit`; see `digest_without`.
+fn checksum_without(v: &Value, omit: &[&str], scope: &str, payload_ref: Value) -> Result<Value, String> {
     Ok(
-        json!({"algorithm":"sha256","canonicalization":CANONICALIZATION,"payload_scope":scope,"payload_ref":payload_ref,"value":digest(v)?}),
+        json!({"algorithm":"sha256","canonicalization":CANONICALIZATION,"payload_scope":scope,"payload_ref":payload_ref,"value":digest_without(v, omit)?}),
     )
 }
 
@@ -344,12 +344,12 @@ pub fn derive_document(
             witnesses.push(json!({"witness_id":format!("value-unit-witness:{index}"),"source_result_ref":reference("received_result",id),"source_field_path":path,"source_quantity":{"value":value,"unit":unit,"observed_dimension":observed},"target_result_ref":target_ref,"target_field_path":path_target,"target_quantity":{"value":value,"unit":unit,"dimension":dimension},"target_quantity_policy":"preserve_received_value_and_unit_with_independent_semantic_dimension","export_unit_policy":"no_numerical_conversion_preserve_received_unit","conversion_performed":false,"unit_system_ref":unit_system,"provenance":provenance,"source_row_index":index,"received_carrier_row_checksum":row_hash,"original_producer_row_checksum":original,"source_physical_semantic_dimension":math,"source_origin_ref":origin_ref,"target_row_checksum":checksum(&target,target_scope,reference("derivative_document",e["envelope_id"].as_str().unwrap()))?}));
         }
     }
-    e["result_sets"][0]["values"] = json!(values);
-    e["review_evidence"] = json!(reviews);
-    e["row_disclosures"] = json!(disclosures);
-    e["source_annotations"] = json!(annotations);
-    e["row_accounting"] = json!(accounting);
-    e["unit_preservation_witnesses"] = json!(witnesses);
+    e["result_sets"][0]["values"] = moved(values);
+    e["review_evidence"] = moved(reviews);
+    e["row_disclosures"] = moved(disclosures);
+    e["source_annotations"] = moved(annotations);
+    e["row_accounting"] = moved(accounting);
+    e["unit_preservation_witnesses"] = moved(witnesses);
     e["unit_witness_policy"] =
         json!("preserve_received_value_and_unit_with_independent_semantic_dimension");
     e["reproducibility"]["model_hash"] = checksum(
@@ -778,14 +778,14 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
             return Err("WITNESS_MISMATCH".into());
         }
     }
-    let mut payload = doc.clone();
-    payload["result_envelope"]["reproducibility"]
-        .as_object_mut()
-        .ok_or("REPRODUCIBILITY_MISSING")?
-        .remove("derivative_hash");
+    // The document less its own hash member, hashed where it is: no copy.
+    e["reproducibility"]
+        .as_object()
+        .ok_or("REPRODUCIBILITY_MISSING")?;
     if e["reproducibility"]["derivative_hash"]
-        != checksum(
-            &payload,
+        != checksum_without(
+            doc,
+            &OWN_HASH,
             "derivative_document_excludes_own_hash",
             reference("derivative_document", envelope_id),
         )?
@@ -794,3 +794,99 @@ pub fn validate_document(doc: &Value, source: &Value) -> Result<(), String> {
     }
     Ok(())
 }
+
+/// The path of the one member the derivative hash excludes (the document's
+/// `reproducibility.derivative_hash_excludes`).
+const OWN_HASH: [&str; 3] = ["result_envelope", "reproducibility", "derivative_hash"];
+
+/// The former `digest` of a copy of `v` with the member at the path `omit`
+/// removed (`v` itself when `omit` is empty or names no member), without the
+/// copy and without the canonical text: the same guard over the same values in
+/// the same order, then the SHA-256 of the same canonical bytes, fed to the
+/// hasher piece by piece as they are written.
+fn digest_without(v: &Value, omit: &[&str]) -> Result<String, String> {
+    guard_json_without(v, omit)?;
+    let mut hasher = Sha256::new();
+    write_canonical_without(v, omit, &mut ByteSink(|bytes: &[u8]| hasher.update(bytes)));
+    Ok(format!("{:x}", hasher.finalize()))
+}
+
+/// `guard_json` over `v` less the member at the path `omit`, in `guard_json`'s
+/// order (map order), so the first refusal is the same.
+fn guard_json_without(v: &Value, omit: &[&str]) -> Result<(), String> {
+    match (v, omit) {
+        (Value::Object(o), [first, rest @ ..]) => {
+            for (key, x) in o {
+                if key != first {
+                    guard_json(x)?;
+                } else if !rest.is_empty() {
+                    guard_json_without(x, rest)?;
+                }
+            }
+            Ok(())
+        }
+        _ => guard_json(v),
+    }
+}
+
+/// The RFC 8785 text that `canonical_json` writes for `v` less the member at the
+/// path `omit`, written to `out` in the same pieces: members sorted by UTF-16
+/// code units, strings escaped by serde_json, numbers by the crate's own
+/// `canonical_number`, no whitespace. `canonical_json`'s writer is private to its
+/// crate, whose writer code the retained pricing pins (S6-HS), so this writer
+/// mirrors it here; the tests compare the two byte for byte.
+fn write_canonical_without<S: CanonicalSink>(v: &Value, omit: &[&str], out: &mut S) {
+    match v {
+        Value::Null => out.put("null"),
+        Value::Bool(true) => out.put("true"),
+        Value::Bool(false) => out.put("false"),
+        Value::Number(number) => out.put(&canonical_number(number)),
+        Value::String(text) => write_string(text, out),
+        Value::Array(items) => {
+            out.put("[");
+            for (index, item) in items.iter().enumerate() {
+                if index > 0 {
+                    out.put(",");
+                }
+                write_canonical_without(item, &[], out);
+            }
+            out.put("]");
+        }
+        Value::Object(map) => {
+            let (next, rest) = match omit {
+                [next, rest @ ..] => (Some(*next), rest),
+                [] => (None, omit),
+            };
+            let skipped = if rest.is_empty() { next } else { None };
+            let mut keys: Vec<&String> = Vec::with_capacity(map.len());
+            keys.extend(map.keys().filter(|key| Some(key.as_str()) != skipped));
+            keys.sort_by(|left, right| left.encode_utf16().cmp(right.encode_utf16()));
+            out.put("{");
+            for (index, key) in keys.iter().enumerate() {
+                if index > 0 {
+                    out.put(",");
+                }
+                write_string(key, out);
+                out.put(":");
+                let below = if Some(key.as_str()) == next { rest } else { &[] };
+                write_canonical_without(&map[key.as_str()], below, out);
+            }
+            out.put("}");
+        }
+    }
+}
+
+/// A row array moved into the document: no copy of its rows, and no spare
+/// capacity left over from its pushes (the former `json!` copy had none).
+fn moved(mut rows: Vec<Value>) -> Value {
+    rows.shrink_to_fit();
+    Value::Array(rows)
+}
+
+fn write_string<S: CanonicalSink>(text: &str, out: &mut S) {
+    out.put(&serde_json::to_string(text).expect("strings always encode as JSON"));
+}
+
+#[cfg(test)]
+#[path = "derivative_reference_tests.rs"]
+mod reference_tests;
