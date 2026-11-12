@@ -126,6 +126,10 @@ export function PropertyInspector({
   // arrives late, or a project-unit change, replaces an inherited default but never a
   // chosen unit. A stored unit is the field's default and is kept.
   const [chosenUnit, setChosenUnit] = useState<string | null>(null);
+  // Advanced wherever the task's entry is replaced (another target or field, a task started
+  // again, Cancel): the typed value goes back to the field's starting entry and the chosen
+  // unit is dropped, so nothing is compared across it (DEL-02-02 REQ-022).
+  const [taskEntryEpoch, setTaskEntryEpoch] = useState(0);
   const [taskUnitNotice, setTaskUnitNotice] = useState<UnitMove[] | null>(null);
   // Called only by the task's two unit controls: the person's own choice of the unit.
   const chooseProposedUnit = (unit: string) => { taskGuard.chose("value"); setTaskUnitNotice(null); setChosenUnit(unit); };
@@ -280,8 +284,8 @@ export function PropertyInspector({
   }, supersede("component"));
   // The property task: whatever moves the unit shown beside a typed value (the project units,
   // a stored value replaced, an absent member becoming stored), other than the person's own
-  // choice in the task's unit control, clears the value. Baseline: the session, the target
-  // and the field, since another target or field is another entry.
+  // choice in the task's unit control, clears the value. Baseline: the session, the target,
+  // the field and the task's entry epoch, since a replaced entry is another entry.
   const taskStartingValue = fieldEntryValue(selectedField);
   const taskGuard = useClearOnUnitMove({
     value: {
@@ -289,7 +293,7 @@ export function PropertyInspector({
       unit: proposedUnit,
       values: [proposedValue !== taskStartingValue ? proposedValue : ""]
     }
-  }, `${sessionBaseline}:${draftTarget.type}:${draftTarget.id}:${selectedField?.fieldPath ?? ""}`, (moves) => {
+  }, `${sessionBaseline}:${draftTarget.type}:${draftTarget.id}:${selectedField?.fieldPath ?? ""}:${taskEntryEpoch}`, (moves) => {
     setProposedValue(taskStartingValue);
     setTaskUnitNotice(moves);
   }, (moves) => setTaskUnitNotice((current) => supersedeMoves(current, moves)));
@@ -338,6 +342,7 @@ export function PropertyInspector({
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(fieldEntryValue(firstField));
     setChosenUnit(null);
+    setTaskEntryEpoch((epoch) => epoch + 1);
     setTaskUnitNotice(null);
     setRationale("user_entered_preview_change");
     setSupportDraft(defaultSupportDraft(model, selection, queuedIntents, unitCatalogRoute));
@@ -364,6 +369,7 @@ export function PropertyInspector({
       setSelectedFieldPath(firstField?.fieldPath ?? "");
       setProposedValue(fieldEntryValue(firstField));
       setChosenUnit(null);
+      setTaskEntryEpoch((epoch) => epoch + 1);
     setTaskUnitNotice(null);
       setRationale("user_entered_preview_change");
       setTaskActive(true);
@@ -416,6 +422,7 @@ export function PropertyInspector({
     setSelectedFieldPath(fieldPath);
     setProposedValue(fieldEntryValue(nextField));
     setChosenUnit(null);
+    setTaskEntryEpoch((epoch) => epoch + 1);
     setTaskUnitNotice(null);
   }
 
@@ -427,6 +434,7 @@ export function PropertyInspector({
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(fieldEntryValue(firstField));
     setChosenUnit(null);
+    setTaskEntryEpoch((epoch) => epoch + 1);
     setTaskUnitNotice(null);
     setRationale("user_entered_preview_change");
     setInspectorView("task");
@@ -439,6 +447,7 @@ export function PropertyInspector({
     setSelectedFieldPath(firstField?.fieldPath ?? "");
     setProposedValue(fieldEntryValue(firstField));
     setChosenUnit(null);
+    setTaskEntryEpoch((epoch) => epoch + 1);
     setTaskUnitNotice(null);
     setRationale("user_entered_preview_change");
     setTaskActive(false);

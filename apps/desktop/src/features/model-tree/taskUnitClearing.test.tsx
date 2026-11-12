@@ -161,6 +161,21 @@ describe("the property task clears a value typed beside a unit taken from the pr
     expect(notice()).toHaveTextContent(cleared("Pa", "MPa"));
   });
 
+  it("baseline: the task's entry replaced by Cancel raises no notice; a real move after starting again still clears", async () => {
+    const { starting, rerender } = await startTask({ type: "load", id: "load:L-100" }, "modulus_basis_temperature.value");
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "400" } });
+    chooseCompactOption(byId("editor-intent-unit"), "K");
+    fireEvent.click(byId("cancel-editor-intent"));
+    fireEvent.click(byId("inspector-start-task"));
+    expect(notice()).toBeNull();
+    changeFormControl(byId("editor-intent-field"), { target: { value: "modulus_basis_temperature.value" } });
+    expect(byId("editor-intent-value")).toHaveValue(starting);
+    expect(notice()).toBeNull();
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "410" } });
+    rerender({ temperature: "K" });
+    expect(notice()).toHaveTextContent(cleared("degC", "K"));
+  });
+
   it("baseline: another project session raises no notice", async () => {
     const { rerender } = await startTask({ type: "load", id: "load:L-100" }, "modulus_basis_temperature.value");
     fireEvent.change(byId("editor-intent-value"), { target: { value: "400" } });
