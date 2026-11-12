@@ -43,22 +43,13 @@ export type SizedHangerLoads =
  * other record load enters the support. */
 export type HangerSizingApplication = Readonly<{ run: HangerSizingRunIdentity; loads: SizedHangerLoads }>;
 
-/** The closed field label of a sized selection's configuration change: the builder writes it, and
- * `carriesSizedHangerSelection` reads it, so the two cannot drift. */
+/** The presentation label of a sized selection's configuration change. Nothing decides on it: a reviewer may alter or
+ * remove a label, so the routes that must refuse a hanger write read the batch's structure
+ * (`writesSupportHangerSelection`). */
 export const SIZED_HANGER_SELECTION_FIELD_LABEL = "Sized hanger selection";
-/** The session's refusal to register a sized hanger selection that comes without its host precondition. */
-export const SIZED_HANGER_SELECTION_UNREGISTERED_TEXT =
-  "This batch applies a sized hanger selection and can only be applied from its sizing result; size and apply again.";
-
-/** Whether `batch` carries a sized hanger selection: any operation on a Support with the sized selection's field label.
- * It reads the label, and only the label: a batch whose label was altered is not caught, until a structured member
- * says the same. */
-export function carriesSizedHangerSelection(batch: OperationBatch): boolean {
-  const operations: unknown = (batch as { operations?: unknown } | null | undefined)?.operations;
-  if (!Array.isArray(operations)) return false;
-  return operations.some((operation: { target?: { object_type?: unknown }; change?: { field_label?: unknown } } | null) =>
-    operation?.target?.object_type === "Support" && operation?.change?.field_label === SIZED_HANGER_SELECTION_FIELD_LABEL);
-}
+/** The refusal of a requeued or imported batch that writes a support's hanger selection. */
+export const SUPPORT_HANGER_WRITE_REFUSED_TEXT =
+  "This batch writes a support's hanger selection and can only be applied from the hanger form or from its sizing result; make the selection again.";
 
 /** The engine's names for a variable spring hanger and a constant-effort support (core/product_physics/src/lib.rs,
  * `is_variable_spring_hanger` and `is_constant_effort_support`); a test pins them to the engine's source. */
