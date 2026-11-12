@@ -5,7 +5,7 @@ import { jsonTextKeepingNegativeZero } from './jsonText';
 import { invokeWithIngress } from './nativeIngress';
 import { EmbeddedAgentBridge, type AgentActual, type AgentBasis, type AgentCall, type AgentDelivery, type AgentScope } from './embeddedAgentBridge';
 import type { PreviewModel, ModelHashEvidence, EditorOperationIntent, MechanicsResult, Diagnostic } from '../types';
-import { isNativeJobLive, isNativeResult, nativeCustody, NativeQueryRefused, queryNativeRows, type SessionResult } from './nativeResult';
+import { isNativeResult, nativeCustody, NativeQueryRefused, queryNativeRows, type SessionResult } from './nativeResult';
 import { agentDetailFilter } from './resultDetail';
 import type { OperationBatch } from './operationBatchService';
 import { validateOperationBatch } from './operationBatchService';
@@ -53,13 +53,11 @@ type Proposal={basis:AgentBasis;key:string;context:AgentContext};
 /** A retained run: the call's basis and the solve's outcome, whose published result and native
  * job are the run's identity. */
 type Run={basis:AgentBasis;receipt:AgentRunReceipt};
-/** Whether the result the session holds now is the run's own: the same published result, from
- * the same native job, still in custody. Never decided by run id. */
+/** Whether the result the session holds now is the run's own: the very result its solve
+ * published (each solve publishes a new one). Never decided by run id. The host binds the read
+ * to the run's native job and that job's result bytes. */
 function holdsRun(result:SessionResult|null,run:Run):result is SessionResult{
- if(!result||result!==run.receipt.result)return false;
- if(!isNativeResult(result))return true;
- const jobId=nativeCustody(result).jobId;
- return jobId===run.receipt.jobId&&isNativeJobLive(jobId);
+ return !!result&&result===run.receipt.result;
 }
 type Proof=Record<string,unknown>;
 const LIMITS={argumentBytes:16384,resultBytes:65536,pageRows:50,pendingCalls:16,proposalOperations:16};

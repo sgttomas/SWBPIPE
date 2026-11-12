@@ -1694,7 +1694,7 @@ mod tests {
     }
 
     #[test]
-    fn a_refused_solve_is_bound_to_its_call_and_never_reads_as_completed() {
+    fn a_rejected_outcome_has_no_run_or_failure_and_matches_its_evidence_and_the_call_basis() {
         let (mut d, mut p) = setup();
         let (evaluated, r) = admitted_solve(&mut d, &mut p, 1, json!({}));
         // One finding listed and two not: a refusal from a published blocked result or a

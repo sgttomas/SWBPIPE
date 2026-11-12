@@ -70,7 +70,9 @@ needs:
     carries the model hash and run identities its result carries, and a solve that did not run
     natively is not published as a current result. A result the solver blocked is published with
     its mechanics status and the diagnostics the Diagnostics panel shows, and a result page's
-    query selects the rows of one case by the results panel's case key (ref_type:ref_id).
+    query selects the rows of one case by the results panel's case key (ref_type:ref_id). While
+    a job's result is held natively, the native registry states the job's state, its creation
+    order, its solver mode, the digest of its result bytes and the bytes themselves.
   gating: true
 - from: DEL-04-07
   when: Examining AC-008 on the reference system

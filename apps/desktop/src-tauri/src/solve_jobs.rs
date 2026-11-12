@@ -1549,6 +1549,18 @@ impl SolveJobRegistry {
         Some(CustodyDigests { intake_sha256: digests.intake_sha256, result_sha256: digests.result_sha256?, solver_mode: digests.solver_mode })
     }
 
+    /// The number the last job or restored handle was given (0 before any): with
+    /// [`Self::job_number`], the embedded agent host's freshness check (DEL-16-06),
+    /// that a job a completion names was made after its call was claimed.
+    pub(crate) fn last_job_number(&self) -> u64 {
+        self.table().next_job_number
+    }
+
+    /// A job's or restored handle's creation number; `None` when unknown or pruned.
+    pub(crate) fn job_number(&self, job_id: &str) -> Option<u64> {
+        self.table().records.get(job_id).map(|record| record.number)
+    }
+
     /// The job's state; never returns or clones the result.
     pub(crate) fn status(&self, job_id: &str) -> Result<SolveJobStatusReport, SolveJobError> {
         let table = self.table();

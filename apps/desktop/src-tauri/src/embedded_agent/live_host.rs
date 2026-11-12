@@ -17,7 +17,7 @@ use crate::{memory_pool::Lease, solve_jobs::SolveJobRegistry};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     fs,
     os::unix::fs::{DirBuilderExt, PermissionsExt},
     path::PathBuf,
@@ -331,6 +331,9 @@ impl Drop for Host {
 struct Meta {
     tool: Tool,
     basis: Value,
+    /// The registry's last job number when the call was claimed: a job a solve's
+    /// completion names must be newer (made after the claim, which precedes execution).
+    jobs_before: u64,
 }
 struct Actual {
     raw: String,
@@ -347,6 +350,12 @@ struct Workspace {
     bridge: Bridge,
     claims: BTreeMap<String, Meta>,
     actual: BTreeMap<String, Actual>,
+    /// Solve jobs a completion has named: each answers one call only.
+    consumed_jobs: BTreeSet<String>,
+    /// Each completed run handle's native job and the SHA-256 of that job's result
+    /// bytes, read from the registry when the solve completed: a read through the
+    /// handle must name that job, still holding those bytes.
+    runs: BTreeMap<String, (String, [u8; 32])>,
     notices: Vec<String>,
     messages: Vec<Value>,
     turn_active: bool,
@@ -657,6 +666,8 @@ impl Owner {
                     bridge,
                     claims: BTreeMap::new(),
                     actual: BTreeMap::new(),
+                    consumed_jobs: BTreeSet::new(),
+                    runs: BTreeMap::new(),
                     notices: Vec::with_capacity(64),
                     messages: Vec::new(),
                     turn_active: false,
@@ -881,6 +892,7 @@ impl Owner {
                     Meta {
                         tool,
                         basis: data["basis"].clone(),
+                        jobs_before: self.registry.last_job_number(),
                     },
                 );
                 owner.notices.retain(|r| r != &request_ref);
@@ -898,12 +910,19 @@ impl Owner {
                 if owner.actual.contains_key(&request_ref) {
                     return Err(Error::Duplicate);
                 }
-                validate_actual(&self.registry, meta, &outcome, &proof)?;
+                let bound = validate_actual(&self.registry, meta, &outcome, &proof, &owner.consumed_jobs, &owner.runs)?;
                 // Native actual, proof and its bounded retained frontend copy.
                 let record_backing = self
                     .registry
                     .acquire_interactive_ingress(512 * 1024)
                     .map_err(|_| Error::Admission)?;
+                // A solve's named job is spent, and a completed run keeps its job's result hash.
+                if let Some((job, result_sha256)) = bound {
+                    owner.consumed_jobs.insert(job.clone());
+                    if let (Some(sha), Proof::Run { handle: Some(handle), .. }) = (result_sha256, &proof) {
+                        owner.runs.insert(handle.clone(), (job, sha));
+                    }
+                }
                 owner.actual.insert(
                     request_ref,
                     Actual {
@@ -1011,12 +1030,64 @@ fn evidence(proof: &Proof) -> Evidence<'_> {
         },
     }
 }
+/// The published result's `status.mechanics`, read natively from the bytes the
+/// registry holds for the job; every other member is skipped unread. `None` when
+/// the job holds no result or the bytes do not state exactly one status.
+fn held_mechanics_status(registry: &SolveJobRegistry, job: &str) -> Option<String> {
+    #[derive(Deserialize)]
+    struct Envelope {
+        status: Status,
+    }
+    #[derive(Deserialize)]
+    struct Status {
+        mechanics: String,
+    }
+    let held = registry.held_result(job).ok()?;
+    serde_json::from_str::<Envelope>(held.text())
+        .ok()
+        .map(|envelope| envelope.status.mechanics)
+}
+/// The native binding of a solve job that a completed or rejected outcome names,
+/// established from the registry, not from the webview: the job was made after the
+/// call was claimed, no other completion has named it, it ran in the mode the
+/// outcome states, and its held result is solved (completed) or not (rejected).
+/// Returns the job's result hash. It does not bind the job's model to the call's
+/// model: the registry does not hold the catalog's model hash.
+fn solve_job_binding(
+    registry: &SolveJobRegistry,
+    meta: &Meta,
+    job: &str,
+    status: &str,
+    value: &Value,
+    consumed: &BTreeSet<String>,
+) -> Result<[u8; 32], Error> {
+    let number = registry.job_number(job).ok_or(Error::Evidence)?;
+    if number <= meta.jobs_before || consumed.contains(job) {
+        return Err(Error::Evidence);
+    }
+    let custody = registry.custody_binding(job).ok_or(Error::Evidence)?;
+    let mode = value["data"]["solverMode"].as_str().and_then(open_pipe_stress_product_physics::PreviewSolverMode::from_wire);
+    if mode != Some(custody.solver_mode) {
+        return Err(Error::Evidence);
+    }
+    let solved = held_mechanics_status(registry, job).ok_or(Error::Evidence)? == "MECHANICS_SOLVED";
+    if solved != (status == "completed") {
+        return Err(Error::Evidence);
+    }
+    Ok(custody.result_sha256)
+}
+/// Validates a webview's actual outcome and its proof. For a solve naming a job it
+/// returns that job and, for a completed run, the job's result hash, which the
+/// caller records (the job is then spent).
+#[allow(clippy::type_complexity)]
 fn validate_actual(
     registry: &SolveJobRegistry,
     meta: &Meta,
     raw: &str,
     proof: &Proof,
-) -> Result<(), Error> {
+    consumed: &BTreeSet<String>,
+    runs: &BTreeMap<String, (String, [u8; 32])>,
+) -> Result<Option<(String, Option<[u8; 32]>)>, Error> {
     if raw.len() > 64 * 1024 {
         return Err(Error::Input);
     }
@@ -1054,6 +1125,7 @@ fn validate_actual(
             native_job_id: Some(job),
             status,
             basis,
+            handle,
             ..
         } if matches!(meta.tool, Tool::Solve | Tool::ReadResults) && basis == &meta.basis => {
             let state = registry.status(job).map_err(|_| Error::Evidence)?;
@@ -1064,6 +1136,25 @@ fn validate_actual(
                 || (status == "failed" && state.state != "failed")
                 || (status == "cancelled" && state.state != "cancelled")
             {
+                return Err(Error::Evidence);
+            }
+            if meta.tool == Tool::Solve && matches!(status.as_str(), "completed" | "rejected") {
+                let sha = solve_job_binding(registry, meta, job, status, &value, consumed)?;
+                return Ok(Some((job.clone(), (status == "completed").then_some(sha))));
+            }
+            if meta.tool == Tool::Solve {
+                // A failure that names a job is not a completion of that job; it spends it.
+                if consumed.contains(job) {
+                    return Err(Error::Evidence);
+                }
+                return Ok(Some((job.clone(), None)));
+            }
+            // A result read names the job its run handle was bound to, still holding
+            // the same result bytes; never another solve's.
+            let handle = handle.as_deref().ok_or(Error::Evidence)?;
+            let (bound, sha) = runs.get(handle).ok_or(Error::Evidence)?;
+            let custody = registry.custody_binding(job).ok_or(Error::Evidence)?;
+            if bound != job || custody.result_sha256 != *sha {
                 return Err(Error::Evidence);
             }
         }
@@ -1084,7 +1175,7 @@ fn validate_actual(
             && value["status"].as_str() == Some(status.as_str()) => {}
         _ => return Err(Error::Evidence),
     }
-    Ok(())
+    Ok(None)
 }
 
 #[cfg(test)]
@@ -1427,16 +1518,148 @@ mod tests {
             );
         }
     }
+    const SOLVED: &str = r#"{"run_id":"run:preview-linear-static-001","status":{"mechanics":"MECHANICS_SOLVED"},"results":[]}"#;
+    const BLOCKED: &str = r#"{"run_id":"run:preview-linear-static-blocked","status":{"mechanics":"MODEL_INCOMPLETE"},"results":[],"diagnostics":[{"code":"INVENTED","severity":"blocking","message":"Invented."}]}"#;
+    /// A registry whose solve jobs keep their results in native custody, released by a gate.
+    fn native_registry() -> (SolveJobRegistry, Arc<crate::solve_worker::test_support::Gate>) {
+        let gate = crate::solve_worker::test_support::Gate::new("agent-host");
+        let pool = MemoryPool::with_wait_tick(ScriptedHost::normal(), Duration::from_millis(5));
+        pool.set_max_running_workers(16);
+        let spawn: crate::solve_jobs::SpawnFn = Arc::new(|job| std::thread::Builder::new().spawn(job).map(drop));
+        (SolveJobRegistry::with_hooks(pool, gate.launcher(), spawn), gate)
+    }
+    /// The `started`-th job: run to completion with `result` held natively.
+    fn native_job(registry: &SolveJobRegistry, gate: &crate::solve_worker::test_support::Gate, started: usize, mode: Option<&str>, result: &str) -> String {
+        let job = registry.start_with_custody(br#"{"project":{"id":"p"}}"#, mode, crate::solve_jobs::ResultCustody::Native).unwrap().job_id;
+        gate.wait_started(started);
+        gate.release(result);
+        assert_eq!(crate::solve_jobs::test_support::wait_terminal(registry, &job).state, "completed");
+        job
+    }
+    fn registered_with(registry: SolveJobRegistry) -> Owner {
+        let mut owner = Owner::new(registry, Arc::new(AtomicBool::new(false)));
+        let backing = lease(&owner);
+        owner.action("main", Action::Register { basis: draft() }, paths(), backing).unwrap();
+        owner
+    }
+    /// The workspace's supplier protocol with a thread and a turn begun.
+    fn opened(owner: &mut Owner) -> Protocol {
+        let w = &mut owner.workspaces[0];
+        let basis = w.basis.clone();
+        let mut p = Protocol::new(Catalog::load().unwrap(), w.token.clone(), 16).unwrap();
+        p.initialize("test", "1").unwrap();
+        p.handle_frame(json!({"id":1,"result":{"codexHome":"/invented","platformFamily":"unix","platformOs":"macos","userAgent":"fixture"}}),&basis).unwrap();
+        p.start_thread(ThreadOptions { model: "invented".into(), provider: "invented".into(), cwd: "/invented".into(), base_instructions: "invented".into() }).unwrap();
+        for event in p.handle_frame(json!({"id":2,"result":{"thread":{"id":"thread-1"},"approvalPolicy":"never","sandbox":{"type":"readOnly","networkAccess":false}}}),&basis).unwrap().events { w.bridge.observe(&event).unwrap(); }
+        p.submit_text("invented".into()).unwrap();
+        for event in p.handle_frame(json!({"id":3,"result":{"turn":{"id":"turn-1","items":[],"status":"inProgress"}}}), &basis).unwrap().events { w.bridge.observe(&event).unwrap(); }
+        p
+    }
+    /// A solve call offered to the bridge and claimed by the webview, as the live route does.
+    fn claimed_solve(owner: &mut Owner, p: &mut Protocol, n: u64) -> String {
+        let basis = owner.workspaces[0].basis.clone();
+        let args = json!({"workspaceHandle":basis["workspaceHandle"],"basis":basis,"claimedModelHash":basis["modelHash"]});
+        let event = p.handle_frame(json!({"id":90+n,"method":"item/tool/call","params":{"threadId":"thread-1","turnId":"turn-1","callId":format!("call-{n}"),"tool":Tool::Solve.name(),"arguments":args}}),&basis).unwrap().events.into_iter().find(|event| matches!(event, Event::ToolRequested { .. })).unwrap();
+        let reference: String = owner.workspaces[0].bridge.offer(&event, &basis, History::Live).unwrap().request_ref.into();
+        let (authority, backing) = (auth(owner), lease(owner));
+        owner.action("main", Action::Claim { authority, request_ref: reference.clone() }, paths(), backing).unwrap();
+        reference
+    }
+    fn solve_outcome(basis: &Value, status: &str, mode: &str) -> String {
+        let run = status == "completed";
+        json!({"status":status,"basis":basis,"message":"Invented outcome","data":{"runHandle":run.then_some("run-1"),"runId":run.then_some("run:preview-linear-static-001"),
+            "evaluatedModelHash":hash(),"health":"invented","solverMode":mode,"diagnostics":[],"diagnosticsNotListed":0,"failure":null}}).to_string()
+    }
+    fn run_proof(basis: &Value, status: &str, job: &str) -> Proof {
+        let run = status == "completed";
+        Proof::Run { handle: run.then(|| "run-1".to_owned()), run_id: run.then(|| "run:preview-linear-static-001".to_owned()), basis: basis.clone(), status: status.into(), native_job_id: Some(job.to_owned()) }
+    }
+    fn publish(owner: &mut Owner, reference: &str, outcome: String, proof: Proof) -> Result<Value, Error> {
+        let (authority, backing) = (auth(owner), lease(owner));
+        owner.action("main", Action::PublishActual { authority, request_ref: reference.into(), outcome, proof }, paths(), backing)
+    }
+    #[test]
+    fn a_solve_completion_names_a_fresh_unused_job_in_its_mode_whose_held_result_is_solved() {
+        let (registry, gate) = native_registry();
+        // Retained and completed, but made before the call was claimed.
+        let older = native_job(&registry, &gate, 1, None, SOLVED);
+        let mut owner = registered_with(registry.clone());
+        let mut p = opened(&mut owner);
+        let basis = owner.workspaces[0].basis.clone();
+        let a = claimed_solve(&mut owner, &mut p, 1);
+        let dense = native_job(&registry, &gate, 2, Some("dense_scrutiny"), SOLVED);
+        let blocked = native_job(&registry, &gate, 3, None, BLOCKED);
+        let fresh = native_job(&registry, &gate, 4, None, SOLVED);
+        let sparse = "sparse_interactive";
+        // The reviewer's sequence: another retained completed job, named by a forged completion.
+        assert_eq!(publish(&mut owner, &a, solve_outcome(&basis, "completed", sparse), run_proof(&basis, "completed", &older)).unwrap_err(), Error::Evidence);
+        // A job that ran in another mode than the outcome states.
+        assert_eq!(publish(&mut owner, &a, solve_outcome(&basis, "completed", sparse), run_proof(&basis, "completed", &dense)).unwrap_err(), Error::Evidence);
+        // A blocked result named completed, its findings removed: refused from the held bytes.
+        assert_eq!(publish(&mut owner, &a, solve_outcome(&basis, "completed", sparse), run_proof(&basis, "completed", &blocked)).unwrap_err(), Error::Evidence);
+        // A solved result named rejected.
+        assert_eq!(publish(&mut owner, &a, solve_outcome(&basis, "rejected", sparse), run_proof(&basis, "rejected", &fresh)).unwrap_err(), Error::Evidence);
+        // An unknown job.
+        assert_eq!(publish(&mut owner, &a, solve_outcome(&basis, "completed", sparse), run_proof(&basis, "completed", "backend-solve-job-999")).unwrap_err(), Error::Evidence);
+        assert!(owner.workspaces[0].consumed_jobs.is_empty() && owner.workspaces[0].actual.is_empty());
+        publish(&mut owner, &a, solve_outcome(&basis, "completed", sparse), run_proof(&basis, "completed", &fresh)).unwrap();
+        let held = registry.custody_binding(&fresh).unwrap().result_sha256;
+        assert_eq!(owner.workspaces[0].runs.get("run-1"), Some(&(fresh.clone(), held)));
+        // The same job named by a second call: used once only.
+        let b = claimed_solve(&mut owner, &mut p, 2);
+        assert_eq!(publish(&mut owner, &b, solve_outcome(&basis, "completed", sparse), run_proof(&basis, "completed", &fresh)).unwrap_err(), Error::Evidence);
+        // The dense job is older than the second call too; a blocked job named rejected is admitted.
+        assert_eq!(publish(&mut owner, &b, solve_outcome(&basis, "completed", "dense_scrutiny"), run_proof(&basis, "completed", &dense)).unwrap_err(), Error::Evidence);
+        let c = claimed_solve(&mut owner, &mut p, 3);
+        // The pool retains four results: release one before the next job.
+        registry.dispose_result(&older).unwrap();
+        let later_blocked = native_job(&registry, &gate, 5, None, BLOCKED);
+        publish(&mut owner, &c, solve_outcome(&basis, "rejected", sparse), run_proof(&basis, "rejected", &later_blocked)).unwrap();
+        // Two calls claimed before one job is made: the job is fresh for both, and the
+        // second completion naming it is refused because the first spent it.
+        let d = claimed_solve(&mut owner, &mut p, 4);
+        let e = claimed_solve(&mut owner, &mut p, 5);
+        registry.dispose_result(&dense).unwrap();
+        let shared = native_job(&registry, &gate, 6, None, BLOCKED);
+        publish(&mut owner, &d, solve_outcome(&basis, "rejected", sparse), run_proof(&basis, "rejected", &shared)).unwrap();
+        assert_eq!(publish(&mut owner, &e, solve_outcome(&basis, "rejected", sparse), run_proof(&basis, "rejected", &shared)).unwrap_err(), Error::Evidence);
+        drop(gate);
+    }
+    #[test]
+    fn a_result_read_names_its_run_handles_job_still_holding_the_same_result() {
+        let (registry, gate) = native_registry();
+        let first = native_job(&registry, &gate, 1, None, SOLVED);
+        let second = native_job(&registry, &gate, 2, None, SOLVED);
+        let basis = json!({"workspaceHandle":"workspace-invented","applicationGeneration":1,"modelRevision":2,"modelHash":hash(),"stateId":null,"runId":null});
+        let meta = Meta { tool: Tool::ReadResults, basis: basis.clone(), jobs_before: 0 };
+        let consumed = BTreeSet::new();
+        let runs = BTreeMap::from([("run-1".to_owned(), (first.clone(), registry.custody_binding(&first).unwrap().result_sha256))]);
+        let page = json!({"status":"ok","basis":basis,"message":"Invented page","data":{"runHandle":"run-1","runId":"run:preview-linear-static-001","evaluatedModelHash":hash(),"values":[],"nextCursor":null,"standing":{"route":"invented","health":"invented","checks":[]}}}).to_string();
+        let read = |job: &str, handle: &str| validate_actual(&registry, &meta, &page, &Proof::Run { handle: Some(handle.into()), run_id: Some("run:preview-linear-static-001".into()), basis: basis.clone(), status: "completed".into(), native_job_id: Some(job.into()) }, &consumed, &runs);
+        // Both jobs carry the producer's one run id; only the handle's own job is read.
+        assert_eq!(read(&second, "run-1").unwrap_err(), Error::Evidence);
+        assert_eq!(read(&first, "run-2").unwrap_err(), Error::Evidence);
+        assert_eq!(read(&first, "run-1").unwrap(), None);
+        // A handle bound to other bytes than the job now holds reads nothing.
+        let other = BTreeMap::from([("run-1".to_owned(), (first.clone(), [7u8; 32]))]);
+        assert_eq!(validate_actual(&registry, &meta, &page, &Proof::Run { handle: Some("run-1".into()), run_id: None, basis: basis.clone(), status: "completed".into(), native_job_id: Some(first.clone()) }, &consumed, &other).unwrap_err(), Error::Evidence);
+        // Once that result is no longer held, the handle reads nothing.
+        registry.dispose_result(&first).unwrap();
+        assert_eq!(read(&first, "run-1").unwrap_err(), Error::Evidence);
+        drop(gate);
+    }
     #[test]
     fn a_refused_solve_needs_its_completed_job_and_a_failed_one_names_no_run() {
-        use crate::solve_jobs::test_support::{delivered_in_custody, wait_terminal};
-        let (registry, gate, completed) = delivered_in_custody(ScriptedHost::normal(), br#"{"project":{"id":"p"}}"#, None, "{\"result\":\"invented\"}");
-        let failed = registry.start(br#"{"project":{"id":"q"}}"#, None).unwrap().job_id;
+        use crate::solve_jobs::test_support::wait_terminal;
+        let (registry, gate) = native_registry();
+        let completed = native_job(&registry, &gate, 1, None, BLOCKED);
+        let failed = registry.start_with_custody(br#"{"project":{"id":"q"}}"#, None, crate::solve_jobs::ResultCustody::Native).unwrap().job_id;
         gate.wait_started(2);
         gate.release("err:invented worker failure");
         assert_eq!(wait_terminal(&registry, &failed).state, "failed");
         let basis = json!({"workspaceHandle":"workspace-invented","applicationGeneration":1,"modelRevision":2,"modelHash":hash(),"stateId":null,"runId":null});
-        let meta = Meta { tool: Tool::Solve, basis: basis.clone() };
+        let meta = Meta { tool: Tool::Solve, basis: basis.clone(), jobs_before: 0 };
+        let (consumed, runs) = (BTreeSet::new(), BTreeMap::new());
         let raw = |status: &str, run: bool, failure: Value| {
             json!({"status":status,"basis":basis,"message":"Invented outcome","data":{"runHandle":run.then_some("run-1"),"runId":run.then_some("native-run-1"),
                 "evaluatedModelHash":hash(),"health":"MODEL_INCOMPLETE","solverMode":"sparse_interactive","diagnostics":[],"diagnosticsNotListed":0,"failure":failure}}).to_string()
@@ -1449,7 +1672,7 @@ mod tests {
             native_job_id: job.map(str::to_owned),
         };
         let failure = json!({"kind":"job_failed","message":"Invented job failure."});
-        let check = |raw: String, proof: Proof| validate_actual(&registry, &meta, &raw, &proof);
+        let check = |raw: String, proof: Proof| validate_actual(&registry, &meta, &raw, &proof, &consumed, &runs).map(drop);
         // A refusal that names a job names one that ran to completion, never an unknown or
         // failed job; a refusal before any job (a solve gate) names none.
         assert!(check(raw("rejected", false, Value::Null), proof("rejected", false, Some(&completed))).is_ok());

@@ -31,7 +31,7 @@ BINARY_SHA256 = "112fae7a5a1223e673c8a1791d32338f37df8b527ff1159bb8adac6c4dbf1b4
 # sends the supplier at thread start (catalog.rs Catalog::declarations(): type, name, description and
 # expanded input schema), nor the supplier's serialization of it. tools/agent_catalog_resource.py
 # holds the fixture fixtures/embedded_agent/agent-witness-pin.json to this same value.
-CATALOG_SHA256 = "65305998eb00217906fafb503b0559f871b51a2452af12f3c13f4715ebf74539"
+CATALOG_SHA256 = "52dbba2948230a5ba116b58db4d29f615f38bddb1e1be2cd27a0ab64a0c27c52"
 FRAME_BYTES = 1024 * 1024
 FORBIDDEN_ITEMS = {"commandExecution", "fileChange", "webSearch", "imageView", "imageGeneration", "browserUse", "computerUse"}
 
