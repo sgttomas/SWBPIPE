@@ -515,8 +515,12 @@ def publish(state, d, r, e):
 
 
 def max_rel_diff(base, other):
-    """Largest |other - base| / max|base| over displacements, anchor reactions and end actions, by kind."""
-    worst = Fr(0)
+    """The original combined measure, kept for its frozen values and now exact in
+    Q(pi): largest |other - base| / max|base| within each group (displacements
+    with rotations; anchor reactions; end actions), maximized over the groups.
+    It mixes translations with rotations and forces with moments inside a
+    group; separation_by_kind below is the dimensionally consistent measure."""
+    worst = Q(0)
     for kind in ("displacements", "anchor", "ends"):
         if kind == "displacements":
             pairs = [(base[1][n][c], other[1][n][c]) for n in ORDER[1:] for c in ("UX", "UZ", "RY")]
@@ -528,14 +532,53 @@ def max_rel_diff(base, other):
             if pb.is_zero() and po.is_zero():
                 continue
             scale = max((abs(x) for x, _ in pairs if not x.is_zero()), default=Q(1))
-            lo, hi = (abs(po - pb) / scale).interval()
-            worst = max(worst, lo)
+            r = abs(po - pb) / scale
+            if r > worst:
+                worst = r
     return worst
+
+
+KINDS = ("translations", "rotations", "forces", "moments")
+
+
+def kind_pairs(base, other, kind):
+    if kind == "translations":
+        return [(base[1][n][c], other[1][n][c]) for n in ORDER[1:] for c in ("UX", "UZ")]
+    if kind == "rotations":
+        return [(base[1][n]["RY"], other[1][n]["RY"]) for n in ORDER[1:]]
+    comps = ("FX", "FZ") if kind == "forces" else ("MY",)
+    return ([(base[2]["anchor A"][c], other[2]["anchor A"][c]) for c in comps]
+            + [(base[3][m][n][c], other[3][m][n][c]) for m, (n1, n2) in MEMBERS.items() for n in (n1, n2) for c in comps])
+
+
+def separation_by_kind(base, other):
+    """Per kind (translations UX, UZ at M, N, S; rotations RY at M, N, S; forces FX, FZ
+    of the anchor and every member end; moments MY of the anchor and every member
+    end): the largest |other - base| over the kind, divided by the largest |base|
+    of the same kind. Exact in Q(pi)."""
+    out = {}
+    for kind in KINDS:
+        pairs = kind_pairs(base, other, kind)
+        scale = Q(0)
+        for pb, _ in pairs:
+            if abs(pb) > scale:
+                scale = abs(pb)
+        if scale.is_zero():
+            raise CheckFailure(f"base magnitude of kind {kind} is zero")
+        worst = Q(0)
+        for pb, po in pairs:
+            r = abs(po - pb) / scale
+            if r > worst:
+                worst = r
+        out[kind] = worst
+    return out
 
 
 def build():
     chk = Checks()
     cases = []
+    smallest = {k: None for k in KINDS}
+    smallest_any = None
     for cid, model, desc, loads in CASES:
         base = solve_case(chk, f"{cid} base", model, loads, [])
         # closed-form spot checks of the base results (textbook propped cantilever, free cantilever)
@@ -566,9 +609,19 @@ def build():
             for how, acting in plans:
                 ctl = solve_case(chk, f"{cid} {vid} control {how}", model, loads, acting)
                 diff = max_rel_diff(base, ctl)
-                chk.true("negative control distinguishable (relative difference > 5e-2)", f"{cid} {vid} {how}", diff > Fr(5, 100))
+                sep = separation_by_kind(base, ctl)
+                best = Q(0)
+                for k in KINDS:
+                    if sep[k] > best:
+                        best = sep[k]
+                    if smallest[k] is None or smallest[k] > sep[k]:
+                        smallest[k] = sep[k]
+                if smallest_any is None or smallest_any > best:
+                    smallest_any = best
+                chk.true("negative control distinguishable (in some kind, relative difference > 5e-2)", f"{cid} {vid} {how}", best > Fr(5, 100))
                 rec = {"label": "NEGATIVE CONTROL: a wrong static answer", "snubbers act": how,
-                       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": num(diff.limit_denominator(10 ** 12), "1")}
+                       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": num(diff, "1"),
+                       "separation by kind (largest change of the kind / largest base magnitude of the same kind)": {k: num(sep[k], "1") for k in KINDS}}
                 rec.update(publish(*ctl))
                 if ctl[0] is not None and ctl[0] != base[0]:
                     rec["note"] = f"the one-way support changes state: {base[0]} -> {ctl[0]}"
@@ -576,8 +629,11 @@ def build():
             variants.append({
                 "id": vid,
                 "snubbers": [{"id": sid, **{k: v for k, v in SNUBBERS[sid].items() if k == "label"}} for sid in sids],
-                "expected static result": f"identical to the base result of {cid}: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
-                "expected disclosure": [{"snubber": sid, "finding": "non-blocking", "text": DISCLOSURE} for sid in sids],
+                "expected static result": f"numerically identical to the base result of {cid}: every displacement, rotation, reaction and member end action unchanged; the result documents are not byte-identical, because the disclosures differ",
+                "expected disclosure": {"snubbers named": sids, "severity": "non-blocking", "wording": DISCLOSURE,
+                                        "open presentation choices (settled by the product's design)": [
+                                            "whether a snubber has no reaction row or a reaction row of zero in a static result",
+                                            "whether each snubber has its own finding or one finding names several snubbers"]},
                 "negative_controls": controls,
             })
         rec = {"id": cid, "model": model, "description": desc,
@@ -622,6 +678,10 @@ def build():
         },
         "tolerance_class": "Identity (AC-003 'unchanged'): see README open reading 1. Base values: linear model at the analytic tolerance (DEL-04-03/AC-001: 1e-9 relative with its governed floor); nonlinear model, one-way state exactly and values within the nonlinear class tolerance (DEL-04-07/AC-002). This package chooses no number.",
         "cases": cases,
+        "control separation summary": {
+            "smallest separation per kind over all controls": {k: num(smallest[k], "1") for k in KINDS},
+            "smallest over all controls of the largest separation of any kind": num(smallest_any, "1"),
+        },
         "checks": {"count": len(chk.items), "all_pass": True, "by_kind": dict(sorted(by_kind.items()))},
     }
 

@@ -79,13 +79,23 @@ The variants are:
 - V1, V2, V3 and V4: SNB-1, SNB-2, SNB-3 and SNB-4, each alone;
 - V-ALL: all four snubbers together.
 
-"Unchanged" covers every displacement and rotation at M, N and S, every
-reaction and every member end action. No snubber publishes a static reaction.
+"Unchanged" means numerically identical static results: every displacement
+and rotation at M, N and S, every reaction and every member end action. The
+result documents are not byte-identical, because the variant's documents carry
+the disclosures. No snubber carries a nonzero static force.
 
 **Expected disclosure** is an outcome, not a code name. In each static case,
-the product gives one non-blocking finding per snubber, naming it, with the
-wording "dynamic-only restraint, not active in static cases". V-ALL therefore
-gives four.
+the disclosure must have these three properties:
+- it names each snubber;
+- it uses the wording "dynamic-only restraint, not active in static cases";
+- it is non-blocking.
+
+**Open presentation choices.** The scopes leave these to the product's design,
+and this package sets no expectation on them:
+- whether a snubber has no reaction row in a static result, or a reaction row
+  of zero;
+- whether each snubber has its own finding, or one finding names several
+  snubbers.
 
 ## Base results in closed form
 
@@ -136,9 +146,8 @@ the static solve:
   k·d dᵀ/(dᵀd);
 - in V-ALL, every snubber acts as authored.
 
-Each control is solved with the one-way state re-determined. It differs from
-the base by more than 5e-2 relative, which is larger than any tolerance number
-stated in the docs. Key support forces:
+Each control is solved with the one-way state re-determined. Key support
+forces:
 
 | Control | SL-1 / SN-BEAR | SN-LIFT |
 |---|---|---|
@@ -163,7 +172,36 @@ w(S) = −27P/(2EI). The two compatibility equations are:
 They give R_S = 5.5P/14 = 55000/7 N and R_M = 107500/7 N.
 
 Every control's full displacements, reactions, end actions and one-way state
-are in `references.json`, with the largest relative difference from the base.
+are in `references.json`.
+
+**Separation from the base, by kind.** Each control's separation is measured
+within each kind separately. For each kind, it is the largest change in the
+kind, divided by the largest base magnitude of the same kind. All values are
+exact in Q(π). The four kinds are:
+- translations: UX and UZ at M, N and S;
+- rotations: RY at M, N and S;
+- forces: FX and FZ of the anchor and of every member end;
+- moments: MY of the anchor and of every member end.
+
+The smallest separation per kind, over all 21 controls:
+
+| Kind | Smallest | Where |
+|---|---|---|
+| translations | 565/27648 (0.0204) | SN-LIFT V1 rigid: only the axial stretch changes, against a large lift |
+| rotations | 0 | The axial-only controls (V1 rigid, and V4 rigid and spring in SL-1 and SN-BEAR) change no rotation |
+| forces | (968704/3178125)/(917504/635625 + π) (0.0665) | V2 spring in SL-1 and SN-BEAR |
+| moments | 0 | The same axial-only controls |
+
+Every control differs from the base by at least 0.258 in some kind. The
+smallest such maximum is V4 spring in SL-1 and SN-BEAR, through its forces.
+That exceeds 5e-2, which is larger than any tolerance number stated in the
+docs.
+
+Each control also keeps the earlier combined measure: "largest relative
+difference …". It is exact, and its binary64 values are unchanged. It mixes
+translations with rotations, and forces with moments, within a group, so it is
+not a dimensionally consistent measure. The per-kind separation replaces it as
+the basis of the check.
 
 ## Cross-checks (all exact; 434 checks, all pass)
 
@@ -180,7 +218,8 @@ are in `references.json`, with the largest relative difference from the base.
 - **Equilibrium.** Global and member equilibrium for every solve.
 - **Identity.** The static solve with each variant's snubbers left out equals
   the base result. That holds by construction: it states the rule.
-- **Separation.** Each control is more than 5e-2 relative from the base.
+- **Separation.** In some kind, each control is more than 5e-2 relative from
+  the base (see "Separation from the base, by kind").
 
 ## Tolerance class
 
@@ -188,31 +227,21 @@ are in `references.json`, with the largest relative difference from the base.
   "1e-9 relative, with its governed absolute floor near zero".
 - **Base values, model SN:** the one-way state exactly, and values within the
   nonlinear class tolerance of DEL-04-07/AC-002.
-- **The identity** ("unchanged") is discussed under open reading 1.
+- **The identity** ("unchanged") means numerically identical static results;
+  see "What a product must give".
 
 This package sets no number.
 
 ## Open readings
 
-1. **What "unchanged" means.** DEL-04-10/AC-003 says every static result is
-   "unchanged by the snubber".
-   *Reading (a):* byte-identical to the same model without the snubber.
-   *Reading (b):* equal within the case's verification tolerance.
+DEL-04-10/AC-003's "unchanged by the snubber" is taken here as numerically
+identical static results. Nothing of the snubber enters the static solve, and
+the references are exact. The result documents differ by the disclosures, so
+they are not byte-identical. The reaction-row representation and the number
+of findings are open presentation choices, listed under "What a product must
+give". They are not readings that change a value.
 
-   REQ-005 says that every static solve "ignores" the snubber. That supports
-   (a), because nothing of the snubber enters the solve. The references are
-   exact, and the expected values are identical under either reading.
-2. **"No static reaction".**
-   *Reading (a):* the snubber has no reaction row in a static result.
-   *Reading (b):* it has a row that is exactly zero.
-
-   "Ignores it" supports (a). No value depends on the choice.
-3. **How the disclosure is counted.** "Every static load-case solve …
-   discloses it" supports one finding per snubber in each static case. The
-   other reading is one finding per snubber per result or model. Each case
-   here is a single load case, so both readings give one finding per snubber
-   per case.
-4. **Skew snubbers in a model with nonlinear supports, or on the exact route.**
+1. **Skew snubbers in a model with nonlinear supports, or on the exact route.**
    DEL-04-03/REQ-010 leaves undecided whether skewed records are admitted in a
    model with nonlinear supports, and on the exact route.
    *Reading (a):* a snubber's skew record never enters a static solve
