@@ -264,6 +264,17 @@ describe("the property task clears a value typed beside a unit taken from the pr
     expect(queue.mock.calls[0][0].change.before).toBe("195000000000");
   });
 
+  it("choosing a unit is an edit: the digits then shown are the person's beside it, and a later stored change makes them stale", async () => {
+    const { rerender } = await startTask(steel, "elastic_modulus.value");
+    chooseCompactOption(byId("editor-intent-unit"), "MPa");
+    expect(byId("editor-intent-value")).toHaveValue("200000000000");
+    rerender({}, 1, storeModulus(195000000000, "Pa"));
+    // Not 195000000000 beside MPa: stored digits never follow into a unit the person chose.
+    expect(byId("editor-intent-value")).toHaveValue("200000000000");
+    expect(stale()).toHaveTextContent("The stored elastic modulus is now 195000000000 Pa; this entry was made against 200000000000 Pa.");
+    expect(add()).toBeDisabled();
+  });
+
   it("stale: editing the value again ends it", async () => {
     const { rerender } = await startTask(steel, "elastic_modulus.value");
     fireEvent.change(byId("editor-intent-value"), { target: { value: "210000000000" } });
