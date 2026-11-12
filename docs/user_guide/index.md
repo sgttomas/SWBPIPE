@@ -166,7 +166,7 @@ The guide should refer to these current surfaces when explaining behavior:
 | Libraries and provenance | `schemas/material.schema.yaml`, `schemas/section.schema.yaml`, `schemas/component.schema.yaml`, `core/library_import/provenance_checker.py`, `core/section_properties/calculator.py` | Materials, sections, and components carry provenance and review status. Public defaults do not include protected tables or proprietary catalog values. |
 | Rule packs | `schemas/rule_pack.schema.yaml`, `core/rules/expression_evaluator`, `core/rules/completeness_checker`, `core/rules/rule_pack_lifecycle` | Rule packs are user-owned or invented examples. Required inputs, unit checks, provenance, checksums, and privacy state are explicit. |
 | GUI workflow contracts | `schemas/viewport_editor.schema.yaml`, `core/gui/viewport_editor`, `core/gui/model_tree`, `core/gui/editors`, `core/gui/warnings`, `core/gui/solve_execution`, `core/gui/results_viewer`, `apps/desktop` | The Tauri/React/Vite macOS desktop app in `apps/desktop` is the user surface ([Current Desktop App](#current-desktop-app-010)); the `core/gui/*` modules are contract/reference modules (Python engines and a standalone Rust crate) that the app does not call or link. Its native smoke (`apps/desktop/native-smoke/`) and browser specs (`apps/desktop/e2e/`) exercise the app; no single run yet takes a model authored in the app through solve, review, save and reopen. Supported-release acceptance and other platforms remain `TBD`. |
-| Hanger sizing | `core/analysis/hanger_sizing`, `schemas/hanger_sizing_result.schema.json`, `schemas/hanger.schema.yaml`, `core/runner/headless/src/bin/openpipestress-runner.rs` (`size-hangers`), `docs/theory/hanger_sizing.md` | Sizes named supports from a private hanger library on the pressure-free route and publishes a closed, local-private result document through the headless runner only ([§7.1](#71-hanger-sizing-with-the-headless-runner-pressure-free-route)). There is no desktop display, CSV table or recorded-run save yet, and the exact route is refused. |
+| Hanger sizing | `core/analysis/hanger_sizing`, `schemas/hanger_sizing_result.schema.json`, `schemas/hanger.schema.yaml`, `core/runner/headless/src/bin/openpipestress-runner.rs` (`size-hangers`), `apps/desktop/src/features/hanger-sizing`, `apps/desktop/src/features/results/HangerSizingPanel.tsx`, `docs/theory/hanger_sizing.md` | Sizes the supports you name from your own private hanger library, on the pressure-free and the exact pressure route, and publishes a closed, local-private result document with a hanger table, in the desktop and through the headless runner ([§7.1](#71-hanger-sizing-on-both-routes-in-the-desktop-and-the-headless-runner)). The desktop shows the table, exports it to CSV and applies a run's selections on your acceptance. A sizing result is not recorded as an analysis run, and the solve does not yet apply a variable spring's cold load. |
 | Reports and result envelopes | `schemas/report_generator.schema.yaml`, `schemas/report_sections.schema.yaml`, `schemas/results.schema.yaml`, `core/reporting/audit_manifest`, `core/reporting/report_sections`, `core/reporting/result_export`, `core/reporting/report_generator`, `core/reporting/report_renderer`, `core/reporting/protected_content_linter` | Report records preserve manifests, hashes, warnings, provenance, rule-pack references, limitations, and notices. A deterministic hash-bound single-file HTML renderer, a desktop preview and a native report-package save path exist in code, and the app renders a local private report for a pressure-free result after the local-private selection; a public render stays blocked, eligible exact-route results can be rendered and packaged, and the report JSON packet still refuses them ([Current Desktop App](#current-desktop-app-010)). Final styling/layout, deterministic hash-bound PDF policy, portable replay, and release-template integration remain `TBD`. |
 | Privacy and export controls | `docs/security/local_first_storage_policy.md`, `docs/security/redaction_export_controls.md`, `docs/security/telemetry_policy.md`, `core/security/redaction` | Private data is local/user-controlled by default. Project storage is local-only and offline-capable. Telemetry is off by default. Redaction/export behavior is metadata-driven. |
 | Export interoperability | `schemas/native_json_export.schema.json`, `schemas/stress_neutral_export.schema.json`, `schemas/pcf_export.schema.json`, `schemas/review_geometry_export.schema.json`, `schemas/export_adapter_sdk.schema.json`, `schemas/target_mapping.schema.json`, `core/handoff/*` | SCA-004 makes native JSON, the export of a `.mbf` model batch file, optional user-owned external-run evidence, stress-neutral CSV/JSON, conservative PCF, glTF review geometry, stable ID maps, loss reports, and adapter SDK surfaces explicit. These are bounded package surfaces: handoff evidence for external validation, not a validation outcome. |
@@ -641,196 +641,71 @@ and unresolved `TBD` decisions. Production sparse solver selection, release
 tolerances, final result-envelope integration details, and full solve UX remain
 `TBD` where not already accepted.
 
-### 7.1 Hanger sizing with the headless runner (pressure-free route)
+### 7.1 Hanger sizing on both routes, in the desktop and the headless runner
 
-Hanger sizing chooses variable spring hangers and constant-effort supports for
-the supports you name, from your own private hanger library. Today it runs only
-from the command line, through the `openpipestress-runner size-hangers` verb.
-The desktop app does not offer it yet. This section describes that verb. The
-method is explained in the [hanger sizing theory note](../theory/hanger_sizing.md),
-and the governing scope is DEL-04-11
-(`execution/PKG-04/DEL-04-11/ScopeOfWork.md`).
+Hanger sizing chooses variable spring hangers and constant-effort supports for the
+supports you name. It selects records of your own private hanger library by the tests
+you enter. A result establishes neither a hanger's suitability for a service nor code
+compliance, and inherits every premise of the solves it uses. It sizes a model on the
+pressure-free route and on the exact pressure route (a model with a
+`pressure_contract`), load/reference-state documents included. The method, its
+assumptions and its limitations are in the
+[hanger sizing theory note](../theory/hanger_sizing.md); this section describes how to
+use it. The governing scope is DEL-04-11 (`execution/PKG-04/DEL-04-11/ScopeOfWork.md`).
 
-**What the verb does.**
+Sizing never changes your model. Every solve it runs uses a copy of the model that is
+never saved, and a result is not saved or recorded as an analysis run. The model
+changes only when you apply a run's selections and accept the batch (below).
 
-- It works on the **pressure-free route only**. A model that carries a
-  `pressure_contract` is refused with `HANGER_SIZING_EXACT_ROUTE_PENDING`.
-- It sizes each candidate support you name against the records of one hanger
-  library, then publishes one result document, `sized` or `refused`.
-- It never changes your model. Every solve it runs uses a modified copy of the
-  model that is never saved. It offers no way to apply a selection.
-- Preload is not applied. The model's own solve does not yet apply a variable
-  spring's cold load as a preload (DEL-04-11 Design §11). If you enter a
-  selected spring into the model yourself, the model's own cases will not
-  reproduce the loads the sizing verification reports, and each entered spring
-  load is warned as not applied (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`).
+#### The request
 
-**Getting the runner.** Build `openpipestress-runner` from a checkout of the
-repository as the [headless runner reproduction guide](../validation_manual/headless_runner_reproduction.md)
-describes. Below, `openpipestress-runner` stands for the built binary.
+In the desktop, **Size hangers** sits beside the model. It starts empty in every
+project: you choose the library from your stored hanger libraries, and enter every
+other input. In the headless runner the same inputs are the members of the sizing
+request. Nothing is defaulted on either entry, and each member must be present even
+when it is an empty list:
 
-**The input.** The input is one JSON document with exactly three members. Each
-is required, and no other member is admitted:
+| Input (runner member) | What you state |
+|---|---|
+| The hanger library (`library`) | One stored, private hanger library (`schemas/hanger.schema.yaml`, format `1.0.0` or `1.1.0`) that passes the library import boundary and carries a `hanger_library.library_id`. Only a `1.1.0` record with a `working_load_range` can be selected. |
+| Candidates (`candidates`) | A non-empty list of supports of your model, each once, each with a family policy: `variable` (variable spring records only), `constant` (constant-effort records only) or `variable_else_constant` (constant-effort records only when no variable record fits). |
+| Weight case (`weight_case`) | The load case whose reactions give each candidate's hot-load basis W. Every load it carries enters W. |
+| Support state of W (`weight_support_state`) | Only `own_solve`, the weight case's own converged state, is admitted; the desktop shows it as a fixed fact. |
+| Design operating case (`design_operating_case`) | The operating load case in which a hot-designed spring carries W. |
+| Further operating cases (`check_operating_cases`) | Further operating load cases checked against the same setting; may be empty. |
+| Load design (`method.load_design`) | `hot` or `cold`. |
+| Variation reference (`method.variation_reference`) | `operating_load` (each case's load) or `design_load` (W). |
+| Variation limit (`method.variation_limit`) | The largest variation you accept, a positive finite ratio. |
+| Travel allowance (`method.travel_allowance_m`) | A length in metres, at least zero, added at each end of the travel span. |
+| Selection rule (`method.selection_rule`) | `smallest_capacity` or `least_variation`. |
+| Solver mode (`solver_mode`) | `sparse_interactive` or `dense_scrutiny`; every solve of the run uses it. |
+
+Each named case must be a load case of the model, not a combination, without a test
+condition, and named in one role only. A candidate must meet the candidate rules of the
+[theory note](../theory/hanger_sizing.md#candidates). In short, it must act on one
+translational DOF, have no skew direction and no other support on its node and DOF,
+and must not be referenced by another model object. On a load/reference-state document
+it must also be active and unmoved in every named case.
+
+**The headless runner.** Build `openpipestress-runner` as the
+[headless runner reproduction guide](../validation_manual/headless_runner_reproduction.md)
+describes. Its input is one JSON document with exactly three members:
 
 ```json
 {"request": {"model": …, "materials": […]}, "sizing": <sizing request>, "library": <hanger library>}
 ```
 
-- `request` is the solve request: your model document and its materials
-  array. Its hash identifies the exact model and materials the result was
-  sized from.
-- `library` is one hanger library document (`schemas/hanger.schema.yaml`,
-  format `1.0.0` or `1.1.0`). It must pass the library import boundary as a
-  private hanger library and carry a `hanger_library.library_id`.
-- `sizing` is the sizing request, described next.
+`request` is the solve request, whose hash identifies the exact model and materials
+sized. The runner prints a local-private control record whose `payload` is the result
+document. Without `--explicit-local-private-intent` the payload is blocked (`null`,
+with one `LOCAL_PRIVATE_INTENT_REQUIRED` finding) and nothing is written to
+`--output`. The input can be given on standard input (`--input -`, or no `--input`).
 
-Nothing is defaulted. The runner supplies no value for any member, and each
-member must be present even when it is an empty list. In the sizing request:
-
-| Member | What you state |
-|---|---|
-| `candidates` | A non-empty list of `{support, family_policy}`, each support once. `support` is the id of a support in your model. `family_policy` is `variable` (variable spring records only), `constant` (constant-effort records only) or `variable_else_constant` (constant-effort records only when no variable record fits). |
-| `weight_case` | The load case whose reactions give each candidate's hot-load basis W. Sizing does not check that it holds only weight: every load it carries enters W. |
-| `weight_support_state` | Which nonlinear-support state W is formed in. Only `own_solve`, the weight case's own converged state, is admitted. |
-| `design_operating_case` | The operating load case in which a hot-designed spring carries W. |
-| `check_operating_cases` | Further operating load cases checked against the same setting. It may be an empty list, but it must be present. |
-| `method.load_design` | `hot` (the spring carries W in the design operating case) or `cold` (it carries W in the cold condition). |
-| `method.variation_reference` | The load each case's variation is a ratio of: `operating_load` (that case's load) or `design_load` (W). |
-| `method.variation_limit` | The largest variation you accept, as a positive finite ratio (for example `0.25` for 25 %). |
-| `method.travel_allowance_m` | A length in metres, at least zero, added at each end of the travel span. Zero is used only when you enter it. |
-| `method.selection_rule` | `smallest_capacity` or `least_variation`, for choosing among the records that fit. |
-| `solver_mode` | `sparse_interactive` or `dense_scrutiny`. Every solve the sizing runs uses it. |
-
-Every named case must be a load case of the model, not a combination. A case
-with a `test_condition` is refused, and a case may be named in only one role. A
-candidate must restrain exactly one translational DOF (UX, UY or UZ), with no
-skew direction, must not be nonlinear, a snubber or an anchor, must share its
-node and DOF with no other support, and must not be referenced by another model
-object. Its present family and hanger data are not read
-([theory note: Candidates](../theory/hanger_sizing.md#candidates)).
-
-**How the sizing works, briefly.** The theory note gives each step in full.
-
-- **The installed origin.** Every position is measured from the model's drawn
-  geometry, taken as the installed position at which each spring is set. A
-  candidate's force acts along the positive axis of its DOF; nothing infers
-  "up". A variable spring set to F_cold at the installed position carries
-  F(u) = F_cold − k·u. Settled-position and erection-offset settings are not
-  offered ([the installed position](../theory/hanger_sizing.md#the-installed-position-and-the-spring-law)).
-- **Hot-load basis and positions.** W is each candidate's reaction in the
-  weight case with every candidate held rigid. The cold-condition and
-  operating positions come from solves with every candidate replaced by its
-  force W. A W that is not positive refuses the request
-  ([hot-load basis](../theory/hanger_sizing.md#hot-load-basis)).
-- **Cold and hot load designs.** Hot design sets F_cold so that the spring
-  carries W in the design operating case; cold design sets it so that the
-  spring carries W in the cold condition
-  ([variable spring loads](../theory/hanger_sizing.md#variable-spring-loads)).
-- **Travel and variation tests.** The travel span runs from the least to the
-  greatest of the installed position, the cold position and every operating
-  position, and the required travel is the span plus the allowance at each
-  end. A variable record must carry a stiffness on the candidate's DOF, a
-  working load range and a travel range; its loads must be positive, its load
-  envelope within its working load range, the required travel within its
-  travel range, and every variation within your limit. A constant-effort
-  record is tested on its data, on W within its working load range and on
-  travel. Records are tested in a fixed order, and the first failure is the
-  record's reason. For a candidate with no fit or a fallback, `failure_counts`
-  gives the number of records that failed each test
-  ([travel](../theory/hanger_sizing.md#travel-span-and-allowance),
-  [fit tests](../theory/hanger_sizing.md#fit-tests-and-selection)).
-- **Selection and the fallback.** Among the records that fit,
-  `smallest_capacity` picks the smallest working-load maximum, then the
-  smallest largest variation over the operating cases, then the smallest
-  `hanger_id`. `least_variation` picks the smallest largest variation, then the
-  smallest maximum, then the smallest `hanger_id`. Under `variable_else_constant`,
-  constant-effort records are tested only when no variable record fits, and
-  the candidate's outcome is then `selected_by_fallback`. A candidate with no
-  fitting record is `no_record_fits`, and nothing is put in its place.
-- **Library records.** Only a format `1.1.0` record with a
-  `working_load_range` can be selected. A `1.0.0` record always fails the first
-  test (no working load range)
-  ([library records](../theory/hanger_sizing.md#library-records)).
-
-**Verification and what `sized` means.** After selection, the sizing solves
-the weight and operating cases again with the selections in place: a selected
-variable record as a spring of its rate plus the force F_cold, a constant-effort
-selection as the force W, and a candidate with no fit also as the force W
-([verification](../theory/hanger_sizing.md#verification)).
-
-- `status: "sized"` means the sizing algorithm completed. It does not mean that
-  every candidate has a record, and it is not an engineering acceptance.
-- `result.verification_standing` is `unconditional` when every candidate has a
-  selection. It is `conditional` exactly when some candidate's outcome is
-  `no_record_fits`: the verification then assumed that candidate to be the
-  force W, which applying the selected records alone does not reproduce. Each
-  candidate's `verification_assumption` states the role the verification gave
-  it.
-- Each candidate's `verification.failed_tests` lists the tests that fail with
-  the verified values. The selection stands as sized: nothing is re-sized
-  automatically, so re-running after changes is your choice.
-- `result.disclosures` names nonlinear supports whose state differs between
-  the weight solve and the design operating solve
-  (`HANGER_SIZING_SUPPORT_STATE_DIFFERS`), or between the weight solve and the
-  cold-condition solve (`HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS`). Judge
-  whether W is representative when either appears.
-- Loads and positions inherit every premise of the solves that produced them.
-  The result claims no hanger's suitability for a service and no code
-  compliance; its fixed `limitations` text says so.
-
-**Local-private output.** A sizing result names records of your private library,
-so the whole document is local-private output, whether sized or refused. The
-runner prints a local-private control record whose `payload` member is the
-result document.
-
-- Without `--explicit-local-private-intent`, the output is blocked: the control
-  record carries `"payload": null` and one `LOCAL_PRIVATE_INTENT_REQUIRED`
-  finding, nothing is written to `--output`, and the exit status is 1.
-- With the flag, the document is the payload, the record carries one
-  `PRIVATE_LOCAL_ALLOWED_WITH_WARNING` warning, and `--output` receives the same
-  text the runner prints.
-
-Keep these outputs out of public locations, as for any private project data
-(§3.2).
-
-**Exit statuses and limits.**
-
-| Status | Meaning |
+| Exit status | Meaning |
 |---|---|
 | 0 | Sized, with the local-private flag given. |
 | 1 | Refused, or blocked because the flag was not given. A refused document is still written to `--output` when the flag is given. |
-| 2 | The invocation or input is unusable and no document is formed: for example an unsupported argument, `--solver-mode` (the request's `solver_mode` is the only source of the mode), an input file that cannot be read, or an input over 64 MiB. |
-
-The input is limited to 64 MiB (67,108,864 bytes), checked before it is parsed.
-A larger input is reported on standard error as `HANGER_SIZING_INPUT_TOO_LARGE`
-with status 2. This is the runner's own limit, not an engineering value.
-
-**Refusals.** A refused document has no table. Its `refusals` list gives each
-finding as `{code, names, message}`, with `names` naming the paths, cases,
-supports or solves concerned. The checks run in stages: the input text, then
-the input's shape, then the library and the sizing request, then the model's
-cases and candidates, then the solves. Each stage lists every finding it makes
-together, and a later stage runs only when the earlier ones pass, so fix every
-finding listed and run again. The codes you are most likely to meet:
-
-| Code | Cause | What to do |
-|---|---|---|
-| `HANGER_SIZING_INPUT_NOT_ADMITTED` | The input is not JSON, repeats a key, or holds a number outside the canonical profile (not finite, or an integer beyond ±(2⁵³ − 1)). `names` gives the kind and the path; the value is never quoted. | Correct the input at that path. |
-| `HANGER_SIZING_INPUT_SHAPE_INVALID` | The input is not exactly `{request: {model, materials}, sizing, library}`. | Add the missing members and remove any others named. |
-| `HANGER_SIZING_LIBRARY_NOT_ADMITTED` | The library fails the import boundary, or carries no `library_id`. The message lists the boundary's finding codes and paths. | Correct the library document. |
-| `HANGER_SIZING_REQUEST_INVALID` | A sizing-request member is missing, unknown or of the wrong kind. `names` gives each path. | Supply every member, using the allowed values above. |
-| `HANGER_SIZING_EXACT_ROUTE_PENDING` | The model carries a `pressure_contract`. | Sizing is available on the pressure-free route only. |
-| `HANGER_SIZING_VARIATION_LIMIT_INVALID`, `HANGER_SIZING_TRAVEL_ALLOWANCE_INVALID` | The limit is not a positive finite ratio, or the allowance is negative or not finite. | Enter a valid value. |
-| `HANGER_SIZING_CASE_UNKNOWN`, `HANGER_SIZING_TEST_CASE_UNSUPPORTED`, `HANGER_SIZING_CASE_ROLES_OVERLAP` | A named case is not a load case of the model, carries a `test_condition`, or is named in more than one role. | Name each load case once, without test-condition cases. |
-| `HANGER_SIZING_CANDIDATE_UNKNOWN`, `_DUPLICATE`, `_DOF_UNSUPPORTED`, `_SKEW_UNSUPPORTED`, `_FAMILY_UNSUPPORTED`, `_DOF_SHARED`, `_REFERENCED` (each prefixed `HANGER_SIZING_CANDIDATE`) | A named support does not exist, is named twice, or does not meet the candidate rules above. | Correct the support in the model, or remove it from `candidates`. |
-| `HANGER_SIZING_ID_COLLISION` | The model already uses an id `load:hanger-sizing:<support>`, which sizing reserves for a candidate's force. | Rename the model object. |
-| `HANGER_SIZING_LOAD_NOT_POSITIVE` | A candidate's rigid reaction W is not positive along its DOF. Sizing never flips a sign. Every such candidate is named. | Remove the named candidates and run again. |
-| `HANGER_SIZING_DERIVED_SOLVE_FAILED` | One of the sizing's solves was refused, published a blocking diagnostic or lacked a needed result. `names` gives the solve's label (such as `S_W`), and the message carries the solve's diagnostics. A singular system after a candidate is replaced by a force shows that the candidate carried stability, not only load. | Read the solve's diagnostics and correct the model or the candidate list. |
-
-**Examples.** These use the maintained invented fixtures in
-`fixtures/results/`; run them from the repository root.
-
-A sized request, written to a file of your choice:
+| 2 | No document is formed: an unsupported argument, `--solver-mode` (the request's `solver_mode` is the only source of the mode), an input file that cannot be read, or an input over 64 MiB (`HANGER_SIZING_INPUT_TOO_LARGE`, on standard error). |
 
 ```bash
 openpipestress-runner size-hangers \
@@ -839,82 +714,101 @@ openpipestress-runner size-hangers \
   --explicit-local-private-intent
 ```
 
-The exit status is 0. The output's `payload` equals
-`fixtures/results/hanger_sizing_result_two_span.json`. It sizes one candidate,
-`support:B`, with the `variable` policy, hot design, `variation_limit` 0.25 and
-`travel_allowance_m` 0.002, over the weight case `load:W` and the operating
-cases `load:O1` and `load:O2`. The candidate's `w_n` is 5000.0, its outcome is
-`selected`, with record `VS-200-L` and `f_cold_n` 5197.458880641297; the
-`verification_standing` is `unconditional`, its verification has no failed
-tests, and `disclosures` is empty. `result.solves` lists the seven solves
-(`S_W`, `S_C`, `S_O1`, `S_O2`, `V_C`, `V_O1`, `V_O2`), each with its derived
-document's hash and the state of the model's nonlinear support `support:C-lift`.
+This invented example exits 0 and its payload equals
+`fixtures/results/hanger_sizing_result_two_span.json`. The exact-route examples
+`fixtures/results/hanger_sizing_input_ex_pressurised.json` and
+`hanger_sizing_input_ex_riser.json` are sized the same way.
 
-The same run without the flag exits 1, prints a control record with
-`"payload": null`, and writes no file. The input can also be given on standard
-input (`--input -`, or no `--input`).
+#### The hanger table and its basis
 
-A refused request:
+A result document is `sized` (the algorithm completed) or `refused`. `sized` is not an
+engineering acceptance and does not mean that every candidate has a record. In the
+desktop the table and its basis are shown beside the request, and each table exports
+to CSV.
 
-```bash
-openpipestress-runner size-hangers \
-  --input fixtures/results/hanger_sizing_input_refused.json \
-  --output refused_result.json \
-  --explicit-local-private-intent
-```
+- **The table** has one row per candidate. Each row gives:
+  - the outcome (`selected`, `selected_by_fallback` or `no_record_fits`) and the
+    selected record;
+  - the hot-load basis W;
+  - for a variable record, the installed setting F_cold (at the drawn position) and,
+    labelled separately, the cold-condition load F_C, with each operating case's
+    position, load and variation;
+  - for a constant record, its load;
+  - the travel span, the required travel and the governing cases;
+  - the verified values, with any fit test the verified values fail;
+  - for a candidate with no fit or a fallback, the count of records failing each test.
 
-The exit status is 1. The output's `payload` equals
-`fixtures/results/hanger_sizing_result_refused.json`: `status` is `refused`,
-and its one refusal is `HANGER_SIZING_CANDIDATE_UNKNOWN`, naming
-`support:missing`, a candidate the model does not contain.
+  A detail view lists each record with the first test it fails.
+- **The basis** states every request input, the library id and hash, the solve
+  request's hash, the **route** the solves ran on (`pressure_free` or
+  `exact_pressure`), each named case's role, load categories and use of an
+  operating-condition set, and the installation assumption.
+- **The verification standing** is `unconditional` when every candidate has a
+  selection. It is `conditional` when some candidate has no fit: the verification
+  then assumed that candidate carries a force equal to its hot-load basis, which
+  applying the selected records alone does not reproduce.
+- **Disclosures** name nonlinear supports whose state differs between the weight solve
+  and the design operating solve (`HANGER_SIZING_SUPPORT_STATE_DIFFERS`) or the
+  cold-condition solve (`HANGER_SIZING_COLD_REFERENCE_STATE_DIFFERS`); judge whether W
+  is representative when either appears.
+- **Standings.** The desktop shows the product reader's standings for the document it
+  shows: closure, binding, arithmetic consistent with the published positions and
+  derivation. None of them states that the mechanics are verified.
 
-**Checking a published document.** The runner has no `read` route for sizing
-documents. The two readers that check them, the Rust reader
-(`core/analysis/hanger_sizing/src/reader.rs`) and an independent, test-only
-Python verifier (`tests/verifiers/hanger_sizing_evidence.py`), are exercised
-by the repository's maintained tests and are not user commands. Each reports a
-standing as passed, failed or not checked; none states that the mechanics are
-verified:
+A result names records of your private library, so the whole document is
+local-private output. Keep it out of public locations (§3.2).
 
-- *closure*: the document matches the closed schema
-  `schemas/hanger_sizing_result.schema.json`, with its cross-field rules and
-  fixed texts;
-- *binding*: each input supplied hashes to the hash the document records;
-- *arithmetic consistent with published positions*: the loads, tests,
-  selections and verification are recomputed from the published W and
-  positions. A document whose positions were invented consistently would still
-  pass;
-- *derivation* and *reproduction* (Rust reader only): the derived documents
-  are rebuilt, and the whole sizing re-run from the bound inputs.
-  Reproduction is the only standing that ties the positions to the bound
-  model, and it is claimed only for the same engine build on the same
-  platform.
+#### Refusals
 
-When you read a document yourself, check that `status`, `route` and
-`inputs.sizing_request` are what you submitted, that `inputs.library.library_id`
-names your library, and then each candidate's `outcome`, `selected`,
-`verification.failed_tests` and the `verification_standing`. The hashes in
-`inputs` are SHA-256 digests of the inputs' canonical text
-(`openpipestress_jcs_ijson_v1`). They identify the inputs; they do not
-authenticate where the document came from.
+A refused document has no table. Each refusal gives a code, the objects it names and a
+message. The checks run in stages, and each stage lists every finding together, so fix
+every finding listed and run again.
 
-**Not available yet.**
+| Code | Cause | What to do |
+|---|---|---|
+| `HANGER_SIZING_INPUT_NOT_ADMITTED` | The input is not JSON, repeats a key, or holds a number outside the canonical profile. `names` gives the kind and the path; the value is never quoted. The document's `route` is then `null`, since no model was read. | Correct the input at that path. |
+| `HANGER_SIZING_INPUT_SHAPE_INVALID` | The input is not exactly `{request: {model, materials}, sizing, library}`. | Add the missing members and remove any others named. |
+| `HANGER_SIZING_LIBRARY_NOT_ADMITTED` | The library fails the import boundary or carries no `library_id`. | Correct the library document. |
+| `HANGER_SIZING_REQUEST_INVALID` | A request member is missing, unknown or of the wrong kind. | Supply every member with an allowed value. |
+| `HANGER_SIZING_VARIATION_LIMIT_INVALID`, `HANGER_SIZING_TRAVEL_ALLOWANCE_INVALID` | The limit is not a positive finite ratio, or the allowance is negative or not finite. | Enter a valid value. |
+| `HANGER_SIZING_CASE_UNKNOWN`, `HANGER_SIZING_TEST_CASE_UNSUPPORTED`, `HANGER_SIZING_CASE_ROLES_OVERLAP` | A named case is not a load case, carries a test condition, or is named in two roles. | Name each load case once, without test-condition cases. |
+| `HANGER_SIZING_CANDIDATES_REQUIRED`, `HANGER_SIZING_CANDIDATE_UNKNOWN`, `_DUPLICATE` | No candidate, a support that does not exist, or one named twice. | Name each candidate support of the model once. |
+| `HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED`, `_SKEW_UNSUPPORTED`, `_FAMILY_UNSUPPORTED`, `_DOF_SHARED`, `_REFERENCED` | The support does not meet a candidate rule. | Correct the support in the model, or remove it from the candidates. |
+| `HANGER_SIZING_CANDIDATE_MOVED` | On a load/reference-state document, the candidate's state in a named case is not exactly one active state without boundary motion, base motion or device reference. | Give the candidate one ordinary state in every named case, or remove it from the candidates. |
+| `HANGER_SIZING_ID_COLLISION` | The model already uses an id `load:hanger-sizing:<support>`, which sizing reserves. | Rename the model object. |
+| `HANGER_SIZING_LOAD_NOT_POSITIVE` | A candidate's hot-load basis W is not positive along its DOF; every such candidate is named. | Remove the named candidates and run again. |
+| `HANGER_SIZING_DERIVED_SOLVE_FAILED` | One of the run's solves was refused, published a blocking diagnostic or lacked a needed result. `names` gives the solve (such as `S_W`), and the message carries the solve's own diagnostic codes. | Read the solve's diagnostics and correct the model or the candidates. |
 
-- No desktop request form, hanger table display or application of a
-  selection.
-- No CSV hanger table.
-- No native save of a sizing result into a recorded analysis run. A sizing
-  result is not a recordable run.
-- No sizing on the exact pressure route (`HANGER_SIZING_EXACT_ROUTE_PENDING`).
-- No variable spring preload in the model's own solve.
-- No forming W in the design operating case's support state (only `own_solve`).
+#### Applying a run's selections in the desktop
 
-The method is the mechanics and arithmetic stated in the design and the theory
-note; it uses no supplier catalogue, supplier selection procedure or standards
-text. The variation limit, travel allowance and selection rule are your inputs,
-and SWBPIPE ships no value for any of them. Engineering judgement on the inputs, the cases, the
-library and the result remains yours, and competent human review is required
-before professional reliance (§1).
+Applying is your act. Beside a sized result, **Apply every selection of this run**
+prepares one batch that writes, into each support with a selection, the record your
+tests selected and the loads the run sized, with a source note naming the run, the
+library and the record. A support with no fit is left as it is. The supports of a run
+were sized together, so a run with two or more selections is applied whole; a run with
+one selection can also be applied from that candidate's row. The batch goes to the
+operation review, changes the model only when you accept it there, and one undo
+restores the model as it was.
+
+A selection is offered only while the model and the stored library are the ones the
+result binds. If either has changed, or the library is no longer stored, the desktop
+says so and offers nothing: size again. A stored or imported batch that writes a sized
+hanger selection is refused when you register it ("This batch applies a sized hanger
+selection and can only be applied from its sizing result; size and apply again"); make
+the selection again from a sizing result.
+
+Two present conditions apply to an applied model:
+
+- A model with an applied hanger selection cannot be released as a shareable report
+  package (`REPORT-USER-RELEASE-LIBRARY-REFERENCED`); its local private report is
+  unaffected.
+- The solve does not yet apply a variable spring's cold load. A solve of the applied
+  model carries the hanger's rate and not its sized cold load, so it does not reproduce
+  the run's verified positions at that hanger, and it warns of this by name
+  (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD`).
+
+Engineering judgement on the inputs, the cases, the library and the result remains
+yours, and competent human review is required before professional reliance (§1).
 
 ## 8. Running User Rule Checks
 
@@ -1084,9 +978,8 @@ The following remain explicit limitations or open decisions:
   [Current Desktop App](#current-desktop-app-010): reports only as local private
   documents, and the report JSON packet only for pressure-free results, no model states, run history or comparison, no rigid elements, no model export
   to a file, and no design-knowledge entry or constraint validation;
-- hanger sizing only through the headless runner on the pressure-free route,
-  with no desktop display, CSV table, recorded-run save, exact-route sizing or
-  variable spring preload in the model's own solve (§7.1);
+- hanger sizing results are not recorded as analysis runs, and the solve does
+  not yet apply a variable spring's cold load (§7.1);
 - publication of the v0.1 macOS Apple Silicon `.app` zip, which is the
   owner's act; the published location is still to be named (§3.1);
 - exact dependency versions and an end-to-end run of a model authored in the

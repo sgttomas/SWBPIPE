@@ -32,15 +32,17 @@ a service, and it does not determine code compliance.
 | Hanger library format 1.1.0, with a per-record working load range | Built (slice 1b) |
 | The derived solves on the pressure-free route, the full sizing run and the library reader | Built (slice 1c) |
 | A published result document, its Rust reader and test-only Python verifier, and a headless runner entry (`openpipestress-runner size-hangers`) | Built (slice 1d-α); the user guide's §7.1 describes the entry |
-| The hanger table's CSV export, and recording a sizing as an analysis run | Not built (increment 3; recording awaits the joint analysis-run design) |
-| The desktop request form, hanger table, detail view and application of a selection | Not built (increment 3) |
+| The hanger table's CSV export | Built (increment 3) |
+| Recording a sizing as an analysis run | Not built; awaits the joint analysis-run design |
+| The desktop request form, hanger table, detail view and application of a run's selections | Built (increment 3); the user guide's §7.1 describes them |
+| The report's hanger-sizing section | Not built |
 | Sizing on the exact pressure route, load/reference-state documents included (see *The exact pressure route*) | Built in the engine, the result document and the headless entry (increment 4) |
 | A variable spring carrying its cold load in the model's own solve (preload) | Decided, not built (increment 6) |
 | Forming the hot-load basis in the design operating case's support state | Not built; waits for the solve to hold another case's support states |
 
-Today a sizing run produces a typed result inside the engine. Nothing is published
-to the desktop or to a report yet, and nothing in this note describes a desktop
-screen.
+A sizing run publishes a result document, shown in the desktop and returned by the
+headless runner; nothing is published to a report yet. This note describes the method,
+not a desktop screen.
 
 ## Inputs
 
@@ -122,8 +124,8 @@ verification pass, and, once increment 6 is built, in the model's own solve.
 an erection offset. SWBPIPE offers neither. Where the cold-condition position u_C is not
 zero, the installed setting F_cold and the cold-condition load F_C differ. The engine
 returns both, and only F_cold is a setting. The published result states the
-assumption in its basis statement (slice 1d-α). Labelling the two loads in the
-displayed hanger table comes with the desktop work (increment 3).
+assumption in its basis statement, and the desktop's hanger table labels the two
+loads separately.
 
 ## The method
 
