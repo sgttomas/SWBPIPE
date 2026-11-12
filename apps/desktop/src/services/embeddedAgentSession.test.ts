@@ -6,6 +6,15 @@ import type { AgentBasis } from './embeddedAgentBridge';
 import type { SessionResult } from './nativeResult';
 const mocks=vi.hoisted(()=>({validate:vi.fn()}));
 vi.mock('./operationBatchService',()=>({validateOperationBatch:mocks.validate}));
+// A native read, scripted only where a test turns it on: the native rows query's page and its ordinals.
+const native=vi.hoisted(()=>({on:false,rows:[] as {ordinal:number;row:unknown}[]}));
+vi.mock('./nativeResult',async(importOriginal)=>{
+ const actual=await importOriginal<typeof import('./nativeResult')>();
+ return {...actual,
+  isNativeResult:(value:unknown)=>native.on||actual.isNativeResult(value),
+  nativeCustody:(value:unknown)=>native.on?{jobId:'job-1',summary:{header:{omitted_members:[]}}}:actual.nativeCustody(value as never),
+  queryNativeRows:async(...args:Parameters<typeof actual.queryNativeRows>)=>native.on?{rows:native.rows,total:native.rows.length}:actual.queryNativeRows(...args)};
+});
 const hash={algorithm:'sha256',canonicalization:'rfc8785_jcs',payload_scope:'model_payload',payload_ref:'invented',value:'a'.repeat(64),hash_status:'computed_local_preview'} as ModelHashEvidence;
 // The workspace and the engine write `sha256:` hex; the agent's catalog form is the hex alone.
 const engineHash={...hash,value:`sha256:${hash.value}`} as ModelHashEvidence;
@@ -380,8 +389,12 @@ describe('result pages know their load case or combination',()=>{
   const page=await read(h,'invented-session:2',{page:{cursor:null,limit:50}});
   expect(page.status).toBe('ok');expect(page.data.values.length).toBeLessThan(50);expect(page.data.nextCursor).toEqual(expect.any(String));
   expect(new TextEncoder().encode(h.session.actual('invented-session:2')!.outcome).byteLength).toBeLessThanOrEqual(65536);
-  const rest=await read(h,'invented-session:3',{page:{cursor:page.data.nextCursor,limit:50}});
-  expect(page.data.values.length+rest.data.values.length).toBe(50);
+  // Following the cursor reaches every row once, each page inside the cap.
+  let seen=page.data.values.length,cursor=page.data.nextCursor,n=3;
+  while(cursor){const ref=`invented-session:${n++}`;const next=await read(h,ref,{page:{cursor,limit:50}});
+   expect(next.status).toBe('ok');expect(new TextEncoder().encode(h.session.actual(ref)!.outcome).byteLength).toBeLessThanOrEqual(65536);
+   seen+=next.data.values.length;cursor=next.data.nextCursor;}
+  expect(seen).toBe(50);
   await h.session.close();
  });
  it('states the selected case to the native query as the results panel keys it',()=>{
@@ -522,6 +535,23 @@ describe('the byte budgets count the encoded array, brackets and commas included
   const data=JSON.parse(session.actual('invented-session:1')!.outcome).data;
   expect(data.loadCases.count).toBe(16);expect(data.loadCases.ids).toHaveLength(15);expect(bytes(data.loadCases.ids)).toBeLessThanOrEqual(8192);
   expect(data.combinations.count).toBe(16);expect(data.combinations.ids).toHaveLength(16);expect(bytes(data.combinations.ids)).toBe(8192);
+  await session.close();
+ });
+});
+
+describe('a native result read tells the host which rows its values are',()=>{
+ afterEach(()=>{native.on=false;native.rows=[];});
+ it('carries each value\'s native row ordinal in the read\'s proof, in page order',async()=>{
+  vi.useFakeTimers();const {session,owner,call,sent,setResult}=setup();
+  setResult({run_id:'run:preview-linear-static-001'} as unknown as MechanicsResult);
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'completed',jobId:'job-1',runId:'run:preview-linear-static-001',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED',result:held()});
+  call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
+  const runHandle=JSON.parse(session.actual('invented-session:1')!.outcome).data.runHandle;
+  native.on=true;
+  native.rows=[7,9].map(ordinal=>({ordinal,row:{id:`r${ordinal}`,kind:'k',entity_ref:'node:a',unit:'mm',value:1}}));
+  call('swbpipe_read_results',{runHandle,page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await drain();
+  expect(JSON.parse(session.actual('invented-session:2')!.outcome).status).toBe('ok');
+  expect(sent.filter(v=>v.kind==='publish_actual').at(-1)!.proof).toMatchObject({kind:'run',handle:runHandle,nativeJobId:'job-1',ordinals:[7,9]});
   await session.close();
  });
 });

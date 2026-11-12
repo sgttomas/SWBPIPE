@@ -85,8 +85,13 @@ export const RECORD_FAMILIES=['components','supports','pipe_segments','nodes'] a
 export type RecordFamily=typeof RECORD_FAMILIES[number];
 const SUPPORT_CONFIGURATION=['family','restraints','stiffness','hanger','nonlinear','provenance'] as const;
 const RECORD_PAGE_BYTES=48*1024,RECORD_TEXT_BYTES=16384,ID_CHARS=160;
-// A result page stops early rather than outgrow the catalog's result bytes; the cursor resumes it.
-const RESULT_PAGE_BYTES=48*1024;
+// A result page stops before the row whose native row text would take the page's row texts past
+// this many bytes (always at least one row); the cursor resumes it. The host applies the same rule
+// to the native rows query's own page, so the page's extent is the query's, not the webview's.
+// A value's projection is its row's members copied or dropped, plus at most a few hundred bytes of
+// keys, nulls, a number's rendering and the withheld reason, so fifty values stay well inside the
+// catalog's 64 KiB result (the final guard in `small` still refuses anything larger).
+export const RESULT_PAGE_ROW_TEXT_BYTES=32*1024;
 const FINDINGS=16,FINDING_REFS=8,FINDING_TEXT=500;
 // Encoded bytes of the listed findings, and of each summary identifier list. With the outcome's
 // other members (two texts of at most 1000 characters, escaped, the basis and the hash) they stay
@@ -468,19 +473,20 @@ export class EmbeddedAgentSession {
   const offset=this.offset(call,handle),page=call.arguments.page as {limit:number};
   // C1 (DEL-04-05 slice 4): a native result's page is the native query's (the same filter, in
   // publication order, at most the page's limit); the output contract is unchanged.
-  let rows:MechanicsResult['results'],total:number,retained:boolean;
+  // The native rows' ordinals travel in the read's proof: the host checks each value against its row.
+  let rows:MechanicsResult['results'],total:number,retained:boolean,ordinals:number[]|undefined,texts:string[];
   if(isNativeResult(result)){
-   try{const read=await queryNativeRows(result,agentDetailFilter(filter),offset,page.limit);rows=read.rows.map(entry=>entry.row);total=read.total;}
+   try{const read=await queryNativeRows(result,agentDetailFilter(filter),offset,page.limit);rows=read.rows.map(entry=>entry.row);ordinals=read.rows.map(entry=>entry.ordinal);texts=read.rows.map(entry=>entry.text);total=read.total;}
    catch(error){return this.failure(call,error instanceof NativeQueryRefused?`The native result query was refused (${error.code}).`:'The native result page is unavailable.');}
    retained=nativeCustody(result).summary.header.omitted_members.includes('retained_precision');
    if(this.owner.snapshot().result!==result)return this.failure(call,'The retained run is no longer held by the result owner.');
   }else{
    const all=filter?result.results.filter(row=>(!filter.kinds.length||filter.kinds.includes(row.kind))&&(!filter.entityRefs.length||filter.entityRefs.includes(row.entity_ref))&&(!filter.case||rowCaseKey(row)===agentCaseKey(filter.case))):result.results;
-   rows=all.slice(offset,Math.min(all.length,offset+page.limit));total=all.length;retained=!!result.retained_precision;
+   rows=all.slice(offset,Math.min(all.length,offset+page.limit));texts=rows.map(row=>JSON.stringify(row));total=all.length;retained=!!result.retained_precision;
   }
   const values=[];let bytes=0;
   for(let i=0;i<rows.length;i++){
-   const row=rows[i];if([row.id,row.kind,row.entity_ref].some(v=>v.length>160)||row.unit.length>40)return this.failure(call,'Result identifiers exceed this catalog page.');
+   const row=rows[i],rowBytes=byteLength(texts[i]);if(values.length&&bytes+rowBytes>RESULT_PAGE_ROW_TEXT_BYTES)break;bytes+=rowBytes;if([row.id,row.kind,row.entity_ref].some(v=>v.length>160)||row.unit.length>40)return this.failure(call,'Result identifiers exceed this catalog page.');
    // The row's case, as the results panel keys it, and its metadata: each stated exactly or not at all.
    const basis=row.basis_ref??null,meta=row.metadata??null;
    const caseRef=basis?{refType:shortId(basis.ref_type),refId:shortId(basis.ref_id)}:null;
@@ -489,9 +495,9 @@ export class EmbeddedAgentSession {
    if(filter?.case&&!(caseRef?.refType===filter.case.refType&&caseRef.refId===filter.case.refId))return this.failure(call,'A result row\'s case could not be stated as the selected case.');
    const permitted=overlayMayShowRow(snap.standing,row)&&!retained&&Number.isFinite(row.value);
    const value={id:row.id,kind:row.kind,entityRef:row.entity_ref,value:permitted?row.value:null,exactDecimal:null,unit:row.unit,availability:permitted?'available':'withheld',reason:permitted?null:'The existing numerical view does not permit this binary64 value.',case:caseRef,...described};
-   const size=byteLength(JSON.stringify(value));if(values.length&&bytes+size>RESULT_PAGE_BYTES)break;bytes+=size;values.push(value);
+   values.push(value);
   }
   const end=offset+values.length;
-  return this.result(call,'ok','Permitted bounded source-unit values; withheld values have no substitute number.',{runHandle:handle,runId:run.receipt.runId,evaluatedModelHash:run.basis.modelHash,values,nextCursor:this.cursor(call,end,end<total,handle),standing:{route:result.producer?.semantic_contract_id??'unavailable',health:run.receipt.health,checks:snap.standing?.eligible?['numerical_view_eligible']:['numerical_view_withheld']}},{kind:'run',handle,runId:run.receipt.runId,basis:run.basis,status:'completed',nativeJobId:run.receipt.jobId});
+  return this.result(call,'ok','Permitted bounded source-unit values; withheld values have no substitute number.',{runHandle:handle,runId:run.receipt.runId,evaluatedModelHash:run.basis.modelHash,values,nextCursor:this.cursor(call,end,end<total,handle),standing:{route:result.producer?.semantic_contract_id??'unavailable',health:run.receipt.health,checks:snap.standing?.eligible?['numerical_view_eligible']:['numerical_view_withheld']}},{kind:'run',handle,runId:run.receipt.runId,basis:run.basis,status:'completed',nativeJobId:run.receipt.jobId,...(ordinals?{ordinals:ordinals.slice(0,values.length)}:{})});
  }
 }
