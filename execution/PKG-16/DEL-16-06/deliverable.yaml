@@ -124,6 +124,9 @@ code_paths:
 - apps/desktop/src/features/embedded-agent/**
 - apps/desktop/src/services/embeddedAgentSession.ts
 - apps/desktop/src/services/embeddedAgentBridge.ts
+# Shared with DEL-16-03, which owns it: the one list of person-entered members the agent's executor
+# refuses before registration (writesUserEnteredModifier).
+- apps/desktop/src/services/operationAuthorship.ts
 # Shared with DEL-07-11, which owns the workspace session and the scripted-run build. In
 # workspaceSession.ts the registration of an agent proposal and its standing are this
 # deliverable's; in native_smoke.rs the agent journey's provider-key intake is.
@@ -173,6 +176,7 @@ checks:
 - apps/desktop/src/services/embeddedAgentW9a.test.ts
 - apps/desktop/src/services/embeddedAgentM2.test.ts
 - apps/desktop/src/services/embeddedAgentSession.records.test.ts
+- apps/desktop/src/services/operationAuthorship.routes.test.tsx
 - apps/desktop/src/features/embedded-agent/EmbeddedAgentPanel.test.tsx
 - apps/desktop/src/features/workspace/agentWorkspaceSnapshot.session.test.tsx
 - apps/desktop/src-tauri/src/embedded_agent/catalog.rs

@@ -46,6 +46,43 @@ describe('workspace-owned live embedded agent adapter',()=>{
   const solved=JSON.parse(session.actual('invented-session:2')!.outcome);expect(solved.status).toBe('completed');expect(solved.data.evaluatedModelHash).toEqual(hash);
   await session.close();
  });
+ it('refuses a person-entered member at the top level of any operation before the engine, naming it and echoing no value',async()=>{
+  const SECRET='SECRET-4.2-person-value';
+  const op=(id:string,after:unknown)=>({operation_id:id,change:{after:JSON.stringify(after)}});
+  const members:[string,Record<string,unknown>,RegExp][]=[
+   ['modifiers',{id:'component:c',kind:'tee',modifiers:{flexibility_factor_user_value:{value:4.2,unit:'none'},source_reference:SECRET}},/modifiers \(k, SIFs, stiffness and their source\)/],
+   ['modifiers on a material',{id:'material:m',label:SECRET,modifiers:null},/modifiers \(k, SIFs, stiffness and their source\)/],
+   ['bend_realization',{id:'component:b',kind:'bend',bend_realization:{radius:SECRET}},/bend_realization/],
+   ['curved interface',{id:'component:v',kind:'valve',label:SECRET,mechanics_interface:{solver_consumption:'curved_bend_macro_element'}},/a curved-bend mechanics_interface \(a bend realization\)/],
+  ];
+  let n=0;
+  for(const [what,after,named] of members)for(const position of [0,2]){
+   vi.useFakeTimers();const {session,owner,call}=setup();n++;
+   const operations=[op('operation-1',{id:'node:a'}),op('operation-2',{id:'node:b'}),op('operation-3',{id:'node:c'})];operations[position]=op(`operation-${position+1}`,after);
+   call('swbpipe_propose_operations',{operations,assumptions:[]});await session.start('revision');await session.poll();await drain();
+   const outcome=JSON.parse(session.actual('invented-session:1')!.outcome);
+   expect(outcome.status,`${what} at ${position}`).toBe('unavailable');expect(outcome.data).toBeNull();
+   expect(outcome.message).toMatch(named);expect(outcome.message).toContain(`Operation ${position+1} (operation-${position+1})`);
+   expect(outcome.message).toContain('a person-entered value an agent cannot write; nothing was queued');
+   expect(session.actual('invented-session:1')!.outcome).not.toContain(SECRET);
+   expect(mocks.validate).not.toHaveBeenCalled();expect(owner.register).not.toHaveBeenCalled();
+   // The turn stays usable: the next call in the same turn is answered.
+   call('swbpipe_read_model_summary',{},'invented-session:2');await session.poll();await drain();
+   expect(JSON.parse(session.actual('invented-session:2')!.outcome).status).toBe('ok');
+   await session.close();vi.clearAllMocks();vi.useRealTimers();
+  }
+  expect(n).toBe(8);
+ });
+ it('does not refuse those names nested below the top level, a non-curved interface, or a payload that is not an object',async()=>{
+  for(const after of [JSON.stringify({id:'component:c',geometry:{modifiers:{value:1}}}),JSON.stringify({configuration:{bend_realization:true}}),
+   JSON.stringify({id:'component:v',mechanics_interface:{solver_consumption:'not_solver_consumed'}}),JSON.stringify([{modifiers:{}}]),'not_present','{"modifiers"']){
+   vi.useFakeTimers();const {session,owner,call}=setup();mocks.validate.mockResolvedValueOnce({validation:{batch_validation_status:'passed'}});
+   call('swbpipe_propose_operations',{operations:[{operation_id:'operation-1',change:{after}}],assumptions:[]});await session.start('revision');await session.poll();await drain();
+   const outcome=JSON.parse(session.actual('invented-session:1')!.outcome);
+   expect(outcome.status,after).toBe('pending_review');expect(owner.register).toHaveBeenCalledTimes(1);
+   await session.close();vi.clearAllMocks();vi.useRealTimers();
+  }
+ });
  it('validates the batch on the engine form and reports an applied outcome in the catalog form',async()=>{
   vi.useFakeTimers();const {session,sent,owner,call}=setup();mocks.validate.mockResolvedValueOnce({validation:{batch_validation_status:'passed'}});
   call('swbpipe_propose_operations',{operations:[{operation_id:'operation-1'}],assumptions:[]});

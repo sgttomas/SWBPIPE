@@ -22,19 +22,21 @@ const op = (over: Record<string, unknown>) => ({ operation_id: "op:x", operation
 
 describe("operation authorship on agent and imported routes", () => {
   it("recognizes every route that writes a value only the person enters", () => {
-    expect(writesUserEnteredModifier(op({}))).toBe(true);
-    expect(writesUserEnteredModifier(op({ change: { change_kind: "set_field", field_path: "bend_realization" } }))).toBe(true);
-    expect(writesUserEnteredModifier(op({ target: { object_type: "Node", ref: "n" }, change: { change_kind: "insert_bend_at_corner", field_path: "bend_at_corner" } }))).toBe(true);
-    expect(writesUserEnteredModifier(op({ change: { change_kind: "insert_component_symbol", field_path: "components", after: "{\"modifiers\":{}}" } }))).toBe(true);
-    expect(writesUserEnteredModifier(op({ change: { change_kind: "apply_library_record", field_path: "components", after: "{\"modifiers.sif_user_value\":{}}" } }))).toBe(true);
-    expect(writesUserEnteredModifier(op({ change: { change_kind: "set_field", field_path: "geometry.bend_radius.value" } }))).toBe(false);
-    expect(writesUserEnteredModifier(op({ target: { object_type: "Node", ref: "n" }, change: { change_kind: "set_field", field_path: "position.x" } }))).toBe(false);
+    expect(writesUserEnteredModifier(op({}))).toMatchObject({ route: "refused" });
+    expect(writesUserEnteredModifier(op({ change: { change_kind: "set_field", field_path: "bend_realization" } }))).toMatchObject({ route: "refused" });
+    expect(writesUserEnteredModifier(op({ target: { object_type: "Node", ref: "n" }, change: { change_kind: "insert_bend_at_corner", field_path: "bend_at_corner" } }))).toMatchObject({ route: "refused" });
+    expect(writesUserEnteredModifier(op({ change: { change_kind: "insert_component_symbol", field_path: "components", after: "{\"modifiers\":{}}" } }))).toMatchObject({ route: "refused" });
+    expect(writesUserEnteredModifier(op({ change: { change_kind: "apply_library_record", field_path: "components", after: "{\"modifiers.sif_user_value\":{}}" } }))).toMatchObject({ route: "refused" });
+    expect(writesUserEnteredModifier(op({ change: { change_kind: "set_field", field_path: "geometry.bend_radius.value" } }))).toBeNull();
+    expect(writesUserEnteredModifier(op({ target: { object_type: "Node", ref: "n" }, change: { change_kind: "set_field", field_path: "position.x" } }))).toBeNull();
   });
 
   it("requeues stored records with a host-derived author", () => {
-    const agent = requeueRetainedRecord(op({ author_type: "user", source: { source_ref: "s", source_channel: "embedded_agent", source_role: "agent" } }), 3);
+    const ordinaryChange = { change_kind: "set_field", field_path: "position.x", before: "0", after: "1" };
+    const node = { target: { object_type: "Node", ref: "n" }, change: ordinaryChange };
+    const agent = requeueRetainedRecord(op({ ...node, author_type: "user", source: { source_ref: "s", source_channel: "embedded_agent", source_role: "agent" } }), 3);
     expect("batch" in agent && agent.batch.operations[0].author_type).toBe("agent");
-    const imported = requeueRetainedRecord(op({ author_type: "user", source: { source_ref: "f", source_channel: "offline_intake", source_role: "imported" } }), 0);
+    const imported = requeueRetainedRecord(op({ ...node, author_type: "user", source: { source_ref: "f", source_channel: "offline_intake", source_role: "imported" } }), 0);
     expect("batch" in imported && imported.batch.operations[0].author_type).toBe("agent");
     const claimedUser = requeueRetainedRecord(op({ author_type: "user" }), 1);
     expect(claimedUser).toEqual({ refused: expect.stringContaining("author cannot be verified") });
@@ -44,20 +46,57 @@ describe("operation authorship on agent and imported routes", () => {
     expect(requeueRetainedRecord("not an operation", 5)).toEqual({ refused: expect.any(String) });
   });
 
-  it("a file claiming the user cannot write k or a SIF after Apply", async () => {
+  it("a file claiming the user cannot write k or a SIF: intake refuses it, and the engine still refuses it stamped agent", async () => {
     const model = await loadPreviewModel();
     const file = { batch_id: "batch:claimed-user", operations: [
       op({ operation_id: "op:sif", author_type: "user", source: { source_ref: "me", source_channel: "local_desktop_preview", source_role: "gui_editor" } }),
       op({ operation_id: "op:k", author_type: "user", change: { ...op({}).change, change_id: "c:k", field_path: "modifiers.flexibility_factor_user_value.value", after: "{\"value\":2,\"unit\":\"none\"}" } })
     ] } as unknown as OperationBatch;
-    const { batch } = stampImportedBatch(parseOfflineBatch(JSON.stringify(file)));
-    for (const operation of [0, 1]) {
-      const single = { batch_id: `import-${operation}`, operations: [batch.operations[operation]] };
+    expect(() => stampImportedBatch(parseOfflineBatch(JSON.stringify(file)))).toThrow(/^Operation 1 \(op:sif\) of this file carries modifiers\.sif_user_value\.value \(a component modifier\), a value only you enter; an imported operation cannot write it, so nothing was queued\./);
+    // The applier's own refusal, should any route stamp such an operation agent.
+    for (const [index, operation] of file.operations.entries()) {
+      const single = { batch_id: `import-${index}`, operations: [{ ...operation, author_type: "agent" }] } as unknown as OperationBatch;
       const hash = await computeModelHash(model);
       const outcome = await applyOperationBatch(model, single, hash);
       expect(outcome.applied_model).toBeNull();
       const codes = outcome.operation_outcomes.flatMap(step => step.diagnostics.map(d => d.code)).concat(outcome.diagnostics.map(d => d.code));
-      expect(codes).toContain(operation === 0 ? "OP-COMPONENT-MODIFIER-USER-ENTRY-REQUIRED" : "OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED");
+      expect(codes).toContain(index === 0 ? "OP-COMPONENT-MODIFIER-USER-ENTRY-REQUIRED" : "OP-BEND-FLEXIBILITY-USER-ENTRY-REQUIRED");
     }
   });
+
+  const SECRET = "SECRET-4.2-person-value";
+  const carrying = {
+    modifiers: { change: { change_kind: "create_material", field_path: "materials", after: JSON.stringify({ id: "material:m", label: "M", modifiers: { flexibility_factor_user_value: { value: 4.2, unit: "none" }, source_reference: SECRET } }) }, target: { object_type: "Material", ref: "material:m" }, operation_kind: "create" },
+    bend_realization: { change: { change_kind: "create_node", field_path: "nodes", after: JSON.stringify({ id: "node:n", bend_realization: { note: SECRET } }) }, target: { object_type: "Node", ref: "node:n" }, operation_kind: "create" },
+    mechanics_interface: { change: { change_kind: "insert_component_symbol", field_path: "components", after: JSON.stringify({ id: "component:b", kind: "bend", label: SECRET, mechanics_interface: { solver_consumption: "curved_bend_macro_element" } }) }, target: { object_type: "Component", ref: "component:b" }, operation_kind: "insert" },
+  } as const;
+  const LABELS = { modifiers: "modifiers (k, SIFs, stiffness and their source)", bend_realization: "bend_realization (a bend realization)", mechanics_interface: "a curved-bend mechanics_interface (a bend realization)" };
+
+  it("offline intake refuses each member form by name before anything is queued, and queues a clean batch as before", () => {
+    for (const [member, over] of Object.entries(carrying)) {
+      const batch = { batch_id: "file", operations: [op({ operation_id: "op:clean", target: { object_type: "Node", ref: "n" }, change: { change_kind: "set_field", field_path: "position.x", before: "0", after: "1" } }), op({ operation_id: "op:carrying", ...over })] } as unknown as OperationBatch;
+      let message = "";
+      try { stampImportedBatch(batch); } catch (error) { message = (error as Error).message; }
+      expect(message, member).toBe(`Operation 2 (op:carrying) of this file carries ${LABELS[member as keyof typeof LABELS]}, a value only you enter; an imported operation cannot write it, so nothing was queued. Remove it from the file, then enter the value yourself in the component inspector.`);
+      expect(message).not.toContain(SECRET);
+    }
+    const clean = { batch_id: "file", operations: [op({ operation_id: "op:clean", target: { object_type: "Node", ref: "n" }, change: { change_kind: "set_field", field_path: "position.x", before: "0", after: "1" } })] } as unknown as OperationBatch;
+    expect(stampImportedBatch(clean).batch.operations[0]).toMatchObject({ operation_id: "op:clean", author_type: "agent", source: { source_channel: "offline_intake" } });
+  });
+
+  it("requeue refuses a stored agent, imported or user record carrying such a member, and leaves it stored", () => {
+    for (const [member, over] of Object.entries(carrying)) for (const author of [
+      { author_type: "agent", source: { source_ref: "s", source_channel: "embedded_agent", source_role: "agent" } },
+      { author_type: "user", source: { source_ref: "f", source_channel: "offline_intake", source_role: "imported" } },
+      { author_type: "user" },
+    ]) {
+      const stored = op({ operation_id: "op:stored", ...over, ...author });
+      const before = JSON.stringify(stored);
+      const result = requeueRetainedRecord(stored, 7);
+      expect(result, `${member} ${JSON.stringify(author)}`).toEqual({ refused: `This stored record carries ${LABELS[member as keyof typeof LABELS]}, a value only you enter, which the operation engine would not write for it. It was not queued for review; the record stays stored and nothing of yours is lost. Enter the value yourself in the component inspector, or prepare the change again without it.` });
+      expect(JSON.stringify(stored)).toBe(before);
+      expect((result as { refused: string }).refused).not.toContain(SECRET);
+    }
+  });
+
 });

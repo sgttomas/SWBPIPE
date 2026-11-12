@@ -12,7 +12,10 @@ import referenceJson from "../../../../fixtures/reference_system/reference_syste
 import demoJson from "../../../../fixtures/product_preview/invented_demo_model.json";
 import catalog from "../../src-tauri/resources/agent-capability-catalog.json";
 import type { PreviewModel } from "../types";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { familyRecords, RECORD_FAMILIES, recordBefore, stampAgentOperations, type RecordFamily } from "./embeddedAgentSession";
+import { writesUserEnteredModifier } from "./operationAuthorship";
 import { applyOperationBatch } from "./operationBatchService";
 import { canonicalJsonString, computeModelHash } from "./hashService";
 
@@ -184,4 +187,39 @@ describe("swbpipe_read_records before texts are the ones the engine compares", (
     model = await applied(model, op("modify", "Support", supportId, "update_support", "provenance_record", (await read(model, "supports", supportId)).before.provenance_record, json({ ...record, review_status: "quarantined" })));
     expect((find(model, "supports", supportId).provenance_record as AnyRecord).review_status).toBe("quarantined");
   }, 120_000);
+});
+
+describe("the person-entered members the agent's proposals are refused for", () => {
+  // The engine's refusal of agent-written person-entered values is the two expressions
+  // `writes_flexibility` and `writes_modifier` in the operation applier. Their literals are
+  // pinned here: a change to either fails this test, so operationAuthorship.ts
+  // writesUserEnteredModifier, the one list the agent's executor uses, is reviewed with it.
+  const source = readFileSync(resolve(__dirname, "../../../../core/model_operations/operation_applier/src/lib.rs"), "utf8");
+  const expression = (name: string) => {
+    const start = source.indexOf(`let ${name} =`);
+    expect(start, name).toBeGreaterThan(0);
+    return source.slice(start, source.indexOf(";", start));
+  };
+  const literals = (text: string) => [...text.matchAll(/"([^"]*)"/g)].map((m) => m[1]);
+  const op = (kind: string, object: string, path: string, after: unknown) =>
+    ({ operation_id: "op", target: { object_type: object, ref: "r" }, change: { change_kind: kind, field_path: path, after: JSON.stringify(after) } });
+
+  it("covers every route and member the engine's refusal names", () => {
+    expect(literals(expression("writes_flexibility"))).toEqual(["insert_bend_at_corner", "Component", "bend_realization", "modifiers.flexibility_factor_user_value.value"]);
+    expect(literals(expression("writes_modifier"))).toEqual(["Component", "modifiers.", "insert_component_symbol", "modifiers"]);
+    expect(writesUserEnteredModifier(op("insert_bend_at_corner", "Node", "bend_at_corner", {}))?.route).toBe("refused");
+    expect(writesUserEnteredModifier(op("set_field", "Component", "bend_realization", {}))?.route).toBe("refused");
+    expect(writesUserEnteredModifier(op("set_field", "Component", "modifiers.flexibility_factor_user_value.value", {}))?.route).toBe("refused");
+    expect(writesUserEnteredModifier(op("insert_component_symbol", "Component", "components", { modifiers: {} }))?.route).toBe("refused");
+    expect(writesUserEnteredModifier(op("apply_library_record", "Component", "components", { "modifiers.sif_user_value": {} }))?.route).toBe("refused");
+  });
+
+  it("names the members the engine drops, at the top level of an after object only", () => {
+    expect(writesUserEnteredModifier(op("create_material", "Material", "materials", { modifiers: {} }))).toMatchObject({ member: "modifiers", route: "dropped" });
+    expect(writesUserEnteredModifier(op("create_node", "Node", "nodes", { bend_realization: null }))).toMatchObject({ member: "bend_realization", route: "dropped" });
+    expect(writesUserEnteredModifier(op("insert_component_symbol", "Component", "components", { mechanics_interface: { solver_consumption: "curved_bend_macro_element" } }))).toMatchObject({ member: "mechanics_interface", route: "dropped" });
+    for (const after of [{ geometry: { modifiers: {} } }, { mechanics_interface: { solver_consumption: "mechanics_geometry_only" } }, [{ modifiers: {} }], "TBD"])
+      expect(writesUserEnteredModifier(op("create_material", "Material", "materials", after)), JSON.stringify(after)).toBeNull();
+    expect(writesUserEnteredModifier({ change: { change_kind: "create_material", after: "{" } })).toBeNull();
+  });
 });

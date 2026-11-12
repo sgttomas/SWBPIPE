@@ -12,6 +12,7 @@ import { validateOperationBatch } from './operationBatchService';
 import { overlayMayShowRow, type ResultOverlayStanding } from '../features/results/numericalHealth';
 import { canonicalJsonString } from './hashService';
 import { applierDisplayNumber, nodeDeletionSummary, pipeDeletionSummary, supportDeletionSummary } from '../features/model-tree/removalIntents';
+import { personEnteredWriteIn } from './operationAuthorship';
 
 export type AgentAssumption=Readonly<{assumptionId:string;statement:string;affectedOperationIds:readonly string[]}>;
 export type AgentContext = Readonly<{requestRef:string;threadId:string;turnId:string;callId:string;basis:AgentBasis;assumptions:readonly AgentAssumption[]}>;
@@ -367,6 +368,11 @@ export class EmbeddedAgentSession {
   }
   if(call.tool==='swbpipe_propose_operations'){
    if(this.#proposals.size>=64)return this.failure(call,'Proposal retention is full.');
+   // A person-entered member is refused before anything is prepared: nothing is registered,
+   // no handle is issued, and no value from the after text is returned.
+   // The member list is operationAuthorship.ts personEnteredWrite, shared with the other agent-stamped routes.
+   const entered=personEnteredWriteIn(call.arguments.operations as unknown[]);
+   if(entered)return this.failure(call,`Operation ${entered.index+1}${entered.operationId?` (${entered.operationId})`:''} carries ${entered.label}, a person-entered value an agent cannot write; nothing was queued. Propose it without that member and ask the person to enter the value.`);
    const handle=opaque();const context:AgentContext=Object.freeze({requestRef:call.requestRef,threadId:call.threadId,turnId:call.turnId,callId:call.callId,basis:structuredClone(call.basis),assumptions:structuredClone(call.arguments.assumptions as AgentAssumption[])});
    const operations=stampAgentOperations(call.arguments.operations as Record<string,unknown>[],handle,call.requestRef);
    const batch:OperationBatch={batch_id:`agent-${handle}`,operations,source_model_hash:snap.hash!.value};
