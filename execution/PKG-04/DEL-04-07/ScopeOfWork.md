@@ -72,6 +72,11 @@ A published result is a numerical statement about the discrete model in the requ
 - The refusal of a compensated terminal at a junction is a standing refusal of a required capability. It is listed as LIM-002 in `docs/RELEASE_LIMITATIONS_v1.0.md`; whether it is acceptable is the owner's decision.
 - The warning and failure levels for the condition estimate of a product solve are not decided (DEL-04-06/REQ-008). Until they are, a product solve can be classified only against supplied levels.
 
+**Not met.**
+
+- REQ-008's "refused by name instead of run" is not met for a solve whose working memory is not priced before it starts. Before a solve starts, admission prices the request (its bytes, their materialisation and the worker's reserve) and, where the model has a nonlinear support, an estimate of the iteration's leading dense storage. Nothing prices a linear solve's own working memory. A linear solve that would exceed the per-invocation budget is therefore admitted, runs, and is stopped by name in the worker at the allocation that would cross the budget, with no result. No completed solve exceeds the budget, and AC-008's first sentence holds only for what is priced.
+- The nonlinear estimate prices dense storage in both solver modes, although the sparse mode's iteration runs on the sparse pattern. In sparse mode it therefore refuses a model, by name and before the solve runs, by a measure of storage that mode does not allocate. No estimate of the sparse iteration's memory, and none of a whole invocation's, has been established.
+
 ### Acceptance criteria
 
 - **AC-001** — The same request through the desktop entry and the headless entry gives byte-identical published results and diagnostics in each solver mode. On the benchmark models of PRD §22.2 those results agree with their independent references at the analytic tolerance. An incomplete, invalid or unsupported model is refused on every entry with the same named diagnostic and affected object, and no entry reaches the kernel past a primitive's validation.
