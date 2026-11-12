@@ -213,7 +213,7 @@ def analysis_comparison() -> dict[str, object]:
                 "normalized_delta": 1.0,
                 "absolute_normalized_delta": 1.0,
                 "tolerance_profile_ref": "tolerance:invented-review",
-                "classification": "requires_human_review",
+                "classification": "within_tolerance_profile",
             }
         ],
         "settings_deltas": [],
@@ -478,22 +478,75 @@ def test_persisted_run_history_binds_to_report_sections_without_state_inference(
     assert persistence_envelope["hash"]["payload_partition_status"] == "json_payloads_defined"
 
 
-def test_authority_claims_are_diagnosed_without_copying_claim_text():
+def test_out_of_vocabulary_status_is_diagnosed_and_not_carried_and_boundary_flags_are_checked():
+    """AC-005: a source record's status outside the software's vocabulary for that member
+    produces a diagnostic naming the record and the member, and the value is not carried;
+    a boundary flag set to claim one produces a diagnostic."""
+
     kwargs = section_kwargs()
     kwargs["model_states"] = [model_state()]
     kwargs["model_states"][0]["model_state"]["professional_boundary"]["software_makes_approval_claim"] = True
-    kwargs["model_states"][0]["model_state"]["warnings"][0]["message"] = (
-        "Software says code " + "compliant and cert" + "ified."
-    )
+    kwargs["model_states"][0]["model_state"]["warnings"][0]["severity"] = "approved"
 
     record = build_state_comparison_handoff_report_sections(**kwargs)
-    codes = {item["code"] for item in record["diagnostics"]}
-    text = canonical_json(record).lower()
+    by_code = {}
+    for item in record["diagnostics"]:
+        by_code.setdefault(item["code"], []).append(item)
+    state_section = next(item for item in record["sections"]["state_run_sections"] if item["section_kind"] == "model_state_record")
 
-    assert "SCH-SOFTWARE-AUTHORITY-FLAG-BLOCKED" in codes
-    assert "SCH-AUTHORITY-CLAIM-REJECTED" in codes
-    assert "software says code " + "compliant" not in text
-    assert "omitted_prohibited_authority_or_reliance_claim" in text
+    assert "SCH-SOFTWARE-AUTHORITY-FLAG-BLOCKED" in by_code
+    outside = by_code["SCH-STATUS-OUTSIDE-VOCABULARY"]
+    assert [item["severity"] for item in outside] == ["blocking"]
+    assert outside[0]["affected_refs"] == [
+        {"object_type": "ModelState", "ref": "state:invented-del-08-06"},
+        {"object_type": "FieldPath", "ref": "$.warnings[0].severity"},
+        {"object_type": "Vocabulary", "ref": "diagnostic_severities"},
+    ]
+    assert "severity" not in state_section["warnings"][0]
+    assert "approved" not in canonical_json(record)
+
+
+def test_warning_message_is_carried_unchanged():
+    """REQ-005: a finding's text is carried as the source wrote it; no text is matched
+    against terms, replaced or omitted (the former scanner (c) removed a finding)."""
+
+    message = "Software says code " + "compliant and cert" + "ified; no certified inertia is claimed."
+    kwargs = section_kwargs()
+    kwargs["model_states"] = [model_state()]
+    kwargs["model_states"][0]["model_state"]["warnings"][0]["message"] = message
+
+    record = build_state_comparison_handoff_report_sections(**kwargs)
+    state_section = next(item for item in record["sections"]["state_run_sections"] if item["section_kind"] == "model_state_record")
+
+    assert state_section["warnings"][0]["message"] == message
+    assert state_section["text_origin"]["warnings"] == "software"
+    assert not [item for item in record["diagnostics"] if item["severity"] == "blocking"]
+    assert "omitted_prohibited" not in canonical_json(record)
+
+
+def test_external_prover_status_member_is_a_finding_whatever_its_value():
+    """AC-003 by structure: external-prover metadata has no status member in its contract."""
+
+    for value in ["validated", "pending", "anything"]:
+        kwargs = section_kwargs()
+        kwargs["external_prover_metadata"][0]["validation_status"] = value
+        codes = {item["code"] for item in build_state_comparison_handoff_report_sections(**kwargs)["diagnostics"]}
+        assert "SCH-EXTERNAL-PROVER-STATUS-NOT-ADMITTED" in codes, value
+
+
+def test_current_model_state_section_carries_authored_labels_beside_the_software_statuses():
+    from core.reporting.state_comparison_handoff_sections import build_current_model_state_section
+
+    labels = {"mechanics": "sealed and certified", "rule_check": "compliant", "professional_acceptance": "approved"}
+    section = build_current_model_state_section(
+        {"model_ref": "project:inv", "model_hash": "a" * 64, "authored_analysis_status": labels,
+         "document_diagnostics": [{"code": "DOC", "severity": "approved", "message": "certified"}], "provenance": {}}
+    )
+    assert section["authored_analysis_status"] == labels
+    assert section["analysis_status"] == ["HUMAN_REVIEW_REQUIRED"]
+    assert section["software_standing"]["derived"] is False
+    assert section["diagnostics"][0]["severity"] == "approved"
+    assert section["text_origin"]["authored_analysis_status"] == "document_author"
 
 
 def test_disallowed_analysis_status_is_diagnosed_and_not_emitted():

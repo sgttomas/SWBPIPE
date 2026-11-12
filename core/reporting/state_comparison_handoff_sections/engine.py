@@ -39,33 +39,6 @@ ENGINE_PROVENANCE = {
     "privacy_classification": "public_metadata",
 }
 
-PROHIBITED_AUTHORITY_TERMS = {
-    "approval",
-    "approved",
-    "certification",
-    "cert" + "ified",
-    "code_compliance",
-    "code-compliance",
-    "code " + "compliant",
-    "compliant",
-    "seal",
-    "se" + "aled",
-    "sealing",
-    "authentication",
-    "authentic" + "ated",
-    "endorsement",
-    "endorsed",
-    "external_validation",
-    "external " + "validation",
-    "validated",
-    "professional_acceptance",
-    "professional " + "acceptance",
-    "professional_reliance",
-    "professional " + "reliance",
-    "engineering_acceptance",
-    "engineering " + "acceptance",
-}
-
 AUTHORITY_FLAG_NAMES = {
     "software_makes_compliance_claim",
     "software_makes_certification_claim",
@@ -83,6 +56,166 @@ PERMITTED_SOFTWARE_ANALYSIS_STATUSES = {
     "USER_RULE_CHECKED",
     "USER_RULE_FAILED",
     "HUMAN_REVIEW_REQUIRED",
+}
+
+# DEL-08-06 AC-005: one named vocabulary per status-bearing member the software
+# writes. A value outside its member's vocabulary produces a blocking diagnostic and is
+# not carried into the set; the value itself is carried nowhere. No member is matched
+# by substring: identifiers, field paths, stored values, the user's or a document
+# author's text and restated solver text are carried as what they are.
+STATUS_VOCABULARIES: dict[str, frozenset[str]] = {
+    # The software's analysis statuses (DEL-05-04).
+    "software_analysis_statuses": frozenset(PERMITTED_SOFTWARE_ANALYSIS_STATUSES),
+    # schemas/model.schema.yaml Diagnostic.severity, which the product's producers write.
+    "diagnostic_severities": frozenset({"info", "warning", "error", "blocking"}),
+    # core/comparison/model_state/engine.py summary classes; stateComparison.ts ROW_CLASSIFICATIONS.
+    "state_row_classifications": frozenset(
+        {"added", "removed", "changed", "unchanged", "mapped_changed", "mapped_unchanged", "unresolved"}
+    ),
+    # Both comparison engines and the desktop records (comparisonRecords.ts).
+    "match_bases": frozenset({"stable_id", "explicit_mapping", "manual_mapping", "unmatched", "stable_result_identity"}),
+    # stateComparison.ts FieldChangeKind.
+    "field_change_kinds": frozenset({"added", "removed", "changed", "unit_changed"}),
+    # runComparison.ts NOT_COMPARED_REASONS.
+    "not_compared_reasons": frozenset(
+        {
+            "semantic_identity_differs",
+            "left_run_needs_recompute",
+            "right_run_needs_recompute",
+            "family_not_compared",
+            "units_differ",
+            "value_not_numeric",
+            "dimension_missing",
+        }
+    ),
+    # runComparison.ts UNMATCHED_REASONS.
+    "unmatched_reasons": frozenset({"no_row_with_this_result_id", "identity_differs", "duplicate_result_id", "result_id_missing"}),
+    "run_sides": frozenset({"left", "right"}),
+    # comparisonRecords.ts runSideRef.
+    "run_side_kinds": frozenset({"recorded_run", "current_session_run"}),
+    # resultReader.ts ReaderStanding.status.
+    "standing_statuses": frozenset({"integrity_checked", "needs_recompute"}),
+    # core/comparison/analysis_run/engine.py _classify_delta, and the desktop's record.
+    "delta_classifications": frozenset(
+        {"not_classified", "within_tolerance_profile", "exceeds_tolerance_profile", "not_tolerance_checked"}
+    ),
+    "delta_classification_bases": frozenset(
+        {
+            "no_tolerance_profile_supplied",
+            "no_matching_tolerance_rule",
+            "tolerance_rule_unit_not_normalized_unit",
+            "caller_supplied_relative_absolute_tolerance_rule",
+            "tolerance_value_not_numeric",
+            "caller_supplied_tolerance_rule",
+            "no_tolerance_profile",
+        }
+    ),
+    # schemas/comparison_mapping.schema.json MappingStatus.
+    "mapping_statuses": frozenset(
+        {"automatic_match", "manual_match", "unresolved_mapping", "unmatched_left", "unmatched_right", "ignored", "TBD"}
+    ),
+    "settings_delta_kinds": frozenset({"added", "removed", "changed"}),
+    # runComparison.ts DiagnosticChange.change.
+    "diagnostic_changes": frozenset({"added", "removed"}),
+    # core/handoff/target_mapping/contract.py SUPPORTED_BEHAVIOR_STATUSES (the schema's enum).
+    "supported_behavior_statuses": frozenset({"unsupported", "approximate", "requires_human_review", "not_implemented", "TBD"}),
+}
+
+# The status-bearing members of each record kind the software writes, by path:
+# `a.b` is a member, `a[]` each item of a list. Members a person or a document author
+# writes (labels, notes, assumptions, provenance declarations, an external prover's
+# flags) are not on these lists: they are carried as the author's text.
+STATUS_MEMBERS: dict[str, tuple[tuple[str, str], ...]] = {
+    # The native store's model-state record: its status and warnings are the validator's.
+    "model_state": (
+        ("analysis_status[]", "software_analysis_statuses"),
+        ("warnings[].severity", "diagnostic_severities"),
+    ),
+    "analysis_run": (
+        ("analysis_status[]", "software_analysis_statuses"),
+        ("diagnostics[].severity", "diagnostic_severities"),
+        ("warnings[].severity", "diagnostic_severities"),
+    ),
+    "model_state_comparison": (
+        ("entities[].classification", "state_row_classifications"),
+        ("entities[].match_basis", "match_bases"),
+        ("entities[].changes[].change_kind", "field_change_kinds"),
+        ("diagnostics[].severity", "diagnostic_severities"),
+    ),
+    "analysis_run_comparison": (
+        ("run_context.left.side_kind", "run_side_kinds"),
+        ("run_context.right.side_kind", "run_side_kinds"),
+        ("run_context.left.standing.status", "standing_statuses"),
+        ("run_context.right.standing.status", "standing_statuses"),
+        ("run_context.run_gate[]", "not_compared_reasons"),
+        ("run_context.not_compared[].reasons[]", "not_compared_reasons"),
+        ("run_context.unmatched[].reason", "unmatched_reasons"),
+        ("run_context.unmatched[].side", "run_sides"),
+        ("result_deltas[].classification", "delta_classifications"),
+        ("result_deltas[].classification_basis", "delta_classification_bases"),
+        ("result_deltas[].match_basis", "match_bases"),
+        ("result_deltas[].mapping_status", "mapping_statuses"),
+        ("settings_deltas[].delta_kind", "settings_delta_kinds"),
+        ("diagnostics[].severity", "diagnostic_severities"),
+        ("diagnostics[].change", "diagnostic_changes"),
+    ),
+    "handoff_package_manifest": (
+        ("unsupported_behavior_flags[].status", "supported_behavior_statuses"),
+        ("diagnostics[].severity", "diagnostic_severities"),
+        ("warnings[].severity", "diagnostic_severities"),
+    ),
+    "export_workflow": (
+        ("export_payload.unsupported_target_records[].status", "supported_behavior_statuses"),
+        ("export_payload.warnings[].severity", "diagnostic_severities"),
+        ("diagnostics[].severity", "diagnostic_severities"),
+    ),
+    "external_prover_metadata": (
+        ("diagnostics[].severity", "diagnostic_severities"),
+    ),
+}
+
+# DEL-08-06 AC-003 by structure: external-prover metadata has no status member in its
+# contract (DEL-15-04), so the presence of any of these, whatever its value, is a finding.
+EXTERNAL_PROVER_STATUS_MEMBERS = ("status", "execution_status", "validation_status", "verification_status", "acceptance_status")
+
+# Whose text each text-bearing member of a section is (DEL-08-06 AC-005).
+TEXT_ORIGINS: dict[str, dict[str, str]] = {
+    "model_state_record": {
+        "assumptions": "user", "diagnostics": "software", "warnings": "software", "limitations": "source_record",
+        "source_provenance": "source_declaration", "privacy_classification": "source_declaration", "review_state": "source_declaration",
+    },
+    "current_model_state": {
+        "authored_analysis_status": "document_author", "diagnostics": "document_author", "warnings": "document_author",
+        "source_provenance": "software", "privacy_classification": "software", "review_state": "software",
+    },
+    "analysis_run_record": {
+        "assumptions": "user", "diagnostics": "solver", "warnings": "solver", "limitations": "source_record",
+        "solver_context": "solver", "source_provenance": "source_declaration", "privacy_classification": "source_declaration",
+        "review_state": "source_declaration",
+    },
+    "model_state_comparison": {
+        "changed_entities": "model_values", "diagnostics": "comparison", "settings": "comparison",
+        "source_provenance": "source_declaration", "privacy_classification": "source_declaration", "review_state": "source_declaration",
+    },
+    "analysis_run_comparison": {
+        "largest_differences": "solver_results", "settings_deltas": "solver_settings", "diagnostics": "solver",
+        "run_context": "comparison", "pairs_not_compared_listed": "comparison", "rows_unmatched_listed": "comparison",
+        "source_provenance": "source_declaration", "privacy_classification": "source_declaration", "review_state": "source_declaration",
+    },
+    "handoff_package_manifest": {
+        "unsupported_target_flags": "software", "unresolved_assumptions": "user", "warnings": "software", "diagnostics": "software",
+        "target_mapping_metadata": "software", "source_provenance": "source_declaration", "privacy_classification": "source_declaration",
+        "review_state": "source_declaration",
+    },
+    "export_workflow_record": {
+        "unsupported_target_records": "software", "unresolved_assumptions": "user", "warnings": "software", "diagnostics": "software",
+        "target_mapping_metadata": "software", "source_provenance": "source_declaration", "privacy_classification": "source_declaration",
+        "review_state": "source_declaration",
+    },
+    "external_prover_metadata": {
+        "unsupported_target_flags": "user", "unresolved_assumptions": "user", "warnings": "user", "diagnostics": "software",
+        "source_provenance": "source_declaration", "privacy_classification": "source_declaration", "review_state": "source_declaration",
+    },
 }
 
 PRIVATE_PAYLOAD_KEYS = {
@@ -224,6 +357,62 @@ def build_state_comparison_handoff_report_sections(
     return _sort_record(record)
 
 
+SOFTWARE_STANDING_NOT_DERIVED = (
+    "The software does not derive a standing for the current model state when the report "
+    "package is assembled; the analysis status labels beside it are the document author's."
+)
+
+DEC018_UNIT_CONTEXT = {"ref_type": "unit_system", "ref_id": "unit-system:dec-018-si-dual-display"}
+
+
+def build_current_model_state_section(record: Mapping[str, Any]) -> dict[str, Any]:
+    """The section of the model state a desktop report package is built for: the model
+    as it stands, named by the model reference and its canonical hash.
+
+    `record` holds `model_ref`, `model_hash`, `authored_analysis_status` (the document's
+    labels), `document_diagnostics` and `provenance`. The document's labels and
+    diagnostics are its author's: carried as they are, unfiltered and unjudged. The
+    software's own statuses are stated beside them; no standing of the state is derived
+    at assembly, and the section says so (`software_standing`).
+    """
+
+    state_ref = f"state:{record.get('model_ref')}:preview"
+    reference = _ref("ModelState", state_ref)
+    diagnostics = deepcopy(_list(record.get("document_diagnostics")))
+    return _sort_record(
+        {
+            "section_id": f"state-run:{state_ref}",
+            "section_kind": "model_state_record",
+            "state_ref": reference,
+            "run_ref": None,
+            "hash_refs": [
+                {
+                    "algorithm": "sha256",
+                    "canonicalization": "rfc8785_jcs",
+                    "payload_ref": deepcopy(reference),
+                    "payload_scope": "model_state",
+                    "value": deepcopy(record.get("model_hash")),
+                }
+            ],
+            "diagnostics": diagnostics,
+            "warnings": deepcopy(diagnostics),
+            "assumptions": [],
+            "analysis_status": ["HUMAN_REVIEW_REQUIRED"],
+            "authored_analysis_status": deepcopy(record.get("authored_analysis_status")),
+            "software_standing": {"derived": False, "statement": SOFTWARE_STANDING_NOT_DERIVED},
+            "unit_context": deepcopy(DEC018_UNIT_CONTEXT),
+            "solver_context": None,
+            "settings_ref": None,
+            "source_provenance": deepcopy(record.get("provenance")),
+            "privacy_classification": "private_project_data",
+            "review_state": "pending",
+            "limitations": [],
+            "professional_boundary": deepcopy(PROFESSIONAL_BOUNDARY),
+            "text_origin": deepcopy(TEXT_ORIGINS["current_model_state"]),
+        }
+    )
+
+
 def build_persisted_project_report_sections(
     *,
     section_set_id: str,
@@ -287,7 +476,6 @@ def diagnostics_for_report_sections(
             )
         )
     diagnostics.extend(_professional_boundary_diagnostics(record.get("professional_boundary")))
-    diagnostics.extend(_authority_term_diagnostics(record))
     diagnostics.extend(_numeric_unit_diagnostics(record))
     return sorted(_dedupe_diagnostics(diagnostics), key=canonical_json)
 
@@ -311,10 +499,9 @@ def _state_run_sections(
         state_ref = _ref("ModelState", _str(state.get("state_id"), "state:TBD"))
         _missing_required(state, REQUIRED_MODEL_STATE_FIELDS, state_ref, diagnostics)
         _boundary_flags_from_source(state.get("professional_boundary"), state_ref, diagnostics)
-        _source_authority_claims(state, state_ref, diagnostics)
-        _analysis_status_findings(state.get("analysis_status"), state_ref, diagnostics)
-        sections.append(
-            {
+        authored_status = state.get("analysis_status") if isinstance(state.get("analysis_status"), Mapping) else None
+        state = _checked_record(state, "model_state", state_ref, diagnostics)
+        section = {
                 "section_id": f"state-run:{state_ref['ref']}",
                 "section_kind": "model_state_record",
                 "state_ref": state_ref,
@@ -332,15 +519,19 @@ def _state_run_sections(
                 "review_state": _review_state(state),
                 "limitations": _source_limitations(state, state_ref),
                 "professional_boundary": deepcopy(PROFESSIONAL_BOUNDARY),
+                "text_origin": deepcopy(TEXT_ORIGINS["model_state_record"]),
             }
-        )
+        # A document's authored analysis-status labels, where a record carries them, are
+        # the author's: carried as such and never read as the software's statuses.
+        if authored_status is not None:
+            section["authored_analysis_status"] = deepcopy(dict(authored_status))
+        sections.append(section)
 
     for run in runs:
         run_ref = _ref("AnalysisRun", _str(run.get("run_id"), "run:TBD"))
         _missing_required(run, REQUIRED_ANALYSIS_RUN_FIELDS, run_ref, diagnostics)
         _boundary_flags_from_source(run.get("professional_boundary"), run_ref, diagnostics)
-        _source_authority_claims(run, run_ref, diagnostics)
-        _analysis_status_findings(run.get("analysis_status"), run_ref, diagnostics)
+        run = _checked_record(run, "analysis_run", run_ref, diagnostics)
         sections.append(
             {
                 "section_id": f"state-run:{run_ref['ref']}",
@@ -365,6 +556,7 @@ def _state_run_sections(
                 "reproducibility": deepcopy(run.get("reproducibility")),
                 "limitations": _source_limitations(run, run_ref),
                 "professional_boundary": deepcopy(PROFESSIONAL_BOUNDARY),
+                "text_origin": deepcopy(TEXT_ORIGINS["analysis_run_record"]),
             }
         )
 
@@ -380,7 +572,7 @@ def _comparison_sections(
     for item in model_state_comparisons:
         comparison_ref = _ref("ModelStateComparison", _comparison_id(item, "model-state-comparison:TBD"))
         _boundary_flags_from_source(item.get("professional_boundary"), comparison_ref, diagnostics)
-        _source_authority_claims(item, comparison_ref, diagnostics)
+        item = _checked_record(item, "model_state_comparison", comparison_ref, diagnostics)
         sections.append(
             {
                 "section_id": f"comparison:{comparison_ref['ref']}",
@@ -402,13 +594,14 @@ def _comparison_sections(
                 "privacy_classification": _privacy_classification(item),
                 "review_state": _review_state(item),
                 "professional_boundary": deepcopy(PROFESSIONAL_BOUNDARY),
+                "text_origin": deepcopy(TEXT_ORIGINS["model_state_comparison"]),
             }
         )
 
     for item in analysis_run_comparisons:
         comparison_ref = _ref("AnalysisRunComparison", _comparison_id(item, "analysis-run-comparison:TBD"))
         _boundary_flags_from_source(item.get("professional_boundary"), comparison_ref, diagnostics)
-        _source_authority_claims(item, comparison_ref, diagnostics)
+        item = _checked_record(item, "analysis_run_comparison", comparison_ref, diagnostics)
         deltas = deepcopy(_list(item.get("result_deltas")))
         for delta in deltas:
             _check_delta_units(delta, comparison_ref, diagnostics)
@@ -440,6 +633,7 @@ def _comparison_sections(
                 "privacy_classification": _privacy_classification(item),
                 "review_state": _review_state(item),
                 "professional_boundary": deepcopy(PROFESSIONAL_BOUNDARY),
+                "text_origin": deepcopy(TEXT_ORIGINS["analysis_run_comparison"]),
             }
         )
     return sorted(sections, key=canonical_json)
@@ -459,7 +653,7 @@ def _handoff_sections(
         if isinstance(manifest, Mapping):
             _missing_required(manifest, REQUIRED_HANDOFF_MANIFEST_FIELDS, package_ref, diagnostics)
         _boundary_flags_from_source(manifest.get("professional_boundary"), package_ref, diagnostics)
-        _source_authority_claims(manifest, package_ref, diagnostics)
+        manifest = _checked_record(manifest, "handoff_package_manifest", package_ref, diagnostics)
         sections.append(
             {
                 "section_id": f"handoff:{package_id}",
@@ -480,6 +674,7 @@ def _handoff_sections(
                 "privacy_classification": _privacy_classification(manifest),
                 "review_state": _review_state(manifest),
                 "professional_boundary": deepcopy(PROFESSIONAL_BOUNDARY),
+                "text_origin": deepcopy(TEXT_ORIGINS["handoff_package_manifest"]),
             }
         )
 
@@ -487,7 +682,7 @@ def _handoff_sections(
         workflow_ref = _ref("ExportWorkflow", _str(workflow.get("export_workflow_id"), "export:TBD"))
         _missing_required(workflow, REQUIRED_EXPORT_WORKFLOW_FIELDS, workflow_ref, diagnostics)
         _boundary_flags_from_source(workflow.get("professional_boundary"), workflow_ref, diagnostics)
-        _source_authority_claims(workflow, workflow_ref, diagnostics)
+        workflow = _checked_record(workflow, "export_workflow", workflow_ref, diagnostics)
         export_payload = workflow.get("export_payload", {})
         sections.append(
             {
@@ -508,6 +703,7 @@ def _handoff_sections(
                 "privacy_classification": _privacy_classification(workflow),
                 "review_state": _review_state(workflow),
                 "professional_boundary": deepcopy(PROFESSIONAL_BOUNDARY),
+                "text_origin": deepcopy(TEXT_ORIGINS["export_workflow_record"]),
             }
         )
 
@@ -515,8 +711,9 @@ def _handoff_sections(
         metadata_ref = _ref("ExternalProverMetadata", _str(metadata.get("metadata_record_id"), "external-prover:TBD"))
         _missing_required(metadata, REQUIRED_EXTERNAL_PROVER_METADATA_FIELDS, metadata_ref, diagnostics)
         _boundary_flags_from_source(metadata.get("professional_boundary"), metadata_ref, diagnostics)
-        _source_authority_claims(metadata, metadata_ref, diagnostics)
+        _external_prover_status_findings(metadata, metadata_ref, diagnostics)
         _external_prover_execution_findings(metadata, metadata_ref, diagnostics)
+        metadata = _checked_record(metadata, "external_prover_metadata", metadata_ref, diagnostics)
         sections.append(
             {
                 "section_id": f"handoff:{metadata_ref['ref']}",
@@ -534,6 +731,7 @@ def _handoff_sections(
                 "review_state": _review_state(metadata),
                 "source_provenance": deepcopy(metadata.get("provenance")),
                 "professional_boundary": deepcopy(PROFESSIONAL_BOUNDARY),
+                "text_origin": deepcopy(TEXT_ORIGINS["external_prover_metadata"]),
             }
         )
     return sorted(sections, key=canonical_json)
@@ -671,58 +869,86 @@ def _professional_boundary_diagnostics(boundary: Any) -> list[dict[str, Any]]:
     return diagnostics
 
 
-def _authority_term_diagnostics(record: Any) -> list[dict[str, Any]]:
-    diagnostics: list[dict[str, Any]] = []
-    for path, value in _walk_strings(record):
-        lower = value.lower()
-        if path.endswith("message") or "claim" in path or "status" in path or "boundary" in path:
-            if any(term in lower for term in PROHIBITED_AUTHORITY_TERMS):
-                diagnostics.append(
-                    _diagnostic(
-                        "SCH-AUTHORITY-CLAIM-REJECTED",
-                        "blocking",
-                        "PROFESSIONAL_BOUNDARY",
-                        "Report-section source text contains a prohibited authority or reliance claim.",
-                        "Replace the source claim with non-authoritative review context.",
-                        [_affected("FieldPath", path)],
-                    )
-                )
-    return diagnostics
+def _vocabulary_diagnostic(affected_ref: Mapping[str, str], path: str, vocabulary: str) -> dict[str, Any]:
+    """A value outside its member's vocabulary: named by record, member and vocabulary.
+    The value itself is not echoed anywhere."""
+
+    if vocabulary == "software_analysis_statuses":
+        return _diagnostic(
+            "SCH-ANALYSIS-STATUS-BLOCKED",
+            "blocking",
+            "PROFESSIONAL_BOUNDARY",
+            "Source analysis status is outside the software's analysis-status vocabulary; it is not carried.",
+            "State only the software's analysis statuses in the source record.",
+            [_affected(affected_ref["object_type"], affected_ref["ref"]), _affected("FieldPath", path), _affected("Vocabulary", vocabulary)],
+        )
+    return _diagnostic(
+        "SCH-STATUS-OUTSIDE-VOCABULARY",
+        "blocking",
+        "STATUS_VOCABULARY",
+        "Source record member holds a value outside the software's vocabulary for that member; the value is not carried.",
+        "Correct the source record so the member holds a value of its vocabulary, or omit the member.",
+        [_affected(affected_ref["object_type"], affected_ref["ref"]), _affected("FieldPath", path), _affected("Vocabulary", vocabulary)],
+    )
 
 
-def _source_authority_claims(
-    source: Any, affected_ref: Mapping[str, str], diagnostics: list[dict[str, Any]]
+def _in_vocabulary(value: Any, vocabulary: str) -> bool:
+    return isinstance(value, str) and value in STATUS_VOCABULARIES[vocabulary]
+
+
+def _check_member(
+    container: Any,
+    segments: list[str],
+    path: str,
+    vocabulary: str,
+    affected_ref: Mapping[str, str],
+    diagnostics: list[dict[str, Any]],
 ) -> None:
-    for path, value in _walk_strings(source):
-        lower = value.lower()
-        if any(term in lower for term in PROHIBITED_AUTHORITY_TERMS):
-            diagnostics.append(
-                _diagnostic(
-                    "SCH-AUTHORITY-CLAIM-REJECTED",
-                    "blocking",
-                    "PROFESSIONAL_BOUNDARY",
-                    "Report-section source text contains a prohibited authority or reliance claim.",
-                    "Replace the source claim with non-authoritative review context.",
-                    [_affected(affected_ref["object_type"], affected_ref["ref"]), _affected("FieldPath", path)],
-                )
-            )
+    if not isinstance(container, dict) or not segments:
+        return
+    segment, rest = segments[0], segments[1:]
+    many = segment.endswith("[]")
+    key = segment[:-2] if many else segment
+    if key not in container:
+        return
+    value = container[key]
+    where = f"{path}.{key}"
+    if many:
+        if not isinstance(value, list):
+            return
+        if rest:
+            for index, item in enumerate(value):
+                _check_member(item, rest, f"{where}[{index}]", vocabulary, affected_ref, diagnostics)
+            return
+        kept = []
+        for index, item in enumerate(value):
+            if _in_vocabulary(item, vocabulary):
+                kept.append(item)
+            else:
+                diagnostics.append(_vocabulary_diagnostic(affected_ref, f"{where}[{index}]", vocabulary))
+        container[key] = kept
+        return
+    if rest:
+        _check_member(value, rest, where, vocabulary, affected_ref, diagnostics)
+        return
+    if value is None:
+        return
+    if not _in_vocabulary(value, vocabulary):
+        diagnostics.append(_vocabulary_diagnostic(affected_ref, where, vocabulary))
+        del container[key]
 
 
-def _analysis_status_findings(
-    statuses: Any, affected_ref: Mapping[str, str], diagnostics: list[dict[str, Any]]
-) -> None:
-    for status in _list(statuses):
-        if str(status) not in PERMITTED_SOFTWARE_ANALYSIS_STATUSES:
-            diagnostics.append(
-                _diagnostic(
-                    "SCH-ANALYSIS-STATUS-BLOCKED",
-                    "blocking",
-                    "PROFESSIONAL_BOUNDARY",
-                    "Source analysis status is outside the software-emitted status vocabulary.",
-                    "Remove automatic human-acceptance, professional-reliance, or code-compliance statuses from software-generated sections.",
-                    [_affected(affected_ref["object_type"], affected_ref["ref"]), _affected("AnalysisStatus", str(status))],
-                )
-            )
+def _checked_record(
+    record: Any, kind: str, affected_ref: Mapping[str, str], diagnostics: list[dict[str, Any]]
+) -> dict[str, Any]:
+    """A copy of `record` with each status-bearing member of its kind checked against its
+    vocabulary (DEL-08-06 AC-005): a value outside it is reported and not carried."""
+
+    checked = deepcopy(dict(record)) if isinstance(record, Mapping) else {}
+    checked = json.loads(json.dumps(checked))
+    for path, vocabulary in STATUS_MEMBERS[kind]:
+        _check_member(checked, path.split("."), "$", vocabulary, affected_ref, diagnostics)
+    return checked
 
 
 def _safe_analysis_statuses(statuses: Any) -> list[str]:
@@ -731,6 +957,26 @@ def _safe_analysis_statuses(statuses: Any) -> list[str]:
         for status in _list(statuses)
         if str(status) in PERMITTED_SOFTWARE_ANALYSIS_STATUSES
     )
+
+
+def _external_prover_status_findings(
+    metadata: Mapping[str, Any], affected_ref: Mapping[str, str], diagnostics: list[dict[str, Any]]
+) -> None:
+    """AC-003 by structure: the metadata's contract has no status member, so the presence
+    of any, whatever its value, is a finding."""
+
+    for member in EXTERNAL_PROVER_STATUS_MEMBERS:
+        if member in metadata:
+            diagnostics.append(
+                _diagnostic(
+                    "SCH-EXTERNAL-PROVER-STATUS-NOT-ADMITTED",
+                    "blocking",
+                    "REPORT_SECTION_BOUNDARY",
+                    "External-prover metadata carries a status member, which its contract does not have.",
+                    "Keep external-prover metadata to names, tags, notes and references; record any decision outside the software.",
+                    [_affected(affected_ref["object_type"], affected_ref["ref"]), _affected("FieldPath", f"$.{member}")],
+                )
+            )
 
 
 def _external_prover_execution_findings(
@@ -750,11 +996,9 @@ def _external_prover_execution_findings(
 
 
 def _safe_public_context(value: Any) -> Any:
-    if isinstance(value, str):
-        lower = value.lower()
-        if any(term in lower for term in PROHIBITED_AUTHORITY_TERMS):
-            return "[omitted_prohibited_authority_or_reliance_claim]"
-        return value
+    """The value with private payload members removed (AC-006). Text is carried as it is:
+    no text is matched against terms or replaced (AC-005, REQ-005)."""
+
     if isinstance(value, Mapping):
         return {
             str(key): _safe_public_context(item)
@@ -1207,13 +1451,38 @@ def _manual_mappings(items: list[Any]) -> list[Any]:
     )
 
 
+# An entity row is unmatched by its classification or match basis; a diagnostic by its
+# class. Matched by token, never by text.
+UNMATCHED_ROW_CLASSIFICATIONS = frozenset({"added", "removed", "unresolved"})
+UNMATCHED_DIAGNOSTIC_CLASSES = frozenset({"UNMATCHED_ENTITY", "MAPPING_UNRESOLVED", "MISSING_RESULT_DATA"})
+
+
 def _unmatched_classifications(items: list[Any]) -> list[Any]:
+    """Classification tokens and references only, never message bodies (the messages
+    stay in the section's diagnostics)."""
+
     unmatched = []
     for item in items:
-        if isinstance(item, Mapping):
-            text = canonical_json(item).lower()
-            if "unmatched" in text or "missing" in text or "unresolved" in text:
-                unmatched.append(deepcopy(item))
+        if not isinstance(item, Mapping):
+            continue
+        if "classification" in item:
+            if str(item.get("classification")) in UNMATCHED_ROW_CLASSIFICATIONS or item.get("match_basis") == "unmatched":
+                unmatched.append(
+                    {
+                        "classification": deepcopy(item.get("classification")),
+                        "match_basis": deepcopy(item.get("match_basis")),
+                        "left_ref": deepcopy(item.get("left_ref")),
+                        "right_ref": deepcopy(item.get("right_ref")),
+                    }
+                )
+        elif "code" in item and str(item.get("class")) in UNMATCHED_DIAGNOSTIC_CLASSES:
+            unmatched.append(
+                {
+                    "code": deepcopy(item.get("code")),
+                    "class": deepcopy(item.get("class")),
+                    "affected_refs": deepcopy(_list(item.get("affected_refs"))),
+                }
+            )
     return sorted(unmatched, key=canonical_json)
 
 
@@ -1291,17 +1560,6 @@ def _is_missing(value: Any) -> bool:
 
 def _str(value: Any, fallback: str) -> str:
     return fallback if _is_missing(value) else str(value)
-
-
-def _walk_strings(value: Any, path: str = "$"):
-    if isinstance(value, str):
-        yield path, value
-    elif isinstance(value, Mapping):
-        for key, item in value.items():
-            yield from _walk_strings(item, f"{path}.{key}")
-    elif isinstance(value, list):
-        for index, item in enumerate(value):
-            yield from _walk_strings(item, f"{path}[{index}]")
 
 
 def _walk_dicts(value: Any, path: str = "$"):

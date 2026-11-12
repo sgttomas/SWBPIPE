@@ -42,33 +42,75 @@ export const ENGINE_PROVENANCE = {
   privacy_classification: "public_metadata"
 };
 
-/** The reference's `PROHIBITED_AUTHORITY_TERMS`, matched as substrings of lower-cased text. */
-export const PROHIBITED_AUTHORITY_TERMS = [
-  "approval",
-  "approved",
-  "certification",
-  "cert" + "ified",
-  "code_compliance",
-  "code-compliance",
-  "code " + "compliant",
-  "compliant",
-  "seal",
-  "se" + "aled",
-  "sealing",
-  "authentication",
-  "authentic" + "ated",
-  "endorsement",
-  "endorsed",
-  "external_validation",
-  "external " + "validation",
-  "validated",
-  "professional_acceptance",
-  "professional " + "acceptance",
-  "professional_reliance",
-  "professional " + "reliance",
-  "engineering_acceptance",
-  "engineering " + "acceptance"
-];
+/** DEL-08-06 AC-005: one named vocabulary per status-bearing member the software writes,
+ * the reference's `STATUS_VOCABULARIES`. A value outside its member's vocabulary gives a
+ * blocking diagnostic and is not carried; the value is carried nowhere. No member is matched
+ * by substring. */
+export const STATUS_VOCABULARIES: Readonly<Record<string, ReadonlySet<string>>> = {
+  software_analysis_statuses: new Set(["MODEL_INCOMPLETE", "MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE", "USER_RULE_CHECKED", "USER_RULE_FAILED", "HUMAN_REVIEW_REQUIRED"]),
+  diagnostic_severities: new Set(["info", "warning", "error", "blocking"]),
+  state_row_classifications: new Set(["added", "removed", "changed", "unchanged", "mapped_changed", "mapped_unchanged", "unresolved"]),
+  match_bases: new Set(["stable_id", "explicit_mapping", "manual_mapping", "unmatched", "stable_result_identity"]),
+  field_change_kinds: new Set(["added", "removed", "changed", "unit_changed"]),
+  not_compared_reasons: new Set(["semantic_identity_differs", "left_run_needs_recompute", "right_run_needs_recompute", "family_not_compared", "units_differ", "value_not_numeric", "dimension_missing"]),
+  unmatched_reasons: new Set(["no_row_with_this_result_id", "identity_differs", "duplicate_result_id", "result_id_missing"]),
+  run_sides: new Set(["left", "right"]),
+  run_side_kinds: new Set(["recorded_run", "current_session_run"]),
+  standing_statuses: new Set(["integrity_checked", "needs_recompute"]),
+  delta_classifications: new Set(["not_classified", "within_tolerance_profile", "exceeds_tolerance_profile", "not_tolerance_checked"]),
+  delta_classification_bases: new Set([
+    "no_tolerance_profile_supplied", "no_matching_tolerance_rule", "tolerance_rule_unit_not_normalized_unit",
+    "caller_supplied_relative_absolute_tolerance_rule", "tolerance_value_not_numeric", "caller_supplied_tolerance_rule", "no_tolerance_profile"
+  ]),
+  mapping_statuses: new Set(["automatic_match", "manual_match", "unresolved_mapping", "unmatched_left", "unmatched_right", "ignored", "TBD"]),
+  settings_delta_kinds: new Set(["added", "removed", "changed"]),
+  diagnostic_changes: new Set(["added", "removed"]),
+  supported_behavior_statuses: new Set(["unsupported", "approximate", "requires_human_review", "not_implemented", "TBD"])
+};
+
+/** The reference's `STATUS_MEMBERS` for the record kinds the desktop assembles from records. */
+export const STATUS_MEMBERS: Readonly<Record<"model_state_comparison" | "analysis_run_comparison", ReadonlyArray<readonly [string, string]>>> = {
+  model_state_comparison: [
+    ["entities[].classification", "state_row_classifications"],
+    ["entities[].match_basis", "match_bases"],
+    ["entities[].changes[].change_kind", "field_change_kinds"],
+    ["diagnostics[].severity", "diagnostic_severities"]
+  ],
+  analysis_run_comparison: [
+    ["run_context.left.side_kind", "run_side_kinds"],
+    ["run_context.right.side_kind", "run_side_kinds"],
+    ["run_context.left.standing.status", "standing_statuses"],
+    ["run_context.right.standing.status", "standing_statuses"],
+    ["run_context.run_gate[]", "not_compared_reasons"],
+    ["run_context.not_compared[].reasons[]", "not_compared_reasons"],
+    ["run_context.unmatched[].reason", "unmatched_reasons"],
+    ["run_context.unmatched[].side", "run_sides"],
+    ["result_deltas[].classification", "delta_classifications"],
+    ["result_deltas[].classification_basis", "delta_classification_bases"],
+    ["result_deltas[].match_basis", "match_bases"],
+    ["result_deltas[].mapping_status", "mapping_statuses"],
+    ["settings_deltas[].delta_kind", "settings_delta_kinds"],
+    ["diagnostics[].severity", "diagnostic_severities"],
+    ["diagnostics[].change", "diagnostic_changes"]
+  ]
+};
+
+/** Whose text each text-bearing member of a section is: the reference's `TEXT_ORIGINS`. */
+export const TEXT_ORIGINS: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  current_model_state: {
+    authored_analysis_status: "document_author", diagnostics: "document_author", warnings: "document_author",
+    source_provenance: "software", privacy_classification: "software", review_state: "software"
+  },
+  model_state_comparison: {
+    changed_entities: "model_values", diagnostics: "comparison", settings: "comparison",
+    source_provenance: "source_declaration", privacy_classification: "source_declaration", review_state: "source_declaration"
+  },
+  analysis_run_comparison: {
+    largest_differences: "solver_results", settings_deltas: "solver_settings", diagnostics: "solver",
+    run_context: "comparison", pairs_not_compared_listed: "comparison", rows_unmatched_listed: "comparison",
+    source_provenance: "source_declaration", privacy_classification: "source_declaration", review_state: "source_declaration"
+  }
+};
 
 const AUTHORITY_FLAG_NAMES = [
   "software_makes_compliance_claim",
@@ -215,12 +257,6 @@ function diagnostic(code: string, severity: string, diagnosticClass: string, mes
   return { code, severity, class: diagnosticClass, message, remediation, affected_refs: affectedRefs, provenance: copy(ENGINE_PROVENANCE) };
 }
 
-function* walkStrings(value: unknown, path = "$"): Generator<[string, string]> {
-  if (typeof value === "string") yield [path, value];
-  else if (Array.isArray(value)) for (let index = 0; index < value.length; index += 1) yield* walkStrings(value[index], `${path}[${index}]`);
-  else if (isMapping(value)) for (const [key, item] of Object.entries(value)) yield* walkStrings(item, `${path}.${key}`);
-}
-
 function* walkDicts(value: unknown, path = "$"): Generator<[string, JsonRecord]> {
   if (Array.isArray(value)) for (let index = 0; index < value.length; index += 1) yield* walkDicts(value[index], `${path}[${index}]`);
   else if (isMapping(value)) {
@@ -229,9 +265,66 @@ function* walkDicts(value: unknown, path = "$"): Generator<[string, JsonRecord]>
   }
 }
 
-function hasAuthorityTerm(text: string): boolean {
-  const lower = text.toLowerCase();
-  return PROHIBITED_AUTHORITY_TERMS.some((term) => lower.includes(term));
+function vocabularyDiagnostic(affectedRef: Ref, path: string, vocabulary: string): Diagnostic {
+  if (vocabulary === "software_analysis_statuses") {
+    return diagnostic(
+      "SCH-ANALYSIS-STATUS-BLOCKED", "blocking", "PROFESSIONAL_BOUNDARY",
+      "Source analysis status is outside the software's analysis-status vocabulary; it is not carried.",
+      "State only the software's analysis statuses in the source record.",
+      [affected(affectedRef.object_type, affectedRef.ref), affected("FieldPath", path), affected("Vocabulary", vocabulary)]
+    );
+  }
+  return diagnostic(
+    "SCH-STATUS-OUTSIDE-VOCABULARY", "blocking", "STATUS_VOCABULARY",
+    "Source record member holds a value outside the software's vocabulary for that member; the value is not carried.",
+    "Correct the source record so the member holds a value of its vocabulary, or omit the member.",
+    [affected(affectedRef.object_type, affectedRef.ref), affected("FieldPath", path), affected("Vocabulary", vocabulary)]
+  );
+}
+
+const inVocabulary = (value: unknown, vocabulary: string) => typeof value === "string" && STATUS_VOCABULARIES[vocabulary].has(value);
+
+function checkMember(container: unknown, segments: string[], path: string, vocabulary: string, affectedRef: Ref, diagnostics: Diagnostic[]): void {
+  if (!isMapping(container) || segments.length === 0) return;
+  const [segment, ...rest] = segments;
+  const many = segment.endsWith("[]");
+  const key = many ? segment.slice(0, -2) : segment;
+  if (!Object.hasOwn(container, key)) return;
+  const value = container[key];
+  const where = `${path}.${key}`;
+  if (many) {
+    if (!Array.isArray(value)) return;
+    if (rest.length) {
+      value.forEach((item, index) => checkMember(item, rest, `${where}[${index}]`, vocabulary, affectedRef, diagnostics));
+      return;
+    }
+    const kept: unknown[] = [];
+    value.forEach((item, index) => {
+      if (inVocabulary(item, vocabulary)) kept.push(item);
+      else diagnostics.push(vocabularyDiagnostic(affectedRef, `${where}[${index}]`, vocabulary));
+    });
+    container[key] = kept;
+    return;
+  }
+  if (rest.length) { checkMember(value, rest, where, vocabulary, affectedRef, diagnostics); return; }
+  if (value === null || value === undefined) return;
+  if (!inVocabulary(value, vocabulary)) {
+    diagnostics.push(vocabularyDiagnostic(affectedRef, where, vocabulary));
+    delete container[key];
+  }
+}
+
+/** A copy of `record` with each listed status-bearing member checked against its vocabulary:
+ * a value outside it is reported and not carried. */
+export function checkedMembers(record: unknown, members: ReadonlyArray<readonly [string, string]>, affectedRef: Ref, diagnostics: Diagnostic[]): JsonRecord {
+  const checked: JsonRecord = isMapping(record) ? structuredClone(record) : {};
+  for (const [path, vocabulary] of members) checkMember(checked, path.split("."), "$", vocabulary, affectedRef, diagnostics);
+  return checked;
+}
+
+/** The reference's `_checked_record`. */
+function checkedRecord(record: unknown, kind: keyof typeof STATUS_MEMBERS, affectedRef: Ref, diagnostics: Diagnostic[]): JsonRecord {
+  return checkedMembers(record, STATUS_MEMBERS[kind], affectedRef, diagnostics);
 }
 
 function comparisonId(item: JsonRecord, fallback: string): string {
@@ -267,21 +360,8 @@ function boundaryFlagsFromSource(boundary: unknown, affectedRef: Ref, diagnostic
   }
 }
 
-function sourceAuthorityClaims(source: unknown, affectedRef: Ref, diagnostics: Diagnostic[]): void {
-  for (const [path, value] of walkStrings(source)) {
-    if (hasAuthorityTerm(value)) {
-      diagnostics.push(diagnostic(
-        "SCH-AUTHORITY-CLAIM-REJECTED", "blocking", "PROFESSIONAL_BOUNDARY",
-        "Report-section source text contains a prohibited authority or reliance claim.",
-        "Replace the source claim with non-authoritative review context.",
-        [affected(affectedRef.object_type, affectedRef.ref), affected("FieldPath", path)]
-      ));
-    }
-  }
-}
-
+/** The value with private payload members removed (AC-006). Text is carried as it is. */
 function safePublicContext(value: unknown): unknown {
-  if (typeof value === "string") return hasAuthorityTerm(value) ? "[omitted_prohibited_authority_or_reliance_claim]" : value;
   if (Array.isArray(value)) return value.map(safePublicContext);
   if (isMapping(value)) {
     const out: JsonRecord = {};
@@ -308,12 +388,22 @@ function manualMappings(items: unknown[]): unknown[] {
     && pythonStr(truthy(item.match_basis) ? item.match_basis : truthy(item.mapping_status) ? item.mapping_status : "").startsWith("manual")).map(copy));
 }
 
-function unmatchedClassifications(items: unknown[]): unknown[] {
-  return pythonSorted(items.filter((item) => {
-    if (!isMapping(item)) return false;
-    const text = pythonJson(item).toLowerCase();
-    return text.includes("unmatched") || text.includes("missing") || text.includes("unresolved");
-  }).map(copy));
+const UNMATCHED_ROW_CLASSIFICATIONS = new Set(["added", "removed", "unresolved"]);
+const UNMATCHED_DIAGNOSTIC_CLASSES = new Set(["UNMATCHED_ENTITY", "MAPPING_UNRESOLVED", "MISSING_RESULT_DATA"]);
+
+/** The reference's `_unmatched_classifications`: tokens and references only. */
+export function unmatchedClassifications(items: unknown[]): unknown[] {
+  const unmatched: JsonRecord[] = [];
+  for (const item of items.filter(isMapping)) {
+    if (Object.hasOwn(item, "classification")) {
+      if (UNMATCHED_ROW_CLASSIFICATIONS.has(pythonStr(item.classification)) || item.match_basis === "unmatched") {
+        unmatched.push({ classification: copy(item.classification), match_basis: copy(item.match_basis), left_ref: copy(item.left_ref), right_ref: copy(item.right_ref) });
+      }
+    } else if (Object.hasOwn(item, "code") && UNMATCHED_DIAGNOSTIC_CLASSES.has(pythonStr(item.class))) {
+      unmatched.push({ code: copy(item.code), class: copy(item.class), affected_refs: list(item.affected_refs).map(copy) });
+    }
+  }
+  return pythonSorted(unmatched);
 }
 
 /** REQ-009, AC-006: a member holding a library record's own content (its provenance record)
@@ -566,62 +656,117 @@ export function comparisonSections(records: ComparisonRecords, diagnostics: Diag
     const item = isMapping(raw) ? raw : {};
     const comparisonRef = ref("ModelStateComparison", comparisonId(item, "model-state-comparison:TBD"));
     boundaryFlagsFromSource(item.professional_boundary, comparisonRef, diagnostics);
-    sourceAuthorityClaims(item, comparisonRef, diagnostics);
-    sections.push({
-      section_id: `comparison:${comparisonRef.ref}`,
-      section_kind: "model_state_comparison",
-      comparison_ref: comparisonRef,
-      left_ref: copy(item.left_state_ref),
-      right_ref: copy(item.right_state_ref),
-      summary: copy(item.summary),
-      changed_entities: changedEntities(list(item.entities)),
-      hash_refs: hashRefs(item.hashes),
-      manual_mappings: manualMappings(list(item.entities)),
-      unmatched_classifications: unmatchedClassifications(list(item.entities)),
-      tolerance_profile_refs: [],
-      unit_normalized_deltas: [],
-      settings: copy(item.settings),
-      csv: csvStatement(item.csv),
-      diagnostics: safePublicContext(list(item.diagnostics)),
-      source_provenance: copy(item.provenance),
-      privacy_classification: privacyClassification(item),
-      review_state: reviewState(item),
-      professional_boundary: copy(PROFESSIONAL_BOUNDARY)
-    });
+    const checked = checkedRecord(item, "model_state_comparison", comparisonRef, diagnostics);
+    sections.push(stateComparisonSection(checked, comparisonRef));
   }
   for (const raw of records.analysis_run_comparisons) {
     const item = isMapping(raw) ? raw : {};
     const comparisonRef = ref("AnalysisRunComparison", comparisonId(item, "analysis-run-comparison:TBD"));
     boundaryFlagsFromSource(item.professional_boundary, comparisonRef, diagnostics);
-    sourceAuthorityClaims(item, comparisonRef, diagnostics);
-    const deltas = list(item.result_deltas).map(copy);
-    for (const delta of deltas) checkDeltaUnits(delta, comparisonRef, diagnostics);
-    const profiles = new Set<string>();
-    for (const delta of deltas) if (isMapping(delta) && truthy(delta.tolerance_profile_ref)) profiles.add(pythonStr(delta.tolerance_profile_ref));
-    sections.push({
-      section_id: `comparison:${comparisonRef.ref}`,
-      section_kind: "analysis_run_comparison",
-      comparison_ref: comparisonRef,
-      run_context: boundedRunContext(item.run_context),
-      hash_refs: hashRefs(item.hashes),
-      result_difference_counts: resultDifferenceCounts(deltas, item.run_context),
-      largest_differences: largestDifferences(deltas),
-      pairs_not_compared_listed: listedRows(item.run_context, "not_compared"),
-      rows_unmatched_listed: listedRows(item.run_context, "unmatched"),
-      summary_coverage: summaryCoverage(deltas, item.run_context),
-      csv: csvStatement(item.csv),
-      manual_mappings: manualMappings(deltas),
-      unmatched_classifications: unmatchedClassifications(list(item.diagnostics)),
-      tolerance_profile_refs: [...profiles].sort(codePointCompare),
-      settings_deltas: list(item.settings_deltas).map(copy),
-      diagnostics: safePublicContext(list(item.diagnostics)),
-      source_provenance: copy(item.provenance),
-      privacy_classification: privacyClassification(item),
-      review_state: reviewState(item),
-      professional_boundary: copy(PROFESSIONAL_BOUNDARY)
-    });
+    const checked = checkedRecord(item, "analysis_run_comparison", comparisonRef, diagnostics);
+    sections.push(runComparisonSection(checked, comparisonRef, diagnostics));
   }
   return pythonSorted(sections);
+}
+
+function stateComparisonSection(item: JsonRecord, comparisonRef: Ref): JsonRecord {
+  return {
+    section_id: `comparison:${comparisonRef.ref}`,
+    section_kind: "model_state_comparison",
+    comparison_ref: comparisonRef,
+    left_ref: copy(item.left_state_ref),
+    right_ref: copy(item.right_state_ref),
+    summary: copy(item.summary),
+    changed_entities: changedEntities(list(item.entities)),
+    hash_refs: hashRefs(item.hashes),
+    manual_mappings: manualMappings(list(item.entities)),
+    unmatched_classifications: unmatchedClassifications(list(item.entities)),
+    tolerance_profile_refs: [],
+    unit_normalized_deltas: [],
+    settings: copy(item.settings),
+    csv: csvStatement(item.csv),
+    diagnostics: safePublicContext(list(item.diagnostics)),
+    source_provenance: copy(item.provenance),
+    privacy_classification: privacyClassification(item),
+    review_state: reviewState(item),
+    professional_boundary: copy(PROFESSIONAL_BOUNDARY),
+    text_origin: copy(TEXT_ORIGINS.model_state_comparison)
+  };
+}
+
+function runComparisonSection(item: JsonRecord, comparisonRef: Ref, diagnostics: Diagnostic[]): JsonRecord {
+  const deltas = list(item.result_deltas).map(copy);
+  for (const delta of deltas) checkDeltaUnits(delta, comparisonRef, diagnostics);
+  const profiles = new Set<string>();
+  for (const delta of deltas) if (isMapping(delta) && truthy(delta.tolerance_profile_ref)) profiles.add(pythonStr(delta.tolerance_profile_ref));
+  return {
+    section_id: `comparison:${comparisonRef.ref}`,
+    section_kind: "analysis_run_comparison",
+    comparison_ref: comparisonRef,
+    run_context: boundedRunContext(item.run_context),
+    hash_refs: hashRefs(item.hashes),
+    result_difference_counts: resultDifferenceCounts(deltas, item.run_context),
+    largest_differences: largestDifferences(deltas),
+    pairs_not_compared_listed: listedRows(item.run_context, "not_compared"),
+    rows_unmatched_listed: listedRows(item.run_context, "unmatched"),
+    summary_coverage: summaryCoverage(deltas, item.run_context),
+    csv: csvStatement(item.csv),
+    manual_mappings: manualMappings(deltas),
+    unmatched_classifications: unmatchedClassifications(list(item.diagnostics)),
+    tolerance_profile_refs: [...profiles].sort(codePointCompare),
+    settings_deltas: list(item.settings_deltas).map(copy),
+    diagnostics: safePublicContext(list(item.diagnostics)),
+    source_provenance: copy(item.provenance),
+    privacy_classification: privacyClassification(item),
+    review_state: reviewState(item),
+    professional_boundary: copy(PROFESSIONAL_BOUNDARY),
+    text_origin: copy(TEXT_ORIGINS.analysis_run_comparison)
+  };
+}
+
+/** The reference's `SOFTWARE_STANDING_NOT_DERIVED`. A later change gives `software_standing` the
+ * software's computed reading of the model state; until then it says, in words, that none is derived. */
+export const SOFTWARE_STANDING_NOT_DERIVED = "The software does not derive a standing for the current model state when the report package is assembled; the analysis status labels beside it are the document author's.";
+
+/** What the current-state section is formed from: the reference's `build_current_model_state_section` input. */
+export type CurrentModelStateRecord = {
+  model_ref: string;
+  model_hash: string;
+  authored_analysis_status: unknown;
+  document_diagnostics: unknown[];
+  provenance: JsonRecord;
+};
+
+/** The reference's `build_current_model_state_section`: the model as it stands, by the model
+ * reference and its canonical hash. The document's analysis-status labels and diagnostics are its
+ * author's, carried as they are, unfiltered and unjudged; the software's statuses are stated
+ * beside them, and the section says that no standing of the state is derived at assembly. */
+export function buildCurrentModelStateSection(record: CurrentModelStateRecord): JsonRecord {
+  const stateRef = `state:${pythonStr(record.model_ref)}:preview`;
+  const reference = ref("ModelState", stateRef);
+  const diagnostics = list(record.document_diagnostics).map(copy);
+  return {
+    section_id: `state-run:${stateRef}`,
+    section_kind: "model_state_record",
+    state_ref: reference,
+    run_ref: null,
+    hash_refs: [{ algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_ref: copy(reference), payload_scope: "model_state", value: copy(record.model_hash) }],
+    diagnostics,
+    warnings: diagnostics.map(copy),
+    assumptions: [],
+    analysis_status: ["HUMAN_REVIEW_REQUIRED"],
+    authored_analysis_status: copy(record.authored_analysis_status),
+    software_standing: { derived: false, statement: SOFTWARE_STANDING_NOT_DERIVED },
+    unit_context: { ref_type: "unit_system", ref_id: "unit-system:dec-018-si-dual-display" },
+    solver_context: null,
+    settings_ref: null,
+    source_provenance: copy(record.provenance),
+    privacy_classification: "private_project_data",
+    review_state: "pending",
+    limitations: [],
+    professional_boundary: copy(PROFESSIONAL_BOUNDARY),
+    text_origin: copy(TEXT_ORIGINS.current_model_state)
+  };
 }
 
 /** Comparison sections already formed from their records, with the source diagnostics their
@@ -659,20 +804,10 @@ function unitDiagnostic(path: string, message: string): Diagnostic {
   );
 }
 
-/** The reference's set-level `_authority_term_diagnostics` and `_numeric_unit_diagnostics` of
+/** The reference's set-level `_numeric_unit_diagnostics` of
  * `value`, a member of the set at `path`. */
 export function setLevelDiagnostics(value: unknown, path: string): Diagnostic[] {
   const diagnostics: Diagnostic[] = [];
-  for (const [at, text] of walkStrings(value, path)) {
-    if ((at.endsWith("message") || at.includes("claim") || at.includes("status") || at.includes("boundary")) && hasAuthorityTerm(text)) {
-      diagnostics.push(diagnostic(
-        "SCH-AUTHORITY-CLAIM-REJECTED", "blocking", "PROFESSIONAL_BOUNDARY",
-        "Report-section source text contains a prohibited authority or reliance claim.",
-        "Replace the source claim with non-authoritative review context.",
-        [affected("FieldPath", at)]
-      ));
-    }
-  }
   for (const [at, container] of walkDicts(value, path)) {
     const numericKeys = NUMERIC_VALUE_KEYS.filter((key) => Object.hasOwn(container, key)).sort(codePointCompare);
     if (!numericKeys.length) continue;

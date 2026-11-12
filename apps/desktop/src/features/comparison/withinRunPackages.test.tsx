@@ -66,7 +66,11 @@ describe("with an unavailable record, the documents carry it with the chosen bas
   it("the report package's comparison records", async () => {
     const { model, result, analysisRun, unavailable } = await inputs();
     const record = buildStateComparisonHandoffSections({ model, result, analysisRun, comparison: null, comparisonUnavailable: unavailable, modelHash: "sha256:invented" }) as Record<string, unknown>;
-    expect(record.comparison_unavailable).toEqual(unavailable);
+    // The section set carries the refusal by its code only (DEL-08-06 AC-005), never its text.
+    const { reason: _text, ...carried } = unavailable;
+    expect(record.comparison_unavailable).toEqual(carried);
+    expect(record.comparison_unavailable).not.toHaveProperty("reason");
+    expect(carried.reason_code).toBe("ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED");
     expect((record.sections as { comparison_sections: unknown[] }).comparison_sections).toEqual([]);
   });
 

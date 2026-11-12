@@ -29,8 +29,25 @@ PROJECT = Path(__file__).resolve().parents[2]
 if str(PROJECT) not in sys.path:
     sys.path.insert(0, str(PROJECT))
 from core.reporting.state_comparison_handoff_sections import (  # noqa: E402
+    STATUS_MEMBERS,
+    STATUS_VOCABULARIES,
+    build_current_model_state_section,
     build_state_comparison_handoff_report_sections,
 )
+
+# A committed producer result whose solver diagnostic states, as negations, words the
+# former substring scan matched ("No certified inertia ... is claimed").
+SOLVER_RESULT = PROJECT / "fixtures/product_preview/invented_demo_result_preview_physics_1_dense.json"
+FORMER_SCAN_TERMS = ["seal", "certified", "approved", "compliant", "engineering acceptance"]
+
+
+def solver_diagnostic() -> dict:
+    """The committed numerical-integrity diagnostic, as the desktop restates a solve diagnostic."""
+
+    result = json.loads(SOLVER_RESULT.read_text(encoding="utf-8"))
+    found = next(item for item in result["diagnostics"] if item.get("code") == "NUMERICAL_INTEGRITY_CHECKS_PASSED" and "certified" in item.get("message", ""))
+    return {"code": found["code"], "severity": found["severity"], "affected_refs": list(found.get("affected_refs", [])),
+            "message": found["message"], "change": "added"}
 
 FIXTURE = PROJECT / "fixtures/reports/invented/state_comparison_handoff_comparison_parity.json"
 
@@ -240,6 +257,87 @@ def inputs(states: list[dict], runs: list[dict], set_id: str) -> dict:
     }
 
 
+def out_of_vocabulary_state_record() -> dict:
+    record = state_record("model-state-comparison:state:inv-v:state:inv-w")
+    entities = record["entities"]
+    entities[0]["classification"] = "approved_by_engineer"
+    entities[1]["match_basis"] = "certified_match"
+    entities[2]["changes"][1]["change_kind"] = "sealed"
+    record["diagnostics"] = [
+        {"code": "INV-IN", "severity": "warning", "message": "Inside its vocabulary."},
+        {"code": "INV-OUT", "severity": "compliant", "message": "Severity outside its vocabulary."},
+    ]
+    return record
+
+
+def out_of_vocabulary_run_record() -> dict:
+    record = run_record("analysis-run-comparison:runrec:inv-v:runrec:inv-w")
+    context = record["run_context"]
+    context["left"]["side_kind"] = "accepted_run"
+    context["right"]["standing"]["status"] = "certified"
+    context["run_gate"] = ["left_run_needs_recompute", "validated"]
+    context["not_compared"][0]["reasons"] = ["family_not_compared", "approved"]
+    context["unmatched"][0]["reason"] = "sealed"
+    context["unmatched"][1]["side"] = "middle"
+    deltas = record["result_deltas"]
+    deltas[0]["classification"] = "within_code_limits"
+    deltas[0]["classification_basis"] = "engineering acceptance"
+    deltas[1]["match_basis"] = "endorsed"
+    deltas[1]["mapping_status"] = "manual_match"
+    deltas[1]["classification_basis"] = "no_tolerance_profile"
+    record["settings_deltas"][0]["delta_kind"] = "approved"
+    record["diagnostics"][0]["severity"] = "certified"
+    record["diagnostics"][1]["change"] = "validated"
+    return record
+
+
+def former_terms_state_record() -> dict:
+    record = state_record("model-state-comparison:state:inv-seal:state:inv-certified", entity_id="node:SEAL-PUMP-1")
+    record["entities"][2]["changes"] = [
+        {"path": "provenance.contributor_certification", "change_kind": "changed", "left": "certified by the contributor", "right": "approved source"},
+        {"path": "label", "change_kind": "changed", "left": "Seal pump", "right": "Compliant pump, engineering acceptance pending"},
+    ]
+    record["diagnostics"] = [{"code": "INV-AUTHOR-NOTE", "severity": "info", "message": "The author's note: sealed, certified and approved by the owner."}]
+    return record
+
+
+def former_terms_run_record() -> dict:
+    record = run_record("analysis-run-comparison:runrec:inv-seal:runrec:inv-certified")
+    record["diagnostics"] = [solver_diagnostic(), {"code": "INV-SOLVER", "severity": "warning", "affected_refs": ["support:SEAL-PUMP-1"],
+                                                   "message": "does not establish engineering acceptance; no code compliance result is produced", "change": "removed"}]
+    return record
+
+
+# The current model state section (DEL-08-06): the document's authored labels are carried as
+# written, unfiltered and unjudged, beside the software's statuses.
+CURRENT_STATE_PROVENANCE = {
+    "source_name": "OpenPipeStress desktop session (Invented project)",
+    "source_location": "local desktop session",
+    "source_license": "user_supplied_or_private",
+    "contributor": "user_local_session",
+    "contributor_certification": "not_asserted",
+    "redistribution_status": "private_only",
+    "review_status": "pending",
+    "privacy_classification": "private_project_data",
+}
+
+
+def current_state_cases() -> list[dict]:
+    blank = {"mechanics": "MODEL_INCOMPLETE", "rule_check": "RULE_INPUTS_INCOMPLETE", "professional_acceptance": "NOT_PROVIDED"}
+    arbitrary = {"mechanics": "sealed and certified by the author", "rule_check": "compliant", "professional_acceptance": "approved; engineering acceptance given"}
+    diagnostics = [{"code": "DOC-AUTHORED", "severity": "approved", "message": "An author's diagnostic: certified, sealed."}]
+    return [
+        {"name": "blank_project_labels",
+         "description": "The blank project's three authored labels, carried as written.",
+         "record": {"model_ref": "project:inv-blank", "model_hash": "a" * 64, "authored_analysis_status": blank,
+                    "document_diagnostics": [], "provenance": deepcopy(CURRENT_STATE_PROVENANCE)}},
+        {"name": "arbitrary_authored_labels",
+         "description": "Arbitrary authored labels and an authored diagnostic containing former scan terms (its severity outside any vocabulary): all carried unchanged, never read as the software's.",
+         "record": {"model_ref": "project:inv-arbitrary", "model_hash": "b" * 64, "authored_analysis_status": arbitrary,
+                    "document_diagnostics": diagnostics, "provenance": deepcopy(CURRENT_STATE_PROVENANCE)}},
+    ]
+
+
 def cases() -> list[dict]:
     second_state = state_record("model-state-comparison:state:inv-b:state:inv-c")
     second_run = run_record("analysis-run-comparison:runrec:inv-1:runrec:inv-2")
@@ -291,9 +389,15 @@ def cases() -> list[dict]:
         {"name": "delta_without_dimension",
          "description": "A run delta with no dimension: the set carries it with the blocking unit diagnostics and not as a bare number.",
          "inputs": inputs([], [run_record(deltas=[delta("result:inv-nd-1", 1.0, 3.0, 2.0, dimension=None)])], "comparison-parity:no-dimension")},
-        {"name": "authority_term_in_identifier",
-         "description": "An entity identifier that holds an authority term as a substring: the reference rejects the source text with a blocking diagnostic.",
-         "inputs": inputs([state_record(entity_id="node:inv-seal-2")], [], "comparison-parity:authority")},
+        {"name": "status_vocabulary_state_comparison",
+         "description": "Each status-bearing member of a saved-state comparison record with a value inside and outside its vocabulary: each value outside gives a blocking diagnostic naming the record, the member and the vocabulary, and is not carried.",
+         "inputs": inputs([out_of_vocabulary_state_record()], [], "comparison-parity:state-vocabulary")},
+        {"name": "status_vocabulary_run_comparison",
+         "description": "Each status-bearing member of a run comparison record with a value inside and outside its vocabulary, as for the saved-state record.",
+         "inputs": inputs([], [out_of_vocabulary_run_record()], "comparison-parity:run-vocabulary")},
+        {"name": "former_scan_terms_carried",
+         "description": "An identifier, a field path, stored values, a document author's note and the committed solver diagnostic each containing words the former substring scan matched: all carried unchanged, with no diagnostic; unmatched classifications carry tokens only.",
+         "inputs": inputs([former_terms_state_record()], [former_terms_run_record()], "comparison-parity:former-terms")},
         {"name": "both_kinds",
          "description": "Two saved-state and two run comparisons.",
          "inputs": inputs([state_record(), second_state], [run_record(), second_run], "comparison-parity:both")},
@@ -328,9 +432,13 @@ def fixture() -> dict:
     for case in cases():
         built.append({**case, "expected": build_state_comparison_handoff_report_sections(**deepcopy(case["inputs"]))})
     return {
-        "description": "DEL-08-06 comparison-section parity vector: each case's expected section set is the reference assembler's (core/reporting/state_comparison_handoff_sections/engine.py) for its invented comparison records. Written by tools/fixtures/state_comparison_handoff_comparison_parity.py; never edited by hand.",
+        "description": "DEL-08-06 comparison-section parity vector: each case's expected section set is the reference assembler's (core/reporting/state_comparison_handoff_sections/engine.py) for its invented comparison records, and each current-state case's expected section is the reference's build_current_model_state_section. Written by tools/fixtures/state_comparison_handoff_comparison_parity.py; never edited by hand.",
         "provenance": deepcopy(SET_PROVENANCE),
         "cases": built,
+        "current_state_cases": [{**case, "expected": build_current_model_state_section(deepcopy(case["record"]))} for case in current_state_cases()],
+        "status_vocabularies": {name: sorted(values) for name, values in STATUS_VOCABULARIES.items()},
+        "status_members": {kind: [list(member) for member in members] for kind, members in STATUS_MEMBERS.items()},
+        "former_scan_terms": FORMER_SCAN_TERMS,
         "canonical_texts": texts(),
     }
 
