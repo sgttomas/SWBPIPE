@@ -33,11 +33,12 @@ fn product_bytes(document: &Value, mode: PreviewSolverMode) -> String {
     serde_json::to_string(&run_linear_static_preview_value_with_mode(request, mode).expect("entry")).expect("serialize")
 }
 
-const REQUIRED: [&str; 27] = [
+const REQUIRED: [&str; 29] = [
     "schema", "driver", "document", "route", "mode", "nodes", "members", "supports", "cases", "combinations",
     "status", "blocking_codes", "first_blocking_messages", "diagnostic_counts", "rows", "output_bytes",
     "output_sha256", "rows_per_basis", "row_kinds", "row_classes", "seconds", "peak_memory",
     "worker_peak_footprint_bytes_equivalent", "repeats", "limits", "parse_back_ok", "outputs_identical_across_repeats",
+    "side_stages", "model_checks",
 ];
 
 #[test]
@@ -63,6 +64,20 @@ fn prints_one_release_timing_line_with_the_required_keys() {
     for stage in ["read", "parse", "request", "entry", "serialize", "release_envelope", "parse_back"] {
         assert!(out["peak_memory"][stage].get("ru_maxrss_bytes").is_some(), "stage {stage}");
     }
+    // The model checks are timed as a side stage, outside the worker stages' total, and the
+    // worker-equivalent peak is still read after parse_back.
+    assert_eq!(out["side_stages"], json!(["model_checks"]));
+    assert_eq!(out["model_checks"]["checked"], true);
+    let worker: f64 = ["read", "parse", "request", "entry", "serialize", "release_envelope", "parse_back"]
+        .iter()
+        .map(|stage| out["seconds"][*stage].as_f64().unwrap())
+        .sum();
+    assert!(out["seconds"]["model_checks"].as_f64().is_some());
+    assert!((out["seconds"]["total"].as_f64().unwrap() - worker).abs() < 1e-9, "total is the worker stages only");
+    assert_eq!(
+        out["worker_peak_footprint_bytes_equivalent"],
+        out["peak_memory"]["parse_back"]["lifetime_max_phys_footprint_bytes"]
+    );
     let rows = out["rows"].as_u64().unwrap();
     let by_kind: u64 = out["row_kinds"].as_object().unwrap().values().map(|t| t["rows"].as_u64().unwrap()).sum();
     let by_class: u64 = out["row_classes"].as_object().unwrap().values().map(|t| t["rows"].as_u64().unwrap()).sum();
@@ -86,7 +101,7 @@ fn each_stage_writes_one_progress_line_to_stderr() {
         .filter_map(|line| line.strip_prefix("release-timing-stage "))
         .map(|json| serde_json::from_str(json).expect("progress JSON"))
         .collect();
-    let stages = ["read", "parse", "request", "entry", "serialize", "release_envelope", "parse_back"];
+    let stages = ["read", "parse", "request", "entry", "serialize", "release_envelope", "parse_back", "model_checks"];
     assert_eq!(lines.len(), 2 * stages.len(), "{stderr}");
     for (index, line) in lines.iter().enumerate() {
         assert_eq!(line["repeat"], index / stages.len());
