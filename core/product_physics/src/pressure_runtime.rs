@@ -1510,11 +1510,11 @@ fn finish_source_groups(
     groups: BTreeMap<FactorKey, FactorGroup>,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
-    let eligible = cancellation_exception_eligible(model, built, case, output, &groups);
-    let family = eligible.then(|| family_nodes(model, case, output, &groups));
     let mut by_dof = vec![Vec::new(); output.assembled_loads.len()];
     let mut evidence = Vec::new();
-    for ((dof, pbits, area, _), group) in groups {
+    // Borrowed: the cancellation exception below reads the groups after this
+    // loop, and only when the original screen fails.
+    for (&(dof, pbits, area, _), group) in &groups {
         let coefficient =
             match crate::pressure_sum::exact_sum(group.terms.iter().map(|term| term.0)) {
                 Ok(value) => value,
@@ -1635,13 +1635,9 @@ fn finish_source_groups(
     // still sum to the assembled load.
     let mut exception = None;
     if !screen.is_finite() || screen > 1e-9 {
-        let record = match &family {
-            Some(Some(family)) => cap_remainder_record(model, built, case, output, family),
-            _ => None,
-        };
-        match record {
-            Some(record) => exception = Some(record),
-            _ => problem(diagnostics,"PRESSURE_ASSEMBLY_CANCELLATION_UNRESOLVED",&[&case.id],"different source factors strongly cancel beyond the bounded pressure-RHS screening domain; no source-accuracy or Current result is inferred from a small residual of rounded loads"),
+        match cancellation_exception(model, built, case, output, &groups) {
+            Some(admitted) => exception = Some(admitted),
+            None => problem(diagnostics,"PRESSURE_ASSEMBLY_CANCELLATION_UNRESOLVED",&[&case.id],"different source factors strongly cancel beyond the bounded pressure-RHS screening domain; no source-accuracy or Current result is inferred from a small residual of rounded loads"),
         }
     }
     output.assembly_evidence = json!({"method":"source_factor_grouped_pressure_rhs_v1","load_case_id":case.id,
@@ -1650,12 +1646,10 @@ fn finish_source_groups(
         "rounded_cap_rhs_global":output.cap_loads,"rounded_poisson_rhs_global":output.eigenloads,"dof_units":["N","N","N","N*m","N*m","N*m"],
         "cancellation_screen":if screen.is_finite(){Some(screen)}else{None},"screen_limit":1e-9,"screen_roundoff_multiplier":32,
         "screen_is_not_numerical_qualification":true});
-    if let Some(record) = exception {
+    if let Some((record, (_, interior))) = exception {
         #[cfg(test)]
         exception_probe::admitted();
-        if let Some(Some((_, interior))) = &family {
-            cap_remainder_warning(model, case, interior, &record, diagnostics);
-        }
+        cap_remainder_warning(model, case, &interior, &record, diagnostics);
         output.assembly_evidence["cancellation_screen_exception"] = record;
     }
     // RT-L2: a case with pressure regions states
@@ -1679,17 +1673,46 @@ pub(crate) const CAP_REMAINDER_WARNING_CODE: &str = "PRESSURE_REGION_CAP_REMAIND
 /// The warning's whole, fixed message.
 pub(crate) const CAP_REMAINDER_WARNING_MESSAGE: &str = "At interior nodes of this pressure region the cap loads of adjacent members do not cancel exactly in this model. The remainder comes from small differences in bore or alignment within the region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
 
+/// The cancellation-screen exception's work, entered only when the original
+/// screen fails: the family's eligibility ([`cancellation_exception_eligible`]),
+/// its nodes and the consistency check's record. `None` refuses the case.
+fn cancellation_exception(
+    model: &PreviewModel,
+    built: &BuiltModel,
+    case: &PreviewLoadCase,
+    output: &ExactPressureCase,
+    groups: &BTreeMap<FactorKey, FactorGroup>,
+) -> Option<(Value, FamilyNodes)> {
+    #[cfg(test)]
+    exception_probe::entered();
+    if !cancellation_exception_eligible(model, built, case, output, groups) {
+        return None;
+    }
+    let family = family_nodes(model, case, output, groups)?;
+    let record = cap_remainder_record(model, built, case, output, &family)?;
+    Some((record, family))
+}
+
 /// Test-only observation, per thread, of the cancellation-screen exception:
-/// how many cases it admitted (an exception record set on the case's
-/// assembly evidence), whether or not the case is published afterwards.
+/// how many times its work was entered, and how many cases it admitted (an
+/// exception record set on the case's assembly evidence), whether or not the
+/// case is published afterwards.
 #[cfg(test)]
 pub(crate) mod exception_probe {
     use std::cell::Cell;
     thread_local! {
+        static ENTERED: Cell<usize> = const { Cell::new(0) };
         static ADMITTED: Cell<usize> = const { Cell::new(0) };
+    }
+    pub(crate) fn entered() {
+        ENTERED.with(|count| count.set(count.get() + 1));
     }
     pub(crate) fn admitted() {
         ADMITTED.with(|count| count.set(count.get() + 1));
+    }
+    /// Resets the count and returns what it was.
+    pub(crate) fn take_entered() -> usize {
+        ENTERED.with(|count| count.replace(0))
     }
     /// Resets the count and returns what it was.
     pub(crate) fn take_admitted() -> usize {

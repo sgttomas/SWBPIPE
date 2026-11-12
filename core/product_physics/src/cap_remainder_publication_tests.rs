@@ -172,3 +172,25 @@ fn a_document_whose_second_admitted_case_is_refused_publishes_no_warning() {
         validate_pressure_evidence(&output).unwrap_or_else(|e| panic!("{mode:?}: {e}"));
     }
 }
+
+/// The exception's work (eligibility, family walk, record and warning) is
+/// entered only when the original screen fails: a closed straight run of
+/// bit-equal members, whose groups cancel exactly and whose screen passes,
+/// never enters it, while the same run with members one ulp apart, whose
+/// screen fails, enters it and is admitted.
+#[test]
+fn a_case_the_original_screen_admits_never_enters_the_exception() {
+    let equal = document(&[chain("E", "case:equal", &[[0.0; 3], [3.0, 0.0, 0.0], [6.0, 0.0, 0.0]], &[0.12, 0.12])]);
+    let apart = document(&[admitted("A", "case:admitted", 0.0)]);
+    for mode in MODES {
+        pressure_runtime::exception_probe::take_entered();
+        let (output, admitted) = solve(&equal, mode);
+        assert_eq!(output["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}");
+        let screen = output["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["cancellation_screen"].as_f64().unwrap();
+        assert!(screen <= 1e-9, "{mode:?}: the original screen passes ({screen})");
+        assert_eq!((pressure_runtime::exception_probe::take_entered(), admitted), (0, 0), "{mode:?}");
+        assert!(warnings(&output).is_empty() && records(&output) == 0, "{mode:?}");
+        let (_, admitted) = solve(&apart, mode);
+        assert!(pressure_runtime::exception_probe::take_entered() >= 1 && admitted >= 1, "{mode:?}");
+    }
+}
