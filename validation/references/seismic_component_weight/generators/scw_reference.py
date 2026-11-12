@@ -1,28 +1,36 @@
 #!/usr/bin/env python3
-"""Seismic component-weight references: static-equivalent seismic takes the masses the weight case takes.
+"""Seismic component-weight references: the self-weight plan evaluated at the seismic case's gravity.
 
 Standard-library Python 3 only. This generator imports, reads and runs no
 product code and reads no file other than the ones it writes. Every expected
 value is derived here in exact rational arithmetic, with pi carried
 symbolically, from linear-elastic small-displacement Euler-Bernoulli frame
-mechanics and from the text of the decided seismic rule (DEL-05-01, decided by
-SWBPIPE's Agent 0 on 2026-11-12):
+mechanics and from the seismic rule SWBPIPE's Agent 0 decided for DEL-05-01:
+the generated seismic load is "the self-weight plan evaluated at the seismic
+case's gravity, with each entered component force W held fixed". For each
+global axis, on every member the load per length is the g-factor times the
+seismic case's gravity times the member's mass per length; for a member whose
+component weight the self-weight plan applies, in place of that load, the force
+is the g-factor times the component's weight W at the component's node, with
+the moments of that force about the node from the centre-of-gravity vector; a
+member whose component weight the plan does not apply (here: a component
+declared not consumed by the solve, DEL-03-05) keeps its distributed load.
 
-  Seismic: for each global axis, the user's g-factor times the weight the same
-  gravity gives the model: on every member, a load per length equal to the
-  g-factor times gravity times the member's mass per length; and for a member
-  that a rigid-family component maps, in place of that load, the force equal to
-  the g-factor times the component's weight W at the component's node, with the
-  moments of that force about the node from the centre-of-gravity vector.
-
-and, as the self-weight plan does, a member whose component weight is not
-applied (a component declared not consumed by the solve, DEL-03-05) keeps its
-distributed load.
+This is a force convention, not a statement that the seismic load uses one
+fixed mass. It coincides with acceleration of the model's self-weight mass only
+when the seismic case's gravity equals the gravity of an applied self-weight;
+when they differ, the pipes' loads scale with the seismic case's gravity and
+the component force does not. Where the applied self-weight's gravity is absent
+or ambiguous, the equivalence of the two mass models is not established; the
+values here are what the convention yields. A product is expected to carry a
+model-check warning, an exception the convention names, on a seismic case that
+carries an applied component weight and states a gravity different from the
+applied self-weight's; the absence of that warning establishes no mass model.
 
 Every quantity is a Laurent polynomial in pi with rational coefficients and
 exponents -1, 0 or 1: masses per length and section properties are rational
-multiples of pi, component weights are rational. It is solved twice, by two
-methods that share nothing but the inputs and the generated loads:
+multiples of pi, component weights are rational. The response is solved by two
+methods:
 
   method 1  direct stiffness: 12-DOF Euler-Bernoulli frame elements along
             global X, work-consistent equivalent nodal loads, exact Gaussian
@@ -32,12 +40,27 @@ methods that share nothing but the inputs and the generated loads:
             N n / EA and T t / GJ; the both-ends-anchored twin by the force
             method (the six actions at D are the redundants).
 
-Every row of method 1 must equal method 2 exactly; global equilibrium of every
-case is checked about the origin; the resultants of the generated loads are
-checked against the sum of their equivalent nodal loads; and the whole build is
-repeated with every input replaced by its nearest binary64 value, which must
-change no sign of any row and no discrete outcome (which rows are zero, which
-controls differ from their reference and in which sense, which parity holds).
+The two methods are not wholly independent. Besides the inputs and the
+generated loads they share the geometry, the section and stiffness
+construction (member_props), the exact arithmetic (Fraction and the class P)
+and the linear solver (gauss_solve, through solve_p: method 1 for the
+displacements, method 2 for the redundants). They differ in how the response
+is formed: element stiffness assembly against section-action statics and
+virtual-work integrals.
+
+Every response row of method 1 must equal method 2 exactly. The further checks
+are invariants of one solution, not further solution methods: global
+equilibrium of every case about the origin; the force and the moment about
+the origin of the equivalent nodal loads against the resultant of the
+generated loads; member and free-node balance; the row identity of the Z
+seismic case against the weight case; and the parity of each seismic resultant
+with the weight. Parity calls the same generation and resultant functions on
+both sides, so it shows the decided rule's identity with the weight case but
+does not independently establish which constituents of mass are selected.
+Finally the whole build is repeated with every input replaced by its nearest
+binary64 value, which must change no sign of any row and no discrete outcome
+(which rows are zero, which controls differ from their reference and in which
+sense, which parity holds).
 
 Decimals carry 40 significant digits; `value` is the nearest binary64, decided
 by lower and upper rational bounds of pi that must give the same double.
@@ -228,10 +251,20 @@ INPUTS = {
     "g_s_other": F(10),  # m/s^2, the seismic gravity of the G10 case (differs from g_w)
     "k": (F(3, 10), F(7, 20), F(2, 5)),  # g-factors along +X, +Y, +Z
 }
+# Boundary gravities (CANT only). g_w_bits is the exact value of the binary64 nearest 9.79, used as the
+# weight case's and the seismic case's gravity alike (equal to the last bit); g_s_ulp is the next binary64
+# above it. In [8, 16) adjacent binary64 values are 2**-49 apart.
+_G_W_BITS = F(float(F(979, 100)))
+_ULP = F(1, 2 ** 49)
+assert 8 <= _G_W_BITS < 16 and F(float(_G_W_BITS + _ULP)) == _G_W_BITS + _ULP
+assert float(_G_W_BITS + _ULP) > float(_G_W_BITS) and F(float(_G_W_BITS + _ULP / 2)) in (_G_W_BITS, _G_W_BITS + _ULP)
+INPUTS["g_w_bits"] = _G_W_BITS
+INPUTS["g_s_ulp"] = _G_W_BITS + _ULP
 INPUT_UNITS = {"L_ab": "m", "L_bc": "m", "L_cd": "m", "D": "m", "t": "m", "c_m": "m", "c_a": "m", "t_i": "m",
                "rho_m": "kg/m^3", "rho_c": "kg/m^3", "rho_i": "kg/m^3", "E": "Pa", "nu": "1",
                "W_v": "N", "r_v": "m", "s_v": "1", "W_f": "N", "r_f": "m",
-               "g_w": "m/s^2", "g_s": "m/s^2", "g_s_other": "m/s^2", "k": "1"}
+               "g_w": "m/s^2", "g_s": "m/s^2", "g_s_other": "m/s^2", "k": "1",
+               "g_w_bits": "m/s^2", "g_s_ulp": "m/s^2"}
 
 ROUTES = ("PF", "EX")
 MODELS = ("CANT", "FIXED")
@@ -278,12 +311,13 @@ def geometry(inp):
     return x
 
 
-def member_props(inp, route):
-    """Per member: (EA, GJ, EI) as coefficients of pi, with the valve body's scale."""
+def member_props(inp, route, valve_applied=True):
+    """Per member: (EA, GJ, EI) as coefficients of pi, with the valve body's scale where it is applied."""
     sec = section(inp, route)
     props = {}
     for name, _, _ in MEMBERS:
-        s = inp["s_v"] if name == "BC" else F(1)  # the not-consumed flange's body solves as its pipe
+        # a not-consumed component's body solves as its pipe: the flange always, the valve in BND-NONE
+        s = inp["s_v"] if (name == "BC" and valve_applied) else F(1)
         props[name] = (s * inp["E"] * sec["A"], s * sec["G"] * sec["J"], s * inp["E"] * sec["I"])
     return props
 
@@ -294,7 +328,7 @@ def generate(inp, route, spec):
 
     spec keys: kind ('weight' | 'seismic'), g (the gravity the generation uses),
     vec (weight: unit gravity direction; seismic: the g-factor triple),
-    valve ('reference' | 'today' | 'double' | 'no_moment' | 'rescaled'),
+    valve ('reference' | 'today' | 'double' | 'no_moment' | 'rescaled' | 'not_consumed'),
     flange (None | 'not_consumed' | 'keyed_on_mapped'), mapped_g (gravity used for the
     rescaled control's division)."""
     sec = section(inp, route)
@@ -307,13 +341,13 @@ def generate(inp, route, spec):
     flange = spec.get("flange")
     for name, _, _ in MEMBERS:
         distributed = True
-        if name == "BC" and valve not in ("today", "double"):
+        if name == "BC" and valve not in ("today", "double", "not_consumed"):
             distributed = False
         if name == "AB" and flange == "keyed_on_mapped":
             distributed = False
         if distributed:
             member_loads[name] = tuple(mu * a for a in accel)
-    if valve != "today":
+    if valve not in ("today", "not_consumed"):
         f_scale = inp["W_v"] if valve != "rescaled" else inp["W_v"] / spec["mapped_g"] * g
         force = tuple(P.lift(f_scale * u) for u in unit_force)
         moment = ZERO3 if valve == "no_moment" else cross(inp["r_v"], force)
@@ -397,9 +431,9 @@ def solve_p(a, b):
     return x
 
 
-def stiffness_method(inp, route, model, member_loads, wrenches):
+def stiffness_method(inp, route, model, member_loads, wrenches, valve_applied=True):
     x = geometry(inp)
-    props = member_props(inp, route)
+    props = member_props(inp, route, valve_applied)
     n = 6 * len(NODES)
     K = [[F(0)] * n for _ in range(n)]
     f = [P() for _ in range(n)]
@@ -445,8 +479,16 @@ def stiffness_method(inp, route, model, member_loads, wrenches):
     # free-DOF balance: the element end forces at a free node equal its applied nodal load
     balance = all(node_sum[d] == nodal[d] for d in free)
     disp = {nd: u[6 * i:6 * i + 6] for i, nd in enumerate(NODES)}
+    # the assembled load vector (equivalent nodal loads plus nodal wrenches): its force and its moment
+    # about the origin, each nodal force acting at its node (x_i, 0, 0)
+    feq_force = tuple(sum((f[6 * i + c] for i in range(len(NODES))), P()) for c in range(3))
+    feq_moment = ZERO3
+    for i in range(len(NODES)):
+        node_f = (f[6 * i], f[6 * i + 1], f[6 * i + 2])
+        node_m = (f[6 * i + 3], f[6 * i + 4], f[6 * i + 5])
+        feq_moment = vadd(feq_moment, vadd(node_m, cross((x[i], F(0), F(0)), node_f)))
     return {"disp": disp, "reactions": reactions, "end": end, "free_balance": balance,
-            "feq_force": tuple(sum((f[6 * i + c] for i in range(len(NODES))), P()) for c in range(3))}
+            "feq_force": feq_force, "feq_moment": feq_moment}
 
 
 # ----------------------------------------------------------------------------- method 2: statics and virtual work
@@ -529,10 +571,10 @@ def section_actions(inp, member_loads, wrenches, seg):
     return Fs + Ms
 
 
-def cantilever_response(inp, route, member_loads, wrenches):
+def cantilever_response(inp, route, member_loads, wrenches, valve_applied=True):
     """Fixed at A, free elsewhere: reaction at A, displacements at every node, end forces."""
     x = geometry(inp)
-    props = member_props(inp, route)
+    props = member_props(inp, route, valve_applied)
     S = [section_actions(inp, member_loads, wrenches, k) for k in range(len(MEMBERS))]
     reaction_a = [-S[0][c].at(x[0]) for c in range(6)]
     end = {}
@@ -568,24 +610,24 @@ def cantilever_response(inp, route, member_loads, wrenches):
     return {"reaction_a": reaction_a, "end": end, "disp": disp}
 
 
-def virtual_work_method(inp, route, model, member_loads, wrenches):
+def virtual_work_method(inp, route, model, member_loads, wrenches, valve_applied=True):
     if model == "CANT":
-        r = cantilever_response(inp, route, member_loads, wrenches)
+        r = cantilever_response(inp, route, member_loads, wrenches, valve_applied)
         return {"disp": r["disp"], "reactions": {"A": r["reaction_a"]}, "end": r["end"]}
     # force method: release D, compatibility u_D = 0 with the six actions at D as redundants
-    base = cantilever_response(inp, route, member_loads, wrenches)["disp"]["D"]
+    base = cantilever_response(inp, route, member_loads, wrenches, valve_applied)["disp"]["D"]
     flex = []  # flex[j][i] = displacement j at D due to unit action i at D (coefficients of 1/pi)
     for i in range(6):
         unit_f = tuple(P.lift(F(1) if c == i else F(0)) for c in range(3))
         unit_m = tuple(P.lift(F(1) if c + 3 == i else F(0)) for c in range(3))
-        d = cantilever_response(inp, route, {}, [("D", unit_f, unit_m)])["disp"]["D"]
+        d = cantilever_response(inp, route, {}, [("D", unit_f, unit_m)], valve_applied)["disp"]["D"]
         flex.append([v.c.get(-1, F(0)) for v in d])
         assert all(set(v.c) <= {-1} for v in d)
     fmat = [[flex[i][j] for i in range(6)] for j in range(6)]
     # solve_p solves (pi * fmat) y = base; the flexibility is fmat / pi, so red = -pi**2 * y
     red = [(-v).shift(2) for v in solve_p(fmat, base)]
     red_f, red_m = tuple(red[:3]), tuple(red[3:])
-    r = cantilever_response(inp, route, member_loads, list(wrenches) + [("D", red_f, red_m)])
+    r = cantilever_response(inp, route, member_loads, list(wrenches) + [("D", red_f, red_m)], valve_applied)
     return {"disp": r["disp"], "reactions": {"A": r["reaction_a"], "D": red}, "end": r["end"]}
 
 
@@ -616,27 +658,67 @@ def case_specs(inp):
          {"kind": "seismic", "g": inp["g_s"], "vec": k, "valve": "double"}),
         ("CTRL-C-NO-MOMENT", "control", "control (c): component force at C with the centre-of-gravity moment omitted",
          {"kind": "seismic", "g": inp["g_s"], "vec": k, "valve": "no_moment"}),
-        ("CTRL-G-RESCALED", "control", "control: g10 case with the valve force k (W / g_w) g_s_other",
-         {"kind": "seismic", "g": inp["g_s_other"], "vec": k, "valve": "rescaled", "mapped_g": inp["g_w"]}),
+        ("CTRL-G-RESCALED", "control", "control (fixed-mass inertia): the G10 case's inputs with the valve force "
+         "k (W_v / g_w) g_s_other, the inertia of the mass W_v / g_w the weight case fixes",
+         {"kind": "seismic", "g": inp["g_s_other"], "vec": k, "valve": "rescaled", "mapped_g": inp["g_w"],
+          "rule": "control: fixed-mass inertia"}),
         ("CTRL-TWO-KEYED-ON-MAPPED", "control", "control: two mapped members, the rule keyed on 'mapped'; "
          "the not-consumed flange also gets k W_f at B and A-B loses its load",
-         {"kind": "seismic", "g": inp["g_s"], "vec": k, "flange": "keyed_on_mapped"}),
-        ("ALT-O2-WEIGHT-GRAVITY", "alternative", "open reading O-2, reading B: g10 case with unmapped members "
-         "at the weight case's gravity g_w",
-         {"kind": "seismic", "g": inp["g_w"], "vec": k}),
+         {"kind": "seismic", "g": inp["g_s"], "vec": k, "flange": "keyed_on_mapped",
+          "rule": "control: keyed on mapped"}),
+        ("CTRL-K-TIMES-WEIGHT-CASE", "control", "control: the G10 case's inputs (authored gravity g_s_other) "
+         "generated at the weight case's gravity g_w instead, i.e. k times the existing weight case",
+         {"kind": "seismic", "g": inp["g_w"], "authored_g": inp["g_s_other"], "vec": k,
+          "rule": "decided, at the weight case's gravity instead of the authored gravity"}),
+        # boundary cases, CANT only
+        ("BND-BITS-WEIGHT-NZ", "reference", "boundary 1: weight case at g_w_bits (the binary64 nearest 9.79) "
+         "along -Z",
+         {"kind": "weight", "g": inp["g_w_bits"], "vec": down, "models": ("CANT",)}),
+        ("BND-BITS-SEISMIC-XYZ", "reference", "boundary 1: seismic XYZ at g_w_bits, equal to the weight case's "
+         "gravity to the last bit",
+         {"kind": "seismic", "g": inp["g_w_bits"], "vec": k, "weight_g": inp["g_w_bits"], "models": ("CANT",)}),
+        ("BND-NONE-WEIGHT-NZ", "reference", "boundary 2: valve and flange both declared not consumed, so the "
+         "weight case applies no component weight; weight at g_w along -Z",
+         {"kind": "weight", "g": inp["g_w"], "vec": down, "valve": "not_consumed", "flange": "not_consumed",
+          "valve_applied": False, "models": ("CANT",)}),
+        ("BND-NONE-SEISMIC-XYZ-G10", "reference", "boundary 2: no component weight applied; seismic XYZ at "
+         "g_s_other != g_w; no component force is carried; the equivalence of the two mass models is not "
+         "established for this case, and the values are what the convention yields",
+         {"kind": "seismic", "g": inp["g_s_other"], "vec": k, "valve": "not_consumed", "flange": "not_consumed",
+          "valve_applied": False, "models": ("CANT",)}),
+        ("BND-ULP-SEISMIC-XYZ", "reference", "boundary 3: valve applied, centre of gravity offset on all three "
+         "axes; seismic XYZ at g_s_ulp, one binary64 unit above the weight case's g_w_bits",
+         {"kind": "seismic", "g": inp["g_s_ulp"], "vec": k, "weight_g": inp["g_w_bits"], "models": ("CANT",)}),
     ]
     return specs
 
 
 CONTROL_OF = {"CTRL-A-TODAY": "SEISMIC-XYZ", "CTRL-B-DOUBLE": "SEISMIC-XYZ", "CTRL-C-NO-MOMENT": "SEISMIC-XYZ",
               "CTRL-G-RESCALED": "SEISMIC-XYZ-G10", "CTRL-TWO-KEYED-ON-MAPPED": "TWO-SEISMIC-XYZ",
-              "ALT-O2-WEIGHT-GRAVITY": "SEISMIC-XYZ-G10"}
+              "CTRL-K-TIMES-WEIGHT-CASE": "SEISMIC-XYZ-G10"}
+DEFAULT_RULE = {"weight": "self-weight plan", "seismic": "decided"}
+CONTROL_RULE = {"CTRL-A-TODAY": "control (a): today's rule", "CTRL-B-DOUBLE": "control (b): double count",
+                "CTRL-C-NO-MOMENT": "control (c): moment omitted"}
+
+
+def spec_rule(cid, spec):
+    return spec.get("rule") or CONTROL_RULE.get(cid) or DEFAULT_RULE[spec["kind"]]
+
+
+def weight_gravity(inp, spec):
+    """The gravity of the applied self-weight a seismic case is compared with."""
+    return spec.get("weight_g", inp["g_w"])
+
+
+def carries_component_force(spec):
+    return spec.get("valve", "reference") not in ("today", "not_consumed")
 
 
 def case_values(inp, route, model, spec, check):
+    valve_applied = spec.get("valve_applied", True)
     loads, wrenches = generate(inp, route, spec)
     force, moment = resultant(inp, loads, wrenches)
-    m1 = stiffness_method(inp, route, model, loads, wrenches)
+    m1 = stiffness_method(inp, route, model, loads, wrenches, valve_applied)
     rows = []
     x = geometry(inp)
     for name, _, _ in MEMBERS:
@@ -664,13 +746,15 @@ def case_values(inp, route, model, spec, check):
             resp.append((f"end/{name}/{'ij'[c // 6]}/{ACT[c % 6]}", m1["end"][name][c]))
     rows += resp
     if check is not None:
-        m2 = virtual_work_method(inp, route, model, loads, wrenches)
+        m2 = virtual_work_method(inp, route, model, loads, wrenches, valve_applied)
         same = (all(m1["disp"][nd][c] == m2["disp"][nd][c] for nd in NODES for c in range(6))
                 and all(m1["reactions"][s][c] == m2["reactions"][s][c] for s in SUPPORTS[model] for c in range(6))
                 and all(m1["end"][n][c] == m2["end"][n][c] for n, _, _ in MEMBERS for c in range(12)))
         check("two methods agree on every response row", same)
         check("free-node balance of element end forces", m1["free_balance"])
-        check("equivalent nodal loads sum to the load resultant", m1["feq_force"] == force)
+        check("equivalent nodal loads: force equals the load resultant's force", m1["feq_force"] == force)
+        check("equivalent nodal loads: moment about the origin equals the load resultant's moment",
+              all((a - b).is_zero() for a, b in zip(m1["feq_moment"], moment)))
         # global equilibrium about the origin: applied resultant + reactions = 0
         idx = {nd: i for i, nd in enumerate(NODES)}
         rf, rm = ZERO3, ZERO3
@@ -692,9 +776,9 @@ def case_values(inp, route, model, spec, check):
     return {"rows": rows, "force": force, "moment": moment, "loads": loads, "wrenches": wrenches}
 
 
-def weight_moment_along(inp, route, axis_vec, g, flange):
+def weight_moment_along(inp, route, axis_vec, g, flange, valve):
     """Total weight and the moment about the origin of the weight if gravity pointed along axis_vec."""
-    spec = {"kind": "weight", "g": g, "vec": axis_vec, "flange": flange}
+    spec = {"kind": "weight", "g": g, "vec": axis_vec, "flange": flange, "valve": valve}
     loads, wrenches = generate(inp, route, spec)
     force, moment = resultant(inp, loads, wrenches)
     total = sum((P.lift(c) * a for c, a in zip(force, axis_vec)), P())
@@ -702,15 +786,19 @@ def weight_moment_along(inp, route, axis_vec, g, flange):
 
 
 def parity(inp, route, cid, val, spec, g_ref):
-    """Seismic resultant against sum over axes of k_a * (weight under gravity g_ref along +e_a)."""
+    """Seismic resultant against sum over axes of k_a * (weight under gravity g_ref along +e_a).
+
+    The weight is the self-weight plan's for the case's components: a control's altered rule is not
+    carried over to the weight it is compared with."""
     flange = spec.get("flange")
     if flange == "keyed_on_mapped":
         flange = "not_consumed"  # the weight case follows self-weight: the not-consumed flange's pipe keeps its weight
+    valve = "not_consumed" if spec.get("valve") == "not_consumed" else "reference"
     exp_f, exp_m = ZERO3, ZERO3
     total = None
     for a, axis in enumerate(("x", "y", "z")):
         ka = spec["vec"][a]
-        tot, mom = weight_moment_along(inp, route, AXES[axis], g_ref, flange)
+        tot, mom = weight_moment_along(inp, route, AXES[axis], g_ref, flange, valve)
         total = tot
         exp_f = vadd(exp_f, vscale(AXES[axis], tot * ka))
         exp_m = vadd(exp_m, vscale(mom, ka))
@@ -726,6 +814,8 @@ def build_values(inp, check):
     for model in MODELS:
         for route in ROUTES:
             for cid, role, desc, spec in case_specs(inp):
+                if model not in spec.get("models", MODELS):
+                    continue
                 out[(model, route, cid)] = (role, desc, spec, case_values(inp, route, model, spec, check))
     return out
 
@@ -773,11 +863,21 @@ def build_document(values):
     for (model, route, cid), (role, desc, spec, val) in vmap.items():
         entry = {"id": f"SCW-{model}-{route}-{cid}", "model": model, "route": route, "mass_basis": MASS_BASIS[route],
                  "role": role, "description": desc, "load_kind": spec["kind"],
-                 "gravity": rec(spec["g"])}
+                 "gravity": rec(spec["g"]),
+                 "gravity_authored": rec(spec.get("authored_g", spec["g"])),
+                 "rule": spec_rule(cid, spec)}
         if spec["kind"] == "seismic":
             entry["g_factors"] = [rec(v) for v in spec["vec"]]
         else:
             entry["gravity_direction"] = [str(v) for v in spec["vec"]]
+        if spec["kind"] == "seismic" and role == "reference":
+            g_auth, g_wt = spec.get("authored_g", spec["g"]), weight_gravity(INPUTS, spec)
+            carries = carries_component_force(spec)
+            entry["expected_model_check_warning"] = {
+                "expected": carries and g_auth != g_wt,
+                "carries_applied_component_force": carries,
+                "seismic_gravity_authored": rec(g_auth),
+                "applied_self_weight_gravity": rec(g_wt)}
         if cid in CONTROL_OF:
             ref_id = CONTROL_OF[cid]
             ref_val = vmap[(model, route, ref_id)][3]
@@ -788,8 +888,9 @@ def build_document(values):
             entry["largest_response_difference"] = difference_summary(ref_val["rows"], val["rows"])
         if spec["kind"] == "seismic":
             g_ref = spec["g"]
-            total, ef, em, df, dm, holds = parity(INPUTS, route, cid, val, spec, INPUTS["g_w"])
-            par = {"weight_gravity": rec(INPUTS["g_w"]),
+            g_wt = weight_gravity(INPUTS, spec)
+            total, ef, em, df, dm, holds = parity(INPUTS, route, cid, val, spec, g_wt)
+            par = {"weight_gravity": rec(g_wt),
                    "total_weight_at_weight_gravity": rec(total),
                    "expected_force_from_weight": [rec(v) for v in ef],
                    "expected_moment_from_weight": [rec(v) for v in em],
@@ -799,13 +900,22 @@ def build_document(values):
             if role == "reference":
                 stats["parity_cases"] += 1
                 stats["parity_holds"] += int(holds)
-            if g_ref != INPUTS["g_w"]:
+            if g_ref != g_wt:
                 total2, ef2, em2, df2, dm2, holds2 = parity(INPUTS, route, cid, val, spec, g_ref)
                 par["at_the_seismic_case_gravity"] = {
                     "total_weight": rec(total2),
                     "expected_force_from_weight": [rec(v) for v in ef2],
                     "expected_moment_from_weight": [rec(v) for v in em2],
                     "holds": holds2}
+                if role == "reference":
+                    # the gap from the weight at g_wt is the pipes' share alone: the distributed loads
+                    # scaled by (g_ref - g_wt) / g_ref; the component force carries no gravity
+                    share = {m: tuple(q * ((g_ref - g_wt) / g_ref) for q in qs) for m, qs in val["loads"].items()}
+                    sf, sm = resultant(INPUTS, share, [])
+                    par["pipes_share_force"] = [rec(v) for v in sf]
+                    par["pipes_share_moment"] = [rec(v) for v in sm]
+                    record_check("parity gap equals the pipes' share",
+                                 all((a - b).is_zero() for a, b in zip(df + dm, sf + sm)))
             entry["parity"] = par
         entry["rows"] = [dict(row=r, **rec(v)) for r, v in val["rows"]]
         cases.append(entry)
@@ -826,6 +936,21 @@ def build_document(values):
             for a, b in (("TWO-SEISMIC-XYZ", "SEISMIC-XYZ"), ("TWO-WEIGHT-NZ", "WEIGHT-NZ")):
                 ra, rb = vmap[(model, route, a)][3]["rows"], vmap[(model, route, b)][3]["rows"]
                 record_check(f"{model} {route} {a} equals {b}", [(r, v.c) for r, v in ra] == [(r, v.c) for r, v in rb])
+    # the boundary cases' stated outcomes
+    by_id = {c["id"]: c for c in cases}
+    for route in ROUTES:
+        bits = by_id[f"SCW-CANT-{route}-BND-BITS-SEISMIC-XYZ"]
+        none = by_id[f"SCW-CANT-{route}-BND-NONE-SEISMIC-XYZ-G10"]
+        ulp = by_id[f"SCW-CANT-{route}-BND-ULP-SEISMIC-XYZ"]
+        record_check("boundary 1: parity exact, no warning",
+                     bits["parity"]["holds"] and not bits["expected_model_check_warning"]["expected"])
+        record_check("boundary 2: no component force, no warning, parity at its own gravity",
+                     not none["expected_model_check_warning"]["carries_applied_component_force"]
+                     and not none["expected_model_check_warning"]["expected"]
+                     and none["parity"]["at_the_seismic_case_gravity"]["holds"])
+        record_check("boundary 3: warning, parity fails by the pipes' share",
+                     ulp["expected_model_check_warning"]["expected"] and not ulp["parity"]["holds"]
+                     and "pipes_share_force" in ulp["parity"])
     return cases, identity, stats
 
 
@@ -884,9 +1009,14 @@ def binary64_robustness(exact_values):
                     df = (fv["force"] + fv["moment"])[c] - (f_ref["force"] + f_ref["moment"])[c]
                     outcome_changes += int(de.sign() != df.sign())
             if spec["kind"] == "seismic":
-                pe = parity(INPUTS, route, cid, ev, spec, INPUTS["g_w"])[5]
-                pf = parity(inp, route, cid, fv, vals[(model, route, cid)][2], inp["g_w"])[5]
+                fspec = vals[(model, route, cid)][2]
+                pe = parity(INPUTS, route, cid, ev, spec, weight_gravity(INPUTS, spec))[5]
+                pf = parity(inp, route, cid, fv, fspec, weight_gravity(inp, fspec))[5]
                 outcome_changes += int(pe != pf)
+                if role == "reference":  # the expected warning is a discrete outcome too
+                    we = carries_component_force(spec) and spec.get("authored_g", spec["g"]) != weight_gravity(INPUTS, spec)
+                    wf = carries_component_force(fspec) and fspec.get("authored_g", fspec["g"]) != weight_gravity(inp, fspec)
+                    outcome_changes += int(we != wf)
         return rows, sign_changes, outcome_changes
 
 
@@ -927,10 +1057,21 @@ def build():
         a[1] += int(ok)
     doc = {
         "schema": "swbpipe-reference/seismic_component_weight/v1",
-        "statement": "Independent references for static-equivalent seismic that takes the masses the weight case "
-                     "takes (DEL-05-01, decided 2026-11-12). Invented inputs; no internal pressure; generated by "
-                     "exact rational arithmetic without product code.",
+        "statement": "Independent references for static-equivalent seismic generated as the self-weight plan "
+                     "evaluated at the seismic case's gravity, with each entered component force W held fixed "
+                     "(DEL-05-01, decided by SWBPIPE's Agent 0). A force convention, not one fixed mass: it "
+                     "coincides with acceleration of the self-weight mass only when the seismic case's gravity "
+                     "equals an applied self-weight's; where that gravity is absent or ambiguous the equivalence "
+                     "is not established and the values are what the convention yields. "
+                     "Invented inputs; no internal pressure; generated by exact rational arithmetic without "
+                     "product code.",
         "conventions": {
+            "gravity": "the gravity the case's loads were generated with",
+            "gravity_authored": "the gravity the case states; differs from gravity only in CTRL-K-TIMES-WEIGHT-CASE",
+            "rule": "the generation rule the case follows: decided, self-weight plan, or a named control",
+            "expected_model_check_warning": "on seismic reference cases: a warning is expected when the case "
+                                            "carries an applied component force and its authored gravity differs "
+                                            "from the applied self-weight's; no warning code is assumed",
             "axes": "members along global +X; local y = global Y, local z = global Z",
             "disp": "nodal translations ux, uy, uz (m) and right-handed rotations rx, ry, rz (rad), global",
             "reaction": "force and moment the support exerts on the structure at its node, global",
