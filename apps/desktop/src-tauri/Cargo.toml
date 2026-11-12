@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "SWBPIPE macOS desktop shell"
 authors = ["OpenPipeStress contributors"]
 edition = "2021"
+license = "MIT"
 
 [lib]
 name = "openpipestress_desktop_lib"
