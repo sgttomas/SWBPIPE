@@ -52,6 +52,8 @@ pub const INPUT_NOT_ADMITTED: &str = "HANGER_SIZING_INPUT_NOT_ADMITTED";
 pub const INPUT_SHAPE_INVALID: &str = "HANGER_SIZING_INPUT_SHAPE_INVALID";
 pub const LIBRARY_NOT_ADMITTED: &str = "HANGER_SIZING_LIBRARY_NOT_ADMITTED";
 pub const REQUEST_INVALID: &str = "HANGER_SIZING_REQUEST_INVALID";
+pub const WEIGHT_SUPPORT_STATE_REQUIRED: &str = "HANGER_SIZING_WEIGHT_SUPPORT_STATE_REQUIRED";
+pub const WEIGHT_SUPPORT_STATE_UNSUPPORTED: &str = "HANGER_SIZING_WEIGHT_SUPPORT_STATE_UNSUPPORTED";
 pub const RESULT_NOT_PUBLISHABLE: &str = "HANGER_SIZING_RESULT_NOT_PUBLISHABLE";
 pub const DERIVED_DOCUMENT_NOT_HASHABLE: &str = "HANGER_SIZING_DERIVED_DOCUMENT_NOT_HASHABLE";
 
@@ -793,16 +795,34 @@ pub(crate) fn size_admitted(input: &Value) -> Published {
     } else if inputs.library_id.is_none() {
         refusals.push(refusal(LIBRARY_NOT_ADMITTED, Vec::new(), "the library carries no hanger_library.library_id string"));
     }
+    // The support state W is formed in is a required input with one admitted value
+    // (REQ-001, REQ-003): absent, it is refused as required; present and not
+    // `own_solve`, as unsupported. Either names the member's path, as the request's
+    // other refusals do, and is not also listed as an invalid member.
+    let weight_state_path = "$.sizing.weight_support_state";
+    let weight_state = sizing.as_object().and_then(|map| match map.get("weight_support_state") {
+        None => Some(refusal(WEIGHT_SUPPORT_STATE_REQUIRED, vec![weight_state_path.to_string()],
+            "the support state the hot-load basis is formed in is required; the only admitted value is own_solve, the weight case's own converged state")),
+        Some(value) if value.as_str() != Some("own_solve") => Some(refusal(WEIGHT_SUPPORT_STATE_UNSUPPORTED, vec![weight_state_path.to_string()],
+            "the hot-load basis is formed only in the weight case's own converged support state (own_solve); another case's state cannot be held by the solve")),
+        Some(_) => None,
+    });
     let request = match parse_sizing_request(sizing, "$.sizing") {
         Ok(request) => {
             inputs.sizing_request = Some(sizing.clone());
             Some(request)
         }
-        Err(paths) => {
-            refusals.push(refusal(REQUEST_INVALID, paths, "the sizing request does not match $defs.SizingRequest exactly"));
+        Err(mut paths) => {
+            if weight_state.is_some() {
+                paths.retain(|path| path != weight_state_path);
+            }
+            if !paths.is_empty() {
+                refusals.push(refusal(REQUEST_INVALID, paths, "the sizing request does not match $defs.SizingRequest exactly"));
+            }
             None
         }
     };
+    refusals.extend(weight_state);
     if !refusals.is_empty() {
         return Published::Refused(refused_document(&inputs, &refusals));
     }

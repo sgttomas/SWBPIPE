@@ -202,3 +202,27 @@ fn with_intent_the_whole_document_is_kept_with_one_warning() {
         assert_eq!(c["payload"], size_hangers(&input).into_document(), "{stem}");
     }
 }
+
+/// The support state W is formed in, on both routes: absent, the runner's
+/// document refuses it as required; another value, as unsupported. Exit 1.
+#[test]
+fn the_weight_support_state_is_refused_by_its_own_codes_on_both_routes() {
+    for stem in ["two_span", "ex_pressurised"] {
+        for (value, code) in [(None, "HANGER_SIZING_WEIGHT_SUPPORT_STATE_REQUIRED"),
+                              (Some(json!("design_operating_case")), "HANGER_SIZING_WEIGHT_SUPPORT_STATE_UNSUPPORTED")] {
+            let mut input: Value = serde_json::from_str(&fixture(&format!("hanger_sizing_input_{stem}.json"))).unwrap();
+            match value {
+                None => {
+                    input["sizing"].as_object_mut().unwrap().remove("weight_support_state");
+                }
+                Some(value) => input["sizing"]["weight_support_state"] = value,
+            }
+            let out = run(&["size-hangers", "--explicit-local-private-intent"], input.to_string().as_bytes());
+            assert_eq!(out.code, 1, "{stem}: {}", out.stderr);
+            let document = &controlled(&out)["payload"];
+            assert_eq!(document["refusals"], json!([{"code": code, "names": ["$.sizing.weight_support_state"],
+                "message": document["refusals"][0]["message"]}]), "{stem}");
+            assert_eq!(reader::closure(document), Ok(()), "{stem}");
+        }
+    }
+}

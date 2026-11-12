@@ -261,12 +261,12 @@ describe("HangerSizingPanel: refused documents", () => {
   it("lists every refusal in order with the basis, and renders no table and no export", async () => {
     const document = refused() as unknown as Record<string, unknown> & { refusals: unknown[] };
     document.refusals = [
-      { code: "HANGER_SIZING_CANDIDATE_UNKNOWN", names: ["support:missing"], message: "the candidate does not meet the sizing rules of Design §3" },
+      { code: "HANGER_SIZING_CANDIDATE_UNKNOWN", names: ["support:missing"], message: "the named support is not a support of the model" },
       { code: "HANGER_SIZING_LIBRARY_NOT_ADMITTED", names: [], message: "the library is not admitted" }
     ];
     render(<HangerSizingPanel document={document as unknown as HangerSizingDocument} />);
     await screen.findByTestId("hanger-sizing-refused");
-    expect(byId("refusal-0").textContent).toBe("HANGER_SIZING_CANDIDATE_UNKNOWN (support:missing): the candidate does not meet the sizing rules of Design §3");
+    expect(byId("refusal-0").textContent).toBe("HANGER_SIZING_CANDIDATE_UNKNOWN (support:missing): the named support is not a support of the model");
     expect(byId("refusal-1").textContent).toBe("HANGER_SIZING_LIBRARY_NOT_ADMITTED: the library is not admitted");
     expect(screen.queryAllByRole("table")).toHaveLength(0);
     expect(screen.queryAllByRole("button", { name: /^Export CSV/ })).toHaveLength(0);

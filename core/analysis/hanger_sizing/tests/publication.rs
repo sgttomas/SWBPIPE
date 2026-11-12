@@ -595,6 +595,33 @@ fn shape_library_and_request_refusals_name_their_paths_and_keep_the_hashes_forme
     assert_eq!(doc["inputs"]["sizing_request_sha256"].as_str(), publish::checked_sha256(&input["sizing"]).as_deref());
 }
 
+/// The support state W is formed in: absent is refused as required, any value
+/// but `own_solve` as unsupported, each naming the member's path, on both routes.
+#[test]
+fn the_weight_support_state_is_refused_as_required_or_unsupported_on_both_routes() {
+    for (route, build) in [("pressure_free", two_span_input as fn() -> Value), ("exact_pressure", ex_pressurised_input)] {
+        let mut absent = build();
+        absent["sizing"].as_object_mut().unwrap().remove("weight_support_state");
+        let mut other = build();
+        other["sizing"]["weight_support_state"] = json!("design_operating_case");
+        for (input, code) in [(absent, "HANGER_SIZING_WEIGHT_SUPPORT_STATE_REQUIRED"), (other, "HANGER_SIZING_WEIGHT_SUPPORT_STATE_UNSUPPORTED")] {
+            let doc = refused(size_hangers(&input.to_string()));
+            assert_eq!(doc["route"], route);
+            let listed: Vec<(&str, &Value)> = doc["refusals"].as_array().unwrap().iter().map(|r| (r["code"].as_str().unwrap(), &r["names"])).collect();
+            assert_eq!(listed, [(code, &json!(["$.sizing.weight_support_state"]))], "{route}");
+            assert!(doc["inputs"]["sizing_request"].is_null(), "{route}: the request is not admitted");
+        }
+        // Beside another invalid member, each is listed under its own code.
+        let mut both = build();
+        both["sizing"].as_object_mut().unwrap().remove("weight_support_state");
+        both["sizing"]["solver_mode"] = json!("fast");
+        let doc = refused(size_hangers(&both.to_string()));
+        let listed: Vec<(&str, &Value)> = doc["refusals"].as_array().unwrap().iter().map(|r| (r["code"].as_str().unwrap(), &r["names"])).collect();
+        assert_eq!(listed, [("HANGER_SIZING_REQUEST_INVALID", &json!(["$.sizing.solver_mode"])),
+                            ("HANGER_SIZING_WEIGHT_SUPPORT_STATE_REQUIRED", &json!(["$.sizing.weight_support_state"]))], "{route}");
+    }
+}
+
 #[test]
 fn values_outside_the_profile_refuse_publication_by_owner_and_member() {
     let input = two_span_input();

@@ -417,7 +417,7 @@ describe("hangerSizingView: refused documents", () => {
     expect(view.status).toBe("refused");
     const refusedView = view as HangerSizingRefusedView;
     expect(refusedView.refusals).toEqual([
-      { code: "HANGER_SIZING_CANDIDATE_UNKNOWN", names: ["support:missing"], message: "the candidate does not meet the sizing rules of Design §3" }
+      { code: "HANGER_SIZING_CANDIDATE_UNKNOWN", names: ["support:missing"], message: "the named support is not a support of the model" }
     ]);
     expect(refusedView.basis.sizingRequest?.candidates).toEqual([
       { support: "support:B", familyPolicy: "variable" },

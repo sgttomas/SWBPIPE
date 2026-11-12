@@ -50,7 +50,7 @@
   "refusals": [
     {
       "code": "HANGER_SIZING_CANDIDATE_UNKNOWN",
-      "message": "the candidate does not meet the sizing rules of Design §3",
+      "message": "the named support is not a support of the model",
       "names": [
         "support:missing"
       ]

@@ -354,8 +354,29 @@ pub fn check_candidates(request_doc: &Value, request: &SizingRequest) -> Result<
     } else {
         Err(refusals
             .into_iter()
-            .map(|(code, names)| refusal(code, names, "the candidate does not meet the sizing rules of Design §3"))
+            .map(|(code, names)| refusal(code, names, candidate_message(code)))
             .collect())
+    }
+}
+
+/// What each candidate refusal states: the rule of REQ-002 the named supports fail.
+fn candidate_message(code: &str) -> &'static str {
+    match code {
+        "HANGER_SIZING_CANDIDATES_REQUIRED" => "name at least one support to size",
+        "HANGER_SIZING_CANDIDATE_DUPLICATE" => "each support may be named only once as a candidate",
+        "HANGER_SIZING_CANDIDATE_UNKNOWN" => "the named support is not a support of the model",
+        "HANGER_SIZING_CANDIDATE_SKEW_UNSUPPORTED" =>
+            "the support has a skew direction; a candidate acts along the global X, Y or Z axis",
+        "HANGER_SIZING_CANDIDATE_FAMILY_UNSUPPORTED" =>
+            "the support is nonlinear, a snubber or an anchor; a candidate is a linear support",
+        "HANGER_SIZING_CANDIDATE_REFERENCED" =>
+            "another model object refers to the support: a load targeted at it, another support's friction normal-reaction source, or a case's reference to it other than its own support state",
+        "HANGER_SIZING_CANDIDATE_DOF_UNSUPPORTED" =>
+            "a candidate acts on exactly one translational DOF (UX, UY or UZ): its single rigid restraint, or, for a variable spring hanger with no rigid restraint, the DOF its stiffness declares; this support acts on none, on a rotation, or on more than one",
+        "HANGER_SIZING_CANDIDATE_DOF_SHARED" => "another support acts on the same node and DOF as the candidate",
+        "HANGER_SIZING_CANDIDATE_MOVED" =>
+            "on a model with load and reference states, a candidate needs in every named case exactly one support state that is active, with no boundary motion, base motion or device reference",
+        _ => "the support cannot be sized",
     }
 }
 
