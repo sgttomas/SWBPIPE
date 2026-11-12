@@ -219,6 +219,43 @@ O2 at −35 °C (ΔT = −50 K).
 - **`f_cold_n`** of a constant selection is its constant load W, as in R-3.
   `first_failed_test` lists each record of the families tested, "fits" or the
   first test it fails (REQ-004).
+- **`governing_variation`** of each selection is the variation REQ-004's
+  selection rules compare: "the smallest largest variation", where "a constant
+  record's variation counts as zero". It is the largest per-case variation of a
+  variable selection, and 0 for a constant selection. It is null for an
+  unfitted candidate, which has no selection.
+
+## What a null means (EXS-A, EXS-B)
+
+**In an expected block, a null or an absent member means that this reference
+supplies no expectation for that quantity; a product comparison must not assert
+that the product publishes nothing there.** The JSON states this in its basis
+and in `comparison_semantics`. Each kind of null and empty list in
+`ex_sizing.json`:
+
+- **No expectation:**
+  - a constant selection's `f_cold_condition_n`, `f_operating_n`, `variation`
+    and `envelope_n`, and in its verification `f_cold_condition_n`,
+    `f_operating_n`, `variation` and `departure_n`. The scope defines these
+    for a variable selection only (REQ-004 *Loads* and *Variation*, REQ-005
+    *Variable selections*). Its verified positions, span, travel and travel
+    test, which REQ-005 requires for every selected family, are given;
+  - an unfitted candidate's loads, variation, envelope, governing variation
+    and verification (see the reading above);
+  - the `failure_counts` and `first_failed_test` of a family the request does
+    not test, which are absent.
+- **Expected null or empty list (exceptions):**
+  - `hanger_id` null with outcome `no_record_fits`: no record is selected and
+    nothing is assumed in its place (REQ-004);
+  - `verification.failed_tests` `[]`: the verified values fail no test, so
+    nothing is warned (REQ-005);
+  - `unfitted_verified_as_force_w` `[]`: no candidate is unfitted, and the
+    standing is unconditional.
+- **Inputs, not expectations:** nulls and empty lists outside expected blocks
+  describe the document and catalogue. A record member may be absent (a
+  constant record's stiffness and DOF, VS-NR's working load range). A case may
+  have no imposed displacement or no excluded stored load. The riser carries
+  no internal pressure.
 - **Pressure in the weight case.** W carries the same pressure as the
   operating cases (a sustained case). This changes nothing, by the argument
   above.
@@ -341,6 +378,22 @@ routes; the test cases run on the exact route only.
   states of A and B (factor sum 2, two cold loads), and their difference. The
   difference equals PA-EMPTY exactly, in displacements and in every published
   force: the response to one extra cold load. A combination gate can use it.
+
+## What a null means (P-A, P-B)
+
+The same rule holds: in an expected block, a null or an absent member means
+that this reference supplies no expectation for that quantity, and a product
+comparison must not assert that the product publishes nothing there.
+`preload.json` states it in its basis and in `comparison_semantics`.
+
+- **Expected null (exception):** `published_applied_force_n` null for the
+  held spring in PA-HT. A held spring publishes no applied force, for the
+  reason given in `applied_force_null_reason`. That absence is expected.
+- **Explanatory, not a product quantity:** `applied_force_null_reason` `{}`,
+  where no hanger in the case has a null applied force.
+- **Inputs, not expectations:** `test_condition` null, `includes` `[]` (a case
+  with no stored load) and `spring_base_displacements` `[]` describe the
+  document.
 
 ## Readings taken and what a product test must map
 
