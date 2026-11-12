@@ -418,7 +418,10 @@ impl FormationCheck {
 /// free column at which the projected callback can. Off both patterns and off
 /// the stiffness contributions a pair's charge is +0.0 and none of its
 /// operations can fail, so the exact assembly error walks only these pairs.
-/// `None` (the dense representation) walks every free pair.
+/// `None` (the dense representation) walks every free pair. Until one type
+/// owns a pattern and its accessor together, the debug-build check in
+/// `epsilon_e` (every unvisited pair reads +0.0 from both callbacks) is what
+/// holds this contract.
 #[derive(Debug, Clone, Copy)]
 pub(super) struct StoredPattern<'a> {
     pub(super) assembled: &'a super::sparse::SparsePattern,
@@ -1021,6 +1024,30 @@ where
                 }
                 for &c in &visit {
                     pair(&mut sums, r, i, c, system.free_dofs[c])?;
+                }
+                // The handoff's contract, checked in debug builds only (the
+                // full walk this branch removes): every free pair the walk
+                // does not visit reads exactly +0.0 from both callbacks, so a
+                // pattern that misses a stored position fails loudly instead
+                // of giving a smaller bound. It reads `visit` and the
+                // callbacks and writes nothing the walk uses.
+                #[cfg(debug_assertions)]
+                for (c, &j) in system.free_dofs.iter().enumerate() {
+                    if visit.binary_search(&c).is_ok() {
+                        continue;
+                    }
+                    let a = assembled(i, j);
+                    assert!(
+                        a.to_bits() == 0,
+                        "epsilon_E pattern handoff: the assembled callback reads {a:?}, not +0.0, \
+                         at free row {r} (DOF {i}), free column {c} (DOF {j}), off the stored pattern"
+                    );
+                    let p = projected(r, c);
+                    assert!(
+                        p.to_bits() == 0,
+                        "epsilon_E pattern handoff: the projected callback reads {p:?}, not +0.0, \
+                         at free row {r} (DOF {i}), free column {c} (DOF {j}), off the stored pattern"
+                    );
                 }
             }
         }
