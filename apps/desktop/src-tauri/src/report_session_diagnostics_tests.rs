@@ -688,6 +688,9 @@ fn the_matching_is_bounded_on_thousands_of_sites_and_entries() {
     ];
     for (name, model, appended, expected) in cases {
         let entries = appended.len() as u64;
+        // The appended entries' own materialization bound: their share of the
+        // save request text's M, which the save's W * M term is proportional to.
+        let share = crate::ingress::prescan(serde_json::to_string(&appended).unwrap().as_bytes()).unwrap().materialization_bytes;
         let input = json!({"report_sections": {"diagnostics": appended}});
         let source = json!({"diagnostics": []});
         let before = steps();
@@ -699,7 +702,7 @@ fn the_matching_is_bounded_on_thousands_of_sites_and_entries() {
         // whole list, then a binary search of at most ceil(log2) + 1 more.
         let tries = 2 + u64::from(entries.next_power_of_two().trailing_zeros());
         let bound = 3 * SITES as u64 + entries + entries + tries * 2 * entries;
-        eprintln!("{name}: {entries} entries, {SITES} sites: {work} steps (bound {bound}), {} allocations, priced peak {} B", measured.allocations, measured.peak_priced);
+        eprintln!("{name}: {entries} entries, {SITES} sites: {work} steps (bound {bound}), {} allocations, priced peak {} B, the entries' materialization bound {share} B", measured.allocations, measured.peak_priced);
         assert!(work <= bound, "{name}: {work} steps exceed {bound}");
         // Allocations: a fixed number of tables and buffers, none per site or entry.
         assert!(measured.allocations <= 64, "{name}: {} allocations", measured.allocations);
