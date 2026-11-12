@@ -8,7 +8,9 @@ specification differ, the fixture is what this sheet enters; §5 lists the famil
 specification holds and the fixture does not yet.
 
 Every value is the fixture's own invented data. Every duration is an estimate, not a
-measurement; the measured time comes from a person's timed entry (DEL-07-02, DEL-07-06).
+measurement; the measured time comes from a person's timed entry (DEL-07-02, DEL-07-06). No
+person is timed until the scripted journey follows this sheet's route step for step
+(DEL-07-02 VER-007).
 Following this script tests authoring effort; it states nothing about the system or the
 product (F-PIP-2, F-PIP-3).
 
@@ -404,7 +406,10 @@ state**, Apply, per case.
   **Thermal provenance** to ⟨P⟩`; replaced span RS-P180: zero eigenstrain (spec §5.1)`.
   **Add support state**. Support state 1: support RS-A, participation active_model_device;
   fill. Add every primitive.
-- **RS-OPE.** **Copy analysis state from case** RS-SUS, **Replace this draft's analysis state
+- **RS-OPE.** The scripted journey
+  ([`referenceEntryJourney.session.test.tsx`](../../apps/desktop/src/features/workspace/referenceEntryJourney.session.test.tsx))
+  does not yet take this route, and it still re-enters values the forms keep.
+  **Copy analysis state from case** RS-SUS, **Replace this draft's analysis state
   with the copy**: the copy keeps the contract, reference configuration, support states,
   history and provenance, which are RS-OPE's too, and leaves out RS-SUS's load sources.
   **Mark element_states absent**, then **Add element state**. Element state 1: pipe RS-P010; operating temperature 210 degC; material
@@ -513,9 +518,11 @@ entire batch. Moving between stages and pages is not counted.
 The estimate rates every grid cell at about 4.9 s (8 minutes per 98 cells) and every form
 entry and every press at about 5.5 s, the rates of the earlier estimate of this sheet (a
 practised person pasting ⟨P⟩ and ⟨S5⟩). Each step's time is rounded to the nearest quarter
-minute, halves up. Step solve is allowed 2 minutes for its press, the solve and reading the
-results. The estimate does not count moving between stages and pages, the 27 cycles, waiting
-for a batch's validation or the solve's own run time. It is not a measurement.
+minute, halves up. Step solve's press is entry; the solve itself is given a waiting allowance
+of 2 minutes, for the solve to run and its key results to show, which is waiting, not entry.
+The estimate does not count moving between stages and pages, the 27 cycles or waiting for a
+batch's validation. It is not a measurement. A timed entry records the entry time and the
+solve waiting time separately; their sum is compared with the threshold.
 
 | Step | Entries | Presses | Cycles | Arithmetic | Estimate (min) |
 |---|---|---|---|---|---|
@@ -533,11 +540,16 @@ for a batch's validation or the solve's own run time. It is not a measurement.
 | regions | 86 | 7 | 3 | 93 × 5.5 s = 511.5 s | 8.5 |
 | states | 50 | 14 | 3 | 64 × 5.5 s = 352 s | 5.75 |
 | combinations | 9 | 0 | 2 | 9 × 5.5 s = 49.5 s | 0.75 |
-| solve | 0 | 1 | 0 | allowance | 2 |
-| **Total** | **597** | **54** | **27** | | **about 59.5** |
+| solve | 0 | 1 | 0 | 1 × 5.5 s = 5.5 s entry; 2 min solve waiting | 0 entry + 2 waiting |
+| **Total** | **597** | **54** | **27** | | **about 57.5 entry + 2 waiting = about 59.5** |
 
-Unrounded, the total is 18.29 min for the grid, (373 form entries + 53 presses) × 5.5 s =
-2343 s = 39.05 min for the forms, and 2 min for the solve: 59.34 minutes.
+Two subtotals, both estimates: **entry** about 57.5 minutes (the grid cells, form entries and
+presses, each step rounded), and **solve waiting** 2 minutes (an allowance, not entry). Their
+sum is about 59.5 minutes.
+
+Unrounded, the entry is 18.29 min for the grid and (373 form entries + 54 presses) × 5.5 s =
+2348.5 s = 39.14 min for the forms, 57.43 minutes, and with the 2 minutes of solve waiting
+the sum is 59.43 minutes.
 
 How the larger counts arise:
 
@@ -580,5 +592,6 @@ How the larger counts arise:
 - **combinations, 9.** The first: ID, label, basis, minuend, subtrahend, provenance; the
   second: ID, label, minuend.
 
-The estimate of about 59.5 minutes is about twice the provisional 30. The four largest steps
+The estimate of about 59.5 minutes (57.5 entry and 2 solve waiting) is about twice the
+provisional 30. The four largest steps
 are rows (18.25), regions (8.5), material (5.75) and states (5.75).

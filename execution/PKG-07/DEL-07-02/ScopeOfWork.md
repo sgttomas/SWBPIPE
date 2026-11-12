@@ -114,7 +114,7 @@ The tree and inspector show what the model document holds and collect what the u
 - **VER-004** — Comparison with a named reference (hand-built expected batches and applied models for invented sheets): applies sheet batches through the operation engine and compares the applied model record for record; with an executable check of preview gating, refusals, history and numbering, for AC-006.
 - **VER-005** — Executable check (observes preview counts, queued batches and the hash after Undo): runs each bulk change and the batch review on invented selections through the operation engine, for AC-007 and AC-008.
 - **VER-006** — Executable check (observes stored condition-set and support records after each edit through the operation engine): for AC-009.
-- **VER-007** — Comparison with a named reference (the reference system's fixture, which DEL-09-01 owns): a scripted entry following the run sheet compares the entered model with the fixture; and judgment by a named role (the person performing the walkthrough) times one unassisted entry and solve, for AC-010.
+- **VER-007** — Comparison with a named reference (the reference system's fixture, which DEL-09-01 owns): a scripted entry following the run sheet compares the entered model with the fixture; and judgment by a named role (the person performing the walkthrough) times one unassisted entry and solve, for AC-010, recording the entry time and the solve waiting time separately and comparing their sum with the threshold. That judgment is made only after the scripted entry follows the run sheet's route step for step.
 
 ## Governing Values and Decisions — Axiology
 
