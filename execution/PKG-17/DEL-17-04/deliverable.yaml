@@ -61,7 +61,9 @@ needs:
   condition: >-
     The correlation cases are public invented models with their SWBPIPE model documents, and the
     harness runs a correlation case or an authored MBF case through the user's CAEPIPE and leaves
-    the MBF CAEPIPE exported for it in the case's folder of the exchange folder.
+    the MBF CAEPIPE exported for it in a run folder of that case in the exchange folder, found
+    through the case's selection; while the export through the program's window is not in force no
+    new export is produced, and exports already stored are read where they are.
   gating: false
 - from: DEL-15-04
   condition: >-

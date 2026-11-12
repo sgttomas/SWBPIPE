@@ -22,9 +22,10 @@ process is the step's own only by id and start time together), and while the new
 settings' before-state and has no record of their restore (`settings_not_restored`), until a clearance for that run
 is recorded by the explicit command `tools/caepipe_correlation/clear_settings_stop.py`, which the harness never runs.
 
-A live step or a screen changes nothing already stored and removes nothing: every file it writes is new, created so
-that an existing name is never replaced (`exclusive.Tree`). A live step puts what it collects in a new run folder of
-its own (`cases/<id>/runs/<NNNNNN>/`, reserved with `mkdir`), a screen its records in a new screen folder; outside
+A live step or a screen changes nothing already stored in the exchange folder and removes nothing from it: every file
+it writes is new, created so that an existing name is never replaced (`exclusive.Tree`). A live step puts what it
+collects in a new run folder of its own (`cases/<id>/runs/<NNNNNN>/`, reserved with `mkdir`), a screen its records in
+a new screen folder; outside
 those a step creates only a selection, a series record, the guest script named by its content, the run lock's file
 where it is absent (permanent and empty, never written, replaced or removed) and a holder record of that lock
 (`_harness/holders/<NNNNNN>.json`), and container directories for these. Its probe marker and its run folder's
@@ -2193,7 +2194,8 @@ def _guest_step(config: HarnessConfig, runner: Callable[..., subprocess.Complete
         call_end = time.monotonic() + timeout_s
         limit = call_end if limit is None else min(limit, call_end)
     # The prlctl client intermittently fails a call before or after the guest command with exit 255 and a
-    # "PrlJob_..." message. Every step is idempotent (each clears its old outputs first), so retry.
+    # "PrlJob_..." message. Every guest step is safe to retry: it only reads, or it writes only new files and never
+    # over a name already there (a retry that finds its own earlier file reports it, or the step is refused), so retry.
     while True:
         record["attempts"] += 1
         attempt_timeout = timeout_s if limit is None else max(0.001, min(timeout_s, limit - time.monotonic()))

@@ -242,7 +242,8 @@ def authored_mbf_bytes(case: Mapping[str, Any], directory: Path = AUTHORED_DIR) 
 def external_authored_dir(root: Path, path: str) -> Path:
     """The --authored-dir directory, checked: inside the exchange folder with no symbolic link on the way.
 
-    Its manifest's case ids must not name a tracked writer or authored case: their case folders would be replaced.
+    Its manifest's case ids must not name a tracked writer or authored case: their stored results would be mixed with
+    the run's.
     """
     directory = contained(root, Path(os.path.abspath(path)))
     if not directory.is_dir():
@@ -731,7 +732,7 @@ def run_authored_case(case: Mapping[str, Any], config: HarnessConfig, *, export_
                 _guard_stop(config, case_id, getattr(error, "settings_guard", None), emit)
                 emit(f"{case_id}: the round trip did not end cleanly; stopped")
                 raise RunStopped(case_id) from error
-            if record.get("route") in REFUSED_ROUTES:  # refused before anything ran or was cleared
+            if record.get("route") in REFUSED_ROUTES:  # refused by name; nothing stored was changed
                 emit(f"{case_id}: route={record['route']}; {record.get('reason')}; no exported MBF")
                 return False
             # The guard comes first: a rejected hash or any other early return still stops the run on it.
