@@ -206,11 +206,87 @@ def test_run_entry_reports_pass_fail_and_the_refused_member(tmp_path, monkeypatc
     assert seen[0]["model"]["model_settings"]["pressure_elongation"]["operating_load_cases"] == ["case:sus", "case:cond"]
 
 
+# ----------------------------------------------------------------------------- the receipt chain's commitments
+def _sha(text: str) -> str:
+    import hashlib
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def chained_envelope(invocation: str):
+    """A retained-source envelope and its dump whose request hash is `invocation`, every commitment the
+    hash of its preimage (the receipt's construction)."""
+    evidence = {"exact_cases": [{"load_case_id": "case:a", "pressure_bits": "3ee4f8b588e368f1"}],
+                "pressure": [{"load_case_id": "case:a", "region_id": "region:a", "p_pa": 2.0e6}]}
+    payload = json.dumps({"payload": {"invocation_sha256": invocation, "terms": [0.5]}})
+    plan = json.dumps({"payload": {"normalized_source_sha256": _sha(payload), "steps": 3}})
+    case = {"basis_ref": {"ref_type": "load_case", "ref_id": "case:a"},
+            "source": {"normalized_source_sha256": _sha(payload), "functional_plan_sha256": _sha(plan)},
+            "physical_evidence_sha256": A._domain_hash(A.CASE_EVIDENCE_DOMAIN, {"exact_case": evidence["exact_cases"][0],
+                                                                                 "pressure": evidence["pressure"]})}
+    envelope = {"contract_evidence": evidence, "results": [{"id": "result:a", "value": 0.25}]}
+    body = {"invocation": {"value": invocation}, "cases": [case], "publication_sha256": A._domain_hash(A.PUBLICATION_DOMAIN, envelope)}
+    envelope["source_block_recovery"] = {"body": body, "receipt_sha256": A._domain_hash(A.RECEIPT_DOMAIN, body)}
+    dump = {"records": [{"case_id": "case:a", "normalized_source_text": payload, "normalized_source_sha256": _sha(payload),
+                         "functional_plan_text": plan, "functional_plan_sha256": _sha(plan)}]}
+    return envelope, dump
+
+
+def test_a_zeroed_physical_evidence_commitment_fails_the_chain():
+    reference, reference_dump = chained_envelope("1" * 64)
+    actual, actual_dump = chained_envelope("2" * 64)
+    assert A.receipt_chain(reference, actual, reference_dump, actual_dump) is None
+    # Zeroed, with the receipt re-sealed over it so that only the case's commitment disagrees.
+    recovery = actual["source_block_recovery"]
+    recovery["body"]["cases"][0]["physical_evidence_sha256"] = "0" * 64
+    recovery["receipt_sha256"] = A._domain_hash(A.RECEIPT_DOMAIN, recovery["body"])
+    assert A.receipt_chain(reference, actual, reference_dump, actual_dump) == \
+        "actual: case:a physical_evidence_sha256 is not the hash of its published preimage"
+    # The publication and receipt commitments are recomputed too.
+    actual, actual_dump = chained_envelope("2" * 64)
+    actual["source_block_recovery"]["receipt_sha256"] = "0" * 64
+    assert A.receipt_chain(reference, actual, reference_dump, actual_dump) == "actual: receipt_sha256 is not the hash of the receipt body"
+    actual, actual_dump = chained_envelope("2" * 64)
+    actual["results"][0]["value"] = 0.5
+    assert A.receipt_chain(reference, actual, reference_dump, actual_dump) == \
+        "actual: publication_sha256 is not the hash of the published envelope"
+
+
+def test_profiles_the_default_unchanged_and_none_excludes_nothing():
+    default = A.PROFILES[A.DEFAULT_PROFILE]
+    assert A.DEFAULT_PROFILE == "pressure-elongation"
+    assert (default["keys"], default["identity_substitutions"], default["limitations_dropped"], default["bend_clause_substitutions"]) == \
+        (A.EXCLUDED_KEYS, A.IDENTITY_SUBSTITUTIONS, A.ADDED_LIMITATION_STATEMENTS, A.BEND_CLAUSE_SUBSTITUTIONS)
+    assert list(A.differences(BASE, switched())) == list(A.differences(BASE, switched(), profile=default)) == []
+    # Under `none` the identity, the added statement and the per-case label each differ.
+    assert [p for p, _ in A.differences(BASE, switched(), profile=A.PROFILES["none"])] == [
+        "/producer/semantic_contract_id", "/formulation_basis/limitations", "/formulation_basis/limitations/0",
+        "/contract_evidence/exact_cases/0/pressure_elongation"]
+
+
 # ----------------------------------------------------------------------------- --baseline-only
 def write_baseline(directory, envelope, entry_id="e", pointer="/cases/0/model", mode="sparse"):
     directory.mkdir(exist_ok=True)
     (directory / f"{A.baseline_key(entry_id, pointer, mode)}.json").write_text(json.dumps(envelope))
     return directory
+
+
+def test_chained_is_error_reports_a_chained_pass_as_an_error(tmp_path, monkeypatch):
+    monkeypatch.setattr(A, "ROOT", Path("/"))
+    reference, reference_dump = chained_envelope("1" * 64)
+    actual, actual_dump = chained_envelope("2" * 64)
+    e = entry(tmp_path, reference)
+    (tmp_path / "base").mkdir()
+    write_baseline(tmp_path / "base", reference)
+    (tmp_path / "base" / f"{A.baseline_key('e', '/cases/0/model', 'sparse')}.source-dump.json").write_text(json.dumps(reference_dump))
+
+    class Chained(StubSolver):
+        def dump(self, request, mode):
+            return actual_dump
+    solver = Chained(lambda r, m: ("envelope", actual, ""))
+    chained = A.run_entry(e, "all", ["sparse"], solver, tmp_path / "base", "check", True)
+    assert chained["status"] == "PASS_CHAINED", chained
+    refused = A.run_entry(e, "all", ["sparse"], solver, tmp_path / "base", "check", True, chained_is_error=True)
+    assert refused["status"] == "ERROR" and refused["detail"].startswith("PASS_CHAINED under --chained-is-error"), refused
 
 
 def flip_last_bit(value: float) -> float:
