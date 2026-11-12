@@ -1816,6 +1816,25 @@ mod direct_native {
                 let args = render_args(&request["report"], Some(&w.result), Some(&w.intake), Some(&canonical_json(&w.manifest)));
                 assert_eq!(render_refusal_both(&live, &args), format!("{SECTIONS_MISMATCH}: diagnostics"), "{name}: {label}");
                 let (code, message) = save_refusal_both(&live, &w, &request);
+                if label == "a forged integrity entry appended" {
+                    // Since review round 2 of c2cc050ea (R8), the save's admission
+                    // refuses an appended entry the host does not derive from the
+                    // bound model before the package's item 9 reads it: still
+                    // refused, by the earlier check.
+                    // On pressure-source-1 the forged entry is the result's own
+                    // integrity entry again (its code and affected object).
+                    let detail = if integrity_code == SENSITIVE {
+                        "copies a result diagnostic's code and affected object"
+                    } else {
+                        "is not a session diagnostic the host derives from the bound model"
+                    };
+                    assert_eq!(
+                        (code.as_str(), message),
+                        (SECTIONS_MISMATCH, format!("{SECTIONS_MISMATCH} at /request/report/report_sections/diagnostics: diagnostics: report diagnostic {} {detail}", diagnostics.len())),
+                        "{name}: {label}"
+                    );
+                    continue;
+                }
                 assert_eq!((code.as_str(), message), ("REPORT-PACKAGE-BINDING-MISMATCH", format!("REPORT-PACKAGE-BINDING-MISMATCH: {save_detail}")), "{name}: {label}");
             }
             // The genuine witness renders, with its standing line, and saves.
