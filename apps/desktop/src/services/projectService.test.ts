@@ -174,8 +174,8 @@ describe("projectService model-document version evidence (DEL-02-05 CLM-003, bro
     expect(blank.load_cases).toEqual([]);
     expect(blank.combinations).toEqual([]);
     expect(blank.data_boundary.private_data_policy).toContain("not_committed_to_repository");
-    expect(blank.diagnostics[0].code).toBe("BLANK_PROJECT_AUTHORING_TARGET");
-    expect(blank.diagnostics[0].severity).toBe("blocking");
+    // The blank stores no diagnostic of its own; the model checks state its incompleteness.
+    expect(blank.diagnostics).toEqual([]);
 
     const created = await createLocalProject(blank);
     expect(created.summary.project_id).toBe("project:blank-local-20260612t000000z");

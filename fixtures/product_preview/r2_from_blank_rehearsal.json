@@ -48,16 +48,7 @@
     "components": [],
     "load_cases": [],
     "combinations": [],
-    "diagnostics": [
-      {
-        "id": "diagnostic:r2-from-blank:authoring-target",
-        "code": "BLANK_PROJECT_AUTHORING_TARGET",
-        "severity": "blocking",
-        "source": "fixtures/product_preview/r2_from_blank_rehearsal.json",
-        "affected_refs": ["project:r2-from-blank-rehearsal"],
-        "message": "The rehearsal starts from an intentionally incomplete blank local model; every solve-required entity below is added by a structured operation step."
-      }
-    ]
+    "diagnostics": []
   },
   "steps": [
     {

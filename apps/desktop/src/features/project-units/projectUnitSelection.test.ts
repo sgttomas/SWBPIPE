@@ -50,10 +50,17 @@ describe("blank builders take a project unit map", () => {
     expect(buildBlankLocalModelDocument(AT, SI_PROJECT_UNITS)).toEqual(blank);
     const withoutAngle = structuredClone(blank);
     delete withoutAngle.project.units.angle;
-    // S1 changes only the current model token; the frozen 0.8.0 control
+    expect(await canonicalSha256Hex(withoutAngle)).toBe("e7b9bd70ca2785bc23ff8cb9d3bdd9b16cbeea8da4d594f82e9597000027d9ed");
+    // The pins below were taken while the blank stored its authoring-target diagnostic; with that
+    // record restored, S1 changes only the current model token, and the frozen 0.8.0 control
     // still reproduces the preceding pin.
-    expect(await canonicalSha256Hex({ ...withoutAngle, schema_version: "0.8.0" })).toBe(SIX_KEY_BLANK_SHA256);
-    expect(await canonicalSha256Hex(withoutAngle)).toBe("3ec5019c61963fb829ba3812c25cab7dfce11d07a304f2beb8f4920ea36631a9");
+    const withFormerDiagnostic = { ...withoutAngle, diagnostics: [{
+      id: "diagnostic:blank-project:authoring-target", code: "BLANK_PROJECT_AUTHORING_TARGET", severity: "blocking" as const,
+      source: "apps/desktop/src/services/projectService.ts", affected_refs: [blank.project.id],
+      message: "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted."
+    }] };
+    expect(await canonicalSha256Hex({ ...withFormerDiagnostic, schema_version: "0.8.0" })).toBe(SIX_KEY_BLANK_SHA256);
+    expect(await canonicalSha256Hex(withFormerDiagnostic)).toBe("3ec5019c61963fb829ba3812c25cab7dfce11d07a304f2beb8f4920ea36631a9");
   });
 
   it("give exactly the seven keys, each a canonical catalog symbol for its dimension, for each preset", () => {

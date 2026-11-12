@@ -472,17 +472,9 @@ export function buildBlankLocalModelDocument(
     components: [],
     load_cases: [],
     combinations: [],
-    diagnostics: [
-      {
-        id: "diagnostic:blank-project:authoring-target",
-        code: "BLANK_PROJECT_AUTHORING_TARGET",
-        severity: "blocking",
-        source: "apps/desktop/src/services/projectService.ts",
-        affected_refs: [projectId],
-        message:
-          "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted."
-      }
-    ]
+    // The blank stores no diagnostic of its own: its incompleteness is what the model checks
+    // compute, and they stop saying so once it is no longer true.
+    diagnostics: []
   };
 }
 

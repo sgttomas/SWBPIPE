@@ -110,6 +110,7 @@ code_paths:
 - core/model_operations/operation_applier/tests/retired_model_version.rs
 - apps/desktop/src/services/projectService.test.ts
 - apps/desktop/src/services/blankLoadStateModel.test.ts
+- apps/desktop/src/features/diagnostics/blankProjectIncompleteness.test.tsx
 - apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
 - apps/desktop/src/features/model-file/storedDocumentExport.test.tsx
 - apps/desktop/e2e/b3b-project-persistence.spec.ts
@@ -127,6 +128,7 @@ checks:
 - apps/desktop/src-tauri/src/backup_tests.rs
 - apps/desktop/src/services/projectService.test.ts
 - apps/desktop/src/services/blankLoadStateModel.test.ts
+- apps/desktop/src/features/diagnostics/blankProjectIncompleteness.test.tsx
 - apps/desktop/src/features/autosave/useAutosave.test.tsx
 - apps/desktop/src/features/autosave/autosaveRecovery.test.ts
 - apps/desktop/src/features/autosave/autosave.session.test.tsx
