@@ -18,7 +18,7 @@ needs its own clearance. This tool does not change who grants it.
 ## Use
 
 ```sh
-python3 tools/ac004_supervisor.py --guard-dir /Users/ryan/dev/chirality-t3/guard \
+python3 tools/ac004_supervisor.py --guard-dir ~/dev/chirality-t3/guard \
   [--budget 60] [--reserve 3] [--term-grace 1] [--trace-file PATH] -- PAYLOAD...
 ```
 
