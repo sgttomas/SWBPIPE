@@ -41,7 +41,7 @@ DECIDE = FG_FILE + ":223:decide_row"
 # RT-A3 §4 D3 (§8.53): SOLVE 5267 -> 5282 and the observed inner 3005 -> 3011, unchanged text (the certificate's
 # module lines, the run's certificate statements and LoadCaseSolve's field precede them; P's guard comment keeps its six
 # lines).
-SOLVE = "core/product_physics/src/lib.rs:5371:solve_prepared_load_case"   # RT-A4 (§8.46): 5258 -> 5265, unchanged text (`mod combination_plan;` and the derivation call precede it). Model document 0.9.0 (§8.36): 5129 -> 5209, unchanged text (the observed inner 2880 -> 2953). RT-A3 increment 1 (§8.33): 5122 -> 5129, unchanged text (run_linear_static_preview_observed_inner stays 2880); OP1A (§8.31): +9, unchanged text; §8.30 (5080 -> 5103 and 2876 -> 2877, unchanged text); W-16 stage 2 (§8.29: 5072 -> 5080, unchanged text); W-16 slice b/c (§8.27: 5044 -> 5072, unchanged text); model document 0.8.0 (§8.26: 5023 -> 5044, unchanged text); W-16 slice a (§8.23: 4917, unchanged text); W-15 (§8.21: 4910); W-7 (§8.20: 4850; model document 0.7.0: 4845; silent-zero guard: 4775; W-8: 4774; pre-0.4 unification: 4772; O4 S5: 4687; T4-S5 epoch: 4684; final source 588de796a4: 4507; PP: 4500; B7b: 4427; B7a: 4442)
+SOLVE = "core/product_physics/src/lib.rs:5374:solve_prepared_load_case"   # RT-L2 D3: 5371 -> 5374, unchanged text (the formulation basis's elongation statement precedes it). RT-A4 (§8.46): 5258 -> 5265, unchanged text (`mod combination_plan;` and the derivation call precede it). Model document 0.9.0 (§8.36): 5129 -> 5209, unchanged text (the observed inner 2880 -> 2953). RT-A3 increment 1 (§8.33): 5122 -> 5129, unchanged text (run_linear_static_preview_observed_inner stays 2880); OP1A (§8.31): +9, unchanged text; §8.30 (5080 -> 5103 and 2876 -> 2877, unchanged text); W-16 stage 2 (§8.29: 5072 -> 5080, unchanged text); W-16 slice b/c (§8.27: 5044 -> 5072, unchanged text); model document 0.8.0 (§8.26: 5023 -> 5044, unchanged text); W-16 slice a (§8.23: 4917, unchanged text); W-15 (§8.21: 4910); W-7 (§8.20: 4850; model document 0.7.0: 4845; silent-zero guard: 4775; W-8: 4774; pre-0.4 unification: 4772; O4 S5: 4687; T4-S5 epoch: 4684; final source 588de796a4: 4507; PP: 4500; B7b: 4427; B7a: 4442)
 ROW_LOOP = "for row in &rows"
 LOOP_RULE = {
     "fn": "formation_guard.rs:304:load_row_finding",
@@ -238,12 +238,13 @@ def selected_publication_context(snapshot, directory, graph):
     # (physical_source_built's equivalent-static binding), lib 2867 -> 2868 (`mod exact_combinations;`), unchanged text.
     # Model document 0.9.0 D3 (§8.36): lib 2880 -> 2953 (+73: the 0.9.0 modules, members and closed term wire precede
     # it), unchanged text. RT-A4 D3 (§8.46): lib 3002 -> 3003 (the load-case-algebra import line's growth), unchanged text.
+    # RT-L2 D3: lib 3018 -> 3021 (the formulation basis's elongation statement), unchanged text.
     expected = {
         "core/product_physics/src/source_receipt/composite.rs:754:composite_exact": SOLVE,
         "core/product_physics/src/source_receipt/composite.rs:1032:ordinary_physics": SOLVE,
         "core/product_physics/src/source_receipt.rs:661:failed": SOLVE,
         "core/product_physics/src/source_receipt.rs:747:finalize_composite":
-            "core/product_physics/src/lib.rs:3018:run_linear_static_preview_observed_inner",
+            "core/product_physics/src/lib.rs:3021:run_linear_static_preview_observed_inner",
         "core/product_physics/src/source_receipt.rs:763:finalize_for":
             "core/product_physics/src/source_receipt.rs:747:finalize_composite",
     }

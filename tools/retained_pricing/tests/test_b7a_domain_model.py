@@ -199,24 +199,25 @@ def test_new_uniform_identifier_classes_are_site_specific_input_bounds():
     pp = "core/product_physics/src/"
     # T4-U6/U8: the same sites on the priced source's unchanged lines (B7b's 10632.. + 359; certified_loads + 3;
     # the final source 588de796a4: lib.rs + 5 more; T4-S5 epoch 4: lib.rs + 314 more; pre-0.4 unification: + 103; W-8: + 2; silent-zero guard: + 1; model document 0.7.0: + 7; W-7: + 37; W-15: + 103; W-16 slices b and c: + 193; W-16 stage 2: + 55; §8.30: + 2 (+ 23 for the two prefix formats); model document 0.9.0 (§8.36): + 83, unchanged text; model document 0.9.0 S2 (§8.40): + 49, unchanged text (the closed wind wire precedes them); certified_loads' two prefix formats moved into lib.rs's is_generated_equivalent_static_load). RT-A5 minuend_final (§8.54): + 135, unchanged text.
+    # RT-L2: +3 (the formulation basis's elongation statement precedes them), unchanged text.
     sites = {
-        "lib.rs:12471": {"load_case_id"},
-        "lib.rs:12485": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:12492": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:12497": {"load.load_id"},
-        "lib.rs:12498": {"bend.pipe_id"},
-        "lib.rs:12499": {"bend.component_id"},
-        "lib.rs:12500": {"load_case_id"},
-        "lib.rs:12559": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
-        "lib.rs:12566": {"load.load_id", "bend.pipe_id"},
-        "lib.rs:12571": {"load.load_id"},
-        "lib.rs:12572": {"bend.pipe_id"},
-        "lib.rs:12573": {"bend.component_id"},
-        "lib.rs:12574": {"load_case_id"},
-        "lib.rs:12613": {"stable_suffix(&load.load_id)"},
-        "lib.rs:12620": {"load.load_id", "load_case_id"},
-        "lib.rs:11034": {"load_case.id"},
-        "lib.rs:11035": {"load_case.id"},
+        "lib.rs:12474": {"load_case_id"},
+        "lib.rs:12488": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:12495": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:12500": {"load.load_id"},
+        "lib.rs:12501": {"bend.pipe_id"},
+        "lib.rs:12502": {"bend.component_id"},
+        "lib.rs:12503": {"load_case_id"},
+        "lib.rs:12562": {"stable_suffix(load_case_id)", "stable_suffix(&load.load_id)"},
+        "lib.rs:12569": {"load.load_id", "bend.pipe_id"},
+        "lib.rs:12574": {"load.load_id"},
+        "lib.rs:12575": {"bend.pipe_id"},
+        "lib.rs:12576": {"bend.component_id"},
+        "lib.rs:12577": {"load_case_id"},
+        "lib.rs:12616": {"stable_suffix(&load.load_id)"},
+        "lib.rs:12623": {"load.load_id", "load_case_id"},
+        "lib.rs:11037": {"load_case.id"},
+        "lib.rs:11038": {"load_case.id"},
     }
     assert sum(map(len, sites.values())) == 22
     for key, args in sites.items():
@@ -238,7 +239,9 @@ def test_actual_reader_cached_allocations_include_all_live_owners_and_duplicates
     assert counts["fixtures/results/semantic_contract_v0_3_physics_retained_1.json"] == 2
     assert counts["fixtures/results/semantic_contract_v0_3_pressure_source_1.json"] == 1
     # T4-S5 (epoch 4): the ordinary pressure table is the -2 contract's (STATIC_OWNERS re-bound to its path).
-    assert counts["fixtures/results/semantic_contract_v0_3_pressure_2.json"] == 1
+    # RT-L2: pressure_rows_contract now includes the pressure-3 table (STATIC_OWNERS re-bound to its path).
+    assert counts["fixtures/results/semantic_contract_v0_3_pressure_3.json"] == 1
+    assert "fixtures/results/semantic_contract_v0_3_pressure_2.json" not in counts
     assert counts["schemas/load_reference_state.schema.json"] == 1
     assert "schemas/results_pressure_1.v0.3.schema.json" not in counts
     for owner, path in MODEL["STATIC_OWNERS"]:

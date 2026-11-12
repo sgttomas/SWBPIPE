@@ -23,9 +23,13 @@ LIB = "core/product_physics/src/lib.rs"
 # O4 S5 (retained-pricing-rules.md §8.9, O4-SR): solve_prepared_load_case's selected-source maximum takes one
 # composite_member_maximum call per distinct basis (no fallback attempt) and drops SOURCE_MAXIMUM_BASES_DISTINCT; its
 # consumption of the fallback attempts and every first-return alternative are unchanged.
-CPP_FILE_PIN = '54ae0639313c3e5785c9e65f1a9574b535bc3dbe94b49a5788b7f976f935c57a'
-CPP_PREFIX_PIN = '7f616539d121dd08b3dda69747f86b9fdce6808da3f2317aec0f2f127796de88'
-PINS = {'checked': 'f6462ce3e9b91123fc8c424e4e932ca6ae2e06773c3c8ea4ca9a233ea0060e97', 'exact': '1722765731354ee41c0650743cbe5e3f6bd9bbe80d8bf67fb5e3e2edb7db79ac', 'rounded': '50e699a9e3ca58e8aae1425c397fc84b2bae7596fcaa665e749ba941fb21053a', 'accumulate': 'fa801055fcc8cdba9fa63b8c9e1a43d13ab6a4b531140fd05cc86636c78d47b3', 'add': '6cf32ee08ae1324229b3332932b16be33f710e3db38f38799285b70a170b555d', 'mul': 'b7a13d3aa95f1a81250596c2894aa53c08261ef50678482907ca925eb89fd375', 'divided': '42236c96706c6fd58796004eca2d9791bd37e011f0e77c1ee482673d74a501d8', 'exact_scaled': 'ce309e689bd86000332875400f5c116223ac722bc7a98a561aee67175b3d54d9', 'divided_scaled': 'aaeb7baff5bbc828cb9919c77c789e02c6c3b0d7292cfc2f24e395862231160f', 'min': '5f9dbece75030436c8445ea973d65501847f6a89f2f1aa716280eaf2c84995f0', 'max': '2b09f8df493dc541baa172795f41a10196b6e7e782333679916ed4531779de79', 'active_length': '31f1a47315b78ee62cf5e53ad68b1bdf7399a11bdab0a4df47f0550002786c95', 'fallback_section_errors': '77d7713b9a110474f69c9c98522feaedb5a615db9f5334d4db3541108a6696c9', 'fallback_circular_maximum': 'bf5ab4f4c3577ffb0b068e1a9b918793e22b04a8c68764610cec3fe6e648210c', 'straight_stress_spans': '8fa6015c0c0b6ae5c87f241c29b1187f6e3e4a3bc3e624969d37aff1c3164efe', 'directed_transport_sum': '6754f267ec85e4045fe19eabccac12312648039bb49a4c0e237639272ca7c5d8', 'maximum_cover': 'e6b1a37db23c2da925e0b069eb3e3d3e85d0bd4c6ee6f413cfbdffd4d1ef5959', 'public_mpa_magnitude_in_pa_upper': '8daef91ad0c895e81b7ce00a72f2e098a665b4b696bb682472d7497aa827397f', 'maximum_summary_mpa': '2db64af82e567c32dd219848e7ae090b698c6a2426df3f02a4d04540dbd51a8c', 'circular_maximum': 'ec77f771a0d86d9cb4a7eb98626cbba3e5f77e8359e8e8c4bbe3a018341cea0a', 'l1_summary': '669870df23a039c3d65e5f51c721e101935bc1e1bee5218c8d22ab3d2864473e', 'summary_row': '82a68500450979089472fbc47df8ceebb7bfcc4b94b8eef16647b2501d2ebfe2', 'stress_mpa': '22ff193d88839b0e2f4ff6d60e445eafddbf3cd63af9b748037941cf9c6a99c9'}
+# RT-L2 D3: certified_publication.rs's pressure_adjustment, straight_stress_spans and fallback_circular_maximum form
+# the wall increment by setting (kappa = 2nu or 1; scalar, no new return or format); fallback_circular_maximum gains
+# seven lines before its two inventoried alternatives at +151/+171 (were +144/+164; same text). The case solve and
+# exact_straight_summary_extrema pass the elongation flag to the wall recovery. No first-return alternative changes.
+CPP_FILE_PIN = '088fbf78c977abbcc3c28c7cb38d74bf14b7f7adfac48c21f8010a4020d0cfc2'
+CPP_PREFIX_PIN = '7a89931accf55addbb7339d97c86e14bf902bdb969e7b71eaf73502d0c426ef7'
+PINS = {'checked': 'f6462ce3e9b91123fc8c424e4e932ca6ae2e06773c3c8ea4ca9a233ea0060e97', 'exact': '1722765731354ee41c0650743cbe5e3f6bd9bbe80d8bf67fb5e3e2edb7db79ac', 'rounded': '50e699a9e3ca58e8aae1425c397fc84b2bae7596fcaa665e749ba941fb21053a', 'accumulate': 'fa801055fcc8cdba9fa63b8c9e1a43d13ab6a4b531140fd05cc86636c78d47b3', 'add': '6cf32ee08ae1324229b3332932b16be33f710e3db38f38799285b70a170b555d', 'mul': 'b7a13d3aa95f1a81250596c2894aa53c08261ef50678482907ca925eb89fd375', 'divided': '42236c96706c6fd58796004eca2d9791bd37e011f0e77c1ee482673d74a501d8', 'exact_scaled': 'ce309e689bd86000332875400f5c116223ac722bc7a98a561aee67175b3d54d9', 'divided_scaled': 'aaeb7baff5bbc828cb9919c77c789e02c6c3b0d7292cfc2f24e395862231160f', 'min': '5f9dbece75030436c8445ea973d65501847f6a89f2f1aa716280eaf2c84995f0', 'max': '2b09f8df493dc541baa172795f41a10196b6e7e782333679916ed4531779de79', 'active_length': '31f1a47315b78ee62cf5e53ad68b1bdf7399a11bdab0a4df47f0550002786c95', 'fallback_section_errors': '77d7713b9a110474f69c9c98522feaedb5a615db9f5334d4db3541108a6696c9', 'fallback_circular_maximum': '98cea10ecc8f6a9c702e3b40549b528a560c1d71d82e89420c05385cbd02d8d5', 'straight_stress_spans': '75e9f9ea7841f969dbc4fac3b325e7c5c0b5c452338ad750acfe0842dbce49a2', 'directed_transport_sum': '6754f267ec85e4045fe19eabccac12312648039bb49a4c0e237639272ca7c5d8', 'maximum_cover': 'e6b1a37db23c2da925e0b069eb3e3d3e85d0bd4c6ee6f413cfbdffd4d1ef5959', 'public_mpa_magnitude_in_pa_upper': '8daef91ad0c895e81b7ce00a72f2e098a665b4b696bb682472d7497aa827397f', 'maximum_summary_mpa': '2db64af82e567c32dd219848e7ae090b698c6a2426df3f02a4d04540dbd51a8c', 'circular_maximum': 'ec77f771a0d86d9cb4a7eb98626cbba3e5f77e8359e8e8c4bbe3a018341cea0a', 'l1_summary': '669870df23a039c3d65e5f51c721e101935bc1e1bee5218c8d22ab3d2864473e', 'summary_row': '82a68500450979089472fbc47df8ceebb7bfcc4b94b8eef16647b2501d2ebfe2', 'stress_mpa': '22ff193d88839b0e2f4ff6d60e445eafddbf3cd63af9b748037941cf9c6a99c9'}
 # Pre-0.4 failure unification D3 (retained-pricing-rules.md §8.14): solve_prepared_load_case screens selection by the
 # captured replay's reservation and declines a withheld join on both exact routes (0.4's withheld text, now reachable
 # on route E: PU-TX), keeps a selected case's first support-norm refusal as its finalization cause (PU-TX) and records
@@ -63,7 +67,7 @@ PINS = {'checked': 'f6462ce3e9b91123fc8c424e4e932ca6ae2e06773c3c8ea4ca9a233ea006
 # early return); its consumption of the fallback attempts and every first-return alternative are unchanged.
 # RT-A3 S6 D3 (§8.59): solve_prepared_load_case's consumption of the fallback attempts and every first-return
 # alternative are unchanged (the motion arms, base map and capture argument only).
-LIB_PINS = {'solve_load_case_observed': 'cb2a9686a9e5a42373c5c0f10b545cabfcc60ffe4d6a1515bdb19790ffd98b2a', 'solve_prepared_load_case': 'c6d77195d0533f25745736b634a4e05a786211d103d19376c47b2587f4515dd7', 'exact_straight_summary_extrema': '1c15fd171ea49543bb3c7372e93a79545dfb63d5f877a5c232b423ec4ebd4ce0'}
+LIB_PINS = {'solve_load_case_observed': 'cb2a9686a9e5a42373c5c0f10b545cabfcc60ffe4d6a1515bdb19790ffd98b2a', 'solve_prepared_load_case': 'd36ba54f458bfe92046552b20a3647c6be9c36be1b0e31328ff6730ad2154cf1', 'exact_straight_summary_extrema': 'f8e3dc3ab54eac18a0140d08f1e43ed19ecc7316f0883efa656f1814d3ab1094'}
 PRIVATE = ("checked", "exact", "rounded", "accumulate", "add", "mul", "divided", "exact_scaled", "divided_scaled", "min", "max", "active_length")
 ENTRY = ("summary_row", "stress_mpa", "maximum_summary_mpa", "fallback_section_errors", "fallback_circular_maximum")
 PRIVATE_ROOTS = ("fallback_circular_maximum", "summary_row", "stress_mpa", "maximum_summary_mpa")
@@ -83,12 +87,12 @@ SITE_DEFS = (
     ("directed_transport_sum", 16, "to_string", TRANSPORT_ROOTS),
     ("checked", 4, "into_text", PRIVATE_ROOTS),
     ("divided", 2, "into_text", PRIVATE_ROOTS),
-    ("fallback_circular_maximum", 144, "into_text", ("fallback_circular_maximum",)),
+    ("fallback_circular_maximum", 151, "into_text", ("fallback_circular_maximum",)),
 )
 # These nearby alternatives are inventoried but never capped by C6.
 UNTOUCHED = (("fallback_circular_maximum", 13, "into_text"),
              ("fallback_circular_maximum", 27, "into_text"),
-             ("fallback_circular_maximum", 164, "format"))
+             ("fallback_circular_maximum", 171, "format"))
 
 
 def inspect(snapshot):

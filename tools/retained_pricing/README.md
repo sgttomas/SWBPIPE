@@ -32,11 +32,18 @@ python3 $P/price.py eval <law-test log> <tree>                   # phases at in-
 
 1. **Run the new head.** `run <head>` should complete on all four points with no unmapped loop header and no unclassified argument, and both o10 checks should pass.
 2. **Review the prune.** `summary.json`'s `linemap.pruned` lists every rule the line map dropped, each with its rule. Each one must belong to a function or line the head really deleted. A dropped `site_from`, `site_total`, `edge_per_call` or `loop_total` rule removes a bound, so read the code. The deleted test is per file: a function moved to another file shows up as deleted, and its rules must be re-keyed to the new file rather than dropped. `linemap.resolutions_used` lists the reviewed resolutions that applied.
-3. **Compare.** Use `compare <new tree_merged.json> <registered tree>`.
+3. **Carry the hand-kept keys.** Some models key current-source sites by line rather than through the line map (the
+   B7a domain audits, owner choices, phase, returning errors and scoped TEXT, the `_X` emitter in `sens.py`, KD5C6's
+   offsets). When a pin, an audit preimage or a caller inventory stops on one, map the old line to the new by the
+   file's diff, confirm the text is unchanged, and move the key with a note of the lines that precede it. A key whose
+   text changed is a re-read, not a carry. The registered tree for the comparison comes from the preceding revision's
+   own committed tool (`git archive` it, with `tools/repository_history.py`, into scratch), checked with its own
+   `generate --check`.
+4. **Compare.** Use `compare <new tree_merged.json> <registered tree>`.
    - `a_le_b` true (every coefficient no higher) means the registered block still bounds the head, so nothing needs re-registering.
    - Otherwise, regenerate the block with `generate` and re-pin the law tests whose values moved. The law tests are `cargo test --lib profile_` in `core/product_physics`. Their `I65_G5_ATOM` lines feed `eval`.
-4. **Check the block.** `generate --check` confirms that a committed block is the generator's output for a tree.
-5. **Bind the points' atoms.** The separate points L(2,1) and L(1,2) use atoms the merged tree does not (the combination owners). `point-atoms <run dir> core/product_physics/src/retained_memory_law_tests.rs` writes them, bound by `g5_profile.py`'s own bindings, into the law tests' GENERATED POINT ATOMS block, and `profile_point_atoms_in_build` prints them as `I65_G5_ATOM` lines beside the profile's. An unbound atom, or one bound only as an Estimate, stops the generator: a point is never evaluated at an ASSUMED stride. `point-atoms --check` confirms the committed block against a run. The block is test-only; regenerating it changes the lib-test binary, not the profile or its record.
+5. **Check the block.** `generate --check` confirms that a committed block is the generator's output for a tree.
+6. **Bind the points' atoms.** The separate points L(2,1) and L(1,2) use atoms the merged tree does not (the combination owners). `point-atoms <run dir> core/product_physics/src/retained_memory_law_tests.rs` writes them, bound by `g5_profile.py`'s own bindings, into the law tests' GENERATED POINT ATOMS block, and `profile_point_atoms_in_build` prints them as `I65_G5_ATOM` lines beside the profile's. An unbound atom, or one bound only as an Estimate, stops the generator: a point is never evaluated at an ASSUMED stride. `point-atoms --check` confirms the committed block against a run. The block is test-only; regenerating it changes the lib-test binary, not the profile or its record.
 
 ### The basis line
 
@@ -119,7 +126,7 @@ All outputs go to `--out`.
    - An uncarried key stops the run unless the decisions' `KEYMAP_ALLOW` lists it as `("deleted", why)` and the map reported it deleted. A replaced key is never allowed (`lib/rule_ops.py`).
 6. Run the points. Route L runs at (lc, z) = (3,0), (2,1) and (1,2); route E runs at 3. Caps are `l = 128` and `c = 3`. Each point writes its loop log (`lib/mk_looplog.py`).
 7. Run `lib/o10_check.py`. Each appended loop rule may match only its listed `file:fn` functions, and each multiplicity-0 site must stay at 0. If a check fails, the run ends with exit 3 and no tree.
-8. Merge: `lib/merge_trees.py` takes route L at (3,0), SQ2's worst shape, and route E. Route L's other shapes are priced so they can be compared. Their phases at in-build values come from `eval <law-test log> runs/L_21/work/profile_tree.json` (the log of the `profile_` law tests, whose `I65_G5_ATOM` lines include the point atoms, step 5 above), and they should stay at or below the merged tree's in every phase and mode; the tool does not check this itself.
+8. Merge: `lib/merge_trees.py` takes route L at (3,0), SQ2's worst shape, and route E. Route L's other shapes are priced so they can be compared. Their phases at in-build values come from `eval <law-test log> runs/L_21/work/profile_tree.json` (the log of the `profile_` law tests, whose `I65_G5_ATOM` lines include the point atoms, step 6 of "Reading a profile change"), and they should stay at or below the merged tree's in every phase and mode; the tool does not check this itself.
 
 ## Layout and provenance
 
@@ -159,7 +166,8 @@ All outputs go to `--out`.
   - the same carry, with and without a rename, under adverse repository-local configuration, attributes and replace refs, `GIT_*` variables and global configuration and attributes; UTF-8 reading in the carry, the driver and a chain step under an ASCII locale; the snapshot's raw bytes under adverse attributes and replace refs;
   - the decision-key stop and `KEYMAP_ALLOW`;
   - the `EDGE_ZERO_REMOVE_CALLER` count;
-  - the generator's basis line.
+  - the generator's basis line;
+  - RT-L2's owner bindings and the typed census's acceptance of the setting (`tests/test_rtl2_pressure_elongation.py`).
 
 ## Adding an adjudication rule
 
@@ -587,3 +595,69 @@ passed all seven once-only tests with verified closure at `1a07aec6b`. Exact-hea
 consultation and integration remain pending. S6 was drafted as §8.59; its source and tool comments
 still cite that number, which now means §8.60 (the modal support operations are §8.59). On the final composition
 with §8.59's predecessor (`da0afeabb`) the tool prices S6's tree unchanged. See the governing rules' §8.60.
+
+### RT-L2: pressure elongation per load case and the cancellation screen's exception
+
+**The change.** Model document 0.9.0 gains `model_settings.pressure_elongation`, a closed record holding one list of
+operating load-case ids, refused at validation without a pressure contract, empty, duplicated or naming no case. The
+exact route reads it per case: the straight Poisson coefficient is 2ν or 1, the arc's free-strain push and recovery are
+skipped when a case does not include it, the certified wall increment follows, and the formulation basis carries one of
+three fixed statements. The ordinary semantics move from pressure-2 to pressure-3; readers refuse a stored pressure-2
+result, and a successor whose base is one, by name. `finish_source_groups` gains the cancellation screen's exception
+(eligibility predicate, family, record and warning) and the pressure reader its checks.
+
+**Rules and models.** Each argument stands beside its rule.
+- RTL2-K, -TS, -VS, -FS, -RD (`base/rtl2_owners_model.py`; `ordinary_caps.py`, `t25_g4.py`, `g4_caps.py`): D1 names no
+  member of `model_settings`, so the list's length k is bounded only by the raw census (k ≤ RawValues = 16,384; its
+  strings' total capacity ≤ RawStringCapacity = 131,072), both read from the caps module. Positive: the typed list in
+  T_resident and T25.1a, validation's refusal working set (the ids, three hash sets, the refusals vector) in
+  BuildScratch, the formulation statement's named cases (resident), the reader's key list and statements in T17 V5.
+- RTL2-VL (`rules/o10_rules.py`): the refusal loops, k each, and the diagnostic loop, k + 1; NP-MS's guard counts the
+  third diagnostic and the four templates. RTL2-ID: the texts' argument classes (an id IN128; the two paths and the
+  statements at their literal bytes, read from source).
+- RTL2-XZ: the exception's four callees of `finish_source_groups` are zero edges. On D1 every retained case's groups
+  are empty (formed only inside the region loop, D1.5's empty E regions; L never reaches the producer), so the
+  predicate and the family walk empty inputs without allocating, and the screen is 0, so the record and the warning
+  are never formed. The guard binds the call structure (one call each, the record inside the failed-screen branch, the
+  warning inside `if let Some(record) = exception`, B5L1's group loop), not message, code or token text.
+- RTL2-RX: the reader's record checks (`assembled_is_group_sum`, `cancellation_exception`, `bore_group_value`) and the
+  warning check are zero edges: no record and no warning exist on D1. RTL2-FB: the exception's f64 `.min`/`.max` are not
+  FallbackError's (KD5C6's cutset). RTL2-FV: `keep_finding`'s `finding()` is its closure parameter.
+- B7a scoped TEXT: `problem` now delegates to `finding`, which owns the diag sites; `finding`'s count must equal
+  `problem`'s on D1 (its other caller is the exception warning).
+- B7b-B: the route bases {pressure-3, preview-physics-2} select the B7b route-E rules (same PRESSURE_ID arm).
+- M08-VZ reads `ExactContract::of` by its impl (exact_admission.rs now has two `fn of`).
+
+**Carried obligations.** Full-file, prefix and body pins re-read on their diffs and re-bound (B7a domain, W1
+reductions and stage 2, batch 5's prefix, KD5 production/body pins and KD5C5/C6, O4, TIM, RT-A4-HS); hand-kept
+current-source line keys carried by diff mapping with unchanged text (B7a domain audits, owner choices, phase,
+returning errors, scoped TEXT, the `_X` emitter, KD5C6's two fallback offsets); the identity's static disposition head
+and the resident pressure table's path follow pressure-3. No owner, carrier, staging or first-return alternative
+changes beyond those listed.
+
+**Outside D1 (not priced by the retained profile).** A pressure region's elongation token and flag, the arc push and
+recovery choice, the exception's predicate, family, record (a JSON object with the node, two member ids and lengths,
+span and two ratios) and warning (one diagnostic), and the reader's record checks and model checks all run only on a
+case with a pressure region; on a non-empty region their loops run over the case's groups, terms, regions, terminals
+and members, and the record's and warning's strings are formed at most once per case.
+
+**Derivation and native checks.** On `bb1de0937` the four points complete with O-10 0/0; the prune (36) and the
+resolutions (8) are main's, with 889 keys remapped and none unmapped. Against the merge base `4d29420a0`, whose
+committed tool reproduces the kept block (`generate --check` 1,713 lines and `point-atoms --check` 154 lines, both
+equal), 1,468 of 1,606 coefficients are equal, 138 higher and none lower. D rises by 32,770 at every point (two
+validation calls, k + 1 diagnostics each); STATICS[1] +3,948 B (the pressure-3 table and schema); O_base +254,149 B
+with +139,268 s(&str), +49,152 s((&str,String)) and +16,384 s(String) (RTL2-TS/VS); every diagnostic-bearing form
+rises with D. The block is regenerated with this section's basis line (1,717 lines) and the point atoms (150 lines;
+s((&str,String)) moves into the profile, the four coefficients counted above as higher from 0); both `--check`s are
+equal. At the in-build atoms every phase rises in both modes (W1 +900,809,543 B, W3 +1,623,276,625 B, X1 +748,730,763
+B); W3 stays the maximum (10,426,531,599 B dense, without R). All phases of both modes fit the unchanged M, the 0.9
+margin and the upward-rounded 5% TEXT reserve; the minimum headroom is 819,546,058 B (dense W3), and L(2,1) and L(1,2)
+stay below the merged tree in every phase and mode. The law tests' pins move with it (the record, D_env 45,160 and its
+push capacity 65,536, Text(diag_env) 443,464,520 B = 273,191,600 + 16,385 · 10,392). This tool, with the twelve
+re-pinned files' values restored from main and every new rule kept, reproduces main `4d29420a0`'s 1,602 coefficients
+and its 1,713-line block exactly. The source work law takes ΔE = 93 B (the setting's member) in the three mixed
+requests: each selected case and the composite publication charge 24E, so each moves by 2,232.
+
+**The bound's cost.** Almost all of the rise is the list's raw-census bound: 16,385 refusal diagnostics per validation
+call, each priced at the inherited classes. A D1 clause that bounds `operating_load_cases` by C (as every other
+admitted list has a cap row) would take it back to a few hundred bytes; that is a source change, outside this tool.

@@ -102,9 +102,11 @@ REDUCED_PINS = {
     # Operating-case slice 1b (§8.51, merge of 41142f4a3): lib.rs's three 1b items are folded onto existing lines and
     # preview_physics.rs adds the declared arms; no reduction's owner or lifetime changes, the L5 texts are unchanged.
     # RT-A3 S6 D3 (§8.59): lib.rs re-read: no reduction's owner or lifetime changes; L5 texts unchanged.
-    "core/product_physics/src/lib.rs": "d193d408df925ea70e77c93fd65dbbe88b9780a4353017c8ce8934f6032c6737",
-    "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
-    "core/product_physics/src/certified_publication.rs": "54ae0639313c3e5785c9e65f1a9574b535bc3dbe94b49a5788b7f976f935c57a",
+    # RT-L2 D3: lib.rs, retained_wire.rs and certified_publication.rs re-read (b7a_domain_model's RT-L2 note): no
+    # reduction's owner or lifetime changes; the L5 texts are unchanged.
+    "core/product_physics/src/lib.rs": "b8bc16833240abd7fd10e4e753d3124a32a5b09ad64b131447ea2fc61c22b192",
+    "core/product_physics/src/retained_wire.rs": "ca982a664d0c3f30dd510182c402785cb11baee1ef8d567c522351332892e9f7",
+    "core/product_physics/src/certified_publication.rs": "088fbf78c977abbcc3c28c7cb38d74bf14b7f7adfac48c21f8010a4020d0cfc2",
     "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",
     "core/product_physics/src/preview_physics.rs": "19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4",
     "core/solver/frame_kernel/src/structural/formation_check.rs": "96b35424bd76fd7733b781241dd328aca91556372876df2a053cbdf2c7377e10",
