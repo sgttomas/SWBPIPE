@@ -43,10 +43,10 @@ pub(super) fn member(
     bound: &MemberBoundInputs,
 ) -> Result<CertifiedMemberRecovery, RecoveryFailure> {
     let prefix = super::member_prefix(&pipe.element_id);
-    let loads = CertifiedMemberLoads::from_member_primitives(
+    let loads = CertifiedMemberLoads::from_member_force(
         pipe.node_i.index,
         pipe.node_j.index,
-        force.load_primitives(),
+        force,
         &prefix,
     )?
     .with_member_source(source, &prefix);
@@ -628,10 +628,10 @@ pub(super) fn straight_stress_spans(
         EnclosedQuadraticStressSpan, StressCoefficientBounds,
     };
     let prefix = super::member_prefix(&pipe.element_id);
-    let loads = CertifiedMemberLoads::from_member_primitives(
+    let loads = CertifiedMemberLoads::from_member_force(
         pipe.node_i.index,
         pipe.node_j.index,
-        force.load_primitives(),
+        force,
         &prefix,
     )
     .map_err(|error| format!("maximum member loads: {error:?}"))?

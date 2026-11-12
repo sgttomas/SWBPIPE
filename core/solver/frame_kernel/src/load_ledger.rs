@@ -271,6 +271,7 @@ impl LoadLedger {
             evidence,
             formations: self.formations,
             closures: self.closures,
+            member_order: crate::structural::member_load_order(&self.loads),
             loads: self.loads,
         })
     }
@@ -285,6 +286,9 @@ pub struct AssembledForce {
     formations: Vec<Option<FormationRecord>>,
     closures: Vec<LoadClosureRecord>,
     loads: Vec<LoadPrimitive>,
+    /// `loads`' member-bound primitives by node pair, in ledger order
+    /// (`structural::member_load_order`). An index only: it changes no value.
+    member_order: Vec<(usize, usize, usize)>,
 }
 
 // Exactly the derived output of today's four fields; the S11-G formation
@@ -303,6 +307,9 @@ impl fmt::Debug for AssembledForce {
 impl AssembledForce {
     pub fn load_primitives(&self) -> &[LoadPrimitive] {
         &self.loads
+    }
+    pub(crate) fn member_load_order(&self) -> &[(usize, usize, usize)] {
+        &self.member_order
     }
     pub fn closure_records(&self) -> &[LoadClosureRecord] {
         &self.closures
@@ -465,6 +472,8 @@ impl AssembledForce {
                 .iter()
                 .map(|p| p.force_scaled(scale.exponent()).ok_or(failed.clone()))
                 .collect::<Result<Vec<_>, _>>()?,
+            // Scaling keeps every primitive's formula and position.
+            member_order: self.member_order.clone(),
             terms,
             evidence,
         })

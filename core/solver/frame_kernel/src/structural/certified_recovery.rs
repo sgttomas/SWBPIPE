@@ -462,6 +462,9 @@ pub struct CertifiedMemberLoads<'a> {
     equivalent: [Ball; 12],
     equivalent_scale: [f64; 12],
     primitives: &'a [LoadPrimitive],
+    /// The force's member index run for this node pair (`from_member_force`):
+    /// the only primitives a selection then tests. `None` tests them all.
+    member_run: Option<&'a [(usize, usize, usize)]>,
     node_i: usize,
     node_j: usize,
     source_prefix: &'a str,
@@ -482,6 +485,7 @@ impl Default for CertifiedMemberLoads<'_> {
             equivalent: [Ball::ZERO; 12],
             equivalent_scale: [0.0; 12],
             primitives: &[],
+            member_run: None,
             node_i: usize::MAX,
             node_j: usize::MAX,
             source_prefix: "",
@@ -517,7 +521,42 @@ fn member_pair(formula: &LoadFormula) -> Option<(usize, usize)> {
         | LoadFormula::SlidingFrictionCoupled { .. } => None,
     }
 }
+/// Every member-bound primitive of a case as (node i, node j, ledger index),
+/// sorted, so one node pair's primitives are a contiguous run in ledger
+/// order. `AssembledForce` holds it beside its primitives; it selects nothing
+/// by itself (`member_candidates`).
+pub(crate) fn member_load_order(primitives: &[LoadPrimitive]) -> Vec<(usize, usize, usize)> {
+    let bound = |p: &LoadPrimitive| member_pair(&p.formula);
+    let mut order = Vec::with_capacity(primitives.iter().filter(|p| bound(p).is_some()).count());
+    order.extend(
+        primitives
+            .iter()
+            .enumerate()
+            .filter_map(|(index, p)| bound(p).map(|(i, j)| (i, j, index))),
+    );
+    order.sort_unstable();
+    order
+}
+/// The primitives a member selection tests, in ledger order: every primitive,
+/// or those of the member's node pair. A selection applies its own complete
+/// test to each (source prefix, node pair, row), so both give it the same
+/// primitives in the same order: a primitive of another node pair fails that
+/// test wherever it is met.
+fn member_candidates<'a>(
+    primitives: &'a [LoadPrimitive],
+    member_run: Option<&'a [(usize, usize, usize)]>,
+) -> impl Iterator<Item = &'a LoadPrimitive> + 'a {
+    let (all, run) = match member_run {
+        None => (primitives, &[][..]),
+        Some(run) => (&[][..], run),
+    };
+    all.iter()
+        .chain(run.iter().map(move |&(_, _, index)| &primitives[index]))
+}
 impl<'a> CertifiedMemberLoads<'a> {
+    fn candidates(&self) -> impl Iterator<Item = &'a LoadPrimitive> + 'a {
+        member_candidates(self.primitives, self.member_run)
+    }
     pub fn from_primitives(
         node_i: usize,
         node_j: usize,
@@ -533,8 +572,38 @@ impl<'a> CertifiedMemberLoads<'a> {
         primitives: &'a [LoadPrimitive],
         source_prefix: &'a str,
     ) -> Result<Self, RecoveryFailure> {
+        Self::from_member_selection(node_i, node_j, primitives, None, source_prefix)
+    }
+    /// `from_member_primitives` on `force`'s primitives, testing only those
+    /// its member index lists for this node pair instead of the whole case.
+    pub fn from_member_force(
+        node_i: usize,
+        node_j: usize,
+        force: &'a AssembledForce,
+        source_prefix: &'a str,
+    ) -> Result<Self, RecoveryFailure> {
+        let order = force.member_load_order();
+        let pair = (node_i, node_j);
+        let start = order.partition_point(|&(i, j, _)| (i, j) < pair);
+        let end = order.partition_point(|&(i, j, _)| (i, j) <= pair);
+        Self::from_member_selection(
+            node_i,
+            node_j,
+            force.load_primitives(),
+            Some(&order[start..end]),
+            source_prefix,
+        )
+    }
+    fn from_member_selection(
+        node_i: usize,
+        node_j: usize,
+        primitives: &'a [LoadPrimitive],
+        member_run: Option<&'a [(usize, usize, usize)]>,
+        source_prefix: &'a str,
+    ) -> Result<Self, RecoveryFailure> {
         let mut out = Self {
             primitives,
+            member_run,
             node_i,
             node_j,
             source_prefix,
@@ -544,7 +613,7 @@ impl<'a> CertifiedMemberLoads<'a> {
             p.identity.source.starts_with(source_prefix)
                 && member_pair(&p.formula).is_some_and(|(i, j)| same_pair(node_i, node_j, i, j))
         };
-        if primitives.iter().filter(member).any(|p| p.local_row >= 12) {
+        if member_candidates(primitives, member_run).filter(member).any(|p| p.local_row >= 12) {
             return Err(shape("member primitive local row"));
         }
         // Each primitive is re-formed once and enters its element row's exact
@@ -555,7 +624,7 @@ impl<'a> CertifiedMemberLoads<'a> {
         for row in 0..12 {
             let mut sum = ExactAccumulator::new();
             let mut radius = 0.0;
-            for primitive in primitives.iter().filter(member).filter(|p| p.local_row == row) {
+            for primitive in member_candidates(primitives, member_run).filter(member).filter(|p| p.local_row == row) {
                 let (m, r) = load_reformation(primitive)?;
                 add_ball(&mut sum, &mut radius, Ball { m: m[row], r: r[row] }, false)?;
                 out.equivalent_scale[row] =
@@ -584,8 +653,7 @@ impl<'a> CertifiedMemberLoads<'a> {
     fn uniform_loads(
         &self,
     ) -> impl Iterator<Item = Result<CertifiedUniformLoad, RecoveryFailure>> + '_ {
-        self.primitives
-            .iter()
+        self.candidates()
             .filter(|p| {
                 p.identity.source.starts_with(self.source_prefix)
                     && p.local_row == 0
@@ -864,7 +932,7 @@ fn straight_member_frames_bound(
         MemberFrame::Source(Some(source_frame)) if frames_bit_equal(source_frame, frame) => {}
         _ => return Err(shape("straight recovery frame is not its member's formation-source frame")),
     }
-    let unbound = loads.primitives.iter().any(|p| {
+    let unbound = loads.candidates().any(|p| {
         p.identity.source.starts_with(loads.source_prefix)
             && member_pair(&p.formula)
                 .is_some_and(|(i, j)| same_pair(loads.node_i, loads.node_j, i, j))
@@ -1923,6 +1991,9 @@ pub fn certify_spring_reaction(
 #[cfg(test)]
 #[path = "certified_recovery_tests.rs"]
 mod tests;
+#[cfg(test)]
+#[path = "certified_recovery_member_index_tests.rs"]
+mod member_index_tests;
 
 /// Directed bounds of a Bernstein stress coefficient (Pa). They transport the
 /// source/evaluation ball, not the displacement remainder against u*.
@@ -2117,8 +2188,7 @@ pub fn certify_straight_stress_spans(
     }
     let ctx = straight_context(frame, loads)?;
     let source_count = loads
-        .primitives
-        .iter()
+        .candidates()
         .filter(|p| {
             p.local_row == 0
                 && p.identity.source.starts_with(loads.source_prefix)
@@ -2129,7 +2199,7 @@ pub fn certify_straight_stress_spans(
         .count();
     let mut boundaries = Vec::with_capacity(2 * source_count + 2);
     boundaries.extend([0.0, 1.0]);
-    for p in loads.primitives.iter().filter(|p| {
+    for p in loads.candidates().filter(|p| {
         p.local_row == 0
             && p.identity.source.starts_with(loads.source_prefix)
             && member_pair(&p.formula)
