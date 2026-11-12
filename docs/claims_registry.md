@@ -121,6 +121,20 @@ for external validation, not a validation outcome"
 external-prover surfaces), validation manual, headless-runner evidence
 surfaces.
 
+### BS-COMPARE — comparison posture
+
+**Canonical:** "A comparison shows what differs between two states, runs or
+cases of the user's own model. It is a review aid and establishes nothing
+about either side."
+
+**Short variants:** "a review aid: differences only, establishing nothing
+about either side" · "differences between two of the user's own states or
+runs; a review aid"
+
+**Belongs on:** the comparison subsection of a generated report; the
+desktop's comparison views and the legend of its comparison overlay, where
+they carry boundary language. **Not on:** results views.
+
 ### BS-MATURITY — release maturity (RETIRED 2026-09-18)
 
 **Status:** retired by `DEC-105`, the owner's superseding ruling on D-71
