@@ -1,13 +1,21 @@
-//! The Python runner's classification, ported line for line so that the two supervisors class a
-//! run the same way. Each function names its source in
-//! `core/solver/performance_harness/runner/release_runner.py` (`rr`) or `k6_runner.py` (`k6`).
-//! The records are `serde_json` values with the Python records' keys, so that each line here can
-//! be read against the Python line it ports.
+//! The Python runner's classification, ported line for line: the two supervisors apply the same
+//! rules. This supervisor also has a reading the Python's has not on a killed run, the driver's
+//! lifetime-maximum footprint read at its exit (`rss.exit_lifetime_max_phys_footprint_bytes`;
+//! the Python's `/usr/bin/time` is killed with the driver's group), and counts it as the stricter
+//! observation. So one boundary case can be classed differently: an emergency RSS-cap kill whose
+//! sampled footprint was within the budget but whose exit reading is above it is
+//! `exceeds_base_machine_budget` here and `killed_by_rss_cap` in the Python. Each record names
+//! the readings its classification used (`classification_readings`). Each function names its
+//! source in `core/solver/performance_harness/runner/release_runner.py` (`rr`) or `k6_runner.py`
+//! (`k6`). The records are `serde_json` values with the Python records' keys, so that each line
+//! here can be read against the Python line it ports.
 
-use serde_json::Value;
+use serde_json::{json, Value};
 
 /// `rr.SOLVED`.
 pub const SOLVED: &str = "MECHANICS_SOLVED";
+/// `rr.CHECKS_REPORTED`: a `--model-checks` run whose checks returned a report.
+pub const CHECKS_REPORTED: &str = "MODEL_CHECKS_REPORTED";
 /// `rr.PROGRESS_PREFIX`: the driver's stderr progress lines.
 pub const PROGRESS_PREFIX: &str = "release-timing-stage ";
 /// `rr.CLASSES`.
@@ -76,6 +84,72 @@ pub fn peak_footprint(driver: Option<&Value>, launch_record: Option<&Value>, pro
     values.into_iter().flatten().max()
 }
 
+/// `rr.footprint_readings`: the readings [`peak_footprint`] found, each named `source:key`
+/// (`sampler`, `rss`, `driver`, `progress`), in its order.
+pub fn footprint_readings(driver: Option<&Value>, launch_record: Option<&Value>, progress_memory: Option<&Value>) -> Vec<String> {
+    let sampler = object(launch_record, "sampler");
+    let rss = object(launch_record, "rss");
+    let mut found = Vec::new();
+    let mut check = |source: &str, value: Option<&Value>, key: &str| {
+        if int(get(value, key)).is_some() {
+            found.push(format!("{source}:{key}"));
+        }
+    };
+    check("sampler", sampler, "peak_phys_footprint_bytes");
+    check("sampler", sampler, "peak_lifetime_max_phys_footprint_bytes");
+    check("rss", rss, "time_peak_footprint_bytes");
+    check("rss", rss, "exit_lifetime_max_phys_footprint_bytes");
+    if driver.is_some_and(truthy) {
+        check("driver", driver, "worker_peak_footprint_bytes_equivalent");
+    }
+    if progress_memory.is_some_and(truthy) {
+        check("progress", progress_memory, "phys_footprint_bytes");
+        check("progress", progress_memory, "lifetime_max_phys_footprint_bytes");
+    }
+    found
+}
+
+/// `rr.classification_readings`: the footprint readings [`classify`] compared with the budget to
+/// reach its classification, in its branch order (none where no footprint decided it: a timeout,
+/// no driver line, an entry error or a failed exit).
+pub fn classification_readings(
+    launch_record: &Value,
+    driver: Option<&Value>,
+    progress_memory: Option<&Value>,
+) -> Vec<String> {
+    let launch = Some(launch_record);
+    let k6_class = get(launch, "classification").and_then(Value::as_str);
+    if k6_class == Some("killed_by_sampler") {
+        let kill = int(get(object(launch, "sampler"), "kill_footprint_bytes"));
+        return kill.map(|_| vec!["sampler:kill_footprint_bytes".to_string()]).unwrap_or_default();
+    }
+    if matches!(k6_class, Some("killed_by_rss_watchdog" | "rlimit_abort" | "heap_cap_abort")) {
+        return footprint_readings(driver, launch, progress_memory);
+    }
+    if k6_class == Some("timed_out") {
+        return Vec::new();
+    }
+    let Some(driver) = driver else { return Vec::new() };
+    if get(Some(driver), "status").and_then(Value::as_str) == Some("entry_error") || int(get(launch, "exit_code")) != Some(0) {
+        return Vec::new();
+    }
+    footprint_readings(Some(driver), launch, progress_memory)
+}
+
+/// The record's `classification_readings`: `used`, the readings the classification compared
+/// with the budget ([`classification_readings`]); `at_exit`, this supervisor's reading of the
+/// driver at its exit (`rss:exit_lifetime_max_phys_footprint_bytes`), or null with
+/// `at_exit_absent` saying why.
+pub fn readings_record(launch_record: &Value, driver: Option<&Value>, progress_memory: Option<&Value>) -> Value {
+    let rss = object(Some(launch_record), "rss");
+    let at_exit = int(get(rss, "exit_lifetime_max_phys_footprint_bytes")).map(|_| "rss:exit_lifetime_max_phys_footprint_bytes");
+    json!({
+        "used": classification_readings(launch_record, driver, progress_memory),
+        "at_exit": at_exit,
+        "at_exit_absent": at_exit.is_none().then_some("proc_pid_rusage gave no reading of the exited driver before it was reaped"),
+    })
+}
+
 /// Python truthiness of a record value.
 pub fn truthy(value: &Value) -> bool {
     match value {
@@ -137,7 +211,7 @@ pub fn classify(
     if let Some(f) = peak_footprint(Some(driver), launch, progress_memory).filter(|f| *f > budget_bytes) {
         return ("exceeds_base_machine_budget".into(), Some(format!("footprint_{f}_above_budget_at_result")));
     }
-    if status.and_then(Value::as_str) == Some(SOLVED) {
+    if matches!(status.and_then(Value::as_str), Some(SOLVED | CHECKS_REPORTED)) {
         return ("ok".into(), None);
     }
     let codes: Vec<String> = get(Some(driver), "blocking_codes")

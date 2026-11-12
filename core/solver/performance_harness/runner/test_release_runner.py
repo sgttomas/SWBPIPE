@@ -3,7 +3,7 @@
 
 The pure tests need no child process and no Rust binary. `LiveLaunch` runs two tiny
 self-limiting Python children through the runner's own run path: a stand-in driver that prints
-one `release-timing-v1` line, and (macOS) a growing child under a 128 MiB cap with a failsafe
+one driver line (`rr.DRIVER_SCHEMA`), and (macOS) a growing child under a 128 MiB cap with a failsafe
 exit at 512 MiB. Nothing measures or asserts a time or memory bound.
 
 Run from this directory: python3 -m unittest test_release_runner
@@ -84,24 +84,39 @@ class Plan(unittest.TestCase):
         self.assertEqual([r['order'] for r in plan], list(range(len(plan))), 'every run is in plan order')
         self.assertEqual(len({r['run_id'] for r in plan}), len(plan))
         timed = [r for r in plan if not r['attribute']]
-        self.assertEqual(len({(r['profile'], r['nodes']) for r in timed}), len(timed),
-                         'one model per (profile, nodes)')
+        self.assertEqual(len({(r['task'], r['profile'], r['nodes']) for r in timed}), len(timed),
+                         'one run per (task, profile, nodes)')
         for r in plan:
             if r['attribute']:
                 self.assertTrue(r['run_id'].endswith('-attr'))
-                self.assertIn((r['profile'], r['nodes'], r['mode']),
-                              {(t['profile'], t['nodes'], t['mode']) for t in timed}, 'an attribution run has a twin')
+                self.assertIn((r['task'], r['profile'], r['nodes'], r['mode']),
+                              {(t['task'], t['profile'], t['nodes'], t['mode']) for t in timed},
+                              'an attribution run has a twin')
         for r in plan:
+            self.assertIn(r['task'], rr.TASKS)
             self.assertIn(r['profile'], rr.PROFILES)
             self.assertEqual(r['footprint_budget_bytes'], BUDGET)
             self.assertEqual(r['rss_cap_bytes'], rr.EMERGENCY_RSS_CAP_BYTES)
             self.assertEqual(r['mode'], 'sparse')
-            self.assertEqual(r['run_id'], rr.run_id_of(r['profile'], r['nodes'], r['mode'], r['attribute']))
+            self.assertEqual(r['run_id'], rr.run_id_of(r['profile'], r['nodes'], r['mode'], r['attribute'], r['task']))
             self.assertIsNotNone(rr.as_expected(r['expect'], 'ok', None), 'expectation %r unknown' % r['expect'])
-        for name in ('window', 'window2', 'scaling'):
+        # The model checks are runs of their own, never inside a solve run or a timed window.
+        checks = rr.select(plan, 'model-checks')
+        self.assertTrue(checks)
+        for r in checks:
+            self.assertEqual(r['task'], 'model_checks')
+            self.assertTrue(r['run_id'].startswith('model-checks-') and r['run_id'].endswith('-n%04d' % r['nodes']))
+            self.assertEqual(r['expect'], 'ok')
+            self.assertIn(rr.model_name(r['profile'], r['nodes']),
+                          {rr.model_name(s['profile'], s['nodes']) for s in plan if s['task'] == 'solve'},
+                          'a model-checks run reads a rack a solve run reads')
+        self.assertIn('model-checks-linear-ex-n2000', {r['run_id'] for r in rr.select(plan, 'criterion')})
+        for name in ('window', 'window2', 'scaling', 'scaling-2000'):
             window = rr.select(plan, name)
             self.assertTrue(window)
-            self.assertLessEqual(rr.plan_total_s(window) + rr.QUIET_WAIT_S, rr.WINDOW_BUDGET_S, name)
+            self.assertTrue(all(r['task'] == 'solve' for r in window), name)
+            if name != 'scaling-2000':
+                self.assertLessEqual(rr.plan_total_s(window) + rr.QUIET_WAIT_S, rr.WINDOW_BUDGET_S, name)
         self.assertFalse(any(r['attribute'] for r in rr.select(plan, 'window')), 'the timed window samples nothing')
         self.assertEqual(sorted(r['attribute'] for r in rr.select(plan, 'window2')), [False, True])
         self.assertEqual([(r['profile'], r['nodes']) for r in rr.select(plan, 'scaling')],
@@ -125,6 +140,19 @@ class Plan(unittest.TestCase):
         marked = rr.with_attribution(plan)
         self.assertEqual([r['run_id'] for r in marked], ['linear-ex-n0100-sparse-attr', 'nonlinear-pf-n0100-sparse-attr'])
         self.assertTrue(all(r['attribute'] for r in marked))
+
+    def test_a_model_checks_run_is_its_own_driver_invocation(self):
+        plan = rr.build_plan((('linear-ex', 100, 60, 5, 'solved'), ('linear-ex', 100, 60, 1, 'ok', False, 'model_checks')))
+        solve, checks = plan
+        self.assertEqual((solve['task'], solve['run_id']), ('solve', 'linear-ex-n0100-sparse'))
+        self.assertEqual((checks['task'], checks['run_id']), ('model_checks', 'model-checks-linear-ex-n0100'))
+        self.assertEqual(rr.driver_argv('/b/release_timing', '/m/x.json', solve), ['/b/release_timing', '/m/x.json',
+                                                                                  '--mode', 'sparse'])
+        self.assertEqual(rr.driver_argv('/b/release_timing', '/m/x.json', checks, '/r'),
+                         ['/b/release_timing', '/m/x.json', '--model-checks', '--write',
+                          os.path.join('/r', 'model-checks-linear-ex-n0100.result.json')])
+        with self.assertRaises(ValueError):
+            rr.build_plan((('linear-ex', 100, 60, 1, 'ok', False, 'other'),))
 
     def test_build_plan_totals_and_selection(self):
         plan = synthetic_plan()
@@ -277,6 +305,52 @@ class Classification(unittest.TestCase):
         self.assertEqual(rr.classify(launched('error', 101), None, BUDGET), ('error', 'no_driver_line_exit_101'))
         self.assertEqual(rr.classify(launched(), driver('SOMETHING'), BUDGET), ('error', 'status_SOMETHING'))
         self.assertEqual(rr.classify(launched('error', 2), driver('driver_error'), BUDGET)[0], 'error')
+
+    def test_a_model_checks_report_is_ok(self):
+        line = driver(rr.CHECKS_REPORTED, footprint=k6.GIB)
+        self.assertEqual(rr.classify(launched(), line, BUDGET), ('ok', None))
+        self.assertTrue(rr.as_expected('ok', 'ok', None))
+        self.assertEqual(rr.classify(launched(), driver(rr.CHECKS_REPORTED, footprint=BUDGET + 1), BUDGET)[0],
+                         'exceeds_base_machine_budget')
+
+
+class ClassificationReadings(unittest.TestCase):
+    """Each record names the footprint readings its classification used, and this runner's reading
+    at exit (/usr/bin/time's peak memory footprint) or why it has none."""
+
+    def test_a_completed_run_names_every_reading_it_compared(self):
+        progress = {'phys_footprint_bytes': 5, 'lifetime_max_phys_footprint_bytes': 6}
+        record = launched(wrapper='/usr/bin/time -l', sampler={'peak_phys_footprint_bytes': 1,
+                                                               'peak_lifetime_max_phys_footprint_bytes': 2})
+        readings = rr.readings_record(record, driver(), progress)
+        self.assertEqual(readings['used'], [
+            'sampler:peak_phys_footprint_bytes', 'sampler:peak_lifetime_max_phys_footprint_bytes',
+            'rss:time_peak_footprint_bytes', 'driver:worker_peak_footprint_bytes_equivalent',
+            'progress:phys_footprint_bytes', 'progress:lifetime_max_phys_footprint_bytes'])
+        self.assertEqual((readings['at_exit'], readings['at_exit_absent']), ('rss:time_peak_footprint_bytes', None))
+
+    def test_a_killed_run_says_it_had_no_reading_at_exit(self):
+        # /usr/bin/time is in the killed group: no time_* readings.
+        killed = launched('killed_by_rss_watchdog', -9, wrapper='/usr/bin/time -l', rss={'ps_max_kib': 1},
+                          sampler={'peak_phys_footprint_bytes': BUDGET - 1,
+                                   'peak_lifetime_max_phys_footprint_bytes': BUDGET - 1})
+        readings = rr.readings_record(killed, None)
+        self.assertEqual(readings['used'], ['sampler:peak_phys_footprint_bytes',
+                                            'sampler:peak_lifetime_max_phys_footprint_bytes'])
+        self.assertIsNone(readings['at_exit'])
+        self.assertIn('killed with its process group', readings['at_exit_absent'])
+        self.assertEqual(rr.classify(killed, None, rr.EMERGENCY_RSS_CAP_BYTES, BUDGET)[0], 'killed_by_rss_cap')
+        sampled = launched('killed_by_sampler', -9, wrapper='/usr/bin/time -l', rss={},
+                           sampler={'kill_footprint_bytes': BUDGET + 1})
+        self.assertEqual(rr.readings_record(sampled, None)['used'], ['sampler:kill_footprint_bytes'])
+        self.assertIn('killed with its process group', rr.readings_record(sampled, None)['at_exit_absent'])
+        self.assertIn('did not run under /usr/bin/time', rr.readings_record(launched(rss={}), driver())['at_exit_absent'])
+
+    def test_no_footprint_decides_a_timeout_or_an_entry_error(self):
+        self.assertEqual(rr.classification_readings(launched('timed_out', -9), None), [])
+        line = driver('entry_error', entry_error={'stage': 'entry', 'message': 'x'})
+        self.assertEqual(rr.classification_readings(launched('error', 3), line), [])
+        self.assertEqual(rr.classification_readings(launched('error', 101), None), [])
 
 
 class Window(unittest.TestCase):
@@ -480,6 +554,16 @@ class MetadataHasNoHostIdentifiers(unittest.TestCase):
         self.assertEqual(md['base_machine_budget_bytes'], BUDGET)
         self.assertFalse(md['source_dirty'])
 
+    def test_a_dirty_flag_git_cannot_establish_is_unknown_never_false(self):
+        def fake(answers):
+            return lambda args: answers.get(args[-1] if args[0] == 'rev-parse' else args[0])
+        clean = {'HEAD': 'a' * 40, 'HEAD^{tree}': 'b' * 40, 'status': ''}
+        self.assertEqual(rr.source_identity(fake(clean)), ('a' * 40, 'b' * 40, False))
+        self.assertIs(rr.source_identity(fake(dict(clean, status=' M core/x.rs')))[2], True)
+        self.assertEqual(rr.source_identity(fake(dict(clean, status=None)))[2], 'unknown')
+        self.assertEqual(rr.source_identity(fake({'status': ''}))[2], 'unknown', 'no commit: not established')
+        self.assertEqual(rr.source_identity(lambda args: None), (None, None, 'unknown'))
+
 
 class Generate(unittest.TestCase):
     FAKE = ('import argparse, json, sys\n'
@@ -512,9 +596,9 @@ class Generate(unittest.TestCase):
 
 
 STAND_IN_DRIVER = ('import json, sys\n'
-                   'print(json.dumps({"schema": "release-timing-v1", "status": "MECHANICS_SOLVED", '
+                   'print(json.dumps({"schema": "%s", "status": "MECHANICS_SOLVED", '
                    '"blocking_codes": [], "rows": 3, "argv_tail": sys.argv[2:], '
-                   '"worker_peak_footprint_bytes_equivalent": 1}))\n')
+                   '"worker_peak_footprint_bytes_equivalent": 1}))\n' % rr.DRIVER_SCHEMA)
 
 
 def grower(progress=False):
@@ -734,8 +818,8 @@ class LiveFootprint(unittest.TestCase):
                 '    while time.monotonic() < until:\n'
                 '        x += 1\n'
                 'spin(time.monotonic() + 3.5)\n'
-                'print(json.dumps({"schema": "release-timing-v1", "status": "MECHANICS_SOLVED", '
-                '"blocking_codes": [], "worker_peak_footprint_bytes_equivalent": 1}))\n')
+                'print(json.dumps({"schema": "%s", "status": "MECHANICS_SOLVED", '
+                '"blocking_codes": [], "worker_peak_footprint_bytes_equivalent": 1}))\n' % rr.DRIVER_SCHEMA)
         with tempfile.TemporaryDirectory() as folder:
             binary = executable(folder, 'release_timing', busy)
             factory = lambda out, run_id, keep: rr.Attributor(out, run_id, keep, frame_pattern='PyEval')  # noqa: E731

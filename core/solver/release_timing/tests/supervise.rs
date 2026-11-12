@@ -1,11 +1,17 @@
 //! The supervise mode's tests. `Classification` and `ProgressLines` port the cases of
 //! `core/solver/performance_harness/runner/test_release_runner.py`'s classes of those names:
-//! the same inputs, the same outputs. The live tests (macOS) run this crate's binary in supervise
-//! mode on the invented demo model. The cross-check against the Python supervisor is
+//! the same inputs, the same outputs; `classification_the_reading_at_exit_*` is this supervisor's
+//! one boundary case beyond them. The live tests (macOS) run this crate's binary in supervise
+//! mode on the invented demo model, and the launch tests drive `supervise::launch` directly: a
+//! record destination that is not a regular file is refused before any spawn, and a failure after
+//! the spawn leaves no driver process. The cross-check against the Python supervisor is
 //! `tests/test_release_timing_supervise.py`. Nothing here measures or asserts a time or memory
 //! bound.
 
-use open_pipe_stress_release_timing::classify::{as_expected, classify, last_progress, sanitize, CLASSES, PROGRESS_PREFIX, SOLVED};
+use open_pipe_stress_release_timing::classify::{
+    as_expected, classification_readings, classify, last_progress, readings_record, sanitize, CHECKS_REPORTED, CLASSES,
+    PROGRESS_PREFIX, SOLVED,
+};
 use open_pipe_stress_release_timing::host::matches_sweep;
 use serde_json::{json, Value};
 
@@ -30,7 +36,7 @@ fn ok() -> Value {
 
 /// test_release_runner.py `driver`.
 fn driver(status: &str, codes: &[&str], footprint: i128, extra: Value) -> Value {
-    let mut line = json!({"schema": "release-timing-v1", "status": status, "blocking_codes": codes, "route": "EX",
+    let mut line = json!({"schema": "release-timing-v2", "status": status, "blocking_codes": codes, "route": "EX",
         "nodes": 2000, "members": 2100, "supports": 300, "cases": 3, "combinations": 2,
         "rows": 1000, "output_bytes": 123456, "output_sha256": "f".repeat(64),
         "rows_per_basis": {"load_case:L1": 600, "combination:C1": 400},
@@ -143,6 +149,58 @@ fn classification_the_exit_reading_stands_where_time_peak_footprint_stands() {
 }
 
 #[test]
+fn classification_the_reading_at_exit_can_make_an_rss_cap_kill_exceed_the_budget() {
+    // The independent review's boundary case: the emergency RSS cap kills the driver while every
+    // sampled footprint is within the budget, and the driver crosses the budget before SIGKILL
+    // takes effect. This supervisor reads the exited driver's lifetime maximum before reaping it
+    // and counts it (the Agent 0's ruling: the stricter observation is kept); the Python runner's
+    // /usr/bin/time is killed with the group, so its record has no such reading and classes the
+    // same run killed_by_rss_cap. The record names the readings each used.
+    let sampled = json!({"peak_phys_footprint_bytes": BUDGET - 1, "peak_lifetime_max_phys_footprint_bytes": BUDGET - 1});
+    let rust = launched(
+        "killed_by_rss_watchdog",
+        -9,
+        json!({"rss": {"exit_lifetime_max_phys_footprint_bytes": BUDGET + 1}, "sampler": sampled.clone()}),
+    );
+    let (cls, detail) = c(&rust, None, EMERGENCY, BUDGET);
+    assert_eq!(cls, "exceeds_base_machine_budget");
+    assert_eq!(detail.as_deref(), Some(format!("killed_above_rss_cap_{EMERGENCY}_footprint_{}", BUDGET + 1).as_str()));
+    let readings = readings_record(&rust, None, None);
+    assert_eq!(
+        readings["used"],
+        json!(["sampler:peak_phys_footprint_bytes", "sampler:peak_lifetime_max_phys_footprint_bytes",
+               "rss:exit_lifetime_max_phys_footprint_bytes"])
+    );
+    assert_eq!(readings["at_exit"], "rss:exit_lifetime_max_phys_footprint_bytes");
+    assert!(readings["at_exit_absent"].is_null());
+    // The same run as the Python runner records it, without the reading at exit.
+    let python = launched("killed_by_rss_watchdog", -9, json!({"rss": {"ps_max_kib": 1}, "sampler": sampled}));
+    assert_eq!(c(&python, None, EMERGENCY, BUDGET).0, "killed_by_rss_cap");
+    let readings = readings_record(&python, None, None);
+    assert!(readings["at_exit"].is_null() && readings["at_exit_absent"].is_string(), "{readings}");
+}
+
+#[test]
+fn classification_readings_follow_the_branch_that_decided() {
+    let killed = launched("killed_by_sampler", -9, json!({"sampler": {"kill_footprint_bytes": BUDGET + 7}}));
+    assert_eq!(classification_readings(&killed, None, None), ["sampler:kill_footprint_bytes"]);
+    assert!(classification_readings(&launched("timed_out", -9, json!({})), None, None).is_empty());
+    assert!(classification_readings(&launched("error", 101, json!({})), None, None).is_empty());
+    let progress = json!({"phys_footprint_bytes": 5, "lifetime_max_phys_footprint_bytes": 6});
+    assert_eq!(
+        classification_readings(&ok(), Some(&solved()), Some(&progress)),
+        ["rss:time_peak_footprint_bytes", "driver:worker_peak_footprint_bytes_equivalent", "progress:phys_footprint_bytes",
+         "progress:lifetime_max_phys_footprint_bytes"]
+    );
+}
+
+#[test]
+fn classification_a_model_checks_report_is_ok() {
+    assert_eq!(c(&ok(), Some(&driver(CHECKS_REPORTED, &[], GIB, json!({}))), BUDGET, BUDGET), ("ok".into(), None));
+    assert_eq!(c(&ok(), Some(&driver(CHECKS_REPORTED, &[], BUDGET + 1, json!({}))), BUDGET, BUDGET).0, "exceeds_base_machine_budget");
+}
+
+#[test]
 fn classification_refused_by_name() {
     let codes = ["NONLINEAR_DENSE_MEMORY_LIMIT_EXCEEDED", "OTHER"];
     let (cls, detail) = c(&ok(), Some(&driver("MODEL_INCOMPLETE", &codes, 2 * GIB, json!({}))), BUDGET, BUDGET);
@@ -232,10 +290,11 @@ fn the_sweep_pattern_matches_as_pgrep_f_does() {
 
 #[cfg(target_os = "macos")]
 mod live {
-    use open_pipe_stress_release_timing::supervise::{packet, read_records, PACKET_SCHEMA, RECORD_SCHEMA};
+    use open_pipe_stress_release_timing::supervise::{launch, packet, read_records, PACKET_SCHEMA, PLAN_SCHEMA, RECORD_SCHEMA};
     use serde_json::{json, Value};
     use std::path::{Path, PathBuf};
     use std::process::Command;
+    use std::time::{Duration, Instant};
 
     const BIN: &str = env!("CARGO_BIN_EXE_release_timing");
     const BUDGET: u64 = 12_884_901_888;
@@ -254,14 +313,14 @@ mod live {
 
     /// A plan run as `release_runner.plan_document` writes one.
     fn run(order: u64, run_id: &str, model: &str, timeout_s: i64, estimate_s: i64, expect: &str, budget: u64) -> Value {
-        json!({"order": order, "run_id": run_id, "profile": "linear-ex", "nodes": 100, "mode": "sparse",
+        json!({"order": order, "run_id": run_id, "task": "solve", "profile": "linear-ex", "nodes": 100, "mode": "sparse",
                "timeout_s": timeout_s, "footprint_budget_bytes": budget, "rss_cap_bytes": 16u64 << 30,
                "estimate_s": estimate_s, "expect": expect, "attribute": false, "model": model,
                "expected_model_sha256": null, "model_stats": null})
     }
 
     fn supervise(dir: &Path, runs: Vec<Value>, window_budget_s: i64) -> (i32, String, String) {
-        let plan = json!({"schema": "release-timing-plan-v1", "window_budget_s": window_budget_s, "quiet_wait_s": 0, "runs": runs});
+        let plan = json!({"schema": PLAN_SCHEMA, "window_budget_s": window_budget_s, "quiet_wait_s": 0, "runs": runs});
         std::fs::write(dir.join("plan.json"), plan.to_string()).unwrap();
         let output = Command::new(BIN)
             .args(["--supervise", "plan.json", "--out", "out"])
@@ -296,19 +355,30 @@ mod live {
             run(4, "missing", "absent.json", 60, 1, "solved", BUDGET),
             // Its estimate exceeds the window: skipped, never launched.
             run(5, "skipped", "demo.json", 60, 100_000, "solved", BUDGET),
+            // The desktop's on-demand model checks: a run, and a driver process, of their own.
+            {
+                let mut checks = run(6, "model-checks-demo", "demo.json", 60, 1, "ok", BUDGET);
+                checks["task"] = json!("model_checks");
+                checks
+            },
         ];
         let (code, stdout, stderr) = supervise(&dir, runs, 900);
         assert_eq!(code, 1, "model_missing makes the exit 1, as the Python --run: {stdout}{stderr}");
         let out = dir.join("out");
         let records = read_records(&out);
-        assert_eq!(records.len(), 6);
+        assert_eq!(records.len(), 7);
         assert!(records.iter().all(|r| r["schema"] == RECORD_SCHEMA));
         let ok = by_id(&records, "ok");
         assert_eq!(ok["classification"], "ok", "{ok}");
         assert_eq!(ok["as_expected"], true);
         assert_eq!(ok["driver"]["status"], "MECHANICS_SOLVED");
-        assert_eq!(ok["last_stage"]["stage"], "model_checks");
+        // The solve's last stage is parse_back: nothing runs after it in the solve's process.
+        assert_eq!(ok["last_stage"]["stage"], "parse_back");
+        assert_eq!(ok["stages_finished"], 7);
+        assert!(ok["driver"].get("model_checks").is_none() && ok["driver"].get("side_stages").is_none());
         assert_eq!(ok["launch"]["argv"], json!(["release_timing", "demo.json", "--mode", "sparse"]));
+        assert_eq!(ok["classification_readings"]["at_exit"], "rss:exit_lifetime_max_phys_footprint_bytes");
+        assert!(ok["classification_readings"]["used"].as_array().unwrap().contains(&json!("rss:exit_lifetime_max_phys_footprint_bytes")));
         assert!(ok["launch"]["rss"]["exit_lifetime_max_phys_footprint_bytes"].as_u64().unwrap() > 0);
         assert!(ok["launch"]["rss"]["time_peak_footprint_bytes"].is_null());
         assert!(ok["footprint_watchdog"]["peak_phys_footprint_bytes"].as_u64().is_some());
@@ -334,6 +404,15 @@ mod live {
         assert_eq!(refused["classification_detail"], "SUPPORT_INPUT_MISSING");
         assert_eq!(refused["as_expected"], true);
 
+        let checks = by_id(&records, "model-checks-demo");
+        assert_eq!(checks["classification"], "ok", "{checks}");
+        assert_eq!(checks["as_expected"], true);
+        assert_eq!(checks["task"], "model_checks");
+        assert_eq!(checks["launch"]["argv"], json!(["release_timing", "demo.json", "--model-checks"]));
+        assert_eq!(checks["driver"]["invocation"], "model_checks");
+        assert_eq!(checks["driver"]["status"], "MODEL_CHECKS_REPORTED");
+        assert_eq!((checks["last_stage"]["stage"].as_str(), checks["stages_finished"].as_u64()), (Some("serialize"), Some(4)));
+
         assert_eq!(by_id(&records, "missing")["classification"], "model_missing");
         let skipped = by_id(&records, "skipped");
         assert_eq!(skipped["classification"], "skipped_window_budget");
@@ -345,9 +424,10 @@ mod live {
         assert_eq!(written["observation_only"], true);
         assert_eq!(
             written["classification_counts"],
-            json!({"ok": 1, "exceeds_base_machine_budget": 1, "timed_out": 1, "refused": 1, "model_missing": 1, "skipped_window_budget": 1})
+            json!({"ok": 2, "exceeds_base_machine_budget": 1, "timed_out": 1, "refused": 1, "model_missing": 1, "skipped_window_budget": 1})
         );
-        assert_eq!(written["runs"].as_array().unwrap().len(), 4);
+        assert_eq!(written["runs"].as_array().unwrap().len(), 5);
+        assert!(written["runs"].as_array().unwrap().iter().any(|r| r["task"] == "model_checks"));
         assert_eq!(written["not_run"].as_array().unwrap().len(), 2);
         assert!(written["driver_limits"].as_array().is_some_and(|l| !l.is_empty()));
         let md = &written["metadata"];
@@ -402,6 +482,11 @@ mod live {
         let (code, _, stderr) = supervise(&dir, vec![attributed], 900);
         assert_eq!(code, 2);
         assert!(stderr.contains("attribution run"), "{stderr}");
+        let mut untasked = run(0, "t", "demo.json", 60, 1, "solved", BUDGET);
+        untasked["task"] = json!("side_stage");
+        let (code, _, stderr) = supervise(&dir, vec![untasked], 900);
+        assert_eq!(code, 2);
+        assert!(stderr.contains("task must be solve or model_checks"), "{stderr}");
         let (code, _, stderr) = supervise(&dir, vec![run(0, "up", "../demo.json", 60, 1, "solved", BUDGET)], 900);
         assert_eq!(code, 2);
         assert!(stderr.contains("file name"), "{stderr}");
@@ -424,23 +509,163 @@ mod live {
         // A large invented array makes the driver's `read` and `parse` long enough to be caught running.
         let big = format!("{{\"nodes\": [{}]}}", vec!["{\"id\": \"N\", \"x\": 0.0}"; 1_000_000].join(","));
         std::fs::write(dir.join("big.json"), big).unwrap();
-        let plan = json!({"schema": "release-timing-plan-v1", "window_budget_s": 900, "quiet_wait_s": 0,
+        let plan = json!({"schema": PLAN_SCHEMA, "window_budget_s": 900, "quiet_wait_s": 0,
                           "runs": [run(0, "big", "big.json", 600, 1, "solved", BUDGET)]});
         std::fs::write(dir.join("plan.json"), plan.to_string()).unwrap();
         let mut supervisor =
             Command::new(BIN).args(["--supervise", "plan.json", "--out", "out"]).current_dir(&dir).spawn().unwrap();
-        // Wait until the driver has started (its stdout record exists), then terminate.
-        let started = std::time::Instant::now();
-        while !dir.join("out").join("big.jsonl").exists() && started.elapsed().as_secs() < 60 {
-            std::thread::sleep(std::time::Duration::from_millis(20));
+        // Wait until the driver is running (its process is listed; its record files are opened
+        // before it is spawned, so they show nothing), then terminate.
+        let big = dir.join("big.json").to_str().unwrap().to_string();
+        let started = Instant::now();
+        while driver_pids(&big).is_empty() && started.elapsed().as_secs() < 60 {
+            std::thread::sleep(Duration::from_millis(20));
         }
+        let drivers = driver_pids(&big);
+        assert_eq!(drivers.len(), 1, "the driver was seen running");
         unsafe { libc::kill(supervisor.id() as i32, libc::SIGTERM) };
         let status = supervisor.wait().unwrap();
         assert_eq!(status.code(), Some(128 + libc::SIGTERM));
-        // No process is left running the big model.
-        let ps = Command::new("/bin/ps").args(["-axo", "command="]).output().unwrap();
-        let listed = String::from_utf8_lossy(&ps.stdout).to_string();
-        assert!(!listed.lines().any(|l| l.contains(dir.join("big.json").to_str().unwrap())), "the driver outlived its supervisor");
+        // No process is left running the big model, and the driver's pid is gone (killed and reaped).
+        assert!(driver_pids(&big).is_empty(), "the driver outlived its supervisor");
+        assert!(!alive(drivers[0]), "the driver was not reaped");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    /// The pids of processes whose command line contains `needle`.
+    fn driver_pids(needle: &str) -> Vec<i32> {
+        let ps = Command::new("/bin/ps").args(["-axo", "pid=,command="]).output().unwrap();
+        String::from_utf8_lossy(&ps.stdout)
+            .lines()
+            .filter(|l| l.contains(needle) && !l.contains("--supervise"))
+            .filter_map(|l| l.split_whitespace().next()?.parse().ok())
+            .collect()
+    }
+
+    /// Whether `pid` names a process at all, a zombie included (`kill(pid, 0)`: ESRCH once reaped).
+    fn alive(pid: i32) -> bool {
+        unsafe { libc::kill(pid, 0) == 0 || std::io::Error::last_os_error().raw_os_error() != Some(libc::ESRCH) }
+    }
+
+    fn fifo(path: &Path) {
+        let name = std::ffi::CString::new(path.to_str().unwrap()).unwrap();
+        assert_eq!(unsafe { libc::mkfifo(name.as_ptr(), 0o600) }, 0, "mkfifo {}", path.display());
+    }
+
+    fn symlink(target: &Path, link: &Path) {
+        let (target, link) = (std::ffi::CString::new(target.to_str().unwrap()).unwrap(), std::ffi::CString::new(link.to_str().unwrap()).unwrap());
+        assert_eq!(unsafe { libc::symlink(target.as_ptr(), link.as_ptr()) }, 0);
+    }
+
+    /// `supervise::launch` of `/usr/bin/touch <marker>`, so that a spawn leaves a mark.
+    fn launch_touch(record_dir: &Path, marker: &Path, after_spawn: &mut dyn FnMut(i32) -> std::io::Result<()>) -> std::io::Result<()> {
+        launch(Path::new("/usr/bin/touch"), &[marker.to_str().unwrap().to_string()], 16 << 30, BUDGET, 60, record_dir, "r", after_spawn)
+            .map(|_| ())
+    }
+
+    #[test]
+    fn a_record_destination_that_is_not_a_regular_file_is_refused_before_any_spawn() {
+        // The independent review's case: the stdout record is a FIFO. Opening it must neither block
+        // nor start the driver.
+        let dir = folder("fifo");
+        for suffix in [".jsonl", ".stderr.txt", ".record.json"] {
+            let records = dir.join(suffix.trim_start_matches('.').replace('.', "_"));
+            std::fs::create_dir_all(&records).unwrap();
+            fifo(&records.join(format!("r{suffix}")));
+            let marker = dir.join(format!("spawned{suffix}"));
+            let mut spawned = Vec::new();
+            let started = Instant::now();
+            let refused = launch_touch(&records, &marker, &mut |pid| {
+                spawned.push(pid);
+                Ok(())
+            });
+            assert!(started.elapsed() < Duration::from_secs(5), "opening the FIFO blocked");
+            let error = refused.expect_err("a FIFO record is refused");
+            assert!(error.to_string().contains(&format!("r{suffix}")), "{error}");
+            assert!(spawned.is_empty() && !marker.exists(), "{suffix}: no driver was started");
+        }
+        // A symbolic link is not followed, and a symbolic link as the folder is not a real directory.
+        let linked = dir.join("linked");
+        std::fs::create_dir_all(&linked).unwrap();
+        symlink(&dir.join("elsewhere.jsonl"), &linked.join("r.jsonl"));
+        let marker = dir.join("spawned-link");
+        assert!(launch_touch(&linked, &marker, &mut |_| Ok(())).is_err());
+        assert!(!marker.exists() && !dir.join("elsewhere.jsonl").exists());
+        symlink(&linked, &dir.join("folder-link"));
+        assert!(launch_touch(&dir.join("folder-link"), &marker, &mut |_| Ok(())).is_err());
+        assert!(!marker.exists());
+        // A regular file, or a new one, is a destination.
+        let plain = dir.join("plain");
+        std::fs::create_dir_all(&plain).unwrap();
+        std::fs::write(plain.join("r.stderr.txt"), "old").unwrap();
+        launch_touch(&plain, &marker, &mut |_| Ok(())).expect("a regular destination");
+        assert!(marker.exists());
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn a_supervisor_whose_record_is_a_fifo_refuses_the_run_without_blocking() {
+        // The whole binary, with the reviewer's zero-second timeout: it must end by itself, with no
+        // driver started and no run record written.
+        let dir = folder("fifo-cli");
+        std::fs::write(dir.join("demo.json"), demo()).unwrap();
+        std::fs::create_dir_all(dir.join("out")).unwrap();
+        fifo(&dir.join("out").join("zero.jsonl"));
+        let plan = json!({"schema": PLAN_SCHEMA, "window_budget_s": 900, "quiet_wait_s": 0,
+                          "runs": [run(0, "zero", "demo.json", 0, 1, "timed_out", BUDGET)]});
+        std::fs::write(dir.join("plan.json"), plan.to_string()).unwrap();
+        let mut supervisor = Command::new(BIN)
+            .args(["--supervise", "plan.json", "--out", "out"])
+            .current_dir(&dir)
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+            .unwrap();
+        let started = Instant::now();
+        let status = loop {
+            if let Some(status) = supervisor.try_wait().unwrap() {
+                break status;
+            }
+            if started.elapsed() > Duration::from_secs(30) {
+                supervisor.kill().unwrap();
+                panic!("the supervisor blocked on the FIFO record");
+            }
+            std::thread::sleep(Duration::from_millis(20));
+        };
+        let mut stderr = String::new();
+        std::io::Read::read_to_string(&mut supervisor.stderr.take().unwrap(), &mut stderr).unwrap();
+        assert_eq!(status.code(), Some(2), "{stderr}");
+        assert!(stderr.contains("cannot launch zero") && stderr.contains("zero.jsonl"), "{stderr}");
+        assert!(driver_pids(dir.join("demo.json").to_str().unwrap()).is_empty());
+        assert!(read_records(&dir.join("out")).is_empty(), "no run record");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
+    fn a_failure_after_the_spawn_leaves_no_driver_process() {
+        // An error injected right after the spawn, and a panic there: either way the one owner of
+        // the driver kills its group and reaps it before the error leaves `launch`.
+        let dir = folder("injected");
+        let sleeper = [String::from("30")];
+        let mut seen = None;
+        let error = launch(Path::new("/bin/sleep"), &sleeper, 16 << 30, BUDGET, 60, &dir, "r", &mut |pid| {
+            seen = Some(pid);
+            Err(std::io::Error::other("injected after the spawn"))
+        })
+        .err()
+        .expect("the injected error is returned");
+        assert!(error.to_string().contains("injected"));
+        let pid = seen.expect("the driver was spawned");
+        assert!(!alive(pid), "pid {pid} is still running or unreaped after the error");
+        let panicked = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            let _ = launch(Path::new("/bin/sleep"), &sleeper, 16 << 30, BUDGET, 60, &dir, "r", &mut |pid| {
+                seen = Some(pid);
+                panic!("injected panic after the spawn")
+            });
+        }));
+        assert!(panicked.is_err());
+        let pid = seen.unwrap();
+        assert!(!alive(pid), "pid {pid} is still running or unreaped after the panic");
         std::fs::remove_dir_all(dir).unwrap();
     }
 }

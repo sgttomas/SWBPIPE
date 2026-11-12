@@ -4,11 +4,19 @@
 The Python runner (core/solver/performance_harness/runner/release_runner.py, over k6_runner's
 launch) and the driver's own supervise mode (`release_timing --supervise`, core/solver/
 release_timing/src/supervise.rs) run the same plan, written by the runner's `plan_document`, on
-the same invented models with the same driver binary. Four cases: the invented demo model solved
+the same invented models with the same driver binary. Five cases: the invented demo model solved
 (ok); the same with a 4 MiB footprint budget, so that each supervisor's footprint watchdog kills
-its driver (exceeds_base_machine_budget, with the stage reached); a 0 s timeout (timed_out); and
-the demo without supports, which the product refuses (refused, SUPPORT_INPUT_MISSING). Each
-case requires the same classification, the same driver output (rows and output sha256) where
+its driver (exceeds_base_machine_budget, with the stage reached); a 0 s timeout (timed_out); the
+demo without supports, which the product refuses (refused, SUPPORT_INPUT_MISSING); and the
+demo's model checks, a model-checks run of their own (ok). The two apply the same rules; the
+driver also has the reading at exit. Where the Python runner's /usr/bin/time is killed with the
+driver's group, the self-supervisor still reads the exited driver's lifetime-maximum footprint
+and counts it, so the two do not class every case alike: an emergency RSS-cap kill whose sampled
+footprint is within the budget and whose reading at exit is above it is exceeds_base_machine_budget
+in the driver and killed_by_rss_cap in the Python. That boundary is tested on the driver's side
+(core/solver/release_timing/tests/supervise.rs), and each record names the readings its
+classification used (classification_readings). The cases here are not on that boundary, and
+each requires the same classification, the same driver output (rows and output sha256) where
 there is one, and the same record, packet and metadata keys, apart from the named siblings the
 self-supervisor adds where the Python's source (/usr/bin/time, ps) is absent.
 
@@ -51,12 +59,13 @@ PEAK_MEMORY_SIBLINGS = {"wait4_maxrss", "sampled_resident_size", "exit_lifetime_
 METADATA_SIBLINGS = {"source_identity_from"}
 HOST_KEYS = {True: {"quiet", "waited_s", "memorystatus_level", "load1_at_start"}, False: {"quiet", "reason"}}
 
-# (case, profile, nodes, timeout_s, expect, footprint budget, classification)
+# (case, task, profile, nodes, timeout_s, expect, footprint budget, classification)
 CASES = (
-    ("ok", "linear-ex", 100, 60, "solved", rr.BASE_MACHINE_BUDGET_BYTES, "ok"),
-    ("kill", "linear-ex", 100, 60, "exceeds_base_machine_budget", 4 << 20, "exceeds_base_machine_budget"),
-    ("timeout", "linear-ex", 100, 0, "timed_out", rr.BASE_MACHINE_BUDGET_BYTES, "timed_out"),
-    ("refused", "linear-ex", 200, 60, "refused:SUPPORT_INPUT_MISSING", rr.BASE_MACHINE_BUDGET_BYTES, "refused"),
+    ("ok", "solve", "linear-ex", 100, 60, "solved", rr.BASE_MACHINE_BUDGET_BYTES, "ok"),
+    ("kill", "solve", "linear-ex", 100, 60, "exceeds_base_machine_budget", 4 << 20, "exceeds_base_machine_budget"),
+    ("timeout", "solve", "linear-ex", 100, 0, "timed_out", rr.BASE_MACHINE_BUDGET_BYTES, "timed_out"),
+    ("refused", "solve", "linear-ex", 200, 60, "refused:SUPPORT_INPUT_MISSING", rr.BASE_MACHINE_BUDGET_BYTES, "refused"),
+    ("checks", "model_checks", "linear-ex", 100, 60, "ok", rr.BASE_MACHINE_BUDGET_BYTES, "ok"),
 )
 
 
@@ -104,8 +113,8 @@ def outcomes(binary, tmp_path_factory):
     folder = tmp_path_factory.mktemp("release-timing-supervise")
     model_dir = models(folder)
     found = {}
-    for case, profile, nodes, timeout, expect, budget, _ in CASES:
-        plan = rr.build_plan(((profile, nodes, timeout, 1, expect),), footprint_budget_bytes=budget)
+    for case, task, profile, nodes, timeout, expect, budget, _ in CASES:
+        plan = rr.build_plan(((profile, nodes, timeout, 1, expect, False, task),), footprint_budget_bytes=budget)
         python_out, rust_out = folder / ("python-" + case), folder / ("rust-" + case)
         rr.run_plan(plan, str(model_dir), str(python_out), str(binary), quiet_wait_s=0, log=lambda *a: None)
         rr.write_packet(str(python_out))
@@ -149,9 +158,33 @@ def test_same_classification_and_driver_output(outcomes, case):
     if case in ("ok", "refused"):
         for key in ("status", "rows", "output_bytes", "output_sha256", "blocking_codes", "row_kinds", "diagnostic_counts"):
             assert py["driver"][key] == rs["driver"][key], key
+    elif case == "checks":
+        for key in ("invocation", "status", "output_bytes", "output_sha256", "model_checks", "stages"):
+            assert py["driver"][key] == rs["driver"][key], key
+        assert py["driver"]["invocation"] == "model_checks" and py["task"] == rs["task"] == "model_checks"
+        assert py["launch"]["argv"][1:] == rs["launch"]["argv"][1:] == ["linear-ex-n0100.json", "--model-checks"]
     else:
         assert py["driver"] is None and rs["driver"] is None
     assert (py["model_sha256"], py["model_stats"]) == (rs["model_sha256"], rs["model_stats"])
+
+
+@pytest.mark.parametrize("case", [c[0] for c in CASES])
+def test_each_record_names_the_readings_its_classification_used(outcomes, case):
+    py, rs = (record(out) for out in outcomes[case])
+    for r in (py, rs):
+        assert set(r["classification_readings"]) == {"used", "at_exit", "at_exit_absent"}
+    # The driver reads its child at exit in every case; the Python runner's reading at exit is
+    # /usr/bin/time's, which a killed run does not have.
+    assert rs["classification_readings"]["at_exit"] == "rss:exit_lifetime_max_phys_footprint_bytes"
+    if case in ("kill", "timeout"):
+        assert py["classification_readings"]["at_exit"] is None
+        assert "killed with its process group" in py["classification_readings"]["at_exit_absent"]
+    else:
+        assert py["classification_readings"]["at_exit"] == "rss:time_peak_footprint_bytes"
+    if case == "timeout":
+        assert py["classification_readings"]["used"] == rs["classification_readings"]["used"] == []
+    if case == "kill":
+        assert py["classification_readings"]["used"] == rs["classification_readings"]["used"] == ["sampler:kill_footprint_bytes"]
 
 
 @pytest.mark.parametrize("case", [c[0] for c in CASES])
@@ -189,8 +222,8 @@ def test_same_packet_and_metadata_keys(outcomes, case):
     (py_row,), (rs_row,) = py["runs"], rs["runs"]
     assert set(rs_row) == set(py_row)
     assert set(rs_row["peak_memory_bytes"]) == set(py_row["peak_memory_bytes"]) | PEAK_MEMORY_SIBLINGS
-    for key in ("run_id", "classification", "as_expected", "model_sha256", "rows", "output_sha256", "counts", "status",
-                "blocking_codes", "bases"):
+    for key in ("run_id", "task", "classification", "as_expected", "model_sha256", "rows", "output_sha256", "counts",
+                "status", "blocking_codes", "bases"):
         assert py_row[key] == rs_row[key], key
 
 

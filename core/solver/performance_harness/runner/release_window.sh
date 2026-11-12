@@ -8,7 +8,8 @@
 #             (linear-ex 1000 timed, then its attribution twin -attr), scaling (both exact-route
 #             profiles at 250, 500 and 1,000 nodes), scaling-2000 (the same, then linear-ex at
 #             2,000 nodes; needs RELEASE_WINDOW_BUDGET_S above 900), all, linear, nonlinear,
-#             nonlinear-pf, nonlinear-ex, criterion,
+#             nonlinear-pf, nonlinear-ex, criterion (the 2,000-node solves and model checks),
+#             model-checks (the desktop's on-demand model checks, each a run of its own),
 #             or comma-separated run ids (see: release_runner.py --plan --subset <subset>).
 #   Environment: RELEASE_WINDOW_BUDGET_S (default 900: the whole window stays within 15 min;
 #   a run whose estimate exceeds the remaining budget is skipped and logged, and each timeout

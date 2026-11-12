@@ -7,3 +7,10 @@ pub mod classify;
 pub mod host;
 #[cfg(target_os = "macos")]
 pub mod supervise;
+
+/// The build's identity, embedded by `build.rs` from the tree the binary was linked from (the
+/// script runs on every build): `source_commit`, `source_tree`, `source_dirty` (`true`, `false`,
+/// or `"unknown"` where git cannot establish it, never `false` then), `build_profile`, `rustc`
+/// and `cargo`. `release_timing --build-identity` prints it; the supervise mode's metadata
+/// records it.
+pub const BUILD_IDENTITY: &str = env!("RELEASE_TIMING_BUILD_IDENTITY");

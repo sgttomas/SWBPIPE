@@ -142,18 +142,39 @@ memory bound.
   holds the scaling series' hashes; `--hashes` regenerates them. The model version is read from
   `model_format.rs`.
 - **The driver** (`core/solver/release_timing/`, bin `release_timing`, its own crate and lock) mirrors the
-  worker's ordinary solve: read, parse, request wrapper, entry, serialize, then one streamed
-  parse of the result text that keeps nothing, as the worker's result digest reads it. It builds
-  no value from the result, so its peak footprint is the worker's kind of peak. After those
-  stages, and outside their total, it times the model checks the desktop runs before a solve job
-  starts (`model_checks`). It uses serde_json features equal to the desktop's.
-  - It prints one `release-timing-v1` JSON line with seconds, `ru_maxrss` and phys_footprint
-    per stage, rows and bytes per kind, case and row class, and diagnostic counts. After each
-    stage it also writes a `release-timing-stage {json}` progress line to stderr, so a killed
-    run's record shows the last stage it finished and that stage's memory readings.
-  - Its `limits` list says what it does not reproduce: the attestation digests, the worker's
-    allocator, IPC and the webview.
-  - Its tests pin the written bytes to the product entry's own serialization.
+  worker's ordinary solve: read, parse, request wrapper, entry, serialize, release of the
+  envelope, then `parse_back`, and nothing else in the process. `parse_back` is a cheaper
+  stand-in for the worker's read-back of its result text, and a lower bound on it: one streamed
+  parse that keeps nothing. The worker's read-back is the attestation digest (`d_S`,
+  `result_text_digest.rs`, in the desktop crate, which the driver cannot link): it materialises
+  each leaf value up to 256 KiB (a result below that is materialised whole), collects and sorts
+  the members of larger objects, decodes escaped keys, validates the values and serialises them
+  canonically. The driver reproduces none of that, so it does not reproduce the worker's
+  read-back peak. It uses serde_json features equal to the desktop's.
+  - `--model-checks` is its own invocation, in a process of its own: the desktop's on-demand
+    model checks (`check_preview_model`, a menu command run in its own check worker), as that
+    worker runs them: read, parse, `model_checks` (the public entry `model_checks_owned`) and
+    serialize. A solve run never runs them.
+  - It prints one `release-timing-v2` JSON line (`invocation` `solve` or `model_checks`) with
+    seconds, `ru_maxrss` and phys_footprint per stage; a solve adds rows and bytes per kind, case
+    and row class, and diagnostic counts, and the model checks a count of what the report shows.
+    After each stage it also writes a `release-timing-stage {json}` progress line to stderr, so a
+    killed run's record shows the last stage it finished and that stage's memory readings.
+  - Its `limits` list says what it does not reproduce: the attestation digests and the worker's
+    read-back peak, the worker's allocator, IPC and the webview.
+  - Its tests pin the written bytes to the product entry's own serialization, and the model
+    checks' report to the entry's own report.
+  - `release_timing --build-identity` prints the identity embedded at build time: the source
+    commit and tree, `source_dirty` and the toolchain. The build script runs on every build, so
+    the identity is that of the tree the binary was linked from. `source_dirty` is `true`,
+    `false`, or `"unknown"` where git cannot establish it (no git, no repository, no commit), never
+    `false` then; the Python runner records its own checkout the same way.
+
+  How to read the figures: a solve's stage seconds and memory readings are the driver's, in one
+  process. `worker_peak_footprint_bytes_equivalent` is the driver's lifetime-maximum
+  phys_footprint after `parse_back`; it stands where the worker's reported peak stands but is not
+  a measured worker peak. The driver's memory at serialisation and after is a lower bound on the
+  worker's. A model-checks run's figures are its own process's, never part of a solve's.
 - **The runner** (`runner/release_runner.py`, standard library; it reuses `k6_runner`'s
   launch, watchdog and metadata) does four things:
   - `--plan` prints the schedule;
@@ -166,8 +187,15 @@ memory bound.
     because RSS runs well above the footprint. `--attribute` (and the `-attr` runs) take a
     `sample` stack snapshot every 2 s, and whenever the footprint has grown by 512 MiB. Each
     snapshot records the top call paths, reduced to product frames. Its timings are not
-    measurements;
+    measurements. A run id starting `model-checks-` (subset `model-checks`; `criterion` includes
+    the 2,000-node ones) runs the driver's `--model-checks` invocation;
   - `--packet` writes the compact packet.
+
+  Each record names the footprint readings its classification compared with the budget
+  (`classification_readings`: `used`, and `at_exit`, the runner's reading of the driver at its
+  exit, or why there is none). The runner's reading at exit is `/usr/bin/time`'s peak memory
+  footprint, which a killed run does not have: `/usr/bin/time` is killed with the driver's
+  process group.
 
   `runner/release_window.sh` is the single exclusive-window entry, run under the host's
   exclusive wrapper; its default `window` subset fits 15 minutes, as do `window2` (linear-ex
@@ -180,15 +208,25 @@ memory bound.
   the driver in its own session and process group, and watches that child from outside as the
   runner does. Every 100 ms one `proc_pid_rusage` call reads the phys_footprint, its lifetime
   maximum and the resident size. The whole group is killed with SIGKILL above the footprint
-  budget, above the 16 GiB resident cap or at the timeout. It classifies each run as the runner
-  does (`src/classify.rs` ports `classify` line for line) and writes the same records and packet,
-  with the same schema names and keys. Where the runner's source is absent (`/usr/bin/time`,
-  `ps`), the key is null and a named sibling carries this supervisor's reading: the child's final
-  lifetime-maximum footprint, read at exit before reaping, and `wait4`'s `ru_maxrss`. Host facts
-  come from `sysctl`, and the cargo and sweep checks from the process table. The source commit,
-  tree, dirty flag and toolchain are embedded at build time. It takes no stack snapshots, so a
-  plan with `-attr` runs is refused. `tests/test_release_timing_supervise.py` runs both
-  supervisors on the same plan and models and compares their classifications, outputs and keys.
+  budget, above the 16 GiB resident cap or at the timeout. It classifies each run with the
+  runner's rules (`src/classify.rs` ports `classify` line for line) and writes the same records
+  and packet, with the same schema names and keys. Where the runner's source is absent
+  (`/usr/bin/time`, `ps`), the key is null and a named sibling carries this supervisor's reading:
+  the child's final lifetime-maximum footprint, read at exit before reaping, and `wait4`'s
+  `ru_maxrss`. The same rules; the driver also has the reading at exit. It reads it on a killed
+  run too, where the runner's `/usr/bin/time` was killed with the group, and counts it as the
+  stricter observation, so the two do not class every run alike: an emergency RSS-cap kill whose
+  sampled footprint was within the budget and whose reading at exit is above it is
+  `exceeds_base_machine_budget` here and `killed_by_rss_cap` in the runner. Each record's
+  `classification_readings` names the readings its classification used. Each run's output files
+  are opened before its driver starts, without following a link and without blocking; a
+  destination that is not a regular file refuses the run before any process starts, and from the
+  start on, any failure kills and reaps the driver. Host facts come from `sysctl`, and the cargo
+  and sweep checks from the process table. The source commit, tree, dirty flag and toolchain are
+  embedded at build time (`--build-identity` above). It takes no stack snapshots, so a plan with
+  `-attr` runs is refused. `tests/test_release_timing_supervise.py` runs both supervisors on the
+  same plan and models, on cases away from that boundary, and compares their classifications,
+  outputs and keys; the boundary itself is tested in the crate's `tests/supervise.rs`.
 
   The folder to carry, prepared on a development machine from a clean checkout:
 
@@ -199,8 +237,9 @@ memory bound.
   cp "${CARGO_TARGET_DIR:-core/solver/release_timing/target}/release/release_timing" FOLDER/
   ```
 
-  `FOLDER` then holds the binary `release_timing`, `plan.json` (the runs, each model's name and
-  sha256, the window budget and the quiet-host wait) and the plan's rack models with their
+  `FOLDER` then holds the binary `release_timing`, `plan.json` (`release-timing-plan-v2`: the
+  runs, each with its task, model name and sha256, the window budget and the quiet-host wait) and
+  the plan's rack models with their
   `manifest.json`. Any subset without `-attr` runs can be written, and `--budget-s` and
   `--quiet-wait-s` set the window and the wait. On the measured Mac, put the folder in the home
   folder (not Desktop or Documents, which ask for permission) and run, in Terminal:

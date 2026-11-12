@@ -13,6 +13,12 @@
 //! Records and the packet have the Python's schema names and keys; where a Python source does
 //! not exist here (`/usr/bin/time`, `ps`) the key is kept with null and a named sibling carries
 //! this supervisor's reading. Observation only: nothing here asserts a time or memory bound.
+//!
+//! A run's output files are opened before its driver is spawned, without following a symbolic
+//! link and without blocking ([`open_output`]): a destination that is not a regular file, or a new
+//! file in a real directory, refuses the run before any process starts. From the spawn on, one
+//! owner ([`Spawned`]) holds the driver: every return, error and unwind path kills its process
+//! group and reaps it. Nothing between the spawn and the watch loop touches the file system.
 
 use crate::classify::{self, int, jsonl, py_str, sanitize, truthy};
 use crate::host;
@@ -23,10 +29,10 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicI32, Ordering};
 use std::time::{Duration, Instant};
 
-pub const PLAN_SCHEMA: &str = "release-timing-plan-v1";
+pub const PLAN_SCHEMA: &str = "release-timing-plan-v2";
 pub const RECORD_SCHEMA: &str = "release-runner-record-v1";
 pub const PACKET_SCHEMA: &str = "release-timing-packet-v1";
-pub const DRIVER_SCHEMA: &str = "release-timing-v1";
+pub const DRIVER_SCHEMA: &str = "release-timing-v2";
 /// The launch record (`<run_id>.record.json`); the Python's is `k6-runner-record-v1`, written by
 /// `k6_runner.launch`, which this supervisor does not use.
 pub const LAUNCH_SCHEMA: &str = "release-timing-supervise-launch-v1";
@@ -47,15 +53,12 @@ const QUIET_STEP_S: u64 = 30;
 /// `k6.launch`: `stderr_text[-1500:]`.
 const STDERR_TAIL_CHARS: usize = 1500;
 
-/// The build's identity, embedded by `build.rs`.
-const BUILD_IDENTITY: &str = include_str!(concat!(env!("OUT_DIR"), "/build_identity.json"));
-
 /// `rr.CONDITIONS`, restated for this supervisor: the same terms where the method is the same,
 /// and what differs said where it differs.
 pub const CONDITIONS: [&str; 8] = [
-    "Engine stages only: the release_timing driver runs, in one process, the stages the desktop solve worker runs for an ordinary solve (read, parse, request, entry, serialize, release_envelope, parse_back), then, outside their total, the model checks the desktop runs before a solve job starts (model_checks). The desktop app, its IPC and ingress, the worker process protocol and memory pool, the solve attestation digests and the webview are not included; the driver lists its own limits in each run.",
+    "Engine stages only. A solve run: the release_timing driver runs, in one process, the stages the desktop solve worker runs for an ordinary solve (read, parse, request, entry, serialize, release_envelope, parse_back) and nothing else; parse_back is a cheaper stand-in for the worker's read-back of the result text, so the driver's time and memory from serialize on are lower bounds on the worker's, not a measured worker peak. A model-checks run (task model_checks, run id model-checks-...) is a process of its own: the stages the desktop's check worker runs for the on-demand model checks (read, parse, model_checks, serialize). The desktop app, its IPC and ingress, the worker process protocol and memory pool, the solve attestation digests and the webview are not included; the driver lists its own limits in each run.",
     "One driver process at a time, each with a per-run timeout. The release_timing binary supervises itself (release_timing --supervise): it re-executes itself as the driver in a new session and process group and watches that child from outside, with no /usr/bin/time and no ps. Every 100 ms it reads the driver phys_footprint, lifetime-maximum phys_footprint and resident size (one proc_pid_rusage RUSAGE_INFO_V4 call); any limit kills the whole process group with SIGKILL. When the driver has exited, before reaping it, the supervisor reads its final lifetime-maximum phys_footprint (the counter /usr/bin/time -l reports as peak memory footprint), then takes its exit status and ru_maxrss from wait4.",
-    "The footprint budget is the product per-invocation memory budget on the 16 GiB base machine (12 GiB, memory_pool.rs DEFAULT_INVOCATION_BUDGET_BYTES), enforced as the product enforces it, on phys_footprint: a run whose sampled footprint or lifetime-maximum footprint exceeds it is killed and classified exceeds_base_machine_budget (the desktop worker_footprint_exceeded). Like the product, the sampling can miss a peak shorter than one poll; a completed run whose lifetime-maximum footprint (sampled, the driver reading, or the supervisor reading at exit) exceeds the budget is classified the same way, because the desktop would refuse that result.",
+    "The footprint budget is the product per-invocation memory budget on the 16 GiB base machine (12 GiB, memory_pool.rs DEFAULT_INVOCATION_BUDGET_BYTES), enforced as the product enforces it, on phys_footprint: a run whose sampled footprint or lifetime-maximum footprint exceeds it is killed and classified exceeds_base_machine_budget (the desktop worker_footprint_exceeded). Like the product, the sampling can miss a peak shorter than one poll; a completed run whose lifetime-maximum footprint (sampled, the driver reading, or the supervisor reading at exit) exceeds the budget is classified the same way, because the desktop would refuse that result. The rules are the Python runner's; this supervisor also has the driver's reading at its exit on a killed run, where the Python runner's /usr/bin/time is killed with the group, and counts it, so the two can class a boundary case differently. Each record names the readings its classification used (classification_readings).",
     "The resident-size watchdog (proc_pid_rusage ri_resident_size, read where the Python runner reads ps RSS) is an emergency cap only (16 GiB by default, the base machine physical memory). Resident size can run well above phys_footprint (about 1.4 times at 500 linear-ex nodes), so it is not the product measure; a kill there is killed_by_rss_cap unless a footprint reading shows the budget exceeded.",
     "The host is the one described in metadata (memory_bytes, cpu_model); it is not necessarily the 16 GiB base machine, so memory pressure, paging and compression on a 16 GiB machine are not reproduced.",
     "Models are invented rack models from rack_model.py, identified per run by sha256 and checked against the plan sha256 where the plan gives one.",
@@ -119,6 +122,9 @@ pub struct Run {
     /// The Python plan entry's keys (`rr.PLAN_RUN_KEYS`), copied into the run's record.
     pub entry: Map<String, Value>,
     pub run_id: String,
+    /// `solve` (the driver's solve invocation, with `--mode`) or `model_checks` (its
+    /// `--model-checks` invocation; the plan's mode is not passed).
+    pub task: String,
     pub mode: String,
     pub timeout_s: i64,
     pub estimate_s: i64,
@@ -137,9 +143,10 @@ pub struct Plan {
     pub runs: Vec<Run>,
 }
 
-pub const PLAN_RUN_KEYS: [&str; 11] = [
+pub const PLAN_RUN_KEYS: [&str; 12] = [
     "order",
     "run_id",
+    "task",
     "profile",
     "nodes",
     "mode",
@@ -180,11 +187,16 @@ pub fn read_plan(text: &str) -> Result<Plan, String> {
         if !matches!(mode.as_str(), "sparse" | "dense") {
             return Err(format!("plan: {run_id}'s mode must be sparse or dense"));
         }
+        let task = text("task")?;
+        if !matches!(task.as_str(), "solve" | "model_checks") {
+            return Err(format!("plan: {run_id}'s task must be solve or model_checks"));
+        }
         if !seen.insert(run_id.clone()) {
             return Err(format!("plan: {run_id} appears twice"));
         }
         runs.push(Run {
             entry,
+            task,
             mode,
             timeout_s: integer(run, "timeout_s")?,
             estimate_s: integer(run, "estimate_s")?,
@@ -241,16 +253,61 @@ fn tail_chars(text: &str, n: usize) -> &str {
     &text[skip..]
 }
 
+/// Opens `path` for writing, truncated or appended, created if absent, without following a
+/// symbolic link (`O_NOFOLLOW`) and without blocking (`O_NONBLOCK`: opening a FIFO that has no
+/// reader fails at once instead of waiting for one). Anything that is not a regular file once
+/// open (a FIFO with a reader, a device) is refused, so a record destination is a regular file or
+/// a new one; nothing it returns can block a write.
+pub fn open_output(path: &Path, append: bool) -> std::io::Result<std::fs::File> {
+    use std::os::unix::ffi::OsStrExt;
+    use std::os::unix::io::FromRawFd;
+    let name = std::ffi::CString::new(path.as_os_str().as_bytes())?;
+    let flags = libc::O_WRONLY
+        | libc::O_CREAT
+        | libc::O_NOFOLLOW
+        | libc::O_NONBLOCK
+        | libc::O_CLOEXEC
+        | if append { libc::O_APPEND } else { libc::O_TRUNC };
+    // SAFETY: a NUL-terminated path; the mode argument is the one `O_CREAT` reads.
+    let fd = unsafe { libc::open(name.as_ptr(), flags, 0o644 as libc::c_uint) };
+    if fd < 0 {
+        let error = std::io::Error::last_os_error();
+        let file = basename(&path.to_string_lossy());
+        return Err(std::io::Error::new(error.kind(), format!("cannot open the record {file}: {error}")));
+    }
+    // SAFETY: `fd` was just opened here and is owned by nothing else.
+    let file = unsafe { std::fs::File::from_raw_fd(fd) };
+    if !file.metadata()?.file_type().is_file() {
+        let file = basename(&path.to_string_lossy());
+        return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, format!("the record {file} is not a regular file")));
+    }
+    Ok(file)
+}
+
 fn write_json(path: &Path, value: &Value) -> std::io::Result<()> {
+    write_json_to(open_output(path, false)?, value)
+}
+
+fn write_json_to(mut file: std::fs::File, value: &Value) -> std::io::Result<()> {
     let mut text = serde_json::to_string_pretty(value).expect("JSON");
     text.push('\n');
-    std::fs::write(path, text)
+    file.write_all(text.as_bytes())
 }
 
 /// `k6.append_record`.
 fn append_record(out_dir: &Path, record: &Value) -> std::io::Result<()> {
-    let mut file = std::fs::OpenOptions::new().create(true).append(true).open(out_dir.join("records.jsonl"))?;
+    let mut file = open_output(&out_dir.join("records.jsonl"), true)?;
     writeln!(file, "{record}")
+}
+
+/// The output folder is a real directory (not a symbolic link to one): a new record file is
+/// created in it.
+fn real_directory(dir: &Path) -> std::io::Result<()> {
+    if std::fs::symlink_metadata(dir)?.file_type().is_dir() {
+        Ok(())
+    } else {
+        Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "the output folder is not a directory (or is a symbolic link)"))
+    }
 }
 
 /// `k6.read_records`.
@@ -268,7 +325,7 @@ fn load() -> Value {
 
 /// `k6.metadata` and `rr.metadata`, from the build's embedded identity and `sysctl`.
 pub fn metadata(binary: &Path) -> Map<String, Value> {
-    let identity: Value = serde_json::from_str(BUILD_IDENTITY).unwrap_or(Value::Null);
+    let identity: Value = serde_json::from_str(crate::BUILD_IDENTITY).unwrap_or(Value::Null);
     let (system, release, machine) = host::uname();
     let mut md = Map::new();
     md.insert("os".into(), json!(system));
@@ -279,8 +336,9 @@ pub fn metadata(binary: &Path) -> Map<String, Value> {
     for key in ["build_profile", "source_commit", "source_tree", "source_dirty", "rustc", "cargo"] {
         md.insert(key.into(), identity.get(key).cloned().unwrap_or(Value::Null));
     }
-    // The commit, tree and dirty flag are the build's (embedded by build.rs); the Python runner
-    // records its own checkout's at run time.
+    // The commit, tree and dirty flag are the build's (embedded by build.rs on every build, from
+    // the tree the binary was linked from; source_dirty is true, false, or "unknown" where git
+    // could not establish it); the Python runner records its own checkout's at run time.
     md.insert("source_identity_from".into(), json!("build"));
     if system.as_deref() == Some("Darwin") {
         // As the Python records them: strings, from sw_vers and sysctl -n.
@@ -462,9 +520,58 @@ fn survivors_of(pgid: i32) -> Vec<i32> {
     members
 }
 
-/// One driver process (`k6.launch` with `_watch` and `rr.FootprintSampler`): spawn, watch,
-/// classify, record. Returns the launch record, also written to `<run_id>.record.json`.
-fn launch(
+/// The one owner of a spawned driver. From the spawn on, every path out of [`launch`] (a
+/// return, an error or an unwind) passes through its drop, which kills the driver's process
+/// group and reaps the driver unless the watch has already reaped it; so no failure after the
+/// spawn leaves a driver running or unreaped.
+struct Spawned {
+    pid: i32,
+    reaped: bool,
+}
+
+impl Spawned {
+    /// Kills the driver's process group and reaps the driver, once.
+    fn kill_and_reap(&mut self) {
+        if !self.reaped {
+            kill_group(self.pid);
+            reap(self.pid);
+            self.reaped = true;
+        }
+    }
+
+    /// Reaps the exited (or killed) driver: (status, ru_maxrss).
+    fn reap(&mut self) -> (libc::c_int, i64) {
+        let reaped = reap(self.pid);
+        self.reaped = true;
+        reaped
+    }
+}
+
+impl Drop for Spawned {
+    fn drop(&mut self) {
+        self.kill_and_reap();
+    }
+}
+
+/// A launch's record and the driver's output, as the pumps collected it (the files hold the same
+/// bytes; nothing is read back from them).
+pub struct Launched {
+    pub record: Map<String, Value>,
+    pub stdout: String,
+    pub stderr: String,
+}
+
+/// One driver process (`k6.launch` with `_watch` and `rr.FootprintSampler`): prepare the output
+/// files, spawn, watch, classify, record. Returns the launch record, also written to
+/// `<run_id>.record.json`, and the driver's output.
+///
+/// The three output files (`<run_id>.jsonl`, `.stderr.txt`, `.record.json`) are opened by
+/// [`open_output`] before the spawn, so a destination that is not a regular file refuses the run
+/// before any process starts and no file operation can block the way to the watch loop. From the
+/// spawn on, [`Spawned`] owns the driver. `after_spawn` is called with the driver's pid right
+/// after the spawn (the supervisor passes a no-op; a test injects a failure there).
+#[allow(clippy::too_many_arguments)]
+pub fn launch(
     binary: &Path,
     argv_tail: &[String],
     rss_cap_bytes: u64,
@@ -472,7 +579,8 @@ fn launch(
     timeout_s: i64,
     record_dir: &Path,
     run_id: &str,
-) -> std::io::Result<Map<String, Value>> {
+    after_spawn: &mut dyn FnMut(i32) -> std::io::Result<()>,
+) -> std::io::Result<Launched> {
     use std::os::unix::process::CommandExt;
     let base = record_dir.join(run_id);
     let with_suffix = |suffix: &str| PathBuf::from(format!("{}{suffix}", base.display()));
@@ -491,8 +599,12 @@ fn launch(
     record.insert("load_before".into(), load());
     record.insert("memorystatus_before".into(), json!(host::memorystatus_level()));
 
-    let out_path = with_suffix(".jsonl");
-    let t0 = Instant::now();
+    // Every output, prepared before the spawn: a destination that is not a regular file (or a new
+    // file in a real directory) is refused here, before any process starts.
+    real_directory(record_dir)?;
+    let mut out_file = open_output(&with_suffix(".jsonl"), false)?;
+    let mut err_file = open_output(&with_suffix(".stderr.txt"), false)?;
+    let record_file = open_output(&with_suffix(".record.json"), false)?;
     let mut command = std::process::Command::new(binary);
     command.args(argv_tail).stdout(std::process::Stdio::piped()).stderr(std::process::Stdio::piped());
     // SAFETY: setsid is async-signal-safe; the child starts a new session and process group
@@ -500,31 +612,37 @@ fn launch(
     unsafe {
         command.pre_exec(|| if libc::setsid() == -1 { Err(std::io::Error::last_os_error()) } else { Ok(()) });
     }
+    let t0 = Instant::now();
     let mut child = command.spawn()?;
-    let pid = child.id() as i32;
-    let stdout = child.stdout.take().expect("piped stdout");
-    let stderr = child.stderr.take().expect("piped stderr");
-    // `pump_out` and `pump_err`: stdout lines go to `<run_id>.jsonl` as they come, stderr is kept.
-    let (out_tx, out_rx) = std::sync::mpsc::channel::<Vec<String>>();
+    // From here on, `spawned` owns the driver: any `?`, return or panic below kills its group and
+    // reaps it.
+    let mut spawned = Spawned { pid: child.id() as i32, reaped: false };
+    let pid = spawned.pid;
+    after_spawn(pid)?;
+    let stdout = child.stdout.take().ok_or_else(|| std::io::Error::other("no stdout pipe"))?;
+    let stderr = child.stderr.take().ok_or_else(|| std::io::Error::other("no stderr pipe"))?;
+    // `pump_out` and `pump_err`: stdout lines go to `<run_id>.jsonl` (opened above) as they come,
+    // and are hashed as written; stderr is kept. The pumps touch no other file.
+    let (out_tx, out_rx) = std::sync::mpsc::channel::<(Vec<String>, String)>();
     let (err_tx, err_rx) = std::sync::mpsc::channel::<Vec<u8>>();
-    let mut out_file = std::fs::File::create(&out_path)?;
-    std::thread::spawn(move || {
-        let mut lines = Vec::new();
+    std::thread::Builder::new().spawn(move || {
+        let (mut lines, mut digest) = (Vec::new(), Sha256::new());
         let mut reader = BufReader::new(stdout);
         let mut line = Vec::new();
         while reader.read_until(b'\n', &mut line).map(|n| n > 0).unwrap_or(false) {
             let _ = out_file.write_all(&line);
             let _ = out_file.flush();
+            digest.update(&line);
             lines.push(String::from_utf8_lossy(&line).to_string());
             line.clear();
         }
-        let _ = out_tx.send(lines);
-    });
-    std::thread::spawn(move || {
+        let _ = out_tx.send((lines, digest.finalize().iter().map(|b| format!("{b:02x}")).collect()));
+    })?;
+    std::thread::Builder::new().spawn(move || {
         let mut bytes = Vec::new();
         let _ = BufReader::new(stderr).read_to_end(&mut bytes);
         let _ = err_tx.send(bytes);
-    });
+    })?;
 
     // `k6._watch`: the poll loop.
     let mut sampler = Sampler { budget_bytes: footprint_budget_bytes, ..Sampler::default() };
@@ -536,9 +654,7 @@ fn launch(
         }
         if let Some(signal) = interrupted() {
             // RV18-3: the supervisor is stopping; the driver must not run on unwatched.
-            kill_group(pid);
-            exited_unreaped(pid, true);
-            reap(pid);
+            spawned.kill_and_reap();
             exit_interrupted(signal);
         }
         let now = t0.elapsed().as_secs_f64();
@@ -568,18 +684,20 @@ fn launch(
     // lifetime maximum (what /usr/bin/time -l reports as peak memory footprint), then reap it.
     exited_unreaped(pid, true);
     let at_exit = host::rusage_v4(pid);
-    let (status, ru_maxrss) = reap(pid);
+    let (status, ru_maxrss) = spawned.reap();
     let wall = t0.elapsed().as_secs_f64();
     // `t.join(timeout=5)` for each pump (a pump still blocked after that gives nothing; the
     // Python keeps what its pump had collected so far).
     let deadline = Instant::now() + Duration::from_secs(5);
-    let stdout_lines = out_rx.recv_timeout(deadline.saturating_duration_since(Instant::now())).unwrap_or_default();
+    let (stdout_lines, stdout_sha256) =
+        out_rx.recv_timeout(deadline.saturating_duration_since(Instant::now())).unwrap_or_else(|_| (Vec::new(), sha256_hex(b"")));
     let stderr_bytes = err_rx.recv_timeout(deadline.saturating_duration_since(Instant::now())).unwrap_or_default();
     drop(child);
     let exit_code = exit_code_of(status);
     let stderr_text = String::from_utf8_lossy(&stderr_bytes).to_string();
-    std::fs::write(with_suffix(".stderr.txt"), sanitize(&stderr_text))?;
-    let objects = jsonl(&stdout_lines.concat());
+    err_file.write_all(sanitize(&stderr_text).as_bytes())?;
+    let stdout_text = stdout_lines.concat();
+    let objects = jsonl(&stdout_text);
     let external = (exit_code < 0 && !(killed || timed_out || sampler_killed)).then_some(-exit_code);
     let (mut class, mut detail) = classify::launch_class(killed, timed_out, exit_code, &objects, &stderr_text, external);
     if sampler_killed {
@@ -628,15 +746,30 @@ fn launch(
     record.insert("stderr_tail".into(), json!(sanitize(tail_chars(&stderr_text, STDERR_TAIL_CHARS))));
     record.insert("killed_by_sampler".into(), json!(sampler_killed));
     record.insert("sampler".into(), sampler.summary());
-    record.insert("stdout_sha256".into(), json!(sha256_file(&out_path)?));
-    write_json(&with_suffix(".record.json"), &Value::Object(record.clone()))?;
-    Ok(record)
+    record.insert("stdout_sha256".into(), json!(stdout_sha256));
+    write_json_to(record_file, &Value::Object(record.clone()))?;
+    Ok(Launched { record, stdout: stdout_text, stderr: sanitize(&stderr_text) })
 }
 
-/// `rr.driver_line`: the first `release-timing-v1` object of the run's stdout record.
-fn driver_line(record_dir: &Path, run_id: &str) -> Option<Value> {
-    let text = std::fs::read_to_string(record_dir.join(format!("{run_id}.jsonl"))).ok()?;
-    jsonl(&text).into_iter().find(|o| o.get("schema").and_then(Value::as_str) == Some(DRIVER_SCHEMA))
+/// `rr.driver_argv` without the binary: a solve run's model and `--mode`, or a model-checks run's
+/// model and `--model-checks`, then `--write` when results are kept.
+pub fn driver_argv(model: &Path, run: &Run, results_dir: Option<&Path>) -> Vec<String> {
+    let mut tail = vec![model.to_string_lossy().to_string()];
+    if run.task == "model_checks" {
+        tail.push("--model-checks".into());
+    } else {
+        tail.extend(["--mode".to_string(), run.mode.clone()]);
+    }
+    if let Some(dir) = results_dir {
+        tail.push("--write".into());
+        tail.push(dir.join(format!("{}.result.json", run.run_id)).to_string_lossy().to_string());
+    }
+    tail
+}
+
+/// `rr.driver_line`: the first driver object (`DRIVER_SCHEMA`) of the run's stdout.
+fn driver_line(stdout: &str) -> Option<Value> {
+    jsonl(stdout).into_iter().find(|o| o.get("schema").and_then(Value::as_str) == Some(DRIVER_SCHEMA))
 }
 
 // ------------------------------------------------------------------ run
@@ -688,7 +821,8 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Vec<Value>, Str
     let plan = &options.plan;
     let budget_s = plan.window_budget_s as f64;
     std::fs::create_dir_all(out_dir).map_err(|e| format!("cannot create the output folder: {e}"))?;
-    if out_dir.join("records.jsonl").exists() {
+    real_directory(out_dir).map_err(|e| format!("cannot use the output folder: {e}"))?;
+    if std::fs::symlink_metadata(out_dir.join("records.jsonl")).is_ok() {
         return Err("records already exist in the output folder; use a new one".into());
     }
     let mut md = metadata(&options.binary);
@@ -763,12 +897,8 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Vec<Value>, Str
                 let timeout = run.timeout_s.min(remaining.trunc() as i64);
                 record.insert("timeout_applied_s".into(), json!(timeout));
                 record.insert("timeout_capped_by_window".into(), json!(timeout < run.timeout_s));
-                let mut tail = vec![path.to_string_lossy().to_string(), "--mode".to_string(), run.mode.clone()];
-                if let Some(dir) = &results_dir {
-                    tail.push("--write".into());
-                    tail.push(dir.join(format!("{}.result.json", run.run_id)).to_string_lossy().to_string());
-                }
-                let launched = launch(
+                let tail = driver_argv(&path, run, results_dir.as_deref());
+                let Launched { record: launched, stdout, stderr } = launch(
                     &options.binary,
                     &tail,
                     run.rss_cap_bytes,
@@ -776,13 +906,14 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Vec<Value>, Str
                     timeout,
                     out_dir,
                     &run.run_id,
+                    &mut |_| Ok(()),
                 )
                 .map_err(|e| format!("cannot launch {}: {e}", run.run_id))?;
                 let launched = Value::Object(launched);
-                let driver = driver_line(out_dir, &run.run_id);
-                let stderr = std::fs::read_to_string(out_dir.join(format!("{}.stderr.txt", run.run_id))).ok();
-                let (last_stage, last_memory, stages_finished) = classify::last_progress(stderr.as_deref());
+                let driver = driver_line(&stdout);
+                let (last_stage, last_memory, stages_finished) = classify::last_progress(Some(stderr.as_str()));
                 let memory = Some(&last_memory).filter(|m| !m.is_null());
+                record.insert("classification_readings".into(), classify::readings_record(&launched, driver.as_ref(), memory));
                 let (classification, detail) = classify::classify(
                     &launched,
                     driver.as_ref(),
@@ -878,7 +1009,8 @@ pub fn packet_row(r: &Value) -> Value {
     let g = |v: &Value, k: &str| v.get(k).cloned().unwrap_or(Value::Null);
     let ps_max_rss = int(rss.get("ps_max_kib")).map(|kib| kib * 1024);
     json!({
-        "order": g(r, "order"), "run_id": g(r, "run_id"), "profile": g(r, "profile"), "nodes": g(r, "nodes"),
+        "order": g(r, "order"), "run_id": g(r, "run_id"), "task": g(r, "task"),
+        "profile": g(r, "profile"), "nodes": g(r, "nodes"),
         "mode": g(r, "mode"), "route": d("route"), "expect": g(r, "expect"),
         "classification": g(r, "classification"), "classification_detail": g(r, "classification_detail"),
         "as_expected": g(r, "as_expected"), "conditions": run_conditions(r),
