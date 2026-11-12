@@ -1024,7 +1024,7 @@ pub fn packet_row(r: &Value) -> Value {
             "time_peak_footprint": g(rss, "time_peak_footprint_bytes"),
             "ps_max_rss": ps_max_rss.map(|v| json!(v)).unwrap_or(Value::Null),
             "driver_ru_maxrss": stage_memory(Some(driver), "ru_maxrss_bytes").map(|v| json!(v)).unwrap_or(Value::Null),
-            "driver_lifetime_max_phys_footprint": d("worker_peak_footprint_bytes_equivalent"),
+            "driver_lifetime_max_phys_footprint": d("driver_peak_footprint_bytes"),
             "sampled_phys_footprint": g(watchdog, "peak_phys_footprint_bytes"),
             "sampled_lifetime_max_phys_footprint": g(watchdog, "peak_lifetime_max_phys_footprint_bytes"),
             "peak_footprint": g(r, "peak_footprint_bytes"),

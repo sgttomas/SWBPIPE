@@ -47,7 +47,7 @@ fn driver(status: &str, codes: &[&str], footprint: i128, extra: Value) -> Value 
                                   "lifetime_max_phys_footprint_bytes": footprint},
                         "parse_back": {"ru_maxrss_bytes": 3 * GIB + 5, "phys_footprint_bytes": GIB,
                                        "lifetime_max_phys_footprint_bytes": footprint}},
-        "worker_peak_footprint_bytes_equivalent": footprint, "limits": ["a limit"]});
+        "driver_peak_footprint_bytes": footprint, "limits": ["a limit"]});
     for (k, v) in extra.as_object().unwrap() {
         line[k] = v.clone();
     }
@@ -189,7 +189,7 @@ fn classification_readings_follow_the_branch_that_decided() {
     let progress = json!({"phys_footprint_bytes": 5, "lifetime_max_phys_footprint_bytes": 6});
     assert_eq!(
         classification_readings(&ok(), Some(&solved()), Some(&progress)),
-        ["rss:time_peak_footprint_bytes", "driver:worker_peak_footprint_bytes_equivalent", "progress:phys_footprint_bytes",
+        ["rss:time_peak_footprint_bytes", "driver:driver_peak_footprint_bytes", "progress:phys_footprint_bytes",
          "progress:lifetime_max_phys_footprint_bytes"]
     );
 }

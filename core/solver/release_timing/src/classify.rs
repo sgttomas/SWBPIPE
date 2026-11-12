@@ -75,7 +75,7 @@ pub fn peak_footprint(driver: Option<&Value>, launch_record: Option<&Value>, pro
         int(get(rss, "exit_lifetime_max_phys_footprint_bytes")),
     ];
     if driver.is_some_and(truthy) {
-        values.push(int(get(driver, "worker_peak_footprint_bytes_equivalent")));
+        values.push(int(get(driver, "driver_peak_footprint_bytes")));
     }
     if progress_memory.is_some_and(truthy) {
         values.push(int(get(progress_memory, "phys_footprint_bytes")));
@@ -100,7 +100,7 @@ pub fn footprint_readings(driver: Option<&Value>, launch_record: Option<&Value>,
     check("rss", rss, "time_peak_footprint_bytes");
     check("rss", rss, "exit_lifetime_max_phys_footprint_bytes");
     if driver.is_some_and(truthy) {
-        check("driver", driver, "worker_peak_footprint_bytes_equivalent");
+        check("driver", driver, "driver_peak_footprint_bytes");
     }
     if progress_memory.is_some_and(truthy) {
         check("progress", progress_memory, "phys_footprint_bytes");

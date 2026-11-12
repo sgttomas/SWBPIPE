@@ -27,6 +27,7 @@ from test_release_runner import (  # noqa: E402,F401  (collected by pytest)
     PacketAggregation,
     Plan,
     ProgressLines,
+    RunIds,
     Window,
     WritePlan,
 )

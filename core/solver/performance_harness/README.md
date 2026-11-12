@@ -171,7 +171,7 @@ memory bound.
     `false` then; the Python runner records its own checkout the same way.
 
   How to read the figures: a solve's stage seconds and memory readings are the driver's, in one
-  process. `worker_peak_footprint_bytes_equivalent` is the driver's lifetime-maximum
+  process. `driver_peak_footprint_bytes` is the driver's lifetime-maximum
   phys_footprint after `parse_back`; it stands where the worker's reported peak stands but is not
   a measured worker peak. The driver's memory at serialisation and after is a lower bound on the
   worker's. A model-checks run's figures are its own process's, never part of a solve's.

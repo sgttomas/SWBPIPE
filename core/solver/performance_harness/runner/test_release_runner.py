@@ -53,7 +53,7 @@ def driver(status=rr.SOLVED, codes=(), footprint=2 * k6.GIB, **extra):
                                       'lifetime_max_phys_footprint_bytes': footprint},
                             'parse_back': {'ru_maxrss_bytes': 3 * k6.GIB + 5, 'phys_footprint_bytes': k6.GIB,
                                            'lifetime_max_phys_footprint_bytes': footprint}},
-            'worker_peak_footprint_bytes_equivalent': footprint, 'limits': ['a limit']}
+            'driver_peak_footprint_bytes': footprint, 'limits': ['a limit']}
     line.update(extra)
     return line
 
@@ -325,7 +325,7 @@ class ClassificationReadings(unittest.TestCase):
         readings = rr.readings_record(record, driver(), progress)
         self.assertEqual(readings['used'], [
             'sampler:peak_phys_footprint_bytes', 'sampler:peak_lifetime_max_phys_footprint_bytes',
-            'rss:time_peak_footprint_bytes', 'driver:worker_peak_footprint_bytes_equivalent',
+            'rss:time_peak_footprint_bytes', 'driver:driver_peak_footprint_bytes',
             'progress:phys_footprint_bytes', 'progress:lifetime_max_phys_footprint_bytes'])
         self.assertEqual((readings['at_exit'], readings['at_exit_absent']), ('rss:time_peak_footprint_bytes', None))
 
@@ -469,7 +469,43 @@ class Window(unittest.TestCase):
         self.assertTrue(argv[5].endswith(os.path.join('results', 'linear-ex-n0100-sparse.result.json')))
 
 
+class RunIds(unittest.TestCase):
+    """A run id names record files inside the output folder: only bare names are accepted."""
+
+    def test_a_run_id_that_is_not_a_bare_name_is_refused_before_anything_is_written(self):
+        for bad in ('../escaped', 'a/b', '.hidden', '', 'x' * 129, 'a b'):
+            with tempfile.TemporaryDirectory() as folder:
+                plan = rr.build_plan((('linear-ex', 100, 60, 1, 'solved'),))
+                plan[0]['run_id'] = bad
+                out = os.path.join(folder, 'out')
+                with self.assertRaises(ValueError) as refused:
+                    rr.run_plan(plan, folder, out, '/bin/false', launch=None, quiet=None, log=lambda *a: None, md={})
+                self.assertIn('bare names', str(refused.exception))
+                self.assertEqual(os.listdir(folder), [], 'nothing written, inside or outside the output folder')
+                with self.assertRaises(ValueError):
+                    rr.plan_document(plan)
+        for good in ('linear-ex-n2000-sparse', 'model-checks-linear-ex-n1000', 'a.b_c-1'):
+            rr.check_run_ids([{'run_id': good}])
+
+
 class PacketAggregation(unittest.TestCase):
+    def test_a_record_of_an_earlier_driver_is_refused_by_name(self):
+        # A record written with a release-timing-v1 driver line (the side stage form) is not
+        # repackaged under the current conditions.
+        with tempfile.TemporaryDirectory() as out:
+            old = driver(schema='release-timing-v1', side_stages=['model_checks'])
+            k6.append_record(out, {'schema': rr.RECORD_SCHEMA, 'run_id': 'old-run', 'classification': 'ok',
+                                   'launch': launched(), 'driver': old})
+            with self.assertRaises(ValueError) as refused:
+                rr.packet(out)
+            self.assertEqual(str(refused.exception), "record old-run: its driver line has schema release-timing-v1, "
+                             "not release-timing-v2; an earlier driver's record is not repackaged")
+            err = io.StringIO()
+            with mock.patch('sys.stderr', err):
+                self.assertEqual(rr.main(['--packet', '--out', out]), 2)
+            self.assertIn('not repackaged', err.getvalue())
+            self.assertFalse(os.path.exists(os.path.join(out, 'packet.json')))
+
     def test_packet_from_synthetic_records(self):
         with tempfile.TemporaryDirectory() as out:
             with open(os.path.join(out, 'metadata.json'), 'w') as fh:
@@ -598,7 +634,7 @@ class Generate(unittest.TestCase):
 STAND_IN_DRIVER = ('import json, sys\n'
                    'print(json.dumps({"schema": "%s", "status": "MECHANICS_SOLVED", '
                    '"blocking_codes": [], "rows": 3, "argv_tail": sys.argv[2:], '
-                   '"worker_peak_footprint_bytes_equivalent": 1}))\n' % rr.DRIVER_SCHEMA)
+                   '"driver_peak_footprint_bytes": 1}))\n' % rr.DRIVER_SCHEMA)
 
 
 def grower(progress=False):
@@ -819,7 +855,7 @@ class LiveFootprint(unittest.TestCase):
                 '        x += 1\n'
                 'spin(time.monotonic() + 3.5)\n'
                 'print(json.dumps({"schema": "%s", "status": "MECHANICS_SOLVED", '
-                '"blocking_codes": [], "worker_peak_footprint_bytes_equivalent": 1}))\n' % rr.DRIVER_SCHEMA)
+                '"blocking_codes": [], "driver_peak_footprint_bytes": 1}))\n' % rr.DRIVER_SCHEMA)
         with tempfile.TemporaryDirectory() as folder:
             binary = executable(folder, 'release_timing', busy)
             factory = lambda out, run_id, keep: rr.Attributor(out, run_id, keep, frame_pattern='PyEval')  # noqa: E731

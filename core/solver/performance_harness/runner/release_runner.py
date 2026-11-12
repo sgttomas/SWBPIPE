@@ -240,6 +240,17 @@ def plan_total_s(plan):
 
 # The plan file the self-supervising driver reads (`release_timing --supervise PLAN --out DIR`).
 PLAN_SCHEMA = 'release-timing-plan-v2'
+# A run id is a bare name: it names the run's record files inside the output folder, so it is
+# refused at plan load unless it matches this closed pattern (no path separator, no leading dot).
+RUN_ID_PATTERN = r'[A-Za-z0-9][A-Za-z0-9._-]{0,127}'
+_RUN_ID = re.compile(RUN_ID_PATTERN)
+
+
+def check_run_ids(plan):
+    """Refuses a plan holding a run id that is not a bare name (`RUN_ID_PATTERN`)."""
+    bad = [r.get('run_id') for r in plan if not isinstance(r.get('run_id'), str) or not _RUN_ID.fullmatch(r['run_id'])]
+    if bad:
+        raise ValueError('run ids must be bare names (%s): %s' % (RUN_ID_PATTERN, ', '.join(map(repr, bad))))
 PLAN_RUN_KEYS = ('order', 'run_id', 'task', 'profile', 'nodes', 'mode', 'timeout_s', 'footprint_budget_bytes',
                  'rss_cap_bytes', 'estimate_s', 'expect', 'attribute')
 
@@ -248,6 +259,7 @@ def plan_document(plan, budget_s=WINDOW_BUDGET_S, quiet_wait_s=QUIET_WAIT_S, mod
     """`plan` as the plan file the driver's supervise mode reads: each run's plan entry, its model's
     file name, and, where `models_dir`'s manifest lists the model, its sha256 and generator stats.
     That supervisor takes no stack snapshots, so an attribution run is refused here."""
+    check_run_ids(plan)
     attributed = [r['run_id'] for r in plan if r.get('attribute')]
     if attributed:
         raise ValueError('the self-supervising driver takes no stack snapshots; leave out %s' % ', '.join(attributed))
@@ -645,7 +657,7 @@ def peak_footprint(driver, launch_record, progress_memory=None):
     values = [sampler.get('peak_phys_footprint_bytes'), sampler.get('peak_lifetime_max_phys_footprint_bytes'),
               (launch_record.get('rss') or {}).get('time_peak_footprint_bytes')]
     if driver:
-        values.append(driver.get('worker_peak_footprint_bytes_equivalent'))
+        values.append(driver.get('driver_peak_footprint_bytes'))
     if progress_memory:
         values += [progress_memory.get('phys_footprint_bytes'), progress_memory.get('lifetime_max_phys_footprint_bytes')]
     values = [v for v in values if isinstance(v, int) and not isinstance(v, bool)]
@@ -668,7 +680,7 @@ def footprint_readings(driver, launch_record, progress_memory=None):
                   ('rss', rss, 'time_peak_footprint_bytes'),
                   ('rss', rss, 'exit_lifetime_max_phys_footprint_bytes')]
     if driver:
-        candidates.append(('driver', driver, 'worker_peak_footprint_bytes_equivalent'))
+        candidates.append(('driver', driver, 'driver_peak_footprint_bytes'))
     if progress_memory:
         candidates += [('progress', progress_memory, 'phys_footprint_bytes'),
                        ('progress', progress_memory, 'lifetime_max_phys_footprint_bytes')]
@@ -832,6 +844,7 @@ def run_plan(plan, models_dir, out_dir, binary, *, budget_s=WINDOW_BUDGET_S, wri
     `sampler_factory(budget_bytes)` makes each run's footprint watchdog, and for an attribution run
     `attributor_factory(out_dir, run_id, keep_raw)` its stack snapshots (raw reports kept only with
     `keep_samples`)."""
+    check_run_ids(plan)  # before anything is created or written
     start = clock()
     if wrapper is None:
         wrapper = os.path.exists(k6.TIME_WRAPPER)
@@ -976,7 +989,7 @@ def packet_row(r):
             'time_peak_footprint': rss.get('time_peak_footprint_bytes'),
             'ps_max_rss': k6.ps_kib_to_bytes(ps_kib) if ps_kib is not None else None,
             'driver_ru_maxrss': _stage_memory(driver, 'ru_maxrss_bytes'),
-            'driver_lifetime_max_phys_footprint': driver.get('worker_peak_footprint_bytes_equivalent'),
+            'driver_lifetime_max_phys_footprint': driver.get('driver_peak_footprint_bytes'),
             'sampled_phys_footprint': (r.get('footprint_watchdog') or {}).get('peak_phys_footprint_bytes'),
             'sampled_lifetime_max_phys_footprint':
                 (r.get('footprint_watchdog') or {}).get('peak_lifetime_max_phys_footprint_bytes'),
@@ -992,8 +1005,24 @@ def packet_row(r):
     }
 
 
+def stale_driver_message(record):
+    """The refusal of a record whose driver line is not the current form (DRIVER_SCHEMA), or None."""
+    driver = record.get('driver')
+    if driver is None or (isinstance(driver, dict) and driver.get('schema') == DRIVER_SCHEMA):
+        return None
+    schema = driver.get('schema') if isinstance(driver, dict) else None
+    return ('record %s: its driver line has schema %s, not %s; an earlier driver\'s record is not repackaged'
+            % (record.get('run_id'), schema, DRIVER_SCHEMA))
+
+
 def packet(out_dir):
+    """The packet of OUT's records. A record whose driver line is not the current form is refused
+    (ValueError), never repackaged under the current conditions."""
     records = [r for r in k6.read_records(out_dir) if r.get('schema') == RECORD_SCHEMA]
+    for r in records:
+        message = stale_driver_message(r)
+        if message:
+            raise ValueError(message)
     md_path = os.path.join(out_dir, 'metadata.json')
     md = None
     if os.path.exists(md_path):
@@ -1086,7 +1115,11 @@ def main(argv=None):
     if args.packet:
         if not args.out:
             parser.error('--packet needs --out')
-        result = write_packet(args.out)
+        try:
+            result = write_packet(args.out)
+        except ValueError as error:
+            print('release_runner --packet: %s' % error, file=sys.stderr)
+            return 2
         print(json.dumps({'packet': 'packet.json', 'classification_counts': result['classification_counts']}))
         return 0
     parser.print_help()

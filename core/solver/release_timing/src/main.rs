@@ -90,7 +90,7 @@ const SOLVE_LIMITS: [&str; 10] = [
     "The worker's counting, capped global allocator (worker_alloc.rs CappedAllocator over System) is not installed; this binary allocates through System directly.",
     "The document is read from a file (std::fs::read) instead of the worker's control pipe; in the worker the parent also holds the raw body and the result bytes, in its own process.",
     "ru_maxrss_bytes and lifetime_max_phys_footprint_bytes are process high-water marks: with more than one repeat, a later repeat's peaks include every earlier repeat's.",
-    "worker_peak_footprint_bytes_equivalent is this process's lifetime-maximum phys_footprint (proc_pid_rusage RUSAGE_INFO_V4) read after parse_back, where the worker reads it for its RSLT frame; the desktop records the larger of that report and the parent's reading of the same counter for the worker's pid. Because parse_back is a cheaper stand-in for the worker's read-back, it is a lower bound on the worker's peak, not a measured worker peak.",
+    "driver_peak_footprint_bytes is this process's lifetime-maximum phys_footprint (proc_pid_rusage RUSAGE_INFO_V4) read after parse_back, where the worker reads it for its RSLT frame; the desktop records the larger of that report and the parent's reading of the same counter for the worker's pid. Because parse_back is a cheaper stand-in for the worker's read-back, it is a lower bound on the worker's peak, not a measured worker peak.",
     "Publication statistics (rows, kinds, classes, bases, diagnostics) are computed from the envelope between entry and serialize, outside every timed stage; output_sha256 and --write happen after parse_back, also untimed. Nothing else runs in the process: the desktop's on-demand model checks are timed by their own invocation (--model-checks).",
     "Row bytes per kind and per class are each row's serde_json::to_writer length; they exclude the results array's separators and the envelope's other members, so they sum to less than output_bytes.",
     "Row classes: station = metadata.location in end_i/quarter_1/midspan/quarter_3/end_j; node = metadata.location node; governing = metadata.location governing_station; other = any other location or no metadata.",
@@ -102,7 +102,7 @@ const MODEL_CHECK_LIMITS: [&str; 7] = [
     "In the desktop the parsed value is the command's {model} arguments body, whose model is taken; here it is the model document, or a request's model, read from a file (std::fs::read) instead of the worker's control pipe.",
     "The worker's counting, capped global allocator (worker_alloc.rs CappedAllocator over System) is not installed; this binary allocates through System directly.",
     "ru_maxrss_bytes and lifetime_max_phys_footprint_bytes are process high-water marks: with more than one repeat, a later repeat's peaks include every earlier repeat's.",
-    "worker_peak_footprint_bytes_equivalent is this process's lifetime-maximum phys_footprint (proc_pid_rusage RUSAGE_INFO_V4) read after serialize.",
+    "driver_peak_footprint_bytes is this process's lifetime-maximum phys_footprint (proc_pid_rusage RUSAGE_INFO_V4) read after serialize.",
     "The report's summary (model_checks) is read from it between model_checks and serialize, outside every timed stage; output_sha256 and --write happen after serialize, also untimed.",
     "Observation only: no time or memory bound is asserted.",
 ];
@@ -556,7 +556,7 @@ fn solve_runs(args: &Args, mut out: Map<String, Value>) {
             out.insert("parse_back_ok".into(), json!(parse_back_ok));
             out.insert("seconds".into(), t.seconds());
             out.insert("peak_memory".into(), Value::Object(t.memory.clone()));
-            out.insert("worker_peak_footprint_bytes_equivalent".into(), t.peak("parse_back"));
+            out.insert("driver_peak_footprint_bytes".into(), t.peak("parse_back"));
             first_sha = Some(sha.clone());
         }
         drop(text);
@@ -564,7 +564,7 @@ fn solve_runs(args: &Args, mut out: Map<String, Value>) {
             "repeat": repeat,
             "seconds": t.seconds(),
             "peak_memory": Value::Object(t.memory.clone()),
-            "worker_peak_footprint_bytes_equivalent": t.peak("parse_back"),
+            "driver_peak_footprint_bytes": t.peak("parse_back"),
             "output_sha256": sha,
             "parse_back_ok": parse_back_ok,
         }));
@@ -620,7 +620,7 @@ fn model_checks_runs(args: &Args, mut out: Map<String, Value>) {
             out.insert("output_sha256".into(), json!(sha));
             out.insert("seconds".into(), t.seconds());
             out.insert("peak_memory".into(), Value::Object(t.memory.clone()));
-            out.insert("worker_peak_footprint_bytes_equivalent".into(), t.peak("serialize"));
+            out.insert("driver_peak_footprint_bytes".into(), t.peak("serialize"));
             first_sha = Some(sha.clone());
         }
         drop(text);
@@ -628,7 +628,7 @@ fn model_checks_runs(args: &Args, mut out: Map<String, Value>) {
             "repeat": repeat,
             "seconds": t.seconds(),
             "peak_memory": Value::Object(t.memory.clone()),
-            "worker_peak_footprint_bytes_equivalent": t.peak("serialize"),
+            "driver_peak_footprint_bytes": t.peak("serialize"),
             "output_sha256": sha,
         }));
     }

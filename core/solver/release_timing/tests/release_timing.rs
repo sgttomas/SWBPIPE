@@ -37,7 +37,7 @@ const REQUIRED: [&str; 28] = [
     "schema", "driver", "invocation", "document", "route", "mode", "nodes", "members", "supports", "cases",
     "combinations", "status", "blocking_codes", "first_blocking_messages", "diagnostic_counts", "rows", "output_bytes",
     "output_sha256", "rows_per_basis", "row_kinds", "row_classes", "seconds", "peak_memory",
-    "worker_peak_footprint_bytes_equivalent", "repeats", "limits", "parse_back_ok", "outputs_identical_across_repeats",
+    "driver_peak_footprint_bytes", "repeats", "limits", "parse_back_ok", "outputs_identical_across_repeats",
 ];
 const SOLVE_STAGES: [&str; 7] = ["read", "parse", "request", "entry", "serialize", "release_envelope", "parse_back"];
 const MODEL_CHECK_STAGES: [&str; 4] = ["read", "parse", "model_checks", "serialize"];
@@ -78,7 +78,7 @@ fn prints_one_release_timing_line_with_the_required_keys() {
     assert!(limits.contains("cheaper stand-in") && limits.contains("lower bound"), "{limits}");
     assert!(limits.contains("read-back peak is not reproduced"), "{limits}");
     assert_eq!(
-        out["worker_peak_footprint_bytes_equivalent"],
+        out["driver_peak_footprint_bytes"],
         out["peak_memory"]["parse_back"]["lifetime_max_phys_footprint_bytes"]
     );
     let rows = out["rows"].as_u64().unwrap();
@@ -214,7 +214,7 @@ fn the_model_checks_are_an_invocation_of_their_own() {
         assert!(out["seconds"][stage].as_f64().is_some(), "stage {stage}");
         assert!(out["peak_memory"][stage].get("lifetime_max_phys_footprint_bytes").is_some(), "stage {stage}");
     }
-    assert_eq!(out["worker_peak_footprint_bytes_equivalent"], out["peak_memory"]["serialize"]["lifetime_max_phys_footprint_bytes"]);
+    assert_eq!(out["driver_peak_footprint_bytes"], out["peak_memory"]["serialize"]["lifetime_max_phys_footprint_bytes"]);
     // The written report is the public model-check entry's report on the same model.
     let document: Value = serde_json::from_slice(&std::fs::read(&model).unwrap()).unwrap();
     let expected = serde_json::to_string(&open_pipe_stress_operation_applier::model_checks_owned(document)).unwrap();
