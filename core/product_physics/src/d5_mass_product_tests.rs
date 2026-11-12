@@ -408,3 +408,69 @@ fn a_generated_self_weight_formed_wrong_is_still_flagged_in_every_unit() {
         }
     }
 }
+
+/// The fail-closed path of a generated record's K-D5 operands (DEL-04-07 Scope:
+/// a load term the check cannot re-form is not published as established).
+/// Called directly (`certified_loads::intensity`, the one place the path is
+/// reachable): a record whose `normalized_dependencies` holds a length in mm, a
+/// density in lb/in^3, or lacks an operand gives NaN operands, never a mass
+/// from the authored `mass_inputs`; K-D5 refuses a non-finite operand
+/// (`Wide::from_f64`), so such a case would be published sensitive with
+/// `formation_check: reason=formation_check_unavailable`. Through the product
+/// entry the same records never reach the check: the applied-weight validation
+/// refuses each by name before the solve. The NaN path is the second line.
+#[test]
+fn a_record_whose_dependencies_are_not_si_or_incomplete_gives_no_mass() {
+    let (_, request) = generated(document(MILL, ALLOWANCE));
+    let operands = |request: &Value| {
+        let model = typed(request);
+        let mut diagnostics = Vec::new();
+        let loads = build_load_case_primitive_loads(&model, &model.load_cases[0], &mut diagnostics);
+        let application = prepare_loads(model.nodes.len(), model.pipe_segments.len(), &loads);
+        match certified_loads::intensity(&model, &application.element_uniform_loads[0], CASE) {
+            IntensityPrimitive::SelfWeight { mass, .. } => mass,
+            other => panic!("not a self-weight intensity: {other:?}"),
+        }
+    };
+    let mass = operands(&request);
+    let si = [mass.outer_diameter, mass.wall_thickness, mass.mill_tolerance, mass.pipe_density, mass.contents_density];
+    assert_eq!(si.map(f64::to_bits), [OD, WALL, MILL, STEEL, WATER].map(f64::to_bits), "as generated: the SI operands");
+    assert_eq!(mass.corrosion_allowance.map(f64::to_bits), Some(ALLOWANCE.to_bits()));
+    let load = request["model"]["load_cases"][0]["primitive_loads"][0]["id"].clone();
+    // Every case is judged before any assertion, so a defect names each case it reaches.
+    let mut defects = Vec::new();
+    for (label, tampered) in [
+        ("a length in mm", with_record(request.clone(), |r| {
+            r["normalized_dependencies"]["outside_diameter"] = json!({"value": OD * 1000.0, "unit": "mm"});
+        })),
+        ("a density in lb/in^3", with_record(request.clone(), |r| {
+            r["normalized_dependencies"]["material_density"] = json!({"value": 0.2836, "unit": "lb/in^3"});
+        })),
+        ("a missing operand", with_record(request.clone(), |r| {
+            r["normalized_dependencies"].as_object_mut().unwrap().remove("contents_density");
+        })),
+    ] {
+        let mass = operands(&tampered);
+        let all = [mass.outer_diameter, mass.wall_thickness, mass.mill_tolerance, mass.pipe_density, mass.contents_density,
+            mass.insulation_thickness, mass.insulation_density, mass.corrosion_allowance.unwrap_or(0.0)];
+        if !all.iter().all(|v| v.is_nan()) || mass.corrosion_allowance.is_none() {
+            defects.push(format!("{label}: NaN operands on the exact basis, not a mass: {mass:?}"));
+        }
+        let envelope = serde_json::to_value(
+            run_linear_static_preview_value_with_mode(tampered.clone(), PreviewSolverMode::SparseInteractive).unwrap(),
+        )
+        .unwrap();
+        let refusal: Vec<&Value> = envelope["diagnostics"].as_array().unwrap().iter()
+            .filter(|d| d["code"] == "SELF_WEIGHT_INPUT_INVALID" && d["severity"] == "blocking").collect();
+        let refused = envelope["status"]["mechanics"] != json!("MECHANICS_SOLVED")
+            && refusal.len() == 1
+            && refusal[0]["affected_refs"] == json!([CASE, CASE, load])
+            && refusal[0]["message"].as_str().is_some_and(|m| m.contains("generated self-weight provenance is incomplete or inconsistent"));
+        if !refused {
+            let integrity = envelope["diagnostics"].as_array().unwrap().iter().find(|d| d["id"] == INTEGRITY);
+            let shown = integrity.map(|d| format!("{} ...{}", d["code"], d["message"].as_str().unwrap_or("").rsplit(". ").next().unwrap_or("")));
+            defects.push(format!("{label}: not refused by name before the solve: {} {shown:?}", envelope["status"]["mechanics"]));
+        }
+    }
+    assert!(defects.is_empty(), "{defects:#?}");
+}
