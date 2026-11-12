@@ -288,6 +288,15 @@ target remains adequate. A failure alone does not justify relaxing one.
     acceptance, approval or reliance (F-PIP-3).
 
     *Owning deliverables:* DEL-16-06.
+18. **Numerical claims.** No published bound on a result ("checks passed")
+    and no published support state ("established") rests on a premise the
+    product does not verify. Where the conditions of a bound cannot be
+    established, the check is unavailable and the result is reported as
+    numerically sensitive with its named reason (DEL-04-01 REQ-015 and
+    REQ-016), and no reader or consumer admits it as confirmed. A capability
+    refused on that ground is a refusal under criterion 3.
+
+    *Owning deliverables:* DEL-04-01 (the integrity check and its bound); DEL-04-04 and DEL-04-07 (confirmation of a nonlinear support's state).
 
 ## Reserved to the owner
 
