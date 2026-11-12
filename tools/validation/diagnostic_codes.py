@@ -42,14 +42,15 @@ tuples their source yields (`vec![..]`, `push`, `extend`, `Some`/`Ok`/`Err`, ite
 `map` closures, a record field's constructions). A value relayed from another record's `.code` field
 or a struct pattern's `code` is not a new code: every construction of that field is itself a site.
 
-Every code position the scanner reads is resolved, pinned with its values, or listed as unresolved
-with its reason; none is dropped. A part of a value yields no code only in a case of the closed list
-`PROVEN_EMPTY`; any other expression that yields no values, or that the scanner cannot follow (built
-at run time, behind a signature or a record type it cannot prove, too deep), is an unresolved site.
-The test fails on an unresolved site unless the table pins it by hand (`pinned_sites`, with its values
-and whole-function anchors the test checks) or lists it (`listed_unresolved_sites`, with the text of
-its line and why its value is believed to relay a code built at a position the scanner reads, or that
-this is not known). Every code-shaped literal (`UPPER_SNAKE` with an underscore) in
+Each position the scanner REPORTS as unresolved must be pinned by hand (`pinned_sites`, with its values and
+whole-function anchors the test checks) or listed (`listed_unresolved_sites`, with the text of its line
+and why its value is believed to relay a code built at a position the scanner reads, or that this is
+not known), and each reported stripping failure fails the test. That is not a guarantee that nothing is
+dropped: the scanner's name, type, binding, call-flow and statement-boundary heuristics can omit or
+misresolve a value without reporting either condition (`HEADER['scope']['shapes_not_read']` names the
+mechanisms a fourth independent review constructed). A part of a value yields no code in the cases of
+`EXEMPT_CASES`, which are exemptions, not proofs: some are sound and some rest on a premise the scanner
+does not establish. Every code-shaped literal (`UPPER_SNAKE` with an underscore) in
 production code that the scanner does not find raised, and that is not only compared against, is
 listed (`unclaimed_literals`), with any value at a position known only by shape or name.
 
@@ -109,32 +110,40 @@ SAME_VALUE_METHODS = {'to_string', 'into', 'to_owned', 'clone', 'as_ref'}
 MESSAGE_PARAMS = ('message', 'msg', 'detail', 'text', 'reason', 'remedy')
 MAX_DEPTH = 12
 
-# The closed list of cases in which a value at a code position, or a part of one, yields no code. They are
-# the only places the resolver returns no values (as a ('none', case) result, dropped when recorded); each
-# names why it cannot carry a code. Any other expression that yields no values is an unresolved site, which
-# fails the test (`Scan.resolve` and `Scan.tuple_values` turn an empty result into one, and `record` does
-# the same for a position left with nothing).
-PROVEN_EMPTY = {
-    'option_none': '`None`: an absent value carries no code',
-    'diverges': ('`return`, `break`, `continue`, or a `panic!`, `unreachable!`, `todo!` or `unimplemented!` '
+# The closed list of EXEMPTIONS: the cases in which a value at a code position, or a part of one, yields no
+# code. They are the only places the resolver returns no values (as a ('none', case) result, dropped when
+# recorded); any other expression that yields no values is an unresolved site (`Scan.resolve` and
+# `Scan.tuple_values` turn an empty result into one, and `record` does the same for a position left with
+# nothing). The list labels exemptions; it does not prove them. A fourth independent review found four of
+# them sound and five resting on a premise nothing establishes; each entry says which.
+EXEMPT_CASES = {
+    'option_none': 'SOUND. `None`: an absent value carries no code',
+    'diverges': ('SOUND. `return`, `break`, `continue`, or a `panic!`, `unreachable!`, `todo!` or `unimplemented!` '
                  'arm or block tail: control leaves, so no value is produced there (a `return` is read as a '
                  'return point of its own function)'),
-    'unit_block': 'a block with no tail expression: its value is `()`, which is not text',
-    'other_side_of_wrapper': ('an `Ok` or `Some` value where the pattern binds `Err`, or the reverse: that arm does '
-                              'not bind it'),
-    'empty_collection': ('a collection built empty (`vec![]`, `[]`, or `new()`, `default()` or `with_capacity(..)` '
-                         'of Vec, VecDeque, HashMap, BTreeMap, HashSet or BTreeSet): it holds nothing until a '
-                         'mutation, which is read separately or makes the local unresolved'),
-    'recursion': ('a recursive call met while its function\'s return points are being read: its values are those '
-                  'return points, read once'),
-    'relay': ('a read of the code field of a record whose type is proven to be built only by code positions the '
-              'scanner reads: the type is known and defined in a scanned crate without Deserialize, or the '
-              'crate can name no type with a code field defined elsewhere; the value is recorded where the '
-              'record is built'),
-    'flows_to_callers': ('a text parameter that is itself a code parameter: the value is recorded at each of its '
-                         'callers\' arguments'),
-    'enum_code_field': ('an enum value at a code field whose declared type is that enum: its text comes from the '
-                        'enum\'s as_str, read as an enum code producer'),
+    'unit_block': 'SOUND. A block with no tail expression: its value is `()`, which is not text',
+    'other_side_of_wrapper': ('SOUND. An `Ok` or `Some` value where the pattern binds `Err`, or the reverse: that '
+                              'arm does not bind it'),
+    'empty_collection': ('RESTS ON A PREMISE NOT ESTABLISHED: that `new()`, `default()` or `with_capacity(..)` of a '
+                         'type spelled Vec, VecDeque, HashMap, BTreeMap, HashSet or BTreeSet is the standard '
+                         'collection, and that it holds nothing until a mutation the scanner reads. A local type '
+                         'of that name, or a method whose callback changes elements, defeats it. (`vec![]` and '
+                         '`[]` are sound.)'),
+    'recursion': ('RESTS ON A PREMISE NOT ESTABLISHED: that a recursive call met while its function\'s return '
+                  'points are being read adds no value beyond those return points. A recursive call with '
+                  'different arguments defeats it.'),
+    'relay': ('RESTS ON A PREMISE NOT ESTABLISHED: that a record whose type is known and defined in a scanned '
+              'crate without Deserialize, or in a crate that can name no type with a code field defined '
+              'elsewhere, has its code field set only by constructions the scanner reads. The check is by type '
+              'name and declaration; a field set by replacement, through a mutable borrow or by a derived '
+              'default, a record from a dependency that is not a path dependency, or a conversion of the '
+              'relayed value defeats it.'),
+    'flows_to_callers': ('RESTS ON A PREMISE NOT ESTABLISHED: that every use of a function with a text code '
+                         'parameter is a direct call the scanner finds, so the value is recorded at each '
+                         'caller\'s argument. A call through a function pointer or a closure object defeats it.'),
+    'enum_code_field': ('RESTS ON A PREMISE NOT ESTABLISHED: that an enum at a code field declared with that enum '
+                        'has an as_str the scanner reads as an enum code producer. An enum with no as_str '
+                        'yields neither a code nor an unresolved site.'),
 }
 EMPTY_COLLECTION_TYPES = {'Vec', 'VecDeque', 'HashMap', 'BTreeMap', 'HashSet', 'BTreeSet'}
 CASE_CONVERSIONS = {'to_ascii_uppercase': str.upper, 'to_uppercase': str.upper,
@@ -143,7 +152,7 @@ CASE_CONVERSIONS = {'to_ascii_uppercase': str.upper, 'to_uppercase': str.upper,
 
 def _none(case):
     """No values, for a case on the closed list."""
-    assert case in PROVEN_EMPTY, case
+    assert case in EXEMPT_CASES, case
     return [('none', case)]
 
 
@@ -1280,7 +1289,7 @@ class Scan:
 
     def _relay(self, receiver, fn, src, at):
         """A read `<receiver>.code`: recorded where the record is built, when that is proven (see
-        PROVEN_EMPTY['relay']); otherwise unresolved."""
+        EXEMPT_CASES['relay']); otherwise unresolved."""
         rtype = self._receiver_type(receiver, fn, src, at)
         if self._relay_proven(rtype, src):
             return _none('relay')
@@ -2535,7 +2544,7 @@ class Scan:
             results = [('unresolved', 'no values at a code position')]
         for r in results:
             if r[0] == 'none':
-                assert r[1] in PROVEN_EMPTY, r
+                assert r[1] in EXEMPT_CASES, r
                 continue
             if r[0] in ('param', 'enum', 'relay'):
                 r = ('unresolved', f'an unsettled {r[0]} result')     # never expected: _settle runs first
@@ -3207,17 +3216,22 @@ CONSTRUCTED_NOT_PUBLISHED = [
 # What repairing the test-code stripper found about the tool as committed on this branch until then.
 STRIPPER_FINDING = (
     'A finding about this tool as committed on its branch before the stripper was repaired: its test-code '
-    'stripper silently removed production code in 25 files. In 12 of them the code removed is compiled in every '
-    'build: a test-only thread_local! { .. } swallowed what followed it (526 lines of '
+    'stripper silently removed production code. Two counts exist and are not reconciled here. BY THE AUTHOR\'S '
+    'OWN RUN: 25 files; in 12 of them the code removed is compiled in every build: a test-only '
+    'thread_local! { .. } swallowed what followed it (526 lines of '
     'core/model_operations/operation_applier/src/numerical_health.rs, 270 of '
     'core/solver/nonlinear_integration/src/lib.rs), a test-only struct field (`#[cfg(test)] pub trace_fault: ..,` '
     'at core/product_physics/src/retained_product.rs 187) swallowed the fields and code after it, a test-only '
     'if let swallowed the rest of its function and the next, and a test-only const fn swallowed what followed '
     'it; core/product_physics/src/lib.rs 4672 to 4703, which holds the SOLVER_SYSTEM_BLOCKED diagnostic site at '
-    '4681, was not read. In the other 14 (one file is in both groups) the code removed is compiled under '
-    'cfg(any(test, feature = "..")), now read as production. Reading all of it again added no code to the '
-    'table: it added the one site at core/product_physics/src/lib.rs 4681 for a code the table already held, '
-    'and sixteen unclaimed literals from core/solver/frame_kernel/src/structural/retained/seeded.rs.')
+    '4681, was not read; in the other 14 (one file is in both groups) the code removed is compiled under '
+    'cfg(any(test, feature = "..")), now read as production. BY THE FOURTH INDEPENDENT REVIEW, comparing the '
+    'two strippers itself: restored text in 27 files; it CONFIRMED the 526 lines of numerical_health.rs, the '
+    'struct-field case and the site at core/product_physics/src/lib.rs 4681, and did NOT reproduce the total of '
+    '25, the split of 12 and 14 or the 270 lines. Both found, and the review confirmed, that reading all of it '
+    'again added no code to the table: it added the one site at core/product_physics/src/lib.rs 4681 for a code '
+    'the table already held, and sixteen unclaimed literals from '
+    'core/solver/frame_kernel/src/structural/retained/seeded.rs.')
 
 # Forms the scanner reads besides the producer shapes below, each with its own witness in the test.
 READ_FORMS = [
@@ -3311,8 +3325,8 @@ HEADER = {
               'is read and what is not, and what the test establishes are in scope. The scanner writes code, crates, '
               'severity, first_site, sites and messages; classification, reason, unsure, candidates, named_by, '
               'named_by_coverage and named_by_statement are hand-made and kept by --write, as are pinned_sites and '
-              'listed_unresolved_sites. Every code position the scanner reads is resolved, pinned with its values, '
-              'or listed as unresolved with its reason; none is dropped. The test cannot check that a text covers a '
+              'listed_unresolved_sites. Each position the scanner reports as unresolved is pinned or listed; that is '
+              'not a guarantee that no value is dropped (scope.every_code_position). The test cannot check that a text covers a '
               'refusal, only that it mentions a code: each naming carries a hand-made coverage, whole or partial, '
               'and only a whole naming counts as naming the refusal. ' + STRIPPER_FINDING),
     'first_site': ('the first raising site resolved by type (and, where a mapping is involved, by the arm its '
@@ -3389,11 +3403,18 @@ HEADER = {
                                               'several materially different refusals, and a missing control can '
                                               'withhold a capability with no code at all. Product text that names a '
                                               'limitation is not a declaration of one.'),
-        'every_code_position': ('Every code position the scanner reads is resolved, pinned with its values '
-                                '(pinned_sites), or listed as unresolved with its reason (listed_unresolved_sites); '
-                                'none is dropped. A part of a value yields no code only in one of the cases of '
-                                'proven_empty_cases; anything else that yields none is an unresolved site.'),
-        'proven_empty_cases': PROVEN_EMPTY,
+        'every_code_position': ('The test checks agreement between this table and the scanner\'s observations. '
+                                'Each position the scanner reports as unresolved must be pinned (pinned_sites) or '
+                                'listed (listed_unresolved_sites), and each reported stripping failure fails the '
+                                'test. Name, type, binding, call-flow and statement-boundary heuristics can omit '
+                                'or misresolve values without reporting either condition. Passing therefore does '
+                                'not establish that every value at a code position was captured or that test-only '
+                                'stripping was correct. A part of a value yields no code in the cases of '
+                                'exempt_cases, which are exemptions and not proofs; each says whether it is sound '
+                                'or which premise it rests on. The listing check ties an entry to the text of its '
+                                'line, not to what flows into it: a listed site\'s meaning can change while its '
+                                'line stays the same, and repeated identical sites are matched by count.'),
+        'exempt_cases': EXEMPT_CASES,
         'listed_unresolved': None,      # filled by merge from listed_unresolved_sites
         'crates': list(SCOPE) + [f'{p} (a solve\'s code it relays unchanged only)' for p in REUSE_SCOPE],
         'operation_applier': ('core/model_operations/operation_applier is read only for a solve\'s code that it '
@@ -3413,11 +3434,17 @@ HEADER = {
                                       'with the scanner\'s observation of the sources over the shapes and forms '
                                       'listed in shapes_read, each with a witness in that test (for a producer '
                                       'shape, that adding or removing a code at it fails the test), and that every '
-                                      'code position the scanner reads is resolved, pinned or listed. It does not '
-                                      'establish that the table is complete. A third independent review found no '
-                                      'code missing from the table in the present sources, all twenty producer-'
-                                      'shape witnesses working, and its blind classification of the sixteen codes '
-                                      'then new agreeing 16 of 16.'),
+                                      'position the scanner reports as unresolved is pinned or listed. It does not '
+                                      'establish that the table is complete, nor that every value at a code '
+                                      'position was captured. What four independent reviews did: the third and '
+                                      'the fourth each found no code missing from the table in the present '
+                                      'sources, the fourth after searching those sources for each of the sixteen '
+                                      'mechanisms it had constructed (shapes_not_read); the witnesses worked (all '
+                                      'twenty producer-shape witnesses at the third review; all twenty-one, and '
+                                      'the ten statement and four item stripper witnesses, at the fourth); and '
+                                      'the third review\'s blind classification of the sixteen codes then new '
+                                      'agreed 16 of 16. That is a record of what was searched for and not found, '
+                                      'not a finding of completeness.'),
         'shapes_read': [shape for shape, _code, _via, _source in PRODUCER_SHAPES] + READ_FORMS,
         'shapes_not_read': [
             'named refusal methods (a reason() returning a token) and map_err or Err literals carried into a '
@@ -3431,6 +3458,34 @@ HEADER = {
             'choice of function: such a code field read is an unresolved site, listed with its reason',
             'test-only code marked other than by cfg(test) or cfg(all(test, ..)): it is read as production',
             'mixed-case message prefixes: only an upper-case CODE: or {CONST}: prefix is read',
+            # The sixteen mechanisms a fourth independent review constructed, each a way a value at a code
+            # position, or test-only code, is misread WITHOUT an unresolved site or a failure. None was found
+            # hiding a code in the sources of that review's revision.
+            'UNREPORTED: a call made through a function pointer or a closure object: the code argument is not found',
+            'UNREPORTED: a variable assigned again after its let: only the first value is read',
+            'UNREPORTED: a binding shadowed in an inner block or by a loop variable: the wrong binding can be read',
+            'UNREPORTED: a recursive call whose arguments differ from the outer call\'s: only the outer values are read',
+            'UNREPORTED: a relayed code field set other than by construction (by replacement, through a mutable '
+            'borrow, by a derived default) or carried by a record from a dependency that is not a path dependency',
+            'UNREPORTED: a conversion (for example of case) applied to a relayed code field: the converted value is lost',
+            'UNREPORTED: a receiver whose record type is taken from the iterator while a nearer binding of the same '
+            'name holds a record from outside',
+            'UNREPORTED: a collection method taken as read-only whose callback changes elements (dedup_by, dedup_by_key)',
+            'UNREPORTED: an empty constructor assumed from a standard collection\'s spelling where a local type has '
+            'that name',
+            'UNREPORTED: an enum value at a code field whose enum has no as_str: neither a code nor an unresolved site',
+            'UNREPORTED: a severity word (warning, info, blocking, failure) or an empty text used as a code at a '
+            'position known only by name: discarded',
+            'UNREPORTED: a variable whose name looks like a type, or a mutable borrow of a text, at the code field '
+            'of a known literal: discarded',
+            'UNREPORTED: a production module whose file name matches the test-name pattern (for example x_test.rs): '
+            'the whole file is skipped',
+            'UNREPORTED: an inner test attribute that is not first in its file, or inside a module body: the '
+            'test-only code is read as production',
+            'UNREPORTED: a test-only if or match whose condition or scrutinee is itself a block (async, inline '
+            'const): the wrong brace is taken for the body and the test-only code is read',
+            'UNREPORTED: a test-only item whose generic parameters hold a braced constant: the wrong brace is taken '
+            'for the item\'s body',
         ],
     },
 }

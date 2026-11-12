@@ -15,18 +15,20 @@ and a declared limitation) and does not do it.
 
 What this test establishes: the table agrees with the scanner's observation of the sources over the shapes
 and forms the scanner lists (`PRODUCER_SHAPES` and `READ_FORMS`, the table's `scope.shapes_read`), each with a
-witness here (for a producer shape, that adding or removing a code at it fails the test); and every code
-position the scanner reads is resolved, pinned with its values, or listed as unresolved with its reason, none
-dropped. It does not establish that the table is complete. The shapes the scanner does not read are named in
-`scope.shapes_not_read`. A third independent review found no code missing from the table in the present
-sources, all twenty producer-shape witnesses working, and its blind classification of the sixteen codes then
-new agreeing 16 of 16.
+witness here (for a producer shape, that adding or removing a code at it fails the test); and every position
+the scanner REPORTS as unresolved is pinned with its values or listed with its reason. It does not establish
+that the table is complete, nor that every value at a code position was captured: the scanner's name, type,
+binding, call-flow and statement-boundary heuristics can omit or misresolve a value without reporting it, and
+`scope.shapes_not_read` names the mechanisms a fourth independent review constructed. The third and the fourth
+independent reviews each found no code missing from the table in the present sources (the fourth after searching
+them for each of its sixteen mechanisms), the witnesses worked, and the third's blind classification of the
+sixteen codes then new agreed 16 of 16; that records what was searched for and not found, not completeness.
 
 The test fails on: an unresolved site that is neither pinned (`pinned_sites`, its values and the whole
 functions its reason rests on checked character for character) nor listed (`listed_unresolved_sites`, matched
 by file, position, expression and the text of its line); a listed site whose text has changed or that no
 longer stands; a statement under a test-only attribute that the stripper does not recognise (named by file and
-line); a part of a value yielding no values outside the closed list of proven-empty cases (it becomes an
+line); a part of a value yielding no values outside the closed list of exemptions (it becomes an
 unresolved site); a record without a classification or a reason; a value at a position known only by shape or
 name appearing or going; and the number of unsure records or of absent capabilities not named rising above its
 pin. Whether each listed entry's stated relay is true is hand-kept and not checked here.
@@ -50,7 +52,7 @@ PROJECT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT))
 import tools.validation.diagnostic_codes as scanner_module  # noqa: E402
 from tools.validation.diagnostic_codes import (  # noqa: E402
-    ARC_REASON_TOKENS, CLASSES, PRODUCER_SHAPES, PROVEN_EMPTY, READ_FORMS, TABLE, Scan, listed_summary,
+    ARC_REASON_TOKENS, CLASSES, PRODUCER_SHAPES, EXEMPT_CASES, READ_FORMS, TABLE, Scan, listed_summary,
     listing_problems, tokenize)
 
 # The scan reads every production Rust file of these crates through their module trees.
@@ -163,7 +165,7 @@ def test_the_scope_names_what_the_table_reads_and_leaves_out():
     stands as a text in the file it names and is printed by codes the table holds."""
     scope = table()['scope']
     assert scope['shapes_read'] == [shape for shape, _c, _v, _s in PRODUCER_SHAPES] + READ_FORMS, REFRESH
-    assert scope['proven_empty_cases'] == PROVEN_EMPTY, REFRESH
+    assert scope['exempt_cases'] == EXEMPT_CASES, REFRESH
     assert scope['listed_unresolved'] == listed_summary(table().get('listed_unresolved_sites', [])), REFRESH
     assert scope['reason_tokens_outside_the_unit'] == ARC_REASON_TOKENS, REFRESH
     codes = {c['code'] for c in table()['codes']}
@@ -447,7 +449,7 @@ def test_witness_a_nested_wrapper_pattern_reads_only_its_arm(tmp_path):
 # ---------------------------------------------------------------- part two: nothing is dropped silently
 
 def test_witness_no_values_outside_the_closed_list_is_an_unresolved_site(tmp_path):
-    """The closed list of proven-empty cases: a case not on it cannot be returned, every case on it is used by the
+    """The closed list of exemptions: a case not on it cannot be returned, every case on it is used by the
     scanner and no other is, and an expression that yields no values outside it is an unresolved site (here the
     resolver and the tuple reader are made to yield nothing, and every code position they read becomes one)."""
     try:
@@ -455,10 +457,10 @@ def test_witness_no_values_outside_the_closed_list_is_an_unresolved_site(tmp_pat
     except AssertionError:
         pass
     else:
-        raise AssertionError('a proven-empty case not on the list was accepted')
+        raise AssertionError('an exemption not on the list was accepted')
     source = (PROJECT / 'tools/validation/diagnostic_codes.py').read_text(encoding='utf-8')
     used = set(re.findall(r"_none\('([a-z_]+)'\)", source)) | set(re.findall(r"return None, '([a-z_]+)'", source))
-    assert used == set(PROVEN_EMPTY), (sorted(used - set(PROVEN_EMPTY)), sorted(set(PROVEN_EMPTY) - used))
+    assert used == set(EXEMPT_CASES), (sorted(used - set(EXEMPT_CASES)), sorted(set(EXEMPT_CASES) - used))
     root = tmp_path / 'empty'
     (root / 'core/product_physics/src').mkdir(parents=True)
     (root / 'core/product_physics/src/lib.rs').write_text(WITNESS.replace('EXTRA', ''), encoding='utf-8')
