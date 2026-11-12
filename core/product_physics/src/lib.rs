@@ -13639,12 +13639,23 @@ fn append_signed_support_results(
 /// Each pressure evidence entry's `result_ids`: the case's pressure-family rows
 /// (`pipe_*_v2`) whose entity is a member (element identifier, region) of the
 /// entry's region (`""` when it names none), in row order.
+///
+/// Each element identifier has one region here, which is what makes this the
+/// per-entry scan it replaced (that scan would list a row under every region
+/// naming its pipe): validation refuses a repeated pipe identifier
+/// (`DUPLICATE_ID`, `validate_ids` in `validation.rs`) and the pressure runtime
+/// refuses a pipe in two regions of one case (`PRESSURE_REGION_PIPE_OVERLAP`,
+/// `pressure_runtime.rs`), both before any solve. A debug build asserts it.
 fn attach_pressure_result_ids<'a>(
     evidence: &mut [serde_json::Value],
     members: impl Iterator<Item = (&'a str, &'a str)>,
     results: &[ResultItem],
 ) {
-    let regions: HashMap<&str, &str> = members.collect();
+    let mut regions: HashMap<&str, &str> = HashMap::with_capacity(members.size_hint().0);
+    for (id, region) in members {
+        let _previous = regions.insert(id, region);
+        debug_assert!(_previous.is_none(), "pipe {id} is a member of two pressure regions or repeats its identifier");
+    }
     let mut ids: HashMap<&str, Vec<&String>> = HashMap::new();
     for r in results {
         if r.kind.starts_with("pipe_") && r.kind.ends_with("_v2") {
