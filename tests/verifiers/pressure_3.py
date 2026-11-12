@@ -426,8 +426,30 @@ def poisson_coefficient(coefficient: float, nu: float, included: bool) -> None:
         _require(False, "RHS term coefficient binding")
 
 
-CANCELLATION_EXCEPTION_BASIS = "straight_region_interior_cap_pairs_without_pressure_elongation"
-CANCELLATION_RESIDUAL_RATIO_LIMIT = 1e-9
+CANCELLATION_EXCEPTION_BASIS = "straight_region_interior_cap_pairs_representation_guard_departure_thrust"
+EXCEPTION_RECORD_KEYS = {"basis", "node_ref", "member_pipe_ids", "member_lengths_m", "region_span_m", "thrust_to_bore_force_ratio", "consistency_bound_ratio"}
+# The consistency bound's constants (product physics ``pressure_runtime``: BORE_DEPARTURE_RATIO, ALIGNMENT_DEPARTURE_RATIO,
+# FORMATION_ALLOWANCE_RATIO, SUBNORMAL_ALLOWANCE), whose derivation is stated there.
+BORE_DEPARTURE_RATIO = 256 * 2.0 ** -52
+ALIGNMENT_DEPARTURE_RATIO = 152 * 2.0 ** -52
+FORMATION_ALLOWANCE_RATIO = 32 * 2.0 ** -52
+SUBNORMAL_ALLOWANCE = 8 * 2.0 ** -1074
+
+
+def departure_bound_ratio(span: float, lengths: list[float]) -> float:
+    """beta, product physics ``departure_bound_ratio``."""
+    def member(length: float) -> float:
+        omega = ALIGNMENT_DEPARTURE_RATIO * span / length
+        return omega * (1.0 + omega * omega) if omega <= 0.5 else 2.0
+    return BORE_DEPARTURE_RATIO + min(member(lengths[0]) + member(lengths[1]), 2.0) + FORMATION_ALLOWANCE_RATIO
+
+
+def _hex_float(value: str) -> float:
+    return struct.unpack(">d", bytes.fromhex(value))[0]
+
+
+def _same(a: float, b: float) -> bool:
+    return struct.pack("<d", float(a)) == struct.pack("<d", float(b))
 
 
 def rhs_screen_keys(rhs: Any, keys: set[str]) -> set[str]:
@@ -435,15 +457,104 @@ def rhs_screen_keys(rhs: Any, keys: set[str]) -> set[str]:
     return keys | {"cancellation_screen_exception"} if isinstance(rhs, Mapping) and "cancellation_screen_exception" in rhs else keys
 
 
+def rhs_groups(rhs: Mapping[str, Any]) -> None:
+    """DEL-04-07 (Rust ``physics_evidence::bore_group_value`` and ``assembled_is_group_sum``). Each bore group's
+    coefficient sum is the correctly rounded exact sum of its terms' coefficients, and its value is the re-formation
+    p*(pi*r*r)*c*d of the operands it publishes, each product rounded (within one subnormal step where the value is
+    subnormal: the producer's intermediates carry an unbounded exponent); the published translational load is, at
+    every degree of freedom, the correctly rounded exact sum of the groups published there (0 where none)."""
+    order, sums = rhs["node_order"], {}
+    for group in rhs["groups"]:
+        dof = 6 * order.index(group["node_ref"]) + ["Fx", "Fy", "Fz"].index(group["component"])
+        sums.setdefault(dof, []).append(group["assembled_force_n"])
+        if "effective_area_bits" in group:
+            continue
+        coefficient = group["coefficient_sum"]
+        _require(math.fsum(term["coefficient"] for term in group["terms"]) == coefficient, "SOURCE_PHYSICS_RHS_GROUP_COEFFICIENT")
+        p, r = _hex_float(group["pressure_bits"]), _hex_float(group["source_inner_radius_hi_bits"])
+        try:
+            expected = p * (math.pi * r * r) * coefficient * group["direction_component_magnitude"]
+        except OverflowError:
+            expected = math.inf
+        value = group["assembled_force_n"]
+        exact = expected == 0 or abs(expected) >= 2.0 ** -1022
+        _require(math.isfinite(expected) and (value == expected if exact else abs(value - expected) <= 2 * 2.0 ** -1074), "SOURCE_PHYSICS_RHS_GROUP_VALUE")
+    for dof, value in enumerate(rhs["assembled_pressure_rhs_global"]):
+        if dof % 6 < 3:
+            try:
+                expected = math.fsum(sums.get(dof, []))
+            except OverflowError:
+                expected = math.inf
+            _require(value == expected, "SOURCE_PHYSICS_RHS_ASSEMBLED_SUM")
+
+
+def _family_interior(rhs: Mapping[str, Any], terminals: list[tuple[str, str, bool]], directions: dict[tuple[str, str], list[float]]) -> list[dict[str, Any]]:
+    """The family's structure, each term's binding to its member's published direction and end sign, the opposition
+    of the two members at each interior node, the exact zero at each transferring terminal, and each interior node's
+    |F| and |p|*A_hi (Rust ``physics_evidence::family_interior``)."""
+    family = "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY"
+    direction_code = "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_DIRECTION"
+    order, assembled = rhs["node_order"], rhs["assembled_pressure_rhs_global"]
+    by_dof: dict[int, list[Mapping[str, Any]]] = {}
+    for group in rhs["groups"]:
+        _require("effective_area_bits" not in group, family)
+        by_dof.setdefault(6 * order.index(group["node_ref"]) + ["Fx", "Fy", "Fz"].index(group["component"]), []).append(group)
+    faces: dict[tuple[int, str], tuple[str, float, list[float], float]] = {}
+    closed: set[int] = set()
+    for dof in sorted(by_dof):
+        groups, node, axis = by_dof[dof], order[dof // 6], dof % 6
+        terms = [term for group in groups for term in group["terms"]]
+        kinds = sorted(term["kind"] for term in terms)
+        ending = [t for t in terminals if t[1] == node]
+        if ending:
+            admitted = (len(groups) == 1 and kinds == ["poisson_eigen", "terminal_cap"] and terms[0]["region_id"] == terms[1]["region_id"]
+                        and terms[0]["pipe_id"] == terms[1]["pipe_id"] and len(ending) == 1 and ending[0][2] and ending[0][0] == terms[0]["region_id"])
+            closed.add(dof // 6)
+        else:
+            admitted = (kinds in (["poisson_eigen"], ["poisson_eigen", "poisson_eigen"]) and len({term["region_id"] for term in terms}) == 1
+                        and len({term["pipe_id"] for term in terms}) == len(terms))
+        _require(admitted, family)
+        for group in groups:
+            bore_force = abs(_hex_float(group["pressure_bits"]) * (math.pi * _hex_float(group["source_inner_radius_hi_bits"]) * _hex_float(group["source_inner_radius_hi_bits"])))
+            for term in group["terms"]:
+                direction = directions.get((term["region_id"], term["pipe_id"]))
+                _require(direction is not None, direction_code)
+                component = direction[axis]
+                _require(component != 0 and _same(abs(component), group["direction_component_magnitude"]), direction_code)
+                face = term["coefficient"] * math.copysign(1.0, component) * (-1.0 if term["kind"] == "terminal_cap" else 1.0)
+                _require(abs(face) == 1, direction_code)
+                entry = faces.setdefault((dof // 6, term["pipe_id"]), (term["region_id"], face, direction, bore_force))
+                _require(entry[1] == face and _same(entry[3], bore_force), direction_code)
+    for node in closed:
+        _require(all(assembled[6 * node + k] == 0 for k in range(3)), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_TERMINAL")
+    interior = []
+    for node in sorted({node for node, _ in faces} - closed):
+        members = sorted((pipe, value) for (n, pipe), value in faces.items() if n == node)
+        _require(len(members) == 2 and members[0][1][0] == members[1][1][0], family)
+        (a, (region, face_a, x_a, force_a)), (b, (_, face_b, x_b, force_b)) = members
+        _require(face_a * face_b * (x_a[0] * x_b[0] + x_a[1] * x_b[1] + x_a[2] * x_b[2]) < 0, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_OPPOSITION")
+        force = exact_combinations.norm3(*assembled[6 * node:6 * node + 3])
+        bore_force = max(force_a, force_b)
+        ratio = 0.0 if force == 0 else force / bore_force
+        _require(math.isfinite(ratio), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO")
+        interior.append({"node": order[node], "region": region, "pipes": [a, b], "force": force, "bore_force": bore_force, "ratio": ratio})
+    return interior
+
+
 def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, regions: list[Any]) -> None:
     """DEL-04-07, the cancellation screen (Rust ``physics_evidence::assembly`` and ``cancellation_exception``).
 
-    A screen within its limit is the original assurance and no exception record stands beside it. A screen over
-    its limit, or not finite (null), stands only with the exception's record, re-derived from the published groups
-    and the case's regions: the family (no pressure elongation, connector or realized arc; every group a bore group
-    whose terms are one member's poisson_eigen and terminal_cap at a transferring terminal of exactly that region,
-    or at most two poisson_eigen terms of distinct members of one region at a node that is no region's terminal),
-    the published ratio bit for bit, and the published original screen."""
+    Every case first re-forms its bore groups and its assembled vector from the groups (``rhs_groups``). A screen
+    within its limit is the original assurance and no exception record stands beside it. A screen over its limit, or
+    not finite (null), stands only with the exception's record, re-derived from the published groups and the case's
+    regions: the family (no pressure elongation, connector or realized arc; every group a bore group whose terms are
+    one member's poisson_eigen and terminal_cap at a transferring terminal of exactly that region, or poisson_eigen
+    terms of two distinct members of one region at a node that is no region's terminal), each term bound to its
+    member's published direction and end, the two members at an interior node in opposition, an exact zero at each
+    transferring terminal, the record's node (the first of the largest |F|/(|p|*A_hi)), its measured ratio and its
+    bound re-formed from the record's span and lengths bit for bit, |F| within that bound, and the published original
+    screen. The span and lengths are taken from the record: this twin reads no model."""
+    rhs_groups(rhs)
     screen, record = rhs["cancellation_screen"], rhs.get("cancellation_screen_exception")
     passing = _number(screen) and 0 <= screen <= 1e-9
     if record is None:
@@ -451,49 +562,40 @@ def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, region
         return
     _require(not passing, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BESIDE_PASSING_SCREEN")
     _require(screen is None or (_number(screen) and screen > 1e-9), "SOURCE_PHYSICS_RHS_SCREEN")
-    _require(isinstance(record, Mapping) and set(record) == {"basis", "residual_to_source_ratio", "residual_to_source_ratio_limit"}
-             and record["basis"] == CANCELLATION_EXCEPTION_BASIS and record["residual_to_source_ratio_limit"] == CANCELLATION_RESIDUAL_RATIO_LIMIT,
+    _require(isinstance(record, Mapping) and set(record) == EXCEPTION_RECORD_KEYS and record["basis"] == CANCELLATION_EXCEPTION_BASIS,
              "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION")
-    ratio = record["residual_to_source_ratio"]
-    _require(_number(ratio) and 0 <= ratio <= CANCELLATION_RESIDUAL_RATIO_LIMIT, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO")
     family = "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY"
     _require(elongation is False, family)
-    terminals = []
+    terminals, directions, members = [], {}, {}
     for region in regions:
         _require(not region.get("member_connector_ids") and not any(isinstance(g, Mapping) and ("member_kind" in g or "arc_end_tangents_global" in g) for g in region.get("geometry") or []), family)
         terminals += [(region["region_id"], t["node_ref"], t["closure_transfer"] == "transfers_to_wall") for t in region["terminals"]]
-    order, assembled = rhs["node_order"], rhs["assembled_pressure_rhs_global"]
-    by_dof: dict[int, list[Mapping[str, Any]]] = {}
-    for group in rhs["groups"]:
-        _require("effective_area_bits" not in group, family)
-        by_dof.setdefault(6 * order.index(group["node_ref"]) + ["Fx", "Fy", "Fz"].index(group["component"]), []).append(group)
-    largest = 0.0
-    for dof, groups in by_dof.items():
-        node = order[dof // 6]
-        terms = [term for group in groups for term in group["terms"]]
-        kinds = sorted(term["kind"] for term in terms)
-        ending = [t for t in terminals if t[1] == node]
-        if ending:
-            admitted = (len(groups) == 1 and kinds == ["poisson_eigen", "terminal_cap"] and terms[0]["region_id"] == terms[1]["region_id"]
-                        and terms[0]["pipe_id"] == terms[1]["pipe_id"] and len(ending) == 1 and ending[0][2] and ending[0][0] == terms[0]["region_id"])
-        else:
-            admitted = (kinds in (["poisson_eigen"], ["poisson_eigen", "poisson_eigen"]) and len({term["region_id"] for term in terms}) == 1
-                        and len({term["pipe_id"] for term in terms}) == len(terms))
-        _require(admitted, family)
-        try:
-            scale = math.fsum(abs(group["assembled_force_n"]) for group in groups)
-        except OverflowError:
-            _require(False, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO")
-        load = abs(assembled[dof])
-        value = 0.0 if load == 0 else load / scale
-        _require(math.isfinite(value), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO")
-        largest = max(largest, value)
-    _require(struct.pack("<d", float(ratio)) == struct.pack("<d", largest), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO")
+        members[region["region_id"]] = list(region.get("member_pipe_ids") or [])
+        for load in region.get("applied_loads") or []:
+            directions[(region["region_id"], load["pipe_id"])] = load["local_x_global"]
+    interior = _family_interior(rhs, terminals, directions)
+    _require(bool(interior), family)
+    node = interior[0]
+    for candidate in interior[1:]:
+        if candidate["ratio"] > node["ratio"]:
+            node = candidate
+    listed = members.get(node["region"], [])
+    ordered = sorted(node["pipes"], key=lambda pipe: listed.index(pipe) if pipe in listed else len(listed))
+    _require(record["node_ref"] == node["node"] and record["member_pipe_ids"] == ordered, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_NODE")
+    span, lengths = record["region_span_m"], record["member_lengths_m"]
+    _require(_number(span) and span > 0 and isinstance(lengths, list) and len(lengths) == 2 and all(_number(x) and x > 0 for x in lengths), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION")
+    bound = departure_bound_ratio(span, lengths)
+    _require(_number(record["consistency_bound_ratio"]) and _same(record["consistency_bound_ratio"], bound), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BOUND")
+    _require(_number(record["thrust_to_bore_force_ratio"]) and _same(record["thrust_to_bore_force_ratio"], node["ratio"]), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO")
+    _require(node["force"] <= node["bore_force"] * bound + SUBNORMAL_ALLOWANCE, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BOUND")
     # The original screen as the producer forms it.
+    order, assembled = rhs["node_order"], rhs["assembled_pressure_rhs_global"]
+    by_dof: dict[int, list[float]] = {}
+    for group in rhs["groups"]:
+        by_dof.setdefault(6 * order.index(group["node_ref"]) + ["Fx", "Fy", "Fz"].index(group["component"]), []).append(group["assembled_force_n"])
     max_rhs = max((abs(value) for index, value in enumerate(assembled) if index % 6 < 3), default=0.0)
     maximum = 0.0
-    for groups in by_dof.values():
-        values = [group["assembled_force_n"] for group in groups]
+    for values in by_dof.values():
         if max_rhs == 0:
             if any(value != 0 for value in values):
                 maximum = math.inf
