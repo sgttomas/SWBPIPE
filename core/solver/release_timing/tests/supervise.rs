@@ -293,7 +293,7 @@ mod live {
     use open_pipe_stress_release_timing::supervise::{
         check_run_id, check_run_names, launch, names_written, packet, read_records, record_error_class, sha256_hex,
         stale_driver_message, Hooks, OutDir, WriteWatch, FOLDER_NAMES, PACKET_SCHEMA, PLAN_SCHEMA, RECORDS_INCOMPLETE_EXIT,
-        RECORD_SCHEMA, TERMINATING_SIGNALS,
+        RECORD_SCHEMA, TERMINATING_SIGNALS, WRITE_RESULTS_REFUSED,
     };
     use serde_json::{json, Value};
     use std::path::{Path, PathBuf};
@@ -1067,6 +1067,35 @@ mod live {
             .collect();
         found.sort();
         found
+    }
+
+    /// A supervised run keeps no result bytes: the driver writes a kept result by pathname, which
+    /// the supervisor's promise about what it writes cannot cover. The option is refused by name
+    /// before the plan is read, the folder is created or any driver starts.
+    #[test]
+    fn write_results_is_refused_under_supervise_before_anything_is_written() {
+        let dir = folder("write-results");
+        std::fs::write(dir.join("demo.json"), demo()).unwrap();
+        let plan = json!({"schema": PLAN_SCHEMA, "window_budget_s": 900, "quiet_wait_s": 0,
+                          "runs": [run(0, "first", "demo.json", 60, 1, "solved", BUDGET)]});
+        std::fs::write(dir.join("plan.json"), plan.to_string()).unwrap();
+        let before = contents(&dir);
+        // Wherever the option stands after `--supervise` (which selects this mode as the first argument).
+        for args in [vec!["--supervise", "plan.json", "--out", "out", "--write-results"],
+                     vec!["--supervise", "plan.json", "--write-results", "--out", "out"]] {
+            let output = Command::new(BIN).args(&args).current_dir(&dir).output().expect("run the supervisor");
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            assert_eq!(output.status.code(), Some(2), "{stderr}");
+            assert!(stderr.contains(WRITE_RESULTS_REFUSED), "{stderr}");
+            assert!(output.stdout.is_empty(), "no run was started");
+            assert!(!dir.join("out").exists(), "the output folder was not created");
+            assert_eq!(contents(&dir), before, "nothing was written");
+        }
+        // The same plan without the option runs, and writes no results folder.
+        let (code, stdout, stderr) = supervise(&dir, vec![run(0, "first", "demo.json", 60, 1, "solved", BUDGET)], 900);
+        assert_eq!(code, 0, "{stdout}{stderr}");
+        assert!(!dir.join("out").join("results").exists());
+        std::fs::remove_dir_all(dir).unwrap();
     }
 
     #[test]

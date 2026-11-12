@@ -1,4 +1,4 @@
-//! `release_timing --supervise PLAN --out DIR [--models DIR] [--write-results]`: the driver
+//! `release_timing --supervise PLAN --out DIR [--models DIR]`: the driver
 //! supervises its own runs, with no Python, git, cargo or other tool outside the stock system.
 //!
 //! It is the Python runner's `--run` and `--packet` (`core/solver/performance_harness/runner/
@@ -260,10 +260,10 @@ pub const PACKET_NAME: &str = "packet.json";
 /// The packet is written under this name, then renamed to [`PACKET_NAME`]. It begins with a dot,
 /// which no run id can ([`check_run_id`]).
 pub const PACKET_PARTIAL_NAME: &str = ".packet.json.partial";
-/// The folder of kept results (`--write-results`).
-pub const RESULTS_NAME: &str = "results";
-/// Every name the supervisor writes in the output folder apart from each run's.
-pub const FOLDER_NAMES: [&str; 5] = [RECORDS_NAME, METADATA_NAME, PACKET_NAME, PACKET_PARTIAL_NAME, RESULTS_NAME];
+/// Every name the supervisor writes in the output folder apart from each run's. It keeps no
+/// result bytes (`--write-results` is refused, [`WRITE_RESULTS_REFUSED`]), so it writes no
+/// results folder and nothing by pathname.
+pub const FOLDER_NAMES: [&str; 4] = [RECORDS_NAME, METADATA_NAME, PACKET_NAME, PACKET_PARTIAL_NAME];
 /// A run's stdout record, `<run_id>.jsonl`.
 pub const STDOUT_SUFFIX: &str = ".jsonl";
 /// A run's sanitized stderr, `<run_id>.stderr.txt`.
@@ -272,17 +272,17 @@ pub const STDERR_SUFFIX: &str = ".stderr.txt";
 pub const LAUNCH_RECORD_SUFFIX: &str = ".record.json";
 /// Each run's files in the output folder, `<run_id><suffix>`, all written by [`launch`].
 pub const RUN_SUFFIXES: [&str; 3] = [STDOUT_SUFFIX, STDERR_SUFFIX, LAUNCH_RECORD_SUFFIX];
-/// A kept result, `results/<run_id>.result.json`, written by the driver ([`driver_argv`]).
-pub const RESULT_SUFFIX: &str = ".result.json";
+/// The refusal of `--write-results` under `--supervise`: a supervised run keeps no result bytes.
+/// The driver writes a kept result by pathname, which the supervisor's promise about what it
+/// writes cannot cover, and a base-machine timing run has no use for the bytes.
+pub const WRITE_RESULTS_REFUSED: &str = "--write-results is refused under --supervise: a supervised run keeps no result bytes; nothing was written and no driver was started (the Python runner keeps results with its own --write-results)";
 
 /// Every name the supervisor writes in the output folder for a plan of `run_ids`: the
-/// [`FOLDER_NAMES`], each run's [`RUN_SUFFIXES`], and each kept result inside [`RESULTS_NAME`]
-/// (whether or not results are kept, so that one plan has one set of names).
+/// [`FOLDER_NAMES`] and each run's [`RUN_SUFFIXES`].
 pub fn names_written(run_ids: &[String]) -> Vec<String> {
     let mut names: Vec<String> = FOLDER_NAMES.iter().map(|n| n.to_string()).collect();
     for run_id in run_ids {
         names.extend(RUN_SUFFIXES.iter().map(|suffix| format!("{run_id}{suffix}")));
-        names.push(format!("{RESULTS_NAME}/{run_id}{RESULT_SUFFIX}"));
     }
     names
 }
@@ -455,18 +455,6 @@ impl OutDir {
         unsafe { libc::fstatat(self.fd.as_raw_fd(), cname.as_ptr(), stat.as_mut_ptr(), libc::AT_SYMLINK_NOFOLLOW) == 0 }
     }
 
-    /// Creates the folder `name` in this folder, as a new one: an existing entry of that name is
-    /// refused.
-    fn subfolder(&self, name: &str) -> std::io::Result<()> {
-        use std::os::fd::AsRawFd;
-        let cname = bare(name)?;
-        // SAFETY: a valid directory descriptor and a NUL-terminated bare name.
-        if unsafe { libc::mkdirat(self.fd.as_raw_fd(), cname.as_ptr(), 0o755) } != 0 {
-            let error = std::io::Error::last_os_error();
-            return Err(std::io::Error::new(error.kind(), format!("cannot create the folder {name}: {error}")));
-        }
-        Ok(())
-    }
 }
 
 /// `rr.RUN_ID_PATTERN`, `[A-Za-z0-9][A-Za-z0-9._-]{0,127}`: a run id names the run's record files
@@ -1041,18 +1029,15 @@ pub fn record_error_class(launched: &Value, classification: String, detail: Opti
     }
 }
 
-/// `rr.driver_argv` without the binary: a solve run's model and `--mode`, or a model-checks run's
-/// model and `--model-checks`, then `--write` when results are kept.
-pub fn driver_argv(model: &Path, run: &Run, results_dir: Option<&Path>) -> Vec<String> {
+/// `rr.driver_argv` without the binary and without `--write`: a solve run's model and `--mode`,
+/// or a model-checks run's model and `--model-checks`. The supervisor never asks the driver to
+/// keep a result ([`WRITE_RESULTS_REFUSED`]).
+pub fn driver_argv(model: &Path, run: &Run) -> Vec<String> {
     let mut tail = vec![model.to_string_lossy().to_string()];
     if run.task == "model_checks" {
         tail.push("--model-checks".into());
     } else {
         tail.extend(["--mode".to_string(), run.mode.clone()]);
-    }
-    if let Some(dir) = results_dir {
-        tail.push("--write".into());
-        tail.push(dir.join(format!("{}{RESULT_SUFFIX}", run.run_id)).to_string_lossy().to_string());
     }
     tail
 }
@@ -1069,7 +1054,6 @@ pub struct Options {
     pub models_dir: PathBuf,
     pub out_dir: PathBuf,
     pub binary: PathBuf,
-    pub write_results: bool,
 }
 
 /// The launch keys a run record keeps (`rr.run_plan`'s `launch={...}`), and this supervisor's
@@ -1132,7 +1116,8 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Supervised, Str
     }
     let mut md = metadata(&options.binary);
     md.insert("budget_s".into(), json!(plan.window_budget_s));
-    md.insert("write_results".into(), json!(options.write_results));
+    // Always false here: the key is kept so the metadata has the Python runner's members.
+    md.insert("write_results".into(), json!(false));
     md.insert("quiet_wait_s".into(), json!(plan.quiet_wait_s));
     md.insert("plan".into(), json!(run_ids));
     let md = Value::Object(md);
@@ -1143,11 +1128,6 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Supervised, Str
         write_json_to(out.create_new(METADATA_NAME).map_err(io)?, &md).map_err(io)?;
         aggregate
     };
-    // The driver writes a kept result by path (it is given the path, not a descriptor).
-    let results_dir = options.write_results.then(|| out_dir.join(RESULTS_NAME));
-    if results_dir.is_some() {
-        out.subfolder(RESULTS_NAME).map_err(io)?;
-    }
     let packet_error = |e: String| format!("cannot write the packet: {e}");
     let mut written_packet = None;
     let mut records = Vec::new();
@@ -1212,7 +1192,7 @@ pub fn run_plan(options: &Options, log: &dyn Fn(&str)) -> Result<Supervised, Str
                 let timeout = run.timeout_s.min(remaining.trunc() as i64);
                 record.insert("timeout_applied_s".into(), json!(timeout));
                 record.insert("timeout_capped_by_window".into(), json!(timeout < run.timeout_s));
-                let tail = driver_argv(&path, run, results_dir.as_deref());
+                let tail = driver_argv(&path, run);
                 let Launched { record: launched, stdout, stderr } = launch(
                     &options.binary,
                     &tail,
@@ -1460,7 +1440,7 @@ fn write_packet(out: &OutDir, records: &[Value], md: &Value) -> Result<Value, St
 
 // ------------------------------------------------------------------ entry
 
-const USAGE: &str = "usage: release_timing --supervise <plan.json> --out <dir> [--models <dir>] [--write-results]";
+const USAGE: &str = "usage: release_timing --supervise <plan.json> --out <dir> [--models <dir>]";
 
 fn usage(message: &str) -> i32 {
     eprintln!("release_timing --supervise: {message}");
@@ -1474,13 +1454,13 @@ fn usage(message: &str) -> i32 {
 /// when record writes stalled, 128 + a signal when stopped by one of [`TERMINATING_SIGNALS`].
 pub fn main(args: &[String]) -> i32 {
     let mut args = args.iter();
-    let (mut plan_path, mut out_dir, mut models_dir, mut write_results) = (None, None, None, false);
+    let (mut plan_path, mut out_dir, mut models_dir) = (None, None, None);
     while let Some(arg) = args.next() {
         match arg.as_str() {
             "--supervise" => plan_path = args.next().cloned(),
             "--out" => out_dir = args.next().cloned(),
             "--models" => models_dir = args.next().cloned(),
-            "--write-results" => write_results = true,
+            "--write-results" => return usage(WRITE_RESULTS_REFUSED),
             other => return usage(&format!("unexpected argument {other}")),
         }
     }
@@ -1507,7 +1487,7 @@ pub fn main(args: &[String]) -> i32 {
         Err(error) => return usage(&format!("cannot find this binary: {error}")),
     };
     install_signal_handlers();
-    let options = Options { plan, models_dir, out_dir: PathBuf::from(out_dir), binary, write_results };
+    let options = Options { plan, models_dir, out_dir: PathBuf::from(out_dir), binary };
     let log = |line: &str| {
         println!("{line}");
         let _ = std::io::stdout().flush();

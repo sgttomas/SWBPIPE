@@ -227,15 +227,28 @@ memory bound.
 
   - It writes only entries it created exclusively in the output folder it opened, and reports
     only what it wrote. No plan content and no state of that folder, before or during a run,
-    makes it write elsewhere or record a hash that is not the file's. No two records it writes
-    can be the same file, by name, by case or by link.
+    makes it write elsewhere or record a hash that is not of the bytes it wrote. No two records
+    it writes can be the same file, by name, by case or by link.
   - A driver it started does not outlive it; a driver it did not start is not affected by it.
   - Its build identity says clean only when Git status is clean and no index flag hides a file;
     otherwise it says unknown or dirty.
 
   It promises nothing against someone who can replace the `git` executable, forge objects in
-  the checkout, or write into the output folder's parent between its own operations in ways the
-  exclusive-creation rule does not already refuse.
+  the checkout, write into the output folder's parent between its own operations in ways the
+  exclusive-creation rule does not already refuse, or write into the output folder's own entries
+  during or after a run: it answers for the bytes it wrote, not for what another writer does to
+  a file afterwards. Its build identity does not see files Git ignores. An identity of "clean"
+  says that tracked files match the head, that no file outside Git's ignore rules is untracked,
+  and that no index flag hides a file; it does not say that no ignored file took part in the
+  build. Where a measurement will be cited for exit criterion 9, the build is made in a fresh
+  checkout of the head.
+
+  It keeps no result bytes: `--write-results` is refused under `--supervise`, by name, before
+  anything is written and before any driver starts, because the driver writes a kept result by
+  pathname. The recorded argv is the driver's own arguments, without the supervisor's process
+  id. A `.packet.json.partial` that someone plants in the folder during a run makes the next
+  packet write fail and the supervisor stop with exit status 2; that costs the rest of the plan
+  and no record already written.
 
   How it keeps them. Run ids are bare names (`[A-Za-z0-9][A-Za-z0-9._-]{0,127}`), and both
   supervisors refuse at plan load, before anything is written, any other id, two ids that are
@@ -275,7 +288,7 @@ memory bound.
   own session. Find it by its process name and the model path in its arguments, for example
   `pgrep -fl 'release_timing .*linear-ex-n2000.json'`, and stop it with `kill`. The Python
   runner opens record paths by name and does not pin its output directory; replacing that path
-  can redirect its record reads and writes. With `--write-results`, both routes pass the driver a
+  can redirect its record reads and writes. With `--write-results` it passes the driver a
   pathname rather than a directory descriptor, so kept result bytes have the same limitation.
 
   Host facts come from `sysctl`, and the cargo
@@ -308,8 +321,8 @@ memory bound.
   It writes only inside `results/`, which must be a new folder (one that already holds any of
   the names below is refused before anything starts): `metadata.json`, `records.jsonl` (one line
   as each run ends), `packet.json` (replaced after each run), and per run its stdout line (`.jsonl`), its
-  stderr progress lines (`.stderr.txt`) and the launch record (`.record.json`). `--write-results`
-  also keeps each result's bytes; `--models DIR` reads the models from another folder. Ctrl-C
+  stderr progress lines (`.stderr.txt`) and the launch record (`.record.json`). It keeps no
+  result bytes; `--models DIR` reads the models from another folder. Ctrl-C
   kills the running driver before the supervisor exits. Nothing is installed, and no tool
   outside the binary is run. A copy that macOS has quarantined (one from AirDrop or a download)
   may be refused at first start; copy the folder from a drive instead. Bring back

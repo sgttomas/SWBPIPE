@@ -60,7 +60,7 @@
 //! `release_timing --build-identity` prints the build's embedded identity (`build.rs`) as one
 //! JSON line and exits.
 //!
-//! `release_timing --supervise <plan.json> --out <dir> [--models <dir>] [--write-results]`
+//! `release_timing --supervise <plan.json> --out <dir> [--models <dir>]`
 //! (macOS) instead supervises a plan's runs of this same binary in the modes above, one child
 //! process at a time, watched from outside (`src/supervise.rs`). The modes above are unchanged by it.
 
