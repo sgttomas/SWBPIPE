@@ -11,7 +11,11 @@
 //      failure, with a timeout, reading the solve timeline (timings, counts and codes)
 //      from `__openPipeStressSolveTimelineV1.readCurrent()`. A C1 run opens Results once
 //      the solve has begun: a native result's first paint is its Results table's first
-//      page (rows and row semantics) committed, then two frames, so Results must be shown;
+//      page (rows and row semantics) committed, then two frames, so Results must be shown.
+//      The timeline begins at the run request, before the Solve command's gate, and
+//      marks `checks_done` when the gate's model check ends; a request the gate withholds,
+//      or whose check is cancelled or overtaken, ends its timeline (refused, cancelled or
+//      superseded), which ends the wait;
 //   3. Record Run… (Project page, Model History), then File > Save Local Project,
 //      each outcome as shown.
 // Progress lines go to the app's stderr as `[native-smoke] perf:{json}` (a crash
@@ -212,6 +216,8 @@
       summary_live: sectionShown("solve"),
       error: text("solve-job-error"),
       refusal: text("solve-job-resource-refusal"),
+      // The Solve command's gate withheld the solve: its notice's summary.
+      withheld: text("solve-withheld-summary"),
       worker_failure: text("solve-job-worker-failure"),
       results_refusal: text("result-query-refused", byTestId("workspace-section-results") ?? document),
       progress: text("solve-job-progress"),

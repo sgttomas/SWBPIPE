@@ -54,6 +54,8 @@ export type ModelCheckRun = Readonly<{
   notShown: Readonly<Record<ModelCheckGroupId, number>>;
   /** How many of the findings not listed, in all groups, are blocking or errors. */
   notShownBlocking: number;
+  /** The same count for each group. */
+  notShownBlockingByGroup: Readonly<Record<ModelCheckGroupId, number>>;
 }>;
 
 /** The browser engine's input bound, as the engine itself refuses above it
@@ -87,12 +89,13 @@ type EngineChecks = {
   slots: Diagnostic[];
   notShown: { solve: number; slots: number };
   notShownBlocking: number;
+  notShownBlockingByGroup: { solve: number; slots: number };
   /** The report's serialized findings, counted against the bound. */
   bytes: number;
 };
 
 function unavailable(reason: string): EngineChecks {
-  return { outcome: { kind: "unavailable", reason }, solve: [], slots: [], notShown: { solve: 0, slots: 0 }, notShownBlocking: 0, bytes: 0 };
+  return { outcome: { kind: "unavailable", reason }, solve: [], slots: [], notShown: { solve: 0, slots: 0 }, notShownBlocking: 0, notShownBlockingByGroup: { solve: 0, slots: 0 }, bytes: 0 };
 }
 
 /** The UTF-8 length of `text`, counted without encoding it; it stops counting
@@ -182,11 +185,12 @@ export async function engineModelChecks(model: PreviewModel): Promise<EngineChec
     slots: typeof report.slot_findings_not_shown === "number" ? report.slot_findings_not_shown : 0
   };
   const count = (value: unknown) => (typeof value === "number" ? value : 0);
-  const notShownBlocking = count(report.diagnostics_not_shown_blocking) + count(report.slot_findings_not_shown_blocking);
+  const notShownBlockingByGroup = { solve: count(report.diagnostics_not_shown_blocking), slots: count(report.slot_findings_not_shown_blocking) };
+  const notShownBlocking = notShownBlockingByGroup.solve + notShownBlockingByGroup.slots;
   const outcome: SolveChecksOutcome = report.checked
     ? { kind: "checked" }
     : { kind: "refused", refusal: report.refusal ?? "the solve could not read the model" };
-  return { outcome, solve, slots, notShown, notShownBlocking, bytes };
+  return { outcome, solve, slots, notShown, notShownBlocking, notShownBlockingByGroup, bytes };
 }
 
 function entityFor(model: PreviewModel, diagnostic: Diagnostic): EntityRef | null {
@@ -237,6 +241,7 @@ export async function runModelChecks(model: PreviewModel, libraryReferenceDiagno
     solve: engine.outcome,
     findings,
     notShown: { solve: engine.notShown.solve, slots: engine.notShown.slots, library: libraryNotShown },
-    notShownBlocking: engine.notShownBlocking + libraryNotShownBlocking
+    notShownBlocking: engine.notShownBlocking + libraryNotShownBlocking,
+    notShownBlockingByGroup: { solve: engine.notShownBlockingByGroup.solve, slots: engine.notShownBlockingByGroup.slots, library: libraryNotShownBlocking }
   };
 }

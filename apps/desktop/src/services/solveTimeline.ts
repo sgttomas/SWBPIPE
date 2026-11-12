@@ -4,7 +4,10 @@
  *
  * - Marks: each stage of the latest solve once, at `performance.now()` (a monotonic
  *   clock), with small details (byte and row counts, codes). `solve_requested` starts
- *   a new timeline and drops the previous one.
+ *   a new timeline and drops the previous one. It is marked at the run request, before
+ *   the Solve command's gate; `checks_done` marks the end of the gate's model check
+ *   (whether a check ran on this request, and how many solve-blocking findings stand).
+ *   A request the gate withholds ends its timeline as refused (`refuse`), with its code.
  * - Passes: every timed serialization, fingerprint or wasm reader call, aggregated by
  *   kind and by the last stage reached before it ran, so passes after the paint
  *   (Record Run, Save Project) are counted too. A pass whose text is at least half
@@ -12,7 +15,7 @@
  *   Nested passes are counted under each kind: a `native_fingerprint` includes one
  *   `checked_json_text`.
  * - Failure: the first error the solve reports, with the last stage reached, as its
- *   leading code and error class only.
+ *   leading code and error class only; or a refusal's code (`refuse`), with no class.
  *
  * Timings, counts and codes only: no model data, path, identifier (job, run, model or
  * project) or message text is kept for reading. A detail string that is not a code is
@@ -32,6 +35,7 @@ export const SOLVE_TIMELINE_GLOBAL = "__openPipeStressSolveTimelineV1" as const;
 
 export type SolveStage =
   | "solve_requested"
+  | "checks_done"
   | "job_started"
   | "job_done"
   | "take_start"
@@ -93,7 +97,7 @@ function errorName(error: unknown): string | null {
 // dropped with its key, so a key cannot carry an identifier (`EXAMPLE_CUSTOMER`) either.
 export const DETAIL_KEYS: readonly string[] = [
   "solver_mode", "state", "result_bytes", "worker_peak_footprint_bytes", "worker_peak_grant_bytes",
-  "bytes", "chars", "rows", "registered", "reason_code"
+  "bytes", "chars", "rows", "registered", "reason_code", "ran", "blocking_findings"
 ];
 const KEPT_DETAIL_KEYS: ReadonlySet<string> = new Set(DETAIL_KEYS);
 // Kept keys only; numbers and booleans as given, a string only if it is a code.
@@ -164,6 +168,9 @@ export type SolveTimelineHandle = Readonly<{
   /** Marks `job_started` and remembers the job (kept internally, never read out). */
   jobStarted(jobId: string): void;
   end(outcome: Exclude<SolveOutcome, "running">, error?: unknown): void;
+  /** Ends the timeline as refused with `code` (kept only if it is one of the timeline's
+   * codes) as its failure, at the last stage reached: a refusal that raises no error. */
+  refuse(code: string): void;
 }>;
 
 /** Starts the timeline of a new solve (Analyze → Run), replacing the previous one. */
@@ -175,7 +182,12 @@ export function beginSolveTimeline(detail: Detail | null = null): SolveTimelineH
   return {
     mark: (stage, markDetail = null) => { if (current === timeline) markSolveStage(stage, markDetail); },
     jobStarted: (jobId) => { if (current === timeline) { timeline.jobId = jobId; markSolveStage("job_started"); } },
-    end: (outcome, error) => { if (current === timeline) endSolveTimeline(outcome, error); }
+    end: (outcome, error) => { if (current === timeline) endSolveTimeline(outcome, error); },
+    refuse: (code) => {
+      if (current !== timeline || timeline.outcome !== "running") return;
+      timeline.outcome = "refused";
+      timeline.failure = { stage: timeline.marks.at(-1)?.stage ?? "solve_requested", code: codeOrNull(code), error_name: null, at_ms: now() };
+    }
   };
 }
 

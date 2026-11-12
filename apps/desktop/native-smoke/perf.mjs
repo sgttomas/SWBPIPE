@@ -706,8 +706,10 @@ export function classify({ report, exit, timedOut, progress, memory, store, run,
       else if (mark.at_ms - startedAt > run.paint_ms) add("hang", { step: "solve", detail: `first paint ${mark.at_ms - startedAt} ms after Analyze > Run, after the ${run.paint_ms} ms gate` });
     }
     else if (solve.ended === "timeout") add("hang", { step: "solve", detail: `no first paint within ${run.paint_ms} ms; last stage ${solve.timeline?.marks?.at(-1)?.stage ?? null}` });
-    // The window's text, verbatim (the timeline carries only the failure's code and stage).
-    else add("refused_with_message", { step: "solve", message: solve.shown?.error ?? solve.shown?.refusal ?? solve.shown?.results_refusal ?? solve.shown?.summary ?? null, code: solve.timeline?.failure?.code ?? null, stage: solve.timeline?.failure?.stage ?? null, needs_review: true });
+    // The window's text, verbatim (the timeline carries only the failure's code and stage). A solve
+    // the Solve command's gate withheld ends refused, its code and stage (`checks_done`) on the
+    // timeline and its notice's summary in the window.
+    else add("refused_with_message", { step: "solve", message: solve.shown?.error ?? solve.shown?.refusal ?? solve.shown?.withheld ?? solve.shown?.results_refusal ?? solve.shown?.summary ?? null, code: solve.timeline?.failure?.code ?? null, stage: solve.timeline?.failure?.stage ?? null, needs_review: true });
     const record = report.record_run;
     if (record?.timed_out) add("hang", { step: "record_run", detail: `last message: ${record.last_message}` });
     else if (record && record.message && /^(Not recorded|Record Run:)/.test(record.message)) add("refused_with_message", { step: "record_run", message: record.message, needs_review: true });

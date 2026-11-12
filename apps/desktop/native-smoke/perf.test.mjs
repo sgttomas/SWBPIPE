@@ -396,6 +396,14 @@ test("a failed solve is a refusal quoting the window's message, with the timelin
   assert.deepEqual(result.findings[0], { class: "refused_with_message", step: "solve", message: "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED: the received result is not bound.", code: "SOLVE_NATIVE_INVOCATION_BINDING_REQUIRED", stage: "reader_verdict_end", needs_review: true });
 });
 
+test("a solve the gate withheld is a refusal quoting its notice, with the timeline's code at checks_done", () => {
+  const timeline = { outcome: "refused", marks: [{ stage: "solve_requested", at_ms: 1_005 }, { stage: "checks_done", at_ms: 1_200, detail: { ran: true, blocking_findings: 1 } }], failure: { stage: "checks_done", code: "SOLVE-WITHHELD-MODEL-CHECKS", error_name: null } };
+  const summary = "Solve is withheld: 1 solve-blocking finding stands for this model. The findings are listed in Model checks, in the Issues drawer.";
+  const result = classify(base({ report: { solve: { ended: "refused", timeline, shown: { error: null, refusal: null, withheld: summary, summary: "state=idle" } } } }));
+  assert.equal(result.class, "refused_with_message");
+  assert.deepEqual(result.findings[0], { class: "refused_with_message", step: "solve", message: summary, code: "SOLVE-WITHHELD-MODEL-CHECKS", stage: "checks_done", needs_review: true });
+});
+
 test("no report: a timeout is a hang, an early exit an app crash, a vanished WebContent a WebContent crash", () => {
   assert.equal(classify(base({ report: null, timedOut: true })).class, "hang");
   assert.equal(classify(base({ report: null, exit: { status: null, signal: "SIGSEGV", ended_ms: 10_000 } })).findings[0].process, "app");
@@ -1040,8 +1048,9 @@ function fakeClock() {
 
 // The solve step on a simulated clock. `begunAt` starts the run's timeline, `resultsAt` is when
 // Results shows after the driver asks for it, `paintAt` when the first_paint mark is written (its
-// own `at_ms`). The run is sent at clock 0, so the gate's deadline is `paint_ms`.
-async function clockedSolve(t, { c1, paintMs = 300_000, openMs = 600_000, begunAt = 20, resultsAt = null, paintAt }) {
+// own `at_ms`). The run is sent at clock 0, so the gate's deadline is `paint_ms`. `gateEnd`
+// ({ at, outcome, checked }) ends the timeline at the Solve command's gate instead of painting.
+async function clockedSolve(t, { c1, paintMs = 300_000, openMs = 600_000, begunAt = 20, resultsAt = null, paintAt = null, gateEnd = null }) {
   const clock = fakeClock();
   let shown = "solve", timeline = null;
   const ui = await driverDom(t, `<section data-testid="workspace-section-solve"><button data-testid="solver-mode-sparse" aria-pressed="false"></button><p data-testid="solve-job-summary">state=running</p></section><section data-testid="workspace-section-results"></section>`, async (command, args) => {
@@ -1055,7 +1064,11 @@ async function clockedSolve(t, { c1, paintMs = 300_000, openMs = 600_000, begunA
   const sparse = doc.querySelector('[data-testid="solver-mode-sparse"]');
   sparse.onclick = () => sparse.setAttribute("aria-pressed", "true");
   ui.context.__openPipeStressSolveTimelineV1 = { readCurrent: () => timeline };
-  clock.at(paintAt, () => { timeline = { ...timeline, outcome: "completed", marks: [...timeline.marks, { stage: "result_committed", at_ms: clock.now() }, { stage: "first_paint", at_ms: clock.now() }] }; });
+  if (paintAt !== null) clock.at(paintAt, () => { timeline = { ...timeline, outcome: "completed", marks: [...timeline.marks, { stage: "result_committed", at_ms: clock.now() }, { stage: "first_paint", at_ms: clock.now() }] }; });
+  if (gateEnd) clock.at(gateEnd.at, () => {
+    const marks = gateEnd.checked ? [...timeline.marks, { stage: "checks_done", at_ms: clock.now(), detail: { ran: true, blocking_findings: 1 } }] : timeline.marks;
+    timeline = { ...timeline, outcome: gateEnd.outcome, marks, failure: gateEnd.outcome === "refused" ? { stage: "checks_done", code: "SOLVE-WITHHELD-MODEL-CHECKS", error_name: null } : null };
+  });
   const report = {};
   await clock.run(ui.hooks.solve({ c1_probes: c1, timeouts: { open_ms: openMs, paint_ms: paintMs } }, report));
   return { report, observedAt: clock.now() };
@@ -1094,6 +1107,21 @@ test("F1: without C1, a mark one poll past the gate is a timeout and one just wi
   assert.equal(timely.report.solve.ended, "first_paint");
   assert.equal(timely.report.solve.gate.first_paint_at_ms, 299_999);
 });
+
+// The timeline begins at the run request, before the Solve command's gate: a request the gate
+// withholds, or whose check is cancelled or overtaken, ends it, and the wait ends at the next poll
+// rather than running out the paint gate.
+for (const c1 of [false, true]) {
+  for (const [outcome, checked] of [["refused", true], ["cancelled", false], ["superseded", false]]) {
+    test(`a timeline the gate ends as ${outcome} ends the solve wait at once (${c1 ? "C1" : "without C1"})`, async (t) => {
+      const { report, observedAt } = await clockedSolve(t, { c1, gateEnd: { at: 400, outcome, checked } });
+      assert.equal(report.solve.ended, outcome);
+      assert.ok(observedAt < 2_000, `observed at ${observedAt}`);
+      assert.equal(report.solve.gate.first_paint_at_ms, null);
+      assert.deepEqual(report.solve.timeline.marks.map((mark) => mark.stage), checked ? ["solve_requested", "checks_done"] : ["solve_requested"]);
+    });
+  }
+}
 
 // RT-U4 A+B diagnosis (`c1-slice7-run-proposal.md`): the attempt's page was not shown (WebKit
 // aligned the driver's timers to 1 s, its hidden-page throttling), and a page that is not shown

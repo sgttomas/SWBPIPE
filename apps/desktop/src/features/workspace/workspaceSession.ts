@@ -72,7 +72,7 @@ import {
 } from "../../services/nativePersistence";
 import type { AnalysisRunPreview } from "../../services/analysisRunPreview";
 import type { C2FullResult } from "../results/C2ResultGate";
-import { beginSolveTimeline, markSolveCommittedAndPaint, traceNativeReaderAwait } from "../../services/solveTimeline";
+import { beginSolveTimeline, markSolveCommittedAndPaint, traceNativeReaderAwait, type SolveTimelineHandle } from "../../services/solveTimeline";
 import { IngressRequestRetiredError, nativeFailureText } from "../../services/nativeIngress";
 import {
   buildBlankLocalModelDocument,
@@ -231,7 +231,7 @@ import {
   uiModelIdentityHash,
   type SessionModelCheckpoint
 } from "./sessionModel";
-import { commitModelAfterSolveInvalidation } from "./solveGates";
+import { commitModelAfterSolveInvalidation, readSolveGate, type SolveGateReading } from "./solveGates";
 import {
   awaitBackendSolveJob,
   blankProjectCreatedSolveJob,
@@ -1213,11 +1213,65 @@ export function useWorkspaceSession() {
 
   async function handleRun(): Promise<void> { await handleRunWithAgentReceipt(); }
 
+  /** The Solve command's gate (DEL-07-07 REQ-008, DEL-07-04 AC-001), for the run
+   * holding `runGeneration`: it reads the model checks for the model as it stands
+   * (`readSolveGate`), running them first when no run is current for this model
+   * value. True lets the solve proceed. False when the solve is withheld, or the
+   * check was cancelled, overtaken by a model change or retired by a later check
+   * or project session: the run token is released, nothing of the session is
+   * cleared and the model is untouched; a withheld solve opens the Issues drawer
+   * on the Model checks list, whose findings it names. Synchronous when a current
+   * run is reused, so an open gate adds no await before the solve starts. While
+   * the checks run the session reads as running, from the Solve request on as
+   * before the gate (the progress panel's run starts there, and Cancel reaches
+   * the check); a solve that does not start leaves it as it was. RT-U4, observation
+   * only: `timeline` (begun at the run request) marks `checks_done` when the check
+   * ends, and a request that does not proceed ends it as refused (withheld),
+   * cancelled or superseded. */
+  function solveGateAllows(runGeneration: number, timeline: SolveTimelineHandle): boolean | Promise<boolean> {
+    if (!model) return true; // The solve's own refusal of no model stands.
+    const settle = (reading: SolveGateReading, ran: boolean) => {
+      timeline.mark("checks_done", { ran, blocking_findings: reading.kind === "withheld" ? reading.findings.length + reading.notListedBlocking : 0 });
+      if (reading.kind !== "withheld") {
+        solveLastWithheld.current = false;
+        return true;
+      }
+      timeline.refuse("SOLVE-WITHHELD-MODEL-CHECKS");
+      solveRunGate.current.finish(runGeneration);
+      setIssuesDrawerOpen(true);
+      return false;
+    };
+    if (modelCheckRun?.model === model) return settle(readSolveGate(model, modelCheckRun), false);
+    const checked = model;
+    const revision = modelRevision.current;
+    const shownJob = solveJob;
+    const stillWanted = () => solveRunGate.current.isCurrent(runGeneration)
+      && !solveRunGate.current.isCancellationRequested(runGeneration)
+      && modelRevision.current === revision;
+    setRunning(true);
+    return runModelChecksRequest(checked, stillWanted).then((run) => {
+      if (run && stillWanted() && settle(readSolveGate(checked, run), true)) return true;
+      // A cancel request during the check leaves the job shown before it.
+      const cancelled = solveRunGate.current.isCancellationRequested(runGeneration);
+      if (cancelled) setSolveJob(shownJob);
+      // A no-op once a withheld solve's refusal ended the timeline.
+      timeline.end(cancelled ? "cancelled" : "superseded");
+      // Running is released unless a later solve holds it now.
+      const holder = solveRunGate.current.current();
+      if (holder === null || holder === runGeneration) setRunning(false);
+      solveRunGate.current.finish(runGeneration);
+      return false;
+    });
+  }
+
   async function handleRunWithAgentReceipt(): Promise<AgentRunReceipt | undefined> {
     const runGeneration = solveRunGate.current.tryStart();
     if (runGeneration === null) return;
-    // RT-U4: observation only (solveTimeline.ts); the run's path is unchanged.
+    // RT-U4: observation only (solveTimeline.ts); the run's path is unchanged. The timeline
+    // begins at the run request, before the gate, whose check it marks (DEL-04-05, "The clock").
     const timeline = beginSolveTimeline({ solver_mode: solverMode });
+    const gate = solveGateAllows(runGeneration, timeline);
+    if (gate !== true && !(await gate)) return;
     invalidateReportPackageComputedState();
     ruleRevisionGate.current.invalidate();
     solveCancellationTombstones.current.set(runGeneration, {
@@ -4087,19 +4141,44 @@ export function useWorkspaceSession() {
       setMbfImportRequest(null);
     }
   }, [projectSessionGeneration]);
-  async function handleRunModelChecks() {
-    if (!model) return;
+  /** One run of the model checks on `checked`: a later request or a new project
+   * session retires it (null). A run `publish` declines is returned to no one and
+   * not shown (the Solve command's check, once its solve is cancelled or its model
+   * changed). */
+  async function runModelChecksRequest(checked: PreviewModel, publish: () => boolean = () => true): Promise<ModelCheckRun | null> {
     const request = ++modelCheckRequest.current;
     const generation = projectSessionGenerationRef.current;
-    setIssuesDrawerOpen(true);
     setModelCheckBusy(true);
     nativeModelCheckInFlight.current = isTauriRuntime();
-    const run = await runModelChecks(model, () => libraryRefDiagnostics(currentLibraryRefFindings(model)));
-    if (request !== modelCheckRequest.current || generation !== projectSessionGenerationRef.current) return;
+    const run = await runModelChecks(checked, () => libraryRefDiagnostics(currentLibraryRefFindings(checked)));
+    if (request !== modelCheckRequest.current || generation !== projectSessionGenerationRef.current) return null;
     nativeModelCheckInFlight.current = false;
     setModelCheckBusy(false);
+    if (!publish()) return null;
     setModelCheckRun(run);
+    return run;
   }
+
+  async function handleRunModelChecks() {
+    if (!model) return;
+    setIssuesDrawerOpen(true);
+    await runModelChecksRequest(model);
+  }
+
+  // The Solve command's gate as it reads now, for the controls that offer Solve.
+  const solveGate = readSolveGate(model, modelCheckRun);
+  // Once Solve has read withheld, and until a solve passes the gate or the project
+  // session changes, a change of the model value (an applied operation, an undo,
+  // a redo) runs the checks again for the new value without being asked, so the
+  // withheld notice updates, clears, or comes back by itself (an undo of the
+  // operation that supplied a value). A later change supersedes a check in
+  // progress, as a later request does.
+  const solveLastWithheld = useRef(false);
+  useEffect(() => { solveLastWithheld.current = false; }, [projectSessionGeneration]);
+  useEffect(() => {
+    if (solveGate.kind === "withheld") solveLastWithheld.current = true;
+    else if (solveGate.kind === "unknown" && solveGate.reason === "model_changed" && solveLastWithheld.current && model) void runModelChecksRequest(model);
+  }, [model, modelCheckRun]);
 
   // Single command sink for both the in-DOM menu bar (tested) and the native
   // macOS menu bar (Tauri shell only). View commands summon/dismiss workspace
@@ -4817,6 +4896,8 @@ export function useWorkspaceSession() {
       solveJob,
       solveProof,
       running,
+      /** The Solve command's gate as it reads now (`readSolveGate`). */
+      solveGate,
       solverMode, setSolverMode,
       reportComposition, setReportComposition: handleReportCompositionChange,
       reportPackagePrivateIntent, setReportPackagePrivateIntent,
