@@ -253,6 +253,16 @@ describe("A typed number when the project unit moves (inspector)", () => {
     expect(screen.queryByTestId("create-section-unit-cleared")).toBeNull();
   });
 
+  it("section: the user's own change of unit clears nothing; it is not a move with the project units", async () => {
+    await mount({ type: "project", id: "project:invented-demo" });
+    type("create-section-od", "100");
+    type("create-section-wall", "5");
+    chooseCompactOption(byId("create-section-length-unit"), "mm");
+    expect(byId("create-section-od")).toHaveValue("100");
+    expect(byId("create-section-wall")).toHaveValue("5");
+    expect(screen.queryByTestId("create-section-unit-cleared")).toBeNull();
+  });
+
   it("material: each unit that moves clears only the values beside it", async () => {
     const { rerender } = await mount({ type: "project", id: "project:invented-demo" });
     expectFormControlValue(byId("create-material-thermal-unit"), "1/degC");
