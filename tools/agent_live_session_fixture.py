@@ -21,6 +21,11 @@ import subprocess
 import threading
 import time
 
+try:  # the application's launch environment: HOME and CFFIXED_USER_HOME, one throwaway home
+    from tools import native_launch_guard
+except ImportError:  # run as a script from tools/
+    import native_launch_guard
+
 # Reads its directory scans stand for, for CI selection (tools/ci/python_test_reads.py). It lists only the live session's temporary state directory.
 CI_READS = ()
 
@@ -223,10 +228,14 @@ def run_case(args, name, mode, trigger, root, key=None):
         if records:
             records.drain()
 
+    record = None
     try:
-        app = subprocess.Popen([str(args.app), "--native-agent-session-fixture"],
-                               stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                               stderr=subprocess.DEVNULL, env={"PATH": "/usr/bin:/bin"})
+        try:
+            record = native_launch_guard.make_home(root, name)
+            app = native_launch_guard.start([str(args.app), "--native-agent-session-fixture"], record,
+                                            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+        except native_launch_guard.LaunchRefused as refusal:
+            raise Refusal(f"launch_refused_{refusal}") from None
         result["app"] = {"pid": app.pid}
         records = Records(app.stdout)
         config = {"state": str(state), "model": args.model, "contextWindow": args.context_window, "endpoint": args.endpoint,
@@ -375,6 +384,17 @@ def run_case(args, name, mode, trigger, root, key=None):
                 result["passed"] = False
                 result["failure"] = "final_safety_unconfirmed"
             observer.close()
+        # The throwaway home this case made, and nothing else, whatever the outcome: listed
+        # beside it first (names, sizes, times), then removed.
+        if record is not None:
+            gone = app is None or app.poll() is not None
+            try:
+                result["throwawayHome"] = native_launch_guard.remove_home(
+                    record, root, processes_gone=gone, started=[app.pid] if app else [], private=[Path(args.app).parent])
+            except Exception as error:  # noqa: BLE001
+                result["throwawayHome"] = {"cleanup": "failed", "home": record["home"], "removed": False, "reason": type(error).__name__}
+            if result["throwawayHome"]["cleanup"] not in ("removed", "not created"):
+                result["passed"] = False
     return result
 
 

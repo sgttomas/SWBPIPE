@@ -145,6 +145,12 @@ code_paths:
 - tools/agent_live_session_fixture.py
 - tools/agent_journey_fixture.py
 - tools/agent_journey_memory_monitor.py
+# The launch helper every native runner uses: it makes the throwaway home and starts the
+# application confined to it (its own environment allowlist, both home variables, the working
+# directory inside), compares the real Library around the run and removes the home. Its other
+# consumers' runners are theirs.
+- tools/native_launch_guard.py
+- tools/native_launch_guard.md
 # The agent journey's driver. The native-smoke harness it runs in (the rest of
 # apps/desktop/native-smoke/) is DEL-07-11's, as is the native command registry
 # (src-tauri/src/lib.rs) the host is wired into.
@@ -195,5 +201,6 @@ checks:
 - tools/agent_host_witness_test.py
 - tools/agent_live_session_fixture_test.py
 - tools/agent_journey_fixture_test.py
+- tools/native_launch_guard_test.py
 - tools/agent_journey_memory_monitor_test.py
 - tools/agent_keychain_ui_monitor.swift

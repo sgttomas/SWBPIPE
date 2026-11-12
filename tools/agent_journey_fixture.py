@@ -35,6 +35,7 @@ import json
 import math
 import os
 from pathlib import Path
+import plistlib
 import re
 import subprocess
 import sys
@@ -46,12 +47,16 @@ from tools.agent_live_session_fixture import (  # noqa: E402  (the live-session 
     Records, Refusal, Scope, anchor_start, bounded_wait, cleanup_anchor, pid_live,
 )
 from tools import agent_journey_memory_monitor as memory_monitor  # noqa: E402
+from tools import native_launch_guard  # noqa: E402
 
 PROJECT = Path(__file__).resolve().parents[1]
 FIXTURE = PROJECT / "fixtures" / "model_operations" / "agent_w9a_journey.json"
 REFERENCES = PROJECT / "validation" / "references" / "w9_benchmarks" / "references.json"
 PIN = PROJECT / "fixtures" / "embedded_agent" / "agent-witness-pin.json"
 DRIVER = PROJECT / "apps" / "desktop" / "native-smoke" / "agent-journey.js"
+TAURI_CONF = PROJECT / "apps" / "desktop" / "src-tauri" / "tauri.conf.json"
+GUARD_SETTLE_SECONDS = 20  # the web view's helpers may write after the application exits
+GUARD_EXIT = 5  # the launch guard did not find the run clean: never a pass
 STEPS = ["new blank", "provider and start", "turn 1", "apply", "turn 2", "observe", "stop"]
 TURNS = [
     "Build the W9-A L-frame from the blank model as one batch for my review: material W9 steel "
@@ -490,12 +495,12 @@ class Lines:
         return found[0] if found else None
 
 
-def preflight(args, root):
+def preflight(args, root, guard):
     """The live-session fixture's standalone preflight: probes only, no supplier or relay."""
     state = root / "preflight"
     state.mkdir(mode=0o700)
-    app = subprocess.Popen([str(args.app), "--native-agent-session-fixture"], stdin=subprocess.PIPE,
-                           stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, env={"PATH": "/usr/bin:/bin"})
+    app = guard.launch("preflight", [str(args.app), "--native-agent-session-fixture"], {}, stdin=subprocess.PIPE,
+                       stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     records = Records(app.stdout)
     try:
         app.stdin.write(json.dumps({"state": str(state), "model": "preflight", "contextWindow": 32768,
@@ -512,20 +517,130 @@ def preflight(args, root):
     return {"passed": passed, "status": app.returncode, "records": [r["record"] for r in records.records]}
 
 
+class LaunchGuard:
+    """Every start of the application executable in a run goes through `launch`, which has the
+    helper (tools/native_launch_guard.py) start it: inside the slot wrapper, on an unlocked console,
+    with an environment the helper builds from its allowlist (both home variables set to the run's
+    throwaway home, TMPDIR inside it, the strict chooser variable) and a working directory inside
+    the home. The web view does not honour HOME alone: without CFFIXED_USER_HOME it keeps its data
+    under the account's real Library. `start` lists the real Library and makes the home (under the
+    system's temporary folder, its record in the run's root) before the first start; `finish`
+    compares after the run, lists the home into the run's root and removes the home, whatever the
+    outcome; where something that could still write to it may be alive it withholds the home, the
+    run fails and the path is named."""
+
+    library = None  # the real Library; offline tests alone set another
+
+    def __init__(self, app, root):
+        self.root = Path(root).resolve()
+        self.names = launch_names(app)
+        # The private copy of the application: its executable, worker and supplier live under it.
+        self.private = [Path(app).parents[2]] if Path(app).parent.name == "MacOS" else [Path(app).parent]
+        self.launches, self.started, self.before, self.record = [], [], None, None
+
+    @property
+    def home(self):
+        return Path(self.record["home"]) if self.record else None
+
+    def start(self):
+        native_launch_guard.check_launch()
+        self.before = native_launch_guard.snapshot(self.names, self.library)
+        self.record = native_launch_guard.make_home(self.root, "home")
+
+    def launch(self, role, argv, extra, **popen):
+        if self.before is None or self.record is None:
+            raise Refusal("launch_guard_not_started")
+        try:
+            process = native_launch_guard.start(argv, self.record, extra, **popen)
+        except native_launch_guard.LaunchRefused as refusal:
+            raise Refusal(f"launch_refused_{refusal}") from None
+        self.launches.append(role)
+        self.started.append(process.pid)
+        return process
+
+    def finish(self, result, processes_gone=True, groups=()):
+        """The comparison, the disclosure and the positive half; never raises."""
+        report = {"compared": False, "launches": list(self.launches)}
+        try:
+            if self.launches:
+                time.sleep(GUARD_SETTLE_SECONDS)
+                report = {**native_launch_guard.compare(self.before, self.record, library=self.library),
+                          "launches": list(self.launches)}
+                # Only a launch of the window can leave web view data; a preflight alone cannot.
+                if "app" not in self.launches and report["verdict"] == "no web view data":
+                    report["verdict"] = "clean"
+            else:
+                report.update(compared=True, verdict="clean", note="nothing was launched")
+        except Exception as error:  # noqa: BLE001
+            report.update(compared=False, verdict="not compared", error=type(error).__name__)
+        result["launchGuard"] = report
+        # Always, whatever the outcome: listed into the run's root, then removed, unless something
+        # that could still write to it may be alive.
+        if self.record:
+            try:
+                outcome = native_launch_guard.remove_home(self.record, self.root, processes_gone, started=self.started,
+                                                          groups=groups, private=self.private)
+            except Exception as error:  # noqa: BLE001
+                outcome = {"cleanup": "failed", "home": str(self.home), "removed": False, "reason": type(error).__name__}
+            result["throwawayHome"] = outcome
+            if outcome["cleanup"] != "removed":
+                report["verdict"] = f"throwaway home {outcome['cleanup']}: {outcome['home']}"
+
+
+def launch_names(app):
+    """The names the web view files data under: the bundle identifier (the built bundle's, and
+    the configured one) and the executable's name."""
+    names = {Path(app).name, json.loads(TAURI_CONF.read_text())["identifier"]}
+    try:
+        with open(Path(app).parents[1] / "Info.plist", "rb") as handle:
+            names.add(plistlib.load(handle)["CFBundleIdentifier"])
+    except (OSError, KeyError, ValueError, IndexError):
+        pass
+    return sorted(names)
+
+
+def require_comparison(result):
+    """No run that started the application reports a result without the comparison made and
+    clean: otherwise it fails, with exit status GUARD_EXIT."""
+    guard = result.get("launchGuard")
+    if guard is None or not guard.get("compared") or guard.get("verdict") != "clean":
+        verdict = (guard or {}).get("verdict") if guard and guard.get("compared") else "not compared"
+        result["passed"] = False
+        result["failure"] = result.get("failure") or f"launch_guard: {verdict}"
+        return GUARD_EXIT
+    return None
+
+
 def run(args, key, root):
     result = {"passed": False, "mode": args.mode, "startedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
               "appSha256": sha256(args.app), "cleanup": "unknown"}
+    guard = LaunchGuard(args.app, root)
+    try:
+        guard.start()
+        journey(args, key, root, guard, result)
+    except Exception as error:  # noqa: BLE001
+        result["passed"] = False
+        result["failure"] = result.get("failure") or (str(error) if isinstance(error, Refusal) else type(error).__name__)
+    finally:
+        # Every way out of the run, an interrupt included, passes here. The home is removed unless
+        # a process the run started may still be alive (custody retained, or a resident found).
+        gone = result.get("rescue") != "retained_original_app_custody" and not result.get("residents")
+        supplier = (result.get("supplier") or {}).get("pid")
+        guard.finish(result, processes_gone=gone, groups=[supplier] if isinstance(supplier, int) else [])
+    return result
+
+
+def journey(args, key, root, guard, result):
     supplier = args.app.parents[1] / "Resources" / "agent-supplier"
     pin = json.loads(PIN.read_text())["codex"]["binarySha256"]
     found = [p for p in supplier.glob("codex*") if p.is_file()]
     result["supplierPin"] = {"expected": pin, "observed": [sha256(p) for p in found]}
     if len(found) != 1 or sha256(found[0]) != pin:
         raise Refusal("supplier_not_pinned")
-    result["preflight"] = preflight(args, root)
+    result["preflight"] = preflight(args, root, guard)
     if not result["preflight"]["passed"]:
         raise Refusal("preflight")
-    home, gate, report_path = root / "home", root / "gate", root / "report.json"
-    home.mkdir(mode=0o700)
+    home, gate, report_path = guard.home, root / "gate", root / "report.json"
     reference = w9a_reference()
     operations = json.loads(FIXTURE.read_text())["routes"]["PF"]["operations"]
     stub = StubProvider(TURNS) if args.mode == "stub" else None
@@ -540,13 +655,13 @@ def run(args, key, root):
                 "turns": TURNS, "resultProbe": "node:c",
                 "treeTypes": sorted(TREE_TYPES.values()),
                 "timeoutsMs": {"ui": 60000, "start": 60000, "turn": args.turn_timeout * 1000}}
-        env = {"PATH": "/usr/bin:/bin", "HOME": str(home), "SWBPIPE_NATIVE_SMOKE_DRIVER": "-",
+        env = {"SWBPIPE_NATIVE_SMOKE_DRIVER": "-",
                "SWBPIPE_NATIVE_SMOKE_PLAN": json.dumps(plan), "SWBPIPE_NATIVE_SMOKE_REPORT": str(report_path),
                "SWBPIPE_NATIVE_SMOKE_AGENT_GATE": str(gate), "SWBPIPE_NATIVE_SMOKE_AGENT_GATE_MODE": "handshake"}
         if key is not None:
             env["SWBPIPE_NATIVE_SMOKE_PROVIDER_KEY"] = "stdin"
-        app = subprocess.Popen([str(args.app)], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
-                               stderr=subprocess.PIPE, env=env)
+        app = guard.launch("app", [str(args.app)], env, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL,
+                           stderr=subprocess.PIPE)
         result["app"] = {"pid": app.pid}
         lines = Lines(app.stderr)
         app.stdin.write((key.encode() + b"\n" if key is not None else b"") + DRIVER.read_bytes())
@@ -650,7 +765,6 @@ def run(args, key, root):
             result["passed"] = False
             result["failure"] = result.get("failure") or "resident_processes"
         result["endedAt"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    return result
 
 
 RETAINED = Path("/private/tmp") / f"swbpipe-agent-journey-{os.getuid()}.retained"
@@ -801,17 +915,21 @@ def main():
         setattr(args, name, getattr(args, name).resolve(strict=True))
     free = free_bytes()
     result = {"passed": False, "freeBytesAtStart": free, "minFreeBytes": int(args.min_free_gib * 1024 ** 3)}
+    ran = False
     if free < result["minFreeBytes"]:
         result["failure"] = "memory_gate"
     else:
+        ran = True
         try:
             result.update(run(args, key, root))
         except Exception as error:  # noqa: BLE001
             result["failure"] = str(error) if isinstance(error, Refusal) else type(error).__name__
     key = None
+    guarded = require_comparison(result) if ran else None
     (root / "result.json").write_text(json.dumps(result, indent=2) + "\n")
-    print(json.dumps({k: result.get(k) for k in ("passed", "failure", "failures", "rescue", "release", "residents", "startedAt", "endedAt")}))
-    return 0 if result["passed"] else 1
+    print(json.dumps({k: result.get(k) for k in ("passed", "failure", "failures", "rescue", "release", "residents", "startedAt", "endedAt")}
+                     | {"launchGuard": (result.get("launchGuard") or {}).get("verdict")}))
+    return guarded or (0 if result["passed"] else 1)
 
 
 if __name__ == "__main__":

@@ -232,6 +232,9 @@ def test_run_monitor_checks_at_admission_ready_exit_and_success_use_owned_cleanu
     monkeypatch.setattr(journey, "sha256", lambda p: json.loads(journey.PIN.read_text())["codex"]["binarySha256"])
     monkeypatch.setattr(journey, "preflight", lambda *a: {"passed": True})
     monkeypatch.setattr(journey.subprocess, "Popen", launch)
+    monkeypatch.setattr(journey.native_launch_guard, "_POPEN", launch)  # the helper's own start
+    monkeypatch.setattr(journey.native_launch_guard, "check_launch", lambda *a: {})
+    monkeypatch.setattr(journey.native_launch_guard, "temp_root", lambda: root)
     monkeypatch.setattr(journey, "Lines", lambda *a: lines)
     monkeypatch.setattr(journey, "Scope", lambda *a: observer)
     monkeypatch.setattr(journey, "anchor_start", lambda *a: anchor)
@@ -240,6 +243,7 @@ def test_run_monitor_checks_at_admission_ready_exit_and_success_use_owned_cleanu
     monkeypatch.setattr(journey, "residents", lambda *a: [])
     monkeypatch.setattr(journey, "pid_live", lambda *a: False)
     monkeypatch.setattr(journey, "judge", lambda *a: [])
+    monkeypatch.setattr(journey.LaunchGuard, "library", root / "no-library")  # never the real Library in a test
     (run_root / "report.json").write_text("{}")
     monkeypatch.setattr(journey, "RETAINED", root / "retained")
     monkeypatch.setattr(journey.time, "sleep", lambda *a: None)
