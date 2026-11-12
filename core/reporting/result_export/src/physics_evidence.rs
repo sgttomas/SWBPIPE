@@ -482,19 +482,25 @@ pub fn validate_pressure_evidence(source: &Value) -> Check {
 }
 /// The pressure-2 evidence pass without the certificate (`reader_verdict` reads the
 /// certificate after its model checks).
+///
+/// A document with a combination is read through one view at a time: the direct-case
+/// pass reads `direct_view` (without the certificate, the combination record and the
+/// combination rows), which is dropped before the combination pass; that pass reads the
+/// received document itself, since it never reads the certificate member (it reads
+/// only `exact_combinations`, `exact_cases`, `pressure`, `load_reference_states` and
+/// `connector` of the evidence, each by name). A document without one reads the
+/// direct-case pass on the document without the certificate.
 pub(crate) fn validate_pressure_evidence_without_certificate(source: &Value) -> Check {
-    match crate::combination_certificate::without_member(source) {
-        Some(view) => validate_pressure_evidence_uncertified(&view),
-        None => validate_pressure_evidence_uncertified(source),
-    }
-}
-fn validate_pressure_evidence_uncertified(source: &Value) -> Check {
     if crate::exact_combination_evidence::present(source) {
         let view = crate::exact_combination_evidence::direct_view(source)?;
         validate_direct_pressure_evidence(&view)?;
+        drop(view);
         return crate::exact_combination_evidence::validate(source);
     }
-    validate_direct_pressure_evidence(source)
+    match crate::combination_certificate::without_member(source) {
+        Some(view) => validate_direct_pressure_evidence(&view),
+        None => validate_direct_pressure_evidence(source),
+    }
 }
 fn validate_direct_pressure_evidence(source: &Value) -> Check {
     if source["contract_evidence"]
@@ -2346,3 +2352,7 @@ mod static_field_slice_tests {
 #[cfg(test)]
 #[path = "case_basis_ok_tests.rs"]
 mod case_basis_ok_tests;
+
+#[cfg(test)]
+#[path = "direct_view_tests.rs"]
+mod direct_view_tests;
