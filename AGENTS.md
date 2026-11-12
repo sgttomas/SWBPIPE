@@ -67,9 +67,10 @@ What that means here:
   describes what this part consumes; it commits no one to supply it.
 - Its **code paths** (the same file) point to the code, tests and other
   artifacts that bear on it. They show relevance, not exclusive ownership, and
-  an empty list means none are declared.
+  an empty list means none are declared. Keep them accurate.
 
-Code, tests, schemas and fixtures live in the project's code locations, not
+A locality holds `ScopeOfWork.md` and `deliverable.yaml` and nothing else. Code, tests, schemas,
+fixtures and validation references live in the project's code locations, not
 under `execution/`.
 
 There are two ways in, and neither proves you have found everything:
@@ -93,7 +94,7 @@ the files and say the check was unavailable.
 Correct a scope's description when the thing being made has materially
 changed or the description is materially wrong, and correct a need the work
 showed to be wrong, missing or no longer applicable in the same pull request. A changed commitment or criterion
-is the owner's, unless a delegation covers it. If a criterion looks wrong or cannot be met,
+is the owner's, unless a delegation covers it. If a criterion looks wrong, cannot be met or no longer serves its purpose,
 do not change it, weaken its check or build around it: say what you found and
 what you would change, and carry on with what it does not affect; the other
 criteria stay in force. Treat an
@@ -160,8 +161,9 @@ to decide within its authority; ending the rounds waives no required check or
 reserved choice.
 
 **The INTERLOCUTOR** advises Agent 0 on direction in a session the owner opts
-in; it is never an entry or default role. Agent 0 keeps one as its child
-through the session, continued by message. It is worth most early: bring it a
+in; it is never an entry or default role. Agent 0 keeps the same one as
+its child through the session, continued by message; a replacement starts only
+if it is lost or the owner asks. It is worth most early: bring it a
 consequential proposal while its advice can still change it, and carry on with
 unaffected work while it answers. It also carries the continuity that a fresh
 reviewer does not. In each review round it examines the findings and the
@@ -231,8 +233,8 @@ owner. Do not message a project the work does not affect.
 Root measures how agents deliver work across the Chirality projects, improves
 it, and hosts what is best delivered as a shared service. Its agents evaluate
 SWBPIPE from session telemetry, read-only, and the owner reviews every finding.
-Root's Agent 0 and its delegates may change SWBPIPE's files within work the
-owner has authorised, through a PR here under these instructions, and tell this
+Root's Agent 0 and agents working under its assignment may change SWBPIPE's
+files within work the owner has authorised, through a PR here under these instructions, and tell this
 project's Agent 0. Root may also open a GitHub issue for an owner-approved
 finding. Routine adherence checks of SWBPIPE's
 deliverables stay with this project's Agent 0, through a Library workflow.
