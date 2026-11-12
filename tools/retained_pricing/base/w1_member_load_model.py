@@ -72,18 +72,20 @@ import runpy
 # RT-A3 §4 D3 (§8.53): retained_product.rs's preview freeze admits the certificate's optional member in its closed
 # evidence-key list (two lines rewritten in place); RE lib.rs declares combination_certificate and retained_precision.rs
 # wraps G7's for_source in the base-read context. No member-load owner changes.
+# RT-L2 D3: retained_wire.rs and retained_precision.rs move the DEF-E hash (retained_precision.rs also its exact base
+# and G0's pressure-2-base refusal); result_export lib.rs re-exports the warning's two constants. No owner changes.
 SOURCE_FILES = {
     "core/product_physics/src/retained_product.rs": '7f8ac0d3654432e08e419619fe04a391c2776e7a7dfe01cbca067e52e68c505f',
-    "core/product_physics/src/retained_wire.rs": "1e1e60a02279771574f84df2b45628622936774a879a092842faa1e2f5f0f937",
+    "core/product_physics/src/retained_wire.rs": "ca982a664d0c3f30dd510182c402785cb11baee1ef8d567c522351332892e9f7",
     "core/product_physics/src/retained_receipt.rs": "bf10f382e247fe84164dac5916e0b6fc69134e4b4934fd832132f59e86ca7251",
     # RT-A4 D3 (§8.46): RE lib.rs declares combination_graph, preview_combination_gates and recorded_tables; retained_precision.rs
     # selects a recorded table in G0 only inside a recorded read (RT-A4-HS) and moves its table-hash constants. No
     # member-load owner changes.
     # Operating-case slice 1b (§8.51): RE lib.rs declares preview_difference_basis; retained_precision.rs changes only its
     # TABLE_HASH constant. No member-load owner changes.
-    "core/reporting/result_export/src/lib.rs": "1f4d9873d7a206387579fba94187c0261e61f9787274295ff98482055f20e304",
+    "core/reporting/result_export/src/lib.rs": "3c4f8ff4ee1d233de6f69b46b5bd343c5aa27fddc7197dce4190cfd06168fc2d",
     # RT-A3 S6 D3 (§8.59): only EXACT_TABLE_HASH moves (physics-retained-1's restated parent digest).
-    "core/reporting/result_export/src/retained_precision.rs": "5ad62dd6c9c12fdb1ace6b20b9cfe59e6f4a8f29db6bfd9c31eef09240d1421a",
+    "core/reporting/result_export/src/retained_precision.rs": "ead2db672f35b0c1414b5e0dd0f973853694467d017b57959741fec9e94c6312",
     "core/reporting/result_export/src/declared_member_load.rs": '93787b8894f752cd4c577c58513449471672956e934d35157e31178e9c53a52c',
     "core/solver/frame_kernel/src/structural/retained_resource.rs": "ca0516b5b88ed0d55abf9780c0782f42acd68f4f80b73543415c920fd3da5b7b",
     "core/solver/frame_kernel/src/structural/retained/source.rs": "053b59579d6d5a2c18026029d6a8c8648617a341a2787f6f248ce0d5c4379053",

@@ -73,16 +73,18 @@ SOURCES = {
 # 394f4c623; no owner gains a caller.
 # RT-S3 CE fallback publication: the maintained line mapper carries the unchanged
 # lib.rs owner/site text +6 after the support loop; counts, bounds and caller sets stay.
+# RT-L2 D3: every lib.rs owner, site and caller moves with unchanged text (+3 to the case solve: the formulation basis's
+# elongation statement; +9 to the bend recovery: the arc push's setting test); no owner gains a caller.
 SITES = [
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12326,
+    "line": 12329,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:12284:exact_straight_summary_extrema",
-    "short": "lib.rs:12326",
-    "from": "lib.rs:12284:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:12287:exact_straight_summary_extrema",
+    "short": "lib.rs:12329",
+    "from": "lib.rs:12287:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:5371:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5374:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
@@ -90,13 +92,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12332,
+    "line": 12335,
     "kind": "format",
-    "owner": "core/product_physics/src/lib.rs:12284:exact_straight_summary_extrema",
-    "short": "lib.rs:12332",
-    "from": "lib.rs:12284:exact_straight_summary_extrema",
+    "owner": "core/product_physics/src/lib.rs:12287:exact_straight_summary_extrema",
+    "short": "lib.rs:12335",
+    "from": "lib.rs:12287:exact_straight_summary_extrema",
     "parents": [
-      "core/product_physics/src/lib.rs:5371:solve_prepared_load_case",
+      "core/product_physics/src/lib.rs:5374:solve_prepared_load_case",
       "core/product_physics/src/membrane_publication_range.rs:168:original_subnormal_wall_force_direct_extrema_preserves_membrane",
       "core/product_physics/src/membrane_publication_range.rs:243:unclamped_subnormal_wall_force_extrema_midpoint_is_the_membrane",
       'core/product_physics/src/retained_product.rs:6191:prepared_maxima'
@@ -104,13 +106,13 @@ SITES = [
   },
   {
     "file": "core/product_physics/src/lib.rs",
-    "line": 12995,
+    "line": 13004,
     "kind": "to_string",
-    "owner": "core/product_physics/src/lib.rs:12976:recover_curved_bend_local_forces",
-    "short": "lib.rs:12995",
-    "from": "lib.rs:12976:recover_curved_bend_local_forces",
+    "owner": "core/product_physics/src/lib.rs:12985:recover_curved_bend_local_forces",
+    "short": "lib.rs:13004",
+    "from": "lib.rs:12985:recover_curved_bend_local_forces",
     "parents": [
-      "core/product_physics/src/lib.rs:5371:solve_prepared_load_case"
+      "core/product_physics/src/lib.rs:5374:solve_prepared_load_case"
     ]
   },
   {
@@ -217,7 +219,9 @@ MODE_SOURCE = {
            # token, LoadCaseSolve's held source and the held solve's call precede it).
            "c9578c5608ece21af6ad7a4ae98e91a814d408d6a52c57c574356a5d99cc874b",
            # RT-A3 S6 D3 (§8.59): only retained_w1 moves 4200 -> 4204 (the formulation basis's two S6 bindings).
-           "1ac37769426cb1129241d391ca87642bdb6ba6604e375ee36936055de567c301"},
+           "1ac37769426cb1129241d391ca87642bdb6ba6604e375ee36936055de567c301",
+           # RT-L2 D3: only retained_w1 moves 4204 -> 4207 (the formulation basis's elongation statement).
+           "e4d75c32a44941ca22709faf2ce08274cb596c6eb8c7f43811e9e86dbdcd801c"},
 }
 
 

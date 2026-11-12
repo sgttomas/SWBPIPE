@@ -238,7 +238,9 @@ def test_actual_reader_cached_allocations_include_all_live_owners_and_duplicates
     assert counts["fixtures/results/semantic_contract_v0_3_physics_retained_1.json"] == 2
     assert counts["fixtures/results/semantic_contract_v0_3_pressure_source_1.json"] == 1
     # T4-S5 (epoch 4): the ordinary pressure table is the -2 contract's (STATIC_OWNERS re-bound to its path).
-    assert counts["fixtures/results/semantic_contract_v0_3_pressure_2.json"] == 1
+    # RT-L2: pressure_rows_contract now includes the pressure-3 table (STATIC_OWNERS re-bound to its path).
+    assert counts["fixtures/results/semantic_contract_v0_3_pressure_3.json"] == 1
+    assert "fixtures/results/semantic_contract_v0_3_pressure_2.json" not in counts
     assert counts["schemas/load_reference_state.schema.json"] == 1
     assert "schemas/results_pressure_1.v0.3.schema.json" not in counts
     for owner, path in MODEL["STATIC_OWNERS"]:
