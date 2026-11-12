@@ -87,7 +87,7 @@ The project's own examination, VER-006's checks among it, shows whether the use 
 
 ## Production and Verification Method — Praxeology
 
-**Method choices.** The tokens are held in one file and the stylesheet is generated from it, so a check can compare the two. Contrast and target size are read from the rendered desktop in each theme and density, not from the token values alone, so that a surface that departs from the tokens is caught. When the embedded agent carries out a use case, it acts through its own operations on the model, the route the embedded agent already has (DEL-16-06), not through the desktop's controls. The agent's operations are compared with the desktop's commands that the use cases need, command by command, so that a command the agent has no operation for is seen before the use case is run.
+**Method choices.** The tokens are held in one file and the stylesheet is generated from it, so a check can compare the two. Contrast and target size are read from the rendered desktop in each theme and density, not from the token values alone, so that a surface that departs from the tokens is caught. When the embedded agent carries out a use case, it acts through its own operations on the model, the route the embedded agent already has (DEL-16-06), not through the desktop's controls. The agent's operations are compared with what each use case needs from its stated start to its stated result, to show whether they reach it; the comparison is of reach, so one operation may cover several steps a person takes in the desktop. Where a use case ends and restarts the application, the test arrangement relaunches it; the agent does not restart its own host.
 
 **How each criterion is examined.**
 
