@@ -1945,16 +1945,25 @@ describe("RenderedReportPanel: Save Shareable Report Package… (W-18b §2.2)", 
     const { rerender } = render(
       <RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null}
         onSaveReportPackage={() => undefined}
-        packageRoute={{ route: "tauri_report_package_save", receipt: { ...RECEIPT, user_release_recorded: false, user_release_model_document_sha256: "" } as never }} />
+        packageRoute={{ route: "tauri_report_package_save", receipt: { ...RECEIPT, user_release_recorded: false } as never }} />
     );
     expect(screen.queryByTestId("report-package-user-release")).not.toBeInTheDocument();
     expect(screen.queryByTestId("report-package-user-release-status")).not.toBeInTheDocument();
     rerender(
       <RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null}
         onSaveReportPackage={() => undefined}
+        packageRoute={{ route: "tauri_report_package_save", receipt: { ...RECEIPT, user_release_recorded: true } as never }} />
+    );
+    expect(screen.getByTestId("report-package-user-release-status").textContent).toBe("user_release_recorded=true");
+    // The binding is never shown, even if a status were to carry it.
+    rerender(
+      <RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null}
+        onSaveReportPackage={() => undefined}
         packageRoute={{ route: "tauri_report_package_save", receipt: { ...RECEIPT, user_release_recorded: true, user_release_model_document_sha256: "c".repeat(64) } as never }} />
     );
-    expect(screen.getByTestId("report-package-user-release-status")).toHaveTextContent(`user_release_recorded=true; model_document_sha256=${"c".repeat(64)}`);
+    expect(screen.getByTestId("report-package-user-release-status").textContent).toBe("user_release_recorded=true");
+    expect(screen.getByTestId("report-package-save-status")).not.toHaveTextContent("c".repeat(64));
+    expect(screen.getByTestId("report-package-save-status")).not.toHaveTextContent("model_document_sha256");
     expect(screen.getByTestId("report-package-save-status").firstElementChild).toHaveTextContent(/^outcome=saved; code=REPORT-PACKAGE-SAVED; file=invented\.opsproj$/);
     expect(screen.queryByTestId("report-package-save-cancelled")).not.toBeInTheDocument();
   });
@@ -1967,7 +1976,7 @@ describe("RenderedReportPanel: Save Shareable Report Package… (W-18b §2.2)", 
     const { rerender } = render(
       <RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null}
         onSaveReportPackage={() => undefined}
-        packageRoute={{ route: "tauri_report_package_save", receipt: { ...cancelled, user_release_recorded: true, user_release_model_document_sha256: "c".repeat(64) } as never }} />
+        packageRoute={{ route: "tauri_report_package_save", receipt: { ...cancelled, user_release_recorded: true } as never }} />
     );
     const status = screen.getByTestId("report-package-save-status");
     expect(screen.getByTestId("report-package-save-cancelled")).toHaveTextContent(
@@ -1982,7 +1991,7 @@ describe("RenderedReportPanel: Save Shareable Report Package… (W-18b §2.2)", 
     rerender(
       <RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null}
         onSaveReportPackage={() => undefined}
-        packageRoute={{ route: "tauri_report_package_save", receipt: { ...cancelled, user_release_recorded: false, user_release_model_document_sha256: "" } as never }} />
+        packageRoute={{ route: "tauri_report_package_save", receipt: { ...cancelled, user_release_recorded: false } as never }} />
     );
     expect(screen.getByTestId("report-package-save-cancelled")).toBeInTheDocument();
     expect(screen.queryByTestId("report-package-user-release-status")).not.toBeInTheDocument();
@@ -1990,17 +1999,17 @@ describe("RenderedReportPanel: Save Shareable Report Package… (W-18b §2.2)", 
     rerender(
       <RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null}
         onSaveReportPackage={() => undefined}
-        packageRoute={{ route: "tauri_report_package_save", receipt: { ...RECEIPT, code: "REPORT-PACKAGE-SAVED-DURABILITY-UNCERTAIN", durability: "saved_durability_uncertain", user_release_recorded: true, user_release_model_document_sha256: "c".repeat(64) } as never }} />
+        packageRoute={{ route: "tauri_report_package_save", receipt: { ...RECEIPT, code: "REPORT-PACKAGE-SAVED-DURABILITY-UNCERTAIN", durability: "saved_durability_uncertain", user_release_recorded: true } as never }} />
     );
     expect(screen.queryByTestId("report-package-save-cancelled")).not.toBeInTheDocument();
-    expect(screen.getByTestId("report-package-user-release-status")).toBeInTheDocument();
+    expect(screen.getByTestId("report-package-user-release-status").textContent).toBe("user_release_recorded=true");
   });
 
   it("says a cancelled local-private save wrote nothing, names no suggested file and says nothing of a user release", () => {
     const localPrivate = {
       ...RECEIPT, redaction_route_id: "DREP-PACKAGE-SAVE-009", local_first_route_id: "DREP-PACKAGE-SAVE-009", local_first_export_context: "local_private",
       local_first_storage_context: "local_private", local_first_reason_code: "PRIVATE_LOCAL_METADATA_ALLOWED", local_first_explicit_local_private_intent: true,
-      user_release_recorded: false, user_release_model_document_sha256: ""
+      user_release_recorded: false
     };
     const { rerender } = render(
       <RenderedReportPanel model={inventedModel()} result={inventedResult()} analysisRun={inventedRun()} projectSummary={null}

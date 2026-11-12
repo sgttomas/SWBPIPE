@@ -51,15 +51,11 @@ import type { CurrentSessionInputManifestEvidence } from "../../services/inputMa
 // is re-checked immediately before IPC, and the render resubmits the texts the native
 // host binds (`renderedReportAssembly.ts`).
 
-/** A route-010 receipt's record: the bound model document SHA-256 when a saved package
- * records the user's per-report user release, else null. Only a saved outcome wrote a
- * package, so no other outcome shows a user release, whatever its members say. */
-function userReleaseReceipt(receipt: ReportPackageSaveReceipt): string | null {
-  if (receipt.outcome !== "saved") return null;
-  const fields = receipt as { user_release_recorded?: unknown; user_release_model_document_sha256?: unknown };
-  return fields.user_release_recorded === true && typeof fields.user_release_model_document_sha256 === "string"
-    ? fields.user_release_model_document_sha256
-    : null;
+/** Whether a saved package records the user's per-report user release. Only a saved outcome
+ * wrote a package, so no other outcome shows a user release, whatever its members say. The
+ * binding stays in the report and its package; the status carries none (REQ-019). */
+function recordsUserRelease(receipt: ReportPackageSaveReceipt): boolean {
+  return receipt.outcome === "saved" && (receipt as { user_release_recorded?: unknown }).user_release_recorded === true;
 }
 
 /** A cancelled save wrote nothing, and the panel says so (DEL-08-01 AC-010 and REQ-019 for
@@ -388,10 +384,8 @@ export function RenderedReportPanel({
           <span>
             path_containment={packageRoute.receipt.path_containment}; limitation={packageRoute.receipt.limitation}
           </span>
-          {userReleaseReceipt(packageRoute.receipt) ? (
-            <span data-testid="report-package-user-release-status">
-              user_release_recorded=true; model_document_sha256={userReleaseReceipt(packageRoute.receipt)}
-            </span>
+          {recordsUserRelease(packageRoute.receipt) ? (
+            <span data-testid="report-package-user-release-status">user_release_recorded=true</span>
           ) : null}
         </div>
       ) : null}

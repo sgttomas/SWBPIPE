@@ -40,7 +40,15 @@ afterEach(() => {
   delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
 });
 
-const RECEIPT = { outcome: "saved", code: "REPORT-PACKAGE-SAVED", user_release_recorded: true, user_release_model_document_sha256: "c".repeat(64) };
+/** The native receipt's binding, distinct from every other digest of the session. */
+const BINDING = "c".repeat(64);
+const RECEIPT = { outcome: "saved", code: "REPORT-PACKAGE-SAVED", user_release_recorded: true, user_release_model_document_sha256: BINDING };
+/** A native receipt as the session keeps it: without the record's binding (REQ-019). */
+function withoutBinding<T extends { user_release_model_document_sha256?: unknown }>(receipt: T): Omit<T, "user_release_model_document_sha256"> {
+  const { user_release_model_document_sha256: _binding, ...status } = receipt;
+  return status;
+}
+const STATUS = withoutBinding(RECEIPT);
 
 let sequence = 0;
 async function solvedSession(profile: "preview" | "pressure" = "preview") {
@@ -95,7 +103,7 @@ describe("Save Shareable Report Package… through the session (W-18b)", () => {
     const sent = JSON.parse(args.requestCanonicalText);
     expect(sent.export_profile_id).toBe("desktop_user_released_report_package_1");
     expect(sent.report.report_context.user_release.user_released_at).toBe("2026-11-09T00:00:00Z");
-    expect(hook.current.results.reportPackageRoute).toEqual({ route: "tauri_report_package_save", receipt: RECEIPT });
+    expect(hook.current.results.reportPackageRoute).toEqual({ route: "tauri_report_package_save", receipt: STATUS });
     expect(hook.current.results.reportPackageBusy).toBe(false);
   });
 
@@ -161,17 +169,21 @@ const UNKNOWN = "It is not known whether the shareable report package was writte
 const TEMP_MAY_REMAIN = "The shareable report package was not saved to the selected file. A temporary file may remain beside it.";
 const USER_RELEASED_AT = "2026-11-09T00:00:00Z";
 
-/** Whether `value`, searched through every member, element and entry it reaches (refs and
- * state alike), holds anything of a user release record: its statement, its kind or the
- * time of this test's statement. DOM nodes and functions are not searched. */
+/** Whether `value`, searched through the object graph it reaches (members, array elements, Map
+ * and Set entries), holds anything of a user release record: its statement, its kind or the
+ * time of this test's statement as a string, or its binding (a member named
+ * `user_release_model_document_sha256` or `bound_to`, or the native receipt's binding value).
+ * It does not examine functions, closures, private refs not reachable from `value`, WeakMaps
+ * or DOM nodes. */
 function holdsUserReleaseRecord(value: unknown, seen = new WeakSet<object>()): boolean {
   if (typeof value === "string") {
-    return value.includes(USER_RELEASE_STATEMENT) || value.includes("user_release_of_own_project_data") || value.includes(USER_RELEASED_AT);
+    return value.includes(USER_RELEASE_STATEMENT) || value.includes("user_release_of_own_project_data") || value.includes(USER_RELEASED_AT) || value.includes(BINDING);
   }
   if (!value || typeof value !== "object" || seen.has(value)) return false;
   seen.add(value);
   if (typeof Node !== "undefined" && value instanceof Node) return false;
   if (ArrayBuffer.isView(value) || value instanceof Promise) return false;
+  if (!(value instanceof Map) && !(value instanceof Set) && ("user_release_model_document_sha256" in value || "bound_to" in value)) return true;
   const items: unknown[] = value instanceof Map ? [...value.keys(), ...value.values()]
     : value instanceof Set ? [...value]
     : Object.keys(value).map((key) => { try { return (value as Record<string, unknown>)[key]; } catch { return undefined; } });
@@ -207,7 +219,7 @@ describe("What a shareable save that writes nothing says (REQ-019, AC-010)", () 
     const cancelled = { ...RECEIPT, outcome: "cancelled", code: "REPORT-PACKAGE-SAVE-CANCELLED", byte_count: 0, durability: "not_applicable",
       selected_basename: "", user_release_recorded: false, user_release_model_document_sha256: "" };
     const { result: hook } = await sessionAnswering(async () => cancelled);
-    expect(await confirmOneSave(hook)).toEqual({ route: "tauri_report_package_save", receipt: cancelled });
+    expect(await confirmOneSave(hook)).toEqual({ route: "tauri_report_package_save", receipt: withoutBinding(cancelled) });
   });
 
   it.each([
@@ -263,7 +275,7 @@ describe("What a shareable save that writes nothing says (REQ-019, AC-010)", () 
 
   it("a new shareable attempt clears an earlier save's status, confirmed or cancelled", async () => {
     const { result: hook } = await solvedSession();
-    expect(await confirmOneSave(hook)).toEqual({ route: "tauri_report_package_save", receipt: RECEIPT });
+    expect(await confirmOneSave(hook)).toEqual({ route: "tauri_report_package_save", receipt: STATUS });
     await act(async () => { await hook.current.results.requestSaveShareableReportPackage(); });
     expect(hook.current.results.userReleaseRequest).not.toBeNull();
     expect(hook.current.results.reportPackageRoute).toBeNull();
@@ -319,9 +331,14 @@ describe("No user release record stays in the session after a shareable save (RE
     expectNoRecord(await endedSave(async () => { throw "invented unreadable failure"; }));
   });
 
-  it("after a save, the receipt is all that stays", async () => {
-    const hook = await endedSave(async () => RECEIPT);
-    expect(hook.current.results.reportPackageRoute).toEqual({ route: "tauri_report_package_save", receipt: RECEIPT });
+  it.each([
+    ["a durable save", RECEIPT],
+    ["a save with durability not confirmed", { ...RECEIPT, code: "REPORT-PACKAGE-SAVED-DURABILITY-UNCERTAIN", durability: "saved_durability_uncertain" }]
+  ])("after %s, the status keeps that a user release is recorded and not its binding", async (_name, receipt) => {
+    const hook = await endedSave(async () => receipt);
+    const route = hook.current.results.reportPackageRoute;
+    expect(route).toEqual({ route: "tauri_report_package_save", receipt: withoutBinding(receipt) });
+    expect(route?.route === "tauri_report_package_save" && "user_release_model_document_sha256" in route.receipt).toBe(false);
     expectNoRecord(hook);
   });
 
