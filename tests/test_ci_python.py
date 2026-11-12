@@ -282,19 +282,20 @@ def tracked_files():
 
 def probe(roots):
     """A tracked file a change to which reaches one of `roots`: a literal root's own file or first file, else the
-    first file a pattern matches."""
+    first file a pattern matches. Never a file under the declarative tree: a changed `execution/` path selects no
+    Python test (`python_test_reads.declarative`), so it cannot show that a test follows what it reads."""
     reads, files = ci.python_test_reads, tracked_files()
     for root in sorted(roots, key=lambda root: (reads.is_pattern(root), root)):
         if not reads.is_pattern(root):
             index = bisect.bisect_left(files, root)
             for path in files[index:index + 1] + files[bisect.bisect_left(files, root + '/'):][:1]:
-                if reads.root_matches(path, root):
+                if reads.root_matches(path, root) and not reads.declarative(path):
                     return path
             continue
         for path in files:
-            if reads.root_matches(path, root):
+            if reads.root_matches(path, root) and not reads.declarative(path):
                 return path
-    raise AssertionError(f'no tracked file under {sorted(roots)[:3]}')
+    raise AssertionError(f'no tracked file outside the declarative tree under {sorted(roots)[:3]}')
 
 
 def test_every_maintained_test_runs_when_a_path_it_reads_changes():
@@ -311,6 +312,24 @@ def test_every_maintained_test_runs_when_a_path_it_reads_changes():
         path = probe(derived[test])
         assert test in selected(path), (test, path)
         assert test in selected(test), test
+
+
+def test_a_specification_a_test_only_names_is_never_its_probe():
+    """A reference test whose generator cites a scope under `execution/` in its text has that path among its derived
+    roots (the derivation keeps every project path a file names), and no product root sorts before it. The
+    declarative tree selects no Python test, so the probe takes another root and the test is still selected by it."""
+    import pytest
+    reads = ci.python_test_reads
+    for test in ('tests/test_friction_one_way_normal_references.py', 'tests/test_snubber_static_references.py'):
+        roots = ci.derived_tests(PROJECT)[test]
+        named = sorted(root for root in roots if reads.declarative(root) and not reads.is_pattern(root))
+        assert named, test
+        assert test not in selected(named[0]), (test, named[0])
+        path = probe(roots)
+        assert not reads.declarative(path), (test, path)
+        assert test in selected(path), (test, path)
+    with pytest.raises(AssertionError):
+        probe({'execution/PKG-04/DEL-04-04/ScopeOfWork.md'})
 
 
 def test_named_tests_also_follow_the_paths_they_read():
