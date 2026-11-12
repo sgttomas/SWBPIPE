@@ -8,6 +8,8 @@ import json
 from pathlib import Path
 import sys
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -15,6 +17,7 @@ if str(ROOT) not in sys.path:
 
 from core.reporting.state_comparison_handoff_sections import (  # noqa: E402
     build_persisted_project_report_sections,
+    STATUS_MEMBERS,
     build_state_comparison_handoff_report_sections,
     canonical_json,
     diagnostics_for_report_sections,
@@ -506,6 +509,78 @@ def test_out_of_vocabulary_status_is_diagnosed_and_not_carried_and_boundary_flag
     assert "approved" not in canonical_json(record)
 
 
+OUTSIDE_VALUE = "invented_outside_value"
+
+
+def _inner_record(kwargs: dict, kind: str) -> dict:
+    """The record of `kind` whose members the assembler checks, inside `section_kwargs()`."""
+
+    if kind == "model_state":
+        return kwargs["model_states"][0].get("model_state", kwargs["model_states"][0])
+    if kind == "analysis_run":
+        return kwargs["analysis_runs"][0].get("analysis_run", kwargs["analysis_runs"][0])
+    if kind == "analysis_run_comparison":
+        return kwargs["analysis_run_comparisons"][0]
+    if kind == "handoff_package_manifest":
+        return kwargs["handoff_packages"][0]["handoff_package_manifest"]
+    if kind == "export_workflow":
+        return kwargs["export_workflows"][0]
+    return kwargs["external_prover_metadata"][0]
+
+
+def _seed(container: dict, segments: list[str], value: str) -> str:
+    """Put `value` at the first position the member path names, creating what is missing;
+    returns the field path the assembler reports."""
+
+    segment, rest = segments[0], segments[1:]
+    many = segment.endswith("[]")
+    key = segment[:-2] if many else segment
+    if not many:
+        if not rest:
+            container[key] = value
+            return f".{key}"
+        if not isinstance(container.get(key), dict):
+            container[key] = {}
+        return f".{key}" + _seed(container[key], rest, value)
+    items = container.get(key)
+    if not isinstance(items, list):
+        items = container[key] = []
+    if not rest:
+        items[:] = [value]
+        return f".{key}[0]"
+    if not items or not isinstance(items[0], dict):
+        items[:] = [{"code": "INV-SEEDED", "message": "Invented seeded item."}]
+    return f".{key}[0]" + _seed(items[0], rest, value)
+
+
+@pytest.mark.parametrize(
+    ("kind", "member", "vocabulary"),
+    [
+        (kind, member, vocabulary)
+        for kind, members in STATUS_MEMBERS.items()
+        if kind != "model_state_comparison"
+        for member, vocabulary in members
+    ],
+)
+def test_each_status_member_outside_its_vocabulary_is_diagnosed_by_name_and_not_carried(kind, member, vocabulary):
+    """VER-004: each status-bearing member of each record kind, seeded with a value outside
+    its vocabulary. The saved-state comparison's members are seeded in the shared vector."""
+
+    kwargs = section_kwargs()
+    path = "$" + _seed(_inner_record(kwargs, kind), member.split("."), OUTSIDE_VALUE)
+    record = build_state_comparison_handoff_report_sections(**kwargs)
+    code = "SCH-ANALYSIS-STATUS-BLOCKED" if vocabulary == "software_analysis_statuses" else "SCH-STATUS-OUTSIDE-VOCABULARY"
+    named = [
+        item
+        for item in record["diagnostics"]
+        if item["code"] == code
+        and {"object_type": "FieldPath", "ref": path} in item["affected_refs"]
+        and {"object_type": "Vocabulary", "ref": vocabulary} in item["affected_refs"]
+    ]
+    assert [item["severity"] for item in named] == ["blocking"], (kind, member, record["diagnostics"])
+    assert OUTSIDE_VALUE not in canonical_json(record)
+
+
 def test_warning_message_is_carried_unchanged():
     """REQ-005: a finding's text is carried as the source wrote it; no text is matched
     against terms, replaced or omitted (the former scanner (c) removed a finding)."""
@@ -565,7 +640,8 @@ def test_disallowed_analysis_status_is_diagnosed_and_not_emitted():
 
     assert "SCH-ANALYSIS-STATUS-BLOCKED" in codes
     assert "HUMAN_APPROVED_FOR_PROJECT" not in run_section["analysis_status"]
-    assert "HUMAN_APPROVED_FOR_PROJECT" in text
+    # The diagnostic names the record, the member and the vocabulary; the value is carried nowhere.
+    assert "HUMAN_APPROVED_FOR_PROJECT" not in text
 
 
 def test_external_prover_execution_claim_is_out_of_scope():

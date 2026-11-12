@@ -274,6 +274,8 @@ def out_of_vocabulary_run_record() -> dict:
     record = run_record("analysis-run-comparison:runrec:inv-v:runrec:inv-w")
     context = record["run_context"]
     context["left"]["side_kind"] = "accepted_run"
+    context["right"]["side_kind"] = "accepted_run"
+    context["left"]["standing"]["status"] = "certified_match"
     context["right"]["standing"]["status"] = "certified"
     context["run_gate"] = ["left_run_needs_recompute", "validated"]
     context["not_compared"][0]["reasons"] = ["family_not_compared", "approved"]
@@ -282,6 +284,7 @@ def out_of_vocabulary_run_record() -> dict:
     deltas = record["result_deltas"]
     deltas[0]["classification"] = "within_code_limits"
     deltas[0]["classification_basis"] = "engineering acceptance"
+    deltas[0]["mapping_status"] = "approved_by_engineer"
     deltas[1]["match_basis"] = "endorsed"
     deltas[1]["mapping_status"] = "manual_match"
     deltas[1]["classification_basis"] = "no_tolerance_profile"

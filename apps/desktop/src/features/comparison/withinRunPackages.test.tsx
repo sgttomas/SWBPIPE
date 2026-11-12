@@ -55,7 +55,12 @@ describe("without an unavailable record, every document is unchanged", () => {
 
 describe("the product's own within-run comparison is inside the section set's vocabularies (DEL-08-06 AC-005)", () => {
   it("raises no status diagnostic and carries each delta's classification and basis as the comparison wrote them", async () => {
-    const { model, result, analysisRun, fixed } = await inputs();
+    const { model, result: producer, analysisRun } = await inputs();
+    // The comparison writes the same classification and basis for every delta of every pair.
+    // This pair has rows to compare once the combination rows of kinds the builder declares
+    // no dimension for are set aside, as `withinRunComparison.test.tsx` does.
+    const result = { ...producer, results: producer.results.filter((row) => !(row.basis_ref?.ref_type === "combination" && /^(support_reaction_|combination_modulus_basis_record$)/.test(row.kind))) };
+    const fixed = buildPreviewComparison({ result, analysisRun, leftBasisRef: "load:L-200", rightBasisRef: RANGE });
     expect(fixed.result_deltas.length).toBeGreaterThan(0);
     const record = buildStateComparisonHandoffSections({ model, result, analysisRun, comparison: fixed, modelHash: "sha256:invented" }) as Record<string, unknown>;
     const codes = (record.diagnostics as Array<{ code: string }>).map((item) => item.code);
