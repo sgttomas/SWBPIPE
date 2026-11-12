@@ -30,9 +30,11 @@ import { EntityContextMenu, type EntityCommandEnvironment } from "../workspace/c
 import {
   buildCreateComponentIntent,
   componentDraftForKind,
+  componentDraftClearingBeside,
   componentDraftForNode,
   componentDraftWithField,
   componentDraftWithProjectUnits,
+  componentFollowedUnits,
   creatableComponentKinds,
   defaultComponentDraft,
   keepComponentSources,
@@ -40,6 +42,7 @@ import {
   type ComponentDraft,
   type CreatableComponentKind
 } from "../component-creation/componentIntent";
+import { missingSourceReason, unitMoveNotice, useClearOnUnitMove } from "../workspace/entryRules";
 import {
   buildNodeCreationSubmission,
   buildRouteSubmission,
@@ -543,6 +546,10 @@ export function PipeViewport({
     defaultComponentDraft(model, selection, queuedIntents)
   );
   const componentDraft = componentDraftWithProjectUnits(model, componentDraftState);
+  const [nodeUnitClearNotice, setNodeUnitClearNotice] = useState<string | null>(null);
+  const [componentUnitClearNotice, setComponentUnitClearNotice] = useState<string | null>(null);
+  // Remounts the route's direction-entry aid on a new project session and on Cancel route.
+  const [directionEntryEpoch, setDirectionEntryEpoch] = useState(0);
   const [pipeEndpointPickMode, setPipeEndpointPickMode] = useState<PipeEndpointPickMode>(null);
   const [routingPlane, setRoutingPlane] = useState<RoutingPlane>("XZ");
   const [routingAxis, setRoutingAxis] = useState<RoutingAxisConstraint>("Free");
@@ -902,6 +909,23 @@ export function PipeViewport({
   );
   const nodeDraftValid = nodeBuild.ok;
   const pipeDraftValid = routeBuild.ok;
+  // A number typed beside a unit the user did not change is cleared when that unit moves
+  // with the project units; the form says which unit changed (DEL-02-02 AC-011).
+  const viewportSessionBaseline = String(activeModelIndex.sessionGeneration);
+  useClearOnUnitMove({
+    coordinates: { label: "coordinate", unit: nodeDraft.coordinateUnit, follows: nodeDraftState.coordinateUnitSource !== "user", values: [nodeDraft.x, nodeDraft.y, nodeDraft.z] }
+  }, viewportSessionBaseline, (moves) => {
+    setNodeDraft((current) => ({ ...current, x: "", y: "", z: "" }));
+    setNodeUnitClearNotice(unitMoveNotice(moves));
+  });
+  useClearOnUnitMove(componentFollowedUnits(componentDraft), viewportSessionBaseline, (moves) => {
+    setComponentDraft((current) => componentDraftClearingBeside(current, moves.map((move) => move.key)));
+    setComponentUnitClearNotice(unitMoveNotice(moves));
+  });
+  const componentSourceReason = missingSourceReason("component", [
+    ...(componentDraft.kind === "expansion_joint" ? [] : [{ name: "geometry source", value: componentDraft.geometrySourceReference }]),
+    { name: "provenance", value: componentDraft.provenance }
+  ]);
   const componentDraftValid = isComponentDraftValid(model, componentDraft, [
     ...queuedIntents,
     ...localIntents
@@ -1700,6 +1724,8 @@ export function PipeViewport({
     setRouteEndMode("existing");
     setNewEndDraft(emptyNodeDraft(defaultLengthUnit));
     setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
+    setNodeUnitClearNotice(null);
+    setComponentUnitClearNotice(null);
   }, [activeModelIndex.sessionGeneration]);
 
   useEffect(() => {
@@ -1786,6 +1812,7 @@ export function PipeViewport({
 
   function cancelPipeDraft() {
     clearPointerPlacement();
+    setDirectionEntryEpoch((current) => current + 1);
     invalidateDraftReview("Route canceled. No reviewed operation can be applied.");
     setContinuePipe(false);
     setPipeDraft(emptyPipeDraft(defaultLengthUnit));
@@ -1898,6 +1925,7 @@ export function PipeViewport({
     setComponentDraft(
       keepComponentSources(defaultComponentDraft(model, selection, [...queuedIntents, ...localIntents, intent], componentDraft.kind), componentDraft)
     );
+    setComponentUnitClearNotice(null);
   }
 
   function queueIntent(intent: EditorOperationIntent) {
@@ -1915,11 +1943,13 @@ export function PipeViewport({
       placementGenerationRef.current.invalidate();
     }
     invalidateDraftReview();
+    setNodeUnitClearNotice(null);
     setNodeDraft((current) => ({ ...current, [field]: value, ...(field === "coordinateUnit" ? { coordinateUnitSource: "user" as const } : {}) }));
   }
 
   /** The next node starts empty; a unit the user changed is kept, shown and editable, and an unchanged one follows the project units. */
   function nextNodeDraft(): NodeDraft {
+    setNodeUnitClearNotice(null);
     return nodeDraft.coordinateUnitSource === "user"
       ? { ...emptyNodeDraft(nodeDraft.coordinateUnit), coordinateUnitSource: "user" }
       : emptyNodeDraft(defaultLengthUnit);
@@ -1953,6 +1983,7 @@ export function PipeViewport({
   }
 
   function updateComponentDraft<K extends keyof ComponentDraft>(field: K, value: ComponentDraft[K]) {
+    setComponentUnitClearNotice(null);
     setComponentDraft((current) => componentDraftWithField(current, field, value));
   }
 
@@ -3070,6 +3101,7 @@ export function PipeViewport({
                 value={nodeDraft.provenance}
               />
             </label>
+            {nodeUnitClearNotice ? <p role="status" data-testid="viewport-create-node-unit-cleared">{nodeUnitClearNotice}</p> : null}
             <button
               data-testid="queue-explicit-node-intent"
               disabled={!nodeDraftValid || draftReviewBusy}
@@ -3122,7 +3154,7 @@ export function PipeViewport({
                   Pick
                 </button>
               </div>
-              <VirtualTargetPicker label="New pipe from node" testId="viewport-create-pipe-from" options={nodeTargetOptions} value={pipeDraft.from} onChange={(value) => updatePipeDraft("from", value)} />
+              <VirtualTargetPicker key={`viewport-create-pipe-from:${activeModelIndex.sessionGeneration}`} label="New pipe from node" testId="viewport-create-pipe-from" options={nodeTargetOptions} value={pipeDraft.from} onChange={(value) => updatePipeDraft("from", value)} />
             </div>
             <fieldset className="viewport-end-mode" data-testid="viewport-route-end-mode">
               <legend>End mode</legend>
@@ -3150,7 +3182,7 @@ export function PipeViewport({
                   Pick
                 </button>
               </div>
-              <VirtualTargetPicker label="New pipe to node" testId="viewport-create-pipe-to" options={nodeTargetOptions} value={pipeDraft.to} onChange={(value) => updatePipeDraft("to", value)} />
+              <VirtualTargetPicker key={`viewport-create-pipe-to:${activeModelIndex.sessionGeneration}`} label="New pipe to node" testId="viewport-create-pipe-to" options={nodeTargetOptions} value={pipeDraft.to} onChange={(value) => updatePipeDraft("to", value)} />
             </div>
             <div className="viewport-new-endpoint" hidden={routeEndMode !== "new"} data-testid="viewport-route-new-endpoint">
               <strong>New endpoint</strong>
@@ -3211,6 +3243,7 @@ export function PipeViewport({
               /></label>
               <label><span>Provenance</span><input aria-label="Route end provenance" data-testid="viewport-route-end-provenance" value={newEndDraft.provenance} onChange={(event) => updateNewEndDraft("provenance", event.target.value)} /></label>
               <DirectionEntry
+                key={`direction-entry:${activeModelIndex.sessionGeneration}:${directionEntryEpoch}`}
                 context="Route end"
                 projectLengthUnit={model.project.units.length}
                 start={routeStartNode ? { id: routeStartNode.id, position: routeStartNode.position } : null}
@@ -3219,7 +3252,7 @@ export function PipeViewport({
                 onUse={useDirectionEndPoint}
               />
             </div>
-            <VirtualTargetPicker label="New pipe material" testId="viewport-create-pipe-material" options={materialTargetOptions} value={pipeDraft.material} onChange={(value) => updatePipeDraft("material", value)} />
+            <VirtualTargetPicker key={`viewport-create-pipe-material:${activeModelIndex.sessionGeneration}`} label="New pipe material" testId="viewport-create-pipe-material" options={materialTargetOptions} value={pipeDraft.material} onChange={(value) => updatePipeDraft("material", value)} />
             <label>
               <span>OD</span>
               <input
@@ -3367,10 +3400,10 @@ export function PipeViewport({
                 options={creatableComponentKinds.map((kind) => ({ value: kind, label: kind }))}
               />
             </label>
-            <VirtualTargetPicker label="New component node" testId="viewport-create-component-node" options={nodeTargetOptions} value={componentDraft.node} onChange={(value) => setComponentDraft((current) => componentDraftForNode(model, current, value))} />
-            <VirtualTargetPicker label={componentDraft.kind === "tee" ? "New tee header pipe" : "New component realized pipe"} testId="viewport-create-component-pipe" options={connectedPipeTargetOptions} value={componentDraft.primaryPipeRef} onChange={(value) => updateComponentDraft("primaryPipeRef", value)} />
+            <VirtualTargetPicker key={`viewport-create-component-node:${activeModelIndex.sessionGeneration}`} label="New component node" testId="viewport-create-component-node" options={nodeTargetOptions} value={componentDraft.node} onChange={(value) => setComponentDraft((current) => componentDraftForNode(model, current, value))} />
+            <VirtualTargetPicker key={`viewport-create-component-pipe:${activeModelIndex.sessionGeneration}`} label={componentDraft.kind === "tee" ? "New tee header pipe" : "New component realized pipe"} testId="viewport-create-component-pipe" options={connectedPipeTargetOptions} value={componentDraft.primaryPipeRef} onChange={(value) => updateComponentDraft("primaryPipeRef", value)} />
             {componentDraft.kind === "tee" ? (
-              <VirtualTargetPicker label="New tee branch pipe" testId="viewport-create-component-secondary-pipe" options={connectedPipeTargetOptions} value={componentDraft.secondaryPipeRef} onChange={(value) => updateComponentDraft("secondaryPipeRef", value)} />
+              <VirtualTargetPicker key={`viewport-create-component-secondary-pipe:${activeModelIndex.sessionGeneration}`} label="New tee branch pipe" testId="viewport-create-component-secondary-pipe" options={connectedPipeTargetOptions} value={componentDraft.secondaryPipeRef} onChange={(value) => updateComponentDraft("secondaryPipeRef", value)} />
             ) : null}
             {componentDraft.kind === "bend" ? (
               <>
@@ -3435,7 +3468,10 @@ export function PipeViewport({
             {componentUnitNotices.map(({ key, text }) => (
               <p key={key} role="status" data-testid={`viewport-create-component-missing-project-unit-${key}`}>{text}</p>
             ))}
+            {componentUnitClearNotice ? <p role="status" data-testid="viewport-create-component-unit-cleared">{componentUnitClearNotice}</p> : null}
+            {componentSourceReason ? <small id="viewport-create-component-source-reason" data-testid="viewport-create-component-source-reason">{componentSourceReason}</small> : null}
             <button
+              aria-describedby={componentSourceReason ? "viewport-create-component-source-reason" : undefined}
               data-testid="queue-explicit-component-intent"
               disabled={!componentDraftValid}
               onClick={addExplicitComponentIntent}

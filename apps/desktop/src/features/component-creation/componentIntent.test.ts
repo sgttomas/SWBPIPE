@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildCreateComponentIntent, CENTER_OF_GRAVITY_CONVENTION, componentDraftForKind, defaultComponentDraft, isComponentDraftValid, keepComponentSources, rigidInterfacesValid, tieRodIdsDistinct, type ComponentDraft } from "./componentIntent";
+import { buildCreateComponentIntent, CENTER_OF_GRAVITY_CONVENTION, componentDraftForKind, componentDraftWithField, defaultComponentDraft, isComponentDraftValid, keepComponentSources, rigidInterfacesValid, tieRodIdsDistinct, type ComponentDraft } from "./componentIntent";
 import { componentDraftMissingUnitKeys } from "../project-units/missingProjectUnit";
 import type { PreviewModel } from "../../types";
 
@@ -104,6 +104,16 @@ describe("component sources start empty and the next record keeps the user's own
     const previous = filled({ geometrySourceReference: "geometry A", provenance: "source A" });
     const fresh = defaultComponentDraft(model, { type: "node", id: "n2" }, [], "valve");
     expect(keepComponentSources(fresh, previous)).toEqual({ ...fresh, geometrySourceReference: "geometry A", provenance: "source A" });
+  });
+
+  it("the next draft also starts in each unit the user chose, and only those (DEL-02-02 REQ-022)", () => {
+    const previous = componentDraftWithField(filled({ geometrySourceReference: "geometry A", provenance: "source A" }), "lengthUnit", "mm");
+    const fresh = defaultComponentDraft(model, { type: "node", id: "n2" }, [], "valve");
+    const next = keepComponentSources(fresh, previous);
+    expect(next.lengthUnit).toBe("mm");
+    expect(next.userUnits).toEqual(["lengthUnit"]);
+    expect(next.endASizeUnit).toBe(fresh.endASizeUnit);
+    expect(next.rigidBodyLength).toBe("");
   });
 
   it("leaving the expansion joint supplies no source", () => {

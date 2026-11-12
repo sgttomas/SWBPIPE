@@ -450,6 +450,10 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
     "2 load cases; 5 primitive loads; 1 combinations"
   );
+  // Each source starts empty; the person types it (PRD §5.5; DEL-07-03 AC-001).
+  await page.getByTestId("load-manager-create-load-provenance").fill("invented_synthetic_ui_acceptance_input");
+  await page.getByTestId("load-manager-create-primitive-provenance").fill("invented_synthetic_ui_acceptance_input");
+  await page.getByTestId("load-manager-create-combination-provenance").fill("invented_synthetic_ui_acceptance_input");
   await expect(page.getByTestId("load-manager-create-load-id")).toHaveValue("load:L-300");
   await expect(page.getByTestId("load-manager-create-load-preview")).toContainText(
     "op:load-manager-create-load:L-300"
@@ -887,6 +891,7 @@ test("R2 browser smoke covers authoring, explicit reference results, and qualifi
   await chooseVirtualTarget(page, "load-manager-create-combination-minuend", "load:L-100");
   await chooseVirtualTarget(page, "load-manager-create-combination-subtrahend", "load:L-200");
   await page.getByTestId("load-manager-create-combination-label").fill("Operating minus alternate subtraction");
+  await page.getByTestId("load-manager-create-combination-provenance").fill("invented_synthetic_ui_acceptance_input");
   await expect(page.getByTestId("load-manager-create-combination-preview")).toContainText(
     "before=not_present; after=combination:C-300; minuend=load:L-100; subtrahend=load:L-200; unit=none; dimensionless"
   );

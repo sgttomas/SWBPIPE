@@ -209,52 +209,163 @@ describe("material and component units the user did not change follow the projec
   });
 });
 
-// A typed number when the project unit moves: the number stays and the unit, which the
-// user did not change, moves to the project's. This is a decision on record (put to the
-// independent reviewer and the SWBPIPE Agent 0); a change to it fails here.
-describe("A typed number when the project unit moves (inspector)", () => {
-  function withUnits(units: Record<string, string>): PreviewModel {
-    const model = demo();
-    model.project.units = { ...model.project.units, ...units } as PreviewModel["project"]["units"];
-    return model;
-  }
+// A typed number when the project unit moves (decided by the SWBPIPE Agent 0; DEL-02-02
+// AC-011): every number typed beside a unit the user did not change is cleared when that
+// unit moves, nothing is converted, and the form names the unit, from and to; the sources
+// and every other entry are kept. A unit the user changed does not move; a project-unit
+// change that leaves a form's unit as it was clears nothing.
+const cleared = (label: string, from: string, to: string) =>
+  `The ${label} unit changed from ${from} to ${to} with the project units; the values beside it were cleared.`;
 
-  it("section: the typed diameter and wall stay; the length unit moves", async () => {
+function withUnits(units: Record<string, string>): PreviewModel {
+  const model = demo();
+  model.project.units = { ...model.project.units, ...units } as PreviewModel["project"]["units"];
+  return model;
+}
+
+describe("A typed number when the project unit moves (inspector)", () => {
+  it("section: the diameter and wall are cleared and the form says so; the name and source are kept", async () => {
     const { rerender } = await mount({ type: "project", id: "project:invented-demo" });
+    type("create-section-name", "Typed section");
     type("create-section-od", "100");
     type("create-section-wall", "5");
+    type("create-section-provenance", "section source");
     rerender(withUnits({ length: "mm" }));
-    expect(byId("create-section-od")).toHaveValue("100");
-    expect(byId("create-section-wall")).toHaveValue("5");
     expectFormControlValue(byId("create-section-length-unit"), "mm");
+    expect(byId("create-section-od")).toHaveValue("");
+    expect(byId("create-section-wall")).toHaveValue("");
+    expect(byId("create-section-name")).toHaveValue("Typed section");
+    expect(byId("create-section-provenance")).toHaveValue("section source");
+    expect(byId("create-section-unit-cleared")).toHaveTextContent(cleared("length", "m", "mm"));
   });
 
-  it("material: the typed moduli and expansion stay; the modulus and expansion units move", async () => {
+  it("section: a unit the user changed does not move, and a change that leaves the length unit clears nothing", async () => {
+    const { rerender } = await mount({ type: "project", id: "project:invented-demo" });
+    type("create-section-od", "100");
+    rerender(withUnits({ pressure: "MPa" }));
+    expect(byId("create-section-od")).toHaveValue("100");
+    expect(screen.queryByTestId("create-section-unit-cleared")).toBeNull();
+    chooseCompactOption(byId("create-section-length-unit"), "mm");
+    type("create-section-od", "270");
+    rerender(withUnits({ length: "in" }));
+    expectFormControlValue(byId("create-section-length-unit"), "mm");
+    expect(byId("create-section-od")).toHaveValue("270");
+    expect(screen.queryByTestId("create-section-unit-cleared")).toBeNull();
+  });
+
+  it("material: each unit that moves clears only the values beside it", async () => {
     const { rerender } = await mount({ type: "project", id: "project:invented-demo" });
     expectFormControlValue(byId("create-material-thermal-unit"), "1/degC");
+    type("create-material-label", "Typed material");
     type("create-material-elastic", "200000");
+    type("create-material-shear", "80000");
     type("create-material-thermal", "0.000012");
-    rerender(withUnits({ pressure: "MPa", temperature: "K" }));
-    expect(byId("create-material-elastic")).toHaveValue("200000");
+    type("create-material-provenance", "material source");
+    rerender(withUnits({ pressure: "MPa" }));
+    expect(byId("create-material-elastic")).toHaveValue("");
+    expect(byId("create-material-shear")).toHaveValue("");
     expect(byId("create-material-thermal")).toHaveValue("0.000012");
-    expectFormControlValue(byId("create-material-stress-unit"), "MPa");
-    expectFormControlValue(byId("create-material-thermal-unit"), "1/K");
+    expect(byId("create-material-unit-cleared")).toHaveTextContent(cleared("modulus", "Pa", "MPa"));
+    rerender(withUnits({ pressure: "MPa", temperature: "K" }));
+    expect(byId("create-material-thermal")).toHaveValue("");
+    expect(byId("create-material-unit-cleared")).toHaveTextContent(cleared("thermal expansion", "1/degC", "1/K"));
+    expect(byId("create-material-label")).toHaveValue("Typed material");
+    expect(byId("create-material-provenance")).toHaveValue("material source");
   });
 
-  it("support: the typed stiffness stays; the stiffness unit moves", async () => {
+  it("support: the stiffness is cleared and the form says so; the source is kept", async () => {
     const { rerender } = await mount({ type: "node", id: "node:N-110" });
     type("create-support-stiffness", "1500");
+    type("create-support-provenance", "support source");
     rerender(withUnits({ linear_stiffness: "kN/m" }));
-    expect(byId("create-support-stiffness")).toHaveValue("1500");
     expectFormControlValue(byId("create-support-stiffness-unit"), "kN/m");
+    expect(byId("create-support-stiffness")).toHaveValue("");
+    expect(byId("create-support-provenance")).toHaveValue("support source");
+    expect(byId("create-support-unit-cleared")).toHaveTextContent(cleared("stiffness", "N/m", "kN/m"));
   });
 
-  it("component: the typed radius stays; the radius unit moves", async () => {
+  it("component: the values beside the moved unit are cleared; the angle and the sources are kept", async () => {
     const { rerender } = await mount({ type: "node", id: "node:N-110" });
     type("create-component-radius", "0.45");
+    type("create-component-angle", "1.5708");
+    type("create-component-source", "geometry source");
+    type("create-component-provenance", "component source");
     rerender(withUnits({ length: "mm" }));
-    expect(byId("create-component-radius")).toHaveValue("0.45");
     expectFormControlValue(byId("create-component-radius-unit"), "mm");
+    expect(byId("create-component-radius")).toHaveValue("");
+    expect(byId("create-component-angle")).toHaveValue("1.5708");
+    expect(byId("create-component-source")).toHaveValue("geometry source");
+    expect(byId("create-component-provenance")).toHaveValue("component source");
+    expect(byId("create-component-unit-cleared")).toHaveTextContent(cleared("length", "m", "mm"));
   });
 });
 
+// DEL-02-02 REQ-022 / AC-011: a unit the user chose is where the next record starts.
+describe("the next record starts in the unit the user chose (inspector)", () => {
+  it("material: the chosen modulus and expansion units carry to the next material", async () => {
+    const { intents } = await mount({ type: "project", id: "project:invented-demo" });
+    chooseCompactOption(byId("create-material-stress-unit"), "MPa");
+    chooseCompactOption(byId("create-material-thermal-unit"), "1/K");
+    type("create-material-elastic", "200000");
+    type("create-material-shear", "80000");
+    type("create-material-provenance", "material source");
+    fireEvent.click(byId("queue-create-material-intent"));
+    expect(intents()[0].change.unit).toBe("MPa");
+    expectFormControlValue(byId("create-material-stress-unit"), "MPa");
+    expectFormControlValue(byId("create-material-thermal-unit"), "1/K");
+    expect(byId("create-material-elastic")).toHaveValue("");
+  });
+
+  it("support: the chosen stiffness unit carries to the next support", async () => {
+    // The project declares kN/m; the user chooses the catalog's N/m.
+    const { intents, rerender } = await mount({ type: "node", id: "node:N-110" });
+    rerender(withUnits({ linear_stiffness: "kN/m" }));
+    chooseCompactOption(byId("create-support-stiffness-unit"), "N/m");
+    type("create-support-stiffness", "1500");
+    type("create-support-provenance", "support source");
+    fireEvent.click(byId("queue-create-support-intent"));
+    expect(after(intents()[0]).properties).toEqual({ linear_stiffness: { value: 1500, unit: "N/m" } });
+    expectFormControlValue(byId("create-support-stiffness-unit"), "N/m");
+  });
+
+  it("component: the chosen radius unit carries to the next component", async () => {
+    const { intents } = await mount({ type: "node", id: "node:N-110" });
+    chooseCompactOption(byId("create-component-radius-unit"), "mm");
+    type("create-component-radius", "450");
+    type("create-component-angle", "1.5708");
+    type("create-component-source", "geometry source");
+    type("create-component-provenance", "component source");
+    await waitFor(() => expect(byId("queue-create-component-intent")).toBeEnabled());
+    fireEvent.click(byId("queue-create-component-intent"));
+    expect(after(intents()[0]).geometry).toMatchObject({ bend_radius: { value: 450, unit: "mm" } });
+    expectFormControlValue(byId("create-component-radius-unit"), "mm");
+    expect(byId("create-component-radius")).toHaveValue("");
+  });
+});
+
+// DEL-07-03 AC-001: a record without a source is refused by name, in place.
+describe("a missing source is named beside Queue (inspector)", () => {
+  const reason = (record: string, named: string) => `Not queued: enter the ${record}'s ${named}. A record without its source is refused.`;
+  it.each([
+    ["section", "create-section", "queue-create-section-intent", "provenance"],
+    ["material", "create-material", "queue-create-material-intent", "provenance"],
+    ["support", "create-support", "queue-create-support-intent", "provenance"]
+  ])("%s", async (record, prefix, button, named) => {
+    await mount(record === "support" ? { type: "node", id: "node:N-110" } : { type: "project", id: "project:invented-demo" });
+    expect(byId(`${prefix}-source-reason`)).toHaveTextContent(reason(record, named));
+    expect(byId(button)).toHaveAttribute("aria-describedby", `${prefix}-source-reason`);
+    type(`${prefix}-provenance`, "typed source");
+    expect(screen.queryByTestId(`${prefix}-source-reason`)).toBeNull();
+    expect(byId(button)).not.toHaveAttribute("aria-describedby");
+  });
+
+  it("component: names the geometry source and the provenance, then each that remains", async () => {
+    await mount({ type: "node", id: "node:N-110" });
+    expect(byId("create-component-source-reason")).toHaveTextContent(reason("component", "geometry source and provenance"));
+    expect(byId("queue-create-component-intent")).toHaveAttribute("aria-describedby", "create-component-source-reason");
+    type("create-component-provenance", "component source");
+    expect(byId("create-component-source-reason")).toHaveTextContent(reason("component", "geometry source"));
+    type("create-component-source", "geometry source");
+    expect(screen.queryByTestId("create-component-source-reason")).toBeNull();
+  });
+});

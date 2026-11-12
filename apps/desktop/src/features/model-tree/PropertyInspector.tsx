@@ -48,14 +48,17 @@ import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selec
 import { VirtualTargetPicker } from "../workspace/VirtualTargetPicker";
 import { ConnectorDraftFields } from "../component-creation/ConnectorDraftFields";
 import { RigidDraftFields } from "../component-creation/RigidDraftFields";
+import { missingSourceReason, unitMoveNotice, useClearOnUnitMove } from "../workspace/entryRules";
 import { ECCENTRIC_OFFSET_CONVENTION } from "../component-creation/eccentricOffsetConvention";
 import {
   buildCreateComponentIntent,
   CENTER_OF_GRAVITY_CONVENTION,
   componentDraftForKind,
+  componentDraftClearingBeside,
   componentDraftForNode,
   componentDraftWithField,
   componentDraftWithProjectUnits,
+  componentFollowedUnits,
   creatableComponentKinds,
   defaultComponentDraft,
   isComponentDraftValid,
@@ -223,6 +226,46 @@ export function PropertyInspector({
         unitCatalogRoute
       })
     : null;
+  // A number typed beside a unit the user did not change is cleared when that unit moves
+  // with the project units; the form says which unit changed (DEL-02-02 AC-011).
+  const [unitClearNotices, setUnitClearNotices] = useState<Record<CreationForm, string | null>>(NO_UNIT_CLEAR_NOTICES);
+  const clearNotice = (form: CreationForm) => setUnitClearNotices((current) => (current[form] === null ? current : { ...current, [form]: null }));
+  const sessionBaseline = String(projectSessionGeneration);
+  useClearOnUnitMove({
+    length: { label: "length", unit: sectionDraft.lengthUnit, follows: sectionDraftState.lengthUnitSource === "default", values: [sectionDraft.outsideDiameter, sectionDraft.wallThickness] }
+  }, sessionBaseline, (moves) => {
+    setSectionDraft((current) => ({ ...current, outsideDiameter: "", wallThickness: "" }));
+    setUnitClearNotices((current) => ({ ...current, section: unitMoveNotice(moves) }));
+  });
+  useClearOnUnitMove({
+    modulus: { label: "modulus", unit: materialDraft.stressUnit, follows: materialDraftState.stressUnitSource === "default", values: [materialDraft.elasticModulus, materialDraft.shearModulus] },
+    expansion: { label: "thermal expansion", unit: materialDraft.thermalExpansionUnit, follows: materialDraftState.thermalExpansionUnitSource === "default", values: [materialDraft.thermalExpansion] }
+  }, sessionBaseline, (moves) => {
+    const moved = new Set(moves.map((move) => move.key));
+    setMaterialDraft((current) => ({
+      ...current,
+      ...(moved.has("modulus") ? { elasticModulus: "", shearModulus: "" } : {}),
+      ...(moved.has("expansion") ? { thermalExpansion: "" } : {})
+    }));
+    setUnitClearNotices((current) => ({ ...current, material: unitMoveNotice(moves) }));
+  });
+  useClearOnUnitMove({
+    stiffness: { label: "stiffness", unit: supportDraft.linearStiffnessUnit, follows: supportDraftState.linearStiffnessUnitSource === "default", values: [supportDraft.linearStiffness] }
+  }, sessionBaseline, (moves) => {
+    setSupportDraft((current) => ({ ...current, linearStiffness: "" }));
+    setUnitClearNotices((current) => ({ ...current, support: unitMoveNotice(moves) }));
+  });
+  useClearOnUnitMove(componentFollowedUnits(componentDraft), sessionBaseline, (moves) => {
+    setComponentDraft((current) => componentDraftClearingBeside(current, moves.map((move) => move.key)));
+    setUnitClearNotices((current) => ({ ...current, component: unitMoveNotice(moves) }));
+  });
+  const sectionSourceReason = missingSourceReason("section", [{ name: "provenance", value: sectionDraft.provenance }]);
+  const materialSourceReason = missingSourceReason("material", [{ name: "provenance", value: materialDraft.provenance }]);
+  const supportSourceReason = missingSourceReason("support", [{ name: "provenance", value: supportDraft.provenance }]);
+  const componentSourceReason = missingSourceReason("component", [
+    ...(componentDraft.kind === "expansion_joint" ? [] : [{ name: "geometry source", value: componentDraft.geometrySourceReference }]),
+    { name: "provenance", value: componentDraft.provenance }
+  ]);
   const sectionCreateIntent = isSectionDraftValid(model, sectionDraft)
     ? buildCreateSectionIntent(sectionDraft, model, unitCatalogRoute)
     : null;
@@ -269,6 +312,7 @@ export function PropertyInspector({
     setComponentDraft(defaultComponentDraft(model, selection, queuedIntents));
     setMaterialDraft(defaultMaterialDraft(model, queuedIntents, unitCatalogRoute));
     setSectionDraft(defaultSectionDraft(model, queuedIntents));
+    setUnitClearNotices(NO_UNIT_CLEAR_NOTICES);
     setInspectorView("properties");
     setTaskActive(false);
   }, [projectSessionGeneration]);
@@ -382,11 +426,16 @@ export function PropertyInspector({
   function handleQueueSupportIntent() {
     if (multiSelection || !supportCreateIntent) return;
     onQueueIntent(supportCreateIntent);
-    // The next record shows the user's own last source, editable before it is queued.
+    // The next record shows the user's own last source and a unit the user changed,
+    // editable before it is queued (DEL-02-02 REQ-022).
     setSupportDraft({
       ...defaultSupportDraftWithReserved(model, propertiesTarget, [...queuedIntents, supportCreateIntent], unitCatalogRoute),
+      ...(supportDraft.linearStiffnessUnitSource === "user"
+        ? { linearStiffnessUnit: supportDraft.linearStiffnessUnit, linearStiffnessUnitSource: "user" as const }
+        : {}),
       provenance: supportDraft.provenance
     });
+    clearNotice("support");
   }
 
   function handleQueueComponentIntent() {
@@ -398,6 +447,7 @@ export function PropertyInspector({
         componentDraft
       )
     );
+    clearNotice("component");
   }
 
   function handleQueueDeleteSupportIntent() {
@@ -420,8 +470,13 @@ export function PropertyInspector({
     onQueueIntent(materialCreateIntent);
     setMaterialDraft({
       ...defaultMaterialDraftWithReserved(model, [...queuedIntents, materialCreateIntent], unitCatalogRoute),
+      ...(materialDraft.stressUnitSource === "user" ? { stressUnit: materialDraft.stressUnit, stressUnitSource: "user" as const } : {}),
+      ...(materialDraft.thermalExpansionUnitSource === "user"
+        ? { thermalExpansionUnit: materialDraft.thermalExpansionUnit, thermalExpansionUnitSource: "user" as const }
+        : {}),
       provenance: materialDraft.provenance
     });
+    clearNotice("material");
   }
 
   function handleQueueSectionIntent() {
@@ -434,13 +489,16 @@ export function PropertyInspector({
       ...(sectionDraft.lengthUnitSource === "user" ? { lengthUnit: sectionDraft.lengthUnit, lengthUnitSource: "user" as const } : {}),
       provenance: sectionDraft.provenance
     });
+    clearNotice("section");
   }
 
   function updateSectionDraft<K extends keyof SectionDraft>(key: K, value: SectionDraft[K]) {
+    clearNotice("section");
     setSectionDraft((current) => ({ ...current, [key]: value, ...(key === "lengthUnit" ? { lengthUnitSource: "user" as const } : {}) }));
   }
 
   function updateMaterialDraft<K extends keyof MaterialDraft>(key: K, value: MaterialDraft[K]) {
+    clearNotice("material");
     setMaterialDraft((current) => ({
       ...current,
       [key]: value,
@@ -450,6 +508,7 @@ export function PropertyInspector({
   }
 
   function updateSupportDraft<K extends keyof SupportDraft>(key: K, value: SupportDraft[K]) {
+    clearNotice("support");
     setSupportDraft((current) => ({
       ...current,
       [key]: value,
@@ -458,6 +517,7 @@ export function PropertyInspector({
   }
 
   function updateComponentDraft<K extends keyof ComponentDraft>(key: K, value: ComponentDraft[K]) {
+    clearNotice("component");
     setComponentDraft((current) => componentDraftWithField(current, key, value));
   }
 
@@ -759,7 +819,10 @@ export function PropertyInspector({
               value={sectionDraft.provenance}
             />
           </label>
+          {unitClearNotices.section ? <p role="status" data-testid="create-section-unit-cleared">{unitClearNotices.section}</p> : null}
+          {sectionSourceReason ? <small id="create-section-source-reason" data-testid="create-section-source-reason">{sectionSourceReason}</small> : null}
           <button
+            aria-describedby={sectionSourceReason ? "create-section-source-reason" : undefined}
             data-testid="queue-create-section-intent"
             disabled={multiSelection || !sectionCreateIntent}
             onClick={handleQueueSectionIntent}
@@ -855,7 +918,10 @@ export function PropertyInspector({
               value={materialDraft.provenance}
             />
           </label>
+          {unitClearNotices.material ? <p role="status" data-testid="create-material-unit-cleared">{unitClearNotices.material}</p> : null}
+          {materialSourceReason ? <small id="create-material-source-reason" data-testid="create-material-source-reason">{materialSourceReason}</small> : null}
           <button
+            aria-describedby={materialSourceReason ? "create-material-source-reason" : undefined}
             data-testid="queue-create-material-intent"
             disabled={multiSelection || !materialCreateIntent}
             onClick={handleQueueMaterialIntent}
@@ -950,7 +1016,10 @@ export function PropertyInspector({
               value={supportDraft.provenance}
             />
           </label>
+          {unitClearNotices.support ? <p role="status" data-testid="create-support-unit-cleared">{unitClearNotices.support}</p> : null}
+          {supportSourceReason ? <small id="create-support-source-reason" data-testid="create-support-source-reason">{supportSourceReason}</small> : null}
           <button
+            aria-describedby={supportSourceReason ? "create-support-source-reason" : undefined}
             data-testid="queue-create-support-intent"
             disabled={multiSelection || !supportCreateIntent}
             onClick={handleQueueSupportIntent}
@@ -1068,7 +1137,10 @@ export function PropertyInspector({
           {componentUnitNotices.map(({ key, text }) => (
             <p key={key} role="status" data-testid={`create-component-missing-project-unit-${key}`}>{text}</p>
           ))}
+          {unitClearNotices.component ? <p role="status" data-testid="create-component-unit-cleared">{unitClearNotices.component}</p> : null}
+          {componentSourceReason ? <small id="create-component-source-reason" data-testid="create-component-source-reason">{componentSourceReason}</small> : null}
           <button
+            aria-describedby={componentSourceReason ? "create-component-source-reason" : undefined}
             data-testid="queue-create-component-intent"
             disabled={multiSelection || !componentCreateIntent}
             onClick={handleQueueComponentIntent}
@@ -1314,6 +1386,9 @@ type MaterialDraft = {
   thermalExpansion: string;
   provenance: string;
 };
+
+type CreationForm = "section" | "material" | "support" | "component";
+const NO_UNIT_CLEAR_NOTICES: Record<CreationForm, string | null> = { section: null, material: null, support: null, component: null };
 
 type SectionDraft = {
   id: string;

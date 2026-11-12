@@ -674,21 +674,34 @@ describe("LoadCaseManagerPanel creation sources", () => {
   });
 });
 
-// A typed number when the project unit moves: the number stays and the unit, which the
-// user did not change, moves to the project's (a decision on record; see the PR).
+// A typed number when the project unit moves (decided by the SWBPIPE Agent 0; DEL-02-02
+// AC-011): the magnitude beside a unit the user did not change is cleared when that unit
+// moves with the project units, and the form says so; everything else typed is kept.
 describe("A typed number when the project unit moves (primitive load)", () => {
-  it("the typed magnitude stays; the force unit moves", () => {
+  it("the magnitude is cleared and the form says so; the source and target are kept", () => {
     const { model, rerender } = mount();
     type("load-manager-create-primitive-magnitude", "12");
+    type("load-manager-create-primitive-provenance", "load source");
     expect(byId("load-manager-create-primitive-heading")).toHaveTextContent("unit=kN");
     const next = structuredClone(model);
     next.project.units = { ...next.project.units, force: "N" };
     rerender(next);
+    expect(byId("load-manager-create-primitive-heading")).toHaveTextContent(/unit=N$/);
+    expect(byId("load-manager-create-primitive-magnitude")).toHaveValue("");
+    expect(byId("load-manager-create-primitive-provenance")).toHaveValue("load source");
+    expect(byId("load-manager-create-primitive-heading")).toHaveTextContent("target=node:A");
+    expect(byId("load-manager-create-primitive-unit-cleared")).toHaveTextContent(
+      "The magnitude unit changed from kN to N with the project units; the values beside it were cleared."
+    );
+  });
+
+  it("a change that leaves the force unit clears nothing", () => {
+    const { model, rerender } = mount();
+    type("load-manager-create-primitive-magnitude", "12");
+    const next = structuredClone(model);
+    next.project.units = { ...next.project.units, length: "m" };
+    rerender(next);
     expect(byId("load-manager-create-primitive-magnitude")).toHaveValue("12");
-    // The heading prints the draft's own unit; a native select falls back to its first option.
-    expect(byId("load-manager-create-primitive-heading")).toHaveTextContent("unit=N");
-    expect(byId("load-manager-create-primitive-heading")).not.toHaveTextContent("unit=kN");
-    expect(byId("load-manager-create-primitive-unit")).toHaveValue("N");
+    expect(screen.queryByTestId("load-manager-create-primitive-unit-cleared")).toBeNull();
   });
 });
-

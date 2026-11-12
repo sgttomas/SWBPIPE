@@ -1,3 +1,4 @@
+import type { FollowedUnit } from "../workspace/entryRules";
 import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
 import { isPressureV3 } from "../pressure-authoring/pressureContract";
 import { MODEL_SCHEMA_VERSION } from "../../services/modelSchemaVersion";
@@ -55,6 +56,36 @@ function projectUnitFor(model: PreviewModel, key: ComponentProjectUnitKey): stri
   const units = model.project.units as PreviewModel["project"]["units"] | undefined;
   // an absent project key leaves the unit unselected ("TBD"); nothing is assumed.
   return (key === "angleUnit" ? units?.angle : key === "forceUnit" ? units?.force : units?.length) ?? "TBD";
+}
+
+/** The numbers typed beside each project-derived unit, and how a notice names the unit. */
+export const COMPONENT_UNIT_FIELDS: Record<ComponentProjectUnitKey, { label: string; fields: Array<keyof ComponentDraft> }> = {
+  lengthUnit: { label: "length", fields: ["bendRadius", "branchRunSize", "branchHeaderSize", "rigidBodyLength"] },
+  endASizeUnit: { label: "end A size", fields: ["endASize"] },
+  endBSizeUnit: { label: "end B size", fields: ["endBSize"] },
+  centerOfGravityUnit: { label: "centre of gravity", fields: ["centerOfGravityX", "centerOfGravityY", "centerOfGravityZ"] },
+  angleUnit: { label: "angle", fields: ["bendAngle", "branchConnectionAngle"] },
+  forceUnit: { label: "weight", fields: ["weight"] }
+};
+
+/** Each project-derived unit of a shown draft, whether it follows the project, and the numbers beside it. */
+export function componentFollowedUnits(draft: ComponentDraft): Record<string, FollowedUnit> {
+  const changed = new Set(draft.userUnits ?? []);
+  return Object.fromEntries(COMPONENT_PROJECT_UNIT_KEYS.map((key) => [key, {
+    label: COMPONENT_UNIT_FIELDS[key].label,
+    unit: draft[key],
+    follows: !changed.has(key),
+    values: COMPONENT_UNIT_FIELDS[key].fields.map((field) => String(draft[field] ?? ""))
+  }]));
+}
+
+/** The draft with the numbers beside the given units cleared; everything else is kept. */
+export function componentDraftClearingBeside(draft: ComponentDraft, keys: string[]): ComponentDraft {
+  const next = { ...draft } as Record<string, unknown>;
+  for (const key of keys) {
+    for (const field of COMPONENT_UNIT_FIELDS[key as ComponentProjectUnitKey]?.fields ?? []) next[field] = "";
+  }
+  return next as ComponentDraft;
 }
 
 /** The draft as shown: each unit the user did not change is the current project's. */
@@ -346,10 +377,14 @@ export function defaultComponentDraft(
   };
 }
 
-/** The next component draft after a queue shows the user's own last sources,
- * visible and editable before the next record is queued; nothing else carries. */
+/** The next component draft after a queue shows the user's own last sources and each
+ * unit the user changed (DEL-02-02 REQ-022), visible and editable before the next record
+ * is queued; nothing else carries. */
 export function keepComponentSources(next: ComponentDraft, previous: ComponentDraft): ComponentDraft {
-  return { ...next, geometrySourceReference: previous.geometrySourceReference, provenance: previous.provenance };
+  const kept: Partial<ComponentDraft> = { geometrySourceReference: previous.geometrySourceReference, provenance: previous.provenance };
+  const userUnits = previous.userUnits ?? [];
+  for (const key of userUnits) kept[key] = previous[key];
+  return { ...next, ...kept, ...(userUnits.length > 0 ? { userUnits: [...userUnits] } : {}) };
 }
 
 export function componentDraftForKind(
