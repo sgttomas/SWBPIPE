@@ -174,3 +174,46 @@ memory bound.
   1000 timed, then its attribution twin) and `scaling` (both exact-route profiles at 250, 500
   and 1,000 nodes). `scaling-2000` adds the linear rack at 2,000 nodes and needs a longer
   window (`RELEASE_WINDOW_BUDGET_S`). Result bytes are kept only with `--write-results`.
+- **The self-supervising driver** (`release_timing --supervise`, macOS) is the runner's `--run`
+  and `--packet` inside the driver binary, for a machine on which nothing may be installed: a
+  stock Mac has no Python or git. It reads a plan file, runs each run by re-executing itself as
+  the driver in its own session and process group, and watches that child from outside as the
+  runner does. Every 100 ms one `proc_pid_rusage` call reads the phys_footprint, its lifetime
+  maximum and the resident size. The whole group is killed with SIGKILL above the footprint
+  budget, above the 16 GiB resident cap or at the timeout. It classifies each run as the runner
+  does (`src/classify.rs` ports `classify` line for line) and writes the same records and packet,
+  with the same schema names and keys. Where the runner's source is absent (`/usr/bin/time`,
+  `ps`), the key is null and a named sibling carries this supervisor's reading: the child's final
+  lifetime-maximum footprint, read at exit before reaping, and `wait4`'s `ru_maxrss`. Host facts
+  come from `sysctl`, and the cargo and sweep checks from the process table. The source commit,
+  tree, dirty flag and toolchain are embedded at build time. It takes no stack snapshots, so a
+  plan with `-attr` runs is refused. `tests/test_release_timing_supervise.py` runs both
+  supervisors on the same plan and models and compares their classifications, outputs and keys.
+
+  The folder to carry, prepared on a development machine from a clean checkout:
+
+  ```sh
+  (cd core/solver/release_timing && cargo build --release --locked)
+  python3 core/solver/performance_harness/runner/release_runner.py --generate --subset criterion --models FOLDER
+  python3 core/solver/performance_harness/runner/release_runner.py --write-plan FOLDER/plan.json --subset criterion --models FOLDER
+  cp "${CARGO_TARGET_DIR:-core/solver/release_timing/target}/release/release_timing" FOLDER/
+  ```
+
+  `FOLDER` then holds the binary `release_timing`, `plan.json` (the runs, each model's name and
+  sha256, the window budget and the quiet-host wait) and the plan's rack models with their
+  `manifest.json`. Any subset without `-attr` runs can be written, and `--budget-s` and
+  `--quiet-wait-s` set the window and the wait. On the measured Mac, put the folder in the home
+  folder (not Desktop or Documents, which ask for permission) and run, in Terminal:
+
+  ```sh
+  cd FOLDER && ./release_timing --supervise plan.json --out results
+  ```
+
+  It writes only inside `results/`: `metadata.json`, `records.jsonl` (one line as each run
+  ends), `packet.json` (rewritten after each run), and per run its stdout line (`.jsonl`), its
+  stderr progress lines (`.stderr.txt`) and the launch record (`.record.json`). `--write-results`
+  also keeps each result's bytes; `--models DIR` reads the models from another folder. Ctrl-C
+  kills the running driver before the supervisor exits. Nothing is installed, and no tool
+  outside the binary is run. A copy that macOS has quarantined (one from AirDrop or a download)
+  may be refused at first start; copy the folder from a drive instead. Bring back
+  `results/`; `packet.json` is the record.
