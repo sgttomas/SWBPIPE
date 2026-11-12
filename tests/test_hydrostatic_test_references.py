@@ -9,6 +9,7 @@ value to show that no discrete outcome changes.
 import ast
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -33,7 +34,11 @@ def test_sha256sums_verify():
         assert hashlib.sha256((REFERENCE / path).read_bytes()).hexdigest() == digest, path
 
 
-def test_generator_imports_only_the_standard_library():
+PRODUCT_ROOTS = {"core", "apps", "tests", "tools", "fixtures", "schemas"}
+FORBIDDEN_CALLS = {"__import__", "import_module", "exec", "eval", "spec_from_file_location"}
+
+
+def test_generator_is_independent_of_product_code():
     tree = ast.parse(GENERATOR.read_text())
     modules = set()
     for node in ast.walk(tree):
@@ -42,6 +47,15 @@ def test_generator_imports_only_the_standard_library():
         elif isinstance(node, ast.ImportFrom):
             assert node.level == 0, "relative import"
             modules.add(node.module.split(".")[0])
+        elif isinstance(node, ast.Call):
+            func = node.func
+            name = func.id if isinstance(func, ast.Name) else func.attr if isinstance(func, ast.Attribute) else None
+            assert name not in FORBIDDEN_CALLS, f"dynamic import or execution: {name}"
+        elif isinstance(node, ast.Constant) and isinstance(node.value, str):
+            text = node.value
+            if text and not re.search(r"\s", text):
+                segments = set(re.split(r"[\\/]+", text))
+                assert not segments & PRODUCT_ROOTS, f"string names a product path: {text!r}"
     assert modules, "no imports found"
     assert modules <= set(sys.stdlib_module_names), modules - set(sys.stdlib_module_names)
 

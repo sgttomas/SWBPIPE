@@ -26,7 +26,7 @@ have not yet been independently refuted.
 | File | Role |
 |---|---|
 | `generators/hydrostatic_test_reference.py` | the generator: exact arithmetic in Q(π), the closed forms, the second methods, the binary64 input check, `references.json` and `SHA256SUMS` |
-| `references.json` | 14 cases with 232 rows, 58 negative-control rows, 3 refusal scenarios, the inputs, derived sections, masses and weights, the thick-wall stresses and 379 cross-check results |
+| `references.json` | 14 cases with 232 rows, 58 negative-control rows, 3 refusal scenarios, the inputs, derived sections, masses and weights, the thick-wall stresses and 381 cross-check results |
 | `SHA256SUMS` | hashes of the three files above (`shasum -a 256 -c SHA256SUMS` in this directory) |
 
 Run `python3 -I generators/hydrostatic_test_reference.py` to rebuild every
@@ -183,8 +183,12 @@ under both settings, and each carries `"pressure_elongation": "independent"`:
    2(λ + μ)C₁ + λε_z, and σ_θ depends only on those, so the hoop and radial
    values below do not depend on ε_z and hence not on the setting.
 
-Rows that would depend on the setting are not given: the axial displacement
-of the free end, member axial forces and the axial membrane stress σ_m.
+The only quantity of these models that depends on the setting is the axial
+displacement of the free end, and it is not given. The axial forces do not
+depend on it: a free body cut across the pipe and closed by the end cap gives
+the wall force N_w = p·A_bore, and the effective force S = N_w − p·A_bore = 0,
+under either setting, so the axial membrane stress σ_m = N_w/A_b of each basis
+is also the same in both. They are not emitted as rows.
 
 ## Item 1: held supports on two equal spans
 
@@ -324,16 +328,19 @@ stated by meaning, with no code invented:
 
 ## Cross-checks
 
-All are exact equalities in Q(π) (379 recorded, all agree; the last records the binary64 input check):
+All are exact equalities in Q(π) (381 recorded, all agree; the last records the binary64 input check):
 
-- every case and every negative control is solved by three or four routes:
+- every case and every negative control is solved by at least two routes:
   the closed form (two spans), the flexibility method, a beam stiffness solve
   written in the generator (two-node Euler–Bernoulli or exact Timoshenko
   elements with φ = 12EI/(GA_s·a²), work-consistent loads ±w·a/2,
   ±w·a²/12, exact Gaussian elimination, reactions from K·u − P), and, where
   every support is rigid and the theory is Euler–Bernoulli, the three-moment
   equation M_{i−1} + 4M_i + M_{i+1} = −w·a²/2 and the tabulated coefficients
-  1/2; 3/8, 10/8; 11/28, 32/28, 26/28;
+  1/2; 3/8, 10/8; 11/28, 32/28, 26/28. The `support_force_still_acting`
+  controls are computed as the rigid-prop reaction less the support force and
+  checked against a stiffness solve with that force applied at the restrained
+  node, with its own vertical equilibrium;
 - vertical force equilibrium ΣR = w·n·a and moment equilibrium about the first
   node for every solve;
 - the thick-wall values against DEL-05-03's form 2p·π·r_i²/A_b (+p), against

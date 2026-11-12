@@ -397,6 +397,7 @@ def lame_checks(p, R, r_i, area_b, chk, tag):
 # bending at both ends (vertical restraint, rotation free), loaded by a uniform load
 # per length w along global -Z. Interior node laws (the support's effect on the pipe):
 #   ("rigid",)            vertical displacement 0
+#   ("rigid_force", F)    vertical displacement 0, with a force F on the pipe at the node
 #   ("at", v)             vertical displacement v (a negative control only)
 #   ("spring", k)         force on pipe -k u
 #   ("vspring", k, Fc)    force on pipe Fc - k u
@@ -453,6 +454,9 @@ def stiffness_solve(n, a, w, EI, GAs, laws):
             fixed[dof] = ZERO
         elif law[0] == "at":
             fixed[dof] = Q.of(law[1])
+        elif law[0] == "rigid_force":
+            fixed[dof] = ZERO
+            P[dof] = P[dof] + law[1]
         elif law[0] == "spring":
             K[dof][dof] = K[dof][dof] + law[1]
         elif law[0] == "vspring":
@@ -474,6 +478,7 @@ def stiffness_solve(n, a, w, EI, GAs, laws):
         dof = 2 * node
         law = laws.get(node, ("rigid",))
         if dof in fixed:
+            # restraint reaction K u - P; a force applied at a restrained node is part of P
             reactions.append(sum((K[dof][j] * u[j] for j in range(N)), ZERO) - P[dof])
         elif law[0] == "spring":
             reactions.append(-law[1] * u[dof])
@@ -737,8 +742,11 @@ def compute(inp, record):
                 if node_law[0] in ("vspring", "ce"):
                     force = node_law[2] if node_law[0] == "vspring" else node_law[1]
                     rep = Rv[1] - force
-                    Rs_, _ = stiffness_solve(n, a, w, s["EI"], GAs, {1: ("rigid",)})
-                    chk.eq(f"{case_id}: control replacement reaction = rigid reaction - support force", rep, Rs_[1] - force)
+                    Rs_, us_ = stiffness_solve(n, a, w, s["EI"], GAs, {1: ("rigid_force", force)})
+                    chk.eq(f"{case_id}: control replacement reaction (rigid-prop reaction - support force) = "
+                           f"stiffness solve with the support force applied at the restrained node", rep, Rs_[1])
+                    chk.eq(f"{case_id}: control vertical equilibrium, replacement + ends + support force = w n a",
+                           Rs_[0] + Rs_[1] + Rs_[2] + force, w * n * a)
                     controls.append({"id": "support_force_still_acting",
                                      "label": "negative control: the support's own force still applied beside the "
                                               "rigid replacement; the replacement then reports less by that force",

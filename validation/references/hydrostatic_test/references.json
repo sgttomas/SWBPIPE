@@ -23,7 +23,7 @@
   "case_rows": 232,
   "negative_control_rows": 58,
   "refusal_scenarios": 3,
-  "cross_checks": 379
+  "cross_checks": 381
  },
  "inputs": {
   "D": {
@@ -1647,7 +1647,11 @@
    "agrees": true
   },
   {
-   "check": "HT-2S-VSPRING-HELD: control replacement reaction = rigid reaction - support force",
+   "check": "HT-2S-VSPRING-HELD: control replacement reaction (rigid-prop reaction - support force) = stiffness solve with the support force applied at the restrained node",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-VSPRING-HELD: control vertical equilibrium, replacement + ends + support force = w n a",
    "agrees": true
   },
   {
@@ -1879,7 +1883,11 @@
    "agrees": true
   },
   {
-   "check": "HT-2S-CE-HELD: control replacement reaction = rigid reaction - support force",
+   "check": "HT-2S-CE-HELD: control replacement reaction (rigid-prop reaction - support force) = stiffness solve with the support force applied at the restrained node",
+   "agrees": true
+  },
+  {
+   "check": "HT-2S-CE-HELD: control vertical equilibrium, replacement + ends + support force = w n a",
    "agrees": true
   },
   {
