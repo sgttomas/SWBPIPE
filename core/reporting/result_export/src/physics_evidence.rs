@@ -1749,11 +1749,8 @@ fn bore_group_value(group: &Value, magnitude: f64) -> Check {
     let (p, r) = (bits("pressure_bits")?, bits("source_inner_radius_hi_bits")?);
     let expected = p * (std::f64::consts::PI * r * r) * coefficient * magnitude;
     let value = number(&group["assembled_force_n"])?;
-    require(
-        expected.is_finite()
-            && if expected == 0.0 || expected.is_normal() { value == expected } else { (value - expected).abs() <= f64::from_bits(2) },
-        "RHS_GROUP_VALUE",
-    )
+    let exact = expected == 0.0 || expected.is_normal();
+    require(expected.is_finite() && if exact { value == expected } else { (value - expected).abs() <= f64::from_bits(2) }, "RHS_GROUP_VALUE")
 }
 
 /// DEL-04-07: the published translational pressure load is the sum of the
@@ -2092,11 +2089,8 @@ pub(crate) fn exception_model_checks(source: &Value, model: &Value) -> Check {
             if record["node_ref"] == node.node {
                 let recorded = array(&record["member_pipe_ids"])?.iter().map(text).collect::<Result<Vec<_>, _>>()?;
                 let recorded_lengths = recorded.iter().map(|id| pipe_length(id)).collect::<Result<Vec<_>, _>>()?;
-                require(
-                    record["region_span_m"].as_f64().map(f64::to_bits) == Some(span.to_bits())
-                        && record["member_lengths_m"] == json!(recorded_lengths),
-                    "MODEL_EXCEPTION_GEOMETRY",
-                )?;
+                let same_span = record["region_span_m"].as_f64().map(f64::to_bits) == Some(span.to_bits());
+                require(same_span && record["member_lengths_m"] == json!(recorded_lengths), "MODEL_EXCEPTION_GEOMETRY")?;
             }
         }
     }
