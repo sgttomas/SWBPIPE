@@ -228,20 +228,20 @@ describe("the comparison schematic", () => {
     expect(viewBox()).toEqual(whole);
   });
 
-  it("takes up from the model's weight loads, says which case holds, and lets the person's choice override it", () => {
+  it("takes up from the model's weight and generated self-weight loads, says which loads, and lets the person's choice override it", () => {
     const withWeight = (model: Json) => ({ ...model, load_cases: [{ id: "load:W", label: "Weight", kind: "primitive_user_load", primitive_loads: [
       { id: "load:W-1", category: "weight", target: { type: "element", pipe: "pipe:P-1" }, direction: "global_z", magnitude: { value: -100, unit: "N/m" }, dimension: "force_per_length" }
     ] }] });
     mount({ overlay: overlayOf(withWeight(LEFT), withWeight(RIGHT)) });
     expect(screen.getByTestId("comparison-overlay-drawing")).toHaveAttribute("data-up", "+z");
-    expect(screen.getByTestId("comparison-overlay-up-readout")).toHaveTextContent("Up +Z, opposite the model's 1 weight load.");
+    expect(screen.getByTestId("comparison-overlay-up-readout")).toHaveTextContent("Up +Z, opposite 1 weight load and 0 generated self-weight loads.");
     fireEvent.change(screen.getByTestId("comparison-overlay-up"), { target: { value: "+y" } });
     expect(screen.getByTestId("comparison-overlay-drawing")).toHaveAttribute("data-up", "+y");
-    expect(screen.getByTestId("comparison-overlay-up-readout")).toHaveTextContent("Up +Y, chosen. Up +Z, opposite the model's 1 weight load.");
+    expect(screen.getByTestId("comparison-overlay-up-readout")).toHaveTextContent("Up +Y, chosen. Up +Z, opposite 1 weight load and 0 generated self-weight loads.");
     cleanup();
     mount();
     expect(screen.getByTestId("comparison-overlay-drawing")).toHaveAttribute("data-up", "+y");
-    expect(screen.getByTestId("comparison-overlay-up-readout")).toHaveTextContent("Up +Y: the model has no weight load to take it from.");
+    expect(screen.getByTestId("comparison-overlay-up-readout")).toHaveTextContent("Up +Y: the model has no weight load and no generated self-weight load.");
   });
 
   it("presents no comparison as validation, approval or compliance", () => {

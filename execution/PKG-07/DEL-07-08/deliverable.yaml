@@ -125,7 +125,14 @@ needs:
     the viewport stays mounted with its model, selection, camera and drafts unchanged, hidden and
     inert, so the mode opens no second WebGL context; the viewport's camera presets (Isometric,
     Front and Top, with Y up) are the basis of the mode's fixed views; and a model's up direction
-    is the one the desktop's rule derives from its weight loads (modelUp.ts).
+    is the one the desktop's rule gives (modelUp.ts): up is opposite the axis on which every weight
+    and self-weight load acts, and with none or with disagreement it stays Y and a view readout
+    says so; a load is read as weight if its category is weight, whoever authored it, or if it is a
+    self-weight load the generator wrote, known by its provenance method; a distributed force not
+    so marked is not read; weight moments are not read; the readout says which loads the direction
+    was taken from, so many weight loads and so many generated self-weight loads, or why it stayed
+    on Y; and a model whose only gravity is generated self-weight, the ordinary first model, opens
+    upright.
   gating: true
 - from: DEL-07-05
   when: Opening a recorded run for review
