@@ -176,15 +176,11 @@ presented to the owner before changing them.
   practices."). The owner's basis is that the design, physics and numerical
   methods are established, so such a resolution is not a degraded output. The
   governing Design text records each resolution and its reason.
-- **Proportionate review** (HELP_HUMAN's proposal, approved by the owner on
-  2026-10-28: "These are all good changes to bring about and I approve.").
-  Independent review rounds are for numerical meaning, persistence and
-  permissions; another change gets at most one review round. Verification
-  tooling (scanners, judges, guards) is reviewed against a threat model stated
-  in its brief, for at most three adversarial rounds: a finding outside the
-  model is recorded, not repaired, and a new kind of finding inside it goes to
-  Agent 0. Re-pricing registrations whose coefficients do not move may share
-  one D3 turn. Returns and briefs are as short as their content allows.
+- **Proportionate review.** Verification tooling (scanners, judges, guards)
+  is reviewed against a threat model stated in its brief: a finding outside
+  the model is recorded, not repaired, and a new kind of finding inside it
+  goes to Agent 0. Re-pricing registrations whose coefficients do not move may
+  share one D3 turn. Returns and briefs are as short as their content allows.
 
 Under every delegation, changed commitment text still gets an independent
 review, and a change of numerical meaning gets targeted regression checks and
