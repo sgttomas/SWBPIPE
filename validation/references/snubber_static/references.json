@@ -1,0 +1,5895 @@
+{
+ "schema": "swbpipe.validation_reference/snubber_static/1",
+ "status": "frozen analytical reference; no product comparison, acceptance or release is asserted",
+ "independence": "Python standard library only; no product code, product output, fixture or schema read, imported or run",
+ "governing_text": [
+  "execution/PKG-04/DEL-04-10/ScopeOfWork.md (REQ-005, AC-003, REQ-007)",
+  "execution/PKG-04/DEL-04-07/ScopeOfWork.md (CLM-001)",
+  "execution/PKG-04/DEL-04-03/ScopeOfWork.md (REQ-010: skew stiffness k d d^T/(d^T d); rigid skew d^T u = 0)"
+ ],
+ "model": {
+  "plane": "X-Z, Z up; every out-of-plane displacement, reaction and end action is exactly 0",
+  "nodes": {
+   "A": [
+    0,
+    0,
+    0
+   ],
+   "M": [
+    2,
+    0,
+    0
+   ],
+   "N": [
+    3,
+    0,
+    0
+   ],
+   "S": [
+    4,
+    0,
+    0
+   ]
+  },
+  "members": {
+   "A-M": [
+    "A",
+    "M"
+   ],
+   "M-N": [
+    "M",
+    "N"
+   ],
+   "N-S": [
+    "N",
+    "S"
+   ]
+  },
+  "supports": {
+   "anchor A": "all six DOF",
+   "support S (linear model)": "rigid two-way restraint on UZ",
+   "support S (nonlinear model)": "one-way on UZ, sense + (bears upward); ground at u_z = 0"
+  },
+  "section": {
+   "D": {
+    "exact": "1/2",
+    "value": 0.5,
+    "unit": "m"
+   },
+   "t": {
+    "exact": "1/32",
+    "value": 0.03125,
+    "unit": "m"
+   },
+   "corrosion allowance": {
+    "exact": "0",
+    "value": 0.0,
+    "unit": "m"
+   },
+   "mill tolerance": {
+    "exact": "0",
+    "value": 0.0,
+    "unit": "1"
+   },
+   "A": {
+    "exact": "(15/1024)*pi",
+    "unit": "m^2"
+   },
+   "I": {
+    "exact": "(1695/4194304)*pi",
+    "unit": "m^4"
+   },
+   "basis": "nominal and reduced bases coincide (zero allowance and tolerance)"
+  },
+  "material": {
+   "E": {
+    "exact": "200000000000",
+    "value": 200000000000.0,
+    "unit": "Pa"
+   }
+  },
+  "shear_model": "euler_bernoulli",
+  "pressure": "none: the models carry no pressure; the snubber's static absence does not depend on it",
+  "self_weight": "none; nodal forces only"
+ },
+ "snubbers": {
+  "SNB-1": {
+   "node": "S",
+   "direction": [
+    {
+     "exact": "1",
+     "value": 1.0,
+     "unit": "1"
+    },
+    {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "1"
+    },
+    {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "1"
+    }
+   ],
+   "stiffness": "rigid",
+   "label": "axis UX at S, rigid"
+  },
+  "SNB-2": {
+   "node": "M",
+   "direction": [
+    {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "1"
+    },
+    {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "1"
+    },
+    {
+     "exact": "1",
+     "value": 1.0,
+     "unit": "1"
+    }
+   ],
+   "stiffness": {
+    "exact": "200000000",
+    "value": 200000000.0,
+    "unit": "N/m"
+   },
+   "label": "axis UZ at M, k = 2e8 N/m"
+  },
+  "SNB-3": {
+   "node": "M",
+   "direction": [
+    {
+     "exact": "1",
+     "value": 1.0,
+     "unit": "1"
+    },
+    {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "1"
+    },
+    {
+     "exact": "2",
+     "value": 2.0,
+     "unit": "1"
+    }
+   ],
+   "stiffness": "rigid",
+   "label": "skew d = (1, 0, 2) at M, rigid"
+  },
+  "SNB-4": {
+   "node": "S",
+   "direction": [
+    {
+     "exact": "2",
+     "value": 2.0,
+     "unit": "1"
+    },
+    {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "1"
+    },
+    {
+     "exact": "1",
+     "value": 1.0,
+     "unit": "1"
+    }
+   ],
+   "stiffness": {
+    "exact": "1000000000",
+    "value": 1000000000.0,
+    "unit": "N/m"
+   },
+   "label": "skew d = (2, 0, 1) at S, k = 1e9 N/m"
+  }
+ },
+ "conventions": {
+  "reaction": "support-on-pipe force in global axes; a skew restraint's force is lambda*d along its authored d",
+  "end action": "force or moment the node exerts on the member at that end, global axes; MY about +Y (Z toward X positive)",
+  "exact form": "elements of Q(pi): rational functions of pi with rational coefficients",
+  "value": "nearest binary64 of the exact value"
+ },
+ "tolerance_class": "Identity (AC-003 'unchanged'): see README open reading 1. Base values: linear model at the analytic tolerance (DEL-04-03/AC-001: 1e-9 relative with its governed floor); nonlinear model, one-way state exactly and values within the nonlinear class tolerance (DEL-04-07/AC-002). This package chooses no number.",
+ "cases": [
+  {
+   "id": "SL-1",
+   "model": "linear",
+   "description": "Linear model: anchor at A, vertical support (two-way rigid UZ) at S. Load -20000 N Z at N and +50000 N X at S.",
+   "loads": [
+    {
+     "node": "N",
+     "component": "FZ",
+     "value": {
+      "exact": "-20000",
+      "value": -20000.0,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FX",
+     "value": {
+      "exact": "50000",
+      "value": 50000.0,
+      "unit": "N"
+     }
+    }
+   ],
+   "base result (static; also the expected result of every variant)": {
+    "displacements": {
+     "M": {
+      "UX": {
+       "exact": "(8/234375)/(pi)",
+       "value": 1.0864977448406722e-05,
+       "unit": "m"
+      },
+      "UZ": {
+       "exact": "(-44032/397265625)/(pi)",
+       "value": -3.528072913040153e-05,
+       "unit": "m"
+      },
+      "RY": {
+       "exact": "(6656/132421875)/(pi)",
+       "value": 1.5999400419600696e-05,
+       "unit": "rad"
+      }
+     },
+     "N": {
+      "UX": {
+       "exact": "(4/78125)/(pi)",
+       "value": 1.6297466172610083e-05,
+       "unit": "m"
+      },
+      "UZ": {
+       "exact": "(-4992/44140625)/(pi)",
+       "value": -3.599865094410156e-05,
+       "unit": "m"
+      },
+      "RY": {
+       "exact": "(-2688/44140625)/(pi)",
+       "value": -1.9383888969900843e-05,
+       "unit": "rad"
+      }
+     },
+     "S": {
+      "UX": {
+       "exact": "(16/234375)/(pi)",
+       "value": 2.1729954896813444e-05,
+       "unit": "m"
+      },
+      "UZ": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "m"
+      },
+      "RY": {
+       "exact": "(-6144/44140625)/(pi)",
+       "value": -4.4306031931201924e-05,
+       "unit": "rad"
+      }
+     }
+    },
+    "reactions": {
+     "anchor A": {
+      "FX": {
+       "exact": "-50000",
+       "value": -50000.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "29375/4",
+       "value": 7343.75,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-9375",
+       "value": -9375.0,
+       "unit": "N*m"
+      }
+     },
+     "support S": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "50625/4",
+       "value": 12656.25,
+       "unit": "N"
+      }
+     }
+    },
+    "member_end_actions": {
+     "A-M": {
+      "A": {
+       "FX": {
+        "exact": "-50000",
+        "value": -50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "29375/4",
+        "value": 7343.75,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "-9375",
+        "value": -9375.0,
+        "unit": "N*m"
+       }
+      },
+      "M": {
+       "FX": {
+        "exact": "50000",
+        "value": 50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "-29375/4",
+        "value": -7343.75,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "-10625/2",
+        "value": -5312.5,
+        "unit": "N*m"
+       }
+      }
+     },
+     "M-N": {
+      "M": {
+       "FX": {
+        "exact": "-50000",
+        "value": -50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "29375/4",
+        "value": 7343.75,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "10625/2",
+        "value": 5312.5,
+        "unit": "N*m"
+       }
+      },
+      "N": {
+       "FX": {
+        "exact": "50000",
+        "value": 50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "-29375/4",
+        "value": -7343.75,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "-50625/4",
+        "value": -12656.25,
+        "unit": "N*m"
+       }
+      }
+     },
+     "N-S": {
+      "N": {
+       "FX": {
+        "exact": "-50000",
+        "value": -50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "-50625/4",
+        "value": -12656.25,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "50625/4",
+        "value": 12656.25,
+        "unit": "N*m"
+       }
+      },
+      "S": {
+       "FX": {
+        "exact": "50000",
+        "value": 50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "50625/4",
+        "value": 12656.25,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "0",
+        "value": 0.0,
+        "unit": "N*m"
+       }
+      }
+     }
+    }
+   },
+   "variants": [
+    {
+     "id": "V1",
+     "snubbers": [
+      {
+       "id": "SNB-1",
+       "label": "axis UX at S, rigid"
+      }
+     ],
+     "expected static result": "identical to the base result of SL-1: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
+     "expected disclosure": [
+      {
+       "snubber": "SNB-1",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      }
+     ],
+     "negative_controls": [
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as rigid restraint",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "1",
+        "value": 1.0,
+        "unit": "1"
+       },
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-44032/397265625)/(pi)",
+          "value": -3.528072913040153e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(6656/132421875)/(pi)",
+          "value": 1.5999400419600696e-05,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-4992/44140625)/(pi)",
+          "value": -3.599865094410156e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-2688/44140625)/(pi)",
+          "value": -1.9383888969900843e-05,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-6144/44140625)/(pi)",
+          "value": -4.4306031931201924e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "29375/4",
+          "value": 7343.75,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "-9375",
+          "value": -9375.0,
+          "unit": "N*m"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "50625/4",
+          "value": 12656.25,
+          "unit": "N"
+         }
+        },
+        "SNB-1": {
+         "FX": {
+          "exact": "-50000",
+          "value": -50000.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "29375/4",
+           "value": 7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-9375",
+           "value": -9375.0,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-29375/4",
+           "value": -7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-10625/2",
+           "value": -5312.5,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "29375/4",
+           "value": 7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "10625/2",
+           "value": 5312.5,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-29375/4",
+           "value": -7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-50625/4",
+           "value": -12656.25,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-50625/4",
+           "value": -12656.25,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "50625/4",
+           "value": 12656.25,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "50625/4",
+           "value": 12656.25,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "id": "V2",
+     "snubbers": [
+      {
+       "id": "SNB-2",
+       "label": "axis UZ at M, k = 2e8 N/m"
+      }
+     ],
+     "expected static result": "identical to the base result of SL-1: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
+     "expected disclosure": [
+      {
+       "snubber": "SNB-2",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      }
+     ],
+     "negative_controls": [
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as rigid restraint",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "43/54",
+        "value": 0.7962962962962963,
+        "unit": "1"
+       },
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "(8/234375)/(pi)",
+          "value": 1.0864977448406722e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(8192/308984375)/(pi)",
+          "value": 8.439244177371795e-06,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "(4/78125)/(pi)",
+          "value": 1.6297466172610083e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-77824/2780859375)/(pi)",
+          "value": -8.908091076114673e-06,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(4096/926953125)/(pi)",
+          "value": 1.4065406962286324e-06,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "(16/234375)/(pi)",
+          "value": 2.1729954896813444e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-8192/185390625)/(pi)",
+          "value": -1.4065406962286326e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "-50000",
+          "value": -50000.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "-22500/7",
+          "value": -3214.285714285714,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "15000/7",
+          "value": 2142.8571428571427,
+          "unit": "N*m"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "55000/7",
+          "value": 7857.142857142857,
+          "unit": "N"
+         }
+        },
+        "SNB-2": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "107500/7",
+          "value": 15357.142857142857,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-22500/7",
+           "value": -3214.285714285714,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "15000/7",
+           "value": 2142.8571428571427,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "22500/7",
+           "value": 3214.285714285714,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "30000/7",
+           "value": 4285.714285714285,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "85000/7",
+           "value": 12142.857142857143,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-30000/7",
+           "value": -4285.714285714285,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-85000/7",
+           "value": -12142.857142857143,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-55000/7",
+           "value": -7857.142857142857,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-55000/7",
+           "value": -7857.142857142857,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "55000/7",
+           "value": 7857.142857142857,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "55000/7",
+           "value": 7857.142857142857,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      },
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as spring of its stiffness",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "199795696304/796983757575",
+        "value": 0.2506897968810842,
+        "unit": "1"
+       },
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "(8/234375)/(pi)",
+          "value": 1.0864977448406722e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-44032/397265625)/(917504/635625 + pi)",
+          "value": -2.4173658984961692e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(1073741824/28056884765625 + 6656/132421875*pi)/(917504/635625*pi + pi^2)",
+          "value": 1.3619313959863586e-05,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "(4/78125)/(pi)",
+          "value": 1.6297466172610083e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-10200547328/252511962890625 - 4992/44140625*pi)/(917504/635625*pi + pi^2)",
+          "value": -2.7470007796710258e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(536870912/84170654296875 - 2688/44140625*pi)/(917504/635625*pi + pi^2)",
+          "value": -1.2838651205623793e-05,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "(16/234375)/(pi)",
+          "value": 2.1729954896813444e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-1073741824/16834130859375 - 6144/44140625*pi)/(917504/635625*pi + pi^2)",
+          "value": -3.4785686092253485e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "-50000",
+          "value": -50000.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(-524288/113 + 29375/4*pi)/(917504/635625 + pi)",
+          "value": 4019.8718895677675,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "(1048576/339 - 9375*pi)/(917504/635625 + pi)",
+          "value": -5748.951152255747,
+          "unit": "N*m"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(11534336/1017 + 50625/4*pi)/(917504/635625 + pi)",
+          "value": 11145.396313439895,
+          "unit": "N"
+         }
+        },
+        "SNB-2": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(22544384/1017)/(917504/635625 + pi)",
+          "value": 4834.731796992338,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-524288/113 + 29375/4*pi)/(917504/635625 + pi)",
+           "value": 4019.8718895677675,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(1048576/339 - 9375*pi)/(917504/635625 + pi)",
+           "value": -5748.951152255747,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(524288/113 - 29375/4*pi)/(917504/635625 + pi)",
+           "value": -4019.8718895677675,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(2097152/339 - 10625/2*pi)/(917504/635625 + pi)",
+           "value": -2290.7926268797887,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(17825792/1017 + 29375/4*pi)/(917504/635625 + pi)",
+           "value": 8854.603686560105,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(-2097152/339 + 10625/2*pi)/(917504/635625 + pi)",
+           "value": 2290.7926268797887,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-17825792/1017 - 29375/4*pi)/(917504/635625 + pi)",
+           "value": -8854.603686560105,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(-11534336/1017 - 50625/4*pi)/(917504/635625 + pi)",
+           "value": -11145.396313439895,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-11534336/1017 - 50625/4*pi)/(917504/635625 + pi)",
+           "value": -11145.396313439895,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(11534336/1017 + 50625/4*pi)/(917504/635625 + pi)",
+           "value": 11145.396313439895,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(11534336/1017 + 50625/4*pi)/(917504/635625 + pi)",
+           "value": 11145.396313439895,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "id": "V3",
+     "snubbers": [
+      {
+       "id": "SNB-3",
+       "label": "skew d = (1, 0, 2) at M, rigid"
+      }
+     ],
+     "expected static result": "identical to the base result of SL-1: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
+     "expected disclosure": [
+      {
+       "snubber": "SNB-3",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      }
+     ],
+     "negative_controls": [
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as rigid restraint",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "260764/396225",
+        "value": 0.6581210170988706,
+        "unit": "1"
+       },
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "(661504/17197265625)/(pi)",
+          "value": 1.2243996664447768e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-330752/17197265625)/(pi)",
+          "value": -6.121998332223884e-06,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(19843584/647763671875)/(pi)",
+          "value": 9.751100962848342e-06,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "(955004/17197265625)/(pi)",
+          "value": 1.767648538865113e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-249248384/5829873046875)/(pi)",
+          "value": -1.3608911224072298e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-13437568/1943291015625)/(pi)",
+          "value": -2.201065463831871e-06,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "(416168/5732421875)/(pi)",
+          "value": 2.310897411285449e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-117905408/1943291015625)/(pi)",
+          "value": -1.9312834104192512e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "-33075200/587",
+          "value": -56346.16695059625,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "-3245475/2348",
+          "value": -1382.2295570698466,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "84675/587",
+          "value": 144.2504258943782,
+          "unit": "N*m"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "20403875/2348",
+          "value": 8689.895655877343,
+          "unit": "N"
+         }
+        },
+        "SNB-3": {
+         "FX": {
+          "exact": "3725200/587",
+          "value": 6346.166950596252,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "7450400/587",
+          "value": 12692.333901192504,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "-33075200/587",
+           "value": -56346.16695059625,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-3245475/2348",
+           "value": -1382.2295570698466,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "84675/587",
+           "value": 144.2504258943782,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "33075200/587",
+           "value": 56346.16695059625,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "3245475/2348",
+           "value": 1382.2295570698466,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "3076125/1174",
+           "value": 2620.208688245315,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "26556125/2348",
+           "value": 11310.104344122657,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-3076125/1174",
+           "value": -2620.208688245315,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-26556125/2348",
+           "value": -11310.104344122657,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-20403875/2348",
+           "value": -8689.895655877343,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-20403875/2348",
+           "value": -8689.895655877343,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "20403875/2348",
+           "value": 8689.895655877343,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "20403875/2348",
+           "value": 8689.895655877343,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "id": "V4",
+     "snubbers": [
+      {
+       "id": "SNB-4",
+       "label": "skew d = (2, 0, 1) at S, k = 1e9 N/m"
+      }
+     ],
+     "expected static result": "identical to the base result of SL-1: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
+     "expected disclosure": [
+      {
+       "snubber": "SNB-4",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      }
+     ],
+     "negative_controls": [
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as rigid restraint",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "1",
+        "value": 1.0,
+        "unit": "1"
+       },
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-44032/397265625)/(pi)",
+          "value": -3.528072913040153e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(6656/132421875)/(pi)",
+          "value": 1.5999400419600696e-05,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-4992/44140625)/(pi)",
+          "value": -3.599865094410156e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-2688/44140625)/(pi)",
+          "value": -1.9383888969900843e-05,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-6144/44140625)/(pi)",
+          "value": -4.4306031931201924e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "29375/4",
+          "value": 7343.75,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "-9375",
+          "value": -9375.0,
+          "unit": "N*m"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "150625/4",
+          "value": 37656.25,
+          "unit": "N"
+         }
+        },
+        "SNB-4": {
+         "FX": {
+          "exact": "-50000",
+          "value": -50000.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "-25000",
+          "value": -25000.0,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "29375/4",
+           "value": 7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-9375",
+           "value": -9375.0,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-29375/4",
+           "value": -7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-10625/2",
+           "value": -5312.5,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "29375/4",
+           "value": 7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "10625/2",
+           "value": 5312.5,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-29375/4",
+           "value": -7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-50625/4",
+           "value": -12656.25,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-50625/4",
+           "value": -12656.25,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "50625/4",
+           "value": 12656.25,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "50625/4",
+           "value": 12656.25,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      },
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as spring of its stiffness",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "194832299529/755211682661",
+        "value": 0.25798369384661185,
+        "unit": "1"
+       },
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "(8/234375)/(2048/1875 + pi)",
+          "value": 8.06199043270662e-06,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-44032/397265625)/(pi)",
+          "value": -3.528072913040153e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(6656/132421875)/(pi)",
+          "value": 1.5999400419600696e-05,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "(4/78125)/(2048/1875 + pi)",
+          "value": 1.209298564905993e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-4992/44140625)/(pi)",
+          "value": -3.599865094410156e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-2688/44140625)/(pi)",
+          "value": -1.9383888969900843e-05,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "(16/234375)/(2048/1875 + pi)",
+          "value": 1.612398086541324e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-6144/44140625)/(pi)",
+          "value": -4.4306031931201924e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "(-50000*pi)/(2048/1875 + pi)",
+          "value": -37100.81530766941,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "29375/4",
+          "value": 7343.75,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "-9375",
+          "value": -9375.0,
+          "unit": "N*m"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(123392/3 + 50625/4*pi)/(2048/1875 + pi)",
+          "value": 19105.842346165296,
+          "unit": "N"
+         }
+        },
+        "SNB-4": {
+         "FX": {
+          "exact": "(-163840/3)/(2048/1875 + pi)",
+          "value": -12899.184692330593,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(-81920/3)/(2048/1875 + pi)",
+          "value": -6449.5923461652965,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "(-50000*pi)/(2048/1875 + pi)",
+           "value": -37100.81530766941,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "29375/4",
+           "value": 7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-9375",
+           "value": -9375.0,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "(50000*pi)/(2048/1875 + pi)",
+           "value": 37100.81530766941,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-29375/4",
+           "value": -7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-10625/2",
+           "value": -5312.5,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "(-50000*pi)/(2048/1875 + pi)",
+           "value": -37100.81530766941,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "29375/4",
+           "value": 7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "10625/2",
+           "value": 5312.5,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "(50000*pi)/(2048/1875 + pi)",
+           "value": 37100.81530766941,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-29375/4",
+           "value": -7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-50625/4",
+           "value": -12656.25,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "(-50000*pi)/(2048/1875 + pi)",
+           "value": -37100.81530766941,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-50625/4",
+           "value": -12656.25,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "50625/4",
+           "value": 12656.25,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "(50000*pi)/(2048/1875 + pi)",
+           "value": 37100.81530766941,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "50625/4",
+           "value": 12656.25,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "id": "V-ALL",
+     "snubbers": [
+      {
+       "id": "SNB-1",
+       "label": "axis UX at S, rigid"
+      },
+      {
+       "id": "SNB-2",
+       "label": "axis UZ at M, k = 2e8 N/m"
+      },
+      {
+       "id": "SNB-3",
+       "label": "skew d = (1, 0, 2) at M, rigid"
+      },
+      {
+       "id": "SNB-4",
+       "label": "skew d = (2, 0, 1) at S, k = 1e9 N/m"
+      }
+     ],
+     "expected static result": "identical to the base result of SL-1: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
+     "expected disclosure": [
+      {
+       "snubber": "SNB-1",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      },
+      {
+       "snubber": "SNB-2",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      },
+      {
+       "snubber": "SNB-3",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      },
+      {
+       "snubber": "SNB-4",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      }
+     ],
+     "negative_controls": [
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "each as authored (rigid ones rigid, finite ones springs)",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "855712211481/795653732626",
+        "value": 1.0754831862056138,
+        "unit": "1"
+       },
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "(88064/33997265625)/(917504/54395625 + pi)",
+          "value": 8.201231158578791e-07,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-44032/33997265625)/(917504/54395625 + pi)",
+          "value": -4.1006155792893954e-07,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(1073741824/2401056884765625 + 6861312/256112734375*pi)/(917504/54395625*pi + pi^2)",
+          "value": 8.52711451121371e-06,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "(44032/33997265625)/(917504/54395625 + pi)",
+          "value": 4.1006155792893954e-07,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-10200547328/21609511962890625 - 333997696/11525073046875*pi)/(917504/54395625*pi + pi^2)",
+          "value": -9.222959772381537e-06,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(536870912/7203170654296875 + 2808704/768338203125*pi)/(917504/54395625*pi + pi^2)",
+          "value": 1.1648972781633646e-06,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-1073741824/1440634130859375 - 174020608/3841691015625*pi)/(917504/54395625*pi + pi^2)",
+          "value": -1.4416888297653988e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "(-110080000/29011*pi)/(917504/54395625 + pi)",
+          "value": -3774.159310280689,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(-1572864/29011 - 358681875/116044*pi)/(917504/54395625 + pi)",
+          "value": -3091.5715674871244,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "(1048576/29011 + 58261875/29011*pi)/(917504/54395625 + pi)",
+          "value": 2008.9871645314083,
+          "unit": "N*m"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(11534336/87033 + 918281875/116044*pi)/(917504/54395625 + pi)",
+          "value": 7912.92201477858,
+          "unit": "N"
+         }
+        },
+        "SNB-1": {
+         "FX": {
+          "exact": "(-73400320/87033 - 1560630000/29011*pi)/(917504/54395625 + pi)",
+          "value": -53774.15931028069,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         }
+        },
+        "SNB-2": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(22544384/87033)/(917504/54395625 + pi)",
+          "value": 82.01231158578791,
+          "unit": "N"
+         }
+        },
+        "SNB-3": {
+         "FX": {
+          "exact": "(220160000/29011*pi)/(917504/54395625 + pi)",
+          "value": 7548.318620561378,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(440320000/29011*pi)/(917504/54395625 + pi)",
+          "value": 15096.637241122757,
+          "unit": "N"
+         }
+        },
+        "SNB-4": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "(-110080000/29011*pi)/(917504/54395625 + pi)",
+           "value": -3774.159310280689,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-1572864/29011 - 358681875/116044*pi)/(917504/54395625 + pi)",
+           "value": -3091.5715674871244,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(1048576/29011 + 58261875/29011*pi)/(917504/54395625 + pi)",
+           "value": 2008.9871645314083,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "(110080000/29011*pi)/(917504/54395625 + pi)",
+           "value": 3774.159310280689,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(1572864/29011 + 358681875/116044*pi)/(917504/54395625 + pi)",
+           "value": 3091.5715674871244,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(2097152/29011 + 242158125/58022*pi)/(917504/54395625 + pi)",
+           "value": 4174.15597044284,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "(110080000/29011*pi)/(917504/54395625 + pi)",
+           "value": 3774.159310280689,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(17825792/87033 + 1402598125/116044*pi)/(917504/54395625 + pi)",
+           "value": 12087.07798522142,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(-2097152/29011 - 242158125/58022*pi)/(917504/54395625 + pi)",
+           "value": -4174.15597044284,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "(-110080000/29011*pi)/(917504/54395625 + pi)",
+           "value": -3774.159310280689,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-17825792/87033 - 1402598125/116044*pi)/(917504/54395625 + pi)",
+           "value": -12087.07798522142,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(-11534336/87033 - 918281875/116044*pi)/(917504/54395625 + pi)",
+           "value": -7912.92201477858,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "(110080000/29011*pi)/(917504/54395625 + pi)",
+           "value": 3774.159310280689,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-11534336/87033 - 918281875/116044*pi)/(917504/54395625 + pi)",
+           "value": -7912.92201477858,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(11534336/87033 + 918281875/116044*pi)/(917504/54395625 + pi)",
+           "value": 7912.92201477858,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "(-110080000/29011*pi)/(917504/54395625 + pi)",
+           "value": -3774.159310280689,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(11534336/87033 + 918281875/116044*pi)/(917504/54395625 + pi)",
+           "value": 7912.92201477858,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "SN-BEAR",
+   "model": "nonlinear",
+   "description": "Nonlinear model: anchor at A, one-way support at S on UZ, sense + (bears upward). Same loads as SL-1: the support bears.",
+   "loads": [
+    {
+     "node": "N",
+     "component": "FZ",
+     "value": {
+      "exact": "-20000",
+      "value": -20000.0,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FX",
+     "value": {
+      "exact": "50000",
+      "value": 50000.0,
+      "unit": "N"
+     }
+    }
+   ],
+   "base result (static; also the expected result of every variant)": {
+    "one-way support S state": "active",
+    "displacements": {
+     "M": {
+      "UX": {
+       "exact": "(8/234375)/(pi)",
+       "value": 1.0864977448406722e-05,
+       "unit": "m"
+      },
+      "UZ": {
+       "exact": "(-44032/397265625)/(pi)",
+       "value": -3.528072913040153e-05,
+       "unit": "m"
+      },
+      "RY": {
+       "exact": "(6656/132421875)/(pi)",
+       "value": 1.5999400419600696e-05,
+       "unit": "rad"
+      }
+     },
+     "N": {
+      "UX": {
+       "exact": "(4/78125)/(pi)",
+       "value": 1.6297466172610083e-05,
+       "unit": "m"
+      },
+      "UZ": {
+       "exact": "(-4992/44140625)/(pi)",
+       "value": -3.599865094410156e-05,
+       "unit": "m"
+      },
+      "RY": {
+       "exact": "(-2688/44140625)/(pi)",
+       "value": -1.9383888969900843e-05,
+       "unit": "rad"
+      }
+     },
+     "S": {
+      "UX": {
+       "exact": "(16/234375)/(pi)",
+       "value": 2.1729954896813444e-05,
+       "unit": "m"
+      },
+      "UZ": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "m"
+      },
+      "RY": {
+       "exact": "(-6144/44140625)/(pi)",
+       "value": -4.4306031931201924e-05,
+       "unit": "rad"
+      }
+     }
+    },
+    "reactions": {
+     "anchor A": {
+      "FX": {
+       "exact": "-50000",
+       "value": -50000.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "29375/4",
+       "value": 7343.75,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-9375",
+       "value": -9375.0,
+       "unit": "N*m"
+      }
+     },
+     "support S": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "50625/4",
+       "value": 12656.25,
+       "unit": "N"
+      }
+     }
+    },
+    "member_end_actions": {
+     "A-M": {
+      "A": {
+       "FX": {
+        "exact": "-50000",
+        "value": -50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "29375/4",
+        "value": 7343.75,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "-9375",
+        "value": -9375.0,
+        "unit": "N*m"
+       }
+      },
+      "M": {
+       "FX": {
+        "exact": "50000",
+        "value": 50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "-29375/4",
+        "value": -7343.75,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "-10625/2",
+        "value": -5312.5,
+        "unit": "N*m"
+       }
+      }
+     },
+     "M-N": {
+      "M": {
+       "FX": {
+        "exact": "-50000",
+        "value": -50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "29375/4",
+        "value": 7343.75,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "10625/2",
+        "value": 5312.5,
+        "unit": "N*m"
+       }
+      },
+      "N": {
+       "FX": {
+        "exact": "50000",
+        "value": 50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "-29375/4",
+        "value": -7343.75,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "-50625/4",
+        "value": -12656.25,
+        "unit": "N*m"
+       }
+      }
+     },
+     "N-S": {
+      "N": {
+       "FX": {
+        "exact": "-50000",
+        "value": -50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "-50625/4",
+        "value": -12656.25,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "50625/4",
+        "value": 12656.25,
+        "unit": "N*m"
+       }
+      },
+      "S": {
+       "FX": {
+        "exact": "50000",
+        "value": 50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "50625/4",
+        "value": 12656.25,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "0",
+        "value": 0.0,
+        "unit": "N*m"
+       }
+      }
+     }
+    }
+   },
+   "variants": [
+    {
+     "id": "V1",
+     "snubbers": [
+      {
+       "id": "SNB-1",
+       "label": "axis UX at S, rigid"
+      }
+     ],
+     "expected static result": "identical to the base result of SN-BEAR: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
+     "expected disclosure": [
+      {
+       "snubber": "SNB-1",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      }
+     ],
+     "negative_controls": [
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as rigid restraint",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "1",
+        "value": 1.0,
+        "unit": "1"
+       },
+       "one-way support S state": "active",
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-44032/397265625)/(pi)",
+          "value": -3.528072913040153e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(6656/132421875)/(pi)",
+          "value": 1.5999400419600696e-05,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-4992/44140625)/(pi)",
+          "value": -3.599865094410156e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-2688/44140625)/(pi)",
+          "value": -1.9383888969900843e-05,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-6144/44140625)/(pi)",
+          "value": -4.4306031931201924e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "29375/4",
+          "value": 7343.75,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "-9375",
+          "value": -9375.0,
+          "unit": "N*m"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "50625/4",
+          "value": 12656.25,
+          "unit": "N"
+         }
+        },
+        "SNB-1": {
+         "FX": {
+          "exact": "-50000",
+          "value": -50000.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "29375/4",
+           "value": 7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-9375",
+           "value": -9375.0,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-29375/4",
+           "value": -7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-10625/2",
+           "value": -5312.5,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "29375/4",
+           "value": 7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "10625/2",
+           "value": 5312.5,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-29375/4",
+           "value": -7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-50625/4",
+           "value": -12656.25,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-50625/4",
+           "value": -12656.25,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "50625/4",
+           "value": 12656.25,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "50625/4",
+           "value": 12656.25,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "id": "V2",
+     "snubbers": [
+      {
+       "id": "SNB-2",
+       "label": "axis UZ at M, k = 2e8 N/m"
+      }
+     ],
+     "expected static result": "identical to the base result of SN-BEAR: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
+     "expected disclosure": [
+      {
+       "snubber": "SNB-2",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      }
+     ],
+     "negative_controls": [
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as rigid restraint",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "43/54",
+        "value": 0.7962962962962963,
+        "unit": "1"
+       },
+       "one-way support S state": "active",
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "(8/234375)/(pi)",
+          "value": 1.0864977448406722e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(8192/308984375)/(pi)",
+          "value": 8.439244177371795e-06,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "(4/78125)/(pi)",
+          "value": 1.6297466172610083e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-77824/2780859375)/(pi)",
+          "value": -8.908091076114673e-06,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(4096/926953125)/(pi)",
+          "value": 1.4065406962286324e-06,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "(16/234375)/(pi)",
+          "value": 2.1729954896813444e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-8192/185390625)/(pi)",
+          "value": -1.4065406962286326e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "-50000",
+          "value": -50000.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "-22500/7",
+          "value": -3214.285714285714,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "15000/7",
+          "value": 2142.8571428571427,
+          "unit": "N*m"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "55000/7",
+          "value": 7857.142857142857,
+          "unit": "N"
+         }
+        },
+        "SNB-2": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "107500/7",
+          "value": 15357.142857142857,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-22500/7",
+           "value": -3214.285714285714,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "15000/7",
+           "value": 2142.8571428571427,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "22500/7",
+           "value": 3214.285714285714,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "30000/7",
+           "value": 4285.714285714285,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "85000/7",
+           "value": 12142.857142857143,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-30000/7",
+           "value": -4285.714285714285,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-85000/7",
+           "value": -12142.857142857143,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-55000/7",
+           "value": -7857.142857142857,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-55000/7",
+           "value": -7857.142857142857,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "55000/7",
+           "value": 7857.142857142857,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "55000/7",
+           "value": 7857.142857142857,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      },
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as spring of its stiffness",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "199795696304/796983757575",
+        "value": 0.2506897968810842,
+        "unit": "1"
+       },
+       "one-way support S state": "active",
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "(8/234375)/(pi)",
+          "value": 1.0864977448406722e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-44032/397265625)/(917504/635625 + pi)",
+          "value": -2.4173658984961692e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(1073741824/28056884765625 + 6656/132421875*pi)/(917504/635625*pi + pi^2)",
+          "value": 1.3619313959863586e-05,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "(4/78125)/(pi)",
+          "value": 1.6297466172610083e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-10200547328/252511962890625 - 4992/44140625*pi)/(917504/635625*pi + pi^2)",
+          "value": -2.7470007796710258e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(536870912/84170654296875 - 2688/44140625*pi)/(917504/635625*pi + pi^2)",
+          "value": -1.2838651205623793e-05,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "(16/234375)/(pi)",
+          "value": 2.1729954896813444e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-1073741824/16834130859375 - 6144/44140625*pi)/(917504/635625*pi + pi^2)",
+          "value": -3.4785686092253485e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "-50000",
+          "value": -50000.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(-524288/113 + 29375/4*pi)/(917504/635625 + pi)",
+          "value": 4019.8718895677675,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "(1048576/339 - 9375*pi)/(917504/635625 + pi)",
+          "value": -5748.951152255747,
+          "unit": "N*m"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(11534336/1017 + 50625/4*pi)/(917504/635625 + pi)",
+          "value": 11145.396313439895,
+          "unit": "N"
+         }
+        },
+        "SNB-2": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(22544384/1017)/(917504/635625 + pi)",
+          "value": 4834.731796992338,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-524288/113 + 29375/4*pi)/(917504/635625 + pi)",
+           "value": 4019.8718895677675,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(1048576/339 - 9375*pi)/(917504/635625 + pi)",
+           "value": -5748.951152255747,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(524288/113 - 29375/4*pi)/(917504/635625 + pi)",
+           "value": -4019.8718895677675,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(2097152/339 - 10625/2*pi)/(917504/635625 + pi)",
+           "value": -2290.7926268797887,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(17825792/1017 + 29375/4*pi)/(917504/635625 + pi)",
+           "value": 8854.603686560105,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(-2097152/339 + 10625/2*pi)/(917504/635625 + pi)",
+           "value": 2290.7926268797887,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-17825792/1017 - 29375/4*pi)/(917504/635625 + pi)",
+           "value": -8854.603686560105,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(-11534336/1017 - 50625/4*pi)/(917504/635625 + pi)",
+           "value": -11145.396313439895,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-11534336/1017 - 50625/4*pi)/(917504/635625 + pi)",
+           "value": -11145.396313439895,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(11534336/1017 + 50625/4*pi)/(917504/635625 + pi)",
+           "value": 11145.396313439895,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(11534336/1017 + 50625/4*pi)/(917504/635625 + pi)",
+           "value": 11145.396313439895,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "id": "V3",
+     "snubbers": [
+      {
+       "id": "SNB-3",
+       "label": "skew d = (1, 0, 2) at M, rigid"
+      }
+     ],
+     "expected static result": "identical to the base result of SN-BEAR: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
+     "expected disclosure": [
+      {
+       "snubber": "SNB-3",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      }
+     ],
+     "negative_controls": [
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as rigid restraint",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "260764/396225",
+        "value": 0.6581210170988706,
+        "unit": "1"
+       },
+       "one-way support S state": "active",
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "(661504/17197265625)/(pi)",
+          "value": 1.2243996664447768e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-330752/17197265625)/(pi)",
+          "value": -6.121998332223884e-06,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(19843584/647763671875)/(pi)",
+          "value": 9.751100962848342e-06,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "(955004/17197265625)/(pi)",
+          "value": 1.767648538865113e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-249248384/5829873046875)/(pi)",
+          "value": -1.3608911224072298e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-13437568/1943291015625)/(pi)",
+          "value": -2.201065463831871e-06,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "(416168/5732421875)/(pi)",
+          "value": 2.310897411285449e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-117905408/1943291015625)/(pi)",
+          "value": -1.9312834104192512e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "-33075200/587",
+          "value": -56346.16695059625,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "-3245475/2348",
+          "value": -1382.2295570698466,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "84675/587",
+          "value": 144.2504258943782,
+          "unit": "N*m"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "20403875/2348",
+          "value": 8689.895655877343,
+          "unit": "N"
+         }
+        },
+        "SNB-3": {
+         "FX": {
+          "exact": "3725200/587",
+          "value": 6346.166950596252,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "7450400/587",
+          "value": 12692.333901192504,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "-33075200/587",
+           "value": -56346.16695059625,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-3245475/2348",
+           "value": -1382.2295570698466,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "84675/587",
+           "value": 144.2504258943782,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "33075200/587",
+           "value": 56346.16695059625,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "3245475/2348",
+           "value": 1382.2295570698466,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "3076125/1174",
+           "value": 2620.208688245315,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "26556125/2348",
+           "value": 11310.104344122657,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-3076125/1174",
+           "value": -2620.208688245315,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-26556125/2348",
+           "value": -11310.104344122657,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-20403875/2348",
+           "value": -8689.895655877343,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-20403875/2348",
+           "value": -8689.895655877343,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "20403875/2348",
+           "value": 8689.895655877343,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "20403875/2348",
+           "value": 8689.895655877343,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "id": "V4",
+     "snubbers": [
+      {
+       "id": "SNB-4",
+       "label": "skew d = (2, 0, 1) at S, k = 1e9 N/m"
+      }
+     ],
+     "expected static result": "identical to the base result of SN-BEAR: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
+     "expected disclosure": [
+      {
+       "snubber": "SNB-4",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      }
+     ],
+     "negative_controls": [
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as rigid restraint",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "1",
+        "value": 1.0,
+        "unit": "1"
+       },
+       "one-way support S state": "active",
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-44032/397265625)/(pi)",
+          "value": -3.528072913040153e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(6656/132421875)/(pi)",
+          "value": 1.5999400419600696e-05,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-4992/44140625)/(pi)",
+          "value": -3.599865094410156e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-2688/44140625)/(pi)",
+          "value": -1.9383888969900843e-05,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-6144/44140625)/(pi)",
+          "value": -4.4306031931201924e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "29375/4",
+          "value": 7343.75,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "-9375",
+          "value": -9375.0,
+          "unit": "N*m"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "150625/4",
+          "value": 37656.25,
+          "unit": "N"
+         }
+        },
+        "SNB-4": {
+         "FX": {
+          "exact": "-50000",
+          "value": -50000.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "-25000",
+          "value": -25000.0,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "29375/4",
+           "value": 7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-9375",
+           "value": -9375.0,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-29375/4",
+           "value": -7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-10625/2",
+           "value": -5312.5,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "29375/4",
+           "value": 7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "10625/2",
+           "value": 5312.5,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-29375/4",
+           "value": -7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-50625/4",
+           "value": -12656.25,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-50625/4",
+           "value": -12656.25,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "50625/4",
+           "value": 12656.25,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "50625/4",
+           "value": 12656.25,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      },
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as spring of its stiffness",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "194832299529/755211682661",
+        "value": 0.25798369384661185,
+        "unit": "1"
+       },
+       "one-way support S state": "active",
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "(8/234375)/(2048/1875 + pi)",
+          "value": 8.06199043270662e-06,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-44032/397265625)/(pi)",
+          "value": -3.528072913040153e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(6656/132421875)/(pi)",
+          "value": 1.5999400419600696e-05,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "(4/78125)/(2048/1875 + pi)",
+          "value": 1.209298564905993e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-4992/44140625)/(pi)",
+          "value": -3.599865094410156e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-2688/44140625)/(pi)",
+          "value": -1.9383888969900843e-05,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "(16/234375)/(2048/1875 + pi)",
+          "value": 1.612398086541324e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-6144/44140625)/(pi)",
+          "value": -4.4306031931201924e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "(-50000*pi)/(2048/1875 + pi)",
+          "value": -37100.81530766941,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "29375/4",
+          "value": 7343.75,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "-9375",
+          "value": -9375.0,
+          "unit": "N*m"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(123392/3 + 50625/4*pi)/(2048/1875 + pi)",
+          "value": 19105.842346165296,
+          "unit": "N"
+         }
+        },
+        "SNB-4": {
+         "FX": {
+          "exact": "(-163840/3)/(2048/1875 + pi)",
+          "value": -12899.184692330593,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(-81920/3)/(2048/1875 + pi)",
+          "value": -6449.5923461652965,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "(-50000*pi)/(2048/1875 + pi)",
+           "value": -37100.81530766941,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "29375/4",
+           "value": 7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-9375",
+           "value": -9375.0,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "(50000*pi)/(2048/1875 + pi)",
+           "value": 37100.81530766941,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-29375/4",
+           "value": -7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-10625/2",
+           "value": -5312.5,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "(-50000*pi)/(2048/1875 + pi)",
+           "value": -37100.81530766941,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "29375/4",
+           "value": 7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "10625/2",
+           "value": 5312.5,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "(50000*pi)/(2048/1875 + pi)",
+           "value": 37100.81530766941,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-29375/4",
+           "value": -7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-50625/4",
+           "value": -12656.25,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "(-50000*pi)/(2048/1875 + pi)",
+           "value": -37100.81530766941,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-50625/4",
+           "value": -12656.25,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "50625/4",
+           "value": 12656.25,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "(50000*pi)/(2048/1875 + pi)",
+           "value": 37100.81530766941,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "50625/4",
+           "value": 12656.25,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "id": "V-ALL",
+     "snubbers": [
+      {
+       "id": "SNB-1",
+       "label": "axis UX at S, rigid"
+      },
+      {
+       "id": "SNB-2",
+       "label": "axis UZ at M, k = 2e8 N/m"
+      },
+      {
+       "id": "SNB-3",
+       "label": "skew d = (1, 0, 2) at M, rigid"
+      },
+      {
+       "id": "SNB-4",
+       "label": "skew d = (2, 0, 1) at S, k = 1e9 N/m"
+      }
+     ],
+     "expected static result": "identical to the base result of SN-BEAR: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
+     "expected disclosure": [
+      {
+       "snubber": "SNB-1",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      },
+      {
+       "snubber": "SNB-2",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      },
+      {
+       "snubber": "SNB-3",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      },
+      {
+       "snubber": "SNB-4",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      }
+     ],
+     "negative_controls": [
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "each as authored (rigid ones rigid, finite ones springs)",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "855712211481/795653732626",
+        "value": 1.0754831862056138,
+        "unit": "1"
+       },
+       "one-way support S state": "active",
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "(88064/33997265625)/(917504/54395625 + pi)",
+          "value": 8.201231158578791e-07,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-44032/33997265625)/(917504/54395625 + pi)",
+          "value": -4.1006155792893954e-07,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(1073741824/2401056884765625 + 6861312/256112734375*pi)/(917504/54395625*pi + pi^2)",
+          "value": 8.52711451121371e-06,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "(44032/33997265625)/(917504/54395625 + pi)",
+          "value": 4.1006155792893954e-07,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-10200547328/21609511962890625 - 333997696/11525073046875*pi)/(917504/54395625*pi + pi^2)",
+          "value": -9.222959772381537e-06,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(536870912/7203170654296875 + 2808704/768338203125*pi)/(917504/54395625*pi + pi^2)",
+          "value": 1.1648972781633646e-06,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-1073741824/1440634130859375 - 174020608/3841691015625*pi)/(917504/54395625*pi + pi^2)",
+          "value": -1.4416888297653988e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "(-110080000/29011*pi)/(917504/54395625 + pi)",
+          "value": -3774.159310280689,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(-1572864/29011 - 358681875/116044*pi)/(917504/54395625 + pi)",
+          "value": -3091.5715674871244,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "(1048576/29011 + 58261875/29011*pi)/(917504/54395625 + pi)",
+          "value": 2008.9871645314083,
+          "unit": "N*m"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(11534336/87033 + 918281875/116044*pi)/(917504/54395625 + pi)",
+          "value": 7912.92201477858,
+          "unit": "N"
+         }
+        },
+        "SNB-1": {
+         "FX": {
+          "exact": "(-73400320/87033 - 1560630000/29011*pi)/(917504/54395625 + pi)",
+          "value": -53774.15931028069,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         }
+        },
+        "SNB-2": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(22544384/87033)/(917504/54395625 + pi)",
+          "value": 82.01231158578791,
+          "unit": "N"
+         }
+        },
+        "SNB-3": {
+         "FX": {
+          "exact": "(220160000/29011*pi)/(917504/54395625 + pi)",
+          "value": 7548.318620561378,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(440320000/29011*pi)/(917504/54395625 + pi)",
+          "value": 15096.637241122757,
+          "unit": "N"
+         }
+        },
+        "SNB-4": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "(-110080000/29011*pi)/(917504/54395625 + pi)",
+           "value": -3774.159310280689,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-1572864/29011 - 358681875/116044*pi)/(917504/54395625 + pi)",
+           "value": -3091.5715674871244,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(1048576/29011 + 58261875/29011*pi)/(917504/54395625 + pi)",
+           "value": 2008.9871645314083,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "(110080000/29011*pi)/(917504/54395625 + pi)",
+           "value": 3774.159310280689,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(1572864/29011 + 358681875/116044*pi)/(917504/54395625 + pi)",
+           "value": 3091.5715674871244,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(2097152/29011 + 242158125/58022*pi)/(917504/54395625 + pi)",
+           "value": 4174.15597044284,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "(110080000/29011*pi)/(917504/54395625 + pi)",
+           "value": 3774.159310280689,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(17825792/87033 + 1402598125/116044*pi)/(917504/54395625 + pi)",
+           "value": 12087.07798522142,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(-2097152/29011 - 242158125/58022*pi)/(917504/54395625 + pi)",
+           "value": -4174.15597044284,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "(-110080000/29011*pi)/(917504/54395625 + pi)",
+           "value": -3774.159310280689,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-17825792/87033 - 1402598125/116044*pi)/(917504/54395625 + pi)",
+           "value": -12087.07798522142,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(-11534336/87033 - 918281875/116044*pi)/(917504/54395625 + pi)",
+           "value": -7912.92201477858,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "(110080000/29011*pi)/(917504/54395625 + pi)",
+           "value": 3774.159310280689,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-11534336/87033 - 918281875/116044*pi)/(917504/54395625 + pi)",
+           "value": -7912.92201477858,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(11534336/87033 + 918281875/116044*pi)/(917504/54395625 + pi)",
+           "value": 7912.92201477858,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "(-110080000/29011*pi)/(917504/54395625 + pi)",
+           "value": -3774.159310280689,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(11534336/87033 + 918281875/116044*pi)/(917504/54395625 + pi)",
+           "value": 7912.92201477858,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "SN-LIFT",
+   "model": "nonlinear",
+   "description": "Nonlinear model with the load at N reversed (+20000 N Z) and +50000 N X at S: the support lifts off.",
+   "loads": [
+    {
+     "node": "N",
+     "component": "FZ",
+     "value": {
+      "exact": "20000",
+      "value": 20000.0,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FX",
+     "value": {
+      "exact": "50000",
+      "value": 50000.0,
+      "unit": "N"
+     }
+    }
+   ],
+   "base result (static; also the expected result of every variant)": {
+    "one-way support S state": "inactive",
+    "displacements": {
+     "M": {
+      "UX": {
+       "exact": "(8/234375)/(pi)",
+       "value": 1.0864977448406722e-05,
+       "unit": "m"
+      },
+      "UZ": {
+       "exact": "(458752/397265625)/(pi)",
+       "value": 0.000367575968614416,
+       "unit": "m"
+      },
+      "RY": {
+       "exact": "(-131072/132421875)/(pi)",
+       "value": -0.0003150651159552137,
+       "unit": "rad"
+      }
+     },
+     "N": {
+      "UX": {
+       "exact": "(4/78125)/(pi)",
+       "value": 1.6297466172610083e-05,
+       "unit": "m"
+      },
+      "UZ": {
+       "exact": "(98304/44140625)/(pi)",
+       "value": 0.0007088965108992308,
+       "unit": "m"
+      },
+      "RY": {
+       "exact": "(-49152/44140625)/(pi)",
+       "value": -0.0003544482554496154,
+       "unit": "rad"
+      }
+     },
+     "S": {
+      "UX": {
+       "exact": "(16/234375)/(pi)",
+       "value": 2.1729954896813444e-05,
+       "unit": "m"
+      },
+      "UZ": {
+       "exact": "(147456/44140625)/(pi)",
+       "value": 0.001063344766348846,
+       "unit": "m"
+      },
+      "RY": {
+       "exact": "(-49152/44140625)/(pi)",
+       "value": -0.0003544482554496154,
+       "unit": "rad"
+      }
+     }
+    },
+    "reactions": {
+     "anchor A": {
+      "FX": {
+       "exact": "-50000",
+       "value": -50000.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-20000",
+       "value": -20000.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "60000",
+       "value": 60000.0,
+       "unit": "N*m"
+      }
+     },
+     "support S": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      }
+     }
+    },
+    "member_end_actions": {
+     "A-M": {
+      "A": {
+       "FX": {
+        "exact": "-50000",
+        "value": -50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "-20000",
+        "value": -20000.0,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "60000",
+        "value": 60000.0,
+        "unit": "N*m"
+       }
+      },
+      "M": {
+       "FX": {
+        "exact": "50000",
+        "value": 50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "20000",
+        "value": 20000.0,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "-20000",
+        "value": -20000.0,
+        "unit": "N*m"
+       }
+      }
+     },
+     "M-N": {
+      "M": {
+       "FX": {
+        "exact": "-50000",
+        "value": -50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "-20000",
+        "value": -20000.0,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "20000",
+        "value": 20000.0,
+        "unit": "N*m"
+       }
+      },
+      "N": {
+       "FX": {
+        "exact": "50000",
+        "value": 50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "20000",
+        "value": 20000.0,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "0",
+        "value": 0.0,
+        "unit": "N*m"
+       }
+      }
+     },
+     "N-S": {
+      "N": {
+       "FX": {
+        "exact": "-50000",
+        "value": -50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "0",
+        "value": 0.0,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "0",
+        "value": 0.0,
+        "unit": "N*m"
+       }
+      },
+      "S": {
+       "FX": {
+        "exact": "50000",
+        "value": 50000.0,
+        "unit": "N"
+       },
+       "FZ": {
+        "exact": "0",
+        "value": 0.0,
+        "unit": "N"
+       },
+       "MY": {
+        "exact": "0",
+        "value": 0.0,
+        "unit": "N*m"
+       }
+      }
+     }
+    }
+   },
+   "variants": [
+    {
+     "id": "V1",
+     "snubbers": [
+      {
+       "id": "SNB-1",
+       "label": "axis UX at S, rigid"
+      }
+     ],
+     "expected static result": "identical to the base result of SN-LIFT: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
+     "expected disclosure": [
+      {
+       "snubber": "SNB-1",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      }
+     ],
+     "negative_controls": [
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as rigid restraint",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "5/6",
+        "value": 0.8333333333333334,
+        "unit": "1"
+       },
+       "one-way support S state": "inactive",
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(458752/397265625)/(pi)",
+          "value": 0.000367575968614416,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-131072/132421875)/(pi)",
+          "value": -0.0003150651159552137,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(98304/44140625)/(pi)",
+          "value": 0.0007088965108992308,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-49152/44140625)/(pi)",
+          "value": -0.0003544482554496154,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(147456/44140625)/(pi)",
+          "value": 0.001063344766348846,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-49152/44140625)/(pi)",
+          "value": -0.0003544482554496154,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "-20000",
+          "value": -20000.0,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "60000",
+          "value": 60000.0,
+          "unit": "N*m"
+         }
+        },
+        "SNB-1": {
+         "FX": {
+          "exact": "-50000",
+          "value": -50000.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-20000",
+           "value": -20000.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "60000",
+           "value": 60000.0,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "20000",
+           "value": 20000.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-20000",
+           "value": -20000.0,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-20000",
+           "value": -20000.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "20000",
+           "value": 20000.0,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "20000",
+           "value": 20000.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "id": "V2",
+     "snubbers": [
+      {
+       "id": "SNB-2",
+       "label": "axis UZ at M, k = 2e8 N/m"
+      }
+     ],
+     "expected static result": "identical to the base result of SN-LIFT: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
+     "expected disclosure": [
+      {
+       "snubber": "SNB-2",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      }
+     ],
+     "negative_controls": [
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as rigid restraint",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "7/6",
+        "value": 1.1666666666666667,
+        "unit": "1"
+       },
+       "one-way support S state": "inactive",
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "(8/234375)/(pi)",
+          "value": 1.0864977448406722e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-16384/132421875)/(pi)",
+          "value": -3.938313949440171e-05,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "(4/78125)/(pi)",
+          "value": 1.6297466172610083e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(16384/79453125)/(pi)",
+          "value": 6.563856582400284e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-32768/132421875)/(pi)",
+          "value": -7.876627898880342e-05,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "(16/234375)/(pi)",
+          "value": 2.1729954896813444e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(180224/397265625)/(pi)",
+          "value": 0.00014440484481280627,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-32768/132421875)/(pi)",
+          "value": -7.876627898880342e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "-50000",
+          "value": -50000.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "15000",
+          "value": 15000.0,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "-10000",
+          "value": -10000.0,
+          "unit": "N*m"
+         }
+        },
+        "SNB-2": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "-35000",
+          "value": -35000.0,
+          "unit": "N"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "15000",
+           "value": 15000.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-10000",
+           "value": -10000.0,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-15000",
+           "value": -15000.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-20000",
+           "value": -20000.0,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-20000",
+           "value": -20000.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "20000",
+           "value": 20000.0,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "20000",
+           "value": 20000.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      },
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as spring of its stiffness",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "345079955170/436602670109",
+        "value": 0.7903752743515038,
+        "unit": "1"
+       },
+       "one-way support S state": "inactive",
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "(8/234375)/(pi)",
+          "value": 1.0864977448406722e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(458752/397265625)/(4194304/635625 + pi)",
+          "value": 0.00011855629115272558,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-68719476736/84170654296875 - 131072/132421875*pi)/(4194304/635625*pi + pi^2)",
+          "value": -0.0001283003578589459,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "(4/78125)/(pi)",
+          "value": 1.6297466172610083e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(68719476736/50502392578125 + 98304/44140625*pi)/(4194304/635625*pi + pi^2)",
+          "value": 0.0002731120753412726,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-137438953472/84170654296875 - 49152/44140625*pi)/(4194304/635625*pi + pi^2)",
+          "value": -0.0001676834973533476,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "(16/234375)/(pi)",
+          "value": 2.1729954896813444e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(755914244096/252511962890625 + 147456/44140625*pi)/(4194304/635625*pi + pi^2)",
+          "value": 0.0004407955726946202,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-137438953472/84170654296875 - 49152/44140625*pi)/(4194304/635625*pi + pi^2)",
+          "value": -0.0001676834973533476,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "-50000",
+          "value": -50000.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(33554432/339 - 20000*pi)/(4194304/635625 + pi)",
+          "value": 3711.258230545115,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "(-67108864/1017 + 60000*pi)/(4194304/635625 + pi)",
+          "value": 12577.48353890977,
+          "unit": "N*m"
+         }
+        },
+        "SNB-2": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(-234881024/1017)/(4194304/635625 + pi)",
+          "value": -23711.258230545114,
+          "unit": "N"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(33554432/339 - 20000*pi)/(4194304/635625 + pi)",
+           "value": 3711.258230545115,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(-67108864/1017 + 60000*pi)/(4194304/635625 + pi)",
+           "value": 12577.48353890977,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-33554432/339 + 20000*pi)/(4194304/635625 + pi)",
+           "value": -3711.258230545115,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-20000",
+           "value": -20000.0,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-20000",
+           "value": -20000.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "20000",
+           "value": 20000.0,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "20000",
+           "value": 20000.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "id": "V3",
+     "snubbers": [
+      {
+       "id": "SNB-3",
+       "label": "skew d = (1, 0, 2) at M, rigid"
+      }
+     ],
+     "expected static result": "identical to the base result of SN-LIFT: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
+     "expected disclosure": [
+      {
+       "snubber": "SNB-3",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      }
+     ],
+     "negative_controls": [
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as rigid restraint",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "232766/197625",
+        "value": 1.1778165717900064,
+        "unit": "1"
+       },
+       "one-way support S state": "inactive",
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "(1703936/77197265625)/(pi)",
+          "value": 7.025892301149281e-06,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-851968/77197265625)/(pi)",
+          "value": -3.5129461505746405e-06,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-1007091712/8723291015625)/(pi)",
+          "value": -3.6748429881470727e-05,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "(3021436/77197265625)/(pi)",
+          "value": 1.2458381025352642e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(4891049984/26169873046875)/(pi)",
+          "value": 5.9490910060497225e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-2086387712/8723291015625)/(pi)",
+          "value": -7.613156937587244e-05,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "(1446312/25732421875)/(pi)",
+          "value": 1.7890869749556003e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(2230042624/5233974609375)/(pi)",
+          "value": 0.00013562247943636966,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-2086387712/8723291015625)/(pi)",
+          "value": -7.613156937587244e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "-17039360/527",
+          "value": -32332.751423149904,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "8081280/527",
+          "value": 15334.49715370019,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "-5622560/527",
+          "value": -10668.994307400379,
+          "unit": "N*m"
+         }
+        },
+        "SNB-3": {
+         "FX": {
+          "exact": "-9310640/527",
+          "value": -17667.248576850096,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "-18621280/527",
+          "value": -35334.49715370019,
+          "unit": "N"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "-17039360/527",
+           "value": -32332.751423149904,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "8081280/527",
+           "value": 15334.49715370019,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-5622560/527",
+           "value": -10668.994307400379,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "17039360/527",
+           "value": 32332.751423149904,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-8081280/527",
+           "value": -15334.49715370019,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-20000",
+           "value": -20000.0,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-20000",
+           "value": -20000.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "20000",
+           "value": 20000.0,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "20000",
+           "value": 20000.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "-50000",
+           "value": -50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "50000",
+           "value": 50000.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "id": "V4",
+     "snubbers": [
+      {
+       "id": "SNB-4",
+       "label": "skew d = (2, 0, 1) at S, k = 1e9 N/m"
+      }
+     ],
+     "expected static result": "identical to the base result of SN-LIFT: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
+     "expected disclosure": [
+      {
+       "snubber": "SNB-4",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      }
+     ],
+     "negative_controls": [
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as rigid restraint",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "1",
+        "value": 1.0,
+        "unit": "1"
+       },
+       "one-way support S state": "active",
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(44032/397265625)/(pi)",
+          "value": 3.528072913040153e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-6656/132421875)/(pi)",
+          "value": -1.5999400419600696e-05,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(4992/44140625)/(pi)",
+          "value": 3.599865094410156e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(2688/44140625)/(pi)",
+          "value": 1.9383888969900843e-05,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(6144/44140625)/(pi)",
+          "value": 4.4306031931201924e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "-29375/4",
+          "value": -7343.75,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "9375",
+          "value": 9375.0,
+          "unit": "N*m"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "49375/4",
+          "value": 12343.75,
+          "unit": "N"
+         }
+        },
+        "SNB-4": {
+         "FX": {
+          "exact": "-50000",
+          "value": -50000.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "-25000",
+          "value": -25000.0,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-29375/4",
+           "value": -7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "9375",
+           "value": 9375.0,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "29375/4",
+           "value": 7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "10625/2",
+           "value": 5312.5,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-29375/4",
+           "value": -7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-10625/2",
+           "value": -5312.5,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "29375/4",
+           "value": 7343.75,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "50625/4",
+           "value": 12656.25,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "50625/4",
+           "value": 12656.25,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "-50625/4",
+           "value": -12656.25,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "-50625/4",
+           "value": -12656.25,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       },
+       "note": "the one-way support changes state: inactive -> active"
+      },
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "as spring of its stiffness",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "771710742828/800871440285",
+        "value": 0.9635887909217704,
+        "unit": "1"
+       },
+       "one-way support S state": "inactive",
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "(662700032/744873046875 + 8/234375*pi)/(34248704/635625*pi + pi^2)",
+          "value": 5.564858641437313e-06,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(1227219795968/252511962890625 + 458752/397265625*pi)/(34248704/635625*pi + pi^2)",
+          "value": 4.738000057095435e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-143713632256/84170654296875 - 131072/132421875*pi)/(34248704/635625*pi + pi^2)",
+          "value": -2.6888744716098234e-05,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "(331350016/248291015625 + 4/78125*pi)/(34248704/635625*pi + pi^2)",
+          "value": 8.34728796215597e-06,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(35928408064/9352294921875 + 98304/44140625*pi)/(34248704/635625*pi + pi^2)",
+          "value": 6.0499675611221026e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(42387636224/9352294921875 - 49152/44140625*pi)/(34248704/635625*pi + pi^2)",
+          "value": 5.772208599278917e-06,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "(1325400064/744873046875 + 16/234375*pi)/(34248704/635625*pi + pi^2)",
+          "value": 1.1129717282874626e-05,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(-2650800128/744873046875 + 147456/44140625*pi)/(34248704/635625*pi + pi^2)",
+          "value": 3.871766860976903e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(247866589184/28056884765625 - 49152/44140625*pi)/(34248704/635625*pi + pi^2)",
+          "value": 2.9786906202538538e-05,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "(-1325400064/1017 - 50000*pi)/(34248704/635625 + pi)",
+          "value": -25609.158729792685,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(-388710400/1017 - 20000*pi)/(34248704/635625 + pi)",
+          "value": -7804.579364896344,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "(50987008/113 + 60000*pi)/(34248704/635625 + pi)",
+          "value": 11218.317459585372,
+          "unit": "N*m"
+         }
+        },
+        "SNB-4": {
+         "FX": {
+          "exact": "(-471498752/339)/(34248704/635625 + pi)",
+          "value": -24390.841270207315,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(-235749376/339)/(34248704/635625 + pi)",
+          "value": -12195.420635103657,
+          "unit": "N"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "(-1325400064/1017 - 50000*pi)/(34248704/635625 + pi)",
+           "value": -25609.158729792685,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-388710400/1017 - 20000*pi)/(34248704/635625 + pi)",
+           "value": -7804.579364896344,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(50987008/113 + 60000*pi)/(34248704/635625 + pi)",
+           "value": 11218.317459585372,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "(1325400064/1017 + 50000*pi)/(34248704/635625 + pi)",
+           "value": 25609.158729792685,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(388710400/1017 + 20000*pi)/(34248704/635625 + pi)",
+           "value": 7804.579364896344,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(318537728/1017 - 20000*pi)/(34248704/635625 + pi)",
+           "value": 4390.841270207314,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "(-1325400064/1017 - 50000*pi)/(34248704/635625 + pi)",
+           "value": -25609.158729792685,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-388710400/1017 - 20000*pi)/(34248704/635625 + pi)",
+           "value": -7804.579364896344,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(-318537728/1017 + 20000*pi)/(34248704/635625 + pi)",
+           "value": -4390.841270207314,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "(1325400064/1017 + 50000*pi)/(34248704/635625 + pi)",
+           "value": 25609.158729792685,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(388710400/1017 + 20000*pi)/(34248704/635625 + pi)",
+           "value": 7804.579364896344,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(235749376/339)/(34248704/635625 + pi)",
+           "value": 12195.420635103657,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "(-1325400064/1017 - 50000*pi)/(34248704/635625 + pi)",
+           "value": -25609.158729792685,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(235749376/339)/(34248704/635625 + pi)",
+           "value": 12195.420635103657,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(-235749376/339)/(34248704/635625 + pi)",
+           "value": -12195.420635103657,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "(1325400064/1017 + 50000*pi)/(34248704/635625 + pi)",
+           "value": 25609.158729792685,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-235749376/339)/(34248704/635625 + pi)",
+           "value": -12195.420635103657,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      }
+     ]
+    },
+    {
+     "id": "V-ALL",
+     "snubbers": [
+      {
+       "id": "SNB-1",
+       "label": "axis UX at S, rigid"
+      },
+      {
+       "id": "SNB-2",
+       "label": "axis UZ at M, k = 2e8 N/m"
+      },
+      {
+       "id": "SNB-3",
+       "label": "skew d = (1, 0, 2) at M, rigid"
+      },
+      {
+       "id": "SNB-4",
+       "label": "skew d = (2, 0, 1) at S, k = 1e9 N/m"
+      }
+     ],
+     "expected static result": "identical to the base result of SN-LIFT: every displacement, rotation, reaction and member end action unchanged; no reaction row for any snubber",
+     "expected disclosure": [
+      {
+       "snubber": "SNB-1",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      },
+      {
+       "snubber": "SNB-2",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      },
+      {
+       "snubber": "SNB-3",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      },
+      {
+       "snubber": "SNB-4",
+       "finding": "non-blocking",
+       "text": "dynamic-only restraint, not active in static cases"
+      }
+     ],
+     "negative_controls": [
+      {
+       "label": "NEGATIVE CONTROL: a wrong static answer",
+       "snubbers act": "each as authored (rigid ones rigid, finite ones springs)",
+       "largest relative difference from the base result (displacements, anchor reactions, end actions; each kind scaled by its largest base magnitude)": {
+        "exact": "413967319481/390120205158",
+        "value": 1.061127606331853,
+        "unit": "1"
+       },
+       "one-way support S state": "inactive",
+       "displacements": {
+        "M": {
+         "UX": {
+          "exact": "(-2954937499648/97884511962890625 - 131072/21999609375*pi)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+          "value": -1.0465028580420826e-06,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(1477468749824/97884511962890625 + 65536/21999609375*pi)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+          "value": 5.232514290210413e-07,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-36028797018963968/6913093657379150390625 - 1158902435545088/3686983283935546875*pi - 313131008/2485955859375*pi^2)/(4398046511104/22373602734375*pi + 974869495808/83528116875*pi^2 + pi^3)",
+          "value": -1.522925942628903e-05,
+          "unit": "rad"
+         }
+        },
+        "N": {
+         "UX": {
+          "exact": "(-1477468749824/97884511962890625 - 65536/21999609375*pi)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+          "value": -5.232514290210413e-07,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(342273571680157696/62217842916412353515625 + 11323582491656192/33182849555419921875*pi + 1576763392/7457867578125*pi^2)/(4398046511104/22373602734375*pi + 974869495808/83528116875*pi^2 + pi^3)",
+          "value": 2.1552671651679162e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(-18014398509481984/20739280972137451171875 - 517814142107648/11060949851806640625*pi - 124141568/497191171875*pi^2)/(4398046511104/22373602734375*pi + 974869495808/83528116875*pi^2 + pi^3)",
+          "value": -1.779292096087305e-05,
+          "unit": "rad"
+         }
+        },
+        "S": {
+         "UX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "m"
+         },
+         "UZ": {
+          "exact": "(755914244096/97884511962890625 + 3438886912/7457867578125*pi)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+          "value": 3.116348639925939e-05,
+          "unit": "m"
+         },
+         "RY": {
+          "exact": "(36028797018963968/4147856194427490234375 + 5792570852507648/11060949851806640625*pi - 124141568/497191171875*pi^2)/(4398046511104/22373602734375*pi + 974869495808/83528116875*pi^2 + pi^3)",
+          "value": -5.519761640933819e-06,
+          "unit": "rad"
+         }
+        }
+       },
+       "reactions": {
+        "anchor A": {
+         "FX": {
+          "exact": "(5909874999296/133644987*pi + 163840000/18773*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+          "value": 4815.945836111908,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(17592186044416/27842705625 + 1616090497024/44548329*pi + 279900000/18773*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+          "value": 5601.130910103716,
+          "unit": "N"
+         },
+         "MY": {
+          "exact": "(-35184372088832/83528116875 - 350073389056/14849443*pi - 184340000/18773*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+          "value": -3667.6563799111873,
+          "unit": "N*m"
+         }
+        },
+        "SNB-1": {
+         "FX": {
+          "exact": "(-562949953421312/83528116875 - 47429743280128/133644987*pi - 774810000/18773*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+          "value": -32718.659604184337,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         }
+        },
+        "SNB-2": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(-756463999909888/250584350625 - 33554432/56319*pi)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+          "value": -104.65028580420825,
+          "unit": "N"
+         }
+        },
+        "SNB-3": {
+         "FX": {
+          "exact": "(-11819749998592/133644987*pi - 327680000/18773*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+          "value": -9631.891672223815,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(-23639499997184/133644987*pi - 655360000/18773*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+          "value": -19263.78334444763,
+          "unit": "N"
+         }
+        },
+        "SNB-4": {
+         "FX": {
+          "exact": "(-774056185954304/250584350625 - 3521420197888/19092141*pi)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+          "value": -12465.394559703756,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "(-387028092977152/250584350625 - 1760710098944/19092141*pi)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+          "value": -6232.697279851878,
+          "unit": "N"
+         }
+        },
+        "support S": {
+         "FX": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         },
+         "FZ": {
+          "exact": "0",
+          "value": 0.0,
+          "unit": "N"
+         }
+        }
+       },
+       "member_end_actions": {
+        "A-M": {
+         "A": {
+          "FX": {
+           "exact": "(5909874999296/133644987*pi + 163840000/18773*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": 4815.945836111908,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(17592186044416/27842705625 + 1616090497024/44548329*pi + 279900000/18773*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": 5601.130910103716,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(-35184372088832/83528116875 - 350073389056/14849443*pi - 184340000/18773*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": -3667.6563799111873,
+           "unit": "N*m"
+          }
+         },
+         "M": {
+          "FX": {
+           "exact": "(-5909874999296/133644987*pi - 163840000/18773*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": -4815.945836111908,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-17592186044416/27842705625 - 1616090497024/44548329*pi - 279900000/18773*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": -5601.130910103716,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(-70368744177664/83528116875 - 2181960826880/44548329*pi - 20000*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": -7534.605440296244,
+           "unit": "N*m"
+          }
+         }
+        },
+        "M-N": {
+         "M": {
+          "FX": {
+           "exact": "(-5909874999296/133644987*pi - 163840000/18773*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": -4815.945836111908,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-598134325510144/250584350625 - 18870853173248/133644987*pi - 20000*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": -13767.302720148122,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(70368744177664/83528116875 + 2181960826880/44548329*pi + 20000*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": 7534.605440296244,
+           "unit": "N*m"
+          }
+         },
+         "N": {
+          "FX": {
+           "exact": "(5909874999296/133644987*pi + 163840000/18773*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": 4815.945836111908,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(598134325510144/250584350625 + 18870853173248/133644987*pi + 20000*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": 13767.302720148122,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(387028092977152/250584350625 + 1760710098944/19092141*pi)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": 6232.697279851878,
+           "unit": "N*m"
+          }
+         }
+        },
+        "N-S": {
+         "N": {
+          "FX": {
+           "exact": "(-5909874999296/133644987*pi - 163840000/18773*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": -4815.945836111908,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(387028092977152/250584350625 + 1760710098944/19092141*pi)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": 6232.697279851878,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "(-387028092977152/250584350625 - 1760710098944/19092141*pi)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": -6232.697279851878,
+           "unit": "N*m"
+          }
+         },
+         "S": {
+          "FX": {
+           "exact": "(5909874999296/133644987*pi + 163840000/18773*pi^2)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": 4815.945836111908,
+           "unit": "N"
+          },
+          "FZ": {
+           "exact": "(-387028092977152/250584350625 - 1760710098944/19092141*pi)/(4398046511104/22373602734375 + 974869495808/83528116875*pi + pi^2)",
+           "value": -6232.697279851878,
+           "unit": "N"
+          },
+          "MY": {
+           "exact": "0",
+           "value": 0.0,
+           "unit": "N*m"
+          }
+         }
+        }
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "checks": {
+  "count": 434,
+  "all_pass": true,
+  "by_kind": {
+   "A = B: displacements": 65,
+   "A = B: member end actions": 65,
+   "A = B: reactions": 65,
+   "axial: u_x(S) = QL/EA": 3,
+   "exactly one admissible one-way state": 39,
+   "free cantilever: u_z(S) = P a^2 (3L - a)/(6EI)": 1,
+   "global equilibrium": 39,
+   "member equilibrium": 117,
+   "negative control distinguishable (relative difference > 5e-2)": 21,
+   "propped cantilever: R_S = P a^2 (3L - a)/(2L^3)": 2,
+   "propped cantilever: anchor MY = -P a b (L + b)/(2L^2)": 2,
+   "static result with snubbers = base result": 15
+  }
+ }
+}
