@@ -90,7 +90,7 @@ export type BasisView = Readonly<{
   documentKind: string;
   schemaVersion: string;
   semanticContractId: string;
-  route: string;
+  route: string | null;
   canonicalProfile: string;
   /** Null exactly when a refused document publishes it as null. */
   sizingRequest: SizingRequestView | null;

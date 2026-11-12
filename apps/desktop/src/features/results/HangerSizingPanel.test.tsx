@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import twoSpanJson from "../../../../../fixtures/results/hanger_sizing_result_two_span.json";
 import fourSpanJson from "../../../../../fixtures/results/hanger_sizing_result_four_span.json";
 import refusedJson from "../../../../../fixtures/results/hanger_sizing_result_refused.json";
+import corpusJson from "../../../../../fixtures/results/hanger_sizing_corpus.json";
 import twoSpanInput from "../../../../../fixtures/results/hanger_sizing_input_two_span.json";
 import fourSpanInput from "../../../../../fixtures/results/hanger_sizing_input_four_span.json";
 import exPressurisedJson from "../../../../../fixtures/results/hanger_sizing_result_ex_pressurised.json";
@@ -283,6 +284,26 @@ describe("HangerSizingPanel: refused documents", () => {
     await screen.findByTestId("hanger-sizing-refused");
     for (const id of ["basis-library-id", "basis-library-sha256", "basis-solve-request-sha256", "basis-sizing-request-sha256"]) expect(byId(id).textContent, id).toBe("not published");
     expect(byId("basis-request").textContent).toBe("Sizing request: not published (the input was not admitted).");
+  });
+
+  it("shows the null route of a refused document whose input was not admitted as not published", async () => {
+    // The committed corpus entry: the refused fixture with the corpus's replacements applied.
+    const entry = corpusJson.entries.find((candidate) => candidate.id === "refused-route-null-not-admitted");
+    if (!entry) throw new Error("corpus entry refused-route-null-not-admitted is missing");
+    const document = refused() as unknown as Record<string, unknown>;
+    for (const mutation of entry.mutations) {
+      expect(mutation.op).toBe("replace");
+      const parts = mutation.path.split("/").slice(1);
+      let parent = document as Record<string, unknown>;
+      for (const part of parts.slice(0, -1)) parent = parent[part] as Record<string, unknown>;
+      parent[parts[parts.length - 1]] = clone(mutation.value);
+    }
+    expect(document.route).toBeNull();
+    const view = await hangerSizingView(document as unknown as HangerSizingDocument);
+    expect(view.basis.route).toBeNull();
+    render(<HangerSizingPanel document={document as unknown as HangerSizingDocument} />);
+    await screen.findByTestId("hanger-sizing-refused");
+    expect(byId("basis-route").textContent).toBe("not published");
   });
 });
 
