@@ -33,6 +33,7 @@ from core.handoff.caepipe_external.benchmark import (  # noqa: E402
     WITHIN,
     build_benchmark_record,
     screen,
+    screening_class,
 )
 from core.handoff.caepipe_external.harness import RUN_RECORD_KIND, check_guest_alive  # noqa: E402
 from core.handoff.caepipe_external.print_csv import bind_element_rows  # noqa: E402
@@ -308,6 +309,44 @@ def test_the_elongation_off_closed_forms_are_listed_and_compared_only_on_a_build
             assert row["closed_form"]["closed_form_vs_swbpipe"] == "agree", (document["model_id"], row)
 
 
+# The premise of the pressure-bend-opening series, checked only on a build that has the setting, and listed so that
+# it cannot drop out silently: (model id, the node whose rotation must not change between the two screened runs).
+PENDING_BEND_OPENING = (("cpb-p7-01", "node:B"),)
+# Bound on |rotation(on) - rotation(default)| at the free end, in rad, per component. The rotations in this model are
+# of order 1e-3 to 1e-2 rad, so double-precision working error is many orders below 1e-12; the result file prints
+# rotation to about 1.7e-6 rad (0.0001 deg), so 1e-12 is neither a bitwise demand nor a loose one. The pull request
+# 217 author reports bitwise equality out of plane and a residue of order 1e-40 in plane (that author's account).
+BEND_OPENING_ROTATION_BOUND = 1.0e-12
+BEND_OPENING_REASON = ("the pressure-bend-opening premise (SWBPIPE's free-end rotation unchanged between the "
+                       "pressure-default and pressure-elongation-on runs) needs a build whose model document has "
+                       "model_settings.pressure_elongation; this build has none, so both runs would solve the same "
+                       "state and nothing would be checked")
+
+
+def test_the_bend_opening_premise_holds_in_swbpipe():
+    series = json.loads(MANIFEST.read_text(encoding="utf-8"))["series"]["pressure-bend-opening"]
+    assert sorted({member["model_id"] for member in series["members"]}) == [model for model, _ in
+                                                                            PENDING_BEND_OPENING]
+    assert series["observed"] == "case:sustained rotation about Y of the free end node:B"
+    if not build_has_pressure_elongation_setting():
+        pytest.skip(f"pending, {len(PENDING_BEND_OPENING)} model: {BEND_OPENING_REASON}")
+    from core.handoff.caepipe_external.benchmark import swbpipe_values
+
+    documents = {document["model_id"]: document for document in pressurised_models()}
+    for model_id, node in PENDING_BEND_OPENING:
+        rotations = []
+        for run in RUNS[:2]:
+            run_document = benchmark_models.series_document(documents[model_id], run)
+            values, invalid = swbpipe_values(solve(run_document["model"])["mechanics_envelope"]["results"],
+                                             ["case:sustained"], {})
+            rotations.append({axis: values[("rotation", node, "", axis)] for axis in "xyz"})
+            assert not {key for key in invalid if key[:2] == ("rotation", node)}
+        assert any(abs(value) > 1.0e-6 for value in rotations[0].values())  # the rotation is not trivially zero
+        for axis in "xyz":
+            assert abs(rotations[1][axis] - rotations[0][axis]) <= BEND_OPENING_ROTATION_BOUND, (model_id, axis,
+                                                                                                rotations)
+
+
 RUNS = (benchmark_models.SERIES_DEFAULT, benchmark_models.SERIES_ELONGATION_ON,
         benchmark_models.SERIES_BOURDON_EXPANSION)
 
@@ -349,6 +388,17 @@ def test_every_pressurised_model_declares_three_runs_of_the_same_file():
                                   "base_line": "0,0,0,1,0", "writer_output": False,
                                   "sha256": hashlib.sha256(substituted.encode("utf-8")).hexdigest(),
                                   "writer_sha256": default["mbf"]["sha256"]}
+        # Each run's file as the runner forms it: the writer's text of that run's own document (for the on run, the
+        # document carrying the setting), with that run's line substituted. Its bytes and hash are the manifest's, so a
+        # writer change that let model settings reach the MBF would fail here.
+        for series, run in zip(RUNS, entry["runs"]):
+            run_document = benchmark_models.series_document(document, series)
+            own = render_caepipe_mbf_si(run_document["model"], title=run_document["model_id"],
+                                        reference_temperature_c=run_document["reference_temperature_c"],
+                                        piping_code=run_document["piping_code"]).text
+            final = benchmark_models.run_mbf_text(run_document, own).encode("utf-8")
+            expected = benchmark_models.substituted_mbf_text(writer, run["mbf"]["oppres_line"]).encode("utf-8")
+            assert final == expected and hashlib.sha256(final).hexdigest() == run["mbf"]["sha256"], run["run_id"]
         assert default["swbpipe_model_hash"] == entry["model_hash"] != on["swbpipe_model_hash"]
         assert on["swbpipe_model_settings"] == {"pressure_elongation": {"operating_load_cases": ["case:sustained"]}}
         assert (capture["screened"], capture["swbpipe_model_hash"], capture["closed_forms"]) == (False, None, 0)
@@ -372,6 +422,28 @@ def test_the_substitution_refuses_a_file_without_exactly_one_writer_oppres_line(
     assert benchmark_models.substituted_mbf_text(writer, "0,0,0,1,0") == writer
 
 
+def test_only_the_data_line_of_a_listed_options_heading_may_be_substituted():
+    """DEL-17-05 REQ-005: whole lines under a heading of the maintained short list, which changes no node, element or
+    support; for this set, the pressure options record as the writer writes it."""
+    assert benchmark_models.SUBSTITUTABLE_OPTION_HEADINGS == ("OPPRES",)
+    writer = render_caepipe_mbf_si(pressurised_models()[0]["model"], title="T", piping_code="B311-80").text
+    lines = writer.split("\r\n")
+    # A layout, material, section or load line is refused, whatever replaces it.
+    for heading in ("LAYOUT", "MATERIAL", "PIPE", "LOADS"):
+        data = lines[lines.index(heading) + 1]
+        with pytest.raises(ValueError, match="not an options heading"):
+            benchmark_models.substituted_mbf_text(writer, data, heading=heading)
+        with pytest.raises(ValueError, match="not an options heading"):
+            benchmark_models.substituted_mbf_text(writer, "0,1,0,1,1", heading=heading)
+    # Under OPPRES only a declared run's line, with no carriage return or line feed, replaces the writer's line.
+    for line in ("0,1,0,1,1\r\nLAYOUT", "0,1,0,1,1\n", "0,1,1,1,1", "1,0,0,1,0", ""):
+        with pytest.raises(ValueError):
+            benchmark_models.substituted_mbf_text(writer, line)
+    substituted = benchmark_models.substituted_mbf_text(writer, "0,1,0,1,1").split("\r\n")
+    assert [index for index, (old, new) in enumerate(zip(lines, substituted)) if old != new] == [
+        lines.index("OPPRES") + 1] and len(substituted) == len(lines)
+
+
 def test_inexact_inputs_follow_the_run_and_the_case():
     bends = {"P4", "P5", "P7"}
     for document in pressurised_models():
@@ -386,8 +458,14 @@ def test_inexact_inputs_follow_the_run_and_the_case():
         assert default["case:expansion"] == on["case:expansion"]
         assert not {"pressure_elongation_convention", "bend_bourdon_opening", "pressure_thrust_convention"} & set(
             on["case:expansion"])
-        if document["family"] in ("P1", "P2", "P3"):
-            assert default["case:expansion"] == []  # axial only: the exact class
+        if document["family"] in ("P1", "P2", "P3", "P7"):
+            # Axial growth only (P1), or free growth of a cantilever anchored at one end with no pressure or
+            # mechanical load (P2, P3, P7): no shear or bend input can change it, so the exact class in both runs.
+            assert default["case:expansion"] == [] == on["case:expansion"]
+            assert screening_class(default["case:expansion"]) == screening_class(on["case:expansion"]) == "exact"
+        else:
+            # Anchored at both ends or at three legs: bending is restrained, so the inputs stay named.
+            assert "shear_deformation" in default["case:expansion"]
         capture = benchmark_models.series_document(document, RUNS[2])
         assert capture["capture_only"] is True and capture["closed_form"] == [] and capture["inexact_inputs"] == {}
 
