@@ -3113,7 +3113,7 @@
                         },
                         {
                           "type": "number",
-                          "exclusiveMinimum": 1e-09
+                          "exclusiveMinimum": 1.0e-09
                         }
                       ]
                     }
@@ -3124,7 +3124,7 @@
                     "cancellation_screen": {
                       "type": "number",
                       "minimum": 0,
-                      "maximum": 1e-09
+                      "maximum": 1.0e-09
                     }
                   }
                 },
