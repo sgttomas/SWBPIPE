@@ -60,7 +60,7 @@ describe("the route-010 cell (§2.2, §11)", () => {
   it("admits the three identities native route 010 admits", async () => {
     expect([...USER_RELEASED_ADMITTED_CONTRACT_IDS]).toEqual([
       "openpipestress.result_semantics/0.3.0/preview-physics-2",
-      "openpipestress.result_semantics/0.3.0/pressure-2",
+      "openpipestress.result_semantics/0.3.0/pressure-3",
       "openpipestress.result_semantics/0.3.0/pressure-source-1"
     ]);
     const { result } = await pressureFreeSession();

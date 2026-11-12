@@ -39,6 +39,15 @@ fn intent(object: &str, id: &str, path: &str, before: Option<&Value>, after: &Va
       "audit_boundary":{"mutation_route":"structured_operations_only","direct_model_mutation_allowed":false,"requires_user_acceptance":true,"mutates_accepted_model_state":false},
       "professional_boundary":{"human_review_required":true,"software_makes_compliance_claim":false,"software_makes_certification_claim":false,"software_makes_sealing_claim":false,"software_makes_approval_claim":false,"software_makes_authentication_claim":false}})
 }
+/// The pressure elongation setting of `expected`, authored through the `set_model_setting`
+/// operation on its project, after the pressure profile it needs.
+fn elongation_intent(expected: &Value) -> Value {
+    let id = expected["project"]["id"].as_str().unwrap();
+    let path = "model_settings.pressure_elongation";
+    let mut op = intent("Project", id, path, None, &expected["model_settings"]["pressure_elongation"]);
+    op["change"]["change_kind"] = json!("set_model_setting");
+    op
+}
 fn apply(model: &Value, intent: &Value) -> Value {
     let claim = hash(model);
     let preview = validate_operation(model, intent, Some(&claim));
@@ -56,10 +65,24 @@ fn projection(value: &Value, keys: &[&str]) -> Value {
             .collect(),
     )
 }
+/// Removes the pressure elongation setting, which needs a pressure contract, and an
+/// emptied `model_settings`: a pressure-free document carries neither.
+fn without_pressure_elongation(model: &mut Value) {
+    let object = model.as_object_mut().unwrap();
+    let emptied = object.get_mut("model_settings").and_then(Value::as_object_mut).is_some_and(|settings| {
+        settings.remove("pressure_elongation");
+        settings.is_empty()
+    });
+    if emptied {
+        object.remove("model_settings");
+    }
+}
+
 fn legacy_authoring_model(expected: &Value) -> Value {
     let mut model = expected.clone();
     model["schema_version"] = json!("0.9.0");
     model.as_object_mut().unwrap().remove("pressure_contract");
+    without_pressure_elongation(&mut model);
     model["materials"][0]
         .as_object_mut()
         .unwrap()
@@ -112,6 +135,7 @@ fn exact_authoring_review_apply_serialization_and_real_solve() {
         &projection(&expected, &["schema_version", "pressure_contract"]),
     );
     model = apply(&model, &op);
+    model = apply(&model, &elongation_intent(&expected));
     assert_eq!(canonical_json(&model), canonical_json(&expected));
     // Plain JSON transport preserves the authored namespace; native store is checked by integration.
     let restored: Value = serde_json::from_str(&serde_json::to_string(&model).unwrap()).unwrap();
@@ -272,6 +296,7 @@ fn exact_authoring_batch() -> (Value, Value, Value) {
         )),
         &projection(&expected, &["schema_version", "pressure_contract"]),
     ));
+    operations.push(elongation_intent(&expected));
     let batch = json!({"batch_id":"batch:exact-authoring-complete", "source_model_hash":hash(&model)["value"], "operations":operations});
     (model, expected, batch)
 }
@@ -328,11 +353,12 @@ fn exact_authoring_atomic_batch_complete_review_and_apply() {
         applied["operation_outcomes"]
     );
     let steps = applied["operation_outcomes"].as_array().unwrap();
-    assert_eq!(steps.len(), 4);
+    assert_eq!(steps.len(), 5);
     assert_eq!(steps[0]["target_object_type"], "Material");
     assert_eq!(steps[1]["target_object_type"], "Load");
     assert_eq!(steps[2]["target_object_type"], "Load");
     assert_eq!(steps[3]["target_object_type"], "Model");
+    assert_eq!(steps[4]["target_object_type"], "Project");
     for step in steps {
         assert_eq!(step["simulation_status"], "validated_on_temporary_state");
         assert_eq!(step["diff_preview"].as_array().unwrap().len(), 1);
@@ -344,10 +370,12 @@ fn exact_authoring_atomic_batch_late_invalid_profile_rolls_back_every_edit() {
     let (model, _, mut batch) = exact_authoring_batch();
     let original = model.clone();
     let claim = hash(&model);
+    // The profile operation, followed only by the setting that needs it.
     let last = batch["operations"]
         .as_array_mut()
         .unwrap()
-        .last_mut()
+        .iter_mut()
+        .find(|op| op["change"]["field_path"] == "pressure_profile")
         .unwrap();
     let mut unsupported: Value =
         serde_json::from_str(last["change"]["after"].as_str().unwrap()).unwrap();
@@ -630,6 +658,7 @@ fn with_shear(model: &Value, shear_model: &str) -> Value {
 fn pressure_free(model: &Value) -> Value {
     let mut model = model.clone();
     model.as_object_mut().unwrap().remove("pressure_contract");
+    without_pressure_elongation(&mut model);
     model
 }
 
@@ -648,8 +677,11 @@ fn pressure_profile_admits_both_shear_models_and_refuses_an_unknown_one() {
         let after = json!({"schema_version": "0.9.0", "pressure_contract": contract(json!(shear_model))});
         let activated = apply(&free, &intent("Model", &id, "pressure_profile", Some(&free_before), &after));
         assert_eq!(activated["pressure_contract"], contract(json!(shear_model)), "{shear_model}");
-        // Only the contract is written: the result is the fixture with this selection.
-        assert_eq!(canonical_json(&activated), canonical_json(&with_shear(&expected, shear_model)), "{shear_model}");
+        // Only the contract is written: the result is the fixture with this selection (and,
+        // as the pressure-free document it starts from, without the elongation setting).
+        let mut selected = with_shear(&expected, shear_model);
+        without_pressure_elongation(&mut selected);
+        assert_eq!(canonical_json(&activated), canonical_json(&selected), "{shear_model}");
         assert_eq!(activated["pipe_segments"], free["pipe_segments"], "{shear_model}");
         // Activation never manufactures an allowance, whichever model is selected.
         let mut missing = free.clone();

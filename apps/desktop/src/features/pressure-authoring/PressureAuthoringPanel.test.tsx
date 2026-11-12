@@ -13,7 +13,16 @@ afterEach(cleanup);
 const model = fixture as PreviewModel;
 const V3_EB = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "euler_bernoulli" as const };
 const V3 = { version: "3.0.0", mode: "exact_pressure_v3", shear_model: "timoshenko_annulus_energy_v1" as const };
-const pressureFree = () => { const free = structuredClone(model); delete free.pressure_contract; return free; };
+const pressureFree = () => {
+  const free = structuredClone(model);
+  delete free.pressure_contract;
+  // The pressure elongation setting needs the contract; a pressure-free document carries neither.
+  if (free.model_settings) {
+    delete free.model_settings.pressure_elongation;
+    if (Object.keys(free.model_settings).length === 0) delete free.model_settings;
+  }
+  return free;
+};
 const withContract = (contract: unknown) => { const current = structuredClone(model); current.pressure_contract = contract as PreviewModel["pressure_contract"]; return current; };
 const change = (label: string, value: string) => fireEvent.change(screen.getByLabelText(label), { target: { value } });
 /** Select the profile, optionally a shear model, queue it and return the queued after. */

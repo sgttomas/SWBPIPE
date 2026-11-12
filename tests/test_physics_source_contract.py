@@ -61,9 +61,9 @@ def test_actual_producer_requires_original_full_invocation(name, mode):
 
 
 def test_current_table_identities_remain_pinned():
-    # B1 deleted precision-1's table, B4/D1 (b) source-blocks-1's and B7b the v2 tables; the composite's own
-    # current table and the ordinary pressure-2 table stay pinned, each resident on its own.
-    for retired in ("precision_1", "pressure_1", "pressure_3", "preview_physics_1", "source_blocks_1", "physics_1", "physics_source_1", "load_reference_1", "load_reference_source_1"):
+    # B1 deleted precision-1's table, B4/D1 (b) source-blocks-1's, B7b the v2 tables and RT-L2 pressure-2's; the
+    # composite's own current table and the ordinary pressure-3 table stay pinned, each resident on its own.
+    for retired in ("precision_1", "pressure_1", "pressure_2", "preview_physics_1", "source_blocks_1", "physics_1", "physics_source_1", "load_reference_1", "load_reference_source_1"):
         assert not (ROOT/f"fixtures/results/semantic_contract_v0_3_{retired}.json").exists()
     from core.analysis_runs.compatibility import PRESSURE_CONTRACT_SHA256, PRESSURE_SOURCE_CONTRACT_SHA256
     expected={"pressure_source_1":PRESSURE_SOURCE_CONTRACT_SHA256, "pressure_3":PRESSURE_CONTRACT_SHA256}

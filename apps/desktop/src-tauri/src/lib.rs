@@ -7964,10 +7964,19 @@ mod tests {
         }
 
         /// The document without its exact contract and the contract's own members
-        /// (case pressure regions and section corrosion allowances): pressure-free.
+        /// (case pressure regions, section corrosion allowances and the pressure
+        /// elongation setting, with an emptied `model_settings`): pressure-free.
         fn pressure_free(model: &Value) -> Value {
             let mut free = model.clone();
             free.as_object_mut().unwrap().remove("pressure_contract");
+            let object = free.as_object_mut().unwrap();
+            let emptied = object.get_mut("model_settings").and_then(Value::as_object_mut).is_some_and(|settings| {
+                settings.remove("pressure_elongation");
+                settings.is_empty()
+            });
+            if emptied {
+                object.remove("model_settings");
+            }
             for case in free["load_cases"].as_array_mut().unwrap() {
                 case.as_object_mut().unwrap().remove("pressure_regions");
             }
