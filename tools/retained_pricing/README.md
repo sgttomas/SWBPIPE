@@ -166,7 +166,8 @@ All outputs go to `--out`.
   - the same carry, with and without a rename, under adverse repository-local configuration, attributes and replace refs, `GIT_*` variables and global configuration and attributes; UTF-8 reading in the carry, the driver and a chain step under an ASCII locale; the snapshot's raw bytes under adverse attributes and replace refs;
   - the decision-key stop and `KEYMAP_ALLOW`;
   - the `EDGE_ZERO_REMOVE_CALLER` count;
-  - the generator's basis line.
+  - the generator's basis line;
+  - RT-L2's owner bindings and the typed census's acceptance of the setting (`tests/test_rtl2_pressure_elongation.py`).
 
 ## Adding an adjudication rule
 
@@ -647,4 +648,16 @@ equal), 1,468 of 1,606 coefficients are equal, 138 higher and none lower. D rise
 validation calls, k + 1 diagnostics each); STATICS[1] +3,948 B (the pressure-3 table and schema); O_base +254,149 B
 with +139,268 s(&str), +49,152 s((&str,String)) and +16,384 s(String) (RTL2-TS/VS); every diagnostic-bearing form
 rises with D. The block is regenerated with this section's basis line (1,717 lines) and the point atoms (150 lines;
-s((&str,String)) moves into the profile).
+s((&str,String)) moves into the profile, the four coefficients counted above as higher from 0); both `--check`s are
+equal. At the in-build atoms every phase rises in both modes (W1 +900,809,543 B, W3 +1,623,276,625 B, X1 +748,730,763
+B); W3 stays the maximum (10,426,531,599 B dense, without R). All phases of both modes fit the unchanged M, the 0.9
+margin and the upward-rounded 5% TEXT reserve; the minimum headroom is 819,546,058 B (dense W3), and L(2,1) and L(1,2)
+stay below the merged tree in every phase and mode. The law tests' pins move with it (the record, D_env 45,160 and its
+push capacity 65,536, Text(diag_env) 443,464,520 B = 273,191,600 + 16,385 · 10,392). This tool, with the twelve
+re-pinned files' values restored from main and every new rule kept, reproduces main `4d29420a0`'s 1,602 coefficients
+and its 1,713-line block exactly. The source work law takes ΔE = 93 B (the setting's member) in the three mixed
+requests: each selected case and the composite publication charge 24E, so each moves by 2,232.
+
+**The bound's cost.** Almost all of the rise is the list's raw-census bound: 16,385 refusal diagnostics per validation
+call, each priced at the inherited classes. A D1 clause that bounds `operating_load_cases` by C (as every other
+admitted list has a cap row) would take it back to a few hundred bytes; that is a source change, outside this tool.
