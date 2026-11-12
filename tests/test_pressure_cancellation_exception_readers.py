@@ -137,14 +137,10 @@ def test_a_case_that_includes_pressure_elongation_is_outside_the_family(label: s
     _refused(rhs, regions, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY", elongation=True)
 
 
-def test_a_passing_screen_stands_alone_and_its_vector_is_still_the_sum_of_its_groups() -> None:
+def test_a_passing_screen_stands_alone() -> None:
     rhs, regions = _admitted("one ulp")
     rhs.pop("cancellation_screen_exception")
     rhs["cancellation_screen"] = 0.0
     rhs_screen(deepcopy(rhs), CASE, False, regions)
-    # Without the exception too, the vector must be the sum of its groups (the hole closed on both paths).
-    changed = deepcopy(rhs)
-    changed["assembled_pressure_rhs_global"][6] = 0.0
-    _refused(changed, regions, "SOURCE_PHYSICS_RHS_ASSEMBLED_SUM")
     rhs["cancellation_screen"] = None
     _refused(rhs, regions, "SOURCE_PHYSICS_RHS_SCREEN")

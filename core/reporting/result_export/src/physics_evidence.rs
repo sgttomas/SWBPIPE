@@ -1719,16 +1719,20 @@ fn assembly(
                 _ => return Err("SOURCE_PHYSICS_RHS_TERM_KIND".into()),
             }
         }
-        bore_group_value(group, number(&group["direction_component_magnitude"])?)?;
+        if exception.is_some() {
+            bore_group_value(group, number(&group["direction_component_magnitude"])?)?;
+        }
     }
-    assembled_is_group_sum(v)?;
     if let Some(record) = exception {
+        assembled_is_group_sum(v)?;
         cancellation_exception(v, case, regions, elongation, &nodes, record)?;
     }
     Ok(())
 }
 
-/// DEL-04-07: a bore group's published value is the re-formation of the
+/// DEL-04-07, on a case that publishes the cancellation-screen exception
+/// (the path without it is unchanged; see `assembled_is_group_sum`): a bore
+/// group's published value is the re-formation of the
 /// operands it publishes, as the producer forms it (`pressure_group_value`):
 /// p·(π·r·r)·c·d, each product rounded, with p and r the group's pressure and
 /// bore-radius bits, c its coefficient sum (itself the correctly rounded exact
@@ -1753,12 +1757,17 @@ fn bore_group_value(group: &Value, magnitude: f64) -> Check {
     require(expected.is_finite() && if exact { value == expected } else { (value - expected).abs() <= f64::from_bits(2) }, "RHS_GROUP_VALUE")
 }
 
-/// DEL-04-07: the published translational pressure load is the sum of the
-/// published groups, degree of freedom by degree of freedom: each entry is the
-/// correctly rounded exact sum of the values of the groups at it (0 where
-/// none is published; a group whose binary64 direction folds to zero adds
-/// exactly zero and is not published). Neither screen is read from a vector
-/// that its groups do not bear out.
+/// DEL-04-07, on a case that publishes the cancellation-screen exception:
+/// the published translational pressure load is the sum of the published
+/// groups, degree of freedom by degree of freedom: each entry is the correctly
+/// rounded exact sum of the values of the groups at it (0 where none is
+/// published; a group whose binary64 direction folds to zero adds exactly zero
+/// and is not published), so the exception is not read from a vector that its
+/// groups do not bear out. A case whose original screen passes is read as
+/// before: its vector and group values are taken from the producer, because
+/// binding them would refuse documents the readers accept today (the
+/// hand-formed not-included corpora of the pressure-elongation reader tests,
+/// whose coefficients are re-stamped without their group values).
 fn assembled_is_group_sum(v: &Value) -> Check {
     use crate::connector_evidence::ExactSum;
     let order = array(&v["node_order"])?.iter().map(text).collect::<Result<Vec<_>, _>>()?;

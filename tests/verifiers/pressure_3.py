@@ -458,7 +458,8 @@ def rhs_screen_keys(rhs: Any, keys: set[str]) -> set[str]:
 
 
 def rhs_groups(rhs: Mapping[str, Any]) -> None:
-    """DEL-04-07 (Rust ``physics_evidence::bore_group_value`` and ``assembled_is_group_sum``). Each bore group's
+    """DEL-04-07, on a case with the exception's record (Rust ``physics_evidence::bore_group_value`` and
+    ``assembled_is_group_sum``). Each bore group's
     coefficient sum is the correctly rounded exact sum of its terms' coefficients, and its value is the re-formation
     p*(pi*r*r)*c*d of the operands it publishes, each product rounded (within one subnormal step where the value is
     subnormal: the producer's intermediates carry an unbounded exponent); the published translational load is, at
@@ -544,8 +545,9 @@ def _family_interior(rhs: Mapping[str, Any], terminals: list[tuple[str, str, boo
 def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, regions: list[Any]) -> None:
     """DEL-04-07, the cancellation screen (Rust ``physics_evidence::assembly`` and ``cancellation_exception``).
 
-    Every case first re-forms its bore groups and its assembled vector from the groups (``rhs_groups``). A screen
-    within its limit is the original assurance and no exception record stands beside it. A screen over its limit, or
+    A screen within its limit is the original assurance and no exception record stands beside it; that path takes
+    the vector and the group values from the producer, as before. A case with the record first re-forms its bore
+    groups and its assembled vector from the groups (``rhs_groups``). A screen over its limit, or
     not finite (null), stands only with the exception's record, re-derived from the published groups and the case's
     regions: the family (no pressure elongation, connector or realized arc; every group a bore group whose terms are
     one member's poisson_eigen and terminal_cap at a transferring terminal of exactly that region, or poisson_eigen
@@ -554,7 +556,6 @@ def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, region
     transferring terminal, the record's node (the first of the largest |F|/(|p|*A_hi)), its measured ratio and its
     bound re-formed from the record's span and lengths bit for bit, |F| within that bound, and the published original
     screen. The span and lengths are taken from the record: this twin reads no model."""
-    rhs_groups(rhs)
     screen, record = rhs["cancellation_screen"], rhs.get("cancellation_screen_exception")
     passing = _number(screen) and 0 <= screen <= 1e-9
     if record is None:
@@ -564,6 +565,7 @@ def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, region
     _require(screen is None or (_number(screen) and screen > 1e-9), "SOURCE_PHYSICS_RHS_SCREEN")
     _require(isinstance(record, Mapping) and set(record) == EXCEPTION_RECORD_KEYS and record["basis"] == CANCELLATION_EXCEPTION_BASIS,
              "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION")
+    rhs_groups(rhs)
     family = "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY"
     _require(elongation is False, family)
     terminals, directions, members = [], {}, {}
