@@ -96,6 +96,14 @@ def test_the_committed_documents_match_the_closed_schema(name):
                       instance_label=name)
 
 
+@pytest.mark.parametrize("entry", [e for e in CORPUS if e["expected"]["closure"] == "passed"], ids=lambda e: e["id"])
+def test_the_schema_admits_every_closed_corpus_document(entry):
+    """Every document the readers find closed is admitted by the schema too, a refused document with a null
+    route among them."""
+    validate_instance(SCHEMA, mutate(load(entry["document"]), entry["mutations"]), schema_label="hanger_sizing_result",
+                      instance_label=entry["id"])
+
+
 @pytest.mark.parametrize("entry", [e for e in CORPUS if e["expected"]["closure"] == "failed"
                                    and e["id"] not in ("mutation-standing",)], ids=lambda e: e["id"])
 def test_the_schema_refuses_the_structural_closure_mutations(entry):

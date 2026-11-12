@@ -574,6 +574,95 @@
         "derivation": "not_checked",
         "reproduction": "not_checked"
       }
+    },
+    {
+      "id": "refused-route-null-not-admitted",
+      "note": "A refused document whose input was not admitted, as the pipeline forms it: no model was read, so route is null with every input null; nothing is supplied and nothing can be bound.",
+      "document": "hanger_sizing_result_refused.json",
+      "input": "hanger_sizing_input_refused.json",
+      "supply": [],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/route",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/inputs/sizing_request",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/inputs/sizing_request_sha256",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/inputs/solve_request",
+          "value": {
+            "sha256": null
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/inputs/library",
+          "value": {
+            "library_id": null,
+            "sha256": null
+          }
+        },
+        {
+          "op": "replace",
+          "path": "/refusals",
+          "value": [
+            {
+              "code": "HANGER_SIZING_INPUT_NOT_ADMITTED",
+              "names": [
+                "invalid_json",
+                "$"
+              ],
+              "message": "the input is outside the openpipestress_jcs_ijson_v1 profile; the finding names its kind and path"
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "closure": "passed",
+        "binding": "not_checked",
+        "binding_not_checked": [
+          "library",
+          "solve_request"
+        ],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
+    },
+    {
+      "id": "mutation-refused-route-null",
+      "note": "A refused document may state no route, but this one binds a solve request whose model was read: binding finds the route is not that request's.",
+      "document": "hanger_sizing_result_refused.json",
+      "input": "hanger_sizing_input_refused.json",
+      "supply": [
+        "solve_request",
+        "library"
+      ],
+      "mutations": [
+        {
+          "op": "replace",
+          "path": "/route",
+          "value": null
+        }
+      ],
+      "expected": {
+        "closure": "passed",
+        "binding": "failed",
+        "binding_not_checked": [],
+        "arithmetic_consistent_with_published_positions": "not_checked",
+        "derivation": "not_checked",
+        "reproduction": "not_checked"
+      }
     }
   ]
 }
