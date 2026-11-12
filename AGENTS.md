@@ -389,31 +389,36 @@ merge it and so land the earlier ones without their own fresh runs. "Contains"
 means that the exact commit is an ancestor in Git history. For this exception
 the hosted run must use the then-current `main` commit as the base of its
 complete PR diff, and immediately before merging `main` must still name that
-same commit and the PR head must still name the tested commit, so that the
-merge leaves `main` holding exactly the tree that ran; once `main` has moved,
-the ordinary rule applies. Each earlier one must have had the review and
-consultation its change requires at the commit contained. The containing head
-must reach it through conflict-free Git merges, and every path changed by that
-PR must have the same bytes, mode and presence as at its reviewed head, or the
-difference must itself receive the required review, including differences
-produced by a clean Git merge. Agent 0 may compose reviewed heads into one
-branch for this purpose, by merging only. A branch assembled to share a hosted
-run is a composed branch whether it is new or uses a member PR's branch; it may
-carry at most four member PRs in total, counting members already contained by
-another member. A conflict is not resolved by hand. Generated files are
-regenerated with their generators, and Agent 0 reads the resulting diff before
-merging; differences requiring independent review receive it. A failed combined
-run authorizes none of its members to land and, by itself, does not identify
-which member caused the failure; diagnosed failures remain findings. No member
-of a composed branch changes priced sources, frozen references or numerical
-meaning; if Agent 0 cannot establish that for every member, it uses the
-ordinary per-PR route. A PR under a hold or awaiting a reserved owner choice,
-including the source revision or branch on which its re-verification runs, is
-neither composed nor landed by a containing head while that stands, and nothing
-is composed with it or ahead of it in the merge order. Pricing and independent
-numerical scrutiny still bind to the exact source they examined; a hosted run
-stands in for neither. Agent 0 says on each PR landed this way which head
-carried it. Agents working under that Agent 0's assignment report a PR ready to
+same commit and the PR head must still name the tested commit, with no commit
+added after the run, so that the merge leaves `main` holding exactly the tree
+that ran; once `main` has moved, the ordinary rule applies. Each earlier one
+must have had the review and consultation its change requires at the commit
+contained. The containing head must reach it through conflict-free Git merges,
+and every path changed by that PR must have the same bytes, mode and presence
+as at its reviewed head, or the difference must itself receive the required
+review, including differences produced by a clean Git merge. Before merging,
+Agent 0 compares the combined tree with each reviewed head and reads the
+behaviour and interfaces the included changes share, with independent scrutiny
+where permissions or persistence are involved. Agent 0 may compose reviewed
+heads into one branch for this purpose, by merging only. A branch assembled to
+share a hosted run is a composed branch whether it is new or uses a member PR's
+branch; it may carry at most four member PRs in total, counting members already
+contained by another member. A merge that conflicts ends the attempt: the
+conflict is not resolved by hand or by a strategy that discards a side, and the
+ordinary route is used. Generated files are regenerated with their generators,
+and Agent 0 reads the resulting diff before merging; differences requiring
+independent review receive it. A failed combined run authorizes none of its
+members to land and, by itself, does not identify which member caused the
+failure; diagnosed failures remain findings. Neither route lands a PR that
+changes priced sources, frozen references or numerical meaning; if Agent 0
+cannot establish that for every PR included, it uses the ordinary per-PR route.
+A PR under a hold or awaiting a reserved owner choice, including the source
+revision or branch on which its re-verification runs, is neither composed nor
+landed by a containing head, and no PR built on it is landed by either route
+before it has itself landed. Pricing and independent numerical scrutiny still
+bind to the exact source they examined; a hosted run stands in for neither.
+Agent 0 says on each PR landed this way which head carried it, the heads it
+included and the `main` commit it ran against. Agents working under that Agent 0's assignment report a PR ready to
 merge and wait for that Agent 0 to merge it. A Type 1 the owner started directly reports its PR ready to this project's Agent 0; where the owner works with it alone and no Agent 0 holds the project, it holds that perspective and merges under this grant. Explicit holds and reserved decisions
 apply. This grant excludes protection bypasses, history rewrites, force pushes,
 permission changes and releases. Use [Git conventions](#git-conventions) below.
