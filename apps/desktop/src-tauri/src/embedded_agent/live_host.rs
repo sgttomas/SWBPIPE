@@ -1979,8 +1979,10 @@ mod tests {
         // Cursors: one the host never recorded, and a recorded one under another filter.
         let forged = claimed_read_with(&mut owner, &mut p, 5, "H", Some(filter.clone()), Some("C9"), 2);
         assert_eq!(publish(&mut owner, &forged, page(&[&r3, &r4], None), read_proof(&basis, &job, "H", &[3, 4])).unwrap_err(), Error::Evidence, "an unrecorded cursor");
+        // C1 was recorded at position 2 of load case S's rows; unfiltered, position 2 holds
+        // rows 2 and 3, a page that would be true for that filter. It is still refused.
         let other_filter = claimed_read_with(&mut owner, &mut p, 6, "H", None, Some("C1"), 2);
-        assert_eq!(publish(&mut owner, &other_filter, page(&[&r3, &r4], None), read_proof(&basis, &job, "H", &[3, 4])).unwrap_err(), Error::Evidence, "a cursor under another filter");
+        assert_eq!(publish(&mut owner, &other_filter, page(&[&r2, &r3], Some("C4")), read_proof(&basis, &job, "H", &[2, 3])).unwrap_err(), Error::Evidence, "a cursor under another filter");
         // The query's own extent: rows of about 12 KiB each, limit 4; the page holds the
         // first two (24 KiB; a third would pass 32 KiB of row text), no more and no fewer.
         let pad = "p".repeat(12 * 1024);
