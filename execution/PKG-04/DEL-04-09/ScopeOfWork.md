@@ -33,7 +33,7 @@ For each mode it publishes the frequency, circular frequency and period; the sha
 
 ### CLM-002 — What this deliverable owns, and what it takes as input
 
-**This deliverable owns:** the mass model and its weight-basis identity check; the modal request, its refusals and disclosures; the eigen-solution (dense reduction and QL, shift-invert block Lanczos, the Sturm count with its shift placement and growth limit, the modal formation check, residual estimates and participation); the product's modal entry; the modal profile, the `modal-1` semantic table and the modal result family `openpipestress.modal_result`; the product's modal reader and its independent test verifier; the frozen references under `validation/references/f1_modal/`; and the desktop modes view, the mode-shape view and the report's modal section, within the results viewer's and report generator's contracts.
+**This deliverable owns:** the mass model and its weight-basis identity check; the modal request, its refusals and disclosures; the eigen-solution (dense reduction and QL, shift-invert block Lanczos, the Sturm count with its shift placement and growth limit, the modal formation check, residual estimates and participation); the product's modal entry and the headless modal entry, a command the headless runner hosts (DEL-10-05/REQ-015) beside DEL-04-07's solve entry, reading that entry's built model and supplying no value of its own; the modal profile, the `modal-1` semantic table and the modal result family `openpipestress.modal_result`; the product's modal reader and its independent test verifier; the frozen references under `validation/references/f1_modal/`; and the desktop modes view, the mode-shape view and the report's modal section, within the results viewer's and report generator's contracts.
 
 **Inputs from neighbours** (`deliverable.yaml`): DEL-04-01 (assembly, reduction, the curved-bend element and the sparse factorization, with the read-only factorization accessor and the element re-formation entry that DEL-04-01/REQ-019 and DEL-04-01/AC-017 commit to, and that AC-003 examines as this method uses them), DEL-04-02 (the straight pipe element and its uniform-load vector), DEL-04-03 (linear supports and imposed-displacement degrees of freedom), DEL-04-04 (the converged support states of a solved case), DEL-04-06 (singular-model detection), DEL-04-07 (the built model and the static solve), DEL-05-01 (self-weight and its mass per length on both routes), DEL-03-05 (rigid-family components), DEL-02-01 (the snubber family's document shape), DEL-04-10 (the snubber's dynamic meaning), DEL-02-02 (units, including the unit families of modal quantities), DEL-00-06 (the diagnostics contract), DEL-04-08 (the retained-memory pricing law), and DEL-07-05 and DEL-08-01 (the viewer's and report's contracts). Published piping benchmarks are external sources, each used only with its own redistribution evidence (REQ-009). These deliverables keep their scope.
 
@@ -50,10 +50,7 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
 **Undecided.**
 
 - The dense path's work budget is undecided.
-- Whether a modal result is recorded as an analysis run is undecided.
-- Whether a modal request has a headless entry, and which deliverable builds it, is not allocated.
 - The factor of the coarse-discretization warning is undecided; it is derived by benchmark.
-- Where the desktop keeps the remembered extraction bound for a project is undecided.
 - The first candidate published benchmark, NUREG/CR-1677 Volume 1, has no established redistribution status and is held under REQ-009.
 
 **Admission.** No product surface (desktop, headless runner or report) admits a user's modal request, or shows or records a modal result as an engineering result, until on that surface the dense path's work guard has its measured budget, the checks of REQ-003 and the guards of REQ-007 apply, and the product reader of REQ-005, rederiving the mass from the model, gives the verdict the surface shows. Until then a modal document is experimental. The restriction lifts on a surface when the evidence on that surface shows each of these conditions holds, and is not released otherwise.
@@ -95,7 +92,7 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
   - **Weight-to-mass acceleration.** `weight_to_mass_acceleration` is a positive acceleration, normalized through the unit catalog.
     - It is required when a component's weight enters the mass; without it the request is refused (`MODAL_WEIGHT_ACCELERATION_REQUIRED`, naming the components).
     - When the model carries a current applied component-weight self-weight primitive, the magnitude of that primitive's recorded acceleration must equal a, bit for bit after normalization. Otherwise the request is refused (`MODAL_WEIGHT_ACCELERATION_MISMATCH`, naming the case and both values).
-  - **Recording.** The request is recorded with the result (the document's binding: its hashes, every option and the state case). Whether a modal result is also recorded as an analysis run is undecided.
+  - **Recording.** The request is recorded with the result (the document's binding: its hashes, every option and the state case). A modal result is not recorded as an analysis run: it is not kept with the project and is run again after the project is reopened, and a report binds a modal result by the result's own identity.
 - **AC-002** — Maintained tests show:
   - each refusal for a request without a bound, without a required acceleration, with a mismatched acceleration, without a required state case, with a modulus basis that conflicts with the state case, or without a required dynamic-restraint choice;
   - extraction stopping at the count, at the cut-off, and at whichever comes first when both are given, with the stopping bound stated;
@@ -201,7 +198,7 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
   - the sparse guard is rechecked and refuses when q grows past the limit, and a cut-off-only request is sized from its sizing count;
   - the retained-precision entry is unreachable from the modal entry, and the priced sources price within the registered profile.
 - **REQ-008** — *Desktop and report.*
-  - **Request form.** The desktop takes the modal request with the extraction bound entered by the user. It remembers the last value per project and pre-fills it, visibly.
+  - **Request form.** The desktop takes the modal request with the extraction bound entered by the user. It remembers the last value per project, in the desktop's settings keyed by the project's identifier and outside the model document, and pre-fills it, visibly.
   - **Results.** The desktop shows a modes table and a mode-shape view. The view is a normalized display transform, labelled as not a physical length, with a static, stepped alternative under reduced motion.
   - **Report.** The rendered report gains a "Modal analysis" section: request and basis, mass summary, modes table, integrity evidence, refusals and disclosures, and limitations.
   - **Contracts.** These surfaces follow the results viewer's and the report generator's output and claims contracts.
@@ -209,7 +206,8 @@ Nothing in these commitments bounds modelling, input or physical error. The inte
   - the request form, including the absence of a pre-set bound in a new project and the remembered value in an existing one;
   - the modes table and its header lines;
   - the mode-shape view, including the reduced-motion path;
-  - the report section.
+  - the report section, which cites the modal result by its own identity;
+  - a project reopened after a modal solve: no modal result is shown, and the remembered bound is pre-filled and is not in the model document.
 
   A native smoke step solves a modal request and shows its table.
 
