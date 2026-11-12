@@ -153,6 +153,37 @@ class GateTests(unittest.TestCase):
         with self.assertRaisesRegex(gate.AdmissionError, 'unsupported controlled wrapper'):
             gate.unwrap(json.dumps(extra).encode(), self.input, 'sparse_interactive', runner_input=sent)
 
+    def test_a_binding_check_fails_closed_on_withheld_evidence_and_on_a_wrapper_without_it(self):
+        """Only complete evidence binds. An older wrapper is admitted for the harness's own comparison only
+        (UNBOUND_ADMISSION, never a binding); withheld evidence is refused; a check that requires the binding
+        fails on both."""
+        from tests.verifiers import run_evidence as rv
+        sent = json.dumps(self.input).encode()
+        invocation = {'command': 'solve', 'solver_mode': 'sparse_interactive', 'explicit_local_private_intent': False}
+        complete = dict(self.wrapper, run_evidence=rv.form(sent, self.wrapper, invocation))
+        withheld = dict(self.wrapper, run_evidence=rv.form(sent, self.wrapper, invocation,
+                                                          withheld='REQUEST_BLOCKED_BY_LOCAL_PRIVATE_CONTROL'))
+        absent = deepcopy(self.wrapper)
+        self.assertEqual(gate.run_evidence_binding(complete, sent, 'sparse_interactive'), gate.RUN_EVIDENCE_BOUND)
+        self.assertEqual(gate.run_evidence_binding(withheld, sent, 'sparse_interactive'), gate.NOT_BOUND_WITHHELD)
+        self.assertEqual(gate.run_evidence_binding(absent, sent, 'sparse_interactive'), gate.NOT_BOUND_NO_RUN_EVIDENCE)
+        self.assertEqual(gate.admit_run_evidence(absent, sent, 'sparse_interactive'), gate.UNBOUND_ADMISSION)
+        self.assertIn('not bound', gate.UNBOUND_ADMISSION)
+        gate.require_run_evidence_binding(complete, sent, 'sparse_interactive')
+        for doc, status in ((withheld, gate.NOT_BOUND_WITHHELD), (absent, gate.NOT_BOUND_NO_RUN_EVIDENCE)):
+            with self.assertRaisesRegex(gate.AdmissionError, 'run evidence binding required: ' + status):
+                gate.require_run_evidence_binding(doc, sent, 'sparse_interactive')
+        with self.assertRaisesRegex(gate.AdmissionError, 'run evidence not bound: withheld'):
+            gate.unwrap(json.dumps(withheld).encode(), self.input, 'sparse_interactive', runner_input=sent)
+        half = deepcopy(withheld)
+        half['run_evidence']['model'] = complete['run_evidence']['model']
+        with self.assertRaisesRegex(gate.AdmissionError, 'withheld form invalid'):
+            gate.run_evidence_binding(half, sent, 'sparse_interactive')
+        edited = deepcopy(withheld)
+        edited['summary']['redacted_count'] = 7
+        with self.assertRaisesRegex(gate.AdmissionError, 'does not verify: result'):
+            gate.run_evidence_binding(edited, sent, 'sparse_interactive')
+
     def test_ledger_exists_before_process_starts(self):
         original = capture
         def observing(*args, **kwargs):

@@ -81,8 +81,11 @@ needs:
 - from: DEL-12-02
   when: Forming run evidence
   condition: >-
-    The local-private control either passes an output or blocks it whole, and a blocked output
-    carries nothing derived from a private value, so that a blocked result carries no run evidence.
+    The local-private control either passes an output or blocks it whole, a blocked output
+    carries nothing derived from a private value, and the same control, given the request itself
+    and the intent as invoked, says whether it would block it, so that a blocked result carries
+    no run evidence and a passed result withholds the digests of a request the control would
+    block.
   gating: true
 - from: DEL-09-01
   when: Running a mechanics benchmark suite

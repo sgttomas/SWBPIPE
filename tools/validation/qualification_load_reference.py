@@ -532,8 +532,7 @@ def unwrap(raw: bytes, request: dict, mode: str, *, limit: int = LIMIT,
     require(mode in MODES, 'unsupported actual mode')
     doc = strict_json_limited(raw, limit)
     require(type(doc) is dict and set(doc) in (gate.CONTROL_MEMBERS, gate.CONTROL_MEMBERS | {gate.RUN_EVIDENCE}), 'unsupported controlled wrapper')
-    if gate.RUN_EVIDENCE in doc:
-        gate.verify_run_evidence(doc, runner_input, mode)
+    gate.admit_run_evidence(doc, runner_input, mode)  # an older wrapper: gate.UNBOUND_ADMISSION, binds nothing
     require(doc['blocked'] is False and type(doc['payload']) is dict, 'controlled output blocked')
     gate._diagnostics(doc['findings'], 'wrapper')
     summary = doc['summary']

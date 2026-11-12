@@ -89,10 +89,20 @@ openpipestress-runner read <reader> [--input <reader-input.json>|-]
   less `run_evidence`); and `binding_sha256` over the rest. Expect
   `request.raw_sha256` to equal `shasum -a 256` of the input file, and two runs
   of one input to give the same `result.canonical_sha256`. A digest the profile
-  cannot form is `{"unavailable": "<code>"}`. A blocked output and a run that
-  exits 2 carry none, nor does `read`. It is not a signature. The
-  independent check is `tests/verifiers/run_evidence.py` (`verify(input_bytes,
-  output)`). Committed outputs made before this change, including the
+  cannot form is `{"unavailable": "<code>"}`. Where the local-private control,
+  given the request itself and the intent as invoked, would block it (without
+  `--explicit-local-private-intent`, any request naming a project or model),
+  `request` and `model` each read `{"withheld":
+  "REQUEST_BLOCKED_BY_LOCAL_PRIVATE_CONTROL"}` (or
+  `REQUEST_NOT_JUDGED_BY_LOCAL_PRIVATE_CONTROL` for a request the control cannot
+  judge in full, such as one with a duplicate member) and only the result digest
+  is kept: such a result is not bound to its request. A blocked output and a run
+  that exits 2 carry none, nor does `read`. It is not a signature, and its
+  absence establishes nothing. The independent check is
+  `tests/verifiers/run_evidence.py`: `verify(input_bytes, output)` lists what
+  differs (`[]` only when every digest was recomputed), and `bound(input_bytes,
+  output)` answers `bound`, `not bound: withheld` or `not bound: no run
+  evidence`. Committed outputs made before this change, including the
   `validation/witness/generated/` witnesses and the dated evidence bundles,
   carry no run evidence and are not regenerated.
 - **`--output`.** The file holds the same JSON as stdout. It is written

@@ -2,8 +2,12 @@
 checked by the independent verifier `tests/verifiers/run_evidence.py`, which imports no product
 code, from the request bytes the runner read and the result it emitted.
 
-For each verb and for `size-hangers`, admitted and refused: every digest equals the one this
-verifier computes. A blocked result and a run that exits 2 carry no evidence. Each substitution
+For each verb and for `size-hangers`, admitted and refused, with local-private intent: every digest
+equals the one this verifier computes. Without intent, no digest of the request leaves the process:
+the control blocks the output, or it passes the output and the request and model are stated
+withheld, which this verifier reports as withheld, never as verified. A request the control cannot
+judge in full is withheld whatever the intent. A blocked result and a run that exits 2 carry no
+evidence. Each substitution
 (another request, a model changed in one member, the result edited, the evidence edited or
 re-paired) fails by the named digest. The same request run twice gives the same result digest.
 A request outside the canonical profile is stated as unavailable. The Rust program's own checks
@@ -53,6 +57,12 @@ def _validate_admitted() -> bytes:
     return json.dumps(request).encode()
 
 
+def _validate_carrying_a_model() -> bytes:
+    request = json.loads(_validate_admitted())
+    request["solve"] = {"preview_model": {"model": _load(SOLVED_MODEL)}}
+    return json.dumps(request).encode()
+
+
 def _regression_admitted() -> bytes:
     request = _load(INPUTS / "del1005_payload_binding_benchmark_single_case_input.json")
     request["request"]["operation"] = "run_regression"
@@ -67,6 +77,7 @@ def _cases() -> list[tuple[str, str, bytes, int]]:
         ("solve-admitted", "solve", _solve_admitted(), 0),
         ("solve-refused", "solve", (INPUTS / "tp_runner_015_final_cli_solve_input.json").read_bytes(), 1),
         ("validate-admitted", "validate-input", _validate_admitted(), 0),
+        ("validate-carrying-a-model", "validate-input", _validate_carrying_a_model(), 0),
         ("validate-refused", "validate-input", (INPUTS / "tp_runner_015_final_cli_validation_blocking_input.json").read_bytes(), 1),
         ("export-admitted", "export-results", (INPUTS / "del1005_export_results_success_input.json").read_bytes(), 0),
         ("export-refused", "export-results", (INPUTS / "del1005_export_results_missing_payload_input.json").read_bytes(), 1),
@@ -85,8 +96,10 @@ def runner():
     if not binary:
         pytest.skip("OPENPIPESTRESS_RUNNER_BIN is neither supplied nor built")
 
-    def run(args: list[str], stdin: bytes) -> tuple[int, bytes]:
+    def run(args: list[str], stdin: bytes, *, stderr: bool = False):
         completed = subprocess.run([binary, *args], input=stdin, capture_output=True, timeout=600)
+        if stderr:
+            return completed.returncode, completed.stdout, completed.stderr
         return completed.returncode, completed.stdout
     return run
 
@@ -180,7 +193,7 @@ def test_the_same_request_run_twice_gives_the_same_result_digest(runner, outputs
         assert _strict(again)[rv.MEMBER]["result"] == _strict(stdout)[rv.MEMBER]["result"]
 
 
-@pytest.mark.parametrize("member", ["9007199254740993", "1e16", '{"a":1,"a":2}', '"\\ud800"', "1e400"])
+@pytest.mark.parametrize("member", ["9007199254740993", "1e16"])
 def test_a_request_outside_the_canonical_profile_is_stated_as_unavailable(runner, member):
     raw = _validate_admitted().rstrip()[:-1] + b',"note":' + member.encode() + b"}"
     code, stdout = runner(["validate-input", "--explicit-local-private-intent"], raw)
@@ -194,6 +207,94 @@ def test_a_request_outside_the_canonical_profile_is_stated_as_unavailable(runner
     assert "note" not in json.dumps(emitted[rv.MEMBER])
 
 
+def _request_digests(command: str, raw: bytes) -> list[str]:
+    digests = [sha256(raw).hexdigest()]
+    try:
+        request = rv.checked_parse(raw)
+        digests.append(sha256(canonical_json.canonical_json(request).encode()).hexdigest())
+    except ValueError:
+        return digests
+    found, model = rv._pointer(request, rv.MODEL_POINTERS.get(command, "/no/model"))
+    if found:
+        digests.append(sha256(canonical_json.canonical_json(model).encode()).hexdigest())
+    return digests
+
+
+@pytest.mark.parametrize("name", [case[0] for case in _cases()])
+def test_without_intent_no_digest_of_the_request_leaves_the_process(runner, name):
+    """Every verb and size-hangers, admitted and refused, without intent: the control blocks the output, or
+    it passes it and the request and model are withheld; no request digest is on standard output or error."""
+    command, raw, _ = next((c, r, k) for n, c, r, k in _cases() if n == name)
+    code, stdout, stderr = runner([command], raw, stderr=True)
+    for digest in _request_digests(command, raw):
+        assert digest.encode() not in stdout and digest.encode() not in stderr, name
+    emitted = _strict(stdout)
+    if emitted["blocked"]:
+        assert code == 1 and rv.MEMBER not in emitted
+        return
+    assert command == "validate-input", name  # the one command whose output the control passes without intent
+    evidence = emitted[rv.MEMBER]
+    assert evidence["request"] == evidence["model"] == {"withheld": "REQUEST_BLOCKED_BY_LOCAL_PRIVATE_CONTROL"}
+    assert rv.verify(raw, emitted) == rv.WITHHELD_REPORT
+    # Not comparable: another request is not detected, and the outcome is still withheld, never verified.
+    assert rv.verify(b"{}", emitted) == rv.WITHHELD_REPORT
+    edited = deepcopy(emitted)
+    edited["summary"]["redacted_count"] = 7
+    assert rv.verify(raw, edited) == ["result.canonical_sha256"]
+    unwithheld = deepcopy(emitted)
+    unwithheld[rv.MEMBER]["request"] = {"raw_sha256": sha256(raw).hexdigest(), "canonical_sha256": "0" * 64}
+    assert "binding_sha256" in rv.verify(raw, unwithheld)
+
+
+def test_withheld_absent_and_complete_evidence_are_told_apart_and_only_complete_binds(runner):
+    """Withheld is stated member by member; it is distinguishable from a complete result and from one without
+    run evidence; a check that requires the binding fails closed on the withheld and the absent forms."""
+    raw = _validate_carrying_a_model()
+    withheld = _strict(runner(["validate-input"], raw)[1])
+    complete = _strict(runner(["validate-input", "--explicit-local-private-intent"], raw)[1])
+    absent = {k: v for k, v in complete.items() if k != rv.MEMBER}
+    for member in ("request", "model"):
+        assert withheld[rv.MEMBER][member] == {"withheld": "REQUEST_BLOCKED_BY_LOCAL_PRIVATE_CONTROL"}
+    assert rv.verify(raw, complete) == []
+    assert rv.verify(raw, withheld) == rv.WITHHELD_REPORT
+    assert rv.verify(raw, absent) == [rv.MEMBER]
+    assert rv.bound(raw, complete) == rv.BOUND
+    assert rv.bound(raw, withheld) == rv.NOT_BOUND_WITHHELD
+    assert rv.bound(raw, absent) == rv.NOT_BOUND_NO_RUN_EVIDENCE
+    half = deepcopy(withheld)
+    half[rv.MEMBER]["model"] = complete[rv.MEMBER]["model"]
+    assert rv.bound(raw, half).startswith("not bound: mismatch")
+
+
+def test_a_request_the_control_passes_carries_complete_evidence_without_intent(runner):
+    request = json.loads(_validate_admitted())
+    for member in ("project_ref", "model_ref"):
+        request["request"][member] = {"ref_type": "unknown", "ref_id": "unknown"}
+    request["request"]["provenance"]["source_location"] = "unknown"
+    raw = json.dumps(request).encode()
+    code, stdout = runner(["validate-input"], raw)
+    emitted = _strict(stdout)
+    assert emitted["blocked"] is False
+    assert rv.verify(raw, emitted) == []
+    assert emitted[rv.MEMBER]["request"]["raw_sha256"] == sha256(raw).hexdigest()
+
+
+@pytest.mark.parametrize("member", ['"source_location":"/an/invented/private/path","source_location":"unknown"',
+                                    '"note":"\\ud800"', '"note":1e400'])
+def test_a_request_the_control_cannot_judge_is_withheld_whatever_the_intent(runner, member):
+    raw = _validate_admitted().rstrip()[:-1] + b"," + member.encode() + b"}"
+    for args in (["validate-input", "--explicit-local-private-intent"], ["validate-input"]):
+        code, stdout = runner(args, raw)
+        emitted = _strict(stdout)
+        if emitted["blocked"]:
+            assert rv.MEMBER not in emitted
+            continue
+        evidence = emitted[rv.MEMBER]
+        assert evidence["request"] == evidence["model"] == {"withheld": "REQUEST_NOT_JUDGED_BY_LOCAL_PRIVATE_CONTROL"}
+        assert sha256(raw).hexdigest().encode() not in stdout
+        assert rv.verify(raw, emitted) == rv.WITHHELD_REPORT
+
+
 def test_the_rust_module_states_the_verifiers_constants():
     """The program's module names the same domain, version, pointers and absence reasons (read from its text)."""
     text = RUST_MODULE.read_text(encoding="utf-8")
@@ -202,6 +303,7 @@ def test_the_rust_module_states_the_verifiers_constants():
     assert constants["BINDING_DOMAIN"] == rv.BINDING_DOMAIN
     assert {"solve": constants["SOLVE_MODEL_POINTER"], "size-hangers": constants["SIZE_HANGERS_MODEL_POINTER"]} == rv.MODEL_POINTERS
     assert (constants["ABSENT_NOT_CARRIED"], constants["ABSENT_NOT_PRESENT"]) == (rv.ABSENT_NOT_CARRIED, rv.ABSENT_NOT_PRESENT)
+    assert (constants["WITHHELD_BLOCKED"], constants["WITHHELD_UNJUDGED"]) == rv.WITHHELD_CODES
 
 
 def test_the_verifier_is_independent_of_the_producer(outputs, monkeypatch):

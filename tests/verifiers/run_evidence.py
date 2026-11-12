@@ -18,7 +18,15 @@ profile to refuse it here too and the code to be a `CHECKED-JSON-` refusal (this
 implementation names refusals in its own words, so the code itself is not compared). The
 invocation and producer cannot be recomputed from bytes; a change to either fails the binding.
 
-The evidence is not a signature: whoever can rewrite a result can rewrite its evidence.
+Where the local-private control would block the request itself (or cannot judge all of it), the
+runner states `request` and `model` each as `{"withheld": <code>}` and keeps the result digest.
+A withheld member cannot be compared: `verify` then reports it as `"request: withheld"` and
+`"model: withheld"`, never as verified. This verifier does not judge privacy (it imports no
+control); it takes a withheld statement only when both members carry the same known code, and
+the binding covers the statement.
+
+The evidence is not a signature: whoever can rewrite a result can rewrite its evidence, and
+whoever removes it leaves a result that reads as one made before run evidence existed.
 
 Test-only and independent: it imports only the standard library and `canonical_json`.
 """
@@ -37,6 +45,8 @@ MODEL_POINTERS = {"solve": "/solve/preview_model/model", "size-hangers": "/reque
 ABSENT_NOT_CARRIED = "COMMAND_CARRIES_NO_MODEL_DOCUMENT"
 ABSENT_NOT_PRESENT = "MODEL_DOCUMENT_NOT_IN_REQUEST"
 CONTROL_MEMBERS = ("payload", "decisions", "findings", "blocked", "summary")
+WITHHELD_CODES = ("REQUEST_BLOCKED_BY_LOCAL_PRIVATE_CONTROL", "REQUEST_NOT_JUDGED_BY_LOCAL_PRIVATE_CONTROL")
+WITHHELD_REPORT = ["model: withheld", "request: withheld"]
 
 
 def _unique_members(pairs: list[tuple[str, Any]]) -> dict:
@@ -126,10 +136,20 @@ def _same(want: Any, have: Any) -> bool:
     return want == have and type(want) is type(have)
 
 
-def form(raw: bytes, result: dict, invocation: dict, producer: Any = None) -> dict:
+def _withheld_code(member: Any) -> str | None:
+    if type(member) is dict and set(member) == {"withheld"} and member["withheld"] in WITHHELD_CODES:
+        return member["withheld"]
+    return None
+
+
+def form(raw: bytes, result: dict, invocation: dict, producer: Any = None, withheld: str | None = None) -> dict:
     """The evidence `result` (without `run_evidence`) carries for the request bytes `raw`, as the runner
-    forms it; for synthetic runners in tests. `producer` defaults to a synthetic identity."""
-    request, model = _request_and_model(raw, invocation.get("command"))
+    forms it; for synthetic runners in tests. `producer` defaults to a synthetic identity; `withheld`
+    states the request and model withheld under that code."""
+    if withheld is None:
+        request, model = _request_and_model(raw, invocation.get("command"))
+    else:
+        request, model = {"withheld": withheld}, {"withheld": withheld}
     evidence = {
         "evidence_version": EVIDENCE_VERSION,
         "canonical_profile": canonical_json.PROFILE,
@@ -144,15 +164,18 @@ def form(raw: bytes, result: dict, invocation: dict, producer: Any = None) -> di
 
 
 def verify(raw: bytes, emitted: Any) -> list[str]:
-    """Every evidence member whose recomputed value differs, by dotted name; `[]` when the result
-    and its evidence belong to the request bytes `raw`. `["run_evidence"]` when the member is
-    missing or not an object."""
+    """Every evidence member whose recomputed value differs, by dotted name; `[]` only when every
+    digest was recomputed and the result and its evidence belong to the request bytes `raw`.
+    `["run_evidence"]` when the member is missing or not an object. When the request and model
+    were withheld and everything else agrees: `["model: withheld", "request: withheld"]`."""
     if type(emitted) is not dict or type(emitted.get(MEMBER)) is not dict:
         return [MEMBER]
     stated = emitted[MEMBER]
     invocation = stated.get("invocation")
     command = invocation.get("command") if type(invocation) is dict else None
-    request, model = _request_and_model(raw, command)
+    code = _withheld_code(stated.get("request"))
+    withheld = code is not None and _withheld_code(stated.get("model")) == code
+    request, model = ({"withheld": code}, {"withheld": code}) if withheld else _request_and_model(raw, command)
     expected = {
         "evidence_version": EVIDENCE_VERSION,
         "canonical_profile": canonical_json.PROFILE,
@@ -166,7 +189,7 @@ def verify(raw: bytes, emitted: Any) -> list[str]:
     differing = []
     for key in sorted(set(expected) | set(stated)):
         want, have = expected.get(key), stated.get(key)
-        if key in ("request", "result") and type(want) is dict and type(have) is dict:
+        if key in ("request", "result") and type(want) is dict and type(have) is dict and not withheld:
             differing += [f"{key}.{name}" for name in sorted(set(want) | set(have))
                           if not (_same_digest if name == "canonical_sha256" else _same)(want.get(name), have.get(name))]
         elif key == "binding_sha256":
@@ -174,5 +197,25 @@ def verify(raw: bytes, emitted: Any) -> list[str]:
             if type(want) is not str or want != have:
                 differing.append(key)
         elif not _same(want, have) or key not in stated:
-            differing.append("model.canonical_sha256" if key == "model" else key)
+            differing.append({"model": "model.canonical_sha256", "result": "result.canonical_sha256"}.get(key, key))
+    if not differing and withheld:
+        return list(WITHHELD_REPORT)
     return differing
+
+
+BOUND = "bound"
+NOT_BOUND_WITHHELD = "not bound: withheld"
+NOT_BOUND_NO_RUN_EVIDENCE = "not bound: no run evidence"
+
+
+def bound(raw: bytes, emitted: Any) -> str:
+    """Whether `emitted` is bound to the request bytes `raw`, for a check that requires the binding. Only
+    `"bound"` supplies one; withheld evidence and a result without run evidence fail closed."""
+    if type(emitted) is not dict or MEMBER not in emitted:
+        return NOT_BOUND_NO_RUN_EVIDENCE
+    report = verify(raw, emitted)
+    if not report:
+        return BOUND
+    if report == WITHHELD_REPORT:
+        return NOT_BOUND_WITHHELD
+    return "not bound: mismatch: " + ", ".join(report)

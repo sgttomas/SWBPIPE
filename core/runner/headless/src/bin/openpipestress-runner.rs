@@ -187,16 +187,28 @@ fn main() -> ExitCode {
     // output, over the controlled output exactly as it is emitted. A blocked
     // output carries none (a digest of a private value would let a guess be
     // confirmed), and neither does a run that exits 2 (no result is formed).
+    // The request itself is judged by the same control the output had, with the
+    // intent as invoked; where that control would block it, the request and
+    // model digests are withheld and the result digest is kept.
     let evidence = (code != 2 && !controlled.blocked).then(|| {
         let emitted = serde_json::to_value(&controlled)
             .expect("controlled CLI output must serialize as JSON");
+        let intent = args.explicit_local_private_intent;
+        let judgment = run_evidence::judge_request(input.as_bytes(), |request| {
+            if args.verb == SIZE_HANGERS {
+                control_whole_document_private(request, intent).blocked
+            } else {
+                control_local_private(request, intent).blocked
+            }
+        });
         run_evidence::form(
             input.as_bytes(),
             run_evidence::Invocation {
                 command: &args.verb,
                 solver_mode: (args.verb == "solve").then(|| args.solver_mode.as_str()),
-                explicit_local_private_intent: args.explicit_local_private_intent,
+                explicit_local_private_intent: intent,
             },
+            judgment,
             &emitted,
         )
     });
