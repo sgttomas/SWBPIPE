@@ -72,9 +72,12 @@ generators' arithmetic.
 
 Read:
 - `../kd5_timoshenko/`: `README.md`, `kd5t_engine.py` (whole), `run.sh` and
-  `SHA256SUMS`. The engine is imported unchanged and bound by SHA-256
-  (`c91f28c6…314e`); the generator refuses to run if it changes. Its other
-  scripts, `runner/` and the frozen subset were not opened.
+  `SHA256SUMS`. The engine is imported unchanged and bound by SHA-256. The
+  freeze was made with `c91f28c6…314e`, which the frozen files record. The
+  generator admits that engine or its one named successor (`05df1ba6…ec5d`,
+  commit `cdf98fd8c`: the accepted model document version only, no
+  arithmetic) and refuses any other bytes. Its other scripts, `runner/` and
+  the frozen subset were not opened.
 - The READMEs of `t4_u4b`, `t4_u8` and `t4_u6`, for format and freezing
   precedent.
 - DEL-05-03 Design `section-bases-and-timoshenko.md` §§1–3 (D-5 bases, U8 §3.1
@@ -110,7 +113,7 @@ Read:
 | `source_twins_cases.json` | The source scope table (each source load case, frozen or out of scope with its reasons), the input pins and 104 twin documents, one per line |
 | `source_twins_oracle.json` | As `oracle.json`, for the twins. `cases_sha256` binds `source_twins_cases.json` |
 | `run.sh` | Regenerates every frozen file of both generators in memory, compares byte for byte, then runs `shasum -a 256 -c SHA256SUMS` |
-| `SHA256SUMS` | Hashes of the eight files above |
+| `SHA256SUMS` | Hashes of this README and the seven files above |
 
 ## The two readouts
 
@@ -453,8 +456,12 @@ points enter only through its own modulus basis.
   - `annular_lane_reuses_kappa_hat`: not discriminable in any twin.
 
 **What remains.** These twins are re-authorings of the source inputs as they
-are committed. If J2's or RF's inputs change, the pinned SHA-256 refuses and
-the twins need a re-freeze and a new refutation.
+were committed at the freeze (`f47ba3360`); the frozen files record those
+inputs' hashes. The twelve J2 request files have since changed in one line
+each, the model document version. The generator admits exactly those
+successors, named with their difference, and reproduces every frozen byte from
+them. Any other change to J2's or RF's inputs is refused, and the twins then
+need a re-freeze and a new refutation.
 `exact_readouts()` (`o4_reference.py --solve DOC.json`) still gives both
 readouts of any other document by the same code path; such values are not
 frozen.
@@ -636,9 +643,10 @@ python3 -I -B generators/o4_source_twins.py            # check the source twins 
 python3 -I -B generators/o4_source_twins.py --write    # intentional re-freeze of the twins only
 ```
 
-Check mode fails on any byte difference, on any unexpected or missing file, on
-an engine or source input whose SHA-256 differs, and on any failed
-cross-check.
+Check mode fails on any byte difference, on any unexpected or missing file
+outside `declared_problem/` (a product check that lives beside this unit), on
+an engine or source input whose SHA-256 is neither the freeze's nor its one
+admitted successor's, and on any failed cross-check.
 
 **Re-freeze rules.**
 - No value changes to match a product output. A disagreement goes back to this

@@ -127,7 +127,9 @@ class Native:
         # project instruction roots. Explicit keychain provider authentication
         # uses the child environment; never fall back to a developer's login.
         env = {"PATH": "/usr/bin:/bin:/usr/sbin:/sbin", "LANG": "en_US.UTF-8",
-               "CODEX_HOME": str(home), "HOME": str(root / "os-home"), "TMPDIR": str(root / "tmp")}
+               "CODEX_HOME": str(home), "HOME": str(root / "os-home"), "TMPDIR": str(root / "tmp"),
+               # The supplier's own switch for remote control, as the product host sets it.
+               "CODEX_INTERNAL_APP_SERVER_REMOTE_CONTROL_DISABLED": "1"}
         if api_key is not None:
             env["SWBPIPE_OMLX_API_KEY"] = api_key
         config = self.configuration(model, provider_url, api_key)
