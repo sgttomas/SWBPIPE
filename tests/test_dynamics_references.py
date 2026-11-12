@@ -7,17 +7,14 @@ product code.
 
 Threat model: a generator that imports, opens or names a product path in the
 ordinary way. For every generator file, at any depth under `generators/`,
-this checks its imports (standard library other than the import machinery,
-its own directory, or a named module of another frozen reference package
-whose bytes that package's SHA256SUMS pins and that nothing beside the
-importer shadows), that it has no relative import, that it neither imports
-nor names a dynamic import or evaluation facility under any alias, and that
-no string constant names a product path or a product module. Outside the
-model, recorded and not repaired: a path or module name assembled at run
-time to hide its segments.
-
-The scan rule here is moving: one module, `tools/validation/reference_independence.py`,
-is to hold it for every reference package's test, and this file then imports it.
+this checks its imports (a named list of standard-library modules, its own
+directory, or a named module of another frozen reference package whose bytes
+that package's SHA256SUMS pins and that nothing beside the importer shadows),
+that it has no relative import, that it neither imports nor names a facility
+that loads or evaluates code or starts another program, under any alias or as
+a text or bytes constant, and that no text or bytes constant names a product
+path or a product module. Outside the model, recorded and not repaired: a path
+or name assembled at run time to hide its segments.
 """
 import ast
 import hashlib
@@ -66,29 +63,38 @@ FIXTURE_SCRIPTS = {
 }
 
 PRODUCT_ROOTS = {"core", "apps", "api", "tests", "tools", "fixtures", "schemas"}
-# Facilities that load or evaluate code named at run time. A generator may not name one, as a call,
-# a reference or an import alias, and may not import the modules that provide them.
+# The standard-library modules a generator may import: the ones the generators use. Anything else,
+# such as a module that starts a program or reaches the interpreter's built-ins, is refused by
+# absence from this list.
+ALLOWED_STDLIB = {
+    "argparse", "concurrent", "decimal", "fractions", "hashlib", "json", "math", "os", "pathlib", "struct", "sys", "time",
+}
+# Facilities that load or evaluate code named at run time, or start another program. A generator may
+# not name one: as a call, a reference, an import alias, or a text or bytes constant (which is how
+# `getattr` or a namespace lookup would reach it).
 FORBIDDEN_NAMES = {
-    "__import__", "import_module", "exec", "eval", "compile", "exec_module", "load_module", "run_path", "run_module",
-    "spec_from_file_location", "spec_from_loader", "module_from_spec", "SourceFileLoader",
+    "__import__", "__builtins__", "import_module", "exec", "eval", "compile", "exec_module", "load_module", "run_path",
+    "run_module", "spec_from_file_location", "spec_from_loader", "module_from_spec", "SourceFileLoader",
+    "system", "popen", "startfile", "posix_spawn", "posix_spawnp", "fork", "forkpty",
+    "execl", "execle", "execlp", "execlpe", "execv", "execve", "execvp", "execvpe",
+    "spawnl", "spawnle", "spawnlp", "spawnlpe", "spawnv", "spawnve", "spawnvp", "spawnvpe",
 }
 FORBIDDEN_MODULES = {"importlib", "runpy", "imp", "pkgutil", "zipimport"}
 
-
-def _has_product_segment(text):
-    return bool(PRODUCT_ROOTS & set(re.split(r"[\\/]+", text)))
+_ROOT = "(?:" + "|".join(sorted(PRODUCT_ROOTS)) + ")"
+# A product root standing as a path segment anywhere in a text: opening a segment (nothing of a name
+# before it, a separator after it) or closing one (a separator before it, nothing of a name after it).
+_PRODUCT_SEGMENT = re.compile(rf"(?<![\w.\-]){_ROOT}(?=[\\/])|(?<=[\\/]){_ROOT}(?![\w.\-])")
 
 
 def names_product_path(text):
-    """A string constant names a product path when a path segment is a product root: of the whole
-    string, so that a directory name with a space in it does not hide the path, or of any
-    whitespace-separated token that is itself a path. It names a product module when it is a dotted
+    """A text names a product path when a product root is one of its path segments, wherever the
+    path stands in it: after a space in a directory name, inside quotation marks, inside a command.
+    A text that is only a product root names one too. It names a product module when it is a dotted
     name whose first part is a product root."""
     if not text:
         return False
-    if _has_product_segment(text):
-        return True
-    if any(re.search(r"[\\/]", token) and _has_product_segment(token) for token in text.split()):
+    if text in PRODUCT_ROOTS or _PRODUCT_SEGMENT.search(text):
         return True
     return bool(re.fullmatch(r"[A-Za-z_]\w*(\.[A-Za-z_]\w*)+", text)) and text.split(".")[0] in PRODUCT_ROOTS
 
@@ -131,13 +137,19 @@ def independence_findings(path, admitted):
         top = name.split(".")[0]
         if top in FORBIDDEN_MODULES:
             found.append(("import machinery", line, name))
-        elif not (top in sys.stdlib_module_names or top in local or top in admitted_names):
+        elif not (top in ALLOWED_STDLIB or top in local or top in admitted_names):
             found.append(("import", line, name))
 
     for node in ast.walk(tree):
-        if isinstance(node, ast.Constant) and isinstance(node.value, str):
-            if id(node) not in inert and names_product_path(node.value):
-                found.append(("product path", node.lineno, node.value))
+        if isinstance(node, ast.Constant) and isinstance(node.value, (str, bytes)):
+            # Bytes name a path as text does; latin-1 reads every byte.
+            text = node.value if isinstance(node.value, str) else node.value.decode("latin-1")
+            if id(node) in inert:
+                continue
+            if names_product_path(text):
+                found.append(("product path", node.lineno, text))
+            if text in FORBIDDEN_NAMES:
+                found.append(("dynamic facility", node.lineno, text))
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 judge_import(alias.name, node.lineno)
@@ -215,6 +227,7 @@ def test_a_generators_directory_holds_only_modules(package):
     [
         "core", "core/x.py", "../core/x.py", "..\\apps\\desktop", "validation/../tests/a.py", "fixtures", "a/tools/b", "api/x",
         "/Users/a b/checkout/core/x.py", "run core/x.py now", "core.model_operations.audit_trail.engine", "tools.ci",
+        'cat "core/x.py"', "open('core/x.py').read()", "x=core/y", "(tools/a)", "a/tests", "see a/fixtures, then stop",
     ],
 )
 def test_the_path_rule_flags_a_product_segment_wherever_it_stands(text):
@@ -225,7 +238,7 @@ def test_the_path_rule_flags_a_product_segment_wherever_it_stands(text):
     "text",
     [
         "", "validation/references/f1_modal", "generators/generate.py", "a core of steel", "core_values", "hardcore/x", "testsuite",
-        "numerics.core", "the tests of this package", "a.b",
+        "numerics.core", "the tests of this package", "a.b", "my-core/x", "x.core/y", "a/core.py", "a/tools-old/b", "N/m",
     ],
 )
 def test_the_path_rule_passes_what_names_no_product_root(text):
@@ -256,6 +269,34 @@ def test_the_independence_rule_catches_each_kind(tmp_path):
         "dynamic facility", "dynamic facility", "dynamic facility", "import", "import machinery", "import machinery",
         "product path", "product path", "product path", "relative import",
     ], found
+
+
+@pytest.mark.parametrize(
+    ("source", "kinds"),
+    [
+        # A path given as bytes.
+        ("data = open(b'core/x.py', 'rb').read()\n", ["product path"]),
+        # A path inside quotation marks in a command, and the module that starts programs.
+        ("import subprocess\nsubprocess.run('cat \"core/x.py\"', shell=True)\n", ["import", "product path"]),
+        # A facility reached by its name as text, through the built-ins module.
+        (
+            "import builtins\ngetattr(builtins, 'eval')(\"open('core/x.py').read()\")\n",
+            ["dynamic facility", "import", "product path"],
+        ),
+        # The same through a namespace, and a program started through an allowed module.
+        ("f = globals()['__builtins__']\n", ["dynamic facility"]),
+        ("import os\nos.system('true')\n", ["dynamic facility"]),
+        ("import os\nrun = getattr(os, 'popen')\n", ["dynamic facility"]),
+        # A standard-library module the generators do not use.
+        ("import ctypes\n", ["import"]),
+    ],
+)
+def test_the_independence_rule_catches_ordinary_access_in_other_forms(tmp_path, source, kinds):
+    generator = tmp_path / "generators" / "probe.py"
+    generator.parent.mkdir()
+    generator.write_text(source, encoding="utf-8")
+    found = independence_findings(generator, {})
+    assert sorted(kind for kind, _, _ in found) == kinds, found
 
 
 def test_the_scan_reaches_a_generator_below_the_top_directory(tmp_path, monkeypatch):

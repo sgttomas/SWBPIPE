@@ -299,7 +299,8 @@ formulas.
 
 A further refuting TASK, not the author of this package and not the writer of the record above,
 examined what was added to or changed in this package after that record (the member-axis end-force blocks of C9, the δ_c cluster statements, C7's two bases, the fraction moving with the supports, and the renamed rule keys), as committed on
-`claude/dynamics-references` at c8c602df6. This section is its record. Governing texts: DEL-04-10
+`claude/dynamics-references` at c8c602df6. This section is its record: one record covered this package and
+`../closed_form` together, the rows below are this package's, and its count of checks is for both. Governing texts: DEL-04-10
 CLM-001 (with Repeated modes), REQ-002 to REQ-004; DEL-04-09 REQ-002, REQ-003 (δ_c = 2⁻²⁰), REQ-005.
 
 **Verdict.** Nothing refuted: no value, formula or statement checked below disagrees.
@@ -322,7 +323,7 @@ first principles (B6's A), with rules written from CLM-001's text.
 | B4 | C6A (rigid skew snubber SN2) and C6B (no skew constraint): reduced DOF count 30 − 13 − 1 = 16 and 30 − 12 = 18, equal to `n_reduced_dofs` and to the number of listed modes; `fraction_moving_with_supports` = 1 − Σ over every finite mode m_eff/T_k and `all_finite_modes_cumulative_fraction` per direction | 12 + 2 | 1.6e-40 |
 | B5 discrete | All five renamed rules recomputed from the published contributions in C9-CHAIN-Y (where GROUPING and TEN_PERCENT differ: groups (21, 22), (23); pairs (21, 22), (22, 23)), every C3, C4 and C10 analysis, and C8-I-FLAT | 4,455 | 3.1e-33 (C10-W3, a quantity whose cluster contributions cancel 1219 − 1219 → 2e-4, at the 40-digit rounding of its inputs); 7e-40 elsewhere |
 
-About 10,500 checks.
+About 11,000 checks in all.
 
 Notes (not refutations):
 

@@ -379,7 +379,8 @@ screening-class derivation should state them:
 
 A further refuting TASK, not the author of this package and not the writer of the record above,
 examined what was added to or changed in this package after that record (the renamed rule keys, the repeated pair's adopted and mode-by-mode values, and the screening basis under its restated definitions), as committed on
-`claude/dynamics-references` at c8c602df6. This section is its record. Governing texts: DEL-04-10
+`claude/dynamics-references` at c8c602df6. This section is its record: one record covered this package and
+`../discrete` together, the rows below are this package's, and its count of checks is for both. Governing texts: DEL-04-10
 CLM-001 (with Repeated modes), REQ-002 to REQ-004; DEL-04-09 REQ-002, REQ-003 (δ_c = 2⁻²⁰), REQ-005.
 
 **Verdict.** Nothing refuted: no value, formula or statement checked below disagrees.
@@ -396,7 +397,7 @@ first principles (B6's A), with rules written from CLM-001's text.
 | B6 repeated pair | A rebuilt from first principles: EI/m̄ as an exact rational (equal to the published one), cantilever β₁ from my own determinant, W(1) = 1, ∫W/∫W², T1 log-log at f₁; then, at all eight angles, c₁ = cos²θ A, c₂ = sin²θ A (uY) and ±cos θ sin θ A (uZ); `adopted_cluster_sum_first` per rule = |c₁ + c₂| = A and 0; `basis_invariant_sum_first`; the mode-by-mode fields against the closed forms named for them | 2 + 224 | 2.3e-40 (A to 5e-41) |
 | B6 screening | `per_mode` and `per_mode_significant` maxima for displacement and reaction rebuilt from `beams_fe.json` and `beams_continuum.json`, with the 1e-30 exclusion and the 1 % threshold over nm = min(5, finite FE modes) continuum modes, every form and N, `all`, `L2` and `L64`; `largest_sensitivity` for the same two kinds rebuilt as (Q_n/R)²(σ_n − 2) and (Q_n/R)²σ_n with σ_n from each table's log-log slope, so shape, participation and q_n fixed | 96 + 4 | every published 3-digit value equal; where the `where` label differs (15 cases) the two candidates tie to ≤ 1e-37 |
 
-About 620 checks. The 348 contributions excluded by the 1e-30 rule (displacement and reaction) are all exact zeros.
+About 11,000 checks in all. The 348 contributions excluded by the 1e-30 rule (displacement and reaction) are all exact zeros.
 
 Notes (not refutations):
 
