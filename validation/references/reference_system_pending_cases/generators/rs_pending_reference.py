@@ -15,8 +15,8 @@ Bases (README, "Bases"):
   insulation       rho_i * pi * ((R + t_i)^2 - R^2)                OD to OD + 2 t_i
   realized arc     length R * pi/2; first moment R * [(pi/2) C + e1 + e2]
   wind             p * C_s * (D + 2 t_i) per length, along +X, on the marked members
-  seismic          the g-factor times the weight the weight case gives the model (decided 2026-11-12): a * g * mu
-                   per length on every member except the replaced span and the members whose component weight the
+  seismic          the g-factor times the self-weight plan evaluated at the seismic case's gravity, with each
+                   entered component force W held fixed (decided 2026-11-12): a * g * mu per length on every member except the replaced span and the members whose component weight the
                    weight case applies, and a * W at each such component's centre of gravity; positive axis
   hydrotest weight mu with rho_c replaced by the test contents density, times g along -Z; rigid-family component
                    weights at their centres of gravity in place of their members' distributed weight
@@ -341,8 +341,9 @@ def arc_geometry(pid):
 def segments(pid, arc_mode):
     """The member's geometry as (length, first moment of length) segments.
 
-    arc_mode "arc": a realized bend is its quarter circle (length R pi/2). "legs": the alternative reading, the two
-    straight tangent legs from the tangent nodes to the corner (length 2R)."""
+    arc_mode "arc": a realized bend is its quarter circle (length R pi/2), as §3 and §5 specify. "legs": a control
+    that departs from the specification, the two straight tangent legs from the tangent nodes to the corner
+    (length 2R)."""
     _, frm, to, _ = MEMBER[pid]
     if pid not in ARCS:
         return straight(P(frm), P(to))
@@ -451,8 +452,9 @@ def seismic_weight(system, mapped_mode="component", replaced_span=False, arc_mod
     mapped_mode "component" (the decided rule, SWBPIPE Agent 0, 2026-11-12, in DEL-05-01): every member carries
     g * mu per length, except a member whose component weight the weight case applies, which carries instead the
     component's weight W at its centre of gravity (the force a * W at the node with its moments about the node from
-    the centre-of-gravity vector; a * W is a force and no gravity divides it). So the seismic weight is the weight
-    the weight case gives the model. Controls: "member", the rule before 2026-11-12 (pipe mass on a mapped member,
+    the centre-of-gravity vector; a * W is a force and no gravity divides it). So the seismic weight is the self-weight
+    plan evaluated at the seismic case's gravity, with each entered component force W held fixed; with the seismic
+    gravity taken as the weight case's (the stated assumption), it equals the weight case's weight here. Controls: "member", the rule before 2026-11-12 (pipe mass on a mapped member,
     component weight left out); "both", the double count (the member's pipe weight and the component's weight)."""
     comp_of = mapped(system)
     items, rows = [], {}
@@ -595,8 +597,10 @@ SEISMIC_RULE = ("decided by SWBPIPE Agent 0 on 2026-11-12, in DEL-05-01's wordin
                 "weights the weight case applies is the specification's (§5, §8.1: component weights at their "
                 "centres of gravity in place of their members' distributed weight): RS-F1, RS-V1, RS-F2 in both "
                 "systems and RS-R1 in the full system; RS-R1 is pending in the fixture today (§10), where RS-P150 "
-                "keeps its distributed weight and so its distributed seismic load. This closes the former open "
-                "reading OR-1.")
+                "keeps its distributed weight and so its distributed seismic load. Convention (SWBPIPE Agent 0): the "
+                "self-weight plan evaluated at the seismic case's gravity, with each entered component force W held "
+                "fixed; it names an exception and does not make the two mass models equivalent in general. This "
+                "closes the former open reading OR-1.")
 
 SEISMIC_CONTROLS = [
     ("control: the rule before 2026-11-12: pipe mass on a mapped member, component weight left out",
@@ -604,55 +608,71 @@ SEISMIC_CONTROLS = [
     ("control: double count: the mapped member's pipe mass and the component's weight both", {"mapped": "both"}),
 ]
 
-OPEN_READINGS = [
-    ("OR-2", "Seismic mass of the replaced span RS-P180",
-     "none (spec §5.1: the replaced span is 'excluded from weight generation and from every primitive load'; a load "
-     "on it is refused)",
-     [("RS-P180's S220 mass per length over its 0.600 m", {"replaced_span": True})],
+SPECIFICATION_DEPARTURE_CONTROLS = [
+    ("SD-2", "seismic mass given to the replaced span RS-P180", "departure from the specification",
+     "§5.1: 'The replaced span RS-P180 carries no load, member result or self-weight. It is excluded from weight "
+     "generation and from every primitive load'; the references give it no seismic mass and no wind",
+     [("control, departing from §5.1: RS-P180's S220 mass per length over its 0.600 m added to the seismic weight",
+       {"replaced_span": True})],
      ("RS-EQX", "RS-EQY", "RS-EQZ")),
-    ("OR-3", "Length, projected area and mass of a realized bend",
-     "the quarter-circle arc, length R pi/2; its projected area normal to X is exactly arc length times projected "
-     "diameter (Pappus), and it is in the marked range RS-P070 ... RS-P200 by id and table order",
-     [("the two tangent legs to the corner, length 2R, as straight members", {"arc": "legs"}),
-      ("wind: the arc RS-P085 not exposed (straight members only); mass unchanged", {"wind_arc_exposed": False})],
+    ("SD-3", "realized bends replaced, or a bend's wind exposure omitted", "departure from the specification",
+     "§3: 'It has 27 nodes (corner points are not nodes; each realized bend has two tangent nodes) and 26 members: 22 "
+     "straight, three arcs and the span the expansion joint replaces.'; §3.2 lists RS-P085 between RS-P080 and RS-P090; "
+     "§8.1: 'exposed members RS-P070 … RS-P200 except the replaced span RS-P180'. The references take each arc as its "
+     "quarter circle, length R pi/2 (its projected area normal to X is exactly arc length times projected diameter), "
+     "and RS-P085 as exposed",
+     [("control, departing from §3 (three arcs): the two tangent legs to the corner, length 2R, as straight members",
+       {"arc": "legs"}),
+      ("control, departing from §8.1's exposed range: the arc RS-P085 not exposed to wind; mass unchanged",
+       {"wind_arc_exposed": False})],
      ("RS-WIN", "RS-EQX", "RS-EQY", "RS-EQZ", "RS-HYD")),
-    ("OR-4", "Insulation",
-     "every section carries the insulation of §4.2 on every member it is on, mapped members included: it adds "
-     "rho_i over OD to OD + 2 t_i to the mass per length, and the projected diameter is OD + 2 t_i",
-     [("no insulation (bare pipe): projected diameter OD, no insulation mass", {"insulation": False})],
+    ("SD-4", "insulation removed", "departure from the specification",
+     "§4.2's section table gives every section its insulation (60 @ 140, 60 @ 140, 50 @ 140 mm @ kg/m^3), and "
+     "DEL-05-01 takes the wind's projected diameter as 'outside diameter plus twice the insulation thickness'; the "
+     "references carry that insulation on every member, mapped members included",
+     [("control, departing from §4.2's insulation: bare pipe, projected diameter OD, no insulation mass",
+       {"insulation": False})],
      ("RS-WIN", "RS-EQX", "RS-EQY", "RS-EQZ", "RS-HYD")),
-    ("OR-5", "Which contents the test density replaces in RS-HYD",
-     "the contents of every member that carries distributed weight; a component-mapped member carries none (its "
-     "component's weight replaces it), and component weights do not change with the test contents (§8.1: 'component "
-     "weights are rigid-component weight at a centre of gravity'; §8.3 changes only the contents density)",
-     [("add 1000 kg/m^3 over each mapped member's reduced bore, along the member", {"mapped_contents": "full"}),
-      ("add only the increment (1000 - 820) kg/m^3 over each mapped member's reduced bore",
-       {"mapped_contents": "increment"})],
+    ("SD-5", "contents added inside the rigid-family components' bodies in RS-HYD",
+     "hypothetical additions the specification does not require",
+     "§8.1: 'Component weights are rigid-component `weight` at a centre of gravity, not added weight.' and W is "
+     "generated 'with component weights at their centres of gravity in place of their members' distributed weight'; "
+     "§8.3 changes only the contents density. The references replace the contents of every member that carries "
+     "distributed weight, once, and leave each component's weight unchanged",
+     [("hypothetical addition, not required by §8.1 or §8.3: 1000 kg/m^3 over each mapped member's reduced bore, "
+       "along the member", {"mapped_contents": "full"}),
+      ("hypothetical addition, not required by §8.1 or §8.3: only the increment (1000 - 820) kg/m^3 over each "
+       "mapped member's reduced bore", {"mapped_contents": "increment"})],
      ("RS-HYD",)),
 ]
 
-PRIMARY_READINGS = {
-    "seismic": "the decided rule (seismic_rule): a times the weight the weight case gives the model, along the "
-               "positive global axis of the g-factor: a * g * mu on every member except RS-P180 and the members "
+OPEN_READINGS = [
+    {"id": "OR-G", "subject": "the seismic case's gravity magnitude",
+     "status": "open: §2 says the seismic case enters gravity_acceleration explicitly but gives no value, and the "
+               "lane that holds the specification is adding it to §8.1. Every seismic value here is conditional on the "
+               "stated assumption 9.80665 m/s^2 (the weight case's gravity). The distributed part of the seismic weight "
+               "scales with g and the component forces W do not, so another value would move each seismic value, but "
+               "not in simple proportion. No alternative values are frozen. Nothing else in the specification is left "
+               "open for these references."},
+]
+
+BASES = {
+    "seismic": "the decided rule (seismic_rule), along the positive global axis of the g-factor: a * g * mu on every member except RS-P180 and the members "
                "whose component weight the weight case applies, and a * W at each such component's centre of "
                "gravity; mu on the exact route's bases (README). Conditional on the stated assumption g = 9.80665 "
-               "m/s^2 for the seismic case's gravity_acceleration (§2 says the seismic case enters it explicitly but "
-               "gives no value; the lane holding the specification is writing it into §8.1)",
+               "m/s^2 for the seismic case's gravity_acceleration (open reading OR-G)",
     "wind": "900 Pa * 0.7 * (OD + 2 t_i) per length along +X ('global_x') on RS-P070, RS-P080, RS-P085, RS-P090, "
             "RS-P100, RS-P110, RS-P120, RS-P130, RS-P140, RS-P150, RS-P160, RS-P170, RS-P190, RS-P200; every exposed "
             "member lies in the plane X = 6 m, so its full length is normal to the wind; RS-P150 takes its S270 "
             "section's diameter in both systems",
     "hydrotest": "W of every member except RS-P180 with each section's contents density replaced by 1000 kg/m^3, "
                  "once; rigid-family component weights unchanged at their centres of gravity in place of their "
-                 "members' distributed weight (OR-5)",
-    "arcs": "quarter-circle arcs of length R pi/2 carry mass and wind per length like any member (OR-3)",
+                 "members' distributed weight (§8.1, §8.3)",
+    "arcs": "quarter-circle arcs of length R pi/2 carry mass and wind per length like any member (§3, §5)",
 }
 
 
 SPEC_OBSERVATIONS = [
-    "seismic gravity: §2 says the seismic case enters gravity_acceleration explicitly but gives no value; 9.80665 "
-    "m/s^2 is a stated assumption, and every seismic value is conditional on it until the value is in §8.1 on main "
-    "(the distributed part of the seismic weight scales with g, the component weights do not)",
     "sense of a positive g-factor: taken along the positive global axis; the opposite sense (for Z, along gravity) "
     "reverses every seismic force and moment",
     "RS-P150 carries section S270 (§3.2) under the reducer RS-R1 (270 to 220 mm): its wind diameter, and its "
@@ -698,8 +718,9 @@ def build():
         alt = alt + X.q(sum(F(RIGID[c][2]) for c in comp_of.values()))
         cross_check(f"{system}: seismic weight equals per-section length sums of unmapped members times weight per "
                     f"length, plus component weights", alt == sw)
-        # EQ-6 as decided: the seismic weight is the weight the weight case gives the model (operating contents),
-        # computed by the separate weight routine, total and first moment.
+        # EQ-6 as decided: at the assumed seismic gravity (the weight case's), the seismic weight equals the weight the
+        # weight case gives the model (operating contents), computed by the separate weight routine, total and first
+        # moment.
         (wop, wopfm), _ = test_weight(system, rho_c=None)
         cross_check(f"{system}: seismic weight and its first moment equal the weight case's (operating contents)",
                     sw == wop and swfm == wopfm)
@@ -768,9 +789,9 @@ def build():
             per_system[s]["total_seismic_mass_kg"] = v["_mass"].record()
         controls.append({"control": text, "values": per_system})
 
-    alternatives = []
-    for oid, question, primary, alts, cases in OPEN_READINGS:
-        entry = {"id": oid, "question": question, "primary_reading": primary, "alternatives": []}
+    departures = []
+    for oid, subject, kind, specified, alts, cases in SPECIFICATION_DEPARTURE_CONTROLS:
+        entry = {"id": oid, "subject": subject, "kind": kind, "specified": specified, "controls": []}
         for text, change in alts:
             per_system = {}
             for s in SYSTEMS:
@@ -780,10 +801,10 @@ def build():
                 per_system[s] = {c: {k: rec[c][k] for k in rec[c] if not k.startswith("expected")} for c in changed}
                 if v["_mass"] != values[s]["_mass"]:
                     per_system[s]["total_seismic_mass_kg"] = v["_mass"].record()
-            entry["alternatives"].append({"reading": text, "values": per_system})
-        alternatives.append(entry)
+            entry["controls"].append({"control": text, "values": per_system})
+        departures.append(entry)
 
-    return {"key": key, "alternatives": alternatives, "controls": controls, "consistency": consistency,
+    return {"key": key, "departures": departures, "controls": controls, "consistency": consistency,
             "context": context, "tables": tables()}
 
 
@@ -900,7 +921,9 @@ def document(result):
         "document": "swbpipe.reference_system_pending_case_references",
         "status": "candidate frozen references; derived and cross-checked by the author TASK, not yet independently "
                   "refuted; repaired after one independent refutation (the decided seismic rule made the expected "
-                  "path); four open readings (README) await the integrator's resolution; the seismic values are "
+                  "path); after a second refutation the former open readings OR-2 to OR-5 are relabelled as controls for "
+                  "departures from the specification (README); the one open reading is the seismic gravity, and the "
+                  "seismic values are "
                   "conditional on the stated assumption g = 9.80665 m/s^2",
         "specification": "DEL-09-01 reference-system specification §9.2: EQ-6 for RS-WIN, RS-EQX, RS-EQY, RS-EQZ; "
                          "EQ-1 and EQ-2 for RS-HYD; EQ-4 is an identity stated in the README",
@@ -910,7 +933,7 @@ def document(result):
         "gravity": {"value": str(G), "unit": "m/s^2", "weight_direction": "-Z"},
         "origin": "global (0, 0, 0) m; moments are sum of r x F about it",
         "systems": SYSTEMS,
-        "primary_readings": PRIMARY_READINGS,
+        "bases": BASES,
         "seismic_rule": SEISMIC_RULE,
         "specification_observations": SPEC_OBSERVATIONS,
         "checks": {
@@ -928,7 +951,8 @@ def document(result):
         "crosscheck": list(CROSS),
         "key_values": result["key"],
         "seismic_controls": result["controls"],
-        "open_readings": result["alternatives"],
+        "open_readings": OPEN_READINGS,
+        "specification_departure_controls": result["departures"],
         "consistency": result["consistency"],
         "context": result["context"],
         "sections": result["tables"]["sections"],
