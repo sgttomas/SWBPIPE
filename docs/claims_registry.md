@@ -127,8 +127,9 @@ surfaces.
 states, internal analysis runs, or load cases or combinations within a run. It
 is a review aid and does not establish that either side is correct."
 
-**Short variants:** "differences for review; neither side is established as
-correct" · "a comparison is a review aid and does not establish correctness"
+**Short variants:** "differences for review; the comparison does not establish
+either side as correct" · "a comparison is a review aid and does not establish
+correctness"
 
 **Belongs on:** the comparison subsection of a generated report for saved
 model states, internal analysis runs, or load cases or combinations within a
