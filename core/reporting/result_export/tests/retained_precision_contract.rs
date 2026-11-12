@@ -5016,7 +5016,17 @@ fn exact_limitations() -> Value {
         "../../../../fixtures/results/pressure_connected_mechanics_sparse.json"
     ))
     .unwrap();
-    base["formulation_basis"]["limitations"].clone()
+    // RT-L2 (DEL-04-07): the synthetic base's request names no pressure-elongation
+    // setting and its cases have no pressure region, so the producer's rule gives the
+    // "not included" statement (product physics `PRESSURE_ELONGATION_NOT_INCLUDED_LIMITATION`)
+    // where the connected base, whose model names its cases, states "included".
+    let mut limitations = base["formulation_basis"]["limitations"].clone();
+    for limitation in limitations.as_array_mut().unwrap() {
+        if limitation.as_str().is_some_and(|text| text.starts_with("Pressure elongation is included only")) {
+            *limitation = serde_json::json!("Pressure elongation is not included in any load case: the closed-end free pressure strain is omitted; pressure thrust at unbalanced locations is applied.");
+        }
+    }
+    limitations
 }
 fn decode_bits(v: &Value) -> f64 {
     f64::from_bits(u64::from_str_radix(v.as_str().unwrap(), 16).unwrap())
@@ -5648,11 +5658,11 @@ fn b3b_repair03_n2b_physics_code_is_array_ordered_and_stable() {
 /// Pressure elongation (RT-L2): the exact bases name the pressure-3 identity and state the setting, so all eight moved
 /// again (N2b were c0cdddbd... and 7467b8eb...; N2 5216d411... and 25e2675a...; F2 51ebaeab..., 846e8a11..., 66f41afc... and
 /// ffe63145...); RV120's inputs were re-derived from `B3B_INPUTS_OUT` and the pins are the Python materialization.
-const REPAIR03_N2B_INPUTS: [&str; 2] = ["0208992f9444cc94d60c0f997781a2bf0fb09ec52d514be9b21e749aa08c69cb", "310a4b5672ec047237fbac9e08742fbe43d866d26ff37c92ebde92db9591dcd3"];
+const REPAIR03_N2B_INPUTS: [&str; 2] = ["16c758e69410412edb748b9a2cf8adf42a1ddad4bf3494ba2600d55bc39139f7", "29bf9398fc04159af33a6a58d834ac60eb5fe10eaaa2032fb3fec530802428d0"];
 /// RV120's N2 probe inputs (sha256 of the canonical `[source, invocation]`), as in its index.
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-const RV120_N2_INPUTS: [&str; 2] = ["e60fd50e4853f01d4cef3ad3d5de80786c8b78464bacd4c4c4ff8158868b05e4", "72b97daead2328cb9a5e89628f5f4e34645a03836114b4592f3fc66998ee09a8"];
+const RV120_N2_INPUTS: [&str; 2] = ["7e6b21d1a404a9a30836493c19c38008e6a13e80ae4894053e68ae84d02bc1c5", "72b97daead2328cb9a5e89628f5f4e34645a03836114b4592f3fc66998ee09a8"];
 fn sha256_canonical(v: &Value) -> String {
     use open_pipe_stress_canonical_json::canonical_json;
     use sha2::{Digest, Sha256};
@@ -5663,8 +5673,8 @@ fn sha256_canonical(v: &Value) -> String {
 /// Model 0.9.0 re-pin (S1; DEL-02-01 Design `model-document-0.9.0.md` §3.6): read from the regenerated producer bytes on
 /// the registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const RV120_FORGERY_INPUTS: [(&str, &str, &str); 4] = [
-    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "d943f0f8c04bd4950e40a0bb37ba961ca9446888cabb59104a1498aa9312b01a"),
-    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "43659553749df873657d0d99a1574dc548819772ac33a9874ae115b30a8d5e07"),
+    ("RV120 F2: E +1 ulp", "ordinary_prepared_synthetic", "f7dcc1baec89e392e4f4a7a6e07fa31e1777b3314578470ec0d930750dd4652d"),
+    ("RV120 F2: G-hat +1 ulp", "ordinary_prepared_synthetic", "27634e2c9e3c0d0d5d950f06821a4c41f057b64bcd11487ede18c8ccd26d4d6a"),
     ("RV120 F2: E +1 ulp", "m3x_sparse_interactive", "185d8f4ddcfc92bcdf88b9bc5d4e2f78e4941d26a22a65b4a4423e644e4ecdef"),
     ("RV120 F2: G-hat +1 ulp", "m3x_sparse_interactive", "ad7dcdba6e46e72a73cf673dc44800abaaafaeb35b9f24af2bc94285811873c4"),
 ];
