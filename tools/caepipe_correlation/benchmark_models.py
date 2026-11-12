@@ -1333,10 +1333,13 @@ BINDING_MAPS = ("node_map", "element_map", "support_map", "load_case_map")
 # The choices of the exact-route side, recorded before any exact-route result existed (see EXACT_ROUTE_CHOICES).
 CHOICES_DATE = "2026-11-12"
 SHEAR_SOURCE = {
-    "title": "Fiber Reinforced Plastic Piping (FRP), section \"Stiffness matrix\" (the target program's public "
-             "technical reference)",
+    "citation": ("Vendor public technical reference, \"Fiber Reinforced Plastic Piping (FRP)\", \"Stiffness matrix\", "
+                 "fetched 2026-11-12: the pipe stiffness includes a transverse shear flexibility term, shape factor "
+                 "× L/(GA)."),
+    "title": "Fiber Reinforced Plastic Piping (FRP)",
+    "section": "Stiffness matrix",
     "url": "https://docs.sstcae.com/tech_manual/fiber_reinforced_plastic_piping__frp_.htm",
-    "fetched": "2026-11-12", "http_status": 200, "bytes": 30147, "sha256_prefix": "c4ab34330fb7f8b6",
+    "fetched": "2026-11-12",
     "states": ("the stiffness matrix of a pipe is calculated with an axial term L/EA, a shear term (shape factor x "
                "L/GA), a bending term L/EI and a torsion term, and for an isotropic material G = E/2(1 + Poisson's "
                "ratio): the public description of the pipe element includes a transverse shear flexibility term"),

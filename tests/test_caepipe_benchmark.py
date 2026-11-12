@@ -507,8 +507,15 @@ def test_the_manifest_declares_both_sides_the_series_and_the_choices():
     choices = manifest["exact_route_choices"]
     assert choices["date"] == "2026-11-12"
     assert choices["shear_model"]["side_used_for_the_screen"] == "timoshenko_annulus_energy_v1"
-    assert choices["shear_model"]["source"]["sha256_prefix"] == "c4ab34330fb7f8b6"
-    assert choices["shear_model"]["source"]["url"].startswith("https://docs.sstcae.com/")
+    # The public source is cited by page, section, fetch date and what the section states, not by one fetch's bytes.
+    source = choices["shear_model"]["source"]
+    assert (source["title"], source["section"], source["fetched"]) == (
+        "Fiber Reinforced Plastic Piping (FRP)", "Stiffness matrix", "2026-11-12")
+    assert "transverse shear flexibility term" in source["states"] and "shape factor" in source["states"]
+    assert source["citation"].startswith('Vendor public technical reference, "Fiber Reinforced Plastic Piping (FRP)", '
+                                         '"Stiffness matrix", fetched 2026-11-12:')
+    assert source["url"].startswith("https://docs.sstcae.com/")
+    assert not {"bytes", "sha256_prefix"} & set(source)
     assert "recorded before any exact-route result" in choices["recorded_before"].replace("\n", " ")
     assert "had already been seen" in choices["recorded_before"]
     shear_series = manifest["series"]["exact-shear-model"]
