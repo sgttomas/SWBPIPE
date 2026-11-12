@@ -1,14 +1,17 @@
-// Native smoke driver for the embedded agent's W9-A journey (RT-E1 D4;
-// DEL-16-06). `tools/agent_journey_fixture.py` launches the
-// `native-smoke` build of the app with this script on stdin, which the build
-// evaluates in the real webview once the page has loaded (`src-tauri/src/native_smoke.rs`).
+// Native smoke driver for a named embedded-agent use case (DEL-16-06; DEL-07-06
+// REQ-016). `tools/agent_journey_fixture.py` launches the `native-smoke` build of
+// the app with this script on stdin, which the build evaluates in the real
+// webview once the page has loaded (`src-tauri/src/native_smoke.rs`), and hands it
+// the use case's plan: its start, the person's requests in order with the acts
+// between them, and what to observe.
 //
-// It works the app as a person would: New Blank Project through the native menu
-// dispatch, the provider entered in the Agent panel's own form, Start, two typed
-// messages, and the batch applied by clicking Batch review's own Validate and
-// Apply buttons. That click is a qualification stand-in for the person, never the
-// person's acceptance. No command, shortcut or IPC call applies anything. It reads
-// only what the window shows and records it; the controller judges.
+// It works the app as a person would: the start reached through the native menu
+// dispatch (STARTS), the provider entered in the Agent panel's own form, Start,
+// each request typed and sent, and each act done through the desktop's own
+// controls (ACTS; today the batch applied by clicking Batch review's own Validate
+// and Apply buttons). That click is a stand-in for the person, never the person's
+// acceptance. No command, shortcut or IPC call applies anything. It reads only
+// what the window shows and records it; the controller judges.
 (() => {
   const ipc = window.__TAURI_INTERNALS__;
   const call = (command, args) => ipc.invoke(command, args ?? {});
@@ -164,10 +167,10 @@
   }
 
   // The stand-in click: Batch review's own Validate (when its preview gate asks) and Apply.
-  async function applyAgentBatch(report, timeouts) {
+  async function applyAgentBatch(act, report, timeouts) {
     const entry = await waitFor("agent batch in Batch review", () => liveBatches()[0] ?? null, timeouts.ui);
     const key = entry.getAttribute("data-testid").slice("batch-".length);
-    report.batch = {
+    const record = report[act.report] = {
       key,
       batch_id: bounded(entry.querySelector("h4")?.textContent),
       batches_shown: liveBatches().length,
@@ -183,8 +186,8 @@
     }
     const message = text("batch-review-message");
     press(byTestId(`apply-batch-${key}`), "Apply entire batch");
-    report.batch.applied_by = "native-smoke driver click on Batch review Apply (qualification stand-in, not the person's acceptance)";
-    report.batch.apply_message = await waitFor("batch applied", () => {
+    record.applied_by = "native-smoke driver click on Batch review Apply (qualification stand-in, not the person's acceptance)";
+    record.apply_message = await waitFor("batch applied", () => {
       const now = text("batch-review-message");
       if (now && now !== message && /refus|reject|fail|blocked/i.test(now)) throw new Error(`apply: ${now}`);
       return byTestId("batch-receipt") ? text("batch-receipt") : null;
@@ -192,18 +195,18 @@
   }
 
   // The model tree's rows and the Results section's rows for the probe entity, as shown.
-  async function observeModelAndResults(plan, report, timeouts) {
+  async function observeModelAndResults(observe, report, timeouts) {
     // Every row of the listed types the tree shows, not only the expected ones.
     report.tree_rows = [...document.querySelectorAll('[data-testid^="tree-row-"]')].map((row) => {
       const [type, ...id] = row.getAttribute("data-testid").slice("tree-row-".length).split("-");
       return [decodeURIComponent(type), decodeURIComponent(id.join("-"))];
-    }).filter(([type]) => plan.treeTypes.includes(type)).slice(0, 200);
+    }).filter(([type]) => observe.treeTypes.includes(type)).slice(0, 200);
     await showSection("results");
     report.results = { standing: await waitFor("result standing", () => text("numerical-result-standing"), timeouts.ui) };
     const proof = byTestId("status-pill-solve-proof")?.querySelector("code")?.textContent ?? null;
     report.results.solve_proof = bounded(proof);
     report.results.model_sha256 = proof?.match(/(?:^|; )model_sha256=([^;]*)/)?.[1] ?? null;
-    enter(byTestId("result-filter-input"), "result filter", plan.resultProbe);
+    enter(byTestId("result-filter-input"), "result filter", observe.resultProbe);
     await waitFor("filtered result rows", () => document.querySelector('[data-testid^="result-row-dual-"]'), timeouts.ui);
     report.results.rows = [...document.querySelectorAll('[data-testid^="result-row-dual-"]')].slice(0, 200)
       .map((cell) => ({ id: cell.getAttribute("data-testid").slice("result-row-dual-".length), text: bounded(cell.textContent, 200) }));
@@ -217,18 +220,32 @@
     report.stopped = await waitFor("agent closed", () => (standing().startsWith("Closed") ? standing() : null), timeouts.ui);
   }
 
+  // What this driver implements. The controller refuses a use case that names any other
+  // start or act (`START_KINDS` and `ACT_KINDS` in tools/agent_journey_fixture.py, which
+  // its offline test keeps equal to these).
+  const STARTS = { new_blank: (entry, report, timeouts) => newBlank(report, timeouts) };
+  const ACTS = { apply_agent_batch: applyAgentBatch };
+
   (async () => {
     const report = { driver: "agent-journey", steps: [] };
     const step = async (name, fn) => { await log(`agent-journey: ${name}`); await fn(); report.steps.push(name); };
     try {
       const plan = await call("native_smoke_plan");
       const timeouts = plan.timeoutsMs;
-      await step("new blank", () => newBlank(report, timeouts));
+      const start = Object.hasOwn(STARTS, plan.start?.kind) ? STARTS[plan.start.kind] : null;
+      if (!start) throw new Error(`start ${plan.start?.kind} is not implemented`);
+      await step(plan.start.step, () => start(plan.start, report, timeouts));
       await step("provider and start", () => configureAndStart(plan, report, timeouts));
-      await step("turn 1", async () => { report.turn1 = await turn("turn 1", plan.turns[0], timeouts); });
-      await step("apply", () => applyAgentBatch(report, timeouts));
-      await step("turn 2", async () => { report.turn2 = await turn("turn 2", plan.turns[1], timeouts); });
-      await step("observe", () => observeModelAndResults(plan, report, timeouts));
+      for (const entry of plan.sequence) {
+        if (typeof entry.request === "string") {
+          await step(entry.step, async () => { report[entry.report] = await turn(entry.step, entry.request, timeouts); });
+        } else {
+          const act = Object.hasOwn(ACTS, entry.act) ? ACTS[entry.act] : null;
+          if (!act) throw new Error(`act ${entry.act} is not implemented`);
+          await step(entry.step, () => act(entry, report, timeouts));
+        }
+      }
+      await step("observe", () => observeModelAndResults(plan.observe, report, timeouts));
       await step("stop", () => stop(report, timeouts));
     } catch (error) {
       report.error = bounded(error?.message ?? error);

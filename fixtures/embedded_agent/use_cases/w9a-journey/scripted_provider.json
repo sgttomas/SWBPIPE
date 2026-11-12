@@ -1,0 +1,119 @@
+{
+  "schema": "swbpipe-embedded-agent-scripted-provider/1",
+  "use_case": "w9a-journey",
+  "data": "Invented model output, replayed by the loopback scripted provider in stub mode only. Every call is derived from the tool outcomes the product returned; an outcome that departs from a step's expectation ends the turn.",
+  "inputs": {
+    "operations": {
+      "file": "fixtures/model_operations/agent_w9a_journey.json",
+      "path": ["routes", "PF", "operations"]
+    }
+  },
+  "requests": [
+    {
+      "request": 1,
+      "steps": [
+        {
+          "bind": "summary",
+          "call": "swbpipe_read_model_summary",
+          "arguments": {},
+          "expect": {"status": "ok"},
+          "unexpected": "summary not ok"
+        },
+        {
+          "bind": "proposal",
+          "call": "swbpipe_propose_operations",
+          "arguments": {
+            "workspaceHandle": {"$bound": "summary", "path": ["data", "workspaceHandle"]},
+            "basis": {"$bound": "summary", "path": ["basis"]},
+            "claimedModelHash": {"$bound": "summary", "path": ["basis", "modelHash"]},
+            "operations": {"$input": "operations"},
+            "assumptions": [
+              {
+                "assumptionId": "a1",
+                "statement": "Every input is the person's stated W9-A input.",
+                "affectedOperationIds": {"$input": "operations", "path": ["*", "operation_id"]}
+              }
+            ]
+          },
+          "expect": {"status": "pending_review"},
+          "unexpected": "proposal {status}"
+        }
+      ],
+      "reply": {
+        "text": "I proposed the W9-A build as one batch. Review it in Batch review and apply it if it is right."
+      }
+    },
+    {
+      "request": 2,
+      "requires": [
+        {"bound": "proposal", "expect": {"status": "pending_review"}, "unexpected": "no proposal from turn 1"}
+      ],
+      "steps": [
+        {
+          "bind": "summary_after_apply",
+          "call": "swbpipe_read_model_summary",
+          "arguments": {}
+        },
+        {
+          "bind": "observed",
+          "call": "swbpipe_observe_proposal",
+          "arguments": {
+            "workspaceHandle": {"$bound": "summary_after_apply", "path": ["data", "workspaceHandle"]},
+            "basis": {"$bound": "proposal", "path": ["basis"]},
+            "proposalHandle": {"$bound": "proposal", "path": ["data", "proposalHandle"]}
+          },
+          "expect": {"status": "applied"},
+          "unexpected": "proposal standing {status}"
+        },
+        {
+          "bind": "solve",
+          "call": "swbpipe_solve",
+          "arguments": {
+            "workspaceHandle": {"$bound": "summary_after_apply", "path": ["data", "workspaceHandle"]},
+            "basis": {"$bound": "summary_after_apply", "path": ["basis"]},
+            "claimedModelHash": {"$bound": "summary_after_apply", "path": ["basis", "modelHash"]}
+          },
+          "expect": {"status": "completed"},
+          "unexpected": "solve {status}"
+        },
+        {
+          "bind": "results",
+          "call": "swbpipe_read_results",
+          "arguments": {
+            "workspaceHandle": {"$bound": "summary_after_apply", "path": ["data", "workspaceHandle"]},
+            "basis": {"$bound": "solve", "path": ["basis"]},
+            "runHandle": {"$bound": "solve", "path": ["data", "runHandle"]},
+            "page": {"cursor": null, "limit": 50},
+            "filter": {
+              "kinds": [
+                "global_nodal_displacement_x", "global_nodal_displacement_y", "global_nodal_displacement_z",
+                "global_nodal_rotation_x", "global_nodal_rotation_y", "global_nodal_rotation_z"
+              ],
+              "entityRefs": ["node:c"]
+            }
+          },
+          "expect": {"status": "ok"},
+          "unexpected": "results {status}"
+        }
+      ],
+      "reply": {
+        "text": "The batch is applied and the model solved.",
+        "records": {
+          "each": {"$bound": "results", "path": ["data", "values"]},
+          "format": "node:c {component} = {value} {unit}",
+          "fields": {
+            "component": {
+              "path": ["kind"],
+              "map": {
+                "global_nodal_displacement_x": "ux", "global_nodal_displacement_y": "uy", "global_nodal_displacement_z": "uz",
+                "global_nodal_rotation_x": "rx", "global_nodal_rotation_y": "ry", "global_nodal_rotation_z": "rz"
+              }
+            },
+            "value": {"path": ["value"], "repr": true},
+            "unit": {"path": ["unit"]}
+          }
+        }
+      }
+    }
+  ]
+}
