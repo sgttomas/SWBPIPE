@@ -9,7 +9,7 @@ import os from "node:os";
 import path from "node:path";
 import { execFile, execFileSync, spawn } from "node:child_process";
 import { once } from "node:events";
-import { c1PhysicalPhases, createReaderPhaseEvidence, checkpointRun, classify, commitRun, readStartupHost, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
+import { appEnvironment, c1PhysicalPhases, createReaderPhaseEvidence, checkpointRun, classify, commitRun, readStartupHost, containedPath, createSampleGuard, finishScratch, formatPlan, inspectCsv, loadPlan, planName, sampleStopReason, selectRuns, summarizeSamples, validatePlan, watchWindow } from "./perf.mjs";
 
 const plan = loadPlan(fileURLToPath(new URL("./perf-plan.json", import.meta.url)));
 
@@ -1855,4 +1855,20 @@ test("the run_preview phase is web-only and its pending entry survives as incomp
   const closed=journal.close();
   assert.deepEqual(closed.incomplete.map(({layer,call,phase})=>({layer,call,phase})),[{layer:"web",call:7,phase:"run_preview"}]);
   assert.equal(closed.evidence_complete,false);
+});
+
+test("the app's environment names the throwaway home twice and carries no injection variable", () => {
+  const base = { PATH: "/usr/bin", HOME: "/Users/someone", CFFIXED_USER_HOME: "/Users/someone", SWBPIPE_NATIVE_SMOKE_INJECT_RESULT: "/x/r.json", SWBPIPE_NATIVE_SMOKE_INJECT_ROOT: "/x" };
+  const env = appEnvironment(base, "/scratch/run/home", { SWBPIPE_NATIVE_SMOKE_DRIVER: "/k/perf-driver.js" });
+  // `HOME` moves what reads `$HOME`; the system frameworks place `Library`, `Library/Caches` and the
+  // web view's website data from `CFFIXED_USER_HOME`, so both must name the run's own home.
+  assert.equal(env.HOME, "/scratch/run/home");
+  assert.equal(env.CFFIXED_USER_HOME, "/scratch/run/home");
+  assert.equal(env.PATH, "/usr/bin");
+  assert.equal(env.SWBPIPE_NATIVE_SMOKE_DRIVER, "/k/perf-driver.js");
+  assert.equal("SWBPIPE_NATIVE_SMOKE_INJECT_RESULT" in env, false);
+  assert.equal("SWBPIPE_NATIVE_SMOKE_INJECT_ROOT" in env, false);
+  // A caller's extra member cannot move either home.
+  assert.deepEqual((({ HOME, CFFIXED_USER_HOME }) => [HOME, CFFIXED_USER_HOME])(appEnvironment(base, "/h", { HOME: "/elsewhere", CFFIXED_USER_HOME: "/elsewhere" })), ["/h", "/h"]);
+  assert.equal(base.HOME, "/Users/someone", "the caller's environment is not changed");
 });

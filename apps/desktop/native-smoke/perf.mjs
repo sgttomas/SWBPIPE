@@ -759,6 +759,18 @@ export function classify({ report, exit, timedOut, progress, memory, store, run,
 /** Entry requires a fresh known-normal host before any App launch. The
  * existing supervisor deadline also covers a stalled interpreter/sysctl here.
  * `execute` and `now` are injected only by offline tests, never CLI options. */
+/** The environment the app is started with: the caller's, with both home variables naming the
+ * run's throwaway home and no injection variable. `HOME` alone moves only what reads `$HOME` (the
+ * app's own store and Downloads); the system frameworks resolve the home directory, and with it
+ * `Library`, `Library/Caches` and the web view's website data, from the user account unless
+ * `CFFIXED_USER_HOME` names one, so without it that data is placed under the real home. */
+export function appEnvironment(base, home, extra = {}) {
+  const env = { ...base, ...extra, HOME: home, CFFIXED_USER_HOME: home };
+  delete env[INJECT_ENV];
+  delete env[INJECT_ROOT_ENV];
+  return env;
+}
+
 export async function readStartupHost(appPath, execute = execFile, now = Date.now) {
   const sentAt = now();
   const text = await new Promise((resolve, reject) => {
@@ -876,9 +888,7 @@ async function runOne(run, ctx) {
     c1_probes: ctx.plan.c1_probes === true, c1_reader_diagnostics: ctx.plan.c1_reader_diagnostics === true, c1_profile_readers: ctx.plan.c1_profile_readers === true, model_jcs_sha256: record.model_jcs_sha256,
     timeouts: { ...ctx.plan.timeouts, paint_ms: Math.min(run.paint_ms, timeoutMs) }
   };
-  const env = { ...process.env, HOME: home, SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "perf-driver.js"), SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan), SWBPIPE_NATIVE_SMOKE_REPORT: path.join(root, "report.json") };
-  delete env[INJECT_ENV];
-  delete env[INJECT_ROOT_ENV];
+  const env = appEnvironment(process.env, home, { SWBPIPE_NATIVE_SMOKE_DRIVER: path.join(here, "perf-driver.js"), SWBPIPE_NATIVE_SMOKE_PLAN: JSON.stringify(plan), SWBPIPE_NATIVE_SMOKE_REPORT: path.join(root, "report.json") });
   if (resultFile) {
     env[INJECT_ENV] = resultFile;
     env[INJECT_ROOT_ENV] = realpathSync(ctx.results);
