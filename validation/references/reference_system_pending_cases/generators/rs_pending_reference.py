@@ -244,14 +244,14 @@ SEISMIC = {"RS-EQX": (F("0.30"), 0), "RS-EQY": (F("0.30"), 1), "RS-EQZ": (F("0.2
 
 # The specification's sentences each transcription rests on; each must appear in SPECIFICATION.md verbatim.
 SPEC_SENTENCES = [
-    "Gravity is entered on the weight case as\n  `global_z`, value −9.80665 m/s²",
-    "density 7850 kg/m³ (on the\n  sections as `material_density`)",
-    "The hydrotest's test contents are 1000 kg/m³",
-    "contents mass and pressure end-cap areas use the reduced bore (nominal wall less mill\ntolerance and "
+    "Gravity is entered on each weight case as\n  `global_z`, value −9.80665 m/s²",
+    "density 7850 kg/m³ (on each member's section as `material_density`)",
+    "The hydrotest's test contents are\n1000 kg/m³",
+    "contents mass and pressure end-cap areas use the reduced bore (nominal wall\nless mill tolerance and "
     "corrosion allowance)",
-    "| RS-B1 | realized bend (`curved_bend_macro_element`) | RS-P065 | R 0.400 m, 90°;",
-    "| RS-B2 | realized bend | RS-P085 | R 0.400 m, 90°;",
-    "| RS-B3 | realized bend | RS-P225 | R 0.250 m, 90°;",
+    "| RS-B1 | `bend`, realized (`curved_bend_macro_element`), at RS-070 | arc RS-P065 | R 0.400 m, 90°;",
+    "| RS-B2 | `bend`, realized, at RS-090 | arc RS-P085 | R 0.400 m, 90°;",
+    "| RS-B3 | `bend`, realized, at RS-220 | arc RS-P225 | R 0.250 m, 90°;",
     "Corner points: B1 (6, 0, 1), B2 (6, 0, 7), B3 (6, 15, 2).",
     "| RS-R1 | `reducer`, eccentric | RS-P150, node RS-160 |",
     "weight 300 N, CoG at the body midpoint",
@@ -259,14 +259,14 @@ SPEC_SENTENCES = [
     "| RS-V1 | `valve` | RS-P030, node RS-040 | weight 2600 N; CoG offset (0, 0, +0.30) m from the body midpoint",
     "| RS-F2 | `flange` | RS-P040, node RS-050 | weight 350 N; CoG at the body midpoint;",
     "| RS-EJ1 | `expansion_joint`, objective connector 1.0.0 | replaces RS-P180,",
-    "It is\n  excluded from weight generation and from every primitive load",
+    "It is excluded\n  from weight generation and from every primitive load",
     "| RS-WIN | W + P + wind: 0.9 kPa, shape factor 0.7, `global_x`, exposed members RS-P070 … RS-P200 except the "
     "replaced span RS-P180 |",
     "| RS-EQX | W + P + seismic, `g_factor_x` 0.30 |",
     "| RS-EQY | W + P + seismic, `g_factor_y` 0.30 |",
     "| RS-EQZ | W + P + seismic, `g_factor_z` 0.20 |",
     "| Eccentric reducer RS-R1 in region RG-R | pending; RS-P150 is in tranche 1 as a plain S270 member in its own "
-    "region |",
+    "region RG-R |",
 ]
 
 CROSS = []
