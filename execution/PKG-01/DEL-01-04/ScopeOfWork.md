@@ -71,7 +71,7 @@ The policy is wording. It is adequate when an author of any product surface can 
 
 - **AC-001** — The display-form table has exactly one row for each automatic status of `docs/TYPES.md` §4 and each emitted evidence-status label, each with one label and one authority domain; and it has no row for human approval, engineer acceptance, code compliance, certification, sealing or approval.
 - **AC-002** — No registered statement, display form or notice text states or implies a claim PRD §21.2 prohibits. Where a prohibited term appears it is negated or named as prohibited. The forms of `USER_RULE_CHECKED` and `USER_RULE_FAILED` say within or exceeding the user's limit, not passed or failed.
-- **AC-003** — The template's required notice is the PRD §19.3 notice word for word, and the template carries the second notice of REQ-010 for reports that include authoring, comparison, handoff, export or external-prover material.
+- **AC-003** — The template's required notice is the PRD §19.3 notice word for word. Comparison sections carry BS-COMPARE on its registered surface. Reports containing design-authoring records, handoff packages, export metadata or external-prover references carry the supplementary notice for those materials.
 - **AC-004** — The template's disclosure slots cover everything `docs/CONTRACT.md` OPS-K-REPORT-1 requires a report to disclose: model version, solver version, rule-pack checksum, source and provenance notes, warnings, assumptions and limitations.
 - **AC-005** — The template's human acceptance block binds a model hash, a rule-pack checksum and a report hash, states that a change to a bound item requires re-review, and states that it is never filled from solver or rule-pack output.
 - **AC-006** — Neither document contains protected standards text, tables or examples, private rule-pack content, private project data or proprietary engineering values.
@@ -106,7 +106,7 @@ The policy is wording. It is adequate when an author of any product surface can 
 |---|---|---|---|---|---|
 | OUT-001 | SOW-034 OBJ-011 | REQ-002 REQ-013 | AC-001 | VER-001 | The rules a display form follows are the *Display form* definition's. The token set is read from `docs/TYPES.md` §4, which is DEL-05-04's vocabulary, not from the registry |
 | OUT-001 | SOW-034 OBJ-011 | REQ-001 REQ-006 REQ-007 | AC-002 | VER-003 | PRD §21.2 lists the prohibited claims, and the release target's rule-pack outcome says a user-rule outcome is shown as within or exceeding the user's limit; the reviewer compares the wording with both |
-| OUT-002 | SOW-034 OBJ-011 | REQ-003 REQ-010 | AC-003 | VER-002 | The notice text of PRD §19.3, read from the PRD and not from the template |
+| OUT-002 | SOW-034 OBJ-011 | REQ-003 REQ-010 | AC-003 | VER-002 VER-003 | The notice text of PRD §19.3, read from the PRD and not from the template; the comparison statement and the supplementary notice are read by the reviewer against the registry and REQ-010 |
 | OUT-002 | SOW-034 OBJ-011 | REQ-003 | AC-004 | VER-003 | `docs/CONTRACT.md` OPS-K-REPORT-1 lists the disclosures |
 | OUT-002 | SOW-034 OBJ-011 | REQ-005 | AC-005 | VER-003 | PRD §21.3 and `docs/CONTRACT.md` OPS-K-AUTH-2 |
 | OUT-002 | SOW-034 OBJ-018 | REQ-008 | AC-006 | VER-003 | PRD §19.4 lists what a public template may not contain |

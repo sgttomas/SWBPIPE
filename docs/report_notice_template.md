@@ -47,14 +47,15 @@ user and project authority.
 Where a report includes a comparison, the comparison carries the registered
 comparison statement, `BS-COMPARE` (`docs/claims_registry.md`), word for word.
 
-Handoff packages, export metadata and external-prover references carry the
-registry's validation-posture statement, `BS-VALID`, on the surfaces the
-registry places it on. This template adds no sentence of its own for them.
+`BS-VALID` retains its existing registry placement; that placement does not
+explicitly include references inside generated reports.
 
-Where a report includes design-authoring records, the report must also state:
+Where a report includes design-authoring records, handoff packages, export
+metadata or external-prover references, the report must also state:
 
 ```text
-Design-authoring records are review aids only unless a separate competent
+Design-authoring records, handoff packages, export metadata and
+external-prover references are review aids only unless a separate competent
 human acceptance record states otherwise for the bound project basis.
 ```
 

@@ -123,17 +123,17 @@ surfaces.
 
 ### BS-COMPARE — comparison posture
 
-**Canonical:** "A comparison shows what differs between two states, runs or
-cases of the user's own model. It is a review aid and establishes nothing
-about either side."
+**Canonical:** "A comparison shows differences between two selected model
+states, internal analysis runs, or load cases or combinations within a run. It
+is a review aid and does not establish that either side is correct."
 
-**Short variants:** "a review aid: differences only, establishing nothing
-about either side" · "differences between two of the user's own states or
-runs; a review aid"
+**Short variants:** "differences for review; neither side is established as
+correct" · "a comparison is a review aid and does not establish correctness"
 
-**Belongs on:** the comparison subsection of a generated report; the
-desktop's comparison views and the legend of its comparison overlay, where
-they carry boundary language. **Not on:** results views.
+**Belongs on:** the comparison subsection of a generated report for saved
+model states, internal analysis runs, or load cases or combinations within a
+run. **Not on:** ordinary results views or external-prover correlation and
+harness evidence surfaces; `BS-VALID` governs boundary language on the latter.
 
 ### BS-MATURITY — release maturity (RETIRED 2026-09-18)
 
