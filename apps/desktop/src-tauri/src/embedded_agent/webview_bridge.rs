@@ -198,6 +198,26 @@ impl Bridge {
         self.dispatcher
             .record_completion(origin, reference, raw, live_basis, evidence)
     }
+    /// The dispatcher's whole check of a claimed call's completion, with no effect.
+    pub fn check_complete(
+        &self,
+        origin: Origin<'_>,
+        reference: &str,
+        raw: &[u8],
+        live_basis: Option<&Value>,
+        evidence: Evidence<'_>,
+    ) -> Result<(), Refusal> {
+        if !self
+            .entries
+            .iter()
+            .any(|r| r.reference == reference && r.claimed)
+        {
+            return Err(Refusal::MissingEvidence);
+        }
+        self.dispatcher
+            .check_completion(origin, reference, raw, live_basis, evidence)
+            .map(drop)
+    }
     pub fn take_actual(
         &mut self,
         origin: Origin<'_>,

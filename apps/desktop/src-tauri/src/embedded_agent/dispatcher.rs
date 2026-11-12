@@ -529,6 +529,8 @@ impl Dispatcher {
         }
         Ok(&record.identity)
     }
+    /// Records a completion: the whole check of [`Self::check_completion`], then the
+    /// commit. A refused completion changes nothing.
     pub fn record_completion(
         &mut self,
         origin: Origin<'_>,
@@ -537,6 +539,40 @@ impl Dispatcher {
         current_basis: Option<&Value>,
         evidence: Evidence<'_>,
     ) -> Result<PreparedCompletion, Refusal> {
+        let (index, value, actual_hash) = self.check_completion(origin, reference, raw, current_basis, evidence)?;
+        let record_backing = self.records[index]
+            .record_backing
+            .take()
+            .ok_or(Refusal::Duplicate)?;
+        let actual = Arc::new(OutcomeRecord {
+            identity: self.records[index].identity.owned_copy(),
+            raw: raw.to_vec(),
+            outcome_model_hash: actual_hash,
+            _backing: record_backing,
+        });
+        self.records[index].actual = Some(actual.clone()); // Before any vendor operation.
+        Ok(PreparedCompletion {
+            value,
+            backing: self.records[index]
+                .completion_backing
+                .take()
+                .ok_or(Refusal::Duplicate)?,
+            actual,
+            vendor: self.records[index].vendor,
+        })
+    }
+    /// The whole check of a completion against its call, with no effect: the origin,
+    /// the bounds, the catalog shape, the basis, the agreement of outcome and evidence,
+    /// the requested mode and the evaluated hash. The host runs it before it commits a
+    /// webview's actual outcome, so a completion refused here spends and binds nothing.
+    pub fn check_completion(
+        &self,
+        origin: Origin<'_>,
+        reference: &str,
+        raw: &[u8],
+        current_basis: Option<&Value>,
+        evidence: Evidence<'_>,
+    ) -> Result<(usize, Value, Option<Value>), Refusal> {
         self.origin(&origin)?;
         let index = self.index(reference)?;
         if self.records[index].actual.is_some() {
@@ -672,26 +708,10 @@ impl Dispatcher {
                 ) && value["data"].is_null() => {}
             _ => return Err(Refusal::MissingEvidence),
         }
-        let record_backing = self.records[index]
-            .record_backing
-            .take()
-            .ok_or(Refusal::Duplicate)?;
-        let actual = Arc::new(OutcomeRecord {
-            identity: self.records[index].identity.owned_copy(),
-            raw: raw.to_vec(),
-            outcome_model_hash: actual_hash,
-            _backing: record_backing,
-        });
-        self.records[index].actual = Some(actual.clone()); // Before any vendor operation.
-        Ok(PreparedCompletion {
-            value,
-            backing: self.records[index]
-                .completion_backing
-                .take()
-                .ok_or(Refusal::Duplicate)?,
-            actual,
-            vendor: self.records[index].vendor,
-        })
+        if self.records[index].record_backing.is_none() {
+            return Err(Refusal::Duplicate);
+        }
+        Ok((index, value, actual_hash))
     }
     pub fn actual(
         &self,

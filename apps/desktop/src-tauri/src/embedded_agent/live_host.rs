@@ -911,12 +911,28 @@ impl Owner {
                     return Err(Error::Duplicate);
                 }
                 let bound = validate_actual(&self.registry, meta, &outcome, &proof, &owner.consumed_jobs, &owner.runs)?;
+                // A run handle is bound once: a completion naming a handle that any recorded
+                // outcome already holds is refused before anything changes.
+                if let Proof::Run { handle: Some(handle), .. } = &proof {
+                    if meta.tool == Tool::Solve && (owner.runs.contains_key(handle) || owner.history(handle).is_some()) {
+                        return Err(Error::Evidence);
+                    }
+                }
+                // The call's whole evidence (its requested mode, the agreement of outcome and
+                // proof, the evaluated hash and the outcome's shape) is checked by the
+                // dispatcher before anything is committed; a refused completion spends no job,
+                // binds no handle and leaves no actual that history can read.
+                owner
+                    .bridge
+                    .check_complete(owner.origin(), &request_ref, outcome.as_bytes(), Some(&owner.basis), evidence(&proof))
+                    .map_err(|_| Error::Evidence)?;
                 // Native actual, proof and its bounded retained frontend copy.
                 let record_backing = self
                     .registry
                     .acquire_interactive_ingress(512 * 1024)
                     .map_err(|_| Error::Admission)?;
-                // A solve's named job is spent, and a completed run keeps its job's result hash.
+                // Committed together, only on success: the solve's named job is spent, a
+                // completed run keeps its job's result hash, and the actual is recorded.
                 if let Some((job, result_sha256)) = bound {
                     owner.consumed_jobs.insert(job.clone());
                     if let (Some(sha), Proof::Run { handle: Some(handle), .. }) = (result_sha256, &proof) {
@@ -1557,8 +1573,15 @@ mod tests {
     }
     /// A solve call offered to the bridge and claimed by the webview, as the live route does.
     fn claimed_solve(owner: &mut Owner, p: &mut Protocol, n: u64) -> String {
+        claimed_solve_in(owner, p, n, None)
+    }
+    /// [`claimed_solve`] with a requested solver mode.
+    fn claimed_solve_in(owner: &mut Owner, p: &mut Protocol, n: u64, mode: Option<&str>) -> String {
         let basis = owner.workspaces[0].basis.clone();
-        let args = json!({"workspaceHandle":basis["workspaceHandle"],"basis":basis,"claimedModelHash":basis["modelHash"]});
+        let mut args = json!({"workspaceHandle":basis["workspaceHandle"],"basis":basis,"claimedModelHash":basis["modelHash"]});
+        if let Some(mode) = mode {
+            args["solverMode"] = json!(mode);
+        }
         let event = p.handle_frame(json!({"id":90+n,"method":"item/tool/call","params":{"threadId":"thread-1","turnId":"turn-1","callId":format!("call-{n}"),"tool":Tool::Solve.name(),"arguments":args}}),&basis).unwrap().events.into_iter().find(|event| matches!(event, Event::ToolRequested { .. })).unwrap();
         let reference: String = owner.workspaces[0].bridge.offer(&event, &basis, History::Live).unwrap().request_ref.into();
         let (authority, backing) = (auth(owner), lease(owner));
@@ -1566,13 +1589,19 @@ mod tests {
         reference
     }
     fn solve_outcome(basis: &Value, status: &str, mode: &str) -> String {
+        solve_outcome_for(basis, status, mode, "run-1")
+    }
+    fn solve_outcome_for(basis: &Value, status: &str, mode: &str, handle: &str) -> String {
         let run = status == "completed";
-        json!({"status":status,"basis":basis,"message":"Invented outcome","data":{"runHandle":run.then_some("run-1"),"runId":run.then_some("run:preview-linear-static-001"),
+        json!({"status":status,"basis":basis,"message":"Invented outcome","data":{"runHandle":run.then_some(handle),"runId":run.then_some("run:preview-linear-static-001"),
             "evaluatedModelHash":hash(),"health":"invented","solverMode":mode,"diagnostics":[],"diagnosticsNotListed":0,"failure":null}}).to_string()
     }
     fn run_proof(basis: &Value, status: &str, job: &str) -> Proof {
+        run_proof_for(basis, status, job, "run-1")
+    }
+    fn run_proof_for(basis: &Value, status: &str, job: &str, handle: &str) -> Proof {
         let run = status == "completed";
-        Proof::Run { handle: run.then(|| "run-1".to_owned()), run_id: run.then(|| "run:preview-linear-static-001".to_owned()), basis: basis.clone(), status: status.into(), native_job_id: Some(job.to_owned()) }
+        Proof::Run { handle: run.then(|| handle.to_owned()), run_id: run.then(|| "run:preview-linear-static-001".to_owned()), basis: basis.clone(), status: status.into(), native_job_id: Some(job.to_owned()) }
     }
     fn publish(owner: &mut Owner, reference: &str, outcome: String, proof: Proof) -> Result<Value, Error> {
         let (authority, backing) = (auth(owner), lease(owner));
@@ -1623,6 +1652,92 @@ mod tests {
         let shared = native_job(&registry, &gate, 6, None, BLOCKED);
         publish(&mut owner, &d, solve_outcome(&basis, "rejected", sparse), run_proof(&basis, "rejected", &shared)).unwrap();
         assert_eq!(publish(&mut owner, &e, solve_outcome(&basis, "rejected", sparse), run_proof(&basis, "rejected", &shared)).unwrap_err(), Error::Evidence);
+        drop(gate);
+    }
+    /// A result read through `handle`, admitted from the recorded history as the live
+    /// route admits it, claimed by the webview.
+    fn claimed_read(owner: &mut Owner, p: &mut Protocol, n: u64, handle: &str) -> String {
+        let live = owner.workspaces[0].basis.clone();
+        let args = json!({"workspaceHandle":live["workspaceHandle"],"basis":live,"runHandle":handle,"page":{"cursor":null,"limit":5}});
+        let event = p.handle_frame(json!({"id":90+n,"method":"item/tool/call","params":{"threadId":"thread-1","turnId":"turn-1","callId":format!("call-{n}"),"tool":Tool::ReadResults.name(),"arguments":args}}),&live).unwrap().events.into_iter().find(|event| matches!(event, Event::ToolRequested { .. })).unwrap();
+        let w = &mut owner.workspaces[0];
+        let (history_handle, history_basis) = match w.history(handle).expect("a recorded run") {
+            History::Run { handle, basis } => (handle.to_owned(), basis.clone()),
+            _ => panic!("not a run"),
+        };
+        let reference: String = w.bridge.offer(&event, &live, History::Run { handle: &history_handle, basis: &history_basis }).unwrap().request_ref.into();
+        let (authority, backing) = (auth(owner), lease(owner));
+        owner.action("main", Action::Claim { authority, request_ref: reference.clone() }, paths(), backing).unwrap();
+        reference
+    }
+    fn read_outcome(basis: &Value, handle: &str) -> String {
+        json!({"status":"ok","basis":basis,"message":"Invented page","data":{"runHandle":handle,"runId":"run:preview-linear-static-001","evaluatedModelHash":hash(),"values":[],"nextCursor":null,"standing":{"route":"invented","health":"invented","checks":[]}}}).to_string()
+    }
+    #[test]
+    fn a_run_handle_is_bound_once_and_a_later_completion_cannot_rebind_it() {
+        let (registry, gate) = native_registry();
+        let mut owner = registered_with(registry.clone());
+        let mut p = opened(&mut owner);
+        let basis = owner.workspaces[0].basis.clone();
+        // A completes in sparse mode and is given handle H.
+        let a = claimed_solve(&mut owner, &mut p, 1);
+        let job_a = native_job(&registry, &gate, 1, None, SOLVED);
+        publish(&mut owner, &a, solve_outcome_for(&basis, "completed", "sparse_interactive", "H"), run_proof_for(&basis, "completed", &job_a, "H")).unwrap();
+        let bound = owner.workspaces[0].runs.get("H").cloned();
+        // B completes in dense mode with a fresh, unused, solved job, but submits H again.
+        let b = claimed_solve_in(&mut owner, &mut p, 2, Some("dense_scrutiny"));
+        let job_b = native_job(&registry, &gate, 2, Some("dense_scrutiny"), SOLVED);
+        assert_eq!(publish(&mut owner, &b, solve_outcome_for(&basis, "completed", "dense_scrutiny", "H"), run_proof_for(&basis, "completed", &job_b, "H")).unwrap_err(), Error::Evidence);
+        // Nothing changed: H keeps A's job, digest and basis; B's job is unspent; B has no actual.
+        assert_eq!(owner.workspaces[0].runs.get("H").cloned(), bound);
+        assert!(!owner.workspaces[0].consumed_jobs.contains(&job_b) && !owner.workspaces[0].actual.contains_key(&b));
+        // A read through H, admitted from history, returns A's rows and never B's.
+        let read = claimed_read(&mut owner, &mut p, 3, "H");
+        assert_eq!(publish(&mut owner, &read, read_outcome(&basis, "H"), run_proof_for(&basis, "completed", &job_b, "H")).unwrap_err(), Error::Evidence);
+        publish(&mut owner, &read, read_outcome(&basis, "H"), run_proof_for(&basis, "completed", &job_a, "H")).unwrap();
+        // B may still complete under its own handle.
+        publish(&mut owner, &b, solve_outcome_for(&basis, "completed", "dense_scrutiny", "H2"), run_proof_for(&basis, "completed", &job_b, "H2")).unwrap();
+        drop(gate);
+    }
+    #[test]
+    fn a_completion_the_call_refuses_spends_no_job_binds_no_handle_and_leaves_no_history() {
+        let (registry, gate) = native_registry();
+        let mut owner = registered_with(registry.clone());
+        let mut p = opened(&mut owner);
+        let basis = owner.workspaces[0].basis.clone();
+        // The reviewer's sequence: A requests dense, B requests sparse, then one sparse job J.
+        let a = claimed_solve_in(&mut owner, &mut p, 1, Some("dense_scrutiny"));
+        let b = claimed_solve_in(&mut owner, &mut p, 2, Some("sparse_interactive"));
+        let j = native_job(&registry, &gate, 1, Some("sparse_interactive"), SOLVED);
+        // A's outcome names sparse and J: the native facts hold, but the call asked for dense.
+        assert_eq!(publish(&mut owner, &a, solve_outcome_for(&basis, "completed", "sparse_interactive", "HA"), run_proof_for(&basis, "completed", &j, "HA")).unwrap_err(), Error::Evidence);
+        let w = &owner.workspaces[0];
+        assert!(!w.consumed_jobs.contains(&j) && !w.runs.contains_key("HA") && !w.actual.contains_key(&a) && w.history("HA").is_none());
+        // B can use J.
+        publish(&mut owner, &b, solve_outcome_for(&basis, "completed", "sparse_interactive", "HB"), run_proof_for(&basis, "completed", &j, "HB")).unwrap();
+        assert!(owner.workspaces[0].consumed_jobs.contains(&j) && owner.workspaces[0].history("HB").is_some());
+        drop(gate);
+    }
+    #[test]
+    fn the_status_reader_reads_only_the_root_status_member_once() {
+        let (registry, gate) = native_registry();
+        let large = format!(r#"{{"results":[{}],"status":{{"mechanics":"MECHANICS_SOLVED"}}}}"#, vec![r#"{"id":"r","value":1.5,"note":"x"}"#; 60_000].join(","));
+        let cases: [(&str, String, Option<&str>); 9] = [
+            ("solved", SOLVED.into(), Some("MECHANICS_SOLVED")),
+            ("blocked", BLOCKED.into(), Some("MODEL_INCOMPLETE")),
+            ("partial", r#"{"status":{"mechanics":"MECHANICS_PARTIAL"}}"#.into(), Some("MECHANICS_PARTIAL")),
+            ("status twice", r#"{"status":{"mechanics":"MODEL_INCOMPLETE"},"status":{"mechanics":"MECHANICS_SOLVED"}}"#.into(), None),
+            ("mechanics twice", r#"{"status":{"mechanics":"MODEL_INCOMPLETE","mechanics":"MECHANICS_SOLVED"}}"#.into(), None),
+            ("nested deeper", r#"{"summary":{"status":{"mechanics":"MECHANICS_SOLVED"}}}"#.into(), None),
+            ("missing", r#"{"run_id":"run:preview-linear-static-001","results":[]}"#.into(), None),
+            ("not a string", r#"{"status":{"mechanics":true}}"#.into(), None),
+            ("large member first", large, Some("MECHANICS_SOLVED")),
+        ];
+        for (n, (name, text, expected)) in cases.into_iter().enumerate() {
+            let job = native_job(&registry, &gate, n + 1, None, &text);
+            assert_eq!(held_mechanics_status(&registry, &job).as_deref(), expected, "{name}");
+            registry.dispose_result(&job).unwrap();
+        }
         drop(gate);
     }
     #[test]
