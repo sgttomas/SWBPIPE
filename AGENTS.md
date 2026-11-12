@@ -27,7 +27,8 @@ now. I delegate my decision making to you fully but will rely upon you to be
 curious about what my intentions are if you haven't gleaned it through how the
 project is constructed and how meaning is conveyed throughout."
 
-What that means here:
+What that means here, within the extent, conditions and reservations of that
+grant:
 
 - Decisions follow perspective. Agent 0 decides what the target needs,
   including changes to scopes, criteria and holds, and records each decision
@@ -69,7 +70,8 @@ What that means here:
   artifacts that bear on it. They show relevance, not exclusive ownership, and
   an empty list means none are declared. Keep them accurate.
 
-A locality holds `ScopeOfWork.md` and `deliverable.yaml` and nothing else. Code, tests, schemas,
+A locality is its `ScopeOfWork.md` and `deliverable.yaml`; it has no `Work/`
+folder. Code, tests, schemas,
 fixtures and validation references live in the project's code locations, not
 under `execution/`.
 
@@ -91,11 +93,11 @@ finished. The queries show what is declared, not whether an input is fit for
 your use: read the condition. A query that fails is not an empty answer: read
 the files and say the check was unavailable.
 
-Correct a scope's description when the thing being made has materially
+Correct a scope's description only when the thing being made has materially
 changed or the description is materially wrong, and correct a need the work
 showed to be wrong, missing or no longer applicable in the same pull request. A changed commitment or criterion
-is the owner's, unless a delegation covers it. If a criterion looks wrong, cannot be met or no longer serves its purpose,
-do not change it, weaken its check or build around it: say what you found and
+is the owner's, unless an explicit delegation covers it. If a criterion looks wrong, cannot be met or no longer serves its purpose, and
+no explicit delegation covers it, do not change it, weaken its check or build around it: say what you found and
 what you would change, and carry on with what it does not affect; the other
 criteria stay in force. Treat an
 assumption you were given that turns out false the same way, taking it and its
@@ -335,8 +337,8 @@ act it describes.
   due to precision or details that can't be resolved except to allow a
   practical resolution that is within normative engineering practices." The
   design, physics and numerical methods are established, so such a resolution
-  is not a degraded output. The governing Design text records each resolution
-  and its reason.
+  is not a degraded output. The scope that governs the matter records each
+  resolution and its reason.
 - **Proportionate review.** Verification tooling (scanners, judges, guards)
   is reviewed against a threat model stated in its brief: a finding outside
   the model is recorded, not repaired, and a new kind of finding inside it
@@ -359,7 +361,7 @@ PR and ask once whether the standing rule should change.
 For `sgttomas/SWBPIPE` only, agents may commit, push, open, update and merge PRs
 within authorized work after the verification above and required checks pass on
 the exact head. The Agent 0 of the session that opened a PR, directly or
-through its delegates, merges it after the review its change requires and with
+through agents working under its assignment, merges it after the review its change requires and with
 required checks green on the exact head, having first triaged any open issue
 labelled `nightly` (the PR that repairs one may merge). If that session has ended, the current
 Agent 0 takes that duty. Agent 0 may arm GitHub
@@ -370,8 +372,8 @@ any further push to the branch. `main` does not require an up-to-date branch:
 before merging or arming, Agent 0 updates the branch and waits for a fresh run
 when a PR merged since the branch's base touched the same files or the same
 deliverable. Open PRs that overlap this way merge in turn: the later one stays
-unarmed until the earlier has landed and the later has been updated. Delegated agents report a PR ready to
-merge and wait for Agent 0 to merge it. Explicit holds and reserved decisions
+unarmed until the earlier has landed and the later has been updated. Agents working under that Agent 0's assignment report a PR ready to
+merge and wait for that Agent 0 to merge it. Explicit holds and reserved decisions
 apply. This grant excludes protection bypasses, history rewrites, force pushes,
 permission changes and releases. Use [Git conventions](#git-conventions) below.
 

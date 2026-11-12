@@ -37,10 +37,10 @@ results with".
   experience and human factors in the design and taste in the aesthetics.
   CAEPIPE is the validation to SWBPIPE: a benchmark set compares non-code
   outputs across as wide a range as practicable (Benchmark method, below).
-- **Scope for the climb.** A change or expansion in scope that clearly
-  benefits the climb is made: one that fixes a mistake, plugs an obvious gap,
-  or makes the product more accurate, truthful or capable without considerable
-  risk of any sort. Agent 0 decides such changes under the grant in
+- **Scope for the climb.** Agent 0 may make a change or expansion in scope
+  that clearly benefits the climb: one that fixes a mistake, plugs an obvious
+  gap, or makes the product more accurate, truthful or capable without
+  considerable risk of any sort. It decides such changes under the grant in
   `AGENTS.md` ("Posture for this phase"), including commitment and
   acceptance-criterion text and the reversal of earlier deferrals to v0.2. It
   approves feature proposals and reports what it adopted, deferred and why.
@@ -77,7 +77,7 @@ results with".
 - **Pressure effects.** The Bourdon effect is a Should option for v1.0, off by
   default and clearly labelled (DEL-04-07). Pressure-dependent flexibility and
   SIF corrections are out of scope: users enter their own k and SIF.
-- **Exact-route results under user release.** Route 010 admits exact-route results with exact source binding, exact sections and limitations, Diagnostics binding and producer item 9 (DEL-08-01 Design `report-user-release.md` §11).
+- **Exact-route results under user release.** Route 010 admits exact-route results with exact source binding, exact sections and limitations, Diagnostics binding and producer item 9 (DEL-08-01, REQ-019).
 - **Usability.** Agent 0 uses its own judgment on typical use cases an
   engineer would go through, and puts the desktop through them thoroughly
   before the owner is asked (exit criterion 8). The owner gets actual user
@@ -103,8 +103,10 @@ results with".
   desktop (DEL-16-06). The aim is an agent in SWBPIPE that operates the
   application effectively, ahead of workflow governance working perfectly.
   Earlier designs, DEC-041 among them, are historical context only: note what
-  was done, but do not take from it. The connection is designed afresh with
-  App v4's HELP_HUMAN and recorded in the owning Design.
+  was done, but do not take from it, because there are better examples
+  elsewhere now and the connection is better designed from fresh ideas. The
+  connection is designed afresh with
+  App v4's HELP_HUMAN and recorded in the owning scope (DEL-16-06).
 
 **Opening duty.** At session start, Agent 0 reports the path from the current
 state to that target, the work that can proceed independently, what it needs
@@ -112,13 +114,11 @@ from the owner to keep that work moving (decisions, credentials, host
 conditions) and any open `nightly` issue. Once the owner has steered, it runs
 the independent work in parallel, starting each Type 1 agent in a new thread.
 
-**Working posture.** The owner's standing instruction (2026-11-09 00:29 UTC):
-"This is just a standing instruction for you: Your top priority is to keep
-productive work moving forward. Don't stall out in repetitive cycles of testing
-and documenting of work. Some of that is necessary but easy to get absorbed in.
-Keep development moving towards the publication goals. Tell your interlocutor
-this is important for them to remind you of too, when relevant circumstances
-arise." In practice:
+**Working posture.** Agent 0's top priority is to keep productive work moving
+toward the publication goals. Testing and documenting are necessary and easy
+to get absorbed in, so repeated cycles of them are not allowed to stall
+development. The INTERLOCUTOR, where one is selected, reminds Agent 0 of this
+when the circumstances arise. In practice:
 
 - Testing and documenting serve the next step, not their own completeness.
 - Group known CI failures by cause instead of re-examining each job.
@@ -130,12 +130,10 @@ arise." In practice:
 - Budgets, caps and gates that Agent 0 sets itself are its own to change.
   Label them as its own when stating them.
 
-**Testing.** The owner delegated testing (2026-11-09 04:42 UTC): "Ok I need to
-be clear that I'm not going to be approving every test you want to run. Either
-do the testing as you see fit or put controls in place that you can manage
-yourself. Your role is to keep productive work moving forward. If that means
-certain necessary tests then orchestrate that." Agent 0 decides and orchestrates
-the tests a change needs. Controls it adds are its own, under the posture above.
+**Testing.** Agent 0 decides and orchestrates the tests a change needs; the
+owner does not approve each test. Agent 0 either tests as it sees fit or puts
+controls in place that it can manage itself, because its role is to keep
+productive work moving. Controls it adds are its own, under the posture above.
 
 ## Benchmark method (summary)
 
@@ -177,9 +175,9 @@ The validation lane proposes the set; this section records the method only:
 
 ## Exit criteria
 
-Thresholds marked *(provisional)* are Agent 0's targets. Testing of the use cases informs
-them; they become final only on the owner's acceptance after the owner's verdict under
-criterion 8.
+Thresholds marked *(provisional)* are Agent 0's targets. Agent 0 sets them from
+intended use and representative examination; a revision explains why the
+target remains adequate. A failure alone does not justify relaxing one.
 
 1. **One model, every required analysis.** An invented reference system solves on
    EX in the desktop with no admitted family refused. It contains:
@@ -201,7 +199,12 @@ criterion 8.
 
    *Owning deliverables:* each analysis's deliverable under criterion 1, with DEL-09-01 for the reference system.
 3. **Limitations.** Every remaining refusal of a capability these criteria require is listed in the
-   release limitations and accepted by the owner.
+   release limitations and declared acceptable by Agent 0. The entry states
+   the requirement the refusal affects, what that means in practice for a
+   user, and the reason, and the limitations are shown to the owner with the
+   request for the verdict. Declaring a refusal acceptable is a limitation
+   decision: it does not demonstrate the refused capability, and it does not
+   make an unmet criterion met.
 
    *Owning deliverables:* the deliverable that owns each refusal; the list is `docs/RELEASE_LIMITATIONS_v1.0.md`.
 4. **Shareable report.** A user releases, saves and prints a report for results
@@ -297,15 +300,18 @@ criterion 8.
 - The owner's review of the full benchmark record (exit criterion 11), and the
   private CAEPIPE evaluation record and trial it rests on.
 - Purchases, credentials, and repository protections and settings.
+- Waiving a release gate, and risk accepted in order to release.
 - The native-smoke `expected.json` values.
 
 Agent 0 decides what else the target needs, under the grant in `AGENTS.md`
 ("Posture for this phase"): changing an exit criterion or its value, declaring
-a limitation acceptable, risk acceptance and technical holds. A hold that
-waits on evidence still waits on it, and an expected value is changed only on
-independent grounds, never to fit the implementation. The release limitations
-that criterion 3 refers to are kept in `docs/RELEASE_LIMITATIONS_v1.0.md`,
-where lanes draft entries.
+a remaining refusal acceptable (criterion 3), technical risk acceptance and
+technical holds. A hold that waits on evidence still waits on it. A numerical
+reference expectation is changed only on independent grounds, never to fit
+the implementation. Waiving a release gate, and risk accepted in order to
+release, are the owner's with the release. The release limitations that
+criterion 3 refers to are kept in `docs/RELEASE_LIMITATIONS_v1.0.md`, where
+lanes draft entries.
 
 Decisions edit the text they govern. This file is not a log and holds no
 status; Git keeps its history.
