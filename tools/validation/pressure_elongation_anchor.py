@@ -5,29 +5,43 @@
 switch (`tools/validation/pressure_elongation.py`: absent, all or none), solves it with the
 maintained `physics_source_connected` example (the value entry the desktop and the
 fixture writers use; `exact_pressure_connected` where the inventory names it), and
-compares the envelope with the committed one, leaf by leaf:
+compares the envelope with a reference envelope, leaf by leaf:
 
 - every number bit for bit (binary64; -0.0 differs from 0.0; an integer differs from a float);
 - every string, boolean and null exactly, and the object keys and array lengths;
 - except the explicit, minimal exclusions below (identity, setting and label bytes).
 
-Reference envelopes: the committed raw envelope the inventory names (a raw file, or the
-envelope stored beside the model in a corpus), else a baseline captured with `capture`
-from an engine that predates the switch. After the engine change, an absent member means
-"not included", so a baseline must be captured at a pre-change commit and kept outside
-the repository.
+Reference envelopes. By default: the committed raw envelope the inventory names (a raw
+file, or the envelope stored beside the model in a corpus), else a baseline captured with
+`capture` from an engine that predates the switch. After the engine change, an absent
+member means "not included", so a baseline must be captured at a pre-change commit and
+kept outside the repository. The committed envelopes are regenerated whenever their
+fixtures are re-produced, so after the fixture re-production a default check compares
+those entries with the same engine's own output, not with the pre-change mechanics.
+`--baseline-only` (with `--baseline DIR`) takes every reference from the captured
+baseline and never from a committed envelope: every document and mode that is solved must
+have its `<key>.json` in DIR, and an entry missing one, or with nothing compared, is an
+ERROR (exit status 1). The
+documents and modes solved are the same as by default: the modes of the committed
+envelope where the inventory names one, else every requested mode.
 
 Re-production: each maintained Python producer applies the same helper to the
-documents it writes, and with its switch at the default it reproduces the committed
-bytes (checked by its own verify mode), so applying the helper to the committed document
-is the producer's switched output. Rust and TypeScript writers that embed these models
-copy them from their committed sources.
+documents it writes. The committed fixtures of those producers were re-produced with the
+switch at `all` (the inventory's `verify` commands pass `--pressure-elongation all`), so
+their committed documents already carry the setting naming every pressurised case. The
+helper is idempotent: `--switch all` solves such a document as committed, and so does
+`--switch absent`, which leaves a document as it is; `--switch none` removes the member.
+Writers whose model is copied from a committed source, and frozen run records, still
+commit documents without the setting; `--switch all` adds it to them as their producer
+would. Rust and TypeScript writers that embed these models copy them from their
+committed sources.
 
 Usage (from the repository root):
 
     python3 tools/validation/pressure_elongation_anchor.py check --switch absent
     python3 tools/validation/pressure_elongation_anchor.py capture --baseline DIR
     python3 tools/validation/pressure_elongation_anchor.py check --switch all --baseline DIR
+    python3 tools/validation/pressure_elongation_anchor.py check --switch all --baseline DIR --baseline-only
 
 Request-bound receipt chain. A retained-source envelope (`source_block_recovery`) commits
 to the request through `invocation.value`, so naming the cases changes that hash and the
@@ -47,7 +61,8 @@ reference dumps beside the envelopes (`<key>.source-dump.json`).
 
 Options: `--examples-dir` (prebuilt `core/product_physics` examples; otherwise they are
 built with `$CARGO`, default `cargo`, release profile), `--entry ID` (repeatable),
-`--modes sparse,dense`, `--json OUT` (machine-readable report). Exit status 0 when no
+`--modes sparse,dense`, `--json OUT` (machine-readable report), `--baseline-only` (above).
+Exit status 0 when no
 entry FAILs or ERRORs; REFUSED (the engine does not accept the member yet) exits 3.
 """
 from __future__ import annotations
@@ -364,11 +379,17 @@ def run(args) -> int:
         raise SystemExit("--modes takes sparse and/or dense")
     switch = "absent" if args.command == "capture" else args.switch
     baseline = Path(args.baseline).resolve() if args.baseline else None
+    baseline_only = args.command == "check" and args.baseline_only
+    if baseline_only and baseline is None:
+        raise SystemExit("--baseline-only needs --baseline DIR")
     if args.command == "capture":
         baseline.mkdir(parents=True, exist_ok=True)
     solver = Solver(Path(args.examples_dir).resolve() if args.examples_dir else None)
     solver.ensure()
     report = {"switch": switch, "command": args.command, "modes": modes,
+              "reference": ("baseline only" if baseline_only else
+                            "committed envelope, else baseline") if args.command == "check" else None,
+              "baseline": str(baseline) if baseline else None,
               "exclusions": {"keys": sorted(EXCLUDED_KEYS),
                              "identity_substitutions": [list(p) for p in IDENTITY_SUBSTITUTIONS],
                              "limitations_dropped": sorted(ADDED_LIMITATION_STATEMENTS),
@@ -379,7 +400,7 @@ def run(args) -> int:
               "entries": []}
     totals: dict[str, int] = {}
     for entry in entries:
-        result = run_entry(entry, switch, modes, solver, baseline, args.command)
+        result = run_entry(entry, switch, modes, solver, baseline, args.command, baseline_only)
         report["entries"].append(result)
         totals[result["status"]] = totals.get(result["status"], 0) + 1
         line = f"{result['status']:<10} {entry['id']}"
@@ -444,7 +465,9 @@ def receipt_chain(reference: Any, envelope: Any, reference_dump: dict | None, ac
     return None
 
 
-def run_entry(entry: dict, switch: str, modes: list[str], solver: Solver, baseline: Path | None, command: str) -> dict:
+def run_entry(entry: dict, switch: str, modes: list[str], solver: Solver, baseline: Path | None, command: str,
+              baseline_only: bool = False) -> dict:
+    """One entry's status. `baseline_only`: every reference from `baseline`, a missing one an ERROR."""
     anchor = entry["anchor"]
     if anchor["kind"] == "excluded":
         return {"id": entry["id"], "status": "EXCLUDED", "detail": anchor["reason"]}
@@ -474,7 +497,12 @@ def run_entry(entry: dict, switch: str, modes: list[str], solver: Solver, baseli
                     (baseline / f"{key}.source-dump.json").write_text(
                         json.dumps(solver.dump(request, mode), ensure_ascii=False) + "\n", encoding="utf-8")
                 continue
-            if committed is not None:
+            if baseline_only:
+                if baseline is None or not (baseline / f"{key}.json").exists():
+                    return {"id": entry["id"], "status": "ERROR",
+                            "detail": f"{where}: --baseline-only and no baseline envelope {key}.json"}
+                reference = loads((baseline / f"{key}.json").read_text(encoding="utf-8"))
+            elif committed is not None:
                 reference = committed[mode]
             elif baseline is not None and (baseline / f"{key}.json").exists():
                 reference = loads((baseline / f"{key}.json").read_text(encoding="utf-8"))
@@ -500,6 +528,9 @@ def run_entry(entry: dict, switch: str, modes: list[str], solver: Solver, baseli
                 work.extend(f"{where} {p}: {r}" for p, r in found if _matches(p, WORK_LEAVES))
     if command == "capture":
         return {"id": entry["id"], "status": "CAPTURED", "detail": f"{solved} envelopes"}
+    if compared == 0 and baseline_only:
+        return {"id": entry["id"], "status": "ERROR",
+                "detail": f"--baseline-only and nothing compared ({solved} solved; no requested mode to compare)"}
     if compared == 0:
         return {"id": entry["id"], "status": "UNCOMPARED",
                 "detail": f"{solved} solved; no committed envelope and no baseline (pass --baseline)"}
@@ -523,6 +554,9 @@ def main(argv: list[str] | None = None) -> int:
         if name == "check":
             p.add_argument("--switch", choices=PE.MODES, default="absent")
             p.add_argument("--baseline", help="directory of envelopes captured before the engine change")
+            p.add_argument("--baseline-only", action="store_true",
+                           help="take every reference from --baseline, never a committed envelope; "
+                                "a missing baseline envelope is an ERROR")
         else:
             p.add_argument("--baseline", required=True, help="directory to write the captured envelopes into")
         p.add_argument("--examples-dir")

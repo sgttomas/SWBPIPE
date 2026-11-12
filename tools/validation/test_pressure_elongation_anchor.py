@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import copy
 import json
+import struct
 import sys
 from pathlib import Path
 
@@ -203,6 +204,85 @@ def test_run_entry_reports_pass_fail_and_the_refused_member(tmp_path, monkeypatc
     seen = []
     A.run_entry(e, "all", ["sparse"], StubSolver(lambda r, m: seen.append(r) or ("envelope", BASE, "")), None, "check")
     assert seen[0]["model"]["model_settings"]["pressure_elongation"]["operating_load_cases"] == ["case:sus", "case:cond"]
+
+
+# ----------------------------------------------------------------------------- --baseline-only
+def write_baseline(directory, envelope, entry_id="e", pointer="/cases/0/model", mode="sparse"):
+    directory.mkdir(exist_ok=True)
+    (directory / f"{A.baseline_key(entry_id, pointer, mode)}.json").write_text(json.dumps(envelope))
+    return directory
+
+
+def flip_last_bit(value: float) -> float:
+    return struct.unpack(">d", (struct.unpack(">Q", struct.pack(">d", value))[0] ^ 1).to_bytes(8, "big"))[0]
+
+
+def test_baseline_only_never_reads_the_committed_envelope(tmp_path, monkeypatch):
+    monkeypatch.setattr(A, "ROOT", Path("/"))
+    regenerated = switched()
+    regenerated["results"][0]["value"] = 0.2  # the branch's committed envelope, moved with the solve
+    e = entry(tmp_path, regenerated)
+    solve = StubSolver(lambda r, m: ("envelope", regenerated, ""))
+    assert A.run_entry(e, "all", ["sparse"], solve, None, "check")["status"] == "PASS"  # self-comparison
+    baseline = write_baseline(tmp_path / "baseline", BASE)
+    for only in (False, True):  # a baseline beside a committed envelope is used only with the option
+        result = A.run_entry(e, "all", ["sparse"], solve, baseline, "check", baseline_only=only)
+        assert result["status"] == ("FAIL" if only else "PASS")
+    fail = A.run_entry(e, "all", ["sparse"], solve, baseline, "check", baseline_only=True)
+    assert "/results/0/value" in fail["detail"] and "0.1 != 0.2" in fail["detail"]
+
+
+def test_baseline_only_errors_on_a_missing_baseline_envelope(tmp_path, monkeypatch):
+    monkeypatch.setattr(A, "ROOT", Path("/"))
+    e = entry(tmp_path, BASE)
+    solve = StubSolver(lambda r, m: ("envelope", switched(), ""))
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    for baseline in (empty, tmp_path / "absent", write_baseline(tmp_path / "other", BASE, pointer="/cases/1/model")):
+        result = A.run_entry(e, "all", ["sparse"], solve, baseline, "check", baseline_only=True)
+        assert result["status"] == "ERROR" and "no baseline envelope" in result["detail"]
+    # nothing to compare (the entry's only mode is not requested) is an ERROR too, not UNCOMPARED
+    nothing = A.run_entry(e, "all", ["dense"], solve, write_baseline(tmp_path / "b", BASE), "check", baseline_only=True)
+    assert nothing["status"] == "ERROR" and "nothing compared" in nothing["detail"]
+
+
+def test_one_flipped_bit_in_a_baseline_float_fails_the_entry(tmp_path, monkeypatch):
+    monkeypatch.setattr(A, "ROOT", Path("/"))
+    e = entry(tmp_path, BASE)
+    solve = StubSolver(lambda r, m: ("envelope", switched(), ""))
+    assert A.run_entry(e, "all", ["sparse"], solve, write_baseline(tmp_path / "same", BASE), "check",
+                       baseline_only=True)["status"] == "PASS"
+    flipped = copy.deepcopy(BASE)
+    flipped["results"][0]["value"] = flip_last_bit(0.1)
+    assert flipped["results"][0]["value"] != 0.1
+    result = A.run_entry(e, "all", ["sparse"], solve, write_baseline(tmp_path / "flipped", flipped), "check",
+                         baseline_only=True)
+    assert result["status"] == "FAIL" and result["detail"].startswith("/cases/0/model [sparse]: 1 differences")
+    assert "/results/0/value" in result["detail"]
+
+
+def test_baseline_only_exit_status_is_nonzero_on_a_missing_entry(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(A, "ROOT", Path("/"))
+    e = entry(tmp_path, BASE)
+
+    class Built(StubSolver):
+        def __init__(self, examples_dir):
+            super().__init__(lambda r, m: ("envelope", switched(), ""))
+
+        def ensure(self):
+            pass
+
+    monkeypatch.setattr(A, "Solver", Built)
+    monkeypatch.setattr(A, "load_inventory", lambda: {"entries": [e]})
+    argv = ["check", "--switch", "all", "--modes", "sparse", "--baseline-only", "--json", str(tmp_path / "r.json")]
+    assert A.main(argv + ["--baseline", str(write_baseline(tmp_path / "ok", BASE))]) == 0
+    empty = tmp_path / "empty"
+    empty.mkdir()
+    assert A.main(argv + ["--baseline", str(empty)]) == 1
+    report = json.loads((tmp_path / "r.json").read_text())
+    assert report["reference"] == "baseline only" and report["totals"] == {"ERROR": 1}
+    with pytest.raises(SystemExit, match="needs --baseline"):
+        A.main(argv)
 
 
 # ----------------------------------------------------------------------------- the inventory
