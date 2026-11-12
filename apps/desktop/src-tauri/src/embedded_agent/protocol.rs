@@ -84,6 +84,10 @@ pub enum Event {
         status: String,
     },
     InterruptAcknowledged,
+    /// The runtime reported, inside the active turn, an error it will retry
+    /// (true), or something else has since arrived in that turn or the turn
+    /// ended (false). Payload-free; the supplier's message is never carried.
+    Reconnecting(bool),
     ThreadStatus {
         status: String,
     },
@@ -184,6 +188,8 @@ pub struct Protocol {
     seen_call: Vec<String>,
     last_rejection: Option<RpcRejection>,
     refusal: Option<Refusal>,
+    // A retrying error is the latest thing received in the active turn.
+    reconnecting: bool,
     #[cfg(any(test, feature = "native-smoke"))]
     observed: observed::Observed,
 }
@@ -198,11 +204,12 @@ fn bounded_identity(s: &str) -> Result<String, Error> {
         Err(Error("invalid identity"))
     }
 }
-fn rpc_id(id: &wire::RequestId) -> Result<Value, Error> {
+/// A server request's identity, whose form (int64 or string) was checked.
+fn rpc_id(id: &Value) -> Result<Value, Error> {
     match id {
-        wire::RequestId::Int(n) => Ok(json!(n)),
-        wire::RequestId::Str(s) if bounded(s, MAX_ID_BYTES) => Ok(json!(s)),
-        wire::RequestId::Str(_) => Err(Error("invalid request identity")),
+        Value::Number(_) => Ok(id.clone()),
+        Value::String(s) if bounded(s, MAX_ID_BYTES) => Ok(id.clone()),
+        _ => Err(Error("invalid request identity")),
     }
 }
 // Count serialized bytes without allocating a second copy of model arguments.
@@ -230,1045 +237,580 @@ fn within(value: &Value, limit: u64) -> bool {
     serde_json::to_writer(Counter { used: 0, max }, value).is_ok()
 }
 
-/// Closed types for every frame the host reads from stock 0.160.0's app
-/// server, from its protocol schema (`codex_app_server_protocol.schemas.json`,
-/// SHA-256 7243ba241962af92ca60581f1a81808ebda4212a800f8b205f54703bcfd508c5).
-/// Each type names every member the schema gives it, with its type; required
-/// members are required, a required nullable member must be present, an
-/// optional member that is not nullable refuses null, and any member the
-/// schema does not give is refused. Members the schema types as any JSON
-/// (`arguments`, `params`, `result`, error `data`) are the only `Value`s.
-/// The refused item kinds end the session on their tag; their bodies are
-/// skipped unread, which bounds this module to the admitted kinds' types.
-#[allow(dead_code)]
-pub(super) mod wire {
-    use serde::de::{Deserializer, IgnoredAny};
-    use serde::Deserialize;
+/// The JSON forms of every frame the host reads from stock 0.160.0's app
+/// server, written once, as data, from that release's protocol schema
+/// (`codex_app_server_protocol.schemas.json`, SHA-256
+/// 7243ba241962af92ca60581f1a81808ebda4212a800f8b205f54703bcfd508c5).
+/// One generic checker reads a value against its form before the host
+/// decides anything; no `serde` derive reads a wire type. A form names every
+/// member the schema gives, whether it is required, and its form; null is
+/// admitted only where the form says nullable, a present null is a present
+/// member, an empty string only where no minimum length is set, and a member
+/// the form does not name is refused. The tag of the item union is open: a
+/// refused or unlisted kind passes the form unread and admission refuses it.
+pub(super) mod form {
     use serde_json::Value;
 
-    /// A required member whose schema type admits null: present, maybe null.
-    fn nullable<'de, D: Deserializer<'de>, T: Deserialize<'de>>(d: D) -> Result<Option<T>, D::Error> {
-        Option::<T>::deserialize(d)
+    #[derive(Clone, Copy, Debug)]
+    pub enum Form {
+        Str,
+        /// A string of at least this many characters (schema `minLength`).
+        StrMin(usize),
+        /// An integer of the schema's `format`.
+        Int(&'static str),
+        Bool,
+        /// Any JSON value (schema `true`). Never read for a decision.
+        Any,
+        /// One word of a closed set (schema `enum`).
+        Words(&'static [&'static str]),
+        Array(&'static Form),
+        Nullable(&'static Form),
+        Object(&'static Obj),
+        Tagged(&'static Tagged),
+        /// Exactly one alternative matches.
+        OneOf(&'static [Form]),
     }
-    /// An optional member whose schema type does not admit null.
-    fn some<'de, D: Deserializer<'de>, T: Deserialize<'de>>(d: D) -> Result<Option<T>, D::Error> {
-        T::deserialize(d).map(Some)
+    #[derive(Debug)]
+    pub struct Obj {
+        pub members: &'static [Member],
+        /// At least one of these sets of members is present (schema `anyOf`
+        /// of `required`), when not empty.
+        pub any_required: &'static [&'static [&'static str]],
     }
-
-    // JSON-RPC envelope (JSONRPCRequest, JSONRPCNotification,
-    // JSONRPCResponse, JSONRPCError): the union of their members; which
-    // combination arrived is checked by the caller.
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct Envelope {
-        #[serde(default, deserialize_with = "some")]
-        pub id: Option<RequestId>,
-        #[serde(default, deserialize_with = "some")]
-        pub method: Option<String>,
-        #[serde(default)]
-        pub params: Option<Value>,
-        #[serde(default)]
-        pub result: Option<Value>,
-        #[serde(default, deserialize_with = "some")]
-        pub error: Option<JsonRpcError>,
-        #[serde(default, deserialize_with = "some")]
-        pub trace: Option<W3cTraceContext>,
+    #[derive(Debug)]
+    pub struct Member {
+        pub name: &'static str,
+        pub required: bool,
+        pub form: Form,
     }
-    #[derive(Deserialize, Clone, Debug, PartialEq)]
-    #[serde(untagged)]
-    pub enum RequestId {
-        Int(i64),
-        Str(String),
+    #[derive(Debug)]
+    pub struct Tagged {
+        pub tag: &'static str,
+        pub variants: &'static [(&'static str, Obj)],
+        /// Tag words recognised and ended by admission, their bodies unread.
+        pub refused: &'static [&'static str],
+        /// Whether any other string tag passes the form, to be refused by
+        /// admission as unlisted.
+        pub open: bool,
     }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct JsonRpcError {
-        pub code: i64,
-        pub message: String,
-        #[serde(default)]
-        pub data: Option<Value>,
+    pub const fn req(name: &'static str, form: Form) -> Member {
+        Member { name, required: true, form }
     }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct W3cTraceContext {
-        #[serde(default)]
-        pub traceparent: Option<String>,
-        #[serde(default)]
-        pub tracestate: Option<String>,
+    pub const fn opt(name: &'static str, form: Form) -> Member {
+        Member { name, required: false, form }
     }
-
-    // The tool call request (DynamicToolCallParams).
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct DynamicToolCallParams {
-        pub arguments: Value,
-        pub call_id: String,
-        #[serde(default)]
-        pub namespace: Option<String>,
-        pub thread_id: String,
-        pub tool: String,
-        pub turn_id: String,
+    pub const fn obj(members: &'static [Member]) -> Obj {
+        Obj { members, any_required: &[] }
     }
 
-    // Responses to the four requests the host sends.
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct InitializeResponse {
-        pub codex_home: String,
-        pub platform_family: String,
-        pub platform_os: String,
-        pub user_agent: String,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct ThreadStartResponse {
-        #[serde(default)]
-        pub active_permission_profile: Option<ActivePermissionProfile>,
-        pub approval_policy: AskForApproval,
-        pub approvals_reviewer: ApprovalsReviewer,
-        pub cwd: String,
-        #[serde(default, deserialize_with = "some")]
-        pub disabled_plugin_ids: Option<Vec<String>>,
-        #[serde(default, deserialize_with = "some")]
-        pub instruction_sources: Option<Vec<String>>,
-        pub model: String,
-        pub model_provider: String,
-        #[serde(default, deserialize_with = "some")]
-        pub multi_agent_mode: Option<MultiAgentMode>,
-        #[serde(default)]
-        pub reasoning_effort: Option<String>,
-        #[serde(default, deserialize_with = "some")]
-        pub runtime_workspace_roots: Option<Vec<String>>,
-        pub sandbox: SandboxPolicy,
-        #[serde(default)]
-        pub service_tier: Option<String>,
-        pub thread: Thread,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct TurnStartResponse {
-        pub turn: Turn,
-    }
-    /// An object the schema gives no members: only `{}` is accepted, not
-    /// an array or any member.
-    pub struct EmptyObject;
-    impl<'de> Deserialize<'de> for EmptyObject {
-        fn deserialize<D: Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
-            struct Visitor;
-            impl<'de> serde::de::Visitor<'de> for Visitor {
-                type Value = EmptyObject;
-                fn expecting(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-                    f.write_str("an empty object")
-                }
-                fn visit_map<A: serde::de::MapAccess<'de>>(self, mut map: A) -> Result<EmptyObject, A::Error> {
-                    match map.next_key::<IgnoredAny>()? {
-                        None => Ok(EmptyObject),
-                        Some(_) => Err(serde::de::Error::custom("member of an empty object")),
-                    }
-                }
-            }
-            d.deserialize_map(Visitor)
+    /// An integer within the range of the schema's `format`; never a float.
+    fn int(v: &Value, format: &str) -> bool {
+        match format {
+            "int64" => v.as_i64().is_some(),
+            "int32" => v.as_i64().is_some_and(|i| i32::try_from(i).is_ok()),
+            "uint" => v.as_u64().is_some(),
+            "uint32" => v.as_u64().is_some_and(|u| u32::try_from(u).is_ok()),
+            "uint16" => v.as_u64().is_some_and(|u| u16::try_from(u).is_ok()),
+            _ => false,
         }
     }
-    pub type TurnInterruptResponse = EmptyObject;
-
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct ActivePermissionProfile {
-        #[serde(default)]
-        pub extends: Option<String>,
-        pub id: String,
+    pub fn object(v: &Value, o: &Obj) -> bool {
+        object_with(v, o, None)
     }
-    #[derive(Deserialize, PartialEq)]
-    pub enum ApprovalsReviewer {
-        #[serde(rename = "user")]
-        User,
-        #[serde(rename = "auto_review")]
-        AutoReview,
-        #[serde(rename = "guardian_subagent")]
-        GuardianSubagent,
+    /// An object of exactly these members; `tag` is a further member
+    /// admitted for a tagged variant.
+    fn object_with(v: &Value, o: &Obj, tag: Option<&str>) -> bool {
+        let Some(map) = v.as_object() else { return false };
+        map.iter().all(|(k, value)| {
+            Some(k.as_str()) == tag
+                || o.members.iter().any(|m| m.name == k && check(value, &m.form))
+        }) && o.members.iter().all(|m| !m.required || map.contains_key(m.name))
+            && (o.any_required.is_empty()
+                || o.any_required
+                    .iter()
+                    .any(|set| set.iter().all(|name| map.contains_key(*name))))
     }
-    #[derive(Deserialize, PartialEq)]
-    #[serde(untagged)]
-    pub enum AskForApproval {
-        Mode(ApprovalMode),
-        Granular(GranularApproval),
-    }
-    #[derive(Deserialize, PartialEq)]
-    pub enum ApprovalMode {
-        #[serde(rename = "untrusted")]
-        Untrusted,
-        #[serde(rename = "on-request")]
-        OnRequest,
-        #[serde(rename = "never")]
-        Never,
-    }
-    #[derive(Deserialize, PartialEq)]
-    #[serde(deny_unknown_fields)]
-    pub struct GranularApproval {
-        pub granular: Granular,
-    }
-    #[derive(Deserialize, PartialEq)]
-    #[serde(deny_unknown_fields)]
-    pub struct Granular {
-        pub mcp_elicitations: bool,
-        #[serde(default, deserialize_with = "some")]
-        pub request_permissions: Option<bool>,
-        pub rules: bool,
-        pub sandbox_approval: bool,
-        #[serde(default, deserialize_with = "some")]
-        pub skill_approval: Option<bool>,
-    }
-    #[derive(Deserialize)]
-    #[serde(untagged)]
-    pub enum MultiAgentMode {
-        Mode(MultiAgentModeName),
-        Custom(Custom),
-    }
-    #[derive(Deserialize)]
-    pub enum MultiAgentModeName {
-        #[serde(rename = "explicitRequestOnly")]
-        ExplicitRequestOnly,
-        #[serde(rename = "proactive")]
-        Proactive,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct Custom {
-        pub custom: String,
-    }
-    #[derive(Deserialize)]
-    #[serde(tag = "type", deny_unknown_fields)]
-    pub enum SandboxPolicy {
-        #[serde(rename = "dangerFullAccess")]
-        DangerFullAccess {},
-        #[serde(rename = "readOnly", rename_all = "camelCase")]
-        ReadOnly {
-            #[serde(default, deserialize_with = "some")]
-            network_access: Option<bool>,
-        },
-        #[serde(rename = "externalSandbox", rename_all = "camelCase")]
-        ExternalSandbox {
-            #[serde(default, deserialize_with = "some")]
-            network_access: Option<NetworkAccess>,
-        },
-        #[serde(rename = "workspaceWrite", rename_all = "camelCase")]
-        WorkspaceWrite {
-            #[serde(default, deserialize_with = "some")]
-            exclude_slash_tmp: Option<bool>,
-            #[serde(default, deserialize_with = "some")]
-            exclude_tmpdir_env_var: Option<bool>,
-            #[serde(default, deserialize_with = "some")]
-            network_access: Option<bool>,
-            #[serde(default, deserialize_with = "some")]
-            writable_roots: Option<Vec<String>>,
-        },
-    }
-    #[derive(Deserialize)]
-    pub enum NetworkAccess {
-        #[serde(rename = "restricted")]
-        Restricted,
-        #[serde(rename = "enabled")]
-        Enabled,
-    }
-
-    // Thread and turn.
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct Thread {
-        #[serde(default)]
-        pub agent_nickname: Option<String>,
-        #[serde(default)]
-        pub agent_role: Option<String>,
-        #[serde(default)]
-        pub can_accept_direct_input: Option<bool>,
-        pub cli_version: String,
-        pub created_at: i64,
-        pub cwd: String,
-        #[serde(default)]
-        pub daybreak_enabled: Option<bool>,
-        #[serde(default)]
-        pub environments: Option<Vec<ThreadEnvironment>>,
-        pub ephemeral: bool,
-        #[serde(default)]
-        pub extra: Option<ThreadExtra>,
-        #[serde(default)]
-        pub forked_from_id: Option<String>,
-        #[serde(default)]
-        pub git_info: Option<GitInfo>,
-        #[serde(default, deserialize_with = "some")]
-        pub history_mode: Option<ThreadHistoryMode>,
-        pub id: String,
-        #[serde(default)]
-        pub model: Option<String>,
-        pub model_provider: String,
-        #[serde(default)]
-        pub name: Option<String>,
-        #[serde(default)]
-        pub originator: Option<String>,
-        #[serde(default)]
-        pub parent_thread_id: Option<String>,
-        #[serde(default)]
-        pub path: Option<String>,
-        pub preview: String,
-        #[serde(deserialize_with = "nullable")]
-        pub project_id: Option<String>,
-        #[serde(default)]
-        pub reasoning_effort: Option<String>,
-        #[serde(default)]
-        pub recency_at: Option<i64>,
-        #[serde(default)]
-        pub section: Option<ThreadSection>,
-        #[serde(default)]
-        pub section_entered_at: Option<i64>,
-        pub session_id: String,
-        pub source: SessionSource,
-        pub status: ThreadStatus,
-        #[serde(default)]
-        pub thread_source: Option<String>,
-        pub turns: Vec<Turn>,
-        pub updated_at: i64,
-    }
-    /// The schema gives this object no members, so only `{}` is accepted.
-    pub type ThreadExtra = EmptyObject;
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct ThreadEnvironment {
-        pub cwd: String,
-        pub environment_id: String,
-        pub runtime_workspace_roots: Vec<String>,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct GitInfo {
-        #[serde(default)]
-        pub branch: Option<String>,
-        #[serde(default)]
-        pub origin_url: Option<String>,
-        #[serde(default)]
-        pub sha: Option<String>,
-    }
-    #[derive(Deserialize)]
-    pub enum ThreadHistoryMode {
-        #[serde(rename = "legacy")]
-        Legacy,
-        #[serde(rename = "paginated")]
-        Paginated,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct ThreadSection {
-        #[serde(default)]
-        pub appearance: Option<ThreadSectionAppearance>,
-        pub id: String,
-        pub name: String,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct ThreadSectionAppearance {
-        #[serde(default)]
-        pub color: Option<String>,
-        #[serde(default)]
-        pub icon: Option<String>,
-    }
-    #[derive(Deserialize)]
-    #[serde(untagged)]
-    pub enum SessionSource {
-        Name(SessionSourceName),
-        Custom(Custom),
-        SubAgent(SubAgentSessionSource),
-    }
-    #[derive(Deserialize)]
-    pub enum SessionSourceName {
-        #[serde(rename = "cli")]
-        Cli,
-        #[serde(rename = "vscode")]
-        Vscode,
-        #[serde(rename = "exec")]
-        Exec,
-        #[serde(rename = "appServer")]
-        AppServer,
-        #[serde(rename = "unknown")]
-        Unknown,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct SubAgentSessionSource {
-        pub sub_agent: SubAgentSource,
-    }
-    #[derive(Deserialize)]
-    #[serde(untagged)]
-    pub enum SubAgentSource {
-        Name(SubAgentSourceName),
-        ThreadSpawn(ThreadSpawnSource),
-        Other(OtherSubAgentSource),
-    }
-    #[derive(Deserialize)]
-    pub enum SubAgentSourceName {
-        #[serde(rename = "review")]
-        Review,
-        #[serde(rename = "compact")]
-        Compact,
-        #[serde(rename = "memory_consolidation")]
-        MemoryConsolidation,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct ThreadSpawnSource {
-        pub thread_spawn: ThreadSpawn,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct ThreadSpawn {
-        #[serde(default)]
-        pub agent_nickname: Option<String>,
-        #[serde(default)]
-        pub agent_path: Option<String>,
-        #[serde(default)]
-        pub agent_role: Option<String>,
-        pub depth: i32,
-        pub parent_thread_id: String,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct OtherSubAgentSource {
-        pub other: String,
-    }
-    #[derive(Deserialize)]
-    #[serde(tag = "type", deny_unknown_fields)]
-    pub enum ThreadStatus {
-        #[serde(rename = "notLoaded")]
-        NotLoaded {},
-        #[serde(rename = "idle")]
-        Idle {},
-        #[serde(rename = "systemError")]
-        SystemError {},
-        #[serde(rename = "active", rename_all = "camelCase")]
-        Active { active_flags: Vec<ThreadActiveFlag> },
-    }
-    impl ThreadStatus {
-        pub fn name(&self) -> &'static str {
-            match self {
-                Self::NotLoaded {} => "notLoaded",
-                Self::Idle {} => "idle",
-                Self::SystemError {} => "systemError",
-                Self::Active { .. } => "active",
-            }
+    pub fn check(v: &Value, f: &Form) -> bool {
+        match f {
+            Form::Str => v.is_string(),
+            Form::StrMin(min) => v.as_str().is_some_and(|s| s.chars().count() >= *min),
+            Form::Int(format) => int(v, format),
+            Form::Bool => v.is_boolean(),
+            Form::Any => true,
+            Form::Words(words) => v.as_str().is_some_and(|s| words.contains(&s)),
+            Form::Array(item) => v.as_array().is_some_and(|a| a.iter().all(|e| check(e, item))),
+            Form::Nullable(inner) => v.is_null() || check(v, inner),
+            Form::Object(o) => object(v, o),
+            Form::Tagged(t) => tagged(v, t),
+            Form::OneOf(alternatives) => alternatives.iter().filter(|a| check(v, a)).count() == 1,
         }
     }
-    #[derive(Deserialize)]
-    pub enum ThreadActiveFlag {
-        #[serde(rename = "waitingOnApproval")]
-        WaitingOnApproval,
-        #[serde(rename = "waitingOnUserInput")]
-        WaitingOnUserInput,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct Turn {
-        #[serde(default)]
-        pub completed_at: Option<i64>,
-        #[serde(default)]
-        pub duration_ms: Option<i64>,
-        #[serde(default)]
-        pub error: Option<TurnError>,
-        pub id: String,
-        pub items: Vec<Item>,
-        #[serde(default, deserialize_with = "some")]
-        pub items_view: Option<TurnItemsView>,
-        #[serde(default)]
-        pub started_at: Option<i64>,
-        pub status: TurnStatus,
-    }
-    #[derive(Deserialize, Clone, Copy, PartialEq)]
-    pub enum TurnStatus {
-        #[serde(rename = "completed")]
-        Completed,
-        #[serde(rename = "interrupted")]
-        Interrupted,
-        #[serde(rename = "failed")]
-        Failed,
-        #[serde(rename = "inProgress")]
-        InProgress,
-    }
-    impl TurnStatus {
-        pub fn name(self) -> &'static str {
-            match self {
-                Self::Completed => "completed",
-                Self::Interrupted => "interrupted",
-                Self::Failed => "failed",
-                Self::InProgress => "inProgress",
-            }
+    fn tagged(v: &Value, t: &Tagged) -> bool {
+        let Some(word) = v.as_object().and_then(|m| m.get(t.tag)).and_then(Value::as_str) else {
+            return false;
+        };
+        match t.variants.iter().find(|(w, _)| *w == word) {
+            Some((_, o)) => object_with(v, o, Some(t.tag)),
+            None => t.refused.contains(&word) || t.open,
         }
-    }
-    #[derive(Deserialize)]
-    pub enum TurnItemsView {
-        #[serde(rename = "notLoaded")]
-        NotLoaded,
-        #[serde(rename = "summary")]
-        Summary,
-        #[serde(rename = "full")]
-        Full,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct TurnError {
-        #[serde(default)]
-        pub additional_details: Option<String>,
-        #[serde(default)]
-        pub codex_error_info: Option<CodexErrorInfo>,
-        pub message: String,
-        #[serde(default)]
-        pub misalignment: Option<MisalignmentErrorDetails>,
-    }
-    #[derive(Deserialize)]
-    #[serde(untagged)]
-    pub enum CodexErrorInfo {
-        Code(CodexErrorCode),
-        HttpConnectionFailed(HttpConnectionFailed),
-        ResponseStreamConnectionFailed(ResponseStreamConnectionFailed),
-        ResponseStreamDisconnected(ResponseStreamDisconnected),
-        ResponseTooManyFailedAttempts(ResponseTooManyFailedAttempts),
-        ActiveTurnNotSteerable(ActiveTurnNotSteerable),
-    }
-    #[derive(Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub enum CodexErrorCode {
-        ContextWindowExceeded,
-        SessionBudgetExceeded,
-        UsageLimitExceeded,
-        RateLimitExceeded,
-        FlexUnavailable,
-        ServerOverloaded,
-        CyberPolicy,
-        MisalignmentPolicyViolation,
-        TooManyDenials,
-        InternalServerError,
-        Unauthorized,
-        BadRequest,
-        ThreadRollbackFailed,
-        SandboxError,
-        Other,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct HttpStatus {
-        #[serde(default)]
-        pub http_status_code: Option<u16>,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct HttpConnectionFailed {
-        pub http_connection_failed: HttpStatus,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct ResponseStreamConnectionFailed {
-        pub response_stream_connection_failed: HttpStatus,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct ResponseStreamDisconnected {
-        pub response_stream_disconnected: HttpStatus,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct ResponseTooManyFailedAttempts {
-        pub response_too_many_failed_attempts: HttpStatus,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct ActiveTurnNotSteerable {
-        pub active_turn_not_steerable: NotSteerable,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct NotSteerable {
-        pub turn_kind: NonSteerableTurnKind,
-    }
-    #[derive(Deserialize)]
-    pub enum NonSteerableTurnKind {
-        #[serde(rename = "review")]
-        Review,
-        #[serde(rename = "compact")]
-        Compact,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct MisalignmentErrorDetails {
-        #[serde(default)]
-        pub detailed_explanation: Option<String>,
-        #[serde(default)]
-        pub error_type: Option<String>,
-        #[serde(default)]
-        pub steer: Option<MisalignmentSteer>,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct MisalignmentSteer {
-        pub message: String,
-    }
-
-    /// A thread item. The five admitted kinds are read in full; the other
-    /// schema kinds are recognised by their tag and their bodies skipped,
-    /// since the host ends the session on them; any other string kind is
-    /// `Unlisted`. A missing or non-string kind fails to deserialize.
-    #[derive(Deserialize)]
-    #[serde(tag = "type", deny_unknown_fields)]
-    pub enum Item {
-        #[serde(rename = "userMessage", rename_all = "camelCase")]
-        UserMessage {
-            #[serde(default)]
-            client_id: Option<String>,
-            content: Vec<UserInput>,
-            id: String,
-        },
-        #[serde(rename = "agentMessage", rename_all = "camelCase")]
-        AgentMessage {
-            #[serde(default)]
-            delivery: Option<AgentMessageDelivery>,
-            id: String,
-            #[serde(default)]
-            memory_citation: Option<MemoryCitation>,
-            #[serde(default)]
-            phase: Option<MessagePhase>,
-            #[serde(default)]
-            questions: Option<Vec<AsyncUserInputQuestion>>,
-            text: String,
-        },
-        #[serde(rename = "reasoning")]
-        Reasoning {
-            #[serde(default)]
-            content: Vec<String>,
-            id: String,
-            #[serde(default)]
-            summary: Vec<String>,
-        },
-        #[serde(rename = "contextCompaction")]
-        ContextCompaction { id: String },
-        #[serde(rename = "dynamicToolCall", rename_all = "camelCase")]
-        DynamicToolCall {
-            arguments: Value,
-            #[serde(default)]
-            content_items: Option<Vec<DynamicToolCallOutputContentItem>>,
-            #[serde(default)]
-            duration_ms: Option<i64>,
-            id: String,
-            #[serde(default)]
-            namespace: Option<String>,
-            status: DynamicToolCallStatus,
-            #[serde(default)]
-            success: Option<bool>,
-            tool: String,
-        },
-        #[serde(rename = "commandExecution")]
-        CommandExecution(IgnoredAny),
-        #[serde(rename = "fileChange")]
-        FileChange(IgnoredAny),
-        #[serde(rename = "mcpToolCall")]
-        McpToolCall(IgnoredAny),
-        #[serde(rename = "collabAgentToolCall")]
-        CollabAgentToolCall(IgnoredAny),
-        #[serde(rename = "subAgentActivity")]
-        SubAgentActivity(IgnoredAny),
-        #[serde(rename = "webSearch")]
-        WebSearch(IgnoredAny),
-        #[serde(rename = "imageView")]
-        ImageView(IgnoredAny),
-        #[serde(rename = "sleep")]
-        Sleep(IgnoredAny),
-        #[serde(rename = "imageGeneration")]
-        ImageGeneration(IgnoredAny),
-        #[serde(rename = "hookPrompt")]
-        HookPrompt(IgnoredAny),
-        #[serde(rename = "plan")]
-        Plan(IgnoredAny),
-        #[serde(rename = "enteredReviewMode")]
-        EnteredReviewMode(IgnoredAny),
-        #[serde(rename = "exitedReviewMode")]
-        ExitedReviewMode(IgnoredAny),
-        #[serde(rename = "functionCallOutput")]
-        FunctionCallOutput(IgnoredAny),
-        #[serde(other)]
-        Unlisted,
-    }
-    #[derive(Deserialize)]
-    #[serde(tag = "type", deny_unknown_fields)]
-    pub enum UserInput {
-        #[serde(rename = "text")]
-        Text {
-            text: String,
-            #[serde(default)]
-            text_elements: Vec<TextElement>,
-        },
-        #[serde(rename = "image", rename_all = "camelCase")]
-        Image {
-            #[serde(default)]
-            detail: Option<ImageDetail>,
-            #[serde(default, deserialize_with = "some")]
-            url: Option<String>,
-            #[serde(default, deserialize_with = "some")]
-            file_id: Option<String>,
-        },
-        #[serde(rename = "localImage")]
-        LocalImage {
-            #[serde(default)]
-            detail: Option<ImageDetail>,
-            path: String,
-        },
-        #[serde(rename = "audio")]
-        Audio { url: String },
-        #[serde(rename = "localAudio")]
-        LocalAudio { path: String },
-        #[serde(rename = "skill")]
-        Skill { name: String, path: String },
-        #[serde(rename = "mention")]
-        Mention { name: String, path: String },
-    }
-    #[derive(Deserialize)]
-    pub enum ImageDetail {
-        #[serde(rename = "auto")]
-        Auto,
-        #[serde(rename = "low")]
-        Low,
-        #[serde(rename = "high")]
-        High,
-        #[serde(rename = "original")]
-        Original,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct TextElement {
-        pub byte_range: ByteRange,
-        #[serde(default)]
-        pub placeholder: Option<String>,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct ByteRange {
-        pub end: u64,
-        pub start: u64,
-    }
-    #[derive(Deserialize)]
-    pub enum AgentMessageDelivery {
-        #[serde(rename = "async")]
-        Async,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct MemoryCitation {
-        pub entries: Vec<MemoryCitationEntry>,
-        pub thread_ids: Vec<String>,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct MemoryCitationEntry {
-        pub line_end: u32,
-        pub line_start: u32,
-        pub note: String,
-        pub path: String,
-    }
-    #[derive(Deserialize)]
-    pub enum MessagePhase {
-        #[serde(rename = "commentary")]
-        Commentary,
-        #[serde(rename = "final_answer")]
-        FinalAnswer,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct AsyncUserInputQuestion {
-        #[serde(default)]
-        pub options: Option<Vec<String>>,
-        pub title: String,
-    }
-    #[derive(Deserialize)]
-    #[serde(tag = "type", deny_unknown_fields)]
-    pub enum DynamicToolCallOutputContentItem {
-        #[serde(rename = "inputText")]
-        InputText { text: String },
-        #[serde(rename = "inputImage", rename_all = "camelCase")]
-        InputImage { image_url: String },
-        #[serde(rename = "inputAudio", rename_all = "camelCase")]
-        InputAudio { audio_url: String },
-    }
-    #[derive(Deserialize)]
-    pub enum DynamicToolCallStatus {
-        #[serde(rename = "inProgress")]
-        InProgress,
-        #[serde(rename = "completed")]
-        Completed,
-        #[serde(rename = "failed")]
-        Failed,
-    }
-
-    // Parameters of the notifications the host handles.
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct ThreadStartedParams {
-        pub thread: Thread,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct ThreadStatusChangedParams {
-        pub status: ThreadStatus,
-        pub thread_id: String,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct TurnParams {
-        pub thread_id: String,
-        pub turn: Turn,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct ItemStartedParams {
-        pub item: Item,
-        pub started_at_ms: i64,
-        pub thread_id: String,
-        pub turn_id: String,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct ItemCompletedParams {
-        pub completed_at_ms: i64,
-        pub item: Item,
-        pub thread_id: String,
-        pub turn_id: String,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct AgentMessageDeltaParams {
-        pub delta: String,
-        pub item_id: String,
-        pub thread_id: String,
-        pub turn_id: String,
-    }
-
-    // Parameters of the notifications the host ignores by name. Each is read
-    // in full, so no item, turn or thread can ride in one.
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct AccountRateLimitsUpdatedParams {
-        pub rate_limits: RateLimitSnapshot,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct RateLimitSnapshot {
-        #[serde(default)]
-        pub credits: Option<CreditsSnapshot>,
-        #[serde(default)]
-        pub individual_limit: Option<SpendControlLimitSnapshot>,
-        #[serde(default)]
-        pub limit_id: Option<String>,
-        #[serde(default)]
-        pub limit_name: Option<String>,
-        #[serde(default)]
-        pub normal_model_slug: Option<String>,
-        #[serde(default)]
-        pub plan_type: Option<PlanType>,
-        #[serde(default)]
-        pub primary: Option<RateLimitWindow>,
-        #[serde(default)]
-        pub rate_limit_reached_type: Option<RateLimitReachedType>,
-        #[serde(default)]
-        pub secondary: Option<RateLimitWindow>,
-        #[serde(default)]
-        pub spend_control_reached: Option<bool>,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct CreditsSnapshot {
-        #[serde(default)]
-        pub balance: Option<String>,
-        pub has_credits: bool,
-        pub unlimited: bool,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct SpendControlLimitSnapshot {
-        pub limit: String,
-        pub remaining_percent: i32,
-        pub resets_at: i64,
-        pub used: String,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct RateLimitWindow {
-        #[serde(default)]
-        pub resets_at: Option<i64>,
-        pub used_percent: i32,
-        #[serde(default)]
-        pub window_duration_mins: Option<i64>,
-    }
-    #[derive(Deserialize)]
-    #[serde(rename_all = "snake_case")]
-    pub enum PlanType {
-        Free,
-        Go,
-        Plus,
-        Pro,
-        Prolite,
-        Promax,
-        Team,
-        SelfServeBusinessProlite,
-        SelfServeBusinessUsageBased,
-        Business,
-        Ent26,
-        EnterpriseCbpAutomation,
-        EnterpriseCbpUsageBased,
-        Enterprise,
-        Edu,
-        EduPlus,
-        EduPro,
-        Unknown,
-    }
-    #[derive(Deserialize)]
-    #[serde(rename_all = "snake_case")]
-    pub enum RateLimitReachedType {
-        RateLimitReached,
-        WorkspaceOwnerCreditsDepleted,
-        WorkspaceMemberCreditsDepleted,
-        WorkspaceOwnerUsageLimitReached,
-        WorkspaceMemberUsageLimitReached,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct ThreadTokenUsageUpdatedParams {
-        pub thread_id: String,
-        pub token_usage: ThreadTokenUsage,
-        pub turn_id: String,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct ThreadTokenUsage {
-        pub last: TokenUsageBreakdown,
-        #[serde(default)]
-        pub model_context_window: Option<i64>,
-        pub total: TokenUsageBreakdown,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct TokenUsageBreakdown {
-        #[serde(default, deserialize_with = "some")]
-        pub cache_write_input_tokens: Option<i64>,
-        pub cached_input_tokens: i64,
-        pub input_tokens: i64,
-        pub output_tokens: i64,
-        pub reasoning_output_tokens: i64,
-        pub total_tokens: i64,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct WarningParams {
-        pub message: String,
-        #[serde(default)]
-        pub thread_id: Option<String>,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct RemoteControlStatusChangedParams {
-        #[serde(default)]
-        pub environment_id: Option<String>,
-        pub installation_id: String,
-        pub server_name: String,
-        pub status: RemoteControlConnectionStatus,
-    }
-    #[derive(Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub enum RemoteControlConnectionStatus {
-        Disabled,
-        Connecting,
-        Connected,
-        Errored,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct ReasoningSummaryTextDeltaParams {
-        pub delta: String,
-        pub item_id: String,
-        pub summary_index: i64,
-        pub thread_id: String,
-        pub turn_id: String,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct ReasoningSummaryPartAddedParams {
-        pub item_id: String,
-        pub summary_index: i64,
-        pub thread_id: String,
-        pub turn_id: String,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct ReasoningTextDeltaParams {
-        pub content_index: i64,
-        pub delta: String,
-        pub item_id: String,
-        pub thread_id: String,
-        pub turn_id: String,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct ContextCompactedParams {
-        pub thread_id: String,
-        pub turn_id: String,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields, rename_all = "camelCase")]
-    pub struct ErrorParams {
-        pub error: TurnError,
-        pub thread_id: String,
-        pub turn_id: String,
-        pub will_retry: bool,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct ConfigWarningParams {
-        #[serde(default)]
-        pub details: Option<String>,
-        #[serde(default)]
-        pub path: Option<String>,
-        #[serde(default)]
-        pub range: Option<TextRange>,
-        pub summary: String,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct TextRange {
-        pub end: TextPosition,
-        pub start: TextPosition,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct TextPosition {
-        pub column: u64,
-        pub line: u64,
-    }
-    #[derive(Deserialize)]
-    #[serde(deny_unknown_fields)]
-    pub struct DeprecationNoticeParams {
-        #[serde(default)]
-        pub details: Option<String>,
-        pub summary: String,
     }
 }
-use wire::Item;
+use form::{obj, opt, req, Form, Obj, Tagged};
+
+// The forms, transcribed from the schema. Names follow its definitions.
+const STR: Form = Form::Str;
+const NSTR: Form = Form::Nullable(&Form::Str);
+const NBOOL: Form = Form::Nullable(&Form::Bool);
+const I64: Form = Form::Int("int64");
+const NI64: Form = Form::Nullable(&Form::Int("int64"));
+const REASONING_EFFORT: Form = Form::StrMin(1);
+
+// JSON-RPC envelope: JSONRPCRequest, JSONRPCNotification, JSONRPCResponse,
+// JSONRPCError.
+const REQUEST_ID: Form = Form::OneOf(&[Form::Int("int64"), Form::Str]);
+/// A server request as the supplier writes one: exactly a method, its
+/// identity and its parameters (from the supplier's source at the pinned tag:
+/// it writes no trace member, which only the request form it reads from
+/// clients carries; rechecked at every move of the pin).
+pub(super) const ENVELOPE_REQUEST: Obj = obj(&[req("id", REQUEST_ID), req("method", STR), req("params", Form::Any)]);
+/// Every ServerNotification variant of the schema requires its parameters.
+pub(super) const ENVELOPE_NOTIFICATION: Obj = obj(&[req("method", STR), req("params", Form::Any)]);
+pub(super) const ENVELOPE_RESPONSE: Obj = obj(&[req("id", REQUEST_ID), req("result", Form::Any)]);
+const JSONRPC_ERROR_ERROR: Obj = obj(&[req("code", I64), opt("data", Form::Any), req("message", STR)]);
+pub(super) const ENVELOPE_ERROR: Obj =
+    obj(&[req("error", Form::Object(&JSONRPC_ERROR_ERROR)), req("id", REQUEST_ID)]);
+
+// The tool call request (DynamicToolCallParams).
+pub(super) const DYNAMIC_TOOL_CALL_PARAMS: Obj = obj(&[
+    req("arguments", Form::Any),
+    req("callId", STR),
+    opt("namespace", NSTR),
+    req("threadId", STR),
+    req("tool", STR),
+    req("turnId", STR),
+]);
+
+// Items (ThreadItem): the five admitted kinds in full.
+const IMAGE_DETAIL: Form = Form::Nullable(&Form::Words(&["auto", "low", "high", "original"]));
+const BYTE_RANGE: Obj = obj(&[req("end", Form::Int("uint")), req("start", Form::Int("uint"))]);
+const TEXT_ELEMENT: Obj = obj(&[req("byteRange", Form::Object(&BYTE_RANGE)), opt("placeholder", NSTR)]);
+const USER_INPUT: Tagged = Tagged {
+    tag: "type",
+    variants: &[
+        ("text", obj(&[req("text", STR), opt("text_elements", Form::Array(&Form::Object(&TEXT_ELEMENT)))])),
+        (
+            "image",
+            Obj {
+                members: &[opt("detail", IMAGE_DETAIL), opt("fileId", STR), opt("url", STR)],
+                any_required: &[&["fileId"], &["url"]],
+            },
+        ),
+        ("localImage", obj(&[opt("detail", IMAGE_DETAIL), req("path", STR)])),
+        ("audio", obj(&[req("url", STR)])),
+        ("localAudio", obj(&[req("path", STR)])),
+        ("skill", obj(&[req("name", STR), req("path", STR)])),
+        ("mention", obj(&[req("name", STR), req("path", STR)])),
+    ],
+    refused: &[],
+    open: false,
+};
+const MEMORY_CITATION_ENTRY: Obj = obj(&[
+    req("lineEnd", Form::Int("uint32")),
+    req("lineStart", Form::Int("uint32")),
+    req("note", STR),
+    req("path", STR),
+]);
+const MEMORY_CITATION: Obj = obj(&[
+    req("entries", Form::Array(&Form::Object(&MEMORY_CITATION_ENTRY))),
+    req("threadIds", Form::Array(&Form::Str)),
+]);
+const ASYNC_USER_INPUT_QUESTION: Obj =
+    obj(&[opt("options", Form::Nullable(&Form::Array(&Form::Str))), req("title", STR)]);
+const DYNAMIC_TOOL_CALL_OUTPUT_CONTENT_ITEM: Tagged = Tagged {
+    tag: "type",
+    variants: &[
+        ("inputText", obj(&[req("text", STR)])),
+        ("inputImage", obj(&[req("imageUrl", STR)])),
+        ("inputAudio", obj(&[req("audioUrl", STR)])),
+    ],
+    refused: &[],
+    open: false,
+};
+pub(super) const THREAD_ITEM: Tagged = Tagged {
+    tag: "type",
+    variants: &[
+        (
+            "userMessage",
+            obj(&[
+                opt("clientId", NSTR),
+                req("content", Form::Array(&Form::Tagged(&USER_INPUT))),
+                req("id", STR),
+            ]),
+        ),
+        (
+            "agentMessage",
+            obj(&[
+                opt("delivery", Form::Nullable(&Form::Words(&["async"]))),
+                req("id", STR),
+                opt("memoryCitation", Form::Nullable(&Form::Object(&MEMORY_CITATION))),
+                opt("phase", Form::Nullable(&Form::Words(&["commentary", "final_answer"]))),
+                opt("questions", Form::Nullable(&Form::Array(&Form::Object(&ASYNC_USER_INPUT_QUESTION)))),
+                req("text", STR),
+            ]),
+        ),
+        (
+            "reasoning",
+            obj(&[opt("content", Form::Array(&Form::Str)), req("id", STR), opt("summary", Form::Array(&Form::Str))]),
+        ),
+        ("contextCompaction", obj(&[req("id", STR)])),
+        (
+            "dynamicToolCall",
+            obj(&[
+                req("arguments", Form::Any),
+                opt("contentItems", Form::Nullable(&Form::Array(&Form::Tagged(&DYNAMIC_TOOL_CALL_OUTPUT_CONTENT_ITEM)))),
+                opt("durationMs", NI64),
+                req("id", STR),
+                opt("namespace", NSTR),
+                req("status", Form::Words(&["inProgress", "completed", "failed"])),
+                opt("success", NBOOL),
+                req("tool", STR),
+            ]),
+        ),
+    ],
+    refused: &[
+        "commandExecution", "fileChange", "mcpToolCall", "collabAgentToolCall", "subAgentActivity",
+        "webSearch", "imageView", "sleep", "imageGeneration", "hookPrompt", "plan",
+        "enteredReviewMode", "exitedReviewMode", "functionCallOutput",
+    ],
+    open: true,
+};
+
+// Turn and thread.
+const HTTP_STATUS: Obj = obj(&[opt("httpStatusCode", Form::Nullable(&Form::Int("uint16")))]);
+const CODEX_ERROR_INFO: Form = Form::OneOf(&[
+    Form::Words(&[
+        "contextWindowExceeded", "sessionBudgetExceeded", "usageLimitExceeded", "rateLimitExceeded",
+        "flexUnavailable", "serverOverloaded", "cyberPolicy", "misalignmentPolicyViolation",
+        "tooManyDenials", "internalServerError", "unauthorized", "badRequest",
+        "threadRollbackFailed", "sandboxError", "other",
+    ]),
+    Form::Object(&obj(&[req("httpConnectionFailed", Form::Object(&HTTP_STATUS))])),
+    Form::Object(&obj(&[req("responseStreamConnectionFailed", Form::Object(&HTTP_STATUS))])),
+    Form::Object(&obj(&[req("responseStreamDisconnected", Form::Object(&HTTP_STATUS))])),
+    Form::Object(&obj(&[req("responseTooManyFailedAttempts", Form::Object(&HTTP_STATUS))])),
+    Form::Object(&obj(&[req(
+        "activeTurnNotSteerable",
+        Form::Object(&obj(&[req("turnKind", Form::Words(&["review", "compact"]))])),
+    )])),
+]);
+const MISALIGNMENT_STEER: Obj = obj(&[req("message", STR)]);
+const MISALIGNMENT_ERROR_DETAILS: Obj = obj(&[
+    opt("detailedExplanation", NSTR),
+    opt("errorType", NSTR),
+    opt("steer", Form::Nullable(&Form::Object(&MISALIGNMENT_STEER))),
+]);
+const TURN_ERROR: Obj = obj(&[
+    opt("additionalDetails", NSTR),
+    opt("codexErrorInfo", Form::Nullable(&CODEX_ERROR_INFO)),
+    req("message", STR),
+    opt("misalignment", Form::Nullable(&Form::Object(&MISALIGNMENT_ERROR_DETAILS))),
+]);
+pub(super) const TURN: Obj = obj(&[
+    opt("completedAt", NI64),
+    opt("durationMs", NI64),
+    opt("error", Form::Nullable(&Form::Object(&TURN_ERROR))),
+    req("id", STR),
+    req("items", Form::Array(&Form::Tagged(&THREAD_ITEM))),
+    opt("itemsView", Form::Words(&["notLoaded", "summary", "full"])),
+    opt("startedAt", NI64),
+    req("status", Form::Words(&["completed", "interrupted", "failed", "inProgress"])),
+]);
+const THREAD_ENVIRONMENT: Obj = obj(&[
+    req("cwd", STR),
+    req("environmentId", STR),
+    req("runtimeWorkspaceRoots", Form::Array(&Form::Str)),
+]);
+/// The schema gives this object no members and does not close it; the host
+/// admits only `{}` by its own rule that unknown members are refused.
+const THREAD_EXTRA: Obj = obj(&[]);
+const GIT_INFO: Obj = obj(&[opt("branch", NSTR), opt("originUrl", NSTR), opt("sha", NSTR)]);
+const THREAD_SECTION_APPEARANCE: Obj = obj(&[opt("color", NSTR), opt("icon", NSTR)]);
+const THREAD_SECTION: Obj = obj(&[
+    opt("appearance", Form::Nullable(&Form::Object(&THREAD_SECTION_APPEARANCE))),
+    req("id", STR),
+    req("name", STR),
+]);
+const THREAD_SPAWN: Obj = obj(&[
+    opt("agent_nickname", NSTR),
+    opt("agent_path", NSTR),
+    opt("agent_role", NSTR),
+    req("depth", Form::Int("int32")),
+    req("parent_thread_id", STR),
+]);
+const SUB_AGENT_SOURCE: Form = Form::OneOf(&[
+    Form::Words(&["review", "compact", "memory_consolidation"]),
+    Form::Object(&obj(&[req("thread_spawn", Form::Object(&THREAD_SPAWN))])),
+    Form::Object(&obj(&[req("other", STR)])),
+]);
+const SESSION_SOURCE: Form = Form::OneOf(&[
+    Form::Words(&["cli", "vscode", "exec", "appServer", "unknown"]),
+    Form::Object(&obj(&[req("custom", STR)])),
+    Form::Object(&obj(&[req("subAgent", SUB_AGENT_SOURCE)])),
+]);
+pub(super) const THREAD_STATUS: Tagged = Tagged {
+    tag: "type",
+    variants: &[
+        ("notLoaded", obj(&[])),
+        ("idle", obj(&[])),
+        ("systemError", obj(&[])),
+        ("active", obj(&[req("activeFlags", Form::Array(&Form::Words(&["waitingOnApproval", "waitingOnUserInput"])))])),
+    ],
+    refused: &[],
+    open: false,
+};
+pub(super) const THREAD: Obj = obj(&[
+    opt("agentNickname", NSTR),
+    opt("agentRole", NSTR),
+    opt("canAcceptDirectInput", NBOOL),
+    req("cliVersion", STR),
+    req("createdAt", I64),
+    req("cwd", STR),
+    opt("daybreakEnabled", NBOOL),
+    opt("environments", Form::Nullable(&Form::Array(&Form::Object(&THREAD_ENVIRONMENT)))),
+    req("ephemeral", Form::Bool),
+    opt("extra", Form::Nullable(&Form::Object(&THREAD_EXTRA))),
+    opt("forkedFromId", NSTR),
+    opt("gitInfo", Form::Nullable(&Form::Object(&GIT_INFO))),
+    opt("historyMode", Form::Words(&["legacy", "paginated"])),
+    req("id", STR),
+    opt("model", NSTR),
+    req("modelProvider", STR),
+    opt("name", NSTR),
+    opt("originator", NSTR),
+    opt("parentThreadId", NSTR),
+    opt("path", NSTR),
+    req("preview", STR),
+    req("projectId", NSTR),
+    opt("reasoningEffort", Form::Nullable(&REASONING_EFFORT)),
+    opt("recencyAt", NI64),
+    opt("section", Form::Nullable(&Form::Object(&THREAD_SECTION))),
+    opt("sectionEnteredAt", NI64),
+    req("sessionId", STR),
+    req("source", SESSION_SOURCE),
+    req("status", Form::Tagged(&THREAD_STATUS)),
+    opt("threadSource", NSTR),
+    req("turns", Form::Array(&Form::Object(&TURN))),
+    req("updatedAt", I64),
+]);
+
+// Responses to the four requests the host sends.
+pub(super) const INITIALIZE_RESPONSE: Obj = obj(&[
+    req("codexHome", STR),
+    req("platformFamily", STR),
+    req("platformOs", STR),
+    req("userAgent", STR),
+]);
+const GRANULAR: Obj = obj(&[
+    req("mcp_elicitations", Form::Bool),
+    opt("request_permissions", Form::Bool),
+    req("rules", Form::Bool),
+    req("sandbox_approval", Form::Bool),
+    opt("skill_approval", Form::Bool),
+]);
+const ASK_FOR_APPROVAL: Form = Form::OneOf(&[
+    Form::Words(&["untrusted", "on-request", "never"]),
+    Form::Object(&obj(&[req("granular", Form::Object(&GRANULAR))])),
+]);
+const SANDBOX_POLICY: Tagged = Tagged {
+    tag: "type",
+    variants: &[
+        ("dangerFullAccess", obj(&[])),
+        ("readOnly", obj(&[opt("networkAccess", Form::Bool)])),
+        ("externalSandbox", obj(&[opt("networkAccess", Form::Words(&["restricted", "enabled"]))])),
+        (
+            "workspaceWrite",
+            obj(&[
+                opt("excludeSlashTmp", Form::Bool),
+                opt("excludeTmpdirEnvVar", Form::Bool),
+                opt("networkAccess", Form::Bool),
+                opt("writableRoots", Form::Array(&Form::Str)),
+            ]),
+        ),
+    ],
+    refused: &[],
+    open: false,
+};
+const ACTIVE_PERMISSION_PROFILE: Obj = obj(&[opt("extends", NSTR), req("id", STR)]);
+pub(super) const THREAD_START_RESPONSE: Obj = obj(&[
+    opt("activePermissionProfile", Form::Nullable(&Form::Object(&ACTIVE_PERMISSION_PROFILE))),
+    req("approvalPolicy", ASK_FOR_APPROVAL),
+    req("approvalsReviewer", Form::Words(&["user", "auto_review", "guardian_subagent"])),
+    req("cwd", STR),
+    opt("disabledPluginIds", Form::Array(&Form::Str)),
+    opt("instructionSources", Form::Array(&Form::Str)),
+    req("model", STR),
+    req("modelProvider", STR),
+    opt(
+        "multiAgentMode",
+        Form::OneOf(&[
+            Form::Words(&["explicitRequestOnly", "proactive"]),
+            Form::Object(&obj(&[req("custom", STR)])),
+        ]),
+    ),
+    opt("reasoningEffort", Form::Nullable(&REASONING_EFFORT)),
+    opt("runtimeWorkspaceRoots", Form::Array(&Form::Str)),
+    req("sandbox", Form::Tagged(&SANDBOX_POLICY)),
+    opt("serviceTier", NSTR),
+    req("thread", Form::Object(&THREAD)),
+]);
+pub(super) const TURN_START_RESPONSE: Obj = obj(&[req("turn", Form::Object(&TURN))]);
+/// The schema gives this object no members and does not close it; the host
+/// admits only `{}` by its own rule that unknown members are refused.
+pub(super) const TURN_INTERRUPT_RESPONSE: Obj = obj(&[]);
+
+// Parameters of the notifications the host handles or ignores by name.
+const TOKEN_USAGE_BREAKDOWN: Obj = obj(&[
+    opt("cacheWriteInputTokens", I64),
+    req("cachedInputTokens", I64),
+    req("inputTokens", I64),
+    req("outputTokens", I64),
+    req("reasoningOutputTokens", I64),
+    req("totalTokens", I64),
+]);
+const THREAD_TOKEN_USAGE: Obj = obj(&[
+    req("last", Form::Object(&TOKEN_USAGE_BREAKDOWN)),
+    opt("modelContextWindow", NI64),
+    req("total", Form::Object(&TOKEN_USAGE_BREAKDOWN)),
+]);
+const CREDITS_SNAPSHOT: Obj = obj(&[opt("balance", NSTR), req("hasCredits", Form::Bool), req("unlimited", Form::Bool)]);
+const SPEND_CONTROL_LIMIT_SNAPSHOT: Obj = obj(&[
+    req("limit", STR),
+    req("remainingPercent", Form::Int("int32")),
+    req("resetsAt", I64),
+    req("used", STR),
+]);
+const RATE_LIMIT_WINDOW: Obj = obj(&[
+    opt("resetsAt", NI64),
+    req("usedPercent", Form::Int("int32")),
+    opt("windowDurationMins", NI64),
+]);
+const RATE_LIMIT_SNAPSHOT: Obj = obj(&[
+    opt("credits", Form::Nullable(&Form::Object(&CREDITS_SNAPSHOT))),
+    opt("individualLimit", Form::Nullable(&Form::Object(&SPEND_CONTROL_LIMIT_SNAPSHOT))),
+    opt("limitId", NSTR),
+    opt("limitName", NSTR),
+    opt("normalModelSlug", NSTR),
+    opt(
+        "planType",
+        Form::Nullable(&Form::Words(&[
+            "free", "go", "plus", "pro", "prolite", "promax", "team", "self_serve_business_prolite",
+            "self_serve_business_usage_based", "business", "ent26", "enterprise_cbp_automation",
+            "enterprise_cbp_usage_based", "enterprise", "edu", "edu_plus", "edu_pro", "unknown",
+        ])),
+    ),
+    opt("primary", Form::Nullable(&Form::Object(&RATE_LIMIT_WINDOW))),
+    opt(
+        "rateLimitReachedType",
+        Form::Nullable(&Form::Words(&[
+            "rate_limit_reached", "workspace_owner_credits_depleted", "workspace_member_credits_depleted",
+            "workspace_owner_usage_limit_reached", "workspace_member_usage_limit_reached",
+        ])),
+    ),
+    opt("secondary", Form::Nullable(&Form::Object(&RATE_LIMIT_WINDOW))),
+    opt("spendControlReached", NBOOL),
+]);
+const TEXT_POSITION: Obj = obj(&[req("column", Form::Int("uint")), req("line", Form::Int("uint"))]);
+const TEXT_RANGE: Obj = obj(&[req("end", Form::Object(&TEXT_POSITION)), req("start", Form::Object(&TEXT_POSITION))]);
+
+/// The parameters' form of each notification method the host handles or
+/// ignores by name; a method absent here never reaches a parameters check
+/// (it ends the session by its class).
+pub(super) const NOTIFICATION_PARAMS: [(&str, Obj); 18] = [
+    ("thread/started", obj(&[req("thread", Form::Object(&THREAD))])),
+    ("thread/status/changed", obj(&[req("status", Form::Tagged(&THREAD_STATUS)), req("threadId", STR)])),
+    ("turn/started", obj(&[req("threadId", STR), req("turn", Form::Object(&TURN))])),
+    ("turn/completed", obj(&[req("threadId", STR), req("turn", Form::Object(&TURN))])),
+    (
+        "item/started",
+        obj(&[req("item", Form::Tagged(&THREAD_ITEM)), req("startedAtMs", I64), req("threadId", STR), req("turnId", STR)]),
+    ),
+    (
+        "item/completed",
+        obj(&[req("completedAtMs", I64), req("item", Form::Tagged(&THREAD_ITEM)), req("threadId", STR), req("turnId", STR)]),
+    ),
+    ("item/agentMessage/delta", obj(&[req("delta", STR), req("itemId", STR), req("threadId", STR), req("turnId", STR)])),
+    (
+        "error",
+        obj(&[req("error", Form::Object(&TURN_ERROR)), req("threadId", STR), req("turnId", STR), req("willRetry", Form::Bool)]),
+    ),
+    (
+        "thread/tokenUsage/updated",
+        obj(&[req("threadId", STR), req("tokenUsage", Form::Object(&THREAD_TOKEN_USAGE)), req("turnId", STR)]),
+    ),
+    ("account/rateLimits/updated", obj(&[req("rateLimits", Form::Object(&RATE_LIMIT_SNAPSHOT))])),
+    (
+        "remoteControl/status/changed",
+        obj(&[
+            opt("environmentId", NSTR),
+            req("installationId", STR),
+            req("serverName", STR),
+            req("status", Form::Words(&["disabled", "connecting", "connected", "errored"])),
+        ]),
+    ),
+    (
+        "item/reasoning/summaryTextDelta",
+        obj(&[req("delta", STR), req("itemId", STR), req("summaryIndex", I64), req("threadId", STR), req("turnId", STR)]),
+    ),
+    (
+        "item/reasoning/summaryPartAdded",
+        obj(&[req("itemId", STR), req("summaryIndex", I64), req("threadId", STR), req("turnId", STR)]),
+    ),
+    (
+        "item/reasoning/textDelta",
+        obj(&[req("contentIndex", I64), req("delta", STR), req("itemId", STR), req("threadId", STR), req("turnId", STR)]),
+    ),
+    ("thread/compacted", obj(&[req("threadId", STR), req("turnId", STR)])),
+    ("warning", obj(&[req("message", STR), opt("threadId", NSTR)])),
+    (
+        "configWarning",
+        obj(&[
+            opt("details", NSTR),
+            opt("path", NSTR),
+            opt("range", Form::Nullable(&Form::Object(&TEXT_RANGE))),
+            req("summary", STR),
+        ]),
+    ),
+    ("deprecationNotice", obj(&[opt("details", NSTR), req("summary", STR)])),
+];
+fn notification_params(method: &str) -> Option<&'static Obj> {
+    NOTIFICATION_PARAMS.iter().find(|(m, _)| *m == method).map(|(_, o)| o)
+}
+fn response_form(kind: Rpc) -> &'static Obj {
+    match kind {
+        Rpc::Initialize => &INITIALIZE_RESPONSE,
+        Rpc::ThreadStart => &THREAD_START_RESPONSE,
+        Rpc::TurnStart => &TURN_START_RESPONSE,
+        Rpc::Interrupt => &TURN_INTERRUPT_RESPONSE,
+    }
+}
 
 const UNOFFERED_ACTIVITY: Error = Error("unoffered supplier tool activity");
 const UNLISTED_ITEM: Error = Error("unlisted supplier item kind");
 const UNADMITTED_NOTIFICATION: Error = Error("unadmitted supplier notification");
 const UNADMITTED_REQUEST: Error = Error("unadmitted supplier request");
 const MALFORMED: Error = Error("malformed supplier report");
+const FINAL_ERROR_OUTSIDE_TURN: Error = Error("final supplier error with no turn active");
 
-/// Read any part of a frame into its closed type; any failure is a
-/// malformed report.
-fn typed<T: serde::de::DeserializeOwned>(value: Value) -> Result<T, Error> {
-    serde_json::from_value(value).map_err(|_| MALFORMED)
+fn formed(v: &Value, o: &Obj) -> Result<(), Error> {
+    if form::object(v, o) {
+        Ok(())
+    } else {
+        Err(MALFORMED)
+    }
 }
-/// The same, reading from a borrowed value.
-fn typed_ref<'a, T: serde::Deserialize<'a>>(value: &'a Value) -> Result<T, Error> {
-    T::deserialize(value).map_err(|_| MALFORMED)
+/// A string member of a value whose form has been checked.
+fn text<'a>(v: &'a Value, key: &str) -> &'a str {
+    v.get(key).and_then(Value::as_str).unwrap_or("")
 }
 
 /// Why the protocol ended a session: a closed, payload-free class that the
@@ -1280,9 +822,10 @@ pub enum Refusal {
     ToolActivity,
     /// An item kind, notification or request this host does not admit.
     Unadmitted,
-    /// A frame or report the host could not read into its closed type, or one
-    /// out of order.
+    /// A frame or report not of its form, or one out of order or misbound.
     Malformed,
+    /// A final error from the runtime with no turn active.
+    SupplierError,
 }
 impl Refusal {
     pub fn of(error: Error) -> Self {
@@ -1293,6 +836,8 @@ impl Refusal {
             || error == UNADMITTED_REQUEST
         {
             Self::Unadmitted
+        } else if error == FINAL_ERROR_OUTSIDE_TURN {
+            Self::SupplierError
         } else {
             Self::Malformed
         }
@@ -1302,12 +847,13 @@ impl Refusal {
             Self::ToolActivity => "runtime_tool_activity",
             Self::Unadmitted => "unadmitted_report",
             Self::Malformed => "malformed_report",
+            Self::SupplierError => "supplier_error",
         }
     }
 }
 
-/// The 19 item kinds of stock 0.160.0's ThreadItem schema. Five are admitted;
-/// see `admit`. Kept here so an observation line names only these.
+/// The 19 item kinds of stock 0.160.0's ThreadItem schema. Kept here so an
+/// observation line names only these.
 #[cfg(any(test, feature = "native-smoke"))]
 pub(super) const SCHEMA_ITEM_KINDS: [&str; 19] = [
     "userMessage", "hookPrompt", "agentMessage", "functionCallOutput", "plan", "reasoning",
@@ -1316,54 +862,55 @@ pub(super) const SCHEMA_ITEM_KINDS: [&str; 19] = [
     "enteredReviewMode", "exitedReviewMode", "contextCompaction",
 ];
 
-/// Admission of a typed item. Admitted: the agent's message, the user's
-/// message, reasoning, context compaction, and a call of a tool the catalog
-/// offers with no namespace. The runtime's own tool kinds are tool activity;
-/// every other kind (hookPrompt, plan, the review modes, functionCallOutput,
-/// and any kind the schema does not name) is unadmitted. This is an
-/// observation tripwire, not proof that the operating system's isolation
-/// prevented an action.
-fn admit(item: &Item) -> Result<(), Error> {
-    match item {
-        Item::UserMessage { content, .. } => {
-            // ImageUserInput requires `url` or `fileId` (anyOf).
-            if content.iter().any(|input| {
-                matches!(input, wire::UserInput::Image { url: None, file_id: None, .. })
-            }) {
-                return Err(MALFORMED);
-            }
-            Ok(())
-        }
-        Item::AgentMessage { .. } | Item::Reasoning { .. } | Item::ContextCompaction { .. } => Ok(()),
-        Item::DynamicToolCall { tool, namespace, .. } => {
-            if Tool::from_name(tool).is_none() || namespace.is_some() {
+/// Admission of an item whose form has been checked. Admitted: the agent's
+/// message, the user's message, reasoning, context compaction, and a call of
+/// a tool the catalog offers with no namespace. The runtime's own tool kinds
+/// are tool activity; every other kind is unadmitted. This is an observation
+/// tripwire, not proof that the operating system's isolation prevented an
+/// action.
+fn admit(item: &Value) -> Result<(), Error> {
+    match text(item, "type") {
+        "userMessage" | "agentMessage" | "reasoning" | "contextCompaction" => Ok(()),
+        "dynamicToolCall" => {
+            let namespaced = item.get("namespace").is_some_and(|n| !n.is_null());
+            if Tool::from_name(text(item, "tool")).is_none() || namespaced {
                 Err(UNOFFERED_ACTIVITY)
             } else {
                 Ok(())
             }
         }
-        Item::CommandExecution(_)
-        | Item::FileChange(_)
-        | Item::McpToolCall(_)
-        | Item::CollabAgentToolCall(_)
-        | Item::SubAgentActivity(_)
-        | Item::WebSearch(_)
-        | Item::ImageView(_)
-        | Item::Sleep(_)
-        | Item::ImageGeneration(_) => Err(UNOFFERED_ACTIVITY),
-        Item::HookPrompt(_)
-        | Item::Plan(_)
-        | Item::EnteredReviewMode(_)
-        | Item::ExitedReviewMode(_)
-        | Item::FunctionCallOutput(_)
-        | Item::Unlisted => Err(UNLISTED_ITEM),
+        "commandExecution" | "fileChange" | "mcpToolCall" | "collabAgentToolCall"
+        | "subAgentActivity" | "webSearch" | "imageView" | "sleep" | "imageGeneration" => {
+            Err(UNOFFERED_ACTIVITY)
+        }
+        _ => Err(UNLISTED_ITEM),
     }
 }
-fn admit_turn(turn: &wire::Turn) -> Result<(), Error> {
-    turn.items.iter().try_for_each(admit)
+/// Every item of a checked turn, or of each turn of a checked thread.
+fn turn_items(turn: &Value) -> impl Iterator<Item = &Value> {
+    turn.get("items").and_then(Value::as_array).into_iter().flatten()
 }
-fn admit_thread(thread: &wire::Thread) -> Result<(), Error> {
-    thread.turns.iter().try_for_each(admit_turn)
+fn thread_items(thread: &Value) -> impl Iterator<Item = &Value> {
+    thread
+        .get("turns")
+        .and_then(Value::as_array)
+        .into_iter()
+        .flatten()
+        .flat_map(turn_items)
+}
+/// The items a checked notification's parameters or a checked response's
+/// result carry.
+fn carried_items<'a>(at: &'a str, v: &'a Value) -> Box<dyn Iterator<Item = &'a Value> + 'a> {
+    match at {
+        "item/started" | "item/completed" => Box::new(v.get("item").into_iter()),
+        "turn/started" | "turn/completed" | "turn/start-response" => {
+            Box::new(v.get("turn").into_iter().flat_map(turn_items))
+        }
+        "thread/started" | "thread/start-response" => {
+            Box::new(v.get("thread").into_iter().flat_map(thread_items))
+        }
+        _ => Box::new(std::iter::empty()),
+    }
 }
 
 /// What the host does with a notification method.
@@ -1393,7 +940,7 @@ const ENDS: Notice = Notice::Ends(UNADMITTED_NOTIFICATION);
 /// end it. remoteControl/status/changed is ignored here until pull request
 /// 264's rule for it lands.
 pub(super) const NOTIFICATIONS: [(&str, Notice); 83] = [
-    ("error", Notice::Ignored),
+    ("error", Notice::Handled),
     ("thread/started", Notice::Handled),
     ("thread/status/changed", Notice::Handled),
     ("thread/archived", ENDS),
@@ -1483,30 +1030,6 @@ fn notice(method: &str) -> Notice {
         .find(|(m, _)| *m == method)
         .map_or(ENDS, |(_, class)| *class)
 }
-/// Read an ignored notification's parameters into their closed type.
-fn ignored_params(method: &str, p: &Value) -> Result<(), Error> {
-    match method {
-        "error" => typed_ref::<wire::ErrorParams>(p).map(drop),
-        "thread/tokenUsage/updated" => typed_ref::<wire::ThreadTokenUsageUpdatedParams>(p).map(drop),
-        "account/rateLimits/updated" => typed_ref::<wire::AccountRateLimitsUpdatedParams>(p).map(drop),
-        "remoteControl/status/changed" => {
-            typed_ref::<wire::RemoteControlStatusChangedParams>(p).map(drop)
-        }
-        "item/reasoning/summaryTextDelta" => {
-            typed_ref::<wire::ReasoningSummaryTextDeltaParams>(p).map(drop)
-        }
-        "item/reasoning/summaryPartAdded" => {
-            typed_ref::<wire::ReasoningSummaryPartAddedParams>(p).map(drop)
-        }
-        "item/reasoning/textDelta" => typed_ref::<wire::ReasoningTextDeltaParams>(p).map(drop),
-        "thread/compacted" => typed_ref::<wire::ContextCompactedParams>(p).map(drop),
-        "warning" => typed_ref::<wire::WarningParams>(p).map(drop),
-        "deprecationNotice" => typed_ref::<wire::DeprecationNoticeParams>(p).map(drop),
-        "configWarning" => typed_ref::<wire::ConfigWarningParams>(p).map(drop),
-        _ => Err(UNADMITTED_NOTIFICATION),
-    }
-}
-
 /// Every ServerRequest method of stock 0.160.0's schema. Only the tool call
 /// is answered; every other request ends the session, approval requests for
 /// the runtime's own tools as tool activity. The supplier runs with approval
@@ -1531,33 +1054,48 @@ fn request_class(method: &str) -> Notice {
         .map_or(Notice::Ends(UNADMITTED_REQUEST), |(_, class)| *class)
 }
 
+/// What the front made of a frame: the request, notification or response
+/// form it passed, with the class or request kind.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Shape {
+    ToolCall,
+    Notification(Notice),
+    Response(Rpc),
+    ErrorReply(Rpc),
+}
+
 /// Native smoke only: one payload-free line for each distinct item kind,
-/// notification method and server request method the runtime reports, so an
-/// observed session shows the ordinary set. A kind or method is printed only
-/// when it is a name the 0.160.0 schema defines; otherwise "unlisted".
+/// notification method and server request method the runtime reports, read
+/// after the frame's form check, so an observed session shows the ordinary
+/// set. A kind or method is printed only when it is a name the 0.160.0
+/// schema defines; otherwise "unlisted". A frame not of its form gets one
+/// fixed line.
 #[cfg(any(test, feature = "native-smoke"))]
 mod observed {
-    use super::{admit, wire, Notice, Value, NOTIFICATIONS, REQUESTS, SCHEMA_ITEM_KINDS};
+    use super::{admit, carried_items, Error, Notice, Rpc, Shape, Value, MALFORMED, NOTIFICATIONS, REQUESTS, SCHEMA_ITEM_KINDS};
 
     const PREFIX: &str = "[native-smoke-agent-host]";
     pub const MAX_LINES: usize = 64;
 
-    fn schema_kind(kind: Option<&Value>) -> &str {
-        match kind {
-            Some(Value::String(k)) => SCHEMA_ITEM_KINDS
-                .iter()
-                .find(|known| **known == k.as_str())
-                .copied()
-                .unwrap_or("unlisted"),
-            _ => "unlisted",
-        }
+    fn schema_kind(item: &Value) -> &str {
+        let kind = item.get("type").and_then(Value::as_str).unwrap_or("");
+        SCHEMA_ITEM_KINDS.iter().find(|k| **k == kind).copied().unwrap_or("unlisted")
     }
-    fn schema_method(method: &str) -> &str {
+    fn schema_method(frame: &Value) -> &str {
+        let method = frame.get("method").and_then(Value::as_str).unwrap_or("");
         NOTIFICATIONS
             .iter()
             .chain(REQUESTS.iter())
             .find(|(m, _)| *m == method)
             .map_or("unlisted", |(m, _)| m)
+    }
+    fn via(kind: Rpc) -> &'static str {
+        match kind {
+            Rpc::Initialize => "initialize-response",
+            Rpc::ThreadStart => "thread/start-response",
+            Rpc::TurnStart => "turn/start-response",
+            Rpc::Interrupt => "turn/interrupt-response",
+        }
     }
 
     #[derive(Default)]
@@ -1567,7 +1105,7 @@ mod observed {
         full: bool,
     }
     impl Observed {
-        fn line(&mut self, line: String) {
+        pub fn line(&mut self, line: String) {
             if self.full || self.seen.contains(&line) {
                 return;
             }
@@ -1579,72 +1117,38 @@ mod observed {
             self.seen.push(line.clone());
             self.unread.push(line);
         }
-        /// `via` is always a schema method name or a fixed response name.
-        fn item(&mut self, item: &Value, via: &str) {
-            let decision = match <wire::Item as serde::Deserialize>::deserialize(item)
-                .map_err(|_| ())
-                .and_then(|typed| admit(&typed).map_err(|_| ()))
-            {
-                Ok(()) => "admitted",
-                Err(()) => "refused",
-            };
-            let line = format!(
-                "{PREFIX} item kind {} via {via} {decision}",
-                schema_kind(item.get("type"))
-            );
-            self.line(line);
-        }
-        fn turn(&mut self, turn: &Value, via: &str) {
-            if let Some(items) = turn.get("items").and_then(Value::as_array) {
-                items.iter().for_each(|i| self.item(i, via));
+        fn items(&mut self, at: &str, value: &Value) {
+            for item in carried_items(at, value) {
+                let decision = if admit(item).is_ok() { "admitted" } else { "refused" };
+                let line = format!("{PREFIX} item kind {} via {at} {decision}", schema_kind(item));
+                self.line(line);
             }
         }
-        fn thread(&mut self, thread: &Value, via: &str) {
-            if let Some(turns) = thread.get("turns").and_then(Value::as_array) {
-                turns.iter().for_each(|t| self.turn(t, via));
-            }
-        }
-        pub fn notification(&mut self, method: &str, p: &Value, class: Notice) {
-            let via = schema_method(method);
-            match method {
-                "item/started" | "item/completed" => {
-                    if let Some(item) = p.get("item") {
-                        self.item(item, via);
+        /// After the front: only a frame that passed its form is read.
+        pub fn frame(&mut self, frame: &Value, checked: &Result<Shape, Error>) {
+            let request = frame.get("id").is_some();
+            match checked {
+                Err(e) if *e == MALFORMED => self.line(format!("{PREFIX} malformed report")),
+                Err(_) if frame.get("method").is_some() => {
+                    let what = if request { "server request" } else { "notification" };
+                    self.line(format!("{PREFIX} {what} {} refused", schema_method(frame)));
+                }
+                Err(_) | Ok(Shape::ToolCall) | Ok(Shape::ErrorReply(_)) => {}
+                Ok(Shape::Notification(class)) => {
+                    let method = schema_method(frame);
+                    if let Some(params) = frame.get("params") {
+                        self.items(method, params);
+                    }
+                    if *class == Notice::Ignored {
+                        self.line(format!("{PREFIX} notification {method} ignored"));
                     }
                 }
-                "turn/started" | "turn/completed" => {
-                    if let Some(turn) = p.get("turn") {
-                        self.turn(turn, via);
+                Ok(Shape::Response(kind)) => {
+                    if let Some(result) = frame.get("result") {
+                        self.items(via(*kind), result);
                     }
                 }
-                "thread/started" => {
-                    if let Some(thread) = p.get("thread") {
-                        self.thread(thread, via);
-                    }
-                }
-                _ => {}
             }
-            let word = match class {
-                Notice::Handled => return,
-                Notice::Ignored => "ignored",
-                Notice::Ends(_) => "refused",
-            };
-            self.line(format!("{PREFIX} notification {via} {word}"));
-        }
-        pub fn response(&mut self, result: &Value, via: &'static str) {
-            if let Some(thread) = result.get("thread") {
-                self.thread(thread, via);
-            }
-            if let Some(turn) = result.get("turn") {
-                self.turn(turn, via);
-            }
-        }
-        pub fn request(&mut self, method: &str) {
-            if method == "item/tool/call" {
-                return;
-            }
-            let line = format!("{PREFIX} server request {} refused", schema_method(method));
-            self.line(line);
         }
         pub fn take(&mut self) -> Vec<String> {
             std::mem::take(&mut self.unread)
@@ -1695,6 +1199,7 @@ impl Protocol {
             seen_call: Vec::new(),
             last_rejection: None,
             refusal: None,
+            reconnecting: false,
             #[cfg(any(test, feature = "native-smoke"))]
             observed: Default::default(),
         })
@@ -1773,105 +1278,109 @@ impl Protocol {
         }
         result
     }
-    fn handle_inner(&mut self, frame: Value, basis: &Value) -> Result<Actions, Error> {
-        let mut actions = Actions::default();
-        let frame: wire::Envelope = typed(frame)?;
-        match frame {
-            // A server request: JSONRPCRequest.
-            wire::Envelope {
-                id: Some(id),
-                method: Some(method),
-                params,
-                result: None,
-                error: None,
-                trace: _,
-            } => {
-                if !bounded(&method, MAX_ID_BYTES) {
-                    return Err(MALFORMED);
+    /// The one front every frame passes before the host decides anything:
+    /// the envelope's form, chosen by the members present (a present null is
+    /// present), the method's class, and the form of its parameters or of
+    /// the result for the request it answers. Pure; `kind_of` names the
+    /// outstanding request an identity answers.
+    fn check_frame(frame: &Value, kind_of: &dyn Fn(u64) -> Option<Rpc>) -> Result<Shape, Error> {
+        let keys = frame.as_object().ok_or(MALFORMED)?;
+        if keys.contains_key("method") {
+            if keys.contains_key("id") {
+                formed(frame, &ENVELOPE_REQUEST)?;
+                let method = text(frame, "method");
+                if !bounded(method, MAX_ID_BYTES) {
+                    return Err(Error("invalid method"));
                 }
-                let id = rpc_id(&id)?;
-                #[cfg(any(test, feature = "native-smoke"))]
-                self.observed.request(&method);
-                match request_class(&method) {
+                match request_class(method) {
                     Notice::Handled => {
-                        let params: wire::DynamicToolCallParams =
-                            typed(params.ok_or(MALFORMED)?)?;
-                        self.tool_call(id, params, basis, &mut actions)?;
+                        formed(frame.get("params").unwrap_or(&Value::Null), &DYNAMIC_TOOL_CALL_PARAMS)?;
+                        Ok(Shape::ToolCall)
                     }
-                    // No server request but the tool call conveys anything the
-                    // host accepts; each one ends the session.
-                    Notice::Ignored => return Err(UNADMITTED_REQUEST),
-                    Notice::Ends(reason) => return Err(reason),
+                    Notice::Ignored => Err(UNADMITTED_REQUEST),
+                    Notice::Ends(reason) => Err(reason),
+                }
+            } else {
+                formed(frame, &ENVELOPE_NOTIFICATION)?;
+                let method = text(frame, "method");
+                if !bounded(method, MAX_ID_BYTES) {
+                    return Err(Error("invalid method"));
+                }
+                match notice(method) {
+                    Notice::Ends(reason) => Err(reason),
+                    class => {
+                        let params = notification_params(method).ok_or(UNADMITTED_NOTIFICATION)?;
+                        formed(frame.get("params").unwrap_or(&Value::Null), params)?;
+                        Ok(Shape::Notification(class))
+                    }
                 }
             }
-            // A notification: JSONRPCNotification.
-            wire::Envelope {
-                id: None,
-                method: Some(method),
-                params,
-                result: None,
-                error: None,
-                trace: None,
-            } => {
-                if !bounded(&method, MAX_ID_BYTES) {
-                    return Err(MALFORMED);
-                }
-                self.notification(&method, params.unwrap_or(Value::Null), &mut actions)?;
+        } else if keys.contains_key("result") {
+            formed(frame, &ENVELOPE_RESPONSE)?;
+            let kind = Self::answered(frame, kind_of)?;
+            formed(&frame["result"], response_form(kind))?;
+            Ok(Shape::Response(kind))
+        } else {
+            formed(frame, &ENVELOPE_ERROR)?;
+            let kind = Self::answered(frame, kind_of)?;
+            Ok(Shape::ErrorReply(kind))
+        }
+    }
+    fn answered(frame: &Value, kind_of: &dyn Fn(u64) -> Option<Rpc>) -> Result<Rpc, Error> {
+        let id = frame["id"].as_u64().ok_or(Error("invalid response identity"))?;
+        kind_of(id).ok_or(Error("unexpected response identity"))
+    }
+    fn handle_inner(&mut self, mut frame: Value, basis: &Value) -> Result<Actions, Error> {
+        let mut actions = Actions::default();
+        let outstanding = self.outstanding.clone();
+        let checked = Self::check_frame(&frame, &|id| {
+            outstanding.iter().find(|(n, _)| *n == id).map(|(_, k)| *k)
+        });
+        #[cfg(any(test, feature = "native-smoke"))]
+        self.observed.frame(&frame, &checked);
+        let shape = checked?;
+        // Anything but a retrying error clears the reconnecting indication.
+        let retrying = frame.get("method").and_then(Value::as_str) == Some("error")
+            && frame.pointer("/params/willRetry") == Some(&json!(true));
+        let clear = self.reconnecting && !retrying;
+        let object = frame.as_object_mut().ok_or(MALFORMED)?;
+        match shape {
+            Shape::ToolCall => {
+                let id = rpc_id(object.get("id").unwrap_or(&Value::Null))?;
+                let params = object.remove("params").unwrap_or(Value::Null);
+                self.tool_call(id, params, basis, &mut actions)?;
             }
-            // A response: JSONRPCResponse or JSONRPCError.
-            wire::Envelope {
-                id: Some(id),
-                method: None,
-                params: None,
-                result,
-                error,
-                trace: None,
-            } => {
-                // Exactly one of result and error, as the schema's two forms.
-                if result.is_some() == error.is_some() {
-                    return Err(MALFORMED);
-                }
-                let id = match id {
-                    wire::RequestId::Int(n) => u64::try_from(n).map_err(|_| MALFORMED)?,
-                    wire::RequestId::Str(_) => return Err(Error("invalid response identity")),
-                };
-                let pos = self
-                    .outstanding
-                    .iter()
-                    .position(|(n, _)| *n == id)
-                    .ok_or(Error("unexpected response identity"))?;
-                let kind = self.outstanding[pos].1;
-                match (result, error) {
-                    (Some(result), None) => {
-                        self.response(kind, result, &mut actions)?;
-                        self.outstanding.remove(pos);
-                    }
-                    (None, Some(error)) => {
-                        let error = json!({"code":error.code,"message":error.message});
-                        self.last_rejection = Some(rejection(kind, &error));
-                        return Err(Error("client request failed"));
-                    }
-                    _ => return Err(MALFORMED),
-                }
+            Shape::Notification(_) => {
+                let method = object
+                    .get("method")
+                    .and_then(Value::as_str)
+                    .unwrap_or("")
+                    .to_owned();
+                let params = object.remove("params").unwrap_or(Value::Null);
+                self.notification(&method, params, &mut actions)?;
             }
-            _ => return Err(MALFORMED),
+            Shape::Response(kind) => {
+                let id = object.get("id").and_then(Value::as_u64).ok_or(MALFORMED)?;
+                let result = object.remove("result").unwrap_or(Value::Null);
+                self.response(kind, &result, &mut actions)?;
+                let pos = self.outstanding.iter().position(|(n, _)| *n == id).ok_or(MALFORMED)?;
+                self.outstanding.remove(pos);
+            }
+            Shape::ErrorReply(kind) => {
+                let error = object.get("error").cloned().unwrap_or(Value::Null);
+                self.last_rejection = Some(rejection(kind, &error));
+                return Err(Error("client request failed"));
+            }
+        }
+        if clear {
+            self.reconnecting = false;
+            actions.events.insert(0, Event::Reconnecting(false));
         }
         Ok(actions)
     }
-    fn response(&mut self, kind: Rpc, result: Value, actions: &mut Actions) -> Result<(), Error> {
-        #[cfg(any(test, feature = "native-smoke"))]
-        self.observed.response(
-            &result,
-            match kind {
-                Rpc::Initialize => "initialize-response",
-                Rpc::ThreadStart => "thread/start-response",
-                Rpc::TurnStart => "turn/start-response",
-                Rpc::Interrupt => "turn/interrupt-response",
-            },
-        );
+    fn response(&mut self, kind: Rpc, result: &Value, actions: &mut Actions) -> Result<(), Error> {
         match kind {
             Rpc::Initialize if self.phase == Phase::Initializing => {
-                typed::<wire::InitializeResponse>(result)?;
                 self.phase = Phase::Ready;
                 actions
                     .outbound
@@ -1879,22 +1388,20 @@ impl Protocol {
                 actions.events.push(Event::Initialized);
             }
             Rpc::ThreadStart if self.phase == Phase::StartingThread => {
-                let result: wire::ThreadStartResponse = typed(result)?;
-                admit_thread(&result.thread)?;
-                let id = bounded_identity(&result.thread.id)?;
+                carried_items("thread/start-response", result).try_for_each(admit)?;
+                let thread = &result["thread"];
+                let id = bounded_identity(text(thread, "id"))?;
                 if self.thread.as_ref().is_some_and(|v| v != &id) {
                     return Err(Error("thread response mismatch"));
                 }
-                let read_only = matches!(
-                    result.sandbox,
-                    wire::SandboxPolicy::ReadOnly {
-                        network_access: None | Some(false)
-                    }
-                );
-                if result.approval_policy != wire::AskForApproval::Mode(wire::ApprovalMode::Never)
-                    || !read_only
-                    || !result.thread.ephemeral
-                    || result.thread.environments.as_ref().is_some_and(|e| !e.is_empty())
+                let sandbox = &result["sandbox"];
+                if result["approvalPolicy"] != json!("never")
+                    || text(sandbox, "type") != "readOnly"
+                    || sandbox.get("networkAccess").is_some_and(|v| v != &json!(false))
+                    || thread["ephemeral"] != json!(true)
+                    || thread
+                        .get("environments")
+                        .is_some_and(|e| !e.is_null() && e.as_array().map_or(true, |a| !a.is_empty()))
                 {
                     return Err(Error("unexpected thread policy"));
                 }
@@ -1903,12 +1410,10 @@ impl Protocol {
                 actions.events.push(Event::ThreadStarted { thread_id: id });
             }
             Rpc::TurnStart if matches!(self.phase, Phase::StartingTurn | Phase::InTurn) => {
-                let result: wire::TurnStartResponse = typed(result)?;
-                admit_turn(&result.turn)?;
-                let id = bounded_identity(&result.turn.id)?;
-                if result.turn.status != wire::TurnStatus::InProgress
-                    || self.turn.as_ref().is_some_and(|v| v != &id)
-                {
+                carried_items("turn/start-response", result).try_for_each(admit)?;
+                let turn = &result["turn"];
+                let id = bounded_identity(text(turn, "id"))?;
+                if text(turn, "status") != "inProgress" || self.turn.as_ref().is_some_and(|v| v != &id) {
                     return Err(Error("turn response mismatch"));
                 }
                 self.turn = Some(id.clone());
@@ -1919,7 +1424,6 @@ impl Protocol {
                 }
             }
             Rpc::Interrupt if matches!(self.phase, Phase::InTurn | Phase::ThreadReady) => {
-                typed::<wire::TurnInterruptResponse>(result)?;
                 actions.events.push(Event::InterruptAcknowledged);
             }
             _ => return Err(Error("response in invalid state")),
@@ -1942,28 +1446,19 @@ impl Protocol {
         }
         Ok(())
     }
+    /// `p`'s form has been checked for `method`, which is handled or ignored.
     fn notification(&mut self, method: &str, p: Value, actions: &mut Actions) -> Result<(), Error> {
-        let class = notice(method);
-        #[cfg(any(test, feature = "native-smoke"))]
-        self.observed.notification(method, &p, class);
-        match class {
-            Notice::Ends(reason) => return Err(reason),
-            Notice::Ignored => {
-                ignored_params(method, &p)?;
-            }
-            Notice::Handled => {}
-        }
+        carried_items(method, &p).try_for_each(admit)?;
         match method {
             "turn/started" => {
-                let p: wire::TurnParams = typed(p)?;
-                admit_turn(&p.turn)?;
-                self.check_thread(&p.thread_id)?;
+                let turn = &p["turn"];
+                self.check_thread(text(&p, "threadId"))?;
                 if !matches!(self.phase, Phase::StartingTurn | Phase::InTurn)
-                    || p.turn.status != wire::TurnStatus::InProgress
+                    || text(turn, "status") != "inProgress"
                 {
                     return Err(Error("unexpected turn start"));
                 }
-                let id = bounded_identity(&p.turn.id)?;
+                let id = bounded_identity(text(turn, "id"))?;
                 if self.turn.as_ref().is_some_and(|v| v != &id) {
                     return Err(Error("turn mismatch"));
                 }
@@ -1975,16 +1470,16 @@ impl Protocol {
                 }
             }
             "turn/completed" => {
-                let p: wire::TurnParams = typed(p)?;
-                admit_turn(&p.turn)?;
-                self.check_thread(&p.thread_id)?;
+                let turn = &p["turn"];
+                self.check_thread(text(&p, "threadId"))?;
                 if self.phase != Phase::InTurn
-                    || Some(bounded_identity(&p.turn.id)?.as_str()) != self.turn.as_deref()
+                    || Some(bounded_identity(text(turn, "id"))?.as_str()) != self.turn.as_deref()
                     || self.outstanding.iter().any(|(_, k)| *k == Rpc::TurnStart)
                 {
                     return Err(Error("unsupported turn completion ordering"));
                 }
-                if p.turn.status == wire::TurnStatus::InProgress {
+                let status = text(turn, "status");
+                if status == "inProgress" {
                     return Err(Error("invalid completion status"));
                 }
                 for pending in &mut self.pending {
@@ -2001,60 +1496,80 @@ impl Protocol {
                 }
                 actions.events.push(Event::TurnCompleted {
                     turn_id: self.turn.take().ok_or(Error("missing turn"))?,
-                    status: p.turn.status.name().to_owned(),
+                    status: status.to_owned(),
                 });
                 self.phase = Phase::ThreadReady;
             }
             "item/agentMessage/delta" => {
-                let p: wire::AgentMessageDeltaParams = typed(p)?;
-                self.check_turn(&p.thread_id, &p.turn_id)?;
-                let item_id = bounded_identity(&p.item_id)?;
-                if p.delta.len() > MAX_TEXT_BYTES {
+                self.check_turn(text(&p, "threadId"), text(&p, "turnId"))?;
+                let item_id = bounded_identity(text(&p, "itemId"))?;
+                let delta = text(&p, "delta");
+                if delta.len() > MAX_TEXT_BYTES {
                     return Err(Error("message text limit"));
                 }
-                actions.events.push(Event::MessageDelta { item_id, text: p.delta });
+                actions.events.push(Event::MessageDelta { item_id, text: delta.to_owned() });
             }
-            "item/started" => {
-                let p: wire::ItemStartedParams = typed(p)?;
-                admit(&p.item)?;
-            }
+            // Its item was admitted above; nothing else is handled.
+            "item/started" => {}
             "item/completed" => {
-                let p: wire::ItemCompletedParams = typed(p)?;
-                admit(&p.item)?;
-                self.check_turn(&p.thread_id, &p.turn_id)?;
-                if let Item::AgentMessage { id, text, .. } = p.item {
-                    let item_id = bounded_identity(&id)?;
-                    if text.len() > MAX_TEXT_BYTES {
+                self.check_turn(text(&p, "threadId"), text(&p, "turnId"))?;
+                let item = &p["item"];
+                if text(item, "type") == "agentMessage" {
+                    let item_id = bounded_identity(text(item, "id"))?;
+                    let message = text(item, "text");
+                    if message.len() > MAX_TEXT_BYTES {
                         return Err(Error("message text limit"));
                     }
-                    actions.events.push(Event::MessageFinal { item_id, text });
+                    actions.events.push(Event::MessageFinal { item_id, text: message.to_owned() });
                 }
             }
             "thread/status/changed" => {
-                let p: wire::ThreadStatusChangedParams = typed(p)?;
+                let thread_id = text(&p, "threadId");
                 if self.phase == Phase::StartingThread && self.thread.is_none() {
-                    self.thread = Some(bounded_identity(&p.thread_id)?);
+                    self.thread = Some(bounded_identity(thread_id)?);
                 }
-                self.check_thread(&p.thread_id)?;
+                self.check_thread(thread_id)?;
                 actions.events.push(Event::ThreadStatus {
-                    status: p.status.name().to_owned(),
+                    status: text(&p["status"], "type").to_owned(),
                 });
             }
             // The supplier may send thread/started before its response. It is
             // informational only; response supplies authoritative thread id.
             "thread/started" => {
-                let p: wire::ThreadStartedParams = typed(p)?;
-                admit_thread(&p.thread)?;
                 if self.phase == Phase::StartingThread {
-                    let id = bounded_identity(&p.thread.id)?;
+                    let id = bounded_identity(text(&p["thread"], "id"))?;
                     if self.thread.as_deref().is_some_and(|old| old != id) {
                         return Err(Error("thread mismatch"));
                     }
                     self.thread = Some(id);
                 }
             }
-            // Ignored by name: its parameters were read into their closed
-            // type above and carry nothing the host acts on.
+            // The runtime's error report, whose form was checked. Inside an
+            // active turn it changes no session state: the turn ends by its
+            // completion or the person's interrupt. A retrying error is shown
+            // as reconnecting until anything else arrives. With no turn
+            // active, a final error ends the session; a retrying one changes
+            // nothing. The error's turn identifier is not matched, and its
+            // message is never carried.
+            "error" => {
+                // Tied to this session by its thread, as other notifications
+                // are; its turn identifier is not matched.
+                self.check_thread(text(&p, "threadId"))?;
+                let active = matches!(self.phase, Phase::StartingTurn | Phase::InTurn);
+                let retrying = p["willRetry"] == json!(true);
+                match (active, retrying) {
+                    (true, true) => {
+                        if !self.reconnecting {
+                            self.reconnecting = true;
+                            actions.events.push(Event::Reconnecting(true));
+                        }
+                    }
+                    (true, false) | (false, true) => {}
+                    (false, false) => return Err(FINAL_ERROR_OUTSIDE_TURN),
+                }
+            }
+            // Ignored by name: its parameters' form was checked and carries
+            // nothing the host acts on.
             _ => {}
         }
         Ok(())
@@ -2062,13 +1577,13 @@ impl Protocol {
     fn tool_call(
         &mut self,
         id: Value,
-        p: wire::DynamicToolCallParams,
+        mut p: Value,
         basis: &Value,
         actions: &mut Actions,
     ) -> Result<(), Error> {
-        self.check_turn(&p.thread_id, &p.turn_id)?;
-        let call_id = bounded_identity(&p.call_id)?;
-        bounded_identity(&p.tool)?;
+        self.check_turn(text(&p, "threadId"), text(&p, "turnId"))?;
+        let call_id = bounded_identity(text(&p, "callId"))?;
+        bounded_identity(text(&p, "tool"))?;
         if self.seen_rpc.contains(&id) || self.seen_call.contains(&call_id) {
             return Err(Error("duplicate tool identity"));
         }
@@ -2078,13 +1593,17 @@ impl Protocol {
         // The supplier forwards a call only for a tool the host declared at
         // thread start, none of them namespaced; anything else means it is
         // not behaving as pinned, and the session ends.
-        let tool = match Tool::from_name(&p.tool) {
-            Some(tool) if p.namespace.is_none() => tool,
+        let namespaced = p.get("namespace").is_some_and(|n| !n.is_null());
+        let tool = match Tool::from_name(text(&p, "tool")) {
+            Some(tool) if !namespaced => tool,
             _ => return Err(UNOFFERED_ACTIVITY),
         };
         self.seen_rpc.push(id.clone());
         self.seen_call.push(call_id.clone());
-        let args = p.arguments;
+        let args = p
+            .as_object_mut()
+            .and_then(|o| o.remove("arguments"))
+            .unwrap_or(Value::Null);
         let valid = within(&args, self.catalog.limits().argument_bytes)
             && self.catalog.validate_input(tool, &args).is_ok()
             && (tool != Tool::ProposeOperations
@@ -2701,15 +2220,13 @@ mod tests {
             } else {
                 notification(method, json!({"threadId":"thread-1"}))
             };
-            assert_ends(p, reference, frame, if method.is_empty() { MALFORMED } else { reason });
+            assert_ends(p, reference, frame, if method.is_empty() { Error("invalid method") } else { reason });
         }
     }
 
     #[test]
     fn ignored_notifications_are_read_whole_and_carry_no_item() {
         let accepted = [
-            ("error", json!({"error":{"message":"m","codexErrorInfo":{"httpConnectionFailed":{"httpStatusCode":502}},"additionalDetails":null},"threadId":"thread-1","turnId":"turn-1","willRetry":true})),
-            ("error", json!({"error":{"message":"m","codexErrorInfo":"contextWindowExceeded","misalignment":{"steer":{"message":"s"}}},"threadId":"thread-1","turnId":"turn-1","willRetry":false})),
             ("thread/tokenUsage/updated", json!({"threadId":"thread-1","turnId":"turn-1","tokenUsage":{"last":{"cachedInputTokens":0,"inputTokens":1,"outputTokens":1,"reasoningOutputTokens":0,"totalTokens":2},"total":{"cachedInputTokens":0,"inputTokens":1,"outputTokens":1,"reasoningOutputTokens":0,"totalTokens":2,"cacheWriteInputTokens":0},"modelContextWindow":32768}})),
             ("account/rateLimits/updated", json!({"rateLimits":{"primary":{"usedPercent":1,"resetsAt":null},"planType":"unknown","credits":{"hasCredits":false,"unlimited":false,"balance":null}}})),
             ("account/rateLimits/updated", json!({"rateLimits":{}})),
@@ -2766,11 +2283,14 @@ mod tests {
             let (p, reference) = active_with_pending();
             assert_ends(p, reference, frame, MALFORMED);
         }
-        // A request may carry a trace context, as the schema allows.
-        let mut p = active();
-        let mut c = call_summary(json!(8), "traced");
-        c["trace"] = json!({"traceparent":null});
-        assert!(matches!(p.handle_frame(c, &basis()).unwrap().events.as_slice(), [Event::ToolRequested { .. }]));
+        // The supplier writes no trace member on a server request (its
+        // source at the pinned tag); one is refused like any unlisted member.
+        for trace in [json!(null), json!({}), json!({"traceparent":null})] {
+            let (p, reference) = active_with_pending();
+            let mut c = call_summary(json!(8), "traced");
+            c["trace"] = trace;
+            assert_ends(p, reference, c, MALFORMED);
+        }
     }
 
     #[test]
@@ -2863,25 +2383,25 @@ mod tests {
             let mut p = active();
             p.take_observations();
             assert!(p.handle_frame(item_frame("item/started", json!({"id":"i","type":kind})), &basis()).is_err());
-            assert_eq!(p.take_observations(), ["[native-smoke-agent-host] item kind unlisted via item/started refused"]);
+            assert_eq!(p.take_observations(), ["[native-smoke-agent-host] malformed report"]);
         }
         let mut p = active();
         p.take_observations();
         assert!(p.handle_frame(item_frame("item/started", json!(marker)), &basis()).is_err());
-        assert_eq!(p.take_observations(), ["[native-smoke-agent-host] item kind unlisted via item/started refused"]);
+        assert_eq!(p.take_observations(), ["[native-smoke-agent-host] malformed report"]);
     }
 
     #[test]
     fn observation_lines_are_bounded_per_session() {
         let mut o = observed::Observed::default();
         for (method, _) in NOTIFICATIONS {
-            o.notification(method, &json!({}), Notice::Ignored);
+            o.line(format!("[native-smoke-agent-host] notification {method} ignored"));
         }
         let lines = o.take();
         assert_eq!(lines.len(), observed::MAX_LINES + 1);
         assert_eq!(lines.last().unwrap(), "[native-smoke-agent-host] observation limit reached");
         for (method, _) in NOTIFICATIONS {
-            o.notification(method, &json!({}), Notice::Ends(MALFORMED));
+            o.line(format!("[native-smoke-agent-host] notification {method} refused"));
         }
         assert!(o.take().is_empty());
     }
@@ -3106,10 +2626,740 @@ mod tests {
         assert_eq!(sorted(SCHEMA_ITEM_KINDS.to_vec()), sorted(SCHEMA_THREAD_ITEM_KINDS.to_vec()));
         // The confirmed classification: seven handled, eleven ignored.
         let count = |class: fn(&Notice) -> bool| NOTIFICATIONS.iter().filter(|(_, c)| class(c)).count();
-        assert_eq!(count(|c| *c == Notice::Handled), 7);
-        assert_eq!(count(|c| *c == Notice::Ignored), 11);
+        assert_eq!(count(|c| *c == Notice::Handled), 8);
+        assert_eq!(count(|c| *c == Notice::Ignored), 10);
         assert_eq!(count(|c| matches!(c, Notice::Ends(_))), 65);
         assert_eq!(REQUESTS.iter().filter(|(_, c)| *c == Notice::Handled).count(), 1);
+    }
+
+    fn error_frame(turn: &str, retry: bool) -> Value {
+        notification(
+            "error",
+            json!({"error":{"message":"supplier text","codexErrorInfo":{"responseStreamDisconnected":{"httpStatusCode":502}}},"threadId":"thread-1","turnId":turn,"willRetry":retry}),
+        )
+    }
+
+    #[test]
+    fn a_malformed_error_ends_the_session() {
+        for params in [
+            json!({"error":{"message":"m"},"threadId":"thread-1","turnId":"turn-1"}),
+            json!({"error":{"message":"m"},"threadId":"thread-1","turnId":"turn-1","willRetry":"no"}),
+            json!({"error":{"message":1},"threadId":"thread-1","turnId":"turn-1","willRetry":false}),
+            json!({"error":{},"threadId":"thread-1","turnId":"turn-1","willRetry":false}),
+            json!({"error":{"message":"m","note":"x"},"threadId":"thread-1","turnId":"turn-1","willRetry":false}),
+            json!({"error":{"message":"m","codexErrorInfo":{"invented":{}}},"threadId":"thread-1","turnId":"turn-1","willRetry":true}),
+            json!({"error":{"message":"m"},"threadId":"thread-1","turnId":"turn-1","willRetry":true,"item":{"type":"commandExecution"}}),
+            json!({"error":"m","threadId":"thread-1","turnId":"turn-1","willRetry":true}),
+        ] {
+            let (p, reference) = active_with_pending();
+            assert_ends(p, reference, notification("error", params), MALFORMED);
+        }
+    }
+
+    #[test]
+    fn a_retrying_error_inside_a_turn_changes_no_state_and_shows_reconnecting_until_anything_else() {
+        let (mut p, reference) = active_with_pending();
+        assert!(matches!(
+            p.handle_frame(error_frame("turn-1", true), &basis()).unwrap().events.as_slice(),
+            [Event::Reconnecting(true)]
+        ));
+        // Repeated retries add nothing; the turn and its pending call stand.
+        assert!(p.handle_frame(error_frame("turn-1", true), &basis()).unwrap().events.is_empty());
+        assert_eq!(p.phase, Phase::InTurn);
+        // Anything else in the turn clears the indication first.
+        assert!(matches!(
+            p.handle_frame(notification("item/agentMessage/delta", json!({"threadId":"thread-1","turnId":"turn-1","itemId":"m","delta":"x"})), &basis())
+                .unwrap()
+                .events
+                .as_slice(),
+            [Event::Reconnecting(false), Event::MessageDelta { .. }]
+        ));
+        assert!(matches!(
+            p.handle_frame(error_frame("turn-1", true), &basis()).unwrap().events.as_slice(),
+            [Event::Reconnecting(true)]
+        ));
+        // The turn's end clears it, before the completion.
+        assert!(matches!(
+            p.handle_frame(notification("turn/completed", json!({"threadId":"thread-1","turn":fixture::turn("turn-1", "failed")})), &basis())
+                .unwrap()
+                .events
+                .as_slice(),
+            [Event::Reconnecting(false), Event::ToolDetached { .. }, Event::TurnCompleted { .. }]
+        ));
+        assert!(matches!(
+            p.complete(reference.as_str(), outcome("unavailable")).unwrap(),
+            Completion::Detached
+        ));
+    }
+
+    #[test]
+    fn a_final_error_inside_a_turn_changes_no_state_and_its_completion_ends_the_turn_failed() {
+        let (mut p, _reference) = active_with_pending();
+        let actions = p.handle_frame(error_frame("turn-1", false), &basis()).unwrap();
+        assert!(actions.events.is_empty() && actions.outbound.is_empty());
+        assert_eq!(p.phase, Phase::InTurn);
+        // The turn still takes calls until its completion.
+        assert!(matches!(
+            p.handle_frame(call_summary(json!(8), "after-error"), &basis()).unwrap().events.as_slice(),
+            [Event::ToolRequested { .. }]
+        ));
+        let events = p
+            .handle_frame(notification("turn/completed", json!({"threadId":"thread-1","turn":fixture::turn("turn-1", "failed")})), &basis())
+            .unwrap()
+            .events;
+        assert!(matches!(events.last(), Some(Event::TurnCompleted { status, .. }) if status == "failed"));
+        assert_eq!(p.phase, Phase::ThreadReady);
+    }
+
+    #[test]
+    fn a_final_error_with_no_turn_active_ends_the_session_with_its_own_reason() {
+        let mut p = ready();
+        assert_eq!(p.handle_frame(error_frame("turn-1", false), &basis()).err(), Some(FINAL_ERROR_OUTSIDE_TURN));
+        assert_eq!(p.refusal(), Some(Refusal::SupplierError));
+        assert_eq!(Refusal::SupplierError.class(), "supplier_error");
+        assert!(p.submit_text("next".into()).is_err());
+        assert!(p.disconnect().is_empty());
+        // After a turn has completed, the same.
+        let mut q = active();
+        q.handle_frame(notification("turn/completed", json!({"threadId":"thread-1","turn":fixture::turn("turn-1", "completed")})), &basis()).unwrap();
+        assert_eq!(q.handle_frame(error_frame("turn-1", false), &basis()).err(), Some(FINAL_ERROR_OUTSIDE_TURN));
+    }
+
+    #[test]
+    fn a_retrying_error_with_no_turn_active_changes_nothing() {
+        let mut p = ready();
+        let actions = p.handle_frame(error_frame("turn-1", true), &basis()).unwrap();
+        assert!(actions.events.is_empty() && actions.outbound.is_empty());
+        assert_eq!(p.phase, Phase::ThreadReady);
+        assert!(p.submit_text("next".into()).is_ok());
+    }
+
+    #[test]
+    fn an_error_is_not_matched_on_its_turn_identifier() {
+        for retry in [false, true] {
+            let outcomes: Vec<String> = ["turn-1", "another-turn", ""]
+                .iter()
+                .map(|turn| {
+                    let mut p = active();
+                    let actions = p.handle_frame(error_frame(turn, retry), &basis()).unwrap();
+                    format!("{:?} {:?}", actions.events, p.phase)
+                })
+                .collect();
+            assert!(outcomes.windows(2).all(|w| w[0] == w[1]), "{outcomes:?}");
+            let outcomes: Vec<String> = ["turn-1", "another-turn"]
+                .iter()
+                .map(|turn| format!("{:?}", ready().handle_frame(error_frame(turn, retry), &basis()).err()))
+                .collect();
+            assert!(outcomes.windows(2).all(|w| w[0] == w[1]), "{outcomes:?}");
+        }
+    }
+
+    #[test]
+    fn an_error_is_tied_to_this_session_by_its_thread() {
+        for retry in [false, true] {
+            let mut frame = error_frame("turn-1", retry);
+            frame["params"]["threadId"] = json!("another-thread");
+            let (p, reference) = active_with_pending();
+            assert_ends(p, reference, frame.clone(), Error("thread mismatch"));
+            let mut q = ready();
+            assert_eq!(q.handle_frame(frame, &basis()).err(), Some(Error("thread mismatch")));
+        }
+    }
+
+    #[test]
+    fn round_three_frames_are_refused_by_their_form() {
+        let mut final_phase = fixture::agent_message("m", "hello");
+        final_phase["phase"] = json!({"final_answer":null});
+        let mut dynamic = fixture::dynamic_tool_call("d", Tool::Summary.name());
+        dynamic["status"] = json!({"completed":null});
+        let mut empty_effort = fixture::thread("thread-1");
+        empty_effort["reasoningEffort"] = json!("");
+        for frame in [
+            item_frame("item/completed", final_phase),
+            item_frame("item/completed", dynamic),
+            json!({"method":"item/completed","params":[1,fixture::agent_message("m", "hello"),"thread-1","turn-1"]}),
+            json!({"method":"item/completed","params":fixture::item_params("item/completed", "thread-1", "turn-1", fixture::agent_message("m", "hello")),"result":null}),
+            notification("turn/completed", json!({"threadId":"thread-1","turn":{"id":"turn-1","items":[],"status":{"completed":null}}})),
+            notification("thread/started", json!({"thread":empty_effort})),
+        ] {
+            let (p, reference) = active_with_pending();
+            assert_ends(p, reference, frame, MALFORMED);
+        }
+        // An interrupt reply with params null.
+        let (mut p, reference) = active_with_pending();
+        p.interrupt().unwrap();
+        assert_ends(p, reference, json!({"id":4,"params":null,"result":{}}), MALFORMED);
+        // A thread start reply with an empty reasoning effort.
+        let mut q = Protocol::new(Catalog::load().unwrap(), "0123456789abcdef".into(), 16).unwrap();
+        q.initialize("test", "1").unwrap();
+        q.handle_frame(frame(1, fixture::initialize_result()), &basis()).unwrap();
+        q.start_thread(ThreadOptions {
+            model: "test".into(),
+            provider: "test".into(),
+            cwd: "/test".into(),
+            base_instructions: "test".into(),
+        })
+        .unwrap();
+        let mut result = fixture::thread_start_result("thread-1");
+        result["reasoningEffort"] = json!("");
+        assert_eq!(q.handle_frame(frame(2, result), &basis()).err(), Some(MALFORMED));
+    }
+
+    // --- The sweep: every member of every form, every other JSON kind. ---
+
+    /// Whether a form admits a replacement value. Written apart from the
+    /// checker, from the forms alone, for the plain values the sweep uses.
+    fn admits(f: &Form, r: &Value) -> bool {
+        match f {
+            Form::Any => true,
+            Form::Nullable(inner) => r.is_null() || admits(inner, r),
+            Form::Str => r.is_string(),
+            Form::StrMin(min) => r.as_str().is_some_and(|s| s.chars().count() >= *min),
+            Form::Int(format) => {
+                r.is_i64() && !r.is_f64() && (r.as_i64().unwrap_or(-1) >= 0 || matches!(*format, "int64" | "int32"))
+            }
+            Form::Bool => r.is_boolean(),
+            Form::Words(words) => r.as_str().is_some_and(|s| words.contains(&s)),
+            Form::Array(_) => r.as_array().is_some_and(Vec::is_empty),
+            Form::Object(o) => {
+                r.as_object().is_some_and(|m| m.is_empty())
+                    && o.members.iter().all(|m| !m.required)
+                    && o.any_required.is_empty()
+            }
+            Form::Tagged(_) => false,
+            Form::OneOf(alternatives) => alternatives.iter().filter(|a| admits(a, r)).count() == 1,
+        }
+    }
+    fn replacements() -> Vec<Value> {
+        vec![json!(null), json!(true), json!(0), json!(-1), json!(1.5), json!("x"), json!(""), json!([]), json!({})]
+    }
+
+    /// Valid values of a form with every member present: one for each
+    /// variant or alternative reachable, varying one place at a time.
+    fn samples(f: &Form) -> Vec<Value> {
+        match f {
+            Form::Str => vec![json!("s")],
+            Form::StrMin(min) => vec![json!("s".repeat((*min).max(1)))],
+            Form::Int(_) => vec![json!(1)],
+            Form::Bool => vec![json!(true)],
+            Form::Any => vec![json!({"any":[1]})],
+            Form::Words(words) => vec![json!(words[0])],
+            Form::Array(item) => samples(item).into_iter().map(|v| json!([v])).collect(),
+            Form::Nullable(inner) => samples(inner),
+            Form::Object(o) => object_samples(o, None),
+            Form::Tagged(t) => t
+                .variants
+                .iter()
+                .flat_map(|(word, o)| object_samples(o, Some((t.tag, word))))
+                .collect(),
+            Form::OneOf(alternatives) => alternatives.iter().flat_map(samples).collect(),
+        }
+    }
+    fn object_samples(o: &Obj, tag: Option<(&str, &str)>) -> Vec<Value> {
+        let mut base = serde_json::Map::new();
+        if let Some((tag, word)) = tag {
+            base.insert(tag.into(), json!(word));
+        }
+        let per_member: Vec<Vec<Value>> = o.members.iter().map(|m| samples(&m.form)).collect();
+        for (m, values) in o.members.iter().zip(&per_member) {
+            base.insert(m.name.into(), values[0].clone());
+        }
+        let mut out = vec![Value::Object(base.clone())];
+        for (m, values) in o.members.iter().zip(&per_member) {
+            for v in &values[1..] {
+                let mut variant = base.clone();
+                variant.insert(m.name.into(), v.clone());
+                out.push(Value::Object(variant));
+            }
+        }
+        out
+    }
+    /// Every mutation of `v`, a valid value of `f`, at `v` and below, with
+    /// whether the form admits it.
+    fn mutations(f: &Form, v: &Value) -> Vec<(Value, bool)> {
+        let mut out: Vec<(Value, bool)> = replacements()
+            .into_iter()
+            .filter(|r| r != v)
+            .map(|r| {
+                let ok = admits(f, &r);
+                (r, ok)
+            })
+            .collect();
+        if let Some(map) = v.as_object() {
+            out.push((Value::Array(map.values().cloned().collect()), matches!(f, Form::Any)));
+        }
+        out.extend(inner_mutations(f, v));
+        out
+    }
+    /// Mutations below `v`, judged by the form that governs each place.
+    fn inner_mutations(f: &Form, v: &Value) -> Vec<(Value, bool)> {
+        let mut out = Vec::new();
+        match f {
+            Form::Nullable(inner) => out.extend(inner_mutations(inner, v)),
+            Form::Array(item) => {
+                for (m, ok) in mutations(item, &v[0]) {
+                    out.push((json!([m]), ok));
+                }
+            }
+            Form::Object(o) => out.extend(member_mutations(o, v, None)),
+            Form::Tagged(t) => {
+                let word = v[t.tag].as_str().unwrap_or("");
+                let (_, o) = t.variants.iter().find(|(w, _)| *w == word).expect("variant sample");
+                out.extend(member_mutations(o, v, Some(t)));
+            }
+            Form::OneOf(alternatives) => {
+                if let Some(alt) = alternatives.iter().find(|a| form::check(v, a)) {
+                    out.extend(inner_mutations(alt, v));
+                }
+            }
+            _ => {}
+        }
+        out
+    }
+    fn member_mutations(o: &Obj, v: &Value, tagged: Option<&Tagged>) -> Vec<(Value, bool)> {
+        let map = v.as_object().expect("object sample");
+        let mut out = Vec::new();
+        let with = |key: &str, value: Option<Value>| {
+            let mut m = map.clone();
+            match value {
+                Some(value) => m.insert(key.into(), value),
+                None => m.remove(key),
+            };
+            Value::Object(m)
+        };
+        if let Some(t) = tagged {
+            for r in replacements() {
+                let ok = r.as_str().is_some_and(|w| t.open || t.refused.contains(&w) || t.variants.iter().any(|(v, _)| *v == w));
+                out.push((with(t.tag, Some(r)), ok));
+            }
+            out.push((with(t.tag, None), false));
+        }
+        for m in o.members {
+            let Some(current) = map.get(m.name) else { continue };
+            let still_any = |gone: &str| {
+                o.any_required.is_empty()
+                    || o.any_required.iter().any(|set| set.iter().all(|n| *n != gone && map.contains_key(*n)))
+            };
+            out.push((with(m.name, None), !m.required && still_any(m.name)));
+            for (mutated, ok) in mutations(&m.form, current) {
+                out.push((with(m.name, Some(mutated)), ok));
+            }
+        }
+        out.push((with("unlistedMember", Some(json!(1))), false));
+        out
+    }
+    /// The roots the front checks, each with a frame builder and the kind of
+    /// request its identity answers.
+    fn sweep_roots() -> Vec<(String, &'static Obj, Box<dyn Fn(Value) -> Value>)> {
+        let mut roots: Vec<(String, &'static Obj, Box<dyn Fn(Value) -> Value>)> = Vec::new();
+        for (method, params) in NOTIFICATION_PARAMS.iter() {
+            let method = *method;
+            roots.push((format!("notification:{method}"), params, Box::new(move |p| json!({"method":method,"params":p}))));
+        }
+        roots.push(("request:item/tool/call".into(), &DYNAMIC_TOOL_CALL_PARAMS, Box::new(|p| json!({"id":"r","method":"item/tool/call","params":p}))));
+        for (name, id, form) in [
+            ("response:initialize", 1, &INITIALIZE_RESPONSE),
+            ("response:thread/start", 2, &THREAD_START_RESPONSE),
+            ("response:turn/start", 3, &TURN_START_RESPONSE),
+            ("response:turn/interrupt", 4, &TURN_INTERRUPT_RESPONSE),
+        ] {
+            roots.push((name.into(), form, Box::new(move |r| json!({"id":id,"result":r}))));
+        }
+        roots.push(("envelope:error".into(), &JSONRPC_ERROR_ERROR, Box::new(|e| json!({"id":1,"error":e}))));
+        roots
+    }
+    fn sweep_kind(id: u64) -> Option<Rpc> {
+        match id {
+            1 => Some(Rpc::Initialize),
+            2 => Some(Rpc::ThreadStart),
+            3 => Some(Rpc::TurnStart),
+            4 => Some(Rpc::Interrupt),
+            _ => None,
+        }
+    }
+
+    #[test]
+    fn the_sweep_finds_no_leniency_in_the_front() {
+        let mut cases = 0usize;
+        let mut refused = 0usize;
+        let mut failures = Vec::new();
+        for (name, form, wrap) in sweep_roots() {
+            let root = Form::Object(form);
+            for sample in samples(&root) {
+                let base = Protocol::check_frame(&wrap(sample.clone()), &sweep_kind);
+                if base == Err(MALFORMED) {
+                    failures.push(format!("{name}: valid sample refused: {sample}"));
+                }
+                for (mutated, ok) in mutations(&root, &sample) {
+                    cases += 1;
+                    let frame = wrap(mutated);
+                    let outcome = Protocol::check_frame(&frame, &sweep_kind);
+                    // Admitted by the form: never refused as malformed.
+                    // Not admitted: refused as malformed.
+                    let pass = if ok { outcome != Err(MALFORMED) } else { outcome == Err(MALFORMED) };
+                    if !ok {
+                        refused += 1;
+                    }
+                    if !pass {
+                        failures.push(format!("{name}: form admits={ok} but {outcome:?}: {frame}"));
+                    }
+                }
+            }
+        }
+        // Envelope members: each envelope form, its members mutated.
+        let envelopes = [
+            json!({"method":"warning","params":{"message":"m"}}),
+            json!({"id":"r","method":"item/tool/call","params":{"threadId":"t","turnId":"u","callId":"c","tool":"x","arguments":{}}}),
+            json!({"id":4,"result":{}}),
+            json!({"id":1,"error":{"code":1,"message":"m"}}),
+        ];
+        for envelope in envelopes {
+            let map = envelope.as_object().unwrap().clone();
+            let mut variants: Vec<Value> = vec![Value::Array(map.values().cloned().collect())];
+            for extra in ["jsonrpc", "trace", "params", "result", "error", "id", "method", "x"] {
+                if !map.contains_key(extra) {
+                    let mut m = map.clone();
+                    m.insert(extra.into(), json!(null));
+                    variants.push(Value::Object(m));
+                }
+            }
+            for key in map.keys() {
+                let mut m = map.clone();
+                m.remove(key);
+                variants.push(Value::Object(m));
+                for r in replacements() {
+                    if key == "id" && (r.is_string() || r.as_i64().is_some())
+                        || key == "method" && r.is_string()
+                        || map.get(key) == Some(&r)
+                    {
+                        continue;
+                    }
+                    let mut m = map.clone();
+                    m.insert(key.clone(), r);
+                    variants.push(Value::Object(m));
+                }
+            }
+            for frame in variants {
+                cases += 1;
+                refused += 1;
+                if Protocol::check_frame(&frame, &sweep_kind).is_ok() {
+                    failures.push(format!("envelope admitted: {frame}"));
+                }
+            }
+        }
+        println!("sweep: {cases} cases, {refused} refused by form");
+        assert!(failures.is_empty(), "{} of {cases}:\n{}", failures.len(), failures.join("\n"));
+        assert!(cases > 1000 && refused > 1000, "{cases} cases, {refused} refused");
+    }
+
+    // --- Fidelity: the canonical text of the forms and its hash. ---
+    //
+    // The canonical text of a form, the rule by which a reviewer recomputes
+    // the hash from the schema copy:
+    //   str | str(min=N) for minLength | int(FORMAT) with the schema's
+    //   format | bool | any for `true` | words(w1,w2,...) for an enum or a
+    //   oneOf of string enums, words sorted | array(F) | nullable(F) for a
+    //   type list with "null" or an anyOf of F and {"type":"null"} |
+    //   object{name:req F;name:opt F;...} members sorted by name, "req" when
+    //   in `required`, optionally followed by anyof-required[a|b] for an
+    //   anyOf of required sets (members of those sets added as opt; sets
+    //   sorted, members within a set joined by ",") |
+    //   tagged(TAG){word=object{...};...} for a oneOf whose alternatives are
+    //   all objects with a single-word `type`, variants sorted by word, the
+    //   tag not among the members, followed by refused[w,...] and open for
+    //   ThreadItem only, whose five admitted kinds (agentMessage,
+    //   contextCompaction, dynamicToolCall, reasoning, userMessage) are
+    //   rendered in full and the other fourteen listed by tag, sorted |
+    //   oneof(F|F|...) for any other oneOf or anyOf, alternatives sorted.
+    //   `$ref` and a single `allOf` are followed; description, title and
+    //   default are ignored.
+    // The text is one line per root, `NAME = FORM`, sorted by name, each
+    // ending in "\n". The roots: envelope:error (JSONRPCError),
+    // envelope:notification (JSONRPCNotification with params required, as
+    // every ServerNotification variant requires it), envelope:request
+    // (JSONRPCRequest's id, method and params, all required; the supplier
+    // writes no trace member), envelope:response (JSONRPCResponse),
+    // notification:METHOD (the params of ServerNotification's METHOD variant,
+    // for the 18 handled or ignored methods), request:item/tool/call
+    // (DynamicToolCallParams), response:initialize (InitializeResponse),
+    // response:thread/start, response:turn/start, response:turn/interrupt
+    // (v2 ThreadStartResponse, TurnStartResponse, TurnInterruptResponse).
+    // Its SHA-256, computed once from the schema copy (SHA-256 below) by
+    // `subset_hash_from_schema`:
+    const SCHEMA_SUBSET_SHA256: &str = "afe71c99f8b8dc8a278588e66d9cc512d9a2d5b5b84323ee8ee3952ed2d913ac";
+
+    fn canon(f: &Form) -> String {
+        match f {
+            Form::Str => "str".into(),
+            Form::StrMin(min) => format!("str(min={min})"),
+            Form::Int(format) => format!("int({format})"),
+            Form::Bool => "bool".into(),
+            Form::Any => "any".into(),
+            Form::Words(words) => {
+                let mut w = words.to_vec();
+                w.sort_unstable();
+                format!("words({})", w.join(","))
+            }
+            Form::Array(item) => format!("array({})", canon(item)),
+            Form::Nullable(inner) => format!("nullable({})", canon(inner)),
+            Form::Object(o) => canon_object(o),
+            Form::Tagged(t) => {
+                let mut variants: Vec<String> =
+                    t.variants.iter().map(|(word, o)| format!("{word}={}", canon_object(o))).collect();
+                variants.sort();
+                let mut text = format!("tagged({}){{{}}}", t.tag, variants.join(";"));
+                if !t.refused.is_empty() {
+                    let mut r = t.refused.to_vec();
+                    r.sort_unstable();
+                    text.push_str(&format!("refused[{}]", r.join(",")));
+                }
+                if t.open {
+                    text.push_str("open");
+                }
+                text
+            }
+            Form::OneOf(alternatives) => {
+                let mut a: Vec<String> = alternatives.iter().map(canon).collect();
+                a.sort();
+                format!("oneof({})", a.join("|"))
+            }
+        }
+    }
+    fn canon_object(o: &Obj) -> String {
+        let mut members: Vec<String> = o
+            .members
+            .iter()
+            .map(|m| format!("{}:{} {}", m.name, if m.required { "req" } else { "opt" }, canon(&m.form)))
+            .collect();
+        members.sort();
+        let mut text = format!("object{{{}}}", members.join(";"));
+        if !o.any_required.is_empty() {
+            let mut sets: Vec<String> = o
+                .any_required
+                .iter()
+                .map(|set| {
+                    let mut s = set.to_vec();
+                    s.sort_unstable();
+                    s.join(",")
+                })
+                .collect();
+            sets.sort();
+            text.push_str(&format!("anyof-required[{}]", sets.join("|")));
+        }
+        text
+    }
+    fn canonical_text() -> String {
+        let mut roots: Vec<(String, String)> = vec![
+            ("envelope:error".into(), canon_object(&ENVELOPE_ERROR)),
+            ("envelope:notification".into(), canon_object(&ENVELOPE_NOTIFICATION)),
+            ("envelope:request".into(), canon_object(&ENVELOPE_REQUEST)),
+            ("envelope:response".into(), canon_object(&ENVELOPE_RESPONSE)),
+            ("request:item/tool/call".into(), canon_object(&DYNAMIC_TOOL_CALL_PARAMS)),
+            ("response:initialize".into(), canon_object(&INITIALIZE_RESPONSE)),
+            ("response:thread/start".into(), canon_object(&THREAD_START_RESPONSE)),
+            ("response:turn/interrupt".into(), canon_object(&TURN_INTERRUPT_RESPONSE)),
+            ("response:turn/start".into(), canon_object(&TURN_START_RESPONSE)),
+        ];
+        for (method, params) in NOTIFICATION_PARAMS.iter() {
+            roots.push((format!("notification:{method}"), canon_object(params)));
+        }
+        roots.sort();
+        roots.iter().map(|(name, form)| format!("{name} = {form}\n")).collect()
+    }
+    fn sha256_hex(text: &str) -> String {
+        use sha2::{Digest, Sha256};
+        Sha256::digest(text.as_bytes()).iter().map(|b| format!("{b:02x}")).collect()
+    }
+
+    #[test]
+    fn the_forms_render_to_the_schema_subset_hash() {
+        assert_eq!(sha256_hex(&canonical_text()), SCHEMA_SUBSET_SHA256, "{}", canonical_text());
+    }
+
+    /// The development script for the hash, run by hand only, never by a
+    /// build or a hosted check:
+    ///   SWBPIPE_AGENT_SCHEMA=<path to codex_app_server_protocol.schemas.json> \
+    ///   cargo test --lib embedded_agent::protocol::tests::subset_hash_from_schema -- --ignored --nocapture
+    /// It renders the schema's covered part by the rule above, prints the
+    /// text and its SHA-256, and compares it with the forms' text.
+    #[test]
+    #[ignore]
+    fn subset_hash_from_schema() {
+        let path = std::env::var("SWBPIPE_AGENT_SCHEMA").expect("SWBPIPE_AGENT_SCHEMA");
+        let bytes = std::fs::read(&path).expect("schema");
+        let schema: Value = serde_json::from_slice(&bytes).expect("schema JSON");
+        let text = schema_text(&schema);
+        println!("schema file sha256 {}", sha256_hex(&String::from_utf8_lossy(&bytes)));
+        println!("{text}subset sha256 {}", sha256_hex(&text));
+        let ours = canonical_text();
+        for (a, b) in text.lines().zip(ours.lines()) {
+            if a != b {
+                println!("SCHEMA {a}\nFORMS  {b}");
+            }
+        }
+        assert_eq!(text, ours);
+    }
+    fn resolve<'a>(schema: &'a Value, node: &'a Value) -> &'a Value {
+        match node.get("$ref").and_then(Value::as_str) {
+            Some(r) => resolve(schema, schema.pointer(&r[1..]).expect("ref")),
+            None => node,
+        }
+    }
+    fn is_null_schema(n: &Value) -> bool {
+        n.get("type") == Some(&json!("null"))
+    }
+    fn sch(schema: &Value, node: &Value) -> String {
+        if node == &json!(true) {
+            return "any".into();
+        }
+        if let Some(r) = node.get("$ref").and_then(Value::as_str) {
+            if r.ends_with("/ThreadItem") {
+                return thread_item(schema, resolve(schema, node));
+            }
+            return sch(schema, resolve(schema, node));
+        }
+        if let Some(all) = node.get("allOf").and_then(Value::as_array) {
+            assert_eq!(all.len(), 1);
+            return sch(schema, &all[0]);
+        }
+        if node.get("properties").is_some() || node.get("type") == Some(&json!("object")) {
+            return sch_object(schema, node, None);
+        }
+        if let Some(any) = node.get("anyOf").and_then(Value::as_array) {
+            let rest: Vec<&Value> = any.iter().filter(|a| !is_null_schema(a)).collect();
+            if rest.len() == 1 && rest.len() < any.len() {
+                return format!("nullable({})", sch(schema, rest[0]));
+            }
+            let mut alts: Vec<String> = rest.iter().map(|a| sch(schema, a)).collect();
+            alts.sort();
+            return format!("oneof({})", alts.join("|"));
+        }
+        if let Some(one) = node.get("oneOf").and_then(Value::as_array) {
+            let alts: Vec<&Value> = one.iter().map(|a| resolve(schema, a)).collect();
+            if alts.iter().all(|a| a.get("enum").is_some()) {
+                let mut w: Vec<&str> = alts.iter().flat_map(|a| a["enum"].as_array().unwrap().iter().map(|x| x.as_str().unwrap())).collect();
+                w.sort_unstable();
+                return format!("words({})", w.join(","));
+            }
+            let tagged = alts.iter().all(|a| a.pointer("/properties/type/enum").and_then(Value::as_array).is_some_and(|e| e.len() == 1));
+            if tagged {
+                let mut variants: Vec<String> = alts
+                    .iter()
+                    .map(|a| format!("{}={}", a["properties"]["type"]["enum"][0].as_str().unwrap(), sch_object(schema, a, Some("type"))))
+                    .collect();
+                variants.sort();
+                return format!("tagged(type){{{}}}", variants.join(";"));
+            }
+            let mut a: Vec<String> = alts.iter().map(|a| sch(schema, a)).collect();
+            a.sort();
+            return format!("oneof({})", a.join("|"));
+        }
+        if let Some(types) = node.get("type").and_then(Value::as_array) {
+            let rest: Vec<&Value> = types.iter().filter(|t| *t != "null").collect();
+            assert_eq!(rest.len(), 1, "{node}");
+            let mut single = node.clone();
+            single["type"] = rest[0].clone();
+            let inner = sch(schema, &single);
+            return if rest.len() < types.len() { format!("nullable({inner})") } else { inner };
+        }
+        match node.get("type").and_then(Value::as_str) {
+            Some("string") => {
+                if let Some(e) = node.get("enum").and_then(Value::as_array) {
+                    let mut w: Vec<&str> = e.iter().map(|x| x.as_str().unwrap()).collect();
+                    w.sort_unstable();
+                    format!("words({})", w.join(","))
+                } else if let Some(min) = node.get("minLength").and_then(Value::as_u64) {
+                    format!("str(min={min})")
+                } else {
+                    "str".into()
+                }
+            }
+            Some("integer") => format!("int({})", node["format"].as_str().unwrap_or("?")),
+            Some("boolean") => "bool".into(),
+            Some("array") => format!("array({})", sch(schema, &node["items"])),
+            other => panic!("unrendered schema node {other:?}: {node}"),
+        }
+    }
+    fn sch_object(schema: &Value, node: &Value, tag: Option<&str>) -> String {
+        let required: Vec<&str> = node
+            .get("required")
+            .and_then(Value::as_array)
+            .map(|r| r.iter().filter_map(Value::as_str).collect())
+            .unwrap_or_default();
+        let mut members: Vec<String> = Vec::new();
+        if let Some(props) = node.get("properties").and_then(Value::as_object) {
+            for (name, prop) in props {
+                if Some(name.as_str()) == tag {
+                    continue;
+                }
+                let req = if required.contains(&name.as_str()) { "req" } else { "opt" };
+                members.push(format!("{name}:{req} {}", sch(schema, prop)));
+            }
+        }
+        let mut sets: Vec<String> = Vec::new();
+        if let Some(any) = node.get("anyOf").and_then(Value::as_array) {
+            for alt in any {
+                if let Some(props) = alt.get("properties").and_then(Value::as_object) {
+                    for (name, prop) in props {
+                        members.push(format!("{name}:opt {}", sch(schema, prop)));
+                    }
+                }
+                let mut set: Vec<&str> = alt["required"].as_array().unwrap().iter().filter_map(Value::as_str).collect();
+                set.sort_unstable();
+                sets.push(set.join(","));
+            }
+        }
+        members.sort();
+        let mut text = format!("object{{{}}}", members.join(";"));
+        if !sets.is_empty() {
+            sets.sort();
+            text.push_str(&format!("anyof-required[{}]", sets.join("|")));
+        }
+        text
+    }
+    fn thread_item(schema: &Value, node: &Value) -> String {
+        const ADMITTED: [&str; 5] = ["agentMessage", "contextCompaction", "dynamicToolCall", "reasoning", "userMessage"];
+        let mut variants = Vec::new();
+        let mut refused = Vec::new();
+        for alt in node["oneOf"].as_array().unwrap() {
+            let word = alt["properties"]["type"]["enum"][0].as_str().unwrap();
+            if ADMITTED.contains(&word) {
+                variants.push(format!("{word}={}", sch_object(schema, alt, Some("type"))));
+            } else {
+                refused.push(word);
+            }
+        }
+        variants.sort();
+        refused.sort_unstable();
+        format!("tagged(type){{{}}}refused[{}]open", variants.join(";"), refused.join(","))
+    }
+    fn schema_text(schema: &Value) -> String {
+        let defs = &schema["definitions"];
+        let v2 = &defs["v2"];
+        let mut request = defs["JSONRPCRequest"].clone();
+        request["properties"].as_object_mut().unwrap().remove("trace");
+        request["required"] = json!(["id", "method", "params"]);
+        let mut notification = defs["JSONRPCNotification"].clone();
+        notification["required"] = json!(["method", "params"]);
+        let mut roots: Vec<(String, String)> = vec![
+            ("envelope:error".into(), sch(schema, &defs["JSONRPCError"])),
+            ("envelope:notification".into(), sch(schema, &notification)),
+            ("envelope:request".into(), sch(schema, &request)),
+            ("envelope:response".into(), sch(schema, &defs["JSONRPCResponse"])),
+            ("request:item/tool/call".into(), sch(schema, &defs["DynamicToolCallParams"])),
+            ("response:initialize".into(), sch(schema, &defs["InitializeResponse"])),
+            ("response:thread/start".into(), sch(schema, &v2["ThreadStartResponse"])),
+            ("response:turn/interrupt".into(), sch(schema, &v2["TurnInterruptResponse"])),
+            ("response:turn/start".into(), sch(schema, &v2["TurnStartResponse"])),
+        ];
+        for variant in defs["ServerNotification"]["oneOf"].as_array().unwrap() {
+            let method = variant["properties"]["method"]["enum"][0].as_str().unwrap();
+            if NOTIFICATION_PARAMS.iter().any(|(m, _)| *m == method) {
+                roots.push((format!("notification:{method}"), sch(schema, &variant["properties"]["params"])));
+            }
+        }
+        roots.sort();
+        roots.iter().map(|(name, form)| format!("{name} = {form}\n")).collect()
     }
 
     #[test]
