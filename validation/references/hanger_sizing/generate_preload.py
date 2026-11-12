@@ -374,6 +374,16 @@ def emit(res):
                     "u_nodes_m": {"N%d" % (i + 1): fl(v)
                                   for i, v in enumerate(c["u_nodes"])},
                     "published_support_force_n": {k: fl(v) for k, v in c["forces"].items()},
+                    # A published row, not a mechanics value: the solve publishes
+                    # each acting spring's cold load as the support's applied
+                    # force; a held spring publishes none.
+                    "published_applied_force_n": {
+                        h: (None if c["held"] else fl(r["_fc"][h]))
+                        for h, _, _, _ in hang},
+                    "applied_force_null_reason": (
+                        {h: "held in a test case: the spring is a rigid restraint "
+                            "and its cold load does not act" for h, _, _, _ in hang}
+                        if c["held"] else {}),
                 },
             }
             if not c["held"]:

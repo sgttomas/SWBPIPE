@@ -317,6 +317,14 @@ routes; the test cases run on the exact route only.
   u_i + Σ_j f_ij·k_j·u_j = Σ_l f_il·F_l + Σ_j f_ij·(F_cold,j + k_j·g_j),
   solved by Cramer's rule. Cases PB-WT, PB-EMPTY and PB-BASE (SH-5's base
   moved +0.003 m).
+- **Two published rows per hanger:** each case gives every hanger's
+  `published_support_force_n` (F_cold − k·(u − g), or the held restraint's
+  reaction) and its `published_applied_force_n`. The applied force is the
+  constant the solve publishes for an acting spring's cold load, along +Z. It
+  equals F_cold. It is a statement of what is published, not a computed
+  mechanics value. A held spring publishes no applied force: its row is null,
+  with the reason in `applied_force_null_reason`. That absence is part of the
+  expectation.
 - **Force plus spring:** in every unheld case the displacements equal those of
   the same model with each hanger replaced by a plain spring of rate k (force
   −k·(u − g)) and a separately applied force F_cold at its node.

@@ -183,6 +183,10 @@
               "S-1": 2355.7252288914965,
               "S-5": 3355.7252288914965
             },
+            "published_applied_force_n": {
+              "SH-3": 6000.0
+            },
+            "applied_force_null_reason": {},
             "force_plus_spring_twin": {
               "SH-3": {
                 "plain_spring_force_n": 288.5495422170069,
@@ -214,6 +218,10 @@
               "S-1": -2615.267277043991,
               "S-5": -2615.267277043991
             },
+            "published_applied_force_n": {
+              "SH-3": 6000.0
+            },
+            "applied_force_null_reason": {},
             "force_plus_spring_twin": {
               "SH-3": {
                 "plain_spring_force_n": -769.4654459120184,
@@ -260,6 +268,10 @@
               "S-1": 2617.2519565958955,
               "S-5": 3617.2519565958955
             },
+            "published_applied_force_n": {
+              "SH-3": 6000.0
+            },
+            "applied_force_null_reason": {},
             "force_plus_spring_twin": {
               "SH-3": {
                 "plain_spring_force_n": -234.50391319179127,
@@ -296,6 +308,10 @@
               "S-1": -1997.519150560119,
               "S-5": -497.519150560119
             },
+            "published_applied_force_n": {
+              "SH-3": 6000.0
+            },
+            "applied_force_null_reason": {},
             "force_plus_spring_twin": {
               "SH-3": {
                 "plain_spring_force_n": -504.961698879762,
@@ -340,6 +356,10 @@
               "S-1": 2973.4733553753686,
               "S-5": 5473.473355375369
             },
+            "published_applied_force_n": {
+              "SH-3": 6000.0
+            },
+            "applied_force_null_reason": {},
             "force_plus_spring_twin": {
               "SH-3": {
                 "plain_spring_force_n": 553.0532892492632,
@@ -390,6 +410,12 @@
               "S-1": 2625.0,
               "SH-3": 13750.0,
               "S-5": 3625.0
+            },
+            "published_applied_force_n": {
+              "SH-3": null
+            },
+            "applied_force_null_reason": {
+              "SH-3": "held in a test case: the spring is a rigid restraint and its cold load does not act"
             }
           }
         },
@@ -435,6 +461,10 @@
               "S-1": 6003.053566181821,
               "S-5": 7003.053566181821
             },
+            "published_applied_force_n": {
+              "SH-3": 6000.0
+            },
+            "applied_force_null_reason": {},
             "force_plus_spring_twin": {
               "SH-3": {
                 "plain_spring_force_n": 993.8928676363571,
@@ -655,6 +685,11 @@
               "S-1": 3586.6329519311143,
               "S-7": 1363.0323294898742
             },
+            "published_applied_force_n": {
+              "SH-3": 5000.0,
+              "SH-5": 7500.0
+            },
+            "applied_force_null_reason": {},
             "force_plus_spring_twin": {
               "SH-3": {
                 "plain_spring_force_n": 689.7664256276455,
@@ -695,6 +730,11 @@
               "S-1": -3319.6835318646918,
               "S-7": -3676.881450815949
             },
+            "published_applied_force_n": {
+              "SH-3": 5000.0,
+              "SH-5": 7500.0
+            },
+            "applied_force_null_reason": {},
             "force_plus_spring_twin": {
               "SH-3": {
                 "plain_spring_force_n": -2037.5143870865652,
@@ -754,6 +794,11 @@
               "S-1": 3505.089101251098,
               "S-7": 1112.0879808958482
             },
+            "published_applied_force_n": {
+              "SH-3": 5000.0,
+              "SH-5": 7500.0
+            },
+            "applied_force_null_reason": {},
             "force_plus_spring_twin": {
               "SH-3": {
                 "plain_spring_force_n": 601.909778393652,
