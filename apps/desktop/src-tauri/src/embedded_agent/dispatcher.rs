@@ -1731,6 +1731,17 @@ mod tests {
     }
 
     #[test]
+    fn a_refusal_with_no_findings_and_its_own_text_is_admitted_without_a_job_or_run() {
+        let (mut d, mut p) = setup();
+        let (evaluated, r) = admitted_solve(&mut d, &mut p, 1, json!({}));
+        let mut raw: Value = serde_json::from_slice(&outcome("rejected", evaluated.clone(), solve_data(None, json!([]), 0, Value::Null))).unwrap();
+        raw["message"] = json!("Not solved: the solve was refused. The model could not be read. No run and no results exist for this call.");
+        let raw = serde_json::to_vec(&raw).unwrap();
+        let completion = d.record_completion(origin(), &r, &raw, None, run_evidence("rejected", None, &evaluated)).unwrap();
+        assert_eq!(completion.actual().raw_outcome(), raw);
+    }
+
+    #[test]
     fn a_failed_solve_carries_its_failure_and_no_run_and_a_completed_one_neither() {
         let (mut d, mut p) = setup();
         let (evaluated, r) = admitted_solve(&mut d, &mut p, 1, json!({}));

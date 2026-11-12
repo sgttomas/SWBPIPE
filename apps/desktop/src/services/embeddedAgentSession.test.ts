@@ -391,3 +391,68 @@ describe('result pages know their load case or combination',()=>{
   await session.close();
  });
 });
+
+describe('a refusal stays informative inside the result cap',()=>{
+ const outcomeOf=(session:EmbeddedAgentSession,ref='invented-session:1')=>JSON.parse(session.actual(ref)!.outcome);
+ const loneSurrogate=/[\ud800-\udbff](?![\udc00-\udfff])|(?<![\ud800-\udbff])[\udc00-\udfff]/;
+ async function refuse(rejected:Partial<Extract<AgentSolveOutcome,{kind:'rejected'}>>){
+  vi.useFakeTimers();const harness=setup();
+  vi.mocked(harness.owner.solve).mockResolvedValueOnce({kind:'rejected',jobId:'job-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MODEL_INCOMPLETE',diagnostics:[],notListed:0,...rejected});
+  harness.call('swbpipe_solve');await harness.session.start('revision');await harness.session.poll();await drain();
+  return harness;
+ }
+ it('lists as many findings as fit a refusal larger than the cap and counts the rest, never an execution error',async()=>{
+  const wide=(i:number):Diagnostic=>({code:`INVENTED_WIDE_${i}`,severity:'blocking',message:'€'.repeat(500),affected_refs:Array.from({length:8},(_,j)=>`${i}:${j}:`.padEnd(160,'€'))});
+  const {session}=await refuse({diagnostics:Array.from({length:20},(_,i)=>wide(i)),notListed:5});
+  const raw=session.actual('invented-session:1')!.outcome,refused=JSON.parse(raw);
+  expect(refused.status).toBe('rejected');expect(new TextEncoder().encode(raw).byteLength).toBeLessThanOrEqual(65536);
+  const listed=refused.data.diagnostics.length;expect(listed).toBeGreaterThan(0);expect(listed).toBeLessThan(16);
+  expect(refused.data.diagnosticsNotListed).toBe(5+20-listed);
+  expect(refused.message).toContain(`25 findings, ${5+20-listed} not listed`);
+  await session.close();
+ });
+ it('cuts a multi-megabyte message to a bounded outcome and never ends a cut in half a surrogate pair',async()=>{
+  const huge='😀'.repeat(2_000_000);
+  const {session,owner,call}=await refuse({diagnostics:[{code:'INVENTED_HUGE',severity:'error',message:huge,affected_refs:['x'.repeat(5_000_000),'node:a']}],message:`a${huge}`});
+  const refused=outcomeOf(session);
+  const text:string=refused.data.diagnostics[0].message;
+  expect(Array.from(text)).toHaveLength(500);expect(text.endsWith('😀…')).toBe(true);expect(loneSurrogate.test(text)).toBe(false);
+  expect(refused.data.diagnostics[0].affectedRefs).toEqual(['node:a']);
+  expect(Array.from(refused.message as string).length).toBeLessThanOrEqual(1000);expect(loneSurrogate.test(refused.message)).toBe(false);
+  // An odd cut position: the prefix before the ellipsis is whole characters.
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'failed',failure:'error',message:`ab${'😀'.repeat(1_000_000)}`,modelHash:engineHash,solverMode:'sparse_interactive'});
+  call('swbpipe_solve',{},'invented-session:2');await session.poll();await drain();
+  const failed:string=outcomeOf(session,'invented-session:2').data.failure.message;
+  expect(Array.from(failed)).toHaveLength(500);expect(loneSurrogate.test(failed)).toBe(false);expect(failed.startsWith('ab😀')).toBe(true);
+  await session.close();
+ });
+ it('says how many findings and how many are not listed, with the refusal\'s own text when it gives one',async()=>{
+  const {session}=await refuse({diagnostics:[{code:'INVENTED_A',severity:'blocking',message:'Invented.'}],notListed:1,message:'Invented refusal text.'});
+  const refused=outcomeOf(session);
+  expect(refused.message).toContain('2 findings, 1 not listed');expect(refused.message).toContain('Invented refusal text.');
+  await session.close();
+ });
+ it('carries a refusal\'s text when it gives no findings, and invents none',async()=>{
+  const {session}=await refuse({jobId:null,modelHash:null,message:'The model could not be read.'});
+  const refused=outcomeOf(session);
+  expect(refused.status).toBe('rejected');expect(refused.message).toContain('Not solved: the solve was refused. The model could not be read.');
+  expect(refused.message).not.toMatch(/finding/);expect(refused.data.diagnostics).toEqual([]);expect(refused.data.diagnosticsNotListed).toBe(0);
+  await session.close();
+ });
+ it('says plainly that no reason was reported when a refusal has neither findings nor text',async()=>{
+  const {session}=await refuse({});
+  const refused=outcomeOf(session);
+  expect(refused.status).toBe('rejected');expect(refused.message).toContain('Not solved: the solve was refused. No reason was reported.');
+  expect(refused.data.diagnostics).toEqual([]);
+  await session.close();
+ });
+ it('lists summary case and combination ids within their byte budget, counting all',async()=>{
+  vi.useFakeTimers();const {session,model}=setup();
+  Object.assign(model as unknown as Record<string,unknown>,{load_cases:Array.from({length:40},(_,i)=>({id:`${i}:`.padEnd(160,'€')})),combinations:[]});
+  await session.start('revision');await session.poll();await drain();
+  const data=JSON.parse(session.actual('invented-session:1')!.outcome).data;
+  expect(data.loadCases.count).toBe(40);expect(data.loadCases.ids.length).toBeLessThan(32);
+  expect(new TextEncoder().encode(JSON.stringify(data.loadCases.ids)).byteLength).toBeLessThanOrEqual(8*1024+64);
+  await session.close();
+ });
+});

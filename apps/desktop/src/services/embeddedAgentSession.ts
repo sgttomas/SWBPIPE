@@ -26,12 +26,13 @@ export type AgentSolveFailure='resource_refused'|'result_too_large'|'job_failed'
  * - rejected: the model was refused. From a published blocked result (`jobId` its job), or
  *   from a solve gate before any job started (`jobId` null); either way no run and no
  *   result is relied on. `diagnostics` are the findings as the Diagnostics panel shows them;
- *   `notListed` counts findings the source did not list.
+ *   `notListed` counts findings the source did not list; `message`, when given, is the
+ *   refusal's own text (a model that could not be read may give a message and no findings).
  * - failed: the solve did not produce a result; `message` is the job's or the session's.
  * - not_started: nothing was started (another solve holds the run). */
 export type AgentSolveOutcome=
  | Readonly<{kind:'completed';jobId:string;runId:string;modelHash:ModelHashEvidence;solverMode:AgentSolverMode;health:string}>
- | Readonly<{kind:'rejected';jobId:string|null;modelHash:ModelHashEvidence|null;solverMode:AgentSolverMode;health:string;diagnostics:readonly Diagnostic[];notListed:number}>
+ | Readonly<{kind:'rejected';jobId:string|null;modelHash:ModelHashEvidence|null;solverMode:AgentSolverMode;health:string;diagnostics:readonly Diagnostic[];notListed:number;message?:string}>
  | Readonly<{kind:'failed';failure:AgentSolveFailure;message:string;modelHash:ModelHashEvidence|null;solverMode:AgentSolverMode}>
  | Readonly<{kind:'not_started';message:string}>;
 export type AgentRunReceipt=Extract<AgentSolveOutcome,{kind:'completed'}>;
@@ -77,6 +78,10 @@ const RECORD_PAGE_BYTES=48*1024,RECORD_TEXT_BYTES=16384,ID_CHARS=160;
 // A result page stops early rather than outgrow the catalog's result bytes; the cursor resumes it.
 const RESULT_PAGE_BYTES=48*1024;
 const FINDINGS=16,FINDING_REFS=8,FINDING_TEXT=500;
+// Encoded bytes of the listed findings, and of each summary identifier list. With the outcome's
+// other members (two texts of at most 1000 characters, escaped, the basis and the hash) they stay
+// well inside the catalog's 64 KiB result: a large refusal lists what fits and counts the rest.
+const FINDINGS_BYTES=32*1024,ID_LIST_BYTES=8*1024;
 const SEVERITIES=['info','warning','error','blocking'];
 const utf8=new TextEncoder();
 const byteLength=(text:string)=>utf8.encode(text).byteLength;
@@ -88,30 +93,64 @@ function namedIds(ids:readonly string[],budget:number):string{
 }
 const blankText=(value:unknown)=>typeof value!=='string'||!value.trim();
 /** At most `limit` Unicode characters (the catalog counts characters), an ellipsis marking a cut. */
-function clip(text:string,limit:number):string{const chars=Array.from(text);return chars.length<=limit?text:`${chars.slice(0,limit-1).join('')}…`;}
-const chars=(text:string)=>Array.from(text).length;
+const highSurrogate=(text:string,i:number)=>{const c=text.charCodeAt(i);return c>=0xd800&&c<=0xdbff&&i+1<text.length&&(text.charCodeAt(i+1)&0xfc00)===0xdc00;};
+/** The index just past the first `limit` characters (code points) of `text`, or -1 when it has
+ * no more than `limit`. It reads at most `limit` + 1 characters and copies nothing. */
+function prefixEnd(text:string,limit:number):number{
+ let i=0,n=0;
+ while(i<text.length){if(n===limit)return i;i+=highSurrogate(text,i)?2:1;n++;}
+ return -1;
+}
+const fitsChars=(text:string,limit:number)=>prefixEnd(text,limit)<0;
+/** Whether a (bounded) text is well-formed UTF-16, as the host's JSON parser requires. */
+function wellFormed(text:string):boolean{
+ for(let i=0;i<text.length;i++){const c=text.charCodeAt(i);if(highSurrogate(text,i))i++;else if(c>=0xd800&&c<=0xdfff)return false;}
+ return true;
+}
+/** A bounded text with any lone surrogate replaced by U+FFFD. */
+function toWellFormed(text:string):string{
+ if(wellFormed(text))return text;
+ let out='';for(let i=0;i<text.length;i++){const c=text.charCodeAt(i);if(highSurrogate(text,i)){out+=text.slice(i,i+2);i++;}else out+=c>=0xd800&&c<=0xdfff?'\ufffd':text[i];}
+ return out;
+}
+/** At most `limit` characters (the catalog counts characters): a prefix taken without copying the
+ * whole input, cut between characters so no surrogate pair is split, an ellipsis marking a cut. */
+function clip(text:string,limit:number):string{
+ if(fitsChars(text,limit))return toWellFormed(text);
+ return `${toWellFormed(text.slice(0,prefixEnd(text,limit-1)))}…`;
+}
 /** A short identifier as the catalog states it: a non-empty string of at most 160 characters,
  * null when absent; `undefined` when present but not representable (never cut). */
 function shortId(value:unknown):string|null|undefined{
  if(value===undefined||value===null||value==='')return null;
- return typeof value==='string'&&chars(value)<=ID_CHARS?value:undefined;
+ return typeof value==='string'&&fitsChars(value,ID_CHARS)&&wellFormed(value)?value:undefined;
 }
-/** The first identifiers that fit the catalog's list, with their total. */
+const isShortId=(value:unknown):value is string=>typeof value==='string'&&!!value&&fitsChars(value,ID_CHARS)&&wellFormed(value);
+/** The first identifiers that fit the catalog's list (32, and its byte budget), with their total. */
 function boundedIds(ids:readonly unknown[]):{count:number;ids:string[]}{
- return {count:ids.length,ids:ids.filter((id):id is string=>typeof id==='string'&&!!id&&chars(id)<=ID_CHARS).slice(0,32)};
+ const listed:string[]=[];let bytes=0;
+ for(const id of ids){
+  if(listed.length>=32)break;if(!isShortId(id))continue;
+  const size=byteLength(JSON.stringify(id))+1;if(bytes+size>ID_LIST_BYTES)break;bytes+=size;listed.push(id);
+ }
+ return {count:ids.length,ids:listed};
 }
 /** A refusal's findings in the catalog's bounds: code, severity, message and affected
- * references, at most 16; a finding that cannot be stated exactly (a code or severity outside
- * the catalog) is counted among those not listed, never altered. Messages are cut at 500
- * characters, references at eight. */
+ * references, at most 16 and within an encoded-byte budget; listing stops at the first that
+ * would not fit, and every finding not listed is counted. A finding that cannot be stated
+ * exactly (a code or severity outside the catalog) is counted among those not listed, never
+ * altered. Messages are cut at 500 characters, references at eight. */
 export function boundedFindings(diagnostics:readonly Diagnostic[],notListed:number):{diagnostics:{code:string;severity:string;message:string;affectedRefs:string[]}[];notListed:number}{
- const listed=[];
+ const listed:{code:string;severity:string;message:string;affectedRefs:string[]}[]=[];let bytes=0;
  for(const diagnostic of diagnostics){
   if(listed.length>=FINDINGS)break;
-  if(typeof diagnostic?.code!=='string'||!diagnostic.code||chars(diagnostic.code)>ID_CHARS||!SEVERITIES.includes(diagnostic.severity))continue;
+  if(!isShortId(diagnostic?.code)||!SEVERITIES.includes(diagnostic.severity))continue;
   const message=typeof diagnostic.message==='string'&&diagnostic.message?clip(diagnostic.message,FINDING_TEXT):'No message stated.';
-  const affectedRefs=(Array.isArray(diagnostic.affected_refs)?diagnostic.affected_refs:[]).filter((ref):ref is string=>typeof ref==='string'&&!!ref&&chars(ref)<=ID_CHARS).slice(0,FINDING_REFS);
-  listed.push({code:diagnostic.code,severity:diagnostic.severity,message,affectedRefs});
+  const affectedRefs:string[]=[];
+  for(const ref of Array.isArray(diagnostic.affected_refs)?diagnostic.affected_refs:[]){if(affectedRefs.length>=FINDING_REFS)break;if(isShortId(ref))affectedRefs.push(ref);}
+  const finding={code:diagnostic.code,severity:diagnostic.severity,message,affectedRefs};
+  const size=byteLength(JSON.stringify(finding));if(bytes+size>FINDINGS_BYTES)break;bytes+=size;
+  listed.push(finding);
  }
  const whole=Number.isSafeInteger(notListed)&&notListed>0?notListed:0;
  return {diagnostics:listed,notListed:whole+diagnostics.length-listed.length};
@@ -397,7 +436,12 @@ export class EmbeddedAgentSession {
   }
   if(outcome.kind==='rejected'){
    const findings=boundedFindings(outcome.diagnostics,outcome.notListed),total=findings.diagnostics.length+findings.notListed;
-   const message=`Not solved: the model was refused (${total} finding${total===1?'':'s'}${findings.notListed?`, ${findings.notListed} not listed`:''}). No run and no results exist for this call. Address the findings before solving again.`;
+   // The tool's message: how many findings and how many are not listed, the refusal's own
+   // text cut to fit 1000 characters, or a plain statement that no reason was reported.
+   const head=total?`Not solved: the model was refused (${total} finding${total===1?'':'s'}${findings.notListed?`, ${findings.notListed} not listed`:''}).`:'Not solved: the solve was refused.';
+   const tail=` No run and no results exist for this call.${total?' Address the findings before solving again.':''}`;
+   const stated=typeof outcome.message==='string'&&outcome.message.trim()?outcome.message:null;
+   const message=`${head}${stated?` ${clip(stated,1000-head.length-tail.length-1)}`:total?'':' No reason was reported.'}${tail}`;
    return this.result(call,'rejected',message,{runHandle:null,runId:null,evaluatedModelHash,health:clip(outcome.health||'MODEL_INCOMPLETE',1000),solverMode:outcome.solverMode,diagnostics:findings.diagnostics,diagnosticsNotListed:findings.notListed,failure:null},{kind:'run',handle:null,runId:null,basis:call.basis,status:'rejected',nativeJobId:outcome.jobId});
   }
   const message=`Not solved: the solve failed (${outcome.failure}). No run and no results exist for this call; it was not retried.`;
