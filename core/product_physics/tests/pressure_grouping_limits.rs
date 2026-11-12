@@ -218,7 +218,7 @@ fn values<'a>(output: &'a Value, kind: &str) -> Vec<f64> {
     output["results"].as_array().unwrap().iter().filter(|r| r["kind"] == kind).map(|r| r["value"].as_f64().unwrap()).collect()
 }
 
-const EXCEPTION_BASIS: &str = "straight_region_interior_cap_pairs_representation_guard_departure_thrust";
+const EXCEPTION_BASIS: &str = "straight_region_interior_cap_pairs_cap_remainder_retained";
 
 fn assembly(output: &Value) -> &Value {
     &output["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]
@@ -237,7 +237,7 @@ fn assert_screen(output: &Value, by_exception: bool, label: &str) -> Value {
         assert!(screen.is_null() || screen.as_f64().unwrap() > 1e-9, "{label}: the original screen {screen} must have failed");
         let record = record.unwrap_or_else(|| panic!("{label}: exception record"));
         assert_eq!(record["basis"], EXCEPTION_BASIS, "{label}");
-        let ratio = record["thrust_to_bore_force_ratio"].as_f64().unwrap();
+        let ratio = record["remainder_to_bore_force_ratio"].as_f64().unwrap();
         let bound = record["consistency_bound_ratio"].as_f64().unwrap();
         assert!(ratio >= 0.0 && ratio <= bound, "{label}: ratio {ratio} bound {bound}");
         record.clone()
@@ -276,12 +276,13 @@ fn assert_refused(input: &Value, label: &str) {
 }
 
 /// An anchored closed straight run without pressure elongation. The formed
-/// load at an interior node is the thrust of the bore and alignment
-/// differences the region guards admit, and the record's bound only checks
-/// that it is consistent with them. The response is observed, not bounded by
+/// load at an interior node is the remainder of the two members' cap loads,
+/// from the bore and alignment differences the region guards admit, from the
+/// rounding of each member's direction and bore area, or both, and the
+/// record's bound only checks that it is consistent with what they admit. The response is observed, not bounded by
 /// it: for these small models the reactions and the effective force S are
-/// within 1e-9*p*Ai of the closed form 0 of the idealised reference with
-/// equal bores and exact collinearity, and the wall force N_w within 1e-9*p*Ai
+/// within 1e-9*p*Ai of the closed form 0 of an idealised region in which the
+/// cap loads cancel, and the wall force N_w within 1e-9*p*Ai
 /// of its closed form p*Ai. `expected` is the standing the product publishes
 /// (solve quality, and whether the integrity diagnostic names the loads'
 /// formation as its reason), recorded for each model.
@@ -321,7 +322,7 @@ fn a_closed_straight_run_whose_members_are_equal_within_the_region_guards_is_adm
     // Outside diameters 1 and 60 ulps apart: bores equal within 64 epsilon.
     // Each is published Sensitive because K-D5, re-forming every pressure
     // operand from the recorded geometry, finds the formation of the
-    // interior thrust too uncertain relative to the response it drives.
+    // interior remainder too uncertain relative to the response it drives.
     assert_closed_off(&chain(&x, &[0.12, next_up(0.12, 1)], &[0, 2]), true, ("sensitive", true), "1 ulp");
     assert_closed_off(&chain(&x, &[0.12, next_up(0.12, 60)], &[0, 2]), true, ("sensitive", true), "60 ulps");
     // Three members with mixed ulps: two interior nodes, each a cap pair.
@@ -364,10 +365,10 @@ fn a_member_of_a_millionth_of_the_span_within_the_collinearity_guard_is_admitted
     // span off the chord: admitted by the collinearity guard, which is
     // relative to the span and not to a member's length, and of the
     // exception's family. The members' directions differ by about 1e-8, so
-    // the thrust at the interior node is about 1e-8 of the caps that form it.
+    // the remainder at the interior node is about 1e-8 of the caps that form it.
     // The former constant 1e-9 refused it; it had no derivation from the
     // guards, and the bound derived from them admits what they admit (the
-    // thrust is 0.33 of it here). Published Sensitive: the solve's condition
+    // remainder is 0.33 of it here). Published Sensitive: the solve's condition
     // estimate is below the square root of epsilon, so K-D5 does not run and
     // the diagnostic names the conditioning, not the loads' formation.
     let input = chain(&skew(1e-6, 50.0 * f64::EPSILON * 3.0), &[0.12, 0.12], &[0, 2]);
@@ -406,7 +407,7 @@ fn the_consistency_bound_holds_at_the_guards_edges_for_every_pressure() {
     let record = assert_screen(&output, true, "pairwise bores");
     // The bore term alone: up to 2*64ε of the radius between the two members (each
     // against the reference, on opposite sides), so above one guard's 128ε of the area.
-    let ratio = record["thrust_to_bore_force_ratio"].as_f64().unwrap();
+    let ratio = record["remainder_to_bore_force_ratio"].as_f64().unwrap();
     assert!(ratio > 128.0 * f64::EPSILON, "pairwise bores: ratio {ratio}");
     // A short member at the collinearity guard's edge, on the other side of the chord from its neighbour.
     let (u, n) = ([2.0 / 13f64.sqrt(), 3.0 / 13f64.sqrt()], [-3.0 / 13f64.sqrt(), 2.0 / 13f64.sqrt()]);
@@ -420,14 +421,14 @@ fn the_consistency_bound_holds_at_the_guards_edges_for_every_pressure() {
         let output = serde_json::to_value(solve(input, MODES[0])).unwrap();
         assert_eq!(output["status"]["mechanics"], "MECHANICS_SOLVED", "p={p}: {}", output["diagnostics"]);
         let record = assert_screen(&output, true, &format!("guard edge p={p}"));
-        let used = record["thrust_to_bore_force_ratio"].as_f64().unwrap() / record["consistency_bound_ratio"].as_f64().unwrap();
+        let used = record["remainder_to_bore_force_ratio"].as_f64().unwrap() / record["consistency_bound_ratio"].as_f64().unwrap();
         assert!(used > 0.5 && used < 1.0, "p={p}: used {used}");
         assert_eq!(standing(&output).0, "sensitive", "p={p}");
         match &first {
             None => first = Some(record),
             Some(base) => {
                 assert_eq!(record["consistency_bound_ratio"], base["consistency_bound_ratio"], "p={p}");
-                let (a, b) = (record["thrust_to_bore_force_ratio"].as_f64().unwrap(), base["thrust_to_bore_force_ratio"].as_f64().unwrap());
+                let (a, b) = (record["remainder_to_bore_force_ratio"].as_f64().unwrap(), base["remainder_to_bore_force_ratio"].as_f64().unwrap());
                 assert!((a - b).abs() <= 1e-5 * b, "p={p}: {a} against {b}");
             }
         }
@@ -554,7 +555,7 @@ fn the_readers_recompute_the_exception_from_the_published_groups() {
             let model = &input["model"];
             let verdict = |document: &Value| open_pipe_stress_result_export::reader_verdict::validate("pressure", document, Some(model), None);
             assert_eq!(verdict(&output)["ok"], true, "{index} {mode:?}: {}", verdict(&output));
-            let ratio = record["thrust_to_bore_force_ratio"].as_f64().unwrap();
+            let ratio = record["remainder_to_bore_force_ratio"].as_f64().unwrap();
             let bound = record["consistency_bound_ratio"].as_f64().unwrap();
             let screen = output.pointer(&format!("{RHS}/cancellation_screen")).unwrap().as_f64().unwrap();
             let rhs = output.pointer(RHS).unwrap();
@@ -563,7 +564,7 @@ fn the_readers_recompute_the_exception_from_the_published_groups() {
             assert_eq!(refused(&output, &set("/cancellation_screen_exception", None)), "SOURCE_PHYSICS_RHS_SCREEN");
             assert_eq!(refused(&output, &set("/cancellation_screen_exception/basis", Some(json!("straight_region_interior_cap_pairs_without_pressure_elongation")))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION");
             assert_eq!(refused(&output, &set("/cancellation_screen_exception/extra", Some(json!(0)))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION");
-            assert_eq!(refused(&output, &set("/cancellation_screen_exception/thrust_to_bore_force_ratio", Some(json!(next_up(ratio, 1))))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO");
+            assert_eq!(refused(&output, &set("/cancellation_screen_exception/remainder_to_bore_force_ratio", Some(json!(next_up(ratio, 1))))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO");
             assert_eq!(refused(&output, &set("/cancellation_screen_exception/consistency_bound_ratio", Some(json!(next_up(bound, 1))))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BOUND");
             assert_eq!(refused(&output, &set("/cancellation_screen_exception/node_ref", Some(rhs["node_order"][0].clone()))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_NODE");
             let mut swapped = record["member_pipe_ids"].clone();
@@ -656,7 +657,7 @@ fn the_readers_recompute_the_exception_from_the_published_groups() {
         let output = serde_json::to_value(solve(chain(&x, &[0.12, 0.12], &[0, 2]), mode)).unwrap();
         validate_pressure_evidence(&output).unwrap();
         let record = json!({"basis": EXCEPTION_BASIS, "node_ref": "node:C1", "member_pipe_ids": ["pipe:C0", "pipe:C1"], "member_lengths_m": [3.0, 3.0],
-            "region_span_m": LENGTH, "thrust_to_bore_force_ratio": 0.0, "consistency_bound_ratio": 1e-13});
+            "region_span_m": LENGTH, "remainder_to_bore_force_ratio": 0.0, "consistency_bound_ratio": 1e-13});
         assert_eq!(refused(&output, &set("/cancellation_screen_exception", Some(record.clone()))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BESIDE_PASSING_SCREEN");
         let mut open = chain(&x, &[0.12, next_up(0.12, 1)], &[0, 2]);
         open["model"]["load_cases"][0]["pressure_regions"][0]["terminals"][1]["closure_transfer"] = json!("separately_supported_or_compensated");
@@ -667,8 +668,8 @@ fn the_readers_recompute_the_exception_from_the_published_groups() {
     }
 }
 
-const WARNING: &str = "PRESSURE_REGION_DEPARTURE_THRUST_RETAINED";
-const WARNING_MESSAGE: &str = "Small differences in bore or alignment between adjacent members of this pressure region, within the region's representation limits, produce pressure thrust at interior nodes in this model. The solver retains that thrust. The exception to the pressure cancellation screen that admitted this case does not establish that the thrust's effect is negligible; the case's numerical standing concerns the recorded geometry, not an idealised region of equal bores and exact collinearity.";
+const WARNING: &str = "PRESSURE_REGION_CAP_REMAINDER_RETAINED";
+const WARNING_MESSAGE: &str = "At interior nodes of this pressure region the cap loads of adjacent members do not cancel exactly in this model. The remainder comes from small differences in bore or alignment within the region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
 
 fn warnings(output: &Value) -> Vec<Value> {
     output["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == WARNING).cloned().collect()
@@ -795,5 +796,365 @@ fn the_warning_names_the_admitted_case_s_region_and_node_only() {
         open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence(&output).unwrap();
         let verdict = open_pipe_stress_result_export::reader_verdict::validate("pressure", &output, Some(&input["model"]), None);
         assert_eq!(verdict["ok"], true, "{mode:?}: {verdict}");
+    }
+}
+
+// DEL-04-07, the widened family (one member's term alone on an axis where the
+// other member's formed direction component is exactly zero), its witnesses,
+// and the readers' two kinds of check: consistency of the published evidence
+// with itself (no model) and binding to the model's geometry (the verdict
+// given the model).
+
+const EPS: f64 = f64::EPSILON;
+
+/// The second review's chain: A-M along x (its y component a source-known
+/// zero), M-N off the chord by 63ε of the span in y, N-B back to the chord.
+fn reviewer_chain() -> Value {
+    let up = next_up(0.12, 1);
+    chain(&[[0.0; 3], [2.0, 0.0, 0.0], [3.0, 63.0 * EPS * LENGTH, 0.0], [LENGTH, 0.0, 0.0]], &[0.12, up, up], &[0, 3])
+}
+
+/// A run along y (the members' y reference is z) whose second interior node
+/// is off the axis in x only, by 40ε of the span; outside diameters one ulp
+/// apart member to member (with bit-equal bores the first node's two y terms
+/// share one group, cancel exactly and the original screen passes).
+fn axis_run_offset_in_x() -> Value {
+    chain(&[[0.0; 3], [0.0, 2.0, 0.0], [40.0 * EPS * LENGTH, 4.0, 0.0], [0.0, LENGTH, 0.0]], &[0.12, next_up(0.12, 1), next_up(0.12, 2)], &[0, 3])
+}
+
+/// A run in the x-z plane along (3, 0, 4)/5, its interior node off the chord
+/// in that plane by 40ε of the span: every y component is a source-known
+/// zero, so the interior node's y axis holds no term of either member.
+fn plane_run() -> Value {
+    let (u, n) = ([0.6, 0.0, 0.8], [-0.8, 0.0, 0.6]);
+    let at = |t: f64, off: f64| [LENGTH * t * u[0] + off * n[0], 0.0, LENGTH * t * u[2] + off * n[2]];
+    chain(&[[0.0; 3], at(0.5, 40.0 * EPS * LENGTH), at(1.0, 0.0)], &[0.12, next_up(0.12, 2)], &[0, 2])
+}
+
+/// The number of (interior node, axis) pairs of a solved case whose published
+/// groups hold exactly one term.
+fn lone_terms(output: &Value) -> usize {
+    let rhs = assembly(output);
+    let terminals = output["contract_evidence"]["pressure"].as_array().unwrap().iter()
+        .flat_map(|r| r["terminals"].as_array().unwrap().iter().map(|t| t["node_ref"].clone())).collect::<Vec<_>>();
+    let mut counts: std::collections::BTreeMap<(String, String), usize> = Default::default();
+    for group in rhs["groups"].as_array().unwrap() {
+        if terminals.contains(&group["node_ref"]) {
+            continue;
+        }
+        *counts.entry((group["node_ref"].to_string(), group["component"].to_string())).or_default() += group["terms"].as_array().unwrap().len();
+    }
+    counts.values().filter(|&&n| n == 1).count()
+}
+
+fn verdict(output: &Value, model: &Value) -> Value {
+    open_pipe_stress_result_export::reader_verdict::validate("pressure", output, Some(model), None)
+}
+
+#[test]
+fn the_widened_family_admits_its_zero_component_witnesses_in_both_solver_modes() {
+    use open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence;
+    for (label, input, lone) in [("reviewer's chain", reviewer_chain(), true), ("axis run offset in x", axis_run_offset_in_x(), true), ("x-z plane run", plane_run(), false)] {
+        for mode in MODES {
+            let output = serde_json::to_value(solve(input.clone(), mode)).unwrap();
+            assert_eq!(output["status"]["mechanics"], "MECHANICS_SOLVED", "{label} {mode:?}: {}", output["diagnostics"]);
+            assert_screen(&output, true, label);
+            assert_eq!(warnings(&output).len(), 1, "{label} {mode:?}");
+            assert_eq!(lone_terms(&output) > 0, lone, "{label} {mode:?}");
+            validate_pressure_evidence(&output).unwrap_or_else(|e| panic!("{label} {mode:?}: {e}"));
+            assert_eq!(verdict(&output, &input["model"])["ok"], true, "{label} {mode:?}: {}", verdict(&output, &input["model"]));
+        }
+    }
+}
+
+/// Not admitted under the exception: either refused, or judged by the
+/// original screen alone (no record and no warning).
+fn assert_not_excepted(input: &Value, label: &str) -> Vec<String> {
+    let mut outcomes = Vec::new();
+    for mode in MODES {
+        let output = serde_json::to_value(solve(input.clone(), mode)).unwrap();
+        let excepted = output["contract_evidence"]["exact_cases"].as_array().is_some_and(|cases| cases.iter().any(|c| c["pressure_rhs_assembly"].get("cancellation_screen_exception").is_some()));
+        assert!(!excepted, "{label} {mode:?}: admitted under the exception");
+        assert!(warnings(&output).is_empty(), "{label} {mode:?}");
+        let blocking = output["diagnostics"].as_array().unwrap().iter().filter(|d| d["severity"] == "blocking").map(|d| d["code"].as_str().unwrap().to_owned()).collect::<Vec<_>>();
+        outcomes.push(format!("{} {}", output["status"]["mechanics"].as_str().unwrap(), blocking.join(",")));
+    }
+    outcomes
+}
+
+/// The reviewer's chain with region R1 ending at J = the chain's last node,
+/// and further regions at J: `second` the outside diameter of region R2 over
+/// J-K along x, `tee` adding region R3 over J-T normal to the run.
+fn junction_on_the_reviewer_chain(second: f64, tee: bool) -> Value {
+    let mut input = reviewer_chain();
+    let document = &mut input["model"];
+    document["nodes"].as_array_mut().unwrap().push(node("node:K", [9.0, 0.0, 0.0]));
+    document["pipe_segments"].as_array_mut().unwrap().push(pipe("pipe:J-K", "node:C3", "node:K", second, 0.01, "material:one"));
+    document["supports"] = json!([anchor("support:C0", "node:C0"), anchor("support:K", "node:K")]);
+    let region = |id: &str, members: &[&str], from: &str, to: &str| json!({"id":id,"member_pipe_ids":members,
+        "pressure_basis":"internal_differential_zero_external_v1","pressure":{"value":2e6,"unit":"Pa"},
+        "terminals":[terminal(from,true),terminal(to,true)],"provenance":"independent_pressure_region"});
+    let regions = document["load_cases"][0]["pressure_regions"].as_array_mut().unwrap();
+    regions.push(region("region:R2", &["pipe:J-K"], "node:C3", "node:K"));
+    if tee {
+        document["nodes"].as_array_mut().unwrap().push(node("node:T", [LENGTH, 3.0, 0.0]));
+        document["pipe_segments"].as_array_mut().unwrap().push(pipe("pipe:J-T", "node:C3", "node:T", 0.12, 0.01, "material:one"));
+        document["supports"].as_array_mut().unwrap().push(anchor("support:T", "node:T"));
+        document["load_cases"][0]["pressure_regions"].as_array_mut().unwrap().push(region("region:R3", &["pipe:J-T"], "node:C3", "node:T"));
+    }
+    input
+}
+
+#[test]
+fn no_foreign_pressure_structure_passes_through_the_widened_family() {
+    // An uncancelled cap at a terminal that does not transfer.
+    let mut open = reviewer_chain();
+    open["model"]["load_cases"][0]["pressure_regions"][0]["terminals"][1]["closure_transfer"] = json!("separately_supported_or_compensated");
+    // Pressure elongation included for the case.
+    let elongated = pressure_elongation::with_elongation(&reviewer_chain());
+    // A second region crossing the chain's first interior node along y, that node interior to both.
+    let mut crossing = reviewer_chain();
+    {
+        let document = &mut crossing["model"];
+        document["nodes"].as_array_mut().unwrap().extend([node("node:Z0", [2.0, -3.0, 0.0]), node("node:Z1", [2.0, 3.0, 0.0])]);
+        document["pipe_segments"].as_array_mut().unwrap().extend([
+            pipe("pipe:Z0", "node:Z0", "node:C1", 0.12, 0.01, "material:one"), pipe("pipe:Z1", "node:C1", "node:Z1", next_up(0.12, 1), 0.01, "material:one")]);
+        document["supports"].as_array_mut().unwrap().extend([anchor("support:Z0", "node:Z0"), anchor("support:Z1", "node:Z1")]);
+        let mut second = document["load_cases"][0]["pressure_regions"][0].clone();
+        second["id"] = json!("region:Z");
+        second["member_pipe_ids"] = json!(["pipe:Z0", "pipe:Z1"]);
+        second["terminals"] = json!([terminal("node:Z0", true), terminal("node:Z1", true)]);
+        document["load_cases"][0]["pressure_regions"].as_array_mut().unwrap().push(second);
+    }
+    for (label, input) in [
+        ("uncancelled cap", open),
+        ("elongation included", elongated),
+        ("second region's term at J", junction_on_the_reviewer_chain(next_up(0.12, 1), false)),
+        ("reducer step at J", junction_on_the_reviewer_chain(0.14, false)),
+        ("tee junction closure at J", junction_on_the_reviewer_chain(0.12, true)),
+        ("a second region crossing an interior node", crossing),
+    ] {
+        let outcomes = assert_not_excepted(&input, label);
+        eprintln!("foreign structure {label}: {outcomes:?}");
+    }
+}
+
+/// The admitted output's published regions, mutable.
+fn loads_of(output: &mut Value) -> Vec<&mut Value> {
+    output["contract_evidence"]["pressure"].as_array_mut().unwrap().iter_mut()
+        .flat_map(|r| r["applied_loads"].as_array_mut().unwrap().iter_mut()).collect()
+}
+
+/// Every published direction scaled by `factor`, and, with `loads`, every
+/// group's magnitude and value, the assembled vector and the record's
+/// measured ratio scaled with it (the second review's forgery for 1/2).
+fn scaled(output: &Value, factor: f64, loads: bool) -> Value {
+    let mut forged = output.clone();
+    for load in loads_of(&mut forged) {
+        load["local_x_global"] = json!(load["local_x_global"].as_array().unwrap().iter().map(|x| x.as_f64().unwrap() * factor).collect::<Vec<_>>());
+    }
+    if loads {
+        let rhs = forged.pointer_mut("/contract_evidence/exact_cases/0/pressure_rhs_assembly").unwrap();
+        for group in rhs["groups"].as_array_mut().unwrap() {
+            for key in ["direction_component_magnitude", "assembled_force_n"] {
+                group[key] = json!(group[key].as_f64().unwrap() * factor);
+            }
+        }
+        rhs["assembled_pressure_rhs_global"] = json!(rhs["assembled_pressure_rhs_global"].as_array().unwrap().iter().map(|x| x.as_f64().unwrap() * factor).collect::<Vec<_>>());
+        let ratio = rhs["cancellation_screen_exception"]["remainder_to_bore_force_ratio"].as_f64().unwrap();
+        rhs["cancellation_screen_exception"]["remainder_to_bore_force_ratio"] = json!(ratio * factor);
+    }
+    forged
+}
+
+/// Every published direction negated, and, with `loads`, every coefficient,
+/// coefficient sum, group value and the assembled vector negated with it
+/// (the second review's reversal).
+fn reversed(output: &Value, loads: bool) -> Value {
+    let mut forged = scaled(output, -1.0, false);
+    if loads {
+        let rhs = forged.pointer_mut("/contract_evidence/exact_cases/0/pressure_rhs_assembly").unwrap();
+        for group in rhs["groups"].as_array_mut().unwrap() {
+            for key in ["coefficient_sum", "assembled_force_n"] {
+                group[key] = json!(-group[key].as_f64().unwrap());
+            }
+            for term in group["terms"].as_array_mut().unwrap() {
+                term["coefficient"] = json!(-term["coefficient"].as_f64().unwrap());
+            }
+        }
+        rhs["assembled_pressure_rhs_global"] = json!(rhs["assembled_pressure_rhs_global"].as_array().unwrap().iter().map(|x| -x.as_f64().unwrap()).collect::<Vec<_>>());
+    }
+    forged
+}
+
+#[test]
+fn forged_directions_are_refused_by_consistency_where_it_can_see_them_and_by_the_model_binding_otherwise() {
+    use open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence;
+    let consistency = |document: &Value| validate_pressure_evidence(document).err();
+    let x = [[0.0; 3], [3.0, 0.0, 0.0], [LENGTH, 0.0, 0.0]];
+    for (label, input) in [("one ulp", chain(&x, &[0.12, next_up(0.12, 1)], &[0, 2])), ("reviewer's chain", reviewer_chain()),
+        ("skew", chain(&skew(1e-3, 50.0 * EPS * 3.0), &[0.12, 0.12], &[0, 2]))] {
+        let model = &input["model"];
+        for mode in MODES {
+            let output = serde_json::to_value(solve(input.clone(), mode)).unwrap();
+            assert_screen(&output, true, label);
+            let both = |document: &Value| (consistency(document), verdict(document, model)["error"]["code"].as_str().map(str::to_owned));
+            let not_unit = Some("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_DIRECTION_NOT_UNIT".to_owned());
+            // Scaled, with the loads carried through and without them. A
+            // magnitude carried above 1 is refused first by the group check
+            // that a straight member's component is at most 1.
+            for factor in [0.5, 2.0, 1.0 + 16.0 * EPS, 1.0 - 16.0 * EPS, 0.999] {
+                for loads in [true, false] {
+                    let (plain, bound) = both(&scaled(&output, factor, loads));
+                    // An inexactly scaled value no longer sums to the vector and is refused there first.
+                    let expected = [not_unit.as_deref(), Some("SOURCE_PHYSICS_RHS_DIRECTION"), Some("SOURCE_PHYSICS_RHS_ASSEMBLED_SUM"), Some("SOURCE_PHYSICS_RHS_GROUP_VALUE")];
+                    assert!(expected.contains(&plain.as_deref()), "{label} {mode:?} x{factor} loads={loads}: {plain:?}");
+                    if factor == 0.5 || !loads && factor < 1.0 { assert_eq!(plain, not_unit, "{label} {mode:?} x{factor} loads={loads}"); }
+                    assert_eq!(bound, plain, "{label} {mode:?} x{factor} loads={loads}");
+                }
+            }
+            // One member only, halved.
+            let mut one = output.clone();
+            let load = &mut loads_of(&mut one)[1];
+            load["local_x_global"] = json!(load["local_x_global"].as_array().unwrap().iter().map(|x| x.as_f64().unwrap() * 0.5).collect::<Vec<_>>());
+            assert_eq!(both(&one), (not_unit.clone(), not_unit.clone()), "{label} {mode:?} one member");
+            // One component altered: far from unit, and by one ulp (unit, but not the group's magnitude).
+            let mut far = output.clone();
+            loads_of(&mut far)[0]["local_x_global"][2] = json!(0.25);
+            assert_eq!(both(&far).0, not_unit, "{label} {mode:?} a component altered");
+            let mut ulp = output.clone();
+            let component = loads_of(&mut ulp)[0]["local_x_global"][0].as_f64().unwrap();
+            loads_of(&mut ulp)[0]["local_x_global"][0] = json!(next_up(component, 1));
+            assert_eq!(both(&ulp).0.as_deref(), Some("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_DIRECTION"), "{label} {mode:?} one ulp");
+            // Reversed, with and without the loads: self-consistent, so only the model binding sees it.
+            for loads in [true, false] {
+                let (plain, bound) = both(&reversed(&output, loads));
+                assert_eq!(plain, None, "{label} {mode:?} reversed loads={loads}");
+                assert_eq!(bound.as_deref(), Some("SOURCE_PHYSICS_MODEL_EXCEPTION_DIRECTION"), "{label} {mode:?} reversed loads={loads}");
+            }
+        }
+    }
+}
+
+#[test]
+fn a_published_zero_component_the_model_coordinates_contradict_is_refused_by_the_model_binding() {
+    use open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence;
+    let input = reviewer_chain();
+    for mode in MODES {
+        let output = serde_json::to_value(solve(input.clone(), mode)).unwrap();
+        assert_screen(&output, true, "reviewer's chain");
+        assert!(lone_terms(&output) > 0);
+        // The document as published (A-M's y component zero and its y term
+        // absent at M), against a model in which M is off the x axis in y.
+        let mut moved = input["model"].clone();
+        moved["nodes"][1]["position"]["y"] = json!(1e-15);
+        validate_pressure_evidence(&output).unwrap();
+        assert_eq!(verdict(&output, &moved)["error"]["code"], "SOURCE_PHYSICS_MODEL_EXCEPTION_ZERO_COMPONENT", "{mode:?}");
+        // An omitted nonzero term: M-N's y group at M removed, the vector there
+        // made its sum; its published y component is not zero.
+        let mut omitted = output.clone();
+        let rhs = omitted.pointer_mut("/contract_evidence/exact_cases/0/pressure_rhs_assembly").unwrap();
+        let order = rhs["node_order"].clone();
+        let m = order.as_array().unwrap().iter().position(|n| n == "node:C1").unwrap();
+        rhs["groups"].as_array_mut().unwrap().retain(|g| !(g["node_ref"] == "node:C1" && g["component"] == "Fy"));
+        rhs["assembled_pressure_rhs_global"][m * 6 + 1] = json!(0.0);
+        assert_eq!(validate_pressure_evidence(&omitted).unwrap_err(), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY", "{mode:?}");
+        // A published zero where the member's own term is present: A-M's x
+        // published as zero is not unit; M-N's y published as zero leaves its
+        // term without a direction component.
+        let mut zeroed = output.clone();
+        let loads = loads_of(&mut zeroed);
+        let load = loads.into_iter().find(|l| l["pipe_id"] == "pipe:C1").unwrap();
+        load["local_x_global"][1] = json!(0.0);
+        assert_eq!(validate_pressure_evidence(&zeroed).unwrap_err(), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_DIRECTION", "{mode:?}");
+    }
+}
+
+#[test]
+fn the_model_binding_refuses_a_model_that_contradicts_the_exception_s_evidence() {
+    let input = reviewer_chain();
+    let output = serde_json::to_value(solve(input.clone(), MODES[0])).unwrap();
+    assert_screen(&output, true, "reviewer's chain");
+    assert_eq!(verdict(&output, &input["model"])["ok"], true);
+    let changed = |change: &dyn Fn(&mut Value)| {
+        let mut model = input["model"].clone();
+        change(&mut model);
+        verdict(&output, &model)["error"]["code"].as_str().unwrap_or("ACCEPTED").to_owned()
+    };
+    fn region(model: &mut Value) -> &mut Value {
+        model.pointer_mut("/load_cases/0/pressure_regions/0").unwrap()
+    }
+    let cases: Vec<(&str, Box<dyn Fn(&mut Value)>, &str)> = vec![
+        ("pressure one ulp off", Box::new(|m| { region(m)["pressure"]["value"] = json!(next_up(2e6, 1)) }), "SOURCE_PHYSICS_MODEL_EXCEPTION_PRESSURE"),
+        ("a terminal that does not transfer", Box::new(|m| { region(m)["terminals"][1]["closure_transfer"] = json!("separately_supported_or_compensated") }), "SOURCE_PHYSICS_MODEL_EXCEPTION_REGION"),
+        ("terminals swapped", Box::new(|m| { let t = region(m)["terminals"].as_array_mut().unwrap(); t.swap(0, 1) }), "SOURCE_PHYSICS_MODEL_EXCEPTION_REGION"),
+        ("a member dropped", Box::new(|m| { region(m)["member_pipe_ids"].as_array_mut().unwrap().pop(); }), "SOURCE_PHYSICS_MODEL_EXCEPTION_REGION"),
+        ("another region in the case", Box::new(move |m| { let r = m["load_cases"][0]["pressure_regions"][0].clone(); m["load_cases"][0]["pressure_regions"].as_array_mut().unwrap().push(r); }), "SOURCE_PHYSICS_MODEL_EXCEPTION_REGION"),
+        ("a connector in the region", Box::new(|m| { region(m)["member_connector_ids"] = json!(["component:joint"]) }), "SOURCE_PHYSICS_MODEL_EXCEPTION_FAMILY"),
+        ("elongation included", Box::new(|m| m["model_settings"] = json!({"pressure_elongation": {"operating_load_cases": [CASE]}})), "SOURCE_PHYSICS_MODEL_EXCEPTION_FAMILY"),
+        ("a bend on a member", Box::new(|m| m["components"] = json!([{"id": "component:bend", "kind": "bend", "geometry": {"bend_pipe_ref": "pipe:C1"}}])), "SOURCE_PHYSICS_MODEL_EXCEPTION_FAMILY"),
+        ("another node order", Box::new(|m| m["nodes"].as_array_mut().unwrap().swap(0, 3)), "SOURCE_PHYSICS_MODEL_EXCEPTION_GEOMETRY"),
+        ("a member reversed", Box::new(|m| { let p = &mut m["pipe_segments"][1]; let (f, t) = (p["from"].clone(), p["to"].clone()); p["from"] = t; p["to"] = f; }), "SOURCE_PHYSICS_MODEL_EXCEPTION_DIRECTION"),
+        ("an interior node moved along the run", Box::new(|m| m["nodes"][2]["position"]["x"] = json!(3.5)), "SOURCE_PHYSICS_MODEL_EXCEPTION_DIRECTION"),
+        ("a terminal moved along the run", Box::new(|m| m["nodes"][3]["position"]["x"] = json!(7.0)), "SOURCE_PHYSICS_MODEL_EXCEPTION_DIRECTION"),
+        ("a section one ulp off", Box::new(|m| m["pipe_segments"][0]["section"]["outside_diameter"]["value"] = json!(next_up(0.12, 1))), "SOURCE_PHYSICS_MODEL_SECTION_GEOMETRY"),
+    ];
+    for (label, change, code) in cases {
+        assert_eq!(changed(&*change), code, "{label}");
+    }
+}
+
+/// The second review's collinear model: equal bores, members joining
+/// (0,0,0), (1,1,1) and (4,4,4), exactly collinear in the recorded
+/// coordinates (chords (1,1,1) and (3,3,3)). Admitted, with the warning, and
+/// each sentence of the warning is true of it: the cap loads at the interior
+/// node do not cancel exactly; the remainder comes from the rounding of the
+/// separately formed directions (the bores' bits are equal and the chords are
+/// exactly proportional, so no bore or alignment difference is recorded); it
+/// is retained as a pressure load; and the exception's record states no
+/// effect, only a measured ratio within a consistency bound.
+#[test]
+fn exactly_collinear_equal_bore_members_can_leave_a_rounding_remainder_and_carry_the_warning() {
+    let input = chain(&[[0.0; 3], [1.0, 1.0, 1.0], [4.0, 4.0, 4.0]], &[0.12, 0.12], &[0, 2]);
+    for mode in MODES {
+        let output = serde_json::to_value(solve(input.clone(), mode)).unwrap();
+        assert_eq!(output["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {}", output["diagnostics"]);
+        let record = assert_screen(&output, true, "collinear");
+        let found = warnings(&output);
+        assert_eq!(found.len(), 1, "{mode:?}");
+        assert_eq!(found[0]["message"], WARNING_MESSAGE);
+        let rhs = assembly(&output);
+        let m = rhs["node_order"].as_array().unwrap().iter().position(|n| *n == record["node_ref"]).unwrap();
+        let load = (0..3).map(|k| rhs["assembled_pressure_rhs_global"][m * 6 + k].as_f64().unwrap()).collect::<Vec<_>>();
+        // Sentence 1 and 3: a nonzero remainder, retained in the solved load vector.
+        assert!(load.iter().any(|v| *v != 0.0), "{mode:?}: {load:?}");
+        // Sentence 2: equal bore bits, exactly proportional chords, directions formed with different roundings.
+        let groups = rhs["groups"].as_array().unwrap();
+        let bores = groups.iter().map(|g| g["source_inner_radius_hi_bits"].as_str().unwrap()).collect::<std::collections::BTreeSet<_>>();
+        assert_eq!(bores.len(), 1, "{mode:?}");
+        let directions = output["contract_evidence"]["pressure"][0]["applied_loads"].as_array().unwrap().iter().map(|l| l["local_x_global"].clone()).collect::<Vec<_>>();
+        assert_ne!(directions[0], directions[1], "{mode:?}: the two formed directions differ by rounding");
+        // Sentence 4: the record states a ratio within a consistency bound, nothing about the effect.
+        assert!(record.as_object().unwrap().keys().all(|k| ["basis", "node_ref", "member_pipe_ids", "member_lengths_m", "region_span_m", "remainder_to_bore_force_ratio", "consistency_bound_ratio"].contains(&k.as_str())));
+        open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence(&output).unwrap();
+        assert_eq!(verdict(&output, &input["model"])["ok"], true, "{mode:?}");
+    }
+}
+
+/// A region whose authored member list is not in chain order: the record
+/// names its two members in the order the region's published evidence lists
+/// them (its traversal), the order the readers re-derive, and is read.
+#[test]
+fn a_region_listing_its_members_out_of_chain_order_is_read() {
+    let mut input = reviewer_chain();
+    input["model"]["load_cases"][0]["pressure_regions"][0]["member_pipe_ids"] = json!(["pipe:C2", "pipe:C1", "pipe:C0"]);
+    for mode in MODES {
+        let output = serde_json::to_value(solve(input.clone(), mode)).unwrap();
+        let record = assert_screen(&output, true, "out of order");
+        let published = output["contract_evidence"]["pressure"][0]["member_pipe_ids"].as_array().unwrap().clone();
+        let place = |id: &Value| published.iter().position(|m| m == id).unwrap();
+        assert!(place(&record["member_pipe_ids"][0]) < place(&record["member_pipe_ids"][1]), "{mode:?}");
+        open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence(&output).unwrap_or_else(|e| panic!("{mode:?}: {e}"));
+        assert_eq!(verdict(&output, &input["model"])["ok"], true, "{mode:?}: {}", verdict(&output, &input["model"]));
     }
 }

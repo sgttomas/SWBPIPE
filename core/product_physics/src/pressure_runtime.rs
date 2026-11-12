@@ -1510,8 +1510,8 @@ fn finish_source_groups(
     groups: BTreeMap<FactorKey, FactorGroup>,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
-    let eligible = cancellation_exception_eligible(model, case, output, &groups);
-    let family = eligible.then(|| family_nodes(model, case, &groups));
+    let eligible = cancellation_exception_eligible(model, built, case, output, &groups);
+    let family = eligible.then(|| family_nodes(model, case, output, &groups));
     let mut by_dof = vec![Vec::new(); output.assembled_loads.len()];
     let mut evidence = Vec::new();
     for ((dof, pbits, area, _), group) in groups {
@@ -1630,13 +1630,13 @@ fn finish_source_groups(
     let screen = 32.0 * f64::EPSILON * maximum_ratio;
     // The original screen stays as it is. Only when it fails, and only for a
     // case of the structural family below, is the case admitted, after the
-    // consistency check of `departure_thrust_record`; the case is then solved
+    // consistency check of `cap_remainder_record`; the case is then solved
     // with the formed load, not with a zeroed RHS, so the published groups
     // still sum to the assembled load.
     let mut exception = None;
     if !screen.is_finite() || screen > 1e-9 {
         let record = match &family {
-            Some(Some(family)) => departure_thrust_record(model, built, case, output, family),
+            Some(Some(family)) => cap_remainder_record(model, built, case, output, family),
             _ => None,
         };
         match record {
@@ -1652,7 +1652,7 @@ fn finish_source_groups(
         "screen_is_not_numerical_qualification":true});
     if let Some(record) = exception {
         if let Some(Some((_, interior))) = &family {
-            departure_thrust_warning(model, case, interior, &record, diagnostics);
+            cap_remainder_warning(model, case, interior, &record, diagnostics);
         }
         output.assembly_evidence["cancellation_screen_exception"] = record;
     }
@@ -1666,21 +1666,20 @@ fn finish_source_groups(
 
 /// The fixed token naming the family a cancellation-screen exception is
 /// admitted for (`cancellation_screen_exception.basis`): interior cap pairs
-/// of straight regions without pressure elongation, whose formed load is the
-/// thrust of the bore and alignment differences between adjacent members that
-/// the region's representation guards admit.
-pub(crate) const CANCELLATION_EXCEPTION_BASIS: &str = "straight_region_interior_cap_pairs_representation_guard_departure_thrust";
+/// of straight regions without pressure elongation, whose formed load, the
+/// remainder of adjacent members' cap loads, is retained.
+pub(crate) const CANCELLATION_EXCEPTION_BASIS: &str = "straight_region_interior_cap_pairs_cap_remainder_retained";
 
 /// DEL-04-07 (REQ-009's scope, the cancellation screen): the warning every case
 /// admitted under the screen's exception carries, whatever its standing. Its
 /// references are the case, the region and the node the exception record names.
-pub(crate) const DEPARTURE_THRUST_WARNING_CODE: &str = "PRESSURE_REGION_DEPARTURE_THRUST_RETAINED";
+pub(crate) const CAP_REMAINDER_WARNING_CODE: &str = "PRESSURE_REGION_CAP_REMAINDER_RETAINED";
 /// The warning's whole, fixed message.
-pub(crate) const DEPARTURE_THRUST_WARNING_MESSAGE: &str = "Small differences in bore or alignment between adjacent members of this pressure region, within the region's representation limits, produce pressure thrust at interior nodes in this model. The solver retains that thrust. The exception to the pressure cancellation screen that admitted this case does not establish that the thrust's effect is negligible; the case's numerical standing concerns the recorded geometry, not an idealised region of equal bores and exact collinearity.";
+pub(crate) const CAP_REMAINDER_WARNING_MESSAGE: &str = "At interior nodes of this pressure region the cap loads of adjacent members do not cancel exactly in this model. The remainder comes from small differences in bore or alignment within the region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
 
-/// Pushes [`DEPARTURE_THRUST_WARNING_CODE`] for a case whose exception record
+/// Pushes [`CAP_REMAINDER_WARNING_CODE`] for a case whose exception record
 /// is being set: the region is the one whose two members meet at the record's node.
-fn departure_thrust_warning(
+fn cap_remainder_warning(
     model: &PreviewModel,
     case: &PreviewLoadCase,
     interior: &[(usize, String, [usize; 2])],
@@ -1689,22 +1688,26 @@ fn departure_thrust_warning(
 ) {
     let node = record["node_ref"].as_str().unwrap_or_default();
     if let Some((_, region, _)) = interior.iter().find(|(index, ..)| model.nodes[*index].id == node) {
-        finding(diagnostics, DEPARTURE_THRUST_WARNING_CODE, "warning", &[&case.id, region, node], DEPARTURE_THRUST_WARNING_MESSAGE);
+        finding(diagnostics, CAP_REMAINDER_WARNING_CODE, "warning", &[&case.id, region, node], CAP_REMAINDER_WARNING_MESSAGE);
     }
 }
 
 /// DEL-04-07, the consistency check of the cancellation-screen exception.
 ///
 /// What it is. Inside the family of [`cancellation_exception_eligible`] the
-/// only formed pressure load is, at each interior node N, the sum of the cap
-/// pairs of the two members meeting there: F = p(A2 u2 − A1 u1), with A_k the
-/// bore area and u_k the traversal-direction unit vector of member k. The
-/// product solves the recorded binary64 geometry, and for that geometry F is
-/// a real thrust: the bores and directions of adjacent members differ by what
-/// the region's two representation guards admit. F is zero only for an
-/// idealised reference with equal bores and exact collinearity, which is not
-/// what is solved. The check below shows only that the formed |F| is
-/// consistent with the bore and alignment differences the region admits. It
+/// only formed pressure load is, at each interior node N, the remainder of the
+/// cap loads of the two members meeting there: F = p(A2 u2 − A1 u1), with A_k
+/// the bore area and u_k the traversal-direction unit vector of member k, each
+/// as formed in binary64. The remainder has two possible sources, which the
+/// product does not tell apart and either of which can be the whole of it:
+/// the bore and alignment differences between the two members that the
+/// region's representation guards admit, and the rounding of each member's
+/// separately formed direction and bore area (members exactly collinear and of
+/// equal bore in the recorded coordinates can still leave a remainder). A
+/// region with one member for each straight run has no interior node and so
+/// no remainder. The product solves the recorded geometry as computed, with F
+/// retained. The check below shows only that the formed |F| is consistent
+/// with what the guards and the formation admit together. It
 /// is a consistency check on the evidence, not a filter: every case that
 /// passed the region guards is expected to pass it, and a case above it means
 /// the code or the evidence disagrees with the guards (it is refused with
@@ -1780,6 +1783,18 @@ fn departure_thrust_warning(
 /// assembled translational load there. At a transferring terminal the
 /// member's own cap pair shares one group and cancels exactly: the assembled
 /// load there must be exactly zero.
+///
+/// An axis on which one member's term is omitted. Where a member's chord has
+/// a zero component (equal source coordinates on that axis), its formed
+/// direction component is exactly zero (0 times the rounded reciprocals) and
+/// its term there is omitted in grouping; the family admits the other
+/// member's term alone on that axis. The omitted term is exactly the zero it
+/// stands for, and its exact counterpart is zero too (the exact chord has the
+/// same zero component), so it contributes neither load nor formation error:
+/// the assembled component there is the other member's term alone, |F| is
+/// the norm of the same three components as if the zero were summed, and the
+/// derivation above (written for both terms on every axis) holds unchanged,
+/// with one term's 14u fewer on that axis.
 pub(crate) const BORE_DEPARTURE_RATIO: f64 = 256.0 * f64::EPSILON;
 /// c_d of [`BORE_DEPARTURE_RATIO`]'s derivation: 2·76ε.
 pub(crate) const ALIGNMENT_DEPARTURE_RATIO: f64 = 152.0 * f64::EPSILON;
@@ -1790,7 +1805,7 @@ pub(crate) const SUBNORMAL_ALLOWANCE: f64 = f64::from_bits(8);
 
 /// β of [`BORE_DEPARTURE_RATIO`]'s derivation for one interior node: the
 /// bound on |F|/(|p|·A_hi) from the region span and the two members' lengths.
-pub(crate) fn departure_bound_ratio(span: f64, lengths: [f64; 2]) -> f64 {
+pub(crate) fn consistency_bound_ratio(span: f64, lengths: [f64; 2]) -> f64 {
     let member = |length: f64| {
         let omega = ALIGNMENT_DEPARTURE_RATIO * span / length;
         if omega <= 0.5 { omega * (1.0 + omega * omega) } else { 2.0 }
@@ -1799,23 +1814,31 @@ pub(crate) fn departure_bound_ratio(span: f64, lengths: [f64; 2]) -> f64 {
 }
 
 /// DEL-04-07, the family that may be admitted when the original cancellation
-/// screen fails: a case whose only formed pressure load is the thrust of the
-/// bore and alignment differences between adjacent members of a closed
-/// straight region ([`BORE_DEPARTURE_RATIO`]), decided from the terms as they are grouped
-/// (member kind, region membership, node role, term kind), never from their
-/// values. The case does not include pressure elongation (κ = 1, so a member's
-/// Poisson pair is its cap pair alone); no member of its regions is a realized
-/// arc and no region lists a connector; every group is a bore group at a
-/// translational degree of freedom; and every degree of freedom that carries a
-/// group is one of:
+/// screen fails: a case whose only formed pressure load is the remainder of
+/// the cap loads of adjacent members of a closed straight region
+/// ([`BORE_DEPARTURE_RATIO`]), decided from the terms as they are grouped
+/// (member kind, region membership, node role, term kind) and from the
+/// members' formed directions, never from the terms' values. The case does
+/// not include pressure elongation (κ = 1, so a member's Poisson pair is its
+/// cap pair alone); no member of its regions is a realized arc and no region
+/// lists a connector; every group is a bore group at a translational degree
+/// of freedom; and every node that carries a group is one of:
 ///
-/// - a transferring terminal of exactly one region of the case, holding one
-///   group of exactly two terms of one member of that region: its
-///   `poisson_eigen` end term and its `terminal_cap`, which share the group
-///   key and cancel there by construction (the member's closed end); or
-/// - a node that is no region's terminal, interior to one region, where
-///   exactly two straight members of that region meet, holding exactly their
-///   two `poisson_eigen` end terms (the cap pair of each member's end there).
+/// - a transferring terminal of exactly one region of the case, each of whose
+///   degrees of freedom that carries a group holds one group of exactly two
+///   terms of one member of that region: its `poisson_eigen` end term and its
+///   `terminal_cap`, which share the group key and cancel there by
+///   construction (the member's closed end); or
+/// - a node that is no region's terminal where exactly two pressurised
+///   members of the case meet, both of one region (the code's own members,
+///   not the published groups), and where at each of the three axes the terms
+///   are exactly both members' `poisson_eigen` end terms (the cap pair of
+///   each member's end there), or one member's alone when the other member's
+///   direction component on that axis, as the region loop formed it from the
+///   source, is exactly zero (its term is then omitted in grouping, see
+///   [`source_zero_axes`]), or none when both components are exactly zero. An
+///   axis holding one term whose partner's component is not exactly zero, or
+///   a term of any member other than the two, leaves the family.
 ///
 /// Anything else anywhere in the case (an uncancelled cap at a terminal that
 /// does not transfer, a kink remainder, a bend term, a joint term, a junction
@@ -1824,6 +1847,7 @@ pub(crate) fn departure_bound_ratio(span: f64, lengths: [f64; 2]) -> f64 {
 /// by the original screen alone.
 fn cancellation_exception_eligible(
     model: &PreviewModel,
+    built: &BuiltModel,
     case: &PreviewLoadCase,
     output: &ExactPressureCase,
     groups: &BTreeMap<FactorKey, FactorGroup>,
@@ -1847,18 +1871,40 @@ fn cancellation_exception_eligible(
             terminals.push((region.id.as_deref(), node, terminal.closure_transfer.as_deref() == Some("transfers_to_wall")));
         }
     }
-    cancellation_exception_terms_eligible(&terminals, groups)
+    // The case's pressurised members as the code holds them, and each one's
+    // direction as the region loop formed it (its frame's local x), formed
+    // again only where an interior axis lacks a term.
+    let members = output.pipe_states.iter().map(|(&index, state)| {
+        let pipe = &built.pipes[index];
+        ExceptionMember { pipe: pipe.element_id.as_str(), region: state.region_id.as_str(), ends: [pipe.node_i.index, pipe.node_j.index], index }
+    }).collect::<Vec<_>>();
+    let direction = |index: usize| {
+        built.pipes[index].frame_element().ok().and_then(|frame| frame.orientation().ok()).map(|orientation| orientation.local_axes[0])
+    };
+    cancellation_exception_terms_eligible(&terminals, &members, groups, direction)
+}
+
+/// A pressurised member of the case for [`cancellation_exception_terms_eligible`]:
+/// its pipe, its region, its two end nodes and its built pipe index.
+struct ExceptionMember<'a> {
+    pipe: &'a str,
+    region: &'a str,
+    ends: [usize; 2],
+    index: usize,
 }
 
 /// The term-structure part of [`cancellation_exception_eligible`]: every
-/// group is a bore group at a translational degree of freedom, and every
-/// degree of freedom that carries a group is a transferring terminal's closed
-/// member end or an interior node's two straight-member cap pairs, as stated
-/// there. `terminals` lists every terminal of every region of the case as
-/// (region, node, transfers).
+/// group is a bore group at a translational degree of freedom, and every node
+/// that carries a group is a transferring terminal's closed member end or an
+/// interior node of two members, as stated there. `terminals` lists every
+/// terminal of every region of the case as (region, node, transfers),
+/// `members` every pressurised member of the case, and `direction` gives a
+/// member's formed direction from its built pipe index.
 fn cancellation_exception_terms_eligible(
     terminals: &[(Option<&str>, usize, bool)],
+    members: &[ExceptionMember<'_>],
     groups: &BTreeMap<FactorKey, FactorGroup>,
+    direction: impl Fn(usize) -> Option<[f64; 3]>,
 ) -> bool {
     let mut by_dof: BTreeMap<usize, Vec<&FactorGroup>> = BTreeMap::new();
     for ((dof, _, area, _), group) in groups {
@@ -1867,24 +1913,59 @@ fn cancellation_exception_terms_eligible(
         }
         by_dof.entry(*dof).or_default().push(group);
     }
-    for (dof, at_dof) in by_dof {
+    let mut interior = std::collections::BTreeSet::new();
+    for (&dof, at_dof) in &by_dof {
         let node = dof / DOF_PER_NODE;
+        let ending = terminals.iter().filter(|terminal| terminal.1 == node).collect::<Vec<_>>();
+        if ending.is_empty() {
+            interior.insert(node);
+            continue;
+        }
         let terms = at_dof.iter().flat_map(|group| &group.terms).collect::<Vec<_>>();
         let [a, b] = terms[..] else { return false };
-        let ending = terminals.iter().filter(|terminal| terminal.1 == node).collect::<Vec<_>>();
-        let admitted = if ending.is_empty() {
-            a.3 == "poisson_eigen" && b.3 == "poisson_eigen" && a.1 == b.1 && a.2 != b.2
-        } else {
-            let mut kinds = [a.3, b.3];
-            kinds.sort_unstable();
-            at_dof.len() == 1
-                && kinds == ["poisson_eigen", "terminal_cap"]
-                && a.1 == b.1
-                && a.2 == b.2
-                && matches!(ending[..], [&(Some(region), _, true)] if region == a.1.as_str())
-        };
+        let mut kinds = [a.3, b.3];
+        kinds.sort_unstable();
+        let admitted = at_dof.len() == 1
+            && kinds == ["poisson_eigen", "terminal_cap"]
+            && a.1 == b.1
+            && a.2 == b.2
+            && matches!(ending[..], [&(Some(region), _, true)] if region == a.1.as_str());
         if !admitted {
             return false;
+        }
+    }
+    for node in interior {
+        let meeting = members.iter().filter(|member| member.ends.contains(&node)).collect::<Vec<_>>();
+        let [first, second] = meeting[..] else { return false };
+        if first.region != second.region {
+            return false;
+        }
+        let mut formed: [Option<[f64; 3]>; 2] = [None, None];
+        for axis in 0..3 {
+            let terms = by_dof.get(&(node * DOF_PER_NODE + axis)).into_iter().flatten().flat_map(|group| &group.terms).collect::<Vec<_>>();
+            if terms.iter().any(|term| term.3 != "poisson_eigen" || term.1 != first.region) {
+                return false;
+            }
+            let present = [first, second].map(|member| terms.iter().filter(|term| term.2 == member.pipe).count());
+            if present[0] + present[1] != terms.len() || present.iter().any(|&count| count > 1) {
+                return false;
+            }
+            for slot in 0..2 {
+                if present[slot] == 1 {
+                    continue;
+                }
+                // Absent: admitted only where the member's component on this
+                // axis is exactly zero, read here from its direction as the
+                // producer forms it from its end nodes' coordinates (its
+                // frame's local x, `direction`), never from the absence of a
+                // group, a flag or a term count.
+                if formed[slot].is_none() {
+                    formed[slot] = direction(meeting[slot].index);
+                }
+                if formed[slot].is_none_or(|formed| formed[axis] != 0.0) {
+                    return false;
+                }
+            }
         }
     }
     true
@@ -1892,11 +1973,12 @@ fn cancellation_exception_terms_eligible(
 
 /// The nodes of a case of the family: (closed member ends at transferring
 /// terminals, interior nodes as (node, region, the two members' model pipe
-/// indices in the order the region lists them)). `None` when an interior
-/// node does not name exactly two members of one region.
+/// indices in the order the region's published evidence lists them, its
+/// traversal order, which is the order the readers re-derive)). `None` when
+/// an interior node does not name exactly two members of one region.
 type FamilyNodes = (Vec<usize>, Vec<(usize, String, [usize; 2])>);
 
-fn family_nodes(model: &PreviewModel, case: &PreviewLoadCase, groups: &BTreeMap<FactorKey, FactorGroup>) -> Option<FamilyNodes> {
+fn family_nodes(model: &PreviewModel, case: &PreviewLoadCase, output: &ExactPressureCase, groups: &BTreeMap<FactorKey, FactorGroup>) -> Option<FamilyNodes> {
     let terminal_nodes = case.pressure_regions.as_deref().unwrap_or_default().iter()
         .flat_map(|region| region.terminals.as_deref().unwrap_or_default())
         .filter_map(|terminal| model.nodes.iter().position(|node| Some(&node.id) == terminal.node_ref.as_ref()))
@@ -1913,8 +1995,7 @@ fn family_nodes(model: &PreviewModel, case: &PreviewLoadCase, groups: &BTreeMap<
             continue;
         }
         let region = terms.first()?.1.clone();
-        let listed = case.pressure_regions.as_deref().unwrap_or_default().iter()
-            .find(|candidate| candidate.id.as_deref() == Some(region.as_str()))?.member_pipe_ids.as_deref()?;
+        let listed = output.evidence.iter().find(|evidence| evidence["region_id"] == region.as_str())?["member_pipe_ids"].as_array()?;
         let place = |id: &str| listed.iter().position(|member| member == id);
         let mut pipes = terms.iter().map(|term| term.2.as_str()).collect::<Vec<_>>();
         pipes.sort_unstable_by_key(|id| place(id));
@@ -1934,7 +2015,7 @@ fn family_nodes(model: &PreviewModel, case: &PreviewLoadCase, groups: &BTreeMap<
 /// ratio, the bound β there, and the operands β is formed from (the region's
 /// span and the two members' lengths, in metres), so that a reader recomputes
 /// both numbers from the envelope and, given the model, from its geometry.
-fn departure_thrust_record(
+fn cap_remainder_record(
     model: &PreviewModel,
     built: &BuiltModel,
     case: &PreviewLoadCase,
@@ -1965,7 +2046,7 @@ fn departure_thrust_record(
         }
         let [x, y, z] = load(*node);
         let force = norm3(x, y, z);
-        let ratio = departure_bound_ratio(span, lengths);
+        let ratio = consistency_bound_ratio(span, lengths);
         if !(span.is_finite() && span > 0.0 && lengths.iter().all(|l| l.is_finite() && *l > 0.0) && ratio.is_finite())
             || !(force <= bore_force * ratio + SUBNORMAL_ALLOWANCE)
         {
@@ -1975,7 +2056,7 @@ fn departure_thrust_record(
         if largest.as_ref().is_none_or(|(value, _)| measured > *value) {
             largest = Some((measured, json!({"basis":CANCELLATION_EXCEPTION_BASIS,"node_ref":model.nodes[*node].id,
                 "member_pipe_ids":pipes.map(|pipe| model.pipe_segments[pipe].id.clone()),"member_lengths_m":lengths,"region_span_m":span,
-                "thrust_to_bore_force_ratio":measured,"consistency_bound_ratio":ratio})));
+                "remainder_to_bore_force_ratio":measured,"consistency_bound_ratio":ratio})));
         }
     }
     largest.map(|(_, record)| record)
@@ -3041,9 +3122,23 @@ mod cancellation_exception_tests {
         }
     }
 
-    /// A closed run A(0)-M(1)-B(2) of region "r", outside diameters one ulp
-    /// apart, both terminals transferring: the exception's family.
-    fn closed_run() -> (Vec<(Option<&'static str>, usize, bool)>, BTreeMap<FactorKey, FactorGroup>) {
+    type Terminals = Vec<(Option<&'static str>, usize, bool)>;
+    type Members = Vec<ExceptionMember<'static>>;
+    type Directions = Vec<[f64; 3]>;
+
+    fn member(pipe: &'static str, region: &'static str, ends: [usize; 2], index: usize) -> ExceptionMember<'static> {
+        ExceptionMember { pipe, region, ends, index }
+    }
+
+    fn eligible(terminals: &Terminals, members: &Members, groups: &BTreeMap<FactorKey, FactorGroup>, directions: &Directions) -> bool {
+        cancellation_exception_terms_eligible(terminals, members, groups, |index| directions.get(index).copied())
+    }
+
+    /// A closed run A(0)-M(1)-B(2) of region "r" along x, outside diameters
+    /// one ulp apart, both terminals transferring: the exception's family.
+    /// Each member's y and z components are source-known zeros, so no group
+    /// is formed there.
+    fn closed_run() -> (Terminals, Members, BTreeMap<FactorKey, FactorGroup>, Directions) {
         let (a, b) = (state(0.12), state(f64::from_bits(0.12_f64.to_bits() + 1)));
         let mut groups = BTreeMap::new();
         add_factor_term(&mut groups, 0, &a, X, false, 1.0, "r", "p:A-M", "poisson_eigen");
@@ -3052,47 +3147,140 @@ mod cancellation_exception_tests {
         add_factor_term(&mut groups, DOF_PER_NODE, &b, X, false, 1.0, "r", "p:M-B", "poisson_eigen");
         add_factor_term(&mut groups, 2 * DOF_PER_NODE, &b, X, false, -1.0, "r", "p:M-B", "poisson_eigen");
         add_factor_term(&mut groups, 2 * DOF_PER_NODE, &b, X, false, 1.0, "r", "p:M-B", "terminal_cap");
-        (vec![(Some("r"), 0, true), (Some("r"), 2, true)], groups)
+        let members = vec![member("p:A-M", "r", [0, 1], 0), member("p:M-B", "r", [1, 2], 1)];
+        (vec![(Some("r"), 0, true), (Some("r"), 2, true)], members, groups, vec![[X, 0.0, 0.0], [X, 0.0, 0.0]])
+    }
+
+    /// The reviewer's chain at its first interior node M: A-M along x (y a
+    /// source-known zero, its term omitted), M-B with a small nonzero y. At M's
+    /// y axis only M-B's term is formed.
+    fn axis_zero_run() -> (Terminals, Members, BTreeMap<FactorKey, FactorGroup>, Directions) {
+        let (terminals, members, mut groups, mut directions) = closed_run();
+        let b = state(f64::from_bits(0.12_f64.to_bits() + 1));
+        let y = 1e-13;
+        directions[1] = [X, y, 0.0];
+        add_factor_term(&mut groups, DOF_PER_NODE + 1, &b, y, false, 1.0, "r", "p:M-B", "poisson_eigen");
+        add_factor_term(&mut groups, 2 * DOF_PER_NODE + 1, &b, y, false, -1.0, "r", "p:M-B", "poisson_eigen");
+        add_factor_term(&mut groups, 2 * DOF_PER_NODE + 1, &b, y, false, 1.0, "r", "p:M-B", "terminal_cap");
+        (terminals, members, groups, directions)
     }
 
     #[test]
     fn a_closed_straight_run_is_of_the_family() {
-        let (terminals, groups) = closed_run();
-        assert!(cancellation_exception_terms_eligible(&terminals, &groups));
+        let (terminals, members, groups, directions) = closed_run();
+        assert!(eligible(&terminals, &members, &groups, &directions));
+        // One member's term alone on an axis where the other's formed component is exactly zero.
+        let (terminals, members, groups, directions) = axis_zero_run();
+        assert!(eligible(&terminals, &members, &groups, &directions));
+        // A formed component of -0.0 is exactly zero too.
+        let mut negative = directions.clone();
+        negative[0][1] = -0.0;
+        assert!(eligible(&terminals, &members, &groups, &negative));
+    }
+
+    #[test]
+    fn a_missing_term_whose_partner_component_is_not_exactly_zero_leaves_the_family() {
+        // M's y axis holds M-B's term alone, but A-M's formed y component is not zero.
+        let (terminals, members, groups, mut directions) = axis_zero_run();
+        for y in [f64::from_bits(1), 1e-300, 1e-13] {
+            directions[0][1] = y;
+            assert!(!eligible(&terminals, &members, &groups, &directions), "{y}");
+        }
+        // Both terms absent on an axis where a component is nonzero.
+        let (terminals, members, groups, mut directions) = closed_run();
+        directions[1][2] = 1e-13;
+        assert!(!eligible(&terminals, &members, &groups, &directions));
+        // A member's term removed where its component is the nonzero x.
+        let (terminals, members, mut groups, directions) = closed_run();
+        let key = *groups.keys().find(|key| key.0 == DOF_PER_NODE).unwrap();
+        groups.get_mut(&key).unwrap().terms.retain(|term| term.2 != "p:A-M");
+        assert!(!eligible(&terminals, &members, &groups, &directions));
+        // A member whose direction cannot be formed.
+        let (terminals, members, groups, mut directions) = axis_zero_run();
+        directions.truncate(0);
+        assert!(!eligible(&terminals, &members, &groups, &directions));
     }
 
     #[test]
     fn every_other_kind_of_term_or_node_role_leaves_the_family() {
         let a = state(0.12);
         let bent = state(0.12);
-        let cases: Vec<(&str, Box<dyn Fn(&mut Vec<(Option<&'static str>, usize, bool)>, &mut BTreeMap<FactorKey, FactorGroup>)>)> = vec![
+        type Change = Box<dyn Fn(&mut Terminals, &mut Members, &mut BTreeMap<FactorKey, FactorGroup>)>;
+        // Each foreign structure on the run with M's lone y term (`axis_zero_run`),
+        // and, where it can stand there, as the lone term of an axis whose other
+        // member's component is exactly zero (M's z axis, both members' z zero).
+        let cases: Vec<(&str, Change)> = vec![
             // A terminal that does not transfer: its member's uncancelled cap.
-            ("uncancelled terminal cap", Box::new(|terminals, groups| {
+            ("uncancelled terminal cap", Box::new(|terminals, _, groups| {
                 terminals[1].2 = false;
                 let key = *groups.keys().find(|key| key.0 == 2 * DOF_PER_NODE).unwrap();
                 groups.get_mut(&key).unwrap().terms.retain(|term| term.3 != "terminal_cap");
             })),
-            ("kink remainder", Box::new(move |_, groups| add_factor_term(groups, DOF_PER_NODE, &a, X, false, 1.0, "r", "p:A-M", "kink_remainder"))),
-            ("bend term", Box::new(move |_, groups| add_factor_term(groups, DOF_PER_NODE, &bent, 0.5, false, 1.0, "r", "p:BEND", "bend_cap_removed"))),
-            ("joint face cap", Box::new(move |_, groups| add_factor_term(groups, 2 * DOF_PER_NODE, &state(0.12), X, false, 1.0, "r", "p:M-B", "joint_face_cap"))),
-            ("joint effective area", Box::new(|_, groups| {
+            ("uncancelled terminal cap on the lone-term axis", Box::new(|terminals, _, groups| {
+                terminals[1].2 = false;
+                let key = *groups.keys().find(|key| key.0 == 2 * DOF_PER_NODE + 1).unwrap();
+                groups.get_mut(&key).unwrap().terms.retain(|term| term.3 != "terminal_cap");
+            })),
+            ("kink remainder", Box::new(move |_, _, groups| add_factor_term(groups, DOF_PER_NODE, &a, X, false, 1.0, "r", "p:A-M", "kink_remainder"))),
+            ("kink remainder alone on a zero axis", Box::new(move |_, _, groups| add_factor_term(groups, DOF_PER_NODE + 2, &state(0.12), 0.5, false, 1.0, "r", "p:A-M", "kink_remainder"))),
+            ("bend term", Box::new(move |_, _, groups| add_factor_term(groups, DOF_PER_NODE, &bent, 0.5, false, 1.0, "r", "p:BEND", "bend_cap_removed"))),
+            ("bend term of a member alone on a zero axis", Box::new(|_, _, groups| add_factor_term(groups, DOF_PER_NODE + 2, &state(0.12), 0.5, false, 1.0, "r", "p:M-B", "bend_cap_removed"))),
+            ("terminal cap at an interior node alone on a zero axis", Box::new(|_, _, groups| add_factor_term(groups, DOF_PER_NODE + 2, &state(0.12), 0.5, false, 1.0, "r", "p:M-B", "terminal_cap"))),
+            ("joint face cap", Box::new(|_, _, groups| add_factor_term(groups, 2 * DOF_PER_NODE, &state(0.12), X, false, 1.0, "r", "p:M-B", "joint_face_cap"))),
+            ("joint face cap alone on a zero axis", Box::new(|_, _, groups| add_factor_term(groups, DOF_PER_NODE + 2, &state(0.12), 0.5, false, 1.0, "r", "p:M-B", "joint_face_cap"))),
+            ("joint effective area", Box::new(|_, _, groups| {
                 groups.insert((2 * DOF_PER_NODE, 2e6_f64.to_bits(), FactorArea::Joint(0.004_f64.to_bits()), X.to_bits()),
                     FactorGroup { geometry: None, pressure: InternalDifferentialPressure::new(2e6).unwrap(), direction: X, terms: vec![(1.0, "r".into(), "c:J".into(), "joint_effective_area")] });
             })),
-            ("second region's term at an interior node", Box::new(|_, groups| add_factor_term(groups, DOF_PER_NODE, &state(0.2), X, false, 1.0, "s", "p:M-C", "poisson_eigen"))),
-            ("a third member at an interior node", Box::new(|_, groups| add_factor_term(groups, DOF_PER_NODE, &state(0.2), X, false, 1.0, "r", "p:M-C", "poisson_eigen"))),
-            ("junction of regions at a terminal", Box::new(|terminals, groups| {
+            ("joint effective area alone on a zero axis", Box::new(|_, _, groups| {
+                groups.insert((DOF_PER_NODE + 2, 2e6_f64.to_bits(), FactorArea::Joint(0.004_f64.to_bits()), 0.5_f64.to_bits()),
+                    FactorGroup { geometry: None, pressure: InternalDifferentialPressure::new(2e6).unwrap(), direction: 0.5, terms: vec![(1.0, "r".into(), "c:J".into(), "joint_effective_area")] });
+            })),
+            ("second region's term at an interior node", Box::new(|_, members, groups| {
+                members.push(member("p:M-C", "s", [1, 3], 2));
+                add_factor_term(groups, DOF_PER_NODE, &state(0.2), X, false, 1.0, "s", "p:M-C", "poisson_eigen");
+            })),
+            ("second region's member alone on a zero axis (a crossing region)", Box::new(|_, members, groups| {
+                members.push(member("p:M-C", "s", [1, 3], 2));
+                add_factor_term(groups, DOF_PER_NODE + 2, &state(0.12), X, false, 1.0, "s", "p:M-C", "poisson_eigen");
+            })),
+            ("a crossing region's two members alone on a zero axis", Box::new(|_, members, groups| {
+                members.push(member("p:M-C", "s", [1, 3], 2));
+                members.push(member("p:D-M", "s", [4, 1], 3));
+                add_factor_term(groups, DOF_PER_NODE + 2, &state(0.12), X, false, 1.0, "s", "p:M-C", "poisson_eigen");
+                add_factor_term(groups, DOF_PER_NODE + 2, &state(0.12), X, false, -1.0, "s", "p:D-M", "poisson_eigen");
+            })),
+            ("a third member at an interior node", Box::new(|_, members, groups| {
+                members.push(member("p:M-C", "r", [1, 3], 2));
+                add_factor_term(groups, DOF_PER_NODE, &state(0.2), X, false, 1.0, "r", "p:M-C", "poisson_eigen");
+            })),
+            ("a third member (a tee) alone on a zero axis", Box::new(|_, members, groups| {
+                members.push(member("p:M-C", "r", [1, 3], 2));
+                add_factor_term(groups, DOF_PER_NODE + 2, &state(0.12), X, false, 1.0, "r", "p:M-C", "poisson_eigen");
+            })),
+            ("a term of a pipe that is not one of the two members", Box::new(|_, _, groups| add_factor_term(groups, DOF_PER_NODE + 2, &state(0.12), X, false, 1.0, "r", "p:elsewhere", "poisson_eigen"))),
+            ("one member's two terms on one axis", Box::new(|_, _, groups| add_factor_term(groups, DOF_PER_NODE + 1, &state(0.2), 1e-13, false, 1.0, "r", "p:M-B", "poisson_eigen"))),
+            ("junction of regions at a terminal", Box::new(|terminals, members, groups| {
                 terminals.push((Some("s"), 2, true));
+                members.push(member("p:B-C", "s", [2, 3], 2));
                 let other = state(0.14);
                 add_factor_term(groups, 2 * DOF_PER_NODE, &other, X, false, 1.0, "s", "p:B-C", "poisson_eigen");
                 add_factor_term(groups, 2 * DOF_PER_NODE, &other, X, false, -1.0, "s", "p:B-C", "terminal_cap");
             })),
-            ("pressure moment", Box::new(|_, groups| add_factor_term(groups, DOF_PER_NODE + 3, &state(0.12), X, false, 1.0, "r", "p:A-M", "poisson_eigen"))),
+            ("a reducer step (junction closure) at the interior node", Box::new(|terminals, members, groups| {
+                terminals.push((Some("s"), 1, true));
+                members.push(member("p:M-C", "s", [1, 3], 2));
+                let other = state(0.14);
+                add_factor_term(groups, DOF_PER_NODE + 2, &other, X, false, 1.0, "s", "p:M-C", "poisson_eigen");
+                add_factor_term(groups, DOF_PER_NODE + 2, &other, X, false, -1.0, "s", "p:M-C", "terminal_cap");
+            })),
+            ("pressure moment", Box::new(|_, _, groups| add_factor_term(groups, DOF_PER_NODE + 3, &state(0.12), X, false, 1.0, "r", "p:A-M", "poisson_eigen"))),
         ];
         for (label, change) in cases {
-            let (mut terminals, mut groups) = closed_run();
-            change(&mut terminals, &mut groups);
-            assert!(!cancellation_exception_terms_eligible(&terminals, &groups), "{label}");
+            let (mut terminals, mut members, mut groups, mut directions) = axis_zero_run();
+            directions.extend([[0.0, 0.0, X], [0.0, 0.0, X]]);
+            change(&mut terminals, &mut members, &mut groups);
+            assert!(!eligible(&terminals, &members, &groups, &directions), "{label}");
         }
     }
 
@@ -3100,14 +3288,14 @@ mod cancellation_exception_tests {
     fn the_consistency_bound_is_the_bore_term_the_alignment_terms_and_the_allowance() {
         let eps = f64::EPSILON;
         // Equal span and lengths: omega = 152ε per member, its cube negligible.
-        assert_eq!(departure_bound_ratio(1.0, [1.0, 1.0]), 256.0 * eps + (152.0 * eps * (1.0 + (152.0 * eps) * (152.0 * eps))) * 2.0 + 32.0 * eps);
+        assert_eq!(consistency_bound_ratio(1.0, [1.0, 1.0]), 256.0 * eps + (152.0 * eps * (1.0 + (152.0 * eps) * (152.0 * eps))) * 2.0 + 32.0 * eps);
         // A member of a millionth of the span: its own term grows with S/L.
-        let short = departure_bound_ratio(1.0, [1e-6, 1.0]);
+        let short = consistency_bound_ratio(1.0, [1e-6, 1.0]);
         assert!(short > 152.0 * eps * 1e6 && short < 152.0 * eps * 1.0e6 * 1.001 + 512.0 * eps, "{short}");
         // Beyond omega = 1/2 a member's direction may differ from the chord by
         // anything up to a reversal (2), and the two members' difference by at most 2.
         let tiny = 152.0 * eps;
-        assert_eq!(departure_bound_ratio(1.0, [tiny, 1.0]), 256.0 * eps + 2.0 + 32.0 * eps);
-        assert_eq!(departure_bound_ratio(1.0, [tiny, tiny]), 256.0 * eps + 2.0 + 32.0 * eps);
+        assert_eq!(consistency_bound_ratio(1.0, [tiny, 1.0]), 256.0 * eps + 2.0 + 32.0 * eps);
+        assert_eq!(consistency_bound_ratio(1.0, [tiny, tiny]), 256.0 * eps + 2.0 + 32.0 * eps);
     }
 }

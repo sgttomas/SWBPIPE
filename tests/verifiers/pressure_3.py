@@ -426,8 +426,8 @@ def poisson_coefficient(coefficient: float, nu: float, included: bool) -> None:
         _require(False, "RHS term coefficient binding")
 
 
-CANCELLATION_EXCEPTION_BASIS = "straight_region_interior_cap_pairs_representation_guard_departure_thrust"
-EXCEPTION_RECORD_KEYS = {"basis", "node_ref", "member_pipe_ids", "member_lengths_m", "region_span_m", "thrust_to_bore_force_ratio", "consistency_bound_ratio"}
+CANCELLATION_EXCEPTION_BASIS = "straight_region_interior_cap_pairs_cap_remainder_retained"
+EXCEPTION_RECORD_KEYS = {"basis", "node_ref", "member_pipe_ids", "member_lengths_m", "region_span_m", "remainder_to_bore_force_ratio", "consistency_bound_ratio"}
 # The consistency bound's constants (product physics ``pressure_runtime``: BORE_DEPARTURE_RATIO, ALIGNMENT_DEPARTURE_RATIO,
 # FORMATION_ALLOWANCE_RATIO, SUBNORMAL_ALLOWANCE), whose derivation is stated there.
 BORE_DEPARTURE_RATIO = 256 * 2.0 ** -52
@@ -436,12 +436,28 @@ FORMATION_ALLOWANCE_RATIO = 32 * 2.0 ** -52
 SUBNORMAL_ALLOWANCE = 8 * 2.0 ** -1074
 
 
-def departure_bound_ratio(span: float, lengths: list[float]) -> float:
-    """beta, product physics ``departure_bound_ratio``."""
+def consistency_bound_ratio(span: float, lengths: list[float]) -> float:
+    """beta, product physics ``consistency_bound_ratio``."""
     def member(length: float) -> float:
         omega = ALIGNMENT_DEPARTURE_RATIO * span / length
         return omega * (1.0 + omega * omega) if omega <= 0.5 else 2.0
     return BORE_DEPARTURE_RATIO + min(member(lengths[0]) + member(lengths[1]), 2.0) + FORMATION_ALLOWANCE_RATIO
+
+
+# The allowance on the correctly rounded norm of a straight member's published direction, 4 epsilon (Rust
+# ``physics_evidence::DIRECTION_UNIT_ALLOWANCE``, whose derivation from the producer's twice-normalized chord is
+# stated there): 5.5 units of roundoff to first order, rounded up to 8.
+DIRECTION_UNIT_ALLOWANCE = 4 * 2.0 ** -52
+
+
+def _consistent_direction(load: Mapping[str, Any]) -> list[float]:
+    """Consistency (no model; Rust ``physics_evidence::consistent_direction``): a straight member's published
+    direction on a case that publishes the exception is a unit vector within ``DIRECTION_UNIT_ALLOWANCE``. It does not
+    establish which direction the member has; this twin reads no model and binds no geometry."""
+    x = load.get("local_x_global")
+    _require(_vector(x, 3), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_DIRECTION")
+    _require(abs(exact_combinations.norm3(*x) - 1.0) <= DIRECTION_UNIT_ALLOWANCE, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_DIRECTION_NOT_UNIT")
+    return x
 
 
 def _hex_float(value: str) -> float:
@@ -489,10 +505,11 @@ def rhs_groups(rhs: Mapping[str, Any]) -> None:
             _require(value == expected, "SOURCE_PHYSICS_RHS_ASSEMBLED_SUM")
 
 
-def _family_interior(rhs: Mapping[str, Any], terminals: list[tuple[str, str, bool]], directions: dict[tuple[str, str], list[float]]) -> list[dict[str, Any]]:
-    """The family's structure, each term's binding to its member's published direction and end sign, the opposition
-    of the two members at each interior node, the exact zero at each transferring terminal, and each interior node's
-    |F| and |p|*A_hi (Rust ``physics_evidence::family_interior``)."""
+def _family_consistency(rhs: Mapping[str, Any], terminals: list[tuple[str, str, bool]], directions: dict[tuple[str, str], list[float]]) -> list[dict[str, Any]]:
+    """Consistency (no model; Rust ``physics_evidence::family_consistency``): the family's structure, each term's
+    agreement with its member's published direction and end sign, each absent interior term's published zero
+    component, the opposition of the two members at each interior node, the exact zero at each transferring terminal,
+    and each interior node's |F| and |p|*A_hi."""
     family = "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY"
     direction_code = "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_DIRECTION"
     order, assembled = rhs["node_order"], rhs["assembled_pressure_rhs_global"]
@@ -501,6 +518,7 @@ def _family_interior(rhs: Mapping[str, Any], terminals: list[tuple[str, str, boo
         _require("effective_area_bits" not in group, family)
         by_dof.setdefault(6 * order.index(group["node_ref"]) + ["Fx", "Fy", "Fz"].index(group["component"]), []).append(group)
     faces: dict[tuple[int, str], tuple[str, float, list[float], float]] = {}
+    present: set[tuple[int, str]] = set()
     closed: set[int] = set()
     for dof in sorted(by_dof):
         groups, node, axis = by_dof[dof], order[dof // 6], dof % 6
@@ -518,6 +536,7 @@ def _family_interior(rhs: Mapping[str, Any], terminals: list[tuple[str, str, boo
         for group in groups:
             bore_force = abs(_hex_float(group["pressure_bits"]) * (math.pi * _hex_float(group["source_inner_radius_hi_bits"]) * _hex_float(group["source_inner_radius_hi_bits"])))
             for term in group["terms"]:
+                present.add((dof, term["pipe_id"]))
                 direction = directions.get((term["region_id"], term["pipe_id"]))
                 _require(direction is not None, direction_code)
                 component = direction[axis]
@@ -533,6 +552,8 @@ def _family_interior(rhs: Mapping[str, Any], terminals: list[tuple[str, str, boo
         members = sorted((pipe, value) for (n, pipe), value in faces.items() if n == node)
         _require(len(members) == 2 and members[0][1][0] == members[1][1][0], family)
         (a, (region, face_a, x_a, force_a)), (b, (_, face_b, x_b, force_b)) = members
+        # On each axis, a member without a term there publishes exactly zero there.
+        _require(all((6 * node + k, pipe) in present or x[k] == 0 for pipe, x in ((a, x_a), (b, x_b)) for k in range(3)), family)
         _require(face_a * face_b * (x_a[0] * x_b[0] + x_a[1] * x_b[1] + x_a[2] * x_b[2]) < 0, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_OPPOSITION")
         force = exact_combinations.norm3(*assembled[6 * node:6 * node + 3])
         bore_force = max(force_a, force_b)
@@ -543,19 +564,23 @@ def _family_interior(rhs: Mapping[str, Any], terminals: list[tuple[str, str, boo
 
 
 def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, regions: list[Any]) -> None:
-    """DEL-04-07, the cancellation screen (Rust ``physics_evidence::assembly`` and ``cancellation_exception``).
+    """DEL-04-07, the cancellation screen (Rust ``physics_evidence::assembly`` and ``exception_consistency``).
 
     A screen within its limit is the original assurance and no exception record stands beside it; that path takes
     the vector and the group values from the producer, as before. A case with the record first re-forms its bore
     groups and its assembled vector from the groups (``rhs_groups``). A screen over its limit, or
     not finite (null), stands only with the exception's record, re-derived from the published groups and the case's
     regions: the family (no pressure elongation, connector or realized arc; every group a bore group whose terms are
-    one member's poisson_eigen and terminal_cap at a transferring terminal of exactly that region, or poisson_eigen
-    terms of two distinct members of one region at a node that is no region's terminal), each term bound to its
-    member's published direction and end, the two members at an interior node in opposition, an exact zero at each
-    transferring terminal, the record's node (the first of the largest |F|/(|p|*A_hi)), its measured ratio and its
-    bound re-formed from the record's span and lengths bit for bit, |F| within that bound, and the published original
-    screen. The span and lengths are taken from the record: this twin reads no model."""
+    one member's poisson_eigen and terminal_cap at a transferring terminal of exactly that region, or, at a node that
+    is no region's terminal, poisson_eigen terms of exactly two members of one region, on each axis both, or one where
+    the other's published direction component is exactly zero, or none where both are), every published member
+    direction unit within its rounding allowance, each term agreeing with its member's published direction and end,
+    the two members at an interior node in opposition, an exact zero at each transferring terminal, the record's node
+    (the first of the largest |F|/(|p|*A_hi)), its measured ratio and its bound re-formed from the record's span and
+    lengths bit for bit, |F| within that bound, and the published original screen. This is consistency only: the
+    evidence agrees with itself. This twin reads no model, so the directions, span, lengths, zero components and
+    member ends are the producer's as published; binding them to the model's coordinates is the Rust reader's with
+    the model (``physics_evidence::exception_model_binding``)."""
     screen, record = rhs["cancellation_screen"], rhs.get("cancellation_screen_exception")
     passing = _number(screen) and 0 <= screen <= 1e-9
     if record is None:
@@ -574,8 +599,8 @@ def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, region
         terminals += [(region["region_id"], t["node_ref"], t["closure_transfer"] == "transfers_to_wall") for t in region["terminals"]]
         members[region["region_id"]] = list(region.get("member_pipe_ids") or [])
         for load in region.get("applied_loads") or []:
-            directions[(region["region_id"], load["pipe_id"])] = load["local_x_global"]
-    interior = _family_interior(rhs, terminals, directions)
+            directions[(region["region_id"], load["pipe_id"])] = _consistent_direction(load)
+    interior = _family_consistency(rhs, terminals, directions)
     _require(bool(interior), family)
     node = interior[0]
     for candidate in interior[1:]:
@@ -586,9 +611,9 @@ def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, region
     _require(record["node_ref"] == node["node"] and record["member_pipe_ids"] == ordered, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_NODE")
     span, lengths = record["region_span_m"], record["member_lengths_m"]
     _require(_number(span) and span > 0 and isinstance(lengths, list) and len(lengths) == 2 and all(_number(x) and x > 0 for x in lengths), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION")
-    bound = departure_bound_ratio(span, lengths)
+    bound = consistency_bound_ratio(span, lengths)
     _require(_number(record["consistency_bound_ratio"]) and _same(record["consistency_bound_ratio"], bound), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BOUND")
-    _require(_number(record["thrust_to_bore_force_ratio"]) and _same(record["thrust_to_bore_force_ratio"], node["ratio"]), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO")
+    _require(_number(record["remainder_to_bore_force_ratio"]) and _same(record["remainder_to_bore_force_ratio"], node["ratio"]), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO")
     _require(node["force"] <= node["bore_force"] * bound + SUBNORMAL_ALLOWANCE, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BOUND")
     # The original screen as the producer forms it.
     order, assembled = rhs["node_order"], rhs["assembled_pressure_rhs_global"]
@@ -612,17 +637,18 @@ def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, region
     _require(screen is None if not math.isfinite(expected) else (_number(screen) and struct.pack("<d", float(screen)) == struct.pack("<d", expected)), "SOURCE_PHYSICS_RHS_SCREEN_RECOMPUTED")
 
 
-DEPARTURE_THRUST_WARNING_CODE = "PRESSURE_REGION_DEPARTURE_THRUST_RETAINED"
-DEPARTURE_THRUST_WARNING_MESSAGE = (
-    "Small differences in bore or alignment between adjacent members of this pressure region, within the region's "
-    "representation limits, produce pressure thrust at interior nodes in this model. The solver retains that thrust. "
-    "The exception to the pressure cancellation screen that admitted this case does not establish that the thrust's "
-    "effect is negligible; the case's numerical standing concerns the recorded geometry, not an idealised region of "
-    "equal bores and exact collinearity.")
+CAP_REMAINDER_WARNING_CODE = "PRESSURE_REGION_CAP_REMAINDER_RETAINED"
+CAP_REMAINDER_WARNING_MESSAGE = (
+    "At interior nodes of this pressure region the cap loads of adjacent members do not cancel exactly in this model. "
+    "The remainder comes from small differences in bore or alignment within the region's representation limits, from "
+    "the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The "
+    "exception to the pressure cancellation screen that admitted this case does not establish that its effect is "
+    "negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in "
+    "which those loads cancel.")
 
 
-def departure_thrust_warnings(source: Mapping[str, Any]) -> None:
-    """DEL-04-07 (Rust ``physics_evidence::departure_thrust_warnings``), read after every exception record has been
+def cap_remainder_warnings(source: Mapping[str, Any]) -> None:
+    """DEL-04-07 (Rust ``physics_evidence::cap_remainder_warnings``), read after every exception record has been
     checked: the warning stands on a case exactly when its record does, once, at warning severity, with the fixed
     message and the references [case, region, node], the region being the one whose terms meet at the record's node.
     A record without its warning, a warning on a case without a record, and a warning of another form are each
@@ -638,12 +664,12 @@ def departure_thrust_warnings(source: Mapping[str, Any]) -> None:
         _require(bool(regions), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY")
         expected.append([case["load_case_id"], regions[0], node])
     diagnostics = source.get("diagnostics")
-    warnings = [d for d in (diagnostics if isinstance(diagnostics, list) else []) if isinstance(d, Mapping) and d.get("code") == DEPARTURE_THRUST_WARNING_CODE]
+    warnings = [d for d in (diagnostics if isinstance(diagnostics, list) else []) if isinstance(d, Mapping) and d.get("code") == CAP_REMAINDER_WARNING_CODE]
     for warning in warnings:
         refs = warning.get("affected_refs")
         case = refs[0] if isinstance(refs, list) and refs else None
         _require(any(item[0] == case for item in expected), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING_UNRECORDED")
-        _require(warning.get("severity") == "warning" and warning.get("message") == DEPARTURE_THRUST_WARNING_MESSAGE and refs in expected,
+        _require(warning.get("severity") == "warning" and warning.get("message") == CAP_REMAINDER_WARNING_MESSAGE and refs in expected,
                  "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING")
     for refs in expected:
         count = sum(1 for warning in warnings if warning.get("affected_refs") == refs)
@@ -905,7 +931,7 @@ def _physics(source: Mapping[str, Any]) -> None:
             for geometry in (region.get("geometry") if isinstance(region.get("geometry"), list) else [])
             if isinstance(geometry, Mapping) and geometry.get("member_kind") == ARC_MEMBER_KIND},
             [region for region in evidence["pressure"] if isinstance(region, Mapping) and region.get("load_case_id") == cid])
-    departure_thrust_warnings(source)
+    cap_remainder_warnings(source)
     owners: dict[tuple[str, str], str] = {}
     bindings: set[str] = set()
     regions: set[tuple[str, str]] = set()

@@ -256,13 +256,13 @@ pub const SUPPLEMENTAL_DIAGNOSTIC_LABEL: &str = "Supplied diagnostic text, unver
 /// quoted held-status code (RT-A5: the five held gates and `HELD_STATUS_RELEASED`; a held refusal
 /// is bound to its held-status record, not verified as true; desktop `suppliedDiagnosticMessage`
 /// alike), or when the source has combinations and the diagnostic names none of them and is not the
-/// cancellation-screen exception's warning (`DEPARTURE_THRUST_WARNING_CODE`, which the admitting reader
+/// cancellation-screen exception's warning (`CAP_REMAINDER_WARNING_CODE`, which the admitting reader
 /// binds to its record), else copied.
 fn supplemental_message(diagnostic: &Value, message: &str, combinations: &std::collections::HashSet<String>) -> String {
     let held = diagnostic["code"].as_str().is_some_and(|code| open_pipe_stress_result_export::HELD_STATUS_QUOTED_CODES.contains(&code));
     let names_one = diagnostic["affected_refs"].as_array().is_some_and(|refs| refs.iter().any(|r| r.as_str().is_some_and(|r| combinations.contains(r))));
     // DEL-04-07: the admitting reader binds this warning's message and references to its record.
-    let bound = diagnostic["code"] == open_pipe_stress_result_export::DEPARTURE_THRUST_WARNING_CODE;
+    let bound = diagnostic["code"] == open_pipe_stress_result_export::CAP_REMAINDER_WARNING_CODE;
     if !held && (combinations.is_empty() || names_one || bound) {
         message.to_string()
     } else {
