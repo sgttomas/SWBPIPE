@@ -82,7 +82,7 @@ A sizing result is a numerical statement about the discrete model under the user
     - the weight case and the support state W is formed in;
     - the design operating case and the further operating cases to check (stated, even when empty);
     - the load design (hot or cold);
-    - the variation limit and its reference load (operating or design load);
+    - the variation limit and its reference load (each case's operating load, or the design load, which is the hot-load basis W);
     - the travel allowance at each end of the travel span;
     - the selection rule (smallest capacity or least variation);
     - the solver mode of the caller's own solve, which every derived solve uses.
@@ -256,7 +256,7 @@ A sizing result is a numerical statement about the discrete model under the user
 - **REQ-014** — *A variable spring carries its cold load.*
   - **Preload.** On both routes, the solve models a variable spring hanger as DEL-04-03/REQ-014 states: its stiffness plus its `cold_load` as a constant force along its stiffness DOF. The cold load acts in every load case, through the constant-effort seam and under the same combination gate. The spring carries the cold load minus its rate times its displacement from the drawn geometry, relative to its base where the base moves.
   - **Held springs.** In a case whose test condition holds springs, a held spring (DEL-05-01's held support) is a rigid restraint of its DOF, and neither its stiffness nor its preload acts.
-  - **Recovery.** The spring's published support force includes the preload. A case that applies the cold load also publishes that force as the support's applied force, as a consumed constant-effort support's force is published (DEL-04-07/CLM-004). A held spring publishes no applied force.
+  - **Recovery.** The spring's published support force includes the preload. A case that applies the cold load also publishes the cold load itself, separately from that support force, as the support's applied force, as a consumed constant-effort support's force is published (DEL-04-07/CLM-004). A spring whose cold load a case does not apply, a held spring included, publishes no applied force in that case, and the result states that it was not applied and why.
   - **Diagnostics.** No solve warns that a spring hanger's load is not applied as preload (`SPRING_HANGER_LOAD_NOT_APPLIED_AS_PRELOAD` has no place). A warning is published where `installed_load` and `cold_load` differ.
   - **Behaviour change.** A document that carries `cold_load` solves differently with the preload than without it, and the release notes say so.
   - DEL-04-03/REQ-014 states the model; the rest of the law is stated here.
