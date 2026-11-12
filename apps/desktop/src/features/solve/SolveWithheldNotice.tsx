@@ -1,6 +1,6 @@
 import { useId } from "react";
 import type { Diagnostic, EntityRef, PreviewModel } from "../../types";
-import { FindingButton } from "../diagnostics/ModelChecksPanel";
+import { FindingButton, laterCheckNotCompletedText } from "../diagnostics/ModelChecksPanel";
 import { resolveModelCheckEntity } from "../diagnostics/modelChecks";
 import type { SolveGateReading } from "../workspace/solveGates";
 
@@ -41,16 +41,18 @@ export function SolveWithheldNotice({
   return (
     <section aria-labelledby={titleId} className="memory-pool-message warning solve-withheld-notice" data-testid="solve-withheld-notice">
       <strong id={titleId}>Solve is withheld</strong>
+      {reading.laterCheckNotCompleted !== null ? (
+        <p data-testid="solve-withheld-later-not-completed">
+          {/* The reading is of the model the session holds (the gate reads only a current run);
+              the refusal and the findings it names follow it. */}
+          {laterCheckNotCompletedText(reading.laterCheckNotCompleted, true, reading.findings.length === 0 && reading.notListedBlocking === 0 && reading.refusal !== null)}
+        </p>
+      ) : null}
       <p data-testid="solve-withheld-summary" id={summaryId}>
         {total > 0 ? `${total} solve-blocking ${total === 1 ? "finding stands" : "findings stand"} for this model. ` : null}
         {reading.refusal !== null ? `The solve cannot read this model: ${reading.refusal}. ` : null}
         Solve becomes available once the model checks find no solve-blocking finding; they run again by themselves after each model change.
       </p>
-      {reading.laterCheckNotCompleted !== null ? (
-        <p data-testid="solve-withheld-later-not-completed">
-          A later run of the checks on this model could not finish ({reading.laterCheckNotCompleted}). The findings below are from the last run that finished, and they still apply.
-        </p>
-      ) : null}
       {listed.length > 0 ? (
         <ol aria-label="Findings that withhold Solve" className="model-checks-list" data-testid="solve-withheld-findings">
           {listed.map((finding) => (

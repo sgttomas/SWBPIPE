@@ -188,3 +188,15 @@ it("leads a finding that names a section to that section record, in the Model ch
   expect(onSelectEntity).toHaveBeenCalledWith({ type: "section", id: section.id });
   expect(notice).not.toHaveTextContent("names no model entity");
 });
+
+it("names a kept refusal with no findings as the refusal, above it, when a later check could not finish", async () => {
+  const model = await loadPreviewModel();
+  await renderPanel({ kind: "withheld", model, findings: [], diagnostics: [], notListedBlocking: 0, refusal: "request: missing field `outside_diameter`", laterCheckNotCompleted: "invented admission refusal" }, model);
+  const notice = screen.getByRole("region", { name: "Solve is withheld" });
+  const sentence = within(notice).getByTestId("solve-withheld-later-not-completed");
+  expect(sentence).toHaveTextContent("A later run of the checks on this model could not finish (invented admission refusal). The refusal below is from the last run that finished, and it still applies.");
+  expect(sentence).not.toHaveTextContent("findings");
+  const summary = within(notice).getByTestId("solve-withheld-summary");
+  expect(summary).toHaveTextContent("The solve cannot read this model: request: missing field `outside_diameter`.");
+  expect(sentence.compareDocumentPosition(summary) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});

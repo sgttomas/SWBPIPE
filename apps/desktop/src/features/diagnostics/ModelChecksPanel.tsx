@@ -94,16 +94,16 @@ export function ModelChecksPanel({
           {notShownTotal(run)} more {notShownTotal(run) === 1 ? "finding is" : "findings are"} not listed: the report is bounded. Correct the listed findings and run the checks again.
         </p>
       ) : null}
+      {run?.laterCheckNotCompleted !== undefined ? (
+        <p className="memory-pool-message warning" data-testid="model-checks-later-not-completed">
+          {laterCheckNotCompletedText(run.laterCheckNotCompleted, !stale, isRefusalOnly(run))}
+        </p>
+      ) : null}
       {run && run.solve.kind !== "checked" ? (
         <p className="memory-pool-message warning" data-testid="model-checks-solve-unchecked">
           {run.solve.kind === "refused"
             ? `The solve's checks did not run: the solve cannot read this model (${run.solve.refusal}).`
             : run.solve.started ? `The model checks did not complete: ${run.solve.reason}` : `The model checks did not run: ${run.solve.reason}`}
-        </p>
-      ) : null}
-      {run?.laterCheckNotCompleted !== undefined ? (
-        <p className="memory-pool-message warning" data-testid="model-checks-later-not-completed">
-          A later run of the checks on this model could not finish ({run.laterCheckNotCompleted}). The findings below are from the last run that finished, and they still apply.
         </p>
       ) : null}
       {run?.libraryNotCompleted !== undefined ? (
@@ -157,6 +157,23 @@ export function FindingButton({ finding, onSelectEntity }: { finding: ModelCheck
       {(diagnostic as { truncated?: boolean }).truncated ? <small data-testid="model-check-truncated"> Text shortened in the bounded report.</small> : null}
     </button>
   );
+}
+
+/** The sentence beside evidence kept over a later check that could not finish. The
+ * evidence is said to still apply only while the run is of the model value the
+ * session holds; for an earlier model value it is named as about that model. A kept
+ * refusal with no findings is named as the refusal, never as findings. The kept
+ * evidence follows the sentence. */
+export function laterCheckNotCompletedText(reason: string, sameModel: boolean, refusalOnly: boolean): string {
+  const kept = refusalOnly ? "The refusal below is" : "The findings below are";
+  return sameModel
+    ? `A later run of the checks on this model could not finish (${reason}). ${kept} from the last run that finished, and ${refusalOnly ? "it still applies" : "they still apply"}.`
+    : `A later run of the checks on the earlier model could not finish (${reason}). ${kept} from the last run that finished on that earlier model.`;
+}
+
+/** The solve refused to read the model, and its checks list no finding. */
+function isRefusalOnly(run: ModelCheckRun): boolean {
+  return run.solve.kind === "refused" && !run.findings.some((finding) => finding.group === "solve");
 }
 
 function notShownTotal(run: ModelCheckRun): number {

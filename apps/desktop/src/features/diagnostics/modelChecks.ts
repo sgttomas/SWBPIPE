@@ -15,7 +15,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { Diagnostic, EntityRef, PreviewModel } from "../../types";
 import { loadedWasmEngine, WASM_ENGINE_BUILD_COMMAND } from "../../services/wasmEngine/loadWasmEngine";
-import { invokeWithIngress, nativeFailureText } from "../../services/nativeIngress";
+import { IngressRequestRetiredError, invokeWithIngress, nativeFailureText } from "../../services/nativeIngress";
 import { ResourceUnavailableError } from "../../services/memoryPool";
 import { isTauriRuntime } from "../../services/nativeMenu";
 import { DOCUMENT_VALIDATOR_SOURCE } from "../model-data/documentDiagnostics";
@@ -102,8 +102,28 @@ type EngineChecks = {
   bytes: number;
 };
 
+/** The checks did not run: a refusal established before any start (the engine not
+ * loaded, the input over the browser's bound, the engine's own refusal to check, a
+ * retired request never sent, the native pool's refusal to admit). */
 function unavailable(reason: string): EngineChecks {
   return { outcome: { kind: "unavailable", reason }, solve: [], slots: [], notShown: { solve: 0, slots: 0 }, notShownBlocking: 0, notShownBlockingByGroup: { solve: 0, slots: 0 }, bytes: 0 };
+}
+
+/** The checks did not complete: their execution failed, or whether they started is not known. */
+function notCompleted(reason: string): EngineChecks {
+  return { ...unavailable(reason), outcome: { kind: "unavailable", reason, started: true } };
+}
+
+/** The native pool's refusals to a worker already running; every other refusal is to admit. */
+const RUNNING_WORKER_REFUSALS: ReadonlySet<string> = new Set(["worker_cap_exceeded", "worker_growth_refused", "worker_footprint_exceeded"]);
+
+/** Whether a native failure of the checks is established as a refusal before their start:
+ * a retired request was never sent, and an admission refusal stops the request before a
+ * worker starts. Any other failure, a refusal to a running worker included, is one whose
+ * start is not established. */
+function refusedBeforeStart(error: unknown): boolean {
+  if (error instanceof IngressRequestRetiredError) return true;
+  return error instanceof ResourceUnavailableError && !RUNNING_WORKER_REFUSALS.has(error.refusal.kind);
 }
 
 /** The UTF-8 length of `text`, counted without encoding it; it stops counting
@@ -165,7 +185,7 @@ export async function engineModelChecks(model: PreviewModel, options: { stillCur
       // A request its caller has retired is never sent, nor resent after a headroom refusal.
       report = await invokeWithIngress<ModelChecksReport>("check_preview_model", { model }, { stillCurrent: options.stillCurrent });
     } catch (error) {
-      return unavailable(checkFailureText(error));
+      return refusedBeforeStart(error) ? unavailable(checkFailureText(error)) : notCompleted(checkFailureText(error));
     }
   } else {
     const engine = loadedWasmEngine();
@@ -178,13 +198,13 @@ export async function engineModelChecks(model: PreviewModel, options: { stillCur
     try {
       report = JSON.parse(engine.modelChecksJson(text)) as ModelChecksReport;
     } catch (error) {
-      return unavailable(`The model checks did not return a report: ${String(error)}`);
+      return notCompleted(`The model checks did not return a report: ${String(error)}`);
     }
   }
-  if (report.error) return unavailable(`${report.error.code}: ${report.error.message}`);
+  if (report.error) return notCompleted(`${report.error.code}: ${report.error.message}`);
   if (report.checked === false && report.refusal_code) return unavailable(report.refusal ?? report.refusal_code);
   if (typeof report.checked !== "boolean" || !Array.isArray(report.diagnostics) || !Array.isArray(report.slot_findings)) {
-    return unavailable("The model checks returned a report the desktop cannot read.");
+    return notCompleted("The model checks returned a report the desktop cannot read.");
   }
   const slots = report.slot_findings.map((item) => ({ ...item, source: item.source ?? DOCUMENT_VALIDATOR_SOURCE }));
   const solve = report.diagnostics.map((item) => ({ ...item, source: item.source ?? SOLVE_CHECKS_SOURCE }));
