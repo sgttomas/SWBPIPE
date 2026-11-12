@@ -76,7 +76,7 @@ It serves SOW-076 under OBJ-015 and OBJ-016 (`execution/_Decomposition/SOFTWARE_
 
 ## Production and Verification Method — Praxeology
 
-**Method choices.** Each panel is a view over records and results other deliverables produce, and holds no copy that could diverge. The review queue is one component for every author of a change, so a proposal cannot reach the model by a shorter path than a form. Comparison views are pure functions from a comparison result to a view model, which the table, the overlay and the export read alike.
+**Method choices.** Each panel is a view over records and results other deliverables produce, and holds no copy that could diverge. The review queue is one component for every author of a change, so a proposal cannot reach the model by a shorter path than a form. Comparison views are pure functions from a comparison result to a view model, which the table, the overlay and the export read alike. The overlay draws the later of the two compared models, from the model documents the comparison read (for runs, the solved models the runs are bound to), with each entity found only in the earlier one drawn as a ghost in its own position there; a classified entity it does not draw is counted by class in its legend and is in the table.
 
 **How each criterion is examined.**
 

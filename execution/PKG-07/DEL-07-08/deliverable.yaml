@@ -115,8 +115,10 @@ needs:
 - from: DEL-07-01
   when: Drawing the comparison overlay
   condition: >-
-    The viewport provides one scene with the model's nodes and members addressable by identifier
-    and lets an overlay add and remove its own drawn resources (DEL-07-01/REQ-002).
+    The viewport pane can hold a read-only mode over the authoring viewport: while the mode shows,
+    the viewport stays mounted with its model, selection, camera and drafts unchanged, hidden and
+    inert, so the mode opens no second WebGL context; and the viewport's camera presets (Isometric,
+    Front and Top, with Y up) are the views the mode draws in.
   gating: true
 - from: DEL-07-05
   when: Opening a recorded run for review
@@ -154,6 +156,10 @@ code_paths:
 # DEL-07-03's hanger selection, self-weight authoring and library apply.
 - apps/desktop/src/features/agent-proposals/**
 - apps/desktop/src/features/offline-proposal-intake/**
+# The comparison overlay's read-only mode of the viewport pane; its view model is
+# features/comparison/comparisonOverlay.ts above. The mode holds PipeViewport.tsx (DEL-07-01's)
+# inert through its comparisonOverlayActive property.
+- apps/desktop/src/features/viewport/ComparisonOverlayMode.tsx
 # Shared with DEL-07-07, DEL-07-11 and DEL-14-04, each for the calls it makes.
 - apps/desktop/src/services/previewService.ts
 # A review-export panel mounted in the workspace and a reference module with its own contract
@@ -181,3 +187,6 @@ checks:
 - apps/desktop/src/features/history/HistoryPanel.unreadable.test.tsx
 - apps/desktop/src/features/operations/queuedChangesBatch.test.tsx
 - apps/desktop/src/features/toolkit/BatchReviewPanel.test.tsx
+- apps/desktop/src/features/comparison/comparisonOverlay.test.ts
+- apps/desktop/src/features/viewport/ComparisonOverlayMode.test.tsx
+- apps/desktop/src/features/history/comparisonOverlay.session.test.tsx

@@ -4851,3 +4851,51 @@ body { min-width: 760px; min-height: 540px; }
 .app-shell .quantity-field-row > label + label { flex: 1 1 6rem; }
 .app-shell .quantity-field-row > label > input { width: 100%; min-width: 0; margin-inline: 0; color: var(--ui-text); }
 .app-shell .quantity-field > .quantity-field-row + button { margin-top: var(--space-2); }
+
+/* The comparison overlay's read-only mode of the viewport pane (DEL-07-08 REQ-011). The authoring
+   viewport stays mounted and keeps its place in the canvas budget, hidden beneath; the overlay
+   covers the pane. Each class is drawn in a token colour and, besides colour, its own line style
+   and glyph (DEL-07-06 REQ-011). */
+.workspace-pane-viewport:has(> .comparison-overlay) { position: relative; }
+.viewport-shell[data-comparison-overlay="true"] { visibility: hidden; }
+.comparison-overlay {
+  position: absolute; inset: 0; z-index: 1; display: grid; grid-template-rows: auto minmax(0, 1fr);
+  background: var(--canvas-bg); color: var(--text-primary);
+}
+.comparison-overlay-banner {
+  display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-4); background: var(--surface-raised); border-bottom: var(--border-width-hairline) solid var(--border-strong);
+}
+.comparison-overlay-banner > p { flex: 1 1 20rem; margin: 0; }
+.comparison-overlay-view { display: inline-flex; align-items: center; gap: var(--space-2); }
+.comparison-overlay-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(12rem, 18rem); min-height: 0; }
+.comparison-overlay-drawing { width: 100%; height: 100%; min-height: 0; }
+.comparison-overlay-legend { overflow: auto; padding: var(--space-2) var(--space-4); background: var(--surface-raised); border-left: var(--border-width-hairline) solid var(--border-hairline); }
+.comparison-overlay-legend ul { list-style: none; margin: var(--space-2) 0; padding: 0; display: grid; gap: var(--space-2); }
+.comparison-overlay-legend li { display: flex; align-items: center; gap: var(--space-2); }
+.comparison-overlay-sample { flex: none; }
+.comparison-overlay-line, .comparison-overlay-point { fill: none; stroke: var(--canvas-deformGhost); stroke-width: 1.5px; }
+.comparison-overlay-point { fill: var(--canvas-glyphFill); }
+.comparison-overlay-line[data-line="solid"] { stroke-width: 3.5px; }
+.comparison-overlay-line[data-line="dashed"] { stroke-width: 2.5px; stroke-dasharray: 7 5; }
+.comparison-overlay-line[data-line="dash-dot"] { stroke-width: 3px; stroke-dasharray: 10 4 2 4; }
+.comparison-overlay-line[data-line="dotted"] { stroke-width: 3px; stroke-dasharray: 2 4; stroke-linecap: round; }
+.comparison-overlay-line[data-line="thin"] { stroke-width: 1.5px; }
+.comparison-overlay-point:not([data-line="context"]) { stroke-width: 2.5px; }
+.comparison-overlay-point[data-line="dashed"] { stroke-dasharray: 3 2; }
+.comparison-overlay-point[data-line="dotted"] { stroke-dasharray: 1 2; }
+.comparison-overlay [data-swatch="added"] { stroke: var(--cat-3); }
+.comparison-overlay [data-swatch="removed"] { stroke: var(--cat-5); }
+.comparison-overlay [data-swatch="changed"] { stroke: var(--cat-1); }
+.comparison-overlay [data-swatch="not-compared"] { stroke: var(--cat-7); }
+.comparison-overlay [data-swatch="unchanged"] { stroke: var(--canvas-pipe); }
+.comparison-overlay .comparison-overlay-glyph { stroke: none; fill: var(--canvas-label); font-family: var(--font-ui); font-weight: 600; }
+.comparison-overlay .comparison-overlay-glyph[data-swatch="added"] { fill: var(--cat-3); }
+.comparison-overlay .comparison-overlay-glyph[data-swatch="removed"] { fill: var(--cat-5); }
+.comparison-overlay .comparison-overlay-glyph[data-swatch="changed"] { fill: var(--cat-1); }
+.comparison-overlay .comparison-overlay-glyph[data-swatch="not-compared"] { fill: var(--cat-7); }
+.comparison-overlay-entity[data-ghost="true"] { opacity: 0.55; }
+.comparison-overlay-entity[role="button"] { cursor: pointer; }
+.comparison-overlay-entity:focus-visible { outline: none; }
+.comparison-overlay-entity:focus-visible > :is(line, circle) { stroke: var(--canvas-selection); }
+tr[data-overlay-focus="true"] { outline: var(--border-width-focusRing) solid var(--border-focus); outline-offset: -2px; }

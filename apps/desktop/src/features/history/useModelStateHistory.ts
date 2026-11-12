@@ -7,7 +7,7 @@
 // (`useWorkspaceSession`), which hands it the cells and handlers it needs; the
 // History panel reads the result through `useSessionHistory()`.
 import { isNativeResult } from "../../services/nativeResult";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { MutableRefObject } from "react";
 import {
   admitModelStateComparison,
@@ -50,6 +50,14 @@ import { projectUnitsShapeRefusal } from "../model-file/modelDocumentShape";
 import type { StoredDocumentExportTarget } from "../model-file/storedDocumentExport";
 import { RULE_PACKS_NOT_RESOLVED, type UnreadableRow } from "../../services/historyListEntries";
 import { compareRunInputs, RunComparisonRefusal, type RunComparison } from "../comparison/runComparison";
+import {
+  comparisonOverlayScene,
+  runOverlayMarks,
+  stateOverlayMarks,
+  type ComparisonOverlayKind,
+  type ComparisonOverlayScene
+} from "../comparison/comparisonOverlay";
+import type { EntityFamily } from "../comparison/stateComparison";
 import { CURRENT_RUN_ID, currentRunBytes, currentRunSide, currentRunUnavailableReason, recordedRunSide, type RunComparisonSide } from "../comparison/runComparisonSides";
 import type { CurrentSessionInputManifest } from "../../services/inputManifestService";
 import { nativeFailureText } from "../../services/nativeIngress";
@@ -137,6 +145,9 @@ export type StateComparisonResult = {
   left: ModelStateSummary;
   right: ModelStateSummary;
   comparison: StateComparison;
+  /** The two model documents compared, as read (the left the earlier), which the comparison
+   * overlay draws (DEL-07-08 REQ-011); absent on a result built without them. */
+  models?: { left: unknown; right: unknown };
 };
 
 /** A comparison of two runs of the session's project (W-12 S3b): the earlier-recorded
@@ -163,6 +174,62 @@ export const COMPARISON_CURRENT_RUN_CHANGED = "COMPARISON-CURRENT-RUN-CHANGED";
  * solve, a cleared slot or a project replacement makes it another). */
 export function sameCurrentRun(identity: CurrentRunIdentity, slot: CurrentRunSlot): boolean {
   return identity.result === slot.result && identity.analysisRun === slot.analysisRun && identity.inputManifest === slot.inputManifest;
+}
+
+/** The comparison overlay as the session shows it: the scene drawn and the two sides in words. */
+export type ShownComparisonOverlay = {
+  kind: ComparisonOverlayKind;
+  /** The two compared sides' identifiers (state ids, or recording ids and `CURRENT_RUN_ID`), left first. */
+  ids: readonly [string, string];
+  leftText: string;
+  rightText: string;
+  scene: ComparisonOverlayScene;
+};
+
+/** A request to show one entity's rows in the shown comparison's table (from the overlay). */
+export type ComparisonRowRequest = {
+  /** The comparison's two sides (state ids, or run ids), left first, as the overlay names them. */
+  ids: readonly [string, string];
+  ref: string;
+  family: EntityFamily | null;
+  serial: number;
+};
+
+function isStateComparisonResult(result: StateComparisonResult | RunComparisonResult): result is StateComparisonResult {
+  return "rows" in result.comparison;
+}
+
+/** Why the shown comparison cannot be drawn on the model, or null when it can. */
+export function comparisonOverlayUnavailableReason(result: StateComparisonResult | RunComparisonResult): string | null {
+  if (isStateComparisonResult(result)) {
+    return result.models ? null : "The compared model documents are not held with this comparison; compare again to draw it on the model.";
+  }
+  return result.left.model !== undefined && result.right.model !== undefined
+    ? null
+    : "A compared run's solved model is not held with this comparison; compare again to draw it on the model.";
+}
+
+/** The overlay of a shown comparison: the marks its result gives, drawn on the later side's model. */
+export function shownComparisonOverlay(result: StateComparisonResult | RunComparisonResult): ShownComparisonOverlay | null {
+  if (comparisonOverlayUnavailableReason(result) !== null) return null;
+  if (isStateComparisonResult(result)) {
+    const state = result;
+    return {
+      kind: "states",
+      ids: [state.left.state_id, state.right.state_id],
+      leftText: modelStateDescription(state.left),
+      rightText: modelStateDescription(state.right),
+      scene: comparisonOverlayScene("states", stateOverlayMarks(state.comparison), state.models!.left, state.models!.right)
+    };
+  }
+  const run = result;
+  return {
+    kind: "runs",
+    ids: [run.left.id, run.right.id],
+    leftText: run.left.description,
+    rightText: run.right.description,
+    scene: comparisonOverlayScene("runs", runOverlayMarks(run.comparison), run.left.model, run.right.model)
+  };
 }
 
 /** The stated reason when nothing selected can be compared. */
@@ -211,6 +278,9 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
   const [runCheck, setRunCheck] = useState<RecordedRunCheck | null>(null);
   const [stateComparison, setStateComparison] = useState<StateComparisonResult | null>(null);
   const [runComparison, setRunComparison] = useState<RunComparisonResult | null>(null);
+  // The comparison result the overlay is on for, and the overlay's last row request.
+  const [overlayFor, setOverlayFor] = useState<StateComparisonResult | RunComparisonResult | null>(null);
+  const [comparisonRowRequest, setComparisonRowRequest] = useState<ComparisonRowRequest | null>(null);
   // Recorded runs a read refused by name as recorded before rule-pack resolution (S2-era),
   // with the refusal: the list cannot tell them (it reads no manifest), so they are shown
   // as not comparable once a read has said so. Runs are immutable, so it stays true.
@@ -270,6 +340,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     setRunCheck(null);
     setStateComparison(null);
     setRunComparison(null);
+    setOverlayFor(null);
   }, [projectId, deps.projectSessionGeneration]);
 
   /** Keeps a read's by-name refusal of a run recorded before rule-pack resolution. */
@@ -718,18 +789,23 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
    * one-owner check and is refused while a prompt or operation holds the session.
    * Nothing about the session or the states changes. */
   async function compareStates(firstStateId: string, secondStateId: string): Promise<boolean> {
+    return (await compareStatesResult(firstStateId, secondStateId)) !== null;
+  }
+
+  /** Compare… of two saved states, returning the comparison it shows, or null when it shows none. */
+  async function compareStatesResult(firstStateId: string, secondStateId: string): Promise<StateComparisonResult | null> {
     const first = states?.find((candidate) => candidate.state_id === firstStateId);
     const second = states?.find((candidate) => candidate.state_id === secondStateId);
     if (!first || !second || first.state_id === second.state_id || first.project_id !== second.project_id) {
       setHistoryMessage("Not compared: select two different saved states of this project.");
       setHistoryOperation("compare_states_refused");
-      return false;
+      return null;
     }
-    if (refusedWhileBusy("Not compared", "compare_states_busy")) return false;
+    if (refusedWhileBusy("Not compared", "compare_states_busy")) return null;
     // The earlier-saved state is the left side.
     const [left, right] = first.created_at <= second.created_at ? [first, second] : [second, first];
     const owner = begin();
-    if (!owner) return false;
+    if (!owner) return null;
     const generation = depsRef.current.projectSessionGenerationRef.current;
     const sameSession = () => generation === depsRef.current.projectSessionGenerationRef.current;
     try {
@@ -754,18 +830,19 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
         }
       }
       const comparison = compareModelDocuments(leftRead.model, rightRead.model);
-      if (!sameSession()) return false;
-      setStateComparison({ projectId: left.project_id, left: leftRead.state, right: rightRead.state, comparison });
+      if (!sameSession()) return null;
+      const shown: StateComparisonResult = { projectId: left.project_id, left: leftRead.state, right: rightRead.state, comparison, models: { left: leftRead.model, right: rightRead.model } };
+      setStateComparison(shown);
       setRunComparison(null);
       const { added, removed, changed, unchanged } = comparison.summary;
       setHistoryMessage(`Compared ${modelStateDescription(left)} with ${modelStateDescription(right)}: ${added} added, ${removed} removed, ${changed} changed, ${unchanged} unchanged. Neither state changes.`);
       setHistoryOperation("compare_states");
-      return true;
+      return shown;
     } catch (error) {
-      if (!sameSession()) return false;
+      if (!sameSession()) return null;
       setHistoryMessage(`Not compared: ${error instanceof StateComparisonRefusal ? error.message : nativeFailureText(error)}`);
       setHistoryOperation("compare_states_failed");
-      return false;
+      return null;
     } finally {
       end(owner);
     }
@@ -795,21 +872,26 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
    * prompt or operation holds the session. Nothing about the session or the runs
    * changes. */
   async function compareRuns(firstId: string, secondId: string): Promise<boolean> {
+    return (await compareRunsResult(firstId, secondId)) !== null;
+  }
+
+  /** Compare… of two runs, returning the comparison it shows, or null when it shows none. */
+  async function compareRunsResult(firstId: string, secondId: string): Promise<RunComparisonResult | null> {
     const requestProjectId = projectId;
     const listed = (id: string) => runs?.find((candidate) => candidate.recording_id === id) ?? null;
     const valid = (id: string) => (id === CURRENT_RUN_ID ? currentRunReason === null : listed(id) !== null);
     if (!requestProjectId || statesProjectId !== requestProjectId || firstId === secondId || !valid(firstId) || !valid(secondId)) {
       setHistoryMessage(`Not compared: select two different runs of this project${currentRunReason && [firstId, secondId].includes(CURRENT_RUN_ID) ? ` (${currentRunReason})` : ""}.`);
       setHistoryOperation("compare_runs_refused");
-      return false;
+      return null;
     }
-    if (refusedWhileBusy("Not compared", "compare_runs_busy")) return false;
+    if (refusedWhileBusy("Not compared", "compare_runs_busy")) return null;
     // The earlier-recorded run is the left side; the current run is the right.
     const order = (id: string) => (id === CURRENT_RUN_ID ? "\uffff" : listed(id)!.created_at);
     const [leftId, rightId] = order(firstId) <= order(secondId) ? [firstId, secondId] : [secondId, firstId];
     const recordingIds = [leftId, rightId].filter((id) => id !== CURRENT_RUN_ID);
     const owner = begin();
-    if (!owner) return false;
+    if (!owner) return null;
     const generation = depsRef.current.projectSessionGenerationRef.current;
     const sameSession = () => generation === depsRef.current.projectSessionGenerationRef.current;
     const slot = depsRef.current.runSlot;
@@ -843,27 +925,90 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       const left = await side(leftId);
       const right = await side(rightId);
       const comparison = compareRunInputs(left.input, right.input);
-      if (!sameSession()) return false;
+      if (!sameSession()) return null;
       if (withCurrent) requireCurrentRun();
-      setRunComparison({ projectId: requestProjectId, left, right, comparison, currentRun: withCurrent ? captured : null });
+      const shown: RunComparisonResult = { projectId: requestProjectId, left, right, comparison, currentRun: withCurrent ? captured : null };
+      setRunComparison(shown);
       setStateComparison(null);
       const { compared, not_compared, unmatched_left, unmatched_right } = comparison.summary;
       setHistoryMessage(`Compared ${left.description} with ${right.description}: ${compared} row pair${compared === 1 ? "" : "s"} compared, ${not_compared} not compared, ${unmatched_left} only in the left run, ${unmatched_right} only in the right run. Neither run changes.`);
       setHistoryOperation("compare_runs");
-      return true;
+      return shown;
     } catch (error) {
-      if (!sameSession()) return false;
+      if (!sameSession()) return null;
       setHistoryMessage(`Not compared: ${error instanceof RunComparisonRefusal ? error.message : nativeFailureText(error)}`);
       setHistoryOperation("compare_runs_failed");
-      return false;
+      return null;
     } finally {
       end(owner);
     }
   }
 
+  // The comparison overlay (DEL-07-08 REQ-011): on for one shown comparison result. It is drawn
+  // only while that result is the comparison shown, so a comparison closed, replaced or made
+  // stale (as a run comparison whose current run changed) takes its overlay with it.
+  const shownStateComparison = stateComparison && stateComparison.projectId === projectId ? stateComparison : null;
+  const shownRunComparison = runComparison && runComparison.projectId === projectId && !staleCurrentComparison ? runComparison : null;
+  const overlayShown = overlayFor !== null && (overlayFor === shownStateComparison || overlayFor === shownRunComparison);
+  const comparisonOverlay = useMemo(() => (overlayShown && overlayFor ? shownComparisonOverlay(overlayFor) : null), [overlayShown, overlayFor]);
+  // A comparison closed, replaced or made stale releases the overlay it carried.
+  useEffect(() => {
+    if (overlayFor !== null && !overlayShown) setOverlayFor(null);
+  }, [overlayFor, overlayShown]);
+
+  /** Turns the comparison overlay on for the comparison of two saved states (`"states"`, by state
+   * id) or of two runs (`"runs"`, by recording id or `CURRENT_RUN_ID`), in either order. When that
+   * comparison is not the one shown, it is compared first, as Compare… does. Works from the
+   * identifiers alone (no pointer event); true when the overlay is shown, else the history
+   * message says why. Nothing about the working model, its selection or its history changes. */
+  async function showComparisonOverlay(kind: ComparisonOverlayKind, firstId: string, secondId: string): Promise<boolean> {
+    const same = (ids: readonly string[]) => ids.length === 2 && ids.includes(firstId) && ids.includes(secondId) && firstId !== secondId;
+    let result: StateComparisonResult | RunComparisonResult | null = null;
+    if (kind === "states") {
+      result = shownStateComparison && same([shownStateComparison.left.state_id, shownStateComparison.right.state_id])
+        ? shownStateComparison
+        : await compareStatesResult(firstId, secondId);
+    } else if (kind === "runs") {
+      result = shownRunComparison && same([shownRunComparison.left.id, shownRunComparison.right.id])
+        ? shownRunComparison
+        : await compareRunsResult(firstId, secondId);
+    } else {
+      setHistoryMessage("Not shown on the model: the comparison kind is \"states\" or \"runs\".");
+      setHistoryOperation("comparison_overlay_refused");
+      return false;
+    }
+    if (!result) return false;
+    const unavailable = comparisonOverlayUnavailableReason(result);
+    if (unavailable) {
+      setHistoryMessage(`Not shown on the model: ${unavailable}`);
+      setHistoryOperation("comparison_overlay_refused");
+      return false;
+    }
+    setOverlayFor(result);
+    setHistoryOperation("comparison_overlay_shown");
+    return true;
+  }
+
+  /** Turns the comparison overlay off. The comparison itself stays shown. */
+  function hideComparisonOverlay() {
+    setOverlayFor(null);
+  }
+
+  /** Asks the shown comparison's table for an entity's rows (the overlay's activation). */
+  function requestComparisonRow(ref: string, family: EntityFamily | null) {
+    if (!comparisonOverlay) return;
+    const { ids } = comparisonOverlay;
+    setComparisonRowRequest((current) => ({ ids, ref, family, serial: (current?.serial ?? 0) + 1 }));
+  }
+
+  /** The table has shown the requested row: the request is spent. */
+  function clearComparisonRowRequest(serial: number) {
+    setComparisonRowRequest((current) => (current?.serial === serial ? null : current));
+  }
+
   return {
     /** The last comparison of two runs (view-only), or null. */
-    runComparison: runComparison && runComparison.projectId === projectId && !staleCurrentComparison ? runComparison : null,
+    runComparison: shownRunComparison,
     compareRuns,
     closeRunComparison: () => setRunComparison(null),
     /** Why the session's current run cannot be compared, or null when it can. */
@@ -871,9 +1016,17 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
     /** Recorded runs a read refused by name as recorded before rule-pack resolution, with the refusal. */
     refusedRuns: refusedRuns.projectId === projectId ? refusedRuns.runs : {},
     /** The last comparison of two saved states (view-only), or null. */
-    stateComparison: stateComparison && stateComparison.projectId === projectId ? stateComparison : null,
+    stateComparison: shownStateComparison,
     compareStates,
     closeStateComparison: () => setStateComparison(null),
+    /** The comparison overlay shown on the model, or null (DEL-07-08 REQ-011). */
+    comparisonOverlay,
+    showComparisonOverlay,
+    hideComparisonOverlay,
+    /** The overlay's last request for an entity's rows in the shown comparison's table. */
+    comparisonRowRequest,
+    requestComparisonRow,
+    clearComparisonRowRequest,
     runs: statesProjectId === projectId ? runs : null,
     /** The rows the store could not read, by id and refusal only. */
     unreadable: statesProjectId === projectId ? unreadable : null,
