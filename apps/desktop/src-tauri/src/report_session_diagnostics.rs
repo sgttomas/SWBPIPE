@@ -518,8 +518,12 @@ fn place(appended: &[Value], model: &Value) -> Result<(), Unplaced> {
 /// object of one of `results` (the result's projected diagnostics), looked up
 /// by code and affected object id.
 fn first_copy_of_a_result_diagnostic(appended: &[Value], results: &[Value]) -> Option<usize> {
-    let affected_id = |entry: &Value| entry.get("affected_object").and_then(|object| object.get("ref_id"));
-    let key = |entry: &Value| Some((entry.get("code")?.as_str()?, affected_id(entry)?.as_str()?));
+    fn affected_id(entry: &Value) -> Option<&Value> {
+        entry.get("affected_object").and_then(|object| object.get("ref_id"))
+    }
+    fn key(entry: &Value) -> Option<(&str, &str)> {
+        Some((entry.get("code")?.as_str()?, affected_id(entry)?.as_str()?))
+    }
     // The projection writes both as strings; any other result is compared whole.
     let (mut claimed, mut other) = (HashSet::with_capacity(results.len()), Vec::new());
     for result in results {

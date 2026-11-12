@@ -703,9 +703,15 @@ fn the_matching_is_bounded_on_thousands_of_sites_and_entries() {
         assert!(work <= bound, "{name}: {work} steps exceed {bound}");
         // Allocations: a fixed number of tables and buffers, none per site or entry.
         assert!(measured.allocations <= 64, "{name}: {} allocations", measured.allocations);
-        // The priced peak: the appended entries' keys and counters, a constant
-        // per entry, and buffers no longer than the longest derived text.
-        assert!(measured.peak_priced <= 512 * entries + (64 << 10), "{name}: priced peak {} for {entries} entries", measured.peak_priced);
+        // The priced peak: a constant per entry, none per site, and buffers no
+        // longer than the longest derived text. Each request is priced at its
+        // next power of two (`allocation_envelope`), so the key table (at most
+        // 16/7 slots of 153 B per entry, <= 350 B) prices at <= 700 B per entry
+        // and the per-entry vectors (claims and links of 16 B, six of 8 B, one
+        // of 1 B: <= 81 B) at <= 162 B: within 1 KiB per entry, with 64 KiB for
+        // the buffers and fixed tables. (The general matching kept a site list
+        // per entry: about 128 MB for 4,000 identical entries and sites.)
+        assert!(measured.peak_priced <= 1024 * entries + (64 << 10), "{name}: priced peak {} for {entries} entries", measured.peak_priced);
     }
 }
 
