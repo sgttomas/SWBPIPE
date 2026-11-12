@@ -164,8 +164,9 @@ describe("projectService model-document version evidence (DEL-02-05 CLM-003, bro
     expect(blank.project.id).toBe("project:blank-local-20260612t000000z");
     expect(blank.project.name).toBe("Blank Local Model");
     expect(blank.project.units.temperature).toBe("degC");
-    expect(blank.analysis_status.mechanics).toBe("MODEL_INCOMPLETE");
-    expect(blank.analysis_status.rule_check).toBe("RULE_INPUTS_INCOMPLETE");
+    expect(blank.analysis_status).toEqual({
+      mechanics: "ready_for_preview_diagnostics", rule_check: "not_performed_user_rule_inputs_missing", professional_acceptance: "not_provided"
+    });
     expect(blank.nodes).toEqual([]);
     expect(blank.pipe_segments).toEqual([]);
     expect(blank.supports).toEqual([]);
@@ -174,8 +175,8 @@ describe("projectService model-document version evidence (DEL-02-05 CLM-003, bro
     expect(blank.load_cases).toEqual([]);
     expect(blank.combinations).toEqual([]);
     expect(blank.data_boundary.private_data_policy).toContain("not_committed_to_repository");
-    expect(blank.diagnostics[0].code).toBe("BLANK_PROJECT_AUTHORING_TARGET");
-    expect(blank.diagnostics[0].severity).toBe("blocking");
+    // The blank stores no diagnostic of its own; the model checks state its incompleteness.
+    expect(blank.diagnostics).toEqual([]);
 
     const created = await createLocalProject(blank);
     expect(created.summary.project_id).toBe("project:blank-local-20260612t000000z");

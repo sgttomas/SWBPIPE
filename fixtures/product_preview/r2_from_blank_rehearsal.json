@@ -36,9 +36,9 @@
       }
     },
     "analysis_status": {
-      "mechanics": "MODEL_INCOMPLETE",
-      "rule_check": "RULE_INPUTS_INCOMPLETE",
-      "professional_acceptance": "NOT_PROVIDED"
+      "mechanics": "ready_for_preview_diagnostics",
+      "rule_check": "not_performed_user_rule_inputs_missing",
+      "professional_acceptance": "not_provided"
     },
     "materials": [],
     "sections": [],
@@ -48,16 +48,7 @@
     "components": [],
     "load_cases": [],
     "combinations": [],
-    "diagnostics": [
-      {
-        "id": "diagnostic:r2-from-blank:authoring-target",
-        "code": "BLANK_PROJECT_AUTHORING_TARGET",
-        "severity": "blocking",
-        "source": "fixtures/product_preview/r2_from_blank_rehearsal.json",
-        "affected_refs": ["project:r2-from-blank-rehearsal"],
-        "message": "The rehearsal starts from an intentionally incomplete blank local model; every solve-required entity below is added by a structured operation step."
-      }
-    ]
+    "diagnostics": []
   },
   "steps": [
     {

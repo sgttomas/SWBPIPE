@@ -29,9 +29,9 @@
           }
         },
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "rule_check": "RULE_INPUTS_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED"
+          "mechanics": "ready_for_preview_diagnostics",
+          "rule_check": "not_performed_user_rule_inputs_missing",
+          "professional_acceptance": "not_provided"
         },
         "materials": [],
         "sections": [],
@@ -41,18 +41,7 @@
         "components": [],
         "load_cases": [],
         "combinations": [],
-        "diagnostics": [
-          {
-            "id": "diagnostic:blank-project:authoring-target",
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts",
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted."
-          }
-        ]
+        "diagnostics": []
       }
     },
     {
@@ -87,9 +76,9 @@
           }
         },
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "rule_check": "RULE_INPUTS_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED"
+          "mechanics": "ready_for_preview_diagnostics",
+          "rule_check": "not_performed_user_rule_inputs_missing",
+          "professional_acceptance": "not_provided"
         },
         "materials": [],
         "sections": [],
@@ -99,27 +88,16 @@
         "components": [],
         "load_cases": [],
         "combinations": [],
-        "diagnostics": [
-          {
-            "id": "diagnostic:blank-project:authoring-target",
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts",
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted."
-          }
-        ]
+        "diagnostics": []
       }
     },
     {
       "path": "node_creation",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [],
         "components": [],
@@ -129,18 +107,7 @@
           "protected_source_policy": "no_protected_standards_content_inserted",
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
         },
-        "diagnostics": [
-          {
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts"
-          }
-        ],
+        "diagnostics": [],
         "document_kind": "openpipestress.product_preview.model",
         "load_cases": [],
         "materials": [],
@@ -200,9 +167,9 @@
       "path": "material_creation",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [],
         "components": [],
@@ -212,18 +179,7 @@
           "protected_source_policy": "no_protected_standards_content_inserted",
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
         },
-        "diagnostics": [
-          {
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts"
-          }
-        ],
+        "diagnostics": [],
         "document_kind": "openpipestress.product_preview.model",
         "load_cases": [],
         "materials": [
@@ -301,9 +257,9 @@
       "path": "section_creation",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [],
         "components": [],
@@ -313,18 +269,7 @@
           "protected_source_policy": "no_protected_standards_content_inserted",
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
         },
-        "diagnostics": [
-          {
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts"
-          }
-        ],
+        "diagnostics": [],
         "document_kind": "openpipestress.product_preview.model",
         "load_cases": [],
         "materials": [
@@ -419,9 +364,9 @@
       "path": "pipe_creation",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [],
         "components": [],
@@ -431,18 +376,7 @@
           "protected_source_policy": "no_protected_standards_content_inserted",
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
         },
-        "diagnostics": [
-          {
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts"
-          }
-        ],
+        "diagnostics": [],
         "document_kind": "openpipestress.product_preview.model",
         "load_cases": [],
         "materials": [
@@ -584,9 +518,9 @@
       "path": "support_creation",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [],
         "components": [],
@@ -596,18 +530,7 @@
           "protected_source_policy": "no_protected_standards_content_inserted",
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
         },
-        "diagnostics": [
-          {
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts"
-          }
-        ],
+        "diagnostics": [],
         "document_kind": "openpipestress.product_preview.model",
         "load_cases": [],
         "materials": [
@@ -761,9 +684,9 @@
       "path": "load_creation",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [],
         "components": [],
@@ -773,18 +696,7 @@
           "protected_source_policy": "no_protected_standards_content_inserted",
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
         },
-        "diagnostics": [
-          {
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts"
-          }
-        ],
+        "diagnostics": [],
         "document_kind": "openpipestress.product_preview.model",
         "load_cases": [
           {
@@ -963,9 +875,9 @@
       "path": "combination_creation",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -988,18 +900,7 @@
           "protected_source_policy": "no_protected_standards_content_inserted",
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
         },
-        "diagnostics": [
-          {
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts"
-          }
-        ],
+        "diagnostics": [],
         "document_kind": "openpipestress.product_preview.model",
         "load_cases": [
           {
@@ -1178,9 +1079,9 @@
       "path": "project_tags_and_notes",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -1203,18 +1104,7 @@
           "protected_source_policy": "no_protected_standards_content_inserted",
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
         },
-        "diagnostics": [
-          {
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts"
-          }
-        ],
+        "diagnostics": [],
         "document_kind": "openpipestress.product_preview.model",
         "load_cases": [
           {
@@ -1398,9 +1288,9 @@
       "path": "entity_tags_and_notes",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -1423,18 +1313,7 @@
           "protected_source_policy": "no_protected_standards_content_inserted",
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
         },
-        "diagnostics": [
-          {
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts"
-          }
-        ],
+        "diagnostics": [],
         "document_kind": "openpipestress.product_preview.model",
         "load_cases": [
           {
@@ -1625,9 +1504,9 @@
       "path": "provenance_records",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -1650,18 +1529,7 @@
           "protected_source_policy": "no_protected_standards_content_inserted",
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
         },
-        "diagnostics": [
-          {
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts"
-          }
-        ],
+        "diagnostics": [],
         "document_kind": "openpipestress.product_preview.model",
         "load_cases": [
           {
@@ -1870,9 +1738,9 @@
       "path": "line",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -1895,18 +1763,7 @@
           "protected_source_policy": "no_protected_standards_content_inserted",
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
         },
-        "diagnostics": [
-          {
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts"
-          }
-        ],
+        "diagnostics": [],
         "document_kind": "openpipestress.product_preview.model",
         "lines": [
           {
@@ -2126,9 +1983,9 @@
       "path": "assumptions_and_open_issues",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -2151,18 +2008,7 @@
           "protected_source_policy": "no_protected_standards_content_inserted",
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
         },
-        "diagnostics": [
-          {
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts"
-          }
-        ],
+        "diagnostics": [],
         "document_kind": "openpipestress.product_preview.model",
         "lines": [
           {
@@ -2400,9 +2246,9 @@
       "path": "constraints_and_equipment_interfaces",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -2437,18 +2283,7 @@
           "protected_source_policy": "no_protected_standards_content_inserted",
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
         },
-        "diagnostics": [
-          {
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts"
-          }
-        ],
+        "diagnostics": [],
         "document_kind": "openpipestress.product_preview.model",
         "equipment_interfaces": [
           {
@@ -2695,9 +2530,9 @@
       "path": "rule_pack_ref",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -2732,18 +2567,7 @@
           "protected_source_policy": "no_protected_standards_content_inserted",
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
         },
-        "diagnostics": [
-          {
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts"
-          }
-        ],
+        "diagnostics": [],
         "document_kind": "openpipestress.product_preview.model",
         "equipment_interfaces": [
           {
@@ -3008,9 +2832,9 @@
       "path": "library_material_insert",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -3045,18 +2869,7 @@
           "protected_source_policy": "no_protected_standards_content_inserted",
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
         },
-        "diagnostics": [
-          {
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts"
-          }
-        ],
+        "diagnostics": [],
         "document_kind": "openpipestress.product_preview.model",
         "equipment_interfaces": [
           {
@@ -3355,9 +3168,9 @@
       "path": "reducer_eccentric_offset",
       "document": {
         "analysis_status": {
-          "mechanics": "MODEL_INCOMPLETE",
-          "professional_acceptance": "NOT_PROVIDED",
-          "rule_check": "RULE_INPUTS_INCOMPLETE"
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
         },
         "combinations": [
           {
@@ -3435,18 +3248,7 @@
           "protected_source_policy": "no_protected_standards_content_inserted",
           "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
         },
-        "diagnostics": [
-          {
-            "affected_refs": [
-              "project:blank-local-20260101t000000z"
-            ],
-            "code": "BLANK_PROJECT_AUTHORING_TARGET",
-            "id": "diagnostic:blank-project:authoring-target",
-            "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
-            "severity": "blocking",
-            "source": "apps/desktop/src/services/projectService.ts"
-          }
-        ],
+        "diagnostics": [],
         "document_kind": "openpipestress.product_preview.model",
         "equipment_interfaces": [
           {

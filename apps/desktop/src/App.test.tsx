@@ -9101,10 +9101,10 @@ describe("SWBPIPE desktop preview", () => {
       ),
     );
     expect(screen.getByText("Blank Local Model", { selector: ".titlebar p" })).toBeInTheDocument();
-    expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
-    // Slice B3, specification §5.4 rule 1: before any run the status bar carries one chip,
-    // Solver · Model incomplete. The other two recorded values stay readable in the Analyze
-    // page's readiness summary.
+    // The blank's authored labels record no unsolved status, so before any run the status bar
+    // carries no chip (shellLayout rule 2). The other two recorded values stay readable in the
+    // Analyze page's readiness summary.
+    expect(screen.queryByTestId("status-pill-mechanics")).not.toBeInTheDocument();
     expect(screen.queryByTestId("status-pill-rule-check")).not.toBeInTheDocument();
     expect(screen.queryByTestId("status-pill-professional")).not.toBeInTheDocument();
     const blankReadiness = within(openWorkspaceSection("solve"));
@@ -9134,7 +9134,7 @@ describe("SWBPIPE desktop preview", () => {
     if (treeToggle.getAttribute("aria-expanded") !== "true") fireEvent.click(treeToggle);
     expect(
       within(tree).getByTestId("model-tree-filter-summary").textContent,
-    ).toContain("2 of 2 model entities visible");
+    ).toContain("1 of 1 model entities visible");
     const blankSelection =
       screen.getByTestId("command-selection-readout").textContent ?? "";
     const blankProjectId = blankSelection.match(
@@ -9147,7 +9147,7 @@ describe("SWBPIPE desktop preview", () => {
     const inspector = screen.getByLabelText("Property inspector");
     expect(within(within(inspector).getByTestId("inspector-overview")).getByText("Project ID")).toBeInTheDocument();
     expect(inspector.textContent).toContain("project:blank-local-");
-    expect(inspector.textContent).toContain("MODEL_INCOMPLETE");
+    expect(inspector.textContent).toContain("ready_for_preview_diagnostics");
 
     let storageAudit = projectStorageAudit();
     expect(
@@ -13682,7 +13682,7 @@ describe("native straight-route Add and Apply", () => {
     fireEvent.click(within(controls).getByRole("button", { name: /New blank/i }));
     confirmProjectUnits();
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Created blank local model"));
-    expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
+    expect(screen.queryByTestId("status-pill-mechanics")).not.toBeInTheDocument();
     fireEvent.click(screen.getByTestId("command-node"));
     const panel = screen.getByTestId("viewport-editor-intents");
     const change = (id: string, value: string) => fireEvent.change(within(panel).getByTestId(id), { target: { value } });
@@ -13696,13 +13696,13 @@ describe("native straight-route Add and Apply", () => {
     await waitFor(() => expect(within(panel).getByTestId("apply-reviewed-draft")).toBeEnabled());
     fireEvent.click(within(panel).getByTestId("apply-reviewed-draft"));
     await screen.findByTestId(typedTreeRowTestId("node", "node:UI-A-100"));
-    expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
+    expect(screen.queryByTestId("status-pill-mechanics")).not.toBeInTheDocument();
     fireEvent.click(within(controls).getByRole("button", { name: /Save local/i }));
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Saved local browser-preview project snapshot"));
     fireEvent.click(within(controls).getByRole("button", { name: /^Open local$/i }));
     await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Opened local browser-preview project snapshot"));
     expect(screen.getByTestId(typedTreeRowTestId("node", "node:UI-A-100"))).toBeInTheDocument();
-    expectStatusChip("status-pill-mechanics", "MODEL_INCOMPLETE", "Solver · Model incomplete");
+    expect(screen.queryByTestId("status-pill-mechanics")).not.toBeInTheDocument();
   });
 });
 

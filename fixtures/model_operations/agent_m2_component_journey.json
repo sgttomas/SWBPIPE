@@ -27,9 +27,9 @@
     }
    },
    "analysis_status": {
-    "mechanics": "MODEL_INCOMPLETE",
-    "rule_check": "RULE_INPUTS_INCOMPLETE",
-    "professional_acceptance": "NOT_PROVIDED"
+    "mechanics": "ready_for_preview_diagnostics",
+    "rule_check": "not_performed_user_rule_inputs_missing",
+    "professional_acceptance": "not_provided"
    },
    "materials": [],
    "sections": [],
@@ -39,18 +39,7 @@
    "components": [],
    "load_cases": [],
    "combinations": [],
-   "diagnostics": [
-    {
-     "id": "diagnostic:blank-project:authoring-target",
-     "code": "BLANK_PROJECT_AUTHORING_TARGET",
-     "severity": "blocking",
-     "source": "apps/desktop/src/services/projectService.ts",
-     "affected_refs": [
-      "project:blank-local-20261030t000000z"
-     ],
-     "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted."
-    }
-   ]
+   "diagnostics": []
   }
  },
  "host": {
