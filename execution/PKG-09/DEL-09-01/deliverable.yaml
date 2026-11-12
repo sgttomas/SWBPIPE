@@ -70,6 +70,23 @@ needs:
     quarantined until a human or legal review decides it.
   gating: true
   when: Admitting a benchmark case or derivation to the suite.
+- from: DEL-07-02
+  condition: >-
+    The run sheet, the model tree, the property inspector with its Task edits, the support form
+    and the review of queued changes create nodes, pipes, realized bends, valves, flanges and
+    supports through the operation route, with the controls, labels and derived identities that
+    the reference system's run sheet names, and the differences they leave from a hand-authored
+    record are stated or visible.
+  gating: false
+  when: Maintaining the reference system's run sheet.
+- from: DEL-07-03
+  condition: >-
+    The load manager, the pressure and material forms, the component creation forms and the
+    self-weight plan create materials, sections, components, load cases, pressure regions,
+    reference configurations, analysis states and combinations through the operation route,
+    with the controls, labels, fills and copies that the reference system's run sheet names.
+  gating: false
+  when: Maintaining the reference system's run sheet.
 code_paths:
 # The suite and its hand calculations. Other scopes cite individual notes here as their outside
 # source (DEL-05-01 lists tp_pmm_p3_subspan_wind_exposure.md; DEL-05-05 cites the tp_phys notes);

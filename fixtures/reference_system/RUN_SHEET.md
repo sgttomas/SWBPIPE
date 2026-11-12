@@ -27,13 +27,21 @@ differences of §4. That test runs no solve.
 ⟨P⟩ is the provenance of every record; ⟨S5⟩ is the source of every user value that needs
 one. Both are exactly the fixture's.
 
-**Where things are.** The desktop has stages (**Model**, **Load Cases**, **Results**) and
-pages (**Project**, **Analyze**). The Model stage has two tabs: **Model**, the model tree
-with the property inspector beside it, and **Review changes**. The model tree switches
-between **Tree** and **Grid**; in Grid, the **Run sheet** button shows the run sheet. The
-inspector shows **New section**, **New component** and, with a node selected, **New support
-configuration**; its **Task** tab has **Start task from current selection**, **Property to
-edit**, a value field and **Add**.
+**Where things are.** The rail has four stages, **Model**, **Loads**, **Results** and
+**Review**, and opens pages, among them **Project** and **Analyze**, over the stage. The
+Model stage has two tabs: **Model**, the model tree with the property inspector beside it,
+and **Review changes**. The Loads stage has one tab, **Load Cases**; the Results stage has
+**Results** and **Evidence**. A selection in the model tree needs the Model stage's Model
+tab: a step that selects there after working on the Loads stage says so. The model tree
+switches between **Tree** and **Grid**; in Grid, the **Run sheet** button shows the run
+sheet. The inspector has the tabs **Properties** and **Task**. Properties shows **New
+section**, **New component** and, with a node selected, **New support configuration**.
+
+**Task edits.** To change one stored value: select the entity; inspector **Task** tab;
+**Start task from current selection**; **Property to edit**; the value; **Add**; then Apply
+under Review changes. Afterwards press **Cancel** in the task footer and then the
+**Properties** tab. The inspector stays in its Task view otherwise, and selecting another
+entity does not leave it, so the next step's creation form would stay hidden.
 
 **Queue and apply.** Each form queues a change. A single queued change is applied with
 **Apply** under Review changes. A batch (the run sheet's rows, a self-weight plan) is
@@ -52,20 +60,20 @@ renumbering the others. Fields not mentioned are left as the form shows them.
 | Step | Surface | Must follow |
 |---|---|---|
 | [units](#step-units) | Project page, units dialog | — |
-| [profile](#step-profile) | Load Cases, Pressure mechanics profile | units |
-| [material](#step-material) | Load Cases, Create explicit E/nu material; inspector | profile |
-| [sections](#step-sections) | Inspector, New section | units |
-| [rows](#step-rows) | Model tree, Grid, Run sheet | material, sections |
-| [rs050](#step-rs050) | Inspector, Task | rows |
-| [joint](#step-joint) | Inspector, New component | rows |
-| [tee](#step-tee) | Inspector, New component; Task | rows |
-| [spring](#step-spring) | Inspector, New support configuration | rows |
-| [reference](#step-reference) | Load Cases, Reference configurations | rows |
-| [weight](#step-weight) | Review changes, Self weight | rs050, joint, tee, spring |
-| [regions](#step-regions) | Load Cases, Pressure regions | weight |
-| [states](#step-states) | Load Cases, Analysis state | reference, weight |
-| [combinations](#step-combinations) | Load Cases, Create combination | weight |
-| [solve](#step-solve) | Analyze page; Results | every step above |
+| [profile](#step-profile) | Loads › Load Cases, Pressure mechanics profile | units |
+| [material](#step-material) | Loads › Load Cases, Create explicit E/nu material; Model › Model, inspector | profile |
+| [sections](#step-sections) | Model › Model, inspector, New section | units |
+| [rows](#step-rows) | Model › Model, Grid, Run sheet | material, sections |
+| [rs050](#step-rs050) | Model › Model, inspector, Task | rows |
+| [joint](#step-joint) | Model › Model, inspector, New component | rows |
+| [tee](#step-tee) | Model › Model, inspector, New component; Task | rows |
+| [spring](#step-spring) | Model › Model, inspector, New support configuration | rows |
+| [reference](#step-reference) | Loads › Load Cases, Reference configurations | rows |
+| [weight](#step-weight) | Model › Review changes, Self weight | rs050, joint, tee, spring |
+| [regions](#step-regions) | Loads › Load Cases, Pressure regions | weight |
+| [states](#step-states) | Loads › Load Cases, Analysis state | reference, weight |
+| [combinations](#step-combinations) | Loads › Load Cases, Create combination | weight |
+| [solve](#step-solve) | Analyze page; Results › Results | every step above |
 
 The bends are realized in step rows, before any support, load, region or reference names a
 corner or a straight (`OP-BEND-CORNER-ATTACHMENT-UNSUPPORTED`); the supports the sheet
@@ -84,8 +92,9 @@ model, and an empty `reference_configurations`; step profile sets the shear mode
 
 ### Step profile
 
-*Load Cases*, panel **Pressure mechanics profile**: **Pressure profile** = exact_pressure_v3;
-**Shear model** = Euler–Bernoulli (the default). **Queue pressure profile**, Apply. Done
+*Loads* stage, *Load Cases* tab, panel **Pressure mechanics profile**: **Pressure profile** =
+exact_pressure_v3; **Shear model**: select Euler–Bernoulli (the blank shows Timoshenko).
+**Queue pressure profile**, Apply. Done
 before any member exists, the panel's corrosion-allowance condition holds.
 
 ### Step material
@@ -95,10 +104,10 @@ before any member exists, the panel's corrosion-allowance condition holds.
    basis** homogeneous_isotropic_E_nu_v1; **Elastic modulus E** 200 GPa; **Poisson ratio
    nu** 0.3, unit 1; **Thermal expansion coefficient** 1.2e-5 1/K; **Constitutive
    provenance** ⟨P⟩. **Queue exact material**, Apply.
-2. Select `material:RS-M1` in the model tree. Inspector, **Temperature-dependent
-   properties**: **Add temperature point** four times; for each, ID, Temperature, Elastic
-   modulus, Poisson ratio (unit 1), Thermal expansion coefficient and provenance ⟨P⟩; leave
-   the shear modulus blank. **Queue temperature points**, Apply.
+2. Return to the Model stage's Model tab and select `material:RS-M1` in the model tree.
+   Inspector, **Temperature-dependent properties**: **Add temperature point** four times;
+   for each, ID, Temperature, Elastic modulus, Poisson ratio (unit 1), Thermal expansion
+   coefficient and **Point provenance** ⟨P⟩; leave the shear modulus blank. **Queue temperature points**, Apply.
 
    | Point ID | Temperature | Elastic modulus | Poisson ratio | Thermal expansion coefficient |
    |---|---|---|---|---|
@@ -109,14 +118,14 @@ before any member exists, the panel's corrosion-allowance condition holds.
 
 3. Same selection, **Expansion laws (current exact model)**: **Add expansion law**;
    definition engineering_secant; ID `law:RS-M1-SECANT`; datum temperature 20 degC; data
-   constant; constant coefficient 1.2e-5 1/K; provenance ⟨P⟩. **Queue expansion laws**,
-   Apply.
+   constant; constant coefficient 1.2e-5 1/K; **Expansion law provenance** ⟨P⟩. **Queue
+   expansion laws**, Apply.
 
 ### Step sections
 
-Select the project in the model tree. Inspector, **New section**, three times: Section ID,
-Name, Type pipe, Length unit mm, Outside diameter, Wall thickness, Provenance ⟨P⟩; queue,
-Apply.
+On the Model stage's Model tab, select the project in the model tree. Inspector, **New
+section**, three times: Section ID, Name, Length unit mm, Outside diameter, Wall thickness,
+**Provenance** ⟨P⟩; queue, Apply. Type is already pipe.
 
 | Section ID | Name | Outside diameter | Wall thickness |
 |---|---|---|---|
@@ -219,10 +228,10 @@ derived labels (§4).
 **Valve and flanges** (rows 3–5, Component details). Kind L is a flange and V a valve, on the
 row's pipe at its end node. Enter for each: Component id and Component label; Body length;
 End A size 270 and End B size 270, each with its size unit mm; Weight; COG X, Y, Z; End A
-reference and End B reference; Stiffness behavior reference `rigid body, user stiffness
-scale 10.0 (DEC-045); invented user value, DEL-09-01`; Stiffness scale 10.0; Stiffness
-scale source ⟨S5⟩; Solver consumption mechanics_geometry_only; Component geometry source
-⟨S5⟩; Component provenance ⟨P⟩. Leave Body length unit, Weight unit and COG unit blank:
+reference and End B reference; **Stiffness behavior reference**
+`rigid body, user stiffness scale 10.0 (DEC-045); invented user value, DEL-09-01`; Stiffness
+scale 10.0; **Stiffness scale source** ⟨S5⟩; Solver consumption mechanics_geometry_only;
+**Component geometry source** ⟨S5⟩; **Component provenance** ⟨P⟩. Leave Body length unit, Weight unit and COG unit blank:
 they show the project's m and N.
 
 | # | Component id | Component label | Body length | Weight | COG X, Y, Z | End A reference | End B reference |
@@ -268,9 +277,10 @@ direction.
 ### Step rs050
 
 The sheet adds increments in binary64, so RS-050 lands at 1.2999999999999998 m, one unit in
-the last place short of the fixture's 1.3; every other node lands exactly. Select RS-050;
-inspector **Task**, **Start task from current selection**, **Property to edit** = X
-position, value 1.3, **Add**, Apply.
+the last place short of the fixture's 1.3; every other node lands exactly. A Task edit
+(§1): select RS-050 in the model tree; **Task**; **Start task from current selection**;
+**Property to edit** X position; value 1.3; **Add**; Apply. Then **Cancel** and
+**Properties**, so that step joint's **New component** shows.
 
 ### Step joint
 
@@ -289,13 +299,13 @@ Then:
 - Connector hardware explicit_axial_rods_v1; **Add tie rod** twice: Rod id
   `rod:RS-EJ1-RYP` with both offsets `0 0.2 0`, and `rod:RS-EJ1-RYN` with both offsets
   `0 -0.2 0`; for each, Offset unit m, Rod stiffness 1.2e8 N/m, Reference extension 0 m,
-  Rod source reference ⟨S5⟩.
+  **Rod source reference** ⟨S5⟩.
 - Connector pressure model constant_effective_area_reference_v1; Joint effective area
-  0.049 m^2; Connector joint pressure basis internal_differential_zero_external_v1; Joint
-  pressure area source reference ⟨S5⟩.
-- Stiffness source reference ⟨S5⟩; Measurement restraints `invented; no measurement`;
-  Basis transform reference `none`; Validity statement `invented test object; no
-  applicability claim`; provenance ⟨P⟩.
+  0.049 m^2; Connector joint pressure basis internal_differential_zero_external_v1; **Joint
+  pressure area source reference** ⟨S5⟩.
+- **Stiffness source reference** ⟨S5⟩; **Measurement restraints** `invented; no measurement`;
+  **Basis transform reference** `none`; **Validity statement** `invented test object; no
+  applicability claim`; **New component provenance** ⟨P⟩.
 
 Queue, Apply.
 
@@ -305,11 +315,12 @@ Queue, Apply.
    **New tee branch pipe** RS-P210; ID `component:RS-T1`; label `Tee T1`; Connection angle 90 with its
    angle unit deg; length unit mm; Run size 170; Header size 270; Connection type
    `invented unreinforced tee`; Reinforcement reference `invented: no reinforcement`;
-   geometry source ⟨S5⟩; provenance ⟨P⟩. Queue, Apply. The form needs the four descriptive
-   members before it queues; EX reads none of them.
-2. Select `component:RS-T1`. Task: **Property to edit** = Header SIF user value, 2.4,
-   **Add**, Apply; then Branch SIF user value, 2.0; then Modifier source, ⟨S5⟩. Each is its
-   own Apply.
+   **New component geometry source** ⟨S5⟩; **New component provenance** ⟨P⟩. Queue, Apply.
+   The form needs the four descriptive members before it queues; EX reads none of them.
+2. Three Task edits (§1) of `component:RS-T1`, each its own Apply and each followed by
+   **Cancel** and **Properties**: **Property to edit** Header SIF user value, 2.4; then
+   Branch SIF user value, 2.0; then **Modifier source** ⟨S5⟩. The last **Cancel** and
+   **Properties** let step spring's form show.
 
 ### Step spring
 
@@ -325,21 +336,22 @@ Apply.
 
 ### Step reference
 
-*Load Cases*, **Reference configurations**: **Add reference configuration**; ID
+*Loads* stage, *Load Cases* tab, **Reference configurations**: **Add reference configuration**; ID
 `reference:RS-INSTALLED`; label `Installed reference (20 degC)`; geometry
 authored_model_geometry. **Add member to reference configuration 1**: pipe RS-P010, basis
-temperature_reference, installation temperature 20 degC, fit none, provenance ⟨P⟩. Under
+temperature_reference, installation temperature 20 degC, fit none, **Member provenance** ⟨P⟩. Under
 **Fill reference configuration 1 members from a template**, template the RS-P010 row, targets
-every pipe without one, **Fill reference configuration 1 members**: the other 25 members, RS-P180 included. Configuration
-provenance ⟨P⟩. **Queue reference configurations**, Apply.
+every pipe without one, **Fill reference configuration 1 members**: the other 25 members, RS-P180 included.
+**Configuration provenance** ⟨P⟩. **Queue reference configurations**, Apply.
 
 ### Step weight
 
-*Review changes*, tool tab **Self weight**, **Plan self-weight loads**, once per case:
-**Self-weight action** Create a self-weight case; **Self-weight case ID**; **Self-weight
-case label**; **Gravity value** -9.80665; **Gravity unit** m/s^2; **Gravity direction**
-GLOBAL Z; **Self-weight provenance**. For the first case choose the 25 **Self-weight pipes**,
-every pipe except RS-P180; the panel keeps that choice for the next two. **Generate
+*Model* stage, *Review changes* tab, tool tab **Self weight**, **Plan self-weight loads**, once per case,
+with **Self-weight action** Create a self-weight case, as it starts: **Self-weight case ID**;
+**Self-weight case label**; **Self-weight provenance**. For the first case also enter
+**Gravity value** -9.80665, **Gravity unit** m/s^2 and **Gravity direction** GLOBAL Z, and
+choose the 25 **Self-weight pipes**, every pipe except RS-P180; the panel keeps the gravity
+and the pipes for the next two cases. **Generate
 self-weight plan**, **Queue complete self-weight plan**, then Validate batch and Apply
 entire batch.
 
@@ -354,11 +366,11 @@ of RS-F1, RS-V1 and RS-F2.
 
 ### Step regions
 
-*Load Cases*: select RS-SUS in **Load cases**; panel **Pressure regions — RS-SUS …**. For
+*Loads* stage, *Load Cases* tab: select RS-SUS in **Load cases**; panel **Pressure regions — RS-SUS …**. For
 each region: **Add pressure region**; Region ID; member pipes (and, for RG-4, member
 connectors); pressure basis internal_differential_zero_external_v1; pressure 1600 kPa; two
-ordered terminals, each with node, closure transfer transfers_to_wall and provenance ⟨P⟩;
-region provenance ⟨P⟩. **Queue pressure regions**, Apply.
+ordered terminals, each with node, closure transfer transfers_to_wall and **Terminal
+provenance** ⟨P⟩; **Region provenance** ⟨P⟩. **Queue pressure regions**, Apply.
 
 | Region ID | Member pipes | Member connectors | Terminal 1, terminal 2 |
 |---|---|---|---|
@@ -376,26 +388,32 @@ pressure regions with the copy**, which re-derives the ids (`region:RS-OPE-RG-1`
 
 ### Step states
 
-*Load Cases*, select the case; panel **Analysis state — ⟨case⟩**. Contract
-`openpipestress.load_reference_state/1.0.0`; reference configuration
-`reference:RS-INSTALLED`; history independent_equilibrium; analysis state provenance ⟨P⟩.
-Each list is entered as one typed row and a fill: **Fill element states from a template**
-and **Fill support states from a template**, each with the typed row as template and targets
-every pipe or support without one; then **Factor for every primitive (dimensionless)** 1 and
-**Add every primitive of this case**. **Queue analysis state**, Apply, per case.
+*Loads* stage, *Load Cases* tab, select the case; panel **Analysis state — ⟨case⟩**.
+Contract `openpipestress.load_reference_state/1.0.0`; reference configuration
+`reference:RS-INSTALLED`; history independent_equilibrium; **Analysis state provenance** ⟨P⟩.
+Each list is entered as one typed row and a fill: **Add element state** creates element
+state 1 and **Add support state** creates support state 1; after typing the row, **Fill
+element states from a template** or **Fill support states from a template**, with the typed
+row as template and targets every pipe or support without one. Then **Factor for every
+primitive (dimensionless)** 1 and **Add every primitive of this case**. **Queue analysis
+state**, Apply, per case.
 
-- **RS-SUS.** Element state 1: pipe RS-P010; material selection exact_point; material
+- **RS-SUS.** **Add element state**. Element state 1: pipe RS-P010; material selection exact_point; material
   `material:RS-M1`; material point `point:RS-M1-T020`; thermal state unchanged_reference;
-  thermal provenance ⟨P⟩`; no temperature in this case`. Fill. Then edit RS-P180's thermal
-  provenance to ⟨P⟩`; replaced span RS-P180: zero eigenstrain (spec §5.1)`. Support state
-  1: support RS-A, participation active_model_device; fill. Add every primitive.
-- **RS-OPE.** Element state 1: pipe RS-P010; operating temperature 210 degC; material
+  **Thermal provenance** ⟨P⟩`; no temperature in this case`. Fill. Then edit RS-P180's
+  **Thermal provenance** to ⟨P⟩`; replaced span RS-P180: zero eigenstrain (spec §5.1)`.
+  **Add support state**. Support state 1: support RS-A, participation active_model_device;
+  fill. Add every primitive.
+- **RS-OPE.** **Copy analysis state from case** RS-SUS, **Replace this draft's analysis state
+  with the copy**: the copy keeps the contract, reference configuration, support states,
+  history and provenance, which are RS-OPE's too, and leaves out RS-SUS's load sources.
+  **Mark element_states absent**, then **Add element state**. Element state 1: pipe RS-P010; operating temperature 210 degC; material
   selection temperature_interpolation; material `material:RS-M1`; selection temperature
   210 degC; interpolation piecewise_linear; extrapolation forbidden; thermal state
   free_length_state; expansion law `law:RS-M1-SECANT`. Fill. Then on RS-P180's row clear the
-  operating temperature (value and unit), set thermal state unchanged_reference and thermal
-  provenance ⟨P⟩`; replaced span RS-P180: zero eigenstrain (spec §5.1)`; its material
-  selection stays as filled. Support states and load sources as for RS-SUS.
+  operating temperature (value and unit), set thermal state unchanged_reference and **Thermal
+  provenance** ⟨P⟩`; replaced span RS-P180: zero eigenstrain (spec §5.1)`; its material
+  selection stays as filled. Factor 1, **Add every primitive of this case**.
 - **RS-SAM.** **Copy analysis state from case** RS-SUS, **Replace this draft's analysis state
   with the copy**: the copied RS-SUS load sources name primitives RS-SAM does not hold, and
   the panel says so. Factor 1, **Add every primitive of this case**. On RS-C's support state,
@@ -404,12 +422,14 @@ every pipe or support without one; then **Factor for every primitive (dimensionl
 
 ### Step combinations
 
-*Load Cases*, **Create combination**, twice: ID; Label; Basis result_state_subtraction;
+*Loads* stage, *Load Cases* tab, **Create combination**, twice. For the first: ID; Label; Basis result_state_subtraction;
 leave the **Operating minus sustained difference** template unticked (its
 `difference_basis` is refused on a document with a pressure contract,
 `LOAD_COMBINATION_DIFFERENCE_BASIS_EXACT_UNSUPPORTED`); **Subtraction minuend** and
-**Subtraction subtrahend**; Provenance ⟨P⟩; Rationale, any text (the record does not keep
-it). **Queue combo**, Apply.
+**Subtraction subtrahend**; **Provenance** ⟨P⟩. Leave Rationale as the form shows it; the
+record does not keep it. **Queue combo**, Apply. For the second, the form keeps the basis, the
+subtrahend, the provenance and the rationale: enter ID, Label and **Subtraction minuend**.
+**Queue combo**, Apply.
 
 | ID | Label | Minuend | Subtrahend |
 |---|---|---|---|
@@ -418,7 +438,9 @@ it). **Queue combo**, Apply.
 
 ### Step solve
 
-*Analyze* page, **Run mechanics preview**. Under *Results*: reactions at RS-A, RS-B and RS-C
+*Analyze* page, **Run mechanics preview**. The timed entry's clock stops when this first
+solve of every static load case and combination the sheet enters completes with no blocking
+diagnostic (DEL-07-02 REQ-019). On the *Results* stage, *Results* tab: reactions at RS-A, RS-B and RS-C
 and the spring load (KR-01, KR-03) in **Support Load Summary**; the largest translation
 (KR-02) in **Displacement Extremes**; and the **Key results** panel's **Anchors and equipment
 connections**. The fixture's three cases solve on EX in the headless runner with nothing
@@ -481,62 +503,82 @@ step rows do not change, except row 13's support when RS-FR1V becomes one-way.
 
 ## 6. Counts and estimate
 
-An entry is one typed or pasted value, one choice from a list or picker, or one checkbox or
-toggle; buttons that add a row, fill, copy, queue, validate or apply are not entries. A unit
-is an entry where the person sets it. A cycle is one Apply or one Apply entire batch.
+An **entry** is one typed or pasted value, one choice from a list or picker, or one checkbox
+or toggle; a unit is an entry where the person sets it. A **press** is one press of a button
+or tab the steps name other than queue, validate and apply: Add …, Fill …, Replace …,
+Mark …, Generate …, Start task, Cancel, the inspector's Task and Properties tabs, Blank
+load/reference model, Create and Run mechanics preview. A **cycle** is one Apply or one Apply
+entire batch. Moving between stages and pages is not counted.
 
-The estimate rates every grid cell at about 4.9 s and every form entry at about 5.5 s, the
-rates of the earlier estimate of this sheet (a practised person pasting ⟨P⟩ and ⟨S5⟩),
-rounded per step to the quarter minute, and allows 2 minutes for the solve and reading the
-results. It does not count moving between pages, the 27 apply cycles, waiting for a batch's
-validation or the solve's own run time. It is not a measurement.
+The estimate rates every grid cell at about 4.9 s (8 minutes per 98 cells) and every form
+entry and every press at about 5.5 s, the rates of the earlier estimate of this sheet (a
+practised person pasting ⟨P⟩ and ⟨S5⟩). Each step's time is rounded to the nearest quarter
+minute, halves up. Step solve is allowed 2 minutes for its press, the solve and reading the
+results. The estimate does not count moving between stages and pages, the 27 cycles, waiting
+for a batch's validation or the solve's own run time. It is not a measurement.
 
-| Step | Entries | Cycles | Estimate (min) |
-|---|---|---|---|
-| units | 0 | 0 | 0 |
-| profile | 2 | 1 | 0.25 |
-| material | 59 | 3 | 5.5 |
-| sections | 21 | 3 | 2 |
-| rows | 224 | 1 | 18.25 |
-| rs050 | 3 | 1 | 0.25 |
-| joint | 52 | 1 | 4.75 |
-| tee | 24 | 4 | 2.25 |
-| spring | 20 | 1 | 1.75 |
-| reference | 12 | 1 | 1 |
-| weight | 46 | 3 | 4.25 |
-| regions | 86 | 3 | 8 |
-| states | 57 | 3 | 5.25 |
-| combinations | 14 | 2 | 1.25 |
-| solve | 1 | 0 | 2 |
-| **Total** | **621** | **27** | **about 56.75** |
+| Step | Entries | Presses | Cycles | Arithmetic | Estimate (min) |
+|---|---|---|---|---|---|
+| units | 0 | 2 | 0 | 2 × 5.5 s = 11 s | 0.25 |
+| profile | 2 | 0 | 1 | 2 × 5.5 s = 11 s | 0.25 |
+| material | 59 | 5 | 3 | 64 × 5.5 s = 352 s | 5.75 |
+| sections | 19 | 0 | 3 | 19 × 5.5 s = 104.5 s | 1.75 |
+| rows | 224 | 0 | 1 | 224 × 8/98 min = 18.29 min | 18.25 |
+| rs050 | 3 | 4 | 1 | 7 × 5.5 s = 38.5 s | 0.75 |
+| joint | 52 | 2 | 1 | 54 × 5.5 s = 297 s | 5 |
+| tee | 24 | 12 | 4 | 36 × 5.5 s = 198 s | 3.25 |
+| spring | 20 | 1 | 1 | 21 × 5.5 s = 115.5 s | 2 |
+| reference | 12 | 3 | 1 | 15 × 5.5 s = 82.5 s | 1.5 |
+| weight | 37 | 3 | 3 | 40 × 5.5 s = 220 s | 3.75 |
+| regions | 86 | 7 | 3 | 93 × 5.5 s = 511.5 s | 8.5 |
+| states | 50 | 14 | 3 | 64 × 5.5 s = 352 s | 5.75 |
+| combinations | 9 | 0 | 2 | 9 × 5.5 s = 49.5 s | 0.75 |
+| solve | 0 | 1 | 0 | allowance | 2 |
+| **Total** | **597** | **54** | **27** | | **about 59.5** |
+
+Unrounded, the total is 18.29 min for the grid, (373 form entries + 53 presses) × 5.5 s =
+2343 s = 39.05 min for the forms, and 2 min for the solve: 59.34 minutes.
 
 How the larger counts arise:
 
-- **material, 59.** The E/nu form's 10 (ID, label, basis, three quantities with their units,
-  provenance); the material's selection; four temperature points of 10 each (ID, four
-  quantities with their units, provenance); the expansion law's 8.
+- **material, 59 entries and 5 presses.** The E/nu form's 10 (ID, label, basis, three
+  quantities with their units, provenance); the material's selection; four temperature points
+  of 10 each (ID, four quantities with their units, provenance); the expansion law's 8. The
+  presses are Add temperature point four times and Add expansion law.
+- **sections, 19.** The project's selection and 6 for each of three sections (Type is
+  preset to pipe).
 - **rows, 224.** The header's 14: Source, the two prefixes, the padding, Pipe number from,
   three group toggles and six column units. The rows' 210 cells: 57 Component details cells
   of the valve and flanges (19 each) with their 3 increments and 3 Kind codes; 39 bend
   cells (13, 12 and 14 on rows 8, 10 and 25, including their increments, codes and corner
   ids); 40 support cells (four for each of ten supports) and the `S` row's Kind; 21 node
   labels; and 46 others (increments, section and material cells, section quantities,
-  orientations, the `F` row's two cells and the other typed ids).
-- **joint, 52.** The project's selection, kind, node and pipe, ID and label; 18 connector,
-  reference and stiffness fields; 9 for each of two tie rods; 10 pressure and provenance
-  fields.
-- **tee, 24.** 15 creation entries and three edits of three entries each (selection,
-  property, value).
-- **weight, 46.** 7 per case and the 25 pipes, chosen once.
-- **regions, 86.** RS-SUS's selection; 11 per region (ID, basis, pressure value and unit, six
-  terminal fields, provenance) for five regions; 26 picker choices (25 member pipes and the
-  connector); two entries for each copy.
-- **states, 57.** RS-SUS 19: its selection, a typed element row of 6 fields, the element
-  fill's two choices, one RS-P180 edit and 9 entries every case without a copy needs
-  (contract, reference, the typed support state's two fields, the support fill's two choices,
-  factor, history, provenance). RS-OPE 27: its selection, 11 fields, two fill choices, four
-  RS-P180 edits and the same 9. RS-SAM 11: its selection, the copy's source, the factor and
-  two motions of four fields.
+  orientations, the `F` row's two cells and the other typed ids). Enter in the last column
+  of the last row appends the next row.
+- **rs050 and tee.** Each Task edit is 3 entries (selection, property, value) and 4 presses
+  (Task, Start task, Cancel, Properties): one edit for rs050 and three for the tee, whose
+  creation form adds 15 entries.
+- **joint, 52 entries and 2 presses.** The project's selection, kind, node and pipe, ID and
+  label; 18 connector, reference and stiffness fields; 9 for each of two tie rods; 10
+  pressure and provenance fields. The presses are Add tie rod twice.
+- **weight, 37 entries and 3 presses.** Case ID, label and provenance per case (9); the
+  gravity value, unit and direction once (3); the 25 pipes, chosen once. Generate self-weight
+  plan per case.
+- **regions, 86 entries and 7 presses.** RS-SUS's selection; 11 per region (ID, basis,
+  pressure value and unit, six terminal fields, provenance) for five regions; 26 picker
+  choices (25 member pipes and the connector); two entries for each copy. The presses are Add
+  pressure region five times and Replace once per copy.
+- **states, 50 entries and 14 presses.** RS-SUS 19: its selection, a typed element row of 6
+  fields, the element fill's two choices, one RS-P180 edit and 9 shared entries (contract,
+  reference, the typed support state's two fields, the support fill's two choices, factor,
+  history, provenance). RS-OPE 20: its selection, the copy's source, 11 element fields, two
+  fill choices, four RS-P180 edits and the factor. RS-SAM 11: its selection, the copy's
+  source, the factor and two motions of four fields. The presses: for RS-SUS, Add element
+  state, Fill element states, Add support state, Fill support states and Add every primitive;
+  for RS-OPE, Replace, Mark element_states absent, Add element state, Fill element states and
+  Add every primitive; for RS-SAM, Replace, Add every primitive and Add boundary motion twice.
+- **combinations, 9.** The first: ID, label, basis, minuend, subtrahend, provenance; the
+  second: ID, label, minuend.
 
-The estimate of about 56.75 minutes is nearly twice the provisional 30. The four largest steps
-are rows (18.25), regions (8), material (5.5) and states (5.25).
+The estimate of about 59.5 minutes is about twice the provisional 30. The four largest steps
+are rows (18.25), regions (8.5), material (5.75) and states (5.75).

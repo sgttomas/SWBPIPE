@@ -45,8 +45,9 @@ silence a failure. §9 names the results and their basis; it gives no values.
   °C, kg/m³. The project's units are m, N, N\*m, rad, Pa, Pa and degC.
 - **Axes.** Global Z is vertical, positive up. This is the fixture's stated choice: the
   solver has no fixed vertical axis. Gravity is entered on each weight case as
-  `global_z`, value −9.80665 m/s² (standard gravity, a definitional constant). Wind and
-  seismic directions are named global axes.
+  `global_z`, value −9.80665 m/s² (standard gravity, a definitional constant). The static
+  seismic cases enter gravity as a positive magnitude with a signed factor per axis (§8.1).
+  Wind and seismic directions are named global axes.
 - **Identities.** Stable ids, so criterion 6 can compare them, for example
   `node:RS-010`, `pipe:RS-P010`, `component:RS-B1`, `support:RS-A`, `load:RS-SUS`,
   `combination:RS-EXP`, `region:RS-SUS-RG-1`, `material:RS-M1` and `section:RS-S270`.
@@ -203,6 +204,9 @@ The bend and tee labels are `Bend B1`, `Bend B2`, `Bend B3` and `Tee T1`; the va
 flanges are `Valve V1`, `Flange F1` and `Flange F2`. The bends' k and SIFs, and the tee's
 SIFs, are the person's entries with their source (§11.3).
 
+The member under the eccentric reducer RS-R1, RS-P150, carries section S270, the larger
+end's. The reducer's weight and its centre of gravity are those its row gives.
+
 The valve and flanges are rigid-family components (`mechanics_geometry_only`). Each body is
 its mapped member: body length the member's length, both end sizes 270 mm, end references
 `node:<start> (body end on <member>)` and `node:<end> (body end on <member>)`. The
@@ -347,12 +351,23 @@ W is generated self-weight of every member except RS-P180 (gravity as §2), with
 weights at their centres of gravity in place of their members' distributed weight: 22 line
 loads on the straight and arc members other than RS-P020, RS-P030 and RS-P040, and a force
 and a moment for each of RS-F1, RS-V1 and RS-F2, 28 primitives per case. The fixture's W is
-the product's self-weight generator's output for each case (`self_weight.rs`, through
+the product's self-weight generator's output for each case (`core/product_physics/src/self_weight.rs`, through
 `core/loads/self_weight_wasm`), captured in
 [`self_weight_capture.json`](self_weight_capture.json); the fixture generator copies it and
 computes no weight. Each case's provenance, and its request's, is the record provenance
 (§2) followed by `; W of <case>: self-weight of every member except RS-P180, component
 weights at their centres of gravity (spec §8.1)`.
+
+Each static seismic case, RS-EQX, RS-EQY and RS-EQZ, enters a gravity acceleration of
+9.80665 m/s² as a positive magnitude and one factor on its own axis: `g_factor_x` 0.30,
+`g_factor_y` 0.30 and `g_factor_z` 0.20 respectively, each positive. The factor's sign is the
+direction's sign.
+
+Each self-weight primitive's id is derived from its case and its target:
+`load:self-weight:<n>:<case id>:<m>:<pipe id>` for a member's line load, and
+`load:self-weight:<n>:<case id>:component:<m>:<component id>:force:z` or
+`…:moment:<axis>` for a component's weight, where `<n>` and `<m>` are the character counts
+of the id that follows each. For example `load:self-weight:11:load:RS-SUS:12:pipe:RS-P010`.
 
 Wind is uniform pressure over the marked members (wind on a replaced span is refused). On
 EX, the anchor movement is `analysis_state.support_states[].boundary_motion` with meaning
@@ -364,7 +379,7 @@ EX, the anchor movement is `analysis_state.support_states[].boundary_motion` wit
 |---|---|---|---|
 | RS-EXP | `result_state_subtraction`, with `difference_basis` recorded | RS-OPE − RS-SUS | Expansion with its basis |
 | RS-dWIN | `result_state_subtraction` | RS-WIN − RS-SUS | Wind term |
-| RS-dEQX, RS-dEQY, RS-dEQZ | `result_state_subtraction` | RS-EQx − RS-SUS | Seismic terms |
+| RS-dEQX, RS-dEQY, RS-dEQZ | `result_state_subtraction` | RS-EQX, RS-EQY, RS-EQZ, each − RS-SUS | Seismic terms |
 | RS-dSAM | `result_state_subtraction` | RS-SAM − RS-SUS | Anchor movement term |
 | RS-EQ-SRSS | `srss` | RS-dEQX, RS-dEQY, RS-dEQZ | Directional SRSS |
 | RS-EQ-ABS | `absolute_sum` | RS-dEQX, RS-dEQY, RS-dEQZ | Directional absolute sum |
@@ -410,7 +425,7 @@ weight-only or pressure-only case.
 On EX, `boundary_motion` and the temperature state both need the load/reference-state
 group, and EX refuses generated wind and seismic loads on that group
 (`EXACT_EQUIVALENT_STATIC_LOAD_STATE_UNSUPPORTED`). While that holds, one document cannot
-hold RS-OPE, RS-SAM and RS-WIN or RS-EQx together.
+hold RS-OPE, RS-SAM and RS-WIN, RS-EQX, RS-EQY or RS-EQZ together.
 
 ### 8.8 Hanger sizing
 
@@ -445,7 +460,7 @@ RS-VS1's or RS-CE1's entered inputs.
 | EQ-3 | On every published signed component row (support force and moment components, translation and rotation components, element end-force components), RS-EXP equals RS-OPE − RS-SUS. Magnitude rows (resultant displacement, reaction magnitude) are checked by recomputing them from the combined components, not by subtracting magnitudes. Rows the combination withholds, such as tie-rod forces, are excluded | exact identity |
 | EQ-4 | On the same signed component rows, RS-EQ-SRSS equals √(Σ dEQ²) and RS-EQ-ABS equals Σ \|dEQ\| over the operand rows, so SRSS ≤ ABS on each. Magnitude rows follow the combination's own recomputation rule, as for EQ-3; withheld rows are excluded | exact identity |
 | EQ-5 | The RS-dSAM reactions are self-equilibrated (resultant force and moment zero) | exact identity: no load differs between RS-SAM and RS-SUS |
-| EQ-6 | The resultant of RS-dWIN reactions equals minus the generated wind resultant, and that of RS-dEQx equals minus the factor times g times the total mass on the generator's stated mass basis | closed form from the inputs |
+| EQ-6 | The resultant of RS-dWIN reactions equals minus the generated wind resultant, and that of each of RS-dEQX, RS-dEQY and RS-dEQZ equals minus the factor times g times the total mass on the generator's stated mass basis | closed form from the inputs |
 | EQ-7 | Spectrum directional combination recomputed from the published per-direction results | exact identity |
 
 Each closed-form reference is computed by an independent generator in
@@ -519,8 +534,8 @@ the loss report, and import it back with the same identities. The temperature-de
 modulus table (§4.1) is one family the writer refuses today
 (`MBF-SI-TEMPERATURE-DEPENDENT-MATERIAL-UNSUPPORTED`). It stays in the system; no family is
 dropped to make criterion 6 pass. Which other families the loss report lists is DEL-17-04's
-to state from an export of the fixture. Any family with no admitted public MBF source is
-listed in the release limitations and declared acceptable by Agent 0, and the limitations are
+to state from an export of the fixture. Each moves to "covered" as a coverage tranche lands.
+Any family with no admitted public MBF source is listed in the release limitations and declared acceptable by Agent 0, and the limitations are
 shown to the owner with the request for the verdict (exit criterion 3).
 
 ### 11.2 Criterion 7 (authoring time)
