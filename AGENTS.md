@@ -385,21 +385,35 @@ deliverable. Open PRs that overlap this way merge in turn: the later one stays
 unarmed until the earlier has landed and the later has been updated. Where a
 PR's head contains current `main` and the reviewed heads of earlier PRs, and
 the hosted `harness` result is green on that exact head, Agent 0 may instead
-merge it and so land the earlier ones without their own fresh runs. Each
-earlier one must have had the review and consultation its change requires at
-the commit contained; the containing head must reach it by merges Git made
-without conflict, any other difference in its files being itself reviewed; and
-the merge must leave `main` holding exactly the tree that ran, so the rule does
-not apply once `main` has moved. Agent 0 may compose up to four reviewed heads
-into one branch for this purpose, by merging only: a conflict is not resolved
-by hand, generated files are regenerated with their generators, and a combined
-run that fails lands none of them and shows nothing about any member. No member
+merge it and so land the earlier ones without their own fresh runs. "Contains"
+means that the exact commit is an ancestor in Git history. For this exception
+the hosted run must use the then-current `main` commit as the base of its
+complete PR diff, and immediately before merging `main` must still name that
+same commit and the PR head must still name the tested commit, so that the
+merge leaves `main` holding exactly the tree that ran; once `main` has moved,
+the ordinary rule applies. Each earlier one must have had the review and
+consultation its change requires at the commit contained. The containing head
+must reach it through conflict-free Git merges, and every path changed by that
+PR must have the same bytes, mode and presence as at its reviewed head, or the
+difference must itself receive the required review, including differences
+produced by a clean Git merge. Agent 0 may compose reviewed heads into one
+branch for this purpose, by merging only. A branch assembled to share a hosted
+run is a composed branch whether it is new or uses a member PR's branch; it may
+carry at most four member PRs in total, counting members already contained by
+another member. A conflict is not resolved by hand. Generated files are
+regenerated with their generators, and Agent 0 reads the resulting diff before
+merging; differences requiring independent review receive it. A failed combined
+run authorizes none of its members to land and, by itself, does not identify
+which member caused the failure; diagnosed failures remain findings. No member
 of a composed branch changes priced sources, frozen references or numerical
-meaning. A PR under a hold or a reserved choice is neither composed nor landed
-by a containing head while that stands, and nothing is composed with it or
-ahead of it. Pricing and independent numerical scrutiny still bind to the exact
-source they examined; a hosted run stands in for neither. Agent 0 says on each
-PR landed this way which head carried it. Agents working under that Agent 0's assignment report a PR ready to
+meaning; if Agent 0 cannot establish that for every member, it uses the
+ordinary per-PR route. A PR under a hold or awaiting a reserved owner choice,
+including the source revision or branch on which its re-verification runs, is
+neither composed nor landed by a containing head while that stands, and nothing
+is composed with it or ahead of it in the merge order. Pricing and independent
+numerical scrutiny still bind to the exact source they examined; a hosted run
+stands in for neither. Agent 0 says on each PR landed this way which head
+carried it. Agents working under that Agent 0's assignment report a PR ready to
 merge and wait for that Agent 0 to merge it. A Type 1 the owner started directly reports its PR ready to this project's Agent 0; where the owner works with it alone and no Agent 0 holds the project, it holds that perspective and merges under this grant. Explicit holds and reserved decisions
 apply. This grant excludes protection bypasses, history rewrites, force pushes,
 permission changes and releases. Use [Git conventions](#git-conventions) below.
