@@ -95,3 +95,29 @@ the entry, and the entry names the PR.
 - **What the user does instead:** declare `transfers_to_wall` at every terminal of the node. Where a branch's thrust really is carried by a separate device, model that device as a connector or support. A compensated terminal at a region's own closure, away from any junction, is admitted.
 - **Basis:** DEL-04-07 [scope](../execution/PKG-04/DEL-04-07/ScopeOfWork.md), tees and pressure junctions (RT-A3 increment 1); made standing by RT-A3 increment 1 (PR #45).
 - **Status:** not yet declared.
+
+### LIM-005 — A shareable report for a model that uses the user's library records
+
+- **Id:** LIM-005
+- **Exit criteria:** 4
+- **Requirement affected:** exit criterion 4, that a user releases a report for results on either route (DEL-08-01/REQ-019, REQ-022).
+- **Code:** `REPORT-USER-RELEASE-LIBRARY-REFERENCED`
+- **What is refused:** a shareable (user-released) report package for a model in which a material, section, component or hanger was applied from one of the user's private libraries.
+- **What it means in practice for a user:** after applying a library record, for example after choosing a hanger from their own hanger catalogue for a support, the user cannot save the shareable package of that model's report. The shareable-package dialog says that the model uses a library record and that a shareable package cannot be saved for it. Saving, printing and packaging the local-private report are unaffected.
+- **Why:** applying a record writes its values, and some of its reference text, into the model, and they appear in the report: as model inputs and, for a hanger, as its loads, travel and stiffness among the results. The user's statement covers their own project data. v1.0 does not establish that it also covers values taken from a library, which may be a manufacturer's.
+- **What the user does instead:** save the local-private package of the same report, which carries the library references.
+- **Basis:** DEL-08-01 [scope](../execution/PKG-08/DEL-08-01/ScopeOfWork.md), REQ-019 (Content); DEL-12-02/REQ-016. The refusal was standing before this entry; the entry was added with PR #243, which corrected the scope text to state it. Whether a library reference is admitted under user release for v1.0 is not decided (DEL-08-01, "Not decided").
+- **Status:** not yet declared.
+
+### LIM-006 — A shareable report for a model that names the user's rule pack
+
+- **Id:** LIM-006
+- **Exit criteria:** 4
+- **Requirement affected:** exit criterion 4, that a user releases a report for results on either route (DEL-08-01/REQ-019, REQ-022).
+- **Code:** `REPORT-USER-RELEASE-RULE-PACK-REFERENCED`
+- **What is refused:** a shareable (user-released) report package for a model that names one of the user's rule packs, whether or not a rule check has been run.
+- **What it means in practice for a user:** after adding a rule-pack reference to the model and solving, the user cannot save the shareable package of that model's report; the dialog says that the model uses a rule pack and that a shareable package cannot be saved for it. A shareable report never shows rule-check outcomes. The local-private report is unaffected.
+- **Why:** the application builds the shareable report itself, to confirm that it holds nothing beyond the user's project data. In v1.0 that build does not include a rule pack's identity, so a model that names a pack is refused and not reported without it.
+- **What the user does instead:** remove the rule-pack reference, solve again and save the shareable report; the solve does not read rule content, so the mechanics results are the same. Keep the rule check and its outcomes in the local-private report.
+- **Basis:** DEL-08-01 [scope](../execution/PKG-08/DEL-08-01/ScopeOfWork.md), REQ-019 (Content), REQ-008; DEL-06-04/REQ-008. The refusal was standing before this entry; the entry was added with PR #243. Agent 0 decided that a rule-pack reference is not admitted under user release for v1.0.
+- **Status:** not yet declared.
