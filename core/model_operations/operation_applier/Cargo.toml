@@ -2,6 +2,7 @@
 name = "open_pipe_stress_operation_applier"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 description = "Structured editor-operation validation, diff preview, and apply seam for OpenPipeStress model documents"
 publish = false
 
