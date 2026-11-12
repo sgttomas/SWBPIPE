@@ -100,9 +100,9 @@ needs:
 - from: DEL-07-11
   when: Offering a requested act to the person
   condition: >-
-    For each requestable act the workspace session exposes the function the desktop's own control
-    for that act calls, starts that control from a request's capture, and reports the act's actual
-    outcome with the record of it.
+    Each of the desktop's file operations, jobs and panel commands is dispatched to the service
+    that owns it, the identity of what was sent and of what came back is preserved, and the shell
+    cannot perform a request its owning service would refuse.
   gating: true
 - from: DEL-12-02
   when: A requested export, save or user release
@@ -119,16 +119,17 @@ needs:
     its bindings and time.
   gating: true
 - from: DEL-07-08
-  when: A requested save of a model state
+  when: A requested save of a model state or recording of a run
   condition: >-
-    A model state is saved by the desktop's own control from the current model, with the name and
-    notes the person enters, and is listed with an identifier.
+    A model state is saved, and a solved run is recorded, by the desktop's own controls from the
+    current model and result, with the name and notes the person enters, and each is listed with
+    an identifier.
   gating: true
 - from: DEL-14-02
   when: A requested recording of a run
   condition: >-
-    A solved run is recorded by the desktop's own control against the model state it was solved on,
-    and is listed with an identifier.
+    A recorded run is a checked record bound to the model state and result it was solved on, stored
+    with an identifier by which it is listed and read.
   gating: true
 - from: DEL-08-04
   when: A requested export of a table
@@ -139,8 +140,9 @@ needs:
 - from: DEL-02-05
   when: A requested save of the project
   condition: >-
-    The project is saved by the desktop's own save, which shows the person what it would replace
-    before replacing it.
+    A save in place proceeds only over the revision the session last opened or wrote; any other
+    replacement of a stored revision needs the user's confirmation of that revision, and is
+    otherwise refused by name and writes nothing.
   gating: true
 code_paths:
 # The operation engine. Within this crate the domain modules that other deliverables list by name
