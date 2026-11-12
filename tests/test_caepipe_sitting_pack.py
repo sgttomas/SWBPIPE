@@ -119,16 +119,41 @@ def sample_declaration(directory: Path, entries: list[tuple[str, str, bytes]], *
 
 
 # -- prepare ----------------------------------------------------------------------------------------------------------
-def test_the_default_plan_gives_the_dry_run_without_samples_and_lists_empty_parts_with_reasons():
+def test_the_default_plan_gives_the_dry_run_and_the_declared_samples_and_lists_empty_parts_with_reasons():
     index = index_of(build(MANIFEST))
     parts = {part["id"]: part for part in index["parts"]}
     assert [part["id"] for part in index["parts"]] == ["part-0", "part-1", "part-2", "part-3", "part-4"]
-    assert parts["part-0"]["items"] == ["cpb-g1-05", "cpb-g6-02", "cpb-g8-01"]
-    assert not any(item["item_kind"] == "format_sample" for item in index["items"])
-    for part_id in ("part-1", "part-2", "part-3", "part-4"):
+    assert parts["part-0"]["items"] == ["cpb-g1-05", "cpb-g6-02", "cpb-g8-01", "fs-dyn-batch"]
+    assert parts["part-3"]["items"] == ["fs-dyn-window"]
+    for part_id in ("part-1", "part-2", "part-4"):
         assert parts[part_id]["items"] == [] and parts[part_id]["empty_because"], part_id
     sitting_pack.validate_index(index)
-    assert json.loads(sitting_pack.DEFAULT_SAMPLES.read_text(encoding="utf-8"))["samples"] == []
+
+
+def test_the_committed_samples_are_declared_bound_invented_and_placed_as_stored_only_samples(tmp_path):
+    declaration = sitting_pack.load_samples()  # the committed declaration
+    assert sorted(declaration["samples"]) == ["fs-dyn-batch", "fs-dyn-window"]
+    for sample_id, entry in declaration["samples"].items():
+        path = sitting_pack.DEFAULT_SAMPLES.parent / entry["file"]
+        data = path.read_bytes()
+        assert hashlib.sha256(data).hexdigest() == entry["sha256"], sample_id
+        assert b"\r\n" in data and b"\n" not in data.replace(b"\r\n", b""), sample_id  # CRLF kept as committed
+        sidecar = json.loads(path.with_name(path.stem + ".provenance.json").read_text(encoding="utf-8"))
+        assert sidecar["produced_by_caepipe"] is False and "invented" in sidecar["origin"], sample_id
+    assert declaration["samples"]["fs-dyn-batch"]["instruction"] is None
+    assert declaration["samples"]["fs-dyn-window"]["instruction"]
+    files = build(MANIFEST)  # the default plan, the default declaration
+    items = by_id(index_of(files))
+    for sample_id, entry in declaration["samples"].items():
+        item = items[sample_id]
+        assert (item["item_kind"], item["capture"], item["outside_benchmark_set"]) == ("format_sample",
+                                                                                       "stored_only", True)
+        assert item["designation"]["sha256"] == item["mbf"]["sha256"] == entry["sha256"]
+        assert files[f"samples/{sample_id}/{entry['file']}"] == (
+            sitting_pack.DEFAULT_SAMPLES.parent / entry["file"]).read_bytes()
+        assert item["identity_file"] is None and item["variants"] == []
+    text = files["INSTRUCTIONS.md"].decode()
+    assert "Before analysing: " + declaration["samples"]["fs-dyn-window"]["instruction"] in text
 
 
 def test_the_pack_is_deterministic_holds_the_writer_mbf_and_its_authority(tmp_path):
@@ -875,6 +900,15 @@ def test_the_driver_refuses_rather_than_removes_or_replaces():
     for removed in ("Remove-Item", "WriteAllText", "Set-Content", "Out-File", "Add-Content", "Copy-Item", "Move-Item"):
         assert removed not in text, removed
     assert "has not been executed by SWBPIPE's tests" in text
+
+
+def test_check_needs_the_exchange_folder_to_recognise_a_sealed_case(sitting, capsys):
+    before = tree_digest(sitting["pack"])
+    with pytest.raises(sitting_pack.PackError, match="needs the exchange folder, for --check too"):
+        sitting_pack.ingest_pack(sitting["pack"], None, sitting["authority"], check=True)
+    assert sitting_pack.main(["ingest", str(sitting["pack"]), "--authority", str(sitting["authority"]), "--check"],
+                             environ={}) == 0
+    assert "nothing taken in or checked" in capsys.readouterr().out and tree_digest(sitting["pack"]) == before
 
 
 def test_the_command_line_has_no_replace_and_no_unseal_and_needs_the_authority(capsys):

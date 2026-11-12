@@ -65,7 +65,8 @@ records sit beside it, never inside, so a returned file can never be taken for a
   or `observations/<id>/<attempt>/payload/`, with its record beside the payload (a sample's record keeps its
   declaration and model file hash); never parsed, recognised or interpreted.
 
-`ingest --check` writes nothing: it verifies hashes and, for an ordinary case that is not sealed, names its route and
+`ingest --check` writes nothing and, like ingest, needs the exchange folder, which it only reads to recognise a sealed
+case: it verifies hashes and, for an ordinary case that is not sealed, names its route and
 binding and runs the parser on the returned print in place. Standard output carries operational status only: per item
 its id, kind, status and route, and for a checked or placed print the number of sections the parser read and of its
 error diagnostics. No result value is printed.
@@ -1301,7 +1302,8 @@ python3 -m tools.caepipe_correlation.sitting_pack ingest --check <the returned p
 The authority folder is the one `prepare` wrote beside the pack on this Mac (`<pack folder>.authority` unless named
 otherwise); it never goes to Windows. Ingest refuses a returned pack whose `pack_index.json` differs from it.
 
-The check writes nothing. It verifies each case's MBF, names the route and binding it found, and reports how many
+The check writes nothing. Like ingest it needs the exchange folder configured (section 1), which it only reads, to
+recognise a case sealed there and leave it unread. It verifies each case's MBF, names the route and binding it found, and reports how many
 sections the parser read from each returned print. Go on to part 1 only when it reports each dry-run case with
 sections read and no error diagnostic. After the sitting, `ingest` without `--check` takes the pack into the
 exchange folder by adding new files only: every returned result is stored in a new run folder of its own, beside
@@ -1357,8 +1359,7 @@ invented result files:
             out += f"Not to run: {reason}.\n\n"
             continue
         if item["item_kind"] == "format_sample":
-            out += (f"{item['title']}: its purpose is to see how the program prints {item['prints']}. Never screened "
-                    "or compared.\n\n")
+            out += f"{item['title']}. Run to see {item['prints']}. Never screened or compared.\n\n"
             if item.get("instruction"):
                 out += f"Before analysing: {item['instruction']}\n\n"
         if item.get("capture") == "sealed":
@@ -1672,13 +1673,13 @@ def _manual_result(stem: str, route: str, files: Mapping[str, Path]) -> tuple[st
     return (candidates[0], "") if candidates else (None, f"no {stem}.csv or {stem}.txt in the returned folder")
 
 
-def classify_case(folder: Path, item: Mapping[str, Any], tree: Tree | None = None) -> dict[str, Any]:
+def classify_case(folder: Path, item: Mapping[str, Any], tree: Tree) -> dict[str, Any]:
     """How an ordinary (screened, not sealed) case came back: the inputs' hashes, the route, the binding class and
     the result file. Writes nothing. Reads the run line and the guest report, so it is never called for a sealed
     capture or a format sample."""
     if item.get("item_kind") != "benchmark_case" or item.get("capture") != "screened":
         raise PackError(f"{item.get('item_id')}: only a screened benchmark case is classified")
-    if tree is not None and (sealed := sealed_in_exchange(tree, item)):
+    if (sealed := sealed_in_exchange(tree, item)):
         return {"status": "refused", "reason": f"sealed in the exchange folder ({sealed}); it is not opened"}
     stem, mbf_sha = item["stem"], item["mbf"]["sha256"]
     files = _regular_files(folder)
@@ -1720,9 +1721,9 @@ def _parser_counts(path: Path) -> dict[str, int]:
             "error_diagnostics": sum(1 for d in parsed["diagnostics"] if d["severity"] == "error")}
 
 
-def check_case(folder: Path, item: Mapping[str, Any], tree: Tree | None = None) -> dict[str, Any]:
+def check_case(folder: Path, item: Mapping[str, Any], tree: Tree) -> dict[str, Any]:
     """The dry run's check of one ordinary case, in place and writing nothing; a case sealed in the exchange folder
-    (when `tree` names it) is refused before anything is read."""
+    `tree` names is refused before anything is read."""
     found = classify_case(folder, item, tree)
     if found["status"] == "refused":
         return found
@@ -1860,7 +1861,11 @@ def ingest_pack(pack_dir: Path, root: Path | None, authority: Path, *, selected:
     """Take a returned pack in, item by item, in run order. True when no returned item was refused.
 
     The returned `pack_index.json` must hash equal to the authoritative one, and every designation is taken from the
-    authoritative one. With `check` nothing is written (`root`, when given, is only read for sealed state)."""
+    authoritative one. With `check` nothing is written; the exchange folder is still needed, and only read, so that a
+    case sealed there is never read on this route either."""
+    if root is None:
+        raise PackError("ingest needs the exchange folder, for --check too: without it a case sealed there could not "
+                        "be recognised, and nothing is read")
     pack = outside_work_trees(pack_dir, "ingest")
     index, index_sha = load_authority(authority)
     try:
@@ -1869,7 +1874,7 @@ def ingest_pack(pack_dir: Path, root: Path | None, authority: Path, *, selected:
         raise PackError(f"the returned pack has no readable pack_index.json ({error.strerror})") from None
     if returned_sha != index_sha:
         raise PackError("the returned pack_index.json differs from the authoritative index; nothing is taken in")
-    tree = Tree(root, "the exchange folder") if root is not None else None
+    tree = Tree(root, "the exchange folder")
     chosen = set(selected) if selected else None
     ok = True
     try:
@@ -1983,14 +1988,12 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
             index = json.loads(files["pack_index.json"])
             print(f"pack written: {len(files)} files, {len(index['items'])} items; authority: {authority}")
             return 0
-        root = None
         config = resolve_harness_config(environ, require_vm_tools=False)
         if isinstance(config, HarnessSkip):
-            if not args.check:
-                print(f"CAEPIPE harness skipped: {config.reason}; nothing taken in")
-                return 0
-        else:
-            root = config.exchange_root.resolve()
+            print(f"CAEPIPE harness skipped: {config.reason}; nothing taken in or checked (the exchange folder is "
+                  "needed to recognise a sealed case)")
+            return 0
+        root = config.exchange_root.resolve()
         return 0 if ingest_pack(Path(args.pack_dir), root, Path(args.authority), selected=args.items,
                                 check=args.check) else 1
     except (OSError, KeyError, ValueError, ContainmentError) as error:

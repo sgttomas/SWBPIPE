@@ -9,7 +9,8 @@
       "buys": "Three small cases taken through the whole hand route and back through ingest --check and the parser on this host before anything else is run, so that a capture failure is found on the first day.",
       "estimate": null,
       "kind": "dry_run",
-      "select": {"model_ids": ["cpb-g1-05", "cpb-g8-01", "cpb-g6-02"]}
+      "select": {"model_ids": ["cpb-g1-05", "cpb-g8-01", "cpb-g6-02"]},
+      "format_samples": [{"id": "fs-dyn-batch"}]
     },
     {
       "id": "part-1",
@@ -34,7 +35,8 @@
       "kind": "sealed_capture",
       "sealed_reason": "SWBPIPE's side of these cases is not ready; the capture stays sealed; there is no unsealing command.",
       "select": {},
-      "empty_reason": "No family is named yet whose SWBPIPE side is not ready; the plan for the sitting names them."
+      "empty_reason": "No family is named yet whose SWBPIPE side is not ready; the plan for the sitting names them.",
+      "format_samples": [{"id": "fs-dyn-window"}]
     },
     {
       "id": "part-4",
