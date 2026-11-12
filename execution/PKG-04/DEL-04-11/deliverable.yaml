@@ -124,8 +124,8 @@ code_paths:
 - apps/desktop/src/services/hangerSizingService*
 - apps/desktop/src/features/hanger-sizing/**
 - apps/desktop/src/features/hanger-selection/hangerSelection.ts
-- apps/desktop/src/features/hanger-selection/hangerSelection.sized.test.ts
-- apps/desktop/src/App.hangerSizing.test.tsx
+- apps/desktop/src/features/hanger-selection/hangerSelection.*.test.ts*
+- apps/desktop/src/App.hangerSizing*.test.tsx
 checks:
 - core/analysis/hanger_sizing/tests/*.rs
 - tests/test_hanger_sizing_*.py
@@ -134,6 +134,6 @@ checks:
 - apps/desktop/src/features/results/hangerSizing*.test.ts
 - apps/desktop/src-tauri/src/hanger_sizing_job_tests.rs
 - apps/desktop/src/services/hangerSizingService.test.ts
-- apps/desktop/src/features/hanger-sizing/*.test.tsx
-- apps/desktop/src/features/hanger-selection/hangerSelection.sized.test.ts
-- apps/desktop/src/App.hangerSizing.test.tsx
+- apps/desktop/src/features/hanger-sizing/*.test.ts*
+- apps/desktop/src/features/hanger-selection/hangerSelection.*.test.ts*
+- apps/desktop/src/App.hangerSizing*.test.tsx
