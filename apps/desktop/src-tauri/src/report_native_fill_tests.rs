@@ -415,7 +415,7 @@ fn refused_and_withheld_renders_behave_as_today() {
 
 /// The pressure-free Timoshenko fill, on the transformed stand-in of
 /// `report_render_pf_timoshenko_tests.rs` (no webview-built Timoshenko input
-/// is committed): the frame is the desktop request's report with only its
+/// is committed), with a session input manifest: the frame is the desktop request's report with only its
 /// technical-preview limitation and no result diagnostic; the new command
 /// renders what the existing command renders for the host's filled input with
 /// the texts resubmitted, and that render carries the identity's limitation 0
@@ -437,7 +437,10 @@ fn the_pressure_free_timoshenko_fill_renders_as_the_existing_command() {
         "id": "diagnostic:preview-physics:pf-timoshenko:realized-arcs", "code": REALIZED_ARCS_DIAGNOSTIC,
         "severity": "info", "message": "1 straight member with shear deformation, 1 realized arc without: pipe:fixture-span",
         "source": producer, "affected_refs": ["pipe:fixture-span"]}));
-    let manifest = crate::report_package_save::test_support::input_manifest(&model, json!([]));
+    // The session's input manifest for this solve (the Rust mirror of
+    // `buildCurrentSessionInputManifest`): the record builder reads its full
+    // solver basis, which the committed invented manifest does not carry.
+    let manifest = open_pipe_stress_report_package::user_release::derive_input_manifest(&model, &source, "sparse_interactive").unwrap();
     let request = crate::report_package_save::test_support::desktop_request_from(&model, &manifest, &source);
     let reference = Reference {
         name: "pf_timoshenko stand-in".into(),
@@ -466,7 +469,10 @@ fn the_pressure_free_timoshenko_fill_renders_as_the_existing_command() {
     let filled = fill_only(&live, &args).unwrap_or_else(|error| panic!("{}", message(error)));
     assert_eq!(filled[PF_TIMOSHENKO_SECTION]["semantic_contract_id"], json!(PREVIEW_PHYSICS_TIMOSHENKO_ID));
     assert_eq!(filled[PF_TIMOSHENKO_SECTION]["admission"]["native_job_id"], json!(live.job));
-    let provenance = filled["report_sections"]["provenance_notes"][0].clone();
+    // The result diagnostics carry the session provenance the frame's
+    // calculation report carries (on the desktop the same object as the first
+    // provenance note; the stand-in's package basis writes two).
+    let provenance = filled["calculation_report"]["provenance"].clone();
     let expected: Vec<Value> = expected_report_diagnostics(&source).unwrap().into_iter().map(|mut entry| { entry["provenance"] = provenance.clone(); entry }).collect();
     assert_eq!(filled["report_sections"]["diagnostics"], Value::Array(expected));
     let today = outcome_text(render_today(&live, &filled, &reference)).unwrap();
