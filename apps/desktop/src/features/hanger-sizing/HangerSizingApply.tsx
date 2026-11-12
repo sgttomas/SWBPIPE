@@ -1,5 +1,6 @@
-/** The person's act of applying a sized selection (DEL-04-11 REQ-008, REQ-012), shown beside the result. For each
- * selected candidate the person may prepare the batch, read its before and after and its source note, and queue it;
+/** The person's acts of applying a sized selection (DEL-04-11 REQ-008, REQ-012), shown beside the result. For each
+ * selected candidate, or for every selection of the run at once (`runApplication.ts`), the person may prepare the
+ * batch, read its before and after and its source notes, and queue it;
  * the queued batch goes to the same review as an imported hanger selection, and the model changes only when the person
  * accepts it there. Nothing here writes the model. A selection is offered only while the shown result is bound to
  * the present model (`sizedSelection.ts`); a prepared batch is dropped when the model, the result or the busy state
@@ -16,10 +17,21 @@ import {
   HANGER_SIZING_APPLY_TITLE,
   HANGER_SIZING_MODEL_CHANGED_TEXT,
   HANGER_SIZING_MODEL_NOT_HASHABLE_TEXT,
+  HANGER_SIZING_PRELOAD_PENDING_TEXT,
   hangerSizingApplyOffers,
   type ApplyOffer,
   type ApplyOffers
 } from "./sizedSelection";
+import {
+  HANGER_SIZING_APPLY_RUN_TEXT,
+  HANGER_SIZING_APPLY_RUN_TITLE,
+  HANGER_SIZING_RUN_UNCHANGED_LABEL,
+  HANGER_SIZING_RUN_UNCHANGED_TEXT,
+  prepareRunApplication,
+  runApplicationRefusal,
+  runRefusalShown,
+  type RunChange
+} from "./runApplication";
 
 type Props = Readonly<{
   document: HangerSizingSizedDocument;
@@ -31,11 +43,17 @@ type Props = Readonly<{
 }>;
 
 type Checked = Readonly<{ document: HangerSizingSizedDocument; model: PreviewModel; library: unknown; offers: ApplyOffers }>;
-type Review = Readonly<{ document: HangerSizingSizedDocument; model: PreviewModel; support: string; batch: OperationBatch }>;
+type Review = Readonly<{ document: HangerSizingSizedDocument; model: PreviewModel; support: string; variable: boolean; batch: OperationBatch }>;
+type RunReview = Readonly<{
+  document: HangerSizingSizedDocument; model: PreviewModel; batch: OperationBatch;
+  changed: readonly RunChange[]; unchanged: readonly string[]; description: string;
+}>;
 
 export function HangerSizingApply({ document, library, model, busy, onQueueBatch }: Props) {
   const [checked, setChecked] = useState<Checked | null>(null);
   const [review, setReview] = useState<Review | null>(null);
+  const [runReview, setRunReview] = useState<RunReview | null>(null);
+  const [runRefusal, setRunRefusal] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
   const generation = useRef(0);
@@ -43,6 +61,7 @@ export function HangerSizingApply({ document, library, model, busy, onQueueBatch
   useEffect(() => {
     const token = ++generation.current;
     setError("");
+    setRunRefusal("");
     setPending(false);
     void hangerSizingApplyOffers(document, model, library).then((offers) => {
       if (token === generation.current) setChecked({ document, model, library, offers });
@@ -52,10 +71,14 @@ export function HangerSizingApply({ document, library, model, busy, onQueueBatch
   // Only a check of exactly what is shown counts; a check of an earlier model or result offers nothing.
   const offers = checked && checked.document === document && checked.model === model && checked.library === library ? checked.offers : null;
   const currentReview = review && review.document === document && review.model === model && !busy ? review : null;
+  const currentRunReview = runReview && runReview.document === document && runReview.model === model && !busy ? runReview : null;
+  const runOffer = offers?.model === "current" ? runApplicationRefusal(document, offers) : null;
 
   async function prepare(offer: Extract<ApplyOffer, { kind: "offered" }>) {
     const token = ++generation.current;
     setReview(null);
+    setRunReview(null);
+    setRunRefusal("");
     setError("");
     setPending(true);
     try {
@@ -66,7 +89,27 @@ export function HangerSizingApply({ document, library, model, busy, onQueueBatch
       setChecked({ document, model, library, offers: again });
       if (again.model !== "current" || still?.kind !== "offered") return;
       const batch = await buildHangerSelectionBatch(model, asHangerDocument(library), still.hangerId, still.target, still.application);
-      if (token === generation.current) setReview({ document, model, support: still.support, batch });
+      if (token === generation.current) setReview({ document, model, support: still.support, variable: still.application.loads.family === "variable_spring", batch });
+    } catch (cause) {
+      if (token === generation.current) setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      if (token === generation.current) setPending(false);
+    }
+  }
+
+  async function prepareRun() {
+    const token = ++generation.current;
+    setReview(null);
+    setRunReview(null);
+    setRunRefusal("");
+    setError("");
+    setPending(true);
+    try {
+      // Bound again at the act, and every selection built against the model it is checked against.
+      const prepared = await prepareRunApplication(document, model, library);
+      if (token !== generation.current) return;
+      if (prepared.kind === "not_offered") setRunRefusal(prepared.reason);
+      else setRunReview({ document, model, batch: prepared.batch, changed: prepared.changed, unchanged: prepared.unchanged, description: prepared.description });
     } catch (cause) {
       if (token === generation.current) setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
@@ -107,12 +150,59 @@ export function HangerSizingApply({ document, library, model, busy, onQueueBatch
             <pre data-testid="hanger-sizing-apply-after">{currentReview.batch.operations[0].change.after}</pre>
           </details>
           <p data-testid="hanger-sizing-apply-source-note">{currentReview.batch.operations[0].change.source_note}</p>
+          {currentReview.variable ? <p data-testid="hanger-sizing-apply-preload-pending">{HANGER_SIZING_PRELOAD_PENDING_TEXT}</p> : null}
           <button type="button" disabled={busy || pending} onClick={() => { onQueueBatch(currentReview.batch); setReview(null); }}>
             Queue sized selection for review
           </button>
         </div>
       ) : null}
       {review && !currentReview && !busy ? <p role="status">This prepared application is stale. Prepare it again.</p> : null}
+      {offers?.model === "current" ? (
+        <div data-testid="hanger-sizing-apply-run">
+          <h5>{HANGER_SIZING_APPLY_RUN_TITLE}</h5>
+          <p>{HANGER_SIZING_APPLY_RUN_TEXT}</p>
+          {runOffer === null ? (
+            <button type="button" disabled={busy || pending} onClick={() => void prepareRun()}>
+              Prepare applying every selection of this run
+            </button>
+          ) : <p data-testid="hanger-sizing-apply-run-not-offered">{runRefusalShown(runOffer)}</p>}
+          {runRefusal && runOffer === null ? <p role="alert" data-testid="hanger-sizing-apply-run-refused">{runRefusal}</p> : null}
+        </div>
+      ) : null}
+      {currentRunReview ? (
+        <div data-testid="hanger-sizing-apply-run-review">
+          <h5>Review the configuration replacement of {currentRunReview.changed.length === 1 ? "one support" : `${currentRunReview.changed.length} supports`}</h5>
+          <p data-testid="hanger-sizing-apply-run-description">{currentRunReview.description}</p>
+          <p>Supports changed:</p>
+          <ul data-testid="hanger-sizing-apply-run-changed">
+            {currentRunReview.changed.map((change) => <li key={change.support}>{change.support}: record {change.hangerId}</li>)}
+          </ul>
+          {currentRunReview.unchanged.length > 0 ? (
+            <>
+              <p>{HANGER_SIZING_RUN_UNCHANGED_LABEL}:</p>
+              <ul data-testid="hanger-sizing-apply-run-unchanged">
+                {currentRunReview.unchanged.map((support) => <li key={support}>{support}</li>)}
+              </ul>
+              <p>{HANGER_SIZING_RUN_UNCHANGED_TEXT}</p>
+            </>
+          ) : null}
+          {currentRunReview.changed.some((change) => change.family === "variable_spring")
+            ? <p data-testid="hanger-sizing-apply-run-preload-pending">{HANGER_SIZING_PRELOAD_PENDING_TEXT}</p> : null}
+          <p>Previous top-level stiffness and nonlinear settings of each changed support will be removed. Review each support's complete before and after configuration and the source of each sized value.</p>
+          {currentRunReview.batch.operations.filter((operation) => operation.change.field_path === "configuration").map((operation) => (
+            <details open key={operation.change.change_id} data-testid={`hanger-sizing-apply-run-${operation.target.ref}`}>
+              <summary>{operation.target.ref}: before and after</summary>
+              <pre data-testid="hanger-sizing-apply-run-before">{operation.change.before}</pre>
+              <pre data-testid="hanger-sizing-apply-run-after">{operation.change.after}</pre>
+              <p data-testid="hanger-sizing-apply-run-source-note">{operation.change.source_note}</p>
+            </details>
+          ))}
+          <button type="button" disabled={busy || pending} onClick={() => { onQueueBatch(currentRunReview.batch); setRunReview(null); }}>
+            Queue every sized selection of this run for review
+          </button>
+        </div>
+      ) : null}
+      {runReview && !currentRunReview && !busy ? <p role="status">This prepared application of the run is stale. Prepare it again.</p> : null}
     </section>
   );
 }

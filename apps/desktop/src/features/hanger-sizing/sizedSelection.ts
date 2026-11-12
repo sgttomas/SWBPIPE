@@ -12,6 +12,7 @@
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import type { PreviewModel } from "../../types";
 import type { HangerDocument, HangerSizingApplication, HangerTarget } from "../hanger-selection/hangerSelection";
+import { HANGER_LOAD_NOT_APPLIED_AS_PRELOAD } from "../results/hangerPreload";
 import type { HangerSizingCandidate, HangerSizingSizedDocument } from "../results/hangerSizingResult";
 import { hangerSizingSolveRequest } from "./hangerSizingRequest";
 
@@ -25,6 +26,12 @@ export const HANGER_SIZING_MODEL_CHANGED_TEXT =
 export const HANGER_SIZING_MODEL_NOT_HASHABLE_TEXT =
   "The present model's solve request cannot be hashed, so this result cannot be shown to be bound to it and its selections are not offered for application.";
 export const HANGER_SIZING_NO_FIT_TEXT = "No record fits this support, so there is nothing to apply.";
+/** Shown beside an application that includes a variable spring, until the solve applies a variable spring's cold load
+ * (DEL-04-11 REQ-014); kept consistent with the results standing line (`results/hangerPreload.ts`). Remove this
+ * constant, and its two uses in `HangerSizingApply.tsx`, when the preload lands. */
+export const HANGER_SIZING_PRELOAD_PENDING_TEXT =
+  "Until the solve applies a variable spring's cold load, a solve of the applied model carries the hanger's rate and not its sized cold load, " +
+  `so it does not reproduce this run's verified positions at that hanger; the solve warns of this by name (${HANGER_LOAD_NOT_APPLIED_AS_PRELOAD}).`;
 
 export type ModelBinding = "current" | "changed" | "not_hashable";
 
