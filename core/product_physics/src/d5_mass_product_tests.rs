@@ -474,3 +474,94 @@ fn a_record_whose_dependencies_are_not_si_or_incomplete_gives_no_mass() {
     }
     assert!(defects.is_empty(), "{defects:#?}");
 }
+
+/// The second face of the units defect: a generated self-weight negligible
+/// beside an authored load. The 3 m cantilever of `document` on a section in
+/// millimetres (OD 219.075 mm, nominal wall 8.1788 mm, allowance 1.5875 mm,
+/// pipe density 1.88e-11 kg/m^3, nothing else weighed) carries its generated
+/// self-weight w_g (about -1e-12 N/m) and an authored uniform -1e4 N/m on the
+/// same member, a weight ratio of about 1e-16. Statics alone gives the
+/// anchor's action on the pipe: Fy = -(w_a + w_g) L and Mz = -(w_a + w_g) L^2/2,
+/// with w_g = rho g pi t (D - t) on the nominal wall (D-5, the test's own
+/// binary64 in metres); the sums are taken exactly (`ExactAccumulator`), and a
+/// slack of 1e-12 |w_g| L^2, many orders above the test's own rounding of w_g
+/// and below every bound, covers that rounding. While the formation check read
+/// the record's millimetres as metres it re-formed w_g 10^6 times too large
+/// and still passed, publishing the anchor's moment 4.5e-6 N*m from the
+/// closed form with a stated bound near 4e-13. Each published row and group
+/// norm must contain the closed form within its group's stated bound, and the
+/// case is checks passed. The ground is the closed form; the formation check's
+/// inverse-norm premise is not used as an oracle here.
+#[test]
+fn a_negligible_generated_weight_keeps_its_stated_support_bounds_honest() {
+    use open_pipe_stress_frame_kernel::exact_sum::ExactAccumulator;
+    const L: f64 = 3.0;
+    const AUTHORED: f64 = -1.0e4;
+    const DENSITY: f64 = 1.88e-11;
+    let mut request = document(0.0, 0.0);
+    request["model"]["pipe_segments"][0]["section"] = json!({
+        "outside_diameter": {"value": 219.075, "unit": "mm"}, "wall_thickness": {"value": 8.1788, "unit": "mm"},
+        "mill_tolerance": {"value": 0.0, "unit": "mm"}, "corrosion_allowance": {"value": 1.5875, "unit": "mm"},
+        "material_density": {"value": DENSITY, "unit": "kg/m^3"}});
+    let mut request = generated(request).1;
+    request["model"]["load_cases"][0]["primitive_loads"].as_array_mut().unwrap().push(json!({
+        "id": "load:authored-udl", "category": "distributed_force", "target": {"type": "element", "pipe": PIPE},
+        "direction": "global_y", "magnitude": {"value": AUTHORED, "unit": "N/m"}, "dimension": "force_per_length",
+        "provenance": "invented dominant authored load"}));
+    // The closed form, independent of the product: w_g in the test's binary64.
+    let (od, wall) = (219.075e-3, 8.1788e-3);
+    let w_g = DENSITY * ((PI * wall) * (od - wall)) * GRAVITY;
+    assert!(w_g < 0.0 && (w_g / AUTHORED - 1e-16).abs() < 1e-17, "the intended weight ratio: {w_g:e}");
+    let slack = 1e-12 * w_g.abs() * L * L;
+    // Fy = -(w_a + w_g) L and Mz = -(w_a + w_g) L^2 / 2, as exact two-term sums.
+    let fy = |acc: &mut ExactAccumulator, sign: f64| {
+        acc.add_product(-sign * AUTHORED, L).unwrap();
+        acc.add_product(-sign * w_g, L).unwrap();
+    };
+    let mz = |acc: &mut ExactAccumulator, sign: f64| {
+        acc.add_product(-sign * AUTHORED, L * L / 2.0).unwrap();
+        acc.add_product(-sign * w_g, L * L / 2.0).unwrap();
+    };
+    // |published - closed form| <= bound + slack, decided exactly.
+    let contains = |published: f64, bound: f64, closed: &dyn Fn(&mut ExactAccumulator, f64)| {
+        let side = |sign: f64| {
+            let mut acc = ExactAccumulator::new();
+            acc.add(sign * published).unwrap();
+            closed(&mut acc, -sign);
+            acc.add(bound).unwrap();
+            acc.add(slack).unwrap();
+            acc.signum() >= 0
+        };
+        side(1.0) && side(-1.0)
+    };
+    for mode in MODES {
+        crate::tests::KD5_RECOVERY_PROBE.with(|p| *p.borrow_mut() = Some(Vec::new()));
+        let envelope =
+            serde_json::to_value(run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap()).unwrap();
+        let records = crate::tests::KD5_RECOVERY_PROBE.with(|p| p.borrow_mut().take().unwrap());
+        let integrity = envelope["diagnostics"].as_array().unwrap().iter().find(|d| d["id"] == INTEGRITY).unwrap();
+        assert_eq!(integrity["code"], json!("NUMERICAL_INTEGRITY_CHECKS_PASSED"), "{mode:?}: {}", integrity["message"]);
+        let group = |kind: &str| {
+            let g = records.iter().filter(|r| r.member == "anchor").flat_map(|r| &r.groups)
+                .find(|g| g.location == "node" && g.kind == kind).unwrap_or_else(|| panic!("{mode:?}: no anchor {kind} group"));
+            (g.q, g.bound.clone().unwrap_or_else(|e| panic!("{mode:?}: anchor {kind} bound unavailable: {e}")))
+        };
+        let row = |component: &str| {
+            envelope["results"].as_array().unwrap().iter()
+                .find(|r| r["kind"] == "support_reaction_component_v2" && r["entity_ref"] == "anchor"
+                    && r["metadata"]["component"] == component)
+                .unwrap_or_else(|| panic!("{mode:?}: no anchor {component} row"))["value"].as_f64().unwrap()
+        };
+        for (component, kind, closed) in
+            [("Fy", "support_force", &fy as &dyn Fn(&mut ExactAccumulator, f64)), ("Mz", "support_moment", &mz)]
+        {
+            let (q, bound) = group(kind);
+            let published = row(component);
+            eprintln!("{mode:?} anchor {component}: published {published:.17e}, group norm {q:.17e}, stated bound {bound:e}");
+            assert!(contains(published, bound, closed),
+                "{mode:?} {component}: published {published:.17e} with stated bound {bound:e} excludes the closed form");
+            assert!(contains(q, bound, closed),
+                "{mode:?} {kind}: group norm {q:.17e} with stated bound {bound:e} excludes the closed form");
+        }
+    }
+}
