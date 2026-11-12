@@ -26,7 +26,7 @@ afterEach(() => { cleanup(); route.current = null; });
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../../..");
 /** The invented demo, with a bend, a reducer and a legacy joint whose geometry is absent,
  * and the valve's stiffness modifiers removed so their units come from the project. */
-function demo(units: Record<string, string> = {}): PreviewModel {
+function demo(units: Record<string, string> = {}, edit: (model: PreviewModel) => void = () => {}): PreviewModel {
   const model = JSON.parse(readFileSync(path.join(projectRoot, "fixtures/product_preview/invented_demo_model.json"), "utf8")) as PreviewModel;
   model.project.units = { ...model.project.units, ...units } as PreviewModel["project"]["units"];
   model.components.push(
@@ -41,6 +41,7 @@ function demo(units: Record<string, string> = {}): PreviewModel {
   const modifiers = model.components.find((component) => component.id === "component:C-130")!.modifiers as Record<string, unknown>;
   delete modifiers.linear_stiffness_user_value;
   delete modifiers.rotational_stiffness_user_value;
+  edit(model);
   return model;
 }
 
@@ -61,7 +62,10 @@ async function startTask(selection: EntityRef, fieldPath: string, units: Record<
   fireEvent.click(byId("inspector-start-task"));
   changeFormControl(byId("editor-intent-field"), { target: { value: fieldPath } });
   const starting = (byId("editor-intent-value") as HTMLInputElement).value;
-  return { starting, rerender: (next: Record<string, string>, session = 1) => view.rerender(tree(demo(next), session)) };
+  return {
+    starting,
+    rerender: (next: Record<string, string>, session = 1, edit?: (model: PreviewModel) => void) => view.rerender(tree(demo(next, edit), session))
+  };
 }
 
 const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
@@ -107,10 +111,17 @@ describe("the property task clears a value typed beside a unit taken from the pr
     expect(notice()).toBeNull();
   });
 
-  it("a mill tolerance on a pipe with a stored wall thickness takes that stored unit, so it does not clear", async () => {
+  it("a mill tolerance on a pipe with a stored wall thickness takes that stored unit: it moves only with the record and never clears", async () => {
     const { rerender } = await startTask({ type: "pipe", id: "pipe:P-100" }, "section.mill_tolerance.value");
     fireEvent.change(byId("editor-intent-value"), { target: { value: "0.001" } });
     rerender({ length: "mm" });
+    expect(byId("editor-intent-value")).toHaveValue("0.001");
+    // An applied edit stores the wall thickness in mm: the mill tolerance's unit follows the
+    // stored member, not the project units, so the typed value stays.
+    rerender({ length: "mm" }, 1, (model) => {
+      const wall = model.pipe_segments[0].section.wall_thickness!;
+      model.pipe_segments[0].section.wall_thickness = { value: Number(wall.value) * 1000, unit: "mm" };
+    });
     expect(byId("editor-intent-value")).toHaveValue("0.001");
     expect(notice()).toBeNull();
   });
@@ -121,10 +132,12 @@ describe("the property task clears a value typed beside a unit taken from the pr
     rerender({ pressure: "MPa" });
     expect(byId("editor-intent-value")).toHaveValue("400");
     expect(notice()).toBeNull();
+    // The person's own choice of unit after typing is not a move with the project units.
     chooseCompactOption(byId("editor-intent-unit"), "K");
-    fireEvent.change(byId("editor-intent-value"), { target: { value: "673.15" } });
+    expect(byId("editor-intent-value")).toHaveValue("400");
+    expect(notice()).toBeNull();
     rerender({ temperature: "degF" });
-    expect(byId("editor-intent-value")).toHaveValue("673.15");
+    expect(byId("editor-intent-value")).toHaveValue("400");
     expect(notice()).toBeNull();
   });
 
