@@ -64,7 +64,7 @@ The project's own examination, VER-006's checks among it, shows whether the use 
 - **REQ-012** — The workspace offers a light and a dark theme that follow the system setting unless the user chooses one, and a comfortable and a compact density. The choice is a user preference.
 - **REQ-013** — One token source generates the stylesheet. No workspace surface sets a colour, a space, a control size or a type step outside the tokens.
 - **REQ-014** — Every workspace surface follows the presentation conventions, and in either density every target of a control the accessibility target covers meets Target Size (Minimum) (2.5.8).
-- **REQ-016** — *Usability.* Each use case AC-007 lists completes in the desktop with no step outside it, and each is tested thoroughly before the owner is asked. The owner then uses the desktop and gives the owner's verdict (`docs/RELEASE_TARGET_v1.0.md`, exit criterion 8).
+- **REQ-016** — *Usability.* Each use case AC-007 lists completes in the desktop with no step outside it, and each is tested thoroughly before the owner is asked. Before the owner is asked, the embedded agent completes each use case in the desktop from its stated start to its stated result. The owner then uses the desktop and gives the owner's verdict (`docs/RELEASE_TARGET_v1.0.md`, exit criterion 8).
 
 ### Acceptance criteria
 
@@ -87,7 +87,7 @@ The project's own examination, VER-006's checks among it, shows whether the use 
 
 ## Production and Verification Method — Praxeology
 
-**Method choices.** The tokens are held in one file and the stylesheet is generated from it, so a check can compare the two. Contrast and target size are read from the rendered desktop in each theme and density, not from the token values alone, so that a surface that departs from the tokens is caught.
+**Method choices.** The tokens are held in one file and the stylesheet is generated from it, so a check can compare the two. Contrast and target size are read from the rendered desktop in each theme and density, not from the token values alone, so that a surface that departs from the tokens is caught. When the embedded agent carries out a use case, it acts through its own operations on the model, the route the embedded agent already has (DEL-16-06), not through the desktop's controls. The agent's operations are compared with what each use case needs from its stated start to its stated result, to show whether they reach it; the comparison is of reach, so one operation may cover several steps a person takes in the desktop. Where a use case ends and restarts the application, the test arrangement relaunches it; the agent does not restart its own host. In these runs only, the test harness presses Apply on the agent's proposals and enters the person-entered values each use case states, so that the runs need no one attending. The product's rule is unchanged: a person applies (DEL-16-06).
 
 **How each criterion is examined.**
 
@@ -96,7 +96,7 @@ The project's own examination, VER-006's checks among it, shows whether the use 
 - **VER-003** — Executable check (observes the accessibility tree of every workspace surface): reads each control's accessible name, each state's non-colour signal, each value's unit, and the state and name of undo and redo with and without a reversible edit, with the findings shown after each step.
 - **VER-004** — Executable check (observes the token source, the stylesheet and the preference): regenerates the stylesheet and compares it with the one in use, switches theme and density and reads the applied values, and compares the model document's bytes before and after.
 - **VER-005** — Executable check (observes each large tree and table by keyboard): searches, filters and copies, and reads the result.
-- **VER-006** — Executable check (drives the running desktop through each use case of AC-007, one check per use case, from its stated start to its stated result using only the desktop's own controls, and observes the result the use case names): a use case fails when any step needs something outside the desktop. For printing the check observes that the desktop hands the report to the system print dialog, which is a proxy for the printed page. For the timed entry it observes that the entry completes; the time is examined under DEL-07-02/VER-007. And judgment by a named role (the owner uses the desktop and answers yes or no on whether it is ready), asked only when every check passes.
+- **VER-006** — Executable check (drives the running desktop through each use case of AC-007, one check per use case, from its stated start to its stated result using only the desktop's own controls, and observes the result the use case names): a use case fails when any step needs something outside the desktop. For printing the check observes that the desktop hands the report to the system print dialog, which is a proxy for the printed page. For the timed entry it observes that the entry completes; the time is examined under DEL-07-02/VER-007. Each use case is also carried out by the embedded agent, and its result is compared with the result the use case names. And judgment by a named role (the owner uses the desktop and answers yes or no on whether it is ready), asked only when every check passes.
 
 ## Governing Values and Decisions — Axiology
 
