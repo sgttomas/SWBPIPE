@@ -67,6 +67,7 @@ checks:
 - core/solver/frame_kernel/src/lib.rs
 - core/solver/frame_kernel/src/structural/sparse/tests.rs
 - core/solver/frame_kernel/src/structural/formation_check_tests.rs
+- core/solver/frame_kernel/src/structural/formation_check_walk_tests.rs
 - core/solver/frame_kernel/src/structural/certified_recovery_tests.rs
 - core/solver/frame_kernel/src/structural/certified_recovery_member_index_tests.rs
 - core/solver/frame_kernel/tests/timoshenko_element.rs

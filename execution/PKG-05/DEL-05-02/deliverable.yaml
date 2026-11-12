@@ -83,6 +83,7 @@ code_paths:
 - core/product_physics/src/held_status.rs
 - core/product_physics/src/held_status_tests.rs
 - core/product_physics/src/combination_certificate.rs
+- core/product_physics/src/combination_certificate_index_tests.rs
 - core/product_physics/src/op1a_seed_tests.rs
 - core/product_physics/tests/rt_a4_combinations.rs
 - core/product_physics/tests/w16_exact_combinations.rs

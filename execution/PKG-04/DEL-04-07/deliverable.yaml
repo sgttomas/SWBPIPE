@@ -290,6 +290,8 @@ checks:
 - core/runner/headless/tests/untied_joint_pressure_references.rs
 - core/runner/headless/tests/tied_joint_references.rs
 - core/product_physics/src/u4b_tests.rs
+- core/product_physics/src/pressure_row_replacement_tests.rs
+- core/product_physics/src/pressure_result_ids_tests.rs
 - core/product_physics/src/tie_rod_tests.rs
 - core/product_physics/src/corrected_displacement_tests.rs
 - core/model_operations/operation_applier/tests/l_line_authoring.rs
