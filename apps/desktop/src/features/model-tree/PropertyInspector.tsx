@@ -112,7 +112,11 @@ export function PropertyInspector({
   const [unitCatalogRoute, setUnitCatalogRoute] = useState<UnitCatalogRoute | null>(null);
   const editableFields = useMemo(() => editorFieldOptions(model, draftTarget, unitCatalogRoute), [draftTarget, model, unitCatalogRoute]);
   const [selectedFieldPath, setSelectedFieldPath] = useState(editableFields[0]?.fieldPath ?? "");
-  const [proposedValue, setProposedValue] = useState(fieldEntryValue(editableFields[0]));
+  // The task's value as the person entered it, or null while they have not edited it. An
+  // unedited entry is the field's own stored entry, read on every render, so it follows the
+  // stored value and its unit together when the model changes under an open task. Editing
+  // is an event: retyping the stored digits is still an edit.
+  const [enteredValue, setEnteredValue] = useState<string | null>(null);
   // a unit the user picks is kept; until then the field's own
   // (inherited) default is used, recomputed whenever the field is, so a catalog that
   // arrives late, or a project-unit change, replaces an inherited default but never a
@@ -193,6 +197,7 @@ export function PropertyInspector({
     .map((pipe) => ({ value: pipe.id, label: pipe.label || pipe.id, keywords: [pipe.from, pipe.to] })),
   [componentDraft.node, model.pipe_segments]);
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
+  const proposedValue = enteredValue ?? fieldEntryValue(selectedField);
   const proposedUnit = chosenUnit ?? selectedField?.unit ?? "";
   const selectedFieldLabel = selectedField ? propertyLabel(selectedField) : "Property";
   const requiredFlags = requiredFlagsForSelection(model, propertiesTarget, properties);
@@ -252,7 +257,7 @@ export function PropertyInspector({
     const firstField = editorFieldOptions(model, nextTarget, unitCatalogRoute)[0];
     setDraftTarget(nextTarget);
     setSelectedFieldPath(firstField?.fieldPath ?? "");
-    setProposedValue(fieldEntryValue(firstField));
+    setEnteredValue(null);
     setChosenUnit(null);
     setRationale("user_entered_preview_change");
     setSupportDraft(defaultSupportDraft(model, selection, queuedIntents, unitCatalogRoute));
@@ -275,7 +280,7 @@ export function PropertyInspector({
       const firstField = editorFieldOptions(model, nextTarget, unitCatalogRoute)[0];
       setDraftTarget(nextTarget);
       setSelectedFieldPath(firstField?.fieldPath ?? "");
-      setProposedValue(fieldEntryValue(firstField));
+      setEnteredValue(null);
       setChosenUnit(null);
       setRationale("user_entered_preview_change");
       setTaskActive(true);
@@ -326,7 +331,7 @@ export function PropertyInspector({
     taskGenerationRef.current += 1;
     const nextField = editableFields.find((field) => field.fieldPath === fieldPath);
     setSelectedFieldPath(fieldPath);
-    setProposedValue(fieldEntryValue(nextField));
+    setEnteredValue(null);
     setChosenUnit(null);
   }
 
@@ -336,7 +341,7 @@ export function PropertyInspector({
     const firstField = editorFieldOptions(model, nextTarget, unitCatalogRoute)[0];
     setDraftTarget(nextTarget);
     setSelectedFieldPath(firstField?.fieldPath ?? "");
-    setProposedValue(fieldEntryValue(firstField));
+    setEnteredValue(null);
     setChosenUnit(null);
     setRationale("user_entered_preview_change");
     setInspectorView("task");
@@ -347,7 +352,7 @@ export function PropertyInspector({
     taskGenerationRef.current += 1;
     const firstField = editorFieldOptions(model, draftTarget, unitCatalogRoute)[0];
     setSelectedFieldPath(firstField?.fieldPath ?? "");
-    setProposedValue(fieldEntryValue(firstField));
+    setEnteredValue(null);
     setChosenUnit(null);
     setRationale("user_entered_preview_change");
     setTaskActive(false);
@@ -535,7 +540,7 @@ export function PropertyInspector({
                   inputMode={selectedField?.valueKind === "quantity" ? "decimal" : "text"}
                   onChange={(event) => {
                     taskGenerationRef.current += 1;
-                    setProposedValue(event.target.value);
+                    setEnteredValue(event.target.value);
                   }}
                   value={proposedValue}
                 />
