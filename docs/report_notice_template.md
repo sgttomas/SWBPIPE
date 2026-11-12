@@ -44,8 +44,10 @@ validation in accepted professional tools remain the responsibility of the
 user and project authority.
 ```
 
-Where a report includes a comparison, the comparison carries the registered
-comparison statement, `BS-COMPARE` (`docs/claims_registry.md`), word for word.
+Where a generated report includes a comparison subsection for saved model
+states, internal analysis runs, or load cases or combinations within a run,
+that subsection carries the registered comparison statement, `BS-COMPARE`
+(`docs/claims_registry.md`), word for word.
 
 `BS-VALID` retains its existing registry placement; that placement does not
 explicitly include references inside generated reports.
