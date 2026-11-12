@@ -193,9 +193,33 @@ export async function engineModelChecks(model: PreviewModel): Promise<EngineChec
   return { outcome, solve, slots, notShown, notShownBlocking, notShownBlockingByGroup, bytes };
 }
 
+/** A run whose checks could not complete (the check itself failed): read as the
+ * checks unavailable, with the failure's text. */
+export function modelChecksNotCompleted(model: PreviewModel, error: unknown): ModelCheckRun {
+  return {
+    model,
+    solve: { kind: "unavailable", reason: `The model checks did not complete: ${error instanceof Error ? error.message : String(error)}` },
+    findings: [],
+    notShown: { solve: 0, slots: 0, library: 0 },
+    notShownBlocking: 0,
+    notShownBlockingByGroup: { solve: 0, slots: 0, library: 0 }
+  };
+}
+
+/** The model entity a finding's affected reference names, as the session selects
+ * it: an element, a support, a component or a load case, and also a material or
+ * a section record, which the model tree lists and selects (DEL-07-04 REQ-014). */
+export function resolveModelCheckEntity(model: PreviewModel, ref: string): EntityRef | null {
+  const entity = resolveEntitySelection(model, ref);
+  if (entity) return entity;
+  if ((model.materials ?? []).some((item) => item.id === ref)) return { type: "material", id: ref };
+  if ((model.sections ?? []).some((item) => item.id === ref)) return { type: "section", id: ref };
+  return null;
+}
+
 function entityFor(model: PreviewModel, diagnostic: Diagnostic): EntityRef | null {
   for (const ref of diagnostic.affected_refs ?? []) {
-    const entity = resolveEntitySelection(model, ref);
+    const entity = resolveModelCheckEntity(model, ref);
     if (entity) return entity;
   }
   return null;

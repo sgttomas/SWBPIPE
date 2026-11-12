@@ -2,20 +2,20 @@
 // DEL-07-04 REQ-004, AC-001; DEL-07-06 REQ-002, REQ-003, REQ-011), read from the
 // accessibility tree: the control's state and its reason, and each standing
 // finding with the fields its producer supplied. Invented findings.
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 import { loadPreviewModel } from "../../services/previewService";
 import type { Diagnostic, PreviewModel } from "../../types";
-import type { ModelCheckFinding } from "../diagnostics/modelChecks";
-import type { SolveGateReading } from "../workspace/solveGates";
+import { resolveModelCheckEntity, runModelChecks, type ModelCheckFinding, type ModelCheckRun } from "../diagnostics/modelChecks";
+import { ModelChecksPanel } from "../diagnostics/ModelChecksPanel";
+import { readSolveGate, type SolveGateReading } from "../workspace/solveGates";
 import { initialSolveJob } from "../workspace/solveJobAudit";
 import { SolvePanel } from "./SolvePanel";
 import { SOLVE_WITHHELD_LISTED } from "./SolveWithheldNotice";
 
 function finding(model: PreviewModel, diagnostic: Diagnostic, index = 0): ModelCheckFinding {
   const ref = diagnostic.affected_refs?.[0];
-  const node = model.nodes.find((item) => item.id === ref);
-  return { key: `solve:${index}:${diagnostic.code}`, group: "solve", diagnostic, entity: node ? { type: "node", id: node.id } : null };
+  return { key: `solve:${index}:${diagnostic.code}`, group: "solve", diagnostic, entity: ref ? resolveModelCheckEntity(model, ref) : null };
 }
 
 async function renderPanel(reading: SolveGateReading | null) {
@@ -93,4 +93,70 @@ it("states the solve's own refusal when it cannot read the model", async () => {
   const model = await loadPreviewModel();
   await renderPanel({ kind: "withheld", model, findings: [], diagnostics: [], notListedBlocking: 0, refusal: "invented refusal text" });
   expect(screen.getByRole("button", { name: "Run mechanics preview (withheld)" })).toHaveAccessibleDescription(/The solve cannot read this model: invented refusal text/);
+});
+
+it("leads a real material finding to its material, in the Model checks list and in the notice, by keyboard focus and activation", async () => {
+  const model = JSON.parse(JSON.stringify(await loadPreviewModel())) as PreviewModel;
+  const material = model.materials![0];
+  delete (material as { shear_modulus?: unknown }).shear_modulus;
+  const run = await runModelChecks(model);
+  const standing = run.findings.find((item) => item.diagnostic.code === "MATERIAL_INPUT_MISSING")!;
+  expect(standing.diagnostic.affected_refs).toEqual([material.id]);
+  expect(standing.entity).toEqual({ type: "material", id: material.id });
+
+  const listSelect = vi.fn();
+  const list = render(<ModelChecksPanel model={model} run={run} onRun={() => {}} onSelectEntity={listSelect} />);
+  const inList = list.getByTestId("model-check-MATERIAL_INPUT_MISSING");
+  expect(inList).toHaveAttribute("aria-disabled", "false");
+  act(() => inList.focus());
+  expect(document.activeElement).toBe(inList);
+  fireEvent.click(inList); // A focused native button is activated by Enter and Space as by a click.
+  expect(listSelect).toHaveBeenCalledWith({ type: "material", id: material.id });
+  list.unmount();
+
+  const reading = readSolveGate(model, run);
+  expect(reading.kind).toBe("withheld");
+  const onSelectEntity = vi.fn();
+  render(<SolvePanel model={model} result={null} analysisRun={null} running={false} solveJob={initialSolveJob()} solverMode="sparse_interactive"
+    onRun={() => {}} onCancel={() => {}} onSolverModeChange={() => {}} solveGate={reading} onSelectEntity={onSelectEntity} />);
+  const notice = screen.getByRole("region", { name: "Solve is withheld" });
+  const button = within(notice).getByRole("button", { name: /MATERIAL_INPUT_MISSING blocking/ });
+  expect(button.tagName).toBe("BUTTON");
+  expect(button.tabIndex).toBe(0);
+  act(() => button.focus());
+  expect(document.activeElement).toBe(button);
+  fireEvent.click(button);
+  expect(onSelectEntity).toHaveBeenCalledWith({ type: "material", id: material.id });
+  expect(notice).not.toHaveTextContent("names no model entity");
+});
+
+it("offers each entity a finding names: the first by the finding, the second by its own control", async () => {
+  const model = await loadPreviewModel();
+  const [first, second] = [model.nodes[0].id, model.supports[0].id];
+  const diagnostic: Diagnostic = { code: "INVENTED_TWO_ENTITIES", severity: "blocking", message: "invented finding naming two entities", affected_refs: [first, second] };
+  const findings = [finding(model, diagnostic)];
+  const { onSelectEntity } = await renderPanel({ kind: "withheld", model, findings, diagnostics: [diagnostic], notListedBlocking: 0, refusal: null });
+  const notice = screen.getByRole("region", { name: "Solve is withheld" });
+  fireEvent.click(within(notice).getByRole("button", { name: /INVENTED_TWO_ENTITIES blocking/ }));
+  expect(onSelectEntity).toHaveBeenLastCalledWith({ type: "node", id: first });
+  const objects = within(notice).getByRole("list", { name: "Objects INVENTED_TWO_ENTITIES names" });
+  expect(objects).toHaveTextContent(`${first} (the finding above selects it)`);
+  const secondControl = within(objects).getByRole("button", { name: `Select ${second}` });
+  act(() => secondControl.focus());
+  expect(document.activeElement).toBe(secondControl);
+  fireEvent.click(secondControl);
+  expect(onSelectEntity).toHaveBeenLastCalledWith({ type: "support", id: second });
+});
+
+it("states plainly a refusal with no findings: the solve's own text, and no empty list", async () => {
+  const model = await loadPreviewModel();
+  const run: ModelCheckRun = { model, solve: { kind: "refused", refusal: "request: missing field `outside_diameter`" }, findings: [], notShown: { solve: 0, slots: 0, library: 0 }, notShownBlocking: 0, notShownBlockingByGroup: { solve: 0, slots: 0, library: 0 } };
+  const reading = readSolveGate(model, run);
+  expect(reading).toMatchObject({ kind: "withheld", findings: [], diagnostics: [], notListedBlocking: 0, refusal: "request: missing field `outside_diameter`" });
+  await renderPanel(reading);
+  const notice = screen.getByRole("region", { name: "Solve is withheld" });
+  expect(within(notice).getByTestId("solve-withheld-summary")).toHaveTextContent("The solve cannot read this model: request: missing field `outside_diameter`.");
+  expect(within(notice).queryByRole("list")).toBeNull();
+  expect(within(notice).queryByTestId("solve-withheld-rest")).toBeNull();
+  expect(screen.getByRole("button", { name: "Run mechanics preview (withheld)" })).toHaveAccessibleDescription(/The solve cannot read this model: request: missing field `outside_diameter`/);
 });

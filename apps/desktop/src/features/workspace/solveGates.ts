@@ -102,6 +102,26 @@ export type SolveGateReading =
       refusal: string | null;
     }>;
 
+/** Why a Solve request's model check ended before its reading was taken. */
+export type SolveGateStop = "cancelled" | "model_changed" | "check_retired" | "unmounted" | "check_failed";
+
+/** What the Solve command's gate decided for one request:
+ * - `proceed`: the solve starts; the reading is open, or unknown where no check
+ *   could run or complete (the solve then proceeds as it did before the gate);
+ * - `withheld`: a solve-blocking finding stands; the reading names it;
+ * - `cancelled`: the person cancelled while the request's check ran;
+ * - `superseded`: the check ended without a reading for this request: the model
+ *   value changed (`model_changed`), a later check or a new project session
+ *   retired it (`check_retired`), the workspace unmounted (`unmounted`), or the
+ *   check's continuation failed (`check_failed`).
+ * Only `proceed` starts a solve; in every other case nothing of the session is
+ * cleared and the model is untouched. */
+export type SolveGateOutcome =
+  | Readonly<{ kind: "proceed"; reading: Exclude<SolveGateReading, { kind: "withheld" }> }>
+  | Readonly<{ kind: "withheld"; reading: Extract<SolveGateReading, { kind: "withheld" }> }>
+  | Readonly<{ kind: "cancelled" }>
+  | Readonly<{ kind: "superseded"; reason: Exclude<SolveGateStop, "cancelled"> }>;
+
 /** A finding's severity that withholds Solve when the solve group reports it. */
 export function isSolveBlockingSeverity(severity: Diagnostic["severity"]): boolean {
   return severity === "blocking" || severity === "error";

@@ -1,7 +1,7 @@
 import { useId } from "react";
 import type { Diagnostic, EntityRef, PreviewModel } from "../../types";
 import { FindingButton } from "../diagnostics/ModelChecksPanel";
-import { resolveEntitySelection } from "../results/resultInterpretation";
+import { resolveModelCheckEntity } from "../diagnostics/modelChecks";
 import type { SolveGateReading } from "../workspace/solveGates";
 
 /** How many standing findings the notice lists; the rest are in the Model checks list. */
@@ -92,7 +92,7 @@ function FindingFields({
         {refs.length === 0 ? NOT_SUPPLIED : (
           <ul aria-label={`Objects ${diagnostic.code} names`}>
             {refs.map((ref, index) => {
-              const entity = resolveEntitySelection(model, ref);
+              const entity = resolveModelCheckEntity(model, ref);
               if (!entity) return <li key={`${ref}:${index}`}>{ref} (names no model entity to select)</li>;
               if (selected && entity.type === selected.type && entity.id === selected.id) {
                 return <li key={`${ref}:${index}`}>{ref} (the finding above selects it)</li>;
