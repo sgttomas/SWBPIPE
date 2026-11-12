@@ -88,6 +88,10 @@ pub struct CallIdentity {
     tool: Tool,
     basis: Value,
     target: Option<String>,
+    /// The solve's requested `solverMode`, retained from the admitted arguments.
+    solver_mode: Option<String>,
+    /// The result read's `filter`, retained from the admitted arguments.
+    filter: Option<Value>,
 }
 impl CallIdentity {
     pub fn request_ref(&self) -> &str {
@@ -120,6 +124,8 @@ impl CallIdentity {
             tool: self.tool,
             basis: self.basis.clone(),
             target: self.target.clone(),
+            solver_mode: self.solver_mode.clone(),
+            filter: self.filter.clone(),
         }
     }
 }
@@ -477,6 +483,13 @@ impl Dispatcher {
                 tool: *tool,
                 basis: basis.clone(),
                 target: target.map(str::to_owned),
+                solver_mode: (*tool == Tool::Solve)
+                    .then(|| arguments.get("solverMode").and_then(Value::as_str))
+                    .flatten()
+                    .map(str::to_owned),
+                filter: (*tool == Tool::ReadResults)
+                    .then(|| arguments.get("filter").cloned())
+                    .flatten(),
             },
             vendor: VendorState::Active,
             actual: None,
@@ -646,6 +659,11 @@ impl Dispatcher {
                 if value["data"]["evaluatedModelHash"] != call.basis["modelHash"] {
                     return Err(Refusal::WrongBasis);
                 }
+                if call.tool == Tool::Solve {
+                    solve_outcome(status, handle, run_id, &value["data"], call.solver_mode.as_deref())?;
+                } else if status == "ok" {
+                    results_within_filter(&value["data"], call.filter.as_ref())?;
+                }
             }
             Evidence::Failure
                 if matches!(
@@ -707,6 +725,63 @@ impl std::fmt::Debug for Dispatcher {
     }
 }
 
+/// A solve's outcome is one of three, each with its own evidence. Completed: a
+/// run handle and run id, no diagnostics and no failure. Rejected (the solver
+/// or a solve gate refused the model): no run, the refusal's findings and the
+/// count of those not listed, and no failure. Failed: no run, the failure and no diagnostics. Any other
+/// status never carries run evidence, and a requested solver mode is the mode
+/// the outcome names.
+fn solve_outcome(
+    status: &str,
+    handle: Option<&str>,
+    run_id: Option<&str>,
+    data: &Value,
+    requested_mode: Option<&str>,
+) -> Result<(), Refusal> {
+    let diagnostics = data["diagnostics"].as_array().ok_or(Refusal::MissingEvidence)?;
+    let not_listed = integer(&data["diagnosticsNotListed"]).ok_or(Refusal::MissingEvidence)?;
+    let none = diagnostics.is_empty() && not_listed == 0;
+    let no_run = handle.is_none() && run_id.is_none();
+    let valid = match status {
+        "completed" => {
+            handle.is_some() && run_id.is_some() && none && data["failure"].is_null()
+        }
+        "rejected" => no_run && data["failure"].is_null(),
+        "failed" => no_run && none && data["failure"].is_object(),
+        _ => false,
+    };
+    if !valid {
+        return Err(Refusal::MissingEvidence);
+    }
+    if requested_mode.is_some_and(|mode| data["solverMode"].as_str() != Some(mode)) {
+        return Err(Refusal::MissingEvidence);
+    }
+    Ok(())
+}
+/// Every value of a result page lies inside the filter the call was admitted
+/// with: its kind and entity, when those lists are not empty, and its case, when
+/// the filter names one. A page that names a value the filter excluded is refused.
+fn results_within_filter(data: &Value, filter: Option<&Value>) -> Result<(), Refusal> {
+    let Some(filter) = filter else {
+        return Ok(());
+    };
+    let values = data["values"].as_array().ok_or(Refusal::MissingEvidence)?;
+    let listed = |list: &Value, item: &Value| {
+        list.as_array()
+            .is_none_or(|list| list.is_empty() || list.contains(item))
+    };
+    for value in values {
+        if !listed(&filter["kinds"], &value["kind"])
+            || !listed(&filter["entityRefs"], &value["entityRef"])
+            || filter
+                .get("case")
+                .is_some_and(|case| value["case"] != *case)
+        {
+            return Err(Refusal::MissingEvidence);
+        }
+    }
+    Ok(())
+}
 fn valid_basis(catalog: &Catalog, basis: &Value) -> Result<(), Refusal> {
     if !session_driver::bounded_value(basis, BASIS_BYTES) {
         return Err(Refusal::WrongBasis);
@@ -795,7 +870,7 @@ mod tests {
         outcome(
             "ok",
             basis(2),
-            json!({"workspaceHandle":"workspace-invented","projectId":"project:invented","schemaVersion":"0.9.0","pressureContract":null,"pressureProfileBefore":"{\"schema_version\":\"0.9.0\"}","projectUnits":{},"objectCounts":{},"admittedOperationKinds":[],"componentsAwaitingUserModifiers":{"count":0,"ids":[]},"limits":{"argumentBytes":65536,"resultBytes":65536,"pageRows":50,"pendingCalls":16,"proposalOperations":16}}),
+            json!({"workspaceHandle":"workspace-invented","projectId":"project:invented","schemaVersion":"0.9.0","pressureContract":null,"pressureProfileBefore":"{\"schema_version\":\"0.9.0\"}","projectUnits":{},"objectCounts":{},"admittedOperationKinds":[],"componentsAwaitingUserModifiers":{"count":0,"ids":[]},"loadCases":{"count":0,"ids":[]},"combinations":{"count":0,"ids":[]},"limits":{"argumentBytes":65536,"resultBytes":65536,"pageRows":50,"pendingCalls":16,"proposalOperations":16}}),
         )
     }
     fn model_hash() -> Value {
@@ -1388,7 +1463,7 @@ mod tests {
         let absent = outcome(
             "completed",
             evaluated.clone(),
-            json!({"runHandle":null,"runId":null,"evaluatedModelHash":model_hash(),"health":"invented","solverMode":"invented"}),
+            json!({"runHandle":null,"runId":null,"evaluatedModelHash":model_hash(),"health":"invented","solverMode":"sparse_interactive","diagnostics":[],"diagnosticsNotListed":0,"failure":null}),
         );
         assert_eq!(
             d.record_completion(
@@ -1411,7 +1486,7 @@ mod tests {
         let wrong = outcome(
             "completed",
             evaluated.clone(),
-            json!({"runHandle":"run-1","runId":"native-run-1","evaluatedModelHash":changed,"health":"invented","solverMode":"invented"}),
+            json!({"runHandle":"run-1","runId":"native-run-1","evaluatedModelHash":changed,"health":"invented","solverMode":"sparse_interactive","diagnostics":[],"diagnosticsNotListed":0,"failure":null}),
         );
         assert_eq!(
             d.record_completion(
@@ -1432,7 +1507,7 @@ mod tests {
         let raw = outcome(
             "completed",
             evaluated.clone(),
-            json!({"runHandle":"run-1","runId":"native-run-1","evaluatedModelHash":model_hash(),"health":"invented","solverMode":"invented"}),
+            json!({"runHandle":"run-1","runId":"native-run-1","evaluatedModelHash":model_hash(),"health":"invented","solverMode":"sparse_interactive","diagnostics":[],"diagnosticsNotListed":0,"failure":null}),
         );
         d.record_completion(
             origin(),
@@ -1509,7 +1584,7 @@ mod tests {
         let raw = outcome(
             "completed",
             evaluated.clone(),
-            json!({"runHandle":"run-1","runId":"native-run-1","evaluatedModelHash":model_hash(),"health":"invented","solverMode":"invented"}),
+            json!({"runHandle":"run-1","runId":"native-run-1","evaluatedModelHash":model_hash(),"health":"invented","solverMode":"sparse_interactive","diagnostics":[],"diagnosticsNotListed":0,"failure":null}),
         );
         for actual_status in ["unknown", "execution_error", "rejected"] {
             assert_eq!(
@@ -1538,16 +1613,18 @@ mod tests {
                 record_bytes
             );
         }
-        let truthful = outcome(
+        // An execution error never carries a run: run evidence on a solve is completed,
+        // rejected or failed only.
+        let errored = outcome(
             "execution_error",
             evaluated.clone(),
-            json!({"runHandle":"run-1","runId":"native-run-1","evaluatedModelHash":model_hash(),"health":"invented failure","solverMode":"invented"}),
+            json!({"runHandle":"run-1","runId":"native-run-1","evaluatedModelHash":model_hash(),"health":"invented failure","solverMode":"sparse_interactive","diagnostics":[],"diagnosticsNotListed":0,"failure":null}),
         );
-        let captured = d
-            .record_completion(
+        assert_eq!(
+            d.record_completion(
                 origin(),
                 reference(&e),
-                &truthful,
+                &errored,
                 None,
                 Evidence::Run {
                     handle: Some("run-1"),
@@ -1556,7 +1633,186 @@ mod tests {
                     status: "execution_error",
                 },
             )
+            .unwrap_err(),
+            Refusal::MissingEvidence
+        );
+        let truthful = outcome(
+            "failed",
+            evaluated.clone(),
+            json!({"runHandle":null,"runId":null,"evaluatedModelHash":model_hash(),"health":"invented failure","solverMode":"sparse_interactive","diagnostics":[],"diagnosticsNotListed":0,"failure":{"kind":"job_failed","message":"Invented job failure."}}),
+        );
+        let captured = d
+            .record_completion(
+                origin(),
+                reference(&e),
+                &truthful,
+                None,
+                Evidence::Run {
+                    handle: None,
+                    run_id: None,
+                    basis: &evaluated,
+                    status: "failed",
+                },
+            )
             .unwrap();
         assert_eq!(captured.actual().raw_outcome(), truthful);
+    }
+
+    fn solve_data(run: Option<(&str, &str)>, diagnostics: Value, not_listed: u64, failure: Value) -> Value {
+        json!({"runHandle":run.map(|r| r.0),"runId":run.map(|r| r.1),"evaluatedModelHash":model_hash(),
+            "health":"MODEL_INCOMPLETE","solverMode":"sparse_interactive","diagnostics":diagnostics,
+            "diagnosticsNotListed":not_listed,"failure":failure})
+    }
+    /// Arguments outside the catalog never become a dispatchable call: the protocol
+    /// answers the supplier with an execution error and emits no request.
+    fn refused_at_protocol(p: &mut Protocol, index: u64, tool: Tool, args: Value) -> bool {
+        let actions = p.handle_frame(json!({"id":100+index,"method":"item/tool/call","params":{"threadId":"thread-1","turnId":"turn-1","callId":format!("call-{index}"),"tool":tool.name(),"arguments":args}}),&basis(2)).unwrap();
+        !actions.events.iter().any(|e| matches!(e, Event::ToolRequested { .. }))
+            && actions.outbound.iter().any(|o| o["result"]["success"] == json!(false))
+    }
+    fn diagnostic() -> Value {
+        json!({"code":"INVENTED_BLOCKING_FINDING","severity":"blocking","message":"Invented refusal.","affectedRefs":["node:a"]})
+    }
+    fn admitted_solve(d: &mut Dispatcher, p: &mut Protocol, index: u64, args: Value) -> (Value, String) {
+        let mut evaluated = basis(2);
+        evaluated["modelHash"] = model_hash();
+        let mut input = json!({"workspaceHandle":"workspace-invented","basis":evaluated,"claimedModelHash":model_hash()});
+        for (key, value) in args.as_object().unwrap() {
+            input[key] = value.clone();
+        }
+        let e = request(p, index, Tool::Solve, input);
+        d.admit(&e, &evaluated, History::Live).unwrap();
+        (evaluated, reference(&e).to_owned())
+    }
+    fn run_evidence<'a>(status: &'a str, run: Option<(&'a str, &'a str)>, basis: &'a Value) -> Evidence<'a> {
+        Evidence::Run {
+            handle: run.map(|r| r.0),
+            run_id: run.map(|r| r.1),
+            basis,
+            status,
+        }
+    }
+
+    #[test]
+    fn a_refused_solve_is_bound_to_its_call_and_never_reads_as_completed() {
+        let (mut d, mut p) = setup();
+        let (evaluated, r) = admitted_solve(&mut d, &mut p, 1, json!({}));
+        // One finding listed and two not: a refusal from a published blocked result or a
+        // solve gate has the same form.
+        let refused = solve_data(None, json!([diagnostic()]), 2, Value::Null);
+        let run = Some(("run-1", "native-run-1"));
+        let refuse = |d: &mut Dispatcher, raw: Vec<u8>, evidence: Evidence<'_>| {
+            d.record_completion(origin(), &r, &raw, None, evidence).unwrap_err()
+        };
+        // Presented as completed: without a run, or with the refused status as its evidence.
+        assert_eq!(refuse(&mut d, outcome("completed", evaluated.clone(), refused.clone()), run_evidence("completed", None, &evaluated)), Refusal::MissingEvidence);
+        let with_run = solve_data(run, json!([diagnostic()]), 1, Value::Null);
+        assert_eq!(refuse(&mut d, outcome("completed", evaluated.clone(), with_run.clone()), run_evidence("rejected", run, &evaluated)), Refusal::MissingEvidence);
+        assert_eq!(refuse(&mut d, outcome("completed", evaluated.clone(), with_run.clone()), run_evidence("completed", run, &evaluated)), Refusal::MissingEvidence);
+        // A refusal never carries a run or a failure.
+        assert_eq!(refuse(&mut d, outcome("rejected", evaluated.clone(), with_run), run_evidence("rejected", run, &evaluated)), Refusal::MissingEvidence);
+        let failed = solve_data(None, json!([diagnostic()]), 1, json!({"kind":"error","message":"Invented."}));
+        assert_eq!(refuse(&mut d, outcome("rejected", evaluated.clone(), failed), run_evidence("rejected", None, &evaluated)), Refusal::MissingEvidence);
+        // Bound to the call's basis and evaluated hash; not a free-form failure.
+        let mut other = evaluated.clone();
+        other["modelRevision"] = json!(3);
+        assert_eq!(refuse(&mut d, outcome("rejected", other.clone(), refused.clone()), run_evidence("rejected", None, &other)), Refusal::WrongBasis);
+        assert_eq!(refuse(&mut d, outcome("rejected", evaluated.clone(), refused.clone()), run_evidence("rejected", None, &other)), Refusal::MissingEvidence);
+        let mut elsewhere = refused.clone();
+        elsewhere["evaluatedModelHash"]["value"] = json!("f".repeat(64));
+        assert_eq!(refuse(&mut d, outcome("rejected", evaluated.clone(), elsewhere), run_evidence("rejected", None, &evaluated)), Refusal::WrongBasis);
+        assert_eq!(refuse(&mut d, outcome("rejected", evaluated.clone(), refused.clone()), Evidence::Failure), Refusal::MissingEvidence);
+        assert!(d.actual(origin(), &r).unwrap().is_none());
+        let raw = outcome("rejected", evaluated.clone(), refused);
+        let completion = d.record_completion(origin(), &r, &raw, None, run_evidence("rejected", None, &evaluated)).unwrap();
+        assert_eq!(completion.actual().raw_outcome(), raw);
+        // Recorded once: a repeated completion is refused.
+        assert_eq!(d.record_completion(origin(), &r, &raw, None, run_evidence("rejected", None, &evaluated)).unwrap_err(), Refusal::Duplicate);
+    }
+
+    #[test]
+    fn a_failed_solve_carries_its_failure_and_no_run_and_a_completed_one_neither() {
+        let (mut d, mut p) = setup();
+        let (evaluated, r) = admitted_solve(&mut d, &mut p, 1, json!({}));
+        let failure = json!({"kind":"resource_refused","message":"Invented refusal by the memory pool."});
+        let run = Some(("run-1", "native-run-1"));
+        let refuse = |d: &mut Dispatcher, status: &str, data: Value, evidence: Evidence<'_>| {
+            d.record_completion(origin(), &r, &outcome(status, evaluated.clone(), data), None, evidence).unwrap_err()
+        };
+        assert_eq!(refuse(&mut d, "completed", solve_data(None, json!([]), 0, failure.clone()), run_evidence("completed", None, &evaluated)), Refusal::MissingEvidence);
+        assert_eq!(refuse(&mut d, "completed", solve_data(run, json!([]), 0, failure.clone()), run_evidence("completed", run, &evaluated)), Refusal::MissingEvidence);
+        // Diagnostics on a completed outcome are refused: a completed solve reports rows, not a refusal.
+        assert_eq!(refuse(&mut d, "completed", solve_data(run, json!([diagnostic()]), 1, Value::Null), run_evidence("completed", run, &evaluated)), Refusal::MissingEvidence);
+        assert_eq!(refuse(&mut d, "completed", solve_data(run, json!([]), 1, Value::Null), run_evidence("completed", run, &evaluated)), Refusal::MissingEvidence);
+        assert_eq!(refuse(&mut d, "failed", solve_data(None, json!([]), 1, failure.clone()), run_evidence("failed", None, &evaluated)), Refusal::MissingEvidence);
+        assert_eq!(refuse(&mut d, "failed", solve_data(run, json!([]), 0, failure.clone()), run_evidence("failed", run, &evaluated)), Refusal::MissingEvidence);
+        assert_eq!(refuse(&mut d, "failed", solve_data(None, json!([]), 0, Value::Null), run_evidence("failed", None, &evaluated)), Refusal::MissingEvidence);
+        assert_eq!(refuse(&mut d, "failed", solve_data(None, json!([diagnostic()]), 1, failure.clone()), run_evidence("failed", None, &evaluated)), Refusal::MissingEvidence);
+        assert_eq!(refuse(&mut d, "failed", solve_data(None, json!([]), 0, failure.clone()), run_evidence("completed", run, &evaluated)), Refusal::MissingEvidence);
+        // A failure kind outside the closed list, or an unbounded message, is not an outcome.
+        assert_eq!(refuse(&mut d, "failed", solve_data(None, json!([]), 0, json!({"kind":"invented","message":"m"})), run_evidence("failed", None, &evaluated)), Refusal::InvalidOutcome);
+        assert_eq!(refuse(&mut d, "failed", solve_data(None, json!([]), 0, json!({"kind":"error","message":"m".repeat(501)})), run_evidence("failed", None, &evaluated)), Refusal::InvalidOutcome);
+        d.record_completion(origin(), &r, &outcome("failed", evaluated.clone(), solve_data(None, json!([]), 0, failure)), None, run_evidence("failed", None, &evaluated)).unwrap();
+    }
+
+    #[test]
+    fn a_requested_solver_mode_is_the_mode_the_outcome_names() {
+        let (mut d, mut p) = setup();
+        let mut evaluated = basis(2);
+        evaluated["modelHash"] = model_hash();
+        assert!(refused_at_protocol(&mut p, 1, Tool::Solve, json!({"workspaceHandle":"workspace-invented","basis":evaluated,"claimedModelHash":model_hash(),"solverMode":"invented"})));
+        let (evaluated, r) = admitted_solve(&mut d, &mut p, 2, json!({"solverMode":"dense_scrutiny"}));
+        let run = Some(("run-1", "native-run-1"));
+        let mut data = solve_data(run, json!([]), 0, Value::Null);
+        assert_eq!(
+            d.record_completion(origin(), &r, &outcome("completed", evaluated.clone(), data.clone()), None, run_evidence("completed", run, &evaluated)).unwrap_err(),
+            Refusal::MissingEvidence
+        );
+        data["solverMode"] = json!("dense_scrutiny");
+        d.record_completion(origin(), &r, &outcome("completed", evaluated.clone(), data), None, run_evidence("completed", run, &evaluated)).unwrap();
+    }
+
+    fn result_value(kind: &str, entity: &str, case: Value) -> Value {
+        json!({"id":format!("{kind}:{entity}"),"kind":kind,"entityRef":entity,"value":1.0,"exactDecimal":null,"unit":"mm",
+            "availability":"available","reason":null,"case":case,"component":"ux","coordinateSystem":"global","location":"node","signConvention":"positive_global"})
+    }
+
+    #[test]
+    fn a_result_page_names_only_values_its_admitted_filter_selects() {
+        let (mut d, mut p) = setup();
+        let mut evaluated = basis(2);
+        evaluated["modelHash"] = model_hash();
+        let history = || History::Run { handle: "run-1", basis: &evaluated };
+        let input = |filter: Value| json!({"workspaceHandle":"workspace-invented","basis":evaluated,"runHandle":"run-1","page":{"cursor":null,"limit":50},"filter":filter});
+        // Only a load case or a combination can be selected, by a bounded id.
+        for (index, case) in [json!({"refType":"envelope","refId":"lc-1"}), json!({"refType":"load_case","refId":"x".repeat(161)}), json!({"refType":"load_case"})].into_iter().enumerate() {
+            assert!(refused_at_protocol(&mut p, 10 + index as u64, Tool::ReadResults, input(json!({"kinds":[],"entityRefs":[],"case":case}))));
+        }
+        let selected = json!({"refType":"load_case","refId":"lc-sustained"});
+        let e = request(&mut p, 2, Tool::ReadResults, input(json!({"kinds":["global_nodal_displacement_x"],"entityRefs":["node:c"],"case":selected})));
+        d.admit(&e, &evaluated, history()).unwrap();
+        let r = reference(&e).to_owned();
+        let page = |values: Value| outcome("ok", evaluated.clone(), json!({"runHandle":"run-1","runId":"native-run-1","evaluatedModelHash":model_hash(),"values":values,"nextCursor":null,"standing":{"route":"invented","health":"invented","checks":[]}}));
+        let evidence = || run_evidence("completed", Some(("run-1", "native-run-1")), &evaluated);
+        for excluded in [
+            result_value("global_nodal_displacement_x", "node:c", json!({"refType":"combination","refId":"lc-sustained"})),
+            result_value("global_nodal_displacement_x", "node:c", json!({"refType":"load_case","refId":"lc-expansion"})),
+            result_value("global_nodal_displacement_x", "node:c", Value::Null),
+            result_value("global_nodal_displacement_y", "node:c", selected.clone()),
+            result_value("global_nodal_displacement_x", "node:d", selected.clone()),
+        ] {
+            let raw = page(json!([result_value("global_nodal_displacement_x", "node:c", selected.clone()), excluded]));
+            assert_eq!(d.record_completion(origin(), &r, &raw, None, evidence()).unwrap_err(), Refusal::MissingEvidence);
+        }
+        // Each new member of a value is bounded.
+        let mut long = result_value("global_nodal_displacement_x", "node:c", selected.clone());
+        long["location"] = json!("l".repeat(161));
+        assert_eq!(d.record_completion(origin(), &r, &page(json!([long])), None, evidence()).unwrap_err(), Refusal::InvalidOutcome);
+        d.record_completion(origin(), &r, &page(json!([result_value("global_nodal_displacement_x", "node:c", selected.clone())])), None, evidence()).unwrap();
+        // Without a case in the filter, values of every case are admitted, each naming its own.
+        let e = request(&mut p, 3, Tool::ReadResults, input(json!({"kinds":[],"entityRefs":[]})));
+        d.admit(&e, &evaluated, history()).unwrap();
+        let mixed = page(json!([result_value("k", "node:c", selected.clone()), result_value("k", "node:c", json!({"refType":"combination","refId":"c-1"}))]));
+        d.record_completion(origin(), reference(&e), &mixed, None, evidence()).unwrap();
     }
 }

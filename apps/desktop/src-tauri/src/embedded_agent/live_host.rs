@@ -1057,13 +1057,31 @@ fn validate_actual(
             ..
         } if matches!(meta.tool, Tool::Solve | Tool::ReadResults) && basis == &meta.basis => {
             let state = registry.status(job).map_err(|_| Error::Evidence)?;
-            if (status == "completed" && state.state != "completed")
+            // A solve the solver refused ran to its result as a completed job, as a
+            // solved one does; which of the two the result is, is read from the
+            // result by the webview (the native job does not state it).
+            if (matches!(status.as_str(), "completed" | "rejected") && state.state != "completed")
                 || (status == "failed" && state.state != "failed")
                 || (status == "cancelled" && state.state != "cancelled")
             {
                 return Err(Error::Evidence);
             }
         }
+        // A refused or failed solve has no run and may have no job (a solve gate
+        // refused the model before any job started; a start the memory pool refused;
+        // an error before the job existed): it names neither, and it remains bound
+        // to the call's basis. A completed claim always names its job (above). The
+        // dispatcher checks the rest.
+        Proof::Run {
+            native_job_id: None,
+            handle: None,
+            run_id: None,
+            status,
+            basis,
+        } if meta.tool == Tool::Solve
+            && matches!(status.as_str(), "rejected" | "failed")
+            && basis == &meta.basis
+            && value["status"].as_str() == Some(status.as_str()) => {}
         _ => return Err(Error::Evidence),
     }
     Ok(())
@@ -1408,6 +1426,52 @@ mod tests {
                 raw
             );
         }
+    }
+    #[test]
+    fn a_refused_solve_needs_its_completed_job_and_a_failed_one_names_no_run() {
+        use crate::solve_jobs::test_support::{delivered_in_custody, wait_terminal};
+        let (registry, gate, completed) = delivered_in_custody(ScriptedHost::normal(), br#"{"project":{"id":"p"}}"#, None, "{\"result\":\"invented\"}");
+        let failed = registry.start(br#"{"project":{"id":"q"}}"#, None).unwrap().job_id;
+        gate.wait_started(2);
+        gate.release("err:invented worker failure");
+        assert_eq!(wait_terminal(&registry, &failed).state, "failed");
+        let basis = json!({"workspaceHandle":"workspace-invented","applicationGeneration":1,"modelRevision":2,"modelHash":hash(),"stateId":null,"runId":null});
+        let meta = Meta { tool: Tool::Solve, basis: basis.clone() };
+        let raw = |status: &str, run: bool, failure: Value| {
+            json!({"status":status,"basis":basis,"message":"Invented outcome","data":{"runHandle":run.then_some("run-1"),"runId":run.then_some("native-run-1"),
+                "evaluatedModelHash":hash(),"health":"MODEL_INCOMPLETE","solverMode":"sparse_interactive","diagnostics":[],"diagnosticsNotListed":0,"failure":failure}}).to_string()
+        };
+        let proof = |status: &str, run: bool, job: Option<&str>| Proof::Run {
+            handle: run.then(|| "run-1".to_owned()),
+            run_id: run.then(|| "native-run-1".to_owned()),
+            basis: basis.clone(),
+            status: status.into(),
+            native_job_id: job.map(str::to_owned),
+        };
+        let failure = json!({"kind":"job_failed","message":"Invented job failure."});
+        let check = |raw: String, proof: Proof| validate_actual(&registry, &meta, &raw, &proof);
+        // A refusal that names a job names one that ran to completion, never an unknown or
+        // failed job; a refusal before any job (a solve gate) names none.
+        assert!(check(raw("rejected", false, Value::Null), proof("rejected", false, Some(&completed))).is_ok());
+        assert_eq!(check(raw("rejected", false, Value::Null), proof("rejected", false, Some(&failed))), Err(Error::Evidence));
+        assert_eq!(check(raw("rejected", false, Value::Null), proof("rejected", false, Some("invented-job"))), Err(Error::Evidence));
+        assert!(check(raw("rejected", false, Value::Null), proof("rejected", false, None)).is_ok());
+        assert_eq!(check(raw("rejected", true, Value::Null), proof("rejected", true, None)), Err(Error::Evidence));
+        assert_eq!(check(raw("failed", false, Value::Null), proof("rejected", false, None)), Err(Error::Evidence));
+        // A failure with no job names no run; one with a job must be that failed job.
+        assert!(check(raw("failed", false, failure.clone()), proof("failed", false, None)).is_ok());
+        assert!(check(raw("failed", false, failure.clone()), proof("failed", false, Some(&failed))).is_ok());
+        assert_eq!(check(raw("failed", false, failure.clone()), proof("failed", false, Some(&completed))), Err(Error::Evidence));
+        assert_eq!(check(raw("failed", true, failure.clone()), proof("failed", true, None)), Err(Error::Evidence));
+        // A completed claim still requires its completed job.
+        assert_eq!(check(raw("completed", true, Value::Null), proof("completed", true, None)), Err(Error::Evidence));
+        assert_eq!(check(raw("completed", true, Value::Null), proof("completed", true, Some(&failed))), Err(Error::Evidence));
+        // Bound to the call's basis.
+        let mut other = basis.clone();
+        other["modelRevision"] = json!(3);
+        let elsewhere = Proof::Run { handle: None, run_id: None, basis: other, status: "failed".into(), native_job_id: None };
+        assert_eq!(check(raw("failed", false, failure), elsewhere), Err(Error::Evidence));
+        drop(gate);
     }
     #[test]
     fn empty_deltas_still_hit_the_message_count_bound() {

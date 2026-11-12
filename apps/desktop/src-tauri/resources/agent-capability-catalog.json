@@ -1,5 +1,5 @@
 {
-  "catalogVersion": "swbpipe-catalog/4",
+  "catalogVersion": "swbpipe-catalog/5",
   "standing": "design_contract_not_live",
   "owner": "SWBPIPE",
   "source": {
@@ -30,7 +30,7 @@
       "success"
     ],
     "textItemType": "inputText",
-    "successRule": "false only for execution_error; rejection, stale_basis, unavailable and unknown are domain outcomes, not affirmative execution claims",
+    "successRule": "false for execution_error, and for a solve that was rejected or failed (the requested solve produced no result); a proposal's rejection, stale_basis, unavailable and unknown are domain outcomes, not affirmative execution claims",
     "internalResultFields": [
       "content",
       "structuredContent",
@@ -198,9 +198,9 @@
     "completion": "Resolve requestRef to the immutable original pending call and require its conversation/turn/call/tool, workspace and application-generation binding. The submitting webview must remain the admitted session. For summary/node reads require unchanged live revision through completion. For queued proposals, observations, solves and result reads validate the host-retained proposal/run record against its captured basis; a later live revision is permitted only as an explicitly historical/applied outcome, never rebased to current. Duplicate or forged completions and wrong/detached sessions are refused. Preserve already admitted application outcome as actual or unknown on loss; never redispatch.",
     "interruption": "Withdraw pending review only; application already admitted yields actual outcome or unknown. Turn interruption is not solve cancellation or rollback.",
     "limits": "Apply the smaller of catalog caps and existing admission budgets before parsing/allocating argument or result payloads; bounded producers, no whole-model serialization followed by truncation.",
-    "results": "Use existing permitted view/value-record semantics and redaction floors. No raw private row bypass. Preserve exact decimal where required; withheld/unavailable has no numeric value. A run handle binds its evaluated model hash, never relabel historical results as current.",
+    "results": "Use existing permitted view/value-record semantics and redaction floors. No raw private row bypass. Preserve exact decimal where required; withheld/unavailable has no numeric value. A run handle binds its evaluated model hash, never relabel historical results as current. Each value names the load case or combination of its row (basis_ref) and its metadata's component, coordinate system, location and sign convention where present; an optional case filter selects one load case or combination by its type and id, as the results panel's case selection does.",
     "autonomy": "No apply/accept/release/grant tools. Any later autonomy needs separately authorized host policy and implementation.",
-    "solve": "Require claimedModelHash == basis.modelHash == current session hash before handleRun; retain evaluated hash even if run id changes. Return session solverMode, health and run handle; progress only to existing supported notifications/panel.",
+    "solve": "Require claimedModelHash == basis.modelHash == current session hash before handleRun; retain evaluated hash even if run id changes. An optional solverMode argument (closed list) is the mode the solve runs in and sets the session's selection to it; without it the session-selected mode runs. Return the mode that ran, health and the outcome: completed (run handle and run id, no diagnostics, no failure); rejected when the solve was refused (no run handle or run id, and no run or published result is required: the refusal's bounded findings and a count of findings not listed); failed (no run handle or run id, the failure's kind and bounded message, no entity). Neither rejected nor failed is retried. Progress only to existing supported notifications/panel.",
     "proposalContext": "Require an explicit bounded assumptions array (empty means none declared), separate from unchanged native operation intents and per-operation rationale. Each assumption has a stable id, statement and existing affected operation ids. Validate id uniqueness and operation membership; capture immutable context with proposal handle, batch id, original attribution and basis. Display it with the queue and retain it with session outcomes/receipts, including reject/withdraw/unknown; do not inject extra fields into native intents or claim durable persistence.",
     "basisAdmission": "Summary has no caller basis. Node reads, proposal submission and solve admission require the current live basis. Proposal observation uses the host-retained proposal basis; result reads use the host-retained evaluated run basis. All require the admitted workspace/application generation. Historical calls are not refused solely because the current model revision advanced."
   },
@@ -550,6 +550,9 @@
         },
         "claimedModelHash": {
           "$ref": "#/definitions/hash"
+        },
+        "solverMode": {
+          "$ref": "#/definitions/solverMode"
         }
       }
     },
@@ -561,7 +564,10 @@
         "runId",
         "evaluatedModelHash",
         "health",
-        "solverMode"
+        "solverMode",
+        "diagnostics",
+        "diagnosticsNotListed",
+        "failure"
       ],
       "properties": {
         "runHandle": {
@@ -595,9 +601,28 @@
           "maxLength": 1000
         },
         "solverMode": {
-          "type": "string",
-          "minLength": 1,
-          "maxLength": 160
+          "$ref": "#/definitions/solverMode"
+        },
+        "diagnostics": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "$ref": "#/definitions/solveDiagnostic"
+          }
+        },
+        "diagnosticsNotListed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failure": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/solveFailure"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
@@ -650,6 +675,9 @@
                 "minLength": 1,
                 "maxLength": 160
               }
+            },
+            "case": {
+              "$ref": "#/definitions/caseSelector"
             }
           }
         }
@@ -666,7 +694,12 @@
         "exactDecimal",
         "unit",
         "availability",
-        "reason"
+        "reason",
+        "case",
+        "component",
+        "coordinateSystem",
+        "location",
+        "signConvention"
       ],
       "properties": {
         "id": {
@@ -724,6 +757,64 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 1000
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "case": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/caseRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "component": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "coordinateSystem": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "location": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "signConvention": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160
             },
             {
               "type": "null"
@@ -913,6 +1004,7 @@
           "enum": [
             "completed",
             "rejected",
+            "failed",
             "unknown",
             "unavailable",
             "stale_basis",
@@ -1181,7 +1273,9 @@
         "objectCounts",
         "admittedOperationKinds",
         "limits",
-        "componentsAwaitingUserModifiers"
+        "componentsAwaitingUserModifiers",
+        "loadCases",
+        "combinations"
       ],
       "properties": {
         "workspaceHandle": {
@@ -1316,6 +1410,12 @@
               }
             }
           }
+        },
+        "loadCases": {
+          "$ref": "#/definitions/boundedIds"
+        },
+        "combinations": {
+          "$ref": "#/definitions/boundedIds"
         }
       }
     },
@@ -1527,12 +1627,146 @@
           ]
         }
       }
+    },
+    "solverMode": {
+      "enum": [
+        "sparse_interactive",
+        "dense_scrutiny"
+      ]
+    },
+    "solveDiagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "severity",
+        "message",
+        "affectedRefs"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "severity": {
+          "enum": [
+            "info",
+            "warning",
+            "error",
+            "blocking"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "affectedRefs": {
+          "type": "array",
+          "maxItems": 8,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        }
+      }
+    },
+    "solveFailure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "message"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "resource_refused",
+            "result_too_large",
+            "job_failed",
+            "cancelled",
+            "superseded",
+            "error"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      }
+    },
+    "caseSelector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "refType",
+        "refId"
+      ],
+      "properties": {
+        "refType": {
+          "enum": [
+            "load_case",
+            "combination"
+          ]
+        },
+        "refId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      }
+    },
+    "caseRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "refType",
+        "refId"
+      ],
+      "properties": {
+        "refType": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        },
+        "refId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160
+        }
+      }
+    },
+    "boundedIds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "count",
+        "ids"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ids": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        }
+      }
     }
   },
   "tools": [
     {
       "name": "swbpipe_read_model_summary",
-      "description": "Orient: workspace handle, current basis and model hash, project id, model version, pressure contract and its before text, units, counts, components awaiting the person's k/SIF, admitted kinds and limits. No arguments.",
+      "description": "Orient: workspace handle, current basis and model hash, project id, model version, pressure contract and its before text, units, counts, load case and combination ids, components awaiting the person's k/SIF, admitted kinds and limits. No arguments.",
       "inputSchema": {
         "$ref": "#/definitions/summaryInput"
       },
@@ -1632,7 +1866,7 @@
     },
     {
       "name": "swbpipe_solve",
-      "description": "Solve the current model at the supplied basis using the session-selected solver mode. Wait for the actual job outcome.",
+      "description": "Solve the current model at the supplied basis, in solverMode if given (the Solve panel's selection is set to it), else in the session-selected mode. Wait for the actual job outcome: completed gives a run handle; rejected means the model was refused and gives the findings (and how many were not listed), no run; failed gives the failure's kind and message, no run.",
       "inputSchema": {
         "$ref": "#/definitions/solveInput"
       },
@@ -1645,14 +1879,14 @@
         "idempotentHint": false
       },
       "effect": "solve",
-      "availability": "admitted live webview workspace; adapters not yet implemented",
+      "availability": "admitted live webview workspace",
       "sourceRoute": "workspaceSession.ts handleRun; previewService.ts startPreviewMechanicsJob/takePreviewMechanicsJobResult",
       "canonicalUnits": "node coordinates: exact project.units.length; result values: source row unit, no display conversion",
       "basisPolicy": "Current claimed/live basis required at job admission. Completion binds captured job/evaluated hash/run identity even if live revision advances; no result implies current-state applicability."
     },
     {
       "name": "swbpipe_read_results",
-      "description": "Read a bounded page of permitted result values for a run handle, optionally filtered by kinds and entityRefs; withheld values have no number.",
+      "description": "Read a bounded page of permitted result values for a run handle, optionally filtered by kinds, entityRefs and one load case or combination (case: refType and refId). Each value names its case and, where the row has them, its component, coordinate system, location and sign convention; withheld values have no number.",
       "inputSchema": {
         "$ref": "#/definitions/resultsInput"
       },
@@ -1665,7 +1899,7 @@
         "idempotentHint": true
       },
       "effect": "read",
-      "availability": "admitted live webview workspace; adapters not yet implemented",
+      "availability": "admitted live webview workspace",
       "sourceRoute": "MechanicsResult.results; features/results/resultReader.ts; features/result-export/csvTable.ts view/value policy",
       "canonicalUnits": "node coordinates: exact project.units.length; result values: source row unit, no display conversion",
       "basisPolicy": "Input basis and cursor must match retained evaluated run basis in the same admitted workspace/generation. Later live model edits do not invalidate an available historical run; disappearance is unavailable, never a fabricated current run."

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { EmbeddedAgentSession, type WorkspaceExecution, type AgentRunReceipt } from './embeddedAgentSession';
-import type { PreviewModel, ModelHashEvidence, MechanicsResult } from '../types';
+import { EmbeddedAgentSession, type WorkspaceExecution, type AgentSolveOutcome, type AgentSolverMode } from './embeddedAgentSession';
+import { agentDetailFilter } from './resultDetail';
+import type { PreviewModel, ModelHashEvidence, MechanicsResult, Diagnostic } from '../types';
 import type { AgentBasis } from './embeddedAgentBridge';
 const mocks=vi.hoisted(()=>({validate:vi.fn()}));
 vi.mock('./operationBatchService',()=>({validateOperationBatch:mocks.validate}));
@@ -13,7 +14,7 @@ function setup(workspaceHash:ModelHashEvidence=engineHash){
  let revision=1,generation=1,tool='swbpipe_read_model_summary',args:Record<string,unknown>={},reference='invented-session:1',turn='turn-1';
  const model={schema_version:'0.9.0',project:{id:'invented',units:{length:'m'}},nodes:[{id:'node-1',label:'N1',position:{x:-0,y:1,z:2}}]} as unknown as PreviewModel;
  let result:MechanicsResult|null=null;
- const owner:WorkspaceExecution={snapshot:()=>({model,hash:workspaceHash,revision,generation,result,standing:null}),register:vi.fn(async()=> 'batch-key'),proposal:vi.fn(()=>({status:'pending_review' as const,outcomeModelHash:null})),solve:vi.fn(async()=>undefined),withdraw:vi.fn()};
+ const owner:WorkspaceExecution={snapshot:()=>({model,hash:workspaceHash,revision,generation,result,standing:null}),register:vi.fn(async()=> 'batch-key'),proposal:vi.fn(()=>({status:'pending_review' as const,outcomeModelHash:null})),solve:vi.fn(async(_mode?:AgentSolverMode):Promise<AgentSolveOutcome>=>({kind:'not_started',message:'Invented: nothing was started.'})),withdraw:vi.fn()};
  const sent:Record<string,unknown>[]=[];
  const invoke=vi.fn(async(value:Record<string,unknown>):Promise<unknown>=>{
   sent.push(value);
@@ -40,7 +41,7 @@ describe('workspace-owned live embedded agent adapter',()=>{
   const bases=sent.filter(v=>v.kind==='register'||v.kind==='basis').map(v=>(v.basis as {modelHash:ModelHashEvidence}).modelHash);
   expect(sent.some(v=>v.kind==='basis')).toBe(true);expect(bases.every(item=>JSON.stringify(item)===JSON.stringify(hash))).toBe(true);
   expect(JSON.parse(session.actual('invented-session:1')!.outcome).status).toBe('ok');
-  vi.mocked(owner.solve).mockResolvedValueOnce({jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'ok'});
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED'});
   call('swbpipe_solve',{},'invented-session:2');await session.poll();await drain();
   const solved=JSON.parse(session.actual('invented-session:2')!.outcome);expect(solved.status).toBe('completed');expect(solved.data.evaluatedModelHash).toEqual(hash);
   await session.close();
@@ -99,16 +100,16 @@ describe('workspace-owned live embedded agent adapter',()=>{
   expect(context.threadId).toBe('thread-1');expect(JSON.parse(session.actual('invented-session:1')!.outcome).status).toBe('pending_review');
  });
  it('binds the actual solve receipt to its evaluated basis after a live edit',async()=>{
-  vi.useFakeTimers();const {session,owner,call,edit,sent}=setup();const gate=deferred<AgentRunReceipt|undefined>();vi.mocked(owner.solve).mockReturnValueOnce(gate.promise);
+  vi.useFakeTimers();const {session,owner,call,edit,sent}=setup();const gate=deferred<AgentSolveOutcome>();vi.mocked(owner.solve).mockReturnValueOnce(gate.promise);
   call('swbpipe_solve');await session.start('revision');await session.poll();await drain();edit();
-  gate.resolve({jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'ok'});await drain();
+  gate.resolve({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED'});await drain();
   const actual=JSON.parse(session.actual('invented-session:1')!.outcome);expect(actual.basis.modelRevision).toBe(1);expect(actual.data.runId).toBe('run-1');
   expect(sent.find(v=>v.kind==='publish_actual')!.proof).toMatchObject({nativeJobId:'job-1',status:'completed'});await session.close();
  });
  it('tells the agent when a solve treated bends awaiting the person\'s k as straight chords',async()=>{
   vi.useFakeTimers();const {session,owner,call,model}=setup();
   (model as unknown as Record<string,unknown>).components=[{id:'component:b1',kind:'bend'},{id:'component:t1',kind:'tee'}];
-  vi.mocked(owner.solve).mockResolvedValueOnce({jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'ok'});
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED'});
   call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
   const message=JSON.parse(session.actual('invented-session:1')!.outcome).message;
   expect(message).toContain('component:b1');expect(message).toContain('straight chords');expect(message).toContain('k does not affect chord stiffness');expect(message).not.toContain('component:t1');
@@ -118,7 +119,7 @@ describe('workspace-owned live embedded agent adapter',()=>{
  it('says a scalar SIF applies only to chords that have one',async()=>{
   vi.useFakeTimers();const {session,owner,call,model}=setup();
   (model as unknown as Record<string,unknown>).components=[{id:'component:b1',kind:'bend',modifiers:{sif_user_value:{value:1.5,unit:'none'}}},{id:'component:b2',kind:'bend',modifiers:{sif_user_value:{value:0,unit:'none'}}}];
-  vi.mocked(owner.solve).mockResolvedValue({jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'ok'});
+  vi.mocked(owner.solve).mockResolvedValue({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED'});
   call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
   let message:string=JSON.parse(session.actual('invented-session:1')!.outcome).message;
   expect(message).toContain('A supplied scalar SIF applies to the other chords; no scalar SIF was supplied for 1 of them (component:b2)');
@@ -136,7 +137,7 @@ describe('workspace-owned live embedded agent adapter',()=>{
   const summary=JSON.parse(session.actual('invented-session:1')!.outcome).data.componentsAwaitingUserModifiers;
   expect(summary.count).toBe(41);expect(summary.ids).toHaveLength(32);expect(summary.ids.every((id:string)=>id.length<=160)).toBe(true);
   await session.close();
-  vi.mocked(owner.solve).mockResolvedValueOnce({jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'ok'});
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED'});
   call('swbpipe_solve',{},'invented-session:2');await session.start('revision');await session.poll();await drain();
   const chord=JSON.parse(session.actual('invented-session:2')!.outcome);
   expect(chord.status).toBe('completed');expect(chord.message.length).toBeLessThanOrEqual(1000);expect(chord.message).toContain(long(0));expect(chord.message).toContain('…');
@@ -249,7 +250,7 @@ describe('workspace-owned live embedded agent adapter',()=>{
   vi.useFakeTimers();const {session,owner,call,sent,setResult}=setup();
   const rows=Array.from({length:60},(_,i)=>({id:`r${i}`,kind:i%2?'support_reaction_component_v2':'global_nodal_displacement_x',entity_ref:i%4<2?'support:a':'node:c',unit:'N',value:i}));
   setResult({run_id:'run-1',results:rows} as unknown as MechanicsResult);
-  vi.mocked(owner.solve).mockResolvedValueOnce({jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'ok'});
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED'});
   call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
   const runHandle=JSON.parse(session.actual('invented-session:1')!.outcome).data.runHandle;
   const filter={kinds:['support_reaction_component_v2'],entityRefs:['support:a']};
@@ -264,4 +265,129 @@ describe('workspace-owned live embedded agent adapter',()=>{
   expect(sent.some(v=>v.kind==='complete')).toBe(true);await session.close();
  });
 
+});
+
+describe('the solve tool reports what the solve route says happened (scripted owner outcomes)',()=>{
+ const finding=(i:number,extra:Partial<Diagnostic>={}):Diagnostic=>({code:`INVENTED_FINDING_${i}`,severity:'blocking',message:`Invented finding ${i}.`,affected_refs:[`node:${i}`],...extra});
+ const outcome=(session:EmbeddedAgentSession,ref='invented-session:1')=>JSON.parse(session.actual(ref)!.outcome);
+ const proof=(sent:Record<string,unknown>[])=>sent.filter(v=>v.kind==='publish_actual').at(-1)!.proof as Record<string,unknown>;
+ it('reports a refused solve as rejected with its bounded findings and no run, never as completed',async()=>{
+  vi.useFakeTimers();const {session,owner,call,sent}=setup();
+  const diagnostics=[finding(0,{message:'m'.repeat(900),affected_refs:Array.from({length:10},(_,i)=>`node:${i}`)}),finding(1,{severity:'fatal' as Diagnostic['severity']}),...Array.from({length:18},(_,i)=>finding(i+2))];
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'rejected',jobId:'job-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MODEL_INCOMPLETE',diagnostics,notListed:3});
+  call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
+  const refused=outcome(session);
+  expect(refused.status).toBe('rejected');expect(refused.message).not.toMatch(/completed/i);expect(refused.message).toContain('Not solved');
+  expect(refused.data).toMatchObject({runHandle:null,runId:null,evaluatedModelHash:hash,health:'MODEL_INCOMPLETE',failure:null});
+  expect(refused.data.diagnostics).toHaveLength(16);
+  // The finding with a severity outside the catalog is counted, not altered: 3 + 20 - 16.
+  expect(refused.data.diagnosticsNotListed).toBe(7);expect(refused.data.diagnostics.map((d:{code:string})=>d.code)).not.toContain('INVENTED_FINDING_1');
+  expect(Array.from(refused.data.diagnostics[0].message as string)).toHaveLength(500);expect(refused.data.diagnostics[0].affectedRefs).toHaveLength(8);
+  expect(proof(sent)).toMatchObject({kind:'run',handle:null,runId:null,status:'rejected',nativeJobId:'job-1'});
+  // No run is retained: there is nothing to read.
+  call('swbpipe_read_results',{runHandle:'r'.repeat(48),page:{cursor:null,limit:5}},'invented-session:2');await session.poll();await drain();
+  expect(outcome(session,'invented-session:2').status).toBe('unavailable');expect(owner.solve).toHaveBeenCalledOnce();
+  await session.close();
+ });
+ it('reports a refusal before any job (a solve gate) in the same form, bound to the call while the model is unchanged',async()=>{
+  vi.useFakeTimers();const {session,owner,call,sent}=setup();
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'rejected',jobId:null,modelHash:null,solverMode:'sparse_interactive',health:'MODEL_INCOMPLETE',diagnostics:[finding(0)],notListed:2});
+  call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
+  const refused=outcome(session);
+  expect(refused.status).toBe('rejected');expect(refused.data).toMatchObject({evaluatedModelHash:hash,diagnosticsNotListed:2});
+  expect(proof(sent)).toMatchObject({status:'rejected',nativeJobId:null,handle:null});
+  await session.close();
+ });
+ it('reports a failed solve with its kind and bounded message, no run and no job claim',async()=>{
+  vi.useFakeTimers();const {session,owner,call,sent}=setup();
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'failed',failure:'result_too_large',message:'x'.repeat(800),modelHash:engineHash,solverMode:'sparse_interactive'});
+  call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
+  const failed=outcome(session);
+  expect(failed.status).toBe('failed');expect(failed.message).not.toMatch(/completed/i);
+  expect(failed.data).toMatchObject({runHandle:null,runId:null,diagnostics:[],diagnosticsNotListed:0,failure:{kind:'result_too_large'}});
+  expect(Array.from(failed.data.failure.message as string)).toHaveLength(500);
+  expect(proof(sent)).toMatchObject({kind:'run',handle:null,runId:null,status:'failed',nativeJobId:null});
+  await session.close();
+ });
+ it('reports nothing started as unavailable and an outcome for another model state as stale',async()=>{
+  vi.useFakeTimers();const {session,owner,call}=setup();
+  call('swbpipe_solve');await session.start('revision');await session.poll();await drain();
+  expect(outcome(session).status).toBe('unavailable');
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'failed',failure:'job_failed',message:'Invented.',modelHash:{...engineHash,value:`sha256:${'c'.repeat(64)}`},solverMode:'sparse_interactive'});
+  call('swbpipe_solve',{},'invented-session:2');await session.poll();await drain();
+  expect(outcome(session,'invented-session:2').status).toBe('stale_basis');
+  await session.close();
+ });
+ it('solves in the mode the call names, and reports the mode that ran',async()=>{
+  vi.useFakeTimers();const {session,owner,call}=setup();
+  vi.mocked(owner.solve).mockImplementation(async(mode)=>({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:mode??'sparse_interactive',health:'MECHANICS_SOLVED'}));
+  call('swbpipe_solve',{solverMode:'dense_scrutiny'});await session.start('revision');await session.poll();await drain();
+  expect(vi.mocked(owner.solve).mock.calls[0]).toEqual(['dense_scrutiny']);expect(outcome(session).data.solverMode).toBe('dense_scrutiny');
+  call('swbpipe_solve',{},'invented-session:2');await session.poll();await drain();
+  expect(vi.mocked(owner.solve).mock.calls[1]).toEqual([undefined]);expect(outcome(session,'invented-session:2').data.solverMode).toBe('sparse_interactive');
+  // A route that ran another mode than the one named is not reported as the named mode's run.
+  vi.mocked(owner.solve).mockResolvedValueOnce({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED'});
+  call('swbpipe_solve',{solverMode:'dense_scrutiny'},'invented-session:3');await session.poll();await drain();
+  expect(outcome(session,'invented-session:3').status).toBe('unknown');
+  await session.close();
+ });
+});
+
+describe('result pages know their load case or combination',()=>{
+ const row=(i:number,ref:{ref_type:string;ref_id:string}|null,extra:Record<string,unknown>={})=>({id:`r${i}`,kind:'global_nodal_displacement_x',entity_ref:'node:c',unit:'mm',value:i,basis_ref:ref,metadata:{component:'ux',coordinate_system:'global',location:'node',basis:'b',sign_convention:'positive_global'},...extra});
+ const sustained={ref_type:'load_case',ref_id:'lc-sustained'},expansion={ref_type:'load_case',ref_id:'lc-expansion'},combo={ref_type:'combination',ref_id:'lc-sustained'};
+ async function solved(rows:unknown[]){
+  vi.useFakeTimers();const harness=setup();harness.setResult({run_id:'run-1',results:rows} as unknown as MechanicsResult);
+  vi.mocked(harness.owner.solve).mockResolvedValueOnce({kind:'completed',jobId:'job-1',runId:'run-1',modelHash:engineHash,solverMode:'sparse_interactive',health:'MECHANICS_SOLVED'});
+  harness.call('swbpipe_solve');await harness.session.start('revision');await harness.session.poll();await drain();
+  return {...harness,runHandle:JSON.parse(harness.session.actual('invented-session:1')!.outcome).data.runHandle as string};
+ }
+ const read=async(h:Awaited<ReturnType<typeof solved>>,ref:string,args:Record<string,unknown>)=>{h.call('swbpipe_read_results',{runHandle:h.runHandle,...args},ref);await h.session.poll();await drain();return JSON.parse(h.session.actual(ref)!.outcome);};
+ it('selects one load case or combination by type and id, and names each value\'s case and metadata',async()=>{
+  const h=await solved([row(0,sustained),row(1,expansion),row(2,combo),row(3,null),row(4,sustained,{metadata:undefined})]);
+  const page=await read(h,'invented-session:2',{page:{cursor:null,limit:50},filter:{kinds:[],entityRefs:[],case:{refType:'load_case',refId:'lc-sustained'}}});
+  expect(page.data.values.map((v:{id:string})=>v.id)).toEqual(['r0','r4']);
+  expect(page.data.values[0]).toMatchObject({case:{refType:'load_case',refId:'lc-sustained'},component:'ux',coordinateSystem:'global',location:'node',signConvention:'positive_global'});
+  expect(page.data.values[1]).toMatchObject({case:{refType:'load_case',refId:'lc-sustained'},component:null,coordinateSystem:null,location:null,signConvention:null});
+  // The combination sharing the load case's id stays apart.
+  const combination=await read(h,'invented-session:3',{page:{cursor:null,limit:50},filter:{kinds:[],entityRefs:[],case:{refType:'combination',refId:'lc-sustained'}}});
+  expect(combination.data.values.map((v:{id:string})=>v.id)).toEqual(['r2']);
+  const all=await read(h,'invented-session:4',{page:{cursor:null,limit:50}});
+  expect(all.data.values.map((v:{case:unknown})=>v.case)).toEqual([{refType:'load_case',refId:'lc-sustained'},{refType:'load_case',refId:'lc-expansion'},{refType:'combination',refId:'lc-sustained'},null,{refType:'load_case',refId:'lc-sustained'}]);
+  await h.session.close();
+ });
+ it('binds the selected case to the cursor',async()=>{
+  const h=await solved(Array.from({length:6},(_,i)=>row(i,i%2?expansion:sustained)));
+  const first=await read(h,'invented-session:2',{page:{cursor:null,limit:2},filter:{kinds:[],entityRefs:[],case:{refType:'load_case',refId:'lc-sustained'}}});
+  expect(first.data.values.map((v:{id:string})=>v.id)).toEqual(['r0','r2']);expect(first.data.nextCursor).toEqual(expect.any(String));
+  const other=await read(h,'invented-session:3',{page:{cursor:first.data.nextCursor,limit:2},filter:{kinds:[],entityRefs:[],case:{refType:'load_case',refId:'lc-expansion'}}});
+  expect(other.status).toBe('execution_error');
+  const next=await read(h,'invented-session:4',{page:{cursor:first.data.nextCursor,limit:2},filter:{kinds:[],entityRefs:[],case:{refType:'load_case',refId:'lc-sustained'}}});
+  expect(next.data.values.map((v:{id:string})=>v.id)).toEqual(['r4']);expect(next.data.nextCursor).toBeNull();
+  await h.session.close();
+ });
+ it('never cuts a case or metadata member, and stops a page before the result byte cap',async()=>{
+  let h=await solved([row(0,sustained,{metadata:{location:'l'.repeat(161)}})]);
+  expect((await read(h,'invented-session:2',{page:{cursor:null,limit:5}})).status).toBe('unavailable');await h.session.close();
+  const wide=(i:number)=>row(i,{ref_type:'load_case',ref_id:`${i}`.padEnd(160,'c')},{id:`r${i}`.padEnd(160,'i'),kind:'k'.repeat(160),entity_ref:'e'.repeat(160),metadata:{component:'c'.repeat(160),coordinate_system:'s'.repeat(160),location:'l'.repeat(160),sign_convention:'g'.repeat(160)}});
+  h=await solved(Array.from({length:50},(_,i)=>wide(i)));
+  const page=await read(h,'invented-session:2',{page:{cursor:null,limit:50}});
+  expect(page.status).toBe('ok');expect(page.data.values.length).toBeLessThan(50);expect(page.data.nextCursor).toEqual(expect.any(String));
+  expect(new TextEncoder().encode(h.session.actual('invented-session:2')!.outcome).byteLength).toBeLessThanOrEqual(65536);
+  const rest=await read(h,'invented-session:3',{page:{cursor:page.data.nextCursor,limit:50}});
+  expect(page.data.values.length+rest.data.values.length).toBe(50);
+  await h.session.close();
+ });
+ it('states the selected case to the native query as the results panel keys it',()=>{
+  expect(agentDetailFilter({kinds:['k'],entityRefs:[]})).toEqual({kinds:['k'],entities:[]});
+  expect(agentDetailFilter({kinds:[],entityRefs:['node:c'],case:{refType:'combination',refId:'c-1'}})).toEqual({kinds:[],entities:['node:c'],case:'combination:c-1'});
+ });
+ it('lists the model\'s load case and combination ids in the summary, bounded',async()=>{
+  vi.useFakeTimers();const {session,model}=setup();
+  Object.assign(model as unknown as Record<string,unknown>,{load_cases:Array.from({length:40},(_,i)=>({id:`lc-${i}`})),combinations:[{id:'c-1'},{id:'x'.repeat(161)}]});
+  await session.start('revision');await session.poll();await drain();
+  const data=JSON.parse(session.actual('invented-session:1')!.outcome).data;
+  expect(data.loadCases.count).toBe(40);expect(data.loadCases.ids).toHaveLength(32);expect(data.combinations).toEqual({count:2,ids:['c-1']});
+  await session.close();
+ });
 });
