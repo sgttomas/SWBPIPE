@@ -107,7 +107,7 @@ impl Catalog {
     fn from_source(source: &str) -> Result<Self, Error> {
         let root: Value =
             serde_json::from_str(source).map_err(|_| Error("invalid catalog JSON"))?;
-        if root.get("catalogVersion").and_then(Value::as_str) != Some("swbpipe-catalog/4")
+        if root.get("catalogVersion").and_then(Value::as_str) != Some("swbpipe-catalog/5")
             || root.get("schemaDialect").and_then(Value::as_str)
                 != Some("https://json-schema.org/draft/2020-12/schema")
         {
@@ -793,7 +793,7 @@ mod tests {
             ("/operations/0/operation_kind", json!("create")),
             ("/operations/0/target/object_type", json!("Pipe")),
             ("/operations/0/change/field_path", json!("diameter")),
-            ("/operations/0/change/dimension", json!("pressure")),
+            ("/operations/0/change/dimension", json!("mass")),
             ("/operations/0/target/object_type", json!("Support")),
         ] {
             let mut bad = valid.clone();
@@ -851,7 +851,7 @@ mod tests {
         k["change"]["field_path"] = json!("modifiers.flexibility_factor_user_value.value");
         refused.push(k);
         let mut load = find("create_primitive_load");
-        load["change"]["dimension"] = json!("pressure");
+        load["change"]["dimension"] = json!("mass");
         refused.push(load);
         let mut regions = find("update_load");
         regions["change"]["field_path"] = json!("primitive_loads");
@@ -894,11 +894,9 @@ mod tests {
             ("modify", "set_field", "Component", "modifiers.sif_user_value.value"),
             ("modify", "set_field", "Component", "modifiers.branch_header_sif_user_value.value"),
             ("modify", "set_field", "Component", "bend_realization"),
-            ("modify", "set_field", "Component", "geometry.eccentric_offset"),
             ("modify", "insert_bend_at_corner", "Node", "bend_at_corner"),
             ("modify", "apply_library_record", "Component", "library_record"),
             ("modify", "update_support", "Support", "nonlinear"),
-            ("delete", "delete_load_case", "Load", "load_cases"),
             ("insert", "insert_component_symbol", "Component", "modifiers"),
             ("modify", "set_field", "Component", "position.x"),
             ("modify", "set_field", "Support", "configuration"),
@@ -911,10 +909,147 @@ mod tests {
         }
     }
 
+    /// swbpipe-catalog/5's reach: units, settings, materials, sections and their
+    /// binding, element and component geometry fields, the reference configuration,
+    /// analysis states, pressure regions, equivalent-static inputs, combinations,
+    /// condition sets, rule-pack references and a support's provenance record.
+    #[test]
+    fn reach_kinds_are_admitted_and_person_entered_routes_refused() {
+        let catalog = Catalog::load().unwrap();
+        let admit = |op: &Value| catalog.validate_proposal_context(&json!({"workspaceHandle":"workspace", "basis":basis(), "claimedModelHash":hash(), "operations":[op], "assumptions":[]}), 16).is_ok();
+        let mut admitted = vec![
+            agent_op("modify", "set_project_unit", "Project", "project.units.length", "m", "mm"),
+            agent_op("modify", "set_project_unit", "Project", "project.units.temperature", "not_present", "degC"),
+            agent_op("modify", "set_model_setting", "Project", "model_settings.node_proximity_tolerance", "not_present", "5"),
+            agent_op("modify", "set_model_setting", "Project", "model_settings.shear_model", "not_present", "euler_bernoulli"),
+            agent_op("modify", "set_field", "Material", "elastic_modulus.value", "200", "{}"),
+            agent_op("modify", "set_field", "Material", "shear_modulus.value", "80", "{}"),
+            agent_op("modify", "set_field", "Material", "thermal_expansion_coefficient.value", "0.000012", "{}"),
+            agent_op("modify", "set_field", "Material", "constitutive_properties", "{}", "{}"),
+            agent_op("modify", "set_field", "Material", "temperature_points", "not_present", "[]"),
+            agent_op("modify", "set_field", "Material", "expansion_laws", "not_present", "[]"),
+            agent_op("delete", "delete_material", "Material", "materials", "{}", "deleted"),
+            agent_op("create", "create_section", "Section", "sections", "not_present", "{}"),
+            agent_op("delete", "delete_section", "Section", "sections", "{}", "deleted"),
+            agent_op("modify", "assign_section", "Element", "section_ref", "{}", "{}"),
+            agent_op("modify", "set_field", "Element", "material", "m", "m2"),
+            agent_op("modify", "set_field", "Model", "reference_configurations", "not_present", "[]"),
+            agent_op("modify", "update_load", "Load", "analysis_state", "not_present", "{}"),
+            agent_op("modify", "update_load", "Load", "pressure_regions", "[]", "[{}]"),
+            agent_op("modify", "update_load", "Load", "equivalent_static.wind.exposure", "{}", "{}"),
+            agent_op("modify", "set_field", "Load", "equivalent_static.wind.direction", "TBD", "global_x"),
+            agent_op("delete", "delete_load_case", "Load", "load_cases", "c; l; k; s; primitives=0", "not_present"),
+            agent_op("create", "create_combination", "Combination", "combinations", "not_present", "{}"),
+            agent_op("create", "create_combination_term", "Combination", "terms", "not_present", "{}"),
+            agent_op("delete", "delete_combination", "Combination", "combinations", "{}", "not_present"),
+            agent_op("create", "create_condition_set", "ConditionSet", "condition_sets", "not_present", "{}"),
+            agent_op("modify", "update_condition_set", "ConditionSet", "condition_sets", "{}", "{}"),
+            agent_op("delete", "delete_condition_set", "ConditionSet", "condition_sets", "{}", "not_present"),
+            agent_op("modify", "assign_condition_set", "Element", "condition_set_ref", "not_present", "{}"),
+            agent_op("modify", "set_load_case_condition_use", "Load", "condition_use", "not_present", "{}"),
+            agent_op("create", "add_rule_pack_ref", "RulePackRef", "rule_pack_refs", "not_present", "{}"),
+            agent_op("delete", "remove_rule_pack_ref", "RulePackRef", "rule_pack_refs", "{}", "not_present"),
+            agent_op("modify", "update_support", "Support", "provenance_record", "not_present", "{}"),
+        ];
+        for path in ["outside_diameter", "wall_thickness", "corrosion_allowance", "mill_tolerance", "material_density", "contents_density", "insulation_thickness", "insulation_density"] {
+            admitted.push(agent_op("modify", "set_field", "Element", &format!("section.{path}.value"), "TBD", "{}"));
+        }
+        for path in ["bend_radius.value", "bend_angle.value", "center_of_gravity", "eccentric_offset", "weight.value", "branch_connection_type", "rigid_pipe_ref", "effective_area.value"] {
+            admitted.push(agent_op("modify", "set_field", "Component", &format!("geometry.{path}"), "TBD", "{}"));
+        }
+        for op in &admitted {
+            assert!(admit(op), "{op}");
+        }
+        // Not admitted: every person-entered route (modifiers, their source, bend
+        // realization and insertion, library records), the self-weight generator,
+        // index-addressed edits, and the admitted kinds on another object or path.
+        for (kind, change_kind, object, path) in [
+            ("modify", "set_field", "Component", "modifiers.source_reference"),
+            ("modify", "set_field", "Component", "modifiers.stiffness_scaling_user_value.value"),
+            ("modify", "set_field", "Component", "modifiers.linear_stiffness_user_value.value"),
+            ("modify", "set_field", "Component", "modifiers.branch_branch_sif_user_value.value"),
+            ("modify", "set_field", "Component", "mechanics_interface.solver_consumption"),
+            ("modify", "set_field", "Component", "provenance_record"),
+            ("modify", "set_field", "Component", "geometry"),
+            ("modify", "update_load", "Load", "generated_self_weight"),
+            ("modify", "set_field", "Load", "primitive_loads.0.magnitude.value"),
+            ("delete", "delete_primitive_load", "Load", "primitive_loads.0"),
+            ("delete", "delete_combination_term", "Combination", "terms.0"),
+            ("modify", "clear_model_setting", "Project", "model_settings.shear_model"),
+            ("modify", "detach_section", "Element", "section_ref"),
+            ("modify", "set_field", "Section", "properties.outside_diameter.value"),
+            ("modify", "set_field", "Project", "tags"),
+            ("modify", "set_field", "Model", "project.units.length"),
+            ("modify", "set_project_unit", "Model", "project.units.length"),
+            ("modify", "set_field", "Material", "materials"),
+            ("modify", "assign_section", "Element", "material"),
+            ("modify", "update_load", "Load", "condition_use"),
+            ("modify", "set_field", "Element", "section.outside_diameter"),
+            ("create", "create_combination", "Load", "combinations"),
+            ("modify", "update_support", "Component", "provenance_record"),
+            ("delete", "delete_material", "Section", "sections"),
+        ] {
+            assert!(!admit(&agent_op(kind, change_kind, object, path, "x", "{}")), "{change_kind} {object} {path}");
+        }
+    }
+
+    /// REQ-007: no admitted row names a person-entered path or route, and the
+    /// summary lists exactly the admitted rows' kinds.
+    #[test]
+    fn no_admitted_row_names_a_person_entered_route() {
+        let catalog = Catalog::load().unwrap();
+        for row in &catalog.admitted {
+            assert!(!matches!(row.change_kind.as_str(), "insert_bend_at_corner" | "apply_library_record"), "{}", row.change_kind);
+            for path in &row.field_paths {
+                assert!(!path.starts_with("modifiers") && !path.contains("bend_realization") && path != "generated_self_weight" && !path.starts_with("mechanics_interface"), "{path}");
+                assert!(!(row.object_type == "Component" && path.as_str() == "provenance_record"), "{path}");
+            }
+        }
+        let root: Value = serde_json::from_str(SOURCE).unwrap();
+        let kinds: Vec<&str> = root["definitions"]["summaryData"]["properties"]["admittedOperationKinds"]["items"]["enum"]
+            .as_array().unwrap().iter().map(|k| k.as_str().unwrap()).collect();
+        assert_eq!(root["definitions"]["summaryData"]["properties"]["admittedOperationKinds"]["maxItems"], json!(kinds.len()));
+        // Each row's kind/object/change is listed, and each listed kind names a row.
+        for row in &catalog.admitted {
+            let prefix = format!("{}/{}/{}", row.operation_kind, row.object_type, row.change_kind);
+            assert!(kinds.iter().any(|k| *k == prefix || k.starts_with(&format!("{prefix}/"))), "{prefix}");
+        }
+        for kind in &kinds {
+            let parts: Vec<&str> = kind.splitn(4, '/').collect();
+            assert!(catalog.admitted.iter().any(|row| row.operation_kind == parts[0] && row.object_type == parts[1] && row.change_kind == parts[2]
+                && parts.get(3).is_none_or(|group| row.field_paths.iter().any(|p| p == group || p.starts_with(&format!("{group}."))))), "{kind}");
+        }
+    }
+
+    /// The after bound equals the before bound (16,384 characters) so an analysis
+    /// state is written whole; the argument byte limit is unchanged, so such an
+    /// operation travels alone in its proposal.
+    #[test]
+    fn after_bound_admits_a_whole_analysis_state_alone() {
+        let catalog = Catalog::load().unwrap();
+        let mut input = proposal();
+        input["operations"][0]["change"]["after"] = json!("é".repeat(16384));
+        assert!(catalog.validate_input(Tool::ProposeOperations, &input).is_ok());
+        input["operations"][0]["change"]["after"] = json!("é".repeat(16385));
+        assert!(catalog.validate_input(Tool::ProposeOperations, &input).is_err());
+        input["operations"][0]["change"]["before"] = json!("é".repeat(16385));
+        input["operations"][0]["change"]["after"] = json!("1");
+        assert!(catalog.validate_input(Tool::ProposeOperations, &input).is_err());
+        assert_eq!(catalog.limits().argument_bytes, 16384);
+    }
+
     #[test]
     fn admitted_rows_must_lie_inside_the_declared_schema() {
         let mut root: Value = serde_json::from_str(SOURCE).unwrap();
         root["admittedOperations"][0]["fieldPaths"] = json!(["modifiers.sif_user_value.value"]);
+        assert!(Catalog::from_source(&root.to_string()).is_err());
+        for (key, value) in [("changeKind", "insert_bend_at_corner"), ("changeKind", "apply_library_record"), ("objectType", "Pipe"), ("operationKind", "apply")] {
+            let mut root: Value = serde_json::from_str(SOURCE).unwrap();
+            root["admittedOperations"][0][key] = json!(value);
+            assert!(Catalog::from_source(&root.to_string()).is_err(), "{key} {value}");
+        }
+        let mut root: Value = serde_json::from_str(SOURCE).unwrap();
+        root["admittedOperations"][0]["fieldPaths"] = json!(["bend_realization"]);
         assert!(Catalog::from_source(&root.to_string()).is_err());
         let mut root: Value = serde_json::from_str(SOURCE).unwrap();
         let first = root["admittedOperations"][0].clone();
@@ -926,15 +1061,15 @@ mod tests {
     }
 
     #[test]
-    fn read_records_admits_the_four_families_only() {
+    fn read_records_admits_the_declared_families_only() {
         let catalog = Catalog::load().unwrap();
         assert_eq!(catalog.effect(Tool::ReadRecords), Effect::Read);
         let mut input = json!({"workspaceHandle":"workspace", "basis":basis(), "family":"components", "page":{"cursor":null, "limit":50}});
-        for family in ["components", "supports", "pipe_segments", "nodes"] {
+        for family in ["components", "supports", "pipe_segments", "nodes", "materials", "sections", "load_cases", "primitive_loads", "combinations", "condition_sets", "rule_pack_refs", "project"] {
             input["family"] = json!(family);
             assert!(catalog.validate_input(Tool::ReadRecords, &input).is_ok());
         }
-        for family in ["materials", "load_cases", ""] {
+        for family in ["lines", "results", "equipment_interfaces", "analysis_state", "reference_configurations", ""] {
             input["family"] = json!(family);
             assert!(catalog.validate_input(Tool::ReadRecords, &input).is_err());
         }

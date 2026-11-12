@@ -980,6 +980,35 @@ mod tests {
             .is_err());
     }
 
+    /// The reference system's largest analysis state (RS-OPE, about 13 KB of
+    /// canonical JSON) is admitted as one operation under the moved after bound;
+    /// the argument byte limit, counted before the schema, refuses it alongside a
+    /// second one, and refuses any after that fills the bound with the envelope.
+    #[test]
+    fn an_analysis_state_travels_alone_within_the_argument_bound() {
+        const REFERENCE: &str = include_str!("../../../../../fixtures/reference_system/reference_system.json");
+        let reference: Value = serde_json::from_str(REFERENCE).unwrap();
+        let state = reference["load_cases"].as_array().unwrap().iter()
+            .find(|case| case["id"] == "load:RS-OPE").unwrap()["analysis_state"].to_string();
+        assert!(state.chars().count() > 8192 && state.chars().count() <= 16384, "{}", state.len());
+        let hash = json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","payload_ref":"model","value":"a".repeat(64),"hash_status":"computed_local_preview"});
+        let op = |id: &str, after: &str| json!({"operation_id":id,"operation_kind":"modify","target":{"object_type":"Load","ref":"load:RS-OPE"},
+            "change":{"change_id":id,"change_kind":"update_load","field_label":"analysis state","field_path":"analysis_state","before":"not_present","after":after,"unit":"none","dimension":"dimensionless","source_note":"the person's run sheet"},
+            "rationale":"enter the operating case's state"});
+        let args = |ops: Vec<Value>| json!({"workspaceHandle":"workspace-1","basis":basis(),"claimedModelHash":hash,"operations":ops,"assumptions":[]});
+        let mut p = active();
+        let alone = p.handle_frame(call(json!(6), "alone", Tool::ProposeOperations.name(), args(vec![op("op1", &state)])), &basis()).unwrap();
+        assert!(matches!(alone.events.first(), Some(Event::ToolRequested { .. })), "{:?}", alone.outbound);
+        for (id, ops) in [
+            ("two", vec![op("op1", &state), op("op2", &state)]),
+            ("full", vec![op("op1", &"x".repeat(16384))]),
+        ] {
+            let refused = p.handle_frame(call(json!(id), id, Tool::ProposeOperations.name(), args(ops)), &basis()).unwrap();
+            assert!(refused.events.is_empty(), "{id}");
+            assert_eq!(refused.outbound[0]["result"]["success"], false, "{id}");
+        }
+    }
+
     #[test]
     fn proposal_context_is_checked_before_dispatch() {
         let mut p = active();

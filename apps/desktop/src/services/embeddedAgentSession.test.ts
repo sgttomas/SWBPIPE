@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EmbeddedAgentSession, type WorkspaceExecution, type AgentRunReceipt } from './embeddedAgentSession';
 import type { PreviewModel, ModelHashEvidence, MechanicsResult } from '../types';
 import type { AgentBasis } from './embeddedAgentBridge';
+import catalog from '../../src-tauri/resources/agent-capability-catalog.json';
 const mocks=vi.hoisted(()=>({validate:vi.fn()}));
 vi.mock('./operationBatchService',()=>({validateOperationBatch:mocks.validate}));
 const hash={algorithm:'sha256',canonicalization:'rfc8785_jcs',payload_scope:'model_payload',payload_ref:'invented',value:'a'.repeat(64),hash_status:'computed_local_preview'} as ModelHashEvidence;
@@ -202,7 +203,7 @@ describe('workspace-owned live embedded agent adapter',()=>{
   vi.useFakeTimers();const {session,sent,model}=setup();await session.start('revision');await session.poll();await drain();
   let data=JSON.parse(sent.filter(v=>v.kind==='publish_actual').at(-1)!.outcome as string).data;
   expect(data).toMatchObject({projectId:'invented',schemaVersion:'0.9.0',pressureContract:null,pressureProfileBefore:'{"schema_version":"0.9.0"}'});
-  expect(data.admittedOperationKinds).toContain('insert/Component/insert_component_symbol');expect(data.admittedOperationKinds).toHaveLength(16);expect(data.componentsAwaitingUserModifiers).toEqual({count:0,ids:[]});
+  expect(data.admittedOperationKinds).toContain('insert/Component/insert_component_symbol');expect(data.admittedOperationKinds).toHaveLength(41);expect(data.admittedOperationKinds).toEqual(catalog.definitions.summaryData.properties.admittedOperationKinds.items.enum);expect(data.componentsAwaitingUserModifiers).toEqual({count:0,ids:[]});
   await session.close();
   (model as unknown as Record<string,unknown>).pressure_contract={version:'3.0.0',mode:'exact_pressure_v3',shear_model:'euler_bernoulli'};
   await session.start('revision');await session.poll();await drain();

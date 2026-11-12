@@ -11,7 +11,7 @@ import type { OperationBatch } from './operationBatchService';
 import { validateOperationBatch } from './operationBatchService';
 import { overlayMayShowRow, type ResultOverlayStanding } from '../features/results/numericalHealth';
 import { canonicalJsonString } from './hashService';
-import { nodeDeletionSummary, pipeDeletionSummary, supportDeletionSummary } from '../features/model-tree/removalIntents';
+import { applierDisplayNumber, nodeDeletionSummary, pipeDeletionSummary, supportDeletionSummary } from '../features/model-tree/removalIntents';
 
 export type AgentAssumption=Readonly<{assumptionId:string;statement:string;affectedOperationIds:readonly string[]}>;
 export type AgentContext = Readonly<{requestRef:string;threadId:string;turnId:string;callId:string;basis:AgentBasis;assumptions:readonly AgentAssumption[]}>;
@@ -48,9 +48,9 @@ export function catalogHash(hash:unknown):unknown{
  if(!plain(hash)||typeof hash.value!=='string'||!CATALOG_HASH.test(hash.value))throw new Error('AGENT-CATALOG-HASH-FORM-REFUSED');
  return hash;
 }
-/** The native kinds swbpipe-catalog/4 admits; the catalog schema is their gate and the applier their authority. */
-export const ADMITTED_OPERATION_KINDS=Object.freeze(['modify/Node/set_field/position','create/Material/create_material','create/Node/create_node','connect/Element/connect_pipe_run','create/Support/create_support','create/Load/create_load_case','create/Load/create_primitive_load','modify/Load/update_load/pressure_regions','modify/Model/set_field/pressure_profile','insert/Component/insert_component_symbol','modify/Component/set_field/objective_connector','modify/Support/update_support/configuration','delete/Component/delete_component','delete/Support/delete_support','delete/Element/delete_pipe_run','delete/Node/delete_node']);
-export const RECORD_FAMILIES=['components','supports','pipe_segments','nodes'] as const;
+/** The native kinds swbpipe-catalog/5 admits; the catalog schema is their gate and the applier their authority. */
+export const ADMITTED_OPERATION_KINDS=Object.freeze(['modify/Node/set_field/position','create/Material/create_material','create/Node/create_node','connect/Element/connect_pipe_run','create/Support/create_support','create/Load/create_load_case','create/Load/create_primitive_load','modify/Load/update_load/pressure_regions','modify/Model/set_field/pressure_profile','insert/Component/insert_component_symbol','modify/Component/set_field/objective_connector','modify/Support/update_support/configuration','delete/Component/delete_component','delete/Support/delete_support','delete/Element/delete_pipe_run','delete/Node/delete_node','modify/Project/set_project_unit','modify/Project/set_model_setting','modify/Material/set_field','delete/Material/delete_material','create/Section/create_section','delete/Section/delete_section','modify/Element/assign_section','modify/Element/set_field','modify/Component/set_field/geometry','modify/Model/set_field/reference_configurations','modify/Load/update_load/analysis_state','modify/Load/update_load/equivalent_static.wind.exposure','modify/Load/set_field/equivalent_static','delete/Load/delete_load_case','create/Combination/create_combination','create/Combination/create_combination_term','delete/Combination/delete_combination','create/ConditionSet/create_condition_set','modify/ConditionSet/update_condition_set','delete/ConditionSet/delete_condition_set','modify/Element/assign_condition_set','modify/Load/set_load_case_condition_use','modify/Support/update_support/provenance_record','create/RulePackRef/add_rule_pack_ref','delete/RulePackRef/remove_rule_pack_ref']);
+export const RECORD_FAMILIES=['components','supports','pipe_segments','nodes','materials','sections','load_cases','primitive_loads','combinations','condition_sets','rule_pack_refs','project'] as const;
 export type RecordFamily=typeof RECORD_FAMILIES[number];
 const SUPPORT_CONFIGURATION=['family','restraints','stiffness','hanger','nonlinear','provenance'] as const;
 const RECORD_PAGE_BYTES=48*1024,RECORD_TEXT_BYTES=16384,ID_CHARS=160;
@@ -82,7 +82,7 @@ export function componentsAwaitingUserModifiers(model:PreviewModel):string[]{
 /** The deletion summary the applier compares, from the same formatters as the
  * inspector's Delete (removalIntents.ts); empty when the applier would refuse the
  * record's deletion (a blank label, endpoint or material, or a non-finite coordinate). */
-function deleteText(family:Exclude<RecordFamily,'components'>,record:Record<string,unknown>):string{
+function deleteText(family:'supports'|'pipe_segments'|'nodes',record:Record<string,unknown>):string{
  if(blankText(record.label))return '';
  if(family==='supports')return supportDeletionSummary(record as unknown as PreviewModel['supports'][number]);
  if(family==='pipe_segments')return [record.from,record.to,record.material].some(blankText)?'':pipeDeletionSummary(record as unknown as PreviewModel['pipe_segments'][number]);
@@ -102,9 +102,57 @@ export function chordSifText(model:PreviewModel,chords:readonly string[]):string
  const named=`no scalar SIF was supplied for ${without.length} of them (${namedIds(without,200)}), so no intensified measure is published for those`;
  return without.length===chords.length?`None has a supplied scalar SIF, so no intensified measure is published for them.`:`A supplied scalar SIF applies to the other chords; ${named}.`;
 }
+const NOT_PRESENT='not_present';
+/** The material members the applier's constitutive_properties edit compares (pressure_authoring MATERIAL_KEYS). */
+const MATERIAL_CONSTITUTIVE=['constitutive_basis','elastic_modulus','shear_modulus','poisson_ratio','thermal_expansion_coefficient','provenance'] as const;
+/** A load case's members that are not in its recordText: the two edits' own before texts, and its primitive loads, a family of their own. */
+const LOAD_CASE_HELD=new Set(['analysis_state','pressure_regions','primitive_loads']);
+/** One record of a family as the agent reads it: its id, the value whose canonical JSON is its
+ * recordText, and the stored record its before texts are taken from. */
+export type FamilyRecord={id:unknown;text:unknown;record:Record<string,unknown>};
+/** A family's records: the document's own, but a load case without its held members, a primitive
+ * load with its case, a rule-pack reference keyed by its pack id, and the project as one record of
+ * its project-level members. Nothing is converted or cut. */
+export function familyRecords(model:PreviewModel,family:RecordFamily):FamilyRecord[]{
+ const doc=model as unknown as Record<string,unknown>;
+ const list=(key:string)=>(Array.isArray(doc[key])?doc[key] as unknown[]:[]).map(item=>plain(item)?item:{});
+ if(family==='project'){
+  const project=plain(doc.project)?doc.project:{};
+  return [{id:project.id,text:Object.fromEntries(['project','model_settings','reference_configurations'].filter(key=>doc[key]!==undefined).map(key=>[key,doc[key]])),record:doc}];
+ }
+ if(family==='primitive_loads')return list('load_cases').flatMap(loadCase=>(Array.isArray(loadCase.primitive_loads)?loadCase.primitive_loads as unknown[]:[]).map(item=>{const load=plain(item)?item:{};return {id:load.id,text:{load_case:loadCase.id,primitive_load:item},record:load};}));
+ if(family==='load_cases')return list(family).map(record=>({id:record.id,text:Object.fromEntries(Object.entries(record).filter(([key])=>!LOAD_CASE_HELD.has(key))),record}));
+ if(family==='rule_pack_refs')return list(family).map(record=>({id:record.rule_pack_id,text:record,record}));
+ return list(family).map(record=>({id:record.id,text:record,record}));
+}
+/** The canonical JSON of a member, or not_present when it is absent (the applier's form). */
+async function memberText(value:unknown):Promise<string>{return value===undefined?NOT_PRESENT:await canonicalJsonString(value);}
+const engineText=(value:unknown)=>(typeof value==='string'?value:'TBD').trim();
+/** The applier's load-case deletion text (`load_case_delete_display`); empty when it has none. */
+function loadCaseDeleteText(record:Record<string,unknown>):string{
+ const id=typeof record.id==='string'?record.id.trim():'';
+ if(!id||!Array.isArray(record.primitive_loads))return '';
+ return `${id}; ${engineText(record.label)}; ${engineText(record.kind)}; ${engineText(record.status)}; primitives=${record.primitive_loads.length}`;
+}
+/** The applier's combination deletion text (`combination_delete_display`): its summary when its
+ * terms are flat {load_case, factor} terms, its canonical JSON otherwise; empty when the engine's
+ * number display is unavailable. */
+function combinationDeleteText(record:Record<string,unknown>,recordText:string):string{
+ if(typeof record.id!=='string'||!Array.isArray(record.terms))return recordText;
+ const items:string[]=[];
+ for(const term of record.terms){
+  const loadCase=plain(term)&&typeof term.load_case==='string'?term.load_case.trim():'';const factor=plain(term)?term.factor:undefined;
+  if(!loadCase||typeof factor!=='number'||!Number.isFinite(factor))return recordText;
+  const shown=applierDisplayNumber(factor);if(shown===null)return '';
+  items.push(`${loadCase} x ${shown}`);
+ }
+ return `${record.id.trim()}; ${engineText(record.label)}; basis=${engineText(record.basis)}; terms=${items.length?items.join('; '):'none'}`;
+}
 /** Exact before texts for the admitted edits of one record, as the applier compares
- * them: the engine's canonical JSON for components and support configuration, the
- * applier's deletion summary otherwise. A deletion the applier would refuse has no text. */
+ * them: the engine's canonical JSON of the member (or not_present), the record's canonical
+ * JSON for a whole-record delete, and the applier's deletion summary for nodes, pipes,
+ * supports, load cases and flat-term combinations. A deletion the applier would refuse
+ * has no text. Scalar field edits take their stored value from recordText. */
 export async function recordBefore(family:RecordFamily,record:Record<string,unknown>,recordText:string):Promise<Record<string,string>>{
  if(family==='components'){
   const before:Record<string,string>={delete:recordText};const connector=record.objective_connector;
@@ -113,9 +161,30 @@ export async function recordBefore(family:RecordFamily,record:Record<string,unkn
  }
  if(family==='supports'){
   const configuration=Object.fromEntries(SUPPORT_CONFIGURATION.filter(key=>record[key]!==undefined).map(key=>[key,record[key]]));
-  const text=deleteText(family,record);return {...(text?{delete:text}:{}),configuration:await canonicalJsonString(configuration)};
+  const text=deleteText(family,record);return {...(text?{delete:text}:{}),configuration:await canonicalJsonString(configuration),provenance_record:await memberText(record.provenance_record)};
  }
- const text=deleteText(family,record);return text?{delete:text}:{};
+ if(family==='pipe_segments'){
+  const text=deleteText(family,record);
+  return {...(text?{delete:text}:{}),condition_set_ref:record.condition_set_ref===undefined?NOT_PRESENT:await canonicalJsonString({condition_set_ref:record.condition_set_ref})};
+ }
+ if(family==='nodes'){const text=deleteText(family,record);return text?{delete:text}:{};}
+ if(family==='materials')return {delete:recordText,
+  constitutive_properties:await canonicalJsonString(Object.fromEntries(MATERIAL_CONSTITUTIVE.filter(key=>record[key]!==undefined).map(key=>[key,record[key]]))),
+  temperature_points:await memberText(record.temperature_points),expansion_laws:await memberText(record.expansion_laws)};
+ if(family==='load_cases'){
+  const text=loadCaseDeleteText(record);const statics=plain(record.equivalent_static)?record.equivalent_static:{};const wind=statics.wind;
+  return {...(text?{delete:text}:{}),analysis_state:await memberText(record.analysis_state),
+   pressure_regions:record.pressure_regions===null?NOT_PRESENT:await memberText(record.pressure_regions),condition_use:await memberText(record.condition_use),
+   ...(plain(wind)?{'equivalent_static.wind.exposure':await canonicalJsonString({exposed_pipe_refs:wind.exposed_pipe_refs===undefined?[]:wind.exposed_pipe_refs,exposed_spans:wind.exposed_spans===undefined?[]:wind.exposed_spans})}:{})};
+ }
+ if(family==='combinations'){const text=combinationDeleteText(record,recordText);return text?{delete:text}:{};}
+ if(family==='sections'||family==='condition_sets'||family==='rule_pack_refs')return {delete:recordText};
+ if(family==='project'){
+  const settings=record.model_settings;
+  return {reference_configurations:await memberText(record.reference_configurations),
+   ...(settings===undefined||plain(settings)?{'model_settings.node_proximity_tolerance':await memberText(plain(settings)?settings.node_proximity_tolerance:undefined),'model_settings.shear_model':await memberText(plain(settings)?settings.shear_model:undefined)}:{})};
+ }
+ return {};
 }
 const AUDIT_BOUNDARY=Object.freeze({mutation_route:'structured_operations_only',direct_model_mutation_allowed:false,requires_user_acceptance:true,mutates_accepted_model_state:false} as const);
 const PROFESSIONAL_BOUNDARY=Object.freeze({
@@ -282,15 +351,15 @@ export class EmbeddedAgentSession {
   }
   if(call.tool==='swbpipe_read_records'){
    const family=call.arguments.family as RecordFamily;if(!RECORD_FAMILIES.includes(family))return this.failure(call,'Record family is unavailable.');
-   const rows=((model as unknown as Record<string,unknown>)[family] as Record<string,unknown>[]|undefined)??[];
+   const rows=familyRecords(model,family);
    const offset=this.offset(call),page=call.arguments.page as {limit:number};const records=[];let bytes=0,end=offset;
    for(;end<rows.length&&records.length<page.limit;end++){
-    const record=rows[end];if(typeof record?.id!=='string'||!record.id||record.id.length>ID_CHARS)return this.failure(call,'Record identifier exceeds this catalog page.');
-    const recordText=await canonicalJsonString(record);const before=await recordBefore(family,record,recordText);
+    const {id,text,record}=rows[end];if(typeof id!=='string'||!id||id.length>ID_CHARS)return this.failure(call,'Record identifier exceeds this catalog page.');
+    const recordText=await canonicalJsonString(text);const before=await recordBefore(family,record,recordText);
     // Bounds are UTF-8 bytes; a record whose escaped entry alone exceeds a page is unavailable, never cut.
-    if(byteLength(recordText)>RECORD_TEXT_BYTES||Object.values(before).some(text=>byteLength(text)>RECORD_TEXT_BYTES))return this.failure(call,`Record ${record.id} exceeds this catalog page.`);
-    const entry={id:record.id,recordText,before};const size=byteLength(JSON.stringify(entry));
-    if(size>RECORD_PAGE_BYTES)return this.failure(call,`Record ${record.id} exceeds this catalog page.`);
+    if(byteLength(recordText)>RECORD_TEXT_BYTES||Object.values(before).some(text=>byteLength(text)>RECORD_TEXT_BYTES))return this.failure(call,`Record ${id} exceeds this catalog page.`);
+    const entry={id,recordText,before};const size=byteLength(JSON.stringify(entry));
+    if(size>RECORD_PAGE_BYTES)return this.failure(call,`Record ${id} exceeds this catalog page.`);
     if(bytes+size>RECORD_PAGE_BYTES)break;bytes+=size;records.push(entry);
    }
    if(!this.current(call))return this.failure(call,'Workspace changed while reading records.','stale_basis');
