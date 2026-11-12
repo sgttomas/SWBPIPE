@@ -73,7 +73,7 @@ AC-002, AC-003 and AC-004 carry commitment DEL-00-03:1.
 **How each criterion is examined.**
 
 - **VER-001** — AC-001, executable check: observes each entry point's declared kind, and the model hash and stored project before and after each query.
-- **VER-002** — AC-002 and AC-003, executable check: forces a failure at each step of each kind of operation whose transaction boundary is defined, commands and jobs, and observes the returned envelope, its diagnostic, and the unchanged model and stored project.
+- **VER-002** — AC-002 and AC-003, executable check: forces a failure at each step of every command and job and observes the returned envelope and its diagnostic; and, for each kind of operation whose transaction boundary is defined, compares the model and the stored project after the failure with what they were before it.
 - **VER-003** — AC-004, executable check: starts each kind of job on an input large enough to show progress, cancels it, and observes the cancelled envelope; observes each reproducibility field on a completed result.
 - **VER-004** — AC-005, judgment by a reviewer who did not write the services: examines the envelope and status vocabularies against `docs/claims_registry.md`, with an executable check that no schema enumerates a professional-approval or compliance value as an outcome of computation.
 
