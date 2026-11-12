@@ -361,8 +361,9 @@ def test_every_pressurised_model_declares_three_runs_of_the_same_file():
         declared = manifest["series"][name]
         assert declared["oppres_line"] == lines[name] and declared["screened"] is (name != RUNS[2])
         assert [member["model_id"] for member in declared["members"]] == names
-    assert manifest["series"][RUNS[2]]["swbpipe"] is None and "screened against nothing" in \
-        manifest["series"][RUNS[2]]["description"]
+    capture_text = manifest["series"][RUNS[2]]["description"]
+    assert manifest["series"][RUNS[2]]["swbpipe"] is None and "sealed capture" in capture_text
+    assert "capture_path_unavailable" in capture_text and "screened against nothing" not in capture_text
     hypothesis = manifest["pressure_hypothesis"]
     assert hypothesis["statement"].startswith("HYPOTHESIS") and "tests and does not assume" in hypothesis["statement"]
     assert "docs.sstcae.com/users_manual/import_mbf.htm" in hypothesis["format_source"]
@@ -925,28 +926,62 @@ def test_two_states_of_one_model_leave_two_distinct_records(fake_benchmark, monk
     assert run_pilot.main(argv, environ={}) == 2
     assert "these models declare runs; name one with --series: cpb-p2-01" in capsys.readouterr().err
     root = state["config"].exchange_root
-    for series in RUNS:
+    for series in RUNS[:2]:
         assert run_pilot.main(argv + ["--series", series], environ={}) == 0
-    run_ids = [f"cpb-p2-01--{series}" for series in RUNS]
+    run_ids = [f"cpb-p2-01--{series}" for series in RUNS[:2]]
     assert [call[0] for call in state["calls"]] == run_ids
     assert [state["mbf"][run_id].split("\r\nOPPRES\r\n")[1].split("\r\n")[0] for run_id in run_ids] == [
-        "0,0,0,1,0", "0,1,0,1,1", "0,1,0,1,0"]
-    # SWBPIPE solves each screened state's model; the capture run solves nothing.
-    assert sorted(solved) == run_ids[:2] and "model_settings" not in solved[run_ids[0]]
+        "0,0,0,1,0", "0,1,0,1,1"]
+    assert sorted(solved) == run_ids and "model_settings" not in solved[run_ids[0]]
     assert solved[run_ids[1]]["model_settings"]["pressure_elongation"] == {"operating_load_cases": ["case:sustained"]}
     records = [root / "cases" / run_id / "comparison" / "benchmark_comparison.json" for run_id in run_ids]
-    assert records[0].is_file() and records[1].is_file() and not records[2].exists()
-    first, second = (json.loads(record.read_text()) for record in records[:2])
+    assert records[0].is_file() and records[1].is_file()
+    first, second = (json.loads(record.read_text()) for record in records)
     assert first["model_id"] == second["model_id"] == "cpb-p2-01"
-    sustained = {record["model_id"] + str(index): record["load_cases"][1]["inexact_inputs"]
-                 for index, record in enumerate((first, second))}
-    assert "pressure_elongation_convention" not in sustained["cpb-p2-010"]
-    assert "pressure_elongation_convention" in sustained["cpb-p2-011"]
+    assert "pressure_elongation_convention" not in first["load_cases"][1]["inexact_inputs"]
+    assert "pressure_elongation_convention" in second["load_cases"][1]["inexact_inputs"]
     manifests = [json.loads((root / "cases" / run_id / "case_manifest.json").read_text()) for run_id in run_ids]
     assert [(item["case_id"], item["series_run"], item["oppres_line"], item["outcome"]) for item in manifests] == [
-        (run_ids[0], RUNS[0], "0,0,0,1,0", "recorded"), (run_ids[1], RUNS[1], "0,1,0,1,1", "recorded"),
-        (run_ids[2], RUNS[2], "0,1,0,1,0", "captured")]
-    assert "captured, screened against nothing" in capsys.readouterr().out
+        (run_ids[0], RUNS[0], "0,0,0,1,0", "recorded"), (run_ids[1], RUNS[1], "0,1,0,1,1", "recorded")]
+
+
+def test_a_capture_run_is_refused_by_name_and_nothing_is_read_or_written(fake_benchmark, monkeypatch, capsys):
+    """A sealed capture may not be read beyond hashing, and the path that collects without reading is a separate
+    change: live or offline, the capture run is refused by name before any solve, write, round trip or parse."""
+    state = fake_benchmark
+    path = benchmark_manifest(state["manifest"].parent.parent / "pressure-set", ids=("cpb-p2-01",))
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("a capture run must not be solved, written, round-tripped or parsed")
+    for target in (run_pilot, __import__("core.handoff.caepipe_external", fromlist=["x"]),
+                   __import__("core.handoff.caepipe_external.print_csv", fromlist=["x"])):
+        for name in ("read_caepipe_print_csv", "parse_caepipe_print_csv"):
+            if hasattr(target, name):
+                monkeypatch.setattr(target, name, forbidden)
+    for name in ("solve_swbpipe", "render_caepipe_mbf_si", "write_private", "_write_json", "check_guest_alive",
+                 "check_no_foreign_instance"):
+        monkeypatch.setattr(run_pilot, name, forbidden)
+    root = state["config"].exchange_root
+    before = sorted(root.rglob("*"))
+    argv = ["--benchmark", str(path)] + state["argv"][2:] + ["--series", RUNS[2]]
+    for extra in ([], ["--offline"]):
+        command = argv if not extra else ["--benchmark", str(path), "--runner", state["runner"], "--offline",
+                                          "--series", RUNS[2]]
+        assert run_pilot.main(command, environ={}) == 2
+        out = capsys.readouterr().out
+        assert out.strip() == ("cpb-p2-01--pressure-bourdon-expansion-capture: route=capture_path_unavailable; a "
+                               "capture-only run needs the capture-only path, which collects its result without "
+                               "reading it; that path is a separate change and is not on this build; not run")
+    assert state["calls"] == [] and state["sleeps"] == [] and sorted(root.rglob("*")) == before
+    # The library entry points refuse it too.
+    [entry] = run_pilot.load_benchmark(path, None, RUNS[2])
+    lines: list[str] = []
+    assert run_pilot.run_benchmark([entry], state["config"], runner=state["runner"], offline=True,
+                                   emit=lines.append) == 2
+    assert run_pilot.run_benchmark_model(entry, state["config"], runner=state["runner"], offline=False,
+                                         emit=lines.append)[1] == "capture_path_unavailable"
+    assert len(lines) == 2 and all("route=capture_path_unavailable" in line for line in lines)
+    assert sorted(root.rglob("*")) == before
 
 
 def test_the_pace_is_the_callers(fake_benchmark):
