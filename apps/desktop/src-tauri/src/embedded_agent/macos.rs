@@ -307,15 +307,19 @@ impl Prepared {
         self.spawn_inner(false)
     }
     fn spawn_inner(self, diagnostic_stderr: bool) -> Result<Launched, Error> {
-        self.spawn_with(diagnostic_stderr, |command| command.spawn())
+        // The one production launch of the supplier. It names the standard
+        // library's spawn by path: nothing may come between the built command
+        // and the spawn, here or in `spawn_with`.
+        self.spawn_with(diagnostic_stderr, Command::spawn)
     }
-    /// The launch boundary: `launch` receives the supplier's final command,
-    /// and nothing changes it after. Production passes `Command::spawn`; a
-    /// test passes a closure that inspects the command and executes nothing.
+    /// The launch boundary: `launch` receives the supplier's final command.
+    /// Production passes `Command::spawn` itself, so no production body sits
+    /// between this point and the operating system; a test passes a function
+    /// that records the command and executes nothing.
     fn spawn_with(
         mut self,
         diagnostic_stderr: bool,
-        launch: impl FnOnce(&mut Command) -> std::io::Result<Child>,
+        launch: fn(&mut Command) -> std::io::Result<Child>,
     ) -> Result<Launched, Error> {
         let runtime = self.runtime.as_ref().ok_or(Error::Spawn)?;
         if !runtime.relay.is_ready() {
@@ -660,24 +664,27 @@ mod tests {
             }),
         };
         let runtime_root = root.join("runtime");
-        let mut seen = None;
-        let result = prepared.spawn_with(false, |command| {
+        type Seen = (String, Vec<String>, Vec<(String, Option<String>)>, Option<PathBuf>);
+        static SEEN: std::sync::Mutex<Option<Seen>> = std::sync::Mutex::new(None);
+        // Stands in for `Command::spawn` only: records, executes nothing.
+        fn capture(command: &mut Command) -> std::io::Result<Child> {
             let args: Vec<String> = command.get_args().map(|a| a.to_str().unwrap().to_owned()).collect();
             let mut envs: Vec<(String, Option<String>)> = command
                 .get_envs()
                 .map(|(k, v)| (k.to_str().unwrap().to_owned(), v.map(|v| v.to_str().unwrap().to_owned())))
                 .collect();
             envs.sort();
-            seen = Some((
+            *SEEN.lock().unwrap() = Some((
                 command.get_program().to_str().unwrap().to_owned(),
                 args,
                 envs,
                 command.get_current_dir().map(Path::to_path_buf),
             ));
             Err(std::io::Error::other("captured, not executed"))
-        });
+        }
+        let result = prepared.spawn_with(false, capture);
         assert!(matches!(result, Err(Error::Spawn)));
-        let (program, args, envs, cwd) = seen.unwrap();
+        let (program, args, envs, cwd) = SEEN.lock().unwrap().take().unwrap();
         let r = runtime_root.to_str().unwrap();
         assert_eq!(program, "/usr/bin/sandbox-exec");
         assert_eq!(
