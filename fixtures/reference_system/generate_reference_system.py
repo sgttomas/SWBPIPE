@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the reference-system fixture (DEL-09-01, exit criterion 1).
+"""Generate the reference-system fixture (DEL-09-01 `SPECIFICATION.md`, exit criterion 1).
 
 Every value is invented for this fixture (spec §1-§8); none comes from a standard, a supplier, a
 commercial example or a project. The specification's tables are held here as data, and the
