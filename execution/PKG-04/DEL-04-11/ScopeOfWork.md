@@ -71,6 +71,8 @@ A sizing result is a numerical statement about the discrete model under the user
 - Whether a sizing run is recorded as an analysis run is not decided. The hanger-sizing analysis-run kind awaits adoption in the analysis-run record, and DEL-14-02 leaves the question open.
 - Whether the report's privacy rules for library references cover the hanger section's library-derived values is not confirmed with DEL-08-01.
 
+**Held by SWBPIPE's Agent 0.** The hanger implementation lane is not woken or resumed until SWBPIPE's Agent 0 selects it. Only SWBPIPE's Agent 0 releases this hold. Constant-effort publication repairs and documentation reconciliation do not authorize hanger sizing, preload or a new hanger task.
+
 ### Request
 
 - **REQ-001** — *Required inputs, no defaults.*
