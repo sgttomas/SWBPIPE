@@ -809,6 +809,46 @@ mod live {
     }
 
     #[test]
+    fn a_long_driver_stops_within_seconds_of_its_supervisors_sigkill() {
+        // The discriminating case: a driver that would run for a very long time (a million
+        // repeats of the demo model) under a parent that names itself as its supervisor. Killed
+        // with SIGKILL, the parent runs nothing; the driver must notice and stop by itself.
+        let dir = folder("parent-sigkill");
+        std::fs::write(dir.join("demo.json"), demo()).unwrap();
+        let model = dir.join("demo.json").to_str().unwrap().to_string();
+        let mut parent = Command::new("/bin/sh")
+            .arg("-c")
+            .arg("RELEASE_TIMING_SUPERVISOR_PID=$$ \"$0\" \"$1\" --repeats 1000000 >/dev/null 2>&1; :")
+            .arg(BIN)
+            .arg(&model)
+            .spawn()
+            .unwrap();
+        let drivers = || -> Vec<i32> {
+            let ps = Command::new("/bin/ps").args(["-axo", "pid=,command="]).output().unwrap();
+            String::from_utf8_lossy(&ps.stdout)
+                .lines()
+                .filter(|l| l.contains(&model) && l.contains("--repeats") && !l.contains("/bin/sh"))
+                .filter_map(|l| l.split_whitespace().next()?.parse().ok())
+                .collect()
+        };
+        let started = Instant::now();
+        while drivers().is_empty() && started.elapsed().as_secs() < 30 {
+            std::thread::sleep(Duration::from_millis(20));
+        }
+        let driver = drivers().first().copied().expect("the driver is running");
+        std::thread::sleep(Duration::from_secs(1));
+        assert!(alive(driver), "the driver is still running a second later, with its parent alive");
+        unsafe { libc::kill(parent.id() as i32, libc::SIGKILL) };
+        parent.wait().unwrap();
+        let stopped = gone_within(driver, Duration::from_secs(3));
+        if !stopped {
+            unsafe { libc::kill(driver, libc::SIGKILL) };
+        }
+        assert!(stopped, "driver {driver} kept running after its supervisor was killed");
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+
+    #[test]
     fn the_other_terminating_signals_are_handled_as_sigterm_is() {
         assert!(TERMINATING_SIGNALS.contains(&libc::SIGQUIT) && TERMINATING_SIGNALS.contains(&libc::SIGUSR1));
         let (dir, mut supervisor, _, driver) = supervised_big_run("sigquit");
