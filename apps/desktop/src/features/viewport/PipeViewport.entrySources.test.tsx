@@ -398,3 +398,24 @@ describe("viewport: an expansion joint names its sources; the route form says th
   });
 });
 
+describe("viewport: a node notice names where the unit now is after a later move", () => {
+  it("node", () => {
+    const withLength = (length: string): PreviewModel => {
+      const model = demo();
+      model.project.units = { ...model.project.units, length } as PreviewModel["project"]["units"];
+      return model;
+    };
+    const tree = (model: PreviewModel) => (
+      <DisplayUnitsProvider initialPreference="SI">
+        <PipeViewport model={model} modelIndex={modelIndexFor(model, 1, 0)} selection={{ type: "node", id: "node:N-110" }} onSelect={vi.fn()} onQueueIntent={vi.fn()} onArmCreationTool={vi.fn()} />
+      </DisplayUnitsProvider>
+    );
+    const view = render(tree(withLength("m")));
+    type("viewport-create-node-x", "1.5");
+    view.rerender(tree(withLength("mm")));
+    expect(byId("viewport-create-node-unit-cleared")).toHaveTextContent("The coordinate unit changed from m to mm with the project units; the values beside it were cleared.");
+    view.rerender(tree(withLength("in")));
+    expect(byId("viewport-create-node-unit-cleared")).toHaveTextContent("The coordinate unit changed from m to in with the project units; the values beside it were cleared.");
+  });
+});
+

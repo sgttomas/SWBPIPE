@@ -107,6 +107,14 @@ describe("the property task clears a value typed beside a unit taken from the pr
     expect(notice()).toBeNull();
   });
 
+  it("a mill tolerance on a pipe with a stored wall thickness takes that stored unit, so it does not clear", async () => {
+    const { rerender } = await startTask({ type: "pipe", id: "pipe:P-100" }, "section.mill_tolerance.value");
+    fireEvent.change(byId("editor-intent-value"), { target: { value: "0.001" } });
+    rerender({ length: "mm" });
+    expect(byId("editor-intent-value")).toHaveValue("0.001");
+    expect(notice()).toBeNull();
+  });
+
   it("a unit the person chose never clears, and a change that leaves the unit clears nothing", async () => {
     const { rerender } = await startTask({ type: "load", id: "load:L-100" }, "modulus_basis_temperature.value");
     fireEvent.change(byId("editor-intent-value"), { target: { value: "400" } });
