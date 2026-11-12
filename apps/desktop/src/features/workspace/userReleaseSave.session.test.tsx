@@ -8,14 +8,30 @@ import { isDeepStrictEqual } from "node:util";
 import { afterEach, describe, expect, it, vi } from "vitest";
 const invokeMock = vi.hoisted(() => vi.fn());
 vi.mock("@tauri-apps/api/core", async () => ({ invoke: (await import("../../test/nativeIngress")).ingressDecodingInvoke(invokeMock) }));
+// The real preparation, which a test may change after it runs (a returned refusal, arguments
+// that cannot be encoded) or observe (the screened request it made).
+type Preparation = Awaited<ReturnType<typeof import("../report/userReleasedReportPackageSave").prepareShareableReportPackageSave>>;
+const preparation = vi.hoisted(() => ({ change: null as null | ((prepared: Preparation) => Preparation) }));
+vi.mock("../report/userReleasedReportPackageSave", async (importOriginal) => {
+  const original = await importOriginal<typeof import("../report/userReleasedReportPackageSave")>();
+  return {
+    ...original,
+    prepareShareableReportPackageSave: async (input: Parameters<typeof original.prepareShareableReportPackageSave>[0]) => {
+      const prepared = await original.prepareShareableReportPackageSave(input);
+      return preparation.change ? preparation.change(prepared) : prepared;
+    }
+  };
+});
 import { createSolveJobTransport, nativeMechanicsReplayPair } from "../../test/nativeMechanicsReplay";
 import { getLocalStorageCapability } from "../../services/projectService";
 import { loadDesignKnowledge, resetSessionResultCustodyForTests } from "../../services/previewService";
 import { canonicalSha256Hex } from "../../services/hashService";
 import { useWorkspaceSession } from "./workspaceSession";
 import type { SessionRuleCheckRun } from "../report/renderableReportInput";
+import { USER_RELEASE_STATEMENT } from "../report/reportPackageRequest";
 
 afterEach(() => {
+  preparation.change = null;
   cleanup();
   vi.restoreAllMocks();
   invokeMock.mockReset();
@@ -142,6 +158,25 @@ describe("Save Shareable Report Package… through the session (W-18b)", () => {
 // written or a user release made when none was, and an unknown outcome reads as unknown.
 const NOT_WRITTEN = "Not saved: no shareable report package was written and no user release was made.";
 const UNKNOWN = "It is not known whether the shareable report package was written.";
+const TEMP_MAY_REMAIN = "The shareable report package was not saved to the selected file. A temporary file may remain beside it.";
+const USER_RELEASED_AT = "2026-11-09T00:00:00Z";
+
+/** Whether `value`, searched through every member, element and entry it reaches (refs and
+ * state alike), holds anything of a user release record: its statement, its kind or the
+ * time of this test's statement. DOM nodes and functions are not searched. */
+function holdsUserReleaseRecord(value: unknown, seen = new WeakSet<object>()): boolean {
+  if (typeof value === "string") {
+    return value.includes(USER_RELEASE_STATEMENT) || value.includes("user_release_of_own_project_data") || value.includes(USER_RELEASED_AT);
+  }
+  if (!value || typeof value !== "object" || seen.has(value)) return false;
+  seen.add(value);
+  if (typeof Node !== "undefined" && value instanceof Node) return false;
+  if (ArrayBuffer.isView(value) || value instanceof Promise) return false;
+  const items: unknown[] = value instanceof Map ? [...value.keys(), ...value.values()]
+    : value instanceof Set ? [...value]
+    : Object.keys(value).map((key) => { try { return (value as Record<string, unknown>)[key]; } catch { return undefined; } });
+  return items.some((item) => holdsUserReleaseRecord(item, seen));
+}
 
 describe("What a shareable save that writes nothing says (REQ-019, AC-010)", () => {
   /** The session with the native save answered by `answer`. */
@@ -153,12 +188,12 @@ describe("What a shareable save that writes nothing says (REQ-019, AC-010)", () 
     return rendered;
   }
 
-  async function confirmOneSave(hook: { current: ReturnType<typeof useWorkspaceSession> }) {
+  async function confirmOneSave(hook: { current: ReturnType<typeof useWorkspaceSession> }, sends = 1) {
     await act(async () => { await hook.current.results.requestSaveShareableReportPackage(); });
-    await act(async () => { hook.current.results.userReleaseRequest!.save({ userReleasedAt: "2026-11-09T00:00:00Z" }); });
+    await act(async () => { hook.current.results.userReleaseRequest!.save({ userReleasedAt: USER_RELEASED_AT }); });
     await waitFor(() => expect(hook.current.results.reportPackageRoute).not.toBeNull());
     await waitFor(() => expect(hook.current.results.reportPackageBusy).toBe(false));
-    expect(saveCalls()).toHaveLength(1);
+    expect(saveCalls()).toHaveLength(sends);
     return hook.current.results.reportPackageRoute!;
   }
 
@@ -183,17 +218,35 @@ describe("What a shareable save that writes nothing says (REQ-019, AC-010)", () 
     expect(diagnostic(await confirmOneSave(hook))).toBe(`${NOT_WRITTEN} ${JSON.stringify(error)}`);
   });
 
-  it("a writer error whose cleanup also failed says a temporary file may remain beside the destination", async () => {
-    // The shape `report_package_save.rs`'s writer-error test serializes.
+  it("a writer error whose cleanup also failed says only that the selected file was not saved and a temporary file may remain", async () => {
+    // The shape `report_package_save.rs`'s writer-error test serializes: the temporary file may
+    // hold the whole package with its record, so nothing is said of a user release.
     const error = {
       code: "REPORT-PACKAGE-RENAME-FAILED", stage: "rename", message: "Invented rename failure.", os_error_kind: "Other", os_error_code: null,
       cleanup_code: "REPORT-PACKAGE-TEMP-CLEANUP-FAILED", cleanup_message: "Invented cleanup failure.", selected_basename: "invented.opsproj",
       path_containment: "best_effort_non_adversarial", limitation: "Invented limitation.", diagnostics: []
     };
     const { result: hook } = await sessionAnswering(async () => { throw error; });
-    expect(diagnostic(await confirmOneSave(hook))).toBe(
-      `${NOT_WRITTEN} A temporary file may remain beside the destination. ${JSON.stringify(error)}`
-    );
+    const text = diagnostic(await confirmOneSave(hook));
+    expect(text).toBe(`${TEMP_MAY_REMAIN} ${JSON.stringify(error)}`);
+    expect(text).not.toContain("no user release");
+    expect(text).not.toContain("Not saved: no shareable");
+  });
+
+  it("arguments that cannot be encoded leave before nothing is sent: nothing was written", async () => {
+    preparation.change = (prepared) => prepared.prepared.route !== "ready" ? prepared
+      : { ...prepared, prepared: { ...prepared.prepared, args: { ...prepared.prepared.args, poison: BigInt(1) } as never } };
+    const { result: hook } = await solvedSession();
+    const text = diagnostic(await confirmOneSave(hook, 0));
+    expect(text.startsWith(`${NOT_WRITTEN} `)).toBe(true);
+    expect(text).not.toContain(UNKNOWN);
+  });
+
+  it("a refusal returned by the preparation says nothing was written, before its diagnostic", async () => {
+    const refusal = "REPORT-PACKAGE-REDACTION-BLOCKED: 1 finding(s) prevent a shareable package.";
+    preparation.change = (prepared) => ({ ...prepared, prepared: { route: "redaction_blocked", diagnostic: refusal } });
+    const { result: hook } = await solvedSession();
+    expect(diagnostic(await confirmOneSave(hook, 0))).toBe(`${NOT_WRITTEN} ${refusal}`);
   });
 
   it.each([
@@ -217,5 +270,71 @@ describe("What a shareable save that writes nothing says (REQ-019, AC-010)", () 
     act(() => hook.current.results.userReleaseRequest!.cancel());
     expect(hook.current.results.reportPackageRoute).toBeNull();
     expect(saveCalls()).toHaveLength(1);
+  });
+});
+
+// DEL-08-01 REQ-019 "Selection", AC-010: nothing of a user release stays in the session outside
+// the report and its package, whatever the save's ending.
+describe("No user release record stays in the session after a shareable save (REQ-019)", () => {
+  /** A shareable save answered by `answer` (and its preparation changed by `change`), whose
+   * screened request is checked to hold the record, so the search below is shown to find it. */
+  async function endedSave(answer: () => Promise<unknown>, change: ((prepared: Preparation) => Preparation) | null = null) {
+    let screened: unknown = null;
+    preparation.change = (prepared) => { screened = prepared.controlled.payload; return change ? change(prepared) : prepared; };
+    const rendered = await solvedSession();
+    const passThrough = invokeMock.getMockImplementation()!;
+    invokeMock.mockImplementation(async (command: string, args?: unknown, options?: unknown) =>
+      command === "save_report_package" ? answer() : passThrough(command, args, options));
+    const hook = rendered.result;
+    await act(async () => { await hook.current.results.requestSaveShareableReportPackage(); });
+    await act(async () => { hook.current.results.userReleaseRequest!.save({ userReleasedAt: USER_RELEASED_AT }); });
+    await waitFor(() => expect(hook.current.results.reportPackageRoute).not.toBeNull());
+    await waitFor(() => expect(hook.current.results.reportPackageBusy).toBe(false));
+    expect(holdsUserReleaseRecord(screened), "the screened request holds the record").toBe(true);
+    return hook;
+  }
+
+  function expectNoRecord(hook: { current: ReturnType<typeof useWorkspaceSession> }) {
+    expect(hook.current.results.reportPackageRedaction).toBeNull();
+    expect(hook.current.results.userReleaseRequest).toBeNull();
+    expect(holdsUserReleaseRecord(hook.current), "a user release record in the session's state").toBe(false);
+  }
+
+  it("after a cancelled chooser", async () => {
+    const cancelled = { ...RECEIPT, outcome: "cancelled", code: "REPORT-PACKAGE-SAVE-CANCELLED", user_release_recorded: false, user_release_model_document_sha256: "" };
+    expectNoRecord(await endedSave(async () => cancelled));
+  });
+
+  it("after a refusal returned by the preparation", async () => {
+    const hook = await endedSave(async () => RECEIPT, (prepared) => ({ ...prepared, prepared: { route: "redaction_blocked", diagnostic: "REPORT-PACKAGE-REDACTION-BLOCKED: invented." } }));
+    expect(saveCalls()).toHaveLength(0);
+    expectNoRecord(hook);
+  });
+
+  it("after a coded refusal of the native save", async () => {
+    expectNoRecord(await endedSave(async () => { throw { code: "REPORT-PACKAGE-SAVE-MODEL-UNBOUND", stage: "admit", message: "Invented refusal.", diagnostics: [] }; }));
+  });
+
+  it("after a thrown failure", async () => {
+    expectNoRecord(await endedSave(async () => { throw "invented unreadable failure"; }));
+  });
+
+  it("after a save, the receipt is all that stays", async () => {
+    const hook = await endedSave(async () => RECEIPT);
+    expect(hook.current.results.reportPackageRoute).toEqual({ route: "tauri_report_package_save", receipt: RECEIPT });
+    expectNoRecord(hook);
+  });
+
+  it("opening the dialog clears an earlier local-private save's screened request and status", async () => {
+    const { result: hook } = await solvedSession();
+    act(() => hook.current.results.setReportPackagePrivateIntent(true));
+    await act(async () => { await hook.current.results.handleSaveReportPackage(); });
+    await waitFor(() => expect(hook.current.results.reportPackageRoute).not.toBeNull());
+    expect(hook.current.results.reportPackageRedaction).not.toBeNull();
+    await act(async () => { await hook.current.results.requestSaveShareableReportPackage(); });
+    expect(hook.current.results.reportPackageRedaction).toBeNull();
+    expect(hook.current.results.reportPackageRoute).toBeNull();
+    act(() => hook.current.results.userReleaseRequest!.cancel());
+    expect(hook.current.results.reportPackageRedaction).toBeNull();
   });
 });

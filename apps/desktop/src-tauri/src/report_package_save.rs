@@ -2735,12 +2735,13 @@ mod tests {
         assert_eq!((receipt.user_release_recorded, receipt.user_release_model_document_sha256.as_str()), (true, bound.as_str()));
     }
 
-    /// A writer error whose temporary-file cleanup also failed reaches the
-    /// webview, on both routes, with the destination unwritten and the
-    /// cleanup failure's code, which the session reads to say that a
-    /// temporary file may remain beside the destination. The error names no
-    /// temporary file: the writer's random temporary name is not one of its
-    /// members.
+    /// A writer error whose temporary-file cleanup also failed: the selected
+    /// file is not written, the temporary file beside it remains and holds the
+    /// complete package bytes, and the error reaches the webview, on both
+    /// routes, with the cleanup failure's code, which the session reads to say
+    /// that a temporary file may remain beside the selected file. The error
+    /// names no temporary file: the writer's random temporary name is not one
+    /// of its members.
     #[test]
     fn a_writer_error_with_a_failed_cleanup_carries_its_cleanup_code() {
         use crate::atomic_report_package_save::{atomic_save_bytes_as_with_io, AtomicSaveIo, REPORT_PACKAGE_FORMAT};
@@ -2760,27 +2761,32 @@ mod tests {
             fn rename(&mut self, _: &Path, _: &Path) -> io::Result<()> {
                 Err(io::Error::other("injected rename failure"))
             }
-            // Removed, so the sandbox is left clean, and then reported as failed.
-            fn cleanup_temp(&mut self, temp_path: &Path) -> io::Result<()> {
-                fs::remove_file(temp_path)?;
+            // The temporary file is left in place, as a cleanup that really failed leaves it.
+            fn cleanup_temp(&mut self, _: &Path) -> io::Result<()> {
                 Err(io::Error::other("injected cleanup failure"))
             }
         }
-        let root = sandbox("writer-cleanup-failed");
-        let destination = root.join("chosen.opsproj");
-        let failed = || {
-            ReportPackageSaveCommandError::from(atomic_save_bytes_as_with_io(&REPORT_PACKAGE_FORMAT, &destination, b"invented", &mut RenameAndCleanupFail).unwrap_err())
-        };
-        for (route, error) in [("009", failed()), ("010", bound_route_010_refusal(failed()))] {
+        let bytes = b"invented complete package bytes";
+        for route in ["009", "010"] {
+            let root = sandbox(&format!("writer-cleanup-failed-{route}"));
+            let destination = root.join("chosen.opsproj");
+            let error = ReportPackageSaveCommandError::from(
+                atomic_save_bytes_as_with_io(&REPORT_PACKAGE_FORMAT, &destination, bytes, &mut RenameAndCleanupFail).unwrap_err(),
+            );
+            let error = if route == "010" { bound_route_010_refusal(error) } else { error };
+            assert!(!destination.exists(), "{route}");
+            let left: Vec<String> = fs::read_dir(&root).unwrap().map(|entry| entry.unwrap().file_name().into_string().unwrap()).collect();
+            assert_eq!(left.len(), 1, "{route}: {left:?}");
+            let temp = &left[0];
+            assert!(temp.starts_with(REPORT_PACKAGE_FORMAT.temp_prefix) && temp.ends_with(".tmp"), "{route}: {temp}");
+            assert_eq!(fs::read(root.join(temp)).unwrap(), bytes, "{route}: the temporary file holds the complete bytes");
             let sent = serde_json::to_value(&error).unwrap();
             assert_eq!(sent["code"], "REPORT-PACKAGE-RENAME-FAILED", "{route}");
             assert_eq!(sent["stage"], "rename", "{route}");
             assert_eq!(sent["cleanup_code"], "REPORT-PACKAGE-TEMP-CLEANUP-FAILED", "{route}");
             assert_eq!(sent["selected_basename"], "chosen.opsproj", "{route}");
-            assert!(!sent.to_string().contains(REPORT_PACKAGE_FORMAT.temp_prefix), "{route}: {sent}");
+            assert!(!sent.to_string().contains(temp.as_str()) && !sent.to_string().contains(REPORT_PACKAGE_FORMAT.temp_prefix), "{route}: {sent}");
+            fs::remove_dir_all(root).unwrap();
         }
-        assert!(!destination.exists());
-        assert_eq!(fs::read_dir(&root).unwrap().count(), 0);
-        fs::remove_dir_all(root).unwrap();
     }
 }
