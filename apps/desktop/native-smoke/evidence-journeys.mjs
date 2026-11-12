@@ -316,7 +316,7 @@ async function launch(where, plan, whileRunning = null, waitLimitMs = RECORD_WAI
         const pid = launchedPid(execFileSync("/bin/ps", ["-axo", "pid=,command="], { encoding: "utf8" }), binary);
         const at = Date.now();
         if (pid !== null) process.kill(pid, "SIGKILL");
-        ended = { value, pid, at };
+        ended = { value, pid, at, load: os.loadavg() };
         break;
       }
       if (Date.now() - started > waitLimitMs) {
@@ -543,10 +543,14 @@ async function autosaveJourney() {
       y(recordDocument, EDIT.node) !== undefined && y(recordDocument, EDIT.node) !== editedNode.position.y && y(recordDocument, SECOND_EDIT.node) === secondNode.position.y,
       { [EDIT.node]: y(recordDocument, EDIT.node), [SECOND_EDIT.node]: y(recordDocument, SECOND_EDIT.node) });
     check("the first edit's record was on disk before the second edit began", judged.written_unix_millis !== null && judged.written_unix_millis < second.started_at, { written: judged.written_unix_millis, second_started: second.started_at });
+    // A record of the second edit here means the second edit landed after the next tick: a timing
+    // failure on a loaded host (the record's age and the load at the end say so), not a product failure.
     check("at the end no record of the second edit exists: every record on disk holds the first edit's model",
-      at.names.length > 0 && at.names.every((name) => parseAutosaveName(name).model_hash === judged.model_hash), at.names);
+      at.names.length > 0 && at.names.every((name) => parseAutosaveName(name).model_hash === judged.model_hash),
+      { records: at.names, first_record_age_at_end_ms: judged.age_at_end_ms, load_at_end: ended.load?.map((value) => Number(value.toFixed(2))) });
     check(`the end came before the next interval: the first edit's record no more than one interval (${intervalMs} ms) old`, judged.within_one_interval && judged.after_the_edit, { age_at_end_ms: judged.age_at_end_ms });
-    check(`the work lost (the second edit) spans less than one interval: ${intervalMs} ms`, ended.at - second.at < intervalMs && ended.at >= second.at, { second_edit_at: second.at, ended_at: ended.at, lost_span_ms: ended.at - second.at });
+    check(`the work lost (the second edit) spans less than one interval: ${intervalMs} ms`, ended.at - second.at < intervalMs && ended.at >= second.at,
+      { second_edit_at: second.at, ended_at: ended.at, lost_span_ms: ended.at - second.at, load_at_end: ended.load?.map((value) => Number(value.toFixed(2))) });
     const after = existsSync(path.join(autosaveDir, record.name)) ? readFileSync(path.join(autosaveDir, record.name)) : null;
     check("after the end the first edit's record is on disk unchanged", after && Buffer.compare(after, record.bytes) === 0, record.name);
   } else {
