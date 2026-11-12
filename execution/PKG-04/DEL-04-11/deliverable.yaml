@@ -141,7 +141,7 @@ code_paths:
 - apps/desktop/src/services/hangerSizingService*
 - apps/desktop/src/features/hanger-sizing/**
 - apps/desktop/src/features/hanger-selection/hangerSelection.ts
-- apps/desktop/src/features/workspace/batchPrecondition.session.test.tsx
+- apps/desktop/src/features/workspace/batchPrecondition.*.test.ts*
 - apps/desktop/src/features/hanger-selection/hangerSelection.*.test.ts*
 - apps/desktop/src/App.hangerSizing*.test.tsx
 checks:
@@ -154,5 +154,5 @@ checks:
 - apps/desktop/src/services/hangerSizingService.test.ts
 - apps/desktop/src/features/hanger-sizing/*.test.ts*
 - apps/desktop/src/features/hanger-selection/hangerSelection.*.test.ts*
-- apps/desktop/src/features/workspace/batchPrecondition.session.test.tsx
+- apps/desktop/src/features/workspace/batchPrecondition.*.test.ts*
 - apps/desktop/src/App.hangerSizing*.test.tsx
