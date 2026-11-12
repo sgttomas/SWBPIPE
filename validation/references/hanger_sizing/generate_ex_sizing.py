@@ -729,6 +729,41 @@ def fd(d):
 
 # ---------------------------------------------------------------- emit
 
+NULL_RULE = ('In an expected block, a null or an absent member means that this reference supplies no expectation for that quantity; a product comparison must not assert that the product publishes nothing there. The exceptions, where a null or an empty list is itself the expectation, are listed in comparison_semantics.')
+
+GOVERNING_NOTE = ('governing_variation records the value used to compare fitting records under REQ-004. It does not require publication of a product member with this name or value. Product comparisons may derive it from the per-case variations; constants count as zero for selection.')
+
+SEMANTICS = {
+    "general": NULL_RULE,
+    "no_expectation": [
+        "A constant selection's f_cold_condition_n, f_operating_n, variation "
+        "and envelope_n, and in its verification f_cold_condition_n, "
+        "f_operating_n, variation and departure_n: the scope defines these "
+        "for a variable selection only (REQ-004 Loads and Variation, REQ-005 "
+        "Variable selections). Its governing variation, which REQ-004 does "
+        "define, is given in governing_variation. " + GOVERNING_NOTE,
+        "An unfitted candidate's loads, variation, envelope and verification "
+        "(see unfitted_verification_note).",
+        "failure_counts and first_failed_test of a family the request does "
+        "not test (absent members).",
+    ],
+    "expected_null_or_empty": [
+        "hanger_id null with outcome no_record_fits: no record is selected and "
+        "nothing is assumed in its place (REQ-004).",
+        "verification.failed_tests []: the verified values fail no fit test, "
+        "so nothing is warned (REQ-005).",
+        "unfitted_verified_as_force_w []: no candidate is unfitted; the "
+        "standing is unconditional (REQ-005).",
+    ],
+    "inputs_not_expectations": [
+        "Nulls and empty lists outside expected blocks describe the document "
+        "and catalogue: a record member that is absent (stiffness and its DOF "
+        "of a constant record, VS-NR's working load range), no imposed "
+        "displacement, no excluded stored load, and no internal pressure on "
+        "the riser.",
+    ],
+}
+
 BASIS = (
     "Independent reference for DEL-04-11 hanger sizing on documents that carry "
     "internal pressure, a per-case ledger of stored loads and per-support, "
@@ -757,7 +792,7 @@ BASIS = (
     "also unchanged when each input is replaced by the exact value of its "
     "binary64. Every value is invented; no supplier catalogue or standards "
     "data is used. See README.md for the derivations, the pressure-"
-    "independence argument and the readings taken.")
+    "independence argument and the readings taken. " + NULL_RULE)
 
 SUPPORTS_A = [
     {"id": "S-1", "node": "N1", "kind": "rigid", "dofs": ["UZ"], "candidate": False},
@@ -851,6 +886,9 @@ def run_out(run, desc, design, further, ops):
             "span_m": [f(c["span"][0]), f(c["span"][1])],
             "required_travel_m": f(c["req"]),
             "envelope_n": [f(qn["env"][0]), f(qn["env"][1])] if var else None,
+            "governing_variation": (
+                None if rec is None else
+                f(max(qn["var"].values())) if var else 0.0),
             "failure_counts": c["counts"],
             "first_failed_test": c["per"],
             "verification": None,
@@ -914,8 +952,10 @@ RUN_DESC = {
         "fails T in the verification."),
     "A-NOFIT": (
         "As A-HOT with H-5 under the variable policy: no variable record fits H-5 "
-        "(L, and V for VS-V), so H-5 is 'no record fits', has no verification "
-        "block, and is verified as a force W; the standing is conditional. H-3's "
+        "(L, and V for VS-V), so H-5 is 'no record fits'. This reference supplies "
+        "no verification expectation for H-5 (see unfitted_verification_note); "
+        "the verification pass takes it as a force W, and the standing is "
+        "conditional. H-3's "
         "verified values equal A-HOT's, because both runs verify H-5 as a force W."),
     "B-COLD": (
         "Riser, cold design, design-load variation (reference W), limit 0.3, "
@@ -994,7 +1034,8 @@ def emit(res):
             "runs": [run_out(r, RUN_DESC[r["id"]], "O1", ["O2"], ["O1", "O2"])
                      for r in runs],
         })
-    return {"schema": SCHEMA, "basis": BASIS, "models": models}
+    return {"schema": SCHEMA, "basis": BASIS, "comparison_semantics": SEMANTICS,
+            "models": models}
 
 
 def stated_checks(res):

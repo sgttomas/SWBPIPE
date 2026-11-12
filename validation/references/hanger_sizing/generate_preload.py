@@ -286,6 +286,25 @@ def evaluate(model, inp):
 
 # ---------------------------------------------------------------- emit
 
+NULL_RULE = ('In an expected block, a null or an absent member means that this reference supplies no expectation for that quantity; a product comparison must not assert that the product publishes nothing there. The exceptions, where a null or an empty list is itself the expectation, are listed in comparison_semantics.')
+
+SEMANTICS = {
+    "general": NULL_RULE,
+    "expected_null_or_empty": [
+        "published_applied_force_n null for a held spring (PA-HT): the held "
+        "spring publishes no applied force, for the reason in "
+        "applied_force_null_reason (DEL-04-11 REQ-014; DEL-05-01 held "
+        "support). That absence is expected.",
+        "applied_force_null_reason {}: no hanger in the case has a null "
+        "applied force. It explains the rows and is not a product quantity.",
+    ],
+    "inputs_not_expectations": [
+        "test_condition null (no test condition), includes [] (the case "
+        "includes no stored load) and spring_base_displacements [] (no base "
+        "moves) describe the document.",
+    ],
+}
+
 BASIS = (
     "Independent reference for the variable spring preload (DEL-04-03 REQ-014 and "
     "AC-009; DEL-04-11 REQ-014 and AC-014). A variable spring hanger is a spring "
@@ -311,7 +330,7 @@ BASIS = (
     "span lifted); emitted values are not compared there, and a few move by "
     "one unit in the last place. "
     "Each closed form agrees exactly with an exact-rational stiffness solve. "
-    "Every value is invented. See README.md for the derivations.")
+    "Every value is invented. See README.md for the derivations. " + NULL_RULE)
 
 DESC = {
     "P-A": (
@@ -325,7 +344,8 @@ DESC = {
         "x <= a (symmetric); u_3 = (sum_j f(4, x_j) F_j + f(4, 4)(F_cold + k g)) / "
         "(1 + k f(4, 4)); spring force F_cold - k (u_3 - g); end reactions by "
         "statics. Held: two 4 m spans, three-moment M_B = -3 L (P1 + P2)/32, "
-        "R_S1 = R_S5 = P/2 + M_B/L, R_SH3 = (P1 + P2)/2 - 2 M_B/L, with P1 and P2 "
+        "R_S1 = P1/2 + M_B/L, R_S5 = P2/2 + M_B/L, R_SH3 = (P1 + P2)/2 - 2 M_B/L, "
+        "with P1 and P2 "
         "the downward loads at N2 and N4."),
     "P-B": (
         "Two spring hangers on one span. Nodes N1..N7 at x = 0, 2, ..., 12 m; S-1 "
@@ -450,7 +470,8 @@ def emit(res):
                                                           for k, v in diff_f.items()},
         "equals_case": "PA-EMPTY",
     }
-    return {"schema": SCHEMA, "basis": BASIS, "models": models, "superposition": sup}
+    return {"schema": SCHEMA, "basis": BASIS, "comparison_semantics": SEMANTICS,
+            "models": models, "superposition": sup}
 
 
 def compute(inp):

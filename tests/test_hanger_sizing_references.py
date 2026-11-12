@@ -15,12 +15,14 @@ GENERATORS = ["generate_r3.py", "generate_r125.py", "generate_ex_sizing.py", "ge
 PRODUCT_ROOTS = {"core", "apps", "tests", "tools", "fixtures", "schemas"}
 
 
-def _names_product_path(text):
-    """Whether a string literal is path-like (no whitespace) and has a product root as one of its segments, on
-    either separator: `core/x.py`, `../core/x.py`, an absolute path through a root, and the bare `core` of
-    `Path("core") / "x.py"`. Prose, which has spaces, may name the roots a generator does not read. A path built
-    to hide its segments is outside what this scan is for."""
-    return bool(text) and not re.search(r"\s", text) and bool(PRODUCT_ROOTS & set(re.split(r"[\\/]+", text)))
+def _names_product_path(literal):
+    """Whether a string or bytes literal has a product root as one of its path segments, on either separator:
+    `core/x.py`, `../core/x.py`, `core/my file.py`, an absolute path through a root, `b"core/x.py"`, and the bare
+    `core` of `Path("core") / "x.py"`. A segment must be the root's name exactly, so prose that mentions a root
+    inside a sentence is not a path; prose that begins with a root and a separator is flagged and is reworded. A
+    path built to hide its segments is outside what this scan is for."""
+    text = literal.decode("latin-1") if isinstance(literal, bytes) else literal
+    return bool(PRODUCT_ROOTS & set(re.split(r"[\\/]+", text)))
 
 
 @pytest.mark.parametrize("generator", GENERATORS)
@@ -46,15 +48,18 @@ def test_hanger_sizing_reference_generator_imports_no_product_code(generator):
             name = getattr(node.func, "id", getattr(node.func, "attr", ""))
             assert name not in {"__import__", "import_module", "exec", "eval", "spec_from_file_location"}, \
                 f"{generator} loads code dynamically ({name})"
-        elif isinstance(node, ast.Constant) and isinstance(node.value, str):
-            assert not _names_product_path(node.value), f"{generator} names a product path: {node.value}"
+        elif isinstance(node, ast.Constant) and isinstance(node.value, (str, bytes)):
+            assert not _names_product_path(node.value), f"{generator} names a product path: {node.value!r}"
     assert imported <= set(sys.stdlib_module_names), f"{generator} imports outside the standard library: {imported}"
 
 
 @pytest.mark.parametrize("literal,named", [
     ("core/analysis/x.py", True), ("../core/x.py", True), ("core", True), ("/abs/repo/fixtures/results/a.json", True),
-    ("apps\\desktop\\x.ts", True), ("ex_sizing.json", False), ("validation/references/hanger_sizing", False),
-    ("reads no product code (core/, apps/, tests/)", False), ("score/card", False), ("", False),
+    ("apps\\desktop\\x.ts", True), ("core/my file.py", True), ("/Users/someone/My Project/core/x.py", True),
+    (b"core/x.py", True), (b"../schemas/model.schema.yaml", True),
+    ("ex_sizing.json", False), ("validation/references/hanger_sizing", False),
+    ("reads no product code (core/, apps/, tests/)", False), ("nothing under core/ is read", False),
+    ("score/card", False), (b"ex_sizing.json", False), ("", False),
 ])
 def test_the_product_path_scan_recognizes_ordinary_path_literals(literal, named):
     assert _names_product_path(literal) is named

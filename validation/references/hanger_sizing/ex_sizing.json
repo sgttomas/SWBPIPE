@@ -1,6 +1,22 @@
 {
   "schema": "swbpipe.hanger_sizing_reference.ex_sizing/1",
-  "basis": "Independent reference for DEL-04-11 hanger sizing on documents that carry internal pressure, a per-case ledger of stored loads and per-support, per-case states (CLM-001, REQ-002 to REQ-005, REQ-010), plus one free riser on a document with no pressurised region. Classical Euler-Bernoulli beam theory with axial deformation, shear deformation neglected, small displacements, straight circular tubes of one uniform section: d = D - 2t, A = pi (D^2 - d^2)/4, I = pi (D^4 - d^4)/64. Global Z is vertical, positive up. SI units (m, N, Pa, N/m, 1/K); temperatures in degC, temperature changes in K. Every load is a stored nodal force along Z (no self-weight, no contents weight and no line load is generated); a case includes stored loads by id at a stated factor and excludes every other. A candidate acts on UZ only and its force acts along +Z. Every position is the UZ displacement from the drawn geometry, the installed position. A variable spring set to F_cold carries F_cold - k u. Solves: weight_rigid is the weight case with every candidate a rigid UZ restraint (W is its reaction); each force solve is a case with every candidate removed and replaced by a force W along +Z, entered in that case's ledger at factor 1; each verification solve replaces each selected variable record by a spring of its rate plus a force F_cold, and each constant selection and each unfitted candidate by a force W. Exact quantities (fractions.Fraction) are emitted rounded to the nearest binary64. Quantities that involve E I or E A contain pi; they are evaluated exactly at rational lower and upper bounds of pi (Machin's formula, 120 digits) and every emitted binary64 and every discrete outcome agrees at both bounds. Every discrete outcome is also unchanged when each input is replaced by the exact value of its binary64. Every value is invented; no supplier catalogue or standards data is used. See README.md for the derivations, the pressure-independence argument and the readings taken.",
+  "basis": "Independent reference for DEL-04-11 hanger sizing on documents that carry internal pressure, a per-case ledger of stored loads and per-support, per-case states (CLM-001, REQ-002 to REQ-005, REQ-010), plus one free riser on a document with no pressurised region. Classical Euler-Bernoulli beam theory with axial deformation, shear deformation neglected, small displacements, straight circular tubes of one uniform section: d = D - 2t, A = pi (D^2 - d^2)/4, I = pi (D^4 - d^4)/64. Global Z is vertical, positive up. SI units (m, N, Pa, N/m, 1/K); temperatures in degC, temperature changes in K. Every load is a stored nodal force along Z (no self-weight, no contents weight and no line load is generated); a case includes stored loads by id at a stated factor and excludes every other. A candidate acts on UZ only and its force acts along +Z. Every position is the UZ displacement from the drawn geometry, the installed position. A variable spring set to F_cold carries F_cold - k u. Solves: weight_rigid is the weight case with every candidate a rigid UZ restraint (W is its reaction); each force solve is a case with every candidate removed and replaced by a force W along +Z, entered in that case's ledger at factor 1; each verification solve replaces each selected variable record by a spring of its rate plus a force F_cold, and each constant selection and each unfitted candidate by a force W. Exact quantities (fractions.Fraction) are emitted rounded to the nearest binary64. Quantities that involve E I or E A contain pi; they are evaluated exactly at rational lower and upper bounds of pi (Machin's formula, 120 digits) and every emitted binary64 and every discrete outcome agrees at both bounds. Every discrete outcome is also unchanged when each input is replaced by the exact value of its binary64. Every value is invented; no supplier catalogue or standards data is used. See README.md for the derivations, the pressure-independence argument and the readings taken. In an expected block, a null or an absent member means that this reference supplies no expectation for that quantity; a product comparison must not assert that the product publishes nothing there. The exceptions, where a null or an empty list is itself the expectation, are listed in comparison_semantics.",
+  "comparison_semantics": {
+    "general": "In an expected block, a null or an absent member means that this reference supplies no expectation for that quantity; a product comparison must not assert that the product publishes nothing there. The exceptions, where a null or an empty list is itself the expectation, are listed in comparison_semantics.",
+    "no_expectation": [
+      "A constant selection's f_cold_condition_n, f_operating_n, variation and envelope_n, and in its verification f_cold_condition_n, f_operating_n, variation and departure_n: the scope defines these for a variable selection only (REQ-004 Loads and Variation, REQ-005 Variable selections). Its governing variation, which REQ-004 does define, is given in governing_variation. governing_variation records the value used to compare fitting records under REQ-004. It does not require publication of a product member with this name or value. Product comparisons may derive it from the per-case variations; constants count as zero for selection.",
+      "An unfitted candidate's loads, variation, envelope and verification (see unfitted_verification_note).",
+      "failure_counts and first_failed_test of a family the request does not test (absent members)."
+    ],
+    "expected_null_or_empty": [
+      "hanger_id null with outcome no_record_fits: no record is selected and nothing is assumed in its place (REQ-004).",
+      "verification.failed_tests []: the verified values fail no fit test, so nothing is warned (REQ-005).",
+      "unfitted_verified_as_force_w []: no candidate is unfitted; the standing is unconditional (REQ-005)."
+    ],
+    "inputs_not_expectations": [
+      "Nulls and empty lists outside expected blocks describe the document and catalogue: a record member that is absent (stiffness and its DOF of a constant record, VS-NR's working load range), no imposed displacement, no excluded stored load, and no internal pressure on the riser."
+    ]
+  },
   "models": [
     {
       "id": "EXS-A",
@@ -610,6 +626,7 @@
                   9565.980692898656,
                   10325.0
                 ],
+                "governing_variation": 0.031036685208817166,
                 "failure_counts": {
                   "variable": {
                     "E1": 1,
@@ -680,6 +697,7 @@
                 ],
                 "required_travel_m": 0.010409806928986557,
                 "envelope_n": null,
+                "governing_variation": 0.0,
                 "failure_counts": {
                   "constant": {
                     "E1": 0,
@@ -781,6 +799,7 @@
                   9825.0,
                   10584.019307101344
                 ],
+                "governing_variation": 0.030226700251889168,
                 "failure_counts": {
                   "variable": {
                     "E1": 1,
@@ -851,6 +870,7 @@
                 ],
                 "required_travel_m": 0.010409806928986557,
                 "envelope_n": null,
+                "governing_variation": 0.0,
                 "failure_counts": {
                   "constant": {
                     "E1": 0,
@@ -896,7 +916,7 @@
         },
         {
           "id": "A-NOFIT",
-          "description": "As A-HOT with H-5 under the variable policy: no variable record fits H-5 (L, and V for VS-V), so H-5 is 'no record fits', has no verification block, and is verified as a force W; the standing is conditional. H-3's verified values equal A-HOT's, because both runs verify H-5 as a force W.",
+          "description": "As A-HOT with H-5 under the variable policy: no variable record fits H-5 (L, and V for VS-V), so H-5 is 'no record fits'. This reference supplies no verification expectation for H-5 (see unfitted_verification_note); the verification pass takes it as a force W, and the standing is conditional. H-3's verified values equal A-HOT's, because both runs verify H-5 as a force W.",
           "request": {
             "weight_case": "W",
             "weight_support_state": "weight_case_own",
@@ -952,6 +972,7 @@
                   9565.980692898656,
                   10325.0
                 ],
+                "governing_variation": 0.031036685208817166,
                 "failure_counts": {
                   "variable": {
                     "E1": 1,
@@ -1022,6 +1043,7 @@
                 ],
                 "required_travel_m": 0.010409806928986557,
                 "envelope_n": null,
+                "governing_variation": null,
                 "failure_counts": {
                   "variable": {
                     "E1": 1,
@@ -1373,6 +1395,7 @@
                   9460.0,
                   11340.0
                 ],
+                "governing_variation": 0.13090909090909092,
                 "failure_counts": {
                   "variable": {
                     "E1": 0,
