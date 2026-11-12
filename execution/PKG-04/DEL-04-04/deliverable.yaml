@@ -1,123 +1,42 @@
 id: DEL-04-04
 name: Nonlinear support active-set solver
 needs:
-- from: DEL-00-01
-  condition: 'DEL-04-04 must apply the architecture decision baseline constraints injected as AB-00-01
-    before implementation execution.
-
-
-    Notes: Architecture basis is dispatchable context evidence only; PKG-00 is not treated as ISSUED by
-    this row.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-04-04 must respect repository and module boundary constraints injected as AB-00-02 before
-    implementation execution.
-
-
-    Notes: Architecture basis is dispatchable context evidence only; PKG-00 is not treated as ISSUED by
-    this row.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-04-04 result and solve execution surfaces must align with the schema-first command/query/job
-    result-envelope basis injected as AB-00-03.
-
-
-    Notes: Architecture basis is dispatchable context evidence only; PKG-00 is not treated as ISSUED by
-    this row.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=DECLARED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: architecture-basis dependency
-    normalized to CONSTRAINT from INTERFACE.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-04-04 convergence and active-set reporting must align with diagnostics and result-envelope
-    constraints injected as AB-00-06.
-
-
-    Notes: Also supported by CONTRACT OPS-K-SOLVER-2 and _CONTEXT architecture basis injection.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE; semantic_refresh_2026-06-16:
-    architecture-basis dependency normalized to CONSTRAINT from INTERFACE.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-04-04 nonlinear solver changes require deterministic verification coverage aligned with
-    AB-00-08.
-
-
-    Notes: Also supported by CONTRACT OPS-K-SOLVER-1 and Procedure verification expectations.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-04-01
+  condition: >-
+    The frame kernel provides the six degree-of-freedom identifiers Ux to Rz and the canonical
+    dimensions for displacement, force and dimensionless quantities.
   gating: true
 - from: DEL-04-03
-  condition: 'DEL-04-04 depends on DEL-04-03 because nonlinear support behavior extends support and restraint
-    mechanics defined for linear supports.
-
-
-    Notes: Conservative direct dependency retained from local guidance and DEL-04-04 behavior scope; upstream
-    satisfaction not resolved by this refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=PENDING;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The linear support model defines a rigid restraint on a named degree of freedom of a support
+    record, and a movement imposed at a nonlinear support's own degree of freedom moves that
+    support's ground (DEL-04-03/REQ-013, DEL-04-03/AC-002).
   gating: true
-- from: DEL-04-01
-  condition: 'DEL-04-04 depends on DEL-04-01 because active-set iteration is solver mechanics over the
-    global 3D centerline/frame stiffness model.
-
-
-    Notes: Conservative direct dependency retained from mechanics boundary and local guidance; upstream
-    satisfaction not resolved by this refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=PENDING;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-04-07
+  when: Examining the classifier in the assembled iteration (AC-003, AC-004, AC-009, AC-010)
+  condition: >-
+    The assembled nonlinear iteration assembles and solves each iterate, leaves the classification
+    of every iterate to this classifier, under the governed convergence tolerances and iteration
+    caps, and ends in the support states of the independent nonlinear references (DEL-04-07/CLM-002,
+    DEL-04-07/AC-002).
   gating: true
 - from: DEL-04-06
-  condition: 'DEL-04-04 depends on DEL-04-06 for convergence, active-set, and unresolved non-convergence
-    diagnostic reporting semantics.
-
-
-    Notes: Conservative direct interface dependency; upstream satisfaction not resolved by this refresh.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    DEL-04-06 provides diagnostic records (code, severity, source, affected reference,
+    remediation), classifies a residual against a caller-supplied tolerance and iteration cap as
+    no diagnostic, a warning-level non-convergence or a failure-level non-convergence, and
+    provides a record stating that a tolerance policy is undecided.
   gating: true
-- from: DEL-02-02
-  condition: 'DEL-04-04 depends on DEL-02-02 because unit-bearing nonlinear support, displacement, force,
-    and friction-related quantities must be unit-aware and dimensionally checked.
-
-
-    Notes: New TP-DAG-004 conservative extraction row; upstream satisfaction not resolved by this refresh.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
+- from: DEL-09-03
+  when: Examining classification and convergence against the hand calculations
+  condition: >-
+    The nonlinear validation suite holds the hand calculations under
+    `validation/hand_calcs/nonlinear`, which import no product code, and the governed convergence
+    limits of each support class: no support changes state in the final iteration, within the
+    iteration cap, and a case may tighten a limit and never loosen one (DEL-09-03/REQ-007,
+    DEL-09-03/AC-003, DEL-09-03/AC-004).
+  gating: false
 code_paths:
 - core/solver/nonlinear_supports/**
-- tools/validation/validate_dependencies_schema.py
 checks:
 - core/solver/nonlinear_supports/src/lib.rs

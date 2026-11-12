@@ -87,7 +87,10 @@ jobs:
     if: needs.selection.outputs.mode == 'full'
     # Playwright 1.60.0 supports Ubuntu 24.04; ubuntu-latest may select 26.04.
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    # 90 min (was 45; SWBPIPE Agent 0, 2026-11-10): the longest successful pull-request job in the
+    # last 45 harness runs took 25.1 min, but a full run adds every spec group, which is unmeasured.
+    # A CI execution allowance only, not a performance bound; it narrows no coverage.
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
         with:
@@ -169,7 +172,9 @@ jobs:
     if: needs.selection.outputs.desktop_mode == 'full'
     # Playwright 1.60.0 supports Ubuntu 24.04; ubuntu-latest may select 26.04.
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    # 90 min (was 45; SWBPIPE Agent 0, 2026-11-10): longest successful job 29.2 min in the last 45
+    # harness runs. A CI execution allowance only, not a performance bound.
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
@@ -292,8 +297,10 @@ jobs:
     # 45 min (was 30; SWBPIPE Agent 0, 2026-11-05): with C1 native custody the full lib suite
     # measured 2m11s build + 1597.57 s tests (job 29m46s, run 42084700335 attempt 2) and was
     # cancelled at 30 min (runs 42084700335 attempt 1, 42115502756, 42124260600) after
-    # coverage-preserving test-cost cuts. A CI execution allowance only, not a performance bound.
-    timeout-minutes: 45
+    # coverage-preserving test-cost cuts. 90 min (was 45; SWBPIPE Agent 0, 2026-11-10): the longest
+    # successful job in the last 45 harness runs took 38.9 min, too close to 45 for a full run of
+    # main. A CI execution allowance only, not a performance bound.
+    timeout-minutes: 90
     env:
       CARGO_INCREMENTAL: '0'
     steps:
@@ -480,7 +487,9 @@ jobs:
     if: github.event_name != 'pull_request' && github.event_name != 'merge_group' && needs.selection.outputs.mode == 'full'
     # Playwright 1.60.0 supports Ubuntu 24.04; ubuntu-latest may select 26.04.
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    # 90 min (was 45; SWBPIPE Agent 0, 2026-11-10): the matrix never runs on pull requests, so its
+    # time is unmeasured. A CI execution allowance only, not a performance bound.
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:

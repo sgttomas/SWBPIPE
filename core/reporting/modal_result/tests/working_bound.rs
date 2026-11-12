@@ -1,4 +1,4 @@
-//! DEL-04-09 (Design §5.3.8, "Readers"): the modal reader's working-memory
+//! DEL-04-09: the modal reader's working-memory
 //! bound, [`modal_reader_working_bound`], against a measurement. A counting
 //! global allocator records, on the reading thread only, the live requested
 //! bytes and the live bytes priced by the allocation envelope

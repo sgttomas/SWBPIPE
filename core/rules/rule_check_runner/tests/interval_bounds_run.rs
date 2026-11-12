@@ -1,4 +1,4 @@
-//! Interval binding through the runner (T3 D2 §4.11, option C): verified
+//! Interval binding through the runner: verified
 //! absolute bounds on solver results, the three-valued outcome with its codes,
 //! outward unit normalization, and the unchanged point path when no interval
 //! input is bound. All packs and values are invented demonstration content;
@@ -155,7 +155,7 @@ fn input<'a>(
 }
 
 /// The outcome of `check_id` on the pack's one basis: outcome identity is
-/// (check, basis) (rule-pack format 0.5.0, DEL-06-01 Design §2.7).
+/// (check, basis) (rule-pack format 0.5.0).
 fn outcome<'a>(result: &'a RuleCheckRunResult, check_id: &str) -> &'a CheckOutcome {
     let basis = common::basis();
     let found: Vec<&CheckOutcome> = result
@@ -205,7 +205,7 @@ fn without_bounds_the_run_is_byte_identical_to_run_rule_checks() {
         let point = bytes(&run_rule_checks(&input));
         assert_eq!(bytes(&run_rule_checks_with_bounds(&input, &[])), point);
         // A bound for an input the pack does not bind, and b = 0 (the exact
-        // point q, D2 §4.11.2), leave the run unchanged too.
+        // point q), leave the run unchanged too.
         assert_eq!(
             bytes(&run_rule_checks_with_bounds(
                 &input,

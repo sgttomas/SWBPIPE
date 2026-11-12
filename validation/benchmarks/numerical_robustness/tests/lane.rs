@@ -1,4 +1,4 @@
-//! The kernel lane at CI scale (plan §5–§8, §12): every R1 case of a family
+//! The kernel lane at CI scale: every R1 case of a family
 //! with at most 100 members (and RF-MECH-LINE-IN-CHAIN1000, refused by
 //! geometry before any factor) through `solve_case`, judged by the unchanged
 //! predicate, with the report's counts pinned, zero failures, the not-covered

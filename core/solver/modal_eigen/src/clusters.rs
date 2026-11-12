@@ -76,7 +76,7 @@ pub fn cluster_ids(eigenvalues: &[f64], delta_c: f64) -> Result<Vec<usize>, Clus
     Ok(ids)
 }
 
-/// The extraction bound on the request (design §1.4): a mode count, an
+/// The extraction bound on the request: a mode count, an
 /// inclusive frequency cut-off (Hz), or both, whichever stops first.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ExtractionBound {
@@ -110,7 +110,7 @@ pub struct ReportedSet {
     pub stopped_by: StoppingBound,
 }
 
-/// The reported set (design §1.4) over the computed frequencies, ascending,
+/// The reported set over the computed frequencies, ascending,
 /// with their cluster ids from [`cluster_ids`].
 ///
 /// A mode count n reaches its bound when at least n modes were computed; a

@@ -1,4 +1,4 @@
-/** The key-results panel (survey item A6; DEL-07-05 Design `key-results-panel.md`): after a solve,
+/** The key-results panel (survey item A6): after a solve,
  * one place to put the result on screen. Each action is one button and one key, and it sets view
  * state that already exists: the viewport's result colour quantity and case, the deformation case,
  * the session's selection of a support (which the support load summary follows), a results-table

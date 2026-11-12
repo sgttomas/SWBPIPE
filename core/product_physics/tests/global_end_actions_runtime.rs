@@ -1,4 +1,4 @@
-//! W-7 (PRD FR-SOL-007; DEL-04-01 Design `global-end-actions.md`): member end
+//! W-7 (PRD FR-SOL-007): member end
 //! actions in global coordinates, through the desktop value entry
 //! `run_linear_static_preview_value_with_mode`, in both solver modes.
 //!

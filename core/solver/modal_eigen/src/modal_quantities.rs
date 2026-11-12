@@ -1,4 +1,4 @@
-//! Shape normalization and participation quantities (design §1.5, with D-v).
+//! Shape normalization and participation quantities (with D-v).
 //!
 //! A mode is published in exactly one of two normalization cases:
 //! - (a) unit maximum translation: the largest-magnitude free translational
@@ -293,7 +293,7 @@ pub struct NormalizedMode {
     /// m_eff,k / T_k; `None` (undefined) where T_k = 0.
     pub effective_mass_fraction: [Option<f64>; 3],
     /// Which published values are nonzero but below the binary64 normal
-    /// range, and so published as 0 (design §3.2, admission range).
+    /// range, and so published as 0 (admission range).
     pub below_normal_range: BelowNormalRange,
 }
 
@@ -413,7 +413,7 @@ fn normalize_mode_in(
     finish_normalization(mode, phi, basis, sum, limbs, below, Chosen { case, reference, pivot, t, theta })
 }
 
-/// R-6/R-7 (DEL-04-03 skew-restraints.md §11.3 C6): the normalization of a
+/// the normalization of a
 /// reduced (skew-coordinate) mode chosen on its lifted shape φ = Q̃φ′. The case
 /// (τ_t, M1b), the pivot and the reported magnitudes are read from `lifted`
 /// (global DOFs, node-major ux uy uz rx ry rz; ties to the lowest global
@@ -610,7 +610,7 @@ fn finish_normalization(
     let mut effective_mass = [0.0; 3];
     let mut effective_mass_fraction = [None; 3];
     for k in 0..3 {
-        // Published (design §3.2, admission range): an overflow or NaN
+        // Published (admission range): an overflow or NaN
         // refuses; a nonzero value below the normal range is 0, flagged.
         let published = |name: &'static str, value: WideDd| {
             value

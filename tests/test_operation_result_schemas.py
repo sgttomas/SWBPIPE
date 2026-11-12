@@ -190,7 +190,7 @@ def test_rule_check_run_result_closed_vocabularies():
     # computed_value / limit_value are serde-skipped when absent — never required.
     assert "computed_value" not in outcome["required"]
     assert "limit_value" not in outcome["required"]
-    # Rule-pack format 0.5.0 (DEL-06-01 Design rule-pack-0.5.0.md §2.7): one
+    # Rule-pack format 0.5.0: one
     # outcome per check and basis, each naming its category and basis.
     assert {"category_ref", "basis_ref"} <= set(outcome["required"])
     basis = schema["$defs"]["BasisRef"]

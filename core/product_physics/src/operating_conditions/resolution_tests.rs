@@ -1,4 +1,4 @@
-//! S2 unit tests (DEL-02-01 Work `model-document-0.9.0.md` §1.5, §1.5.1, §1.8):
+//! S2 unit tests:
 //! E3 against the independent reference table, E1 (the lowered typed model
 //! equals the decoded independent twin), the plan's non-mutation, and the
 //! multisets G-1 will read after the lowering (E7's precondition).

@@ -1,4 +1,4 @@
-"""The MBF importer against its committed parity vectors (DEL-17-04 Design `desktop-mbf-export-import.md` §2, §6 slice 3).
+"""The MBF importer against its committed parity vectors.
 
 `fixtures/caepipe_mbf/invented/parity/import_vectors.json` records what `core/handoff/caepipe_mbf/importer.py` returns
 for every call its own test suites make, for the committed invented MBF corpus and for two coverage inputs (written by

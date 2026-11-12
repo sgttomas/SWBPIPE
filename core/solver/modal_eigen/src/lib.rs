@@ -1,7 +1,7 @@
 //! Code-neutral in-repo dense eigen core for F1 modal analysis.
 //!
-//! This crate implements the dense path of DEL-04-09's governing design
-//! (`execution/PKG-04/DEL-04-09/Work/modal-analysis.md`): §3.2 (Cholesky
+//! This crate implements the dense path of DEL-04-09's design,
+//! by its section labels: §3.2 (Cholesky
 //! reduction, Householder tridiagonalization, implicit QL), the cluster
 //! definition of §3.4 check 5 with the reported-set rule of §1.4, the two
 //! shape normalizations and the participation quantities of §1.5, the

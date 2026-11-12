@@ -1,4 +1,4 @@
-//! T4-U5b (DEL-04-07 Design `u4b-u5b-implementation.md` §3, §7 items 4 and 6):
+//! T4-U5b:
 //! the integrated tie-rod producer.
 //!
 //! - Every §3.1 refusal through the public entry, by name, with
@@ -96,7 +96,7 @@ fn is_rod_reference(primitive: &LoadPrimitive) -> bool {
     matches!(primitive.formula, LoadFormula::TieRodReference { .. })
 }
 
-/// K-D5 closure (§7 item 6): every rod model of t4_u5b closes with the member
+/// K-D5 closure: every rod model of t4_u5b closes with the member
 /// bound on both routes and both modes. The rods with a reference extension
 /// carry their `tie_rod_reference` summands (one per DOF, source
 /// `{len}:{connector}:{len}:{rod}`); a rod with e_ref = 0 carries none ("one ε").
@@ -184,7 +184,7 @@ fn arm(mutant: Mutant) {
     }));
 }
 
-/// K-D5 closure mutants (§7 item 6) on ER-A (two pretensioned rods, anchored,
+/// K-D5 closure mutants on ER-A (two pretensioned rods, anchored,
 /// pressurized): each fails closed on the ordinary and W2 routes in both
 /// modes with the named load-closure detail, and the manifest installed
 /// from the producer's own enumeration is unchanged by the supplied vector.
@@ -266,7 +266,7 @@ fn u5b_every_field_refusal_is_named_on_the_connector_with_no_results() {
     let solved = run(&base);
     assert_eq!(solved["status"]["mechanics"], "MECHANICS_SOLVED", "{}", solved["diagnostics"]);
     let rod = base["model"]["components"][0]["objective_connector"]["hardware"]["rods"][0].clone();
-    // JOINT_HARDWARE_LAW_UNSUPPORTED names the kind or the law (§3.1).
+    // JOINT_HARDWARE_LAW_UNSUPPORTED names the kind or the law.
     for kind in ["collective_axial_constraint_v1", "tied"] {
         assert_refused(&with_hardware(&base, json!({"kind": kind})), "JOINT_HARDWARE_LAW_UNSUPPORTED", kind, kind);
     }
@@ -323,7 +323,7 @@ fn u5b_every_field_refusal_is_named_on_the_connector_with_no_results() {
     assert_refused(&with_rod(&base, near), "JOINT_TIE_ROD_ZERO_LENGTH", "rod:yp", "degenerate length");
 }
 
-/// §3.4: a rod nearly perpendicular to the joint axis is admitted (no
+/// a rod nearly perpendicular to the joint axis is admitted (no
 /// parallelism threshold); its axial share is published and S_joint's
 /// projected term becomes small. Rods on an unpressurized connector are
 /// admitted (ruling 2) and publish s_x with Pe = 0 and no pe_x.
@@ -349,7 +349,7 @@ fn u5b_perpendicular_and_unpressurized_rods_are_admitted() {
     assert!(kinds.contains(&"connector_effective_axial_force_v1") && !kinds.contains(&"connector_pressure_force_v1"));
 }
 
-/// §3.3: an untied unpressurized connector keeps T4-U3's publication: its 24
+/// an untied unpressurized connector keeps T4-U3's publication: its 24
 /// rows, no tie-rod row, pe_x or s_x, and a record with `hardware` = untied
 /// and no `tie_rods` (the corpus test checks its bytes against T4-U3's).
 #[test]
@@ -366,7 +366,7 @@ fn u5b_untied_unpressurized_connectors_publish_no_rod_rows_or_s_x() {
     assert_eq!(source["results"].as_array().unwrap().iter().filter(|r| r["kind"].as_str().unwrap().starts_with("connector_")).count(), 24);
 }
 
-/// T4-U5b round 3 (absorption per element, §3.4): a rank-1 rod whose diagonal
+/// T4-U5b round 3 (absorption per element): a rank-1 rod whose diagonal
 /// contribution vanishes against the pipes' along one global axis is not
 /// refused, because its other candidates are represented. Each control solves
 /// and certifies (NUMERICAL_INTEGRITY_CHECKS_PASSED; ordinary and W2 checked

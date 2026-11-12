@@ -42,7 +42,7 @@ on demand or for release-candidate assurance.
 - no publication act occurs from this guide: packaging (§6) produces a local
   zip + checksum + §8 record only. The independent public repository
   [sgttomas/SWBPIPE](https://github.com/sgttomas/SWBPIPE) replaced the prospective
-  sanitized-export route (owner, 2026-10-29; release target RT-V8). Before v1.0,
+  sanitized-export route (owner, 2026-10-29; release target exit criterion 16). Before v1.0,
   the owner-signed D-20/DEC-058 scan and the other release exit criteria remain
   required. Publication is a separate human release-authority act;
 - DEC-027 records the sole human project authority as sole maintainer and
@@ -85,7 +85,7 @@ python3 tools/release/check_release_readiness.py --profile all
 
 The `stack-witnesses` profile runs the six retained W1 stack witnesses at the
 R/64 headroom leg, one process each; the release sweep runs it after the crate
-sweep (DEL-04-08 Design `stack-headroom-repair.md`).
+sweep (DEL-04-08).
 
 Without `--execute`, the script performs path checks and prints the local
 commands it would run. With `--execute`, it runs only local commands from the
@@ -187,7 +187,7 @@ The packaging checklist for a release candidate:
   then verifies actual `Contents/Resources` binary and licensing bytes before
   returning success. Ordinary `bundle.resources` preserve the supplier's
   original signature/stock digest; no `externalBin` re-signing or new entitlement
-  is selected. See DEL-16-06 Design `agent-supplier-packaging.md` for this input
+  is selected. See DEL-16-06 for this input
   contract and remaining compatibility/isolation/distribution duties. The
   app needs no entitlements: WebKit runs its web content, including the
   WebAssembly engine, in its own processes. The native smoke's results were
@@ -272,8 +272,9 @@ Those not-applicable reasons describe only the repository-tree candidate.
 Separately shipped packages, reports, installers and release notes need their
 own class entries and bound artifacts; repository verification never covers
 an unnamed release artifact. Inventory bytes/modes and source revision must
-match the exact candidate being signed. Original-to-imported history and the
-historical pricing/archive inputs are recorded in `reference/migration/`.
+match the exact candidate being signed. The original identities that maintained
+checks still cite are mapped to their imported commits in
+`tools/repository_history.py`.
 
 Review and disposition every finding. The earlier export-scope scan documented
 62 blocking lint and 27,460 provenance findings in 97 files; those were findings,

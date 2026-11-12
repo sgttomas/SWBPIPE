@@ -94,7 +94,7 @@ def test_o4_controls_read_eligible_in_both_readers(entry):
 
 
 def test_o4_reduced_checks_bind_the_reduced_section():
-    """§3.2/§3.4: a reduced check's parameters are the reduced section's and its action its nominal twin's; mutation
+    """a reduced check's parameters are the reduced section's and its action its nominal twin's; mutation
     ``reduced_check_nominal_parameters`` (the checks alone) is refused STRESS_SECTION_PARAMETERS, and with the reduced rows
     then carrying the nominal values the twin rule refuses it first."""
     source, invocation = control("dual-basis-fields")
@@ -122,7 +122,7 @@ def test_o4_reduced_checks_bind_the_reduced_section():
 
 
 def test_o4_maximum_is_per_basis():
-    """§3.2: each basis's maximum binds its own section's A and Z; mutation ``reduced_maximum_copied`` (the nominal
+    """each basis's maximum binds its own section's A and Z; mutation ``reduced_maximum_copied`` (the nominal
     maximum, value and evidence, published as the reduced one) is refused MAXIMUM_SECTION."""
     source, invocation = control("dual-basis-fields")
     exact = source["contract_evidence"]["exact_cases"][0]
@@ -146,7 +146,7 @@ def test_o4_maximum_is_per_basis():
 
 @pytest.mark.parametrize("key", ["shear_area_m2", "shear_factor"])
 def test_o4_shear_area_and_kappa_mutations_are_refused(key):
-    """§3.4: ``shear_area_changed`` and ``kappa_changed`` (one ulp, resealed) fail the transport rederivation."""
+    """``shear_area_changed`` and ``kappa_changed`` (one ulp, resealed) fail the transport rederivation."""
     source, invocation = control("timoshenko-n05")
     theory = source["contract_evidence"]["exact_cases"][0]["pipe_sections"][0]["beam_theory"]
     theory[key] = math.nextafter(theory[key], math.inf)

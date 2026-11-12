@@ -1,4 +1,4 @@
-// D5 slice 2 (DEL-02-05 Design `autosave-and-backup.md` §2, §3; Agent 0,
+// D5 slice 2 (Agent 0,
 // 2026-10-28 items (a) and (b)): the autosave timer, its settings and status
 // line, the discard after a landed save and the recovery offer, driven
 // through the hook with the native commands mocked at the invoke boundary.

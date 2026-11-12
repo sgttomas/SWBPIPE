@@ -133,7 +133,7 @@ const GATED: [string, ComponentType<Json>, string][] = [
 describe("the shared refusal", () => {
   it("names the desktop route only, states the reworded refusal and never calls the result invalid or unsupported", async () => {
     for (const [, make, reason] of STATES) {
-      // §5.3: the code is kept; the text names the opened surfaces instead of refusing every output.
+      // the code is kept; the text names the opened surfaces instead of refusing every output.
       expect(reason.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE: This output of ")).toBe(true);
       expect(reason).toContain("is not available on the desktop; only the result JSON and stress-neutral exports, the rule check, the rendered report and the report package admit a numerically eligible result.");
       expect(reason).toContain("The result remains readable here; this is not a finding about the result.");
@@ -148,10 +148,10 @@ describe("the shared refusal", () => {
   });
 });
 
-/** Epoch 8 (§5.2): the gate reads its surface's own decision. The rule-check
+/** Epoch 8: the gate reads its surface's own decision. The rule-check
  * completeness panel admits the exact routes, and since W-11 the rendered report does too;
  * the other fifteen gated surfaces (the fourteen interop and handoff surfaces and the
- * report JSON packet) still refuse (§5.4). */
+ * report JSON packet) still refuse. */
 describe.each(GATED.filter(([, , prefix]) => !OPENED_GATED.includes(prefix)))("%s", (_label, Panel, prefix) => {
   it.each(STATES)("refuses %s output with the reworded reason and keeps its display", async (_id, make, reason) => {
     const { props } = await make();
@@ -225,7 +225,7 @@ describe("Rule-check completeness (an opened surface, §4.4)", () => {
   });
 });
 
-/** The gate itself (§5.2, review follow-up): it reads no standing, so it opens only where
+/** The gate itself (review follow-up): it reads no standing, so it opens only where
  * the policy adds no refusal at all (`routeSurfaceDecision` null). Any other decision
  * refuses with its reason, `admitted_when_eligible` included. */
 describe("LoadReferenceOutputGate", () => {
@@ -336,7 +336,7 @@ describe("identifier-only downloads are not gated and carry no result values", (
   });
 });
 
-/** §5.1, §6.1: on the opened surfaces the policy adds no refusal; each surface's own
+/** on the opened surfaces the policy adds no refusal; each surface's own
  * standing check takes the Rust reader's verdict. */
 describe("the opened surfaces follow the reader's standing", () => {
   it.each(PRESSURE_RAWS)("pressure-2 %s: passes every opened surface's policy and standing check; the stress-neutral package builds and validates", async (_id, name, mode) => {

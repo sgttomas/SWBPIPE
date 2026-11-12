@@ -55,7 +55,7 @@
 //! short-lived parser. This writer frames the split containers and the
 //! digest's wrapper itself.
 //!
-//! What it holds (DEL-04-07, DEL-08-01 §2.4): beside the borrowed text, one
+//! What it holds (DEL-04-07): beside the borrowed text, one
 //! leaf's value (parsed from its own slice, no copy of it), the member list
 //! of each split object on the open path (a key and a slice, 40 bytes per
 //! member, sorted in place; an escaped key's decoded string), the canonical

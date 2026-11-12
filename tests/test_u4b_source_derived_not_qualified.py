@@ -1,4 +1,4 @@
-"""T4-U4b §4.3 (S4): `derived_not_qualified` on genuine pressure-source-1 producer bytes.
+"""`derived_not_qualified` on genuine pressure-source-1 producer bytes.
 
 A selected source case publishes its section normal-stress extremes and transverse-shear maxima beside the qualified
 rows, formed from them, and not qualified. The receipt carries them as `derived_not_qualified`: no projection, one of
@@ -212,7 +212,7 @@ def test_a_false_poisson_warning_cannot_exempt_deleted_tau_rows(family, mode):
         assert verdict.validate("pressure-source", doc, invocation["request"]["model"], invocation)["error"]["code"] == "SOURCE_PHYSICS_POISSON_DOMAIN_WARNING"
 
 
-# Integrated-head review (T4): D-5's row order (section-bases-and-timoshenko.md §2.5) on the composite. The end-i σ⁺
+# Integrated-head review (T4): D-5's row order on the composite. The end-i σ⁺
 # reduced row and σ⁻ nominal row exchange positions, values and ids unchanged, publication and receipt resealed: every
 # twin and value still agrees, so only Rust's ROW_BASIS_TWIN_ORDER, which the composite verifier now also checks, finds
 # the reordering, on each recovery method's case.

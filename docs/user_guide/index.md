@@ -19,7 +19,7 @@ surfaces behind it: schema contracts, core modules, invented examples and
 policy documents. [Current Desktop App](#current-desktop-app-010) lists what
 the app does at its stated revision and what it refuses. Current commitments
 are in the PRD, its adopted companions and local deliverable ScopeOfWork files;
-`Work/` and `deliverable.yaml` record technical detail and dependency conditions.
+`deliverable.yaml` records dependency conditions.
 
 SWBPIPE is decision-support software for open, auditable piping
 mechanics. Users supply project data, private libraries, rule packs, owner
@@ -100,9 +100,9 @@ A model solves on one of two routes:
   classified private, so these downloads are withheld in practice: the panel
   builds them but offers no download link.
 
-**Projects saved before model document 0.9.0.** Model document 0.9.0 adds optional operating-condition sets (`condition_sets`, a pipe segment's `condition_set_ref` and a load case's `condition_use`), a single-DOF support's `direction`, a result-state subtraction's `difference_basis` and `subtrahend_support_state`, the `absolute_sum` and `srss` combination bases with combinations as operands (these now solve, §6.2), a load case's hydrostatic `test_condition`, the `snubber` support family and response `spectra` (DEL-02-01 Design `model-document-0.9.0.md` §1-§2). A document may carry these members and open, edit and save; until the slices that give them meaning land, a solve refuses each one it cannot yet read by name, and nothing is dropped. The pressure-free solve now resolves a case's condition temperature, added weight and wind exposure (§6.1). The desktop opens only the current model-document version, so a project or saved model state stored at 0.8.0 is refused by name when you open it, and nothing is migrated. A 0.8.0 document whose `schema_version` alone is changed to 0.9.0 has the same meaning in 0.9.0; making that change is your re-authoring step, and the stored-document export still writes a refused project's bytes for it. Recorded runs keep their own format and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is listed for the active project's id, so the runs of an older project are reached only through a current (0.9.0) project with the same project id. Comparing an older run with a newer one keeps the usual eligibility rules.
+**Projects saved before model document 0.9.0.** Model document 0.9.0 adds optional operating-condition sets (`condition_sets`, a pipe segment's `condition_set_ref` and a load case's `condition_use`), a single-DOF support's `direction`, a result-state subtraction's `difference_basis` and `subtrahend_support_state`, the `absolute_sum` and `srss` combination bases with combinations as operands (these now solve, §6.2), a load case's hydrostatic `test_condition`, the `snubber` support family and response `spectra` (DEL-02-01 design §1-§2). A document may carry these members and open, edit and save; until the slices that give them meaning land, a solve refuses each one it cannot yet read by name, and nothing is dropped. The pressure-free solve now resolves a case's condition temperature, added weight and wind exposure (§6.1). The desktop opens only the current model-document version, so a project or saved model state stored at 0.8.0 is refused by name when you open it, and nothing is migrated. A 0.8.0 document whose `schema_version` alone is changed to 0.9.0 has the same meaning in 0.9.0; making that change is your re-authoring step, and the stored-document export still writes a refused project's bytes for it. Recorded runs keep their own format and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is listed for the active project's id, so the runs of an older project are reached only through a current (0.9.0) project with the same project id. Comparing an older run with a newer one keeps the usual eligibility rules.
 
-**Projects saved before model document 0.8.0.** Model document 0.8.0 adds a reducer's optional eccentric offset and the optional `model_settings.shear_model` beam-theory choice (§1.1 of DEL-02-01 Design `model-document-0.8.0.md`). The desktop opens only the current model-document version, so a project or saved model state stored at 0.7.0 is refused by name when you open it, and nothing is migrated. A 0.7.0 document whose `schema_version` alone is changed to 0.8.0 has the same meaning in 0.8.0; making that change is your re-authoring step. Recorded runs keep their own format and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is listed for the active project's id, so the runs of an older project are reached only through a current (0.8.0) project with the same project id. Comparing an older run with a newer one keeps the usual eligibility rules.
+**Projects saved before model document 0.8.0.** Model document 0.8.0 adds a reducer's optional eccentric offset and the optional `model_settings.shear_model` beam-theory choice (DEL-02-01). The desktop opens only the current model-document version, so a project or saved model state stored at 0.7.0 is refused by name when you open it, and nothing is migrated. A 0.7.0 document whose `schema_version` alone is changed to 0.8.0 has the same meaning in 0.8.0; making that change is your re-authoring step. Recorded runs keep their own format and existing read and compare behaviour; this change adds no model-document-version gate for recorded runs. Existing integrity checks and retained-precision/source-reader restrictions still apply. Run history is listed for the active project's id, so the runs of an older project are reached only through a current (0.8.0) project with the same project id. Comparing an older run with a newer one keeps the usual eligibility rules.
 
 **What the app refuses or does not offer today:**
 
@@ -369,8 +369,7 @@ In the desktop app the workflow is:
 ### 6.1 Operating-condition sets (model document 0.9.0)
 
 An operating-condition set states a line's temperatures (and other values) once
-and lets load cases use them by key. The design is DEL-02-01 Work
-`model-document-0.9.0.md` §1.
+and lets load cases use them by key. DEL-02-01 owns the design.
 
 **What you enter (in the model document).** Each `condition_sets[]` record has an
 `id`, a non-blank `provenance` and, as needed: `conditions[]` (each with a `key`
@@ -520,13 +519,13 @@ named rule until their meaning is defined, and the legacy hydrotest pressure
 primitive remains refused with pressure regions as the authored alternative.
 The complete workflow includes real held devices and hydrotest/static seismic
 in one saved document, not just an interim no-hold case. The mechanics,
-source-context and future connected verification contract is
-[DEL-05-01 hydrostatic-test design](../../execution/PKG-05/DEL-05-01/Work/hydrostatic-test.md).
+source-context and future connected verification contract is in the
+[DEL-05-01 scope](../../execution/PKG-05/DEL-05-01/ScopeOfWork.md).
 
 ### 6.2 Load combinations: absolute sums, SRSS and combinations of combinations
 
 A combination is a row operation over solved results; it never adds a solve. Model
-document 0.9.0 has five bases (DEL-05-02 Work `absolute-sum-srss-combinations.md`;
+document 0.9.0 has five bases (DEL-05-02;
 theory note `docs/theory/load_combinations.md`):
 
 | Basis | Inputs | Each published row |
@@ -649,9 +648,8 @@ the supports you name, from your own private hanger library. Today it runs only
 from the command line, through the `openpipestress-runner size-hangers` verb.
 The desktop app does not offer it yet. This section describes that verb. The
 method is explained in the [hanger sizing theory note](../theory/hanger_sizing.md),
-and the governing design is DEL-04-11
-`execution/PKG-04/DEL-04-11/Work/hanger-sizing.md` (§2–§8, with the publication
-contract and the headless entry in §8.3).
+and the governing scope is DEL-04-11
+(`execution/PKG-04/DEL-04-11/ScopeOfWork.md`).
 
 **What the verb does.**
 
@@ -1016,7 +1014,7 @@ The desktop `.mbf` text is not yet a CAEPIPE model: it writes a placeholder
 record subset (`UNIT`, `NODE`, `PIPE`, `SUPPORT`, `LOADCASE` lines) that CAEPIPE
 does not import, so do not hand it to CAEPIPE. A real SI MBF writer for a pilot
 subset exists in `core/handoff/caepipe_mbf/si_writer.py` for the developer
-correlation pilot (DEL-17-05 `Work/caepipe-correlation-pilot.md`); the desktop
+correlation pilot (DEL-17-05); the desktop
 export does not use it yet.
 
 Export evidence must not bundle commercial solvers, bypass licenses, reverse

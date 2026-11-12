@@ -56,11 +56,11 @@ pub const PROVENANCE_QUARANTINE: &str = "MODEL-PROVENANCE-QUARANTINE";
 /// The validator's report envelope kind (the wasm export's output).
 pub const VALIDATION_DOCUMENT_KIND: &str = "openpipestress.desktop.model_document_validation";
 
-/// Maximum characters in one tag (design §3.1).
+/// Maximum characters in one tag.
 pub const MAX_TAG_CHARS: usize = 64;
 
-/// The existing records that take `tags` and `notes` (§3.1), with whether
-/// they also take `provenance_record` (§3.5).
+/// The existing records that take `tags` and `notes`, with whether
+/// they also take `provenance_record`.
 const ANNOTATED_COLLECTIONS: [(&str, bool); 8] = [
     ("nodes", false),
     ("pipe_segments", false),
@@ -72,13 +72,13 @@ const ANNOTATED_COLLECTIONS: [(&str, bool); 8] = [
     ("combinations", false),
 ];
 
-/// `model_state.schema.json` `AssumptionRecord` vocabulary (§3.3).
+/// `model_state.schema.json` `AssumptionRecord` vocabulary.
 const ASSUMPTION_KINDS: [&str; 2] = ["assumption", "open_issue"];
 const ASSUMPTION_STATUSES: [&str; 3] = ["unresolved", "resolved", "rejected"];
 
 /// `schemas/constraint.schema.json` `ConstraintKind` minus `TBD`,
 /// `equipment_interface` (that is `equipment_interfaces`) and
-/// `missing_required_data` (that is an open issue) — §3.6.
+/// `missing_required_data` (that is an open issue).
 pub const CONSTRAINT_KINDS: [&str; 9] = [
     "connectivity",
     "clearance",
@@ -91,7 +91,7 @@ pub const CONSTRAINT_KINDS: [&str; 9] = [
     "access",
 ];
 /// `ConstraintRecord.state`'s enum without `TBD`: these slots never carry
-/// the TBD sentinel (design §6).
+/// the TBD sentinel.
 pub const CONSTRAINT_STATES: [&str; 5] = [
     "proposed",
     "active",
@@ -105,7 +105,7 @@ pub const CONSTRAINT_STATES: [&str; 5] = [
 /// which their closed records refuse as a shape.
 const ANNOTATED_COLLECTIONS_0_9_0: [&str; 2] = ["condition_sets", "spectra"];
 
-/// Provenance-record dispositions (§3.5), the library import's vocabulary.
+/// Provenance-record dispositions, the library import's vocabulary.
 pub const PROVENANCE_REDISTRIBUTION_STATUSES: [&str; 4] =
     ["public_permissive", "private_only", "unknown", "protected_suspected"];
 pub const PROVENANCE_REVIEW_STATUSES: [&str; 4] = ["pending", "accepted", "rejected", "quarantined"];
@@ -295,7 +295,7 @@ impl Validator {
     fn document(&mut self, root: &Map<String, Value>) {
         let known = entities(root);
 
-        // §3.1: tags and notes on the project and the existing records;
+        // tags and notes on the project and the existing records;
         // provenance_record only on materials, sections, components, supports.
         if let Some(project) = root.get("project").and_then(Value::as_object) {
             let refs = record_ref(project, "id");
@@ -326,7 +326,7 @@ impl Validator {
             }
         }
 
-        // §3: never on the load/reference-state group or the pressure contract
+        // never on the load/reference-state group or the pressure contract
         // (closed solve inputs).
         if let Some(group) = root.get("reference_configurations") {
             self.scan_forbidden(group, "reference_configurations");

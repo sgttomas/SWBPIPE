@@ -1,4 +1,4 @@
-//! RT-E1 milestone 2 (DEL-16-06 Design `embedded-agent-host.md`, catalog
+//! RT-E1 milestone 2 (catalog
 //! version 4): a pressure-free model with one of each component family and
 //! six support families, built from the desktop's blank document by sequential
 //! embedded-agent proposals, each applied before the next, then corrected by an

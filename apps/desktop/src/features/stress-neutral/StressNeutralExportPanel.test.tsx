@@ -149,7 +149,7 @@ it('keeps preserved references available only to the pure packet projector',asyn
  const {model,source:result}=await loadBundledMechanicsReference();
  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:result.producer!.component_name,solver_version:result.producer!.component_version,solver_build_ref:'reference-only',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
  const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});
- // The demo's nonlinear cases are confirmed and published CHECKS_PASSED (DEL-04-01 kd5-nonlinear-active-set.md §5).
+ // The demo's nonlinear cases are confirmed and published CHECKS_PASSED.
  expect((await buildStressNeutralExportPacket({model,result,analysisRun})).result_rows).toHaveLength(result.results.length);
  render(<StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun}/>);
  expect(screen.getByTestId('stress-neutral-empty')).toHaveTextContent('Bundled references');
@@ -384,7 +384,7 @@ it('refuses retired stress-neutral versions before reading their metadata',async
  expect(JSON.stringify(base)).toBe(original);await expect(validateStressNeutralExportPacket(base)).resolves.toBeUndefined();
 });
 
-// Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §3, §4.3): a received pressure-2
+// Epoch 8: a received pressure-2
 // statement (the v3 twin of the retired physics-1) packages at the Rust reader's standing,
 // as Python's builder packages it. pressure-2 has no transport reader, so the package is
 // read through its source; without it Rust's refusal is kept by name. Bytes that were not
@@ -485,7 +485,7 @@ it('packages a registered preview-physics-2 result with its closed evidence and 
  await expect(validateStressNeutralExportPacket(packet,props.result,props.analysisRun)).resolves.toBeUndefined();
 });
 
-// T6S on a B2 combination successor, tests only (B2-C §10.4, N-8): B2-P's committed W-CB3 successors (case A selected, case B
+// T6S on a B2 combination successor, tests only (N-8): B2-P's committed W-CB3 successors (case A selected, case B
 // not_required, A + B retained_selected), registered with their own invocation as the T6S suite registers corpus bases (a
 // TEST STAND-IN for the live native capture, D-U7-4). Combination rows carry `Combination` basis references, and their
 // absolute_verified classes from the reader withhold their witnesses with D-U6-2's existing codes and messages; no

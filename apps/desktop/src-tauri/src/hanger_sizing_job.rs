@@ -1,4 +1,4 @@
-//! Hanger sizing in the capped worker (DEL-04-11 Design `hanger-sizing.md` §13, increment 3c part 2): the blocking
+//! Hanger sizing in the capped worker: the blocking
 //! parts of the native commands `size_hangers` and `cancel_hanger_sizing` (`lib.rs` registers them), worker task 4
 //! ([`WorkerTask::HangerSizing`], `open_pipe_stress_hanger_sizing::desktop::size_and_read`) and its one-current run.
 //!
@@ -7,7 +7,7 @@
 //! analysis-run record, and the sizing never writes the model.
 //!
 //! **The request** is an `args-json-v1` raw body `{expectedEpoch, inputText}`. `expectedEpoch` is the request's
-//! dispatch ticket (below). `inputText` is the JSON text of exactly the headless input (§8.3.2),
+//! dispatch ticket (below). `inputText` is the JSON text of exactly the headless input,
 //! `{"request": {"model", "materials"}, "sizing", "library"}`, which the worker receives byte for byte. The reply is the
 //! entry's own JSON text, `{"document", "evidence": {"document_sha256", "verdict"}}` (3c part 1), with reproduction
 //! `not_checked`.

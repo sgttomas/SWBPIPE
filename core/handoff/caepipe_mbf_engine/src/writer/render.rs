@@ -395,7 +395,7 @@ impl<'m> Writer<'m> {
             entry.as_dict_mut().expect("dict").insert("origin".into(), Value::str(material.origin.unwrap_or("undeclared")));
             state.material_map.insert(name, entry);
         }
-        // A record per library section (or none) and OD and wall (Design §15, Format 4), as materials are per id.
+        // A record per library section (or none) and OD and wall (Format 4), as materials are per id.
         let section_key = (section_ref.clone(), num(od), num(thk));
         if !state.sections.contains_key(&section_key) {
             let name = format!("P{}", state.sections.len() + 1);
@@ -548,6 +548,8 @@ impl<'m> Writer<'m> {
                 let ti = bend.ti.expect("ti");
                 let mut record = dict![
                     ("component", bend.component.clone()),
+                    // the tangent node the component names (format 6)
+                    ("node", bend.node.clone()),
                     ("radius_mm", Value::Float(bend.radius)),
                     ("angle_deg", Value::Float(degrees(bend.theta.expect("theta")))),
                     ("flexibility_factor", Value::Float(bend.k)),
@@ -835,6 +837,40 @@ impl<'m> Writer<'m> {
         for (key, value) in self.case_labels.iter() {
             load_case_map.insert(key.clone(), Value::str(value.clone()));
         }
+        // Format 6's derivation: the SHA-256 of the canonical model document this writer read, and every
+        // writer input outside it that can change the written bytes, as the writer used it: the printed title line
+        // (`title` reproduces itself), the reference temperature argument in its own unit, the row limit (it adds only
+        // a warning) and the piping code. No Route 1 input is recorded.
+        let source_model_sha256 = match crate::sidecar::model_canonical_bytes(self.model) {
+            Ok(bytes) => crate::sidecar::hex(&Sha256::digest(&bytes)),
+            Err(Ok(error)) => {
+                let message = format!(
+                    "the model document's {} {}, so it has no canonical form for the sidecar's \
+                     derivation.source_model_sha256",
+                    error.path, error.reason
+                );
+                self.invalid("model", &message);
+                return Ok(self.refused());
+            }
+            Err(Err(error)) => return Err(py(error)),
+        };
+        let reference = if self.t_ref_f.is_null() {
+            dict![("value", Value::Float(self.t_ref)), ("unit", Value::str("degC"))]
+        } else {
+            dict![("value", Value::Float(float_of(&self.t_ref_f)?)), ("unit", Value::str("degF"))]
+        };
+        let derivation = dict![
+            ("source_model_sha256", Value::Str(source_model_sha256)),
+            (
+                "export_settings",
+                dict![
+                    ("title", Value::Str(title(&super::text(&self.title)?))),
+                    ("reference_temperature", reference),
+                    ("max_layout_rows", self.max_layout_rows.map(Value::int).unwrap_or(Value::Null)),
+                    ("piping_code", self.piping_code.clone()),
+                ]
+            ),
+        ];
         let mut result = WriterResult {
             status: "written".into(),
             text: Some(text),
@@ -851,6 +887,7 @@ impl<'m> Writer<'m> {
             loss_report: Vec::new(),
             assumptions: Vec::new(),
             unit_normalizations: Vec::new(),
+            derivation,
         };
         match result.sidecar_checked(&"0".repeat(64)) {
             Ok(_) => {}
@@ -1024,8 +1061,10 @@ impl<'m> Writer<'m> {
         }
         if !self.pipe_pressure.is_empty() {
             notes.push(format!(
-                "OPPRES is written {OPPRES_LINE}: PD/4t, Bourdon effect off, pressure correction for bends off, peak \
-                 pressure factor 1. SWBPIPE's exact pressure route models neither effect (DEL-04-07 D-3)."
+                "OPPRES is written {OPPRES_LINE}: field 1 = 0, the pressure-stress option CAEPIPE's public User's \
+                 Manual defines as PD/4t (Appendix A, OPPRES); a piping code may fix the formula instead (OPCODE). \
+                 Bourdon effect off, pressure correction for bends off, peak pressure factor 1. SWBPIPE's exact \
+                 pressure route models neither effect (DEL-04-07 D-3)."
             ));
         }
         if self.contract.is_some() {

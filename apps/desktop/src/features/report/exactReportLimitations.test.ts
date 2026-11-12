@@ -92,7 +92,7 @@ describe("exact-route statement table (W-11 slice (a))", () => {
     expect(coverage.schema_version).toBe("1.0.0");
     // The ten shapes the producer emits, each without and with pressure
     // elongation (RT-L2): the six pressure-source-1 shapes with a connector or a
-    // realized bend are never emitted, because source recovery refuses both (§2.2).
+    // realized bend are never emitted, because source recovery refuses both.
     expect(coverage.lists).toHaveLength(20);
     expect(coverage.strings).toHaveLength(21);
     const fixtureDigests = await Promise.all(coverage.strings.map(producerStringSha256));

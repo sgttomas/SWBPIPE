@@ -215,7 +215,7 @@ describe("File > Export MBF… (the mounted dialog)", () => {
     const host = nativeHost();
     await renderApp();
     const before = host.commands.length;
-    // The in-window File menu's item, after Save Handoff… (Design §3.1).
+    // The in-window File menu's item, after Save Handoff….
     fireEvent.click(screen.getByTestId("menu-file"));
     const item = await screen.findByTestId("menu-item-file.export-mbf");
     expect(item).toHaveTextContent("Export MBF…");

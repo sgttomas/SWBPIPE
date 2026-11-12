@@ -233,7 +233,7 @@ fn a_seeded_block_perturbation_is_detected() {
     }
 }
 
-/// Astra B4 (§6.2, RT-A3's re-check criteria): a transformed load outside binary64 is a
+/// Astra B4 (RT-A3's re-check criteria): a transformed load outside binary64 is a
 /// numerical failure, refused on the ordinary `NumericallyUnresolved` path with a
 /// `restraint_basis:` reason, in both modes; it is not the `InvalidInput` backstop. A stop
 /// d = (1.5, 1, 0) at B with the finite force (−1e308, 1e308, 0) gives the free-coordinate
@@ -271,7 +271,7 @@ fn a_transformed_load_outside_binary64_is_numerically_unresolved_in_both_modes()
     assert!(matches!(refused, Err(StructuralError::InvalidInput(_))), "{refused:?}");
 }
 
-/// RT-A3's note on B4 (§6.2): the reduction's own range arm. The transformed load is
+/// RT-A3's note on B4: the reduction's own range arm. The transformed load is
 /// ordinary, but A:UY (DOF 1, at the anchor, not a stop's node) is prescribed at
 /// f64::MAX, so B's free row f′_r − Σ K′_rc·g_c (one exact sum, rounded once) is outside
 /// binary64: the reduction's `NonFiniteInput { name: "adjusted force" }`, refused as

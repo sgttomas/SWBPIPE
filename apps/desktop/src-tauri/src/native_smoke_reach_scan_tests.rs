@@ -1,5 +1,5 @@
 //! Reach scan of the native-smoke result injection (`native_smoke_inject.rs`;
-//! RT-U4, DEL-04-05 `Work/criterion-9-measurement.md`): a product build, which
+//! RT-U4, DEL-04-05): a product build, which
 //! never enables the `native-smoke` feature, cannot reach it. Runs in every
 //! `cargo test` of this crate, with or without the feature.
 //!

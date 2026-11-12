@@ -240,7 +240,7 @@ fn the_shaped_interface_is_read_on_coincident_and_distinct_bases_under_both_shea
 
 #[test]
 fn pressure_1_reader_refuses_cross_basis_stress() {
-    // §8: one basis for both families (reduced rows copied from nominal) on distinct bases.
+    // one basis for both families (reduced rows copied from nominal) on distinct bases.
     let mut doc = distinct(&base(), 0.001);
     let id = find(&mut doc, "element_local_bending_normal_stress_y", ":reduced-section")["id"].as_str().unwrap().to_string();
     let nominal = doc["results"].as_array().unwrap().iter().find(|r| r["id"] == sb::twin_id(&id).unwrap().as_str()).unwrap()["value"].clone();
@@ -274,7 +274,7 @@ fn case_sections_and_pressures(doc: &Value) -> (HashMap<(String, String), Value>
 
 #[test]
 fn pressure_1_reader_refuses_nominal_lame_at_the_pressure_bore() {
-    // §8, §2.1: the nominal-basis Lame rows evaluated at the pressure bore. On
+    // the nominal-basis Lame rows evaluated at the pressure bore. On
     // distinct bases every nominal hoop row is published as 2p*Ai/A_n at the
     // outer surface and that plus p at the inner, with Ai = pi*r_i,r^2 the
     // pressure bore's area and A_n the nominal area: neither the nominal
@@ -371,7 +371,7 @@ fn set_model_section(model: &mut Value, pipe: &str, key: &str, value: Value) {
 
 #[test]
 fn pressure_1_model_checks_bind_each_section_input_to_the_model() {
-    // §1, §5 (FINAL-B): G2 binds each case section's captured D, t, c_m (0.0
+    // G2 binds each case section's captured D, t, c_m (0.0
     // when the model has none) and c_a to the model's section of that pipe,
     // bit for bit after the units authority: each one ulp off is refused by
     // name, as is a signed zero and a pipe's section swapped with another's.
@@ -560,7 +560,7 @@ fn set_case_beam(doc: &mut Value, pipe: &str, beam: &Value) {
 
 #[test]
 fn pressure_1_reader_refuses_beam_theory_contradicting_the_contract() {
-    // §5: a straight member's beam theory is the captured contract's shear
+    // a straight member's beam theory is the captured contract's shear
     // model (G2, against the model); kappa and A_s stay the evidence reader's.
     let (n, eb, tim) = (sb::NOMINAL, sb::EULER_BERNOULLI, sb::TIMOSHENKO);
     let euler = distinct(&base(), 0.001);
@@ -654,7 +654,7 @@ fn pressure_1_model_checks_take_realized_arcs_from_the_model() {
 
 #[test]
 fn pressure_1_reader_binds_the_case_section_marker_to_the_region_arc() {
-    // §2.5: the region marks exactly the members the case sections mark.
+    // the region marks exactly the members the case sections mark.
     let doc = arc();
     assert_eq!(s::validate_pressure_evidence(&doc), Ok(()));
     let region = doc["contract_evidence"]["pressure"].as_array().unwrap().iter()

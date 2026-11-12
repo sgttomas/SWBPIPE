@@ -211,7 +211,7 @@ fn constraints_use_the_constraint_record_vocabulary_without_evaluation() {
     blocks(&mutated(|d| d["constraints"][0]["constraint_kind"] = json!("equipment_interface")), CONSTRAINT_KIND_INVALID, "constraints[0].constraint_kind");
     blocks(&mutated(|d| d["constraints"][0]["constraint_kind"] = json!("missing_required_data")), CONSTRAINT_KIND_INVALID, "constraints[0].constraint_kind");
     blocks(&mutated(|d| d["constraints"][0]["state"] = json!("satisfied")), CONSTRAINT_STATE_INVALID, "constraints[0].state");
-    // No TBD sentinel in these slots (design §6).
+    // No TBD sentinel in these slots.
     blocks(&mutated(|d| d["constraints"][0]["state"] = json!("TBD")), CONSTRAINT_STATE_INVALID, "constraints[0].state");
     blocks(&mutated(|d| { let k = d["constraints"][0].clone(); d["constraints"].as_array_mut().unwrap().push(k); }), SLOT_ID_DUPLICATE, "constraints[1].constraint_id");
     blocks(&mutated(|d| { d["constraints"][0].as_object_mut().unwrap().remove("name"); }), SLOT_SHAPE, "constraints[0].name");
@@ -327,7 +327,7 @@ fn vocabularies_match_their_owning_crates() {
     }
 
     // Constraint kinds and states are constraint.schema.json's, less the
-    // excluded kinds and the TBD sentinel (design §3.6, §6).
+    // excluded kinds and the TBD sentinel.
     let schema: Value = serde_json::from_str(include_str!("../../../../schemas/constraint.schema.json")).unwrap();
     let tokens = |pointer: &str| -> Vec<String> {
         schema.pointer(pointer).unwrap().as_array().unwrap().iter().map(|v| v.as_str().unwrap().to_string()).collect()
@@ -364,7 +364,7 @@ fn bundled_demo_is_clean() {
     clean(&demo);
 }
 
-/// §3.8: `model_settings.node_proximity_tolerance` is a closed length quantity, finite, greater
+/// `model_settings.node_proximity_tolerance` is a closed length quantity, finite, greater
 /// than zero, in a catalog length unit. Each refusal is pinned with its code, path and message
 /// (the same messages product_physics' accessor gives); absence and a valid tolerance are clean.
 #[test]

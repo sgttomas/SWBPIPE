@@ -46,7 +46,7 @@ export const HANGER_SIZING_SOLVES_FILTER = "all solves";
  * or rounded. */
 export const HANGER_SIZING_CSV_UNIT_BASIS = "published results in SI (forces N, lengths m, rates N/m, ratios and counts 1); library record quantities in the record's stated units (unit columns); unconverted, unrounded";
 
-/** The published verification standing, stated in words (Design §8.3.5). Shared with the panel. */
+/** The published verification standing, stated in words. Shared with the panel. */
 export const HANGER_SIZING_CONDITIONAL_TEXT =
   "Verification standing: conditional. At least one candidate has no fitting record (no_record_fits). The verification solves kept each such candidate as a force equal to its W, so every verified position, load and test outcome below is conditional on that assumption. Applying the selected records alone does not reproduce the verification, because an unresolved candidate stays as it is in the model.";
 export const HANGER_SIZING_UNCONDITIONAL_TEXT =

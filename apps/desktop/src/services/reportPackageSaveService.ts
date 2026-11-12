@@ -76,7 +76,7 @@ export type ReportPackageSaveScreening = {
   payload_sha256: string;
 };
 
-/** The native command's arguments (`save_report_package`, §2.6 item 1). */
+/** The native command's arguments (`save_report_package`). */
 export type ReportPackageSaveArgs = {
   requestCanonicalText: string;
   modelCanonicalText: string;
@@ -85,7 +85,7 @@ export type ReportPackageSaveArgs = {
   inputManifestCanonicalText: string;
   screening: ReportPackageSaveScreening;
   localFirstEvidence: LocalFirstRouteEvidence;
-  /** W-11 (DEL-08-01 Design `exact-route-report-sections.md` §3.6): for a request from an
+  /** W-11: for a request from an
    * exact source only, the bytes its solve job delivered and the model text it was sent,
    * which the native save binds to the digests it recorded for that job. Absent for a
    * pressure-free request. The Rust boundary refuses exact identities until opening. */
@@ -127,7 +127,7 @@ function hasAllowedLocalFirstEvidence(input: ControlledRouteExport): boolean {
   );
 }
 
-/** The preparation (§2.5, §2.6 "The webview side"): the route evidence, then the
+/** The preparation: the route evidence, then the
  * canonical texts. `request` is the request the route control screened; the
  * controlled payload must be canonically equal to it (the route is lossless).
  * `inputManifest` is the run's input manifest the request was built from. */

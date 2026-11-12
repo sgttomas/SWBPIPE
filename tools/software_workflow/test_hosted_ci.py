@@ -100,7 +100,7 @@ class HostedCITests(unittest.TestCase):
     def test_evergreen_instruction_pr_uses_only_bundle_and_governance(self):
         # Python tests read these paths (a test whose reads the code does not show reads every path), so they
         # start only the Python job.
-        paths = ["AGENTS.md", "docs/PRD.md", "loop/LOOP_INIT.md", "execution/_Coordination/NOTICE.md"]
+        paths = ["AGENTS.md", "docs/PRD.md", "init-prompt.md", "execution/_Coordination/NOTICE.md"]
         for path in paths:
             self.write(path)
         self.commit()
@@ -110,7 +110,7 @@ class HostedCITests(unittest.TestCase):
              patch('hosted_ci.desktop_plan', side_effect=lambda root, *args: desktop_plan(SOURCE_ROOT, *args)), \
              patch('hosted_ci.desktop_rust_plan', side_effect=lambda root, *args: desktop_rust_plan(SOURCE_ROOT, *args)):
             self.assertEqual(self.plan()["modes"], modes(**{'piping-python': 'full'}))
-            self.assertEqual(select_paths(["AGENTS.md", "loop/LOOP_INIT.md", "execution/_Coordination/NOTICE.md"],
+            self.assertEqual(select_paths(["AGENTS.md", "init-prompt.md", "execution/_Coordination/NOTICE.md"],
                                           PROFILE)["modes"], modes(**{'piping-python': 'full'}))
 
     def test_tracked_paths_have_an_explicit_classification(self):
@@ -120,10 +120,7 @@ class HostedCITests(unittest.TestCase):
         self.assertEqual(unknown, [], 'Classify tracked inputs; do not weaken unknown-input fallback')
 
     def test_documentation_surfaces_do_not_select_product_jobs_by_path(self):
-        paths = ['CONTRIBUTING.md', 'governance/MAINTAINERS.md',
-                 'governance/CONTRIBUTION_REVIEW_CHECKLIST.md',
-                 'governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md',
-                 '.github/ISSUE_TEMPLATE/README.md', 'tools/REGISTRY.md',
+        paths = ['.github/ISSUE_TEMPLATE/README.md', 'tools/REGISTRY.md',
                  'tools/ac004_supervisor.md', 'tools/deliverables/README.md',
                  'tools/retained_pricing/README.md']
         for path in paths:
@@ -214,7 +211,7 @@ class HostedCITests(unittest.TestCase):
         self.assertEqual(selection['modes'], modes(piping='full', **{'piping-numerical':'full','piping-python':'full'}))
         # A docs or records path selects no product suite; Python tests read every path (tools/ci/python_test_reads.py).
         self.assertEqual(select_paths(['docs/note.md'], PROFILE)['modes'], modes(**{'piping-python': 'full'}))
-        self.assertEqual(select_paths(['loop/note.md'], PROFILE)['modes'], modes(**{'piping-python': 'full'}))
+        self.assertEqual(select_paths(['init-prompt.md'], PROFILE)['modes'], modes(**{'piping-python': 'full'}))
 
     def test_piping_python_implementation_and_tests_select_python_lane(self):
         for path in ('tools/product_preview/validate.py',
@@ -299,6 +296,28 @@ class HostedCITests(unittest.TestCase):
                 self.assertEqual(plan['modes'], dict.fromkeys(SUITES, 'full'))
                 repository = hosted_ci.repository_plan(self.root, 'merge_group', base, 'HEAD')
                 self.assertEqual((repository['mode'], repository['deselect']), ('full', []))
+
+    def test_scheduled_and_dispatched_runs_select_full_coverage_with_no_range(self):
+        """A full run of main has no candidate base: even a base it is handed is
+        not a diff range, so every suite and spec is selected over the whole
+        tree."""
+        self.assertEqual(set(hosted_ci.FULL_COVERAGE_EVENTS), {'schedule', 'workflow_dispatch'})
+        self.assertFalse(set(hosted_ci.FULL_COVERAGE_EVENTS) & hosted_ci.CANDIDATE_EVENTS)
+        queue_base, _ = self.queue_candidate()
+        self.assertEqual(make_plan(self.root, PROFILE, 'pull_request', queue_base, 'HEAD')['paths'], ['README.md'])
+        for event, reason in hosted_ci.FULL_COVERAGE_EVENTS.items():
+            for base in ['', queue_base]:
+                with self.subTest(event=event, base=base):
+                    plan = make_plan(self.root, PROFILE, event, base, 'HEAD')
+                    self.assertEqual((plan['base'], plan['paths'], plan['selection_reason']), (None, [], reason))
+                    self.assertEqual(plan['modes'], dict.fromkeys(SUITES, 'full'))
+                    browser = plan['piping_browser_selection']
+                    self.assertEqual(browser['classification'], 'full-fallback')
+                    self.assertTrue(set(PROFILE['piping_browser_journeys']['core']) < set(browser['specs']))
+                    validate_plan(self.root, plan)
+                    repository = hosted_ci.repository_plan(self.root, event, base, 'HEAD')
+                    self.assertEqual((repository['mode'], repository['deselect'], repository['paths']), ('full', [], []))
+        self.assertIn('No candidate diff', make_plan(self.root, PROFILE, 'release', queue_base, 'HEAD')['selection_reason'])
 
     def test_merge_group_repository_regressions_follow_the_queued_diff(self):
         queue_base, _ = self.queue_candidate()

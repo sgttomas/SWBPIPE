@@ -1,4 +1,4 @@
-// File > Export MBF… (DEL-17-04 Design `desktop-mbf-export-import.md` §3.9.5, slice 4b.2b): the workspace session's
+// File > Export MBF… (slice 4b.2b): the workspace session's
 // ownership of the export's retirements and of a closed dialog's save.
 //
 // Retirement ownership. The export is retired once for each of these: the dialog closes (Close or Escape), the App

@@ -73,7 +73,7 @@ function totalsText(category: CategoryTotal): string {
 
 const count = (value: number, word: string) => `${value} ${word}${value === 1 ? "" : "s"}`;
 
-/** What a partial summary leaves out, in one phrase (Design §6). */
+/** What a partial summary leaves out, in one phrase. */
 export function partialQualifier(summary: Extract<WeightSummary, { state: "available" }>): string {
   const parts = [`${summary.countedPipeCount} of ${count(summary.scope.pipeRefs.length, "pipe")} counted`];
   if (summary.componentsNotIncluded.length > 0) parts.push(`${count(summary.componentsNotIncluded.length, "component weight")} not included`);

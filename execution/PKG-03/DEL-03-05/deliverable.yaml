@@ -1,189 +1,126 @@
 id: DEL-03-05
 name: Rigid component models for valves, flanges, reducers, and specialty items
 needs:
-- from: DEL-00-01
-  condition: 'DEL-03-05 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0076 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
-    semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-03-05 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0077 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
-    semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-03-05 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0078 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
-    semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-03-05 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0079 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
-    semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-03-05 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0080 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
-    semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-03-05 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0081 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE;
-    semantic_refresh_2026-06-16=architecture_basis_type_normalized_to_constraint
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-01
+  condition: >-
+    A component in the model document is a typed, closed record with a stable identifier and a
+    kind, among which are valve, flange, reducer, rigid and specialty; the document describes
+    every component member a reader decodes, each quantity with its own unit; and a component can
+    carry its source and provenance.
   gating: true
 - from: DEL-03-02
-  condition: 'DEL-03-05 needs DEL-03-02 as a predecessor: rigid components extend component library schema
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0415 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
-    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The component library format provides the record, the field slot (a quantity or text reference
+    with its value status, public-value policy and provenance), the family contract and the
+    completeness rule into which the rigid family's field kinds and diagnostics are declared, with
+    linear stiffness and rotational stiffness as separate dimensions.
   gating: true
-  evidence: execution/_DAG/DAG-011/DependencyEdges.csv
 - from: DEL-02-02
-  condition: 'DEL-03-05 needs DEL-02-02 as a predecessor: dimensions, weights, COGs, and stiffness values
-    are unit-aware
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0416 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=UNIT_CONTRACT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
-    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The unit catalog converts a component's lengths, forces and stiffnesses to one consistent
+    basis, component by component of a vector, treats its scale as dimensionless, and rejects a
+    dimensional mismatch before the value reaches the solve.
   gating: true
-  evidence: execution/_DAG/DAG-011/DependencyEdges.csv
 - from: DEL-01-02
-  condition: 'DEL-03-05 needs DEL-01-02 as a predecessor: public component data must be licensed/provenanced
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0417 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=GOVERNANCE_PREDECESSOR;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
-    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The protected-data boundary policy states that no public artifact may contain proprietary
+    vendor catalogue data or protected dimensional tables, so that every component dimension,
+    weight and stiffness is the user's own data.
   gating: true
-  evidence: execution/_DAG/DAG-011/DependencyEdges.csv
+- from: DEL-00-06
+  condition: >-
+    The diagnostic contract fixes the members a component finding carries (code, class, severity,
+    source, affected object, message, remediation and provenance).
+  gating: true
+- from: DEL-05-01
+  when: Examining AC-003 on a supported model
+  condition: >-
+    A self-weight plan gives a selected pipe that a rigid-family component maps the component's
+    own weight: the force W along gravity at the component's node and the moments r × F of that
+    force about the node, with the pipe's distributed weight omitted. The plan's evidence names
+    the component's weight, node and centre of gravity.
+  gating: true
+- from: DEL-05-03
+  when: Examining AC-006 on published stresses
+  condition: >-
+    A stress row marked as a reference-section result of a scaled body is published and is
+    excluded from its basis's maximum and headline.
+  gating: true
+- from: DEL-06-03
+  condition: >-
+    A rule input is bound only from a row the result reader does not refuse for rule binding; a
+    refused row leaves the input unsupplied on that basis, with the reader's reason, and the
+    outcome incomplete.
+  gating: false
+  when: Evaluating a user rule bound to a scaled body's stress.
+- from: DEL-04-07
+  condition: >-
+    The product solve admits valve, flange, rigid and specialty components and reducers on the
+    pressure-free route and on the exact route, forms each body with the scale this definition
+    gives it, and on the exact route carries a reducer between pressure regions as a pressure
+    step.
+  gating: false
+  when: Solving a model that contains a rigid-family component.
+- from: DEL-07-05
+  condition: >-
+    The result views show each warning and assumption a published result carries with the result
+    it qualifies (DEL-07-05/REQ-006).
+  gating: false
+  when: Showing a scaled body's or an unscaled eccentric reducer's rows in the result views.
 - from: DEL-09-01
   condition: >-
-    The RT-A3 reducer 2b full-system connecting-path check needs DEL-09-01's maintained
-    fixtures/reference_system/reference_system.json and independent weight record
-    validation/references/reference_system/references.json. The check overlays RS-R1 only
-    in its test input and regenerates its weight with the public producer; consuming these
-    verification inputs neither adopts RS-R1 into the fixture nor establishes a global
-    displacement/reaction reference or acceptance.
+    The invented reference system and its independent references are maintained, with an eccentric
+    reducer, valves and flanges among its members.
   gating: true
-  when: Running the RT-A3 reducer 2b full-reference-system connecting-path check.
-  evidence: core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs
+  when: Examining the reference system's rigid-family components on the exact route.
 code_paths:
-- core/model_operations/operation_applier/src/lib.rs
-- core/product_physics/src/lib.rs
-- schemas/component.schema.yaml
-- core/product_physics/src/validation.rs
-- core/product_physics/src/exact_admission.rs
+# In DEL-04-07's product crate: the family's eligibility, mapping and eccentric-offset rules.
 - core/product_physics/src/rigid_component.rs
-- core/product_physics/src/pressure_runtime.rs
+- core/product_physics/src/w15_rigid_scaling_tests.rs
+- core/product_physics/src/w15c_eccentric_offset_tests.rs
+# The rigid family's input rules in validation.rs; the bend and branch rules in the same file are
+# DEL-03-03's and DEL-03-04's.
+- core/product_physics/src/validation.rs
+# Identification of reference-section results: the producer's reader, its independent verifier
+# and the desktop's display of the mark.
 - core/reporting/result_export/src/component_body.rs
 - tests/verifiers/component_body.py
 - apps/desktop/src/features/results/componentBody.ts
-- apps/desktop/src/features/component-creation/componentIntent.ts
-- core/product_physics/src/self_weight.rs
-- core/loads/self_weight_wasm/src/lib.rs
-- core/model_operations/operation_applier/src/rich_authoring.rs
+# Independent references for the scale, the weight and the eccentric step.
+- validation/references/w15_rigid_scaling/**
+- validation/references/w15_component_weight/**
+- validation/references/w15c_eccentric_reducer/**
+# Shared with DEL-03-02, which owns the format: the rigid family's field kinds, completeness rule
+# and diagnostic codes in it are this deliverable's.
+- schemas/component.schema.yaml
+# Shared with DEL-02-01, which owns the document: the rigid-family members of a component in it,
+# the eccentric offset among them, are this deliverable's.
+- schemas/model.schema.yaml
+# Shared with DEL-07-03, which owns features/component-creation/**. RigidDraftFields.tsx carries
+# the stiffness scale, its source, the consumption declaration and the centre-of-gravity
+# convention note; eccentricOffsetConvention.ts carries the offset convention. The per-quantity
+# unit entry of AC-007 is in componentIntent.ts, PropertyInspector.tsx and PipeViewport.tsx, which
+# this deliverable does not list.
 - apps/desktop/src/features/component-creation/RigidDraftFields.tsx
-- apps/desktop/src/features/model-tree/PropertyInspector.tsx
-- apps/desktop/src/features/self-weight-authoring/SelfWeightPlanPanel.tsx
+- apps/desktop/src/features/component-creation/eccentricOffsetConvention.ts
+# The component's weight is generated in core/product_physics/src/self_weight.rs, held by
+# DEL-05-01; the reducer pressure step and its references (validation/references/rt_a3_reducer,
+# rt_a3_reducer_2b) are DEL-04-07's.
 checks:
-- core/product_physics/tests/rt_a3_reducer_references.rs
-- core/product_physics/tests/rt_a3_reducer_2b_references.rs
-- core/product_physics/tests/rt_a3_reducer_2b_pf_controls.rs
-- core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs
 - tests/test_component_section_schema.py
-- core/product_physics/tests/exact_admission_seam.rs
-- core/product_physics/tests/exact_route_refusals.rs
 - core/product_physics/src/w15_rigid_scaling_tests.rs
 - core/product_physics/tests/w15_rigid_scaling_benchmarks.rs
-- core/product_physics/tests/w15_component_body.rs
 - validation/references/w15_rigid_scaling/generators/w15_reference.py
-- apps/desktop/src/features/results/componentBody.test.ts
 - core/product_physics/tests/w15_component_weight.rs
 - core/product_physics/tests/w15_component_weight_benchmarks.rs
 - validation/references/w15_component_weight/generators/w15b_reference.py
-- core/loads/self_weight_wasm/tests/applied_self_weight.rs
+- core/product_physics/src/w15c_eccentric_offset_tests.rs
+- core/product_physics/tests/w15c_eccentric_reducer.rs
+- core/product_physics/tests/w15c_eccentric_reducer_benchmarks.rs
+- core/product_physics/tests/w15c_offset_convention.rs
+- core/product_physics/tests/w15_component_body.rs
+- tests/test_w15_component_body_readers.py
+- apps/desktop/src/features/results/componentBody.test.ts
 - apps/desktop/src/features/component-creation/componentIntent.test.ts
 - apps/desktop/src/features/component-creation/rigidQuantityUnits.test.tsx
-- apps/desktop/src/features/self-weight-authoring/SelfWeightComponent.test.tsx
-- apps/desktop/src/features/model-tree/PropertyInspector.test.tsx
+- core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs

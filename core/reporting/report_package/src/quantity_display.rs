@@ -22,7 +22,7 @@
 use open_pipe_stress_canonical_json::canonical_number;
 use serde_json::{Number, Value};
 
-/// The report's display policy text (§2.3 item 5), the renderer's: the
+/// The report's display policy text, the renderer's: the
 /// producer requires it, and the renderer states the display rule near the
 /// results when a report declares it.
 pub const QUANTITY_DISPLAY_POLICY: &str = open_pipe_stress_report_renderer::QUANTITY_DISPLAY_POLICY;
@@ -50,7 +50,7 @@ pub fn is_displayed_scaled(unit: &str) -> bool {
 
 /// Whether the report built from `source` displays a value stored in `Pa`:
 /// a result row, or, on an exact-route source, a stress headline that is not
-/// withheld (§2.3 item 5, `conversion_performed`).
+/// withheld (`conversion_performed`).
 pub fn source_displays_scaled_value(source: &Value) -> bool {
     let rows = source["results"].as_array().map(Vec::as_slice).unwrap_or(&[]);
     if rows.iter().any(|row| row["unit"].as_str().is_some_and(is_displayed_scaled)) {

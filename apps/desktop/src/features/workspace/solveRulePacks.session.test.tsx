@@ -1,11 +1,11 @@
-/** FR-CMP-002 rule-pack references (DEL-14-01 Design `desktop-states-runs-comparison.md` §3):
+/** FR-CMP-002 rule-pack references:
  * the solve resolves the model's `rule_pack_refs` against the local rule-pack store and records
  * the resolved packs in the input manifest's `active_rule_packs`, in the model's order, and each
  * excluded reference as a diagnostic of the run record; Record Run carries the packs into the
  * recorded revision's `rule_pack_refs` and keeps the diagnostics. The solve is the native job
  * transport replay of committed producer bytes (unit transport replay; NOT a native UI
  * qualification witness); the store's own derivation is `analysis_runs_tests.rs`. All
- * rule-pack data are invented. C1 (DEL-04-05 `c1-native-custody-plan.md` slice 4): the session
+ * rule-pack data are invented. C1: the session
  * holds the result natively and the record's header; the full record, whose bytes these tests
  * compare, is the C2 full record the session builds on the result's full copy (`loadC2Full`),
  * checked against the native record's checksums. C1 slice 5: Save Project and Record Run of the

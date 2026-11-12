@@ -165,7 +165,7 @@ describe("the session's Compare… of two runs", () => {
     expect(hook.current.runComparison).toBeNull();
   });
 
-  // Owner ruling, 2026-10-26, "R-c1 A, 0.8.0 a2" (DEL-02-01 Design model-document-0.8.0.md §3.2):
+  // Owner ruling, 2026-10-26, "R-c1 A, 0.8.0 a2":
   // a run recorded on a 0.7.0 model is listed for the project id and compares with a 0.9.0 run
   // exactly as two 0.9.0 runs do. No model-document-version gate is added for runs; the
   // existing eligibility gate decides.

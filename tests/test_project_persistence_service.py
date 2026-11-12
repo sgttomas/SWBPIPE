@@ -683,10 +683,10 @@ def test_persistence_schema_rejects_payload_outside_the_model_document_format():
         raise AssertionError("A model payload outside the model document format was accepted.")
 
 
-# Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.1, §3.3): a project whose model payload is a
+# Model document 0.8.0: a project whose model payload is a
 # retired model document is refused by name on validate, create, save and open, with the desktop's code and text
 # (src-tauri refuse_model_document: the retired message, then the recorded-runs note). The model is the committed
-# 0.8.0 handoff control's, the version model document 0.9.0 retires (model-document-0.9.0.md §3.2).
+# 0.8.0 handoff control's, the version model document 0.9.0 retires.
 _RETIRED_MODEL = ROOT / "fixtures/handoff/retired_0_8_0_witness.swbhandoff/model/model.json"
 _RETIRED_TEXT = ("MODEL_SCHEMA_VERSION_RETIRED: model document 0.8.0 is retired; re-author it as model document 0.9.0 "
                  "(a pressure-free model omits pressure_contract). Nothing is migrated. Recorded runs keep their own format "

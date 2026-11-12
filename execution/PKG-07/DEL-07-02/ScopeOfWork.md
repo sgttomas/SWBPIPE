@@ -2,453 +2,137 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-07-02
 package_id: PKG-07
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-020,SOW-021,SOW-077]
 package_objective_refs: [OBJ-006]
 ---
 
-# Scope of Work — DEL-07-02
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
-
-## Current performance acceptance boundary — D-72
-
-Redesigned-product performance acceptance, settled-frame behavior and owned-resource obligations remain open under D-72 and its final addendum. Apply the five inherited D-68 numeric limits, the accepted reference profile, geometry, workload and observation rules, and the S-1/S-2 run/pass rule; S-3 was not accepted. The decision records govern exact criteria. No present implementation or historical demonstration qualifies a later candidate. Select and run a successor demonstration before asserting acceptance. Sources: `execution/_Coordination/_DECISIONS/D-72_RULING_2026-09-18.md` and `D-72_RULING_ADDENDUM_2026-09-18.md`.
+# Scope of Work — DEL-07-02 Model tree and property inspector
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-07-02` in service of project scope [SOW-020, SOW-021] and package objectives [OBJ-006].
+This deliverable is where the engineer reads and edits the model as records. The model tree and its tables list every entity by kind; the property inspector shows the selected entity's typed properties with their units, sources and findings, and edits them. The run sheet enters a piping run row by row from the keyboard; bulk change edits many entities at once; context menus put each entity's commands on the entity; and supports are created and edited here. Every edit is a structured operation that the user reviews before it is applied, and no field is ever filled with a value the user did not give. The result this deliverable contributes is that a complete model can be entered, inspected and corrected quickly and by keyboard, with what is missing always visible.
 
-- **OUT-001** — A model-tree and property-inspector contract covering stable entity hierarchy and selection, unit-aware editable properties, provenance and validation feedback, command-routed mutations, and viewport coordination is produced for the declared scope and objective.
+It serves SOW-020, SOW-021 and SOW-077 under OBJ-006 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-07, row DEL-07-02), and PRD §14.1, §14.3, §5.3, §5.5, FR-GUI-002, FR-GUI-003 and FR-GUI-004. Exit criterion 7 of `docs/RELEASE_TARGET_v1.0.md` names this deliverable with DEL-07-06: from blank, the reference system is entered by run sheet and solved in 30 minutes or less. The 30-minute threshold is provisional, as the release target marks it.
+
+- **OUT-001** — The model tree, tables and property inspector: navigation, selection, typed property display and edit, and the model-data sections.
+- **OUT-002** — Generic and support editing: creation, change and guarded removal of entities from the tree, tables and inspector, including supports and restraints, with the run sheet, bulk change, context menus and the review of queued changes.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-07-02 Model tree and property inspector
+**Terms the tree and inspector implement.**
 
-> #### Datasheet: DEL-07-02 Model tree and property inspector
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Model tree.* The model's entities grouped by kind, in a tree view and a grid view of engineering tables. A row is an entity, addressed by its stable identifier. Lists are virtualized, so their cost does not grow with what is off screen.
+- *Property inspector.* The typed properties of the selected entity: type, geometry, units, material, section, component properties, loads, support settings, flexibility and stress-intensification inputs, source and provenance, validation status, dependent rule-pack inputs, and linked assumptions and notes (PRD §14.3).
+- *Not stated.* How an absent member is shown. An empty field means the model holds no value; it is never read as zero and never shown as a default.
+- *Intent, pending change and batch.* An edit produces one structured operation (an intent) or an ordered set applied whole (a batch). Pending changes wait in one review queue until the user applies them.
+- *Guarded removal.* Removal of an entity that something else still names is refused, and the refusal lists what names it.
+- *Support form.* The form that creates or edits a support: its family (anchor, guide, line stop, vertical support, spring, variable spring hanger, spring hanger, constant-effort support, nonlinear), its restraints, hanger data, gap, lift-off and friction settings, and an optional direction. Restraints are typed by the user and never derived from geometry.
+- *Run sheet.* A draft table in the grid view in which each row creates the next end node and the element to it from three increments. Row kinds are: run; bend run, whose end node is a corner realized as a bend; support only; start from an existing node; start at a point; valve run; and flange run. Blank cells inherit section, material and condition set from the row above and show the inherited value and its origin. Rows are transient and are not saved with the model.
+- *Sheet numbering.* Identifiers a sheet assigns: a prefix and a number from a counter with a start and a step, 10 and 10 unless changed, optionally zero-padded. A number is assigned once and is never reused or renumbered. Start-from-node and support-only rows take no number.
+- *Bulk change.* One change applied to every matching entity of the selection, previewed entity by entity before it is queued.
+- *Context menu.* A menu opened on an entity, a tree row, a grid row or a table cell that lists commands which already exist elsewhere and runs them by their existing paths.
+- *Line.* A named group of pipes, held in the model's lines section.
+- *Operating-condition set.* A named set of keyed operating conditions that a pipe may reference; DEL-02-01 defines the record.
 
-### CLM-003 — Identification
+**Boundary.** DEL-00-05 owns the rule for GUI state, selection and the mutation route; this deliverable owns the behaviour of the tree, tables and inspector within it. The following belong elsewhere:
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-07-02 |
-> | Package ID | PKG-07 |
-> | Package | Graphical User Interface and Engineering Workflow |
-> | Type | UX_UI_SLICE |
-> | Scope items | SOW-020, SOW-021 |
-> | Objective | OBJ-006 |
-> | Context envelope | M |
-> | Anticipated artifacts | model tree; property inspector; UI tests |
-> | Accepted delegation | `DEL-00-05` owns GUI state/interaction architecture; `DEL-07-02` owns model-tree/property-inspector behavior implementation within it (`DEC-074` O2). |
->
+- material, section, component, library and rule-pack editors, and load-case and combination editing in the load manager: DEL-07-03. This deliverable shows the selected load in the inspector and does not edit load cases;
+- the 3D viewport and its tools: DEL-07-01;
+- the missing-data panel and what blocks a solve or a rule check: DEL-07-04;
+- the meaning, validation and application of every operation: DEL-16-01, DEL-16-02 and DEL-16-06;
+- the review queue's preview and Apply interaction and the operation ledger: DEL-07-08. Moving queued single changes into one batch is this deliverable's;
+- the mathematics of supports and their refusals: DEL-04-03 and DEL-04-04;
+- hanger sizing and its surfaces: DEL-04-11;
+- the shell that mounts these surfaces and holds the session: DEL-07-11;
+- coverage of the operation vocabulary: DEL-07-09.
 
-### CLM-004 — Attributes
-
-> ##### Attributes
->
-> | Attribute | Setup value |
-> |---|---|
-> | UI surface | Single GUI work surface for tree navigation and selected-entity property inspection. |
-> | Primary entities | Project, Model, Node, Element, Component, Material, Section, Support, LoadCase, Combination, RulePackRef, Result, and diagnostics where applicable. |
-> | GUI baseline | Resolve current dependency and component/state choices through `apps/desktop/package.json` and the implemented consumers. DEC-012 permits choices in a sealed brief or later ruling; preserve durable/transient separation and accepted architecture. Release scope follows DEC-057. |
-> | State boundary | Durable project/model state is separate from transient session, viewport, selection, and job-progress state. GUI mutations route through application-service commands. |
-> | Missing-data posture | Missing solve-required and rule-check-required values are surfaced as explicit findings, not defaulted silently. |
-> | Data boundary | Private project, material, component, and rule-pack data remain user-controlled and are not transmitted or committed publicly by default. |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> | Condition | Status |
-> |---|---|
-> | Tree hierarchy and grouping rules | Bounded implementation exists from accepted model identities; the Lines section groups selected pipes into typed lines (W-13 S2a, `apps/desktop/src/features/model-data/LinesSection.tsx`); broader canvas gestures and full model-tree UX remain residual. |
-> | Property editor field inventory | Bounded implementation preserves governed unit-bearing fields and metadata; tags and notes for the selected entity and the project, and provenance records on materials, sections, components and supports, are edited through structured operations (W-13 S2a, `apps/desktop/src/features/model-data/ModelDataAnnotations.tsx`); model-level `modulus_basis_records` entry and broader editor coverage remain residual. |
-> | Selection synchronization contract | Bounded tree/viewport/inspector selection is implemented within the `DEL-00-05` state/interaction architecture; transient state is not durable model truth. |
-> | Command/query contract | Current structured mutations route through the application-service operation seam; broader contract coverage remains governed residual work. |
-> | UI tests | Focused evidence covers bounded tree, selection, and inspector behavior; backfill and factoring for `PropertyInspector` and adjacent surfaces remain residual. |
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> This kit records the bounded UI behavior already implemented and the remaining delivery boundary. `DEC-074` O2 assigns model-tree/property-inspector behavior implementation to `DEL-07-02` within the GUI state/interaction architecture owned by `DEL-00-05`; it does not transfer architecture authority, broaden functionality, choose unresolved UI libraries, introduce engineering default values, or move any artifact to `ISSUED`.
->
-> The model tree and property inspector consume accepted schema/service contracts for object identity, unit-bearing fields, provenance, diagnostics, rule-pack/private-library status, and command/query/result-envelope behavior to the extent supported by current bounded evidence. Missing or unresolved engineering data remains visible as `TBD` or diagnostic state.
->
-
-### CLM-007 — Ownership Boundary
-
-> ##### Ownership Boundary
->
-> - Architecture owner: `DEL-00-05` for GUI state/interaction architecture.
-> - Behavior owner: `DEL-07-02` for bounded model-tree/property-inspector implementation within that architecture.
-> - Adjacent scopes unchanged: `DEL-07-03` owns specialized material/component/rule-pack editors; `DEL-07-04` owns missing-data warning/blocking UX.
-> - Ruling basis: `DEC-074` option O2, resolving `PDU-009` without scope expansion.
->
-
-### CLM-008 — Setup Slot Checklist
-
-> ##### Setup Slot Checklist
->
-> Maintain tree grouping, inspector field inventory, unit display/edit hooks, provenance/redistribution/privacy display and diagnostic affected-object navigation against `schemas/model.schema.yaml`, `schemas/results.schema.yaml`, `ModelTree.tsx` and `PropertyInspector.tsx` in `apps/desktop/src/features/model-tree/`. The field contracts and candidate implementation supply the inventory; do not preserve a blanket setup-era TBD. Fixture/screenshot/UI data must remain synthetic, public-domain or otherwise cleared; actual provenance review remains required.
-
-### CLM-009 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, scope, artifacts, and architecture-basis injection.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row `DEL-07-02`.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) rows `SOW-020` and `SOW-021`.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis, `PKG-07`, `OBJ-006`, and architecture basis IDs `AB-00-03`, `AB-00-05`, `AB-00-06`, `AB-00-07`, and `AB-00-08`.
-> - `docs/CONTRACT.md` invariants `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-DATA-3`, `OPS-K-UNIT-1`, `OPS-K-RULE-1`, `OPS-K-RULE-3`, `OPS-K-PRIV-1`, `OPS-K-PRIV-2`, `OPS-K-IP-1`, `OPS-K-IP-2`, `OPS-K-IP-3`, and `OPS-K-AGENT-1..4`.
-> - `docs/SPEC.md` sections 1, 3, 6, 7, 10, and 11.
-> - `docs/TYPES.md` sections 3, 4, 5, 6, 7, 8, and 9.
-> - `execution/_Coordination/_DECISIONS/D-41_R4_RULING_2026-07-12.md`, `DEC-074` option O2.
->
-
-### CLM-010 — Open Setup Questions
-
-> ##### Open Setup Questions
->
-> | Question | Status |
-> |---|---|
-> | Which accepted schema version supplies the property inspector field inventory? | Resolve fields through `schemas/model.schema.yaml` and the current property-inspector consumer; bind verification to their candidate revisions. |
-> | Which GUI state library, if any, is accepted for transient selection and inspector state? | Resolve current dependency and component/state choices through `apps/desktop/package.json` and the implemented consumers. DEC-012 permits choices in a sealed brief or later ruling; preserve durable/transient separation and accepted architecture. Release scope follows DEC-057. |
-> | Which application-service commands and queries are accepted for model tree edits and property reads? | Use the accepted PKG-16 operation seam and `apps/desktop/src/services/operationService.ts`; no direct durable-state mutation or alternative validator is authorized. |
-> | Which diagnostics contract shape is accepted for inline missing-data and provenance warnings? | Resolve diagnostics through the accepted result/operation envelopes and the inspector consumer; missing-data and provenance warnings remain required, and interface deficiencies remain delivery work. |
-> | Which UI test framework conventions apply to this slice beyond the architecture-basis Playwright/Vitest expectation? | Use the candidate-bound desktop package scripts, Vitest and Playwright configuration; existing test definitions are not a fresh execution result. |
+**Not decided.** Replacing the kind of an existing element in bulk waits for an operation that changes a component's kind; none exists and none is committed here. Whether the support form creates snubbers, a family the model document defines, is not decided (DEL-07-09 roadmap item R2).
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-011 — Specification: DEL-07-02 Model tree and property inspector
+The tree and inspector show what the model document holds and collect what the user enters. A field that is filled establishes only that a value was entered, with whatever source the user recorded.
 
-> #### Specification: DEL-07-02 Model tree and property inspector
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-013 — Scope
+- **REQ-001** — The tree and tables let the user navigate lines, nodes, elements, components, supports, load cases, states and analysis runs. They hold no copy of the model: what they show is read from the model document (SOW-020; PRD FR-GUI-002).
+- **REQ-002** — Selecting an entity shows its editable typed properties, units, provenance, warnings and dependencies, for every property family of PRD §14.3 (SOW-021; PRD FR-GUI-003).
+- **REQ-003** — A unit-bearing value is shown and edited with its unit, and a value of the wrong dimension is refused with a finding that names the field.
+- **REQ-004** — A value that a solve or a rule check needs and the model lacks is shown as a finding on the entity that lacks it. Nothing in the tree, tables, inspector, run sheet or bulk change supplies it (PRD §5.5).
+- **REQ-005** — The source, provenance and redistribution or private status of materials, sections, components and rule-pack references are shown wherever those records are shown.
+- **REQ-006** — Every edit is a structured operation that is validated, queued for review and applied on the user's Apply. Selection, expansion, filters, drafts and focus are transient (PRD §5.3; decomposition AB-00-05).
+- **REQ-007** — A diagnostic shown on an entity keeps the class, severity, source and remediation it had in its envelope, and no text states or implies certification, approval or code compliance (PRD §21.2).
+- **REQ-008** — Fixtures, examples and screenshots for these surfaces use invented data only.
+- **REQ-009** — The tree and tables stay responsive on a 10,000-pipe model: on the reference profile DEL-07-01/REQ-012 defines, filtering to presented rows, row selection to canvas highlight and table readiness after a model is assigned meet the limits stated there.
+- **REQ-010** — The user creates, changes and deletes entities from the tree, tables and inspector, including supports and restraints of every family in the support form, equipment and nozzle boundary conditions as explicit free, rigid or spring degrees of freedom, and a tee's modifier source. Removal is guarded. A nonlinear or non-convergence finding that names a support is shown on that support. A stored value is never rebuilt by an edit that did not touch it (SOW-077; DEL-07-09 vocabulary rows 2, 12, 13, 16, 18 and 21).
+- **REQ-011** — Every unit-bearing field of the tree, tables and inspector lets the user choose its unit from the catalog's units of that dimension.
+- **REQ-012** — The model-level modulus basis records are entered and edited in these surfaces.
+- **REQ-013** — *Model data.* Lines, tags and notes on the project and on each entity, provenance records on materials, sections, components and supports, assumptions and open issues, and constraints and equipment interfaces as records that nothing evaluates are entered and edited here through structured operations (PRD FR-MOD-002, FR-MOD-004, FR-MOD-006, FR-GUI-004).
+- **REQ-014** — *Context menus.* Entities in the viewport, tree rows, grid rows and table cells and row headers each have a context menu of existing commands, with shortcuts shown. An unavailable command is listed, focusable, disabled and described. Shift+F10 and the ContextMenu key open the menu; on the canvas a secondary press opens it only if the pointer moved no more than 4 CSS px, so a right-drag still pans. The menu uses the menu, menu-item and separator roles and supports the arrow keys, Home, End, type-ahead, Enter, Space and Escape. Tab and Shift+Tab close the menu and move focus to the next or previous tab stop from the invoker. Editing fields keep their native menu. In the Table view, the tree, grid and table menus offer Hide selected, Isolate selected and Fit selection. Opening a menu runs nothing. Right-clicking an unselected entity selects it; a selected one keeps the selection. After a command or Escape, focus returns to the invoker or, if it is gone, to the nearest place that still exists.
+- **REQ-015** — *Run sheet.* The grid view has a run sheet whose rows, of the kinds defined above, create nodes, pipes, bends, valves, flanges and supports through existing operations in one reviewed batch that is applied whole. The requirement further fixes:
+  - *Entered values only.* A flexibility factor, a stress-intensification pair and every component value are typed on their own row and never inherit; a bend's two directional factors are entered both or neither. Restraints are typed, with one token for all six.
+  - *Preview.* A batch that realizes a bend or reconnects a pipe cannot be applied before its preview has been shown for that exact batch on the current model.
+  - *All or nothing.* One refused row blocks the queue, and the reason names the row.
+  - *Applied rows.* Editing an applied row's increment moves only that row's end node; deleting a row removes only what that row created; a row whose stored record was changed elsewhere says so.
+  - *Units.* Each quantity column has one unit, starting as the project's; a column with no unit accepts no entry.
+  - *Identity.* Identifiers follow sheet numbering and may be typed before queueing; consecutive bends are allowed; the sheet adds no member to the model document.
+  - *History.* A row's status follows queue, apply, Undo and Redo, and a batch prepared on an earlier model is withdrawn when the model changes.
+- **REQ-016** — *Bulk change.* Over the selection the user can assign a section, reassign a material, replace or remove a support kind, set the radius of unrealized bends, add a tag and assign or clear an operating-condition set. The preview counts affected, unchanged, not-matched and refused entities and shows before and after for each affected one. Any refusal queues nothing. The change is one batch, applied whole and reverted by one Undo. Restraints are kept or entered, never inferred.
+- **REQ-017** — *Review as one batch.* The user's queued single changes can be moved into one batch, in queue order, that is validated and applied all or none as one undo step. A change made stale by another in the batch is refused by name and never rebased; changes sharing an operation identifier, and another author's changes, are not moved.
+- **REQ-018** — *Operating-condition sets and support direction.* Condition sets and their keyed conditions are created, edited and deleted in the tree; a pipe's set is shown and assigned in the inspector and the pipes table; a member the solve does not read is marked as not used by the solve. A support's optional direction is entered as three numbers, written exactly as entered and never normalized; a partial vector, a non-number and negative zero are refused before queueing; a stored direction is shown exactly as stored, and no other edit of the support changes or drops it.
+- **REQ-019** — *Authoring time.* From a blank project, a person following DEL-09-01's run sheet enters the reference system in the desktop, with geometry, components and supports entered through the run sheet and these surfaces and load cases and combinations through DEL-07-03's load manager, and solves it in 30 minutes or less (`docs/RELEASE_TARGET_v1.0.md` criterion 7; the threshold is provisional). Which solve ends the clock is not decided: the criterion says only that the system is solved.
 
-> ##### Scope
->
-> This deliverable owns the bounded model-tree and property-inspector behavior implementation within the GUI state/interaction architecture owned by `DEL-00-05`. It covers tree navigation, selected-entity property presentation/editing, selection synchronization with the 3D centerline workflow, missing-data visibility, provenance/private-data presentation, and UI test expectations.
->
-> Current evidence includes bounded implementation and focused tests. Under `DEC-074` option O2, this ownership statement does not transfer GUI architecture authority from `DEL-00-05`, broaden functionality, select unresolved component/state libraries, introduce engineering defaults, or embed protected standards content. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Broader model-level modulus entry, unit-entry coverage, test/factoring hardening, and full canvas/tree/editor UX remain residual work.
->
+### Acceptance criteria
 
-### CLM-014 — Accepted Ownership Delegation
-
-> ##### Accepted Ownership Delegation
->
-> - `DEL-00-05` owns GUI state/interaction architecture, including the architectural selection-model role.
-> - `DEL-07-02` owns model-tree/property-inspector behavior implementation within that architecture.
-> - `DEC-074` option O2 resolves `PDU-009` and the corresponding ownership clarification without transferring architecture or expanding functionality.
-> - `DEL-07-03` retains specialized material/component/rule-pack editor scope, and `DEL-07-04` retains missing-data warning/blocking UX scope.
->
-
-### CLM-015 — Requirements
-
-> ##### Requirements
->
-> | Req ID | Requirement | Source basis | Verification hook |
-> |---|---|---|---|
-> | DEL-07-02-RQ-001 | The model tree shall expose navigation for centerline model entities and piping component visualization without duplicating durable model truth in transient UI state. | SOW-020; AB-00-05; docs/SPEC.md section 7 | Future UI tests for tree rendering, selection, and model identity consistency. |
-> | DEL-07-02-RQ-002 | The property inspector shall present selected-entity fields for materials, sections, components, load cases, supports, rule-pack references, and private-library references where this slice owns the inspector surface. | SOW-021; docs/SPEC.md sections 3 and 7; DEC-074 O2 | Current implementation/run evidence and focused UI tests for entity-specific inspector panels and read-only/editable state. |
-> | DEL-07-02-RQ-003 | Unit-bearing values shown or edited through the inspector shall preserve unit awareness and dimensional validation hooks. | OPS-K-UNIT-1; docs/TYPES.md object registry | Unit/display/edit validation tests once schema and service contracts are accepted. |
-> | DEL-07-02-RQ-004 | Missing solve-required or rule-check-required values shall be visible as findings and shall not be silently supplied by the tree, inspector, or UI defaults. | OPS-K-DATA-2; OBJ-006; docs/SPEC.md section 7 | Negative UI tests for missing physical inputs and missing rule-pack inputs. |
-> | DEL-07-02-RQ-005 | Provenance and redistribution/private status shall remain visible for materials, sections, components, and rule-pack references where inspector fields expose them. | OPS-K-DATA-3; OPS-K-RULE-3; OPS-K-PRIV-1; docs/TYPES.md sections 7 and 8 | UI tests for provenance/status display and private/public boundary indicators. |
-> | DEL-07-02-RQ-006 | GUI mutations from the property inspector shall route through application-service commands; tree/inspector reads shall use governed query or result-envelope boundaries. | AB-00-03; AB-00-05 | Service-boundary review and command/query interaction tests. |
-> | DEL-07-02-RQ-007 | Diagnostics shown in the inspector shall use governed diagnostic/result-envelope concepts and shall not claim certification, sealing, professional approval, or automatic code compliance (PRD §21.2). | AB-00-06; OPS-K-AGENT-4; docs/TYPES.md analysis statuses | Diagnostic presentation tests and protected/professional-claim review. |
-> | DEL-07-02-RQ-008 | Public examples, screenshots, fixtures, and test data for the UI slice shall not contain protected standards text, protected tables, proprietary commercial data, or private project data. | OPS-K-IP-1; OPS-K-IP-3; OPS-K-RULE-1; OPS-K-PRIV-1 | Protected-content and fixture provenance review. |
->
-
-### CLM-016 — Standards
-
-> ##### Standards
->
-> No protected standard text, protected tables, protected examples, material allowables, SIF/flexibility tables, proprietary component values, or proprietary project data are available in this deliverable-local setup context. Any future standards or owner-code basis must remain a private/user-supplied input or a non-protected pointer with provenance. Clause-level requirements are `TBD`.
->
-
-### CLM-017 — Verification
-
-> ##### Verification
->
-> | Verification area | Minimum setup expectation |
-> |---|---|
-> | Tree navigation | Tests should confirm tree nodes represent accepted model entities and preserve stable identity through selection. |
-> | Property inspector | Tests should confirm selected entity type controls visible field groups and editability. |
-> | Missing data | Tests should show missing solve-required and rule-check-required values remain visible and classified. |
-> | Unit safety | Tests should cover unit-bearing value display/edit pathways and dimensional validation failures once contracts exist. |
-> | Provenance/privacy | Tests should show provenance and private/public redistribution status are visible where relevant. |
-> | Command/query boundary | Tests or review evidence should show inspector edits do not bypass application-service commands. |
-> | Professional boundary | UI text, diagnostics, and fixtures must not claim code compliance, certification, approval, or sealing (PRD §21.2). |
->
-
-### CLM-018 — Verification Coverage Slots
-
-> ##### Verification Coverage Slots
->
-> | Coverage slot | Required future evidence |
-> |---|---|
-> | Tree navigation and stable identity | UI test or review evidence that tree entries map to accepted model identities. |
-> | Selection synchronization | UI test or review evidence that tree, viewport, and inspector selection remain aligned without durable-state drift. |
-> | Inspector field groups | UI test or review evidence that selected entity type controls visible field groups and editability. |
-> | Transient/durable state split | Review evidence that selection, expansion, filters, and panel focus remain transient unless a persistence contract authorizes otherwise. |
-> | Command-backed edits | UI/service test or review evidence that inspector mutations route through application-service commands. |
-> | Missing-data visibility | Negative UI tests for solve-required and rule-check-required gaps. |
-> | Provenance/privacy visibility | UI tests or review evidence for provenance, checksum/source status, and private/public redistribution indicators. |
-> | Protected/professional-boundary review | Evidence that fixtures and UI text avoid protected data and compliance/certification claims. |
->
-
-### CLM-019 — Documentation
-
-> ##### Documentation
->
-> Current owned implementation artifacts include:
->
-> - `apps/desktop/src/features/model-tree/ModelTree.tsx`;
-> - `apps/desktop/src/features/model-tree/PropertyInspector.tsx`;
-> - focused UI tests and deliverable-local run evidence for bounded tree, selection, and inspector behavior.
->
-> GUI component/state-library architecture remains owned by `DEL-00-05`. Resolve editable field inventory, unit entry and command/query names through `schemas/model.schema.yaml`, PropertyInspector and workspaceSession; DEC-111 assigns creation/generic editing to DEL-07-02 and specialized editors to DEL-07-03. Preserve missing interaction witnesses, test/factoring gaps and actual fixture/screenshot provenance review separately.
->
-
-### CLM-020 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Issue | Contenders | Human ruling |
-> |---|---|---|---|
-> | D41-PDU-009 | Whether GUI selection/inspector ownership remains wholly in `DEL-00-05` or behavior implementation belongs in `DEL-07-02`. | `DEL-00-05`; `DEL-07-02` | Resolved by `DEC-074` O2: `DEL-00-05` owns GUI state/interaction architecture; `DEL-07-02` owns model-tree/property-inspector behavior implementation within it. |
-
-- **AC-001** — The contract preserves the current implemented inspection/editing boundary, explicit read-only and missing-data states, durable-versus-transient state separation, and protected/private data constraints without inventing engineering defaults, component data, authority, or hidden mutations. Current source references are `PipeViewport.tsx`, `ModelTree.tsx`, `PropertyInspector.tsx` and `workspaceSession.ts`; preserve DEC-111 creation/generic-edit versus specialized-editor ownership. Source presence does not discharge independent interaction/parity review.
-
+- **AC-001** — For an invented model holding every entity kind of REQ-001, each entity has one row; selecting a row selects the same identifier in the viewport and the inspector; the inspector shows every stored member of the selected entity with its unit and source; an absent member reads "not stated"; a value of the wrong dimension is refused by name; and each missing solve-required or rule-required value appears as a finding on its entity. Changing selection, filters or expansion leaves the model's canonical hash unchanged.
+- **AC-002** — Each create, change and delete of REQ-010 and REQ-013 queues an operation, leaves the model unchanged until Apply, and after Apply gives a document that passes the document validator. Removing an entity that is still referenced is refused and lists the referencing entities. After an edit of one member, every other member of the record is bit for bit what it was. An explicit family that the model document does not define is refused.
+- **AC-003** — On the DEL-07-01/REQ-012 reference profile, the filter, row-selection and table-readiness segments of the frozen workload meet their limits at 1,000 and 10,000 pipes.
+- **AC-004** — Every unit-bearing field offers the catalog's units of its dimension and no other. A modulus basis record entered here is stored as entered.
+- **AC-005** — Each context menu lists only commands available elsewhere and runs the same path; every disabled item states its reason; the menu opens from the keyboard on every surface of REQ-014 and answers each key REQ-014 names, Tab and Shift+Tab included; an editing field shows its native menu; a right-drag on the canvas pans and opens no menu; opening a menu leaves the model, the queue and the selection as REQ-014 states; and after each command and after Escape, focus is on the invoker when it is still shown, and otherwise on the nearest place of the same surface that still exists.
+- **AC-006** — A run sheet holding each row kind queues one batch whose applied model equals a model built by hand from the same rows, record for record. A refused row queues nothing and is named. A bend batch cannot be applied before its preview. Entered factors appear only on the row that entered them. Applied-row edits and deletions change only what REQ-015 allows. Undo and Redo restore the canonical hash and the row statuses. Numbers are assigned once and never reused.
+- **AC-007** — For each bulk change, the preview's four counts and before-and-after values equal those computed from the selection; a selection containing one entity the engine would refuse queues nothing; and one Undo restores the model's canonical hash.
+- **AC-008** — Moving queued single changes into one batch preserves queue order; Apply applies all or none; one Undo reverts all; a change made stale by an earlier one in the batch is refused by name; and changes that share an operation identifier or have another author stay where they were.
+- **AC-009** — A condition set can be created, edited and deleted, and an edit changes only the members the user touched. Deleting a set a pipe still uses is refused and names every pipe. A support created with a direction stores the three entered numbers exactly; each of the three refusals of REQ-018 queues nothing; and after any other edit of that support the stored direction is unchanged.
+- **AC-010** — Starting from a blank project and following DEL-09-01's run sheet, a person enters the reference system in the desktop as REQ-019 states. The entered model equals the reference system's fixture record for record, apart from the differences that run sheet lists, and the time from blank to a completed solve is 30 minutes or less.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-021 — Procedure: DEL-07-02 Model tree and property inspector
+**Method choices that define these surfaces.**
 
-> #### Procedure: DEL-07-02 Model tree and property inspector
->
+- Surfaces build operations; one engine validates and applies them. A check the engine makes is made by the engine, before queueing, and its refusal is shown by its own code.
+- Nothing inherits that the user would have to justify. Section, material and condition set inherit down a run sheet because they are properties of a run; factors, restraints and component values do not.
+- Applied geometry is never moved implicitly. An edit to one row changes that row's node.
+- Identifiers are identity, not order: they are assigned once and never renumbered.
+- A sheet is a draft surface, not a document: it is held beside the session and is not saved.
+- Every pointer route has a keyboard route.
 
-### CLM-022 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Define the bounded procedure for maintaining and extending model-tree/property-inspector behavior within the GUI state/interaction architecture owned by `DEL-00-05`, without transferring architecture authority or expanding functionality.
->
-
-### CLM-023 — Prerequisites
-
-> ##### Prerequisites
->
-> - Confirm the sealed brief names `DEL-07-02` and the approved implementation write scope before any GUI source or test file is edited.
-> - Confirm the accepted `DEC-074` O2 delegation: `DEL-00-05` owns GUI state/interaction architecture and `DEL-07-02` owns model-tree/property-inspector behavior implementation within it.
-> - Confirm upstream architecture basis constraints from `AB-00-03`, `AB-00-05`, `AB-00-06`, `AB-00-07`, and `AB-00-08`.
-> - Confirm accepted domain/schema contracts for entity identity, unit-bearing values, provenance, diagnostics, rule-pack references, and private-library references.
-> - Confirm accepted application-service command/query contracts for inspector edits and tree/selection reads.
-> - Confirm all UI fixtures, screenshots, and examples are synthetic, public-domain, or otherwise cleared for repository use.
->
-
-### CLM-024 — Steps
-
-> ##### Steps
->
-> 1. Re-read `_CONTEXT.md`, `ScopeOfWork.md`, `_DEPENDENCIES.md`, and any accepted upstream schema/service contracts.
-> 2. Identify the entity types and field groups that `DEL-07-02` owns for tree navigation and selected-entity inspection without redefining `DEL-00-05` state/interaction architecture.
-> 3. Define tree-to-viewport-to-inspector selection behavior using transient GUI state and stable model identities.
-> 4. Define property inspector read-only/editable states and command-backed mutation paths.
-> 5. Preserve unit display/edit hooks, dimensional validation, provenance, private/public status, and rule-pack checksum/source status in the inspector where relevant.
-> 6. Add visible findings for missing solve-required inputs, missing rule-check inputs, provenance warnings, assumptions, and IP-boundary warnings without creating defaults.
-> 7. Require a bounded implementation brief for any new behavior. Preserve the open residuals for model-level `modulus_basis_records` entry, broader unit entry/pickers, test/factoring hardening, and broader canvas/tree/editor UX until separately executed.
-> 8. Maintain UI tests for tree navigation, selection synchronization, inspector field groups, missing-data visibility, provenance/private status, and command/query boundary behavior.
->
-### CLM-025 — Verification
-
-> ##### Verification
->
-> | Check | Expected evidence |
-> |---|---|
-> | Scope boundary | Changes are limited to the approved implementation scope for DEL-07-02. |
-> | Tree/selection behavior | UI tests confirm model tree selection updates the inspector and stays aligned with stable model identity. |
-> | Inspector behavior | UI tests confirm selected entity type controls visible field groups and command-backed edit behavior. |
-> | Missing-data behavior | UI tests confirm missing solve-required and rule-check-required values are explicit findings. |
-> | Unit/provenance behavior | Tests or review evidence confirm unit, provenance, checksum, and private/public status are not dropped. |
-> | IP/privacy boundary | Fixtures and UI text contain no protected standards content, proprietary values, private project data, or compliance claims. |
->
-
-### CLM-026 — Records
-
-> ##### Records
->
-> - Implementation notes or pull request summary when code work is authorized.
-> - UI test results.
-> - Command/query boundary review evidence.
-> - Fixture and screenshot provenance notes.
-> - Protected-content review evidence where applicable.
-> - Missing-data, provenance, and private-status UI evidence.
-> - Any human rulings for `TBD` items.
-> - `DEC-074` O2 ownership-delegation evidence and the corresponding deliverable-local R5 run record.
->
-
-### CLM-027 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The model tree, property inspector, selection flow, and command-backed edits are implemented in the bounded GUI slice. Broader product integration and ownership gaps remain only where explicitly recorded; lifecycle remains `IN_PROGRESS`.
-
-- **VER-001** — Validate the contract and review source parity, tree/selection identity, property categories and edit routing, unit and provenance handling, viewport synchronization, diagnostics and blocked states, current residuals, and professional-boundary language.
+- **VER-001** — Executable check (observes rows, selection, inspector fields, findings, queued operations and the document hash): exercises the tree, tables and inspector on invented models with the operation engine, for AC-001, AC-002 and AC-004.
+- **VER-002** — Executable check (observes interaction latency on the reference profile): the table segments of the DEL-07-01 workload under its pass rule, for AC-003.
+- **VER-003** — Executable check (observes menu contents, roles, key handling, focus and the commands run): opens each menu by pointer and by keyboard on each surface, for AC-005.
+- **VER-004** — Comparison with a named reference (hand-built expected batches and applied models for invented sheets): applies sheet batches through the operation engine and compares the applied model record for record; with an executable check of preview gating, refusals, history and numbering, for AC-006.
+- **VER-005** — Executable check (observes preview counts, queued batches and the hash after Undo): runs each bulk change and the batch review on invented selections through the operation engine, for AC-007 and AC-008.
+- **VER-006** — Executable check (observes stored condition-set and support records after each edit through the operation engine): for AC-009.
+- **VER-007** — Comparison with a named reference (the reference system's fixture, which DEL-09-01 owns): a scripted entry following the run sheet compares the entered model with the fixture; and judgment by a named role (the person performing the walkthrough) times one unassisted entry and solve, for AC-010.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-028 — Guidance: DEL-07-02 Model tree and property inspector
-
-> #### Guidance: DEL-07-02 Model tree and property inspector
->
-
-### CLM-029 — Purpose
-
-> ##### Purpose
->
-> This deliverable owns the bounded model-tree/property-inspector behavior implementation within the GUI state/interaction architecture owned by `DEL-00-05`. The implemented and residual work helps users see model structure, selected-entity data, missing inputs, assumptions, provenance, and private/rule-pack status early in the workflow.
->
-
-### CLM-030 — Accepted Ownership Boundary
-
-> ##### Accepted Ownership Boundary
->
-> - `DEL-00-05` retains GUI state/interaction architecture ownership.
-> - `DEL-07-02` owns model-tree/property-inspector behavior implementation within that architecture.
-> - `DEC-074` option O2 resolves `PDU-009`; it does not transfer architecture or broaden functionality.
-> - `DEL-07-03` and `DEL-07-04` retain their specialized-editor and missing-data warning/blocking scopes respectively.
->
-
-### CLM-031 — Principles
-
-> ##### Principles
->
-> - Treat the model tree as navigation and visibility, not a second durable model store.
-> - Route edits through application-service commands and keep selection, expansion, filtering, and panel focus as transient GUI state.
-> - Show missing solve-required and rule-check-required values as explicit findings instead of silently filling defaults.
-> - Preserve unit and provenance context for editable engineering fields.
-> - Keep rule-pack checks, private-library values, and professional acceptance distinct from the open mechanics model.
-> - Keep implementation choices that remain unresolved, including component/state libraries and exact command/query names, as `TBD`.
->
-
-### CLM-032 — Considerations
-
-> ##### Considerations
->
-> The bounded tree and inspector implementation consumes upstream domain schema, persistence, command/query/job envelope, diagnostics, rule-pack, material/component/library, unit, and GUI state contracts. Current evidence settles bounded behavior only; unresolved contracts and broader UX remain governed residuals rather than authority for this deliverable to redefine `DEL-00-05` architecture.
->
-> The inspector should support workflows that make engineering gaps visible before solve execution or rule checking. It should not turn missing code-specific, material, component, SIF/flexibility, allowable, or rule-pack values into public defaults. Private project and library data should remain local/user-controlled unless a later export or contribution path is explicitly authorized with documented rights.
->
-
-### CLM-033 — Trade-offs
-
-> ##### Trade-offs
->
-> | Topic | Guidance |
-> |---|---|
-> | Tree richness vs scope control | Include the navigation and inspection concepts needed by DEL-07-02, but leave specialized editors to DEL-07-03 and missing-data blocking UX to DEL-07-04 unless an accepted brief expands scope. |
-> | Convenience vs data boundary | Do not prefill protected/code-specific values for convenience; use visible `TBD`, diagnostics, or incomplete-state UI. |
-> | Selection state vs durable data | Keep current selection, tree expansion, filters, and panel focus out of durable project state unless a persistence contract later authorizes a view-state record. |
-> | Editable inspector vs command boundary | Inspector edits should be command-backed and validation-aware; direct mutation of durable model objects from UI state should be avoided. |
-> | Rule status vs professional judgment | Show user-rule/check readiness or diagnostics only as software findings; do not present them as professional code compliance. |
->
-
-### CLM-034 — Boundary Rationale
-
-> ##### Boundary Rationale
->
-> The inspector is a convenience surface over governed model and service contracts. Command-backed edits keep validation, unit checks, diagnostics, provenance handling, undo/redo scope, and result-envelope behavior in the application-service boundary instead of allowing UI state to become an alternate authority.
->
-> The split with adjacent GUI deliverables remains explicit: DEL-07-02 owns navigation, selected-entity inspection, creation and generic editing under SCA-011/DEC-111, DEL-07-03 owns specialized material/component/rule-pack editor implementation, and DEL-07-04 owns missing-data warning and blocking UX unless a later sealed brief or human ruling changes that boundary.
->
-
-### CLM-035 — Examples
-
-> ##### Examples
->
-> Current focused tests and run evidence use governed fixtures for bounded behavior. Any future screenshots, examples, or additional fixtures must use synthetic, public-domain, or otherwise cleared model data and must not reproduce protected standards content, proprietary project data, or protected code examples.
->
-
-### CLM-036 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Issue | Contenders | Human ruling |
-> |---|---|---|---|
-> | D41-PDU-009 | Selection/inspector architecture versus behavior ownership. | `DEL-00-05`; `DEL-07-02` | `DEC-074` O2: `DEL-00-05` owns GUI state/interaction architecture; `DEL-07-02` owns model-tree/property-inspector behavior implementation within it. |
->
-
-### CLM-037 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The model tree, property inspector, selection flow, and command-backed edits are implemented in the bounded GUI slice. Broader product integration and ownership gaps remain only where explicitly recorded; lifecycle remains `IN_PROGRESS`.
-
-### CLM-038 — SCA-011 Generic and support editing
-
-**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
-
-Own generic tree/table/inspector create/edit/delete interaction with unit/provenance preservation, including support/restraint creation and editing and generic selected-load inspection. DEL-07-03 owns load-manager editing. DEL-07-09 remains R-006 coverage-accountability owner; no dedicated support-editor slice is activated.
-
-- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
-- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
-- **VER-002** — Exercise generic and support routes through validation/preview/explicit acceptance and DEL-16-06 application; retain nonconvergence/unknown-state visibility and all native-only/unsupported limitations.
+- **AX-001** — *Faster entry of a correct model.* Better is less time and fewer keystrokes to enter the reference system, measured by the walkthrough time against 30 minutes. Speed is never bought by inferring, inheriting or defaulting an engineering value, by applying a change the user has not reviewed, or by weakening a refusal.
+- **AX-002** — *Missing stays visible.* Better is fewer places where an absent or unsourced value can pass unnoticed, measured by the stored members the surfaces do not show and the findings not reachable from their entity. A tidier screen never hides a finding or shows an absent value as a number.
+- **AX-003** — *Leave untouched data alone.* An edit changes what the user edited. Convenience in a form never justifies rewriting, normalizing or dropping a member the user did not touch.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-020 SOW-021 OBJ-006 | CLM-011 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-| OUT-002 | OBJ-006 | CLM-038 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-07-02:2** — Performance acceptance, settled-frame and owned-resource obligations remain open on the redesigned product under [D-72](../../_Coordination/_DECISIONS/D-72_RULING_2026-09-18.md) and its [final addendum](../../_Coordination/_DECISIONS/D-72_RULING_ADDENDUM_2026-09-18.md). All six criteria are ruled and frozen: item 5 uses S-1/S-2, with S-3 not accepted. The addendum removes the fresh former-interface baseline cohort; the original D-70 failures and successor demonstration retain their distinct attribution. Independent-usability holds remain. Qualification requires the ruled candidate evidence; no performance acceptance or lifecycle promotion follows from the criteria ruling.
-- **DEL-07-02:4** — Short panels can require scrolling between a label and its fully visible control. The original transient inspector AX omission remains unexplained although fresh processes expose controls; no independent macOS audit or whole-product WCAG conformance is claimed. Independent practitioner usability/security remain separate held work, not extra publication gates.
-- **DEL-07-02:5** — Add GUI entry/emission of the model-level modulus_basis_records table (schema model.schema.yaml; per-load-case modulus_basis_ref selection plus bend_pipe_ref/mill-tolerance/equivalent-static entry landed via TP-PMM-GUIEMIT-001 PR #156 and applier acceptance TP-APP-R5-FIELDRULES-001 PR #162) (source: Receipt 10 delta / model.schema.yaml)
-- **DEL-07-02:6** — Broaden app unit entry/pickers beyond the covered B-tail surfaces (residual hardening, select when it de-risks current-stage work) (source: PRD plan §3 Phase B-tail row / FR-002)
-- **DEL-07-02:7** — Backfill unit tests and factoring for LoadCaseManagerPanel, PipeViewport, PropertyInspector (see also DEL-07-01) (source: PRD plan §3 hardening row H3 / seam plan §9.4). Backfilled:
-  - **LoadCaseManagerPanel:** `LoadCaseManagerPanel.test.tsx` adds unit tests, and the primitive-load category rules moved unchanged into `primitiveLoadVocabulary.ts`, which has its own tests.
-  - **PropertyInspector:** `PropertyInspector.test.tsx` adds unit tests. No factoring was done, because its helpers live in one long field table.
-  - **PipeViewport:** the deformation overlay moved into `features/viewport/deformationOverlay.ts`, which has its own tests.
-
-  Factoring the rest of PipeViewport remains open.
-- **DEL-07-02:8** — Complete broader canvas/model-tree/property-editor UX beyond the landed D-68 selection/virtualized-workspace foundation and table-editing slices. Evidence references: `apps/desktop/e2e/ui-foundation.spec.ts`, `apps/desktop/src/features/model-tree/ModelTree.test.tsx` and `apps/desktop/src/features/workspace/table/ModelTree.table.test.tsx`. PRD FR-003/FR-013/FR-014 residuals still need bounded work-graph assignments and claim-specific acceptance evidence; the landed slices do not establish full UX closure.
-- **DEL-07-02:9** — Current toolkit adds rich support/hanger/nonlinear/family configuration, reference-guarded removal, explicit equipment/nozzle DOFs and real Rust-backed display readouts. Unsupported display dimensions retain entered values; drafts/model/evidence stay unchanged. N7 V2 integrated review and parent fan-in were accepted; these implementation records do not close broader UX, modulus-basis or independent validation residuals. See DEL-07-09 current coverage and routing records.
-- **DEL-07-02:10** — N7 F1/F3 repairs reject conflicting duplicate stiffness and noncanonical explicit family tokens; canonical UI family values and legacy omitted/null inference are preserved. F2 support/boundary readouts derive linear versus rotational dimension from the effective DOF; unsupported targets retain entered values. Postrepair desktop build / 43 files / 732 tests and host dist 1 test PASS; N7 V2 final rereview subsequently returned PASS and parent fan-in was accepted. See DEL-07-09 Palette_Operation_Routing.md N7 repair amendment; no lifecycle closure.
-- **DEL-07-02:11** — Historical review evidence is available at `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/V2_BACKCHECK/REVIEW_RETURN_V2.md` (PASS) and `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/PRECOMMIT_PARENT_FAN_IN_V1.md` (bounded parent fan-in). The formerly cited `HISTORICAL_N7_ACCEPTANCE_INTAKE_V1.json` is unavailable in the inspected project tree; existence elsewhere and its asserted v11 revalidation remain unknown. Locate the intake record or obtain a bounded replacement verification before relying on that revalidation. Historical review snapshots, coverage cells and lifecycle state are unchanged; these records do not accept a later UI candidate.
-- **DEL-07-02:12** — Context menus on viewport entities, entity tree rows, bulk-grid rows and engineering-table row headers and cells (B9; adopted under the owner's 2026-10-27 delegation, #1662). Menus list existing commands, invoke their existing paths and show shortcuts where available on that surface; unavailable items remain focusable, disabled and described. Existing toolbar, inspector, table-header, footer and key routes remain available in their respective views. In Table view, the tree, bulk-grid and engineering-table menus provide routes to Hide selected, Isolate selected and Fit selection. Shift+F10 and the ContextMenu key open menus from tree focus, viewport labels or canvas, bulk-grid ID buttons, and engineering-table cell or row-header buttons; editing fields retain native menus. On the canvas, a secondary press opens the menu only if it never moved more than 4 CSS px, so a right-drag still pans. The shared menu uses menu, menuitem and separator roles and supports ArrowUp/Down, Home, End, type-ahead, Enter, Space and Escape. Tab and Shift+Tab close the menu and move through the product's document-order tab stops from the invoker, without invoking the surface's own key handlers. The traversal skips disabled controls, form controls inside a disabled fieldset outside its first legend (a link there stays a stop, as natively), inert, unlaid-out and CSS-invisible elements. A named radio group is one stop: its checked radio. With none checked, it is the first radio that can take focus going forward, and the last going backward. The group is every radio with the same name and form owner, including one associated with a form it sits outside. An iframe is a stop. At the document's ends the menu closes, returns focus to the invoker and leaves the key to the browser, whose own traversal then leaves the web content, as observed in native Chromium and macOS WKWebView. Positive tabindex and shadow-root contents, which the product does not use, are outside this ordering. A command runs in the same synchronous update that closes the menu. After a command returns or throws, recovery keeps a focus target already active only if it can still take focus; otherwise it tries the connected, shown invoker, then the surface's current equivalent or stable place (the same label, row or cell; the canvas; the bulk grid's table region; the table footer). If those candidates cannot take focus, recovery starts from the nearest still-connected element of the surface or of the invoker's ancestry when the menu opened and searches shown ancestors, preferring section, region, tab-panel, dialog and heading targets over other tab stops and restricting tabindex="-1" choices to the designated candidates and those places; queued removal from the tree or grids reaches the Pending changes section. Escape uses the same recovery, and a throwing command's error still propagates (with DEL-07-06-RQ-002). Keyboard opening preserves selection. Subject to existing interaction guards, right-clicking an unselected entity selects it first, while right-clicking a selected entity preserves selection. Opening invokes no menu command; existing direct-cell editor blur-to-apply behavior still applies when focus leaves an edit. Pipes also offer Split into N… (B5). Evidence: ContextMenu.test.tsx, EntityContextMenu.test.tsx, ModelTree.contextMenu.test.tsx, EngineeringTable.contextMenu.test.tsx, PipeViewport.contextMenu.test.tsx, App.contextMenu.test.tsx; design: Work/context-menus.md. Native verification of the menus remains open.
-- **DEL-07-02:13** — Run-sheet entry in Grid mode (B1; adopted design-first under the owner's 2026-10-27 delegation). Run rows create or connect the next element and end node through existing operations in one reviewed atomic batch; start and support-only rows follow their respective mappings. Blank inheriting cells show their effective values and origins. Batches that realize a bend or reconnect a pipe require a preview before apply. Applied increment edits move only the explicitly edited end node; deleting a row removes only entities that row created; bend realization replaces its corner with engine-computed tangent nodes. Row status follows transient batch history through queue, apply, Undo and Redo. When the model changes, queued batches from every producer that were prepared on the earlier model are retired from Pending changes, not left inert. The sheet adds no model-document member of its own; its Condition set column writes model document 0.9.0's pipe condition-set reference through assign_condition_set and inherits like Material (DEL-02-01 Design model-document-0.9.0.md §4.1). Design: Work/run-sheet-entry.md. Implementation, tests and native verification remain open.
-
-  Current implementation (G1–G3, RT-G2): the sheet's "Ids and sources" column group, shown and hidden like Section extras, takes a support id and label on rows with a support code, and a bend's start, end, arc and component ids and geometry source on `B` rows. A blank cell shows the derived id, the support id's token or the sheet's Source, as before. Entered ids pass the same reservation and duplicate checks as node and pipe ids, so two supports at one node can be entered. The bend's insertion and the record projection use the entered ids, so consecutive bends still chain. The Numbering header adds Pad numbers to N digits and Pipe number from (its end node, the default, or its start node, with the stated fallback); both are fixed once a row has a number, and a pipe id numbered by its start node is fixed the first time it is shown. An applied row shows the pipe id and bend geometry source it stored. Sources: `apps/desktop/src/features/model-tree/runSheet/runSheetModel.ts`, `runSheetBatch.ts`, `runSheetView.ts` and `RunSheet.tsx`; design Work/run-sheet-entry.md §1.2, §3.2, §4.2 and §7. Evidence: `runSheet.test.ts`, `RunSheet.test.tsx` and `runSheet.session.test.tsx`, including wasm-engine applies. This note describes code only; it records no backcheck or acceptance.
-
-  Current implementation (S3b, RT-G5): the sheet's Condition set column names an existing condition set id or `-`. It inherits like Material, `-` ends it, and an F row from a stored node inherits only when every meeting pipe carries the same set. An id the model lacks is refused in the column. One `assign_condition_set` follows a run row's `connect_pipe_run` and `assign_section` when the effective value is present. A bend row and its next run need the same effective set, or none on both. The record projection adds `condition_set_ref`, so a later bend's `before` matches the engine's. Sources: `runSheetModel.ts`, `runSheetBatch.ts`, `runSheetView.ts` and `RunSheet.tsx`; design Work/run-sheet-entry.md §1.2, §2, §3.3 and §6.1. Evidence: `runSheet/conditionSetColumn.test.ts`, with wasm-engine applies. This note describes code only; it records no backcheck or acceptance.
-
-  Current implementation (bend SIF cells, RT-G2/RT-A3): `B` rows take In-plane SIF i_ip and Out-of-plane SIF i_op beside k source, both or neither, typed numbers that are finite and positive, under the row's k source; there is no second source cell, no inheritance and no default. A partial or invalid pair stays in its cells and refuses the row with `directionalPair`'s text under the engine's code (`OP-BEND-DIRECTIONAL-SIF-INCOMPLETE`). The batch emits one existing `bend_realization` on the inserted component right after its `insert_bend_at_corner`, with the realization editor's payload; its `before` comes from the record projection, which now holds the inserted bend component as the engine stores it. It is inside the same preview-gated atomic batch; rows without SIFs emit the same operations as before. An applied row's SIF cells read the stored component, and a SIF changed elsewhere detaches the row. An agent or imported author is refused by the applier, as for k. Sources: `runSheetModel.ts`, `runSheetBatch.ts`, `runSheetView.ts`, `RunSheet.tsx` and the shared helpers in `bend-authoring/BendAuthoringForms.tsx`; design Work/run-sheet-entry.md §1.2, §2.1, §3.3, §3.4, §4.2 and §7. Evidence: `runSheet/bendSifCells.test.tsx` and the reference proof `runSheet/referenceBendSifs.test.tsx` (the reference sheet's three bends and valve/flange rows through the grid, Queue, preview, Apply, Undo, Redo, browser save and reopen, compared with the fixture's records), both on the wasm engine. This note describes code only; it records no backcheck, timing, native verification or acceptance.
-
-  Current implementation (reference-entry journey, RT-G2/RT-G3): `workspace/referenceEntryJourney.session.test.tsx` enters the reference system from a blank load/reference model, following DEL-09-01's run sheet §2–§3.12 in order. It uses one workspace session with the wasm engine and the desktop's forms, run sheet, load manager fills and copies, self-weight plan, batch review and Review/Apply. It then compares the document with `fixtures/reference_system/reference_system.json` by record, keyed by id, allowing only §3.14's differences by member path, and repeats the comparison after a session save and reopen. 82 of 82 records match, and the test asserts an empty blocked list. §3.7 RS-VS1 is entered through the support form with `restraints: []` and hanger stiffness DOF `UZ` exactly as the fixture records them; #130 enabled this by admitting an empty restraint set for a `variable_spring_hanger` whose hanger stiffness DOF is exactly UX/UY/UZ. The test asserts the form's queued payload equals the fixture's record, and that each case holds exactly the fixture's one RS-VS1 support state. The blank's `analysis_status`, `data_boundary` and `diagnostics` differ from the fixture and are not listed in §3.14. Undo/Redo is checked for one step each of geometry and supports, component, support (RS-VS1's creation), load/reference state and combination. The rows and header shared with `referenceBendSifs.test.tsx` moved to `test-support/referenceRunSheetEntry.ts`. Detail and the route of each step: Work/reference-entry-journey.md. This is functional authoring-path evidence only: no timing, native usability, physics, solve or acceptance result.
-- **DEL-07-02:14** — Bulk change and replace over the selection (B2; adopted under the owner's 2026-10-27 delegation). Assign a pipe section (assign_section), reassign pipe material (set_field material), replace a support kind (update_support configuration; restraints kept or entered by the user, never inferred; targets anchor, guide, line stop, vertical support), remove a support kind (delete_support), set the radius of unrealized bends (set_field geometry.bend_radius.value) and add a tag (tags annotation). Support and bend changes reach entities at selected nodes and pipe ends. The preview counts affected, unchanged, not-matched and refused entities, shows before and after for each affected entity, and gives reasons for the other outcomes; any refusal queues nothing; one batch is queued through the existing review queue, applied whole and reverted by one Undo. Routes: Change selected… in the entity menus and the Bulk change tab. Element-kind replacement awaits an applier operation (Component.kind is deferred); assigning an operating-condition set (assign_condition_set, model document 0.9.0) joins the bulk changes with C1's authoring slice. Evidence: bulkChange.test.ts, BulkChangePanel.test.tsx, BulkChangeMenus.test.tsx, bulkChange.session.test.tsx, App.bulkChange.test.tsx; design: Work/bulk-change.md.
-
-  Current implementation (S3b, RT-G5): Assign condition set joins the bulk changes. It writes one `assign_condition_set` per affected pipe, or clears it, choosing from the model's sets with none suggested, as one batch. Sources: `bulk-change/bulkChange.ts` and `BulkChangePanel.tsx`; design Work/bulk-change.md. Evidence: `condition-sets/conditionSetSurfaces.engine.test.tsx`, and `conditionSets.session.test.tsx` (the session, one Undo). This note describes code only; it records no backcheck or acceptance.
-- **DEL-07-02:15** — Review all queued changes as one batch (G9, RT-G2; owner assignment by Agent 0, 2026-10-31, with DEL-16-03 consulted). The person's queued single changes move into batch review as one batch, in queue order. Nothing applies until the person's Apply entire batch, which validates and applies them all or none, as one undo step; Validate batch can check them first. A change made stale by another in the batch is refused by name, never rebased; changes sharing an operation id are not moved, and the refusal names them; another author's changes stay single. Evidence: queuedChangesBatch.test.tsx; design: Work/queued-changes-batch.md.
-- **DEL-07-02:16** — Valve and flange runs in the run sheet (RT-G2/RT-G3; Agent 0 authorization, 2026-10-31). Kind V creates a valve and L a flange on the row's pipe at its end node; F keeps Start from node. Component details carries the creation forms' explicit inputs and independent units; engineering values never inherit. Rows use the forms' completeness checks and payload builder, the existing collision checks, and the reviewed atomic batch/explicit Apply route. Their components join row ownership and Undo/Redo; applied cells read stored quantities and identify foreign or missing records. Evidence: `componentRows.test.tsx`; governing detail: `Work/run-sheet-entry.md` §9. Native verification and the timed walkthrough remain open.
-- **DEL-07-02:17** — New F/S rows consume no entity number; existing assignments, displayed identities and stored document records remain stable (Agent 0 authorization, 2026-10-31). An explicit overwrite or deletion may release a never-queued draft pipe reservation; successful queue registration and applied checkpoints retain their pipe identities through withdrawal, Undo, overwrite and removal. Consumed numbers never recycle. Evidence: `numberingReservations.test.tsx` and retained historical batches; governing rules: `Work/run-sheet-entry.md` §3.2, §10. No model-document member or numerical reference is changed.
-
-- **DEL-07-02:18** — Operating-condition sets and support direction in the tree, tables and inspector (C1; model document 0.9.0). Create, edit and delete condition sets and their keyed conditions; show and assign a pipe's set; enter an optional direction on single-DOF translational line stops and springs. Values are entered, never suggested or defaulted, and refusals are shown by name. Design: DEL-02-01 Design model-document-0.9.0.md §4. Implementation, tests and native verification remain open.
-
-  Current implementation (S3b, RT-G5/RT-G2/RT-G3; condition sets; support direction is the next paragraph): The model tree's Condition sets section creates, edits and removes sets through `create_condition_set`, `update_condition_set` and `delete_condition_set`. Its fields are id, label, provenance, installation temperature, the conditions table, design, peak, added weight and exposure. Empty cells read "not stated" and nothing is prefilled. Members the solve does not read carry "not used by the solve in 0.9.0", and members the form does not edit are shown and kept as authored. An edit starts from the stored record and changes only the members the person edited or removed. Untouched members, including a stored value the engine refuses, keep their exact stored value and presence. A refused stored value is shown as stored, never as blank. The pipe inspector's field and the pipes table's column assign or clear a pipe's set (`assign_condition_set`). Each edit is checked by the operation engine, then queued for Review/Apply. Refusals (`OP-CONDITION-SET-IN-USE` naming every pipe, `OP-DATA-*`, the validator's codes), staged warnings and carried info are shown in place by code. Sources: `apps/desktop/src/features/condition-sets/`, `ModelTree.tsx`, `PropertyInspector.tsx`, `workspace/table/modelTableAdapter.ts`; design Work/condition-set-authoring.md. Evidence: `conditionSets.engine.test.tsx`, `conditionSets.session.test.tsx`, `conditionSetSurfaces.engine.test.tsx` and the condition-set corpus in `services/operationContractCorpus.test.ts`, every case (s3a_14 included, after the applier's numeric no-op fix, #112) matching the corpus's expected outcome. This note describes code only; it records no backcheck or acceptance.
-
-  Current implementation (support direction, R-6/R-7 S-K1, against the S-K1 applier on main): the support configuration form's create mode has an optional Direction (x, y, z). It has three typed inputs, never prefilled; all three blank means absent. The entered binary64 values are written exactly, never normalized and with no unit. A partial vector, a non-number and `-0` are refused before queueing. Admission is left to the operation engine: a creation with a direction is checked validate-only and queued only if nothing blocks, and refusals are shown in place by code (DEL-04-03 Work `skew-restraints.md` §2.2), including the exact-route refusal on a current or retired contract object; the desktop adds no rule of its own. The form and the inspector show a stored direction read-only, exactly as stored, labelled "edit/remove not supported yet (S-K1)". The form's `update_support configuration`, bulk change's support kind, hanger selection and the support grid's cells never carry or rebuild `direction`; the real engine keeps it bit for bit or refuses the edit by name. Sources: `apps/desktop/src/features/support-configuration/`, `model-workspace/modelView.ts`; design Work/support-direction.md. Evidence: `supportDirection.test.tsx` and `supportDirectionEngine.test.tsx` (real Wasm: creation, refusals and the edit paths). This note describes code only; it records no backcheck or acceptance.
-
-- **DEL-07-02:19** — Tee modifier-source entry (G11, RT-G3; owner/Agent 0 assignment, 2026-11-02). The existing inspector offers Modifier source on a tee and emits the person's explicit source text through the existing guarded component-field operation and Apply route. It supplies no source default and changes no k/SIF, engine member, schema or agent/import capability. Evidence: `teeModifierSource.test.tsx`; design and estimate: `Work/tee-modifier-source.md`. Native verification and timed walkthrough remain open.
+| OUT-001 | SOW-020 SOW-021 OBJ-006 | REQ-001 REQ-002 REQ-003 REQ-004 REQ-005 REQ-006 REQ-007 REQ-008 | AC-001 | VER-001 | The invented model says what must be shown: the surfaces are compared with the stored document, which they did not write. The property families are PRD §14.3 |
+| OUT-002 | SOW-021 SOW-077 OBJ-006 | REQ-006 REQ-010 REQ-013 | AC-002 | VER-001 | The criterion states the expected record after each edit; validity is judged by the document validator and refusals by the operation engine, neither written by these surfaces. The families are those the model document defines (DEL-02-01) and DEL-04-03, DEL-04-04 and DEL-04-10 give meaning |
+| OUT-001 | SOW-020 OBJ-006 | REQ-009 | AC-003 | VER-002 | The limits, profile and pass rule are those of DEL-07-01/REQ-012; the measured quantities are reported by the browser |
+| OUT-001 | SOW-021 OBJ-006 | REQ-011 REQ-012 | AC-004 | VER-001 | The unit catalog (DEL-02-02) says which units a dimension has; the stored record is compared with what was entered |
+| OUT-002 | SOW-077 OBJ-006 | REQ-014 | AC-005 | VER-003 | Outside source: the WAI-ARIA menu pattern for roles and keys; the 4 CSS px threshold and the command list are compared with the requirement's own statement |
+| OUT-002 | SOW-020 SOW-077 OBJ-006 | REQ-015 | AC-006 | VER-004 | A reference that imports no product code: expected batches and applied models built by hand for invented sheets. Row-status and numbering behaviour compare the product with the criterion's own statement |
+| OUT-002 | SOW-021 SOW-077 OBJ-006 | REQ-016 | AC-007 | VER-005 | Expected counts and before-and-after values are worked by hand from the invented selection, not computed by the bulk-change code; refusals are the operation engine's |
+| OUT-002 | SOW-077 OBJ-006 | REQ-017 | AC-008 | VER-005 | The criterion states the expected order and outcome; staleness is judged by the operation engine |
+| OUT-002 | SOW-021 OBJ-006 | REQ-018 | AC-009 | VER-006 | The entered numbers are the expected stored numbers; the refusals and their codes are DEL-02-01's and DEL-04-03's |
+| OUT-002 | SOW-020 OBJ-006 | REQ-019 | AC-010 | VER-007 | Release-target exit criterion 7, whose 30-minute threshold is provisional; a time within it shows the target is met, not that the target is adequate. The entered model is compared with DEL-09-01's reference-system fixture, which these surfaces did not write, and the time is observed on a person's entry |

@@ -138,9 +138,9 @@ fn reference_validate(reader: &str, source: &Value, model: Option<&Value>, invoc
                     .and_then(|()| crate::preview_combination_operands::model_checks(source, m))
                     // RT-A4 (review r1 P2): the gates and unsigned rows, from the model.
                     .and_then(|()| crate::preview_combination_gates::check(source, Some(m)))
-                    // RT-A3 §4: the certificate's records bound to the model's combinations.
+                    // the certificate's records bound to the model's combinations.
                     .and_then(|()| crate::combination_certificate::model_checks(source, m))
-                    // RT-A3 §4: the certificate last, after every other check.
+                    // the certificate last, after every other check.
                     .and_then(|()| crate::combination_certificate::check_with(source, Some(m)))
             })
         })),

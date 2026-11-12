@@ -88,7 +88,7 @@ export async function saveCsvTable(input: CsvSaveInput, doc: Document = document
 }
 
 /* -------------------------------------------------------------------------- *
- * Streamed CSV (C1 native custody, DEL-04-05 `c1-native-custody-plan.md` §5)
+ * Streamed CSV
  * -------------------------------------------------------------------------- */
 
 /** The most UTF-16 units one streamed chunk carries (at most 768 KiB of UTF-8); a longer text is

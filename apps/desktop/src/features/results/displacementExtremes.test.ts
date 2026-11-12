@@ -27,7 +27,7 @@ import {
   type DisplacementSort
 } from "./displacementExtremes";
 
-// A8, displacement extremes per node (DEL-07-05 Design `displacement-extremes.md` §2 to §5, §9).
+// A8, displacement extremes per node.
 // All data are invented (`resultOverlayFixtures`) or the bundled invented reference.
 
 type Row = MechanicsResult["results"][number];

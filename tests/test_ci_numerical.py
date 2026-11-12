@@ -16,6 +16,7 @@ from unittest.mock import patch, Mock
 import pytest
 
 from tests.public_export import PUBLIC_EXPORT
+from tools.repository_history import resolve_revision
 
 if PUBLIC_EXPORT:
     # The hosted router lives at the repository root, outside the export.
@@ -648,9 +649,8 @@ class ReachabilitySafetyTests(unittest.TestCase):
         for base, head in [('a467a1f03799f12ebd02df82a0145cfc958f9dcb','c986759b21605293e29383dd2b660ab5acb7c3fb'),
                            ('2844f2b32d4b9f30effc41b4b387a302417697dc','b137b9c46a0a848a9284e5147391641845c83815'),
                            ('e2055cb35fe71af03caae2c386bd8055fb0afd81','a9524745a3227ff229e22bf6aba9b307e0382701')]:
-            # Historical source identities survive in the extraction correspondence.
-            mapping = dict(line.split(':') for line in (ROOT / 'reference/migration/commit-map.txt').read_text().splitlines() if line)
-            plan = hosted_ci.make_plan(ROOT, profile, 'pull_request', mapping[base], mapping[head])
+            # Historical source identities resolve through the extraction table.
+            plan = hosted_ci.make_plan(ROOT, profile, 'pull_request', resolve_revision(ROOT, base), resolve_revision(ROOT, head))
             selected = plan['piping_numerical_selection']
             self.assertEqual(selected['classification'], 'reachability', selected['fallback_reasons'])
             # #1246 also edits the desktop manifest read by VR's feature guard.
@@ -683,7 +683,7 @@ class ReachabilitySafetyTests(unittest.TestCase):
         for path, piping, python in [('tests/test_persistence_schema.py', 'full', 'full'),
                                      ('apps/desktop/src/App.tsx', 'full', 'full'),
                                      ('docs/PRD.md', 'not-applicable', 'full'),
-                                     ('loop/LOOP_INIT.md', 'not-applicable', 'full')]:
+                                     ('init-prompt.md', 'not-applicable', 'full')]:
             result = hosted_ci.select_paths([ci.PROJECT + path], profile)
             self.assertEqual(result['modes']['piping'], piping)
             self.assertEqual(result['modes']['piping-python'], python)

@@ -132,7 +132,7 @@ MANIFEST_KIND = "openpipestress.caepipe_benchmark.manifest"
 MODEL_KIND = "openpipestress.caepipe_benchmark.model"
 DEFAULT_SEED = 20261028
 DEFAULT_OUT = PROJECT / "validation" / "caepipe_benchmark"
-# The piping code every benchmark MBF is written with (Design §11.2): an ASME B31.1 edition that predates B31J, so
+# The piping code every benchmark MBF is written with: an ASME B31.1 edition that predates B31J, so
 # OPCODE's B31J off is honoured; the current B31.1 token locks B31J on (Analysis).
 PIPING_CODE = "B311-80"
 REFERENCE_TEMPERATURE_C = 20.0
@@ -144,7 +144,7 @@ SIX = ["UX", "UY", "UZ", "RX", "RY", "RZ"]
 PROVENANCE = ("invented CAEPIPE benchmark input (DEL-17-05, RT-V2); seeded generator; not library, component, "
               "catalog, standard or code-rule data")
 
-# Three invented temperature-independent materials (Design §11.1): E, Poisson ratio, expansion, mass density.
+# Three invented temperature-independent materials: E, Poisson ratio, expansion, mass density.
 MATERIALS = (
     ("material:bench-a", 200.0e9, 0.30, 12.0e-6, 7850.0),
     ("material:bench-b", 195.0e9, 0.30, 16.0e-6, 7900.0),
@@ -153,7 +153,7 @@ MATERIALS = (
 OD_RANGE = (60.0, 610.0)  # mm
 DT_RANGE = (10.0, 100.0)  # D/t
 DELTA_T_RANGE = (50.0, 250.0)  # K
-# Inputs that cannot be held exactly equal on both sides (Design §11.3); each is carried by a series.
+# Inputs that cannot be held exactly equal on both sides; each is carried by a series.
 SHEAR = "shear_deformation"
 BEND_K = "bend_flexibility_application"
 BEND_SHEAR = "bend_transverse_shear"
@@ -408,7 +408,7 @@ Spec = dict[str, Any]
 
 def g1_straight(rng: random.Random) -> list[Spec]:
     specs: list[Spec] = []
-    # Shear series: one span and OD, D/t 10, 20, 40, 100 (Design §11.3).
+    # Shear series: one span and OD, D/t 10, 20, 40, 100.
     for dt in (10.0, 20.0, 40.0, 100.0):
         specs.append({"config": "cantilever", "sampling": "series", "series": ["shear-dt"], "span": 3.0,
                       "od": 219.1, "dt": dt, "material": 0, "delta_t": 150.0, "tip_force": -2000.0})

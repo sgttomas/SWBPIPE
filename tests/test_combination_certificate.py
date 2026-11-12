@@ -642,7 +642,7 @@ def test_w16_line_rows_lie_within_their_bound_of_the_frozen_exact_rows(combinati
 
 @pytest.mark.parametrize("with_model", [False, True], ids=["without-model", "with-model"])
 def test_an_appended_ex_limitation_claim_is_untrusted_text_and_attests_nothing(with_model):
-    """Review cert2, item 2 withdrawn (Work `combination-certificate.md` §2): the reader does not attest the whole EX
+    """Review cert2, item 2 withdrawn: the reader does not attest the whole EX
     limitation roster, and raw limitation prose never supplies a reader-attested certificate claim. An appended
     establishment sentence is admitted as untrusted text; the member, the diagnostics, numerical_quality and the
     reader standing are the unmodified document's. The exact-report builder's refusal of the unregistered limitation is
@@ -676,7 +676,7 @@ def _base_of(successor: dict) -> dict:
 
 
 def test_the_retained_base_read_context_is_g7_s_only():
-    """The retained base-read context (Work §2, Agent 0's ruling after review cert2) has one caller, the retained
+    """The retained base-read context (Agent 0's ruling after review cert2) has one caller, the retained
     reader's G7 base read, and is never reachable from an ordinary read (Rust alike). Under it only the roster's text
     closure is lifted; from an ordinary entry the same base's combination prose is refused, and the context is clear."""
     import re
@@ -816,7 +816,7 @@ HELD_GATE_CASES = [
 @pytest.mark.parametrize("with_model", [False, True], ids=["without-model", "with-model"])
 @pytest.mark.parametrize("what,corpus,name,edit,code", HELD_GATE_CASES, ids=[c[0] for c in HELD_GATE_CASES])
 def test_a_held_gate_notice_is_the_records_refusal_in_its_frame(what, corpus, name, edit, code, with_model):
-    """RT-A5 (Work combination-certificate.md section 2): a held gate's notice is set-bound, required once, and exactly
+    """a held gate's notice is set-bound, required once, and exactly
     "Combination withheld: " + R + ".", R the refusal of the document's held-status record for that combination,
     bound to the record and never verified as true."""
     e = _held_entry(name) if corpus == "held" else entry(name)
@@ -982,7 +982,7 @@ HELD_RELEASED_CASES = [
 @pytest.mark.parametrize("with_model", [False, True], ids=["without-model", "with-model"])
 @pytest.mark.parametrize("what,name,edit,code", HELD_RELEASED_CASES, ids=[c[0] for c in HELD_RELEASED_CASES])
 def test_a_held_status_released_notice_is_rebuilt_from_its_record(what, name, edit, code, with_model):
-    """RT-A5 (Work combination-certificate.md section 2): one set-bound HELD_STATUS_RELEASED entry per held combination
+    """one set-bound HELD_STATUS_RELEASED entry per held combination
     whose record releases a support, its message rebuilt from the record's recorded fields only, at the full reader."""
     e = _held_entry(name)
     if edit is not None:

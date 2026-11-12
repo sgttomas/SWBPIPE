@@ -52,7 +52,7 @@ export const HANGER_SIZING_CANDIDATES_TABLE_LABEL = "Hanger sizing candidates";
 export const HANGER_SIZING_SOLVES_TABLE_LABEL = "Hanger sizing derived solves";
 export const HANGER_SIZING_NOT_PUBLISHED_INPUT = "not published";
 
-/** §8.3.3 and §8.3.5: what each status and standing means. */
+/** what each status and standing means. */
 export const HANGER_SIZING_SIZED_TEXT =
   "Status: sized. The sizing algorithm completed. This does not mean that every candidate fits, and it is no engineering acceptance.";
 export const HANGER_SIZING_REFUSED_TEXT = "Status: refused. No table was formed; every refusal is listed below, in the engine's order.";
@@ -64,7 +64,7 @@ const STANDING_STATUS_TEXT = { passed: "passed", failed: "failed", not_checked: 
 
 export type HangerSizingPanelProps = Readonly<{
   document: HangerSizingDocument;
-  /** The readers' verdict bound to this exact document (§8.3.7); otherwise every standing is not checked. */
+  /** The readers' verdict bound to this exact document; otherwise every standing is not checked. */
   evidence?: HangerSizingReaderEvidence | null;
   /** The full library document the result binds; record details are shown only when its checked hash matches. */
   library?: unknown;

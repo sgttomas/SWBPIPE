@@ -29,11 +29,11 @@ import {
 import type { ReportComposition } from "./reportComposition";
 import { buildUserReleasedReportPackageRequest, reportPackageExactSubmission } from "./reportPackageRequest";
 
-/** The dialog's one answer (§2.3 "Session"): the application clock's reading when the user
+/** The dialog's one answer: the application clock's reading when the user
  * confirmed, `YYYY-MM-DDTHH:MM:SSZ`. It lives only in the argument of the one save. */
 export type UserReleaseConfirmation = { userReleasedAt: string };
 
-/** Route 010's receipt: the package receipt plus the record's two receipt members (§2.3). */
+/** Route 010's receipt: the package receipt plus the record's two receipt members. */
 export type UserReleasedReportPackageSaveReceipt = ReportPackageSaveReceipt & {
   user_release_recorded: boolean;
   user_release_model_document_sha256: string;
@@ -60,7 +60,7 @@ export type UserReleasedReportPackageSaveArgs = {
   requestCanonicalText: string;
   modelCanonicalText: string;
   inputManifestCanonicalText: string;
-  /** The solve's own transient run record (§2.5 step 2); a validation input only, never saved. */
+  /** The solve's own transient run record; a validation input only, never saved. */
   analysisRunCanonicalText: string;
   screening: UserReleasedSaveScreening;
   localFirstEvidence: LocalFirstRouteEvidence;
@@ -100,7 +100,7 @@ function hasAllowedUserReleaseEvidence(controlled: ControlledRouteExport): boole
   );
 }
 
-/** The preparation on route 010 (§2.5 step 1): the projector's evidence, then the canonical
+/** The preparation on route 010: the projector's evidence, then the canonical
  * texts. The controlled payload must be canonically equal to the request it screened. */
 export async function prepareUserReleasedReportPackageSave(
   controlled: ControlledRouteExport,
@@ -168,7 +168,7 @@ export async function prepareUserReleasedReportPackageSave(
   };
 }
 
-/** The whole webview side of one shareable save, before IPC (§2.3 "Session"): the solve's
+/** The whole webview side of one shareable save, before IPC: the solve's
  * own run record, the request with the bound record, the user-release projector and the
  * preparation. `result` is the full result (a native result's bounded full copy). */
 export async function prepareShareableReportPackageSave(input: {

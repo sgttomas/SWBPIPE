@@ -31,11 +31,11 @@ def repo(tmp_path, monkeypatch):
     git(tmp_path, "config", "user.email", "test@example.invalid")
     git(tmp_path, "config", "user.name", "Documentation CI fixture")
     for path in ("README.md", "docs/note.md", "core/code.py",
-                 "execution/PKG-04/DEL-04-08/Work/retained-pricing-rules.md",
+                 "execution/PKG-04/DEL-04-08/ScopeOfWork.md",
                  "apps/desktop/src-tauri/resources/instructions.md",
                  "docs/claims_registry.md", "docs/THIRD_PARTY_NOTICES.md",
-                 "execution/PKG-01/DEL-01-01/deliverable.yaml", "execution/PKG-01/DEL-01-01/Work/data.json",
-                 "execution/PKG-01/DEL-01-01/Work/rows.csv"):
+                 "execution/PKG-01/DEL-01-01/deliverable.yaml", "execution/_Coordination/data.json",
+                 "execution/_Coordination/rows.csv"):
         file = tmp_path / path
         file.parent.mkdir(parents=True, exist_ok=True)
         file.write_text({".json": "{}\n", ".csv": "a\n"}.get(file.suffix, "before\n"))
@@ -59,11 +59,11 @@ def test_pricing_prose_and_multiple_commits_use_the_complete_diff(repo):
     root, base = repo
     (root / "docs/note.md").write_text("first\n")
     commit(root)
-    (root / "execution/PKG-04/DEL-04-08/Work/retained-pricing-rules.md").write_text("X1–X3\n")
+    (root / "execution/PKG-04/DEL-04-08/ScopeOfWork.md").write_text("X1–X3\n")
     head = commit(root)
     selected = docs.plan(root, "pull_request", base, head)
     assert selected["mode"] == "documentation"
-    assert selected["paths"] == ["docs/note.md", "execution/PKG-04/DEL-04-08/Work/retained-pricing-rules.md"]
+    assert selected["paths"] == ["docs/note.md", "execution/PKG-04/DEL-04-08/ScopeOfWork.md"]
     docs.verify(root, selected)
     # An omitted path or stale head must not be accepted as a documentation pass.
     for wrong in ({**selected, "paths": ["docs/note.md"]}, {**selected, "head": base}):
@@ -117,7 +117,7 @@ def queue(root, base, path, content):
     (root / path).write_text(content)
     commit(root)
     git(root, "checkout", "-qb", "queue-base", base)
-    (root / "execution/PKG-01/DEL-01-01/Work/rows.csv").write_text("a\nb\n")
+    (root / "execution/_Coordination/rows.csv").write_text("a\nb\n")
     queue_base = commit(root)
     git(root, "merge", "-q", "--no-ff", "--no-edit", "candidate")
     return queue_base, git(root, "rev-parse", "HEAD")
@@ -207,23 +207,24 @@ def test_aggregate_requires_classification_and_exact_selected_job_states(mode):
 def test_declarative_specification_changes_are_documents_without_an_audit_refresh(repo, change):
     root, base = repo
     work = root / "execution/PKG-01/DEL-01-01"
+    records = root / "execution/_Coordination"
     if change == "yaml":
         (work / "deliverable.yaml").write_text("id: DEL-01-01\n")
     elif change == "json":
-        (work / "Work/data.json").write_text('{"a": 1}\n')
+        (records / "data.json").write_text('{"a": 1}\n')
     elif change == "csv":
-        (work / "Work/rows.csv").write_text("a,b\n1,2\n")
+        (records / "rows.csv").write_text("a,b\n1,2\n")
     elif change == "add":
-        (root / "execution/PKG-02/DEL-02-01/Work/new.md").parent.mkdir(parents=True)
-        (root / "execution/PKG-02/DEL-02-01/Work/new.md").write_text("new\n")
+        (root / "execution/PKG-02/DEL-02-01/ScopeOfWork.md").parent.mkdir(parents=True)
+        (root / "execution/PKG-02/DEL-02-01/ScopeOfWork.md").write_text("new\n")
     elif change == "delete":
-        (work / "Work/rows.csv").unlink()
+        (records / "rows.csv").unlink()
     elif change == "rename":
-        (work / "Work/data.json").rename(work / "Work/renamed.json")
+        (records / "data.json").rename(records / "renamed.json")
     else:
         (work / "deliverable.yaml").write_text("id: DEL-01-01\n")
-        (work / "Work/notes.txt").write_text("notes\n")
-        (work / "Work/hashes.sha256").write_text("0" * 64 + "  x\n")
+        (records / "notes.txt").write_text("notes\n")
+        (records / "hashes.sha256").write_text("0" * 64 + "  x\n")
     head = commit(root, refresh=False)
     assert docs.source_digest(root, head) == docs.source_digest(root, base)
     selected = docs.plan(root, "pull_request", base, head)
@@ -236,32 +237,32 @@ def test_declarative_specification_changes_are_documents_without_an_audit_refres
 @pytest.mark.parametrize("change", ["python", "script", "executable", "symlink", "binary", "code-and-spec", "unknown"])
 def test_runnable_or_mixed_execution_changes_keep_product_checks(repo, change):
     root, base = repo
-    work = root / "execution/PKG-01/DEL-01-01/Work"
+    records = root / "execution/_Coordination"
     if change == "python":
-        (work / "derive.py").write_text("print(1)\n")
+        (records / "derive.py").write_text("print(1)\n")
     elif change == "script":
-        (work / "run.sh").write_text("echo\n")
+        (records / "run.sh").write_text("echo\n")
     elif change == "executable":
-        (work / "data.json").chmod(0o755)
+        (records / "data.json").chmod(0o755)
     elif change == "symlink":
-        (work / "data.json").unlink()
-        (work / "data.json").symlink_to("rows.csv")
+        (records / "data.json").unlink()
+        (records / "data.json").symlink_to("rows.csv")
     elif change == "binary":
-        (work / "data.json").write_bytes(b"\x00\xff")
+        (records / "data.json").write_bytes(b"\x00\xff")
     elif change == "code-and-spec":
-        (work / "data.json").write_text('{"b": 2}\n')
+        (records / "data.json").write_text('{"b": 2}\n')
         (root / "core/code.py").write_text("changed\n")
     else:
         (root / "unknown.cfg").write_text("x\n")
-        (work / "data.json").write_text('{"b": 2}\n')
+        (records / "data.json").write_text('{"b": 2}\n')
     assert docs.plan(root, "pull_request", base, commit(root, refresh=False))["mode"] == "product"
 
 
-@pytest.mark.parametrize("path,text", [("Work/data.json", '{"a": 1, "a": 2}'), ("Work/data.json", "{"),
-                                       ("deliverable.yaml", "a: [1\n"), ("Work/rows.csv", "a,b\n1,2,3\n")])
+@pytest.mark.parametrize("path,text", [("execution/_Coordination/data.json", '{"a": 1, "a": 2}'), ("execution/_Coordination/data.json", "{"),
+                                       ("execution/PKG-01/DEL-01-01/deliverable.yaml", "a: [1\n"), ("execution/_Coordination/rows.csv", "a,b\n1,2,3\n")])
 def test_invalid_declarative_specifications_fail_document_checks(repo, path, text):
     root, base = repo
-    (root / "execution/PKG-01/DEL-01-01" / path).write_text(text)
+    (root / path).write_text(text)
     selected = docs.plan(root, "pull_request", base, commit(root, refresh=False))
     assert selected["mode"] == "documentation"
     with pytest.raises(ValueError, match="Invalid declarative specification"):
@@ -270,14 +271,14 @@ def test_invalid_declarative_specifications_fail_document_checks(repo, path, tex
 
 def test_boundary_failure_and_selected_consumers_fail_the_document_route(repo, monkeypatch):
     root, base = repo
-    (root / "execution/_DAG").mkdir(parents=True)
-    (root / "execution/_DAG/_LATEST.md").write_text("pointer\n")
+    (root / "execution/_Fixture").mkdir(parents=True)
+    (root / "execution/_Fixture/note.md").write_text("note\n")
     selected = docs.plan(root, "pull_request", base, commit(root, refresh=False))
     assert selected["mode"] == "documentation"
-    monkeypatch.setitem(docs.DOCUMENT_TESTS, "execution/_DAG/", ["-c", "raise SystemExit(1)"])
+    monkeypatch.setitem(docs.DOCUMENT_TESTS, "execution/_Fixture/", ["-c", "raise SystemExit(1)"])
     with pytest.raises(subprocess.CalledProcessError):
         docs.verify(root, selected)
-    monkeypatch.setitem(docs.DOCUMENT_TESTS, "execution/_DAG/", ["-c", "pass"])
+    monkeypatch.setitem(docs.DOCUMENT_TESTS, "execution/_Fixture/", ["-c", "pass"])
 
     def fail(root):
         raise subprocess.CalledProcessError(1, "execution_boundary")

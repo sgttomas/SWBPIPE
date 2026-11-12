@@ -1,5 +1,5 @@
 //! SHA-256 (FIPS 180-4), standard library only, for the committed files'
-//! `SHA256SUMS` and the adapter's canonical-bytes check (plan §4.3). K3's and
+//! `SHA256SUMS` and the adapter's canonical-bytes check. K3's and
 //! K4's tests carry the same precedent (`K4T/support.rs`).
 
 const K: [u32; 64] = [

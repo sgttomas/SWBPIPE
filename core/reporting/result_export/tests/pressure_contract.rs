@@ -7,7 +7,7 @@
 use open_pipe_stress_result_export::semantic_contract as s;
 use serde_json::{json, Value};
 
-/// T4-U4b §4.3 (S4): the straight derived tokens pressure-source-1 shares with pressure-2.
+/// the straight derived tokens pressure-source-1 shares with pressure-2.
 const STRAIGHT_DERIVED_BASES: [&str; 2] = ["section_extremes_from_published_stress_rows_v1;", "saint_venant_annulus_flexure_v1;"];
 
 fn corpus() -> Vec<(String, Value)> {
@@ -184,7 +184,7 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     // place, ahead of the per-section-basis tokens both tables append.
     let max_basis = open_pipe_stress_result_export::physics_source::MAX_BASIS;
     let mut vocabulary = source["canonical_metadata_vocabulary"].clone();
-    // T4-U4b §4.3 (S4): the source family's straight derived tokens (appended to its
+    // the source family's straight derived tokens (appended to its
     // vocabulary) are pressure-2's too; pressure-2 orders them with its own U4b tokens
     // below, so they are taken out of the source's list first.
     let source_bases: Vec<String> = ["section_extremes_from_published_stress_rows_v1", "saint_venant_annulus_flexure_v1"]
@@ -209,7 +209,7 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     extend(&mut vocabulary, "coordinate_system", &[LOCAL_FRAME]);
     extend(&mut vocabulary, "location", &[LOCAL, ROD_LOCATION]);
     extend(&mut vocabulary, "basis", &[ROD_BASIS]);
-    // T4-U4b (§2.2): pressure-2's own section stress, toroidal and directional
+    // pressure-2's own section stress, toroidal and directional
     // tokens (both section bases), which the source family does not carry.
     extend(&mut vocabulary, "component", &["sigma_plus", "sigma_minus", "tau_v_max", "intensified_bending",
         "intensified_bending_maximum", "toroidal_intrados_hoop_stress", "toroidal_crown_hoop_stress",
@@ -284,7 +284,7 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
     assert!(rows.iter().all(|r| r["combination_algebra"].is_string()));
     let split = rows.iter().position(|r| r["kind"].as_str().unwrap().starts_with("connector_")).unwrap();
     let (physical, rest) = rows.split_at(split);
-    // T4-U4b (§2.2): pressure-2's own section stress, toroidal and directional
+    // pressure-2's own section stress, toroidal and directional
     // signatures follow the connector rows; each is a stress signature naming its
     // recovery token and section basis (the source family does not carry them).
     let u4b_split = rest.iter().position(|r| !r["kind"].as_str().unwrap().starts_with("connector_")).unwrap_or(rest.len());
@@ -314,7 +314,7 @@ fn the_pressure_1_table_is_the_physical_family_plus_the_connector_rows() {
         let kind = row["kind"].as_str().unwrap();
         assert!(open_pipe_stress_result_export::section_basis::is_stress_kind(kind), "{row}");
         assert!(open_pipe_stress_result_export::section_basis::split_token(row["source_basis"].as_str().unwrap()).is_some(), "{row}");
-        // T4-U4b §4.3 (S4): the source family carries the straight derived signatures
+        // the source family carries the straight derived signatures
         // (σ⁺, σ⁻ and the straight τ token), each the same row but for its id and mark;
         // the arc, toroidal and directional ones stay pressure-2's own.
         if STRAIGHT_DERIVED_BASES.iter().any(|t| row["source_basis"].as_str().unwrap().starts_with(t)) {

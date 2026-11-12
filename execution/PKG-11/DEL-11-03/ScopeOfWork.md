@@ -2,475 +2,120 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-11-03
 package_id: PKG-11
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-033]
 package_objective_refs: [OBJ-001, OBJ-003]
 ---
 
-# Scope of Work — DEL-11-03
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-11-03 Theory notes: classical to modern centerline analysis
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-11-03` in service of project scope [SOW-033] and package objectives [OBJ-001, OBJ-003].
+An engineer who is about to issue SWBPIPE's results under their own responsibility can read how each result was computed: what the method is, what it assumes, and where it stops being valid. The theory notes explain why routine piping analysis is done on a 3D centerline/frame model, and then, analysis by analysis, the method the product uses. They are written from open mechanics, cite only sources the public project may cite, and copy nothing from a standard.
 
-- **OUT-001** — A theory-notes contract tracing classical through modern centerline-analysis concepts, assumptions, applicability, limitations, and evidence boundaries is produced.
+It serves SOW-033 under OBJ-001 and OBJ-003 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-11, row DEL-11-03: cite public or permissive sources, copy no formula from standards), and the PRD's product principles, §5.4, §20.1, §21 and §22.1. In `docs/RELEASE_TARGET_v1.0.md` it owns exit criterion 13 together with DEL-11-01: the user guide and the theory notes cover every analysis of criterion 1, with its inputs, method, assumptions and limitations, and state that SWBPIPE does not determine code compliance. The notes' share is the method, its assumptions, the limits of the method, and what each input means to the method. What the user enters and does is the guide's share.
+
+- **OUT-001** — The theory notes, `docs/theory/`: the centerline note and the notes on the analyses.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-11-03 Theory Notes - Classical to Modern Centerline Analysis
+**Terms the notes implement.**
 
-> #### Datasheet: DEL-11-03 Theory Notes - Classical to Modern Centerline Analysis
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Centerline note.* The note that explains the model itself: the centerline idea, its reading as a 3D frame, what the global model is good for, what it does not decide, the separate layer of user-rule checks, verification and validation, the handoff to local FEA, and how to read a result.
+- *Required analysis.* Each analysis of exit criterion 1: sustained, operating, expansion with its basis, hydrotest, wind, three-axis static seismic with SRSS and absolute-sum combination, seismic anchor movement, modal, response spectrum and hanger sizing.
+- *Analysis coverage.* For one required analysis, under headings a link can reach: the inputs as the method uses them; the method, step by step; the assumptions it rests on; and its limitations, which are the conditions under which its result is not valid or is not produced.
+- *Method owner.* The deliverable whose scope defines an analysis. A note explains that method and defines none. Where a note and the method owner's scope differ, the scope stands and the note is the one to correct.
+- *Mechanics statement.* A relation or formula in a note, stated with the assumptions it rests on and supported by an accepted source.
+- *Source record.* The entry in a note's source notes for one source: title; locator; the section used; licence or redistribution status; source type; the claims it may support; disposition; and review notes on protected content.
+- *Disposition.* `ACCEPTED`: the source may support the claims its record names and no others. `TBD`: unresolved, supports nothing. `REJECTED`: never used for public prose. `QUARANTINED`: appears protected, private or proprietary and is held for human or legal review.
+- *Continuity of terms.* Classical flexibility analysis, the centerline model and the 3D frame model are three levels of one abstraction: the historical family of ideas, the geometric idealisation, and its computational form. A rule check is the separate evaluation of the user's own acceptability rules on mechanics results.
+- *Lineage.* The PRD's product principles state the technical lineage: classical centerline flexibility analysis, refined through modern open methods, with no mandate to reproduce any historical text. The notes state the lineage on that authority and make no more detailed historical claim without an accepted source.
 
-### CLM-003 — Identification
+**Boundary.** The notes explain. The following belong elsewhere:
 
-> ##### Identification
->
-> | Field | Value | Source |
-> |---|---|---|
-> | Deliverable ID | `DEL-11-03` | `_CONTEXT.md` |
-> | Name | Theory notes: classical to modern centerline analysis | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row `DEL-11-03` |
-> | Package | `PKG-11` Documentation, Examples, and Education | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 7 |
-> | Deliverable type | `DOC_UPDATE` | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row `DEL-11-03` |
-> | Scope item | `SOW-033` | `_CONTEXT.md`; `docs/_Registers/ScopeLedger.csv` row `SOW-033` |
-> | Objectives | `OBJ-001`, `OBJ-003` | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` rows `OBJ-001` and `OBJ-003` |
-> | Anticipated artifact | `docs/theory/centerline_analysis.md` | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row `DEL-11-03` |
-> | Context envelope | `M`; risk `OK` | `_CONTEXT.md`; `docs/_Registers/ContextBudgetQA.csv` row `DEL-11-03` |
->
+- the definition of each method, its admitted domain and its refusals: the method owner (DEL-04-07 for the solve, DEL-05-01 for loads and cases, DEL-05-02 for combinations, DEL-04-09 for modal, DEL-04-10 for response spectrum, DEL-04-11 for hanger sizing);
+- the independent references and benchmark results that examine the product: the method owner and DEL-09-01;
+- what the user enters and does: DEL-11-01;
+- the local FEA handoff contract: DEL-10-03;
+- which content may be public, and the quarantine rule: DEL-01-02.
 
-### CLM-004 — Attributes
+**Not decided.** Three source selections, each resolved when a source for it is admitted with its source record under the boundary policy of DEL-01-02, or when the subject is left out of the notes:
 
-> ##### Attributes
->
-> | Attribute | Draft setup value | Source / notes |
-> |---|---|---|
-> | Documentation purpose | Explain the lineage from classical piping flexibility analysis to modern global centerline/frame implementation. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` row `DEL-11-03` |
-> | Solver concept boundary | The project uses a global 3D centerline/frame model as the primary practical analysis model; local shell/solid FEA is a separate handoff path. | `docs/CONTRACT.md` invariant `OPS-K-MECH-1`; `AGENTS.md` boundary 4 |
-> | Public-source constraint | Future theory text must use public/permissive sources only and must cite them explicitly. | `_CONTEXT.md` Context Budget QA; `docs/CONTRACT.md` `OPS-K-IP-1` and `OPS-K-IP-2` |
-> | Protected-data exclusion | The note must not reproduce protected standards text, examples, figures, tables, code-specific formulas, SIF/flexibility tables, material allowables, or proprietary commercial data. | `docs/CONTRACT.md` `OPS-K-IP-1`; `_CONTEXT.md` |
-> | Code-neutral framing | Mechanics explanation must stay separate from user rule checks and professional approval. | `AGENTS.md` boundaries 2 and 3; `docs/CONTRACT.md` `OPS-K-AUTH-1`, `OPS-K-MECH-2` |
-> | Unit stance | Any later technical explanation that mentions quantities or dimensions must remain unit-aware and avoid silent defaults. | `docs/CONTRACT.md` `OPS-K-UNIT-1`, `OPS-K-DATA-2` |
-> | Current source basis | Governance and the bounded public conceptual sources listed in the current theory Source Notes. Uncovered claims retain specific source gaps. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
-> | Source inventory status | Source selection remains governed; sources that are not public/permissive, reviewed, and claim-specific remain `TBD` or rejected for public theory-note use. | `_SEMANTIC_LENSING.md` items `B-001`, `C-001`, `F-001`, and `E-001`; `docs/IP_AND_DATA_BOUNDARY.md` section 4 |
->
+- a public or permissive source for the detailed history of piping flexibility practice;
+- a public or permissive source for formula-level 3D frame theory;
+- a public or permissive source for local shell and solid FEA practice, should the notes go beyond stating the handoff boundary.
 
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> Current deliverable obligation: Draft theory notes explaining the classical flexibility lineage and modern 3D frame implementation without copying protected standards. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> - This setup kit is deliverable-local. It does not create or modify `docs/theory/centerline_analysis.md`. Current implementation (at `62c1efd75b`): `docs/theory/centerline_analysis.md` exists.
-> - Hanger sizing theory note (RT-V4, for DEL-04-11; 2026-11-02): `docs/theory/hanger_sizing.md` explains the implemented pressure-free method, its inputs, assumptions and limitations from DEL-04-11's governing design and engine, and marks the desktop, exact-route and preload capabilities that are not yet built. Its mechanics are classical beam statics, stated without external source; its evidence is DEL-04-11's independent references.
-> - The final theory note must be educational and auditable. Acceptance, professional judgment, and any certification, sealing, or code-compliance determination remain with the responsible engineer and project authority.
-> - Classical lineage may be described at a conceptual level until public/permissive mechanics sources are selected and cited.
-> - Modern implementation may describe the project direction as a 3D line-element/frame model, but detailed code equations, protected formulas, code tables, and standard-derived examples remain out of scope.
-> - Missing citation sources, exact source sections, and any historical claims not supported by accessible public sources remain `TBD`.
-> - No source may be upgraded from `TBD` to accepted source support unless its provenance fields, public/permissive basis, protected-content review, and claim scope are recorded.
-> - Unclear sources, protected standards, proprietary commercial examples, and unsupported historical claims must not be used as substitutes for public/permissive source evidence.
->
-### CLM-006 — Construction
-
-> ##### Construction
->
-> Expected future content slots for the anticipated theory artifact:
->
-> | Slot | Purpose | Current setup disposition |
-> |---|---|---|
-> | Scope and boundary | State educational purpose and non-certification boundary. | Required; grounded in `AGENTS.md` and `docs/CONTRACT.md`. |
-> | Classical lineage overview | Explain the transition from flexibility concepts to computer-aided structural analysis. | Public/permissive citations `TBD`; no protected standards examples. |
-> | Centerline/frame abstraction | Explain why a global pipe run can be represented as nodes, elements, frames, supports, and loads for routine flexibility analysis. | Concept allowed by `OPS-K-MECH-1`; equations and implementation details deferred. |
-> | Loads and result interpretation | Discuss primitive load families and mechanical results at a conceptual level. | Must avoid code-specific load combinations and stress allowables. |
-> | Rule-check boundary | Explain that rule packs evaluate user-defined acceptability after mechanics results. | Required by `OPS-K-MECH-2`, `OPS-K-DATA-1`, and `OPS-K-AUTH-1`. |
-> | Limitations and FEA handoff | Distinguish global centerline analysis from local shell/solid FEA. | Required by `AGENTS.md` boundary 4 and `OPS-K-MECH-1`. |
-> | References and provenance | List only public/permissive sources with license/redistribution status where applicable. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
->
-> Source provenance minimum fields for future production:
->
-> | Field | Purpose | Current disposition |
-> |---|---|---|
-> | Source title | Human-readable source name for final citation review. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
-> | Source location | URL, DOI, local path, or other durable locator. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
-> | Source section | Exact section, chapter, page, or heading used for a claim. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
-> | License / redistribution status | Evidence that source can be cited or used in the public repository. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
-> | Source type | Public-domain, permissive, project-authored, private-only, protected-suspected, or other reviewed category. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
-> | Claim scope | Which final-note section or claim the source supports. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
-> | Public/permissive disposition | `ACCEPTED`, `REJECTED`, or `TBD` for public theory-note use. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
-> | Review disposition | Pending, accepted, rejected, quarantined, or deferred by human/project review. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
-> | Protected-content review notes | Any concern about standard-derived, proprietary, private, or restricted content. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
->
-> Current source inventory/status expectations:
->
-> | Source class | Intended use | Current status | Required control before use |
-> |---|---|---|---|
-> | Project governance and decomposition documents | Scope, boundary, vocabulary, professional-boundary, and source-control requirements. | Available for control-document support. | Cite exact local file and relevant invariant or section. |
-> | Public history source for classical flexibility lineage | Historical or lineage statements. | `TBD`. | Public/permissive provenance, claim scope, and protected-content review. |
-> | Public mechanics/frame source | General structural-analysis or line-element concept support. | Bounded conceptual sources available; detailed piping/formula claims remain source-limited. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
-> | Local FEA handoff source | Boundary between global centerline analysis and local shell/solid handoff. | `TBD`. | Public/permissive provenance and boundary-only use. |
-> | Protected standards or code-body material | Boundary reference only. | Not accepted as public source text. | Do not quote, paraphrase, table, formula-copy, or derive examples unless a future human-approved legal basis is recorded. |
-> | Proprietary commercial examples, benchmark files, or vendor data | Not part of public theory-note support. | Rejected unless rights are documented. | Remain `TBD`, rejected, or quarantined until review records redistribution rights. |
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for sealed deliverable identity, write boundary, scope, objectives, and architecture-basis injection.
-> - `_REFERENCES.md` for currently available governing references.
-> - `AGENTS.md` for open mechanics, protected-data, rule-check, professional-responsibility, and centerline-vs-FEA boundaries.
-> - `docs/CONTRACT.md` for invariants `OPS-K-IP-1`, `OPS-K-IP-2`, `OPS-K-IP-3`, `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-UNIT-1`, `OPS-K-AUTH-1`, `OPS-K-MECH-1`, `OPS-K-MECH-2`, and `OPS-K-AGENT-1..4`.
-> - `docs/IP_AND_DATA_BOUNDARY.md` for public/permissive source provenance fields, protected-content quarantine expectations, and contribution-review controls.
-> - `docs/PRD.md` §21 for product-claim and professional-reliance boundaries.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis rows for `PKG-11`, `DEL-11-03`, `OBJ-001`, `OBJ-003`, and `SOW-033`.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history), `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history), and `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) rows for `DEL-11-03` and `SOW-033`.
+Also not decided: whether a relation the notes derive in the open from stated assumptions, with no external source, meets REQ-004. As REQ-004 is written, it does not.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-11-03 Theory Notes - Classical to Modern Centerline Analysis
+The notes are adequate when a reader competent in structural mechanics can follow each method from its assumptions to its result, can tell where it stops being valid, and can trace every historical and mechanics claim to a source the project may cite.
 
-> #### Specification: DEL-11-03 Theory Notes - Classical to Modern Centerline Analysis
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-010 — Scope
+REQ-001 to REQ-011 keep the numbers of the earlier `REQ-11-03` series. Numbers 009 and 012 of that series are not used.
 
-> ##### Scope
->
-> See CLM-005 for the current deliverable obligation and the historical setup boundary.
->
->
-> This specification governs only the deliverable-local setup for `DEL-11-03` and the future production contract for `docs/theory/centerline_analysis.md`. It does not authorize edits outside the deliverable folder in this setup run.
->
-> The future theory note shall explain the classical flexibility lineage and modern 3D centerline/frame implementation approach for SWBPIPE, while preserving protected-data, rule-check, professional-responsibility, and unit-awareness boundaries.
->
-### CLM-011 — Requirements
+- **REQ-001** — The notes explain centerline analysis as mechanics, for education and review. They assert no code compliance, certification, sealing, approval or professional reliance (PRD §21.2; `docs/CONTRACT.md` OPS-K-AUTH-1).
+- **REQ-002** — The notes distinguish the mechanics solve from user-supplied rule checks and from human professional acceptance (`docs/CONTRACT.md` OPS-K-MECH-2, OPS-K-DATA-1).
+- **REQ-003** — The notes present routine global piping analysis as a 3D centerline/frame model and local shell or solid FEA as a handoff, not a substitute (`docs/CONTRACT.md` OPS-K-MECH-1; PRD product principles).
+- **REQ-004** — Every historical claim and every mechanics claim cites an accepted source (decomposition row DEL-11-03; `docs/CONTRACT.md` OPS-K-IP-2).
+- **REQ-005** — The notes neither copy nor paraphrase protected standards text, examples, figures or tables, code-specific formulas, material allowables, stress-intensification or flexibility tables, protected dimensional tables or proprietary commercial data (`docs/CONTRACT.md` OPS-K-IP-1, OPS-K-IP-3; PRD §20.1).
+- **REQ-006** — Every quantity in a note has its unit or dimension, and every relation states its sign convention and frame where the result depends on them. No note relies on an unstated default (`docs/CONTRACT.md` OPS-K-UNIT-1, OPS-K-DATA-2).
+- **REQ-007** — A claim without source support is not made. Where a subject the notes should cover lacks a source, the note says the subject is unsupported and leaves it out; it invents no history, section reference or citation (`docs/CONTRACT.md` OPS-K-AGENT-1, OPS-K-AGENT-2).
+- **REQ-008** — Any example in a note uses invented values, is marked as educational, and corresponds to no standard's or vendor's example (`docs/CONTRACT.md` OPS-K-RULE-1; SOW-033).
+- **REQ-010** — Every cited source has a source record with every field.
+- **REQ-011** — Every source record has one of the four dispositions, and only an `ACCEPTED` source supports a claim, within the claims its record names.
+- **REQ-013** — The notes give analysis coverage for every required analysis (exit criterion 13).
+- **REQ-014** — The notes state, in the release target's words, that SWBPIPE does not determine code compliance (exit criterion 13; PRD §24, V1).
+- **REQ-015** — Each note's account of a method agrees with the method owner's scope: the same steps, the same assumptions, the same conditions of refusal.
 
-> ##### Requirements
->
-> | ID | Requirement | Source |
-> |---|---|---|
-> | REQ-11-03-01 | The theory note shall explain centerline analysis as an educational mechanics concept and shall not assert code compliance, certification, sealing, approval, or professional reliance (PRD §21.2). | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `AGENTS.md` |
-> | REQ-11-03-02 | The theory note shall distinguish mechanics solving from user-supplied rule checks and human professional acceptance. | `docs/CONTRACT.md` `OPS-K-MECH-2`, `OPS-K-DATA-1`; `AGENTS.md` |
-> | REQ-11-03-03 | The theory note shall frame routine global piping analysis as a 3D centerline/frame model and distinguish local shell/solid FEA as a handoff path. | `docs/CONTRACT.md` `OPS-K-MECH-1`; `AGENTS.md` |
-> | REQ-11-03-04 | The theory note shall use only public/permissive sources for historical and mechanics claims and shall cite source provenance. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `docs/CONTRACT.md` `OPS-K-IP-2` |
-> | REQ-11-03-05 | The theory note shall not copy or paraphrase protected standards text, examples, figures, tables, code-specific formulas, material allowables, SIF/flexibility tables, protected dimensional tables, or proprietary commercial data. | `docs/CONTRACT.md` `OPS-K-IP-1`, `OPS-K-IP-3` |
-> | REQ-11-03-06 | Any technical quantities, units, or dimensional reasoning introduced later shall be unit-aware and shall not rely on silent defaults. | `docs/CONTRACT.md` `OPS-K-UNIT-1`, `OPS-K-DATA-2` |
-> | REQ-11-03-07 | Missing source support, exact source sections, and unresolved historical claims shall be marked `TBD` rather than invented. | `docs/CONTRACT.md` `OPS-K-AGENT-1`, `OPS-K-AGENT-2` |
-> | REQ-11-03-08 | Public examples, if any are introduced in future work, shall use invented non-code values and clear educational disclaimers. | `docs/CONTRACT.md` `OPS-K-RULE-1`; `SOW-033` notes |
-> | REQ-11-03-09 | The setup artifacts shall remain inside the assigned deliverable folder and shall not move content to `ISSUED`. | Human sealed brief; `AGENTS.md` dispatch rule |
-> | REQ-11-03-10 | Future citations shall carry at least source title, locator, source section, license or redistribution status, public/permissive disposition, and review notes. | `docs/CONTRACT.md` `OPS-K-IP-2`; `_SEMANTIC_LENSING.md` items `C-001` and `F-001` |
-> | REQ-11-03-11 | The source inventory shall classify each candidate source as accepted, rejected, quarantined, or `TBD`; unclear or unsupported sources shall not support final theory claims. | `_SEMANTIC_LENSING.md` items `B-001`, `F-001`, and `E-001`; `docs/IP_AND_DATA_BOUNDARY.md` section 4 |
-> | REQ-11-03-12 | Final review shall record both coverage review and protected-content/professional-boundary review before the theory note is treated as ready for later lifecycle review. | `_SEMANTIC_LENSING.md` items `A-001`, `D-002`, and `X-001` |
->
+### Delivery commitments
 
-### CLM-012 — Standards
+- **DEL-11-03:1** — While a source selection is undecided, the notes hold none of the content that awaits it: respectively, no detailed historical claim, no formula-level frame theory, and no account of local FEA beyond the handoff boundary.
 
-> ##### Standards
->
-> No proprietary or protected standards text is incorporated by this setup run.
->
-> Applicable governing constraints are repository governance invariants, not engineering code clauses:
->
-> - `OPS-K-IP-1`, `OPS-K-IP-2`, `OPS-K-IP-3`
-> - `OPS-K-DATA-1`, `OPS-K-DATA-2`, `OPS-K-DATA-3`
-> - `OPS-K-UNIT-1`
-> - `OPS-K-AUTH-1`
-> - `OPS-K-MECH-1`, `OPS-K-MECH-2`
-> - `OPS-K-AGENT-1..4`
->
-> Public/permissive theory sources for final prose are `TBD`.
->
+### Acceptance criteria
 
-> Source inventory qualification: The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples.
-
-### CLM-013 — Source Provenance Control
-
-> ##### Source Provenance Control
->
-> Future production work shall maintain a source inventory before relying on any historical, mechanics, or implementation-support claim in the final theory note. The inventory is a control surface, not a substitute for human/legal/professional review.
->
-> Minimum source fields:
->
-> | Field | Required use |
-> |---|---|
-> | Source title | Human-readable source identity for review and citation. |
-> | Locator | URL, DOI, local path, publication identifier, or `TBD`. |
-> | Source section | Chapter, page, heading, section, or claim-specific location; `TBD` if not yet known. |
-> | License or redistribution status | Public/permissive basis, project-authored basis, private-only, protected-suspected, unknown, or `TBD`. |
-> | Source type | Project governance, public mechanics, public history, public software/numerics, private-only, protected-suspected, or other reviewed category. |
-> | Claim scope | The final-note section, sentence class, or concept the source is allowed to support. |
-> | Public/permissive disposition | `ACCEPTED`, `REJECTED`, `QUARANTINED`, or `TBD` for public theory-note use. |
-> | Review notes | Protected-content, private-data, provenance, and professional-boundary notes. |
->
-> Source inventory/status expectations:
->
-> | Status | Meaning for final theory-note use |
-> |---|---|
-> | `ACCEPTED` | Source may support only the recorded claim scope after public/permissive and protected-content review. |
-> | `TBD` | Source or claim support is unresolved and must not be used as final support. |
-> | `REJECTED` | Source must not support public theory prose. |
-> | `QUARANTINED` | Source appears protected, private, proprietary, or otherwise unsafe for public use pending human/legal review. |
->
-> Protected standards, proprietary commercial examples, unclear sources, and unsupported historical claims remain `TBD`, rejected, or quarantined. They must not be paraphrased into public prose, used as public examples, or treated as accepted source support.
->
-
-### CLM-014 — Verification
-
-> ##### Verification
->
-> | Check | Method | Expected evidence |
-> |---|---|---|
-> | Four-document setup exists | File presence check | `ScopeOfWork.md` present in this folder |
-> | Scope isolation | Path review | All created/modified setup artifacts remain under `DEL-11-03_Theory notes- classical to modern centerline analysis/` |
-> | Protected-data boundary | Content review | No copied standards formulas/examples/tables, material allowables, SIF/flexibility tables, or proprietary values |
-> | Non-certification boundary | Content review | No statement that software output certifies, seals, approves, authenticates, or declares engineering code compliance (PRD §21.2) |
-> | Source gap handling | Content review | Unsupported public-source needs are marked `TBD` |
-> | Source inventory control | Content review | Candidate sources carry the minimum provenance fields and a status of `ACCEPTED`, `REJECTED`, `QUARANTINED`, or `TBD`; only accepted public/permissive sources support final claims |
-> | Semantic setup | Artifact review | `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`, and P3 run record exist and preserve lens-not-authority language |
-> | Dependency setup | Tool validation | `Dependencies.csv` passes v3.1 schema validation and `_DEPENDENCIES.md` counts match |
-> | Lifecycle gate | `_STATUS.md` review | Use the current lifecycle recorded in `_STATUS.md` (retired in `497a8d81e4`; see Git history); preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
->
-> Final theory-note coverage checklist for future production:
->
-> | Check | Required coverage | Required evidence |
-> |---|---|---|
-> | Scope and boundary | Educational purpose, public-source basis, no protected-data reproduction, and no compliance/certification claim. | Explicit boundary section and source-control note. |
-> | Classical lineage | Only source-supported historical or conceptual statements; unsupported details remain `TBD`. | Accepted public/permissive source inventory entries or `TBD` markers. |
-> | Centerline/frame abstraction | Conceptual explanation of nodes, elements, local/global frames, supports, loads, and mechanical results without protected code formulas. | Project governance support plus accepted public mechanics source support if claims go beyond project boundary language. |
-> | Loads and result interpretation | Conceptual discussion of primitive loads, displacements, forces, moments, reactions, and stresses. | No code-specific load combinations, allowables, or protected formulas. |
-> | Rule-check boundary | Clear separation between mechanics results, user rule checks, and human professional acceptance. | Professional-boundary wording aligned with `OPS-K-MECH-2` and `OPS-K-AUTH-1`. |
-> | Limitations and FEA handoff | Distinction between routine global line-element analysis and local shell/solid FEA handoff. | Boundary-only explanation unless accepted public/permissive handoff sources are recorded. |
-> | References | Public/permissive sources with provenance and review disposition. | Source inventory entries include all minimum fields or remain `TBD`. |
->
-> Protected-content review checklist for future production:
->
-> | Content type | Required disposition |
-> |---|---|
-> | Standards text, figures, examples, and tables | Must not be copied or paraphrased into public prose. |
-> | Code-specific formulas, SIF/flexibility tables, and material allowables | Must not be included unless a future human-approved legal basis is recorded; current disposition is prohibited. |
-> | Proprietary commercial examples or benchmark data | Must not be included. |
-> | Invented examples | Permitted only when clearly non-code and non-engineering reliance. |
-> | Compliance or certification language | Must be rejected unless phrased as a user/human responsibility boundary. |
-> | Unclear source status | Must remain `TBD`; may not support final prose until reviewed. |
-> | Professional/code-compliance implication | Must be removed or rewritten as a boundary statement requiring competent human review. |
->
-
-### CLM-015 — Documentation
-
-> ##### Documentation
->
-> See CLM-005 for the current deliverable obligation and the historical setup boundary.
->
->
-> Required setup outputs for this run:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_STATUS.md`
-> - `_run_records/*`
->
-> Future production output remains:
->
-> - `docs/theory/centerline_analysis.md` (not edited in this setup run)
-- **AC-001** — The contract preserves the source-defined conceptual progression, coordinate and unit conventions, model assumptions and limitations, source-provenance controls, distinctions among explanation, implementation, verification, validation, and professional reliance, visible unresolved technical questions, and the ban on presenting unverified extracted equations or narrative as authoritative design basis.
+- **AC-001** — The centerline note covers each of its subjects: purpose and boundary; the lineage; the centerline and frame abstraction with nodes, elements, local and global frames, supports, loads and resultants; what the global model is good for and what it does not decide; the rule-check layer; verification and validation; the local FEA handoff; reading results; and source notes.
+- **AC-002** — For each of the ten required analyses, analysis coverage exists with all four parts, every link to it resolves, and a reader can tell from the notes' own contents which note covers which analysis.
+- **AC-003** — Every step, assumption and condition of refusal a note gives for an analysis is the method owner's, and no assumption or limit the method owner states for that analysis is missing from the note.
+- **AC-004** — Every mechanics statement in the notes is correct for the assumptions stated beside it: a reader competent in structural mechanics, without reading product code, finds each relation in its cited source and follows it from those assumptions.
+- **AC-005** — Every source in the source notes has all eight fields and one disposition. Every historical claim and every mechanics claim cites an `ACCEPTED` source whose record names that claim. No `TBD`, `REJECTED` or `QUARANTINED` source supports any sentence. Each undecided source selection appears as undecided, and the notes hold none of the content DEL-11-03:1 holds back for it.
+- **AC-006** — The notes contain nothing of the classes REQ-005 names, no formula taken from a standard, and no example value that is not invented.
+- **AC-007** — The notes state that SWBPIPE does not determine code compliance. No passage states or implies a claim PRD §21.2 prohibits, mechanics results, user-rule outcomes and human acceptance are presented as three separate things, and the global model is nowhere presented as a substitute for local analysis.
+- **AC-008** — Every quantity in the notes carries a unit or dimension, and every relation whose result depends on a sign convention or a frame states it.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-016 — Procedure: DEL-11-03 Theory Notes - Classical to Modern Centerline Analysis
+**Method choices that define the notes.**
 
-> #### Procedure: DEL-11-03 Theory Notes - Classical to Modern Centerline Analysis
->
+- *Explain from assumptions.* Each method is presented as assumptions, then steps, then the result and its limits, so that a reader can check it without the product.
+- *One note per method owner's subject.* The centerline note carries the model; each analysis is covered where its method is explained, and a reader finds it from the notes' contents.
+- *Every relation cited.* A relation is stated with its assumptions and the citation of the accepted source that supports it. A relation without one is left out.
+- *Sources are admitted before they are used.* A source enters the source notes with its record and a disposition before any sentence rests on it.
+- *The scope governs, the note follows.* A note cites the method owner's scope for the definition and points to the independent references that examine the product. It does not present the product's own output as evidence that a method is right.
 
-### CLM-017 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> See CLM-005 for the current deliverable obligation and the historical setup boundary.
->
->
-> Execute and review the deliverable-local setup workflow for the theory notes without editing the final documentation target or introducing protected engineering content.
->
-### CLM-018 — Prerequisites
-
-> ##### Prerequisites
->
-> - Confirm the working path is `execution/PKG-11/DEL-11-03/`.
-> - Confirm the sealed write scope permits deliverable-local setup artifacts only.
-> - Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `_STATUS.md`, `docs/CONTRACT.md`, the decomposition row for `DEL-11-03`, and the relevant register rows.
-> - Treat public/permissive theory sources as `TBD` until they are deliberately selected and reviewed.
->
-
-### CLM-019 — Steps
-
-> ##### Steps
->
-> 1. Draft the Scope of Work contract.
->    - Populate identification, scope, requirements, guidance, and procedure content from the sealed context and governing documents.
->    - Mark unavailable public-source details as `TBD`.
->    - Do not edit `docs/theory/centerline_analysis.md`.
->
-> 2. Generate the semantic matrix lens.
->    - Use `_CONTEXT.md` and the four setup documents as the deliverable perspective.
->    - Preserve the lens-not-authority boundary.
->    - Update `_STATUS.md` to `SEMANTIC_READY` only if the semantic matrix audit passes.
->
-> 3. Generate the semantic lensing register.
->    - Read `_SEMANTIC.md` and the four setup documents.
->    - Record warranted future enrichment items without changing production documents.
->    - Keep human rulings as `TBD`.
->
-> 4. Run the P3-only contract review.
->    - Treat `_SEMANTIC_LENSING.md` as a candidate worklist, not as authority.
->    - Apply only warranted clarifications supported by the already-read governing sources.
->    - Preserve protected-data and no-certification boundaries.
->
-> 5. Extract dependencies.
->    - Create or refresh `Dependencies.csv` with v3.1 columns.
->    - Refresh `_DEPENDENCIES.md` with extracted summary, run notes, history, lifecycle summary, and handoff notes.
->    - Validate schema and enum values.
->
-> 6. Verify setup gates.
->    - Confirm the Scope of Work contract exist.
->    - Confirm semantic and lensing artifacts exist and are internally structured.
->    - Confirm dependency schema validation passes.
->    - Confirm no file outside the deliverable folder was modified by this TASK run.
->
-### CLM-020 — Verification
-
-> ##### Verification
->
-> - Explicit four-document file-presence check passes using ordinary shell tests:
->
->   ```sh
->   deliverable_folder="execution/PKG-11/DEL-11-03"
->   test -f "$deliverable_folder/ScopeOfWork.md"
->   test -f "$deliverable_folder/ScopeOfWork.md"
->   test -f "$deliverable_folder/ScopeOfWork.md"
->   test -f "$deliverable_folder/ScopeOfWork.md"
->   ```
->
-> - `python3 tools/validation/validate_dependencies_schema.py <deliverable-folder>/Dependencies.csv` passes.
-> - Enum validation passes for dependency enum values used in `Dependencies.csv`.
-> - Content review finds no protected standards text, examples, formulas, tables, proprietary values, or compliance/certification claims.
-> - `_STATUS.md` history records setup progression without moving anything to `ISSUED`.
->
-### CLM-021 — Records
-
-> ##### Records
->
-> Retain these deliverable-local records:
->
-> - `ScopeOfWork.md`
-> - Semantic artifacts: `_SEMANTIC.md`, `_SEMANTIC_LENSING.md`
-> - Dependency artifacts: `Dependencies.csv`, `_DEPENDENCIES.md`
-> - Run records: `_run_records/TASK_RUN_*.md`
-> - Lifecycle file: `_STATUS.md`
-- **VER-001** — Validate the contract and review source parity, classical-to-modern topic coverage, assumptions and limitations, coordinate/unit conventions, source provenance and equation reliability controls, verification-versus-validation boundaries, retained conflicts and TBDs, and non-reliance limits.
+- **VER-001** — Executable check (observes the notes' headings, links and source tables): the centerline note's subjects have their headings; each required analysis has its four coverage headings; every link into and within the notes resolves; every source table row has all eight fields and one of the four dispositions; and the code-compliance statement is present.
+- **VER-002** — Comparison with a named reference (the method owner's scope for each analysis): compare each note's steps, assumptions and conditions of refusal with that scope, and report every statement that differs, that the scope does not make, or that the scope makes and the note omits.
+- **VER-003** — Judgment by a named role (an independent reviewer competent in structural mechanics who did not write the notes and does not read product code): look up each relation in its cited source, follow it from the assumptions stated beside it, check units, sign conventions and frames, and report each relation that is not in its source, does not follow, or lacks a unit or convention the result depends on.
+- **VER-004** — Judgment by a named role (an independent reviewer who did not write the notes): read the notes against PRD §20.1 and §21.2 and the boundary policy of DEL-01-02; open each cited source and confirm its licence status and that it supports the claim it is cited for; and report each protected item, each formula or example that corresponds to a standard's or a vendor's, each claim resting on a source that is not accepted or does not support it, each mechanics or historical claim with no source, each undecided source selection presented as settled, each passage of the three kinds DEL-11-03:1 holds back, and each statement that can be read as a prohibited claim.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-022 — Guidance: DEL-11-03 Theory Notes - Classical to Modern Centerline Analysis
-
-> #### Guidance: DEL-11-03 Theory Notes - Classical to Modern Centerline Analysis
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-024 — Purpose
-
-> ##### Purpose
->
-> This deliverable prepares a bounded theory-note work surface for explaining classical-to-modern centerline analysis in OpenPipeStress. The useful center of the note is educational clarity: help users and developers understand why the project treats routine pipe stress as a global 3D centerline/frame problem while keeping code-specific checks and professional judgment outside solver authority.
->
-
-### CLM-025 — Principles
-
-> ##### Principles
->
-> - Explain mechanics concepts in plain engineering language, but keep unsupported historical claims and source-specific details as `TBD`.
-> - Prefer public/permissive mechanics and numerical-analysis sources for future citations.
-> - Treat protected standards as boundaries, not source text for public reproduction.
-> - Treat source selection as governed work: unclear sources stay `TBD`, and only accepted public/permissive sources may support final claims.
-> - Use centerline/frame language consistently: nodes, line elements, local/global frames, supports, loads, displacements, element forces, and result interpretation.
-> - Distinguish practical global flexibility analysis from local shell/solid FEA; neither mode substitutes for professional acceptance.
-> - Keep formulas out of the setup draft unless later public/permissive sources and project-specific approval justify them.
->
-
-### CLM-026 — Considerations
-
-> ##### Considerations
->
-> The final note should be readable by both users and contributors. Users need enough context to understand model assumptions, limits, and warnings. Developers need enough structure to see how theory maps to solver architecture without treating the documentation as a code specification.
->
-> Protected-data risk is the dominant risk for this deliverable. Public prose may discuss open mechanics and general structural-analysis concepts, but it must not recreate code-body tables, code examples, code stress equations, SIF/flexibility tables, proprietary component data, or commercial-software benchmark examples.
->
-> The phrase "classical flexibility lineage" should be handled conservatively. Until public/permissive historical sources are selected, the note can state the intended coverage but should not make detailed historical claims about named methods, committees, or code evolution.
->
-> Source-selection questions for future production:
->
-> | Topic | Source need | Current disposition |
-> |---|---|---|
-> | Classical flexibility lineage | Public/permissive historical or educational source for lineage statements. | `TBD`; do not invent or overstate history. |
-> | Centerline/frame explanation | Public/permissive mechanics or structural-analysis source if the final note goes beyond project boundary language. | The current source inventory is `docs/theory/centerline_analysis.md` §Source Notes: NASA NTRS NASTRAN metadata, MIT OCW FEA overview and Engineering Statics metadata support only their listed conceptual claims. Historical piping-lineage, formula-level frame theory and expanded local-FEA-practice sources remain TBD. Do not infer permission to copy formulas, figures or examples. |
-> | Local shell/solid FEA handoff | Public/permissive source if future prose expands from boundary statement to practice explanation. | `TBD`; keep current use as a boundary concept. |
-> | Examples | Invented educational examples only, unless public/permissive source and review support are recorded. | `TBD`; no standards-derived or proprietary examples. |
->
-> Terminology mapping for future prose:
->
-> | Term | Use in final theory note | Mapping guidance | Boundary |
-> |---|---|---|---|
-> | Classical flexibility analysis | Use for source-supported lineage and conceptual background. | Treat as the historical/conceptual family of global flexibility thinking, not as an unreviewed import of a protected method. | Do not imply adoption of any protected code method unless public evidence and review support it. |
-> | Centerline model | Use for the geometry abstraction: a pipe run represented by a connected line with nodes, elements, supports, and loads. | Present as the model abstraction that connects piping geometry to mechanics inputs. | Do not treat this as a complete local stress/FEA model. |
-> | 3D frame model | Use for the modern computational implementation idea: line elements with translational and rotational degrees of freedom in global and local frames. | Present as the computational expression of the centerline model for global mechanics. | Do not introduce implementation equations or library choices in this documentation deliverable. |
-> | Rule check | Use only for user-supplied acceptability evaluation after mechanics results. | Keep mechanics evidence, user rule evaluation, and professional acceptance as separate authority domains. | Do not present the theory note as a code-compliance guide. |
->
-> Use these terms as a continuity map: classical flexibility language, centerline model language, and 3D frame language describe related levels of abstraction. They are not competing authorities, and none of them authorizes copied standards content, code-specific examples, or professional/code-compliance claims.
->
-
-### CLM-027 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Preferred setup stance |
-> |---|---|
-> | Educational clarity vs. formula detail | Prefer conceptual explanation now; formula detail remains `TBD` pending public/permissive sources and protected-content review. |
-> | Classical terminology vs. modern implementation terms | Use both, but normalize them so "flexibility analysis", "centerline model", and "3D frame model" are not treated as conflicting concepts. |
-> | Solver explanation vs. implementation specification | Explain the model idea without prescribing code-level equations or numerical-library choices. |
-> | Public examples vs. protected examples | Use invented, non-code examples only if future work needs examples. |
-> | Mechanics output vs. compliance output | Mechanics output is solver evidence; acceptability and professional reliance remain user/human-governed. |
->
-
-### CLM-028 — Examples
-
-> ##### Examples
->
-> No numerical examples are introduced in this setup run.
->
-> Future examples, if used, must be invented educational examples with non-code values, no protected standard tables, and no compliance claims.
->
-
-### CLM-029 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No current source conflict identified. | N/A | N/A | N/A | N/A | N/A |
+- **AX-001** — *Checkable by the reader.* Better is a larger share of mechanics statements a competent reader can verify from the note alone, by derivation or by opening a cited source. Readability never removes an assumption a result depends on.
+- **AX-002** — *Clean sources before fuller history.* Better is fewer claims without an accepted source, which is to be none. A richer historical or practical account is never bought with a source of unclear licence, a paraphrase of a standard or an invented citation; the subject is left out instead.
+- **AX-003** — *Explain the method that is built.* Better is fewer differences between a note and its method owner's scope, which is to be none. An explanation is never made tidier by describing a method the product does not use.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-033 OBJ-001 OBJ-003 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-11-03:1** — Preserve the three human-deferred source-selection scopes—detailed public history, formula-level open-frame references, and practice-specific local-FEA references—until owner/review authority selects or discharges them; current bounded prose is not formal source-scope closure (PDU-060 / `RF-11-03-C-003`).
+| OUT-001 | SOW-033 OBJ-001 OBJ-003 | REQ-001 REQ-002 REQ-003 | AC-001 | VER-001 | The subjects are AC-001's, from SOW-033 and the PRD's product principles. The check reads the note against the list |
+| OUT-001 | SOW-033 OBJ-003 | REQ-013 | AC-002 | VER-001 | Exit criterion 1 lists the analyses and exit criterion 13 lists what is covered for each. The list is read from the release target, not from the notes |
+| OUT-001 | SOW-033 OBJ-003 | REQ-015 | AC-003 | VER-002 | Outside source: the method owner's scope for each analysis, which the notes do not write |
+| OUT-001 | SOW-033 OBJ-003 | REQ-004 REQ-006 | AC-004 | VER-003 | Outside source: the cited public sources and closed-form classical mechanics. The reviewer looks up each relation, follows it from its assumptions and imports no product code or product output |
+| OUT-001 | SOW-033 OBJ-001 | REQ-004 REQ-007 REQ-010 REQ-011, DEL-11-03:1 | AC-005 | VER-001 VER-004 | Outside source: each cited source itself, opened by the reviewer, with its own licence statement |
+| OUT-001 | SOW-033 OBJ-001 | REQ-005 REQ-008 | AC-006 | VER-004 | PRD §20.1 lists what the public repository may not contain and DEL-01-02's policy states the classes. The reviewer reads the notes and their examples against them |
+| OUT-001 | SOW-033 OBJ-001 | REQ-001 REQ-002 REQ-003 REQ-014 | AC-007 | VER-001 VER-004 | Exit criterion 13 requires the statement and PRD §21.2 lists the prohibited claims. The check finds the statement; the reviewer reads every passage against the §21.2 list |
+| OUT-001 | SOW-033 OBJ-003 | REQ-006 | AC-008 | VER-003 | Outside source: dimensional consistency and the stated conventions, checked by a reviewer who did not write the notes |

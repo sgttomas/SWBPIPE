@@ -77,7 +77,7 @@ def test_maximum_basis_is_a_signature_discriminator_only():
     source,_=actual()
     row=deepcopy(next(r for r in source["results"] if r["kind"]=="pipe_elastic_normal_stress_maximum_v2"))
     exact=_signature(row,composite.SourceContract.PRESSURE_V3)
-    # T4-U6 (D-5, §2.4): the source maximum names its section basis.
+    # T4-U6 (D-5): the source maximum names its section basis.
     token,section=sb.split_token(exact["source_basis"])
     assert token==composite.MAX_BASIS and row["metadata"]["basis"]==exact["source_basis"]
     row["metadata"]["basis"]=f"{token}{sb.SEPARATOR}{sb.other(section)}"
@@ -161,7 +161,7 @@ def _zero_action_twins(source):
 @pytest.mark.parametrize("twin", ["nominal", "reduced"])
 @pytest.mark.parametrize("member", ["interval0", "interval1", "value"])
 def test_reduced_stress_check_refuses_a_signed_zero_twin(twin, member):
-    # T4-U6 (D-5 §2.5, §5; b7-plan R2 A2): the reduced twin's check binds its nominal twin's action bit for bit;
+    # the reduced twin's check binds its nominal twin's action bit for bit;
     # -0.0 equals 0.0 by value, not by bits. Each twin's action is also its station's, bit for bit
     # (STRESS_FUNCTIONAL_LINK, read first), so a signed-zero action is refused there on either twin; written `0` it is
     # the same binary64 number and is accepted (Rust's twin: reduced_stress_check_binds_its_nominal_twin_bit_for_bit).
@@ -454,7 +454,7 @@ def test_source_blocks_1_recipes_are_unknown(recipe):
         _derived(recipe, row, [], composite.SourceContract.PRESSURE_V3)
 
 
-# Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.8): condition_sets and spectra other than absent or
+# Model document 0.9.0: condition_sets and spectra other than absent or
 # [], and any pipe's condition_set_ref (an empty string or null included), are declined by name, as the Rust reader
 # (`condition_sets_spectra_and_set_references_are_declined_by_name`) and the retained admission (D1.3) decline them.
 _SET = {"id": "cs", "provenance": "user", "conditions": [{"key": "OPE"}]}

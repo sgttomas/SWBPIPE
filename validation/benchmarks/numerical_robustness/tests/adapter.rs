@@ -1,4 +1,4 @@
-//! The adapter (plan §4.3, §4.1, C10) and K4's canonical order (plan Q7).
+//! The adapter (C10) and K4's canonical order.
 //! - Every CI model, built into K4's `PrimitiveSource`, has the canonical bytes
 //!   the generator built independently from `references.py --model` (their
 //!   sha256 is committed): the adapter against R1's model, rounded once, node

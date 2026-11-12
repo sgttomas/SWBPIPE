@@ -1,4 +1,4 @@
-// The contour tube drawn over a member (survey item A4; DEL-07-05 Design `result-contour.md`):
+// The contour tube drawn over a member (survey item A4):
 // a sleeve slightly wider than the member's own tube, from its first stated station to its last,
 // with a ring of vertices at each of `contourRings` and a vertex colour per ring for each theme.
 // The GPU blends colour linearly between two rings; the rings are close enough on the scale that

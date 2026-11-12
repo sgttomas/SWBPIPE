@@ -152,7 +152,7 @@ function basisRefOf(value: unknown): RunRowIdentity["basis_ref"] {
 export function flattenRunResult(result: MechanicsResult, recordedTableRead: ContractBinding | null = null): FlatRunRow[] {
   const rows = Array.isArray(result.results) ? result.results : [];
   let semantics: ReturnType<typeof readerRowSemantics> | null = null;
-  // RT-A4 §10.4: a run recorded before RT-A4 reads its rows under its recorded table.
+  // a run recorded before RT-A4 reads its rows under its recorded table.
   try { semantics = recordedTableRead ? recordedReaderRowSemantics(result, recordedTableRead) : readerRowSemantics(result); } catch { semantics = null; }
   return rows.map((row, row_index) => {
     let family: string | null = null;

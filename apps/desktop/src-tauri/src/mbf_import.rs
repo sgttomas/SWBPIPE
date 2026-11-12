@@ -1,11 +1,11 @@
 //! File > Import MBF… (DEL-17-04 Design `desktop-mbf-export-import.md` §4.1, §4.3 and §4.5 to §4.8; slice 5; RT-R8):
-//! the native source, worker task 5 and the four commands `open_mbf_import`, `review_mbf_import`, `adopt_mbf_import`
-//! and `cancel_mbf_import` (`lib.rs` registers them).
+//! the native source, worker task 5 and the five commands `open_mbf_import`, `review_mbf_import`, `adopt_mbf_import`,
+//! `designate_mbf_import_source` (§5.4) and `cancel_mbf_import` (`lib.rs` registers them).
 //!
 //! **Low custody (§4.8.1 (e), §4.8.2).** The host keeps one fixed-size [`Source`] record: the chosen MBF and, when one
 //! is present, its identity file `<stem>.swbpipe-ids.json`, each as a pinned read-only handle with its file identity,
-//! size and SHA-256 at selection, or the identity file's absence. It keeps no file bytes, model, review or report
-//! between commands. Every review and Adopt re-reads the exact selected bytes through duplicated handles into the
+//! size and SHA-256 at selection, or the identity file's absence, and after a designation (§5.4) a fixed record of
+//! three digests and a flag. It keeps no file bytes, model, review or report between commands. Every review and Adopt re-reads the exact selected bytes through duplicated handles into the
 //! command's own request buffer, by position, and refuses any change (`MBF-IMPORT-SOURCE-CHANGED`): an edit in place,
 //! a replacement, rename or removal at the name, growth or shrinkage, an identity file that appeared, or a symlink or
 //! other non-regular file at a name. No command takes a path: the paths come only from the native open chooser.
@@ -17,7 +17,8 @@
 //! before and immediately after acquisition.
 //!
 //! **Worker task 5 (§4.8.3).** [`worker_import`] runs in the capped worker process: the importer with the identity
-//! file and the material declaration only (no pressure closure, rebinding, shear model or source document, §4.5); a
+//! file and the material declaration only (no pressure closure, rebinding or shear model, §4.5), and in `designate`
+//! mode the designated source document, read once for that run (§5.4); a
 //! bound import's regeneration runs the writer there, inside the grant; the canonical model's native document check
 //! (`model_document_file::check_model_document`); the bounded review (`import_review`, at most R = 1 MiB); and the
 //! envelope `MBFI1\n<mode>\n<status>\n<adoptable>\n<model_sha256|->\n<review_sha256>\n<model_bytes>\n<model_len>\n
@@ -70,6 +71,7 @@ pub(crate) const OPEN_COMMAND: &str = "open_mbf_import";
 pub(crate) const REVIEW_COMMAND: &str = "review_mbf_import";
 pub(crate) const ADOPT_COMMAND: &str = "adopt_mbf_import";
 pub(crate) const CANCEL_COMMAND: &str = "cancel_mbf_import";
+pub(crate) const DESIGNATE_COMMAND: &str = "designate_mbf_import_source";
 
 pub(crate) const EPOCH_INVALID: &str = "MBF-IMPORT-EPOCH-INVALID";
 pub(crate) const EPOCH_EXHAUSTED: &str = "MBF-IMPORT-EPOCH-EXHAUSTED";
@@ -100,6 +102,8 @@ const CHANGED_MESSAGE: &str = "The chosen file or its identity file changed sinc
 /// The import route's own bounds (§4.8.4: new payload bounds on new commands; no budget, ceiling or pricing moves).
 pub(crate) const MBF_MAX_BYTES: u64 = 16 << 20;
 pub(crate) const IDENTITY_MAX_BYTES: u64 = MAX_MODEL_DOCUMENT_BYTES;
+/// A designated source document's cap: the Open cap (§5.4).
+pub(crate) const DESIGNATED_SOURCE_MAX_BYTES: u64 = MAX_MODEL_DOCUMENT_BYTES;
 pub(crate) const OPEN_ARGS_MAX_BYTES: usize = 4 << 10;
 pub(crate) const ARGS_MAX_BYTES: usize = 1 << 20;
 pub(crate) const LABEL_MAX_BYTES: usize = 1 << 10;
@@ -296,6 +300,17 @@ pub(crate) enum IdentityFile {
     Present(Pinned),
 }
 
+/// A designation's fixed record (§5.4): the base review Y the designation was formed over, the designated review X
+/// shown, the SHA-256 of the designated file's bytes as the host read them, and whether X was adoptable. It names a
+/// review; it holds no file bytes, model or review.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct Designation {
+    pub(crate) base: [u8; 64],
+    pub(crate) designated: [u8; 64],
+    pub(crate) source_sha256: [u8; 32],
+    pub(crate) adoptable: bool,
+}
+
 /// The one source the host keeps between commands (§4.8.2): fixed size, not charged to the pool.
 #[derive(Debug)]
 pub(crate) struct Source {
@@ -304,6 +319,8 @@ pub(crate) struct Source {
     file_name: String,
     mbf: Pinned,
     identity: IdentityFile,
+    /// The current designation, published only by a Designate run still current at its response (§5.4).
+    designation: Option<Designation>,
 }
 
 #[derive(Debug)]
@@ -386,8 +403,9 @@ impl MbfImports {
     }
 
     /// Registers a run, cancelling the run in progress (any kind) and waking the pool's waiters. A command that entered
-    /// before the latest retirement, or once exhausted, is cancelled from the start.
-    fn register(&self, entry: ImportEntry, registry: &SolveJobRegistry) -> Registration {
+    /// before the latest retirement, or once exhausted, is cancelled from the start. `retires_designation` (every start
+    /// but Adopt) clears the source's designation: a new review, choice or designation supersedes the one shown.
+    fn register(&self, entry: ImportEntry, registry: &SolveJobRegistry, retires_designation: bool) -> Registration {
         #[cfg(test)]
         if let Some(hook) = test_hooks::BEFORE_REGISTRATION.with(|hook| hook.borrow_mut().take()) {
             hook();
@@ -399,6 +417,11 @@ impl MbfImports {
             return Registration { imports: self.clone(), control };
         }
         let stopped = state.run.replace(Arc::clone(&control)).is_some_and(|older| older.cancel());
+        if retires_designation {
+            if let Some(source) = state.source.as_mut() {
+                source.designation = None;
+            }
+        }
         drop(state);
         if stopped {
             registry.pool().wake_waiters();
@@ -458,6 +481,11 @@ impl MbfImports {
     }
 
     #[cfg(test)]
+    pub(crate) fn designation(&self) -> Option<Designation> {
+        self.lock().source.as_ref().and_then(|source| source.designation)
+    }
+
+    #[cfg(test)]
     pub(crate) fn run_in_progress(&self) -> bool {
         self.lock().run.is_some()
     }
@@ -475,7 +503,7 @@ impl MbfImports {
             return Err(refused(EPOCH_EXHAUSTED, "", "The import cannot choose another file in this session. Restart SWBPIPE to import again."));
         };
         state.next_source_id = next;
-        let previous = state.source.replace(Source { id, entry_epoch: entry.epoch, file_name, mbf, identity });
+        let previous = state.source.replace(Source { id, entry_epoch: entry.epoch, file_name, mbf, identity, designation: None });
         drop(state);
         drop(previous);
         Ok(id)
@@ -496,7 +524,34 @@ impl MbfImports {
             IdentityFile::Absent { expected_path } => IdentityFile::Absent { expected_path: expected_path.clone() },
             IdentityFile::Present(pinned) => IdentityFile::Present(duplicate(pinned)?),
         };
-        Ok(Source { id: source.id, entry_epoch: source.entry_epoch, file_name: source.file_name.clone(), mbf: duplicate(&source.mbf)?, identity })
+        Ok(Source { id: source.id, entry_epoch: source.entry_epoch, file_name: source.file_name.clone(), mbf: duplicate(&source.mbf)?, identity, designation: None })
+    }
+
+    /// Publishes `designation` on source `source_id` if `control`'s run is still the run in progress, not cancelled,
+    /// and the source is still current; marks the run handed off in the same critical section, so a later cancel or
+    /// retirement cannot count it stopped, and an earlier one leaves nothing published. True if published.
+    fn publish(&self, control: &RunControl, source_id: u64, designation: Designation) -> bool {
+        let mut state = self.lock();
+        let current = state.run.as_ref().is_some_and(|run| std::ptr::eq(Arc::as_ptr(run), control)) && !state.exhausted;
+        let epoch = state.epoch;
+        let mut run = control.lock();
+        if run.cancelled || !current {
+            return false;
+        }
+        let Some(source) = state.source.as_mut().filter(|source| source.id == source_id && source.entry_epoch == epoch) else {
+            return false;
+        };
+        source.designation = Some(designation);
+        run.handed_off = true;
+        true
+    }
+
+    /// The designation on source `source_id` whose base is `base` and whose designated review is `designated`, if it is
+    /// still the current one.
+    fn designated(&self, source_id: u64, base: &[u8; 64], designated: &[u8; 64]) -> Option<Designation> {
+        let state = self.lock();
+        let source = state.source.as_ref().filter(|source| source.id == source_id && source.entry_epoch == state.epoch)?;
+        source.designation.filter(|record| record.base == *base && record.designated == *designated)
     }
 }
 
@@ -665,11 +720,12 @@ pub(crate) fn identity_path(chosen: &Path) -> Option<PathBuf> {
 
 // -- The worker request and envelope (task 5) -------------------------------------------------------------------------
 
-/// Mode 1 is `review`, 2 is `adopt`.
+/// Mode 1 is `review`, 2 is `adopt`, 3 is `designate` (a review with a designated source, §5.4).
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum ImportMode {
     Review,
     Adopt,
+    Designate,
 }
 
 impl ImportMode {
@@ -677,6 +733,7 @@ impl ImportMode {
         match self {
             ImportMode::Review => 1,
             ImportMode::Adopt => 2,
+            ImportMode::Designate => 3,
         }
     }
 
@@ -686,7 +743,7 @@ impl ImportMode {
 
     pub(crate) fn result_limit(self) -> u64 {
         match self {
-            ImportMode::Review => REVIEW_RESULT_LIMIT,
+            ImportMode::Review | ImportMode::Designate => REVIEW_RESULT_LIMIT,
             ImportMode::Adopt => MBF_IMPORT_RESULT_MAX_BYTES,
         }
     }
@@ -694,9 +751,14 @@ impl ImportMode {
 
 const IDENTITY_ABSENT: u32 = u32::MAX;
 
-/// The request's exact length from its parts' lengths (`identity` None when absent).
-pub(crate) fn request_len(label: usize, declaration: usize, mbf: u64, identity: Option<u64>) -> u64 {
-    20 + label as u64 + declaration as u64 + mbf + identity.unwrap_or(0)
+/// The request's exact length from its parts' lengths (`identity` None when absent; `designated` the designated
+/// source's name and size, Designate only), or None if it overflows.
+pub(crate) fn request_len(label: usize, declaration: usize, mbf: u64, identity: Option<u64>, designated: Option<(usize, u64)>) -> Option<u64> {
+    let mut total = 20_u64.checked_add(u64::try_from(label).ok()?)?.checked_add(u64::try_from(declaration).ok()?)?.checked_add(mbf)?.checked_add(identity.unwrap_or(0))?;
+    if let Some((name, size)) = designated {
+        total = total.checked_add(8)?.checked_add(u64::try_from(name).ok()?)?.checked_add(size)?;
+    }
+    Some(total)
 }
 
 /// The request's fixed parts, written into the request buffer before the files.
@@ -712,6 +774,8 @@ pub(crate) struct WorkerRequest<'a> {
     pub(crate) declaration: &'a [u8],
     pub(crate) mbf: &'a [u8],
     pub(crate) identity: Option<&'a [u8]>,
+    /// Designate only: the designated source's file name and bytes.
+    pub(crate) designated: Option<(&'a str, &'a [u8])>,
 }
 
 fn worker_failure(code: &str, message: impl std::fmt::Display) -> String {
@@ -745,6 +809,7 @@ pub(crate) fn decode_worker_request(raw: &[u8]) -> Result<WorkerRequest<'_>, Str
     let mode = match take_u32(&mut rest) {
         Some(1) => ImportMode::Review,
         Some(2) => ImportMode::Adopt,
+        Some(3) => ImportMode::Designate,
         _ => return Err(invalid("has an unknown mode")),
     };
     let label_len = take_u32(&mut rest).ok_or_else(|| invalid("is truncated"))? as usize;
@@ -771,10 +836,24 @@ pub(crate) fn decode_worker_request(raw: &[u8]) -> Result<WorkerRequest<'_>, Str
         }
         Some(take(&mut rest, identity_len as usize).ok_or_else(|| invalid("is truncated"))?)
     };
+    let designated = if mode == ImportMode::Designate {
+        let name_len = take_u32(&mut rest).ok_or_else(|| invalid("is truncated"))? as usize;
+        if name_len == 0 || name_len > LABEL_MAX_BYTES {
+            return Err(invalid("has a designated file name of the wrong length"));
+        }
+        let name = take(&mut rest, name_len).and_then(|bytes| std::str::from_utf8(bytes).ok()).ok_or_else(|| invalid("has a designated file name that is not UTF-8"))?;
+        let source_len = take_u32(&mut rest).ok_or_else(|| invalid("is truncated"))?;
+        if u64::from(source_len) > DESIGNATED_SOURCE_MAX_BYTES {
+            return Err(invalid("has a designated source above 64 MiB"));
+        }
+        Some((name, take(&mut rest, source_len as usize).ok_or_else(|| invalid("is truncated"))?))
+    } else {
+        None
+    };
     if !rest.is_empty() {
         return Err(invalid("has trailing bytes"));
     }
-    Ok(WorkerRequest { mode, label, declaration, mbf: mbf_bytes, identity })
+    Ok(WorkerRequest { mode, label, declaration, mbf: mbf_bytes, identity, designated })
 }
 
 /// Encodes a request (tests and the in-process checks; the host writes its request buffer in place).
@@ -794,6 +873,12 @@ pub(crate) fn encode_worker_request(request: &WorkerRequest<'_>) -> Vec<u8> {
             raw.extend_from_slice(identity);
         }
         None => push_u32(&mut raw, IDENTITY_ABSENT),
+    }
+    if let Some((name, bytes)) = request.designated {
+        push_u32(&mut raw, name.len() as u32);
+        raw.extend_from_slice(name.as_bytes());
+        push_u32(&mut raw, bytes.len() as u32);
+        raw.extend_from_slice(bytes);
     }
     raw
 }
@@ -828,10 +913,10 @@ pub(crate) fn envelope_len(mode: ImportMode, imported: bool, has_candidate: bool
         + 2 // adoptable
         + if has_candidate { 65 } else { 2 } // model digest
         + 65 // review digest
+        + if mode == ImportMode::Designate { 65 } else { 0 } // base review digest
         + decimal_len(model_bytes) + 1
         + decimal_len(model_len) + 1
         + decimal_len(review_len) + 1;
-    let _ = mode;
     header + model_len + review_len
 }
 
@@ -940,6 +1025,20 @@ fn put_reviewed_reply<O: Out>(out: &mut O, source_id: u64, file_name: &str, revi
     out.put(b"}");
 }
 
+fn put_designated_reply<O: Out>(out: &mut O, source_id: u64, file_name: &str, base_sha: &[u8; 64], review_sha: &[u8; 64], review: &[u8]) {
+    out.put(b"{\"outcome\":\"designated\",\"sourceId\":");
+    put_u64(out, source_id);
+    out.put(b",\"fileName\":");
+    put_json_str(out, file_name);
+    out.put(b",\"baseReviewSha256\":\"");
+    out.put(base_sha);
+    out.put(b"\",\"reviewSha256\":\"");
+    out.put(review_sha);
+    out.put(b"\",\"review\":");
+    out.put(review);
+    out.put(b"}");
+}
+
 fn put_refused_reply<O: Out>(out: &mut O, adopt: bool, file_name: &str, diagnostics: &[Diag]) {
     out.put(if adopt { b"{\"outcome\":\"refused\",\"file_name\":" as &[u8] } else { b"{\"outcome\":\"refused\",\"fileName\":" });
     put_json_str(out, file_name);
@@ -973,6 +1072,9 @@ fn worker_declaration(bytes: &[u8]) -> Result<Option<mbf::Value>, String> {
 /// `<code>: <message>` of at most 64 KiB, with no engine text.
 pub(crate) fn worker_import(raw: &[u8]) -> Result<String, String> {
     let request = decode_worker_request(raw)?;
+    // Designate (§5.4): the pair's derivation and the designated source are evaluated first, each phase's working
+    // values released before the next, and before the import; only fixed-size facts are kept.
+    let evaluation = request.designated.map(|(_, bytes)| mbf::evaluate_designated_source(bytes, request.mbf, request.identity));
     let material_provenance = worker_declaration(request.declaration)?;
     let declaration_sha = (!request.declaration.is_empty()).then(|| sha256_hex(request.declaration));
     let mut options = mbf::ImportOptions::new(request.label);
@@ -1029,8 +1131,29 @@ pub(crate) fn worker_import(raw: &[u8]) -> Result<String, String> {
             && adopt_reply_len(label, model_len) <= MBF_IMPORT_RESULT_MAX_BYTES
             && model_len <= MAX_MODEL_DOCUMENT_BYTES
     };
-    let review = mbf::import_review(&result, source, declaration_sha.as_ref().map(ascii), candidate, check, REVIEW_MAX_BYTES, transfer_fits)
-        .map_err(|too_small| worker_failure(ENGINE_FAILED, format!("the review needs {} bytes of its {} byte allowance", too_small.needed, too_small.allowance)))?;
+    let too_small = |too_small: mbf::ReviewAllowanceTooSmall| {
+        worker_failure(ENGINE_FAILED, format!("the review needs {} bytes of its {} byte allowance", too_small.needed, too_small.allowance))
+    };
+    // The designation is formed while the candidate model is present (its identity inventory is read).
+    let designated_sha = request.designated.map(|(_, bytes)| sha256_hex(bytes));
+    let designation = match (&evaluation, request.designated, &designated_sha) {
+        (Some(evaluation), Some((name, bytes)), Some(sha)) => Some(mbf::designation(name, ascii(sha), bytes.len() as u64, evaluation, &result)),
+        _ => None,
+    };
+    let review = mbf::import_review(&result, source, declaration_sha.as_ref().map(ascii), candidate, check, REVIEW_MAX_BYTES, transfer_fits).map_err(too_small)?;
+    // Designate: the base review Y (what Review gives for the same inputs) is digested and released; the review carried
+    // is X, the same review stating the designation.
+    let (base_sha, review) = match &designation {
+        None => (None, review),
+        Some(designation) => {
+            let base = sha256_hex(review.text.as_bytes());
+            drop(review);
+            let designated = mbf::import_review_designated(&result, source, declaration_sha.as_ref().map(ascii), candidate, check, Some(designation), REVIEW_MAX_BYTES, transfer_fits)
+                .map_err(too_small)?;
+            (Some(base), designated)
+        }
+    };
+    drop(designation);
     if let Some(model) = result.model.take() {
         mbf::value::dispose(model);
     }
@@ -1059,6 +1182,10 @@ pub(crate) fn worker_import(raw: &[u8]) -> Result<String, String> {
     envelope.push('\n');
     envelope.push_str(ascii(&review_sha));
     envelope.push('\n');
+    if let Some(base) = &base_sha {
+        envelope.push_str(ascii(base));
+        envelope.push('\n');
+    }
     envelope.push_str(&model_len.to_string());
     envelope.push('\n');
     envelope.push_str(&carried_len.to_string());
@@ -1084,6 +1211,8 @@ pub(crate) struct Decoded {
     pub(crate) adoptable: bool,
     pub(crate) model_sha: Option<[u8; 64]>,
     pub(crate) review_sha: [u8; 64],
+    /// Designate only: the base review Y's digest.
+    pub(crate) base_review_sha: Option<[u8; 64]>,
     pub(crate) model_bytes: u64,
     pub(crate) model: std::ops::Range<usize>,
     pub(crate) review: std::ops::Range<usize>,
@@ -1167,6 +1296,7 @@ pub(crate) fn decode_import_result(mode: ImportMode, result: &[u8]) -> Result<De
     }
     let model_digest = token(&mut rest, 64)?;
     let review_sha = sha_token(token(&mut rest, 64)?)?;
+    let base_review_sha = if mode == ImportMode::Designate { Some(sha_token(token(&mut rest, 64)?)?) } else { None };
     let model_bytes = length_token(token(&mut rest, 20)?)?;
     let model_len = length_token(token(&mut rest, 20)?)?;
     let review_len = length_token(token(&mut rest, 20)?)?;
@@ -1190,7 +1320,7 @@ pub(crate) fn decode_import_result(mode: ImportMode, result: &[u8]) -> Result<De
         return Err(protocol("the lengths do not cover the bodies"));
     }
     match mode {
-        ImportMode::Review if model_len != 0 => return Err(protocol("a review-mode result carries a model")),
+        ImportMode::Review | ImportMode::Designate if model_len != 0 => return Err(protocol("a review-mode result carries a model")),
         ImportMode::Adopt if adoptable && model_len != model_bytes => return Err(protocol("the carried model is not the candidate")),
         ImportMode::Adopt if !adoptable && model_len != 0 => return Err(protocol("a non-adoptable result carries a model")),
         _ => {}
@@ -1203,7 +1333,7 @@ pub(crate) fn decode_import_result(mode: ImportMode, result: &[u8]) -> Result<De
     let review_view = &result[review.clone()];
     // The fixed leading members, from the validated fields only.
     let mut prefix = Prefix { bytes: [0; PREFIX_BUFFER_BYTES], len: 0, overflow: false };
-    prefix.put(b"{\"document_kind\":\"swbpipe.mbf_import_review\",\"format\":2,\"status\":\"");
+    prefix.put(b"{\"document_kind\":\"swbpipe.mbf_import_review\",\"format\":3,\"status\":\"");
     prefix.put(if imported { b"imported" } else { b"refused" });
     prefix.put(b"\",\"adoptable\":");
     prefix.put(if adoptable { b"true" } else { b"false" });
@@ -1234,7 +1364,7 @@ pub(crate) fn decode_import_result(mode: ImportMode, result: &[u8]) -> Result<De
             return Err(protocol("the carried model's digest does not match"));
         }
     }
-    Ok(Decoded { imported, adoptable, model_sha, review_sha, model_bytes, model, review })
+    Ok(Decoded { imported, adoptable, model_sha, review_sha, base_review_sha, model_bytes, model, review })
 }
 
 /// The review's blocking codes, read from its fixed members after the leading ones (`completeness`, `transfer_limit`,
@@ -1416,6 +1546,8 @@ fn task_failure(text: &str) -> Stop {
 pub(crate) enum Reply<'a> {
     Cancelled,
     Reviewed { source_id: u64, file_name: String, review_sha: [u8; 64], review: &'a [u8] },
+    /// Designate's reply: X with Y's digest; `record` is published only as the reply is handed off (§5.4).
+    Designated { source_id: u64, file_name: String, review_sha: [u8; 64], review: &'a [u8], record: Designation },
     Opened { file_name: String, model: &'a [u8], review_sha: [u8; 64], model_sha: [u8; 64] },
     Refused { adopt: bool, file_name: String, diagnostics: Vec<Diag> },
 }
@@ -1425,6 +1557,7 @@ impl Reply<'_> {
         match self {
             Reply::Cancelled => out.put(b"{\"outcome\":\"cancelled\"}"),
             Reply::Reviewed { source_id, file_name, review_sha, review } => put_reviewed_reply(out, *source_id, file_name, review_sha, review),
+            Reply::Designated { source_id, file_name, review_sha, review, record } => put_designated_reply(out, *source_id, file_name, &record.base, review_sha, review),
             Reply::Opened { file_name, model, review_sha, model_sha } => put_adopt_reply(out, file_name, model, review_sha, model_sha),
             Reply::Refused { adopt, file_name, diagnostics } => put_refused_reply(out, *adopt, file_name, diagnostics),
         }
@@ -1462,8 +1595,9 @@ fn fill_request(
     declaration: &[u8],
     mbf_file: (&File, &Path, u64),
     identity: Option<(&File, &Path, u64)>,
+    designated: Option<(&str, &File, &Path, u64)>,
     control: &RunControl,
-) -> Result<([u8; 32], Option<[u8; 32]>), Stop> {
+) -> Result<([u8; 32], Option<[u8; 32]>, Option<[u8; 32]>), Stop> {
     push_u32(buffer, mode.code());
     push_u32(buffer, label.len() as u32);
     buffer.extend_from_slice(label.as_bytes());
@@ -1481,7 +1615,17 @@ fn fill_request(
             None
         }
     };
-    Ok((mbf_sha, identity_sha))
+    let designated_sha = match designated {
+        Some((name, file, path, size)) => {
+            push_u32(buffer, name.len() as u32);
+            buffer.extend_from_slice(name.as_bytes());
+            push_u32(buffer, size as u32);
+            let changed = || refused(OPEN_UNREADABLE, "source", "The designated file changed while it was read. Designate it again.");
+            Some(read_exact_pinned(file, path, size, buffer, control)?.ok_or_else(changed)?)
+        }
+        None => None,
+    };
+    Ok((mbf_sha, identity_sha, designated_sha))
 }
 
 /// Admits H8 and decodes the held result.
@@ -1526,7 +1670,7 @@ fn open_flow<'h>(
     };
     let identity = acquire(&expected_path, IDENTITY_MAX_BYTES, "identity_file", true, &command.control)?;
     let label = file_name_out.as_str();
-    let raw_len = request_len(label.len(), 0, mbf_size, identity.as_ref().map(|(_, _, size)| *size));
+    let raw_len = request_len(label.len(), 0, mbf_size, identity.as_ref().map(|(_, _, size)| *size), None).ok_or_else(request_too_large)?;
     let mut digests = None;
     let completed = command.run_worker(ImportMode::Review, raw_len, |buffer| {
         digests = Some(fill_request(
@@ -1536,13 +1680,14 @@ fn open_flow<'h>(
             &[],
             (&mbf_file, &chosen, mbf_size),
             identity.as_ref().map(|(file, _, size)| (file, expected_path.as_path(), *size)),
+            None,
             &command.control,
         )?);
         Ok(())
     })?;
     held.completed = Some(completed);
     let decoded = decode_held(command, ImportMode::Review, held)?;
-    let (mbf_sha, identity_sha) = digests.expect("the request was filled");
+    let (mbf_sha, identity_sha, _) = digests.expect("the request was filled");
     let mbf = Pinned { path: chosen.clone(), file: mbf_file, id: mbf_id, size: mbf_size, sha256: mbf_sha };
     let identity = match (identity, identity_sha) {
         (Some((file, id, size)), Some(sha256)) => IdentityFile::Present(Pinned { path: expected_path, file, id, size, sha256 }),
@@ -1553,8 +1698,26 @@ fn open_flow<'h>(
     Ok(Reply::Reviewed { source_id, file_name: file_name_out.clone(), review_sha: decoded.review_sha, review: &completed.result[decoded.review] })
 }
 
-/// A re-read of the current source into a new request (§4.8.2 "Re-read") and task 5 in `mode`.
-fn reread_flow(command: &Command<'_>, imports: &MbfImports, mode: ImportMode, source_id: u64, declaration: &[u8], held: &mut Held, file_name_out: &mut String) -> Result<Decoded, Stop> {
+fn request_too_large() -> Stop {
+    refused(MEMORY_UNAVAILABLE, "", "The import's request is too large. Nothing was imported.")
+}
+
+/// A designated source acquired for one Designate run (§5.4): its name, handle, path and size. Not kept.
+pub(crate) type DesignatedFile<'a> = (&'a str, &'a File, &'a Path, u64);
+
+/// A re-read of the current source into a new request (§4.8.2 "Re-read") and task 5 in `mode`; Designate also reads
+/// `designated` into the request and returns its SHA-256.
+#[allow(clippy::too_many_arguments)]
+fn reread_flow(
+    command: &Command<'_>,
+    imports: &MbfImports,
+    mode: ImportMode,
+    source_id: u64,
+    declaration: &[u8],
+    designated: Option<DesignatedFile<'_>>,
+    held: &mut Held,
+    file_name_out: &mut String,
+) -> Result<(Decoded, Option<[u8; 32]>), Stop> {
     let source = imports.take_source(source_id)?;
     *file_name_out = source.file_name.clone();
     // The name checks (truthful to the user); the digests below prove what is imported.
@@ -1576,17 +1739,21 @@ fn reread_flow(command: &Command<'_>, imports: &MbfImports, mode: ImportMode, so
             Some(pinned)
         }
     };
-    let raw_len = request_len(source.file_name.len(), declaration.len(), source.mbf.size, identity.map(|pinned| pinned.size));
+    let raw_len = request_len(source.file_name.len(), declaration.len(), source.mbf.size, identity.map(|pinned| pinned.size), designated.map(|(name, _, _, size)| (name.len(), size)))
+        .ok_or_else(request_too_large)?;
+    let mut designated_sha = None;
     let completed = command.run_worker(mode, raw_len, |buffer| {
-        let (mbf_sha, identity_sha) = fill_request(
+        let (mbf_sha, identity_sha, source_sha) = fill_request(
             buffer,
             mode,
             &source.file_name,
             declaration,
             (&source.mbf.file, &source.mbf.path, source.mbf.size),
             identity.map(|pinned| (&pinned.file, pinned.path.as_path(), pinned.size)),
+            designated,
             &command.control,
         )?;
+        designated_sha = source_sha;
         if mbf_sha != source.mbf.sha256 || identity_sha != identity.map(|pinned| pinned.sha256) {
             return Err(changed());
         }
@@ -1599,7 +1766,7 @@ fn reread_flow(command: &Command<'_>, imports: &MbfImports, mode: ImportMode, so
     })?;
     drop(source);
     held.completed = Some(completed);
-    decode_held(command, mode, held)
+    Ok((decode_held(command, mode, held)?, designated_sha))
 }
 
 // -- Declarations (H3) ------------------------------------------------------------------------------------------------
@@ -1682,13 +1849,21 @@ fn members(command: &'static str) -> &'static [&'static str] {
     match command {
         OPEN_COMMAND => &[EXPECTED_EPOCH, REQUEST_SEQUENCE],
         REVIEW_COMMAND => &[EXPECTED_EPOCH, REQUEST_SEQUENCE, "sourceId", "declaration"],
+        // Adopt and Designate: the review shown (Designate's is the base review Y it designates over).
         _ => &[EXPECTED_EPOCH, REQUEST_SEQUENCE, "sourceId", "declaration", "reviewSha256"],
     }
 }
 
 /// Builds the response: H7 is counted over borrowed views, refused above its limit before any buffer, leased, then
 /// written once; the response takes the buffer.
-fn respond_with<R>(memory: &NativeLeaseMemory<'_>, reply: Reply<'_>, held: &mut Held, control: Option<&RunControl>, respond: impl FnOnce(String) -> R) -> R {
+fn respond_with<R>(
+    memory: &NativeLeaseMemory<'_>,
+    reply: Reply<'_>,
+    held: &mut Held,
+    control: Option<&RunControl>,
+    imports: Option<&MbfImports>,
+    respond: impl FnOnce(String) -> R,
+) -> R {
     let adopt_file = match &reply {
         Reply::Opened { file_name, .. } => Some(file_name.clone()),
         _ => None,
@@ -1705,7 +1880,7 @@ fn respond_with<R>(memory: &NativeLeaseMemory<'_>, reply: Reply<'_>, held: &mut 
     }
     let (adopt, file_name) = match &reply {
         Reply::Opened { file_name, .. } => (true, file_name.as_str()),
-        Reply::Reviewed { file_name, .. } => (false, file_name.as_str()),
+        Reply::Reviewed { file_name, .. } | Reply::Designated { file_name, .. } => (false, file_name.as_str()),
         Reply::Refused { adopt, file_name, .. } => (*adopt, file_name.as_str()),
         Reply::Cancelled => (false, ""),
     };
@@ -1733,8 +1908,15 @@ fn respond_with<R>(memory: &NativeLeaseMemory<'_>, reply: Reply<'_>, held: &mut 
             return respond(String::from_utf8(text).unwrap_or_default());
         }
     }
+    // A designation is published to the still-current source and run, and the run handed off, in one critical section
+    // (imports, then the run: the lock order of registration and retirement); if either has moved on, nothing is
+    // published and the reply is the cancellation.
+    let published = match (&reply, control, imports) {
+        (Reply::Designated { source_id, record, .. }, Some(control), Some(imports)) => Some(imports.publish(control, *source_id, *record)),
+        _ => None,
+    };
     let mut handoff = control.map(RunControl::lock);
-    let was_cancelled = handoff.as_ref().is_some_and(|state| state.cancelled);
+    let was_cancelled = published == Some(false) || handoff.as_ref().is_some_and(|state| state.cancelled);
     let mut buffer = Vec::with_capacity(if was_cancelled { cancel_length.0 } else { length } as usize);
     if was_cancelled {
         put_refused_reply(&mut buffer, adopt, file_name, std::slice::from_ref(&cancelled));
@@ -1768,7 +1950,7 @@ fn start<R>(
     if let Some(unknown) = unknown {
         let reply = early(ARGS_INVALID, "", format!("`{command_name}` takes no member `{unknown}`."));
         drop(args);
-        let response = respond_with(&memory, reply, &mut held, None, respond);
+        let response = respond_with(&memory, reply, &mut held, None, None, respond);
         drop(held);
         drop(lease);
         return Ok(response);
@@ -1777,13 +1959,13 @@ fn start<R>(
         Ok(entry) => entry,
         Err(item) => {
             drop(args);
-            let response = respond_with(&memory, Reply::Refused { adopt, file_name: String::new(), diagnostics: vec![item] }, &mut held, None, respond);
+            let response = respond_with(&memory, Reply::Refused { adopt, file_name: String::new(), diagnostics: vec![item] }, &mut held, None, None, respond);
             drop(held);
             drop(lease);
             return Ok(response);
         }
     };
-    let registration = imports.register(entry, registry);
+    let registration = imports.register(entry, registry, command_name != ADOPT_COMMAND);
     let command = Command { registry, memory: &memory, args: &lease, control: Arc::clone(&registration.control), start_wait };
     let mut file_name = String::new();
     // `held` is borrowed by the reply's views; H7's lease is kept apart in `reply_held`, released after the result
@@ -1795,7 +1977,7 @@ fn start<R>(
         Ok(reply) => reply,
         Err(stop) => stop_reply(stop, adopt, std::mem::take(&mut file_name)),
     };
-    let response = respond_with(&memory, reply, &mut reply_held, Some(&command.control), respond);
+    let response = respond_with(&memory, reply, &mut reply_held, Some(&command.control), Some(imports), respond);
     drop(held);
     drop(reply_held);
     drop(command);
@@ -1832,7 +2014,7 @@ pub(crate) fn review_command<R>(registry: &SolveJobRegistry, imports: &MbfImport
             return Err(refused(ARGS_INVALID, "declaration", "`declaration` is required (null for none)."));
         }
         let (declaration, _h3) = declaration_bytes(command, args.opt_value("declaration"))?;
-        let decoded = reread_flow(command, imports, ImportMode::Review, source_id, &declaration, held, file_name)?;
+        let (decoded, _) = reread_flow(command, imports, ImportMode::Review, source_id, &declaration, None, held, file_name)?;
         let completed = held.completed.as_ref().expect("held");
         Ok(Reply::Reviewed { source_id, file_name: file_name.clone(), review_sha: decoded.review_sha, review: &completed.result[decoded.review] })
     })
@@ -1843,17 +2025,20 @@ pub(crate) fn review_command<R>(registry: &SolveJobRegistry, imports: &MbfImport
 pub(crate) fn adopt_command<R>(registry: &SolveJobRegistry, imports: &MbfImports, raw: Vec<u8>, copy: Lease, start_wait: Duration, respond: impl FnOnce(String) -> R) -> Result<R, SolveJobError> {
     start(registry, imports, raw, copy, ADOPT_COMMAND, start_wait, respond, |command, _entry, args, held, file_name| {
         let source_id = source_id_arg(args)?;
-        let requested = match args.opt_value("reviewSha256") {
-            Some(serde_json::Value::String(text)) => sha_token(text.as_bytes()).map_err(|_| refused(ARGS_INVALID, "reviewSha256", "`reviewSha256` must be 64 lowercase hexadecimal digits."))?,
-            _ => return Err(refused(ARGS_INVALID, "reviewSha256", "`reviewSha256` must be 64 lowercase hexadecimal digits.")),
-        };
+        let requested = review_sha_arg(args)?;
         if !args.keys().any(|key| key == "declaration") {
             return Err(refused(ARGS_INVALID, "declaration", "`declaration` is required (null for none)."));
         }
         let (declaration, _h3) = declaration_bytes(command, args.opt_value("declaration"))?;
-        let decoded = reread_flow(command, imports, ImportMode::Adopt, source_id, &declaration, held, file_name)?;
+        let (decoded, _) = reread_flow(command, imports, ImportMode::Adopt, source_id, &declaration, None, held, file_name)?;
+        // The review shown is the ordinary review Y recomputed now, or a designated review X whose current record names
+        // exactly that Y as its base (§5.4): X is adopted only over the same pair and declaration it was formed over.
         if decoded.review_sha != requested {
-            return Err(refused(REVIEW_STALE, "reviewSha256", "The import's review is no longer the one shown. Review it again."));
+            match imports.designated(source_id, &decoded.review_sha, &requested) {
+                Some(record) if record.adoptable => {}
+                Some(_) => return Err(refused(NOT_ADOPTABLE, "", "The reviewed import cannot be adopted.")),
+                None => return Err(refused(REVIEW_STALE, "reviewSha256", "The import's review is no longer the one shown. Review it again.")),
+            }
         }
         let completed = held.completed.as_ref().expect("held");
         if !decoded.adoptable {
@@ -1867,9 +2052,71 @@ pub(crate) fn adopt_command<R>(registry: &SolveJobRegistry, imports: &MbfImports
         Ok(Reply::Opened {
             file_name: file_name.clone(),
             model: &completed.result[decoded.model.clone()],
-            review_sha: decoded.review_sha,
+            review_sha: requested,
             model_sha: decoded.model_sha.expect("an adoptable result has a model"),
         })
+    })
+}
+
+fn review_sha_arg(args: &mut Args) -> Result<[u8; 64], Stop> {
+    let invalid = || refused(ARGS_INVALID, "reviewSha256", "`reviewSha256` must be 64 lowercase hexadecimal digits.");
+    match args.opt_value("reviewSha256") {
+        Some(serde_json::Value::String(text)) => sha_token(text.as_bytes()).map_err(|_| invalid()),
+        _ => Err(invalid()),
+    }
+}
+
+/// `designate_mbf_import_source` after [`reserve`] (§5.4): over the review shown (`reviewSha256`, the base review Y)
+/// and the exact current declaration, the native model-document chooser, the designated file read once into the
+/// request (never kept), the pair re-read as for Review, and task 5 in `designate` mode. The worker's recomputed Y must
+/// be the review shown, or `MBF-IMPORT-REVIEW-STALE`. The reply is X; its record is published only as the reply is
+/// handed off, to the still-current source and run. Writes nothing.
+pub(crate) fn designate_command<R>(
+    registry: &SolveJobRegistry,
+    imports: &MbfImports,
+    raw: Vec<u8>,
+    copy: Lease,
+    start_wait: Duration,
+    choose: impl FnOnce() -> Result<Option<PathBuf>, String>,
+    respond: impl FnOnce(String) -> R,
+) -> Result<R, SolveJobError> {
+    start(registry, imports, raw, copy, DESIGNATE_COMMAND, start_wait, respond, |command, _entry, args, held, file_name| {
+        let source_id = source_id_arg(args)?;
+        let requested = review_sha_arg(args)?;
+        if !args.keys().any(|key| key == "declaration") {
+            return Err(refused(ARGS_INVALID, "declaration", "`declaration` is required (null for none)."));
+        }
+        let (declaration, _h3) = declaration_bytes(command, args.opt_value("declaration"))?;
+        if command.control.cancelled() {
+            return Err(Stop::Cancelled);
+        }
+        let chosen = match choose() {
+            Ok(Some(path)) => path,
+            Ok(None) => return Ok(Reply::Cancelled),
+            Err(message) => return Err(refused(OPEN_UNREADABLE, "source", message)),
+        };
+        if command.control.cancelled() {
+            return Err(Stop::Cancelled);
+        }
+        let name = chosen.file_name().and_then(|name| name.to_str()).filter(|name| !name.is_empty() && name.len() <= LABEL_MAX_BYTES);
+        let Some(name) = name else {
+            return Err(refused(OPEN_NAME_INVALID, "source", "The designated file's name is not UTF-8 or is longer than 1 KiB."));
+        };
+        let Some((file, _, size)) = acquire(&chosen, DESIGNATED_SOURCE_MAX_BYTES, "source", false, &command.control)? else {
+            return Err(refused(OPEN_UNREADABLE, "source", "The designated file was not found."));
+        };
+        let designated = (name, &file, chosen.as_path(), size);
+        let (decoded, source_sha) = reread_flow(command, imports, ImportMode::Designate, source_id, &declaration, Some(designated), held, file_name)?;
+        drop(file);
+        let (Some(base), Some(source_sha256)) = (decoded.base_review_sha, source_sha) else {
+            return Err(Stop::Refused(vec![protocol("a designate result has no base review")]));
+        };
+        if base != requested {
+            return Err(refused(REVIEW_STALE, "reviewSha256", "The import's review is no longer the one shown. Review it again."));
+        }
+        let record = Designation { base, designated: decoded.review_sha, source_sha256, adoptable: decoded.adoptable };
+        let completed = held.completed.as_ref().expect("held");
+        Ok(Reply::Designated { source_id, file_name: file_name.clone(), review_sha: decoded.review_sha, review: &completed.result[decoded.review], record })
     })
 }
 

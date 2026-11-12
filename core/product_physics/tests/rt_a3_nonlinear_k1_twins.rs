@@ -488,7 +488,7 @@ type Row = (String, f64, String);
 /// scale is zero only when the case has no load, no applied friction and no gap, and then both routes publish
 /// exact zeros. r_f is the next power of two at or above twice the basis' largest enclosure / S_f: the final states'
 /// for value and residual rows, and for an iterate-delta row the final iterate's and its derived preceding iterate's
-/// (the note's §3, "Iterate deltas", under [`k1_history_premises`]).
+/// (under [`k1_history_premises`]).
 const K1_FAMILIES: [(&str, &str, f64, i32); 11] = [
     ("translation", "m", 0.0, -32),
     ("rotation", "rad", 0.0, -31),

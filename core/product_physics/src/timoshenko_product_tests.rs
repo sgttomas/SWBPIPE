@@ -422,7 +422,7 @@ fn pipe_sections_and_region_geometry_mark_the_same_realized_arcs() {
                     let object = part.as_object_mut().unwrap();
                     object.remove("traversal_forward").expect("a region geometry record");
                     object.remove("arc_end_tangents_global");
-                    // T4-U4b (§2.5): an arc's region record also states its bend radius.
+                    // an arc's region record also states its bend radius.
                     object.remove("bend_radius_m");
                     assert_eq!(&part, sections[id], "{label} {id}: region geometry section part is the pipe_sections entry");
                 }
@@ -465,7 +465,7 @@ fn kd5_straight_frames_are_bound_to_the_formation_source() {
     }
 }
 
-/// O4 (DEL-04-08 Design `o4-source-extension.md` §3.1, §6; formerly
+/// O4 (formerly
 /// `o4_timoshenko_declines_are_reached_by_published_documents`): the
 /// Timoshenko twin of the N05 retained-source control now selects
 /// pressure-source-1 in both modes, as its Euler-Bernoulli original does. Its

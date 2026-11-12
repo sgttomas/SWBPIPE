@@ -1,4 +1,4 @@
-// DEL-17-04 slice 5 (Design `desktop-mbf-export-import.md` §4.3): the import review's product presentation. Every
+// DEL-17-04 slice 5: the import review's product presentation. Every
 // code the importer and the native commands can emit has a product description, every structured assumption the
 // engine records has one formed from its parameters (conditional branches included), an unknown or cut assumption
 // blocks Adopt, the declaration never carries the engine's `*`, and no product source reaches the wasm importer.
@@ -85,8 +85,8 @@ describe("the import review's product presentation", () => {
   it("rejects prior and unknown review versions before interpreting metrics or capturing Adopt", () => {
     const bound = reviewed("bound-open");
     expect(importReviewFormatCurrent(bound.review)).toBe(true);
-    for (const format of [1, 0, 3, "2", null]) {
-      // Deliberately foreign payload at the transport boundary, with no format-2 members to accidentally read.
+    for (const format of [1, 2, 0, 4, "3", null]) {
+      // Deliberately foreign payload at the transport boundary, with no format-3 members to accidentally read.
       const foreign = { document_kind: "swbpipe.mbf_import_review", format, adoptable: true } as unknown as MbfImportReviewPayload;
       expect(importReviewFormatCurrent(foreign)).toBe(false);
       expect(importBlockingCodes(foreign)).toEqual(["MBF-IMPORT-WORKER-PROTOCOL"]);
@@ -122,7 +122,7 @@ describe("the import review's product presentation", () => {
       }
     };
     walk(join(ROOT, "apps/desktop/src"));
-    // `services/mbfEngine.ts` is the wasm engine's unconnected test resource (§4.8.1 (a)); nothing in the product may
+    // `services/mbfEngine.ts` is the wasm engine's unconnected test resource; nothing in the product may
     // load it or call its importer.
     const uses = (text: string) => /from\s+["'][^"']*\/mbfEngine["']|importMbfJson|import_mbf_json/.test(text);
     const offending = files.filter((path) => !path.endsWith("services/mbfEngine.ts") && uses(read(path)));

@@ -276,7 +276,7 @@ class PackageTests(unittest.TestCase):
                              float(generator.Decimal('1e-9') * generator.Decimal(scale[f'bending_torsion_stress@{basis}']['zero_scale']) / 1000000))
 
     def test_section_bases_twin_every_stress_row(self):
-        # T4-U6 (D-5, Design §2.1, §2.5, §7): each stress selector is followed by its reduced twin (id segment, basis token);
+        # T4-U6 (D-5): each stress selector is followed by its reduced twin (id segment, basis token);
         # a re-frozen case reads each basis's own value, a case whose bases coincide asserts its one value on both.
         files, cases = generated(), manifest_cases()
         references = {path: json.loads((PROJECT / path).read_text()) for path in (generator.I7, generator.I8)}

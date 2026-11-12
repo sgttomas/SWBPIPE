@@ -9,7 +9,7 @@ import {
 } from "./resultContour";
 import type { ResultColourOverlay } from "./resultColourOverlay";
 
-// The contour's display arithmetic (A4; DEL-07-05 Design `result-contour.md` §3 to §5). Invented
+// The contour's display arithmetic (A4). Invented
 // values only; none has engineering meaning.
 
 const FIVE: StationPoint[] = [

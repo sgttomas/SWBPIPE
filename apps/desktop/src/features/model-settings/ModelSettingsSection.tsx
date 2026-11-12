@@ -51,7 +51,7 @@ import {
   type SettingPath
 } from "./modelSettingsIntents";
 
-/** The straight-member shear deformation choices (pf-timoshenko.md §1), default first. */
+/** The straight-member shear deformation choices, default first. */
 export const SHEAR_MODEL_CHOICES = Object.freeze([
   { value: "euler_bernoulli", label: "Euler–Bernoulli (the default)" },
   { value: "timoshenko_annulus_energy_v1", label: "Timoshenko (energy-matched annular factor)" }

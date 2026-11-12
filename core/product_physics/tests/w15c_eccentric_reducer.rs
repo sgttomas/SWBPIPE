@@ -533,7 +533,7 @@ fn a_weak_bend_does_not_tilt_the_axis_full_solve() {
 /// placement residual. Under J3 the tie judges each end like both neighbours,
 /// on both routes, and placing the reducer at the other end (the ends' names
 /// swapped, the offset negated) gives the same outcome and residual. Under rule
-/// B (§3.3) the 5.859196 mm residual lies within each end's placement allowance
+/// B the 5.859196 mm residual lies within each end's placement allowance
 /// τ + ‖D‖·sin β (β of a 125 mm run, about 10.4 mm of axis allowance), so all
 /// of them are accepted with the axis-allowance warning; under the τ-only rule
 /// all of them were refused as `..._MISMATCH`.
@@ -609,7 +609,7 @@ fn three_members(nodes: [[f64; 3]; 4], e: [f64; 3]) -> Model {
     }
 }
 
-/// Rule B regressions (§9; invented geometry, not engineering data): two
+/// Rule B regressions (invented geometry, not engineering data): two
 /// ordinary eccentric reducers between 0.1 m members, entered to the mm, with
 /// the offset equal to the radius difference, both exactly consistent before
 /// rounding. Under the τ-only rule both were refused (`..._MISMATCH`, residuals

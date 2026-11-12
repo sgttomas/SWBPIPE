@@ -2,336 +2,103 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-03-06
 package_id: PKG-03
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-010]
 package_objective_refs: [OBJ-004]
 ---
 
-# Scope of Work — DEL-03-06
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-03-06 Expansion joint component model
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-03-06` in service of project scope [SOW-010] and package objectives [OBJ-004].
+This deliverable defines what an expansion joint is in the product: a component that takes the place of a span of pipe and connects its two ends through a flexible element. Its stiffness, effective pressure area, movement limits and hardware come from the manufacturer or the user, each with its source. The definition says what those inputs are and what they do in a solve: the joint resists the relative movement of its two ends with the user's stiffness and nothing else, its tie rods are separate elastic rods whose forces are published, and its effective area is what pressure acts on. The software supplies no joint data of its own.
 
-- **OUT-001** — An expansion-joint component-model contract covering supplied stiffnesses, effective area, movement limits, hardware fields, units, provenance, completeness, and diagnostics is produced for the declared scope and objective.
+It serves SOW-010 under OBJ-004 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-03, row DEL-03-06), and PRD §12.3 (expansion joints) with FR-SOL-013. In `docs/RELEASE_TARGET_v1.0.md` it is an owning deliverable of exit criterion 1 for the reference system's expansion joint with tie rods.
+
+- **OUT-001** — The expansion joint component definition: its members in the model document and in a component library record, and the behaviour of the joint and its tie rods in a solve and in published results.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-03-06 Expansion joint component model
+**Terms the definition implements.**
 
-> #### Datasheet: DEL-03-06 Expansion joint component model
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Expansion joint component.* A component of kind expansion joint at a node, naming the span of pipe it replaces, with an effective area, movement limit, hardware reference and manufacturer reference, and the connector that gives it its mechanics. These members of the model document, the objective connector among them, are this deliverable's definition.
+- *Objective connector.* A two-ended element between attachments at the two end nodes of the replaced span. Each attachment has its node, that node's initial axes and a local offset. The connector has its own frame, and a symmetric 6×6 stiffness in the order three translations then three rotations, entered as work coefficients with a translation scale and a rotation scale. It resists only the relative movement of its attachments: a rigid-body movement of both produces no force. The axial, lateral, angular and torsional stiffnesses of PRD §12.3 are terms of this stiffness in the connector frame.
+- *Stiffness provenance.* The stiffness carries a source reference, the restraints under which it was measured, and a reference for any change of basis applied to it.
+- *Reference state.* Stress-free, or prestressed with an entered reference load, at an installed reference temperature. The stiffness is that of the installed joint and does not vary with temperature.
+- *Replaced span.* The pipe the joint stands in for. It contributes no pipe stiffness, no member results, no self-weight and no thermal load of its own.
+- *Hardware.* Untied, or explicit elastic tie rods. A tie rod is a linear elastic axial rod between the joint's two ends, acting in tension and compression, with rigid offsets from each end, a stiffness, a reference extension and a source reference. Hinge, gimbal and limit-rod hardware is recorded as a reference and has no mechanics (PRD §7).
+- *Pressure model.* Unpressurized, or a constant effective area with its source reference, acted on by the internal pressure.
+- *Library record of an expansion joint.* A component library record of type expansion joint, whose field kinds hold linear and rotational stiffness, effective area, movement limit, hardware and manufacturer references.
 
-### CLM-003 — Identification
+**Boundary.** This scope states the joint's definition and the criteria it meets. The connector and tie-rod elements are held with the frame kernel's code (DEL-04-01). DEL-04-07 composes the joint into the product solve, applies the pressure thrust that follows from the effective area on the load side, and owns the route on which a joint is admitted and where in a pressure region it may sit. The published connector evidence record is read by the product's ordinary result reader, whose criteria are DEL-05-02/REQ-018 to DEL-05-02/REQ-020. DEL-02-01 owns the model document and DEL-03-02 the component library format. DEL-07-03 owns the creation form.
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-03-06 |
-> | Package ID | PKG-03 |
-> | Package | Piping Components, Materials, and Library Data Model |
-> | Type | BACKEND_FEATURE_SLICE |
-> | Scope Item | SOW-010 |
-> | Objective | OBJ-004 |
-> | Evidence Status | Implemented schema, invented fixture, and test evidence for expansion-joint component slots; no public engineering values or lifecycle promotion |
->
-
-### CLM-004 — Attributes
-
-> ##### Attributes
->
-> The implemented component-library evidence represents expansion joints as supplied-data component records. The current public repository evidence defines schema slots, an invented fixture record, completeness findings, and diagnostics; it does not supply engineering values.
->
-> | Attribute Category | Required Treatment | Source |
-> |---|---|---|
-> | Stiffness values | Implemented as `linear_stiffness` and `rotational_stiffness` component field kinds and accepted quantity dimensions. Public fixture values remain missing and private/user/manufacturer supplied. The solver consumes a joint only as an objective connector with an authored 6×6 work matrix (T4-U3; [Work/joint-replacement.md](Work/joint-replacement.md)), which replaced the DEC-045 user-stiffness macro-element under H-3; legacy rate joints are refused by name. The product implementation is separately evidenced. | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; `tests/test_component_section_schema.py`; execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010; docs/CONTRACT.md#OPS-K-DATA-1 |
-> | Effective area | Implemented as an `effective_area` field kind with provenance and missing-value handling in the invented fixture. Pressure/thrust usage semantics remain downstream solver scope; on the exact route an untied objective connector's authored effective area carries the joint thrust (T4-U5a, DEL-04-07 Design `joint-pressure-thrust.md`). | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; `tests/test_component_section_schema.py`; execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010 |
-> | Movement limits | Implemented as a `movement_limit` field kind with explicit missing-value diagnostics. Movement-limit class taxonomy and dimensional validation categories remain `TBD`. | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; `tests/test_component_section_schema.py`; execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010; docs/CONTRACT.md#OPS-K-DATA-2 |
-> | Hardware data | Implemented as `hardware_flag`/`hardware_reference` schema slots and fixture contract evidence, with `hardware_reference` present on the invented expansion-joint record. Hardware flag/enumeration taxonomy remains `TBD`. | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; `tests/test_component_section_schema.py`; execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-010 |
-> | Provenance | Implemented through source, license/redistribution status, contributor certification, and review status fields on schema-slot fixture records. Public source-catalog policy, fixture-value policy, and human review disposition remain open. | `schemas/component.schema.yaml`; `fixtures/component/invented_component_library_valid.json`; docs/CONTRACT.md#OPS-K-IP-2; docs/CONTRACT.md#OPS-K-DATA-3 |
->
-
-### CLM-005 — Preserved TBDs and Gates
-
-> ###### Preserved TBDs and Gates
->
-> - Solver consumption follows the objective connector (T4-U3), which replaced the DEC-045 user-stiffness macro-element; no engineering value or default is supplied.
-> - `TBD`: release-level required vs optional classification beyond the current schema completeness rule.
-> - `TBD`: movement-limit classes and dimensional validation categories.
-> - `TBD`: hardware flag/enumeration taxonomy.
-> - `TBD`: accepted public expansion-joint source catalog and public fixture-value policy.
-> - `TBD`: dependency satisfaction, preservation of the resolved local review findings, and lifecycle closure.
->
-
-### CLM-006 — Conditions
-
-> ##### Conditions
->
-> - Public repository artifacts must not include manufacturer proprietary values, protected standards text, protected examples, or copied data tables.
-> - Missing solve-required or rule-check-required expansion joint values must remain explicit findings, never silent defaults.
-> - Current schema dimensions classify stiffness as `linear_stiffness` and `rotational_stiffness`; any supplied numeric quantity must remain unit-aware and dimensionally checked before mechanics or rule-check use.
-> - Outputs may support review. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
->
-
-### CLM-007 — Construction
-
-> ##### Construction
->
-> The contract separates component-library schema evidence from the objective-connector product route (FK `core/solver/frame_kernel/src/connector.rs`, PP `core/product_physics/src/joint.rs`) and applier-gated edits; each layer retains its own verification evidence. The implementation evidence includes `expansion_joint` as a component type, expansion-joint family contract fields, an invented expansion-joint record with missing supplied values, a blocking completeness finding, and expansion-joint diagnostic codes.
->
-> Current model partitions:
->
-> | Partition | Content |
-> |---|---|
-> | Identity | Component ID, component type, library/source reference, provenance metadata |
-> | Mechanical inputs | `linear_stiffness`, `rotational_stiffness`, `effective_area`, `movement_limit`, `hardware_flag`/`hardware_reference`, and `manufacturer_reference` slots |
-> | Unit metadata | Component quantity dimensions for linear and rotational stiffness plus area-compatible supplied values |
-> | Validation state | Missing data diagnostics, provenance warnings, assumption warnings |
-> | Persistence hooks | Schema version, strict schema shape, fixture provenance, review status, redistribution status, and open decision records |
->
-
-### CLM-008 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, architecture basis, and package scope.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) for SOW-010, OBJ-004, PKG-03, and AB-00-01/02/04/06/07/08.
-> - `docs/CONTRACT.md` for OPS-K-IP-1..3, OPS-K-DATA-1..3, OPS-K-UNIT-1, OPS-K-MECH-1, OPS-K-AGENT-1..4.
-> - `schemas/component.schema.yaml`, `fixtures/component/invented_component_library_valid.json`, and `tests/test_component_section_schema.py` for current implementation evidence.
+**Not decided.** Whether a solve compares the joint's movement with the entered movement limits, and what classes of movement limit and of hardware the product distinguishes. Until it is decided, a movement limit and a hardware reference are recorded, sourced user inputs that change no result.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-009 — Specification: DEL-03-06 Expansion joint component model
+A joint result is a statement about a linear connector with the user's stiffness. It says nothing about whether the joint's movements, cycles or hardware are acceptable; that is the manufacturer's data and the user's engineer's judgment.
 
-> #### Specification: DEL-03-06 Expansion joint component model
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-011 — Scope
+- **REQ-001** — The joint's axial, lateral, angular and torsional stiffness are data supplied by a user, a manufacturer or a lawful private library (SOW-010; PRD §12.3).
+- **REQ-002** — The effective pressure area is supplied data with a unit and provenance (SOW-010; PRD §12.3).
+- **REQ-003** — Movement limits are supplied data, and an absent limit is an explicit finding (SOW-010; PRD §12.3).
+- **REQ-004** — Hardware data is supplied data. Nothing about a joint's hardware is derived or defaulted (SOW-010).
+- **REQ-005** — Every numeric value of a joint is unit-aware and dimensionally checked (`docs/CONTRACT.md` OPS-K-UNIT-1).
+- **REQ-006** — Manufacturer data carries its source, licence or redistribution status and review disposition (PRD §12.3; `docs/CONTRACT.md` OPS-K-DATA-3, OPS-K-IP-2).
+- **REQ-007** — A missing value a solve or a rule check requires is an explicit, named finding. Nothing is defaulted (`docs/CONTRACT.md` OPS-K-DATA-2; PRD §5.5).
+- **REQ-008** — A joint's values reach a solve, a saved model and a report only through the product's validation; no adapter, persistence, interface or report path bypasses the unit, provenance and completeness checks (the decomposition's architecture basis for DEL-00-02 and DEL-00-07).
+- **REQ-010** — A joint is solved only as an objective connector that replaces its span. A joint given in any other form is refused by name; it is neither converted nor solved as pipe without saying so.
+- **REQ-011** — Elastic tie rods are explicit axial rod elements, and each rod's force is published (PRD §12.3).
+- **REQ-012** — The reference system's expansion joint with tie rods solves on the exact route (release target exit criterion 1).
+- **REQ-013** — The product ships no manufacturer value and no joint default. Every example is invented or omits its values (SOW-010; `docs/CONTRACT.md` OPS-K-IP-1).
 
-> ##### Scope
->
-> DEC-045 fixed user-entered axial/lateral/angular/torsional stiffness and dedicated macro-element consumption; under the T4 rulings D-4 and H-3 that element was deleted and replaced by the objective connector (T4-U3), and legacy joints are refused by name ([Work/joint-replacement.md](Work/joint-replacement.md)). Effective-area pressure thrust belongs on the load side (T4-U5a). Current realization is FK `core/solver/frame_kernel/src/connector.rs` (with its explicit elastic tie rods in `tie_rod.rs`, T4-U5b) and PP `core/product_physics/src/joint.rs`, with applier-gated creation/edits in `core/model_operations/operation_applier/src/lib.rs`. Movement-limit/hardware taxonomy, source acceptance and engineering validation remain separate.
->
-> This deliverable-local specification covers the implemented backend data-model slice for an expansion joint component model. Schema-layer evidence includes component-library schema slots, an invented public fixture record, completeness rules, diagnostics, and schema tests for manufacturer/user/private-library supplied stiffness, effective area, movement limits, and hardware data.
->
-> Exclusions:
->
-> - No public engineering value implementation.
-> - No manufacturer proprietary values.
-> - No invented expansion joint defaults.
-> - No certification, authentication, or compliance claims.
-> - No rule evaluator or global solver implementation; PKG-03 explicitly excludes those responsibilities.
->
+### Acceptance criteria
 
-### CLM-012 — Requirements
-
-> ##### Requirements
->
-> | Req ID | Requirement | Basis |
-> |---|---|---|
-> | DEL-03-06-R-001 | The component model shall represent expansion joint stiffness data as supplied by a user, manufacturer, or lawful private library; current evidence implements `linear_stiffness` and `rotational_stiffness` slots without public values. | SOW-010 |
-> | DEL-03-06-R-002 | The component model shall represent effective area as supplied data with units and provenance; current evidence implements the `effective_area` slot without public values. | SOW-010; OPS-K-UNIT-1; OPS-K-DATA-3 |
-> | DEL-03-06-R-003 | The component model shall represent movement limits as supplied data with explicit missing-value handling; current evidence implements the `movement_limit` slot and missing-data diagnostic path while taxonomy remains `TBD`. | SOW-010; OPS-K-DATA-2 |
-> | DEL-03-06-R-004 | The component model shall represent hardware data without deriving defaults from protected or proprietary sources; current evidence implements `hardware_flag`/`hardware_reference` slots while hardware taxonomy remains `TBD`. | SOW-010; OPS-K-IP-1; OPS-K-IP-3 |
-> | DEL-03-06-R-005 | All expansion joint numeric values shall be unit-aware and dimensionally checked when persisted, imported, or used by downstream services. | OPS-K-UNIT-1; AB-00-04 |
-> | DEL-03-06-R-006 | Source, provenance, license/redistribution status, and review disposition shall be carried for component data where applicable. | OPS-K-IP-2; OPS-K-DATA-3 |
-> | DEL-03-06-R-007 | Missing solve-required or rule-check-required values shall produce explicit diagnostics or findings rather than silent defaults. | OPS-K-DATA-2; AB-00-06 |
-> | DEL-03-06-R-008 | The model shall preserve layer/API boundaries so adapters and plugins cannot bypass validation, provenance, units, diagnostics, or public/private data controls. | AB-00-02; AB-00-07 |
-> | DEL-03-06-R-009 | Validation tests shall cover schema/field presence, unit handling, missing-data diagnostics, provenance behavior, and protected-content guardrails where relevant. | AB-00-08 |
->
-
-### CLM-013 — Residual TBDs and gates
-
-> ###### Residual TBDs and gates
->
-> The implementation evidence technically addresses the stale generic-stiffness concern by using accepted `linear_stiffness` and `rotational_stiffness` dimensions. The following items remain unresolved and must not be treated as closed until human-approved or supported by later authoritative source material:
->
-> - Solver consumption follows the objective connector ([Work/joint-replacement.md](Work/joint-replacement.md)); values remain user supplied and validation remains separate.
-> - `TBD`: release-level required vs optional field classification beyond the current completeness rule.
-> - `TBD`: movement-limit validation classes.
-> - `TBD`: hardware flag/enumeration taxonomy.
-> - `TBD`: public expansion-joint source catalog policy and public fixture-value policy.
-> - `TBD`: dependency satisfaction, human disposition of `Review_Findings.csv`, and lifecycle closure.
->
-
-### CLM-014 — Standards
-
-> ##### Standards
->
-> No accessible expansion joint manufacturer standard, code clause, or proprietary product data is introduced by the current evidence. Applicable standards and exact clause references remain `TBD`. Any later standards-derived or manufacturer-derived value must be supplied by the user or lawfully imported private data and must not be bundled as a public default.
->
-
-### CLM-015 — Verification
-
-> ##### Verification
->
-> | Requirement | Current Verification Evidence |
-> |---|---|
-> | DEL-03-06-R-001 through R-004 | `schemas/component.schema.yaml` and `fixtures/component/invented_component_library_valid.json` define expansion-joint component type, family contract fields, invented record fields, and protected-value policy; `tests/test_component_section_schema.py` asserts this coverage. |
-> | DEL-03-06-R-005 | Tests assert component quantity dimensions include accepted `linear_stiffness` and `rotational_stiffness`, remain within accepted PKG-02 dimensions, and do not use retired dimensions. |
-> | DEL-03-06-R-006 | The invented fixture carries source, license/redistribution, contributor certification, and review status on schema-slot records. |
-> | DEL-03-06-R-007 | The invented fixture records an incomplete expansion-joint completeness finding and `EXPANSION_JOINT_STIFFNESS_DATA_MISSING` diagnostic. |
-> | DEL-03-06-R-008 | Verification must cover both the schema boundary and the objective-connector product/applier route; downstream adapter, GUI, persistence and report bypass obligations remain with their accepted owners and need scoped evidence. |
-> | DEL-03-06-R-009 | `python3 -m pytest tests/test_component_section_schema.py` is the targeted validation for this reconciliation pass. |
-> | Residual TBDs | Human ruling or later sealed work must define remaining taxonomy, source/value policy, dependency closure, lifecycle state, and review dispositions before completeness or release claims. |
->
-
-### CLM-016 — Documentation
-
-> ##### Documentation
->
-> Current artifacts:
->
-> - `schemas/component.schema.yaml`
-> - `fixtures/component/invented_component_library_valid.json`
-> - `tests/test_component_section_schema.py`
-> - This DEL-03-06 evidence kit and run records.
->
-> Future authorized work may add schema/API notes if the model is exposed through persistence services, import/export, adapters, GUI services, or reports.
-
-- **AC-001** — The contract preserves accepted expansion-joint requirements and boundaries, including supplied-data-only values, explicit units and provenance, protected-content controls, missing-value diagnostics, the objective-connector solver mapping under the T4 rulings and unresolved movement/hardware taxonomy, and no invented defaults or professional approval.
+- **AC-001** — An expansion joint accepts the inputs PRD §12.3 lists (axial, lateral, angular and torsional stiffness, effective pressure area, movement limits, elastic tie rods, hinge, gimbal or limit-rod metadata, and manufacturer data provenance) in the model document, each numeric value with its unit, and a component library record of an expansion joint holds its stiffness, effective area, movement limit, hardware and manufacturer references. A library record that lacks a required value validates only with that value marked missing and an expansion-joint completeness finding. Each manufacturer-sourced value carries its source reference, and in a library record its redistribution status and review disposition as well. A value without its source reference is reported as missing it, a library record that omits any of the three is rejected, and none is assumed.
+- **AC-002** — The forces and moments a joint applies to its two ends equal its stiffness acting on the relative movement of its attachments, offsets included, less its reference load, and a rigid-body movement of both ends produces none. Element and system cases reproduce independent references at the analytic tolerance in both solver modes.
+- **AC-003** — For a joint with explicit elastic tie rods, each rod's published force equals its stiffness times its extension measured from its reference extension, and the solved system reproduces an independent reference at the analytic tolerance, with the joint pressurized and unpressurized.
+- **AC-004** — The replaced span publishes no member result and receives no self-weight or thermal load. A load on that span which a case applies is refused by name; a stored load that no solved case applies is admitted.
+- **AC-005** — Each of these is refused by name and nothing is solved in its place: a joint with no connector, or given only by stiffness rates; a stiffness that is not symmetric and positive definite; a hardware kind, rod law or pressure model the definition does not have. A joint the user has marked as not consumed by the solve is, on the pressure-free route, analysed as its pipe with that disclosed on every result, and on the exact route refused.
+- **AC-006** — On every path that creates or changes a joint, a value of the wrong dimension is rejected with a finding that names it and an absent required value is reported as missing. A joint saved with the model and reopened carries the same members, values and units, and a report that presents a joint's values presents them with the units and sources that were entered.
+- **AC-007** — The expansion joint with tie rods of the invented reference system solves on the exact route in the desktop and is not refused.
+- **AC-008** — The joint's sources, schemas, fixtures and tests contain no manufacturer value and no protected content, and every example value is invented or omitted and labelled so.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-017 — Procedure: DEL-03-06 Expansion joint component model
+**Method choices that define the joint.**
 
-> #### Procedure: DEL-03-06 Expansion joint component model
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- The joint's relative movement is taken on a symmetric midpoint basis with small rotations, so that neither end is privileged.
+- Whether the entered stiffness is positive definite is decided exactly, on the entered coefficients and on the values the solve uses.
+- A joint replaces its span. It is never placed in parallel or in series with the pipe it stands in for.
+- Tie rods are elements of their own between the joint's ends; they are not folded into the joint's stiffness.
+- Pressure thrust is a load, formed from the effective area on the load side, and is not part of the joint's stiffness.
 
-### CLM-019 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Define the procedure for maintaining and extending the current expansion-joint data-model evidence without crossing protected-data, architecture, lifecycle, or package-boundary constraints.
->
-
-### CLM-020 — Prerequisites
-
-> ##### Prerequisites
->
-> - Sealed brief for DEL-03-06 with explicit write scope.
-> - Current `_CONTEXT.md`, `_REFERENCES.md`, `ScopeOfWork.md` (definition), `ScopeOfWork.md` (requirements), and `ScopeOfWork.md` (rationale).
-> - Current implementation evidence in `schemas/component.schema.yaml`, `fixtures/component/invented_component_library_valid.json`, and `tests/test_component_section_schema.py`.
-> - Human-approved implementation scope before editing product files outside this deliverable folder.
-> - Applicable architecture-basis constraints AB-00-01, AB-00-02, AB-00-04, AB-00-06, AB-00-07, and AB-00-08.
->
-
-### CLM-021 — Steps
-
-> ##### Steps
->
-> 1. Confirm the requested work is still bounded to DEL-03-06 and SOW-010.
-> 2. Identify the exact file targets and tests authorized by the active brief.
-> 3. Reconcile documentation against current implementation evidence before adding new claims.
-> 4. Confirm expansion joint fields for `linear_stiffness`, `rotational_stiffness`, `effective_area`, `movement_limit`, `hardware_flag`/`hardware_reference`, and `manufacturer_reference` remain unit/provenance bounded.
-> 5. Leave all unsupported or source-dependent values as `TBD`; do not add defaults.
-> 6. Preserve validation paths for missing required values, invalid dimensions, unsupported provenance, and protected-content risk.
-> 7. Preserve architecture/API boundaries so adapters, plugins, persistence, GUI services, and reports consume validated envelopes rather than bypassing domain contracts.
-> 8. Run or update validation tests for schema/model behavior, unit handling, diagnostics, provenance, and guardrails when authorized.
-> 9. Record any unresolved field taxonomy, solver semantics, source/value policy, lifecycle, dependency-satisfaction, or standard/manufacturer interpretation question for human ruling.
->
-
-### CLM-022 — Verification
-
-> ##### Verification
->
-> - Confirm no manufacturer proprietary values or protected standards content were introduced.
-> - Confirm no certification/compliance claim was introduced.
-> - Confirm missing values remain explicit diagnostics or `TBD`.
-> - Confirm unit/provenance fields are represented in schema, fixture, and test evidence.
-> - Confirm tests exercise missing-data and provenance guardrails.
->
-
-### CLM-023 — Records
-
-> ##### Records
->
-> - Updated product implementation artifacts only under explicit authorized write scope.
-> - Validation test results.
-> - Human rulings for any field taxonomy, standards interpretation, or manufacturer-data handling decisions.
-> - Dependency/register updates only when separately authorized and when implementation creates or consumes cross-deliverable interfaces.
-
-- **VER-001** — Validate the contract and review source parity, field and fixture coverage, dimensional and provenance boundaries, missing-data diagnostics, protected-content controls, downstream solver limits, and unresolved human-review items.
+- **VER-001** — Executable check: observes acceptance of a complete joint in the model document and in a library record, the missing-value finding on an incomplete library record, and for a manufacturer-sourced value the source reference it carries, the redistribution status and review disposition it carries in a library record, the finding for an absent source reference and the rejection of a library record that omits any of the three.
+- **VER-002** — Comparison with a named reference: connector element and system cases against `validation/references/t4_i12`, generated without product code, in both solver modes.
+- **VER-003** — Comparison with a named reference: tied joint cases, pressurized and unpressurized, against `validation/references/t4_u5b`, generated without product code; each published rod force is compared with its reference.
+- **VER-004** — Executable check: observes the absence of results and loads on a replaced span, the refusal of an applied load on it, the admission of an unapplied one, each named refusal of AC-005, and the disclosure on an unconsumed joint.
+- **VER-005** — Executable check: for each creating and changing path observes the rejection and the missing-value finding, compares a joint before save and after reopen, and observes the units and sources of a joint's values in a generated report.
+- **VER-006** — Comparison with a named reference: the reference system (`validation/references/reference_system`) solved in the desktop on the exact route.
+- **VER-007** — Executable check, with judgment by an independent reviewer: a protected-content scan over the joint's sources, schemas, fixtures and tests, which is a proxy; a reviewer who did not write the examples reads them against `docs/IP_AND_DATA_BOUNDARY.md` §2 to §4.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-024 — Guidance: DEL-03-06 Expansion joint component model
-
-> #### Guidance: DEL-03-06 Expansion joint component model
->
-
-### CLM-025 — Purpose
-
-> ##### Purpose
->
-> The purpose of this deliverable is to document the implemented expansion-joint component data-model slice while preserving SWBPIPE boundaries: open mechanics and public schemas are allowed, but protected standards content, vendor proprietary values, and invented defaults are not.
->
-
-### CLM-026 — Principles
-
-> ##### Principles
->
-> - Treat stiffness, effective area, movement limits, and hardware data as supplied inputs, not built-in knowledge.
-> - Make missing required values visible with diagnostics and `TBD` placeholders.
-> - Preserve provenance on every material/component data path where values may affect analysis, rules, reports, or redistribution.
-> - Keep the expansion joint model inside PKG-03's data-model responsibility; solver interpretation and rule evaluation remain downstream package concerns.
-> - Treat current schema, fixture, and test evidence as bounded data-model implementation evidence, not as a release, lifecycle, dependency-closure, or professional-reliance claim.
->
-
-### CLM-027 — Considerations
-
-> ##### Considerations
->
-> Expansion joints can introduce nonlinear, directional, hardware-dependent, or manufacturer-specific behavior. Current evidence implements schema slots, fixture omissions, completeness findings, and diagnostics, but it does not include authoritative product data or design rules. Solver consumption is the objective connector's ([Work/joint-replacement.md](Work/joint-replacement.md)); movement-limit taxonomy and hardware enumerations remain `TBD`.
->
-> The Pass 3 lensing register specifically keeps the hardware flag/enumeration taxonomy as `TBD`. Do not convert this into a fixed list without authoritative source material or human ruling.
->
-
-### CLM-028 — Trade-offs
-
-> ##### Trade-offs
->
-> | Choice | Benefit | Risk / Constraint |
-> |---|---|---|
-> | Supplied-data-only fields | Protects IP boundary and avoids invented defaults. | Requires clear missing-data diagnostics and user/library workflows. |
-> | Unit-aware field structure using accepted dimensions | Keeps persistence and adapters deterministic for the current schema evidence. | Solver consumption is the objective connector's; movement/hardware taxonomy remains TBD. |
-> | Provenance-first data model | Supports auditability and public/private library separation. | Requires validation and review fields even for simple examples. |
-> | Data-model-only implementation scope | Respects PKG-03 boundaries. | Solver behavior and rule checks must be handled by downstream deliverables. |
->
-
-### CLM-029 — Examples
-
-> ##### Examples
->
-> The current public fixture uses invented, non-engineering expansion-joint records with missing supplied values and blocking diagnostics. No manufacturer example values are provided or invented. Additional examples for documentation or tests must remain clearly non-commercial and must avoid protected standards or manufacturer data.
->
-
-### CLM-030 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No source conflict identified in accessible evidence sources. | N/A | N/A | N/A | N/A | N/A |
+- **AX-001** — *The manufacturer's data, never ours.* Better is fewer places where a stiffness, area, limit or hardware property could originate in the software; the target is none. No example or convenience justifies an invented default.
+- **AX-002** — *Never as pipe by accident.* Better is fewer joints that a solve treats as the pipe they replace without the result saying so. A refusal that asks the user to re-enter a joint is preferred to a silent approximation, however inconvenient.
+- **AX-003** — *What the hardware carries is shown.* Better is more of a joint's load path that a result publishes element by element. This is never bought by reporting a force the solve did not compute.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-010 OBJ-004 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-03-06:1** — Evidence expansion-joint no-bypass handling across adapter, persistence, GUI and report boundaries; the recorded six-axis representation does not itself establish those crossings. (R5 continuation claim references: DEL-03-06:SOW#CLM-012/DEL-03-06-R-008.)
-
-## Current joint boundary
-
-The retired joint element is not converted automatically. The accepted corrected connector requirements and refusal behaviour are in [Work/joint-replacement.md](Work/joint-replacement.md).
+| OUT-001 | SOW-010 OBJ-004 | REQ-001 REQ-002 REQ-003 REQ-004 REQ-005 REQ-006 | AC-001 | VER-001 | PRD §12.3 lists the inputs and PRD §20.2 the provenance members; the criterion states the expected acceptance and findings |
+| OUT-001 | SOW-010 OBJ-004 | REQ-010 | AC-002 | VER-002 | Outside source: independently derived connector references from a generator that imports no product code. The tolerance is the governed analytic tolerance |
+| OUT-001 | SOW-010 OBJ-004 | REQ-011 | AC-003 | VER-003 | Outside source: independently derived tied-joint references from a generator that imports no product code; PRD §12.3 for the published rod force |
+| OUT-001 | SOW-010 OBJ-004 | REQ-010 | AC-004 | VER-004 | The criterion states the expected absences and refusals, which follow from the definition of a replaced span |
+| OUT-001 | SOW-010 OBJ-004 | REQ-007 REQ-010 | AC-005 | VER-004 | PRD §5.5 and `docs/CONTRACT.md` OPS-K-DATA-2 state that nothing is assumed silently; the criterion names the expected refusals |
+| OUT-001 | SOW-010 OBJ-004 | REQ-008 | AC-006 | VER-005 | `docs/CONTRACT.md` OPS-K-UNIT-1 and OPS-K-DATA-2 state the expected rejection and finding; the reopened joint and the report are compared with what was entered |
+| OUT-001 | SOW-010 OBJ-004 | REQ-012 | AC-007 | VER-006 | Exit criterion 1 fixes the reference system's content; its expected results are the independent references of `validation/references/reference_system` |
+| OUT-001 | SOW-010 OBJ-004 | REQ-013 | AC-008 | VER-007 | Protected-content scan and independent review under `docs/IP_AND_DATA_BOUNDARY.md`; PRD §20.1 |

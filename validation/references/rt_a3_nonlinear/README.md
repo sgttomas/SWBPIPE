@@ -14,34 +14,33 @@ This answers requirement RT-V1 and exit criterion 2. K-1, the PF K-D5 controls
 run on EX twins, is not part of this packet.
 
 Governing source read at `6757b2341`:
-- DEL-04-07 `Work/route-unification-r4.md`:
-  - §00: the codex round-1 corrections, which confirmed G-1, F-1 and F-2b, and
+- DEL-04-07 (R-4):
+  - the codex round-1 corrections, which confirmed G-1, F-1 and F-2b, and
     the constitutive law EA ε = N_w − 2νpA_i;
-  - §0a/§6: order; R-3 comes later;
-  - §2.1–§2.4: pressure as a fixed right-hand side in the loop, and K-D5;
-  - §3.5: S5 and its references;
-  - §3.8: F-2a/b, the context for derived normals.
-- DEL-04-01 `Work/kd5-nonlinear-active-set.md`:
-  - §0: the DEC-067 support laws;
-  - §1.2–§1.4: states and k = 1 Stage A;
-  - §2.2: strict pass conditions;
-  - §2.4: fail-closed reasons.
+  - order; R-3 comes later;
+  - pressure as a fixed right-hand side in the loop, and K-D5;
+  - S5 and its references;
+  - F-2a/b, the context for derived normals.
+- DEL-04-01:
+  - the DEC-067 support laws;
+  - states and k = 1 Stage A;
+  - strict pass conditions;
+  - fail-closed reasons.
 
-  The task brief places this file under DEL-04-07; it is in DEL-04-01.
-- DEL-04-07 `Work/pressure-contract.md`:
+  The task brief places this text under DEL-04-07; it is in DEL-04-01.
+- DEL-04-07:
   - "Accepted T4 direction" H-2 and "T4-U2 as implemented": each realized arc
     owns K_b·u_free(ε_p) − c_b;
   - "Tees and pressure junctions": the caps −p·A_i·s.
-- DEL-05-03 `Work/section-bases-and-timoshenko.md`:
-  - §1: section bases;
-  - §3.1: κ_E;
-  - §3.3: the Timoshenko element;
-  - §3.6: realized arcs stay Euler–Bernoulli.
+- DEL-05-03:
+  - section bases;
+  - κ_E;
+  - the Timoshenko element;
+  - realized arcs stay Euler–Bernoulli.
 - `validation/references/t4_i7/`: its unit-load engine defines the realized
   arc's flexibility. The integrand is N·n/EA + T·t/GJ + k·(M·m − T·t)/EI, with
   no shear term.
-- DEL-05-02 `Work/exact-combinations.md` §4, `pf-nonlinear-operand-standing.md`
-  and `absolute-sum-srss-combinations.md`, for the combination rule.
+- DEL-05-02, for the combination rule.
 - The sibling packets, for conventions:
   - `validation/references/rt_a3_tee/`;
   - `validation/references/rt_a3_reducer/`;
@@ -94,11 +93,11 @@ Every case is solved by two exact formulations.
     a derived normal. Exactly one combination must satisfy every strict
     condition.
   - A derived-normal sliding force is solved as the coupled affine system
-    φ = −dir·μ·β·R_n(u). That is kd5 §1.3's intended system, with k = 1.
+    φ = −dir·μ·β·R_n(u). That is DEL-04-01's intended system, with k = 1.
 
 **What A and B share:**
 - the input data and section formulas;
-- the DEC-067 state laws and strict pass conditions (kd5 §0 and §2.2), which
+- the DEC-067 state laws and strict pass conditions (DEL-04-01), which
   define the problem;
 - the T4-I7 arc flexibility definition, which A integrates generically and
   B writes out in closed form;
@@ -192,7 +191,7 @@ element is covered by T4-I7, not here.
 
   A derived normal appends `/b±`, where β = sign(R_n) of the source restraint.
   F-1 slides as `slide+/b-`: R_n = −32,400π N.
-- An inactive support's reaction is exact 0. kd5 R4 publishes it as +0.
+- An inactive support's reaction is exact 0. DEL-04-01 R4 publishes it as +0.
 
 ## Cases and key values
 
@@ -251,7 +250,7 @@ which "the bend's K_b·u_free term enters".
 - One region covers every member, `transfers_to_wall` at A and at C.
 - The chain is tangent-continuous, so there are no kink or mitre terms.
 
-**Realized-bend formulation relied on**, quoted from pressure-contract.md
+**Realized-bend formulation relied on**, quoted from DEL-04-07
 ("T4-U2 as implemented"): "Each arc owns K_b·u_free(ε_p) − c_b, with
 ε_p = (1−2ν)pAi/(E·As) formed in Scaled arithmetic and c_b its end caps along
 the end tangents." The batch-4 dependency adds that the arc pushes
@@ -317,10 +316,10 @@ tolerance is 1e-9·max(|ref|, the largest |ref| in its group).
 
 In a model with any nonlinear support, a `mechanics` combination is withheld as
 `NONLINEAR_COMBINATION_REQUIRES_SOLVE` (the PF rule,
-`pf-nonlinear-operand-standing.md`; S5 lifts it onto EX, where
-`exact-combinations.md` §4 says it "cannot arise" today), with one adopted
-exception. Decision OQ-1 (Agent 0, 2026-10-31; DEL-05-02
-`Work/absolute-sum-srss-combinations.md` §5.2) admits it exactly when one term
+DEL-05-02; S5 lifts it onto EX, where
+DEL-05-02 says it "cannot arise" today), with one adopted
+exception. Decision OQ-1 (Agent 0, 2026-10-31; DEL-05-02)
+admits it exactly when one term
 names a solved load case with factor exactly 1, it has at least one other term,
 and every other term names a combination whose κ is exactly 0 (a difference, an
 absolute sum or an SRSS of κ-zero operands, or a combination of those; an
@@ -338,7 +337,7 @@ Withheld:
 - unit-sum combinations, such as 0.3·O1-LIFT + 0.7·O1-CONTACT;
 - combinations whose operands share a state;
 - absolute-sum/SRSS forms outside OQ-1's admitted shape
-  (`absolute-sum-srss-combinations.md` V-9).
+  (DEL-05-02 V-9).
 
 Formed as derived results with operand standing: `result_state_subtraction`
 and `range_envelope`.
@@ -353,8 +352,8 @@ and `range_envelope`.
 
 | Cases | Expected label |
 |---|---|
-| G1, G2, G3, G1-P0, G1-HALF (gap-bearing) | `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`: R1's unqualified branch. No confirmation runs until R-3 (R-4 §3.5; kd5 R1). No qualification is claimed. |
-| F1-P0-SLIDELOAD, F1-P0-STICKLOAD | `NUMERICAL_INTEGRITY_SENSITIVE`, with "support support:FRICTION: friction normal not established". A derived-normal friction support in state Inactive fails closed (kd5 §2.2 table and §2.4 item 7). The rows are the loop's. |
+| G1, G2, G3, G1-P0, G1-HALF (gap-bearing) | `NUMERICAL_INTEGRITY_RECOVERY_BASIS_UNQUALIFIED`: R1's unqualified branch. No confirmation runs until R-3 (R-4 §3.5; DEL-04-01 R1). No qualification is claimed. |
+| F1-P0-SLIDELOAD, F1-P0-STICKLOAD | `NUMERICAL_INTEGRITY_SENSITIVE`, with "support support:FRICTION: friction normal not established". A derived-normal friction support in state Inactive fails closed (DEL-04-01). The rows are the loop's. |
 | All other cases | K-D5 confirmation applies: k = 1 Stage A for derived F cases; k = 0 (Stage B only) for explicit F and O cases. Its outcome is the product's and is not asserted here. Every deciding quantity is strictly signed, so no case is weakly active. |
 
 ## Choices and ambiguities (stated, not silently resolved)
@@ -374,15 +373,15 @@ and `range_envelope`.
    torsion unmodified, no shear. The free pressure lift and the K_b·u_free
    share do not depend on it. The weight's deflection and the contact reaction
    do.
-5. **The kd5 file's location.** The brief places
-   `kd5-nonlinear-active-set.md` under DEL-04-07; it is in DEL-04-01.
+5. **The support-law text's location.** The brief places
+   it under DEL-04-07; it is in DEL-04-01.
 6. **The constant-effort sibling** (`rt_a3_constant_effort/`) is not on main at
    `6757b2341`. It was read from commit `09521ebb8`.
 7. **Gap reaction sign.** R-4 prints the contact as a magnitude. The product's
    reaction row is signed (K·u − f)_d, for example −13,400π N in G1. Both are
    published.
-8. **Derived inactive standing.** Expecting Sensitive for F1-P0 follows kd5's
-   table. If the product publishes another standing for an exactly-zero
+8. **Derived inactive standing.** Expecting Sensitive for F1-P0 follows
+   DEL-04-01's table. If the product publishes another standing for an exactly-zero
    derived normal, that is a question about the governing text, not a
    tolerance.
 9. **Mutation "normal from the wrong source".** It is modelled as the anchor's

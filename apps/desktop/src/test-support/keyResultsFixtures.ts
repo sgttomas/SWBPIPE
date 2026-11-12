@@ -1,4 +1,4 @@
-// Invented fixtures for the key-results tests (A6; DEL-07-05 Design `key-results-panel.md` §7): the
+// Invented fixtures for the key-results tests (A6): the
 // three-member overlay model with an anchor, an equipment connection and a plain support; stress rows
 // at stations for two load cases and a range-envelope combination; nonlinear support-state rows; and
 // an invented rule pack whose run has a placed category, a category on two pipes, a category only on

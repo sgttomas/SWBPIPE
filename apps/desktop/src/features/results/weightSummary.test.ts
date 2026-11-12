@@ -1,4 +1,4 @@
-// A9 derivation (DEL-07-05 Design `weight-cog-summary.md` §3 to §5). Invented geometry and
+// A9 derivation. Invented geometry and
 // invented generator outputs only; the last block runs the actual candidate self-weight engine.
 import { describe, expect, it } from "vitest";
 import { computeModelHash } from "../../services/hashService";

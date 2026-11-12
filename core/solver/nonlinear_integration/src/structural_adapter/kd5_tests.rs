@@ -1,4 +1,4 @@
-//! K-D5 tests (T3 D1 revision 5a.2 §4.3.1 and the §6 K-D5 row) for the
+//! K-D5 tests for the
 //! adapter's typed linear entry `solve_assembled_with_formation_check`, both
 //! solve modes. The nonlinear-loop pins live in `crate::s11k_tests` beside
 //! I1's option-(c) pins and use this module's builders.
@@ -457,7 +457,7 @@ fn kd5_conditioning_driven_curved_true_positive_demotes_in_both_modes() {
 
 #[test]
 fn kd5_curved_candidates_demote_exactly_where_the_actual_error_exceeds_half_the_criterion() {
-    // Round 01's other frozen candidates as D5C-1 controls (round 01 §1).
+    // Round 01's other frozen candidates as D5C-1 controls.
     // C122K120-R100-Y100 is left out: its DenseScrutiny actual (0.518) lies
     // in the ±0.05 guard band around the boundary.
     let mut demoted = Vec::new();

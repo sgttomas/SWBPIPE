@@ -1,4 +1,4 @@
-//! `vk_scale`: one of V-K's scale runs per process (checkpoint B; plan §13;
+//! `vk_scale`: one of V-K's scale runs per process (checkpoint B;
 //! brief Scope 12). `runner/vk_scale_runner.py` runs it in release, under K6's
 //! runner, which provides the `/usr/bin/time` wrapper, the RSS watchdog and
 //! the admission rule. It is observation only: it prints JSONL on stdout and

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""V-K checkpoint C: the harness mutants (plan §14.3; ROOT's C instruction).
+"""V-K checkpoint C: the harness mutants (ROOT's C instruction).
 
 Standard library, git and cargo only. Each run gets its own clean copy of the
 piping tree at a committed revision (`git archive`; the execution tree

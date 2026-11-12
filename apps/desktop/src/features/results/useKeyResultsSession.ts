@@ -49,7 +49,7 @@ export function useKeyResultsSession(input: {
   const returnFocus = useRef<HTMLElement | null>(null);
   const autoOpen = useRef(KEY_RESULTS_AUTO_OPEN_START);
 
-  // Auto-open (§3): decided once per published result. Opening renders the panel and moves no focus.
+  // Auto-open: decided once per published result. Opening renders the panel and moves no focus.
   useEffect(() => {
     const decision = keyResultsAutoOpen(autoOpen.current, { result, historical, everySolve });
     autoOpen.current = decision.memory;

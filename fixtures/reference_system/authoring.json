@@ -30,7 +30,7 @@
           "unit": "none",
           "value": 4.2
         },
-        "flexibility_source_reference": "invented user value, DEL-09-01 Work/reference-system.md §5",
+        "flexibility_source_reference": "invented user value, DEL-09-01",
         "sif_in_plane_user_value": {
           "unit": "1",
           "value": 2.1
@@ -39,7 +39,7 @@
           "unit": "1",
           "value": 1.8
         },
-        "sif_source_reference": "invented user value, DEL-09-01 Work/reference-system.md §5"
+        "sif_source_reference": "invented user value, DEL-09-01"
       },
       "radius": {
         "unit": "m",
@@ -100,7 +100,7 @@
           "unit": "none",
           "value": 4.2
         },
-        "flexibility_source_reference": "invented user value, DEL-09-01 Work/reference-system.md §5",
+        "flexibility_source_reference": "invented user value, DEL-09-01",
         "sif_in_plane_user_value": {
           "unit": "1",
           "value": 2.1
@@ -109,7 +109,7 @@
           "unit": "1",
           "value": 1.8
         },
-        "sif_source_reference": "invented user value, DEL-09-01 Work/reference-system.md §5"
+        "sif_source_reference": "invented user value, DEL-09-01"
       },
       "radius": {
         "unit": "m",
@@ -170,7 +170,7 @@
           "unit": "none",
           "value": 3.6
         },
-        "flexibility_source_reference": "invented user value, DEL-09-01 Work/reference-system.md §5",
+        "flexibility_source_reference": "invented user value, DEL-09-01",
         "sif_in_plane_user_value": {
           "unit": "1",
           "value": 2.3
@@ -179,7 +179,7 @@
           "unit": "1",
           "value": 1.9
         },
-        "sif_source_reference": "invented user value, DEL-09-01 Work/reference-system.md §5"
+        "sif_source_reference": "invented user value, DEL-09-01"
       },
       "radius": {
         "unit": "m",
@@ -1584,7 +1584,7 @@
       "expected_until_then": "a nonlinear friction normal source is refused on both routes",
       "family": "RS-FR1 with RS-FR1V: lift-off friction shoe pending RT-A3 S7",
       "in_tranche_1": false,
-      "row_lane": "RT-A3, R-4 stage S7, after increment 4 (DEL-04-07 `Work/route-unification-r4.md` §0a)",
+      "row_lane": "RT-A3, R-4 stage S7, after increment 4 (DEL-04-07)",
       "state": "interim: RS-FR1V authored as a linear `vertical_support` UZ (Agent 0, 2026-10-31)"
     },
     {
@@ -1738,5 +1738,5 @@
       "pipe:RS-P230"
     ]
   },
-  "specification": "execution/PKG-09/DEL-09-01/Work/reference-system.md"
+  "specification": "DEL-09-01"
 }

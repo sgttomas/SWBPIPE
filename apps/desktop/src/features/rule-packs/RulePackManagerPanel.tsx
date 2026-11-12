@@ -46,7 +46,7 @@ import { CheckDefinitionsEditor } from "./CheckDefinitionsEditor";
 // open_decisions). DEC-037 permits a labeled read-only one-way AST-to-text
 // preview, but no writable expression text syntax or parser is provided.
 //
-// Format 0.5.0 (W-17; DEL-06-01 Design `rule-pack-0.5.0.md` §3): a new draft
+// Format 0.5.0 (W-17): a new draft
 // writes 0.5.0; the load-case/category editor authors required load cases
 // (chosen from the current model's load cases and combinations), stress
 // categories and their mappings; solver inputs author a row selector, offered
@@ -82,7 +82,7 @@ export function RulePackManagerPanel({
   /** The session's current solved result; its rows' selectors are offered to solver inputs. */
   result?: SessionResult | null;
   onR3JourneyEvent?: (event: RulePackR3JourneyEvent) => void;
-  /** W-13 §3.4: "Use with this model" / "Remove from model" queue structured operations. */
+  /** "Use with this model" / "Remove from model" queue structured operations. */
   queuedIntents?: EditorOperationIntent[];
   onQueueIntent?: (intent: EditorOperationIntent) => void;
   operationBusy?: boolean;
@@ -106,7 +106,7 @@ export function RulePackManagerPanel({
   const [inFlight, setInFlight] = useState(false);
 
   const projectId = model?.project.id ?? null;
-  // A stored pack in another format (design §2.1): shown with its refusal,
+  // A stored pack in another format: shown with its refusal,
   // delete only. There is no migration; the user re-authors it.
   const refusedStoredPack =
     openedEntry !== null && validation !== null && versionRefusal(validation) !== null ? openedEntry : null;

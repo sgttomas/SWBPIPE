@@ -40,7 +40,7 @@ use serde_json::{Map, Value};
 /// Sets one key of `project.units` to a canonical catalog symbol.
 pub(crate) const SET: &str = "set_project_unit";
 
-/// The seven keys a project carries (Design §2.2). Each key's catalog
+/// The seven keys a project carries. Each key's catalog
 /// dimension has the key's name.
 pub(crate) const KEYS: [&str; 7] = ["length", "force", "moment", "pressure", "stress", "temperature", "angle"];
 

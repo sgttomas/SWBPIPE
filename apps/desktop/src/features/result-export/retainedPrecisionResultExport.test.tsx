@@ -50,9 +50,9 @@ const MODES = ["sparse_interactive", "dense_scrutiny"] as const;
  * member's 12 global end rows (113 -> 125) move the received carrier checksum in the origin; W-16 slice a's
  * shorter preview LIMITATIONS[1] moves it again; model document 0.8.0's version token moves the goldens and the
  * origin (its model and source hashes) again. */
-// Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
+// Model 0.9.0 re-pin: read from the regenerated producer bytes on the
 // registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
-// RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated goldens move only limitations[6] (§10.2), the two seals,
+// RT-A4 D3 re-pin (DEL-04-08 §8.46): the regenerated goldens move only limitations[6], the two seals,
 // received_carrier_checksum and derivative_hash, each equal to its recomputation (the RT-A3 CE guard's derived_pairs).
 // The origin's digest moves with its received carrier checksum: this test on the previous milestone carriers
 // reproduces the former origin pins (9455b6fc…, 21318ee7…); the base's is unchanged.
@@ -363,7 +363,7 @@ describe("the corpus's synthetic two-case bases, read by id", () => {
  * (`retained_precision_derivative_golden.rs`, `B3B_EXACT`), derived from lane P's pinned m3x
  * successors (PP `EXACT_PINNED`) with the same fixed desktop-shaped base and origin. The
  * Current builder is not exercised: physics-retained-1 is outside the static fresh set. */
-// Model 0.9.0 re-pin (S1; DEL-02-01 Design model-document-0.9.0.md §3.6): read from the regenerated producer bytes on the
+// Model 0.9.0 re-pin: read from the regenerated producer bytes on the
 // registered build; only the version token and the hashes binding it moved (no numeric leaf, class or status).
 const EXACT_GOLDEN: Record<PreviewSolverMode, { successor: string; successorSha256: string; receiptSha256: string; path: string; sha256: string; rows: number }> = {
   // B7b D4 (a): the successors regenerated on the registered pressure-1 base (16478cadf4; Rust
@@ -371,7 +371,7 @@ const EXACT_GOLDEN: Record<PreviewSolverMode, { successor: string; successorSha2
   // T4-U6 (D-5): regenerated with the member's 21 reduced stress twins (98 + 21 rows);
   // T4-U4b adds 15 derived not_covered rows per basis (98 + 15 + 21 + 15); W-7 the member's 12 global end rows.
   // O4 (W1-E): re-pinned after DEF-E's revision; only the DEF-E-bound hashes moved (rows and values unchanged).
-  // O4 limitation text (§3.3): re-pinned for the base's restated limitation [7] and the hashes binding it.
+  // O4 limitation text: re-pinned for the base's restated limitation [7] and the hashes binding it.
   // W-15 (DEL-03-05) on W-7: re-pinned for the restated pressure-2 identity limitation and the hashes binding it.
   // W-16 slice b (DEL-05-02): re-pinned again for the restated identity limitation (was 53df81b7.../1a3f9eed...).
   // RT-A3 increment 1: re-pinned for the pressure-2 identity limitation (identity bytes only) (was df425e31.../3bb19d83...).

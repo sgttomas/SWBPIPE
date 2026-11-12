@@ -1,6 +1,6 @@
 //! The read-only observation accessor of `ProfileFactorization`
 //! (`lower_factor_entries`, `pivots`), added for F1's Sturm counts
-//! (DEL-04-09 `Work/modal-analysis.md` §3.3, the observation seam).
+//! (the observation seam).
 //!
 //! Read-only is asserted twice: by the API shape (both methods take `&self`
 //! and return borrowing iterators), and by comparing the factorization and

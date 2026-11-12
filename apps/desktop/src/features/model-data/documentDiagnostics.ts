@@ -1,5 +1,5 @@
 // The one document validator's findings for the session model, as entries of
-// the existing diagnostics list (W-13 §3, §5.3, §6). They come from the same
+// the existing diagnostics list. They come from the same
 // helper the stores use (`modelDocumentSlotFindings`), so the validator is the
 // applier's Rust code through the wasm engine and the webview never
 // re-implements it. When the engine cannot judge the document (not loaded, or

@@ -1,4 +1,4 @@
-//! F1a tests (T3 D1 revision 5a.2 §4.3.1 D5C-3, §5 item 5a; the F1a split of
+//! F1a tests (the F1a split of
 //! slice F1): K-D5's `FormationCheck` record is rendered as one evidence line
 //! of the integrity diagnostic, only when present, after the S11-G step and
 //! under S11-G's layout and no-op rule. SUP-17's text is pinned by
@@ -166,7 +166,7 @@ fn f1a_kd5_demoted_case_carries_exactly_one_d5_line() {
 /// Non-demoted cases carry no D-5 line: P1's 345 and RF-CHAIN r1e-04
 /// continuity controls (K-D5 Passed), and an S11-G-demoted case K-D5 leaves
 /// Passed, whose record keeps S11-G's sentence alone. Under K-D5's closure
-/// (DEL-04-01 kd5-member-relative-bound.md §§1, 4.2) RF-CANCEL-UDL-W1e8 itself
+/// RF-CANCEL-UDL-W1e8 itself
 /// is demoted at the solve (D5C-1 at S1:RZ); the S11-G-only case is the same
 /// request with a soft 10 m branch from S1 carrying a 2e-6 N tip force, whose
 /// rotation (about 1e-3 rad) sets the body's rotation scale so K-D5 passes,

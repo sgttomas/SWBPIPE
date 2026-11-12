@@ -1,4 +1,4 @@
-"""The SI MBF writer against its committed parity vectors (DEL-17-04 Design `desktop-mbf-export-import.md` §2, §6 slice 2).
+"""The SI MBF writer against its committed parity vectors.
 
 `fixtures/caepipe_mbf/invented/parity/writer_vectors.json` records what `core/handoff/caepipe_mbf/si_writer.py` returns
 for every call the test suites that call it make, for the committed invented corpus and for the generator's coverage

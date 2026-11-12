@@ -1,5 +1,5 @@
 //! JSON Schema 2020-12 evaluation of the DEL-08-04 result-export 0.3.0 schema
-//! closure (DEL-08-01 Design `report-package-current-results.md` §2.3 item 1).
+//! closure.
 //!
 //! The evaluator is bounded to the constructs the five embedded resources use.
 //! It is not a general JSON Schema implementation:
@@ -776,7 +776,7 @@ fn unsupported_value(keyword: &str) -> SchemaFailure {
 }
 
 /// Every keyword name used anywhere in `schema`, walking subschemas and the
-/// map-valued keywords' members (the census, §2.3 item 1).
+/// map-valued keywords' members (the census).
 pub fn keyword_census(schema: &Value, out: &mut std::collections::BTreeSet<String>) {
     fn walk_schema(schema: &Value, out: &mut std::collections::BTreeSet<String>) {
         let Value::Object(schema) = schema else { return };

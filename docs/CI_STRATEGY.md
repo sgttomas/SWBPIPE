@@ -12,7 +12,9 @@ fails if any selected verification fails, is cancelled or never runs. Unselected
 product jobs are explicitly skipped. Selection uses the complete PR diff;
 missing diff information conservatively selects coverage.
 
-The merge queue (`merge_group`) verifies its temporary merge commit exactly as
+GitHub offers its merge queue only to organization-owned repositories, so it is
+not enabled here. The workflow stays ready for it: the merge queue
+(`merge_group`) verifies its temporary merge commit exactly as
 a pull request with the queue's base and that commit as head: the same
 checkout, complete-diff selection, document route and aggregate. Queue runs
 neither cancel nor are cancelled by other runs, do not reuse or record
@@ -28,7 +30,7 @@ PR diff at the exact candidate. Two kinds of change take it:
   maintained boundary guard (`tools/validation/execution_boundary.py`), parses
   each changed JSON, YAML and CSV file, and runs the parity and graph checks the
   changed specifications feed (`DOCUMENT_TESTS`).
-- In-place, regular UTF-8 Markdown edits under `docs/` or `loop/`, or to root
+- In-place, regular UTF-8 Markdown edits under `docs/`, or to root
   `README.md`/`AGENTS.md`, under a current reader audit (below).
 
 Both run the dependency-structure, changed-content credential and conflict
@@ -89,8 +91,7 @@ uses a runner-local target directory. This establishes only the named core
 tests and compilation: desktop memory controls, persistence, WebView2, native
 journeys, packaging and retained-memory qualification need their own Windows
 evidence. Parallels Windows on Arm and emulated x64 runs are labelled separately.
-The proposed native-service boundaries and remaining work are in DEL-10-04
-`Work/windows-port.md`.
+DEL-10-04 owns the Windows port.
 
 On a relevant PR, desktop coverage is a production build and one Chromium
 project (`chromium-desktop`) running core specs: the R2 smoke and save/reopen
@@ -106,7 +107,8 @@ unmatched project input or full coverage adds every group. The core specs,
 groups and paths are declared in `piping_browser_journeys` in
 `tools/hosted-ci-routing.json`. The product job runs the plan's spec list, and
 the plan's reasons name the path and group behind each added spec. The browser
-matrix runs only by explicit workflow dispatch.
+matrix runs only by explicit workflow dispatch and in the nightly full run of
+`main`.
 
 The `piping-desktop` selection adds the full desktop Vitest suite, run in two
 shards (`vitest --shard=1/2` and `2/2`) as jobs beside the product job, under
@@ -272,7 +274,7 @@ with the unchanged ordinary route otherwise, as `retained_facade_tests.rs`'s
 `registered()` does. When product_physics is selected, the numerical job also runs the six
 retained W1 stack witnesses at the default debug profile, one process each: an
 early warning, since only the qualification host's registered sweep is VER-004's
-record (DEL-04-08 Design `stack-headroom-repair.md`). The hosted numerical job
+record (DEL-04-08). The hosted numerical job
 runs three parallel matrix shards, with fail-fast disabled:
 
 | Shard | Selected manifests |
@@ -297,7 +299,7 @@ locally in the registered build and in an emulated unregistered build (a
 build-identity-changing flag such as `RUSTFLAGS=--cap-lints=warn`, in its own
 target directory).
 
-No automatic nightly or post-merge duplicate suite is required. Reuse passing
+No post-merge duplicate suite is required. Reuse passing
 hosted results rather than repeating the same suite locally without a change or
 unresolved concern. Failure diagnostics stay in CI artifacts. The optional
 macOS release sweep remains available for release preparation.
@@ -328,3 +330,77 @@ all belong to the keyed input set and the key must still match. The main-only
 `shared-build-cache.yml` warmer uses the same setup action with `build-only:
 true`, so other PRs can read main-scoped engine outputs without running tests
 or installing browsers in the warmer.
+
+## Nightly full run
+
+Pull-request selection follows paths, so it can miss a test that a change
+breaks elsewhere. `main` does not require an up-to-date branch, so two PRs that
+each pass alone can also break it together. `nightly-full-ci.yml` closes both
+gaps on `main`. It runs at 09:00 UTC on a schedule (`0 9 * * *`) and by manual
+`workflow_dispatch`. It calls the product workflow, `piping-desktop-e2e.yml`,
+as `harness` does. Its events have no candidate base, so the planner gives them
+full coverage (`hosted_ci.FULL_COVERAGE_EVENTS`). It never computes a diff
+range from them and never falls back to `HEAD^1`. The run therefore covers:
+
+- the broad browser matrix;
+- the core browser journey with every spec group;
+- both desktop behaviour shards and the desktop Rust tests;
+- all three numerical Cargo shards;
+- all four Python shards, including `tests/test_ci_numerical.py`.
+
+The run does not reuse or record verified results. The repository
+tool/routing suite is not path-selected, so it runs whole on every product PR
+in `harness` and has no job here.
+
+A scheduled run skips the suite and succeeds only when the most recently
+finished run of this workflow on `main` succeeded on `main`'s current head
+(`tools/software_workflow/nightly_ci.py`), so the suite runs only when `main`
+has changed. Runs of `main` share one concurrency group, so a skip is only ever
+decided from a finished run that succeeded on that head. A scheduled run that
+succeeded on a later attempt is not evidence, because re-running its failed jobs
+keeps the earlier decision to skip. If the history cannot be read, it runs. After a failed, cancelled or timed-out run, the suite runs
+every night until one passes. A manual dispatch always runs.
+
+The run adds no GitHub required check. Its check names (`Full run change
+check`, `Full suite of main / …`, `Full run report`) cannot be taken for the
+required `harness` context.
+
+## Reporting a full run that did not pass
+
+The workflow's last job (`Full run report`,
+`tools/software_workflow/nightly_report.py`) runs after every full run,
+nightly and manual. When a run of `main` passed, or a scheduled
+run skipped an unchanged `main`, it does nothing. Otherwise (a job failed, was
+cancelled or timed out, or the results cannot be read) it opens a GitHub issue
+labelled `nightly`. Nothing outside the repository is needed to open it. The
+issue names:
+
+- the commit;
+- the merged pull request, when the commit is a PR merge;
+- the trigger and the run URL;
+- each job that did not succeed, with its elapsed time.
+
+A job that a test failed in is named with its failed step. A job stopped by
+its time limit is named as timed out, and a cancelled job as cancelled, each
+with "no step failed", so triage can tell a stopped run from a broken test.
+GitHub gives a timed-out job the conclusion `cancelled`; the report reads the
+job's annotation to tell the two apart, and says so when it cannot.
+
+One commit has at most one open issue: a later failed run of the same commit
+(a rerun, or the next nightly run) adds a comment to
+it. A failure at another commit opens its own issue. A manual run of another
+branch reports nothing. `issues: write` is granted to this job alone, and it
+uses no secret other than `GITHUB_TOKEN`.
+
+Before merging, Agent 0 triages any open `nightly` issue
+([AGENTS.md, Standing Git grant](../AGENTS.md#standing-git-grant)): it finds
+the cause and repairs it, or assigns the repair, before merging unrelated work.
+The PR that repairs a finding may merge. Agent 0 acts on a failed full run it
+sees itself and does not wait for the issue.
+
+The product, desktop behaviour, desktop Rust and browser-matrix jobs have a
+90-minute limit (45 before 2026-11-10). Agent 0 measured the longest
+successful pull-request jobs over 45 `harness` runs at 25.1, 29.2 and 38.9
+minutes for the first three; the product job's full-coverage time and the
+matrix's time were unmeasured. The limit is an execution allowance, not a
+performance bound.

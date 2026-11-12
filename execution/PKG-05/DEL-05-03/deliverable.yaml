@@ -1,132 +1,130 @@
 id: DEL-05-03
 name: Fundamental stress recovery module
 needs:
-- from: DEL-00-01
-  condition: 'DEL-05-03 must apply AB-00-01 architecture-basis constraints before implementation decisions
-    are finalized.
-
-
-    Notes: Normalized from prior DAG mirror row; DependencyType changed to CONSTRAINT and Origin changed
-    to EXTRACTED for v3.1 enum compliance.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-05-03 must preserve repository and module boundary constraints from AB-00-02.
-
-
-    Notes: Normalized from prior DAG mirror row; dependency is an upstream architecture constraint.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-05-03 result-envelope and job/service behavior must preserve AB-00-03 distinctions among
-    mechanics solved rule checked and human approved states.
-
-
-    Notes: Normalized from prior DAG mirror row; dependency is an upstream architecture constraint.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-05-03 diagnostics and result envelopes must apply AB-00-06 warning and provenance constraints.
-
-
-    Notes: Normalized from prior DAG mirror row; dependency is an upstream architecture constraint.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-05-03 verification must apply AB-00-08 layered test constraints.
-
-
-    Notes: Normalized from prior DAG mirror row; dependency is an upstream architecture constraint.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-04-02
-  condition: 'DEL-05-03 recovers stresses from DEL-04-02''s straight-pipe end actions and station resultants
-    (`StationResultants`, `station_resultants_from_i_end_with_spans`). End actions are f = K·d − feq with
-    the equivalent-load vector used in assembly, for Euler–Bernoulli members and, under D-6, Timoshenko
-    members; interior station resultants are the i-end action plus the member''s load integrals (Design
-    `section-bases-and-timoshenko.md` §§3.3–3.5).'
+  condition: >-
+    The straight pipe element recovers a member's end actions as f = K d - f_eq and its resultants
+    at stations along the span, in the member's local axes, for Euler-Bernoulli members and for
+    members selected as Timoshenko.
+  when: Examining criteria on solved members
   gating: true
-  evidence: core/loads/stress_recovery/src/lib.rs
+- from: DEL-04-01
+  condition: >-
+    The frame kernel forms a straight member selected as Timoshenko as the exact static two-node
+    Timoshenko element with shear area kappa_E A, from the shear definition stated in this scope,
+    and its integrity check covers that element.
+  when: Examining a Timoshenko member's response
+  gating: true
+- from: DEL-04-07
+  condition: >-
+    The product solve publishes each member's end and station actions and, on a pressurized
+    member, its mechanical axial force and pressure; forms a pipe's nominal, reduced and
+    pressure-bore geometry once from the authored outside diameter, wall, mill tolerance and
+    corrosion allowance; and publishes every stress row, member maximum and headline this scope
+    defines, each naming its section basis (DEL-04-07/REQ-010, DEL-04-07/AC-011).
+  when: Examining stresses the product publishes
+  gating: true
 - from: DEL-03-08
-  condition: 'DEL-05-03 needs DEL-03-08''s section-property definitions and unit metadata for the explicit
-    section inputs of the `stress_recovery` crate (area, section moduli, torsion constant, torsion radius).
-    On the exact pressure route the D-5 nominal and reduced sections are derived in the product''s source
-    annulus from the authored outside diameter, wall, mill tolerance and corrosion allowance (Design `section-bases-and-timoshenko.md`
-    §1).'
+  condition: >-
+    A circular pipe section's metal area, second moment of area, section modulus and torsion
+    constant are defined as closed-form annulus formulas of an outside diameter and a wall.
+  gating: false
+- from: DEL-02-01
+  condition: >-
+    The model document carries a pipe section's outside diameter, wall, mill tolerance and
+    corrosion allowance, the shear model selection (required in the pressure contract, optional in
+    model settings and never written by default), and a component's stress-intensification factors,
+    each kept as authored.
   gating: true
-  evidence: core/loads/stress_recovery/src/lib.rs
-- from: DEL-05-01
-  condition: 'DEL-05-03 does not define load cases; it recovers stresses from the resultants of solved
-    load cases. The `stress_recovery` crate takes its boundary-record vocabulary (`BoundaryRecordRef`, `BoundaryQuantityRecord`,
-    `CanonicalDimension`, `CanonicalSchemaBinding`, `QuantityUnitMetadata`) from DEL-05-01''s `primitive_loads`
-    crate.'
-  gating: true
-  evidence: core/loads/stress_recovery/src/lib.rs
 - from: DEL-02-02
-  condition: 'DEL-05-03 needs DEL-02-02''s canonical dimension vocabulary for the unit metadata of force,
-    moment, section-property and stress quantities (`StressRecoveryInputUnitMetadata` and the stress boundary
-    records). Conversion constants and tolerance policy remain with DEL-02-02 (DEC-018).'
+  condition: >-
+    The unit catalog has the force, moment, length, area, second-moment, pressure and stress
+    dimensions with their conversions to the consistent basis.
   gating: true
-  evidence: core/loads/stress_recovery/src/lib.rs
 - from: DEL-05-04
-  condition: 'DEL-05-03''s recovered stresses carry DEL-05-04''s analysis-status vocabulary (`schemas/analysis_status.schema.yaml`):
-    recovery requires mechanics-solved input, adds the human-review-required state, and refuses human-approval
-    statuses as automatic software output.'
+  condition: >-
+    The status vocabulary defines mechanics solved and human review required as software statuses
+    and reserves human acceptance to a person, so that recovery can require the first, add the
+    second and refuse the third.
   gating: true
-  evidence: core/loads/stress_recovery/src/lib.rs
-- from: DEL-05-05
-  condition: 'DEL-05-03''s interior station stresses use each straight member''s applied distributed loads:
-    station resultants are the i-end action plus the member''s load integrals (Design `section-bases-and-timoshenko.md`
-    §3.5). DEL-05-03 needs DEL-05-05''s distributed-load application to supply every authored member load
-    with its span and identity, without compliance claims.'
+- from: DEL-03-03
+  condition: >-
+    A realized bend carries the user's in-plane and out-of-plane stress-intensification factors,
+    entered both or neither, as the factors intensified bending is formed with.
+  gating: false
+  when: Recovering intensified bending at a realized bend
+- from: DEL-03-05
+  condition: >-
+    Every stress published on a scaled rigid-family body is marked as a reference-section result
+    of a component body.
   gating: true
-  evidence: core/product_physics/src/lib.rs
+  when: Forming a maximum or headline in a model with a scaled body
+- from: DEL-05-01
+  condition: >-
+    The stress-recovery crate takes its boundary-record vocabulary (`BoundaryRecordRef`,
+    `BoundaryQuantityRecord`, `CanonicalDimension`, `CanonicalSchemaBinding`,
+    `QuantityUnitMetadata`) from the primitive-load crate.
+  gating: false
+- from: DEL-07-03
+  condition: >-
+    The desktop's load manager authors a document's pressure regions as model operations; that is
+    the path on which an exact-route document's shear selection, whose default this scope states,
+    is first written.
+  gating: false
+  when: Examining the authored default of the shear selection
 code_paths:
+# The stress-recovery crate: component stresses, station sweeps, ranges and the section-quantity
+# sequences. The product solve links it for the section quantities; its station sweep, range and
+# boundary-record interfaces are used only by the stress benchmark suite (DEL-09-02).
 - core/loads/stress_recovery/**
+# In the product solve crate, which DEL-04-07 lists whole for its composition: the exact route's
+# section geometry and pressure stresses, the pressure-free route's Timoshenko selection, and the
+# arc section rows (also DEL-03-04's for the branch factors). In pressure_exact.rs and
+# pressure_exact/source_geometry.rs, the section-basis derivation, the wall and effective force
+# and the membrane and surface stresses are this deliverable's; the cap, Poisson-eigenload and
+# pressure-group load pairs and the annulus's area and section-property computation are
+# DEL-04-07's (its pressure loads and its section and mass adapter). annulus_geometry.rs is that
+# adapter's area algebra and is not listed here.
 - core/product_physics/src/pressure_exact.rs
 - core/product_physics/src/pressure_exact/**
+- core/product_physics/src/pf_timoshenko.rs
+- core/product_physics/src/u4b_rows.rs
 - core/product_physics/src/timoshenko_product_tests.rs
 - core/product_physics/src/d5_mass_product_tests.rs
 - core/product_physics/tests/t4_u6_section_bases.rs
 - core/product_physics/tests/t4_u8_timoshenko_references.rs
 - core/product_physics/tests/pressure_section_geometry.rs
 - core/product_physics/tests/stress_maximum_coverage.rs
+- core/product_physics/tests/model_settings_shear_model.rs
+- core/product_physics/tests/pf_timoshenko_envelopes.rs
+- core/product_physics/tests/pf_timoshenko_references.rs
+- core/product_physics/tests/pf_timoshenko_runtime.rs
+# The kernel's check that its Timoshenko element is formed from the shear definition. The element
+# and the check are DEL-04-01's.
+- core/solver/frame_kernel/src/structural/formation_check_timoshenko_tests.rs
+# The readers' rederivation of the section bases and the beam theory. The Rust reader and the
+# Python verifiers are otherwise DEL-04-08's and DEL-05-02's.
 - core/reporting/result_export/src/section_basis.rs
 - core/reporting/result_export/src/arc_marker_tests.rs
 - core/reporting/result_export/tests/section_bases.rs
-- core/solver/frame_kernel/src/structural/formation_check_timoshenko_tests.rs
-- core/solver/straight_pipe/tests/timoshenko_loads.rs
+- core/reporting/result_export/tests/preview_timoshenko_identity.rs
 - tests/verifiers/section_basis.py
 - tests/test_section_bases_readers.py
 - tests/test_maximum_enclosure_schema.py
 - tests/test_u4b_section_bits.py
+- tests/test_preview_timoshenko_identity.py
+- tests/test_u4b_preview_shear_moduli.py
+# Independent references for the section bases and the Timoshenko member on both routes.
 - validation/references/t4_u6/**
 - validation/references/t4_u8/**
 - validation/references/kd5_timoshenko/**
+- validation/references/pf_timoshenko/**
+- validation/references/pf_timoshenko_m3t/**
 checks:
 - core/loads/stress_recovery/src/section_stress_quantities_tests.rs
 - tests/test_u4b_section_bits.py
 - core/product_physics/tests/t4_u6_section_bases.rs
 - core/product_physics/tests/t4_u8_timoshenko_references.rs
+- core/product_physics/tests/pf_timoshenko_references.rs
 - core/reporting/result_export/tests/section_bases.rs
 - tests/test_section_bases_readers.py

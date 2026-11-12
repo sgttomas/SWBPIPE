@@ -1,8 +1,8 @@
-//! Publication, slice 1d-α (DEL-04-11 `Work/hanger-sizing.md` §8.3): the
+//! Publication, slice 1d-α: the
 //! headless pipeline's documents and refusals, the reader's standings over the
 //! committed corpus (`fixtures/results/hanger_sizing_*.json`), the schema's
 //! fixed members against the crate's, and the existing readers' actual handling
-//! of the document (§8.3.8). All values are invented.
+//! of the document. All values are invented.
 //!
 //! The corpus inputs are formed by the builders below. With
 //! `HANGER_SIZING_WRITE_FIXTURES=1` the generator test rewrites the inputs, the

@@ -33,7 +33,7 @@ function entry(producer_sha256: string, statement: string): ExactReportStatement
   return Object.freeze({ producer_sha256, statement });
 }
 
-/** The 21 entries, in the producer's composition order (§1.3); RT-L2 adds S4a and S4b, of
+/** The 21 entries, in the producer's composition order; RT-L2 adds S4a and S4b, of
  * which each exact-route list carries exactly one. */
 export const EXACT_REPORT_STATEMENTS: readonly ExactReportStatement[] = Object.freeze([
   // S1 identity, pressure-3

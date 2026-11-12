@@ -1,4 +1,4 @@
-"""Live CAEPIPE round-trip harness for the correlation pilot (DEL-17-05, Design §3-§5).
+"""Live CAEPIPE round-trip harness for the correlation pilot (DEL-17-05).
 
 The harness is disabled unless the user configures it: `SWBPIPE_CAEPIPE_EXCHANGE`
 names a private exchange folder outside every Git work tree, holding a
@@ -13,7 +13,7 @@ process on the host other than the `prlctl` client it started itself (on its
 own timeout), and runs one case at a time. Its export step writes a stored solved
 model back to MBF (`caepipe_out/exported.mbf`) for the DEL-17-04 import
 regression. Everything it writes under
-`caepipe_out/` is CAEPIPE output or derived from it and stays private (§8).
+`caepipe_out/` is CAEPIPE output or derived from it and stays private.
 Its records are regression and handoff evidence only.
 
 An optional `settings_guard` in the configuration names the guest registry key under
@@ -29,7 +29,7 @@ with `restore_scope` `"key"` any difference strictly inside the configured key (
 and subkeys created or deleted, never the key itself or anything outside it). The key is
 then read a third time and must equal the first reading; nothing else is ever written.
 The restore is safe only because the precondition admits no other instance of the
-tool that could be changing its settings at the same time (Design §5).
+tool that could be changing its settings at the same time.
 """
 
 from __future__ import annotations
@@ -101,7 +101,7 @@ RESTORABLE_DATA = {"REG_BINARY": re.compile(r"^[0-9A-Fa-f]*\Z"), "REG_DWORD": re
                    "REG_SZ": re.compile(r"^[A-Za-z0-9 \\._()*:-]*\Z")}
 # The one value name a restore may address outside REG_VALUE_NAME_PATTERN, and only in the recent-files subkey: the
 # folder of the configured executable with one trailing backslash, a value the tool writes there (observed format
-# behaviour; Design §5). `reg` cannot carry a quoted argument that ends in a backslash, so this value alone is written
+# behaviour). `reg` cannot carry a quoted argument that ends in a backslash, so this value alone is written
 # and read back through the registry API (LITERAL_VALUE_SCRIPT), its key, name and data passed as encoded data.
 LITERAL_VALUE_FOLDER = re.compile(r"^[A-Za-z]:(\\[A-Za-z0-9 ._()-]+)+\Z")
 # cmd.exe takes a command line of at most 8191 characters; `cmd /c ` and a margin come off it.
@@ -1948,7 +1948,7 @@ def solved_model_binding(record: Mapping[str, Any] | None, mbf_sha256: str, mod:
 
 def run_caepipe_mbf_export(config: HarnessConfig, case_id: str, mbf_sha256: str, *, timeout_s: float = 600,
                            runner: Callable[..., subprocess.CompletedProcess] = subprocess.run) -> dict[str, Any]:
-    """Export one case's stored solved model back to MBF with the user's CAEPIPE (Design §3, §5).
+    """Export one case's stored solved model back to MBF with the user's CAEPIPE.
 
     The stored solve must be bound to the MBF with `mbf_sha256` by its run record; otherwise the route is
     `not_bound`, nothing is run, any earlier export outputs are removed and the run record's export entry

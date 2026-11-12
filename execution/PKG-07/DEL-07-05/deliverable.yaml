@@ -1,320 +1,146 @@
 id: DEL-07-05
 name: Results viewer
 needs:
-- from: DEL-00-01
-  condition: 'DEL-07-05 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
-    DAG-002 local mirror; not independent Type 2 dispatch authority.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-07-05 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
-    DAG-002 local mirror; not independent Type 2 dispatch authority.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-07-05 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
-    DAG-002 local mirror; not independent Type 2 dispatch authority.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-05
-  condition: 'DEL-07-05 requires SCA-001 architecture basis AB-00-05 from DEL-00-05 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
-    DAG-002 local mirror; not independent Type 2 dispatch authority.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-07-05 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
-    DAG-002 local mirror; not independent Type 2 dispatch authority.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-07-05 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
-    DAG-002 local mirror; not independent Type 2 dispatch authority.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-07-05 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; refreshed for TP-DAG-004 from the prior
-    DAG-002 local mirror; not independent Type 2 dispatch authority.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-05-03
-  condition: 'DEL-07-05 needs DEL-05-03 as a predecessor because the results viewer displays recovered
-    stresses and result values.
-
-
-    Notes: Conservative direct predecessor retained from prior DAG local mirror and refreshed against
-    decomposition revision 0.5.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=LOAD_STRESS_PREDECESSOR;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
-    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-05-04
-  condition: 'DEL-07-05 needs DEL-05-04 as a predecessor because the results viewer must expose mechanics
-    rule-check and human-review status distinctions without claiming compliance.
-
-
-    Notes: Conservative direct predecessor retained from prior DAG local mirror and refreshed against
-    decomposition revision 0.5.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=DOMAIN_MODEL;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
-    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-04-06
-  condition: 'DEL-07-05 needs DEL-04-06 as a predecessor because the results viewer displays solver warning
-    and diagnostic state that qualifies result review.
-
-
-    Notes: Conservative direct predecessor retained from prior DAG local mirror and refreshed against
-    decomposition revision 0.5.; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=DIAGNOSTICS_CONTRACT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
-    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_Decomposition/SOFTWARE_DECOMP.md
-- from: DEL-02-02
-  condition: 'DEL-07-05 directly depends on DEL-02-02 because displayed result values must retain explicit
-    unit and canonical dimension metadata.
-
-
-    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: core/gui/results_viewer/engine.py; tests/test_results_viewer_contract.py
-- from: DEL-02-03
-  condition: 'DEL-07-05 directly depends on DEL-02-03 because result views display canonical software
-    statuses and external human-acceptance references without emitting human approval status.
-
-
-    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: core/gui/results_viewer/engine.py; tests/test_results_viewer_contract.py
-- from: DEL-02-05
-  condition: 'DEL-07-05 directly depends on DEL-02-05 because result review handoff requires hash and
-    provenance evidence for available result records.
-
-
-    Notes: Package-local PKG-02 compatibility evidence only; no aggregate DAG or lifecycle state changed.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: core/gui/results_viewer/engine.py; tests/test_results_viewer_contract.py
-- from: DEL-08-04
-  condition: 'DEL-08-04 enables GUI results review to consume governed result envelopes without losing
-    status and diagnostic distinctions.
-
-
-    Notes: New downstream consumer edge extracted for reconciliation context.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=DOWNSTREAM; legacy_dependencytype=ENABLES; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-05-02
   condition: >-
-    The results viewer takes base dispatch, ordinary preview/pressure readings,
-    row semantics and base standing from DEL-05-02's Rust product reader through
-    `resultReader.ts` and `resultStanding.ts` (wasm engine or native host).
-    A result the reader does not admit is unsupported, historical values only.
-    The output policy keys each surface's decision on the reader's returned route.
+    One product result reader, the same in the wasm engine and the native host, classifies a
+    result, gives each row kind its meaning, published frame and unit, returns the result's
+    standing with its route and published limitations, returns the solve's numerical quality
+    verdict, and does not admit a result it cannot classify.
   gating: true
-  evidence: execution/PKG-04/DEL-04-08/Work/b7-plan.md
+- from: DEL-04-07
+  condition: >-
+    A product solve publishes one result per model with rows by kind and load case, each with its
+    entity identity, unit and frame, and with the model hash, solver version and findings that tie
+    the result to its inputs.
+  gating: true
+- from: DEL-05-03
+  when: Showing stress rows and the stress headline of each section basis
+  condition: >-
+    A recovered stress row names its station and its section basis, and on the exact route each
+    basis, nominal and reduced, has its own member maxima.
+  gating: true
+- from: DEL-04-01
+  when: Drawing element axes
+  condition: >-
+    The frame kernel defines a straight member's local axes from its end nodes and y reference, and
+    refuses a frame it cannot form by a named finding.
+  gating: true
+- from: DEL-04-06
+  when: Showing solver findings and the conditioning figure
+  condition: >-
+    A solve whose reduced system is ill-conditioned publishes a diagnostic naming the case, and
+    solver findings carry the governed diagnostic fields.
+  gating: true
 - from: DEL-04-08
+  when: Showing a retained-precision result
   condition: >-
-    The results viewer takes retained-source and retained-successor validation,
-    classification, invocation-bound standing and published limitations from
-    DEL-04-08 through the existing Rust-reader bindings, including
-    `retainedPrecisionReader.ts`. It re-derives no verified verdict and does not
-    activate a held output surface.
+    A retained-precision result publishes its classification, its standing bound to the invocation
+    that produced it and its limitations, and the result reader returns them.
   gating: true
-  evidence: apps/desktop/src/features/results/retainedPrecisionReader.ts
-- from: DEL-04-09
+- from: DEL-05-04
   condition: >-
-    The results viewer's modes table and mode-shape view (F1 M3) show DEL-04-09's `modal-1` rows,
-    standing, Sturm count, mass summary and disclosures through the Rust modal reader's verdict. The
-    mode-shape view is a normalized display transform labelled as not a physical length, with a static,
-    stepped alternative under reduced motion. The viewer supplies no extraction bound of its own; it
-    pre-fills only the project's last-used value (DEL-04-09 Design §5.1).
+    Mechanics solved, rule inputs incomplete, user-rule checked, user-rule failed and human review
+    required are distinct statuses, and no status states code compliance or approval.
   gating: true
-  when: Before the modal results view ships (DEL-04-09 M3).
-  evidence: execution/PKG-04/DEL-04-09/Work/modal-analysis.md
+- from: DEL-01-04
+  condition: >-
+    The claims registry gives each automatic status one display form and registers the
+    numerical-health display forms and their boundary sentence.
+  gating: false
 - from: DEL-06-03
+  when: Showing ratios and the stress and ratio table
   condition: >-
-    The stress and ratio table (survey item A3) reads the session's rule-check
-    run as `ruleCheckService.ts` types it: one outcome per check and load case
-    or combination, with the user's stress category, the runner's status, the
-    computed value, the limit, the relation and the bound solver rows. An
-    incomplete outcome (RULE_INPUTS_INCOMPLETE) stays visible as incomplete
-    with the run's own reason and is never ranked or hidden. The table forms no
-    status and reads no rule-pack value into any output. The result contour's
-    rule ratios (survey item A4, Design `result-contour.md` §2) are the table's
-    own ratios for each of the user's stress categories, placed on the pipe
-    and station their bound rows or selectors name; an incomplete or withheld
-    outcome colours nothing.
-  gating: false
-  evidence: execution/PKG-07/DEL-07-05/Work/stress-ratio-table.md
+    A rule-check run yields one outcome for each check on each load case or combination, with the
+    user's stress category, the runner's status, the computed value, the limit, their unit and the
+    relation between them, and an incomplete outcome carries the findings that explain it.
+  gating: true
 - from: DEL-05-01
+  when: Showing the weight and centre-of-gravity summary
   condition: >-
-    The weight and centre-of-gravity summary (survey item A9) reads the
-    self-weight generator's plan evidence (`generateSelfWeightPlan`, the
-    `self_weight_wasm` engine or the native command): per pipe, the
-    `pipe_mass_per_length_times_explicit_axis_acceleration/v2` record with its
-    generated N/m intensity and the contents and insulation flags; per mapped
-    component, the `component_weight_at_center_of_gravity_global_offset/v1`
-    record with `weight_N`, `component_node`, `omitted_pipe_id` and
-    `center_of_gravity_m`; and the component-weight-not-applied warnings. The
-    plan is read, never queued or applied, and the summary computes no mass.
+    The self-weight generator returns, without changing the model, a plan that gives each selected
+    pipe's mass per length and span and each rigid-family component's weight, under an entered
+    gravity, and reports what it could not include.
+  gating: true
+- from: DEL-02-02
+  condition: >-
+    A stored value can be shown in another catalog unit of its dimension without changing the
+    stored value, and a value whose unit is missing or of the wrong dimension is a named finding.
+  gating: true
+- from: DEL-07-04
+  condition: >-
+    The finding presentation defines how a finding's class and fields are shown and how a user-rule
+    outcome is worded, which the results tables follow.
   gating: false
-  evidence: execution/PKG-07/DEL-07-05/Work/weight-cog-summary.md
+- from: DEL-07-07
+  when: Showing a result held by the native host
+  condition: >-
+    A result held by the native host is summarized and read as bounded pages of rows in source
+    order, so that a table can show a result too large to hold in the display.
+  gating: true
 - from: DEL-07-01
+  when: Drawing results in the viewport
   condition: >-
-    The results navigator (survey item A1) selects the current row through the
-    panel's existing `onSelectResult`, as a click on the row does. It relies on
-    the viewport highlighting the session's selection that `handleSelectResult`
-    sets from the row's entity, and on the tree and inspector showing it. The
-    navigator writes no model data, records no undo entry and moves no camera.
-  gating: false
-  evidence: execution/PKG-07/DEL-07-05/Work/results-navigator.md
+    The viewport provides one scene with the model's nodes and members addressable by identifier,
+    shows the session's selection, and lets an overlay add and remove its own drawn resources
+    (DEL-07-01/REQ-002).
+  gating: true
+- from: DEL-07-11
+  condition: >-
+    The workspace shell mounts the results panels, holds the session's current result, selection
+    and view state, and keeps view state out of the model document.
+  gating: true
 code_paths:
-- apps/desktop/package.json
-- apps/desktop/src/App.test.tsx
-- apps/desktop/src/App.resultPaging.test.tsx
-- apps/desktop/src/features/results/ResultsPanel.test.tsx
-- apps/desktop/src/features/results/ResultsPanel.tsx
-- apps/desktop/src/features/results/resultInterpretation.ts
-- apps/desktop/src/features/results/HistoricalRunContext.tsx
-- apps/desktop/src/features/results/HistoricalRunContext.test.tsx
-- apps/desktop/src/features/results/KnownSemanticNotices.tsx
-- apps/desktop/src/features/results/KnownSemanticNotices.test.tsx
-- apps/desktop/src/features/results/knownSemanticLimitations.ts
-- apps/desktop/src/features/results/knownSemanticLimitations.test.ts
-- apps/desktop/src/features/results/PhysicsSourceEvidencePanel.tsx
-- apps/desktop/src/features/results/PhysicsSourceEvidencePanel.test.tsx
-- apps/desktop/src/features/results/outputPolicy.ts
-- apps/desktop/src/features/results/outputPolicy.test.ts
-- apps/desktop/src/features/results/LoadReferenceOutputGate.tsx
-- apps/desktop/src/features/results/loadReferenceOutputAvailability.ts
-- apps/desktop/src/features/results/loadReferenceDisclosure.tsx
-- apps/desktop/src/features/results/loadReferenceDisclosure.test.tsx
-- apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
-- apps/desktop/src/features/results/retainedPrecisionOutputRefusal.test.tsx
-- apps/desktop/src/features/display-units/rendererIntegration.test.tsx
-- core/gui/results_viewer/**
-- apps/desktop/src/features/viewport/deformationOverlay.ts
-- apps/desktop/src/features/viewport/viewportRotationGlyph.ts
-- apps/desktop/src/features/viewport/PipeViewport.tsx
-- apps/desktop/e2e/rotation-glyph/
-- schemas/results.schema.yaml
+# The results feature. In this folder: retainedPrecision* are DEL-04-08's; HangerSizing*,
+# hangerSizingResult.ts and hangerSizingView.ts are DEL-04-11's; *Csv.ts and
+# resultGroupCsvStream.ts are DEL-08-04's; analysisResultHashScope.ts is DEL-14-02's;
+# componentBody.ts is DEL-03-05's; C2ResultGate.tsx, NativeResultsPanel.tsx and useNativeRowKey.ts
+# are DEL-07-07's; outputPolicy.ts is shared with DEL-04-08, which owns the retained-precision
+# refusals it names. resultReader.ts, resultStanding.ts, resultSemantics.ts and
+# numericalResultQuality.ts are this deliverable's bindings to DEL-05-02's reader, and
+# hangerPreload.ts is its standing-line sentence for the solver's hanger-preload warnings; the
+# meaning each returns is the provider's.
 - apps/desktop/src/features/results/**
-- apps/desktop/src/features/viewport/viewportPalette.ts
-- apps/desktop/src/features/viewport/resultColourOverlay.ts
-- apps/desktop/src/features/viewport/reactionOverlay.ts
-- apps/desktop/src/features/viewport/viewportReactionArrows.ts
+# The result drawings. They are drawn in DEL-07-01's scene; PipeViewport.tsx, viewportResource.ts,
+# viewportSelection.ts and viewportPalette.ts are shared with it.
+- apps/desktop/src/features/viewport/DeflectedShapeControls.tsx
 - apps/desktop/src/features/viewport/ResultOverlayLegend.tsx
+- apps/desktop/src/features/viewport/ResultValueLabels.tsx
+- apps/desktop/src/features/viewport/deformationOverlay.ts
+- apps/desktop/src/features/viewport/elementAxes.ts
+- apps/desktop/src/features/viewport/reactionOverlay.ts
+- apps/desktop/src/features/viewport/resultColourOverlay.ts
 - apps/desktop/src/features/viewport/resultContour.ts
 - apps/desktop/src/features/viewport/resultContourMesh.ts
-- apps/desktop/src/features/viewport/ResultValueLabels.tsx
+- apps/desktop/src/features/viewport/viewportElementAxes.ts
+- apps/desktop/src/features/viewport/viewportReactionArrows.ts
+- apps/desktop/src/features/viewport/viewportRotationGlyph.ts
+- apps/desktop/src/features/viewport/PipeViewport.tsx
 - apps/desktop/src/features/viewport/viewportResource.ts
+- apps/desktop/src/features/viewport/viewportSelection.ts
+- apps/desktop/src/features/viewport/viewportPalette.ts
+# The display rule a table, a report and a CSV file share; shared with DEL-08-01.
+- apps/desktop/src/features/report/reportQuantityDisplay.ts
+# The hanger rule the report and the displacement-extremes filter share; also used by DEL-08-01's
+# report.
+- apps/desktop/src/features/report/springHangerSupport.ts
+# Test support. frameKernelOrientationCases.json holds the frame kernel's outcomes for invented
+# orientation cases, captured by a probe compiled against the kernel.
+- apps/desktop/src/test-support/frameKernelOrientationCases.json
+- apps/desktop/src/test-support/keyResultsFixtures.ts
 - apps/desktop/src/test-support/resultOverlayFixtures.ts
 - apps/desktop/e2e/result-overlays/
-- apps/desktop/src/features/viewport/DeflectedShapeControls.tsx
-- apps/desktop/src/features/viewport/elementAxes.ts
-- apps/desktop/src/features/viewport/viewportElementAxes.ts
-- apps/desktop/src/test-support/frameKernelOrientationCases.json
-- apps/desktop/src/features/results/supportLoadSummary.ts
-- apps/desktop/src/features/results/SupportLoadSummaryPanel.tsx
-- apps/desktop/src/features/report/reportQuantityDisplay.ts
-- apps/desktop/src/features/results/stressRatioTable.ts
-- apps/desktop/src/features/results/StressRatioTablePanel.tsx
-- apps/desktop/src/features/results/displacementExtremes.ts
-- apps/desktop/src/features/results/DisplacementExtremesPanel.tsx
-- apps/desktop/src/features/results/weightSummary.ts
-- apps/desktop/src/features/results/WeightSummaryPanel.tsx
-- apps/desktop/src/features/report/springHangerSupport.ts
-- apps/desktop/src/features/results/resultsNavigator.ts
-- apps/desktop/src/features/results/NativeResultsPanel.tsx
-- apps/desktop/src/App.resultsNavigator.test.tsx
-- apps/desktop/src/features/results/keyResults.ts
-- apps/desktop/src/features/results/KeyResultsPanel.tsx
-- apps/desktop/src/features/results/useKeyResultsSession.ts
-- apps/desktop/src/features/viewport/viewportSelection.ts
-- apps/desktop/src/test-support/keyResultsFixtures.ts
-- apps/desktop/src/App.keyResults.test.tsx
+- apps/desktop/e2e/result-overlays.spec.ts
+- apps/desktop/e2e/rotation-glyph/
+- apps/desktop/e2e/rotation-glyph.spec.ts
+# The numerical-health indicator's module in the operation engine's crate; the rest of that crate
+# is DEL-16-06's.
+- core/model_operations/operation_applier/src/numerical_health.rs
+# A reference module with its own contract test; the desktop does not call it.
+- core/gui/results_viewer/**
+# The boundary helper the GUI reference modules of DEL-07-03, DEL-07-04, DEL-07-05, DEL-07-07 and
+# DEL-07-08 import; each lists it.
+- core/gui/pkg02_boundary.py
 checks:
 - apps/desktop/src/features/results/ResultsPanel.test.tsx
 - apps/desktop/src/App.resultPaging.test.tsx
@@ -350,8 +176,8 @@ checks:
 - apps/desktop/src/features/viewport/PipeViewport.elementAxes.test.tsx
 - apps/desktop/src/features/results/supportLoadSummary.test.ts
 - apps/desktop/src/features/results/SupportLoadSummaryPanel.test.tsx
-- apps/desktop/src/features/results/stressRatioTable.test.ts
 - apps/desktop/src/features/results/StressRatioTablePanel.test.tsx
+- apps/desktop/src/features/results/stressRatioTable.test.ts
 - apps/desktop/src/features/results/StressRatioTablePanel.derivation.test.tsx
 - apps/desktop/src/features/results/displacementExtremes.test.ts
 - apps/desktop/src/features/results/DisplacementExtremesPanel.test.tsx
@@ -364,9 +190,7 @@ checks:
 - apps/desktop/src/App.resultsNavigator.test.tsx
 - apps/desktop/src/features/results/NativeResultsPanel.native.test.tsx
 - apps/desktop/src/features/results/keyResults.test.ts
-# C1 slice 2 (DEL-04-05): these builders are the oracle of the native summary S; a builder change fails this parity until result_summary_tables.rs follows.
 - apps/desktop/src/features/results/resultSummaryParity.test.ts
-# C1 slice 3 (DEL-04-05): rowsUnderFilters, paginateResults and PhysicsSourceEvidencePanel are the oracle of the native detail query and recovery facts; a change fails this parity until result_detail.rs follows.
 - apps/desktop/src/features/results/resultDetailParity.test.ts
 - apps/desktop/src/features/results/KeyResultsPanel.test.tsx
 - apps/desktop/src/features/results/ResultsPanel.keyResults.test.tsx
@@ -375,3 +199,6 @@ checks:
 - apps/desktop/src/App.supportFamilyOpen.test.tsx
 - apps/desktop/src/features/results/useKeyResultsSession.test.tsx
 - apps/desktop/src/features/results/SupportLoadSummaryPanel.focusRequest.test.tsx
+- apps/desktop/src/features/results/ResultsPanel.numericalHealth.test.tsx
+- apps/desktop/src/features/results/numericalHealth.test.ts
+- apps/desktop/src/features/results/numericalHealthText.test.ts

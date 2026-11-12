@@ -1,4 +1,4 @@
-"""Interval-mode rule evaluation (T3 D2 revision 5b.3 §4.11, option C).
+"""Interval-mode rule evaluation.
 
 The shared case file ``fixtures/rule_interval/rule_interval_cases.json`` is
 consumed here by the Python reference evaluator and in

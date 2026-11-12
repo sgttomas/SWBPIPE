@@ -1,4 +1,4 @@
-//! The admission range (design §3.2 item 5, "Admission range"; review
+//! The admission range (review
 //! round 3): a nonzero formed or re-formed entry outside [2⁻³⁰⁰, 2³⁰⁰] in
 //! magnitude refuses the pencil at entry, by name
 //! (`MODAL_PENCIL_RANGE_UNSUPPORTED`). Each review-round-3 range witness is
@@ -30,7 +30,7 @@ fn p(e: i32) -> f64 {
     scale_by_pow2(1.0, e)
 }
 
-/// Test-local resolution-floor parameters c_μ and κ_μ (design §3.2 item 5);
+/// Test-local resolution-floor parameters c_μ and κ_μ;
 /// the production values are recorded under DEC-026, not here. On the
 /// equilibrated pencil (review round 4), with c_μ = 1, the review-round-3
 /// artifact lies 2.4× below δ_μ and the smallest μ of the admitted fixture
@@ -38,7 +38,7 @@ fn p(e: i32) -> f64 {
 /// stiff modes lie below it and use the separately checked recovery band.
 const RESOLUTION_FLOOR_CONSTANT: f64 = 1.0;
 const RESOLUTION_FLOOR_MULTIPLE: f64 = 10.0;
-/// Test-local c_f of the screen τ_f = c_f·n·u (design §3.2 item 5); the
+/// Test-local c_f of the screen τ_f = c_f·n·u; the
 /// production value is recorded under DEC-026 (README for the measured
 /// η_f).
 const FORMED_BACKWARD_ERROR_MULTIPLE: f64 = 64.0;

@@ -1,4 +1,4 @@
-/** Hanger sizing in the desktop (DEL-04-11 increment 3c part 2; Design `hanger-sizing.md` §2, §8.1, §13): the request
+/** Hanger sizing in the desktop (DEL-04-11 increment 3c part 2): the request
  * form, the native sizing (`services/hangerSizingService.ts`, worker task 4) and 3b's read-only table
  * (`HangerSizingPanel`), bound to the reply's document, its evidence and the library the request named.
  *

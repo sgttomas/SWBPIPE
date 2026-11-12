@@ -3,11 +3,11 @@
  "status": "frozen analytical candidate; product agreement and independent scrutiny recorded separately",
  "source_revision_read": "2656dcb33328b12c5572a30c10124a40f35adffc",
  "governing_sources": [
-  "execution/PKG-04/DEL-04-07/Work/route-unification-r4.md §00 C-3, C-4; §2.1; §3.1",
-  "execution/PKG-04/DEL-04-07/Work/pressure-contract.md 'Tees and pressure junctions' (D-1)",
-  "execution/PKG-03/DEL-03-05/Work/rigid-component-stiffness-scaling.md §2.1, §2.4, §2.7",
-  "execution/PKG-03/DEL-03-05/Work/eccentric-reducer-offset.md §2, §3.2 (absent vs zero offset; end sizes descriptive)",
-  "execution/PKG-05/DEL-05-03/Work/section-bases-and-timoshenko.md §1, §2.1 (D-5)"
+  "DEL-04-07 (R-4: C-3, C-4)",
+  "DEL-04-07 'Tees and pressure junctions' (D-1)",
+  "DEL-03-05",
+  "DEL-03-05 (absent vs zero offset; end sizes descriptive)",
+  "DEL-05-03 (D-5)"
  ],
  "independence": "standard library only; no product code, product output or frozen product reference is imported, read or run; all data invented",
  "model": {

@@ -1,5 +1,5 @@
 //! K6b's published-row keys, the rows dump (`k6b-rows v1`) and R1's derived
-//! member quantities (T3 K6b plan §3.4, §5.4).
+//! member quantities.
 //!
 //! Keys: `u.<node>.<c>` (displacements and rotations, c = 0..5 in UX..RZ),
 //! `mag.<node>`, `end.<member>.<i|j>.<c>`, `st.<station>.<c>`,

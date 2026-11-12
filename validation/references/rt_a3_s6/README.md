@@ -1,7 +1,7 @@
 # RT-A3 S6 references: nonlinear supports with connectors and on load/reference-state documents
 
-Invented analytical references for R-4 stage S6 (DEL-04-07
-`Work/route-unification-r4.md` §3.7): **C-1**, a pressurized objective joint
+Invented analytical references for R-4 stage S6 (DEL-04-07):
+**C-1**, a pressurized objective joint
 between two anchors with a one-way guide on one side, with its controls; and
 **LS-1**, W-16 stage 2's references run as exact-route load/reference-state
 twins. The consumer is
@@ -38,7 +38,7 @@ Every case is solved twice in exact rational arithmetic (`fractions.Fraction`):
     the loaded x–z plane; partitioned prescribed values (moved anchor, rigid
     restraint at its base value, an active one-way/lift-off at its moved
     ground); a moved spring base enters as the load k·g with k on the diagonal.
-  - C-1: the ledger of DEL-04-07 `joint-pressure-thrust.md` §2: caps −pA_i at
+  - C-1: the ledger of DEL-04-07: caps −pA_i at
     A and +pA_i at D, Poisson pairs ±2νpA_i on each pipe, and at the joint the
     effective-area summands −pA_e at B and +pA_e at C with the face caps
     +pA_i at B and −pA_i at C.
@@ -75,7 +75,7 @@ translation along the run is u_Cx − u_Bx.
 **Reference object.** The exact rational response of the system formed from
 the binary64 leaves above. The exact route forms its section constants by
 D-5's sequence, which can differ from these leaves in the last place
-(DEL-04-07 `k1-twin-bound.md`); that changes no state and moves no value by
+(DEL-04-07); that changes no state and moves no value by
 more than about 10⁻¹⁵ relative, far inside the criterion. Values are emitted as
 exact fractions with their correctly rounded binary64.
 

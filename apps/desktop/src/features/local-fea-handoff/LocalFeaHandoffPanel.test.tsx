@@ -22,7 +22,7 @@ function inventedModel(): PreviewModel {
       id: "project:rider-test",
       name: "Invented rider model",
       description: "Invented panel fixture",
-      // W-17 slice (c) §7.4: the handoff writes stress_unit from the key when no stress row is referenced.
+      // the handoff writes stress_unit from the key when no stress row is referenced.
       units: { length: "m", force: "N", angle: "rad", pressure: "Pa", stress: "Pa", temperature: "degC" }
     },
     analysis_status: { mechanics: "ready", rule_check: "not_performed", professional_acceptance: "not_provided" },

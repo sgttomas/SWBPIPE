@@ -1,4 +1,4 @@
-// The recovery offer's rules (DEL-02-05 Design `autosave-and-backup.md` §3),
+// The recovery offer's rules,
 // pure so the tests can state them. A record is paired with the stored project
 // whose id has the record's slot. Every record whose model is not proven to be
 // the stored model stays recoverable. At start and at an open it is offered
@@ -102,7 +102,7 @@ export function keptOlderText(candidates: readonly RecoveryCandidate[]): string 
   return `An autosave is kept. ${whichIsNewerText(first)} ${differs} ${RECOVER_AUTOSAVE_HINT}.${more}`;
 }
 
-/** What a record holds, and what it does not (Design §1, §3). */
+/** What a record holds, and what it does not. */
 export const AUTOSAVE_NOT_INCLUDED = "Queued batches, proposals, review context and solve results are not in an autosave; a recovered model needs to be solved again.";
 
 /** The first 12 hex digits of a `sha256:` hash. */

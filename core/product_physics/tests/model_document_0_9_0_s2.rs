@@ -82,7 +82,7 @@ fn e2_the_authored_conditions_solve_as_their_twin_byte_for_byte() {
             assert!(!case_rows(&solved, case).is_empty(), "{mode:?}: {case} publishes");
         }
         // Operating-case slice 1b: the declared difference is gated on the lowered model, so
-        // its condition-generated primitives count by content (E7, 0.9.0 §2.2); D and T(D)
+        // its condition-generated primitives count by content (E7); D and T(D)
         // agree byte for byte, its derivation evidence included.
         assert!(!diagnostics(&solved).iter().any(|(code, _, _)| code == "LOAD_COMBINATION_DIFFERENCE_BASIS_UNSUPPORTED"));
         assert!(solved["contract_evidence"].get("difference_basis_derivation").is_some(), "{mode:?}");
@@ -246,7 +246,7 @@ fn e6_every_case_level_code_refuses_by_name() {
     // Other members keep their refusals beside a resolvable use.
     assert_refused_by(&mutated(|d| d["load_cases"][0]["test_condition"] = json!({"kind": "hydrostatic", "held_supports": "none"})),
         "LOAD_CASE_TEST_CONDITION_UNSUPPORTED", &["load case `OPE`"]);
-    // S-K1 (DEL-04-03 skew-restraints.md §2.2): a skewed spring beside a resolvable
+    // a skewed spring beside a resolvable
     // condition use is admitted and solved; it keeps no interim code.
     let skewed = mutated(|d| d["supports"][2]["direction"] = json!({"x": 0.0, "y": 3.0, "z": 4.0}));
     for mode in MODES {

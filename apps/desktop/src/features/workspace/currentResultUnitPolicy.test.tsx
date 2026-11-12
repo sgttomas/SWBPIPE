@@ -19,7 +19,7 @@ import { isNativeResult, resultRowCount, resultUnits } from "../../services/nati
 // T0R: the Current witness is a preview-physics-2 result.
 // This is NOT a native UI qualification witness. Current standing comes only
 // from the session's own solve path and qualification gate (handleRun).
-// C1 (DEL-04-05 `c1-native-custody-plan.md` slice 4): the job holds the result natively; the
+// C1: the job holds the result natively; the
 // native commands answer with the actual Rust commands' recorded replies, and the session's
 // counts and units are S's. The received bytes are read through the session's C2 copy.
 const modelUnits = "model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC";
@@ -82,7 +82,7 @@ it("reads results=none in the solve and design unit lines without a Current resu
 });
 
 it("reports a qualified Current result's recorded units, including Pa, N*m and N/m, unconverted in the solve and design unit lines", async () => {
-  // The invented demo's nonlinear cases are confirmed and published CHECKS_PASSED (DEL-04-01 kd5-nonlinear-active-set.md §5), so it qualifies as Current.
+  // The invented demo's nonlinear cases are confirmed and published CHECKS_PASSED, so it qualifies as Current.
   const { result } = await recordedProducerSession();
   await act(async () => { await result.current.results.handleRun(); });
   await waitFor(() => expect(result.current.results.currentSolvedResult).not.toBeNull());

@@ -48,7 +48,7 @@ fn every_recovered_kind_matches_its_exact_reference() {
             "{}: selected with no expectation",
             m.name
         );
-        // Each row against the claim it publishes (D1 revision 5a.3, R7 §5.2;
+        // Each row against the claim it publishes (D1 revision 5a.3,
         // ROOT's rulings at C and on RV19's review), none skipped:
         // RIGID-UNLOADED, selected at 512, withholds its rows near zero as
         // `absolute_verified` with their own bound.
@@ -145,7 +145,7 @@ fn subnormal_underflow_and_overflow_are_published_with_their_outcome() {
 
 #[test]
 fn n06s_torque_and_spring_action_are_nonzero_and_correct() {
-    // §7.3-2: the root spring carries the torque through the member.
+    // the root spring carries the torque through the member.
     let m = models::model("N06");
     let source = m.source();
     let mut meter = InvocationMeter::new(u64::MAX);

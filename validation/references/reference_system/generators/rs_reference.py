@@ -171,7 +171,7 @@ def vrec(vector):
 
 
 # ----------------------------------------------------------------------------- the specification's statements
-# DEL-09-01 Work/reference-system.md, held here so the fixture's transcription is checked against the spec.
+# DEL-09-01, held here so the fixture's transcription is checked against the spec.
 G = F("9.80665")  # m/s^2, standard gravity entered as global_z -9.80665 (spec §2)
 SPEC_DENSITY = F(7850)  # kg/m^3 (spec §4.1, §4.2)
 # §4.2: OD, wall, mill tolerance, corrosion allowance, insulation thickness (mm); insulation, contents (kg/m^3)
@@ -435,7 +435,7 @@ def document(result):
         "document": "swbpipe.reference_system_references",
         "status": "candidate frozen references; derived and cross-checked by the author TASK, not yet independently "
                   "refuted",
-        "specification": "execution/PKG-09/DEL-09-01/Work/reference-system.md §9.2 (EQ-1, EQ-2)",
+        "specification": "DEL-09-01 (EQ-1, EQ-2)",
         "inputs": f"{FIXTURE_REL}: nodes, pipe_segments (sections), components; load_cases and the self-weight "
                   "capture are not read",
         "units": {"force": "N", "moment": "N*m", "length": "m", "mass_per_length": "kg/m"},

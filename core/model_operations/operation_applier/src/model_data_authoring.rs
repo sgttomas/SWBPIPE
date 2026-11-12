@@ -24,7 +24,7 @@ use std::collections::BTreeSet;
 
 /// The top-level model-data collections. Reference and attachment scans do
 /// not read them: naming an entity here never blocks that entity's edit or
-/// deletion (§3.3, §6); a missing subject is the validator's warning.
+/// deletion; a missing subject is the validator's warning.
 pub(crate) const MODEL_DATA_COLLECTIONS: [&str; 5] = [
     "lines",
     "unresolved_assumptions",
@@ -36,7 +36,7 @@ pub(crate) const MODEL_DATA_COLLECTIONS: [&str; 5] = [
 /// Free-text and provenance annotations: never entity references.
 pub(crate) const ANNOTATION_MEMBERS: [&str; 3] = ["tags", "notes", "provenance_record"];
 
-/// The object types that take `tags` and `notes` (§3.1).
+/// The object types that take `tags` and `notes`.
 const ANNOTATED_TYPES: [&str; 13] = [
     "Project",
     "Node",
@@ -53,7 +53,7 @@ const ANNOTATED_TYPES: [&str; 13] = [
     "EquipmentInterface",
 ];
 
-/// The object types that take `provenance_record` (§3.5).
+/// The object types that take `provenance_record`.
 const PROVENANCE_RECORD_TYPES: [&str; 4] = ["Material", "Section", "Component", "Support"];
 
 /// One model-data record family.
@@ -168,7 +168,7 @@ pub(crate) fn is_annotation(object_type: &str, field_path: &str) -> bool {
     }
 }
 
-/// An annotation travels on its family's existing change kind (§6).
+/// An annotation travels on its family's existing change kind.
 pub(crate) fn annotation_change_kind(object_type: &str) -> &'static str {
     match object_type {
         "Load" => "update_load",
@@ -515,7 +515,7 @@ fn names_pipe(line: &Value, pipe_id: &str) -> bool {
         .is_some_and(|refs| refs.iter().any(|item| item.as_str() == Some(pipe_id)))
 }
 
-/// Deleting a pipe removes it from its line in the same operation (§3.2);
+/// Deleting a pipe removes it from its line in the same operation;
 /// a line may be left with no pipes. Returns the diff rows of the lines it
 /// changes, computed against `model` (the document before deletion).
 pub(crate) fn remove_pipe_from_lines(model: &mut Value, pipe_id: &str) -> Vec<DiffPreviewRow> {
@@ -534,7 +534,7 @@ pub(crate) fn remove_pipe_from_lines(model: &mut Value, pipe_id: &str) -> Vec<Di
 }
 
 /// A pipe created from `source_pipe` (split, bend arc) joins the source's
-/// line, immediately after the source (§3.2). A copied pipe joins no line and
+/// line, immediately after the source. A copied pipe joins no line and
 /// never calls this. Returns the diff row of the line it changes.
 pub(crate) fn join_source_line(model: &mut Value, source_pipe: &str, new_pipe: &str) -> Option<DiffPreviewRow> {
     let line = model

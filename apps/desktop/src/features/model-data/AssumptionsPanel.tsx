@@ -1,4 +1,4 @@
-// Assumptions and open issues (W-13 §3.3, FR-MOD-006): add, edit, resolve and
+// Assumptions and open issues (FR-MOD-006): add, edit, resolve and
 // reject the model's unresolved assumptions and open issues, and filter them
 // by status and subject. A record names the current selection as its subject,
 // or the project when nothing is selected. Resolving or rejecting requires a

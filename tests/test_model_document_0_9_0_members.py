@@ -1,4 +1,4 @@
-"""Model document 0.9.0's members in the schema (DEL-02-01 Design `model-document-0.9.0.md` §3.4).
+"""Model document 0.9.0's members in the schema.
 
 A document carrying every member the 0.9.0 step adds (condition sets, the pipe's set reference, a case's
 condition use and test condition, a support's direction and the snubber family, a combination's

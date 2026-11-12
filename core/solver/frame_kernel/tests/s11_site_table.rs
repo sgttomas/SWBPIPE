@@ -120,7 +120,7 @@ const SOURCES: &[Source] = &[
         name: "FK/structural/certified_recovery.rs",
         text: include_str!("../src/structural/certified_recovery.rs"),
     },
-    // T4-U1b (declared additive extension; DESIGN_R01 §4.5, O-11): the arc
+    // T4-U1b (declared additive extension; O-11): the arc
     // load certificate.
     Source {
         name: "FK/structural/arc_certificate.rs",
@@ -496,7 +496,7 @@ const TABLE: &[(&str, &str, usize, &str)] = &[
     ("FK/structural/certified_recovery.rs", "certify_tie_rod_recovery", 0, "T4-U5b K-D5 repaired recovery: exact split products and corrected displacements in exact row sums; ball C and k C; radii/remainders directed; publication rounded once"),
     // ---- T4-S5 (declared, additive; no row above changes): the epoch's
     // integer counters. None forms a load at p or a recovery at p, so none is
-    // a force site (kd5-member-relative-bound.md, S11-F site table).
+    // a force site (S11-F site table).
     ("FK/structural.rs", "record", 3, "T4-U5b (S3): integer: the per-element absorbed-diagonal refusal's candidate, absorbed-candidate and element-group counts; it reads stiffness assembly flags, no load or force value"),
     ("FK/structural/retained/product_certificate/final_case.rs", "project", 1, "T4-U4b (S4): integer: count of ProductRecipe::NotCovered rows left pending (NaN slot, no projection); no value is formed or summed"),
     ("FK/structural/retained/product_certificate/final_case.rs", "complete_not_covered", 1, "T4-U4b (S4): integer: decrement of the pending not-covered count when PP completes one row; the completed value is stored, not accumulated"),

@@ -1,4 +1,4 @@
-"""Three-way comparison record for the CAEPIPE correlation pilot (DEL-17-05 Design §6, PRD §22.5).
+"""Three-way comparison record for the CAEPIPE correlation pilot (PRD §22.5).
 
 `build_comparison_record` pairs each quantity a case names with an analytic
 hand-calculation value, the SWBPIPE value (headless runner result rows) and the
@@ -11,7 +11,7 @@ resolution tolerance. Cause hypotheses are labelled ASSUMPTION; a
 classification is never silently defaulted. `evaluate_hypothesis_series`
 evaluates a declared hypothesis across a slenderness series of cases.
 
-The record built from CAEPIPE output is private (Design §8). It is regression
+The record built from CAEPIPE output is private. It is regression
 and handoff evidence only, not validation, compatibility proof, code compliance
 or professional acceptance; agreement establishes nothing about acceptance.
 """
@@ -63,7 +63,7 @@ SERIES_INCONSISTENT = "inconsistent"
 SERIES_NOT_EVALUATED = "not_evaluated"
 SERIES_STATUSES = (SERIES_CONSISTENT, SERIES_INCONSISTENT, SERIES_NOT_EVALUATED)
 
-# Conditions (c)-(e) of the documented-behaviour-difference rule (DEL-17-05 Design §6).
+# Conditions (c)-(e) of the documented-behaviour-difference rule.
 CONDITION_ALTERNATIVE = "alternative_analytic_matched"
 CONDITION_SOURCE = "source_basis"
 CONDITION_SERIES = "hypothesis_series_consistent"
@@ -471,7 +471,7 @@ def _classify(row: Mapping[str, Any], declaration: Mapping[str, Any] | None, fau
 
 def evaluate_hypothesis_series(definition: Mapping[str, Any], member_records: Mapping[str, Mapping[str, Any] | None],
                                *, current_mbf_sha256: Mapping[str, str] | None = None) -> dict[str, Any]:
-    """Evaluate a slenderness series (Design §7) from its members' comparison records.
+    """Evaluate a slenderness series from its members' comparison records.
 
     For each member the relative gap (C - S) / S of the definition's quantity is taken from its comparison
     record. Every member must have a record (built from its current MBF when `current_mbf_sha256` names one),
@@ -479,7 +479,7 @@ def evaluate_hypothesis_series(definition: Mapping[str, Any], member_records: Ma
     tolerance; otherwise the status is `not_evaluated` with the reasons. The fitted slope is the log-log slope of
     |relative gap| against span between the shortest and the longest member; the status is `consistent` when every
     relative gap has the expected sign and the slope lies within the tolerance of the expected exponent, otherwise
-    `inconsistent`. The result is derived from CAEPIPE output and is private (Design §8).
+    `inconsistent`. The result is derived from CAEPIPE output and is private.
     """
 
     quantity = definition.get("quantity")

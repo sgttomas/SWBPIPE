@@ -3,13 +3,13 @@
  * load/reference-state group. The session solve completes: the desktop records it as
  * Python's `build_analysis_run_v0_3` does, holds the result and its record, and shows it
  * (results panel, standing, notices, the resolved-state block) through Rust's verdict.
- * Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.1, §4.4, §4.5; owner rulings
+ * Epoch 8 (owner rulings
  * 10A and 11B, 2026-10-21): with Rust's eligible standing, its matching 0.3.0 record and
  * manifest and the live native invocation it is Current; the result JSON and
  * stress-neutral exports and the rule check admit it, and every other output surface
  * refuses it by name (the report package as a fresh result). A rule status recorded on
  * it saves, and reopens as historical evidence, never Current.
- * C1 (DEL-04-05 `c1-native-custody-plan.md` slice 4): the session holds the fresh result natively
+ * C1: the session holds the fresh result natively
  * (a `NativeResult` and its record header). The record compared with Python's, the saved bytes
  * and the C2 surfaces (exports, rule check, native package) read the result's C2 full copy and full
  * record, built on that copy and checked against the native record, through the session's
@@ -436,12 +436,12 @@ describe("the held pressure-2 result: admitted on the opened surfaces, refused b
     // Result export and stress-neutral (C2 consumers) build from the session's own full copy, its
     // full record and manifest.
     const full = await c2Full(hook.current);
-    // The route's shared reason is unchanged (§5.2); no product surface reads it since W-11.
+    // The route's shared reason is unchanged; no product surface reads it since W-11.
     expect(loadReferenceOutputRefusal(full.result)).toBe(PRESSURE_2_OUTPUT_REFUSAL);
     const document = await buildCurrentResultExport({ model, result: full.result, analysisRun: full.analysisRun, inputManifest });
     expect(() => resultSchemaVersion(document)).not.toThrow();
     await expect(buildStressNeutralExportPacket({ model, result: full.result, analysisRun: full.analysisRun })).resolves.toBeTruthy();
-    // W-11 (DEL-08-01 Design `exact-route-report-sections.md` §5.1; owner, 2026-10-26): the
+    // W-11 (owner, 2026-10-26): the
     // report package's cell admits it; through the session the save no longer stops at the
     // route refusal: the request is built and screened, and, without the package's own
     // local-private selection (not chosen here), the screen blocks it before any IPC.

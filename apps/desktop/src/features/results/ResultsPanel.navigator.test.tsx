@@ -1,4 +1,4 @@
-// A1 (DEL-07-05 Design `results-navigator.md`): the Results panel's navigator. Steps over the
+// A1: the Results panel's navigator. Steps over the
 // table kind, the load case or combination and the support or element, by key chord and by
 // button; the current row's page and scroll follow, and the session's selection follows through
 // `onSelectResult` only. Fixtures are the product's own preview-physics-2 output for the

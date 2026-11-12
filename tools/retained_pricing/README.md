@@ -11,7 +11,7 @@ This tool prices the retained route's memory at a revision and generates the GEN
 
 The base chain's `g4_caps.py` keeps the historical illustrative `M = 4_026_531_840`: `tree.M`, `fraction_of_M`, `margin_rule_0.9M` and `fits_M` use illustrative layout strides and are not native budget qualification. `run` exit 0 establishes pricing completeness. `generate` replaces only the generated block and preserves `REGISTERED_PROFILES.threshold_bytes`; it does not select or register M. `eval` (`lib/tree_eval.py`) uses supplied native atoms to evaluate forms/phases without applying a budget. Current qualification uses the source-selected registered threshold and the native law tests' checks of all phases, R, the 0.9 margin and the upward-rounded 5% TAV_W/TAV_X reserve.
 
-It is SQ2's TEXT and cap-priced chain under the O-10 rules, in one Python command (standard library only). The reasons for the rules it adds by name are in DEL-04-08's [retained-pricing-rules.md](../../execution/PKG-04/DEL-04-08/Work/retained-pricing-rules.md). Use this tool, not earlier copies of the chain.
+It is SQ2's TEXT and cap-priced chain under the O-10 rules, in one Python command (standard library only). The reason for each rule it adds by name is stated with the rule, in `rules/o10_rules.py` and the `base/` models; the § numbers there are the rules' labels (DEL-04-08). Use this tool, not earlier copies of the chain.
 
 ## Use
 
@@ -53,8 +53,8 @@ For example, main's block at `2c5cf0823b` is the registered tree with:
 
 ## Inputs
 
-**Repository.** A clone with full history and `reference/migration/commit-map.txt`, which maps
-the original basis `2243be380b` to its equivalent extracted commit; a shallow clone is refused. The default is this checkout. `--repo` or `RP_REPO` selects another.
+**Repository.** A clone with full history; `tools/repository_history.py` maps
+the original basis `2243be380b` to its equivalent extracted commit; a shallow clone is refused. Only the original identities that maintained checks still cite are tabled there; any other `source:<original-sha>`, including the historical replays named below, is refused. To resolve one, read `reference/migration/commit-map.txt` from Git history (it was removed from the working tree on 2026-11-10), or point `--repo` at a worktree of a commit that still holds it. The default is this checkout. `--repo` or `RP_REPO` selects another.
 
 **Revision.** Any revision whose code the rules cover.
 
@@ -103,7 +103,7 @@ All outputs go to `--out`.
      3. **Text:** by the line's text.
      A key that none of these carries stops the run.
 
-     The hunks come from `git diff -U0` with the histogram algorithm and every other output-affecting setting pinned on the command line. Every git read runs through `lib/pinned_git.py`, with no global or system configuration, no output-changing `GIT_*` variable and strict UTF-8 decoding, so the user's git setup cannot change a carry (retained-pricing-rules.md §1.2).
+     The hunks come from `git diff -U0` with the histogram algorithm and every other output-affecting setting pinned on the command line. Every git read runs through `lib/pinned_git.py`, with no global or system configuration, no output-changing `GIT_*` variable and strict UTF-8 decoding, so the user's git setup cannot change a carry.
    - **Prune.** A key is pruned only when the revision deleted its line, or deleted its function so that no `fn name` is left in the file. The key's rule is dropped, including list-form rules, and the drop is reported. Dictionary rules are discarded by their original key identity before insertion at mapped keys, so a deleted old key cannot overwrite or prune an unrelated live rule remapped to that spelling.
    - **Fewer definitions.** Sometimes a name's definition count falls but stays above zero, as when one of two `fn f` is removed. The count alone does not say which definition went, so the key is `fewer_definitions` and the run stops. A reviewed entry in `rules/linemap_resolutions.json` resolves it, keyed as written at the basis:
      - `{"as": "deleted", "why": …}` prunes it;
@@ -166,7 +166,7 @@ All outputs go to `--out`.
 Add a rule when a run stops or reports incomplete on a new head.
 
 1. Read the reason in `runs/*/work/text_budget.caps.out.json` (`unmapped_loop_headers`, `unclassified_args`) or in the stop message.
-2. Write the argument in DEL-04-08's `Work/retained-pricing-rules.md` under a new label. State the code facts it rests on, the bound or class, and why the bound holds on the D1 graph. A zero needs a premise, not an observation.
+2. Write the argument beside the rule, under a new label, in `rules/o10_rules.py` or the `base/` model that binds its source. State the code facts it rests on, the bound or class, and why the bound holds on the D1 graph. A zero needs a premise, not an observation.
 3. Add the rule to `rules/o10_rules.py` under the same label, keyed by name: `fnkey(name, file)` or `site(fn, file, text)`, never a bare line number.
    - Guard it with `if fnkey(...)` so that heads without the function add nothing.
    - Use the existing families: `O10_LOOPS_LAST` (exact header, bound, why, the only `file:fn` it may match), `O10_LOOPS_FIRST` (U6-LF: the same, placed before the earlier broad rules for an exact header one of them would otherwise capture), `O10_EDGE_ZERO`, `O10_SITE_FROM`, `O10_SITE_SIZE`, `O10_ID_AUDIT`, `O10_ARGS_FIRST`, `O10_DIAG_EXCLUSIVE` (B7b-DX: diagnostic sites of one function of which a call pushes at most one; `text_budget.py` counts the group once per call at its largest member and leaves the run incomplete unless every member is an unlooped site of that function with its multiplicity), `O10_MULT0_SITES` (B7b-JR: a site whose own multiplicity must stay 0, with no size or zero rule; `o10_check` fails the run otherwise) and `O10_TYPED_PATCHES` (U6-RB: a route's exact-text substitution in one chain file, with its reason).

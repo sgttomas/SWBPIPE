@@ -35,7 +35,7 @@
 //!    still held ([`Metered`], which cannot be taken apart: a value read from
 //!    the store leaves its reservations only through serialization).
 //!
-//! S3's comparison of two stored results (design §4.2) reuses the same pricing.
+//! S3's comparison of two stored results reuses the same pricing.
 //! The counting-allocator tests in `analysis_runs_tests.rs` check a command's
 //! priced peak, through its serialized response, against what it reserved.
 
@@ -477,7 +477,7 @@ impl UnreadableRow {
 }
 
 /// SQLite's working set per byte of the largest stored keyed row (W-12, repair
-/// r7; DEL-14-01 Design §3). SQLite allocates inside the desktop process: a
+/// r7). SQLite allocates inside the desktop process: a
 /// query that compares, joins, seeks an index by, takes a `substr` of or
 /// deletes a stored value materializes the whole value, and index seeks may
 /// materialize other rows' keys on the search path. Measured with
@@ -1096,7 +1096,7 @@ where
 }
 
 /// RT-U4 C1 residual U1's diagnostic SQLite measurement (tests only,
-/// `#[ignore]`d; DEL-04-05 `Work/c1-u1-sqlite-measurement.md`).
+/// `#[ignore]`d; DEL-04-05).
 #[cfg(test)]
 #[path = "stored_read_sqlite_u1.rs"]
 mod sqlite_u1;

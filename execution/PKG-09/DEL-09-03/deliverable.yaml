@@ -1,88 +1,62 @@
 id: DEL-09-03
 name: Nonlinear support regression suite
 needs:
-- from: DEL-00-01
-  condition: 'DEL-09-03 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Preserved prior DAG-002 mirror edge as extracted local evidence; normalized AnchorType DependencyType
-    Origin and enum fields for dependency-extract v3.1.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-09-03 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Preserved prior DAG-002 mirror edge as extracted local evidence; normalized AnchorType DependencyType
-    Origin and enum fields for dependency-extract v3.1.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-09-03 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 for diagnostics and
-    result-envelope constraints.
-
-
-    Notes: Preserved prior DAG-002 mirror edge as extracted local evidence; normalized AnchorType DependencyType
-    Origin and enum fields for dependency-extract v3.1.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-09-03 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Preserved prior DAG-002 mirror edge as extracted local evidence; normalized AnchorType DependencyType
-    Origin and enum fields for dependency-extract v3.1.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-04-04
-  condition: 'DEL-09-03 depends on nonlinear support solver maturity before defensible nonlinear support
-    regression criteria can be implemented.
-
-
-    Notes: Preserved prior DAG-002 mirror edge because current deliverable docs explicitly identify nonlinear
-    solver maturity as a dependency; no claim of satisfaction.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    For one-way, gap, lift-off and friction supports the classifier returns each support's state
+    from an iteration's displacements and reactions, a convergence verdict, and an active-set
+    record that carries the iteration settings, each support's state, the supports that changed
+    and the diagnostics; a case that does not settle within its cap is reported as not converged.
   gating: true
+  when: Running a regression case.
+- from: DEL-04-07
+  condition: >-
+    The assembled nonlinear iteration ends in a support state for models with gap, one-way,
+    lift-off and friction supports, and every exit without convergence publishes a non-convergence
+    failure and no result marked solved.
+  gating: true
+  when: Running an assembled regression case.
+- from: DEL-04-01
+  condition: >-
+    The frame kernel solves the frame for the restraints and prescribed displacements it is given
+    and gives bit-identical results on repeated runs.
+  gating: true
+  when: Solving each trial state of a regression case, and repeating a run.
 - from: DEL-04-06
-  condition: 'DEL-09-03 requires diagnostics and result-envelope information for convergence active state
-    gap lift-off friction iteration tolerance and non-convergence warnings.
-
-
-    Notes: Preserved prior DAG-002 mirror edge because current deliverable docs explicitly identify nonlinear
-    diagnostics/result-envelope data as a dependency; exact field names remain TBD.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A nonlinear solve whose residual is above its tolerance carries a non-convergence warning
+    before the iteration limit and a failure-level diagnostic at it, and a case solved without a
+    governed tolerance carries the named warning.
   gating: true
+  when: Examining convergence and non-convergence diagnostics.
+- from: DEL-10-05
+  condition: >-
+    The headless runner's regression workflow runs the named cases of a suite and reports each
+    case's outcome without silently skipping one.
+  gating: true
+  when: Running a regression case by name.
+- from: DEL-02-02
+  condition: >-
+    Every catalog unit has one dimension, and a quantity with an unknown unit, a missing unit or a
+    unit of the wrong dimension is refused with a named unit finding.
+  gating: true
+  when: Checking case inputs and expected observations through the unit catalog.
+- from: DEL-01-02
+  condition: >-
+    The IP and data boundary policy names every class of content excluded from public artifacts
+    and the fields of the provenance record with their value sets, states that a maintainer
+    records a record's review disposition, and states that suspected protected content is
+    quarantined until a human or legal review decides it.
+  gating: true
+  when: Admitting a regression case or hand calculation to the suite.
 code_paths:
+# The suite, the governed convergence records beside it (*.dec046.json) and its hand
+# calculations. DEL-04-04 cites the hand calculations as its outside source; they are held here.
+# The exact references validation/references/kd5_nonlinear/** are DEL-04-01's, and their
+# product-route test is in DEL-04-07's crate.
 - validation/benchmarks/nonlinear/**
 - validation/hand_calcs/nonlinear/**
-- validation/references/kd5_nonlinear/**
+- tests/test_nonlinear_support_regression.py
 checks:
 - validation/benchmarks/nonlinear/src/lib.rs
-- core/product_physics/src/kd5_nonlinear_tests.rs
+- tests/test_nonlinear_support_regression.py

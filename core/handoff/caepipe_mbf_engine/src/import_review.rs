@@ -1,4 +1,4 @@
-//! The bounded import review (DEL-17-04 Design `desktop-mbf-export-import.md` §4.3; slice 5): what the desktop's MBF
+//! The bounded import review: what the desktop's MBF
 //! import worker (task 5) returns in place of the importer's own report, model and id map.
 //!
 //! [`import_review`] reads the importer's result over its whole extent, then serializes it within an allowance (the
@@ -8,7 +8,7 @@
 //! - **Status first.** The importer's status, the document check, the assumptions' completeness and every count are
 //!   computed over the full result before any bound applies. Overflow never makes a refused import adoptable.
 //! - **Fixed leading members**, byte for byte, so the host checks them without parsing:
-//!   `{"document_kind":"swbpipe.mbf_import_review","format":2,"status":"<imported|refused>","adoptable":<true|false>,
+//!   `{"document_kind":"swbpipe.mbf_import_review","format":3,"status":"<imported|refused>","adoptable":<true|false>,
 //!   "model_sha256":<"hex"|null>,"model_bytes":<n>,`.
 //! - **Lists**, in order: `refusals` (each error diagnostic: code, line, entity; they block), `document_check` (the
 //!   worker's blocking document-check findings: code, path; they block), `assumptions` (every applied mapping
@@ -24,23 +24,30 @@
 //!   The same result, source, declaration digest, document check and transfer decision give byte-identical text, so the
 //!   review's SHA-256 binds the source digests, the declaration, the model digest and everything the user saw.
 //!
+//! - **Designation (format 3).** The identity summary ends with `source_completeness` and `designation`: null, or
+//!   the designated source's `{file_name, sha256, bytes, outcome, reasons, differing_classes}`
+//!   ([`crate::designation`]). `source_completeness` is `established_for_identity_set` only when a designation is
+//!   given, its every check passed and the review is complete; a truncated review adds the reason `review_truncated`.
+//!   Without a designation it is `not_established`, as in format 2.
+//!
 //! The function reads the result without recursion.
 
 use crate::export_review::{push_bool, push_field, push_json_str, push_optional_field, push_u64, Count, ReviewAllowanceTooSmall, Sink, REVIEW_FIELD_MAX_BYTES};
+use crate::designation::{ReviewDesignation, REVIEW_TRUNCATED as DESIGNATION_REVIEW_TRUNCATED};
 use crate::value::Value;
-use crate::{ImportResult, ASSUMPTION_IDS};
+use crate::{ImportResult, ASSUMPTION_IDS, INVENTORY_CLASSES};
 
 /// The review's `document_kind`.
 pub const IMPORT_REVIEW_DOCUMENT_KIND: &str = "swbpipe.mbf_import_review";
 /// The review's `format`.
-pub const IMPORT_REVIEW_FORMAT: u64 = 2;
-/// A truncated review blocks adoption (§4.3).
+pub const IMPORT_REVIEW_FORMAT: u64 = 3;
+/// A truncated review blocks adoption.
 pub const IMPORT_REVIEW_TRUNCATED: &str = "MBF-IMPORT-REVIEW-TRUNCATED";
-/// An applied mapping assumption lacks its bounded source-safe representation (§4.3).
+/// An applied mapping assumption lacks its bounded source-safe representation.
 pub const ASSUMPTION_UNAVAILABLE: &str = "MBF-IMPORT-ASSUMPTION-UNAVAILABLE";
-/// The adopt result or reply would exceed the transfer limit (§4.8.4).
+/// The adopt result or reply would exceed the transfer limit.
 pub const MODEL_TOO_LARGE: &str = "MBF-IMPORT-MODEL-TOO-LARGE";
-/// The importer refused, or the document check blocked (§4.6).
+/// The importer refused, or the document check blocked.
 pub const NOT_ADOPTABLE: &str = "MBF-IMPORT-NOT-ADOPTABLE";
 
 /// The identity file beside the MBF, as the host read it.
@@ -294,6 +301,7 @@ struct Header<'r> {
     declaration_sha256: Option<&'r str>,
     model: Option<ReviewModel<'r>>,
     check: ReviewDocumentCheck<'r>,
+    designation: Option<&'r ReviewDesignation<'r>>,
     adoptable: bool,
     complete: bool,
     transfer_within: bool,
@@ -304,7 +312,7 @@ struct Header<'r> {
 
 impl Header<'_> {
     fn push<S: Sink>(&self, out: &mut S) {
-        // The fixed leading members (§4.3), in this order and byte form.
+        // The fixed leading members, in this order and byte form.
         out.push("{\"document_kind\":\"");
         out.push(IMPORT_REVIEW_DOCUMENT_KIND);
         out.push("\",\"format\":");
@@ -427,7 +435,45 @@ impl Header<'_> {
         push_u64(out, self.result.identity_recovery.known_missing_ids);
         out.push(",\"unrecovered_fields\":");
         push_u64(out, self.result.identity_recovery.unrecovered_fields);
-        out.push(",\"source_completeness\":\"not_established\"");
+        // Established only with a designation whose every check passed, in a complete review.
+        let established = self.designation.is_some_and(|designation| designation.reasons.is_empty()) && self.complete;
+        out.push(",\"source_completeness\":\"");
+        out.push(if established { "established_for_identity_set" } else { "not_established" });
+        out.push("\",\"designation\":");
+        match self.designation {
+            None => out.push("null"),
+            Some(designation) => {
+                out.push("{\"file_name\":");
+                push_field(out, designation.file_name);
+                out.push(",\"sha256\":");
+                push_field(out, designation.sha256);
+                out.push(",\"bytes\":");
+                push_u64(out, designation.bytes);
+                out.push(",\"outcome\":\"");
+                out.push(if established { "established_for_identity_set" } else { "not_established" });
+                out.push("\",\"reasons\":[");
+                let truncated = (!self.complete).then_some(DESIGNATION_REVIEW_TRUNCATED);
+                for (index, reason) in designation.reasons.iter().copied().chain(truncated).enumerate() {
+                    if index > 0 {
+                        out.push(",");
+                    }
+                    out.push("\"");
+                    out.push(reason);
+                    out.push("\"");
+                }
+                out.push("],\"differing_classes\":[");
+                let differing = INVENTORY_CLASSES.iter().zip(designation.differing).filter(|(_, differs)| *differs);
+                for (index, (class, _)) in differing.enumerate() {
+                    if index > 0 {
+                        out.push(",");
+                    }
+                    out.push("\"");
+                    out.push(class);
+                    out.push("\"");
+                }
+                out.push("]}");
+            }
+        }
         let not_shown = |index: usize| (self.totals[index] - self.listed[index]) as u64;
         out.push("},\"counts\":{\"not_shown\":");
         push_u64(out, (0..6).map(not_shown).sum());
@@ -466,12 +512,12 @@ fn framing_len() -> usize {
     LISTS.iter().map(|list| list.name().len() + 6).sum::<usize>() + 1
 }
 
-/// Whether every applied assumption has its structured counterpart (§4.3).
+/// Whether every applied assumption has its structured counterpart.
 fn assumptions_available(result: &ImportResult) -> bool {
     result.assumption_facts.len() == result.assumptions.len() && result.assumption_facts.iter().all(|fact| ASSUMPTION_IDS.contains(&fact.id))
 }
 
-/// The bounded review of `result` (§4.3) within `allowance` bytes. `model` is the candidate model's digest and length
+/// The bounded review of `result` within `allowance` bytes. `model` is the candidate model's digest and length
 /// (None when the importer refused); `document_check` the worker's check of it; `declaration_sha256` the SHA-256 of
 /// the declaration bytes the worker was given. `transfer_fits` is given the review's exact length, as it would be if
 /// adoptable, and decides `transfer_limit` (called once, and only when there is a candidate model).
@@ -484,6 +530,22 @@ pub fn import_review(
     allowance: usize,
     transfer_fits: impl FnOnce(u64) -> bool,
 ) -> Result<ImportReview, ReviewAllowanceTooSmall> {
+    import_review_designated(result, source, declaration_sha256, model, document_check, None, allowance, transfer_fits)
+}
+
+/// [`import_review`] stating a designated source: `designation` from [`crate::designation::designation`] for
+/// the same `result`, whose model must still be present when that is formed. None gives [`import_review`]'s text.
+#[allow(clippy::too_many_arguments)]
+pub fn import_review_designated(
+    result: &ImportResult,
+    source: ImportReviewSource<'_>,
+    declaration_sha256: Option<&str>,
+    model: Option<ReviewModel<'_>>,
+    document_check: ReviewDocumentCheck<'_>,
+    designation: Option<&ReviewDesignation<'_>>,
+    allowance: usize,
+    transfer_fits: impl FnOnce(u64) -> bool,
+) -> Result<ImportReview, ReviewAllowanceTooSmall> {
     // Status first, over the full result.
     let imported = result.status == "imported";
     let document_passed = matches!(document_check, ReviewDocumentCheck::Passed { .. });
@@ -492,13 +554,15 @@ pub fn import_review(
     for (index, list) in LISTS.iter().enumerate() {
         totals[index] = entries(result, document_check, *list).count();
     }
-    // The fixed part at its widest: every flag `false`, `truncated`, every list listed in full, plus count slack.
+    // The fixed part at its widest: every flag `false`, every list listed in full, plus count slack; complete or
+    // truncated, whichever is longer (a designation's outcome and reasons depend on it).
     let widest = Header {
         result,
         source,
         declaration_sha256,
         model,
         check: document_check,
+        designation,
         adoptable: false,
         complete: false,
         transfer_within: true,
@@ -507,9 +571,12 @@ pub fn import_review(
         listed: totals,
     };
     let fixed = {
-        let mut count = Count(0);
-        widest.push(&mut count);
-        count.0 + count_slack(&totals) + framing_len() + 16
+        let width = |complete: bool| {
+            let mut count = Count(0);
+            Header { complete, ..widest }.push(&mut count);
+            count.0
+        };
+        width(false).max(width(true)) + count_slack(&totals) + framing_len() + 16
     };
     if fixed > allowance {
         return Err(ReviewAllowanceTooSmall { needed: fixed, allowance });

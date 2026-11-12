@@ -2,338 +2,116 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-15-04
 package_id: PKG-15
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-075]
 package_objective_refs: [OBJ-017, OBJ-018]
 ---
 
-# Scope of Work — DEL-15-04
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-15-04 External prover boundary metadata
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-15-04` in service of project scope [SOW-075] and package objectives [OBJ-017, OBJ-018].
+This deliverable is the record in which an engineer keeps the context of work done outside SWBPIPE: which external tool a model was taken to, what was sent, where the external files are, and what the engineer wants to remember about it. An engineer validates a design in a professional stress-analysis tool and accepts it on their own authority; SWBPIPE helps them keep track of that and never speaks for it. So the record is free-form where the engineer writes (names, tags, notes, references, attachments) and closed where the software could be mistaken for an authority: it has no status lifecycle, no acceptance field and no way for the software to say that an external check was done. The result it contributes is that the external-prover loop of PRD §16.2 can be followed across model states without the product acquiring an approval state.
 
-- **OUT-001** — A schema-first flexible external-prover boundary metadata contract for descriptive references, attachments, and handoff or comparison links is produced.
+It serves SOW-075 under OBJ-017 and OBJ-018 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-15, row DEL-15-04), and `docs/PRD.md` §4.2, §4.3, §16.2, §16.3, §21.2 and §21.3. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it.
+
+- **OUT-001** — The external-prover metadata record: the schema `schemas/external_prover_metadata.schema.json` and the builder that forms a record and reports what is wrong with one.
+- **OUT-002** — The authority-wording screen: the one check, shared by the handoff and export records that need it, that finds wording of approval, certification, sealing, authentication, compliance, external validation, acceptance or prover status in a value.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-15-04 External prover boundary metadata
+**Terms the record defines.**
 
-> #### Datasheet: DEL-15-04 External prover boundary metadata
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *External-prover metadata record.* One record of external-workflow context, with its identity, the groups below, diagnostics, provenance and the professional-boundary block. Its contract status is fixed as workflow metadata without authority.
+- *Name, tag, note.* The engineer's own labels and remarks. No vocabulary is enforced on them.
+- *External reference.* A pointer to something outside the product: its kind, a location, an optional checksum, and provenance.
+- *Attachment.* A reference to an artifact (a file location, a hash, a note). An attachment never contains the artifact.
+- *Context link.* A reference by identity to a handoff package, a target mapping, an export record or a saved model state. A link carries no content of what it names.
+- *Assumption, warning, unsupported-target flag.* Review evidence carried with the record, each with the objects it affects.
+- *Proposed authority claim.* Something offered to the record as a status of approval, acceptance, certification, validation or lifecycle stage. The record keeps it only as a rejected claim, with a blocking finding.
+- *Professional-boundary block.* Fixed statements: human review is required; the record is metadata only; no external tool was invoked and no commercial result was ingested; the software makes no compliance, certification, sealing, approval or authentication claim and creates no reliance record and no external-validation record.
+- *Human acceptance reference.* A pointer to an acceptance made by a person outside the software. The record has none; REQ-007 governs one if it is added.
 
-### CLM-003 — Identification
+**Boundary.**
 
-> ##### Identification
->
-> | Field | Value | Source |
-> |---|---|---|
-> | Deliverable ID | DEL-15-04 | `_CONTEXT.md` |
-> | Name | External prover boundary metadata | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-15-04 |
-> | Package ID | PKG-15 | `_CONTEXT.md` |
-> | Package Name | Handoff and External Prover Workflow | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` `PKG-15` |
-> | Type | DATA_MODEL_CHANGE | `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-15-04 |
-> | Scope Coverage | SOW-075 | `_CONTEXT.md`; `docs/_Registers/ScopeLedger.csv` row SOW-075 |
-> | Objective Support | OBJ-017; OBJ-018 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` objective mapping |
-> | Context Envelope | M | `_CONTEXT.md`; `docs/_Registers/ContextBudgetQA.csv` row DEL-15-04 |
-> | Accepted Decomposition Basis | Current accepted decomposition and its amendments | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` |
->
+- A handoff package (DEL-15-01), a target mapping (DEL-15-02) and an export (DEL-15-03) are linked from this record and never copied into it.
+- DEL-14-01 owns saved model states and DEL-02-01 the model document; the names, tags and notes of states and models are theirs. This record is the context of an external workflow, not a label on a state.
+- DEL-01-04 owns the wording of the product's boundary statements. This deliverable owns the screen that finds prohibited wording in handoff and export records.
+- DEL-07-12 owns the desktop panel that presents this metadata.
+- DEL-17-05 owns the correlation of SWBPIPE results with an external tool's results, and what a prover-correlation comparison identifies (PRD §22.5) is DEL-17-05's record. This record ingests no result and compares nothing.
+- No formal prover-status lifecycle, automatic professional acceptance record or commercial-tool result ingestion exists in the product.
 
-### CLM-004 — Attributes
+**Not decided.**
 
-> ##### Attributes
->
-> | Attribute | Value | Evidence / Status |
-> |---|---|---|
-> | Metadata purpose | Support external-prover workflow metadata | `docs/_Registers/ScopeLedger.csv` row SOW-075 |
-> | Required metadata posture | Flexible names, tags, notes, external references, attachments, and comparison-report linkage | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-04 row and SOW-075 note |
-> | Prohibited automatic statuses | No hard-coded approval, certification, code-compliance, formal prover lifecycle, or automatic professional acceptance status (PRD §21.2) | `docs/_Registers/Deliverables.csv` row DEL-15-04; `docs/_Registers/ScopeLedger.csv` row SOW-075; `docs/TYPES.md` section 4 |
-> | Commercial tool result ingestion | Comprehensive commercial-tool result ingestion is out of MVP scope | `docs/_Registers/ScopeLedger.csv` row SOW-075; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-016 |
-> | Professional reliance boundary | Non-authoritative; software output remains decision support until competent human review | `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants Agent rule; `docs/DIRECTIVE.md` sections 1-3; `docs/CONTRACT.md` OPS-K-AUTH-1 |
-> | Public/private data boundary | External artifacts and examples must not introduce protected standards text, proprietary values, private project data, or commercial software examples without permission | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6; `docs/SPEC.md` report/result export boundary sections |
-> | Schema basis | JSON Schema 2020-12 contracts and schema-first envelopes are the accepted architecture basis | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-010 |
-> | Concrete schema file path | `schemas/external_prover_metadata.schema.json` | Materialized JSON Schema 2020-12 metadata contract matching the current builder output |
-> | Field names and cardinality | Materialized provider-neutral record groups: names, tags, notes, external references, attachments, handoff/package/export links, assumptions, warnings, unsupported target flags, rejected authority claims, diagnostics, provenance, and professional boundary | `schemas/external_prover_metadata.schema.json`; `core/handoff/external_prover/metadata.py` |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> | Condition | Value | Source |
-> |---|---|---|
-> | Upstream architecture basis | AB-00-01, AB-00-02, AB-00-03, AB-00-04, AB-00-06, AB-00-07, AB-00-08 | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `Dependencies.csv` rows DAG-002-E0723 through DAG-002-E0729 |
-> | Upstream professional-boundary dependency | DEL-01-04 | `Dependencies.csv` row DAG-002-E0818 |
-> | Upstream handoff/state dependencies | DEL-15-01, DEL-15-02, DEL-15-03, DEL-14-01 | `Dependencies.csv` rows DAG-002-E0819 through DAG-002-E0822 |
-> | Approved DAG mirror status | Resolve current graph and row statuses through `execution/_DAG/_LATEST.md`; former synchronization count is historical evidence | `_DEPENDENCIES.md`; `Dependencies.csv` |
-> | Boundary validation tests | `tests/test_external_prover_boundary_metadata.py` validates generated records against schema and boundary behavior | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history); `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-15-04 |
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> | Construct | Required Shape | Source / Status |
-> |---|---|---|
-> | External reference record | Must allow flexible external references and related descriptive metadata without implying approval | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-04 row; SOW-075 |
-> | Descriptive fields | Names, tags, notes, references, and attachments are in scope as metadata categories | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-04 row |
-> | Comparison linkage | Comparison reports may support external-prover workflows but are diagnostic/handoff support only | `docs/_Registers/ScopeLedger.csv` rows SOW-073 and SOW-075; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-015 |
-> | Status fields | Must not encode automatic professional/code-compliance authority; any human acceptance reference, if present, is external and hash-bound | `docs/TYPES.md` section 4; `docs/SPEC.md` sections 4.4 and analysis-status boundary |
-> | Protected/private data handling | Source/provenance and redistribution status are required for public data records; protected or uncertain content is quarantined/escalated | `docs/IP_AND_DATA_BOUNDARY.md` sections 4-6 |
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, objectives, architecture basis, and anticipated artifacts.
-> - `_REFERENCES.md` - governing source list for this folder.
-> - `_DEPENDENCIES.md` and `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` local mirror/evidence surface.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current package, scope, objective, decision, and issue context.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - row DEL-15-04.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - row SOW-075.
-> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - row DEL-15-04.
-> - `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants, `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `docs/IP_AND_DATA_BOUNDARY.md` - governance, authority, status, schema, and data-boundary constraints.
+- Where a record is kept and how an engineer enters one. Saved states and the model document already hold the engineer's names, tags, notes and external references, and no document or store is named as the home of this record.
+- Whether the engineer's own free text is screened. The screen is applied to names, tags and notes, so a note in the engineer's words that an external check was completed is a blocking finding, while PRD §4.3 allows such a statement as a user-supplied external record and PRD §16.3 promises unforced names, tags and notes.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-15-04 External prover boundary metadata
+### Requirements
 
-> #### Specification: DEL-15-04 External prover boundary metadata
->
+- **REQ-001** — The data model supports external-prover workflow metadata (SOW-075).
+- **REQ-002** — The record supports flexible names, tags, notes, external references and attachments (decomposition row DEL-15-04; PRD §16.3).
+- **REQ-003** — The record forces no formal prover-status lifecycle (SOW-075; PRD §16.3).
+- **REQ-004** — The record creates no automatic professional acceptance record (SOW-075; PRD §21.3).
+- **REQ-005** — The record emits no approval, certification, code-compliance, sealing, authentication, endorsement or professional-reliance status, and no equivalent of one (PRD §21.2; `docs/CONTRACT.md` OPS-K-AUTH-1).
+- **REQ-006** — External-prover metadata is diagnostic and handoff support. It is never evidence that an external verification was sufficient (PRD §4.3).
+- **REQ-007** — A reference to a human acceptance, if the record ever carries one, is external, owned by a human actor and bound to the hashes of the payloads that were reviewed, and does not survive a change to them (PRD §21.3; `docs/CONTRACT.md` OPS-K-AUTH-2).
+- **REQ-008** — Fixtures, examples and sample metadata copy no protected standards text or tables, proprietary formulas or values, private project data, private rule-pack or library content, real secrets or commercial software examples (PRD §20.1).
+- **REQ-009** — A record that becomes a public data contribution carries source, provenance, licence and redistribution status, contributor certification and review disposition (PRD §20.2; `docs/CONTRACT.md` OPS-K-IP-2).
+- **REQ-010** — The record is a schema-first contract in JSON Schema 2020-12, its diagnostics have the product's diagnostic form, and any hash it carries names the basis it was computed on.
 
-### CLM-009 — Scope
+### Acceptance criteria
 
-> ##### Scope
->
-> This deliverable covers the data-model boundary for external-prover workflow metadata in PKG-15. It is limited to flexible metadata and validation expectations for names, tags, notes, external references, attachments, and related handoff/comparison context.
->
-> This deliverable excludes formal prover-status lifecycle, automatic professional acceptance records, and comprehensive commercial stress-software result ingestion for the MVP; standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Source: `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-15-04; `docs/_Registers/ScopeLedger.csv` row SOW-075; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-015 and DEC-016.
->
-
-### CLM-010 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Source | Verification |
-> |---|---|---|---|
-> | DEL-15-04-R1 | The data model shall support external-prover workflow metadata. | SOW-075 in `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history); `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) | `tests/test_external_prover_boundary_metadata.py` confirms the metadata surface exists and validates records against `schemas/external_prover_metadata.schema.json`. |
-> | DEL-15-04-R2 | The metadata surface shall support flexible names, tags, notes, external references, and attachments. | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-04 row; SOW-075 note | Schema/review tests check that these categories are representable without requiring a fixed prover lifecycle. |
-> | DEL-15-04-R3 | The metadata model shall not force a formal prover-status lifecycle. | SOW-075 in `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history); `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-016 | Negative tests reject or flag hard-coded lifecycle authority when represented as automatic software status. |
-> | DEL-15-04-R4 | The metadata model shall not create automatic professional acceptance records. | SOW-075; `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.4 | Tests verify software-generated metadata cannot assert human acceptance. |
-> | DEL-15-04-R5 | The metadata model shall not emit approval, certification, code-compliance, sealing, authentication, endorsement, or professional-reliance equivalents as automatic statuses (PRD §21.2). | `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants Agent rule; `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/TYPES.md` section 4; `docs/SPEC.md` analysis-status boundary | Boundary validation tests cover prohibited status labels and equivalents. |
-> | DEL-15-04-R6 | External prover metadata shall remain diagnostic/handoff support rather than proof of external verification sufficiency. | `execution/_DAG/DAG-006/DAG-002_EdgeDispositionReview.md` DAG2-RD-010; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-015 | Review/test evidence checks wording and status semantics. |
-> | DEL-15-04-R7 | Any external human acceptance reference, if later represented, shall be external, human-actor-owned, and bound to reviewed payload hashes. | `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.4 and analysis-status boundary | Tests require external/hash-bound representation and prevent content-change survival without re-review. |
-> | DEL-15-04-R8 | Public fixtures, examples, report snippets, and metadata examples shall not copy protected standards text, protected tables, proprietary formulas, proprietary engineering values, private project data, private rule-pack payloads, private library content, real secrets, or unauthorized commercial software examples. | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6; `docs/SPEC.md` report/result export boundary sections | Protected-content/private-data review or lint evidence is required for public examples. |
-> | DEL-15-04-R9 | Metadata records that become public data contributions shall carry source, provenance, license/redistribution status, contributor certification, and review disposition where applicable. | `docs/IP_AND_DATA_BOUNDARY.md` section 4; `docs/CONTRACT.md` OPS-K-IP-2 | Schema/review checks confirm required provenance slots or explicit `TBD`. |
-> | DEL-15-04-R10 | The deliverable shall align with the accepted architecture basis: schema-first contracts, JSON Schema 2020-12 where applicable, canonical hash basis where JSON payloads are hashed, and result/diagnostic envelope boundaries where relevant. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-010 | Draft 2020-12 schema validation and focused tests confirm no incompatible schema/API/hash assumptions are introduced. |
->
-
-### CLM-011 — Standards
-
-> ##### Standards
->
-> | Standard / Policy | Applicability | Status |
-> |---|---|---|
-> | SWBPIPE governance invariants | Binding project constraints for authority, data boundary, provenance, and agent behavior | Available in `docs/CONTRACT.md` |
-> | SWBPIPE vocabulary/status model | Defines automatic status limitations and epistemic labels | Available in `docs/TYPES.md` |
-> | SWBPIPE technical specification | Defines schema-first domain surfaces, persistence, adapter, report, result, and authority-boundary behavior | Available in `docs/SPEC.md` |
-> | SWBPIPE IP/data boundary policy | Governs protected/private data and public contribution provenance | Available in `docs/IP_AND_DATA_BOUNDARY.md` |
-> | External engineering codes/standards | No clause-level content is available or required for this setup deliverable | `TBD`; do not quote or encode protected standards content |
->
-
-### CLM-012 — Verification
-
-> ##### Verification
->
-> | Verification Target | Required Evidence |
-> |---|---|
-> | Required metadata categories are representable | `python3 tests/test_external_prover_boundary_metadata.py` plus schema review evidence for names, tags, notes, external references, attachments, and relevant handoff/comparison links |
-> | Prohibited automatic statuses are blocked | Negative tests for approval, certification, code-compliance, sealing, authentication, professional approval, and formal prover lifecycle labels (PRD §21.2) |
-> | Human acceptance remains external and hash-bound | Tests or review evidence showing software metadata cannot create professional acceptance and cannot preserve acceptance across bound-hash changes |
-> | Protected/private data is not introduced | Protected-content/private-data review evidence for any fixtures, examples, or sample external references |
-> | Dependency boundary remains aligned | Review against local `Dependencies.csv` mirror, especially DEL-01-04, DEL-15-01, DEL-15-02, DEL-15-03, and DEL-14-01 upstream context |
->
-
-### CLM-013 — Documentation
-
-> ##### Documentation
->
-> Implemented artifacts from `_CONTEXT.md` and `docs/_Registers/Deliverables.csv`:
->
-> - `schemas/external_prover_metadata.schema.json`;
-> - `core/handoff/external_prover/metadata.py`;
-> - `core/handoff/external_prover/authority_boundary.py`;
-> - `tests/test_external_prover_boundary_metadata.py`.
->
-> Concrete external prover tools, target-specific parsers, lifecycle promotion, human acceptance records, certification/compliance decisions, and commercial result ingestion remain out of scope.
-
-- **AC-001** — The contract preserves provider-neutral names, tags, notes, external references, reference-only attachments, handoff, mapping, export and immutable-state links, assumptions, warnings, unsupported-target flags, rejected authority claims, diagnostics, provenance, privacy and protected-content boundaries, external human-owned hash-bound acceptance only, and explicit exclusion of formal prover lifecycle, commercial ingestion, and automatic professional authority.
+- **AC-001** — The schema is valid JSON Schema 2020-12. A record with invented names, tags, notes, external references, attachments and context links validates, and so does a record with any of those groups empty. Every document the product presents as external-prover metadata validates against the schema.
+- **AC-002** — The schema has no field that takes a prover status, a lifecycle stage or an acceptance, and its records are closed: a record with such a field added is rejected.
+- **AC-003** — A proposed authority claim appears in the record only as a rejected claim and produces a blocking finding, and no record the builder emits presents the claim as a status.
+- **AC-004** — The professional-boundary block is fixed. A record in which any software-authority statement is true, or which says an external tool was invoked or a commercial result ingested, is rejected by the schema and is a blocking finding of the builder.
+- **AC-005** — An attachment that embeds its payload is a blocking finding. A record contains references, hashes and notes only.
+- **AC-006** — The authority-wording screen finds each prohibited term in a string, a list and a nested record, whatever its letter case, and finds none in a value without one. Applied to a proposed authority claim of this record, a hit is a blocking finding that names the field.
+- **AC-007** — Every external reference, attachment, link, assumption, warning and flag carries provenance, and a flag without an affected object is a finding. In a record that becomes a public data contribution, provenance names the source, its location, licence, contributor, contributor certification, redistribution status and review status (PRD §20.2); a field not yet known is stated as such and is never omitted.
+- **AC-008** — The same inputs give an identical record.
+- **AC-009** — The record ingests nothing: building one reads no external file, invokes no tool and parses no result.
+- **AC-010** — The schema, its fixtures and its examples contain only invented data and name no commercial tool's result format.
+- **AC-011** — If the schema gains a human acceptance reference, it requires a named human actor and the hashes of the reviewed payloads, the builder never fills it, and a record whose bound hashes no longer match is a finding.
+- **AC-012** — The schema's diagnostic record requires code, class, severity, source, affected object, message, remediation and provenance.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-014 — Procedure: DEL-15-04 External prover boundary metadata
+**Method choices that define the record.**
 
-> #### Procedure: DEL-15-04 External prover boundary metadata
->
+- Free where the engineer writes, closed where the software states. The descriptive groups take any content; the contract status and the boundary block are constants.
+- A claim is rejected visibly. An offered status is kept as a rejected claim with its finding, so that the refusal can be seen, and is not silently dropped.
+- References, never payloads. External artifacts are named by location and hash.
+- One screen for authority wording, defined here and used by every handoff and export record that screens for it, so that the product has one list of prohibited terms.
+- The builder reports and does not repair: it returns the record with its findings, sorted and deterministic.
 
-### CLM-015 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Define and check the external-prover boundary metadata deliverable. The current review-readiness tranche materializes the external reference schema and boundary validation tests while preserving the professional reliance and data-boundary constraints already present in the sources.
->
-
-### CLM-016 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Source / Status |
-> |---|---|
-> | Deliverable context for DEL-15-04 | `_CONTEXT.md` |
-> | Scope item SOW-075 and objectives OBJ-017/OBJ-018 | `docs/_Registers/ScopeLedger.csv`; `execution/_Decomposition/SOFTWARE_DECOMP.md` |
-> | Applicable invariants | `docs/CONTRACT.md`, especially OPS-K-IP-1 through OPS-K-IP-3, OPS-K-DATA-1 through OPS-K-DATA-3, OPS-K-AUTH-1 through OPS-K-AUTH-2, OPS-K-UNIT-1, OPS-K-GOV-3, and OPS-K-AGENT-1 through OPS-K-AGENT-4 |
-> | Status vocabulary and prohibited automatic statuses | `docs/TYPES.md` section 4 |
-> | Data and protected-content policy | `docs/IP_AND_DATA_BOUNDARY.md` |
-> | Approved local dependency mirror | `_DEPENDENCIES.md`; `Dependencies.csv` |
-> | Implementation write scope | `schemas/external_prover_metadata.schema.json`; `core/handoff/external_prover/*.py`; `tests/test_external_prover_boundary_metadata.py`; deliverable-local docs and run records |
->
-
-### CLM-017 — Steps
-
-> ##### Steps
->
-> 1. Confirm the implementation task is explicitly scoped to DEL-15-04 and has write authority for the intended schema/tests.
-> 2. Read `_CONTEXT.md`, `_REFERENCES.md`, `ScopeOfWork.md` requirements section, and the approved local dependency mirror before drafting any schema or tests.
-> 3. Define only descriptive external-prover metadata categories supported by the sources: names, tags, notes, external references, attachments, and diagnostic comparison/handoff links.
-> 4. Use `schemas/external_prover_metadata.schema.json` for schema path, field names, required/optional cardinality, attachment-as-reference behavior, and external artifact checksum references; concrete commercial-tool parser behavior remains out of scope.
-> 5. Add or update schema fields so that they cannot be interpreted as automatic professional approval, certification, sealing, authentication, code compliance, or formal prover lifecycle state (PRD §21.2).
-> 6. If a human acceptance reference is in scope, represent it only as an external, human-owned, reviewed-payload hash-bound record. Do not create it automatically.
-> 7. Add boundary validation tests for allowed flexible metadata.
-> 8. Add negative boundary validation tests for prohibited authority/status terms and formal prover lifecycle behavior.
-> 9. Add protected-content/private-data review checks for any fixtures or example metadata.
-> 10. Record unresolved design choices as `TBD`, `ASSUMPTION`, or `PROPOSAL`; do not turn them into requirements without source support.
->
-
-### CLM-018 — Verification
-
-> ##### Verification
->
-> | Check | Expected Result |
-> |---|---|
-> | Deliverable identity check | Files and tests reference DEL-15-04 / PKG-15 consistently. |
-> | Flexible metadata check | Names, tags, notes, external references, attachments, and comparison/handoff links can be represented. |
-> | Status-boundary check | Automatic approval, certification, code-compliance, sealing, authentication, professional reliance, and formal prover lifecycle states are absent or rejected (PRD §21.2). |
-> | Human acceptance check | Any human acceptance reference is external, human-owned, and hash-bound; otherwise it is `TBD` or absent. |
-> | Data-boundary check | Fixtures/examples contain no protected standards text, proprietary values, private project data, unauthorized commercial examples, real secrets, or private rule-pack payloads. |
-> | Dependency check | Upstream dependency context from `Dependencies.csv` is preserved; approved graph resolved through `execution/_DAG/_LATEST.md` mirror rows are not deleted, retired, or reclassified by this setup pass. |
->
-
-### CLM-019 — Records
-
-> ##### Records
->
-> The following records are materialized evidence for the current implementation task:
->
-> - `schemas/external_prover_metadata.schema.json`;
-> - `core/handoff/external_prover/metadata.py`;
-> - `core/handoff/external_prover/authority_boundary.py`;
-> - `tests/test_external_prover_boundary_metadata.py`;
-> - evidence that prohibited status/authority terms are blocked;
-> - evidence that public fixtures/examples passed protected-content/private-data review;
-> - explicit `TBD` list for unresolved concrete external prover tools, target-specific parsers, lifecycle promotion, human acceptance records, certification/compliance decisions, and commercial-tool parser behavior.
->
-> This tranche does not edit lifecycle `_STATUS.md`, dependency mirrors, or human review dispositions.
-
-- **VER-001** — Validate the contract and review source parity, every flexible metadata category, schema and attachment-as-reference behavior, prohibited-status rejection, external human-owned hash-bound acceptance boundaries, provenance and public/private controls, comprehensive commercial-ingestion exclusion, retained TBDs, and no approval, certification, compliance, sealing, or professional-reliance claims (PRD §21.2).
+- **VER-001** — Executable check (observes the schema under a JSON Schema 2020-12 validator, the acceptance of invented records, and the rejection of each record with a status field added or a boundary statement changed, and the diagnostic record's required fields): AC-001, AC-002, AC-004, AC-012.
+- **VER-002** — Executable check (observes the builder's findings for invented inputs with each fault the criteria name, the rejected-claim record, and the identity of two records built from the same inputs): AC-003, AC-004, AC-005, AC-007, AC-008.
+- **VER-003** — Executable check (observes the screen's result for each term of PRD §21.2's prohibited claims and of the prover-status vocabulary, in each value shape, and for clean values): AC-006.
+- **VER-004** — Judgment by a reviewer who did not write the code (reads the schema, the builder and its messages against PRD §21.2 and `docs/claims_registry.md`, confirms that the builder reaches no file, tool or network, and runs the protected-content scan over the schema and fixtures): AC-002, AC-009, AC-010, AC-011.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-020 — Guidance: DEL-15-04 External prover boundary metadata
-
-> #### Guidance: DEL-15-04 External prover boundary metadata
->
-
-### CLM-021 — Purpose
-
-> ##### Purpose
->
-> DEL-15-04 exists to let SWBPIPE record external-prover workflow context without converting that context into automatic professional approval. The useful metadata is descriptive and traceable: names, tags, notes, external references, attachments, and links to handoff/comparison evidence. Source: `_CONTEXT.md`; `docs/_Registers/Deliverables.csv` row DEL-15-04; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-04 row.
->
-
-### CLM-022 — Principles
-
-> ##### Principles
->
-> | Principle | Guidance | Source |
-> |---|---|---|
-> | Descriptive handoff evidence | Treat external-prover metadata as context for review: handoff evidence for external validation, not a validation outcome. | `docs/DIRECTIVE.md` sections 2.2 and 3; `docs/CONTRACT.md` OPS-K-AUTH-1; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-015 |
-> | Flexible metadata | Use the schema-backed descriptive fields for names, tags, notes, references, attachments, assumptions, warnings, unsupported target flags, and handoff/export links over fixed prover-status stages. | SOW-075; `execution/_Decomposition/SOFTWARE_DECOMP.md` DEL-15-04 row; `schemas/external_prover_metadata.schema.json` |
-> | No lifecycle overclaim | Do not encode a formal prover lifecycle unless later authorized by explicit scope change. | `execution/_Decomposition/SOFTWARE_DECOMP.md` DEC-016 |
-> | Human authority remains external | Human acceptance, when it exists, is outside solver authority and must be a human-owned, hash-bound project record. | `docs/TYPES.md` section 4; `docs/SPEC.md` section 4.4 |
-> | Preserve data boundaries | Do not embed protected standards content, commercial software examples, private project data, or proprietary values in public examples or fixtures. | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-6; `docs/SPEC.md` report/result export boundary sections |
-> | Expose unknowns | Missing or unsupported metadata should be recorded as `TBD` or a diagnostic rather than silently defaulted. | `AGENTS.md` and the applicable `docs/CONTRACT.md` invariants Agent rule; `docs/DIRECTIVE.md` section 2.2; `docs/CONTRACT.md` OPS-K-DATA-2 |
->
-
-### CLM-023 — Considerations
-
-> ##### Considerations
->
-> - The current schema-backed metadata contract is `schemas/external_prover_metadata.schema.json`, with generated-output behavior in `core/handoff/external_prover/metadata.py`.
-> - Current implementation (at `62c1efd75b`): the desktop Exports section renders `apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx`, which builds its own preview metadata record in TypeScript and invokes no external tool. It does not call `core/handoff/external_prover/` and is not validated against `schemas/external_prover_metadata.schema.json`.
-> - Boundary validation tests are implemented in `tests/test_external_prover_boundary_metadata.py`, including positive flexible-metadata cases and negative prohibited-status/attachment cases.
-> - The approved local dependency mirror says this deliverable binds to handoff package, target mapping, export workflow, immutable state, and professional-boundary context. Those rows are evidence of dependency direction only; they do not provide the content of those predecessor deliverables.
-> - Comprehensive commercial-tool result ingestion is explicitly deferred for MVP; a metadata link to an external artifact is not the same as parsing, validating, or accepting that artifact.
->
-
-### CLM-024 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Direction |
-> |---|---|
-> | Flexible metadata vs. standardized lifecycle | Use flexible metadata now. A standardized lifecycle would conflict with SOW-075 and DEC-016 unless later approved. |
-> | External references vs. external result ingestion | Store references and descriptive context; do not ingest comprehensive commercial-tool results in this MVP deliverable. |
-> | Review usefulness vs. authority overclaim | Include enough provenance and hash/reference context for a reviewer, but avoid language that implies software certification or code compliance. |
-> | Public examples vs. realistic external artifacts | Use invented or cleared examples only. Real commercial files, protected standards material, and private owner data require permission and review. |
->
-
-### CLM-025 — Examples
-
-> ##### Examples
->
-> The current schema supports the following provider-neutral metadata field groups. Concrete external-tool-specific payload interpretation remains out of scope.
->
-> | Supported Metadata Category | Schema-backed Shape |
-> |---|---|
-> | Name | `names` records for human-readable external workflow labels. |
-> | Tag | `tags` values screened for prohibited authority/status wording. |
-> | Note | `notes` records subject to privacy/protected-content and authority-boundary diagnostics. |
-> | External reference | `external_references` records with reference type, URI/path, checksum, and provenance metadata. |
-> | Attachment | `attachments` records that reference artifacts; embedded attachment payloads are rejected. |
-> | Handoff/export links | `handoff_package_refs`, `target_mapping_refs`, `export_workflow_refs`, and `immutable_model_state_refs` as non-authoritative links. |
-> | Review evidence | `assumptions`, `warnings`, `unsupported_target_flags`, `diagnostics`, `provenance`, and `professional_boundary` records. |
->
-
-### CLM-026 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No direct source conflict identified in accessible sources. | N/A | N/A | N/A | N/A | N/A |
+- **AX-001** — *The engineer's words, the engineer's authority.* Better is more of the external workflow's context that an engineer can record in their own terms. This never extends to a field, status or default by which the software itself says that something was approved, validated or accepted.
+- **AX-002** — *No lifecycle by accretion.* A fixed vocabulary of stages, however convenient for sorting and filtering, is a prover-status lifecycle and is not added. Order among records comes from the engineer's names and tags and from the model states they link to.
+- **AX-003** — *A link is not an ingestion.* Better is more precise reference to external artifacts, by location and hash. Reading, parsing or summarizing an external result is outside the record however much it would save the engineer.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-075 OBJ-017 OBJ-018 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-15-04:1** — Obtain the owning human-review disposition for open `RF-001`; `HumanDisposition` remains `TBD`, and corrected Guidance/schema evidence does not formally close the finding (PDU-060).
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-001 REQ-002 REQ-010 | AC-001 | VER-001 | Outside source: the JSON Schema 2020-12 specification, applied by a validator that is not product code. The groups are those of SOW-075 and PRD §16.3 |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-003 REQ-004 REQ-005 | AC-002 | VER-001 VER-004 | Validator results on records with a status, stage or acceptance field added, and the reviewer's reading of the schema against PRD §16.3 and §21.2 and SOW-075 |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-004 REQ-005 REQ-006 | AC-003 | VER-002 | The builder's output and findings for each invented proposed authority claim; the criterion states the expected rejected claim and blocking finding (PRD §4.3, §21.2) |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-005 REQ-006 | AC-004 | VER-001 VER-002 | Validator results and builder findings on records with each boundary statement changed; the fixed values are the criterion's own statement (PRD §21.2) |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-002 REQ-008 | AC-005 | VER-002 | The builder's finding on an invented attachment that embeds its payload; the criterion states the expected blocking finding (PRD §20.1, §20.3) |
+| OUT-002 | SOW-075 OBJ-017 OBJ-018 | REQ-005 | AC-006 | VER-003 | PRD §21.2 lists the prohibited claims and PRD §16.3 excludes a prover status; the expected hits are those terms |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-002 REQ-009 | AC-007 | VER-002 | The builder's findings on invented inputs that each lack provenance or an affected object, and the provenance fields of an invented public contribution compared with the list in PRD §20.2 |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-010 | AC-008 | VER-002 | Two builds from the same inputs, compared with each other. This shows that the builder is repeatable (PRD §3 asks for reproducibility); it does not show that the record is correct |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-006 | AC-009 | VER-004 | SOW-075 excludes result ingestion; judged by a reviewer who did not write the code |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-008 | AC-010 | VER-004 | `docs/IP_AND_DATA_BOUNDARY.md`; protected-content scan and review |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-007 | AC-011 | VER-004 | The reviewer's reading of the schema and the builder against PRD §21.3 and `docs/CONTRACT.md` OPS-K-AUTH-2 |
+| OUT-001 | SOW-075 OBJ-017 OBJ-018 | REQ-010 | AC-012 | VER-001 | Validator results on a diagnostic with each field removed; the fields are those decomposition AB-00-06 lists and DEL-00-06 defines |

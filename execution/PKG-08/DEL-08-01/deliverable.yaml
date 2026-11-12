@@ -1,468 +1,217 @@
 id: DEL-08-01
 name: Calculation report generator
 needs:
-- from: DEL-00-01
-  condition: 'DEL-08-01 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0239 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; OriginalDependencyType=ARCHITECTURE_BASIS;
-    normalized for v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=CONTEXT; normalized
-    for v3.1 enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-08-02
+  condition: The audit manifest names a run's model hash, input-manifest hash, solver identity, unit-system
+    reference and rule-pack references, each hash record stating its algorithm, basis and payload; its
+    validator reports what is missing; and one canonical JSON form with SHA-256 is available for member
+    and composition hashes.
   gating: true
-- from: DEL-00-02
-  condition: 'DEL-08-01 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0240 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; OriginalDependencyType=ARCHITECTURE_BASIS;
-    normalized for v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=CONTEXT; normalized
-    for v3.1 enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-08-03
+  condition: The warnings, assumptions and provenance section defines its diagnostic, assumption, user-supplied
+    value, provenance and library records, and decides from a provenance record's statuses and the report's
+    context whether the record is rendered, warned or blocks the report.
+  when: Including the warnings, assumptions and provenance section.
   gating: true
-- from: DEL-00-03
-  condition: 'DEL-08-01 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0241 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; OriginalDependencyType=ARCHITECTURE_BASIS;
-    normalized for v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=CONTEXT; normalized
-    for v3.1 enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-08-04
+  condition: The result export document has one current version, validates against its schema, copies the
+    received result's members and identifies each by the hash of its canonical value, and a form check
+    refuses a document that is not in that form.
   gating: true
-- from: DEL-00-04
-  condition: 'DEL-08-01 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0242 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; OriginalDependencyType=ARCHITECTURE_BASIS;
-    normalized for v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=CONTEXT; normalized
-    for v3.1 enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-08-05
+  condition: The protected-content linter evaluates text targets it is given, with their surface kind and
+    provenance, and returns findings with a severity, so that a blocking finding can block a report before
+    and after rendering.
+  when: Blocking a report on a protected-content finding.
   gating: true
-- from: DEL-00-06
-  condition: 'DEL-08-01 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0243 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; OriginalDependencyType=ARCHITECTURE_BASIS;
-    normalized for v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=CONTEXT; normalized
-    for v3.1 enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-08-06
+  condition: The state, comparison and handoff section set names the run it belongs to and restates the
+    current state and run by identity and hash, so that the package can check it against its other members.
+  when: Checking a package's section set against its other members.
   gating: true
-- from: DEL-00-07
-  condition: 'DEL-08-01 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0244 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; OriginalDependencyType=ARCHITECTURE_BASIS;
-    normalized for v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=CONTEXT; normalized
-    for v3.1 enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-12-02
+  condition: Export contexts include public report, local private and user-released report; a report is
+    classified before project data is exposed; private values are retained only under local-private context
+    with explicit user intent or under a user release; and each report sink (render, HTML save, print,
+    package save, user-released package save) has a governed route that screens its payload.
   gating: true
-- from: DEL-00-08
-  condition: 'DEL-08-01 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0245 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; OriginalDependencyType=ARCHITECTURE_BASIS;
-    normalized for v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=CONTEXT; normalized
-    for v3.1 enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-01-04
+  condition: The report notice template holds the PRD section 19.3 notice word for word with the disclosure
+    slots a report fills, and the claims registry gives one display form for each automatic analysis status
+    and the registered boundary statements.
+  gating: true
+- from: DEL-05-04
+  condition: The analysis statuses keep mechanics solved, rule inputs incomplete, user-rule checked or failed
+    and human review required apart, and none the software emits states human approval or code compliance.
+  gating: true
+- from: DEL-06-04
+  condition: A rule pack is identified by a stable identity, name, version and checksum with a source notice
+    and a redistribution status, all of which can be shown without any of the pack's content.
+  when: Showing rule-pack references.
+  gating: true
+- from: DEL-06-03
+  condition: A user-rule check run gives, for each check and each load case or combination it was evaluated
+    on, an outcome status and the names of the inputs that were missing.
+  when: Reporting user-rule outcomes.
+  gating: true
+- from: DEL-05-03
+  condition: A stress row states the section basis it was recovered on, so that a stress maximum can be
+    identified for each basis.
+  when: Reporting an exact-route result's stress maxima.
+  gating: true
+- from: DEL-05-01
+  condition: A load case that declares the hydrostatic test condition is marked as a test case in the model
+    and in the published result.
+  when: Marking a hydrostatic test case.
+  gating: true
+- from: DEL-02-01
+  condition: The model document gives nodes, pipes, components, materials, sections, supports, loads and
+    load combinations as addressable records with stored values and units, and has a model hash that is
+    stable across save and reopen.
   gating: true
 - from: DEL-02-05
-  condition: 'DEL-08-01 needs DEL-02-05 as a predecessor: report generator reads persisted project/model
-    inputs
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0522 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; OriginalDependencyType=PERSISTENCE_CONTRACT; normalized for v3.1
-    enum conformance during TP-DAG-004 refresh; OriginalOrigin=DECOMPOSITION; normalized for v3.1 enum
-    conformance during TP-DAG-004 refresh; OriginalExplicitness=INFERRED_DIRECT; normalized for v3.1 enum
-    conformance during TP-DAG-004 refresh; OriginalSatisfactionStatus=UNKNOWN; normalized for v3.1 enum
-    conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for v3.1 enum conformance
-    during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=OTHER;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE at
-    HIGH confidence; 2026-07-22 refresh records SATISFIED only at this edge grain and RequiredMaturity=SEMANTIC_READY;
-    broader residuals and lifecycle remain unchanged; not DAG activation, selection authority, or lifecycle
-    closure.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: A persisted document has one current version; a reader accepts only that version and refuses
+    every other by name, with no migration.
+  gating: false
+- from: DEL-14-02
+  condition: The run record of a solve names its run, the model state it solved, its input manifest and
+    the hash of the result it received.
+  when: Stating the run's identity and input manifest.
   gating: true
-  evidence: execution/PKG-08/DEL-08-01/docs/_Registers/Deliverables.csv
-- from: DEL-05-03
-  condition: 'DEL-08-01 needs DEL-05-03 as a predecessor: report generator includes mechanics stress results
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0523 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; OriginalDependencyType=LOAD_STRESS_PREDECESSOR; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=DECOMPOSITION; normalized for v3.1
-    enum conformance during TP-DAG-004 refresh; OriginalExplicitness=INFERRED_DIRECT; normalized for v3.1
-    enum conformance during TP-DAG-004 refresh; OriginalSatisfactionStatus=UNKNOWN; normalized for v3.1
-    enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for v3.1 enum
-    conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE
-    at HIGH confidence; 2026-07-22 refresh records SATISFIED only at this edge grain and RequiredMaturity=SEMANTIC_READY;
-    broader residuals and lifecycle remain unchanged; not DAG activation, selection authority, or lifecycle
-    closure.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-04-07
+  condition: The product solve publishes a result on the pressure-free and exact routes under a current
+    result identity, and each result binds the exact request it was computed from.
   gating: true
-  evidence: execution/PKG-08/DEL-08-01/docs/_Registers/Deliverables.csv
-- from: DEL-05-04
-  condition: 'DEL-08-01 needs DEL-05-04 as a predecessor: report generator must carry status distinctions
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0524 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; OriginalDependencyType=DOMAIN_MODEL; normalized for v3.1 enum
-    conformance during TP-DAG-004 refresh; OriginalOrigin=DECOMPOSITION; normalized for v3.1 enum conformance
-    during TP-DAG-004 refresh; OriginalExplicitness=INFERRED_DIRECT; normalized for v3.1 enum conformance
-    during TP-DAG-004 refresh; OriginalSatisfactionStatus=UNKNOWN; normalized for v3.1 enum conformance
-    during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for v3.1 enum conformance during
-    TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=OTHER;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE at
-    HIGH confidence; 2026-07-22 refresh records SATISFIED only at this edge grain and RequiredMaturity=SEMANTIC_READY;
-    broader residuals and lifecycle remain unchanged; not DAG activation, selection authority, or lifecycle
-    closure.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-07-07
+  condition: Until a completed solve job's result is disposed of, the native host keeps with it the digests
+    of the model text the job received and of the result it delivered, so that the model and result texts
+    a later report request submits can be compared with them; a disposed result leaves nothing to match
+    (DEL-07-07/REQ-015).
+  when: Checking a report request's native source binding.
   gating: true
-  evidence: execution/PKG-08/DEL-08-01/docs/_Registers/Deliverables.csv
-- from: DEL-06-04
-  condition: 'DEL-08-01 needs DEL-06-04 as a predecessor: report generator references rule-pack checksums
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0525 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; OriginalDependencyType=RULE_PACK_PREDECESSOR; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=DECOMPOSITION; normalized for v3.1
-    enum conformance during TP-DAG-004 refresh; OriginalExplicitness=INFERRED_DIRECT; normalized for v3.1
-    enum conformance during TP-DAG-004 refresh; OriginalSatisfactionStatus=UNKNOWN; normalized for v3.1
-    enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for v3.1 enum
-    conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE
-    at HIGH confidence; 2026-07-22 refresh records SATISFIED only at this edge grain and RequiredMaturity=SEMANTIC_READY;
-    broader residuals and lifecycle remain unchanged; not DAG activation, selection authority, or lifecycle
-    closure.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-04-08
+  condition: The reader of retained-source statements gives such a result its standing (numerically eligible,
+    needing recomputation or unsupported) as a verdict every reader surface takes, and the result's
+    limitations are the texts of its semantic table, bound by the reviewed-input digests.
+  when: Stating an exact-route result's standing and limitations.
   gating: true
-  evidence: execution/PKG-08/DEL-08-01/docs/_Registers/Deliverables.csv
-- from: DEL-08-02
-  condition: 'DEL-08-01 needs DEL-08-02 as a predecessor: report generator includes audit manifest/model
-    hash artifacts
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0526 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; OriginalDependencyType=REPORTING_PREDECESSOR; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=DECOMPOSITION; normalized for v3.1
-    enum conformance during TP-DAG-004 refresh; OriginalExplicitness=INFERRED_DIRECT; normalized for v3.1
-    enum conformance during TP-DAG-004 refresh; OriginalSatisfactionStatus=UNKNOWN; normalized for v3.1
-    enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for v3.1 enum
-    conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE
-    at HIGH confidence; 2026-07-22 refresh records SATISFIED only at this edge grain and RequiredMaturity=SEMANTIC_READY;
-    broader residuals and lifecycle remain unchanged; not DAG activation, selection authority, or lifecycle
-    closure.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-05-02
+  condition: The ordinary result reader gives a pressure-free or exact-route result its standing (numerically
+    eligible, needing recomputation or unsupported) with the route's published limitations, as a verdict
+    every reader surface takes, and the result is bound to its route's semantic table by identifier and
+    digest.
+  when: Stating an exact-route result's standing and limitations.
   gating: true
-  evidence: execution/PKG-08/DEL-08-01/docs/_Registers/Deliverables.csv
-- from: DEL-08-03
-  condition: 'DEL-08-01 needs DEL-08-03 as a predecessor: report generator includes warnings/assumptions/provenance
-    sections
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0527 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; OriginalDependencyType=REPORTING_PREDECESSOR; normalized for
-    v3.1 enum conformance during TP-DAG-004 refresh; OriginalOrigin=DECOMPOSITION; normalized for v3.1
-    enum conformance during TP-DAG-004 refresh; OriginalExplicitness=INFERRED_DIRECT; normalized for v3.1
-    enum conformance during TP-DAG-004 refresh; OriginalSatisfactionStatus=UNKNOWN; normalized for v3.1
-    enum conformance during TP-DAG-004 refresh; OriginalAnchorType=DELIVERABLE; normalized for v3.1 enum
-    conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15: SATISFIED_IN_FACT_BUT_STALE
-    at HIGH confidence; 2026-07-22 refresh records SATISFIED only at this edge grain and RequiredMaturity=SEMANTIC_READY;
-    broader residuals and lifecycle remain unchanged; not DAG activation, selection authority, or lifecycle
-    closure.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-07-03
+  condition: A model entity to which a library record was applied keeps a reference to that record, and
+    a reference in the model that no longer matches its library is reported.
+  when: Before a user-released report is admitted and before a report lists library records.
   gating: true
-  evidence: execution/PKG-08/DEL-08-01/docs/_Registers/Deliverables.csv
-- from: DEL-01-04
-  condition: 'DEL-08-01 needs DEL-01-04 as a predecessor: report generator must not claim approval/certification
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0528 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
-    OriginalDependencyType=GOVERNANCE_PREDECESSOR; normalized for v3.1 enum conformance during TP-DAG-004
-    refresh; OriginalOrigin=DECOMPOSITION; normalized for v3.1 enum conformance during TP-DAG-004 refresh;
-    OriginalExplicitness=INFERRED_DIRECT; normalized for v3.1 enum conformance during TP-DAG-004 refresh;
-    OriginalSatisfactionStatus=UNKNOWN; normalized for v3.1 enum conformance during TP-DAG-004 refresh;
-    OriginalAnchorType=DELIVERABLE; normalized for v3.1 enum conformance during TP-DAG-004 refresh; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=OTHER; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE; R15 DEPENDENCY_READINESS_AUDIT_2026-07-21_R15:
-    SATISFIED_IN_FACT_BUT_STALE at HIGH confidence; 2026-07-22 refresh records SATISFIED only at this
-    edge grain and RequiredMaturity=SEMANTIC_READY; broader residuals and lifecycle remain unchanged;
-    not DAG activation, selection authority, or lifecycle closure.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-08/DEL-08-01/docs/_Registers/Deliverables.csv
-- from: DEL-08-04
-  condition: 'DEL-08-04 enables report generation to consume governed result envelopes without losing
-    status and diagnostic distinctions.
-
-
-    Notes: New downstream consumer edge extracted for reconciliation context.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=DOWNSTREAM; legacy_dependencytype=ENABLES; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-08/DEL-08-04/Specification.md
-- from: DEL-04-09
-  condition: >-
-    The rendered report's "Modal analysis" section (F1 M3) states DEL-04-09's request and basis, mass
-    summary, modes table, integrity evidence, refusals, disclosures and the `product_preview_modal_v1`
-    limitation, taking the Rust modal reader's verdict, with no claim language beyond the existing fences
-    (DEL-04-09 Design §5.1).
-  gating: true
-  when: Before the report's modal section ships (DEL-04-09 M3).
-  evidence: execution/PKG-04/DEL-04-09/Work/modal-analysis.md
 code_paths:
-- core/reporting/report_generator/
-- core/reporting/report_package/
-- core/reporting/report_generator/src/lib.rs
-- core/reporting/report_sections/
+- core/reporting/report_generator/**
 - schemas/report_generator.schema.yaml
-- tools/validation/validate_dependencies_schema.py
-- apps/desktop/src/features/report/ReportPanel.tsx
-- apps/desktop/src/features/report/RenderedReportPanel.tsx
-- apps/desktop/src/features/report/renderableReportInput.ts
-- apps/desktop/src/features/report/renderedReport.test.tsx
 - core/reporting/report_renderer/**
 - core/reporting/pdf_emitter/**
-- apps/desktop/src/services/reportRenderService.ts
+# The package crate. Within it, document_form.rs and schema_eval.rs are DEL-08-04's.
+- core/reporting/report_package/**
+# The desktop report feature. stateComparisonHandoffSections.ts is DEL-08-06's and
+# provenanceReasonEntities.ts is DEL-08-03's; neither is listed here.
+- apps/desktop/src/features/report/RenderedReportPanel.tsx
+- apps/desktop/src/features/report/ReportPanel.tsx
+- apps/desktop/src/features/report/ReportComposer.tsx
+- apps/desktop/src/features/report/UserReleaseDialog.tsx
+- apps/desktop/src/features/report/renderableReportInput.ts
+- apps/desktop/src/features/report/renderedReportAssembly.ts
 - apps/desktop/src/features/report/reportRedactionProjector.ts
-- apps/desktop/src-tauri/src/lib.rs
+- apps/desktop/src/features/report/reportResultRows.ts
+- apps/desktop/src/features/report/reportQuantityDisplay.ts
+- apps/desktop/src/features/report/reportComposition.ts
+- apps/desktop/src/features/report/modelInputTables.ts
+- apps/desktop/src/features/report/exactReportAdmission.ts
+- apps/desktop/src/features/report/exactReportSections.ts
+- apps/desktop/src/features/report/exactReportLimitations.ts
+- apps/desktop/src/features/report/pfTimoshenkoReport.ts
+- apps/desktop/src/features/report/reportPackageRequest.ts
+- apps/desktop/src/features/report/userReleasedReportPackageSave.ts
+- apps/desktop/src/services/reportRenderService.ts
+- apps/desktop/src/services/reportPackageSaveService.ts
+# The native side: the render and save commands, the exact source binding and the user-release admission.
+- apps/desktop/src-tauri/src/report_render_exact.rs
 - apps/desktop/src-tauri/src/report_package_bridge.rs
 - apps/desktop/src-tauri/src/report_package_save.rs
 - apps/desktop/src-tauri/src/atomic_report_package_save.rs
-- apps/desktop/src/features/report/reportPackageRequest.ts
-- apps/desktop/src/features/report/reportResultRows.ts
-- apps/desktop/src/services/reportPackageSaveService.ts
-- apps/desktop/src/features/workspace/workspaceSession.ts
-- apps/desktop/src/features/workspace/resultsSessionState.ts
-- apps/desktop/src-tauri/src/native_smoke.rs
-- apps/desktop/native-smoke/driver.js
-- apps/desktop/native-smoke/run.mjs
-- apps/desktop/src/features/report/exactReportLimitations.ts
-- fixtures/reports/exact_route_limitations.json
-- fixtures/reports/exact_report_statements.json
-- apps/desktop/src-tauri/src/report_render_exact.rs
-# W-11 slice (b): the desktop exact sections, their admission and the native source binding.
-- apps/desktop/src/features/report/exactReportAdmission.ts
-- apps/desktop/src/features/report/exactReportSections.ts
-- apps/desktop/src/features/report/renderedReportAssembly.ts
-- apps/desktop/src/features/results/loadReferenceDisclosure.tsx
 - apps/desktop/src-tauri/src/exact_source_binding.rs
-- fixtures/reports/invented/exact_report_package_requests/
-- fixtures/reports/invented/exact_report_witness_inputs/
-# W-11 slice (c): FR-REP-003 records on every route and their schema check.
-- fixtures/reports/invented/report_sections_provenance_records.json
-- fixtures/reports/invented/component_provenance_cross_layer_projection.json
-# W-11 opening (owner, 2026-10-26): the output policy's opened cells and the
-# headless runner's kept refusal.
-- apps/desktop/src/features/results/outputPolicy.ts
-- core/runner/headless/src/bin/openpipestress-runner.rs
-# Object form: the shared positional-struct check of the native render, the save and the shared producer.
-- core/reporting/report_renderer/src/object_form.rs
-# Readability slice (Design exact-route-report-sections.md §3.7): the report's display rule.
-# RT-R4 C1-C3: closed result subsection composition; complete source rows remain bound.
-- core/reporting/report_renderer/src/composer.rs
-- apps/desktop/src/features/report/reportComposition.ts
-- apps/desktop/src/features/report/ReportComposer.tsx
+- apps/desktop/src-tauri/src/user_release_admission.rs
+- apps/desktop/src-tauri/src/user_release_reach_scan.rs
+# Fixtures: reviewed exact-route statements, and invented vectors shared by the two implementations.
+- fixtures/reports/exact_report_statements.json
+- fixtures/reports/exact_route_limitations.json
+- fixtures/reports/invented/calculation_report_fixture.json
+- fixtures/reports/invented/exact_report_package_requests/**
+- fixtures/reports/invented/exact_report_witness_inputs/**
+- fixtures/reports/invented/exact_report_sections_parity.json
 - fixtures/reports/invented/report_composition_families.json
 - fixtures/reports/invented/report_composition_vectors.json
-# RT-R4 C5: model-input sections, the projection P(M, C) and its vectors.
-- core/reporting/report_renderer/src/model_input.rs
-- core/reporting/report_package/src/model_input.rs
-- apps/desktop/src/features/report/modelInputTables.ts
 - fixtures/reports/invented/report_model_input_vectors.json
-- apps/desktop/src/features/report/reportQuantityDisplay.ts
-- core/reporting/report_package/src/quantity_display.rs
 - fixtures/reports/invented/report_quantity_display_parity.json
-# Diagnostics binding (Design exact-route-report-sections.md §3.6, §6.3 item 4): the projection's parity vectors.
+- fixtures/reports/invented/report_result_rows_parity.json
 - fixtures/reports/invented/report_diagnostics_parity.json
-# W-18b slice (r2b) (Design report-user-release.md §2.6, §2.7): the derivation, its vectors, and route 010's
-# library, rule-pack, private-class and run-record refusals.
-- core/reporting/report_package/src/user_release.rs
 - fixtures/reports/invented/user_release_derivation_vectors.json
-- apps/desktop/src-tauri/src/user_release_admission.rs
-- apps/desktop/src-tauri/src/export_disposition_screen.rs
-- apps/desktop/src-tauri/src/analysis_runs.rs
-- apps/desktop/src/services/libraryImportService.ts
-- fixtures/model_document/library_ref_member_sites.json
-# W-18b slice (r2c) (Design report-user-release.md §2.3, §2.5, §2.8, §2.9): the record, the renderer's
-# user-released class rule and notice, the admitting entry and the general entries' refusal, the writer's
-# record and the reader's checks, route 010's native admission and its lease, the render command's refusal
-# and the runner's refusal.
-- core/reporting/report_renderer/src/lib.rs
-- core/reporting/pdf_emitter/src/lib.rs
-- core/reporting/report_package/src/lib.rs
-- core/reporting/report_package/src/bindings.rs
-- core/reporting/report_package/src/wire.rs
-- core/reporting/report_package/src/reader.rs
-- core/reporting/report_package/src/exact_sections.rs
-- apps/desktop/src-tauri/src/report_package_save.rs
-- apps/desktop/src-tauri/src/report_package_bridge.rs
-- apps/desktop/src-tauri/src/lib.rs
-- core/runner/headless/src/bin/openpipestress-runner.rs
+- fixtures/reports/invented/user_release_exact/**
 - fixtures/reports/invented/user_release_record.json
 - fixtures/reports/invented/user_release_runner_refusal_request.json
-# D-6: exact-route user-release vectors, Rust derivation and native custody checks.
-- fixtures/reports/invented/user_release_exact/
-# W-18b desktop slice (Design report-user-release.md §2.2, §2.3 "Session"): the user-release dialog and the
-# route-010 preparation and save; the cell, early model check and record are in reportPackageRequest.ts, the
-# panel's control in RenderedReportPanel.tsx and the native File menu entry in src-tauri lib.rs (listed above).
-- apps/desktop/src/features/report/UserReleaseDialog.tsx
-- apps/desktop/src/features/report/userReleasedReportPackageSave.ts
 checks:
+- tests/test_report_generator_contract.py
+- core/reporting/report_renderer/tests/render.rs
+- core/reporting/report_renderer/tests/composition.rs
+- core/reporting/report_renderer/tests/object_form.rs
+- core/reporting/pdf_emitter/tests/emit.rs
 - core/reporting/report_package/tests/container.rs
 - core/reporting/report_package/tests/reader.rs
-- core/reporting/report_renderer/tests/render.rs
-- core/reporting/pdf_emitter/tests/emit.rs
-- tests/test_report_generator_contract.py
-- apps/desktop/src/features/report/renderedReport.test.tsx
-- apps/desktop/src/features/report/reportRedactionProjector.test.ts
-- apps/desktop/e2e/report-package-dist.spec.ts
-- apps/desktop/e2e/r2-smoke.spec.ts
-- apps/desktop/src/features/report/reportPackageRequest.test.ts
-- apps/desktop/src/services/reportPackageSaveService.test.ts
-- apps/desktop/src/features/workspace/reportPackageSave.session.test.tsx
-- apps/desktop/native-smoke/run.mjs
-- apps/desktop/src/features/report/exactReportLimitations.test.ts
-- core/product_physics/tests/exact_route_limitations.rs
-- core/reporting/report_package/src/admitted_tests.rs
-- core/reporting/report_package/src/forwarding_graph_scan.rs
-- apps/desktop/src-tauri/src/report_render_exact_tests.rs
+- core/reporting/report_package/tests/current_result_package.rs
 - core/reporting/report_package/tests/exact_sections_parity.rs
 - core/reporting/report_package/tests/report_rows_parity.rs
-- core/reporting/report_package/tests/current_result_package.rs
-- apps/desktop/src/features/report/exactReportBelowGate.test.tsx
-- apps/desktop/src/features/report/reportResultRows.parity.test.ts
-- apps/desktop/src/services/previewService.test.ts
-- core/reporting/report_package/src/exact_package_witness_tests.rs
-- core/runner/headless/tests/del1005_package_witness.rs
-- tests/test_report_sections_provenance_records.py
-- apps/desktop/src/features/results/outputPolicy.test.ts
-- apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
-- apps/desktop/src-tauri/src/object_form_tests.rs
-- core/reporting/report_renderer/tests/object_form.rs
-- core/runner/headless/tests/object_form_cli.rs
-- core/reporting/report_package/tests/quantity_display_parity.rs
-- apps/desktop/src/features/report/reportQuantityDisplay.parity.test.ts
 - core/reporting/report_package/tests/report_diagnostics_parity.rs
-- apps/desktop/src/features/report/reportDiagnostics.parity.test.ts
-# W-18b slice (r2b): the derivation vectors' parity, the legacy-form and library-reference regressions.
+- core/reporting/report_package/tests/quantity_display_parity.rs
 - core/reporting/report_package/tests/user_release_derivation.rs
-- apps/desktop/src/features/report/userReleaseDerivation.parity.test.ts
-- apps/desktop/src-tauri/src/user_release_admission_tests.rs
-- apps/desktop/src/services/libraryRefSites.test.ts
-# W-18b slice (r2c): the producer, writer and reader (user_release_exact_route_refused's producer and reader
-# cases, the general entries' refusal, local_private_package_bytes_unchanged_by_user_release), route 010's
-# native admission, lease and refusal formatting, the render refusal, the reach scan, and the runner's refusal.
 - core/reporting/report_package/tests/user_release_package.rs
-- apps/desktop/src-tauri/src/user_release_save_tests.rs
-- apps/desktop/src-tauri/src/user_release_reach_scan.rs
-- apps/desktop/src-tauri/src/user_release_reach_scan_tests.rs
+- core/reporting/report_package/src/admitted_tests.rs
+- core/reporting/report_package/src/forwarding_graph_scan.rs
+- core/reporting/report_package/src/exact_package_witness_tests.rs
+- core/product_physics/tests/exact_route_limitations.rs
+- core/runner/headless/tests/del1005_package_witness.rs
+- core/runner/headless/tests/object_form_cli.rs
 - core/runner/headless/tests/user_release_runner_refused.rs
 - tests/test_headless_runner_contract.py
-# D-6 / RT-R5: both exact identities, fail-closed source binding and reader round trip.
-- apps/desktop/src/features/report/userReleaseExact.parity.test.ts
-- core/reporting/report_renderer/tests/composition.rs
-- apps/desktop/src/features/report/ReportComposer.test.tsx
+- tests/test_report_sections_provenance_records.py
+- apps/desktop/src-tauri/src/report_render_exact_tests.rs
+- apps/desktop/src-tauri/src/object_form_tests.rs
+- apps/desktop/src-tauri/src/user_release_admission_tests.rs
+- apps/desktop/src-tauri/src/user_release_save_tests.rs
+- apps/desktop/src-tauri/src/user_release_reach_scan_tests.rs
+- apps/desktop/src/features/report/renderedReport.test.tsx
+- apps/desktop/src/features/report/reportRedactionProjector.test.ts
+- apps/desktop/src/features/report/reportPackageRequest.test.ts
+- apps/desktop/src/features/report/reportResultRows.parity.test.ts
+- apps/desktop/src/features/report/reportQuantityDisplay.parity.test.ts
+- apps/desktop/src/features/report/reportDiagnostics.parity.test.ts
 - apps/desktop/src/features/report/reportComposition.parity.test.ts
 - apps/desktop/src/features/report/modelInputTables.parity.test.ts
-# W-18b desktop slice: the dialog, the route-010 cell and record, and the preparation pinned to the derivation vectors.
+- apps/desktop/src/features/report/ReportComposer.test.tsx
+- apps/desktop/src/features/report/exactReportLimitations.test.ts
+- apps/desktop/src/features/report/exactReportBelowGate.test.tsx
+- apps/desktop/src/features/report/userReleaseDerivation.parity.test.ts
+- apps/desktop/src/features/report/userReleaseExact.parity.test.ts
 - apps/desktop/src/features/report/UserReleaseDialog.test.tsx
 - apps/desktop/src/features/report/userReleasedReportPackageCell.test.ts
 - apps/desktop/src/features/report/userReleasedReportPackageSave.test.ts
+- apps/desktop/src/features/workspace/reportPackageSave.session.test.tsx
 - apps/desktop/src/features/workspace/userReleaseSave.session.test.tsx
+- apps/desktop/src/features/results/outputPolicy.test.ts
+- apps/desktop/src/features/results/loadReferenceOutputRefusal.test.tsx
+- apps/desktop/src/services/reportPackageSaveService.test.ts
+- apps/desktop/src/services/previewService.test.ts
+- apps/desktop/src/services/libraryRefSites.test.ts
+- apps/desktop/e2e/report-package-dist.spec.ts
+- apps/desktop/e2e/r2-smoke.spec.ts
+- apps/desktop/native-smoke/run.mjs

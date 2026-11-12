@@ -1,7 +1,7 @@
 {
  "document": "swbpipe.reference_system_references",
  "status": "candidate frozen references; derived and cross-checked by the author TASK, not yet independently refuted",
- "specification": "execution/PKG-09/DEL-09-01/Work/reference-system.md §9.2 (EQ-1, EQ-2)",
+ "specification": "DEL-09-01 (EQ-1, EQ-2)",
  "inputs": "fixtures/reference_system/reference_system.json: nodes, pipe_segments (sections), components; load_cases and the self-weight capture are not read",
  "units": {
   "force": "N",

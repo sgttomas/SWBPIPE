@@ -3,348 +3,215 @@ name: Product solve integration and nonlinear orchestration
 needs:
 - from: DEL-02-01
   condition: >-
-    DEL-04-07 decodes the model document that DEL-02-01's canonical schema (`schemas/model.schema.yaml`)
-    defines: model 0.9.0 only, pressure-free without `pressure_contract` and on the exact contract with it,
-    with the retired versions, 0.5.0, 0.6.0, 0.7.0 and 0.8.0 included, refused by name (PP `model_format.rs`). It needs that canonical shape,
-    including the exact-contract fields (section `corrosion_allowance`, `pressure_contract.shear_model`).
-    Primitive mathematics remains with its owners.
+    The model document has one current version whose schema defines every member the solve reads
+    (nodes, pipes, sections, materials, components, supports, loads, cases, combinations, model
+    settings and, for the exact route, the pressure contract with its regions and the section's
+    corrosion allowance and mill tolerance), each addressable record with a stable identifier and
+    each quantity with a unit.
   gating: true
-  evidence: core/product_physics/src/model_format.rs
 - from: DEL-02-02
   condition: >-
-    DEL-04-07 normalizes every authored quantity through DEL-02-02's unit catalog and dimension checks
-    (`core/units`) before solving and reports a conversion or dimension failure as a named diagnostic. It
-    defines no unit or conversion of its own.
+    The unit catalog converts every authored quantity to one consistent basis and reports a
+    conversion or dimension failure as a named finding. The solve defines no unit or conversion of
+    its own.
   gating: true
-  evidence: core/product_physics/Cargo.toml
 - from: DEL-02-03
   condition: >-
-    DEL-04-07's envelopes keep mechanics status separate from rule-check and professional-acceptance status
-    and publish no rule-pack acceptability, compliance or approval. It needs DEL-02-03's code-neutral
-    analysis boundary for that separation.
+    The analysis status vocabulary keeps mechanics status separate from rule-check outcomes and
+    human approval and has no automatic code-compliance state, so that a solve result can state a
+    mechanics status only.
   gating: true
-  evidence: execution/PKG-04/DEL-04-07/ScopeOfWork.md
-- from: DEL-03-08
-  condition: >-
-    DEL-04-07 owns its Rust section and mass adapter (CLM-003: `annulus_geometry.rs`,
-    `pressure_exact/source_geometry.rs` and the D-5 nominal and reduced bases). It needs DEL-03-08's
-    section-property and mass-property contracts as the reference that adapter is compared with (VER-003);
-    the product route mirrors DEL-03-08's calculator rather than calling it.
-  gating: true
-  evidence: execution/PKG-04/DEL-04-07/ScopeOfWork.md
-- from: DEL-04-01
-  condition: >-
-    DEL-04-07 assembles and solves through DEL-04-01's kernel: frame elements (Euler-Bernoulli, or per
-    document the Timoshenko `FrameSection` with `shear::annulus_energy_shear_factor`: on the exact route since
-    T4-U8, and on pressure-free straight members by `model_settings.shear_model` (DEL-05-03 Design
-    `pf-timoshenko.md`)), the
-    objective connector element, the curved-bend element (`curved_bend`), the load ledger, K1's sparse
-    representation and M03 gate, the in-repo sparse skyline solver (`sparse_direct`; sparse interactive by
-    default under DEC-053) and the dense scrutiny path. Frame assembly and linear solving remain DEL-04-01's
-    (DEL-04-01 CLM-030). The K-D5, nonlinear K-D5 and T4-U4a needs below state the certified interfaces.
-  gating: true
-  evidence: core/product_physics/Cargo.toml
-- from: DEL-04-02
-  condition: >-
-    DEL-04-07 maps straight pipe members to DEL-04-02's straight pipe element (`straight_pipe`): frame
-    elements from section properties, consistent uniform and partial-span load vectors (the exact Timoshenko
-    partial-span vector since T4-U8) and local element-force recovery. Element mechanics remain DEL-04-02's;
-    the K-D5 need below states the primitives K-D5 re-forms.
-  gating: true
-  evidence: core/product_physics/Cargo.toml
-- from: DEL-04-03
-  condition: >-
-    DEL-04-07 maps authored restraints and springs to DEL-04-03's linear support models (`linear_supports`)
-    and publishes their reactions. Consumed DEC-049 constant-effort device actions are restated from the
-    normalized consumption source on the declared positive global DOF in fallback and certified publication;
-    unconsumed records supply no default force. The support laws remain DEL-04-03's.
-  gating: true
-  evidence: core/product_physics/Cargo.toml
-- from: DEL-04-04
-  condition: >-
-    DEL-04-07's assembled nonlinear loop (`nonlinear_integration`, DEC-044) calls DEL-04-04's per-iteration
-    active-set classifier (`nonlinear_supports`) with each iterate's support facts. Classification and the
-    DEC-067 friction states remain DEL-04-04's; the loop applies the DEC-046 convergence controls and reports
-    nonconvergence.
-  gating: true
-  evidence: core/solver/nonlinear_integration/Cargo.toml
-- from: DEL-04-06
-  condition: >-
-    DEL-04-07 maps kernel, sparse-solver, support, load and nonconvergence failures to DEL-04-06's
-    code-neutral diagnostic records (`solver/diagnostics`), including the visible `NonConvergence` failure on
-    every non-converged exit.
-  gating: true
-  evidence: core/solver/nonlinear_integration/Cargo.toml
-- from: DEL-05-01
-  condition: >-
-    DEL-04-07 forms each case's applied loads from DEL-05-01's primitive load contracts (`primitive_loads`),
-    including thermal and fit eigenstrain and generated self-weight. The K-D5 need below states the
-    primitives K-D5 re-forms from them.
-  gating: true
-  evidence: core/product_physics/Cargo.toml
-- from: DEL-05-02
-  condition: >-
-    DEL-04-07 combines case results with DEL-05-02's load-case algebra
-    (`load_case_algebra`) and consumes its base-reader interpretation of ordinary
-    preview-physics-2 and pressure-2 results, including the T4-U4b section quantities
-    and their algebra-class marks (`combination_algebra`). Retained publication and
-    validation are supplied separately by DEL-04-08.
-  gating: true
-  evidence: core/product_physics/Cargo.toml
-- from: DEL-04-08
-  when: retained publication and validation
-  condition: >-
-    DEL-04-07 publishes selected cases through DEL-04-08's retained-source and W1
-    methods (`pressure-source-1`, `preview-physics-retained-1`, `physics-retained-1`).
-    Their reviewed receipts and tables, registered memory profile, admission gates
-    and retained Rust reader verdicts govern that publication and its fallback.
-    Since T4-U4b they also carry the straight-member section extremes and
-    transverse-shear maxima: `not_covered` rows through the W1 passthrough, and
-    `derived_not_qualified` rows in pressure-source-1 receipts (Work/u4b-u5b-implementation.md
-    §§4.1 and 4.3).
-  gating: true
-  evidence: core/product_physics/src/retained_product.rs
-- from: DEL-05-03
-  condition: >-
-    DEL-04-07 recovers member stresses with DEL-05-03's stress-recovery module (`stress_recovery`, including
-    the certified `elastic_extrema` maxima) and, on the exact route, publishes them on both D-5 section bases
-    as DEL-05-03 Design `section-bases-and-timoshenko.md` governs. The stress formulas and the basis rules
-    remain DEL-05-03's.
-  gating: true
-  evidence: core/product_physics/Cargo.toml
 - from: DEL-05-04
   condition: >-
-    DEL-04-07 publishes analysis status (mechanics, rule-check and professional-acceptance states and the
-    integrity standing) with DEL-05-04's status semantics and claims no acceptance.
+    The analysis status semantics define what the mechanics, rule-check and human-acceptance
+    statuses mean and that software never emits human acceptance, so that the status a solve
+    publishes has one meaning for every reader.
   gating: true
-  evidence: execution/PKG-04/DEL-04-07/ScopeOfWork.md
-- from: DEL-00-02
-  condition: >-
-    DEL-04-07 keeps product composition in `core/product_physics` and `core/solver/nonlinear_integration`,
-    which depend inward on the primitive crates without taking over their mathematics (DEL-00-02's module
-    boundaries, AB-00-02). Architecture consistency input; no PKG-00 lifecycle promotion.
-  gating: true
-  evidence: execution/PKG-04/DEL-04-07/ScopeOfWork.md
-- from: DEL-00-03
-  condition: >-
-    DEL-04-07's public solve entries (`run_linear_static_preview_with_mode` and the captured value entry)
-    serve DEL-00-03's command, query and job model: the desktop's solve job and the headless runner call
-    them. Route parity is not numerical validation. Architecture consistency input; no PKG-00 lifecycle
-    promotion.
-  gating: true
-  evidence: execution/PKG-04/DEL-04-07/ScopeOfWork.md
 - from: DEL-00-06
   condition: >-
-    DEL-04-07's mechanics envelope (diagnostics with code, severity, message, source and affected
-    references; status; professional boundary) follows DEL-00-06's diagnostics, warning and result-envelope
-    contract through to the result handoff (CLM-004). Architecture consistency input; no PKG-00 lifecycle
-    promotion.
+    The diagnostic and result-envelope contract fixes the fields of each diagnostic a solve
+    publishes (code, class, severity, source, affected object, message, remediation and
+    provenance) and requires a solve's envelope to state its outcome kind, a mechanics result
+    apart from invalid input and an incomplete model.
   gating: true
-  evidence: execution/PKG-04/DEL-04-07/ScopeOfWork.md
-- from: DEL-00-08
+- from: DEL-03-08
+  when: Comparing the section and mass adapter with the calculator (AC-003)
   condition: >-
-    DEL-04-07 is verified as DEL-00-08's layered strategy sets out: primitive contracts in their own crates,
-    and product routes through the public entries in both solver modes (VER-001 to VER-004). Architecture
-    consistency input; no PKG-00 lifecycle promotion.
-  gating: true
-  evidence: execution/PKG-04/DEL-04-07/ScopeOfWork.md
-- from: DEL-03-06
-  condition: >-
-    DEL-04-07 composes expansion joints authored as objective connectors. It needs DEL-03-06's connector
-    definition (DEL-03-06 Design `joint-replacement.md`): `objective_connector` 1.0.0 with `replaces_span`,
-    the authored 6x6 work matrix, frame, offsets, q_ref, `hardware` and `pressure_model`, and the legacy and
-    annotation refusals of D-4. The joint pressure thrust is DEL-04-07's (Work/joint-pressure-thrust.md), as
-    are the field specification and publication of the T4-U5b tie-rod hardware `explicit_axial_rods_v1`
-    (Work/u4b-u5b-implementation.md §3).
-  gating: true
-  evidence: execution/PKG-03/DEL-03-06/Work/joint-replacement.md
-- from: DEL-04-01
-  when: K-D5 member-relative bound (option (d)) implementation
-  condition: 'DEL-04-07 attaches the load primitives of K-D5''s load closure (DEL-04-01 Work/kd5-member-relative-bound.md
-    sections 1 to 3). DEL-04-01 supplies the LoadPrimitive type and FormationSource::loads, with many primitives
-    per ledger term; the closure rule, which fails closed on a formed term its primitives do not cover and
-    on a solve without a ledger; epsilon_E by the triangle bound; the two corrections and MemberBoundInputs;
-    and the certified recovery of straight members, arcs, connectors and supports. DEL-04-07 forms its own
-    terms'' primitives per section 1 (arc and pressure free strain, the exact-pressure operand groups including
-    the straight Poisson pairs, connector and tie-rod reference loads and their W2 forms), publishes certified rows only
-    when MemberBoundInputs are present, and fails every other Passed route closed with a named reason.'
+    The section and mass calculator gives, from explicit outside diameter, wall, mill tolerance,
+    corrosion allowance and densities, the metal area, second moments, torsion constant and mass per
+    length with their units, as the values the product's adapter is compared with.
   gating: true
 - from: DEL-04-01
-  when: K-D5 on the converged active set (nonlinear K-D5) implementation
-  condition: 'DEL-04-07 confirms a converged non-gap nonlinear state once, after the loop (DEL-04-01 Work/kd5-nonlinear-active-set.md
-    sections 1 to 3). DEL-04-01 supplies the sliding-friction load primitives (SlidingFrictionExplicit, the
-    exact product; SlidingFrictionCoupled, the Stage-A ball) with their closure, AssembledForce::with_appended,
-    the confirmation attempt (finish_confirmation and ConfirmationAttempt::evaluate_at, K-D5 at a supplied
-    displacement on the attempt''s one factor), the displacement ball and the exact sign and stick decisions.
-    DEL-04-07 publishes the confirmed state''s certified rows, including the nonlinear support slots, and fails
-    every other nonlinear Passed case closed with the named section 2.4 reason.'
+  condition: >-
+    The frame kernel assembles and solves a frame of straight, curved-bend, connector and tie-rod
+    elements in the sparse and dense modes, applies restrained and prescribed degrees of freedom and
+    restraints along a direction, and recovers element end actions in local and global coordinates,
+    with an arc's end actions in the tangent frame at each end.
   gating: true
-- from: DEL-05-01
-  when: K-D5 member-relative bound (option (d)) implementation
-  condition: 'K-D5 re-forms every formed load term at p = 128 from its binary64 primitives and uses no
-    ledger value of a formed term (DEL-04-01 Work/kd5-member-relative-bound.md section 1). DEL-05-01 supplies,
-    with each term it forms, the primitives and formula K-D5 can re-form at p: the resolved total eigenstrain
-    of the load state (thermal alpha Delta T plus fit and cold-spring strain), formed once and shared by
-    the straight, arc and pressure primitives; and generated self-weight as its authored densities, diameters,
-    thicknesses and g, so that its intensity is re-formed at p and needs no operand bound. A formed term
-    without them makes the formation check unavailable.'
+- from: DEL-04-01
+  when: Publishing a result as established
+  condition: >-
+    The frame kernel judges each solve against its intended system. For every load term the solve
+    supplies as primitives it re-forms the term, and it gives the established recovery of straight
+    members, arcs, connectors, tie rods and supports, including once on the converged state of a
+    nonlinear case; a formed term without primitives makes the check unavailable. It defines which
+    recovery a published row and the stresses and maxima derived from it come from: the recovery
+    retained at the check's precision where the check passes, and the fallback recovery from the
+    published binary64 rows otherwise (DEL-04-01/REQ-015).
   gating: true
+- from: DEL-04-01
+  when: Publishing the normal-stress maximum along a realized arc
+  condition: >-
+    The frame kernel encloses the maximum of the normal stress along a realized arc from the
+    published end actions, the arc's loads and its section, and refuses by name when its search
+    limits are reached.
+  gating: true
+- from: DEL-04-01
+  when: Asserting the bound between exact-route twins and their pressure-free nonlinear controls
+  condition: >-
+    Every structural solve returns only when each free row's residual in the original equations
+    meets 64·γ(n) of its row denominator, in the sparse and dense modes, so that the derived bound
+    on the twins' differences holds for whatever kernel satisfies it.
+  gating: false
 - from: DEL-04-02
-  when: K-D5 member-relative bound (option (d)) implementation
-  condition: 'K-D5 re-forms every formed load term at p = 128 (DEL-04-01 Work/kd5-member-relative-bound.md
-    section 1). DEL-04-02 supplies, for the straight member''s formed terms, the primitives and formula K-D5
-    can re-form at p: the consistent uniform-load vector (wL/2, wL^2/12 in the chord frame) and the free-strain
-    eigen pair (E A epsilon along the chord). The same definitions, with the equivalent terms and free-strain
-    axial load that exact_straight_end_forces removes, serve the certified straight recovery at the corrected
-    displacement.'
-  gating: true
-- from: DEL-05-05
-  when: K-D5 member-relative bound (option (d)) implementation
-  condition: 'K-D5 re-forms every formed load term at p = 128 (DEL-04-01 Work/kd5-member-relative-bound.md
-    section 1). DEL-05-05 applies the distributed loads and owns the application of R-1''s certified arc
-    loads (DEL-04-01''s certify_curved_uniform_load). For each uniform element load on a straight member
-    or a realized arc it supplies the primitives and formula K-D5 can re-form at p, and for arcs R-1''s midpoint-radius
-    enclosure, linear in w and applied to each term of w''s exact split, with its radius carried. A failed
-    R-1 precondition makes the formation check unavailable.'
-  gating: true
-- from: DEL-04-01
-  when: T4-U4a arc frames and signs implementation
-  condition: 'DEL-04-07 publishes the end rows of a realized arc in the tangent frame at each end, node-on-element
-    (Work/arc-frames-and-signs.md). DEL-04-01 supplies them from certify_arc_recovery as certified rows
-    of K_int,arc: the end operator and equivalent loads are formed with the end-tangent axes at p in ball
-    arithmetic (s = L/(2R), c = sqrt(1 - s^2); t_i = c x_c + s y_c, y_i = s x_c - c y_c, t_j = c x_c - s y_c,
-    y_j = -s x_c - c y_c, z = -z_c; formed as PressureDirection::Tangent forms its tangent), never from binary64
-    end tangents and never by rotating rounded rows, with the cut rows unchanged. Since B7a''s C5 stage both
-    routes use this tangent frame, so no end-frame parameter remains. The same law serves the nonlinear
-    certified route. CB supplies its binary64 arc frame at each end for the binary64 recovery.'
-  gating: true
-- from: DEL-05-02
-  when: preview arc end rows (T4-U4a stage 2)
   condition: >-
-    DEL-04-07 publishes preview-physics-2 arc end rows in the tangent frame at
-    each end, node-on-element (Work/arc-frames-and-signs.md sections 2 to 5).
-    Their ordinary sentence and vocabulary come from DEL-05-02's base semantic
-    table and reader; LIMITATIONS[3], as T4-U4b revised it (Work/u4b-u5b-implementation.md
-    §2.8), and `results.v0.3` keep the section 8 end-row contract, with
-    `arc_chord_frame` retired.
+    The straight pipe element gives, for a member's section, its stiffness, the equivalent nodal
+    loads of uniform, partial-span and point member loads and of free strain (wL/2 and wL^2/12 for a
+    full-span uniform load, E A eps along the chord for free strain), and the recovery of end and
+    station resultants that removes them again.
   gating: true
-  evidence: execution/PKG-04/DEL-04-08/Work/b7-plan.md
-- from: DEL-04-08
-  when: retained-table arc-vocabulary parity and reviewed-input binding
-  condition: >-
-    DEL-04-07's ordinary arc vocabulary and limitation sentence are also bound
-    into DEL-04-08's preview-physics-retained-1 table for vocabulary parity; the
-    retained route publishes no arc rows. A change to the bound sentence or table
-    requires the method's reviewed-input refresh and actual-source D3 registration.
-  gating: true
-  evidence: execution/PKG-04/DEL-04-08/Work/b7-plan.md
-- from: DEL-04-01
-  when: T4-U5b explicit elastic tie rods
-  condition: >-
-    DEL-04-07 publishes the tie rods of an objective connector (`explicit_axial_rods_v1`; Work/u4b-u5b-implementation.md
-    §3). DEL-04-01 supplies each rod as its own two-node element carried on its connector
-    (`tie_rod`, `ObjectiveConnector::with_tie_rods`): Ke = C^T k_r C and the reference load +C^T k_r e_ref,
-    each rounded once, with the zero-length and range refusals; assembly, census, epsilon_E and reaction
-    passes that walk the rods after every connector and before the arcs; the per-element absorption rule;
-    the K-D5 family `LoadFormula::TieRodReference` with its summand identity and closure on the ordinary
-    and W2 routes; and `certify_tie_rod_recovery`, which gives T_r, the rod direction and its axial share
-    as certified values of the corrected displacement. DEL-04-07 forms the rod inputs, publishes
-    `connector_tie_rod_force_v1` and s_x, and never folds a rod force into the connector's g.
-  gating: true
-  evidence: core/solver/frame_kernel/src/tie_rod.rs
-- from: DEL-04-01
-  when: T4-U4b arc normal-stress maximum
-  condition: >-
-    DEL-04-07 publishes the maximum of |N_eff|/A_b + hypot(M_y, M_z)/Z_b along each realized arc, and the
-    along-arc directional intensified maximum, as the midpoint of a certified enclosure (Work/u4b-u5b-implementation.md
-    §§2.3 and 2.6). DEL-04-01 supplies `frame_kernel::structural::certify_arc_stress_maximum` with its
-    enclosed sine and cosine: directed bounds on the published binary64 operands, the existing
-    `elastic_extrema` gap rule and subdivision limits, the station cover and the location rule, refusing
-    by name when a limit is reached. DEL-04-07 supplies the operands (the published end-j force rows, the
-    arc's uniform intensities, R, phi, the basis section and p·A_i) and the evidence record.
-  gating: true
-  evidence: core/solver/frame_kernel/src/structural/arc_maximum.rs
-- from: DEL-04-01
-  when: T4-U4b retained not-covered passthrough
-  condition: >-
-    DEL-04-07's retained producer places the straight-member section extremes and transverse-shear maxima
-    of W1 successors as recipe-free rows (Work/u4b-u5b-implementation.md §4.1). DEL-04-01 supplies the
-    retained final case's `ProductRecipe::NotCovered { row }`: it carries the row's position only,
-    contributes to no verified class's body scale, maximum or coverage, and takes the class-None verdict
-    that the wire lists as `not_covered`.
-  gating: true
-  evidence: core/solver/frame_kernel/src/structural/retained/product_certificate/final_case.rs
-- from: DEL-05-03
-  when: T4-U4b section quantities
-  condition: >-
-    DEL-04-07 publishes the T4-U4b section quantities on both ordinary routes and forms the derived rows
-    of retained and source publications from each publication's own rows (Work/u4b-u5b-implementation.md
-    §§2.3 to 2.6 and 4.1). DEL-05-03 supplies them in `stress_recovery::section_stress_quantities` as
-    normative binary64 sequences: the signed normal-stress extremes and their fibre rule, the Saint-Venant
-    transverse-shear factor and maximum, the toroidal membrane hoop and radial values guarded by R > r_o,
-    and the directional intensified bending. The readers recompute the published values bit for bit by
-    the same sequences.
-  gating: true
-  evidence: core/loads/stress_recovery/src/section_stress_quantities.rs
-- from: DEL-09-01
-  condition: >-
-    The RT-A3 reducer 2b full-system connecting-path check needs DEL-09-01's maintained
-    fixtures/reference_system/reference_system.json and independent weight record
-    validation/references/reference_system/references.json. The check overlays RS-R1 only
-    in its test input and regenerates its weight with the public producer; consuming these
-    verification inputs neither adopts RS-R1 into the fixture nor establishes a global
-    displacement/reaction reference or acceptance.
-  gating: true
-  when: Running the RT-A3 reducer 2b full-reference-system connecting-path check.
-  evidence: core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs
-- from: DEL-09-01
-  condition: >-
-    The RT-A3 S6 full-system connecting-path check (Work/route-unification-r4.md §3.7) needs
-    DEL-09-01's maintained fixtures/reference_system/reference_system.json and independent weight
-    record validation/references/reference_system/references.json. It overlays only in its test
-    input the released RS-R1, RS-CE1, RS-LO1, RS-FR1 (normal from the interim linear RS-FR1V) and
-    RS-G1 of Work/reference-system.md §5-§6, regenerates the weight with the public producer, and
-    shows the intended RS-FR1V one_way normal source refused until S7. Consuming these inputs adopts
-    no overlay, pending flag or weight record and establishes no global displacement/reaction
-    reference, nonlinear-state (KR-04) verification or acceptance.
-  gating: true
-  when: Running the RT-A3 S6 full-reference-system connecting-path check.
-  evidence: core/product_physics/tests/rt_a3_s6_reference_system.rs
-- from: DEL-04-01
-  condition: >-
-    The RT-A3 increment 4 K-1 bound (Work/k1-twin-bound.md, option (a)) rests on two DEL-04-01
-    sources. First, every structural solve returns only when each free row's original-equation
-    residual meets 64*gamma(n) of its row denominator (frame_kernel structural finish_structural
-    over evaluate_original_residual; on the pattern since RT-A3 P, finish_sparse_structural and
-    finish_sparse_structural_on through the same completion and binary64 residual). Second, the independent kd5 reference formation
-    (validation/references/kd5_nonlinear/reference.py and its oracles' normalized sections). A
-    change to either re-runs tools/validation/k1_twin_bound.py before the bound's constants are asserted again.
-    Its iterate-delta part also rests on this deliverable's loop rules (nonlinear_integration: the
-    authored seeds, no friction force on the first iterate, the deferred first iterate, and the slip
-    direction and normal branch taken from the previous iterate; since RT-A5 S2 the seeds, their
-    all-active recovery, the deferral flag and the step stay in solve_active_set_loop, and the
-    classification, the converged predicate and the finish condition sit in its shared tail
-    complete_iteration) and on the published iteration counts. The script encodes those rules
-    rather than reading them, and equal counts do not detect every rule change, so a change to those
-    rules requires re-checking the source trace and revising the derivation and script before
-    re-running it and the corpus.
-  gating: true
-  when: Asserting the amended K-1 bound on the kd5 twin corpus.
-  evidence: core/product_physics/tests/rt_a3_nonlinear_k1_twins.rs
 - from: DEL-04-03
   condition: >-
-    R-4 S6 (Work/route-unification-r4.md §3.7) carries W-16 stage 2's motion laws (DEL-04-03
-    Work/pf-nonlinear-imposed-motion.md R-a, R-b, R-c, R-d) onto the exact route's resolved
-    load/reference-state cases: `case_state::resolve` routes each `boundary_motion` and `base_motion`
-    entry with that design's per-DOF classifier (`imposed_motion::acting`), and the loop, its K-D5
-    confirmation and the ledger consume the resolved maps unchanged. A change to those laws or that
-    classifier re-runs validation/references/rt_a3_s6 and its consumer.
+    The linear support model gives, for each support record, its restrained degrees of freedom,
+    spring terms, prescribed values and constant-effort force, and classifies each imposed
+    displacement as a prescribed value, a moved spring base or a moved nonlinear-support ground.
   gating: true
-  when: Asserting the S6 load/reference-state motion references (LS-1).
-  evidence: core/product_physics/src/rt_a3_s6_tests.rs
+- from: DEL-04-04
+  when: Solving a case with nonlinear supports
+  condition: >-
+    The nonlinear support classifier returns, from an iterate's displacements and reactions, each
+    support's state, the supports that changed and a convergence verdict, under the state-switched
+    test and the bounded friction law.
+  gating: true
+- from: DEL-04-04
+  when: Confirming a converged nonlinear state
+  condition: >-
+    The state law states, for each nonlinear support kind and state, the quantity that decides the
+    state and the side it must lie on strictly, and that a weakly active support, a deciding
+    quantity that cannot be established on its side, or a case on which no confirmation runs leaves
+    the state unconfirmed (DEL-04-04/REQ-013).
+  gating: false
+- from: DEL-04-06
+  condition: >-
+    The diagnostic records map kernel, support, load and non-convergence failures to named records
+    with code, class, severity, source and affected reference, including a non-convergence failure
+    for an iteration that ends at its cap, and classify a condition estimate against a warning and
+    a failure level into an ill-conditioning warning or a blocking conditioning failure.
+  gating: true
+- from: DEL-05-01
+  when: Forming a load case's loads
+  condition: >-
+    The primitive load contracts define each load a case applies, including thermal and fit free
+    strain and generated self-weight, with the primitives from which each formed term can be re-
+    formed (the resolved free strain of the load state; the densities, diameters, thicknesses and
+    gravity behind self-weight).
+  gating: true
+- from: DEL-05-01
+  when: Solving a case that holds supports
+  condition: >-
+    A load case's test condition states whether its supports are held, and a held support is
+    defined: each spring, variable spring and constant-effort support replaced on the degrees of
+    freedom it acts on by a rigid restraint at zero displacement from the authored geometry, with
+    neither its stiffness nor its force acting and its reaction published under its own identity.
+  gating: false
+- from: DEL-04-10
+  when: Solving a model that contains a snubber
+  condition: >-
+    A snubber is a restraint in dynamic analysis only: every static load-case solve on both routes
+    leaves it out and discloses it as a dynamic-only restraint not active in static cases
+    (DEL-04-10/REQ-005).
+  gating: false
+- from: DEL-05-05
+  when: Applying a distributed user load
+  condition: >-
+    The distributed user-load contract defines a uniform load on a straight member or a realized
+    arc, its application to the member, and the primitives from which the formed term can be re-
+    formed.
+  gating: true
+- from: DEL-05-02
+  when: Publishing combinations and each row's ordinary sentence and standing
+  condition: >-
+    The load-case algebra combines solved case results under its combination rules and withholding
+    gates, and its base reader gives the ordinary sentence, vocabulary and standing of each
+    published row.
+  gating: true
+- from: DEL-05-03
+  when: Publishing stress rows, member maxima and headlines
+  condition: >-
+    The stress recovery defines member stresses as functions of a member's end and station actions
+    and its section, and section quantities as fixed binary64 sequences over the published rows,
+    defines the nominal and reduced section bases on which exact-route stresses are published, and
+    defines the Timoshenko shear factor and the rule for which members a model selects as
+    Timoshenko.
+  gating: true
+- from: DEL-03-06
+  when: Solving a model that contains an expansion joint
+  condition: >-
+    An expansion joint is authored as an objective connector that replaces a span, with its work
+    matrix, frame, offsets, reference state, hardware and pressure model, and with explicit elastic
+    tie rods as its hardware where the user enters them.
+  gating: true
+- from: DEL-04-08
+  when: Publishing retained-precision or retained-source results
+  condition: >-
+    The retained-precision method admits or declines each case under its own fixed limits and memory
+    profile, publishes a verified result or returns the ordinary result unchanged, and lists a row
+    it does not cover as not covered.
+  gating: true
+- from: DEL-09-01
+  when: Solving the reference system
+  condition: >-
+    The invented reference system is maintained as a model document with an independent record of
+    its weights, containing the families of exit criterion 1.
+  gating: true
+- from: DEL-09-01
+  when: Examining the solve entries against the frozen benchmark packages
+  condition: >-
+    The mechanics benchmark suite holds `validation/references/w9_benchmarks` and the other
+    benchmark packages of PRD §22.2, each expected value with a derivation that imports, reads and
+    runs no product code and a provenance record (DEL-09-01 AC-005).
+  gating: true
+- from: DEL-09-03
+  when: Judging convergence of the nonlinear iteration
+  condition: >-
+    The nonlinear validation suite holds the governed convergence limits of each support class: no
+    support changes state in the final iteration, within the iteration cap, and a case may tighten
+    a limit and never loosen one (DEL-09-03 REQ-007, AC-004).
+  gating: false
+- from: DEL-07-07
+  when: Running a solve in the desktop
+  condition: >-
+    The desktop solve job runs each ordinary solve through the product solve entry in a local worker
+    process capped at its lease from the shared pool, within the per-invocation budget
+    (DEL-07-07/REQ-012), so that a solve cannot exceed its budget and a completed solve's peak
+    physical footprint can be observed against it.
+  gating: false
 code_paths:
-# The product solve crate, including the retained method's producer whose contracts
-# DEL-04-08's Designs and DEL-05-02's retained-combinations contract govern.
+# The product solve crate and the nonlinear iteration. Within core/product_physics/, modules that
+# carry another deliverable's definition are listed by that deliverable too: the retained producer
+# (DEL-04-08), modal (DEL-04-09), topology and model checks (DEL-04-06), imposed motion, skew and
+# the constant-effort and variable-spring support law (DEL-04-03), self-weight and loads (DEL-05-01, DEL-05-05), combinations (DEL-05-02), pressure
+# geometry and section bases (DEL-03-08, DEL-05-03) and components (DEL-03-03 to DEL-03-06); this
+# deliverable owns their composition. Within the shared modules, this deliverable's section and
+# mass adapter is the mass-per-length computation in self_weight.rs (the plan, component weight and
+# generation evidence there are DEL-05-01's), annulus_geometry.rs, and the annulus area and
+# section-property computation in pressure_exact.rs and pressure_exact/source_geometry.rs, where the
+# cap, Poisson-eigenload and pressure-group load pairs are also this deliverable's (the section-basis
+# derivation and the pressure stresses there are DEL-05-03's). core/product_physics/tests/
+# w9_solver_benchmarks.rs and w16_imposed_motion.rs fall under the crate glob and are DEL-09-01's
+# benchmark runs. In apps/desktop/src-tauri/, the memory pool, its leases and
+# the priced parses are this deliverable's (REQ-008); the solve job's lifecycle in the same files
+# is DEL-07-07's.
 - core/product_physics/**
 - core/solver/nonlinear_integration/**
 - core/model_operations/operation_applier/src/pressure_authoring.rs
@@ -379,24 +246,16 @@ code_paths:
 - apps/desktop/src-tauri/src/ingress.rs
 - apps/desktop/src-tauri/src/command_ingress.rs
 - apps/desktop/src/test-support/demoReportPackageRequest.ts
-# W-11 slice (b): the solve job's custody digests and the exact-route source binding's priced parses.
 - apps/desktop/src-tauri/src/solve_jobs.rs
 - apps/desktop/src-tauri/src/exact_source_binding.rs
-# W-18b slice (r2a): the solve worker's attestation, its ATST frame and the registry's attestation table.
 - apps/desktop/src-tauri/src/solve_attestation.rs
-# RT-U4: d_S computed from the result text without the parse-back (same digest).
 - apps/desktop/src-tauri/src/result_text_digest.rs
 - apps/desktop/src-tauri/src/solve_worker.rs
 - apps/desktop/src-tauri/src/worker_alloc.rs
-# C1 slice 1 (DEL-04-05 c1-native-custody-plan.md): a held result's shared lease and the native verdict's priced parse.
 - apps/desktop/src-tauri/src/native_verdict.rs
-# C1 slice 2: the summary's parse and response leases (result_summary.rs module docs).
 - apps/desktop/src-tauri/src/result_summary.rs
-# C1 slice 3: the detail index's lease, held with the result, and each detail query's working and response leases (result_detail.rs module docs).
 - apps/desktop/src-tauri/src/result_detail.rs
-# The temperature identity's canonical-decimal corpus writer (pressure-contract.md).
 - tools/fixtures/temperature_canonical_decimal_corpus.py
-# The K-1 bound's independent exact-rational derivation (Work/k1-twin-bound.md).
 - tools/validation/k1_twin_bound.py
 - validation/platform/windows_runner_startup_probe/**
 - validation/platform/windows_arena_probe/**
@@ -447,7 +306,6 @@ checks:
 - apps/desktop/src-tauri/src/native_verdict_tests.rs
 - apps/desktop/src-tauri/src/result_summary_tests.rs
 - apps/desktop/src-tauri/src/result_detail_tests.rs
-# The exact temperature identity: tie regressions, domain refusal and the repr corpus.
 - core/product_physics/src/case_state/temperature.rs
 - core/product_physics/src/case_state/temperature/canonical_decimal.rs
 - core/product_physics/tests/load_reference_state_runtime_extension.rs

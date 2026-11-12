@@ -1,6 +1,56 @@
 id: DEL-00-08
 name: Layered software test and acceptance strategy
-needs: []
-code_paths:
-- tools/release/run_evidence_sweep.py
-- tests/test_evidence_sweep.py
+needs:
+- from: DEL-00-01
+  when: Running the architecture layer's checks (AC-004)
+  condition: >-
+    The executable check that its scope names for the decision index exists: it observes the
+    record directory against the index (identifiers, titles, statuses, files).
+  gating: true
+- from: DEL-00-02
+  when: Running the architecture layer's checks (AC-004)
+  condition: >-
+    The executable check that its scope names for the dependency direction exists: it fails when a
+    change adds a dependency against the inward direction or a module the layer map does not
+    place.
+  gating: true
+- from: DEL-00-03
+  when: Running the architecture layer's checks (AC-004)
+  condition: >-
+    The executable checks that its scope names for the request kinds exist: they observe each
+    entry point's declared kind, and the envelope and unchanged model and store after a forced
+    failure.
+  gating: true
+- from: DEL-00-04
+  when: Running the architecture layer's checks (AC-004)
+  condition: >-
+    The executable checks that its scope names for the persistence rules exist: they observe save
+    determinism and the round trip, the named refusal of a document whose version is not current,
+    and recorded hashes against SHA-256 over the RFC 8785 canonical form.
+  gating: true
+- from: DEL-00-05
+  when: Running the architecture layer's checks (AC-004)
+  condition: >-
+    The executable checks that its scope names for the GUI state rule exist: they observe the
+    model's canonical hash across transient changes and undo and redo, and that model changes come
+    through applied operations.
+  gating: true
+- from: DEL-00-06
+  when: Running the architecture layer's checks (AC-004)
+  condition: >-
+    The executable checks that its scope names for the diagnostic and envelope contract exist: they
+    validate emitted diagnostics and envelopes against their boundary's schema, and compare a
+    diagnostic carried across a boundary with the original.
+  gating: true
+- from: DEL-00-07
+  when: Running the architecture layer's checks (AC-004)
+  condition: >-
+    The executable checks that its scope names for the adapter and plugin rule exist: they observe
+    that an adapter stops data that fails a boundary check with a named diagnostic, and that a
+    plugin or adapter declaration that requests a bypass is refused.
+  gating: true
+# This deliverable's own files are the strategy document under docs/architecture/ and the checks
+# that examine the check registry, the reference fixtures and the coverage configuration. The
+# release-candidate sweep and its test (tools/release/run_evidence_sweep.py,
+# tests/test_evidence_sweep.py) are DEL-09-05's, and CI is DEL-10-04's.
+code_paths: []

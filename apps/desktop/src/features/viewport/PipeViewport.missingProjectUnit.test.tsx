@@ -1,4 +1,4 @@
-// W-17 (DEL-02-02 Design `project-unit-selection.md` §3) in the viewport's
+// W-17 in the viewport's
 // creation forms: a unit whose project key is absent starts unselected, the
 // form names the key with the property inspector's notice
 // (`features/project-units/missingProjectUnit.ts`) and nothing is queued. With

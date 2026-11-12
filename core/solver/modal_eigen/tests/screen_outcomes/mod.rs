@@ -1,5 +1,5 @@
 //! Test-only diagnostic counts of the dense modal kernel's screen (A3 item
-//! K2, design §5.3.7): per solve, how many screened pairs were hard-cut,
+//! K2): per solve, how many screened pairs were hard-cut,
 //! attempted in the band, rejected (by their first failing condition) and
 //! retained.
 //!

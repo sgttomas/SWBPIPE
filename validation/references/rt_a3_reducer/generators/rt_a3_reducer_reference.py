@@ -11,16 +11,16 @@ scrutiny are separate checks; no acceptance or release is asserted.
 Independence. Standard library only (fractions, decimal, json). It imports,
 reads and runs no product code or product output. Governing text was read only
 to fix the declared model:
-  - R-4 (execution/PKG-04/DEL-04-07/Work/route-unification-r4.md) §00 C-3, C-4;
-    §2.1 (constitutive law E*A*eps = N_w - 2*nu*p*A_i, caps); §3.1 (junction
-    resultant -sum p*A_i,k*s_k; corrected T-3 free-capped-end meaning; ALLHELD is a separate contrast);
-  - pressure-contract.md "Tees and pressure junctions" (D-1 implicit junction;
+  - R-4 (DEL-04-07) C-3, C-4;
+    constitutive law E*A*eps = N_w - 2*nu*p*A_i, caps; junction
+    resultant -sum p*A_i,k*s_k; corrected T-3 free-capped-end meaning; ALLHELD is a separate contrast;
+  - DEL-04-07 "Tees and pressure junctions" (D-1 implicit junction;
     unequal pressures admitted as a closure with a warning);
-  - DEL-03-05 rigid-component-stiffness-scaling.md §2.1 (scale s multiplies the
+  - DEL-03-05 (scale s multiplies the
     member stiffness; the Poisson pair 2*nu*p*A_i has no E and is unchanged;
-    N_w = N_m + 2*nu*p*A_i unchanged), §2.4 and §2.7 (equivalent pipe of the
+    N_w = N_m + 2*nu*p*A_i unchanged; equivalent pipe of the
     mapped section; rows are reference-section rows, not body stresses);
-  - DEL-05-03 section-bases-and-timoshenko.md §1 and §2.1 (D-5: nominal wall
+  - DEL-05-03 (D-5: nominal wall
     for stiffness and A_s; pressure bore r_i,r for caps and the Poisson pair;
     sigma_m = N_w/A_b per basis; Lame rows of each basis's own annulus).
 No value is taken from any product output, frozen product reference, standard,
@@ -616,11 +616,11 @@ def build_reference():
         "status": "frozen analytical candidate; product agreement and independent scrutiny recorded separately",
         "source_revision_read": SOURCE_REVISION,
         "governing_sources": [
-            "execution/PKG-04/DEL-04-07/Work/route-unification-r4.md §00 C-3, C-4; §2.1; §3.1",
-            "execution/PKG-04/DEL-04-07/Work/pressure-contract.md 'Tees and pressure junctions' (D-1)",
-            "execution/PKG-03/DEL-03-05/Work/rigid-component-stiffness-scaling.md §2.1, §2.4, §2.7",
-            "execution/PKG-03/DEL-03-05/Work/eccentric-reducer-offset.md §2, §3.2 (absent vs zero offset; end sizes descriptive)",
-            "execution/PKG-05/DEL-05-03/Work/section-bases-and-timoshenko.md §1, §2.1 (D-5)",
+            "DEL-04-07 (R-4: C-3, C-4)",
+            "DEL-04-07 'Tees and pressure junctions' (D-1)",
+            "DEL-03-05",
+            "DEL-03-05 (absent vs zero offset; end sizes descriptive)",
+            "DEL-05-03 (D-5)",
         ],
         "independence": "standard library only; no product code, product output or frozen product reference is imported, read or run; all data invented",
         "model": {

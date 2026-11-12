@@ -23,7 +23,7 @@ export const CSV_PREAMBLE_KEYS = [
 ] as const;
 
 /** A two-sided table's keys in place of `model_hash`, `result_hash` and `analysis_route`, in
- * file order. `a` and `b` follow the view's own sides (Design `csv-export.md` §3). */
+ * file order. `a` and `b` follow the view's own sides. */
 export const CSV_PAIR_PROVENANCE_KEYS = [
   "model_hash_a",
   "model_hash_b",

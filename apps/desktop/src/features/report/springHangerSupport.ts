@@ -1,7 +1,7 @@
 /** Which supports the report treats as spring hangers or constant-effort supports: the rule the
  * report's spring hanger evidence, review rows, provenance and summary use (`ReportPanel.tsx`,
  * `renderableReportInput.ts`), kept here so other surfaces apply the same rule. A8's "Hangers"
- * filter uses it (DEL-07-05 Design `displacement-extremes.md` §2.1).
+ * filter uses it.
  *
  * The rule is the solver's (`core/product_physics/src/lib.rs`): `support_hanger_type` reads the
  * trimmed `hanger.hanger_type` when it is non-empty, otherwise the trimmed `family`; a support

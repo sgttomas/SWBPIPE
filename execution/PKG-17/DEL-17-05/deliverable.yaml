@@ -1,133 +1,67 @@
 id: DEL-17-05
 name: CAEPIPE external run harness and CSV parser
 needs:
-- from: DEL-00-01
-  condition: 'DEL-17-05 must apply AB-00-01 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Decision baseline for architecture choices and unresolved rulings.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-17-05 must apply AB-00-02 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Repository/module boundaries and inward dependency direction.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-17-05 must apply AB-00-03 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Schema-first command/query/job result envelope constraints.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-17-05 must apply AB-00-04 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    JSON Schema 2020-12 and canonical JSON/JCS-compatible hash basis.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-17-05 must apply AB-00-06 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Diagnostics, warnings, blockers, and result-envelope obligations.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-17-05 must apply AB-00-07 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    No-bypass API/plugin/adapter validation and boundary controls.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-17-05 must apply AB-00-08 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Layered architecture/schema/service/adapter acceptance strategy.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-17-04
-  condition: 'DEL-17-05 depends on the accepted DEL-17-04 MBF profile and writer output for live external-run
-    inputs.
-
-
-    Notes: FACT: Preserved declared upstream edge; source documents corroborate that the accepted DEL-17-04
-    profile/writer tranche remains a gate.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=DECLARED; legacy_status=ACTIVE'
+  when: Running a case through the user's CAEPIPE and binding its results
+  condition: >-
+    The MBF writer returns, for a model in its subset, the MBF and an identity file that maps MBF
+    node numbers, element rows and supports to SWBPIPE identifiers and records the MBF's hash; the
+    MBF importer reads an MBF as an unbound import and returns its outcome with named refusals.
   gating: true
 - from: DEL-17-01
-  condition: 'DEL-17-05 uses DEL-17-01 as the CAEPIPE source authority for questions TBDs and boundary
-    facts.
-
-
-    Notes: FACT: Explicit source-authority interface; unresolved CAEPIPE target behavior remains TBD.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE'
+  condition: >-
+    The source register admits the public CAEPIPE pages for batch execution, MBF import, data
+    export and print to file, each with its source ID and boundary, and lists the open question on
+    stable CSV result sections.
   gating: true
-  evidence: execution/PKG-17/DEL-17-05/Datasheet.md
 - from: DEL-17-02
-  condition: 'DEL-17-05 uses DEL-17-02 manifest stable-ID map loss-report profile and external-execution
-    policy contracts.
-
-
-    Notes: FACT: Explicit contract interface for manifest ID-map loss-report and external-execution policy.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE'
+  condition: >-
+    The common export contract defines the manifest, the stable ID map, the loss report, and an
+    export profile whose external-execution policy is optional, user-owned harness metadata only.
   gating: true
-  evidence: execution/PKG-17/DEL-17-05/Datasheet.md
-- from: external:CAEPIPE-EXECUTABLE
-  condition: 'Future live harness execution requires a user-provided licensed CAEPIPE executable and user-owned
-    execution environment.
-
-
-    Notes: FACT: External constraint is explicit; no executable path or license mechanism is supplied
-    by this deliverable.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=EXTERNAL; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
-
-
-    Target description — TargetName: user-provided licensed CAEPIPE executable; TargetRefID: CAEPIPE-EXECUTABLE;
-    TargetLocation: user-controlled local path or environment'
-  evidence: execution/PKG-17/DEL-17-05/Specification.md
+- from: DEL-10-05
+  when: Comparing SWBPIPE's results with the prover's
+  condition: >-
+    The headless runner solves a model document and returns the product's published result for it,
+    the same as the desktop's for the same request, with a unit on every quantity.
+  gating: true
+- from: DEL-08-04
+  when: Comparing SWBPIPE's results with the prover's
+  condition: >-
+    Exported result rows keep stable identifiers and a deterministic order, so that a row of
+    SWBPIPE's result is found again by its identifier.
+  gating: true
+- from: DEL-01-02
+  condition: >-
+    The data boundary policy states the rule for the external prover: what public text may say
+    about it, what stays private, and that no public text claims agreement.
+  gating: false
+- from: DEL-12-02
+  when: A run package is written to a file
+  condition: >-
+    Every sink through which the product exposes project-derived content is reached only through a
+    catalogued route's wrapper; every route returns its controlled export before exposure, and when
+    the export is blocked no output file is written.
+  gating: true
+- from: DEL-15-04
+  condition: >-
+    The authority-wording screen is one check shared by the handoff and export records that need it,
+    and finds wording of approval, certification, sealing, authentication, compliance, external
+    validation, acceptance or prover status in a string, a list or a nested record, whatever its
+    letter case.
+  gating: false
+# The harness, the parser, the comparison, the cases and the benchmark models. The desktop panel
+# that reviews external-run evidence, apps/desktop/src/features/caepipe-external/**, is DEL-07-12's;
+# it invokes nothing and is not listed here. The authored
+# MBF cases under validation/caepipe_correlation/authored/ are run here; the importer expectations
+# they state are examined by DEL-17-04.
 code_paths:
-- core/handoff/caepipe_external/
-- tools/caepipe_correlation/
-- validation/caepipe_correlation/
-- validation/caepipe_benchmark/
-- apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx
+- core/handoff/caepipe_external/**
+- schemas/caepipe_external_run.schema.json
+- fixtures/caepipe_external/invented/**
+- tools/caepipe_correlation/**
+- validation/caepipe_correlation/**
+- validation/caepipe_benchmark/**
 checks:
 - tests/test_caepipe_external_run_package.py
 - tests/test_caepipe_print_csv_parser.py

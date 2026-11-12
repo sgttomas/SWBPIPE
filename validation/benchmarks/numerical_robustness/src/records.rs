@@ -1,4 +1,4 @@
-//! The per-case records for ROOT's W1 limits (brief Scope 11; plan §12):
+//! The per-case records for ROOT's W1 limits (brief Scope 11):
 //! schema `vk-case-record-v1`, one object per case, committed per family in
 //! `observations/kernel_lane/<family>.json` and compared by CI.
 //!

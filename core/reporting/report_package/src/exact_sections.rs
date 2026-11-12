@@ -34,17 +34,17 @@ pub const EXACT_RUNNER_PROFILE: &str = "REPORT-PACKAGE-EXACT-RUNNER-PROFILE";
 /// The exact identities.
 pub const EXACT_IDENTITIES: [&str; 2] = [PRESSURE_ID, PRESSURE_SOURCE_ID];
 
-/// The headline labels (§3.3), the session's (`ResultsPanel.tsx`).
+/// The headline labels, the session's (`ResultsPanel.tsx`).
 pub const NOMINAL_SECTION_LABEL: &str = "Nominal section (nominal wall)";
 pub const REDUCED_SECTION_LABEL: &str = "Reduced section (wall minus mill tolerance and corrosion allowance)";
 /// A null headline key (incomplete coverage) is withheld, never a value.
 pub const WITHHELD_HEADLINE: &str =
     "withheld: a stress maximum on this basis is not available for every member in every load case";
-/// The rendered-report surface's load/reference line (§3.2): the panels'
+/// The rendered-report surface's load/reference line: the panels'
 /// shared sentence and the rendered-report tail.
 pub const LOAD_REFERENCE_TEMPLATE: &str = "This result includes resolved load/reference states (reference configuration {configurations}; load cases {cases}; history {histories}). Their published limitations are listed under Limitations.";
 
-/// The source-derived part of the exact-route section (§3.5).
+/// The source-derived part of the exact-route section.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct ExactRouteCore {
     pub semantic_contract_id: String,
@@ -55,7 +55,7 @@ pub struct ExactRouteCore {
     pub headlines: Vec<ReportHeadline>,
 }
 
-/// One expected exact limitation entry (§2.4), without the `effect` and
+/// One expected exact limitation entry, without the `effect` and
 /// `provenance` it shares with the report's technical-preview entry.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct ExpectedLimitation {
@@ -78,7 +78,7 @@ pub fn is_exact_identity(id: &str) -> bool {
     EXACT_IDENTITIES.contains(&id)
 }
 
-/// The runner-profile refusal (§3.5): only the desktop builds exact sections,
+/// The runner-profile refusal: only the desktop builds exact sections,
 /// because only the desktop has the Export Result JSON admission and the
 /// native source binding. It reads only the profile and the identity, so it
 /// refuses whatever the report carries. The producer applies it directly
@@ -116,7 +116,7 @@ fn source_identity(source: &Value) -> Result<&str, String> {
     }
 }
 
-/// The load/reference line (§3.2): the published records' distinct
+/// The load/reference line: the published records' distinct
 /// configurations, cases and histories, in published order; `None` without
 /// the group or without one of the three identifiers (as the panels' line).
 fn load_reference_line(source: &Value) -> Option<String> {
@@ -154,7 +154,7 @@ fn load_reference_line(source: &Value) -> Option<String> {
     ))
 }
 
-/// One basis's headline (§3.3) from `summary.<key>`; its value is shown by
+/// One basis's headline from `summary.<key>`; its value is shown by
 /// the report's display rule (`quantity_display`), as the result rows'.
 fn headline(summary: &Value, basis: &str, label: &str) -> Result<ReportHeadline, String> {
     let unreadable = || format!("{EXACT_HEADLINE_UNREADABLE}: the {basis} headline is missing or not readable.");
@@ -188,7 +188,7 @@ fn headline(summary: &Value, basis: &str, label: &str) -> Result<ReportHeadline,
     }
 }
 
-/// The source-derived part (§3.5): the identity, the run, the result
+/// The source-derived part: the identity, the run, the result
 /// envelope, the received result's digest, the load/reference line and the
 /// headlines, nominal then reduced.
 pub fn expected_exact_route_core(source: &Value) -> Result<ExactRouteCore, String> {
@@ -211,7 +211,7 @@ pub fn expected_exact_route_core(source: &Value) -> Result<ExactRouteCore, Strin
     })
 }
 
-/// The whole expected section (§3.5): the core, with the admission binding's
+/// The whole expected section: the core, with the admission binding's
 /// document- and audit-derived fields. `native_job_id` and
 /// `received_bytes_sha256` are custody facts the shared producer cannot see;
 /// they are taken as given, after a form check.
@@ -265,7 +265,7 @@ pub fn expected_exact_route_section(
     })
 }
 
-/// The expected exact limitation entries for `run` (§2.4, §3.5): one per
+/// The expected exact limitation entries for `run`: one per
 /// published `formulation_basis.limitations` string, in order, whose UTF-8
 /// SHA-256 must name a table entry, then the profile reference with the
 /// source route's table binding.
@@ -331,7 +331,7 @@ fn first_difference(expected: &ExactRouteSection, found: &ExactRouteSection) -> 
     "exact_route"
 }
 
-/// Item 9 (§3.5), after item 8. A document with an exact identity requires the
+/// Item 9, after item 8. A document with an exact identity requires the
 /// report's `exact_route`, equal to the expected section, and its limitation
 /// entries, after the technical-preview entry, equal to the expected entries,
 /// with that entry's effect and provenance. Any other identity carries neither
@@ -376,11 +376,11 @@ pub fn check_exact_sections(
     check_exact_limitation_entries(&entries, run, limitations).map_err(|detail| mismatch(format!("limitations: {detail}")))
 }
 
-/// The report's limitation entries against the expected exact entries (§2.4):
+/// The report's limitation entries against the expected exact entries:
 /// the technical-preview entry of `run` first, then exactly the expected
 /// entries, each sharing the technical-preview entry's effect and provenance
 /// and carrying no other member. `Err` names the first difference. Item 9
-/// uses it, and so does the desktop's native render re-derivation (§3.6).
+/// uses it, and so does the desktop's native render re-derivation.
 pub fn check_exact_limitation_entries(entries: &[ExpectedLimitation], run: &str, limitations: &[Value]) -> Result<(), String> {
     let Some((preview, rest)) = limitations.split_first() else {
         return Err("the technical-preview entry is missing".to_string());

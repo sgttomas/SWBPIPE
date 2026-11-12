@@ -437,7 +437,7 @@ def test_a_path_only_a_python_test_reads_starts_the_python_job():
     assert hosted_ci.select_paths(['docs/security/telemetry_policy.md'], profile)['modes']['piping-python'] == 'full'
     assert hosted_ci.select_paths(['docs/PRD.md'], profile)['modes']['piping-python'] == 'full'
     # A test whose reads the code does not show reads every path, so a governance-only change starts the job too.
-    assert hosted_ci.select_paths(['loop/LOOP_INIT.md'], profile)['modes']['piping-python'] == 'full'
+    assert hosted_ci.select_paths(['init-prompt.md'], profile)['modes']['piping-python'] == 'full'
 
 
 # Review of #28, round 2 (head 313a0f1): four false negatives. The deriver now fails toward over-selection.
@@ -587,8 +587,8 @@ def test_the_python_job_leaves_out_only_the_declarative_specifications():
     assert 'sparse-checkout-cone-mode: false' in job
     resource = 'apps/desktop/src-tauri/resources/agent-capability-catalog.json'
     assert 'tools/agent_host_witness_test.py' in selected(resource)
-    for spec in ('execution/PKG-16/DEL-16-06/Work/embedded-agent-host.md', 'execution/PKG-04/DEL-04-07/deliverable.yaml',
-                 'execution/_DAG/DAG-011/DependencyEdges.csv'):
+    for spec in ('execution/PKG-16/DEL-16-06/ScopeOfWork.md', 'execution/PKG-04/DEL-04-07/deliverable.yaml',
+                 'execution/_Decomposition/SOFTWARE_DECOMP.md'):
         assert ci.python_test_reads.reading_tests(PROJECT, [spec]) == {}
         assert ci.reaching_paths(PROJECT, [spec]) == []
 

@@ -223,7 +223,7 @@ fn geometry<'a>(result: &'a MechanicsEnvelope, pressurized: bool) -> &'a Value {
             .iter()
             .find(|p| p["pipe_id"] == PIPE)
             .unwrap();
-        // D-5 (§2.5): one section-evidence shape in the frame and pressure records.
+        // one section-evidence shape in the frame and pressure records.
         for key in [
             "geometry_basis",
             "outside_diameter_m",

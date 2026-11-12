@@ -6,7 +6,7 @@ import { keyModel, keyResult, keyRun } from "../../test-support/keyResultsFixtur
 import { PipeViewport } from "./PipeViewport";
 import type { ViewportViewCommand } from "./viewportSelection";
 
-// A6's viewport commands (DEL-07-05 Design `key-results-panel.md` §2): "show-result-colour" sets
+// A6's viewport commands: "show-result-colour" sets
 // exactly what the Result colour toggle and the legend's quantity and case selectors set, and
 // "show-deflected-shape" what the deformation popover's case selector sets. Neither queues an
 // operation. jsdom has no WebGL; the legend and the popover show the state. Invented data only.

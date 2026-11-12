@@ -1,4 +1,4 @@
-"""RT-A4 review r1 P2-P3 (DEL-05-02 ``absolute-sum-srss-combinations.md`` sections 4-5, 10): preview-physics-2's
+"""preview-physics-2's
 combination gates and unsigned rows are re-derived by both readers, and the runner's ``read preview-physics`` takes the
 model.
 
@@ -262,7 +262,7 @@ def test_a_flat_document_publishes_no_derivation(solve):
     model = constant_effort_cantilever([terms("flat", "mechanics", [("case", "W1", 1.0), ("case", "W2", 0.5)]), sub("d1", "W1", "W2"),
                                         {"id": "env", "basis": "range_envelope", "operand_ids": ["W1", "W2"], "mode": "max_abs", "provenance": PROV}])
     source = solve(model)
-    # RT-A3 §4 (DEL-05-02 Work `combination-certificate.md`): the certificate accompanies the combinations.
+    # the certificate accompanies the combinations.
     assert set(source["contract_evidence"]) == {"preview_cases", "combination_gates", "combination_certificate"}
     for given in (None, model):
         both(source, given, None)

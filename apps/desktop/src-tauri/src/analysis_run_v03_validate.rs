@@ -709,7 +709,7 @@ fn validate_recorded_binding(run: Option<&Value>, source: &Value, binding: &Reco
 /// { recordedRead })` in its order. `source` is the parsed stored result; the
 /// route's reader may rewrite its numbers in place (module docs). `Err` is the
 /// message the TypeScript throws ([`TYPE_ERROR`] for its `TypeError`s).
-/// `recorded_read` (RT-A4 §10.4; the reopen paths only): a record binding a
+/// `recorded_read` (the reopen paths only): a record binding a
 /// registry variant is read under it, through the recorded dispatch (its
 /// refusal thrown as the reader's), `rv::validate_recorded`,
 /// `rv::retained_recorded` and the variant's table; without it, or for any
@@ -1086,7 +1086,7 @@ pub(crate) fn saved_run_findings(project: &SavedProject<'_>, result: &mut Value,
     let is_renderable = renderable(result);
     let analysis_run = (!record_envelope.is_null()).then_some(record_envelope);
     let mut found = Found::new(&["HISTORICAL_INPUT_MANIFEST_MISSING"]);
-    // RT-A4 §10.4: a run recorded before RT-A4 binds a registry variant; it is read (its standing
+    // a run recorded before RT-A4 binds a registry variant; it is read (its standing
     // findings, its successor receipt and its record) as it read when recorded, and stays historical.
     let recorded = strict_eq_str(record_envelope.get("schema_version"), ANALYSIS_RUN_V03_TEXT).then(|| recorded_record_binding(record_envelope)).flatten();
     let standing = if is_renderable { found.read_standing(result, Some(project.model), recorded) } else { Value::Null };
@@ -1285,7 +1285,7 @@ pub(crate) fn recorded_run_findings(read: &RecordedRead<'_>, result: Option<&mut
         found.fail_once("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
     }
     let model = get_opt(get_opt(manifest, "model_basis"), "model_payload").filter(|model| !model.is_null());
-    // RT-A4 §10.4: a run recorded before RT-A4 reads as it did when recorded (see the saved-run reader).
+    // a run recorded before RT-A4 reads as it did when recorded (see the saved-run reader).
     let recorded = strict_eq_str(record_envelope.get("schema_version"), ANALYSIS_RUN_V03_TEXT).then(|| recorded_record_binding(record_envelope)).flatten();
     let standing = if is_renderable && js_truthy(model) { found.read_standing(result, model, recorded) } else { Value::Null };
     let record = analysis_run.filter(|run| js_truthy(Some(run)) && objectish(Some(run))).and_then(|run| run.get("analysis_run")).filter(|run| js_truthy(Some(run)) && objectish(Some(run)));

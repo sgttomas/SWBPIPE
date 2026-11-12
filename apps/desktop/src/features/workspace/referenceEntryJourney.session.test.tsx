@@ -1,6 +1,6 @@
 // The reference-entry journey (RT-G2/RT-G3; exit criterion 7 as context): the reference system
-// entered from a blank load/reference model, following DEL-09-01
-// `Work/reference-system-run-sheet.md` §2–§3.12 in order, through the desktop's own surfaces
+// entered from a blank load/reference model, following the
+// DEL-09-01 run sheet §2–§3.12 in order, through the desktop's own surfaces
 // (the units dialog, the pressure, material, section, component and support forms, the run
 // sheet's grid, the load manager with its fills and copies, the self-weight plan, batch review
 // and Review/Apply) and one workspace session running the real wasm operation engine. At the end
@@ -59,7 +59,7 @@ const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 /**
  * Steps the desktop cannot enter as the fixture records them. Empty: every step is entered, and
  * the comparison excludes no record. The list is asserted empty, so a step that stops entering
- * fails the comparison rather than being left out of it. (RS-VS1, §3.7, was the last: #130 admits
+ * fails the comparison rather than being left out of it. (RS-VS1 was the last: #130 admits
  * its `restraints: []` for a variable spring hanger whose hanger stiffness DOF is UX/UY/UZ.)
  */
 const BLOCKED: ReadonlyArray<{ step: string; missing: string; evidence: string; records: readonly string[] }> = [];
@@ -160,7 +160,7 @@ function allowDifferences(entered: Record<string, Record<string, AnyRecord>>, fi
   }
   // Entered side: each primitive names exactly the hash of the model it was generated from,
   // captured in the journey before Generate. Fixture side: the generator's own capture model,
-  // which this test cannot reproduce, so only its form is checked (§3.14).
+  // which this test cannot reproduce, so only its form is checked.
   for (const [side, entered_] of [[entered, true], [fixture, false]] as const) for (const [caseId, loadCase] of Object.entries(side.load_cases)) for (const load of (loadCase.primitive_loads as AnyRecord[] | undefined) ?? []) {
     const provenance = JSON.parse(String(load.provenance)) as AnyRecord;
     if (entered_) expect(provenance.source_model_hash, `${String(load.id)}.provenance.source_model_hash`).toBe(generatingHashes.get(caseId));
@@ -435,7 +435,7 @@ describe("the reference system entered from blank through the desktop's authorin
     expect(model().pipe_segments).toHaveLength(26);
     expect(model().supports).toHaveLength(10);
     // Undo/Redo, geometry and support families: the run sheet's batch, which creates the nodes,
-    // pipes and bends and ten of the eleven supports (the eleventh, RS-VS1, is the form's, §3.7).
+    // pipes and bends and ten of the eleven supports (the eleventh, RS-VS1, is the form's).
     expect(beforeSheet.supports).toEqual([]);
     await undoRedo("geometry and supports: the run sheet's batch (§3.4)", beforeSheet);
     // §3.4 RS-050 correction (typed UI): Start task from current selection, X position 1.3, Add, Apply.

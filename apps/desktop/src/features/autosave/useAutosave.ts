@@ -307,7 +307,7 @@ export function useAutosave(deps: AutosaveDeps) {
     }
   }
 
-  /** A stored project opened: offer its records (§3). */
+  /** A stored project opened: offer its records. */
   function afterStoredProjectOpened(projectId: string, storedHash: string | null): Promise<void> {
     return scheduleRecoveryCheck({ projectId, storedHash });
   }

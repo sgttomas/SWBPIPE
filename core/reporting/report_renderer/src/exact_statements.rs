@@ -18,7 +18,7 @@ use std::sync::OnceLock;
 
 /// The embedded table, as the TypeScript table's test writes it.
 pub const EXACT_STATEMENTS_JSON: &str = include_str!("../../../../fixtures/reports/exact_report_statements.json");
-/// The number of distinct exact-route producer strings (§1.3; RT-L2 adds the two
+/// The number of distinct exact-route producer strings (RT-L2 adds the two
 /// pressure-elongation statements).
 pub const EXACT_STATEMENT_COUNT: usize = 21;
 /// The refusal of a malformed table.

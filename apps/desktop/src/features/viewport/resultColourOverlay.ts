@@ -1,5 +1,5 @@
 // Result colour on the viewport's tubes (FR-GUI-001; design system 2.6 and 6.7; owner ruling
-// OD-5; survey item A4, DEL-07-05 Design `result-contour.md`). For one load case or combination,
+// OD-5; survey item A4). For one load case or combination,
 // either one scalar per member (the largest absolute value of one emitted row kind over that
 // member's rows: its stations, or its end nodes for a nodal quantity), or, along members, the
 // largest absolute value at each result station the rows state. A user-rule ratio is read from
@@ -124,7 +124,7 @@ export const RESULT_COLOUR_QUANTITIES: readonly ResultColourQuantity[] = Object.
 /** Range-envelope rows pick each value separately; they are never one solved state, so neither
  * overlay draws them (as the rotation glyphs do not). */
 export const RANGE_ENVELOPE_BASIS = "explicit_user_range_envelope";
-/** RT-A4 (DEL-05-02 `absolute-sum-srss-combinations.md` §4): an absolute sum or SRSS is an
+/** RT-A4: an absolute sum or SRSS is an
  * unsigned value over its terms, and decision OQ-1's mechanics rows are a solved state plus derived
  * differences or bounds; neither is one solved state either. */
 export const ABSOLUTE_SUM_BASIS = "explicit_user_absolute_sum";
@@ -136,7 +136,7 @@ export const ABSOLUTE_SUM_SIGN =
   "unsigned value: the absolute sum of |factor × source result| over explicit user terms; not an equilibrium state";
 export const SRSS_SIGN =
   "unsigned value: the square root of the sum of squares of factor × source result over explicit user terms; not an equilibrium state";
-/** Operating-case slice 1b (DEL-05-02 `operating-case.md` §1.3 c5, §5 B option 3): a subtraction
+/** Operating-case slice 1b: a subtraction
  * declaring `difference_basis = "operating_minus_sustained"` states this sign convention. Its
  * rows are a signed difference of two independently solved states, as a plain subtraction's
  * are, so they are drawn as a plain subtraction's; the navigator names them
@@ -144,7 +144,7 @@ export const SRSS_SIGN =
 export const OPERATING_MINUS_SUSTAINED_SIGN =
   "positive value follows explicit user result-state subtraction (minuend minus subtrahend) of matching source result sign conventions; operating minus sustained difference: a signed difference of two independently solved states, each using its own reported support state and carrying its own numerical standing under the static, history-free friction model; derived from case results; not an equilibrium state";
 
-/** RT-A5 `minuend_final` (DEL-05-02 `operating-case.md` §7.6): a subtraction whose subtrahend is
+/** RT-A5 `minuend_final`: a subtraction whose subtrahend is
  * held at the minuend's final support status states this sign convention on its difference rows,
  * which are drawn as a plain subtraction's; the navigator names them. */
 export const HELD_STATUS_SIGN =
@@ -163,7 +163,7 @@ export function declaredDifferenceNote(row: Pick<ResultRow, "metadata" | "basis_
   return null;
 }
 
-/** Whether a row is a held-operand row (§7.6): never one solved state of a case, so never drawn. */
+/** Whether a row is a held-operand row: never one solved state of a case, so never drawn. */
 export function isHeldOperandRow(row: Pick<ResultRow, "metadata" | "basis_ref">): boolean {
   return row.basis_ref?.ref_type === "combination" && row.metadata?.basis === HELD_STATUS_OPERAND_BASIS;
 }

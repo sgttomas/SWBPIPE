@@ -1,4 +1,4 @@
-//! The bounded export review (DEL-17-04 Design `desktop-mbf-export-import.md` §3.3 and §3.9.5; slice 4b.1): its
+//! The bounded export review: its
 //! classification of the writer's result, its bound R on every shape, status first, the truncation counts, the
 //! pairing of a diagnostic with its loss entry, long strings, the output-ceiling flag and determinism. The review is
 //! read back by the engine's own JSON reader. The desktop's counting-allocator check of the long-string

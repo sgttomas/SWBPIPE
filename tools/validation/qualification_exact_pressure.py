@@ -71,7 +71,7 @@ CONTRACT = 'openpipestress.result_semantics/0.3.0/pressure-3'
 PROFILE = 'exact_pressure_v3'
 # The submitted (re-authored) document is model 0.9.0 under the current contract; the package's frozen
 # documents keep their 0.3.0/0.4.0 spelling under the former v3 contract object, or their 0.5.0 spelling (the
-# MILLTOL owners, re-authored by their version alone, DEL-04-07 Design u4b-u5b-implementation.md §1.4).
+# MILLTOL owners, re-authored by their version alone).
 MODEL_VERSION = physics.MODEL_VERSION
 PRESSURE_CONTRACT = physics.PRESSURE_CONTRACT
 FROZEN_PRESSURE_CONTRACT = {'version': '3.0.0', 'mode': 'exact_pressure_v3'}
@@ -801,7 +801,7 @@ def structural_checks(mechanics: dict, prepared: dict, mode: str, standing: dict
         wanted = sorted(prepared['request_cases'])
         exact = sorted(case.get('load_case_id') for case in evidence['exact_cases'])
         require(exact == wanted, 'raw load cases differ from the bound input (substitution)')
-        # W-16 slice b (DEL-05-02 exact-combinations.md §6): a combination row names a combination of the
+        # a combination row names a combination of the
         # bound input; the document's combination records are exactly the input's combinations.
         foreign = sorted({row['basis_ref']['ref_id'] for row in mechanics['results']
                           if 'basis_ref' in row and row['basis_ref'].get('ref_type') != 'combination'} - set(wanted))

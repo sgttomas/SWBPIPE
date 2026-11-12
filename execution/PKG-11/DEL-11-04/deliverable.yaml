@@ -1,215 +1,68 @@
 id: DEL-11-04
 name: Invented educational example models
 needs:
-- from: DEL-00-01
-  condition: 'DEL-11-04 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0344 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
-    refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT while preserving approved
-    DAG-002 evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-11-04 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0345 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
-    refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT while preserving approved
-    DAG-002 evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-11-04 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0346 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
-    refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT while preserving approved
-    DAG-002 evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-11-04 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0347 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
-    refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT while preserving approved
-    DAG-002 evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-11-04 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0348 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; TP-DAG-004
-    refresh normalized prior DAG-002 ARCHITECTURE_BASIS type to v3.1 CONSTRAINT while preserving approved
-    DAG-002 evidence.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-06-05
-  condition: 'DEL-11-04 needs DEL-06-05 as a predecessor: educational examples consume invented non-code
-    rule pack
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0590 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 DOCS_PREDECESSOR
-    type to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized
-    prior UNKNOWN satisfaction status to v3.1 TBD.; TP-DAG-004 refresh normalized prior INFERRED_DIRECT
-    explicitness to v3.1 IMPLICIT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-09-01
-  condition: 'DEL-11-04 needs DEL-09-01 as a predecessor: educational examples should align with mechanics
-    benchmarks
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0591 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 DOCS_PREDECESSOR
-    type to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized
-    prior UNKNOWN satisfaction status to v3.1 TBD.; TP-DAG-004 refresh normalized prior INFERRED_DIRECT
-    explicitness to v3.1 IMPLICIT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-09-02
-  condition: 'DEL-11-04 needs DEL-09-02 as a predecessor: educational examples should align with stress
-    benchmarks
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0592 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 DOCS_PREDECESSOR
-    type to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized
-    prior UNKNOWN satisfaction status to v3.1 TBD.; TP-DAG-004 refresh normalized prior INFERRED_DIRECT
-    explicitness to v3.1 IMPLICIT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-08-05
-  condition: 'DEL-11-04 needs DEL-08-05 as a predecessor: public examples should pass protected-content
-    lint
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0593 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 GOVERNANCE_PREDECESSOR
-    type to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized
-    prior UNKNOWN satisfaction status to v3.1 TBD.; TP-DAG-004 refresh normalized prior INFERRED_DIRECT
-    explicitness to v3.1 IMPLICIT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-01-02
-  condition: 'DEL-11-04 needs DEL-01-02 as a predecessor: public examples must not embed protected examples/data
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0594 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; TP-DAG-004 refresh normalized prior DAG-002 GOVERNANCE_PREDECESSOR
-    type to v3.1 PREREQUISITE while preserving approved DAG-002 evidence.; TP-DAG-004 refresh normalized
-    prior UNKNOWN satisfaction status to v3.1 TBD.; TP-DAG-004 refresh normalized prior INFERRED_DIRECT
-    explicitness to v3.1 IMPLICIT.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED;
-    legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-02-01
-  condition: 'Future actual example model files require the canonical model/schema structure before materialization
-    outside this setup folder.
-
-
-    Notes: FACT: Explicit external input for future example model materialization; added by TP-DAG-004
-    refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    There is one model document format with one current version, a schema and a document
+    validator that refuses a malformed document by name, and a document that passes is opened
+    from a file. Each example is such a document.
   gating: true
 - from: DEL-02-05
-  condition: 'Future actual example model files require the persistence and round-trip format before materialization
-    outside this setup folder.
-
-
-    Notes: FACT: Explicit external input for future example model materialization; added by TP-DAG-004
-    refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A model document of the current version saved to the project store and reopened returns
+    equal content and the same model hash, and a document of any other version is refused by
+    name. Each example survives that round trip.
   gating: true
-- from: DEL-06-01
-  condition: 'Future fake-rule-pack demonstration files require the rule-pack schema before materialization.
-
-
-    Notes: FACT: Explicit external input for future fake-rule-pack demonstration files; added by TP-DAG-004
-    refresh.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-04-07
+  condition: >-
+    The product solve runs each load case of a valid model document and publishes displacements,
+    member actions and support loads with their units and diagnostics, or refuses by name what
+    it does not admit. Each example solves, or shows the named finding its description says it
+    demonstrates.
+  when: Examining AC-003 on the release's solve
   gating: true
+- from: DEL-06-05
+  condition: >-
+    The invented example rule pack is published with a public invented-example classification
+    and carries the pack checksum of its own content. The fake-rule-pack example cites that pack
+    by identity, version and checksum.
+  gating: true
+- from: DEL-06-04
+  condition: >-
+    A pack's recorded checksum is SHA-256 over the RFC 8785 canonical form of the pack document
+    with its checksum member excluded, and it does not depend on a path, a time or a session.
+    The checksum the fake-rule-pack example cites for the invented pack is that one.
+  gating: false
+- from: DEL-06-03
+  condition: >-
+    A rule-check run reports each check on each basis as within the user's limit, exceeding it
+    or incomplete, names every missing input of an incomplete check, and leaves the mechanics
+    status as it was. The fake-rule-pack example's description states the outcome that run
+    gives on it.
+  when: Examining AC-004's rule-check run
+  gating: true
+- from: DEL-01-02
+  condition: >-
+    The boundary policy states that public examples use invented or permissively sourced data
+    and contain no protected standards text, protected table, proprietary formula, private
+    rule-pack content or private project data, and that a public example rule pack uses
+    invented, non-code values only and carries a clear non-engineering notice. It defines the
+    provenance record every public data record carries, with its redistribution and review
+    status values. Every data set of an example carries that record, and the examples use
+    invented data only.
+  gating: true
+- from: DEL-08-05
+  condition: >-
+    The release-candidate scan covers public examples as an artifact class, with the
+    protected-content lint over their text and a provenance check on their data records. The
+    examples pass it with no blocking finding.
+  when: Scanning a release candidate
+  gating: false
 code_paths:
 - examples/models/invented/**
+# This deliverable's test of its own example files. DEL-06-05 and DEL-09-05 cite it as a check
+# only. It compares the checksum the fake-rule-pack example cites with DEL-06-05's pack, so a
+# change to that pack's content changes the example file here.
 - tests/test_invented_example_models.py
-- schemas/model.schema.yaml
-- schemas/rule_pack.schema.yaml
-- tools/validation/validate_dependencies_schema.py
 checks:
 - tests/test_invented_example_models.py

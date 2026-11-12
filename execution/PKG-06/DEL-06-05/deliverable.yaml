@@ -1,134 +1,47 @@
 id: DEL-06-05
 name: Invented non-code example rule pack
 needs:
-- from: DEL-00-01
-  condition: 'DEL-06-05 is constrained by architecture basis AB-00-01 during sealed product-development
-    execution
-
-
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType ARCHITECTURE_BASIS
-    to CONSTRAINT; Origin CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-06-05 is constrained by architecture basis AB-00-02 during sealed product-development
-    execution
-
-
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType ARCHITECTURE_BASIS
-    to CONSTRAINT; Origin CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-06-05 is constrained by architecture basis AB-00-03 during sealed product-development
-    execution
-
-
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType ARCHITECTURE_BASIS
-    to CONSTRAINT; Origin CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-06-05 is constrained by architecture basis AB-00-04 during sealed product-development
-    execution
-
-
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType ARCHITECTURE_BASIS
-    to CONSTRAINT; Origin CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-06-05 is constrained by architecture basis AB-00-06 during sealed product-development
-    execution
-
-
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType ARCHITECTURE_BASIS
-    to CONSTRAINT; Origin CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-06-05 is constrained by architecture basis AB-00-07 during sealed product-development
-    execution
-
-
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType ARCHITECTURE_BASIS
-    to CONSTRAINT; Origin CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-06-05 is constrained by architecture basis AB-00-08 during sealed product-development
-    execution
-
-
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType ARCHITECTURE_BASIS
-    to CONSTRAINT; Origin CONTEXT to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-06-01
-  condition: 'DEL-06-05 depends on DEL-06-01 before schema-specific example details can be finalized
-
-
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType RULE_PACK_PREDECESSOR
-    to PREREQUISITE; Origin DECOMPOSITION to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The pack format has a public-invented-example classification, and validation accepts a pack so
+    classified only with the invented-example redistribution status, a completed protected-content
+    review, an accepted review status and a source notice.
   gating: true
-  evidence: execution/PKG-06/DEL-06-05/Guidance.md
 - from: DEL-06-02
-  condition: 'DEL-06-05 depends on DEL-06-02 before evaluator grammar and sandbox behavior can be represented
-    in an example
-
-
-    Notes: Normalized from DAG mirror: AnchorType DELIVERABLE to NOT_APPLICABLE; DependencyType RULE_PACK_PREDECESSOR
-    to PREREQUISITE; Origin DECOMPOSITION to EXTRACTED.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The grammar, at a supported version, admits a declarative ratio of two declared quantities of
+    one dimension and unit.
   gating: true
-  evidence: execution/PKG-06/DEL-06-05/Specification.md
+- from: DEL-06-03
+  condition: >-
+    A run of a pack with an unsupplied required input reports the check incomplete on each of its
+    load cases and names the input, and supplies no value in its place.
+  when: Examining AC-005 on the demo model
+  gating: true
+- from: DEL-06-04
+  condition: >-
+    The pack checksum is defined over the pack's canonical content without its checksum member,
+    and a pack is publicly exportable when it is classified public with an invented-example
+    redistribution status, an accepted review and no suspected protected content.
+  when: Recording the example's checksum and examining its public standing
+  gating: true
+- from: DEL-01-02
+  condition: >-
+    The boundary policy states that a public example rule pack uses invented, non-code values
+    only and carries a clear non-engineering notice (DEL-01-02 REQ-006), and that public content
+    holds no protected standards text, table or formula and no private content.
+  gating: false
+- from: DEL-02-01
+  condition: >-
+    The bundled demo model is a valid model document whose load cases have stable identifiers,
+    which the example's required load cases name.
+  gating: true
 code_paths:
-- schemas/rule_pack.schema.yaml
-- tools/validation/validate_dependencies_schema.py
 - examples/rule_packs/**
 - fixtures/product_preview/invented_demo_rule_pack.json
-- apps/desktop/src/services/ruleCheckService.ts
+- docs/_Examples/rule_pack_notice.md
 checks:
-- tests/test_invented_example_models.py
 - tests/test_rule_pack_schema.py
+- tests/test_invented_example_models.py
 - core/rules/rule_pack_document/tests/invented_demo_document.rs
 - core/rules/rule_check_runner/tests/invented_demo_run.rs
-- apps/desktop/src/features/rule-check/RuleCheckRunPanel.test.tsx
-- apps/desktop/e2e/r2-smoke.spec.ts

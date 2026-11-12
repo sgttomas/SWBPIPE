@@ -1,6 +1,6 @@
 // Property inspector: Tags and Notes for the selected entity and for the
 // project, and a Provenance record section for materials, sections,
-// components and supports (W-13 §3.1, §3.5, §6). Each edit is queued as a
+// components and supports. Each edit is queued as a
 // structured operation for validation, diff review and apply; clearing
 // removes the member.
 import { useEffect, useState } from "react";

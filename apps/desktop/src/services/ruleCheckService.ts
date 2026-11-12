@@ -60,14 +60,14 @@ export type RuleCheckBasisRef = {
   ref_id: string;
 };
 
-// One outcome per check and basis (design §2.7): `category_ref` is the check's
+// One outcome per check and basis: `category_ref` is the check's
 // stress category id; `basis_ref` the load case or combination this outcome was
 // evaluated on (null only for a check the pack gives no basis, which validation
 // blocks before any run). Outcome identity is (check_id, basis_ref.ref_type,
 // basis_ref.ref_id): a check_id repeats once per basis. The run command always
 // sends both; they are optional in this type only so outcome literals typed
 // before format 0.5.0 (the report's own test inputs; the report change is
-// deferred, design §6) still compile. A missing basis reads as none.
+// deferred) still compile. A missing basis reads as none.
 export type RuleCheckOutcome = {
   check_id: string;
   category_ref?: string;
@@ -95,7 +95,7 @@ export type RuleCheckRunResult = {
   rule_pack_validation?: Omit<RulePackDocumentValidation, "unit_check">;
 };
 
-/** The serialized outcome identity (design §2.7): (check_id, basis_ref.ref_type,
+/** The serialized outcome identity: (check_id, basis_ref.ref_type,
  * basis_ref.ref_id). Keys and lookups use it, never check_id alone. */
 export function ruleCheckOutcomeIdentity(outcome: Pick<RuleCheckOutcome, "check_id" | "basis_ref">): string {
   return JSON.stringify([outcome.check_id, outcome.basis_ref?.ref_type ?? null, outcome.basis_ref?.ref_id ?? null]);
@@ -120,14 +120,14 @@ export type RuleCheckUnavailable = {
 };
 
 export type RuleCheckRunRoute =
-  // Epoch 8 (DEL-04-07 Design `desktop-exact-outputs.md` §4.4, §5.4): the disclosure line
+  // Epoch 8: the disclosure line
   // for a qualified exact result carrying load/reference states, computed from that
   // source before a transient solve is disposed. UI text only; never part of the run
   // result, the record or a file.
   | { route: "tauri_backend"; result: RuleCheckRunResult; loadReferenceDisclosure?: string | null }
   | RuleCheckUnavailable;
 
-/** Epoch 8 (design §4.4): an exact result that is not numerically eligible is refused
+/** Epoch 8: an exact result that is not numerically eligible is refused
  * before the backend, after Rust's first standing finding. */
 export const N_RULE_CHECK_NOT_NUMERICALLY_ELIGIBLE = "The result is not numerically eligible for rule checks. It remains readable here.";
 
@@ -152,7 +152,7 @@ export async function runRuleChecks(args: {
   // so it can check the pack's required load cases against the model. Empty
   // binding arrays are omitted so the backend treats those inputs as unsupplied
   // (never a silent pass). Solver inputs bind only through each pack's own
-  // solver_result_ref selector (format 0.5.0, design §2.5): no caller-supplied
+  // solver_result_ref selector (format 0.5.0): no caller-supplied
   // solver binding is sent. `projectId` scopes the private-library lookup for
   // `private_library_value` inputs (resolved backend-side from the local store).
   if (!args.model) throw new Error("RULE_NUMERICAL_CASE_COVERAGE_UNAVAILABLE: supply the actual current model.");
@@ -175,7 +175,7 @@ async function checkSolvedSource(
   // T0R: only the static fresh-identity set is rule-eligible (epoch 8 adds pressure-2 and
   // pressure-source-1, as Rust's set holds them).
   if (!isFreshSemanticResult(source)) throw new Error("RULE_SOURCE_IDENTITY_NOT_FRESH: the result is not a fresh supported publication.");
-  // Epoch 8 (design §4.4): for the exact routes only, the policy's rule-check entry and the
+  // Epoch 8: for the exact routes only, the policy's rule-check entry and the
   // Rust reader's full standing (with the model's checks and, for pressure-source-1, the
   // registered invocation) govern the run on the Current and the transient path alike.
   // The retained and ungated routes keep the checks below, unchanged.
@@ -211,7 +211,7 @@ async function checkSolvedSource(
 // `invented_demo_rule_pack`). In format 0.5.0 it demonstrates the refusal path:
 // its solver input's selector names an invented kind no producer publishes and
 // its limit slot stays unsupplied, so every run is RULE_INPUTS_INCOMPLETE naming
-// both inputs missing (DEL-06-01 Design `rule-pack-0.5.0.md` §4). It is NOT an
+// both inputs missing. It is NOT an
 // engineering design basis and is not suitable for professional reliance.
 export async function loadDemoRuleCheckPack(): Promise<RulePackDocument> {
   return (await import("../../../../fixtures/product_preview/invented_demo_rule_pack.json"))
@@ -276,7 +276,7 @@ export type LibraryInputRequirement = {
   library_value_ref?: LibraryValueRef;
 };
 
-// A required load case of the pack (design §2.3): the model load case or
+// A required load case of the pack: the model load case or
 // combination its checks are evaluated on. `basis_ref` is null when the pack's
 // item is malformed (validation refuses it).
 export type RequiredLoadCaseRequirement = {
@@ -285,7 +285,7 @@ export type RequiredLoadCaseRequirement = {
   basis_ref: RuleCheckBasisRef | null;
 };
 
-// A user-defined stress category (design §2.3): the user's own name.
+// A user-defined stress category: the user's own name.
 export type StressCategoryRequirement = {
   category_id: string;
   name: string;
@@ -296,7 +296,7 @@ export type StressCategoryRequirement = {
 // each of the pack's required load cases; `valueInputs` and `valueSlots` take a
 // user-entered value + unit (dimension comes from the pack). Inputs sourced
 // from a private library are surfaced separately and resolved backend-side.
-// A check's category and bases (design §2.4): the required load cases its
+// A check's category and bases: the required load cases its
 // category's one mapping lists, in the mapping's order. `bases` is empty when
 // the pack does not give the check a basis list (validation refuses it).
 export type CheckBasisRequirement = {
@@ -560,7 +560,7 @@ export function rowTieRod(source: Pick<MechanicsResult, "contract_evidence"> | n
   return bound.length === 1 ? bound[0] : undefined;
 }
 
-/** Whether `row` of `source` is the selector's row on `basis` (design §2.5). A
+/** Whether `row` of `source` is the selector's row on `basis`. A
  * selector's `tie_rod` must equal, exactly, the rod the row's connector record
  * binds it to (`rowTieRod`). */
 export function solverSelectorMatchesRow(source: Pick<MechanicsResult, "contract_evidence"> | null | undefined, selector: SolverResultRef, basis: RuleCheckBasisRef, row: ResultRow): boolean {

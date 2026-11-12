@@ -1,4 +1,4 @@
-//! K1 adapter tests (T3 D1 revision 5a.2 §4.8; the K1 row of §6): the sparse
+//! K1 adapter tests: the sparse
 //! `AssemblyEvidence` and the pattern-taking solve entries, against the dense
 //! evidence and today's entries. Invented inputs only; every value is stated
 //! here or in K-D5's generated `kd5_models.rs` (included read-only below).
@@ -1018,7 +1018,7 @@ fn k1_nonlinear_loop_reaches_neither_formation_entry() {
 
 // ------------------------------------------------------------------ RV8 (review findings)
 
-// RV8-1 to RV8-3 (T3 REVIEW/K1_REVIEW.md): three test gaps the independent
+// three test gaps the independent
 // review found. Each case is RV8's (invented), and each first asserts, on the
 // dense side only, that it discriminates the alternative its mutant takes.
 
@@ -1423,7 +1423,7 @@ fn k1_split_ledger_formation_check_reads_the_ledger_terms_in_both_representation
 
 // ------------------------------------------- I9: the skew M03 pin (append)
 //
-// I9 (T3; tests only): RV7's accepted skew rows (K2A_REVIEW.md B1) through
+// I9 (T3; tests only): RV7's accepted skew rows through
 // the adapter's two evidences, `AssemblyEvidence` and K1's
 // `SparseAssemblyEvidence`, in both modes. K2a's `local_stiffness` refuses
 // these formations, so main's pre-K2a matrix is formed here and carried as an

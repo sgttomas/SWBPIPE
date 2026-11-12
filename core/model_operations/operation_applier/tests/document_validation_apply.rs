@@ -62,7 +62,7 @@ fn create_line(id: &str, pipes: &[&str]) -> Value {
 /// A line naming a pipe another line already groups would leave the document
 /// malformed: the operation is refused with the validator's named diagnostic
 /// and no document returns. (S2: deleting a lined pipe now removes it from its
-/// line in the same operation, §3.2 and §6.)
+/// line in the same operation.)
 #[test]
 fn an_operation_whose_result_is_malformed_is_refused() {
     let model = every_slot();
@@ -124,7 +124,7 @@ fn an_unrelated_operation_on_a_malformed_document_is_refused() {
     assert!(outcome["diagnostics"].as_array().unwrap().iter().any(|item| item["code"] == json!("MODEL-LINE-PIPE-MISSING")));
 }
 
-/// W-10 and the validator together (S2, §3.2, §3.3 and §6): W-10's
+/// W-10 and the validator together: W-10's
 /// dependent-reference check does not read the model-data collections, so a
 /// lined pipe deletes and leaves its line in the same operation, and the
 /// constraint that names it keeps the id and warns. A pipe no line groups

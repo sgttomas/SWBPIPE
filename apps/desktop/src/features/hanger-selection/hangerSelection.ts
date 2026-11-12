@@ -33,7 +33,7 @@ export async function buildHangerSelectionBatch(model: PreviewModel, document: H
   if (!target.newSupport && !old) throw new Error("The target support no longer exists.");
   if (target.newSupport && (!target.newSupport.label.trim() || !model.nodes.some(node => node.id === target.newSupport?.node)))
     throw new Error("A new support needs a label and an existing node.");
-  // W-17 §2.6: only the short library reference and the combined provenance
+  // only the short library reference and the combined provenance
   // record enter the model; library metadata and the record snapshot never do.
   const imported = selected.hanger;
   const quantities = [imported.installed_load, imported.cold_load, imported.hot_load, imported.constant_load,

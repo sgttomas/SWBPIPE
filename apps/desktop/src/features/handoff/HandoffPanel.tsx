@@ -275,7 +275,7 @@ export function buildHandoffPackage({
     library_refs: {
       material_refs: model.materials?.map((item) => ({ ref: item.id, provenance: item.provenance })) ?? [],
       component_refs: model.components.map((item) => ({ ref: item.id, provenance: item.provenance })),
-      // The document's rule-pack references (identity only; W-13 §3.4), every one.
+      // The document's rule-pack references (identity only), every one.
       rule_pack_refs: handoffRulePackRefs(model),
       private_library_payload_included: false
     },

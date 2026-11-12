@@ -20,8 +20,7 @@ preserved. Boundary-statement vocabulary for all other surfaces is governed by
 ## Current Authority Basis
 
 This draft notice template is aligned to
-the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved
-graph selected by `execution/_DAG/_LATEST.md`. The project license has been selected as
+the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md`. The project license has been selected as
 `MIT`; report notices may cite that project license
 notice, but it is not legal advice, professional approval, or code-compliance
 evidence.

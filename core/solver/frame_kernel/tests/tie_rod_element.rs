@@ -803,7 +803,7 @@ fn rods_are_refused_by_name() {
         ),
         Err(TieRodError::NonFinite { .. })
     ));
-    // A rod nearly perpendicular to the joint axis is admitted (§3.4).
+    // A rod nearly perpendicular to the joint axis is admitted.
     let across = rod([0.0, -0.5, 0.0], [-1.0, 0.5, 0.0], 1.0e6, 0.0);
     let r = TieRod::new(&c, across).unwrap();
     assert_eq!(r.axial_share(), 0.0);

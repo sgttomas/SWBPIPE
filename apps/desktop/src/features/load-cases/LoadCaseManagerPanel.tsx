@@ -108,14 +108,14 @@ type PrimitiveLoadDraft = {
   magnitude: string;
   unit: string;
   /** "default": the unit follows the current project's default rule, recomputed on
-   * every render (W-17 §2.4); "user": an explicit choice, kept as entered. */
+   * every render; "user": an explicit choice, kept as entered. */
   unitSource: "default" | "user";
   provenance: string;
 };
 
 type CombinationTermDraft = {
   combinationId: string;
-  /** The new term's typed operand (absolute-sum-srss §2): a load case or a combination. */
+  /** The new term's typed operand: a load case or a combination. */
   operandKind: OperandKind;
   loadCaseId: string;
   combinationRef: string;
@@ -124,7 +124,7 @@ type CombinationTermDraft = {
 };
 
 // Closed basis set mirroring core/loads/load_case_algebra vocabulary; model document 0.9.0
-// adds the unsigned bases (absolute-sum-srss §2).
+// adds the unsigned bases.
 const COMBINATION_BASIS_OPTIONS = ["mechanics", "result_state_subtraction", "range_envelope", "absolute_sum", "srss"] as const;
 type CombinationBasis = (typeof COMBINATION_BASIS_OPTIONS)[number];
 
@@ -143,7 +143,7 @@ type CombinationDraft = {
   mode: string;
   provenance: string;
   rationale: string;
-  /** The "Operating minus sustained difference" template (model document 0.9.0 §2.2): writes
+  /** The "Operating minus sustained difference" template: writes
    * `difference_basis` on a result-state subtraction, only when the person chooses it. */
   operatingDifference: boolean;
 };
@@ -179,7 +179,7 @@ export function LoadCaseManagerPanel({
   const nodeOptions = useMemo(() => model.nodes.map((node) => ({ value: node.id, label: node.label || node.id })), [model.nodes]);
   const combinationOptions = useMemo(() => (model.combinations ?? []).map((combination) => ({ value: combination.id, label: combination.label || combination.id })), [model.combinations]);
   // A bare reference (minuend, subtrahend, envelope operand) names a load case, or a
-  // combination when no load case has the id (absolute-sum-srss §2); a combination whose id
+  // combination when no load case has the id; a combination whose id
   // a load case also has cannot be named this way and is listed as such, never offered.
   const shadowedCombinations = useMemo(() => shadowedCombinationIds(model), [model]);
   const referenceOptions = useMemo(() => [
@@ -402,7 +402,7 @@ export function LoadCaseManagerPanel({
   const primitiveDraftUnitBasis = describeUnitBasis(unitCatalogRoute, primitiveDraftUnit, primitiveDraftDimension);
   const primitiveDefaultUnitChoice = primitiveLoadDefaultUnitChoice(model, primitiveLoadDraft.category, primitiveLoadDraft.direction, unitCatalogRoute);
   const primitiveDraftUnitOptions = unitOptions(unitCatalogRoute, primitiveDraftDimension, primitiveDefaultUnitChoice.symbol);
-  // W-17 §2.4: a composed default the catalog lacks leaves the unit unselected, and says why.
+  // a composed default the catalog lacks leaves the unit unselected, and says why.
   const primitiveUnitNotice = primitiveLoadDraft.unit === "" ? primitiveDefaultUnitChoice.notice : null;
   const selectedPrimitiveUnitOptions = selectedPrimitive
     ? unitOptions(unitCatalogRoute, primitiveDimension(selectedPrimitive.load), currentMagnitudeUnit)
@@ -1779,7 +1779,7 @@ function isCombinationDraftReady(model: PreviewModel, draft: CombinationDraft): 
       !(model.combinations ?? []).some((combination) => combination.id === id)
   );
   if (!common) return false;
-  // A bare reference resolves to a load case, else a combination (absolute-sum-srss §2); a
+  // A bare reference resolves to a load case, else a combination; a
   // declared operating comparison names load cases only.
   const resolvesTo = (ref: string) => resolveReference(model, ref).kind;
   if (draft.basis === "result_state_subtraction") {
@@ -2733,7 +2733,7 @@ function combinationDraftMissing(model: PreviewModel, draft: CombinationDraft): 
   return termsDraftProblem(model, draft.terms, draft.id.trim());
 }
 
-/** The solve's known gates for a terms combination being drafted (§5.1, §5.2), or null. */
+/** The solve's known gates for a terms combination being drafted, or null. */
 function combinationTermsGateNote(draft: CombinationDraft, constantEffort: readonly string[], nonlinear: readonly string[]): string | null {
   if (isUnsignedBasis(draft.basis)) {
     const loadCaseTerms = draft.terms.filter((term) => term.kind === "load_case" && term.ref).map((term) => term.ref);
@@ -2871,7 +2871,7 @@ function primitiveUnit(load: PrimitiveLoad): string {
 }
 
 function unitOptions(route: UnitCatalogRoute | null, dimensionId: string, fallbackSymbol: string): UnitOption[] {
-  // "" is an unselected default (W-17 §2.4): offer a placeholder and the catalog, nothing in its place.
+  // "" is an unselected default: offer a placeholder and the catalog, nothing in its place.
   const fallback = fallbackSymbol === ""
     ? { symbol: "", label: "Choose a unit" }
     : { symbol: fallbackSymbol, label: `${fallbackSymbol} (model metadata)` };
@@ -2935,7 +2935,7 @@ function safeToken(value: string): string {
 }
 
 /** The Load Case Manager's create paths (default drafts and intent builders),
- * for the desktop emission golden that drives each authoring path (W-13 §5.2). */
+ * for the desktop emission golden that drives each authoring path. */
 export const loadCaseAuthoringPaths = {
   defaultLoadCaseDraft,
   buildCreateLoadCaseIntent,

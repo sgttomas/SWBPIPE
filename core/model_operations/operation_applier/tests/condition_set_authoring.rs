@@ -252,7 +252,7 @@ fn create_update_and_delete_with_their_inverses() {
     let (reverted, _) = applied(&updated, &update_set(&updated, &set_a()));
     assert_eq!(bytes(&reverted), bytes(&created), "update's inverse restores the document");
 
-    // Delete the last set: the collection stays an empty array (§11), and the
+    // Delete the last set: the collection stays an empty array, and the
     // delete's inverse (create at the deleted index) restores the document.
     let (deleted, outcome) = applied(&created, &delete_set(&created, "cs:a"));
     assert_eq!(deleted["condition_sets"], json!([]));
@@ -544,7 +544,7 @@ fn every_s1_authoring_refusal_is_preserved() {
     // direction on supports.
     let support = |direction: Value| op("create", "create_support", "Support", "S-2", "supports", "not_present",
         &json!({"id": "S-2", "label": "Stop", "node": "N2", "family": "line_stop", "restraints": ["UY"], "direction": direction, "provenance": PROV}).to_string());
-    // R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md` §11): a skewed direction is
+    // a skewed direction is
     // authored on the pressure-free route, written as entered.
     let authored = apply_operation(&model, &support(json!({"x": 0.0, "y": 3.0, "z": 4.0})), Some(&claim(&model)));
     let written = authored.applied_model.as_ref().unwrap_or_else(|| panic!("{:?}", records(&authored)));

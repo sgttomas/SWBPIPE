@@ -1,4 +1,4 @@
-/** W-10 (DEL-16-06 Design `pipe-reconnect.md` §3): any batch containing a
+/** W-10: any batch containing a
  * `reconnect_pipe_run` is applied only after a clean preview, whatever its
  * producer; the apply path enforces the same predicate as the button, and a
  * single reconnect intent is routed to batch review. The session runs the

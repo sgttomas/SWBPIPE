@@ -1,168 +1,71 @@
 id: DEL-04-03
 name: Linear support and restraint models
 needs:
-- from: DEL-00-01
-  condition: 'DEL-04-03 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType ARCHITECTURE_BASIS and
-    Origin CONTEXT preserved semantically in this note. Architecture-basis edge from SCA-001 context injection;
-    does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0110 into DAG-002 revision 0.5 proposal;
-    active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch
-    authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: architecture-basis dependency
-    normalized to CONSTRAINT from PREREQUISITE.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-04-03 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType ARCHITECTURE_BASIS and
-    Origin CONTEXT preserved semantically in this note. Architecture-basis edge from SCA-001 context injection;
-    does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0111 into DAG-002 revision 0.5 proposal;
-    active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch
-    authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: architecture-basis dependency
-    normalized to CONSTRAINT from PREREQUISITE.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-04-03 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
-    execution.
-
-
-    Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType ARCHITECTURE_BASIS and
-    Origin CONTEXT preserved semantically in this note. Architecture-basis edge from SCA-001 context injection;
-    does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0112 into DAG-002 revision 0.5 proposal;
-    active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch
-    authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: architecture-basis dependency
-    normalized to CONSTRAINT from PREREQUISITE.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-04-03 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType ARCHITECTURE_BASIS and
-    Origin CONTEXT preserved semantically in this note. Architecture-basis edge from SCA-001 context injection;
-    does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0113 into DAG-002 revision 0.5 proposal;
-    active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch
-    authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: architecture-basis dependency
-    normalized to CONSTRAINT from PREREQUISITE.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-04-03 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType ARCHITECTURE_BASIS and
-    Origin CONTEXT preserved semantically in this note. Architecture-basis edge from SCA-001 context injection;
-    does not mark PKG-00 as ISSUED.; Carried forward from DAG-001-E0114 into DAG-002 revision 0.5 proposal;
-    active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch
-    authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE; semantic_refresh_2026-06-16: architecture-basis dependency
-    normalized to CONSTRAINT from PREREQUISITE.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-04-01
+  condition: >-
+    The frame kernel numbers six degrees of freedom per node and reduces a system with restrained
+    and prescribed degree-of-freedom values, the same in the sparse and dense solve modes.
   gating: true
 - from: DEL-04-01
-  condition: 'DEL-04-03 needs DEL-04-01 as a predecessor: support/restraint models modify frame boundary
-    conditions. R-6/R-7 S-K1 (Work/skew-restraints.md): a skewed record also needs the frame kernel''s
-    restraint basis (`restraint_basis`), its skewed spring node blocks in sparse assembly, the row-based
-    ground screen and the formation check''s restraint source; the support policy and its refusals stay
-    DEL-04-03''s.
-
-
-    Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType SOLVER_PREDECESSOR Explicitness
-    INFERRED_DIRECT SatisfactionStatus UNKNOWN and Origin DECOMPOSITION preserved semantically in this
-    note. DAG-001 direct dependency inferred from deliverable descriptions anticipated artifacts scope
-    mapping and package dependency shape.; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Solving a model with a spring or a skewed restraint
+  condition: >-
+    The frame kernel adds a spring's stiffness on a named degree of freedom in its assembly, and
+    forms an exact restraint basis for authored skew directions (the constraint d'u = 0 exact in
+    the reduced system, together with the axis restraints and springs at the node, the spring as
+    k d d'/(d'd)),
+    with the lift of the reduced solution and the attribution of each reaction, the same in the
+    sparse and dense solve modes.
   gating: true
 - from: DEL-02-01
-  condition: 'DEL-04-03 needs DEL-02-01 as a predecessor: support/restraint data must be model entities
-
-
-    Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType DOMAIN_MODEL Explicitness
-    INFERRED_DIRECT SatisfactionStatus UNKNOWN and Origin DECOMPOSITION preserved semantically in this
-    note. DAG-001 direct dependency inferred from deliverable descriptions anticipated artifacts scope
-    mapping and package dependency shape.; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A support record in the model document has a stable identifier and carries its family, its
+    node, the degrees of freedom it restrains, an optional direction, its stiffness and its hanger
+    data, each quantity with a unit.
   gating: true
 - from: DEL-02-02
-  condition: 'DEL-04-03 needs DEL-02-02 as a predecessor: support stiffnesses and imposed displacements
-    are unit-aware
-
-
-    Notes: Normalized v3.1 enums during TP-DAG-004 refresh. Legacy DependencyType UNIT_CONTRACT Explicitness
-    INFERRED_DIRECT SatisfactionStatus UNKNOWN and Origin DECOMPOSITION preserved semantically in this
-    note. DAG-001 direct dependency inferred from deliverable descriptions anticipated artifacts scope
-    mapping and package dependency shape.; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The unit catalog converts support stiffnesses, displacements, rotations and forces to one
+    consistent basis and rejects a dimensional mismatch before the value reaches the support model.
+  gating: false
+- from: DEL-09-01
+  when: Examining the imposed-displacement criterion against the frozen benchmark packages
+  condition: >-
+    The mechanics benchmark suite holds `validation/references/w9_benchmarks` and
+    `validation/references/w16_imposed_motion`, each expected value with a derivation that imports,
+    reads and runs no product code and a provenance record (DEL-09-01/AC-005).
   gating: true
 code_paths:
 - core/solver/linear_supports/**
-- tools/validation/validate_dependencies_schema.py
+# In DEL-04-07's product crate, the modules that carry this deliverable's support law into the
+# product solve. DEL-04-07 owns their integration into the solve. The restraint-basis algebra is
+# in the frame kernel (core/solver/frame_kernel/src/restraint_basis.rs), listed by DEL-04-01;
+# REQ-010 and AC-004 here are the criteria that examine it.
+#   imposed_motion.rs: the classification of imposed displacements.
+#   skew.rs: boundary preparation, assembly blocks, lift and attribution of skewed records.
 - core/product_physics/src/imposed_motion.rs
-# RT-S3: DEC-049 support-action publication in DEL-04-07's product adapter; no support-law transfer.
-- core/product_physics/src/lib.rs
-# W-16 stage 2 (Design pf-nonlinear-imposed-motion.md): the motion's boundary
-# in the nonlinear loop and the K-D5 intended-map check.
-- core/solver/nonlinear_integration/src/lib.rs
-- core/solver/nonlinear_integration/src/confirmation.rs
-# R-6/R-7 skewed restraints (Design skew-restraints.md): the independent references.
-- validation/references/skew_restraints/**
-# R-6/R-7 S-K1 as built (Design skew-restraints.md §15 step 11, §16): the restraint basis and the
-# product's skew boundary and publication.
-- core/solver/frame_kernel/src/restraint_basis.rs
 - core/product_physics/src/skew.rs
-checks:
-- core/product_physics/tests/rt_a3_constant_effort_references.rs
-- core/product_physics/tests/rt_a3_reducer_2b_reference_system.rs
-- core/product_physics/tests/support_reactions_runtime.rs
-- core/solver/linear_supports/src/lib.rs
-- core/product_physics/tests/w16_imposed_motion.rs
+- core/product_physics/src/skew_tests.rs
+# Shared files. This deliverable's part is the support law in them; the rest of each file belongs
+# to its other listed owners.
+#   document_members.rs (DEL-02-01): the admission of skewed records and its codes.
+#   lib.rs (DEL-04-07, DEL-02-01, DEL-05-01, DEL-05-05): the constant-effort and variable-spring
+#     classification, their loads and the not-consumed warning.
+#   validation.rs (DEL-04-07, DEL-03-03 to DEL-03-05): the spring-hanger and support-family checks.
+- core/product_physics/src/document_members.rs
+- core/product_physics/src/lib.rs
+- core/product_physics/src/validation.rs
 - core/product_physics/src/w16_nonlinear_motion_tests.rs
-- core/solver/nonlinear_integration/src/confirmation_tests.rs
-- validation/references/w16_nonlinear_motion/generators/w16_nl_reference.py
-- validation/references/skew_restraints/generators/skew_reference.py
-# R-6/R-7 S-K1: the basis, the boundary preparation, the product cases in both static modes,
-# and the readers' re-check of the along-direction row.
-- core/solver/frame_kernel/src/restraint_basis_tests.rs
+- validation/references/skew_restraints/**
+- validation/references/w16_nonlinear_motion/**
+checks:
+- core/solver/linear_supports/src/lib.rs
 - core/solver/linear_supports/src/skew_tests.rs
 - core/product_physics/src/skew_tests.rs
 - core/product_physics/tests/skew_restraints_references.rs
 - tests/test_skew_along_direction_reader.py
+- validation/references/skew_restraints/generators/skew_reference.py
+- core/product_physics/tests/w16_imposed_motion.rs
+- core/product_physics/src/w16_nonlinear_motion_tests.rs
+- validation/references/w16_nonlinear_motion/generators/w16_nl_reference.py
+- core/product_physics/tests/rt_a3_constant_effort_references.rs
+- core/product_physics/tests/support_reactions_runtime.rs

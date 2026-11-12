@@ -2,179 +2,49 @@ id: DEL-13-03
 name: Constraint validation engine
 needs:
 - from: DEL-00-01
-  condition: 'DEL-13-03 uses SCA-001 architecture basis AB-00-01 from DEL-00-01 before product-development
-    execution.
-
-
-    Notes: Preserved from approved DAG-002 mirror; canonicalized enum fields during TP-DAG-004 local dependency
-    refresh; local evidence only, not aggregate graph approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-13-03 uses SCA-001 architecture basis AB-00-02 from DEL-00-02 before product-development
-    execution.
-
-
-    Notes: Preserved from approved DAG-002 mirror; canonicalized enum fields during TP-DAG-004 local dependency
-    refresh; local evidence only, not aggregate graph approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Publishing the validation result's schema
+  condition: >-
+    The baseline in force names JSON Schema 2020-12 as the dialect of public schemas and
+    interchange documents.
   gating: true
 - from: DEL-00-03
-  condition: 'DEL-13-03 uses SCA-001 architecture basis AB-00-03 from DEL-00-03 before product-development
-    execution.
-
-
-    Notes: Preserved from approved DAG-002 mirror; canonicalized enum fields during TP-DAG-004 local dependency
-    refresh; local evidence only, not aggregate graph approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-13-03 uses SCA-001 architecture basis AB-00-04 from DEL-00-04 before product-development
-    execution.
-
-
-    Notes: Preserved from approved DAG-002 mirror; canonicalized enum fields during TP-DAG-004 local dependency
-    refresh; local evidence only, not aggregate graph approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Exposing validation through an application service
+  condition: >-
+    Every command and job returns a result envelope that carries its diagnostics, and a query
+    leaves the model and the stored project unchanged.
   gating: true
 - from: DEL-00-06
-  condition: 'DEL-13-03 uses SCA-001 architecture basis AB-00-06 from DEL-00-06 before product-development
-    execution.
-
-
-    Notes: Preserved from approved DAG-002 mirror; canonicalized enum fields during TP-DAG-004 local dependency
-    refresh; local evidence only, not aggregate graph approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The diagnostic contract fixes the fields a diagnostic record carries (code, class, severity,
+    source, affected object, message, remediation, provenance) and the outcome kinds a result
+    envelope distinguishes.
   gating: true
-- from: DEL-00-07
-  condition: 'DEL-13-03 uses SCA-001 architecture basis AB-00-07 from DEL-00-07 before product-development
-    execution.
-
-
-    Notes: Preserved from approved DAG-002 mirror; canonicalized enum fields during TP-DAG-004 local dependency
-    refresh; local evidence only, not aggregate graph approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-01
+  condition: >-
+    The model document gives every node its coordinates as numbers in the project length unit in
+    one global right-handed Cartesian frame, every pipe its two end nodes, and every addressable
+    record a stable identifier.
   gating: true
-- from: DEL-00-08
-  condition: 'DEL-13-03 uses SCA-001 architecture basis AB-00-08 from DEL-00-08 before product-development
-    execution.
-
-
-    Notes: Preserved from approved DAG-002 mirror; canonicalized enum fields during TP-DAG-004 local dependency
-    refresh; local evidence only, not aggregate graph approval.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-02
+  condition: >-
+    The unit catalog converts a quantity to the canonical unit of its dimension, and gives a
+    named finding and no value for an unknown unit, a missing unit or a unit of another
+    dimension.
   gating: true
 - from: DEL-13-01
-  condition: 'DEL-13-03 needs DEL-13-01 as a predecessor because constraint validation consumes available
-    design-knowledge schema and provenance inputs.
-
-
-    Notes: Preserved from approved DAG-002 mirror and supported as predecessor evidence by the DEL-13-03
-    source kit; canonicalized enum fields during TP-DAG-004 local dependency refresh; reconciliation should
-    compare against aggregate graph authority before sequencing changes.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A design-knowledge record has a stable identifier, one of the stated kinds, its provenance
+    record, and quantities that carry their unit and dimension; a corridor or zone states its
+    extent as geometry.
   gating: true
-  evidence: execution/PKG-13/DEL-13-03/Guidance.md
 - from: DEL-13-02
-  condition: 'DEL-13-03 needs DEL-13-02 as a predecessor because constraint validation consumes constraint
-    entity and provenance inputs.
-
-
-    Notes: Preserved from approved DAG-002 mirror and supported as predecessor evidence by the DEL-13-03
-    source kit; canonicalized enum fields during TP-DAG-004 local dependency refresh; reconciliation should
-    compare against aggregate graph authority before sequencing changes.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A constraint record states its kind, state, origin, target entities, design-knowledge
+    references, parameters and provenance, and the constraint format names the finding class of
+    each category.
   gating: true
-  evidence: execution/PKG-13/DEL-13-03/Guidance.md
-- from: DEL-02-02
-  condition: 'DEL-13-03 needs DEL-02-02 as a predecessor because constraint validation must remain unit-aware
-    and dimensionally checked.
-
-
-    Notes: Preserved from approved DAG-002 mirror and supported as predecessor evidence by the DEL-13-03
-    source kit; canonicalized enum fields during TP-DAG-004 local dependency refresh; reconciliation should
-    compare against aggregate graph authority before sequencing changes.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-13/DEL-13-03/Guidance.md
-- from: DEL-04-06
-  condition: 'DEL-13-03 needs DEL-04-06 as a predecessor because deterministic validation messages need
-    diagnostic and warning semantics.
-
-
-    Notes: Preserved from approved DAG-002 mirror and supported as predecessor evidence by the DEL-13-03
-    source kit; canonicalized enum fields during TP-DAG-004 local dependency refresh; reconciliation should
-    compare against aggregate graph authority before sequencing changes.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-13/DEL-13-03/Guidance.md
-- from: DEL-02-05
-  condition: 'DEL-13-03 needs DEL-02-05 as a predecessor because provenance-aware validation needs persisted
-    project data and round-trip serialization context.
-
-
-    Notes: Preserved from approved DAG-002 mirror and supported as predecessor evidence by the DEL-13-03
-    source kit; canonicalized enum fields during TP-DAG-004 local dependency refresh; reconciliation should
-    compare against aggregate graph authority before sequencing changes.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT;
-    legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-13/DEL-13-03/Guidance.md
 code_paths:
-- core/constraints/validation
-- core/constraints/validation/__init__.py
-- core/constraints/validation/engine.py
-- tools/validation/validate_dependencies_schema.py
-checks:
-- tests/test_constraint_schema.py
+- core/constraints/validation/**
 - tests/test_constraint_validation.py
-- tests/test_design_knowledge_schema.py
-- tests/test_persistence_schema.py
-- tests/test_units_schema.py
+checks:
+- tests/test_constraint_validation.py

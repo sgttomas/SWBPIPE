@@ -6,8 +6,15 @@ import { DisabledReason } from "./DisabledReason";
 
 const STAGE_ICONS: Record<ShellStage, typeof Box> = { model: Box, loads: Layers, results: LineChart, review: ClipboardCheck };
 
+/** The caption's colour family (tokens rail.caption*): an ended run, a stale one, or a reopened one. */
+function captionKind(caption: string): "failed" | "stale" | "historical" {
+  if (caption === "Failed" || caption === "Refused") return "failed";
+  if (caption === "Historical") return "historical";
+  return "stale";
+}
+
 /**
- * The stage rail (specification §2.3): Model, Loads, Results, Review; a
+ * The stage rail: Model, Loads, Results, Review; a
  * hairline; Libraries, Rules, Issues. It is navigation: every item calls
  * `setActiveSection` through the session, and its states come from
  * `shellLayout.ts`. A disabled item stays focusable so its reason can be read.
@@ -39,7 +46,7 @@ export function StageRail({ issueCount }: { issueCount: number }) {
               >
                 <Icon size={20} aria-hidden="true" />
                 <span className="shell-rail-label">{state.label}</span>
-                {state.caption ? <span className="shell-rail-caption" data-testid={`rail-caption-${state.stage}`}>{state.caption}</span> : null}
+                {state.caption ? <span className="shell-rail-caption" data-testid={`rail-caption-${state.stage}`} data-caption-kind={captionKind(state.caption)}>{state.caption}</span> : null}
               </button>
               {state.enabled ? null : <DisabledReason id={reasonId} text={state.reason ?? ""} />}
             </li>

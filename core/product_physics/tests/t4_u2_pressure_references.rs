@@ -12,7 +12,7 @@
 //! T4-U6 (D-5): stress rows are compared per section basis. Re-frozen cases
 //! (I7's 72 mill-tolerance sketches, I8's MILLTOL) state each basis's value;
 //! cases frozen where the bases coincide state one value, which both families
-//! must carry (DEL-05-03 Design §7).
+//! must carry.
 //!
 //! B7b: the frozen documents stay 0.3.0/0.4.0 (bytes unchanged); every copy is
 //! re-authored to the current 0.9.0 exact document (`common/current_model.rs`)
@@ -85,7 +85,7 @@ fn codes(envelope: &Value) -> Vec<String> {
 }
 
 /// The published rows by (kind, entity, location, component, section basis);
-/// the basis is "" on a row published once (D-5, Design §2.1).
+/// the basis is "" on a row published once (D-5).
 struct Rows(HashMap<(String, String, String, String, String), Vec<f64>>);
 
 impl Rows {
@@ -177,7 +177,7 @@ const STATION: [(&str, &str, f64, &str, bool); 7] = [
 /// once per section basis (D-5). A re-frozen case states each basis's value
 /// under `stresses_by_section_basis` with per-basis groups (`{group}@{basis}`);
 /// a case frozen where the bases coincide states one value, which both
-/// families must carry (Design §7).
+/// families must carry.
 const STATION_STRESS: [(&str, &str, f64, &str); 4] = [
     ("sigma_m", "pipe_axial_membrane_stress_v2", 1.0, "membrane_stress"),
     ("sigma_b_y", "element_local_bending_normal_stress_y", 1e-6, "bending_torsion_stress"),
@@ -560,7 +560,7 @@ fn i8_documents(references: &Value) -> Vec<(String, Value, Vec<Value>)> {
 /// Every T4-I8 row on the v3 straight route, in both modes and on both
 /// document versions, at the row's own criterion. Cases 2–5 (zero mill
 /// tolerance and allowance, frozen once) carry each stress row on both
-/// section bases at the one frozen value (Design §7); case 1 (MILLTOL) is
+/// section bases at the one frozen value; case 1 (MILLTOL) is
 /// checked row by row on its own basis, in both 0.8.0 forms and under its
 /// `shear_model_variant` patch.
 #[test]

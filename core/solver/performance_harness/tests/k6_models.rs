@@ -1,4 +1,4 @@
-//! K6 tests B: the kernel models (K6 brief, Required tests B; K6 plan §3).
+//! K6 tests B: the kernel models (K6 brief, Required tests B).
 //!
 //! B1 compares the Rust generator's canonical bytes with the committed files
 //! under `observations/k6/models/` (the 10- and 100-member RF-LARGE cases and

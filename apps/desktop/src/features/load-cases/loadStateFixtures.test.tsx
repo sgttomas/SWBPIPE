@@ -202,7 +202,7 @@ describe("workspace session on a committed load/reference-state model opened thr
     await waitFor(() => expect(hook.result.current.model.model!.load_cases.find(c => c.id === PASS_CASE)!.analysis_state!.load_sources[0].factor).toBe(2.5));
     const edited = hook.result.current.model.model!;
     // Value-exact: the wasm operation route returns the applied model with
-    // sorted keys (WP2 RETURN §6.3), so each subtree is compared by its RFC 8785
+    // sorted keys, so each subtree is compared by its RFC 8785
     // canonical bytes. Undo below restores the document byte-for-byte.
     const canonical = async (texts: string[]) => Promise.all(texts.map(text => canonicalJsonString(JSON.parse(text))));
     expect(await canonical(passThroughValues(edited))).toEqual(await canonical(before));

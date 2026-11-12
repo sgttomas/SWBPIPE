@@ -380,7 +380,7 @@ fn corpus_lists() -> Vec<(String, String, Vec<String>)> {
 #[test]
 fn exact_route_limitations_fixture_is_current() {
     let fixture = coverage_fixture();
-    // §2.2: the ten shapes the producer emits, each without and with pressure
+    // the ten shapes the producer emits, each without and with pressure
     // elongation (RT-L2). The six pressure-source-1 shapes with a connector or a
     // realized bend are never emitted (see the guard).
     assert_eq!(fixture.lists.len(), 20);

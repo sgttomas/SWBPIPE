@@ -118,7 +118,7 @@ describe("desktop model document shape", () => {
     expect(checkNativeOutcome({ ...opened, document: withoutAngle }).outcome).toBe("opened");
   });
 
-  // W-13 §5.3: the webview runs the applier's Rust document validator through the
+  // the webview runs the applier's Rust document validator through the
   // wasm engine (no TypeScript re-implementation) before adopting a document.
   it("opens a document carrying every model-data slot unchanged, with no warnings", () => {
     expect(modelDocumentShapeDiagnostics(everySlotModel)).toEqual([]);

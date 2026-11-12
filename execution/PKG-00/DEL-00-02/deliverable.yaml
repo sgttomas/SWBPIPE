@@ -1,7 +1,6 @@
 id: DEL-00-02
 name: Repository and module boundary architecture
 needs: []
-code_paths:
-- apps/desktop
-- apps/desktop/
-- core/model_operations/operation_applier
+# This deliverable's own files are the layer map and the dependency check. The modules the map
+# describes (apps/desktop, core/**, schemas/**) belong to the deliverables that implement them.
+code_paths: []

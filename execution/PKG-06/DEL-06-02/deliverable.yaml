@@ -1,134 +1,42 @@
 id: DEL-06-02
 name: Sandboxed unit-aware expression evaluator
 needs:
-- from: DEL-00-01
-  condition: 'DEL-06-02 requires applicable architecture basis AB-00-01 from DEL-00-01 as a sealed-context
-    implementation constraint.
-
-
-    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
-    injection rather than local graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-06-02 requires applicable architecture basis AB-00-02 from DEL-00-02 as a sealed-context
-    implementation constraint.
-
-
-    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
-    injection rather than local graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-06-02 requires applicable architecture basis AB-00-03 from DEL-00-03 as a sealed-context
-    implementation constraint.
-
-
-    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
-    injection rather than local graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-06-02 requires applicable architecture basis AB-00-04 from DEL-00-04 as a sealed-context
-    implementation constraint.
-
-
-    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
-    injection rather than local graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-06-02 requires applicable architecture basis AB-00-06 from DEL-00-06 as a sealed-context
-    implementation constraint.
-
-
-    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
-    injection rather than local graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-06-02 requires applicable architecture basis AB-00-07 from DEL-00-07 as a sealed-context
-    implementation constraint.
-
-
-    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
-    injection rather than local graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-06-02 requires applicable architecture basis AB-00-08 from DEL-00-08 as a sealed-context
-    implementation constraint.
-
-
-    Notes: Normalized from prior DAG-synchronized row to v3.1 enum values; source authority remains context
-    injection rather than local graph authority.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-06-01
-  condition: 'DEL-06-02 has an upstream interface dependency on the rule-pack schema because evaluator
-    variable binding and formula structures must follow the sealed schema contract.
-
-
-    Notes: Conservative interface edge retained from prior register and refreshed from local Procedure.md.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A pack document declares a dimension and a unit reference for each required input and each
+    value slot, names for each check the inputs and slots its formula may read, carries each
+    formula as a declarative expression, and declares its grammar version at the top level.
   gating: true
 - from: DEL-02-02
-  condition: 'DEL-06-02 has an upstream interface dependency on the unit-system contract because expression
-    operands comparisons and outputs must be dimensionally checked.
-
-
-    Notes: Conservative interface edge retained from prior register and refreshed from local Procedure.md.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The unit schema states the one dimension vocabulary, in which every dimension of the grammar is
+    a named dimension, and the unit catalog answers whether a symbol is a unit of a given
+    dimension.
   gating: true
+- from: DEL-02-03
+  condition: >-
+    The analysis status vocabulary is seven statuses, of which software may emit the first six and
+    never HUMAN_APPROVED_FOR_PROJECT.
+  gating: false
 code_paths:
 - core/rules/expression_evaluator/**
-- core/rules/rule_check_runner/**
-- core/analysis_runs/rule_interval.py
-- tests/test_rule_interval.py
-- tools/validation/validate_dependencies_schema.py
-- apps/desktop/src-tauri/src/lib.rs
-checks:
-- core/rules/expression_evaluator/tests/conformance_corpus.rs
-- core/rules/rule_check_runner/src/lib.rs
-- core/rules/rule_check_runner/tests/*.rs
-- tests/test_rule_interval.py
 - fixtures/rule_expressions/conformance_corpus/**
+# In the pack document module (DEL-06-01's): the codec between a pack's expression encoding and
+# the tree, the formula findings of validation, and the unit check of a pack's checks.
+- core/rules/rule_pack_document/src/lib.rs
+# In the schema (DEL-06-01's): the expression node, expression quantity and user table
+# definitions, which are the grammar's encoding.
+- schemas/rule_pack.schema.yaml
+# Not decided: what a rule check does with a solver value published as an interval. No scope
+# states a criterion for the interval evaluation below (the evaluator's interval functions, the
+# run's bounded entry, this reference and its shared cases), and no product path reaches it.
+- core/analysis_runs/rule_interval.py
+- fixtures/rule_interval/**
+- tests/test_rule_interval.py
+- core/rules/rule_check_runner/tests/interval_bounds_run.rs
+- core/rules/rule_check_runner/tests/rule_interval_cases.rs
+checks:
+- core/rules/expression_evaluator/src/lib.rs
+- core/rules/expression_evaluator/tests/conformance_corpus.rs
 - core/rules/rule_pack_document/tests/corpus_parity.rs
 - core/rules/rule_pack_document/tests/unit_check.rs
-- apps/desktop/src/features/rule-packs/RulePackManagerPanel.unitCheck.test.tsx

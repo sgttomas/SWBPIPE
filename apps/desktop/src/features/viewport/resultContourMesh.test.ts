@@ -17,7 +17,7 @@ import {
 import { resultNoValueHex, resultScaleHex, viewportRoleHex } from "./viewportPalette";
 import { ViewportOwnershipLedger, ViewportResource } from "./viewportResource";
 
-// The contour sleeves (A4; DEL-07-05 Design `result-contour.md` §3, §8, §9): which members get one,
+// The contour sleeves (A4): which members get one,
 // their rings and colours in both themes, and the resource's theme repaint. Invented data only.
 
 // Rows in the producer's section convention, so the signed axial force blends where signs agree.

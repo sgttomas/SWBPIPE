@@ -2,389 +2,116 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-14-03
 package_id: PKG-14
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-073, SOW-071]
 package_objective_refs: [OBJ-016]
 ---
 
-# Scope of Work — DEL-14-03
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-14-03 Model-state comparison engine
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-14-03` in service of project scope [SOW-073, SOW-071] and package objectives [OBJ-016].
+An engineer can ask what changed between two saved designs and get the same answer every time: which entities were added, which were removed, which changed and which were left alone, and for a changed entity, which fields differ and what each state holds. Entities are paired by their stable identifiers, or by a mapping the user made where an identifier changed, and by nothing else. The answer is a diagnostic aid for design iteration and review; it validates neither design.
 
-- **OUT-001** — A deterministic model-state comparison contract using stable IDs and explicit mappings to classify added, removed, changed, and unchanged entities is produced.
+It serves SOW-073 and SOW-071 under OBJ-016 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-14, row DEL-14-03), and `docs/PRD.md` §8.8, §10.5, §15.3 (the model inputs a comparison covers), §15.4, FR-CMP-003 (Must: added, removed, unchanged and modified entities are reported), FR-CMP-006 (Must: stable identifiers are the default mapping) and, for states, FR-CMP-007 (Should: manual mappings). No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it.
+
+- **OUT-001** — The model-state comparison: the comparison of two saved model states and its result.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-14-03 Model-state comparison engine
+**Terms the product implements.** Comparison, side, mapping hierarchy, mapping record, unmatched record and the common comparison-result interface are defined by DEL-14-05 and used here as defined.
 
-> #### Datasheet: DEL-14-03 Model-state comparison engine
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Compared entity.* Every addressable record of a state's model document, in its family: the nodes, elements, branches, bends, components, supports, loads, materials, sections, rule-pack references, constraints and unresolved assumptions of PRD §15.3, and the model-level members that are not a collection, solver settings among them; the order of each collection is compared too. Every member of the document belongs to exactly one of them.
+- *Classification.* An entity only on the right is added. An entity only on the left is removed. A mapped pair with no differing field is unchanged, and a mapped pair with at least one is changed.
+- *Unresolved.* A mapped pair that cannot be classified: a mapping that does not resolve to one entity on each side, or a changed unit-bearing field with missing unit or dimension metadata, with incompatible dimensions, or with different units and no governed normalization contract. It is reported as unresolved with a blocking diagnostic, never as changed or unchanged.
+- *Field difference.* For a changed entity, the path of each field that differs and the value each side holds, as stored. Two field values are equal when their RFC 8785 canonical forms are equal.
+- *Structural comparison.* The comparison subtracts nothing and gives no numeric difference of a unit-bearing value. It converts a unit only under a governed normalization contract.
+- *State context.* What the result carries about each side beside the entities: the state's identity, name and hashes, and its warnings, unresolved assumptions, notes and external references.
 
-### CLM-003 — Identification
+**Undecided.**
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-14-03 |
-> | Name | Model-state comparison engine |
-> | Package ID | PKG-14 |
-> | Package Name | Model States, Analysis Runs, and Comparison |
-> | Type | BACKEND_FEATURE_SLICE |
-> | Description | Implement deterministic state diffs using stable IDs and explicit mapping records. |
-> | Anticipated artifacts | state comparison engine; state diff tests |
-> | Scope coverage | SOW-073; SOW-071 |
-> | Objective support | OBJ-016 |
-> | Context envelope | L |
->
-> Source: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` section "PKG-14 - Model States, Analysis Runs, and Comparison"; `docs/_Registers/Deliverables.csv` row `DEL-14-03`.
->
+- The governed normalization contract under which a changed field whose two sides are in different units could be classified. Until one is decided, such a field is unresolved.
+- Whether a tolerance profile applies to any field of a state comparison (decomposition OI-014).
 
-### CLM-004 — Attributes
+**Boundary.**
 
-> ##### Attributes
->
-> | Attribute | Value | Source |
-> |---|---|---|
-> | Primary function | Compute deterministic added, removed, changed, and unchanged model-entity diffs between model states. | `_CONTEXT.md` Context Envelope; `execution/_Decomposition/SOFTWARE_DECOMP.md` row `DEL-14-03` |
-> | Identity basis | Stable IDs are the primary matching surface. | `docs/_Registers/ScopeLedger.csv` row `SOW-073`; `docs/TYPES.md` `Reference` definition |
-> | Mapping basis | Explicit mapping records are required where direct stable-ID comparison is insufficient. Mapping workflow details remain `TBD`. | `docs/_Registers/ScopeLedger.csv` row `SOW-073`; `execution/_Decomposition/SOFTWARE_DECOMP.md` open issue `OI-014` |
-> | State basis | Model states are named immutable records with tags, notes, external references, unresolved assumptions, warnings, and deterministic hashes. | `docs/_Registers/ScopeLedger.csv` row `SOW-071` |
-> | Authority boundary | Comparison output is diagnostic/audit functionality, not external validation or professional acceptance. | `docs/_Registers/ScopeLedger.csv` row `SOW-073`; `docs/CONTRACT.md` invariants `OPS-K-AUTH-1`, `OPS-K-MECH-2` |
-> | Architecture basis | Rust core/application services, schema-first command/query/job result envelopes, JSON Schema 2020-12, and JCS-compatible hash basis where JSON payloads are hashed. | `_CONTEXT.md` Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.1 |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> | Condition | Status |
-> |---|---|
-> | Input state schema | Depends on `DEL-14-01` immutable model state records. |
-> | Mapping and tolerance contracts | Depends on `DEL-14-05`; tolerance defaults and mapping workflows remain `TBD`. |
-> | Unit-aware comparison of unit-bearing values | Depends on `DEL-02-02` unit system and dimensional-analysis core contract. |
-> | Analysis-run result deltas | Out of this deliverable except where SOW-073 context informs state comparison; the analysis-run comparison engine is `DEL-14-04`. |
-> | External validation/prover status | Excluded. The package does not ingest commercial prover outputs comprehensively or determine external validation. |
->
-> Source: `Dependencies.csv` approved graph resolved through `execution/_DAG/_LATEST.md` mirror rows `DAG-002-E0792`, `DAG-002-E0793`, `DAG-002-E0794`; `_CONTEXT.md` Package Exclusions; `execution/_Decomposition/SOFTWARE_DECOMP.md` rows `DEL-14-03`, `DEL-14-04`, `DEL-14-05`.
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> | Construction surface | Conservative construction note |
-> |---|---|
-> | Backend slice | Implement as a backend/service feature aligned with the Rust core/application-service architecture basis. Current implementations: the Python reference module `core/comparison/model_state/engine.py` (`compare_model_states`), checked by `tests/test_model_state_comparison.py`; the desktop compares two saved states with its own TypeScript implementation (`apps/desktop/src/features/comparison/stateComparison.ts`, W-12 S3a), checked against this reference on a committed golden by `tests/test_model_state_comparison_parity.py`; no product code calls the Python module. |
-> | Input contract | Accept two immutable model-state references or payloads once `DEL-14-01` defines the state record contract. |
-> | Matching contract | Prefer stable IDs. Require explicit mapping records for intentional correspondence where IDs differ. |
-> | Diff contract | Report added, removed, changed, and unchanged model entities. Exact entity categories and payload normalization are `TBD` pending state schema detail. |
-> | Hash/canonicalization | Where JSON payloads are hashed, use the accepted JCS-compatible canonical JSON basis. |
-> | Diagnostics | Preserve warnings, unresolved assumptions, provenance, and professional-boundary status in result envelopes. |
-> | Tests | Provide deterministic state diff tests covering stable-ID matches, mapped entities, and unmatched entities. Exact fixture model content is `TBD` and must avoid protected/private data. |
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - deliverable identity, scope, architecture-basis injection, and dependency envelope.
-> - `_REFERENCES.md` - local reference index for this deliverable.
-> - `Dependencies.csv` - approved graph resolved through `execution/_DAG/_LATEST.md` local mirror/evidence surface.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` - accepted current decomposition basis.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - deliverable row `DEL-14-03`.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - rows `SOW-071` and `SOW-073`.
-> - `docs/CONTRACT.md` - invariants for IDs, units, professional authority, data, and agent behavior.
-> - `docs/SPEC.md` - unit, persistence, analysis-boundary, reporting/result-envelope, and validation mechanics.
-> - `docs/TYPES.md` - reference, traceability, checksum, diagnostic, result, and report boundary definitions.
-
-### CLM-008 — D-41 R5 T2B unit evidence (2026-07-12)
-
-> ##### D-41 R5 T2B unit evidence (2026-07-12)
->
-> Focused positive/negative tests cover missing metadata, incompatible dimensions, different units without normalization, and same-unit/same-dimension structured changes. No numeric conversion or engineering validation is claimed.
+- **CLM-001** — Saved model states and their verified read are DEL-14-01's, and the model document and its stable identifiers DEL-02-01's. The unit catalog, which says what dimension a unit has, is DEL-02-02's.
+- **CLM-002** — The mapping contract, the unmatched classifications and the common comparison-result interface are DEL-14-05's. Comparing the results of two runs, and every numeric difference in a common unit, is DEL-14-04's. Tolerance profiles are DEL-14-05's.
+- **CLM-003** — The comparison view and the selection of two states in the desktop are DEL-07-08's; the CSV file of the comparison table is DEL-08-04's; the comparison sections of a report are DEL-08-06's.
+- **CLM-004** — Outside the product: matching suggested from geometry or topology, external validation, and any statement that one state is acceptable.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-009 — Specification: DEL-14-03 Model-state comparison engine
+A comparison says how two stored documents differ. It does not say that a difference matters, and an unchanged entity is one whose stored fields are equal, not one that behaves the same.
 
-> #### Specification: DEL-14-03 Model-state comparison engine
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-011 — Scope
+- **REQ-001** — The engine compares two saved, immutable model states (also cited as REQ-14-03-001). Source: SOW-071; PRD §15.3.
+- **REQ-002** — Stable identifiers are the primary basis of matching and are applied automatically (also cited as REQ-14-03-002). Source: SOW-073; PRD FR-CMP-006.
+- **REQ-003** — Where two entities correspond and their identifiers differ, they are compared as a pair only under an explicit mapping record (also cited as REQ-14-03-003). Source: SOW-073; PRD §15.4, FR-CMP-007.
+- **REQ-004** — Every entity of both states is classified as added, removed, changed or unchanged, or reported as unresolved (also cited as REQ-14-03-004). Source: decomposition row DEL-14-03; PRD FR-CMP-003.
+- **REQ-005** — The same two states, mappings and settings give the same result, in content and in order (also cited as REQ-14-03-005). Source: SOW-073.
+- **REQ-006** — The result keeps each state's context: unresolved assumptions, warnings, notes, external references and hashes are not dropped (also cited as REQ-14-03-006). Source: SOW-071.
+- **REQ-007** — A unit-bearing value is never compared as a bare number. A changed unit-bearing field carries its unit and dimension on both sides. Missing metadata, incompatible dimensions, and different units with no governed normalization contract are each reported unresolved with a blocking diagnostic. The comparison gives no numeric difference of a unit-bearing value (also cited as REQ-14-03-007). Source: PRD §5.6.
+- **REQ-008** — The result carries diagnostics, with provenance, for a missing or unresolvable mapping, a mapping of a category the comparison does not support or one that pairs entities of different families, an unresolved assumption of either state, and the limits of what the comparison establishes (also cited as REQ-14-03-008). Source: decomposition AB-00-06.
+- **REQ-009** — No output claims certification, sealing, authentication, professional approval, code compliance or external validation (also cited as REQ-14-03-009). Source: SOW-073; PRD §21.2.
+- **REQ-010** — Fixtures and examples of state comparison are invented and hold no protected standards text, proprietary value or private project data (also cited as REQ-14-03-010). Source: PRD §20.1.
+- **REQ-011** — The result is produced against DEL-14-05's common comparison-result interface, with the stable identifiers and mappings of its source unchanged and no conversion applied (also cited as DEL-14-03-SCA011-REQ-001, DEL-14-03-SCA011-VER-001 and DEL-14-03:2). Source: decomposition row DEL-07-08 (the comparison interface is DEL-14-05's).
+- **REQ-012** — In the product, a user compares two saved states of a project and receives this comparison of their stored snapshots, with its mappings, its unit and missing-data diagnostics and each state's context (also cited as DEL-14-03:1). Source: PRD §10.5, FR-CMP-003.
+- **REQ-013** — The comparison is complete: every member of both model documents takes part, and a member the comparison cannot assign to an entity refuses the comparison by name. Nothing is skipped. Source: PRD §15.3.
 
-> ##### Scope
->
-> This deliverable specifies a backend feature slice for deterministic comparison of immutable model states. It covers the model-state side of SOW-073 and the SOW-071 state-record context needed by that comparison. It must report added, removed, changed, and unchanged model entities using stable IDs and explicit mapping records where required.
->
-> This deliverable excludes the full analysis-run comparison engine (`DEL-14-04`), the mapping/tolerance/export contract definition (`DEL-14-05`), and the immutable state data model itself (`DEL-14-01`). Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
->
-> Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` rows `DEL-14-01` through `DEL-14-05`; `docs/_Registers/ScopeLedger.csv` rows `SOW-071` and `SOW-073`.
->
+### Acceptance criteria
 
-### CLM-012 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Source | Verification |
-> |---|---|---|---|
-> | REQ-14-03-001 | The engine shall compare two immutable model-state records or references once the `DEL-14-01` state contract is available. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row `SOW-071`; `Dependencies.csv` row `DAG-002-E0792` | Unit test with two known state fixtures; schema validation once state schema exists. |
-> | REQ-14-03-002 | The engine shall use stable IDs as the primary entity matching basis. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row `SOW-073`; `docs/TYPES.md` `Reference` definition | Unit tests showing order-independent, stable-ID-based matching. |
-> | REQ-14-03-003 | The engine shall require explicit mapping records where comparison cannot rely on direct stable-ID correspondence. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row `SOW-073`; `Dependencies.csv` row `DAG-002-E0793` | Unit tests for manually mapped entities after `DEL-14-05` defines mapping records. |
-> | REQ-14-03-004 | The engine shall classify model entities as added, removed, changed, or unchanged. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Context Envelope; `execution/_Decomposition/SOFTWARE_DECOMP.md` row `DEL-14-03` | Unit tests for each classification. |
-> | REQ-14-03-005 | The same two input states, mappings, and comparison settings shall produce deterministic diff output. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row `SOW-073`; `docs/CONTRACT.md` `OPS-K-ID-1`; `docs/SPEC.md` section 4.4 | Repeat-run tests comparing serialized result envelopes or canonical hashes where available. |
-> | REQ-14-03-006 | The comparison shall preserve relevant state metadata, including unresolved assumptions, warnings, notes, external references, and deterministic hashes when those fields are present in the state contract. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row `SOW-071`; `docs/SPEC.md` section 3 Domain objects | Tests confirming metadata is not discarded from comparison context. |
-> | REQ-14-03-007 | Unit-bearing changed values shall not be compared as bare numbers without unit/dimension metadata or an explicit unit-normalization contract. | `docs/SPEC.md` section 4 Unit system and dimensional analysis; `Dependencies.csv` row `DAG-002-E0794` | Tests for unit metadata handling; `TBD` until `DEL-02-02` and `DEL-14-05` provide final contracts. |
-> | REQ-14-03-008 | Comparison result envelopes shall carry diagnostics/provenance sufficient to expose missing mappings, unsupported comparison categories, unresolved assumptions, and professional-boundary limits. | `docs/SPEC.md` sections 4.3 and 9; `execution/_Decomposition/SOFTWARE_DECOMP.md` `AB-00-06` | Tests asserting diagnostic fields and no forbidden status labels. |
-> | REQ-14-03-009 | Outputs shall not claim certification, sealing, authentication, professional approval, code compliance, or external validation (PRD §21.2). | `docs/CONTRACT.md` `OPS-K-AUTH-1`; `docs/DIRECTIVE.md` section 3; `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row `SOW-073` | Protected-claim review of result labels and report/export-facing strings. |
-> | REQ-14-03-010 | State diff tests shall use invented, public-safe fixtures and must not include protected standards text, proprietary values, or private project data. | `docs/CONTRACT.md` `OPS-K-IP-1`, `OPS-K-RULE-1`; `docs/SPEC.md` section 10 | Fixture provenance review and protected-content gate. |
->
-
-### CLM-013 — Standards
-
-> ##### Standards
->
-> No external engineering standard text is locally available or required for this deliverable. Governing project standards are the local SWBPIPE documents listed in `_REFERENCES.md`, especially:
->
-> - `docs/CONTRACT.md` for invariant boundaries.
-> - `docs/SPEC.md` for unit, persistence, result-envelope, and validation expectations.
-> - `docs/TYPES.md` for stable references, traceability links, checksums, diagnostics, and result/report boundary concepts.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` with its accepted amendments for scope partitioning and architecture-basis constraints.
->
-> Any clause-level external standard requirement is `TBD` and must not be inferred.
->
-
-### CLM-014 — Verification
-
-> ##### Verification
->
-> | Verification area | Minimum check |
-> |---|---|
-> | Stable-ID matching | Reorder equivalent entity lists and confirm unchanged diff output. |
-> | Added/removed classification | Compare fixtures with entities present in only one state. |
-> | Changed classification | Compare fixtures with the same stable ID and intentionally changed public-safe fields. |
-> | Explicit mapping | Use mapping records from `DEL-14-05` once available; until then, mark detailed mapping behavior `TBD`. |
-> | Unit-bearing value handling | Confirm missing or incompatible unit metadata produces diagnostics rather than silent numeric comparison. |
-> | Determinism | Repeat the same comparison and compare canonical serialized output or result hash where implemented. |
-> | Boundary language | Assert no output status or label implies professional acceptance, code compliance, certification, sealing, or external validation (PRD §21.2). |
->
-
-### CLM-015 — Documentation
-
-> ##### Documentation
->
-> Required local evidence for this deliverable:
->
-> - reference engine `core/comparison/model_state/engine.py`;
-> - state diff tests at `tests/test_model_state_comparison.py`;
-> - notes identifying dependency on `DEL-14-01`, `DEL-14-05`, and `DEL-02-02`;
-> - reference comparison outputs from that engine, checked alongside `schemas/comparison_mapping.schema.json`; product/API conformance remains separate;
-> - protected-content/provenance status for fixtures and examples.
-
-### CLM-016 — D-41 R5 T2B unit-comparison boundary (2026-07-12)
-
-> ##### D-41 R5 T2B unit-comparison boundary (2026-07-12)
->
-> DEL-14-03 performs structural state comparison, not unit conversion. A changed field declared unit-bearing must carry explicit unit and dimension metadata on both sides. Missing metadata, incompatible dimensions, or different units without a governed normalization contract block classification as a normal change. Same-unit/same-dimension values are preserved as structured left/right evidence; the engine does not emit a bare numeric delta.
-
-- **AC-001** — The contract preserves immutable-state context, stable-ID-first matching, explicit rather than heuristic mappings, deterministic output, metadata and diagnostic preservation, structured unit/dimension blocking behavior without bare numeric deltas, invented/public-safe fixtures, the canonical dependency authority and preserved legacy provenance and review residuals, and the separation from run comparison, export policy, external validation, or professional approval.
+- **AC-001** — For invented pairs of states constructed with a known entity added, one removed, one changed in a known field and the rest untouched, the comparison reports exactly those classifications, and for the changed entity exactly the paths of the differing fields with both stored values.
+- **AC-002** — Repeating a comparison gives a byte-identical result. Listing the entities of a collection in another order in either state changes the classification of none of them; the change of order is itself reported as a difference.
+- **AC-003** — Two states compare with every entity unchanged exactly when their model hashes are equal.
+- **AC-004** — Two entities with different identifiers are compared as a pair when an explicit mapping record names both, and are reported removed and added without one. A mapping that names an absent entity is reported unresolved with a diagnostic, and an identifier repeated within one family of one state refuses the comparison by name.
+- **AC-005** — A changed field whose two sides hold quantities in different units, a unit-bearing field without unit or dimension metadata, and one whose two sides have incompatible dimensions are each reported unresolved with a blocking diagnostic and no numeric difference. Quantities in the same unit and dimension are reported changed, with both values as stored.
+- **AC-006** — The result carries each state's identity, name, hashes, warnings, unresolved assumptions, notes and external references as the state's record holds them.
+- **AC-007** — A model document with a member the comparison does not assign is refused by name, and the product compares the two stored snapshots of the states selected, read through DEL-14-01's verified read.
+- **AC-008** — A comparison result validates against the accepted version of the common comparison-result interface, a result made invalid in each required member is refused, and the identifiers and mappings of the source survive a round trip through its exported forms.
+- **AC-009** — Every implementation of the comparison in the product gives the same classifications, summaries and field paths for the same pairs.
+- **AC-010** — No result, label or message states or implies approval, validation or compliance, and every fixture and example is invented and carries its provenance.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-017 — Procedure: DEL-14-03 Model-state comparison engine
+**Method choices that define the product.**
 
-> #### Procedure: DEL-14-03 Model-state comparison engine
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- Matching is by identifier or explicit mapping only. Position, name and proximity pair nothing.
+- The comparison is structural. It reads stored values and reports every stored difference.
+- The comparison fails closed: a document it cannot fully account for is refused, never partly compared.
+- Rows are produced in a fixed order that does not depend on the order of the input.
 
-### CLM-019 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Produce or use the model-state comparison engine in a way that remains deterministic, source-grounded, unit-aware where applicable, and bounded to diagnostic/audit comparison of immutable model states.
->
-
-### CLM-020 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Status / source |
-> |---|---|
-> | Immutable model-state record contract | Upstream dependency `DEL-14-01`; approved graph resolved through `execution/_DAG/_LATEST.md` mirror row `DAG-002-E0792`. |
-> | Mapping/tolerance contract | Upstream dependency `DEL-14-05`; approved graph resolved through `execution/_DAG/_LATEST.md` mirror row `DAG-002-E0793`; details `TBD` per `OI-014`. |
-> | Unit system and dimensional-analysis contract | Upstream dependency `DEL-02-02`; approved graph resolved through `execution/_DAG/_LATEST.md` mirror row `DAG-002-E0794`. |
-> | Architecture basis | `AB-00-01`, `AB-00-02`, `AB-00-03`, `AB-00-04`, `AB-00-06`, `AB-00-07`, and `AB-00-08` in `_CONTEXT.md`. |
-> | Professional/IP boundary | `docs/CONTRACT.md`, `docs/DIRECTIVE.md`, and `docs/IP_AND_DATA_BOUNDARY.md`. |
->
-
-### CLM-021 — Steps
-
-> ##### Steps
->
-> 1. Confirm the work is limited to `DEL-14-03` model-state entity diffs. Escalate if the task expands into analysis-run result deltas, export formats, GUI overlays, external prover status, or professional approval workflow.
->
-> 2. Identify the immutable state input contract from `DEL-14-01`. If the contract is unavailable, record the input schema as `TBD` and do not invent entity fields.
->
-> 3. Identify the comparison mapping contract from `DEL-14-05`. If unavailable, implement only stable-ID matching assumptions that are source-supported, and mark manual mapping behavior `TBD`.
->
-> 4. Identify unit-bearing fields through the unit contract from `DEL-02-02`. Do not compare unit-bearing values as bare numbers; missing or incompatible unit metadata should produce diagnostics.
->
-> 5. Define the comparison input envelope as two model-state references or payloads plus any explicit mapping/settings record. Exact service/API syntax is `TBD`.
->
-> 6. Match entities by stable ID. Apply explicit mapping records where the mapping contract allows them. Treat unresolved correspondence as unmatched or diagnostic rather than hidden equivalence.
->
-> 7. Classify entities into added, removed, changed, and unchanged categories. Exact field-level normalization and change significance rules are `TBD` pending state schema and mapping/tolerance contract detail.
->
-> 8. Preserve review context: state hashes, warnings, unresolved assumptions, notes, external references, provenance, and diagnostics where present.
->
-> 9. Return a deterministic result envelope with professional-boundary language. Do not emit automatic certification, sealing, code-compliance, external-validation, or human-approval statuses (PRD §21.2).
->
-> 10. Build state diff tests using invented/public-safe fixtures. Cover stable-ID matching, added/removed/changed/unchanged classifications, mapping behavior once available, deterministic repeatability, unit metadata diagnostics, and forbidden-claim checks.
->
-
-### CLM-022 — Verification
-
-> ##### Verification
->
-> | Check | Expected evidence |
-> |---|---|
-> | Stable-ID determinism | Repeated comparisons of the same fixtures produce identical classifications and result serialization where implemented. |
-> | Mapping behavior | Explicit mappings produce expected correspondence; missing mappings remain visible. Reference schema/engine evidence exists in `schemas/comparison_mapping.schema.json` and `tests/test_model_state_comparison.py`; actual product integration must be demonstrated. |
-> | Changed classification | Source-supported relevant field changes are reported as changed. Exact normalization policy is `TBD`. |
-> | Unit metadata | Unit-bearing fields require unit/dimension context or produce diagnostics. |
-> | Metadata preservation | Warnings, assumptions, external references, notes, provenance, and hashes are not silently dropped. |
-> | Boundary language | No result label claims professional acceptance, code compliance, certification, sealing, authentication, or external validation (PRD §21.2). |
-> | Fixture governance | Test fixtures are invented/public-safe and do not include protected standards text, proprietary values, or private project data. |
->
-
-### CLM-023 — Records
-
-> ##### Records
->
-> - Reference implementation: `core/comparison/model_state/engine.py`.
-> - Comparison contract evidence: `schemas/comparison_mapping.schema.json`; runtime service integration remains separate.
-> - State diff tests: `tests/test_model_state_comparison.py`; no new execution result is claimed.
-> - Fixture provenance notes: `TBD`.
-> - Preserve local dependency meanings and actual statuses under `execution/_DAG/_LATEST.md`; historical IDs remain provenance and this record repair does not mutate the register.
-
-### CLM-024 — D-41 R5 T2B unit check (2026-07-12)
-
-> ##### D-41 R5 T2B unit check (2026-07-12)
->
-> For every changed field listed in `unit_bearing_fields`, require unit and dimension on both sides; block missing metadata, dimension mismatch, and unnormalized unit mismatch; confirm accepted same-unit changes retain full left/right records and contain no derived bare-number delta.
-
-- **VER-001** — Validate the contract and review source parity, stable-ID and mapping behavior, all four classifications, deterministic repeatability, state metadata preservation, missing/incompatible/unnormalized unit diagnostics, retained conflict and TBDs, fixture governance, deliverable boundaries, and prohibited authority claims.
+- **VER-001** — Executable check (observes the classifications, field paths and values for invented pairs constructed with each kind of difference).
+- **VER-002** — Executable check (observes repeated comparisons byte for byte, and comparisons of the same pair with collections reordered).
+- **VER-003** — Comparison with a named reference (the model hashes of the two states, as DEL-02-01 defines them and an implementation of RFC 8785 and SHA-256 that imports no product code computes them) for identical pairs, pairs that differ only in member order, and pairs with single mutations.
+- **VER-004** — Executable check (observes pairs with explicit mappings, with a mapping to an absent entity, and with a repeated identifier).
+- **VER-005** — Executable check (observes changed fields constructed with different units, missing unit metadata, incompatible dimensions and equal units).
+- **VER-006** — Executable check (observes the state context of the result against the two state records, a document with an unassigned member, and the snapshots the product's comparison read).
+- **VER-007** — Comparison with a named reference (the accepted version of the comparison-result schema, under a validator that imports no product code) with an executable check (observes constructed invalid results and an export round trip).
+- **VER-008** — Executable check (observes each implementation on one committed set of invented pairs and compares their classifications, summaries and field paths; it shows that the implementations agree and nothing more).
+- **VER-009** — Judgment by a reviewer who did not write the comparison, who examines its outputs, wording and fixtures against PRD §20.1 and §21.2 with the protected-content scan.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-025 — Guidance: DEL-14-03 Model-state comparison engine
-
-> #### Guidance: DEL-14-03 Model-state comparison engine
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-027 — Purpose
-
-> ##### Purpose
->
-> This deliverable exists to make immutable model states reviewable through deterministic comparison. The comparison should support design iteration by identifying added, removed, changed, and unchanged model entities without converting that comparison into an external validation or professional approval state.
->
-> Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` row `DEL-14-03`; `docs/_Registers/ScopeLedger.csv` rows `SOW-071` and `SOW-073`.
->
-
-### CLM-028 — Principles
-
-> ##### Principles
->
-> | Principle | Guidance |
-> |---|---|
-> | Stable identity first | Treat stable IDs and typed references as the primary comparison surface. Positional or display-name matching is an implementation risk unless explicitly justified by a mapping contract. |
-> | Explicit mappings | When two states intentionally refer to corresponding entities with different IDs, use explicit mapping records. Do not infer hidden engineering equivalence from proximity, naming, or apparent similarity without a source-backed rule. |
-> | Deterministic output | The same inputs should produce the same classifications and serialized result shape. Hashing or canonical serialization details are governed by the persistence/hash basis where JSON payloads are involved. |
-> | No silent defaults | Missing mappings, missing units, unsupported entity categories, and unresolved assumptions should become diagnostics or `TBD`, not implicit acceptance. |
-> | Metadata preservation | Notes, warnings, external references, unresolved assumptions, provenance, and hashes attached to model states are part of the review context. |
-> | Boundary clarity | The comparison is diagnostic/audit functionality. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
->
-> Sources: `docs/DIRECTIVE.md` sections 2.2 and 3; `docs/CONTRACT.md` invariants `OPS-K-DATA-2`, `OPS-K-AUTH-1`, `OPS-K-MECH-2`; `docs/SPEC.md` sections 4, 4.3, and 4.4.
->
-
-### CLM-029 — Considerations
-
-> ##### Considerations
->
-> | Topic | Consideration |
-> |---|---|
-> | Model-state versus analysis-run comparison | `DEL-14-03` is scoped to model-state diffs. Analysis-run result deltas are separately assigned to `DEL-14-04`; mapping/tolerance/export contracts are assigned to `DEL-14-05`. |
-> | Tolerances | Comparison tolerance defaults and mapping workflows are an open issue (`OI-014`). Treat detailed tolerance behavior as `TBD` until resolved. |
-> | Unit-normalized values | SOW-073 mentions unit-normalized result deltas, but the unit contract dependency (`DEL-02-02`) and comparison contract dependency (`DEL-14-05`) must be honored before numeric comparison policy is finalized. |
-> | Entity granularity | The exact model entity categories are `TBD` until the immutable state schema and canonical domain model detail are available. |
-> | Fixture content | Tests should use invented/public-safe fixtures and should carry provenance status. Do not import protected standards examples or proprietary project data. |
-> | Context size | The deliverable has an `L` context envelope and WATCH risk; scope should be split or escalated if it expands beyond deterministic model-state entity diffs. |
->
-
-### CLM-030 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Direction |
-> |---|---|
-> | Strict stable-ID matching vs. heuristic matching | Prefer strict stable-ID matching. Use explicit mapping records for intentional correspondence. Heuristics are `TBD` and require human-approved scope if introduced. |
-> | Rich diff payload vs. bounded backend slice | Start with source-supported classifications and diagnostic metadata. Defer UI overlays, report formatting, and export semantics to their owning deliverables. |
-> | Canonical hash comparison vs. field-level comparison | Hashes support reproducibility, but field-level changed classification needs a source-defined normalization policy. The exact field comparison policy remains `TBD`. |
-> | Numeric tolerance vs. exact equality | Numeric tolerance policy is not yet source-defined for this deliverable. Unit and tolerance dependencies must be resolved before implementation claims are made. |
->
-
-### CLM-031 — Examples
-
-> ##### Examples
->
-> Source-grounded example categories are limited to:
->
-> - an entity appears only in the later state: added;
-> - an entity appears only in the earlier state: removed;
-> - an entity appears in both states with the same stable ID or explicit mapping and no relevant difference: unchanged;
-> - an entity appears in both states with the same stable ID or explicit mapping and a source-supported relevant difference: changed.
->
-> Concrete reference fixtures are carried by `tests/test_model_state_comparison.py`, with `schemas/model_state.schema.json` and `schemas/comparison_mapping.schema.json`. Their existence does not select default engineering tolerances or clear fixture provenance; preserve those separate obligations.
->
-
-### CLM-032 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | C-14-03-001 | Historical legacy-enum/mirror conflict; canonical dependency vocabulary was adopted by DAG-007. | `execution/_DAG/DAG-007/APPROVAL_RECORD.md` | Current graph authority: `execution/_DAG/_LATEST.md` (DAG-011); legacy IDs remain provenance | Dependency carrier wording only | Preserve current approved mirror meanings and statuses, including retired legacy duplicates; no register mutation in this repair | Resolved for enum authority by recorded DAG-007 adoption; not a new owner ruling |
-
-### CLM-033 — D-41 R5 T2B unit guidance (2026-07-12)
-
-> ##### D-41 R5 T2B unit guidance (2026-07-12)
->
-> Do not compare changed unit-bearing fields as bare numbers. Normalize only through a separately governed contract; otherwise preserve the structured quantities and emit a blocking unit/dimension diagnostic.
+- **AX-001** — *Identity over resemblance.* Better is more of a design's real correspondences captured by stable identifiers and the user's mappings. It may never be gained by inferring that two entities are the same.
+- **AX-002** — *Exact over forgiving.* Better is a comparison that reports every stored difference; the target is that equal hashes and no differences always coincide. A difference is never hidden because it looks insignificant.
+- **AX-003** — *Unresolved over guessed.* Where a pair cannot be classified honestly it is reported unresolved with the reason. Better is fewer unresolved pairs, never by treating a missing unit or mapping as if it were present.
+- **AX-004** — *Context travels with the difference.* Better is fewer assumptions and warnings of either state absent from the result; the target is none.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-073 SOW-071 OBJ-016 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## SCA-011 — Interface responsibility and verification hook
-
-- **DEL-14-03-SCA011-REQ-001** — Produces model-state comparison outputs against the common versioned comparison-result/export interface owned by DEL-14-05, retaining structural stable-ID/manual mapping semantics and no built-in conversion.
-- **DEL-14-03-SCA011-VER-001** — Demonstrate valid/invalid schema witnesses, deterministic source-preserving mapping and export round trips after the DEL-14-05 output schema is accepted. Existing human-review dispositions remain open.
-
-Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/ComparisonResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-14-03:1** — R5 continuation delivery task: Demonstrate the state comparison contract in product integration, including mapping, units/missing-data diagnostics and preservation of source metadata. Reference engine fixtures are bounded evidence; unresolved normalization and fixture provenance remain explicit (CLM-015/022/023/031). The v0.1 desktop comparison (W-12) maps entities automatically by stable id (FR-CMP-006) and has no manual mapping (FR-CMP-005/007, v0.2 R3), so it addresses the mapping part of this task only in part. Its unit handling reports differing quantity units as `unit_changed` without emitting unit/dimension diagnostic records, and its view-only result carries saved-state summaries rather than the reference engine's full state-metadata and diagnostics envelope, so the units/missing-data diagnostics and source-metadata parts of this task are also addressed only in part.
-- **DEL-14-03:2** — SCA-011 interface follow-through: Demonstrate valid/invalid schema witnesses, deterministic source-preserving mapping and export round trips after the DEL-14-05 output schema is accepted. Existing human-review dispositions remain open.
-- **DEL-14-03:3** — Obtain owning human-review dispositions for open `RF-001` (dependency-closure visibility) and `RF-002` (documentation currentness). Preserve prerequisite authority and defer any document refresh to its authorized tranche; do not infer closure from current defensive consumers or fixtures (PDU-060).
+| OUT-001 | SOW-073 SOW-071 OBJ-016 | REQ-001 REQ-002 REQ-004 | AC-001 | VER-001 | The pairs are constructed with known differences, so the criterion fixes the expected classifications and field paths; nothing is taken from the engine's earlier output |
+| OUT-001 | SOW-073 OBJ-016 | REQ-002 REQ-005 | AC-002 | VER-002 | The criterion fixes the expected result: the second run equals the first, and order changes no classification |
+| OUT-001 | SOW-073 SOW-071 OBJ-016 | REQ-004 REQ-013 | AC-003 | VER-003 | Outside source: the model hash, which is RFC 8785 and SHA-256 over the stored snapshot and is not computed by the comparison |
+| OUT-001 | SOW-073 OBJ-016 | REQ-003 REQ-008 | AC-004 | VER-004 | The mappings are constructed, so the criterion states the expected pairing under the mapping hierarchy of PRD §15.4, as DEL-14-05 states it |
+| OUT-001 | SOW-073 OBJ-016 | REQ-007 | AC-005 | VER-005 | The fields are constructed with a known unit condition each, so the criterion states the expected report; a unit's dimension comes from DEL-02-02's catalog |
+| OUT-001 | SOW-071 OBJ-016 | REQ-006 | AC-006 | VER-006 | The expected context is the two state records, which DEL-14-01 produces and the comparison did not write |
+| OUT-001 | SOW-073 OBJ-016 | REQ-012 REQ-013 CLM-001 | AC-007 | VER-006 | The unassigned member is constructed, so the criterion states the refusal; the snapshots compared are checked against the states' stored model hashes |
+| OUT-001 | SOW-073 OBJ-016 | REQ-011 CLM-002 | AC-008 | VER-007 | The reference is the accepted version of DEL-14-05's comparison-result schema, which this deliverable does not own; DEL-14-05 states its version as undecided |
+| OUT-001 | SOW-073 OBJ-016 | REQ-005 | AC-009 | VER-008 | The product's own output on committed pairs, compared between its implementations. This guards against the implementations drifting apart and is not grounds for correctness; AC-001 and AC-003 carry those |
+| OUT-001 | SOW-073 OBJ-016 | REQ-009 REQ-010 CLM-004 | AC-010 | VER-009 | Judged by a reviewer against PRD §20.1 and §21.2 |

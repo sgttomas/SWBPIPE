@@ -1,152 +1,72 @@
 id: DEL-17-06
 name: Stress-neutral CSV/JSON package
 needs:
-- from: DEL-00-01
-  condition: 'DEL-17-06 must apply AB-00-01 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Decision baseline for architecture choices and unresolved rulings.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-17-06 must apply AB-00-02 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Repository/module boundaries and inward dependency direction.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-17-06 must apply AB-00-03 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Schema-first command/query/job result envelope constraints.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-17-06 must apply AB-00-04 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    JSON Schema 2020-12 and canonical JSON/JCS-compatible hash basis.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-17-06 must apply AB-00-06 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Diagnostics, warnings, blockers, and result-envelope obligations.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-17-06 must apply AB-00-07 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    No-bypass API/plugin/adapter validation and boundary controls.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-17-06 must apply AB-00-08 architecture-basis constraints when future execution touches
-    applicable architecture surfaces.
-
-
-    Notes: FACT: PKG-00 architecture-consistency tracker retained under ARCHITECTURE_BASIS_POLICY=PKG00_CONSISTENCY_TRACKERS.
-    Layered architecture/schema/service/adapter acceptance strategy.
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-17-01
-  condition: 'DEL-17-06 requires DEL-17-01 source-basis and target-boundary context before making target-specific
-    support claims.
-
-
-    Notes: FACT: extracted from explicit Procedure prerequisite and Datasheet relationship; not added
-    to declared list because it was not declared there.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
 - from: DEL-17-02
-  condition: 'DEL-17-06 consumes DEL-17-02 common export package profile stable-ID manifest and loss-report
-    contracts.
-
-
-    Notes: FACT: declared upstream preserved; dependency type normalized to INTERFACE from source contract
-    role.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
-    legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The common export contract defines the export package, its profile, the manifest, the stable
+    ID map, and the loss report with its six categories and the members of a loss entry.
   gating: true
 - from: DEL-08-04
-  condition: 'DEL-17-06 consumes DEL-08-04 result-export envelope boundaries for review regression comparison
-    and downstream tooling.
-
-
-    Notes: FACT: declared upstream preserved; dependency type normalized to INTERFACE from result-export
-    contract role.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
-    legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The result export document carries a solved result as the solve stated it: every value with
+    its unit and dimension, rows with stable identifiers in a deterministic order, the diagnostics
+    of the received result, and the identities of the model and run behind it, in one current
+    schema version.
   gating: true
 - from: DEL-14-02
-  condition: 'DEL-17-06 consumes DEL-14-02 analysis-run records for source model run references and result
-    provenance.
-
-
-    Notes: FACT: declared upstream preserved; dependency type normalized to INTERFACE from analysis-run
-    record model role.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
-    legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    An analysis run record binds a result to its model state, solver build, settings, units, load
+    cases and rule-pack references, states its hashes with their scope and profile apart from any
+    received checksum, and gives the standing and row classes the product result reader assigns; a
+    result the reader refuses yields a named refusal and no record.
+  gating: true
+- from: DEL-08-02
+  condition: >-
+    One implementation of the canonical JSON form gives, for any JSON payload, its RFC 8785
+    canonical bytes and their SHA-256 digest, the same on every surface of the product.
   gating: true
 - from: DEL-14-05
-  condition: 'DEL-17-06 consumes DEL-14-05 comparison mapping tolerance and export contracts before making
-    comparison export semantics concrete.
-
-
-    Notes: FACT: declared upstream preserved; dependency type normalized to INTERFACE from comparison
-    export contract role.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=INTERFACE;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DECLARED;
-    legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
+  when: The package expresses a comparison tolerance or a comparison outcome
+  condition: >-
+    The comparison contracts define mapping records, unmatched classifications, tolerance profiles
+    and the common comparison-result interface, and supply no tolerance value the user did not
+    choose.
+  gating: false
+- from: DEL-15-04
+  condition: >-
+    The authority-wording screen is one check shared by the handoff and export records that need it,
+    and finds wording of approval, certification, sealing, authentication, compliance, external
+    validation, acceptance or prover status in a string, a list or a nested record, whatever its
+    letter case.
+  gating: false
+- from: DEL-17-01
+  when: The package states target-specific or version-sensitive behaviour as settled
+  condition: >-
+    The source register lists each admitted source with its source ID, the evidence it is admitted
+    for and its boundary, and the open questions no admitted source answers.
+  gating: false
+- from: DEL-12-02
+  when: A package is written to a file
+  condition: >-
+    Every sink through which the product exposes project-derived content is reached only through a
+    catalogued route's wrapper; every route returns its controlled export before exposure, and when
+    the export is blocked no output file is written.
+  gating: false
+# The Python builder, reader and writer, the two schemas and the invented fixture. In
+# apps/desktop/src/features/stress-neutral/** the builder and validator functions that the panel
+# calls are this deliverable's; the panel itself and its presentation are DEL-07-12's, which lists
+# the same directory. apps/desktop/src/services/rulePackRefDiagnostics.ts is DEL-14-02's (rule-pack
+# reference resolution diagnostics); DEL-17-06 and DEL-08-04 use its record-projection helpers.
+# The *.stress_neutral.json files are packages this deliverable's builders wrote; DEL-05-02's globs
+# fixtures/results/pressure_load_state_*.json and pressure_source_load_state_*.json also match
+# some of them.
 code_paths:
 - core/handoff/stress_neutral/**
 - schemas/stress_neutral_export.schema.json
 - schemas/stress_neutral_export.v0.3.schema.json
+- fixtures/stress_neutral/invented/**
+- fixtures/results/*.stress_neutral.json
+- apps/desktop/src/test-support/desktop-shaped/*.stress_neutral.json
 - apps/desktop/src/features/stress-neutral/**
 - apps/desktop/src/services/rulePackRefDiagnostics.ts
 - tests/test_stress_neutral_*.py

@@ -36,7 +36,7 @@ import {
 // already carried (provenance, description, any extra ref fields), and
 // untouched sibling checks round-trip verbatim.
 //
-// Format 0.5.0 (DEL-06-01 Design `rule-pack-0.5.0.md` §2.4, §3): each check
+// Format 0.5.0: each check
 // names its stress category (`category_ref`), chosen from the pack's declared
 // categories; it is evaluated once for each required load case the category's
 // mapping lists.

@@ -424,7 +424,7 @@ export function useModelStateHistory(deps: ModelStateHistoryDeps) {
       const opened = await readModelState(requestProjectId, stateId);
       const version = evaluateModelDocumentLocal(opened.model);
       if (version.status !== "current") {
-        // A retired state: what it means for the project's recorded runs (MD8 §3.3, ruling a2).
+        // A retired state: what it means for the project's recorded runs (ruling a2).
         const note = version.status === "retired_schema" ? ` ${RETIRED_PROJECT_RUNS_NOTE}` : "";
         throw new Error(`Model document refused for editing: status=${version.status}; ${version.detail}${note}`);
       }

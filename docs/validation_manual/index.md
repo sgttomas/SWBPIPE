@@ -19,9 +19,9 @@ benchmarks and rule checks are development verification and screening
 evidence (boundary vocabulary: `docs/claims_registry.md`, DEC-081).
 
 Current authority basis: `execution/_Decomposition/SOFTWARE_DECOMP.md`
-revision `0.15` and the latest approved dependency graph named in
-`execution/_DAG/_LATEST.md` (`DAG-011`). The graph supplies active dependency
-context only; it does not settle lifecycle state, release labels, or legal
+revision `0.15` and the dependency declarations in each deliverable's
+`deliverable.yaml`. The declarations supply active dependency
+context only; they do not settle lifecycle state, release labels, or legal
 clearance.
 
 Use this manual to answer four separate questions:

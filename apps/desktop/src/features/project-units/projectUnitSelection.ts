@@ -57,7 +57,7 @@ export function loadedUnitCatalog(route: UnitCatalogRoute | null): UnitCatalog |
 /**
  * The accepted catalog entry whose `symbol` is exactly `symbol` for the
  * dimension. Aliases are not resolved: the legacy `C` matches no entry, so a
- * new selection cannot use it (§2.2). Existing documents keep it.
+ * new selection cannot use it. Existing documents keep it.
  */
 export function canonicalCatalogEntry(catalog: UnitCatalog, symbol: string, dimensionId: string): UnitCatalogEntry | null {
   return catalog.entries.find((entry) =>
@@ -115,7 +115,7 @@ export function projectUnitSelectionProblems(route: UnitCatalogRoute | null, uni
   return problems;
 }
 
-// --- Composed defaults (§2.4) -------------------------------------------------
+// --- Composed defaults -------------------------------------------------
 
 export type ComposedDefaultKind = "distributed_force" | "linear_stiffness" | "thermal_expansion";
 
@@ -126,7 +126,7 @@ export const COMPOSED_DEFAULTS: ReadonlyArray<{ kind: ComposedDefaultKind; label
 ];
 
 /**
- * How a project unit key reads (§2.4). A key is absent only when the property is
+ * How a project unit key reads. A key is absent only when the property is
  * missing or `undefined`. A present key that is not a usable symbol (non-string,
  * empty or whitespace-only) is invalid: it is never read as absent, so it never
  * lets a composition stand in for it.
@@ -144,9 +144,9 @@ export function readProjectUnitKey(units: Readonly<Record<string, unknown>>, key
   return { state: "valid", symbol: value };
 }
 
-// W-17 slice (c) (§7.3, §7.6): acceleration `<length>/s^2` and area `<length>^2`
+// acceleration `<length>/s^2` and area `<length>^2`
 // are compositions too. They are not in COMPOSED_DEFAULTS (the creation dialog's
-// list) until the catalog carries the acceleration units for every length (§7.3).
+// list) until the catalog carries the acceleration units for every length.
 export type CompositionKind = ComposedDefaultKind | "moment" | "acceleration" | "area";
 
 const COMPOSITIONS: Readonly<Record<CompositionKind, { parts: readonly string[]; compose: (parts: string[]) => string; dimension: string }>> = {
@@ -183,7 +183,7 @@ export type CheckedComposedDefault = {
 
 /**
  * A composed default checked against the loaded catalog. A composition the
- * catalog lacks gives no default and no substitute (§2.4). While the catalog
+ * catalog lacks gives no default and no substitute. While the catalog
  * is loading, or where it is not exposed (browser preview), the composition is
  * kept unchecked as before; the core's own unit validation still applies.
  */
@@ -196,7 +196,7 @@ export function checkComposedDefault(route: UnitCatalogRoute | null, symbol: str
 }
 
 /**
- * The composed default of a field (§2.4). An absent part gives TBD (no unit is
+ * The composed default of a field. An absent part gives TBD (no unit is
  * invented). A present but invalid part gives no default, with its notice;
  * nothing is composed from it. Otherwise the composition, checked against the
  * catalog.
@@ -255,10 +255,10 @@ export function composedDefaultsFor(route: UnitCatalogRoute | null, units: Reado
   });
 }
 
-// --- Slice (c): editor field defaults (§7.2, §7.3, §7.6) ------------------------
+// --- Slice (c): editor field defaults ------------------------
 
 /**
- * The project temperature as a new field's starting unit (§7.2): the stored
+ * The project temperature as a new field's starting unit: the stored
  * symbol, a legacy `C` given as `degC`, or "" (no unit) when the key is absent,
  * empty, whitespace-only or not a string. Shared with the thermal primitive load,
  * which shows "" as its own "TBD".
@@ -282,12 +282,12 @@ function fieldDefaultFrom(checked: CheckedComposedDefault, missingKey: () => str
   return { symbol: checked.symbol, notice: checked.notice, missingKey: null };
 }
 
-/** The composed default of an editor field (§2.4, §7.3, §7.6). */
+/** The composed default of an editor field. */
 export function fieldComposedDefault(route: UnitCatalogRoute | null, kind: CompositionKind, units: Readonly<Record<string, unknown>>): FieldUnitDefault {
   return fieldDefaultFrom(composedDefault(route, kind, units), () => firstAbsentPart(COMPOSITIONS[kind].parts, units));
 }
 
-/** Linear stiffness: a declared `linear_stiffness` key, else `<force>/<length>` (§2.4; the support draft's default). */
+/** Linear stiffness: a declared `linear_stiffness` key, else `<force>/<length>` (the support draft's default). */
 export function linearStiffnessFieldDefault(route: UnitCatalogRoute | null, units: Readonly<Record<string, unknown>>): FieldUnitDefault {
   return fieldDefaultFrom(
     declaredOrComposedDefault(route, "linear_stiffness", "linear_stiffness", units, false),
@@ -296,8 +296,8 @@ export function linearStiffnessFieldDefault(route: UnitCatalogRoute | null, unit
 }
 
 /**
- * Rotational stiffness `<moment>/<angle>` (§7.6), with the moment read as
- * declared or composed (§2.4). An invalid part gives its notice; an absent one is
+ * Rotational stiffness `<moment>/<angle>`, with the moment read as
+ * declared or composed. An invalid part gives its notice; an absent one is
  * named; the composed symbol is checked against the catalog.
  */
 export function rotationalStiffnessFieldDefault(route: UnitCatalogRoute | null, units: Readonly<Record<string, unknown>>): FieldUnitDefault {

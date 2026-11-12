@@ -5,7 +5,7 @@ metadata:
   kind: instruction
   surface: requirements
 ---
-Pressure applicability follows the [current pressure contract](../execution/PKG-04/DEL-04-07/Work/pressure-contract.md).
+Pressure applicability follows the [current pressure contract](../execution/PKG-04/DEL-04-07/ScopeOfWork.md).
 `legacy_pressure_v1` is retired, including zero-pressure documents. References
 to pressure quantities or validation coverage below are subject to that current
 boundary and do not establish implemented T4 capability.
@@ -898,7 +898,7 @@ stiffness-transform families. Hand-calculation notes for those fixtures live in
 
 ## 11. Development entry
 
-Use the repository's [`AGENTS.md`](../AGENTS.md) and [LOOP_INIT](../loop/LOOP_INIT.md). Current commitments,
+Use the repository's [`AGENTS.md`](../AGENTS.md). Current commitments,
 design and dependency conditions live together under `execution/PKG-XX/DEL-XX-YY/`.
 No lifecycle files, phase folders or separate development receipts are required.
 

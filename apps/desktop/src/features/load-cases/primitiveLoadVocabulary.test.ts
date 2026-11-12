@@ -72,7 +72,7 @@ describe("primitive load category vocabulary", () => {
     const model = withUnits({ force: "kN", length: "mm", moment: "kN*m", temperature: "C", angle: "rad" });
     expect(primitiveLoadDefaultUnit(model, "concentrated_force", "global_y")).toBe("kN");
     expect(primitiveLoadDefaultUnit(model, "distributed_force", "global_y")).toBe("kN/mm");
-    // W-17 §2.4: the moment reads the moment key; it is not composed as kN*mm.
+    // the moment reads the moment key; it is not composed as kN*mm.
     expect(primitiveLoadDefaultUnit(model, "concentrated_moment", "rotation_z")).toBe("kN*m");
     // The legacy "C" spelling is offered as the temperature-interval symbol degC.
     expect(primitiveLoadDefaultUnit(model, "thermal", "global_z")).toBe("degC");

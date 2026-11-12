@@ -1,4 +1,4 @@
-//! The SI MBF writer (DEL-17-04 Design `desktop-mbf-export-import.md` §2, slice 2): a byte-faithful port of
+//! The SI MBF writer: a byte-faithful port of
 //! `core/handoff/caepipe_mbf/si_writer.py`.
 //!
 //! [`render_si`] turns a SWBPIPE model document into MBF text in the SI unit set, or refuses it by name, with the
@@ -442,6 +442,9 @@ pub struct WriterResult {
     /// `degF absolute`), each with its stated definition, in key order: the data the `MBF-SI-UNITS-NORMALIZED`
     /// diagnostic and the assumptions state in prose. Not part of `to_dict()`, which is the Python's.
     pub unit_normalizations: Vec<(String, String)>,
+    /// Format 6's `derivation`: `{source_model_sha256, export_settings}`; null when refused. Not part of
+    /// `to_dict()`, as in the Python.
+    pub derivation: Value,
 }
 
 pub(crate) fn key_error(key: &str) -> PyError {
@@ -475,6 +478,7 @@ impl WriterResult {
             loss_report,
             assumptions,
             unit_normalizations,
+            derivation: Value::Null,
         }
     }
 
@@ -524,7 +528,7 @@ impl WriterResult {
         canonical_bytes(&self.dict()).map_err(py)
     }
 
-    /// `sidecar(mbf_sha256)`: the format-3 writer sidecar of the written text whose SHA-256 is `mbf_sha256`, with
+    /// `sidecar(mbf_sha256)`: the format-6 writer sidecar of the written text whose SHA-256 is `mbf_sha256`, with
     /// its self-digest `sidecar_sha256`. As in the Python, a refused result has none (KeyError), and a value
     /// without a canonical form raises `SidecarNotCanonical`.
     /// A caller-set field beyond [`crate::value::MAX_VALUE_NESTING`] fails closed.
@@ -549,7 +553,10 @@ impl WriterResult {
                 kept.insert(key.into(), field(entry, key)?.clone());
             }
             if let Some(bend) = entry.get("bend") {
-                kept.insert("bend".into(), dict![("component", field(bend, "component")?.clone())]);
+                kept.insert(
+                    "bend".into(),
+                    dict![("component", field(bend, "component")?.clone()), ("node", field(bend, "node")?.clone())],
+                );
             } else {
                 for key in ["y_reference", "y_reference_authored"] {
                     kept.insert(key.into(), field(entry, key)?.clone());
@@ -598,6 +605,13 @@ impl WriterResult {
                 ("section_map", subset(&self.section_map, &["swbpipe_section"])?),
                 ("load_map", subset(&self.load_map, &["load_case", "category", "target", "direction"])?),
                 ("pressure_map", pressure_map),
+                (
+                    "derivation",
+                    dict![
+                        ("source_model_sha256", field(&self.derivation, "source_model_sha256")?.clone()),
+                        ("export_settings", field(&self.derivation, "export_settings")?.clone()),
+                    ]
+                ),
                 ("mbf_sha256", Value::str(mbf_sha256)),
             ])
         })();
@@ -701,7 +715,7 @@ pub(crate) struct Pipe {
     pub to: String,
     pub material: String,
     pub y_reference: Value,
-    /// The library section the pipe binds (Design §15, Format 4), or None.
+    /// The library section the pipe binds (Format 4), or None.
     pub section_ref: Option<String>,
     pub od: f64,
     pub thk: f64,
@@ -715,6 +729,8 @@ pub(crate) struct Support {
 
 pub(crate) struct Bend {
     pub component: Value,
+    /// The tangent node the component names (format 6's `bend.node`).
+    pub node: Value,
     pub entity: String,
     pub radius: f64,
     pub k: f64,
@@ -1002,6 +1018,13 @@ impl<'m> Writer<'m> {
             return Ok(self.refused());
         }
         self.t_ref = float_of(&self.t_ref_in)?;
+        // Format 6 records the row limit (derivation.export_settings): an integer exact in binary64, or None.
+        if let Some(limit) = self.max_layout_rows {
+            if !(0..=(1i64 << 53)).contains(&limit) {
+                self.invalid("max_layout_rows", &format!("max_layout_rows must be None or an integer from 0 to 2^53 (got {limit})"));
+                return Ok(self.refused());
+            }
+        }
         self.check_piping_code()?;
         self.check_document()?;
         self.check_project_units()?;

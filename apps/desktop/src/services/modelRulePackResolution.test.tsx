@@ -1,5 +1,5 @@
 /** The model's rule-pack references resolved against the local store at solve time
- * (FR-CMP-002; DEL-14-01 Design `desktop-states-runs-comparison.md` §3): resolved packs
+ * (FR-CMP-002): resolved packs
  * enter the input manifest's `active_rule_packs`; excluded references become diagnostics
  * of the run's analysis record, after the producer's. All rule-pack data are invented. */
 import { cleanup, render, screen } from "@testing-library/react";

@@ -1,4 +1,4 @@
-"""Two-way benchmark comparison: SWBPIPE's own results against CAEPIPE's printed results (DEL-17-05 Design §11, RT-V2).
+"""Two-way benchmark comparison: SWBPIPE's own results against CAEPIPE's printed results (RT-V2).
 
 `build_benchmark_record` compares, for every load case the MBF writer mapped and for the operating case, every
 displacement, rotation, element end force and moment, and support load SWBPIPE solved with the value CAEPIPE
@@ -260,7 +260,7 @@ def _closed_form_key(entry: Mapping[str, Any], mbf: Mapping[str, Any]) -> Key | 
 # -- record ----------------------------------------------------------------------------------------------------------
 def build_benchmark_record(benchmark_model: Mapping[str, Any], *, swbpipe_result_payload: Mapping[str, Any],
                            mbf_result: Any, mbf_text: str, parsed_caepipe: Mapping[str, Any] | None) -> dict[str, Any]:
-    """The two-way comparison record of one benchmark model (private; Design §8, §11.5)."""
+    """The two-way comparison record of one benchmark model (private)."""
     mbf = mbf_result.to_dict() if hasattr(mbf_result, "to_dict") else dict(mbf_result)
     envelope = swbpipe_result_payload.get("mechanics_envelope", swbpipe_result_payload)
     results = list(envelope.get("results") or [])

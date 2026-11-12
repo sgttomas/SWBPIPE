@@ -1,146 +1,50 @@
 id: DEL-06-04
 name: Private rule-pack lifecycle and checksum handling
 needs:
-- from: DEL-00-01
-  condition: 'DEL-06-04 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0176 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-06-04 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0177 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-03
-  condition: 'DEL-06-04 requires SCA-001 architecture basis AB-00-03 from DEL-00-03 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0178 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-06-01
+  condition: >-
+    A pack document is strict JSON that carries its identity (id, name, rule-pack version,
+    lifecycle status and source notice), its classification (privacy class and redistribution
+    status), a provenance record with a review status, a top-level grammar version and a checksum
+    member, each status drawn from a closed vocabulary.
   gating: true
 - from: DEL-00-04
-  condition: 'DEL-06-04 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0179 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The persistence rules put canonicalization before every hash: a JSON payload is hashed as
+    SHA-256 over its RFC 8785 canonical form, each hash record names its payload, and storage
+    follows the local storage profile.
   gating: true
-- from: DEL-00-06
-  condition: 'DEL-06-04 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0180 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-06-04 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0181 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-06-04 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0182 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=ARCHITECTURE_BASIS; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=CONTEXT; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-06-01
-  condition: 'DEL-06-04 needs DEL-06-01 as a predecessor: rule-pack lifecycle/checksum handling operates
-    on rule-pack schema payloads
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0472 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=RULE_PACK_PREDECESSOR;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
-    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-06/DEL-06-04/docs/_Registers/Deliverables.csv
+- from: DEL-01-02
+  condition: >-
+    The boundary policy defines the handling of suspected protected content (stop its use, mark
+    it, quarantine it, request human or legal review and hold it from use while unresolved) and
+    treats an unknown redistribution status as not acceptable for public use.
+  gating: false
 - from: DEL-02-05
-  condition: 'DEL-06-04 needs DEL-02-05 as a predecessor: private rule-pack references and checksums must
-    persist reproducibly
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0473 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; legacy_anchortype=DELIVERABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PERSISTENCE_CONTRACT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=INFERRED_DIRECT; legacy_satisfactionstatus=UNKNOWN;
-    legacy_origin=DECOMPOSITION; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The project store is one local store in the application's local data folder, with its own
+    schema version, and persistence transmits nothing (DEL-02-05 REQ-013).
+  when: Keeping packs in the local project store
   gating: true
-  evidence: execution/PKG-06/DEL-06-04/docs/_Registers/Deliverables.csv
+- from: external:owner
+  condition: >-
+    The owner decides whether stored private rule packs are encrypted and what the default is
+    (PRD §27, question 11).
+  when: Before any encryption of stored rule packs is built
+  gating: false
 code_paths:
-- core/rules/rule_pack_lifecycle/
+- core/rules/rule_pack_lifecycle/**
+- fixtures/rule_expressions/checksum_binding/**
+# In the pack document module (DEL-06-01's): the canonical payload, the checksum computation and
+# verification, and the lifecycle findings that validation returns.
 - core/rules/rule_pack_document/src/lib.rs
+# In the desktop host: the checksum command, the commands that save, open, list and delete a
+# local rule pack, and the rule-pack table of the project store (the store itself is
+# DEL-02-05's). The rest of the file belongs to the deliverables that own each command.
 - apps/desktop/src-tauri/src/lib.rs
-- apps/desktop/src/services/rulePackService.ts
-- apps/desktop/src/features/rule-packs/RulePackManagerPanel.tsx
+# The document a new pack starts from is built in the editor's service
+# (apps/desktop/src/services/rulePackService.ts, DEL-07-03's). Its private classification is
+# this deliverable's criterion.
 checks:
 - core/rules/rule_pack_lifecycle/src/lib.rs
-- fixtures/rule_expressions/checksum_binding/**
 - core/rules/rule_pack_document/tests/invented_demo_document.rs
-- tests/test_invented_example_models.py
-- apps/desktop/src/features/rule-packs/RulePackManagerPanel.test.tsx
-- apps/desktop/e2e/r2-smoke.spec.ts

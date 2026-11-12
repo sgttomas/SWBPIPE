@@ -1,5 +1,5 @@
-// Desktop performance driver (RT-U4, DEL-04-05 `Work/criterion-9-measurement.md`,
-// "Desktop measurement"). `perf.mjs` launches the `native-smoke` build of the app,
+// Desktop performance driver (RT-U4,
+// DEL-04-05). `perf.mjs` launches the `native-smoke` build of the app,
 // which evaluates this script in the real macOS webview once the page has loaded
 // (`src-tauri/src/native_smoke.rs`). One launch is one run: one model, one mode.
 //

@@ -641,7 +641,7 @@ describe("SWBPIPE desktop preview", () => {
     const packet = JSON.parse(decodeURIComponent(href.split(",", 2)[1]));
     expect(packet.summary.persisted_mechanics_result_count).toBe(0);
     expect(packet.summary.persisted_analysis_run_count).toBe(0);
-    // Only the session's keyed MBF export/import retirements reached native (DEL-17-04 §3.7, §4.8.6).
+    // Only the session's keyed MBF export/import retirements reached native.
     expect(invokeMock.mock.calls.filter(([command]) => command !== "cancel_mbf_export" && command !== "cancel_mbf_import")).toEqual([]);
   });
 
@@ -2550,7 +2550,7 @@ describe("SWBPIPE desktop preview", () => {
       within(validationEvidence).getByTestId(
         "validation-evidence-release-checks",
       ).textContent,
-    ).toContain("skeleton_checks=2");
+    ).toContain("skeleton_checks=1");
     expect(
       within(validationEvidence).getByTestId("validation-evidence-gates")
         .textContent,
@@ -2588,9 +2588,9 @@ describe("SWBPIPE desktop preview", () => {
     expect(validationEvidencePacket.summary.evidence_area_count).toBe(7);
     expect(validationEvidencePacket.summary.release_profile_count).toBe(5);
     expect(validationEvidencePacket.summary.required_release_path_count).toBe(
-      6,
+      5,
     );
-    expect(validationEvidencePacket.summary.skeleton_check_count).toBe(2);
+    expect(validationEvidencePacket.summary.skeleton_check_count).toBe(1);
     // C-120 fix: the demo model drops the tee component:C-120 and its 6 quantities (3 geometry, 3 modifiers).
     expect(validationEvidencePacket.summary.unit_bearing_record_count).toBe(28);
     expect(
@@ -2645,10 +2645,6 @@ describe("SWBPIPE desktop preview", () => {
     expect(
       validationEvidencePacket.release_readiness_tool.browser_panel_runs_tool,
     ).toBe(false);
-    expect(
-      validationEvidencePacket.release_readiness_tool
-        .latest_dag_dependency_edges,
-    ).toBe("execution/_DAG/DAG-011/DependencyEdges.csv");
     expect(
       validationEvidencePacket.release_quality_gates
         .release_publication_authorized,
@@ -8159,8 +8155,8 @@ describe("SWBPIPE desktop preview", () => {
     expect(validationEvidenceExport.manual_section_count).toBe(10);
     expect(validationEvidenceExport.evidence_area_count).toBe(7);
     expect(validationEvidenceExport.release_profile_count).toBe(5);
-    expect(validationEvidenceExport.required_release_path_count).toBe(6);
-    expect(validationEvidenceExport.skeleton_check_count).toBe(2);
+    expect(validationEvidenceExport.required_release_path_count).toBe(5);
+    expect(validationEvidenceExport.skeleton_check_count).toBe(1);
     expect(validationEvidenceExport.validation_manual_open_decision_count).toBe(
       5,
     );
@@ -10513,7 +10509,7 @@ describe("SWBPIPE desktop preview", () => {
   });
 
   it("preserves the 837-row stress-neutral format as a pure reference projection", async () => {
-    // The demo's converged nonlinear cases are confirmed and published CHECKS_PASSED (DEL-04-01 kd5-nonlinear-active-set.md §5),
+    // The demo's converged nonlinear cases are confirmed and published CHECKS_PASSED,
     // so the pure packet projection admits the reference again.
     const basis = await referenceAnalysis(), expectedModel = basis.model, expectedSource = basis.result;
     const before = JSON.stringify(basis);
@@ -10902,7 +10898,7 @@ describe("SWBPIPE desktop preview", () => {
     const { model, source } = await loadBundledMechanicsReference();
     const knowledge = await loadDesignKnowledge();
     const expectedDiagnostics = [...model.diagnostics, ...knowledge.diagnostics, ...source.diagnostics];
-    // The demo's nonlinear cases are confirmed and published CHECKS_PASSED (DEL-04-01 kd5-nonlinear-active-set.md §5).
+    // The demo's nonlinear cases are confirmed and published CHECKS_PASSED.
     expect(source.diagnostics.filter(item => item.code === "NUMERICAL_INTEGRITY_CHECKS_PASSED")).toHaveLength(model.load_cases.length);
     const selected = vi.fn();
     const view = render(<DiagnosticsPanel model={model} knowledge={knowledge} result={source} selectedDiagnosticId={null} onSelectDiagnostic={selected} />);
@@ -14498,7 +14494,7 @@ describe("workflow current and historical result boundaries", () => {
       });
       await delayedRuleRun.promise;
     });
-    // Slice B3: with no rule-check aggregate there is no Rule pack chip at all (§5.4 rule 3).
+    // Slice B3: with no rule-check aggregate there is no Rule pack chip at all.
     expect(screen.queryByTestId("status-pill-rule-check")).not.toBeInTheDocument();
     // W-18 (b2): the replacement's package carries no stale rule check: no aggregate, no
     // user-rule outcomes and no rule-pack reference, and the record's rule status is the solve's.

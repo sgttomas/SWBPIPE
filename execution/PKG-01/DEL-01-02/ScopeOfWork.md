@@ -2,306 +2,111 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-01-02
 package_id: PKG-01
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-003, SOW-028]
 package_objective_refs: [OBJ-002]
 ---
 
-# Scope of Work — DEL-01-02
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-01-02 Copyright and protected-data boundary policy
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-01-02` in service of project scope [SOW-003, SOW-028] and package objectives [OBJ-002].
+This deliverable draws the line between what the public project may publish and what it may not. It says which content is open mechanics and may be public, which content belongs to standards bodies, vendors or users and may not, what record a piece of public data must carry before it is accepted, and what happens to content that looks protected. Every schema, importer, linter, example, report template and release scan in the product takes its content boundary, its provenance record and its quarantine rule from here.
 
-- **OUT-001** — A copyright and protected-data boundary policy and contribution-review checklist requirements defining allowed public content, prohibited public content, private or user-controlled content, provenance, quarantine, and human/legal escalation.
+It serves SOW-003 and SOW-028 under OBJ-002 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-01, row DEL-01-02), and PRD §5.4, §17.4, §19.4 and §20.1 to §20.3. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. It reaches the release target through criterion 14, where the release-candidate protected-content scan applies this policy's content boundary and provenance record, and through criterion 16, where the public repository is scanned before release.
+
+- **OUT-001** — The IP and data boundary policy, `docs/IP_AND_DATA_BOUNDARY.md`: allowed public content, prohibited public content, private user data, the provenance record, the quarantine rule, the report boundary and the rule for evaluating an external prover.
+- **OUT-002** — The contribution review checklist, `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`: the reviewer's record of one public contribution, field by field, ending in a disposition.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-01-02 Copyright and protected-data boundary policy
+**Terms the policy implements.**
 
-> #### Datasheet: DEL-01-02 Copyright and protected-data boundary policy
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Open mechanics.* Solver algorithms, schemas for geometry, units, loads, stress recovery and reports, blank templates, private-library import mechanisms, invented example data with a clear non-engineering notice, public-domain or permissively licensed data with documented provenance, and validation benchmarks from lawful sources. This is what the public repository may contain.
+- *Protected content.* Standards-body text, tables, figures, examples and commentary; material allowable tables copied from standards; stress-intensification and flexibility-factor content copied from standards; protected dimensional and rating tables; proprietary vendor catalogues, and commercial software examples, report templates and benchmark files, without permission. Code-specific load combinations, allowables, factors and acceptance criteria are protected unless invented or cleared for public redistribution.
+- *Private user data.* A user's rule packs, material libraries, component catalogues, owner standards and project design bases. It stays in user-controlled paths.
+- *Provenance record.* The record every public data record carries, with these fields: `source_name`, `source_location`, `source_license`, `contributor`, `contributor_certification`, `redistribution_status` and `review_status`.
+- *Redistribution status.* One of `public_permissive`, `private_only`, `unknown`, `protected_suspected`.
+- *Review status.* One of `pending`, `accepted`, `rejected`, `quarantined`.
+- *Quarantine.* Removal of suspected protected content from every public use until a human or legal review decides it. The default location is `quarantine/protected-content/`, or another non-example path the maintainer approves. Quarantine is a protective step, not a finding of infringement.
+- *Redistribution* and *runtime handling.* Redistribution is committing, publishing or exporting content to others. Runtime handling is the product reading a user's own private data on that user's machine, including sending it to a model provider the user configured. The policy's prohibitions govern redistribution.
 
-### CLM-003 — Identification
+**Boundary.** The policy states the rules. The following enforce or apply them and belong elsewhere:
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-01-02 |
-> | Deliverable name | Copyright and protected-data boundary policy |
-> | Package ID | PKG-01 |
-> | Package name | Governance, IP Boundary, and Professional Responsibility |
-> | Type | DOC_UPDATE |
-> | Scope items | SOW-003, SOW-028 |
-> | Objective | OBJ-002 |
-> | Anticipated repo-level artifacts | docs/IP_AND_DATA_BOUNDARY.md; contribution review checklist |
-> | Repo-level artifact status | `docs/IP_AND_DATA_BOUNDARY.md` and `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` exist as draft governance artifacts |
-> | Local artifact role | Deliverable-local evidence and review kit for the protected-data boundary policy |
-> | Lifecycle authority | Draft/proposal until accepted by human gate |
->
+- who has authority to accept a contribution: DEL-01-01;
+- the contributor's attestation, intake routing and whether intake is open: DEL-01-03;
+- the provenance check on library import: DEL-03-07;
+- the protected-content linter for reports and the release-candidate scan: DEL-08-05, with the owner as the scan's signatory;
+- separation of public and private storage paths: DEL-12-01;
+- telemetry content: DEL-12-03.
 
-### CLM-004 — Attributes
+This deliverable implements no diagnostic, schema, test or gate.
 
-> ##### Attributes
->
-> | Attribute | Value | Source |
-> |---|---|---|
-> | Primary boundary | Public repository must not redistribute protected standards/code/vendor data | execution/_Decomposition/SOFTWARE_DECOMP.md §Scope of Work; docs/CONTRACT.md §1 |
-> | Contributor governance need | Repository must include IP controls and review procedures | execution/_Decomposition/SOFTWARE_DECOMP.md §Scope of Work; docs/CONTRACT.md §1 |
-> | Quarantine posture | Stop ingestion, mark suspected protected content, quarantine outside public examples, record issue, request human/legal review | docs/IP_AND_DATA_BOUNDARY.md §5 |
-> | Public data prerequisites | Source, provenance, license or redistribution status, contributor certification, and review disposition | docs/CONTRACT.md §1; docs/IP_AND_DATA_BOUNDARY.md §4 |
-> | Legal conclusion authority | Human/legal review required; this deliverable is not a legal opinion | docs/_Registers/ContextBudgetQA.csv row DEL-01-02; docs/README.md §Status |
-> | Public examples posture | Invented, public-domain, or permissively licensed examples only | docs/DIRECTIVE.md §3; docs/IP_AND_DATA_BOUNDARY.md §2 |
->
+**Not decided.**
 
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> - The setup workflow may discuss `docs/IP_AND_DATA_BOUNDARY.md` and the contribution checklist only within this deliverable-local kit.
-> - Protected standards text, tables, figures, examples, material allowables, SIF/flexibility tables, protected dimensional tables, proprietary vendor data, copied commercial examples, private rule packs, owner standards, and private project data are excluded from public repository content.
-> - Unknown license, provenance, redistribution status, certification mechanism, or review disposition is `TBD` until resolved by human project authority or legal review.
-> - Software and agent outputs remain draft/proposal artifacts until accepted by a human gate.
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> The intended repo-level policy artifact should be constructed from:
->
-> 1. Boundary categories: allowed public content, prohibited public content, private/user-controlled content, and suspected protected content.
-> 2. Required contribution metadata: source, location, license or redistribution basis, contributor, certification, redistribution status, review status, and disposition.
-> 3. Review actions: intake screening, provenance check, redistribution-rights check, protected-content scan, quarantine decision, human/legal escalation, and final accept/reject/quarantine outcome.
-> 4. Non-claims: no legal opinion. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - AGENTS.md — SWBPIPE agent index and Type 2 dispatch rule.
-> - docs/DIRECTIVE.md — founding intent, public/private boundary, stop rules.
-> - docs/CONTRACT.md — invariant catalog.
-> - docs/TYPES.md — canonical vocabulary and provenance labels.
-> - docs/SPEC.md — technical implementation context, reports, rule packs, and warning classes.
-> - docs/IP_AND_DATA_BOUNDARY.md — draft repo-level policy artifact.
-> - governance/CONTRIBUTION_REVIEW_CHECKLIST.md — draft repo-level contribution review checklist.
-> - docs/AGENTIC_DEVELOPMENT_WORKFLOW.md — Type 2 execution and review expectations.
-> - execution/_Decomposition/SOFTWARE_DECOMP.md (accepted authority through the decision register) — DEL-01-02, SOW-003, SOW-028, OBJ-002, AB-00-01, AB-00-02, AB-00-06, AB-00-08.
-> - execution/_DAG/_LATEST.md — approved graph authority pointer.
-> - docs/_Registers/Deliverables.csv (retired in `48584391de`; see Git history), ScopeLedger.csv (retired in `48584391de`; see Git history), ContextBudgetQA.csv (retired in `48584391de`; see Git history) — register evidence.
+- The owner's contributor rules. OUT-002 is written from them and is not drafted without them.
+- Who gives the legal review that the quarantine rule and uncertain redistribution rights call for.
+- Who keeps the quarantine location and who may read it.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-01-02 Copyright and protected-data boundary policy
+The policy is a project governance control. It is adequate when a maintainer, a contributor or an implementer can tell from it alone whether a given piece of content may be public, what record it needs and what to do when unsure.
 
-> #### Specification: DEL-01-02 Copyright and protected-data boundary policy
->
+### Requirements
 
-### CLM-009 — Scope
+- **REQ-001** — The policy states that the public repository contains no protected content, naming each class (SOW-003; PRD §20.1; `docs/CONTRACT.md` OPS-K-IP-1).
+- **REQ-002** — The policy requires every public data record to carry the full provenance record, with a review disposition that a maintainer records. A record whose licence is undecided, whose redistribution status is unknown or whose contributor certification is missing is not accepted as public data until then, and quarantined content receives its disposition only from the human or legal review of REQ-003 (PRD §20.2; `docs/CONTRACT.md` OPS-K-IP-2).
+- **REQ-003** — The policy defines the handling of suspected protected content: stop ingestion, mark the record `protected_suspected`, quarantine it, record the issue and request human or legal review. Quarantined material is not used as fixture data, copied into documentation, summarized into public tables or turned into public defaults while its status is unresolved (PRD §20.2; `docs/CONTRACT.md` OPS-K-IP-3).
+- **REQ-004** — The policy separates open mechanics from code-specific, proprietary and private user data: code-specific values are supplied by the user, and importers, examples, reports, telemetry, issue bundles and issue forms exclude private user data unless the user exports or contributes it with documented redistribution rights (PRD §5.4, §20.3; `docs/CONTRACT.md` OPS-K-DATA-1).
+- **REQ-005** — A missing, unknown or undocumented licence, provenance or redistribution status blocks public acceptance until it is resolved. Rights are never inferred from a source being public, useful or easy to find (`docs/CONTRACT.md` OPS-K-IP-2, OPS-K-DATA-2).
+- **REQ-006** — Public example rule packs use invented, non-code values only and carry a clear non-engineering notice (PRD §17.4; `docs/CONTRACT.md` OPS-K-RULE-1). Public report templates and examples use invented or permissively sourced data only and contain no protected standards text, protected tables, proprietary formulas, private rule-pack content or private project data (PRD §19.4; `docs/CONTRACT.md` OPS-K-REPORT-2).
+- **REQ-007** — Review of a public contribution for protected content, provenance, redistribution rights and private data is a maintainer gate that precedes acceptance. The checklist records the reviewer and the disposition (SOW-028; `docs/CONTRACT.md` OPS-K-GOV-4).
+- **REQ-008** — The policy gives no legal advice and draws no legal conclusion about any content or contribution. Accepting content under it is project governance, not professional approval of engineering use (PRD §21.2).
+- **REQ-010** — The policy states rules only. Enforcement is by the deliverables named in the boundary: DEL-03-07 on library import, DEL-08-05 in report linting and the release-candidate scan, DEL-12-01 in storage paths and DEL-12-03 in telemetry.
+- **REQ-011** — The checklist is at `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`. It is the reviewer's side of the two-sided record of a contribution, used in the sole-maintainer review; the contributor's side is DEL-01-03's certification.
+- **REQ-012** — The policy carries the rule for the external prover CAEPIPE, interoperate openly and evaluate privately: public text may name CAEPIPE and state the file-format and interface facts the code needs to interoperate with it; anything that evaluates CAEPIPE (result values, differences, agreement counts, measured tolerances, defects, limits, screenshots) stays in the user's private exchange folder and is never committed; and no public text claims agreement with CAEPIPE. When the owner has checked the CAEPIPE licence for benchmark clauses, the rule is amended so that benchmark agreement is published and other evaluation stays private (`docs/RELEASE_TARGET_v1.0.md`, benchmark method).
+- **REQ-013** — The policy distinguishes redistribution from runtime handling. A user's own private data read at runtime, or sent to a model provider that user configured, is not redistribution and creates no exception to REQ-001, REQ-003 or the rights of third parties (`docs/CONTRACT.md` OPS-K-PRIV-1).
 
-> ##### Scope
->
-> This deliverable-local specification defines requirements for the repo-level copyright and protected-data boundary policy and contribution review checklist. It covers public-repository data boundaries, contributor provenance controls, suspected protected-content quarantine, and review evidence. It does not implement product code, decide the project license, provide legal advice, certify compliance, or approve engineering use.
->
+### Acceptance criteria
 
-### CLM-010 — Requirements
-
-> ##### Requirements
->
-> | ReqID | Requirement | Source | Verification |
-> |---|---|---|---|
-> | DEL-01-02-R1 | The policy shall state that the public repository must not contain protected standards text, tables, figures, examples, copied code formulas, material allowables, SIF/flexibility tables, protected dimensional tables, or proprietary commercial data. | docs/CONTRACT.md §1 OPS-K-IP-1; execution/_Decomposition/SOFTWARE_DECOMP.md SOW-003 | Review policy prohibited-content section and protected-content checklist entries. |
-> | DEL-01-02-R2 | The policy shall require public data contributions to include source, provenance, license or redistribution status, contributor certification, and review disposition. | docs/CONTRACT.md §1 OPS-K-IP-2; docs/IP_AND_DATA_BOUNDARY.md §4 | Confirm contribution checklist has each metadata field. |
-> | DEL-01-02-R3 | The policy shall define suspected protected-content handling as stop, quarantine, issue record, and human/legal escalation. | docs/CONTRACT.md §1 OPS-K-IP-3; docs/IP_AND_DATA_BOUNDARY.md §5 | Confirm quarantine path/process and escalation fields are present; default metadata convention is `quarantine/protected-content/` or a maintainer-approved equivalent, per `docs/IP_AND_DATA_BOUNDARY.md` §5. Access and legal disposition remain governed. |
-> | DEL-01-02-R4 | The policy shall distinguish open mechanics from user-supplied code-specific and proprietary data. | loop/LOOP_INIT.md; docs/DIRECTIVE.md §1, §3; docs/CONTRACT.md OPS-K-DATA-1 | Review allowed/prohibited/private categories. |
-> | DEL-01-02-R5 | The policy shall state that missing, unknown, or undocumented provenance/redistribution status blocks public acceptance until resolved. | docs/CONTRACT.md OPS-K-DATA-2, OPS-K-IP-2; docs/TYPES.md §5, §7 | Checklist includes `TBD`, the `unknown` redistribution value (the checklist representation of the TYPES `UNKNOWN_SOURCE` condition), and rejection/quarantine outcomes; unknown provenance still blocks acceptance. |
-> | DEL-01-02-R6 | The policy shall require public rule-pack examples and public report templates/examples to avoid protected standards content and use invented or permissively sourced data. | docs/CONTRACT.md OPS-K-RULE-1, OPS-K-REPORT-2; docs/SPEC.md §6, §8 | Review public-example and report-template review rows. |
-> | DEL-01-02-R7 | The policy shall make contributor review a maintainer gate for IP, provenance, privacy, and protected-content risks before accepting public contributions. | docs/CONTRACT.md OPS-K-GOV-4; docs/DIRECTIVE.md §6 | Checklist includes review disposition and responsible reviewer field. |
-> | DEL-01-02-R8 | The policy shall not claim legal advice, professional engineering approval, certification, sealing, code compliance, or standards-body endorsement (PRD §21.2). | docs/CONTRACT.md OPS-K-AUTH-1, OPS-K-AGENT-4; docs/DIRECTIVE.md §4.2, §6 | Review notices and forbidden-claim checks. |
-> | DEL-01-02-R9 | The policy shall preserve stable IDs and traceability to DEL-01-02, PKG-01, SOW-003, SOW-028, and OBJ-002 in the deliverable-local kit. | docs/CONTRACT.md OPS-K-HIER-1, OPS-K-ID-1; docs/TYPES.md §1-2 | Confirm IDs appear consistently in this kit. |
-> | DEL-01-02-R10 | Architecture-facing references to diagnostics, result envelopes, tests, and gates shall remain constraints for downstream implementation only unless this deliverable explicitly resolves them. | execution/_Decomposition/SOFTWARE_DECOMP.md AB-00-06, AB-00-08; sealed brief | Confirm policy text uses non-implementation wording and records downstream handoff. |
-> | DEL-01-02-R11 | The repo-level checklist location is `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`; review follows the DEC-027 sole-maintainer authority and DEC-079 §5 process; final contributor legal instrument remains open until owner activation on legal advice. External intake remains closed. | docs/IP_AND_DATA_BOUNDARY.md §8; governance/CONTRIBUTION_REVIEW_CHECKLIST.md; docs/CONTRACT.md OPS-K-GOV-2, OPS-K-GOV-4 | Confirm the checklist path and DEC-027/079 sole-maintainer review route; preserve the deferred legal-instrument decision and closed intake. |
->
-
-### CLM-011 — Standards
-
-> ##### Standards
->
-> No protected standards text or clause-level standard requirements are used as source material. Standards-body content is treated as excluded public-repository content unless explicit redistribution rights are documented and human/legal review accepts it. The current repository license is MIT under D-74 (2026-09-22); the 2026-06-03 PolyForm selection is superseded history; DEC-027 governs the separate maintainer and external-intake posture. Default quarantine metadata uses `quarantine/protected-content/` or a maintainer-approved equivalent (`docs/IP_AND_DATA_BOUNDARY.md` §5); specific legal requirements, access arrangements, and legal disposition retain their governed decisions.
->
-
-### CLM-012 — Verification
-
-> ##### Verification
->
-> - `ScopeOfWork.md` exists in the deliverable folder.
-> - Required sections are present in `ScopeOfWork.md`.
-> - Requirements cite local project sources rather than protected standard text.
-> - Unknowns are marked `TBD`.
-> - No product implementation, protected standards/code data, legal conclusion, certification, sealing, approval, or compliance-for-reliance claim is introduced (PRD §21.2).
-> - The contribution checklist verification remains field-by-field; path existence is resolved at `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`, with the DEC-027/079 sole-maintainer review route; the final contributor legal instrument remains deferred to owner activation on legal advice.
-> - Dependency register validates against v3.1 schema after extraction.
->
-
-### CLM-013 — Documentation
-
-> ##### Documentation
->
-> Repo-level artifacts are `docs/IP_AND_DATA_BOUNDARY.md` and `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`. This deliverable-local kit records their current-basis requirements and unresolved governance decisions.
-
-- **AC-001** — The policy and contribution-review checklist preserve the documented prohibited-content boundary, provenance and contributor-certification fields, quarantine and human/legal escalation path, unresolved TBD decisions, and non-claim limitations for SOW-003 and SOW-028.
+- **AC-001** — The policy's prohibited list names every class in PRD §20.1's "must not contain" list and in `docs/CONTRACT.md` OPS-K-IP-1, and its allowed list names each class PRD §20.1 permits and nothing those sources prohibit.
+- **AC-002** — The policy names all seven provenance fields with the two value sets above, and states that a record with an undecided licence, an `unknown` redistribution status or no contributor certification is not acceptable as public data.
+- **AC-003** — The policy gives the five quarantine steps in order, names the default quarantine location, and lists the four uses quarantined material is barred from.
+- **AC-004** — The checklist has a field for each of: the contribution's identity and scope; source name and location; licence or redistribution basis; contributor identity and certification; redistribution status; protected-content risk; private-data risk; test, validation and documentation evidence; the reviewer and the disposition; and the quarantine or escalation record. A reviewer holding only the policy and the checklist reaches the disposition the policy determines for each of three invented contributions: original data with complete provenance, vendor data with unclear redistribution terms, and data that appears copied from a standards table.
+- **AC-005** — The policy states that public example rule packs use invented, non-code values only and carry a clear non-engineering notice, and that public report templates and examples use invented or permissively sourced data and contain no protected standards text, protected table, proprietary formula, private rule-pack content or private project data.
+- **AC-006** — The policy states where private user data lives, the default exclusion of that data from importers, examples, reports, telemetry, issue bundles and issue forms, and that runtime handling of a user's own data is not redistribution and waives no third party's rights.
+- **AC-007** — The policy states the CAEPIPE rule with its three parts: what public text may say, what stays private, and that no public text claims agreement.
+- **AC-008** — Neither document states a legal conclusion, calls quarantine a finding of infringement, or describes acceptance of content as approval of engineering use.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-014 — Procedure: DEL-01-02 Copyright and protected-data boundary policy
+**Method choices that define the policy.**
 
-> #### Procedure: DEL-01-02 Copyright and protected-data boundary policy
->
+- *Lists, not judgment calls.* Allowed and prohibited content are enumerated by class, so that an implementer can turn each class into a check.
+- *One vocabulary.* The provenance field names and the two status value sets are defined here once. Schemas, importers, the linter and the release scan use these names and values.
+- *Conservative default.* When status is unclear the outcome is pending, rejected or quarantined, never accepted.
+- *Two-sided record.* With a quorum of one there is no second reviewer; the record of a contribution is the contributor's certification and the reviewer's checklist, holding the same evidence fields.
 
-### CLM-015 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> This procedure describes how to maintain and review the repo-level protected-data boundary policy and contribution checklist without introducing protected content or legal conclusions.
->
-
-### CLM-016 — Prerequisites
-
-> ##### Prerequisites
->
-> - Sealed deliverable context for DEL-01-02.
-> - Local sources listed in `_REFERENCES.md`.
-> - Applicable invariants from `docs/CONTRACT.md`.
-> - Human/legal availability for unresolved legal wording, license, contributor certification, and quarantine-path decisions.
-> - Checklist path: `governance/CONTRIBUTION_REVIEW_CHECKLIST.md`.
-> - Reviewer authority: the sole maintainer under DEC-027 and the DEC-079 §5 process. Contributor legal-instrument adoption remains deferred to owner activation on legal advice; intake stays closed.
-> - No protected standards/code/vendor data in working examples or drafts.
->
-
-### CLM-017 — Steps
-
-> ##### Steps
->
-> 1. Confirm scope is limited to DEL-01-02, SOW-003, SOW-028, and OBJ-002.
-> 2. Read governing local sources: AGENTS.md, docs/DIRECTIVE.md, docs/CONTRACT.md, docs/TYPES.md, docs/SPEC.md, docs/IP_AND_DATA_BOUNDARY.md, governance/CONTRIBUTION_REVIEW_CHECKLIST.md, docs/AGENTIC_DEVELOPMENT_WORKFLOW.md, decomposition, and registers.
-> 3. Draft or review the policy sections for allowed public content, prohibited public content, private/user-controlled content, required provenance, quarantine, reports, and contributor review.
-> 4. Draft or review the contribution checklist fields:
->    - contribution description;
->    - source name and source location;
->    - source license or redistribution basis;
->    - contributor identity and certification;
->    - redistribution status;
->    - protected-content risk;
->    - private-data risk;
->    - reviewer disposition;
->    - quarantine/escalation record, if applicable.
-> 5. If suspected protected content appears, stop ingestion, avoid reproducing it, mark the item `PROTECTED_CONTENT_SUSPECTED`, quarantine outside public examples, record the issue, and request human/legal review.
-> 6. Replace unknowns with `TBD` rather than inventing license status, legal conclusions, provenance, examples, formulas, or engineering values.
-> 7. Verify the policy avoids claims of legal advice, code compliance, professional engineering approval, certification, sealing, endorsement, or release fitness (PRD §21.2).
-> 8. Perform a field-by-field checklist acceptance review against Specification R2 and R11, applying the DEC-027/079 sole-maintainer review route and retaining the final contributor legal-instrument decision for owner activation on legal advice.
-> 9. Route the repo-level policy/checklist for REVIEW and then human acceptance before treating it as project policy.
->
-
-### CLM-018 — Verification
-
-> ##### Verification
->
-> - The `ScopeOfWork.md` stays deliverable-local.
-> - Repo-level artifacts remain draft governance surfaces unless accepted by a human gate.
-> - Prohibited-content categories align with OPS-K-IP-1 and SOW-003.
-> - Provenance and contributor-review fields align with OPS-K-IP-2 and OPS-K-GOV-4.
-> - Quarantine language aligns with OPS-K-IP-3 and remains non-legal-conclusive.
-> - Unknown values and unresolved policy decisions remain `TBD`.
-> - The dependency register is schema-valid after extraction.
->
-
-### CLM-019 — Records
-
-> ##### Records
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/TASK_RUN_*.md`
-
-- **VER-001** — Compare the converted contract source markers and parity report against all four legacy source documents, and review the output/evaluation matrix and derived checklist for complete source-grounded coverage.
+- **VER-001** — Judgment by a named role (an independent reviewer who did not write the text): read the policy against PRD §5.4, §17.4, §19.4 and §20.1 to §20.3, `docs/CONTRACT.md` OPS-K-IP-1 to OPS-K-IP-3, OPS-K-RULE-1, OPS-K-REPORT-2 and OPS-K-PRIV-1, and the benchmark method of `docs/RELEASE_TARGET_v1.0.md`; report each class, field, value, step or rule that is missing, added or weakened, and each legal conclusion or approval-like statement.
+- **VER-002** — Judgment by a named role (an independent reviewer who did not write the checklist): apply the policy and the checklist to the three invented contributions of AC-004 and record the disposition reached for each. The expected dispositions are the policy's: eligible for acceptance; pending or rejected; quarantined and escalated.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-020 — Guidance: DEL-01-02 Copyright and protected-data boundary policy
-
-> #### Guidance: DEL-01-02 Copyright and protected-data boundary policy
->
-
-### CLM-021 — Purpose
-
-> ##### Purpose
->
-> The policy exists to protect standards-body and vendor intellectual property while allowing SWBPIPE to remain a public, educational, auditable implementation of open mechanics. It should give maintainers and contributors a conservative intake path: accept only content with documented rights, keep private/project data private, and escalate suspected protected content before it reaches the public repository.
->
-
-### CLM-022 — Principles
-
-> ##### Principles
->
-> - Open mechanics are public; code-specific values, proprietary libraries, protected standards tables, and owner/project data are not public defaults.
-> - Provenance is part of the data, not an optional note.
-> - `TBD`, `UNKNOWN_SOURCE`, and `PROTECTED_CONTENT_SUSPECTED` are valid findings; they should not be silently converted into public content.
-> - Contributor review is a gate, not a courtesy label.
-> - Quarantine is protective and procedural; it is not a finding of infringement or a legal conclusion.
-> - Public examples should be original, invented, public-domain, or permissively licensed, with a clear non-engineering notice.
->
-
-### CLM-023 — Considerations
-
-> ##### Considerations
->
-> The existing draft `docs/IP_AND_DATA_BOUNDARY.md` provides categories for allowed public content, prohibited public content, provenance fields, quarantine behavior, private user data, reports, and the contribution review checklist. The draft `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` provides the current checklist surface. DEC-027 and DEC-079 establish sole-maintainer review and keep intake closed. Contributor legal-instrument selection and legal sufficiency remain deferred to owner activation on legal advice; unresolved vocabulary and channel-specific escalation details retain their governing process.
->
-> Architecture-basis items AB-00-01, AB-00-02, AB-00-06, and AB-00-08 matter as downstream constraints: protected-content and provenance gates should be testable, diagnostics should include `IP_BOUNDARY_WARNING` where implementation later touches contribution/report flows, and adapters/plugins should not bypass provenance or data-boundary controls. This document does not implement those controls.
->
-
-### CLM-024 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Guidance |
-> |---|---|
-> | Usability vs. protected-content risk | Prefer conservative rejection or quarantine when redistribution status is unclear. |
-> | Educational examples vs. accidental copying | Use invented examples and avoid code-derived values, table shapes, copied wording, and proprietary benchmark files. |
-> | Automation vs. legal judgment | Automated scans can flag risk but cannot be the sole legal control. Human/legal review remains required for suspicious or high-impact contributions. |
-> | Public transparency vs. private data protection | Record policy and review outcomes publicly where safe, but do not expose private rule packs, owner standards, project models, or quarantined content. |
->
-
-### CLM-025 — Examples
-
-> ##### Examples
->
-> - Acceptable pattern: a small invented example model with original values, a non-engineering notice, and provenance marked `PUBLIC_DOMAIN_OR_ORIGINAL`.
-> - Review-required pattern: manufacturer data with unclear redistribution terms; record `source_license=TBD` and block public acceptance until resolved.
-> - Quarantine pattern: a contribution that appears copied from a standards table; stop ingestion, mark `PROTECTED_CONTENT_SUSPECTED`, move outside public examples, record issue, and request human/legal review.
->
-
-### CLM-026 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
-> |---|---|---|---|---|---|---|
-> | C-001 | Exact quarantine storage path is now specified as `quarantine/protected-content/` or maintainer-approved equivalent, but no maintainer-approved alternative path or owner is assigned. | docs/IP_AND_DATA_BOUNDARY.md §5 | governance/CONTRIBUTION_REVIEW_CHECKLIST.md §8 | Procedure §Steps; Specification R3 | Treat `quarantine/protected-content/` as the default unless a maintainer-approved equivalent is recorded. | TBD |
-> | C-002 | Contributor certification mechanism is required by policy intent but exact wording/mechanism remains unresolved. | docs/CONTRACT.md OPS-K-IP-2 | docs/DIRECTIVE.md §6 | Specification R2; Procedure checklist | Human/legal review should approve final attestation language. | DEC-079: instrument choice remains deferred to owner activation on legal advice; external intake stays closed. |
-> | C-003 | Checklist location and sole-maintainer review are resolved; contributor legal-instrument adoption remains deferred. | DEC-027; DEC-079 §5 | `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` | Requirements R11; Prerequisites | Apply the recorded review route; preserve legal and activation gates. | DEC-027/079; external intake remains closed. |
+- **AX-001** — *Keep protected content out.* Better is fewer ways protected or private content can reach a public artifact, measured by the content classes and paths the policy leaves unaddressed. Usefulness of an example or a dataset is never a reason to accept content whose rights are unclear.
+- **AX-002** — *Make the lawful path easy.* Better is a contributor or implementer reaching the right disposition with fewer fields and fewer steps. This is never bought by dropping a provenance field, by inferring rights, or by letting an automated check stand in for the human or legal review that suspected content requires.
+- **AX-003** — *Record, do not expose.* Review outcomes are recorded where that is safe. A public record never reproduces the suspected content, a private rule pack, an owner standard or project data.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-003 SOW-028 OBJ-002 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-001 | SOW-003 OBJ-002 | REQ-001 REQ-004 REQ-010 | AC-001 | VER-001 | PRD §20.1 lists the permitted and the prohibited classes and `docs/CONTRACT.md` OPS-K-IP-1 the prohibited ones; the reviewer compares the policy with them |
+| OUT-001 | SOW-028 OBJ-002 | REQ-002 REQ-005 | AC-002 | VER-001 | PRD §20.2 lists the fields. The two value sets are defined by this scope |
+| OUT-001 | SOW-003 SOW-028 OBJ-002 | REQ-003 | AC-003 | VER-001 | PRD §20.2 and `docs/CONTRACT.md` OPS-K-IP-3 require quarantine and escalation; the steps and the default location are defined by this scope |
+| OUT-002 | SOW-028 OBJ-002 | REQ-007 REQ-011 | AC-004 | VER-002 | The policy says what must happen to each invented contribution; the dispositions are reached by a reviewer who wrote neither document. The checklist's content comes from the owner's contributor rules |
+| OUT-001 | SOW-003 OBJ-002 | REQ-006 | AC-005 | VER-001 | PRD §17.4 and §19.4 and `docs/CONTRACT.md` OPS-K-RULE-1 and OPS-K-REPORT-2 |
+| OUT-001 | SOW-003 OBJ-002 | REQ-004 REQ-013 | AC-006 | VER-001 | PRD §20.3 and `docs/CONTRACT.md` OPS-K-PRIV-1 |
+| OUT-001 | SOW-003 OBJ-002 | REQ-012 | AC-007 | VER-001 | The release target's benchmark method, which says what is published about CAEPIPE and what stays private |
+| OUT-001 | SOW-003 SOW-028 OBJ-002 | REQ-008 | AC-008 | VER-001 | PRD §21.2 lists the prohibited claims |

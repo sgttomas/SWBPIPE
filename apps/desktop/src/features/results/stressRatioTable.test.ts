@@ -43,7 +43,7 @@ import {
   type StressRatioView
 } from "./stressRatioTable";
 
-// A3, the sorted stress and ratio table (DEL-07-05 Design `stress-ratio-table.md` §2 to §5, §10).
+// A3, the sorted stress and ratio table.
 // All data are invented (`resultOverlayFixtures` and the invented rule pack below); no value has
 // engineering meaning.
 
@@ -346,7 +346,7 @@ describe("stress ratio table: rule-check outcomes", () => {
   });
 
   it("forms a ratio only under a bound relation, in one unit, with a positive limit", () => {
-    // A lower bound forms limit ÷ computed (HELP_HUMAN, 2026-10-27; Design §3.1): 4 / 3.
+    // A lower bound forms limit ÷ computed (HELP_HUMAN, 2026-10-27): 4 / 3.
     const cases: Array<[Partial<RuleCheckOutcome>, number | null, string | null]> = [
       [{ computed_value: quantity(3), limit_value: quantity(4), acceptability_relation: "less_than" }, 0.75, null],
       [{ computed_value: quantity(3), limit_value: quantity(4), acceptability_relation: "greater_than_or_equal" }, 4 / 3, null],
@@ -365,7 +365,7 @@ describe("stress ratio table: rule-check outcomes", () => {
   });
 
   it("lists outcomes with no ratio after the ranked ones and never hides them", () => {
-    // A lower bound over a computed value that is not positive forms no ratio (Design §3.1).
+    // A lower bound over a computed value that is not positive forms no ratio.
     const checks = [
       bound("s:P-1:i", { status: "USER_RULE_CHECKED", computed_value: quantity(-3), limit_value: quantity(4), acceptability_relation: "greater_than_or_equal" }),
       bound("s:P-2:i", { status: "USER_RULE_CHECKED", input: "in_p2", check: "chk_p2", computed_value: quantity(1), limit_value: quantity(4) })
@@ -460,7 +460,7 @@ describe("stress ratio table: rule-check outcomes", () => {
     });
     const reason = incompleteReason(numeric, "admitted");
     expect(reason).toBe(`Missing input: in_p1. Completeness finding RULE_SOLVER_RESULT_ROW_MISSING (in_p1). Evaluator finding TableOutOfRange (chk_p1). ${INCOMPLETE_MESSAGES_NOTE}`);
-    // A withheld row's reason keeps the codes and missing inputs but no subject (§3.2).
+    // A withheld row's reason keeps the codes and missing inputs but no subject.
     const withheldReason = incompleteReason(numeric, "withheld");
     expect(withheldReason).toBe(`Missing input: in_p1. Completeness finding RULE_SOLVER_RESULT_ROW_MISSING. Evaluator finding TableOutOfRange. ${INCOMPLETE_MESSAGES_NOTE}`);
     for (const fragment of ["123456789", "0.25", "100", "table argument", "no row matched"]) {
@@ -577,7 +577,7 @@ describe("stress ratio table: rule-check outcomes", () => {
 // A lower-bound relation forms limit ÷ computed (HELP_HUMAN, 2026-10-27: "Lower-bound ratio ranking
 // decided: for a greater-than relation, ratio = limit ÷ computed, same unit and dimension, positive
 // computed value, finite quotient; ratio > 1 means failure in both directions; label each ratio's
-// direction; rank by magnitude otherwise."; Design §3.1, §5).
+// direction; rank by magnitude otherwise.").
 describe("stress ratio table: lower-bound ratio", () => {
   const LOWER = ["greater_than", "greater_than_or_equal"] as const;
   const lower = (relation: string, computed: number | null, limit: number | null, computedUnit = "MPa", limitUnit = "MPa") => outcomeRatio({
@@ -610,7 +610,7 @@ describe("stress ratio table: lower-bound ratio", () => {
       for (const computed of [0, -0, -3, -Number.MIN_VALUE]) {
         expect(lower(relation, computed, 4), `${relation} ${computed}`).toEqual({ ratio: null, note: RATIO_NOTE_COMPUTED_NOT_POSITIVE });
       }
-      // A value that is not finite is no value, as in the computed and limit cells (Design §3.1).
+      // A value that is not finite is no value, as in the computed and limit cells.
       for (const computed of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
         expect(lower(relation, computed, 4), `${relation} ${computed}`).toEqual({ ratio: null, note: RATIO_NOTE_MISSING });
       }
@@ -712,7 +712,7 @@ describe("stress ratio table: lower-bound ratio", () => {
   });
 });
 
-// The upper-bound path is unchanged by the lower-bound ratio (HELP_HUMAN, 2026-10-27; Design §3.1).
+// The upper-bound path is unchanged by the lower-bound ratio (HELP_HUMAN, 2026-10-27).
 // Every relation other than a lower bound, over a grid of computed values and limits, gives the same
 // ratio and note as before, and a run of such outcomes builds the same table, views and pages. The
 // digest is of the outputs at the code before the lower-bound ratio (commit 1618bf866b).

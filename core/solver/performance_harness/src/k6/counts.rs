@@ -1,5 +1,5 @@
-//! K6's deterministic storage counts (T3 D1 §4.8) and the derived peak
-//! estimates per mode (K6 plan §7, approved with ROOT's rulings N8 and N9).
+//! K6's deterministic storage counts and the derived peak
+//! estimates per mode (approved with ROOT's rulings N8 and N9).
 //!
 //! The counts phase works in O(nnz) memory: it never forms an n² array or a
 //! profile's values. Its RCM profile is K6's own skyline count on the order
@@ -40,7 +40,7 @@ pub const F1B_LANE_BYTES_PER_PROFILE_ENTRY: u128 = 24;
 /// crate-private, so its size is derived: 24 + 8 bytes on a 64-bit target.
 pub const EXPANSION_BYTES: u128 = 32;
 
-/// The counts line (K6 plan §4.1).
+/// The counts line.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct K6Counts {
     pub nodes: usize,
@@ -283,7 +283,7 @@ pub fn f1b_estimate_bytes(mode: Mode, c: &K6Counts) -> Option<u128> {
     }
 }
 
-/// E_base (plan §7.1): the O(nnz) state alive beside every solver stage: the
+/// E_base: the O(nnz) state alive beside every solver stage: the
 /// stiffness, the evidence, the formation source, the partition and the force.
 pub fn base_bytes(c: &K6Counts, s: &SizeFacts) -> u128 {
     let nnz = c.pattern_entries as u128;
@@ -302,7 +302,7 @@ pub fn base_bytes(c: &K6Counts, s: &SizeFacts) -> u128 {
     stiffness + evidence + source + partition
 }
 
-/// The admission estimate per mode (plan §7; ROOT's rulings N8 and N9). The
+/// The admission estimate per mode (ROOT's rulings N8 and N9). The
 /// counts R (contribution-rounding rows) and Z (nonzero entries) are bounded
 /// by the pattern's entry count.
 pub fn admission_estimate_bytes(

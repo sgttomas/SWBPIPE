@@ -1,4 +1,4 @@
-/** C1 slice 6 (DEL-04-05 `c1-native-custody-plan.md`): saved and recorded runs reopen into native
+/** C1 slice 6: saved and recorded runs reopen into native
  * custody (`src-tauri/src/stored_custody.rs`). The stored result text and its stored v0.3 record stay
  * in the desktop process; the webview receives a restored handle, the historical findings the native
  * port of `buildHistoricalRunContext` / `buildRecordedRunContext` computed on the stored texts, the
@@ -77,7 +77,7 @@ export type RestoredRun = Readonly<{
   result_present: boolean;
   record_present: boolean;
   findings: RestoredFindings;
-  /** RT-A4 §10.4: the recorded dispatch (no model) under `findings.recorded_table_read`, for a
+  /** the recorded dispatch (no model) under `findings.recorded_table_read`, for a
    * renderable run read under one; null otherwise. */
   recorded_dispatch: ReaderDispatch | null;
   /** `{record, result_ref_count, diagnostic_count, carried_members}`: the stored record without its
@@ -117,7 +117,7 @@ function decodeRestored(value: unknown, origin: RestoredRun["origin"]): Restored
   const found = value.findings;
   if (!plain(found) || !Array.isArray(found.findings) || !found.findings.every(isText) || !isText(found.run_id) || typeof found.renderable !== "boolean") malformed("the findings are not readable");
   if (!Array.isArray(found.check_findings) || !found.check_findings.every(isText) || !Array.isArray(found.historical_reader_findings) || !found.historical_reader_findings.every(isText)) malformed("the findings' scopes are not readable");
-  // RT-A4 §10.4: a recorded table is exactly a registry variant's binding; without one there is no
+  // a recorded table is exactly a registry variant's binding; without one there is no
   // historical reader finding and no recorded dispatch.
   const table = found.recorded_table_read;
   if (table !== null && (!plain(table) || Object.keys(table).length !== 2 || recordedPreRtA4Binding(table) === null)) malformed("the recorded table is not a registry variant");
@@ -205,7 +205,7 @@ export async function restoredNativeResult(restored: RestoredRun): Promise<Nativ
     // Never bound to a model's standing: a restored run has no current standing.
     binding: { standingModelText: "\u0000restored", invocationText: null, summaryModelText: RESTORED_SUMMARY_MODEL_TEXT, standing: null },
     recovery,
-    // RT-A4 §10.4: the table the native readers of this handle read under, and its recorded dispatch.
+    // the table the native readers of this handle read under, and its recorded dispatch.
     recordedTable: recordedTable ? { id: recordedTable.id, sha256: recordedTable.sha256 } : null,
     recordedVerdict,
     historicalStanding

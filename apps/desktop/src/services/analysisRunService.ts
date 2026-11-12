@@ -185,7 +185,7 @@ export type AnalysisRunComparisonAdmission = {
   budget_bytes: number;
 };
 
-/** The size admission of a run comparison (W-12 S3b; DEL-14-01 Design §4.2, Memory): the
+/** The size admission of a run comparison (W-12 S3b): the
  * store verifies each named run as its list does and refuses by name
  * (`COMPARISON-RUNS-TOO-LARGE`), before either run is read, when the runs' stored results
  * and input manifests, with `currentRunBytes` (the session's current run when it is the

@@ -928,7 +928,7 @@ def test_shared_parity_fixture_matches_core_decisions():
         covered_reason_codes.add(decision.reason_code)
 
         if case["export_context"] == "user_released_report":
-            # The redaction walk refuses the context (§3.2), and no Python route uses
+            # The redaction walk refuses the context, and no Python route uses
             # the user-release projector, so the case's finding is checked on the item
             # rule's own finding (``_classify``, the function the walk used).
             with pytest.raises(ValueError, match=WALK_REFUSAL):
@@ -1390,7 +1390,7 @@ def _request_with_raw_release_members():
 
 @pytest.mark.parametrize("route_id", ("DREP-PACKAGE-SAVE-009", "DREP-IPC-003"))
 def test_existing_contexts_preserve_raw_intent_named_members(route_id):
-    """Raw members named like the release intent stay content, byte for byte (§3.3)."""
+    """Raw members named like the release intent stay content, byte for byte."""
 
     request = _request_with_raw_release_members()
     before = canonical_text(request)
@@ -1514,7 +1514,7 @@ def test_review_payload_marker_and_private_class_variants_are_refused_by_the_gen
 
 # Codex r3 of the r1 slice: the walk decided a value-bearing parent as a whole, so a
 # labelled parent hid restricted descendants.  The walk now refuses the context
-# outright (§3.2); the user-release projector (TypeScript) is the only payload entry.
+# outright; the user-release projector (TypeScript) is the only payload entry.
 # Twins of the desktop generator in ``redactionExportControls.test.ts``.
 STEP_1_TO_9_MARKERS = (
     {"professional_claim": True},

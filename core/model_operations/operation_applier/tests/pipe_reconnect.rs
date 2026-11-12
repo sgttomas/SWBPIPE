@@ -3,7 +3,7 @@
 //! model is an inline invented fixture built from `MODEL_SCHEMA_VERSION`; no
 //! value is library, catalog or code-rule data.
 //!
-//! Notation (design): P is the reconnected pipe, F its fixed end node, O the
+//! Notation: P is the reconnected pipe, F its fixed end node, O the
 //! end node it leaves and T the node it joins.
 use open_pipe_stress_operation_applier::{
     apply_operation, apply_operation_batch, canonical_json, sha256_hex, validate_operation,
@@ -882,7 +882,7 @@ fn property_random_graphs_every_pipe_end_and_target() {
                     let old = p[end].as_str().unwrap();
                     let warnings: BTreeSet<String> = outcome.diagnostics.iter().filter(|d| d.severity == "warning").map(|d| d.code.clone()).collect();
                     assert_eq!(warnings, expected_warnings(&model, &after, pipe_id, old), "seed {seed} {pipe_id} {end} -> {target}");
-                    // The inverse reconnect, where representable (§1 Undo).
+                    // The inverse reconnect, where representable.
                     let had_y = p.get("y_reference").cloned();
                     if y.is_some() && had_y.is_none() {
                         continue;
@@ -1260,7 +1260,7 @@ fn runtime_equivalence_witness_native() {
     )]);
 }
 
-/// Model document 0.9.0 (DEL-02-01 Design `model-document-0.9.0.md` §1.4): a reconnected
+/// Model document 0.9.0: a reconnected
 /// pipe keeps its condition_set_ref; the applied document still validates.
 #[test]
 fn a_reconnected_pipe_keeps_its_condition_set_ref() {

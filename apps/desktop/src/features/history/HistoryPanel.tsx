@@ -128,7 +128,7 @@ function runDraftFrom(labels: RunLabels | null): LabelsDraft {
 }
 
 const RUN_ASSUMPTIONS_LEGEND = "Run-level assumptions and open issues";
-/** analysis_run 0.3 has no assumption slot (design §3). */
+/** analysis_run 0.3 has no assumption slot. */
 const RUN_ASSUMPTIONS_NOTE = "Run-level assumptions are kept and shown with the run; they are not part of its analysis record.";
 
 function LabelsFields({ draft, onChange, testId, legend = "State-level assumptions and open issues" }: { draft: LabelsDraft; onChange: (draft: LabelsDraft) => void; testId: string; legend?: string }) {

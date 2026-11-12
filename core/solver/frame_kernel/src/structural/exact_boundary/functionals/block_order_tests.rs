@@ -257,7 +257,7 @@ fn replay(
 }
 
 /// The independent oracle: arbitrary-precision integers and exact rationals.
-/// Shared with `congruence_tests` (RF design §3.3).
+/// Shared with `congruence_tests`.
 pub(crate) mod oracle {
     use std::cmp::Ordering;
 

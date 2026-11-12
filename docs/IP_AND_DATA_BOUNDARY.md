@@ -22,8 +22,7 @@ This policy is a project governance control, not legal advice, professional engi
 ## 1.1 Current authority basis
 
 This draft policy is aligned to
-the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md` and the approved
-graph selected by `execution/_DAG/_LATEST.md`. The project license has been selected as
+the accepted `execution/_Decomposition/SOFTWARE_DECOMP.md`. The project license has been selected as
 `MIT`; contribution-source license and redistribution
 fields still record the source basis for submitted material and do not replace
 the project license notice.
@@ -105,7 +104,7 @@ The default-exclusion rule above governs *public redistribution and committed/ex
 ### 6.2 CAEPIPE evaluation (owner, 2026-10-26)
 
 <!-- policy-text -->
-<!-- owner-words -->"I want: **interoperate openly, evaluate privately**".<!-- /owner-words --> This rule governs CAEPIPE, the external prover the correlation work uses. Public text (the repository, PRs and commits) may name CAEPIPE and state the file-format and interface facts SWBPIPE's code needs to interoperate with it: record syntax, result-file layout, labels, sign and unit conventions, and how the importer and exporter map records. Each fact is cited to the vendor's public manual where it covers the fact, or otherwise stated plainly as observed format behaviour. Code may contain whatever it needs. Anything that evaluates CAEPIPE stays in the user's private exchange folder and is never committed: result values, differences, agreement counts and classifications, tolerances measured from results; its defects and crashes, trial limits, evaluation stamps and performance; screenshots and survey notes. No public text claims agreement with CAEPIPE. Survey proposals describe features in the project's own words, without attributing them to CAEPIPE. DEL-17-05 `Work/caepipe-correlation-pilot.md` §8 applies this to the correlation pilot.
+<!-- owner-words -->"I want: **interoperate openly, evaluate privately**".<!-- /owner-words --> This rule governs CAEPIPE, the external prover the correlation work uses. Public text (the repository, PRs and commits) may name CAEPIPE and state the file-format and interface facts SWBPIPE's code needs to interoperate with it: record syntax, result-file layout, labels, sign and unit conventions, and how the importer and exporter map records. Each fact is cited to the vendor's public manual where it covers the fact, or otherwise stated plainly as observed format behaviour. Code may contain whatever it needs. Anything that evaluates CAEPIPE stays in the user's private exchange folder and is never committed: result values, differences, agreement counts and classifications, tolerances measured from results; its defects and crashes, trial limits, evaluation stamps and performance; screenshots and survey notes. No public text claims agreement with CAEPIPE. Survey proposals describe features in the project's own words, without attributing them to CAEPIPE. DEL-17-05 applies this to the correlation pilot.
 <!-- /policy-text -->
 
 ## 7. Report boundary
@@ -114,9 +113,9 @@ Generated reports may reference a user rule-pack ID, version, checksum, and sour
 
 ## 8. Contribution review checklist
 
-Public contributions that add data, examples, report templates, schemas with example payloads, benchmark cases, import fixtures, or documentation excerpts must be reviewed against `governance/CONTRIBUTION_REVIEW_CHECKLIST.md` before acceptance.
+Public contributions that add data, examples, report templates, schemas with example payloads, benchmark cases, import fixtures, or documentation excerpts must be reviewed before acceptance.
 
-The checklist records:
+The review records:
 
 - contribution identity and scope;
 - source, provenance, license, redistribution, and contributor certification evidence;

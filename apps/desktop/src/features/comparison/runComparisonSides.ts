@@ -1,4 +1,4 @@
-// The two sides of a run comparison (W-12 S3b; DEL-14-01 Design §4.2): a recorded
+// The two sides of a run comparison (W-12 S3b): a recorded
 // run, read through the store's metered, integrity-checked read and checked again
 // in the webview, or the session's current run. Each side's numerical standing is
 // `numericalResultStanding` for its result and its snapshot (the solved model its
@@ -75,7 +75,7 @@ export function notExactRunReason(run: Pick<AnalysisRunSummary, "run_name" | "re
 
 function standingOf(result: MechanicsResult, model: unknown, record?: unknown): NumericalStanding {
   try {
-    // RT-A4 §10.4: a run recorded before RT-A4 keeps the standing it read with when recorded.
+    // a run recorded before RT-A4 keeps the standing it read with when recorded.
     const recorded = record === undefined ? null : recordedPreRtA4RecordBinding(record);
     if (recorded) return recordedResultStanding(result, recorded, model as Parameters<typeof recordedResultStanding>[2]);
     return numericalResultStanding(result, model as Parameters<typeof numericalResultStanding>[1]);

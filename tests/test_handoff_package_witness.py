@@ -141,7 +141,7 @@ def test_the_python_verifier_twin_verifies_the_witness():
     assert verified["export_hash"] == f"sha256:{manifest()['checksums'][1]['value']}"
 
 
-# Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.4, §12): the witness package as the
+# Model document 0.8.0: the witness package as the
 # 0.7.0 producer wrote it (its bytes before the ripple, at 71300752ab), kept as the ripple's one committed
 # 0.7.0 refusal control (tests/test_model_document_schema.py EXPLICIT_RETIRED_CONTROLS).
 RETIRED_PACKAGE = ROOT / "fixtures" / "handoff" / "retired_0_7_0_witness.swbhandoff"
@@ -158,7 +158,7 @@ def test_a_package_written_at_model_0_7_0_still_verifies_and_holds_a_retired_mod
     assert json.loads(model_bytes)["schema_version"] == "0.7.0"
 
 
-# Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.2, §3.6): the witness package as the 0.8.0
+# Model document 0.9.0: the witness package as the 0.8.0
 # producer wrote it (its bytes before the ripple, at main 5bb2f9ff0), the ripple's one new committed 0.8.0 refusal
 # control (tests/test_model_document_schema.py EXPLICIT_RETIRED_CONTROLS).
 RETIRED_PACKAGE_0_8_0 = ROOT / "fixtures" / "handoff" / "retired_0_8_0_witness.swbhandoff"

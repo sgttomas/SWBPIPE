@@ -5,7 +5,7 @@ import { ABSOLUTE_SUM_SIGN, OPERATING_MINUS_SUSTAINED_SIGN, SRSS_SIGN, combinati
 import { navigatorCases } from "../results/resultsNavigator";
 import { overlayModel, overlayResult, row } from "../../test-support/resultOverlayFixtures";
 
-// RT-A4 review r1 P4 (DEL-05-02 absolute-sum-srss-combinations.md section 4): a combination row that is not one
+// RT-A4 review r1 P4: a combination row that is not one
 // solved state is recognized by its sign convention and its basis_ref to a combination, not only by its basis
 // token. All rows are invented display inputs; no engineering result is asserted.
 

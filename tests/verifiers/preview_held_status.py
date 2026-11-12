@@ -1,4 +1,4 @@
-"""RT-A5 ``minuend_final`` (DEL-05-02 Work operating-case.md section 7.6): the Python mirror of RE
+"""RT-A5 ``minuend_final``: the Python mirror of RE
 ``preview_held_status.rs``.
 
 A preview-physics-2 declared operating comparison whose subtrahend is the subtrahend case's loads solved with each

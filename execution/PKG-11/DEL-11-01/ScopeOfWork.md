@@ -2,356 +2,113 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-11-01
 package_id: PKG-11
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-033]
 package_objective_refs: [OBJ-001, OBJ-011]
 ---
 
-# Scope of Work — DEL-11-01
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-11-01 User guide skeleton
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-11-01` in service of project scope [SOW-033] and package objectives [OBJ-001, OBJ-011].
+An engineer who has the application and this guide can install it, build a piping model, run every analysis the release requires, read the results and produce a report, and knows at each step what the software computed and what it leaves to them. The guide tells the user nothing the product does not do, shows nothing the public project may not publish, and never lets a solved model or an evaluated rule read as approval or code compliance.
 
-- **OUT-001** — A user-guide skeleton contract for safe installation, model creation, solve, result review, troubleshooting, and professional-responsibility navigation is produced.
+It serves SOW-033 under OBJ-001 and OBJ-011 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-11, row DEL-11-01: documentation only), and PRD §5.5, §5.9, §20.1, §21 and the documentation-completeness measure of §25.2. In `docs/RELEASE_TARGET_v1.0.md` it owns exit criterion 13 together with DEL-11-03: the user guide and the theory notes cover every analysis of criterion 1, with its inputs, method, assumptions and limitations, and state that SWBPIPE does not determine code compliance. The guide's share is what the user enters, does and reads, and the limitations the user meets. The method and its assumptions are the theory notes' share.
+
+- **OUT-001** — The user guide, `docs/user_guide/`.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-11-01 User guide skeleton
+**Terms the guide implements.**
 
-> #### Datasheet: DEL-11-01 User guide skeleton
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Release described.* The guide accompanies one release of the desktop application and describes that release. For v1.0 that is the macOS build.
+- *Required analysis.* Each analysis of exit criterion 1: sustained, operating, expansion with its basis, hydrotest, wind, three-axis static seismic with SRSS and absolute-sum combination, seismic anchor movement, modal, response spectrum and hanger sizing.
+- *Analysis entry.* The guide's account of one required analysis, in four parts: the inputs the user enters, where they are entered and in what units; how the analysis is run; the results it publishes and how to read them; and its limitations as the user meets them, which are its named refusals and what the release does not offer. Each entry links to the theory note that gives the method and its assumptions.
+- *Guide sections.* Product scope and authority boundary; installation and project storage; creating a project; building the centerline model; solving; running user rule checks; reviewing results; reports; limitations; troubleshooting and warnings; glossary and status vocabulary.
+- *Three authorities.* The mechanics solve, the user-rule check and human review. The guide keeps them apart wherever it describes a result.
+- *Product vocabulary.* The analysis-status tokens of `docs/TYPES.md` §4 with their registered display forms, the warning classes, and the diagnostic codes the product emits. The guide quotes them and coins none.
 
-### CLM-003 — Identification
+**Boundary.** The guide is the user's document. The following belong elsewhere:
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-11-01 |
-> | Deliverable name | User guide skeleton |
-> | Package ID | PKG-11 |
-> | Package name | Documentation, Examples, and Education |
-> | Deliverable type | DOC_UPDATE |
-> | Scope item | SOW-033 |
-> | Objectives | OBJ-001; OBJ-011 |
-> | Context envelope | M |
-> | Lifecycle artifact | Draft setup document, not the repository user guide |
->
+- the method, the assumptions and the method's limitations for each analysis: DEL-11-03;
+- the invented example models a guide walkthrough may use: DEL-11-04, and the invented rule pack: DEL-06-05;
+- documentation for developers and for contributors: DEL-11-02 and DEL-11-05;
+- the registered boundary wording and the status labels: DEL-01-04;
+- the release limitations list, `docs/RELEASE_LIMITATIONS_v1.0.md`: the deliverable that owns each refusal;
+- the validation manual and the reproduction guide: DEL-09-04;
+- the behaviour the guide describes: the deliverable that owns it. Where the guide and the product differ, the guide is the one to correct.
 
-### CLM-004 — Attributes
-
-> ##### Attributes
->
-> | Attribute | Value |
-> |---|---|
-> | Primary purpose | Define a user guide structure for project setup, modeling, solving, rule checks, reports, and limitations. |
-> | Target artifact Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | `docs/user_guide/index.md` is the anticipated downstream artifact, but this setup run does not edit it. Current implementation (at `62c1efd75b`): `docs/user_guide/index.md` exists; `tests/test_user_guide_status_wording.py` checks its status wording. |
-> | Guide posture | Help users understand an open, auditable piping stress workflow without hiding missing data, private-data requirements, or professional responsibility limits. |
-> | Required sections | Product scope, setup, project creation, model building, solving, rule checks, results review, reports, limitations, troubleshooting, glossary. |
-> | Data boundary | Public guide content must not include protected standards text, protected examples, proprietary tables, private rule packs, private libraries, or owner data. |
-> | Rule-check boundary | User rule checks are computations using user-supplied or lawful private rule packs; they are not professional authentication. |
-> | Professional boundary | The software assists analysis and reporting; competent human review remains required before project reliance. |
-> | Implementation maturity | Resolve implementation choices through the decision log: DEC-017/019 storage, DEC-022 grammar, DEC-023 numerical-library basis, DEC-028/057 package and release posture, SCA-004 export scope. Public API transport and unfulfilled implementation/acceptance obligations remain open. |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> | Condition | Source basis | Effect on the guide skeleton |
-> |---|---|---|
-> | User documentation is in scope for PKG-11. | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-11-01; `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-033 | The skeleton covers the user-facing workflow, not source code or examples. |
-> | Open mechanics and protected standards data must remain separated. | `AGENTS.md`; `docs/DIRECTIVE.md` sections 1-4; OPS-K-IP-1 through OPS-K-IP-3 | Guide sections must describe user/private data requirements without copying or paraphrasing protected standards content. |
-> | Mechanics solve, user rule check, and professional approval are separate states. | `docs/TYPES.md` sections 4 and 6; OPS-K-AUTH-1 | The guide outline must explain statuses and warnings without implying automatic code compliance (PRD §21.2). |
-> | Primary global analysis is a 3D centerline/frame model. | `docs/DIRECTIVE.md` section 3; `docs/SPEC.md` sections 1 and 4 | Modeling sections emphasize centerline nodes, elements, components, supports, loads, and unit-aware fields. |
-> | Reports must be auditable and boundary-aware. | `docs/SPEC.md` section 8; OPS-K-REPORT-1 and OPS-K-AUTH-1 | Reporting sections include provenance, warnings, hashes/checksums, limitations, and human review notice. |
-> | Future implementation details are unresolved. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 11 | Setup/install and advanced integration content uses `TBD` rather than inventing product behavior. |
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> Current deliverable obligation: Create user guide structure for project setup, modeling, solving, rule checks, reports, and limitations. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> The user guide skeleton is organized as a documentation outline. Section content is intentionally skeletal until product features, UI behavior, reports, examples, packaging, and release gates mature.
->
-> | Guide section | Purpose | Initial state |
-> |---|---|---|
-> | Scope and authority boundary | Explain SWBPIPE as decision-support software with open mechanics and user-supplied design-basis data. | Skeleton required |
-> | Installation and project setup | Reserve setup instructions for supported builds, local-first storage, project files, units, and privacy posture. | `TBD` where packaging is unresolved |
-> | Creating a project | Cover unit selection, project metadata, model identity, provenance expectations, and private rule-pack/library references. | Skeleton required |
-> | Building the centerline model | Cover nodes, elements, pipe runs, components, supports/restraints, load cases, combinations, and missing-data warnings. | Skeleton required |
-> | Solving mechanics | Explain mechanics-only solve status, solver diagnostics, singular/nonconverged states, and result envelopes. | Skeleton required |
-> | Running user rule checks | Explain private rule packs, required inputs, unit checks, missing rule data, checksums, and rule-check statuses. | Skeleton required |
-> | Reviewing results | Reserve structure for displacements, rotations, forces, moments, reactions, equipment loads, stresses, ratios, warnings, and assumptions. | Skeleton required |
-> | Generating reports | Cover input manifest, model hash, solver version, rule-pack checksum, provenance, limitations, and public-template prohibitions. | Skeleton required |
-> | Limitations and professional responsibility | State global centerline vs local FEA handoff limits, validation status, known risks, and human review requirements. | Skeleton required |
-> | Troubleshooting and warnings | Organize solve blockers, rule-check blockers, provenance warnings, assumption warnings, nonlinear warnings, and IP-boundary warnings. | Skeleton required |
-> | Glossary and status vocabulary | Define user-facing terms from `docs/TYPES.md` without creating new engineering authority. | Skeleton required |
->
-### CLM-007 — References
-
-> ##### References
->
-> - `AGENTS.md`
-> - `docs/README.md`
-> - `docs/DIRECTIVE.md`
-> - `docs/CONTRACT.md`
-> - `docs/TYPES.md`
-> - `docs/SPEC.md`
-> - `docs/IP_AND_DATA_BOUNDARY.md`
-> - `docs/AGENTIC_DEVELOPMENT_WORKFLOW.md`
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md`
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history)
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history)
-> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history)
+**Not decided.** A guide for a platform other than macOS. Windows is taken up after v1.0.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-11-01 User guide skeleton
+The guide is adequate when a user can do what it says, what it says is true of the release it accompanies, and no passage can be read as approval, certification or code compliance.
 
-> #### Specification: DEL-11-01 User guide skeleton
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-010 — Scope
+REQ-001 to REQ-010 keep the numbers of the earlier `UG-REQ` series.
 
-> ##### Scope
->
-> This deliverable defines the deliverable-local skeleton for the SWBPIPE user guide. It covers the guide structure needed for project setup, centerline modeling, mechanics solving, user rule checks, result review, report generation, limitations, and professional responsibility notices.
->
-> Maintain `docs/user_guide/index.md` within active authorized briefs, separating guide content from separately owned tutorial/example implementation. Do not document protected standards content. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
->
+- **REQ-001** — The guide has each of the guide sections (SOW-033; decomposition row DEL-11-01).
+- **REQ-002** — Installation and storage content gives only the requirements, steps, file names and storage locations that the release has. It invents no setup command and no product behaviour, and it says so where a platform or a packaging choice is undecided (PRD §5.5; `docs/CONTRACT.md` OPS-K-AGENT-1).
+- **REQ-003** — Modelling content presents the global model as a unit-aware 3D centerline/frame model with explicit nodes, elements, components, supports and loads, whose values carry units and provenance (PRD §5.2, §5.6; `docs/SPEC.md` §3 to §5).
+- **REQ-004** — Solving content distinguishes the mechanics-solve status from the user-rule-check status and from human professional acceptance, and describes no automatic status of approval or code compliance (`docs/TYPES.md` §4; `docs/CONTRACT.md` OPS-K-MECH-2, OPS-K-AUTH-1).
+- **REQ-005** — Rule-check content states that code-specific values, allowables, combinations, formulas, stress-intensification and flexibility factors, owner requirements and proprietary data are supplied by the user through lawful private data or rule packs (PRD §5.4; `docs/CONTRACT.md` OPS-K-DATA-1, OPS-K-RULE-1, OPS-K-RULE-3).
+- **REQ-006** — Report content tells the reader where a report shows the software and solver version, the model hash, the input manifest, the units, the warnings, the assumptions, the source and provenance notes, the rule-pack checksum, the results and the limitations (PRD §19.2; `docs/CONTRACT.md` OPS-K-REPORT-1).
+- **REQ-007** — Limitation content covers professional responsibility, validation status, the boundary between public and private data, the handoff to local FEA, the behaviour on missing data, and what the release does not offer. It agrees with the release limitations list (PRD §21; exit criterion 3).
+- **REQ-008** — The guide reproduces no protected standards text, table, figure or example, no protected dimensional data, no proprietary commercial data and no private user or project data. Every example value is invented (PRD §20.1; `docs/CONTRACT.md` OPS-K-IP-1 to OPS-K-IP-3).
+- **REQ-009** — Where the guide refers to a status, a warning class or a diagnostic, it uses the product vocabulary exactly (`docs/TYPES.md` §4 to §7).
+- **REQ-010** — Where something the guide must describe is undecided or not offered, the guide says so in the place it affects. It fills no gap with a guessed value, default or behaviour, and it tells the user that the product reports missing data and never defaults it (PRD §5.5; `docs/CONTRACT.md` OPS-K-DATA-2, OPS-K-AGENT-2).
+- **REQ-011** — The guide has an analysis entry for every required analysis (exit criterion 13).
+- **REQ-012** — The guide states, in the release target's words, that SWBPIPE does not determine code compliance, and that establishing it is the user's act, outside this software (exit criterion 13; PRD §24, V1).
+- **REQ-013** — An instruction names each control by its visible label and gives the keyboard route where the desktop has one. The desktop's accessibility baseline is DEL-07-06's.
+- **REQ-014** — The string "CAEPIPE" appears nowhere in the guide. The guide describes the export only as the export of a `.mbf` model batch file.
 
-### CLM-011 — Requirements
+### Acceptance criteria
 
-> ##### Requirements
->
-> | ID | Requirement | Source basis | Acceptance hook |
-> |---|---|---|---|
-> | UG-REQ-001 | The guide skeleton shall include sections for project setup, modeling, solving, rule checks, reports, and limitations. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Description; `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-11-01 | Procedure verification confirms all required section slots exist. |
-> | UG-REQ-002 | Setup content shall preserve unresolved implementation details as `TBD` where packaging, dependency versions, public API transport, import/export formats, solver library, expression grammar, or project container are not yet decided. | `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) Architecture Basis Injection; `execution/_Decomposition/SOFTWARE_DECOMP.md` open issues | Review confirms no invented setup commands or product behavior are asserted. |
-> | UG-REQ-003 | Modeling content shall frame the global model as a unit-aware 3D centerline/frame model with explicit nodes, elements, components, supports, loads, and provenance-bearing fields. | `docs/DIRECTIVE.md` sections 2-3; `docs/SPEC.md` sections 1, 3, 4, and 7 | Datasheet Construction and Guidance Principles cover model-building categories. |
-> | UG-REQ-004 | Solving content shall distinguish mechanics solve status from rule-check status and human professional acceptance. | `docs/TYPES.md` sections 4 and 6; OPS-K-MECH-2; OPS-K-AUTH-1 | Search and review confirm no automatic `CODE_COMPLIANT` status or professional approval claim appears. |
-> | UG-REQ-005 | Rule-check content shall state that code-specific values, allowables, combinations, formulas, SIFs, flexibility factors, owner requirements, and proprietary data are supplied by users through lawful private data or rule packs. | `AGENTS.md`; `docs/DIRECTIVE.md` sections 1 and 3; OPS-K-DATA-1; OPS-K-RULE-1 and OPS-K-RULE-3 | Guidance examples exclude protected and proprietary source material. |
-> | UG-REQ-006 | Report content shall include auditable-report slots for software/solver version, model hash, input manifest, units, warnings, assumptions, source/provenance notes, rule-pack checksum, results, and limitations. | `docs/SPEC.md` section 8; OPS-K-REPORT-1 | Datasheet Construction includes a reporting section and Procedure checks the slots. |
-> | UG-REQ-007 | Limitation content shall cover professional responsibility, validation status, public/private data boundaries, local FEA handoff, missing data, and unresolved `TBD` items. | `docs/DIRECTIVE.md` sections 3-6; `docs/VALIDATION_STRATEGY.md` section 1; OPS-K-AUTH-1 | Guidance and Procedure include boundary checks. |
-> | UG-REQ-008 | Public guide content shall not reproduce protected standards text, tables, figures, examples, protected dimensional data, proprietary commercial data, or private user/project data. | `docs/IP_AND_DATA_BOUNDARY.md` sections 2-7; OPS-K-IP-1 through OPS-K-IP-3 | Protected-content review finds no prohibited content. |
-> | UG-REQ-009 | The skeleton shall use canonical status and vocabulary terms where user-facing status semantics are referenced. | `docs/TYPES.md` sections 4-7 | Procedure verification checks canonical status terms. |
-> | UG-REQ-010 | The skeleton shall expose unknowns and assumptions rather than filling gaps with silent defaults. | OPS-K-AGENT-1; OPS-K-AGENT-2; OPS-K-DATA-2 | Review confirms remaining unknowns are `TBD` or explicit limitations. |
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> No external engineering code or standard is used as source authority for this user guide skeleton. The governing sources are the SWBPIPE project documents and registers listed in `_REFERENCES.md`.
->
-> Any future guide content that references an external code, standard, vendor catalog, owner requirement, commercial software example, or licensed data source is `TBD` until provenance, redistribution rights, and human/legal review are recorded.
->
-
-### CLM-013 — Verification
-
-> ##### Verification
->
-> | Check | Method | Expected result |
-> |---|---|---|
-> | Scope of Work contract | Check the consolidated `ScopeOfWork.md` production format, required sections and source/verification traceability. | Current contract is present and internally consistent; original four-document setup is historical provenance. |
-> | Required guide slots | Compare Datasheet Construction against UG-REQ-001. | Required setup, modeling, solving, rule-check, report, and limitation sections are present. |
-> | Protected-content boundary | Manual review against `docs/IP_AND_DATA_BOUNDARY.md` and OPS-K-IP invariants. | No protected standards data, proprietary examples, or private user data are introduced. |
-> | Professional boundary | Search for certification, approval, sealing, authentication, endorsement, and compliance overclaims (PRD §21.2). | Any hits are prohibitions or boundary statements, not product claims. |
-> | Dependency register schema | Run `python3 tools/validation/validate_dependencies_schema.py` on `Dependencies.csv`. | v3.1 schema is valid. |
-> | Lensing coverage | Count matrix lens coverage rows in `_SEMANTIC_LENSING.md`. | 96 rows for matrices A, B, C, F, D, X, and E. |
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> The setup artifact set for this deliverable consists of:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_STATUS.md`
-> - `_run_records/*`
->
-> The current guide is `docs/user_guide/index.md`; its maintenance follows the active authorized brief and scoped review requirements.
-- **AC-001** — The contract preserves the source-defined guide structure, current implementation declarations, unit and missing-data visibility, diagnostics and result interpretation boundaries, invented-example posture, protected/private-data controls, accessibility intent, and visible unresolved documentation decisions. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+- **AC-001** — Every guide section is present under a heading a reader can find from the guide's table of contents, and every link in the guide resolves.
+- **AC-002** — For each of the ten required analyses there is an analysis entry with all four parts, and its link reaches the part of a theory note that covers that analysis.
+- **AC-003** — A reader who follows the guide on the release it accompanies, from installation through each required analysis on the invented reference system, obtains what each instruction says they will. Every command, menu path, file name, default and code the guide names exists in that release, nothing the guide presents as available is refused, and each thing the release does not offer is stated as not offered.
+- **AC-004** — The scope and authority section states that SWBPIPE does not determine code compliance. No passage states or implies a claim PRD §21.2 prohibits, and wherever a result is described the reader can tell which of the three authorities it belongs to.
+- **AC-005** — Every status token, display label, warning class and diagnostic code in the guide is one the product has, spelled as the product spells it.
+- **AC-006** — The guide contains nothing of the classes PRD §20.1 keeps out of the public repository, every example value in it is invented, and the rule-check content says that code-specific and proprietary values are the user's to supply.
+- **AC-007** — The report content names every item of REQ-006, and the limitation content covers every subject of REQ-007 and contradicts no entry of the release limitations list.
+- **AC-008** — Each instruction names its controls by the labels the desktop shows, and each step the desktop offers from the keyboard is given with its command, menu path or shortcut.
+- **AC-009** — The string "CAEPIPE" occurs nowhere in the guide, in any letter case, and every passage about the `.mbf` export describes it as the export of a model batch file and attributes the file to no vendor or program.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-015 — Procedure: DEL-11-01 User guide skeleton
+**Method choices that define the guide.**
 
-> #### Procedure: DEL-11-01 User guide skeleton
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Organised by the user's work.* The guide follows the order in which an engineer installs, models, loads, solves, reviews and reports. It is not organised by module or by deliverable.
+- *Describe, never define.* The guide quotes behaviour, vocabulary and limits from the product and the owning scopes. It adds no value, default, rule or status of its own.
+- *One entry per analysis, the same four parts.* A reader who has used one analysis entry knows where to look in the next.
+- *Link the method.* The entry sends the reader to the theory note for how the result is computed and under what assumptions, and does not restate it.
+- *Invented data only.* Every walkthrough uses the invented example models, the invented rule pack or the invented reference system.
 
-### CLM-017 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Use this procedure to produce and check the deliverable-local user guide skeleton. The procedure is documentation-oriented and does not edit `docs/user_guide/index.md` or move any artifact to `ISSUED`.
->
-
-### CLM-018 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Requirement |
-> |---|---|
-> | Sealed context | Confirm `DEL-11-01`, `PKG-11`, SOW-033, OBJ-001, and OBJ-011 from `_CONTEXT.md` and the registers. |
-> | Governing sources | Read the local references listed in `_REFERENCES.md`, especially `AGENTS.md`, `docs/DIRECTIVE.md`, `docs/CONTRACT.md`, `docs/TYPES.md`, `docs/SPEC.md`, and `docs/IP_AND_DATA_BOUNDARY.md`. |
-> | Data boundary | Do not introduce protected standards data, proprietary commercial data, or private user/project data into public setup artifacts. |
-> | Professional boundary | Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). |
-> | Write scope | Write only inside this deliverable folder. |
->
-
-### CLM-019 — Steps
-
-> ##### Steps
->
-> 1. Confirm the deliverable identity and current lifecycle state in `_STATUS.md`.
-> 2. Draft the `ScopeOfWork.md`:
->    - `ScopeOfWork.md` captures identity, source basis, boundaries, and the guide outline.
->    - `ScopeOfWork.md` captures guide skeleton requirements, exclusions, and acceptance checks.
->    - `ScopeOfWork.md` captures interpretation principles, trade-offs, and prohibited overclaims.
->    - `ScopeOfWork.md` captures production and verification steps.
-> 3. Check that the guide outline covers project setup, project creation, centerline modeling, mechanics solving, user rule checks, results review, reports, limitations, troubleshooting, and glossary/status vocabulary.
-> 4. Check that guide language preserves these separations:
->    - mechanics solve vs user rule check;
->    - user rule check vs human professional acceptance;
->    - open mechanics vs protected standards data;
->    - global centerline analysis vs local FEA handoff.
-> 5. Mark unresolved product behavior as `TBD`; do not invent installation commands, UI behavior, external formats, solver-library choices, rule expression grammar, or project container behavior.
-> 6. Generate semantic matrix and lensing artifacts as setup evidence.
-> 7. Refresh dependency artifacts with conservative, evidence-cited rows.
-> 8. Run local validation checks and record warnings in `_run_records`.
->
-### CLM-020 — Verification
-
-> ##### Verification
->
-> | Check | Command or review method | Pass condition |
-> |---|---|---|
-> | Scope of Work contract | `python3 tools/scope_of_work/validate_scope_of_work.py <DELIVERABLE_PATH>/ScopeOfWork.md` | the Scope of Work contract are present. |
-> | Required guide sections | Review `ScopeOfWork.md` Construction and `ScopeOfWork.md` UG-REQ-001. | Required user guide section slots are present. |
-> | Dependency schema | `python3 tools/validation/validate_dependencies_schema.py <deliverable-folder>/Dependencies.csv` | Schema validator reports `VALID`. |
-> | Enum checks | `python3 tools/validation/validate_enum.py <enum> <value>` for emitted dependency enum values | Emitted values are accepted by the enum validator. |
-> | Status check | Inspect `_STATUS.md`. | Use the current lifecycle recorded in `_STATUS.md`; preserve its state and history. Contract/evidence checks do not authorize a lifecycle transition or issuance. |
-> | Protected-content check | Manual review and targeted search for protected/compliance overclaims. | No protected data or software certification/compliance claims are present. |
->
-
-### CLM-021 — Records
-
-> ##### Records
->
-> Required records for this setup run:
->
-> - `ScopeOfWork.md`;
-> - `_SEMANTIC.md`;
-> - `_SEMANTIC_LENSING.md`;
-> - `Dependencies.csv`;
-> - refreshed `_DEPENDENCIES.md`;
-> - `_STATUS.md`;
-> - `_run_records/*` entries for the setup sequence and validations.
-- **VER-001** — Validate the contract and review source parity, user-journey and guide-structure coverage, current-versus-planned declarations, units and diagnostics, protected/private-data and accessibility controls, retained conflicts and TBDs, and professional-responsibility limits.
+- **VER-001** — Executable check (observes the guide's headings, entries and links): the guide sections exist; each required analysis has an entry with the four parts; every internal link and every link to a theory note resolves; and the code-compliance statement is present in the scope and authority section.
+- **VER-002** — Judgment by a named role (an independent reviewer who did not write the guide, working on the release-candidate build): follow the guide from installation through each required analysis on the invented reference system, and record each instruction that cannot be followed, each stated result the application does not give, each capability presented as available that the application refuses, each control named otherwise than by its label, and each keyboard route the desktop has and the guide omits.
+- **VER-003** — Executable check (observes the tokens the guide quotes, a proxy for correct use): every status token, display label, warning class and diagnostic code in the guide is found in the product's vocabulary sources.
+- **VER-004** — Judgment by a named role (an independent reviewer who did not write the guide): read the guide against PRD §19.2, §20.1 and §21.2, the boundary policy of DEL-01-02, the claims registry of DEL-01-04 and the release limitations list, and report each protected or private item, each example value that is not invented, each statement that can be read as a prohibited claim, each result whose authority is unclear, each missing report item or limitation subject, and each contradiction of the limitations list.
+- **VER-005** — Executable check (observes the guide's text): the string "CAEPIPE" does not occur in any letter case, and every passage that mentions `.mbf` calls it a model batch file and names no vendor or program for it.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-022 — Guidance: DEL-11-01 User guide skeleton
-
-> #### Guidance: DEL-11-01 User guide skeleton
->
-
-### CLM-023 — Purpose
-
-> ##### Purpose
->
-> This guidance explains how to interpret the user guide skeleton without blurring the SWBPIPE data, rule-check, and professional responsibility boundaries. The user guide should help a user move through setup, modeling, solving, rule checking, reports, and limitations while making missing data and human decision points visible.
->
-
-### CLM-024 — Principles
-
-> ##### Principles
->
-> | Principle | Guidance |
-> |---|---|
-> | Start with the authority boundary. | The guide should explain what SWBPIPE computes and what remains user-supplied or human-reviewed before it teaches button-by-button workflows. |
-> | Keep setup factual. | Packaging, install steps, storage containers, external transports, and dependency versions remain `TBD` until accepted elsewhere. Do not invent setup commands. |
-> | Teach the centerline model. | Modeling guidance should orient users around projects, units, nodes, elements, components, supports, loads, combinations, and provenance. |
-> | Keep mechanics and rule checks separate. | A mechanics solve produces displacements, forces, moments, reactions, stresses, and diagnostics. A user rule pack can evaluate those results only when required private/user data is present. |
-> | Keep private data private. | Rule packs, owner requirements, licensed code values, vendor data, and private libraries belong in user-controlled/private paths unless redistribution rights are documented. |
-> | Keep reports auditable. | Report guidance should emphasize manifests, model hashes, solver versions, warnings, assumptions, provenance, checksums, results, limitations, and human review notices. |
-> | Keep limitations visible. | The guide should state when a result is incomplete, when local analysis may be needed, and when validation or professional review is outside software authority. |
->
-
-### CLM-025 — Considerations
-
-> ##### Considerations
->
-> See CLM-006 for the current deliverable obligation and the historical setup boundary.
->
->
-> The user guide has to serve multiple audiences without making the product sound more mature or authoritative than the current evidence supports:
->
-> - New users need a clear workflow from project creation through reports.
-> - Experienced engineers need explicit status, warning, provenance, and limitation semantics.
-> - Maintainers need a guide structure that can grow as implementation and validation evidence mature.
-> - Educators need invented or public/permissive examples that do not rely on protected standards data.
->
-> The guide should avoid presenting a future GUI, CLI, or report behavior as already implemented unless that behavior is supported by an accepted implementation deliverable. Where behavior is planned but unresolved, use `TBD` or "future section" language.
->
-### CLM-026 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Preferred handling |
-> |---|---|
-> | Helpfulness vs false precision | Provide a section slot and the governing boundary; leave exact commands or screenshots as `TBD` until implemented. |
-> | Engineering clarity vs protected content risk | Explain open mechanics and data responsibilities without copying code text, protected examples, or proprietary tables. |
-> | Workflow simplicity vs warning visibility | Do not hide missing data, provenance gaps, rule-check blockers, or nonlinear diagnostics to make the guide look simpler. |
-> | Public examples vs realism | Use invented or permissively sourced examples and label them as educational, non-code examples. |
-> | Report confidence vs professional reliance | Reports can support review; they do not replace competent human acceptance for project use. |
->
-
-### CLM-027 — Examples
-
-> ##### Examples
->
-> Acceptable guide examples:
->
-> - A mechanics-only walkthrough using invented material and section values, clearly marked as non-code educational data.
-> - A rule-pack workflow that uses invented demonstration values and shows missing-input blockers.
-> - A report review checklist that names provenance, warnings, hashes, checksums, and limitations without quoting protected source material.
-> - A troubleshooting example that explains `RULE_CHECK_BLOCKING` or `PROVENANCE_WARNING` without supplying proprietary values.
->
-> Excluded guide examples:
->
-> - Copied protected standards tables, figures, examples, formulas, or commentary.
-> - Commercial software examples, manuals, screenshots, or benchmark files without redistribution permission.
-> - Vendor catalog or owner data without documented public redistribution rights.
-> - Any wording that implies software certification, endorsement, engineering seal, official approval, or automatic code compliance (PRD §21.2).
->
-
-### CLM-028 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling (TBD) |
-> |---|---|---|---|---|---|---|
-> | None | No source conflict identified in setup pass. | Not applicable | Not applicable | Not applicable | Not applicable | TBD |
+- **AX-001** — *True before complete.* Better is fewer statements a user finds false on the release, measured by the walkthrough's count of instructions that fail and results that differ, which is to be zero. Coverage is never bought with a description of something the release does not do; a gap is written as a gap.
+- **AX-002** — *Shorter path to a solved model.* Better is less time for a new user to go from installation to a solved, reviewed and reported model by following the guide (PRD §25.2). That time is never reduced by leaving out a limitation, a warning, a missing-data finding or the authority boundary.
+- **AX-003** — *Claim less.* Where a passage could be read as acceptance, approval or compliance, the wording that claims less is the better one, even where it is longer.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-033 OBJ-001 OBJ-011 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-001 | SOW-033 OBJ-001 | REQ-001 | AC-001 | VER-001 | The section list is REQ-001's, from SOW-033 and the decomposition row. The check reads the guide against the list |
+| OUT-001 | SOW-033 OBJ-001 | REQ-011 | AC-002 | VER-001 | Exit criterion 1 lists the analyses and exit criterion 13 lists what is covered for each. The list is read from the release target, not from the guide |
+| OUT-001 | SOW-033 OBJ-001 | REQ-002 REQ-003 REQ-010 | AC-003 | VER-002 | The guide says what must happen at each step; the comparison is with what the application does on the invented reference system, which the guide did not write, observed by a reviewer who did not write the guide |
+| OUT-001 | SOW-033 OBJ-011 | REQ-004 REQ-012 | AC-004 | VER-001 VER-004 | Exit criterion 13 requires the statement and PRD §21.2 lists the prohibited claims. The check finds the statement; the reviewer reads every passage against the §21.2 list |
+| OUT-001 | SOW-033 OBJ-011 | REQ-009 | AC-005 | VER-003 | Outside source: the tokens are read from `docs/TYPES.md` §4, the claims registry and the product's diagnostic vocabulary, none of which the guide writes |
+| OUT-001 | SOW-033 OBJ-001 | REQ-005 REQ-008 | AC-006 | VER-004 | PRD §20.1 lists what the public repository may not contain and DEL-01-02's policy states the classes. The reviewer reads the guide's text and examples against them |
+| OUT-001 | SOW-033 OBJ-011 | REQ-006 REQ-007 | AC-007 | VER-004 | PRD §19.2 lists the report content and `docs/RELEASE_LIMITATIONS_v1.0.md` is the release limitations list of exit criterion 3. The reviewer reads the guide's report and limitation content against both |
+| OUT-001 | SOW-033 OBJ-001 | REQ-013 | AC-008 | VER-002 | The labels and keyboard routes are the desktop's, read from the application by a reviewer who did not write the guide |
+| OUT-001 | SOW-033 OBJ-011 | REQ-014 | AC-009 | VER-005 | The string scanned for and the required description of the `.mbf` export are fixed by REQ-014, not by the guide. The check reads the guide's text against them |

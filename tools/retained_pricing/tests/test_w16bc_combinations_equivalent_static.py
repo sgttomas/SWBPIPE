@@ -1,4 +1,4 @@
-"""W16B-CB, W16B-RD, W16C-ES, W16BC-BN and W16BC-ID (retained-pricing-rules.md §8.27): W-16 slices b and c add the
+"""W16B-CB, W16B-RD, W16C-ES, W16BC-BN and W16BC-ID (§8.27): W-16 slices b and c add the
 exact route's load combinations and equivalent-static generation. D1 admits neither on a retained branch, so their
 entry edges are zero; the pressure-2 reader's combination test runs and its direct pass is counted once; by-name edges
 into the two new modules' private functions are zero; a changed premise or guard stops the run."""

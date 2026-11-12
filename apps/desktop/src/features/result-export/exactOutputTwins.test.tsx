@@ -16,7 +16,7 @@
  *   `loadReference.resultsSessionState.test.ts` solves it), recorded and manifested by
  *   the desktop, and exported by the Current builders; the source-derived members equal
  *   the committed twins'. Run-specific members are excluded by name below.
- *   `load_basis_refs` is checked against its own basis (§6.2).
+ *   `load_basis_refs` is checked against its own basis.
  * - The panels show their link and their disclosure line for these results; a model edit
  *   voids both. The refusals the design keeps are asserted: the pressure-source-1 twins
  *   and the pressure-2 fallback by standing, a copy, and a missing or mismatched record.
@@ -151,7 +151,7 @@ const DOCUMENT_ROW_EXCLUDED = ["provenance", "original_producer_row_checksum", "
  *   each source diagnostic as Rust's derivative does (`documentDiagnostic`), so every
  *   member but its `provenance` (each derivative's own) equals the Rust twin's where Rust
  *   maps the source (the plain twins; the load/reference writer's template carries its own);
- * - `load_basis_refs`, checked against its own basis instead (§6.2). */
+ * - `load_basis_refs`, checked against its own basis instead. */
 const DOCUMENT_RUN_SPECIFIC = ["envelope_id", "run_ref", "model_ref", "unit_system_ref", "solver_version", "reproducibility", "provenance", "diagnostics", "analysis_status", "professional_boundary", "rule_pack_refs", "downstream_use", "load_basis_refs"] as const;
 /** Package members copied or derived from the source, compared after the exclusion below
  * (and `source_block_recovery` for pressure-source-1). */
@@ -209,10 +209,10 @@ function expectDiagnosticsFollowSource(doc: JsonObject, rust: JsonObject, source
     expect(withoutProvenance(ours)).toStrictEqual(withoutProvenance(theirs));
   }
 }
-/** `{object_type: "LoadCase", ref}` (the record) to `{ref_type: "load_case", ref_id}` (the document, §6.2). */
+/** `{object_type: "LoadCase", ref}` (the record) to `{ref_type: "load_case", ref_id}` (the document). */
 const recordToDocumentRef = (item: ObjectRef) => { expect(item.object_type).toBe("LoadCase"); return { ref_type: "load_case", ref_id: item.ref }; };
 
-/** §6.2: solve, record, manifest and export; the source-derived members equal the twins'. */
+/** solve, record, manifest and export; the source-derived members equal the twins'. */
 async function oracle(input: Input) {
   const { document: rust, packet: python, record: pythonRecord, raw } = twins(input);
   const { model, result, inputManifest, analysisRun } = await solve(input.rawPath, input.requestPath, input.mode);
@@ -234,7 +234,7 @@ async function oracle(input: Input) {
   expect(Object.keys(doc.result_envelope).filter(key => !named.has(key))).toStrictEqual([]);
   expect(Object.keys(rust.result_envelope).filter(key => !named.has(key))).toStrictEqual([]);
 
-  // load_basis_refs against its own basis (§6.2), not the Rust document's IDs: the desktop
+  // load_basis_refs against its own basis, not the Rust document's IDs: the desktop
   // record's equal Python's committed record's, and the desktop document's are the record's
   // mapped LoadCase/ref to load_case/ref_id (and Python's record's, mapped the same way).
   expect(analysisRun.analysis_run.load_basis_refs).toStrictEqual(pythonRecord.analysis_run.load_basis_refs);

@@ -112,14 +112,14 @@ pub(crate) const READ_MODEL_STATE_FOR_COMPARISON_MAX_ARGS_BYTES: usize = HISTORY
 /// What a state is read for (W-12 S3a r1). Both reads make the same metered,
 /// leased and integrity-checked read; only opening it as the working model
 /// also refuses blocking document findings, so a `MODEL_INCOMPLETE` state is a
-/// comparison basis but is never opened (design §2).
+/// comparison basis but is never opened.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum StateReadPurpose {
     Open,
     Compare,
 }
 
-/// The longest tag, as for model tags (DEL-02-01 `model-document-0.7.0.md` §3.1).
+/// The longest tag, as for model tags.
 const MAX_TAG_CHARS: usize = 64;
 /// The most tags, notes and assumptions one set of labels keeps (repair r2).
 pub(crate) const MAX_LABEL_ITEMS: usize = 256;
@@ -595,7 +595,7 @@ fn label_assumption(value: Value, code: &str) -> Result<Value, String> {
 }
 
 // ---------------------------------------------------------------------------
-// The record (design §2 mapping table).
+// The record.
 // ---------------------------------------------------------------------------
 
 fn reference(object_type: &str, reference: &str) -> Value {
@@ -1715,7 +1715,7 @@ impl StateRowRefusal {
     }
 }
 
-/// The state list's check of one decoded row (W-12, DEL-14-01 Design §2), the
+/// The state list's check of one decoded row (W-12), the
 /// same for the list and for a delete by handle's re-check: its verified
 /// summary, or why the list shows it unreadable. Memory refusals and database
 /// errors are the caller's (`Err`).
@@ -1881,7 +1881,7 @@ pub(crate) fn list_states_with(
 
 /// Whether the state row `rowid` of `project_id` is still shown unreadable by
 /// the list's own check (a delete by handle's re-check, inside its write
-/// transaction; W-12, DEL-14-01 Design §2): an oversized column, or
+/// transaction; W-12): an oversized column, or
 /// [`checked_state_row`] refusing it. The row is loaded only as the list loads
 /// it: its oversized columns never, the rest within the summary's reservation.
 fn state_row_unreadable(connection: &Connection, project_id: &str, rowid: i64, memory: &dyn ReadMemory) -> Result<bool, String> {
@@ -2090,7 +2090,7 @@ pub(crate) fn checked_new_state(
     }
     // One current model-document version. Unlike a project save, a state may
     // hold a model with blocking slot findings: the record says
-    // `MODEL_INCOMPLETE` and the state is not opened (design §2). The record
+    // `MODEL_INCOMPLETE` and the state is not opened. The record
     // mapping refuses, by name, any slot it cannot map.
     let version = crate::model_document_version::evaluate_model_document(model.get());
     if version.is_refused() {
@@ -2720,7 +2720,7 @@ fn named_blockers(names: &[String], total: usize) -> String {
 }
 
 /// Deletes the state row a list's unreadable entry names by its `handle`
-/// ([`stored_read::row_handle`]; W-12, DEL-14-01 Design §2), on a
+/// ([`stored_read::row_handle`]; W-12), on a
 /// `BEGIN IMMEDIATE` transaction: the row of the project with that rowid whose
 /// whole stored id still has the handle's length and digest (hashed in chunks
 /// inside the transaction), only when no stored row names it (as its parent or
@@ -3990,7 +3990,7 @@ mod tests {
     fn a_state_with_blocking_findings_is_saved_incomplete_and_not_opened() {
         let path = store_with_project("incomplete", "sha256:base-1");
         let mut incomplete = model("Invented project");
-        // A resolved record without its resolution note blocks (W-13 §3.3).
+        // A resolved record without its resolution note blocks.
         incomplete["unresolved_assumptions"][1]
             .as_object_mut()
             .unwrap()

@@ -1,7 +1,8 @@
 id: DEL-00-06
 name: Diagnostics, warning, and result-envelope contract
 needs: []
-code_paths:
-- schemas/analysis_run.v0.3.schema.json
-- schemas/operation_outcome.schema.json
-- schemas/results.v0.3.schema.yaml
+# This deliverable defines the diagnostic record, the warning classes and the envelope's shape.
+# The schemas that carry them belong to the deliverables that own each boundary: the result export
+# (DEL-08-04), the analysis-run record (DEL-14-02), the runner (DEL-10-05), the operation outcome
+# (DEL-16-02 and DEL-16-06, validate-only and apply) and analysis status (DEL-05-04).
+code_paths: []

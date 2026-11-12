@@ -1,4 +1,4 @@
-//! Numerical health indicator (DEL-07-05 Design `numerical-health-indicator.md`):
+//! Numerical health indicator:
 //! a presentation projection of the ordinary solve's existing diagnostics, per
 //! load case, for the desktop. Nothing here changes a state, a threshold, a
 //! reader verdict or output admission; it reads the published envelope only.
@@ -41,7 +41,7 @@ const EVIDENCE_INCOMPLETE: &str = "NUMERICAL_CASE_EVIDENCE_INCOMPLETE";
 pub(crate) const LEAD_A: &str =
     "M03-INTEGRITY-v1 represented original-equation structural evidence for load case ";
 pub(crate) const LEAD_B: &str = ": StructuralReport { policy: \"M03-INTEGRITY-v1\", quality: ";
-/// `StructuralReport`'s Debug fields around rcond (§2.6).
+/// `StructuralReport`'s Debug fields around rcond.
 const RCOND_FIELD: &str = ", reciprocal_condition_estimate: ";
 const RESIDUAL_FIELD: &str = ", residual_rows: ";
 /// The end of the report span, then the Debug DOF map and `. `.
@@ -157,7 +157,7 @@ struct CombinationHealth {
     withheld: bool,
 }
 
-/// The numerical health of a result envelope, as JSON text (design §2.6).
+/// The numerical health of a result envelope, as JSON text.
 /// `reader_findings_json` is the Rust reader's findings for the same result:
 /// an array of finding codes (or of objects with a `code`), or the
 /// `reader_dispatch_json` outcome itself (its `standing.findings`). `None`, or
@@ -259,7 +259,7 @@ fn numerical_health(source: &Value, reader_findings: Option<&Value>) -> Health {
         }
     }
     // A load case the envelope names but `numerical_quality` omits is not
-    // assessed (§2.6 "Grey").
+    // assessed.
     for case_id in named_load_cases(source) {
         if seen.insert(case_id.to_string()) {
             cases.push(case_health(&index, case_id, "not_assessed"));
@@ -298,7 +298,7 @@ fn load_case_id(entry: &Value) -> Option<&str> {
         .flatten()
 }
 
-/// §3: the state of a `solve_quality`; an unknown or absent value is not
+/// the state of a `solve_quality`; an unknown or absent value is not
 /// assessed.
 fn state_of(solve_quality: Option<&str>) -> &'static str {
     match solve_quality {
@@ -734,7 +734,7 @@ fn strip_and_more(text: &str) -> Option<&str> {
     }
 }
 
-/// §2.6: `, reciprocal_condition_estimate: ` exactly once in the span,
+/// `, reciprocal_condition_estimate: ` exactly once in the span,
 /// followed by a number token and `, residual_rows: `; the token is Rust's
 /// shortest round-trip `f64` form of a finite value with 0 < rcond <= 1.
 fn parse_rcond(span: &str) -> Option<f64> {

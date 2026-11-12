@@ -1,163 +1,58 @@
 id: DEL-03-02
 name: Pipe section and component library schema
 needs:
-- from: DEL-00-01
-  condition: 'DEL-03-02 requires SCA-001 architecture basis AB-00-01 from DEL-00-01 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0058 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-02
-  condition: 'DEL-03-02 requires SCA-001 architecture basis AB-00-02 from DEL-00-02 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0059 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-04
-  condition: 'DEL-03-02 requires SCA-001 architecture basis AB-00-04 from DEL-00-04 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0060 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-06
-  condition: 'DEL-03-02 requires SCA-001 architecture basis AB-00-06 from DEL-00-06 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0061 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-07
-  condition: 'DEL-03-02 requires SCA-001 architecture basis AB-00-07 from DEL-00-07 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0062 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-- from: DEL-00-08
-  condition: 'DEL-03-02 requires SCA-001 architecture basis AB-00-08 from DEL-00-08 before sealed product-development
-    execution.
-
-
-    Notes: Architecture-basis edge from SCA-001 context injection; does not mark PKG-00 as ISSUED.; Carried
-    forward from DAG-001-E0063 into DAG-002 revision 0.5 proposal; active edge approved for coordination
-    by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=CONSTRAINT; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=SATISFIED; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-02
+  condition: >-
+    The unit catalog's one dimension vocabulary includes each dimension a section, component or
+    hanger value may carry (length, angle, area, second moment of area, section modulus, volume per
+    length, mass per length, force, force per length, mass, linear stiffness, rotational stiffness
+    and dimensionless), each with its catalog units.
   gating: true
 - from: DEL-02-01
-  condition: 'DEL-03-02 needs DEL-02-01 as a predecessor: section/component records are canonical domain
-    entities
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0405 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; edge touches targeted-review deliverable DEL-01-04 or DEL-02-01;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-03/DEL-03-02/docs/_Registers/Deliverables.csv
-- from: DEL-02-02
-  condition: 'DEL-03-02 needs DEL-02-02 as a predecessor: component and section dimensions are unit-aware
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0406 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-03/DEL-03-02/docs/_Registers/Deliverables.csv
+  condition: >-
+    The model document fixes the component kinds a model may contain, so that every concrete
+    component family a library record names is a kind the model admits.
+  gating: false
 - from: DEL-01-02
-  condition: 'DEL-03-02 needs DEL-01-02 as a predecessor: component library schema must preserve protected-data
-    boundaries
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0407 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The protected-data boundary policy states what a public artifact may not contain (protected
+    dimensional and rating tables, standards data, proprietary vendor catalogues), which provenance
+    members a public data record carries, and that suspect content is quarantined and not used.
   gating: true
-  evidence: execution/PKG-03/DEL-03-02/docs/_Registers/Deliverables.csv
 - from: DEL-01-03
-  condition: 'DEL-03-02 needs DEL-01-03 as a predecessor: component data imports require contributor certification/provenance
-
-
-    Notes: DAG-001 direct dependency inferred from deliverable descriptions, anticipated artifacts, scope
-    mapping, and package dependency shape.; Carried forward from DAG-001-E0408 into DAG-002 revision 0.5
-    proposal; active edge approved for coordination by execution/_DAG/DAG-002/APPROVAL_RECORD.md; not
-    Type 2 dispatch authority by itself; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM;
-    legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=IMPLICIT; legacy_satisfactionstatus=TBD;
-    legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The contributor certification workflow fixes the attestation a public data contribution
+    carries, which a provenance block records as its contributor and contributor certification.
   gating: true
-  evidence: execution/PKG-03/DEL-03-02/docs/_Registers/Deliverables.csv
+- from: DEL-00-04
+  condition: >-
+    The persistence rules require every kind of persisted document to have a schema that requires
+    its version field, and require a save and reopen to return semantically equal content, units
+    and provenance included, with only documented volatile fields differing.
+  gating: true
+- from: DEL-00-06
+  condition: >-
+    The diagnostic contract fixes the members a diagnostic carries (code, class, severity, source,
+    affected object, message, remediation and provenance) and the warning classes a library
+    diagnostic may take.
+  gating: true
+- from: DEL-03-07
+  condition: >-
+    The local library store keeps a section, component or hanger library document that the import
+    boundary accepted as private and returns it as it was saved, the whole document with its
+    units, values and provenance (DEL-03-07/REQ-009), so that what a user saved is what is read
+    back.
+  gating: false
+  when: Storing a library and reading it back.
 code_paths:
-- schemas/component.schema.yaml
+# schemas/component.schema.yaml is shared: the record, field-slot, provenance and family-contract
+# mechanisms are this deliverable's; the field kinds, completeness rule and diagnostic codes of the
+# bend, branch, rigid and expansion-joint families in it are DEL-03-03's to DEL-03-06's.
 - schemas/section.schema.yaml
-- schemas/units.schema.yaml
-- apps/desktop/src/features/library/LibraryManagerPanel.tsx
-- apps/desktop/src/services/libraryImportService.ts
-- core/library_import/**
-- apps/desktop/src-tauri/src/lib.rs
+- schemas/component.schema.yaml
+- schemas/hanger.schema.yaml
+- fixtures/component/**
+- fixtures/hanger/invented_hanger_library_valid.json
 checks:
 - tests/test_component_section_schema.py
-- tests/test_library_import_provenance.py
-- apps/desktop/src/features/library/LibraryManagerPanel.test.tsx
-- apps/desktop/src/services/libraryImportService.test.ts
-- core/library_import/library_import_document/tests/provenance_parity.rs
+- tests/test_hanger_library_schema.py

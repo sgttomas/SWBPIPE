@@ -1,4 +1,4 @@
-/** C1 slice 3 (DEL-04-05 `c1-native-custody-plan.md`): the native detail commands
+/** C1 slice 3: the native detail commands
  * (`services/resultDetail.ts`) emulated over the full rows by the TypeScript readers they replace:
  * the results panel's `rowsUnderFilters` and `paginateResults`, the embedded agent's current
  * `readResults` filter, `results.find` and `new Map(results.map(...))`, and

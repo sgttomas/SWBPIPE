@@ -129,7 +129,7 @@ impl<'m> Writer<'m> {
                 "reference configurations are not exported by the pilot writer",
             );
         }
-        // Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §2.4, §3.5): spectra are refused by name.
+        // Model document 0.9.0: spectra are refused by name.
         if present(model.get_or_null("spectra")) {
             self.refuse("MBF-SI-SPECTRUM-UNSUPPORTED", "model.spectra", "response spectra are not exported by the pilot writer");
         }
@@ -298,7 +298,7 @@ impl<'m> Writer<'m> {
         Ok(())
     }
 
-    /// The section library (Design §15, Format 4): each record a pipe segment's `section_ref` may bind.
+    /// The section library (Format 4): each record a pipe segment's `section_ref` may bind.
     pub fn read_sections(&mut self) {
         let model: &'m Value = self.model;
         let records: &'m [Value] = match model.get_or_null("sections") {
@@ -619,9 +619,10 @@ impl<'m> Writer<'m> {
             return Ok(());
         }
         let component_id = component.get_or_null("id").clone();
+        let node = component.get_or_null("node").clone();
         self.bends.insert(
             pipe_id,
-            Bend { component: component_id, entity, radius, k: factor, angle, sifs, ti: None, theta: None },
+            Bend { component: component_id, node, entity, radius, k: factor, angle, sifs, ti: None, theta: None },
         );
         Ok(())
     }
@@ -646,7 +647,7 @@ impl<'m> Writer<'m> {
             };
             let family = support.get_or_null("family").clone();
             let family = &family;
-            // Model document 0.9.0 (§2.4, §3.5): a snubber is refused by name.
+            // Model document 0.9.0: a snubber is refused by name.
             if family.as_str() == Some("snubber") {
                 let message = format!("{entity} is a snubber, a dynamic-only restraint the pilot writer does not export");
                 self.refuse("MBF-SI-SNUBBER-UNSUPPORTED", &entity, &message);
@@ -741,7 +742,7 @@ impl<'m> Writer<'m> {
         Ok(())
     }
 
-    /// Model document 0.9.0 (§2.1, §3.5): an exactly axis-aligned `direction` (one nonzero component) is the record
+    /// Model document 0.9.0: an exactly axis-aligned `direction` (one nonzero component) is the record
     /// on that axis, as the solve's lowering reads it: the direction is removed and the record's single DOF token
     /// (restraint and stiffness) becomes UX, UY or UZ for it. Any other direction is refused by name (None).
     pub fn axis_aligned(&mut self, support: Value, entity: &str) -> R<Option<Value>> {
@@ -884,7 +885,7 @@ impl<'m> Writer<'m> {
                     self.refuse("MBF-SI-LOAD-CASE-FEATURE-UNSUPPORTED", &entity, &format!("{entity} {name} is not exported"));
                 }
             }
-            // Model document 0.9.0 (§1.2, §2.4, §3.5): a case's condition use and test condition are refused by name.
+            // Model document 0.9.0: a case's condition use and test condition are refused by name.
             if case.has("condition_use") {
                 let message =
                     format!("{entity} uses operating conditions (condition_use), which the pilot writer does not export");

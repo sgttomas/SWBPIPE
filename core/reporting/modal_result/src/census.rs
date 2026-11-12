@@ -1,4 +1,4 @@
-//! The subject census (DEL-04-09 Design §5.3.2): `binding.subject_census`,
+//! The subject census: `binding.subject_census`,
 //! the counts of the subjects the run read from the model and the SHA-256 of
 //! their canonical list `[{kind, id}]`, sorted by (kind, id) in code-point
 //! order.
@@ -257,7 +257,7 @@ fn cs_subjects(request: &Value) -> Result<Subjects, Stop> {
     Ok(Subjects { list, nonlinear })
 }
 
-/// SHA-256 of the canonical sorted subject list (Design §5.3.2).
+/// SHA-256 of the canonical sorted subject list.
 fn cs_digest(sorted: &[(&'static str, String)]) -> Option<String> {
     modal_reader_sha256(&Value::Array(sorted.iter().map(|(kind, id)| json!({"kind": kind, "id": id})).collect()))
 }

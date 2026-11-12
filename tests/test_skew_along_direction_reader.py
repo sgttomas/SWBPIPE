@@ -1,4 +1,4 @@
-"""R-6/R-7 S-K1 (DEL-04-03 Work skew-restraints.md sections 7.1, 10.5 and 11.1 R-1): the Python verifier's
+"""the Python verifier's
 re-check of `support_reaction_along_direction_v1` on the committed product fixture
 (`fixtures/results/skew_along_direction_preview.json`, written by PP's `the_reader_fixture_is_the_product_output`):
 the document reads with its model, and each tampered document is refused by name."""

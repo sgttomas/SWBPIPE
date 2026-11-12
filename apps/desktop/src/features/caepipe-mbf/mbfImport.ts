@@ -1,4 +1,4 @@
-// File > Import MBF… (DEL-17-04 Design `desktop-mbf-export-import.md` §4.1, §4.3, §4.6–§4.8; slice 5): the import
+// File > Import MBF…: the import
 // review's presentation and the native commands' argument and outcome types. The dialog (`MbfImportDialog.tsx`) never
 // runs an importer: the native `open_mbf_import` / `review_mbf_import` run worker task 5 and return a bounded review
 // (`import_review` in `core/handoff/caepipe_mbf_engine`); no file bytes, model, import report or id map reach the
@@ -27,7 +27,7 @@ export const MBF_IMPORT_FAILED = "MBF-IMPORT-FAILED";
 export const MBF_IMPORT_BUSY = "MBF-IMPORT-BUSY";
 export const INGRESS_RAW_BODY_REQUIRED = "INGRESS-RAW-BODY-REQUIRED";
 
-/** The boundary statement every review shows (§4.3). */
+/** The boundary statement every review shows. */
 export const MBF_IMPORT_BOUNDARY_SENTENCE =
   "A successful import means the listed subset of this file was read. It is not evidence that two programs analyse the model alike.";
 export const MBF_IMPORT_BUSY_MESSAGE = "Import not adopted: another project operation is in progress.";
@@ -40,10 +40,21 @@ export type ReviewField = string | { prefix: string; bytes: number; sha256: stri
 export type MbfImportListCounts = { total: number; listed: number; not_shown: number; not_shown_blocking: number };
 export type MbfImportListName = "refusals" | "document_check" | "assumptions" | "declaration_needed" | "loss_entries" | "target_options";
 
-/** The worker's review (`swbpipe.mbf_import_review`, format 2), as the native reply embeds it. */
+/** A designated source as the review states it: the file, its digest and size, and the outcome with its reasons
+ * (`MBF_IMPORT_DESIGNATION_REASONS`) and the identity classes that differ. */
+export type MbfImportDesignationPayload = {
+  file_name: ReviewField;
+  sha256: ReviewField;
+  bytes: number;
+  outcome: "not_established" | "established_for_identity_set";
+  reasons: string[];
+  differing_classes: string[];
+};
+
+/** The worker's review (`swbpipe.mbf_import_review`, format 3), as the native reply embeds it. */
 export type MbfImportReviewPayload = {
   document_kind: "swbpipe.mbf_import_review";
-  format: 2;
+  format: 3;
   status: "imported" | "refused";
   adoptable: boolean;
   model_sha256: string | null;
@@ -68,7 +79,10 @@ export type MbfImportReviewPayload = {
     /** Known original ids not preserved, counted once; zero does not prove original completeness. */
     unrecoverable: number;
     unrecovered_fields: number;
-    source_completeness: "not_established";
+    /** Established only for a designated source whose every check passed, in a complete review: the same ids in
+     * each identity class, never whole-model equivalence. */
+    source_completeness: "not_established" | "established_for_identity_set";
+    designation: MbfImportDesignationPayload | null;
   };
   counts: { not_shown: number; not_shown_blocking: number; lists: Record<MbfImportListName, MbfImportListCounts> };
   refusals: Array<{ code: ReviewField; line: number; entity: ReviewField }>;
@@ -81,25 +95,34 @@ export type MbfImportReviewPayload = {
 
 export type MbfImportDiagnostic = ModelFileDiagnostic;
 
-/** `open_mbf_import`'s and `review_mbf_import`'s reply (§4.7). */
+/** `open_mbf_import`'s and `review_mbf_import`'s reply. */
 export type MbfImportReviewOutcome =
   | { outcome: "reviewed"; sourceId: number; fileName: string; reviewSha256: string; review: MbfImportReviewPayload }
   | { outcome: "refused"; fileName: string; diagnostics: MbfImportDiagnostic[] };
 export type MbfImportOpenOutcome = { outcome: "cancelled" } | MbfImportReviewOutcome;
+
+/** `designate_mbf_import_source`'s reply: the review stating the designation (X) and the digest of the review it
+ * was formed over (Y, the review shown when it was sent). */
+export type MbfImportDesignateOutcome =
+  | { outcome: "cancelled" }
+  | { outcome: "designated"; sourceId: number; fileName: string; baseReviewSha256: string; reviewSha256: string; review: MbfImportReviewPayload }
+  | { outcome: "refused"; fileName: string; diagnostics: MbfImportDiagnostic[] };
 
 /** `adopt_mbf_import`'s reply: the `NativeModelDocumentOutcome` shape `checkNativeOutcome` takes, or a refusal. */
 export type MbfImportAdoptOutcome =
   | { outcome: "opened"; file_name: string; byte_count: number; schema_status: string; document: unknown; warnings: ModelFileDiagnostic[]; reviewSha256: string; modelSha256: string }
   | { outcome: "refused"; file_name: string; diagnostics: MbfImportDiagnostic[] };
 
-/** One material's provenance declaration (§4.1 step 4): vendor-library and unknown origins cannot be declared. */
+/** One material's provenance declaration: vendor-library and unknown origins cannot be declared. */
 export type MbfDeclarationEntry = { origin: "project_invented" | "user_supplied"; source_name: string };
 export type MbfDeclaration = Record<string, MbfDeclarationEntry> | null;
 
 export type MbfReviewImportArgs = { sourceId: number; declaration: MbfDeclaration };
 export type MbfAdoptImportArgs = { sourceId: number; declaration: MbfDeclaration; reviewSha256: string };
+/** Designate's arguments: the exact current declaration and the review shown (`reviewSha256`, the base review Y). */
+export type MbfDesignateImportArgs = { sourceId: number; declaration: MbfDeclaration; reviewSha256: string };
 
-/** What Adopt captures from the current review (§4.8.5, §4.8.7): bounded identity and status metadata only. The flow
+/** What Adopt captures from the current review: bounded identity and status metadata only. The flow
  * keeps no review body, model or file bytes. */
 export type MbfAdoptCapture = {
   sourceId: number;
@@ -230,6 +253,7 @@ export const MBF_IMPORT_DESCRIPTIONS: Readonly<Record<string, string>> = {
   "MBF-IMPORT-ARGS-INVALID": "The import request was not in the expected form. Nothing was imported.",
   "MBF-IMPORT-RETIREMENT-ID-INVALID": "The import could not be retired. Nothing was imported.",
   "MBF-OPEN-NOT-A-FILE": "The chosen name, or its identity file, is not a regular file (a link, folder or other kind). Nothing was imported.",
+  // A designated source is refused with the same codes as a chosen file, at the path `source`.
   "MBF-OPEN-TOO-LARGE": "The chosen file, or its identity file, is too large to import (16 MiB for the MBF, 64 MiB for the identity file).",
   "MBF-OPEN-UNREADABLE": "The chosen file, or its identity file, could not be read. Nothing was imported.",
   "MBF-OPEN-NAME-INVALID": "The chosen file's name cannot be used (not UTF-8, or longer than 1 KiB).",
@@ -253,6 +277,29 @@ export const MBF_IMPORT_DESCRIPTIONS: Readonly<Record<string, string>> = {
   [MBF_IMPORT_BUSY]: MBF_IMPORT_BUSY_MESSAGE,
   [INGRESS_RAW_BODY_REQUIRED]: "Import isn't available in this window. Nothing was imported and your model is unchanged. Reload the window or restart SWBPIPE to import again."
 };
+
+/** Why a designated source does not establish the identity set (the engine's `DESIGNATION_REASONS`). Each states
+ * what SWBPIPE checked; none states a fact about another program. */
+export const MBF_IMPORT_DESIGNATION_REASONS: Readonly<Record<string, string>> = {
+  identity_file_absent: "The MBF has no identity file beside it, so the file it was written from cannot be checked.",
+  identity_file_not_format_6: "The identity file does not record the document it was written from (it is not format 6), so that document cannot be checked.",
+  source_not_a_model_document: "The designated file is not a model document SWBPIPE reads.",
+  source_digest_differs: "The designated document is not the one this MBF was written from.",
+  rerender_refused: "SWBPIPE could not write the designated document again with the recorded export settings.",
+  rerender_mbf_differs: "Writing the designated document again with the recorded export settings does not give this MBF's bytes.",
+  rerender_identity_file_differs: "Writing the designated document again with the recorded export settings does not give this identity file's bytes.",
+  import_not_bound_format_6: "This import is not bound to an identity file that records the designated document.",
+  identity_inventory_malformed: "An entity in the designated document or in the import has no usable id.",
+  identity_set_differs: "The ids differ in the classes listed.",
+  identities_not_preserved: "The import does not preserve some original ids (see the loss report).",
+  fields_not_recovered: "The import does not recover some fields or references (see the loss report).",
+  review_truncated: "The review could not list every entry, so the outcome is not established."
+};
+
+/** A designation reason's product text; an unknown reason is named as such. */
+export function designationReasonText(reason: string): string {
+  return Object.hasOwn(MBF_IMPORT_DESIGNATION_REASONS, reason) ? MBF_IMPORT_DESIGNATION_REASONS[reason] : `SWBPIPE has no description for ${reason}.`;
+}
 
 /** A code's product text; an unknown code is named as such, never by the engine's message. */
 export function importCodeText(code: string): string {
@@ -322,10 +369,10 @@ export function assumptionText(entry: { id: ReviewField; parameters: Record<stri
 
 // -- Adoption ---------------------------------------------------------------------------------------------------------
 
-/** Version boundary before any format-specific interpretation. A format-1 review's metrics have different
- * semantics and cannot be shown or adopted as format 2. This is not a general payload validator. */
+/** Version boundary before any format-specific interpretation. An older review (format 1's metrics, or format 2
+ * without the designation members) cannot be shown or adopted as format 3. This is not a general payload validator. */
 export function importReviewFormatCurrent(review: { document_kind: unknown; format: unknown }): boolean {
-  return review.document_kind === "swbpipe.mbf_import_review" && review.format === 2;
+  return review.document_kind === "swbpipe.mbf_import_review" && review.format === 3;
 }
 
 /** The review's blocking codes as the dialog shows them, in a fixed order (empty when it may be adopted). */
@@ -347,7 +394,7 @@ export function importAdoptable(review: MbfImportReviewPayload): boolean {
   return review.adoptable && importBlockingCodes(review).length === 0 && typeof review.model_sha256 === "string";
 }
 
-/** The declaration the form sends (§4.1 step 4): one entry per listed material it declares, never the engine's `*`;
+/** The declaration the form sends: one entry per listed material it declares, never the engine's `*`;
  * `null` when it declares none. */
 export function declarationFor(entries: ReadonlyArray<readonly [string, MbfDeclarationEntry | null]>): MbfDeclaration {
   const declaration: Record<string, MbfDeclarationEntry> = Object.create(null);
@@ -365,7 +412,7 @@ export function declarationKey(declaration: MbfDeclaration): string {
   return JSON.stringify(Object.keys(declaration).sort().map((name) => [name, declaration[name].origin, declaration[name].source_name]));
 }
 
-/** The status line after a landed import (§4.1 step 6): the file, the binding and the identity counts of the review
+/** The status line after a landed import: the file, the binding and the identity counts of the review
  * the user adopted. */
 export function importedStatusLine(capture: MbfAdoptCapture): string {
   const ids = capture.binding === "bound"

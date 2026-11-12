@@ -50,7 +50,7 @@ import type { CurrentSessionInputManifestEvidence } from "../../services/inputMa
 // is re-checked immediately before IPC, and the render resubmits the texts the native
 // host binds (`renderedReportAssembly.ts`).
 
-/** A route-010 receipt's record (§2.3): the bound model document SHA-256 when the package
+/** A route-010 receipt's record: the bound model document SHA-256 when the package
  * records the user's per-report user release, else null. */
 function userReleaseReceipt(receipt: object): string | null {
   const fields = receipt as { user_release_recorded?: unknown; user_release_model_document_sha256?: unknown };

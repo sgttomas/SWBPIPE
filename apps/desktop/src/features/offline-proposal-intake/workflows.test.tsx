@@ -40,7 +40,7 @@ describe("bounded workflow actual engine tests", () => {
     const batch = await buildHangerSelectionBatch(model, doc, doc.hanger_records[0].hanger_id, { supportId: support.id, restraints: ["UY"] });
     const after = JSON.parse(batch.operations[0].change.after);
     expect(after.stiffness).toBeUndefined(); expect(after.nonlinear).toBeUndefined();
-    // W-17 §2.6: the short reference only; no library metadata or record snapshot.
+    // the short reference only; no library metadata or record snapshot.
     expect(after.provenance).toBe(`library:hanger:${doc.hanger_library.library_id}#${doc.hanger_records[0].hanger_id}`);
     expect(after.provenance).toBe(batch.operations[0].change.source_note);
     expect(batch.operations[1].change.field_path).toBe("provenance_record");

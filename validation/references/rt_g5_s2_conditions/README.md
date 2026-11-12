@@ -1,10 +1,10 @@
 # RT-G5 S2 references: condition-derived temperature differences and condition mechanics
 
 Frozen, independently derived expectations for model document 0.9.0's
-pressure-free resolution of a load case's `condition_use` (RT-G5; DEL-02-01
-Work [`model-document-0.9.0.md`](../../../execution/PKG-02/DEL-02-01/Work/model-document-0.9.0.md)
-§1.5, §1.5.1 and §1.8; DEL-05-01 Work
-[`thermal-temperature-change.md`](../../../execution/PKG-05/DEL-05-01/Work/thermal-temperature-change.md)).
+pressure-free resolution of a load case's `condition_use` (RT-G5;
+[DEL-02-01](../../../execution/PKG-02/DEL-02-01/ScopeOfWork.md), model document 0.9.0 design
+§1.5, §1.5.1 and §1.8;
+[DEL-05-01](../../../execution/PKG-05/DEL-05-01/ScopeOfWork.md), thermal temperature-change design).
 They are read by:
 
 - `core/product_physics/src/operating_conditions/resolution_tests.rs` (E3: every

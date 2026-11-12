@@ -29,7 +29,7 @@ const RESTORED_HANDLE_PREFIX = "restored-stored-result-";
 const contexts = () => import("../features/results/HistoricalRunContext");
 const readers = () => import("../features/results/resultReader");
 
-/** RT-A4 §10.4: the context's findings in their scopes, as the native reopen sends them. */
+/** the context's findings in their scopes, as the native reopen sends them. */
 function scopedFindings(context: Json, members: Json) {
   return { findings: context.findings, check_findings: context.checkFindings, recorded_table_read: context.recordedTableRead, historical_reader_findings: context.historicalReaderFindings, ...members };
 }
@@ -78,7 +78,7 @@ function restored(origin: string, kind: string, projectId: string, recordingId: 
   const handle = `${RESTORED_HANDLE_PREFIX}emulated-${++sequence}`;
   const resultText = jsonTextKeepingNegativeZero(result ?? null), recordText = JSON.stringify(record ?? null);
   const source = { kind, project_id: projectId, recording_id: recordingId, result_sha256: "unit-emulation", record_sha256: "unit-emulation" };
-  // RT-A4 §10.4: the handle holds the table its findings were read under, as the native host's does.
+  // the handle holds the table its findings were read under, as the native host's does.
   held.set(handle, { result: resultText, record: recordText, disposed: false, source, modelHash, table: context.recordedTableRead ?? null });
   return {
     handle, origin,

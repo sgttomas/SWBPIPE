@@ -2,363 +2,135 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-04-01
 package_id: PKG-04
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-005,SOW-035]
 package_objective_refs: [OBJ-003]
 ---
 
-# Scope of Work — DEL-04-01
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-04-01 3D frame stiffness kernel
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-04-01` in service of project scope [SOW-005, SOW-035] and package objectives [OBJ-003].
+This deliverable is the solver's kernel. It turns a piping model, represented as a 3D centerline frame with six degrees of freedom per node, into a global stiffness system, reduces it for restraints and prescribed displacements, and solves it. Every solve in the product goes through it, so the correctness, reproducibility and speed of every published number start here.
 
-- **OUT-001** — A 3D frame-stiffness-kernel contract covering six-degree-of-freedom node mapping, global assembly, coordinate transforms, boundary conditions, sparse-solve interfaces, mechanics-only result envelopes, and deterministic verification is produced for the declared scope and objective.
+It serves SOW-005 and SOW-035 under OBJ-003 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-04, row DEL-04-01), and PRD §12.1 and §12.2 with FR-SOL-001 and FR-SOL-002. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names this deliverable. It reaches the release target through DEL-04-07, whose one route solves the reference system and passes its closed-form references (criteria 1 and 2), and through DEL-04-05, which measures the 2,000-node rack model against the stated times (criterion 9).
+
+- **OUT-001** — A global 3D centerline/frame stiffness kernel for practical piping models, with six degrees of freedom (Ux, Uy, Uz, Rx, Ry, Rz) at every node, local-to-global transforms, global assembly, restraint and prescribed-displacement reduction, a deterministic linear solve in a sparse and a dense mode, and the integrity check of each solve against its intended system.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-04-01 3D frame stiffness kernel
+**Terms the kernel implements.**
 
-> #### Datasheet: DEL-04-01 3D frame stiffness kernel
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Frame model.* Nodes on the pipe centerline joined by two-node elements. Each node has six degrees of freedom in the fixed public order `[ux, uy, uz, rx, ry, rz]`; an element's node `i` occupies indices 0 to 5 and node `j` indices 6 to 11. Consumers bind to this order through the kernel's mapping.
+- *Element-to-global transform.* A validated right-handed local triad per element. The transform between local and global quantities is the triad's direction cosines.
+- *Global stiffness.* The symmetric stiffness of the whole frame, assembled from its elements' stiffnesses in global coordinates.
+- *Restraint and prescribed-displacement reduction.* Removal of restrained degrees of freedom and substitution of prescribed displacements, with their force adjustment, before the solve; reactions are recovered at the reduced degrees of freedom.
+- *Solve modes.* The sparse mode is the default. The dense mode is selectable and is the sparse mode's parity path.
 
-### CLM-003 — Identification
+- *Intended system.* The linear problem a solve stands for: the stiffness and every formed load term re-formed at 128-bit precision from the binary64 inputs they were formed from (coordinates, section dimensions, moduli, temperatures, densities, gravity, pressures, stiffnesses and loads as authored). A load term that is an input (a nodal force or moment, a constant effort, a prescribed value) enters as its exact binary64 value.
+- *Integrity check.* The judgment of a solve against its intended system: the residual of the solved displacement, its correction, and the recovery of every published member and support row all use that one system, and no formed binary64 value of a load term enters them.
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-04-01 |
-> | Deliverable name | 3D frame stiffness kernel |
-> | Package ID | PKG-04 |
-> | Package name | Solver Core and Numerical Methods |
-> | Type | BACKEND_FEATURE_SLICE |
-> | Decomposition basis | execution/_Decomposition/SOFTWARE_DECOMP.md (accepted authority; see the project decision register) |
-> | Register basis | docs/_Registers/Deliverables.csv row DEL-04-01 |
-> | Scope items | SOW-005, SOW-035 |
-> | Objective support | OBJ-003 |
-> | Context envelope | L |
-> | Context QA risk | WATCH |
->
+**Boundary.** Frame assembly, the linear solve and the integrity check of a solve are this deliverable's. DEL-04-07 composes the product solve and the nonlinear orchestration, runs the admissibility confirmation of a converged nonlinear state and publishes its outcome. DEL-04-04 keeps the active-set classifier and the state law the confirmation checks. The kernel does not implement straight pipe element mechanics (DEL-04-02), support families (DEL-04-03, DEL-04-04), load cases (DEL-05-01, DEL-05-05), stress recovery (DEL-05-03) other than the arc maximum of REQ-017, the diagnostics layer (DEL-04-06), rule-pack evaluation, GUI behaviour, reports or packaging. The connector and tie-rod elements are DEL-03-06's definitions, and the curved-bend element that realizes a bend is DEL-03-03's; each is examined under its own deliverable's criteria, and their code is held in the kernel's crates, which assemble each as a two-node element into the global stiffness and solve it. What a restraint along an authored direction means, and the criteria it meets, are DEL-04-03's (DEL-04-03/REQ-010, DEL-04-03/AC-004); the kernel reduces the system for it.
 
-### CLM-004 — Attributes
-
-> ##### Attributes
->
-> | Attribute | Current value |
-> |---|---|
-> | Primary model class | 3D centerline/frame model |
-> | Nodal degrees of freedom | Six degrees of freedom per node |
-> | Intended kernel responsibility | Global frame stiffness assembly, coordinate transforms, boundary conditions, and sparse solve interface |
-> | Anticipated implementation location | core/solver/frame_kernel |
-> | Anticipated verification artifacts | Unit tests |
-> | Sparse performance scope | Required design concern; concrete performance targets are TBD |
-> | Reproducibility scope | Required for practical piping models; exact reproducibility envelope is TBD |
-> | Solver numerical library | DEC-023: in-repo sparse skyline/profile direct solver; live-path/default policy follows DEC-050/053 |
-> | Tolerance policy | DEC-026 governs numerical verification; DEC-046 governs nonlinear convergence. Unmeasured values remain explicit; no threshold is invented here. |
-> | Physical formulation details | Current frame-kernel realization is the two-node frame described in `core/solver/frame_kernel/README.md`: Euler–Bernoulli, or per document for straight members the exact static Timoshenko element with the energy-matched annular shear factor (D-6); realized arcs are Euler–Bernoulli; lawful derivation and verification evidence remain required. |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> - This deliverable is bounded to the global stiffness kernel and sparse solve interface setup for a 3D centerline/frame system.
-> - This deliverable does not implement straight pipe element mechanics, support families, nonlinear support active-set logic, load cases, stress recovery, diagnostics, rule-pack evaluation, GUI behavior, reports, or packaging except as interface constraints named by the sealed context.
-> - The kernel must remain unit-aware and dimensionally checked through the project unit contracts.
-> - Missing solve-required values must be surfaced as explicit findings rather than silently defaulted.
-> - Solver mechanics and rule-pack acceptability decisions remain separated. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
-> - Protected standards text, tables, figures, examples, copied code formulas, material allowables, SIF/flexibility tables, protected dimensional tables, and proprietary commercial data are out of bounds.
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> The contract requires these implementation surfaces; current realization and conventions are recorded in `core/solver/frame_kernel/README.md` and `core/solver/sparse_direct/README.md`:
->
-> | Surface | Setup expectation |
-> |---|---|
-> | Model topology input | Node and element connectivity for a 3D frame/centerline model, details TBD |
-> | Degree-of-freedom mapping | Stable six-DOF-per-node indexing contract; current `NODE_DOF_ORDER` is `[ux, uy, uz, rx, ry, rz]` |
-> | Coordinate transform handling | Validated local-axis direction-cosine transform contract; current 12-by-12 element transform is in the frame kernel |
-> | Boundary-condition handling | Interface for applying restraints/imposed conditions supplied by other deliverables, details TBD. R-6/R-7 S-K1 (DEL-04-03 Work `skew-restraints.md`; the support policy is DEL-04-03's): the kernel carries `restraint_basis` (an authored direction's exact power-of-two canonical form, the node-local division-free basis Q, K′ = QᵀKQ, the lift and the attribution), skewed spring blocks in sparse assembly (`SparseAssemblyOptions.node_blocks`), row-based ground screening in `rigid_body` (no new threshold), and the restraint source of the formation check (dense and sparse attempts) |
-> | Sparse assembly | K1's one sparse representation of the global stiffness and its M03 gate (`structural/sparse.rs`); DEC-023 profile/skyline storage and LDLᵀ are implemented by `sparse_direct` |
-> | Sparse solve interface | Solver boundary under DEC-023; DEC-050/053 governs live-path/default use |
-> | Result envelope | Must fit architecture-basis command/query/job result and diagnostic envelope constraints |
-> | Verification | Deterministic unit tests are required before release use |
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) - local sealed context for DEL-04-01.
-> - `_REFERENCES.md` - governing references and register pointers.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) - PKG-04, DEL-04-01, SOW-005, SOW-035, OBJ-003, AB-00-01, AB-00-02, AB-00-03, AB-00-06, AB-00-08.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) - row DEL-04-01.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) - rows SOW-005 and SOW-035.
-> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) - row DEL-04-01.
-> - `docs/CONTRACT.md` - applicable invariants named in the task brief.
+**Not decided.** Which deliverable's criteria govern the following, which the kernel's code carries: the exact accumulator that DEL-05-02's combinations and DEL-04-03's skewed restraints use; the correctly rounded two- and three-component norms; and the retained-precision lanes and exact boundary that DEL-04-08 and DEL-05-02 read. This scope states no criterion for them. DEL-05-02/AC-001 examines the combinations that rely on the accumulator and the norms, and DEL-04-08's criteria examine what the lanes publish, not the lanes themselves.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-04-01 3D frame stiffness kernel
+A kernel result is a numerical statement about the discrete linear model it was given. It bounds no modelling, input or physical error.
 
-> #### Specification: DEL-04-01 3D frame stiffness kernel
->
+### Requirements
 
-### CLM-009 — Scope
+- **REQ-001** — The global analysis system is a 3D centerline/frame model (SOW-005; PRD §12.1; `docs/CONTRACT.md` OPS-K-MECH-1).
+- **REQ-002** — Every active node has the six degrees of freedom Ux, Uy, Uz, Rx, Ry and Rz, in the fixed order (SOW-005; PRD FR-SOL-001).
+- **REQ-003** — The kernel assembles the global stiffness of the frame system (SOW-005; PRD §12.2).
+- **REQ-004** — The kernel transforms between local and global frame representations by the direction cosines of validated local axes (SOW-005; PRD §12.2, FR-SOL-002).
+- **REQ-005** — The kernel applies the restraints, including a restraint along an authored direction, and the prescribed displacements it is given. Which restraints a model may carry, and what they mean, is DEL-04-03's and DEL-04-04's (PRD §12.2).
+- **REQ-006** — The kernel solves through a sparse interface built for sparse numerical performance and reproducible results on practical piping models (SOW-035). No kernel-level time or memory limit is decided: the release limits are exit criterion 9's, measured by DEL-04-05.
+- **REQ-007** — Kernel inputs and outputs are unit-aware and dimensionally checked (`docs/CONTRACT.md` OPS-K-UNIT-1).
+- **REQ-008** — A missing or invalid solve-required value is an explicit finding. The kernel supplies no default (`docs/CONTRACT.md` OPS-K-DATA-2; PRD §5.5).
+- **REQ-009** — Kernel outputs are mechanics only. They carry no rule-pack acceptability, compliance or approval meaning (`docs/CONTRACT.md` OPS-K-MECH-2; PRD §21.2).
+- **REQ-010** — Kernel output is deterministic: a fixed model, solver version and settings give bit-identical results on every run, so every kernel check is deterministic (`docs/CONTRACT.md` OPS-K-SOLVER-1; SOW-035; PRD §12.2).
+- **REQ-011** — A kernel finding that crosses a service boundary keeps its code, class, severity, source, affected object, message, remediation and provenance (the decomposition's architecture basis for DEL-00-03 and DEL-00-06).
+- **REQ-012** — Kernel sources, tests and fixtures contain no protected standards text, tables, figures, formulas or examples and no proprietary data (`docs/CONTRACT.md` OPS-K-IP-1; PRD §20.1).
+- **REQ-013** — Each sparse factorization reports its ordering, stored profile size, pivot extremes and count of non-positive pivots, which are what singularity and ill-conditioning are detected from (PRD §12.2).
+- **REQ-014** — *Residual acceptance.* In the sparse and the dense mode, a solve returns a result only when each free row's residual in the original equations is within 64·γ(n) of that row's denominator Σ|K_ij·u_j| + |f_i|, γ(n) being the binary64 rounding constant for the row's n operations, after at most a bounded number of refinements. A solve that cannot meet it returns no result and a named finding. It is stated as a property because consumers derive bounds from it, so it must hold for any implementation of the kernel (PRD §12.2).
+- **REQ-015** — *Integrity check.* Every solve is judged against its intended system. A formed load term is replaced by the re-formation of exactly the summands its producer formed it from; a missing, duplicated, extra or wrongly bound summand, a solve that carries no record of its load terms, or a bound whose conditions cannot be met makes the check unavailable, and the solve is reported as numerically sensitive with the named reason. The check also judges the solved displacement degree of freedom by degree of freedom: the solve is numerically sensitive, naming the degree of freedom, when at any free degree of freedom twice the absolute value of the first correction (the solve of the intended system's residual, which estimates the solution error there) exceeds 1e-9 times the larger of the absolute value of the solved displacement at that degree of freedom and its body's coupled scale of the same kind. With S_t and S_r the largest absolute translation component and the largest absolute rotation component of the solved displacement over the body's free degrees of freedom, and L_b the body's extent, the diagonal of its nodes' bounding box, the translation scale is max(S_t, L_b·S_r) and the rotation scale is max(S_r, S_t/L_b). How nodes and element connections determine a body for these scale rules, and the rules' applicability and disposition at zero body extent, are not yet defined. The rule has no floor below the body's own scale, so a body whose displacements are only numerical residue is still judged. Where the check passes, each published member and support row (straight members, realized arcs, connectors, tie rods and supports) is the intended system's recovery at the corrected displacement, rounded once, with a bound on its distance from the exact recovery. No case is published as established without that bound (PRD §12.2, §12.8).
+  - *Which recovery is published.* On a case whose rows are so recovered, each wall force, stress row and straight member's normal-stress maximum is formed, under DEL-05-03's definitions, from that recovery as retained at the check's precision, and is rounded only for publication: a published binary64 row is a publication product, not a new exact source for what is derived from it. Every other case keeps the ordinary binary64 recovery of its rows (the fallback recovery), and what is derived from them is formed from those published rows; its maximum's enclosure covers the arithmetic of forming it from those rows, not their solution error. A realized arc's maximum is enclosed from its published end actions on every case (REQ-017). This is the one definition of which recovery a published row and what is derived from it come from: DEL-05-03 defines the stresses, and DEL-04-07 publishes them (DEL-04-07/REQ-010).
+  - *Standing.* The bound decides, group by group, whether the case keeps its established standing. A group is, at each end, endpoint section cut and interior station of a straight member, realized arc or connector, its axial force, resultant shear, torsion or resultant bending moment; a tie rod's force; a pipe-wall axial force; or a support's force or moment, judged as its component vector and as its published magnitude. A stress row is judged through the resultant it scales. A group fails when its comparison is unavailable (a non-finite published norm, magnitude bound or coupled scale, or a comparison that cannot be decided exactly), when its bound is not finite, or when its bound exceeds RD(1e-9), the largest binary64 value not above 1e-9, times the 2-norm q of its published values while two conditions both hold: the coupled scale S* of the group's body (the force scale for axial, shear, pipe-wall force and support-force groups, the moment scale for torsion, bending and support-moment groups; over the body's published action rows, pipe-wall rows included, with S_F and S_M its largest published force and moment and L_b its extent, the diagonal of its nodes' bounding box, the force scale is max(S_F, S_M/L_b) and the moment scale is max(S_M, L_b·S_F); which of the two a tie-rod force group takes, and whether tie-rod rows enter S_F, is not stated) is at least 2^-988, and the larger of q and the certified upper bound of the group's true magnitude is at least 2^-34·S*. The comparisons are exact. One failing group makes the case numerically sensitive, with a reason naming at most six failing groups with their q and bound; an unavailable comparison never passes. A group below that relative floor or that coupled-scale guard is not judged against RD(1e-9)·q, so a body whose certified rows are all exactly zero stays established. Displacement and combination rows are not groups of this rule. This criterion governs a case's standing; it is distinct from the analytic tolerance against which references are compared.
+- **REQ-016** — *A converged nonlinear state.* On a converged nonlinear case the integrity check is evaluated at the iteration's final displacement on the converged state's own system, including its sliding-friction load terms, and gives for each nonlinear support an enclosure of the quantity that decides its state (contact reaction, separation, stick margin, slip, and for a friction support whose normal is derived from a reaction, that normal), with each sign and the stick inequality decided exactly. An enclosure that touches its state's boundary does not establish that state. The confirmation covers a friction normal derived from a base restraint or from a translational one-way or lift-off support, whose own state is established first, and several sliding friction supports whose derived normals are coupled; a rotational support is not a normal source. Where the confirmation cannot establish a state or enclose its coupled friction forces, the state is not established and the reason is named. Confirmation of a gap support's state, and of a friction normal derived from a gap support, is also required; the certificate that would give it is not yet designed, and that is an open gap in this requirement. Until it exists, a case with a gap support runs no confirmation and is not established, with its named reason. No confirmation runs on a case whose last iteration did not pass its integrity check or on a case with a load-row finding; each carries its named reason. This is what DEL-04-07 confirms a state with under DEL-04-04/REQ-013; with friction it establishes one admissible state, not the only one.
+- **REQ-017** — *Arc normal-stress maximum.* From a realized arc's published end actions, its loads and its section, the kernel encloses the maximum along the arc of the normal stress, the magnitude of the effective axial stress (on a pressurized arc, from the wall's axial force) plus the resultant bending stress, and of the directional intensified bending, using directed bounds on the published operands. An enclosure closes only when its upper bound exceeds its lower bound by at most 1e-12 Pa plus 1e-12 of the lower bound, after its upper bound has been raised to cover every published station value of that arc and basis; the published value lies within the closed enclosure. When the search reaches its limits, or the enclosure does not close, no maximum is published and the reason is named.
+- **REQ-018** — *End actions in global coordinates.* A member's end actions in global coordinates are its published local end actions rotated by that end's local axes (for a realized arc, the tangent frame at that end), as the action on the element at its node. On a pressure member the axial component rotated is the published wall axial action at that end, with the published local shear and moment rows, so its global force is the wall's end action and not the effective axial force. They are computed from the published local values and carry no bound of their own (PRD FR-SOL-007).
+- **REQ-019** — *Read-only access for modal checks.* A sparse factorization's stored lower factor entries and pivots can be read without changing the factorization or allocating, and an element's stiffness (straight member, realized arc, connector, tie rod) can be re-formed at the integrity check's precision from operands the caller supplies, so that DEL-04-09 can check its modal solution against the kernel's own formation.
 
-> ##### Scope
->
-> This contract covers the backend feature slice for a 3D frame stiffness kernel. The sealed scope is DEL-04-01 in PKG-04, implementing the global 3D frame stiffness assembly, coordinate transforms, boundary conditions, and sparse solve interface for a 3D centerline/frame model with six degrees of freedom per node.
->
-> Out of scope for this deliverable:
->
-> - Product integration outside this primitive owner; accepted integration scope is resolved through the decomposition.
-> - New numerical or performance criteria: existing DEC-023/026/046/050/053 decisions apply, and unmeasured release thresholds remain open.
-> - Protected standards formulas, examples, tables, or proprietary commercial data.
-> - Straight pipe element details owned by DEL-04-02.
-> - Support/restraint model families owned by DEL-04-03 and DEL-04-04.
-> - Solver diagnostics layer owned by DEL-04-06.
-> - Rule-pack acceptability decisions; claims language per the standard claim fence (F-PIP-2; claims taxonomy per DEC-081).
->
+### Acceptance criteria
 
-### CLM-010 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Source |
-> |---|---|---|
-> | DEL-04-01-REQ-001 | The implementation shall model the primary global analysis system as a 3D centerline/frame model. | SOW-005; OPS-K-MECH-1 |
-> | DEL-04-01-REQ-002 | The implementation shall represent each frame node with six degrees of freedom. | SOW-005 |
-> | DEL-04-01-REQ-003 | The implementation shall provide global stiffness assembly for the frame system. | Deliverables.csv (retired in `48584391de`; see Git history) row DEL-04-01 |
-> | DEL-04-01-REQ-004 | The implementation shall provide coordinate transform handling between local and global frame representations; the current validated local-axis direction-cosine convention is documented in `core/solver/frame_kernel/README.md` and its unit tests. | Deliverables.csv (retired in `48584391de`; see Git history) row DEL-04-01 |
-> | DEL-04-01-REQ-005 | The implementation shall provide a boundary-condition application interface; supported restraint semantics are delegated to later support deliverables unless explicitly sealed in this deliverable. | Deliverables.csv (retired in `48584391de`; see Git history) row DEL-04-01; package scope |
-> | DEL-04-01-REQ-006 | The implementation shall expose a sparse solve interface designed for sparse numerical performance and reproducible practical-model results; performance targets are TBD. | SOW-035 |
-> | DEL-04-01-REQ-007 | The implementation shall remain unit-aware and dimensionally checked. | OPS-K-UNIT-1 |
-> | DEL-04-01-REQ-008 | The implementation shall report missing solve-required values as explicit findings and shall not supply silent defaults. | OPS-K-DATA-2 |
-> | DEL-04-01-REQ-009 | Solver outputs shall compute mechanics only and shall not decide rule-pack acceptability or professional compliance. | OPS-K-MECH-2 |
-> | DEL-04-01-REQ-010 | Solver changes shall require deterministic verification tests before release. | OPS-K-SOLVER-1; AB-00-08 |
-> | DEL-04-01-REQ-011 | Diagnostics and result envelopes crossing service boundaries shall preserve code, class, severity, source, affected object, message, remediation, and provenance fields where applicable. | AB-00-03; AB-00-06 |
-> | DEL-04-01-REQ-012 | The implementation shall not import protected formulas/data or embed protected standards text, tables, figures, examples, or proprietary data. | OPS-K-IP-1 |
->
-
-### CLM-011 — Standards
-
-> ##### Standards
->
-> - Project invariants in `docs/CONTRACT.md` are governing for this setup kit.
-> - Decomposition and register rows cited in `_CONTEXT.md` are governing for scope and objectives.
-> - Mechanics references and derivation/witness records must be lawful, source-grounded and compatible with the protected-data boundary. Current frame-kernel witnesses are located through `core/solver/frame_kernel/README.md`; their presence is not independent engineering validation.
-> - No code standard clause, protected formula, or professional compliance criterion is adopted by this setup kit.
->
-
-### CLM-012 — Verification
-
-> ##### Verification
->
-> | Requirement IDs | Verification approach |
-> |---|---|
-> | DEL-04-01-REQ-001, DEL-04-01-REQ-002 | Unit tests should verify model topology and six-DOF mapping against the current `core/solver/frame_kernel/src/lib.rs` topology and DOF-mapping tests; results must be bound to their candidate. |
-> | DEL-04-01-REQ-003, DEL-04-01-REQ-004 | Unit tests should verify deterministic assembly and transform behavior using the frame-kernel local-stiffness, transform, assembly and reduction witnesses; expected values require lawful source/derivation and candidate-bound evidence. |
-> | DEL-04-01-REQ-005 | Unit tests should verify boundary-condition application semantics once restraint interfaces are sealed. |
-> | DEL-04-01-REQ-006 | Sparse performance and reproducibility checks should be coordinated with DEL-04-05; target sizes and metrics TBD. |
-> | DEL-04-01-REQ-007 | Unit and schema tests should verify dimensional compatibility and unit-aware inputs/outputs. |
-> | DEL-04-01-REQ-008, DEL-04-01-REQ-011 | Tests should verify missing-value and diagnostics/result-envelope behavior without silent defaults. |
-> | DEL-04-01-REQ-009 | Tests/reviews should verify mechanics outputs remain separate from rule-pack or compliance determinations. |
-> | DEL-04-01-REQ-010 | CI must include deterministic solver verification gates before release use. |
-> | DEL-04-01-REQ-012 | Protected-content review gates must check that fixtures, docs, and source comments contain no protected standards or proprietary data. |
->
-
-### CLM-013 — Documentation
-
-> ##### Documentation
->
-> Maintain:
->
-> - `core/solver/frame_kernel` module documentation.
-> - Unit test records for frame assembly, coordinate transforms, boundary conditions, unit handling, missing-value diagnostics, and sparse solve interface behavior.
-> - Result-envelope and diagnostics examples that disclose assumptions, warnings, model/solver versions, and provenance without certification claims.
-> - Decision references for formulation, DEC-023 solver strategy and DEC-026/046 tolerance policies, plus explicit residuals for unmeasured performance criteria.
->
-
-### CLM-014 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The 3D frame kernel, its DOF contract, the dense scrutiny path and the DEC-023 sparse path (K1's sparse representation and M03 gate in `structural/sparse.rs`; the skyline LDLᵀ in `core/solver/sparse_direct`) exist. DEC-053 selects sparse interactive as the product default with dense scrutiny selectable. Straight members are Euler–Bernoulli or, per document, the exact static Timoshenko element (D-6); realized arcs use the curved-bend element in `core/solver/curved_bend`. The kernel also carries the objective connector element (T4-U3) and its explicit elastic tie rods (T4-U5b), the certified arc normal-stress maximum (T4-U4b), the K-D5 formation check and certified recovery ([Work/kd5-member-relative-bound.md](Work/kd5-member-relative-bound.md)) and its nonlinear confirmation ([Work/kd5-nonlinear-active-set.md](Work/kd5-nonlinear-active-set.md)). Broader performance/validation thresholds remain held where recorded.
-
-- **AC-001** — The contract preserves the accepted frame-kernel requirements and current declarations, including unit and provenance boundaries, explicit missing-input and solver findings, rights-cleared verification data, and the accepted formulation and DEC-023/026/046/050/053 policies, with uncovered boundary/engineering-assessment items retained without inventing engineering values or approval.
+- **AC-001** — Every active node carries the six degrees of freedom Ux to Rz, node and element indices follow the fixed order, and a consumer that binds through the kernel's mapping reads the same indices.
+- **AC-002** — Element and global stiffness of beams and frames, including members rotated to any orientation, and the displacements solved from them agree with closed-form frame mechanics at the analytic tolerance (1e-9 relative, with its governed absolute floor near zero): cantilever under tip force and tip moment, inclined member and torsion-only member.
+- **AC-003** — Restraint and prescribed-displacement reduction reproduces closed-form beam cases: restrained degrees of freedom are exactly zero, each prescribed displacement is reproduced at its degree of freedom, including an imposed anchor displacement, and reactions balance the applied loads.
+- **AC-004** — The sparse and dense modes agree at the analytic tolerance on the references of AC-002 and AC-003, and repeated runs of the same model, solver version and settings are bit-identical in each mode.
+- **AC-005** — A missing, non-finite, degenerate or out-of-range solve-required input, and a singular system, are each refused with an explicit finding that names the object or degree of freedom. No solve proceeds on a substituted value.
+- **AC-006** — No kernel output, message or identifier shown to a user states or implies rule acceptability, code compliance, certification or approval.
+- **AC-007** — Kernel sources, tests and fixtures contain nothing that REQ-012 excludes.
+- **AC-008** — A kernel finding raised in a desktop solve reaches the desktop's result with all eight fields of REQ-011 intact.
+- **AC-009** — A quantity whose dimension does not match its use is rejected with a finding that names it. The kernel converts and assumes no value.
+- **AC-010** — A straight member the model selects as Timoshenko has the stiffness of the exact static two-node Timoshenko element with shear area κ_E·A, and reduces to the Euler–Bernoulli element as the shear term vanishes.
+- **AC-011** — Each sparse factorization reports its ordering, stored profile size, pivot extremes and non-positive pivot count; on systems constructed with a known inertia, the non-positive pivot count equals the number of non-positive eigenvalues.
+- **AC-012** — Every result the kernel returns, in each mode, meets REQ-014 row by row, and a system built so that its residual cannot meet it returns no result and the named finding.
+- **AC-013** — On the frozen integrity references, each published member and support row of an established case lies within its stated bound of the intended system's exact recovery. A formed term with a missing, duplicated, extra or wrongly bound summand, and a solve without a record of its load terms, each make the check unavailable with its named reason, and no case is published as established without its bound. Each case's standing is the outcome of REQ-015's standing rule on its groups: a group whose bound exceeds RD(1e-9)·q at or above both the coupled-scale guard and the relative floor, a non-finite bound and an unavailable comparison each make the case numerically sensitive with a reason naming the group, and a finite bound above RD(1e-9)·q on a group below the floor or the guard does not. A solve whose estimated error at a free degree of freedom exceeds REQ-015's per-degree-of-freedom limit is numerically sensitive with a reason naming that degree of freedom, and an estimated error within that limit does not make it so.
+- **AC-014** — On the converged states of the nonlinear references, each support's enclosure lies strictly on its state's side; on a state with a weakly active support, or a deciding quantity moved to the wrong side, the state is not established and the reason names the support.
+- **AC-015** — On the arc stress references, each realized arc's published normal-stress maximum and directional intensified maximum lie within their enclosures, each enclosure closes within the stated gap and covers the arc's published station values, and each contains the independently derived maximum; a search that reaches its limits, and an enclosure that does not close, publish no maximum and name the reason.
+- **AC-016** — For straight members and realized arcs on both routes, each published global end row equals the rotation of the published local end rows of that end, recomputed from them bit for bit; on an exact-route pressure member the rotated axial component is the member's published wall end action.
+- **AC-017** — Reading a factorization's factor entries and pivots allocates nothing and leaves every later solve bit-identical; an element re-formed from supplied operands equals the integrity check's formation of the same element from the same operands.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-015 — Procedure: DEL-04-01 3D frame stiffness kernel
+**Method choices that define the kernel.**
 
-> #### Procedure: DEL-04-01 3D frame stiffness kernel
->
+- *Sparse strategy.* An in-repository sparse direct solver: profile-reducing ordering, skyline (profile) storage of the symmetric stiffness and LDLᵀ factorization, single-threaded in a fixed operation order, with no numerical dependency added, and each factorization reports its ordering, stored profile size, pivot extremes and count of non-positive pivots. The dense mode is kept as its parity path.
+- *Default mode.* Sparse is the default, dense is selectable, and a fall-back from sparse to dense is stated in the result.
+- *Transforms.* Direction cosines from validated local axes.
+- *Formulation.* The frame is the two-node frame. Straight members are Euler–Bernoulli or, where the model document selects it, the exact static Timoshenko element with the energy-matched annular shear factor; realized arcs are Euler–Bernoulli. The shear factor's definition and the selection rule are DEL-05-03's.
+- *Tolerances.* Numerical verification tolerances are held by reference class and quantity kind as relative and absolute pairs, seeded at 1e-9 relative for the analytic class. A fixture may only tighten a governed value.
+- *Integrity check.* The intended system is formed at 128-bit precision. Its expected summands are enumerated by each load term's producer independently of the summands supplied, so a dropped summand cannot pass. The check runs inside the kernel, so a case it cannot judge is sensitive as a solve, not demoted after publication.
 
-### CLM-016 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> This procedure governs maintenance and verification of the frame kernel within DEL-04-01. Current realization is `core/solver/frame_kernel/`; product integration and engineering acceptance retain their own scope and evidence.
->
-
-### CLM-017 — Prerequisites
-
-> ##### Prerequisites
->
-> - Confirm the active deliverable is DEL-04-01 and the write scope is the assigned deliverable or future implementation path explicitly authorized by a sealed brief.
-> - Read `_CONTEXT.md`, `_REFERENCES.md`, `_DEPENDENCIES.md`, `ScopeOfWork.md`, `_SEMANTIC.md`, and `_SEMANTIC_LENSING.md`.
-> - Confirm applicable invariants: OPS-K-MECH-1, OPS-K-MECH-2, OPS-K-UNIT-1, OPS-K-SOLVER-1, OPS-K-DATA-2, OPS-K-REPORT-1, OPS-K-AGENT-1..4, and OPS-K-IP-1.
-> - Confirm architecture basis IDs AB-00-01, AB-00-02, AB-00-03, AB-00-06, and AB-00-08.
-> - Obtain or cite lawful mechanics/numerics references before implementing formulas, expected numerical values, tolerances, or benchmark thresholds.
->
-
-### CLM-018 — Steps
-
-> ##### Steps
->
-> 1. Reconfirm scope boundaries against SOW-005 and SOW-035.
-> 2. Check the implemented frame-kernel DOF/coordinate conventions and accepted DEC-023 solver and DEC-026/046 tolerance policies; identify only genuinely unselected choices and uncovered evidence.
-> 3. Resolve implementation choices through the accepted DEC-012 brief/ruling route; preserve reserved interface, engineering and acceptance criteria without guessing.
-> 4. Define interfaces for model topology, six-DOF node mapping, frame assembly, coordinate transforms, boundary-condition application, sparse solve invocation, unit validation, and result/diagnostic output.
-> 5. Keep straight pipe element behavior, supports, nonlinear supports, loads, stress recovery, diagnostics specialization, reports, and rule packs at their assigned deliverable boundaries.
-> 6. Implement only from lawful, source-grounded mechanics and numerics references after the implementation brief authorizes code work.
-> 7. Create deterministic unit tests before release use; use rights-cleared fixtures with explicit units and no protected data.
-> 8. Ensure missing solve-required inputs produce explicit findings and do not become silent defaults.
-> 9. Ensure output envelopes preserve mechanics/rule/human approval separation and do not claim certification or compliance.
-> 10. Run protected-content and provenance checks before any release or handoff.
->
-
-### CLM-019 — Verification
-
-> ##### Verification
->
-> - Confirm no implementation values were invented from this setup kit.
-> - Confirm unit-aware and dimensionally checked interfaces are present in implementation scope.
-> - Confirm deterministic tests exist for every implemented kernel behavior.
-> - Confirm sparse performance and reproducibility checks are coordinated with DEL-04-05 when targets are sealed.
-> - Confirm diagnostics/result envelopes align with AB-00-03 and AB-00-06.
-> - Confirm protected-content review passes before release.
->
-
-### CLM-020 — Records
-
-> ##### Records
->
-> - Implementation brief and sealed write scope.
-> - Architecture decisions for TBD items.
-> - Source/provenance records for mechanics and numerical references.
-> - Unit test and CI results.
-> - Protected-content review result.
-> - Result-envelope and diagnostics samples.
->
-
-### CLM-021 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The 3D frame kernel, its DOF contract, the dense scrutiny path and the DEC-023 sparse path (K1's sparse representation and M03 gate in `structural/sparse.rs`; the skyline LDLᵀ in `core/solver/sparse_direct`) exist. DEC-053 selects sparse interactive as the product default with dense scrutiny selectable. Straight members are Euler–Bernoulli or, per document, the exact static Timoshenko element (D-6); realized arcs use the curved-bend element in `core/solver/curved_bend`. The kernel also carries the objective connector element (T4-U3) and its explicit elastic tie rods (T4-U5b), the certified arc normal-stress maximum (T4-U4b), the K-D5 formation check and certified recovery ([Work/kd5-member-relative-bound.md](Work/kd5-member-relative-bound.md)) and its nonlinear confirmation ([Work/kd5-nonlinear-active-set.md](Work/kd5-nonlinear-active-set.md)). Broader performance/validation thresholds remain held where recorded.
-
-- **VER-001** — Validate the contract and review source parity, frame/DOF and assembly coverage, coordinate and boundary interfaces, sparse/reproducibility obligations, units and diagnostics, protected-content and professional boundaries, and every unresolved governed item.
+- **VER-001** — AC-001: an executable check observes the degree-of-freedom indices and element maps against the fixed order.
+- **VER-002** — AC-002, AC-003 and AC-010: kernel tests compare stiffness, displacements and reactions with closed-form beam and frame values produced by a reference generator under `validation/references/` that imports no product code; for AC-010 the reference is the exact Timoshenko element in closed form.
+- **VER-003** — AC-004 and AC-011: an executable check observes sparse and dense results side by side on those references and compares repeated runs bit for bit; for AC-011 it observes each factorization's reported ordering, profile size, pivot extremes and non-positive pivot count on symmetric systems constructed with a known inertia.
+- **VER-004** — AC-005 and AC-009: negative tests observe each invalid, missing, singular or mis-dimensioned input refused with its named finding and no substituted value.
+- **VER-005** — AC-006 and AC-007: a reviewer who did not write the code reads kernel outputs and texts against `docs/claims_registry.md`, and the protected-content scan runs over the kernel's sources, tests and fixtures.
+- **VER-006** — AC-008: an executable check follows a kernel finding through a desktop solve to the displayed diagnostic, field by field.
+- **VER-007** — Executable check (observes each returned solve's original-equation residual row by row against REQ-014's limit in both modes, and the named finding with no result on a system built to fail it): AC-012.
+- **VER-008** — Comparison with named references, with an executable check: AC-013 against `validation/references/kd5_member_bound`, whose exact-fraction generator forms the 128-bit intended system without product code, judged by `validation/references/m3_judge` against its exact references, and against the arc references `validation/references/t4_o13` and `t4_i9`; the check observes each closure mutation (dropped, duplicated, extra or rebound summand, no record of load terms) made unavailable with its named reason, and the standing REQ-015's rule gives to groups constructed on each side of the relative comparison, the relative floor and the coupled-scale guard, to a non-finite bound and to an unavailable comparison, and the standing the per-degree-of-freedom rule gives to a first correction constructed on each side of its limit.
+- **VER-009** — Comparison with a named reference, with an executable check: AC-014 against `validation/references/kd5_nonlinear`, whose states, deciding quantities and rows are derived in exact rational arithmetic without product code; the check observes a weakly active support and a deciding quantity moved to the wrong side each left unestablished with the reason naming the support.
+- **VER-010** — Comparison with a named reference, with an executable check: AC-015 against `validation/references/t4_u4b`, derived and independently refuted without product code; the check observes the named refusal when the search limits are reached.
+- **VER-011** — Executable check (observes each global end row against its recomputation from the published local end rows and the end's axes, bit for bit, on both routes): AC-016.
+- **VER-012** — Executable check (observes allocation and later solve results bit for bit around a read of the factor, and re-formed elements against the integrity check's formation from the same operands): AC-017.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-022 — Guidance: DEL-04-01 3D frame stiffness kernel
-
-> #### Guidance: DEL-04-01 3D frame stiffness kernel
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-024 — Purpose
-
-> ##### Purpose
->
-> This deliverable prepares the bounded implementation surface for the central 3D frame stiffness kernel. Its value is to keep global centerline mechanics, sparse numerical behavior, reproducibility, units, diagnostics, protected-data controls, and professional-boundary language aligned through implementation and verification.
->
-
-### CLM-025 — Principles
-
-> ##### Principles
->
-> - Keep the global model line-element based unless a later handoff explicitly routes local analysis to shell/solid FEA.
-> - Treat six degrees of freedom per node as a scope fact, not as permission to invent an ordering or sign convention.
-> - Keep coordinate conventions, matrix storage format, solver library, tolerances, and benchmark targets as TBD until a source-backed implementation brief or human ruling seals them.
-> - Separate mechanics computation from rule-pack evaluation and professional approval.
-> - Use deterministic, rights-cleared verification fixtures. Do not use copied standards examples or protected commercial data.
-> - Surface missing values, singular/ill-conditioned states, and assumptions as explicit result-envelope findings rather than silent behavior.
->
-
-### CLM-026 — Considerations
-
-> ##### Considerations
->
-> The accessible source set is the decomposition, registers, contract, and local context. It does not provide detailed mechanics formulas, reference-element derivations, numerical tolerances, sparse storage formats, or benchmark thresholds. Future implementation must therefore source those details from lawful references or human-approved architecture decisions.
->
-> Architecture basis rows constrain the implementation boundary:
->
-> - AB-00-01 requires decision records for accepted architecture choices and reconsideration triggers.
-> - AB-00-02 keeps dependencies pointed inward toward domain contracts and preserves layer responsibilities.
-> - AB-00-03 separates commands, queries, jobs, result envelopes, progress/cancellation, and mechanics/rule/human approval states.
-> - AB-00-06 requires structured diagnostics and avoids certification/compliance claims.
-> - AB-00-08 requires layered solver tests and protected-content/provenance gates.
->
-
-### CLM-027 — Trade-offs
-
-> ##### Trade-offs
->
-> | Topic | Current guidance |
-> |---|---|
-> | Sparse solver library | DEC-023 resolves the strategy; this record selects no new library. |
-> | Coordinate convention | Current frame-kernel local-axis/direction-cosine convention must remain consistent across element, support, load, result and report interfaces. |
-> | Performance targets | TBD. SOW-035 requires sparse performance and reproducibility, but concrete thresholds are not available. |
-> | Verification fixtures | Use invented, rights-cleared, non-authoritative fixtures only after implementation is scoped; label them as test fixtures, not engineering examples. |
-> | Kernel boundaries | Keep element stiffness, support behavior, diagnostics, load application, and stress recovery in their assigned deliverables unless a human-approved change amends the decomposition. |
->
-
-### CLM-028 — Examples
-
-> ##### Examples
->
-> - Current invented frame topology/DOF witnesses reside with `core/solver/frame_kernel/src/lib.rs`; numerical verification follows DEC-026, without creating engineering acceptance or new defaults.
-> - Sparse strategy is resolved by DEC-023; its profile representation and ordering are recorded in `core/solver/sparse_direct/`. Implementation evidence does not select release performance limits.
->
-
-### CLM-029 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A | Source B | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No source conflict found in setup sources. | N/A | N/A | N/A | N/A | N/A |
-
-### CLM-030 — SCA-011 DEC-044 primitive boundary
-
-**SCA-011 ownership amendment:** this keyed allocation supersedes inconsistent forward ownership wording above under the recorded Group 2 application decision; original observations and all other requirements retain their source meaning.
-
-Retain frame assembly and linear solving, including CAP-PHYS-022. DEL-04-07 composes the product solve and assembled nonlinear orchestration; DEL-04-04 retains the classifier. File location or a product caller cannot transfer mathematical ownership.
-
-- **OUT-002** — This responsibility has an explicit owner and claim-bound verification.
-- **AC-002** — The named boundary is honored, its witness is bound to the tested candidate, and missing or held results remain explicit. Ownership assignment alone is not a pass.
-- **VER-002** — Check primitive assembly/solve contracts separately from product route parity; preserve all existing protected numerical criteria and the carried commitments in this Scope of Work.
+- **AX-001** — *Correct before fast.* Better is a smaller deviation from the independent closed-form references. This is never bought by loosening a tolerance or its floor, or by altering a frozen reference.
+- **AX-002** — *Fast on practical models.* Better is less time and memory on practical piping models, measured by DEL-04-05. This is never bought by giving up determinism, the explicit refusal of missing or invalid input, or the separation of mechanics from rule-pack and compliance meaning.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-005 SOW-035 OBJ-003 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-| OUT-002 | OBJ-003 | CLM-030 | AC-002 | VER-002 | Source-bound boundary review and named contract witness; missing evidence remains open |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-04-01:1** — Bind protected-content review to the frozen frame-kernel source/test bytes and verify the full diagnostic field set at the desktop preview crossing; source repair and existing kernel evidence do not supply these review/boundary witnesses. (R5 continuation claim references: DEL-04-01:SOW#CLM-012/DEL-04-01-REQ-012; CLM-010/DEL-04-01-REQ-011.)
-- **DEL-04-01:2** — Verify mechanics-program §5 completion: assessment gap rows G1/G2/G4 and M2/M3 methods defects closed or explicitly re-dispositioned by owner ruling (see also DEL-04-04, DEL-05-01, DEL-05-02) (gated: owner re-disposition where not closed by evidence) (source: mechanics plan §5 / DEC-066–070)
+| OUT-001 | SOW-005 OBJ-003 | REQ-001 REQ-002 | AC-001 | VER-001 | The criterion states the expected indices (PRD FR-SOL-001) |
+| OUT-001 | SOW-005 OBJ-003 | REQ-003 REQ-004 | AC-002 | VER-002 | Outside source: closed-form beam and frame mechanics, through a reference generator that imports no product code |
+| OUT-001 | SOW-005 OBJ-003 | REQ-005 | AC-003 | VER-002 | Outside source: closed-form beam cases and equilibrium, through a reference generator that imports no product code |
+| OUT-001 | SOW-035 OBJ-003 | REQ-006 REQ-010 | AC-004 | VER-003 | The product's own other mode and its own earlier output, which only guard against change. Correctness rests on AC-002 and AC-003; on parity alone there are no independent grounds |
+| OUT-001 | SOW-005 OBJ-003 | REQ-008 | AC-005 | VER-004 | `docs/CONTRACT.md` OPS-K-DATA-2 and PRD §5.5 state the expected refusal |
+| OUT-001 | SOW-005 OBJ-003 | REQ-009 | AC-006 | VER-005 | The reviewer's reading against PRD §21.2 and `docs/claims_registry.md` |
+| OUT-001 | SOW-005 OBJ-003 | REQ-012 | AC-007 | VER-005 | Protected-content scan and the reviewer's reading under `docs/IP_AND_DATA_BOUNDARY.md` |
+| OUT-001 | SOW-005 OBJ-003 | REQ-011 | AC-008 | VER-006 | The criterion states the expected fields (decomposition architecture basis) |
+| OUT-001 | SOW-005 OBJ-003 | REQ-007 | AC-009 | VER-004 | `docs/CONTRACT.md` OPS-K-UNIT-1 and PRD §5.6 state the expected refusal |
+| OUT-001 | SOW-005 OBJ-003 | REQ-003 | AC-010 | VER-002 | Outside source: the exact static Timoshenko element in closed form, through a reference that imports no product code |
+| OUT-001 | SOW-035 OBJ-003 | REQ-013 | AC-011 | VER-003 | Outside source: the inertia of each constructed system is known from its construction (Sylvester's law of inertia), and the ordering and profile size follow from its sparsity pattern |
+| OUT-001 | SOW-005 OBJ-003 | REQ-014 | AC-012 | VER-007 | The criterion states the limit each row is checked against. It bounds the residual, not the error of the solution |
+| OUT-001 | SOW-005 OBJ-003 | REQ-015 | AC-013 | VER-008 | Outside source: the exact-fraction intended systems and recoveries of `kd5_member_bound`, `m3_judge`, `t4_o13` and `t4_i9`, generated without product code. The bound rests on an assumed factor of the condition estimate, which the references test but do not prove; it concerns the discrete intended system, not modelling error. The standing rule's thresholds and the per-degree-of-freedom limit are stated by the requirement; the references supply the exact group magnitudes they are applied to |
+| OUT-001 | SOW-005 OBJ-003 | REQ-016 | AC-014 | VER-009 | Outside source: `kd5_nonlinear`, exact-rational states derived without product code. Its models are axis-aligned, so the exact-element system equals the intended system there; other geometries rest on REQ-015's bound. Each of its models has one nonlinear support: a translational or rotational one-way support, or a friction support with an explicit normal or a normal derived from a base restraint. The rest of REQ-016's domain has no independent confirmation reference yet: a lift-off support, a one-way or lift-off support as the friction normal source, several sliding supports whose derived normals are coupled, and gap supports. References are named, not yet frozen, for a one-way normal source and for coupled normals: a friction support whose normal source is a one-way stop that stays active (F-2a) or lifts off under vacuum (F-2b), and two friction shoes on one span with closed-form two-degree-of-freedom coupling (F-3); none is named for a lift-off support, a lift-off normal source or gap confirmation |
+| OUT-001 | SOW-005 OBJ-003 | REQ-017 | AC-015 | VER-010 | Outside source: `t4_u4b`, derived and refuted without product code |
+| OUT-001 | SOW-005 OBJ-003 | REQ-004 REQ-018 | AC-016 | VER-011 | Recomputation from the product's own published local rows: it establishes the rotation, not the local rows, whose correctness rests on AC-002, DEL-04-02 and DEL-03-03 |
+| OUT-001 | SOW-005 OBJ-003 | REQ-019 | AC-017 | VER-012 | The criterion states the expected identity with the integrity check's own formation; that agreement is consistency between two product paths, and the modal results it serves are examined under DEL-04-09 |

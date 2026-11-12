@@ -581,7 +581,7 @@ def test_pressure_1_reader_binds_the_case_section_marker_to_the_region_arc(arc):
 
 
 def test_pressure_source_1_composite_refuses_arcs_by_name_and_reads_one_straight_shear_model(base, arc):
-    """§3.6: the pressure-source-1 composite reading (``physics_evidence.py``) checks each section's beam theory as
+    """the pressure-source-1 composite reading (``physics_evidence.py``) checks each section's beam theory as
     ``pressure_3.py`` and Rust's shared reader do, with one straight-member shear model per document. It never carries a
     realized arc (D7), so an arc region or a marked case section is refused by name (Rust
     ``SOURCE_PHYSICS_ARC_UNSUPPORTED``)."""

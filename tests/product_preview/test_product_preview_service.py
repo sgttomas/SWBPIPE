@@ -400,7 +400,7 @@ def test_agent_proposal_is_review_only_and_non_mutating():
     assert "certified" not in canonical_json(preview).lower()
 
 
-# Model document 0.8.0 (DEL-02-01 Design model-document-0.8.0.md §3.1): the preview validator reads only the current
+# Model document 0.8.0: the preview validator reads only the current
 # model document; a retired one is refused by name, any other version as unsupported.
 def test_a_retired_or_non_current_preview_model_is_refused():
     from core.product_preview import load_preview_model

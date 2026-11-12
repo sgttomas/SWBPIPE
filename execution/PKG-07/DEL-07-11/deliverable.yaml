@@ -2,159 +2,103 @@ id: DEL-07-11
 name: Desktop workspace shell and host integration
 needs:
 - from: DEL-00-03
-  condition: 'DEL-07-11 consumes Application service command-query-job model from DEL-00-03: shell consumes
-    service/GUI/host constraints, persistence, accessibility, actual run records and controlled application;
-    mounting does not transfer feature semantics.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. Architecture consistency input; no PKG-00 lifecycle promotion.;
-    SCA011OriginalDependencyID=SCA011-E039; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-02; dependency table DEL-07-11; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    Mutating commands, read-only queries and long-running jobs are separate kinds of request, every
+    command and job returns a result envelope with diagnostics, and a job reports progress and can
+    be cancelled.
   gating: true
-  evidence: execution/PKG-07/DEL-07-11/ScopeOfWork.md
 - from: DEL-00-05
-  condition: 'DEL-07-11 consumes GUI state and interaction architecture from DEL-00-05: shell consumes
-    service/GUI/host constraints, persistence, accessibility, actual run records and controlled application;
-    mounting does not transfer feature semantics.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. Architecture consistency input; no PKG-00 lifecycle promotion.;
-    SCA011OriginalDependencyID=SCA011-E040; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-02; dependency table DEL-07-11; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The GUI state rule keeps selection, view state, drafts and job progress out of the model
+    document, defines one selection of entity identifiers shared by every panel, requires every
+    change to the model to be an applied model operation, and scopes undo and redo to reversible
+    model edits.
   gating: true
-  evidence: execution/PKG-07/DEL-07-11/ScopeOfWork.md
-- from: DEL-00-07
-  condition: 'DEL-07-11 consumes API boundary and adapter contract map from DEL-00-07: shell consumes
-    service/GUI/host constraints, persistence, accessibility, actual run records and controlled application;
-    mounting does not transfer feature semantics.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. Architecture consistency input; no PKG-00 lifecycle promotion.;
-    SCA011OriginalDependencyID=SCA011-E041; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-02; dependency table DEL-07-11; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-01
+  condition: >-
+    The model document has one current version and one validator that refuses a malformed or
+    unsupported document by a named code and path; a document is checked at native file open
+    without being repaired, defaulted or normalized; and the document's canonical form and hash are
+    defined.
   gating: true
-  evidence: execution/PKG-07/DEL-07-11/ScopeOfWork.md
 - from: DEL-02-05
-  condition: 'DEL-07-11 consumes Project persistence and round-trip serialization from DEL-02-05: shell
-    consumes service/GUI/host constraints, persistence, accessibility, actual run records and controlled
-    application; mounting does not transfer feature semantics.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E042; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-02; dependency table DEL-07-11; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Saving and reopening a project
+  condition: >-
+    The project store saves and reads back a project unchanged, identifies each stored revision,
+    and refuses by name a write that would replace a revision the session did not open or confirm.
   gating: true
-  evidence: execution/PKG-07/DEL-07-11/ScopeOfWork.md
-- from: DEL-07-06
-  condition: 'DEL-07-11 consumes Accessibility and usability baseline from DEL-07-06: shell consumes service/GUI/host
-    constraints, persistence, accessibility, actual run records and controlled application; mounting does
-    not transfer feature semantics.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E043; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-02; dependency table DEL-07-11; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-12-01
+  when: Storing private data
+  condition: >-
+    Private data is stored only in the application's own storage and in locations the user chose,
+    and nothing transmits it without an explicit user action.
   gating: true
-  evidence: execution/PKG-07/DEL-07-11/ScopeOfWork.md
 - from: DEL-14-02
-  condition: 'DEL-07-11 consumes Analysis run records from DEL-14-02: shell consumes service/GUI/host
-    constraints, persistence, accessibility, actual run records and controlled application; mounting does
-    not transfer feature semantics.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E044; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-02; dependency table DEL-07-11; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Reopening a session with its runs
+  condition: >-
+    An analysis-run record binds a result to its model state and can be read back as recorded, so
+    that a reopened session can tell a current result from a historical one.
   gating: true
-  evidence: execution/PKG-07/DEL-07-11/ScopeOfWork.md
 - from: DEL-16-06
-  condition: 'DEL-07-11 consumes Controlled model operation application from DEL-16-06: shell consumes
-    service/GUI/host constraints, persistence, accessibility, actual run records and controlled application;
-    mounting does not transfer feature semantics.
-
-
-    Notes: PROPOSAL: SourceRef supports the extracted relation; Statement is an agent synthesis, not a
-    quotation. SCA-011 group-2 graph candidate only; ACTIVE describes the proposed relation, not graph
-    adoption. Required maturity is a proposed contract-review gate; actual target maturity and conformance
-    are not inferred from existing code. ; SCA011OriginalDependencyID=SCA011-E045; original_evidence_file=execution/_Coordination/_PROPOSALS/R5_R6_FOLLOWUP_2026-09-22/PIPING_OWNERSHIP_PROPOSAL.md;
-    original_source_ref=P-OWN-02; dependency table DEL-07-11; metadata_repair=SCA-011/application/dependencies/CORRECTNESS_REPAIR.md
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Taking an applied document as the working model
+  condition: >-
+    One operation engine applies a batch whole or not at all and leaves the model unchanged on any
+    refusal.
   gating: true
-  evidence: execution/PKG-07/DEL-07-11/ScopeOfWork.md
+- from: DEL-07-06
+  condition: >-
+    The accessibility baseline states the target for workspace controls, the presentation
+    conventions and the design tokens, themes and density the shell applies to every panel.
+  gating: true
+- from: DEL-10-04
+  when: Scanning a product build
+  condition: >-
+    The desktop's product build is produced by the project's reproducible build and packaging
+    workflow (DEL-10-04/REQ-001), so that it can be scanned for the scripted-run build's features.
+  gating: false
 code_paths:
+- apps/desktop/src/main.tsx
+- apps/desktop/src/App.tsx
+# The session and the shell. In this folder: shell/DisabledReason.tsx and uiPreferences.ts are
+# DEL-07-06's; table/**, contextMenu/** and sessionEvents.ts are DEL-07-02's; solveGates.ts and
+# solveJobAudit.ts are DEL-07-07's; statusLabels.ts is DEL-05-04's. workspaceSession.ts is shared
+# with DEL-16-06, and the handlers inside it for each feature's commands are that feature's.
+- apps/desktop/src/features/workspace/**
+# The open and save surfaces. modelDocumentShape.ts is DEL-02-01's; storedDocumentExport.ts is
+# DEL-02-05's; modelDocumentSave.ts and ModelDocumentSaveDialog.tsx are shared with DEL-15-03.
+- apps/desktop/src/features/model-file/**
+# The work-loss guards. ProjectStorageAuditPanel.tsx in this folder is a review-export panel.
+- apps/desktop/src/features/project-storage/**
+- apps/desktop/src/services/modelDocumentFile.ts
+- apps/desktop/src/services/projectService.ts
+- apps/desktop/src/services/nativeMenu.ts
+# Shared with DEL-07-07, DEL-07-08 and DEL-14-04, each for the calls it makes.
+- apps/desktop/src/services/previewService.ts
+# The native host. lib.rs is shared by every deliverable with a desktop command; the window,
+# menu and command registration in it are this deliverable's. tauri.conf.json is shared with
+# DEL-10-04 (the bundle) and DEL-12-01 (the storage locations). model_document_file.rs is shared
+# with DEL-02-05 and model_document_save.rs with DEL-15-03.
+- apps/desktop/src-tauri/src/main.rs
 - apps/desktop/src-tauri/src/lib.rs
 - apps/desktop/src-tauri/tauri.conf.json
-- apps/desktop/src/App.tsx
-- apps/desktop/src/App.shell.test.tsx
-- apps/desktop/src/App.projectHandlers.test.tsx
-- apps/desktop/src/types.ts
-- apps/desktop/src/features/workspace/**
-- apps/desktop/src/features/model-file/**
-- apps/desktop/src/features/load-cases/combinationOperands.ts
-- apps/desktop/src/features/project-storage/ReplaceProjectPrompt.tsx
-- apps/desktop/src/features/project-storage/storedProjectConflict.ts
-- apps/desktop/src/features/project-storage/replaceProjectPrompt.test.tsx
-- apps/desktop/src/features/project-storage/UnsavedChangesPrompt.tsx
-- apps/desktop/src/features/project-storage/unsavedChangesGuard.ts
-- apps/desktop/src/features/project-storage/modalHolds.ts
 - apps/desktop/src-tauri/src/close_guard.rs
-- apps/desktop/src/services/modelDocumentFile.ts
-- apps/desktop/src/services/previewService.ts
-- apps/desktop/src/services/previewService.test.ts
-- apps/desktop/src/services/exactResultBytes.test.ts
-- apps/desktop/src/services/g10DesktopMilestoneModel.test.ts
-- apps/desktop/src/services/loadReferenceRoundTrip.test.ts
-- apps/desktop/src/test/nativeMechanicsReplay.ts
 - apps/desktop/src-tauri/src/model_document_file.rs
 - apps/desktop/src-tauri/src/model_document_save.rs
+# The scripted-run build and its driver. native_smoke.rs is shared with DEL-16-06. In
+# native-smoke/: perf* is DEL-04-05's, agent-journey.js is DEL-16-06's, mbf-journey.* is
+# DEL-17-04's, and run.mjs is shared with DEL-08-01 and DEL-15-03.
 - apps/desktop/src-tauri/src/native_smoke.rs
 - apps/desktop/native-smoke/**
 - apps/desktop/scripts/engineSourceStamp.mjs
 - apps/desktop/scripts/appBinaryBinding.mjs
 - apps/desktop/scripts/worktreeBuildLock.mjs
+- apps/desktop/src/test/nativeMechanicsReplay.ts
 - apps/desktop/e2e/r2-smoke.spec.ts
-- apps/desktop/src/services/projectService.ts
-- apps/desktop/src/services/nativeMenu.ts
+- apps/desktop/e2e/b3a-session-status.spec.ts
 checks:
 - apps/desktop/src/App.projectHandlers.test.tsx
 - apps/desktop/src/features/model-file/modelDocumentOpen.test.tsx
 - apps/desktop/src/features/model-file/modelDocumentSave.test.tsx
-- apps/desktop/src/features/load-cases/combinationOperands.test.tsx
 - apps/desktop/src/features/project-storage/replaceProjectPrompt.test.tsx
 - apps/desktop/src/features/project-storage/unsavedChangesPrompt.test.tsx
 - apps/desktop/src/features/project-storage/modalHolds.test.ts
@@ -171,3 +115,7 @@ checks:
 - apps/desktop/native-smoke/app-binding.test.mjs
 - apps/desktop/scripts/build-wasm-engine.test.mjs
 - apps/desktop/scripts/worktreeBuildLock.test.mjs
+- apps/desktop/src/services/previewService.test.ts
+- apps/desktop/src/services/exactResultBytes.test.ts
+- apps/desktop/src/services/g10DesktopMilestoneModel.test.ts
+- apps/desktop/src/services/loadReferenceRoundTrip.test.ts

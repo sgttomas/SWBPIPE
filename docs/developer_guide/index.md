@@ -20,8 +20,8 @@ SWBPIPE keeps three responsibilities separate:
 - professional use remains a human responsibility outside automatic software
   output.
 
-Current product commitments live in the PRD and deliverable ScopeOfWork/Design.
-Development follows the repository's [`AGENTS.md`](../../AGENTS.md) and [LOOP_INIT](../../loop/LOOP_INIT.md).
+Current product commitments live in the PRD and deliverable ScopeOfWork files.
+Development follows the repository's [`AGENTS.md`](../../AGENTS.md).
 Dependency views are coordination facts, not engineering or release acceptance.
 
 ## 1. Governing Artifacts

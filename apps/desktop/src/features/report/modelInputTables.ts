@@ -196,7 +196,7 @@ export function listedModelInputIds(composition: ReportComposition | null | unde
   return MODEL_INPUT_SECTION_IDS.filter((id) => listed.has(id));
 }
 
-/** `P(M, C)` (§2.7): null when the composition lists no model-input id; otherwise one member
+/** `P(M, C)`: null when the composition lists no model-input id; otherwise one member
  * per listed id, each a list of rows in the model's array order. The Rust mirror is
  * `report_package::model_input::model_input_tables`, held equal by
  * `fixtures/reports/invented/report_model_input_vectors.json`. */

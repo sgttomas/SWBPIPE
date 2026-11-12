@@ -1,4 +1,4 @@
-"""R-A D3 (retained-pricing-rules.md §8.13).
+"""R-A D3 (§8.13).
 
 RA-HS, RA-SC: B1's hint vectors (the plan's, and the replay's) and evaluate's Shortcuts are priced positively in T07
 (the plan's hints and the live evaluation's Shortcuts) and T25 (the replay's hints and Shortcuts); a snapshot without

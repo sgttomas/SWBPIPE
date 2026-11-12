@@ -8,7 +8,7 @@ metadata:
 
 # Public Issue Templates
 
-This document is governed by [CONTRACT.md](../../docs/CONTRACT.md); is informed by [CONTRIBUTING.md](../../CONTRIBUTING.md).
+This document is governed by [CONTRACT.md](../../docs/CONTRACT.md).
 
 This directory holds the SWBPIPE **public issue templates** named as a
 PRD §22.6 deliverable ("Public issue templates"; completion-plan row E6 in the retired

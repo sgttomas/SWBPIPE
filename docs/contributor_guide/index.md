@@ -12,7 +12,7 @@ the required contributor/legal arrangements. The project license is MIT;
 maintainer acceptance is not professional engineering approval.
 
 For authorized development, start with the repository's
-[`AGENTS.md`](../../AGENTS.md) and [LOOP_INIT](../../loop/LOOP_INIT.md). Read
+[`AGENTS.md`](../../AGENTS.md). Read
 the relevant deliverable’s ScopeOfWork, Design and dependency conditions; use
 the deliverable CLI (`python3 -m tools.deliverables`) to find connected work. No sealed brief, lifecycle transition or handoff packet
 is required. The PR states what changed, why, checks and open decisions.
@@ -43,11 +43,8 @@ availability, usefulness, common industry practice, or a source being easy to
 find online.
 
 For public data, examples, report templates, benchmark cases, or documentation
-excerpts, use the source-rights and review surfaces in
-[`CONTRIBUTING.md`](../../CONTRIBUTING.md),
-[`governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md`](../../governance/CONTRIBUTOR_CERTIFICATION_TEMPLATE.md),
-and
-[`governance/CONTRIBUTION_REVIEW_CHECKLIST.md`](../../governance/CONTRIBUTION_REVIEW_CHECKLIST.md).
+excerpts, use the source-rights and review requirements in
+[`docs/IP_AND_DATA_BOUNDARY.md`](../IP_AND_DATA_BOUNDARY.md) §8.
 The final project-wide legal mechanism remains `TBD` until the human project
 authority records it.
 

@@ -5,7 +5,7 @@ Two document kinds take this route. `execution/` holds declarative specification
 (tools/validation/execution_boundary.py enforces it, and product jobs check out the tree without
 it), so any regular-file change there of a declarative kind, including additions, deletions and
 renames, is a document change verified by structure, parity, boundary, conflict and credential
-checks. Human prose outside it (docs/, loop/, README.md, AGENTS.md) is a document only for in-place
+checks. Human prose outside it (docs/, README.md, AGENTS.md) is a document only for in-place
 Markdown edits under a current reader audit. This is a separate input contract, not a change to
 Python's conservative source analysis: runtime resources, fixtures, licences and document-content
 consumers outside execution/ are not plain prose merely because their names end in .md.
@@ -33,7 +33,7 @@ DECLARATIVE_SUFFIXES = (".md", ".yaml", ".yml", ".json", ".csv", ".txt", ".sha25
 # Human prose outside execution/: reader-sensitive, admitted under the reader audit.
 # Keep source-bound resources and verification inputs on their owning route.
 # In particular, embedded-agent assets under apps/ are never human docs here.
-DOCUMENT_ROOTS = ("docs/", "loop/")
+DOCUMENT_ROOTS = ("docs/",)
 ROOT_DOCUMENTS = {"README.md", "AGENTS.md"}
 PRODUCT_DOCUMENTS = (
     "docs/third-party/", "docs/THIRD_PARTY_NOTICES.md",
@@ -48,9 +48,6 @@ DOCUMENT_TESTS = {
     "docs/security/secret_private_library_handling.md": ["-m", "pytest", "--noconftest", "-q", "tests/security/test_secret_private_library_handling.py::test_changed_files_do_not_embed_disallowed_example_content"],
     "docs/architecture/plugin_boundary.md": ["tests/test_api_boundary_contract.py"],
     "docs/local_analysis/local_fea_handoff_guidance.md": ["tests/test_local_fea_handoff_contract.py"],
-    "execution/PKG-04/DEL-04-11/Work/hanger-sizing.md": ["-m", "pytest", "--noconftest", "-q", "tools/validation/test_hanger_sizing_design.py"],
-    "execution/PKG-09/DEL-09-01/Work/reference-system.md": ["-m", "pytest", "--noconftest", "-q", "tools/validation/test_reference_system_ledger.py"],
-    "execution/_DAG/": ["-m", "pytest", "--noconftest", "-q", "tools/validation/test_execution_dag.py"],
 }
 
 

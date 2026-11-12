@@ -2,340 +2,98 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-08-02
 package_id: PKG-08
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-039]
 package_objective_refs: [OBJ-007, OBJ-012]
 ---
 
-# Scope of Work — DEL-08-02
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-08-02 Audit manifest and model hash
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-08-02` in service of project scope [SOW-039] and package objectives [OBJ-007, OBJ-012].
+A reviewer holding a report, a result export or a saved run can tell exactly which model, which inputs, which solver build and which rule packs produced it, and can recompute every hash that says so with tools that are not SWBPIPE. This deliverable contributes what makes that possible: one canonical form for every JSON payload the product hashes, with the model hash computed on it; the audit manifest that records the identities of a run; and the content of the run's input manifest.
 
-- **OUT-001** — An audit-manifest and model-identity contract covering canonical JSON model hashes, separate non-JSON asset hashes, solver and software versions, units, rule-pack checksums, provenance, warnings, and replay references is produced.
+It serves SOW-039 under OBJ-007 and OBJ-012 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-08, row DEL-08-02), and PRD §15.1 and §15.2 (a model state records its hash; a run records its solver version and build identifier), §19.2 (a report states the model hash, the solver version and the rule-pack checksum) and §21.1 (the product may claim provenance, version, checksum and hash records). The release target's exit criterion 4 requires a shareable report "with a reproducible canonical hash"; DEL-08-01 owns that criterion and takes the hash basis from here.
+
+- **OUT-001** — The audit manifest: the record of a run's model hash, input-manifest hash, solver identity, unit-system reference, rule-pack references and non-JSON assets, with the validator that reports what is missing or inconsistent in one (REQ-001, REQ-003 to REQ-009).
+- **OUT-002** — The canonical JSON form and the SHA-256 hashing of JSON payloads on it, including the model hash, as one implementation that every hashing surface of the product uses (REQ-002, REQ-010).
+- **OUT-003** — The content of the input manifest: what a run's input manifest must list for the run to be reproduced (REQ-012).
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-08-02 Audit manifest and model hash
+A **hash record** states an algorithm, the canonicalization basis the digest was computed on, the payload it covers, and the digest. A record without all four identifies nothing.
 
-> #### Datasheet: DEL-08-02 Audit manifest and model hash
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+The **canonical form** of a JSON payload is its RFC 8785 (JCS) serialization: object keys sorted by UTF-16 code units, numbers in the ECMAScript shortest round-trip form with negative zero written as zero, strings escaped as ECMAScript does, no insignificant whitespace, UTF-8. The **model hash** is SHA-256 over the canonical form of the model document.
 
-### CLM-003 — Identification
+The **input manifest** is the canonical list of what a run was given, enough to reproduce it: the model's canonical inputs, the unit basis, the selected solver settings, the rule-pack references and the external asset references. What it must list is decided here; it is built for each solve and bound to the run by the analysis-run record, and the audit manifest records its reference and hash.
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-08-02 |
-> | Deliverable name | Audit manifest and model hash |
-> | Package ID | PKG-08 |
-> | Package name | Reporting, Audit, and Reproducibility |
-> | Deliverable type | BACKEND_FEATURE_SLICE |
-> | Scope item | SOW-039 |
-> | Supported objectives | OBJ-007; OBJ-012 |
-> | Setup status | Current contract and bounded implementation evidence; lifecycle: see `_STATUS.md`; open duties: this Scope of Work and owning decisions. |
->
+The **unit-system reference** identifies the project units record of the model the run solved: the map from dimension keys to unit symbols that the model document carries. It is not a unit-system name; the model stores none.
 
-### CLM-004 — Attributes
+A **rule-pack reference** in the manifest is identity, version, checksum, source notice and redistribution status. It never holds rule content. A rule pack's own declared checksum is carried under the basis the pack declares and is not recomputed here.
 
-> ##### Attributes
->
-> | Attribute | Draft setup value |
-> |---|---|
-> | Primary artifact family | Audit manifest and reproducibility metadata for SWBPIPE runs. |
-> | Hash basis for JSON payloads | Canonical JSON with JCS-compatible canonicalization. Source: `docs/_Registers/ScopeLedger.csv` row SOW-039; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2. |
-> | Hash basis for non-JSON or binary assets | Manifest hashes recorded as separate asset entries. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2. |
-> | Required reproducibility markers | Model hash, solver version, rule-pack checksum, and input manifest. Source: `docs/_Registers/Deliverables.csv` row DEL-08-02. |
-> | Rule-pack boundary | Rule packs are user/private design-basis artifacts; public artifacts may reference ID, version, checksum, and source note without embedding protected formulas. Source: `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections); `docs/IP_AND_DATA_BOUNDARY.md` section 7. |
-> | Professional boundary | The manifest supports review and reproducibility. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081). Source: `docs/CONTRACT.md` OPS-K-AUTH-1; `docs/DIRECTIVE.md` section 3. |
-> | Physical project container | DEC-017 retains canonical JSON domain truth and a rebuildable SQLite projection; DEC-028 selects a multi-member zip/directory package with member inventory and per-member JCS hashes. DEC-057 names the `.opsproj` package. Storage roots, integration and unmet controls remain separately governed. |
->
+An **asset** is anything a run depends on that is not JSON: it is identified by its own hash over its bytes, in its own manifest entry, and is never folded into a JSON payload hash.
 
-### CLM-005 — Conditions
+A **manifest finding** is the validator's statement that a field is missing, duplicated, mislabelled or carries what it must not. It has a code, a severity and the subject it concerns.
 
-> ##### Conditions
->
-> Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> - The setup artifact is constrained to document production only; no hashing code, schemas, or test files are implemented here.
-> - The audit manifest must avoid private/protected payload inclusion by default. It may identify private assets by controlled references and checksums, but public templates must not embed protected standards text, proprietary formulas, private rule-pack payloads, or owner data.
-> - Hashes must be deterministic for equivalent canonical input payloads. Solver version, rule-pack checksum, unit system, and manifest inputs are part of the reproducibility context.
-> - Missing source, provenance, version, or rule-pack checksum information is a finding to expose, not a default to fill silently.
->
-### CLM-006 — Construction
+Boundary:
 
-> ##### Construction
->
-> The future implementation surface is expected to include:
->
-> | Component | Purpose | Boundary |
-> |---|---|---|
-> | Input manifest | Lists canonical model inputs, rule-pack references, unit basis, selected solver settings, and external asset references needed to reproduce a run. | Records references and provenance; does not copy protected/private payloads into public artifacts. |
-> | Model hash | Stable digest over the canonical JSON representation of the model payload selected for hashing. | Uses JCS-compatible canonicalization; exact hashing API is implementation work, not this setup run. |
-> | Solver version stamp | Captures solver/application version and deterministic settings relevant to replay. | Does not imply validation or professional approval. |
-> | Rule-pack checksum capture | Records rule-pack identity, version, checksum, source notice, and redistribution status. | Rule-pack formulas and protected values remain user/private unless lawfully redistributable. |
-> | Binary/non-JSON asset manifest | Records digest, media/type, source/provenance, and inclusion policy for assets not covered by canonical JSON hashing. | Use the DEC-017/028 and SCA-003 local-container boundary while preserving explicit non-JSON asset digest, provenance and inclusion semantics. |
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, architecture basis IDs, and setup constraints.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-08-02 for artifact and objective mapping.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-039 for hash-basis acceptance notes.
-> - `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)for rule-pack, report, V&V, and acceptance constraints.
-> - `docs/IP_AND_DATA_BOUNDARY.md` sections 6 and 7 for private data and report-boundary rules.
-> - `docs/CONTRACT.md` for OPS-K-IP, OPS-K-DATA, OPS-K-UNIT, OPS-K-RULE-3, OPS-K-PRIV, OPS-K-AUTH, and OPS-K-AGENT invariants.
+- **CLM-001** — The rule that canonicalization precedes every hash, and the round-trip and versioning rules for persisted documents, are DEL-00-04's. This deliverable supplies the implementation of the canonical form and of the manifest. Building the input manifest for a solve, storing it and binding it to the run, and the analysis-run record, are DEL-14-02's; a rule pack's checksum definition is DEL-06-04's; the unit catalog and the project units are DEL-02-02's, and the shape of the project units record in the model document is DEL-02-01's.
+- **CLM-002** — The report package that carries the manifest as a member, and the equalities it checks between the manifest and its other members, are DEL-08-01's. The desktop's assembly of a manifest for a package request sits in DEL-08-01's request builder; what a manifest must say is decided here.
+- **CLM-003** — The manifest records identities. It stores no private payload, chooses no project container, and states nothing about the engineering adequacy of what it identifies.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-08-02 Audit manifest and model hash
+- **REQ-001** — The audit manifest identifies the exact model input payload used for a solve or report run (also cited as DEL-08-02-R1). Source: SOW-039.
+- **REQ-002** — Every JSON payload hash is SHA-256 over the payload's RFC 8785 canonical form (also cited as DEL-08-02-R2). Source: SOW-039; decomposition AB-00-04; DEL-00-04/REQ-003.
+- **REQ-003** — A non-JSON or binary asset is represented by its own manifest entry with a hash over its bytes, its provenance and its inclusion status, and never enters a JSON payload hash (also cited as DEL-08-02-R3). Source: SOW-039; decomposition AB-00-04.
+- **REQ-004** — The manifest records the software version, the solver version and the build identifier that produced the run (also cited as DEL-08-02-R4). Source: PRD §15.2, §19.2.
+- **REQ-005** — Where a rule pack takes part in a run or a report, the manifest records its name or identifier, version, checksum, source notice and redistribution status (also cited as DEL-08-02-R5). Source: SOW-039; PRD §19.2.
+- **REQ-006** — The manifest records the unit-system reference of the run, so that replay depends on no unit default (also cited as DEL-08-02-R6). Source: OBJ-012; PRD §5.6.
+- **REQ-007** — A missing model hash, input-manifest hash, solver version, build identifier, unit-system reference, rule-pack checksum, rule-pack source notice, asset hash or asset provenance is a finding of the validator. Nothing is filled in to make a manifest pass (also cited as DEL-08-02-R7). Source: PRD §5.5.
+- **REQ-008** — A manifest contains no protected standards text, protected table, proprietary formula, private rule-pack payload or private project data. A private payload is named by reference and hash only (also cited as DEL-08-02-R8). Source: PRD §19.4, §20.1.
+- **REQ-009** — The manifest keeps mechanics solved, user-rule checked and human acceptance apart and carries no status that claims certification, approval or code compliance (also cited as DEL-08-02-R9). Source: PRD §21.2.
+- **REQ-010** — Every surface of the product that hashes JSON (the operation engine, the desktop hash service, the headless runner, the result export, the report package) uses this one canonical form, so that equal values give equal digests whichever path produced the JSON text. Source: decomposition AB-00-04; OBJ-012.
+- **REQ-011** — A hash record names the basis its digest was actually computed on. A digest is never relabelled with a basis it was not computed on, and a slot refuses a basis it does not admit. A model-hash, input-manifest-hash or other JSON payload slot admits only SHA-256 over the RFC 8785 canonical form. A rule-pack checksum slot also admits the basis the pack declares. An asset slot admits only a hash over the asset's own bytes. Source: REQ-002, REQ-003; PRD §21.1.
+- **REQ-012** — A run's input manifest lists the model's canonical inputs, the unit basis, the selected solver settings, each participating rule pack by identifier, version, checksum and source notice, and each external asset by reference and hash, so that the run can be reproduced from what it names with no default supplied. It records rule packs and assets by reference and provenance and copies no protected or private payload into a public artifact. Source: SOW-039.
 
-> #### Specification: DEL-08-02 Audit manifest and model hash
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-010 — Scope
-
-> ##### Scope
->
-> Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> This deliverable defines the setup specification for the audit manifest and model-hash feature slice. The implementation shall capture reproducibility metadata needed to replay or professionally review an SWBPIPE calculation package: model hash, input manifest, solver version stamp, rule-pack checksum, and referenced asset hashes.
->
-> The original setup run does not implement hashing code, tests, schemas, source files, or a physical project container. Those remain future implementation work under bounded Type 2 briefs.
->
-> Current implementation (at `62c1efd75b`): the audit manifest is `core/reporting/audit_manifest/src/lib.rs` (`AuditManifest`, `validate_manifest`, unit tests in the same file); `core/reporting/report_package` validates it during package assembly. On the desktop, `apps/desktop/src/features/report/reportPackageRequest.ts` assembles the audit manifest for the Save Report Package request (`save_report_package` in `apps/desktop/src-tauri/src/lib.rs`) for a Current pressure-free result or an eligible exact-route result. The manifest is identified by the run's input-manifest reference and records the model and input-manifest hashes under `rfc8785_jcs`. When a rule-check run is present, it carries a supported declared `sha256`/`JCS` rule-pack checksum as `rule_pack_payload_jcs`, without recomputing it, or the loaded document's SHA-256 digest as `rfc8785_jcs`; unsupported checksum bases refuse the package. `validate_manifest` accepts those bases in their defined slots alongside `project_local_deterministic_json`. Canonical JSON hashing is `core/serialization/canonical_json`.
->
-### CLM-011 — Requirements
-
-> ##### Requirements
->
-> | ID | Requirement | Source |
-> |---|---|---|
-> | DEL-08-02-R1 | The audit manifest shall identify the exact model input payload used for a solve/report run. | `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-08-02; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)|
-> | DEL-08-02-R2 | JSON payload hashes shall be based on canonical JSON with JCS-compatible canonicalization. | `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-039; `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
-> | DEL-08-02-R3 | Non-JSON and binary assets shall be represented through manifest asset hashes rather than folded into the JSON payload hash. | `execution/_Decomposition/SOFTWARE_DECOMP.md` section 8.2 |
-> | DEL-08-02-R4 | The manifest shall record software version and solver version sufficient to interpret deterministic result reproduction. | `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)|
-> | DEL-08-02-R5 | The manifest shall record rule-pack name or ID, version, checksum, source notice, and redistribution status where a rule pack participates in a report/run. | `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections); `docs/IP_AND_DATA_BOUNDARY.md` section 7 |
-> | DEL-08-02-R6 | The manifest shall preserve unit-system and unit-aware model context so replay does not depend on hidden unit defaults. | `docs/CONTRACT.md` OPS-K-UNIT-1; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)|
-> | DEL-08-02-R7 | Missing provenance, version, checksum, or required manifest inputs shall be surfaced as warnings/findings, not silently defaulted. | `docs/DIRECTIVE.md` sections 2.2 and 3; `docs/CONTRACT.md` OPS-K-DATA-2 |
-> | DEL-08-02-R8 | Public manifest/report templates shall not embed protected standards text, protected tables, proprietary formulas, private rule-pack payloads, or private project data. | `docs/CONTRACT.md` OPS-K-IP-1, OPS-K-IP-3, OPS-K-PRIV-1; `docs/IP_AND_DATA_BOUNDARY.md` sections 3, 6, and 7 |
-> | DEL-08-02-R9 | The manifest shall distinguish mechanics solved, user-rule checked, and human/professional acceptance states; it shall not claim code compliance or professional approval (PRD §21.2). | `docs/TYPES.md` sections 4 and 8; `docs/CONTRACT.md` OPS-K-AUTH-1 |
-> | DEL-08-02-R10 | Hash and manifest tests shall verify deterministic stability, checksum changes on material input changes, binary asset manifest handling, and protected/private data exclusion behavior. | `docs/VALIDATION_STRATEGY.md` sections 2 and 4; `docs/SPEC.md` (applicable named architecture, rule-pack, GUI, reporting, verification and acceptance sections)|
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> | Standard or basis | Applicability | Status |
-> |---|---|---|
-> | Canonical JSON / JCS-compatible canonicalization | JSON payload hash basis for model and manifest payloads. | Required by decomposition/register basis; exact library/API TBD. |
-> | JSON Schema 2020-12 | Public schema/interchange baseline for model/report-related contracts. | Architecture basis; schema files are outside this setup write scope. |
-> | SWBPIPE invariant catalog | Legal/data/professional boundary for public artifacts. | Binding project governance draft. |
->
-> No protected engineering code, standard clause text, commercial example, or proprietary rule content is used as an authority in this setup artifact.
->
-### CLM-013 — Verification
-
-> ##### Verification
->
-> Future implementation acceptance should include the following checks:
->
-> | Verification ID | Check | Expected result |
-> |---|---|---|
-> | V-1 | Hash the same canonical JSON model payload twice. | Identical digest and manifest metadata. |
-> | V-2 | Change a semantically relevant model input. | Model hash changes and the manifest identifies the changed payload basis. |
-> | V-3 | Reorder JSON object keys without changing data. | Model hash remains stable under canonicalization. |
-> | V-4 | Add or alter a binary/non-JSON asset entry. | Asset manifest digest changes without redefining the model JSON hash basis. |
-> | V-5 | Omit rule-pack checksum or source notice. | Manifest emits a missing-data/provenance finding. |
-> | V-6 | Include a private or protected payload candidate in a public template path. | Protected/private data guardrail blocks or flags the inclusion. |
-> | V-7 | Generate a report from a manifest-backed run. | Report includes version, manifest, hash/checksum, warnings, assumptions, and professional-boundary notice. |
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> This setup deliverable produces:
->
-> - `ScopeOfWork.md`
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_run_records/*`
-> - `_STATUS.md`
->
-> Future implementation artifacts anticipated by the register are `audit manifest` and `hash tests`; they are not created in this setup session.
-- **AC-001** — The contract preserves the explicit hash boundary and deterministic canonicalization basis, complete reproducibility metadata, missing-data findings, protected/private payload exclusion, and separation of computation identity from compliance or professional acceptance without selecting an unapproved library or container.
+- **AC-001** — For every JSON payload the product hashes, the recorded digest equals SHA-256 of the payload's RFC 8785 canonical form as computed by an implementation that shares no code with the product, and the canonical form of each example in RFC 8785 equals the published one. Verify with VER-001.
+- **AC-002** — Two JSON texts that differ only in key order, whitespace or number spelling of equal values have the same model hash. A change to any value the model carries changes it. The same value reaches the same digest through the desktop, the headless runner and the operation engine. Verify with VER-002.
+- **AC-003** — A manifest built for a run names the model and the input manifest by hash, the software version, solver version and build identifier, the unit-system reference, and each participating rule pack by identifier, version, checksum, source notice and redistribution status. Each hash record states its algorithm, basis and payload, and each digest recomputes from the payload it names. Verify with VER-003.
+- **AC-004** — Removing each field REQ-007 lists from a complete manifest produces a finding that names the field and its subject, and no default value appears in its place. A duplicate reference, a hash attached to a subject other than the one it names, and a basis the slot does not admit are each a finding. Verify with VER-004.
+- **AC-005** — Adding or altering a non-JSON asset changes that asset's entry and leaves the model hash unchanged. Verify with VER-004.
+- **AC-006** — No manifest, fixture or example holds rule content, private project values or protected content; a private payload offered for inclusion without redaction is a blocking finding; and no manifest field or status states certification, approval, acceptance or code compliance. A manifest holds no human acceptance record, and nothing in it presents a solve or a rule-check outcome as acceptance. Verify with VER-005.
+- **AC-007** — The input manifest built for an invented run lists the model's canonical inputs, the unit basis, the selected solver settings, each participating rule pack by identifier, version, checksum and source notice, and each external asset by reference and hash, each equal to the run's own; and the hash the audit manifest records for it recomputes from it. Verify with VER-006.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-015 — Procedure: DEL-08-02 Audit manifest and model hash
+Choices that define the product:
 
-> #### Procedure: DEL-08-02 Audit manifest and model hash
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- The canonical form is RFC 8785. Integers beyond 2^53 are outside the interoperable JSON range it assumes; the checked profile refuses them, and a payload that must be hashed stays inside that range.
+- There is one implementation of the canonical form. Other languages reach it through a binding or are checked against it; none carries a second serializer.
+- The manifest records and validates. It computes no hash of a payload it does not hold, and a caller's digest is carried with the basis the caller computed it on.
+- A rule pack's declared checksum is carried as declared. Its definition and its verification belong to the rule-pack lifecycle.
 
-### CLM-017 — Purpose
-
-> ##### Purpose
->
-> Current deliverable obligation: implement canonical input manifest, model hash, solver version stamp, and rule-pack checksum capture. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> This procedure defines how the future audit-manifest feature should be produced and verified. In the original setup session it is documentation only; no hashing code, schemas, source implementation, or tests are created.
->
-### CLM-018 — Prerequisites
-
-> ##### Prerequisites
->
-> Before implementation work proceeds, the following inputs or upstream contracts should be available or explicitly marked `TBD`:
->
-> | Prerequisite | Expected source | Reason |
-> |---|---|---|
-> | Canonical model/persistence payload boundary | DEL-02-05 Project persistence and round-trip serialization | The model hash needs a defined canonical JSON payload boundary and migration/versioning posture. |
-> | Unit-system and unit-bearing value conventions | DEL-02-02 Unit system and dimensional-analysis core contract | Reproducible model identity must not depend on implicit unit defaults. |
-> | Rule-pack checksum and lifecycle fields | DEL-06-04 Private rule-pack lifecycle and checksum handling | The manifest records rule-pack identity/version/checksum/source status without copying private payloads. |
-> | Solver/version and deterministic run metadata | DEL-10-05 Headless CLI and structured I/O analysis runner | Automated replay/report workflows need a consistent run envelope and version stamp. |
-> | Report renderer integration point | DEL-08-01 Calculation report generator | Reports consume manifest fields for review and reproducibility. |
-> | Result export contract | DEL-08-04 Result export format | Exported results should carry or reference manifest/hash metadata for regression and review. |
->
-> If any prerequisite is unavailable during future implementation, record the missing dependency as `TBD` or a warning rather than inventing a default.
->
-
-### CLM-019 — Steps
-
-> ##### Steps
->
-> 1. Define the manifest boundary for the run: model payload reference, unit system, solver/application version, rule-pack references, external asset references, warnings, assumptions, and professional-boundary notices.
-> 2. Canonicalize JSON payloads using the project-approved JCS-compatible basis before hashing.
-> 3. Record non-JSON and binary assets as manifest entries with digest, provenance, media/type, and inclusion policy.
-> 4. Capture rule-pack identity, version, checksum, source notice, and redistribution status without copying protected formulas or private values into public artifacts.
-> 5. Capture solver version and deterministic settings relevant to replay or regression comparison.
-> 6. Emit missing-input, missing-provenance, protected-content, or private-data warnings when manifest fields cannot be populated safely.
-> 7. Expose manifest and hash metadata to report generation and result export surfaces without claiming professional approval or code compliance (PRD §21.2).
-> 8. Verify deterministic behavior through hash/reproducibility tests in a later implementation brief.
->
-
-### CLM-020 — Verification
-
-> ##### Verification
->
-> For this setup run, verification consists of:
->
-> - the four production documents exist and preserve the default section roles;
-> - `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` exist and remain lens artifacts, not engineering authorities;
-> - `Dependencies.csv` validates against the v3.1 schema;
-> - `_DEPENDENCIES.md` summarizes extracted dependency rows consistently;
-> - `_STATUS.md` is `SEMANTIC_READY` only after the setup sequence succeeds;
-> - no private/protected payloads or certification claims are introduced.
->
-> For future implementation, run the hash determinism, manifest stability, protected-content, and report reproducibility tests described in `ScopeOfWork.md`.
->
-### CLM-021 — Records
-
-> ##### Records
->
-> This setup sequence records:
->
-> - document drafts in `ScopeOfWork.md`;
-> - semantic setup outputs in `_SEMANTIC.md` and `_SEMANTIC_LENSING.md`;
-> - dependency outputs in `Dependencies.csv` and `_DEPENDENCIES.md`;
-> - execution evidence in `_run_records/`;
-> - lifecycle evidence in `_STATUS.md`.
-- **VER-001** — Validate the contract and review source parity, canonicalization and hash-boundary rules, deterministic-change behavior, asset-manifest handling, version/unit/provenance fields, protected/private data limits, professional-boundary language, and every retained TBD or governed residual.
+- **VER-001** — Comparison with a named reference (RFC 8785's own published examples, and SHA-256 and canonical bytes from a JCS implementation that imports no product code): canonicalize and hash an invented corpus covering key order, number forms, string escapes, nesting and the boundary of the safe-integer range, and compare bytes and digests.
+- **VER-002** — Executable check (observes digests for reordered, respaced and respelled texts of equal values, for a one-value change, and for the same value sent through each hashing surface): the expected relations are equality and inequality, which the criterion itself determines.
+- **VER-003** — Executable check (observes the fields of a manifest built from an invented run and recomputes each digest from its named payload with the reference implementation of VER-001).
+- **VER-004** — Executable check (observes the validator's findings for each removed field, each duplicate, each mismatched subject and each refused basis, and the model hash before and after an asset change).
+- **VER-005** — Executable check (observes the blocking finding for an unredacted private payload, the absence of any authority status in the manifest's vocabulary, and the absence of any acceptance record or of a solve or rule-check outcome presented as one) and judgment by a reviewer who did not write the fixtures (reads every public manifest fixture and example for rule content, private values and protected content).
+- **VER-006** — Executable check (observes the members of the input manifest built for an invented run against REQ-012's list and the run's own inputs, and recomputes its hash with the reference implementation of VER-001).
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-022 — Guidance: DEL-08-02 Audit manifest and model hash
-
-> #### Guidance: DEL-08-02 Audit manifest and model hash
->
-
-### CLM-023 — Purpose
-
-> ##### Purpose
->
-> The audit manifest is the bridge between a computed model run and a reviewable evidence package. It should let a reviewer determine which model payload, rule-pack reference, solver version, unit basis, warnings, and external assets were involved without treating the software output as professional approval.
->
-
-### CLM-024 — Principles
-
-> ##### Principles
->
-> - Prefer deterministic identity over convenience. Equivalent JSON payloads should hash the same way after canonicalization; materially different inputs should produce different identifiers.
-> - Keep the hash boundary explicit. JSON payloads use the canonical JSON/JCS-compatible basis; binary and other non-JSON assets use manifest entries with their own hashes.
-> - Record references without leaking payloads. Rule-pack IDs, versions, checksums, source notices, and redistribution statuses are useful; protected formulas, private owner data, and copyrighted standard text do not belong in public artifacts.
-> - Treat missing data as evidence. Missing provenance, checksum, solver version, or manifest inputs should be visible warnings/findings.
-> - Preserve the professional boundary. A manifest can support replay and review; acceptance and professional judgment remain with the responsible engineer.
->
-
-### CLM-025 — Considerations
-
-> ##### Considerations
->
-> | Topic | Guidance |
-> |---|---|
-> | Canonicalization | The canonicalization basis is selected at the architecture/decomposition level. This deliverable should not choose a physical project container or hashing library without a later implementation brief or human decision. |
-> | Units | The manifest should make the unit system and unit-bearing values reproducible enough that replay does not depend on implicit defaults. |
-> | Rule packs | Rule-pack checksum capture should reference the user/private artifact without copying protected rule text or proprietary values into public outputs. |
-> | Solver version | Version stamping should be granular enough to explain deterministic replay and regression comparison. Exact versioning format remains implementation work. |
-> | Binary assets | Address non-JSON assets individually with digest and provenance under the DEC-028 package/member identity contract; do not hash raw archive bytes as canonical domain identity. |
-> | Reports | Report generation should consume the manifest so report reproducibility and protected-content linting can be tested. |
->
-
-### CLM-026 — Trade-offs
-
-> ##### Trade-offs
->
-> | Choice | Benefit | Risk / open item |
-> |---|---|---|
-> | Hash only canonical JSON payloads | Stable digest under key ordering and formatting changes. | Requires a strict canonicalization contract and tests. |
-> | Include binary assets by manifest entry | Keeps non-JSON handling explicit and container-independent. | Requires clear asset inclusion/exclusion policy in future implementation. |
-> | Record private rule-pack references instead of payloads | Protects user/proprietary content while preserving reproducibility metadata. | Replay may require private artifacts that cannot be shared publicly. |
-> | Surface missing fields as warnings | Avoids silent defaults and supports professional review. | Review workflows must decide which missing fields are blockers. |
->
-
-### CLM-027 — Examples
-
-> ##### Examples
->
-> No concrete engineering model, code-specific rule, material allowable, SIF/flexibility value, protected standard example, or private project payload is included in this setup artifact.
->
-> Illustrative manifest slots, without values, are:
->
-> - `model_hash`
-> - `canonicalization_basis`
-> - `solver_version`
-> - `unit_system`
-> - `rule_pack_refs[]`
-> - `input_payload_refs[]`
-> - `asset_manifest[]`
-> - `warnings[]`
-> - `professional_boundary_notice`
->
-
-### CLM-028 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No source conflict identified in setup pass. | N/A | N/A | N/A | N/A | N/A |
+- **AX-001** — *One value, one digest.* Better is fewer ways for equal values to hash differently: fewer serializers, fewer bases, fewer hashing paths outside the one implementation. That may never be gained by loosening the canonical form away from RFC 8785 or by relabelling a digest.
+- **AX-002** — *Identify, do not carry.* Better is a manifest from which more of a run can be re-identified and recomputed by an outside party. That may never be gained by copying private or protected payloads into it; where the two conflict, the manifest keeps the reference and the hash and states that the payload is private.
+- **AX-003** — *Missing is a finding.* Better is fewer manifest fields that can be absent without a named finding. A field is never defaulted to make a manifest complete.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-039 OBJ-007 OBJ-012 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
+| OUT-002 | SOW-039 OBJ-012 | REQ-002, REQ-010 | AC-001 | VER-001 | Outside source: RFC 8785 with its published examples, and digests from a JCS and SHA-256 implementation that imports no product code. The project's own hash corpus, whose expected values the product generated, only guards against change. |
+| OUT-002 | SOW-039 OBJ-012 | REQ-002, REQ-010, REQ-011 | AC-002 | VER-002 | The criterion determines the expected result: equal values give equal digests and a changed value a different one, on every hashing surface. |
+| OUT-001 | SOW-039 OBJ-007 | REQ-001, REQ-004, REQ-005, REQ-006, REQ-011 | AC-003 | VER-003 | What a manifest must name comes from SOW-039 and PRD §15.2 and §19.2. Each digest is recomputed by the outside implementation of VER-001 from the payload the record names. |
+| OUT-001 | SOW-039 OBJ-007 | REQ-007, REQ-011 | AC-004 | VER-004 | The list of fields whose absence must be reported comes from SOW-039 and PRD §5.5; each case is constructed by removing one field from a complete invented manifest. |
+| OUT-001 | SOW-039 OBJ-012 | REQ-003 | AC-005 | VER-004 | The separation of asset hashes from JSON payload hashes comes from the decomposition's architecture basis AB-00-04; the unchanged model hash is recomputed by the outside implementation. |
+| OUT-001 | SOW-039 OBJ-007 | REQ-008, REQ-009, CLM-003 | AC-006 | VER-005 | The prohibited content comes from PRD §19.4 and §20.1 and the prohibited claims from PRD §21.2; the fixtures are read by someone who did not write them. |
+| OUT-003 | SOW-039 OBJ-012 | REQ-012, CLM-001 | AC-007 | VER-006 | What an input manifest must list comes from SOW-039. Each member is compared with the invented run's own inputs, which the check writes, and the hash is recomputed by the outside implementation of VER-001. That the manifest lists what the run was given does not show that a replay from it reproduces the result. |

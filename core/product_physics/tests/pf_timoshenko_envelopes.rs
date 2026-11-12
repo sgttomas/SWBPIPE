@@ -14,7 +14,7 @@
 use open_pipe_stress_product_physics::{run_linear_static_preview_value_with_mode, PreviewSolverMode};
 use serde_json::{json, Value};
 
-// Model document 0.9.0 (DEL-02-01 Design model-document-0.9.0.md §3.6): the frozen 0.8.0 requests keep their
+// Model document 0.9.0: the frozen 0.8.0 requests keep their
 // bytes; each parsed copy is re-authored to the current version by its token (common/current_model.rs).
 #[path = "common/current_model.rs"]
 mod current_model;

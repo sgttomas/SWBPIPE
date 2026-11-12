@@ -1,4 +1,4 @@
-//! `Index::any`'s shear operand rule (DEL-04-07 Work `u4b-u5b-implementation.md` §5.1):
+//! `Index::any`'s shear operand rule:
 //! a component-free shear slot is one operand when its rows agree, and the envelope is
 //! refused by name (`SHEAR_OPERAND_AMBIGUOUS`) when they do not, in every row order and
 //! on every Index (each `HashMap::new` draws its own hash keys). These tests live in this

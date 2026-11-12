@@ -2,361 +2,139 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-05-03
 package_id: PKG-05
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-015]
 package_objective_refs: [OBJ-003]
 ---
 
-# Scope of Work — DEL-05-03
+# Scope of Work — DEL-05-03 Fundamental stress recovery module
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-05-03` in service of project scope [SOW-015] and package objectives [OBJ-003].
+This deliverable turns the forces and moments of a solved model into the stresses an engineer publishes. At the ends of every member and at stations along it, it gives the axial, bending and torsional stresses in the pipe wall and, where the model carries pressure, the membrane, hoop and radial stresses of the pressurized wall, with their extremes around the section and their maximum along the member. It also defines the cross-section those stresses are taken on: the wall as specified, and the wall reduced by mill tolerance and corrosion allowance, with every stress published on both. And it defines how a straight pipe accounts for shear deformation. These are fundamental mechanics quantities. Which of them a design code limits, and to what value, is for the user's rule pack.
 
-- **OUT-001** — A fundamental stress-recovery contract covering mechanics-only recovery from element end and station resultants, axial, bending, torsional and shear components, section-property and modulus inputs, deterministic sweeps, units, findings, and result hooks is produced for the declared scope and objective.
+It serves SOW-015 under OBJ-003 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-05, row DEL-05-03: does not encode code stress equations), and PRD §12.7 and §22.3 with FR-SOL-003 and FR-SOL-008. No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it. Fundamental stresses are among the results a user's engineer issues under their own responsibility, and the stiffness and section definitions stated here are part of every analysis of criterion 1. It carries two requirements: stresses are published on the nominal and the reduced section, and the product chooses no governing one; and the shear model is an explicit selection whose authored default is the Timoshenko straight pipe with the energy-matched annular shear factor.
+
+- **OUT-001** — Fundamental stress recovery: the stress definitions, the section bases, the shear model, the section quantities and member maxima, and their findings.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-05-03 Fundamental stress recovery module
+**Stresses of the wall.**
 
-> #### Datasheet: DEL-05-03 Fundamental stress recovery module
->
+- *Sign convention.* Actions act on the positive-x cut face of the member's local frame: N tensile, T about +x, M_y and M_z by the right-hand rule, so that σ_x(y, z) = N/A + M_y·z/I − M_z·y/I.
+- *Component stresses.* Axial normal σ = N/A; bending normal about each local axis, M_y/Z and M_z/Z; torsional shear τ = T·r_o/J. A, I, J = 2I and Z = I/r_o are those of the section basis, and r_o is half the outside diameter.
+- *Wall force and effective force.* On a pressurized straight member the wall carries N_w = N_m + 2ν·p·A_i and the effective axial force is S = N_m + (2ν − 1)·p·A_i, with N_m the recovered mechanical force and A_i the area of the pressure bore. Both are formed once, not per basis.
+- *Pressure-derived stresses.* On each basis: the axial membrane stress σ_m = N_w/A_b; and the closed thick-wall annulus solution of that basis's own section under internal pressure p at its inner radius r_i,b, with radial stress −p at the inner surface and 0 at the outer, and hoop stress 2p·π·r_i,b²/A_b at the outer surface and that plus p at the inner. On a realized arc the hoop is the toroidal membrane hoop at the intrados, crown and extrados, with the radial surface values. On the nominal basis the membrane stress carries the end thrust of the pressure bore, so it is not half the hoop stress; results say so.
+- *Stations.* A member's two ends and the stations asked for along it, each with an identity and a fraction of the length in [0, 1]. A station keeps its identity and fraction, and a sweep keeps the order it was asked in. On a realized arc the actions at a station are in the arc's tangent frame there.
+- *Section extremes.* At one station and basis, the largest and smallest normal stress around the outer surface, σ_N ± hypot(σ_y, σ_z), with the fibre at which each occurs.
+- *Transverse-shear maximum.* At one station and basis, τ_v = c_b·hypot(V_y, V_z), with c_b = ((3 + 2ν)·r_o² + (1 + 2ν)·r_i,b²)/(4(1 + ν)·I_b), the Saint-Venant solution for the annulus.
+- *Intensified bending.* At a station of a component that carries the user's directional stress-intensification factors i_ip and i_op, hypot(i_ip·M_z, i_op·M_y)/Z, with each factor on the moment of its own plane. It has no axial or torsional term, the factors are the user's, and it is never combined across cases.
+- *Elastic normal-stress maximum.* For a member and basis, the maximum over the whole span of |σ_axial| + hypot(M_y, M_z)/Z. It is published as an enclosure: a value and a bound that contain the maximum of the member's stress field between stations, not the largest sampled station.
+- *Headline.* For a case and basis, the largest elastic normal-stress maximum among the members whose rows are eligible, with the member it occurs on. Rows that a component marks as reference-section results of a scaled body (DEL-03-05) are published but are not part of any maximum or headline. It is withheld when that basis's stress rows are incomplete.
+- *Stress range.* The component-wise absolute difference of two recovered stress states.
 
-### CLM-002 — Identification
+**Section bases.** On the exact route a pipe with outside diameter D, wall t, mill tolerance c_m and corrosion allowance c_a (c_m, c_a ≥ 0, c_m + c_a < t) has:
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-05-03 |
-> | Package ID | PKG-05 |
-> | Package | Loads, Load Cases, and Stress Recovery |
-> | Type | BACKEND_FEATURE_SLICE |
-> | Scope item | SOW-015 |
-> | Objective | OBJ-003 |
-> | Context envelope | M |
-> | Anticipated artifacts | stress recovery module; hand-calc tests |
->
+| Name | Wall | Inner radius | Used for |
+|---|---|---|---|
+| Nominal section | t | D/2 − t | stiffness, the Timoshenko shear area, pipe metal mass, nominal-basis stresses |
+| Reduced section | t_r = (t − c_m) − c_a | D/2 − t_r | reduced-basis stresses |
+| Pressure bore | — | D/2 − t_r | the pressure end-thrust area A_i, contents mass |
 
-### CLM-003 — Attributes
+The binary64 order is as written: t_r = (t − c_m) − c_a, then the radius. Corrosion allowance is required on every pipe section of an exact-route document, zero included, and is refused on a pressure-free document. A pressure-free document keeps one section, the wall less mill tolerance, for stiffness, mass and stress alike.
 
-> ##### Attributes
->
-> | Attribute | Current value |
-> |---|---|
-> | Module purpose | Recover code-neutral mechanics stresses from explicit force resultants, pressure-basis inputs, section properties, station resultants, and two-state mechanics ranges. |
-> | Implemented module path | `core/loads/stress_recovery` Rust crate, package `open_pipe_stress_stress_recovery`. |
-> | Implemented API surface | `recover_stresses`, `recover_stresses_with_unit_metadata`, `recover_stress_range`, `recover_station_stresses`, `recover_station_stress_sweep`, `ForceResultants::from_element_end_resultants`, and `ForceResultants::from_station_resultants`. |
-> | Covered mechanics | Axial normal stress, bending normal stress about y/z, torsional shear stress, thin-wall pressure hoop and longitudinal membrane stress, station-local stress recovery, ordered station stress sweeps, and mechanics-only component ranges. |
-> | Excluded mechanics | Code stress categories, allowables, rule-pack equations, certification decisions, and professional compliance judgments. |
-> | Analysis boundary | Mechanics recovery within the 3D centerline/frame solver result flow; shell/solid FEA remains a downstream local-analysis handoff path and is not implemented by this crate. |
-> | Unit policy | `StressRecoveryInputUnitMetadata` validates explicit unit metadata against accepted canonical dimensions for present force, moment, pressure, geometry, section-property, and stress-boundary quantities. DEC-018 governs the project conversion catalog; this mechanics crate supplies no conversion constants and its integration remains separately evidenced. |
-> | Data provenance policy | Section properties, geometry, pressure, and other solve inputs are user-supplied, generated by governed upstream modules, or lawfully imported private/project data. |
->
+**Shear model.** A document selects `euler_bernoulli` or `timoshenko_annulus_energy_v1` for all its straight members: on the exact route in the pressure contract, where the selection is required; on the pressure-free route in the model settings, where absence means Euler–Bernoulli. Realized arcs are Euler–Bernoulli under either selection and say so in their results. For the Timoshenko selection, from the stiffness section's inner and outer radii and the member's Poisson's ratio ν:
 
-### CLM-004 — Conditions
+```
+m = r_i/r_o;  m2 = m*m;  a = 1 + m2;  b = 1 - m2;  n1 = 1 + nu
+c = (8*nu + 14)*nu + 7
+D = c*(b*b) + 48*(m2*(n1*n1))
+kappa_E = (6*(n1*n1))*(a*a) / D
+A_s = kappa_E * A;   phi = 12*E*I / (G*A_s*L*L)
+```
 
-> ##### Conditions
->
-> | Condition | Status |
-> |---|---|
-> | Force-result source contract | Element-end and straight-pipe station adapters are implemented for explicit mechanics resultants; final application-service/result-envelope ownership remains `TBD`. |
-> | Section-property source contract | Implemented input fields are area, y/z section modulus, torsion constant, and torsion radius; the authoritative upstream section-property deliverable/source remains subject to REVIEW. |
-> | Pressure-result convention | Implemented optional `PressureBasis` uses explicit pressure, membrane radius, and wall thickness to recover mechanics pressure hoop and longitudinal components; it does not classify code stress. |
-> | Station convention | Implemented station recovery preserves caller-supplied station identity and validated station fraction. Sweep recovery preserves caller order and assigns deterministic indexed IDs from a caller-provided prefix. |
-> | Mechanics-only range convention | Implemented range recovery computes component-wise absolute deltas between two unblocked recovered mechanics states. It blocks incomplete states and asymmetric optional components, and it is not a fatigue, equivalent-stress, allowable, or code range check. |
-> | Stress component naming | Implemented component fields are `axial_normal`, `bending_normal_y`, `bending_normal_z`, `torsional_shear`, `pressure_hoop`, and `pressure_longitudinal`. Public report/rule-pack naming remains `TBD`. |
-> | Hand-calc fixture data | Unit tests use synthetic/cleared values. Any broader benchmark or publication fixture scope remains `TBD` and must not use protected standards content. |
->
+in that operation order, without fused multiply-add. κ_E is the energy-matched shear factor of the annulus; it is not 5/6 and not Cowper's. On the exact route ν is the member's selected value. On the pressure-free route, where E and G are authored, ν = E/(2G) − 1, and the factor is formed from the moduli without forming 1 + ν. A published nodal rotation of a Timoshenko member is the section's rotation, not the slope of the centreline.
 
-### CLM-005 — Construction
+**Boundary.** This deliverable defines stresses, sections and the shear selection. The following belong elsewhere:
 
-> ##### Construction
->
-> Implementation evidence exists in `core/loads/stress_recovery/README.md` and `core/loads/stress_recovery/src/lib.rs`. The crate performs open-mechanics recovery for:
->
-> - axial normal stress from axial force divided by area;
-> - bending normal stress components from bending moments divided by corresponding section moduli;
-> - torsional shear stress from torque, torsion radius, and torsion constant;
-> - pressure membrane hoop stress from pressure, membrane radius, and wall thickness, with longitudinal pressure stress as one half of hoop stress;
-> - stress summaries limited to max/min normal mechanics values and maximum torsional shear magnitude;
-> - station-local recovery from straight-pipe station resultants; and
-> - ordered station sweeps and mechanics-only component ranges.
->
-> Missing resultants, missing section or pressure inputs, non-finite values, non-positive properties, missing or incompatible unit metadata, non-finite recovered outputs, incomplete mechanics status, blocked range states, and status-boundary violations produce explicit findings rather than silent defaults.
->
-> This deliverable remains mechanics-only. It does not add design-code stress equations, allowables, stress indices, SIF/flexibility tables, protected standards content, public pipe tables, rule checks, reporting, GUI behavior, local FEA handoff, release claims, or professional/code-compliance conclusions.
->
+- the frame element's stiffness, which is formed from the shear definition above, and the kernel's integrity check, with the definition of which recovery a case's stresses and maxima are formed from and the bound an established case's stresses carry through the resultants they scale (DEL-04-01/REQ-015): DEL-04-01. A change to the shear definition changes that element with it;
+- a member's end actions and station resultants, and the Timoshenko behaviour of member loads: DEL-04-02;
+- the area, second moment, section modulus and torsion constant of an annulus as formulas, and mass per length: DEL-03-08. The product's computation of them, the pressure loads, the solve and the publication of every row (DEL-04-07/REQ-010, DEL-04-07/AC-011): DEL-04-07;
+- the desktop's pressure authoring, whose code DEL-07-03 lists, and its model-settings editor, whose code DEL-02-01 lists, are where a document's shear selection is written. The default written there and the authoring clause of AC-004 remain this deliverable's;
+- a retained-precision or retained-source verified bound on a published stress: DEL-04-08. Ranges and combinations across load cases as published results: DEL-05-02;
+- the stress rows' place in the result and export formats: DEL-08-04. The stress benchmark suite: DEL-09-02. The local-analysis handoff: DEL-10-03;
+- stress-intensification and flexibility factors as component data: DEL-03-03, DEL-03-04. Pressure-dependent corrections of those factors are outside the product;
+- code stress equations, stress categories, allowables and the choice of a governing basis: the user's rule pack (PKG-06).
 
-### CLM-006 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, scope, artifacts, and architecture-basis injection.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row `DEL-05-03`.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row `SOW-015`.
-> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row `DEL-05-03`.
-> - `docs/CONTRACT.md` invariants listed in the sealed brief.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority through the decision register) architecture basis IDs `AB-00-01`, `AB-00-02`, `AB-00-03`, `AB-00-06`, and `AB-00-08`.
-> - `core/loads/stress_recovery/README.md` for implemented crate scope and boundary.
-> - `core/loads/stress_recovery/src/lib.rs` for implemented API, data types, findings, and tests.
->
-
-### CLM-007 — Open Questions
-
-> ##### Open Questions
->
-> | Question | Status |
-> |---|---|
-> | Which application-service/result-envelope contract owns stress recovery persistence and external command/query results? | `TBD` |
-> | Which upstream section-property deliverable supplies production properties and unit metadata? | `TBD` |
-> | What public report/rule-pack labels and sign conventions wrap the implemented mechanics component fields? | `TBD` |
-> | Which deterministic hand-calc and benchmark cases are accepted for release evidence without protected standards content? | `TBD` |
-> | What production tolerance policy and unit conversion catalog apply outside this mechanics-only crate? | DEC-018 unit basis and DEC-026 numerical verification; unmeasured release criteria remain open |
->
-
-### CLM-008 — D-41 R5 T7 PDU-054 current declaration
-
-> ##### D-41 R5 T7 PDU-054 current declaration
->
-> Earlier setup-era statements on this surface are retained as historical setup context where applicable; this section is the active current-state declaration. The stress-recovery slice now includes the current station/sweep handling, end-resultant recovery, and modulus basis reflected by the implementation and tests. Earlier enumerations are historical where superseded by this current declaration.
->
-> Current state (2026-10-17). The `core/loads/stress_recovery` crate recovers axial, bending (y/z) and torsional components, mechanics-only ranges, end- and station-resultant inputs and station sweeps; its `elastic_section` module gives one circular section's elastic normal and torsional quantities, and its `elastic_extrema` module bounds |a| + √(b² + c²) over supplied Bernstein stress fields for the product's certified member maximum; and its `section_stress_quantities` module (T4-U4b) gives the normative binary64 sequences of the signed normal-stress extremes, the Saint-Venant transverse-shear maximum, the toroidal membrane hoop and radial values on arcs and the directional intensified bending (DEL-04-07 Design `u4b-u5b-implementation.md` §§2.3–2.6). Apart from those toroidal arc values, the crate has no pressure components: T3-U3 removed the thin-wall pressure membrane, so the earlier descriptions of its `PressureBasis` implementation and thin-wall hoop/longitudinal calculation are historical. The pressure requirements in CLM-011 and the open delivery duties `DEL-05-03:1` and `DEL-05-03:3` remain live; current exact-route code alone does not discharge them. Pressure stresses are published only by the product's exact pressure route (`3.0.0/exact_pressure_v3`, the current model document, 0.8.0 since W-15 slice c) in `core/product_physics`. There, under D-5, every stress row is published on the nominal section and on the reduced section and names its basis, and each basis has its own maxima and headline, with no governing basis chosen. Each basis's Lamé stresses are those of its own annulus, and the axial membrane stress is the one wall force over that basis's area. Under D-6, straight members are Euler–Bernoulli or Timoshenko (`timoshenko_annulus_energy_v1`) as the document's `pressure_contract.shear_model` declares, and realized arcs stay Euler–Bernoulli. Pressure-free documents keep their single section; their straight members are Euler–Bernoulli unless the document's `model_settings.shear_model` selects `timoshenko_annulus_energy_v1`, the same element and shear-factor definition with Poisson's ratio E/(2G) − 1, and their realized arcs are Euler–Bernoulli. The current rulings and technical design are in [Work/section-and-shear-decisions.md](Work/section-and-shear-decisions.md) and [Work/section-bases-and-timoshenko.md](Work/section-bases-and-timoshenko.md).
+**Not decided.** Whether the optional principal, von Mises and Tresca equivalent stresses of PRD §12.7 are recovered. They are not among the quantities above.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-009 — Specification: DEL-05-03 Fundamental stress recovery module
+A recovered stress is a statement about the discrete model's forces and the section the user entered. Its correctness is examined against closed forms and references made without product code, and for the quantities a reader must reproduce, bit for bit.
 
-> #### Specification: DEL-05-03 Fundamental stress recovery module
->
+### Requirements
 
-### CLM-010 — Scope
+- **REQ-001** — The module recovers fundamental mechanics stresses from force resultants, moments, pressure and section properties: axial, bending and torsional stresses on every member and, on a pressurized member, the pressure-derived membrane, hoop and radial stresses (SOW-015; PRD §12.7; FR-SOL-008).
+- **REQ-002** — The module is mechanics only. It encodes no code stress category, allowable, stress index or compliance decision, and no output of it states or implies one (the decomposition's row; `docs/CONTRACT.md` OPS-K-MECH-2, OPS-K-RULE-1, OPS-K-IP-1).
+- **REQ-003** — Inputs and outputs are unit-aware and dimensionally checked across force, moment, pressure, section-property and stress quantities (PRD §5.6; `docs/CONTRACT.md` OPS-K-UNIT-1).
+- **REQ-004** — A missing, non-finite or non-positive input that recovery requires is a finding that names it. Nothing is defaulted (PRD §5.5; `docs/CONTRACT.md` OPS-K-DATA-2, OPS-K-AGENT-1).
+- **REQ-005** — A recovered stress keeps its source and provenance, is recovered only from a mechanics-solved result, carries the human-review notice, and never carries certification, compliance or human approval (decomposition AB-00-03, AB-00-06; PRD §21.2).
+- **REQ-006** — Recovery is deterministic: the same actions and section give the same stresses bit for bit, so every check of it is deterministic (`docs/CONTRACT.md` OPS-K-SOLVER-1).
+- **REQ-007** — Adapters, reports and rule packs take stresses from the published mechanics result. None recomputes a stress on a definition of its own or reaches around the result (decomposition AB-00-02; `docs/CONTRACT.md` OPS-K-MECH-2).
+- **REQ-008** — Station stresses keep the station's identity, and a sweep of stations keeps the order it was asked in (SOW-015).
+- **REQ-009** — A stress range is the component-wise difference of two recovered states, formed only when both states are complete and unblocked. It is not a fatigue, equivalent-stress or code-range result (SOW-015; PRD §22.3).
+- **REQ-010** — *Section bases.* On the exact route every stress is recovered on the nominal section and on the reduced section, each result names its basis, each basis has its own member maxima and its own headline, and the product names no governing basis. Both are published where they coincide. The bases are formed in the stated binary64 order, so that a reader forms the same sections from the published inputs.
+- **REQ-011** — *Shear model.* Straight members are Euler–Bernoulli or Timoshenko as the document selects, with the factor, shear area and Poisson's ratio defined above; realized arcs are Euler–Bernoulli and disclose it; and a results record names each member's theory and, for Timoshenko, its factor and shear area. A missing selection on the exact route, a selection where it does not belong, a missing ν or G, or a ν outside −1 < ν < 1/2 is refused by name. No default factor exists. An exact-route document that the product authors without an explicit choice carries `timoshenko_annulus_energy_v1`; a pressure-free document's selection is never written unless the user makes one.
+- **REQ-012** — *Section quantities and maxima.* The section extremes, the transverse-shear maximum, the toroidal hoop and radial values and the intensified bending are each a fixed sequence of correctly rounded binary64 operations, so that a reader recomputes each published value bit for bit from the published rows. The elastic normal-stress maximum of a member contains the maximum of the member's stress field over its whole span (PRD §12.7, §12.8; FR-SOL-008).
 
-> ##### Scope
->
-> This deliverable specifies the implemented fundamental stress recovery backend slice in `core/loads/stress_recovery`. It covers mechanics stress recovery from axial force, bending, torsion, pressure, section properties, straight-pipe station resultants, station sweeps, unit metadata, result-boundary records, and mechanics-only component ranges.
->
-> This documentation alignment records existing implementation evidence only. It does not edit core code, introduce protected code stress equations, encode allowables, classify code stress categories, publish benchmark acceptance criteria, or make certification/compliance claims.
->
+### Acceptance criteria
 
-### CLM-011 — Requirements
-
-> ##### Requirements
->
-> | Req ID | Requirement | Source basis | Verification hook |
-> |---|---|---|---|
-> | DEL-05-03-RQ-001 | The stress recovery module shall recover fundamental mechanics stresses from force resultants, moments, pressure, and section properties. | SOW-015; DEL-05-03 context | Implemented by `recover_stresses`; implemented test cases cover axial, bending, torsion, pressure, and mechanics summaries. |
-> | DEL-05-03-RQ-002 | The module shall remain mechanics-only and shall not encode code stress categories, code allowables, or professional compliance decisions. | SOW-015 note; OPS-K-MECH-2; OPS-K-RULE-1; OPS-K-IP-1 | Crate README boundary plus implemented test cases for summaries without allowables and analysis status boundary. |
-> | DEL-05-03-RQ-003 | Inputs and outputs shall be unit-aware and dimensionally checked across force, moment, pressure, section-property, and stress quantities. | OPS-K-UNIT-1 | Implemented by `StressRecoveryInputUnitMetadata`, `recover_stresses_with_unit_metadata`, and `StressComponents::to_result_boundary_record`; implemented test cases cover missing/wrong dimensions and boundary records. |
-> | DEL-05-03-RQ-004 | Missing solve-required stress recovery inputs shall produce explicit findings rather than silent defaults. | OPS-K-DATA-2; OPS-K-AGENT-1 | Implemented test cases cover missing resultants, non-positive properties, non-finite pressure, non-finite recovered values, incomplete statuses, blocked ranges, and asymmetric optional components. |
-> | DEL-05-03-RQ-005 | Result envelopes and diagnostics shall preserve source/provenance and shall not claim certification, compliance, or human approval. | AB-00-03; AB-00-06; OPS-K-AGENT-4 | Boundary records carry schema, provenance, payload, and payload-hash references; human approval statuses are rejected as automatic software output. Final application-service persistence remains `TBD`. |
-> | DEL-05-03-RQ-006 | Solver/load/stress behavior changes shall include deterministic verification tests before release use. | OPS-K-SOLVER-1; AB-00-08 | Crate unit tests are authored for the implemented behavior. Numerical verification follows DEC-026; release benchmark publication and unmeasured release criteria remain open. |
-> | DEL-05-03-RQ-007 | Architecture choices shall preserve layer/module boundaries and must not let adapters, reports, or rule packs bypass governed mechanics results. | AB-00-02; OPS-K-MECH-2 | Implemented crate consumes explicit mechanics inputs and canonical metadata; rule-pack/report/API integration remains downstream. |
-> | DEL-05-03-RQ-008 | The module shall preserve station identity for straight-pipe station stress recovery and shall support ordered station stress sweeps without reordering caller input. | SOW-015; DEL-05-03 context | Implemented by `StationStressRecoveryInput`, `recover_station_stresses`, and `recover_station_stress_sweep`; implemented test cases cover station identity, station fraction validation, order preservation, and invalid station rejection. |
-> | DEL-05-03-RQ-009 | Mechanics-only stress range recovery shall compute component-wise ranges only between two unblocked recovered mechanics states. | SOW-015; mechanics-only boundary | Implemented by `recover_stress_range`; implemented test cases cover component ranges, blocked states, asymmetric optional components, and non-finite range differences. |
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> No protected standard text, protected code formulas, protected tables, material allowables, or proprietary commercial data are available in this deliverable-local context. Any future standard or code basis must be introduced only as a lawful private/project input or non-protected pointer with provenance. Clause-level requirements are `TBD`.
->
-
-### CLM-013 — Verification
-
-> ##### Verification
->
-> | Verification area | Current evidence |
-> |---|---|
-> | Mechanics boundary | `core/loads/stress_recovery/README.md` and implemented test cases evidence recovered stresses as mechanics results, not code acceptability outcomes. |
-> | Unit safety | Unit metadata validation checks present force, moment, pressure, section-property, geometry, and stress-boundary dimensions; conversion source basis follows DEC-018; crate integration remains separately evidenced. |
-> | Missing inputs | Findings are emitted for missing resultants, section properties, pressure inputs, unit metadata, incompatible dimensions, non-finite values, non-positive properties, incomplete mechanics statuses, blocked states, and status-boundary violations. |
-> | Station behavior | Station adapters validate station fraction and finite station fields, preserve station identity, and recover station-local mechanics stresses. |
-> | Sweep behavior | Station sweeps preserve caller order and create deterministic indexed station IDs from the provided prefix. |
-> | Range behavior | Component ranges are absolute deltas between two unblocked mechanics states; asymmetric optional pressure/range components block the range result. |
-> | Hand calculations | Current tests use synthetic/cleared values. Exact release hand-calc, benchmark publication, and tolerance acceptance scope remain `TBD`. |
-> | IP/data boundary | The crate excludes protected standards examples, copied code formulas, allowables, SIF/flexibility tables, public pipe tables, and proprietary data. |
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> Implemented artifacts evidenced for this deliverable are:
->
-> - `core/loads/stress_recovery/README.md`;
-> - `core/loads/stress_recovery/Cargo.toml`;
-> - `core/loads/stress_recovery/src/lib.rs`;
-> - crate unit tests embedded in `src/lib.rs`.
->
-> Final application-service command/query surfaces, persistence, public report/rule-pack labels, unmeasured release criteria and benchmark scope, and professional reliance policy remain `TBD`.
->
-
-### CLM-015 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Issue | Contenders | Human ruling |
-> |---|---|---|---|
-> | None | No source conflict identified between deliverable context and implemented stress-recovery evidence. | N/A | N/A |
-
-- **AC-001** — The contract preserves the accepted code-neutral mechanics boundary, explicit property and unit provenance, sign and station handling, deterministic recovery evidence, and DEC-026 numerical verification with unresolved envelope, labeling, unmeasured release criteria and validation obligations without creating code stress categories, allowables, compliance conclusions, or professional approval.
+- **AC-001** — For known end actions on a straight member, the axial, bending and torsional stresses at the ends and at every station equal N/A, M_y/Z, M_z/Z and T·r_o/J at the analytic tolerance (1e-9 relative, with a stated absolute floor near zero), with the signs of the stated convention, on both routes.
+- **AC-002** — On a pressurized straight member the radial and hoop stresses at the inner and outer surfaces equal the closed thick-wall solution of each basis's own annulus, and the membrane stress equals N_w/A_b with N_w formed on the pressure bore. On a realized arc the hoop and radial values agree with their independent references at the intrados, crown and extrados.
+- **AC-003** — On an exact-route document every stress row appears once per basis, at the same member, station and component, each naming its basis. The reduced wall and radius have the bits of the stated order, and a reader forms both sections from the published dimensions bit for bit. Each basis has its own maximum and headline, and no result names a governing basis. A row marked as a reference-section result is published and is excluded from its basis's maximum and headline. With zero mill tolerance and corrosion allowance the two bases give the same values. A pressure-free document publishes one section and no pressure stress.
+- **AC-004** — κ_E and A_s have the bits of the stated order against values computed in exact rational arithmetic. A Timoshenko member's deflections, rotations and end actions agree with the closed-form Timoshenko beam for tip load, distributed load and prescribed movement, and an Euler–Bernoulli twin differs from it by the closed-form shear term. A realized arc between Timoshenko members is Euler–Bernoulli and says so. Each refusal of REQ-011 is raised with its code and names the document, member or case; a pressure-free document with no selection gives the results of an explicit Euler–Bernoulli selection. Authoring an exact-route document without a choice writes `timoshenko_annulus_energy_v1`, and authoring never writes a pressure-free `model_settings.shear_model` unprompted.
+- **AC-005** — Each section quantity has the bits of its stated sequence against values computed in exact rational arithmetic, including a toroidal hoop one unit in the last place from the edge of its domain. A member's published maximum and bound contain the exact maximum of its closed-form stress field for uniform and partially loaded spans, including a maximum that falls between stations.
+- **AC-006** — A stress range equals the component-wise absolute difference of its two states, and a range of a blocked or incomplete state is refused with a finding.
+- **AC-007** — A missing resultant or section property, a non-finite value, a non-positive area or modulus, a quantity whose dimension does not fit its use, or a station fraction outside 0 to 1 is reported as a finding that names it, and no stress is recovered from it. A sweep returns its stations in the order asked, each with its identity.
+- **AC-008** — Recovery refuses a result that is not mechanics solved and adds the human-review notice to what it recovers. The module's sources, tests and fixtures contain no code stress equation, allowable, stress-intensification or flexibility table or pipe table and only invented values, and no message or record states or implies approval or compliance.
+- **AC-009** — Repeated recovery from the same result gives bit-identical stresses, section quantities and maxima.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-016 — Procedure: DEL-05-03 Fundamental stress recovery module
+**Method choices that define the module.**
 
-> #### Procedure: DEL-05-03 Fundamental stress recovery module
->
+- Stresses are closed-form functions of a member's actions and the section; nothing is fitted or interpolated between stations. Which recovery of the actions they are formed from, the certified recovery retained at precision or the fallback recovery from the published actions, is defined once, by DEL-04-01/REQ-015. A member's maximum is found from the polynomial stress field between stations, not by sampling more stations.
+- The exact route forms its three section geometries once per pipe and uses them by name; no later step forms a wall from the dimensions again.
+- A quantity a reader must reproduce is defined by its operation sequence, not by a formula and a tolerance.
+- The shear selection is per document, not per member.
+- The closed forms of the shear factor are the oracle for the Timoshenko member. No published benchmark is formulation-matched to κ_E.
 
-### CLM-017 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Define the bounded procedure for maintaining, reviewing, and extending the implemented fundamental stress recovery module without expanding beyond the approved mechanics-only deliverable boundary.
->
-
-### CLM-018 — Prerequisites
-
-> ##### Prerequisites
->
-> - Confirm the sealed brief names `DEL-05-03` and write scope is this deliverable folder or a separately approved implementation scope.
-> - Confirm upstream architecture basis constraints from `AB-00-01`, `AB-00-02`, `AB-00-03`, `AB-00-06`, and `AB-00-08`.
-> - Confirm the current implementation evidence in `core/loads/stress_recovery/README.md` and `core/loads/stress_recovery/src/lib.rs`.
-> - Confirm unit metadata, result-boundary, station-resultant, and result-envelope interfaces to be used; unresolved production integration items remain `TBD`.
-> - Confirm all example force resultants, section properties, pressure values, and fixtures are synthetic, public-domain, or otherwise cleared.
->
-
-### CLM-019 — Steps
-
-> ##### Steps
->
-> 1. Re-read `_CONTEXT.md`, `ScopeOfWork.md` (requirements), and `_DEPENDENCIES.md`.
-> 2. Re-read `core/loads/stress_recovery/README.md` and `core/loads/stress_recovery/src/lib.rs` before changing deliverable docs or code.
-> 3. Identify the accepted module boundary for mechanics stress recovery and its relation to solver result recovery, load cases, rule packs, reports, GUI, and local FEA handoff.
-> 4. For maintenance work, preserve the implemented mechanics-only API behavior unless the sealed brief explicitly authorizes a bounded change.
-> 5. For new behavior, identify required input contracts for axial force, bending moments, torsion, pressure, section properties, station resultants, units, diagnostics, ranges, and result envelopes.
-> 6. Add or preserve explicit findings for missing solve-required values, invalid/non-finite values, non-positive properties, unit metadata defects, incomplete statuses, blocked states, and status-boundary violations; do not apply silent defaults.
-> 7. Add deterministic tests with synthetic or cleared inputs for any changed behavior.
-> 8. Verify recovered stresses remain mechanical results and do not claim code compliance, release acceptance, or professional approval (PRD §21.2).
->
-
-### CLM-020 — Verification
-
-> ##### Verification
->
-> | Check | Expected evidence |
-> |---|---|
-> | Scope boundary | Implementation changes are limited to the approved implementation scope for DEL-05-03. |
-> | Unit behavior | Unit metadata tests pass and missing/wrong dimensions fail explicitly; conversion constants remain outside this crate. |
-> | Missing input behavior | Missing solve-required force, pressure, section-property, status, range, or unit metadata inputs produce findings. |
-> | Stress result behavior | Recovered mechanics stress components are deterministic for accepted synthetic/cleared cases. |
-> | Station behavior | Station recovery preserves station identity and fraction; station sweeps preserve caller order and deterministic indexed IDs. |
-> | Range behavior | Mechanics-only ranges are component-wise deltas between two unblocked stress states and do not imply fatigue/code acceptance. |
-> | IP/data boundary | No protected tables, code formulas, examples, material allowables, or proprietary data are added. |
->
-
-### CLM-021 — Records
-
-> ##### Records
->
-> - Implementation notes or pull request summary when code work is authorized.
-> - Cargo test output for `core/loads/stress_recovery`.
-> - Hand-calc or benchmark test results where applicable.
-> - Fixture provenance notes.
-> - Protected-content review evidence where applicable.
-> - Any human rulings for `TBD` items.
-
-- **VER-001** — Validate the contract and review source parity, resultant-to-component recovery, stations and sweeps, section/modulus interfaces, units and sign conventions, diagnostics, deterministic witnesses, protected-content boundaries, and surviving integration residuals.
+- **VER-001** — Comparison with named references (closed-form stress formulas and the hand calculations under `validation/hand_calcs/stress/`: axial, bending and torsional stress, the station sweep and the stress range): stresses recovered from known actions on both routes, for AC-001 and AC-006.
+- **VER-002** — Comparison with named references (the thick-wall annulus closed form; `validation/references/t4_i8` and `validation/references/t4_u6` for the two bases; `validation/references/t4_u4b` for arcs): pressure-derived stresses and the per-basis rows, maxima and headlines, with an executable check that a reader forms both sections from the published dimensions and that a row marked as a reference-section result is published and left out of its basis's maximum and headline.
+- **VER-003** — Comparison with named references (the SHEAR_REFERENCE closed forms, private `sgttomas/chirality@f2211ecef6`; `validation/references/t4_u8`, `validation/references/kd5_timoshenko` and `validation/references/pf_timoshenko`): the factor's bits, Timoshenko members against closed forms and their Euler–Bernoulli twins on both routes and in both solver modes, with an executable check of each refusal and disclosure and of the selection that authoring writes.
+- **VER-004** — Comparison with a named reference (the frozen bits of `core/loads/stress_recovery/tests/u4b_section_bits/`, computed in exact rational arithmetic by a generator that imports no product code) for the section quantities; and comparison of each member maximum and bound with the exact maximum of the closed-form stress field.
+- **VER-005** — Executable check: observes each finding of AC-007 with the input it names, the absence of a stress for it, the order and identity of swept stations, the refusal of a result that is not mechanics solved, and bit-identical output on repeated recovery.
+- **VER-006** — Judgment by a named role (an independent reviewer who did not write the code): examines the module's sources, tests, fixtures and messages against PRD §20.1, §21.2 and `docs/claims_registry.md`, with the protected-content scan's result for the same files.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-022 — Guidance: DEL-05-03 Fundamental stress recovery module
-
-> #### Guidance: DEL-05-03 Fundamental stress recovery module
->
-
-### CLM-023 — Purpose
-
-> ##### Purpose
->
-> This deliverable isolates fundamental mechanics stress recovery as a bounded solver/load-result feature. The implemented crate converts governed mechanical resultants, section properties, optional pressure-basis inputs, and straight-pipe station resultants into stress components while leaving code categorization, acceptability, and professional compliance outside the module.
->
-
-### CLM-024 — Principles
-
-> ##### Principles
->
-> - Keep mechanics computation separate from rule-pack acceptability and human compliance judgment.
-> - Treat pressure, section properties, dimensions, material-related values, and examples as governed inputs, not hidden defaults.
-> - Prefer explicit `TBD` and explicit diagnostics over silent assumptions when stress recovery inputs are incomplete.
-> - Preserve unit and provenance information through stress inputs, intermediate checks, and outputs.
-> - Use only synthetic, public-domain, or otherwise cleared hand-calc fixtures.
-> - Treat stress ranges as mechanics component deltas only. Do not convert them into fatigue decisions, equivalent stresses, code stress ranges, allowable comparisons, or professional conclusions.
-> - Preserve station identity and caller order when recovering station-local stresses or station sweeps.
->
-
-### CLM-025 — Considerations
-
-> ##### Considerations
->
-> Implemented evidence is in `core/loads/stress_recovery/README.md` and `core/loads/stress_recovery/src/lib.rs`. The crate recovers:
->
-> - axial normal stress from axial force and area;
-> - bending normal stress components from y/z bending moments and section moduli;
-> - torsional shear stress from torsional moment, torsion radius, and torsion constant;
-> - pressure hoop and longitudinal membrane stress from explicit pressure, radius, and wall thickness;
-> - station-local stresses from straight-pipe station resultants; and
-> - ordered station sweeps and two-state mechanics-only component ranges.
->
-> The implementation already validates finite inputs, positive section/pressure geometry properties, unit metadata dimensions for present quantities, station fractions, analysis-status boundaries, and result-boundary metadata. Missing or invalid values produce findings and block recovered outputs where required.
->
-> The module still depends on upstream/downstream contracts for production section-property authority, DEC-018 unit integration, solver/result-envelope ownership, application-service APIs, persistence, report labels, rule-pack consumers, release benchmarks, and professional reliance policy. Those contracts remain `TBD` unless separately accepted.
->
-> Verification should use open mechanics and cleared data. Any educational or hand-check example must avoid copying protected standards examples, tables, allowables, or formula presentations.
->
-
-### CLM-026 — Trade-offs
-
-> ##### Trade-offs
->
-> | Topic | Guidance |
-> |---|---|
-> | Mechanics stress vs code stress | Recover fundamental stress components here; keep code equations, categories, and allowables in rule packs or private/user inputs. |
-> | Completeness vs data boundary | Record missing section properties, pressure, or force resultants as findings rather than providing public defaults. |
-> | Solver result scope vs stress recovery scope | Consume governed mechanical resultants; do not duplicate global solver assembly or element force recovery. |
-> | Station recovery vs station generation | Recover station stresses from supplied straight-pipe station resultants; station generation and global solver interpolation belong upstream. |
-> | Sweep determinism vs interpretation | Preserve caller order and deterministic IDs in station sweeps; do not infer controlling stress locations or design acceptance. |
-> | Range utility vs code meaning | Provide component-wise absolute mechanics deltas only; fatigue, equivalent stress, and code stress range interpretation remain downstream. |
-> | Test usefulness vs IP boundary | Use clear hand-calc cases, but keep values invented/cleared and avoid protected standard examples. |
->
-
-### CLM-027 — Examples
-
-> ##### Examples
->
-> Concrete public-facing examples remain `TBD`. Existing crate unit tests use synthetic values for implemented behavior. Future examples must use synthetic or cleared data and must not reproduce protected standards content.
->
-
-### CLM-028 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Issue | Contenders | Human ruling |
-> |---|---|---|---|
-> | None | No conflict found between the mechanics-only deliverable boundary and current implementation evidence. | N/A | N/A |
+- **AX-001** — *Mechanics, not code stress.* Where a quantity could be shaped to a code's equation or category, the plain mechanics quantity is the better one. A user's convenience never justifies a built-in code formula, allowable or governing choice.
+- **AX-002** — *Reproducible to the bit.* Better is more published stress quantities that a reader can recompute exactly from the published rows. Speed or a shorter formula never justifies a sequence the reader cannot follow.
+- **AX-003** — *A maximum that cannot be missed.* Better is a tighter bound on a member's maximum stress. Tightness is never bought by a value that could lie below the true maximum.
+- **AX-004** — *Nothing assumed.* Better is fewer values the module could supply by itself; the target is none. No section property, corrosion allowance, shear factor or Poisson's ratio is supplied to make a stress recoverable.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-015 OBJ-003 | CLM-009 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-05-03:1** — The private dormant exact-annulus pressure kernel is implemented in accepted source `8ad37207cf088025623aa1e777a97a6fcb802f48` and qualified against the V3 independent refutation. Production pressure activation remains open with Poisson/material authority, closure topology/defaults, typed public force/result compatibility, curved and expansion-joint treatment, thresholds, and verification fixtures. No lifecycle, dependency, or runtime-pressure claim is implied.
-- **DEL-05-03:2** — The 2026-09-09 endpoint section-cut, curved-frame metadata, and genuine-pressure eligibility repair remains accepted. Its preserved 2026-09-09 raw-envelope observation reported 196 unchanged baseline public result-contract errors and zero errors on the repair-affected rows; 196 is historical snapshot evidence, not a new or universal count. Versioned public-result-contract work remains open.
-- **DEL-05-03:3** — Broader pressure behavior, connector treatment, and public result-contract work remain open. No lifecycle or DAG promotion is recorded.
+| OUT-001 | SOW-015 OBJ-003 | REQ-001 REQ-003 | AC-001 | VER-001 | Outside source: closed-form stress formulas and the hand calculations under `validation/hand_calcs/stress/`, which import no product code |
+| OUT-001 | SOW-015 OBJ-003 | REQ-001 | AC-002 | VER-002 | Outside source: the thick-wall annulus closed form and `validation/references/t4_i8`, `t4_u6` and `t4_u4b`, generated without product code |
+| OUT-001 | SOW-015 OBJ-003 | REQ-010 | AC-003 | VER-002 | Outside source `validation/references/t4_u6` for the values. The reader forming the sections again compares the product with its own published inputs and only guards against change. The exclusion of a marked row is stated by the criterion |
+| OUT-001 | SOW-015 OBJ-003 | REQ-011 | AC-004 | VER-003 | Outside source: the SHEAR_REFERENCE closed forms and `validation/references/t4_u8`, `kd5_timoshenko` and `pf_timoshenko`, generated without product code |
+| OUT-001 | SOW-015 OBJ-003 | REQ-012 | AC-005 | VER-004 | Outside source: bits computed in exact rational arithmetic by a generator that imports no product code, and the exact maximum of a closed-form stress field |
+| OUT-001 | SOW-015 OBJ-003 | REQ-009 | AC-006 | VER-001 | Outside source: `validation/hand_calcs/stress/stress_range.md`; the criterion states the refusal |
+| OUT-001 | SOW-015 OBJ-003 | REQ-004 REQ-008 | AC-007 | VER-005 | The criterion states the expected finding for each defect; PRD §5.5 says that none is defaulted |
+| OUT-001 | SOW-015 OBJ-003 | REQ-002 REQ-005 REQ-007 | AC-008 | VER-005 VER-006 | PRD §20.1 and §21.2 list what must not appear, and DEL-05-04 states what a recovered result may carry |
+| OUT-001 | SOW-015 OBJ-003 | REQ-006 | AC-009 | VER-005 | The product's own earlier output: it guards against change and shows nothing about correctness |

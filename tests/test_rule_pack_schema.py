@@ -760,10 +760,10 @@ if __name__ == "__main__":
 
 
 def test_schema_is_format_0_5_0_with_categories_load_cases_and_selectors():
-    """Rule-pack format 0.5.0 (DEL-06-01 Design rule-pack-0.5.0.md §2.1-§2.5):
+    """Rule-pack format 0.5.0:
     one current version, the three new required members, a required check
     category and the row selector without result_id. The Rust validator owns
-    the cross-reference findings (§2.9); the schema owns shapes."""
+    the cross-reference findings; the schema owns shapes."""
     schema = load_schema(SCHEMA_PATH)
     example = load_example()
     assert schema["properties"]["schema_version"]["const"] == "0.5.0"

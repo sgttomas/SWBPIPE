@@ -168,7 +168,7 @@ describe("the route gate (§2.1): the output policy's report-package cell", () =
     const refusal = reportPackageUnavailableReason(result);
     expect(refusal).toBe(surfaceRouteRefusal(result, "report-package"));
     expect(refusal).toBeNull();
-    // §5.4: the report JSON packet still refuses it.
+    // the report JSON packet still refuses it.
     expect(surfaceRouteRefusal(result, "report")?.startsWith("PRESSURE-2-OUTPUT-NOT-YET-AVAILABLE: ")).toBe(true);
   });
 });
@@ -192,7 +192,7 @@ describe("admission and the request's members (§2.1-§2.4)", () => {
     expect(request.source_basis_refs[0]).toEqual({ ref_type: "analysis_run", ref_id: result.run_id });
     expect(request.source_basis_refs.slice(1)).toEqual(document.result_envelope.load_basis_refs);
 
-    // §2.4: the audit manifest is named by the input-manifest reference, its unit system is
+    // the audit manifest is named by the input-manifest reference, its unit system is
     // the document's, and both hashes carry the basis they were computed on.
     const modelHash = await canonicalSha256Hex(model);
     expect(request.audit_manifest).toMatchObject({
@@ -238,7 +238,7 @@ describe("admission and the request's members (§2.1-§2.4)", () => {
     );
     expect([...REPORT_PACKAGE_ADMITTED_CONTRACT_IDS]).toEqual([
       PREVIEW_PHYSICS_CONTRACT_ID,
-      // DEL-05-03 `pf-timoshenko.md` §4: the pressure-free Timoshenko identity.
+      // the pressure-free Timoshenko identity.
       "openpipestress.result_semantics/0.3.0/preview-physics-timoshenko-1",
       "openpipestress.result_semantics/0.3.0/pressure-3",
       "openpipestress.result_semantics/0.3.0/pressure-source-1"

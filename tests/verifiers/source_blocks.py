@@ -190,7 +190,7 @@ def _normal_or_exact_zero(value: float, logical_zero: bool) -> bool:
 
 
 def _failure_block_order(failure: Mapping[str, Any], case: Mapping[str, Any]) -> bool:
-    """Rust `failure_block_order` (RF source-method extension §7): the current producer solves exact blocks of order
+    """Rust `failure_block_order`: the current producer solves exact blocks of order
     up to 4, so an unsupported_block refusal records a larger order and no source; other codes record none. The
     receipt schema admits only qualified cases, so the shape refuses a stored failure record first at every entry."""
     return (failure["code"] == "unsupported_block" and failure["block_order"] is not None and failure["block_order"] > 4 and case["source"] is None) or (failure["code"] != "unsupported_block" and failure["block_order"] is None)
@@ -490,7 +490,7 @@ def _summary(source: Mapping[str, Any], raw: dict[str, Any], model: Mapping[str,
     summary = source["summary"]
     if model is not None:
         _require(all(summary.get(key) == len(model[field]) for key,field in [("node_count","nodes"),("segment_count","pipe_segments"),("support_count","supports"),("load_case_count","load_cases")]), "SUMMARY_MODEL_COUNTS")
-    # T4-U6 (D-5, §2.2): the composite's stress headline is per basis, bound to its own basis's maxima.
+    # the composite's stress headline is per basis, bound to its own basis's maxima.
     _require("max_open_formula_stress" in summary and summary["max_open_formula_stress"] is None, "SUMMARY_HEADLINE")
     stress = "pipe_elastic_normal_stress_maximum_v2"
     for field, kind, basis in [("max_displacement", "displacement_magnitude", None),

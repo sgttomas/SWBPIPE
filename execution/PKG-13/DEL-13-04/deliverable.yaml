@@ -2,205 +2,79 @@ id: DEL-13-04
 name: Physical-to-analytical transformation contract
 needs:
 - from: DEL-00-01
-  condition: 'DEL-13-04 needs DEL-00-01 as prerequisite architecture-basis context for sealed downstream
-    work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The baseline in force names JSON Schema 2020-12 as the dialect of public schemas and
+    interchange documents.
   gating: true
-  evidence: execution/_DAG/DAG-002/DependencyEdges.csv
-- from: DEL-00-02
-  condition: 'DEL-13-04 needs DEL-00-02 as prerequisite architecture-basis context for sealed downstream
-    work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_DAG/DAG-002/DependencyEdges.csv
 - from: DEL-00-03
-  condition: 'DEL-13-04 needs DEL-00-03 as prerequisite architecture-basis context for sealed downstream
-    work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  when: Exposing the transform through an application service
+  condition: >-
+    Every command and job returns a result envelope that carries its diagnostics, and a query
+    leaves the model and the stored project unchanged.
   gating: true
-  evidence: execution/_DAG/DAG-002/DependencyEdges.csv
 - from: DEL-00-04
-  condition: 'DEL-13-04 needs DEL-00-04 as prerequisite architecture-basis context for sealed downstream
-    work.
-
-
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The persistence rules define the canonical hash as SHA-256 over the RFC 8785 form of a JSON
+    payload, and state that every persisted document declares its schema version.
   gating: true
-  evidence: execution/_DAG/DAG-002/DependencyEdges.csv
 - from: DEL-00-06
-  condition: 'DEL-13-04 needs DEL-00-06 as prerequisite diagnostics and result-envelope architecture context.
-
-
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The diagnostic contract fixes the fields a diagnostic record carries (code, class, severity,
+    source, affected object, message, remediation, provenance) and names the six warning
+    classes, the solve-blocking and assumption-warning classes among them.
   gating: true
-  evidence: execution/_DAG/DAG-002/DependencyEdges.csv
 - from: DEL-00-07
-  condition: 'DEL-13-04 needs DEL-00-07 as prerequisite API and adapter boundary architecture context.
-
-
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The API boundary map marks each seam between the layers internal or public, and nothing it
+    marks internal is exposed by the public API contract.
   gating: true
-  evidence: execution/_DAG/DAG-002/DependencyEdges.csv
-- from: DEL-00-08
-  condition: 'DEL-13-04 needs DEL-00-08 as prerequisite test and acceptance architecture context.
-
-
-    Notes: Preserved from approved DAG-002 mirror; normalized enums for local dependency-extract register.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=SATISFIED; legacy_origin=DECLARED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/_DAG/DAG-002/DependencyEdges.csv
 - from: DEL-02-01
-  condition: 'DEL-13-04 needs DEL-02-01 because the physical-to-analytical transform starts from the canonical
-    physical and domain model.
-
-
-    Notes: Preserved DAG-002 target; local source evidence confirms canonical model/domain schema input.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The model document is the editable physical model: its records have stable identifiers,
+    every dimensional value carries its unit, and the model can carry physical-to-analytical
+    traceability links.
   gating: true
-  evidence: execution/PKG-13/DEL-13-04/ScopeOfWork.md#clm-006--upstream-inputs
-- from: DEL-13-01
-  condition: 'DEL-13-04 needs DEL-13-01 because the transform consumes design knowledge and provenance
-    inputs.
-
-
-    Notes: Preserved DAG-002 target; local source evidence confirms design knowledge and provenance input.;
-    legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE;
-    legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+- from: DEL-02-02
+  condition: >-
+    The dimension vocabulary is stated once, in the unit schema, and every unit has one
+    dimension from it.
   gating: true
-  evidence: execution/PKG-13/DEL-13-04/ScopeOfWork.md#clm-006--upstream-inputs
-- from: DEL-13-02
-  condition: 'DEL-13-04 needs DEL-13-02 because the transform consumes constraint entities.
-
-
-    Notes: Preserved DAG-002 target; local source evidence confirms constraint entity input.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-13/DEL-13-04/ScopeOfWork.md#clm-006--upstream-inputs
-- from: DEL-13-03
-  condition: 'DEL-13-04 needs DEL-13-03 because the transform consumes constraint validation context.
-
-
-    Notes: Preserved DAG-002 target; local source evidence confirms constraint validation input.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
-  evidence: execution/PKG-13/DEL-13-04/ScopeOfWork.md#clm-006--upstream-inputs
 - from: DEL-04-01
-  condition: 'DEL-13-04 needs DEL-04-01 because the analytical target is the 3D centerline/frame mechanics
-    boundary.
-
-
-    Notes: Preserved DAG-002 target; local source evidence confirms frame mechanics target.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    The frame kernel takes a model of centerline nodes, each with six degrees of freedom in one
+    fixed public order, joined by two-node elements that each have a validated right-handed
+    local triad.
   gating: true
-  evidence: execution/PKG-13/DEL-13-04/ScopeOfWork.md#clm-006--upstream-inputs
 - from: DEL-04-03
-  condition: 'DEL-13-04 needs DEL-04-03 because support/restraint semantics are required input surfaces
-    for the transform contract.
-
-
-    Notes: Preserved DAG-002 target; local source evidence confirms support/restraint input.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A support record is a support at a node, of one family, that names the degrees of freedom it
+    acts on.
   gating: true
-  evidence: execution/PKG-13/DEL-13-04/ScopeOfWork.md#clm-006--upstream-inputs
 - from: DEL-05-01
-  condition: 'DEL-13-04 needs DEL-05-01 because primitive load semantics are required input surfaces for
-    the transform contract.
-
-
-    Notes: Preserved DAG-002 target; local source evidence confirms primitive load input.; legacy_anchortype=NOT_APPLICABLE;
-    legacy_direction=UPSTREAM; legacy_dependencytype=PREREQUISITE; legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT;
-    legacy_satisfactionstatus=PENDING; legacy_origin=EXTRACTED; legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
+  condition: >-
+    A primitive load has an identity, a target, a direction, a dimension, a magnitude with its
+    unit and its provenance, and a member load can state its span as two fractions of the
+    member's length.
   gating: true
-  evidence: execution/PKG-13/DEL-13-04/ScopeOfWork.md#clm-006--upstream-inputs
-- from: DEL-02-05
-  condition: 'DEL-13-04 needs DEL-02-05 as predecessor evidence because derived analytical outputs diagnostics
-    and traceability links require persistence round-trip and hash/no-bypass context before persisted
-    or handoff use.
-
-
-    Notes: Added by DEV-001 Stage 2 package-scoped finding resolution; HumanDisposition remains TBD; aggregate
-    DAG files not edited.; legacy_anchortype=NOT_APPLICABLE; legacy_direction=UPSTREAM; legacy_dependencytype=PERSISTENCE_CONTRACT;
-    legacy_targettype=DELIVERABLE; legacy_explicitness=EXPLICIT; legacy_satisfactionstatus=TBD; legacy_origin=DEV001_STAGE2;
-    legacy_status=ACTIVE
-
-
-    Required input maturity in source: SEMANTIC_READY; this is not a fulfilment or completion claim.'
-  gating: true
+- from: DEL-13-01
+  condition: >-
+    Every design-knowledge record has a stable identifier that a typed reference can name.
+  gating: false
+- from: DEL-13-02
+  condition: >-
+    Every constraint has a stable identifier that a typed reference can name.
+  gating: false
 code_paths:
-- core/constraints/validation/engine.py
-- core/model_transform/physical_to_analytical/_solver_boundary_adapter.py
-- core/model_transform/physical_to_analytical/contract.py
-- schemas/constraint.schema.json
+- core/model_transform/physical_to_analytical/**
+# The transform reference format. It is not the model document, which is DEL-02-01's.
 - schemas/physical_transform_model.schema.yaml
-checks:
-- tests/test_analytical_solver_boundary_adapter.py
-- tests/test_constraint_schema.py
-- tests/test_constraint_validation.py
+# Documents in the transform reference format. DEL-02-05's persistence check also reads the
+# physical source model.
+- fixtures/domain/**
 - tests/test_physical_to_analytical_transform.py
+- tests/test_analytical_solver_boundary_adapter.py
+- tests/test_physical_transform_model_schema.py
+checks:
+- tests/test_physical_to_analytical_transform.py
+- tests/test_analytical_solver_boundary_adapter.py
 - tests/test_physical_transform_model_schema.py

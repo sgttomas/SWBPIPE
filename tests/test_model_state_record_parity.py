@@ -1,6 +1,6 @@
 """W-12 S1: the desktop store's model-state record against the schema and the Python service.
 
-DEL-14-01 Design `desktop-states-runs-comparison.md` section 2. The desktop store
+The desktop store
 (apps/desktop/src-tauri/src/model_states.rs) computes the `model_state_record`
 hash with a sorted-compact serializer pinned to
 `core/project_persistence/service.py`'s `canonical_json`. These tests check,

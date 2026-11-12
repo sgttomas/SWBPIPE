@@ -9,7 +9,7 @@
 //! the hash recorded in its SHA256SUMS. Nothing here derives an expectation
 //! from product code. Model inputs are invented.
 //!
-//! Coverage (§5): both solver modes; Euler-Bernoulli and Timoshenko; full-
+//! Coverage: both solver modes; Euler-Bernoulli and Timoshenko; full-
 //! and partial-span wind (Timoshenko partial spans against
 //! `w16_timoshenko_partial_wind`); arcs (full span,
 //! partial blocked); replaced spans (seismic skips, wind refused); shared
@@ -398,7 +398,7 @@ fn every_reference_case_matches_its_closed_form_on_its_route() {
     println!("W16C worst relative error: PF {worst_pf:.3e}; EX {worst_ex:.3e}");
 }
 
-/// §2: the routes' seismic masses differ by the documented closed form; the
+/// the routes' seismic masses differ by the documented closed form; the
 /// support force difference is -(mu_EX - mu_PF) k_g g L. Wind does not depend
 /// on mass, so the generated loads (hence the statically determinate support
 /// actions) are equal on PF and EX.
@@ -433,7 +433,7 @@ fn route_specific_seismic_mass_and_equal_wind_loads() {
 }
 
 // ------------------------------------------------------------------ Timoshenko and partial spans
-/// §3 (W-16t): a proper fraction of a straight span under the Timoshenko
+/// a proper fraction of a straight span under the Timoshenko
 /// member is admitted and takes the exact Timoshenko vector: this file's own
 /// cantilever, solved in both modes, matches the W-16t references
 /// (`validation/references/w16_timoshenko_partial_wind/`) for spans at either
@@ -480,7 +480,7 @@ fn arc_document(generation: Value) -> Value {
     document
 }
 
-/// §3: a realized arc takes the full-span load per unit arc length, as an
+/// a realized arc takes the full-span load per unit arc length, as an
 /// authored distributed load of the same intensity on the arc; any explicit
 /// extent on an arc stays blocked, [0, 1] included, under either shear model.
 #[test]
@@ -551,7 +551,7 @@ fn with_replaced_tail(cases: Vec<Value>) -> Value {
     wire
 }
 
-/// §3: seismic generation skips the replaced span before its mass is
+/// seismic generation skips the replaced span before its mass is
 /// evaluated (the surviving pipe keeps element index 0, and the support
 /// carries only A - B's load); a wind marking of the replaced span is refused
 /// by name in either form; a stored primitive on it keeps its own refusal.
@@ -660,7 +660,7 @@ fn authored_and_generated_loads_mix() {
 }
 
 // ------------------------------------------------------------------ certified-source controls
-/// §2: the certified producer forms the generator's mass. With a nonzero
+/// the certified producer forms the generator's mass. With a nonzero
 /// allowance the EX mass differs from the preview basis, so a producer on the
 /// wrong basis fails the raw-source re-formation; an authored zero allowance
 /// is `Some(0)`. An authored load whose id resembles the generated prefix is
@@ -705,7 +705,7 @@ fn certified_source_controls() {
     }
 }
 
-/// §2: a document in which another case selects retained-source recovery
+/// a document in which another case selects retained-source recovery
 /// publishes pressure-source-1; the passing generating case is an ordinary
 /// companion whose record is bound by the companion binding (a failed binding
 /// would withhold the join and publish pressure-2).
@@ -760,7 +760,7 @@ fn a_rigid_component_scale_multiplies_stiffness_not_mass() {
 
 // ------------------------------------------------------------------ negatives
 /// Every PF validation and refusal code for `equivalent_static` applies
-/// unchanged on EX (§1).
+/// unchanged on EX.
 #[test]
 fn every_preview_route_code_applies_unchanged_on_the_exact_route() {
     type Mutation = (&'static str, &'static str, fn(&mut Value));
@@ -824,7 +824,7 @@ fn load_state_document(listed: bool, unlisted: bool) -> Value {
     wire
 }
 
-/// §3: a load/reference-state document refuses every authored case's
+/// a load/reference-state document refuses every authored case's
 /// generation by name, a case without a state record included, and so does a
 /// document whose group is an authored null.
 #[test]
@@ -842,7 +842,7 @@ fn load_state_documents_refuse_generation_for_every_case() {
     assert_eq!(found.len(), 1);
 }
 
-/// §3: the retained sub-route keeps declining generation; the ordinary
+/// the retained sub-route keeps declining generation; the ordinary
 /// result is returned unchanged.
 #[test]
 fn the_retained_sub_route_declines_generation() {
@@ -875,7 +875,7 @@ fn a_case_without_generation_publishes_no_record() {
 #[ignore = "W-16 slice b (exact combinations) is not in this change; the combination joins with slice b's code"]
 fn a_seismic_case_combines_with_a_pressure_case() {}
 
-/// §2: the readers bind the record: the pressure-2 reader and the
+/// the readers bind the record: the pressure-2 reader and the
 /// pressure-source-1 transport reader accept the producer's envelopes, and
 /// refuse a record with an extra key, another mass method, no id, a repeated
 /// id or an id outside the case's generated namespace, and a record on a

@@ -1,4 +1,4 @@
-//! On-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`): the
+//! On-demand model checks: the
 //! checks are the solve's own checks before stiffness formation. For every
 //! model below, in both solver modes, the findings equal the leading
 //! diagnostics of the solve's envelope (id, code, severity and affected refs;

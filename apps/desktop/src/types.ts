@@ -611,9 +611,9 @@ export type ConditionUse = {
 /** `model_settings`: a closed record. `node_proximity_tolerance` is the near-duplicate node
  * tolerance, a length quantity; absent means 5 mm. `shear_model` (model document 0.8.0) is the
  * pressure-free document's beam theory, absent meaning Euler–Bernoulli, or
- * `timoshenko_annulus_energy_v1` (DEL-05-03 Design `pf-timoshenko.md`); it is refused beside a
- * pressure contract. `pressure_elongation` (model document 0.9.0; DEL-04-07 Design
- * `pressure-elongation.md` §3.1) names the operating load cases of a pressure document in
+ * `timoshenko_annulus_energy_v1`; it is refused beside a
+ * pressure contract. `pressure_elongation` (model document 0.9.0; DEL-04-07)
+ * names the operating load cases of a pressure document in
  * which pressure elongation applies; absent means off in every case, and the desktop never
  * writes an empty record.
  * The desktop never writes a default. */

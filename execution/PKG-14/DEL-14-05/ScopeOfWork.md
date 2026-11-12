@@ -2,396 +2,113 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-14-05
 package_id: PKG-14
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@sha256:c78301c67df5729d65c57963e6a915339049e3ffaa12d13961ee201445a9b984
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-073]
 package_objective_refs: [OBJ-016]
 ---
 
-# Scope of Work — DEL-14-05
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-14-05 Comparison mapping, tolerance, and export contracts
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-14-05` in service of project scope [SOW-073] and package objectives [OBJ-016].
+Comparison in SWBPIPE has one set of contracts. They say how two entities or results correspond when their identifiers differ, how something with no counterpart is classified, what a tolerance is and how it is applied, and what a comparison says when it leaves the application as JSON, CSV or a report section. The two comparison engines produce to these contracts and the exports and report sections read them, so that a comparison means the same thing wherever it appears, carries its units and its evidence with it, and never rests on a tolerance the user did not choose.
 
-- **OUT-001** — A comparison mapping, unmatched-classification, tolerance-profile, and CSV, JSON, and report-section export contract is produced.
+It serves SOW-073 under OBJ-016 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-14, row DEL-14-05), and `docs/PRD.md` §8.8, §15.4 (entity mapping), §15.5 (tolerance profiles), FR-CMP-005 and FR-CMP-007 (Should: map, unmap and mark entities intentionally unmatched; map entities whose identifiers or topology changed), FR-CMP-008 (Should: absolute and relative tolerances by result category) and FR-CMP-010 (Should: a comparison exports as CSV, JSON and a report section). No exit criterion of `docs/RELEASE_TARGET_v1.0.md` names it.
+
+- **OUT-001** — The comparison contracts: mapping records and unmatched classifications, tolerance profiles, the common comparison-result interface, and the export semantics of a comparison as JSON, CSV and a report section.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-14-05 Comparison mapping, tolerance, and export contracts
+**Terms the contracts define.** DEL-14-03 and DEL-14-04 take these definitions from here.
 
-> #### Datasheet: DEL-14-05 Comparison mapping, tolerance, and export contracts
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Comparison.* A deterministic difference between two model states, two analysis runs, or both. It is a diagnostic aid for design iteration and review, and never validation or acceptance.
+- *Side.* Left or right. Each side is a participant.
+- *Participant.* One side of a comparison, named by reference and hash: its model state and unit system, and, where the side is a run, its analysis run and its result document.
+- *Mapping hierarchy.* Two things correspond, in this order: by equal stable identifier; else by a manual mapping the user made; else they are unmatched. No correspondence is inferred from position, name, proximity or apparent similarity.
+- *Mapping record.* The statement that one thing on the left corresponds to one on the right: what kind of thing is mapped (an entity, a result, a diagnostic, a setting or a load basis), whether the match is automatic or manual, both references, the evidence for it, and its review state and provenance (`schemas/comparison_mapping.schema.json`).
+- *Unmatched record.* The statement that something has no counterpart: which side it is on (present on one side only, that is added or deleted, PRD §15.4) and, separately, whether the user marked it intentionally unmatched (PRD FR-CMP-005).
+- *Tolerance profile.* A named set of tolerance rules a user defines (`schemas/comparison_tolerance.schema.json`). It has no numeric default.
+- *Tolerance rule.* For one result category and dimension: an absolute tolerance, a relative tolerance, or both with the stated way they combine; the unit the tolerance is expressed in; and what happens when unit metadata is missing. PRD §15.5 gives displacement, rotation, force, moment, reaction, stress, stress ratio, temperature, pressure, and support gap or movement as examples of result categories.
+- *Common comparison-result interface.* The one versioned schema for the result of a state comparison or a run comparison: the participants, the mappings used, the unmatched records, each difference with its units, the tolerance profile referred to and the classification it gave, diagnostics, assumptions, hashes, the professional-boundary notice and provenance.
+- *Export semantics.* What each exported form of a comparison must hold. The JSON form is the comparison-result document. The CSV form is one row per compared or unmatched record, with a stable row identifier, stated columns, a deterministic order, and a stated delimiter and encoding. A report section refers to a comparison by identity and hash and keeps its diagnostics, statuses, limitations and notice.
 
-### CLM-003 — Identification
+**Undecided.**
 
-> ##### Identification
->
-> | Field | Value | Source |
-> |---|---|---|
-> | Deliverable ID | DEL-14-05 | `_CONTEXT.md` |
-> | Name | Comparison mapping, tolerance, and export contracts | `_CONTEXT.md` |
-> | Package ID | PKG-14 | `_CONTEXT.md` |
-> | Package | Model States, Analysis Runs, and Comparison | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md#PKG-14` |
-> | Type | API_CONTRACT | `_CONTEXT.md` |
-> | Scope item | SOW-073 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-073` |
-> | Primary objective | OBJ-016 | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md#OBJ-016` |
-> | Context envelope | M | `_CONTEXT.md` |
-> | Anticipated artifacts | comparison mapping schema; tolerance profile schema; comparison exporters | `_CONTEXT.md` |
->
+- The fields and the version of the common comparison-result interface. Until a version is accepted, no producer or export claims conformance to it.
+- Any unmatched classification beyond one-side-only and intentionally unmatched.
+- Default tolerance values, and the workflow by which a user reviews and confirms mappings (decomposition OI-014). Until a value is decided, the product supplies none.
 
-### CLM-004 — Attributes
+**Boundary.**
 
-> ##### Attributes
->
-> | Attribute | Current value |
-> |---|---|
-> | Contract subject | Manual comparison mappings, unmatched classifications, tolerance profiles, and CSV/JSON/report-section export semantics. Source: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md#DEL-14-05`. |
-> | Comparison basis | Two model states and/or two analysis runs are compared deterministically using stable IDs, manual mappings where required, unit-normalized result deltas, and tolerance profiles. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-073`. |
-> | State/run context | Model states and analysis runs are first-class product records for design iteration and review. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md#OBJ-016`. |
-> | Export boundary | Result export envelopes identify result set, model/run basis, solver version, unit-system reference, diagnostics, provenance, hashes or audit manifest reference, analysis statuses, and professional-boundary notice. Source: `docs/SPEC.md#result-export-format`. |
-> | Unit boundary | Calculations, formulas, imported values, and exports must be unit-aware and dimensionally checked. Source: `docs/CONTRACT.md#OPS-K-UNIT-1`. |
-> | Professional boundary | Comparison output is diagnostic/audit functionality, not automatic external validation or acceptance. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-073`; `docs/TYPES.md#TraceabilityLink`. |
-> | Public data boundary | Public artifacts must not copy private formulas, protected standards text, protected tables, proprietary values, or private rule-pack payloads. Source: `docs/SPEC.md#result-export-format`; `docs/IP_AND_DATA_BOUNDARY.md#public-repository-must-not-contain`. |
-> | Architecture basis | JSON Schema 2020-12 contracts, schema-first envelopes, and canonical JSON/JCS-compatible hash basis apply where payloads are hashed. Source: `_CONTEXT.md#Architecture-Basis-Injection`. |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> | Condition | Status |
-> |---|---|
-> | Tolerance defaults | TBD. `execution/_Decomposition/SOFTWARE_DECOMP.md#OI-014` states comparison tolerance defaults and mapping workflows are pending solver/result schema prototypes. |
-> | Exact CSV fields | The `CsvExportContract` in `schemas/comparison_mapping.schema.json` defines required_columns, ordering, delimiter, encoding and stable-row-ID policy. Actual serialized export conformance must be demonstrated. |
-> | Exact JSON schema | `schemas/comparison_mapping.schema.json` defines the comparison-review envelope, mapping evidence, participants, diagnostics and export contracts; inspect version-bound schema evidence for field/cardinality detail. |
-> | Report-section layout | TBD. Report sections must preserve privacy, provenance, units, diagnostics, limitations, and professional-boundary notices; final rendering and layout remain outside the accessible source slice. |
-> | External validation | Excluded. PKG-14 does not ingest commercial prover outputs comprehensively or determine external validation. Source: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md#PKG-14`. |
-> | Protected standards data | Excluded from public artifacts unless separately authorized by provenance and review. Source: `docs/CONTRACT.md#OPS-K-IP-1`; `docs/IP_AND_DATA_BOUNDARY.md#public-repository-must-not-contain`. |
->
-
-### CLM-006 — Construction
-
-> ##### Construction
->
-> | Construct | Description |
-> |---|---|
-> | Comparison mapping schema | Defines stable-ID mapping records and manual mapping evidence needed when state/run entities do not align automatically. `schemas/comparison_mapping.schema.json` defines `MappingRecord` and `MappingEvidence`; the state/run reference engines consume that contract. Runtime/API conformance remains separate. |
-> | Unmatched classification schema | Defines explicit classifications for compared entities or results that have no accepted counterpart. Specific enum values are TBD unless later source material supplies them. |
-> | Tolerance profile schema | Defines unit-aware tolerance profile records for comparison deltas. Default numeric values are TBD and must not be silently supplied. Current implementation (at `62c1efd75b`): `schemas/comparison_tolerance.schema.json`, checked by `tests/test_comparison_contracts.py`. |
-> | JSON export contract | Schema-first result/comparison envelope compatible with governed downstream tooling and report consumption. Current fields are defined by `schemas/comparison_mapping.schema.json`; new public interface changes remain separately governed. |
-> | CSV export contract | Tabular export semantics for comparison review. The schema `CsvExportContract` carries column, ordering and serialization policy; concrete emitted-byte conformance remains an implementation obligation. |
-> | Report-section contract | Report-facing comparison section references that preserve units, diagnostics, provenance, hashes, assumptions, limitations, and professional-boundary notice. Exact layout is TBD. |
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history)
-> - `_REFERENCES.md`
-> - `_DEPENDENCIES.md`
-> - `Dependencies.csv`
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md`
-> - `docs/CONTRACT.md`
-> - `docs/TYPES.md`
-> - `docs/SPEC.md`
-> - `docs/IP_AND_DATA_BOUNDARY.md`
-> - `docs/DIRECTIVE.md`
-> - `execution/_DAG/_LATEST.md` (current approval record; DAG-006 remains historical provenance)
+- **CLM-001** — Computing a state comparison is DEL-14-03's and computing a run comparison DEL-14-04's. They produce the comparison-result document and consume mapping records and tolerance profiles. Nothing here compares, and the determinism of a comparison is theirs to show (also cited as DEL-14-05:3).
+- **CLM-002** — Writing a comparison table of the desktop to a CSV file, and mapping the comparison-result interface into the result export document, are DEL-08-04's. The comparison sections of a report, and their layout, are DEL-08-06's and DEL-08-01's. The mapping editor and the comparison views are DEL-07-08's.
+- **CLM-003** — The unit catalog and the dimension vocabulary are DEL-02-02's. State and run records are DEL-14-01's and DEL-14-02's; the contracts refer to them by identity and hash and define no second shape for them.
+- **CLM-004** — Outside this deliverable: comprehensive ingestion of a commercial prover's results (PKG-14), determining external validation, and supplying any tolerance or acceptance rule from a code or an owner's standard. A user may put such a value in a private tolerance profile of their own (PRD §5.4); the product never supplies one. A participant is named by reference and hash, so the contracts do not assume that a side is a SWBPIPE run (PRD FR-CMP-011, §15.6, not an MVP requirement).
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-008 — Specification: DEL-14-05 Comparison mapping, tolerance, and export contracts
+A record that validates against these contracts is well formed. It is not thereby right: whether a mapping is the correct correspondence is the user's judgment, and whether a tolerance is suitable is the user's engineering decision.
 
-> #### Specification: DEL-14-05 Comparison mapping, tolerance, and export contracts
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+### Requirements
 
-### CLM-010 — Scope
+- **REQ-001** — The contracts support the deterministic comparison of two model states, two analysis runs, or both, on stable identifiers (also cited as DEL-14-05-R001). Source: SOW-073.
+- **REQ-002** — The mapping contract represents a manual mapping wherever stable identifiers do not align, with both references and the evidence for the match (also cited as DEL-14-05-R002). Source: SOW-073; PRD §15.4, FR-CMP-007.
+- **REQ-003** — The contract represents an unmatched entity or result explicitly, with its classification, including one a user marked intentionally unmatched (also cited as DEL-14-05-R003). Source: PRD §15.4, FR-CMP-005.
+- **REQ-004** — The tolerance contract expresses absolute and relative tolerances by result category, for differences in a common unit. It supplies no default engineering value: a rule without a value is stated as having none (also cited as DEL-14-05-R004). Source: SOW-073; PRD §15.5, §5.5, FR-CMP-008.
+- **REQ-005** — Every unit-bearing value in a comparison result or its export carries its unit and dimension. A value without them is a blocking finding, and no export writes it as a bare number (also cited as DEL-14-05-R005). Source: PRD §5.6.
+- **REQ-006** — The JSON form of a comparison is a schema-first result document in JSON Schema 2020-12 (also cited as DEL-14-05-R006). Source: decomposition AB-00-03.
+- **REQ-007** — The CSV form of a comparison is defined by its export semantics, which are stated without embedding protected standards data, proprietary engineering values, private project data or a private rule pack's payload; an export names a private rule pack by identity, version and checksum only (also cited as DEL-14-05-R007). Source: SOW-073; PRD §20.1.
+- **REQ-008** — A report section of a comparison preserves its diagnostics, provenance, hashes or audit-manifest reference, analysis statuses, limitations and professional-boundary notice, and reaches the report through the reporting deliverables with those preserved (also cited as DEL-14-05-R008 and DEL-14-05:4). Source: PRD FR-REP-004, §19.2.
+- **REQ-009** — No contract, field, status or example claims certification, sealing, approval, authentication, external validation or code compliance (also cited as DEL-14-05-R009). Source: SOW-073; PRD §21.2.
+- **REQ-010** — Public artifacts of the contracts bundle no protected standards text or tables, no code-specific acceptance criteria, no proprietary values and no private user data (also cited as DEL-14-05-R010). Source: PRD §20.1.
+- **REQ-011** — The contracts refer to model states, analysis runs, result documents and units as their owners define them (also cited as DEL-14-05-R011). Source: SOW-073.
+- **REQ-012** — There is one common comparison-result interface with one authoritative versioned schema. DEL-14-03 and DEL-14-04 produce it and DEL-08-04 maps it; it binds mappings, the account of what is unmatched, tolerance references, units and diagnostics, and it selects no numeric tolerance and no report layout (also cited as DEL-14-05-SCA011-REQ-001, DEL-14-05-SCA011-VER-001 and DEL-14-05:2). Source: decomposition rows DEL-07-08 and DEL-14-05.
+- **REQ-013** — What the product emits conforms to the contracts: the mappings the engines produce and consume, the tolerance profiles a user defines, and the JSON and CSV a comparison is exported as, with their stable identifiers, units, diagnostics and provenance (also cited as DEL-14-05:1). Source: SOW-073; PRD FR-CMP-010.
 
-> ##### Scope
->
-> This deliverable defines API/data contracts for comparison mappings, unmatched classifications, tolerance profiles, and comparison exports for model-state and analysis-run comparisons.
->
-> In scope:
->
-> - comparison mapping schema;
-> - tolerance profile schema;
-> - comparison exporters for CSV, JSON, and report-section use;
-> - explicit `TBD` handling for unresolved tolerance defaults, mapping workflows, exact field names, and export layout.
->
-> Out of scope:
->
-> - implementation of the model-state comparison engine owned by DEL-14-03;
-> - implementation of the analysis-run comparison engine owned by DEL-14-04;
-> - comprehensive commercial prover result ingestion;
-> - external validation or professional approval;
-> - protected standards text, protected tables, proprietary values, private rule-pack payloads, or code-specific tolerance defaults.
->
-> Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md#DEL-14-05`; `execution/_Decomposition/SOFTWARE_DECOMP.md#PKG-14`; `docs/IP_AND_DATA_BOUNDARY.md#public-repository-must-not-contain`.
->
+### Acceptance criteria
 
-### CLM-011 — Requirements
-
-> ##### Requirements
->
-> | Req ID | Requirement | Source |
-> |---|---|---|
-> | DEL-14-05-R001 | The contract shall support deterministic comparison of two model states and/or two analysis runs using stable IDs. | `execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-073` |
-> | DEL-14-05-R002 | The mapping schema shall represent manual mappings where automatic stable-ID alignment is insufficient. | `_CONTEXT.md#Description` (retired in `497a8d81e4`; see Git history); `execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-073` |
-> | DEL-14-05-R003 | The contract shall represent unmatched classifications for compared entities or results that lack an accepted counterpart. Specific classification values are TBD. | `_CONTEXT.md#Description` (retired in `497a8d81e4`; see Git history); `_CONTEXT.md#Anticipated-Artifacts` (retired in `497a8d81e4`; see Git history) |
-> | DEL-14-05-R004 | The tolerance profile schema shall support unit-normalized result deltas and tolerance profiles without silently supplying default engineering values. Numeric defaults are TBD. | `execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-073`; `execution/_Decomposition/SOFTWARE_DECOMP.md#OI-014`; `docs/CONTRACT.md#OPS-K-DATA-2` |
-> | DEL-14-05-R005 | Export contracts shall preserve explicit unit and dimensional metadata for unit-bearing values or produce blocking diagnostics when required unit metadata is missing. | `docs/CONTRACT.md#OPS-K-UNIT-1`; `docs/SPEC.md#result-export-format` |
-> | DEL-14-05-R006 | JSON export semantics shall align with the schema-first result-envelope baseline. Exact deliverable-specific JSON fields are TBD. | `_CONTEXT.md#Architecture-Basis-Injection` (retired in `497a8d81e4`; see Git history); `docs/SPEC.md#result-export-format` |
-> | DEL-14-05-R007 | CSV export semantics shall be specified without embedding protected standards data, proprietary engineering values, private project data, or private rule-pack payloads. Exact columns are TBD. | `_CONTEXT.md#Description` (retired in `497a8d81e4`; see Git history); `docs/IP_AND_DATA_BOUNDARY.md#public-repository-must-not-contain`; `docs/SPEC.md#result-export-format` |
-> | DEL-14-05-R008 | Report-section export semantics shall preserve diagnostics, provenance, hashes or audit-manifest references, analysis statuses, limitations, and professional-boundary notices. Layout is TBD. | `docs/SPEC.md#result-export-format`; `docs/SPEC.md#report-boundary`; `docs/CONTRACT.md#OPS-K-REPORT-1` |
-> | DEL-14-05-R009 | The contracts shall not claim certification, sealing, approval, authentication, external validation, or code compliance (PRD §21.2). | `docs/CONTRACT.md#OPS-K-AUTH-1`; `execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-073` |
-> | DEL-14-05-R010 | Public artifacts shall not bundle protected standards text, protected tables, code-specific acceptance criteria, proprietary values, or private user data. | `docs/CONTRACT.md#OPS-K-IP-1`; `docs/IP_AND_DATA_BOUNDARY.md#public-repository-must-not-contain` |
-> | DEL-14-05-R011 | The contract shall remain compatible with model-state records, analysis-run records, result export envelopes, and unit-system contracts identified as upstream dependency evidence. | `Dependencies.csv`; `_DEPENDENCIES.md` |
->
-
-### CLM-012 — Standards
-
-> ##### Standards
->
-> | Standard or governance source | Applicability | Status |
-> |---|---|---|
-> | JSON Schema 2020-12 | Schema-first contract basis where JSON contracts are materialized. | Source: `_CONTEXT.md#Architecture-Basis-Injection`. |
-> | Chirality/OpenPipeStress lifecycle vocabulary | Deliverable state and draft/proposal status. | Source: `docs/TYPES.md#Lifecycle-states`; `docs/CONTRACT.md#OPS-K-AGENT-4`. |
-> | SWBPIPE unit boundary | Unit-aware, dimensionally checked values and exports. | Source: `docs/CONTRACT.md#OPS-K-UNIT-1`; `docs/SPEC.md#unit-system-and-dimensional-analysis`. |
-> | SWBPIPE IP/data boundary | Protected/private data exclusion for public artifacts. | Source: `docs/IP_AND_DATA_BOUNDARY.md`. |
-> | Professional responsibility boundary | Software output is decision support and not professional approval. | Source: `docs/CONTRACT.md#OPS-K-AUTH-1`; `docs/DIRECTIVE.md#Human-authority`. |
->
-> No external engineering standard text is locally provided as an authoritative source for this deliverable. Any code- or owner-standard-derived tolerance or acceptance rule is `TBD` unless later supplied through a governed private/user data path.
->
-
-### CLM-013 — Verification
-
-> ##### Verification
->
-> | Requirement | Verification approach |
-> |---|---|
-> | DEL-14-05-R001 | Determinism tests comparing equivalent input states/runs using `tests/test_model_state_comparison.py` and `tests/test_analysis_run_comparison.py`; no current run/pass is asserted. |
-> | DEL-14-05-R002 | Schema validation for manual mapping records, including stable source/target references and evidence/provenance fields. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
-> | DEL-14-05-R003 | Schema validation for unmatched classifications once enum values are human-approved or source-defined. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
-> | DEL-14-05-R004 | Unit-aware tolerance-profile validation with missing default values treated as explicit findings. Evidence to assess: `schemas/comparison_tolerance.schema.json`, `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
-> | DEL-14-05-R005 | Unit/dimension validation for exported comparison values. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
-> | DEL-14-05-R006 | JSON Schema validation against the deliverable schema after the schema body is created. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
-> | DEL-14-05-R007 | CSV parse/round-trip checks after column set and ordering are defined. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
-> | DEL-14-05-R008 | Report-section fixture checks for provenance, diagnostics, hashes, limitations, and professional-boundary notices. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
-> | DEL-14-05-R009 | Protected wording/professional-claim review checking for prohibited approval/compliance language. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
-> | DEL-14-05-R010 | Protected-content/private-data lint or review gate. Evidence to assess: `schemas/comparison_mapping.schema.json` and `tests/test_comparison_contracts.py`; any unexercised runtime/export, provenance or numeric-policy requirement remains open. |
-> | DEL-14-05-R011 | Dependency closure review against the approved local dependency mirror (current authority: `execution/_DAG/_LATEST.md`; earlier graph IDs are provenance). Current status: mirror present; closure not independently reclassified by this deliverable. |
->
-
-### CLM-014 — Documentation
-
-> ##### Documentation
->
-> Required records for later implementation work:
->
-> - comparison mapping schema documentation;
-> - tolerance profile schema documentation;
-> - JSON export contract documentation;
-> - CSV export contract documentation;
-> - report-section export contract documentation;
-> - unresolved `TBD` register for tolerance defaults, mapping workflows, exact fields, and export layout;
-> - dependency evidence record preserving the approved DAG-006 mirror rows.
-
-- **AC-001** — The contract preserves stable-ID and manual mapping evidence, explicit unmatched slots, unit-aware tolerance and export metadata, schema-first envelopes, diagnostics, provenance, hashes, statuses, limitations, no-silent-default behavior, exact mapping-enum, classification, tolerance, field, column, and layout TBDs, reporting-owner residuals, public/private data controls, and the separation from comparison-engine implementation, external validation, or professional approval.
+- **AC-001** — The mapping schema and the tolerance schema are valid JSON Schema 2020-12. Invented mapping, unmatched and tolerance records validate, and a record lacking a reference, its evidence, its provenance, or the unit and dimension of a tolerance rule is refused.
+- **AC-002** — A manual mapping names one thing on each side by stable reference, with its evidence and review state. An unmatched record names its side and its classification, and a user's mark of intentionally unmatched is distinct from every other classification. The contract admits no mapping that names neither an identifier match nor a user's mapping.
+- **AC-003** — A tolerance rule for a result category can be written with an absolute value, a relative value, or both with their stated combination, in a unit of the category's dimension. A rule with no numeric value validates and is marked as having none, and no schema default, example or fixture supplies a number in its place.
+- **AC-004** — The common comparison-result interface exists at one accepted, named version. An invented state comparison and an invented run comparison validate against it, and a result with a difference lacking unit metadata, a difference that names no mapping, or a boundary field set to claim approval is refused.
+- **AC-005** — The JSON export of an invented comparison is its comparison-result document. Its CSV export has one row per compared and unmatched record with a stable row identifier, the stated columns and order, and the same identifiers, values and units as the JSON. A report-section reference to it carries its identity, hashes, diagnostics, statuses, limitations and notice.
+- **AC-006** — A comparison made in the product yields mappings, a tolerance profile reference and exports that each validate against these contracts, with the stable identifiers of both sides unchanged.
+- **AC-007** — No contract, example or fixture holds protected or private content or a code-derived tolerance, and none states or implies certification, approval, validation or compliance.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-015 — Procedure: DEL-14-05 Comparison mapping, tolerance, and export contracts
+**Method choices that define the product.**
 
-> #### Procedure: DEL-14-05 Comparison mapping, tolerance, and export contracts
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- The contracts are schemas first. An engine, an export or a view conforms to them and none defines its own shape for the same thing.
+- A definition is stated once, here, and referred to by the deliverables that use it.
+- A tolerance is always the user's. The contract has a place for a missing value so that nothing needs to invent one.
+- Every exported form derives from the one comparison-result document, so that the forms cannot disagree.
 
-### CLM-017 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> This procedure describes how to produce and verify the DEL-14-05 contract artifacts using only the current governed source basis. It is a setup-stage production procedure, not an implementation procedure for runtime comparison code.
->
-
-### CLM-018 — Prerequisites
-
-> ##### Prerequisites
->
-> | Prerequisite | Source |
-> |---|---|
-> | Deliverable context for DEL-14-05 is present and readable. | `_CONTEXT.md` |
-> | Accepted SOFTWARE_DECOMP and its amendments are available. | `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md` |
-> | Governing project invariants are available. | `_REFERENCES.md`; `docs/CONTRACT.md`; `docs/TYPES.md`; `docs/SPEC.md`; `docs/IP_AND_DATA_BOUNDARY.md`; `docs/DIRECTIVE.md` |
-> | approved graph resolved through `execution/_DAG/_LATEST.md` local mirror is present and preserved. | `_DEPENDENCIES.md`; `Dependencies.csv`; `execution/_DAG/_LATEST.md` (current approval record; DAG-006 remains historical provenance) |
-> | Upstream architecture basis rows remain context evidence only. | `_CONTEXT.md#Architecture-Basis-Injection`; `_DEPENDENCIES.md#Authority-Boundary` |
->
-> Approved local dependency mirror, summarized:
->
-> - architecture basis: DEL-00-01, DEL-00-02, DEL-00-03, DEL-00-04, DEL-00-06, DEL-00-07, DEL-00-08;
-> - state/run prerequisites: DEL-14-01 and DEL-14-02;
-> - result export prerequisite: DEL-08-04;
-> - unit contract prerequisite: DEL-02-02.
->
-
-### CLM-019 — Steps
-
-> ##### Steps
->
-> 1. Confirm scope identity from `_CONTEXT.md`: DEL-14-05, PKG-14, API_CONTRACT, SOW-073, OBJ-016.
-> 2. Confirm decomposition scope from `execution/_Decomposition/SOFTWARE_DECOMP.md`: DEL-14-05 defines manual mappings, unmatched classifications, tolerance profiles, and CSV/JSON/report-section export semantics.
-> 3. Record exclusions before defining contract details: no comprehensive commercial prover result ingestion, no external validation decision, no professional approval state, and no protected/private data in public artifacts.
-> 4. Define the comparison mapping schema surface at a contract level:
->    - stable source and target references;
->    - manual mapping evidence/provenance;
->    - relation to model-state and analysis-run comparison outputs;
->    - unresolved fields marked `TBD`.
-> 5. Define the unmatched classification surface:
->    - explicit classification slot for entities/results without an accepted counterpart;
->    - specific enum values marked `TBD` unless later source material supplies them.
-> 6. Define the tolerance profile surface:
->    - unit-aware comparison quantities and delta interpretation;
->    - required unit/dimensional metadata;
->    - tolerance default values marked `TBD`.
-> 7. Define JSON export semantics:
->    - schema-first envelope basis;
->    - result set, model/run basis, solver version, unit-system reference, diagnostics, provenance, hashes or audit-manifest reference, analysis statuses, and professional-boundary notice;
->    - exact fields marked `TBD`.
-> 8. Define CSV export semantics:
->    - parseable tabular representation for comparison review;
->    - no protected standards text, proprietary values, private project data, or private rule-pack payloads;
->    - columns and ordering marked `TBD`.
-> 9. Define report-section export semantics:
->    - report-facing comparison evidence, limitations, diagnostics, assumptions, and professional-boundary notice;
->    - final layout marked `TBD`.
-> 10. Verify the resulting contract draft against unit safety, data-boundary, professional-boundary, and no-silent-defaults invariants.
-> 11. Preserve approved DAG-006 mirror rows as ACTIVE. Do not delete, retire, or reclassify them during setup handling.
->
-
-### CLM-020 — Verification
-
-> ##### Verification
->
-> | Check | Expected result |
-> |---|---|
-> | Scope check | Contract content is limited to DEL-14-05 and does not implement DEL-14-03 or DEL-14-04 engines. |
-> | Source-grounding check | Non-trivial requirements cite `_CONTEXT.md`, `_REFERENCES.md`, decomposition, local dependency mirror, or referenced governance docs. |
-> | TBD check | Unsupported details are marked `TBD` or `ASSUMPTION`; no engineering values are invented. |
-> | Unit check | Unit-bearing comparison/export values are specified as unit-aware or diagnostic-producing. |
-> | Boundary check | No professional approval, certification, code-compliance, or external-validation claim is introduced (PRD §21.2). |
-> | IP/privacy check | No protected standards content, proprietary data, private project data, or private rule-pack payload is embedded. |
-> | Dependency mirror check | Preserve local dependency meanings and the actual statuses recorded under `execution/_DAG/_LATEST.md`; DAG-011 is current authority. Do not force historical duplicates or pending edges to ACTIVE. |
->
-
-### CLM-021 — Records
-
-> ##### Records
->
-> - `ScopeOfWork.md` definition section
-> - `ScopeOfWork.md` requirements section
-> - `ScopeOfWork.md` guidance section
-> - `ScopeOfWork.md` procedure section
-> - `_SEMANTIC.md`
-> - `_SEMANTIC_LENSING.md`
-> - `Dependencies.csv`
-> - `_DEPENDENCIES.md`
-> - `_STATUS.md`
-
-- **VER-001** — Validate the contract and review source parity, mapping and unmatched surfaces, tolerance and unit/dimension behavior, CSV/JSON/report-section export coverage, provenance/diagnostic/hash/status/limitation preservation, retained TBDs and reporting residuals, no-silent-default behavior, data boundaries, and professional-authority limits.
+- **VER-001** — Comparison with a named reference (the JSON Schema 2020-12 specification, applied by a validator that imports no product code) with an executable check (observes invented valid records and records constructed with each required member missing).
+- **VER-002** — Executable check (observes constructed mapping and unmatched records of each kind against the mapping schema, including a mapping without an identifier match or a user's mapping).
+- **VER-003** — Executable check (observes rules for result categories of several dimensions with each admitted combination of values, a rule with no value, and a scan of the schema, examples and fixtures for a supplied numeric tolerance).
+- **VER-004** — Comparison with a named reference (the accepted version of the comparison-result schema, under a validator that imports no product code) with an executable check (observes invented state and run comparisons and each constructed invalid witness).
+- **VER-005** — Executable check (observes the JSON and CSV exports and the report-section reference of one invented comparison, and compares identifiers, values and units between them).
+- **VER-006** — Executable check (observes the mappings, tolerance reference and exports of a comparison made through the product's own comparison path against the schemas).
+- **VER-007** — Judgment by a reviewer who did not write the contracts, who examines them, their examples and fixtures against PRD §20.1 and §21.2 with the protected-content scan.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-022 — Guidance: DEL-14-05 Comparison mapping, tolerance, and export contracts
-
-> #### Guidance: DEL-14-05 Comparison mapping, tolerance, and export contracts
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-024 — Purpose
-
-> ##### Purpose
->
-> DEL-14-05 exists to define the comparison-facing contracts that let model-state and analysis-run comparison results be mapped, interpreted with tolerances, and exported for review without turning diagnostic comparison output into professional approval or external validation.
->
-> Sources: `_CONTEXT.md`; `execution/_Decomposition/SOFTWARE_DECOMP.md#DEL-14-05`; `execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-073`.
->
-
-### CLM-025 — Principles
-
-> ##### Principles
->
-> | Principle | Guidance |
-> |---|---|
-> | Deterministic identity first | Stable IDs are the baseline for comparison. Manual mapping should be explicit evidence where stable-ID alignment is insufficient. Source: `execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-073`. |
-> | Missing values stay visible | Tolerance defaults, mapping workflow details, and exact export field sets remain `TBD` where sources do not define them. Do not substitute engineering defaults. Source: `docs/CONTRACT.md#OPS-K-DATA-2`; `execution/_Decomposition/SOFTWARE_DECOMP.md#OI-014`. |
-> | Units are contract data | Unit-normalized deltas still need explicit unit/dimensional metadata or diagnostics. Source: `docs/CONTRACT.md#OPS-K-UNIT-1`; `docs/SPEC.md#result-export-format`. |
-> | Export is review evidence | Exports should carry enough context for review, regression comparison, report consumption, and downstream tooling without claiming external validation. Source: `docs/SPEC.md#result-export-format`; `execution/_Decomposition/SOFTWARE_DECOMP.md#SOW-073`. |
-> | Professional authority remains human | Avoid terms or statuses that imply software certification, sealing, professional approval, authentication, or code compliance (PRD §21.2). Source: `docs/CONTRACT.md#OPS-K-AUTH-1`; `docs/TYPES.md#Analysis-status-vocabulary`. |
-> | Public artifacts stay clean | Public examples and contract documentation must not embed protected standards text, protected tables, code-specific values, proprietary data, or private rule-pack payloads. Source: `docs/IP_AND_DATA_BOUNDARY.md#public-repository-must-not-contain`. |
->
-
-### CLM-026 — Considerations
-
-> ##### Considerations
->
-> - The comparison mapping contract depends on upstream model-state and analysis-run identity surfaces. The local approved graph resolved through `execution/_DAG/_LATEST.md` mirror records upstream dependencies on DEL-14-01 and DEL-14-02.
-> - Unit-aware tolerance behavior depends on the unit-system contract. The local approved graph resolved through `execution/_DAG/_LATEST.md` mirror records an upstream dependency on DEL-02-02.
-> - Export semantics should remain compatible with result export envelopes. The local approved graph resolved through `execution/_DAG/_LATEST.md` mirror records an upstream dependency on DEL-08-04.
-> - Architecture basis rows in the local mirror are context evidence, not independent Type 2 dispatch authority.
-> - The accessible sources do not define exact mapping enums, unmatched classification values, tolerance formulas, tolerance default values, CSV columns, JSON property names, or report-section layout. These remain `TBD`.
->
->
-> Current contract evidence: `schemas/comparison_mapping.schema.json` defines mapping/unmatched and JSON/CSV export fields; `tests/test_comparison_contracts.py` checks the reference contract. This resolves blanket schema/field absence, but OI-014 tolerance defaults/workflows and actual runtime/export conformance remain open.
->
-> Current implementation (at `62c1efd75b`): tolerance profiles are in `schemas/comparison_tolerance.schema.json`. The desktop comparison document (`buildPreviewComparison` in `apps/desktop/src/services/previewService.ts`, `document_kind` `openpipestress.technical_preview.comparison`) is a separate shape; it does not read or validate against either comparison schema. The desktop run comparison (W-12 S3b, `runComparison.ts`) likewise does not validate against either schema and emits no comparison-output document.
-
-### CLM-027 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Direction |
-> |---|---|
-> | Strict schema versus future external result states | Prefer schema-first contracts with explicit extension/TBD slots because `_CONTEXT.md` notes that future external result states may be represented without changing core compare logic. |
-> | Human readability versus machine validation | Preserve both reviewable export forms and schema validation hooks; exact CSV/report fields remain TBD until contract details are sourced. |
-> | Default tolerances versus no silent defaults | Keep defaults TBD unless a future governed source supplies them. Silent tolerances would conflict with the no-silent-defaults principle. |
-> | Broad external comparison support versus bounded MVP | Stay within deterministic state/run comparison and comparison export semantics; comprehensive commercial prover ingestion is excluded by PKG-14. |
->
-
-### CLM-028 — Examples
-
-> ##### Examples
->
-> TBD. No locally accessible source provides approved example mappings, tolerance profiles, CSV rows, JSON payloads, or report-section examples for DEL-14-05.
->
-
-### CLM-029 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> No source conflict requiring human ruling was identified during the P1/P2 setup pass. The main unresolved items are source gaps, recorded as `TBD`: tolerance defaults, mapping workflow details, exact export fields, and report-section layout.
+- **AX-001** — *Explicit correspondence over inferred correspondence.* Better is more of the entities a user cares about paired by an identifier or by the user's own mapping. It may never be gained by guessing a match the user did not make.
+- **AX-002** — *No tolerance the user did not choose.* Better is more comparisons classified against a profile the user defined. A default, a silent threshold or a value the product supplies from a code is never the way to get there.
+- **AX-003** — *One meaning in every form.* Better is fewer differences between what a comparison says on screen, in JSON, in CSV and in a report; the target is none. A form that drops units, diagnostics or the notice to look simpler is not acceptable.
+- **AX-004** — *Evidence, not verdict.* Better is a larger share of differences shown with their size, unit and the tolerance rule that classified them. A comparison shows what differs and by how much. Wording or structure that reads as validation or acceptance is never traded for clarity.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-073 OBJ-016 | CLM-008 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## SCA-011 — Interface responsibility and verification hook
-
-- **DEL-14-05-SCA011-REQ-001** — Owns the common comparison-result/export interface and authoritative versioned schema, alongside existing mapping/tolerance contracts. DEL-14-03 and DEL-14-04 produce it; DEL-08-04 consumes/maps it.
-- **DEL-14-05-SCA011-VER-001** — Review and accept the named ComparisonResult draft or its explicit successor before producer conformance claims; bind mapping, unmatched accounting, tolerance references, units, diagnostics and reporting handoff without selecting numeric tolerances or report layout.
-
-Named preparation artifact: `execution/_ScopeChange/SCA-011_2026-09-22_OWNERSHIP/interfaces/ComparisonResult.v0.1.draft.schema.json`, with field decisions and semantic checks in `INTERFACE_CONTRACTS.md`. This identifies an accountable contract preparation surface; its wire fields/version are unaccepted design deltas, not deployed schemas. Scope adoption alone neither validates existing preview payloads nor activates a new API, runtime, persistence format, external process or compatibility window. Existing requirements, exclusions and lifecycle remain in force.
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-14-05:1** — R5 continuation delivery task: Demonstrate emitted JSON/CSV and runtime mapping/tolerance conformance to `schemas/comparison_mapping.schema.json`, including stable IDs, units, diagnostics, provenance and privacy. Schema/test existence does not close actual export or report coverage; OI-014 defaults remain open (CLM-005/006/013).
-- **DEL-14-05:2** — SCA-011 interface follow-through: Review and accept the named ComparisonResult draft or its explicit successor before producer conformance claims; bind mapping, unmatched accounting, tolerance references, units, diagnostics and reporting handoff without selecting numeric tolerances or report layout.
-- **DEL-14-05:3** — Keep PDU-037 engine determinism owned by DEL-14-04 and tolerance/independent-validation outcomes open; refreshed deterministic backcheck does not move engine logic or validate tolerance suitability.
-- **DEL-14-05:4** — Bind comparison export/report-section references through the reporting owner with explicit analysis-status and limitation preservation; the current T4 evidence covers persisted state/run records only and does not select layout or tolerance policy.
+| OUT-001 | SOW-073 OBJ-016 | REQ-001 REQ-006 REQ-011 | AC-001 | VER-001 | Outside source: the JSON Schema 2020-12 specification. The invalid records are constructed, so the criterion states which are refused |
+| OUT-001 | SOW-073 OBJ-016 | REQ-002 REQ-003 | AC-002 | VER-002 | The records are constructed against the mapping hierarchy of PRD §15.4 and FR-CMP-005, not taken from an engine's output |
+| OUT-001 | SOW-073 OBJ-016 | REQ-004 | AC-003 | VER-003 | The rules are constructed, so the criterion states which validate; the scan compares the schema, examples and fixtures against the no-default rule of PRD §5.5 |
+| OUT-001 | SOW-073 OBJ-016 | REQ-005 REQ-012 | AC-004 | VER-004 | The reference is the comparison-result schema at its accepted version, which is undecided (see Undecided); once a version is accepted the schema is compared with the JSON Schema 2020-12 specification and the invalid witnesses are constructed |
+| OUT-001 | SOW-073 OBJ-016 | REQ-006 REQ-007 REQ-008 | AC-005 | VER-005 | The criterion fixes the expected result: every form holds the same identifiers, values and units. The forms are compared with each other and with the invented comparison they were made from |
+| OUT-001 | SOW-073 OBJ-016 | REQ-013 CLM-001 CLM-002 | AC-006 | VER-006 | Outside source: the schemas, applied by a validator that imports no product code to what the product emitted |
+| OUT-001 | SOW-073 OBJ-016 | REQ-009 REQ-010 CLM-004 | AC-007 | VER-007 | Judged by a reviewer against PRD §20.1 and §21.2 |

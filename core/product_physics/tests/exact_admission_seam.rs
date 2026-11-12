@@ -672,7 +672,7 @@ fn a3_realized_bend_in_a_v3_exact_region_is_admitted_and_recovered_on_the_arc() 
             for kind in ["pipe_lame_hoop_stress_v2", "pipe_lame_radial_stress_v2", "element_local_axial_force"] {
                 assert!(!kinds.contains(kind), "{base:?}: {kind} published on an arc");
             }
-            // T4-U4b (§2.1, §2.3): the arc publishes its certified maximum.
+            // the arc publishes its certified maximum.
             assert!(kinds.contains("pipe_elastic_normal_stress_maximum_v2"), "{base:?}: no arc maximum");
             assert!(!has_code(&envelope, "EXACT_STRESS_GOVERNING_MAXIMUM_UNAVAILABLE"), "{base:?}");
             // Every diagnostic id stays unique (X0 has two cases).
@@ -863,7 +863,7 @@ fn w15_rigid_family_is_admitted_on_v3() {
     }
 }
 
-/// W-15 §2.1, §2.7: on a closed-end cantilever region (X0), a scaled valve
+/// on a closed-end cantilever region (X0), a scaled valve
 /// body is an equivalent pipe of its mapped section: the wall axial force is
 /// unchanged, and the elastic pressure strain, so the tip's axial motion, is
 /// s times smaller.
@@ -936,7 +936,7 @@ fn w15_reducer_is_refused_only_where_its_member_is_in_a_region() {
     }
 }
 
-/// W-15 §2.3: a body mapped onto a span an objective connector replaces is
+/// a body mapped onto a span an objective connector replaces is
 /// refused by name (blocking) on v3; no member is solved for it.
 #[test]
 fn w15_body_on_a_replaced_span_is_a_mapping_conflict() {

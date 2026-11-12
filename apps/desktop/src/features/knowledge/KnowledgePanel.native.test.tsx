@@ -1,4 +1,4 @@
-// C1 slice 4 (DEL-04-05 `c1-native-custody-plan.md`): the Knowledge panel reads a native result's
+// the Knowledge panel reads a native result's
 // axial-force row by one bounded native lookup (the actual Rust command's recorded reply). A refused
 // lookup is said as a refusal, never shown as a result without that row. Unit transport replay;
 // NOT native UI qualification. Invented data only.

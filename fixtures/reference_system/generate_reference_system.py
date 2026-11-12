@@ -52,7 +52,7 @@ MODEL_DOCUMENT_VERSION = "0.9.0"
 HERE = Path(__file__).resolve().parent
 sys.path.append(str(HERE.parents[1]))  # the repository root, for the shared pressure-elongation switch
 from tools.validation import pressure_elongation as PE  # noqa: E402
-SPEC = "execution/PKG-09/DEL-09-01/Work/reference-system.md"
+SPEC = "DEL-09-01"
 MODEL_FILE = "reference_system.json"
 AUTHORING_FILE = "authoring.json"
 KEY_RESULTS_FILE = "key_results.json"

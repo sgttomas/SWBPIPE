@@ -1,4 +1,4 @@
-"""RT-A5 minuend_final, the held-status solve (retained-pricing-rules.md §8.54).
+"""RT-A5 minuend_final, the held-status solve (§8.54).
 
 - RTA5: the held solve's rules are carried on both routes. D1.4 refuses every difference basis, so no combination is
   minuend_final: the held solve, the held source capture and its frame input, the held reader's record checks and the

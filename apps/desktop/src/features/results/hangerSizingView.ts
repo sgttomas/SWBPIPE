@@ -12,7 +12,7 @@
  *   checked hash) equals `inputs.library.sha256`, and only for a record found by `hanger_id`
  *   whose own checked hash equals the selection's `record_sha256`. Every other case is a named
  *   not-shown state; record quantities are shown as the library states them, unconverted.
- * - Shows the readers' standings (§8.3.7) only from supplied evidence that carries the checked
+ * - Shows the readers' standings only from supplied evidence that carries the checked
  *   hash of the exact document it was computed on, recomputed here and compared. Absent,
  *   malformed or differently bound evidence shows every standing as `not_checked`.
  *

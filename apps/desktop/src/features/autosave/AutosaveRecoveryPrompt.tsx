@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import type { AutosaveRecoveryPromptState } from "./useAutosave";
 
-/** The recovery offer (DEL-02-05 Design `autosave-and-backup.md` §3). It is
+/** The recovery offer. It is
  * modal as the unsaved-changes prompt is: it takes the shared modal hold, the
  * workspace is inert while it is open (App.tsx), Tab stays on its buttons,
  * window shortcuts are held back, and focus returns to where it was when it

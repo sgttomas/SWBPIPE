@@ -18,11 +18,11 @@ export type WasmOperationEngine = {
   validateOperationBatchJson: (modelJson: string, batchJson: string, claimedModelHashJson: string) => string;
   applyOperationBatchJson: (modelJson: string, batchJson: string, claimedModelHashJson: string) => string;
   convertDisplayQuantitiesJson: (inputJson: string) => string;
-  // W-13 §5.3: the one model-document validator (model-data slots). JSON text
+  // the one model-document validator (model-data slots). JSON text
   // in; `{document_kind, blocking, diagnostics}` out, or the input-error
   // envelope when the text is not JSON.
   validateModelDocumentJson: (modelJson: string) => string;
-  // B11 on-demand model checks (DEL-04-06 Design `on-demand-model-checks.md`):
+  // B11 on-demand model checks:
   // the solve's own checks before stiffness formation, without solving. Model
   // JSON text in; `{document_kind, checked, diagnostics | refusal}` out, or the
   // input-error envelope when the text is not JSON.
@@ -51,11 +51,11 @@ export type WasmOperationEngine = {
   // The row semantics of each row of a JSON array, in order, the source read once:
   // the array of the outcomes `readerRowSemanticsJson` returns per row.
   readerRowSemanticsEachJson: (rowsJson: string, sourceJson?: string) => string;
-  // RT-A4 §10.4: a recorded-run read entry (`reader_verdict::*_recorded`) under the
+  // a recorded-run read entry (`reader_verdict::*_recorded`) under the
   // record's binding JSON: `dispatch`, `preview-physics`, `preview-physics-transport`,
   // `retained-precision` or `retained-precision-transport`, in its current entry's shape.
   readerRecordedJson: (entry: string, bindingJson: string, sourceJson: string, modelJson?: string, invocationJson?: string) => string;
-  /** RT-A4 §10.4: each row's semantics of a recorded statement under its record's binding. */
+  /** each row's semantics of a recorded statement under its record's binding. */
   readerRecordedRowSemanticsEachJson: (bindingJson: string, rowsJson: string, sourceJson: string) => string;
   // DEL-07-05 numerical health indicator (Design `numerical-health-indicator.md`
   // §2.6): the Rust parse of a result's ordinary-solve diagnostics, with the base
@@ -63,11 +63,11 @@ export type WasmOperationEngine = {
   // Presentation only; never read by admission or standing. Throws only on input
   // that is not JSON; the desktop then shows no indicator (fail closed).
   numericalHealthJson: (sourceJson: string, readerFindingsJson?: string) => string;
-  // W-17 §2.3a: the shear modulus a library insert derives from E and ν, bit
+  // the shear modulus a library insert derives from E and ν, bit
   // for bit the exact route's (`derived_shear_modulus_pa`): `{value, unit:"Pa"}`
   // or `{error}`.
   derivedShearModulusJson: (elasticModulus: number, unit: string, poissonRatio: number) => string;
-  // Model document 0.9.0 S2 (DEL-02-01 Work `model-document-0.9.0.md` §4.2, §10): the
+  // Model document 0.9.0 S2: the
   // solve's own read-only operating-condition resolution of a model document
   // (`operating_conditions::preview_operating_conditions`). Model JSON text in; the
   // preview JSON out, or the input-error envelope when the text is not JSON.

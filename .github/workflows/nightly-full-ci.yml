@@ -1,0 +1,79 @@
+name: nightly-full-ci
+# Advisory full runs of main (docs/CI_STRATEGY.md, "Nightly full run"): nightly
+# on a schedule when main has changed, and by hand. It adds no required check: `harness` on the pull request stays the
+# merge check. A run that does not pass opens or updates a `nightly` issue.
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  # Runs of main go one at a time, so a skip is always decided from a finished run.
+  group: nightly-full-ci-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  changed:
+    name: Full run change check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          sparse-checkout: tools/software_workflow
+      # The history is this workflow's own. A manual dispatch always runs.
+      - name: Skip a scheduled run when main is unchanged since the last successful full run
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          SHA: ${{ github.sha }}
+        run: python3 tools/software_workflow/nightly_ci.py --event "$EVENT" --sha "$SHA" --workflow nightly-full-ci.yml
+  full-suite:
+    # The product workflow with no candidate base selects full coverage
+    # (hosted_ci.FULL_COVERAGE_EVENTS): the broad browser matrix, desktop
+    # behaviour and Rust, numerical Cargo oracles and all Python shards.
+    name: Full suite of main
+    needs: changed
+    if: needs.changed.outputs.run == 'true'
+    uses: ./.github/workflows/piping-desktop-e2e.yml
+    with:
+      # No Repository checks job runs here, so the Python shards keep tests/test_ci_numerical.py.
+      repository-checks-run: false
+  report:
+    # Always runs, and decides in Python from the job results: a timed-out job
+    # can be reported as cancelled while the run itself is not, so neither
+    # failure() nor cancelled() is a complete condition.
+    name: Full run report
+    needs: [changed, full-suite]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      checks: read
+      pull-requests: read
+      issues: write
+    concurrency:
+      # Two failed runs of one commit report in turn, so the second finds the first's issue.
+      group: nightly-full-ci-report-${{ github.sha }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          sparse-checkout: tools/software_workflow
+      - name: Open or update the nightly issue when the full run of main did not pass
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESULTS: ${{ toJSON(needs) }}
+        run: python3 tools/software_workflow/nightly_report.py

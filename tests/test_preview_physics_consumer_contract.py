@@ -1,4 +1,4 @@
-"""preview-physics-2 Python reader, standing and packaging (T0R S1 §9-§10).
+"""preview-physics-2 Python reader, standing and packaging.
 
 Hand-built envelopes follow the frozen S1 interface exactly; they are reader
 controls, not producer output. Tests over the actual producer fixtures are at
@@ -46,7 +46,7 @@ def L(*parts):
 
 
 def R(*parts):
-    """Row identities (S1 §3): segments joined by ':'."""
+    """Row identities: segments joined by ':'."""
     return ":".join(f"{len(p.encode('utf-8'))}:{p}" for p in parts)
 
 
@@ -446,7 +446,7 @@ def test_incomplete_coverage_withholds_headline_but_keeps_rows():
     case = source["contract_evidence"]["preview_cases"][0]
     extremum = case["pipe_stress_extrema"].pop()
     source["results"] = [row for row in source["results"] if row["id"] != extremum["result_id"]]
-    # T4-U4b (§2.1, review item 6): no member is outside the maximum's domain on preview-physics-2; an unavailable
+    # T4-U4b (review item 6): no member is outside the maximum's domain on preview-physics-2; an unavailable
     # member withholds the headline.
     case["stress_maximum_coverage"] = {"complete": False, "unavailable_pipe_ids": [], "outside_domain_pipe_ids": [extremum["pipe_id"]]}
     source["summary"]["max_open_formula_stress"] = None
@@ -580,7 +580,7 @@ def test_a1_b_per_support_nonlinear_rows_name_listed_supports():
 
 
 def test_w16_relative_displacement_rows_name_listed_supports():
-    """W-16 stage 2 (R-b, DEL-04-03 Design pf-nonlinear-imposed-motion.md §4): the
+    """W-16 stage 2 (R-b): the
     relative-displacement observation row is a per-support nonlinear row."""
     kind = "nonlinear_support_final_relative_displacement"
     source = envelope()

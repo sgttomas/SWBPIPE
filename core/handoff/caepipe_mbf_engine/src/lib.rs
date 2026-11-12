@@ -8,13 +8,13 @@
 //! byte-identical to `MbfImportResult.model_bytes()`, `report_bytes()` and `id_map_bytes()` (the committed parity
 //! vectors check this both ways). [`render_si`] writes a model document as SI MBF text, or refuses it by name, and
 //! its [`WriterResult`] carries the Python's text, diagnostics, maps, loss report and assumptions, its `to_dict()`
-//! bytes and its format-3 sidecar ([`WriterResult::sidecar`]). Both twins take acos, asin, atan2, sin and tan
+//! bytes and its format-6 sidecar ([`WriterResult::sidecar`]). Both twins take acos, asin, atan2, sin and tan
 //! correctly rounded, by one algorithm (the Python's `correctly_rounded`, ported in `correctly_rounded.rs`), not from
 //! the platform C library, whose last bit differs between platforms; so the bytes agree on every platform, natively
 //! and in wasm. Where the port cannot reproduce the Python exactly it fails closed ([`ImportError::Unsupported`])
 //! instead of approximating it. The crate does no file I/O and depends on no reporting crate.
 //!
-//! A bound import with a format 2, 3 or 4 sidecar ends with the regeneration identity: the SI writer regenerates the
+//! A bound import with a format 2, 3, 4 or 6 sidecar ends with the regeneration identity: the SI writer regenerates the
 //! sidecar from the imported model and the given sidecar must equal it (Design `caepipe-mbf-import.md` §14). The
 //! crate's own writer ([`SiWriter`], [`regenerate_caepipe_sidecar`]) does this unless the caller supplies another
 //! [`SidecarRegenerator`]; and the writer's own preflight (`MBF-SI-PREFLIGHT-REFUSED`) is this crate's importer.
@@ -29,8 +29,10 @@
 
 mod correctly_rounded;
 mod decimal90;
+mod designation;
 mod export_review;
 mod export_settings;
+mod identity_inventory;
 mod import_review;
 mod importer;
 mod pyfmt;
@@ -52,10 +54,12 @@ pub use export_review::{
 pub use export_settings::{
     export_settings_from_json, ExportSettingsError, EXPORT_SETTINGS_INVALID, MAX_EXPORT_SETTINGS_JSON_BYTES, MAX_EXPORT_TITLE_BYTES,
 };
+pub use designation::{designation, evaluate_designated_source, ReviewDesignation, SourceEvaluation, DESIGNATION_REASONS};
 pub use import_review::{
-    import_review, ImportReview, ImportReviewSource, ImportReviewSummary, ReviewDocumentCheck, ReviewModel, ReviewedIdentityFile, ASSUMPTION_UNAVAILABLE,
+    import_review, import_review_designated, ImportReview, ImportReviewSource, ImportReviewSummary, ReviewDocumentCheck, ReviewModel, ReviewedIdentityFile, ASSUMPTION_UNAVAILABLE,
     IDENTITY_MAPS, IMPORT_REVIEW_DOCUMENT_KIND, IMPORT_REVIEW_FORMAT, IMPORT_REVIEW_TRUNCATED, MODEL_TOO_LARGE, NOT_ADOPTABLE,
 };
+pub use identity_inventory::{compare_inventories, identity_inventory, ClassInventory, IdentityInventory, InventoryComparison, INVENTORY_CLASSES};
 pub use pyjson::{SidecarJsonError, MAX_NESTING as MAX_SIDECAR_NESTING};
 pub use pystr::PyError;
 pub use value::{py_eq, Dict, OMap, Value};
@@ -68,7 +72,9 @@ pub const IMPORT_PROFILE_ID: &str = importer::IMPORT_PROFILE_ID;
 pub const REPORT_KIND: &str = importer::REPORT_KIND;
 pub const MBF_VERSION: &str = importer::MBF_VERSION;
 /// The sidecar formats the importer reads (legacy has no `sidecar_format`).
-pub const SIDECAR_FORMATS: [i64; 3] = sidecar::SIDECAR_FORMATS;
+pub const SIDECAR_FORMATS: [i64; 4] = sidecar::SIDECAR_FORMATS;
+/// The format the writer records for every export (Design §15, Format 6).
+pub const SIDECAR_FORMAT: i64 = sidecar::SIDECAR_FORMAT;
 
 /// The writer sidecar as the caller has it.
 #[derive(Clone, Debug)]
@@ -90,7 +96,7 @@ pub enum Reference {
 /// What the writer's `regenerate_caepipe_sidecar` returns.
 #[derive(Clone, Debug)]
 pub enum Regenerated {
-    /// The sidecar the writer records for the model (format 4, with its self-digest and section_map).
+    /// The sidecar the writer records for the model (format 6, with its self-digest, section_map and derivation).
     Sidecar(Value),
     /// The writer refuses the model: the codes of its error diagnostics.
     Refused(Vec<String>),
@@ -114,7 +120,7 @@ pub struct ImportOptions<'a> {
     pub shear_model: Option<Value>,
     pub rebind_by_node_number: bool,
     pub source_label: String,
-    /// The writer for the regeneration identity of a bound format 2, 3 or 4 import; None is the crate's own
+    /// The writer for the regeneration identity of a bound format 2, 3, 4 or 6 import; None is the crate's own
     /// ([`SiWriter`]).
     pub regenerator: Option<&'a dyn SidecarRegenerator>,
     /// Test knob mirroring `PD1_VERSIONS = ()` (profile decision PD-1 withdrawn: the base rule TBD-17-04-007).
@@ -192,6 +198,30 @@ pub struct IdentityRecoveryFacts {
     pub unrecovered_fields: u64,
 }
 
+/// A format-6 sidecar's `derivation.export_settings` (Design `caepipe-mbf-import.md` §15, Format 6): the writer inputs
+/// outside the model document that can change the MBF bytes, as the writer used them. Python `SidecarExportSettings`.
+#[derive(Clone, Debug, PartialEq)]
+pub struct SidecarExportSettings {
+    /// The printed title line.
+    pub title: String,
+    pub reference_temperature: f64,
+    /// `degC` or `degF`: the argument the writer used.
+    pub reference_temperature_unit: &'static str,
+    pub max_layout_rows: Option<i64>,
+    /// Null, or one of the documented OPTIONS piping-code tokens.
+    pub piping_code: Option<String>,
+}
+
+/// A bound format-6 sidecar's `derivation` (Design `caepipe-mbf-import.md` §15, Format 6), as the sidecar declares it:
+/// the SHA-256 of the canonical model document the writer read, and the export settings. Held at the sidecar's
+/// source-free trust level for a later check against a designated source document; the import neither verifies nor
+/// uses it. Python `SidecarDerivation`.
+#[derive(Clone, Debug, PartialEq)]
+pub struct SidecarDerivation {
+    pub source_model_sha256: String,
+    pub export_settings: SidecarExportSettings,
+}
+
 /// `MbfImportResult`.
 #[derive(Clone, Debug)]
 pub struct ImportResult {
@@ -207,6 +237,9 @@ pub struct ImportResult {
     pub recorded_material_origins: u64,
     /// The importer's identity-recovery counts, carried on refused results too (not part of `to_dict()`).
     pub identity_recovery: IdentityRecoveryFacts,
+    /// A bound format-6 import's sidecar derivation; None for formats 2 to 4, legacy, rebound, unbound and refused
+    /// imports (not part of `to_dict()`).
+    pub derivation: Option<SidecarDerivation>,
     pub target_options: Dict,
     pub id_map: Value,
     pub source: Value,
@@ -332,6 +365,21 @@ pub fn sidecar_self_digest(sidecar: &Value) -> Result<String, (String, String)> 
         Ok(digest) => Ok(digest),
         Err(Ok(error)) => Err((error.path, error.reason)),
         Err(Err(error)) => Err(("sidecar".into(), error.message)),
+    }
+}
+
+/// si_writer `model_canonical_bytes(model)` as a SHA-256: the digest a format-6 sidecar records as
+/// `derivation.source_model_sha256` for the model document the writer read (Design §15, Format 6), or the path and
+/// reason that leave the document without a canonical form. A document beyond [`value::MAX_VALUE_NESTING`] has none
+/// here: `("model", reason)`.
+pub fn model_canonical_sha256(model: &Value) -> Result<String, (String, String)> {
+    if !value::within_bound(model) {
+        return Err(("model".into(), value::unrepresentable(value::Unrepresentable::TooDeep, "model")));
+    }
+    match sidecar::model_canonical_bytes(model) {
+        Ok(bytes) => Ok(sidecar::hex(&<sha2::Sha256 as sha2::Digest>::digest(&bytes))),
+        Err(Ok(error)) => Err((error.path, error.reason)),
+        Err(Err(error)) => Err(("model".into(), error.message)),
     }
 }
 

@@ -2,375 +2,118 @@
 schema: chirality-deliverable-sow/v1
 deliverable_id: DEL-09-01
 package_id: PKG-09
-decomposition_basis: projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md@00115c71931bcae79909602d653740d3bb72dfa1
+decomposition_basis: execution/_Decomposition/SOFTWARE_DECOMP.md
 project_scope_refs: [SOW-026]
 package_objective_refs: [OBJ-008]
 ---
 
-# Scope of Work — DEL-09-01
-
-Reconciliation evidence: the retired D-41 current-declaration snapshots are preserved at source `00115c71931bcae79909602d653740d3bb72dfa1` and in `execution/_Reconciliation/DeliverableConcordance/RECON_2026-09-21_WHOLE_CORPUS/`. Current scope and decisions are resolved through `execution/_Decomposition/SOFTWARE_DECOMP.md` and `execution/_Coordination/_DECISIONS/_REGISTER.md`; dependency context is resolved through `execution/_DAG/_LATEST.md`. Open obligations remain in this Scope of Work and owning decisions, with execution in the selected graph; lifecycle remains in `_STATUS.md`. This text repair establishes no lifecycle, review, validation, release, professional-reliance, or code-compliance closure.
+# Scope of Work — DEL-09-01 Mechanics benchmark suite
 
 ## Purpose and Objective Traceability
 
-This Scope of Work defines `DEL-09-01` in service of project scope [SOW-026] and package objectives [OBJ-008].
+This deliverable is the standing check that the solver computes frame and piping mechanics correctly. It keeps a suite of small invented models whose answers are worked out without the product (by closed form, by hand calculation, or by a generator that runs no product code), solves each one with the product, and compares the two at the governed tolerance. It also keeps the one invented reference system on which the release is examined: a single piping model that holds every component, support and analysis the first publication-ready release must handle, with the independent checks that any solve of it must satisfy.
 
-- **OUT-001** — A mechanics benchmark-suite contract covering cantilevers, frames, thermal growth, imposed displacement, and stiffness transforms with original/public/permissive provenance is produced.
-- **OUT-002** — The invented reference system of exit criterion 1 (`docs/RELEASE_TARGET_v1.0.md` §4) is maintained as one generated model fixture with its specification and run sheet (`Work/reference-system.md`, `Work/reference-system-run-sheet.md`, `fixtures/reference_system/`), serving exit criteria 1, 6, 7 and 17.
+It serves SOW-026 under OBJ-008 (`execution/_Decomposition/SOFTWARE_DECOMP.md`, PKG-09, row DEL-09-01) and PRD §22.1, §22.2 and §22.4. In `docs/RELEASE_TARGET_v1.0.md`, exit criterion 2 names this deliverable for the reference system: the system passes closed-form or hand-calculation references frozen in `validation/references/` with an independent generator. Criteria 1, 6, 7 and 17 are examined on the reference system this deliverable maintains; their owners are other deliverables.
+
+- **OUT-001** — The mechanics benchmark suite: invented models for cantilevers, frames, thermal growth, imposed displacement, stiffness transforms and the other solver benchmarks of PRD §22.2, each with its independently derived expected results, its derivation, its provenance record, and the comparison of the product's solve with them.
+- **OUT-002** — The reference system of exit criterion 1: its specification, its generated model document, its run sheet, its named key results and its independent references.
 
 ## Deliverable Definition — Ontology
 
-### CLM-001 — Datasheet: DEL-09-01 Mechanics benchmark suite
+**Terms the suite implements.**
 
-> #### Datasheet: DEL-09-01 Mechanics benchmark suite
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- *Benchmark case.* One invented model with its inputs and units, the result fields it expects, the derivation of each expected value, its family and its provenance record.
+- *Family.* The five required families are cantilever, frame, thermal growth, imposed displacement and stiffness transform. Of the solver benchmarks PRD §22.2 lists, this suite carries twelve: cantilever with tip force; cantilever with tip moment; fixed-fixed thermal beam; simply supported pipe under weight; inclined-member coordinate transformation; L-shaped thermal expansion frame; U-loop thermal expansion; torsion-only element; rigid link; imposed anchor displacement; linear spring support; branch assembly. The gapped-support and friction-support cases are DEL-09-03's.
+- *Independent reference.* Expected values obtained from a closed form, a hand calculation or a generator that imports, reads and runs no product code, frozen together with what produced them.
+- *Governed tolerance.* The tolerance of a case's reference class. For the analytic class it is 1e-9 relative, with an absolute floor per quantity kind that applies near zero.
+- *Provenance record.* For each case: the full provenance record of `docs/IP_AND_DATA_BOUNDARY.md` (source name, location and licence, contributor and contributor certification, redistribution status and review disposition), with the case's assumptions, units and expected result fields.
+- *Provenance index.* One list of every case with its provenance record.
 
-### CLM-003 — Identification
+**Terms the reference system implements.**
 
-> ##### Identification
->
-> | Field | Value |
-> |---|---|
-> | Deliverable ID | DEL-09-01 |
-> | Package ID | PKG-09 |
-> | Package | Verification, Validation, and Quality Oracles |
-> | Deliverable type | TEST_SUITE |
-> | Decomposition basis | `execution/_Decomposition/SOFTWARE_DECOMP.md` (accepted authority; see the project decision register) |
-> | Scope items | SOW-026 |
-> | Objectives | OBJ-008 |
-> | Context envelope | M |
-> | Lifecycle state during setup Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Draft setup evidence only; not implementation and not ISSUED |
->
+- *Reference system.* One invented piping system that runs from equipment nozzle A to equipment nozzle B with a branch to nozzle C. It contains pressure, realized bends, a tee with user modifiers, an eccentric reducer, a valve and flanges, and an expansion joint with tie rods; linear restraints, a gap, a lift-off support, a friction support, a variable spring and a constant-effort support. Its analyses are sustained, operating, expansion with its basis, hydrotest, wind, three-axis static seismic with SRSS and absolute-sum combination, seismic anchor movement, modal, response spectrum and hanger sizing. It is authored for the exact pressure route. Every value is invented and its section sizes are deliberately non-standard; it is a test object, not a design.
+- *Specification.* The single statement of the system's geometry, stable identities, materials, sections, components, supports, pressure regions, load cases, combinations, analysis requests, key results and pending ledger. Entities have stable identities so that a round trip can compare them.
+- *Fixture.* The model document produced by the generator from the specification, with the record of what was authored.
+- *Key result.* A named result of the system that consumers read and report: anchor reactions; the largest translation; spring and constant-effort loads; nonlinear support status; tee intensified stress rows; tie-rod and joint pressure forces; the hydrotest marking with held supports; frequencies and mass participation; spectrum reactions and displacements; the hanger table.
+- *Reference check.* A statement any correct solve of the system must satisfy without an invented expected value: vertical reactions sum to the total weight; the horizontal reaction resultant is zero and the reaction moment balances the weight's moment; the expansion combination equals operating minus sustained on every signed component row; SRSS and absolute-sum combinations equal their definitions over the operand rows; the anchor-movement difference is self-equilibrated; the wind and seismic reaction differences equal minus the generated load resultants; the spectrum directional combination equals its recomputation from the published per-direction results.
+- *Pending ledger.* The list of each family or analysis of exit criterion 1 that the fixture does not yet contain or the exact route does not yet solve, each with the refusal or absence a solve of the full system shows.
+- *Run sheet.* The ordered entry of the system from a blank project through the desktop's surfaces, with its entry counts and time estimate.
 
-### CLM-004 — Attributes
+**Boundary.** The suite observes the solver and implements none of it.
 
-> ##### Attributes
->
-> | Attribute | Setup value |
-> |---|---|
-> | Suite purpose | Provide repeatable, source-qualified mechanics benchmark evidence through the current `validation/benchmarks/mechanics/` suite; preserve original/public source and engineering-acceptance boundaries. |
-> | Benchmark families | Cantilevers, frames, thermal growth, imposed displacement, and local-to-global stiffness transforms. |
-> | Solver boundary Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | The suite observes solver behavior; this setup pass does not implement solver logic, benchmark source files, tests, or final comparison tolerances. |
-> | Source posture | Benchmark sources must be original, public-domain, public-permissive, or otherwise documented for redistribution before entering public artifacts. |
-> | Data boundary | Protected standards examples, code text, protected tables, proprietary commercial benchmarks, and vendor/private project data are excluded. |
-> | Tolerance posture | Final numerical tolerances, benchmark acceptance ranges, and release thresholds remain `TBD` pending solver prototype and human authority. |
-> | Result posture | Benchmark outputs should preserve units, solver version, diagnostics/result-envelope fields, assumptions, provenance, and limitations once implementation is authorized. |
-> | Reference system | One invented system holding every family and analysis exit criterion 1 lists, specified in `Work/reference-system.md` and generated by `fixtures/reference_system/generate_reference_system.py`. Families not yet solvable on the exact route stay in the specification's pending ledger, each naming its row and lane, until that row lands. Expected key results come only from closed-form or hand-calculation references with an independent generator, exact identities between published quantities, or verified solves after the analysis lands, and are frozen in `validation/references/reference_system/` with their basis. |
->
-
-### CLM-005 — Conditions
-
-> ##### Conditions
->
-> Current deliverable obligation: Create benchmark cases for cantilevers, frames, thermal growth, imposed displacement, and stiffness transforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> This setup context authorizes only document production and local setup registers. It does not authorize edits to validation benchmark source files, implementation tests, solver modules, repo-level CI, or `ISSUED` lifecycle state.
->
-> The mechanics benchmark suite must stay aligned with the architecture-basis constraints for module boundaries, diagnostics/result envelopes, layered validation gates, unit safety, and protected-content/provenance review. As implemented, fixtures are the `MechanicsBenchmark`/`ExpectedValue` records returned by `fixture_inventory()` in `validation/benchmarks/mechanics/src/lib.rs`. The suite runs as that crate's tests, which the piping numerical CI suite runs when the crate is selected, and through the headless runner's `run-benchmark` verb (suite `mechanics`). It runs against the in-repository solver crates named in its `Cargo.toml`. Per-case reports compare recorded and observed values under the suite's encoded predicates. Approval of a fixture schema and result-comparison format (CLM-035) remains `TBD`. DEC-026 governs comparison-policy structure; unadopted numerical comparison criteria and CI/release thresholds remain `TBD`.
->
-### CLM-006 — Construction
-
-> ##### Construction
->
-> | Construction item | Status |
-> |---|---|
-> | `validation/benchmarks/mechanics` Historical setup constraint only; current work follows the accepted deliverable scope and active bounded brief, with lifecycle/issuance separately governed. | Anticipated future artifact; not created or edited in this setup pass. Current implementation (at `62c1efd75b`): the Cargo crate `validation/benchmarks/mechanics` (`open_pipe_stress_mechanics_benchmarks`), with its tests in `src/lib.rs`; the related crates `validation/benchmarks/numerical_integrity`, `numerical_robustness` and `physics_audit_regression` hold the numerical-integrity and product-physics regression checks, and the `numerical_robustness` case files are generated from the frozen references in `validation/references/t3_r1/`. |
-> | Hand-calculation notes | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/mechanics/README.md` and `validation/hand_calcs/mechanics/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
-> | Cantilever cases | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/mechanics/README.md` and `validation/hand_calcs/mechanics/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
-> | Frame cases | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/mechanics/README.md` and `validation/hand_calcs/mechanics/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
-> | Thermal growth cases | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/mechanics/README.md` and `validation/hand_calcs/mechanics/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
-> | Imposed displacement cases | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/mechanics/README.md` and `validation/hand_calcs/mechanics/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
-> | Stiffness transform cases | The current fixture inventory and hand-calculation locations are recorded in `validation/benchmarks/mechanics/README.md` and `validation/hand_calcs/mechanics/`. Use the recorded candidate-bound inputs, units and regression values; final source eligibility, unadopted tolerances and engineering acceptance remain separate under DEC-026/027. |
-> | Provenance index | Required before public fixture publication; exact format is `TBD`. |
->
-
-### CLM-007 — References
-
-> ##### References
->
-> - `_CONTEXT.md` (retired in `497a8d81e4`; see Git history) for deliverable identity, scope, objectives, anticipated artifacts, and architecture-basis injection.
-> - `_REFERENCES.md` for governing local references.
-> - `execution/_Decomposition/SOFTWARE_DECOMP.md` accepted current basis, rows for PKG-09, DEL-09-01, SOW-026, OBJ-008, AB-00-01, AB-00-02, AB-00-06, and AB-00-08.
-> - `docs/_Registers/Deliverables.csv` (retired in `48584391de`; see Git history) row DEL-09-01.
-> - `docs/_Registers/ScopeLedger.csv` (retired in `48584391de`; see Git history) row SOW-026.
-> - `docs/_Registers/ContextBudgetQA.csv` (retired in `48584391de`; see Git history) row DEL-09-01.
-> - `docs/SPEC.md` sections 4.1, 4.2, 4.5, and 9.
-> - `docs/VALIDATION_STRATEGY.md` sections 1, 2, 4, and 5.
-> - `docs/CONTRACT.md` invariants OPS-K-IP-1, OPS-K-IP-2, OPS-K-IP-3, OPS-K-DATA-1, OPS-K-DATA-2, OPS-K-DATA-3, OPS-K-UNIT-1, OPS-K-AUTH-1, OPS-K-SOLVER-1, and OPS-K-AGENT-1..4.
->
-
-### CLM-008 — Open Setup Questions
-
-> ##### Open Setup Questions
->
-> | Question | Needed from |
-> |---|---|
-> | Which mechanics benchmark fixtures and public/permissive sources are approved for implementation? | Validation owner / IP review owner |
-> | What numerical comparison tolerance policy is acceptable for each benchmark family? | DEC-026 supplies the comparison-policy structure and protected promotion route; per-kind measurements and unadopted numeric criteria remain open. |
-> | What fixture schema, runner interface, and result-envelope fields should executable benchmarks use? | Architecture / solver / validation owners |
-> | Which benchmark cases gate release and which are advisory regression checks? | QA/release owner / human project authority |
->
-
-### CLM-009 — D-41 R5 T2B PDU-013 Evidence State
-
-> ##### D-41 R5 T2B PDU-013 Evidence State
->
-> DEC-018 adopts the project unit catalog and conversion basis. The PDU fixture-local unit declaration does not itself prove that this suite is bound to or rerun through that catalog; preserve the unit-integration and conversion-witness delivery obligation.
+- Whether a mechanics capability is correct is a criterion of the deliverable that owns it (DEL-04-01, DEL-04-02, DEL-04-03, DEL-05-01, DEL-05-05, DEL-04-07). This deliverable owns the cases, their references and the standing comparison.
+- Stress recovery benchmarks are DEL-09-02's. Nonlinear support cases are DEL-09-03's. The manual pages that present cases are DEL-09-04's. Which suites and cases gate a release is DEL-09-05's.
+- For the reference system, this deliverable owns the specification, the fixture, the run sheet, the key-result names and the reference checks. Solving every family on the exact route without refusal belongs to the owners exit criterion 1 names; each analysis's own closed-form references belong to that analysis's deliverable; the MBF round trip is DEL-17-04's; entry within the authoring time is DEL-07-02's and DEL-07-06's; building it by the embedded agent is DEL-16-06's. Correlation with an external prover is DEL-17-05's.
+- Reference packages under `validation/references/` belong to the deliverables whose criteria they ground. This deliverable holds `w9_benchmarks`, `w16_imposed_motion`, `t3_r1` and `reference_system`.
 
 ## Completion and Reliance Basis — Epistemology
 
-### CLM-010 — Specification: DEL-09-01 Mechanics benchmark suite
+### Requirements
 
-> #### Specification: DEL-09-01 Mechanics benchmark suite
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- **REQ-001** — The suite is separate from the solver. It reaches the solver only through the solver's public interfaces and changes no production behaviour (decomposition AB-00-02).
+- **REQ-002** — The suite covers the cantilever, frame, thermal-growth, imposed-displacement and stiffness-transform families (`docs/VALIDATION_STRATEGY.md` §2).
+- **REQ-003** — Every case and every derivation is original, public-domain or permissively licensed, with a provenance record. No protected standards example, code text or table, proprietary commercial benchmark or vendor or private project data enters the suite (SOW-026; `docs/CONTRACT.md` OPS-K-IP-1 to OPS-K-IP-3). A case is admitted only when its provenance record carries an accepted review disposition. Content whose protected status is uncertain is quarantined, and content whose redistribution rights are uncertain is not admitted, until the human or legal review of `docs/IP_AND_DATA_BOUNDARY.md` decides it; the independent reviewer's judgment of VER-004 does not stand in for that review.
+- **REQ-004** — Benchmark inputs and expected values are unit-aware and dimensionally checked: each carries a unit of the project's unit catalog and is checked through that catalog (`docs/CONTRACT.md` OPS-K-UNIT-1). A unit declared only inside a case does not meet this requirement.
+- **REQ-005** — A run keeps what the solve returned: per case, each expected value beside the observed value with its unit, the solver version, the diagnostics and status of the solve, and the case's assumptions, limitations and provenance (decomposition AB-00-06). A case can be run by name through the headless runner's benchmark workflow, and an expected value that a run cannot observe is reported as unobserved and fails its case.
+- **REQ-006** — Comparison uses the governed tolerance of the case's reference class. A case may tighten the governed value and never loosens it. The absolute floors of quantity kinds that have not been measured are not decided; a comparison that needs one reports that in a named diagnostic and does not pass on an invented floor.
+- **REQ-007** — The suite is verification of software behaviour. No case, report or label states or implies certification, code compliance, professional approval or suitability for a project (PRD §21.2).
+- **REQ-008** — A provenance index lists every case with its provenance record.
+- **REQ-009** — *Numerical quality.* The suite holds cases that probe the solver's numerical behaviour: mechanisms and unrestrained bodies, weak and stiff springs, long chains, cancellation, extreme stiffness ratios, skewed and non-finite inputs. Their expected outcomes come from exact-arithmetic references. A case the solver cannot resolve must be refused or reported unresolved, and is never counted as a pass (SOW-026; PRD §12.8).
+- **REQ-010** — The suite includes each of the twelve PRD §22.2 solver benchmarks named above, each with an independent reference (PRD §22.2).
+- **REQ-011** — *Reference system.* One invented system holds every family and analysis exit criterion 1 lists, as defined above. The specification is its single statement: geometry, identities and invented inputs change in the specification first, and the fixture is the generator's output from it.
+- **REQ-012** — A key result has an expected value only from a closed-form or hand-calculation reference with an independent generator, from an exact identity between published quantities, or from a solve of the system frozen with its basis recorded. A value frozen from a solve only guards against change. No expected value is entered otherwise, and none is changed to silence a failure.
+- **REQ-013** — Every family or analysis of exit criterion 1 is either in the fixture and solved on the exact route, or in the pending ledger. A pending family keeps its place and identities in the specification, and no family is dropped from the system to make a criterion pass. At release, every row still pending has an entry in `docs/RELEASE_LIMITATIONS_v1.0.md` (exit criterion 3).
+- **REQ-014** — The run sheet enters the system from a blank project in an order a person can follow, states its entry counts and time estimate, and lists every difference between what it enters and the fixture (exit criterion 7).
 
-### CLM-012 — Scope
+### Acceptance criteria
 
-> ##### Scope
->
-> Current deliverable obligation: Create benchmark cases for cantilevers, frames, thermal growth, imposed displacement, and stiffness transforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> This deliverable specifies the contract and evidence basis for the implemented mechanics benchmark suite covering cantilevers, frames, thermal growth, imposed displacement, and stiffness transforms.
->
-> The original setup pass does not implement benchmark source files, add tests, create numerical hand-calculation cases, modify solver code, edit validation directories outside this deliverable, choose final tolerances, or introduce protected/proprietary benchmark data.
->
-### CLM-013 — Requirements
-
-> ##### Requirements
->
-> | Req ID | Requirement | Source basis | Verification hook |
-> |---|---|---|---|
-> | DEL-09-01-RQ-001 | The benchmark suite shall remain separate from solver implementation and shall not modify production solver behavior. | DEL-09-01 context; AB-00-02; docs/SPEC.md section 9 | Module boundary review once implementation exists. |
-> | DEL-09-01-RQ-002 | The suite shall cover cantilever, frame, thermal-growth, imposed-displacement, and stiffness-transform benchmark families. | DEL-09-01 context; docs/VALIDATION_STRATEGY.md section 2 | Fixture inventory review against required families. |
-> | DEL-09-01-RQ-003 | Benchmark sources and expected-result derivations shall be original, public-domain, public-permissive, or otherwise documented with redistribution rights. | SOW-026; docs/VALIDATION_STRATEGY.md section 5; OPS-K-IP-1..3 | Protected-content/provenance review before publication. |
-> | DEL-09-01-RQ-004 | Benchmark inputs and expected outputs shall be unit-aware and dimensionally checked. | OPS-K-UNIT-1; docs/SPEC.md sections 4.1 and 4.2 | Unit validation tests once fixture schema exists. |
-> | DEL-09-01-RQ-005 | The suite shall preserve solver diagnostics, result-envelope status, solver version, assumptions, provenance, and limitations where supported by implementation contracts. | AB-00-06; docs/SPEC.md sections 4.5 and 9 | Result-envelope comparison and diagnostic review. |
-> | DEL-09-01-RQ-006 | The setup artifacts shall not set final numerical tolerances, release thresholds, or benchmark pass/fail authority without human approval. | OI-005; OPS-K-AGENT-1..4 | Review confirms unresolved tolerances remain `TBD`. |
-> | DEL-09-01-RQ-007 | The suite shall remain mechanics verification support and shall not claim certification, code compliance, professional approval, or project-specific reliance (PRD §21.2). | OPS-K-AUTH-1; docs/VALIDATION_STRATEGY.md section 1 | Review of result labels, reports, and release notes. |
->
-
-### CLM-014 — Standards
-
-> ##### Standards
->
-> No protected standard text, proprietary benchmark suite, commercial software example, or vendor dataset is available in this deliverable-local setup context. Any future mechanics case must record source, provenance, license/redistribution status, contributor certification, and review disposition before it is accepted as a public benchmark.
->
-> Clause-level or code-specific validation requirements are `TBD` and must not be inferred from protected standards.
->
-
-### CLM-015 — Verification
-
-> ##### Verification
->
-> | Verification area | Minimum setup expectation |
-> |---|---|
-> | Required family coverage | The fixture inventory (`fixture_inventory()` in `validation/benchmarks/mechanics/src/lib.rs`) records one `BenchmarkFamily` per case; `missing_required_families()` checks required-family coverage. |
-> | Analytical derivation | Hand-calculation notes identify assumptions, units, equations used from public/original mechanics, and expected result fields. |
-> | Numerical comparison | Tolerance policy is cited when approved; until then each tolerance field remains `TBD`. |
-> | Unit safety | Inputs, expected values, and outputs are dimensionally checked under the accepted unit system. |
-> | Data boundary | Fixture provenance confirms original/public/permissive status and excludes protected standards/commercial examples. |
-> | Diagnostics/result envelopes | Benchmark outputs preserve warnings, diagnostics, solver version, and limitations without compliance claims. |
->
-
-### CLM-016 — Documentation
-
-> ##### Documentation
->
-> Maintain the implemented fixture inventory in `validation/benchmarks/mechanics/`, hand-calculation notes in `validation/hand_calcs/mechanics/`, source/provenance records, runner/integration notes and candidate-bound comparison results. Fixture-local units remain distinct from DEC-018 catalog integration. DEC-026 governs protected comparison criteria; unmeasured values, dedicated provenance-index completeness and external-validation/release acceptance remain separate obligations.
-
-### CLM-017 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Issue | Contenders | Human ruling |
-> |---|---|---|---|
-> | None | No source conflict identified in setup evidence. | N/A | N/A |
->
-
-### CLM-018 — D-41 R5 T2B PDU-013 Evidence Disposition (2026-07-12)
-
-> ##### D-41 R5 T2B PDU-013 Evidence Disposition (2026-07-12)
->
-> DEC-018 adopts the project unit catalog and conversion basis. The PDU fixture-local unit declaration does not itself prove that this suite is bound to or rerun through that catalog; preserve the unit-integration and conversion-witness delivery obligation.
-
-- **AC-001** — The contract preserves unit-aware inputs and outputs, solver diagnostics, result-envelope fields, assumptions, provenance, limitations, fixture-local unit evidence, and DEC-018 project-unit authority with separately verified suite binding, DEC-026 tolerance authority and explicit unmeasured per-kind values. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
-- **AC-002** — The committed reference-system fixture equals its generator's output and validates as the current model document. Each family and analysis exit criterion 1 lists is either in the fixture and solved on the exact route without refusal, or recorded in the specification's pending ledger with its row, lane and expected refusal, and the generator's pending flags agree with that ledger. No expected key-result value is recorded without its reference basis. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+- **AC-001** — Every case states its inputs and expected values with a unit and dimension of the project's unit catalog, and a case with a missing unit, a dimension mismatch or no provenance record fails. A run reports, per case, every expected value beside its observed value with units, the solver version, the diagnostics and status the solve returned, and the case's assumptions and limitations; run by name through the headless runner, no expected value is reported unobserved.
+- **AC-002** — The committed fixture equals the generator's output and validates as the current model document. Each family and analysis exit criterion 1 lists is either in the fixture and solved on the exact route without refusal, or recorded in the pending ledger with the refusal or absence a solve shows, and the generator's pending flags agree with that ledger. No expected key-result value is recorded without its basis.
+- **AC-003** — The suite holds at least one case in each of the five families and each of the twelve PRD §22.2 benchmarks; a suite missing a family or a benchmark fails.
+- **AC-004** — For every case, the displacements, rotations, reactions and member end actions the product solves agree with the case's independent reference at the governed tolerance, in both solver modes. No case compares at a tolerance looser than the governed one.
+- **AC-005** — Every expected value has a derivation that imports, reads and runs no product code. Every case has a provenance record with an accepted review disposition, the provenance index lists every case, and no case, derivation or fixture contains protected or proprietary content.
+- **AC-006** — The suite's code lives in validation and test locations and links the solver only through its public interfaces; the product builds and solves identically with the suite absent.
+- **AC-007** — Each numerical-quality case ends as its exact reference requires: a row within the predicate passes, a mechanism or inadmissible input is refused, and a case beyond the solver's range ends unresolved with no rows. Every negative control fails the predicate it was built to fail, and no unresolved or uncovered row is counted as a pass.
+- **AC-008** — No case, report, label or output of the suite or the reference system states or implies certification, code compliance, approval or suitability for a project.
+- **AC-009** — On the solved fixture, in both solver modes, every reference check that its cases admit holds against the independent references, and no key-result value frozen from a solve is presented as evidence that the value is correct.
+- **AC-010** — The run sheet names every entity and value of the specification that the desktop can enter, in an order that can be followed, with its counts and estimate; every difference between the model it yields and the fixture is listed in it.
 
 ## Production and Verification Method — Praxeology
 
-### CLM-019 — Procedure: DEL-09-01 Mechanics benchmark suite
+**Method choices that define the product.**
 
-> #### Procedure: DEL-09-01 Mechanics benchmark suite
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
+- Cases start with models a reviewer can check by hand; a case is broadened only while its derivation stays reviewable.
+- A case's expected values are frozen with the derivation or generator that produced them, so a change to either is visible.
+- The reference system's weight loads are the product's own self-weight generation for each case, captured; the fixture generator computes no weight. The independent reference recomputes the total weight and its moment from the specification's inputs without that capture.
+- Occasional effects on the reference system are cases that include the sustained loads, and each occasional term is a difference from the sustained case, because with nonlinear supports every static case has its own support status.
+- The generator keeps one pending flag per ledger row, and the fixture is regenerated when a row changes.
 
-### CLM-021 — Purpose
+**How each criterion is examined.**
 
-> ##### Purpose
->
-> Current deliverable obligation: Create benchmark cases for cantilevers, frames, thermal growth, imposed displacement, and stiffness transforms. Implementation and record changes require an active bounded brief under `AGENTS.md`; `_STATUS.md` records lifecycle; this Scope of Work, owning decisions and the selected graph carry current work. References below to the original setup write boundary apply only to that historical run. They do not exclude later authorized delivery, waive the retained requirements, or authorize issuance.
->
->
-> Describe how a TASK worker produces, extends or uses the mechanics benchmark suite under an active bounded brief.
->
-### CLM-022 — Prerequisites
-
-> ##### Prerequisites
->
-> - Accepted frame-stiffness and coordinate-transform interfaces from PKG-04 implementation deliverables.
-> - Accepted straight-element mechanics behavior for cantilever-style cases.
-> - Accepted support, restraint, and imposed-displacement semantics for boundary-condition cases.
-> - Accepted load/thermal input semantics where thermal-growth benchmarks require them.
-> - Accepted unit-system, diagnostics, and result-envelope contracts for benchmark inputs and outputs.
-> - Original, public-domain, public-permissive, or otherwise lawfully redistributable benchmark sources with provenance.
-> - Human-approved numerical tolerance and release-gate policy; current value is `TBD`.
->
-
-### CLM-023 — Steps
-
-> ##### Steps
->
-> 1. Confirm the sealed brief authorizes benchmark implementation and lists exact write targets.
-> 2. Read the accepted solver interfaces, unit-system contract, diagnostics/result-envelope contract, and applicable validation strategy.
-> 3. Select or create benchmark fixtures only from original, public-domain, public-permissive, or otherwise documented lawful sources.
-> 4. For each fixture, record benchmark family, source/provenance, redistribution status, assumptions, units, model inputs, expected result fields, and derivation notes.
-> 5. Keep protected standards examples, proprietary commercial benchmarks, vendor-private data, and copied code-derived formulas out of public fixtures.
-> 6. Run benchmark cases through the authorized solver or headless runner without changing solver logic.
-> 7. Compare outputs using the approved comparison/tolerance policy; if no approved policy exists, record `TBD` rather than inventing pass/fail criteria.
-> 8. Capture solver version, result-envelope fields, warnings, diagnostics, assumptions, limitations, and comparison records.
-> 9. Stop and escalate if fixture provenance is missing, protected content is suspected, numerical tolerances are unsupported, or output wording implies certification, code compliance, or professional approval (PRD §21.2).
->
-
-### CLM-024 — Verification
-
-> ##### Verification
->
-> | Check | Expected evidence |
-> |---|---|
-> | Scope boundary | Benchmark work stays in authorized validation/test locations and does not modify solver logic unless separately authorized. |
-> | Family coverage | Fixture inventory covers cantilevers, frames, thermal growth, imposed displacement, and stiffness transforms or records an explicit `TBD`. |
-> | Fixture provenance | Every public fixture records source, license/redistribution status, and review disposition. |
-> | Unit safety | Inputs, expected values, and solver outputs pass accepted dimensional checks. |
-> | Tolerance authority | Comparison tolerances cite an approved source or remain `TBD`. |
-> | Diagnostics/reporting boundary | Results preserve warnings/assumptions/limitations and avoid certification or compliance claims. |
->
-
-### CLM-025 — Records
-
-> ##### Records
->
-> - Benchmark fixture inventory and provenance index.
-> - Hand-calculation or derivation notes for each case.
-> - Solver version and benchmark runner settings.
-> - Unit-check and result-envelope comparison records.
-> - Review notes for tolerance policy, fixture approval, and human rulings.
->
-
-### CLM-026 — D-41 R5 T2B PDU-013 Check
-
-> ##### D-41 R5 T2B PDU-013 Check
->
-> Record fixture-local unit identifiers and canonical dimensions exactly. Do not describe those checks as project-unit-system acceptance until the upstream catalog and conversions are accepted and the cases are rerun through that basis. Keep comparison tolerances and pass/fail authority unchanged.
-
-- **VER-001** — Validate the contract and review source parity, required benchmark-family coverage, source and redistribution posture, unit and diagnostic visibility, setup versus implementation boundaries, retained tolerance and project-unit TBDs, and professional-authority limits.
+- **VER-001** — AC-001, AC-003 and AC-006, executable check: observes each case's units against the unit catalog, its provenance record, the family and benchmark coverage of the inventory, the per-value report of a run through the headless runner, and the suite's dependencies on the solver.
+- **VER-002** — AC-004, comparison with named references: the hand calculations in `validation/hand_calcs/mechanics` and the frozen packages `validation/references/w9_benchmarks` and `w16_imposed_motion`, whose generators import no product code, at the governed tolerance in both solver modes.
+- **VER-003** — AC-007, comparison with named references: the 100-digit references of `validation/benchmarks/numerical_integrity`, the exact references of `validation/references/t3_r1`, and expectations frozen before any product comparison for the product-route regressions; the check observes each row's outcome class and each negative control.
+- **VER-004** — AC-005 and AC-008, judgment by a reviewer who did not write the case: examines each derivation for independence from product code, each provenance record with its review disposition and the index, and the suite's texts against `docs/claims_registry.md`; the protected-content scan runs over the suite's sources, notes and fixtures.
+- **VER-005** — AC-002, AC-009 and AC-010, executable check with a comparison: regenerates the fixture and compares it with the committed file, validates it against the model schema, compares the specification's ledger with the generator's flags, solves the fixture through the headless runner in both modes and tests the reference checks against `validation/references/reference_system`; the run sheet is compared with the specification and the fixture.
 
 ## Governing Values and Decisions — Axiology
 
-### CLM-027 — Guidance: DEL-09-01 Mechanics benchmark suite
-
-> #### Guidance: DEL-09-01 Mechanics benchmark suite
->
-> <!-- D41-R5-T7-PDU055-CURRENTNESS -->
-
-### CLM-029 — Purpose
-
-> ##### Purpose
->
-> Provide repeatable and reviewable open-mechanics benchmark evidence using the current fixture and hand-calculation inventories. Preserve the boundary between public/original/permissive mechanics cases and protected standards or proprietary examples; test success does not supply professional validation.
-
-### CLM-030 — Principles
-
-> ##### Principles
->
-> - Treat benchmarks as verification evidence, not as solver implementation.
-> - Use public/original mechanics cases with clear provenance and redistribution status.
-> - Keep final comparison tolerances and release thresholds as `TBD` until approved by the proper human authority.
-> - Make units, assumptions, expected result fields, diagnostics, and limitations explicit.
-> - Preserve the distinction between mechanics verification, user-rule checks, and professional approval.
->
-
-### CLM-031 — Considerations
-
-> ##### Considerations
->
-> Cantilever, frame, thermal-growth, imposed-displacement, and stiffness-transform cases exercise different solver interfaces. Each case, existing or new, should identify which solver/load/support contracts it depends on before it is marked executable; the suite's solver, load and support dependencies are the crates named in `validation/benchmarks/mechanics/Cargo.toml`.
->
-> Thermal-growth and imposed-displacement cases can look similar to code or owner-standard examples if copied from protected sources. Future workers should create original cases or use permissively licensed/public-domain mechanics references, then record source and license status before publishing fixtures.
->
-> Stiffness-transform cases should isolate local-to-global coordinate behavior and sign conventions. Current fixture matrices, geometry and regression values are recorded in `validation/benchmarks/mechanics/` and their original hand calculations. Apply DEC-026 to protected comparison criteria and preserve unmeasured values; the original setup brief did not itself authorize numeric acceptance.
->
-
-### CLM-032 — Trade-offs
-
-> ##### Trade-offs
->
-> | Trade-off | Guidance |
-> |---|---|
-> | Simple hand checks vs representative piping behavior | Start with analytically transparent cases; broaden only when provenance and expected-result derivations remain reviewable. |
-> | Strict tolerances vs solver maturity | Record exact and approximate expected values separately when authorized; final acceptance tolerances remain `TBD`. |
-> | Public benchmark usefulness vs IP risk | Prefer original/public mechanics cases even when protected examples are familiar. |
-> | Release gating vs exploratory regression | Distinguish required release benchmarks from advisory regression checks after human QA policy is approved. |
->
-
-### CLM-033 — Examples
-
-> ##### Examples
->
-> Current geometries, material values, loads, boundary conditions and regression observations are recorded in the fixture inventory and hand-calculation notes under `validation/benchmarks/mechanics/` and `validation/hand_calcs/mechanics/`. Additions must be original, public-domain or permissively licensed with provenance; numeric comparison acceptance follows DEC-026 and remains distinct from recorded regression values.
-
-### CLM-034 — Conflict Table (for human ruling)
-
-> ##### Conflict Table (for human ruling)
->
-> | Conflict ID | Conflict | Source A (file + section) | Source B (file + section) | Impacted sections | Proposed authority (PROPOSAL) | Human ruling |
-> |---|---|---|---|---|---|---|
-> | None | No source conflict identified in setup evidence. | N/A | N/A | N/A | N/A | N/A |
->
-
-### CLM-035 — Open Enrichment Items
-
-> ##### Open Enrichment Items
->
-> | Item | Status |
-> |---|---|
-> | Approved benchmark fixture list and source basis | TBD |
-> | Approved numerical tolerance/comparison policy | DEC-026 governs comparison-policy structure; record each measured/accepted scope separately and keep unadopted values TBD. |
-> | Approved fixture schema and result-envelope comparison format | TBD |
-> | Release-gating vs advisory benchmark classification | TBD |
->
-
-### CLM-036 — D-41 R5 T2B PDU-013 Boundary
-
-> ##### D-41 R5 T2B PDU-013 Boundary
->
-> DEC-018 adopts the project unit catalog and conversion basis. The PDU fixture-local unit declaration does not itself prove that this suite is bound to or rerun through that catalog; preserve the unit-integration and conversion-witness delivery obligation.
+- **AX-001** — *Independence.* Better is a larger share of expected values that rest on a reference sharing nothing with the product; the target is all of them. An expected value is never taken from the product to fill a gap or changed to make a comparison pass.
+- **AX-002** — *Closer agreement.* Better is a smaller largest deviation from the references and a tighter case tolerance. It is never bought by loosening a governed value, dropping a row or tuning the product to a case.
+- **AX-003** — *Fewer pending rows.* Better is fewer rows in the reference system's pending ledger; the target is none. A row is never cleared by removing its family from the system or by recording an expected value without its basis.
+- **AX-004** — *Clean sources.* Better is an original invented case, even where a protected example is familiar. Coverage is never bought with a protected, proprietary or unprovenanced source.
 
 ## Output and Evaluation Matrix
 
 | Output | Objective refs | Requirement/claim refs | Acceptance refs | Verification refs | Evidence expectation |
 |---|---|---|---|---|---|
-| OUT-001 | SOW-026 OBJ-008 | CLM-010 | AC-001 | VER-001 | Claim map, parity report, and applicable verification evidence |
-
-## Delivery commitments and evidence limits
-
-These clauses retain open delivery duties, owner decisions, and bounded evidence limits. Their keys link to the finite source-retirement account. They do not assert completion, lift a hold, change an accepted scope boundary, or select execution work. The governing requirements and cited decisions control future implementation and acceptance.
-
-- **DEL-09-01:1** — Keep PDU-037's dedicated provenance/redistribution index, release integration, and acceptance thresholds open. The suite-to-headless observation binding is now bounded implementation evidence only; it does not select the still-open public result-comparison number or close validation/release gates.
-- **DEL-09-01:2** — Complete RQ-004 project-grain unit-system binding and rerun the mechanics benchmarks against that basis. DEC-018 accepted the canonical unit catalog and conversion constants on 2026-06-10; the current fixture-local evidence alone does not establish project-grain acceptance. Preserve upstream DEL-02-02 binding holds and existing tolerance/validation authority. Evidence: `core/units/README.md`, `validation/benchmarks/mechanics/src/lib.rs::FIXTURE_UNIT_BASIS` and `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T2B-PDU013.md`.
-- **DEL-09-01:3** — Complete the PRD §16.2 benchmark evidence system named residual by the conditional R4 gate (see also DEL-09-04 for §16.5) (source: PRD plan §3 D9 exit-refresh row / DEC-054)
-- **DEL-09-01:4** — Obtain the owning human disposition for `PKG09-0901-PKG02-001`; preserve `TECHNICALLY_ADDRESSED_PENDING_HUMAN` and `HumanDisposition=TBD` until that act occurs, and do not infer formal closure from the implemented fixture-local unit evidence (PDU-060).
-- **DEL-09-01:5** — R5 retained delivery 2026-09-22 — DEL-09-01: complete the dedicated provenance index and unit-catalog/conversion binding witness; retain unmeasured per-kind tolerance and external-validation acceptance gates. Claim refs: `DEL-09-01:SOW#CLM-016`.
+| OUT-001 | SOW-026 OBJ-008 | REQ-004 REQ-005 | AC-001 | VER-001 | Units are compared with the project's unit catalog, and a run's report with the content the decomposition's AB-00-06 says a run keeps; the suite wrote neither |
+| OUT-002 | SOW-026 OBJ-008 | REQ-011 REQ-012 REQ-013 | AC-002 | VER-005 | Exit criterion 1 lists the families and analyses and the specification states the system; the committed fixture is compared with the generator's output and the model schema |
+| OUT-001 | SOW-026 OBJ-008 | REQ-002 REQ-010 | AC-003 | VER-001 | The suite's inventory is compared with the five families of `docs/VALIDATION_STRATEGY.md` §2 and the benchmarks of PRD §22.2 |
+| OUT-001 | SOW-026 OBJ-008 | REQ-006 REQ-010 | AC-004 | VER-002 | Outside source: closed-form frame mechanics by hand calculation and the reference packages `w9_benchmarks` and `w16_imposed_motion`, generated without product code; the tolerance is the governed value of the case's reference class |
+| OUT-001 | SOW-026 OBJ-008 | REQ-003 REQ-008 | AC-005 | VER-004 | Each case and record is compared with what `docs/IP_AND_DATA_BOUNDARY.md` allows a public case to contain, and independence is judged by a reviewer who did not write the case. That judgment is evidence for the criterion; it is not the review disposition the policy requires to admit content |
+| OUT-001 | SOW-026 OBJ-008 | REQ-001 | AC-006 | VER-001 | The decomposition's AB-00-02 states the separation; the product's build and results without the suite are the comparison |
+| OUT-001 | SOW-026 OBJ-008 | REQ-009 | AC-007 | VER-003 | Outside source: exact-arithmetic and 100-digit references generated without product code, and expectations frozen before product comparison |
+| OUT-001 | SOW-026 OBJ-008 | REQ-007 | AC-008 | VER-004 | The suite's texts are compared with PRD §21.2 and `docs/claims_registry.md` by a reviewer who did not write them |
+| OUT-002 | SOW-026 OBJ-008 | REQ-012 | AC-009 | VER-005 | Outside source: total weight and its moment recomputed from the specification by a generator that imports no product code, and exact identities between published rows; a key-result value frozen from a solve is the product's own earlier output and only guards against change |
+| OUT-002 | SOW-026 OBJ-008 | REQ-014 | AC-010 | VER-005 | Exit criterion 7 and the specification state what must be entered; the run sheet's model is compared with the fixture |

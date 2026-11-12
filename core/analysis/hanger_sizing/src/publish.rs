@@ -1,7 +1,7 @@
-//! Publication of a sizing result (DEL-04-11 `Work/hanger-sizing.md` §8.3, slice
+//! Publication of a sizing result (slice
 //! 1d-α): the closed document `openpipestress.hanger_sizing.result` 1.0.0
 //! (`schemas/hanger_sizing_result.schema.json`) and the headless pipeline that
-//! forms it from one input text (§8.3.2): admission, shape, library import
+//! forms it from one input text: admission, shape, library import
 //! boundary, request, the engine's run, then publication.
 //!
 //! Every hash is the SHA-256 of the `openpipestress_jcs_ijson_v1` canonical
@@ -38,7 +38,7 @@ pub const BASIS_STATEMENT: [&str; 2] = [
     "Quantities are SI: forces in N, lengths in m, rates in N/m; variations are ratios.",
 ];
 
-/// The headless verb's own input limit (§8.3.2); not an engineering value.
+/// The headless verb's own input limit; not an engineering value.
 pub const MAX_INPUT_BYTES: usize = 64 * 1024 * 1024;
 
 pub const INPUT_TOO_LARGE: &str = "HANGER_SIZING_INPUT_TOO_LARGE";
@@ -49,7 +49,7 @@ pub const REQUEST_INVALID: &str = "HANGER_SIZING_REQUEST_INVALID";
 pub const RESULT_NOT_PUBLISHABLE: &str = "HANGER_SIZING_RESULT_NOT_PUBLISHABLE";
 pub const DERIVED_DOCUMENT_NOT_HASHABLE: &str = "HANGER_SIZING_DERIVED_DOCUMENT_NOT_HASHABLE";
 
-/// The refusal codes the design names (§2, §3, §4, §8.3), which a refused
+/// The refusal codes the design names, which a refused
 /// document's `refusals[].code` takes. The design's two disclosure codes and its
 /// verification warning are not refusals and are not listed.
 pub const REFUSAL_CODES: [&str; 40] = [
@@ -148,7 +148,7 @@ impl Published {
     }
 }
 
-/// What a refused document states of its inputs (§8.3.3).
+/// What a refused document states of its inputs.
 #[derive(Debug, Clone, Default)]
 pub struct RefusedInputs {
     pub sizing_request: Option<Value>,
@@ -179,7 +179,7 @@ fn inputs_member(sizing: Option<&Value>, solve_sha: Option<&str>, library_id: Op
     })
 }
 
-/// The refused document (§8.3.3). Refusals keep the engine's order.
+/// The refused document. Refusals keep the engine's order.
 pub fn refused_document(inputs: &RefusedInputs, refusals: &[Refusal]) -> Value {
     let mut doc = identity();
     doc.insert("status".into(), json!("refused"));
@@ -381,7 +381,7 @@ pub fn parse_sizing_request(value: &Value, root: &str) -> Result<SizingRequest, 
     })
 }
 
-/// The input's shape (§8.3.2): exactly `{request: {model, materials: […]}, sizing, library}`.
+/// The input's shape: exactly `{request: {model, materials: […]}, sizing, library}`.
 fn shape_findings(input: &Value) -> Vec<String> {
     let mut bad = Vec::new();
     let Some(map) = input.as_object() else { return vec!["$".into()] };
@@ -403,7 +403,7 @@ fn shape_findings(input: &Value) -> Vec<String> {
 }
 
 /// The solves in publication order: `S_W`, `S_C`, `S_O1` … `S_On`, `V_C`,
-/// `V_O1` … `V_On`, each with its case (§8.3.5).
+/// `V_O1` … `V_On`, each with its case.
 pub fn solve_plan(request: &SizingRequest) -> Vec<(String, String)> {
     let weight = request.weight_case.clone();
     let operating = request.operating_cases();
@@ -451,7 +451,7 @@ fn outcome_token(outcome: Outcome) -> &'static str {
 }
 
 /// Collects every number the document would publish, refusing one outside the
-/// profile by its owner (candidate or solve) and member (§8.3.1).
+/// profile by its owner (candidate or solve) and member.
 struct Numbers {
     refusals: Vec<Refusal>,
 }
@@ -505,7 +505,7 @@ fn uses_condition_set(request_doc: &Value, case: &str) -> bool {
         .is_some_and(|v| !v.is_null())
 }
 
-/// The sized document (§8.3.5) from a completed run and its bound inputs, or
+/// The sized document from a completed run and its bound inputs, or
 /// the publication refusals (`HANGER_SIZING_RESULT_NOT_PUBLISHABLE`,
 /// `HANGER_SIZING_DERIVED_DOCUMENT_NOT_HASHABLE`), every finding listed.
 pub fn sized_document(
@@ -734,7 +734,7 @@ pub fn sized_document(
     Ok(Value::Object(doc))
 }
 
-/// The headless pipeline (§8.3.1, §8.3.2) on an input text the caller has read
+/// The headless pipeline on an input text the caller has read
 /// and found within [`MAX_INPUT_BYTES`]: always a document, sized or refused.
 pub fn size_hangers(text: &str) -> Published {
     match admit(text) {
@@ -743,7 +743,7 @@ pub fn size_hangers(text: &str) -> Published {
     }
 }
 
-/// The refused document of an input the admission layer refused (§8.3.1).
+/// The refused document of an input the admission layer refused.
 pub(crate) fn not_admitted(finding: AdmissionFinding) -> Published {
     Published::Refused(refused_document(
         &RefusedInputs::default(),

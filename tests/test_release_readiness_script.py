@@ -9,10 +9,6 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 MODULE_PATH = ROOT / "tools" / "release" / "check_release_readiness.py"
-# The live approved-graph pointer and register are document checks
-# (tools/validation/test_execution_dag.py); these tests use a fixture project
-# and never read the current execution/ records.
-FIXTURE_DAG = "execution/_DAG/DAG-900"
 
 
 @pytest.fixture
@@ -21,11 +17,6 @@ def project(tmp_path):
     for path in release.REQUIRED_PATHS:
         (tmp_path / path).parent.mkdir(parents=True, exist_ok=True)
         (tmp_path / path).write_text("fixture")
-    (tmp_path / release.DAG_POINTER).write_text(
-        "# Latest DAG Pointer\n\n- Approved graph authority: `" + FIXTURE_DAG + "/`\n")
-    (tmp_path / FIXTURE_DAG).mkdir(parents=True)
-    (tmp_path / FIXTURE_DAG / "DependencyEdges.csv").write_text("fixture\n")
-    (tmp_path / "loop").mkdir()
     return tmp_path
 
 
@@ -39,18 +30,14 @@ def load_module():
     return module
 
 
-def test_required_release_paths_and_approved_graph_pointer(project):
+def test_required_release_paths(project):
     release = load_module()
     assert release.check_required_paths(project) == []
-    assert release.latest_dag_dependency_edges(project) == Path(FIXTURE_DAG) / "DependencyEdges.csv"
-    (project / FIXTURE_DAG / "DependencyEdges.csv").unlink()
-    with pytest.raises(FileNotFoundError):
-        release.latest_dag_dependency_edges(project)
-    (project / release.DAG_POINTER).write_text("# Latest DAG Pointer\n")
-    with pytest.raises(ValueError):
-        release.latest_dag_dependency_edges(project)
-    (project / release.DAG_POINTER).unlink()
-    assert release.check_required_paths(project) == [release.DAG_POINTER]
+    assert release.check_required_paths(ROOT) == []
+    missing = release.REQUIRED_PATHS[0]
+    (project / missing).unlink()
+    assert release.check_required_paths(project) == [missing]
+    assert release.main(["--profile", "skeleton", "--repo-root", str(project)]) == 1
 
 
 def test_cargo_manifest_discovery_is_crate_local():
@@ -67,12 +54,7 @@ def test_skeleton_plan_uses_local_commands_only(project):
     steps = release.build_plan("skeleton", project)
     commands = [" ".join(step.command) for step in steps]
 
-    # The DAG schema step validates the pointer's approved register.
-    assert any(
-        f"validate_dependencies_schema.py {FIXTURE_DAG}/DependencyEdges.csv"
-        in command
-        for command in commands
-    )
+    assert [step.name for step in steps] == ["release readiness script tests"]
     assert any("test_release_readiness_script.py" in command for command in commands)
     assert all(isinstance(step.command, tuple) for step in steps)
 
@@ -101,11 +83,6 @@ def test_all_profile_preserves_current_command_surface(project, monkeypatch):
     monkeypatch.setattr(release, "discover_cargo_manifests", lambda root: discover(ROOT))
     commands = [" ".join(step.command) for step in release.build_plan("all", project)]
 
-    assert any(
-        f"validate_dependencies_schema.py {FIXTURE_DAG}/DependencyEdges.csv"
-        in command
-        for command in commands
-    )
     assert any("test_release_readiness_script.py" in command for command in commands)
     assert any(" -m pytest -q tests" in command for command in commands)
     assert any("test_coordination_maintenance.py" in command for command in commands)
@@ -156,8 +133,7 @@ def test_main_dry_run_prints_plan_without_executing(project, monkeypatch, capsys
 
     assert result == 0
     assert "SWBPIPE release readiness profile (dry-run)" in captured.out
-    assert f"{FIXTURE_DAG}/DependencyEdges.csv" in captured.out
-    assert "planned checks: 2" in captured.out
+    assert "planned checks: 1" in captured.out
     assert "running:" not in captured.out
 
 
@@ -179,24 +155,7 @@ def test_main_execute_runs_planned_steps(project, monkeypatch, capsys):
 
     assert result == 0
     assert "SWBPIPE release readiness profile (execute)" in captured.out
-    assert executed == ["dag dependency schema", "release readiness script tests"]
-
-
-def test_public_export_plans_without_the_monorepo_dag(tmp_path, capsys):
-    release = load_module()
-    for path in release.REQUIRED_PATHS:
-        if path != release.DAG_POINTER:
-            (tmp_path / path).parent.mkdir(parents=True, exist_ok=True)
-            (tmp_path / path).write_text("fixture")
-    assert release.is_public_export(tmp_path)
-    assert release.check_required_paths(tmp_path) == []
-    assert [step.name for step in release.build_plan("skeleton", tmp_path)] == ["release readiness script tests"]
-    assert release.main(["--profile", "skeleton", "--repo-root", str(tmp_path)]) == 0
-    assert "public export: the DAG dependency schema check" in capsys.readouterr().out
-    # Either private directory present means the monorepo: the DAG stays required.
-    (tmp_path / "execution").mkdir()
-    assert not release.is_public_export(tmp_path)
-    assert release.check_required_paths(tmp_path) == ["execution/_DAG/_LATEST.md"]
+    assert executed == ["release readiness script tests"]
 
 
 def _probe_public_export(project: Path, name: str) -> bool:
@@ -209,8 +168,7 @@ def _probe_public_export(project: Path, name: str) -> bool:
 
 
 def test_sparse_monorepo_clone_without_private_directories_is_not_the_export(tmp_path):
-    release = load_module()
-    # A sparse clone may drop loop/, execution/ and even the root AGENTS.md;
+    # A sparse clone may drop execution/ and even the root AGENTS.md;
     # it keeps the repository's .git (a directory, or a file in a worktree).
     for index, marker in enumerate(("AGENTS.md", ".git", ".git-file")):
         repository = tmp_path / str(index)
@@ -220,13 +178,10 @@ def test_sparse_monorepo_clone_without_private_directories_is_not_the_export(tmp
             (repository / ".git").mkdir()
         else:
             (repository / (".git" if marker == ".git-file" else marker)).write_text("fixture")
-        assert not release.is_public_export(project), marker
-        assert release.check_required_paths(project) != []
         assert _probe_public_export(project, f"public_export_sparse_probe_{index}") is False
     # A standalone tree (the export, a repository of its own) is the export.
     standalone = tmp_path / "standalone"
     (standalone / ".git").mkdir(parents=True)
-    assert release.is_public_export(standalone)
     assert _probe_public_export(standalone, "public_export_standalone_probe") is True
     # So is the export checked out inside another repository's projects/ folder.
     superproject = tmp_path / "superproject"
@@ -235,5 +190,4 @@ def test_sparse_monorepo_clone_without_private_directories_is_not_the_export(tmp
     (superproject / ".git").mkdir()
     (superproject / "AGENTS.md").write_text("fixture")
     (nested / ".git").write_text("gitdir: ../../.git/modules/swbpipe\n")
-    assert release.is_public_export(nested)
     assert _probe_public_export(nested, "public_export_nested_probe") is True

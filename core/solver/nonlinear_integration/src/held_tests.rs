@@ -106,7 +106,7 @@ fn corpus() -> Vec<(&'static str, NonlinearFrameSolveInput, Option<AssembledForc
     ] {
         let gap = matches!(support.behavior, NonlinearSupportBehavior::Gap { .. });
         let (input, force) = cantilever(vec![support], vec![state("OW", seed)], Vec::new(), Vec::new(), &[], &[(7, load)]);
-        // A gap is never confirmed by the held path (§7.3 R1), so its confirmation is not compared.
+        // A gap is never confirmed by the held path, so its confirmation is not compared.
         out.push((name, input, (!gap).then_some(force)));
     }
     for (name, px, seed) in [
@@ -236,7 +236,7 @@ fn projection(iteration: &NonlinearFrameIteration, with_residuals: bool) -> Stri
     let mut record = iteration.clone();
     record.iteration = 0;
     record.active_set.iteration = 0;
-    // Strict-gap evidence: the compared fields (§7.9 H-10); `source_identity` (it names the
+    // Strict-gap evidence: the compared fields; `source_identity` (it names the
     // iteration), `work` and the private proof, limits and work snapshot are excluded.
     let strict_gap = match &record.strict_gap {
         StrictGapEvidence::NotApplicable => "not applicable".to_string(),
@@ -385,7 +385,7 @@ fn a_held_receipt_is_invalidated_by_a_one_bit_edit_and_never_matches_the_authore
     }
 }
 
-/// Outcome R at NI level (§7.3): a held state the target's classifier changes
+/// Outcome R at NI level: a held state the target's classifier changes
 /// gives `converged == false`, the classifier's state in `final_states`, the
 /// loop's non-converged exit diagnostic, no qualification and no confirmation;
 /// a held lift-off pressed onto its support is the same (H-1's shape), and a

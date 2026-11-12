@@ -1,4 +1,4 @@
-//! K6b: the `w1a` mode's lines (T3 K6b plan §3.4; ROOT's rulings on I16's
+//! K6b: the `w1a` mode's lines (ROOT's rulings on I16's
 //! plan, Q2): the outcome, one `attempt` line per attempt (a new kind; K6's
 //! kinds keep their schema), the parity items, the rows dump and the prefix
 //! lines.
@@ -192,7 +192,7 @@ fn parity(item: &str, repeat: usize, equal: bool) -> Line {
         .b("equal", equal)
 }
 
-/// The W1 parity items (plan §3.4). A false item is a stop for the runner.
+/// The W1 parity items. A false item is a stop for the runner.
 pub fn parity_lines(repeat: usize, counts: &W1Counts, solve: &W1Solve) -> Result<(), WorkFault> {
     solve.charged.exact()?;
     validate_outcome(&solve.outcome)?;

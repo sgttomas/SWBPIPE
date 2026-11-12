@@ -10,7 +10,7 @@ Dependency direction: one-way — project packages depend on this member; this m
 
 Decision surface for stack, runtime, GUI framework, solver-library, and packaging target choices. This member holds the decision structure — decision inventory, ADR template, human-ruling queue, and reconsideration triggers — that lets later packages consume architecture choices as cited rulings instead of package-local assumptions. It records decision structure and required evidence; the choices themselves are made by human ruling and codified in `SOFTWARE_DECOMP.md` §12 and the ADR surface. Identity: DEL-00-01, PKG-00 (Software Architecture Runway), type DOC_UPDATE, scope item SOW-056, objective OBJ-013.
 
-The ADR index, template, and accepted baseline now exist (see Realized artifacts). Current upstream authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` and its accepted decision register; approved graph coordination is resolved through `execution/_DAG/_LATEST.md`; later architecture decisions remain governed through the ADR process.
+The ADR index, template, and accepted baseline now exist (see Realized artifacts). Current upstream authority is `execution/_Decomposition/SOFTWARE_DECOMP.md` and its accepted decision register; dependency conditions are declared in this deliverable's `deliverable.yaml`; later architecture decisions remain governed through the ADR process.
 
 ## Normative requirements
 

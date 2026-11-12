@@ -1,4 +1,4 @@
-//! File > Import MBF…'s native path (DEL-17-04 Design `desktop-mbf-export-import.md` §4.8.9, slice 5): the commands'
+//! File > Import MBF…'s native path: the commands'
 //! ingress and ledger, task 5 in a real worker process (this test binary run as the worker), the decode and the
 //! replies, over the actual `save_mbf_export` command's pair for the maintained invented export model
 //! (`fixtures/caepipe_mbf/invented/desktop_export/`), bound and unbound; the App reply fixture follows the same
@@ -301,7 +301,7 @@ fn case_inventory(document: &Value, member: &str) -> BTreeSet<(String, String)> 
     out
 }
 
-// -- Source-to-adopted canonical parity (import Design `caepipe-mbf-import.md` §18.2) --------------------------------
+// -- Source-to-adopted canonical parity --------------------------------
 //
 // The maintained comparator is `tests/caepipe_mbf_canonical.py`, which has no route from this native test. This is an
 // independent reduction of the same canonical form, limited to the families of the invented export model (an
@@ -600,9 +600,13 @@ fn a_bound_saved_pair_imports_through_task_5_with_the_exported_ids() {
     assert_eq!(reply["review"]["refusals"], json!([]));
     assert_eq!(reply["review"]["declaration_needed"], json!([]));
     assert_eq!(reply["review"]["transfer_limit"], "within");
-    assert_eq!(reply["review"]["format"], 2);
+    assert_eq!(reply["review"]["format"], 3);
+    assert_eq!(reply["review"]["identity"]["designation"], Value::Null);
     assert_eq!(reply["review"]["identity"]["unrecoverable"], 0);
-    assert_eq!(reply["review"]["identity"]["unrecovered_fields"], 1);
+    // Format 6 records each bend's declared tangent node, so the bound import recovers it (format 4 could not).
+    assert_eq!(reply["review"]["identity"]["unrecovered_fields"], 0);
+    let losses = reply["review"]["loss_entries"].as_array().unwrap();
+    assert!(!losses.iter().any(|entry| entry["code"] == "MBF-IMPORT-REFERENCE-UNRECOVERABLE"), "{review_text}");
     assert_eq!(reply["review"]["identity"]["source_completeness"], "not_established");
     assert_eq!(reply["review"]["identity"]["basis"], "restored_from_identity_file");
     let exported: Value = serde_json::from_str(EXPORT_MODEL).unwrap();
@@ -683,7 +687,8 @@ fn an_unbound_mbf_needs_its_declaration_and_imports_with_ids_formed_from_names()
     let declaration = declaration_for(&needed);
     let declared = review(&registry, &imports, &json!({"sourceId": source_id, "declaration": declaration})).value;
     assert_eq!(declared["review"]["adoptable"], true, "{declared}");
-    assert_eq!(declared["review"]["format"], 2);
+    assert_eq!(declared["review"]["format"], 3);
+    assert_eq!(declared["review"]["identity"]["designation"], Value::Null);
     assert_eq!(declared["review"]["identity"]["unrecoverable"], 0);
     assert_eq!(declared["review"]["identity"]["unrecovered_fields"], 0);
     assert_eq!(declared["review"]["identity"]["source_completeness"], "not_established");
@@ -1048,7 +1053,7 @@ fn a_refused_h7_admission_hands_off_before_the_response_callback() {
         let memory = NativeLeaseMemory::unseeded(&registry);
         let imports = MbfImports::default();
         let entry = imports.enter(Some(json!(imports.epoch())), Some(json!(1))).unwrap();
-        let registration = imports.register(entry, &registry);
+        let registration = imports.register(entry, &registry, true);
         if already_cancelled {
             assert_eq!(retire(&registry, &imports, 15, 1).cancelled, 1);
         }
@@ -1059,7 +1064,7 @@ fn a_refused_h7_admission_hands_off_before_the_response_callback() {
             file_name: "invented.mbf".to_string(),
             diagnostics: vec![diag(REVIEW_STALE, "", "The review changed.")],
         };
-        let reply: Value = respond_with(&memory, reply, &mut held, Some(&registration.control), |text| {
+        let reply: Value = respond_with(&memory, reply, &mut held, Some(&registration.control), None, |text| {
             let (_, attempted) = crate::stored_read::native_lease_log::last();
             let (what, bytes) = attempted.expect("H7 admission attempted");
             assert_eq!(what, "the import's reply");
@@ -1240,7 +1245,7 @@ fn adopt_refuses_a_stale_review_or_a_retired_source_with_no_model() {
     let decoded = decode_import_result(ImportMode::Review, envelope.as_bytes()).unwrap();
     let review = std::str::from_utf8(&envelope.as_bytes()[decoded.review]).unwrap();
     assert_eq!(first["reviewSha256"], hex(review.as_bytes()));
-    let old_review = review.replacen("\"format\":2", "\"format\":1", 1);
+    let old_review = review.replacen("\"format\":3", "\"format\":2", 1);
     assert_ne!(old_review, review);
     let old_review_sha = hex(old_review.as_bytes());
     let other = json!({"swbpipe-unlisted": {"origin": "project_invented", "source_name": "x"}});
@@ -1261,11 +1266,274 @@ fn adopt_refuses_a_stale_review_or_a_retired_source_with_no_model() {
     assert_released(&registry);
 }
 
+// -- Designate original source ---------------------------------------------------------------------------------
+
+fn designate_with(registry: &SolveJobRegistry, imports: &MbfImports, body: &Value, choose: impl FnOnce() -> Result<Option<PathBuf>, String>) -> Replied {
+    let body = ticketed(imports, body);
+    let (raw_args, copy) = reserve(registry, &raw(&body), &headers(Some(INGRESS_ARGS_JSON_V1)), DESIGNATE_COMMAND).unwrap();
+    designate_command(registry, imports, raw_args, copy, START_WAIT, choose, |text| parse_reply(text, registry)).unwrap()
+}
+
+fn designate(registry: &SolveJobRegistry, imports: &MbfImports, body: &Value, source: &Path) -> Replied {
+    let source = source.to_path_buf();
+    designate_with(registry, imports, body, move || Ok(Some(source)))
+}
+
+/// The invented export model, as a saved model document (formatted otherwise than the export read it).
+fn source_document(sandbox: &Sandbox) -> PathBuf {
+    let path = sandbox.0.join("swbpipe-model.json");
+    fs::write(&path, serde_json::to_vec_pretty(&serde_json::from_str::<Value>(EXPORT_MODEL).unwrap()).unwrap()).unwrap();
+    path
+}
+
+/// The exact source establishes the identity set; its record is published with the designated review X over the base
+/// review Y, the designated file's digest and X's adoptability. Adopt(X) re-forms Y under the same declaration over the
+/// exact pair and adopts the pair's model with X in the reply; Adopt(Y) still works; a forged X, an X under another
+/// declaration, and an X after a later review are stale.
+#[test]
+fn an_exact_designated_source_is_established_and_adopt_takes_x_only_over_its_base() {
+    let registry = real_worker();
+    let imports = MbfImports::default();
+    let sandbox = Sandbox::new("designate-exact");
+    let first = open(&registry, &imports, &sandbox.pair(true)).value;
+    let source_id = first["sourceId"].clone();
+    let base = first["reviewSha256"].as_str().unwrap().to_string();
+    let source = source_document(&sandbox);
+    let replied = designate(&registry, &imports, &json!({"sourceId": source_id, "declaration": null, "reviewSha256": base}), &source);
+    let reply = replied.value;
+    assert_eq!(reply["outcome"], "designated", "{reply}");
+    assert_eq!(reply["baseReviewSha256"], base);
+    let x = reply["reviewSha256"].as_str().unwrap().to_string();
+    assert_ne!(x, base);
+    let review = &reply["review"];
+    assert_eq!(review["format"], 3);
+    assert_complete(review);
+    assert_eq!(review["identity"]["source_completeness"], "established_for_identity_set", "{review}");
+    let stated = &review["identity"]["designation"];
+    assert_eq!(stated["outcome"], "established_for_identity_set");
+    assert_eq!(stated["file_name"], "swbpipe-model.json");
+    assert_eq!(stated["sha256"], hex(&fs::read(&source).unwrap()));
+    assert_eq!(stated["reasons"], json!([]));
+    // X is the review carried: its digest is the reply's.
+    let start = replied.text.find("\"review\":").unwrap() + "\"review\":".len();
+    assert_eq!(hex(&replied.text.as_bytes()[start..replied.text.len() - 1]), x);
+    let record = imports.designation().expect("published");
+    assert_eq!((ascii(&record.base), ascii(&record.designated)), (base.as_str(), x.as_str()));
+    assert_eq!(hex(&fs::read(&source).unwrap()), ascii(&hex64(&record.source_sha256)));
+    assert!(record.adoptable);
+    // Adopt(X): the pair's model, with X in the reply.
+    let adopted = adopt(&registry, &imports, &json!({"sourceId": source_id, "declaration": null, "reviewSha256": x})).value;
+    assert_eq!(adopted["outcome"], "opened", "{adopted}");
+    assert_eq!(adopted["reviewSha256"], x);
+    let (text, sidecar) = written_pair();
+    assert_eq!(adopted["modelSha256"], hex(&engine_model(&text, Some(&sidecar), None)));
+    // Adopt(Y) works as before, and leaves the record.
+    let ordinary = adopt(&registry, &imports, &json!({"sourceId": source_id, "declaration": null, "reviewSha256": base})).value;
+    assert_eq!((ordinary["outcome"].as_str(), ordinary["reviewSha256"].as_str()), (Some("opened"), Some(base.as_str())));
+    assert!(imports.designation().is_some());
+    // A forged X, and X under another declaration (Y' is not its base), are stale with no model.
+    let other = json!({"swbpipe-unlisted": {"origin": "project_invented", "source_name": "x"}});
+    for body in [
+        json!({"sourceId": source_id, "declaration": null, "reviewSha256": "1".repeat(64)}),
+        json!({"sourceId": source_id, "declaration": other, "reviewSha256": x}),
+    ] {
+        let stale = adopt(&registry, &imports, &body).value;
+        assert_eq!(codes(&stale), vec![REVIEW_STALE], "{stale}");
+        assert!(stale.get("document").is_none());
+    }
+    // A later review retires the designation: X is stale.
+    assert_eq!(review_reply(&registry, &imports, &source_id)["reviewSha256"], base);
+    assert!(imports.designation().is_none());
+    assert_eq!(codes(&adopt(&registry, &imports, &json!({"sourceId": source_id, "declaration": null, "reviewSha256": x})).value), vec![REVIEW_STALE]);
+    assert_released(&registry);
+}
+
+fn review_reply(registry: &SolveJobRegistry, imports: &MbfImports, source_id: &Value) -> Value {
+    review(registry, imports, &json!({"sourceId": source_id, "declaration": null})).value
+}
+
+/// Designate is formed over the review shown: another base is stale and publishes nothing; a cancelled chooser
+/// publishes nothing and retires a designation shown; a refusal retires it too; a retirement drops it with the source.
+#[test]
+fn designate_publishes_nothing_on_a_stale_base_a_cancelled_chooser_or_a_retirement() {
+    let registry = real_worker();
+    let imports = MbfImports::default();
+    let sandbox = Sandbox::new("designate-stale");
+    let first = open(&registry, &imports, &sandbox.pair(true)).value;
+    let source_id = first["sourceId"].clone();
+    let base = first["reviewSha256"].clone();
+    let source = source_document(&sandbox);
+    let stale = designate(&registry, &imports, &json!({"sourceId": source_id, "declaration": null, "reviewSha256": "0".repeat(64)}), &source).value;
+    assert_eq!(codes(&stale), vec![REVIEW_STALE]);
+    assert!(imports.designation().is_none());
+    // Under another declaration the recomputed Y is not the review shown.
+    let other = json!({"swbpipe-unlisted": {"origin": "project_invented", "source_name": "x"}});
+    let changed = designate(&registry, &imports, &json!({"sourceId": source_id, "declaration": other, "reviewSha256": base}), &source).value;
+    assert_eq!(codes(&changed), vec![REVIEW_STALE]);
+    assert!(imports.designation().is_none());
+    let body = json!({"sourceId": source_id, "declaration": null, "reviewSha256": base});
+    assert_eq!(designate(&registry, &imports, &body, &source).value["outcome"], "designated");
+    assert!(imports.designation().is_some());
+    let cancelled = designate_with(&registry, &imports, &body, || Ok(None)).value;
+    assert_eq!(cancelled, json!({"outcome": "cancelled"}));
+    assert!(imports.designation().is_none(), "the start retired the designation shown");
+    assert_eq!(designate(&registry, &imports, &body, &source).value["outcome"], "designated");
+    let missing = designate(&registry, &imports, &body, &sandbox.0.join("absent.json")).value;
+    assert_eq!(codes(&missing), vec![OPEN_UNREADABLE]);
+    assert!(imports.designation().is_none());
+    assert_eq!(designate(&registry, &imports, &body, &source).value["outcome"], "designated");
+    retire(&registry, &imports, 1, 1);
+    assert!(imports.designation().is_none());
+    assert_eq!(codes(&designate(&registry, &imports, &body, &source).value), vec![SOURCE_RETIRED]);
+    assert_released(&registry);
+}
+
+/// The designated file is acquired as a chosen MBF is (regular, not a symlink, within its cap, read once); a file that
+/// is not the source, or not a model document, gives a designated review that is not established, with its reasons.
+#[test]
+fn designated_sources_are_acquired_by_the_open_rules_and_others_are_not_established() {
+    let registry = real_worker();
+    let imports = MbfImports::default();
+    let sandbox = Sandbox::new("designate-sources");
+    let first = open(&registry, &imports, &sandbox.pair(true)).value;
+    let body = json!({"sourceId": first["sourceId"], "declaration": null, "reviewSha256": first["reviewSha256"]});
+    let large = sandbox.0.join("large.json");
+    File::create(&large).unwrap().set_len(DESIGNATED_SOURCE_MAX_BYTES + 1).unwrap();
+    assert_eq!(codes(&designate(&registry, &imports, &body, &large).value), vec![OPEN_TOO_LARGE]);
+    let folder = sandbox.0.join("folder.json");
+    fs::create_dir(&folder).unwrap();
+    assert_eq!(codes(&designate(&registry, &imports, &body, &folder).value), vec![OPEN_NOT_A_FILE]);
+    #[cfg(unix)]
+    {
+        let link = sandbox.0.join("link.json");
+        std::os::unix::fs::symlink(source_document(&sandbox), &link).unwrap();
+        assert_eq!(codes(&designate(&registry, &imports, &body, &link).value), vec![OPEN_NOT_A_FILE]);
+    }
+    assert!(imports.designation().is_none());
+    let mut changed: Value = serde_json::from_str(EXPORT_MODEL).unwrap();
+    changed["project"]["id"] = json!("project:another-invented-project");
+    let cases = [("other.json", serde_json::to_vec(&changed).unwrap(), "source_digest_differs"), ("not-json.json", b"not json".to_vec(), "source_not_a_model_document")];
+    for (name, bytes, reason) in cases {
+        let path = sandbox.0.join(name);
+        fs::write(&path, bytes).unwrap();
+        let reply = designate(&registry, &imports, &body, &path).value;
+        assert_eq!(reply["outcome"], "designated", "{reply}");
+        let identity = &reply["review"]["identity"];
+        assert_eq!(identity["source_completeness"], "not_established");
+        assert_eq!(identity["designation"]["outcome"], "not_established");
+        assert_eq!(identity["designation"]["reasons"], json!([reason]));
+        // X under a non-established designation is still the review shown, and adoptable over its base.
+        let x = reply["reviewSha256"].clone();
+        let adopted = adopt(&registry, &imports, &json!({"sourceId": first["sourceId"], "declaration": null, "reviewSha256": x})).value;
+        assert_eq!(adopted["reviewSha256"], x);
+    }
+    // An unbound pair (no identity file) has no derivation to check against.
+    let unbound = Sandbox::new("designate-unbound");
+    let first = open(&registry, &imports, &unbound.pair(false)).value;
+    let body = json!({"sourceId": first["sourceId"], "declaration": null, "reviewSha256": first["reviewSha256"]});
+    let reply = designate(&registry, &imports, &body, &source_document(&unbound)).value;
+    assert_eq!(reply["review"]["identity"]["designation"]["reasons"][0], "identity_file_absent", "{reply}");
+    assert_released(&registry);
+}
+
+/// A retirement at the reply's admission wins: the reply is the cancellation and nothing is published. Publication
+/// itself needs the run still in progress and the source current, and a newer non-Adopt start clears it.
+#[test]
+fn designation_is_published_only_to_the_current_run_and_source() {
+    let registry = real_worker();
+    let imports = MbfImports::default();
+    let sandbox = Sandbox::new("designate-race");
+    let first = open(&registry, &imports, &sandbox.pair(true)).value;
+    let body = json!({"sourceId": first["sourceId"], "declaration": null, "reviewSha256": first["reviewSha256"]});
+    let source = source_document(&sandbox);
+    let (waiting_tx, waiting_rx) = std::sync::mpsc::sync_channel(0);
+    let (resume_tx, resume_rx) = std::sync::mpsc::sync_channel(0);
+    std::thread::scope(|scope| {
+        let run = scope.spawn(|| {
+            let mut blocked = false;
+            crate::stored_read::native_lease_log::take();
+            crate::memory_pool::ledger_probe::set(move |_, _| {
+                if !blocked && crate::stored_read::native_lease_log::last().1.is_some_and(|(what, _)| what == "the import's reply") {
+                    blocked = true;
+                    waiting_tx.send(()).unwrap();
+                    resume_rx.recv_timeout(Duration::from_secs(20)).unwrap();
+                }
+            });
+            let reply = designate(&registry, &imports, &body, &source).value;
+            crate::memory_pool::ledger_probe::clear();
+            reply
+        });
+        waiting_rx.recv_timeout(Duration::from_secs(20)).expect("Designate reached H7 admission");
+        assert_eq!(retire(&registry, &imports, 21, 1).cancelled, 1);
+        resume_tx.send(()).unwrap();
+        assert_eq!(codes(&run.join().unwrap()), vec![CANCELLED]);
+    });
+    assert!(imports.designation().is_none());
+    // Direct: an older run cannot publish over a newer one; Adopt's start keeps the record, any other clears it.
+    let imports = MbfImports::default();
+    let first = open(&registry, &imports, &sandbox.pair(true)).value;
+    let source_id = first["sourceId"].as_u64().unwrap();
+    let record = Designation { base: [b'a'; 64], designated: [b'b'; 64], source_sha256: [0; 32], adoptable: true };
+    let enter = |sequence: u64| imports.enter(Some(json!(imports.epoch())), Some(json!(sequence))).unwrap();
+    let older = imports.register(enter(1_000_001), &registry, true);
+    let newer = imports.register(enter(1_000_002), &registry, true);
+    assert!(!imports.publish(&older.control, source_id, record));
+    assert!(!imports.publish(&newer.control, source_id + 1, record), "another source");
+    assert!(imports.publish(&newer.control, source_id, record));
+    assert_eq!(imports.designation(), Some(record));
+    assert_eq!(imports.designated(source_id, &record.base, &record.designated), Some(record));
+    assert_eq!(imports.designated(source_id, &record.designated, &record.designated), None, "another base");
+    drop(newer);
+    let adopting = imports.register(enter(1_000_003), &registry, false);
+    assert_eq!(imports.designation(), Some(record));
+    drop(adopting);
+    let reviewing = imports.register(enter(1_000_004), &registry, true);
+    assert_eq!(imports.designation(), None);
+    drop(reviewing);
+    drop(older);
+    assert_released(&registry);
+}
+
+/// Designate's request framing: mode 3 carries the designated name and bytes, the other modes none; a truncated,
+/// empty-named or trailing part is refused; the length is checked arithmetic. Its envelope carries the base digest.
+#[test]
+fn designate_request_framing_and_envelope_are_checked() {
+    let (text, sidecar) = written_pair();
+    let request = |mode, designated| WorkerRequest { mode, label: "swbpipe-model.mbf", declaration: b"", mbf: &text, identity: Some(&sidecar), designated };
+    let encoded = encode_worker_request(&request(ImportMode::Designate, Some(("source.json", EXPORT_MODEL.as_bytes()))));
+    assert_eq!(
+        Some(encoded.len() as u64),
+        request_len("swbpipe-model.mbf".len(), 0, text.len() as u64, Some(sidecar.len() as u64), Some(("source.json".len(), EXPORT_MODEL.len() as u64)))
+    );
+    let decoded = decode_worker_request(&encoded).unwrap();
+    assert_eq!(decoded.designated, Some(("source.json", EXPORT_MODEL.as_bytes())));
+    let without = encode_worker_request(&request(ImportMode::Designate, None));
+    assert!(decode_worker_request(&without).unwrap_err().contains("truncated"));
+    let extra = encode_worker_request(&request(ImportMode::Review, Some(("source.json", b"{}"))));
+    assert!(decode_worker_request(&extra).unwrap_err().contains("trailing"));
+    let unnamed = encode_worker_request(&request(ImportMode::Designate, Some(("", b"{}"))));
+    assert!(decode_worker_request(&unnamed).unwrap_err().contains("designated file name"));
+    assert_eq!(request_len(1, 0, u64::MAX - 20, None, None), None);
+    assert_eq!(request_len(1, 0, 1, None, Some((1, u64::MAX - 30))), None);
+    // The envelope: the base digest after X's; Y is what Review gives for the same request.
+    let envelope = worker_import(&encoded).unwrap();
+    let designated = decode_import_result(ImportMode::Designate, envelope.as_bytes()).unwrap();
+    let reviewed = decode_import_result(ImportMode::Review, worker_envelope(ImportMode::Review, true).as_bytes()).unwrap();
+    assert_eq!(designated.base_review_sha, Some(reviewed.review_sha));
+    assert_ne!(designated.review_sha, reviewed.review_sha);
+    assert!(designated.model.is_empty());
+    assert!(decode_import_result(ImportMode::Review, envelope.as_bytes()).is_err(), "another mode");
+    assert!(decode_import_result(ImportMode::Designate, worker_envelope(ImportMode::Review, true).as_bytes()).is_err());
+    let mut parts: Vec<&str> = envelope.splitn(11, '\n').collect();
+    parts[6] = "-";
+    assert!(decode_import_result(ImportMode::Designate, parts.join("\n").as_bytes()).is_err(), "a base sentinel");
+}
+
 // -- The worker and its envelope ----------------------------------------------------------------------------------------
 
 fn worker_envelope(mode: ImportMode, identity: bool) -> String {
     let (text, sidecar) = written_pair();
-    let request = WorkerRequest { mode, label: "swbpipe-model.mbf", declaration: b"", mbf: &text, identity: identity.then_some(sidecar.as_slice()) };
+    let request = WorkerRequest { mode, label: "swbpipe-model.mbf", declaration: b"", mbf: &text, identity: identity.then_some(sidecar.as_slice()), designated: None };
     worker_import(&encode_worker_request(&request)).unwrap()
 }
 
@@ -1315,12 +1583,12 @@ fn every_tampered_or_malformed_envelope_is_a_protocol_refusal() {
     // The review's fixed prefix or digest.
     refused(ImportMode::Review, &review_envelope.replacen("\"adoptable\":true", "\"adoptable\":tru ", 1));
     refused(ImportMode::Review, &replace_header(&review_envelope, 5, &"0".repeat(64)));
-    // A validly rehashed format-1 review must still fail the version prefix, in both modes. Same-length version
+    // A validly rehashed format-2 review must still fail the version prefix, in both modes. Same-length version
     // replacement keeps all length tokens valid; recomputing the digest isolates version separation from integrity.
     for (mode, envelope) in [(ImportMode::Review, &review_envelope), (ImportMode::Adopt, &adopt_envelope)] {
         let decoded = decode_import_result(mode, envelope.as_bytes()).unwrap();
         let old_review = std::str::from_utf8(&envelope.as_bytes()[decoded.review.clone()]).unwrap()
-            .replacen("\"format\":2", "\"format\":1", 1);
+            .replacen("\"format\":3", "\"format\":2", 1);
         assert_ne!(old_review.as_bytes(), &envelope.as_bytes()[decoded.review.clone()]);
         let mut old = envelope.clone();
         old.replace_range(decoded.review, &old_review);
@@ -1474,7 +1742,7 @@ fn a_reread_one_byte_above_the_budget_is_refused_before_any_worker() {
     let real = real_worker();
     let first = open(&real, &imports, &sandbox.pair(true)).value;
     let (text, sidecar) = written_pair();
-    let raw_len = request_len("swbpipe-model.mbf".len(), 0, text.len() as u64, Some(sidecar.len() as u64));
+    let raw_len = request_len("swbpipe-model.mbf".len(), 0, text.len() as u64, Some(sidecar.len() as u64), None).unwrap();
     let start = initial_grant(crate::solve_worker::PROCESS_RESERVE_BYTES, resident_envelope(raw_len)).unwrap();
     let scripted = worker_envelope(ImportMode::Review, true);
     for admitted in [false, true] {
@@ -1590,7 +1858,8 @@ fn task_5_is_the_only_production_caller_of_the_import_worker() {
 const IMPORT_REPLIES: &str = "../../../fixtures/caepipe_mbf/invented/desktop_import/import_replies.json";
 
 /// The replies the webview's tests read (`fixtures/caepipe_mbf/invented/desktop_import/import_replies.json`) are the
-/// native commands' own replies, through task 5 in a real worker, for the export's saved pair: bound (open, adopt) and
+/// native commands' own replies, through task 5 in a real worker, for the export's saved pair: bound (open, adopt,
+/// Designate original source… with the maintained source file itself, and Adopt of that designated review) and
 /// unbound (open, declared review, adopt). Capture the response callback's string verbatim, never a re-serialization
 /// of its parsed model. The companion covers the entire invented transcript and every input. Runtime provenance
 /// inside a captured reply is not a public engineering-data disposition. Regenerate with `MBF_IMPORT_REPLIES_REGENERATE=1`.
@@ -1605,6 +1874,16 @@ fn the_dialogs_import_replies_are_the_native_replies() {
     let imports = MbfImports::default();
     let bound_open = open(&registry, &imports, &mbf_path);
     let bound_adopt = adopt(&registry, &imports, &json!({"sourceId": bound_open.value["sourceId"], "declaration": null, "reviewSha256": bound_open.value["reviewSha256"]}));
+    // The designated source is the maintained source file, byte for byte (`source_model_file_sha256`).
+    let designated_path = sandbox.0.join("export_model.json");
+    fs::write(&designated_path, EXPORT_MODEL).unwrap();
+    let bound_designate = designate(&registry, &imports, &json!({"sourceId": bound_open.value["sourceId"], "declaration": null, "reviewSha256": bound_open.value["reviewSha256"]}), &designated_path);
+    assert_eq!(bound_designate.value["outcome"], "designated", "{}", bound_designate.text);
+    assert_eq!(bound_designate.value["review"]["identity"]["source_completeness"], "established_for_identity_set");
+    assert_eq!(bound_designate.value["review"]["identity"]["designation"]["sha256"], hex(EXPORT_MODEL.as_bytes()));
+    let bound_designated_adopt = adopt(&registry, &imports, &json!({"sourceId": bound_open.value["sourceId"], "declaration": null, "reviewSha256": bound_designate.value["reviewSha256"]}));
+    assert_eq!(bound_designated_adopt.value["reviewSha256"], bound_designate.value["reviewSha256"]);
+    assert_eq!(bound_designated_adopt.value["document"], bound_adopt.value["document"], "the designation changes no adopted byte");
     fs::remove_file(sandbox.ids()).unwrap();
     let imports = MbfImports::default();
     let unbound_open = open(&registry, &imports, &mbf_path);
@@ -1629,7 +1908,7 @@ fn the_dialogs_import_replies_are_the_native_replies() {
         assert_eq!(adopted["byte_count"], expected.len());
         assert_eq!(adopted["document"], serde_json::from_slice::<Value>(&expected).unwrap(), "every captured record comes from only the identified invented inputs");
     }
-    for captured in [&bound_open, &bound_adopt, &unbound_open, &unbound_declared, &unbound_adopt] {
+    for captured in [&bound_open, &bound_adopt, &bound_designate, &bound_designated_adopt, &unbound_open, &unbound_declared, &unbound_adopt] {
         assert!(!captured.text.contains(sandbox.0.to_str().unwrap()), "no temporary host path is captured");
     }
     let document = json!({
@@ -1647,6 +1926,8 @@ fn the_dialogs_import_replies_are_the_native_replies() {
         "replies": {
             "bound-open": bound_open.text,
             "bound-adopt": bound_adopt.text,
+            "bound-designate": bound_designate.text,
+            "bound-designated-adopt": bound_designated_adopt.text,
             "unbound-open": unbound_open.text,
             "unbound-declared": unbound_declared.text,
             "unbound-adopt": unbound_adopt.text,

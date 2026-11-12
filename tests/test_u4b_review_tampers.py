@@ -1,4 +1,4 @@
-"""T4-U4b review repairs (DEL-04-07 Design u4b-u5b-implementation.md §2.4, §2.6, §5.1): tampers the model-holding
+"""T4-U4b review repairs: tampers the model-holding
 readers must refuse, on the shared corpus's two arc envelopes, read by the independent verifier
 (``tests/verifiers``) with and without the captured model.
 

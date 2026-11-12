@@ -79,8 +79,8 @@ assert frac(x)*frac(x)-frac(x*x)==F(1,2**104)
 assert (F(25)*-7-F(7)*-7+F(7)*18)==0
 print(json.dumps({'cases':len(cases),'pi_bracket':'128-term rational Machin, adjacent 2^-512 grid','exact_K_discriminator':'2^-104','fixture_sha256':hashlib.sha256(text.encode()).hexdigest()},indent=2))
 
-# ---------------------------------------------------------------- B2-K (KD §6)
-# The combination oracle (I94 KD §6, with RV115's SF-2, SF-3, N-7 and N-9). A new
+# ----------------------------------------------------------------
+# The combination oracle (with RV115's SF-2, SF-3, N-7 and N-9). A new
 # fixture, product_certificate_combination_vectors.rs; the CASES block above
 # and its fixture are unchanged. Standard library only, no production import,
 # no copy of kernel arithmetic: exact Fractions, the tight Machin bracket
@@ -273,7 +273,7 @@ def b2k_fixture():
     exact=b64(.1)*3; assert exact!=b64(.1*3) and exact.numerator.bit_length()==54
     # C6: the nearest 1024-bit rounding of 2^600 + 2^-600 is 2^600, which excludes the net.
     n6=F(2)**600+F(2)**-600; assert rn1024(n6)==F(2)**600<n6<rd1024(n6,True)
-    # Representative-source discriminator (KD §6 item 4 (ii)): the K-law tip
+    # Representative-source discriminator: the K-law tip
     # motions under operand 0's loads alone, for C1, C2, C4 and C7.
     out.append('#[rustfmt::skip]')
     out.append('pub(super) const REPRESENTATIVE_TIP_K: &[(&str, [(&str, &str); 6])] = &[')

@@ -1,5 +1,5 @@
 """Independent model-derived mass assurance for modal result documents (DEL-04-09
-`execution/PKG-04/DEL-04-09/Work/modal-analysis.md`, "Selected mass assurance: next
+design, "Selected mass assurance: next
 modal unit after CE"; §1.3, §1.5, §2.1 to §2.4).
 
 The payload relations of `modal_evidence` check totals and participation against the

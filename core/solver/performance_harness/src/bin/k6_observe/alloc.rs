@@ -1,4 +1,4 @@
-//! K6's counting, capped global allocator (K6 plan §5; ROOT's K6 ruling N8).
+//! K6's counting, capped global allocator (ROOT's K6 ruling N8).
 //!
 //! It is registered only by the observation binary and by the `k6_alloc`
 //! test binary, never by the harness library, so no consumer inherits it.

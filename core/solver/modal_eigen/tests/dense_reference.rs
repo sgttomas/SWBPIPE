@@ -39,7 +39,7 @@ use screen_outcomes::{aggregate, classify, tally, ScreenOutcome, ScreenOutcomeCo
 
 const U: f64 = f64::EPSILON / 2.0;
 
-/// Test-local resolution-floor parameters c_μ and κ_μ (design §3.2 item 5);
+/// Test-local resolution-floor parameters c_μ and κ_μ;
 /// the production values are recorded under DEC-026, not here. On the
 /// equilibrated pencil (review round 4), with c_μ = 1, the review-round-3
 /// artifact lies 2.4× below δ_μ and the smallest μ of the admitted fixture
@@ -47,7 +47,7 @@ const U: f64 = f64::EPSILON / 2.0;
 /// stiff modes lie below it and use the separately checked recovery band.
 const RESOLUTION_FLOOR_CONSTANT: f64 = 1.0;
 const RESOLUTION_FLOOR_MULTIPLE: f64 = 10.0;
-/// Test-local c_f of the screen τ_f = c_f·n·u (design §3.2 item 5); the
+/// Test-local c_f of the screen τ_f = c_f·n·u; the
 /// production value is recorded under DEC-026 (README for the measured
 /// η_f).
 const FORMED_BACKWARD_ERROR_MULTIPLE: f64 = 64.0;
@@ -800,7 +800,7 @@ fn torsion_modes_take_unit_max_rotation() {
     assert_eq!(last[2], Some(0.0));
 }
 
-// ---- A3 K2: test-only screen outcome counts (design §5.3.7) ----
+// ---- A3 K2: test-only screen outcome counts ----
 
 /// dense.rs's one-band pencil with a decoupled third DOF: K =
 /// blockdiag(Qᵀ diag(1, ε) Q, 1), M = blockdiag(Qᵀ diag(1, m_s) Q, 2⁻⁴), Q

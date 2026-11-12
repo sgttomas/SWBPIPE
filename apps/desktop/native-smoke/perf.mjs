@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Desktop performance runner (RT-U4, release target exit criterion 9; DEL-04-05
-// `Work/criterion-9-measurement.md`, "Desktop measurement"), macOS. Observation only:
+// Desktop performance runner (RT-U4, release target exit criterion 9;
+// DEL-04-05), macOS. Observation only:
 // nothing here asserts a time or memory bound.
 //
 //   node apps/desktop/native-smoke/perf.mjs --build --app-dir DIR [--target-dir DIR]

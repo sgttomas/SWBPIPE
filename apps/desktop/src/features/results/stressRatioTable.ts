@@ -1,4 +1,4 @@
-/** Sorted stress and ratio table (survey item A3; DEL-07-05 Design `stress-ratio-table.md`).
+/** Sorted stress and ratio table (survey item A3).
  *
  * Per stress category, the result locations sorted largest first: the user's rule-check outcomes
  * of each of the pack's stress categories by their ratio (computed value / limit, or limit /
@@ -9,7 +9,7 @@
  * engineering quantity, a limit or a status. A ratio is formed only from the outcome's own computed
  * value and limit, stated in one unit: computed ÷ limit under an upper-bound relation and limit ÷
  * computed under a lower-bound one, so a ratio above 1 means the computed value is past the limit in
- * either direction (§3.1). The status is the runner's own. FR-RULE-003: an incomplete outcome is
+ * either direction. The status is the runner's own. FR-RULE-003: an incomplete outcome is
  * pinned with its reason, never sorted and never hidden by the threshold; a withheld or failed
  * outcome is never hidden either. A row the numerical standing withholds (the viewport overlays'
  * rule, `overlayMayShowRow`) carries no value in the view. Stored values and units are kept
@@ -87,7 +87,7 @@ export type StressRatioOutcome = Readonly<{
   /** Null for a withheld row, and for an incomplete row whose case is withheld. */
   computed: StressRatioValue | null;
   limit: StressRatioValue | null;
-  /** computed / limit, or limit / computed under a lower bound (§3.1; `ratioDirection`), or null
+  /** computed / limit, or limit / computed under a lower bound (`ratioDirection`), or null
    * with `ratioNote` saying why none is formed. */
   ratio: number | null;
   ratioNote: string | null;
@@ -95,7 +95,7 @@ export type StressRatioOutcome = Readonly<{
   incompleteReason: string | null;
 }>;
 
-/** Whether the numerical standing admits a row's values (§4). */
+/** Whether the numerical standing admits a row's values. */
 export type StressRatioStanding = "admitted" | "withheld";
 
 export type StressRatioRow = Readonly<{
@@ -153,18 +153,18 @@ export const RATIO_NOTE_PREDICATE = "Predicate check; no ratio is formed";
 export const RATIO_NOTE_MISSING = "No computed value or limit; no ratio is formed";
 export const RATIO_NOTE_LIMIT_NOT_POSITIVE = "Limit is not positive; no ratio is formed";
 export const RATIO_NOTE_NOT_FINITE = "Ratio is not finite; none is formed";
-/** A lower-bound ratio divides by the computed value, which must be positive (§3.1). */
+/** A lower-bound ratio divides by the computed value, which must be positive. */
 export const RATIO_NOTE_COMPUTED_NOT_POSITIVE = "Computed value is not positive; no lower-bound ratio is formed";
 export function ratioNoteUnitsDiffer(computed: string, limit: string): string {
   return `Computed value and limit in different units (${computed}, ${limit}); no ratio is formed`;
 }
 export const INCOMPLETE_NO_REASON = "The run states no reason.";
-/** Said after the findings: their messages are the runner's free text and are not shown here (§3.2). */
+/** Said after the findings: their messages are the runner's free text and are not shown here. */
 export const INCOMPLETE_MESSAGES_NOTE = "The findings' messages are shown with the rule-check run.";
 /** Shown in place of a `STATUS_NOT_DECLARED` finding's subject, which is the evaluated status the
- * pack did not declare (§3.2). */
+ * pack did not declare. */
 export const SUBJECT_UNDECLARED_STATUS = "undeclared status";
-/** Shown in place of any other finding subject that reads as a rule-check status (§3.2). */
+/** Shown in place of any other finding subject that reads as a rule-check status. */
 export const SUBJECT_NOT_SHOWN = "subject not shown";
 
 /** The rule-check runner's whole status vocabulary (`RuleCheckStatus` in
@@ -331,7 +331,7 @@ export function outcomeRatio(outcome: Pick<RuleCheckOutcome, "acceptability_rela
   return Number.isFinite(ratio) ? { ratio, note: null } : { ratio: null, note: RATIO_NOTE_NOT_FINITE };
 }
 
-/** §3.2: a finding subject as shown for an admitted row. The runner puts the evaluated status in
+/** a finding subject as shown for an admitted row. The runner puts the evaluated status in
  * a `STATUS_NOT_DECLARED` finding's subject before downgrading the outcome to incomplete, so a
  * subject that contains a status token (in any case) is never echoed. */
 function shownSubject(finding: { code: string; subject_id: string }): string {
@@ -340,7 +340,7 @@ function shownSubject(finding: { code: string; subject_id: string }): string {
   return finding.code === STATUS_NOT_DECLARED ? SUBJECT_UNDECLARED_STATUS : SUBJECT_NOT_SHOWN;
 }
 
-/** §3.2: the missing inputs, then the run's findings by kind, code and subject, else its diagnostic
+/** the missing inputs, then the run's findings by kind, code and subject, else its diagnostic
  * codes. Built from structured fields only: a finding's message is the runner's free text and can
  * carry a quantity (a table argument, a bound) with no unit to display it by, so it is never copied
  * here, whatever the row's standing. A withheld row's findings carry no subject at all, and an
@@ -484,7 +484,7 @@ export function buildStressRatioTable(input: {
   return Object.freeze({ state: "available", reason: null, run, groups: Object.freeze(groups) });
 }
 
-// --- The view: sort, threshold, toggle (§5) -------------------------------------------------
+// --- The view: sort, threshold, toggle -------------------------------------------------
 
 export type StressRatioThreshold = Readonly<
   | { state: "none" }
@@ -549,7 +549,7 @@ function mayBeOmitted(row: StressRatioRow): boolean {
 
 const STATUS_RANK: Readonly<Record<string, number>> = Object.freeze({ USER_RULE_FAILED: 0, USER_RULE_CHECKED: 1 });
 
-/** The view of one group under a mode and a threshold text (§5). Pure; frozen. */
+/** The view of one group under a mode and a threshold text. Pure; frozen. */
 export function stressRatioView(group: StressRatioGroup, options: { mode: StressRatioMode; threshold: string }): StressRatioView {
   const mode = group.modes.includes(options.mode) ? options.mode : group.modes[0];
   const pinned = [
@@ -604,7 +604,7 @@ export function stressRatioView(group: StressRatioGroup, options: { mode: Stress
   });
 }
 
-// --- The page (§7) ---------------------------------------------------------------------------
+// --- The page ---------------------------------------------------------------------------
 
 export type StressRatioPage = Readonly<{
   /** The ranked rows listed, each with its rank: its position among the rows at or above the

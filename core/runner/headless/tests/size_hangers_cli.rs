@@ -1,4 +1,4 @@
-//! DEL-04-11 slice 1d-α (`Work/hanger-sizing.md` §8.3.2): the actual
+//! DEL-04-11 slice 1d-α (design §8.3.2): the actual
 //! `openpipestress-runner size-hangers` process. Stdin or `--input` in, the
 //! `ControlledExport`-wrapped document on stdout, `--output` written as the
 //! other verbs write it; exit 0 sized, 1 refused, 2 when no document is formed.

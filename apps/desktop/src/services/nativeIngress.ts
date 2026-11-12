@@ -63,7 +63,7 @@ export const NATIVE_INGRESS_COMMANDS = [
   "set_autosave_settings",
   "configure_project_backup",
   "write_project_backup",
-  // C1 native custody (DEL-04-05 `c1-native-custody-plan.md`): the held result's readers.
+  // C1 native custody: the held result's readers.
   "read_preview_mechanics_job_verdict",
   "read_preview_mechanics_job_summary",
   "query_preview_mechanics_job_rows",
@@ -91,7 +91,9 @@ export const NATIVE_INGRESS_COMMANDS = [
   // retirement `cancel_mbf_import` is sent as JSON arguments instead).
   "open_mbf_import",
   "review_mbf_import",
-  "adopt_mbf_import"
+  "adopt_mbf_import",
+  // Import MBF…'s Designate original source… (through `mbfImportCancel.ts`, as the other starts).
+  "designate_mbf_import_source"
 ] as const;
 export type NativeIngressCommand = (typeof NATIVE_INGRESS_COMMANDS)[number];
 

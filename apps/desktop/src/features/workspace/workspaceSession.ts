@@ -97,7 +97,7 @@ import type { MbfExportDialogRequest } from "../caepipe-mbf/MbfExportDialog";
 import { closedSaveStatusLine } from "../caepipe-mbf/mbfExport";
 import { mbfExportRetirementOwner } from "../caepipe-mbf/mbfExportSession";
 import { mbfImportRetirementOwner } from "../caepipe-mbf/mbfImportSession";
-import { adoptMbfImport, openMbfImport, retireMbfImportSession, reviewMbfImport } from "../caepipe-mbf/mbfImportCancel";
+import { adoptMbfImport, designateMbfImportSource, openMbfImport, retireMbfImportSession, reviewMbfImport } from "../caepipe-mbf/mbfImportCancel";
 import type { MbfImportDialogRequest } from "../caepipe-mbf/MbfImportDialog";
 import {
   MBF_IMPORT_BUSY_MESSAGE,
@@ -1631,7 +1631,7 @@ export function useWorkspaceSession() {
     setOperationTab("review");
   }
 
-  /** G9 (DEL-07-02 `Work/queued-changes-batch.md`): moves the person's queued single
+  /** G9 (DEL-07-02): moves the person's queued single
    * changes, in the order they were queued, into batch review as one batch. Nothing is
    * applied here: Apply entire batch validates and applies all of them or none, and a
    * change whose `before` depends on another queued change is refused by name there,
@@ -3261,6 +3261,7 @@ export function useWorkspaceSession() {
       },
       open: () => openMbfImport(stillCurrent),
       review: (args, current) => reviewMbfImport(args, () => stillCurrent() && (current?.() ?? true)),
+      designate: (args, current) => designateMbfImportSource(args, () => stillCurrent() && (current?.() ?? true)),
       adopt: (capture) => {
         if (handedOff) return;
         handedOff = true;
