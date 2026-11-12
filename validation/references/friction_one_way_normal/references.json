@@ -1,0 +1,4717 @@
+{
+ "schema": "swbpipe.validation_reference/friction_one_way_normal/1",
+ "status": "frozen analytical reference; no product comparison, acceptance or release is asserted",
+ "independence": "Python standard library only; no product code, product output, fixture or schema read, imported or run",
+ "governing_text": [
+  "execution/PKG-04/DEL-04-04/ScopeOfWork.md (friction law, state-switched test, state names, REQ-013)",
+  "execution/PKG-04/DEL-04-07/ScopeOfWork.md (nonlinear iteration: sliding force from the previous iterate's normal; CLM-002; AC-002)"
+ ],
+ "model": {
+  "plane": "X-Z, Z up; every out-of-plane displacement (UY, RX, RZ), reaction (FY, MX, MZ) and end action is exactly 0",
+  "nodes": {
+   "A": [
+    0,
+    0,
+    0
+   ],
+   "B": [
+    0,
+    0,
+    3
+   ],
+   "S": [
+    2,
+    0,
+    3
+   ]
+  },
+  "members": {
+   "riser": [
+    "A",
+    "B"
+   ],
+   "run": [
+    "B",
+    "S"
+   ]
+  },
+  "supports": {
+   "anchor A": "all six degrees of freedom",
+   "one-way S": "UZ, sense + (bears upward only); ground at u_z = 0; no imposed movement",
+   "friction S": "UX, coefficient mu; normal = the reaction of 'one-way S' (its normal reaction source)"
+  },
+  "section": {
+   "D": {
+    "exact": "1/4",
+    "value": 0.25,
+    "unit": "m"
+   },
+   "t": {
+    "exact": "1/64",
+    "value": 0.015625,
+    "unit": "m"
+   },
+   "corrosion allowance": {
+    "exact": "0",
+    "value": 0.0,
+    "unit": "m"
+   },
+   "mill tolerance": {
+    "exact": "0",
+    "value": 0.0,
+    "unit": "1"
+   },
+   "A": {
+    "exact": "(15/4096)*pi",
+    "unit": "m^2"
+   },
+   "I": {
+    "exact": "(1695/67108864)*pi",
+    "unit": "m^4"
+   },
+   "basis": "nominal and reduced bases coincide (zero allowance and tolerance), so the stiffness is the same on either"
+  },
+  "material": {
+   "E": {
+    "exact": "200000000000",
+    "value": 200000000000.0,
+    "unit": "Pa"
+   },
+   "nu": {
+    "exact": "1/4",
+    "value": 0.25,
+    "unit": "1"
+   }
+  },
+  "shear_model": "euler_bernoulli (no shear deformation)",
+  "friction_coefficient": {
+   "exact": "3/8",
+   "value": 0.375,
+   "unit": "1"
+  },
+  "pressure": "none: the models carry no pressure; the friction law does not depend on it",
+  "self_weight": "none; every load is a nodal force listed per case"
+ },
+ "flexibility_at_S": {
+  "f_xx": {
+   "exact": "(147682/82763671875)/pi",
+   "unit": "m/N"
+  },
+  "f_xz": {
+   "exact": "(-49152/27587890625)/pi",
+   "unit": "m/N"
+  },
+  "f_zz": {
+   "exact": "(721913/248291015625)/pi",
+   "unit": "m/N"
+  }
+ },
+ "thresholds": {
+  "stick-slide Gx* (Pz = -10000 N)": {
+   "exact": "12932418705625/3431924736",
+   "value": 3768.269906961328,
+   "unit": "N"
+  },
+  "lift-off Pz* (Gx = -8000 N)": {
+   "exact": "-3538944000/721913",
+   "value": -4902.175192855649,
+   "unit": "N"
+  }
+ },
+ "conventions": {
+  "reaction": "support-on-pipe force (K u - f) at the support's degree of freedom, global axes",
+  "N": "the one-way support's reaction FZ while it is active; 0 while it is inactive",
+  "states": "one-way: active | inactive; friction: inactive | stick | slide+ | slide- (slide sign = sign of u_x(S))",
+  "end action": "force or moment the node exerts on the member at that end, global axes; MY about +Y (Z toward X positive)",
+  "displacement exact form": "rational / pi; reactions and end actions are rational (pi cancels)",
+  "value": "nearest binary64 of the exact value"
+ },
+ "tolerance_class": "DEL-04-07/AC-002 and DEL-04-04/AC-001: support states must equal these exactly; displacements and reactions agree within the nonlinear tolerance of their class (the governed per-class record, DEL-09-03/REQ-007). This package chooses no number.",
+ "cases": [
+  {
+   "id": "STICK",
+   "description": "Weight on the shoe and a moderate lateral load at the riser top: the shoe bears and sticks.",
+   "primitive_loads": [
+    {
+     "node": "B",
+     "component": "FX",
+     "value": {
+      "exact": "2000",
+      "value": 2000.0,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FZ",
+     "value": {
+      "exact": "-10000",
+      "value": -10000.0,
+      "unit": "N"
+     }
+    }
+   ],
+   "load sums": {
+    "Gx at B": {
+     "exact": "2000",
+     "value": 2000.0,
+     "unit": "N"
+    },
+    "Px at S": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "Pz at S": {
+     "exact": "-10000",
+     "value": -10000.0,
+     "unit": "N"
+    }
+   },
+   "states": {
+    "one-way S": "active",
+    "friction S": "stick"
+   },
+   "deciding_quantities": {
+    "normal N (one-way reaction)": {
+     "exact": "207018674458000/20691869929",
+     "value": 10004.831615912097,
+     "unit": "N"
+    },
+    "tangential T (friction reaction)": {
+     "exact": "-41220587520000/20691869929",
+     "value": -1992.1151477097128,
+     "unit": "N"
+    },
+    "mu*N": {
+     "exact": "77632002921750/20691869929",
+     "value": 3751.8118559670365,
+     "unit": "N"
+    },
+    "one-way contact reaction (> 0)": {
+     "exact": "207018674458000/20691869929",
+     "value": 10004.831615912097,
+     "unit": "N"
+    },
+    "stick margin mu*N - |T| (> 0)": {
+     "exact": "36411415401750/20691869929",
+     "value": 1759.6967082573235,
+     "unit": "N"
+    }
+   },
+   "displacements": {
+    "B": {
+     "UX": {
+      "exact": "(43968626688/8082761691015625)/pi",
+      "value": 1.7315428923596364e-06,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(799801344/40413808455078125)/pi",
+      "value": 6.2994477509157745e-09,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(51939508224/40413808455078125)/pi",
+      "value": 4.090893579010392e-07,
+      "unit": "rad"
+     }
+    },
+    "S": {
+     "UX": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(-25369903104/40413808455078125)/pi",
+      "value": -1.9982009313733278e-07,
+      "unit": "rad"
+     }
+    }
+   },
+   "reactions": {
+    "anchor A": {
+     "FX": {
+      "exact": "-163152338000/20691869929",
+      "value": -7.884852290287176,
+      "unit": "N"
+     },
+     "FZ": {
+      "exact": "-99975168000/20691869929",
+      "value": -4.831615912097106,
+      "unit": "N"
+     },
+     "MY": {
+      "exact": "-289506678000/20691869929",
+      "value": -13.991325046667319,
+      "unit": "N*m"
+     }
+    },
+    "one-way S": {
+     "FZ": {
+      "exact": "207018674458000/20691869929",
+      "value": 10004.831615912097,
+      "unit": "N"
+     }
+    },
+    "friction S": {
+     "FX": {
+      "exact": "-41220587520000/20691869929",
+      "value": -1992.1151477097128,
+      "unit": "N"
+     }
+    }
+   },
+   "member_end_actions": {
+    "riser": {
+     "A": {
+      "FX": {
+       "exact": "-163152338000/20691869929",
+       "value": -7.884852290287176,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-99975168000/20691869929",
+       "value": -4.831615912097106,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-289506678000/20691869929",
+       "value": -13.991325046667319,
+       "unit": "N*m"
+      }
+     },
+     "B": {
+      "FX": {
+       "exact": "163152338000/20691869929",
+       "value": 7.884852290287176,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "99975168000/20691869929",
+       "value": 4.831615912097106,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-199950336000/20691869929",
+       "value": -9.663231824194211,
+       "unit": "N*m"
+      }
+     }
+    },
+    "run": {
+     "B": {
+      "FX": {
+       "exact": "41220587520000/20691869929",
+       "value": 1992.1151477097128,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-99975168000/20691869929",
+       "value": -4.831615912097106,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "199950336000/20691869929",
+       "value": 9.663231824194211,
+       "unit": "N*m"
+      }
+     },
+     "S": {
+      "FX": {
+       "exact": "-41220587520000/20691869929",
+       "value": -1992.1151477097128,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "99975168000/20691869929",
+       "value": 4.831615912097106,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     }
+    }
+   },
+   "member_axial_force_tension_positive": {
+    "riser": {
+     "exact": "99975168000/20691869929",
+     "value": 4.831615912097106,
+     "unit": "N"
+    },
+    "run": {
+     "exact": "-41220587520000/20691869929",
+     "value": -1992.1151477097128,
+     "unit": "N"
+    }
+   },
+   "enumeration": [
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "friction inactive needs a normal that does not bear"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "stick"
+     },
+     "admissible": true,
+     "violations": []
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "slide needs motion u_x in its own direction"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "slide needs motion u_x in its own direction"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    }
+   ],
+   "active_set_paths": {
+    "active/stick": [
+     "active/stick"
+    ],
+    "inactive/inactive": [
+     "inactive/inactive",
+     "active/inactive",
+     "active/stick"
+    ]
+   }
+  },
+  {
+   "id": "SLIDE-POS-B",
+   "description": "Lateral load +X at B beyond the stick limit: slides +X. The +X load also presses S down, so N exceeds the weight.",
+   "primitive_loads": [
+    {
+     "node": "B",
+     "component": "FX",
+     "value": {
+      "exact": "8000",
+      "value": 8000.0,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FZ",
+     "value": {
+      "exact": "-10000",
+      "value": -10000.0,
+      "unit": "N"
+     }
+    }
+   ],
+   "load sums": {
+    "Gx at B": {
+     "exact": "8000",
+     "value": 8000.0,
+     "unit": "N"
+    },
+    "Px at S": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "Pz at S": {
+     "exact": "-10000",
+     "value": -10000.0,
+     "unit": "N"
+    }
+   },
+   "states": {
+    "one-way S": "active",
+    "friction S": "slide+"
+   },
+   "deciding_quantities": {
+    "normal N (one-way reaction)": {
+     "exact": "10758074000/887801",
+     "value": 12117.663755729043,
+     "unit": "N"
+    },
+    "tangential T (friction reaction)": {
+     "exact": "-4034277750/887801",
+     "value": -4544.123908398391,
+     "unit": "N"
+    },
+    "mu*N": {
+     "exact": "4034277750/887801",
+     "value": 4544.123908398391,
+     "unit": "N"
+    },
+    "one-way contact reaction (> 0)": {
+     "exact": "10758074000/887801",
+     "value": 12117.663755729043,
+     "unit": "N"
+    },
+    "slip u_x(S), sign = slide direction": {
+     "exact": "(464735333836/195940455078125)/pi",
+     "value": 0.0007549735002908961,
+     "unit": "m"
+    }
+   },
+   "displacements": {
+    "B": {
+     "UX": {
+      "exact": "(93433331712/39188091015625)/pi",
+      "value": 0.0007589232445938972,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(15040512/1733986328125)/pi",
+      "value": 2.7610042739165198e-06,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(110371454976/195940455078125)/pi",
+      "value": 0.00017930102927107136,
+      "unit": "rad"
+     }
+    },
+    "S": {
+     "UX": {
+      "exact": "(464735333836/195940455078125)/pi",
+      "value": 0.0007549735002908961,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(-53911044096/195940455078125)/pi",
+      "value": -8.75797614300983e-05,
+      "unit": "rad"
+     }
+    }
+   },
+   "reactions": {
+    "anchor A": {
+     "FX": {
+      "exact": "-3068130250/887801",
+      "value": -3455.876091601609,
+      "unit": "N"
+     },
+     "FZ": {
+      "exact": "-1880064000/887801",
+      "value": -2117.663755729043,
+      "unit": "N"
+     },
+     "MY": {
+      "exact": "-5444262750/887801",
+      "value": -6132.300763346741,
+      "unit": "N*m"
+     }
+    },
+    "one-way S": {
+     "FZ": {
+      "exact": "10758074000/887801",
+      "value": 12117.663755729043,
+      "unit": "N"
+     }
+    },
+    "friction S": {
+     "FX": {
+      "exact": "-4034277750/887801",
+      "value": -4544.123908398391,
+      "unit": "N"
+     }
+    }
+   },
+   "member_end_actions": {
+    "riser": {
+     "A": {
+      "FX": {
+       "exact": "-3068130250/887801",
+       "value": -3455.876091601609,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-1880064000/887801",
+       "value": -2117.663755729043,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-5444262750/887801",
+       "value": -6132.300763346741,
+       "unit": "N*m"
+      }
+     },
+     "B": {
+      "FX": {
+       "exact": "3068130250/887801",
+       "value": 3455.876091601609,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "1880064000/887801",
+       "value": 2117.663755729043,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-3760128000/887801",
+       "value": -4235.327511458086,
+       "unit": "N*m"
+      }
+     }
+    },
+    "run": {
+     "B": {
+      "FX": {
+       "exact": "4034277750/887801",
+       "value": 4544.123908398391,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-1880064000/887801",
+       "value": -2117.663755729043,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "3760128000/887801",
+       "value": 4235.327511458086,
+       "unit": "N*m"
+      }
+     },
+     "S": {
+      "FX": {
+       "exact": "-4034277750/887801",
+       "value": -4544.123908398391,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "1880064000/887801",
+       "value": 2117.663755729043,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     }
+    }
+   },
+   "member_axial_force_tension_positive": {
+    "riser": {
+     "exact": "1880064000/887801",
+     "value": 2117.663755729043,
+     "unit": "N"
+    },
+    "run": {
+     "exact": "-4034277750/887801",
+     "value": -4544.123908398391,
+     "unit": "N"
+    }
+   },
+   "enumeration": [
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "friction inactive needs a normal that does not bear"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "stick needs |T| < mu*N"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide+"
+     },
+     "admissible": true,
+     "violations": []
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "slide needs motion u_x in its own direction"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    }
+   ],
+   "active_set_paths": {
+    "active/stick": [
+     "active/stick",
+     "active/slide+"
+    ],
+    "inactive/inactive": [
+     "inactive/inactive",
+     "active/inactive",
+     "active/stick",
+     "active/slide+"
+    ]
+   },
+   "lagged_normal": {
+    "rho = d*mu*f_xz/f_zz": {
+     "exact": "-165888/721913",
+     "value": -0.22978946216510854,
+     "unit": "1"
+    },
+    "N_0: one-way reaction with the friction force zero (start of the lagged sequence)": {
+     "exact": "10758074000/721913",
+     "value": 14902.17519285565,
+     "unit": "N"
+    },
+    "N_1 .. N_5 (normal of iterate k, friction applied from N_(k-1))": [
+     {
+      "exact": "5981758095850000/521158379569",
+      "value": 11477.812370199126,
+      "unit": "N"
+     },
+     {
+      "exact": "4614358526119025306000/376231009269795497",
+      "value": 12264.694861475562,
+      "unit": "N"
+     },
+     {
+      "exact": "3282054331638313051631050000/271606056594985876625761",
+      "value": 12083.87755701801,
+      "unit": "N"
+     },
+     {
+      "exact": "2377504626730229614185835521914000/196075943134656039152533000793",
+      "value": 12125.427468159454,
+      "unit": "N"
+     },
+     {
+      "exact": "1715000018343397303511787426913883050000/141549772336168945192722556201477009",
+      "value": 12115.879736425253,
+      "unit": "N"
+     }
+    ],
+    "N* (converged, the reference)": {
+     "exact": "10758074000/887801",
+     "value": 12117.663755729043,
+     "unit": "N"
+    }
+   },
+   "negative_controls": [
+    {
+     "id": "CTRL-FREE-NORMAL",
+     "label": "NEGATIVE CONTROL: a wrong answer",
+     "normal used": "normal taken from a solve with the friction force zero (N_0 above), not updated",
+     "N used": {
+      "exact": "10758074000/721913",
+      "value": 14902.17519285565,
+      "unit": "N"
+     },
+     "friction state": "slide+",
+     "friction force FX": {
+      "exact": "-4034277750/721913",
+      "value": -5588.315697320868,
+      "unit": "N"
+     },
+     "one-way reaction FZ": {
+      "exact": "5981758095850000/521158379569",
+      "value": 11477.812370199126,
+      "unit": "N"
+     },
+     "u_x(S)": {
+      "exact": "(189621128175169388/115021282990814453125)/pi",
+      "value": 0.0005247574897273606,
+      "unit": "m"
+     },
+     "u_x(B)": {
+      "exact": "(7655053324025856/4600851319632578125)/pi",
+      "value": 0.000529614843649438,
+      "unit": "m"
+     },
+     "relative difference of friction force from the reference": {
+      "exact": "165888/721913",
+      "value": 0.22978946216510854,
+      "unit": "1"
+     },
+     "relative difference of u_x(S) from the reference": {
+      "exact": "-18463721573846114740224/60550178377607004199171",
+      "value": -0.3049325711098891,
+      "unit": "1"
+     }
+    },
+    {
+     "id": "CTRL-STICK-NORMAL",
+     "label": "NEGATIVE CONTROL: a wrong answer",
+     "normal used": "normal taken from the stick iterate that precedes the switch to slide, not updated",
+     "N used": {
+      "exact": "207318599962000/20691869929",
+      "value": 10019.32646364839,
+      "unit": "N"
+     },
+     "friction state": "slide+",
+     "friction force FX": {
+      "exact": "-77744474985750/20691869929",
+      "value": -3757.2474238681457,
+      "unit": "N"
+     },
+     "one-way reaction FZ": {
+      "exact": "188212999984060490000/14937729896054177",
+      "value": 12599.839553517248,
+      "unit": "N"
+     },
+     "u_x(S)": {
+      "exact": "(464735333836/159328455078125)/pi",
+      "value": 0.0009284584548716505,
+      "unit": "m"
+     },
+     "u_x(B)": {
+      "exact": "(386002703737583665152/131872146738603281328125)/pi",
+      "value": 0.0009317242475539235,
+      "unit": "m"
+     },
+     "relative difference of friction force from the reference": {
+      "exact": "-19273503764846592/111302333947278373",
+      "value": -0.17316351851144518,
+      "unit": "1"
+     },
+     "relative difference of u_x(S) from the reference": {
+      "exact": "165888/721913",
+      "value": 0.22978946216510854,
+      "unit": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "SLIDE-NEG-B",
+   "description": "Lateral load -X at B beyond the stick limit: slides -X. The -X load lifts S, so N is below the weight.",
+   "primitive_loads": [
+    {
+     "node": "B",
+     "component": "FX",
+     "value": {
+      "exact": "-8000",
+      "value": -8000.0,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FZ",
+     "value": {
+      "exact": "-10000",
+      "value": -10000.0,
+      "unit": "N"
+     }
+    }
+   ],
+   "load sums": {
+    "Gx at B": {
+     "exact": "-8000",
+     "value": -8000.0,
+     "unit": "N"
+    },
+    "Px at S": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "Pz at S": {
+     "exact": "-10000",
+     "value": -10000.0,
+     "unit": "N"
+    }
+   },
+   "states": {
+    "one-way S": "active",
+    "friction S": "slide-"
+   },
+   "deciding_quantities": {
+    "normal N (one-way reaction)": {
+     "exact": "147207440/22241",
+     "value": 6618.7419630412305,
+     "unit": "N"
+    },
+    "tangential T (friction reaction)": {
+     "exact": "55202790/22241",
+     "value": 2482.028236140461,
+     "unit": "N"
+    },
+    "mu*N": {
+     "exact": "55202790/22241",
+     "value": 2482.028236140461,
+     "unit": "N"
+    },
+    "one-way contact reaction (> 0)": {
+     "exact": "147207440/22241",
+     "value": 6618.7419630412305,
+     "unit": "N"
+    },
+    "slip u_x(S), sign = slide direction": {
+     "exact": "(-466334936524/122716455078125)/pi",
+     "value": -0.0012096097501673995,
+     "unit": "m"
+    }
+   },
+   "displacements": {
+    "B": {
+     "UX": {
+      "exact": "(-93433331712/24543291015625)/pi",
+      "value": -0.0012117671246323575,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(-15040512/1085986328125)/pi",
+      "value": -4.408475078256122e-06,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(-4798758912/5335498046875)/pi",
+      "value": -0.00028628862566950486,
+      "unit": "rad"
+     }
+    },
+    "S": {
+     "UX": {
+      "exact": "(-466334936524/122716455078125)/pi",
+      "value": -0.0012096097501673995,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(53911044096/122716455078125)/pi",
+      "value": 0.00013983795652606034,
+      "unit": "rad"
+     }
+    }
+   },
+   "reactions": {
+    "anchor A": {
+     "FX": {
+      "exact": "122725210/22241",
+      "value": 5517.971763859538,
+      "unit": "N"
+     },
+     "FZ": {
+      "exact": "75202560/22241",
+      "value": 3381.25803695877,
+      "unit": "N"
+     },
+     "MY": {
+      "exact": "217770510/22241",
+      "value": 9791.399217661077,
+      "unit": "N*m"
+     }
+    },
+    "one-way S": {
+     "FZ": {
+      "exact": "147207440/22241",
+      "value": 6618.7419630412305,
+      "unit": "N"
+     }
+    },
+    "friction S": {
+     "FX": {
+      "exact": "55202790/22241",
+      "value": 2482.028236140461,
+      "unit": "N"
+     }
+    }
+   },
+   "member_end_actions": {
+    "riser": {
+     "A": {
+      "FX": {
+       "exact": "122725210/22241",
+       "value": 5517.971763859538,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "75202560/22241",
+       "value": 3381.25803695877,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "217770510/22241",
+       "value": 9791.399217661077,
+       "unit": "N*m"
+      }
+     },
+     "B": {
+      "FX": {
+       "exact": "-122725210/22241",
+       "value": -5517.971763859538,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-75202560/22241",
+       "value": -3381.25803695877,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "150405120/22241",
+       "value": 6762.51607391754,
+       "unit": "N*m"
+      }
+     }
+    },
+    "run": {
+     "B": {
+      "FX": {
+       "exact": "-55202790/22241",
+       "value": -2482.028236140461,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "75202560/22241",
+       "value": 3381.25803695877,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-150405120/22241",
+       "value": -6762.51607391754,
+       "unit": "N*m"
+      }
+     },
+     "S": {
+      "FX": {
+       "exact": "55202790/22241",
+       "value": 2482.028236140461,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-75202560/22241",
+       "value": -3381.25803695877,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     }
+    }
+   },
+   "member_axial_force_tension_positive": {
+    "riser": {
+     "exact": "-75202560/22241",
+     "value": -3381.25803695877,
+     "unit": "N"
+    },
+    "run": {
+     "exact": "55202790/22241",
+     "value": 2482.028236140461,
+     "unit": "N"
+    }
+   },
+   "enumeration": [
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "friction inactive needs a normal that does not bear"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "stick needs |T| < mu*N"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "slide needs motion u_x in its own direction"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide-"
+     },
+     "admissible": true,
+     "violations": []
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    }
+   ],
+   "active_set_paths": {
+    "active/stick": [
+     "active/stick",
+     "active/slide-"
+    ],
+    "inactive/inactive": [
+     "inactive/inactive",
+     "active/inactive",
+     "active/stick",
+     "active/slide-"
+    ]
+   },
+   "lagged_normal": {
+    "rho = d*mu*f_xz/f_zz": {
+     "exact": "165888/721913",
+     "value": 0.22978946216510854,
+     "unit": "1"
+    },
+    "N_0: one-way reaction with the friction force zero (start of the lagged sequence)": {
+     "exact": "3680186000/721913",
+     "value": 5097.824807144351,
+     "unit": "N"
+    },
+    "N_1 .. N_5 (normal of iterate k, friction applied from N_(k-1))": [
+     {
+      "exact": "3267272810986000/521158379569",
+      "value": 6269.25122779,
+      "unit": "N"
+     },
+     {
+      "exact": "2459961124341365402000/376231009269795497",
+      "value": 6538.4326749561615,
+      "unit": "N"
+     },
+     {
+      "exact": "1792678124075312034729418000/271606056594985876625761",
+      "value": 6600.287734925299,
+      "unit": "N"
+     },
+     {
+      "exact": "1296944595642680056173046564730000/196075943134656039152533000793",
+      "value": 6614.5013758877985,
+      "unit": "N"
+     },
+     {
+      "exact": "936743485942930179263038162586317738000/141549772336168945192722556201477009",
+      "value": 6617.767520799979,
+      "unit": "N"
+     }
+    ],
+    "N* (converged, the reference)": {
+     "exact": "147207440/22241",
+     "value": 6618.7419630412305,
+     "unit": "N"
+    }
+   },
+   "negative_controls": [
+    {
+     "id": "CTRL-FREE-NORMAL",
+     "label": "NEGATIVE CONTROL: a wrong answer",
+     "normal used": "normal taken from a solve with the friction force zero (N_0 above), not updated",
+     "N used": {
+      "exact": "3680186000/721913",
+      "value": 5097.824807144351,
+      "unit": "N"
+     },
+     "friction state": "slide-",
+     "friction force FX": {
+      "exact": "1380069750/721913",
+      "value": 1911.6843026791316,
+      "unit": "N"
+     },
+     "one-way reaction FZ": {
+      "exact": "3267272810986000/521158379569",
+      "value": 6269.25122779,
+      "unit": "N"
+     },
+     "u_x(S)": {
+      "exact": "(-482530603911229292/115021282990814453125)/pi",
+      "value": -0.0013353551413910515,
+      "unit": "m"
+     },
+     "u_x(B)": {
+      "exact": "(-96626206972280832/23004256598162890625)/pi",
+      "value": -0.001337016773938018,
+      "unit": "m"
+     },
+     "relative difference of friction force from the reference": {
+      "exact": "-165888/721913",
+      "value": -0.22978946216510854,
+      "unit": "1"
+     },
+     "relative difference of u_x(S) from the reference": {
+      "exact": "6316179796120238401536/60758589963815078369539",
+      "value": 0.10395533865881111,
+      "unit": "1"
+     }
+    },
+    {
+     "id": "CTRL-STICK-NORMAL",
+     "label": "NEGATIVE CONTROL: a wrong answer",
+     "normal used": "normal taken from the stick iterate that precedes the switch to slide, not updated",
+     "N used": {
+      "exact": "206518798618000/20691869929",
+      "value": 9980.67353635161,
+      "unit": "N"
+     },
+     "friction state": "slide-",
+     "friction force FX": {
+      "exact": "77444549481750/20691869929",
+      "value": 3742.7525761318543,
+      "unit": "N"
+     },
+     "one-way reaction FZ": {
+      "exact": "110408920491669578000/14937729896054177",
+      "value": 7391.27841110812,
+      "unit": "N"
+     },
+     "u_x(S)": {
+      "exact": "(-466334936524/159328455078125)/pi",
+      "value": -0.0009316541762467615,
+      "unit": "m"
+     },
+     "u_x(B)": {
+      "exact": "(-1936607174947711451136/659360733693016406640625)/pi",
+      "value": -0.0009349073700335326,
+      "unit": "m"
+     },
+     "relative difference of friction force from the reference": {
+      "exact": "19339842487523328/38074965013263397",
+      "value": 0.5079411755411016,
+      "unit": "1"
+     },
+     "relative difference of u_x(S) from the reference": {
+      "exact": "-165888/721913",
+      "value": -0.22978946216510854,
+      "unit": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "SLIDE-POS-S",
+   "description": "Lateral load +X applied at the shoe itself: slides +X.",
+   "primitive_loads": [
+    {
+     "node": "S",
+     "component": "FX",
+     "value": {
+      "exact": "6000",
+      "value": 6000.0,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FZ",
+     "value": {
+      "exact": "-10000",
+      "value": -10000.0,
+      "unit": "N"
+     }
+    }
+   ],
+   "load sums": {
+    "Gx at B": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "Px at S": {
+     "exact": "6000",
+     "value": 6000.0,
+     "unit": "N"
+    },
+    "Pz at S": {
+     "exact": "-10000",
+     "value": -10000.0,
+     "unit": "N"
+    }
+   },
+   "states": {
+    "one-way S": "active",
+    "friction S": "slide+"
+   },
+   "deciding_quantities": {
+    "normal N (one-way reaction)": {
+     "exact": "9873338000/887801",
+     "value": 11121.116105974199,
+     "unit": "N"
+    },
+    "tangential T (friction reaction)": {
+     "exact": "-3702501750/887801",
+     "value": -4170.418539740324,
+     "unit": "N"
+    },
+    "mu*N": {
+     "exact": "3702501750/887801",
+     "value": 4170.418539740324,
+     "unit": "N"
+    },
+    "one-way contact reaction (> 0)": {
+     "exact": "9873338000/887801",
+     "value": 11121.116105974199,
+     "unit": "N"
+    },
+    "slip u_x(S), sign = slide direction": {
+     "exact": "(248302439148/195940455078125)/pi",
+     "value": 0.0004033731631012287,
+     "unit": "m"
+    }
+   },
+   "displacements": {
+    "B": {
+     "UX": {
+      "exact": "(49464705024/39188091015625)/pi",
+      "value": 0.00040178289419676914,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(7962624/1733986328125)/pi",
+      "value": 1.4617081450146282e-06,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(58431946752/195940455078125)/pi",
+      "value": 9.492407431997896e-05,
+      "unit": "rad"
+     }
+    },
+    "S": {
+     "UX": {
+      "exact": "(248302439148/195940455078125)/pi",
+      "value": 0.0004033731631012287,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(-28541140992/195940455078125)/pi",
+      "value": -4.636575605122851e-05,
+      "unit": "rad"
+     }
+    }
+   },
+   "reactions": {
+    "anchor A": {
+     "FX": {
+      "exact": "-1624304250/887801",
+      "value": -1829.5814602596754,
+      "unit": "N"
+     },
+     "FZ": {
+      "exact": "-995328000/887801",
+      "value": -1121.1161059741992,
+      "unit": "N"
+     },
+     "MY": {
+      "exact": "-2882256750/887801",
+      "value": -3246.5121688306276,
+      "unit": "N*m"
+     }
+    },
+    "one-way S": {
+     "FZ": {
+      "exact": "9873338000/887801",
+      "value": 11121.116105974199,
+      "unit": "N"
+     }
+    },
+    "friction S": {
+     "FX": {
+      "exact": "-3702501750/887801",
+      "value": -4170.418539740324,
+      "unit": "N"
+     }
+    }
+   },
+   "member_end_actions": {
+    "riser": {
+     "A": {
+      "FX": {
+       "exact": "-1624304250/887801",
+       "value": -1829.5814602596754,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-995328000/887801",
+       "value": -1121.1161059741992,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-2882256750/887801",
+       "value": -3246.5121688306276,
+       "unit": "N*m"
+      }
+     },
+     "B": {
+      "FX": {
+       "exact": "1624304250/887801",
+       "value": 1829.5814602596754,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "995328000/887801",
+       "value": 1121.1161059741992,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-1990656000/887801",
+       "value": -2242.2322119483983,
+       "unit": "N*m"
+      }
+     }
+    },
+    "run": {
+     "B": {
+      "FX": {
+       "exact": "-1624304250/887801",
+       "value": -1829.5814602596754,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-995328000/887801",
+       "value": -1121.1161059741992,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "1990656000/887801",
+       "value": 2242.2322119483983,
+       "unit": "N*m"
+      }
+     },
+     "S": {
+      "FX": {
+       "exact": "1624304250/887801",
+       "value": 1829.5814602596754,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "995328000/887801",
+       "value": 1121.1161059741992,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     }
+    }
+   },
+   "member_axial_force_tension_positive": {
+    "riser": {
+     "exact": "995328000/887801",
+     "value": 1121.1161059741992,
+     "unit": "N"
+    },
+    "run": {
+     "exact": "1624304250/887801",
+     "value": 1829.5814602596754,
+     "unit": "N"
+    }
+   },
+   "enumeration": [
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "friction inactive needs a normal that does not bear"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "stick needs |T| < mu*N"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide+"
+     },
+     "admissible": true,
+     "violations": []
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "slide needs motion u_x in its own direction"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    }
+   ],
+   "active_set_paths": {
+    "active/stick": [
+     "active/stick",
+     "active/slide+"
+    ],
+    "inactive/inactive": [
+     "inactive/inactive",
+     "active/inactive",
+     "active/stick",
+     "active/slide+"
+    ]
+   },
+   "lagged_normal": {
+    "rho = d*mu*f_xz/f_zz": {
+     "exact": "-165888/721913",
+     "value": -0.22978946216510854,
+     "unit": "1"
+    },
+    "N_0: one-way reaction with the friction force zero (start of the lagged sequence)": {
+     "exact": "9873338000/721913",
+     "value": 13676.631394641736,
+     "unit": "N"
+    },
+    "N_1 .. N_5 (normal of iterate k, friction applied from N_(k-1))": [
+     {
+      "exact": "5489822761450000/521158379569",
+      "value": 10533.885622236574,
+      "unit": "N"
+     },
+     {
+      "exact": "4234877114765613722000/376231009269795497",
+      "value": 11256.055482999225,
+      "unit": "N"
+     },
+     {
+      "exact": "3012140625787586003643850000/271606056594985876625761",
+      "value": 11090.108459102723,
+      "unit": "N"
+     },
+     {
+      "exact": "2181980415478773598179966871418000/196075943134656039152533000793",
+      "value": 11128.241336471801,
+      "unit": "N"
+     },
+     {
+      "exact": "1573959693074295793639313528617767850000/141549772336168945192722556201477009",
+      "value": 11119.478803090353,
+      "unit": "N"
+     }
+    ],
+    "N* (converged, the reference)": {
+     "exact": "9873338000/887801",
+     "value": 11121.116105974199,
+     "unit": "N"
+    }
+   },
+   "negative_controls": [
+    {
+     "id": "CTRL-FREE-NORMAL",
+     "label": "NEGATIVE CONTROL: a wrong answer",
+     "normal used": "normal taken from a solve with the friction force zero (N_0 above), not updated",
+     "N used": {
+      "exact": "9873338000/721913",
+      "value": 13676.631394641736,
+      "unit": "N"
+     },
+     "friction state": "slide+",
+     "friction force FX": {
+      "exact": "-3702501750/721913",
+      "value": -5128.736772990651,
+      "unit": "N"
+     },
+     "one-way reaction FZ": {
+      "exact": "5489822761450000/521158379569",
+      "value": 10533.885622236574,
+      "unit": "N"
+     },
+     "u_x(S)": {
+      "exact": "(13882341070325532/23004256598162890625)/pi",
+      "value": 0.00019208994592821458,
+      "unit": "m"
+     },
+     "u_x(B)": {
+      "exact": "(2765522193186816/4600851319632578125)/pi",
+      "value": 0.00019133264550316796,
+      "unit": "m"
+     },
+     "relative difference of friction force from the reference": {
+      "exact": "165888/721913",
+      "value": 0.22978946216510854,
+      "unit": "1"
+     },
+     "relative difference of u_x(S) from the reference": {
+      "exact": "-272978049024/521158379569",
+      "value": -0.5237909620675272,
+      "unit": "1"
+     }
+    },
+    {
+     "id": "CTRL-STICK-NORMAL",
+     "label": "NEGATIVE CONTROL: a wrong answer",
+     "normal used": "normal taken from the stick iterate that precedes the switch to slide, not updated",
+     "N used": {
+      "exact": "10000",
+      "value": 10000.0,
+      "unit": "N"
+     },
+     "friction state": "slide+",
+     "friction force FX": {
+      "exact": "-3750",
+      "value": -3750.0,
+      "unit": "N"
+     },
+     "one-way reaction FZ": {
+      "exact": "8214458000/721913",
+      "value": 11378.736772990651,
+      "unit": "N"
+     },
+     "u_x(S)": {
+      "exact": "(248302439148/159328455078125)/pi",
+      "value": 0.0004960640653020986,
+      "unit": "m"
+     },
+     "u_x(B)": {
+      "exact": "(49464705024/31865691015625)/pi",
+      "value": 0.0004941083693613854,
+      "unit": "m"
+     },
+     "relative difference of friction force from the reference": {
+      "exact": "-497664/4936669",
+      "value": -0.1008096755119697,
+      "unit": "1"
+     },
+     "relative difference of u_x(S) from the reference": {
+      "exact": "165888/721913",
+      "value": 0.22978946216510854,
+      "unit": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "SLIDE-UNLOAD",
+   "description": "Weight, an uplift at the shoe and a -X lateral load at B: the uplift and the lateral load both unload the shoe, which slides -X on a normal far below the weight.",
+   "primitive_loads": [
+    {
+     "node": "B",
+     "component": "FX",
+     "value": {
+      "exact": "-3000",
+      "value": -3000.0,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FZ",
+     "value": {
+      "exact": "-10000",
+      "value": -10000.0,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FZ",
+     "value": {
+      "exact": "6000",
+      "value": 6000.0,
+      "unit": "N"
+     }
+    }
+   ],
+   "load sums": {
+    "Gx at B": {
+     "exact": "-3000",
+     "value": -3000.0,
+     "unit": "N"
+    },
+    "Px at S": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "Pz at S": {
+     "exact": "-4000",
+     "value": -4000.0,
+     "unit": "N"
+    }
+   },
+   "states": {
+    "one-way S": "active",
+    "friction S": "slide-"
+   },
+   "deciding_quantities": {
+    "normal N (one-way reaction)": {
+     "exact": "62421920/22241",
+     "value": 2806.61481048514,
+     "unit": "N"
+    },
+    "tangential T (friction reaction)": {
+     "exact": "23408220/22241",
+     "value": 1052.4805539319275,
+     "unit": "N"
+    },
+    "mu*N": {
+     "exact": "23408220/22241",
+     "value": 1052.4805539319275,
+     "unit": "N"
+    },
+    "one-way contact reaction (> 0)": {
+     "exact": "62421920/22241",
+     "value": 2806.61481048514,
+     "unit": "N"
+    },
+    "slip u_x(S), sign = slide direction": {
+     "exact": "(-164529666232/122716455078125)/pi",
+     "value": -0.0004267677003774576,
+     "unit": "m"
+    }
+   },
+   "displacements": {
+    "B": {
+     "UX": {
+      "exact": "(-32976470016/24543291015625)/pi",
+      "value": -0.0004276825145761262,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(-5308416/1085986328125)/pi",
+      "value": -1.5559323805609841e-06,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(-1693679616/5335498046875)/pi",
+      "value": -0.0001010430443539429,
+      "unit": "rad"
+     }
+    },
+    "S": {
+     "UX": {
+      "exact": "(-164529666232/122716455078125)/pi",
+      "value": -0.0004267677003774576,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(19027427328/122716455078125)/pi",
+      "value": 4.935457289155071e-05,
+      "unit": "rad"
+     }
+    }
+   },
+   "reactions": {
+    "anchor A": {
+     "FX": {
+      "exact": "43314780/22241",
+      "value": 1947.5194460680725,
+      "unit": "N"
+     },
+     "FZ": {
+      "exact": "26542080/22241",
+      "value": 1193.38518951486,
+      "unit": "N"
+     },
+     "MY": {
+      "exact": "76860180/22241",
+      "value": 3455.7879591744977,
+      "unit": "N*m"
+     }
+    },
+    "one-way S": {
+     "FZ": {
+      "exact": "62421920/22241",
+      "value": 2806.61481048514,
+      "unit": "N"
+     }
+    },
+    "friction S": {
+     "FX": {
+      "exact": "23408220/22241",
+      "value": 1052.4805539319275,
+      "unit": "N"
+     }
+    }
+   },
+   "member_end_actions": {
+    "riser": {
+     "A": {
+      "FX": {
+       "exact": "43314780/22241",
+       "value": 1947.5194460680725,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "26542080/22241",
+       "value": 1193.38518951486,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "76860180/22241",
+       "value": 3455.7879591744977,
+       "unit": "N*m"
+      }
+     },
+     "B": {
+      "FX": {
+       "exact": "-43314780/22241",
+       "value": -1947.5194460680725,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-26542080/22241",
+       "value": -1193.38518951486,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "53084160/22241",
+       "value": 2386.77037902972,
+       "unit": "N*m"
+      }
+     }
+    },
+    "run": {
+     "B": {
+      "FX": {
+       "exact": "-23408220/22241",
+       "value": -1052.4805539319275,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "26542080/22241",
+       "value": 1193.38518951486,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-53084160/22241",
+       "value": -2386.77037902972,
+       "unit": "N*m"
+      }
+     },
+     "S": {
+      "FX": {
+       "exact": "23408220/22241",
+       "value": 1052.4805539319275,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-26542080/22241",
+       "value": -1193.38518951486,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     }
+    }
+   },
+   "member_axial_force_tension_positive": {
+    "riser": {
+     "exact": "-26542080/22241",
+     "value": -1193.38518951486,
+     "unit": "N"
+    },
+    "run": {
+     "exact": "23408220/22241",
+     "value": 1052.4805539319275,
+     "unit": "N"
+    }
+   },
+   "enumeration": [
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "friction inactive needs a normal that does not bear"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "stick needs |T| < mu*N"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "slide needs motion u_x in its own direction"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide-"
+     },
+     "admissible": true,
+     "violations": []
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    }
+   ],
+   "active_set_paths": {
+    "active/stick": [
+     "active/stick",
+     "active/slide-"
+    ],
+    "inactive/inactive": [
+     "inactive/inactive",
+     "active/inactive",
+     "active/stick",
+     "active/slide-"
+    ]
+   },
+   "lagged_normal": {
+    "rho = d*mu*f_xz/f_zz": {
+     "exact": "165888/721913",
+     "value": 0.22978946216510854,
+     "unit": "1"
+    },
+    "N_0: one-way reaction with the friction force zero (start of the lagged sequence)": {
+     "exact": "1560548000/721913",
+     "value": 2161.6843026791316,
+     "unit": "N"
+    },
+    "N_1 .. N_5 (normal of iterate k, friction applied from N_(k-1))": [
+     {
+      "exact": "1385456074948000/521158379569",
+      "value": 2658.416575962527,
+      "unit": "N"
+     },
+     {
+      "exact": "1043123204280617636000/376231009269795497",
+      "value": 2772.56041788037,
+      "unit": "N"
+     },
+     {
+      "exact": "760168171165663921653124000/271606056594985876625761",
+      "value": 2798.7894699241306,
+      "unit": "N"
+     },
+     {
+      "exact": "549957065985521676431771511140000/196075943134656039152533000793",
+      "value": 2804.816629686367,
+      "unit": "N"
+     },
+     {
+      "exact": "397217198669107432447320781761506884000/141549772336168945192722556201477009",
+      "value": 2806.201607486514,
+      "unit": "N"
+     }
+    ],
+    "N* (converged, the reference)": {
+     "exact": "62421920/22241",
+     "value": 2806.61481048514,
+     "unit": "N"
+    }
+   },
+   "negative_controls": [
+    {
+     "id": "CTRL-FREE-NORMAL",
+     "label": "NEGATIVE CONTROL: a wrong answer",
+     "normal used": "normal taken from a solve with the friction force zero (N_0 above), not updated",
+     "N used": {
+      "exact": "1560548000/721913",
+      "value": 2161.6843026791316,
+      "unit": "N"
+     },
+     "friction state": "slide-",
+     "friction force FX": {
+      "exact": "585205500/721913",
+      "value": 810.6316135046744,
+      "unit": "N"
+     },
+     "one-way reaction FZ": {
+      "exact": "1385456074948000/521158379569",
+      "value": 2658.416575962527,
+      "unit": "N"
+     },
+     "u_x(S)": {
+      "exact": "(-173480111518683896/115021282990814453125)/pi",
+      "value": -0.00048008884196739017,
+      "unit": "m"
+     },
+     "u_x(B)": {
+      "exact": "(-34746943714689024/23004256598162890625)/pi",
+      "value": -0.0004807934415033657,
+      "unit": "m"
+     },
+     "relative difference of friction force from the reference": {
+      "exact": "-165888/721913",
+      "value": -0.22978946216510854,
+      "unit": "1"
+     },
+     "relative difference of u_x(S) from the reference": {
+      "exact": "1339158095334834407424/10718251780562192251751",
+      "value": 0.12494183965368587,
+      "unit": "1"
+     }
+    },
+    {
+     "id": "CTRL-STICK-NORMAL",
+     "label": "NEGATIVE CONTROL: a wrong answer",
+     "normal used": "normal taken from the stick iterate that precedes the switch to slide, not updated",
+     "N used": {
+      "exact": "82617516964000/20691869929",
+      "value": 3992.7525761318543,
+      "unit": "N"
+     },
+     "friction state": "slide-",
+     "friction force FX": {
+      "exact": "30981568861500/20691869929",
+      "value": 1497.2822160494454,
+      "unit": "N"
+     },
+     "one-way reaction FZ": {
+      "exact": "45995910888085124000/14937729896054177",
+      "value": 3079.176769706822,
+      "unit": "N"
+     },
+     "u_x(S)": {
+      "exact": "(-164529666232/159328455078125)/pi",
+      "value": -0.00032870098003828145,
+      "unit": "m"
+     },
+     "u_x(B)": {
+      "exact": "(-683581138837351759872/659360733693016406640625)/pi",
+      "value": -0.00033000241503918366,
+      "unit": "m"
+     },
+     "relative difference of friction force from the reference": {
+      "exact": "3411687158986752/8072664058490273",
+      "value": 0.4226222142117476,
+      "unit": "1"
+     },
+     "relative difference of u_x(S) from the reference": {
+      "exact": "-165888/721913",
+      "value": -0.22978946216510854,
+      "unit": "1"
+     }
+    },
+    {
+     "id": "CTRL-WEIGHT-NORMAL",
+     "label": "NEGATIVE CONTROL: a wrong answer",
+     "normal used": "normal carried over from the weight alone (10000 N, the shoe's reaction under the weight-only load), ignoring the uplift and the lateral load",
+     "N used": {
+      "exact": "10000",
+      "value": 10000.0,
+      "unit": "N"
+     },
+     "friction state": "stick",
+     "friction force FX": {
+      "exact": "61830881280000/20691869929",
+      "value": 2988.172721564569,
+      "unit": "N"
+     },
+     "one-way reaction FZ": {
+      "exact": "82617516964000/20691869929",
+      "value": 3992.7525761318543,
+      "unit": "N"
+     },
+     "u_x(S)": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "u_x(B)": {
+      "exact": "(-65952940032/8082761691015625)/pi",
+      "value": -2.5973143385394548e-06,
+      "unit": "m"
+     },
+     "relative difference of friction force from the reference": {
+      "exact": "14847013117317727/8072664058490273",
+      "value": 1.8391714321002444,
+      "unit": "1"
+     },
+     "relative difference of u_x(S) from the reference": {
+      "exact": "-1",
+      "value": -1.0,
+      "unit": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "LIFT-0",
+   "description": "Net uplift at the shoe, no lateral load: lifted.",
+   "primitive_loads": [
+    {
+     "node": "S",
+     "component": "FZ",
+     "value": {
+      "exact": "2000",
+      "value": 2000.0,
+      "unit": "N"
+     }
+    }
+   ],
+   "load sums": {
+    "Gx at B": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "Px at S": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "Pz at S": {
+     "exact": "2000",
+     "value": 2000.0,
+     "unit": "N"
+    }
+   },
+   "states": {
+    "one-way S": "inactive",
+    "friction S": "inactive"
+   },
+   "deciding_quantities": {
+    "normal N (one-way reaction)": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "tangential T (friction reaction)": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "mu*N": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "one-way separation u_z(S) (> 0)": {
+     "exact": "(11550608/1986328125)/pi",
+     "value": 0.0018509896081915379,
+     "unit": "m"
+    }
+   },
+   "displacements": {
+    "B": {
+     "UX": {
+      "exact": "(-786432/220703125)/pi",
+      "value": -0.0011342344174387693,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(16/1953125)/pi",
+      "value": 2.607594587617613e-06,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(-524288/220703125)/pi",
+      "value": -0.0007561562782925129,
+      "unit": "rad"
+     }
+    },
+    "S": {
+     "UX": {
+      "exact": "(-786432/220703125)/pi",
+      "value": -0.0011342344174387693,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(11550608/1986328125)/pi",
+      "value": 0.0018509896081915379,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(-2097152/662109375)/pi",
+      "value": -0.0010082083710566837,
+      "unit": "rad"
+     }
+    }
+   },
+   "reactions": {
+    "anchor A": {
+     "FX": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "N"
+     },
+     "FZ": {
+      "exact": "-2000",
+      "value": -2000.0,
+      "unit": "N"
+     },
+     "MY": {
+      "exact": "4000",
+      "value": 4000.0,
+      "unit": "N*m"
+     }
+    },
+    "one-way S": {
+     "FZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "N"
+     }
+    },
+    "friction S": {
+     "FX": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "N"
+     }
+    }
+   },
+   "member_end_actions": {
+    "riser": {
+     "A": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-2000",
+       "value": -2000.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "4000",
+       "value": 4000.0,
+       "unit": "N*m"
+      }
+     },
+     "B": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "2000",
+       "value": 2000.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-4000",
+       "value": -4000.0,
+       "unit": "N*m"
+      }
+     }
+    },
+    "run": {
+     "B": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-2000",
+       "value": -2000.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "4000",
+       "value": 4000.0,
+       "unit": "N*m"
+      }
+     },
+     "S": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "2000",
+       "value": 2000.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     }
+    }
+   },
+   "member_axial_force_tension_positive": {
+    "riser": {
+     "exact": "2000",
+     "value": 2000.0,
+     "unit": "N"
+    },
+    "run": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    }
+   },
+   "enumeration": [
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way active needs reaction > 0 (bears)"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way active needs reaction > 0 (bears)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way active needs reaction > 0 (bears)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way active needs reaction > 0 (bears)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "inactive"
+     },
+     "admissible": true,
+     "violations": []
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "friction stick or slide needs a normal that bears"
+     ]
+    }
+   ],
+   "active_set_paths": {
+    "active/stick": [
+     "active/stick",
+     "inactive/inactive"
+    ],
+    "inactive/inactive": [
+     "inactive/inactive"
+    ]
+   }
+  },
+  {
+   "id": "LIFT-POS",
+   "description": "Net uplift and a +X lateral load at B that pushes S down but not onto its seat: lifted; the friction support carries nothing although the lateral load is large.",
+   "primitive_loads": [
+    {
+     "node": "B",
+     "component": "FX",
+     "value": {
+      "exact": "3000",
+      "value": 3000.0,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FZ",
+     "value": {
+      "exact": "2000",
+      "value": 2000.0,
+      "unit": "N"
+     }
+    }
+   ],
+   "load sums": {
+    "Gx at B": {
+     "exact": "3000",
+     "value": 3000.0,
+     "unit": "N"
+    },
+    "Px at S": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "Pz at S": {
+     "exact": "2000",
+     "value": 2000.0,
+     "unit": "N"
+    }
+   },
+   "states": {
+    "one-way S": "inactive",
+    "friction S": "inactive"
+   },
+   "deciding_quantities": {
+    "normal N (one-way reaction)": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "tangential T (friction reaction)": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "mu*N": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "one-way separation u_z(S) (> 0)": {
+     "exact": "(933776/1986328125)/pi",
+     "value": 0.000149637982033384,
+     "unit": "m"
+    }
+   },
+   "displacements": {
+    "B": {
+     "UX": {
+      "exact": "(393216/220703125)/pi",
+      "value": 0.0005671172087193847,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(16/1953125)/pi",
+      "value": 2.607594587617613e-06,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(65536/220703125)/pi",
+      "value": 9.451953478656411e-05,
+      "unit": "rad"
+     }
+    },
+    "S": {
+     "UX": {
+      "exact": "(393216/220703125)/pi",
+      "value": 0.0005671172087193847,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(933776/1986328125)/pi",
+      "value": 0.000149637982033384,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(-65536/132421875)/pi",
+      "value": -0.00015753255797760685,
+      "unit": "rad"
+     }
+    }
+   },
+   "reactions": {
+    "anchor A": {
+     "FX": {
+      "exact": "-3000",
+      "value": -3000.0,
+      "unit": "N"
+     },
+     "FZ": {
+      "exact": "-2000",
+      "value": -2000.0,
+      "unit": "N"
+     },
+     "MY": {
+      "exact": "-5000",
+      "value": -5000.0,
+      "unit": "N*m"
+     }
+    },
+    "one-way S": {
+     "FZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "N"
+     }
+    },
+    "friction S": {
+     "FX": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "N"
+     }
+    }
+   },
+   "member_end_actions": {
+    "riser": {
+     "A": {
+      "FX": {
+       "exact": "-3000",
+       "value": -3000.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-2000",
+       "value": -2000.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-5000",
+       "value": -5000.0,
+       "unit": "N*m"
+      }
+     },
+     "B": {
+      "FX": {
+       "exact": "3000",
+       "value": 3000.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "2000",
+       "value": 2000.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-4000",
+       "value": -4000.0,
+       "unit": "N*m"
+      }
+     }
+    },
+    "run": {
+     "B": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-2000",
+       "value": -2000.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "4000",
+       "value": 4000.0,
+       "unit": "N*m"
+      }
+     },
+     "S": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "2000",
+       "value": 2000.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     }
+    }
+   },
+   "member_axial_force_tension_positive": {
+    "riser": {
+     "exact": "2000",
+     "value": 2000.0,
+     "unit": "N"
+    },
+    "run": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    }
+   },
+   "enumeration": [
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way active needs reaction > 0 (bears)"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way active needs reaction > 0 (bears)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way active needs reaction > 0 (bears)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way active needs reaction > 0 (bears)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "inactive"
+     },
+     "admissible": true,
+     "violations": []
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "friction stick or slide needs a normal that bears"
+     ]
+    }
+   ],
+   "active_set_paths": {
+    "active/stick": [
+     "active/stick",
+     "inactive/inactive"
+    ],
+    "inactive/inactive": [
+     "inactive/inactive"
+    ]
+   }
+  },
+  {
+   "id": "LIFT-NEG",
+   "description": "Net uplift and a large -X lateral load at B: lifted further; the friction support carries nothing.",
+   "primitive_loads": [
+    {
+     "node": "B",
+     "component": "FX",
+     "value": {
+      "exact": "-20000",
+      "value": -20000.0,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FZ",
+     "value": {
+      "exact": "2000",
+      "value": 2000.0,
+      "unit": "N"
+     }
+    }
+   ],
+   "load sums": {
+    "Gx at B": {
+     "exact": "-20000",
+     "value": -20000.0,
+     "unit": "N"
+    },
+    "Px at S": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "Pz at S": {
+     "exact": "2000",
+     "value": 2000.0,
+     "unit": "N"
+    }
+   },
+   "states": {
+    "one-way S": "inactive",
+    "friction S": "inactive"
+   },
+   "deciding_quantities": {
+    "normal N (one-way reaction)": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "tangential T (friction reaction)": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "mu*N": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "one-way separation u_z(S) (> 0)": {
+     "exact": "(82329488/1986328125)/pi",
+     "value": 0.01319333378257923,
+     "unit": "m"
+    }
+   },
+   "displacements": {
+    "B": {
+     "UX": {
+      "exact": "(-8650752/220703125)/pi",
+      "value": -0.012476578591826461,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(16/1953125)/pi",
+      "value": 2.607594587617613e-06,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(-4456448/220703125)/pi",
+      "value": -0.006427328365486359,
+      "unit": "rad"
+     }
+    },
+    "S": {
+     "UX": {
+      "exact": "(-8650752/220703125)/pi",
+      "value": -0.012476578591826461,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(82329488/1986328125)/pi",
+      "value": 0.01319333378257923,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(-13893632/662109375)/pi",
+      "value": -0.00667938045825053,
+      "unit": "rad"
+     }
+    }
+   },
+   "reactions": {
+    "anchor A": {
+     "FX": {
+      "exact": "20000",
+      "value": 20000.0,
+      "unit": "N"
+     },
+     "FZ": {
+      "exact": "-2000",
+      "value": -2000.0,
+      "unit": "N"
+     },
+     "MY": {
+      "exact": "64000",
+      "value": 64000.0,
+      "unit": "N*m"
+     }
+    },
+    "one-way S": {
+     "FZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "N"
+     }
+    },
+    "friction S": {
+     "FX": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "N"
+     }
+    }
+   },
+   "member_end_actions": {
+    "riser": {
+     "A": {
+      "FX": {
+       "exact": "20000",
+       "value": 20000.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-2000",
+       "value": -2000.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "64000",
+       "value": 64000.0,
+       "unit": "N*m"
+      }
+     },
+     "B": {
+      "FX": {
+       "exact": "-20000",
+       "value": -20000.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "2000",
+       "value": 2000.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-4000",
+       "value": -4000.0,
+       "unit": "N*m"
+      }
+     }
+    },
+    "run": {
+     "B": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-2000",
+       "value": -2000.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "4000",
+       "value": 4000.0,
+       "unit": "N*m"
+      }
+     },
+     "S": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "2000",
+       "value": 2000.0,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     }
+    }
+   },
+   "member_axial_force_tension_positive": {
+    "riser": {
+     "exact": "2000",
+     "value": 2000.0,
+     "unit": "N"
+    },
+    "run": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    }
+   },
+   "enumeration": [
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way active needs reaction > 0 (bears)"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way active needs reaction > 0 (bears)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way active needs reaction > 0 (bears)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way active needs reaction > 0 (bears)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "inactive"
+     },
+     "admissible": true,
+     "violations": []
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "friction stick or slide needs a normal that bears"
+     ]
+    }
+   ],
+   "active_set_paths": {
+    "active/stick": [
+     "active/stick",
+     "inactive/inactive"
+    ],
+    "inactive/inactive": [
+     "inactive/inactive"
+    ]
+   }
+  },
+  {
+   "id": "NEAR-STICK",
+   "description": "Stick-slide pair, below: Gx = 964677/256 N, under 1/256 N below the exact threshold Gx* = 12932418705625/3431924736 N (Pz = -10000 N).",
+   "primitive_loads": [
+    {
+     "node": "B",
+     "component": "FX",
+     "value": {
+      "exact": "964677/256",
+      "value": 3768.26953125,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FZ",
+     "value": {
+      "exact": "-10000",
+      "value": -10000.0,
+      "unit": "N"
+     }
+    }
+   ],
+   "load sums": {
+    "Gx at B": {
+     "exact": "964677/256",
+     "value": 3768.26953125,
+     "unit": "N"
+    },
+    "Px at S": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "Pz at S": {
+     "exact": "-10000",
+     "value": -10000.0,
+     "unit": "N"
+    }
+   },
+   "states": {
+    "one-way S": "active",
+    "friction S": "stick"
+   },
+   "deciding_quantities": {
+    "normal N (one-way reaction)": {
+     "exact": "207107065979728/20691869929",
+     "value": 10009.10341551413,
+     "unit": "N"
+    },
+    "tangential T (friction reaction)": {
+     "exact": "-77665142005920/20691869929",
+     "value": -3753.413406928052,
+     "unit": "N"
+    },
+    "mu*N": {
+     "exact": "77665149742398/20691869929",
+     "value": 3753.4137808177984,
+     "unit": "N"
+    },
+    "one-way contact reaction (> 0)": {
+     "exact": "207107065979728/20691869929",
+     "value": 10009.10341551413,
+     "unit": "N"
+    },
+    "stick margin mu*N - |T| (> 0)": {
+     "exact": "7736478/20691869929",
+     "value": 0.0003738897463857144,
+     "unit": "N"
+    }
+   },
+   "displacements": {
+    "B": {
+     "UX": {
+      "exact": "(10355352267456/1010345211376953125)/pi",
+      "value": 3.262460161665658e-06,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(188366689728/5051726056884765625)/pi",
+      "value": 1.1869008511738626e-08,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(12232629144288/5051726056884765625)/pi",
+      "value": 7.707794814685563e-07,
+      "unit": "rad"
+     }
+    },
+    "S": {
+     "UX": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(-5975039554848/5051726056884765625)/pi",
+      "value": -3.7648798435047417e-07,
+      "unit": "rad"
+     }
+    }
+   },
+   "reactions": {
+    "anchor A": {
+     "FX": {
+      "exact": "-78694653982413/5297118701824",
+      "value": -14.856124321947973,
+      "unit": "N"
+     },
+     "FZ": {
+      "exact": "-188366689728/20691869929",
+      "value": -9.1034155141291,
+      "unit": "N"
+     },
+     "MY": {
+      "exact": "-139640216806503/5297118701824",
+      "value": -26.36154193758572,
+      "unit": "N*m"
+     }
+    },
+    "one-way S": {
+     "FZ": {
+      "exact": "207107065979728/20691869929",
+      "value": 10009.10341551413,
+      "unit": "N"
+     }
+    },
+    "friction S": {
+     "FX": {
+      "exact": "-77665142005920/20691869929",
+      "value": -3753.413406928052,
+      "unit": "N"
+     }
+    }
+   },
+   "member_end_actions": {
+    "riser": {
+     "A": {
+      "FX": {
+       "exact": "-78694653982413/5297118701824",
+       "value": -14.856124321947973,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-188366689728/20691869929",
+       "value": -9.1034155141291,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-139640216806503/5297118701824",
+       "value": -26.36154193758572,
+       "unit": "N*m"
+      }
+     },
+     "B": {
+      "FX": {
+       "exact": "78694653982413/5297118701824",
+       "value": 14.856124321947973,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "188366689728/20691869929",
+       "value": 9.1034155141291,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-376733379456/20691869929",
+       "value": -18.2068310282582,
+       "unit": "N*m"
+      }
+     }
+    },
+    "run": {
+     "B": {
+      "FX": {
+       "exact": "77665142005920/20691869929",
+       "value": 3753.413406928052,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-188366689728/20691869929",
+       "value": -9.1034155141291,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "376733379456/20691869929",
+       "value": 18.2068310282582,
+       "unit": "N*m"
+      }
+     },
+     "S": {
+      "FX": {
+       "exact": "-77665142005920/20691869929",
+       "value": -3753.413406928052,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "188366689728/20691869929",
+       "value": 9.1034155141291,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     }
+    }
+   },
+   "member_axial_force_tension_positive": {
+    "riser": {
+     "exact": "188366689728/20691869929",
+     "value": 9.1034155141291,
+     "unit": "N"
+    },
+    "run": {
+     "exact": "-77665142005920/20691869929",
+     "value": -3753.413406928052,
+     "unit": "N"
+    }
+   },
+   "enumeration": [
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "friction inactive needs a normal that does not bear"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "stick"
+     },
+     "admissible": true,
+     "violations": []
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "slide needs motion u_x in its own direction"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "slide needs motion u_x in its own direction"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    }
+   ],
+   "active_set_paths": {
+    "active/stick": [
+     "active/stick"
+    ],
+    "inactive/inactive": [
+     "inactive/inactive",
+     "active/inactive",
+     "active/stick"
+    ]
+   }
+  },
+  {
+   "id": "NEAR-SLIDE",
+   "description": "Stick-slide pair, above: Gx = 482339/128 N, under 1/256 N above the threshold.",
+   "primitive_loads": [
+    {
+     "node": "B",
+     "component": "FX",
+     "value": {
+      "exact": "482339/128",
+      "value": 3768.2734375,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FZ",
+     "value": {
+      "exact": "-10000",
+      "value": -10000.0,
+      "unit": "N"
+     }
+    }
+   ],
+   "load sums": {
+    "Gx at B": {
+     "exact": "482339/128",
+     "value": 3768.2734375,
+     "unit": "N"
+    },
+    "Px at S": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "Pz at S": {
+     "exact": "-10000",
+     "value": -10000.0,
+     "unit": "N"
+    }
+   },
+   "states": {
+    "one-way S": "active",
+    "friction S": "slide+"
+   },
+   "deciding_quantities": {
+    "normal N (one-way reaction)": {
+     "exact": "8886093584/887801",
+     "value": 10009.105175596784,
+     "unit": "N"
+    },
+    "tangential T (friction reaction)": {
+     "exact": "-3332285094/887801",
+     "value": -3753.4144408487937,
+     "unit": "N"
+    },
+    "mu*N": {
+     "exact": "3332285094/887801",
+     "value": 3753.4144408487937,
+     "unit": "N"
+    },
+    "one-way contact reaction (> 0)": {
+     "exact": "8886093584/887801",
+     "value": 10009.105175596784,
+     "unit": "N"
+    },
+    "slip u_x(S), sign = slide direction": {
+     "exact": "(48466172/24492556884765625)/pi",
+     "value": 6.298755073089074e-10,
+     "unit": "m"
+    }
+   },
+   "displacements": {
+    "B": {
+     "UX": {
+      "exact": "(50216121984/4898511376953125)/pi",
+      "value": 3.2630909358550103e-06,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(8083584/216748291015625)/pi",
+      "value": 1.187130330274033e-08,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(59319584832/24492556884765625)/pi",
+      "value": 7.709285063695513e-07,
+      "unit": "rad"
+     }
+    },
+    "S": {
+     "UX": {
+      "exact": "(48466172/24492556884765625)/pi",
+      "value": 6.298755073089074e-10,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(-28974708672/24492556884765625)/pi",
+      "value": -3.765607757077204e-07,
+      "unit": "rad"
+     }
+    }
+   },
+   "reactions": {
+    "anchor A": {
+     "FX": {
+      "exact": "-1688554507/113638528",
+      "value": -14.858996651206182,
+      "unit": "N"
+     },
+     "FZ": {
+      "exact": "-8083584/887801",
+      "value": -9.105175596783514,
+      "unit": "N"
+     },
+     "MY": {
+      "exact": "-2996266017/113638528",
+      "value": -26.366638760051522,
+      "unit": "N*m"
+     }
+    },
+    "one-way S": {
+     "FZ": {
+      "exact": "8886093584/887801",
+      "value": 10009.105175596784,
+      "unit": "N"
+     }
+    },
+    "friction S": {
+     "FX": {
+      "exact": "-3332285094/887801",
+      "value": -3753.4144408487937,
+      "unit": "N"
+     }
+    }
+   },
+   "member_end_actions": {
+    "riser": {
+     "A": {
+      "FX": {
+       "exact": "-1688554507/113638528",
+       "value": -14.858996651206182,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-8083584/887801",
+       "value": -9.105175596783514,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-2996266017/113638528",
+       "value": -26.366638760051522,
+       "unit": "N*m"
+      }
+     },
+     "B": {
+      "FX": {
+       "exact": "1688554507/113638528",
+       "value": 14.858996651206182,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "8083584/887801",
+       "value": 9.105175596783514,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-16167168/887801",
+       "value": -18.21035119356703,
+       "unit": "N*m"
+      }
+     }
+    },
+    "run": {
+     "B": {
+      "FX": {
+       "exact": "3332285094/887801",
+       "value": 3753.4144408487937,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-8083584/887801",
+       "value": -9.105175596783514,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "16167168/887801",
+       "value": 18.21035119356703,
+       "unit": "N*m"
+      }
+     },
+     "S": {
+      "FX": {
+       "exact": "-3332285094/887801",
+       "value": -3753.4144408487937,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "8083584/887801",
+       "value": 9.105175596783514,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     }
+    }
+   },
+   "member_axial_force_tension_positive": {
+    "riser": {
+     "exact": "8083584/887801",
+     "value": 9.105175596783514,
+     "unit": "N"
+    },
+    "run": {
+     "exact": "-3332285094/887801",
+     "value": -3753.4144408487937,
+     "unit": "N"
+    }
+   },
+   "enumeration": [
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "friction inactive needs a normal that does not bear"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "stick needs |T| < mu*N"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide+"
+     },
+     "admissible": true,
+     "violations": []
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "slide needs motion u_x in its own direction"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    }
+   ],
+   "active_set_paths": {
+    "active/stick": [
+     "active/stick",
+     "active/slide+"
+    ],
+    "inactive/inactive": [
+     "inactive/inactive",
+     "active/inactive",
+     "active/stick",
+     "active/slide+"
+    ]
+   },
+   "lagged_normal": {
+    "rho = d*mu*f_xz/f_zz": {
+     "exact": "-165888/721913",
+     "value": -0.22978946216510854,
+     "unit": "1"
+    },
+    "N_0: one-way reaction with the friction force zero (start of the lagged sequence)": {
+     "exact": "8886093584/721913",
+     "value": 12309.092070651173,
+     "unit": "N"
+    },
+    "N_1 .. N_5 (normal of iterate k, friction applied from N_(k-1))": [
+     {
+      "exact": "4940890185043600/521158379569",
+      "value": 9480.592423995438,
+      "unit": "N"
+     },
+     {
+      "exact": "3811427741919414868496/376231009269795497",
+      "value": 10130.551836534658,
+      "unit": "N"
+     },
+     {
+      "exact": "2710953832322646397178726800/271606056594985876625761",
+      "value": 9981.198012698122,
+      "unit": "N"
+     },
+     {
+      "exact": "1963802127547905719319605759819024/196075943134656039152533000793",
+      "value": 10015.51794754982,
+      "unit": "N"
+     },
+     {
+      "exact": "1416577972930948893593685535410085958800/141549772336168945192722556201477009",
+      "value": 10007.631588178707,
+      "unit": "N"
+     }
+    ],
+    "N* (converged, the reference)": {
+     "exact": "8886093584/887801",
+     "value": 10009.105175596784,
+     "unit": "N"
+    }
+   },
+   "negative_controls": [
+    {
+     "id": "CTRL-FREE-NORMAL",
+     "label": "NEGATIVE CONTROL: a wrong answer",
+     "normal used": "normal taken from a solve with the friction force zero (N_0 above), not updated",
+     "N used": {
+      "exact": "8886093584/721913",
+      "value": 12309.092070651173,
+      "unit": "N"
+     },
+     "friction state": "stick",
+     "friction force FX": {
+      "exact": "-77665222514880/20691869929",
+      "value": -3753.41729777795,
+      "unit": "N"
+     },
+     "one-way reaction FZ": {
+      "exact": "207107066174992/20691869929",
+      "value": 10009.10342495088,
+      "unit": "N"
+     },
+     "u_x(S)": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "u_x(B)": {
+      "exact": "(10355363001984/1010345211376953125)/pi",
+      "value": 3.2624635435853697e-06,
+      "unit": "m"
+     },
+     "relative difference of friction force from the reference": {
+      "exact": "8747089906759/11491868288565589721",
+      "value": 7.611547302071288e-07,
+      "unit": "1"
+     },
+     "relative difference of u_x(S) from the reference": {
+      "exact": "-1",
+      "value": -1.0,
+      "unit": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "NEAR-BEAR",
+   "description": "Lift-off pair, bearing side: Pz = -1254957/256 N, Gx = -8000 N; the exact threshold is Pz* = -3538944000/721913 N and this is under 1/256 N more downward.",
+   "primitive_loads": [
+    {
+     "node": "B",
+     "component": "FX",
+     "value": {
+      "exact": "-8000",
+      "value": -8000.0,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FZ",
+     "value": {
+      "exact": "-1254957/256",
+      "value": -4902.17578125,
+      "unit": "N"
+     }
+    }
+   ],
+   "load sums": {
+    "Gx at B": {
+     "exact": "-8000",
+     "value": -8000.0,
+     "unit": "N"
+    },
+    "Px at S": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "Pz at S": {
+     "exact": "-1254957/256",
+     "value": -4902.17578125,
+     "unit": "N"
+    }
+   },
+   "states": {
+    "one-way S": "active",
+    "friction S": "slide-"
+   },
+   "deciding_quantities": {
+    "normal N (one-way reaction)": {
+     "exact": "108741/142342400",
+     "value": 0.0007639396272649612,
+     "unit": "N"
+    },
+    "tangential T (friction reaction)": {
+     "exact": "326223/1138739200",
+     "value": 0.0002864773602243604,
+     "unit": "N"
+    },
+    "mu*N": {
+     "exact": "326223/1138739200",
+     "value": 0.0002864773602243604,
+     "unit": "N"
+    },
+    "one-way contact reaction (> 0)": {
+     "exact": "108741/142342400",
+     "value": 0.0007639396272649612,
+     "unit": "N"
+    },
+    "slip u_x(S), sign = slide direction": {
+     "exact": "(-86694651882823947/15707706250000000000)/pi",
+     "value": -0.0017568296945688709,
+     "unit": "m"
+    }
+   },
+   "displacements": {
+    "B": {
+     "UX": {
+      "exact": "(-16932549198264/3067911376953125)/pi",
+      "value": -0.0017568296948178765,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(-2725731864/135748291015625)/pi",
+      "value": -6.391442521346403e-06,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(-869659894164/666937255859375)/pi",
+      "value": -0.000415063545330445,
+      "unit": "rad"
+     }
+    },
+    "S": {
+     "UX": {
+      "exact": "(-86694651882823947/15707706250000000000)/pi",
+      "value": -0.0017568296945688709,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(9770083007412/15339556884765625)/pi",
+      "value": 0.0002027381907742127,
+      "unit": "rad"
+     }
+    }
+   },
+   "reactions": {
+    "anchor A": {
+     "FX": {
+      "exact": "9109913273777/1138739200",
+      "value": 7999.9997135226395,
+      "unit": "N"
+     },
+     "FZ": {
+      "exact": "2725731864/556025",
+      "value": 4902.175017310373,
+      "unit": "N"
+     },
+     "MY": {
+      "exact": "16165142106387/1138739200",
+      "value": 14195.649105947174,
+      "unit": "N*m"
+     }
+    },
+    "one-way S": {
+     "FZ": {
+      "exact": "108741/142342400",
+      "value": 0.0007639396272649612,
+      "unit": "N"
+     }
+    },
+    "friction S": {
+     "FX": {
+      "exact": "326223/1138739200",
+      "value": 0.0002864773602243604,
+      "unit": "N"
+     }
+    }
+   },
+   "member_end_actions": {
+    "riser": {
+     "A": {
+      "FX": {
+       "exact": "9109913273777/1138739200",
+       "value": 7999.9997135226395,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "2725731864/556025",
+       "value": 4902.175017310373,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "16165142106387/1138739200",
+       "value": 14195.649105947174,
+       "unit": "N*m"
+      }
+     },
+     "B": {
+      "FX": {
+       "exact": "-9109913273777/1138739200",
+       "value": -7999.9997135226395,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-2725731864/556025",
+       "value": -4902.175017310373,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "5451463728/556025",
+       "value": 9804.350034620746,
+       "unit": "N*m"
+      }
+     }
+    },
+    "run": {
+     "B": {
+      "FX": {
+       "exact": "-326223/1138739200",
+       "value": -0.0002864773602243604,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "2725731864/556025",
+       "value": 4902.175017310373,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-5451463728/556025",
+       "value": -9804.350034620746,
+       "unit": "N*m"
+      }
+     },
+     "S": {
+      "FX": {
+       "exact": "326223/1138739200",
+       "value": 0.0002864773602243604,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-2725731864/556025",
+       "value": -4902.175017310373,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     }
+    }
+   },
+   "member_axial_force_tension_positive": {
+    "riser": {
+     "exact": "-2725731864/556025",
+     "value": -4902.175017310373,
+     "unit": "N"
+    },
+    "run": {
+     "exact": "326223/1138739200",
+     "value": 0.0002864773602243604,
+     "unit": "N"
+    }
+   },
+   "enumeration": [
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "friction inactive needs a normal that does not bear"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "stick needs |T| < mu*N"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "slide needs motion u_x in its own direction"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide-"
+     },
+     "admissible": true,
+     "violations": []
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    }
+   ],
+   "active_set_paths": {
+    "active/stick": [
+     "active/stick",
+     "active/slide-"
+    ],
+    "inactive/inactive": [
+     "inactive/inactive",
+     "active/inactive",
+     "active/stick",
+     "active/slide-"
+    ]
+   },
+   "lagged_normal": {
+    "rho = d*mu*f_xz/f_zz": {
+     "exact": "165888/721913",
+     "value": 0.22978946216510854,
+     "unit": "1"
+    },
+    "N_0: one-way reaction with the friction force zero (start of the lagged sequence)": {
+     "exact": "108741/184809728",
+     "value": 0.0005883943511891323,
+     "unit": "N"
+    },
+    "N_1 .. N_5 (normal of iterate k, friction applied from N_(k-1))": [
+     {
+      "exact": "96540368541/133416545169664",
+      "value": 0.0007236011726898709,
+      "unit": "N"
+     },
+     {
+      "exact": "72686172009242037/96315138373067647232",
+      "value": 0.0007546702754835795,
+      "unit": "N"
+     },
+     {
+      "exact": "52969499881275975173133/69531150488316384416194816",
+      "value": 0.0007618096279044983,
+      "unit": "N"
+     },
+     {
+      "exact": "38321718596500468179682564005/50195441442471946023048448203008",
+      "value": 0.0007634501758575083,
+      "unit": "N"
+     },
+     {
+      "exact": "27678607386941902018876772216893053/36236741718059249969336974387578114304",
+      "value": 0.0007638271564892866,
+      "unit": "N"
+     }
+    ],
+    "N* (converged, the reference)": {
+     "exact": "108741/142342400",
+     "value": 0.0007639396272649612,
+     "unit": "N"
+    }
+   },
+   "negative_controls": [
+    {
+     "id": "CTRL-FREE-NORMAL",
+     "label": "NEGATIVE CONTROL: a wrong answer",
+     "normal used": "normal taken from a solve with the friction force zero (N_0 above), not updated",
+     "N used": {
+      "exact": "108741/184809728",
+      "value": 0.0005883943511891323,
+      "unit": "N"
+     },
+     "friction state": "slide-",
+     "friction force FX": {
+      "exact": "326223/1478477824",
+      "value": 0.00022064788169592458,
+      "unit": "N"
+     },
+     "one-way reaction FZ": {
+      "exact": "96540368541/133416545169664",
+      "value": 0.0007236011726898709,
+      "unit": "N"
+     },
+     "u_x(S)": {
+      "exact": "(-81258297137373580690611/14722724222824250000000000)/pi",
+      "value": -0.0017568297090824882,
+      "unit": "m"
+     },
+     "u_x(B)": {
+      "exact": "(-15870761161375831032/2875532074770361328125)/pi",
+      "value": -0.0017568297092742748,
+      "unit": "m"
+     },
+     "relative difference of friction force from the reference": {
+      "exact": "-165888/721913",
+      "value": -0.22978946216510854,
+      "unit": "1"
+     },
+     "relative difference of u_x(S) from the reference": {
+      "exact": "124419020707089414144/15060548097517027694076246281",
+      "value": 8.261254497610342e-09,
+      "unit": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "NEAR-LIFT",
+   "description": "Lift-off pair, lifted side: Pz = -313739/64 N, Gx = -8000 N, under 1/256 N less downward than the threshold.",
+   "primitive_loads": [
+    {
+     "node": "B",
+     "component": "FX",
+     "value": {
+      "exact": "-8000",
+      "value": -8000.0,
+      "unit": "N"
+     }
+    },
+    {
+     "node": "S",
+     "component": "FZ",
+     "value": {
+      "exact": "-313739/64",
+      "value": -4902.171875,
+      "unit": "N"
+     }
+    }
+   ],
+   "load sums": {
+    "Gx at B": {
+     "exact": "-8000",
+     "value": -8000.0,
+     "unit": "N"
+    },
+    "Px at S": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "Pz at S": {
+     "exact": "-313739/64",
+     "value": -4902.171875,
+     "unit": "N"
+    }
+   },
+   "states": {
+    "one-way S": "inactive",
+    "friction S": "inactive"
+   },
+   "deciding_quantities": {
+    "normal N (one-way reaction)": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "tangential T (friction reaction)": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "mu*N": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    },
+    "one-way separation u_z(S) (> 0)": {
+     "exact": "(153293/15890625000000)/pi",
+     "value": 3.0706581637142543e-09,
+     "unit": "m"
+    }
+   },
+   "displacements": {
+    "B": {
+     "UX": {
+      "exact": "(-152264448/27587890625)/pi",
+      "value": -0.001756831639342405,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(-313739/15625000000)/pi",
+      "value": -6.391438424410643e-06,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(-35973632/27587890625)/pi",
+      "value": -0.0004150648146024238,
+      "unit": "rad"
+     }
+    },
+    "S": {
+     "UX": {
+      "exact": "(-152264448/27587890625)/pi",
+      "value": -0.001756831639342405,
+      "unit": "m"
+     },
+     "UZ": {
+      "exact": "(153293/15890625000000)/pi",
+      "value": 3.0706581637142543e-09,
+      "unit": "m"
+     },
+     "RY": {
+      "exact": "(52713472/82763671875)/pi",
+      "value": 0.00020273652548928112,
+      "unit": "rad"
+     }
+    }
+   },
+   "reactions": {
+    "anchor A": {
+     "FX": {
+      "exact": "8000",
+      "value": 8000.0,
+      "unit": "N"
+     },
+     "FZ": {
+      "exact": "313739/64",
+      "value": 4902.171875,
+      "unit": "N"
+     },
+     "MY": {
+      "exact": "454261/32",
+      "value": 14195.65625,
+      "unit": "N*m"
+     }
+    },
+    "one-way S": {
+     "FZ": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "N"
+     }
+    },
+    "friction S": {
+     "FX": {
+      "exact": "0",
+      "value": 0.0,
+      "unit": "N"
+     }
+    }
+   },
+   "member_end_actions": {
+    "riser": {
+     "A": {
+      "FX": {
+       "exact": "8000",
+       "value": 8000.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "313739/64",
+       "value": 4902.171875,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "454261/32",
+       "value": 14195.65625,
+       "unit": "N*m"
+      }
+     },
+     "B": {
+      "FX": {
+       "exact": "-8000",
+       "value": -8000.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-313739/64",
+       "value": -4902.171875,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "313739/32",
+       "value": 9804.34375,
+       "unit": "N*m"
+      }
+     }
+    },
+    "run": {
+     "B": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "313739/64",
+       "value": 4902.171875,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "-313739/32",
+       "value": -9804.34375,
+       "unit": "N*m"
+      }
+     },
+     "S": {
+      "FX": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N"
+      },
+      "FZ": {
+       "exact": "-313739/64",
+       "value": -4902.171875,
+       "unit": "N"
+      },
+      "MY": {
+       "exact": "0",
+       "value": 0.0,
+       "unit": "N*m"
+      }
+     }
+    }
+   },
+   "member_axial_force_tension_positive": {
+    "riser": {
+     "exact": "-313739/64",
+     "value": -4902.171875,
+     "unit": "N"
+    },
+    "run": {
+     "exact": "0",
+     "value": 0.0,
+     "unit": "N"
+    }
+   },
+   "enumeration": [
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "inactive"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way active needs reaction > 0 (bears)"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "stick needs |T| < mu*N"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way active needs reaction > 0 (bears)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "active",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way active needs reaction > 0 (bears)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "inactive"
+     },
+     "admissible": true,
+     "violations": []
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "stick"
+     },
+     "admissible": false,
+     "violations": [
+      "one-way inactive needs separation u_z > 0 (released support would penetrate)",
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide+"
+     },
+     "admissible": false,
+     "violations": [
+      "friction stick or slide needs a normal that bears"
+     ]
+    },
+    {
+     "state": {
+      "one-way": "inactive",
+      "friction": "slide-"
+     },
+     "admissible": false,
+     "violations": [
+      "friction stick or slide needs a normal that bears"
+     ]
+    }
+   ],
+   "active_set_paths": {
+    "active/stick": [
+     "active/stick",
+     "active/slide-",
+     "inactive/inactive"
+    ],
+    "inactive/inactive": [
+     "inactive/inactive"
+    ]
+   }
+  }
+ ],
+ "checks": {
+  "count": 377,
+  "all_pass": true,
+  "by_kind": {
+   "A = B: displacements (pi*u)": 12,
+   "A = B: member end actions": 12,
+   "A = B: reactions": 12,
+   "A: exactly one admissible state pair": 12,
+   "B: active-set iteration settles on A's state": 24,
+   "B: enumeration finds exactly A's state": 12,
+   "brackets contain thresholds": 1,
+   "displacements scale as 1/pi": 24,
+   "fixed point N* = N_free/(1 - rho)": 6,
+   "flexibility closed form = stiffness inverse": 2,
+   "global equilibrium": 12,
+   "lagged iterate N_k - N* = rho^k (N_0 - N*)": 30,
+   "lagged-normal iteration contracts (|rho| < 1)": 6,
+   "lift-off pair straddles": 1,
+   "member equilibrium": 24,
+   "negative control differs from the reference": 11,
+   "node B balance (member end actions = applied load)": 12,
+   "reactions do not depend on pi (stiffness scaled)": 24,
+   "sliding force = -d*mu*N": 6,
+   "state unchanged with EA, EI each perturbed by 1e-9 relative": 48,
+   "state unchanged with each input replaced by its binary64 value": 84,
+   "stick-slide pair straddles": 1,
+   "well-posed slide (f_zz - d*mu*f_xz > 0 both ways)": 1
+  }
+ }
+}
