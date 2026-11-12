@@ -882,11 +882,20 @@ def run_out(run, desc, design, further, ops):
             "selection_rule": m["rule"],
             "candidates": [{"support": c["id"], "family_policy": c["policy"]}
                            for c in run["cands"]]},
-        "expected": {"candidates": cands,
-                     "verification_standing": run["standing"],
-                     "unfitted_verified_as_force_w": unfitted},
+        "expected": dict(
+            {"candidates": cands,
+             "verification_standing": run["standing"],
+             "unfitted_verified_as_force_w": unfitted},
+            **({"unfitted_verification_note": UNFITTED_NOTE} if unfitted else {})),
     }
 
+
+UNFITTED_NOTE = (
+    "The verification of an unfitted candidate is null because this reference "
+    "supplies no expectation for it. The scope requires verified values for "
+    "every selected family and says nothing of an unfitted candidate, so a "
+    "product comparison must not assert that the product publishes nothing "
+    "there.")
 
 RUN_DESC = {
     "A-HOT": (

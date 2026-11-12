@@ -207,8 +207,15 @@ O2 at −35 °C (ΔT = −50 K).
   R-3.
 - **Verified tests** follow R-4: V0 on the verified loads, L on the envelope
   of the verified span widened by k·a, T on the verified travel, V on the
-  ratios that are formed. An unfitted candidate has no verification block; its
-  configuration is listed in `unfitted_verified_as_force_w`.
+  ratios that are formed.
+- **An unfitted candidate's verification** is null (H-5 in A-NOFIT). The null
+  means that this reference supplies no expectation for it. The scope requires
+  verified values for every selected family and says nothing of an unfitted
+  candidate. A product comparison must therefore not assert that the product
+  publishes nothing there. The run's `unfitted_verification_note` says the
+  same. The candidate is verified as a force W, listed in
+  `unfitted_verified_as_force_w`, and that force enters the other candidates'
+  verified values.
 - **`f_cold_n`** of a constant selection is its constant load W, as in R-3.
   `first_failed_test` lists each record of the families tested, "fits" or the
   first test it fails (REQ-004).
@@ -361,7 +368,15 @@ It does not cover the diagnostics, the memory pricing or the reference system
   other generator.
 - **Precision:** displacements and unheld forces contain π through EI. They are
   computed exactly at both bounds of π and emitted as the nearest binary64,
-  which is the same at both. The held reactions are exact rationals.
+  which is the same at both. The held reactions are exact rationals. Emitted
+  values are not compared under binary64-replaced inputs. A few move there by
+  one unit in the last place:
+  - PA-AB's displacement at N2 and N3, and its hanger row, which equals N3;
+  - PB-EMPTY's displacement at N6;
+  - the twin's plain-spring force in PA-BASE and in PA-HT-NONE;
+  - the matching superposition rows (direct at N2 and N3, naive sum at N4).
+
+  That is far inside the 1e-9 comparison tolerance.
 - **Self-checks, on every run:**
   - every closed form, at the hanger and at every node, agrees exactly with an
     exact-rational stiffness solve written in the generator;
@@ -372,7 +387,10 @@ It does not cover the diagnostics, the memory pricing or the reference system
   - each unheld case is re-solved as a plain spring plus a force F_cold, and
     the displacements and reactions are identical;
   - the superposition difference equals PA-EMPTY exactly;
-  - the held reactions and the stated signs hold, also with binary64 inputs.
+  - with each input replaced by its binary64 value, the stated properties
+    are checked again: the held reactions, the held hanger at zero, every
+    acting spring's force positive and the unloaded span lifted. Emitted
+    values are not compared there.
 - **Invented data:** every value is invented.
 
 ```sh

@@ -1047,7 +1047,8 @@
             "verification_standing": "conditional",
             "unfitted_verified_as_force_w": [
               "H-5"
-            ]
+            ],
+            "unfitted_verification_note": "The verification of an unfitted candidate is null because this reference supplies no expectation for it. The scope requires verified values for every selected family and says nothing of an unfitted candidate, so a product comparison must not assert that the product publishes nothing there."
           }
         }
       ]

@@ -22,7 +22,10 @@ written here; equilibrium of every solve is asserted, and so is the
 force-plus-spring identity (each case re-solved with the hanger as a plain
 spring and a separate force equal to its cold load). pi enters through E I
 only; it is bounded by Machin's formula and every emitted binary64 must agree
-at both bounds and with binary64-replaced inputs.
+at both bounds. With each input replaced by its binary64 value, the stated
+properties are checked again (the held reactions, the held hanger at zero,
+every acting spring's force positive, the unloaded span lifted); emitted values
+are not compared there, and a few move by one unit in the last place.
 
 Usage:
     python3 generate_preload.py          # write preload.json
@@ -302,7 +305,11 @@ BASIS = (
     "pipe, positive along +Z. Values containing E I contain pi; they are "
     "computed exactly at rational lower and upper bounds of pi (Machin's "
     "formula, 120 digits) and emitted rounded to the nearest binary64, which "
-    "agrees at both bounds and when every input is replaced by its binary64. "
+    "agrees at both bounds. With each input replaced by its binary64 value "
+    "only the stated properties are checked again (the held reactions, the "
+    "held hanger at zero, every acting spring's force positive, the unloaded "
+    "span lifted); emitted values are not compared there, and a few move by "
+    "one unit in the last place. "
     "Each closed form agrees exactly with an exact-rational stiffness solve. "
     "Every value is invented. See README.md for the derivations.")
 
