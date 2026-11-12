@@ -187,9 +187,23 @@ def test_a_substitution_variant_is_its_own_mbf_without_an_identity_file_and_need
 
 
 def test_the_instructions_put_the_harness_route_first_and_quote_run_pilots_own_help():
-    text = build(MANIFEST)["INSTRUCTIONS.md"].decode()
+    files = build(MANIFEST)
+    text = files["INSTRUCTIONS.md"].decode()
     assert text.index("## 1. The harness route") < text.index("## 2. The hand route")
-    assert "Do not run sealed captures, format samples or variants with this command." in text
+    flat = re.sub(r"\s+", " ", text.replace("> ", ""))
+    assert "start no live run that clears an output folder against the exchange folder at all" in flat
+    assert "never run with this command a sealed capture, a format sample, a variant, or any case whose result is " \
+           "already stored" in flat
+    assert "wait a fixed 5 minutes before the first harness command (measured 12 November 2026)" in flat
+    assert "the Windows command `net use` lists the session's drives" in flat
+    assert flat.count("(measured 12 November 2026)") == 2
+    assert "Never leave the pressure options line blank." in flat
+    assert "a blank line there sets the Bourdon effect and the pressure correction for bends on" in flat
+    assert "a dry-run case is never run through a route that clears a stored result" in flat
+    assert "--replace" not in text and "screening class" not in text
+    sheet = files["RUN_SHEET.md"].decode()
+    part0 = sheet[sheet.index("## part-0"):sheet.index("## part-1")]
+    assert "--case" not in part0  # the dry run's cases are not offered to the harness route
     for source, url in sitting_pack.SOURCES.items():
         assert f"{source}, {url}" in text
     assert "trial" not in text.lower()
@@ -379,6 +393,16 @@ def watch_capture(reads: Reads, *folders: Path) -> None:
     reads.watched = lambda path: path.name in names and any(path.is_relative_to(r) for r in roots)
 
 
+def tree_digest(root: Path) -> dict[str, str]:
+    """Every file under `root` (links refused) by relative path and SHA-256, computed by the test itself."""
+    digest = {}
+    for path in sorted(root.rglob("*")):
+        assert not path.is_symlink(), path
+        if path.is_file():
+            digest[str(path.relative_to(root))] = hashlib.sha256(path.read_bytes()).hexdigest()
+    return digest
+
+
 def test_a_sealed_capture_is_hashed_once_and_stored_under_its_names_and_never_read_or_parsed(sitting, reads, capsys):
     folder, item = return_sealed(sitting)
     root = sitting["root"]
@@ -388,7 +412,7 @@ def test_a_sealed_capture_is_hashed_once_and_stored_under_its_names_and_never_re
     assert sitting_pack.ingest_pack(sitting["pack"], root, selected=["cpb-g1-03"])
     assert "cpb-g1-03: sealed capture; sealed" in capsys.readouterr().out
     assert reads.parser_calls == [] and reads.content_reads() == []
-    # One hashing pass per returned file (the copy that hashes), nothing more.
+    # One pass per returned file, the run line included: the copy that hashes. Nothing else reads them.
     per_file = {}
     for entry in reads.log:
         per_file[entry["path"].name] = per_file.get(entry["path"].name, 0) + 1
@@ -398,20 +422,28 @@ def test_a_sealed_capture_is_hashed_once_and_stored_under_its_names_and_never_re
     assert record["files"][PRINT_NAME] == {"bytes": len(LOUD), "sha256": hashlib.sha256(LOUD).hexdigest(),
                                            "role": "returned"}
     guest_bytes = (folder / GUEST_NAME).read_bytes()
-    assert record["files"][GUEST_NAME]["sha256"] == hashlib.sha256(guest_bytes).hexdigest()
+    assert record["files"][GUEST_NAME] == {"bytes": len(guest_bytes), "role": "returned",
+                                           "sha256": hashlib.sha256(guest_bytes).hexdigest()}
+    run_line = (folder / "run_line.txt").read_bytes()
+    assert record["files"]["run_line.txt"]["sha256"] == hashlib.sha256(run_line).hexdigest()
     assert record["files"]["cpb-g1-03.mbf"]["role"] == "pack_input"
     assert (sealed / PRINT_NAME).read_bytes() == LOUD  # collected under the name it was printed with
     # The records live in the exchange folder, outside every Git work tree; the repository is untouched.
     assert sealed.is_relative_to(root) and harness._inside_git(root, os.environ) is False
     assert git_status() == status_before
     assert not (root / "cases" / "cpb-g1-03").exists()
+    # A re-ingest hashes each returned file once and writes nothing: no staging copy, in the exchange folder or not.
+    before = tree_digest(root)
     reads.log.clear()
     assert sitting_pack.ingest_pack(sitting["pack"], root, selected=["cpb-g1-03"])
     assert "already_sealed" in capsys.readouterr().out and reads.content_reads() == []
+    assert sorted(entry["path"].name for entry in reads.log) == sorted([PRINT_NAME, GUEST_NAME, "run_line.txt"])
+    assert tree_digest(root) == before
+    # A different capture is refused, and the folder stays byte-identical.
     (folder / PRINT_NAME).write_bytes(LOUD + b"x")
     assert not sitting_pack.ingest_pack(sitting["pack"], root, selected=["cpb-g1-03"])
     assert "never replaced" in capsys.readouterr().out
-    assert (sealed / PRINT_NAME).read_bytes() == LOUD and reads.parser_calls == []
+    assert tree_digest(root) == before and reads.parser_calls == []
 
 
 def test_the_offline_screen_and_the_regression_check_pass_over_a_sealed_capture(sitting, reads, capsys):
@@ -431,64 +463,172 @@ def test_the_offline_screen_and_the_regression_check_pass_over_a_sealed_capture(
     assert reads.log == [] and reads.parser_calls == []
 
 
+def test_an_ingest_onto_a_stored_run_keeps_it_byte_identical_and_stores_the_result_beside_it(sitting, capsys):
+    root = sitting["root"]
+    case = root / "cases" / "cpb-g1-01"
+    for relative, data in (("caepipe_out/run_record.json", b'{"invented": "stored run"}\n'),
+                           ("caepipe_out/model.csv", b"invented stored print\r\n"),
+                           ("caepipe_in/model.mbf", b"INVENTED STORED MBF\r\n")):
+        (case / relative).parent.mkdir(parents=True, exist_ok=True)
+        (case / relative).write_bytes(data)
+    stored = tree_digest(case)
+    folder = sitting["pack"] / "cases" / "cpb-g1-01"
+    item = by_id(sitting["index"])["cpb-g1-01"]
+    (folder / "cpb-g1-01.csv").write_text(invented_print(), encoding="utf-8")
+    (folder / "cpb-g1-01.guest.json").write_text(guest_json(item["mbf"]["sha256"], "cpb-g1-01"), encoding="utf-8")
+    fill_run_line(folder, "guest_script")
+    assert sitting_pack.ingest_pack(sitting["pack"], root, selected=["cpb-g1-01"])
+    after = tree_digest(case)
+    assert {path: sha for path, sha in after.items() if path in stored} == stored  # every stored file unchanged
+    runs = sorted((case / "sitting_runs").iterdir())
+    assert len(runs) == 1 and re.fullmatch(r"\d{8}T\d{6}Z-[0-9a-f]{12}", runs[0].name)
+    run = runs[0]
+    record = json.loads((run / "caepipe_out" / "run_record.json").read_text(encoding="utf-8"))
+    assert record["route"] == "csv_from_batch" and record["sitting"]["run"] == f"cases/cpb-g1-01/sitting_runs/{run.name}"
+    # Read as a case root, the new run binds under bound_csv's unchanged rule; the stored one is not touched.
+    csv_path, route, _ = run_pilot.bound_csv(root, {"root": run}, record, item["mbf"]["sha256"])
+    assert csv_path == run / "caepipe_out" / "model.csv" and route == "csv_from_batch"
+    selection = json.loads((case / "run_selection" / f"{run.name}.json").read_text(encoding="utf-8"))
+    assert selection["run"] == f"sitting_runs/{run.name}" and selection["bound"] is True
+    # The same returned files again: already placed, and nothing at all is written.
+    whole = tree_digest(root)
+    assert sitting_pack.ingest_pack(sitting["pack"], root, selected=["cpb-g1-01"])
+    assert "already_placed" in capsys.readouterr().out and tree_digest(root) == whole
+
+
+def test_every_refusal_leaves_the_exchange_folder_byte_identical(sitting, tmp_path, capsys):
+    root = sitting["root"]
+    # A changed MBF.
+    folder = sitting["pack"] / "cases" / "cpb-g1-01"
+    original = (folder / "cpb-g1-01.mbf").read_bytes()
+    (folder / "cpb-g1-01.mbf").write_bytes(original + b"x")
+    (folder / "cpb-g1-01.csv").write_text(invented_print(), encoding="utf-8")
+    fill_run_line(folder, "manual_batch")
+    before = tree_digest(root)
+    assert not sitting_pack.ingest_pack(sitting["pack"], root, selected=["cpb-g1-01"])
+    assert "mbf_changed" in capsys.readouterr().out and tree_digest(root) == before
+    (folder / "cpb-g1-01.mbf").write_bytes(original)
+    # A sealed folder that exists without its record (an interrupted earlier seal) is refused, not completed.
+    return_sealed(sitting)
+    (root / "sealed" / "cpb-g1-03").mkdir(parents=True)
+    (root / "sealed" / "cpb-g1-03" / PRINT_NAME).write_bytes(b"partial")
+    before = tree_digest(root)
+    assert not sitting_pack.ingest_pack(sitting["pack"], root, selected=["cpb-g1-03"])
+    assert "exists without a capture record" in capsys.readouterr().out and tree_digest(root) == before
+    # A write onto an existing path is refused by name and leaves it untouched.
+    target = root / "cases" / "cpb-g1-01" / "caepipe_out" / "run_record.json"
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"stored")
+    before = tree_digest(root)
+    with pytest.raises(sitting_pack.ExistingPath, match="run_record.json already exists"):
+        sitting_pack._write_record(root, target, {"replacement": True})
+    with pytest.raises(sitting_pack.ExistingPath):
+        sitting_pack._copy_hashed(root, folder / "cpb-g1-01.csv", target)
+    assert tree_digest(root) == before and target.read_bytes() == b"stored"
+    # Different stored outputs for a stored item are refused.
+    item = {"item_id": "obs-x", "item_kind": "format_observation"}
+    (tmp_path / "obs").mkdir()
+    (tmp_path / "obs" / "a.txt").write_bytes(b"first")
+    assert sitting_pack.store_outputs(tmp_path / "obs", item, root, root / "observations" / "obs-x",
+                                      names=["a.txt"])["status"] == "stored"
+    (tmp_path / "obs" / "a.txt").write_bytes(b"second")
+    before = tree_digest(root)
+    refused = sitting_pack.store_outputs(tmp_path / "obs", item, root, root / "observations" / "obs-x",
+                                         names=["a.txt"])
+    assert refused["status"] == "refused" and tree_digest(root) == before
+
+
+def test_the_ingest_command_has_no_replace_option(capsys):
+    with pytest.raises(SystemExit):
+        sitting_pack.main(["ingest", "/invented/pack", "--replace"])
+    assert "unrecognized arguments: --replace" in capsys.readouterr().err
+
+
 _RESULTS = itertools.count()
 
 
-def swbpipe_result(tmp_path: Path, model_id: str, model: dict, solved: bool = True, tag: str = "") -> Path:
-    directory = tmp_path / f"swbpipe-{model_id}-{solved}-{tag}-{next(_RESULTS)}"
+def swbpipe_files(tmp_path: Path, document: dict, *, model: dict | None = None, solved: bool = True,
+                  request_edit=None, tag: str = "") -> tuple[Path, Path]:
+    """SWBPIPE's request and result for a benchmark model, as run_pilot stores them (invented result)."""
+    directory = tmp_path / f"swbpipe-{document['model_id']}-{next(_RESULTS)}"
     directory.mkdir()
-    (directory / "request.json").write_text(json.dumps({"request": run_pilot.runner_request(model_id),
-                                                        "solve": {"preview_model": {"model": model}}, "tag": tag}),
-                                            encoding="utf-8")
+    request = sitting_pack.benchmark_request(document if model is None else document | {"model": model})
+    if request_edit:
+        request_edit(request)
+    (directory / "request.json").write_text(json.dumps(request, indent=2, sort_keys=True), encoding="utf-8")
     status = "MECHANICS_SOLVED" if solved else "MECHANICS_REFUSED"
     (directory / "result.json").write_text(json.dumps({"payload": {"mechanics_envelope": {"status": {
         "mechanics": status}}}, "tag": tag}), encoding="utf-8")
-    return directory
+    return directory / "request.json", directory / "result.json"
+
+
+def test_the_request_the_index_binds_is_the_one_run_pilot_sends():
+    document = next(m for m in run_pilot.load_benchmark(MANIFEST) if m["model_id"] == "cpb-g1-03")
+    sent = run_pilot.solve_swbpipe("/usr/bin/true", {"case_id": "cpb-g1-03", "model": document["model"],
+                                                     "source_location": "validation/caepipe_benchmark/models/"
+                                                                        "cpb-g1-03.json"})[0]
+    assert sent == sitting_pack.benchmark_request(document)
+    item = by_id(index_of(build(MANIFEST)))["cpb-g1-05"]
+    assert item["swbpipe_request"]["canonical_sha256"] == canonical_model_hash(sitting_pack.benchmark_request(
+        next(m for m in run_pilot.load_benchmark(MANIFEST) if m["model_id"] == "cpb-g1-05")))
 
 
 def test_unsealing_refuses_each_missing_condition_by_name_and_admits_both(sitting, tmp_path):
     return_sealed(sitting, invented_print().encode("utf-8"))
     root = sitting["root"]
     assert sitting_pack.ingest_pack(sitting["pack"], root, selected=["cpb-g1-03"])
-    models = {m["model_id"]: m["model"] for m in run_pilot.load_benchmark(sitting["manifest"])}
-    good = swbpipe_result(tmp_path, "cpb-g1-03", models["cpb-g1-03"])
+    documents = {m["model_id"]: m for m in run_pilot.load_benchmark(sitting["manifest"])}
+    good_request, good_result = swbpipe_files(tmp_path, documents["cpb-g1-03"])
     calls = []
 
     def unseal(**kwargs):
         return sitting_pack.unseal_capture(root, "cpb-g1-03", intake=lambda *a, **k: calls.append(1) or {},
-                                           **({"tolerance_class": "exact", "swbpipe_result": good} | kwargs))
+                                           **({"tolerance_class": "exact", "swbpipe_request": good_request,
+                                               "swbpipe_result": good_result} | kwargs))
 
+    sealed = root / "sealed" / "cpb-g1-03"
+    before = tree_digest(root)
     assert sitting_pack.TOLERANCE_CLASSES_WITH_VALUE == ("exact", "named_inexact", "nonlinear", "modal")
     assert unseal(tolerance_class=None)["reason"] == "tolerance_class_missing"
-    assert unseal(tolerance_class="spectrum")["reason"] == "tolerance_class_without_value"
+    spectrum = unseal(tolerance_class="spectrum")
+    assert spectrum["reasons"] == ["tolerance_class_without_value", "tolerance_set_after_acceptance"]
+    assert sitting_pack.REFUSAL_TEXT["tolerance_set_after_acceptance"] == \
+        "tolerance set after acceptance: report not recorded"
     assert unseal(tolerance_class="invented")["reason"] == "tolerance_class_unknown"
     assert unseal(swbpipe_result=None)["reason"] == "swbpipe_result_missing"
-    assert unseal(swbpipe_result=tmp_path / "absent")["reason"] == "swbpipe_result_missing"
-    other = swbpipe_result(tmp_path, "cpb-g1-03", models["cpb-g1-04"])
-    assert unseal(swbpipe_result=other)["reason"] == "swbpipe_result_mismatch"
-    unsolved = swbpipe_result(tmp_path, "cpb-g1-03", models["cpb-g1-03"], solved=False)
-    assert unseal(swbpipe_result=unsolved)["reason"] == "swbpipe_result_not_solved"
-    sealed = root / "sealed" / "cpb-g1-03"
-    assert calls == [] and sorted(p.name for p in sealed.iterdir() if p.name.startswith(("unseal", "kept"))) == []
-    assert not (root / "cases" / "cpb-g1-03" / "caepipe_out" / "run_record.json").exists()
+    assert unseal(swbpipe_request=None)["reason"] == "swbpipe_result_missing"
+    assert unseal(swbpipe_result=tmp_path / "absent.json")["reason"] == "swbpipe_result_missing"
+    other_request, other_result = swbpipe_files(tmp_path, documents["cpb-g1-03"], model=documents["cpb-g1-04"]["model"])
+    assert unseal(swbpipe_request=other_request, swbpipe_result=other_result)["reason"] == "swbpipe_result_mismatch"
+    moved_request, moved_result = swbpipe_files(
+        tmp_path, documents["cpb-g1-03"],
+        request_edit=lambda request: request["request"]["load_basis_refs"].append(
+            {"ref_type": "load_case", "ref_id": "LC2"}))
+    assert unseal(swbpipe_request=moved_request, swbpipe_result=moved_result)["reason"] == "swbpipe_request_differs"
+    unsolved_request, unsolved_result = swbpipe_files(tmp_path, documents["cpb-g1-03"], solved=False)
+    assert unseal(swbpipe_request=unsolved_request,
+                  swbpipe_result=unsolved_result)["reason"] == "swbpipe_result_not_solved"
+    assert calls == [] and tree_digest(root) == before  # no refusal wrote anything
 
-    for modal in ("modal", "nonlinear", "named_inexact"):
-        assert modal in sitting_pack.TOLERANCE_CLASSES_WITH_VALUE
-    outcome = sitting_pack.unseal_capture(root, "cpb-g1-03", tolerance_class="exact", swbpipe_result=good)
+    outcome = sitting_pack.unseal_capture(root, "cpb-g1-03", tolerance_class="exact", swbpipe_request=good_request,
+                                          swbpipe_result=good_result)
     assert outcome["status"] == "unsealed" and outcome["placement"]["route"] == "csv_from_batch"
     record = json.loads((sealed / sitting_pack.UNSEAL_RECORD).read_text(encoding="utf-8"))
     capture = json.loads((sealed / sitting_pack.CAPTURE_RECORD).read_text(encoding="utf-8"))
-    result_bytes = (good / "result.json").read_bytes()
+    request_bytes, result_bytes = good_request.read_bytes(), good_result.read_bytes()
     assert record["tolerance_class"] == "exact" and record["capture_sha256"] == capture["capture_sha256"]
-    assert record["model_hash"] == capture["model_hash"] == canonical_model_hash(models["cpb-g1-03"])
-    assert record["swbpipe_result"]["result_sha256"] == hashlib.sha256(result_bytes).hexdigest()
+    assert record["model_hash"] == capture["model_hash"] == canonical_model_hash(documents["cpb-g1-03"]["model"])
+    assert record["swbpipe_request"]["sha256"] == hashlib.sha256(request_bytes).hexdigest()
+    assert record["swbpipe_request"]["canonical_sha256"] == capture["swbpipe_request"]["canonical_sha256"]
+    assert record["swbpipe_result"]["sha256"] == hashlib.sha256(result_bytes).hexdigest()
     assert (sealed / sitting_pack.KEPT_RESULT).read_bytes() == result_bytes
-    # A second attempt, with a different (later) SWBPIPE result, replaces neither the record nor the kept result.
-    kept_record = (sealed / sitting_pack.UNSEAL_RECORD).read_bytes()
-    later = swbpipe_result(tmp_path, "cpb-g1-03", models["cpb-g1-03"], tag="later")
-    assert unseal(swbpipe_result=later)["reason"] == "already_unsealed"
-    assert (sealed / sitting_pack.UNSEAL_RECORD).read_bytes() == kept_record
-    assert (sealed / sitting_pack.KEPT_RESULT).read_bytes() == result_bytes and calls == []
+    assert (sealed / sitting_pack.KEPT_REQUEST).read_bytes() == request_bytes
+    # A second attempt, with a later SWBPIPE result of the same request, replaces neither the record nor the kept
+    # result, and writes nothing.
+    before = tree_digest(root)
+    later_request, later_result = swbpipe_files(tmp_path, documents["cpb-g1-03"], tag="later")
+    assert unseal(swbpipe_request=later_request, swbpipe_result=later_result)["reason"] == "already_unsealed"
+    assert tree_digest(root) == before and calls == []
 
 
 def test_the_unseal_record_exists_before_any_byte_of_the_capture_is_read_but_to_hash_it(sitting, tmp_path, reads):
@@ -496,13 +636,14 @@ def test_the_unseal_record_exists_before_any_byte_of_the_capture_is_read_but_to_
     root = sitting["root"]
     assert sitting_pack.ingest_pack(sitting["pack"], root, selected=["cpb-g1-03"])
     sealed = root / "sealed" / "cpb-g1-03"
-    models = {m["model_id"]: m["model"] for m in run_pilot.load_benchmark(sitting["manifest"])}
-    good = swbpipe_result(tmp_path, "cpb-g1-03", models["cpb-g1-03"])
+    document = next(m for m in run_pilot.load_benchmark(sitting["manifest"]) if m["model_id"] == "cpb-g1-03")
+    request, result = swbpipe_files(tmp_path, document)
     watch_capture(reads, sealed)
     reads.record = sealed / sitting_pack.UNSEAL_RECORD
     reads.forbid_parsers = False  # unsealing may read and parse, but only once the record exists
     reads.log.clear()
-    outcome = sitting_pack.unseal_capture(root, "cpb-g1-03", tolerance_class="modal", swbpipe_result=good)
+    outcome = sitting_pack.unseal_capture(root, "cpb-g1-03", tolerance_class="modal", swbpipe_request=request,
+                                          swbpipe_result=result)
     assert outcome["status"] == "unsealed" and outcome["placement"]["route"] == "csv_from_batch"
     content = reads.content_reads()
     assert content, "the placement read the capture"
@@ -514,10 +655,13 @@ def test_the_unseal_record_exists_before_any_byte_of_the_capture_is_read_but_to_
     assert reads.parser_calls and all(call["record_exists"] for call in reads.parser_calls)
 
 
-def test_the_unseal_command_refuses_without_a_class(sitting, capsys, monkeypatch):
+def test_the_unseal_command_refuses_without_a_class_and_names_both_spectrum_reasons(sitting, capsys, monkeypatch):
     monkeypatch.setattr(sitting_pack, "resolve_harness_config", lambda environ, require_vm_tools: sitting["config"])
     assert sitting_pack.main(["unseal", "--case", "cpb-g1-03"], environ={}) == 1
     assert "tolerance_class_missing" in capsys.readouterr().out
+    assert sitting_pack.main(["unseal", "--case", "cpb-g1-03", "--tolerance-class", "spectrum"], environ={}) == 1
+    out = capsys.readouterr().out
+    assert "tolerance_class_without_value" in out and "tolerance set after acceptance: report not recorded" in out
 
 
 # -- format samples and observations --------------------------------------------------------------------------------

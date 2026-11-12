@@ -4,9 +4,9 @@ From the project root:
 
     python3 -m tools.caepipe_correlation.sitting_pack prepare OUT_DIR [--manifest PATH] [--plan PATH]
         [--observations PATH] [--case ID ...]
-    python3 -m tools.caepipe_correlation.sitting_pack ingest PACK_DIR [--item ID ...] [--replace]
+    python3 -m tools.caepipe_correlation.sitting_pack ingest PACK_DIR [--item ID ...] [--check]
     python3 -m tools.caepipe_correlation.sitting_pack unseal --case ID [--tolerance-class CLASS]
-        [--swbpipe-result DIR] [--replace]
+        [--swbpipe-request FILE] [--swbpipe-result FILE]
 
 PREPARE writes a self-contained pack to OUT_DIR, which must lie outside every Git work tree (as the harness refuses
 an exchange folder inside one) and be absent or empty. The pack follows a plan (`--plan`, default
@@ -32,11 +32,18 @@ lines) into the exchange folder named by SWBPIPE_CAEPIPE_EXCHANGE, resolved and 
 (outside every Git work tree, ignore-all rule, acknowledgement; every write path checks it again). Every record it
 writes lives in the exchange folder, the private run directory, never in a repository: beside the case's run record,
 or for a sealed capture in its own sealed folder. The kind of every item comes from the pack index, never from the
-returned folder or the command line. Per case it verifies that the MBF and identity file still have the SHA-256 the
-index records, then:
+returned folder or the command line. The exchange folder is the owner's record: ingest and unseal only ever add new
+files at new paths (each created exclusively), and a write that would land on an existing path is refused by name
+with the existing file untouched. Nothing there is cleared, replaced, truncated, renamed or deleted, and no staging
+copy is made in it. Per case it verifies that the MBF and identity file still have the SHA-256 the index records,
+then:
 
-- an ordinary case: places the result where `run_pilot --benchmark MANIFEST --offline` finds it
-  (`cases/<id>/caepipe_out/model.csv` or `model.txt`, with `run_record.json`) and writes `sitting_intake.json`.
+- an ordinary case with no stored run: places the result where `run_pilot --benchmark MANIFEST --offline` finds it
+  (`cases/<id>/caepipe_out/model.csv` or `model.txt`, with `run_record.json` and `sitting_intake.json`, and
+  `caepipe_in/model.mbf`). A case that already has a stored run keeps it as it is: the result goes to a new run
+  folder `cases/<id>/sitting_runs/<UTC time>-<hash of the returned files>/` with the same layout, and a new file
+  `cases/<id>/run_selection/<that run>.json` names the run a later screen uses. Re-ingesting the same returned files
+  is `already_placed`.
   A result the guest script produced is bound as the harness binds one: the run record holds the host's hash of the
   MBF and the hash the guest script reported for the MBF it solved. A result obtained by hand (`manual_batch`,
   `manual_print`) is recorded under its own route (`sitting_manual_batch`, `sitting_manual_print`) with no guest
@@ -47,14 +54,17 @@ index records, then:
   content beyond that pass: no recognition of the print file, no parser, no counts, no comparison. UNSEAL opens it
   only with a named tolerance class that has a value in the release target's benchmark method (every input held
   exactly, a named inexact input, nonlinear, modal; spectrum has none) and SWBPIPE's result for the case (the
-  runner's request and result as run_pilot stores them, a solve of the model the index names). It keeps that result
+  runner's request and result as run_pilot stores them, a solve of the request the index names). It keeps them
   beside the capture record and writes `unseal_record.json` before any byte of the capture is read for anything but
-  hashing, and only then places the capture as an ordinary case. Both are written once and never replaced.
+  hashing, and only then places the capture as an ordinary case. Both are written once and never replaced. The
+  run's request is bound as well as its model: unseal is given SWBPIPE's request and result, refuses a result of
+  the same model under another analysis request, and records the hashes of the model, the request and the result.
+  A re-ingest of a sealed capture hashes the returned files once and writes nothing.
 - a format sample (designated in the plan by an id of its own that no benchmark model has, and recorded in the
   index as outside the benchmark set) or an observation item: stores and hashes what came back
   (`format_samples/<id>/`, `observations/<id>/`) in one pass and does not parse, recognise or interpret it.
-- a variant of an ordinary case: stores and hashes its result under `cases/<id>/variants/<label>/`, bound to its
-  MBF's hash; it is not screened by the benchmark screening.
+- a variant of an ordinary case: stores and hashes its result under `<run>/variants/<label>/` (the run directory
+  or the new run folder the base result went to), bound to its MBF's hash; it is not screened.
 
 Standard output carries operational status only: per item its id, kind, status and route, and for a placed result
 the number of sections the parser read and of its error diagnostics. No result value is printed.
@@ -95,7 +105,6 @@ from core.handoff.caepipe_external.harness import (  # noqa: E402
     contained,
     contained_dir,
     last_json_object,
-    write_private,
 )
 from core.handoff.caepipe_mbf.si_writer import STANDARD_GRAVITY  # noqa: E402
 from tools.caepipe_correlation import run_pilot  # noqa: E402
@@ -117,7 +126,12 @@ INTAKE_KIND = "swbpipe.caepipe_sitting.intake"
 CAPTURE_KIND = "swbpipe.caepipe_sitting.sealed_capture"
 UNSEAL_KIND = "swbpipe.caepipe_sitting.unseal"
 STORED_KIND = "swbpipe.caepipe_sitting.stored_output"
-PRIVATE_RECORD_KINDS = (INTAKE_KIND, CAPTURE_KIND, UNSEAL_KIND, STORED_KIND)
+SELECTION_KIND = "swbpipe.caepipe_sitting.run_selection"
+PRIVATE_RECORD_KINDS = (INTAKE_KIND, CAPTURE_KIND, UNSEAL_KIND, STORED_KIND, SELECTION_KIND)
+# Where a returned result goes when its case already has a stored run, and the files that name the run a later
+# screen uses (one new file per selection; the stored run is never changed).
+SITTING_RUNS = "sitting_runs"
+RUN_SELECTION = "run_selection"
 INTAKE_RECORD = "sitting_intake.json"
 UNSEAL_PLACEMENT = "unseal_placement.json"
 KEPT_REQUEST = "kept_swbpipe_request.json"
@@ -140,12 +154,19 @@ ATTESTED_BINDING = "person_attested"
 # those with a tolerance value today, and those without one. Only a class with a value admits an unseal.
 TOLERANCE_CLASSES_WITH_VALUE = (EXACT, NAMED_INEXACT, "nonlinear", "modal")
 TOLERANCE_CLASSES_WITHOUT_VALUE = ("spectrum",)
+# Classes whose tolerance is set after the release target was accepted: an unseal under one also needs its report to the
+# owner evidenced; how is left to DEL-17-05's scope, so for now such a class is always refused for that reason too.
+TOLERANCE_CLASSES_SET_AFTER_ACCEPTANCE = ("spectrum",)
 # Unseal refusals, each named.
 CLASS_MISSING = "tolerance_class_missing"
 CLASS_WITHOUT_VALUE = "tolerance_class_without_value"
 CLASS_UNKNOWN = "tolerance_class_unknown"
 RESULT_MISSING = "swbpipe_result_missing"
 RESULT_MISMATCH = "swbpipe_result_mismatch"
+REQUEST_DIFFERS = "swbpipe_request_differs"
+SET_AFTER_ACCEPTANCE = "tolerance_set_after_acceptance"
+REFUSAL_TEXT = {SET_AFTER_ACCEPTANCE: "tolerance set after acceptance: report not recorded",
+                REQUEST_DIFFERS: "a result of this model under another analysis request"}
 RESULT_NOT_SOLVED = "swbpipe_result_not_solved"
 CAPTURE_MISSING = "capture_missing"
 CAPTURE_CHANGED = "capture_changed"
@@ -607,6 +628,9 @@ def benchmark_item(model: Mapping[str, Any], manifest_entry: Mapping[str, Any], 
             item[member] = model[member]
     if "pressure_contract" in (model.get("model") or {}):
         item["pressure_contract"] = model["model"]["pressure_contract"]
+    item["swbpipe_request"] = {
+        "canonical_sha256": canonical_model_hash(benchmark_request(model)),
+        "basis": "the complete analysis request run_pilot sends the runner for this model (solve_swbpipe's body)"}
     mbf = run_pilot.render_benchmark_mbf(model)
     item["layout_row_count"] = mbf.layout_row_count
     if mbf.status != "written":
@@ -734,7 +758,8 @@ def build_pack(manifest_path: Path, plan: Mapping[str, Any], observations: Mappi
             if item.get("status", "written") == "written" and item["item_kind"] != "format_observation":
                 run_line = _crlf(run_line_text(item))
                 files[f"{item['folder']}/run_line.txt"] = run_line
-                item["run_line"] = {"file": "run_line.txt", "template_sha256": _sha256(run_line)}
+                item["run_line"] = {"file": "run_line.txt", "template_sha256": _sha256(run_line),
+                                    "template_bytes": len(run_line)}
         index_parts.append({
             "id": part["id"], "title": part["title"], "buys": part["buys"], "estimate": part["estimate"],
             "kind": part["kind"], "select": part["select"], "items": [item["item_id"] for item in part_items],
@@ -822,9 +847,11 @@ def run_sheet_text(index: Mapping[str, Any]) -> str:
         if part.get("empty_because"):
             out += [f"Nothing to run in this part: {part['empty_because']}", ""]
             continue
-        cases = _harness_cases(index, part)
+        cases = [] if part["kind"] == "dry_run" else _harness_cases(index, part)
         if cases:
-            out += ["Harness route, this part's benchmark cases: `" + " ".join(f"--case {c}" for c in cases) + "`", ""]
+            out += ["Harness route, this part's benchmark cases (not against the exchange folder until the harness "
+                    "change named in INSTRUCTIONS.md section 1 is merged): `"
+                    + " ".join(f"--case {c}" for c in cases) + "`", ""]
         out += ["| # | item | kind | layout rows | series | MBF SHA-256 (first 12) | folder | done |",
                 "|---|---|---|---|---|---|---|---|"]
         for item_id in part["items"]:
@@ -879,7 +906,7 @@ Its options, in its own help text:
 
 {options}
 
-`RUN_SHEET.md` gives, per part, the `--case` list of that part's benchmark cases.
+`RUN_SHEET.md` gives, per part, the `--case` list of that part's benchmark cases, except the dry run's.
 
 It runs only when the exchange folder is configured as the harness checks it: `{ENV_VAR}` names an existing
 folder outside every Git work tree, holding a `.gitignore` whose content is exactly `*` and a `{CONFIG_NAME}` that
@@ -892,12 +919,30 @@ The guest must be in this state before the command starts, and you bring it ther
 awake, the Windows user logged in, and no instance of CAEPIPE running. Before every case the command checks that
 the guest answers and that no instance of CAEPIPE is running, and stops otherwise.
 
-> **Do not run sealed captures, format samples or variants with this command.** It solves and screens every case it
-> is given; it has no capture-only path yet. Run those by the hand route below.
+Rules of this route:
+
+1. After the guest is resumed, wait a fixed 5 minutes before the first harness command (measured 12 November 2026).
+2. Before any live run, confirm which drive of the guest's session is the exchange folder. In the guest, the Windows
+   command `net use` lists the session's drives; the exchange folder appears there as a shared folder of the
+   virtualisation tool, under its own name. Its letter can differ from the one `guest_exchange_root` in
+   `{CONFIG_NAME}` names (measured 12 November 2026). If it differs, do not start the run.
+
+> **Until the harness change that resolves the exchange folder's drive in the guest and verifies it by its content
+> is merged, start no live run that clears an output folder against the exchange folder at all.** The live benchmark
+> mode clears each case's `caepipe_out` before it runs the case, so this route is not used against the exchange
+> folder until then. Even after that, never run with this command a sealed capture, a format sample, a variant, or
+> any case whose result is already stored, such as the dry run's cases: it has no capture-only path, and it clears
+> what it replaces. Run those by the hand route below.
 
 ## 2. The hand route (the fallback, and the route for sealed captures, format samples and variants)
 
 ### 2.1 Before you start
+
+> **Never leave the pressure options line blank.** When you import or edit a model by hand, the line under the
+> `OPPRES` heading (the pressure options) must never be blank. The vendor's public import page
+> ({_ref('CAEPIPE-IMPORT-MBF')}, "Format of .MBF") says a blank line there sets the Bourdon effect and the pressure
+> correction for bends on. SWBPIPE's writer writes that line in full whenever it writes the heading: leave it exactly
+> as written, and never clear it.
 
 1. Copy the whole pack folder to the Windows machine at a short path of letters, digits and hyphens only, for
    example `C:\\swbpipe-sitting`. The batch page notes constraints on the argument and its path ({_ref('CAEPIPE-BATCH')}).
@@ -960,7 +1005,9 @@ A variant is run after its base case, in the same folder.
 
 ### 2.5 The dry run comes first
 
-Part 0 ({dry_ids}) is the dry run. After it, bring the pack back to the Mac and run
+Part 0 ({dry_ids}) is the dry run. Its cases already have stored results in the exchange folder, so they are run
+by the hand route only: a dry-run case is never run through a route that clears a stored result. After part 0,
+bring the pack back to the Mac and run
 
 ```
 python3 -m tools.caepipe_correlation.sitting_pack ingest --check <the returned pack folder>
@@ -969,7 +1016,9 @@ python3 -m tools.caepipe_correlation.sitting_pack ingest --check <the returned p
 The check writes nothing. It verifies each case's MBF, names the route and binding it found, and reports how many
 sections the parser read from each returned print. Go on to part 1 only when it reports each dry-run case with
 sections read and no error diagnostic. After the sitting, `ingest` without `--check` takes the pack into the
-exchange folder; it refuses a case that already has a stored run there unless given `--replace`.
+exchange folder by adding new files only. A case that already has a stored run keeps it unchanged; the returned
+result is stored beside it in a new run folder of its own. Ingest never clears, replaces, renames or deletes
+anything already stored there.
 
 ### 2.6 Fill in the run line
 
@@ -1067,14 +1116,44 @@ def _regular_files(folder: Path, skip_names: Iterable[str] = ()) -> dict[str, Pa
     return found
 
 
+class ExistingPath(PackError):
+    """A write would land on a path that already exists in the exchange folder; nothing there is replaced."""
+
+
+def _relative(root: Path, path: Path) -> str:
+    try:
+        return str(Path(path).relative_to(Path(root).resolve()))
+    except ValueError:
+        return str(path)
+
+
+def _create(root: Path, path: Path, data: bytes | str) -> None:
+    """Create `path` in the exchange folder as a new file. Anything already at that path is refused by name and left
+    untouched: the exchange folder is the owner's record, to which a run only adds."""
+    target = contained(root, path)
+    if target.exists() or target.is_symlink():
+        raise ExistingPath(f"{_relative(root, target)} already exists in the exchange folder; nothing there is "
+                           "replaced")
+    with target.open("xb") as handle:
+        handle.write(data.encode("utf-8") if isinstance(data, str) else data)
+
+
+def _new_dir(root: Path, path: Path) -> Path:
+    """Create a directory that must not exist yet (its parents are created as needed)."""
+    if contained(root, path).exists():
+        raise ExistingPath(f"{_relative(root, path)} already exists in the exchange folder; nothing there is replaced")
+    return contained_dir(root, path)
+
+
 def _copy_hashed(root: Path, source: Path, target: Path) -> dict[str, Any]:
-    """Copy `source` to `target` inside the exchange folder in one streaming pass that also hashes it; the size comes
-    from the file system. The content is never decoded."""
+    """Copy `source` to a new file `target` in the exchange folder in one streaming pass that also hashes it; the size
+    comes from the file system. The content is never decoded, and an existing target is refused by name."""
     destination = contained(root, target)
-    if destination.exists() and not destination.is_file():
-        raise ContainmentError(f"{destination} is not a regular file")
+    if destination.exists() or destination.is_symlink():
+        raise ExistingPath(f"{_relative(root, destination)} already exists in the exchange folder; nothing there is "
+                           "replaced")
     digest = hashlib.sha256()
-    with source.open("rb") as reader, destination.open("wb") as writer:
+    with source.open("rb") as reader, destination.open("xb") as writer:
         while chunk := reader.read(_CHUNK):
             digest.update(chunk)
             writer.write(chunk)
@@ -1084,34 +1163,13 @@ def _copy_hashed(root: Path, source: Path, target: Path) -> dict[str, Any]:
     return {"bytes": size, "sha256": digest.hexdigest()}
 
 
-def _remove_tree(root: Path, directory: Path) -> None:
-    """Delete a staging directory of regular files inside the exchange folder."""
-    directory = contained(root, directory)
-    if directory.is_dir():
-        for entry in directory.iterdir():
-            contained(root, entry).unlink()
-        directory.rmdir()
-
-
-def _stage(root: Path, sources: Mapping[str, Path], target: Path) -> tuple[Path, dict[str, dict[str, Any]]]:
-    """Copy `sources` into a fresh staging directory beside `target` in one hashing pass per file: (staging
-    directory, {name: {bytes, sha256}})."""
-    staging = Path(root) / target.parent.relative_to(Path(root)) / f".{target.name}.incoming"
-    _remove_tree(root, staging)
-    staging = contained_dir(root, staging)
-    return staging, {name: _copy_hashed(root, path, staging / name) for name, path in sorted(sources.items())}
-
-
-def _commit_stage(root: Path, staging: Path, target: Path) -> None:
-    """Move every staged file into `target` (created when absent) and remove the staging directory."""
-    target = contained_dir(root, target)
-    for entry in sorted(contained(root, staging).iterdir()):
-        os.replace(contained(root, entry), contained(root, target / entry.name))
-    contained(root, staging).rmdir()
+def _hashes(files: Mapping[str, Path]) -> dict[str, dict[str, Any]]:
+    """One hashing pass over each file, nothing written: {name: {bytes, sha256}}."""
+    return {name: dict(zip(("bytes", "sha256"), stream_sha256(path))) for name, path in sorted(files.items())}
 
 
 def _write_record(root: Path, path: Path, value: Any) -> None:
-    write_private(root, path, json.dumps(value, indent=2, sort_keys=True) + "\n")
+    _create(root, path, json.dumps(value, indent=2, sort_keys=True) + "\n")
 
 
 def _verify_inputs(folder: Path, item: Mapping[str, Any], files: Mapping[str, Path]) -> str | None:
@@ -1143,12 +1201,13 @@ def pack_inputs(item: Mapping[str, Any]) -> set[str]:
 
 
 def returned(folder: Path, item: Mapping[str, Any], files: Mapping[str, Path]) -> bool:
-    """Whether anything came back for the item: a file the pack did not put there, or a changed run line."""
+    """Whether anything came back for the item, from names and file-system sizes alone (nothing is read): a file the
+    pack did not put there, or a run line whose size differs from the template's (filling it in adds text)."""
     if set(files) - pack_inputs(item) - {"run_line.txt"}:
         return True
     run_line = files.get("run_line.txt")
-    template = (item.get("run_line") or {}).get("template_sha256")
-    return run_line is not None and template is not None and stream_sha256(run_line)[1] != template
+    template = (item.get("run_line") or {}).get("template_bytes")
+    return run_line is not None and template is not None and run_line.stat().st_size != template
 
 
 def sealed_dir(root: Path, item_id: str) -> Path:
@@ -1157,68 +1216,80 @@ def sealed_dir(root: Path, item_id: str) -> Path:
     return Path(root) / "sealed" / item_id
 
 
-def seal_capture(folder: Path, item: Mapping[str, Any], root: Path, *, pack_index_sha256: str | None = None,
-                 source_label: str = "returned pack folder") -> dict[str, Any]:
-    """Seal one capture: copy every file of `folder` to `sealed/<id>/` under the names it came back with, hashing
-    each in the same single pass, and record each name, size (from the file system) and SHA-256. Nothing here reads
-    a file's content other than to hash it: no collection by recognition, no parser, no counts."""
+def seal_capture(folder: Path, item: Mapping[str, Any], root: Path, *,
+                 pack_index_sha256: str | None = None, source_label: str = "returned pack folder") -> dict[str, Any]:
+    """Seal one capture: copy every file of `folder` to a new `sealed/<id>/`, under the names it came back with,
+    hashing each in that one pass, and record each name, size (from the file system) and SHA-256. Every returned file,
+    the run line included, is read exactly once, by that copy; nothing recognises, parses or counts it. On a re-ingest
+    (a capture record exists) the one pass is a hash with nothing written: the same capture is `already_sealed`, a
+    different one is refused. Nothing in the exchange folder is ever replaced or removed."""
+    root = outside_work_trees(Path(root), "the exchange folder")
     item_id = item["item_id"]
     files = _regular_files(folder)
     problem = _verify_inputs(folder, item, files)
     if problem:
         return {"status": "refused", "reason": problem}
+    inputs = pack_inputs(item)
     target = sealed_dir(root, item_id)
-    contained_dir(root, target.parent)
-    staging, stored = _stage(root, files, target)
-    listing = {name: entry | {"role": "pack_input" if name in pack_inputs(item) else "returned"}
-               for name, entry in stored.items()}
-    capture_sha = _sha256(json.dumps(listing, sort_keys=True).encode("utf-8"))
     record_path = contained(root, target / CAPTURE_RECORD)
+
+    def listing_of(stored: Mapping[str, Mapping[str, Any]]) -> dict[str, dict[str, Any]]:
+        return {name: dict(entry) | {"role": "pack_input" if name in inputs else "returned"}
+                for name, entry in stored.items()}
+
     if record_path.is_file():
-        _remove_tree(root, staging)
+        listing = listing_of(_hashes(files))
+        capture_sha = _sha256(json.dumps(listing, sort_keys=True).encode("utf-8"))
         previous = json.loads(record_path.read_text(encoding="utf-8"))
         if previous.get("capture_sha256") == capture_sha:
             return {"status": "already_sealed", "capture_sha256": capture_sha}
-        return {"status": "refused", "reason": "a different capture is already sealed for this case; a sealed "
-                                               "capture is never replaced"}
-    _commit_stage(root, staging, target)
+        return {"status": "refused", "reason": f"a different capture is already sealed at sealed/{item_id}; nothing "
+                                               "was written, and a sealed capture is never replaced"}
+    if contained(root, target).exists():
+        return {"status": "refused", "reason": f"sealed/{item_id} exists without a capture record; nothing was "
+                                               "written"}
+    contained_dir(root, target.parent)
+    _new_dir(root, target)
+    listing = listing_of({name: _copy_hashed(root, path, target / name) for name, path in sorted(files.items())})
+    capture_sha = _sha256(json.dumps(listing, sort_keys=True).encode("utf-8"))
     _write_record(root, record_path, {
         "document_kind": CAPTURE_KIND, "item_id": item_id, "status": "sealed",
         "reason": item.get("sealed_reason"), "sealed_at": _now(), "source": source_label,
         "pack_index_sha256": pack_index_sha256, "mbf_sha256": item["mbf"]["sha256"],
         "model_hash": (item.get("source") or {}).get("model_hash"),
+        "swbpipe_request": item.get("swbpipe_request"),
         "files": listing, "capture_sha256": capture_sha,
         "rule": ("Sealed: no agent opens, parses, decodes, prints, summarises or compares these files until "
                  "sitting_pack unseal admits a tolerance class with a value and SWBPIPE's result for this case's "
-                 "model."),
+                 "complete analysis request."),
         "boundary_note": BOUNDARY_NOTE})
     return {"status": "sealed", "capture_sha256": capture_sha, "files": len(listing)}
 
 
-def store_outputs(folder: Path, item: Mapping[str, Any], root: Path, target: Path, *, replace: bool = False,
+def store_outputs(folder: Path, item: Mapping[str, Any], root: Path, target: Path, *,
                   names: Iterable[str] | None = None, skip_names: Iterable[str] = ()) -> dict[str, Any]:
-    """Store and hash what came back for a format sample, an observation item or a variant, in one hashing pass per
-    file under the names it came back with; never parse or recognise it."""
+    """Store and hash what came back for a format sample, an observation item or a variant in a new `target`, one
+    pass per file under the names it came back with; never parse or recognise it. When `target` already holds a
+    stored set, the one pass is a hash with nothing written: the same set is `already_stored`, a different one is
+    refused by name."""
+    root = outside_work_trees(Path(root), "the exchange folder")
     files = _regular_files(folder, skip_names)
     wanted = sorted(set(names) if names is not None else set(files) - pack_inputs(item))
     present = {name: files[name] for name in wanted if name in files}
     missing = [name for name in wanted if name not in files]
-    contained_dir(root, target.parent)
-    staging, stored = _stage(root, present, target)
     record_path = contained(root, target / STORED_RECORD)
     if record_path.is_file():
         previous = json.loads(record_path.read_text(encoding="utf-8"))
-        if previous.get("files") == stored:
-            _remove_tree(root, staging)
+        if previous.get("files") == _hashes(present):
             return {"status": "already_stored", "files": len(present), "missing": missing}
-        if not replace:
-            _remove_tree(root, staging)
-            return {"status": "refused", "reason": "different files are already stored for this item (--replace)"}
-        for name in previous.get("files") or {}:
-            old = contained(root, target / name)
-            if old.is_file():
-                old.unlink()
-    _commit_stage(root, staging, target)
+        return {"status": "refused", "reason": f"{_relative(root, target)} already holds different stored files; "
+                                               "nothing was written"}
+    if contained(root, target).exists():
+        return {"status": "refused", "reason": f"{_relative(root, target)} exists without a stored record; nothing "
+                                               "was written"}
+    contained_dir(root, target.parent)
+    _new_dir(root, target)
+    stored = {name: _copy_hashed(root, path, target / name) for name, path in present.items()}
     _write_record(root, record_path, {
         "document_kind": STORED_KIND, "item_id": item["item_id"], "item_kind": item["item_kind"],
         "stored_at": _now(), "files": stored, "missing": missing,
@@ -1314,12 +1385,31 @@ def check_case(folder: Path, item: Mapping[str, Any]) -> dict[str, Any]:
             "reason": "; ".join(found["notes"]) or None}
 
 
-def intake_case(folder: Path, item: Mapping[str, Any], root: Path, *, replace: bool = False,
-                pack_index_sha256: str | None = None, skip_names: Iterable[str] = ()) -> dict[str, Any]:
-    """Take one ordinary (or unsealed) case in from `folder` and place it for the offline screening.
+def _has_stored_run(root: Path, case_root: Path) -> bool:
+    """Whether the case's run directory already holds a run: any file in caepipe_out/, or caepipe_in/model.mbf."""
+    out = contained(root, case_root / "caepipe_out")
+    return (out.is_dir() and any(out.iterdir())) or contained(root, case_root / "caepipe_in" / "model.mbf").exists()
 
-    A guest-script result is bound as the harness binds one (host and guest MBF hashes); a result obtained by hand
-    gets its own route and the binding class `person_attested`, which `run_pilot.bound_csv` does not admit."""
+
+def _intake_records(root: Path, case_root: Path) -> list[Path]:
+    """The case's sitting intake records: in its run directory and in each of its sitting run folders."""
+    found = [case_root / "caepipe_out" / INTAKE_RECORD]
+    runs = contained(root, case_root / SITTING_RUNS)
+    if runs.is_dir():
+        found += [run / "caepipe_out" / INTAKE_RECORD for run in sorted(runs.iterdir()) if run.is_dir()]
+    return [contained(root, path) for path in found if contained(root, path).is_file()]
+
+
+def intake_case(folder: Path, item: Mapping[str, Any], root: Path, *, pack_index_sha256: str | None = None,
+                skip_names: Iterable[str] = ()) -> dict[str, Any]:
+    """Take one ordinary (or unsealed) case in from `folder`, adding new files only.
+
+    Where the case has no stored run, the result is placed where `run_pilot --benchmark ... --offline` finds it
+    (`cases/<id>/caepipe_out/`, with its run record, and `caepipe_in/model.mbf`). Where it has one, the stored run
+    is left as it is and the result goes to a new run folder `cases/<id>/sitting_runs/<UTC time>-<hash>/` with the
+    same layout, and a new file `cases/<id>/run_selection/<run>.json` names that run for a later screen. A
+    guest-script result is bound as the harness binds one (host and guest MBF hashes); a result obtained by hand gets
+    its own route and the binding class `person_attested`, which `run_pilot.bound_csv` does not admit."""
     item_id, stem, mbf_sha = item["item_id"], item["stem"], item["mbf"]["sha256"]
     if item.get("item_kind") != "benchmark_case":
         return {"status": "refused", "reason": f"the index lists {item.get('item_id')} as {item.get('item_kind')}, "
@@ -1330,55 +1420,49 @@ def intake_case(folder: Path, item: Mapping[str, Any], root: Path, *, replace: b
     files, run_line, guest, notes = found["files"], found["run_line"], found["guest"], found["notes"]
     sitting_route, binding, route, result_name = (found["sitting_route"], found["binding"], found["route"],
                                                   found["result_name"])
-
-    paths = case_paths(root, item_id)
-    out = paths["caepipe_out"]
-    returned_files = {name: {"bytes": size, "sha256": sha} for name, (size, sha) in
-                      ((name, stream_sha256(path)) for name, path in files.items())
-                      if name not in PRIVATE_RECORD_NAMES}
-    previous_path = contained(root, out / INTAKE_RECORD)
-    if previous_path.is_file() and not replace:
+    returned_files = _hashes({name: path for name, path in files.items() if name not in PRIVATE_RECORD_NAMES})
+    root = outside_work_trees(Path(root), "the exchange folder")
+    case_root = contained_dir(root, Path(root) / "cases" / item_id)
+    for path in _intake_records(root, case_root):
         try:
-            previous = json.loads(previous_path.read_text(encoding="utf-8"))
+            previous = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, UnicodeDecodeError, json.JSONDecodeError):
-            previous = {}
+            continue
         if previous.get("returned_files") == returned_files:
-            return {"status": "already_placed", "route": previous.get("route"), "binding": previous.get("binding")}
-    existing = [entry.name for entry in out.iterdir() if entry.name.lower().startswith("model")
-                or entry.name in ("run_record.json", INTAKE_RECORD)]
-    if existing and not replace:
-        return {"status": "refused", "reason": "the case already has a stored run (" + ", ".join(sorted(existing))
-                + "); pass --replace to replace it"}
-    if existing:
-        _harness._clear_outputs(root, out)
-        stale = contained(root, out / INTAKE_RECORD)
-        if stale.is_file():
-            stale.unlink()
-    write_private(root, paths["caepipe_in"] / "model.mbf", files[item["mbf"]["file"]].read_bytes())
+            return {"status": "already_placed", "route": previous.get("route"), "binding": previous.get("binding"),
+                    "run": previous.get("run")}
+    if result_name is not None and result_name.endswith(".txt"):
+        problem = _harness._print_layout_problem(files[result_name])
+        if problem:
+            route, result_name = "print_file_unrecognised", None
+            notes.append(problem)
+    run_id = None
+    if _has_stored_run(root, case_root):
+        run_id = (datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + "-"
+                  + _sha256(json.dumps(returned_files, sort_keys=True).encode("utf-8"))[:12])
+        contained_dir(root, case_root / SITTING_RUNS)
+        run_root = _new_dir(root, case_root / SITTING_RUNS / run_id)
+    else:
+        run_root = case_root
+    run = _relative(root, run_root)
+    out = contained_dir(root, run_root / "caepipe_out")
+    in_dir = contained_dir(root, run_root / "caepipe_in")
+    _copy_hashed(root, files[item["mbf"]["file"]], in_dir / "model.mbf")
 
     collected: dict[str, dict[str, Any]] = {}
     observed = None
-    print_problem = None
     if result_name is not None:
-        extension = ".txt" if result_name.endswith(".txt") else ".csv"
-        observed = f"model{extension}"
+        observed = "model.txt" if result_name.endswith(".txt") else "model.csv"
         collected[observed] = _copy_hashed(root, files[result_name], out / observed)
-        if extension == ".txt":
-            print_problem = _harness._print_layout_problem(contained(root, out / observed))
-            if print_problem:
-                route = "print_file_unrecognised"
-                notes.append(print_problem)
-                contained(root, out / observed).unlink()
-                collected.pop(observed)
-                observed = None
     if sitting_route == "guest_script":
         for suffix in ("mod", "res"):
             name = f"{stem}.{suffix}"
             if name in files:
                 collected[f"model.{suffix}"] = _copy_hashed(root, files[name], out / f"model.{suffix}")
         if guest.get("log") is not None:
-            write_private(root, out / "guest_log.json", json.dumps(guest["log"], indent=2, sort_keys=True) + "\n")
-            collected["guest_log.json"] = {"sha256": stream_sha256(contained(root, out / "guest_log.json"))[1]}
+            text = json.dumps(guest["log"], indent=2, sort_keys=True) + "\n"
+            _create(root, out / "guest_log.json", text)
+            collected["guest_log.json"] = {"sha256": _sha256(text.encode("utf-8"))}
     capture_check = None
     if observed is not None:
         from core.handoff.caepipe_external.print_csv import read_caepipe_print_csv
@@ -1410,7 +1494,7 @@ def intake_case(folder: Path, item: Mapping[str, Any], root: Path, *, replace: b
         "outputs_sha256": {name: entry["sha256"] for name, entry in sorted(collected.items())
                            if name.startswith("model")},
         "parser": capture_check,
-        "sitting": {"binding": binding, "pack_index_sha256": pack_index_sha256, "part": item["part"],
+        "sitting": {"binding": binding, "pack_index_sha256": pack_index_sha256, "part": item["part"], "run": run,
                     "returned_file": result_name, "run_line": run_line.get("fields"), "notes": notes},
         "timestamps": {"ingested": _now()},
         "boundary_note": BOUNDARY_NOTE,
@@ -1418,73 +1502,100 @@ def intake_case(folder: Path, item: Mapping[str, Any], root: Path, *, replace: b
     _write_record(root, out / "run_record.json", record)
     variants = {}
     for variant in item.get("variants") or []:
-        variants[variant["label"]] = intake_variant(folder, item, variant, root, files=files, replace=replace,
+        variants[variant["label"]] = intake_variant(folder, item, variant, root, run_root=run_root, files=files,
                                                     skip_names=skip_names)
+    bound = binding == GUEST_BINDING and route in CSV_ROUTES and observed is not None
     _write_record(root, out / INTAKE_RECORD, {
         "document_kind": INTAKE_KIND, "item_id": item_id, "ingested_at": _now(), "route": route,
-        "sitting_route": sitting_route, "binding": binding,
-        "bound": binding == GUEST_BINDING and route in CSV_ROUTES and observed is not None,
+        "sitting_route": sitting_route, "binding": binding, "bound": bound, "run": run,
         "returned_files": returned_files,
         "placed": collected, "parser": capture_check, "run_line": run_line.get("text"), "notes": notes,
         "variants": variants, "pack_index_sha256": pack_index_sha256, "boundary_note": BOUNDARY_NOTE})
-    return {"status": "placed" if observed else "recorded", "route": route, "binding": binding,
+    if run_id is not None:
+        contained_dir(root, case_root / RUN_SELECTION)
+        _write_record(root, case_root / RUN_SELECTION / f"{run_id}.json", {
+            "document_kind": SELECTION_KIND, "case_id": item_id, "run": f"{SITTING_RUNS}/{run_id}",
+            "selected_at": _now(), "bound": bound, "route": route,
+            "rule": ("A later screen of this case uses the run named by the last file of run_selection/ in name "
+                     "order, read as a case root (its caepipe_out/run_record.json and the print it names); the "
+                     "stored run in the case's own caepipe_out/ is never changed."),
+            "boundary_note": BOUNDARY_NOTE})
+    return {"status": "placed" if observed else "recorded", "route": route, "binding": binding, "run": run,
             "parser": capture_check, "variants": {k: v["status"] for k, v in variants.items()}}
 
 
 def intake_variant(folder: Path, item: Mapping[str, Any], variant: Mapping[str, Any], root: Path, *,
-                   files: Mapping[str, Path] | None = None, replace: bool = False,
+                   run_root: Path | None = None, files: Mapping[str, Path] | None = None,
                    skip_names: Iterable[str] = ()) -> dict[str, Any]:
-    """Store a variant's result under `cases/<id>/variants/<label>/`, bound to its MBF's hash; not screened."""
-    files = files if files is not None else _regular_files(folder)
+    """Store a variant's result under `<run>/variants/<label>/`, bound to its MBF's hash; not screened."""
+    files = files if files is not None else _regular_files(folder, skip_names)
     vstem = f"{item['stem']}.{variant['label']}"
     names = [name for name in files if name.startswith(vstem + ".") and name != variant["mbf"]["file"]]
     if not names:
         return {"status": "not_returned"}
     guest = _guest_result(vstem, files, variant["mbf"]["sha256"]) if variant["kind"] == "substitution" else {
         "present": False}
-    target = Path(root) / "cases" / item["item_id"] / "variants" / variant["label"]
-    stored = store_outputs(folder, item, root, target, replace=replace, names=names, skip_names=skip_names)
+    base = run_root if run_root is not None else Path(root) / "cases" / item["item_id"]
+    stored = store_outputs(folder, item, root, base / "variants" / variant["label"], names=names,
+                           skip_names=skip_names)
     stored.update(mbf_sha256=variant["mbf"]["sha256"], variant_kind=variant["kind"],
                   binding=GUEST_BINDING if guest.get("route") in CSV_ROUTES else ATTESTED_BINDING,
                   screened=False)
     return stored
 
 
-def unseal_capture(root: Path, item_id: str, *, tolerance_class: str | None, swbpipe_result: Path | None,
-                   intake: Callable[..., dict[str, Any]] = intake_case) -> dict[str, Any]:
-    """Unseal one sealed capture, or refuse with a named reason.
-
-    Both conditions are required: `tolerance_class` names a tolerance class with a value in the release target's
-    benchmark method (every input held exactly, a named inexact input, nonlinear, modal; spectrum has none), and
-    `swbpipe_result` is a directory holding the runner's `request.json` and `result.json` as run_pilot stores them,
-    a solve of this case's model (the model hash the index records). In this order, before any byte of the capture
-    is read for anything but hashing: the capture's files are checked against their sealed hashes; SWBPIPE's request
-    and result are kept beside the capture record (`kept_swbpipe_request.json`, `kept_swbpipe_result.json`); and
-    `unseal_record.json` is written with the tolerance class, the hash of the model solved, the hashes of SWBPIPE's
-    result and of the capture. Only then is the capture placed as an ordinary case, its outcome recorded in
-    `unseal_placement.json`. An unsealed capture is never unsealed again: the record and the kept result are written
-    once, and a later solve is SWBPIPE's own result in the case's run directory, which never replaces them."""
+def _class_refusals(tolerance_class: str | None) -> list[str]:
+    """Every reason a tolerance class does not admit an unseal (empty when it does)."""
     if not tolerance_class:
-        return {"status": "refused", "reason": CLASS_MISSING}
+        return [CLASS_MISSING]
+    reasons = []
     if tolerance_class in TOLERANCE_CLASSES_WITHOUT_VALUE:
-        return {"status": "refused", "reason": CLASS_WITHOUT_VALUE}
-    if tolerance_class not in TOLERANCE_CLASSES_WITH_VALUE:
-        return {"status": "refused", "reason": CLASS_UNKNOWN}
+        reasons.append(CLASS_WITHOUT_VALUE)
+    if tolerance_class in TOLERANCE_CLASSES_SET_AFTER_ACCEPTANCE:
+        reasons.append(SET_AFTER_ACCEPTANCE)
+    if not reasons and tolerance_class not in TOLERANCE_CLASSES_WITH_VALUE:
+        reasons.append(CLASS_UNKNOWN)
+    return reasons
+
+
+def benchmark_request(model: Mapping[str, Any]) -> dict[str, Any]:
+    """The complete analysis request run_pilot sends the runner for a benchmark model (`solve_swbpipe`'s body as
+    `_run_benchmark_model` builds it)."""
+    model_id = model["model_id"]
+    return {"request": run_pilot.runner_request(model_id, f"validation/caepipe_benchmark/models/{model_id}.json"),
+            "solve": {"preview_model": {"model": model["model"], "materials": []}}}
+
+
+def unseal_capture(root: Path, item_id: str, *, tolerance_class: str | None, swbpipe_request: Path | None,
+                   swbpipe_result: Path | None, intake: Callable[..., dict[str, Any]] = intake_case) -> dict[str, Any]:
+    """Unseal one sealed capture, or refuse with named reasons.
+
+    Both conditions are required. `tolerance_class` names a tolerance class with a value in the release target's
+    benchmark method: every input held exactly, a named inexact input, nonlinear, modal. Spectrum has none and is
+    refused, and as a class whose tolerance is set after the release target's acceptance it is also refused until
+    its report to the owner is recorded. `swbpipe_request` and `swbpipe_result` are the runner's request and result
+    as run_pilot stores them (`request.json`, `result.json`): a solve of this case's complete analysis request, whose
+    model and whole request hash equal what the index recorded. In this order, before any byte of the capture is
+    read for anything but hashing: the capture's files are checked against their sealed hashes, the request and the
+    result are kept beside the capture record as new files, and `unseal_record.json` is written with the tolerance
+    class and the hashes of the model, the request, the result and the capture. Only then is the capture placed as
+    an ordinary case (new files only), its outcome recorded in `unseal_placement.json`. Nothing is ever replaced: a
+    capture is unsealed once, and a later solve is a separate result that never replaces the kept one."""
+    reasons = _class_refusals(tolerance_class)
+    if reasons:
+        return {"status": "refused", "reason": reasons[0], "reasons": reasons}
     root = outside_work_trees(Path(root), "the exchange folder")
     sealed = contained(root, sealed_dir(root, item_id))
     record_path = contained(root, sealed / CAPTURE_RECORD)
     if not record_path.is_file():
         return {"status": "refused", "reason": CAPTURE_MISSING}
-    unseal_path = contained(root, sealed / UNSEAL_RECORD)
-    if unseal_path.exists():
+    if any(contained(root, sealed / name).exists() for name in (UNSEAL_RECORD, KEPT_REQUEST, KEPT_RESULT)):
         return {"status": "refused", "reason": ALREADY_UNSEALED}
     capture = json.loads(record_path.read_text(encoding="utf-8"))
-    if swbpipe_result is None:
+    if swbpipe_request is None or swbpipe_result is None or not (Path(swbpipe_request).is_file()
+                                                                 and Path(swbpipe_result).is_file()):
         return {"status": "refused", "reason": RESULT_MISSING}
-    request_path, result_path = Path(swbpipe_result) / "request.json", Path(swbpipe_result) / "result.json"
-    if not (request_path.is_file() and result_path.is_file()):
-        return {"status": "refused", "reason": RESULT_MISSING}
-    request_bytes, result_bytes = request_path.read_bytes(), result_path.read_bytes()
+    request_bytes, result_bytes = Path(swbpipe_request).read_bytes(), Path(swbpipe_result).read_bytes()
     try:
         request = json.loads(request_bytes.decode("utf-8"))
         result = json.loads(result_bytes.decode("utf-8"))
@@ -1495,6 +1606,9 @@ def unseal_capture(root: Path, item_id: str, *, tolerance_class: str | None, swb
     model_hash = canonical_model_hash(model)
     if ref != item_id or model_hash != capture.get("model_hash"):
         return {"status": "refused", "reason": RESULT_MISMATCH}
+    request_canonical = canonical_model_hash(request)
+    if request_canonical != (capture.get("swbpipe_request") or {}).get("canonical_sha256"):
+        return {"status": "refused", "reason": REQUEST_DIFFERS}
     mechanics = ((((result.get("payload") or {}).get("mechanics_envelope") or {}).get("status") or {})
                  .get("mechanics")) if isinstance(result, dict) else None
     if mechanics != "MECHANICS_SOLVED":
@@ -1503,33 +1617,29 @@ def unseal_capture(root: Path, item_id: str, *, tolerance_class: str | None, swb
         path = contained(root, sealed / name)
         if not path.is_file() or path.is_symlink() or stream_sha256(path) != (entry["bytes"], entry["sha256"]):
             return {"status": "refused", "reason": CAPTURE_CHANGED}
-    for name, data in ((KEPT_REQUEST, request_bytes), (KEPT_RESULT, result_bytes)):
-        kept = contained(root, sealed / name)
-        if kept.exists():
-            return {"status": "refused", "reason": ALREADY_UNSEALED}
-        write_private(root, kept, data)
-    record = {
+    _create(root, sealed / KEPT_REQUEST, request_bytes)
+    _create(root, sealed / KEPT_RESULT, result_bytes)
+    _write_record(root, sealed / UNSEAL_RECORD, {
         "document_kind": UNSEAL_KIND, "item_id": item_id, "unsealed_at": _now(), "tolerance_class": tolerance_class,
         "model_hash": model_hash,
-        "swbpipe_result": {"given_directory": str(Path(swbpipe_result).resolve()),
-                           "request_id": (request.get("request") or {}).get("request_id"),
-                           "kept_request": KEPT_REQUEST, "request_sha256": _sha256(request_bytes),
-                           "kept_result": KEPT_RESULT, "result_sha256": _sha256(result_bytes),
-                           "mechanics": mechanics},
+        "swbpipe_request": {"given": str(Path(swbpipe_request).resolve()), "kept": KEPT_REQUEST,
+                            "sha256": _sha256(request_bytes), "canonical_sha256": request_canonical,
+                            "request_id": (request.get("request") or {}).get("request_id")},
+        "swbpipe_result": {"given": str(Path(swbpipe_result).resolve()), "kept": KEPT_RESULT,
+                           "sha256": _sha256(result_bytes), "mechanics": mechanics},
         "capture_sha256": capture.get("capture_sha256"), "mbf_sha256": capture.get("mbf_sha256"),
-        "boundary_note": BOUNDARY_NOTE}
-    _write_record(root, unseal_path, record)
+        "boundary_note": BOUNDARY_NOTE})
     # From here on the capture's content may be read: the record exists.
     item = json.loads(contained(root, sealed / "case.json").read_text(encoding="utf-8"))
     placement = intake(sealed, item, root, pack_index_sha256=capture.get("pack_index_sha256"),
                        skip_names=SEALED_SIDE_FILES)
-    _write_record(root, contained(root, sealed / UNSEAL_PLACEMENT), {
+    _write_record(root, sealed / UNSEAL_PLACEMENT, {
         "document_kind": UNSEAL_KIND, "item_id": item_id, "placement": placement, "placed_at": _now(),
         "boundary_note": BOUNDARY_NOTE})
     return {"status": "unsealed", "placement": placement}
 
 
-def ingest_pack(pack_dir: Path, root: Path | None, *, replace: bool = False, selected: Iterable[str] | None = None,
+def ingest_pack(pack_dir: Path, root: Path | None, *, selected: Iterable[str] | None = None,
                 check: bool = False, emit: Callable[[str], None] = print) -> bool:
     """Take a returned pack in, item by item, in run order. True when no returned item was refused.
 
@@ -1584,17 +1694,17 @@ def ingest_pack(pack_dir: Path, root: Path | None, *, replace: bool = False, sel
                     outcome = {"status": "not_returned"}
                 else:
                     outcome = store_outputs(folder, item, root, Path(root) / "observations" / item_id,
-                                            replace=replace, names=item["bring_back"])
+                                            names=item["bring_back"])
             elif not returned(folder, item, files):
                 outcome = {"status": "not_returned"}
             elif item["item_kind"] == "format_sample":
                 problem = _verify_inputs(folder, item, files)
                 outcome = {"status": "refused", "reason": problem} if problem else store_outputs(
-                    folder, item, root, Path(root) / "format_samples" / item_id, replace=replace)
+                    folder, item, root, Path(root) / "format_samples" / item_id)
             elif item.get("capture") == "sealed":
                 outcome = seal_capture(folder, item, root, pack_index_sha256=index_sha)
             else:
-                outcome = intake_case(folder, item, root, replace=replace, pack_index_sha256=index_sha)
+                outcome = intake_case(folder, item, root, pack_index_sha256=index_sha)
         except (ContainmentError, PackError) as error:
             outcome = {"status": "refused", "reason": str(error)}
         if outcome["status"] == "refused":
@@ -1630,8 +1740,6 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
     ingest = commands.add_parser("ingest", help="take a returned pack into the exchange folder")
     ingest.add_argument("pack_dir", metavar="PACK_DIR")
     ingest.add_argument("--item", action="append", dest="items", metavar="ID", help="only this item (repeatable)")
-    ingest.add_argument("--replace", action="store_true",
-                        help="replace a case's stored run or stored outputs (never a sealed capture)")
     ingest.add_argument("--check", action="store_true",
                         help="write nothing: verify hashes, name each case's route and binding, and run the parser on "
                              "each ordinary case's returned print in place (the dry run's check)")
@@ -1639,8 +1747,10 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
     unseal.add_argument("--case", required=True, metavar="ID")
     unseal.add_argument("--tolerance-class", metavar="CLASS",
                         help=f"one of {', '.join(TOLERANCE_CLASSES_WITH_VALUE)} (a class with a value)")
-    unseal.add_argument("--swbpipe-result", metavar="DIR",
-                        help="directory holding SWBPIPE's request.json and result.json for the case")
+    unseal.add_argument("--swbpipe-request", metavar="FILE",
+                        help="SWBPIPE's request for the case, as run_pilot stores it (swbpipe/request.json)")
+    unseal.add_argument("--swbpipe-result", metavar="FILE",
+                        help="SWBPIPE's result for that request, as run_pilot stores it (swbpipe/result.json)")
     args = parser.parse_args(argv)
     try:
         if args.command == "prepare":
@@ -1659,14 +1769,17 @@ def main(argv: list[str] | None = None, environ: Mapping[str, str] = os.environ)
             return 0
         root = config.exchange_root.resolve()
         if args.command == "ingest":
-            return 0 if ingest_pack(Path(args.pack_dir), root, replace=args.replace, selected=args.items) else 1
+            return 0 if ingest_pack(Path(args.pack_dir), root, selected=args.items) else 1
         if not CASE_ID_PATTERN.match(args.case):
             print(f"error: case id {args.case!r} must match {CASE_ID_PATTERN.pattern}", file=sys.stderr)
             return 2
         outcome = unseal_capture(root, args.case, tolerance_class=args.tolerance_class,
+                                 swbpipe_request=Path(args.swbpipe_request) if args.swbpipe_request else None,
                                  swbpipe_result=Path(args.swbpipe_result) if args.swbpipe_result else None)
         placement = outcome.get("placement") or {}
-        print(f"{args.case}: {outcome['status']}" + (f"; {outcome['reason']}" if outcome.get("reason") else "")
+        reasons = "; ".join(f"{name} ({REFUSAL_TEXT[name]})" if name in REFUSAL_TEXT else name
+                            for name in outcome.get("reasons") or ([outcome["reason"]] if outcome.get("reason") else []))
+        print(f"{args.case}: {outcome['status']}" + (f"; {reasons}" if reasons else "")
               + (f"; placement {placement.get('status')}; route={placement.get('route')}" if placement else ""))
         return 0 if outcome["status"] == "unsealed" else 1
     except (OSError, KeyError, ValueError, ContainmentError) as error:
