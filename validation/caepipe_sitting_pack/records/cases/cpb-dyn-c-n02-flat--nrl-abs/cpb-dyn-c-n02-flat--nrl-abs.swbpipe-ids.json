@@ -1,0 +1,106 @@
+{
+  "derivation": {
+    "export_settings": {
+      "max_layout_rows": 20,
+      "piping_code": "B311-80",
+      "reference_temperature": {
+        "unit": "degC",
+        "value": 20.0
+      },
+      "title": "cpb-dyn-c-n02-flat"
+    },
+    "source_model_sha256": "d45e51b9e65a7d9fe73e4b023db5a7af78c7c6745bae95f494c3518a056011c2"
+  },
+  "element_map": {
+    "pipe:P1": {
+      "from": "10",
+      "reversed": false,
+      "to": "20",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P2": {
+      "from": "20",
+      "reversed": false,
+      "to": "30",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    }
+  },
+  "load_case_map": {
+    "case:weight": "Sustained (W+P)"
+  },
+  "load_map": {
+    "case:weight/load:weight:pipe:P1": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P1"
+      }
+    },
+    "case:weight/load:weight:pipe:P2": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P2"
+      }
+    }
+  },
+  "material_map": {
+    "M1": {
+      "origin": "undeclared",
+      "swbpipe_material": "material:dyn-a"
+    }
+  },
+  "mbf_sha256": "53ebd1a243f46470547a3b6f6697bfb9e71d7700902ced53328508434858fe63",
+  "node_map": {
+    "node:A": "10",
+    "node:B": "30",
+    "node:M1": "20"
+  },
+  "pressure_map": {
+    "contract": "none",
+    "regions": [],
+    "shear_model": "euler_bernoulli"
+  },
+  "section_map": {
+    "P1": {
+      "swbpipe_section": null
+    }
+  },
+  "sidecar_format": 6,
+  "sidecar_sha256": "de28c11c9e1c40e3efd558f94a1973ff97f8743c0b1560f9ef77a118bc7378bd",
+  "support_map": {
+    "support:A": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "10",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    "support:B-z": {
+      "family": "guide",
+      "family_authored": false,
+      "node": "30",
+      "restrained": [
+        "UZ"
+      ]
+    }
+  }
+}
