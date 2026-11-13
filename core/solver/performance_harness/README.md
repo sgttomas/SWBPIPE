@@ -245,9 +245,10 @@ memory bound.
   exclusive-creation rule does not already refuse. The exclusion for changes to the output
   folder's files applies only to deliberate modification of their contents by another person. It
   does not exclude ordinary folder moves, accidental corruption or the tool's own operations.
-  Consumers must verify recorded integrity information before relying on stored files. No
-  reader here currently performs that verification; the manifest and verifying reader belong to
-  the follow-up.
+  Consumers must verify recorded integrity information before relying on stored files. For a
+  bundle frozen under an inventory, `--read-back` performs that verification against a root
+  digest stated outside the bundle (step 9 of [The headless baseline](#the-headless-baseline));
+  for an output folder that was not inventoried, no reader here does.
 
   <a id="what-it-does-not-yet-do"></a>Two things it does not yet do, which a reader of a run's records must know:
 
@@ -258,12 +259,18 @@ memory bound.
     the identity still naming the commit as clean. Until the tool lists ignored files and marks
     the identity incomplete, a run's identity is not evidence about the named revision unless
     the build was made in a fresh checkout of that revision, and the tool does not check that.
-  - **No reader verifies what it reads back.** The supervisor records a hash of the bytes it
-    wrote for each run's stdout record only; the aggregate record, the metadata, the packet, the
-    stderr lines and the launch record have no recorded hash, and neither `--packet` nor any
-    other reader here recomputes one. A folder carried from one machine to another is not
-    evidence by itself. Until a manifest and a verifying reader exist, note the SHA-256 of
-    `packet.json` by hand where the run is made (`shasum -a 256 results/packet.json`).
+  - **No reader verifies an output folder that was not frozen as a bundle.** The supervisor
+    records a hash of the bytes it wrote for each run's stdout record only; the aggregate
+    record, the metadata, the packet, the stderr lines and the launch record have no hash of
+    the supervisor's own, and `--packet` recomputes none. `--read-back` verifies a bundle made
+    as [The headless baseline](#the-headless-baseline) describes: an inventory written after
+    the run, checked against a root digest stated outside the bundle, and then the inputs its
+    checks read (step 9 lists them, and what it does not check). It does not establish that
+    the files were unchanged before the inventory was written, it does not detect a change
+    made after it has read a file, and it does not show that a record is true. A folder
+    carried from one machine to another without that inventory and digest is not evidence by
+    itself: for such a folder, note the SHA-256 of `packet.json` by hand where the run is made
+    (`shasum -a 256 results/packet.json`).
 
   It keeps no result bytes: `--write-results` is refused under `--supervise`, by name, before
   anything is written and before any driver starts, because the driver writes a kept result by
@@ -629,9 +636,12 @@ its exclusive wrapper. A refusal by either is a host condition, not a result.
    Nothing in the bundle is written after that. The second command prints the root digest. State
    it outside the bundle, with the SHA-256 of the contract's copy, in the message that reports the
    run; a later reader takes both from there.
-9. **Read a bundle back.** No reader here verifies stored records (the second item of
-   [What it does not yet do](#what-it-does-not-yet-do)). Whoever reads a bundle does the
-   following, in order, from its root, and stops on the first difference. The hashes show that
+9. **Read a bundle back.** The read-back is the shell steps of item 1, the runner's
+   `--read-back` command of item 2 and the worker's own checks; all are required, and the
+   second item of [What it does not yet do](#what-it-does-not-yet-do) says what stays
+   unverified. Whoever reads a bundle does the following, in order, from its root, and stops
+   on the first difference.
+   The hashes show that
    the files are the ones inventoried; they do not show that a record is true. The checks after
    them cover what decides time, memory and classification.
 

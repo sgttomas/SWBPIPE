@@ -331,6 +331,28 @@ all belong to the keyed input set and the key must still match. The main-only
 true`, so other PRs can read main-scoped engine outputs without running tests
 or installing browsers in the warmer.
 
+## Known costs
+
+Measured on main at `bfc649fd7` (2026-11-13) over 14 pull requests. None is
+repaired by this section; each stays open until its cause is changed.
+
+- **Runs on heads that never merge.** 24% of hosted job-minutes ran on the head
+  that merged. The rest ran on superseded pushes, which `cancel-in-progress`
+  stops only after they have used minutes. The practice that answers it takes
+  one push per merged change as its target: read the local commit, run the
+  affected tests and the Repository checks job's own test list locally, then
+  push the head meant to merge. A deliberate early hosted run stays allowed
+  where a platform or integration question needs one.
+- **The Python job runs for every product pull request and is its longest
+  job.** 146 of the 293 maintained tests derive a read root of every path,
+  through a few shared helpers, and they carry nearly all of the recorded test
+  time, so a product change selects at least those 146 tests; other selection
+  rules can add more.
+- **The documentation route is off.** The document-reader audit digest has been
+  stale since 2026-11-08, so an in-place prose edit under `docs/` or to
+  `AGENTS.md` runs in product mode until the audit is refreshed. A change
+  confined to `execution/` is unaffected.
+
 ## Nightly full run
 
 Pull-request selection follows paths, so it can miss a test that a change
