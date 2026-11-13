@@ -1,0 +1,375 @@
+{
+  "closed_form": [
+    {
+      "basis": "Euler-Bernoulli closed form; invented inputs",
+      "component": "x",
+      "formula": "E A alpha dT (support on pipe at the start)",
+      "load_case": "case:expansion",
+      "quantity": "reaction_force",
+      "support": "support:A",
+      "unit": "N",
+      "value": 37659885.917204805
+    },
+    {
+      "basis": "Euler-Bernoulli closed form; invented inputs",
+      "component": "x",
+      "formula": "-E A alpha dT (support on pipe at the end)",
+      "load_case": "case:expansion",
+      "quantity": "reaction_force",
+      "support": "support:B",
+      "unit": "N",
+      "value": -37659885.917204805
+    },
+    {
+      "basis": "statics; invented inputs",
+      "component": "y",
+      "formula": "-w L/2",
+      "load_case": "case:sustained",
+      "quantity": "reaction_force",
+      "support": "support:A",
+      "unit": "N",
+      "value": 166272.732917383
+    },
+    {
+      "basis": "statics; invented inputs",
+      "component": "y",
+      "formula": "-w L/2",
+      "load_case": "case:sustained",
+      "quantity": "reaction_force",
+      "support": "support:B",
+      "unit": "N",
+      "value": 166272.732917383
+    },
+    {
+      "basis": "Euler-Bernoulli closed form; invented inputs",
+      "component": "z",
+      "formula": "-w L^2/12 (support on pipe at the start)",
+      "load_case": "case:sustained",
+      "quantity": "reaction_moment",
+      "support": "support:A",
+      "unit": "N*m",
+      "value": 1108484.8861158867
+    },
+    {
+      "basis": "Euler-Bernoulli closed form; invented inputs",
+      "component": "z",
+      "formula": "w L^2/12 (support on pipe at the end)",
+      "load_case": "case:sustained",
+      "quantity": "reaction_moment",
+      "support": "support:B",
+      "unit": "N*m",
+      "value": -1108484.8861158867
+    },
+    {
+      "basis": "Euler-Bernoulli closed form; invented inputs",
+      "component": "y",
+      "formula": "w L^4/(384 E I) at midspan",
+      "load_case": "case:sustained",
+      "node": "node:M",
+      "quantity": "displacement",
+      "unit": "m",
+      "value": -0.06163075387257518
+    }
+  ],
+  "document_kind": "openpipestress.caepipe_benchmark.model",
+  "family": "S3",
+  "family_description": "finite stiffness of a rigid support: a straight pipe anchored at both ends under weight and a temperature change, differing only in length",
+  "generator": {
+    "seed": 20261028,
+    "version": "caepipe-benchmark-generator-1"
+  },
+  "inexact_inputs": {
+    "case:expansion": [
+      "rigid_support_stiffness"
+    ],
+    "case:sustained": [
+      "shear_deformation",
+      "rigid_support_stiffness"
+    ],
+    "operating": [
+      "rigid_support_stiffness",
+      "shear_deformation"
+    ]
+  },
+  "model": {
+    "analysis_status": {
+      "mechanics": "ready_for_preview_diagnostics",
+      "professional_acceptance": "not_provided",
+      "rule_check": "not_performed_user_rule_inputs_missing"
+    },
+    "combinations": [],
+    "components": [],
+    "document_kind": "openpipestress.product_preview.model",
+    "load_cases": [
+      {
+        "id": "case:sustained",
+        "primitive_loads": [
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P1",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -8313.63664586915
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3); seeded generator; not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P1",
+              "type": "element"
+            }
+          },
+          {
+            "category": "weight",
+            "dimension": "force_per_length",
+            "direction": "global_y",
+            "id": "load:weight:pipe:P2",
+            "magnitude": {
+              "unit": "N/m",
+              "value": -8313.63664586915
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3); seeded generator; not library, component, catalog, standard or code-rule data; w = -rho A g with g = 9.80665 m/s2 and A the bare metal area",
+            "target": {
+              "pipe": "pipe:P2",
+              "type": "element"
+            }
+          }
+        ],
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3); seeded generator; not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "case:expansion",
+        "primitive_loads": [
+          {
+            "category": "thermal",
+            "dimension": "temperature_interval",
+            "direction": "global_x",
+            "id": "load:thermal:pipe:P1",
+            "magnitude": {
+              "unit": "degC",
+              "value": 150.0
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3); seeded generator; not library, component, catalog, standard or code-rule data",
+            "target": {
+              "pipe": "pipe:P1",
+              "type": "element"
+            }
+          },
+          {
+            "category": "thermal",
+            "dimension": "temperature_interval",
+            "direction": "global_x",
+            "id": "load:thermal:pipe:P2",
+            "magnitude": {
+              "unit": "degC",
+              "value": 150.0
+            },
+            "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3); seeded generator; not library, component, catalog, standard or code-rule data",
+            "target": {
+              "pipe": "pipe:P2",
+              "type": "element"
+            }
+          }
+        ],
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3); seeded generator; not library, component, catalog, standard or code-rule data"
+      }
+    ],
+    "materials": [
+      {
+        "elastic_modulus": {
+          "unit": "Pa",
+          "value": 210000000000.0
+        },
+        "id": "material:bench-t3",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3); seeded generator; not library, component, catalog, standard or code-rule data",
+        "shear_modulus": {
+          "unit": "Pa",
+          "value": 81395348837.2093
+        },
+        "temperature_points": [],
+        "thermal_expansion_coefficient": {
+          "unit": "1/degC",
+          "value": 1.1e-05
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "node:A",
+        "position": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3); seeded generator; not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:M",
+        "position": {
+          "x": 20.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3); seeded generator; not library, component, catalog, standard or code-rule data"
+      },
+      {
+        "id": "node:B",
+        "position": {
+          "x": 40.0,
+          "y": 0.0,
+          "z": 0.0
+        },
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3); seeded generator; not library, component, catalog, standard or code-rule data"
+      }
+    ],
+    "pipe_segments": [
+      {
+        "from": "node:A",
+        "id": "pipe:P1",
+        "material": "material:bench-t3",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3); seeded generator; not library, component, catalog, standard or code-rule data",
+        "section": {
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.62
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.062
+          }
+        },
+        "to": "node:M",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      },
+      {
+        "from": "node:M",
+        "id": "pipe:P2",
+        "material": "material:bench-t3",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3); seeded generator; not library, component, catalog, standard or code-rule data",
+        "section": {
+          "outside_diameter": {
+            "unit": "m",
+            "value": 0.62
+          },
+          "wall_thickness": {
+            "unit": "m",
+            "value": 0.062
+          }
+        },
+        "to": "node:B",
+        "y_reference": {
+          "x": 0.0,
+          "y": 1.0,
+          "z": 0.0
+        }
+      }
+    ],
+    "project": {
+      "id": "project:cpb-s3-05",
+      "name": "project:cpb-s3-05",
+      "units": {
+        "angle": "rad",
+        "force": "N",
+        "length": "m",
+        "pressure": "Pa",
+        "stress": "Pa",
+        "temperature": "degC"
+      }
+    },
+    "schema_version": "0.9.0",
+    "supports": [
+      {
+        "family": "anchor",
+        "id": "support:A",
+        "node": "node:A",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3); seeded generator; not library, component, catalog, standard or code-rule data",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ]
+      },
+      {
+        "family": "anchor",
+        "id": "support:B",
+        "node": "node:B",
+        "provenance": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3); seeded generator; not library, component, catalog, standard or code-rule data",
+        "restraints": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ]
+      }
+    ]
+  },
+  "model_id": "cpb-s3-05",
+  "parameters": {
+    "delta_t": 150.0,
+    "dt": 10.0,
+    "length": 40.0,
+    "material": "material:bench-t3",
+    "od": 620.0,
+    "wall": 62.0
+  },
+  "piping_code": "B311-80",
+  "predictions": [
+    {
+      "component": "x",
+      "formula": "E A alpha dT / (1 + 2 E A/(k_t L))",
+      "load_case": "case:expansion",
+      "quantity": "reaction_force",
+      "ratio_2EA_over_ktL": 6.5164694065964564e-06,
+      "relative_difference": -6.516426942363454e-06,
+      "support": "support:A",
+      "unit": "N",
+      "values": {
+        "ideal_anchors": 37659885.917204805,
+        "stated_anchor_stiffness": 37659640.50930957
+      }
+    },
+    {
+      "component": "z",
+      "formula": "-(w L^2/12) / (1 + 2 E I/(k_r L))",
+      "load_case": "case:sustained",
+      "quantity": "reaction_moment",
+      "ratio_2EI_over_krL": 0.00039797168313179186,
+      "relative_difference": -0.0003978133646774544,
+      "support": "support:A",
+      "unit": "N*m",
+      "values": {
+        "ideal_anchors": 1108484.8861158867,
+        "stated_anchor_stiffness": 1108043.9160136469
+      }
+    }
+  ],
+  "provenance": {
+    "contributor_note": "invented CAEPIPE benchmark input (DEL-17-05, tranche 3); seeded generator; not library, component, catalog, standard or code-rule data",
+    "license": "project-original",
+    "origin": "invented",
+    "produced_by_caepipe": false,
+    "redistribution_status": "public_permissive"
+  },
+  "reference_temperature_c": 20.0,
+  "sampling": "series",
+  "screening_classes": {
+    "static": {
+      "case:expansion": "named_inexact",
+      "case:sustained": "named_inexact",
+      "operating": "named_inexact"
+    }
+  },
+  "series": [
+    "rigid-support-length"
+  ],
+  "tranche": "3"
+}

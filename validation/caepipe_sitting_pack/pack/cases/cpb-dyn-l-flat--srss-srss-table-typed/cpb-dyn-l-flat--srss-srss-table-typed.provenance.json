@@ -1,0 +1,25 @@
+{
+  "generator": {
+    "module": "tools/caepipe_correlation/benchmark_models.py",
+    "tranche": "3",
+    "version": "caepipe-benchmark-generator-1"
+  },
+  "mbf_sha256": "57e8aff66d03dbe805a2a4eb14c4979194a4681a92dea3cfeb431e613642e6da",
+  "model_document": {
+    "file_sha256": "ad74883e0d0b5f25c2b1021b53a3c06a7873fa81dd6bc62c9904d81b3927d90e",
+    "path": "validation/caepipe_benchmark/models/cpb-dyn-l-flat.json"
+  },
+  "origin": "invented",
+  "origin_basis": "generator-made; designed in the generator's text, drawing nothing from the seed",
+  "produced_by_caepipe": false,
+  "run": {
+    "added_records": [
+      "OPMISC"
+    ],
+    "run_id": "cpb-dyn-l-flat--srss-srss-table-typed",
+    "series": "dynamics-comparable-table-typed",
+    "substituted_records": [],
+    "through": "benchmark_models.run_mbf_text"
+  },
+  "written_by": "SWBPIPE's model-file writer (core/handoff/caepipe_mbf)"
+}

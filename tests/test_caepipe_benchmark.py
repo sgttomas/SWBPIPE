@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Focused tests for the CAEPIPE benchmark set, tranches 1 and 2 (DEL-17-05 REQ-018 and AC-007; the "Benchmark
+"""Focused tests for the CAEPIPE benchmark set, tranches 1 and 2 and the whole set's generation (DEL-17-05 REQ-018 and AC-007; the "Benchmark
 method" section of docs/RELEASE_TARGET_v1.0.md): the seeded model generator, the element-row binding, the two-way
 comparison and `run_pilot --benchmark` (invented inputs and invented CSV text only; nothing here runs the external
 program or reads its output)."""
@@ -55,6 +55,11 @@ def tracked_models() -> list[dict]:
     return [json.loads((BENCHMARK / entry["file"]).read_text(encoding="utf-8")) for entry in manifest["models"]]
 
 
+def earlier_models() -> list[dict]:
+    """Tranches 1 and 2; tranche 3 is examined in tests/test_caepipe_benchmark_tranche3.py."""
+    return [document for document in tracked_models() if document.get("tranche") in (None, "2")]
+
+
 def pressurised_models() -> list[dict]:
     return [document for document in tracked_models() if document.get("tranche") == "2"]
 
@@ -88,6 +93,8 @@ def test_the_manifest_records_seed_family_parameters_and_hashes():
     counts: dict[str, int] = {}
     pressure_counts: dict[str, int] = {}
     for entry in manifest["models"]:
+        if entry["tranche"] == "3":
+            continue  # tests/test_caepipe_benchmark_tranche3.py
         tally = pressure_counts if entry["tranche"] == "2" else counts
         tally[entry["family"]] = tally.get(entry["family"], 0) + 1
         text = (BENCHMARK / entry["file"]).read_bytes()
@@ -101,8 +108,9 @@ def test_the_manifest_records_seed_family_parameters_and_hashes():
     assert counts == {"G1": 10, "G2": 16, "G3": 12, "G4": 6, "G5": 6, "G6": 3, "G7": 3, "G8": 4}
     assert sum(counts.values()) == 60
     assert pressure_counts == {"P1": 6, "P2": 4, "P3": 4, "P4": 4, "P5": 2, "P6": 1, "P7": 1}
-    assert [entry["tranche"] for entry in manifest["models"]] == ["1"] * 60 + ["2"] * 22  # tranche 2 is appended
-    assert sorted(manifest["tranches"]) == ["1", "2"]
+    # Tranche 2 is appended after tranche 1, and tranche 3 after tranche 2.
+    assert [entry["tranche"] for entry in manifest["models"]] == ["1"] * 60 + ["2"] * 22 + ["3"] * 27
+    assert sorted(manifest["tranches"]) == ["1", "2", "3"]
     series = manifest["series"]
     assert [member["value"] for member in series["shear-dt"]["members"]] == [10.0, 20.0, 40.0, 100.0]
     assert [member["value"] for member in series["tee-ratio"]["members"]] == [0.3, 0.5, 0.75, 1.0]
@@ -116,7 +124,7 @@ def test_the_manifest_records_seed_family_parameters_and_hashes():
 
 def test_sections_materials_and_bends_span_the_proposed_ranges():
     ods, ratios, materials, radii = [], [], set(), set()
-    for document in tracked_models():
+    for document in earlier_models():
         model = document["model"]
         materials.add(model["materials"][0]["id"])
         for pipe in model["pipe_segments"]:
@@ -154,6 +162,8 @@ def test_every_model_is_written_with_its_explicit_piping_code_within_the_row_lim
             assert rows[document["model_id"]] == result.layout_row_count
             assert result.load_case_map == {"case:sustained": "Sustained (W+P)", "case:expansion": "Expansion (T1)"}
             assert result.pressure_map["contract"] == {"version": "3.0.0", "mode": "exact_pressure_v3"}
+        elif document.get("tranche") == "3":
+            assert "OPPRES" not in result.text and rows[document["model_id"]] == result.layout_row_count
         else:
             assert "OPPRES" not in result.text and rows[document["model_id"]] is None
 
@@ -234,7 +244,7 @@ def test_every_model_solves_and_its_closed_forms_match_swbpipe_and_a_mirror_scre
     """End to end on SWBPIPE's side: each generated model solves; an invented print that mirrors SWBPIPE's own results
     at printed resolution binds every row and screens within the profile; each closed form agrees with SWBPIPE."""
     closed = 0
-    for document in tracked_models():
+    for document in earlier_models():
         payload = solve(document["model"])
         mbf, text = mirror_csv(document, payload)
         record = build_benchmark_record(document, swbpipe_result_payload=payload, mbf_result=mbf, mbf_text=mbf.text,
@@ -245,7 +255,7 @@ def test_every_model_solves_and_its_closed_forms_match_swbpipe_and_a_mirror_scre
             if "closed_form" in row:
                 closed += 1
                 assert row["closed_form"]["closed_form_vs_swbpipe"] == "agree", (document["model_id"], row)
-    assert closed == sum(len(document["closed_form"]) for document in tracked_models())
+    assert closed == sum(len(document["closed_form"]) for document in earlier_models())
 
 
 # -- tranche 2: pressure series --------------------------------------------------------------------------------------

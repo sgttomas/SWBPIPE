@@ -1,0 +1,386 @@
+{
+  "derivation": {
+    "export_settings": {
+      "max_layout_rows": 20,
+      "piping_code": "B311-80",
+      "reference_temperature": {
+        "unit": "degC",
+        "value": 20.0
+      },
+      "title": "cpb-dyn-c-n16-flat"
+    },
+    "source_model_sha256": "e77d5860aaeadc2016f9a8eefc1d08abc9aaec7a4234b1691ed443fb4673fa64"
+  },
+  "element_map": {
+    "pipe:P1": {
+      "from": "10",
+      "reversed": false,
+      "to": "20",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P10": {
+      "from": "100",
+      "reversed": false,
+      "to": "110",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P11": {
+      "from": "110",
+      "reversed": false,
+      "to": "120",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P12": {
+      "from": "120",
+      "reversed": false,
+      "to": "130",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P13": {
+      "from": "130",
+      "reversed": false,
+      "to": "140",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P14": {
+      "from": "140",
+      "reversed": false,
+      "to": "150",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P15": {
+      "from": "150",
+      "reversed": false,
+      "to": "160",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P16": {
+      "from": "160",
+      "reversed": false,
+      "to": "170",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P2": {
+      "from": "20",
+      "reversed": false,
+      "to": "30",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P3": {
+      "from": "30",
+      "reversed": false,
+      "to": "40",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P4": {
+      "from": "40",
+      "reversed": false,
+      "to": "50",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P5": {
+      "from": "50",
+      "reversed": false,
+      "to": "60",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P6": {
+      "from": "60",
+      "reversed": false,
+      "to": "70",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P7": {
+      "from": "70",
+      "reversed": false,
+      "to": "80",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P8": {
+      "from": "80",
+      "reversed": false,
+      "to": "90",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    },
+    "pipe:P9": {
+      "from": "90",
+      "reversed": false,
+      "to": "100",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      },
+      "y_reference_authored": true
+    }
+  },
+  "load_case_map": {
+    "case:weight": "Sustained (W+P)"
+  },
+  "load_map": {
+    "case:weight/load:weight:pipe:P1": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P1"
+      }
+    },
+    "case:weight/load:weight:pipe:P10": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P10"
+      }
+    },
+    "case:weight/load:weight:pipe:P11": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P11"
+      }
+    },
+    "case:weight/load:weight:pipe:P12": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P12"
+      }
+    },
+    "case:weight/load:weight:pipe:P13": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P13"
+      }
+    },
+    "case:weight/load:weight:pipe:P14": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P14"
+      }
+    },
+    "case:weight/load:weight:pipe:P15": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P15"
+      }
+    },
+    "case:weight/load:weight:pipe:P16": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P16"
+      }
+    },
+    "case:weight/load:weight:pipe:P2": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P2"
+      }
+    },
+    "case:weight/load:weight:pipe:P3": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P3"
+      }
+    },
+    "case:weight/load:weight:pipe:P4": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P4"
+      }
+    },
+    "case:weight/load:weight:pipe:P5": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P5"
+      }
+    },
+    "case:weight/load:weight:pipe:P6": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P6"
+      }
+    },
+    "case:weight/load:weight:pipe:P7": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P7"
+      }
+    },
+    "case:weight/load:weight:pipe:P8": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P8"
+      }
+    },
+    "case:weight/load:weight:pipe:P9": {
+      "category": "weight",
+      "direction": "global_y",
+      "load_case": "case:weight",
+      "target": {
+        "pipe": "pipe:P9"
+      }
+    }
+  },
+  "material_map": {
+    "M1": {
+      "origin": "undeclared",
+      "swbpipe_material": "material:dyn-a"
+    }
+  },
+  "mbf_sha256": "3b1a4477c1c4fbd7561254fedff7368da71597e480aa6be906a6407e673ed006",
+  "node_map": {
+    "node:A": "10",
+    "node:B": "170",
+    "node:M1": "20",
+    "node:M10": "110",
+    "node:M11": "120",
+    "node:M12": "130",
+    "node:M13": "140",
+    "node:M14": "150",
+    "node:M15": "160",
+    "node:M2": "30",
+    "node:M3": "40",
+    "node:M4": "50",
+    "node:M5": "60",
+    "node:M6": "70",
+    "node:M7": "80",
+    "node:M8": "90",
+    "node:M9": "100"
+  },
+  "pressure_map": {
+    "contract": "none",
+    "regions": [],
+    "shear_model": "euler_bernoulli"
+  },
+  "section_map": {
+    "P1": {
+      "swbpipe_section": null
+    }
+  },
+  "sidecar_format": 6,
+  "sidecar_sha256": "ad3d92b14d5b3a736e759a04b108c2e0ad482972673fd35438586ab1257195d4",
+  "support_map": {
+    "support:A": {
+      "family": "anchor",
+      "family_authored": true,
+      "node": "10",
+      "restrained": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    "support:B-z": {
+      "family": "guide",
+      "family_authored": false,
+      "node": "170",
+      "restrained": [
+        "UZ"
+      ]
+    }
+  }
+}

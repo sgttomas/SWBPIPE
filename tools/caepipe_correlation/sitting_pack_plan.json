@@ -1,0 +1,45 @@
+{
+  "document_kind": "swbpipe.caepipe_sitting.fixed_pack_plan",
+  "note": "The parts of the fixed CAEPIPE sitting pack, in the order the owner runs them; parts are struck from the last backwards, and part 1 is never struck, only shortened from its highest strike numbers. Read by tools/caepipe_correlation/sitting_pack_build.py, a development tool; the reviewed pack is the committed folder validation/caepipe_sitting_pack.",
+  "parts": [
+    {
+      "id": "part-0",
+      "kind": "dry_run",
+      "title": "Dry run",
+      "buys": "Three small first-tranche cases taken through the batch route one line at a time, with your own comparison of the first print's section titles with the short list, and three copies of one dynamics run file: one run by the batch command, one opened in the program's window for the observations the benchmark manifest lists, and a sacrificial duplicate on which the export is tried (check (v)). By the benchmark manifest's consequences, its answers decide how parts 1 and 4 are run.",
+      "model_ids": ["cpb-g1-05", "cpb-g8-01", "cpb-g6-02"],
+      "samples": {"run_id": "cpb-dyn-c-n01-flat--srss-srss", "batch": "sample-dyn-batch", "window": "sample-dyn-window"}
+    },
+    {
+      "id": "part-1",
+      "kind": "dynamics",
+      "title": "Dynamics runs",
+      "buys": "The modal and response-spectrum runs of tranche 3, in the benchmark manifest's strike order. Each pair has two forms, each in its own folder, and one case is declared in one form only; every case of this part is run in the program's window only."
+    },
+    {
+      "id": "part-2",
+      "kind": "pressure",
+      "title": "Pressurised series",
+      "buys": "The declared screened runs of the cases that carry the exact pressure contract, each model's pressure-default run next to its pressure-elongation-on run, then the declared capture-only runs (pressure-bourdon-expansion-capture), which are sealed captures."
+    },
+    {
+      "id": "part-3",
+      "kind": "static_series",
+      "title": "Series S1, S2 and S3",
+      "buys": "The three linear static one-parameter series of tranche 3: transverse shear in straight pipe (S1), shear and flexibility in a bend (S2) and the finite stiffness of a rigid support (S3), each series' members together.",
+      "families": ["S1", "S2", "S3"]
+    },
+    {
+      "id": "part-4",
+      "kind": "hand_entry",
+      "title": "Hand-entry cases",
+      "buys": "The five cases whose one support member is entered by hand on a written base, in the benchmark manifest's rank order, in the program's window only."
+    },
+    {
+      "id": "part-5",
+      "kind": "tranche1_rest",
+      "title": "Tranche 1 remainder",
+      "buys": "The first tranche's other models, by family, the members of one series next to each other and smaller models first."
+    }
+  ]
+}
