@@ -1326,6 +1326,26 @@ class ReadBackBinding(BundleCase, unittest.TestCase):
             self.edit('out/%s.record.json' % COMPLETED, lambda d: d.update(killed_by_rss_watchdog=None))
         self.expect(nulled, '%s: a completed record has no value at launch.killed_by_rss_watchdog' % COMPLETED)
 
+    def test_a_null_entry_peak_on_a_completed_record_reads_clean_outside_the_s5_plan(self):
+        """E nulled in every copy that carries it (the aggregate's driver and the stdout line, with its hash):
+        no difference, since no baseline rule reads it and the stage-line agreement needs both values."""
+        def entry_peak_null():
+            path = self.path('out/%s.jsonl' % COMPLETED)
+
+            def null(by, rows):
+                by[COMPLETED]['driver']['peak_memory']['entry']['lifetime_max_phys_footprint_bytes'] = None
+                with open(path, 'w') as fh:
+                    fh.write(json.dumps(by[COMPLETED]['driver']) + '\n')
+                with open(path, 'rb') as fh:
+                    digest = hashlib.sha256(fh.read()).hexdigest()
+                by[COMPLETED]['launch']['stdout_sha256'] = digest
+                self.edit('out/%s.record.json' % COMPLETED, lambda d: d.update(stdout_sha256=digest))
+            self.records(null)
+        self.tearDown()
+        self.setUp()
+        entry_peak_null()
+        self.assertEqual(self.problems(), [])
+
     def test_baseline_set_json_is_recomputed_from_the_records(self):
         """The two results recomputed from the records the command has just checked, against the stored file."""
         def results_changed():
@@ -1437,9 +1457,7 @@ class RequiredValuesByBranch(unittest.TestCase):
         self.assertEqual({k: set(v) for k, v in rr.REQUIRED_BY_BRANCH.items()}, {
             'completed': launched | stages | {
                 'driver.route', 'driver.document.sha256', 'driver.output_sha256', 'driver.rows', 'driver.output_bytes',
-                'launch.rss.exit_lifetime_max_phys_footprint_bytes',
-                'driver.peak_memory.entry.lifetime_max_phys_footprint_bytes',
-                'driver.peak_memory.serialize.lifetime_max_phys_footprint_bytes', 'last_stage'},
+                'launch.rss.exit_lifetime_max_phys_footprint_bytes', 'last_stage'},
             'refused': launched | {'classification_detail', 'last_stage'},
             'entry_error': launched | {'classification_detail', 'last_stage'},
             'killed_by_sampler': launched | {'classification_detail'},
@@ -1449,6 +1467,23 @@ class RequiredValuesByBranch(unittest.TestCase):
             'error': launched | {'classification_detail'},
             'never_launched': {'classification', 'classification_detail'},
         })
+
+    def test_e_and_s_are_required_on_a_completed_record_in_the_s5_plan_only(self):
+        """Section 14.5's E and S are read by K2 in the S5 plan alone: on a baseline plan a null E or S is
+        legitimate; through PLAN_REQUIRED_EXTRA (here with a synthetic S5 plan name) it is a difference."""
+        self.assertEqual(rr.PLAN_REQUIRED_EXTRA.get('baseline', {}), {})
+        self.assertEqual(rr.PLAN_REQUIRED_EXTRA.get('baseline-with-rack', {}), {})
+        completed = self.forms()['completed']
+        for path in rr.S5_COMPLETED_MEMORY:
+            record = copy.deepcopy(completed)
+            stage = path.split('.')[2]
+            record['driver']['peak_memory'][stage]['lifetime_max_phys_footprint_bytes'] = None
+            for plan in (None, 'baseline', 'baseline-with-rack'):
+                self.assertEqual(rr.required_value_problems(record, plan), [], (path, plan))
+            with mock.patch.dict(rr.PLAN_REQUIRED_EXTRA, {'s5-synthetic': {'completed': rr.S5_COMPLETED_MEMORY}}):
+                self.assertEqual(rr.required_value_problems(record, 's5-synthetic'),
+                                 ['%s: a completed record has no value at %s, which a decision rule reads'
+                                  % (record['run_id'], path)])
 
     def test_each_form_takes_its_branch_and_is_complete_as_the_producer_writes_it(self):
         for label, record in self.forms().items():

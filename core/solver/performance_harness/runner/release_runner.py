@@ -1788,9 +1788,7 @@ REQUIRED_BY_BRANCH = {
         'driver.route', 'driver.document.sha256', 'driver.output_sha256', 'driver.rows', 'driver.output_bytes',
         'driver.seconds.read', 'driver.seconds.parse', 'driver.seconds.request', 'driver.seconds.entry',
         'driver.seconds.serialize', 'driver.seconds.release_envelope', 'driver.seconds.parse_back',
-        'driver.seconds.total', 'launch.rss.exit_lifetime_max_phys_footprint_bytes',
-        'driver.peak_memory.entry.lifetime_max_phys_footprint_bytes',
-        'driver.peak_memory.serialize.lifetime_max_phys_footprint_bytes', 'last_stage'),
+        'driver.seconds.total', 'launch.rss.exit_lifetime_max_phys_footprint_bytes', 'last_stage'),
     'refused': _LAUNCHED + ('classification_detail', 'last_stage'),
     'entry_error': _LAUNCHED + ('classification_detail', 'last_stage'),   # last_stage: not after a read error
     'killed_by_sampler': _LAUNCHED + ('classification_detail',),
@@ -1800,6 +1798,21 @@ REQUIRED_BY_BRANCH = {
     'error': _LAUNCHED + ('classification_detail',),
     'never_launched': _EVERY_RECORD + ('classification_detail',),
 }
+
+
+# Values only one plan's rules read, by named plan and branch, added to REQUIRED_BY_BRANCH for that plan.
+# The baseline plans (`baseline`, `baseline-with-rack`) add none: no rule of S3 or S4 reads E or S.
+# The S5 plan, when it exists, adds S5_COMPLETED_MEMORY to its completed branch: E and S of the measurement
+# contract's section 14.5, read by section 14.6's K2.
+S5_COMPLETED_MEMORY = ('driver.peak_memory.entry.lifetime_max_phys_footprint_bytes',
+                       'driver.peak_memory.serialize.lifetime_max_phys_footprint_bytes')
+PLAN_REQUIRED_EXTRA = {}
+
+
+def named_plan_of(plan_runs):
+    """The named plan whose run ids, in order, are `plan_runs`', or None."""
+    ids = [r.get('run_id') for r in plan_runs]
+    return next((name for name in NAMED_PLANS if [r['run_id'] for r in named_plan(name)[0]] == ids), None)
 
 
 def record_branch(record):
@@ -1820,11 +1833,13 @@ def record_branch(record):
     return 'error'
 
 
-def required_value_problems(record):
-    """Each path a decision reads for this record's branch that holds no value (REQUIRED_BY_BRANCH)."""
+def required_value_problems(record, plan_name=None, extra=None):
+    """Each path a decision reads for this record's branch that holds no value: REQUIRED_BY_BRANCH, and what
+    the plan's own rules add (PLAN_REQUIRED_EXTRA[plan_name], or `extra`)."""
     branch = record_branch(record)
+    extra = PLAN_REQUIRED_EXTRA.get(plan_name, {}) if extra is None else extra
     problems = []
-    for path in REQUIRED_BY_BRANCH[branch]:
+    for path in REQUIRED_BY_BRANCH[branch] + tuple(extra.get(branch, ())):
         if path == 'last_stage' and branch == 'entry_error' and str(record.get('classification_detail') or '').startswith('read:'):
             continue   # an error in the read stage ends before any stage line
         *parents, last = path.split('.')
@@ -1974,12 +1989,13 @@ def read_back(bundle, revision, root_digest, shared_host=False):
         problems.append('metadata.json plan is not the run ids of plan.json in their order')
     if [r.get('run_id') for r in records] != plan_ids:
         problems.append('the aggregate does not hold one record for each run of plan.json, in its order')
+    plan_name = named_plan_of(plan_runs)
     for p in plan_runs:
         run_id = p.get('run_id')
         r = aggregate.get(run_id)
         if r is None:
             continue
-        problems += required_value_problems(r)
+        problems += required_value_problems(r, plan_name)
         for key in PLAN_RUN_KEYS + ('model',):
             if key not in p or key not in r or p[key] != r[key]:
                 problems.append('%s: %s in the aggregate is not plan.json\'s' % (run_id, key))
@@ -2038,7 +2054,7 @@ def read_back(bundle, revision, root_digest, shared_host=False):
                 for line in stages:
                     held = peaks.get(line.get('stage'))
                     for key in MEMORY_KEYS if isinstance(held, dict) else ():
-                        if key in line and key in held and line[key] != held[key]:
+                        if line.get(key) is not None and held.get(key) is not None and line[key] != held[key]:
                             problems.append('%s: stage %s %s differs from driver.peak_memory' % (
                                 run_id, line.get('stage'), key))
                 if r.get('classification') == 'ok':
