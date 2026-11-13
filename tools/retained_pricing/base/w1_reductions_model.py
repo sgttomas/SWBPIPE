@@ -106,10 +106,13 @@ REDUCED_PINS = {
     # reduction's owner or lifetime changes; the L5 texts are unchanged.
     # RT-L2 final source: lib.rs re-read: a test-module declaration and blocked_envelope's in-place retain of the
     # exception warning; no reduction's owner or lifetime changes, the L5 texts are unchanged.
-    "core/product_physics/src/lib.rs": "475600b6f99d83054e8f3850d4b161b4c33c202326fc595db985fae650c8b08a",
+    # Self-weight units repair (12f46a797, 0051e8a1a): lib.rs re-read: one intensity unit test in `mod tests` restates
+    # its evidence literal (test-only); certified_loads.rs adds recorded_mass and its doc comment, called from intensity
+    # in place of the closure over mass_inputs. No reduction's owner or lifetime changes; the L5 texts are unchanged.
+    "core/product_physics/src/lib.rs": "3343fa7efd15a53e17a699aefd9f3af3e43c1c863e281ebe629da05ed491d429",
     "core/product_physics/src/retained_wire.rs": "ca982a664d0c3f30dd510182c402785cb11baee1ef8d567c522351332892e9f7",
     "core/product_physics/src/certified_publication.rs": "088fbf78c977abbcc3c28c7cb38d74bf14b7f7adfac48c21f8010a4020d0cfc2",
-    "core/product_physics/src/certified_loads.rs": "da7d3decc3a0170da65b38670ec215aaebdb9d8d799e3c76e41879a80589bc73",
+    "core/product_physics/src/certified_loads.rs": "6a1e5f45998fe2c6360bbd661bf58afe04cac39a40f106b39559614865e501ac",
     "core/product_physics/src/preview_physics.rs": "19a3134e33454831a961efbf822428650fc23df84ed4d9da07c548c3c607c4c4",
     "core/solver/frame_kernel/src/structural/formation_check.rs": "96b35424bd76fd7733b781241dd328aca91556372876df2a053cbdf2c7377e10",
     "core/solver/frame_kernel/src/structural/certified_recovery.rs": "ef58e6c2ec74bad85b991c344a2127a78145af2a22d8656bbeb699ad097c1e49",
