@@ -1216,3 +1216,205 @@ fn a_case_with_two_straight_regions_of_the_family_carries_one_warning_true_of_bo
         assert_eq!(verdict["ok"], true, "{mode:?}: {verdict}");
     }
 }
+
+// DEL-04-07, the third review's finding 2: an interior node can be omitted
+// whole. The producer enumerates each region's interior nodes from its chain,
+// the reader without the model from the published traversal, and the verdict
+// with the model from the model's region membership and coordinates, so a
+// node with no groups is examined by each.
+
+/// The third review's witness: a 1000 m run along x, its second member a
+/// millionth of the span and off the axis in y, outside diameters one ulp
+/// apart at the middle member, anchored at its ends and its second interior node.
+fn reviewer_witness() -> Value {
+    chain(&[[0.0; 3], [500.0, 0.0, 0.0], [500.000001, 1.3988810110276972e-11, 0.0], [1000.0, 0.0, 0.0]], &[0.12, next_up(0.12, 1), 0.12], &[0, 2, 3])
+}
+
+/// The original screen as the producer forms it from a document's groups and
+/// vector (at most two groups per degree of freedom here, so one rounded
+/// addition is the exact sum correctly rounded); null where not finite.
+fn restamp_screen(rhs: &mut Value) {
+    let order = rhs["node_order"].as_array().unwrap().clone();
+    let assembled = rhs["assembled_pressure_rhs_global"].as_array().unwrap().iter().map(|v| v.as_f64().unwrap()).collect::<Vec<_>>();
+    let max_rhs = assembled.iter().enumerate().filter(|(i, _)| i % 6 < 3).fold(0.0_f64, |m, (_, v)| m.max(v.abs()));
+    let mut by_dof: std::collections::BTreeMap<usize, Vec<f64>> = Default::default();
+    for group in rhs["groups"].as_array().unwrap() {
+        let node = order.iter().position(|n| *n == group["node_ref"]).unwrap();
+        let axis = ["Fx", "Fy", "Fz"].iter().position(|c| group["component"] == *c).unwrap();
+        by_dof.entry(node * 6 + axis).or_default().push(group["assembled_force_n"].as_f64().unwrap());
+    }
+    let mut maximum = 0.0_f64;
+    for values in by_dof.values() {
+        assert!(values.len() <= 2);
+        if max_rhs == 0.0 {
+            if values.iter().any(|v| *v != 0.0) { maximum = f64::INFINITY; }
+        } else {
+            maximum = maximum.max(values.iter().map(|v| v.abs() / max_rhs).sum::<f64>());
+        }
+    }
+    let screen = 32.0 * f64::EPSILON * maximum;
+    rhs["cancellation_screen"] = if screen.is_finite() { json!(screen) } else { Value::Null };
+}
+
+/// The third review's forgery: every group at `node` removed, the vector
+/// there zeroed and the original screen re-stamped.
+fn omit_node(output: &Value, case: usize, node: &str) -> Value {
+    let mut forged = output.clone();
+    let rhs = forged.pointer_mut(&format!("/contract_evidence/exact_cases/{case}/pressure_rhs_assembly")).unwrap();
+    rhs["groups"].as_array_mut().unwrap().retain(|g| g["node_ref"] != node);
+    let at = rhs["node_order"].as_array().unwrap().iter().position(|n| n == node).unwrap() * 6;
+    for axis in 0..3 {
+        rhs["assembled_pressure_rhs_global"][at + axis] = json!(0.0);
+    }
+    restamp_screen(rhs);
+    forged
+}
+
+#[test]
+fn an_interior_node_omitted_whole_is_refused_by_name_by_both_reader_stages() {
+    use open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence;
+    const MISSING: &str = "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_INTERIOR_NODE_MISSING";
+    let x = [[0.0; 3], [3.0, 0.0, 0.0], [LENGTH, 0.0, 0.0]];
+    let three = [[0.0; 3], [2.0, 0.0, 0.0], [4.0, 0.0, 0.0], [LENGTH, 0.0, 0.0]];
+    // Omitting a run's only interior node leaves every published load zero, so
+    // the re-stamped original screen passes and the record beside it is refused.
+    const BESIDE: &str = "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BESIDE_PASSING_SCREEN";
+    // (label, model, the node omitted, the refusal)
+    let cases = [
+        ("the third review's whole-node omission", reviewer_witness(), "node:C1", MISSING),
+        ("the record's own node, the only interior node", chain(&x, &[0.12, next_up(0.12, 1)], &[0, 2]), "node:C1", BESIDE),
+        ("one node omitted of several", chain(&three, &[0.12, next_up(0.12, 1), next_up(0.12, 3)], &[0, 3]), "node:C2", MISSING),
+        ("the record's node, one of several", chain(&three, &[0.12, next_up(0.12, 1), next_up(0.12, 3)], &[0, 3]), "record", MISSING),
+        // Its other interior node omitted instead, the loads left pass the original screen.
+        ("one node of the second review's chain", reviewer_chain(), "node:C2", MISSING),
+        ("the other node of the second review's chain", reviewer_chain(), "node:C1", BESIDE),
+    ];
+    for (label, input, node, code) in cases {
+        for mode in MODES {
+            let output = serde_json::to_value(solve(input.clone(), mode)).unwrap();
+            let record = assert_screen(&output, true, label);
+            let node = if node == "record" { record["node_ref"].as_str().unwrap().to_owned() } else { node.to_owned() };
+            let node = node.as_str();
+            validate_pressure_evidence(&output).unwrap_or_else(|e| panic!("{label} {mode:?}: {e}"));
+            assert_eq!(verdict(&output, &input["model"])["ok"], true, "{label} {mode:?}: {}", verdict(&output, &input["model"]));
+            let at = assembly(&output)["node_order"].as_array().unwrap().iter().position(|n| n == node).unwrap() * 6;
+            let removed = (0..3).map(|k| assembly(&output)["assembled_pressure_rhs_global"][at + k].as_f64().unwrap()).collect::<Vec<_>>();
+            eprintln!("{label} {mode:?}: the model requires {removed:?} N at {node}");
+            let forged = omit_node(&output, 0, node);
+            assert_eq!(validate_pressure_evidence(&forged).unwrap_err(), code, "{label} {mode:?}");
+            assert_eq!(verdict(&forged, &input["model"])["error"]["code"], code, "{label} {mode:?}");
+        }
+    }
+    // Both terms of one axis omitted at one node, the vector there made zero.
+    for mode in MODES {
+        let output = serde_json::to_value(solve(reviewer_chain(), mode)).unwrap();
+        let mut forged = output.clone();
+        let rhs = forged.pointer_mut("/contract_evidence/exact_cases/0/pressure_rhs_assembly").unwrap();
+        rhs["groups"].as_array_mut().unwrap().retain(|g| !(g["node_ref"] == "node:C2" && g["component"] == "Fx"));
+        let at = rhs["node_order"].as_array().unwrap().iter().position(|n| n == "node:C2").unwrap() * 6;
+        rhs["assembled_pressure_rhs_global"][at] = json!(0.0);
+        restamp_screen(rhs);
+        assert_eq!(validate_pressure_evidence(&forged).unwrap_err(), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY", "{mode:?}");
+    }
+}
+
+#[test]
+fn a_whole_node_omitted_in_the_second_of_two_family_regions_is_refused_by_name() {
+    use open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence;
+    let x = [[0.0; 3], [3.0, 0.0, 0.0], [LENGTH, 0.0, 0.0]];
+    let mut input = chain(&x, &[0.12, next_up(0.12, 5)], &[0, 2]);
+    let model = &mut input["model"];
+    for (k, x) in [0.0, 3.0, LENGTH].iter().enumerate() {
+        model["nodes"].as_array_mut().unwrap().push(node(&format!("node:D{k}"), [*x, 5.0, 0.0]));
+    }
+    for (k, outside) in [0.12, next_up(0.12, 1)].iter().enumerate() {
+        model["pipe_segments"].as_array_mut().unwrap().push(pipe(&format!("pipe:D{k}"), &format!("node:D{k}"), &format!("node:D{}", k + 1), *outside, 0.01, "material:one"));
+    }
+    model["supports"].as_array_mut().unwrap().extend([anchor("support:D0", "node:D0"), anchor("support:D2", "node:D2")]);
+    let mut second = model["load_cases"][0]["pressure_regions"][0].clone();
+    second["id"] = json!("region:second");
+    second["member_pipe_ids"] = json!(["pipe:D0", "pipe:D1"]);
+    second["terminals"] = json!([terminal("node:D0", true), terminal("node:D2", true)]);
+    model["load_cases"][0]["pressure_regions"].as_array_mut().unwrap().push(second);
+    for mode in MODES {
+        let output = serde_json::to_value(solve(input.clone(), mode)).unwrap();
+        let record = assert_screen(&output, true, "two regions");
+        assert_eq!(record["node_ref"], "node:C1", "{mode:?}: the first region's remainder is the larger");
+        validate_pressure_evidence(&output).unwrap();
+        let forged = omit_node(&output, 0, "node:D1");
+        assert_eq!(validate_pressure_evidence(&forged).unwrap_err(), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_INTERIOR_NODE_MISSING", "{mode:?}");
+        assert_eq!(verdict(&forged, &input["model"])["error"]["code"], "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_INTERIOR_NODE_MISSING", "{mode:?}");
+    }
+}
+
+/// Self-consistent evidence whose interior nodes are not the model's: the
+/// published groups (and vector entries) of the second review's two interior
+/// nodes exchanged, with the record's node and the warning's reference moved
+/// with them. The published evidence agrees with itself; only the model's own
+/// enumeration of its interior nodes sees it.
+#[test]
+fn interior_nodes_the_model_does_not_have_are_refused_by_the_model_binding() {
+    use open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence;
+    let input = reviewer_chain();
+    for mode in MODES {
+        let output = serde_json::to_value(solve(input.clone(), mode)).unwrap();
+        assert_screen(&output, true, "reviewer's chain");
+        let mut forged = output.clone();
+        let swap = |name: &Value| if name == "node:C1" { json!("node:C2") } else if name == "node:C2" { json!("node:C1") } else { name.clone() };
+        let rhs = forged.pointer_mut("/contract_evidence/exact_cases/0/pressure_rhs_assembly").unwrap();
+        for group in rhs["groups"].as_array_mut().unwrap() {
+            group["node_ref"] = swap(&group["node_ref"]);
+        }
+        let order = rhs["node_order"].as_array().unwrap().clone();
+        let (c1, c2) = (order.iter().position(|n| n == "node:C1").unwrap() * 6, order.iter().position(|n| n == "node:C2").unwrap() * 6);
+        for axis in 0..3 {
+            let (a, b) = (rhs["assembled_pressure_rhs_global"][c1 + axis].clone(), rhs["assembled_pressure_rhs_global"][c2 + axis].clone());
+            rhs["assembled_pressure_rhs_global"][c1 + axis] = b;
+            rhs["assembled_pressure_rhs_global"][c2 + axis] = a;
+        }
+        let node = swap(&rhs["cancellation_screen_exception"]["node_ref"]);
+        rhs["cancellation_screen_exception"]["node_ref"] = node.clone();
+        for warning in forged["diagnostics"].as_array_mut().unwrap().iter_mut().filter(|d| d["code"] == WARNING) {
+            warning["affected_refs"][2] = node.clone();
+            reform_warning_message(warning, &node);
+        }
+        validate_pressure_evidence(&forged).unwrap_or_else(|e| panic!("{mode:?}: {e}"));
+        assert_eq!(verdict(&forged, &input["model"])["error"]["code"], "SOURCE_PHYSICS_MODEL_EXCEPTION_INTERIOR_NODE", "{mode:?}");
+    }
+}
+
+/// The warning's message re-formed for a moved node (Part 3: the message
+/// names the record's node; until then it is fixed and nothing changes).
+fn reform_warning_message(_warning: &mut Value, _node: &Value) {}
+
+/// A run along x whose interior node is off the axis in y by the smallest
+/// subnormal, 2^-1074 m, on members of 3 m: each member's y chord component
+/// is nonzero but its formed direction component underflows to exactly zero
+/// (2^-1074 times a reciprocal length below one half). Neither member's y is
+/// a source zero, so the producer keeps both y terms as groups of value zero;
+/// the published groups omit them (zero binary64 direction) and publish both
+/// y components as zero. Admitted (the outside diameters are one ulp apart),
+/// read by both stages, and within the bound: the underflowed component's
+/// lost term is inside the formation allowance (pressure_runtime
+/// BORE_DEPARTURE_RATIO, "A formed zero that is not a source zero").
+#[test]
+fn a_formed_zero_from_an_underflowed_offset_at_the_smallest_subnormal_is_admitted_and_read() {
+    use open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence;
+    let tiny = f64::from_bits(1);
+    let input = chain(&[[0.0; 3], [3.0, tiny, 0.0], [LENGTH, 0.0, 0.0]], &[0.12, next_up(0.12, 1)], &[0, 2]);
+    for mode in MODES {
+        let output = serde_json::to_value(solve(input.clone(), mode)).unwrap();
+        assert_eq!(output["status"]["mechanics"], "MECHANICS_SOLVED", "{mode:?}: {}", output["diagnostics"]);
+        let record = assert_screen(&output, true, "underflowed offset");
+        let loads = output["contract_evidence"]["pressure"][0]["applied_loads"].as_array().unwrap();
+        for load in loads {
+            assert_eq!(load["local_x_global"][1].as_f64().unwrap(), 0.0, "{mode:?}: the formed y component underflows to zero");
+        }
+        assert_ne!(input["model"]["nodes"][1]["position"]["y"].as_f64().unwrap(), 0.0, "the source coordinates differ in y");
+        assert!(assembly(&output)["groups"].as_array().unwrap().iter().all(|g| g["component"] != "Fy"));
+        let ratio = record["remainder_to_bore_force_ratio"].as_f64().unwrap();
+        assert!(ratio <= record["consistency_bound_ratio"].as_f64().unwrap(), "{mode:?}");
+        validate_pressure_evidence(&output).unwrap_or_else(|e| panic!("{mode:?}: {e}"));
+        assert_eq!(verdict(&output, &input["model"])["ok"], true, "{mode:?}: {}", verdict(&output, &input["model"]));
+    }
+}

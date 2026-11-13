@@ -1935,6 +1935,7 @@ fn exception_consistency(
     require(order.len() == nodes.len(), "RHS_NODES")?;
     let mut terminals = Vec::new();
     let mut directions: HashMap<(&str, &str), [f64; 3]> = HashMap::new();
+    let mut chains: Vec<(&str, Vec<&str>)> = Vec::new();
     for ((c, region_id), region) in regions {
         if *c != case {
             continue;
@@ -1950,8 +1951,10 @@ fn exception_consistency(
         for load in array(&region["applied_loads"])? {
             directions.insert((*region_id, text(&load["pipe_id"])?), consistent_direction(load)?);
         }
+        chains.push((*region_id, array(&region["member_pipe_ids"])?.iter().map(text).collect::<Result<Vec<_>, _>>()?));
     }
     let (interior, _) = family_consistency(v, &order, &terminals, &directions)?;
+    published_traversal_consistency(&interior, &chains)?;
     // The record's node: the first, in node order, of the largest measured ratio.
     let mut largest: Option<&Interior> = None;
     for node in &interior {
@@ -2138,6 +2141,127 @@ fn family_consistency<'a>(
     Ok((interior, ends))
 }
 
+/// Consistency (no model): the interior nodes the published traversal implies
+/// are all present. `chains` gives each region of the case with its published
+/// members in the order its evidence lists them (`member_pipe_ids`, the
+/// producer's traversal order). Each two consecutive members of a region meet
+/// at one interior node, so a region of n members has n − 1 of them; each pair
+/// must be found among `interior` (the nodes whose published terms are those
+/// two members' and no other's, [`family_consistency`]) exactly once, and no
+/// interior node may be left over. A node whose every group was omitted
+/// publishes no term, so its pair is found nowhere and the evidence is refused
+/// (`RHS_SCREEN_EXCEPTION_INTERIOR_NODE_MISSING`). This says only that the
+/// published evidence agrees with itself: the node names, the members' ends
+/// and the list's order are the producer's as published; the model binding
+/// enumerates the interior nodes from the model ([`exception_model_binding`]).
+fn published_traversal_consistency(interior: &[Interior<'_>], chains: &[(&str, Vec<&str>)]) -> Check {
+    let mut matched = HashSet::new();
+    for (region, members) in chains {
+        for pair in members.windows(2) {
+            let found = interior.iter().position(|node| {
+                node.region == *region && (node.pipes == [pair[0], pair[1]] || node.pipes == [pair[1], pair[0]])
+            });
+            let at = found.ok_or("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_INTERIOR_NODE_MISSING")?;
+            require(matched.insert(at), "RHS_SCREEN_EXCEPTION_FAMILY")?;
+        }
+    }
+    require(matched.len() == interior.len(), "RHS_SCREEN_EXCEPTION_FAMILY")
+}
+
+/// Binding (given the model): the interior nodes of the case's regions as the
+/// model gives them, independently of the published groups and of the
+/// published traversal: for each region of the case in the model, the nodes
+/// at which two of its members (by their `from` and `to`) meet and which are
+/// not its terminals, as (node, region, the two members). A node met by more
+/// than two members of a region, or by one that is not its terminal, is not
+/// a chain (`MODEL_EXCEPTION_FAMILY`).
+fn model_interior_nodes<'m>(authored_case: &'m Value, model: &'m Value) -> Result<Vec<(&'m str, &'m str, [&'m str; 2])>, String> {
+    let mut nodes = Vec::new();
+    for region in array(&authored_case["pressure_regions"])? {
+        let id = text(&region["id"])?;
+        let terminals = array(&region["terminals"])?.iter().map(|t| text(&t["node_ref"])).collect::<Result<Vec<_>, _>>()?;
+        let mut meeting: std::collections::BTreeMap<&str, Vec<&str>> = std::collections::BTreeMap::new();
+        for member in array(&region["member_pipe_ids"])? {
+            let member = text(member)?;
+            let pipe = model["pipe_segments"].as_array().and_then(|p| p.iter().find(|p| p["id"] == member)).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_GEOMETRY")?;
+            for end in ["from", "to"] {
+                meeting.entry(text(&pipe[end])?).or_default().push(member);
+            }
+        }
+        for (node, members) in meeting {
+            if terminals.contains(&node) {
+                require(members.len() == 1, "MODEL_EXCEPTION_FAMILY")?;
+                continue;
+            }
+            let [a, b] = members[..] else { return Err("SOURCE_PHYSICS_MODEL_EXCEPTION_FAMILY".into()) };
+            nodes.push((node, id, [a, b]));
+        }
+    }
+    Ok(nodes)
+}
+
+/// Binding (given the model): the remainder each model interior node requires,
+/// re-formed from the model as the producer forms it, per axis: each of the
+/// two members' cap term p·(π·r·r)·s·d_k, with d its direction re-formed from
+/// its `from` and `to` coordinates ([`formed_direction`]), s its end sign (+1
+/// at `from`, −1 at `to`), p the region's pressure from the model (normalized
+/// to Pa) and r its pressure-bore radius from the region's published geometry
+/// (outside diameter / 2 − reduced wall, as `RHS_GEOMETRY_BINDING` binds every
+/// group to it; the section itself is bound to the model by
+/// `MODEL_SECTION_GEOMETRY`), terms of equal |d_k| and bore sharing one group
+/// whose coefficient is their end signs' sum; the groups' values summed
+/// exactly. A zero d_k adds exactly zero. Returns the three components and
+/// whether every group value is zero or normal (then the producer's value is
+/// this bit for bit; a subnormal value may differ by one subnormal step, so
+/// the caller allows two per group).
+fn model_remainder(pipes: [&Value; 2], node: &str, directions: [[f64; 3]; 2], radii: [(f64, f64); 2], pressure: f64) -> Result<([f64; 3], bool, usize), String> {
+    use crate::connector_evidence::ExactSum;
+    let mut load = [0.0; 3];
+    let mut exact = true;
+    let mut groups = 0;
+    for axis in 0..3 {
+        // (|d| bits, r hi bits, r lo bits) -> coefficient sum and |d|, r.
+        let mut keyed: Vec<((u64, u64, u64), f64, f64, f64)> = Vec::new();
+        for slot in 0..2 {
+            let d = directions[slot][axis];
+            if d == 0.0 {
+                continue;
+            }
+            let sign = if pipes[slot]["from"] == node { 1.0 } else if pipes[slot]["to"] == node { -1.0 } else { return Err("SOURCE_PHYSICS_MODEL_EXCEPTION_INTERIOR_NODE".into()) };
+            let (hi, lo) = radii[slot];
+            let key = (d.abs().to_bits(), hi.to_bits(), lo.to_bits());
+            let coefficient = sign * d.signum();
+            match keyed.iter_mut().find(|entry| entry.0 == key) {
+                Some(entry) => entry.1 += coefficient,
+                None => keyed.push((key, coefficient, d.abs(), hi)),
+            }
+        }
+        let mut sum = ExactSum::default();
+        for (_, coefficient, magnitude, r) in &keyed {
+            let value = pressure * (std::f64::consts::PI * r * r) * coefficient * magnitude;
+            exact &= value == 0.0 || value.is_normal();
+            sum.add(value);
+            groups += 1;
+        }
+        load[axis] = sum.round().ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_REMAINDER")?;
+    }
+    Ok((load, exact, groups))
+}
+
+/// A published pressure-bore radius (hi, lo) of a region's member, as
+/// `RHS_GEOMETRY_BINDING` re-forms it from the member's published geometry.
+fn published_bore_radius(region: &Value, pipe: &str) -> Result<(f64, f64), String> {
+    let geometries = indexed(&region["geometry"], "pipe_id")?;
+    let geometry = geometries.get(pipe).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_GEOMETRY")?;
+    let a = number(&geometry["outside_diameter_m"])? * 0.5;
+    let b = number(&geometry["reduced_section"]["wall_m"])?;
+    let hi = a - b;
+    let b_virtual = a - hi;
+    let a_virtual = hi + b_virtual;
+    let lo = (a - a_virtual) + (b_virtual - b);
+    Ok((hi, if lo == 0.0 { 0.0 } else { lo }))
+}
+
 /// DEL-04-07, binding to the model (given the model, after the consistency
 /// stage admitted the evidence): what the exception rests on agrees with the
 /// model's geometry and settings. Positions are the model's node coordinates
@@ -2204,6 +2328,8 @@ pub(crate) fn exception_model_binding(source: &Value, model: &Value) -> Check {
         let mut terminals = Vec::new();
         let mut directions: HashMap<(&str, &str), [f64; 3]> = HashMap::new();
         let mut spans: HashMap<&str, f64> = HashMap::new();
+        let mut pressures: HashMap<&str, f64> = HashMap::new();
+        let mut published: HashMap<&str, &Value> = HashMap::new();
         let mut members: Vec<&str> = Vec::new();
         for region in &regions {
             let id = text(&region["region_id"])?;
@@ -2221,6 +2347,8 @@ pub(crate) fn exception_model_binding(source: &Value, model: &Value) -> Check {
             )?;
             let pressure = crate::physics_source::normalized_quantity(&authored["pressure"], Dimension::Pressure).map_err(|_| "SOURCE_PHYSICS_MODEL_EXCEPTION_PRESSURE")?;
             require(region["p_pa"].as_f64().map(f64::to_bits) == Some(pressure.to_bits()), "MODEL_EXCEPTION_PRESSURE")?;
+            pressures.insert(id, pressure);
+            published.insert(id, *region);
             for terminal in ends {
                 terminals.push((id, text(&terminal["node_ref"])?, terminal["closure_transfer"] == "transfers_to_wall"));
             }
@@ -2236,6 +2364,17 @@ pub(crate) fn exception_model_binding(source: &Value, model: &Value) -> Check {
         }));
         require(!bend, "MODEL_EXCEPTION_FAMILY")?;
         let (interior, ends) = family_consistency(rhs, &order, &terminals, &directions)?;
+        // The interior nodes as the model gives them, independently of the
+        // published groups and the published traversal: each must be one the
+        // published terms place there with the same two members, and none may
+        // be left over (a whole node omitted from the evidence is missing here).
+        let expected = model_interior_nodes(authored_case, model)?;
+        require(expected.len() == interior.len(), "MODEL_EXCEPTION_INTERIOR_NODE")?;
+        let assembled = array(&rhs["assembled_pressure_rhs_global"])?.iter().map(number).collect::<Result<Vec<_>, _>>()?;
+        for (node, region, pair) in &expected {
+            let found = interior.iter().find(|n| n.node == *node).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_INTERIOR_NODE_MISSING")?;
+            require(found.region == *region && (found.pipes == *pair || found.pipes == [pair[1], pair[0]]), "MODEL_EXCEPTION_INTERIOR_NODE")?;
+        }
         // At each interior node, the two members are the only ones of the
         // case's regions that meet there, and a member without a term on an
         // axis has, from the coordinates, an exactly zero component there.
@@ -2263,6 +2402,26 @@ pub(crate) fn exception_model_binding(source: &Value, model: &Value) -> Check {
             let segment = segment(pipe)?;
             let expected = if segment["from"] == node { 1.0 } else if segment["to"] == node { -1.0 } else { 0.0 };
             require(face == expected, "MODEL_EXCEPTION_DIRECTION")?;
+        }
+        // At each interior node the model gives, the remainder it requires,
+        // re-formed from its coordinates and pressure, is the published load,
+        // per axis (after the checks above, whose names stand first).
+        for (node, region, pair) in &expected {
+            let source = *published.get(region).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_REGION")?;
+            let pressure = *pressures.get(region).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_REGION")?;
+            let (load, exact, groups) = model_remainder(
+                [segment(pair[0])?, segment(pair[1])?],
+                node,
+                [pipe_direction(pair[0])?, pipe_direction(pair[1])?],
+                [published_bore_radius(source, pair[0])?, published_bore_radius(source, pair[1])?],
+                pressure,
+            )?;
+            let at = order.iter().position(|n| n == node).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_GEOMETRY")? * 6;
+            for axis in 0..3 {
+                let published = assembled[at + axis];
+                let agrees = if exact { published.to_bits() == load[axis].to_bits() || (published == 0.0 && load[axis] == 0.0) } else { (published - load[axis]).abs() <= groups as f64 * f64::from_bits(2) };
+                require(agrees, "MODEL_EXCEPTION_REMAINDER")?;
+            }
         }
         for node in &interior {
             let span = *spans.get(node.region).ok_or("SOURCE_PHYSICS_MODEL_EXCEPTION_GEOMETRY")?;

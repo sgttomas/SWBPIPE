@@ -1687,10 +1687,11 @@ fn cancellation_exception(
 ) -> Option<(Value, FamilyNodes)> {
     #[cfg(test)]
     exception_probe::entered();
-    if !cancellation_exception_eligible(model, built, case, output, groups) {
+    let chains = exception_chains(model, built, output)?;
+    if !cancellation_exception_eligible(model, built, case, output, &chains, groups) {
         return None;
     }
-    let family = family_nodes(model, case, output, groups)?;
+    let family = family_nodes(model, case, &chains, groups)?;
     let record = cap_remainder_record(model, built, case, output, &family)?;
     Some((record, family))
 }
@@ -1840,6 +1841,23 @@ fn cap_remainder_warning(
 /// the norm of the same three components as if the zero were summed, and the
 /// derivation above (written for both terms on every axis) holds unchanged,
 /// with one term's 14u fewer on that axis.
+///
+/// A formed zero that is not a source zero. The converse does not hold: a
+/// formed direction component of exactly zero does not imply that the two
+/// nodes' source coordinates are equal on that axis, because normalisation can
+/// underflow a nonzero component to zero (a chord component of 2^-1074 on a
+/// member longer than 2 m, whose reciprocal length is below one half). The
+/// producer keeps such a term as a formed group of value exactly zero (it is
+/// not a source zero, [`source_zero_axes`]); the published groups omit it
+/// (its binary64 direction is zero), so a reader sees one member's term alone
+/// beside a published zero. Its exact counterpart is p·A·d_k with |d_k| below
+/// 2^-1074 to first order (the formed component rounded to zero), so the term
+/// lost is below p·A_hi·2^-1074 and the two members together below
+/// p·A_hi·2^-1073. That is formation error, inside the formation allowance:
+/// the allowance's 32ε covers 22ε of first-order terms, and the 10ε·pA_hi left
+/// exceeds p·A_hi·2^-1073 for every p, since both are relative to pA_hi.
+/// `core/product_physics/tests/pressure_grouping_limits.rs` admits a run whose
+/// interior node is off the axis by the smallest subnormal and reads it.
 pub(crate) const BORE_DEPARTURE_RATIO: f64 = 256.0 * f64::EPSILON;
 /// c_d of [`BORE_DEPARTURE_RATIO`]'s derivation: 2·76ε.
 pub(crate) const ALIGNMENT_DEPARTURE_RATIO: f64 = 152.0 * f64::EPSILON;
@@ -1874,16 +1892,23 @@ pub(crate) fn consistency_bound_ratio(span: f64, lengths: [f64; 2]) -> f64 {
 ///   terms of one member of that region: its `poisson_eigen` end term and its
 ///   `terminal_cap`, which share the group key and cancel there by
 ///   construction (the member's closed end); or
-/// - a node that is no region's terminal where exactly two pressurised
-///   members of the case meet, both of one region (the code's own members,
-///   not the published groups), and where at each of the three axes the terms
-///   are exactly both members' `poisson_eigen` end terms (the cap pair of
-///   each member's end there), or one member's alone when the other member's
-///   direction component on that axis, as the region loop formed it from the
-///   source, is exactly zero (its term is then omitted in grouping, see
-///   [`source_zero_axes`]), or none when both components are exactly zero. An
-///   axis holding one term whose partner's component is not exactly zero, or
-///   a term of any member other than the two, leaves the family.
+/// - an interior node of a region's chain: the node where two consecutive
+///   members of the region's traversal meet ([`exception_chains`]), which is
+///   no region's terminal, where exactly those two pressurised members of
+///   the case meet (the code's own members, not the published groups), and
+///   where at each of the three axes the terms are exactly both members'
+///   `poisson_eigen` end terms (the cap pair of each member's end there), or
+///   one member's alone when the other member's direction component on that
+///   axis, as the region loop formed it from the source, is exactly zero (its
+///   term is then omitted in grouping, see [`source_zero_axes`]), or none
+///   when both components are exactly zero. An axis holding one term whose
+///   partner's component is not exactly zero, or a term of any member other
+///   than the two, leaves the family.
+///
+/// The interior nodes are enumerated from the chains, never from the groups,
+/// so every one is examined whether or not it carries a group, and a group at
+/// a node that is neither a terminal nor a chain's interior node leaves the
+/// family.
 ///
 /// Anything else anywhere in the case (an uncancelled cap at a terminal that
 /// does not transfer, a kink remainder, a bend term, a joint term, a junction
@@ -1895,6 +1920,7 @@ fn cancellation_exception_eligible(
     built: &BuiltModel,
     case: &PreviewLoadCase,
     output: &ExactPressureCase,
+    chains: &[ExceptionChain<'_>],
     groups: &BTreeMap<FactorKey, FactorGroup>,
 ) -> bool {
     if model.pressure_elongation_included(&case.id)
@@ -1926,7 +1952,7 @@ fn cancellation_exception_eligible(
     let direction = |index: usize| {
         built.pipes[index].frame_element().ok().and_then(|frame| frame.orientation().ok()).map(|orientation| orientation.local_axes[0])
     };
-    cancellation_exception_terms_eligible(&terminals, &members, groups, direction)
+    cancellation_exception_terms_eligible(&terminals, &members, chains, groups, direction)
 }
 
 /// A pressurised member of the case for [`cancellation_exception_terms_eligible`]:
@@ -1938,16 +1964,57 @@ struct ExceptionMember<'a> {
     index: usize,
 }
 
+/// One region's member chain for [`cancellation_exception_terms_eligible`]:
+/// its members in traversal order, each as (pipe, [start node, end node]).
+struct ExceptionChain<'a> {
+    region: &'a str,
+    steps: Vec<(&'a str, [usize; 2])>,
+}
+
+/// Each region's member chain as the region loop traversed it
+/// (`traverse_region`): the members in the order the region's evidence lists
+/// them (`member_pipe_ids`, formed from the traversal and from nothing else),
+/// each walked from the region's first terminal as the traversal walks it, so
+/// that each step starts where the previous one ended. Entered only behind
+/// the failing original screen. `None` (the case is refused) when a listed
+/// member is not built or does not continue the chain.
+fn exception_chains<'a>(model: &PreviewModel, built: &'a BuiltModel, output: &'a ExactPressureCase) -> Option<Vec<ExceptionChain<'a>>> {
+    let mut chains = Vec::new();
+    for evidence in &output.evidence {
+        let region = evidence["region_id"].as_str()?;
+        let first = evidence["terminals"][0]["node_ref"].as_str()?;
+        let mut current = model.nodes.iter().position(|node| node.id == first)?;
+        let mut steps = Vec::new();
+        for id in evidence["member_pipe_ids"].as_array()? {
+            let pipe = built.pipes.iter().find(|pipe| Some(pipe.element_id.as_str()) == id.as_str())?;
+            let next = if pipe.node_i.index == current {
+                pipe.node_j.index
+            } else if pipe.node_j.index == current {
+                pipe.node_i.index
+            } else {
+                return None;
+            };
+            steps.push((pipe.element_id.as_str(), [current, next]));
+            current = next;
+        }
+        chains.push(ExceptionChain { region, steps });
+    }
+    Some(chains)
+}
+
 /// The term-structure part of [`cancellation_exception_eligible`]: every
-/// group is a bore group at a translational degree of freedom, and every node
+/// group is a bore group at a translational degree of freedom, every node
 /// that carries a group is a transferring terminal's closed member end or an
-/// interior node of two members, as stated there. `terminals` lists every
-/// terminal of every region of the case as (region, node, transfers),
-/// `members` every pressurised member of the case, and `direction` gives a
+/// interior node of a chain, and every interior node of every chain is one of
+/// two members as stated there, whether or not it carries a group.
+/// `terminals` lists every terminal of every region of the case as (region,
+/// node, transfers), `members` every pressurised member of the case, `chains`
+/// each region's traversal ([`exception_chains`]), and `direction` gives a
 /// member's formed direction from its built pipe index.
 fn cancellation_exception_terms_eligible(
     terminals: &[(Option<&str>, usize, bool)],
     members: &[ExceptionMember<'_>],
+    chains: &[ExceptionChain<'_>],
     groups: &BTreeMap<FactorKey, FactorGroup>,
     direction: impl Fn(usize) -> Option<[f64; 3]>,
 ) -> bool {
@@ -1958,12 +2025,30 @@ fn cancellation_exception_terms_eligible(
         }
         by_dof.entry(*dof).or_default().push(group);
     }
-    let mut interior = std::collections::BTreeSet::new();
+    // The interior nodes, from the chains alone: where step k ends and step
+    // k + 1 begins, with the region and its two members in traversal order. A
+    // chain node that is any region's terminal (a junction of regions or a
+    // reducer step between them), or that two chains share, leaves the family.
+    let mut interior: BTreeMap<usize, (&str, [&str; 2])> = BTreeMap::new();
+    for chain in chains {
+        for pair in chain.steps.windows(2) {
+            let node = pair[0].1[1];
+            if pair[1].1[0] != node
+                || terminals.iter().any(|terminal| terminal.1 == node)
+                || interior.insert(node, (chain.region, [pair[0].0, pair[1].0])).is_some()
+            {
+                return false;
+            }
+        }
+    }
     for (&dof, at_dof) in &by_dof {
         let node = dof / DOF_PER_NODE;
         let ending = terminals.iter().filter(|terminal| terminal.1 == node).collect::<Vec<_>>();
         if ending.is_empty() {
-            interior.insert(node);
+            // A group at a node that is no chain's interior node.
+            if !interior.contains_key(&node) {
+                return false;
+            }
             continue;
         }
         let terms = at_dof.iter().flat_map(|group| &group.terms).collect::<Vec<_>>();
@@ -1979,19 +2064,32 @@ fn cancellation_exception_terms_eligible(
             return false;
         }
     }
-    for node in interior {
+    // Every interior node of every chain, with or without groups. A node with
+    // no group at all has both members' terms absent on all three axes, which
+    // is admitted only if both members' formed direction components are
+    // exactly zero on every axis. A member's formed direction is its chord
+    // normalised, whose largest component has magnitude at least 1/sqrt(3)
+    // and cannot be zero, so such a node, the whole node omitted, always leaves
+    // the family; the code refuses it here, by the same rule as any other axis.
+    for (&node, &(region, pipes)) in &interior {
         let meeting = members.iter().filter(|member| member.ends.contains(&node)).collect::<Vec<_>>();
-        let [first, second] = meeting[..] else { return false };
-        if first.region != second.region {
+        if meeting.len() != 2 || pipes[0] == pipes[1] {
             return false;
         }
+        let [Some(first), Some(second)] = pipes.map(|pipe| meeting.iter().copied().find(|member| member.pipe == pipe)) else {
+            return false;
+        };
+        if first.region != region || second.region != region {
+            return false;
+        }
+        let pair = [first, second];
         let mut formed: [Option<[f64; 3]>; 2] = [None, None];
         for axis in 0..3 {
             let terms = by_dof.get(&(node * DOF_PER_NODE + axis)).into_iter().flatten().flat_map(|group| &group.terms).collect::<Vec<_>>();
             if terms.iter().any(|term| term.3 != "poisson_eigen" || term.1 != first.region) {
                 return false;
             }
-            let present = [first, second].map(|member| terms.iter().filter(|term| term.2 == member.pipe).count());
+            let present = pair.map(|member| terms.iter().filter(|term| term.2 == member.pipe).count());
             if present[0] + present[1] != terms.len() || present.iter().any(|&count| count > 1) {
                 return false;
             }
@@ -2003,9 +2101,16 @@ fn cancellation_exception_terms_eligible(
                 // axis is exactly zero, read here from its direction as the
                 // producer forms it from its end nodes' coordinates (its
                 // frame's local x, `direction`), never from the absence of a
-                // group, a flag or a term count.
+                // group, a flag or a term count. A formed zero does not imply
+                // equal source coordinates on the axis (normalisation can
+                // underflow a nonzero component to zero; see
+                // [`BORE_DEPARTURE_RATIO`], "A formed zero that is not a
+                // source zero"). Here that case does not arise: grouping
+                // omits a term only for a source-known zero
+                // ([`add_factor_term`]); an underflowed component keeps its
+                // zero-valued group and its term is present.
                 if formed[slot].is_none() {
-                    formed[slot] = direction(meeting[slot].index);
+                    formed[slot] = direction(pair[slot].index);
                 }
                 if formed[slot].is_none_or(|formed| formed[axis] != 0.0) {
                     return false;
@@ -2019,38 +2124,27 @@ fn cancellation_exception_terms_eligible(
 /// The nodes of a case of the family: (closed member ends at transferring
 /// terminals, interior nodes as (node, region, the two members' model pipe
 /// indices in the order the region's published evidence lists them, its
-/// traversal order, which is the order the readers re-derive)). `None` when
-/// an interior node does not name exactly two members of one region.
+/// traversal order, which is the order the readers re-derive)). The interior
+/// nodes are the chains' ([`exception_chains`]), in node order, the same set
+/// the eligibility examined; the closed ends are the terminals that carry a
+/// group. `None` when a chain's member is not a model pipe.
 type FamilyNodes = (Vec<usize>, Vec<(usize, String, [usize; 2])>);
 
-fn family_nodes(model: &PreviewModel, case: &PreviewLoadCase, output: &ExactPressureCase, groups: &BTreeMap<FactorKey, FactorGroup>) -> Option<FamilyNodes> {
+fn family_nodes(model: &PreviewModel, case: &PreviewLoadCase, chains: &[ExceptionChain<'_>], groups: &BTreeMap<FactorKey, FactorGroup>) -> Option<FamilyNodes> {
     let terminal_nodes = case.pressure_regions.as_deref().unwrap_or_default().iter()
         .flat_map(|region| region.terminals.as_deref().unwrap_or_default())
         .filter_map(|terminal| model.nodes.iter().position(|node| Some(&node.id) == terminal.node_ref.as_ref()))
         .collect::<HashSet<_>>();
-    let mut terms: BTreeMap<usize, Vec<&(f64, String, String, &'static str)>> = BTreeMap::new();
-    for ((dof, ..), group) in groups {
-        terms.entry(dof / DOF_PER_NODE).or_default().extend(&group.terms);
-    }
-    let mut closed = Vec::new();
+    let mut closed = groups.keys().map(|key| key.0 / DOF_PER_NODE).filter(|node| terminal_nodes.contains(node)).collect::<Vec<_>>();
+    closed.dedup();
+    let index = |id: &str| model.pipe_segments.iter().position(|pipe| pipe.id == id);
     let mut interior = Vec::new();
-    for (node, terms) in terms {
-        if terminal_nodes.contains(&node) {
-            closed.push(node);
-            continue;
+    for chain in chains {
+        for pair in chain.steps.windows(2) {
+            interior.push((pair[0].1[1], chain.region.to_string(), [index(pair[0].0)?, index(pair[1].0)?]));
         }
-        let region = terms.first()?.1.clone();
-        let listed = output.evidence.iter().find(|evidence| evidence["region_id"] == region.as_str())?["member_pipe_ids"].as_array()?;
-        let place = |id: &str| listed.iter().position(|member| member == id);
-        let mut pipes = terms.iter().map(|term| term.2.as_str()).collect::<Vec<_>>();
-        pipes.sort_unstable_by_key(|id| place(id));
-        pipes.dedup();
-        let [a, b] = pipes[..] else { return None };
-        place(a)?;
-        place(b)?;
-        let index = |id: &str| model.pipe_segments.iter().position(|pipe| pipe.id == id);
-        interior.push((node, region, [index(a)?, index(b)?]));
     }
+    interior.sort_unstable_by_key(|entry| entry.0);
     Some((closed, interior))
 }
 
@@ -3175,8 +3269,17 @@ mod cancellation_exception_tests {
         ExceptionMember { pipe, region, ends, index }
     }
 
+    /// Region "r"'s chain A(0)-M(1)-B(2), as `exception_chains` forms it.
+    fn chain_r() -> ExceptionChain<'static> {
+        ExceptionChain { region: "r", steps: vec![("p:A-M", [0, 1]), ("p:M-B", [1, 2])] }
+    }
+
     fn eligible(terminals: &Terminals, members: &Members, groups: &BTreeMap<FactorKey, FactorGroup>, directions: &Directions) -> bool {
-        cancellation_exception_terms_eligible(terminals, members, groups, |index| directions.get(index).copied())
+        eligible_with(&[chain_r()], terminals, members, groups, directions)
+    }
+
+    fn eligible_with(chains: &[ExceptionChain<'_>], terminals: &Terminals, members: &Members, groups: &BTreeMap<FactorKey, FactorGroup>, directions: &Directions) -> bool {
+        cancellation_exception_terms_eligible(terminals, members, chains, groups, |index| directions.get(index).copied())
     }
 
     /// A closed run A(0)-M(1)-B(2) of region "r" along x, outside diameters
@@ -3326,6 +3429,63 @@ mod cancellation_exception_tests {
             directions.extend([[0.0, 0.0, X], [0.0, 0.0, X]]);
             change(&mut terminals, &mut members, &mut groups);
             assert!(!eligible(&terminals, &members, &groups, &directions), "{label}");
+        }
+    }
+
+    /// The third review's predicate test, maintained: every group at the
+    /// interior node M removed (both members, the nonzero x and y terms).
+    /// The node is enumerated from the chain, not from the groups, so its
+    /// absent terms are examined and the case leaves the family.
+    #[test]
+    fn a_whole_interior_node_omitted_leaves_the_family() {
+        let (terminals, members, mut groups, directions) = axis_zero_run();
+        assert!(eligible(&terminals, &members, &groups, &directions));
+        groups.retain(|key, _| key.0 / DOF_PER_NODE != 1);
+        assert!(!eligible(&terminals, &members, &groups, &directions));
+        // Both terms of M's x axis removed, the y axis left: the x components are not zero.
+        let (terminals, members, mut groups, directions) = axis_zero_run();
+        groups.retain(|key, _| key.0 != DOF_PER_NODE);
+        assert!(!eligible(&terminals, &members, &groups, &directions));
+        // Without the chain, M's groups stand at a node that is no chain's interior node.
+        let (terminals, members, groups, directions) = axis_zero_run();
+        assert!(!eligible_with(&[], &terminals, &members, &groups, &directions));
+        // A chain whose steps do not meet, or that names a member that does not meet there.
+        let broken = ExceptionChain { region: "r", steps: vec![("p:A-M", [0, 1]), ("p:M-B", [3, 2])] };
+        assert!(!eligible_with(&[broken], &terminals, &members, &groups, &directions));
+        let foreign = ExceptionChain { region: "r", steps: vec![("p:A-M", [0, 1]), ("p:elsewhere", [1, 2])] };
+        assert!(!eligible_with(&[foreign], &terminals, &members, &groups, &directions));
+    }
+
+    /// A run A(0)-M(1)-N(2)-B(3) along x, outside diameters one ulp apart
+    /// member to member, and a second region's run C(4)-D(5)-E(6) along x:
+    /// each interior node omitted whole, one at a time.
+    #[test]
+    fn one_interior_node_omitted_of_several_or_in_a_second_region_leaves_the_family() {
+        let od = |ulps: u64| f64::from_bits(0.12_f64.to_bits() + ulps);
+        let build = || {
+            let mut groups = BTreeMap::new();
+            for (ulps, region, pipe, [i, j], closed) in [(0, "r", "p:A-M", [0, 1], [true, false]), (1, "r", "p:M-N", [1, 2], [false, false]),
+                (2, "r", "p:N-B", [2, 3], [false, true]), (0, "s", "p:C-D", [4, 5], [true, false]), (3, "s", "p:D-E", [5, 6], [false, true])] {
+                let s = state(od(ulps));
+                add_factor_term(&mut groups, i * DOF_PER_NODE, &s, X, false, 1.0, region, pipe, "poisson_eigen");
+                add_factor_term(&mut groups, j * DOF_PER_NODE, &s, X, false, -1.0, region, pipe, "poisson_eigen");
+                if closed[0] { add_factor_term(&mut groups, i * DOF_PER_NODE, &s, X, false, -1.0, region, pipe, "terminal_cap"); }
+                if closed[1] { add_factor_term(&mut groups, j * DOF_PER_NODE, &s, X, false, 1.0, region, pipe, "terminal_cap"); }
+            }
+            groups
+        };
+        let groups = build();
+        let members = vec![member("p:A-M", "r", [0, 1], 0), member("p:M-N", "r", [1, 2], 1), member("p:N-B", "r", [2, 3], 2),
+            member("p:C-D", "s", [4, 5], 3), member("p:D-E", "s", [5, 6], 4)];
+        let terminals: Terminals = vec![(Some("r"), 0, true), (Some("r"), 3, true), (Some("s"), 4, true), (Some("s"), 6, true)];
+        let chains = [ExceptionChain { region: "r", steps: vec![("p:A-M", [0, 1]), ("p:M-N", [1, 2]), ("p:N-B", [2, 3])] },
+            ExceptionChain { region: "s", steps: vec![("p:C-D", [4, 5]), ("p:D-E", [5, 6])] }];
+        let directions = vec![[X, 0.0, 0.0]; 5];
+        assert!(eligible_with(&chains, &terminals, &members, &groups, &directions));
+        for omitted in [1, 2, 5] {
+            let mut without = build();
+            without.retain(|key, _| key.0 / DOF_PER_NODE != omitted);
+            assert!(!eligible_with(&chains, &terminals, &members, &without, &directions), "node {omitted} omitted");
         }
     }
 

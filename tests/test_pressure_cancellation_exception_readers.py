@@ -9,7 +9,9 @@ The two assemblies below are the engine's (sparse), each one region transferring
 elongation: two collinear 3 m pipes whose outside diameters are one ulp apart (the interior remainder is 3.6e-12 N), and
 two skew pipes whose interior node is 1/1000 of the 3 m span from a terminal and 50 epsilon of the span off the chord,
 and the second review's chain (0,0,0), (2,0,0), (3, 63 epsilon * 6, 0), (6,0,0), outside diameters one ulp apart, whose
-first interior node holds the second member's y term alone because the first member's y component is exactly zero.
+first interior node holds the second member's y term alone because the first member's y component is exactly zero,
+and the third review's witness (0,0,0), (500,0,0), (500.000001, 1.4e-11, 0), (1000,0,0), its middle member one ulp
+larger in outside diameter (E = 1e-12 Pa, published by the engine at that review's head).
 The original screen fails on each and each is admitted by the exception. This twin reads no model and checks
 consistency only, that the published evidence agrees with itself: the directions, span, member lengths, zero components
 and member ends are the producer's as published (the Rust verdict given the model binds them to its coordinates)."""
@@ -31,6 +33,8 @@ ASSEMBLIES = {
                 {"region_id": "region:P", "load_case_id": "case:P", "member_pipe_ids": ["pipe:0", "pipe:1", "pipe:2"], "geometry": [], "terminals": [{"node_ref": "node:0", "closure_transfer": "transfers_to_wall"}, {"node_ref": "node:3", "closure_transfer": "transfers_to_wall"}], "applied_loads": [{"pipe_id": "pipe:0", "local_x_global": [1.0, 0.0, 0.0]}, {"pipe_id": "pipe:1", "local_x_global": [1.0, 8.393286066166183e-14, 0.0]}, {"pipe_id": "pipe:2", "local_x_global": [1.0, -2.7977620220553945e-14, 0.0]}]}),
     "skew": ({"node_order": ["node:0", "node:1", "node:2"], "assembled_pressure_rhs_global": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.4524994185194373e-07, -9.683208190836012e-08, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "cancellation_screen": 0.0012787147884321631, "cancellation_screen_exception": {"basis": "straight_region_interior_cap_pairs_cap_remainder_retained", "consistency_bound_ratio": 3.384851335933629e-11, "member_lengths_m": [0.003, 2.9970000000000003], "member_pipe_ids": ["pipe:0", "pipe:1"], "node_ref": "node:1", "region_span_m": 3.0000000000000004, "remainder_to_bore_force_ratio": 1.111334606091418e-11}, "groups": [{"assembled_force_n": 0.0, "coefficient_sum": 0.0, "component": "Fx", "direction_component_magnitude": 0.5547001962159915, "node_ref": "node:0", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa9999999999999", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": 1.0, "kind": "poisson_eigen", "pipe_id": "pipe:0", "region_id": "region:P"}, {"coefficient": -1.0, "kind": "terminal_cap", "pipe_id": "pipe:0", "region_id": "region:P"}]}, {"assembled_force_n": 0.0, "coefficient_sum": 0.0, "component": "Fy", "direction_component_magnitude": 0.8320502943440021, "node_ref": "node:0", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa9999999999999", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": 1.0, "kind": "poisson_eigen", "pipe_id": "pipe:0", "region_id": "region:P"}, {"coefficient": -1.0, "kind": "terminal_cap", "pipe_id": "pipe:0", "region_id": "region:P"}]}, {"assembled_force_n": -8713.210306884877, "coefficient_sum": -1.0, "component": "Fx", "direction_component_magnitude": 0.5547001962159915, "node_ref": "node:1", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa9999999999999", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": -1.0, "kind": "poisson_eigen", "pipe_id": "pipe:0", "region_id": "region:P"}]}, {"assembled_force_n": 8713.210307030127, "coefficient_sum": 1.0, "component": "Fx", "direction_component_magnitude": 0.5547001962252384, "node_ref": "node:1", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa9999999999999", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": 1.0, "kind": "poisson_eigen", "pipe_id": "pipe:1", "region_id": "region:P"}]}, {"assembled_force_n": 13069.815460544876, "coefficient_sum": 1.0, "component": "Fy", "direction_component_magnitude": 0.8320502943378375, "node_ref": "node:1", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa9999999999999", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": 1.0, "kind": "poisson_eigen", "pipe_id": "pipe:1", "region_id": "region:P"}]}, {"assembled_force_n": -13069.815460641708, "coefficient_sum": -1.0, "component": "Fy", "direction_component_magnitude": 0.8320502943440021, "node_ref": "node:1", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa9999999999999", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": -1.0, "kind": "poisson_eigen", "pipe_id": "pipe:0", "region_id": "region:P"}]}, {"assembled_force_n": 0.0, "coefficient_sum": 0.0, "component": "Fx", "direction_component_magnitude": 0.5547001962252384, "node_ref": "node:2", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa9999999999999", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": -1.0, "kind": "poisson_eigen", "pipe_id": "pipe:1", "region_id": "region:P"}, {"coefficient": 1.0, "kind": "terminal_cap", "pipe_id": "pipe:1", "region_id": "region:P"}]}, {"assembled_force_n": 0.0, "coefficient_sum": 0.0, "component": "Fy", "direction_component_magnitude": 0.8320502943378375, "node_ref": "node:2", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa9999999999999", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": -1.0, "kind": "poisson_eigen", "pipe_id": "pipe:1", "region_id": "region:P"}, {"coefficient": 1.0, "kind": "terminal_cap", "pipe_id": "pipe:1", "region_id": "region:P"}]}]},
              {"region_id": "region:P", "load_case_id": "case:P", "member_pipe_ids": ["pipe:0", "pipe:1"], "geometry": [], "terminals": [{"node_ref": "node:0", "closure_transfer": "transfers_to_wall"}, {"node_ref": "node:2", "closure_transfer": "transfers_to_wall"}], "applied_loads": [{"pipe_id": "pipe:0", "local_x_global": [0.5547001962159915, 0.8320502943440021, 0.0]}, {"pipe_id": "pipe:1", "local_x_global": [0.5547001962252384, 0.8320502943378375, 0.0]}]}),
+    "third review witness": ({"assembled_pressure_rhs_global": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, -1.536916897748597e-06, 0.2197357159078235, 0.0, 0.0, 0.0, 0.0, 1.536916897748597e-06, -0.21973571634729494, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "cancellation_screen": 1.0158730113261352e-09, "cancellation_screen_exception": {"basis": "straight_region_interior_cap_pairs_cap_remainder_retained", "consistency_bound_ratio": 3.375078020041143e-05, "member_lengths_m": [9.99999997573086e-07, 499.999999], "member_pipe_ids": ["pipe:1", "pipe:2"], "node_ref": "node:2", "region_span_m": 1000.0, "remainder_to_bore_force_ratio": 1.3988810172546408e-05}, "groups": [{"assembled_force_n": 0.0, "coefficient_sum": 0.0, "component": "Fx", "direction_component_magnitude": 1.0, "node_ref": "node:0", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa9999999999999", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": 1.0, "kind": "poisson_eigen", "pipe_id": "pipe:0", "region_id": "region:P"}, {"coefficient": -1.0, "kind": "terminal_cap", "pipe_id": "pipe:0", "region_id": "region:P"}]}, {"assembled_force_n": -15707.963267948964, "coefficient_sum": -1.0, "component": "Fx", "direction_component_magnitude": 1.0, "node_ref": "node:1", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa9999999999999", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": -1.0, "kind": "poisson_eigen", "pipe_id": "pipe:0", "region_id": "region:P"}]}, {"assembled_force_n": 15707.963266412047, "coefficient_sum": 1.0, "component": "Fx", "direction_component_magnitude": 0.9999999999021566, "node_ref": "node:1", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa999999999999a", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": 1.0, "kind": "poisson_eigen", "pipe_id": "pipe:1", "region_id": "region:P"}]}, {"assembled_force_n": 0.2197357159078235, "coefficient_sum": 1.0, "component": "Fy", "direction_component_magnitude": 1.398881014422661e-05, "node_ref": "node:1", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa999999999999a", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": 1.0, "kind": "poisson_eigen", "pipe_id": "pipe:1", "region_id": "region:P"}]}, {"assembled_force_n": 15707.963267948964, "coefficient_sum": 1.0, "component": "Fx", "direction_component_magnitude": 1.0, "node_ref": "node:2", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa9999999999999", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": 1.0, "kind": "poisson_eigen", "pipe_id": "pipe:2", "region_id": "region:P"}]}, {"assembled_force_n": -15707.963266412047, "coefficient_sum": -1.0, "component": "Fx", "direction_component_magnitude": 0.9999999999021566, "node_ref": "node:2", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa999999999999a", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": -1.0, "kind": "poisson_eigen", "pipe_id": "pipe:1", "region_id": "region:P"}]}, {"assembled_force_n": -4.3947143162803046e-10, "coefficient_sum": -1.0, "component": "Fy", "direction_component_magnitude": 2.7977620276509187e-14, "node_ref": "node:2", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa9999999999999", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": -1.0, "kind": "poisson_eigen", "pipe_id": "pipe:2", "region_id": "region:P"}]}, {"assembled_force_n": -0.2197357159078235, "coefficient_sum": -1.0, "component": "Fy", "direction_component_magnitude": 1.398881014422661e-05, "node_ref": "node:2", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa999999999999a", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": -1.0, "kind": "poisson_eigen", "pipe_id": "pipe:1", "region_id": "region:P"}]}, {"assembled_force_n": 0.0, "coefficient_sum": 0.0, "component": "Fx", "direction_component_magnitude": 1.0, "node_ref": "node:3", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa9999999999999", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": -1.0, "kind": "poisson_eigen", "pipe_id": "pipe:2", "region_id": "region:P"}, {"coefficient": 1.0, "kind": "terminal_cap", "pipe_id": "pipe:2", "region_id": "region:P"}]}, {"assembled_force_n": 0.0, "coefficient_sum": 0.0, "component": "Fy", "direction_component_magnitude": 2.7977620276509187e-14, "node_ref": "node:3", "pressure_bits": "413e848000000000", "source_inner_radius_hi_bits": "3fa9999999999999", "source_inner_radius_lo_bits": "3c40000000000000", "terms": [{"coefficient": 1.0, "kind": "poisson_eigen", "pipe_id": "pipe:2", "region_id": "region:P"}, {"coefficient": -1.0, "kind": "terminal_cap", "pipe_id": "pipe:2", "region_id": "region:P"}]}], "node_order": ["node:0", "node:1", "node:2", "node:3"]},
+                {"region_id": "region:P", "load_case_id": "case:P", "member_pipe_ids": ["pipe:0", "pipe:1", "pipe:2"], "geometry": [], "terminals": [{"node_ref": "node:0", "closure_transfer": "transfers_to_wall"}, {"node_ref": "node:3", "closure_transfer": "transfers_to_wall"}], "applied_loads": [{"pipe_id": "pipe:0", "local_x_global": [1.0, 0.0, 0.0]}, {"pipe_id": "pipe:1", "local_x_global": [0.9999999999021566, 1.398881014422661e-05, 0.0]}, {"pipe_id": "pipe:2", "local_x_global": [1.0, -2.7977620276509187e-14, 0.0]}]}),
 }
 
 
@@ -295,3 +299,87 @@ def test_no_foreign_term_stands_alone_on_a_zero_axis(name: str, change) -> None:
     with pytest.raises(ValueError) as refusal:
         rhs_screen(rhs, CASE, False, regions)
     assert str(refusal.value).split(": ")[-1].startswith("SOURCE_PHYSICS_"), (name, str(refusal.value))
+
+
+# DEL-04-07, the third review's finding 2: an interior node omitted whole. This twin enumerates the interior nodes from
+# the published traversal (each region's consecutive listed members), so a node with no published group is examined.
+
+MISSING = "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_INTERIOR_NODE_MISSING"
+
+
+def _restamp_screen(rhs: dict) -> None:
+    """The original screen as the producer forms it from the (changed) groups and vector."""
+    order, assembled = rhs["node_order"], rhs["assembled_pressure_rhs_global"]
+    by_dof: dict[int, list[float]] = {}
+    for group in rhs["groups"]:
+        by_dof.setdefault(6 * order.index(group["node_ref"]) + ["Fx", "Fy", "Fz"].index(group["component"]), []).append(group["assembled_force_n"])
+    max_rhs = max((abs(v) for i, v in enumerate(assembled) if i % 6 < 3), default=0.0)
+    maximum = 0.0
+    for values in by_dof.values():
+        if max_rhs == 0:
+            if any(v != 0 for v in values):
+                maximum = math.inf
+        else:
+            maximum = max(maximum, math.fsum(abs(v) / max_rhs for v in values))
+    screen = 32 * 2.0 ** -52 * maximum
+    rhs["cancellation_screen"] = screen if math.isfinite(screen) else None
+
+
+def _omit_node(rhs: dict, node: str) -> None:
+    """The third review's forgery: every group at ``node`` removed, the vector there zeroed, the screen re-stamped."""
+    rhs["groups"] = [g for g in rhs["groups"] if g["node_ref"] != node]
+    at = 6 * rhs["node_order"].index(node)
+    rhs["assembled_pressure_rhs_global"][at:at + 3] = [0.0, 0.0, 0.0]
+    _restamp_screen(rhs)
+
+
+@pytest.mark.parametrize(("label", "node", "code"), [
+    ("third review witness", "node:1", MISSING),  # the third review's whole-node omission (about 0.22 N required there)
+    ("axis zero", "node:2", MISSING),  # the record's node, one of two
+    # One of two interior nodes whose remaining loads pass the original screen once it is omitted: refused there.
+    ("axis zero", "node:1", "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BESIDE_PASSING_SCREEN"),
+    # A run's only interior node: every published load is then zero, the re-stamped screen passes and the record
+    # beside it is refused.
+    ("one ulp", "node:1", "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BESIDE_PASSING_SCREEN"),
+    ("skew", "node:1", "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BESIDE_PASSING_SCREEN"),
+])
+def test_an_interior_node_omitted_whole_is_refused_by_name(label: str, node: str, code: str) -> None:
+    rhs, regions = _admitted(label)
+    _omit_node(rhs, node)
+    _refused(rhs, regions, code)
+
+
+def test_both_terms_of_one_axis_omitted_at_one_node_are_refused() -> None:
+    rhs, regions = _admitted("axis zero")
+    rhs["groups"] = [g for g in rhs["groups"] if not (g["node_ref"] == "node:2" and g["component"] == "Fx")]
+    rhs["assembled_pressure_rhs_global"][12] = 0.0
+    _restamp_screen(rhs)
+    _refused(rhs, regions, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY")
+
+
+def _two_regions() -> tuple[dict, list[dict]]:
+    """The one-ulp assembly twice, the second copy as region:Q over node:3..node:5 and pipe:2, pipe:3 (its remainder
+    equal to the first's, so the record keeps the first in node order)."""
+    rhs, regions = _admitted("one ulp")
+    rename = {"node:0": "node:3", "node:1": "node:4", "node:2": "node:5", "pipe:0": "pipe:2", "pipe:1": "pipe:3", "region:P": "region:Q"}
+    second = deepcopy(rhs["groups"])
+    for group in second:
+        group["node_ref"] = rename[group["node_ref"]]
+        for term in group["terms"]:
+            term["pipe_id"], term["region_id"] = rename[term["pipe_id"]], rename[term["region_id"]]
+    rhs["groups"] += second
+    rhs["node_order"] = rhs["node_order"] + [rename[n] for n in rhs["node_order"]]
+    rhs["assembled_pressure_rhs_global"] = rhs["assembled_pressure_rhs_global"] * 2
+    region = deepcopy(regions[0])
+    region["region_id"] = "region:Q"
+    region["member_pipe_ids"] = ["pipe:2", "pipe:3"]
+    region["terminals"] = [dict(t, node_ref=rename[t["node_ref"]]) for t in region["terminals"]]
+    region["applied_loads"] = [dict(load, pipe_id=rename[load["pipe_id"]]) for load in region["applied_loads"]]
+    return rhs, regions + [region]
+
+
+def test_a_whole_node_omitted_in_the_second_of_two_family_regions_is_refused_by_name() -> None:
+    rhs, regions = _two_regions()
+    rhs_screen(deepcopy(rhs), CASE, False, deepcopy(regions))
+    _omit_node(rhs, "node:4")
+    _refused(rhs, regions, MISSING)

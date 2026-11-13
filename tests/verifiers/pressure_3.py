@@ -563,6 +563,23 @@ def _family_consistency(rhs: Mapping[str, Any], terminals: list[tuple[str, str, 
     return interior
 
 
+def _published_traversal_consistency(interior: list[dict[str, Any]], members: dict[str, list[str]]) -> None:
+    """Consistency (no model; Rust ``physics_evidence::published_traversal_consistency``): each two consecutive
+    published members of a region (``member_pipe_ids``, the producer's traversal order) meet at one interior node, so
+    each pair must be found exactly once among the interior nodes whose published terms are those two members', and
+    none may be left over. A node whose every group was omitted publishes no term, so its pair is found nowhere
+    (SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_INTERIOR_NODE_MISSING). Node names, member ends and the list's order are the
+    producer's as published; this twin reads no model."""
+    matched: set[int] = set()
+    for region, listed in members.items():
+        for a, b in zip(listed, listed[1:]):
+            found = [i for i, node in enumerate(interior) if node["region"] == region and sorted(node["pipes"]) == sorted([a, b])]
+            _require(bool(found), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_INTERIOR_NODE_MISSING")
+            _require(found[0] not in matched, "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY")
+            matched.add(found[0])
+    _require(len(matched) == len(interior), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY")
+
+
 def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, regions: list[Any]) -> None:
     """DEL-04-07, the cancellation screen (Rust ``physics_evidence::assembly`` and ``exception_consistency``).
 
@@ -601,6 +618,7 @@ def rhs_screen(rhs: Mapping[str, Any], cid: str, elongation: bool | None, region
         for load in region.get("applied_loads") or []:
             directions[(region["region_id"], load["pipe_id"])] = _consistent_direction(load)
     interior = _family_consistency(rhs, terminals, directions)
+    _published_traversal_consistency(interior, members)
     _require(bool(interior), family)
     node = interior[0]
     for candidate in interior[1:]:
