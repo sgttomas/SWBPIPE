@@ -18,6 +18,8 @@ sys.path.insert(0, str(RUNNER))
 
 from test_release_runner import (  # noqa: E402,F401  (collected by pytest)
     Attribution,
+    BaselinePlans,
+    BaselineSet,
     Classification,
     ClassificationReadings,
     Generate,
@@ -25,8 +27,13 @@ from test_release_runner import (  # noqa: E402,F401  (collected by pytest)
     LiveLaunch,
     MetadataHasNoHostIdentifiers,
     PacketAggregation,
+    PinnedModels,
     Plan,
+    ReadBack,
+    ReadBackBinding,
+    RequiredValuesByBranch,
     ProgressLines,
+    ReferenceSystemModel,
     RunIds,
     Window,
     WritePlan,

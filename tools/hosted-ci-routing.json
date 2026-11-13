@@ -285,7 +285,7 @@
       "core/solver/nonlinear_integration/Cargo.toml": "7fe7a344af40736a980765d9c96edcf201210b20d610101a9988665115a5b2cf",
       "core/solver/nonlinear_supports/Cargo.toml": "c34c7d2a46294e3c2ab57b4b15028c48664670dfe25278b8b6d22147743a10a6",
       "core/solver/performance_harness/Cargo.toml": "af149ad58e5cb3bb646248e6196496e41d4749b4dc7cc67cdac341f04d2bae47",
-      "core/solver/release_timing/Cargo.toml": "27ee5d434ac2faf7c5c3309337ce5c1f6cbfed453453bee063e7d7f4e64592f8",
+      "core/solver/release_timing/Cargo.toml": "0c11556c7b093e0e2347f19000e107bc4c832fa00c89d081bd325f0e866251a4",
       "core/solver/sparse_direct/Cargo.toml": "0bbbf9fbe14e2bbf47574c1daf5e9ef42b8d0b1b3b60588e87d83b7da7cde181",
       "core/solver/straight_pipe/Cargo.toml": "e09dcd581ac02093f6c4501abcdabed8df5c9d8e77ac4595f3cccfb94c2a3e67",
       "core/units/Cargo.toml": "4b50bd105464cc05c99d661414581555a27806864bf3cb991d15bdc26fa77cb6",
@@ -5714,7 +5714,20 @@
               "core/runner/headless/tests/t4_u5b_requests/SK-F.request.json",
               "core/runner/headless/tests/t4_u5b_requests/bindings.json",
               "core/solver/performance_harness/observations/k6/k6_packet.json",
-              "core/solver/performance_harness/observations/k6b/k6b_packet.json"
+              "core/solver/performance_harness/observations/k6b/k6b_packet.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/models/manifest.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/baseline-one-case-ex-n0046-sparse-r1.record.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/baseline-one-case-ex-n0046-sparse-r2.record.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/metadata.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/packet.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/reference-system-n0027-sparse-r1.record.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/reference-system-n0027-sparse-r2.record.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/plan.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/window/models/manifest.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/window/out/baseline-one-case-ex-n0046-sparse-r1.record.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/window/out/metadata.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/window/out/packet.json",
+              "core/solver/performance_harness/runner/fixtures/read_back/window/plan.json"
             ],
             "audit": "T4-S6's hash corpus test walks every .json and .jsonl file under core/ outside hidden, target, node_modules and dist directories, comparing the streamed canonical text and digests with the former path."
           },
@@ -5732,7 +5745,14 @@
             },
             "files": [
               "core/solver/performance_harness/observations/k6/counts.jsonl",
-              "core/solver/performance_harness/observations/k6b/counts.jsonl"
+              "core/solver/performance_harness/observations/k6b/counts.jsonl",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/baseline-one-case-ex-n0046-sparse-r1.jsonl",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/baseline-one-case-ex-n0046-sparse-r2.jsonl",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/records.jsonl",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/reference-system-n0027-sparse-r1.jsonl",
+              "core/solver/performance_harness/runner/fixtures/read_back/forms/out/reference-system-n0027-sparse-r2.jsonl",
+              "core/solver/performance_harness/runner/fixtures/read_back/window/out/baseline-one-case-ex-n0046-sparse-r1.jsonl",
+              "core/solver/performance_harness/runner/fixtures/read_back/window/out/records.jsonl"
             ],
             "audit": "T4-S6's hash corpus test walks every .json and .jsonl file under core/ outside hidden, target, node_modules and dist directories, comparing the streamed canonical text and digests with the former path."
           }
@@ -6241,7 +6261,7 @@
         ]
       },
       "core/solver/release_timing/src/supervise.rs": {
-        "sha256": "05d1034fd246b840fd81d3cd7a3cedd049df8fbea4e3463094ad95d767656069",
+        "sha256": "bd02d96f5d3ce742b75cddac49abe2b89623ebf24d6a69921b394fd91ab78338",
         "source_trees": [
           "core/solver/release_timing/Cargo.toml"
         ],

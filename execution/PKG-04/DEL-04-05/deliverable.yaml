@@ -58,6 +58,13 @@ needs:
     The model document has one current version, and a document of that version in the shapes it
     admits opens and solves; the rack generator writes that version.
   gating: false
+- from: DEL-09-01
+  when: Producing the headless timing baseline
+  condition: >-
+    The invented reference system is a committed exact-route model document that the product
+    solves, and its generator's check (`generate_reference_system.py --check`) exits 0 only when
+    the committed file is what the generator writes.
+  gating: false
 - from: DEL-07-11
   when: Measuring exit criterion 9 in the desktop
   condition: >-

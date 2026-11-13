@@ -1,0 +1,145 @@
+{
+ "classification_counts": {
+  "skipped_window_budget": 1,
+  "timed_out": 1
+ },
+ "conditions": [
+  "Engine stages only. A solve run: the release_timing driver runs, in one process, the stages the desktop solve worker runs for an ordinary solve (read, parse, request, entry, serialize, release_envelope, parse_back) and nothing else; parse_back is a cheaper stand-in for the worker's read-back of the result text, so the driver's time and memory from serialize on are lower bounds on the worker's, not a measured worker peak. A model-checks run (task model_checks, run id model-checks-...) is a process of its own: the stages the desktop's check worker runs for the on-demand model checks (read, parse, model_checks, serialize). The desktop app, its IPC and ingress, the worker process protocol and memory pool, the solve attestation digests and the webview are not included; the driver lists its own limits in each run.",
+  "One driver process at a time, each with a per-run timeout. The release_timing binary supervises itself (release_timing --supervise): it re-executes itself as the driver in a new session and process group and watches that child from outside, with no /usr/bin/time and no ps. Every 100 ms it reads the driver phys_footprint, lifetime-maximum phys_footprint and resident size (one proc_pid_rusage RUSAGE_INFO_V4 call); any limit kills the whole process group with SIGKILL. When the driver has exited, before reaping it, the supervisor reads its final lifetime-maximum phys_footprint (the counter /usr/bin/time -l reports as peak memory footprint), then takes its exit status and ru_maxrss from wait4.",
+  "The footprint budget is the product per-invocation memory budget on the 16 GiB base machine (12 GiB, memory_pool.rs DEFAULT_INVOCATION_BUDGET_BYTES), enforced as the product enforces it, on phys_footprint: a run whose sampled footprint or lifetime-maximum footprint exceeds it is killed and classified exceeds_base_machine_budget (the desktop worker_footprint_exceeded). Like the product, the sampling can miss a peak shorter than one poll; a completed run whose lifetime-maximum footprint (sampled, the driver reading, or the supervisor reading at exit) exceeds the budget is classified the same way, because the desktop would refuse that result. The rules are the Python runner's; this supervisor also has the driver's reading at its exit on a killed run, where the Python runner's /usr/bin/time is killed with the group, and counts it, so the two can class a boundary case differently. Each record names the readings its classification used (classification_readings).",
+  "The resident-size watchdog (proc_pid_rusage ri_resident_size, read where the Python runner reads ps RSS) is an emergency cap only (16 GiB by default, the base machine physical memory). Resident size can run well above phys_footprint (about 1.4 times at 500 linear-ex nodes), so it is not the product measure; a kill there is killed_by_rss_cap unless a footprint reading shows the budget exceeded.",
+  "The host is the one described in metadata (memory_bytes, cpu_model); it is not necessarily the 16 GiB base machine, so memory pressure, paging and compression on a 16 GiB machine are not reproduced.",
+  "Models are those the plan names: invented rack models from rack_model.py and, where the plan names it, the committed invented reference system (fixtures/reference_system/reference_system.json). Each is identified per run by sha256 and checked against the plan sha256 where the plan gives one.",
+  "This supervisor takes no stack snapshots: a plan with attribution runs is refused.",
+  "Observation only: no time or memory threshold is asserted, and criterion 9 provisional bounds are not evaluated.",
+  "Window budget 4 s; 1 run(s) not run (skipped, missing or mismatched model)."
+ ],
+ "driver_limits": null,
+ "metadata": {
+  "base_machine_budget_bytes": 12884901888,
+  "binary_name": "release_timing",
+  "binary_sha256": "c81298b26009be58263a786dbd57a45fca21ce3bd3f90c278f13a3ceb591ba1d",
+  "budget_s": 4,
+  "build_profile": "debug",
+  "cargo": [
+   "cargo 1.97.1 (c980f4866 2026-06-30)",
+   "release: 1.97.1",
+   "commit-hash: c980f4866141969fab6254a680546a277789d6f0",
+   "commit-date: 2026-06-30",
+   "host: aarch64-apple-darwin",
+   "libgit2: 1.9.2 (sys:0.20.4 vendored)",
+   "libcurl: 8.7.1 (sys:0.4.88+curl-8.20.0 system ssl:(SecureTransport) LibreSSL/3.3.6)",
+   "ssl: OpenSSL 3.6.2 7 Apr 2026",
+   "os: Mac OS 27.2.0 [64-bit]"
+  ],
+  "cpu_logical": "18",
+  "cpu_model": "test fixture",
+  "cpu_physical": "18",
+  "driver_schema": "release-timing-v2",
+  "emergency_rss_cap_bytes": 17179869184,
+  "footprint_watchdog": "proc_pid_rusage RUSAGE_INFO_V4",
+  "machine": "arm64",
+  "memory_bytes": "137438953472",
+  "os": "Darwin",
+  "os_build_version": "26B123",
+  "os_product_version": "27.2",
+  "os_release": "27.2.0",
+  "plan": [
+   "baseline-one-case-ex-n0046-sparse-r1",
+   "baseline-one-case-ex-n0046-sparse-r2"
+  ],
+  "python": null,
+  "quiet_wait_s": 0,
+  "runner": "release_timing --supervise",
+  "rustc": [
+   "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+   "binary: rustc",
+   "commit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452",
+   "commit-date: 2026-07-14",
+   "host: aarch64-apple-darwin",
+   "release: 1.97.1",
+   "LLVM version: 22.1.6"
+  ],
+  "source_commit": "e42da5ff19cee9d8276df6b9a3169d9cec80f6f4",
+  "source_dirty": false,
+  "source_identity_from": "build",
+  "source_tree": "b66da4d7814ad0c529eabace21a2a5f8ee3c217e",
+  "watchdog_poll_s": 0.1,
+  "write_results": false
+ },
+ "no_thresholds": "no time or memory bound is asserted anywhere; criterion 9 provisional bounds are not evaluated",
+ "not_run": [
+  {
+   "classification": "skipped_window_budget",
+   "classification_detail": "estimate 1 s exceeds the remaining 0 s",
+   "order": 1,
+   "run_id": "baseline-one-case-ex-n0046-sparse-r2"
+  }
+ ],
+ "observation_only": true,
+ "runs": [
+  {
+   "as_expected": false,
+   "attribution": false,
+   "bases": 0,
+   "blocking_codes": null,
+   "classification": "timed_out",
+   "classification_detail": "after_1_s",
+   "conditions": "baseline-one-case-ex, 46 nodes, sparse mode, baseline-one-case-ex-n0046.json; timeout 1 s (capped by the window), footprint budget 12.00 GiB, emergency RSS cap 16.00 GiB; host not quiet: host not quiet after 0 s: ['cargo'], memorystatus 94, load 7.39.",
+   "counts": {
+    "cases": null,
+    "combinations": null,
+    "members": null,
+    "nodes": null,
+    "supports": null
+   },
+   "diagnostic_counts": null,
+   "expect": "exceeds_base_machine_budget",
+   "last_stage": {
+    "repeat": 0,
+    "seconds": 3.33e-07,
+    "stage": "request"
+   },
+   "last_stage_memory": {
+    "lifetime_max_phys_footprint_bytes": 3195312,
+    "phys_footprint_bytes": 3195312,
+    "ru_maxrss_bytes": 6062080
+   },
+   "mode": "sparse",
+   "model": "baseline-one-case-ex-n0046.json",
+   "model_bytes": 76166,
+   "model_sha256": "1d81271fb6935e45357a7c8797f4def346b18f9734fb38c50bf871a5d80454ce",
+   "nodes": 46,
+   "nonlinear_iterations": null,
+   "order": 0,
+   "output_bytes": null,
+   "output_sha256": null,
+   "peak_memory_bytes": {
+    "driver_lifetime_max_phys_footprint": null,
+    "driver_ru_maxrss": null,
+    "exit_lifetime_max_phys_footprint": 12812744,
+    "peak_footprint": 12812744,
+    "ps_max_rss": null,
+    "sampled_lifetime_max_phys_footprint": 12812744,
+    "sampled_phys_footprint": 12812744,
+    "sampled_resident_size": 28033024,
+    "time_max_rss": null,
+    "time_peak_footprint": null,
+    "wait4_maxrss": 28033024
+   },
+   "profile": "baseline-one-case-ex",
+   "route": null,
+   "row_classes": null,
+   "rows": null,
+   "run_id": "baseline-one-case-ex-n0046-sparse-r1",
+   "snapshots": null,
+   "stage_seconds": null,
+   "status": null,
+   "task": "solve",
+   "timing_use": "measurement",
+   "wall_s": 1.0592
+  }
+ ],
+ "schema": "release-timing-packet-v1",
+ "window_elapsed_s": 3.627
+}
