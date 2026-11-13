@@ -143,9 +143,24 @@
         "validation/benchmarks/numerical_integrity/test_reference.py",
         "validation/benchmarks/numerical_robustness/runner/test_vk_scale_runner.py"
       ]
+    },
+    "repository-checks": {
+      "cwd": ".",
+      "command": [
+        "python3",
+        "tools/ci/repository_checks.py",
+        "--event",
+        "pull_request",
+        "--base",
+        "origin/main",
+        "--head",
+        "HEAD"
+      ]
     }
   },
-  "always_checks": [],
+  "always_checks": [
+    "repository-checks"
+  ],
   "path_rules": [
     {
       "paths": [

@@ -12,6 +12,20 @@ fails if any selected verification fails, is cancelled or never runs. Unselected
 product jobs are explicitly skipped. Selection uses the complete PR diff;
 missing diff information conservatively selects coverage.
 
+A draft pull request runs the documentation checks and CI selection and, on the
+product route, the Repository checks; it does not run the product jobs
+(`piping`). On the product route its `harness` fails with "Draft pull request:
+the product jobs did not run. Mark it ready for review to run them." A skipped
+required check would count as passing, so `harness` runs and fails instead.
+Marking the pull request ready (`ready_for_review`) starts the full run on its
+head, in the pull request's concurrency group, which cancels an unfinished draft
+run. A draft on the documentation route has no product jobs to skip and is
+verified as before. A green `harness` therefore always means that every product
+job the route selects ran: in product mode the aggregate requires both the
+Repository checks and `piping` to succeed, so a skipped `piping` never
+aggregates green. Merge-queue and dispatch runs have no draft state and are
+unchanged, as are the Windows workflows.
+
 GitHub offers its merge queue only to organization-owned repositories, so it is
 not enabled here. The workflow stays ready for it: the merge queue
 (`merge_group`) verifies its temporary merge commit exactly as
@@ -216,6 +230,24 @@ gap. The local `tools/tools-test-routing.json` records this bounded estate; it
 does not import the former combined repository's unrelated tool suites. Numerical inventory/source-digest
 refresh and product-selection failure propagation remain required.
 
+The job's whole list (selection, the bounded suite, the routing invariant over
+every maintained test, the deliverable check, the execution-boundary and
+changed-specification check, and the conflict and run-record checks) is one
+maintained script, `tools/ci/repository_checks.py`, which the job calls after
+setting up Python, Rust and the check dependencies. Before a push, run it
+locally from a clean checkout at the repository root:
+
+```sh
+python3 tools/ci/repository_checks.py --event pull_request --base origin/main --head HEAD
+```
+
+It runs the steps in order, names each, stops at the first failure and writes
+`repository-ci-plan.json` and `deliverable-check.json` at the root. It validates
+inventories and digests and never refreshes them: where a check finds one stale,
+the run fails, and its owning tool refreshes it deliberately. A base that names no commit is
+replaced by `HEAD^1` for the documents and conflict checks, except in a merge
+queue, which fails closed.
+
 Python-test-only edits retain their Python checks with zero Cargo crates. Python PR coverage keeps security and constraint/source-block validation, then
 adds qualification, schema and canonical-JSON families when their inputs change.
 Established shared test helper edits also select their direct importing tests;
@@ -340,7 +372,7 @@ repaired by this section; each stays open until its cause is changed.
   that merged. The rest ran on superseded pushes, which `cancel-in-progress`
   stops only after they have used minutes. The practice that answers it takes
   one push per merged change as its target: read the local commit, run the
-  affected tests and the Repository checks job's own test list locally, then
+  affected tests and the Repository checks script (above) locally, then
   push the head meant to merge. A deliberate early hosted run stays allowed
   where a platform or integration question needs one.
 - **The Python job runs for every product pull request and is its longest
