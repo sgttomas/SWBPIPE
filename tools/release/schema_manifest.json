@@ -76,11 +76,11 @@
     },
     {
       "path": "schemas/physics_source_recovery.schema.json",
-      "sha256": "0440ba00d0377a4f023860ce2239ce35bd1905d0676bd6b1ecebcb19ad9b23dc"
+      "sha256": "5d1e98df8ef57244dba8636fbbdf54829e59c4394d666fafdda4692b310d00e2"
     },
     {
       "path": "schemas/results_pressure_3.v0.3.schema.json",
-      "sha256": "2f10da82e591d426bcedd6297032c6cad054bd92e9dd6c49766bea62f0f18235"
+      "sha256": "60fa7588781dc3c63c2c8b9a2e6036c3bd4292a9617185f7ff82b8f07f6cf3ec"
     },
     {
       "path": "schemas/retained_precision_mp_v2.schema.json",
@@ -100,7 +100,7 @@
     },
     {
       "path": "schemas/stress_neutral_export.v0.3.schema.json",
-      "sha256": "bcdaf5e5c7cdb66f32339553db8a08a47db66c0a6edfffac6913c118a09e27f9"
+      "sha256": "b73545d1a3d8ac18dea23e9afc026fa23749e471b79a529ab5f4f21b83d79c8b"
     },
     {
       "path": "schemas/target_mapping.schema.json",

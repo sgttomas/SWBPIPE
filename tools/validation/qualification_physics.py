@@ -69,8 +69,10 @@ DEPENDENCIES = {
     # `pressure_elongation` evidence, and the readers' recomputation of the cancellation-screen exception (was
     # e8543242...); then the consistency bound of the cancellation-screen exception, the re-formed pressure load,
     # and the warning bound to each exception record (was dfc556bb...); then the exception record's renamed members
-    # and warning, its direction and unit checks, and its model binding (was 46c1290c...).
-    MODULE: '91841ccf3e757eb963ca7116663a9243d67e94c092853afcc2548f880991f81c',
+    # and warning, its direction and unit checks, and its model binding (was 46c1290c...); then the record's
+    # remainder force, the warning's per-case message, and the readers' chain-based interior nodes and re-formed
+    # remainder (was 91841ccf...).
+    MODULE: '528855d4d0927368a2ee4121c746ffe8840e6b0f1566ac29b39de3669e862dd4',
     TABLE: TABLE_SHA256,
     # The units authority: then DEL-04-09 I3a's mass_length_per_rotation family (kg*m/rad, lb*in/rad, lb*ft/rad),
     # an addition only; every existing unit, dimension and conversion is unchanged (was 5a412c57...); then the
