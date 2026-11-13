@@ -44,7 +44,7 @@
     }
   ],
   "comparison_conventions": [
-    "relative deviation = (value - continuum) / |continuum|, the magnitude of the continuum value in the denominator",
+    "For quantities with a nonzero named continuum prediction, relative deviation = (value \u2212 continuum) / |continuum|. This convention defines no comparison where that prediction is absent.",
     "where a mode's two largest translational components are equal in magnitude, the shape's sign and the participation factor's sign are not compared; frequency, effective mass and combined magnitudes are"
   ],
   "document_kind": "openpipestress.caepipe_benchmark.model",
@@ -741,6 +741,6 @@
     }
   },
   "series": [],
-  "third_value": "NONE. No closed form exists for this layout and no independent reference has been generated for it, so agreement here compares two programs and is not a check against a third value",
+  "third_value": "NONE for the dynamic response: no frequency or response closed form exists for this layout (its section, weight and mass identities do not check modal or spectrum response), and no independent reference has been generated for it, so agreement here compares two programs and is not a check against a third value",
   "tranche": "3"
 }

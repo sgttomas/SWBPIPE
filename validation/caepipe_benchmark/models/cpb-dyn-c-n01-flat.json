@@ -22,8 +22,9 @@
       "value": 81.56233312844576
     },
     {
-      "basis": "Euler-Bernoulli continuum, cantilever (XY plane); the limit of the member series",
+      "basis": "Euler-Bernoulli continuum, cantilever (XY plane): a continuous Euler\u2013Bernoulli beam, neglecting shear deformation and rotary inertia; a continuum comparison target, not a finite-mesh eigenvalue",
       "formula": "x^2/(2 pi) sqrt(EI/(rho A L^4)), 1 + cos x cosh x = 0",
+      "not_established": "the validity of the continuum reference package behind these frequencies (validation/references/f2_spectrum, pull request 268, not on main) is not established by this tranche",
       "plane": "XY",
       "plane_mode": 1,
       "quantity": "frequency",
@@ -31,8 +32,9 @@
       "value": 0.2508806361891397
     },
     {
-      "basis": "Euler-Bernoulli continuum, cantilever (XY plane); the limit of the member series",
+      "basis": "Euler-Bernoulli continuum, cantilever (XY plane): a continuous Euler\u2013Bernoulli beam, neglecting shear deformation and rotary inertia; a continuum comparison target, not a finite-mesh eigenvalue",
       "formula": "x^2/(2 pi) sqrt(EI/(rho A L^4)), 1 + cos x cosh x = 0",
+      "not_established": "the validity of the continuum reference package behind these frequencies (validation/references/f2_spectrum, pull request 268, not on main) is not established by this tranche",
       "plane": "XY",
       "plane_mode": 2,
       "quantity": "frequency",
@@ -40,8 +42,9 @@
       "value": 1.572242109234627
     },
     {
-      "basis": "Euler-Bernoulli continuum, cantilever (XY plane); the limit of the member series",
+      "basis": "Euler-Bernoulli continuum, cantilever (XY plane): a continuous Euler\u2013Bernoulli beam, neglecting shear deformation and rotary inertia; a continuum comparison target, not a finite-mesh eigenvalue",
       "formula": "x^2/(2 pi) sqrt(EI/(rho A L^4)), 1 + cos x cosh x = 0",
+      "not_established": "the validity of the continuum reference package behind these frequencies (validation/references/f2_spectrum, pull request 268, not on main) is not established by this tranche",
       "plane": "XY",
       "plane_mode": 3,
       "quantity": "frequency",
@@ -49,8 +52,9 @@
       "value": 4.40232343182394
     },
     {
-      "basis": "Euler-Bernoulli continuum, propped cantilever (XZ plane); the limit of the member series",
+      "basis": "Euler-Bernoulli continuum, propped cantilever (XZ plane): a continuous Euler\u2013Bernoulli beam, neglecting shear deformation and rotary inertia; a continuum comparison target, not a finite-mesh eigenvalue",
       "formula": "x^2/(2 pi) sqrt(EI/(rho A L^4)), tan x = tanh x",
+      "not_established": "the validity of the continuum reference package behind these frequencies (validation/references/f2_spectrum, pull request 268, not on main) is not established by this tranche",
       "plane": "XZ",
       "plane_mode": 1,
       "quantity": "frequency",
@@ -58,8 +62,9 @@
       "value": 1.1001457513070019
     },
     {
-      "basis": "Euler-Bernoulli continuum, propped cantilever (XZ plane); the limit of the member series",
+      "basis": "Euler-Bernoulli continuum, propped cantilever (XZ plane): a continuous Euler\u2013Bernoulli beam, neglecting shear deformation and rotary inertia; a continuum comparison target, not a finite-mesh eigenvalue",
       "formula": "x^2/(2 pi) sqrt(EI/(rho A L^4)), tan x = tanh x",
+      "not_established": "the validity of the continuum reference package behind these frequencies (validation/references/f2_spectrum, pull request 268, not on main) is not established by this tranche",
       "plane": "XZ",
       "plane_mode": 2,
       "quantity": "frequency",
@@ -67,8 +72,9 @@
       "value": 3.565176888150391
     },
     {
-      "basis": "Euler-Bernoulli continuum, propped cantilever (XZ plane); the limit of the member series",
+      "basis": "Euler-Bernoulli continuum, propped cantilever (XZ plane): a continuous Euler\u2013Bernoulli beam, neglecting shear deformation and rotary inertia; a continuum comparison target, not a finite-mesh eigenvalue",
       "formula": "x^2/(2 pi) sqrt(EI/(rho A L^4)), tan x = tanh x",
+      "not_established": "the validity of the continuum reference package behind these frequencies (validation/references/f2_spectrum, pull request 268, not on main) is not established by this tranche",
       "plane": "XZ",
       "plane_mode": 3,
       "quantity": "frequency",
@@ -101,7 +107,7 @@
     }
   ],
   "comparison_conventions": [
-    "relative deviation = (value - continuum) / |continuum|, the magnitude of the continuum value in the denominator",
+    "For quantities with a nonzero named continuum prediction, relative deviation = (value \u2212 continuum) / |continuum|. This convention defines no comparison where that prediction is absent.",
     "where a mode's two largest translational components are equal in magnitude, the shape's sign and the participation factor's sign are not compared; frequency, effective mass and combined magnitudes are"
   ],
   "document_kind": "openpipestress.caepipe_benchmark.model",
@@ -564,7 +570,7 @@
       "unit": "N"
     }
   ],
-  "reference_values_note": "from validation/references/f2_spectrum/benchmark_pack/pack_summary.json: references with a refutation record, in pull request 268 and not yet on main. continuum = Rayleigh continuum closed form; consistent = SWBPIPE's stated formulation at this member count; lumped = half-and-half translational lumped mass at this member count, NOT SWBPIPE's formulation, the size of the named inexact input mass_formulation. Each side's periodic set is the first six modes of its own merged list, or all its finite modes where fewer exist",
+  "reference_values_note": "from validation/references/f2_spectrum/benchmark_pack/pack_summary.json: references with a refutation record, in pull request 268 and not yet on main. continuum = Rayleigh continuum closed form; consistent = SWBPIPE's stated formulation at this member count; lumped = half-and-half translational lumped mass at this member count, NOT SWBPIPE's formulation, the size of the named inexact input mass_formulation. Each side's periodic set is the first six modes of its own merged list, or all its finite modes where fewer exist; the validity of the continuum reference package behind these frequencies (validation/references/f2_spectrum, pull request 268, not on main) is not established by this tranche",
   "sampling": "series",
   "screening_classes": {
     "modal": "modal",
@@ -577,6 +583,6 @@
   "series": [
     "members"
   ],
-  "third_value": "closed form (continuum) in the limit of the member series; per member count and per mass formulation in validation/references/f2_spectrum (pull request 268, not yet on main)",
+  "third_value": "closed form: a continuous Euler\u2013Bernoulli beam (shear deformation and rotary inertia neglected), a continuum comparison target, not the eigenvalue of any finite member count; per member count and per mass formulation in validation/references/f2_spectrum (pull request 268, not yet on main)",
   "tranche": "3"
 }

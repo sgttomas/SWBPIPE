@@ -142,8 +142,9 @@ def skip(kind: str) -> str:
 
 
 def then_next(kind: str) -> str:
-    """The next action after a settled sentence that already says to skip and note."""
-    return f"Run nothing in its place{NOT_COUNTERPART.get(kind, '')}; go on to {NEXT_ITEM[kind]}."
+    """The next action after a settled sentence that already says to skip and note; conditional on the skip, in the
+    words the independent bounded reading proposed, so that it cannot be read as following a successful step."""
+    return f"If you skip this run, run nothing in its place{NOT_COUNTERPART.get(kind, '')}; go on to {NEXT_ITEM[kind]}."
 
 
 def skip_rule(kind: str) -> str:
