@@ -1849,6 +1849,8 @@ def required_value_problems(record, plan_name=None, extra=None):
                 record.get('run_id'), branch, path))
     return problems
 _INVENTORY_LINE = re.compile(r'([0-9a-f]{64})  \./(.+)')
+UNRELEASED_BUILD_ALLOWED = ('The build identity was NOT required: --allow-unreleased-build was given, so source_dirty '
+                            'and build_profile were not checked.')
 CLEAN_READ_BACK_LIMIT = ('A clean read-back does not by itself make a measurement usable: the worker\'s checks of the '
                          'build (contract section 4) and of the host and window (section 8) do that.')
 MEMORY_KEYS = ('ru_maxrss_bytes', 'phys_footprint_bytes', 'lifetime_max_phys_footprint_bytes')
@@ -1939,8 +1941,10 @@ def _stage_lines(data, run_id, problems):
     return lines
 
 
-def read_back(bundle, revision, root_digest, shared_host=False):
-    """The differences between a bundle's records (items 2 to 6 of the read-back), as text."""
+def read_back(bundle, revision, root_digest, shared_host=False, allow_unreleased_build=False):
+    """The differences between a bundle's records (items 2 to 6 of the read-back), as text. Unless
+    `allow_unreleased_build`, a build identity that is not clean and release is a difference (contract
+    section 4 item 4, section 11 item 2, section 14.6 step 1)."""
     problems = []
     files = BoundBundle(bundle, problems, root_digest)
     if files.sums is None:
@@ -2102,6 +2106,12 @@ def read_back(bundle, revision, root_digest, shared_host=False):
         problems.append('packet.metadata is not metadata.json')
     if metadata.get('source_commit') != revision:
         problems.append('metadata.json names %s, not the revision %s' % (metadata.get('source_commit'), revision))
+    if not allow_unreleased_build:
+        if metadata.get('source_dirty') is not False:
+            problems.append('metadata.json source_dirty is %r, not false: the build is not of a clean checkout'
+                            % metadata.get('source_dirty'))
+        if metadata.get('build_profile') != 'release':
+            problems.append('metadata.json build_profile is %r, not "release"' % metadata.get('build_profile'))
     # baseline-set.json: the two results recomputed from the records just checked, then compared.
     stored = files.json('baseline-set.json')
     if stored is not None:
@@ -2132,6 +2142,9 @@ def main(argv=None):
                              'exit 0 when there is none, 1 otherwise; reads only')
     parser.add_argument('--revision', help='the full commit the bundle measured (--read-back)')
     parser.add_argument('--root-digest', help='--read-back: the SHA-256 of the bundle\'s SHA256SUMS, stated outside it')
+    parser.add_argument('--allow-unreleased-build', action='store_true',
+                        help='--read-back: do not require metadata.json source_dirty false and build_profile release '
+                             '(for test fixtures made by a debug build); the output says so')
     parser.add_argument('--shared-host', action='store_true',
                         help='--read-back: the bundle must also hold exclusive.log, the exclusive wrapper\'s lines')
     parser.add_argument('--write-plan', metavar='FILE',
@@ -2198,10 +2211,13 @@ def main(argv=None):
         if not (args.revision and args.root_digest):
             parser.error('--read-back needs --revision, the full commit the bundle measured, and --root-digest, '
                          'the SHA-256 of its SHA256SUMS stated outside the bundle')
-        problems = read_back(args.read_back, args.revision, args.root_digest, args.shared_host)
+        problems = read_back(args.read_back, args.revision, args.root_digest, args.shared_host,
+                             args.allow_unreleased_build)
         for problem in problems:
             print('DIFFERS: %s' % problem)
         print('read-back: %d difference(s)' % len(problems))
+        if args.allow_unreleased_build:
+            print(UNRELEASED_BUILD_ALLOWED)
         if not problems:
             print(CLEAN_READ_BACK_LIMIT)
         return 1 if problems else 0

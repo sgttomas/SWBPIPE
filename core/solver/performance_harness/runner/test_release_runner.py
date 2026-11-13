@@ -1008,7 +1008,7 @@ class BundleCase:
     def problems(self):
         """The read-back after the bundle is inventoried again, so that a change reaches the semantic checks."""
         self.inventory()
-        return rr.read_back(self.bundle, self.revision, self.root)
+        return rr.read_back(self.bundle, self.revision, self.root, allow_unreleased_build=True)
 
 
 
@@ -1018,8 +1018,10 @@ class ReadBack(BundleCase, unittest.TestCase):
     def test_the_intact_bundle_has_no_difference_and_holds_every_row_form(self):
         self.assertEqual(self.problems(), [])
         with redirect_stdout(io.StringIO()) as printed:
-            self.assertEqual(rr.main(['--read-back', self.bundle, '--revision', self.revision, '--root-digest', self.root]), 0)
-        self.assertEqual(printed.getvalue(), 'read-back: 0 difference(s)\n%s\n' % rr.CLEAN_READ_BACK_LIMIT)
+            self.assertEqual(rr.main(['--read-back', self.bundle, '--revision', self.revision, '--root-digest', self.root,
+                                      '--allow-unreleased-build']), 0)
+        self.assertEqual(printed.getvalue(), 'read-back: 0 difference(s)\n%s\n%s\n' % (
+            rr.UNRELEASED_BUILD_ALLOWED, rr.CLEAN_READ_BACK_LIMIT))
         forms = {r['run_id']: (rr.row_form(r), r['classification']) for r in rr.read_set_records(self.path('out'))[0]}
         self.assertEqual(forms, {
             COMPLETED: ('completed', 'ok'), COMPLETED_W2: ('completed', 'ok'), STOPPED: ('stopped', 'timed_out'),
@@ -1029,7 +1031,7 @@ class ReadBack(BundleCase, unittest.TestCase):
         # are not differences.
         packet = self.load('out/packet.json')
         self.assertEqual([self.row(packet, STOPPED)[k] for k in ('route', 'rows', 'output_sha256')], [None, None, None])
-        self.assertIn('exclusive.log is missing', rr.read_back(self.bundle, self.revision, self.root, shared_host=True))
+        self.assertIn('exclusive.log is missing', rr.read_back(self.bundle, self.revision, self.root, shared_host=True, allow_unreleased_build=True))
 
     def test_the_mapping_names_every_field_of_the_supervisors_rows(self):
         """PACKET_RUN_FIELDS is the one statement of the mapping: its fields are exactly the fields of a
@@ -1182,10 +1184,11 @@ class ReadBack(BundleCase, unittest.TestCase):
         self.assertTrue(any('total is not the sum' in p for p in self.problems()), self.problems()[:3])
         self.tearDown()
         self.setUp()
-        problems = rr.read_back(self.bundle, '0' * 40, self.root)
+        problems = rr.read_back(self.bundle, '0' * 40, self.root, allow_unreleased_build=True)
         self.assertEqual(problems, ['metadata.json names %s, not the revision %s' % (self.revision, '0' * 40)])
         with redirect_stdout(io.StringIO()) as printed:
-            self.assertEqual(rr.main(['--read-back', self.bundle, '--revision', '0' * 40, '--root-digest', self.root]), 1)
+            self.assertEqual(rr.main(['--read-back', self.bundle, '--revision', '0' * 40, '--root-digest', self.root,
+                                      '--allow-unreleased-build']), 1)
         self.assertIn('DIFFERS: metadata.json names', printed.getvalue())
 
 
@@ -1201,7 +1204,7 @@ class ReadBackBinding(BundleCase, unittest.TestCase):
         self.tearDown()
         self.setUp()
         change()
-        problems = self.problems() if inventory else rr.read_back(self.bundle, self.revision, root_digest(self.bundle))
+        problems = self.problems() if inventory else rr.read_back(self.bundle, self.revision, root_digest(self.bundle), allow_unreleased_build=True)
         self.assertTrue(any(expected in p for p in problems), (expected, problems[:4]))
 
     def test_the_plan_is_the_plan_the_records_and_metadata_were_written_from(self):
@@ -1288,7 +1291,7 @@ class ReadBackBinding(BundleCase, unittest.TestCase):
         """The command verifies SHA256SUMS against the root digest stated outside the bundle; a file listed
         there that is no file of the bundle (README step 8) or of a launched run is a difference; a file the
         worker examines by hand (exclusive.log) is bound too, where present."""
-        self.assertEqual(rr.read_back(self.bundle, self.revision, '0' * 64),
+        self.assertEqual(rr.read_back(self.bundle, self.revision, '0' * 64, allow_unreleased_build=True),
                          ['SHA256SUMS does not have the root digest %s; nothing in the bundle is bound' % ('0' * 64)])
 
         def orphan():
@@ -1317,6 +1320,37 @@ class ReadBackBinding(BundleCase, unittest.TestCase):
                     '%s: launch.classification_detail is missing from its .record.json' % COMPLETED)
         self.expect(lambda: self.records(lambda by, rows: by[COMPLETED]['launch'].pop('kill_after_s')),
                     "%s: the aggregate's launch does not carry exactly the supervisor's launch keys" % COMPLETED)
+
+    def test_an_unreleased_build_is_a_difference_unless_explicitly_allowed(self):
+        """Contract section 4 item 4, section 11 item 2, section 14.6 step 1: by default a build identity
+        that is not clean and release is a difference; --allow-unreleased-build allows it and says so."""
+        self.assertEqual(self.load('out/metadata.json')['build_profile'], 'debug')
+        self.inventory()
+        self.assertEqual(rr.read_back(self.bundle, self.revision, self.root),
+                         ['metadata.json build_profile is \'debug\', not "release"'])
+
+        def identity(dirty, profile):
+            self.edit('out/metadata.json', lambda d: d.update(source_dirty=dirty, build_profile=profile))
+            self.edit('out/packet.json', lambda d: d['metadata'].update(source_dirty=dirty, build_profile=profile))
+            self.inventory()
+        identity(True, 'release')
+        self.assertEqual(rr.read_back(self.bundle, self.revision, self.root),
+                         ['metadata.json source_dirty is True, not false: the build is not of a clean checkout'])
+        identity('unknown', 'release')
+        self.assertIn("metadata.json source_dirty is 'unknown'", rr.read_back(self.bundle, self.revision, self.root)[0])
+        for dirty, profile in ((True, 'release'), (False, 'debug'), (True, 'debug')):
+            identity(dirty, profile)
+            self.assertEqual(rr.read_back(self.bundle, self.revision, self.root, allow_unreleased_build=True), [])
+            with redirect_stdout(io.StringIO()) as printed:
+                self.assertEqual(rr.main(['--read-back', self.bundle, '--revision', self.revision, '--root-digest',
+                                          self.root, '--allow-unreleased-build']), 0)
+            self.assertIn(rr.UNRELEASED_BUILD_ALLOWED, printed.getvalue())
+        # A clean, release build reads clean without the allowance, and then the line is absent.
+        identity(False, 'release')
+        with redirect_stdout(io.StringIO()) as printed:
+            self.assertEqual(rr.main(['--read-back', self.bundle, '--revision', self.revision, '--root-digest', self.root]), 0)
+        self.assertEqual(printed.getvalue(), 'read-back: 0 difference(s)\n%s\n' % rr.CLEAN_READ_BACK_LIMIT)
+        self.assertNotIn(rr.UNRELEASED_BUILD_ALLOWED, printed.getvalue())
 
     def test_a_required_value_nulled_in_every_copy_is_a_difference(self):
         """REQUIRED_BY_BRANCH applied by the read-back itself: a value a rule reads, nulled consistently in the
