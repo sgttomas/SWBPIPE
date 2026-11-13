@@ -76,10 +76,11 @@ results with".
   outcome reads as compliance.
 - **Pressure effects.** Pressure elongation is a Should option for v1.0, off
   by default, applied only in the operating load cases the user names and
-  stated on each case's result (DEL-04-07). It is the effect the Bourdon flag
-  of a CAEPIPE model file switches. The opening of a bend under pressure, which
-  some texts also call the Bourdon effect, and pressure-dependent flexibility
-  and SIF corrections are out of scope: users enter their own k and SIF.
+  stated on the result of each case that has pressure regions (DEL-04-07). Its
+  correspondence with the Bourdon flag of a CAEPIPE model file is a benchmark
+  hypothesis. The opening of a bend under pressure, which some texts also call
+  the Bourdon effect, and pressure-dependent flexibility and SIF corrections
+  are out of scope: users enter their own k and SIF.
 - **Exact-route results under user release.** Route 010 admits exact-route results with exact source binding, exact sections and limitations, Diagnostics binding and producer item 9 (DEL-08-01, REQ-019).
 - **Usability.** Agent 0 uses its own judgment on typical use cases an
   engineer would go through, and puts the desktop through them thoroughly

@@ -12,9 +12,13 @@ means off. A producer that writes model documents takes one explicit switch:
 
 A load case is pressurised when one of its pressure regions carries a nonzero
 pressure, or when the case's ``condition_use.pressure`` key resolves, on a pipe
-of one of its regions, to a nonzero condition pressure. A document without a
-``pressure_contract`` or without a pressurised case gets no member under any
-switch value (the setting is refused there by name).
+of one of its regions, to a nonzero condition pressure. This helper adds the
+member only for the producer's selected pressurised cases: a document without a
+``pressure_contract`` or without a pressurised case gets no member from it under
+any switch value. That is the helper's choice, not the product's rule. The
+product refuses the setting by name on a document without a
+``pressure_contract``; on a document with one, the setting may name cases that
+carry no pressure, and then it has no effect.
 
 Standard library only, so the independent reference generators can import it
 (`sys.path` insertion of the repository root, then
