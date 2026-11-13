@@ -130,10 +130,92 @@ def analyze_and_print_steps(run_id: str) -> list[Step]:
              f"and save the .csv file as {run_id}.print.csv.", (PRINT_PAGE,))]
 
 
-def finish_steps(run_id: str) -> list[Step]:
+def finish_steps(run_id: str, export: str | None = None) -> list[Step]:
     """The end of every window instruction: save under the run id by the command observed at the dry run (DRY_RUN),
-    analyse, print to file under the run id, and the skip rule."""
-    return [(save_sentence(run_id), ()), *analyze_and_print_steps(run_id), (SKIP_SENTENCE, ())]
+    analyse, print to file under the run id, then, for a run that declares one, the optional export of its saved model
+    (EXPORT_STATEMENT), and the skip rule."""
+    return [(save_sentence(run_id), ()), *analyze_and_print_steps(run_id), *(export_steps(run_id) if export else []),
+            (SKIP_SENTENCE, ())]
+
+
+# -- the optional export of a run's saved model (the SWBPIPE Agent 0, 2026-11-13) -----------------------------------
+EXPORT_PAGE = (f"https://docs.sstcae.com/users_manual/export_mbf.htm (user's manual, \"EXPORT MBF\"; CAEPIPE-EXPORT-MBF, "
+               f"execution/PKG-17/DEL-17-01/Source_Basis_Register.md), read {DATE_READ}")
+# The Export MBF page's words, quoted exactly (users_manual/export_mbf.htm).
+EXPORT_QUOTE_MENU = "To export a model, select the menu command File > Export from the Layout window."
+EXPORT_QUOTE_TYPE = ("The Export Model dialog is shown. Selecting the “Save as type” option as “Model batch "
+                     "file (*.mbf)” will export the stress model in CAEPIPE latest version.")
+EXPORT_QUOTE_BUTTON = "Once done, click on Export button to write to an .mbf file."
+EXPORT_NOT_MADE = "export not made"
+# The dry run's sacrificial duplicate: the pack author makes this folder; it holds a copy of the same run file as the
+# window sample (WINDOW_SAMPLE_RUN), so that the trial touches neither that sample nor any case folder.
+EXPORT_TRIAL_FOLDER = "samples/sample-dyn-export-trial"
+EXPORT_TRIAL_FILE = "sample-dyn-export-trial.mbf"
+WINDOW_SAMPLE_FOLDER = "samples/sample-dyn-window"
+WINDOW_SAMPLE_RUN = "cpb-dyn-c-n01-flat--srss-srss"
+EXPORT_STATEMENT = (
+    "an export is a model batch file the program writes, at the owner's choice, from a run's saved model (<run id>.mod) "
+    "as the program holds it after that run's instruction, including what was entered or set by hand; it is not the "
+    "pack's model file. Each export is private, like every returned file. The exports are material for later "
+    "interoperability work: they put on file how the program itself writes records SWBPIPE's writer does not write "
+    "today. They do not demonstrate exit criterion 6's round trip in the desktop, and they do not make any family the "
+    "product refuses become supported. Nothing of SWBPIPE's reads an export in this change")
+
+
+def export_name(run_id: str) -> str:
+    return f"{run_id}.export.mbf"
+
+
+def export_binding(run_id: str) -> str:
+    """What the export records, bound to this run's saved model."""
+    return (f"The file it writes records this run's saved model, {run_id}.mod, as the program holds it after this "
+            f"instruction's steps, including what was entered or set by hand; it is not the pack's model file.")
+
+
+def export_steps(run_id: str) -> list[Step]:
+    """The optional export, in numbered steps: its condition and binding, the menu, the type, the name, the guard."""
+    name = export_name(run_id)
+    return [
+        (f"Optional: the next four steps export this run's saved model, and you may drop them; if you do, write "
+         f"\"{EXPORT_NOT_MADE}\" on the run line. Take them only if the dry run's check (v) found that the export dialog "
+         f"lets you set the file's name and folder. {export_binding(run_id)}", ()),
+        (f"From the Layout window, choose File > Export (\"{EXPORT_QUOTE_MENU}\").", (EXPORT_PAGE,)),
+        (f"In the Export Model dialog, choose \"Model batch file (*.mbf)\" as the Save as type (\"{EXPORT_QUOTE_TYPE}\").",
+         (EXPORT_PAGE,)),
+        (f"Set the name {name} in this run's folder.", ()),
+        (f"Click Export (\"{EXPORT_QUOTE_BUTTON}\") only if the dialog displays exactly the name {name} in this run's "
+         f"folder and no file of that name is already there. If it does not, or if anything would be written over, "
+         f"click Cancel and note it on the run line.", (EXPORT_PAGE,)),
+    ]
+
+
+def export_declaration(run_id: str, lost_if_dropped: str) -> dict[str, Any]:
+    """The manifest's declaration of a run's optional export."""
+    return {"file": export_name(run_id), "optional": True, "if_dropped": f"\"{EXPORT_NOT_MADE}\" on the run line",
+            "condition": "the dry run's check (v) found that the export dialog lets the owner set the file's name and "
+                         "folder", "records": export_binding(run_id), "lost_if_dropped": lost_if_dropped}
+
+
+EXPORT_LOST_HAND = {"N": "the program's own writing of the support record entered by hand (a limit stop)",
+                    "H": "the program's own writing of the support record entered by hand (a constant support)"}
+DRY_RUN["checks"].append(
+    f"(v) on a sacrificial duplicate: the folder {EXPORT_TRIAL_FOLDER} holds {EXPORT_TRIAL_FILE}, a copy of the same run "
+    f"file as the window sample ({WINDOW_SAMPLE_RUN}); in that folder only:\n" + numbered([
+        (f"Import {EXPORT_TRIAL_FILE}: File > Import from the Main window, select the file and click Import.", (IMPORT,)),
+        (f"From the Layout window, choose File > Export (\"{EXPORT_QUOTE_MENU}\").", (EXPORT_PAGE,)),
+        ("Before touching the dialog, note whether any new file has appeared in the folder.", ()),
+        ("In the Export Model dialog, choose \"Model batch file (*.mbf)\" as the Save as type.", (EXPORT_PAGE,)),
+        (f"Note whether the dialog lets you set the name {EXPORT_TRIAL_FILE[:-4]}.export.mbf and this folder, and "
+         f"whether it displays them before anything is written.", ()),
+        ("If it does, click Export; if not, click Cancel.", (EXPORT_PAGE,)),
+        ("Note the files the folder then holds, by name.", ()),
+        (f"Nothing in {WINDOW_SAMPLE_FOLDER} or in any case folder is opened or touched by this trial.", ()),
+    ]))
+DRY_RUN["consequences"].append(
+    "(v) the dialog did not let you set the name and the folder, or a file was written before a destination was "
+    "offered: no run exports at this sitting, and the export steps of every run are skipped and noted")
+DRY_RUN["export_trial"] = {"folder": EXPORT_TRIAL_FOLDER, "file": EXPORT_TRIAL_FILE, "copy_of_run": WINDOW_SAMPLE_RUN,
+                           "made_by": "the pack author", "untouched": [WINDOW_SAMPLE_FOLDER, "every case folder"]}
 
 
 SKIP_SENTENCE = ("If the window does not offer a field as the page describes it, skip this case and note it on the run "
@@ -241,7 +323,7 @@ def _instruction(run_id: str, node_label: str, what: str, fields: list[dict[str,
         (f"In the Layout window, at node {node_label}, enter {what} with the fields of the next steps.", (page,)),
         *[(f"{item['field']}: {item['value']} ({item['short']}).", ()) for item in fields],
         ("Leave every other field and record as imported.", ()),
-        *finish_steps(run_id),
+        *finish_steps(run_id, export="hand"),
     ])
 
 
@@ -443,8 +525,9 @@ def documents(seed: int, common: dict[str, Any], static_classes) -> list[dict[st
                     "fields": spec["fields"], "fields_entered_estimate": spec["fields_entered"],
                     "expected_saved_file": f"{run_id}.mod", "expected_print_file": f"{run_id}.print.csv",
                     "saved_file_read": "nothing of SWBPIPE's reads the saved file",
+                    "export": export_declaration(run_id, EXPORT_LOST_HAND[family]),
                     "pages": sorted({item["page"] for item in spec["fields"]} | {IMPORT, ANALYZE_PAGE, PRINT_PAGE,
-                                                                               SAVE_PAGE, FILE_MENU_PAGE}),
+                                                                               SAVE_PAGE, FILE_MENU_PAGE, EXPORT_PAGE}),
                 },
             },
             "provenance": {"origin": "invented", "license": "project-original",

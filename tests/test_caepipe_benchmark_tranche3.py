@@ -365,8 +365,8 @@ def test_req005_addition_runs_per_case():
     assert {rank for _, rank, _ in orders[10:31]} == {1, 2, 3} and {rank for _, rank, _ in orders[31:]} == {5}
     assert "instruction only" in manifest()["option_addition"]["same_session_alternative"]
     dry_run = manifest()["dry_run"]
-    assert [item[:5] for item in dry_run["checks"]] == ["(i) c", "(ii) ", "(iii)", "(iv) "]
-    assert len(dry_run["consequences"]) == 3 and "observed at the dry run" in dry_run["save_command"]
+    assert [item[:5] for item in dry_run["checks"]] == ["(i) c", "(ii) ", "(iii)", "(iv) ", "(v) o"]
+    assert len(dry_run["consequences"]) == 4 and "observed at the dry run" in dry_run["save_command"]
 
 
 def test_req005_addition_records_are_documented_and_whole_and_change_nothing_else():
@@ -874,3 +874,90 @@ def test_one_factor_or_one_per_direction_is_entered_without_ambiguity():
                 "loads, enter that value; if it states different factors for different directions, skip this run and "
                 "note it.") in text
         assert "enter it as stated" not in text and "rather than one per direction" not in text
+
+
+# -- the optional export of a run's saved model ----------------------------------------------------------------------
+def _export_expected() -> set[str]:
+    """The runs that end with the export: every hand-entry run and every dynamics run at strike numbers 1 to 10."""
+    return {run["run_id"] for entry in manifest()["models"] for run in entry.get("runs", [])
+            if isinstance(run, dict) and "window_instruction" in run
+            and (run["kind"] == "hand_entry" or (run["kind"] == "option_addition" and run["strike_order"] <= 10))}
+
+
+def test_exactly_the_24_runs_end_with_the_optional_export_of_their_saved_model():
+    expected = _export_expected()
+    assert len(expected) == 24
+    stepped = {run["run_id"] for _, run in _window_instructions() if "File > Export" in run["window_instruction"]["text"]}
+    declared = {run["run_id"] for _, run in _window_instructions() if "export" in run}
+    assert stepped == expected and declared == expected
+    for _, run in _window_instructions():
+        if run["run_id"] not in expected:
+            continue
+        run_id, text = run["run_id"], run["window_instruction"]["text"]
+        name = f"{run_id}.export.mbf"
+        lines = text.split("\n")
+        index = {key: next(i for i, line in enumerate(lines) if marker in line) for key, marker in (
+            ("print", f"save the .csv file as {run_id}.print.csv"), ("optional", "Optional: the next four steps"),
+            ("menu", "From the Layout window, choose File > Export"), ("type", "In the Export Model dialog"),
+            ("name", f"Set the name {name} in this run's folder."), ("guard", "Click Export"),
+            ("skip", hand.SKIP_SENTENCE))}
+        # After the print step, before the closing skip line, one action per numbered step.
+        assert [index[key] for key in ("print", "optional", "menu", "type", "name", "guard", "skip")] == list(
+            range(index["print"], index["print"] + 7))
+        # The guard: the displayed name in this run's folder, nothing written over, Cancel otherwise.
+        assert text.count(f"Click Export (\"{hand.EXPORT_QUOTE_BUTTON}\") only if the dialog displays exactly the name "
+                          f"{name} in this run's folder and no file of that name is already there. If it does not, or "
+                          f"if anything would be written over, click Cancel and note it on the run line.") == 1
+        assert ("Take them only if the dry run's check (v) found that the export dialog lets you set the file's name and "
+                "folder.") in text and '"export not made" on the run line' in text
+        # The binding: this run's saved model, as the program holds it after these steps; not the pack's file.
+        assert (f"The file it writes records this run's saved model, {run_id}.mod, as the program holds it after this "
+                f"instruction's steps, including what was entered or set by hand; it is not the pack's model file.") in text
+        for quote in (hand.EXPORT_QUOTE_MENU, hand.EXPORT_QUOTE_TYPE, hand.EXPORT_QUOTE_BUTTON):
+            assert quote in text
+        declaration = run["export"]
+        assert declaration["file"] == name and declaration["optional"] is True and "export not made" in declaration[
+            "if_dropped"] and f"{run_id}.mod" in declaration["records"]
+        lost = declaration["lost_if_dropped"]
+        if run["kind"] == "hand_entry":
+            assert lost.startswith("the program's own writing of the support record entered by hand")
+        else:
+            assert "spectrum assignment and the analyses chosen" in lost and "documents no record" in lost
+    statement = manifest()["export"]["statement"]
+    assert "private, like every returned file" in statement and "later interoperability work" in statement
+    assert "do not demonstrate exit criterion 6's round trip in the desktop" in statement
+    assert "do not make any family the product refuses become supported" in statement
+
+
+def test_no_text_binds_an_export_to_the_packs_file():
+    texts = [json.dumps(entry, ensure_ascii=False) for entry in manifest()["models"] if entry["tranche"] == "3"]
+    texts += [json.dumps(manifest()[key], ensure_ascii=False) for key in ("export", "dry_run", "option_addition",
+                                                                          "hand_entry")]
+    texts += [json.dumps(document["hand_entry"], ensure_ascii=False) for document in hand_documents()]
+    for text in texts:
+        assert "input bytes" not in text.lower()
+        # The one sentence that names the pack's file says the export is NOT it.
+        assert text.replace("it is not the pack's model file", "").count("pack's") == 0
+
+
+def test_dry_run_check_v_uses_the_sacrificial_duplicate_and_leaves_the_window_sample_untouched():
+    dry_run = manifest()["dry_run"]
+    check = dry_run["checks"][4]
+    head, *steps = check.split("\n")
+    assert head == ("(v) on a sacrificial duplicate: the folder samples/sample-dyn-export-trial holds "
+                    "sample-dyn-export-trial.mbf, a copy of the same run file as the window sample "
+                    "(cpb-dyn-c-n01-flat--srss-srss); in that folder only:")
+    assert [int(re.match(r"(\d+)\. ", line).group(1)) for line in steps] == list(range(1, len(steps) + 1))
+    for sentence in ("Import sample-dyn-export-trial.mbf: File > Import from the Main window",
+                     "Before touching the dialog, note whether any new file has appeared in the folder.",
+                     "Note whether the dialog lets you set the name sample-dyn-export-trial.export.mbf and this folder, "
+                     "and whether it displays them before anything is written.",
+                     "If it does, click Export; if not, click Cancel.",
+                     "Note the files the folder then holds, by name.",
+                     "Nothing in samples/sample-dyn-window or in any case folder is opened or touched by this trial."):
+        assert sum(sentence in line for line in steps) == 1, sentence
+    assert dry_run["consequences"][3] == (
+        "(v) the dialog did not let you set the name and the folder, or a file was written before a destination was "
+        "offered: no run exports at this sitting, and the export steps of every run are skipped and noted")
+    assert dry_run["export_trial"]["folder"] == "samples/sample-dyn-export-trial"
+    assert dry_run["export_trial"]["copy_of_run"] == "cpb-dyn-c-n01-flat--srss-srss"

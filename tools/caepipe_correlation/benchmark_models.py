@@ -1538,6 +1538,7 @@ def generate(seed: int = DEFAULT_SEED) -> dict[str, str]:
         "screening_class_rule": tranche3.SCREENING_CLASS_RULE,
         "option_addition": tranche3.OPTION_ADDITION,
         "dry_run": tranche3.dry_run_declaration(),
+        "export": tranche3.export_statement(),
         "rigid_support_override": tranche3.rigid_override_declaration(entries),
         "hand_entry": tranche3.hand_entry_declaration(),
         "requirement": ("DEL-17-05 REQ-018 and AC-007 (execution/PKG-17/DEL-17-05/ScopeOfWork.md); the Benchmark "

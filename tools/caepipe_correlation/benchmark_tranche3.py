@@ -966,7 +966,8 @@ def added_mbf_text(writer_text: str, records: list[dict[str, Any]]) -> str:
 TYPED = "-table-typed"
 FORM_A, FORM_B = "table_added", "table_typed"
 from tools.caepipe_correlation.benchmark_hand_entry import (  # noqa: E402
-    ANALYSIS_PAGE, PRINT_PAGE, ANALYZE_PAGE, SAVE_PAGE, FILE_MENU_PAGE, finish_steps, numbered,
+    ANALYSIS_PAGE, PRINT_PAGE, ANALYZE_PAGE, SAVE_PAGE, FILE_MENU_PAGE, finish_steps, numbered, EXPORT_PAGE,
+    export_declaration,
 )
 SPECTRUM_LOAD_PAGE = ("https://docs.sstcae.com/users_manual/spectrum_load.htm (user's manual, \"Spectrum Load\"), read "
                       "2026-11-13")
@@ -1016,6 +1017,13 @@ DRY_RUN_B = ("Use this run if the dry run's check of the dry-run sample that car
              "agree or was not made; otherwise run its counterpart {other} instead.")
 DRY_RUN_SINGLE = ("This case is declared in the typed form only: no dry-run sample carries its spectrum table, "
                   "so no form that writes the table is declared.")
+
+
+# The runs that end with the optional export of their saved model (benchmark_hand_entry.EXPORT_STATEMENT): every
+# dynamics run at strike numbers 1 to 10, both forms of a pair and the single typed form; and every hand-entry run.
+EXPORT_STRIKES = 10
+EXPORT_LOST_DYNAMICS = ("the program's own writing of the spectrum assignment and the analyses chosen, for which the "
+                        "vendor's public format page documents no record, and of the options it carries")
 
 
 def strike_order(rank: int, combo_index: int) -> int:
@@ -1100,6 +1108,7 @@ def dynamics_runs(document: dict[str, Any], writer_text: str) -> list[dict[str, 
             other = None if single else ids[FORM_B if form == FORM_A else FORM_A]
             records = [opmisc, spcms] if form == FORM_A else [opmisc]
             text = added_mbf_text(writer_text, records)
+            exports = "dynamics" if strike_order(rank, index) <= EXPORT_STRIKES else None
             importing = f"Import {run_id}.mbf: File > Import from the Main window, select the file and click Import"
             if form == FORM_A:
                 table_steps = [
@@ -1147,7 +1156,7 @@ def dynamics_runs(document: dict[str, Any], writer_text: str) -> list[dict[str, 
                  f"window shows another value or direction, or does not show them, skip this run and note it on the "
                  f"run line.", (ANALYSIS_PAGE,)),
                 ("Loads > Load Cases: check the box next to Response Spectrum for analysis.", (LOAD_CASES_PAGE,)),
-                *finish_steps(run_id),
+                *finish_steps(run_id, export=exports),
             ]
             closing = None
             if index > 0:
@@ -1179,7 +1188,8 @@ def dynamics_runs(document: dict[str, Any], writer_text: str) -> list[dict[str, 
                 "window_instruction": {"text": instruction,
                                        "sha256": hashlib.sha256(instruction.encode("utf-8")).hexdigest()},
                 "pages": pages + [SPECTRUM_LOAD_PAGE, LOAD_CASES_PAGE, ANALYSIS_PAGE, SAVE_PAGE, FILE_MENU_PAGE,
-                                  ANALYZE_PAGE, PRINT_PAGE],
+                                  ANALYZE_PAGE, PRINT_PAGE] + ([EXPORT_PAGE] if exports else []),
+                **({"export": export_declaration(run_id, EXPORT_LOST_DYNAMICS)} if exports else {}),
                 "expected_saved_file": f"{run_id}.mod", "expected_print_file": f"{run_id}.print.csv",
                 "screened": False,
                 "screening_waits_for": ("a headless modal and response-spectrum entry of the product, which main does "
@@ -1375,6 +1385,17 @@ def add_tranche3(seed: int, files: dict[str, str], entries: list[dict], series: 
             series[name]["members"].append({"model_id": entry["model_id"], "run_id": run["run_id"],
                                             "counterpart_run_id": run["counterpart_run_id"],
                                             "strike_order": run["strike_order"]})
+
+
+def export_statement() -> dict[str, Any]:
+    """The manifest's run-independent account of the optional exports."""
+    from tools.caepipe_correlation import benchmark_hand_entry as hand
+
+    return {"statement": hand.EXPORT_STATEMENT, "page": hand.EXPORT_PAGE,
+            "quotes": [hand.EXPORT_QUOTE_MENU, hand.EXPORT_QUOTE_TYPE, hand.EXPORT_QUOTE_BUTTON],
+            "runs": ("the five hand-entry runs and every dynamics run at strike numbers 1 to 10 (both forms of each pair "
+                     "and the single typed form at strike 6); no other run"),
+            "condition": "the dry run's check (v), on its sacrificial duplicate (dry_run.export_trial)"}
 
 
 def dry_run_declaration() -> dict[str, Any]:
