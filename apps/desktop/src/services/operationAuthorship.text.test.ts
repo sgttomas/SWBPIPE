@@ -54,7 +54,7 @@ describe("a forbidden member is recognised before it is counted", () => {
     expect(writesUserEnteredModifier(op(`{${keys},"modifiers":{}}`))).toMatchObject({ member: "modifiers", route: "dropped" });
   });
   it("at the first level past the depth, the member is named, not the bound", () => {
-    const text = `${"[".repeat(maxDepth - 1)}{"modifiers":0}${"]".repeat(maxDepth - 1)}`;
+    const text = `${"[".repeat(maxDepth)}{"modifiers":0}${"]".repeat(maxDepth)}`; // the member is maxDepth + 1 levels down
     expect(writesUserEnteredModifier(op(text))).toMatchObject({ member: "modifiers", route: "dropped" });
   });
 });
