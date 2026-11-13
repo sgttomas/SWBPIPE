@@ -181,8 +181,10 @@ PROBLEM_PARENTS = [PR + x for x in (   # B7a: 188, 234, 531, 545, 618, 1091, 133
     # exception's `cancellation_exception`, test probe, member record and the predicate's direction checks precede
     # them), byte-identical text. finish_source_groups' one `problem` call is the `None` arm of the
     # `cancellation_exception` match, inside the failed-screen branch.
+    # RT-L2 third scrutiny: from traverse_region they move +119 more (the exception's chains, the chain-based predicate
+    # and family, and the warning's message function precede them), byte-identical text.
     '669:check_suffixes', '683:normalize_region_units', '756:assemble_pressure_case', '1253:add_joint_terms',
-    '1505:finish_source_groups', '2123:traverse_region', '2390:refuse_reducers_outside_step', '2467:collinear_run')]
+    '1505:finish_source_groups', '2242:traverse_region', '2509:refuse_reducers_outside_step', '2586:collinear_run')]
 # RT-A3 reducer 2a (§8.38): the new problem parent is inside the loop over reducers_in_regions.
 # D1.4 admits no components and D1.5 has empty E regions, so that classifier returns an empty Vec
 # (no push/table initialization), the loop has no iteration and problem receives no new message/ref owner.

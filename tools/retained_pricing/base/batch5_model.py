@@ -139,7 +139,10 @@ PINS = {
 # line 2386 before), leaving the production after it unpinned here, so the current pin binds the whole production text,
 # each `#[cfg(test)]` item removed as o10_rules' `_production` removes it (newlines kept). The legacy branch keeps the
 # truncated prefix it was registered with.
-PRESSURE_PREFIX_PIN = "7585fcee1a09600b1a05f07a38a852abc23a52b6911eaea9b7a19ce207260d11"
+# RT-L2 third scrutiny (c1f4db7c8): the exception's chains, its chain-based predicate and family, the record's force
+# member and the warning's formatted message, all inside cancellation_exception or with its record (RTL2-XZ). No
+# carrier, child or staging changes.
+PRESSURE_PREFIX_PIN = "8709c715d74c73265cb8ad06ac981d99e0e8f1ed6ed28444feec630272af9b6c"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
 

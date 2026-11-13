@@ -629,7 +629,9 @@ reader's key list and statements, T17 V5) do not depend on k.
   regions; L never reaches the producer), so the screen is 0, the failed-screen branch is never entered and
   `cancellation_exception` (the predicate, `family_nodes`, `cap_remainder_record`) and `cap_remainder_warning` are not
   reached; borrowing the empty group map through the loop and dropping it after the screen holds no bytes. The two
-  edges from `finish_source_groups` and the three inside `cancellation_exception` are zero. The guard binds the call
+  edges from `finish_source_groups` and the four inside `cancellation_exception` (`exception_chains`, the predicate,
+  the family, the record) are zero; RTL2-XZ-M zeroes the warning's per-case formatted message
+  (`cap_remainder_warning_message`), formed only inside `cap_remainder_warning`, itself reached only with a record. The guard binds the call
   structure (one production call of each, the exception inside the failed-screen branch, the warning inside
   `if let Some(..) = exception`, B5L1's borrowed group loop), not message, code or token text.
 - RTL2-RX: the reader's record checks (`assembled_is_group_sum`, `exception_consistency`, `bore_group_value`) and the
@@ -654,16 +656,16 @@ production after it unpinned there.
 recovery choice, the exception's predicate (its members and their formed directions), family, record and warning, and
 the reader's record and model checks all run only on a case with a pressure region.
 
-**Derivation and native checks.** On `d3edafe9d` the four points complete with O-10 0/0; the prune (36) and the
+**Derivation and native checks.** On `052121aea` (the final source with the third scrutiny's response) the four points complete with O-10 0/0; the prune (36) and the
 resolutions (8) are main's. Against main `4d29420a0`'s kept tree (reproduced by its own tool), 1,468 of 1,606
 coefficients are equal, 138 higher and none lower: D +8 at every point (two validation calls, k + 1 ≤ 4 diagnostics
-each), STATICS[1] +4,044 B (the pressure-3 table and schema), O_base +131,212 B with +16,384 s(String), +20 s(&str) and
+each), STATICS[1] +4,424 B (the pressure-3 table and schema, with the exception record's `remainder_force_n`), O_base +131,212 B with +16,384 s(String), +20 s(&str) and
 +6 s((&str,String)) (the typed list at the census; the working set at C), TAV +174,654 B; s((&str,String)) joins the
 profile (four coefficients from 0). The block is regenerated with this revision's basis line (1,718 lines) and the
 point atoms (150 lines); both `--check`s are equal. At the in-build atoms every phase rises in both modes by W1/W2
-+779,814 B, W3 +956,334 B, W4 +936,262 B, W5 +857,374 B, X1 +1,267,322 B, X2 +721,866 B, X3 +693,522 B; W3 stays the
-maximum (8,804,211,308 B dense, without R). Every phase of both modes fits the unchanged M, the 0.9 margin and the
-upward-rounded 5% TEXT reserve; the minimum headroom is 2,477,314,833 B (dense W3; sparse 2,536,446,177 B, W3), and
++781,122 B, W3 +957,642 B, W4 +937,570 B, W5 +858,682 B, X1 +1,268,630 B, X2 +723,174 B, X3 +694,830 B; W3 stays the
+maximum (8,804,212,616 B dense, without R). Every phase of both modes fits the unchanged M, the 0.9 margin and the
+upward-rounded 5% TEXT reserve; the minimum headroom is 2,477,313,525 B (dense W3; sparse 2,536,444,869 B, W3), and
 L(2,1) and L(1,2) stay below the merged tree in every phase and mode. The law tests' pins move with it (the record,
 D_env 28,779 with push capacity 32,768, Text(diag_env) 273,233,168 B = 273,191,600 + 4 · 10,392, reviewed inputs #1
 and #10). This tool, with the twelve re-pinned base files restored from main and main's three o10 pin values, every new

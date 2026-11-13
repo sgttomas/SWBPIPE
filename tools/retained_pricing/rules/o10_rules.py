@@ -6544,7 +6544,10 @@ _RTL2_MS = PP_ + "model_settings.rs"
 # the failed-screen branch and after the screen's ratio, the warning's inside `if let Some(` .. `) = exception {`, the
 # predicate, family and record called only from `cancellation_exception`, and B5L1's group loop.
 _RTL2_X0 = ("cancellation_exception", "cap_remainder_warning")
-_RTL2_X1 = ("cancellation_exception_eligible", "family_nodes", "cap_remainder_record")
+# Third scrutiny: the exception's chains (`exception_chains`, the first call in cancellation_exception, two Vecs per
+# region) join the three; the warning's message is a String formatted per admitted case by `cap_remainder_warning_message`,
+# called only from cap_remainder_warning (RTL2-XZ-M below).
+_RTL2_X1 = ("exception_chains", "cancellation_exception_eligible", "family_nodes", "cap_remainder_record")
 if _fn_has("finish_source_groups", _RTL2_PR, "let mut exception = None;"):
     _rtl2_fsg = _fn_text("finish_source_groups", _RTL2_PR)
     _rtl2_ce = _fn_text("cancellation_exception", _RTL2_PR) if fnkey("cancellation_exception", _RTL2_PR) else ""
@@ -6553,7 +6556,7 @@ if _fn_has("finish_source_groups", _RTL2_PR, "let mut exception = None;"):
     _rtl2_some = _re.split(r"if let Some\([^\n]*\) = exception \{", _rtl2_fsg, maxsplit=1)
     _rtl2_ok = (
         all(fnkey(_n, _RTL2_PR) for _n in _RTL2_X0 + _RTL2_X1),
-        all(len(_re.findall(r"\b" + _n + r"\(", _rtl2_code)) == 2 for _n in _RTL2_X0 + _RTL2_X1),
+        all(len(_re.findall(r"\b" + _n + r"(?:<[^>()]*>)?\(", _rtl2_code)) == 2 for _n in _RTL2_X0 + _RTL2_X1),
         all(_rtl2_fsg.count(_n + "(") == 1 for _n in _RTL2_X0),
         all(_rtl2_ce.count(_n + "(") == 1 for _n in _RTL2_X1),
         _rtl2_fsg.count("for (&(dof, pbits, area, _), group) in &groups {") == 1,
@@ -6572,6 +6575,14 @@ if _fn_has("finish_source_groups", _RTL2_PR, "let mut exception = None;"):
     O10_EDGE_ZERO += [(fnkey("cancellation_exception", _RTL2_PR), fnkey(_n, _RTL2_PR),
                        O10 + "RTL2-XZ: cancellation_exception's one caller is the failed-screen branch, never entered on D1, "
                        "so " + _n + " is not reached") for _n in _RTL2_X1]
+    # RTL2-XZ-M: the warning's formatted message is formed only inside cap_remainder_warning (one call; its only other
+    # caller is a test), which is reached only with an exception record, never on D1.
+    if fnkey("cap_remainder_warning_message", _RTL2_PR):
+        if (len(_re.findall(r"\bcap_remainder_warning_message\(", _rtl2_code)) != 2
+                or _fn_text("cap_remainder_warning", _RTL2_PR).count("cap_remainder_warning_message(") != 1):
+            raise SystemExit("RTL2-XZ-M: the warning message's call changed; re-review")
+        O10_EDGE_ZERO += [(fnkey("cap_remainder_warning", _RTL2_PR), fnkey("cap_remainder_warning_message", _RTL2_PR),
+                           O10 + "RTL2-XZ-M: the warning (and its message) is formed only with an exception record, never on D1")]
 # RTL2-FV (the U5B-JV pattern): model_fields.rs `keep_finding` calls `finding()`, its own `impl FnOnce() -> T` parameter;
 # the by-name scan names pressure_runtime's private `finding`, which keep_finding cannot reach. The false edge is zeroed.
 _RTL2_MF = PP_ + "model_fields.rs"
