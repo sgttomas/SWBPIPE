@@ -240,6 +240,7 @@ code_paths:
 - tools/validation/qualification_exact_pressure.py
 - tests/test_qualification_exact_pressure.py
 - fixtures/results/pressure_u4b_arc_sparse.json
+- fixtures/results/pressure_v3_cap_remainder_halfway_force.json
 - fixtures/model_operations/pressure_v3_l_line_authoring.json
 - apps/desktop/src-tauri/src/memory_pool.rs
 - apps/desktop/src-tauri/src/host_memory.rs
