@@ -53,6 +53,7 @@ Outputs:
 - The headless runner is DEL-10-05's; its crate is built and tested here like any other.
 - The desktop shell and its permissions are DEL-07-11's and the storage paths DEL-12-01's; the bundle settings in the same configuration file are this deliverable's.
 - Coverage tooling and any coverage floor are DEL-09-05's. Numerical tolerances are the validation deliverables'.
+- `fixtures/diagnostics/exact_route_codes.json` is held here without being the pipeline's product: the diagnostic codes production code of the solve crates constructs, read from those sources by `tools/validation/diagnostic_codes.py`, with a hand-made classification of each. What is read, what is not and what its test establishes are stated in the table itself.
 
 **Windows.** Windows is not a release platform for v1.0; the owner revisits it immediately after. Windows or Linux enters the release matrix only with a packaged build, a recorded smoke run of the packaged application and a release artifact record for that platform. Of the Windows native boundaries, this deliverable holds the Windows bundle configuration and icon and the build's handling of Windows paths. A Windows build or Windows check of this deliverable does not meet the Windows conditions of the other native boundaries, which the deliverables owning those acts hold: shell dispatch and security (DEL-07-11), admission and worker custody (DEL-04-07), qualification (DEL-04-08), recovery (DEL-02-05), publication (DEL-08-01), model save (DEL-15-03) and the native user experience (DEL-07-06).
 
