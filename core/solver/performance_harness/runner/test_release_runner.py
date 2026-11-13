@@ -735,7 +735,8 @@ class BaselineSet(unittest.TestCase):
     def test_the_cli_prints_both_results_and_the_exit_contract(self):
         with tempfile.TemporaryDirectory() as folder:
             out, plan_path, _, records = self._cli_folder(folder, 'baseline-with-rack')
-            before = {name: os.path.getmtime(os.path.join(out, name)) for name in os.listdir(out)}
+            aggregate = os.path.join(out, k6.RECORDS_NAME)
+            before = (os.path.getmtime(aggregate), rr.sha256_file(aggregate))
             argv = ['--baseline-set', out, '--plan-file', plan_path, '--subset', 'baseline-with-rack']
             code, report, err = self._cli(argv)
             self.assertEqual((code, report['results']), (0, [TIMING_COMPLETE, RACK_OK]))
@@ -743,7 +744,10 @@ class BaselineSet(unittest.TestCase):
             self.assertIn('exit 0 (exit 1 when any finding exists', err)
             self.assertEqual(report['exit_contract'], rr.EXIT_CONTRACT)
             self.assertEqual(unqualified_complete(json.dumps(report) + err), [])
-            self.assertEqual({name: os.path.getmtime(os.path.join(out, name)) for name in os.listdir(out)}, before)
+            self.assertEqual((os.path.getmtime(aggregate), rr.sha256_file(aggregate)), before)
+            for name in rr.FOLDER_NAMES + ('baseline-set.json',):
+                if name != k6.RECORDS_NAME:
+                    self.assertFalse(os.path.exists(os.path.join(out, name)), 'it writes nothing: %s' % name)
             # A rack finding: the ten stay COMPLETE, the rack is FINDINGS and the status is 1.
             records[-1].update(classification='model_missing', driver=None)
             records[-1].pop('launch')
