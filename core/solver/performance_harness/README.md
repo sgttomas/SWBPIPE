@@ -165,8 +165,10 @@ memory bound.
   - Its tests pin the written bytes to the product entry's own serialization, and the model
     checks' report to the entry's own report.
   - `release_timing --build-identity` prints the identity embedded at build time: the source
-    commit and tree, `source_dirty` and the toolchain. The build script runs on every build, so
-    the identity is that of the tree the binary was linked from. `source_dirty` is `true`,
+    commit and tree, `source_dirty` and the toolchain. The build script runs on every build. The
+    identity records the checkout's HEAD commit and tree and its reported Git state at build
+    time; it does not establish the identity of every input used to build the executable.
+    `source_dirty` is `true`,
     `false`, or `"unknown"` where git cannot establish it (no git, no repository, no commit), never
     `false` then; the Python runner records its own checkout the same way. The identity says
     clean only when the status is clean and no index entry is flagged assume-unchanged or
@@ -240,7 +242,9 @@ memory bound.
   exclusive-creation rule does not already refuse. The exclusion for changes to the output
   folder's files applies only to deliberate modification of their contents by another person. It
   does not exclude ordinary folder moves, accidental corruption or the tool's own operations.
-  Consumers must verify recorded integrity information before relying on stored files.
+  Consumers must verify recorded integrity information before relying on stored files. No
+  reader here currently performs that verification; the manifest and verifying reader belong to
+  the follow-up.
 
   Two things it does not yet do, which a reader of a run's records must know:
 
@@ -315,7 +319,8 @@ memory bound.
   same plan and models, on cases away from that boundary, and compares their classifications,
   outputs and keys; the boundary itself is tested in the crate's `tests/supervise.rs`.
 
-  The folder to carry, prepared on a development machine from a clean checkout:
+  The folder to carry, prepared on a development machine from a fresh checkout of the named
+  revision:
 
   ```sh
   (cd core/solver/release_timing && cargo build --release --locked)
