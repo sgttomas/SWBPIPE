@@ -956,8 +956,8 @@ def root_digest(folder):
         return hashlib.sha256(fh.read()).hexdigest()
 
 
-class ReadBack(unittest.TestCase):
-    """`--read-back`: the direct checks of a bundle, on the fixture's forms/ folder."""
+class BundleCase:
+    """A bundle made from the fixture's forms/ folder, inventoried, with the helpers that change it."""
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -1009,6 +1009,11 @@ class ReadBack(unittest.TestCase):
         """The read-back after the bundle is inventoried again, so that a change reaches the semantic checks."""
         self.inventory()
         return rr.read_back(self.bundle, self.revision, self.root)
+
+
+
+class ReadBack(BundleCase, unittest.TestCase):
+    """`--read-back`: the direct checks of a bundle, on the fixture's forms/ folder."""
 
     def test_the_intact_bundle_has_no_difference_and_holds_every_row_form(self):
         self.assertEqual(self.problems(), [])
@@ -1184,18 +1189,13 @@ class ReadBack(unittest.TestCase):
         self.assertIn('DIFFERS: metadata.json names', printed.getvalue())
 
 
-class ReadBackBinding(ReadBack):
+class ReadBackBinding(BundleCase, unittest.TestCase):
     """`--read-back`: the plan of this run (F1), the inventory's binding of every file consumed (F4), a
-    never-launched run's absent stage and each stage's memory (F5), on the fixture's forms/ folder.
-    The methods of ReadBack are not run again here."""
+    never-launched run's absent stage and each stage's memory (F5), the launch keys, the required values,
+    the recomputed results, on the fixture's forms/ folder."""
 
-    def test_the_intact_bundle_has_no_difference_and_holds_every_row_form(self):
+    def test_the_intact_bundle_has_no_difference(self):
         self.assertEqual(self.problems(), [])
-
-    test_the_mapping_names_every_field_of_the_supervisors_rows = None
-    test_each_row_form_with_a_missing_key_and_a_wrong_value = None
-    test_every_field_of_every_row_form_is_compared = None
-    test_each_record_check_finds_its_difference = None
 
     def expect(self, change, expected, inventory=True):
         self.tearDown()
