@@ -35,8 +35,8 @@ from pathlib import Path
 import re
 import subprocess
 
-# Tests the Repository checks job runs on every PR (`.github/workflows/governance-harness.yml`);
-# `tests/test_ci_python.py` keeps this list equal to that step's.
+# Tests the Repository checks job runs on every PR (`tools/ci/repository_checks.py`, which
+# `.github/workflows/governance-harness.yml` calls); `tests/test_ci_python.py` keeps this list equal to that one.
 REPOSITORY_CHECK_TESTS = ('tools/software_workflow', 'tools/deliverables', 'tools/validation',
                           'tests/test_ci_numerical.py', 'tests/test_ci_apt_sources.py', 'tests/test_release_members.py',
                           'tests/test_release_candidate_scan.py', 'tests/test_repository_history.py')
