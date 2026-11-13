@@ -7,6 +7,8 @@
 use open_pipe_stress_report_package::bindings::{check_report_diagnostics, expected_report_diagnostics, BINDING_MISMATCH, SUPPLEMENTAL_DIAGNOSTIC_LABEL};
 use serde_json::{json, Value};
 
+mod common;
+
 const VECTORS: &str = include_str!("../../../../fixtures/reports/invented/report_diagnostics_parity.json");
 
 fn vectors() -> Vec<Value> {
@@ -270,4 +272,46 @@ fn a_held_status_released_notice_is_quoted_as_supplied_text() {
         let (index, diagnostic) = released[0];
         assert_eq!(entries[index]["message"], json!(format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}\"{}\"", diagnostic["message"].as_str().unwrap())), "{name}");
     }
+}
+
+/// DEL-04-07: a person reading only the rendered report's Diagnostics sees,
+/// for a case admitted under the cancellation screen's exception, the case,
+/// the node, the largest retained remainder (relative to the pressure force on
+/// the bore) as a force with its unit, and that it is not a bound on the
+/// resulting displacement. The warning's message is the producer's form
+/// (`result_export::cap_remainder_warning_message`, which the admitting
+/// reader re-forms from the record), copied on a result with a combination;
+/// the Diagnostics table shows a message of this length and not its affected
+/// references, so the case and the node reach the reader through the sentence.
+#[test]
+fn a_report_reader_sees_the_case_the_node_the_force_and_that_it_is_no_bound() {
+    use open_pipe_stress_report_renderer::{escape_html, render_calculation_report};
+    let message = open_pipe_stress_result_export::cap_remainder_warning_message("case:P", "node:C1", 0.2197357159078235);
+    let source = json!({
+        "contract_evidence": {"combination_gates": [{"combination_id": "comb:invented", "withheld": false, "reason": null}]},
+        "diagnostics": [{"id": "diagnostic:pressure-runtime:case-P-region-P-node-C1:PRESSURE_REGION_CAP_REMAINDER_RETAINED",
+            "code": open_pipe_stress_result_export::CAP_REMAINDER_WARNING_CODE, "severity": "warning", "message": message,
+            "source": "core/product_physics/src/pressure_runtime.rs", "affected_refs": ["case:P", "region:P", "node:C1"]}]
+    });
+    let entries = expected_report_diagnostics(&source).unwrap();
+    assert_eq!(entries[0]["message"], message.as_str(), "copied, not quoted as supplied text");
+    let mut input = common::fixture_report_input();
+    let provenance = serde_json::to_value(common::invented_section_provenance()).unwrap();
+    input.report_sections.diagnostics = entries.into_iter().map(|mut entry| {
+        entry["provenance"] = provenance.clone();
+        serde_json::from_value(entry).unwrap()
+    }).collect();
+    let outcome = render_calculation_report(&input);
+    assert!(!outcome.export_blocked, "{:?}", outcome.blocking_reasons);
+    let html = outcome.html;
+    let diagnostics = html.find("Diagnostics").expect("a Diagnostics section");
+    let sentence = escape_html(&message);
+    let at = html.find(&sentence).expect("the whole message, once");
+    assert_eq!(html.matches(&sentence).count(), 1);
+    assert!(at > diagnostics, "in the Diagnostics section");
+    for shown in ["In case case:P,", "2.197357159078235e-1 N", "at node node:C1;", "it is not a bound on the resulting displacement."] {
+        assert!(html[at..at + sentence.len()].contains(&escape_html(shown)), "{shown}");
+    }
+    assert!(!html.contains(&format!("{SUPPLEMENTAL_DIAGNOSTIC_LABEL}")), "not as supplied text");
+    assert!(!html.contains("case:P, region:P, node:C1"), "the table shows no affected references for this message");
 }

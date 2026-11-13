@@ -566,6 +566,11 @@ fn the_readers_recompute_the_exception_from_the_published_groups() {
             assert_eq!(refused(&output, &set("/cancellation_screen_exception/extra", Some(json!(0)))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION");
             assert_eq!(refused(&output, &set("/cancellation_screen_exception/remainder_to_bore_force_ratio", Some(json!(next_up(ratio, 1))))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_RATIO");
             assert_eq!(refused(&output, &set("/cancellation_screen_exception/consistency_bound_ratio", Some(json!(next_up(bound, 1))))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BOUND");
+            // The record's force: |F| at its node, bit for bit, and present.
+            let force = record["remainder_force_n"].as_f64().unwrap();
+            assert!(force > 0.0);
+            assert_eq!(refused(&output, &set("/cancellation_screen_exception/remainder_force_n", Some(json!(next_up(force, 1))))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FORCE");
+            assert_eq!(refused(&output, &set("/cancellation_screen_exception/remainder_force_n", None)), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION");
             assert_eq!(refused(&output, &set("/cancellation_screen_exception/node_ref", Some(rhs["node_order"][0].clone()))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_NODE");
             let mut swapped = record["member_pipe_ids"].clone();
             swapped.as_array_mut().unwrap().reverse();
@@ -657,7 +662,7 @@ fn the_readers_recompute_the_exception_from_the_published_groups() {
         let output = serde_json::to_value(solve(chain(&x, &[0.12, 0.12], &[0, 2]), mode)).unwrap();
         validate_pressure_evidence(&output).unwrap();
         let record = json!({"basis": EXCEPTION_BASIS, "node_ref": "node:C1", "member_pipe_ids": ["pipe:C0", "pipe:C1"], "member_lengths_m": [3.0, 3.0],
-            "region_span_m": LENGTH, "remainder_to_bore_force_ratio": 0.0, "consistency_bound_ratio": 1e-13});
+            "region_span_m": LENGTH, "remainder_to_bore_force_ratio": 0.0, "remainder_force_n": 0.0, "consistency_bound_ratio": 1e-13});
         assert_eq!(refused(&output, &set("/cancellation_screen_exception", Some(record.clone()))), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_BESIDE_PASSING_SCREEN");
         let mut open = chain(&x, &[0.12, next_up(0.12, 1)], &[0, 2]);
         open["model"]["load_cases"][0]["pressure_regions"][0]["terminals"][1]["closure_transfer"] = json!("separately_supported_or_compensated");
@@ -669,7 +674,19 @@ fn the_readers_recompute_the_exception_from_the_published_groups() {
 }
 
 const WARNING: &str = "PRESSURE_REGION_CAP_REMAINDER_RETAINED";
+/// The warning's fixed opening; the whole message ends with one sentence
+/// formed from the case's exception record ([`warning_message`]).
 const WARNING_MESSAGE: &str = "At interior nodes of this case's pressure regions the cap loads of adjacent members are formed separately and need not cancel exactly in this model. The remainder comes from small differences in bore or alignment within each region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
+
+/// The whole message for the case `case` of a solved output, written out
+/// independently of the producer's and the readers' functions: the opening,
+/// then the case, the record's force by `{:e}` in N, the record's node and the
+/// not-a-bound clause.
+fn warning_message(output: &Value, case: &str) -> String {
+    let record = &exact_case(output, case)["pressure_rhs_assembly"]["cancellation_screen_exception"];
+    let force = record["remainder_force_n"].as_f64().unwrap();
+    format!("{WARNING_MESSAGE} In case {case}, the largest retained remainder relative to the pressure force on the bore is {force:e} N, at node {}; it is not a bound on the resulting displacement.", record["node_ref"].as_str().unwrap())
+}
 
 fn warnings(output: &Value) -> Vec<Value> {
     output["diagnostics"].as_array().unwrap().iter().filter(|d| d["code"] == WARNING).cloned().collect()
@@ -680,8 +697,8 @@ fn exact_case<'a>(output: &'a Value, case: &str) -> &'a Value {
 }
 
 /// DEL-04-07: a case admitted under the cancellation screen's exception
-/// carries the named warning once, at warning severity, with the fixed
-/// message and the references [case, region, the record's node]; a case the
+/// carries the named warning once, at warning severity, with the message
+/// formed from its record and the references [case, region, the record's node]; a case the
 /// original screen admits carries none. The readers refuse a record without
 /// its warning, a warning without a record, a changed message and a wrong node.
 #[test]
@@ -700,7 +717,7 @@ fn a_case_admitted_under_the_exception_carries_its_warning_and_the_readers_bind_
         let found = warnings(&admitted);
         assert_eq!(found.len(), 1, "{mode:?}");
         assert_eq!(found[0]["severity"], "warning");
-        assert_eq!(found[0]["message"], WARNING_MESSAGE);
+        assert_eq!(found[0]["message"], warning_message(&admitted, CASE));
         assert_eq!(found[0]["affected_refs"], json!([CASE, REGION, record["node_ref"]]));
         validate_pressure_evidence(&admitted).unwrap();
         let original = serde_json::to_value(solve(chain(&x, &[0.12, 0.12], &[0, 2]), mode)).unwrap();
@@ -715,9 +732,20 @@ fn a_case_admitted_under_the_exception_carries_its_warning_and_the_readers_bind_
         // A changed message.
         let mut changed = without(&admitted);
         let mut warning = found[0].clone();
-        warning["message"] = json!(WARNING_MESSAGE.replace("not establish", "establish"));
+        warning["message"] = json!(warning_message(&admitted, CASE).replace("not establish", "establish"));
         changed["diagnostics"].as_array_mut().unwrap().push(warning);
         assert_eq!(refused(&changed), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING");
+        // The fixed opening alone; another force in the sentence; the not-a-bound clause dropped.
+        let message = warning_message(&admitted, CASE);
+        let force = record["remainder_force_n"].as_f64().unwrap();
+        for text in [WARNING_MESSAGE.to_owned(), message.replace(&format!("{force:e} N"), &format!("{:e} N", next_up(force, 1))),
+            message.replace("; it is not a bound on the resulting displacement.", ".")] {
+            let mut changed = without(&admitted);
+            let mut warning = found[0].clone();
+            warning["message"] = json!(text);
+            changed["diagnostics"].as_array_mut().unwrap().push(warning);
+            assert_eq!(refused(&changed), "SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_WARNING");
+        }
         // A wrong node.
         let mut moved = without(&admitted);
         let mut warning = found[0].clone();
@@ -963,6 +991,8 @@ fn scaled(output: &Value, factor: f64, loads: bool) -> Value {
         rhs["assembled_pressure_rhs_global"] = json!(rhs["assembled_pressure_rhs_global"].as_array().unwrap().iter().map(|x| x.as_f64().unwrap() * factor).collect::<Vec<_>>());
         let ratio = rhs["cancellation_screen_exception"]["remainder_to_bore_force_ratio"].as_f64().unwrap();
         rhs["cancellation_screen_exception"]["remainder_to_bore_force_ratio"] = json!(ratio * factor);
+        let force = rhs["cancellation_screen_exception"]["remainder_force_n"].as_f64().unwrap();
+        rhs["cancellation_screen_exception"]["remainder_force_n"] = json!(force * factor.abs());
     }
     forged
 }
@@ -1122,7 +1152,7 @@ fn exactly_collinear_equal_bore_members_can_leave_a_rounding_remainder_and_carry
         let record = assert_screen(&output, true, "collinear");
         let found = warnings(&output);
         assert_eq!(found.len(), 1, "{mode:?}");
-        assert_eq!(found[0]["message"], WARNING_MESSAGE);
+        assert_eq!(found[0]["message"], warning_message(&output, CASE));
         let rhs = assembly(&output);
         let m = rhs["node_order"].as_array().unwrap().iter().position(|n| *n == record["node_ref"]).unwrap();
         let load = (0..3).map(|k| rhs["assembled_pressure_rhs_global"][m * 6 + k].as_f64().unwrap()).collect::<Vec<_>>();
@@ -1135,7 +1165,7 @@ fn exactly_collinear_equal_bore_members_can_leave_a_rounding_remainder_and_carry
         let directions = output["contract_evidence"]["pressure"][0]["applied_loads"].as_array().unwrap().iter().map(|l| l["local_x_global"].clone()).collect::<Vec<_>>();
         assert_ne!(directions[0], directions[1], "{mode:?}: the two formed directions differ by rounding");
         // Sentence 4: the record states a ratio within a consistency bound, nothing about the effect.
-        assert!(record.as_object().unwrap().keys().all(|k| ["basis", "node_ref", "member_pipe_ids", "member_lengths_m", "region_span_m", "remainder_to_bore_force_ratio", "consistency_bound_ratio"].contains(&k.as_str())));
+        assert!(record.as_object().unwrap().keys().all(|k| ["basis", "node_ref", "member_pipe_ids", "member_lengths_m", "region_span_m", "remainder_to_bore_force_ratio", "remainder_force_n", "consistency_bound_ratio"].contains(&k.as_str())));
         open_pipe_stress_result_export::semantic_contract::validate_pressure_evidence(&output).unwrap();
         assert_eq!(verdict(&output, &input["model"])["ok"], true, "{mode:?}");
     }
@@ -1194,7 +1224,7 @@ fn a_case_with_two_straight_regions_of_the_family_carries_one_warning_true_of_bo
         assert_eq!(record["node_ref"], "node:D1", "{mode:?}: the largest remainder");
         let found = warnings(&output);
         assert_eq!(found.len(), 1, "{mode:?}: one warning for the case");
-        assert_eq!(found[0]["message"], WARNING_MESSAGE);
+        assert_eq!(found[0]["message"], warning_message(&output, CASE));
         assert_eq!(found[0]["affected_refs"], json!([CASE, "region:second", "node:D1"]), "{mode:?}");
         let rhs = assembly(&output);
         let order = rhs["node_order"].as_array().unwrap();
@@ -1383,9 +1413,13 @@ fn interior_nodes_the_model_does_not_have_are_refused_by_the_model_binding() {
     }
 }
 
-/// The warning's message re-formed for a moved node (Part 3: the message
-/// names the record's node; until then it is fixed and nothing changes).
-fn reform_warning_message(_warning: &mut Value, _node: &Value) {}
+/// The warning's message re-formed for a moved node (the message names the
+/// record's node; the record's force is unchanged by the exchange).
+fn reform_warning_message(warning: &mut Value, node: &Value) {
+    let old = warning["message"].as_str().unwrap().to_owned();
+    let (head, _) = old.rsplit_once(", at node ").unwrap();
+    warning["message"] = json!(format!("{head}, at node {}; it is not a bound on the resulting displacement.", node.as_str().unwrap()));
+}
 
 /// A run along x whose interior node is off the axis in y by the smallest
 /// subnormal, 2^-1074 m, on members of 3 m: each member's y chord component
@@ -1448,7 +1482,10 @@ fn a_subnormal_pressure_s_exactly_cancelling_remainder_carries_a_true_warning() 
         assert_eq!(record["remainder_to_bore_force_ratio"].as_f64().unwrap(), 0.0, "{mode:?}");
         let found = warnings(&output);
         assert_eq!(found.len(), 1, "{mode:?}");
-        assert_eq!(found[0]["message"], WARNING_MESSAGE, "{mode:?}");
+        assert_eq!(found[0]["message"], warning_message(&output, CASE), "{mode:?}");
+        // (5) the last sentence: the case, a remainder of zero newtons at the record's node, and no bound on the displacement.
+        assert_eq!(record["remainder_force_n"].as_f64().unwrap(), 0.0, "{mode:?}");
+        assert!(found[0]["message"].as_str().unwrap().ends_with(&format!(" In case {CASE}, the largest retained remainder relative to the pressure force on the bore is 0e0 N, at node node:C1; it is not a bound on the resulting displacement.")), "{mode:?}");
         assert!(found[0]["message"].as_str().unwrap().starts_with("At interior nodes of this case's pressure regions the cap loads of adjacent members are formed separately and need not cancel exactly in this model."));
         // (1) one group per member at each axis of the interior node, each nonzero, summing to zero.
         let at_node = rhs["groups"].as_array().unwrap().iter().filter(|g| g["node_ref"] == "node:C1").collect::<Vec<_>>();

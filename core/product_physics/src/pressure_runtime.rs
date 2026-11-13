@@ -1672,7 +1672,9 @@ pub(crate) const CANCELLATION_EXCEPTION_BASIS: &str = "straight_region_interior_
 /// admitted under the screen's exception carries, whatever its standing. Its
 /// references are the case, the region and the node the exception record names.
 pub(crate) const CAP_REMAINDER_WARNING_CODE: &str = "PRESSURE_REGION_CAP_REMAINDER_RETAINED";
-/// The warning's whole, fixed message.
+/// The warning's fixed opening, its first four sentences. The whole message
+/// is this followed by one sentence formed from the exception record
+/// ([`cap_remainder_warning_message`]).
 pub(crate) const CAP_REMAINDER_WARNING_MESSAGE: &str = "At interior nodes of this case's pressure regions the cap loads of adjacent members are formed separately and need not cancel exactly in this model. The remainder comes from small differences in bore or alignment within each region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
 
 /// The cancellation-screen exception's work, entered only when the original
@@ -1733,9 +1735,28 @@ fn cap_remainder_warning(
     diagnostics: &mut Vec<Diagnostic>,
 ) {
     let node = record["node_ref"].as_str().unwrap_or_default();
+    let force = record["remainder_force_n"].as_f64().unwrap_or(f64::NAN);
     if let Some((_, region, _)) = interior.iter().find(|(index, ..)| model.nodes[*index].id == node) {
-        finding(diagnostics, CAP_REMAINDER_WARNING_CODE, "warning", &[&case.id, region, node], CAP_REMAINDER_WARNING_MESSAGE);
+        finding(diagnostics, CAP_REMAINDER_WARNING_CODE, "warning", &[&case.id, region, node], cap_remainder_warning_message(&case.id, node, force));
     }
+}
+
+/// The warning's whole message for the case `case` whose exception record
+/// names `node` and the force `force`: [`CAP_REMAINDER_WARNING_MESSAGE`] and
+/// one sentence stating the case, that force in newtons, the node, and that it
+/// is not a bound on the resulting displacement. The case and the node are
+/// written as their ids, as the document holds them (`load_case_id`, the
+/// record's `node_ref`), because the report's Diagnostics table shows a
+/// message and not its references. The force is written by Rust's `{:e}`
+/// (`LowerExp` without a precision): the shortest decimal digits that read
+/// back to the same binary64 value, as `d[.ddd]e<exponent>` with no `+` and no
+/// leading zeros in the exponent (`2.197357159078235e-1`, `0e0`, `5e-324`).
+/// That string is a function of the value's bits alone, so the readers re-form
+/// it from the record's member and require the whole message to be equal (the
+/// Python twin forms the same digits from `repr`, the same shortest
+/// round-trip rule).
+pub(crate) fn cap_remainder_warning_message(case: &str, node: &str, force: f64) -> String {
+    format!("{CAP_REMAINDER_WARNING_MESSAGE} In case {case}, the largest retained remainder relative to the pressure force on the bore is {force:e} N, at node {node}; it is not a bound on the resulting displacement.")
 }
 
 /// DEL-04-07, the consistency check of the cancellation-screen exception.
@@ -2151,9 +2172,12 @@ fn family_nodes(model: &PreviewModel, case: &PreviewLoadCase, chains: &[Exceptio
 /// The record of the cancellation-screen exception, or `None` (refused) when
 /// the check of [`BORE_DEPARTURE_RATIO`] fails anywhere or cannot be formed.
 /// The record states the interior node of the largest |F|/(|p|·A_hi), that
-/// ratio, the bound β there, and the operands β is formed from (the region's
-/// span and the two members' lengths, in metres), so that a reader recomputes
-/// both numbers from the envelope and, given the model, from its geometry.
+/// ratio, |F| itself there in newtons (`remainder_force_n`, the correctly
+/// rounded norm of the assembled translational load at the node, the
+/// numerator of the ratio), the bound β there, and the operands β is formed
+/// from (the region's span and the two members' lengths, in metres), so that
+/// a reader recomputes these numbers from the envelope and, given the model,
+/// from its geometry.
 fn cap_remainder_record(
     model: &PreviewModel,
     built: &BuiltModel,
@@ -2195,7 +2219,7 @@ fn cap_remainder_record(
         if largest.as_ref().is_none_or(|(value, _)| measured > *value) {
             largest = Some((measured, json!({"basis":CANCELLATION_EXCEPTION_BASIS,"node_ref":model.nodes[*node].id,
                 "member_pipe_ids":pipes.map(|pipe| model.pipe_segments[pipe].id.clone()),"member_lengths_m":lengths,"region_span_m":span,
-                "remainder_to_bore_force_ratio":measured,"consistency_bound_ratio":ratio})));
+                "remainder_to_bore_force_ratio":measured,"remainder_force_n":force,"consistency_bound_ratio":ratio})));
         }
     }
     largest.map(|(_, record)| record)
@@ -3486,6 +3510,22 @@ mod cancellation_exception_tests {
             let mut without = build();
             without.retain(|key, _| key.0 / DOF_PER_NODE != omitted);
             assert!(!eligible_with(&chains, &terminals, &members, &without, &directions), "node {omitted} omitted");
+        }
+    }
+
+    /// The warning's force is written by `{:e}`; the Python twin
+    /// (`tests/test_pressure_cancellation_exception_readers.py`,
+    /// LOWER_EXP_VECTORS) asserts the same strings for the same values. The
+    /// result-export reader forms the message by the same expression.
+    #[test]
+    fn the_warning_s_sentence_writes_the_force_as_the_readers_re_form_it() {
+        for (value, text) in [(0.2197357159078235, "2.197357159078235e-1"), (0.0, "0e0"), (f64::from_bits(1), "5e-324"), (1.0, "1e0"),
+            (1234.5, "1.2345e3"), (1e22, "1e22"), (1e-7, "1e-7"), (3.637978807091713e-12, "3.637978807091713e-12"),
+            (15707.963267948964, "1.5707963267948964e4"), (0.1, "1e-1"), (2.5e-310, "2.5e-310"), (123.0, "1.23e2"), (f64::MAX, "1.7976931348623157e308")] {
+            assert_eq!(format!("{value:e}"), text);
+            let message = cap_remainder_warning_message("case:P", "node:1", value);
+            assert_eq!(message, format!("{CAP_REMAINDER_WARNING_MESSAGE} In case case:P, the largest retained remainder relative to the pressure force on the bore is {text} N, at node node:1; it is not a bound on the resulting displacement."));
+            assert_eq!(message, open_pipe_stress_result_export::cap_remainder_warning_message("case:P", "node:1", value));
         }
     }
 

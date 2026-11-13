@@ -103,7 +103,7 @@ fn records(output: &Value) -> usize {
 fn with_stray_warning(output: &Value, case: &str) -> Value {
     let mut stray = output.clone();
     stray["diagnostics"].as_array_mut().unwrap().push(json!({"id":"diagnostic:stray","code":WARNING,"severity":"warning",
-        "message":pressure_runtime::CAP_REMAINDER_WARNING_MESSAGE,"affected_refs":[case,"region:R","node:R1"]}));
+        "message":pressure_runtime::cap_remainder_warning_message(case, "node:R1", 0.0),"affected_refs":[case,"region:R","node:R1"]}));
     stray
 }
 

@@ -2165,7 +2165,9 @@ mod direct_native {
 /// DEL-04-07 (the cancellation screen's exception): a report rendered for a
 /// case admitted under the exception quotes the case's
 /// `PRESSURE_REGION_CAP_REMAINDER_RETAINED` warning plainly in its
-/// Diagnostics section, not as supplied, unverified text, on a result with a
+/// Diagnostics section (its message, re-formed from the record, naming the
+/// case, the node, the retained remainder in N and that it is no bound on the
+/// displacement), not as supplied, unverified text, on a result with a
 /// combination, where every message naming no combination is otherwise
 /// quoted after that label. The admitted case is solved here (a closed
 /// straight run of two members whose outside diameters are one ulp apart,
@@ -2179,7 +2181,7 @@ mod direct_native {
 #[test]
 fn a_report_for_a_case_admitted_under_the_exception_quotes_its_warning_plainly() {
     use open_pipe_stress_report_package::bindings::{expected_report_diagnostics, SUPPLEMENTAL_DIAGNOSTIC_LABEL};
-    use open_pipe_stress_result_export::{CAP_REMAINDER_WARNING_CODE, CAP_REMAINDER_WARNING_MESSAGE};
+    use open_pipe_stress_result_export::{cap_remainder_warning_message, CAP_REMAINDER_WARNING_CODE};
     let node = |id: &str, x: f64| json!({"id": id, "position": {"x": x, "y": 0.0, "z": 0.0}, "provenance": "invented"});
     let pipe = |id: &str, from: &str, to: &str, outside: f64| json!({"id": id, "from": from, "to": to,
         "section": {"outside_diameter": {"value": outside, "unit": "m"}, "wall_thickness": {"value": 0.01, "unit": "m"},
@@ -2215,16 +2217,23 @@ fn a_report_for_a_case_admitted_under_the_exception_quotes_its_warning_plainly()
         entry
     }).collect::<Vec<_>>();
     let warning = entries.iter().find(|entry| entry["code"] == CAP_REMAINDER_WARNING_CODE).expect("the warning's report entry");
-    assert_eq!(warning["message"], CAP_REMAINDER_WARNING_MESSAGE);
-    assert_eq!(warning["affected_object"]["ref_id"], format!("case:P, region:P, {}", source["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["cancellation_screen_exception"]["node_ref"].as_str().unwrap()));
+    let record = &source["contract_evidence"]["exact_cases"][0]["pressure_rhs_assembly"]["cancellation_screen_exception"];
+    let node = record["node_ref"].as_str().unwrap();
+    let message = cap_remainder_warning_message("case:P", node, record["remainder_force_n"].as_f64().unwrap());
+    assert_eq!(warning["message"], message.as_str());
+    assert_eq!(warning["affected_object"]["ref_id"], format!("case:P, region:P, {node}"));
     let mut input = pressure_free_input();
     input["report_sections"]["diagnostics"] = json!(entries);
     let rendered: Value = serde_json::from_str(&command_body(&json!({"input": input})).expect("the render answers")).unwrap();
     let html = rendered["html"].as_str().expect("rendered html");
-    let sentence = open_pipe_stress_report_renderer::escape_html(CAP_REMAINDER_WARNING_MESSAGE);
+    let sentence = open_pipe_stress_report_renderer::escape_html(&message);
     let label = open_pipe_stress_report_renderer::escape_html(SUPPLEMENTAL_DIAGNOSTIC_LABEL);
     assert_eq!(html.matches(&sentence).count(), 1, "the sentence, once");
-    assert!(!html.contains(&format!("{label}{}", open_pipe_stress_report_renderer::escape_html(&format!("\"{CAP_REMAINDER_WARNING_MESSAGE}")))), "not as supplied text");
+    assert!(!html.contains(&format!("{label}{}", open_pipe_stress_report_renderer::escape_html(&format!("\"{message}")))), "not as supplied text");
+    // The case, the node, the force with its unit and the not-a-bound clause, in the message itself.
+    for shown in ["In case case:P,".to_owned(), format!("{:e} N", record["remainder_force_n"].as_f64().unwrap()), format!("at node {node};"), "it is not a bound on the resulting displacement.".to_owned()] {
+        assert!(sentence.contains(&open_pipe_stress_report_renderer::escape_html(&shown)), "{shown}");
+    }
     let diagnostics = html.find("Diagnostics").expect("a Diagnostics section");
     assert!(html.find(&sentence).unwrap() > diagnostics, "in the Diagnostics section");
 }

@@ -1790,15 +1790,29 @@ pub(crate) const CANCELLATION_EXCEPTION_BASIS: &str = "straight_region_interior_
 /// DEL-04-07: the warning every case admitted under the cancellation-screen
 /// exception carries (product physics `CAP_REMAINDER_WARNING_CODE`).
 pub const CAP_REMAINDER_WARNING_CODE: &str = "PRESSURE_REGION_CAP_REMAINDER_RETAINED";
-/// Its whole, fixed message (product physics `CAP_REMAINDER_WARNING_MESSAGE`).
+/// Its fixed opening, its first four sentences (product physics
+/// `CAP_REMAINDER_WARNING_MESSAGE`); the whole message is
+/// [`cap_remainder_warning_message`].
 pub const CAP_REMAINDER_WARNING_MESSAGE: &str = "At interior nodes of this case's pressure regions the cap loads of adjacent members are formed separately and need not cancel exactly in this model. The remainder comes from small differences in bore or alignment within each region's representation limits, from the rounding of each member's direction and bore area, or both. The solver retains it as a pressure load. The exception to the pressure cancellation screen that admitted this case does not establish that its effect is negligible; the case's numerical standing concerns the recorded geometry as computed, not an idealised region in which those loads cancel.";
+
+/// DEL-04-07, the warning's whole message (product physics
+/// `cap_remainder_warning_message`): [`CAP_REMAINDER_WARNING_MESSAGE`] and one
+/// sentence naming the case and the record's node by their ids and stating
+/// the record's `remainder_force_n` in newtons, written by Rust's `{:e}` (the
+/// shortest digits that read back to the same binary64 value), and that it is
+/// not a bound on the resulting displacement.
+pub fn cap_remainder_warning_message(case: &str, node: &str, force: f64) -> String {
+    format!("{CAP_REMAINDER_WARNING_MESSAGE} In case {case}, the largest retained remainder relative to the pressure force on the bore is {force:e} N, at node {node}; it is not a bound on the resulting displacement.")
+}
 
 /// DEL-04-07: the warning stands on a case exactly when its exception record
 /// does (read after every record has been checked): one warning per record,
-/// of warning severity, with the fixed message and the references [case,
-/// region, node], the region being the one whose terms meet at the record's
-/// node. A record without its warning, a warning on a case without a record,
-/// and a warning of another form are each refused by name.
+/// of warning severity, with the message re-formed from the record
+/// ([`cap_remainder_warning_message`], the case's id, the record's node and
+/// force) and the references [case, region, node], the region being the one
+/// whose terms meet at the record's node. A record without its warning, a
+/// warning on a case without a record, and a warning of another form are each
+/// refused by name.
 fn cap_remainder_warnings(source: &Value) -> Check {
     let mut expected = Vec::new();
     for case in array(&source["contract_evidence"]["exact_cases"])? {
@@ -1809,19 +1823,20 @@ fn cap_remainder_warnings(source: &Value) -> Check {
             .find_map(|group| group["terms"].as_array().and_then(|terms| terms.first()))
             .map(|term| term["region_id"].clone())
             .ok_or("SOURCE_PHYSICS_RHS_SCREEN_EXCEPTION_FAMILY")?;
-        expected.push(json!([case["load_case_id"], region, node]));
+        let message = cap_remainder_warning_message(text(&case["load_case_id"])?, text(node)?, number(&record["remainder_force_n"])?);
+        expected.push((json!([case["load_case_id"], region, node]), message));
     }
     let warnings = array(&source["diagnostics"])?.iter().filter(|d| d["code"] == CAP_REMAINDER_WARNING_CODE).collect::<Vec<_>>();
     for warning in &warnings {
         let case = &warning["affected_refs"][0];
-        require(expected.iter().any(|refs| refs[0] == *case), "RHS_SCREEN_EXCEPTION_WARNING_UNRECORDED")?;
+        require(expected.iter().any(|(refs, _)| refs[0] == *case), "RHS_SCREEN_EXCEPTION_WARNING_UNRECORDED")?;
         require(
             warning["severity"] == "warning"
-                && warning["message"] == CAP_REMAINDER_WARNING_MESSAGE
-                && expected.contains(&warning["affected_refs"]),
+                && expected.iter().any(|(refs, message)| warning["affected_refs"] == *refs && warning["message"] == message.as_str()),
             "RHS_SCREEN_EXCEPTION_WARNING",
         )?;
     }
+    let expected = expected.into_iter().map(|(refs, _)| refs).collect::<Vec<_>>();
     for refs in &expected {
         let count = warnings.iter().filter(|warning| warning["affected_refs"] == *refs).count();
         require(count != 0, "RHS_SCREEN_EXCEPTION_WARNING_MISSING")?;
@@ -1831,7 +1846,7 @@ fn cap_remainder_warnings(source: &Value) -> Check {
 }
 
 /// The exception record's members.
-const EXCEPTION_RECORD_KEYS: [&str; 7] =["basis", "node_ref", "member_pipe_ids", "member_lengths_m", "region_span_m", "remainder_to_bore_force_ratio", "consistency_bound_ratio"];
+const EXCEPTION_RECORD_KEYS: [&str; 8] =["basis", "node_ref", "member_pipe_ids", "member_lengths_m", "region_span_m", "remainder_to_bore_force_ratio", "remainder_force_n", "consistency_bound_ratio"];
 /// The constants of the consistency bound (product physics
 /// `BORE_DEPARTURE_RATIO`, `ALIGNMENT_DEPARTURE_RATIO`,
 /// `FORMATION_ALLOWANCE_RATIO`, `SUBNORMAL_ALLOWANCE`).
@@ -1975,6 +1990,8 @@ fn exception_consistency(
     let bound = consistency_bound_ratio(span, [l1, l2]);
     require(number(&record["consistency_bound_ratio"])?.to_bits() == bound.to_bits(), "RHS_SCREEN_EXCEPTION_BOUND")?;
     require(number(&record["remainder_to_bore_force_ratio"])?.to_bits() == node.ratio.to_bits(), "RHS_SCREEN_EXCEPTION_RATIO")?;
+    // The record's force: |F| at its node, the ratio's numerator, bit for bit.
+    require(number(&record["remainder_force_n"])?.to_bits() == node.force.to_bits(), "RHS_SCREEN_EXCEPTION_FORCE")?;
     require(node.force <= node.bore_force * bound + SUBNORMAL_ALLOWANCE, "RHS_SCREEN_EXCEPTION_BOUND")?;
     // The original screen, as the producer forms it: 32 epsilon times the
     // largest per-DOF sum of group magnitudes over the largest assembled
@@ -2420,6 +2437,16 @@ pub(crate) fn exception_model_binding(source: &Value, model: &Value) -> Check {
             for axis in 0..3 {
                 let published = assembled[at + axis];
                 let agrees = if exact { published.to_bits() == load[axis].to_bits() || (published == 0.0 && load[axis] == 0.0) } else { (published - load[axis]).abs() <= groups as f64 * f64::from_bits(2) };
+                require(agrees, "MODEL_EXCEPTION_REMAINDER")?;
+            }
+            // The record's force, recomputed from the model: the correctly
+            // rounded norm of the remainder re-formed above, bit for bit where
+            // every group value is zero or normal, else within the same
+            // subnormal allowance per group.
+            if record["node_ref"] == *node {
+                let force = open_pipe_stress_correct_norm::norm3(load[0], load[1], load[2]);
+                let recorded = number(&record["remainder_force_n"])?;
+                let agrees = if exact { recorded.to_bits() == force.to_bits() } else { (recorded - force).abs() <= groups as f64 * f64::from_bits(2) };
                 require(agrees, "MODEL_EXCEPTION_REMAINDER")?;
             }
         }
