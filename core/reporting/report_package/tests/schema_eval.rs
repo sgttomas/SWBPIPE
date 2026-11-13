@@ -172,7 +172,7 @@ fn the_closure_keyword_census_is_classified_and_complete() {
         names,
         [
             "results.v0.3.schema.yaml",
-            "results_pressure_2.v0.3.schema.json",
+            "results_pressure_3.v0.3.schema.json",
             "physics_source_recovery.schema.json",
             "retained_precision_mp_v2.schema.json",
             "load_reference_state.schema.json"

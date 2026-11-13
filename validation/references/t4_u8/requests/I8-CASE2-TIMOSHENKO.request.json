@@ -327,7 +327,15 @@
     "provenance": "invented T4-I8 rebuilt-case input; not library, component or code-rule data"
    }
   ],
-  "combinations": []
+  "combinations": [],
+  "model_settings": {
+   "pressure_elongation": {
+    "operating_load_cases": [
+     "case:pressure-half",
+     "case:combined"
+    ]
+   }
+  }
  },
  "materials": []
 }

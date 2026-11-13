@@ -43,10 +43,10 @@ fn run(
     mode: PreviewSolverMode,
 ) -> Result<MechanicsEnvelope, String> {
     match entry {
-        Entry::Captured => run_linear_static_preview_value_with_mode(request.clone(), mode),
+        Entry::Captured => run_linear_static_preview_value_with_mode(crate::pressure_runtime::with_pressurised_cases_named(request), mode),
         Entry::Typed => {
             let typed: LinearStaticPreviewRequest =
-                serde_json::from_value(request.clone()).map_err(|e| format!("DTO: {e}"))?;
+                serde_json::from_value(crate::pressure_runtime::with_pressurised_cases_named(request)).map_err(|e| format!("DTO: {e}"))?;
             Ok(run_linear_static_preview_with_mode(typed, mode))
         }
     }
@@ -1725,7 +1725,7 @@ fn t13_committed_fallback_uz_is_byte_identical() {
         let envelope = run_linear_static_preview_value_with_mode(request.clone(), mode).unwrap();
         // The role: an ordinary pressure-2 publication whose source
         // attempt declines by name, not by work.
-        assert_eq!(envelope.producer.semantic_contract_id, "openpipestress.result_semantics/0.3.0/pressure-2", "{mode:?}");
+        assert_eq!(envelope.producer.semantic_contract_id, "openpipestress.result_semantics/0.3.0/pressure-3", "{mode:?}");
         assert!(
             envelope.diagnostics.iter().any(|d| d.code == "SOURCE_BLOCK_RECOVERY_UNAVAILABLE"
                 && d.message.contains("helper_stage: SourceClosure, error: Unsupported(\"non-nodal load producer present\")")),
@@ -2879,7 +2879,7 @@ fn exact_pressure_operand_rows_carry_their_bound() {
         materials,
         built,
         mut diagnostics,
-    } = prepared(&request);
+    } = prepared(&crate::pressure_runtime::with_pressurised_cases_named(&request));
     let mut checked = 0;
     for case in &model.load_cases {
         let exact = pressure_runtime::build_pressure_case_with_members(

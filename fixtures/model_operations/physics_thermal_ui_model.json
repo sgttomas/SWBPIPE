@@ -269,5 +269,12 @@
   "data_boundary": {
     "source": "synthetic_integration_input_not_library_data"
   },
-  "diagnostics": []
+  "diagnostics": [],
+  "model_settings": {
+    "pressure_elongation": {
+      "operating_load_cases": [
+        "case:closed-pressure"
+      ]
+    }
+  }
 }

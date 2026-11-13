@@ -233,184 +233,28 @@ def test_copy_checks_accept_exact_stored_and_javascript_written_copies(joined) -
     validate_analysis_run_v0_3(written, source)
 
 
-# Model document 0.8.0 (owner ruling "0.8.0 a2"): a
-# pressure-2 run recorded before the ripple, main's record at 2e4748eada verbatim, binds the 0.7.0-era table
-# (3e2aac3c…) and keeps its existing read; that digest is the recorded basis of exactly the current table.
-_RECORDED_070 = Path(__file__).resolve().parents[1] / "fixtures/persistence/recorded_model_0_7_0"
+# RT-L2 (DEL-04-07): the ordinary identity moved to pressure-3, and the pressure-2
+# recorded-table bases (model documents 0.8.0 and 0.9.0, RT-A3 reducers 2a and 2b, increments 3 and 4, RT-A4 and the
+# combination certificate) are not carried into it. Each pressure-2 run recorded under them, main's records verbatim
+# (fixtures/persistence/recorded_model_*), follows the retired-identity rule: its source is refused by name, and its
+# record's table binding is no current basis.
+_RECORDED_PRESSURE_2 = [("recorded_model_0_7_0", "3e2aac3c"), ("recorded_model_0_8_0", "5451fbf3"),
+                        ("recorded_model_0_9_0_pre_2a", "d46e1963"), ("recorded_model_0_9_0_pre_2b", "032e861f"),
+                        ("recorded_model_0_9_0_pre_ce", "a2db16a5"), ("recorded_model_0_9_0_pre_rt_a4", "be29fabc"),
+                        ("recorded_model_0_9_0_pre_nl", "10455bf3"), ("recorded_model_0_9_0_pre_cert", "2c20583d")]
 
 
-def test_a_pressure_2_run_recorded_at_model_0_7_0_reads_as_before():
-    from core.analysis_runs import compatibility as c
-    envelope = json.loads((_RECORDED_070 / "pressure_plain_connected_sparse.analysis_run.json").read_text())
-    source = json.loads((_RECORDED_070 / "pressure_connected_mechanics_sparse.json").read_text())
-    assert envelope["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"].startswith("3e2aac3c")
-    assert c.verify_analysis_run_record(envelope) == "match"
-    c.validate_analysis_run_v0_3(envelope, source, expected_basis_refs=envelope["analysis_run"]["load_basis_refs"])
-
-
-def test_the_recorded_basis_warrants_no_other_digest():
-    from core.analysis_runs import compatibility as c
-    envelope = json.loads((_RECORDED_070 / "pressure_plain_connected_sparse.analysis_run.json").read_text())
-    source = json.loads((_RECORDED_070 / "pressure_connected_mechanics_sparse.json").read_text())
-    changed = json.loads(json.dumps(envelope))
-    changed["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"] = "0" * 64
-    with pytest.raises(ValueError, match="ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"):
-        c.validate_analysis_run_v0_3(changed, source, expected_basis_refs=changed["analysis_run"]["load_basis_refs"])
-    mixed = json.loads(json.dumps(envelope))
-    mixed["analysis_run"]["result_refs"][0]["semantic_contract"]["sha256"] = c.PRESSURE_CONTRACT_SHA256
-    with pytest.raises(ValueError, match="ANALYSIS_ROW_SOURCE_BINDING_MISMATCH"):
-        c.validate_analysis_run_v0_3(mixed, source, expected_basis_refs=mixed["analysis_run"]["load_basis_refs"])
-
-
-# Model document 0.9.0 (owner ruling "0.8.0 a2"): a pressure-2 run
-# recorded before the 0.9.0 ripple, main's record at 5bb2f9ff0 verbatim, binds the 0.8.0-era table (5451fbf3…, matched
-# by prefix; the fixture is outside semantic_contract_tables.py repin's reach) and keeps its existing read.
-_RECORDED_080 = Path(__file__).resolve().parents[1] / "fixtures/persistence/recorded_model_0_8_0"
-
-
-def test_a_pressure_2_run_recorded_at_model_0_8_0_reads_as_before():
-    from core.analysis_runs import compatibility as c
-    envelope = json.loads((_RECORDED_080 / "pressure_plain_connected_sparse.analysis_run.json").read_text())
-    source = json.loads((_RECORDED_080 / "pressure_connected_mechanics_sparse.json").read_text())
-    model = json.loads((_RECORDED_080 / "exact_pressure_connected_request.json").read_text())["model"]
-    assert model["schema_version"] == "0.8.0"
-    assert envelope["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"].startswith("5451fbf3")
-    assert c.verify_analysis_run_record(envelope) == "match"
-    c.validate_analysis_run_v0_3(envelope, source, expected_basis_refs=envelope["analysis_run"]["load_basis_refs"])
-    changed = json.loads(json.dumps(envelope))
-    changed["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"] = "0" * 64
-    with pytest.raises(ValueError, match="ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"):
-        c.validate_analysis_run_v0_3(changed, source, expected_basis_refs=changed["analysis_run"]["load_basis_refs"])
-
-
-# RT-A3 reducer 2a (#73) and 2b (#80) each restated only pressure-2's admitted-families disclosure
-# (supported_profile_limitations[1]; every row is the same). Runs recorded at model 0.9.0 before each, main's records
-# verbatim (pre_2a at 5175048e7 binds d46e1963…, pre_2b at 2b743781a binds 032e861f…), keep their existing read.
-@pytest.mark.parametrize("name,prefix", [("recorded_model_0_9_0_pre_2a", "d46e1963"), ("recorded_model_0_9_0_pre_2b", "032e861f")])
-def test_a_pressure_2_run_recorded_before_a_disclosure_restatement_reads_as_before(name, prefix):
+@pytest.mark.parametrize("name,prefix", _RECORDED_PRESSURE_2)
+def test_a_pressure_2_run_recorded_under_an_earlier_table_is_refused_by_name(name, prefix):
     from core.analysis_runs import compatibility as c
     root = Path(__file__).resolve().parents[1] / "fixtures/persistence" / name
     envelope = json.loads((root / "pressure_plain_connected_sparse.analysis_run.json").read_text())
     source = json.loads((root / "pressure_connected_mechanics_sparse.json").read_text())
-    model = json.loads((root / "exact_pressure_connected_request.json").read_text())["model"]
-    assert model["schema_version"] == "0.9.0"
+    assert source["producer"]["semantic_contract_id"] == "openpipestress.result_semantics/0.3.0/pressure-2"
     assert envelope["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"].startswith(prefix)
-    assert c.verify_analysis_run_record(envelope) == "match"
-    c.validate_analysis_run_v0_3(envelope, source, expected_basis_refs=envelope["analysis_run"]["load_basis_refs"])
-    changed = json.loads(json.dumps(envelope))
-    changed["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"] = "0" * 64
-    with pytest.raises(ValueError, match="ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"):
-        c.validate_analysis_run_v0_3(changed, source, expected_basis_refs=changed["analysis_run"]["load_basis_refs"])
-
-
-# RT-A3 increment 3 (DEL-04-07 Design pressure-contract.md, "Constant-effort supports (RT-A3 increment 3)"): the
-# pressure-2 table restates two limitations and appends gate 4, so its digest moves (a2db16a5… -> current). A
-# pressure-2 run recorded on main before the increment, main's record at 3983f51cf verbatim with its source and request
-# (fixtures/persistence/recorded_model_0_9_0_pre_ce, outside semantic_contract_tables.py repin's reach), binds the
-# pre-increment table and keeps its existing read; any other digest stays refused.
-_RECORDED_PRE_CE = Path(__file__).resolve().parents[1] / "fixtures/persistence/recorded_model_0_9_0_pre_ce"
-
-
-def test_a_pressure_2_run_recorded_before_constant_effort_reads_as_before():
-    from core.analysis_runs import compatibility as c
-    envelope = json.loads((_RECORDED_PRE_CE / "pressure_plain_connected_sparse.analysis_run.json").read_text())
-    source = json.loads((_RECORDED_PRE_CE / "pressure_connected_mechanics_sparse.json").read_text())
-    model = json.loads((_RECORDED_PRE_CE / "exact_pressure_connected_request.json").read_text())["model"]
-    assert model["schema_version"] == "0.9.0"
-    assert envelope["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"].startswith("a2db16a5")
-    assert c.PRESSURE_CONTRACT_SHA256 != envelope["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"]
-    assert c.verify_analysis_run_record(envelope) == "match"
-    c.validate_analysis_run_v0_3(envelope, source, expected_basis_refs=envelope["analysis_run"]["load_basis_refs"])
-    changed = json.loads(json.dumps(envelope))
-    changed["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"] = "0" * 64
-    with pytest.raises(ValueError, match="ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"):
-        c.validate_analysis_run_v0_3(changed, source, expected_basis_refs=changed["analysis_run"]["load_basis_refs"])
-    mixed = json.loads(json.dumps(envelope))
-    mixed["analysis_run"]["result_refs"][0]["semantic_contract"]["sha256"] = c.PRESSURE_CONTRACT_SHA256
-    with pytest.raises(ValueError, match="ANALYSIS_ROW_SOURCE_BINDING_MISMATCH"):
-        c.validate_analysis_run_v0_3(mixed, source, expected_basis_refs=mixed["analysis_run"]["load_basis_refs"])
-
-
-# RT-A4 (DEL-05-02 Design absolute-sum-srss-combinations.md §10.2): the pressure-2 table restates its combination
-# policy (v2) and adds three vocabulary tokens, rows unchanged, so its digest moves (be29fabc… -> current). A pressure-2
-# run recorded under the constant-effort table, RT-A3's final candidate's record at 01e05a486 verbatim with its source
-# and request (fixtures/persistence/recorded_model_0_9_0_pre_rt_a4, outside semantic_contract_tables.py repin's
-# reach), keeps its existing read; any other digest stays refused.
-_RECORDED_PRE_RT_A4 = Path(__file__).resolve().parents[1] / "fixtures/persistence/recorded_model_0_9_0_pre_rt_a4"
-
-
-def test_a_pressure_2_run_recorded_before_rt_a4_reads_as_before():
-    from core.analysis_runs import compatibility as c
-    envelope = json.loads((_RECORDED_PRE_RT_A4 / "pressure_plain_connected_sparse.analysis_run.json").read_text())
-    source = json.loads((_RECORDED_PRE_RT_A4 / "pressure_connected_mechanics_sparse.json").read_text())
-    model = json.loads((_RECORDED_PRE_RT_A4 / "exact_pressure_connected_request.json").read_text())["model"]
-    assert model["schema_version"] == "0.9.0"
-    assert envelope["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"].startswith("be29fabc")
-    assert c.PRESSURE_CONTRACT_SHA256 != envelope["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"]
-    assert c.verify_analysis_run_record(envelope) == "match"
-    c.validate_analysis_run_v0_3(envelope, source, expected_basis_refs=envelope["analysis_run"]["load_basis_refs"])
-    changed = json.loads(json.dumps(envelope))
-    changed["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"] = "0" * 64
-    with pytest.raises(ValueError, match="ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"):
-        c.validate_analysis_run_v0_3(changed, source, expected_basis_refs=changed["analysis_run"]["load_basis_refs"])
-    mixed = json.loads(json.dumps(envelope))
-    mixed["analysis_run"]["result_refs"][0]["semantic_contract"]["sha256"] = c.PRESSURE_CONTRACT_SHA256
-    with pytest.raises(ValueError, match="ANALYSIS_ROW_SOURCE_BINDING_MISMATCH"):
-        c.validate_analysis_run_v0_3(mixed, source, expected_basis_refs=mixed["analysis_run"]["load_basis_refs"])
-
-
-# RT-A3 increment 4 (DEL-04-07 Design pressure-contract.md, "Nonlinear supports on EX (RT-A3 increment 4)"): the
-# pressure-2 table restates its admitted-families and combinations limitations, rows and gates unchanged, so its digest
-# moves (10455bf3… -> current). A pressure-2 run recorded under the RT-A4 table, main's record at bbf384dec verbatim with
-# its source and request (fixtures/persistence/recorded_model_0_9_0_pre_nl, outside semantic_contract_tables.py repin's
-# reach), keeps its existing read; any other digest stays refused.
-_RECORDED_PRE_NL = Path(__file__).resolve().parents[1] / "fixtures/persistence/recorded_model_0_9_0_pre_nl"
-
-
-def test_a_pressure_2_run_recorded_before_nonlinear_supports_reads_as_before():
-    from core.analysis_runs import compatibility as c
-    envelope = json.loads((_RECORDED_PRE_NL / "pressure_plain_connected_sparse.analysis_run.json").read_text())
-    source = json.loads((_RECORDED_PRE_NL / "pressure_connected_mechanics_sparse.json").read_text())
-    model = json.loads((_RECORDED_PRE_NL / "exact_pressure_connected_request.json").read_text())["model"]
-    assert model["schema_version"] == "0.9.0"
-    assert envelope["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"].startswith("10455bf3")
-    assert c.PRESSURE_CONTRACT_SHA256 != envelope["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"]
-    assert c.verify_analysis_run_record(envelope) == "match"
-    c.validate_analysis_run_v0_3(envelope, source, expected_basis_refs=envelope["analysis_run"]["load_basis_refs"])
-    changed = json.loads(json.dumps(envelope))
-    changed["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"] = "0" * 64
-    with pytest.raises(ValueError, match="ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"):
-        c.validate_analysis_run_v0_3(changed, source, expected_basis_refs=changed["analysis_run"]["load_basis_refs"])
-    mixed = json.loads(json.dumps(envelope))
-    mixed["analysis_run"]["result_refs"][0]["semantic_contract"]["sha256"] = c.PRESSURE_CONTRACT_SHA256
-    with pytest.raises(ValueError, match="ANALYSIS_ROW_SOURCE_BINDING_MISMATCH"):
-        c.validate_analysis_run_v0_3(mixed, source, expected_basis_refs=mixed["analysis_run"]["load_basis_refs"])
-
-
-# the pressure-2 table restates its combination standing and the
-# combinations limitation (derived groups carry the combination certificate's stated bound and verdict; rows never count
-# towards numerical eligibility), rows and gates unchanged, so its digest moves (2c20583d… -> current). A pressure-2 run
-# recorded under main's table at 252bef969, main's record verbatim with its source and request
-# (fixtures/persistence/recorded_model_0_9_0_pre_cert, outside semantic_contract_tables.py repin's reach), keeps its
-# existing read; any other digest stays refused.
-_RECORDED_PRE_CERT = Path(__file__).resolve().parents[1] / "fixtures/persistence/recorded_model_0_9_0_pre_cert"
-
-
-def test_a_pressure_2_run_recorded_before_the_combination_certificate_reads_as_before():
-    from core.analysis_runs import compatibility as c
-    envelope = json.loads((_RECORDED_PRE_CERT / "pressure_plain_connected_sparse.analysis_run.json").read_text())
-    source = json.loads((_RECORDED_PRE_CERT / "pressure_connected_mechanics_sparse.json").read_text())
-    model = json.loads((_RECORDED_PRE_CERT / "exact_pressure_connected_request.json").read_text())["model"]
-    assert model["schema_version"] == "0.9.0"
-    assert envelope["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"].startswith("2c20583d")
-    assert c.PRESSURE_CONTRACT_SHA256 != envelope["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"]
-    assert c.verify_analysis_run_record(envelope) == "match"
-    c.validate_analysis_run_v0_3(envelope, source, expected_basis_refs=envelope["analysis_run"]["load_basis_refs"])
-    changed = json.loads(json.dumps(envelope))
-    changed["analysis_run"]["reproducibility"]["semantic_contract"]["sha256"] = "0" * 64
-    with pytest.raises(ValueError, match="ANALYSIS_SEMANTIC_CONTRACT_MISMATCH"):
-        c.validate_analysis_run_v0_3(changed, source, expected_basis_refs=changed["analysis_run"]["load_basis_refs"])
-    mixed = json.loads(json.dumps(envelope))
-    mixed["analysis_run"]["result_refs"][0]["semantic_contract"]["sha256"] = c.PRESSURE_CONTRACT_SHA256
-    with pytest.raises(ValueError, match="ANALYSIS_ROW_SOURCE_BINDING_MISMATCH"):
-        c.validate_analysis_run_v0_3(mixed, source, expected_basis_refs=mixed["analysis_run"]["load_basis_refs"])
+    assert c.RECORDED_RUN_TABLE_BASES == ()
+    assert c.recorded_run_semantic_binding(envelope["analysis_run"]["reproducibility"]["semantic_contract"],
+                                           c.PRESSURE_CONTRACT_ID, c.PRESSURE_CONTRACT_SHA256) == {
+        "id": c.PRESSURE_CONTRACT_ID, "sha256": c.PRESSURE_CONTRACT_SHA256}
+    with pytest.raises(ValueError, match="^SOURCE_PRESSURE_2_RETIRED: pressure-2 results predate the pressure elongation setting and are no longer read; re-solve the model$"):
+        c.validate_analysis_run_v0_3(envelope, source, expected_basis_refs=envelope["analysis_run"]["load_basis_refs"])

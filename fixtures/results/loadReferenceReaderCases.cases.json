@@ -341,7 +341,8 @@
        "remote_closure_excluded_from_pipe_solve": false,
        "remote_closure_support_reaction_global_n": null
       }
-     ]
+     ],
+     "pressure_elongation": "included"
     }
    }
   ],

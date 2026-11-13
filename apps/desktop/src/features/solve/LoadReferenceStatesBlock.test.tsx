@@ -87,7 +87,7 @@ describe("resolved-state block: ordinary pressure-2 with load/reference states",
       renderSolve(model, result, mode);
       const standing = numericalResultStanding(result, model);
       expect(standing).toMatchObject({ contract: "pressure", status: "integrity_checked", eligible: true });
-      expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("Route: ordinary pressure-2");
+      expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("Route: ordinary pressure-3");
       expect(screen.getByTestId("load-reference-states-standing")).toHaveTextContent("Result standing: integrity_checked");
       for (const record of records(result)) {
         expect(screen.getByTestId(`load-reference-state-standing-${record.load_case_id}`)).toHaveTextContent(`Numerical standing: ${INTEGRITY_CHECKED} (published solve quality: checks_passed).`);
@@ -107,7 +107,7 @@ describe("resolved-state block: ordinary pressure-2 with load/reference states",
     const standing = numericalResultStanding(result, model);
     expect(standing.status).toBe("needs_recompute");
     expect(standing.findings).toContain("NUMERICAL_INTEGRITY_NOT_QUALIFIED");
-    expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("Route: ordinary pressure-2");
+    expect(screen.getByTestId("load-reference-states-route")).toHaveTextContent("Route: ordinary pressure-3");
     expect(screen.getByTestId("load-reference-states-standing")).toHaveTextContent("NUMERICAL_INTEGRITY_NOT_QUALIFIED");
     for (const record of records(result))
       expect(screen.getByTestId(`load-reference-state-standing-${record.load_case_id}`)).toHaveTextContent(`Numerical standing: ${NEEDS_RECOMPUTE_NOT_CURRENT}`);

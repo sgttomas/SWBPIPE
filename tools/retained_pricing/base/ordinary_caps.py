@@ -172,6 +172,14 @@ add("T_resident (T03 typed request, typed capacity caps)", "T_resident",
      + Xc("PreviewPipe", m) + Xc("PreviewSupport", g) + Xc("String", r) + Xc("PreviewLoadCase", CC)
      + Xc("PrimitiveLoadInput", LL) + Xc("Authored<Vec<ExpansionLawInput>>", 4)
      + B(strings * ID) + RAW) if which == "caps" else X())
+# RT-L2 (rtl2_owners_model): the pressure-elongation list's typed residence at the raw census's bound (RTL2-TS) and the
+# formulation statement's named cases (RTL2-FS, resident as an over-bound); validation's refusal working set (RTL2-VS).
+import rtl2_owners_model as _rtl2_model
+_rtl2 = _rtl2_model.inspect(_snapshot) if _snapshot else None
+if _rtl2 and which == "caps":
+    add("Pressure-elongation list and formulation statement (RTL2-TS, RTL2-FS)", "T_resident",
+        _rtl2_model.typed_list(_rtl2) + _rtl2_model.formulation_statement())
+    add("Pressure-elongation refusal working set (RTL2-VS)", "BuildScratch", _rtl2_model.validation_working_set(_rtl2, CC))
 
 # ---------------- R_raw: the captured raw request (T02; CapturedInvocation.raw + digest) -------
 add("R_raw captured request (T02 at the caps)", "R_raw", RAW if which == "caps" else

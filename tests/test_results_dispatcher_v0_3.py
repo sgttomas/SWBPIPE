@@ -24,7 +24,7 @@ SCHEMAS = ROOT / "schemas"
 RESULTS = ROOT / "fixtures/results"
 VERSION_FILE = "results.v0.3.schema.yaml"
 PREVIEW_ID = "openpipestress.result_semantics/0.3.0/preview-physics-2"
-PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-2"
+PRESSURE_ID = "openpipestress.result_semantics/0.3.0/pressure-3"
 # B7b: the retired exact v2 identities have no branch in the version file.
 RETIRED_V2_IDS = tuple(f"openpipestress.result_semantics/0.3.0/{name}" for name in ("physics-1", "physics-source-1", "load-reference-1", "load-reference-source-1"))
 RETIRED_PRECISION_ID = "openpipestress.result_semantics/0.3.0/precision-1"

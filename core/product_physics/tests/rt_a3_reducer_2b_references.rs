@@ -167,7 +167,7 @@ fn document(references: &Value, case: &Value, offset: Option<[f64; 3]>) -> Value
         "modifiers": {"stiffness_scaling_user_value": quantity(ratio(&body["stiffness_scale"]), "1"), "source_reference": "invented RT-A3 reducer 2b scale"},
         "mechanics_interface": {"solver_consumption": "mechanics_geometry_only"}, "provenance": PROVENANCE});
     let material = &model["material_invented_control"];
-    json!({"model": {"schema_version": MODEL_SCHEMA_VERSION, "document_kind": "openpipestress.product_preview.model",
+    let mut document = json!({"model": {"schema_version": MODEL_SCHEMA_VERSION, "document_kind": "openpipestress.product_preview.model",
         "pressure_contract": {"version": "3.0.0", "mode": "exact_pressure_v3", "shear_model": inputs["shear_model"]},
         "project": {"id": "project:rt-a3-reducer-2b", "units": {"length": "m", "force": "N", "angle": "rad", "pressure": "Pa", "stress": "Pa", "temperature": "degC"}},
         "analysis_status": {"mechanics": "ready_for_preview_diagnostics", "rule_check": "not_performed_user_rule_inputs_missing", "professional_acceptance": "not_provided"},
@@ -177,7 +177,12 @@ fn document(references: &Value, case: &Value, offset: Option<[f64; 3]>) -> Value
         "supports": supports, "components": [reducer],
         "load_cases": [{"id": CASE, "primitive_loads": loads, "pressure_regions": regions, "provenance": PROVENANCE}],
         "combinations": []},
-        "materials": []})
+        "materials": []});
+    // RT-L2: the references are today's mechanics, pressure elongation included.
+    if pressurized(case) {
+        document["model"]["model_settings"] = json!({"pressure_elongation": {"operating_load_cases": [CASE]}});
+    }
+    document
 }
 
 fn solve(document: &Value, mode: PreviewSolverMode) -> Value {
@@ -527,6 +532,8 @@ fn preview(document: &Value) -> Value {
     let mut document = document.clone();
     let model = document["model"].as_object_mut().unwrap();
     model.remove("pressure_contract");
+    // RT-L2: pressure elongation has no meaning without a pressure contract.
+    model.remove("model_settings");
     model["materials"] = json!([{"id": "material:rt-a3-2b", "elastic_modulus": quantity(2.0e11, "Pa"), "shear_modulus": quantity(2.0e11 / 2.6, "Pa"),
         "thermal_expansion_coefficient": quantity(1.2e-5, "1/degC"), "provenance": PROVENANCE}]);
     for pipe in model["pipe_segments"].as_array_mut().unwrap() {
@@ -895,4 +902,26 @@ fn a_folded_back_neighbour_is_refused_by_the_pass_through_sense() {
             assert_reducer_refused(&solve(&document, mode), &label);
         }
     }
+}
+
+#[path = "common/pressure_elongation.rs"]
+mod pressure_elongation;
+
+/// RT-L2 (DEL-04-07): with pressure elongation not
+/// included, each pressurised eccentric (or slanted) step is the unbalanced-thrust
+/// model: closed terminals carry no pressure load, an omitted cap its member's
+/// p·A_i, and every member's N_w exceeds the p = 0 value by its own p·A_i.
+#[test]
+fn not_included_eccentric_steps_carry_only_the_unbalanced_thrust() {
+    let references = references();
+    let mut checked = 0;
+    for case in references["cases"].as_array().unwrap().iter().filter(|c| pressurized(c)) {
+        let document = pressure_elongation::without_elongation(&document(&references, case, Some(rs_offset(case))));
+        for mode in MODES {
+            let off = pressure_elongation::assert_off_is_the_unbalanced_thrust(&document, mode, &format!("{} {mode:?}", case["label"]));
+            pressure_elongation::assert_case_token(&off, CASE, "not_included");
+        }
+        checked += 1;
+    }
+    assert!(checked > 0);
 }

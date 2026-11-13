@@ -60,7 +60,7 @@ describe("the route-010 cell (§2.2, §11)", () => {
   it("admits the three identities native route 010 admits", async () => {
     expect([...USER_RELEASED_ADMITTED_CONTRACT_IDS]).toEqual([
       "openpipestress.result_semantics/0.3.0/preview-physics-2",
-      "openpipestress.result_semantics/0.3.0/pressure-2",
+      "openpipestress.result_semantics/0.3.0/pressure-3",
       "openpipestress.result_semantics/0.3.0/pressure-source-1"
     ]);
     const { result } = await pressureFreeSession();
@@ -80,7 +80,7 @@ describe("the route-010 cell (§2.2, §11)", () => {
     timoshenko.producer!.semantic_contract_id = PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID;
     expect(reportPackageUnavailableReason(timoshenko)).toBeNull();
     expect(userReleasedReportPackageUnavailableReason(timoshenko)).toBe(
-      `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and eligible exact pressure route (pressure-2, pressure-source-1) results; this result is ${PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID}. It can be saved in a local private package.`
+      `${REPORT_PACKAGE_ROUTE_NOT_ADMITTED}: a shareable report package carries pressure-free (preview-physics-2) results and eligible exact pressure route (pressure-3, pressure-source-1) results; this result is ${PREVIEW_PHYSICS_TIMOSHENKO_CONTRACT_ID}. It can be saved in a local private package.`
     );
   });
 

@@ -49,9 +49,11 @@ endpoint: 252bef969 (its merge to main, #108).
 test_rt_a3_combination_certificate_envelope_diff compares the §4 stage from P's
 final candidate 78580da7e.
 """
+from contextlib import contextmanager
 from functools import cache
 from pathlib import Path
 import json
+import re
 import subprocess
 
 import pytest
@@ -408,6 +410,18 @@ def _refusal_digest(summary):
     return canonical_sha256({"ok": False, "error": {"gate": gate, "code": code, "detail": detail if _ else None}})
 
 
+@contextmanager
+def _definition_at(rev):
+    """Rematerialize a revision's entries under that revision's DEF-E hash, never a later definition's."""
+    from tests.verifiers import retained_precision as rp
+    found = re.search(r'^EXACT_DEFINITION_HASH = "([0-9a-f]{64})"$', _at(rev, "tests/verifiers/retained_precision.py"), re.M)
+    saved, rp.EXACT_DEFINITION_HASH = rp.EXACT_DEFINITION_HASH, found.group(1)
+    try:
+        yield
+    finally:
+        rp.EXACT_DEFINITION_HASH = saved
+
+
 def check_reader_outcomes(before, after):
     """The native reader outcomes, compared and derived (no hash-only allowance).
 
@@ -431,7 +445,8 @@ def check_reader_outcomes(before, after):
         inputs = _reader_inputs(rev)
         for key, (_, digest, readings) in entries.items():
             if key in inputs and b[key][1] != a[key][1]:
-                assert canonical_sha256(inputs[key]()) == digest, (rev, key)
+                with _definition_at(rev or END):
+                    assert canonical_sha256(inputs[key]()) == digest, (rev, key)
                 derived += 1
             for reading, (outcome, summary) in readings.items():
                 if not summary.startswith("pass"):

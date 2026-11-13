@@ -52,7 +52,7 @@ PINS = {
         # their in-build size (the field's bytes reach the profile through the in-build atoms). Staging and
         # prepared-pressure calls unchanged.
         # RT-A3 S6 D3 (§8.59): the case consumer's carriers, children and staging are unchanged (see PRESSURE_PREFIX_PIN).
-        "solve_prepared_load_case": "c6d77195d0533f25745736b634a4e05a786211d103d19376c47b2587f4515dd7",
+        "solve_prepared_load_case": "d36ba54f458bfe92046552b20a3647c6be9c36be1b0e31328ff6730ad2154cf1",
         "append_curved_bend_macro_element_results": "9e9b5010a84aa73268d72fabcf99c5cb2012f6f35ef5a15adb41bb30bf045a4e",
     },
     # B7b: branch E is 0.5.0 with {3.0.0, exact_pressure_v3, euler_bernoulli}; the
@@ -73,7 +73,9 @@ PINS = {
     # component, region and load-state refusals are unchanged.
     "core/product_physics/src/retained_memory.rs": {
         "namespace_branch": "b1f8f02df1f10552a69c357ebc329fa801243addc94d595403ab9313f79cf805",
-        "family_clauses": "4deeb3d3495fe1a4fcc25131edfa513ff8df55215d113162d4f81cf275de01bd",
+        # RT-L2 final source: family_clauses adds D1.4's elongation clause (rtl2_owners_model RTL2-K): it reads two
+        # lengths and only narrows admission. No carrier, child or staging changes.
+        "family_clauses": "7ec83a2c4632a2cd6b8194cd24dab11be8d05b7c5a7976a40216eb489f1fbe98",
     },
 }
 # B7b: the production prefix deletes v2's declaration, refusal and negative-pressure
@@ -125,9 +127,68 @@ PINS = {
 # Admitted; D1.6 refuses every nonlinear support, so no new verdict is reached on D1. Diagnostics only; no carrier, child
 # or staging changes. solve_prepared_load_case (PINS, KD5T2) also changes only behind a load state or a nonlinear
 # support, beside S6-ME's argument (w16_owners_model).
-PRESSURE_PREFIX_PIN = "98cfd97b4bb2914eb02c42b35976c8792c013a95f716fe700000479f4fb88617"
+# RT-L2 D3: the prefix adds the per-state elongation flag and token, the kappa choice and the arc strain choice inside
+# the per-region member body and closure_source (region path only), the per-case flag read, and finish_source_groups'
+# cancellation exception (eligibility, family, record and warning). Every group, region and terminal it reads is empty
+# on D1 (D1.5; RTL2-XZ), so no carrier, child or staging changes. solve_prepared_load_case passes the flag to the wall
+# recovery (one argument).
+# RT-L2 final source: finish_source_groups' group loop borrows the groups and drops them after the screen, and the
+# exception is one call (`cancellation_exception`) inside the failed-screen branch; both read only D1's empty groups
+# (RTL2-XZ), so no carrier, child or staging changes. The pin's text changes with it (B5-PR): the text before the first
+# `#[cfg(test)]` would now end at the exception's test probe inside finish_source_groups (line 1652; the test module at
+# line 2386 before), leaving the production after it unpinned here, so the current pin binds the whole production text,
+# each `#[cfg(test)]` item removed as o10_rules' `_production` removes it (newlines kept). The legacy branch keeps the
+# truncated prefix it was registered with.
+# RT-L2 third scrutiny (c1f4db7c8): the exception's chains, its chain-based predicate and family, the record's force
+# member and the warning's formatted message, all inside cancellation_exception or with its record (RTL2-XZ). No
+# carrier, child or staging changes.
+# RT-L2 fourth scrutiny (6b046927e): comments only (two more lines of the warning message's doc). No carrier, child or
+# staging changes.
+PRESSURE_PREFIX_PIN = "08c637f70136916e75384d77178cdffcfcb9856fd08e8b3176e81c41ecc75229"
 LEGACY_PRESSURE_PREFIX_PIN = "d335b7c22bee4bf5832a4e2b9f82f63a77930aa2bbcedeab15369e62c205b017"
 LEGACY_CASE_PIN = "273d31e03921bad5b4d28852b54b17ba7e70acd85d590b4213a3d5d8141aa00c"
+
+
+def production(text, rel):
+    """B5-PR: `text` without its `#[cfg(test)]` items, as o10_rules' `_production`: each exact `#[cfg(test)]` in code
+    (literals and comments masked by base/rust_literals.py) removes its item through any further attributes, to the
+    first code `;` outside brackets or the `}` closing the item's first code `{`. Newlines are kept."""
+    if "#[cfg(test)]" not in text:
+        return text
+    lexer = runpy.run_path(os.path.join(os.path.dirname(__file__), "rust_literals.py"))
+    toks, comments = lexer["scan"](text, rel)
+    mask = lexer["_masks"](text, toks, comments)
+    out, at = [], 0
+    for m in re.finditer(r"#\[cfg\(test\)\]", text):
+        if m.start() < at or mask[m.start()]:
+            continue
+        i, nest, opened = m.end(), 0, False
+        while i < len(text):
+            ch = text[i]
+            if not mask[i]:
+                if ch in "([":
+                    nest += 1
+                elif ch in ")]":
+                    nest -= 1
+                elif ch == "{":
+                    nest += 1
+                    opened = True
+                elif ch == "}":
+                    nest -= 1
+                    if opened and nest == 0:
+                        i += 1
+                        break
+                elif ch == ";" and nest == 0 and not opened:
+                    i += 1
+                    break
+            i += 1
+        else:
+            raise ValueError(f"B5-PR: {rel}: unterminated #[cfg(test)] item at offset {m.start()}")
+        out.append(text[at:m.start()])
+        out.append("\n" * text.count("\n", m.start(), i))
+        at = i
+    out.append(text[at:])
+    return "".join(out)
 
 
 def active(snapshot):
@@ -140,6 +201,7 @@ def active(snapshot):
         if pressure_digest != LEGACY_PRESSURE_PREFIX_PIN or case_digest != LEGACY_CASE_PIN:
             raise ValueError("B5O1: prepared helper absent but producer/consumer is not the reviewed registered source; refusing historical pricing")
         return False
+    pressure_digest = hashlib.sha256(production(pressure, "core/product_physics/src/pressure_runtime.rs").encode()).hexdigest()
     if pressure_digest != PRESSURE_PREFIX_PIN:
         raise ValueError("B5O1: pressure producer/declaration source changed; re-review every owner, child and staging bound")
     # RT-S3 CE fallback (§8.61, CEF-PJ): solve_prepared_load_case is compared without the exact reviewed branch. It adds

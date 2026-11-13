@@ -35,7 +35,7 @@ use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 
 /// The current exact identities carry the group (B7b); one profile for both.
-const LR_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-2";
+const LR_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-3";
 const LR_PROFILE: &str = "exact_pressure_v3";
 const LRS_ID: &str = "openpipestress.result_semantics/0.3.0/pressure-source-1";
 const LRS_PROFILE: &str = "exact_pressure_v3";

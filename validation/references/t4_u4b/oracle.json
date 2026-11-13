@@ -33256,9 +33256,9 @@
  "cross_checks": {
   "u4a": {
    "requests_file": "../t4_u4a/requests.json",
-   "requests_sha256": "6582d2504640628a5fb6ca5dd9c937594c7a4ca532869d99fa80f3c72447a9c8",
+   "requests_sha256": "291554718edb2df79090b8f19c4c1041c4eb2ba1901be5dfb0edc00c0ec8ea12",
    "oracle_file": "../t4_u4a/oracle.json",
-   "oracle_sha256": "7e4e384501076d9796b1e789388cc3aa1da3d5c135d668f88a838295341f7cd5",
+   "oracle_sha256": "2e58202021dc03726bc53632ece44965aeee249422d2882a92116f9ee873e602",
    "selection": "every case whose only support is one full anchor (statically determinate free tip)",
    "compared": "the five j-side tangent-frame cuts (N or N_w and S, V_y, V_z, T, M_y, M_z) and the per-basis stress components (axial or wall membrane, bending y and z, torsion) at every station of every member, recomputed with this generator's statics and D-5 sections",
    "values_compared": 1950,
